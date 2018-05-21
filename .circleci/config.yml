@@ -1,0 +1,61 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:7.10
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run: sudo npm install -g esy@0.5.6
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v2-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v2-dependencies-
+
+      # build
+      - run: esy
+
+      # run tests!
+      # - run: esy dune exec Bin -- --help
+      - run: esy exec-command --include-build-env cp _build/install/default/bin/ExamplesTests ExamplesTests.exe
+      - run: esy exec-command --include-build-env cp _build/install/default/bin/Bin bin.exe
+      - run: ./ExamplesTests.exe
+
+      - save_cache:
+          paths:
+            - node_modules
+            - ~/.esy
+            - examples/bs-3.1.5/node_modules/
+            - examples/example-project/node_modules/
+            - examples/example-es6-imports/node_modules/
+            - examples/example-react/node_modules/
+            - examples/example-esy-dune-project/node_modules/
+            - examples/name_with_underscore/node_modules/
+          key: v2-dependencies-{{ checksum "package.json" }}
+
+      - store_artifacts:
+          path: ./bin.exe
+          destination: bin.native.linux
+
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    working_directory: ~/repo
+    steps:
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            FILE=./_esy/default/build/default/bin/Bin.exe
+            VERSION=$(my-binary --version)
+            curl -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: $(file -b --mime-type $FILE)" --data-binary @$FILE "https://uploads.github.com/repos/jaredly/reason-language-server/releases/${CIRCLE_TAG}/assets?name=bin.linux.exe"
