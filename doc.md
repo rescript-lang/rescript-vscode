@@ -1,8 +1,6 @@
 # Bla
 
-## Develop
-
-### Functionality
+## Functionality
 
 This Language Server works for plain text file. It has the following language features:
 - Completions
@@ -11,6 +9,8 @@ This Language Server works for plain text file. It has the following language fe
 This is for testing purposes. More importantly, it works on `.res` files:
 - Formatting
 - Diagnosis (currently off)
+
+## Develop
 
 ### Structure
 
