@@ -10,6 +10,11 @@ This is for testing purposes. More importantly, it works on `.res` files:
 - Formatting
 - Diagnosis (currently off)
 
+## Install
+
+Download the `vsix` from https://github.com/chenglou/test1/releases/
+Disable RLS. Click and install the downloaded package.
+
 ## Develop
 
 ### Structure
