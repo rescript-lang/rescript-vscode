@@ -5,15 +5,12 @@ import * as t from "vscode-languageserver-types";
 import * as j from "vscode-jsonrpc";
 import * as m from "vscode-jsonrpc/lib/messages";
 import * as v from "vscode-languageserver";
-import { attachPartialResult } from 'vscode-languageserver/lib/progress';
 import * as path from 'path';
-import fs, { open } from 'fs';
+import fs from 'fs';
 import * as childProcess from 'child_process';
 import { DidOpenTextDocumentNotification, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification } from 'vscode-languageserver-protocol';
 import * as tmp from 'tmp';
-import { type } from 'os';
 import { Range } from 'vscode-languageserver-textdocument';
-import { strict } from 'assert';
 
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
@@ -190,16 +187,10 @@ let startWatchingBsbOutputFile = (root: p.DocumentUri, process: NodeJS.Process) 
 				let content = fs.readFileSync(bsbLogPath, { encoding: 'utf-8' });
 				let filesAndErrors = parseBsbLogOutput(content)
 				Object.keys(filesAndErrors).forEach(file => {
+					// assumption: there's no existing files[file] entry
+					// this is true; see the lines above. A file can only belong to one bsb.log root
 					files[file] = filesAndErrors[file]
 				})
-				// content.split('\n').forEach(line => {
-				// 	let [file, diagnosis] = line.split(': ');
-
-				// 	if (files[file] == null) {
-				// 		files[file] = []
-				// 	}
-				// 	files[file].push(diagnosis)
-				// })
 			});
 
 		Object.keys(files).forEach(file => {
