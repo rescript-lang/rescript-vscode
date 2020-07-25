@@ -27,7 +27,7 @@ let shutdownRequestAlreadyReceived = false;
 let stupidFileContentCache: { [key: string]: string } = {
 }
 
-let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri) => {
+let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri): null | p.DocumentUri => {
 	let dir = path.dirname(source)
 	if (fs.existsSync(path.join(dir, fileToFind))) {
 		return dir
@@ -36,7 +36,7 @@ let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri) =
 			// reached top
 			return null
 		} else {
-			findDirOfFileNearFile(fileToFind, dir)
+			return findDirOfFileNearFile(fileToFind, dir)
 		}
 	}
 }
@@ -70,9 +70,10 @@ let formatUsingValidBscPath = (code: string, bscPath: p.DocumentUri, isInterface
 	}
 }
 
-// let startWatchingBsbOutputFile = () => {
-// 	fs.watch()
-// }
+let startWatchingBsbOutputFile = (root: p.DocumentUri) => {
+	console.log(root)
+	// fs.watch()
+}
 // let stopWatchingBsbOutputFile = () => {
 // 	fs.unwatchFile()
 // }
@@ -83,6 +84,8 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 		let aa = (a as m.NotificationMessage)
 		if (!initialized && aa.method !== 'exit') {
 			// From spec: "Notifications should be dropped, except for the exit notification. This will allow the exit of a server without an initialize request"
+			// For us: do nothing. We don't have anything we need to clean up right now
+			// TODO: think of fs watcher
 		} else if (aa.method === 'exit') {
 			// The server should exit with success code 0 if the shutdown request has been received before; otherwise with error code 1
 			if (shutdownRequestAlreadyReceived) {
@@ -120,8 +123,15 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 			};
 			(<any>process).send(response);
 		} else if (aa.method === 'initialize') {
+			let param: p.InitializeParams = aa.params
+			let root = param.rootUri
+			if (root == null) {
+				// TODO: handle single file
+				console.log("not handling single file")
+			} else {
+				startWatchingBsbOutputFile(root)
+			}
 			// send the list of things we support
-			// let param: p.InitializeParams = aa.params
 			let result: p.InitializeResult = {
 				capabilities: {
 					// TODO: incremental sync
@@ -137,6 +147,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 			initialized = true;
 			(<any>process).send(response);
 		} else if (aa.method === 'initialized') {
+			console.log('inited')
 			// sent from client after initialize. Nothing to do for now
 			let response: m.ResponseMessage = {
 				jsonrpc: jsonrpcVersion,
@@ -167,6 +178,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 			}
 		} else if (aa.method === p.DocumentFormattingRequest.method) {
 			let params = (aa.params as p.DocumentFormattingParams)
+			// TODO: remove this hack
 			let filePath = params.textDocument.uri.replace('file:', '')
 			let extension = path.extname(params.textDocument.uri);
 			if (extension !== '.res' && extension !== '.resi') {
