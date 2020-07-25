@@ -20,12 +20,14 @@ let bscPartialPath = path.join('node_modules', '.bin', 'bsc')
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
 let initialized = false;
+// https://microsoft.github.io/language-server-protocol/specification#exit
+let shutdownRequestAlreadyReceived = false;
 
 // congrats. A simple UI problem is now a distributed system problem
 let stupidFileContentCache: { [key: string]: string } = {
 }
 
-let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri,) => {
+let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri) => {
 	let dir = path.dirname(source)
 	if (fs.existsSync(path.join(dir, fileToFind))) {
 		return dir
@@ -68,13 +70,26 @@ let formatUsingValidBscPath = (code: string, bscPath: p.DocumentUri, isInterface
 	}
 }
 
+// let startWatchingBsbOutputFile = () => {
+// 	fs.watch()
+// }
+// let stopWatchingBsbOutputFile = () => {
+// 	fs.unwatchFile()
+// }
+
 process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 	if ((a as m.RequestMessage).id == null) {
+		// this is a notification message, aka client sent and forgot
 		let aa = (a as m.NotificationMessage)
 		if (!initialized && aa.method !== 'exit') {
 			// From spec: "Notifications should be dropped, except for the exit notification. This will allow the exit of a server without an initialize request"
 		} else if (aa.method === 'exit') {
-			// nothing to do for now
+			// The server should exit with success code 0 if the shutdown request has been received before; otherwise with error code 1
+			if (shutdownRequestAlreadyReceived) {
+				process.exit(0)
+			} else {
+				process.exit(1)
+			}
 		} else if (aa.method === DidOpenTextDocumentNotification.method) {
 			let params = (aa.params as p.DidOpenTextDocumentParams);
 			stupidFileContentCache[params.textDocument.uri] = params.textDocument.text;
@@ -92,6 +107,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 			delete stupidFileContentCache[params.textDocument.uri];
 		}
 	} else {
+		// this is a request message, aka client sent request, waits for our reply
 		let aa = (a as m.RequestMessage)
 		if (!initialized && aa.method !== 'initialize') {
 			let response: m.ResponseMessage = {
@@ -128,6 +144,27 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 				result: null,
 			};
 			(<any>process).send(response);
+		} else if (aa.method === 'shutdown') {
+			// https://microsoft.github.io/language-server-protocol/specification#shutdown
+			if (shutdownRequestAlreadyReceived) {
+				let response: m.ResponseMessage = {
+					jsonrpc: jsonrpcVersion,
+					id: aa.id,
+					error: {
+						code: m.ErrorCodes.InvalidRequest,
+						message: `Language server already received the shutdown request`
+					}
+				};
+				(<any>process).send(response);
+			} else {
+				shutdownRequestAlreadyReceived = true
+				let response: m.ResponseMessage = {
+					jsonrpc: jsonrpcVersion,
+					id: aa.id,
+					result: null,
+				};
+				(<any>process).send(response);
+			}
 		} else if (aa.method === p.DocumentFormattingRequest.method) {
 			let params = (aa.params as p.DocumentFormattingParams)
 			let filePath = params.textDocument.uri.replace('file:', '')

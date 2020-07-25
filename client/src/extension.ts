@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as path from 'path';
-import { workspace, ExtensionContext, tasks, Task, ShellExecution } from 'vscode';
+import { workspace, ExtensionContext, tasks, Task, TaskScope, ShellExecution } from 'vscode';
 
 import {
 	LanguageClient,
@@ -16,40 +16,50 @@ import {
 
 let client: LanguageClient;
 
-// let taskProvider = tasks.registerTaskProvider('bsb', {
+// let taskProvider = tasks.registerTaskProvider('Run BuckleScript build', {
 // 	provideTasks: () => {
 // 		// if (!rakePromise) {
 // 		// 	rakePromise = getRakeTasks();
 // 		// }
 // 		// return rakePromise;
+
+// 		// taskDefinition: TaskDefinition,
+// 		// scope: WorkspaceFolder | TaskScope.Global | TaskScope.Workspace,
+// 		// name: string,
+// 		// source: string,
+// 		// execution ?: ProcessExecution | ShellExecution | CustomExecution,
+// 		// problemMatchers ?: string | string[]
 // 		return [
 // 			new Task(
 // 				{
-// 					type: 'asd',
-// 					task: 'asd2',
+// 					type: 'bsb',
 // 				},
-// 				definition.task,
-// 				'bsb run',
+// 				TaskScope.Workspace,
+// 				// definition.task,
+// 				'build and watch',
+// 				'bsb',
 // 				new ShellExecution(
-// 					`bsb run this`
+// 					// `./node_modules/.bin/bsb -make-world -w`
+// 					`pwd`
 // 				),
+// 				"Hello"
 // 			)
 // 		]
 // 	},
 // 	resolveTask(_task: Task): Task | undefined {
-// 		const task = _task.definition.task;
-// 		// A Rake task consists of a task and an optional file as specified in RakeTaskDefinition
-// 		// Make sure that this looks like a Rake task by checking that there is a task.
-// 		if (task) {
-// 			// resolveTask requires that the same definition object be used.
-// 			const definition: RakeTaskDefinition = <any>_task.definition;
-// 			return new Task(
-// 				definition,
-// 				definition.task,
-// 				'rake',
-// 				new vscode.ShellExecution(`rake ${definition.task}`)
-// 			);
-// 		}
+// 		// const task = _task.definition.task;
+// 		// // A Rake task consists of a task and an optional file as specified in RakeTaskDefinition
+// 		// // Make sure that this looks like a Rake task by checking that there is a task.
+// 		// if (task) {
+// 		// 	// resolveTask requires that the same definition object be used.
+// 		// 	const definition: RakeTaskDefinition = <any>_task.definition;
+// 		// 	return new Task(
+// 		// 		definition,
+// 		// 		definition.task,
+// 		// 		'rake',
+// 		// 		new vscode.ShellExecution(`rake ${definition.task}`)
+// 		// 	);
+// 		// }
 // 		return undefined;
 // 	}
 // });

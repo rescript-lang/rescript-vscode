@@ -22,6 +22,20 @@
 	],
 	"main": "./client/out/extension",
 	"contributes": {
+		"taskDefinitions_unused": [
+			{
+				"type": "bsb",
+				"required": [
+					"task"
+				],
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "The bsb task"
+					}
+				}
+			}
+		],
 		"configuration": {
 			"type": "object",
 			"title": "Example configuration",
