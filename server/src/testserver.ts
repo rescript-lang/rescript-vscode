@@ -77,20 +77,24 @@ let formatUsingValidBscPath = (code: string, bscPath: p.DocumentUri, isInterface
 let parseBsbOutputLocation = (location: string): Range => {
 	// example bsb output location:
 	// 3:9
+	// 3:5-8
 	// 3:9-6:1
+
 	// language-server position is 0-based. Ours is 1-based. Don't forget to convert
-	let isMultiline = location.indexOf('-') >= 0
-	if (isMultiline) {
+	// also, our end character is inclusive. Language-server's is exclusive
+	let isRange = location.indexOf('-') >= 0
+	if (isRange) {
 		let [from, to] = location.split('-')
 		let [fromLine, fromChar] = from.split(':')
-		let [toLine, toChar] = to.split(':')
+		let isSingleLine = to.indexOf(':') >= 0
+		let [toLine, toChar] = isSingleLine ? to.split(':') : [fromLine, to]
 		return {
-			start: { line: parseInt(fromLine) - 1, character: parseInt(fromChar) },
+			start: { line: parseInt(fromLine) - 1, character: parseInt(fromChar) - 1 },
 			end: { line: parseInt(toLine) - 1, character: parseInt(toChar) },
 		}
 	} else {
 		let [line, char] = location.split(':')
-		let start = { line: parseInt(line) - 1, character: parseInt(char) - 1 }
+		let start = { line: parseInt(line) - 1, character: parseInt(char) }
 		return {
 			start: start,
 			end: start,
@@ -106,6 +110,18 @@ Cleaning... 87 files.
 [1/5] [34mBuilding[39m [2msrc/TestFramework.reiast[22m
 [2/5] [34mBuilding[39m [2msrc/TestFramework.reast[22m
 FAILED: src/test.cmj src/test.cmi
+
+  Warning number 8
+  /Users/chenglou/github/reason-react/src/test.res 3:5-8
+
+  1 │ let a = j`😀`
+  2 │ let b = `😀`
+  3 │ let None = None
+  4 │ let bla: int = "
+  5 │   hi
+
+  You forgot to handle a possible case here, for example:
+  Some _
 
   We've found a bug for you!
   /Users/chenglou/github/reason-react/src/test.res 3:9
@@ -129,6 +145,8 @@ FAILED: src/test.cmj src/test.cmi
 	let lines = content.split('\n');
 	lines.forEach(line => {
 		if (line.startsWith('  We\'ve found a bug for you!')) {
+			res.push([])
+		} else if (line.startsWith('  Warning number ')) {
 			res.push([])
 		} else if (/^  [0-9]+ /.test(line)) {
 			// code display. Swallow
