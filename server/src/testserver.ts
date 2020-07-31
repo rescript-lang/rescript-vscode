@@ -109,6 +109,20 @@ Cleaning... 6 files.
 Cleaning... 87 files.
 [1/5] [34mBuilding[39m [2msrc/TestFramework.reiast[22m
 [2/5] [34mBuilding[39m [2msrc/TestFramework.reast[22m
+[3/5] Building src/test.resast
+FAILED: src/test.resast
+/Users/chenglou/github/bucklescript/darwin/bsc.exe   -bs-jsx 3 -bs-no-version-header -o src/test.resast -bs-syntax-only -bs-binary-ast /Users/chenglou/github/reason-react/src/test.res
+
+  Syntax error!
+  /Users/chenglou/github/reason-react/src/test.res 1:8-2:3
+
+  1 │ let a =
+  2 │ let b =
+  3 │
+
+  This let-binding misses an expression
+
+[8/29] Building src/legacy/ReactDOMServerRe.reast
 FAILED: src/test.cmj src/test.cmi
 
   Warning number 8
@@ -143,17 +157,20 @@ FAILED: src/test.cmj src/test.cmi
 	// we're gonna chop that
 	let res: string[][] = [];
 	let lines = content.split('\n');
-	lines.forEach(line => {
+	for (let i = 0; i < lines.length; i++) {
+		let line = lines[i];
 		if (line.startsWith('  We\'ve found a bug for you!')) {
 			res.push([])
 		} else if (line.startsWith('  Warning number ')) {
+			res.push([])
+		} else if (line.startsWith('  Syntax error!')) {
 			res.push([])
 		} else if (/^  [0-9]+ /.test(line)) {
 			// code display. Swallow
 		} else if (line.startsWith('  ')) {
 			res[res.length - 1].push(line)
 		}
-	})
+	}
 
 	// map of file path to list of diagnosis
 	let ret: { [key: string]: diagnosis[] } = {}
