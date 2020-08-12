@@ -15,7 +15,7 @@ import { Range } from 'vscode-languageserver-textdocument';
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
 let jsonrpcVersion = '2.0';
-let bscPartialPath = path.join('node_modules', '.bin', 'bsc');
+let bscPartialPath = path.join('node_modules', 'bs-platform', process.platform, 'bsc.exe');
 let bsbLogPartialPath = 'bsb.log';
 let resExt = '.res';
 let resiExt = '.resi';
@@ -53,15 +53,13 @@ type formattingResult = {
 	error: string,
 };
 let formatUsingValidBscPath = (code: string, bscPath: p.DocumentUri, isInterface: boolean): formattingResult => {
-	// TODO: what if there's space in the path?
-	let result;
 	// library cleans up after itself. No need to manually remove temp file
 	let tmpobj = tmp.fileSync();
 	let extension = isInterface ? resiExt : resExt;
 	let fileToFormat = tmpobj.name + extension;
 	fs.writeFileSync(fileToFormat, code, { encoding: 'utf-8' });
 	try {
-		result = childProcess.execSync(`${bscPath} -fmt ${fileToFormat}`)
+		let result = childProcess.execFileSync(bscPath, ['-color', 'never', '-format', fileToFormat], { stdio: 'pipe' })
 		return {
 			kind: 'success',
 			result: result.toString(),
@@ -101,7 +99,7 @@ let parseBsbOutputLocation = (location: string): Range => {
 		}
 	}
 }
-type diagnosis = { range: Range, diagnosis: string }
+
 let parseBsbLogOutput = (content: string) => {
 	/* example bsb.log file content:
 
@@ -173,7 +171,7 @@ FAILED: src/test.cmj src/test.cmi
 	}
 
 	// map of file path to list of diagnosis
-	let ret: { [key: string]: diagnosis[] } = {}
+	let ret: { [key: string]: t.Diagnostic[] } = {}
 	res.forEach(diagnosisLines => {
 		let [fileAndLocation, ...diagnosisMessage] = diagnosisLines
 		let lastSpace = fileAndLocation.lastIndexOf(' ')
@@ -192,7 +190,7 @@ FAILED: src/test.cmj src/test.cmi
 			.trim();
 		ret[file].push({
 			range: parseBsbOutputLocation(location),
-			diagnosis: cleanedUpDiagnosis,
+			message: cleanedUpDiagnosis,
 		})
 	})
 
@@ -200,7 +198,6 @@ FAILED: src/test.cmj src/test.cmi
 }
 
 let startWatchingBsbOutputFile = (root: p.DocumentUri, process: NodeJS.Process) => {
-	// console.log(root);
 	// TOOD: setTimeout instead
 	let id = setInterval(() => {
 		let openFiles = Object.keys(stupidFileContentCache);
@@ -214,7 +211,7 @@ let startWatchingBsbOutputFile = (root: p.DocumentUri, process: NodeJS.Process) 
 			}
 		});
 
-		let files: { [key: string]: diagnosis[] } = {}
+		let files: { [key: string]: t.Diagnostic[] } = {}
 
 		let res = Array.from(bsbLogDirs)
 			.forEach(bsbLogDir => {
@@ -233,13 +230,7 @@ let startWatchingBsbOutputFile = (root: p.DocumentUri, process: NodeJS.Process) 
 				uri: file,
 				// there's a new optional version param from https://github.com/microsoft/language-server-protocol/issues/201
 				// not using it for now, sigh
-				diagnostics:
-					files[file].map(({ range, diagnosis }) => {
-						return {
-							range: range,
-							message: diagnosis,
-						}
-					}),
+				diagnostics: files[file],
 			}
 			let notification: m.NotificationMessage = {
 				jsonrpc: jsonrpcVersion,
@@ -313,7 +304,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 				// TODO: handle single file
 				console.log("not handling single file")
 			} else {
-				diagnosisTimer = startWatchingBsbOutputFile(root, process)
+				// diagnosisTimer = startWatchingBsbOutputFile(root, process)
 			}
 			// send the list of things we support
 			let result: p.InitializeResult = {
@@ -415,16 +406,51 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 							result: result,
 						};
 						process.send!(response);
+
+						let params2: p.PublishDiagnosticsParams = {
+							uri: params.textDocument.uri,
+							// there's a new optional version param from https://github.com/microsoft/language-server-protocol/issues/201
+							// not using it for now, sigh
+							diagnostics: [],
+						}
+						let notification: m.NotificationMessage = {
+							jsonrpc: jsonrpcVersion,
+							method: 'textDocument/publishDiagnostics',
+							params: params2,
+						};
+						process.send!(notification);
 					} else {
 						let response: m.ResponseMessage = {
 							jsonrpc: jsonrpcVersion,
 							id: aa.id,
-							error: {
-								code: m.ErrorCodes.ParseError,
-								message: formattedResult.error,
-							}
+							result: [],
+							// technically a formatting failure should return the error but
+							// since this is LSP... the idiom seems to be to silently return
+							// nothing (to avoid an alert window each time on bad formatting)
+							// while sending a diangosis about the error afterward
+
+							// error: {
+							// 	code: m.ErrorCodes.ParseError,
+							// 	message: formattedResult.error,
+							// }
 						};
 						process.send!(response);
+
+						let filesAndErrors = parseBsbLogOutput(formattedResult.error)
+						Object.keys(filesAndErrors).forEach(file => {
+							let params2: p.PublishDiagnosticsParams = {
+								uri: params.textDocument.uri,
+								// there's a new optional version param from https://github.com/microsoft/language-server-protocol/issues/201
+								// not using it for now, sigh
+								diagnostics: filesAndErrors[file],
+							}
+							let notification: m.NotificationMessage = {
+								jsonrpc: jsonrpcVersion,
+								method: 'textDocument/publishDiagnostics',
+								params: params2,
+							};
+							process.send!(notification);
+						})
 					}
 				}
 			}
