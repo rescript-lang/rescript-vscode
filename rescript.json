@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "BuckleScript",
-  "scopeName": "source.bucklescript",
+  "name": "ReScript",
+  "scopeName": "source.rescript",
   "repository": {
     "RE_IDENT": {
       "match": "[a-z_][0-9a-zA-Z_]*"

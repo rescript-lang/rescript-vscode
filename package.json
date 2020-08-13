@@ -17,8 +17,7 @@
 		"vscode": "^1.43.0"
 	},
 	"activationEvents": [
-		"onLanguage:plaintext",
-		"onLanguage:bucklescript"
+		"onLanguage:rescript"
 	],
 	"main": "./client/out/extension",
 	"contributes": {
@@ -61,22 +60,22 @@
 		},
 		"grammars": [
 			{
-				"language": "bucklescript",
-				"scopeName": "source.bucklescript",
-				"path": "./bucklescript.json"
+				"language": "rescript",
+				"scopeName": "source.rescript",
+				"path": "./rescript.json"
 			}
 		],
 		"languages": [
 			{
-				"id": "bucklescript",
+				"id": "rescript",
 				"aliases": [
-					"BuckleScript"
+					"ReScript"
 				],
 				"extensions": [
 					".res",
 					".resi"
 				],
-				"configuration": "./bucklescript.configuration.json"
+				"configuration": "./rescript.configuration.json"
 			}
 		]
 	},

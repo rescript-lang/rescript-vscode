@@ -88,8 +88,7 @@ export function activate(context: ExtensionContext) {
 	let clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
 		documentSelector: [
-			{ scheme: 'file', language: 'plaintext' },
-			{ scheme: 'file', language: 'bucklescript' },
+			{ scheme: 'file', language: 'rescript' },
 		],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
