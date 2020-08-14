@@ -1,5 +1,9 @@
 # ReScript Language Server
 
+## Prerequisite
+
+`bs-platform 8.2.0` installed locally in your project.
+
 ## Installation
 
 ### VSCode
@@ -13,10 +17,14 @@ For now, you have to clone the repo and run `npm run compile`. The language serv
 ## Features
 
 - Syntax highlighting (`.res`, `.resi`).
-- Formatting (currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`).
+- Formatting, with caveats:
+    - Currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`.
+    - Cannot be a temporary file
+- Syntax errors diagnosis (only after formatting).
 
 ### Upcoming Features
 - Formatting of temporary files
+- Formatting of files outside of a ReScript project root
 - Type diagnosis
 
 ## Develop

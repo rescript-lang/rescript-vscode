@@ -11,7 +11,7 @@ import {
 
 let client: LanguageClient;
 
-// let taskProvider = tasks.registerTaskProvider('Run BuckleScript build', {
+// let taskProvider = tasks.registerTaskProvider('Run ReScript build', {
 // 	provideTasks: () => {
 // 		// if (!rakePromise) {
 // 		// 	rakePromise = getRakeTasks();
