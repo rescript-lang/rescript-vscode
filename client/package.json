@@ -1,13 +1,13 @@
 {
-	"name": "lsp-sample-client",
+	"name": "rescript-language-client",
 	"description": "VSCode part of a language server",
-	"author": "Microsoft Corporation",
+	"author": "chenglou",
 	"license": "MIT",
 	"version": "0.0.1",
-	"publisher": "vscode",
+	"publisher": "chenglou",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/rescript-lang/rescript-language-server"
 	},
 	"engines": {
 		"vscode": "^1.43.0"
