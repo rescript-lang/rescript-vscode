@@ -11,6 +11,11 @@ Download the latest release here: https://github.com/rescript-lang/rescript-lang
 
 Go to VSCode, Command Palette (cmd-shift-p) -> "Extensions: Install from VSIX", then select the `rescript-language-server.vsix` you just downloaded.
 
+### Atom
+Install the following packages:
+- IDE: [`ide-rescript`](https://atom.io/packages/ide-rescript)
+- Syntax: [`language-rescript`](https://atom.io/packages/language-rescript)
+
 ### Other Editors With Language-Server Support
 For now, you have to clone the repo and run `npm run compile`. The language server will be at `server/out/server.js`. Wire that into your editor.
 
