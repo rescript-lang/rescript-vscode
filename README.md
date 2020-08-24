@@ -1,4 +1,6 @@
-# ReScript Language Server
+# rescript-vscode
+
+The official VSCode plugin for ReScript.
 
 ## Prerequisite
 
@@ -6,13 +8,9 @@
 
 ## Installation
 
-### VSCode
-Download the latest release here: https://github.com/rescript-lang/rescript-language-server/releases
+Download the latest release here: https://github.com/rescript-lang/rescript-vscode/releases
 
-Go to VSCode, Command Palette (cmd-shift-p) -> "Extensions: Install from VSIX", then select the `rescript-language-server.vsix` you just downloaded.
-
-### Other Editors With Language-Server Support
-For now, you have to clone the repo and run `npm run compile`. The language server will be at `server/out/server.js`. Wire that into your editor.
+Go to VSCode, Command Palette (cmd-shift-p) -> "Extensions: Install from VSIX", then select the `rescript-vscode.vsix` you just downloaded.
 
 ## Features
 
@@ -28,6 +26,9 @@ For now, you have to clone the repo and run `npm run compile`. The language serv
 - Type diagnosis
 
 ## Develop
+
+### Other Editors With Language-Server Support
+This repo happens to also contain a language-server usable by other editors. If you'd like to use this language-server with e.g. Atom, for now, you have to clone the repo and run `npm run compile`. The language server will be at `server/out/server.js`. Wire that into your editor.
 
 ### Structure
 

@@ -1,12 +1,12 @@
 {
-	"name": "rescript-language-server",
-	"description": "The official ReScript language server",
+	"name": "rescript-vscode",
+	"description": "The official VSCode plugin for ReScript.",
 	"author": "chenglou",
 	"license": "MIT",
 	"version": "0.0.3",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rescript-lang/rescript-language-server"
+		"url": "https://github.com/rescript-lang/rescript-vscode"
 	},
 	"publisher": "chenglou",
 	"categories": [],
