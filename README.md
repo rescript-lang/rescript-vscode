@@ -53,3 +53,9 @@ For now, you have to clone the repo and run `npm run compile`. The language serv
 - If you want to debug the server as well use the launch configuration `Attach to Server`
 - In the [Extension Development Host] instance of VSCode, open a document in 'plain text' language mode.
 - Try `ReScript` mode formatting with `.res` or `.resi` files.
+
+#### Change the Grammar
+
+- Modify `rescript.tmLanguage.json`.
+
+Currently the best way to test it is to link your extension to `~/.vscode/extensions` then reload a separate test VSCode `.res` tab after each grammar change.
