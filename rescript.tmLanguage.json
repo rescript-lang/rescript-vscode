@@ -210,7 +210,7 @@
     "list": {
       "patterns": [
         {
-          "match": "\\b(list)(\\[)",
+          "match": "\\b(list)(\\{)",
           "captures": {
             "1": {
               "name": "keyword"
@@ -221,7 +221,7 @@
           }
         },
         {
-          "match": "\\]",
+          "match": "\\}",
           "name": "punctuation.section.brackets.end"
         }
       ]
