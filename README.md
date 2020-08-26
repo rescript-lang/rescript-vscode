@@ -60,3 +60,7 @@ This repo happens to also contain a language-server usable by other editors. If 
 - Modify `rescript.tmLanguage.json`.
 
 Currently the best way to test it is to link your extension to `~/.vscode/extensions` then reload a separate test VSCode `.res` tab after each grammar change.
+
+For more grammar inspirations, check:
+- [TypeScript's grammar](https://github.com/microsoft/TypeScript-TmLanguage/blob/a771bc4e79deeae81a01d988a273e300290d0072/TypeScript.YAML-tmLanguage)
+- [Writing a TextMate Grammar: Some Lessons Learned](https://www.apeth.com/nonblog/stories/textmatebundle.html)

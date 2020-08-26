@@ -385,7 +385,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 					let code = stupidFileContentCache[params.textDocument.uri];
 					// TODO: error here?
 					if (code === undefined) {
-						console.log("wtf can't find file")
+						console.log("can't find file")
 					}
 					let formattedResult = formatUsingValidBscPath(
 						code,
