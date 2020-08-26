@@ -63,7 +63,7 @@
 			{
 				"language": "rescript",
 				"scopeName": "source.rescript",
-				"path": "./rescript.tmLanguage.json"
+				"path": "./grammars/rescript.tmLanguage.json"
 			}
 		],
 		"languages": [

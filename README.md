@@ -57,7 +57,7 @@ This repo happens to also contain a language-server usable by other editors. If 
 
 #### Change the Grammar
 
-- Modify `rescript.tmLanguage.json`.
+- Modify `grammars/rescript.tmLanguage.json`.
 
 Currently the best way to test it is to link your extension to `~/.vscode/extensions` then reload a separate test VSCode `.res` tab after each grammar change.
 
