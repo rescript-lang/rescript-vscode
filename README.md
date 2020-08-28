@@ -8,9 +8,7 @@ The official VSCode plugin for ReScript.
 
 ## Installation
 
-Download the latest release here: https://github.com/rescript-lang/rescript-vscode/releases
-
-Go to VSCode, Command Palette (cmd-shift-p) -> "Extensions: Install from VSIX", then select the `rescript-vscode.vsix` you just downloaded.
+The plugin's on [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=chenglou92.rescript-vscode). In VSCode, `cmd-shift-p` -> "Install Extensions", then find "rescript-vscode".
 
 The plugin activates on `.res` and `.resi` files. If you've already got Reason-Language-Server installed, it's possible that the latter took precedence over this one. Make sure you're using this plugin ("ReScript syntax") rather than Reason-Language-Server ("BuckleScript syntax").
 
@@ -18,8 +16,8 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 
 - Syntax highlighting (`.res`, `.resi`).
 - Formatting, with caveats:
-    - Currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`.
-    - Cannot be a temporary file
+  - Currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`.
+  - Cannot be a temporary file
 - Syntax errors diagnosis (only after formatting).
 
 ### Upcoming Features
@@ -59,7 +57,7 @@ This repo happens to also contain a language-server usable by other editors. If 
 
 #### Change the Grammar
 
-- Modify `rescript.tmLanguage.json`.
+- Modify `grammars/rescript.tmLanguage.json`.
 
 Currently the best way to test it is to link your extension to `~/.vscode/extensions` then reload a separate test VSCode `.res` tab after each grammar change.
 
