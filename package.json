@@ -9,6 +9,7 @@
 		"url": "https://github.com/rescript-lang/rescript-vscode"
 	},
 	"publisher": "chenglou92",
+	"icon": "logo.png",
 	"categories": [],
 	"keywords": [
 		"rescript",
