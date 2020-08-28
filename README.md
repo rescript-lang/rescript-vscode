@@ -12,6 +12,8 @@ Download the latest release here: https://github.com/rescript-lang/rescript-vsco
 
 Go to VSCode, Command Palette (cmd-shift-p) -> "Extensions: Install from VSIX", then select the `rescript-vscode.vsix` you just downloaded.
 
+The plugin activates on `.res` and `.resi` files. If you've already got Reason-Language-Server installed, it's possible that the latter took precedence over this one. Make sure you're using this plugin ("ReScript syntax") rather than Reason-Language-Server ("BuckleScript syntax").
+
 ## Features
 
 - Syntax highlighting (`.res`, `.resi`).

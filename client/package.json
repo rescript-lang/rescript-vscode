@@ -1,7 +1,7 @@
 {
 	"name": "rescript-language-client",
 	"description": "VSCode frontend that communicates with the server",
-	"author": "chenglou",
+	"author": "chenglou92",
 	"license": "MIT",
 	"version": "0.0.1",
 	"publisher": "chenglou",
