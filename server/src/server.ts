@@ -177,7 +177,7 @@ FAILED: src/test.cmj src/test.cmi
 		let [fileAndLocation, ...diagnosisMessage] = diagnosisLines
 		let locationSeparatorV840 = fileAndLocation.lastIndexOf(':')
 		let locationSeparatorV830 = fileAndLocation.lastIndexOf(' ')
-		let locationSeparator = locationSeparatorV830 >= 0 ? locationSeparatorV840 : locationSeparatorV830
+		let locationSeparator = locationSeparatorV840 >= 0 ? locationSeparatorV840 : locationSeparatorV830
 		let file = fileAndLocation.substring(2, locationSeparator)
 		let location = fileAndLocation.substring(locationSeparator)
 		if (ret[file] == null) {
