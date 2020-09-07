@@ -175,9 +175,11 @@ FAILED: src/test.cmj src/test.cmi
 	let ret: { [key: string]: t.Diagnostic[] } = {}
 	res.forEach(diagnosisLines => {
 		let [fileAndLocation, ...diagnosisMessage] = diagnosisLines
-		let lastSpace = fileAndLocation.lastIndexOf(' ')
-		let file = fileAndLocation.substring(2, lastSpace)
-		let location = fileAndLocation.substring(lastSpace)
+		let locationSeparatorV840 = fileAndLocation.lastIndexOf(':')
+		let locationSeparatorV830 = fileAndLocation.lastIndexOf(' ')
+		let locationSeparator = locationSeparatorV830 >= 0 ? locationSeparatorV840 : locationSeparatorV830
+		let file = fileAndLocation.substring(2, locationSeparator)
+		let location = fileAndLocation.substring(locationSeparator)
 		if (ret[file] == null) {
 			ret[file] = []
 		}
