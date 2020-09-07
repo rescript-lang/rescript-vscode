@@ -11,6 +11,7 @@ import * as childProcess from 'child_process';
 import { DidOpenTextDocumentNotification, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification } from 'vscode-languageserver-protocol';
 import * as tmp from 'tmp';
 import { Range } from 'vscode-languageserver-textdocument';
+import { uriToFsPath, URI } from 'vscode-uri';
 
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
@@ -203,8 +204,7 @@ let startWatchingBsbOutputFile = (root: p.DocumentUri, process: NodeJS.Process) 
 		let openFiles = Object.keys(stupidFileContentCache);
 		let bsbLogDirs: Set<p.DocumentUri> = new Set();
 		openFiles.forEach(openFile => {
-			// TODO: remove this hack
-			let filePath = openFile.replace('file://', '');
+			let filePath = uriToFsPath(URI.parse(openFile), true);
 			let bsbLogDir = findDirOfFileNearFile(bsbLogPartialPath, filePath)
 			if (bsbLogDir != null) {
 				bsbLogDirs.add(bsbLogDir);
@@ -355,8 +355,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
 			}
 		} else if (aa.method === p.DocumentFormattingRequest.method) {
 			let params = (aa.params as p.DocumentFormattingParams)
-			// TODO: remove this hack
-			let filePath = params.textDocument.uri.replace('file://', '')
+			let filePath = uriToFsPath(URI.parse(params.textDocument.uri), true);
 			let extension = path.extname(params.textDocument.uri);
 			if (extension !== resExt && extension !== resiExt) {
 				let response: m.ResponseMessage = {

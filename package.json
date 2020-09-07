@@ -3,7 +3,7 @@
 	"description": "The official VSCode plugin for ReScript.",
 	"author": "chenglou",
 	"license": "MIT",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/rescript-lang/rescript-vscode"
@@ -98,6 +98,7 @@
 	},
 	"dependencies": {
 		"@types/tmp": "^0.2.0",
-		"tmp": "^0.2.1"
+		"tmp": "^0.2.1",
+		"vscode-uri": "^2.1.2"
 	}
 }
