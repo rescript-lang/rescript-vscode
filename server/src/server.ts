@@ -12,6 +12,7 @@ import { DidOpenTextDocumentNotification, DidChangeTextDocumentNotification, Did
 import * as tmp from 'tmp';
 import { Range } from 'vscode-languageserver-textdocument';
 import { uriToFsPath, URI } from 'vscode-uri';
+// import * as chokidar from 'chokidar'
 
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
@@ -29,8 +30,8 @@ let shutdownRequestAlreadyReceived = false;
 let diagnosticTimer: null | NodeJS.Timeout = null;
 
 // congrats. A simple UI problem is now a distributed system problem
-let stupidFileContentCache: { [key: string]: string } = {
-}
+let stupidFileContentCache: { [key: string]: string } = {}
+let previousDiagnosticFiles: Set<string> = new Set()
 
 let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri): null | p.DocumentUri => {
   let dir = path.dirname(source)
@@ -231,7 +232,8 @@ FAILED: src/test.cmj src/test.cmi
   return ret
 }
 
-let startWatchingCompilerLog = (root: p.DocumentUri, process: NodeJS.Process) => {
+let startWatchingCompilerLog = (process: NodeJS.Process) => {
+  // chokidar.watch()
   // TOOD: setTimeout instead
   let id = setInterval(() => {
     let openFiles = Object.keys(stupidFileContentCache);
@@ -246,19 +248,20 @@ let startWatchingCompilerLog = (root: p.DocumentUri, process: NodeJS.Process) =>
 
     let files: { [key: string]: t.Diagnostic[] } = {}
 
-    let res = Array.from(compilerLogDirs)
-      .forEach(compilerLogDir => {
-        let compilerLogPath = path.join(compilerLogDir, compilerLogPartialPath);
-        let content = fs.readFileSync(compilerLogPath, { encoding: 'utf-8' });
-        let filesAndErrors = parseCompilerLogOutput(content, ":")
-        Object.keys(filesAndErrors).forEach(file => {
-          // assumption: there's no existing files[file] entry
-          // this is true; see the lines above. A file can only belong to one .compiler.log root
-          files[file] = filesAndErrors[file]
-        })
-      });
+    compilerLogDirs.forEach(compilerLogDir => {
+      let compilerLogPath = path.join(compilerLogDir, compilerLogPartialPath);
+      let content = fs.readFileSync(compilerLogPath, { encoding: 'utf-8' });
+      let filesAndErrors = parseCompilerLogOutput(content, ":")
+      Object.keys(filesAndErrors).forEach(file => {
+        // assumption: there's no existing files[file] entry
+        // this is true; see the lines above. A file can only belong to one .compiler.log root
+        files[file] = filesAndErrors[file]
+      })
+    });
 
-    Object.keys(files).forEach(file => {
+    // Send new diagnostic, wipe old ones
+    let filePaths = Object.keys(files)
+    filePaths.forEach(file => {
       let params: p.PublishDiagnosticsParams = {
         uri: file,
         // there's a new optional version param from https://github.com/microsoft/language-server-protocol/issues/201
@@ -271,7 +274,24 @@ let startWatchingCompilerLog = (root: p.DocumentUri, process: NodeJS.Process) =>
         params: params,
       };
       process.send!(notification);
+
+      // this file's taken care of already now. Remove from old diagnostic files
+      previousDiagnosticFiles.delete(file)
     })
+    // wipe the errors from the files that are no longer erroring
+    previousDiagnosticFiles.forEach(remainingPreviousFile => {
+      let params: p.PublishDiagnosticsParams = {
+        uri: remainingPreviousFile,
+        diagnostics: [],
+      }
+      let notification: m.NotificationMessage = {
+        jsonrpc: jsonrpcVersion,
+        method: 'textDocument/publishDiagnostics',
+        params: params,
+      };
+      process.send!(notification);
+    })
+    previousDiagnosticFiles = new Set(filePaths)
   }, 1000);
 
   return id;
@@ -332,12 +352,13 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       process.send!(response);
     } else if (aa.method === 'initialize') {
       let param: p.InitializeParams = aa.params
+      // TODO: sigh what's deprecated now?
       let root = param.rootUri
       if (root == null) {
         // TODO: handle single file
         console.log("not handling single file")
       } else {
-        diagnosticTimer = startWatchingCompilerLog(root, process)
+        diagnosticTimer = startWatchingCompilerLog(process)
       }
       // send the list of things we support
       let result: p.InitializeResult = {
@@ -439,12 +460,10 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
             };
             process.send!(response);
 
-            // TODO: make sure the diagnosis diffing takes this into account
+            // TODO: make sure the diagnostic diffing takes this into account
             if (!compilerLogPresentAndNotEmpty(filePath)) {
               let params2: p.PublishDiagnosticsParams = {
                 uri: params.textDocument.uri,
-                // there's a new optional version param from https://github.com/microsoft/language-server-protocol/issues/201
-                // not using it for now, sigh
                 diagnostics: [],
               }
               let notification: m.NotificationMessage = {
