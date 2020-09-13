@@ -31,8 +31,9 @@ let diagnosticTimer: null | NodeJS.Timeout = null;
 
 // congrats. A simple UI problem is now a distributed system problem
 let stupidFileContentCache: { [key: string]: string } = {}
-let previousDiagnosticFiles: Set<string> = new Set()
+let previouslyDiagnosedFiles: Set<string> = new Set()
 
+// TODO: races here
 let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri): null | p.DocumentUri => {
   let dir = path.dirname(source)
   if (fs.existsSync(path.join(dir, fileToFind))) {
@@ -113,19 +114,10 @@ let parseDiagnosticLocation = (location: string): Range => {
 }
 
 let parseCompilerLogOutput = (content: string, separator: string) => {
-  // TODO: update this content example
-  /* example .compiler.log file content:
-
-Cleaning... 6 files.
-Cleaning... 87 files.
-[1/5] [34mBuilding[39m [2msrc/TestFramework.reiast[22m
-[2/5] [34mBuilding[39m [2msrc/TestFramework.reast[22m
-[3/5] Building src/test.resast
-FAILED: src/test.resast
-/Users/chenglou/github/bucklescript/darwin/bsc.exe   -bs-jsx 3 -bs-no-version-header -o src/test.resast -bs-syntax-only -bs-binary-ast /Users/chenglou/github/reason-react/src/test.res
+  /* example .compiler.log file content that we're gonna parse:
 
   Syntax error!
-  /Users/chenglou/github/reason-react/src/test.res 1:8-2:3
+  /Users/chenglou/github/reason-react/src/test.res:1:8-2:3
 
   1 │ let a =
   2 │ let b =
@@ -133,11 +125,9 @@ FAILED: src/test.resast
 
   This let-binding misses an expression
 
-[8/29] Building src/legacy/ReactDOMServerRe.reast
-FAILED: src/test.cmj src/test.cmi
 
   Warning number 8
-  /Users/chenglou/github/reason-react/src/test.res 3:5-8
+  /Users/chenglou/github/reason-react/src/test.res:3:5-8
 
   1 │ let a = j`😀`
   2 │ let b = `😀`
@@ -148,8 +138,9 @@ FAILED: src/test.cmj src/test.cmi
   You forgot to handle a possible case here, for example:
   Some _
 
+
   We've found a bug for you!
-  /Users/chenglou/github/reason-react/src/test.res 3:9
+  /Users/chenglou/github/reason-react/src/test.res:3:9
 
   1 │ let a = 1
   2 │ let b = "hi"
@@ -160,12 +151,7 @@ FAILED: src/test.cmj src/test.cmi
 
   But somewhere wanted:
     int
-
-
-[15/62] [34mBuilding[39m [2msrc/ReactDOMServer.reast[22m
   */
-
-  // we're gonna chop that
 
   type parsedDiagnostic = {
     code: number | undefined,
@@ -183,9 +169,9 @@ FAILED: src/test.cmj src/test.cmi
         content: []
       })
     } else if (line.startsWith('  Warning number ')) {
-      let match = line.match(/  Warning number (\d+)/)
+      let match = parseInt(line.slice('  Warning number '.length))
       parsedDiagnostics.push({
-        code: match ? parseInt(match[1]) : undefined,
+        code: Number.isNaN(match) ? undefined : match,
         severity: t.DiagnosticSeverity.Warning,
         content: []
       })
@@ -234,7 +220,6 @@ FAILED: src/test.cmj src/test.cmi
 
 let startWatchingCompilerLog = (process: NodeJS.Process) => {
   // chokidar.watch()
-  // TOOD: setTimeout instead
   let id = setInterval(() => {
     let openFiles = Object.keys(stupidFileContentCache);
     let compilerLogDirs: Set<p.DocumentUri> = new Set();
@@ -246,8 +231,7 @@ let startWatchingCompilerLog = (process: NodeJS.Process) => {
       }
     });
 
-    let files: { [key: string]: t.Diagnostic[] } = {}
-
+    let diagnosedFiles: { [key: string]: t.Diagnostic[] } = {}
     compilerLogDirs.forEach(compilerLogDir => {
       let compilerLogPath = path.join(compilerLogDir, compilerLogPartialPath);
       let content = fs.readFileSync(compilerLogPath, { encoding: 'utf-8' });
@@ -255,18 +239,18 @@ let startWatchingCompilerLog = (process: NodeJS.Process) => {
       Object.keys(filesAndErrors).forEach(file => {
         // assumption: there's no existing files[file] entry
         // this is true; see the lines above. A file can only belong to one .compiler.log root
-        files[file] = filesAndErrors[file]
+        diagnosedFiles[file] = filesAndErrors[file]
       })
     });
 
     // Send new diagnostic, wipe old ones
-    let filePaths = Object.keys(files)
-    filePaths.forEach(file => {
+    let diagnosedFilePaths = Object.keys(diagnosedFiles)
+    diagnosedFilePaths.forEach(file => {
       let params: p.PublishDiagnosticsParams = {
         uri: file,
         // there's a new optional version param from https://github.com/microsoft/language-server-protocol/issues/201
         // not using it for now, sigh
-        diagnostics: files[file],
+        diagnostics: diagnosedFiles[file],
       }
       let notification: m.NotificationMessage = {
         jsonrpc: jsonrpcVersion,
@@ -276,10 +260,10 @@ let startWatchingCompilerLog = (process: NodeJS.Process) => {
       process.send!(notification);
 
       // this file's taken care of already now. Remove from old diagnostic files
-      previousDiagnosticFiles.delete(file)
+      previouslyDiagnosedFiles.delete(file)
     })
     // wipe the errors from the files that are no longer erroring
-    previousDiagnosticFiles.forEach(remainingPreviousFile => {
+    previouslyDiagnosedFiles.forEach(remainingPreviousFile => {
       let params: p.PublishDiagnosticsParams = {
         uri: remainingPreviousFile,
         diagnostics: [],
@@ -291,7 +275,7 @@ let startWatchingCompilerLog = (process: NodeJS.Process) => {
       };
       process.send!(notification);
     })
-    previousDiagnosticFiles = new Set(filePaths)
+    previouslyDiagnosedFiles = new Set(diagnosedFilePaths)
   }, 1000);
 
   return id;
@@ -351,19 +335,11 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       };
       process.send!(response);
     } else if (aa.method === 'initialize') {
-      let param: p.InitializeParams = aa.params
-      // TODO: sigh what's deprecated now?
-      let root = param.rootUri
-      if (root == null) {
-        // TODO: handle single file
-        console.log("not handling single file")
-      } else {
-        diagnosticTimer = startWatchingCompilerLog(process)
-      }
+      diagnosticTimer = startWatchingCompilerLog(process)
       // send the list of things we support
       let result: p.InitializeResult = {
         capabilities: {
-          // TODO: incremental sync
+          // TODO: incremental sync?
           textDocumentSync: v.TextDocumentSyncKind.Full,
           documentFormattingProvider: true,
         }
@@ -434,12 +410,8 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
           };
           process.send!(response);
         } else {
-          // file to format potentially doesn't exist anymore because of races. But that's ok, the error from bsc should handle it
+          // code will always be defined here, even though technically it can be undefined
           let code = stupidFileContentCache[params.textDocument.uri];
-          // TODO: error here?
-          if (code === undefined) {
-            console.log("can't find file")
-          }
           let formattedResult = formatUsingValidBscPath(
             code,
             path.join(nodeModulesParentPath, bscPartialPath),
