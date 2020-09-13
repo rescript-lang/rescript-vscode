@@ -1,0 +1,194 @@
+import { Range } from 'vscode-languageserver-textdocument';
+import * as c from './constants';
+import * as childProcess from 'child_process';
+import * as p from "vscode-languageserver-protocol";
+import * as path from 'path';
+import * as t from "vscode-languageserver-types";
+import * as tmp from 'tmp';
+import fs from 'fs';
+
+// TODO: races here
+// TODO: this doesn't handle file:/// scheme
+export let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri): null | p.DocumentUri => {
+	let dir = path.dirname(source)
+	if (fs.existsSync(path.join(dir, fileToFind))) {
+		return dir
+	} else {
+		if (dir === source) {
+			// reached top
+			return null
+		} else {
+			return findDirOfFileNearFile(fileToFind, dir)
+		}
+	}
+}
+
+export let compilerLogPresentAndNotEmpty = (filePath: string) => {
+	let compilerLogDir = findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
+	if (compilerLogDir == null) {
+		return false
+	} else {
+		let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
+		return fs.statSync(compilerLogPath).size > 0
+	}
+}
+
+type formattingResult = {
+	kind: 'success',
+	result: string
+} | {
+	kind: 'error'
+	error: string,
+};
+export let formatUsingValidBscPath = (code: string, bscPath: p.DocumentUri, isInterface: boolean): formattingResult => {
+	// library cleans up after itself. No need to manually remove temp file
+	let tmpobj = tmp.fileSync();
+	let extension = isInterface ? c.resiExt : c.resExt;
+	let fileToFormat = tmpobj.name + extension;
+	fs.writeFileSync(fileToFormat, code, { encoding: 'utf-8' });
+	try {
+		let result = childProcess.execFileSync(bscPath, ['-color', 'never', '-format', fileToFormat], { stdio: 'pipe' })
+		return {
+			kind: 'success',
+			result: result.toString(),
+		}
+	} catch (e) {
+		return {
+			kind: 'error',
+			error: e.message,
+		}
+	}
+}
+
+export let parseDiagnosticLocation = (location: string): Range => {
+	// example output location:
+	// 3:9
+	// 3:5-8
+	// 3:9-6:1
+
+	// language-server position is 0-based. Ours is 1-based. Don't forget to convert
+	// also, our end character is inclusive. Language-server's is exclusive
+	let isRange = location.indexOf('-') >= 0
+	if (isRange) {
+		let [from, to] = location.split('-')
+		let [fromLine, fromChar] = from.split(':')
+		let isSingleLine = to.indexOf(':') >= 0
+		let [toLine, toChar] = isSingleLine ? to.split(':') : [fromLine, to]
+		return {
+			start: { line: parseInt(fromLine) - 1, character: parseInt(fromChar) - 1 },
+			end: { line: parseInt(toLine) - 1, character: parseInt(toChar) },
+		}
+	} else {
+		let [line, char] = location.split(':')
+		let start = { line: parseInt(line) - 1, character: parseInt(char) }
+		return {
+			start: start,
+			end: start,
+		}
+	}
+}
+
+export let parseCompilerLogOutput = (content: string, separator: string) => {
+	/* example .compiler.log file content that we're gonna parse:
+
+	Syntax error!
+	/Users/chenglou/github/reason-react/src/test.res:1:8-2:3
+
+	1 │ let a =
+	2 │ let b =
+	3 │
+
+	This let-binding misses an expression
+
+
+	Warning number 8
+	/Users/chenglou/github/reason-react/src/test.res:3:5-8
+
+	1 │ let a = j`😀`
+	2 │ let b = `😀`
+	3 │ let None = None
+	4 │ let bla: int = "
+	5 │   hi
+
+	You forgot to handle a possible case here, for example:
+	Some _
+
+
+	We've found a bug for you!
+	/Users/chenglou/github/reason-react/src/test.res:3:9
+
+	1 │ let a = 1
+	2 │ let b = "hi"
+	3 │ let a = b + 1
+
+	This has type:
+		string
+
+	But somewhere wanted:
+		int
+	*/
+
+	type parsedDiagnostic = {
+		code: number | undefined,
+		severity: t.DiagnosticSeverity,
+		content: string[]
+	}
+	let parsedDiagnostics: parsedDiagnostic[] = [];
+	let lines = content.split('\n');
+	for (let i = 0; i < lines.length; i++) {
+		let line = lines[i];
+		if (line.startsWith('  We\'ve found a bug for you!')) {
+			parsedDiagnostics.push({
+				code: undefined,
+				severity: t.DiagnosticSeverity.Error,
+				content: []
+			})
+		} else if (line.startsWith('  Warning number ')) {
+			let match = parseInt(line.slice('  Warning number '.length))
+			parsedDiagnostics.push({
+				code: Number.isNaN(match) ? undefined : match,
+				severity: t.DiagnosticSeverity.Warning,
+				content: []
+			})
+		} else if (line.startsWith('  Syntax error!')) {
+			parsedDiagnostics.push({
+				code: undefined,
+				severity: t.DiagnosticSeverity.Error,
+				content: []
+			})
+		} else if (/^  [0-9]+ /.test(line)) {
+			// code display. Swallow
+		} else if (line.startsWith('  ')) {
+			parsedDiagnostics[parsedDiagnostics.length - 1].content.push(line)
+		}
+	}
+
+	// map of file path to list of diagnostic
+	let ret: { [key: string]: t.Diagnostic[] } = {}
+	parsedDiagnostics.forEach(parsedDiagnostic => {
+		let [fileAndLocation, ...diagnosticMessage] = parsedDiagnostic.content
+		let locationSeparator = fileAndLocation.indexOf(separator)
+		let file = fileAndLocation.substring(2, locationSeparator)
+		let location = fileAndLocation.substring(locationSeparator + 1)
+		if (ret[file] == null) {
+			ret[file] = []
+		}
+		let cleanedUpDiagnostic = diagnosticMessage
+			.map(line => {
+				// remove the spaces in front
+				return line.slice(2)
+			})
+			.join('\n')
+			// remove start and end whitespaces/newlines
+			.trim() + '\n';
+		ret[file].push({
+			severity: parsedDiagnostic.severity,
+			code: parsedDiagnostic.code,
+			range: parseDiagnosticLocation(location),
+			source: "ReScript",
+			message: cleanedUpDiagnostic,
+		})
+	})
+
+	return ret
+}
