@@ -184,7 +184,7 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 				tag: undefined,
 				content: []
 			})
-		} else if (/^  [0-9]+ /.test(line)) {
+		} else if (/^  +[0-9]+ /.test(line)) {
 			// code display. Swallow
 		} else if (line.startsWith('  ')) {
 			parsedDiagnostics[parsedDiagnostics.length - 1].content.push(line)
