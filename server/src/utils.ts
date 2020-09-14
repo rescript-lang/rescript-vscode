@@ -131,6 +131,7 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 	type parsedDiagnostic = {
 		code: number | undefined,
 		severity: t.DiagnosticSeverity,
+		tag: t.DiagnosticTag | undefined,
 		content: string[]
 	}
 	let parsedDiagnostics: parsedDiagnostic[] = [];
@@ -141,19 +142,46 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 			parsedDiagnostics.push({
 				code: undefined,
 				severity: t.DiagnosticSeverity.Error,
+				tag: undefined,
 				content: []
 			})
 		} else if (line.startsWith('  Warning number ')) {
-			let match = parseInt(line.slice('  Warning number '.length))
+			let warningNumber = parseInt(line.slice('  Warning number '.length))
+			let tag: t.DiagnosticTag | undefined = undefined
+			switch (warningNumber) {
+				case 11:
+				case 20:
+				case 26:
+				case 27:
+				case 32:
+				case 33:
+				case 34:
+				case 35:
+				case 36:
+				case 37:
+				case 38:
+				case 39:
+				case 60:
+				case 66:
+				case 67:
+				case 101:
+					tag = t.DiagnosticTag.Unnecessary
+					break;
+				case 3:
+					tag = t.DiagnosticTag.Deprecated
+					break;
+			}
 			parsedDiagnostics.push({
-				code: Number.isNaN(match) ? undefined : match,
+				code: Number.isNaN(warningNumber) ? undefined : warningNumber,
 				severity: t.DiagnosticSeverity.Warning,
+				tag: tag,
 				content: []
 			})
 		} else if (line.startsWith('  Syntax error!')) {
 			parsedDiagnostics.push({
 				code: undefined,
 				severity: t.DiagnosticSeverity.Error,
+				tag: undefined,
 				content: []
 			})
 		} else if (/^  [0-9]+ /.test(line)) {
@@ -183,6 +211,7 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 			.trim() + '\n';
 		ret[file].push({
 			severity: parsedDiagnostic.severity,
+			tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
 			code: parsedDiagnostic.code,
 			range: parseDiagnosticLocation(location),
 			source: "ReScript",
@@ -190,5 +219,6 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 		})
 	})
 
+	console.log(ret, '=========')
 	return ret
 }
