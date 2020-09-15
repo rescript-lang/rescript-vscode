@@ -210,10 +210,7 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
   let interModuleDependencies = Hashtbl.create(List.length(localModules));
 
   module Semver = Util.Semver;
-  let compilerVersion = switch buildSystem {
-    | Bsb(version) when Semver.parse(version)->Semver.major >= "6" => BuildSystem.V406
-    | _ => BuildSystem.V402
-  };
+  let compilerVersion = BuildSystem.V406;
 
   {
     basePath: rootPath,
