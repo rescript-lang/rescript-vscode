@@ -11,16 +11,10 @@ let targetName = t => switch t {
 };
 
 type compilerVersion =
-  | V408
-  | V407
-  | V406
-  | V402;
+  | V406;
 
 let showCompilerVersion = fun
-  | V408 => "4.08"
-  | V407 => "4.07"
-  | V406 => "4.06"
-  | V402 => "4.02";
+  | V406 => "4.06";
 
 type packageManager =
   /* Absolute path to the Opam switch prefix */
@@ -32,12 +26,6 @@ type t =
   | Dune(packageManager)
   | Bsb(string)
   | BsbNative(string, target);
-
-let usesStdlib = v => switch v {
-  | V408 | V407 => true
-  | V406 | V402 => false
-};
-
 
 let fromString = string => {
   switch (Util.Utils.split_on_char(':', string)) {
@@ -134,10 +122,7 @@ let getBsbExecutable = rootPath =>
   );
 
 let parseOCamlVersion = versionString =>switch (Utils.split_on_char('.', String.trim(versionString))) {
-    | ["4", "02", ..._] => Ok(V402)
     | ["4", "06", ..._] => Ok(V406)
-    | ["4", "07", ..._] => Ok(V407)
-    | ["4", "08", ..._] => Ok(V408)
     | _ => Error("Unsupported OCaml version: " ++ versionString)
   }
 
