@@ -92,7 +92,7 @@ module F = (Collector: {
 
   let maybeAddUse = (path, ident, loc, tip) => {
     let%opt_consume tracker = findClosestMatchingOpen(extra.opens, path, ident, loc);
-    let%opt_consume relpath = Query.makeRelativePath(tracker.path |> Current.Path406.toPath, Shared.mapOldPath(path));
+    let%opt_consume relpath = Query.makeRelativePath(tracker.path, Shared.castOldPath(path));
 
     tracker.used = [(relpath, tip, loc), ...tracker.used];
   };
