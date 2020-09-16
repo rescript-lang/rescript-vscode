@@ -235,160 +235,25 @@ let pathToPath = paths => switch paths {
   | `IntfAndImpl(a, b, c, d) => SharedTypes.IntfAndImpl(a, b, c, d)
 };
 
-let newJbuilderPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath) => {
-  /* `Filename.dirname` strips the current path segment even if it's a
-   * directory, which means it would disallow projects where the source files
-   * are at the toplevel, i.e. co-located with the e.g. `dune-project` file.
-   */
-  let%try projectRoot = findJbuilderProjectRoot(
-    Sys.is_directory(rootPath) ? rootPath : Filename.dirname(rootPath)
-  );
-  Log.log("=== Project root: " ++ projectRoot);
-
-  let%try (pkgMgr, buildSystem) = switch overrideBuildSystem {
-    | None =>
-      let%try pkgMgr = BuildSystem.inferPackageManager(projectRoot);
-      Ok((pkgMgr, BuildSystem.Dune(pkgMgr)));
-    | Some(BuildSystem.Dune(mgr)) => Ok((mgr, Dune(mgr)))
-    | Some(_) => failwith("Invalid build system override when creating a new dune package")
-  };
-
-  let%try merlinRaw = Files.readFileResult(rootPath /+ ".merlin");
-  let (source, _build, flags) = MerlinFile.parseMerlin("", merlinRaw);
-
-  let%try (jbuildPath, jbuildRaw) = JbuildFile.readFromDir(rootPath);
-  let%try jbuildConfig = switch (JbuildFile.parse(jbuildRaw)) {
-    | exception Failure(message) => Error("Unable to parse build file " ++ jbuildPath ++ " " ++ message)
-    | x => Ok(x)
-  };
-
-  let packageName = JbuildFile.findName(jbuildConfig);
-
-  let namespace = switch packageName {
-    | `Library(name) => Some(name)
-    | _ => None
-  };
-
-  let libraryName = switch packageName {
-    | `Library(n) => Some(n)
-    | _ => None
-  };
-
-  let%try hiddenLocation = BuildSystem.hiddenLocation(projectRoot, buildSystem);
-  Files.mkdirp(hiddenLocation);
-
-  Log.log("Get ocaml stdlib dirs");
-  let%try stdlibs = BuildSystem.getStdlib(projectRoot, buildSystem);
-
-  let%try (pathsForModule, nameForPath, localModules, depsModules, includeDirectories) = {
-    Log.log("New dune process");
-    let (pathsForModule_, nameForPath, localModules, depsModules, includeDirectories) = MerlinFile.getModulesFromMerlin(
-      ~stdlibs,
-      rootPath, merlinRaw);
-    let pathsForModule = Hashtbl.create(Hashtbl.length(pathsForModule_));
-    pathsForModule_ |> Hashtbl.iter((k, v) => pathsForModule->Hashtbl.replace(k, pathToPath(v)));
-    // pathsForModule->Hasthbl.map
-    Ok((
-      pathsForModule,
-      nameForPath,
-      localModules->Belt.List.keepMap(name => Utils.maybeHash(pathsForModule, name) |?>> (x => (name, x))),
-      depsModules,
-      includeDirectories
-    ))
-  };
-
-  let interModuleDependencies = Hashtbl.create(List.length(localModules));
-
-  let buildCommand = if (state.settings.autoRebuild) {
-    switch (pkgMgr) {
-      | Esy(_) =>
-        Some(("esy", projectRoot))
-      | Opam(switchPrefix) =>
-        if (Files.exists(switchPrefix /+ "bin" /+ "dune")) {
-          Some(("opam exec -- dune build @install --root .", projectRoot))
-        } else if (Files.exists(projectRoot /+ "_opam" /+ "bin" /+ "jbuild")) {
-          Some(("opam exec -- jbuild build @install --root .", projectRoot))
-        } else {
-          None
-        }
-    };
-  } else {
-    None;
-  }
-
-  let%try () = BuildCommand.runBuildCommand(~reportDiagnostics, state, rootPath, buildCommand);
-
-  let%try compilerPath = BuildSystem.getCompiler(projectRoot, buildSystem);
-  let%try compilerVersion = BuildSystem.getCompilerVersion(compilerPath);
-  let mlfmtPath = state.settings.mlfmtLocation;
-  let refmtPath = BuildSystem.getRefmt(projectRoot, buildSystem) |> RResult.toOptionAndLog;
-  Ok({
-    basePath: rootPath,
-    localModules: localModules |. Belt.List.map(fst),
-    rebuildTimer: 0.,
-    interModuleDependencies,
-    dependencyModules: depsModules,
-    pathsForModule,
-    namespace,
-    nameForPath,
-    buildSystem,
-    buildCommand,
-    /* TODO check if there's a module called that */
-    opens: fold(libraryName, [], libraryName => [String.capitalize_ascii(libraryName)]),
-    tmpPath: hiddenLocation,
-    compilationFlags: flags |> String.concat(" "),
-    includeDirectories,
-    compilerVersion,
-    compilerPath,
-    mlfmtPath,
-    refmtPath,
-    lispRefmtPath: None,
-  });
-};
-
-
-
-
-
-
-let findRoot = (uri, packagesByRoot, overrides) => {
-  let override = overrides->Belt.List.getBy(((prefix, _system)) => {
-    Util.Utils.startsWith(uri, prefix)
-  });
-  switch override {
-    | Some((root, system)) => Some(`Override(root, system))
-    | None =>
-      let%opt path = Utils.parseUri(uri);
-      let rec loop = path => {
-        if (path == "/") {
-          None
-        } else if (Hashtbl.mem(packagesByRoot, path)) {
-          Some(`Root(path))
-        } else if (Files.exists(path /+ "bsconfig.json")) {
-          Some(`Bs(path))
-        } else if (Files.exists(path /+ "dune")) {
-          Log.log("Found a `dune` file at " ++ path);
-          Some(`Jbuilder(path))
-        } else if (Files.exists(path /+ ".merlin")) {
-          Log.log("Found a `.merlin` file at " ++ path);
-          Some(`Jbuilder(path))
-        } else {
-          loop(Filename.dirname(path))
-        }
-      };
+let findRoot = (uri, packagesByRoot) => {
+  let%opt path = Utils.parseUri(uri);
+  let rec loop = path => {
+    if (path == "/") {
+      None
+    } else if (Hashtbl.mem(packagesByRoot, path)) {
+      Some(`Root(path))
+    } else if (Files.exists(path /+ "bsconfig.json")) {
+      Some(`Bs(path))
+    } else {
       loop(Filename.dirname(path))
-  }
+    }
+  };
+  loop(Filename.dirname(path))
 };
 
 let newPackageForRoot = (~reportDiagnostics, state, root) => {
   if (Files.exists(root /+ "bsconfig.json")) {
     let%try package = newBsPackage(~reportDiagnostics, state, root);
-    Files.mkdirp(package.tmpPath);
-    /* Hashtbl.replace(state.rootForUri, uri, package.basePath); */
-    Hashtbl.replace(state.packagesByRoot, package.basePath, package);
-    RResult.Ok(package)
-  } else if (Files.exists(root /+ "dune-project")) {
-    let%try package = newJbuilderPackage(~reportDiagnostics, state, root);
     Files.mkdirp(package.tmpPath);
     /* Hashtbl.replace(state.rootForUri, uri, package.basePath); */
     Hashtbl.replace(state.packagesByRoot, package.basePath, package);
@@ -402,22 +267,11 @@ let getPackage = (~reportDiagnostics, uri, state) => {
   if (Hashtbl.mem(state.rootForUri, uri)) {
     RResult.Ok(Hashtbl.find(state.packagesByRoot, Hashtbl.find(state.rootForUri, uri)))
   } else {
-    let%try root = findRoot(uri, state.packagesByRoot, state.settings.buildSystemOverrideByRoot) |> RResult.orError("No root directory found");
+    let%try root = findRoot(uri, state.packagesByRoot) |> RResult.orError("No root directory found");
     let%try package = switch root {
     | `Root(rootPath) =>
       Hashtbl.replace(state.rootForUri, uri, rootPath);
       RResult.Ok(Hashtbl.find(state.packagesByRoot, Hashtbl.find(state.rootForUri, uri)))
-    | `Override(rootPath, Bsb(_) as buildSystem) =>
-      let%try package = newBsPackage(~overrideBuildSystem=buildSystem, ~reportDiagnostics, state, rootPath);
-      Files.mkdirp(package.tmpPath);
-      let package = {
-        ...package,
-        refmtPath: state.settings.refmtLocation |?? package.refmtPath,
-        lispRefmtPath: state.settings.lispRefmtLocation |?? package.lispRefmtPath,
-      };
-      Hashtbl.replace(state.rootForUri, uri, package.basePath);
-      Hashtbl.replace(state.packagesByRoot, package.basePath, package);
-      RResult.Ok(package)
     | `Bs(rootPath) =>
       let%try package = newBsPackage(~reportDiagnostics, state, rootPath);
       Files.mkdirp(package.tmpPath);
@@ -426,20 +280,6 @@ let getPackage = (~reportDiagnostics, uri, state) => {
         refmtPath: state.settings.refmtLocation |?? package.refmtPath,
         lispRefmtPath: state.settings.lispRefmtLocation |?? package.lispRefmtPath,
       };
-      Hashtbl.replace(state.rootForUri, uri, package.basePath);
-      Hashtbl.replace(state.packagesByRoot, package.basePath, package);
-      RResult.Ok(package)
-    | `Override(path, (Dune(_)) as buildSystem) =>
-      Log.log("]] Making a new jbuilder package at " ++ path);
-      let%try package = newJbuilderPackage(~overrideBuildSystem=buildSystem, ~reportDiagnostics, state, path);
-      Files.mkdirp(package.tmpPath);
-      Hashtbl.replace(state.rootForUri, uri, package.basePath);
-      Hashtbl.replace(state.packagesByRoot, package.basePath, package);
-      RResult.Ok(package)
-    | `Jbuilder(path) =>
-      Log.log("]] Making a new jbuilder package at " ++ path);
-      let%try package = newJbuilderPackage(~reportDiagnostics, state, path);
-      Files.mkdirp(package.tmpPath);
       Hashtbl.replace(state.rootForUri, uri, package.basePath);
       Hashtbl.replace(state.packagesByRoot, package.basePath, package);
       RResult.Ok(package)

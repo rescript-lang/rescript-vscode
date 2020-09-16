@@ -118,7 +118,6 @@ let getState = () => {
       showModulePathOnHover: false,
       recordAllLocations: false,
       autoRebuild: false,
-      buildSystemOverrideByRoot: [],
     },
   };
 };

@@ -13,12 +13,6 @@ let duneFile = {|
    )
 |};
 
-describe.plain("DuneFile", ({it}) => {
-  it("Complex dune file", ({expect}) => {
-    Util.JbuildFile.parse(duneFile) |>  ignore
-  })
-});
-
 let relpathFixtures = [
   (("/a/b/c", "/a/b/d"), "../d"),
   (("/a/b/c", "/a/b/d/e"), "../d/e"),
