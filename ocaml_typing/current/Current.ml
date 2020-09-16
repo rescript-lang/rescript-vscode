@@ -39,6 +39,8 @@ type path = Path.t =
 module Ident406 = struct
   type t = { stamp: int; name: string; mutable flags: int }
   let toIdent {name; stamp} = (Obj.magic(Local({name; stamp})) : Ident.t)
+
+  let same (i1:t) (i2:t) = i1 = i2
 end
 
 module Path406 = struct
@@ -51,6 +53,21 @@ module Path406 = struct
     | Pident(i) -> Path.Pident(i |> Ident406.toIdent)
     | Pdot(p, s, _) -> Path.Pdot(p |> toPath, s)
     | Papply(p1, p2) -> Path.Papply(p1 |> toPath, p2 |> toPath)
+
+  let rec name = function
+    Pident id -> id.name
+  | Pdot(p, s, _pos) ->
+      name  p ^ "." ^ s
+  | Papply(p1, p2) -> name p1 ^ "(" ^ name p2 ^ ")"
+
+  let rec same p1 p2 =
+    match (p1, p2) with
+      (Pident id1, Pident id2) -> Ident406.same id1 id2
+    | (Pdot(p1, s1, _), Pdot(p2, s2, _)) -> s1 = s2 && same p1 p2
+    | (Papply(fun1, arg1), Papply(fun2, arg2)) ->
+         same fun1 fun2 && same arg1 arg2
+    | (_, _) -> false
+  
 end
 
 let rec samePath p1 p2 =

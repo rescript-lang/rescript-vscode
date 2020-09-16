@@ -43,7 +43,7 @@ let findClosestMatchingOpen = (opens, path, ident, loc) => {
   let%opt openNeedle = relative(ident, path);
 
   let matching = Hashtbl.fold((_, op, res) => {
-    if (Utils.locWithinLoc(loc, op.extent) && Current.samePath(op.path, Shared.mapOldPath(openNeedle))) {
+    if (Utils.locWithinLoc(loc, op.extent) && Current.Path406.same(op.path, Shared.castOldPath(openNeedle))) {
       [op, ...res]
     } else {
       res
@@ -92,7 +92,7 @@ module F = (Collector: {
 
   let maybeAddUse = (path, ident, loc, tip) => {
     let%opt_consume tracker = findClosestMatchingOpen(extra.opens, path, ident, loc);
-    let%opt_consume relpath = Query.makeRelativePath(tracker.path, Shared.mapOldPath(path));
+    let%opt_consume relpath = Query.makeRelativePath(tracker.path |> Current.Path406.toPath, Shared.mapOldPath(path));
 
     tracker.used = [(relpath, tip, loc), ...tracker.used];
   };
@@ -320,7 +320,7 @@ module F = (Collector: {
     /* Log.log("Have an open here"); */
     maybeAddUse(open_path, txt, loc, Module);
     let tracker = {
-      path: Shared.mapOldPath(open_path),
+      path: Shared.castOldPath(open_path),
       loc,
       ident: l,
       used: [],
@@ -448,7 +448,7 @@ module F = (Collector: {
     expression.exp_extra |. Belt.List.forEach(((e, eloc, _)) => switch e {
       | Texp_open(_, path, ident, _) => {
         extra.opens |. Hashtbl.add(eloc, {
-          path: Shared.mapOldPath(path),
+          path: Shared.castOldPath(path),
           ident,
           loc: eloc,
           extent: expression.exp_loc,

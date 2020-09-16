@@ -99,13 +99,13 @@ type flexibleType = {
   variableKind: kinds,
   getConstructorPath: unit => option((Current.Path406.t, list(flexibleType))),
   getArguments: unit => (list((string, flexibleType)), flexibleType),
-  asSimpleType: unit => SimpleType.expr(Path.t),
+  asSimpleType: unit => SimpleType.expr(Current.Path406.t),
 };
 
 type flexibleDeclaration = {
   declToString: string => string,
   declarationKind: kinds,
-  asSimpleDeclaration: string => SimpleType.declaration(Path.t),
+  asSimpleDeclaration: string => SimpleType.declaration(Current.Path406.t),
   migrateAttributes: unit => Parsetree.attributes,
 };
 
@@ -365,7 +365,7 @@ module Loc = {
 };
 
 type openTracker = {
-  path: Path.t,
+  path: Current.Path406.t,
   loc: Location.t,
   ident: Location.loc(Longident.t),
   extent: Location.t,
@@ -415,7 +415,7 @@ let showExtra = ({internalReferences, externalReferences, opens}) => {
   Log.log("Opens " ++ string_of_int(List.length(opens)));
   let opens = opens |> List.map(((loc, tracker)) => {
     "Open at " ++ Utils.showLocation(loc) ++
-    "\n  path: " ++ Path.name(tracker.path) ++
+    "\n  path: " ++ Current.Path406.name(tracker.path) ++
     "\n  ident: " ++ String.concat(".", Longident.flatten(tracker.ident.txt)) ++
     "\n  used:" ++ String.concat("", tracker.used |> List.map(((path, tip, _loc)) => {
       "\n    " ++ pathToString(path) ++ " : " ++ tipToString(tip)
