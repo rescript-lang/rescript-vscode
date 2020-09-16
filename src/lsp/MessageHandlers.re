@@ -689,12 +689,12 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       | `Implementation(str) =>
         Reason_toolchain.RE.print_implementation_with_comments(
           Format.str_formatter,
-          (Convert.copy_structure(/* TODO why magic needed? */ Obj.magic(str)), []),
+          (Convert.copy_structure(str), []),
         )
       | `Interface(int) =>
         Reason_toolchain.RE.print_interface_with_comments(
           Format.str_formatter,
-          (Convert.copy_signature(/* TODO why magic needed? */ Obj.magic(int)), []),
+          (Convert.copy_signature(int), []),
         )
       };
     };
