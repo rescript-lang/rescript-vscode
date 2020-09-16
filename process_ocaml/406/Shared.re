@@ -95,6 +95,8 @@ let rec mapOldPath = oldPath => {
   }
 };
 
+let castOldPath = (oldPath: Compiler_libs_406.Path.t) => (Obj.magic(oldPath): Current.Path406.t);
+
 let rec asSimpleType = t => {
   open SharedTypes;
   switch (dig(t).desc) {
@@ -223,7 +225,7 @@ let rec makeFlexible = t => {
   getConstructorPath: () => switch (digConstructor(t)) {
     | None => None
     | Some((path, args)) =>
-      let newPath = mapOldPath(path);
+      let newPath = castOldPath(path);
       Some((newPath, args |> List.map(makeFlexible)))
   },
   getArguments: () => {

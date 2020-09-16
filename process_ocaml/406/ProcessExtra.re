@@ -111,7 +111,7 @@ module F = (Collector: {
     maybeAddUse(path, lident, loc, tip);
     let identName = Longident.last(lident);
     let identLoc = Utils.endOfLocation(loc, String.length(identName));
-    let path = Shared.mapOldPath(path);
+    let path = Shared.castOldPath(path);
     let locType = switch (Query.fromCompilerPath(~env, path)) {
       | `Stamp(stamp) => {
         addReference(stamp, identLoc);
@@ -164,7 +164,7 @@ module F = (Collector: {
   let addForField = (recordType, item, {Asttypes.txt, loc}) => {
     switch (Shared.dig(recordType).desc) {
       | Tconstr(path, _args, _memo) => {
-        let t = getTypeAtPath(Shared.mapOldPath(path));
+        let t = getTypeAtPath(Shared.castOldPath(path));
         let {Types.lbl_res} = item;
 
         let (name, typeLident) = handleConstructor(path, txt);
@@ -193,7 +193,7 @@ module F = (Collector: {
   let addForRecord = (recordType, items) => {
     switch (Shared.dig(recordType).desc) {
       | Tconstr(path, _args, _memo) => {
-        let t = getTypeAtPath(Shared.mapOldPath(path));
+        let t = getTypeAtPath(Shared.castOldPath(path));
         items |> List.iter((({Asttypes.txt, loc}, {Types.lbl_res}, _)) => {
           /* let name = Longident.last(txt); */
 
@@ -230,7 +230,7 @@ module F = (Collector: {
         maybeAddUse(path, typeLident, loc, Constructor(name));
 
         let nameLoc = Utils.endOfLocation(loc, String.length(name));
-        let t = getTypeAtPath(Shared.mapOldPath(path));
+        let t = getTypeAtPath(Shared.castOldPath(path));
         let locType = switch (t) {
           | `Local({stamp, contents: {kind: Variant(constructos)}}) => {
             {
@@ -270,13 +270,13 @@ module F = (Collector: {
       if (isPpx) {
         switch (top) {
           | Some((t, tip)) => addForPath(path, txt, loc, t, tip)
-          | None => addForPathParent(Shared.mapOldPath(path), loc)
+          | None => addForPathParent(Shared.castOldPath(path), loc)
           }
       } else {
         let l = Utils.endOfLocation(loc, String.length(Longident.last(txt)));
         switch (top) {
           | Some((t, tip)) => addForPath(path, txt, l, t, tip)
-          | None => addForPathParent(Shared.mapOldPath(path), l)
+          | None => addForPathParent(Shared.castOldPath(path), l)
         };
         switch (path, txt) {
           | (Pdot(pinner, _pname, _), Ldot(inner, name)) => {

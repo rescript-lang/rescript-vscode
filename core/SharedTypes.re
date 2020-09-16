@@ -97,7 +97,7 @@ module SimpleType = {
 type flexibleType = {
   toString: unit => string,
   variableKind: kinds,
-  getConstructorPath: unit => option((Path.t, list(flexibleType))),
+  getConstructorPath: unit => option((Current.Path406.t, list(flexibleType))),
   getArguments: unit => (list((string, flexibleType)), flexibleType),
   asSimpleType: unit => SimpleType.expr(Path.t),
 };
@@ -144,7 +144,7 @@ let getCmt = p => switch p {
 type visibilityPath =
 | File(string, string)
 | NotVisible
-| IncludedModule(Path.t, visibilityPath)
+| IncludedModule(Current.Path406.t, visibilityPath)
 | ExportedModule(string, visibilityPath)
 | HiddenModule(string, visibilityPath)
 | Expression(visibilityPath);
@@ -196,7 +196,7 @@ module Type = {
   };
 
   type kind =
-  | Abstract(option((Path.t, list(flexibleType))))
+  | Abstract(option((Current.Path406.t, list(flexibleType))))
   | Open
   | Tuple(list(flexibleType))
   | Record(list(Attribute.t))
@@ -266,7 +266,7 @@ module Module = {
     mutable topLevel: list(declared(item)),
   }
   and kind =
-  | Ident(Path.t)
+  | Ident(Current.Path406.t)
   | Structure(contents);
 };
 
