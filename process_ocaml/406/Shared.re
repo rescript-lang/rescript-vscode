@@ -207,7 +207,7 @@ let makeDeclaration = t => {
 PrintType.default.decl(PrintType.default, name, name, t) |> PrintType.prettyString,
   declarationKind: typeKind(t),
   asSimpleDeclaration: name => asSimpleDeclaration(name, t)
-  |> SharedTypes.SimpleType.declMapSource(mapOldPath),
+  |> SharedTypes.SimpleType.declMapSource(castOldPath),
   migrateAttributes: () => migrateAttributes(t),
 }
 
@@ -232,7 +232,7 @@ let rec makeFlexible = t => {
       loop(t)
   },
   asSimpleType: () => asSimpleType(t)
- |> SharedTypes.SimpleType.mapSource(mapOldPath)
+ |> SharedTypes.SimpleType.mapSource(castOldPath)
 }
 
 and loop = t => switch (t.Types.desc) {
