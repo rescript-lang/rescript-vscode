@@ -40,17 +40,17 @@ let isRelativePath = Sys.win32
 : path => path != "" && path.[0] != '/';
 
 let isBuildFile = name =>
-  Stdlib.Filename.check_suffix(name, ".cmt")
-  || Stdlib.Filename.check_suffix(name, ".cmti")
-  || Stdlib.Filename.check_suffix(name, ".cmi");
+  Filename.check_suffix(name, ".cmt")
+  || Filename.check_suffix(name, ".cmti")
+  || Filename.check_suffix(name, ".cmi");
 
 let isSourceFile = name =>
-  Stdlib.Filename.check_suffix(name, ".re")
-  || Stdlib.Filename.check_suffix(name, ".rei")
-  || Stdlib.Filename.check_suffix(name, ".ml")
-  || Stdlib.Filename.check_suffix(name, ".mli")
-  || Stdlib.Filename.check_suffix(name, ".rel")
-  || Stdlib.Filename.check_suffix(name, ".reli");
+  Filename.check_suffix(name, ".re")
+  || Filename.check_suffix(name, ".rei")
+  || Filename.check_suffix(name, ".ml")
+  || Filename.check_suffix(name, ".mli")
+  || Filename.check_suffix(name, ".rel")
+  || Filename.check_suffix(name, ".reli");
 
 let rec tryReduce: 'a 'b 'e . (list('a), 'b, ('b, 'a) => result('b, 'e)) => result('b, 'e) = (items, current, fn) => {
   switch items {
@@ -124,6 +124,9 @@ let calcPaths = (mname, files) => {
     Error("Insufficient build files found for module " ++ mname ++ " - " ++ showFiles(files))
   };
 };
+
+let hashtblKeys = (tbl) =>
+  Hashtbl.fold((key,_,l) => [key, ...l], tbl, []) |> List.rev;
 
 /** Returns a `pathsForModule`, `nameForPath`, `localModules` and `dependencyModules` */
 let getModulesFromMerlin = (~stdlibs, base, text) => {
@@ -220,7 +223,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
       filesByName->Hashtbl.replace(file, full)
       moduleNames->Hashtbl.replace(file->Filename.chop_extension, ())
     });
-    moduleNames->Hashtbl.to_seq_keys->Stdlib.List.of_seq->Belt.List.forEach(mname => {
+    moduleNames->hashtblKeys->Belt.List.forEach(mname => {
       let moduleName = switch prefix {
         | None => mname
         | Some(prefix) => prefix ++ "__" ++ (prefix == "stdlib" ? mname : mname->String.capitalize_ascii)
@@ -282,7 +285,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
       let libsAndBinaries = JbuildFile.getLibsAndBinaries(duneData);
       libsAndBinaries->Belt.List.forEach(((kind, public, private, modules)) => {
         let modules = switch modules {
-          | None => Stdlib.Hashtbl.to_seq_keys(moduleNames)->Stdlib.List.of_seq;
+          | None => moduleNames->hashtblKeys;
           | Some(modules) => modules
         };
         let%opt_consume privateName = switch (public, private) {
@@ -377,8 +380,8 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
   (
     pathsForModule,
     nameForPath,
-    localModuleNames->Hashtbl.to_seq_keys->List.of_seq,
-    depsModuleNames->Hashtbl.to_seq_keys->List.of_seq,
+    localModuleNames->hashtblKeys,
+    depsModuleNames->hashtblKeys,
     build
   );
 

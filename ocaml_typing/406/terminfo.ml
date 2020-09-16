@@ -16,7 +16,6 @@
 open Printf
 
 external isatty : out_channel -> bool = "caml_sys_isatty"
-external terminfo_rows: out_channel -> int = "caml_terminfo_rows"
 
 type status =
   | Uninitialised
@@ -24,9 +23,8 @@ type status =
   | Good_term of int
 
 let num_lines oc =
-  let rows = terminfo_rows oc in
-  if rows > 0 then rows else 24
-    (* 24 is a reasonable default for an ANSI-style terminal *)
+   24
+  (* 24 is a reasonable default for an ANSI-style terminal *)
 
 let setup oc =
   let term = try Sys.getenv "TERM" with Not_found -> "" in
