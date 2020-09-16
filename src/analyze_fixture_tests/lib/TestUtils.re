@@ -7,7 +7,7 @@ Files.mkdirp(tmp);
 
 let compilerForProjectDir = (projectDir) => {
   let%try buildSystem = BuildSystem.detectFull(projectDir);
-  let%try compilerPath = BuildSystem.getCompiler(projectDir, buildSystem);
+  let%try compilerPath = BuildSystem.getCompiler(projectDir);
   let%try_wrap compilerVersion = BuildSystem.getCompilerVersion(compilerPath);
   (buildSystem, compilerPath, compilerVersion)
 }

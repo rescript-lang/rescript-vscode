@@ -185,9 +185,7 @@ let notificationHandlers: list((string, (state, Json.t) => result(state, string)
     let shouldReload = Belt.List.some(changes, change => {
       let%try uri = RJson.get("uri", change) |?> RJson.string;
       let isRelevant =
-        Utils.endsWith(uri, "/bsconfig.json") ||
-        Utils.endsWith(uri, "/jbuild") ||
-        Utils.endsWith(uri, "/dune");
+        Utils.endsWith(uri, "/bsconfig.json");
       if (!isRelevant) {
         Ok(false)
       } else {

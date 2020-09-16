@@ -31,7 +31,6 @@ let rec getAffectedFiles = (root, lines) => switch lines {
 
 let runBuildCommand = (~reportDiagnostics, state, root, buildCommand) => {
   /** TODO check for a bsb.lock file & bail if it's there */
-  /** TODO refactor so Dune projects don't get bsconfig.json handling below */
   switch buildCommand {
     | None => Ok()
     | Some((buildCommand, commandDirectory)) =>
@@ -42,11 +41,6 @@ let runBuildCommand = (~reportDiagnostics, state, root, buildCommand) => {
       Log.log(">>> stderr");
       let errors = Utils.joinLines(stderr);
       Log.log(errors);
-      let%try _ = if (Utils.startsWith(errors, "Error: Could not find an item in the entries field to compile to ")) {
-        Error("Bsb-native " ++ errors ++ "\nHint: check your bsconfig's \"entries\".")
-      } else {
-        Ok();
-      };
       let files = getAffectedFiles(commandDirectory, stdout @ stderr);
       Log.log("Affected files: " ++ String.concat(" ", files));
       let bsconfigJson = root /+ "bsconfig.json" |> Utils.toUri;

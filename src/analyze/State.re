@@ -226,7 +226,6 @@ let getInterfaceFile = (uri, state, ~package: TopTypes.package) => {
     ~basePath=package.basePath,
     ~reasonFormat=switch (package.buildSystem) {
       | Bsb(_) => Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei")
-      | _ => false
     },
     text,
     ~cacheLocation=package.tmpPath,
@@ -249,7 +248,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
       let path = Utils.parseUri(uri) |! "not a uri: " ++ uri;
       Files.readFileExn(path)
     };
-    let moduleName = BuildSystem.namespacedName(package.buildSystem, package.namespace, FindFiles.getName(path));
+    let moduleName = BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
     /* let%try moduleName = switch (Utils.maybeHash(package.nameForPath, path)) {
       | None =>
         Hashtbl.iter((k, v) => Log.log("Path: " ++ k ++ "  " ++ v), package.nameForPath);
@@ -267,10 +266,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
       ~moduleName,
       ~allLocations=state.settings.recordAllLocations,
       ~basePath=package.basePath,
-      ~reasonFormat=switch (package.buildSystem) {
-        | Bsb(_) => Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei")
-        | _ => false
-      },
+      ~reasonFormat=Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei"),
       text,
       ~cacheLocation=package.tmpPath,
       package.compilerPath,

@@ -70,7 +70,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
 
   let buildCommand = switch buildSystem {
     | Bsb(_) => bsb ++ " -make-world"
-    | Dune(_) => assert(false)
   };
 
   Log.log({|📣 📣 NEW BSB PACKAGE 📣 📣|});
@@ -85,11 +84,11 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
   } else { Ok() };
 
   let compiledBase = BuildSystem.getCompiledBase(rootPath, buildSystem);
-  let%try stdLibDirectories = BuildSystem.getStdlib(rootPath, buildSystem);
-  let%try compilerPath = BuildSystem.getCompiler(rootPath, buildSystem);
+  let%try stdLibDirectories = BuildSystem.getStdlib(rootPath);
+  let%try compilerPath = BuildSystem.getCompiler(rootPath);
   let mlfmtPath = state.settings.mlfmtLocation;
   let%try refmtPath = BuildSystem.getRefmt(rootPath, buildSystem);
-  let%try tmpPath = BuildSystem.hiddenLocation(rootPath, buildSystem);
+  let%try tmpPath = BuildSystem.hiddenLocation(rootPath);
   let%try (dependencyDirectories, dependencyModules) = FindFiles.findDependencyFiles(~debug=true, ~buildSystem, rootPath, config);
   let%try_wrap compiledBase = compiledBase |> RResult.orError("You need to run bsb first so that reason-language-server can access the compiled artifacts.\nOnce you've run bsb, restart the language server.");
 
@@ -174,7 +173,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
       /* flags */
       [ version >= "7.2" ? "-bs-no-builtin-ppx" : "-bs-no-builtin-ppx-ml", ...flags];
     }
-    | _ => flags
   };
 
   let interModuleDependencies = Hashtbl.create(List.length(localModules));
@@ -209,24 +207,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
     /** TODO detect this from node_modules */
     lispRefmtPath: None,
   };
-};
-
-let rec findJbuilderProjectRoot = (path) => {
-  if (path == "/") {
-    RResult.Error("Unable to find project root dir")
-  } else if (Files.exists(path /+ "dune-project")) {
-    Ok(path)
-  } else if (Files.exists(path /+ "dune-workspace")) {
-    Ok(path)
-  } else if (Files.exists(path /+ "_build")) {
-    Ok(path)
-  } else if (Files.exists(path /+ "_esy")) {
-    Ok(path)
-  } else if (Files.exists(path /+ "_opam")) {
-    Ok(path)
-  } else {
-    findJbuilderProjectRoot(Filename.dirname(path))
-  }
 };
 
 let pathToPath = paths => switch paths {
@@ -284,24 +264,6 @@ let getPackage = (~reportDiagnostics, uri, state) => {
       Hashtbl.replace(state.packagesByRoot, package.basePath, package);
       RResult.Ok(package)
     };
-
-    /* {
-      let rootName = switch root {
-        | `Bs(s) => Some("bs:" ++ s)
-        | `Jbuilder(s) => Some("dune:" ++ s)
-        | `Root(_) => None
-      };
-      let%opt_consume root = rootName;
-      Log.log("[[[  New package : at root " ++ root ++ " ]]]");
-      Log.log("# Local packages")
-      package.localModules |. Belt.List.forEach(name => Log.log(" - " ++ name))
-      Log.log("# All detected modules");
-      package.pathsForModule |> Hashtbl.iter((name, paths) => Log.log(" - " ++ name ++ "\t\t\t" ++ switch paths {
-        | SharedTypes.Impl(cmt, _) => "impl " ++ cmt
-        | Intf(cmt, _) => "intf " ++ cmt
-        | IntfAndImpl(cmt, _, cmpl, _) => "both " ++ cmt ++ " " ++ cmpl
-      }));
-    }; */
 
     Ok(package)
   }
