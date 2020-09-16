@@ -92,29 +92,12 @@ let getInitialState = (params) => {
       && Json.getPath("capabilities.textDocument.completion.completionItem.documentationFormat", params) |?> Protocol.hasMarkdownCap |? true,
   );
 
-  /* Check the editor was started with e.g. `esy @myalias code .` or `esy code.`.
-   * We can't support auto rebuild in this case yet because Esy doesn't provide
-   * enough information on which named sandbox we're in.
-   */
   let state =
-    if (BuildSystem.isRunningInEsyNamedSandbox()) {
-      let empty = TopTypes.empty();
-      {
-        ...empty,
-        settings: {
-          ...empty.settings,
-          autoRebuild: false,
-        },
-        rootPath,
-        rootUri: uri,
-      };
-    } else {
-      {
-        ...TopTypes.empty(),
-        rootPath,
-        rootUri: uri
-      };
-    };
+  {
+    ...TopTypes.empty(),
+    rootPath,
+    rootUri: uri
+  };
 
   Ok({...state, settings: {...state.settings, clientNeedsPlainText}})
 };

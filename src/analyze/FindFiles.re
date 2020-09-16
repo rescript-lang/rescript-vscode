@@ -373,7 +373,7 @@ let findDependencyFiles = (~debug, ~buildSystem, base, config) => {
        });
   let (directories, files) = List.split(depFiles);
   let files = List.concat(files);
-  let%try stdlibDirectories = BuildSystem.getStdlib(base, buildSystem);
+  let%try stdlibDirectories = BuildSystem.getStdlib(base);
   let directories = stdlibDirectories @ List.concat(directories);
   let results = files @ List.concat(List.map(collectFiles, stdlibDirectories));
   let%try bsPlatformDir = BuildSystem.getBsPlatformDir(base);
