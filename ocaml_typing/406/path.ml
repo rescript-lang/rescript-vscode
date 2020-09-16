@@ -13,7 +13,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-type t =
+type t = Current.Path406.t =
     Pident of Ident.t
   | Pdot of t * string * int
   | Papply of t * t

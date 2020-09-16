@@ -128,7 +128,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.Module.exported, item
         | Type_abstract =>
         switch (type_manifest) {
           | Some({desc: Tconstr(path, args, _)}) => Abstract(Some((
-              Shared.castOldPath(path),
+            path,
             args |> List.map(Shared.makeFlexible)
           )))
           | Some({desc: Ttuple(items)}) => Tuple(items |> List.map(Shared.makeFlexible))
@@ -212,9 +212,9 @@ and forSignatureType = (env, signature) => {
 
   {Module.exported, topLevel}
 } and forModuleType = (env, moduleType) => switch moduleType {
-  | Types.Mty_ident(path) => Module.Ident(Shared.castOldPath(path))
+  | Types.Mty_ident(path) => Module.Ident(path)
   | Mty_alias(_ /* 402*/, path) =>
-    Module.Ident(Shared.castOldPath(path))
+    Module.Ident(path)
   | Mty_signature(signature) => {
     Module.Structure(forSignatureType(env, signature))
   }
@@ -239,7 +239,7 @@ let forTypeDeclaration = (~env, ~exported: Module.exported, {typ_id, typ_loc, ty
       | Ttype_abstract =>
         switch (typ_manifest) {
           | Some({ctyp_desc: Ttyp_constr(path, _lident, args)}) => Abstract(Some((
-            Shared.castOldPath(path),
+            path,
             args |> List.map(t => Shared.makeFlexible(t.ctyp_type))
           )))
           | Some({ctyp_desc: Ttyp_tuple(items)}) => Tuple(items |> List.map(t => Shared.makeFlexible(t.ctyp_type)))
@@ -298,7 +298,7 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
       | None => env
       | Some(path) => {
         ...env,
-        modulePath: IncludedModule(Shared.castOldPath(path), env.modulePath)
+        modulePath: IncludedModule(path, env.modulePath)
       }
     };
     let topLevel = List.fold_right((item, items) => {
@@ -365,7 +365,7 @@ let rec forItem = (
     | None => env
     | Some(path) => {
       ...env,
-      modulePath: IncludedModule(Shared.castOldPath(path), env.modulePath)
+      modulePath: IncludedModule(path, env.modulePath)
      }
   };
   let topLevel = List.fold_right((item, items) => {
@@ -384,7 +384,7 @@ let rec forItem = (
 }
 
 and forModule = (env, mod_desc, moduleName) => switch mod_desc {
-  | Tmod_ident(path, _lident) => Module.Ident(Shared.castOldPath(path))
+  | Tmod_ident(path, _lident) => Module.Ident(path)
   | Tmod_structure(structure) => {
     let env = {...env, scope: itemsExtent(structure.str_items), modulePath: ExportedModule(moduleName, env.modulePath)};
     let (_doc, contents) = forStructure(~env, structure.str_items);
