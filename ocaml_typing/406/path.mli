@@ -15,7 +15,7 @@
 
 (* Access paths *)
 
-type t = Current.Path406.t =
+type t = Current.Path.t =
     Pident of Ident.t
   | Pdot of t * string * int
   | Papply of t * t

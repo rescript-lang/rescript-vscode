@@ -29,15 +29,15 @@ module SimpleType = {
 type flexibleType = {
   toString: unit => string,
   variableKind: kinds,
-  getConstructorPath: unit => option((Current.Path406.t, list(flexibleType))),
+  getConstructorPath: unit => option((Path.t, list(flexibleType))),
   getArguments: unit => (list((string, flexibleType)), flexibleType),
-  asSimpleType: unit => SimpleType.expr(Current.Path406.t),
+  asSimpleType: unit => SimpleType.expr(Path.t),
 };
 
 type flexibleDeclaration = {
   declToString: string => string,
   declarationKind: kinds,
-  asSimpleDeclaration: string => SimpleType.declaration(Current.Path406.t),
+  asSimpleDeclaration: string => SimpleType.declaration(Path.t),
   migrateAttributes: unit => Parsetree.attributes,
 };
 
@@ -76,7 +76,7 @@ let getCmt = p => switch p {
 type visibilityPath =
 | File(string, string)
 | NotVisible
-| IncludedModule(Current.Path406.t, visibilityPath)
+| IncludedModule(Path.t, visibilityPath)
 | ExportedModule(string, visibilityPath)
 | HiddenModule(string, visibilityPath)
 | Expression(visibilityPath);
@@ -128,7 +128,7 @@ module Type = {
   };
 
   type kind =
-  | Abstract(option((Current.Path406.t, list(flexibleType))))
+  | Abstract(option((Path.t, list(flexibleType))))
   | Open
   | Tuple(list(flexibleType))
   | Record(list(Attribute.t))
@@ -198,7 +198,7 @@ module Module = {
     mutable topLevel: list(declared(item)),
   }
   and kind =
-  | Ident(Current.Path406.t)
+  | Ident(Path.t)
   | Structure(contents);
 };
 
@@ -297,7 +297,7 @@ module Loc = {
 };
 
 type openTracker = {
-  path: Current.Path406.t,
+  path: Path.t,
   loc: Location.t,
   ident: Location.loc(Longident.t),
   extent: Location.t,
@@ -347,7 +347,7 @@ let showExtra = ({internalReferences, externalReferences, opens}) => {
   Log.log("Opens " ++ string_of_int(List.length(opens)));
   let opens = opens |> List.map(((loc, tracker)) => {
     "Open at " ++ Utils.showLocation(loc) ++
-    "\n  path: " ++ Current.Path406.name(tracker.path) ++
+    "\n  path: " ++ Path.name(tracker.path) ++
     "\n  ident: " ++ String.concat(".", Longident.flatten(tracker.ident.txt)) ++
     "\n  used:" ++ String.concat("", tracker.used |> List.map(((path, tip, _loc)) => {
       "\n    " ++ pathToString(path) ++ " : " ++ tipToString(tip)

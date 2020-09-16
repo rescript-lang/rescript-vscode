@@ -46,7 +46,7 @@ let findInScope = (pos, name, stamps) => {
 
 let rec joinPaths = (modulePath, path) => {
   switch modulePath {
-    | Current.Path406.Pident(ident) => (ident.stamp, ident.name, path)
+    | Path.Pident(ident) => (ident.stamp, ident.name, path)
     | Papply(fnPath, _argPath) => joinPaths(fnPath, path)
     | Pdot(inner, name, _) => joinPaths(inner, Nested(name, path))
   }
@@ -54,7 +54,7 @@ let rec joinPaths = (modulePath, path) => {
 
 let rec makePath = (modulePath) => {
   switch modulePath {
-    | Current.Path406.Pident(ident) when ident.stamp === 0 =>
+    | Path.Pident(ident) when ident.stamp === 0 =>
       `GlobalMod(ident.name)
     | Pident(ident) => `Stamp(ident.stamp)
     | Papply(fnPath, _argPath) => makePath(fnPath)
@@ -64,7 +64,7 @@ let rec makePath = (modulePath) => {
 
 let makeRelativePath = (basePath, otherPath) => {
   let rec loop = (base, other, tip) => {
-    if (Current.Path406.same(base, other)) {
+    if (Path.same(base, other)) {
       Some(tip)
     } else {
       switch other {
@@ -74,7 +74,7 @@ let makeRelativePath = (basePath, otherPath) => {
     }
   };
   switch otherPath {
-    | Current.Path406.Pdot(inner, name, _) => loop(basePath, inner, Tip(name))
+    | Path.Pdot(inner, name, _) => loop(basePath, inner, Tip(name))
     | _ => None
   }
 };
