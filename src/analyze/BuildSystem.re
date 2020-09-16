@@ -1,15 +1,4 @@
 
-type target =
-  | Js
-  | Bytecode
-  | Native;
-
-let targetName = t => switch t {
-  | Js => "js"
-  | Bytecode => "bytecode"
-  | Native => "native"
-};
-
 type compilerVersion =
   | V406;
 
@@ -24,17 +13,13 @@ type packageManager =
 
 type t =
   | Dune(packageManager)
-  | Bsb(string)
-  | BsbNative(string, target);
+  | Bsb(string);
 
 let fromString = string => {
   switch (Util.Utils.split_on_char(':', string)) {
     | ["bsb", version] => Some(Bsb(version))
     | ["dune", "esy", version] => Some(Dune(Esy(version)))
     | ["dune", "opam", basedir] => Some(Dune(Opam(basedir)))
-    | ["bsb-native", version, "js"] => Some(BsbNative(version, Js))
-    | ["bsb-native", version, "native"] => Some(BsbNative(version, Native))
-    | ["bsb-native", version, "bytecode"] => Some(BsbNative(version, Bytecode))
     | _ => None
   }
 };
@@ -43,11 +28,7 @@ let show = t => switch t {
   | Dune(Esy(v)) => "dune & esy, esy version: " ++ v
   | Dune(Opam(loc)) => "dune & opam (switch at " ++ loc ++ ")"
   | Bsb(v) => "bsb version " ++ v
-  | BsbNative(v, target) => "bsb-native version " ++ v ++ " targetting " ++ targetName(target)
 }
-
-
-let isNative = config => Json.get("entries", config) != None || Json.get("allowed-build-kinds", config) != None;
 
 let getLine = (cmd, ~pwd) => {
   switch (Commands.execFull(~pwd, cmd)) {
@@ -151,20 +132,7 @@ let detect = (rootPath, bsconfig) => {
     } : Error("Could not run bsb (ran " ++ cmd ++ "). Output: " ++ String.concat("\n", output));
   };
 
-  isNative(bsconfig) ? BsbNative(bsbVersion, {
-    switch {
-      let%try backendString = MerlinFile.getBackend(rootPath);
-      switch (backendString) {
-      | "js" => Ok(Js)
-      | "bytecode" => Ok(Bytecode)
-      | "native" => Ok(Native)
-      | s => Error("Found unsupported backend: " ++ s);
-      };
-    } {
-      | Ok(backend) => backend
-      | _ => Native
-    };
-  }) : Bsb(bsbVersion);
+  Bsb(bsbVersion);
 };
 
 let detectFull = projectDir => {
@@ -219,9 +187,6 @@ let getCompiledBase = (root, buildSystem) => {
   | Bsb("3.2.0") => Ok(root /+ "lib" /+ "bs" /+ "js")
   | Bsb("3.1.1") => Ok(root /+ "lib" /+ "ocaml")
   | Bsb(_) => Ok(root /+ "lib" /+ "bs")
-  | BsbNative(_, Js) => Ok(root /+ "lib" /+ "bs" /+ "js")
-  | BsbNative(_, Native) => Ok(root /+ "lib" /+ "bs" /+ "native")
-  | BsbNative(_, Bytecode) => Ok(root /+ "lib" /+ "bs" /+ "bytecode")
   | Dune(Opam(_)) => Ok(root /+ "_build") /* TODO maybe check DUNE_BUILD_DIR */
   | Dune(Esy(_)) =>
     let%try_wrap esyTargetDir = getEsyCompiledBase(root);
@@ -250,25 +215,9 @@ let getOpamLibOrBinPath = (root, opamSwitchPrefix, path) => {
 
 let getStdlib = (base, buildSystem) => {
   switch (buildSystem) {
-  | BsbNative(_, Js)
   | Bsb(_) =>
     let%try_wrap bsPlatformDir = getBsPlatformDir(base);
     [bsPlatformDir /+ "lib" /+ "ocaml"]
-  | BsbNative(v, Native) when v >= "3.2.0" =>
-    let%try_wrap bsPlatformDir = getBsPlatformDir(base);
-    [bsPlatformDir /+ "lib" /+ "ocaml" /+ "native",
-    bsPlatformDir /+ "vendor" /+ "ocaml" /+ "lib" /+ "ocaml"]
-  | BsbNative(v, Bytecode) when v >= "3.2.0" =>
-    let%try_wrap bsPlatformDir = getBsPlatformDir(base);
-    [bsPlatformDir /+ "lib" /+ "ocaml" /+ "bytecode",
-    bsPlatformDir /+ "vendor" /+ "ocaml" /+ "lib" /+ "ocaml"]
-  | BsbNative(_, Bytecode | Native) =>
-    let%try_wrap bsPlatformDir = getBsPlatformDir(base);
-    [bsPlatformDir
-    /+ "vendor"
-    /+ "ocaml"
-    /+ "lib"
-    /+ "ocaml"]
   | Dune(Esy(v)) =>
     let env = Unix.environment()->Array.to_list;
     switch (Utils.getEnvVar(~env, "OCAMLLIB")) {
@@ -314,19 +263,12 @@ let getExecutableInEsyPath = (exeName, ~pwd) => {
 
 let getCompiler = (rootPath, buildSystem) => {
   switch (buildSystem) {
-    | BsbNative(_, Js)
     | Bsb(_) =>
       let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
       switch(Files.ifExists(bsPlatformDir /+ "lib" /+ "bsc.exe")){
         | Some (x) => x 
         | None => bsPlatformDir /+ nodePlatform /+ "bsc.exe"
       }
-    | BsbNative(_, Native) =>
-      let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
-      bsPlatformDir /+ "vendor" /+ "ocaml" /+ "ocamlopt.opt"
-    | BsbNative(_, Bytecode) =>
-      let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
-      bsPlatformDir /+ "vendor" /+ "ocaml" /+ "ocamlc.opt"
     | Dune(Esy(_)) => getExecutableInEsyPath("ocamlc.opt", ~pwd=rootPath)
     | Dune(Opam(switchPrefix)) =>
       let%try_wrap binPath = getOpamLibOrBinPath(rootPath, switchPrefix, "bin" /+ "ocamlopt.opt");
@@ -345,16 +287,10 @@ let getRefmt = (rootPath, buildSystem) => {
         }
     }  
   switch (buildSystem) {
-    | BsbNative("3.2.0", _) =>
-      let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
-      bsRefmt(bsPlatformDir)
     | Bsb(version) when version > "2.2.0" =>
       let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
       bsRefmt(bsPlatformDir)
-    | BsbNative(version, _) when version >= "4.0.6" =>
-      let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
-      bsRefmt(bsPlatformDir)
-    | Bsb(_) | BsbNative(_, _) =>
+    | Bsb(_) =>
       let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
       bsRefmt(bsPlatformDir)
     | Dune(Esy(_)) => getExecutableInEsyPath("refmt",~pwd=rootPath)
@@ -365,8 +301,7 @@ let getRefmt = (rootPath, buildSystem) => {
 
 let hiddenLocation = (rootPath, buildSystem) => {
   switch (buildSystem) {
-    | Bsb(_)
-    | BsbNative(_, _) => Ok(rootPath /+ "node_modules" /+ ".lsp")
+    | Bsb(_) => Ok(rootPath /+ "node_modules" /+ ".lsp")
     | Dune(Opam(_)) => Ok(rootPath /+ "_build" /+ ".lsp")
     | Dune(Esy(_)) =>
       let%try_wrap esyTargetDir = getEsyCompiledBase(rootPath);

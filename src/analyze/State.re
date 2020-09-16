@@ -225,7 +225,7 @@ let getInterfaceFile = (uri, state, ~package: TopTypes.package) => {
     ~moduleName,
     ~basePath=package.basePath,
     ~reasonFormat=switch (package.buildSystem) {
-      | Bsb(_) | BsbNative(_, Js) => Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei")
+      | Bsb(_) => Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei")
       | _ => false
     },
     text,
@@ -268,7 +268,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
       ~allLocations=state.settings.recordAllLocations,
       ~basePath=package.basePath,
       ~reasonFormat=switch (package.buildSystem) {
-        | Bsb(_) | BsbNative(_, Js) => Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei")
+        | Bsb(_) => Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei")
         | _ => false
       },
       text,

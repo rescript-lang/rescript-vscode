@@ -70,7 +70,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
 
   let buildCommand = switch buildSystem {
     | Bsb(_) => bsb ++ " -make-world"
-    | BsbNative(_, target) => bsb ++ " -make-world -backend " ++ BuildSystem.targetName(target)
     | Dune(_) => assert(false)
   };
 
@@ -132,54 +131,25 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
   };
   Log.log("Dependency dirs " ++ String.concat(" ", dependencyDirectories));
 
-  let (flags, opens) = switch buildSystem {
-    /* Bsb-native's support for merlin is not dependable */
-    /* So I have to reimplement the compiler flags here. */
-    | BsbNative(_, _) =>
-      let defaultFlags = [
-        "-w -30-40+6+7+27+32..39+44+45+101",
-      ];
-      let flags = config |> Json.get("bsc-flags") |?> Json.array |?>> Utils.filterMap(Json.string) |? [];
-      let flags = defaultFlags @ flags;
-      let flags = switch namespace {
-        | None => flags
-        | Some(name) => flags @ ["-open " ++ FindFiles.nameSpaceToName(name)]
+  let (flags, opens) =  {
+    let flags =
+      MerlinFile.getFlags(rootPath)
+      |> RResult.withDefault([""])
+      |> List.map(escapePreprocessingFlags);
+    let opens = List.fold_left((opens, item) => {
+      let parts = Utils.split_on_char(' ', item);
+      let rec loop = items => switch items {
+        | ["-open", name, ...rest] => [name, ...loop(rest)]
+        | [_, ...rest] => loop(rest)
+        | [] => []
       };
-      let flags = config |> Json.get("reason") |?> Json.get("react-jsx") != None
-      ? flags @ ["-ppx " ++ bsPlatform /+ "lib" /+ "reactjs_jsx_ppx_2.exe"]
-      : flags;
-      let ppxs = config |> Json.get("ppx-flags") |?> Json.array |?>> Utils.filterMap(Json.string) |? [];
-      Log.log("Getting hte ppxs yall");
-      let flags = flags @ (Belt.List.map(ppxs, name => {
-        MerlinFile.fixPpxBsNative("-ppx " ++ Filename.quote(name), rootPath)
-      }));
-      let flags = switch (config |> Json.get("warnings") |?> Json.get("number") |?> Json.string) {
-        | None => flags
-        | Some(w) => flags @ ["-w " ++ w]
-      };
-      (flags @ [
-        "-ppx " ++ bsPlatform /+ "lib" /+ "bsppx.exe"
-      ], opens)
-    | _ => {
-      let flags =
-        MerlinFile.getFlags(rootPath)
-        |> RResult.withDefault([""])
-        |> List.map(escapePreprocessingFlags);
-      let opens = List.fold_left((opens, item) => {
-        let parts = Utils.split_on_char(' ', item);
-        let rec loop = items => switch items {
-          | ["-open", name, ...rest] => [name, ...loop(rest)]
-          | [_, ...rest] => loop(rest)
-          | [] => []
-        };
-        opens @ loop(parts)
-      }, opens, flags);
-      (flags, opens)
-    }
+      opens @ loop(parts)
+    }, opens, flags);
+    (flags, opens)
   };
 
   let flags = switch buildSystem {
-    | Bsb(version) | BsbNative(version, Js) => {
+    | Bsb(version) => {
 
       let jsPackageMode = {
         let specs = config |> Json.get("package-specs");
@@ -437,7 +407,7 @@ let getPackage = (~reportDiagnostics, uri, state) => {
     | `Root(rootPath) =>
       Hashtbl.replace(state.rootForUri, uri, rootPath);
       RResult.Ok(Hashtbl.find(state.packagesByRoot, Hashtbl.find(state.rootForUri, uri)))
-    | `Override(rootPath, (Bsb(_) | BsbNative(_)) as buildSystem) =>
+    | `Override(rootPath, Bsb(_) as buildSystem) =>
       let%try package = newBsPackage(~overrideBuildSystem=buildSystem, ~reportDiagnostics, state, rootPath);
       Files.mkdirp(package.tmpPath);
       let package = {
