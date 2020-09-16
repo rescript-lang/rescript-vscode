@@ -680,8 +680,8 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       );
     if (State.isMl(uri)) {
       switch (parsetree) {
-        | `Implementation(str) => Compiler_libs_406.Pprintast.structure(Format.str_formatter, str)
-        | `Interface(int) => Compiler_libs_406.Pprintast.signature(Format.str_formatter, int)
+        | `Implementation(str) => Pprintast.structure(Format.str_formatter, str)
+        | `Interface(int) => Pprintast.signature(Format.str_formatter, int)
       };
     } else {
       let module Convert = Migrate_parsetree.Convert(Migrate_parsetree.OCaml_406, Migrate_parsetree.OCaml_408);
@@ -723,8 +723,8 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       ~compilerVersion=package.compilerVersion,
       );
       switch (parsetree) {
-        | `Implementation(str) => Compiler_libs_406.Printast.implementation(Format.str_formatter, str)
-        | `Interface(int) => Compiler_libs_406.Printast.interface(Format.str_formatter, int)
+        | `Implementation(str) => Printast.implementation(Format.str_formatter, str)
+        | `Interface(int) => Printast.interface(Format.str_formatter, int)
       };
     Ok((state, Json.String(Format.flush_str_formatter())))
   }),

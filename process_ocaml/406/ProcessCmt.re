@@ -1,5 +1,4 @@
 
-open Compiler_libs_406;
 open Typedtree;
 open SharedTypes;
 open Infix;
