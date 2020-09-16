@@ -64,17 +64,17 @@ let rec makePath = (modulePath) => {
 
 let makeRelativePath = (basePath, otherPath) => {
   let rec loop = (base, other, tip) => {
-    if (Path.same(base, other)) {
+    if (Current.Path406.same(base, other)) {
       Some(tip)
     } else {
       switch other {
-        | Pdot(inner, name) => loop(basePath, inner, Nested(name, tip))
+        | Pdot(inner, name, _) => loop(basePath, inner, Nested(name, tip))
         | _ => None
       }
     }
   };
   switch otherPath {
-    | Path.Pdot(inner, name) => loop(basePath, inner, Tip(name))
+    | Current.Path406.Pdot(inner, name, _) => loop(basePath, inner, Tip(name))
     | _ => None
   }
 };

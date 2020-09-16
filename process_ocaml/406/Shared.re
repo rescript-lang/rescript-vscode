@@ -83,17 +83,6 @@ let rec getFnArgs = t => {
 /* HACK(jared): They removed all way for me to produce an "Ident.t" with the correct stamp.
    They forced my hand.
 */
-let convertIdent = (oldIdent) => {
-  (Obj.magic(Current.Local { name: oldIdent.Ident.name, stamp: oldIdent.Ident.stamp }): Current.abstract_ident);
-};
-
-let rec mapOldPath = oldPath => {
-  switch (oldPath) {
-    | Path.Pident(oldIdent) => Current.Pident(convertIdent(oldIdent))
-    | Path.Pdot(inner, name, _) => Current.Pdot(mapOldPath(inner),name)
-    | Path.Papply(one, two) => Current.Papply(mapOldPath(one), mapOldPath(two))
-  }
-};
 
 let castOldPath = (oldPath: Compiler_libs_406.Path.t) => (Obj.magic(oldPath): Current.Path406.t);
 
