@@ -43,7 +43,7 @@ let findClosestMatchingOpen = (opens, path, ident, loc) => {
   let%opt openNeedle = relative(ident, path);
 
   let matching = Hashtbl.fold((_, op, res) => {
-    if (Utils.locWithinLoc(loc, op.extent) && Current.Path406.same(op.path, openNeedle)) {
+    if (Utils.locWithinLoc(loc, op.extent) && Path.same(op.path, openNeedle)) {
       [op, ...res]
     } else {
       res
