@@ -1,7 +1,7 @@
 (library
  (name Analyze)
  (public_name reason-language-server.Analyze)
- (libraries Belt Vendor str Process_406
+ (libraries Belt Vendor str
    Core Util)
  (flags :standard -open Vendor -open Util -w -9)
  (preprocess
