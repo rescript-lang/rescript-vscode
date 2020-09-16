@@ -11,15 +11,8 @@ type longident = Longident.t =
     Lident of string
   | Ldot of longident * string
   | Lapply of longident * longident
-
-type abstract_ident = Ident.t
 let none = Location.none
 let mknoloc = Location.mknoloc
-
-type path = Path.t =
-    Pident of Ident.t
-  | Pdot of path * string
-  | Papply of path * path
 
 module Ident406 = struct
   type t = { stamp: int; name: string; mutable flags: int }
@@ -48,14 +41,6 @@ module Path406 = struct
     | (_, _) -> false
   
 end
-
-let rec samePath p1 p2 =
-  match (p1, p2) with
-    (Pident id1, Pident id2) -> Ident.same id1 id2
-  | (Pdot(p1, s1), Pdot(p2, s2)) -> s1 = s2 && samePath p1 p2
-  | (Papply(fun1, arg1), Papply(fun2, arg2)) ->
-       samePath fun1 fun2 && samePath arg1 arg2
-  | (_, _) -> false
 
 type constant = Asttypes.constant =
     Const_int of int
