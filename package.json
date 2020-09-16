@@ -32,7 +32,7 @@
     "@opam/uri": "3.1.0",
     "@reason-native/pastel": "^0.2.2",
     "@reason-native/rely": "^3.1.0",
-    "ocaml": "~4.8.1000",
+    "ocaml": "~4.6.1000",
     "rex-json": "*"
   }
 }

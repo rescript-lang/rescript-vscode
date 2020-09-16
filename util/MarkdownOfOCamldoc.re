@@ -71,11 +71,11 @@ let handleRef = reference => switch reference {
 };
 
 let rec showPath = (path: Path.module_) => switch path {
-  | Resolved(_resolved) => "<resolved>"
-  | Root(name) => name
-  | Forward(name) => name
-  | Dot(inner, name) => showPath(inner) ++ "." ++ name
-  | Apply(one, two) => showPath(one) ++ "(" ++ showPath(two) ++ ")"
+  | Path.Resolved(_resolved) => "<resolved>"
+  | Path.Root(name) => name
+  | Path.Forward(name) => name
+  | Path.Dot(inner, name) => showPath(inner) ++ "." ++ name
+  | Path.Apply(one, two) => showPath(one) ++ "(" ++ showPath(two) ++ ")"
 };
 
 let convertItem = (item) => {

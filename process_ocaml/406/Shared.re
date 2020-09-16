@@ -158,34 +158,30 @@ let migrateAttributes = t => {
       (({Asttypes.txt, loc}, payload)) => {
     let payload = switch payload {
       | PStr(structure) =>
-        Current.PStr(Current.Parser.implementation(Current.Lexer.token, Stdlib.Lexing.from_string({
-          Pprintast.structure(Stdlib.Format.str_formatter, structure);
-          Stdlib.Format.flush_str_formatter()
+        Current.PStr(Current.Parser.implementation(Current.Lexer.token, Lexing.from_string({
+          Pprintast.structure(Format.str_formatter, structure);
+          Format.flush_str_formatter()
         })))
-      | PPat(pattern, guard) => Current.PPat(Current.Parser.parse_pattern(Current.Lexer.token, Stdlib.Lexing.from_string({
-          Pprintast.pattern(Stdlib.Format.str_formatter, pattern)
-          Stdlib.Format.flush_str_formatter()
+      | PPat(pattern, guard) => Current.PPat(Current.Parser.parse_pattern(Current.Lexer.token, Lexing.from_string({
+          Pprintast.pattern(Format.str_formatter, pattern)
+          Format.flush_str_formatter()
         })), switch guard {
           | None => None
-          | Some(expr) => Some(Current.Parser.parse_expression(Current.Lexer.token, Stdlib.Lexing.from_string({
-            Pprintast.expression(Stdlib.Format.str_formatter, expr);
-            Stdlib.Format.flush_str_formatter()
+          | Some(expr) => Some(Current.Parser.parse_expression(Current.Lexer.token, Lexing.from_string({
+            Pprintast.expression(Format.str_formatter, expr);
+            Format.flush_str_formatter()
           })))
         })
-      | PTyp(typ) => Current.PTyp(Current.Parser.parse_core_type(Current.Lexer.token, Stdlib.Lexing.from_string({
-          Pprintast.core_type(Stdlib.Format.str_formatter, typ);
-          Stdlib.Format.flush_str_formatter()
+      | PTyp(typ) => Current.PTyp(Current.Parser.parse_core_type(Current.Lexer.token, Lexing.from_string({
+          Pprintast.core_type(Format.str_formatter, typ);
+          Format.flush_str_formatter()
         })))
-      | PSig(signature) => Current.PSig(Current.Parser.interface(Current.Lexer.token, Stdlib.Lexing.from_string({
-        Pprintast.signature(Stdlib.Format.str_formatter, signature);
-        Stdlib.Format.flush_str_formatter()
+      | PSig(signature) => Current.PSig(Current.Parser.interface(Current.Lexer.token, Lexing.from_string({
+        Pprintast.signature(Format.str_formatter, signature);
+        Format.flush_str_formatter()
       })))
     };
-    {
-      Current.Parsetree.attr_name: Current.mknoloc(txt),
-      attr_payload: payload,
-      attr_loc: loc
-    }
+    ({Asttypes.txt, loc}, payload)
   });
 };
 

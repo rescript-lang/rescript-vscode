@@ -315,7 +315,7 @@ let newJbuilderPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, roo
     let (pathsForModule_, nameForPath, localModules, depsModules, includeDirectories) = MerlinFile.getModulesFromMerlin(
       ~stdlibs,
       rootPath, merlinRaw);
-    let pathsForModule = Hashtbl.create(Stdlib.Hashtbl.length(pathsForModule_));
+    let pathsForModule = Hashtbl.create(Hashtbl.length(pathsForModule_));
     pathsForModule_ |> Hashtbl.iter((k, v) => pathsForModule->Hashtbl.replace(k, pathToPath(v)));
     // pathsForModule->Hasthbl.map
     Ok((
