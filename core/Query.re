@@ -46,19 +46,19 @@ let findInScope = (pos, name, stamps) => {
 
 let rec joinPaths = (modulePath, path) => {
   switch modulePath {
-    | Path.Pident(ident) => (Current.ident_binding_time_408(ident), Ident.name(ident), path)
-    | Path.Papply(fnPath, _argPath) => joinPaths(fnPath, path)
-    | Path.Pdot(inner, name) => joinPaths(inner, Nested(name, path))
+    | Current.Path406.Pident(ident) => (ident.stamp, ident.name, path)
+    | Papply(fnPath, _argPath) => joinPaths(fnPath, path)
+    | Pdot(inner, name, _) => joinPaths(inner, Nested(name, path))
   }
 };
 
 let rec makePath = (modulePath) => {
   switch modulePath {
-    | Path.Pident(ident) when Current.ident_binding_time_408(ident) === 0 =>
-      `GlobalMod(Ident.name(ident))
-    | Path.Pident(ident) => `Stamp(Current.ident_binding_time_408(ident))
-    | Path.Papply(fnPath, _argPath) => makePath(fnPath)
-    | Path.Pdot(inner, name) => `Path(joinPaths(inner, Tip(name)))
+    | Current.Path406.Pident(ident) when ident.stamp === 0 =>
+      `GlobalMod(ident.name)
+    | Pident(ident) => `Stamp(ident.stamp)
+    | Papply(fnPath, _argPath) => makePath(fnPath)
+    | Pdot(inner, name, _) => `Path(joinPaths(inner, Tip(name)))
   }
 };
 

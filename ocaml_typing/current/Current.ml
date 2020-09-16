@@ -36,6 +36,23 @@ type path = Path.t =
   | Pdot of path * string
   | Papply of path * path
 
+module Ident406 = struct
+  type t = { stamp: int; name: string; mutable flags: int }
+  let toIdent {name; stamp} = (Obj.magic(Local({name; stamp})) : Ident.t)
+end
+
+module Path406 = struct
+  type t =
+      Pident of Ident406.t
+    | Pdot of t * string * int
+    | Papply of t * t
+
+  let rec toPath (p:t) = match p with
+    | Pident(i) -> Path.Pident(i |> Ident406.toIdent)
+    | Pdot(p, s, _) -> Path.Pdot(p |> toPath, s)
+    | Papply(p1, p2) -> Path.Papply(p1 |> toPath, p2 |> toPath)
+end
+
 let rec samePath p1 p2 =
   match (p1, p2) with
     (Pident id1, Pident id2) -> Ident.same id1 id2
