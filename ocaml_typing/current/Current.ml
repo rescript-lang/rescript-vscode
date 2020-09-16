@@ -13,21 +13,6 @@ type longident = Longident.t =
   | Lapply of longident * longident
 
 type abstract_ident = Ident.t
-
-type ident_408 =
-  | Local of { name: string; stamp: int }
-  | Scoped of { name: string; stamp: int; scope: int }
-  | Global of string
-  | Predef of { name: string; stamp: int }
-
-let ident_binding_time_408 (ident: Ident.t) =
-  let current_ident = (Obj.magic ident : ident_408) in
-  match current_ident with
-  | Predef { stamp }
-  | Scoped { stamp }
-  | Local { stamp } -> stamp
-  | Global _ -> 0
-
 let none = Location.none
 let mknoloc = Location.mknoloc
 
@@ -38,7 +23,6 @@ type path = Path.t =
 
 module Ident406 = struct
   type t = { stamp: int; name: string; mutable flags: int }
-  let toIdent {name; stamp} = (Obj.magic(Local({name; stamp})) : Ident.t)
 
   let same (i1:t) (i2:t) = i1 = i2
 end
@@ -48,11 +32,6 @@ module Path406 = struct
       Pident of Ident406.t
     | Pdot of t * string * int
     | Papply of t * t
-
-  let rec toPath (p:t) = match p with
-    | Pident(i) -> Path.Pident(i |> Ident406.toIdent)
-    | Pdot(p, s, _) -> Path.Pdot(p |> toPath, s)
-    | Papply(p1, p2) -> Path.Papply(p1 |> toPath, p2 |> toPath)
 
   let rec name = function
     Pident id -> id.name
