@@ -84,8 +84,6 @@ let rec getFnArgs = t => {
    They forced my hand.
 */
 
-let castOldPath = (oldPath: Compiler_libs_406.Path.t) => (Obj.magic(oldPath): Current.Path406.t);
-
 let rec asSimpleType = t => {
   open SharedTypes;
   switch (dig(t).desc) {
@@ -195,8 +193,7 @@ let makeDeclaration = t => {
   SharedTypes.declToString: name =>
 PrintType.default.decl(PrintType.default, name, name, t) |> PrintType.prettyString,
   declarationKind: typeKind(t),
-  asSimpleDeclaration: name => asSimpleDeclaration(name, t)
-  |> SharedTypes.SimpleType.declMapSource(castOldPath),
+  asSimpleDeclaration: name => asSimpleDeclaration(name, t),
   migrateAttributes: () => migrateAttributes(t),
 }
 
@@ -214,14 +211,12 @@ let rec makeFlexible = t => {
   getConstructorPath: () => switch (digConstructor(t)) {
     | None => None
     | Some((path, args)) =>
-      let newPath = castOldPath(path);
-      Some((newPath, args |> List.map(makeFlexible)))
+      Some((path, args |> List.map(makeFlexible)))
   },
   getArguments: () => {
       loop(t)
   },
   asSimpleType: () => asSimpleType(t)
- |> SharedTypes.SimpleType.mapSource(castOldPath)
 }
 
 and loop = t => switch (t.Types.desc) {

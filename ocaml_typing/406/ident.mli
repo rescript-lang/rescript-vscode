@@ -15,7 +15,7 @@
 
 (* Identifiers (unique names) *)
 
-type t = { stamp: int; name: string; mutable flags: int }
+type t = Current.Ident406.t =  { stamp: int; name: string; mutable flags: int }
 
 include Identifiable.S with type t := t
 (* Notes:
