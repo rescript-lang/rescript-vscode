@@ -1,5 +1,3 @@
-
-open Compiler_libs_406;
 open SharedTypes;
 open Infix;
 

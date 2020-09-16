@@ -1,6 +1,4 @@
 
-open Compiler_libs_406;
-
 let rec dig = (typ) =>
   switch typ.Types.desc {
   | Types.Tlink(inner) => dig(inner)
