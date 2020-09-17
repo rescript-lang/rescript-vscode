@@ -1,44 +1,16 @@
 
 type kinds = | Function | Array | Variable | Object | Null | EnumMember | Module | Enum | Interface | TypeParameter | ModuleType;
 
-module SimpleType = {
-
-  type expr =
-    | Variable(string)
-    | AnonVariable
-    | RowVariant(list((string, option(expr))), bool)
-    | Reference(Path.t, list(expr))
-    | Tuple(list(expr))
-    | Fn(list((option(string), expr)), expr)
-    | Other
-
-  type body =
-    | Open
-    | Abstract
-    | Expr(expr)
-    | Record(list((string, expr)))
-    | Variant(list((string, list(expr), option(expr))))
-
-  type declaration = {
-    name: string,
-    variables: list(expr),
-    body
-  };
-};
-
 type flexibleType = {
   toString: unit => string,
   variableKind: kinds,
   getConstructorPath: unit => option((Path.t, list(flexibleType))),
   getArguments: unit => (list((string, flexibleType)), flexibleType),
-  asSimpleType: unit => SimpleType.expr,
 };
 
 type flexibleDeclaration = {
   declToString: string => string,
   declarationKind: kinds,
-  asSimpleDeclaration: string => SimpleType.declaration,
-  migrateAttributes: unit => Parsetree.attributes,
 };
 
 type filePath = string

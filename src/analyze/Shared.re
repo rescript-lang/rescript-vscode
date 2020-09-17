@@ -65,102 +65,10 @@ let typeKind = (t) =>
   | Type_variant(_) => Enum
   };
 
-let rec getFnArgs = t => {
-  switch (dig(t).desc) {
-    | Tarrow(label, arg, res, _) =>
-      let (args, res) = getFnArgs(res);
-      ([(label, arg), ...args], res)
-    | _ => ([], t)
-  }
-};
-
-/* Unfortunately we need to depend on previous Compiler_libs_* versions starting
-   with 4.07, otherwise we can't construct an ident with a custom stamp.
- */
-
-
-/* HACK(jared): They removed all way for me to produce an "Ident.t" with the correct stamp.
-   They forced my hand.
-*/
-
-let rec asSimpleType = t => {
-  open SharedTypes;
-  switch (dig(t).desc) {
-    | Tvar(None) => SimpleType.AnonVariable
-    | Tvar(Some(text)) => SimpleType.Variable(text)
-    | Tarrow(label, arg, res, _) =>
-      let (args, res) = getFnArgs(res);
-      let args = [(label, arg), ...args];
-      let args = args->Belt.List.map(((label, arg)) => (
-        /* label */
-        switch label {
-          | Nolabel => None
-          | Labelled(x) => Some(x)
-          | Optional(x) => Some(x)
-        }
-        , asSimpleType(arg)));
-      SimpleType.Fn(args, asSimpleType(res))
-    | Ttuple(items) =>
-      SimpleType.Tuple(items->Belt.List.map(asSimpleType))
-    | Tconstr(path, args, _) =>
-      SimpleType.Reference(path, args->Belt.List.map(asSimpleType))
-    | Tvariant({row_fields, row_more: _, row_closed, row_fixed: _, row_name: _}) =>
-      SimpleType.RowVariant(
-        row_fields->Belt.List.map(((label, field)) => switch field {
-          | Reither(_, [arg], _, _) => (label, Some(asSimpleType(arg)))
-          | _ => (label, None)
-        }),
-        row_closed
-      )
-    | _ => SimpleType.Other
-  }
-};
-
-let asSimpleDeclaration = (name, t) => {
-  open SharedTypes;
-  {
-    SimpleType.name,
-    variables: t.Types.type_params->Belt.List.map(param => {
-      asSimpleType(param)
-    }),
-    body: switch (t.type_kind, t.type_manifest) {
-      | (Type_open, _) => Open
-      | (Type_abstract, None) => Abstract
-      | (Type_abstract, Some(expr)) => Expr(asSimpleType(expr))
-      | (Type_record(labels, _), _) => Record(
-        labels->Belt.List.map(({ld_id, ld_type}) => (
-          Ident.name(ld_id),
-          asSimpleType(ld_type)
-        ))
-      )
-      | (Type_variant(constructors), _) => Variant(
-        constructors->Belt.List.map(({cd_id, cd_args, cd_res}) => (
-          Ident.name(cd_id),
-          switch (cd_args) {
-            | Cstr_tuple(args) =>
-              args->Belt.List.map(asSimpleType)
-            | Cstr_record(_) => []
-          },
-          switch (cd_res) {
-          | None => None
-          | Some(arg) => Some(asSimpleType(arg))
-          }
-        ))
-      )
-    }
-  }
-};
-
-let migrateAttributes = t => {
-  t.Types.type_attributes
-};
-
 let makeDeclaration = t => {
   SharedTypes.declToString: name =>
 PrintType.default.decl(PrintType.default, name, name, t) |> PrintType.prettyString,
   declarationKind: typeKind(t),
-  asSimpleDeclaration: name => asSimpleDeclaration(name, t),
-  migrateAttributes: () => migrateAttributes(t),
 }
 
 let labelToString = label => switch label {
@@ -182,7 +90,6 @@ let rec makeFlexible = t => {
   getArguments: () => {
       loop(t)
   },
-  asSimpleType: () => asSimpleType(t)
 }
 
 and loop = t => switch (t.Types.desc) {
