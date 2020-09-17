@@ -1,11 +1,6 @@
 
 type kinds = | Function | Array | Variable | Object | Null | EnumMember | Module | Enum | Interface | TypeParameter | ModuleType;
 
-type flexibleDeclaration = {
-  declToString: string => string,
-  declarationKind: kinds,
-};
-
 type filePath = string
 type paths =
 | Impl(filePath, option(filePath))
@@ -102,7 +97,7 @@ module Type = {
   type t = {
     kind,
     params: list((Types.type_expr, Location.t)),
-    typ: flexibleDeclaration,
+    decl: Types.type_declaration,
   };
 };
 
@@ -256,7 +251,7 @@ module Loc = {
   | Constant(Asttypes.constant)
   | Module(typed)
   | TopLevelModule(string)
-  | TypeDefinition(string, flexibleDeclaration, int)
+  | TypeDefinition(string, Types.type_declaration, int)
   | Explanation(string)
   | Open;
 };

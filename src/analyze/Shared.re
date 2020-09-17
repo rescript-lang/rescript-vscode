@@ -57,7 +57,7 @@ let rec variableKind = (t) =>
   | _ => Variable
   };
 
-let typeKind = (t) =>
+let declarationKind = (t) =>
   switch t.Types.type_kind {
   | Type_open
   | Type_abstract => SharedTypes.TypeParameter
@@ -65,33 +65,24 @@ let typeKind = (t) =>
   | Type_variant(_) => Enum
   };
 
-let makeDeclaration = t => {
-  SharedTypes.declToString: name =>
-PrintType.default.decl(PrintType.default, name, name, t) |> PrintType.prettyString,
-  declarationKind: typeKind(t),
-}
+let declToString = (name, t) =>
+  PrintType.default.decl(PrintType.default, name, name, t) |> PrintType.prettyString;
 
 let labelToString = label => switch label {
   | Asttypes.Nolabel => ""
   | Optional(label) | Labelled(label) => label
 };
 
-module FlexibleType = {
-  let toString = t => {
-    PrintType.default.expr(PrintType.default, t)
-    |> PrintType.prettyString(~width=40)
-  }
+let typeToString = t => {
+  PrintType.default.expr(PrintType.default, t)
+  |> PrintType.prettyString(~width=40)
+}
 
-  let variableKind = t => variableKind(t);
-
-  let getConstructorPath = t => digConstructor(t)
-
-  let rec getArguments = t => switch (t.Types.desc) {
-    | Types.Tsubst(t)
-    | Tlink(t) => getArguments(t)
-    | Tarrow(label, argt, res, _) =>
-      let (args, fin) = getArguments(res);
-      ([(labelToString(label), argt), ...args], fin)
-    | _ => ([], t)
-  };
+let rec getArguments = t => switch (t.Types.desc) {
+  | Types.Tsubst(t)
+  | Tlink(t) => getArguments(t)
+  | Tarrow(label, argt, res, _) =>
+    let args = getArguments(res);
+    [(labelToString(label), argt), ...args]
+  | _ => []
 };

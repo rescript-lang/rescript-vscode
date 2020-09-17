@@ -5,9 +5,9 @@ let showConstructor = ({SharedTypes.Type.Constructor.name: {txt}, args, res}) =>
   txt ++ (args == []
     ? ""
     : "(" ++ String.concat(", ", args |. Belt.List.map(((typ, _)) => (
-      typ |> Shared.FlexibleType.toString
+      typ |> Shared.typeToString
     ))) ++ ")")
-  ++ ((res |?>> typ => "\n" ++ (typ |> Shared.FlexibleType.toString)) |? "")
+  ++ ((res |?>> typ => "\n" ++ (typ |> Shared.typeToString)) |? "")
 };
 
 let rec pathOfModuleOpen = items =>
@@ -279,10 +279,10 @@ let kindToInt = k =>
 
 let detail = (name, contents) =>
   switch (contents) {
-  | Type({typ}) =>
-    typ.declToString(name)
+  | Type({decl}) =>
+    decl |> Shared.declToString(name)
   | Value({typ}) =>
-    typ |> Shared.FlexibleType.toString
+    typ |> Shared.typeToString
   | Module(_) => "module"
   | ModuleType(_) => "module type"
   | FileModule(_) => "file module"
@@ -290,17 +290,17 @@ let detail = (name, contents) =>
     name
     ++ ": "
     ++ (
-      typ |> Shared.FlexibleType.toString
+      typ |> Shared.typeToString
     )
     ++ "\n\n"
     ++ (
-      t.contents.typ.declToString(t.name.txt)
+      t.contents.decl |> Shared.declToString(t.name.txt)
     )
   | Constructor(c, t) =>
   showConstructor(c)
     ++ "\n\n"
     ++ (
-      t.contents.typ.declToString(t.name.txt)
+      t.contents.decl |> Shared.declToString(t.name.txt)
     )
   };
 
@@ -591,7 +591,7 @@ let get =
           let%opt declared =
             Query.findInScope(pos, first, env.file.stamps.values);
           Log.log("Found it! " ++ declared.name.txt);
-          let%opt path = declared.contents.typ |> Shared.FlexibleType.getConstructorPath;
+          let%opt path = declared.contents.typ |> Shared.digConstructor;
           let%opt (env, typ) =
             Hover.digConstructor(~env, ~getModule, path);
           let%opt (env, typ) =
@@ -605,7 +605,7 @@ let get =
                   let%opt attr =
                     attributes |. Belt.List.getBy(a => a.name.txt == name);
                   Log.log("Found attr " ++ name);
-                  let%opt path = attr.typ |> Shared.FlexibleType.getConstructorPath;
+                  let%opt path = attr.typ |> Shared.digConstructor;
                   Hover.digConstructor(~env, ~getModule, path);
                 | _ => None
                 };
