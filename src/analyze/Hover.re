@@ -26,7 +26,7 @@ let showModuleTopLevel = (~name, ~markdown, topLevel: list(SharedTypes.declared(
            "  let "
            ++ item.name.txt
            ++ ": "
-           ++ (typ.toString()) /* TODO indent */
+           ++ (typ |> Shared.FlexibleType.toString) /* TODO indent */
            ++ ";"
          | ModuleType(_) => "  module type " ++ item.name.txt ++ ";"
          }
@@ -93,10 +93,10 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showP
       })
     }
     | Typed(t, _) => {
-      let typeString = t.toString();
+      let typeString = t |> Shared.FlexibleType.toString;
       let extraTypeInfo = {
         let env = {Query.file, exported: file.contents.exported};
-        let%opt path = t.getConstructorPath();
+        let%opt path = t |> Shared.FlexibleType.getConstructorPath;
         let%opt (_env, {name: {txt}, contents: {typ}}) = digConstructor(~env, ~getModule, path);
         Some(typ.declToString(txt))
         /* TODO type declaration */
@@ -130,7 +130,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showP
             [Some(typeString),
             Some(codeBlock(txt ++ "(" ++ (args |. Belt.List.map(((t, _)) => {
               let typeString =
-                t.toString();
+                t |> Shared.FlexibleType.toString;
               typeString
 
             }) |> String.concat(", ")) ++ ")")),

@@ -90,9 +90,9 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       };
       Log.log("Found a type signature");
       /* BuildSystem.BsbNative() */
-      let (args, _rest) = typ.getArguments();
+      let (args, _rest) = typ |> Shared.FlexibleType.getArguments;
       let%opt args = args == [] ? None : Some(args);
-      let printedType = typ.toString();
+      let printedType = typ |> Shared.FlexibleType.toString;
       open Util.JsonShort;
       Some(Ok((state, o([
         ("activeParameter", i(commas)),
@@ -106,7 +106,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
             ("parameters", l(args |. List.map(((label, argt)) => {
               o([
                 ("label", s(label)),
-                ("documentation", s(argt.toString()))
+                ("documentation", s(argt |> Shared.FlexibleType.toString))
               ])
             })))
           ])
@@ -328,7 +328,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
               | [{SharedTypes.name: {loc}, contents}, ... tlp] => {
                 let currentCl =
                   switch (contents) {
-                  | SharedTypes.Module.Value({typ}) => [(typ.toString(), loc)]
+                  | SharedTypes.Module.Value({typ}) => [(typ |> Shared.FlexibleType.toString, loc)]
                   | Module(Structure({topLevel})) => getTypeLensTopLevel(topLevel)
                   | _ => []
                   };
@@ -511,7 +511,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
     let rec getItems = ({Module.topLevel}) => {
       let fn = ({name: {txt}, extentLoc, contents}) => {
         let (item, siblings) = switch contents {
-          | Module.Value(v) => (v.typ.variableKind, [])
+          | Module.Value(v) => (v.typ |> Shared.FlexibleType.variableKind, [])
           | Type(t) => (t.typ.declarationKind, [])
           | Module(Structure(contents)) => (Module, getItems(contents))
           | Module(Ident(_)) => (Module, [])
@@ -581,7 +581,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
             | File(_, _) => Some(())
             | _ => None
           };
-          let text = "let " ++ declared.name.txt ++ ": " ++ t.toString();
+          let text = "let " ++ declared.name.txt ++ ": " ++ (t |> Shared.FlexibleType.toString);
           Some(text)
         | TypeDefinition(name, decl, _) => Some(decl.declToString(name))
         | _ => None

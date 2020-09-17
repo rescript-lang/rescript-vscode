@@ -101,7 +101,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.Module.exported, item
   ) => {
     let contents = {
       Value.recursive: false,
-      typ: Shared.makeFlexible(val_type),
+      typ: val_type,
     };
     let declared = addItem(
       ~name=Location.mknoloc(Ident.name(ident)),
@@ -121,16 +121,16 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.Module.exported, item
     _
     ) => {
     let declared = addItem(~extent=type_loc, ~contents={
-      Type.params: type_params |> List.map(t => (Shared.makeFlexible(t), Location.none)),
+      Type.params: type_params |> List.map(t => (t, Location.none)),
       typ: Shared.makeDeclaration(decl),
       kind: switch type_kind {
         | Type_abstract =>
         switch (type_manifest) {
           | Some({desc: Tconstr(path, args, _)}) => Abstract(Some((
             path,
-            args |> List.map(Shared.makeFlexible)
+            args
           )))
-          | Some({desc: Ttuple(items)}) => Tuple(items |> List.map(Shared.makeFlexible))
+          | Some({desc: Ttuple(items)}) => Tuple(items)
           /* TODO dig */
           | _ => Abstract(None)
         }
@@ -147,8 +147,8 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.Module.exported, item
               /* TODO(406): constructor record args support */
                 | Cstr_record(_) => []
               } |>
-                List.map(t => (Shared.makeFlexible(t), Location.none)),
-              res: cd_res |?>> Shared.makeFlexible,
+                List.map(t => (t, Location.none)),
+              res: cd_res,
             };
             let declared = newDeclared(
               ~contents,
@@ -174,7 +174,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.Module.exported, item
           ({ld_id, ld_type}) => {
             let astamp = Ident.binding_time(ld_id);
             let name = Ident.name(ld_id);
-            {Type.Attribute.stamp: astamp, name: Location.mknoloc(name), typ: Shared.makeFlexible(ld_type), typLoc: Location.none}
+            {Type.Attribute.stamp: astamp, name: Location.mknoloc(name), typ: ld_type, typLoc: Location.none}
           }
         ))
       }
@@ -232,16 +232,16 @@ let getModuleTypePath = (mod_desc) => switch mod_desc {
 let forTypeDeclaration = (~env, ~exported: Module.exported, {typ_id, typ_loc, typ_params, typ_name: name, typ_attributes, typ_type, typ_kind, typ_manifest}) => {
   let stamp = Ident.binding_time(typ_id);
   let declared = addItem(~extent=typ_loc, ~contents={
-    Type.params: typ_params |> List.map(((t, _)) => (Shared.makeFlexible(t.ctyp_type), t.ctyp_loc)),
+    Type.params: typ_params |> List.map(((t, _)) => (t.ctyp_type, t.ctyp_loc)),
     typ: Shared.makeDeclaration(typ_type),
     kind: switch typ_kind {
       | Ttype_abstract =>
         switch (typ_manifest) {
           | Some({ctyp_desc: Ttyp_constr(path, _lident, args)}) => Abstract(Some((
             path,
-            args |> List.map(t => Shared.makeFlexible(t.ctyp_type))
+            args |> List.map(t => t.ctyp_type)
           )))
-          | Some({ctyp_desc: Ttyp_tuple(items)}) => Tuple(items |> List.map(t => Shared.makeFlexible(t.ctyp_type)))
+          | Some({ctyp_desc: Ttyp_tuple(items)}) => Tuple(items |> List.map(t => t.ctyp_type))
           /* TODO dig */
           | _ => Abstract(None)
         }
@@ -256,13 +256,13 @@ let forTypeDeclaration = (~env, ~exported: Module.exported, {typ_id, typ_loc, ty
         /* TODO(406) */
           | Cstr_record(_) => []
         } |>
-          List.map(t => (Shared.makeFlexible(t.ctyp_type), t.ctyp_loc)),
-        res: cd_res |?>> t => Shared.makeFlexible(t.ctyp_type),
+          List.map(t => (t.ctyp_type, t.ctyp_loc)),
+        res: cd_res |?>> t => t.ctyp_type,
       }}))
       | Ttype_record(labels) => Record(labels |> List.map(
         ({ld_id, ld_name: name, ld_type: {ctyp_type, ctyp_loc}}) => {
         let astamp = Ident.binding_time(ld_id);
-          {Type.Attribute.stamp: astamp, name, typ: Shared.makeFlexible(ctyp_type), typLoc: ctyp_loc}
+          {Type.Attribute.stamp: astamp, name, typ: ctyp_type, typLoc: ctyp_loc}
         }))
     }
   }, ~name, ~stamp, ~env, typ_attributes, exported.types, env.stamps.types);
@@ -276,7 +276,7 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
       ~name,
       ~stamp=Ident.binding_time(val_id),
       ~extent=val_loc,
-      ~contents={Value.typ: Shared.makeFlexible(val_desc.ctyp_type), recursive: false},
+      ~contents={Value.typ: val_desc.ctyp_type, recursive: false},
       ~env,
       val_attributes,
       exported.values,
@@ -347,7 +347,7 @@ let rec forItem = (
       | Tpat_var(ident, name) =>
         let contents = {
           Value.recursive: false,
-          typ: Shared.makeFlexible(pat_type),
+          typ: pat_type,
         };
         let declared = addItem(~name, ~stamp=Ident.binding_time(ident), ~env, ~extent=vb_loc, ~contents, vb_attributes, exported.values, env.stamps.values);
         Some({...declared, contents: Module.Value(declared.contents)})
@@ -374,7 +374,7 @@ let rec forItem = (
   topLevel
 
 | Tstr_primitive({val_id, val_name: name, val_loc, val_attributes, val_val: {val_type}}) => {
-  let declared = addItem(~extent=val_loc, ~contents={Value.recursive: false, typ: Shared.makeFlexible(val_type)}, ~name, ~stamp=Ident.binding_time(val_id), ~env, val_attributes, exported.values, env.stamps.values);
+  let declared = addItem(~extent=val_loc, ~contents={Value.recursive: false, typ: val_type}, ~name, ~stamp=Ident.binding_time(val_id), ~env, val_attributes, exported.values, env.stamps.values);
   [{...declared, contents: Module.Value(declared.contents)}]
 }
 | Tstr_type(_, decls) =>
