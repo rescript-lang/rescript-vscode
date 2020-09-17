@@ -46,23 +46,23 @@ let rec variableKind = (t) =>
   switch t.Types.desc {
   | Tlink(t) => variableKind(t)
   | Tsubst(t) => variableKind(t)
-  | Tarrow(_) => `Function
-  | Ttuple(_) => `Array
-  | Tconstr(_) => `Variable
-  | Tobject(_) => `Object
-  | Tnil => `Null
-  | Tvariant(_) => `EnumMember
-  | Tpoly(_) => `EnumMember
-  | Tpackage(_) => `Module
-  | _ => `Variable
+  | Tarrow(_) => SharedTypes.Function
+  | Ttuple(_) => Array
+  | Tconstr(_) => Variable
+  | Tobject(_) => Object
+  | Tnil => Null
+  | Tvariant(_) => EnumMember
+  | Tpoly(_) => EnumMember
+  | Tpackage(_) => Module
+  | _ => Variable
   };
 
 let typeKind = (t) =>
   switch t.Types.type_kind {
   | Type_open
-  | Type_abstract => `TypeParameter
-  | Type_record(_) => `Interface
-  | Type_variant(_) => `Enum
+  | Type_abstract => SharedTypes.TypeParameter
+  | Type_record(_) => Interface
+  | Type_variant(_) => Enum
   };
 
 let rec getFnArgs = t => {

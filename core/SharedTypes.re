@@ -1,5 +1,5 @@
 
-type kinds = [ `Function | `Array | `Variable | `Object | `Null | `EnumMember | `Module | `Enum | `Interface | `TypeParameter | `ModuleType ];
+type kinds = | Function | Array | Variable | Object | Null | EnumMember | Module | Enum | Interface | TypeParameter | ModuleType;
 
 module SimpleType = {
 

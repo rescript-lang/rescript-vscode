@@ -513,9 +513,9 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         let (item, siblings) = switch contents {
           | Module.Value(v) => (v.typ.variableKind, [])
           | Type(t) => (t.typ.declarationKind, [])
-          | Module(Structure(contents)) => (`Module, getItems(contents))
-          | Module(Ident(_)) => (`Module, [])
-          | ModuleType(_) => (`ModuleType, [])
+          | Module(Structure(contents)) => (Module, getItems(contents))
+          | Module(Ident(_)) => (Module, [])
+          | ModuleType(_) => (ModuleType, [])
         };
         if (extentLoc.loc_ghost) {
           siblings
