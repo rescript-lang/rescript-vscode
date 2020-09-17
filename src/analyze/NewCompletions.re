@@ -259,7 +259,7 @@ let getEnvWithOpens =
 
 type k =
   | Module(Module.kind)
-  | Value(Value.t)
+  | Value(Types.type_expr)
   | Type(Type.t)
   | ModuleType(Module.kind)
   | Constructor(Type.Constructor.t, declared(Type.t))
@@ -281,7 +281,7 @@ let detail = (name, contents) =>
   switch (contents) {
   | Type({decl}) =>
     decl |> Shared.declToString(name)
-  | Value({typ}) =>
+  | Value(typ) =>
     typ |> Shared.typeToString
   | Module(_) => "module"
   | ModuleType(_) => "module type"
@@ -591,7 +591,7 @@ let get =
           let%opt declared =
             Query.findInScope(pos, first, env.file.stamps.values);
           Log.log("Found it! " ++ declared.name.txt);
-          let%opt path = declared.contents.typ |> Shared.digConstructor;
+          let%opt path = declared.contents |> Shared.digConstructor;
           let%opt (env, typ) =
             Hover.digConstructor(~env, ~getModule, path);
           let%opt (env, typ) =

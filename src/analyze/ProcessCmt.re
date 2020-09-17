@@ -99,10 +99,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.Module.exported, item
   switch item {
   | Sig_value(ident, {val_type, val_attributes, val_loc: loc}
   ) => {
-    let contents = {
-      Value.recursive: false,
-      typ: val_type,
-    };
+    let contents = val_type;
     let declared = addItem(
       ~name=Location.mknoloc(Ident.name(ident)),
       ~extent=loc,
@@ -276,7 +273,7 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
       ~name,
       ~stamp=Ident.binding_time(val_id),
       ~extent=val_loc,
-      ~contents={Value.typ: val_desc.ctyp_type, recursive: false},
+      ~contents=val_desc.ctyp_type,
       ~env,
       val_attributes,
       exported.values,
@@ -345,10 +342,7 @@ let rec forItem = (
     /* TODO get all the things out of the var. */
     switch (pat_desc) {
       | Tpat_var(ident, name) =>
-        let contents = {
-          Value.recursive: false,
-          typ: pat_type,
-        };
+        let contents = pat_type;
         let declared = addItem(~name, ~stamp=Ident.binding_time(ident), ~env, ~extent=vb_loc, ~contents, vb_attributes, exported.values, env.stamps.values);
         Some({...declared, contents: Module.Value(declared.contents)})
       | _ => None
@@ -374,7 +368,7 @@ let rec forItem = (
   topLevel
 
 | Tstr_primitive({val_id, val_name: name, val_loc, val_attributes, val_val: {val_type}}) => {
-  let declared = addItem(~extent=val_loc, ~contents={Value.recursive: false, typ: val_type}, ~name, ~stamp=Ident.binding_time(val_id), ~env, val_attributes, exported.values, env.stamps.values);
+  let declared = addItem(~extent=val_loc, ~contents=val_type, ~name, ~stamp=Ident.binding_time(val_id), ~env, val_attributes, exported.values, env.stamps.values);
   [{...declared, contents: Module.Value(declared.contents)}]
 }
 | Tstr_type(_, decls) =>

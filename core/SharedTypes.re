@@ -101,13 +101,6 @@ module Type = {
   };
 };
 
-module Value = {
-  type t = {
-    typ: Types.type_expr,
-    recursive: bool,
-  };
-};
-
 /* type scope =
 | File
 | Switch
@@ -149,7 +142,7 @@ module Module = {
     /* constructors: Hashtbl.create(10), */
   };
   type item =
-  | Value(Value.t)
+  | Value(Types.type_expr)
   | Type(Type.t)
   | Module(kind)
   | ModuleType(kind)
@@ -166,7 +159,7 @@ type stampMap('t) = Hashtbl.t(int, 't);
 
 type stamps = {
   types: stampMap(declared(Type.t)),
-  values: stampMap(declared(Value.t)),
+  values: stampMap(declared(Types.type_expr)),
   modules: stampMap(declared(Module.kind)),
   moduleTypes: stampMap(declared(Module.kind)),
   constructors: stampMap(declared(Type.Constructor.t)),
