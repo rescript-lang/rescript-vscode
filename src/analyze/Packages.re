@@ -209,11 +209,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
   };
 };
 
-let pathToPath = paths => switch paths {
-  | `Intf(a, b) => SharedTypes.Intf(a, b)
-  | `Impl(a, b) => SharedTypes.Impl(a, b)
-  | `IntfAndImpl(a, b, c, d) => SharedTypes.IntfAndImpl(a, b, c, d)
-};
 
 let findRoot = (uri, packagesByRoot) => {
   let%opt path = Utils.parseUri(uri);
@@ -229,18 +224,6 @@ let findRoot = (uri, packagesByRoot) => {
     }
   };
   loop(Filename.dirname(path))
-};
-
-let newPackageForRoot = (~reportDiagnostics, state, root) => {
-  if (Files.exists(root /+ "bsconfig.json")) {
-    let%try package = newBsPackage(~reportDiagnostics, state, root);
-    Files.mkdirp(package.tmpPath);
-    /* Hashtbl.replace(state.rootForUri, uri, package.basePath); */
-    Hashtbl.replace(state.packagesByRoot, package.basePath, package);
-    RResult.Ok(package)
-  } else {
-    RResult.Error("No bsconfig.json or dune-project found");
-  }
 };
 
 let getPackage = (~reportDiagnostics, uri, state) => {
