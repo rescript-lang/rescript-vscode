@@ -3,26 +3,26 @@ type kinds = [ `Function | `Array | `Variable | `Object | `Null | `EnumMember | 
 
 module SimpleType = {
 
-  type expr('source) =
+  type expr =
     | Variable(string)
     | AnonVariable
-    | RowVariant(list((string, option(expr('source)))), bool)
-    | Reference('source, list(expr('source)))
-    | Tuple(list(expr('source)))
-    | Fn(list((option(string), expr('source))), expr('source))
+    | RowVariant(list((string, option(expr))), bool)
+    | Reference(Path.t, list(expr))
+    | Tuple(list(expr))
+    | Fn(list((option(string), expr)), expr)
     | Other
 
-  type body('source) =
+  type body =
     | Open
     | Abstract
-    | Expr(expr('source))
-    | Record(list((string, expr('source))))
-    | Variant(list((string, list(expr('source)), option(expr('source)))))
+    | Expr(expr)
+    | Record(list((string, expr)))
+    | Variant(list((string, list(expr), option(expr))))
 
-  type declaration('source) = {
+  type declaration = {
     name: string,
-    variables: list(expr('source)),
-    body: body('source)
+    variables: list(expr),
+    body
   };
 };
 
@@ -31,13 +31,13 @@ type flexibleType = {
   variableKind: kinds,
   getConstructorPath: unit => option((Path.t, list(flexibleType))),
   getArguments: unit => (list((string, flexibleType)), flexibleType),
-  asSimpleType: unit => SimpleType.expr(Path.t),
+  asSimpleType: unit => SimpleType.expr,
 };
 
 type flexibleDeclaration = {
   declToString: string => string,
   declarationKind: kinds,
-  asSimpleDeclaration: string => SimpleType.declaration(Path.t),
+  asSimpleDeclaration: string => SimpleType.declaration,
   migrateAttributes: unit => Parsetree.attributes,
 };
 
