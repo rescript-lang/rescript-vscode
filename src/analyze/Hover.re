@@ -96,7 +96,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showP
       let typeString = t.toString();
       let extraTypeInfo = {
         let env = {Query.file, exported: file.contents.exported};
-        let%opt (path, _args) = t.getConstructorPath();
+        let%opt path = t.getConstructorPath();
         let%opt (_env, {name: {txt}, contents: {typ}}) = digConstructor(~env, ~getModule, path);
         Some(typ.declToString(txt))
         /* TODO type declaration */
