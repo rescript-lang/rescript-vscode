@@ -1,13 +1,6 @@
 
 type kinds = | Function | Array | Variable | Object | Null | EnumMember | Module | Enum | Interface | TypeParameter | ModuleType;
 
-type flexibleType = {
-  toString: unit => string,
-  variableKind: kinds,
-  getConstructorPath: unit => option(Path.t),
-  getArguments: unit => (list((string, flexibleType)), flexibleType),
-};
-
 type flexibleDeclaration = {
   declToString: string => string,
   declarationKind: kinds,
@@ -85,7 +78,7 @@ module Type = {
     type t = {
       stamp: int,
       name: Location.loc(string),
-      typ: flexibleType,
+      typ: Types.type_expr,
       typLoc: Location.t,
     };
   };
@@ -94,28 +87,28 @@ module Type = {
     type t = {
       stamp: int,
       name: Location.loc(string),
-      args: list((flexibleType, Location.t)),
-      res: option(flexibleType),
+      args: list((Types.type_expr, Location.t)),
+      res: option(Types.type_expr),
     };
   };
 
   type kind =
-  | Abstract(option((Path.t, list(flexibleType))))
+  | Abstract(option((Path.t, list(Types.type_expr))))
   | Open
-  | Tuple(list(flexibleType))
+  | Tuple(list(Types.type_expr))
   | Record(list(Attribute.t))
   | Variant(list(Constructor.t))
   ;
   type t = {
     kind,
-    params: list((flexibleType, Location.t)),
+    params: list((Types.type_expr, Location.t)),
     typ: flexibleDeclaration,
   };
 };
 
 module Value = {
   type t = {
-    typ: flexibleType,
+    typ: Types.type_expr,
     recursive: bool,
   };
 };
@@ -259,7 +252,7 @@ module Loc = {
     | NotFound => "NotFound"
   };
   type t =
-  | Typed(flexibleType, typed)
+  | Typed(Types.type_expr, typed)
   | Constant(Asttypes.constant)
   | Module(typed)
   | TopLevelModule(string)

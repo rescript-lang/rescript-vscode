@@ -76,23 +76,22 @@ let labelToString = label => switch label {
   | Optional(label) | Labelled(label) => label
 };
 
-let rec makeFlexible = t => {
-  SharedTypes.toString: () => {
+module FlexibleType = {
+  let toString = t => {
     PrintType.default.expr(PrintType.default, t)
     |> PrintType.prettyString(~width=40)
-  },
-  variableKind: variableKind(t),
-  getConstructorPath: () => digConstructor(t),
-  getArguments: () => {
-      loop(t)
-  },
-}
+  }
 
-and loop = t => switch (t.Types.desc) {
-  | Types.Tsubst(t)
-  | Tlink(t) => loop(t)
-  | Tarrow(label, argt, res, _) =>
-    let (args, fin) = loop(res);
-    ([(labelToString(label), makeFlexible(argt)), ...args], fin)
-  | _ => ([], makeFlexible(t))
+  let variableKind = t => variableKind(t);
+
+  let getConstructorPath = t => digConstructor(t)
+
+  let rec getArguments = t => switch (t.Types.desc) {
+    | Types.Tsubst(t)
+    | Tlink(t) => getArguments(t)
+    | Tarrow(label, argt, res, _) =>
+      let (args, fin) = getArguments(res);
+      ([(labelToString(label), argt), ...args], fin)
+    | _ => ([], t)
+  };
 };

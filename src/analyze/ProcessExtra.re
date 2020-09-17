@@ -182,7 +182,7 @@ module F = (Collector: {
             Loc.GlobalReference(moduleName, path, Attribute(name))
           | _ => Loc.NotFound
         };
-        addLocation(nameLoc, Loc.Typed(Shared.makeFlexible(lbl_res), locType))
+        addLocation(nameLoc, Loc.Typed(lbl_res, locType))
       }
       | _ => ()
     }
@@ -212,7 +212,7 @@ module F = (Collector: {
               Loc.GlobalReference(moduleName, path, Attribute(name))
             | _ => Loc.NotFound
           };
-          addLocation(nameLoc, Loc.Typed(Shared.makeFlexible(lbl_res), locType))
+          addLocation(nameLoc, Loc.Typed(lbl_res, locType))
         })
       }
       | _ => ()
@@ -242,7 +242,7 @@ module F = (Collector: {
             Loc.GlobalReference(moduleName, path, Constructor(name))
           | _ => Loc.NotFound
         };
-        addLocation(nameLoc, Loc.Typed(Shared.makeFlexible(constructorType), locType));
+        addLocation(nameLoc, Loc.Typed(constructorType, locType));
       }
       | _ => ()
     }
@@ -369,13 +369,13 @@ module F = (Collector: {
         },
         ~modulePath=NotVisible,
         ~processDoc=x => x,
-        ~contents={Value.typ: Shared.makeFlexible(val_desc.ctyp_type), recursive: false},
+        ~contents={Value.typ: val_desc.ctyp_type, recursive: false},
         false,
         val_attributes
       );
       Hashtbl.add(Collector.file.stamps.values, stamp, declared);
       addReference(stamp, name.loc);
-      addLocation(name.loc, Loc.Typed(Shared.makeFlexible(val_desc.ctyp_type), Loc.Definition(stamp, Value)));
+      addLocation(name.loc, Loc.Typed(val_desc.ctyp_type, Loc.Definition(stamp, Value)));
     }
   }
   | _ => ()
@@ -386,7 +386,7 @@ module F = (Collector: {
       | Ttyp_constr(path, {txt, loc}, _args) => {
         /* addForPath(path, txt, loc, Shared.makeFlexible(ctyp_type), Type) */
         addForLongident(
-          Some((Shared.makeFlexible(ctyp_type), Type)),
+          Some((ctyp_type, Type)),
           path,
           txt, loc);
       }
@@ -409,13 +409,13 @@ module F = (Collector: {
             ~modulePath=NotVisible,
             ~extent=pat_loc,
             ~processDoc=x => x,
-            ~contents={Value.typ: Shared.makeFlexible(pat_type), recursive: false},
+            ~contents={Value.typ: pat_type, recursive: false},
             false,
             pat_attributes
           );
           Hashtbl.add(Collector.file.stamps.values, stamp, declared);
           addReference(stamp, name.loc);
-          addLocation(name.loc, Loc.Typed(Shared.makeFlexible(pat_type), Loc.Definition(stamp, Value)));
+          addLocation(name.loc, Loc.Typed(pat_type, Loc.Definition(stamp, Value)));
         }
     };
     /* Log.log("Entering pattern " ++ Utils.showLocation(pat_loc)); */
@@ -438,7 +438,7 @@ module F = (Collector: {
       | _ => ()
     };
     if (Collector.allLocations) {
-      addLocation(pat_loc, Loc.Typed(Shared.makeFlexible(pat_type), Loc.NotFound));
+      addLocation(pat_loc, Loc.Typed(pat_type, Loc.NotFound));
     };
   };
 
@@ -460,7 +460,7 @@ module F = (Collector: {
 
     } */
     | Texp_ident(path, {txt, loc}, {val_type}) => {
-      addForLongident(Some((Shared.makeFlexible(val_type), Value)), path, txt, loc);
+      addForLongident(Some((val_type, Value)), path, txt, loc);
     }
     | Texp_record({fields}) => {
       addForRecord(
@@ -498,7 +498,7 @@ module F = (Collector: {
     | _ => ()
     };
     if (Collector.allLocations) {
-      addLocation(expression.exp_loc, Loc.Typed(Shared.makeFlexible(expression.exp_type), Loc.NotFound));
+      addLocation(expression.exp_loc, Loc.Typed(expression.exp_type, Loc.NotFound));
     };
   };
 
@@ -546,7 +546,7 @@ let forFile = (~file) => {
           level: 0,
           desc: Tconstr(Path.Pident({Ident.stamp, name: d.name.txt, flags: 0}), [], ref(Types.Mnil))
          };
-        addLocation(name.loc, Loc.Typed(Shared.makeFlexible(t), Loc.Definition(d.stamp, Constructor(name.txt))))
+        addLocation(name.loc, Loc.Typed(t, Loc.Definition(d.stamp, Constructor(name.txt))))
       });
       | _ => ()
     };
