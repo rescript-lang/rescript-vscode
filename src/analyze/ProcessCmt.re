@@ -122,7 +122,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.Module.exported, item
     ) => {
     let declared = addItem(~extent=type_loc, ~contents={
       Type.params: type_params |> List.map(t => (t, Location.none)),
-      typ: Shared.makeDeclaration(decl),
+      decl,
       kind: switch type_kind {
         | Type_abstract =>
         switch (type_manifest) {
@@ -233,7 +233,7 @@ let forTypeDeclaration = (~env, ~exported: Module.exported, {typ_id, typ_loc, ty
   let stamp = Ident.binding_time(typ_id);
   let declared = addItem(~extent=typ_loc, ~contents={
     Type.params: typ_params |> List.map(((t, _)) => (t.ctyp_type, t.ctyp_loc)),
-    typ: Shared.makeDeclaration(typ_type),
+    decl: typ_type,
     kind: switch typ_kind {
       | Ttype_abstract =>
         switch (typ_manifest) {

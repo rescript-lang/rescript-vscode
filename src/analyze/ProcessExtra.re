@@ -532,7 +532,7 @@ let forFile = (~file) => {
     addReference(stamp, d.name.loc);
   });
   file.stamps.types |> Hashtbl.iter((stamp, d) => {
-    addLocation(d.name.loc, Loc.TypeDefinition(d.name.txt, d.contents.Type.typ, stamp));
+    addLocation(d.name.loc, Loc.TypeDefinition(d.name.txt, d.contents.Type.decl, stamp));
     addReference(stamp, d.name.loc);
     switch (d.contents.Type.kind) {
       | Record(labels) => labels |> List.iter(({Type.Attribute.stamp, name, typ}) => {
