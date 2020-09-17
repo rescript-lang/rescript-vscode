@@ -4,7 +4,7 @@ type kinds = | Function | Array | Variable | Object | Null | EnumMember | Module
 type flexibleType = {
   toString: unit => string,
   variableKind: kinds,
-  getConstructorPath: unit => option((Path.t, list(flexibleType))),
+  getConstructorPath: unit => option(Path.t),
   getArguments: unit => (list((string, flexibleType)), flexibleType),
 };
 

@@ -37,7 +37,7 @@ let rec dig = (typ) =>
 let digConstructor = (expr) => {
   let expr = dig(expr);
   switch (expr.desc) {
-  | Tconstr(path, args, _memo) => Some((path, args))
+  | Tconstr(path, _args, _memo) => Some(path)
   | _ => None
   };
 };
@@ -82,11 +82,7 @@ let rec makeFlexible = t => {
     |> PrintType.prettyString(~width=40)
   },
   variableKind: variableKind(t),
-  getConstructorPath: () => switch (digConstructor(t)) {
-    | None => None
-    | Some((path, args)) =>
-      Some((path, args |> List.map(makeFlexible)))
-  },
+  getConstructorPath: () => digConstructor(t),
   getArguments: () => {
       loop(t)
   },
