@@ -369,7 +369,7 @@ module F = (Collector: {
         },
         ~modulePath=NotVisible,
         ~processDoc=x => x,
-        ~contents={Value.typ: val_desc.ctyp_type, recursive: false},
+        ~contents=val_desc.ctyp_type,
         false,
         val_attributes
       );
@@ -409,7 +409,7 @@ module F = (Collector: {
             ~modulePath=NotVisible,
             ~extent=pat_loc,
             ~processDoc=x => x,
-            ~contents={Value.typ: pat_type, recursive: false},
+            ~contents=pat_type,
             false,
             pat_attributes
           );
@@ -528,7 +528,7 @@ let forFile = (~file) => {
     addReference(stamp, d.name.loc);
   });
   file.stamps.values |> Hashtbl.iter((stamp, d) => {
-    addLocation(d.name.loc, Loc.Typed(d.contents.Value.typ, Loc.Definition(stamp, Value)));
+    addLocation(d.name.loc, Loc.Typed(d.contents, Loc.Definition(stamp, Value)));
     addReference(stamp, d.name.loc);
   });
   file.stamps.types |> Hashtbl.iter((stamp, d) => {

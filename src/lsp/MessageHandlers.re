@@ -68,7 +68,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
             pos,
             tokenParts
           );
-          let typ = declared.contents.typ;
+          let typ = declared.contents;
           Some((typ, declared.docstring |? "No docs"))
         | Some((_, loc)) =>
           let%opt typ =
@@ -328,7 +328,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
               | [{SharedTypes.name: {loc}, contents}, ... tlp] => {
                 let currentCl =
                   switch (contents) {
-                  | SharedTypes.Module.Value({typ}) => [(typ |> Shared.typeToString, loc)]
+                  | SharedTypes.Module.Value(typ) => [(typ |> Shared.typeToString, loc)]
                   | Module(Structure({topLevel})) => getTypeLensTopLevel(topLevel)
                   | _ => []
                   };
@@ -511,7 +511,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
     let rec getItems = ({Module.topLevel}) => {
       let fn = ({name: {txt}, extentLoc, contents}) => {
         let (item, siblings) = switch contents {
-          | Module.Value(v) => (v.typ |> Shared.variableKind, [])
+          | Module.Value(v) => (v |> Shared.variableKind, [])
           | Type(t) => (t.decl |> Shared.declarationKind, [])
           | Module(Structure(contents)) => (Module, getItems(contents))
           | Module(Ident(_)) => (Module, [])

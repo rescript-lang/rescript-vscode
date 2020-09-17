@@ -22,7 +22,7 @@ let showModuleTopLevel = (~name, ~markdown, topLevel: list(SharedTypes.declared(
          | Type({decl}) =>
            "  "
            ++ (decl |> Shared.declToString(item.name.txt))
-         | Value({typ}) =>
+         | Value(typ) =>
            "  let "
            ++ item.name.txt
            ++ ": "
