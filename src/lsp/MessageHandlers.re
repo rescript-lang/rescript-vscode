@@ -611,7 +611,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
               let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
               let interfacePath = path ++ "i";
               let interfaceUri = uri ++ "i";
-              switch (Query.hashFind(state.documentText, interfaceUri)) {
+              switch (Hashtbl.find_opt(state.documentText, interfaceUri)) {
                 | None =>
                   let text = switch (Files.readFileResult(interfacePath)) {
                     | Ok(text) => text

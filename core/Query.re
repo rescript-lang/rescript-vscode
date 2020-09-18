@@ -10,11 +10,6 @@ type queryEnv = {
 
 let fileEnv = file => {file, exported: file.contents.exported};
 
-let hashFind = (tbl, key) => switch (Hashtbl.find(tbl, key)) {
-  | exception Not_found => None
-  | result => Some(result)
-};
-
 let tupleOfLexing = ({Lexing.pos_lnum, pos_cnum, pos_bol}) => (pos_lnum - 1, pos_cnum - pos_bol);
 let locationIsBefore = ({Location.loc_start}, pos) =>
   tupleOfLexing(loc_start) <= pos;
@@ -83,8 +78,8 @@ let rec resolvePathInner = (~env, ~path) => {
   switch path {
     | Tip(name) => Some(`Local(env, name))
     | Nested(subName, subPath) => {
-      let%opt stamp = hashFind(env.exported.modules, subName);
-      let%opt {contents: kind} = hashFind(env.file.stamps.modules, stamp);
+      let%opt stamp = Hashtbl.find_opt(env.exported.modules, subName);
+      let%opt {contents: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
       findInModule(~env, kind, subPath)
     }
   }
@@ -96,7 +91,7 @@ let rec resolvePathInner = (~env, ~path) => {
     if (stamp == 0) {
       Some(`Global(moduleName, fullPath))
     } else {
-      let%opt {contents: kind} = hashFind(env.file.stamps.modules, stamp);
+      let%opt {contents: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
       findInModule(~env, kind, fullPath);
     }
   }
@@ -142,7 +137,7 @@ let fromCompilerPath = (~env, path) => {
     | `GlobalMod(name) => `GlobalMod(name)
     | `Path((stamp, _moduleName, path)) => {
       let res = {
-        let%opt {contents: kind} = hashFind(env.file.stamps.modules, stamp);
+        let%opt {contents: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
         let%opt_wrap res = findInModule(~env, kind, path);
         switch res {
           | `Local(env, name) => `Exported(env, name)
@@ -160,12 +155,12 @@ let resolveModuleFromCompilerPath = (~env, ~getModule, path) => {
       let%opt file = getModule(moduleName);
       let env = fileEnv(file);
       let%opt (env, name) = resolvePath(~env, ~getModule, ~path);
-      let%opt stamp = hashFind(env.exported.modules, name);
-      let%opt declared = hashFind(env.file.stamps.modules, stamp);
+      let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
+      let%opt declared = Hashtbl.find_opt(env.file.stamps.modules, stamp);
       Some((env, Some(declared)))
     }
     | `Stamp(stamp) =>
-      let%opt declared = hashFind(env.file.stamps.modules, stamp);
+      let%opt declared = Hashtbl.find_opt(env.file.stamps.modules, stamp);
       Some((env, Some(declared)))
     | `GlobalMod(moduleName) =>
       let%opt file = getModule(moduleName);
@@ -173,8 +168,8 @@ let resolveModuleFromCompilerPath = (~env, ~getModule, path) => {
       Some((env, None))
     | `Not_found => None
     | `Exported(env, name) =>
-      let%opt stamp = hashFind(env.exported.modules, name);
-      let%opt declared = hashFind(env.file.stamps.modules, stamp);
+      let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
+      let%opt declared = Hashtbl.find_opt(env.file.stamps.modules, stamp);
       Some((env, Some(declared)))
   }
 };
@@ -198,23 +193,23 @@ let resolveFromCompilerPath = (~env, ~getModule, path) => {
 };
 
 let declaredForExportedTip = (~stamps: SharedTypes.stamps, ~exported: SharedTypes.Module.exported, name, tip) => switch tip {
-  | Value => hashFind(exported.values, name) |?> stamp => hashFind(stamps.values, stamp) |?>> x => {...x, contents: ()}
+  | Value => Hashtbl.find_opt(exported.values, name) |?> stamp => Hashtbl.find_opt(stamps.values, stamp) |?>> x => {...x, contents: ()}
   | Attribute(_) | Constructor(_)
-  | Type => hashFind(exported.types, name) |?> stamp => hashFind(stamps.types, stamp) |?>> x => {...x, contents: ()}
-  | Module => hashFind(exported.modules, name) |?> stamp => hashFind(stamps.modules, stamp) |?>> x => {...x, contents: ()}
-  | ModuleType => hashFind(exported.moduleTypes, name) |?> stamp => hashFind(stamps.moduleTypes, stamp) |?>> x => {...x, contents: ()}
+  | Type => Hashtbl.find_opt(exported.types, name) |?> stamp =>  Hashtbl.find_opt(stamps.types, stamp) |?>> x => {...x, contents: ()}
+  | Module => Hashtbl.find_opt(exported.modules, name) |?> stamp => Hashtbl.find_opt(stamps.modules, stamp) |?>> x => {...x, contents: ()}
+  | ModuleType => Hashtbl.find_opt(exported.moduleTypes, name) |?> stamp => Hashtbl.find_opt(stamps.moduleTypes, stamp) |?>> x => {...x, contents: ()}
 };
 
 let declaredForTip = (~stamps, stamp, tip) => switch tip {
-  | Value => hashFind(stamps.values, stamp) |?>> x => {...x, contents: ()}
+  | Value => Hashtbl.find_opt(stamps.values, stamp) |?>> x => {...x, contents: ()}
   | Attribute(_) | Constructor(_)
-  | Type => hashFind(stamps.types, stamp) |?>> x => {...x, contents: ()}
-  | Module => hashFind(stamps.modules, stamp) |?>> x => {...x, contents: ()}
-  | ModuleType => hashFind(stamps.moduleTypes, stamp) |?>> x => {...x, contents: ()}
+  | Type => Hashtbl.find_opt(stamps.types, stamp) |?>> x => {...x, contents: ()}
+  | Module => Hashtbl.find_opt(stamps.modules, stamp) |?>> x => {...x, contents: ()}
+  | ModuleType => Hashtbl.find_opt(stamps.moduleTypes, stamp) |?>> x => {...x, contents: ()}
 };
 
 let getAttribute = (file, stamp, name) => {
-  let%opt {contents: {kind}} = hashFind(file.stamps.types, stamp);
+  let%opt {contents: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
   switch (kind) {
     | Record(labels) => {
       let%opt label = labels |. Belt.List.getBy(label => label.name.txt == name);
@@ -225,7 +220,7 @@ let getAttribute = (file, stamp, name) => {
 };
 
 let getConstructor = (file, stamp, name) => {
-  let%opt {contents: {kind}} = hashFind(file.stamps.types, stamp);
+  let%opt {contents: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
   switch (kind) {
     | Variant(constructors) => {
       let%opt const = constructors |. Belt.List.getBy(const => const.name.txt == name);
@@ -236,11 +231,11 @@ let getConstructor = (file, stamp, name) => {
 };
 
 let exportedForTip = (~env, name, tip) => switch tip {
-  | Value => hashFind(env.exported.values, name)
+  | Value => Hashtbl.find_opt(env.exported.values, name)
   | Attribute(_) | Constructor(_)
-  | Type => hashFind(env.exported.types, name)
-  | Module => hashFind(env.exported.modules, name)
-  | ModuleType => hashFind(env.exported.moduleTypes, name)
+  | Type => Hashtbl.find_opt(env.exported.types, name)
+  | Module => Hashtbl.find_opt(env.exported.modules, name)
+  | ModuleType => Hashtbl.find_opt(env.exported.moduleTypes, name)
 };
 
 let rec showVisibilityPath = (~env, ~getModule, path) => switch path {

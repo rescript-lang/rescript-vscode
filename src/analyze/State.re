@@ -298,7 +298,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
           if (mname != moduleName
               && List.mem(
                    moduleName,
-                   Query.hashFind(package.interModuleDependencies, mname) |? [],
+                   Hashtbl.find_opt(package.interModuleDependencies, mname) |? [],
                  )) {
             Hashtbl.remove(state.compiledDocuments, otherUri);
             Hashtbl.replace(

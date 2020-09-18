@@ -65,15 +65,15 @@ let getTypeAtPath = (~env, path) => {
   | `Not_found => `Not_found
   | `Exported(env, name) => {
       let res = {
-        let%opt stamp = Query.hashFind(env.exported.types, name);
-        let%opt_wrap declaredType = Query.hashFind(env.file.stamps.types, stamp);
+        let%opt stamp = Hashtbl.find_opt(env.exported.types, name);
+        let%opt_wrap declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
         `Local(declaredType)
       };
       res |? `Not_found
   }
   | `Stamp(stamp) => {
     let res = {
-      let%opt_wrap declaredType = Query.hashFind(env.file.stamps.types, stamp);
+      let%opt_wrap declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
       `Local(declaredType)
     };
     res |? `Not_found
@@ -122,7 +122,7 @@ module F = (Collector: {
       }
       | `Exported(env, name) => {
         let res = {
-          let%opt_wrap stamp = Query.hashFind(env.exported.values, name);
+          let%opt_wrap stamp = Hashtbl.find_opt(env.exported.values, name);
           addReference(stamp, identLoc);
           Loc.LocalReference(stamp, tip)
         };
@@ -149,7 +149,7 @@ module F = (Collector: {
       }
       | `Exported(env, name) => {
         let res = {
-          let%opt_wrap stamp = Query.hashFind(env.exported.modules, name);
+          let%opt_wrap stamp = Hashtbl.find_opt(env.exported.modules, name);
           addReference(stamp, loc);
           Loc.Module(LocalReference(stamp, Module))
         };
