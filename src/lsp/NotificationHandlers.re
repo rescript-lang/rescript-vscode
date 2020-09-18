@@ -105,9 +105,6 @@ let notificationHandlers: list((string, (state, Json.t) => result(state, string)
     let opensCodelens = (settings |?> Json.get("opens_codelens") |?> Json.bool) |? true;
     let dependenciesCodelens = (settings |?> Json.get("dependencies_codelens") |?> Json.bool) |? true;
     let formatWidth = (settings |?> Json.get("format_width") |?> Json.number) |?>> int_of_float;
-    /* let crossFileAsYouType = (settings |?> Json.get("cross_file_as_you_type") |?> Json.bool) |? false; */
-    /* Disabling this -- too finnicky :/ */
-    let crossFileAsYouType = false;
     let showModulePathOnHover = (settings |?> Json.get("show_module_path_on_hover") |?> Json.bool) |? true;
     let autoRebuild = settings |?> Json.get("autoRebuild") |?> Json.bool |? true;
 
@@ -122,7 +119,6 @@ let notificationHandlers: list((string, (state, Json.t) => result(state, string)
         opensCodelens,
         formatWidth,
         dependenciesCodelens,
-        crossFileAsYouType,
         showModulePathOnHover,
         autoRebuild,
       },
