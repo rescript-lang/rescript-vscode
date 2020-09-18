@@ -136,7 +136,7 @@ let makeFilesList = files => {
   let normals = files |. List.keepMap(((name, _)) => {
     let mname = Filename.chop_extension(name);
     if (!Filename.check_suffix(name, "i")) {
-      let intf = Utils.maybeHash(interfaces, mname);
+      let intf = Hashtbl.find_opt(interfaces, mname);
       Hashtbl.remove(interfaces, mname);
       Some((mname, switch intf {
         | None => SharedTypes.Impl(cmtBase ++ mname ++ ".cmt", Some(srcBase ++ name))

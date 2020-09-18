@@ -221,7 +221,7 @@ let findProjectFiles = (~debug, namespace, root, sourceDirectories, compiledBase
       || Filename.check_suffix(path, ".ml")
     ) {
       let mname = getName(path);
-      let intf = Utils.maybeHash(interfaces, mname);
+      let intf = Hashtbl.find_opt(interfaces, mname);
       Hashtbl.remove(interfaces, mname);
       let base = compiledBaseName(~namespace, Files.relpath(root, path));
       switch intf {

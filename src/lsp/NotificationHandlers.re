@@ -135,7 +135,7 @@ let notificationHandlers: list((string, (state, Json.t) => result(state, string)
     setPackageTimer(package);
     let moduleName = FindFiles.getName(uri);
     package.localModules |. Belt.List.forEach((mname) => {
-      let%opt_consume paths = Utils.maybeHash(package.pathsForModule, mname);
+      let%opt_consume paths = Hashtbl.find_opt(package.pathsForModule, mname);
       let%opt_consume src = SharedTypes.getSrc(paths);
       let otherUri = Utils.toUri(src);
       let refs = Hashtbl.find_opt(package.interModuleDependencies, mname);

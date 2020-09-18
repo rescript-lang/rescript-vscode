@@ -12,7 +12,7 @@ let getOutput = (~projectDir, files, mainFile) => {
 
   /* TODO refactor this bunch out */
   package.localModules |. Belt.List.forEach((modname) => {
-    let%opt_force paths = Utils.maybeHash(package.pathsForModule, modname);
+    let%opt_force paths = Hashtbl.find_opt(package.pathsForModule, modname);
     let%opt_force src = SharedTypes.getSrc(paths);
     let%try_force result = State.getCompilationResult(Utils.toUri(src), state, ~package);
     switch paths {

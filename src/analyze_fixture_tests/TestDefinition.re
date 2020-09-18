@@ -9,7 +9,7 @@ let getOutput = (~projectDir, files, mainFile) => {
   let (state, package, _, _) = TestUtils.setUp(~projectDir, files, text);
   let num = List.length(waypoints) / 2;
   package.localModules |. Belt.List.forEach((modname) => {
-    let%opt_force paths = Utils.maybeHash(package.pathsForModule, modname);
+    let%opt_force paths = Hashtbl.find_opt(package.pathsForModule, modname);
     let%opt_force src = SharedTypes.getSrc(paths);
     let%try_force result = State.getCompilationResult(Utils.toUri(src), state, ~package);
     switch paths {

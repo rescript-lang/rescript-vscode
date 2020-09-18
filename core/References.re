@@ -131,7 +131,7 @@ let definedForLoc = (~file, ~getModule, loc) => {
 };
 
 let alternateDeclared = (~file, ~pathsForModule, ~getUri, declared, tip) => {
-  let%opt paths = Utils.maybeHash(pathsForModule, file.moduleName);
+  let%opt paths = Hashtbl.find_opt(pathsForModule, file.moduleName);
   maybeLog("paths for " ++ file.moduleName);
   switch (paths) {
   | SharedTypes.IntfAndImpl(_, Some(intf), _, Some(impl)) =>
@@ -355,7 +355,7 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
     | TopLevelModule(name) =>
       maybeLog("Toplevel " ++ name);
       open Infix;
-      let%opt src = Utils.maybeHash(pathsForModule, name) |> orLog("No paths found") |?> SharedTypes.getSrc |> orLog("No src found");
+      let%opt src = Hashtbl.find_opt(pathsForModule, name) |> orLog("No paths found") |?> SharedTypes.getSrc |> orLog("No src found");
       Some((Utils.toUri(src), Utils.topLoc(src)))
     | Module(LocalReference(stamp, tip))
     | Typed(_, LocalReference(stamp, tip)) => {
