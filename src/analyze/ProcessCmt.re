@@ -473,15 +473,3 @@ let forCmt = (~moduleName, uri, processDoc, {cmt_modname, cmt_annots}: Cmt_forma
   Error("Not a valid cmt")
 }
 };
-
-let forCmi = (~moduleName, uri, processDoc, {cmi_name, cmi_sign}: Cmi_format.cmi_infos) => {
-  let env = {scope: Location.none, stamps: initStamps(), processDoc, modulePath: File(uri, moduleName)};
-  let contents = forSignatureType(env, cmi_sign);
-  Some({
-    uri,
-    moduleName: cmi_name,
-    stamps: env.stamps,
-    docstring: Some("No docstring for cmi files"),
-    contents,
-  });
-};

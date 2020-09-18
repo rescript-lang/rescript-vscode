@@ -89,7 +89,6 @@ let getDependencyDirs = (base, config, ~buildSystem) => {
 
 let isCompiledFile = name =>
   Filename.check_suffix(name, ".cmt")
-  || Filename.check_suffix(name, ".cmi")
   || Filename.check_suffix(name, ".cmti");
 
 let isSourceFile = name =>
@@ -116,9 +115,6 @@ let cmtName = (~namespace, name) =>
   compiledBaseName(~namespace, name)
   ++ (name.[String.length(name) - 1] == 'i' ? ".cmti" : ".cmt");
 
-let cmiName = (~namespace, name) =>
-  compiledBaseName(~namespace, name) ++ ".cmi";
-
 let getName = x => Filename.basename(x) |> Filename.chop_extension |> String.capitalize_ascii;
 let namespacedName = (~namespace, x) => getName(x) ++ switch namespace { | None => "" | Some(n) => "-" ++ n};
 
@@ -138,7 +134,6 @@ let filterDuplicates = cmts => {
       || Filename.check_suffix(path, ".rel")
       || Filename.check_suffix(path, ".ml")
       || Filename.check_suffix(path, ".cmt")
-      || Filename.check_suffix(path, ".cmi")
     ) && Hashtbl.mem(intfs, getName(path)))
   });
 };
@@ -227,7 +222,6 @@ let findProjectFiles = (~debug, namespace, root, sourceDirectories, compiledBase
       switch intf {
         | Some(intf) =>
           let cmti = compiledBase /+ base ++ ".cmti";
-          let cmi = compiledBase /+ base ++ ".cmi";
           let cmt = compiledBase /+ base ++ ".cmt";
           if (Files.exists(cmti)) {
             if (Files.exists(cmt)) {
@@ -237,20 +231,14 @@ let findProjectFiles = (~debug, namespace, root, sourceDirectories, compiledBase
               /* Log.log("Just intf " ++ cmti); */
               Some((mname, Intf(cmti, Some(intf))))
             }
-          } else if (Files.exists(cmi)) {
-              /* Log.log("Just intf cmi " ++ cmi); */
-            Some((mname, Intf(cmi, Some(intf))))
           } else {
             Log.log("Bad source file (no cmt/cmti/cmi) " ++ compiledBase /+ base);
             None
           }
         | None =>
-          let cmi = compiledBase /+ base ++ ".cmi";
           let cmt = compiledBase /+ base ++ ".cmt";
           if (Files.exists(cmt)) {
               Some((mname, Impl(cmt, Some(path))))
-          } else if (Files.exists(cmi)) {
-            Some((mname, Impl(cmi, Some(path))))
           } else {
             Log.log("Bad source file (no cmt/cmi) " ++ compiledBase /+ base);
             None
@@ -266,11 +254,8 @@ let findProjectFiles = (~debug, namespace, root, sourceDirectories, compiledBase
     let base = compiledBaseName(~namespace, Files.relpath(root, intf));
     Log.log("Extra intf " ++ intf);
     let cmti = compiledBase /+ base ++ ".cmti";
-    let cmi = compiledBase /+ base ++ ".cmi";
     if (Files.exists(cmti)) {
       [(mname, SharedTypes.Intf(cmti, Some(intf))), ...res]
-    } else if (Files.exists(cmi)) {
-      [(mname, Intf(cmi, Some(intf))), ...res]
     } else {
       res
     }
