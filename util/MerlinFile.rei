@@ -12,7 +12,6 @@ let orLog: result('a, string) => option('a);
 type files = {
   src: option(string),
   srci: option(string),
-  cmi: option(string),
   cmt: option(string),
   cmti: option(string),
 };

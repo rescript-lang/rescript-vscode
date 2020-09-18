@@ -41,8 +41,7 @@ let isRelativePath = Sys.win32
 
 let isBuildFile = name =>
   Filename.check_suffix(name, ".cmt")
-  || Filename.check_suffix(name, ".cmti")
-  || Filename.check_suffix(name, ".cmi");
+  || Filename.check_suffix(name, ".cmti");
 
 let isSourceFile = name =>
   Filename.check_suffix(name, ".re")
@@ -79,18 +78,17 @@ let orLog = v => switch v {
   | Ok(m) => Some(m)
 };
 
-type files = {src: option(string), srci: option(string), cmi: option(string), cmt: option(string), cmti: option(string)};
+type files = {src: option(string), srci: option(string), cmt: option(string), cmti: option(string)};
 
 let orBlank = v => switch v {
   | None => "()"
   | Some(m) => m
 };
 
-let showFiles = ({src, srci, cmi, cmt, cmti}) =>
-  Printf.sprintf("src: %s, srci: %s, cmi: %s, cmt: %s, cmti: %s",
+let showFiles = ({src, srci, cmt, cmti}) =>
+  Printf.sprintf("src: %s, srci: %s, cmt: %s, cmti: %s",
   src->orBlank,
   srci->orBlank,
-  cmi->orBlank,
   cmt->orBlank,
   cmti->orBlank
   );
@@ -107,19 +105,12 @@ let calcPaths = (mname, files) => {
     Ok(`IntfAndImpl((cmti, None, cmt, None)))
   | {src: None, srci: None, cmt: None, cmti: Some(cmti)} => Ok(`Intf((cmti, None)))
   | {src: None, srci: None, cmt: Some(cmt), cmti: None} => Ok(`Impl((cmt, None)))
-  | {src: None, srci: None, cmi: Some(cmi)} => Ok(`Intf((cmi, None)))
   | {src: None, srci: None} =>
     Error("No source files for module " ++ mname ++ " - " ++ showFiles(files))
   | {src: Some(src), srci: Some(srci), cmt: Some(cmt), cmti: Some(cmti)} =>
     Ok(`IntfAndImpl((cmti, Some(srci), cmt, Some(src))))
-  | {src: Some(src), srci: Some(srci), cmi: Some(cmi), cmt: Some(cmt), cmti: None} =>
-    Ok(`IntfAndImpl((cmi, Some(srci), cmt, Some(src))))
-  | {src: Some(src), srci: Some(srci), cmi: Some(cmi)} =>
-    Ok(`IntfAndImpl((cmi, Some(srci), cmi, Some(src))))
   | {src: Some(src), srci: None, cmt: Some(cmt)} => Ok(`Impl((cmt, Some(src))))
-  | {src: Some(src), srci: None, cmi: Some(cmi)} => Ok(`Impl((cmi, Some(src))))
   | {src: None, srci: Some(srci), cmti: Some(cmti)} => Ok(`Intf((cmti, Some(srci))))
-  | {src: None, srci: Some(srci), cmi: Some(cmi)} => Ok(`Intf((cmi, Some(srci))))
   | _ =>
     Error("Insufficient build files found for module " ++ mname ++ " - " ++ showFiles(files))
   };
@@ -141,7 +132,6 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
 
   // let buildByBasename = Hashtbl.create(List.length(source) * 5);
 
-  let cmiByModuleName = Hashtbl.create(100);
   let cmtByModuleName = Hashtbl.create(100);
   let cmtiByModuleName = Hashtbl.create(100);
 
@@ -163,9 +153,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
         let full = fileConcat(buildDir, name);
         // maybeLog("Build file " ++ full);
         let moduleName = name->String.capitalize_ascii->Filename.chop_extension;
-        if (Filename.check_suffix(name, ".cmi")) {
-          cmiByModuleName->addAndCheck(moduleName, full)
-        } else if (Filename.check_suffix(name, ".cmt")) {
+        if (Filename.check_suffix(name, ".cmt")) {
           cmtByModuleName->addAndCheck(moduleName, full)
         } else if (Filename.check_suffix(name, ".cmti")) {
           cmtiByModuleName->addAndCheck(moduleName, full)
@@ -231,22 +219,20 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
       // let moduleName = fullName->String.capitalize_ascii;
       let src = filesByName->maybeHash(mname ++ ".ml") |?? filesByName->maybeHash(mname ++ ".re");
       let srci = filesByName->maybeHash(mname ++ ".mli") |?? filesByName->maybeHash(mname ++ ".rei");
-      let cmi = cmiByModuleName->maybeHash(moduleName);
       let cmt = cmtByModuleName->maybeHash(moduleName);
       let cmti = cmtiByModuleName->maybeHash(moduleName);
-      let (moduleName, cmi, cmt, cmti) = switch (cmi, cmt, cmti) {
+      let (moduleName, cmt, cmti) = switch (cmt, cmti) {
         // TODO it would be nice not to have to do this fallback
-        | (None, None, None) => (
+        | (None, None) => (
           mname->String.capitalize_ascii,
-          cmiByModuleName->maybeHash(mname->String.capitalize_ascii),
           cmtByModuleName->maybeHash(mname->String.capitalize_ascii),
           cmtiByModuleName->maybeHash(mname->String.capitalize_ascii),
         )
-        | _ => (moduleName, cmi, cmt, cmti)
+        | _ => (moduleName, cmt, cmti)
       };
       // let fullName = fullName->String.capitalize_ascii;
       depsModuleNames->Hashtbl.replace(moduleName, ());
-      let%opt_consume paths = calcPaths(moduleName, {src, srci, cmi, cmt, cmti}) |> orLog;
+      let%opt_consume paths = calcPaths(moduleName, {src, srci, cmt, cmti}) |> orLog;
       maybeLog(" > module " ++ moduleName ++ " :: " ++ showPaths(paths));
       pathsForModule->Hashtbl.replace(moduleName, paths);
       add(moduleName, paths);

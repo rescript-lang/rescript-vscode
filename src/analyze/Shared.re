@@ -1,12 +1,6 @@
 
 open Belt.Result;
 
-let tryReadCmi = cmi =>
-  switch (Cmi_format.read_cmi(cmi)) {
-  | exception err => Error("Invalid cmi format " ++ cmi ++ " - probably wrong ocaml version, expected " ++ Config.version ++ " : " ++ Printexc.to_string(err))
-  | x => Ok(x)
-  };
-
 let tryReadCmt = cmt => {
   if (!Util.Files.exists(cmt)) {
     Error("Cmt file does not exist " ++ cmt)

@@ -46,56 +46,10 @@ let newDocsForCmt = (~compilerVersion, ~moduleName, cmtCache, changed, cmt, src,
   Some(file);
 };
 
-let newDocsForCmi = (~compilerVersion, ~moduleName, cmiCache, changed, cmi, src, clientNeedsPlainText) => {
-  let%opt file = Process_406.fileForCmi(~moduleName, cmi, Utils.toUri(src |? cmi), converter(src, clientNeedsPlainText));
-  Hashtbl.replace(cmiCache, cmi, (changed, file));
-  Some(file);
-};
-
 let hasProcessedCmt = (state, cmt) => Hashtbl.mem(state.cmtCache, cmt);
 
 let docsForCmt = (~package, ~moduleName, cmt, src, state) =>
-  if (Filename.check_suffix(cmt, ".cmi")) {
-    if (Hashtbl.mem(state.cmiCache, cmt)) {
-      let (mtime, docs) = Hashtbl.find(state.cmiCache, cmt);
-      /* TODO I should really throttle this mtime checking to like every 50 ms or so */
-      switch (Files.getMtime(cmt)) {
-      | None =>
-        Log.log("⚠️ cannot get docs for nonexistant cmi " ++ cmt);
-        None;
-      | Some(changed) =>
-        if (changed > mtime) {
-          newDocsForCmi(
-            ~compilerVersion=package.compilerVersion,
-            ~moduleName,
-            state.cmiCache,
-            changed,
-            cmt,
-            src,
-            state.settings.clientNeedsPlainText,
-          );
-        } else {
-          Some(docs);
-        }
-      };
-    } else {
-      switch (Files.getMtime(cmt)) {
-      | None =>
-        Log.log("⚠️ cannot get docs for nonexistant cmi " ++ cmt);
-        None;
-      | Some(changed) =>
-        newDocsForCmi(
-          ~compilerVersion=package.compilerVersion,
-          ~moduleName,
-          state.cmiCache,
-          changed,
-          cmt,
-          src,
-          state.settings.clientNeedsPlainText,
-        )
-      };
-    };
-  } else if (Hashtbl.mem(state.cmtCache, cmt)) {
+ if (Hashtbl.mem(state.cmtCache, cmt)) {
     let (mtime, docs) = Hashtbl.find(state.cmtCache, cmt);
     /* TODO I should really throttle this mtime checking to like every 50 ms or so */
     switch (Files.getMtime(cmt)) {
