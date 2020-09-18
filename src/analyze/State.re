@@ -171,9 +171,7 @@ let getInterfaceFile = (uri, state, ~package: TopTypes.package) => {
       Error("Can't find module name for path " ++ path)
     | Some(x) => Ok(x)
   };
-  let includes = state.settings.crossFileAsYouType
-  ? [package.tmpPath, ...package.includeDirectories]
-  : package.includeDirectories;
+  let includes = package.includeDirectories;
   let%try refmtPath = refmtForUri(uri, package);
   AsYouType.getInterface(
     ~moduleName,
@@ -210,9 +208,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
         Error("Can't find module name for path " ++ path)
       | Some(x) => Ok(x)
     }; */
-    let includes = state.settings.crossFileAsYouType
-    ? [package.tmpPath, ...package.includeDirectories]
-    : package.includeDirectories;
+    let includes = package.includeDirectories;
     let%try refmtPath = refmtForUri(uri, package);
     let%try result = AsYouType.process(
       ~compilerVersion=package.compilerVersion,
@@ -242,45 +238,8 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
 
       Hashtbl.replace(state.lastDefinitions, uri, full);
       Hashtbl.replace(package.interModuleDependencies, moduleName, SharedTypes.hashList(full.extra.externalReferences) |. Belt.List.map(fst));
-
-      if (state.settings.crossFileAsYouType) {
-        /** Check dependencies */
-        package.localModules |. Belt.List.forEach((mname) => {
-          let%opt_consume paths = Hashtbl.find_opt(package.pathsForModule, mname);
-          let%opt_consume src = SharedTypes.getSrc(paths);
-          let otherUri = Utils.toUri(src);
-          if (mname != moduleName
-              && List.mem(
-                   moduleName,
-                   Hashtbl.find_opt(package.interModuleDependencies, mname) |? [],
-                 )) {
-            Hashtbl.remove(state.compiledDocuments, otherUri);
-            Hashtbl.replace(
-              state.documentTimers,
-              otherUri,
-              Unix.gettimeofday() +. 0.01,
-            );
-          };
-        });
-
-        package.localModules |. Belt.List.forEach((mname) => {
-          let%opt_consume paths = Hashtbl.find_opt(package.pathsForModule, mname);
-          let%opt_consume src = SharedTypes.getSrc(paths);
-          let otherUri = Utils.toUri(src);
-          switch (Hashtbl.find(state.compiledDocuments, otherUri)) {
-            | exception Not_found => ()
-            | TypeError(_, {extra}) | Success(_, {extra}) => {
-              if (Hashtbl.mem(extra.externalReferences, moduleName)) {
-                Hashtbl.remove(state.compiledDocuments, otherUri);
-                Hashtbl.replace(state.documentTimers, otherUri, Unix.gettimeofday() +. 0.01);
-              }
-            }
-            | _ => ()
-          }
-        });
       }
     }
-    };
     Ok(result)
   }
 };
@@ -330,26 +289,8 @@ let fileForUri = (state,  ~package, uri) => {
 };
 
 let fileForModule = (state,  ~package, modname) => {
-  let file = state.settings.crossFileAsYouType ? {
-    /* Log.log("✅ Gilr got mofilr " ++ modname); */
-    Log.log(package.localModules |> String.concat(" "));
-    let%opt paths = Hashtbl.find_opt(package.pathsForModule, modname);
-    /* TODO do better? */
-    let%opt src = SharedTypes.getSrc(paths);
-    let uri = Utils.toUri(src);
-    if (Hashtbl.mem(state.documentText, uri)) {
-      let%opt {SharedTypes.file} = tryExtra(getCompilationResult(uri, state, ~package)) |> RResult.toOptionAndLog;
-      Some(file)
-    } else {
-      None
-    }
-  } : None;
-  switch file {
-    | Some(_) => file
-    | None =>
-      let%opt (file, _) = docsForModule(modname, state, ~package);
-      Some(file)
-  }
+  let%opt (file, _) = docsForModule(modname, state, ~package);
+  Some(file)
 };
 
 let extraForModule = (state, ~package, modname) => {

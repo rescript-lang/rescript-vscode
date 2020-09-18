@@ -106,7 +106,6 @@ let getState = () => {
     compiledDocuments: Hashtbl.create(10),
     lastDefinitions: Hashtbl.create(10),
     settings: {
-      crossFileAsYouType: false,
       mlfmtLocation: None,
       refmtLocation: None,
       lispRefmtLocation: None,
