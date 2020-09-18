@@ -503,8 +503,8 @@ let findDeclaredValue =
 
   let%opt (env, suffix) = getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path);
 
-  let%opt stamp = Utils.maybeHash(env.exported.values, suffix);
-  Utils.maybeHash(env.file.stamps.values, stamp);
+  let%opt stamp = Hashtbl.find_opt(env.exported.values, suffix);
+  Hashtbl.find_opt(env.file.stamps.values, stamp);
 };
 
 

@@ -210,7 +210,7 @@ let getInterfaceFile = (uri, state, ~package: TopTypes.package) => {
     let path = Utils.parseUri(uri) |! "not a uri: " ++ uri;
     Files.readFileExn(path)
   };
-  let%try moduleName = switch (Utils.maybeHash(package.nameForPath, path)) {
+  let%try moduleName = switch (Hashtbl.find_opt(package.nameForPath, path)) {
     | None =>
       Hashtbl.iter((k, v) => Log.log("Path: " ++ k ++ "  " ++ v), package.nameForPath);
       Log.log("Can't find " ++ path);
@@ -292,7 +292,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
       if (state.settings.crossFileAsYouType) {
         /** Check dependencies */
         package.localModules |. Belt.List.forEach((mname) => {
-          let%opt_consume paths = Utils.maybeHash(package.pathsForModule, mname);
+          let%opt_consume paths = Hashtbl.find_opt(package.pathsForModule, mname);
           let%opt_consume src = SharedTypes.getSrc(paths);
           let otherUri = Utils.toUri(src);
           if (mname != moduleName
@@ -310,7 +310,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
         });
 
         package.localModules |. Belt.List.forEach((mname) => {
-          let%opt_consume paths = Utils.maybeHash(package.pathsForModule, mname);
+          let%opt_consume paths = Hashtbl.find_opt(package.pathsForModule, mname);
           let%opt_consume src = SharedTypes.getSrc(paths);
           let otherUri = Utils.toUri(src);
           switch (Hashtbl.find(state.compiledDocuments, otherUri)) {
@@ -379,7 +379,7 @@ let fileForModule = (state,  ~package, modname) => {
   let file = state.settings.crossFileAsYouType ? {
     /* Log.log("✅ Gilr got mofilr " ++ modname); */
     Log.log(package.localModules |> String.concat(" "));
-    let%opt paths = Utils.maybeHash(package.pathsForModule, modname);
+    let%opt paths = Hashtbl.find_opt(package.pathsForModule, modname);
     /* TODO do better? */
     let%opt src = SharedTypes.getSrc(paths);
     let uri = Utils.toUri(src);

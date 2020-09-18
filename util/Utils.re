@@ -223,7 +223,6 @@ let showLocation = ({Location.loc_start, loc_end}) =>
 let joinLines = String.concat("\n");
 
 let getName = x => Filename.basename(x) |> Filename.chop_extension |> String.capitalize_ascii;
-let maybeHash = (h, k) => if (Hashtbl.mem(h, k)) { Some(Hashtbl.find(h, k)) } else { None };
 
 let dedup = items => {
   let m = Hashtbl.create(List.length(items));
