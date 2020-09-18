@@ -2,11 +2,11 @@ let digConstructor = (~env, ~getModule, path) => {
   switch (Query.resolveFromCompilerPath(~env, ~getModule, path)) {
   | `Not_found => None
   | `Stamp(stamp) =>
-    let%opt t = Query.hashFind(env.file.stamps.types, stamp);
+    let%opt t = Hashtbl.find_opt(env.file.stamps.types, stamp);
     Some((env, t));
   | `Exported(env, name) =>
-    let%opt stamp = Query.hashFind(env.exported.types, name);
-    let%opt t = Query.hashFind(env.file.stamps.types, stamp);
+    let%opt stamp = Hashtbl.find_opt(env.exported.types, name);
+    let%opt t = Hashtbl.find_opt(env.file.stamps.types, stamp);
     Some((env, t));
   | _ => None
   }
@@ -54,7 +54,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showP
     | Open => Some("an open")
     | TypeDefinition(_name, _tdecl, _stamp) => None
     | Module(LocalReference(stamp, _tip)) => {
-      let%opt md = Query.hashFind(file.stamps.modules, stamp);
+      let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
       let%opt (file, declared) = References.resolveModuleReference(~file, ~getModule, md);
       let name = switch declared {
         | Some(d) => d.name.txt
@@ -67,7 +67,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showP
       let env = {Query.file, exported: file.contents.exported};
       let%opt (env, name) = Query.resolvePath(~env, ~path, ~getModule);
       let%opt stamp = Query.exportedForTip(~env, name, tip);
-      let%opt md = Query.hashFind(file.stamps.modules, stamp);
+      let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
       let%opt (file, declared) = References.resolveModuleReference(~file, ~getModule, md);
       let name = switch declared {
         | Some(d) => d.name.txt

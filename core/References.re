@@ -62,7 +62,7 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
   | Constant(_)
   | Open => None
   | TypeDefinition(_, _, stamp) => {
-    extra.internalReferences |. Query.hashFind(stamp)
+    extra.internalReferences |. Hashtbl.find_opt(stamp)
   }
   | Module(LocalReference(stamp, tip) | Definition(stamp, tip))
   | Typed(_, LocalReference(stamp, tip) | Definition(stamp, tip)) =>
@@ -72,10 +72,10 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
       | Attribute(name) => Query.getAttribute(file, stamp, name) |?>> x => x.stamp
       | _ => Some(stamp)
     };
-    extra.internalReferences |. Query.hashFind(localStamp)
+    extra.internalReferences |. Hashtbl.find_opt(localStamp)
   | Module(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
-    let%opt_wrap refs = extra.externalReferences |. Query.hashFind(moduleName);
+    let%opt_wrap refs = extra.externalReferences |. Hashtbl.find_opt(moduleName);
     refs |. Belt.List.keepMap(((p, t, l)) => p == path && t == tip ? Some(l) : None);
   };
 
@@ -162,20 +162,20 @@ let resolveModuleReference = (~file, ~getModule, declared: SharedTypes.declared(
       switch (Query.fromCompilerPath(~env, path)) {
         | `Not_found => None
         | `Exported(env, name) =>
-          let%opt stamp = Query.hashFind(env.exported.modules, name);
-          let%opt md = Query.hashFind(env.file.stamps.modules, stamp);
+          let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
+          let%opt md = Hashtbl.find_opt(env.file.stamps.modules, stamp);
           Some((env.file, Some(md)))
           /* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) */
         | `Global(moduleName, path) =>
           let%opt file = getModule(moduleName);
           let env = {file, Query.exported: file.contents.exported};
           let%opt (env, name) = Query.resolvePath(~env, ~getModule, ~path);
-          let%opt stamp = Query.hashFind(env.exported.modules, name);
-          let%opt md = Query.hashFind(env.file.stamps.modules, stamp);
+          let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
+          let%opt md = Hashtbl.find_opt(env.file.stamps.modules, stamp);
           Some((env.file, Some(md)))
           /* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) */
         | `Stamp(stamp) =>
-          let%opt md = Query.hashFind(file.stamps.modules, stamp);
+          let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
           Some((file, Some(md)))
           /* Some((file.uri, validateLoc(md.name.loc, md.extentLoc))) */
         | `GlobalMod(name) =>
@@ -195,7 +195,7 @@ let forLocalStamp = (~pathsForModule, ~file, ~extra, ~allModules, ~getModule, ~g
     | Attribute(name) => Query.getAttribute(file, stamp, name) |?>> x => x.stamp
     | _ => Some(stamp)
   };
-  let%opt local = extra.internalReferences |. Query.hashFind(localStamp);
+  let%opt local = extra.internalReferences |. Hashtbl.find_opt(localStamp);
   open Infix;
   let externals = {
     maybeLog("Checking externals: " ++ string_of_int(stamp));
@@ -212,7 +212,7 @@ let forLocalStamp = (~pathsForModule, ~file, ~extra, ~allModules, ~getModule, ~g
           | Attribute(name) => Query.getAttribute(file, stamp, name) |?>> x => x.stamp
           | _ => Some(stamp)
         };
-        let%opt local = extra.internalReferences |. Query.hashFind(localStamp);
+        let%opt local = extra.internalReferences |. Hashtbl.find_opt(localStamp);
         Some([(file.uri, local)])
       } |? [];
 
@@ -222,7 +222,7 @@ let forLocalStamp = (~pathsForModule, ~file, ~extra, ~allModules, ~getModule, ~g
       let externals = allModules |. Belt.List.keep(name => name != file.moduleName) |. Belt.List.keepMap(name => {
         let%try file = getModule(name) |> RResult.orError("Could not get file for module " ++ name);
         let%try extra = getExtra(name) |> RResult.orError("Could not get extra for module " ++ name);
-        let%try refs = extra.externalReferences |. Query.hashFind(thisModuleName) |> RResult.orError("No references in " ++ name ++ " for " ++ thisModuleName);
+        let%try refs = extra.externalReferences |. Hashtbl.find_opt(thisModuleName) |> RResult.orError("No references in " ++ name ++ " for " ++ thisModuleName);
         let refs = refs |. Belt.List.keepMap(((p, t, l)) => p == path && t == tip ? Some(l) : None);
         Ok((file.uri, refs))
       } |> RResult.toOptionAndLog);
@@ -298,7 +298,7 @@ let validateLoc = (loc: Location.t, backup: Location.t) =>
   };
 
 let resolveModuleDefinition = (~file, ~getModule, stamp) => {
-  let%opt md = Query.hashFind(file.stamps.modules, stamp);
+  let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
   let%opt (file, declared) = resolveModuleReference(~file, ~getModule, md);
   let loc = switch declared {
     | None => Utils.topLoc(file.uri)

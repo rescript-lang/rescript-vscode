@@ -138,7 +138,7 @@ let notificationHandlers: list((string, (state, Json.t) => result(state, string)
       let%opt_consume paths = Utils.maybeHash(package.pathsForModule, mname);
       let%opt_consume src = SharedTypes.getSrc(paths);
       let otherUri = Utils.toUri(src);
-      let refs = Query.hashFind(package.interModuleDependencies, mname);
+      let refs = Hashtbl.find_opt(package.interModuleDependencies, mname);
       open Infix;
       if (mname != moduleName
           && (
