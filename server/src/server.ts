@@ -26,6 +26,7 @@ let sendUpdatedDiagnostics = () => {
   let diagnosedFiles: { [key: string]: t.Diagnostic[] } = {}
   compilerLogPaths.forEach(compilerLogPath => {
     let content = fs.readFileSync(compilerLogPath, { encoding: 'utf-8' });
+    console.log("new log content: ", content)
     let filesAndErrors = utils.parseCompilerLogOutput(content, ":")
     Object.keys(filesAndErrors).forEach(file => {
       // assumption: there's no existing files[file] entry

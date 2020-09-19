@@ -219,6 +219,5 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 		})
 	})
 
-	console.log(ret, '=========')
 	return ret
 }

@@ -24,6 +24,7 @@ Artifacts cleaning through `bsb -clean` removes `.compiler.log` and turns into s
 ### Streaming Update of Diagnostics
 
 After saving a file and running the build, the results stream into the log file. Unfortunately, UX-wise, in the editor, this might look like the diagnostics are suddenly gone then coming back in file by file. This looks bad. To remediate:
+
 - If the log file is in state 2 (see state numbers above), don't wipe the existing diagnostics yet.
 - If it's in state 3, update those particular files' diagnostics.
 - If in state 4, finish by clean up the rest of the old diagnostics. This means there's a bit of bookeeping needed here. Make sure you get it right. It's possible for a build to be interrupted (and therefore state 4 never reached) and restarted.
@@ -62,10 +63,4 @@ The formatted result should be taken as-is, without any extra string trimming an
 
 The errors returned from `bsc.exe -format` should be discarded; in theory, they should have been duplicates of the errors from `.compiler.log`.
 
-- should the format still show errors when the build isn't running?
-- should it show during various states of `.compiler.log`?
-
-
-<!-- - when to check for .bsb.lock
-- when to check for lib/bs -->
-
+In the future, we should consier showing the format errors when `.compiler.log` isn't found.
