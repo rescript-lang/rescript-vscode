@@ -23,15 +23,15 @@ export let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.Documen
 	}
 }
 
-export let compilerLogPresentAndNotEmpty = (filePath: string) => {
-	let compilerLogDir = findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
-	if (compilerLogDir == null) {
-		return false
-	} else {
-		let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
-		return fs.statSync(compilerLogPath).size > 0
-	}
-}
+// export let compilerLogPresentAndNotEmpty = (filePath: string) => {
+// 	let compilerLogDir = findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
+// 	if (compilerLogDir == null) {
+// 		return false
+// 	} else {
+// 		let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
+// 		return fs.statSync(compilerLogPath).size > 0
+// 	}
+// }
 
 type formattingResult = {
 	kind: 'success',

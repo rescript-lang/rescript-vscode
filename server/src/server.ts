@@ -257,19 +257,6 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
               result: result,
             };
             process.send!(response);
-
-            // TODO: make sure the diagnostic diffing takes this into account
-            if (!utils.compilerLogPresentAndNotEmpty(filePath)) {
-              let params2: p.PublishDiagnosticsParams = {
-                uri: params.textDocument.uri,
-                diagnostics: [],
-              }
-              let notification: m.NotificationMessage = {
-                jsonrpc: c.jsonrpcVersion,
-                method: 'textDocument/publishDiagnostics',
-                params: params2,
-              };
-            }
           } else {
             let response: m.ResponseMessage = {
               jsonrpc: c.jsonrpcVersion,
@@ -278,7 +265,10 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
               // technically a formatting failure should return the error but
               // since this is LSP... the idiom seems to be to silently return
               // nothing (to avoid an alert window each time on bad formatting)
-              // while sending a diangosis about the error afterward
+              // while sending a diagnostic about the error afterward. We won't
+              // send an extra diagnostic because the .compiler.log watcher
+              // should have reported th won't send an extra diagnostic because
+              // theiler.log watcher should have reported them.
 
               // error: {
               //  code: m.ErrorCodes.ParseError,
@@ -286,24 +276,6 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
               // }
             };
             process.send!(response);
-
-            if (!utils.compilerLogPresentAndNotEmpty(filePath)) {
-              let filesAndErrors = utils.parseCompilerLogOutput(formattedResult.error, ":")
-              Object.keys(filesAndErrors).forEach(file => {
-                let params2: p.PublishDiagnosticsParams = {
-                  uri: params.textDocument.uri,
-                  // there's a new optional version param from https://github.com/microsoft/language-server-protocol/issues/201
-                  // not using it for now, sigh
-                  diagnostics: filesAndErrors[file],
-                }
-                let notification: m.NotificationMessage = {
-                  jsonrpc: c.jsonrpcVersion,
-                  method: 'textDocument/publishDiagnostics',
-                  params: params2,
-                };
-                process.send!(notification);
-              })
-            }
           }
         }
       }
