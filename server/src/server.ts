@@ -8,7 +8,6 @@ import * as path from 'path';
 import fs from 'fs';
 // TODO: check DidChangeWatchedFilesNotification. Check DidChangeTextDocumentNotification. Do they fire on uninitialized files?
 import { DidOpenTextDocumentNotification, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DidChangeWatchedFilesNotification, CompletionResolveRequest } from 'vscode-languageserver-protocol';
-import { uriToFsPath, URI } from 'vscode-uri';
 import * as utils from './utils';
 import * as c from './constants';
 import * as chokidar from 'chokidar'
@@ -103,7 +102,7 @@ let stopWatchingCompilerLog = () => {
 }
 
 let openedFile = (fileUri: string, fileContent: string) => {
-  let filePath = uriToFsPath(URI.parse(fileUri), true);
+  let filePath = fileURLToPath(fileUri)
 
   stupidFileContentCache.set(filePath, fileContent)
 
@@ -120,7 +119,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
   }
 }
 let closedFile = (fileUri: string) => {
-  let filePath = uriToFsPath(URI.parse(fileUri), true);
+  let filePath = fileURLToPath(fileUri)
 
   stupidFileContentCache.delete(filePath)
 
@@ -138,12 +137,12 @@ let closedFile = (fileUri: string) => {
   }
 }
 let updateOpenedFile = (fileUri: string, fileContent: string) => {
-  let filePath = uriToFsPath(URI.parse(fileUri), true)
+  let filePath = fileURLToPath(fileUri)
   assert(stupidFileContentCache.has(filePath))
   stupidFileContentCache.set(filePath, fileContent)
 }
 let getOpenedFileContent = (fileUri: string) => {
-  let filePath = uriToFsPath(URI.parse(fileUri), true)
+  let filePath = fileURLToPath(fileUri)
   let content = stupidFileContentCache.get(filePath)!
   assert(content != null)
   return content
@@ -251,7 +250,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       }
     } else if (aa.method === p.DocumentFormattingRequest.method) {
       let params = (aa.params as p.DocumentFormattingParams)
-      let filePath = uriToFsPath(URI.parse(params.textDocument.uri), true);
+      let filePath = fileURLToPath(params.textDocument.uri)
       let extension = path.extname(params.textDocument.uri);
       if (extension !== c.resExt && extension !== c.resiExt) {
         let response: m.ResponseMessage = {
