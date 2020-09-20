@@ -4,6 +4,7 @@ import * as path from 'path';
 // version is fixed to 2.0
 export let jsonrpcVersion = '2.0';
 export let bscPartialPath = path.join('node_modules', 'bs-platform', process.platform, 'bsc.exe');
+export let bsconfigPartialPath = 'bsconfig.json';
 export let compilerLogPartialPath = path.join('lib', 'bs', '.compiler.log');
 export let resExt = '.res';
 export let resiExt = '.resi';

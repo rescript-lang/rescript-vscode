@@ -22,22 +22,8 @@ let initialized = false;
 // https://microsoft.github.io/language-server-protocol/specification#exit
 let shutdownRequestAlreadyReceived = false;
 let stupidFileContentCache: Map<string, string> = new Map()
-/*
-  Map {
-    '/foo/lib/bs/.compiler.log': Map {
-      '/foo/src/A.res': {
-        trackedContent: 'let a = 1',
-        hasDiagnostics: false
-      }
-      '/foo/src/B.res': {
-        trackedContent: null,
-        hasDiagnostics: true
-      }
-    },
-  }
-*/
 let projectsFiles: Map<
-  string,
+  string, // project root path
   {
     openFiles: Set<string>,
     filesWithDiagnostics: Set<string>,
@@ -46,14 +32,12 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 let sendUpdatedDiagnostics = () => {
-  projectsFiles.forEach(({ filesWithDiagnostics }, compilerLogPath) => {
-    let content = fs.readFileSync(compilerLogPath, { encoding: 'utf-8' });
-    console.log("new log content: ", compilerLogPath, content)
+  projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
+    let content = fs.readFileSync(path.join(projectRootPath, c.compilerLogPartialPath), { encoding: 'utf-8' });
     let { done, result: filesAndErrors } = utils.parseCompilerLogOutput(content)
 
     // diff
     Object.keys(filesAndErrors).forEach(file => {
-      // send diagnostic
       let params: p.PublishDiagnosticsParams = {
         uri: file,
         diagnostics: filesAndErrors[file],
@@ -88,10 +72,10 @@ let sendUpdatedDiagnostics = () => {
     }
   });
 }
-let deleteProjectDiagnostics = (compilerLogPath: string) => {
-  let compilerLog = projectsFiles.get(compilerLogPath)
-  if (compilerLog != null) {
-    compilerLog.filesWithDiagnostics.forEach(file => {
+let deleteProjectDiagnostics = (projectRootPath: string) => {
+  let root = projectsFiles.get(projectRootPath)
+  if (root != null) {
+    root.filesWithDiagnostics.forEach(file => {
       let params: p.PublishDiagnosticsParams = {
         uri: file,
         diagnostics: [],
@@ -104,7 +88,7 @@ let deleteProjectDiagnostics = (compilerLogPath: string) => {
       process.send!(notification);
     })
 
-    projectsFiles.delete(compilerLogPath)
+    projectsFiles.delete(projectRootPath)
   }
 }
 
@@ -123,15 +107,14 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   stupidFileContentCache.set(filePath, fileContent)
 
-  let compilerLogDir = utils.findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
-  if (compilerLogDir != null) {
-    let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
-    if (!projectsFiles.has(compilerLogPath)) {
-      projectsFiles.set(compilerLogPath, { openFiles: new Set(), filesWithDiagnostics: new Set() })
-      compilerLogsWatcher.add(compilerLogPath)
+  let projectRootPath = utils.findDirOfFileNearFile(c.bsconfigPartialPath, filePath)
+  if (projectRootPath != null) {
+    if (!projectsFiles.has(projectRootPath)) {
+      projectsFiles.set(projectRootPath, { openFiles: new Set(), filesWithDiagnostics: new Set() })
+      compilerLogsWatcher.add(path.join(projectRootPath, c.compilerLogPartialPath))
     }
-    let compilerLog = projectsFiles.get(compilerLogPath)!
-    compilerLog.openFiles.add(filePath)
+    let root = projectsFiles.get(projectRootPath)!
+    root.openFiles.add(filePath)
     // no need to call sendUpdatedDiagnostics() here; the watcher add will
     // call the listener which calls it
   }
@@ -141,16 +124,15 @@ let closedFile = (fileUri: string) => {
 
   stupidFileContentCache.delete(filePath)
 
-  let compilerLogDir = utils.findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
-  if (compilerLogDir != null) {
-    let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
-    let compilerLog = projectsFiles.get(compilerLogPath)
-    if (compilerLog != null) {
-      compilerLog.openFiles.delete(filePath)
+  let projectRootPath = utils.findDirOfFileNearFile(c.bsconfigPartialPath, filePath)
+  if (projectRootPath != null) {
+    let root = projectsFiles.get(projectRootPath)
+    if (root != null) {
+      root.openFiles.delete(filePath)
       // clear diagnostics too if no open files open in said project
-      if (compilerLog.openFiles.size === 0) {
-        compilerLogsWatcher.unwatch(compilerLogPath)
-        deleteProjectDiagnostics(compilerLogPath)
+      if (root.openFiles.size === 0) {
+        compilerLogsWatcher.unwatch(path.join(projectRootPath, c.compilerLogPartialPath))
+        deleteProjectDiagnostics(projectRootPath)
       }
     }
   }
