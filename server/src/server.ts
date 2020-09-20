@@ -1,4 +1,4 @@
-import process from "process";
+import process, { allowedNodeEnvironmentFlags } from "process";
 import * as p from "vscode-languageserver-protocol";
 import * as t from "vscode-languageserver-types";
 import * as j from "vscode-jsonrpc";
@@ -6,66 +6,106 @@ import * as m from "vscode-jsonrpc/lib/messages";
 import * as v from "vscode-languageserver";
 import * as path from 'path';
 import fs from 'fs';
-import { DidOpenTextDocumentNotification, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification } from 'vscode-languageserver-protocol';
+// TODO: check DidChangeWatchedFilesNotification. Check DidChangeTextDocumentNotification. Do they fire on uninitialized files?
+import { DidOpenTextDocumentNotification, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DidChangeWatchedFilesNotification, CompletionResolveRequest } from 'vscode-languageserver-protocol';
 import { uriToFsPath, URI } from 'vscode-uri';
 import * as utils from './utils';
 import * as c from './constants';
 import * as chokidar from 'chokidar'
+import { assert } from 'console';
+// TODO: what's this?
+import { fileURLToPath } from 'url';
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
 let initialized = false;
 // https://microsoft.github.io/language-server-protocol/specification#exit
 let shutdownRequestAlreadyReceived = false;
-// congrats. A simple UI problem is now a distributed system problem
-let stupidFileContentCache: { [key: string]: string } = {}
-let previouslyDiagnosedFiles: Set<string> = new Set()
-let compilerLogPaths: Set<string> = new Set()
+let stupidFileContentCache: Map<string, string> = new Map()
+/*
+  Map {
+    '/foo/lib/bs/.compiler.log': Map {
+      '/foo/src/A.res': {
+        trackedContent: 'let a = 1',
+        hasDiagnostics: false
+      }
+      '/foo/src/B.res': {
+        trackedContent: null,
+        hasDiagnostics: true
+      }
+    },
+  }
+*/
+let projectsFiles: Map<
+  string,
+  {
+    openFiles: Set<string>,
+    filesWithDiagnostics: Set<string>,
+  }>
+  = new Map()
+// ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 let sendUpdatedDiagnostics = () => {
-  let diagnosedFiles: utils.filesDiagnostics = {}
-  compilerLogPaths.forEach(compilerLogPath => {
+  projectsFiles.forEach(({ filesWithDiagnostics }, compilerLogPath) => {
     let content = fs.readFileSync(compilerLogPath, { encoding: 'utf-8' });
-    console.log("new log content: ", content)
-    let { done: buildDone, result: filesAndErrors } = utils.parseCompilerLogOutput(content)
-    // A file can only belong to one .compiler.log root. So we're not overriding
-    // any existing key here
-    Object.assign(diagnosedFiles, filesAndErrors)
+    console.log("new log content: ", compilerLogPath, content)
+    let { done, result: filesAndErrors } = utils.parseCompilerLogOutput(content)
+
+    // diff
+    Object.keys(filesAndErrors).forEach(file => {
+      // send diagnostic
+      let params: p.PublishDiagnosticsParams = {
+        uri: file,
+        diagnostics: filesAndErrors[file],
+      }
+      let notification: m.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: 'textDocument/publishDiagnostics',
+        params: params,
+      };
+      process.send!(notification);
+
+      filesWithDiagnostics.add(file)
+    })
+    if (done) {
+      // clear old files
+      filesWithDiagnostics.forEach(file => {
+        if (filesAndErrors[file] == null) {
+          // Doesn't exist in the new diagnostics. Clear this diagnostic
+          let params: p.PublishDiagnosticsParams = {
+            uri: file,
+            diagnostics: [],
+          }
+          let notification: m.NotificationMessage = {
+            jsonrpc: c.jsonrpcVersion,
+            method: 'textDocument/publishDiagnostics',
+            params: params,
+          };
+          process.send!(notification);
+          filesWithDiagnostics.delete(file)
+        }
+      })
+    }
   });
+}
+let deleteProjectDiagnostics = (compilerLogPath: string) => {
+  let compilerLog = projectsFiles.get(compilerLogPath)
+  if (compilerLog != null) {
+    compilerLog.filesWithDiagnostics.forEach(file => {
+      let params: p.PublishDiagnosticsParams = {
+        uri: file,
+        diagnostics: [],
+      }
+      let notification: m.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: 'textDocument/publishDiagnostics',
+        params: params,
+      };
+      process.send!(notification);
+    })
 
-  // Send new diagnostic, wipe old ones
-  let diagnosedFilePaths = Object.keys(diagnosedFiles)
-  diagnosedFilePaths.forEach(file => {
-    let params: p.PublishDiagnosticsParams = {
-      uri: file,
-      // there's a new optional version param from https://github.com/microsoft/language-server-protocol/issues/201
-      // not using it for now, sigh
-      diagnostics: diagnosedFiles[file],
-    }
-    let notification: m.NotificationMessage = {
-      jsonrpc: c.jsonrpcVersion,
-      method: 'textDocument/publishDiagnostics',
-      params: params,
-    };
-    process.send!(notification);
-
-    // this file's taken care of already now. Remove from old diagnostic files
-    previouslyDiagnosedFiles.delete(file)
-  })
-  // wipe the errors from the files that are no longer erroring
-  previouslyDiagnosedFiles.forEach(remainingPreviousFile => {
-    let params: p.PublishDiagnosticsParams = {
-      uri: remainingPreviousFile,
-      diagnostics: [],
-    }
-    let notification: m.NotificationMessage = {
-      jsonrpc: c.jsonrpcVersion,
-      method: 'textDocument/publishDiagnostics',
-      params: params,
-    };
-    process.send!(notification);
-  })
-  previouslyDiagnosedFiles = new Set(diagnosedFilePaths)
+    projectsFiles.delete(compilerLogPath)
+  }
 }
 
 let compilerLogsWatcher = chokidar.watch([])
@@ -73,36 +113,58 @@ let compilerLogsWatcher = chokidar.watch([])
     console.log('new log change', changedPath, Math.random())
     sendUpdatedDiagnostics()
   })
-
-let addCompilerLogToWatch = (fileUri: string) => {
-  let filePath = uriToFsPath(URI.parse(fileUri), true);
-  let compilerLogDir = utils.findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
-  if (compilerLogDir != null) {
-    let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
-    if (!compilerLogPaths.has(compilerLogPath)) {
-      console.log("added new ", compilerLogPath, "from file: ", compilerLogDir)
-      compilerLogPaths.add(compilerLogPath)
-      compilerLogsWatcher.add(compilerLogPath)
-      // no need to call sendUpdatedDiagnostics() here; the watcher add will
-      // call the listener which calls it
-    }
-  }
-}
-let removeCompilerLogToWatch = (fileUri: string) => {
-  let filePath = uriToFsPath(URI.parse(fileUri), true);
-  let compilerLogDir = utils.findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
-  if (compilerLogDir != null) {
-    let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
-    if (compilerLogPaths.has(compilerLogPath)) {
-      console.log("remove log path ", compilerLogPath)
-      compilerLogPaths.delete(compilerLogPath)
-      compilerLogsWatcher.unwatch(compilerLogPath)
-      sendUpdatedDiagnostics()
-    }
-  }
-}
 let stopWatchingCompilerLog = () => {
+  // TODO: cleanup of compilerLogs?
   compilerLogsWatcher.close()
+}
+
+let openedFile = (fileUri: string, fileContent: string) => {
+  let filePath = uriToFsPath(URI.parse(fileUri), true);
+
+  stupidFileContentCache.set(filePath, fileContent)
+
+  let compilerLogDir = utils.findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
+  if (compilerLogDir != null) {
+    let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
+    if (!projectsFiles.has(compilerLogPath)) {
+      projectsFiles.set(compilerLogPath, { openFiles: new Set(), filesWithDiagnostics: new Set() })
+      compilerLogsWatcher.add(compilerLogPath)
+    }
+    let compilerLog = projectsFiles.get(compilerLogPath)!
+    compilerLog.openFiles.add(filePath)
+    // no need to call sendUpdatedDiagnostics() here; the watcher add will
+    // call the listener which calls it
+  }
+}
+let closedFile = (fileUri: string) => {
+  let filePath = uriToFsPath(URI.parse(fileUri), true);
+
+  stupidFileContentCache.delete(filePath)
+
+  let compilerLogDir = utils.findDirOfFileNearFile(c.compilerLogPartialPath, filePath)
+  if (compilerLogDir != null) {
+    let compilerLogPath = path.join(compilerLogDir, c.compilerLogPartialPath);
+    let compilerLog = projectsFiles.get(compilerLogPath)
+    if (compilerLog != null) {
+      compilerLog.openFiles.delete(filePath)
+      // clear diagnostics too if no open files open in said project
+      if (compilerLog.openFiles.size === 0) {
+        compilerLogsWatcher.unwatch(compilerLogPath)
+        deleteProjectDiagnostics(compilerLogPath)
+      }
+    }
+  }
+}
+let updateOpenedFile = (fileUri: string, fileContent: string) => {
+  let filePath = uriToFsPath(URI.parse(fileUri), true)
+  assert(stupidFileContentCache.has(filePath))
+  stupidFileContentCache.set(filePath, fileContent)
+}
+let getOpenedFileContent = (fileUri: string) => {
+  let filePath = uriToFsPath(URI.parse(fileUri), true)
+  let content = stupidFileContentCache.get(filePath)!
+  assert(content != null)
+  return content
 }
 
 process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
@@ -125,8 +187,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       let extName = path.extname(params.textDocument.uri)
       if (extName === c.resExt || extName === c.resiExt) {
         console.log("new file coming", params.textDocument.uri)
-        stupidFileContentCache[params.textDocument.uri] = params.textDocument.text;
-        addCompilerLogToWatch(params.textDocument.uri)
+        openedFile(params.textDocument.uri, params.textDocument.text)
       }
     } else if (aa.method === DidChangeTextDocumentNotification.method) {
       let params = (aa.params as p.DidChangeTextDocumentParams);
@@ -137,13 +198,12 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
           // no change?
         } else {
           // we currently only support full changes
-          stupidFileContentCache[params.textDocument.uri] = changes[changes.length - 1].text;
+          updateOpenedFile(params.textDocument.uri, changes[changes.length - 1].text)
         }
       }
     } else if (aa.method === DidCloseTextDocumentNotification.method) {
       let params = (aa.params as p.DidCloseTextDocumentParams);
-      delete stupidFileContentCache[params.textDocument.uri];
-      removeCompilerLogToWatch(params.textDocument.uri)
+      closedFile(params.textDocument.uri)
     }
   } else {
     // this is a request message, aka client sent request, waits for our reply
@@ -235,7 +295,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
           process.send!(response);
         } else {
           // code will always be defined here, even though technically it can be undefined
-          let code = stupidFileContentCache[params.textDocument.uri];
+          let code = getOpenedFileContent(params.textDocument.uri)
           let formattedResult = utils.formatUsingValidBscPath(
             code,
             path.join(nodeModulesParentPath, c.bscPartialPath),

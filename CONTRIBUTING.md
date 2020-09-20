@@ -4,7 +4,7 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 
 ## Editor Diagnostics
 
-They should be synced in from the `bsb` build. Don't take them from other places.
+They should be synced in from `lib/bs/.compiler.log` build. Don't take them from other places.
 
 ### `.compiler.log`
 
@@ -29,6 +29,8 @@ After saving a file and running the build, the results stream into the log file.
 
 Even this fix isn't great. Ideally, the editor's diagnostics can be greyed out while we're updating them...
 
+Keep in mind that you might be tracking multiple `.compiler.log`s. You should do the above for each.
+
 ### Stale Diagnostics Detection
 
 To check whether the artifacts are stale, do **not** check `.bsb.lock` at the project root. This is unreliable, since it's possible that `bsb` wasn't running in watcher mode. We also don't want to encourage overuse of the watcher mode, though it seems increasingly common.
@@ -42,6 +44,15 @@ It's possible to open files from different projects into the same editor instanc
 The bad alternatives are:
 - Not show that file's project's errors. That's wrong for several reasons (looks like the file has no error, assumes an editor window has a default project, etc.).
 - Show only that file's error. That's just weird, the errors are already read from that project's `.compiler.log`. Might as well show all of them (?).
+
+## Running `bsb` in the Editor
+
+**Don't** do that unless you've prompted the user.
+
+- Running an implicit `bsb -w` automatically means you've acquired the build watch mode lockfile. The user won't be able to run his/her own `bsb -w` in the terminal.
+- Running a one-shot `bsb` doesn't conflict, but is a waste. It's also incorrect, as there might be external file system changes you're not detecting.
+- The build might be a step in a bigger build. The editor running `bsb` implicitly goes against that.
+- If you have multiple files with different project roots open, running all of the `bsb`s is too intense.
 
 ## Format
 

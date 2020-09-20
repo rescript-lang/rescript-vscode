@@ -88,7 +88,7 @@ export let parseDiagnosticLocation = (location: string): Range => {
 	}
 }
 
-export type filesDiagnostics = {
+type filesDiagnostics = {
 	[key: string]: p.Diagnostic[];
 }
 type parsedCompilerLogResult = {
