@@ -23,16 +23,14 @@ let previouslyDiagnosedFiles: Set<string> = new Set()
 let compilerLogPaths: Set<string> = new Set()
 
 let sendUpdatedDiagnostics = () => {
-  let diagnosedFiles: { [key: string]: t.Diagnostic[] } = {}
+  let diagnosedFiles: utils.filesDiagnostics = {}
   compilerLogPaths.forEach(compilerLogPath => {
     let content = fs.readFileSync(compilerLogPath, { encoding: 'utf-8' });
     console.log("new log content: ", content)
-    let filesAndErrors = utils.parseCompilerLogOutput(content, ":")
-    Object.keys(filesAndErrors).forEach(file => {
-      // assumption: there's no existing files[file] entry
-      // this is true; see the lines above. A file can only belong to one .compiler.log root
-      diagnosedFiles[file] = filesAndErrors[file]
-    })
+    let { done: buildDone, result: filesAndErrors } = utils.parseCompilerLogOutput(content)
+    // A file can only belong to one .compiler.log root. So we're not overriding
+    // any existing key here
+    Object.assign(diagnosedFiles, filesAndErrors)
   });
 
   // Send new diagnostic, wipe old ones

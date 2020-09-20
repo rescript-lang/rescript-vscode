@@ -11,11 +11,10 @@ They should be synced in from the `bsb` build. Don't take them from other places
 The build output is streamed into `lib/bs/.compiler.log`. Here are its various states, numbered here:
 
 1. Doesn't exist: artifacts not built yet, or cleaned away.
-2. Present but empty: currently building, no error yet.
-3. Present, non-empty, without a final line `# Done`: still building.
-4. Present, with the final line `# Done`: finished building.
+2. Present, without a final line `#Done`: still building.
+3. Present, with the final line `#Done`: finished building.
 
-Barring FS errors, there should be no other state to `.compiler.log`.
+Barring FS errors, there should be no other state to `.compiler.log`. Among others, this means the file is never present but empty.
 
 ### State 1
 
@@ -25,9 +24,8 @@ Artifacts cleaning through `bsb -clean` removes `.compiler.log` and turns into s
 
 After saving a file and running the build, the results stream into the log file. Unfortunately, UX-wise, in the editor, this might look like the diagnostics are suddenly gone then coming back in file by file. This looks bad. To remediate:
 
-- If the log file is in state 2 (see state numbers above), don't wipe the existing diagnostics yet.
-- If it's in state 3, update those particular files' diagnostics.
-- If in state 4, finish by clean up the rest of the old diagnostics. This means there's a bit of bookeeping needed here. Make sure you get it right. It's possible for a build to be interrupted (and therefore state 4 never reached) and restarted.
+- If it's in state 2, update those particular files' diagnostics but don't wipe the files' diagnostics yet.
+- If in state 3, finish by clean up the rest of the old diagnostics. This means there's a bit of bookeeping needed here. Make sure you get it right. It's possible for a build to be interrupted (and therefore state 4 never reached) and restarted.
 
 Even this fix isn't great. Ideally, the editor's diagnostics can be greyed out while we're updating them...
 

@@ -88,8 +88,17 @@ export let parseDiagnosticLocation = (location: string): Range => {
 	}
 }
 
-export let parseCompilerLogOutput = (content: string, separator: string) => {
+export type filesDiagnostics = {
+	[key: string]: p.Diagnostic[];
+}
+type parsedCompilerLogResult = {
+	done: boolean,
+	result: filesDiagnostics,
+}
+export let parseCompilerLogOutput = (content: string): parsedCompilerLogResult => {
 	/* example .compiler.log file content that we're gonna parse:
+
+#Start(1600519680823)
 
 	Syntax error!
 	/Users/chenglou/github/reason-react/src/test.res:1:8-2:3
@@ -121,11 +130,10 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 	2 │ let b = "hi"
 	3 │ let a = b + 1
 
-	This has type:
-		string
+	This has type: string
+	Somewhere wanted: int
 
-	But somewhere wanted:
-		int
+#Done(1600519680836)
 	*/
 
 	type parsedDiagnostic = {
@@ -136,6 +144,8 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 	}
 	let parsedDiagnostics: parsedDiagnostic[] = [];
 	let lines = content.split('\n');
+	let done = false;
+
 	for (let i = 0; i < lines.length; i++) {
 		let line = lines[i];
 		if (line.startsWith('  We\'ve found a bug for you!')) {
@@ -184,6 +194,8 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 				tag: undefined,
 				content: []
 			})
+		} else if (line.startsWith('#Done(')) {
+			done = true
 		} else if (/^  +[0-9]+ /.test(line)) {
 			// code display. Swallow
 		} else if (line.startsWith('  ')) {
@@ -191,15 +203,14 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 		}
 	}
 
-	// map of file path to list of diagnostic
-	let ret: { [key: string]: t.Diagnostic[] } = {}
+	let result: filesDiagnostics = {}
 	parsedDiagnostics.forEach(parsedDiagnostic => {
 		let [fileAndLocation, ...diagnosticMessage] = parsedDiagnostic.content
-		let locationSeparator = fileAndLocation.indexOf(separator)
+		let locationSeparator = fileAndLocation.indexOf(':')
 		let file = fileAndLocation.substring(2, locationSeparator)
 		let location = fileAndLocation.substring(locationSeparator + 1)
-		if (ret[file] == null) {
-			ret[file] = []
+		if (result[file] == null) {
+			result[file] = []
 		}
 		let cleanedUpDiagnostic = diagnosticMessage
 			.map(line => {
@@ -209,7 +220,7 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 			.join('\n')
 			// remove start and end whitespaces/newlines
 			.trim() + '\n';
-		ret[file].push({
+		result[file].push({
 			severity: parsedDiagnostic.severity,
 			tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
 			code: parsedDiagnostic.code,
@@ -219,5 +230,5 @@ export let parseCompilerLogOutput = (content: string, separator: string) => {
 		})
 	})
 
-	return ret
+	return { done, result }
 }
