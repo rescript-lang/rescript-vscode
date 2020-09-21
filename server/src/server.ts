@@ -92,7 +92,6 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
 
 let compilerLogsWatcher = chokidar.watch([])
   .on('all', (_e, changedPath) => {
-    console.log('new log change', changedPath, Math.random())
     sendUpdatedDiagnostics()
   })
 let stopWatchingCompilerLog = () => {
@@ -165,7 +164,6 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       let params = (aa.params as p.DidOpenTextDocumentParams);
       let extName = path.extname(params.textDocument.uri)
       if (extName === c.resExt || extName === c.resiExt) {
-        console.log("new file coming", params.textDocument.uri)
         openedFile(params.textDocument.uri, params.textDocument.text)
       }
     } else if (aa.method === DidChangeTextDocumentNotification.method) {
