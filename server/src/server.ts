@@ -244,42 +244,61 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
         process.send!(response);
       }
     } else if (aa.method === p.DocumentFormattingRequest.method) {
+      // technically, a formatting failure should reply with the error. Sadly
+      // the LSP alert box for these error replies suck (e.g. don't actually
+      // display the message). In order to signal the client to display a proper
+      // alert box (sometime with actionable buttons), we need to first send
+      // back a fake success message (because reach request mandates a
+      // response), then right away send a server notification to display a
+      // nicer alert. Ugh.
+      let fakeSuccessResponse: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: aa.id,
+        result: [],
+      }
+
       let params = (aa.params as p.DocumentFormattingParams)
       let filePath = fileURLToPath(params.textDocument.uri)
       let extension = path.extname(params.textDocument.uri);
       if (extension !== c.resExt && extension !== c.resiExt) {
-        let response: m.ResponseMessage = {
+        let params: p.ShowMessageParams = {
+          type: p.MessageType.Error,
+          message: `Not a ${c.resExt} or ${c.resiExt} file. Cannot format it.`
+        }
+        let response: m.NotificationMessage = {
           jsonrpc: c.jsonrpcVersion,
-          id: aa.id,
-          error: {
-            code: m.ErrorCodes.InvalidRequest,
-            message: `Not a ${c.resExt} or ${c.resiExt} file.`
-          }
-        };
+          method: 'window/showMessage',
+          params: params,
+        }
+        process.send!(fakeSuccessResponse);
         process.send!(response);
       } else {
         let projectRootPath = utils.findProjectRootOfFile(filePath)
         if (projectRootPath == null) {
-          let response: m.ResponseMessage = {
+          let params: p.ShowMessageParams = {
+            type: p.MessageType.Error,
+            message: `Cannot find a nearby ${c.bsconfigPartialPath}. It's needed for determining the project's root.`,
+          }
+          let response: m.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
-            id: aa.id,
-            error: {
-              code: m.ErrorCodes.InvalidRequest,
-              message: `Cannot find a nearby ${c.bsconfigPartialPath}. It's needed for determining the project's root.`,
-            }
-          };
+            method: 'window/showMessage',
+            params: params,
+          }
+          process.send!(fakeSuccessResponse);
           process.send!(response);
         } else {
           let bscPath = path.join(projectRootPath, c.bscPartialPath)
           if (!fs.existsSync(bscPath)) {
-            let response: m.ResponseMessage = {
+            let params: p.ShowMessageParams = {
+              type: p.MessageType.Error,
+              message: `Cannot find a nearby ${c.bscPartialPath}. It's needed for formatting.`,
+            }
+            let response: m.NotificationMessage = {
               jsonrpc: c.jsonrpcVersion,
-              id: aa.id,
-              error: {
-                code: m.ErrorCodes.InvalidRequest,
-                message: `Cannot find a nearby ${c.bscPartialPath}. It's needed for formatting.`,
-              }
-            };
+              method: 'window/showMessage',
+              params: params,
+            }
+            process.send!(fakeSuccessResponse);
             process.send!(response);
           } else {
             // code will always be defined here, even though technically it can be undefined
@@ -304,24 +323,11 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
               };
               process.send!(response);
             } else {
-              let response: m.ResponseMessage = {
-                jsonrpc: c.jsonrpcVersion,
-                id: aa.id,
-                result: [],
-                // technically a formatting failure should return the error but
-                // since this is LSP... the idiom seems to be to silently return
-                // nothing (to avoid an alert window each time on bad formatting)
-                // while sending a diagnostic about the error afterward. We won't
-                // send an extra diagnostic because the .compiler.log watcher
-                // should have reported th won't send an extra diagnostic because
-                // theiler.log watcher should have reported them.
-
-                // error: {
-                //  code: m.ErrorCodes.ParseError,
-                //  message: formattedResult.error,
-                // }
-              };
-              process.send!(response);
+              // let the diagnostics logic display the updated syntax errors,
+              // from the build.
+              // Again, not sending the actual errors. See fakeSuccessResponse
+              // above for explanation
+              process.send!(fakeSuccessResponse);
             }
           }
         }
