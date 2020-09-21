@@ -9,16 +9,16 @@ import fs from 'fs';
 
 // TODO: races here
 // TODO: this doesn't handle file:/// scheme
-export let findDirOfFileNearFile = (fileToFind: p.DocumentUri, source: p.DocumentUri): null | p.DocumentUri => {
+export let findProjectRootOfFile = (source: p.DocumentUri): null | p.DocumentUri => {
 	let dir = path.dirname(source)
-	if (fs.existsSync(path.join(dir, fileToFind))) {
+	if (fs.existsSync(path.join(dir, c.bsconfigPartialPath))) {
 		return dir
 	} else {
 		if (dir === source) {
 			// reached top
 			return null
 		} else {
-			return findDirOfFileNearFile(fileToFind, dir)
+			return findProjectRootOfFile(dir)
 		}
 	}
 }

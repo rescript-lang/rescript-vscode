@@ -1,4 +1,4 @@
-import process, { allowedNodeEnvironmentFlags } from "process";
+import process from "process";
 import * as p from "vscode-languageserver-protocol";
 import * as t from "vscode-languageserver-types";
 import * as j from "vscode-jsonrpc";
@@ -6,13 +6,12 @@ import * as m from "vscode-jsonrpc/lib/messages";
 import * as v from "vscode-languageserver";
 import * as path from 'path';
 import fs from 'fs';
-// TODO: check DidChangeWatchedFilesNotification. Check DidChangeTextDocumentNotification. Do they fire on uninitialized files?
+// TODO: check DidChangeWatchedFilesNotification.
 import { DidOpenTextDocumentNotification, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DidChangeWatchedFilesNotification, CompletionResolveRequest } from 'vscode-languageserver-protocol';
 import * as utils from './utils';
 import * as c from './constants';
 import * as chokidar from 'chokidar'
 import { assert } from 'console';
-// TODO: what's this?
 import { fileURLToPath } from 'url';
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
@@ -106,7 +105,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   stupidFileContentCache.set(filePath, fileContent)
 
-  let projectRootPath = utils.findDirOfFileNearFile(c.bsconfigPartialPath, filePath)
+  let projectRootPath = utils.findProjectRootOfFile(filePath)
   if (projectRootPath != null) {
     if (!projectsFiles.has(projectRootPath)) {
       projectsFiles.set(projectRootPath, { openFiles: new Set(), filesWithDiagnostics: new Set() })
@@ -123,7 +122,7 @@ let closedFile = (fileUri: string) => {
 
   stupidFileContentCache.delete(filePath)
 
-  let projectRootPath = utils.findDirOfFileNearFile(c.bsconfigPartialPath, filePath)
+  let projectRootPath = utils.findProjectRootOfFile(filePath)
   if (projectRootPath != null) {
     let root = projectsFiles.get(projectRootPath)
     if (root != null) {
@@ -155,7 +154,6 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
     if (!initialized && aa.method !== 'exit') {
       // From spec: "Notifications should be dropped, except for the exit notification. This will allow the exit of a server without an initialize request"
       // For us: do nothing. We don't have anything we need to clean up right now
-      // TODO: think of fs watcher
     } else if (aa.method === 'exit') {
       // The server should exit with success code 0 if the shutdown request has been received before; otherwise with error code 1
       if (shutdownRequestAlreadyReceived) {
@@ -200,7 +198,6 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       };
       process.send!(response);
     } else if (aa.method === 'initialize') {
-      // startWatchingCompilerLog(process)
       // send the list of things we support
       let result: p.InitializeResult = {
         capabilities: {
@@ -263,58 +260,71 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
         };
         process.send!(response);
       } else {
-        let nodeModulesParentPath = utils.findDirOfFileNearFile(c.bscPartialPath, filePath)
-        if (nodeModulesParentPath == null) {
+        let projectRootPath = utils.findProjectRootOfFile(filePath)
+        if (projectRootPath == null) {
           let response: m.ResponseMessage = {
             jsonrpc: c.jsonrpcVersion,
             id: aa.id,
             error: {
               code: m.ErrorCodes.InvalidRequest,
-              message: `Cannot find a nearby ${c.bscPartialPath}. It's needed for formatting.`,
+              message: `Cannot find a nearby ${c.bsconfigPartialPath}. It's needed for determining the project's root.`,
             }
           };
           process.send!(response);
         } else {
-          // code will always be defined here, even though technically it can be undefined
-          let code = getOpenedFileContent(params.textDocument.uri)
-          let formattedResult = utils.formatUsingValidBscPath(
-            code,
-            path.join(nodeModulesParentPath, c.bscPartialPath),
-            extension === c.resiExt,
-          );
-          if (formattedResult.kind === 'success') {
-            let result: p.TextEdit[] = [{
-              range: {
-                start: { line: 0, character: 0 },
-                end: { line: Number.MAX_VALUE, character: Number.MAX_VALUE }
-              },
-              newText: formattedResult.result,
-            }]
+          let bscPath = path.join(projectRootPath, c.bscPartialPath)
+          if (!fs.existsSync(bscPath)) {
             let response: m.ResponseMessage = {
               jsonrpc: c.jsonrpcVersion,
               id: aa.id,
-              result: result,
+              error: {
+                code: m.ErrorCodes.InvalidRequest,
+                message: `Cannot find a nearby ${c.bscPartialPath}. It's needed for formatting.`,
+              }
             };
             process.send!(response);
           } else {
-            let response: m.ResponseMessage = {
-              jsonrpc: c.jsonrpcVersion,
-              id: aa.id,
-              result: [],
-              // technically a formatting failure should return the error but
-              // since this is LSP... the idiom seems to be to silently return
-              // nothing (to avoid an alert window each time on bad formatting)
-              // while sending a diagnostic about the error afterward. We won't
-              // send an extra diagnostic because the .compiler.log watcher
-              // should have reported th won't send an extra diagnostic because
-              // theiler.log watcher should have reported them.
+            // code will always be defined here, even though technically it can be undefined
+            let code = getOpenedFileContent(params.textDocument.uri)
+            let formattedResult = utils.formatUsingValidBscPath(
+              code,
+              bscPath,
+              extension === c.resiExt,
+            );
+            if (formattedResult.kind === 'success') {
+              let result: p.TextEdit[] = [{
+                range: {
+                  start: { line: 0, character: 0 },
+                  end: { line: Number.MAX_VALUE, character: Number.MAX_VALUE }
+                },
+                newText: formattedResult.result,
+              }]
+              let response: m.ResponseMessage = {
+                jsonrpc: c.jsonrpcVersion,
+                id: aa.id,
+                result: result,
+              };
+              process.send!(response);
+            } else {
+              let response: m.ResponseMessage = {
+                jsonrpc: c.jsonrpcVersion,
+                id: aa.id,
+                result: [],
+                // technically a formatting failure should return the error but
+                // since this is LSP... the idiom seems to be to silently return
+                // nothing (to avoid an alert window each time on bad formatting)
+                // while sending a diagnostic about the error afterward. We won't
+                // send an extra diagnostic because the .compiler.log watcher
+                // should have reported th won't send an extra diagnostic because
+                // theiler.log watcher should have reported them.
 
-              // error: {
-              //  code: m.ErrorCodes.ParseError,
-              //  message: formattedResult.error,
-              // }
-            };
-            process.send!(response);
+                // error: {
+                //  code: m.ErrorCodes.ParseError,
+                //  message: formattedResult.error,
+                // }
+              };
+              process.send!(response);
+            }
           }
         }
       }
