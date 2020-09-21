@@ -148,11 +148,12 @@ let getOpenedFileContent = (fileUri: string) => {
 
 process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
   if ((a as m.RequestMessage).id == null) {
-    // this is a notification message, aka client sent and forgot
+    // this is a notification message, aka the client ends it and doesn't want a reply
     let aa = (a as m.NotificationMessage)
     if (!initialized && aa.method !== 'exit') {
       // From spec: "Notifications should be dropped, except for the exit notification. This will allow the exit of a server without an initialize request"
       // For us: do nothing. We don't have anything we need to clean up right now
+      // TODO: we might have things we need to clean up now... like some watcher stuff
     } else if (aa.method === 'exit') {
       // The server should exit with success code 0 if the shutdown request has been received before; otherwise with error code 1
       if (shutdownRequestAlreadyReceived) {
@@ -183,7 +184,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       closedFile(params.textDocument.uri)
     }
   } else {
-    // this is a request message, aka client sent request, waits for our reply
+    // this is a request message, aka client sent request and waits for our mandatory reply
     let aa = (a as m.RequestMessage)
     if (!initialized && aa.method !== 'initialize') {
       let response: m.ResponseMessage = {
@@ -196,7 +197,7 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       };
       process.send!(response);
     } else if (aa.method === 'initialize') {
-      // send the list of things we support
+      // send the list of features we support
       let result: p.InitializeResult = {
         capabilities: {
           // TODO: incremental sync?
@@ -245,10 +246,10 @@ process.on('message', (a: (m.RequestMessage | m.NotificationMessage)) => {
       }
     } else if (aa.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
-      // the LSP alert box for these error replies suck (e.g. don't actually
+      // the LSP alert box for these error replies sucks (e.g. doesn't actually
       // display the message). In order to signal the client to display a proper
       // alert box (sometime with actionable buttons), we need to first send
-      // back a fake success message (because reach request mandates a
+      // back a fake success message (because each request mandates a
       // response), then right away send a server notification to display a
       // nicer alert. Ugh.
       let fakeSuccessResponse: m.ResponseMessage = {
