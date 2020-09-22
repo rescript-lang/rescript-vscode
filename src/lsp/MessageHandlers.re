@@ -16,15 +16,12 @@ let getPackage = Packages.getPackage(~reportDiagnostics=NotificationHandlers.rep
 
 let handlers: list((string, (state, Json.t) => result((state, Json.t), string))) = [
   ("textDocument/definition", (state, params) => {
-    open InfixResult;
-    let%try uri = params |> RJson.get("textDocument") |?> RJson.get("uri") |?> RJson.string;
-    let%try position = RJson.get("position", params) |?> Protocol.rgetPosition;
+    let%try (uri, pos) = Protocol.rPositionParams(params);
     let%try package = getPackage(uri, state);
     let%try (file, extra) = State.fileForUri(state, ~package, uri);
 
-    let position = Utils.cmtLocFromVscode(position);
+    let position = Utils.cmtLocFromVscode(pos);
 
-    open Infix;
     {
       let%opt (uri, loc) =
         References.definitionForPos(
