@@ -264,10 +264,6 @@ let getBestDefinitions = (uri, state, ~package) => {
   }
 };
 
-let getDefinitionData = (uri, state, ~package) => {
-  getCompilationResult(uri, state, ~package) |> tryExtra
-};
-
 let docsForModule = (modname, state, ~package) =>
     if (Hashtbl.mem(package.pathsForModule, modname)) {
       let paths = Hashtbl.find(package.pathsForModule, modname);
