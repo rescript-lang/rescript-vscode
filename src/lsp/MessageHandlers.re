@@ -20,7 +20,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
     let%try uri = params |> RJson.get("textDocument") |?> RJson.get("uri") |?> RJson.string;
     let%try position = RJson.get("position", params) |?> Protocol.rgetPosition;
     let%try package = getPackage(uri, state);
-    let%try data = State.getDefinitionData(uri, state, ~package);
+    let%try (file, extra) = State.fileForUri(state, ~package, uri);
 
     let position = Utils.cmtLocFromVscode(position);
 
@@ -29,8 +29,8 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       let%opt (uri, loc) =
         References.definitionForPos(
           ~pathsForModule=package.pathsForModule,
-          ~file=data.file,
-          ~extra=data.extra,
+          ~file,
+          ~extra,
           ~getUri=State.fileForUri(state, ~package),
           ~getModule=State.fileForModule(state, ~package),
           position,
@@ -47,8 +47,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
     let%try (text, _version, _isClean) = maybeHash(state.documentText, uri) |> orError("No document text found");
     let%try package = getPackage(uri, state);
     let%try offset = PartialParser.positionToOffset(text, position) |> orError("invalid offset");
-    let%try full = State.getDefinitionData(uri, state, ~package);
-    let {SharedTypes.file, extra} = full;
+    let%try (file, extra) = uri |> State.fileForUri(state, ~package);
 
     {
       let%opt (commas, _labelsUsed, lident, i) = PartialParser.findFunctionCall(text, offset - 1);
@@ -61,7 +60,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
           let tokenParts = Utils.split_on_char('.', lident);
           let rawOpens = PartialParser.findOpens(text, offset);
           let%opt declared = NewCompletions.findDeclaredValue(
-            ~full,
+            ~file,
             ~package,
             ~rawOpens,
             ~getModule=State.fileForModule(state, ~package),

@@ -487,7 +487,7 @@ let resolveRawOpens = (~env, ~getModule, ~rawOpens, ~package) => {
 /** This function should live somewhere else */
 let findDeclaredValue =
     (
-      ~full,
+      ~file,
       ~package,
       /* the text that we found e.g. open A.B.C, this is "A.B.C" */
       ~rawOpens,
@@ -495,7 +495,7 @@ let findDeclaredValue =
       pos,
       tokenParts,
     ) => {
-  let env = Query.fileEnv(full.file);
+  let env = Query.fileEnv(file);
 
   let opens = resolveRawOpens(~env, ~getModule, ~rawOpens, ~package);
 
