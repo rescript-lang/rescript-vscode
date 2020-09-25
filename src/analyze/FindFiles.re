@@ -94,6 +94,8 @@ let isCompiledFile = name =>
 let isSourceFile = name =>
   Filename.check_suffix(name, ".re")
   || Filename.check_suffix(name, ".rei")
+  || Filename.check_suffix(name, ".res")
+  || Filename.check_suffix(name, ".resi")
   || Filename.check_suffix(name, ".rel")
   || Filename.check_suffix(name, ".ml")
   || Filename.check_suffix(name, ".mli");

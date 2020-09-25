@@ -64,6 +64,50 @@ let reloadAllState = state => {
   };
 };
 
+
+let dumpLocations = (state, ~package, uri) => {
+      let%try (file, extra) = State.fileForUri(state, ~package, uri);
+      let locations = extra.locations |> List.filter( ((l, _)) => !l.Location.loc_ghost);
+      Log.log("ZZZ found " ++ string_of_int(List.length(locations)) ++ " locations in " ++ uri);
+      open Util.JsonShort;
+      let locationsInfo =
+        locations |> List.map( ((location : Location.t, loc)) =>
+          {
+            let hoverText = Hover.newHover(
+              ~rootUri=state.rootUri,
+              ~file,
+              ~getModule=State.fileForModule(state, ~package),
+              ~markdown=!state.settings.clientNeedsPlainText,
+              ~showPath=state.settings.showModulePathOnHover,
+              loc
+            ) |? "";
+            let hover = hoverText == "" ? [] : [("hover", s(hoverText))];
+
+            let position = location.loc_start |> Query.tupleOfLexing |> Utils.cmtLocFromVscode;
+            let uriLocOpt =
+              References.definitionForPos(
+                ~pathsForModule=package.pathsForModule,
+                ~file,
+                ~extra,
+                ~getUri=State.fileForUri(state, ~package),
+                ~getModule=State.fileForModule(state, ~package),
+                position,
+              );
+            let def = switch uriLocOpt {
+              | None => []
+              | Some((uri2, loc)) =>
+                let range = ("range", Protocol.rangeOfLoc(loc));
+                [("definition", o(
+                    uri == uri2 ? [range] : [("uri", Json.String(uri2)), range]
+                  ))]
+            };
+            o([("range", Protocol.rangeOfLoc(location))] @ hover @ def)
+          } 
+        ) |> l;
+      Log.log("ZZZ " ++ Json.stringify(locationsInfo));  
+      Ok(());
+};
+
 let notificationHandlers: list((string, (state, Json.t) => result(state, string))) = [
   ("textDocument/didOpen", (state, params) => {
     let%try (uri, version, text) = Json.get("textDocument", params) |?> getTextDocument |> RResult.orError("Invalid params");
@@ -73,6 +117,9 @@ let notificationHandlers: list((string, (state, Json.t) => result(state, string)
     let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
     if (FindFiles.isSourceFile(path)) {
       let%try package = Packages.getPackage(~reportDiagnostics, uri, state);
+
+      dumpLocations(state, ~package, uri) |> ignore;
+
       /* let name = FindFiles.getName(path); */
       if (!Hashtbl.mem(package.nameForPath, path)) {
         /* TODO: figure out what the name should be, and process it. */
