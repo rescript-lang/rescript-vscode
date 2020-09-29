@@ -246,6 +246,28 @@ let check = (~definitions, ~quiet, rootPath, files) => {
   log("Ok");
 }
 
+let dump = files => {
+  let rootPath = Unix.getcwd();
+  let state = {
+    ...Analyze.TopTypes.empty(),
+    rootPath,
+    rootUri: Utils.toUri(rootPath)
+  };
+  files->Belt.List.forEach(filePath => {
+    let filePath = maybeConcat(Unix.getcwd(), filePath);
+    let uri = Utils.toUri(filePath);
+    switch (processFile(~state, ~uri, ~quiet=true)) {
+      | Some((package, result)) =>
+        switch result {
+          | None => ()
+          | Some({file, extra}) =>
+            NotificationHandlers.dumpLocations(state, ~package, uri) |> ignore;
+        }
+      | None => ()
+    }
+  });
+};
+
 let parseArgs = args => {
   switch args {
     | [] => assert(false)
@@ -325,6 +347,8 @@ let main = () => {
         Util.Log.spamError := false;
       };
       check(~definitions, ~quiet, rootPath, files)
+    | (opts, ["dump", ...files]) =>
+      dump(files)
     | _ => showHelp();
   }
 };

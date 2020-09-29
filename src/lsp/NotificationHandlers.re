@@ -104,7 +104,9 @@ let dumpLocations = (state, ~package, uri) => {
             o([("range", Protocol.rangeOfLoc(location))] @ hover @ def)
           } 
         ) |> l;
+      Util.Log.spamError := true;
       Log.log("ZZZ " ++ Json.stringify(locationsInfo));  
+      Util.Log.spamError := false;
       Ok(());
 };
 
@@ -117,9 +119,6 @@ let notificationHandlers: list((string, (state, Json.t) => result(state, string)
     let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
     if (FindFiles.isSourceFile(path)) {
       let%try package = Packages.getPackage(~reportDiagnostics, uri, state);
-
-      dumpLocations(state, ~package, uri) |> ignore;
-
       /* let name = FindFiles.getName(path); */
       if (!Hashtbl.mem(package.nameForPath, path)) {
         /* TODO: figure out what the name should be, and process it. */
