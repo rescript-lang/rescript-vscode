@@ -1,7 +1,8 @@
 (include_subdirs unqualified)
 (library
  (name Lsp)
- (libraries Belt str reason ocaml-migrate-parsetree uri bigarray)
- (flags "-w" "+6+26+27+32+33+39")
+ (libraries str reason ocaml-migrate-parsetree uri bigarray)
+ (flags "-w" "+26+27+32+33+39")
+ (c_names stubs)
  (preprocess
   (pps Belt_ppx Ppx_monads)))

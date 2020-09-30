@@ -153,7 +153,7 @@ let _ =
     (fun x  ->
        match Js.Undefined.toOption x with
        | None  -> print_endline "YUP"
-       | ((Some x)[@explicit_arity ]) -> assert false)
+       | ((Some _x)[@explicit_arity ]) -> assert false)
 let aa = Belt_Array.mapWithIndex aa (fun i  -> fun _  -> i)
 let aaa = Belt_List.concat [1.0; 2.0] [3.0; 4.0]
 let _ =
