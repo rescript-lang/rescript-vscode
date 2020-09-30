@@ -672,7 +672,6 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       ~uri,
       ~moduleName=file.moduleName,
       ~cacheLocation=package.tmpPath,
-      ~compilerVersion=package.compilerVersion,
       );
     if (State.isMl(uri)) {
       switch (parsetree) {
@@ -716,7 +715,6 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       ~uri,
       ~moduleName=file.moduleName,
       ~cacheLocation=package.tmpPath,
-      ~compilerVersion=package.compilerVersion,
       );
       switch (parsetree) {
         | `Implementation(str) => Printast.implementation(Format.str_formatter, str)

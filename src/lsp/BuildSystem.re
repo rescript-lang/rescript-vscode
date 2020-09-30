@@ -1,10 +1,3 @@
-
-type compilerVersion =
-  | V406;
-
-let showCompilerVersion = fun
-  | V406 => "4.06";
-
 type t =
   | Bsb(string);
 
@@ -80,25 +73,6 @@ let getBsbExecutable = rootPath =>
     |?>> Filename.dirname
     |?>> (path => path /+ ".bin" /+ "bsb")
   );
-
-let parseOCamlVersion = versionString =>switch (Utils.split_on_char('.', String.trim(versionString))) {
-    | ["4", "06", ..._] => Ok(V406)
-    | _ => Error("Unsupported OCaml version: " ++ versionString)
-  }
-
-let getCompilerVersion = executable => {
-  let cmd = executable ++ " -version";
-  let (output, success) = Commands.execSync(cmd);
-  success ? switch output {
-  | [line] when Str.string_match(Str.regexp_string("BuckleScript "), line, 0) =>
-    switch (Str.split(Str.regexp("( *Using OCaml:?"), String.trim(line))) {
-      | [_, version] => parseOCamlVersion(version)
-      | xs => Error("Cannot detect OCaml version from BuckleScript version string: " ++ line ++ "[" ++ String.concat(" ;", xs) ++ "]")
-    }
-  | [line] => parseOCamlVersion(line)
-  | _ => Error("Unable to determine compiler version (ran " ++ cmd ++ "). Output: " ++ String.concat("\n", output))
-  } : Error("Could not run compiler (ran " ++ cmd ++ "). Output: " ++ String.concat("\n", output));
-};
 
 let detect = (rootPath, bsconfig) => {
   let%try bsbExecutable = getBsbExecutable(rootPath);

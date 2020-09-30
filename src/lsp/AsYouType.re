@@ -133,12 +133,12 @@ let cmtPath = (~cacheLocation, ~moduleName, ~uri) => {
 
 let isMl = (uri) =>Utils.endsWith(uri, "ml") || Utils.endsWith(uri, "mli");
 
-let getParsetree = (~cacheLocation, ~compilerVersion, ~moduleName, ~uri) => {
+let getParsetree = (~cacheLocation, ~moduleName, ~uri) => {
   let cmt = cmtPath(~cacheLocation, ~moduleName, ~uri);
   Process_406.astForCmt(cmt);
 };
 
-let process = (~uri, ~moduleName, ~basePath, ~reasonFormat, text, ~cacheLocation, ~compilerVersion, ~allLocations, compilerPath, refmtPath, includes, flags) => {
+let process = (~uri, ~moduleName, ~basePath, ~reasonFormat, text, ~cacheLocation, ~allLocations, compilerPath, refmtPath, includes, flags) => {
   let interface = Utils.endsWith(uri, "i");
   // TestRes
   let res = Utils.endsWith(uri, "res") || Utils.endsWith(uri, "resi");
