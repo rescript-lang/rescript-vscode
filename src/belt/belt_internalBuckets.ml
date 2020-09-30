@@ -116,7 +116,7 @@ let rec filterMapInplaceBucket f h i prec cell =
       let bucket = C.return cell in
       ((match C.toOpt prec with
         | None  -> A.setUnsafe (C.buckets h) i bucket
-        | Some c -> nextSet cell bucket);
+        | Some _c -> nextSet cell bucket);
        valueSet cell data;
        (match C.toOpt n with
         | None  -> nextSet cell n
@@ -136,26 +136,6 @@ let rec fillArray i arr cell =
   (match C.toOpt (next cell) with
    | None  -> i + 1
    | Some v -> fillArray (i + 1) arr v)
-let toArray h =
-  let d = C.buckets h in
-  let current = ref 0 in
-  let arr = ref None in
-  for i = 0 to (A.length d) - 1 do
-    (let cell = A.getUnsafe d i in
-     match C.toOpt cell with
-     | None  -> ()
-     | Some cell ->
-         let arr =
-           match !arr with
-           | None  ->
-               let a =
-                 A.makeUninitializedUnsafe (C.size h)
-                   ((key cell), (value cell)) in
-               (arr := (Some a); a)
-           | Some arr -> arr in
-         current := (fillArray (!current) arr cell))
-  done;
-  (match !arr with | None  -> [||] | Some arr -> arr)
 let rec fillArrayMap i arr cell f =
   A.setUnsafe arr i (f cell);
   (match C.toOpt (next cell) with

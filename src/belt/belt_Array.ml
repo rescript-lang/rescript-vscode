@@ -5,7 +5,6 @@ external setUnsafe : 'a array -> int -> 'a -> unit = "%array_unsafe_set"
 let getUndefined arr i =
   try Js.fromOpt (Some (arr.(i)))
   with | Invalid_argument _ -> Js.fromOpt None
-external get : 'a array -> int -> 'a = "%array_safe_get"
 let get arr i =
   if (i >= 0) && (i < (length arr)) then Some (getUnsafe arr i) else None
 let getExn arr i =

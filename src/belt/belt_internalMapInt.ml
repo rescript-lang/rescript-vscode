@@ -1,4 +1,4 @@
-type key = string
+type key = int
 module N = Belt_internalAVLtree
 module A = Belt_Array
 module S = Belt_SortArray
@@ -89,7 +89,7 @@ let rec splitAux (x : key) (n : _ N.node) =
         | Some r ->
             let (lr,pres,rr) = splitAux x r in ((N.join l v d lr), pres, rr)) : 
   (_ t* _ option* _ t))
-let rec split (x : key) n =
+let split (x : key) n =
   match N.toOpt n with
   | None  -> let open N in (empty, None, empty)
   | Some n -> splitAux x n

@@ -350,7 +350,7 @@ let rec getAssocU xs x eq =
   | (a,b)::l -> if eq a x then Some b else getAssocU l x eq
 let getAssoc xs x eq = getAssocU xs x (fun a  -> fun b  -> eq a b)
 let rec hasAssocU xs x eq =
-  match xs with | [] -> false | (a,b)::l -> (eq a x) || (hasAssocU l x eq)
+  match xs with | [] -> false | (a,_b)::l -> (eq a x) || (hasAssocU l x eq)
 let hasAssoc xs x eq = hasAssocU xs x (fun a  -> fun b  -> eq a b)
 let removeAssocU xs x eq =
   match xs with
@@ -409,14 +409,14 @@ let partitionU l p =
       (partitionAux p t nextX nextY;
        if b then (nextX, (unsafeTail nextY)) else ((unsafeTail nextX), nextY))
 let partition l p = partitionU l (fun x  -> p x)
-let rec unzip xs =
+let unzip xs =
   match xs with
   | [] -> ([], [])
   | (x,y)::l ->
       let cellX = mutableCell x [] in
       let cellY = mutableCell y [] in
       (splitAux l cellX cellY; (cellX, cellY))
-let rec zip l1 l2 =
+let zip l1 l2 =
   match (l1, l2) with
   | (_,[])|([],_) -> []
   | (a1::l1,a2::l2) ->
