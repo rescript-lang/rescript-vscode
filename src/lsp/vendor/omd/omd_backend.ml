@@ -23,10 +23,10 @@ let text_of_md md =
     | Blockquote q :: tl ->
         loop q;
         loop tl
-    | Ref(rc, name, text, fallback) :: tl ->
+    | Ref(_src, name, _text, _fallback) :: tl ->
         Buffer.add_string b (htmlentities ~md:true name);
         loop tl
-    | Img_ref(rc, name, alt, fallback) :: tl ->
+    | Img_ref(_rc, name, _alt, _fallback) :: tl ->
         Buffer.add_string b (htmlentities ~md:true name);
         loop tl
     | Paragraph md :: tl ->
@@ -34,7 +34,7 @@ let text_of_md md =
         Buffer.add_char b '\n';
         Buffer.add_char b '\n';
         loop tl
-    | Img(alt, src, title) :: tl ->
+    | Img(alt, _src, _title) :: tl ->
         Buffer.add_string b (htmlentities ~md:true alt);
         loop tl
     | Text t :: tl ->
@@ -60,25 +60,25 @@ let text_of_md md =
     | (Ulp l | Olp l) :: tl ->
         List.iter loop l;
         loop tl
-    | Code_block(lang, c) :: tl ->
+    | Code_block(_lang, c) :: tl ->
         Buffer.add_string b (htmlentities ~md:false c);
         loop tl
-    | Code(lang, c) :: tl ->
+    | Code(_lang, c) :: tl ->
         Buffer.add_string b (htmlentities ~md:false c);
         loop tl
     | Br :: tl ->
         loop tl
     | Hr :: tl ->
         loop tl
-    | Html(tagname, attrs, body) :: tl ->
+    | Html(_tagname, _attrs, body) :: tl ->
         loop body;
         loop tl
-    | Html_block(tagname, attrs, body) :: tl ->
+    | Html_block(_stagname, _attrs, body) :: tl ->
         loop body;
         loop tl
-    | Html_comment s :: tl ->
+    | Html_comment _s :: tl ->
         loop tl
-    | Url (href,s,title) :: tl ->
+    | Url (_href,s,_title) :: tl ->
         loop s;
         loop tl
     | H1 md :: tl
@@ -97,7 +97,7 @@ let text_of_md md =
     loop md;
     Buffer.contents b
 
-let default_code_stylist ~lang code = code
+let default_code_stylist ~lang:_ code = code
 
 let filter_text_omd_rev l =
   let rec loop b r = function
@@ -119,13 +119,13 @@ let remove_links : t -> t =
 
 let rec html_and_headers_of_md
     ?(remove_header_links=false)
-    ?(override=(fun (e:element) -> (None:string option)))
+    ?(override=(fun (_e:element) -> (None:string option)))
     ?(pindent=false)
     ?(nl2br=false)
     ?cs:(code_style=default_code_stylist)
     md
   =
-  let ids = object(this)
+  let ids = object(_this)
     val mutable ids = StringSet.add "" StringSet.empty
     method mangle id =
       let rec m i =
@@ -650,7 +650,7 @@ and string_of_attrs attrs =
   Buffer.contents b
 
 and html_of_md
-    ?(override=(fun (e:element) -> (None:string option)))
+    ?(override=(fun (_e:element) -> (None:string option)))
     ?(pindent=false)
     ?(nl2br=false)
     ?cs
@@ -689,10 +689,10 @@ let rec sexpr_of_md md =
         loop q;
         Buffer.add_string b ")";
         loop tl
-    | Ref(rc, name, text, _) :: tl ->
+    | Ref(_rc, name, text, _) :: tl ->
         bprintf b "(Ref %S %S)" name text;
         loop tl
-    | Img_ref(rc, name, alt, _) :: tl ->
+    | Img_ref(_rc, name, alt, _) :: tl ->
         bprintf b "(Img_ref %S %S)" name alt;
         loop tl
     | Paragraph md :: tl ->
@@ -744,10 +744,10 @@ let rec sexpr_of_md md =
         List.iter(fun li -> bprintf b "(Li "; loop li;bprintf b ")") l;
         bprintf b ")";
         loop tl
-    | Code(lang, c) :: tl ->
+    | Code(_lang, c) :: tl ->
         bprintf b "(Code %S)" c;
         loop tl
-    | Code_block(lang, c) :: tl ->
+    | Code_block(_lang, c) :: tl ->
         bprintf b "(Code_block %s)" c;
         loop tl
     | Br :: tl ->
@@ -917,10 +917,10 @@ let rec markdown_of_md md =
       Buffer.add_string b (quote ~indent:list_indent (markdown_of_md q));
       if tl <> [] then Buffer.add_string b "\n";
       loop list_indent tl
-    | Ref(rc, name, text, fallback) :: tl ->
+    | Ref(rc, _name, _text, fallback) :: tl ->
         if !references = None then references := Some rc;
         loop list_indent (Raw(fallback#to_string)::tl)
-    | Img_ref(rc, name, alt, fallback) :: tl ->
+    | Img_ref(rc, _name, _alt, fallback) :: tl ->
         if !references = None then references := Some rc;
         loop list_indent (Raw(fallback#to_string)::tl)
     | Paragraph [] :: tl -> loop list_indent tl
