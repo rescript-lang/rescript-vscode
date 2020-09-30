@@ -1,17 +1,3 @@
-type t =
-  | Bsb(string);
-
-let fromString = string => {
-  switch (Utils.split_on_char(':', string)) {
-    | ["bsb", version] => Some(Bsb(version))
-    | _ => None
-  }
-};
-
-let show = t => switch t {
-  | Bsb(v) => "bsb version " ++ v
-}
-
 let getLine = (cmd, ~pwd) => {
   switch (Commands.execFull(~pwd, cmd)) {
     | ([line], _, true) => RResult.Ok(line)
@@ -74,45 +60,9 @@ let getBsbExecutable = rootPath =>
     |?>> (path => path /+ ".bin" /+ "bsb")
   );
 
-let detect = (rootPath, bsconfig) => {
-  let%try bsbExecutable = getBsbExecutable(rootPath);
-  let%try_wrap bsbVersion = {
-    let cmd = bsbExecutable ++ " -version";
-    let (output, success) = Commands.execSync(cmd);
-    success ? switch output {
-    | [line] => Ok(String.trim(line))
-    | _ => Error("Unable to determine bsb version (ran " ++ cmd ++ "). Output: " ++ String.concat("\n", output))
-    } : Error("Could not run bsb (ran " ++ cmd ++ "). Output: " ++ String.concat("\n", output));
-  };
-
-  Bsb(bsbVersion);
+let getCompiledBase = (root) => {
+  Files.ifExists(root /+ "lib" /+ "bs");
 };
-
-let detectFull = projectDir => {
-  let bsConfig = Filename.concat(projectDir, "bsconfig.json");
-  if (Files.exists(bsConfig)) {
-    let%try raw = Files.readFileResult(bsConfig);
-    let config = Json.parse(raw);
-    detect(projectDir, config);
-  } else {
-    Error("Couldn't find bsconfig.json")
-  };
-};
-
-
-let getCompiledBase = (root, buildSystem) => {
-  let compiledBase = switch (buildSystem) {
-  | Bsb("3.2.0") => Ok(root /+ "lib" /+ "bs" /+ "js")
-  | Bsb("3.1.1") => Ok(root /+ "lib" /+ "ocaml")
-  | Bsb(_) => Ok(root /+ "lib" /+ "bs")
-  };
-
-  switch compiledBase {
-  | Ok(compiledBase) => Files.ifExists(compiledBase);
-  | _ => None
-  };
-};
-
 let getStdlib = (base) => {
   let%try_wrap bsPlatformDir = getBsPlatformDir(base);
   [bsPlatformDir /+ "lib" /+ "ocaml"]
@@ -127,24 +77,16 @@ let getCompiler = (rootPath) => {
   }
 };
 
-let getRefmt = (rootPath, buildSystem) => {
-  let bsRefmt = (bsPlatformDir) =>
-    switch (Files.ifExists(bsPlatformDir/+"lib"/+"refmt.exe")){
-      | Some (x) => x
-      | None => 
-        switch(Files.ifExists(bsPlatformDir /+ nodePlatform /+ "refmt.exe")){
-          | Some (x) => x 
-          | None => bsPlatformDir /+ "lib" /+ "refmt3.exe"
-        }
-    }  
-  switch (buildSystem) {
-    | Bsb(version) when version > "2.2.0" =>
-      let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
-      bsRefmt(bsPlatformDir)
-    | Bsb(_) =>
-      let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
-      bsRefmt(bsPlatformDir)
-  };
+let getRefmt = (rootPath) => {
+  let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
+  switch (Files.ifExists(bsPlatformDir/+"lib"/+"refmt.exe")) {
+    | Some (x) => x
+    | None => 
+      switch(Files.ifExists(bsPlatformDir /+ nodePlatform /+ "refmt.exe")){
+        | Some (x) => x 
+        | None => bsPlatformDir /+ "lib" /+ "refmt3.exe"
+      }
+  }  
 };
 
 let hiddenLocation = (rootPath) => {

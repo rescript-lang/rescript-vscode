@@ -61,42 +61,29 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
         | None => failwith ("can not locate bsb.exe in " ++ bsPlatform)
       } 
    };
-  
-  let%try buildSystem = switch overrideBuildSystem {
-    | None => BuildSystem.detect(rootPath, config)
-    | Some(s) => Ok(s)
-  };
 
-
-  let buildCommand = switch buildSystem {
-    | Bsb(_) => bsb ++ " -make-world"
-  };
+  let buildCommand = bsb ++ " -make-world";
 
   Log.log({|📣 📣 NEW BSB PACKAGE 📣 📣|});
   /* failwith("Wat"); */
   Log.log("- location: " ++ rootPath);
   Log.log("- bsPlatform: " ++ bsPlatform);
-  Log.log("- buildSystem: " ++ BuildSystem.show(buildSystem));
   Log.log("- build command: " ++ buildCommand);
 
   let%try () = if (state.settings.autoRebuild) {
     BuildCommand.runBuildCommand(~reportDiagnostics, state, rootPath, Some((buildCommand, rootPath)));
   } else { Ok() };
 
-  let compiledBase = BuildSystem.getCompiledBase(rootPath, buildSystem);
+  let compiledBase = BuildSystem.getCompiledBase(rootPath);
   let%try stdLibDirectories = BuildSystem.getStdlib(rootPath);
   let%try compilerPath = BuildSystem.getCompiler(rootPath);
   let mlfmtPath = state.settings.mlfmtLocation;
-  let%try refmtPath = BuildSystem.getRefmt(rootPath, buildSystem);
+  let%try refmtPath = BuildSystem.getRefmt(rootPath);
   let%try tmpPath = BuildSystem.hiddenLocation(rootPath);
-  let%try (dependencyDirectories, dependencyModules) = FindFiles.findDependencyFiles(~debug=true, ~buildSystem, rootPath, config);
+  let%try (dependencyDirectories, dependencyModules) = FindFiles.findDependencyFiles(~debug=true, rootPath, config);
   let%try_wrap compiledBase = compiledBase |> RResult.orError("You need to run bsb first so that reason-language-server can access the compiled artifacts.\nOnce you've run bsb, restart the language server.");
 
-  let supportsNamespaceRename = BuildSystem.(switch(buildSystem) {
-    | Bsb(v) when v >= "5.0.0" => true
-    | _ => false
-    });
-  let namespace = FindFiles.getNamespace(~supportsNamespaceRename, config);
+  let namespace = FindFiles.getNamespace(config);
   let localSourceDirs = FindFiles.getSourceDirectories(~includeDev=true, rootPath, config);
   Log.log("Got source directories " ++ String.concat(" - ", localSourceDirs));
   let localCompiledDirs = localSourceDirs |> List.map(Infix.fileConcat(compiledBase));
@@ -147,9 +134,7 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
     (flags, opens)
   };
 
-  let flags = switch buildSystem {
-    | Bsb(version) => {
-
+  let flags =  {
       let jsPackageMode = {
         let specs = config |> Json.get("package-specs");
         let spec = switch specs {
@@ -171,8 +156,7 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
         | _ => flags;
       };
       /* flags */
-      [ version >= "7.2" ? "-bs-no-builtin-ppx" : "-bs-no-builtin-ppx-ml", ...flags];
-    }
+      [ "-bs-no-builtin-ppx", ...flags];
   };
 
   let interModuleDependencies = Hashtbl.create(List.length(localModules));
@@ -184,7 +168,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
     dependencyModules: dependencyModules |. Belt.List.map(fst),
     pathsForModule,
     nameForPath,
-    buildSystem,
     buildCommand: state.settings.autoRebuild ? Some((buildCommand, rootPath)) : None,
     opens,
     tmpPath,
