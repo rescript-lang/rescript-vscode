@@ -28,7 +28,6 @@ type package = {
   buildSystem: BuildSystem.t,
   buildCommand: option((string, string)),
   compilerPath: filePath,
-  compilerVersion: BuildSystem.compilerVersion,
   mlfmtPath: option(filePath),
   refmtPath: option(filePath),
   /** TODO maybe make this general, so that I can support arbitrary syntaxes? */

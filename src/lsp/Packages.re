@@ -177,8 +177,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
 
   let interModuleDependencies = Hashtbl.create(List.length(localModules));
 
-  let compilerVersion = BuildSystem.V406;
-
   {
     basePath: rootPath,
     rebuildTimer: 0.,
@@ -191,8 +189,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
     opens,
     tmpPath,
     namespace,
-    /* Bucklescript is always 4.02.3 */
-    compilerVersion,
     compilationFlags: flags |> String.concat(" "),
     interModuleDependencies,
     includeDirectories:

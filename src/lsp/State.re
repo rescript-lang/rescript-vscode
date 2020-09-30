@@ -39,7 +39,7 @@ let converter = (src, usePlainText) => {
   );
 };
 
-let newDocsForCmt = (~compilerVersion, ~moduleName, cmtCache, changed, cmt, src, clientNeedsPlainText) => {
+let newDocsForCmt = (~moduleName, cmtCache, changed, cmt, src, clientNeedsPlainText) => {
   let uri = Utils.toUri(src |? cmt);
   let%opt file = Process_406.fileForCmt(~moduleName, cmt, uri, converter(src, clientNeedsPlainText)) |> RResult.toOptionAndLog;
   Hashtbl.replace(cmtCache, cmt, (changed, file));
@@ -59,7 +59,6 @@ let docsForCmt = (~package, ~moduleName, cmt, src, state) =>
     | Some(changed) =>
       if (changed > mtime) {
         newDocsForCmt(
-          ~compilerVersion=package.compilerVersion,
           ~moduleName,
           state.cmtCache,
           changed,
@@ -78,7 +77,6 @@ let docsForCmt = (~package, ~moduleName, cmt, src, state) =>
       None;
     | Some(changed) =>
       newDocsForCmt(
-          ~compilerVersion=package.compilerVersion,
           ~moduleName,
         state.cmtCache,
         changed,
@@ -211,7 +209,6 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
     let includes = package.includeDirectories;
     let%try refmtPath = refmtForUri(uri, package);
     let%try result = AsYouType.process(
-      ~compilerVersion=package.compilerVersion,
       ~uri,
       ~moduleName,
       ~allLocations=state.settings.recordAllLocations,
