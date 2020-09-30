@@ -50,7 +50,7 @@ let send = (output, content) => {
 };
 
 let sendMessage = (log, output, id, result) => {
-  open Util.JsonShort;
+  open JsonShort;
   let content = Json.stringify(o([
     ("id", id),
     ("jsonrpc", s("2.0")),
@@ -60,7 +60,7 @@ let sendMessage = (log, output, id, result) => {
 };
 
 let sendError = (log, output, id, error) => {
-  open Util.JsonShort;
+  open JsonShort;
   let content = Json.stringify(o([
     ("id", id),
     ("jsonrpc", s("2.0")),
@@ -70,7 +70,7 @@ let sendError = (log, output, id, error) => {
 };
 
 let sendNotification = (log, output, method, params) => {
-  open Util.JsonShort;
+  open JsonShort;
   let content = Json.stringify(o([
     ("jsonrpc", s("2.0")),
     ("method", s(method)),
@@ -83,7 +83,7 @@ let sendNotification = (log, output, method, params) => {
 let serverReqNum = ref(0);
 
 let sendRequest = (log, output, method, params) => {
-  open Util.JsonShort;
+  open JsonShort;
   serverReqNum := serverReqNum^ + 1;
   let content = Json.stringify(o([
     ("id", s("server-" ++ string_of_int(serverReqNum^))),

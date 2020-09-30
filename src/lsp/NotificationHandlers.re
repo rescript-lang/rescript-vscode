@@ -13,7 +13,7 @@ let getTextDocument = doc => {
 };
 
 let reportDiagnostics = (uri, result) => {
-  open Util.JsonShort;
+  open JsonShort;
   let body = switch result {
     | `BuildFailed(lines) => o([
       ("uri", s(uri)),
@@ -69,7 +69,7 @@ let dumpLocations = (state, ~package, uri) => {
       let%try (file, extra) = State.fileForUri(state, ~package, uri);
       let locations = extra.locations |> List.filter( ((l, _)) => !l.Location.loc_ghost);
       Log.log("ZZZ found " ++ string_of_int(List.length(locations)) ++ " locations in " ++ uri);
-      open Util.JsonShort;
+      open JsonShort;
       let locationsInfo =
         locations |> List.map( ((location : Location.t, loc)) =>
           {
@@ -104,9 +104,9 @@ let dumpLocations = (state, ~package, uri) => {
             o([("range", Protocol.rangeOfLoc(location))] @ hover @ def)
           } 
         ) |> l;
-      Util.Log.spamError := true;
+      Log.spamError := true;
       Log.log("ZZZ " ++ Json.stringify(locationsInfo));  
-      Util.Log.spamError := false;
+      Log.spamError := false;
       Ok(());
 };
 

@@ -89,7 +89,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       let args = typ |> Shared.getArguments;
       let%opt args = args == [] ? None : Some(args);
       let printedType = typ |> Shared.typeToString;
-      open Util.JsonShort;
+      open JsonShort;
       Some(Ok((state, o([
         ("activeParameter", i(commas)),
         ("signatures", l([
@@ -119,7 +119,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
     let%try offset = PartialParser.positionToOffset(text, pos) |> orError("invalid offset");
     /* TODO get last non-syntax-erroring definitions */
     /* let%try (file, extra) = State.fileForUri(state, ~package, uri) |> orError("No definitions"); */
-    open Util.JsonShort;
+    open JsonShort;
     let%try completions = switch (PartialParser.findCompletable(text, offset)) {
     | Nothing => {
       Log.log("Nothing completable found :/");
@@ -175,7 +175,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       |?>> name => {
         let (detail, docs) = Completions.getModuleResults(name, state, cmt, Some(src));
 
-        open Util.JsonShort;
+        open JsonShort;
         extend(params, [
           ("detail", detail |?>> s |? null),
           ("documentation", docs |?>> Protocol.contentKind(!state.settings.clientNeedsPlainText) |? null),
@@ -194,7 +194,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       let%opt (file, extra) = State.fileForUri(state, ~package, uri) |> R.toOptionAndLog;
 
       let%opt_wrap refs = References.forPos(~file, ~extra, pos);
-      open Util.JsonShort;
+      open JsonShort;
       (state, l(List.map(refs, (loc) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("kind", i(2))
@@ -224,7 +224,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         loc
       ) |> toOptionAndLog;
 
-      open Util.JsonShort;
+      open JsonShort;
       Some((
         state,
         List.map(
@@ -264,7 +264,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         loc
       ) |> toOptionAndLog;
 
-      open Util.JsonShort;
+      open JsonShort;
       Some(Ok((
         state,
         o([
@@ -296,7 +296,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         Location.loc_end: {Lexing.pos_fname: "", pos_lnum: 1, pos_bol: 0, pos_cnum: 0},
         loc_ghost: false,
       })];
-      open Util.JsonShort;
+      open JsonShort;
       Ok((state, l(List.map(items, ((text, loc)) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("command", o([
@@ -362,7 +362,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
           | Ok(Some(full)) => getLensItems(full)
         };
       };
-      open Util.JsonShort;
+      open JsonShort;
       Ok((state, l(List.map(items, ((text, loc)) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("command", o([
@@ -390,7 +390,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         loc
       );
 
-      open Util.JsonShort;
+      open JsonShort;
       Some(Ok((state, o([
         ("range", Protocol.rangeOfLoc(location)),
         ("contents", text |> Protocol.contentKind(!state.settings.clientNeedsPlainText))
@@ -411,7 +411,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
 
       /** TODO: instead of bailing, it should extend the selection to encompass the whole line, and then go for it. */
       if (fst(start) == fst(end_) && text.[endPos] != '\n') {
-        Belt.Result.Ok((state, Util.JsonShort.null));
+        Belt.Result.Ok((state, JsonShort.null));
       } else {
         let substring = String.sub(text, startPos, endPos - startPos);
 
@@ -470,7 +470,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
           package
         );
         let%try_wrap text = AsYouType.format(substring, fmtCmd);
-        Util.JsonShort.(
+        JsonShort.(
           state,
           l([
             o([
@@ -524,7 +524,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
     };
 
     (getItems(file.contents) |> items => {
-      open Util.JsonShort;
+      open JsonShort;
       Ok((state, l(List.map(items, ((name, loc, typ)) => o([
         ("name", s(name)),
         ("kind", i(Protocol.symbolKind(typ))),
@@ -546,7 +546,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       package
     );
     let%try_wrap newText = AsYouType.format(text, fmtCmd);
-    open Util.JsonShort;
+    open JsonShort;
     (state, text == newText ? Json.Null : l([o([
       ("range", Protocol.rangeOfInts(
         0, 0,
@@ -583,7 +583,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         | _ => None
       };
 
-      open Util.JsonShort;
+      open JsonShort;
       Some(Ok((state, l([
         o([
           ("title", s("Add to interface file")),
@@ -616,7 +616,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
                   let%try () = Files.writeFileResult(interfacePath, text ++ "\n\n" ++ signatureText);
                   Ok((state, Json.Null))
                 | Some((text, _, _)) =>
-                  open Util.JsonShort;
+                  open JsonShort;
                   let offset = String.length(text);
                   let%try (line, col) = PartialParser.offsetToPosition(text, offset) |> RResult.orError("Invalid offset");
                   Rpc.sendRequest(Log.log, stdout, "workspace/applyEdit", o([

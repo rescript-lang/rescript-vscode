@@ -4,7 +4,7 @@ open RResult;
 open Log;
 
 let capabilities =
-  Util.JsonShort.(
+  JsonShort.(
     o([
       ("textDocumentSync", i(1)),
       ("hoverProvider", t),
@@ -55,7 +55,7 @@ let getInitialState = (params) => {
     Log.log,
     stdout,
     "client/registerCapability",
-    Util.JsonShort.(
+    JsonShort.(
       o([
         (
           "registrations",
@@ -141,9 +141,9 @@ let singleDefinition = (~quiet, rootPath, filePath, line, col) => {
   let rootPath = rootPath == "." ? Unix.getcwd() : maybeConcat(Unix.getcwd(), rootPath);
   let filePath = maybeConcat(Unix.getcwd(), filePath);
   let state = {
-    ...Analyze.TopTypes.empty(),
+    ...TopTypes.empty(),
     rootPath,
-    rootUri: Util.Utils.toUri(rootPath)
+    rootUri: Utils.toUri(rootPath)
   };
 
   let uri = Utils.toUri(filePath);
@@ -187,9 +187,9 @@ let check = (~definitions, ~quiet, rootPath, files) => {
   log("# Reason Langauge Server - checking individual files to ensure they load & process correctly");
   let rootPath = rootPath == "." ? Unix.getcwd() : maybeConcat(Unix.getcwd(), rootPath);
   let state = {
-    ...Analyze.TopTypes.empty(),
+    ...TopTypes.empty(),
     rootPath,
-    rootUri: Util.Utils.toUri(rootPath)
+    rootUri: Utils.toUri(rootPath)
   };
   files->Belt.List.forEach(filePath => {
     let filePath = maybeConcat(Unix.getcwd(), filePath);
@@ -197,7 +197,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
     switch (processFile(~state, ~uri, ~quiet)) {
       | Some((package, result)) =>
         if (!definitions) {
-          log(Analyze.State.Show.state(state, package));
+          log(State.Show.state(state, package));
         } else {
           switch result {
             | None => ()
@@ -249,7 +249,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
 let dump = files => {
   let rootPath = Unix.getcwd();
   let state = {
-    ...Analyze.TopTypes.empty(),
+    ...TopTypes.empty(),
     rootPath,
     rootUri: Utils.toUri(rootPath)
   };
@@ -310,7 +310,7 @@ let main = () => {
     | (opts, _) when opts->hasOpts(["-h", "--help"]) => showHelp();
     | (opts, []) =>
       if (opts->hasVerbose) {
-        Util.Log.spamError := true;
+        Log.spamError := true;
         References.debugReferences := true;
         MerlinFile.debug := true;
       };
@@ -330,7 +330,7 @@ let main = () => {
       let col = int_of_string(col);
       let quiet = opts->hasOpts(["-q", "--quiet"]);
       if (opts->hasVerbose) {
-        Util.Log.spamError := true;
+        Log.spamError := true;
         References.debugReferences := true;
         MerlinFile.debug := true;
       };
@@ -339,12 +339,12 @@ let main = () => {
       let definitions = opts->hasOpts(["-d", "--definitions"]);
       let quiet = opts->hasOpts(["-q", "--quiet"]);
       if (opts->hasVerbose) {
-        Util.Log.spamError := true;
+        Log.spamError := true;
         // if (!definitions) {
         MerlinFile.debug := true;
         // }
       } else {
-        Util.Log.spamError := false;
+        Log.spamError := false;
       };
       check(~definitions, ~quiet, rootPath, files)
     | (opts, ["dump", ...files]) =>

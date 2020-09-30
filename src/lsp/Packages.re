@@ -177,7 +177,6 @@ let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath)
 
   let interModuleDependencies = Hashtbl.create(List.length(localModules));
 
-  module Semver = Util.Semver;
   let compilerVersion = BuildSystem.V406;
 
   {

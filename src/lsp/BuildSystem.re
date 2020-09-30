@@ -9,7 +9,7 @@ type t =
   | Bsb(string);
 
 let fromString = string => {
-  switch (Util.Utils.split_on_char(':', string)) {
+  switch (Utils.split_on_char(':', string)) {
     | ["bsb", version] => Some(Bsb(version))
     | _ => None
   }
