@@ -257,13 +257,9 @@ let dump = files => {
     let filePath = maybeConcat(Unix.getcwd(), filePath);
     let uri = Utils.toUri(filePath);
     switch (processFile(~state, ~uri, ~quiet=true)) {
-      | Some((package, result)) =>
-        switch result {
-          | None => ()
-          | Some({file, extra}) =>
-            NotificationHandlers.dumpLocations(state, ~package, uri) |> ignore;
-        }
-      | None => ()
+      | Some((package, Some({file, extra}))) =>
+          NotificationHandlers.dumpLocations(state, ~package, ~file, ~extra, uri);
+      | _ => ()
     }
   });
 };
@@ -347,7 +343,7 @@ let main = () => {
         Log.spamError := false;
       };
       check(~definitions, ~quiet, rootPath, files)
-    | (opts, ["dump", ...files]) =>
+    | (_opts, ["dump", ...files]) =>
       dump(files)
     | _ => showHelp();
   }

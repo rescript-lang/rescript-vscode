@@ -14,7 +14,7 @@ let fixPpxBsNative = (flg, base) => {
   }
 };
 
-let parseMerlin = (base, text) => {
+let parseMerlin = (text) => {
   let lines = Str.split(Str.regexp_string("\n"), text);
   List.fold_left(
     ((source, build, flags), line) => {
@@ -121,7 +121,7 @@ let hashtblKeys = (tbl) =>
 
 /** Returns a `pathsForModule`, `nameForPath`, `localModules` and `dependencyModules` */
 let getModulesFromMerlin = (~stdlibs, base, text) => {
-  let (source, build, _flags) = parseMerlin(base, text);
+  let (source, build, _flags) = parseMerlin(text);
 
   let source = stdlibs @ source;
   let build = stdlibs @ build;
@@ -286,7 +286,7 @@ let getFlags = base =>
   RResult.InfixResult.(
     Files.readFile(base ++ "/.merlin")
     |> RResult.orError("no .merlin file")
-    |?>> parseMerlin(base)
+    |?>> parseMerlin
     |?>> (((_, _, flags)) => flags |> List.rev)
   );
 

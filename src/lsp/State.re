@@ -48,7 +48,7 @@ let newDocsForCmt = (~moduleName, cmtCache, changed, cmt, src, clientNeedsPlainT
 
 let hasProcessedCmt = (state, cmt) => Hashtbl.mem(state.cmtCache, cmt);
 
-let docsForCmt = (~package, ~moduleName, cmt, src, state) =>
+let docsForCmt = (~moduleName, cmt, src, state) =>
  if (Hashtbl.mem(state.cmtCache, cmt)) {
     let (mtime, docs) = Hashtbl.find(state.cmtCache, cmt);
     /* TODO I should really throttle this mtime checking to like every 50 ms or so */
@@ -267,7 +267,7 @@ let docsForModule = (modname, state, ~package) =>
       let src = SharedTypes.getSrc(paths);
       Log.log("FINDING docs for module " ++ SharedTypes.showPaths(paths));
       Log.log("FINDING " ++ cmt ++ " src " ++ (src |? ""));
-      let%opt_wrap docs = docsForCmt(~package, ~moduleName=modname, cmt, src, state);
+      let%opt_wrap docs = docsForCmt(~moduleName=modname, cmt, src, state);
       (docs, src)
     } else {
       Log.log("No path for module " ++ modname);

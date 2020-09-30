@@ -65,49 +65,47 @@ let reloadAllState = state => {
 };
 
 
-let dumpLocations = (state, ~package, uri) => {
-      let%try (file, extra) = State.fileForUri(state, ~package, uri);
-      let locations = extra.locations |> List.filter( ((l, _)) => !l.Location.loc_ghost);
-      Log.log("ZZZ found " ++ string_of_int(List.length(locations)) ++ " locations in " ++ uri);
-      open JsonShort;
-      let locationsInfo =
-        locations |> List.map( ((location : Location.t, loc)) =>
-          {
-            let hoverText = Hover.newHover(
-              ~rootUri=state.rootUri,
-              ~file,
-              ~getModule=State.fileForModule(state, ~package),
-              ~markdown=!state.settings.clientNeedsPlainText,
-              ~showPath=state.settings.showModulePathOnHover,
-              loc
-            ) |? "";
-            let hover = hoverText == "" ? [] : [("hover", s(hoverText))];
+let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
+  let locations = extra.SharedTypes.locations |> List.filter( ((l, _)) => !l.Location.loc_ghost);
+  Log.log("ZZZ found " ++ string_of_int(List.length(locations)) ++ " locations in " ++ uri);
+  open JsonShort;
+  let locationsInfo =
+    locations |> List.map( ((location : Location.t, loc)) =>
+      {
+        let hoverText = Hover.newHover(
+          ~rootUri=state.rootUri,
+          ~file,
+          ~getModule=State.fileForModule(state, ~package),
+          ~markdown=!state.settings.clientNeedsPlainText,
+          ~showPath=state.settings.showModulePathOnHover,
+          loc
+        ) |? "";
+        let hover = hoverText == "" ? [] : [("hover", s(hoverText))];
 
-            let position = location.loc_start |> Query.tupleOfLexing |> Utils.cmtLocFromVscode;
-            let uriLocOpt =
-              References.definitionForPos(
-                ~pathsForModule=package.pathsForModule,
-                ~file,
-                ~extra,
-                ~getUri=State.fileForUri(state, ~package),
-                ~getModule=State.fileForModule(state, ~package),
-                position,
-              );
-            let def = switch uriLocOpt {
-              | None => []
-              | Some((uri2, loc)) =>
-                let range = ("range", Protocol.rangeOfLoc(loc));
-                [("definition", o(
-                    uri == uri2 ? [range] : [("uri", Json.String(uri2)), range]
-                  ))]
-            };
-            o([("range", Protocol.rangeOfLoc(location))] @ hover @ def)
-          } 
-        ) |> l;
-      Log.spamError := true;
-      Log.log("ZZZ " ++ Json.stringify(locationsInfo));  
-      Log.spamError := false;
-      Ok(());
+        let position = location.loc_start |> Query.tupleOfLexing |> Utils.cmtLocFromVscode;
+        let uriLocOpt =
+          References.definitionForPos(
+            ~pathsForModule=package.pathsForModule,
+            ~file,
+            ~extra,
+            ~getUri=State.fileForUri(state, ~package),
+            ~getModule=State.fileForModule(state, ~package),
+            position,
+          );
+        let def = switch uriLocOpt {
+          | None => []
+          | Some((uri2, loc)) =>
+            let range = ("range", Protocol.rangeOfLoc(loc));
+            [("definition", o(
+                uri == uri2 ? [range] : [("uri", Json.String(uri2)), range]
+              ))]
+        };
+        o([("range", Protocol.rangeOfLoc(location))] @ hover @ def)
+      } 
+    ) |> l;
+  Log.spamError := true;
+  Log.log("ZZZ " ++ Json.stringify(locationsInfo));  
+  Log.spamError := false;
 };
 
 let notificationHandlers: list((string, (state, Json.t) => result(state, string))) = [
