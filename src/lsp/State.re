@@ -174,9 +174,7 @@ let getInterfaceFile = (uri, state, ~package: TopTypes.package) => {
   AsYouType.getInterface(
     ~moduleName,
     ~basePath=package.basePath,
-    ~reasonFormat=switch (package.buildSystem) {
-      | Bsb(_) => Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei")
-    },
+    ~reasonFormat=Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei"),
     text,
     ~cacheLocation=package.tmpPath,
     package.compilerPath,

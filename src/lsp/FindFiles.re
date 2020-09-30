@@ -70,7 +70,7 @@ let getDependencyDirs = (base, config, ~buildSystem) => {
         | Some(text) =>
             let inner = Json.parse(text);
             /* let allowedKinds = inner |> Json.get("allowed-build-kinds") |?> Json.array |?>> List.map(Json.string |.! "allowed-build-kinds must be strings") |? ["js"]; */
-            let compiledBase = BuildSystem.getCompiledBase(loc, buildSystem) |! "Cannot find directory for compiled artifacts.";
+            let compiledBase = BuildSystem.getCompiledBase(loc) |! "Cannot find directory for compiled artifacts.";
             /* if (List.mem("js", allowedKinds)) { */
               [compiledBase, ...(getSourceDirectories(loc, inner) |> List.map(name => compiledBase /+ name))];
             /* } else {
@@ -142,22 +142,17 @@ let filterDuplicates = cmts => {
 
 let nameSpaceToName = n => n |> Str.split(Str.regexp("[-/@]")) |> List.map(String.capitalize_ascii) |> String.concat("");
 
-let getNamespace = (~supportsNamespaceRename, config) => {
-  if (!supportsNamespaceRename) {
-    let isNamespaced = Json.get("namespace", config) |?> Json.bool |? false;
-	  isNamespaced ? (config |> Json.get("name") |?> Json.string |! "name is required if namespace is true" |> nameSpaceToName |> s => Some(s)) : None;
-  } else {
-    let ns = Json.get("namespace", config);
-    let isNamespaced =
-      ns |?> Json.bool
-      |? (ns |?> Json.string |?> (_ => Some(true)) |? false);
-    isNamespaced ? (
-      ns |?> Json.string
-      |?? (Json.get("name", config) |?> Json.string)
-      |! "name is required if namespace is true"
-      |> nameSpaceToName |> s => Some(s)
-    ) : None;
-  }
+let getNamespace = (config) => {
+  let ns = Json.get("namespace", config);
+  let isNamespaced =
+    ns |?> Json.bool
+    |? (ns |?> Json.string |?> (_ => Some(true)) |? false);
+  isNamespaced ? (
+    ns |?> Json.string
+    |?? (Json.get("name", config) |?> Json.string)
+    |! "name is required if namespace is true"
+    |> nameSpaceToName |> s => Some(s)
+  ) : None;
 };
 
 let collectFiles = (~compiledTransform=x => x, ~sourceDirectory=?, directory) => {
@@ -286,7 +281,7 @@ let needsCompilerLibs = config => {
   config |> Json.get("ocaml-dependencies") |?> Json.array |? [] |> optMap(Json.string) |> List.mem("compiler-libs")
 };
 
-let findDependencyFiles = (~debug, ~buildSystem, base, config) => {
+let findDependencyFiles = (~debug, base, config) => {
   let deps =
     config
     |> Json.get("bs-dependencies")
@@ -308,15 +303,11 @@ let findDependencyFiles = (~debug, ~buildSystem, base, config) => {
                switch (Files.readFile(innerPath)) {
                | Some(text) =>
                  let inner = Json.parse(text);
-                 let supportsNamespaceRename = BuildSystem.(switch(buildSystem) {
-                   | Bsb(v) when v >= "5.0.0" => true
-                   | _ => false
-                   });
-                 let namespace = getNamespace(~supportsNamespaceRename, inner);
+                 let namespace = getNamespace(inner);
                  let directories =
                    getSourceDirectories(~includeDev=false, loc, inner);
                  let%opt compiledBase =
-                   BuildSystem.getCompiledBase(loc, buildSystem);
+                   BuildSystem.getCompiledBase(loc);
                    /* |! "No compiled base found"; */
                  if (debug) {
                    Log.log("Compiled base: " ++ compiledBase);

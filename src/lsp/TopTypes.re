@@ -25,7 +25,6 @@ type package = {
   tmpPath: string,
 
   mutable rebuildTimer: float,
-  buildSystem: BuildSystem.t,
   buildCommand: option((string, string)),
   compilerPath: filePath,
   mlfmtPath: option(filePath),
