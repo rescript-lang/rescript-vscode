@@ -2,7 +2,7 @@
 open Belt.Result;
 
 let tryReadCmt = cmt => {
-  if (!Util.Files.exists(cmt)) {
+  if (!Files.exists(cmt)) {
     Error("Cmt file does not exist " ++ cmt)
   } else {
     switch (Cmt_format.read_cmt(cmt)) {
