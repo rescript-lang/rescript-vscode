@@ -55,38 +55,6 @@ let getSourceDirectories = (~includeDev=false, base, config) => {
   config |> Json.get("sources") |?>> handleItem("") |? []
 };
 
-
-/**
- * Use this to get the directories you need to `-I` include to get things to compile.
- */
-let getDependencyDirs = (base, config, ~buildSystem) => {
-  let deps = config |> Json.get("bs-dependencies") |?> Json.array |? [] |> optMap(Json.string);
-  let devDeps = config |> Json.get("bs-dev-dependencies") |?> Json.array |? [] |> optMap(Json.string);
-  let deps = deps @ devDeps;
-  deps |> List.map(name => {
-    let locOpt = ModuleResolution.resolveNodeModulePath(~startPath=base, name);
-    switch(locOpt) {
-      | Some(loc) => switch (Files.readFile(loc /+ "bsconfig.json")) {
-        | Some(text) =>
-            let inner = Json.parse(text);
-            /* let allowedKinds = inner |> Json.get("allowed-build-kinds") |?> Json.array |?>> List.map(Json.string |.! "allowed-build-kinds must be strings") |? ["js"]; */
-            let compiledBase = BuildSystem.getCompiledBase(loc) |! "Cannot find directory for compiled artifacts.";
-            /* if (List.mem("js", allowedKinds)) { */
-              [compiledBase, ...(getSourceDirectories(loc, inner) |> List.map(name => compiledBase /+ name))];
-            /* } else {
-              []
-            } */
-        | None =>
-          Log.log("Skipping nonexistent dependency: " ++ name);
-          []
-      }
-    | None =>
-        Log.log("Skipping nonexistent dependency: " ++ name);
-        []
-    }
-  }) |> List.concat
-};
-
 let isCompiledFile = name =>
   Filename.check_suffix(name, ".cmt")
   || Filename.check_suffix(name, ".cmti");

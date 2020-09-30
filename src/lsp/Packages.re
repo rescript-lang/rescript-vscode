@@ -44,7 +44,7 @@ let makePathsForModule = (localModules: list((string, SharedTypes.paths)), depen
   (pathsForModule, nameForPath)
 };
 
-let newBsPackage = (~overrideBuildSystem=?, ~reportDiagnostics, state, rootPath) => {
+let newBsPackage = (~reportDiagnostics, state, rootPath) => {
   let%try raw = Files.readFileResult(rootPath /+ "bsconfig.json");
   let config = Json.parse(raw);
 
