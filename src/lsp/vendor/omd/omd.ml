@@ -41,9 +41,6 @@ let to_text : t -> string = text_of_md
 
 let to_markdown : t -> string = markdown_of_md
 
-let html_of_string (html:string) : string =
-  html_of_md (Omd_parser.default_parse (Omd_lexer.lex html))
-
 
 let rec set_default_lang lang = function
   | Code("", code) :: tl -> Code(lang, code) :: set_default_lang lang tl
@@ -165,8 +162,3 @@ let toc ?(start=[]) ?(depth=2) md =
   match toc with
   | [] -> []
   | _ -> [Ul(toc)]
-
-let add_toc ?start ?depth ?title md =
-  let toc = toc ?start ?depth md in
-  (* Replace "*Table of contents*" with the actual TOC. *)
-  toc

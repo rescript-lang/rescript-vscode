@@ -185,7 +185,7 @@ let generate_heading_label : Comment.link_content -> string = fun content ->
       let c =
         match c with
         | ' ' | '\t' | '\r' | '\n' -> '-'
-        | _ -> Char.lowercase c
+        | _ -> Char.lowercase_ascii c
       in
       Bytes.set result index c
     end;
@@ -203,7 +203,7 @@ let generate_heading_label : Comment.link_content -> string = fun content ->
         | `Space ->
           anchor ^ "-"
         | `Word w ->
-          anchor ^ (String.lowercase w)
+          anchor ^ (String.lowercase_ascii w)
         | `Code_span c ->
           anchor ^ (replace_spaces_with_hyphens_and_lowercase c)
         | `Styled (_, content) ->

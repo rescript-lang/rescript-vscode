@@ -5,8 +5,6 @@
 (* http://www.isc.org/downloads/software-support-policy/isc-license/   *)
 (***********************************************************************)
 
-let sdebug = true
-
 open Printf
 open Omd_representation
 open Omd_utils
@@ -785,7 +783,7 @@ struct
       ()
 
   (** Generate fallback for references. *)
-  let extract_fallback main_loop remains l =
+  let extract_fallback _main_loop remains l =
     if debug then eprintf "(OMD) Omd_parser.extract_fallback\n%!";
     let rec loop accu = function
       | [] -> List.rev accu
@@ -1102,10 +1100,10 @@ struct
           (L.string_of_tokens l)
           (match result with
            | None -> ""
-           | Some (x,tl) -> L.string_of_tokens x)
+           | Some (x,_tl) -> L.string_of_tokens x)
           (match result with
            | None -> ""
-           | Some (x,tl) -> L.string_of_tokens tl);
+           | Some (_x,tl) -> L.string_of_tokens tl);
       result
 
   let tag__maybe_h1 (main_loop:main_loop) =
@@ -1157,7 +1155,7 @@ struct
   let tag__md md = (* [md] should be in reverse *)
     Tag("tag__md",
         object
-          method parser_extension r p l = Some(md@r, [], l)
+          method parser_extension r _p l = Some(md@r, [], l)
           method to_string = ""
         end
        )
@@ -1175,7 +1173,7 @@ struct
           match
             fsplit_rev
               ~f:(function
-                  | (Space|Spaces _|Equal|Equals _)::tl -> Continue
+                  | (Space|Spaces _|Equal|Equals _)::_tl -> Continue
                   | [] -> Split([],[])
                   | _::_ as l -> Split([], l))
               tl
@@ -1192,7 +1190,7 @@ struct
           match
             fsplit_rev
               ~f:(function
-                  | (Space|Spaces _|Minus|Minuss _)::tl -> Continue
+                  | (Space|Spaces _|Minus|Minuss _)::_tl -> Continue
                   | [] -> Split([],[])
                   | _::_ as l -> Split([], l))
               tl
@@ -1267,7 +1265,7 @@ struct
             Some(List.rev accu, tl)
         else
           code_block (Backquote::accu) tl
-      | (Backquotes n as b)::tl ->
+      | (Backquotes _n as b)::tl ->
         if e = b then
           match accu with
           | Newline::accu ->
@@ -2204,7 +2202,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
     (* this function is called when we know it's not a link although
        it started with a '[' *)
     (* So it could be a reference or a link definition. *)
-    let rec maybe_ref l =
+    let maybe_ref l =
       let text, remains = read_until_cbracket ~bq:true l in
       (* check that there is no ill-placed open bracket *)
       if (try ignore(read_until_obracket ~bq:true text); true
@@ -2230,7 +2228,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                      L.string_of_tokens text, fallback))::r),
                [Cbracket], remains)
     in
-    let rec maybe_nonregular_ref l =
+    let maybe_nonregular_ref l =
       let text, remains = read_until_cbracket ~bq:true l in
       (* check that there is no ill-placed open bracket *)
       if (try ignore(read_until_obracket ~bq:true text); true
@@ -2240,7 +2238,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       let id = L.string_of_tokens text in (* implicit anchor *)
       Some(((Ref(rc, id, id, fallback))::r), [Cbracket], remains)
     in
-    let rec maybe_def l =
+    let maybe_def l =
       match read_until_cbracket ~bq:true l with
       | _, [] -> raise Premature_ending
       | id, (Colon::(Space|Spaces _)::remains)
@@ -2250,7 +2248,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
             fsplit
               ~f:(function
                   | (Space|Spaces _|Newline|Newlines _):: _ as l -> Split([], l)
-                  | e::tl -> Continue
+                  | _::_ -> Continue
                   | [] -> Split([],[]))
               remains
           with
@@ -2391,7 +2389,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
     let end_of_item (indent:int) l : tok split_action  = match l with
       | [] ->
         Split([],[])
-      | Newlines 0 :: ((Spaces n) :: Greaterthan :: (Space | Spaces _) :: tl
+      | Newlines 0 :: ((Spaces n) :: Greaterthan :: (Space | Spaces _) :: _
                        as s) ->
         assert(n>=0);
         if n+2 = indent+4 then (* blockquote *)
@@ -2412,7 +2410,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
             Continue_with(Newlines 0::block, rest)
         else
           Split([], l)
-      | Newlines 0 :: (Spaces n :: tl as s) ->
+      | Newlines 0 :: (Spaces n :: _ as s) ->
         assert(n>=0);
         if n+2 >= indent+8 then (* code inside item *)
           match unindent (indent+4) (Newline::s) with
@@ -2500,12 +2498,12 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       if debug then eprintf "(OMD) make_up p=%b\n%!" p;
       let items = List.rev items in
       match items with
-      | (U,_,item)::_ ->
+      | (U,_,_item)::_ ->
         if p then
           Ulp(List.map (fun (_,_,i) -> i) items)
         else
           Ul(List.map (fun (_,_,i) -> i) items)
-      | (O,_,item)::_ ->
+      | (O,_,_item)::_ ->
         if p then
           Olp(List.map (fun (_,_,i) -> i) items)
         else
@@ -2519,14 +2517,14 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       match l with
       (* no more list items *)
       | [] ->
-        make_up p items, l
+        make_up ~p items, l
       (* more list items *)
       (* new unordered items *)
       | (Star|Minus|Plus)::(Space|Spaces _)::tl ->
         begin
           match fsplit_rev ~f:(end_of_item 0) tl with
           | None ->
-            make_up p items, l
+            make_up ~p items, l
           | Some(new_item, rest) ->
             let p = p || has_paragraphs new_item in
             if debug then
@@ -2539,12 +2537,12 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
             | 0::_ ->
               list_items ~p indents ((U,indents,rev_to_t new_item)::items) rest
             | _::_ ->
-              make_up p items, l
+              make_up ~p items, l
         end
       | Space::(Star|Minus|Plus)::(Space|Spaces _)::tl ->
         begin
           match fsplit_rev ~f:(end_of_item 1) tl with
-          | None -> make_up p items, l
+          | None -> make_up ~p items, l
           | Some(new_item, rest) ->
             let p = p || has_paragraphs new_item in
             match indents with
@@ -2555,7 +2553,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
               list_items ~p indents ((U,indents,rev_to_t new_item)::items) rest
             | i::_ ->
               if i > 1 then
-                make_up p items, l
+                make_up ~p items, l
               else (* i < 1 : new sub list*)
                 let sublist, remains =
                   list_items ~p (1::indents)
@@ -2567,7 +2565,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
         begin
           match fsplit_rev ~f:(end_of_item (n+2)) tl with
           | None ->
-            make_up p items, l
+            make_up ~p items, l
           | Some(new_item, rest) ->
             let p = p || has_paragraphs new_item in
             match indents with
@@ -2590,14 +2588,14 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                 in
                 list_items ~p indents (add sublist items) remains
               else (* i > n + 2 *)
-                make_up p items, l
+                make_up ~p items, l
         end
       (* new ordered items *)
       | Number _::Dot::(Space|Spaces _)::tl ->
         begin
           match fsplit_rev ~f:(end_of_item 0) tl with
           | None ->
-            make_up p items, l
+            make_up ~p items, l
           | Some(new_item, rest) ->
             let p = p || has_paragraphs new_item in
             assert_well_formed new_item;
@@ -2608,12 +2606,12 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
             | 0::_ ->
               list_items ~p indents ((O,indents,rev_to_t new_item)::items) rest
             | _::_ ->
-              make_up p items, l
+              make_up ~p items, l
         end
       | Space::Number _::Dot::(Space|Spaces _)::tl ->
         begin
           match fsplit_rev ~f:(end_of_item 1) tl with
-          | None -> make_up p items, l
+          | None -> make_up ~p items, l
           | Some(new_item, rest) ->
             let p = p || has_paragraphs new_item in
             match indents with
@@ -2624,7 +2622,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
               list_items ~p indents ((O,indents,rev_to_t new_item)::items) rest
             | i::_ ->
               if i > 1 then
-                make_up p items, l
+                make_up ~p items, l
               else (* i < 1 : new sub list*)
                 let sublist, remains =
                   list_items ~p (1::indents)
@@ -2636,7 +2634,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
         begin
           match fsplit_rev ~f:(end_of_item (n+2)) tl with
           | None ->
-            make_up p items, l
+            make_up ~p items, l
           | Some(new_item, rest) ->
             let p = p || has_paragraphs new_item in
             match indents with
@@ -2660,7 +2658,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                 in
                 list_items ~p:p indents (add sublist items) remains
               else (* i > n + 2 *)
-                make_up p items, l
+                make_up ~p items, l
         end
       (* *)
       | Newlines 0::((Star|Minus|Plus)::(Space|Spaces _)::_ as l)
@@ -2687,7 +2685,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
               (L.string_of_tokens l) (string_of_items items)
           end;
         (* not a list item *)
-        make_up p items, l
+        make_up ~p items, l
     in
     match list_items ~p:false [] [] l with
     | rp, l ->
@@ -2702,7 +2700,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
     let dummy_tag = Tag("dummy_tag",
                         object
                           method to_string = ""
-                          method parser_extension = fun r p l -> None
+                          method parser_extension = fun _r _p _l -> None
                         end) in
     let accu = Buffer.create 64 in
     let rec loop s tl = match s, tl with
@@ -2717,7 +2715,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
         loop
           (if n >= 4 then Spaces(n-4) else if n = 3 then Space else dummy_tag)
           tl
-      | (Newline|Newlines _ as p), (not_spaces::_ as tl) -> (* stop *)
+      | (Newline|Newlines _ as p), (_not_spaces::_ as tl) -> (* stop *)
         Code_block(default_lang, Buffer.contents accu) :: r, [p], tl
       (* -> Return what's been found as code because it's no more code. *)
       | p, e::tl ->
@@ -2748,7 +2746,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       | (Star|Minus|Plus) :: (Space|Spaces _) :: _ ->
         (* unordered list *)
         parse_list main_loop r [] (L.make_space n::lexemes)
-      | (Number _)::Dot::(Space|Spaces _)::tl ->
+      | (Number _)::Dot::(Space|Spaces _)::_tl ->
         (* ordered list *)
         parse_list main_loop r [] (L.make_space n::lexemes)
       | []
@@ -2796,7 +2794,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
     )
 
 
-  let maybe_autoemail r p l =
+  let maybe_autoemail r _p l =
     assert_well_formed l;
     match l with
     | Lessthan::tl ->
@@ -2881,7 +2879,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       end
 
     (* HTML comments *)
-    | _, (Lessthan as t)::(Exclamation::Minuss 0::c as tl) ->
+    | _, (Lessthan as t)::(Exclamation::Minuss 0::_c as tl) ->
       begin
         let f = function
           | (Minuss _ as m)::(Greaterthan|Greaterthans _ as g)::tl ->
@@ -2922,7 +2920,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       (* It's 1, 2 or 3 spaces, not more because it wouldn't mean
          quoting anymore but code. *)
       begin
-        let new_r, p, rest =
+        let new_r, _p, rest =
           let foo, rest =
             match unindent (L.length s) (Newline::lexemes) with
             | (Newline|Newlines _)::foo, rest -> foo, rest
@@ -3059,7 +3057,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       )
 
     (* enumerated lists *)
-    | ([]|[Newline|Newlines _]), (Number _) :: Dot :: (Space|Spaces _) :: tl ->
+    | ([]|[Newline|Newlines _]), (Number _) :: Dot :: (Space|Spaces _) :: _tl ->
       let md, new_p, new_l =
         parse_list main_loop r [] lexemes
       in
@@ -3262,7 +3260,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
          :: Colon::Slashs(n)::tl ->
       (* "semi-automatic" URLs *)
       let rec read_url accu = function
-        | (Newline|Newlines _)::tl ->
+        | (Newline|Newlines _)::_tl ->
           None
         | Greaterthan::tl ->
           let url =
@@ -3703,7 +3701,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                         | [] ->
                           Some([T.HTML(t, attrs, body)], l)
                       end
-                | T.Open t :: _ ->
+                | T.Open _t :: _ ->
                   if debug then
                     eprintf
                       "(OMD) 3591 BHTML Some `>` isn't for an opening tag\n%!";
@@ -3977,7 +3975,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                   if debug then
                     eprintf "(OMD) maybe code in inline HTML: let's try\n%!";
                   begin match bcode [] [Space] tokens with
-                    | Some (((Code _::_) as c), p, l) ->
+                    | Some (((Code _::_) as c), _p, l) ->
                       if debug then
                         eprintf "(OMD) maybe code in inline HTML: \
                                  confirmed\n%!";
@@ -4080,7 +4078,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                            it. *)
                         loop (T.HTML(t, attrs, b)::body) [] tagstatus tokens
                   end
-                | T.Open t :: _ ->
+                | T.Open _t :: _ ->
                   if debug then
                     eprintf
                       "(OMD) Turns out an `>` isn't for an opening tag\n%!";
@@ -4289,7 +4287,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
              with Premature_ending -> None
            with
            | Some(url, tls) ->
-             let title, should_be_empty_list =
+             let title, _should_be_empty_list =
                read_until_dq ~bq:true (snd (read_until_dq ~bq:true tls)) in
              let url = L.string_of_tokens url in
              let title = L.string_of_tokens title in
@@ -4376,7 +4374,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                            as ntl) ->
            (try
               match read_until_cbracket ~bq:true ~no_nl:false ntl with
-              | [], rest -> raise Premature_ending
+              | [], _rest -> raise Premature_ending
               | id, rest ->
                 let fallback = extract_fallback main_loop rest lexemes in
                 let id = L.string_of_tokens id in

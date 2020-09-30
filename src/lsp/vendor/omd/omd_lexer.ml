@@ -221,7 +221,7 @@ struct
             | ';' | '>' | '~' | '<' | '@' | '&' | '|' | '^' | '.' | '/'
             | '$' | '%' | '!' | '?' | '=' ->
                 Word(I.sub s ~pos:start ~len:(!i-start))
-            | c -> incr i; loop()
+            | _s -> incr i; loop()
         end
       in
       loop()
@@ -318,7 +318,7 @@ struct
                                     else Exclamations (n-2)
         | '?'  -> let n = n_occ c in if n = 1 then Question else Questions (n-2)
         | '0' .. '9' -> maybe_number()
-        | c -> word() in
+        | _ -> word() in
       result := w :: !result
     done;
     List.rev !result
