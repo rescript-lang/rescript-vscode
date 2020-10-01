@@ -303,7 +303,7 @@ let showHelp = () => {
 };
 
 let main = () => {
-  switch (parseArgs(Sys.argv->Belt.List.fromArray)) {
+  switch (parseArgs(Sys.argv|>Array.to_list)) {
     | (opts, _) when opts->hasOpts(["-h", "--help"]) => showHelp();
     | (opts, []) =>
       if (opts->hasVerbose) {

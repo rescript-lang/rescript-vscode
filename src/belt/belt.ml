@@ -3,20 +3,15 @@ module List = struct
   let getBy = getBy
   let reduce = reduce
   let keepMap = keepMap
-  let flatten = flatten
   let sort = sort
   let concat = concat
   let some = some
   let take = take
   let concatMany = concatMany
-  let toArray = toArray
-  let fromArray = fromArray
-
   let getExn = getExn
 
   let mapWithIndex = mapWithIndex
 
-  let length = length
   let reduceReverse = reduceReverse
 end
 

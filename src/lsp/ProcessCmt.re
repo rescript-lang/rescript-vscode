@@ -310,7 +310,7 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
 let forSignature = (~env, items) => {
   let (doc, items) = getTopSigDoc(items);
   let exported = Module.initExported();
-  let topLevel = items |> List.map(forSignatureItem(~env, ~exported)) |> Belt.List.flatten;
+  let topLevel = items |> List.map(forSignatureItem(~env, ~exported)) |> List.flatten;
   (doc, {Module.exported, topLevel})
 };
 
@@ -428,7 +428,7 @@ and forStructure = (~env, items) => {
 let forCmt = (~moduleName, uri, processDoc, {cmt_modname, cmt_annots}: Cmt_format.cmt_infos) => switch cmt_annots {
 | Partial_implementation(parts) => {
 
-  let items = parts |. Array.to_list |. Belt.List.keepMap(p => switch p {
+  let items = parts |> Array.to_list |. Belt.List.keepMap(p => switch p {
     | Partial_structure(str) => Some(str.str_items)
     | Partial_structure_item(str) => Some([str])
     | _ => None
