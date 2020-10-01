@@ -4,7 +4,7 @@ open Infix;
 let showConstructor = ({SharedTypes.Type.Constructor.name: {txt}, args, res}) => {
   txt ++ (args == []
     ? ""
-    : "(" ++ String.concat(", ", args |. Belt.List.map(((typ, _)) => (
+    : "(" ++ String.concat(", ", args |> List.map(((typ, _)) => (
       typ |> Shared.typeToString
     ))) ++ ")")
   ++ ((res |?>> typ => "\n" ++ (typ |> Shared.typeToString)) |? "")
@@ -320,8 +320,8 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           env.file.stamps.types,
           suffix,
         )
-        |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), item: Constructor(c, t)}
+        |> List.map(((c, t)) =>
+             {...emptyDeclared(c.SharedTypes.Type.Constructor.name.txt), item: Constructor(c, t)}
            )
       );
     } else {
@@ -343,15 +343,15 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           env.file.stamps.types,
           suffix,
         )
-        |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), item: Attribute(c, t)}
+        |> List.map(((c, t)) =>
+             {...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt), item: Attribute(c, t)}
            )
       );
     } else {
       results;
     };
 
-  results |. Belt.List.map(x => (env.file.uri, x));
+  results |> List.map(x => (env.file.uri, x));
 };
 
 let valueCompletions = (~env: Query.queryEnv, suffix) => {
@@ -378,8 +378,8 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           env.file.stamps.types,
           suffix,
         )
-        |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), item: Constructor(c, t)}
+        |> List.map(((c, t)) =>
+             {...emptyDeclared(c.SharedTypes.Type.Constructor.name.txt), item: Constructor(c, t)}
            )
       );
     } else {
@@ -404,8 +404,8 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           env.file.stamps.types,
           suffix,
         )
-        |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), item: Attribute(c, t)}
+        |> List.map(((c, t)) =>
+             {...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt), item: Attribute(c, t)}
            )
       );
     } else {
@@ -415,7 +415,7 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
   /* Log.log("Getting value completions " ++ env.file.uri);
      Log.log(String.concat(", ", results |. Belt.List.map(x => x.name.txt))); */
 
-  results |. Belt.List.map(x => (env.file.uri, x));
+  results |> List.map(x => (env.file.uri, x));
 };
 
 let attributeCompletions = (~env: Query.queryEnv, ~suffix) => {
@@ -445,15 +445,15 @@ let attributeCompletions = (~env: Query.queryEnv, ~suffix) => {
           env.file.stamps.types,
           suffix,
         )
-        |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), item: Attribute(c, t)}
+        |> List.map(((c, t)) =>
+             {...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt), item: Attribute(c, t)}
            )
       );
     } else {
       results;
     };
 
-  results |. Belt.List.map(x => (env.file.uri, x));
+  results |> List.map(x => (env.file.uri, x));
 };
 
 /**
@@ -471,9 +471,9 @@ let resolveRawOpens = (~env, ~getModule, ~rawOpens, ~package) => {
     resolveOpens(
       ~env,
       ~previous=
-        Belt.List.map(
-          Belt.List.keepMap(packageOpens, getModule),
+        List.map(
           Query.fileEnv,
+          Belt.List.keepMap(packageOpens, getModule),
         ),
       rawOpens
       |> List.map(Str.split(Str.regexp_string(".")))
@@ -526,7 +526,7 @@ let get =
     "Opens nows "
     ++ string_of_int(List.length(opens))
     ++ " "
-    ++ String.concat(" ", Belt.List.map(opens, e => e.file.uri)),
+    ++ String.concat(" ", opens |> List.map(e => e.Query.file.uri)),
   );
 
   switch (tokenParts) {
@@ -642,7 +642,7 @@ let get =
 
         attributeCompletions(~env, ~suffix)
         @ List.concat(
-            Belt.List.map(opens, env =>
+            opens |> List.map(env =>
               attributeCompletions(~env, ~suffix)
             ),
           );

@@ -97,7 +97,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
               ("kind", s("markdown")),
               ("value", s(hoverText))
             ])),
-            ("parameters", l(args |. Belt.List.map(((label, argt)) => {
+            ("parameters", l(args |> List.map(((label, argt)) => {
               o([
                 ("label", s(label)),
                 ("documentation", s(argt |> Shared.typeToString))
@@ -147,7 +147,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       /* TODO(#107): figure out why we're getting duplicates. */
       let items = Utils.dedup(items);
 
-      Belt.List.map(items, ((uri, {name: {txt: name, loc: {loc_start: {pos_lnum}}}, docstring, item})) => o([
+      items |> List.map(((uri, {SharedTypes.name: {txt: name, loc: {loc_start: {pos_lnum}}}, docstring, item})) => o([
         ("label", s(name)),
         ("kind", i(NewCompletions.kindToInt(item))),
         ("detail", NewCompletions.detail(name, item) |> s),
@@ -193,7 +193,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
 
       let%opt_wrap refs = References.forPos(~file, ~extra, pos);
       open JsonShort;
-      (state, l(Belt.List.map(refs, (loc) => o([
+      (state, l(refs |> List.map((loc) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("kind", i(2))
       ]))));
@@ -225,13 +225,12 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       open JsonShort;
       Some((
         state,
-        Belt.List.map(
-          allReferences,
+        allReferences |> List.map(
           ((fname, references)) => {
             let locs = fname == uri
               ? List.filter(loc => !Protocol.locationContains(loc, pos), references)
               : references;
-            Belt.List.map(locs, loc => Protocol.locationOfLoc(~fname, loc))
+            locs |> List.map(loc => Protocol.locationOfLoc(~fname, loc))
           }
         )
         |. Belt.List.toArray
@@ -267,10 +266,10 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         state,
         o([
           ("changes", o(
-            Belt.List.map(allReferences, ((fname, references)) =>
+            allReferences |> List.map(((fname, references)) =>
 
               (fname,
-                l(Belt.List.map(references, loc => o([
+                l(references |> List.map(loc => o([
                   ("range", Protocol.rangeOfLoc(loc)),
                   ("newText", newName),
                 ])))
@@ -295,7 +294,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         loc_ghost: false,
       })];
       open JsonShort;
-      Ok((state, l(Belt.List.map(items, ((text, loc)) => o([
+      Ok((state, l(items |> List.map(((text, loc)) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("command", o([
           ("title", s(text)),
@@ -337,7 +336,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
           CodeLens.forOpens(extra)
         } : lenses;
 
-        let depsList = Belt.List.map(SharedTypes.hashList(extra.externalReferences), fst)
+        let depsList = List.map(fst, SharedTypes.hashList(extra.externalReferences))
         let depsString = depsList == [] ? "[none]" : String.concat(", ", depsList)
         let lenses = (state.settings.dependenciesCodelens==true) ? 
           [("Dependencies: " ++ depsString, topLoc), ...lenses] 
@@ -361,7 +360,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         };
       };
       open JsonShort;
-      Ok((state, l(Belt.List.map(items, ((text, loc)) => o([
+      Ok((state, l(items |> List.map(((text, loc)) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("command", o([
           ("title", s(text)),
@@ -517,13 +516,13 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
           [(txt, extentLoc, item), ...siblings]
         }
       };
-      let x = topLevel |. Belt.List.map(fn) |. Belt.List.toArray |. Belt.List.concatMany;
+      let x = topLevel |> List.map(fn) |. Belt.List.toArray |. Belt.List.concatMany;
       x
     };
 
     (getItems(file.contents) |> items => {
       open JsonShort;
-      Ok((state, l(Belt.List.map(items, ((name, loc, typ)) => o([
+      Ok((state, l(items |> List.map(((name, loc, typ)) => o([
         ("name", s(name)),
         ("kind", i(Protocol.symbolKind(typ))),
         ("location", Protocol.locationOfLoc(loc)),

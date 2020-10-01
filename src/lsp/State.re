@@ -6,13 +6,13 @@ module Show = {
   let state = ({rootPath}, {localModules, dependencyModules, pathsForModule}) => {
     "Root: " ++ rootPath ++
     "\nLocal\n"++
-    (Belt.List.map(localModules, (name) => {
+    (localModules |> List.map((name) => {
       let paths = Hashtbl.find(pathsForModule, name);
       Printf.sprintf("%s (%s : %s)", name, SharedTypes.getCmt(paths), SharedTypes.getSrc(paths) |? "(no src!)")
     }) |> String.concat("\n"))
     ++
     "\nDeps\n" ++
-    (Belt.List.map(dependencyModules, (modname) => {
+    (dependencyModules |> List.map((modname) => {
       try {
 
       let paths = Hashtbl.find(pathsForModule, modname);
@@ -232,7 +232,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
       Log.log("<< Replacing lastDefinitions for " ++ uri);
 
       Hashtbl.replace(state.lastDefinitions, uri, full);
-      Hashtbl.replace(package.interModuleDependencies, moduleName, SharedTypes.hashList(full.extra.externalReferences) |. Belt.List.map(fst));
+      Hashtbl.replace(package.interModuleDependencies, moduleName, SharedTypes.hashList(full.extra.externalReferences) |> List.map(fst));
       }
     }
     Ok(result)

@@ -11,9 +11,9 @@ let sepList = items =>
 
 
 let forOpen = (tracker: SharedTypes.openTracker) => {
-  let items = tracker.used |. Belt.List.map(((path, tip, _loc)) => switch path {
-    | Tip(name) => (name, tip)
-    | Nested(name, _) => (name, Module)
+  let items = tracker.used |> List.map(((path, tip, _loc)) => switch path {
+    | SharedTypes.Tip(name) => (name, tip)
+    | Nested(name, _) => (name, SharedTypes.Module)
   })
   |> List.sort_uniq(compare);
   let values = items |> List.filter(((_, t)) => t == SharedTypes.Value);
@@ -37,7 +37,7 @@ let forOpen = (tracker: SharedTypes.openTracker) => {
 };
 
 let forOpens = (extra: SharedTypes.extra) => {
-  SharedTypes.hashList(extra.opens) |. Belt.List.map(((_loc, tracker)) => {
+  SharedTypes.hashList(extra.opens) |> List.map(((_loc, tracker)) => {
     let (items, types, modules, values, typeMap) = forOpen(tracker);
 
     let parts = [];

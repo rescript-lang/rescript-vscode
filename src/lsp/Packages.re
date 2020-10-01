@@ -164,8 +164,8 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
   {
     basePath: rootPath,
     rebuildTimer: 0.,
-    localModules: localModules |. Belt.List.map(fst),
-    dependencyModules: dependencyModules |. Belt.List.map(fst),
+    localModules: localModules |> List.map(fst),
+    dependencyModules: dependencyModules |> List.map(fst),
     pathsForModule,
     nameForPath,
     buildCommand: state.settings.autoRebuild ? Some((buildCommand, rootPath)) : None,
