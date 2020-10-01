@@ -449,7 +449,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
             s;
           } else {
             split_on_char('\n', s)
-            |. Belt.List.mapWithIndex((index, line) =>
+            |> List.mapi((index, line) =>
                 switch (index, firstLineSpaces, String.length(line)) {
                 | (_, _, 0) => line
                 | (0, Some(spaces), _) => repeat(spaces, " ") ++ line
