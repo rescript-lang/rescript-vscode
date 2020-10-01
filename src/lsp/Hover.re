@@ -143,7 +143,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showP
 
         let parts = showPath ? parts @ [Some(uri)] : parts;
 
-        Some(String.concat("\n\n", parts |. Belt.List.keepMap(x => x)))
+        Some(String.concat("\n\n", parts |> Utils.filterMap(x => x)))
       } |? typeString)
 
     }

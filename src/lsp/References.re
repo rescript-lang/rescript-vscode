@@ -76,7 +76,7 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
   | Module(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
     let%opt_wrap refs = extra.externalReferences |. Hashtbl.find_opt(moduleName);
-    refs |. Belt.List.keepMap(((p, t, l)) => p == path && t == tip ? Some(l) : None);
+    refs |> Utils.filterMap(((p, t, l)) => p == path && t == tip ? Some(l) : None);
   };
 
 let definedForLoc = (~file, ~getModule, loc) => {
@@ -219,11 +219,11 @@ let forLocalStamp = (~pathsForModule, ~file, ~extra, ~allModules, ~getModule, ~g
       let%opt path = pathFromVisibility(declared.modulePath, declared.name.txt);
       maybeLog("Now checking path " ++ pathToString(path));
       let thisModuleName = file.moduleName;
-      let externals = allModules |> List.filter(name => name != file.moduleName) |. Belt.List.keepMap(name => {
+      let externals = allModules |> List.filter(name => name != file.moduleName) |> Utils.filterMap(name => {
         let%try file = getModule(name) |> RResult.orError("Could not get file for module " ++ name);
         let%try extra = getExtra(name) |> RResult.orError("Could not get extra for module " ++ name);
         let%try refs = extra.externalReferences |. Hashtbl.find_opt(thisModuleName) |> RResult.orError("No references in " ++ name ++ " for " ++ thisModuleName);
-        let refs = refs |. Belt.List.keepMap(((p, t, l)) => p == path && t == tip ? Some(l) : None);
+        let refs = refs |> Utils.filterMap(((p, t, l)) => p == path && t == tip ? Some(l) : None);
         Ok((file.uri, refs))
       } |> RResult.toOptionAndLog);
       Some(alternativeReferences @ externals)

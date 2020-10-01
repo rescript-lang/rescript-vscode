@@ -174,7 +174,7 @@ let findProjectFiles = (~debug, namespace, root, sourceDirectories, compiledBase
     Hashtbl.replace(interfaces, getName(path), path)
   });
 
-  let normals = files |. Belt.List.keepMap(path => {
+  let normals = files |> Utils.filterMap(path => {
     if (
       Filename.check_suffix(path, ".re")
       || Filename.check_suffix(path, ".rel")

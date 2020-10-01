@@ -473,7 +473,7 @@ let resolveRawOpens = (~env, ~getModule, ~rawOpens, ~package) => {
       ~previous=
         List.map(
           Query.fileEnv,
-          Belt.List.keepMap(packageOpens, getModule),
+          packageOpens |> Utils.filterMap(getModule),
         ),
       rawOpens
       |> List.map(Str.split(Str.regexp_string(".")))
@@ -555,7 +555,7 @@ let get =
       );
     /* TODO complete the namespaced name too */
     let localModuleNames =
-      Belt.List.keepMap(allModules, name => {
+      allModules |> Utils.filterMap(name => {
         /* Log.log("Checking " ++ name); */
 
         Utils.startsWith(name, suffix) && !String.contains(name, '-') ?
@@ -614,7 +614,7 @@ let get =
           | Record(attributes) =>
             Some(
               attributes
-              |. Belt.List.keepMap(a =>
+              |> Utils.filterMap((a : SharedTypes.Type.Attribute.t) =>
                    if (Utils.startsWith(a.name.txt, suffix)) {
                      Some((
                        env.file.uri,

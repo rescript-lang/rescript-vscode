@@ -31,9 +31,9 @@ let astForCmt = cmt => {
   | Partial_implementation(parts) =>
     let items =
       parts
-      ->Array.to_list
-      ->(
-          Belt.List.keepMap(p =>
+      |> Array.to_list
+      |>(
+          Utils.filterMap((p:Cmt_format.binary_part) =>
             switch (p) {
             | Partial_structure(str) => Some(str.str_items)
             | Partial_structure_item(str) => Some([str])
@@ -54,9 +54,9 @@ let astForCmt = cmt => {
   | Partial_interface(parts) =>
     let items =
       parts
-      ->Array.to_list
-      ->(
-          Belt.List.keepMap(p =>
+      |> Array.to_list
+      |> (
+          Utils.filterMap((p:Cmt_format.binary_part) =>
             switch (p) {
             | Partial_signature(str) => Some(str.sig_items)
             | Partial_signature_item(str) => Some([str])

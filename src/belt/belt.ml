@@ -1,6 +1,6 @@
 module List = struct
+  
   open Belt_List
-  let keepMap = keepMap
   let some = some
   let take = take
   let getExn = getExn
