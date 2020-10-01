@@ -47,8 +47,7 @@ let findClosestMatchingOpen = (opens, path, ident, loc) => {
     } else {
       res
     }
-  }, opens, []) |. Belt.List.sort((a, b) => {
-    open Location;
+  }, opens, []) |> List.sort((a:SharedTypes.openTracker, b) => {
     b.loc.loc_start.pos_cnum - a.loc.loc_start.pos_cnum
   });
 

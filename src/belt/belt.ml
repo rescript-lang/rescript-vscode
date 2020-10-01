@@ -3,7 +3,6 @@ module List = struct
   let getBy = getBy
   let reduce = reduce
   let keepMap = keepMap
-  let sort = sort
   let some = some
   let take = take
   let getExn = getExn
