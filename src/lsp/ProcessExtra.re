@@ -441,12 +441,7 @@ module F =
     switch (ctyp_desc) {
     | Ttyp_constr(path, {txt, loc}, _args) =>
       /* addForPath(path, txt, loc, Shared.makeFlexible(ctyp_type), Type) */
-      addForLongident(
-        Some((ctyp_type, Type)),
-        path,
-        txt,
-        loc,
-      )
+      addForLongident(Some((ctyp_type, Type)), path, txt, loc)
     | _ => ()
     };
   };
@@ -501,19 +496,11 @@ module F =
     |> List.iter(((e, eloc, _)) =>
          switch (e) {
          | Texp_open(_, path, ident, _) =>
-           extra.opens
-           ->(
-               Hashtbl.add(
-                 eloc,
-                 {
-                   path,
-                   ident,
-                   loc: eloc,
-                   extent: expression.exp_loc,
-                   used: [],
-                 },
-               )
-             )
+           Hashtbl.add(
+             extra.opens,
+             eloc,
+             {path, ident, loc: eloc, extent: expression.exp_loc, used: []},
+           )
          | _ => ()
          }
        );
@@ -526,7 +513,8 @@ module F =
     | Texp_record({fields}) =>
       addForRecord(
         expression.exp_type,
-        fields->Array.to_list
+        fields
+        |> Array.to_list
         |> Utils.filterMap(((desc, item)) => {
              switch (item) {
              | Overridden(loc, _) => Some((loc, desc, ()))
@@ -704,7 +692,8 @@ let forCmt = (~file, ~allLocations, {cmt_annots}: Cmt_format.cmt_infos) =>
   switch (cmt_annots) {
   | Partial_implementation(parts) =>
     let items =
-      parts->Array.to_list
+      parts
+      |> Array.to_list
       |> Utils.filterMap((p: Cmt_format.binary_part) =>
            switch (p) {
            | Partial_structure(str) => Some(str.str_items)
