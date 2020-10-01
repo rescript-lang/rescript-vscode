@@ -126,7 +126,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
   let source = stdlibs @ source;
   let build = stdlibs @ build;
 
-  let (localSource, depSource) = source->Belt.List.partition(isRelativePath);
+  let (localSource, depSource) = source|>List.partition(isRelativePath);
 
   maybeLog(Printf.sprintf("Local %d, Deps %d for %s/.merlin", List.length(localSource), List.length(depSource), base));
 
@@ -148,7 +148,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
     let buildDir = maybeConcat(base, buildDir);
     maybeLog("## Build dir " ++ buildDir);
     Files.readDirectory(buildDir)
-    ->Belt.List.keep(isBuildFile)
+    |>List.filter(isBuildFile)
     |>List.iter(name => {
         let full = fileConcat(buildDir, name);
         // maybeLog("Build file " ++ full);
@@ -205,7 +205,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
     });
     let filesByName = Hashtbl.create(10);
     let moduleNames = Hashtbl.create(10);
-    allFiles->Belt.List.keep(isSourceFile)|>List.iter(file => {
+    allFiles|>List.filter(isSourceFile)|>List.iter(file => {
       let full = dep /+ file;
       maybeLog(" > file " ++ full)
       filesByName->Hashtbl.replace(file, full)

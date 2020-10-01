@@ -16,9 +16,9 @@ let forOpen = (tracker: SharedTypes.openTracker) => {
     | Nested(name, _) => (name, Module)
   })
   |> List.sort_uniq(compare);
-  let values = items |. Belt.List.keep(((_, t)) => t == Value);
-  let modules = items |. Belt.List.keep(((_, t)) => t == Module);
-  let types = items |. Belt.List.keep(((_, t)) => t != Value && t != Module);
+  let values = items |> List.filter(((_, t)) => t == SharedTypes.Value);
+  let modules = items |> List.filter(((_, t)) => t == SharedTypes.Module);
+  let types = items |> List.filter(((_, t)) => t != SharedTypes.Value && t != Module);
 
   let typeMap = Hashtbl.create(10);
   List.iter(((name, t)) => {

@@ -1,4 +1,3 @@
-open Belt;
 open RResult;
 open TopTypes;
 open Infix;
@@ -98,7 +97,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
               ("kind", s("markdown")),
               ("value", s(hoverText))
             ])),
-            ("parameters", l(args |. List.map(((label, argt)) => {
+            ("parameters", l(args |. Belt.List.map(((label, argt)) => {
               o([
                 ("label", s(label)),
                 ("documentation", s(argt |> Shared.typeToString))
@@ -148,7 +147,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       /* TODO(#107): figure out why we're getting duplicates. */
       let items = Utils.dedup(items);
 
-      List.map(items, ((uri, {name: {txt: name, loc: {loc_start: {pos_lnum}}}, docstring, contents})) => o([
+      Belt.List.map(items, ((uri, {name: {txt: name, loc: {loc_start: {pos_lnum}}}, docstring, contents})) => o([
         ("label", s(name)),
         ("kind", i(NewCompletions.kindToInt(contents))),
         ("detail", NewCompletions.detail(name, contents) |> s),
@@ -194,7 +193,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
 
       let%opt_wrap refs = References.forPos(~file, ~extra, pos);
       open JsonShort;
-      (state, l(List.map(refs, (loc) => o([
+      (state, l(Belt.List.map(refs, (loc) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("kind", i(2))
       ]))));
@@ -226,17 +225,17 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       open JsonShort;
       Some((
         state,
-        List.map(
+        Belt.List.map(
           allReferences,
           ((fname, references)) => {
             let locs = fname == uri
-              ? List.keep(references, loc => !Protocol.locationContains(loc, pos))
+              ? List.filter(loc => !Protocol.locationContains(loc, pos), references)
               : references;
-            List.map(locs, loc => Protocol.locationOfLoc(~fname, loc))
+            Belt.List.map(locs, loc => Protocol.locationOfLoc(~fname, loc))
           }
         )
-        |. List.toArray
-        |. List.concatMany
+        |. Belt.List.toArray
+        |. Belt.List.concatMany
         |. l
       ));
 
@@ -268,10 +267,10 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         state,
         o([
           ("changes", o(
-            List.map(allReferences, ((fname, references)) =>
+            Belt.List.map(allReferences, ((fname, references)) =>
 
               (fname,
-                l(List.map(references, loc => o([
+                l(Belt.List.map(references, loc => o([
                   ("range", Protocol.rangeOfLoc(loc)),
                   ("newText", newName),
                 ])))
@@ -296,7 +295,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         loc_ghost: false,
       })];
       open JsonShort;
-      Ok((state, l(List.map(items, ((text, loc)) => o([
+      Ok((state, l(Belt.List.map(items, ((text, loc)) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("command", o([
           ("title", s(text)),
@@ -327,7 +326,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
                   | Module(Structure({topLevel})) => getTypeLensTopLevel(topLevel)
                   | _ => []
                   };
-                List.concat(currentCl, getTypeLensTopLevel(tlp))
+                Belt.List.concat(currentCl, getTypeLensTopLevel(tlp))
               }
             }
         }
@@ -338,7 +337,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
           CodeLens.forOpens(extra)
         } : lenses;
 
-        let depsList = List.map(SharedTypes.hashList(extra.externalReferences), fst)
+        let depsList = Belt.List.map(SharedTypes.hashList(extra.externalReferences), fst)
         let depsString = depsList == [] ? "[none]" : String.concat(", ", depsList)
         let lenses = (state.settings.dependenciesCodelens==true) ? 
           [("Dependencies: " ++ depsString, topLoc), ...lenses] 
@@ -362,7 +361,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         };
       };
       open JsonShort;
-      Ok((state, l(List.map(items, ((text, loc)) => o([
+      Ok((state, l(Belt.List.map(items, ((text, loc)) => o([
         ("range", Protocol.rangeOfLoc(loc)),
         ("command", o([
           ("title", s(text)),
@@ -419,7 +418,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         let (leadingNewlines, charsToFirstLines) = {
           let splitted = substring |> split_on_char('\n');
           let rec loop = (i, leadingLines, skipChars) => {
-            let line = List.getExn(splitted, i);
+            let line = Belt.List.getExn(splitted, i);
             switch (line |. String.trim |. String.length) {
             | 0 => loop(i + 1, leadingLines + 1, skipChars + (line |> String.length))
             | _ => (leadingLines, skipChars + 1)
@@ -452,7 +451,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
             s;
           } else {
             split_on_char('\n', s)
-            |. List.mapWithIndex((index, line) =>
+            |. Belt.List.mapWithIndex((index, line) =>
                 switch (index, firstLineSpaces, String.length(line)) {
                 | (_, _, 0) => line
                 | (0, Some(spaces), _) => repeat(spaces, " ") ++ line
@@ -518,13 +517,13 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
           [(txt, extentLoc, item), ...siblings]
         }
       };
-      let x = topLevel |. List.map(fn) |. List.toArray |. List.concatMany;
+      let x = topLevel |. Belt.List.map(fn) |. Belt.List.toArray |. Belt.List.concatMany;
       x
     };
 
     (getItems(file.contents) |> items => {
       open JsonShort;
-      Ok((state, l(List.map(items, ((name, loc, typ)) => o([
+      Ok((state, l(Belt.List.map(items, ((name, loc, typ)) => o([
         ("name", s(name)),
         ("kind", i(Protocol.symbolKind(typ))),
         ("location", Protocol.locationOfLoc(loc)),
