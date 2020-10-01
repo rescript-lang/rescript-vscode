@@ -43,5 +43,5 @@ let getModulesFromMerlin:
     list(string),
     list(string),
   );
-let getFlags: string => RResult.result(list(string), string);
-let getBackend: string => RResult.result(string, string);
+let getFlags: string => result(list(string), string);
+let getBackend: string => result(string, string);

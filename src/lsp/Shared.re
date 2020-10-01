@@ -1,6 +1,4 @@
 
-open Belt.Result;
-
 let tryReadCmt = cmt => {
   if (!Files.exists(cmt)) {
     Error("Cmt file does not exist " ++ cmt)

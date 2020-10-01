@@ -94,8 +94,8 @@ let readFileExn = path => switch (readFile(path)) {
 };
 
 let readFileResult = path => switch (readFile(path)) {
-| None => RResult.Error("Unable to read " ++ path)
-| Some(text) => RResult.Ok(text)
+| None => Error("Unable to read " ++ path)
+| Some(text) => Ok(text)
 };
 
 let writeFile = (path, contents) => {
@@ -117,7 +117,7 @@ let writeFileExn = (path, contents) => {
 
 let writeFileResult = (path, contents) => {
   if (!writeFile(path, contents)) {
-    RResult.Error("Unable to write to file " ++ path)
+    Error("Unable to write to file " ++ path)
   } else {
     Ok(())
   }

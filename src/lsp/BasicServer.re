@@ -1,5 +1,3 @@
-open RResult;
-
 type messageSeverity =
   | Error
   | Warning

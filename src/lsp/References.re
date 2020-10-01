@@ -242,7 +242,7 @@ let allReferencesForLoc = (~pathsForModule, ~getUri, ~file, ~extra, ~allModules,
     | Module(NotFound)
     | TopLevelModule(_)
     | Constant(_)
-    | Open => RResult.Error("Not a valid loc")
+    | Open => Error("Not a valid loc")
     | TypeDefinition(_, _, stamp) => {
       forLocalStamp(~pathsForModule, ~getUri, ~file, ~extra, ~allModules, ~getModule, ~getExtra, stamp, Type) |> RResult.orError("Could not get for local stamp")
     }

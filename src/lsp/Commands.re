@@ -107,9 +107,9 @@ let execOption = cmd => {
 let execResult = cmd => {
   let (lines, success) = execSync(cmd);
   if (success) {
-    RResult.Ok(String.concat("\n", lines))
+    Ok(String.concat("\n", lines))
   } else {
-    RResult.Error(String.concat("\n", lines))
+    Error(String.concat("\n", lines))
   }
 };
 

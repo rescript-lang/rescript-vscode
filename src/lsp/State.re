@@ -101,7 +101,7 @@ let getContents = (uri, state) => {
 let refmtForUri = (uri, package) =>
   if (Filename.check_suffix(uri, ".ml")
       || Filename.check_suffix(uri, ".mli")) {
-    RResult.Ok(None);
+    Ok(None);
   } else if (Filename.check_suffix(uri, ".rel")
              || Filename.check_suffix(uri, ".reli")) {
     switch (package.lispRefmtPath) {
@@ -186,7 +186,7 @@ let getInterfaceFile = (uri, state, ~package: TopTypes.package) => {
 
 let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
   if (Hashtbl.mem(state.compiledDocuments, uri)) {
-    Belt.Result.Ok(Hashtbl.find(state.compiledDocuments, uri))
+    Ok(Hashtbl.find(state.compiledDocuments, uri))
   } else {
     let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
     let text = Hashtbl.mem(state.documentText, uri) ? {
@@ -253,7 +253,7 @@ let tryExtra = p => {
 /* If there's a previous "good" version, use that, otherwise use the current version */
 let getBestDefinitions = (uri, state, ~package) => {
   if (Hashtbl.mem(state.lastDefinitions, uri)) {
-    Belt.Result.Ok(Hashtbl.find(state.lastDefinitions, uri))
+    Ok(Hashtbl.find(state.lastDefinitions, uri))
   } else {
     tryExtra(getCompilationResult(uri, state, ~package))
   }

@@ -1,6 +1,5 @@
 
 open SharedTypes;
-open Belt.Result;
 
 let fileForCmt = (~moduleName, cmt, uri, processDoc) => {
   let%try infos = Shared.tryReadCmt(cmt);

@@ -1,6 +1,6 @@
 let getLine = (cmd, ~pwd) => {
   switch (Commands.execFull(~pwd, cmd)) {
-    | ([line], _, true) => RResult.Ok(line)
+    | ([line], _, true) => Ok(line)
     | (out, err, _) => Error("Invalid response for " ++ cmd ++ "\n\n" ++ String.concat("\n", out @ err))
   }
 };
@@ -33,7 +33,7 @@ let getBsPlatformDir = rootPath => {
     );
   switch (result) {
   | Some(path) =>
-    RResult.Ok(path);
+    Ok(path);
   | None =>
     let resultSecondary =
       ModuleResolution.resolveNodeModulePath(
@@ -41,11 +41,11 @@ let getBsPlatformDir = rootPath => {
         "bsb-native",
       );
     switch (resultSecondary) {
-    | Some(path) => RResult.Ok(path)
+    | Some(path) => Ok(path)
     | None =>
       let message = "bs-platform could not be found";
       Log.log(message);
-      RResult.Error(message);
+      Error(message);
     }
   };
 };
