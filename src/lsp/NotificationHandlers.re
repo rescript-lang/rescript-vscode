@@ -313,28 +313,29 @@ let notificationHandlers:
       let%try changes = RJson.array(changes);
       open InfixResult;
       let shouldReload =
-        Belt.List.some(changes, change =>
-          {
-            let%try uri = RJson.get("uri", change) |?> RJson.string;
-            let isRelevant = Utils.endsWith(uri, "/bsconfig.json");
-            if (!isRelevant) {
-              Ok(false);
-            } else {
-              let%try path =
-                Utils.parseUri(uri) |> RResult.orError("Cannot parse URI");
-              let%try contents = Files.readFileResult(path);
-              if (!Hashtbl.mem(watchedFileContentsMap, uri)
-                  || Hashtbl.find(watchedFileContentsMap, uri) == contents) {
-                Ok(false);
-              } else {
-                Hashtbl.replace(watchedFileContentsMap, uri, contents);
-                Log.log("Reloading because a file changed: " ++ uri);
-                Ok(true);
-              };
-            };
-          }
-          |? false
-        );
+        changes
+        |> List.exists(change =>
+             {
+               let%try uri = RJson.get("uri", change) |?> RJson.string;
+               let isRelevant = Utils.endsWith(uri, "/bsconfig.json");
+               if (!isRelevant) {
+                 Ok(false);
+               } else {
+                 let%try path =
+                   Utils.parseUri(uri) |> RResult.orError("Cannot parse URI");
+                 let%try contents = Files.readFileResult(path);
+                 if (!Hashtbl.mem(watchedFileContentsMap, uri)
+                     || Hashtbl.find(watchedFileContentsMap, uri) == contents) {
+                   Ok(false);
+                 } else {
+                   Hashtbl.replace(watchedFileContentsMap, uri, contents);
+                   Log.log("Reloading because a file changed: " ++ uri);
+                   Ok(true);
+                 };
+               };
+             }
+             |? false
+           );
 
       if (shouldReload) {
         Ok(reloadAllState(state));
