@@ -1,6 +1,5 @@
 open Infix;
 open RResult;
-open Log;
 
 module StringSet = Set.Make(String);
 let capabilities =
@@ -55,7 +54,6 @@ let getInitialState = params => {
   Log.log("Previous log location: " ++ Log.initial_dest);
 
   Rpc.sendNotification(
-    Log.log,
     stdout,
     "client/registerCapability",
     JsonShort.(
@@ -149,7 +147,7 @@ let processFile = (~state, ~uri, ~quiet) => {
 };
 
 let singleDefinition = (~quiet, rootPath, filePath, line, col) => {
-  log(
+  Log.log(
     "# Reason Langauge Server - checking individual files to ensure they load & process correctly",
   );
   let rootPath =
@@ -208,7 +206,7 @@ let singleDefinition = (~quiet, rootPath, filePath, line, col) => {
 };
 
 let check = (~definitions, ~quiet, rootPath, files) => {
-  log(
+  Log.log(
     "# Reason Langauge Server - checking individual files to ensure they load & process correctly",
   );
   let rootPath =
@@ -225,7 +223,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
        switch (processFile(~state, ~uri, ~quiet)) {
        | Some((package, result)) =>
          if (!definitions) {
-           log(State.Show.state(state, package));
+           Log.log(State.Show.state(state, package));
          } else {
            switch (result) {
            | None => ()
@@ -288,7 +286,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
        | _ => ()
        };
      });
-  log("Ok");
+  Log.log("Ok");
 };
 
 let dump = files => {
@@ -366,17 +364,16 @@ let main = () => {
       References.debugReferences := true;
       MerlinFile.debug := true;
     };
-    log("Booting up");
+    Log.log("Booting up");
     BasicServer.run(
       ~tick,
-      ~log,
       ~messageHandlers=MessageHandlers.handlers,
       ~notificationHandlers=NotificationHandlers.notificationHandlers,
       ~capabilities=_params => capabilities,
       ~getInitialState,
     );
-    log("Finished");
-    out^ |?< close_out;
+    Log.log("Finished");
+    Log.out^ |?< close_out;
   | (opts, ["definition", rootPath, file, line, col]) =>
     let line = int_of_string(line);
     let col = int_of_string(col);

@@ -31,12 +31,7 @@ let reportDiagnostics = (uri, result) => {
       ])
     | `BuildSucceeded => o([("uri", s(uri)), ("diagnostics", l([]))])
     };
-  Rpc.sendNotification(
-    Log.log,
-    stdout,
-    "textDocument/publishDiagnostics",
-    body,
-  );
+  Rpc.sendNotification(stdout, "textDocument/publishDiagnostics", body);
 };
 
 let checkPackageTimers = state => {

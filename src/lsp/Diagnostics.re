@@ -1,6 +1,5 @@
 open TopTypes;
 open Infix;
-open Log;
 
 let makeDiagnostic = (documentText, ((line, c1, c2), message)) => {
   open JsonShort;
@@ -45,7 +44,6 @@ let runDiagnostics = (uri, state, ~package) => {
   let%try_consume result = State.getCompilationResult(uri, state, ~package);
   JsonShort.(
     Rpc.sendNotification(
-      log,
       stdout,
       "textDocument/publishDiagnostics",
       o([

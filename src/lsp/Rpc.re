@@ -25,7 +25,7 @@ let messageFromJson = json => {
   };
 };
 
-let readMessage = (log, input) => {
+let readMessage = (input) => {
   let clength = input_line(input);
   let cl = "Content-Length: ";
   let cll = String.length(cl);
@@ -39,7 +39,7 @@ let readMessage = (log, input) => {
     let buffer = Buffer.create(num);
     Buffer.add_channel(buffer, input, num);
     let raw = Buffer.contents(buffer);
-    log("Read message " ++ raw);
+    Log.log("Read message " ++ raw);
     let json =
       try(Json.parse(raw)) {
       | Failure(message) =>
@@ -65,27 +65,27 @@ let send = (output, content) => {
   flush(output);
 };
 
-let sendMessage = (log, output, id, result) => {
+let sendMessage = (output, id, result) => {
   open JsonShort;
   let content =
     Json.stringify(
       o([("id", id), ("jsonrpc", s("2.0")), ("result", result)]),
     );
-  log("Sending response " ++ content);
+  Log.log("Sending response " ++ content);
   send(output, content);
 };
 
-let sendError = (log, output, id, error) => {
+let sendError = (output, id, error) => {
   open JsonShort;
   let content =
     Json.stringify(
       o([("id", id), ("jsonrpc", s("2.0")), ("error", error)]),
     );
-  log("Sending response " ++ content);
+  Log.log("Sending response " ++ content);
   send(output, content);
 };
 
-let sendNotification = (log, output, method, params) => {
+let sendNotification = (output, method, params) => {
   open JsonShort;
   let content =
     Json.stringify(
@@ -95,7 +95,7 @@ let sendNotification = (log, output, method, params) => {
         ("params", params),
       ]),
     );
-  log("Sending notification " ++ content);
+  Log.log("Sending notification " ++ content);
   send(output, content);
 };
 
