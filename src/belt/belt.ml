@@ -1,8 +1,6 @@
 module List = Belt_List[@@ocaml.doc
                          " {!Belt.List}\n\n    Utilities for List data type\n"]
-module Set = Belt_Set[@@ocaml.doc
-                         " {!Belt.Set}\n\n    The top level provides generic {b immutable} set operations.\n\n    It also has three specialized inner modules\n    {!Belt.Set.Int}, {!Belt.Set.String} and\n\n    {!Belt.Set.Dict}: This module separates data from function\n    which is more verbose but slightly more efficient\n\n"]
-  
+
 (*
 
 [@@@ocaml.text
@@ -19,6 +17,8 @@ module MutableStack = Belt_MutableStack[@@ocaml.doc
                                          " {!Belt.MutableStack}\n\n    An FILO(first in last out) stack data structure\n"]
 module Range = Belt_Range[@@ocaml.doc
                            " {!Belt.Range}\n\n    Utilities for a closed range [(from, start)]\n"]
+module Set = Belt_Set[@@ocaml.doc
+                       " {!Belt.Set}\n\n    The top level provides generic {b immutable} set operations.\n\n    It also has three specialized inner modules\n    {!Belt.Set.Int}, {!Belt.Set.String} and\n\n    {!Belt.Set.Dict}: This module separates data from function\n    which is more verbose but slightly more efficient\n\n"]
 module Map = Belt_Map[@@ocaml.doc
                        " {!Belt.Map},\n\n    The top level provides generic {b immutable} map operations.\n\n    It also has three specialized inner modules\n    {!Belt.Map.Int}, {!Belt.Map.String} and\n\n    {!Belt.Map.Dict}: This module separates data from function\n    which  is more verbose but slightly more efficient\n"]
 module MutableSet = Belt_MutableSet[@@ocaml.doc
