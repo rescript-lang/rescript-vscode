@@ -5,8 +5,6 @@ module List = struct
   let take = take
   let getExn = getExn
 
-  let mapWithIndex = mapWithIndex
-
   let reduceReverse = reduceReverse
 end
 
