@@ -1,13 +1,20 @@
 open SharedTypes;
 
 open Infix;
-let showConstructor = ({SharedTypes.Type.Constructor.name: {txt}, args, res}) => {
-  txt ++ (args == []
-    ? ""
-    : "(" ++ String.concat(", ", args |> List.map(((typ, _)) => (
-      typ |> Shared.typeToString
-    ))) ++ ")")
-  ++ ((res |?>> typ => "\n" ++ (typ |> Shared.typeToString)) |? "")
+let showConstructor =
+    ({SharedTypes.Type.Constructor.name: {txt}, args, res}) => {
+  txt
+  ++ (
+    args == []
+      ? ""
+      : "("
+        ++ String.concat(
+             ", ",
+             args |> List.map(((typ, _)) => typ |> Shared.typeToString),
+           )
+        ++ ")"
+  )
+  ++ (res |?>> (typ => "\n" ++ (typ |> Shared.typeToString)) |? "");
 };
 
 let rec pathOfModuleOpen = items =>
@@ -19,50 +26,51 @@ let rec pathOfModuleOpen = items =>
 /* TODO local opens */
 let resolveOpens = (~env, ~previous, opens, ~getModule) =>
   List.fold_left(
-    (previous, path) => {
-      /** Finding an open, first trying to find it in previoulsly resolved opens */
-      let rec loop = prev =>
-        switch (prev) {
-        | [] =>
-          switch (path) {
-          | Tip(_) => previous
-          | Nested(name, path) =>
-            switch (getModule(name)) {
-            | None =>
-              Log.log("Could not get module " ++ name);
-              previous; /* TODO warn? */
-            | Some(file) =>
-              switch (
-                Query.resolvePath(
-                  ~env=Query.fileEnv(file),
-                  ~getModule,
-                  ~path,
-                )
-              ) {
+    (previous, path) =>
+      {
+        /** Finding an open, first trying to find it in previoulsly resolved opens */
+        let rec loop = prev =>
+          switch (prev) {
+          | [] =>
+            switch (path) {
+            | Tip(_) => previous
+            | Nested(name, path) =>
+              switch (getModule(name)) {
               | None =>
-                Log.log("Could not resolve in " ++ name);
-                previous;
-              | Some((env, _placeholder)) => previous @ [env]
+                Log.log("Could not get module " ++ name);
+                previous; /* TODO warn? */
+              | Some(file) =>
+                switch (
+                  Query.resolvePath(
+                    ~env=Query.fileEnv(file),
+                    ~getModule,
+                    ~path,
+                  )
+                ) {
+                | None =>
+                  Log.log("Could not resolve in " ++ name);
+                  previous;
+                | Some((env, _placeholder)) => previous @ [env]
+                }
               }
             }
-          }
-        | [env, ...rest] =>
-          switch (Query.resolvePath(~env, ~getModule, ~path)) {
-          | None => loop(rest)
-          | Some((env, _placeholder)) => previous @ [env]
-          }
+          | [env, ...rest] =>
+            switch (Query.resolvePath(~env, ~getModule, ~path)) {
+            | None => loop(rest)
+            | Some((env, _placeholder)) => previous @ [env]
+            }
+          };
+        Log.log("resolving open " ++ pathToString(path));
+        switch (Query.resolvePath(~env, ~getModule, ~path)) {
+        | None =>
+          Log.log("Not local");
+          loop(previous);
+        | Some((env, _)) =>
+          Log.log("Was local");
+          previous @ [env];
         };
-      Log.log("resolving open " ++ pathToString(path));
-      switch (Query.resolvePath(~env, ~getModule, ~path)) {
-      | None =>
-        Log.log("Not local");
-        loop(previous);
-      | Some((env, _)) =>
-        Log.log("Was local");
-        previous @ [env];
-      };
+      },
       /* loop(previous) */
-    },
     previous,
     opens,
   );
@@ -73,10 +81,7 @@ let completionForDeclareds = (~pos, declareds, prefix, transformContents) =>
     (_stamp, declared, results) =>
       if (Utils.startsWith(declared.name.txt, prefix)
           && Utils.locationContainsFuzzy(declared.scopeLoc, pos)) {
-        [
-          {...declared, item: transformContents(declared.item)},
-          ...results,
-        ];
+        [{...declared, item: transformContents(declared.item)}, ...results];
       } else {
         /* Log.log("Nope doesn't count " ++ Utils.showLocation(declared.scopeLoc) ++ " " ++ m); */
         results;
@@ -97,10 +102,7 @@ let completionForExporteds =
       /* Log.log("checking exported: " ++ name); */
       if (Utils.startsWith(name, prefix)) {
         let declared = Hashtbl.find(stamps, stamp);
-        [
-          {...declared, item: transformContents(declared.item)},
-          ...results,
-        ];
+        [{...declared, item: transformContents(declared.item)}, ...results];
       } else {
         results;
       },
@@ -114,17 +116,17 @@ let completionForConstructors =
       stamps: Hashtbl.t(int, SharedTypes.declared(SharedTypes.Type.t)),
       prefix,
     ) => {
-
   Hashtbl.fold(
     (_name, stamp, results) => {
       let t = Hashtbl.find(stamps, stamp);
       switch (t.item.kind) {
       | SharedTypes.Type.Variant(constructors) =>
         {
-          constructors |> List.filter((c : SharedTypes.Type.Constructor.t) =>
-            Utils.startsWith(c.name.txt, prefix)
-          )
-          |> List.map(c => (c, t))
+          constructors
+          |> List.filter((c: SharedTypes.Type.Constructor.t) =>
+               Utils.startsWith(c.name.txt, prefix)
+             )
+          |> List.map(c => (c, t));
         }
         @ results
       | _ => results
@@ -133,7 +135,7 @@ let completionForConstructors =
     exportedTypes,
     [],
   );
-    };
+};
 
 let completionForAttributes =
     (
@@ -147,9 +149,10 @@ let completionForAttributes =
       switch (t.item.kind) {
       | Record(attributes) =>
         (
-          attributes |> List.filter((c : SharedTypes.Type.Attribute.t) =>
-            Utils.startsWith(c.name.txt, prefix)
-          )
+          attributes
+          |> List.filter((c: SharedTypes.Type.Attribute.t) =>
+               Utils.startsWith(c.name.txt, prefix)
+             )
           |> List.map(c => (c, t))
         )
         @ results
@@ -182,11 +185,11 @@ Upper.lower -> `Normal([Upper], lower)
 */
 
 let rec pathFromTokenParts = items => {
-  switch items {
-    | [] => assert(false)
-    | [one] => Tip(one)
-    | [one, ...rest] => Nested(one, pathFromTokenParts(rest))
-  }
+  switch (items) {
+  | [] => assert(false)
+  | [one] => Tip(one)
+  | [one, ...rest] => Nested(one, pathFromTokenParts(rest))
+  };
 };
 
 let determineCompletion = items => {
@@ -194,7 +197,7 @@ let determineCompletion = items => {
     switch (items) {
     | [] => assert(false)
     | [one] => `Normal(Tip(one))
-    | [one, two] when ! isCapitalized(one) => `Attribute(([one], two))
+    | [one, two] when !isCapitalized(one) => `Attribute(([one], two))
     | [one, two] => `Normal(Nested(one, Tip(two)))
     | [one, ...rest] =>
       if (isCapitalized(one)) {
@@ -241,7 +244,7 @@ let getEnvWithOpens =
         switch (Query.resolvePath(~env, ~getModule, ~path)) {
         | Some(x) => Some(x)
         | None => loop(rest)
-        }
+        };
       | [] =>
         switch (path) {
         | Tip(_) => None
@@ -279,29 +282,21 @@ let kindToInt = k =>
 
 let detail = (name, contents) =>
   switch (contents) {
-  | Type({decl}) =>
-    decl |> Shared.declToString(name)
-  | Value(typ) =>
-    typ |> Shared.typeToString
+  | Type({decl}) => decl |> Shared.declToString(name)
+  | Value(typ) => typ |> Shared.typeToString
   | Module(_) => "module"
   | ModuleType(_) => "module type"
   | FileModule(_) => "file module"
   | Attribute({typ}, t) =>
     name
     ++ ": "
-    ++ (
-      typ |> Shared.typeToString
-    )
+    ++ (typ |> Shared.typeToString)
     ++ "\n\n"
-    ++ (
-      t.item.decl |> Shared.declToString(t.name.txt)
-    )
+    ++ (t.item.decl |> Shared.declToString(t.name.txt))
   | Constructor(c, t) =>
-  showConstructor(c)
+    showConstructor(c)
     ++ "\n\n"
-    ++ (
-      t.item.decl |> Shared.declToString(t.name.txt)
-    )
+    ++ (t.item.decl |> Shared.declToString(t.name.txt))
   };
 
 let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
@@ -321,7 +316,10 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {...emptyDeclared(c.SharedTypes.Type.Constructor.name.txt), item: Constructor(c, t)}
+             {
+               ...emptyDeclared(c.SharedTypes.Type.Constructor.name.txt),
+               item: Constructor(c, t),
+             }
            )
       );
     } else {
@@ -329,7 +327,7 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
     };
 
   let results =
-    if (suffix == "" || ! isCapitalized(suffix)) {
+    if (suffix == "" || !isCapitalized(suffix)) {
       results
       @ completionForDeclareds(~pos, env.file.stamps.values, suffix, v =>
           Value(v)
@@ -344,7 +342,10 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt), item: Attribute(c, t)}
+             {
+               ...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt),
+               item: Attribute(c, t),
+             }
            )
       );
     } else {
@@ -359,11 +360,14 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
   let results = [];
   let results =
     if (suffix == "" || isCapitalized(suffix)) {
-
       // Get rid of lowercase modules (#417)
-      env.exported.modules |> Hashtbl.filter_map_inplace((name, key) => isCapitalized(name) ? Some(key) : None);
+      env.exported.modules
+      |> Hashtbl.filter_map_inplace((name, key) =>
+           isCapitalized(name) ? Some(key) : None
+         );
 
-      let moduleCompletions = completionForExporteds(
+      let moduleCompletions =
+        completionForExporteds(
           env.exported.modules, env.file.stamps.modules, suffix, m =>
           Module(m)
         );
@@ -379,7 +383,10 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {...emptyDeclared(c.SharedTypes.Type.Constructor.name.txt), item: Constructor(c, t)}
+             {
+               ...emptyDeclared(c.SharedTypes.Type.Constructor.name.txt),
+               item: Constructor(c, t),
+             }
            )
       );
     } else {
@@ -387,7 +394,7 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
     };
 
   let results =
-    if (suffix == "" || ! isCapitalized(suffix)) {
+    if (suffix == "" || !isCapitalized(suffix)) {
       Log.log(" -- not capitalized");
       results
       @ completionForExporteds(
@@ -405,7 +412,10 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt), item: Attribute(c, t)}
+             {
+               ...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt),
+               item: Attribute(c, t),
+             }
            )
       );
     } else {
@@ -432,7 +442,7 @@ let attributeCompletions = (~env: Query.queryEnv, ~suffix) => {
     };
 
   let results =
-    if (suffix == "" || ! isCapitalized(suffix)) {
+    if (suffix == "" || !isCapitalized(suffix)) {
       results
       @ completionForExporteds(
           env.exported.values, env.file.stamps.values, suffix, v =>
@@ -446,7 +456,10 @@ let attributeCompletions = (~env: Query.queryEnv, ~suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt), item: Attribute(c, t)}
+             {
+               ...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt),
+               item: Attribute(c, t),
+             }
            )
       );
     } else {
@@ -471,17 +484,14 @@ let resolveRawOpens = (~env, ~getModule, ~rawOpens, ~package) => {
     resolveOpens(
       ~env,
       ~previous=
-        List.map(
-          Query.fileEnv,
-          packageOpens |> Utils.filterMap(getModule),
-        ),
+        List.map(Query.fileEnv, packageOpens |> Utils.filterMap(getModule)),
       rawOpens
       |> List.map(Str.split(Str.regexp_string(".")))
       |> List.map(pathOfModuleOpen),
       ~getModule,
     );
 
-  opens
+  opens;
 };
 
 /** This function should live somewhere else */
@@ -501,12 +511,12 @@ let findDeclaredValue =
 
   let path = pathFromTokenParts(tokenParts);
 
-  let%opt (env, suffix) = getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path);
+  let%opt (env, suffix) =
+    getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path);
 
   let%opt stamp = Hashtbl.find_opt(env.exported.values, suffix);
   Hashtbl.find_opt(env.file.stamps.values, stamp);
 };
-
 
 let get =
     (~full, ~package, ~rawOpens, ~getModule, ~allModules, pos, tokenParts) => {
@@ -532,40 +542,43 @@ let get =
   switch (tokenParts) {
   | [] => []
   | [suffix] =>
-    let locallyDefinedValues =
-      localValueCompletions(~pos, ~env, suffix);
+    let locallyDefinedValues = localValueCompletions(~pos, ~env, suffix);
     let alreadyUsedIdentifiers = Hashtbl.create(10);
     let valuesFromOpens =
-      opens |> List.fold_left(
-        (results, env) => {
-          let completionsFromThisOpen =
-            valueCompletions(~env, suffix);
-           List.filter(((_uri, declared)) => {
-            if (! Hashtbl.mem(alreadyUsedIdentifiers, declared.name.txt)) {
-              Hashtbl.add(alreadyUsedIdentifiers, declared.name.txt, true);
-              true;
-            } else {
-              false;
-            }},
-            completionsFromThisOpen
-          )
-          @ results;
-        },
-        [],
-      );
+      opens
+      |> List.fold_left(
+           (results, env) => {
+             let completionsFromThisOpen = valueCompletions(~env, suffix);
+             List.filter(
+               ((_uri, declared)) =>
+                 if (!Hashtbl.mem(alreadyUsedIdentifiers, declared.name.txt)) {
+                   Hashtbl.add(
+                     alreadyUsedIdentifiers,
+                     declared.name.txt,
+                     true,
+                   );
+                   true;
+                 } else {
+                   false;
+                 },
+               completionsFromThisOpen,
+             )
+             @ results;
+           },
+           [],
+         );
     /* TODO complete the namespaced name too */
     let localModuleNames =
-      allModules |> Utils.filterMap(name => {
-        /* Log.log("Checking " ++ name); */
-
-        Utils.startsWith(name, suffix) && !String.contains(name, '-') ?
-          Some((
-            "wait for uri",
-            {...emptyDeclared(name), item: FileModule(name)},
-          )) :
-          None
-      }
-      );
+      allModules
+      |> Utils.filterMap(name => {
+           /* Log.log("Checking " ++ name); */
+           Utils.startsWith(name, suffix) && !String.contains(name, '-')
+             ? Some((
+                 "wait for uri",
+                 {...emptyDeclared(name), item: FileModule(name)},
+               ))
+             : None
+         });
     locallyDefinedValues @ valuesFromOpens @ localModuleNames;
   | multiple =>
     open Infix;
@@ -592,29 +605,32 @@ let get =
             Query.findInScope(pos, first, env.file.stamps.values);
           Log.log("Found it! " ++ declared.name.txt);
           let%opt path = declared.item |> Shared.digConstructor;
+          let%opt (env, typ) = Hover.digConstructor(~env, ~getModule, path);
           let%opt (env, typ) =
-            Hover.digConstructor(~env, ~getModule, path);
-          let%opt (env, typ) =
-            rest |> List.fold_left(
-              (current, name) => {
-                let%opt (env, typ) = current;
-                switch (typ.item.SharedTypes.Type.kind) {
-                | Record(attributes) =>
-                  let%opt attr =
-                    attributes |> List.find_opt((a : SharedTypes.Type.Attribute.t) => a.name.txt == name);
-                  Log.log("Found attr " ++ name);
-                  let%opt path = attr.typ |> Shared.digConstructor;
-                  Hover.digConstructor(~env, ~getModule, path);
-                | _ => None
-                };
-              },
-              Some((env, typ)),
-            );
+            rest
+            |> List.fold_left(
+                 (current, name) => {
+                   let%opt (env, typ) = current;
+                   switch (typ.item.SharedTypes.Type.kind) {
+                   | Record(attributes) =>
+                     let%opt attr =
+                       attributes
+                       |> List.find_opt((a: SharedTypes.Type.Attribute.t) =>
+                            a.name.txt == name
+                          );
+                     Log.log("Found attr " ++ name);
+                     let%opt path = attr.typ |> Shared.digConstructor;
+                     Hover.digConstructor(~env, ~getModule, path);
+                   | _ => None
+                   };
+                 },
+                 Some((env, typ)),
+               );
           switch (typ.item.kind) {
           | Record(attributes) =>
             Some(
               attributes
-              |> Utils.filterMap((a : SharedTypes.Type.Attribute.t) =>
+              |> Utils.filterMap((a: SharedTypes.Type.Attribute.t) =>
                    if (Utils.startsWith(a.name.txt, suffix)) {
                      Some((
                        env.file.uri,
@@ -640,9 +656,7 @@ let get =
 
         attributeCompletions(~env, ~suffix)
         @ List.concat(
-            opens |> List.map(env =>
-              attributeCompletions(~env, ~suffix)
-            ),
+            opens |> List.map(env => attributeCompletions(~env, ~suffix)),
           );
       }
       |? []

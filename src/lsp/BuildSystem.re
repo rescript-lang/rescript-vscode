@@ -1,29 +1,36 @@
 let getLine = (cmd, ~pwd) => {
   switch (Commands.execFull(~pwd, cmd)) {
-    | ([line], _, true) => Ok(line)
-    | (out, err, _) => Error("Invalid response for " ++ cmd ++ "\n\n" ++ String.concat("\n", out @ err))
-  }
+  | ([line], _, true) => Ok(line)
+  | (out, err, _) =>
+    Error(
+      "Invalid response for "
+      ++ cmd
+      ++ "\n\n"
+      ++ String.concat("\n", out @ err),
+    )
+  };
 };
 
-let namespacedName = (namespace, name) => switch namespace {
+let namespacedName = (namespace, name) =>
+  switch (namespace) {
   | None => name
   | Some(namespace) => name ++ "-" ++ namespace
-};
+  };
 
 open Infix;
 
-let nodePlatform = 
-    switch (Sys.os_type) {
-      | "Unix" => switch (input_line (Unix.open_process_in ("uname -s"))) {
-         | "Darwin"  => "darwin"
-         | "Linux"   => "linux"
-         | "FreeBSD" => "freebsd"
-         | s => invalid_arg (s ++ ": unsupported os_type")
-      }
-      | "Win32" => "win32"
-      | s => invalid_arg (s ++ ": unsupported os_type")
+let nodePlatform =
+  switch (Sys.os_type) {
+  | "Unix" =>
+    switch (input_line(Unix.open_process_in("uname -s"))) {
+    | "Darwin" => "darwin"
+    | "Linux" => "linux"
+    | "FreeBSD" => "freebsd"
+    | s => invalid_arg(s ++ ": unsupported os_type")
+    }
+  | "Win32" => "win32"
+  | s => invalid_arg(s ++ ": unsupported os_type")
   };
-
 
 let getBsPlatformDir = rootPath => {
   let result =
@@ -32,8 +39,7 @@ let getBsPlatformDir = rootPath => {
       "bs-platform",
     );
   switch (result) {
-  | Some(path) =>
-    Ok(path);
+  | Some(path) => Ok(path)
   | None =>
     let resultSecondary =
       ModuleResolution.resolveNodeModulePath(
@@ -46,7 +52,7 @@ let getBsPlatformDir = rootPath => {
       let message = "bs-platform could not be found";
       Log.log(message);
       Error(message);
-    }
+    };
   };
 };
 
@@ -60,35 +66,34 @@ let getBsbExecutable = rootPath =>
     |?>> (path => path /+ ".bin" /+ "bsb")
   );
 
-let getCompiledBase = (root) => {
+let getCompiledBase = root => {
   Files.ifExists(root /+ "lib" /+ "bs");
 };
-let getStdlib = (base) => {
+let getStdlib = base => {
   let%try_wrap bsPlatformDir = getBsPlatformDir(base);
-  [bsPlatformDir /+ "lib" /+ "ocaml"]
+  [bsPlatformDir /+ "lib" /+ "ocaml"];
 };
 
-
-let getCompiler = (rootPath) => {
+let getCompiler = rootPath => {
   let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
-  switch(Files.ifExists(bsPlatformDir /+ "lib" /+ "bsc.exe")){
-    | Some (x) => x 
-    | None => bsPlatformDir /+ nodePlatform /+ "bsc.exe"
-  }
+  switch (Files.ifExists(bsPlatformDir /+ "lib" /+ "bsc.exe")) {
+  | Some(x) => x
+  | None => bsPlatformDir /+ nodePlatform /+ "bsc.exe"
+  };
 };
 
-let getRefmt = (rootPath) => {
+let getRefmt = rootPath => {
   let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
-  switch (Files.ifExists(bsPlatformDir/+"lib"/+"refmt.exe")) {
-    | Some (x) => x
-    | None => 
-      switch(Files.ifExists(bsPlatformDir /+ nodePlatform /+ "refmt.exe")){
-        | Some (x) => x 
-        | None => bsPlatformDir /+ "lib" /+ "refmt3.exe"
-      }
-  }  
+  switch (Files.ifExists(bsPlatformDir /+ "lib" /+ "refmt.exe")) {
+  | Some(x) => x
+  | None =>
+    switch (Files.ifExists(bsPlatformDir /+ nodePlatform /+ "refmt.exe")) {
+    | Some(x) => x
+    | None => bsPlatformDir /+ "lib" /+ "refmt3.exe"
+    }
+  };
 };
 
-let hiddenLocation = (rootPath) => {
-  Ok(rootPath /+ "node_modules" /+ ".lsp")
+let hiddenLocation = rootPath => {
+  Ok(rootPath /+ "node_modules" /+ ".lsp");
 };

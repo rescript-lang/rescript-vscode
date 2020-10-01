@@ -38,7 +38,11 @@ let handleMessage = (log, messageHandlers, id, method, params, state) => {
     );
     state;
   | handler =>
-    log("[server] processing took " ++ string_of_float((Unix.gettimeofday() -. start) *. 1000.) ++ "ms");
+    log(
+      "[server] processing took "
+      ++ string_of_float((Unix.gettimeofday() -. start) *. 1000.)
+      ++ "ms",
+    );
     let result = handler(state, params);
     switch (result) {
     | Ok((state, result)) =>
@@ -65,7 +69,10 @@ let handleMessage = (log, messageHandlers, id, method, params, state) => {
         JsonShort.(
           o([
             ("code", i(-32603)), /* InternalError */
-            ("message", s(Printexc.to_string(e) ++ Printexc.get_backtrace())),
+            (
+              "message",
+              s(Printexc.to_string(e) ++ Printexc.get_backtrace()),
+            ),
           ])
         ),
       );
@@ -85,7 +92,11 @@ let handleNotification = (log, notificationHandlers, method, params, state) =>
       showMessage(log, Error, string);
       state;
     | exception e =>
-      showMessage(log, Error, Printexc.to_string(e) ++ Printexc.get_backtrace());
+      showMessage(
+        log,
+        Error,
+        Printexc.to_string(e) ++ Printexc.get_backtrace(),
+      );
       state;
     }
   };
@@ -96,7 +107,15 @@ let canRead = desc => {
   r != [];
 };
 
-let run = (~tick, ~log, ~messageHandlers, ~notificationHandlers, ~getInitialState, ~capabilities) => {
+let run =
+    (
+      ~tick,
+      ~log,
+      ~messageHandlers,
+      ~notificationHandlers,
+      ~getInitialState,
+      ~capabilities,
+    ) => {
   let stdin_descr = Unix.descr_of_in_channel(stdin);
 
   let rec loop = (~isShuttingDown, state) => {
@@ -105,16 +124,30 @@ let run = (~tick, ~log, ~messageHandlers, ~notificationHandlers, ~getInitialStat
       switch (Rpc.readMessage(log, stdin)) {
       | Message(id, "shutdown", _params) =>
         Rpc.sendMessage(log, stdout, id, Json.Null);
-        loop(~isShuttingDown=true, state)
-      | Message(id, method, params) => loop(~isShuttingDown, handleMessage(log, messageHandlers, id, method, params, state))
+        loop(~isShuttingDown=true, state);
+      | Message(id, method, params) =>
+        loop(
+          ~isShuttingDown,
+          handleMessage(log, messageHandlers, id, method, params, state),
+        )
       | Notification("exit", _) =>
         if (isShuttingDown) {
-          log("Got exit! Terminating loop")
+          log("Got exit! Terminating loop");
         } else {
           log("Got exit without shutdown. Erroring out");
-          exit(1)
+          exit(1);
         }
-      | Notification(method, params) => loop(~isShuttingDown, handleNotification(log, notificationHandlers, method, params, state))
+      | Notification(method, params) =>
+        loop(
+          ~isShuttingDown,
+          handleNotification(
+            log,
+            notificationHandlers,
+            method,
+            params,
+            state,
+          ),
+        )
       | Response(_, _) => loop(~isShuttingDown, state)
       };
     } else {
@@ -127,7 +160,12 @@ let run = (~tick, ~log, ~messageHandlers, ~notificationHandlers, ~getInitialStat
     | Message(id, "initialize", params) =>
       switch (getInitialState(params)) {
       | Ok(state) =>
-        Rpc.sendMessage(log, stdout, id, Json.Object([("capabilities", capabilities(params))]));
+        Rpc.sendMessage(
+          log,
+          stdout,
+          id,
+          Json.Object([("capabilities", capabilities(params))]),
+        );
         loop(~isShuttingDown=false, state);
       | Error(string) => Rpc.sendError(log, stdout, id, Json.String(string))
       | exception e =>
@@ -139,7 +177,10 @@ let run = (~tick, ~log, ~messageHandlers, ~notificationHandlers, ~getInitialStat
           JsonShort.(
             o([
               ("code", i(-32603)), /* InternalError */
-              ("message", s(Printexc.to_string(e) ++ Printexc.get_backtrace())),
+              (
+                "message",
+                s(Printexc.to_string(e) ++ Printexc.get_backtrace()),
+              ),
             ])
           ),
         );

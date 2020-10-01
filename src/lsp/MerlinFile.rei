@@ -1,7 +1,6 @@
 let debug: ref(bool);
 let fixPpxBsNative: (string, string) => string;
-let parseMerlin:
-  string => (list(string), list(string), list(string));
+let parseMerlin: string => (list(string), list(string), list(string));
 let isRelativePath: string => bool;
 let isBuildFile: string => bool;
 let isSourceFile: string => bool;

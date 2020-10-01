@@ -1,45 +1,68 @@
+type kinds =
+  | Function
+  | Array
+  | Variable
+  | Object
+  | Null
+  | EnumMember
+  | Module
+  | Enum
+  | Interface
+  | TypeParameter
+  | ModuleType;
 
-type kinds = | Function | Array | Variable | Object | Null | EnumMember | Module | Enum | Interface | TypeParameter | ModuleType;
-
-type filePath = string
+type filePath = string;
 type paths =
-| Impl(filePath, option(filePath))
-| Intf(filePath, option(filePath))
-// .cm(t)i, .mli, .cmt, .rei
-| IntfAndImpl(filePath, option(filePath), filePath, option(filePath));
+  | Impl(filePath, option(filePath))
+  | Intf(filePath, option(filePath))
+  // .cm(t)i, .mli, .cmt, .rei
+  | IntfAndImpl(filePath, option(filePath), filePath, option(filePath));
 
 open Infix;
-let showPaths = paths => switch paths {
+let showPaths = paths =>
+  switch (paths) {
   | Impl(cmt, src) => Printf.sprintf("Impl(%s, %s)", cmt, src |? "nil")
   | Intf(cmti, src) => Printf.sprintf("Intf(%s, %s)", cmti, src |? "nil")
-  | IntfAndImpl(cmti, srci, cmt, src) => Printf.sprintf("IntfAndImpl(%s, %s, %s, %s)", cmti, srci |? "nil", cmt, src |? "nil")
-};
+  | IntfAndImpl(cmti, srci, cmt, src) =>
+    Printf.sprintf(
+      "IntfAndImpl(%s, %s, %s, %s)",
+      cmti,
+      srci |? "nil",
+      cmt,
+      src |? "nil",
+    )
+  };
 
-let getImpl = p => switch p {
+let getImpl = p =>
+  switch (p) {
   | Impl(cmt, Some(s))
   | IntfAndImpl(_, _, cmt, Some(s)) => Some((cmt, s))
   | _ => None
-};
+  };
 
-let getSrc = p => switch p {
+let getSrc = p =>
+  switch (p) {
   | Intf(_, s)
   | Impl(_, s)
   | IntfAndImpl(_, Some(_) as s, _, _)
   | IntfAndImpl(_, None, _, s) => s
-};
+  };
 
-let getCmt = p => switch p {
-  | Impl(c, _) | Intf(c, _) | IntfAndImpl(c, _, _, _) => c
-};
+let getCmt = p =>
+  switch (p) {
+  | Impl(c, _)
+  | Intf(c, _)
+  | IntfAndImpl(c, _, _, _) => c
+  };
 
 /* TODO maybe track the loc's of these things */
 type visibilityPath =
-| File(string, string)
-| NotVisible
-| IncludedModule(Path.t, visibilityPath)
-| ExportedModule(string, visibilityPath)
-| HiddenModule(string, visibilityPath)
-| Expression(visibilityPath);
+  | File(string, string)
+  | NotVisible
+  | IncludedModule(Path.t, visibilityPath)
+  | ExportedModule(string, visibilityPath)
+  | HiddenModule(string, visibilityPath)
+  | Expression(visibilityPath);
 
 type declared('t) = {
   name: Location.loc(string),
@@ -56,7 +79,7 @@ type declared('t) = {
   /* scopeStart: (int, int), */
 };
 
-let emptyDeclared = (name) => {
+let emptyDeclared = name => {
   name: Location.mknoloc(name),
   extentLoc: Location.none,
   scopeLoc: Location.none,
@@ -65,7 +88,7 @@ let emptyDeclared = (name) => {
   modulePath: NotVisible,
   exported: false,
   docstring: None,
-  item: ()
+  item: (),
 };
 
 module Type = {
@@ -88,12 +111,12 @@ module Type = {
   };
 
   type kind =
-  | Abstract(option((Path.t, list(Types.type_expr))))
-  | Open
-  | Tuple(list(Types.type_expr))
-  | Record(list(Attribute.t))
-  | Variant(list(Constructor.t))
-  ;
+    | Abstract(option((Path.t, list(Types.type_expr))))
+    | Open
+    | Tuple(list(Types.type_expr))
+    | Record(list(Attribute.t))
+    | Variant(list(Constructor.t));
+
   type t = {
     kind,
     params: list((Types.type_expr, Location.t)),
@@ -102,23 +125,25 @@ module Type = {
 };
 
 /* type scope =
-| File
-| Switch
-| Module
-| Let
-| LetRec; */
+   | File
+   | Switch
+   | Module
+   | Let
+   | LetRec; */
 
 let isVisible = declared =>
-  declared.exported && {
-    let rec loop = v => switch v {
+  declared.exported
+  && {
+    let rec loop = v =>
+      switch (v) {
       | File(_) => true
       | NotVisible => false
       | IncludedModule(_, inner) => loop(inner)
       | ExportedModule(_, inner) => loop(inner)
       | HiddenModule(_, _) => false
       | Expression(_) => false
-    };
-    loop(declared.modulePath)
+      };
+    loop(declared.modulePath);
   };
 
 type namedMap('t) = Hashtbl.t(string, 't);
@@ -132,7 +157,7 @@ module Module = {
     moduleTypes: namedStampMap,
     /* constructors: namedStampMap, */
     /* classes: namedStampMap,
-    classTypes: namedStampMap, */
+       classTypes: namedStampMap, */
   };
   let initExported = () => {
     types: Hashtbl.create(10),
@@ -142,17 +167,17 @@ module Module = {
     /* constructors: Hashtbl.create(10), */
   };
   type item =
-  | Value(Types.type_expr)
-  | Type(Type.t)
-  | Module(kind)
-  | ModuleType(kind)
+    | Value(Types.type_expr)
+    | Type(Type.t)
+    | Module(kind)
+    | ModuleType(kind)
   and contents = {
     exported,
     mutable topLevel: list(declared(item)),
   }
   and kind =
-  | Ident(Path.t)
-  | Structure(contents);
+    | Ident(Path.t)
+    | Structure(contents);
 };
 
 type stampMap('t) = Hashtbl.t(int, 't);
@@ -187,66 +212,83 @@ let emptyFile = (moduleName, uri) => {
   docstring: None,
   stamps: initStamps(),
   moduleName,
-  contents: {exported: Module.initExported(), topLevel: []}
+  contents: {
+    exported: Module.initExported(),
+    topLevel: [],
+  },
 };
 
 type tip =
-| Value
-| Type
-| Attribute(string)
-| Constructor(string)
-| Module
-| ModuleType;
+  | Value
+  | Type
+  | Attribute(string)
+  | Constructor(string)
+  | Module
+  | ModuleType;
 
-let tipToString = tip => switch tip {
-| Value => "Value"
-| Type => "Type"
-| Attribute(a) => "Attribute(" ++ a ++ ")"
-| Constructor(a) => "Constructor(" ++ a ++ ")"
-| Module => "Module"
-| ModuleType => "ModuleType"
-};
+let tipToString = tip =>
+  switch (tip) {
+  | Value => "Value"
+  | Type => "Type"
+  | Attribute(a) => "Attribute(" ++ a ++ ")"
+  | Constructor(a) => "Constructor(" ++ a ++ ")"
+  | Module => "Module"
+  | ModuleType => "ModuleType"
+  };
 
 type path =
-| Tip(string)
-| Nested(string, path);
+  | Tip(string)
+  | Nested(string, path);
 
-let rec pathToString = path => switch path {
+let rec pathToString = path =>
+  switch (path) {
   | Tip(name) => name
   | Nested(name, inner) => name ++ "." ++ pathToString(inner)
-};
+  };
 
-let rec pathFromVisibility = (visibilityPath, current) => switch visibilityPath {
+let rec pathFromVisibility = (visibilityPath, current) =>
+  switch (visibilityPath) {
   | File(_) => Some(current)
   | IncludedModule(_, inner) => pathFromVisibility(inner, current)
-  | ExportedModule(name, inner) => pathFromVisibility(inner, Nested(name, current))
+  | ExportedModule(name, inner) =>
+    pathFromVisibility(inner, Nested(name, current))
   | NotVisible
   | HiddenModule(_, _)
   | Expression(_) => None
-};
+  };
 
-let pathFromVisibility = (visibilityPath, tipName) => pathFromVisibility(visibilityPath, Tip(tipName));
+let pathFromVisibility = (visibilityPath, tipName) =>
+  pathFromVisibility(visibilityPath, Tip(tipName));
 
 module Loc = {
   type typed =
-  | LocalReference(int, tip)
-  | GlobalReference(string, path, tip)
-  | NotFound
-  | Definition(int, tip);
-  let typedToString = t => switch t {
-    | LocalReference(stamp, tip) => Printf.sprintf("Local(%d, %s)", stamp, tipToString(tip))
-    | GlobalReference(m, path, tip) => Printf.sprintf("Global(%s, %s, %s)", m, pathToString(path), tipToString(tip))
-    | Definition(stamp, tip) => Printf.sprintf("Definition(%d, %s)", stamp, tipToString(tip))
+    | LocalReference(int, tip)
+    | GlobalReference(string, path, tip)
+    | NotFound
+    | Definition(int, tip);
+  let typedToString = t =>
+    switch (t) {
+    | LocalReference(stamp, tip) =>
+      Printf.sprintf("Local(%d, %s)", stamp, tipToString(tip))
+    | GlobalReference(m, path, tip) =>
+      Printf.sprintf(
+        "Global(%s, %s, %s)",
+        m,
+        pathToString(path),
+        tipToString(tip),
+      )
+    | Definition(stamp, tip) =>
+      Printf.sprintf("Definition(%d, %s)", stamp, tipToString(tip))
     | NotFound => "NotFound"
-  };
+    };
   type t =
-  | Typed(Types.type_expr, typed)
-  | Constant(Asttypes.constant)
-  | Module(typed)
-  | TopLevelModule(string)
-  | TypeDefinition(string, Types.type_declaration, int)
-  | Explanation(string)
-  | Open;
+    | Typed(Types.type_expr, typed)
+    | Constant(Asttypes.constant)
+    | Module(typed)
+    | TopLevelModule(string)
+    | TypeDefinition(string, Types.type_declaration, int)
+    | Explanation(string)
+    | Open;
 };
 
 type openTracker = {
@@ -268,7 +310,10 @@ type extra = {
   opens: Hashtbl.t(Location.t, openTracker),
 };
 
-type full = {extra, file};
+type full = {
+  extra,
+  file,
+};
 
 let initExtra = () => {
   internalReferences: Hashtbl.create(10),
@@ -277,36 +322,68 @@ let initExtra = () => {
   opens: Hashtbl.create(10),
 };
 
-let initFull = (moduleName, uri) => {file: emptyFile(moduleName, uri), extra: initExtra()};
+let initFull = (moduleName, uri) => {
+  file: emptyFile(moduleName, uri),
+  extra: initExtra(),
+};
 
 let hashList = h => Hashtbl.fold((a, b, c) => [(a, b), ...c], h, []);
 
 let showExtra = ({internalReferences, externalReferences, opens}) => {
-  let refs = hashList(internalReferences) |> List.map(((stamp, locs)) => {
-    "Stamp: " ++ string_of_int(stamp) ++ "\n - "
-    ++ String.concat("\n - ", List.map(Utils.showLocation, locs))
-  }) |> String.concat("\n");
-  let erefs = hashList(externalReferences) |> List.map(((moduleName, refs)) => {
-    "External " ++ moduleName ++ ":\n - "
-    ++ String.concat("\n - ",
-    List.map(((path, tip, loc)) =>
-      Utils.showLocation(loc)
-      ++ " : " ++ pathToString(path) ++ " : " ++ tipToString(tip)
-    , refs)
-    )
-  }) |> String.concat("\n");
+  let refs =
+    hashList(internalReferences)
+    |> List.map(((stamp, locs)) => {
+         "Stamp: "
+         ++ string_of_int(stamp)
+         ++ "\n - "
+         ++ String.concat("\n - ", List.map(Utils.showLocation, locs))
+       })
+    |> String.concat("\n");
+  let erefs =
+    hashList(externalReferences)
+    |> List.map(((moduleName, refs)) => {
+         "External "
+         ++ moduleName
+         ++ ":\n - "
+         ++ String.concat(
+              "\n - ",
+              List.map(
+                ((path, tip, loc)) =>
+                  Utils.showLocation(loc)
+                  ++ " : "
+                  ++ pathToString(path)
+                  ++ " : "
+                  ++ tipToString(tip),
+                refs,
+              ),
+            )
+       })
+    |> String.concat("\n");
 
   let opens = hashList(opens);
   Log.log("Opens " ++ string_of_int(List.length(opens)));
-  let opens = opens |> List.map(((loc, tracker)) => {
-    "Open at " ++ Utils.showLocation(loc) ++
-    "\n  path: " ++ Path.name(tracker.path) ++
-    "\n  ident: " ++ String.concat(".", Longident.flatten(tracker.ident.txt)) ++
-    "\n  used:" ++ String.concat("", tracker.used |> List.map(((path, tip, _loc)) => {
-      "\n    " ++ pathToString(path) ++ " : " ++ tipToString(tip)
-    }))
+  let opens =
+    opens
+    |> List.map(((loc, tracker)) => {
+         "Open at "
+         ++ Utils.showLocation(loc)
+         ++ "\n  path: "
+         ++ Path.name(tracker.path)
+         ++ "\n  ident: "
+         ++ String.concat(".", Longident.flatten(tracker.ident.txt))
+         ++ "\n  used:"
+         ++ String.concat(
+              "",
+              tracker.used
+              |> List.map(((path, tip, _loc)) => {
+                   "\n    "
+                   ++ pathToString(path)
+                   ++ " : "
+                   ++ tipToString(tip)
+                 }),
+            )
+       })
+    |> String.concat("\n");
 
-  }) |> String.concat("\n");
-
-  "## Extra:\n\n" ++ refs ++ "\n" ++ erefs ++ "\n### Opens\n" ++ opens
+  "## Extra:\n\n" ++ refs ++ "\n" ++ erefs ++ "\n### Opens\n" ++ opens;
 };
