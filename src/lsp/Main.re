@@ -3,6 +3,7 @@ open Infix;
 open RResult;
 open Log;
 
+module StringSet = Set.Make(String);
 let capabilities =
   JsonShort.(
     o([
@@ -268,9 +269,9 @@ let parseArgs = args => {
   switch args {
     | [] => assert(false)
     | [_, ...args] => {
-      let (opts, pos) = args->Belt.List.reduceReverse((Belt.Set.String.empty, []), ((set, pos), arg) => {
+      let (opts, pos) = args->Belt.List.reduceReverse((StringSet.empty, []), ((set, pos), arg) => {
         if (arg != "" && arg.[0] == '-') {
-          (set->Belt.Set.String.add(arg), pos)
+          (set|>StringSet.add(arg), pos)
         } else {
           (set, [arg, ...pos])
         }
@@ -280,9 +281,9 @@ let parseArgs = args => {
   }
 };
 
-let hasOpt = (opts, name) => opts->Belt.Set.String.has(name);
+let hasOpt = (opts, name) => opts |> StringSet.mem(name);
 
-let hasOpts = (opts, names) => names->Belt.List.some(opts->Belt.Set.String.has);
+let hasOpts = (opts, names) => names->Belt.List.some(opts |> hasOpt);
 
 let hasVerbose = opts => opts->hasOpts(["-v", "--verbose"]);
 
