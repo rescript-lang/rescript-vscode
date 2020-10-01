@@ -1,6 +1,5 @@
-module R = Result;
 open Belt;
-open R;
+open RResult;
 open TopTypes;
 open Infix;
 
@@ -191,7 +190,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
 
     let res = {
       let pos = Utils.cmtLocFromVscode(pos);
-      let%opt (file, extra) = State.fileForUri(state, ~package, uri) |> R.toOptionAndLog;
+      let%opt (file, extra) = State.fileForUri(state, ~package, uri) |> toOptionAndLog;
 
       let%opt_wrap refs = References.forPos(~file, ~extra, pos);
       open JsonShort;
