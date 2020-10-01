@@ -1,43 +1,47 @@
-
 let split = (str, string) => Str.split(Str.regexp_string(str), string);
 
-let absify = path => {
+let absify = path =>
   if (path == "" || path == ".") {
-    Unix.getcwd()
+    Unix.getcwd();
   } else if (Infix.isFullPath(path)) {
-    path
+    path;
   } else {
-    Filename.concat(Unix.getcwd(), path)
-  }
-};
+    Filename.concat(Unix.getcwd(), path);
+  };
 
-let removeExtraDots = path => Str.global_replace(Str.regexp_string("/./"), "/", path)
-|> Str.global_replace(Str.regexp({|^\./\.\./|}), "../");
+let removeExtraDots = path =>
+  Str.global_replace(Str.regexp_string("/./"), "/", path)
+  |> Str.global_replace(Str.regexp({|^\./\.\./|}), "../");
 
 // Win32 & MacOS are case-insensitive
-let pathEq = Sys.os_type == "Linux" ? (a, b) => a == b : (a, b) => String.lowercase_ascii(a) == String.lowercase_ascii(b);
+let pathEq =
+  Sys.os_type == "Linux"
+    ? (a, b) => a == b
+    : ((a, b) => String.lowercase_ascii(a) == String.lowercase_ascii(b));
 
-let pathStartsWith = (text, prefix) => String.length(prefix) <= String.length(text)
+let pathStartsWith = (text, prefix) =>
+  String.length(prefix) <= String.length(text)
   && pathEq(String.sub(text, 0, String.length(prefix)), prefix);
-let sliceToEnd = (str, pos) => String.sub(str, pos, String.length(str) - pos);
+let sliceToEnd = (str, pos) =>
+  String.sub(str, pos, String.length(str) - pos);
 
-let relpath = (base, path) => {
+let relpath = (base, path) =>
   if (pathStartsWith(path, base)) {
     let baselen = String.length(base);
     let rest = String.sub(path, baselen, String.length(path) - baselen);
     if (rest == "") {
-      "." ++ Filename.dir_sep
+      "." ++ Filename.dir_sep;
     } else if (rest.[0] == Filename.dir_sep.[0]) {
       if (String.length(rest) > 1 && rest.[1] == '.') {
-        sliceToEnd(rest, 1)
+        sliceToEnd(rest, 1);
       } else {
-        "." ++ rest
-      }
+        "." ++ rest;
+      };
     } else if (rest.[0] == '.') {
-      rest
+      rest;
     } else {
-      "." ++ Filename.dir_sep ++ rest
-    }
+      "." ++ Filename.dir_sep ++ rest;
+    };
   } else {
     let rec loop = (bp, pp) => {
       switch (bp, pp) {
@@ -45,26 +49,31 @@ let relpath = (base, path) => {
       | (_, [".", ...rb]) => loop(bp, rb)
       | ([a, ...ra], [b, ...rb]) when pathEq(a, b) => loop(ra, rb)
       | _ => (bp, pp)
-      }
+      };
     };
-    let (base, path) = loop(split(Filename.dir_sep, base), split(Filename.dir_sep, path));
-    String.concat(Filename.dir_sep, (base == [] ? ["."] : List.map((_) => "..", base)) @ path) |> removeExtraDots
-  }
-};
+    let (base, path) =
+      loop(split(Filename.dir_sep, base), split(Filename.dir_sep, path));
+    String.concat(
+      Filename.dir_sep,
+      (base == [] ? ["."] : List.map(_ => "..", base)) @ path,
+    )
+    |> removeExtraDots;
+  };
 
 let symlink = (source, dest) => {
-  Unix.symlink(relpath(Filename.dirname(dest), source), dest)
+  Unix.symlink(relpath(Filename.dirname(dest), source), dest);
 };
 
-let maybeStat = (path) =>
-  try (Some(Unix.stat(path))) {
+let maybeStat = path =>
+  try(Some(Unix.stat(path))) {
   | Unix.Unix_error(Unix.ENOENT, _, _) => None
   };
 
-let getMtime = path => switch (maybeStat(path)) {
+let getMtime = path =>
+  switch (maybeStat(path)) {
   | Some({Unix.st_mtime}) => Some(st_mtime)
   | _ => None
-};
+  };
 
 let readFile = path => {
   switch (maybeStat(path)) {
@@ -75,60 +84,64 @@ let readFile = path => {
       | exception End_of_file => None
       | x => Some(x)
       };
-    let rec loop = (acc) =>
+    let rec loop = acc =>
       switch (try_read()) {
       | Some(s) => loop([s, ...acc])
       | None =>
         close_in(ic);
-        List.rev(acc)
+        List.rev(acc);
       };
     let text = loop([]) |> String.concat(String.make(1, '\n'));
-    Some(text)
+    Some(text);
   | _ => None
-  }
+  };
 };
 
-let readFileExn = path => switch (readFile(path)) {
-| None => failwith("Unable to read " ++ path)
-| Some(text) => text
-};
+let readFileExn = path =>
+  switch (readFile(path)) {
+  | None => failwith("Unable to read " ++ path)
+  | Some(text) => text
+  };
 
-let readFileResult = path => switch (readFile(path)) {
-| None => Error("Unable to read " ++ path)
-| Some(text) => Ok(text)
-};
+let readFileResult = path =>
+  switch (readFile(path)) {
+  | None => Error("Unable to read " ++ path)
+  | Some(text) => Ok(text)
+  };
 
-let writeFile = (path, contents) => {
-  try {
+let writeFile = (path, contents) =>
+  try({
     let out = open_out(path);
     output_string(out, contents);
     close_out(out);
-    true
-  } {
-    | _ => false
-  }
-};
+    true;
+  }) {
+  | _ => false
+  };
 
-let writeFileExn = (path, contents) => {
+let writeFileExn = (path, contents) =>
   if (!writeFile(path, contents)) {
-    failwith("Unable to write to file " ++ path)
-  }
-};
+    failwith("Unable to write to file " ++ path);
+  };
 
-let writeFileResult = (path, contents) => {
+let writeFileResult = (path, contents) =>
   if (!writeFile(path, contents)) {
-    Error("Unable to write to file " ++ path)
+    Error("Unable to write to file " ++ path);
   } else {
-    Ok(())
-  }
-};
+    Ok();
+  };
 
 let copy = (~source, ~dest) =>
   switch (maybeStat(source)) {
   | None => false
   | Some({Unix.st_perm}) =>
     let fs = Unix.openfile(source, [Unix.O_RDONLY], st_perm);
-    let fd = Unix.openfile(dest, [Unix.O_WRONLY, Unix.O_CREAT, Unix.O_TRUNC], st_perm);
+    let fd =
+      Unix.openfile(
+        dest,
+        [Unix.O_WRONLY, Unix.O_CREAT, Unix.O_TRUNC],
+        st_perm,
+      );
     let buffer_size = 8192;
     let buffer = Bytes.create(buffer_size);
     let rec copy_loop = () =>
@@ -136,19 +149,20 @@ let copy = (~source, ~dest) =>
       | 0 => ()
       | r =>
         ignore(Unix.write(fd, buffer, 0, r));
-        copy_loop()
+        copy_loop();
       };
     copy_loop();
     Unix.close(fs);
     Unix.close(fd);
-    true
+    true;
   };
 
-let copyExn = (~source, ~dest) => if (!copy(~source, ~dest)) {
-  failwith("Unable to copy " ++ source ++ " to " ++ dest);
-};
+let copyExn = (~source, ~dest) =>
+  if (!copy(~source, ~dest)) {
+    failwith("Unable to copy " ++ source ++ " to " ++ dest);
+  };
 
-let exists = (path) =>
+let exists = path =>
   switch (maybeStat(path)) {
   | None => false
   | Some(_) => true
@@ -156,43 +170,48 @@ let exists = (path) =>
 
 let ifExists = path => exists(path) ? Some(path) : None;
 
-let isFile = path => switch (maybeStat(path)) {
-| Some({Unix.st_kind: Unix.S_REG}) => true
-| _ => false
-};
+let isFile = path =>
+  switch (maybeStat(path)) {
+  | Some({Unix.st_kind: Unix.S_REG}) => true
+  | _ => false
+  };
 
-let isDirectory = path => switch (maybeStat(path)) {
-| Some({Unix.st_kind: Unix.S_DIR}) => true
-| _ => false
-};
+let isDirectory = path =>
+  switch (maybeStat(path)) {
+  | Some({Unix.st_kind: Unix.S_DIR}) => true
+  | _ => false
+  };
 
-let readDirectory = (dir) => {
-  let maybeGet = (handle) =>
-    try (Some(Unix.readdir(handle))) {
+let readDirectory = dir => {
+  let maybeGet = handle =>
+    try(Some(Unix.readdir(handle))) {
     | End_of_file => None
     };
-  let rec loop = (handle) =>
+  let rec loop = handle =>
     switch (maybeGet(handle)) {
     | None =>
       Unix.closedir(handle);
-      []
-    | Some(name) when name == Filename.current_dir_name || name == Filename.parent_dir_name => loop(handle)
+      [];
+    | Some(name)
+        when
+          name == Filename.current_dir_name || name == Filename.parent_dir_name =>
+      loop(handle)
     | Some(name) => [name, ...loop(handle)]
     };
   switch (Unix.opendir(dir)) {
-    | exception Unix.Unix_error(Unix.ENOENT, "opendir", _dir) => []
-    | handle => loop(handle)
-  }
+  | exception (Unix.Unix_error(Unix.ENOENT, "opendir", _dir)) => []
+  | handle => loop(handle)
+  };
 };
 
-let rec mkdirp = (dest) =>
-  if (! exists(dest)) {
+let rec mkdirp = dest =>
+  if (!exists(dest)) {
     let parent = Filename.dirname(dest);
     mkdirp(parent);
     Unix.mkdir(dest, 0o740);
-    if (!exists(dest)){
+    if (!exists(dest)) {
       failwith("Unable to create " ++ dest);
-    }
+    };
   };
 
 let rec copyDeep = (~source, ~dest) => {
@@ -201,13 +220,15 @@ let rec copyDeep = (~source, ~dest) => {
   | None => ()
   | Some({Unix.st_kind: Unix.S_DIR}) =>
     readDirectory(source)
-    |> List.iter(
-         (name) =>
-           copyDeep(~source=Filename.concat(source, name), ~dest=Filename.concat(dest, name))
+    |> List.iter(name =>
+         copyDeep(
+           ~source=Filename.concat(source, name),
+           ~dest=Filename.concat(dest, name),
+         )
        )
   | Some({Unix.st_kind: Unix.S_REG}) => copy(~source, ~dest) |> ignore
   | _ => ()
-  }
+  };
 };
 
 let rec removeDeep = path => {
@@ -215,26 +236,33 @@ let rec removeDeep = path => {
   | None => ()
   | Some({Unix.st_kind: Unix.S_DIR}) =>
     readDirectory(path)
-    |> List.iter((name) => removeDeep(Filename.concat(path, name)));
+    |> List.iter(name => removeDeep(Filename.concat(path, name)));
     Unix.rmdir(path);
   | _ => Unix.unlink(path)
-  }
+  };
 };
 
 let rec walk = (path, fn) => {
   switch (maybeStat(path)) {
   | None => ()
-  | Some({Unix.st_kind: Unix.S_DIR}) => readDirectory(path) |> List.iter((name) => walk(Filename.concat(path, name), fn));
+  | Some({Unix.st_kind: Unix.S_DIR}) =>
+    readDirectory(path)
+    |> List.iter(name => walk(Filename.concat(path, name), fn))
   | _ => fn(path)
-  }
+  };
 };
 
-let rec collectDirs = (path) => {
+let rec collectDirs = path => {
   switch (maybeStat(path)) {
   | None => []
-  | Some({Unix.st_kind: Unix.S_DIR}) => [path, ...readDirectory(path) |> List.map((name) => collectDirs(Filename.concat(path, name))) |> List.concat];
+  | Some({Unix.st_kind: Unix.S_DIR}) => [
+      path,
+      ...readDirectory(path)
+         |> List.map(name => collectDirs(Filename.concat(path, name)))
+         |> List.concat,
+    ]
   | _ => []
-  }
+  };
 };
 
 let rec collect = (~checkDir=_ => true, path, test) =>
@@ -242,7 +270,11 @@ let rec collect = (~checkDir=_ => true, path, test) =>
   | None => []
   | Some({Unix.st_kind: Unix.S_DIR}) =>
     if (checkDir(path)) {
-      readDirectory(path) |> List.map(name => collect(~checkDir, Filename.concat(path, name), test)) |> List.concat;
+      readDirectory(path)
+      |> List.map(name =>
+           collect(~checkDir, Filename.concat(path, name), test)
+         )
+      |> List.concat;
     } else {
       [];
     }

@@ -1,4 +1,3 @@
-
 /* Aliases to make the intents clearer */
 type uri = string;
 type filePath = string;
@@ -7,11 +6,9 @@ type moduleName = string;
 /* Here are the things that will be different between jbuilder things */
 type package = {
   basePath: filePath,
-
   /* Might change based on bsconfig.json / .merlin */
   includeDirectories: list(filePath),
   compilationFlags: string,
-
   /* Depend on bsb having already run */
   localModules: list(moduleName),
   interModuleDependencies: Hashtbl.t(moduleName, list(moduleName)),
@@ -19,11 +16,8 @@ type package = {
   pathsForModule: Hashtbl.t(moduleName, SharedTypes.paths),
   nameForPath: Hashtbl.t(filePath, moduleName),
   namespace: option(string),
-
   opens: list(string),
-
   tmpPath: string,
-
   mutable rebuildTimer: float,
   buildCommand: option((string, string)),
   compilerPath: filePath,
@@ -51,19 +45,15 @@ type state = {
   rootPath: filePath,
   rootUri: uri,
   settings,
-
   documentText: Hashtbl.t(uri, (string, int, bool)),
   documentTimers: Hashtbl.t(uri, float),
-
   /* package, */
   packagesByRoot: Hashtbl.t(string, package),
   rootForUri: Hashtbl.t(uri, string),
-
   cmtCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
   cmiCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
   compiledDocuments: Hashtbl.t(uri, AsYouType.result),
   lastDefinitions: Hashtbl.t(uri, SharedTypes.full),
-
   /* workspace folders... */
 };
 
@@ -93,7 +83,7 @@ let empty = () => {
   },
 };
 
-let forRootPath = (rootPath) => {
+let forRootPath = rootPath => {
   ...empty(),
   rootPath,
   rootUri: Utils.toUri(rootPath),
