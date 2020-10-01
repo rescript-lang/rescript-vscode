@@ -295,3 +295,16 @@ let maybeQuoteFilename = filename => {
     };
   };
 };
+
+let filterMap = f => {
+  let rec aux = accu =>
+    fun
+    | [] => List.rev(accu)
+    | [x, ...l] =>
+      switch (f(x)) {
+      | None => aux(accu, l)
+      | Some(v) => aux([v, ...accu], l)
+      };
+
+  aux([]);
+};

@@ -428,7 +428,7 @@ and forStructure = (~env, items) => {
 let forCmt = (~moduleName, uri, processDoc, {cmt_modname, cmt_annots}: Cmt_format.cmt_infos) => switch cmt_annots {
 | Partial_implementation(parts) => {
 
-  let items = parts |> Array.to_list |. Belt.List.keepMap(p => switch p {
+  let items = parts |> Array.to_list |> Utils.filterMap(p => switch (p:Cmt_format.binary_part) {
     | Partial_structure(str) => Some(str.str_items)
     | Partial_structure_item(str) => Some([str])
     | _ => None
@@ -449,7 +449,7 @@ let forCmt = (~moduleName, uri, processDoc, {cmt_modname, cmt_annots}: Cmt_forma
   Ok({uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents})
 }
 | Partial_interface(parts) => {
-  let items = parts |. Array.to_list |. Belt.List.keepMap(p => switch p {
+  let items = parts |. Array.to_list |> Utils.filterMap((p:Cmt_format.binary_part) => switch p {
     | Partial_signature(str) => Some(str.sig_items)
     | Partial_signature_item(str) => Some([str])
     | _ => None

@@ -49,14 +49,14 @@ let runDiagnostics = (uri, state, ~package) => {
       let errors = ErrorParser.parseErrors(Utils.splitLines(Utils.stripAnsii(otherText)));
       let errors = errors |> List.filter(((_loc, message)) => message != ["Error: Uninterpreted extension 'merlin.syntax-error'."]);
       let errors = ErrorParser.parseErrors(Utils.splitLines(Utils.stripAnsii(text))) @ errors;
-      l(errors |. Belt.List.keepMap(makeDiagnostic(documentText)))
+      l(errors |> Utils.filterMap(makeDiagnostic(documentText)))
     }
     | Success(text, _) => {
       if (String.trim(text) == "") {
         l([])
       } else {
         let errors = ErrorParser.parseErrors(Utils.splitLines(Utils.stripAnsii(text)));
-        l(errors |. Belt.List.keepMap(makeDiagnostic(documentText)))
+        l(errors |> Utils.filterMap(makeDiagnostic(documentText)))
       }
     }
     | TypeError(text, _) => {
@@ -66,7 +66,7 @@ let runDiagnostics = (uri, state, ~package) => {
         !Str.string_match(Str.regexp({|.*Missing dependency [a-zA-Z]+ in search path|}), String.concat(" ", message), 0)
       })
       ;
-      l(errors |. Belt.List.keepMap(makeDiagnostic(documentText)))
+      l(errors |> Utils.filterMap(makeDiagnostic(documentText)))
     }
     })
   ]));

@@ -465,7 +465,7 @@ module F = (Collector: {
     | Texp_record({fields}) => {
       addForRecord(
         expression.exp_type,
-        fields |. Array.to_list |. Belt.List.keepMap(((desc, item)) => {
+        fields |. Array.to_list |> Utils.filterMap(((desc, item)) => {
           switch item {
             | Overridden(loc, _) => Some((loc, desc, ()))
             | _ => None
@@ -598,7 +598,7 @@ let forItems = (~file, ~allLocations, items, parts) => {
 
 let forCmt = (~file, ~allLocations, {cmt_annots}: Cmt_format.cmt_infos) => switch cmt_annots {
 | Partial_implementation(parts) => {
-  let items = parts |. Array.to_list |. Belt.List.keepMap(p => switch p {
+  let items = parts |. Array.to_list |> Utils.filterMap((p:Cmt_format.binary_part) => switch p {
     | Partial_structure(str) => Some(str.str_items)
     | Partial_structure_item(str) => Some([str])
     /* | Partial_expression(exp) => Some([ str]) */
