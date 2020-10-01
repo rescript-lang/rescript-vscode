@@ -45,7 +45,7 @@ let runBuildCommand = (~reportDiagnostics, state, root, buildCommand) => {
       Log.log("Affected files: " ++ String.concat(" ", files));
       let bsconfigJson = root /+ "bsconfig.json" |> Utils.toUri;
       let bsconfigClean = ref(true);
-      files |. Belt.List.forEach(uri => {
+      files |> List.iter(uri => {
         if (Utils.endsWith(uri, "bsconfig.json")) {
           bsconfigClean := false;
           Log.log("Bsconfig.json sending");
