@@ -28,5 +28,3 @@ module HashMap = Belt_HashMap[@@ocaml.doc
                                " {!Belt.HashMap}\n\n    The top level provides generic {b mutable} hash map operations.\n\n    It also has two specialized inner modules\n    {!Belt.HashMap.Int} and {!Belt.HashMap.String}\n"]
 module Option = Belt_Option[@@ocaml.doc
                              " {!Belt.Option}\n\n    Utilities for option data type.\n"]
-[@@@ocaml.text " {!Belt.Result}\n\n    Utilities for result data type.\n"]
-module Result = Belt_Result
