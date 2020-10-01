@@ -133,7 +133,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.Module.exported, item
         }
         | Type_open => Open
         | Type_variant(constructors) => {
-          Variant(constructors |. Belt.List.map(({cd_loc, cd_id, cd_args, cd_res, cd_attributes}) => {
+          Variant(constructors |> List.map(({cd_loc, cd_id, cd_args, cd_res, cd_attributes}) => {
             let name = Ident.name(cd_id);
             let stamp = Ident.binding_time(cd_id);
             let item = {
@@ -282,7 +282,7 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
     [{...declared, item: Module.Value(declared.item)}]
   }
   | Tsig_type(_/*402*/, decls) => {
-    decls |. Belt.List.map(forTypeDeclaration(~env, ~exported))
+    decls |> List.map(forTypeDeclaration(~env, ~exported))
   }
   | Tsig_module({md_id, md_attributes, md_loc, md_name: name, md_type: {mty_type}}) => {
     let item = forModuleType(env, mty_type);
@@ -310,7 +310,7 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
 let forSignature = (~env, items) => {
   let (doc, items) = getTopSigDoc(items);
   let exported = Module.initExported();
-  let topLevel = Belt.List.map(items, forSignatureItem(~env, ~exported)) |> Belt.List.flatten;
+  let topLevel = items |> List.map(forSignatureItem(~env, ~exported)) |> Belt.List.flatten;
   (doc, {Module.exported, topLevel})
 };
 

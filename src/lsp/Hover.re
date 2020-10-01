@@ -15,10 +15,10 @@ let digConstructor = (~env, ~getModule, path) => {
 let showModuleTopLevel = (~name, ~markdown, topLevel: list(SharedTypes.declared(SharedTypes.Module.item))) => {
   let contents =
     topLevel
-    |. Belt.List.map(item =>
-         switch (item.item) {
+    |> List.map(item =>
+         switch (item.SharedTypes.item) {
          /** TODO pretty print module contents */
-         | Module(_) => "  module " ++ item.name.txt ++ ";"
+         | SharedTypes.Module.Module(_) => "  module " ++ item.name.txt ++ ";"
          | Type({decl}) =>
            "  "
            ++ (decl |> Shared.declToString(item.name.txt))
@@ -128,7 +128,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showP
           }
           | `Constructor({name: {txt}, args}) => {
             [Some(typeString),
-            Some(codeBlock(txt ++ "(" ++ (args |. Belt.List.map(((t, _)) => {
+            Some(codeBlock(txt ++ "(" ++ (args |> List.map(((t, _)) => {
               let typeString =
                 t |> Shared.typeToString;
               typeString

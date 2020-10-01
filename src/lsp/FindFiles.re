@@ -224,7 +224,7 @@ let findProjectFiles = (~debug, namespace, root, sourceDirectories, compiledBase
     } else {
       res
     }
-  }, interfaces, []))->Belt.List.map(((name, paths)) => switch namespace {
+  }, interfaces, []))|>List.map(((name, paths)) => switch namespace {
     | None => (name, paths)
     | Some(namespace) => (name ++ "-" ++ namespace, paths)
   });
