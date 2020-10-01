@@ -233,8 +233,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
             locs |> List.map(loc => Protocol.locationOfLoc(~fname, loc))
           }
         )
-        |> Array.of_list
-        |. Belt.List.concatMany
+        |> List.concat
         |. l
       ));
 
@@ -516,7 +515,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
           [(txt, extentLoc, item), ...siblings]
         }
       };
-      let x = topLevel |> List.map(fn) |> Array.of_list |. Belt.List.concatMany;
+      let x = topLevel |> List.map(fn) |> List.concat;
       x
     };
 

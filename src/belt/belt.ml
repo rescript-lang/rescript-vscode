@@ -7,7 +7,6 @@ module List = struct
   let concat = concat
   let some = some
   let take = take
-  let concatMany = concatMany
   let getExn = getExn
 
   let mapWithIndex = mapWithIndex
