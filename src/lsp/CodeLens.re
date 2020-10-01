@@ -1,12 +1,14 @@
-open Infix;
-
-let sepList = items =>
-  List.length(items) <= 4
-    ? String.concat(", ", items)
-    : String.concat(", ", Belt.List.take(items, 3) |? [])
-      ++ " and "
-      ++ string_of_int(List.length(items) - 3)
-      ++ " more";
+let sepList = items => {
+  let firstItems =
+    switch (items) {
+    | [i1, i2, i3, _i4, _i5, ..._] => [i1, i2, i3]
+    | _ => items
+    };
+  String.concat(", ", firstItems)
+  ++ " and "
+  ++ string_of_int(List.length(items) - 3)
+  ++ " more";
+};
 
 let forOpen = (tracker: SharedTypes.openTracker) => {
   let items =
