@@ -191,7 +191,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
   depSource|>List.iter(dep => {
     maybeLog("For dependency dir " ++ dep);
     let allFiles = dep->Files.readDirectory;
-    let prefix = allFiles->Belt.List.reduce(None, (found, name) => {
+    let prefix = allFiles |> List.fold_left((found, name) => {
       switch (found) {
         | Some(m) => Some(m)
         | None =>
@@ -202,7 +202,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
             | _ => None
           }
       }
-    });
+    }, None);
     let filesByName = Hashtbl.create(10);
     let moduleNames = Hashtbl.create(10);
     allFiles|>List.filter(isSourceFile)|>List.iter(file => {
