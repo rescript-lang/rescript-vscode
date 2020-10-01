@@ -27,7 +27,7 @@ let rec findDeprecatedAttribute = (attributes) => {
   }
 };
 
-let newDeclared = (~contents, ~scope, ~extent, ~name, ~stamp, ~modulePath, ~processDoc, exported, attributes) => {
+let newDeclared = (~item, ~scope, ~extent, ~name, ~stamp, ~modulePath, ~processDoc, exported, attributes) => {
   {
     name,
     stamp,
@@ -37,7 +37,7 @@ let newDeclared = (~contents, ~scope, ~extent, ~name, ~stamp, ~modulePath, ~proc
     exported,
     modulePath,
     docstring: findDocAttribute(attributes) |?>> processDoc,
-    contents,
+    item,
     /* scopeType: Let, */
     /* scopeStart: env.scopeStart, */
   };

@@ -74,7 +74,7 @@ let completionForDeclareds = (~pos, declareds, prefix, transformContents) =>
       if (Utils.startsWith(declared.name.txt, prefix)
           && Utils.locationContainsFuzzy(declared.scopeLoc, pos)) {
         [
-          {...declared, contents: transformContents(declared.contents)},
+          {...declared, item: transformContents(declared.item)},
           ...results,
         ];
       } else {
@@ -98,7 +98,7 @@ let completionForExporteds =
       if (Utils.startsWith(name, prefix)) {
         let declared = Hashtbl.find(stamps, stamp);
         [
-          {...declared, contents: transformContents(declared.contents)},
+          {...declared, item: transformContents(declared.item)},
           ...results,
         ];
       } else {
@@ -118,7 +118,7 @@ let completionForConstructors =
   Hashtbl.fold(
     (_name, stamp, results) => {
       let t = Hashtbl.find(stamps, stamp);
-      switch (t.contents.kind) {
+      switch (t.item.kind) {
       | SharedTypes.Type.Variant(constructors) =>
         {
           constructors |> List.filter((c : SharedTypes.Type.Constructor.t) =>
@@ -144,7 +144,7 @@ let completionForAttributes =
   Hashtbl.fold(
     (_name, stamp, results) => {
       let t = Hashtbl.find(stamps, stamp);
-      switch (t.contents.kind) {
+      switch (t.item.kind) {
       | Record(attributes) =>
         (
           attributes |> List.filter((c : SharedTypes.Type.Attribute.t) =>
@@ -294,13 +294,13 @@ let detail = (name, contents) =>
     )
     ++ "\n\n"
     ++ (
-      t.contents.decl |> Shared.declToString(t.name.txt)
+      t.item.decl |> Shared.declToString(t.name.txt)
     )
   | Constructor(c, t) =>
   showConstructor(c)
     ++ "\n\n"
     ++ (
-      t.contents.decl |> Shared.declToString(t.name.txt)
+      t.item.decl |> Shared.declToString(t.name.txt)
     )
   };
 
@@ -321,7 +321,7 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), contents: Constructor(c, t)}
+             {...emptyDeclared(c.name.txt), item: Constructor(c, t)}
            )
       );
     } else {
@@ -344,7 +344,7 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), contents: Attribute(c, t)}
+             {...emptyDeclared(c.name.txt), item: Attribute(c, t)}
            )
       );
     } else {
@@ -379,7 +379,7 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), contents: Constructor(c, t)}
+             {...emptyDeclared(c.name.txt), item: Constructor(c, t)}
            )
       );
     } else {
@@ -405,7 +405,7 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), contents: Attribute(c, t)}
+             {...emptyDeclared(c.name.txt), item: Attribute(c, t)}
            )
       );
     } else {
@@ -446,7 +446,7 @@ let attributeCompletions = (~env: Query.queryEnv, ~suffix) => {
           suffix,
         )
         |. Belt.List.map(((c, t)) =>
-             {...emptyDeclared(c.name.txt), contents: Attribute(c, t)}
+             {...emptyDeclared(c.name.txt), item: Attribute(c, t)}
            )
       );
     } else {
@@ -562,7 +562,7 @@ let get =
         Utils.startsWith(name, suffix) && !String.contains(name, '-') ?
           Some((
             "wait for uri",
-            {...emptyDeclared(name), contents: FileModule(name)},
+            {...emptyDeclared(name), item: FileModule(name)},
           )) :
           None
       }
@@ -592,7 +592,7 @@ let get =
           let%opt declared =
             Query.findInScope(pos, first, env.file.stamps.values);
           Log.log("Found it! " ++ declared.name.txt);
-          let%opt path = declared.contents |> Shared.digConstructor;
+          let%opt path = declared.item |> Shared.digConstructor;
           let%opt (env, typ) =
             Hover.digConstructor(~env, ~getModule, path);
           let%opt (env, typ) =
@@ -601,7 +601,7 @@ let get =
               Some((env, typ)),
               (current, name) => {
                 let%opt (env, typ) = current;
-                switch (typ.contents.kind) {
+                switch (typ.item.kind) {
                 | Record(attributes) =>
                   let%opt attr =
                     attributes |. Belt.List.getBy(a => a.name.txt == name);
@@ -612,7 +612,7 @@ let get =
                 };
               },
             );
-          switch (typ.contents.kind) {
+          switch (typ.item.kind) {
           | Record(attributes) =>
             Some(
               attributes
@@ -622,7 +622,7 @@ let get =
                        env.file.uri,
                        {
                          ...emptyDeclared(a.name.txt),
-                         contents: Attribute(a, typ),
+                         item: Attribute(a, typ),
                        },
                      ));
                    } else {

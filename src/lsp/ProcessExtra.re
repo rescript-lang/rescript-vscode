@@ -170,7 +170,7 @@ module F = (Collector: {
 
         let nameLoc = Utils.endOfLocation(loc, String.length(name));
         let locType = switch (t) {
-          | `Local({stamp, contents: {kind: Record(attributes)}}) => {
+          | `Local({stamp, item: {kind: Record(attributes)}}) => {
             {
               let%opt_wrap {stamp: astamp} = Belt.List.getBy(attributes, a => a.name.txt == name);
               addReference(astamp, nameLoc);
@@ -200,7 +200,7 @@ module F = (Collector: {
 
           let nameLoc = Utils.endOfLocation(loc, String.length(name));
           let locType = switch (t) {
-            | `Local({stamp, contents: {kind: Record(attributes)}}) => {
+            | `Local({stamp, item: {kind: Record(attributes)}}) => {
               {
                 let%opt_wrap {stamp: astamp} = Belt.List.getBy(attributes, a => a.name.txt == name);
                 addReference(astamp, nameLoc);
@@ -230,7 +230,7 @@ module F = (Collector: {
         let nameLoc = Utils.endOfLocation(loc, String.length(name));
         let t = getTypeAtPath(path);
         let locType = switch (t) {
-          | `Local({stamp, contents: {kind: Variant(constructos)}}) => {
+          | `Local({stamp, item: {kind: Variant(constructos)}}) => {
             {
               let%opt_wrap {stamp: cstamp} = Belt.List.getBy(constructos, a => a.name.txt == cstr_name);
               addReference(cstamp, nameLoc);
@@ -369,7 +369,7 @@ module F = (Collector: {
         },
         ~modulePath=NotVisible,
         ~processDoc=x => x,
-        ~contents=val_desc.ctyp_type,
+        ~item=val_desc.ctyp_type,
         false,
         val_attributes
       );
@@ -409,7 +409,7 @@ module F = (Collector: {
             ~modulePath=NotVisible,
             ~extent=pat_loc,
             ~processDoc=x => x,
-            ~contents=pat_type,
+            ~item=pat_type,
             false,
             pat_attributes
           );
@@ -528,13 +528,13 @@ let forFile = (~file) => {
     addReference(stamp, d.name.loc);
   });
   file.stamps.values |> Hashtbl.iter((stamp, d) => {
-    addLocation(d.name.loc, Loc.Typed(d.contents, Loc.Definition(stamp, Value)));
+    addLocation(d.name.loc, Loc.Typed(d.item, Loc.Definition(stamp, Value)));
     addReference(stamp, d.name.loc);
   });
   file.stamps.types |> Hashtbl.iter((stamp, d) => {
-    addLocation(d.name.loc, Loc.TypeDefinition(d.name.txt, d.contents.Type.decl, stamp));
+    addLocation(d.name.loc, Loc.TypeDefinition(d.name.txt, d.item.Type.decl, stamp));
     addReference(stamp, d.name.loc);
-    switch (d.contents.Type.kind) {
+    switch (d.item.Type.kind) {
       | Record(labels) => labels |> List.iter(({Type.Attribute.stamp, name, typ}) => {
         addReference(stamp, name.loc);
         addLocation(name.loc, Loc.Typed(typ, Loc.Definition(d.stamp, Attribute(name.txt))))

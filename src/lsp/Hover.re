@@ -16,7 +16,7 @@ let showModuleTopLevel = (~name, ~markdown, topLevel: list(SharedTypes.declared(
   let contents =
     topLevel
     |. Belt.List.map(item =>
-         switch (item.contents) {
+         switch (item.item) {
          /** TODO pretty print module contents */
          | Module(_) => "  module " ++ item.name.txt ++ ";"
          | Type({decl}) =>
@@ -39,10 +39,10 @@ let showModuleTopLevel = (~name, ~markdown, topLevel: list(SharedTypes.declared(
 let showModule = (~markdown, ~file: SharedTypes.file, ~name, declared: option(SharedTypes.declared(SharedTypes.Module.kind))) => {
   switch declared {
     | None => showModuleTopLevel(~name, ~markdown, file.contents.topLevel)
-    | Some({contents: Structure({topLevel})}) => {
+    | Some({item: Structure({topLevel})}) => {
       showModuleTopLevel(~name, ~markdown, topLevel)
     }
-    | Some({contents: Ident(_)}) => Some("Unable to resolve module reference")
+    | Some({item: Ident(_)}) => Some("Unable to resolve module reference")
   }
 };
 
@@ -97,7 +97,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showP
       let extraTypeInfo = {
         let env = {Query.file, exported: file.contents.exported};
         let%opt path = t |> Shared.digConstructor;
-        let%opt (_env, {name: {txt}, contents: {decl}}) = digConstructor(~env, ~getModule, path);
+        let%opt (_env, {name: {txt}, item: {decl}}) = digConstructor(~env, ~getModule, path);
         Some(decl |> Shared.declToString(txt))
         /* TODO type declaration */
         /* None */
