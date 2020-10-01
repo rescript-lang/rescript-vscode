@@ -219,7 +219,7 @@ let forLocalStamp = (~pathsForModule, ~file, ~extra, ~allModules, ~getModule, ~g
       let%opt path = pathFromVisibility(declared.modulePath, declared.name.txt);
       maybeLog("Now checking path " ++ pathToString(path));
       let thisModuleName = file.moduleName;
-      let externals = allModules |. Belt.List.keep(name => name != file.moduleName) |. Belt.List.keepMap(name => {
+      let externals = allModules |> List.filter(name => name != file.moduleName) |. Belt.List.keepMap(name => {
         let%try file = getModule(name) |> RResult.orError("Could not get file for module " ++ name);
         let%try extra = getExtra(name) |> RResult.orError("Could not get extra for module " ++ name);
         let%try refs = extra.externalReferences |. Hashtbl.find_opt(thisModuleName) |> RResult.orError("No references in " ++ name ++ " for " ++ thisModuleName);

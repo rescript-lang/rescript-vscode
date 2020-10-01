@@ -1,8 +1,6 @@
 module List = struct
   open Belt_List
-  let keep = keep
   let getBy = getBy
-  let partition = partition
   let reduce = reduce
   let keepMap = keepMap
   let map = map

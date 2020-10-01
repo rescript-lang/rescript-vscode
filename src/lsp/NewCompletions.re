@@ -119,12 +119,12 @@ let completionForConstructors =
     (_name, stamp, results) => {
       let t = Hashtbl.find(stamps, stamp);
       switch (t.contents.kind) {
-      | Variant(constructors) =>
+      | SharedTypes.Type.Variant(constructors) =>
         {
-          Belt.List.keep(constructors, c =>
+          constructors |> List.filter((c : SharedTypes.Type.Constructor.t) =>
             Utils.startsWith(c.name.txt, prefix)
           )
-          |. Belt.List.map(c => (c, t))
+          |> List.map(c => (c, t))
         }
         @ results
       | _ => results
@@ -147,10 +147,10 @@ let completionForAttributes =
       switch (t.contents.kind) {
       | Record(attributes) =>
         (
-          Belt.List.keep(attributes, c =>
+          attributes |> List.filter((c : SharedTypes.Type.Attribute.t) =>
             Utils.startsWith(c.name.txt, prefix)
           )
-          |. Belt.List.map(c => (c, t))
+          |> List.map(c => (c, t))
         )
         @ results
       | _ => results
@@ -542,13 +542,14 @@ let get =
         (results, env) => {
           let completionsFromThisOpen =
             valueCompletions(~env, suffix);
-          Belt.List.keep(completionsFromThisOpen, ((_uri, declared)) => {
+           List.filter(((_uri, declared)) => {
             if (! Hashtbl.mem(alreadyUsedIdentifiers, declared.name.txt)) {
               Hashtbl.add(alreadyUsedIdentifiers, declared.name.txt, true);
               true;
             } else {
               false;
-            }}
+            }},
+            completionsFromThisOpen
           )
           @ results;
         },

@@ -226,7 +226,7 @@ let getName = x => Filename.basename(x) |> Filename.chop_extension |> String.cap
 
 let dedup = items => {
   let m = Hashtbl.create(List.length(items));
-  items |. Belt.List.keep(a => {
+  items |> List.filter(a => {
     if (Hashtbl.mem(m, a)) {
       false
     } else {
