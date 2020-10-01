@@ -1,9 +1,0 @@
-
-(executable
-  (name Bin)
-  (public_name Bin)
-  (libraries Lsp)
-  (modules Bin)
-  (flags :standard -w -9)
-  (preprocess (pps Ppx_monads))
-  )
