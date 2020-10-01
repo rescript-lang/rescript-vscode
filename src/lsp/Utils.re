@@ -202,17 +202,6 @@ let clampLocation = (loc, length) =>
 
 let chopPrefix = (s, prefix) => sliceToEnd(s, String.length(prefix));
 
-let filterMap = (fn, items) =>
-  List.fold_left(
-    (results, item) =>
-      switch (fn(item)) {
-      | None => results
-      | Some(x) => [x, ...results]
-      },
-    [],
-    items,
-  );
-
 /** An optional List.find */
 let rec find = (fn, items) =>
   switch (items) {
