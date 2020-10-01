@@ -1,5 +1,27 @@
-module List = Belt_List[@@ocaml.doc
-                         " {!Belt.List}\n\n    Utilities for List data type\n"]
+module List = struct
+  open Belt_List
+  let keep = keep
+  let getBy = getBy
+  let partition = partition
+  let reduce = reduce
+  let keepMap = keepMap
+  let map = map
+  let flatten = flatten
+  let sort = sort
+  let concat = concat
+  let some = some
+  let take = take
+  let concatMany = concatMany
+  let toArray = toArray
+  let fromArray = fromArray
+
+  let getExn = getExn
+
+  let mapWithIndex = mapWithIndex
+
+  let length = length
+  let reduceReverse = reduceReverse
+end
 
 (*
 

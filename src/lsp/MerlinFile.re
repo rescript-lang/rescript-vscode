@@ -144,12 +144,12 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
     Hashtbl.replace(tbl, k, v)
   };
 
-  build->Belt.List.forEach(buildDir => {
+  build|>List.iter(buildDir => {
     let buildDir = maybeConcat(base, buildDir);
     maybeLog("## Build dir " ++ buildDir);
     Files.readDirectory(buildDir)
     ->Belt.List.keep(isBuildFile)
-    ->Belt.List.forEach(name => {
+    |>List.iter(name => {
         let full = fileConcat(buildDir, name);
         // maybeLog("Build file " ++ full);
         let moduleName = name->String.capitalize_ascii->Filename.chop_extension;
@@ -188,7 +188,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
   let localModuleNames = Hashtbl.create(10);
   let depsModuleNames = Hashtbl.create(10);
 
-  depSource->Belt.List.forEach(dep => {
+  depSource|>List.iter(dep => {
     maybeLog("For dependency dir " ++ dep);
     let allFiles = dep->Files.readDirectory;
     let prefix = allFiles->Belt.List.reduce(None, (found, name) => {
@@ -205,13 +205,13 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
     });
     let filesByName = Hashtbl.create(10);
     let moduleNames = Hashtbl.create(10);
-    allFiles->Belt.List.keep(isSourceFile)->Belt.List.forEach(file => {
+    allFiles->Belt.List.keep(isSourceFile)|>List.iter(file => {
       let full = dep /+ file;
       maybeLog(" > file " ++ full)
       filesByName->Hashtbl.replace(file, full)
       moduleNames->Hashtbl.replace(file->Filename.chop_extension, ())
     });
-    moduleNames->hashtblKeys->Belt.List.forEach(mname => {
+    moduleNames->hashtblKeys|>List.iter(mname => {
       let moduleName = switch prefix {
         | None => mname
         | Some(prefix) => prefix ++ "__" ++ (prefix == "stdlib" ? mname : mname->String.capitalize_ascii)

@@ -192,7 +192,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
     rootPath,
     rootUri: Utils.toUri(rootPath)
   };
-  files->Belt.List.forEach(filePath => {
+  files|>List.iter(filePath => {
     let filePath = maybeConcat(Unix.getcwd(), filePath);
     let uri = Utils.toUri(filePath);
     switch (processFile(~state, ~uri, ~quiet)) {
@@ -204,12 +204,12 @@ let check = (~definitions, ~quiet, rootPath, files) => {
             | None => ()
             | Some({file, extra}) =>
               let missing = ref([]);
-              extra.locations->Belt.List.forEach(((location, loc)) => {
+              extra.locations|>List.iter(((location, loc)) => {
                 switch loc {
-                  | Typed(_, LocalReference(tag, Type)) when tag <= 15 => ()
+                  | SharedTypes.Loc.Typed(_, LocalReference(tag, Type)) when tag <= 15 => ()
                   | Typed(_, GlobalReference(_, _, Constructor("[]" | "::"))) => ()
                   | Typed(_, (LocalReference(_, _) | GlobalReference(_, _, _)) as t)
-                  when !location.loc_ghost
+                  when !location.Location.loc_ghost
                   =>
                     switch (References.definitionForLoc(
                       ~pathsForModule=package.pathsForModule,
@@ -237,7 +237,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
               if (missing^ != []) {
                 print_endline(filePath);
                 print_endline("  > " ++ string_of_int(List.length(missing^)) ++ " missing");
-                (missing^)->Belt.List.forEach(text => print_endline(text));
+                (missing^)|>List.iter(text => print_endline(text));
               }
           }
         }
@@ -254,7 +254,7 @@ let dump = files => {
     rootPath,
     rootUri: Utils.toUri(rootPath)
   };
-  files->Belt.List.forEach(filePath => {
+  files|>List.iter(filePath => {
     let filePath = maybeConcat(Unix.getcwd(), filePath);
     let uri = Utils.toUri(filePath);
     switch (processFile(~state, ~uri, ~quiet=true)) {

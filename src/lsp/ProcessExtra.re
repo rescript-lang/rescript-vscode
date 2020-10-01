@@ -443,7 +443,7 @@ module F = (Collector: {
   };
 
   let enter_expression = expression => {
-    expression.exp_extra |. Belt.List.forEach(((e, eloc, _)) => switch e {
+    expression.exp_extra |> List.iter(((e, eloc, _)) => switch e {
       | Texp_open(_, path, ident, _) => {
         extra.opens |. Hashtbl.add(eloc, {
           path,

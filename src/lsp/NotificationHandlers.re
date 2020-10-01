@@ -174,7 +174,7 @@ let notificationHandlers: list((string, (state, Json.t) => result(state, string)
     let%try package = Packages.getPackage(~reportDiagnostics, uri, state);
     setPackageTimer(package);
     let moduleName = FindFiles.getName(uri);
-    package.localModules |. Belt.List.forEach((mname) => {
+    package.localModules |> List.iter((mname) => {
       let%opt_consume paths = Hashtbl.find_opt(package.pathsForModule, mname);
       let%opt_consume src = SharedTypes.getSrc(paths);
       let otherUri = Utils.toUri(src);
