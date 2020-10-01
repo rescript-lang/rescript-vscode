@@ -1,7 +1,6 @@
 module List = struct
   open Belt_List
   let getBy = getBy
-  let reduce = reduce
   let keepMap = keepMap
   let some = some
   let take = take

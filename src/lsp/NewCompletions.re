@@ -536,9 +536,7 @@ let get =
       localValueCompletions(~pos, ~env, suffix);
     let alreadyUsedIdentifiers = Hashtbl.create(10);
     let valuesFromOpens =
-      Belt.List.reduce(
-        opens,
-        [],
+      opens |> List.fold_left(
         (results, env) => {
           let completionsFromThisOpen =
             valueCompletions(~env, suffix);
@@ -553,6 +551,7 @@ let get =
           )
           @ results;
         },
+        [],
       );
     /* TODO complete the namespaced name too */
     let localModuleNames =
@@ -596,12 +595,10 @@ let get =
           let%opt (env, typ) =
             Hover.digConstructor(~env, ~getModule, path);
           let%opt (env, typ) =
-            Belt.List.reduce(
-              rest,
-              Some((env, typ)),
+            rest |> List.fold_left(
               (current, name) => {
                 let%opt (env, typ) = current;
-                switch (typ.item.kind) {
+                switch (typ.item.SharedTypes.Type.kind) {
                 | Record(attributes) =>
                   let%opt attr =
                     attributes |. Belt.List.getBy(a => a.name.txt == name);
@@ -611,6 +608,7 @@ let get =
                 | _ => None
                 };
               },
+              Some((env, typ)),
             );
           switch (typ.item.kind) {
           | Record(attributes) =>
