@@ -112,10 +112,10 @@ let orBlank = v =>
 let showFiles = ({src, srci, cmt, cmti}) =>
   Printf.sprintf(
     "src: %s, srci: %s, cmt: %s, cmti: %s",
-    src->orBlank,
-    srci->orBlank,
-    cmt->orBlank,
-    cmti->orBlank,
+    src |> orBlank,
+    srci |> orBlank,
+    cmt |> orBlank,
+    cmti |> orBlank,
   );
 
 let showPaths = paths =>
@@ -212,11 +212,11 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
             let full = fileConcat(buildDir, name);
             // maybeLog("Build file " ++ full);
             let moduleName =
-              name->String.capitalize_ascii->Filename.chop_extension;
+              name |> String.capitalize_ascii |> Filename.chop_extension;
             if (Filename.check_suffix(name, ".cmt")) {
-              cmtByModuleName->addAndCheck(moduleName, full);
+              addAndCheck(cmtByModuleName, moduleName, full);
             } else if (Filename.check_suffix(name, ".cmti")) {
-              cmtiByModuleName->addAndCheck(moduleName, full);
+              addAndCheck(cmtiByModuleName, moduleName, full);
             };
             // if (buildByBasename->Hashtbl.mem(name)) {
             //   maybeLog(
@@ -251,7 +251,7 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
   depSource
   |> List.iter(dep => {
        maybeLog("For dependency dir " ++ dep);
-       let allFiles = dep->Files.readDirectory;
+       let allFiles = dep |> Files.readDirectory;
        let prefix =
          allFiles
          |> List.fold_left(
@@ -276,10 +276,11 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
        |> List.iter(file => {
             let full = dep /+ file;
             maybeLog(" > file " ++ full);
-            filesByName->Hashtbl.replace(file, full);
-            moduleNames->Hashtbl.replace(file->Filename.chop_extension, ());
+            Hashtbl.replace(filesByName, file, full);
+            Hashtbl.replace(moduleNames, file |> Filename.chop_extension, ());
           });
-       moduleNames->hashtblKeys
+       moduleNames
+       |> hashtblKeys
        |> List.iter(mname => {
             let moduleName =
               (
@@ -289,38 +290,45 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
                   prefix
                   ++ "__"
                   ++ (
-                    prefix == "stdlib" ? mname : mname->String.capitalize_ascii
+                    prefix == "stdlib"
+                      ? mname : mname |> String.capitalize_ascii
                   )
                 }
               )
               |> String.capitalize_ascii;
             // let moduleName = fullName->String.capitalize_ascii;
             let src =
-              filesByName->maybeHash(mname ++ ".ml")
-              |?? filesByName->maybeHash(mname ++ ".re");
+              maybeHash(filesByName, mname ++ ".ml")
+              |?? maybeHash(filesByName, mname ++ ".re");
             let srci =
-              filesByName->maybeHash(mname ++ ".mli")
-              |?? filesByName->maybeHash(mname ++ ".rei");
-            let cmt = cmtByModuleName->maybeHash(moduleName);
-            let cmti = cmtiByModuleName->maybeHash(moduleName);
+              maybeHash(filesByName, mname ++ ".mli")
+              |?? maybeHash(filesByName, mname ++ ".rei");
+            let cmt = maybeHash(cmtByModuleName, moduleName);
+            let cmti = maybeHash(cmtiByModuleName, moduleName);
             let (moduleName, cmt, cmti) =
               switch (cmt, cmti) {
               // TODO it would be nice not to have to do this fallback
               | (None, None) => (
-                  mname->String.capitalize_ascii,
-                  cmtByModuleName->maybeHash(mname->String.capitalize_ascii),
-                  cmtiByModuleName->maybeHash(mname->String.capitalize_ascii),
+                  mname |> String.capitalize_ascii,
+                  maybeHash(
+                    cmtByModuleName,
+                    mname |> String.capitalize_ascii,
+                  ),
+                  maybeHash(
+                    cmtiByModuleName,
+                    mname |> String.capitalize_ascii,
+                  ),
                 )
               | _ => (moduleName, cmt, cmti)
               };
             // let fullName = fullName->String.capitalize_ascii;
-            depsModuleNames->Hashtbl.replace(moduleName, ());
+            Hashtbl.replace(depsModuleNames, moduleName, ());
             let%opt_consume paths =
               calcPaths(moduleName, {src, srci, cmt, cmti}) |> orLog;
             maybeLog(
               " > module " ++ moduleName ++ " :: " ++ showPaths(paths),
             );
-            pathsForModule->Hashtbl.replace(moduleName, paths);
+            Hashtbl.replace(pathsForModule, moduleName, paths);
             add(moduleName, paths);
           });
      });
@@ -361,8 +369,8 @@ let getModulesFromMerlin = (~stdlibs, base, text) => {
   (
     pathsForModule,
     nameForPath,
-    localModuleNames->hashtblKeys,
-    depsModuleNames->hashtblKeys,
+    localModuleNames |> hashtblKeys,
+    depsModuleNames |> hashtblKeys,
     build,
   );
 };

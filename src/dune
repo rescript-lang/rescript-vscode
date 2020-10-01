@@ -4,4 +4,4 @@
  (libraries str reason ocaml-migrate-parsetree uri bigarray)
  (flags "-w" "+26+27+32+33+39")
  (preprocess
-  (pps Belt_ppx Ppx_monads)))
+  (pps Ppx_monads)))

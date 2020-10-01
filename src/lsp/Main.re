@@ -340,7 +340,7 @@ let hasOpt = (opts, name) => opts |> StringSet.mem(name);
 
 let hasOpts = (opts, names) => names |> List.exists(opts |> hasOpt);
 
-let hasVerbose = opts => opts->hasOpts(["-v", "--verbose"]);
+let hasVerbose = opts => hasOpts(opts, ["-v", "--verbose"]);
 
 let help = {|
 🎉 Reason Language Server 🎉
@@ -359,9 +359,9 @@ let showHelp = () => {
 
 let main = () => {
   switch (parseArgs(Sys.argv |> Array.to_list)) {
-  | (opts, _) when opts->hasOpts(["-h", "--help"]) => showHelp()
+  | (opts, _) when hasOpts(opts, ["-h", "--help"]) => showHelp()
   | (opts, []) =>
-    if (opts->hasVerbose) {
+    if (opts |> hasVerbose) {
       Log.spamError := true;
       References.debugReferences := true;
       MerlinFile.debug := true;
@@ -380,17 +380,17 @@ let main = () => {
   | (opts, ["definition", rootPath, file, line, col]) =>
     let line = int_of_string(line);
     let col = int_of_string(col);
-    let quiet = opts->hasOpts(["-q", "--quiet"]);
-    if (opts->hasVerbose) {
+    let quiet = hasOpts(opts, ["-q", "--quiet"]);
+    if (opts |> hasVerbose) {
       Log.spamError := true;
       References.debugReferences := true;
       MerlinFile.debug := true;
     };
     singleDefinition(~quiet, rootPath, file, line, col);
   | (opts, ["check", rootPath, ...files]) =>
-    let definitions = opts->hasOpts(["-d", "--definitions"]);
-    let quiet = opts->hasOpts(["-q", "--quiet"]);
-    if (opts->hasVerbose) {
+    let definitions = hasOpts(opts, ["-d", "--definitions"]);
+    let quiet = hasOpts(opts, ["-q", "--quiet"]);
+    if (opts |> hasVerbose) {
       Log.spamError := true;
       // if (!definitions) {
       MerlinFile.debug := true;

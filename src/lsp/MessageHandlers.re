@@ -211,8 +211,7 @@ let handlers:
             );
           /* TODO(#107): figure out why we're getting duplicates. */
           let items = Utils.dedup(items);
-
-          (
+          Ok(
             items
             |> List.map(
                  (
@@ -243,9 +242,8 @@ let handlers:
                      ),
                    ),
                  ])
-               )
-          )
-          ->Ok;
+               ),
+          );
         };
       Ok((state, l(completions)));
     },
@@ -331,7 +329,7 @@ let handlers:
           JsonShort.(
             Some((
               state,
-              (
+              l(
                 allReferences
                 |> List.map(((fname, references)) => {
                      let locs =
@@ -344,9 +342,8 @@ let handlers:
                      locs
                      |> List.map(loc => Protocol.locationOfLoc(~fname, loc));
                    })
-                |> List.concat
-              )
-              ->l,
+                |> List.concat,
+              ),
             ))
           );
         }
@@ -501,7 +498,7 @@ let handlers:
           let showToplevelTypes = state.settings.perValueCodelens; /* TODO config option */
           let lenses =
             showToplevelTypes
-              ? file.contents.topLevel->getTypeLensTopLevel : [];
+              ? file.contents.topLevel |> getTypeLensTopLevel : [];
           let showOpens = state.settings.opensCodelens;
           let lenses =
             showOpens
@@ -630,7 +627,7 @@ let handlers:
               let splitted = substring |> split_on_char('\n');
               let rec loop = (i, leadingLines, skipChars) => {
                 let line = List.nth(splitted, i);
-                switch (line->String.trim->String.length) {
+                switch (line |> String.trim |> String.length) {
                 | 0 =>
                   loop(
                     i + 1,

@@ -663,7 +663,8 @@ let forCmt =
     });
   | Partial_interface(parts) =>
     let items =
-      parts->Array.to_list
+      parts
+      |> Array.to_list
       |> Utils.filterMap((p: Cmt_format.binary_part) =>
            switch (p) {
            | Partial_signature(str) => Some(str.sig_items)

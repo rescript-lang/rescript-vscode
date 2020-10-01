@@ -66,7 +66,7 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
   | Constant(_)
   | Open => None
   | TypeDefinition(_, _, stamp) =>
-    extra.internalReferences->(Hashtbl.find_opt(stamp))
+    Hashtbl.find_opt(extra.internalReferences, stamp)
   | Module(LocalReference(stamp, tip) | Definition(stamp, tip))
   | Typed(_, LocalReference(stamp, tip) | Definition(stamp, tip)) =>
     open Infix;
@@ -78,11 +78,11 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
         Query.getAttribute(file, stamp, name) |?>> (x => x.stamp)
       | _ => Some(stamp)
       };
-    extra.internalReferences->(Hashtbl.find_opt(localStamp));
+    Hashtbl.find_opt(extra.internalReferences, localStamp);
   | Module(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
     let%opt_wrap refs =
-      extra.externalReferences->(Hashtbl.find_opt(moduleName));
+      Hashtbl.find_opt(extra.externalReferences, moduleName);
     refs
     |> Utils.filterMap(((p, t, l)) =>
          p == path && t == tip ? Some(l) : None
@@ -253,7 +253,7 @@ let forLocalStamp =
       Query.getAttribute(file, stamp, name) |?>> (x => x.stamp)
     | _ => Some(stamp)
     };
-  let%opt local = extra.internalReferences->(Hashtbl.find_opt(localStamp));
+  let%opt local = Hashtbl.find_opt(extra.internalReferences, localStamp);
   open Infix;
   let externals =
     {
@@ -284,7 +284,7 @@ let forLocalStamp =
               | _ => Some(stamp)
               };
             let%opt local =
-              extra.internalReferences->(Hashtbl.find_opt(localStamp));
+              Hashtbl.find_opt(extra.internalReferences, localStamp);
             Some([(file.uri, local)]);
           }
           |? [];
@@ -309,8 +309,7 @@ let forLocalStamp =
                         "Could not get extra for module " ++ name,
                       );
                  let%try refs =
-                   extra.externalReferences
-                   ->(Hashtbl.find_opt(thisModuleName))
+                   Hashtbl.find_opt(extra.externalReferences, thisModuleName)
                    |> RResult.orError(
                         "No references in "
                         ++ name
