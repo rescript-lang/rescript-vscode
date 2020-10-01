@@ -321,21 +321,24 @@ let parseArgs = args => {
   | [] => assert(false)
   | [_, ...args] =>
     let (opts, pos) =
-      args->Belt.List.reduceReverse(
-        (StringSet.empty, []), ((set, pos), arg) =>
-        if (arg != "" && arg.[0] == '-') {
-          (set |> StringSet.add(arg), pos);
-        } else {
-          (set, [arg, ...pos]);
-        }
-      );
+      args
+      |> List.rev
+      |> List.fold_left(
+           ((set, pos), arg) =>
+             if (arg != "" && arg.[0] == '-') {
+               (set |> StringSet.add(arg), pos);
+             } else {
+               (set, [arg, ...pos]);
+             },
+           (StringSet.empty, []),
+         );
     (opts, pos);
   };
 };
 
 let hasOpt = (opts, name) => opts |> StringSet.mem(name);
 
-let hasOpts = (opts, names) => names->Belt.List.some(opts |> hasOpt);
+let hasOpts = (opts, names) => names |> List.exists(opts |> hasOpt);
 
 let hasVerbose = opts => opts->hasOpts(["-v", "--verbose"]);
 

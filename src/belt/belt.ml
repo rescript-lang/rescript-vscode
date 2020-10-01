@@ -1,9 +1,7 @@
 module List = struct
   
   open Belt_List
-  let some = some
   let take = take
-  let reduceReverse = reduceReverse
 end
 
 (*
