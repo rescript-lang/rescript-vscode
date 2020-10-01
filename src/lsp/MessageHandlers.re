@@ -176,9 +176,9 @@ let handlers:
       let%try offset =
         PartialParser.positionToOffset(text, pos)
         |> orError("invalid offset");
-      open /* TODO get last non-syntax-erroring definitions */
-           /* let%try (file, extra) = State.fileForUri(state, ~package, uri) |> orError("No definitions"); */
-           JsonShort;
+      open JsonShort; /* TODO get last non-syntax-erroring definitions */
+      /* let%try (file, extra) = State.fileForUri(state, ~package, uri) |> orError("No definitions"); */
+
       let%try completions =
         switch (PartialParser.findCompletable(text, offset)) {
         | Nothing =>
@@ -629,7 +629,7 @@ let handlers:
             let (leadingNewlines, charsToFirstLines) = {
               let splitted = substring |> split_on_char('\n');
               let rec loop = (i, leadingLines, skipChars) => {
-                let line = Belt.List.getExn(splitted, i);
+                let line = List.nth(splitted, i);
                 switch (line->String.trim->String.length) {
                 | 0 =>
                   loop(
