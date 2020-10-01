@@ -79,7 +79,7 @@ let rec resolvePathInner = (~env, ~path) => {
     | Tip(name) => Some(`Local(env, name))
     | Nested(subName, subPath) => {
       let%opt stamp = Hashtbl.find_opt(env.exported.modules, subName);
-      let%opt {contents: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
+      let%opt {item: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
       findInModule(~env, kind, subPath)
     }
   }
@@ -91,7 +91,7 @@ let rec resolvePathInner = (~env, ~path) => {
     if (stamp == 0) {
       Some(`Global(moduleName, fullPath))
     } else {
-      let%opt {contents: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
+      let%opt {item: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
       findInModule(~env, kind, fullPath);
     }
   }
@@ -117,7 +117,7 @@ let resolveFromStamps = (~env, ~path, ~getModule, ~pos) => {
     /* Log.log("Finding from stamps " ++ name); */
       let%opt declared = findInScope(pos, name, env.file.stamps.modules);
       /* Log.log("found it"); */
-      let%opt res = findInModule(~env, declared.contents, inner);
+      let%opt res = findInModule(~env, declared.item, inner);
       switch res {
         | `Local((env, name)) => Some((env, name))
         | `Global(moduleName, fullPath) => {
@@ -137,7 +137,7 @@ let fromCompilerPath = (~env, path) => {
     | `GlobalMod(name) => `GlobalMod(name)
     | `Path((stamp, _moduleName, path)) => {
       let res = {
-        let%opt {contents: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
+        let%opt {item: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
         let%opt_wrap res = findInModule(~env, kind, path);
         switch res {
           | `Local(env, name) => `Exported(env, name)
@@ -193,23 +193,23 @@ let resolveFromCompilerPath = (~env, ~getModule, path) => {
 };
 
 let declaredForExportedTip = (~stamps: SharedTypes.stamps, ~exported: SharedTypes.Module.exported, name, tip) => switch tip {
-  | Value => Hashtbl.find_opt(exported.values, name) |?> stamp => Hashtbl.find_opt(stamps.values, stamp) |?>> x => {...x, contents: ()}
+  | Value => Hashtbl.find_opt(exported.values, name) |?> stamp => Hashtbl.find_opt(stamps.values, stamp) |?>> x => {...x, item: ()}
   | Attribute(_) | Constructor(_)
-  | Type => Hashtbl.find_opt(exported.types, name) |?> stamp =>  Hashtbl.find_opt(stamps.types, stamp) |?>> x => {...x, contents: ()}
-  | Module => Hashtbl.find_opt(exported.modules, name) |?> stamp => Hashtbl.find_opt(stamps.modules, stamp) |?>> x => {...x, contents: ()}
-  | ModuleType => Hashtbl.find_opt(exported.moduleTypes, name) |?> stamp => Hashtbl.find_opt(stamps.moduleTypes, stamp) |?>> x => {...x, contents: ()}
+  | Type => Hashtbl.find_opt(exported.types, name) |?> stamp =>  Hashtbl.find_opt(stamps.types, stamp) |?>> x => {...x, item: ()}
+  | Module => Hashtbl.find_opt(exported.modules, name) |?> stamp => Hashtbl.find_opt(stamps.modules, stamp) |?>> x => {...x, item: ()}
+  | ModuleType => Hashtbl.find_opt(exported.moduleTypes, name) |?> stamp => Hashtbl.find_opt(stamps.moduleTypes, stamp) |?>> x => {...x, item: ()}
 };
 
 let declaredForTip = (~stamps, stamp, tip) => switch tip {
-  | Value => Hashtbl.find_opt(stamps.values, stamp) |?>> x => {...x, contents: ()}
+  | Value => Hashtbl.find_opt(stamps.values, stamp) |?>> x => {...x, item: ()}
   | Attribute(_) | Constructor(_)
-  | Type => Hashtbl.find_opt(stamps.types, stamp) |?>> x => {...x, contents: ()}
-  | Module => Hashtbl.find_opt(stamps.modules, stamp) |?>> x => {...x, contents: ()}
-  | ModuleType => Hashtbl.find_opt(stamps.moduleTypes, stamp) |?>> x => {...x, contents: ()}
+  | Type => Hashtbl.find_opt(stamps.types, stamp) |?>> x => {...x, item: ()}
+  | Module => Hashtbl.find_opt(stamps.modules, stamp) |?>> x => {...x, item: ()}
+  | ModuleType => Hashtbl.find_opt(stamps.moduleTypes, stamp) |?>> x => {...x, item: ()}
 };
 
 let getAttribute = (file, stamp, name) => {
-  let%opt {contents: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
+  let%opt {item: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
   switch (kind) {
     | Record(labels) => {
       let%opt label = labels |. Belt.List.getBy(label => label.name.txt == name);
@@ -220,7 +220,7 @@ let getAttribute = (file, stamp, name) => {
 };
 
 let getConstructor = (file, stamp, name) => {
-  let%opt {contents: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
+  let%opt {item: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
   switch (kind) {
     | Variant(constructors) => {
       let%opt const = constructors |. Belt.List.getBy(const => const.name.txt == name);

@@ -62,7 +62,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
             pos,
             tokenParts
           );
-          let typ = declared.contents;
+          let typ = declared.item;
           Some((typ, declared.docstring |? "No docs"))
         | Some((_, loc)) =>
           let%opt typ =
@@ -147,10 +147,10 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
       /* TODO(#107): figure out why we're getting duplicates. */
       let items = Utils.dedup(items);
 
-      Belt.List.map(items, ((uri, {name: {txt: name, loc: {loc_start: {pos_lnum}}}, docstring, contents})) => o([
+      Belt.List.map(items, ((uri, {name: {txt: name, loc: {loc_start: {pos_lnum}}}, docstring, item})) => o([
         ("label", s(name)),
-        ("kind", i(NewCompletions.kindToInt(contents))),
-        ("detail", NewCompletions.detail(name, contents) |> s),
+        ("kind", i(NewCompletions.kindToInt(item))),
+        ("detail", NewCompletions.detail(name, item) |> s),
         ("documentation",
 
         s((docstring |? "No docs") ++ "\n\n" ++
@@ -319,9 +319,9 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
         let rec getTypeLensTopLevel = (topLevel) => {
           switch (topLevel) {
               | [] => []
-              | [{SharedTypes.name: {loc}, contents}, ... tlp] => {
+              | [{SharedTypes.name: {loc}, item}, ... tlp] => {
                 let currentCl =
-                  switch (contents) {
+                  switch (item) {
                   | SharedTypes.Module.Value(typ) => [(typ |> Shared.typeToString, loc)]
                   | Module(Structure({topLevel})) => getTypeLensTopLevel(topLevel)
                   | _ => []
@@ -503,8 +503,8 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
     open SharedTypes;
 
     let rec getItems = ({Module.topLevel}) => {
-      let fn = ({name: {txt}, extentLoc, contents}) => {
-        let (item, siblings) = switch contents {
+      let fn = ({name: {txt}, extentLoc, item}) => {
+        let (item, siblings) = switch item {
           | Module.Value(v) => (v |> Shared.variableKind, [])
           | Type(t) => (t.decl |> Shared.declarationKind, [])
           | Module(Structure(contents)) => (Module, getItems(contents))

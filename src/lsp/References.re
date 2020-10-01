@@ -154,7 +154,7 @@ let alternateDeclared = (~file, ~pathsForModule, ~getUri, declared, tip) => {
 };
 
 let resolveModuleReference = (~file, ~getModule, declared: SharedTypes.declared(SharedTypes.Module.kind)) => {
-  switch (declared.contents) {
+  switch (declared.item) {
     | SharedTypes.Module.Structure(_) =>
       Some((file, Some(declared)))
     | Ident(path) =>

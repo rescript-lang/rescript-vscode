@@ -50,7 +50,7 @@ type declared('t) = {
   modulePath: visibilityPath,
   exported: bool,
   docstring: option(string),
-  contents: 't,
+  item: 't,
   /* TODO maybe add a uri? */
   /* scopeType: scope, */
   /* scopeStart: (int, int), */
@@ -65,7 +65,7 @@ let emptyDeclared = (name) => {
   modulePath: NotVisible,
   exported: false,
   docstring: None,
-  contents: ()
+  item: ()
 };
 
 module Type = {
