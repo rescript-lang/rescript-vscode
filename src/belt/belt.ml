@@ -1,8 +1,3 @@
-module List = struct
-  
-  open Belt_List
-  let take = take
-end
 
 (*
 
