@@ -215,7 +215,7 @@ let findProjectFiles = (~debug, namespace, root, sourceDirectories, compiledBase
     }
   });
 
-  let result = normals->Belt.List.concat(Hashtbl.fold((mname, intf, res) =>  {
+  let result = List.append(normals, Hashtbl.fold((mname, intf, res) =>  {
     let base = compiledBaseName(~namespace, Files.relpath(root, intf));
     Log.log("Extra intf " ++ intf);
     let cmti = compiledBase /+ base ++ ".cmti";

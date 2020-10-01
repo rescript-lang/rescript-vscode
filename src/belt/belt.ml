@@ -4,7 +4,6 @@ module List = struct
   let reduce = reduce
   let keepMap = keepMap
   let sort = sort
-  let concat = concat
   let some = some
   let take = take
   let getExn = getExn
