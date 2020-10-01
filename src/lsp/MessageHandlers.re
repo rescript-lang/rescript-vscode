@@ -324,7 +324,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
                   | Module(Structure({topLevel})) => getTypeLensTopLevel(topLevel)
                   | _ => []
                   };
-                Belt.List.concat(currentCl, getTypeLensTopLevel(tlp))
+                List.append(currentCl, getTypeLensTopLevel(tlp))
               }
             }
         }
