@@ -601,7 +601,7 @@ let get =
                 switch (typ.item.SharedTypes.Type.kind) {
                 | Record(attributes) =>
                   let%opt attr =
-                    attributes |. Belt.List.getBy(a => a.name.txt == name);
+                    attributes |> List.find_opt((a : SharedTypes.Type.Attribute.t) => a.name.txt == name);
                   Log.log("Found attr " ++ name);
                   let%opt path = attr.typ |> Shared.digConstructor;
                   Hover.digConstructor(~env, ~getModule, path);

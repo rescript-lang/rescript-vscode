@@ -212,7 +212,7 @@ let getAttribute = (file, stamp, name) => {
   let%opt {item: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
   switch (kind) {
     | Record(labels) => {
-      let%opt label = labels |. Belt.List.getBy(label => label.name.txt == name);
+      let%opt label = labels |> List.find_opt(label => label.SharedTypes.Type.Attribute.name.txt == name);
       Some(label)
     }
     | _ => None
@@ -223,7 +223,7 @@ let getConstructor = (file, stamp, name) => {
   let%opt {item: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
   switch (kind) {
     | Variant(constructors) => {
-      let%opt const = constructors |. Belt.List.getBy(const => const.name.txt == name);
+      let%opt const = constructors |> List.find_opt((const: SharedTypes.Type.Constructor.t) => const.name.txt == name);
       Some(const)
     }
     | _ => None

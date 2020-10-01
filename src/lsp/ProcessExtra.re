@@ -171,7 +171,8 @@ module F = (Collector: {
         let locType = switch (t) {
           | `Local({stamp, item: {kind: Record(attributes)}}) => {
             {
-              let%opt_wrap {stamp: astamp} = Belt.List.getBy(attributes, a => a.name.txt == name);
+              let%opt_wrap {stamp: astamp} = attributes |> List.find_opt((a : SharedTypes.Type.Attribute.t)
+               => a.name.txt == name);
               addReference(astamp, nameLoc);
               Loc.LocalReference(stamp, Attribute(name));
             } |? Loc.NotFound
@@ -201,7 +202,7 @@ module F = (Collector: {
           let locType = switch (t) {
             | `Local({stamp, item: {kind: Record(attributes)}}) => {
               {
-                let%opt_wrap {stamp: astamp} = Belt.List.getBy(attributes, a => a.name.txt == name);
+                let%opt_wrap {stamp: astamp} = attributes |> List.find_opt((a : SharedTypes.Type.Attribute.t) => a.name.txt == name);
                 addReference(astamp, nameLoc);
                 Loc.LocalReference(stamp, Attribute(name));
               } |? Loc.NotFound
@@ -229,9 +230,9 @@ module F = (Collector: {
         let nameLoc = Utils.endOfLocation(loc, String.length(name));
         let t = getTypeAtPath(path);
         let locType = switch (t) {
-          | `Local({stamp, item: {kind: Variant(constructos)}}) => {
+          | `Local({stamp, item: {kind: Variant(constructors)}}) => {
             {
-              let%opt_wrap {stamp: cstamp} = Belt.List.getBy(constructos, a => a.name.txt == cstr_name);
+              let%opt_wrap {stamp: cstamp} = constructors |> List.find_opt((a: SharedTypes.Type.Constructor.t) => a.name.txt == cstr_name);
               addReference(cstamp, nameLoc);
               Loc.LocalReference(stamp, Constructor(name))
             } |? Loc.NotFound
