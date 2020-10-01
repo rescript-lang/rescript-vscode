@@ -206,13 +206,13 @@ let findRoot = (uri, packagesByRoot) => {
 
 let getPackage = (~reportDiagnostics, uri, state) => {
   if (Hashtbl.mem(state.rootForUri, uri)) {
-    RResult.Ok(Hashtbl.find(state.packagesByRoot, Hashtbl.find(state.rootForUri, uri)))
+    Ok(Hashtbl.find(state.packagesByRoot, Hashtbl.find(state.rootForUri, uri)))
   } else {
     let%try root = findRoot(uri, state.packagesByRoot) |> RResult.orError("No root directory found");
     let%try package = switch root {
     | `Root(rootPath) =>
       Hashtbl.replace(state.rootForUri, uri, rootPath);
-      RResult.Ok(Hashtbl.find(state.packagesByRoot, Hashtbl.find(state.rootForUri, uri)))
+      Ok(Hashtbl.find(state.packagesByRoot, Hashtbl.find(state.rootForUri, uri)))
     | `Bs(rootPath) =>
       let%try package = newBsPackage(~reportDiagnostics, state, rootPath);
       Files.mkdirp(package.tmpPath);
@@ -223,7 +223,7 @@ let getPackage = (~reportDiagnostics, uri, state) => {
       };
       Hashtbl.replace(state.rootForUri, uri, package.basePath);
       Hashtbl.replace(state.packagesByRoot, package.basePath, package);
-      RResult.Ok(package)
+      Ok(package)
     };
 
     Ok(package)

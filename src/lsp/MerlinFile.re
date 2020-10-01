@@ -299,16 +299,16 @@ let getBackend = (rootPath) => {
       switch (input_line(ic)) {
       | exception End_of_file =>
         close_in(ic);
-        RResult.Ok("js")
+        Ok("js")
       | s =>
         if (s == "####{BSB GENERATED: NO EDIT") {
           switch(input_line(ic)) {
-            | exception End_of_file => RResult.Error("Bsb merlin comment not ended correctly");
+            | exception End_of_file => Error("Bsb merlin comment not ended correctly");
             | backendLine =>
             let len = String.length("# -backend ");
             let totalLen = String.length(backendLine);
-            try (RResult.Ok(String.sub(backendLine, len, totalLen - len))) {
-              | _ => RResult.Ok("native")
+            try (Ok(String.sub(backendLine, len, totalLen - len))) {
+              | _ => Ok("native")
             }
           }
         } else {
@@ -316,6 +316,6 @@ let getBackend = (rootPath) => {
         }
       };
     loop()
-  | _ => RResult.Ok("js")
+  | _ => Ok("js")
   }
 }

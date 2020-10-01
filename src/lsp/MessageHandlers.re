@@ -410,7 +410,7 @@ let handlers: list((string, (state, Json.t) => result((state, Json.t), string)))
 
       /** TODO: instead of bailing, it should extend the selection to encompass the whole line, and then go for it. */
       if (fst(start) == fst(end_) && text.[endPos] != '\n') {
-        Belt.Result.Ok((state, JsonShort.null));
+        Ok((state, JsonShort.null));
       } else {
         let substring = String.sub(text, startPos, endPos - startPos);
 
