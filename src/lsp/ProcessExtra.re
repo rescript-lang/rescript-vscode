@@ -577,7 +577,7 @@ let forItems = (~file, ~allLocations, items, parts) => {
   List.iter(Iter.iter_structure_item, items);
   /* Log.log("Parts " ++ string_of_int(Array.length(parts))); */
 
-  parts |. Belt.Array.forEach(part => switch part {
+  parts |> Array.iter(part => switch part {
   | Cmt_format.Partial_signature(str) =>
     Iter.iter_signature(str);
   | Partial_signature_item(str) =>
