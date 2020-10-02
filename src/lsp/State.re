@@ -73,8 +73,6 @@ let newDocsForCmt =
   Some(file);
 };
 
-let hasProcessedCmt = (state, cmt) => Hashtbl.mem(state.cmtCache, cmt);
-
 let docsForCmt = (~moduleName, cmt, src, state) =>
   if (Hashtbl.mem(state.cmtCache, cmt)) {
     let (mtime, docs) = Hashtbl.find(state.cmtCache, cmt);

@@ -47,14 +47,11 @@ type state = {
   settings,
   documentText: Hashtbl.t(uri, (string, int, bool)),
   documentTimers: Hashtbl.t(uri, float),
-  /* package, */
   packagesByRoot: Hashtbl.t(string, package),
   rootForUri: Hashtbl.t(uri, string),
   cmtCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
-  cmiCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
   compiledDocuments: Hashtbl.t(uri, AsYouType.result),
   lastDefinitions: Hashtbl.t(uri, SharedTypes.full),
-  /* workspace folders... */
 };
 
 let empty = () => {
@@ -65,7 +62,6 @@ let empty = () => {
   packagesByRoot: Hashtbl.create(1),
   rootForUri: Hashtbl.create(30),
   cmtCache: Hashtbl.create(30),
-  cmiCache: Hashtbl.create(30),
   compiledDocuments: Hashtbl.create(10),
   lastDefinitions: Hashtbl.create(10),
   settings: {
