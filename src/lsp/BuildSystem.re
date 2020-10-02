@@ -20,17 +20,19 @@ let namespacedName = (namespace, name) =>
 open Infix;
 
 let nodePlatform =
-  switch (Sys.os_type) {
-  | "Unix" =>
-    switch (input_line(Unix.open_process_in("uname -s"))) {
-    | "Darwin" => "darwin"
-    | "Linux" => "linux"
-    | "FreeBSD" => "freebsd"
+  lazy(
+    switch (Sys.os_type) {
+    | "Unix" =>
+      switch (input_line(Unix.open_process_in("uname -s"))) {
+      | "Darwin" => "darwin"
+      | "Linux" => "linux"
+      | "FreeBSD" => "freebsd"
+      | s => invalid_arg(s ++ ": unsupported os_type")
+      }
+    | "Win32" => "win32"
     | s => invalid_arg(s ++ ": unsupported os_type")
     }
-  | "Win32" => "win32"
-  | s => invalid_arg(s ++ ": unsupported os_type")
-  };
+  );
 
 let getBsPlatformDir = rootPath => {
   let result =
@@ -78,7 +80,7 @@ let getCompiler = rootPath => {
   let%try_wrap bsPlatformDir = getBsPlatformDir(rootPath);
   switch (Files.ifExists(bsPlatformDir /+ "lib" /+ "bsc.exe")) {
   | Some(x) => x
-  | None => bsPlatformDir /+ nodePlatform /+ "bsc.exe"
+  | None => bsPlatformDir /+ Lazy.force(nodePlatform) /+ "bsc.exe"
   };
 };
 
@@ -87,7 +89,11 @@ let getRefmt = rootPath => {
   switch (Files.ifExists(bsPlatformDir /+ "lib" /+ "refmt.exe")) {
   | Some(x) => x
   | None =>
-    switch (Files.ifExists(bsPlatformDir /+ nodePlatform /+ "refmt.exe")) {
+    switch (
+      Files.ifExists(
+        bsPlatformDir /+ Lazy.force(nodePlatform) /+ "refmt.exe",
+      )
+    ) {
     | Some(x) => x
     | None => bsPlatformDir /+ "lib" /+ "refmt3.exe"
     }

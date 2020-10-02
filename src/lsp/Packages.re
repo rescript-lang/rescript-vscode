@@ -63,7 +63,9 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
     | Some(x) => x
     | None =>
       switch (
-        Files.ifExists(bsPlatform /+ BuildSystem.nodePlatform /+ "bsb.exe")
+        Files.ifExists(
+          bsPlatform /+ Lazy.force(BuildSystem.nodePlatform) /+ "bsb.exe",
+        )
       ) {
       | Some(x) => x
       | None => failwith("can not locate bsb.exe in " ++ bsPlatform)
