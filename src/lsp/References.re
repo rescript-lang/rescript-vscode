@@ -105,7 +105,7 @@ let definedForLoc = (~file, ~getModule, loc) => {
     | _ =>
       maybeLog(
         "Trying for declared "
-        ++ SharedTypes.tipToString(tip)
+        ++ tipToString(tip)
         ++ " "
         ++ string_of_int(stamp)
         ++ " in file "
@@ -164,7 +164,7 @@ let alternateDeclared = (~file, ~pathsForModule, ~getUri, declared, tip) => {
   let%opt paths = Hashtbl.find_opt(pathsForModule, file.moduleName);
   maybeLog("paths for " ++ file.moduleName);
   switch (paths) {
-  | SharedTypes.IntfAndImpl(_, Some(intf), _, Some(impl)) =>
+  | IntfAndImpl(_, Some(intf), _, Some(impl)) =>
     maybeLog("Have both!!");
     let intf = Utils.toUri(intf);
     let impl = Utils.toUri(impl);
@@ -194,13 +194,9 @@ let alternateDeclared = (~file, ~pathsForModule, ~getUri, declared, tip) => {
 };
 
 let resolveModuleReference =
-    (
-      ~file,
-      ~getModule,
-      declared: SharedTypes.declared(SharedTypes.Module.kind),
-    ) => {
+    (~file, ~getModule, declared: declared(moduleKind)) => {
   switch (declared.item) {
-  | SharedTypes.Module.Structure(_) => Some((file, Some(declared)))
+  | Structure(_) => Some((file, Some(declared)))
   | Ident(path) =>
     let env = {Query.file, exported: file.contents.exported};
     switch (Query.fromCompilerPath(~env, path)) {
@@ -523,12 +519,12 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
     let%opt src =
       Hashtbl.find_opt(pathsForModule, name)
       |> orLog("No paths found")
-      |?> SharedTypes.getSrc
+      |?> getSrc
       |> orLog("No src found");
     Some((Utils.toUri(src), Utils.topLoc(src)));
   | Module(LocalReference(stamp, tip))
   | Typed(_, LocalReference(stamp, tip)) =>
-    maybeLog("Local defn " ++ SharedTypes.tipToString(tip));
+    maybeLog("Local defn " ++ tipToString(tip));
     definition(~file, ~getModule, stamp, tip);
   | Module(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
@@ -536,9 +532,9 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
       "Global defn "
       ++ moduleName
       ++ " "
-      ++ SharedTypes.pathToString(path)
+      ++ pathToString(path)
       ++ " : "
-      ++ SharedTypes.tipToString(tip),
+      ++ tipToString(tip),
     );
     let%opt file = getModule(moduleName);
     let env = {Query.file, exported: file.contents.exported};

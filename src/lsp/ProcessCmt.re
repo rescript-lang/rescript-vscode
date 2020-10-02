@@ -132,8 +132,7 @@ let addItem =
   declared;
 };
 
-let rec forSignatureTypeItem =
-        (env, exported: SharedTypes.Module.exported, item) => {
+let rec forSignatureTypeItem = (env, exported: SharedTypes.exported, item) => {
   Types.(
     switch (item) {
     | Sig_value(ident, {val_type, val_attributes, val_loc: loc}) =>
@@ -149,7 +148,7 @@ let rec forSignatureTypeItem =
           exported.values,
           env.stamps.values,
         );
-      [{...declared, item: Module.Value(declared.item)}];
+      [{...declared, item: MValue(declared.item)}];
     | Sig_type(
         ident,
         {type_params, type_loc, type_kind, type_manifest, type_attributes} as decl,
@@ -237,7 +236,7 @@ let rec forSignatureTypeItem =
           exported.types,
           env.stamps.types,
         );
-      [{...declared, item: Module.Type(declared.item)}];
+      [{...declared, item: MType(declared.item)}];
     /* | Sig_module({stamp, name}, {md_type: Mty_ident(path) | Mty_alias(path), md_attributes, md_loc}, _) =>
        let declared = addItem(~contents=Module.Ident(path), ~name=Location.mknoloc(name), ~stamp, ~env, md_attributes, exported.modules, env.stamps.modules);
        [{...declared, contents: Module.Module(declared.contents)}, ...items] */
@@ -253,14 +252,14 @@ let rec forSignatureTypeItem =
           exported.modules,
           env.stamps.modules,
         );
-      [{...declared, item: Module.Module(declared.item)}];
+      [{...declared, item: Module(declared.item)}];
     | _ => []
     }
   );
 }
 
 and forSignatureType = (env, signature) => {
-  let exported = Module.initExported();
+  let exported = initExported();
   let topLevel =
     List.fold_right(
       (item, items) => {forSignatureTypeItem(env, exported, item) @ items},
@@ -269,14 +268,13 @@ and forSignatureType = (env, signature) => {
     )
     |> List.rev;
 
-  {Module.exported, topLevel};
+  {exported, topLevel};
 }
 and forModuleType = (env, moduleType) =>
   switch (moduleType) {
-  | Types.Mty_ident(path) => Module.Ident(path)
-  | Mty_alias(_ /* 402*/, path) => Module.Ident(path)
-  | Mty_signature(signature) =>
-    Module.Structure(forSignatureType(env, signature))
+  | Types.Mty_ident(path) => Ident(path)
+  | Mty_alias(_ /* 402*/, path) => Ident(path)
+  | Mty_signature(signature) => Structure(forSignatureType(env, signature))
   | Mty_functor(_argIdent, _argType, resultType) =>
     forModuleType(env, resultType)
   };
@@ -294,7 +292,7 @@ let getModuleTypePath = mod_desc =>
 let forTypeDeclaration =
     (
       ~env,
-      ~exported: Module.exported,
+      ~exported: exported,
       {
         typ_id,
         typ_loc,
@@ -365,10 +363,10 @@ let forTypeDeclaration =
       exported.types,
       env.stamps.types,
     );
-  {...declared, item: Module.Type(declared.item)};
+  {...declared, item: MType(declared.item)};
 };
 
-let forSignatureItem = (~env, ~exported: Module.exported, item) => {
+let forSignatureItem = (~env, ~exported: exported, item) => {
   switch (item.sig_desc) {
   | Tsig_value({val_id, val_loc, val_name: name, val_desc, val_attributes}) =>
     let declared =
@@ -382,7 +380,7 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
         exported.values,
         env.stamps.values,
       );
-    [{...declared, item: Module.Value(declared.item)}];
+    [{...declared, item: MValue(declared.item)}];
   | Tsig_type(_ /*402*/, decls) =>
     decls |> List.map(forTypeDeclaration(~env, ~exported))
   | Tsig_module({
@@ -404,7 +402,7 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
         exported.modules,
         env.stamps.modules,
       );
-    [{...declared, item: Module.Module(declared.item)}];
+    [{...declared, item: Module(declared.item)}];
   | Tsig_include({incl_mod, incl_type}) =>
     let env =
       switch (getModuleTypePath(incl_mod.mty_desc)) {
@@ -430,10 +428,10 @@ let forSignatureItem = (~env, ~exported: Module.exported, item) => {
 
 let forSignature = (~env, items) => {
   let (doc, items) = getTopSigDoc(items);
-  let exported = Module.initExported();
+  let exported = initExported();
   let topLevel =
     items |> List.map(forSignatureItem(~env, ~exported)) |> List.flatten;
-  (doc, {Module.exported, topLevel});
+  (doc, {exported, topLevel});
 };
 
 let forTreeModuleType = (~env, {mty_desc}) =>
@@ -441,7 +439,7 @@ let forTreeModuleType = (~env, {mty_desc}) =>
   | Tmty_ident(_) => None
   | Tmty_signature({sig_items}) =>
     let (_doc, contents) = forSignature(~env, sig_items);
-    Some(Module.Structure(contents));
+    Some(Structure(contents));
   | _ => None
   };
 
@@ -456,7 +454,7 @@ let rec getModulePath = mod_desc =>
     getModulePath(expr.mod_desc)
   };
 
-let rec forItem = (~env, ~exported: Module.exported, item) =>
+let rec forItem = (~env, ~exported: exported, item) =>
   switch (item.str_desc) {
   | Tstr_value(_isRec, bindings) =>
     optMap(
@@ -476,7 +474,7 @@ let rec forItem = (~env, ~exported: Module.exported, item) =>
               exported.values,
               env.stamps.values,
             );
-          Some({...declared, item: Module.Value(declared.item)});
+          Some({...declared, item: MValue(declared.item)});
         | _ => None
         },
       bindings,
@@ -500,7 +498,7 @@ let rec forItem = (~env, ~exported: Module.exported, item) =>
         exported.modules,
         env.stamps.modules,
       );
-    [{...declared, item: Module.Module(declared.item)}];
+    [{...declared, item: Module(declared.item)}];
   | Tstr_include({incl_mod, incl_type}) =>
     let env =
       switch (getModulePath(incl_mod.mod_desc)) {
@@ -538,7 +536,7 @@ let rec forItem = (~env, ~exported: Module.exported, item) =>
         exported.values,
         env.stamps.values,
       );
-    [{...declared, item: Module.Value(declared.item)}];
+    [{...declared, item: MValue(declared.item)}];
   | Tstr_type(_, decls) =>
     decls |> List.map(forTypeDeclaration(~env, ~exported))
   | _ => []
@@ -546,7 +544,7 @@ let rec forItem = (~env, ~exported: Module.exported, item) =>
 
 and forModule = (env, mod_desc, moduleName) =>
   switch (mod_desc) {
-  | Tmod_ident(path, _lident) => Module.Ident(path)
+  | Tmod_ident(path, _lident) => Ident(path)
   | Tmod_structure(structure) =>
     let env = {
       ...env,
@@ -554,7 +552,7 @@ and forModule = (env, mod_desc, moduleName) =>
       modulePath: ExportedModule(moduleName, env.modulePath),
     };
     let (_doc, contents) = forStructure(~env, structure.str_items);
-    Module.Structure(contents);
+    Structure(contents);
   | Tmod_functor(ident, argName, maybeType, resultExpr) =>
     maybeType
     |?< (
@@ -603,14 +601,14 @@ and forModule = (env, mod_desc, moduleName) =>
 
 and forStructure = (~env, items) => {
   let (doc, items) = getTopDoc(items);
-  let exported = Module.initExported();
+  let exported = initExported();
   let topLevel =
     List.fold_right(
       (item, results) => {forItem(~env, ~exported, item) @ results},
       items,
       [],
     );
-  (doc, {Module.exported, topLevel});
+  (doc, {exported, topLevel});
 };
 
 let forCmt =

@@ -145,46 +145,43 @@ let isVisible = declared =>
 type namedMap('t) = Hashtbl.t(string, 't);
 type namedStampMap = namedMap(int);
 
-module Module = {
-  type exported = {
-    types: namedStampMap,
-    values: namedStampMap,
-    modules: namedStampMap,
-    moduleTypes: namedStampMap,
-    /* constructors: namedStampMap, */
-    /* classes: namedStampMap,
-       classTypes: namedStampMap, */
-  };
-  let initExported = () => {
-    types: Hashtbl.create(10),
-    values: Hashtbl.create(10),
-    modules: Hashtbl.create(10),
-    moduleTypes: Hashtbl.create(10),
-    /* constructors: Hashtbl.create(10), */
-  };
-  type item =
-    | Value(Types.type_expr)
-    | Type(Type.t)
-    | Module(kind)
-    | ModuleType(kind)
-  and contents = {
-    exported,
-    mutable topLevel: list(declared(item)),
-  }
-  and kind =
-    | Ident(Path.t)
-    | Structure(contents);
+type exported = {
+  types: namedStampMap,
+  values: namedStampMap,
+  modules: namedStampMap,
+  moduleTypes: namedStampMap,
+  /* constructors: namedStampMap, */
+  /* classes: namedStampMap,
+     classTypes: namedStampMap, */
 };
+let initExported = () => {
+  types: Hashtbl.create(10),
+  values: Hashtbl.create(10),
+  modules: Hashtbl.create(10),
+  moduleTypes: Hashtbl.create(10),
+  /* constructors: Hashtbl.create(10), */
+};
+type moduleItem =
+  | MValue(Types.type_expr)
+  | MType(Type.t)
+  | Module(moduleKind)
+  | ModuleType(moduleKind)
+and moduleContents = {
+  exported,
+  mutable topLevel: list(declared(moduleItem)),
+}
+and moduleKind =
+  | Ident(Path.t)
+  | Structure(moduleContents);
 
 type stampMap('t) = Hashtbl.t(int, 't);
 
 type stamps = {
   types: stampMap(declared(Type.t)),
   values: stampMap(declared(Types.type_expr)),
-  modules: stampMap(declared(Module.kind)),
-  moduleTypes: stampMap(declared(Module.kind)),
+  modules: stampMap(declared(moduleKind)),
+  moduleTypes: stampMap(declared(moduleKind)),
   constructors: stampMap(declared(constructor)),
-  /* moduleTypes: stampMap(declared(Module.kind)), */
 };
 
 let initStamps = () => {
@@ -200,7 +197,7 @@ type file = {
   docstring: option(string),
   stamps,
   moduleName: string,
-  contents: Module.contents,
+  contents: moduleContents,
 };
 
 let emptyFile = (moduleName, uri) => {
@@ -209,7 +206,7 @@ let emptyFile = (moduleName, uri) => {
   stamps: initStamps(),
   moduleName,
   contents: {
-    exported: Module.initExported(),
+    exported: initExported(),
     topLevel: [],
   },
 };

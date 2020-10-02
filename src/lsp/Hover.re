@@ -16,17 +16,17 @@ let showModuleTopLevel =
     (
       ~name,
       ~markdown,
-      topLevel: list(SharedTypes.declared(SharedTypes.Module.item)),
+      topLevel: list(SharedTypes.declared(SharedTypes.moduleItem)),
     ) => {
   let contents =
     topLevel
     |> List.map(item =>
          switch (item.SharedTypes.item) {
          /*** TODO pretty print module contents */
-         | SharedTypes.Module.Module(_) => "  module " ++ item.name.txt ++ ";"
-         | Type({decl}) =>
+         | SharedTypes.MType({decl}) =>
            "  " ++ (decl |> Shared.declToString(item.name.txt))
-         | Value(typ) =>
+         | Module(_) => "  module " ++ item.name.txt ++ ";"
+         | MValue(typ) =>
            "  let "
            ++ item.name.txt
            ++ ": "
@@ -45,7 +45,7 @@ let showModule =
       ~markdown,
       ~file: SharedTypes.file,
       ~name,
-      declared: option(SharedTypes.declared(SharedTypes.Module.kind)),
+      declared: option(SharedTypes.declared(SharedTypes.moduleKind)),
     ) => {
   switch (declared) {
   | None => showModuleTopLevel(~name, ~markdown, file.contents.topLevel)

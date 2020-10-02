@@ -255,10 +255,10 @@ let getEnvWithOpens =
   };
 
 type k =
-  | Module(Module.kind)
+  | Module(moduleKind)
   | Value(Types.type_expr)
   | Type(Type.t)
-  | ModuleType(Module.kind)
+  | ModuleType(moduleKind)
   | Constructor(constructor, declared(Type.t))
   | Attribute(attribute, declared(Type.t))
   | FileModule(string);

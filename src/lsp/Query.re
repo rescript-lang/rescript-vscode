@@ -4,7 +4,7 @@ open SharedTypes;
 /* maybe add a "current module path" for debugging purposes */
 type queryEnv = {
   file,
-  exported: Module.exported,
+  exported,
 };
 
 let fileEnv = file => {file, exported: file.contents.exported};
@@ -89,7 +89,7 @@ let rec resolvePathInner = (~env, ~path) => {
 }
 and findInModule = (~env, kind, path) => {
   switch (kind) {
-  | Module.Structure({exported}) =>
+  | Structure({exported}) =>
     resolvePathInner(~env={...env, exported}, ~path)
   | Ident(modulePath) =>
     let (stamp, moduleName, fullPath) = joinPaths(modulePath, path);
@@ -202,13 +202,7 @@ let resolveFromCompilerPath = (~env, ~getModule, path) => {
   };
 };
 
-let declaredForExportedTip =
-    (
-      ~stamps: SharedTypes.stamps,
-      ~exported: SharedTypes.Module.exported,
-      name,
-      tip,
-    ) =>
+let declaredForExportedTip = (~stamps: stamps, ~exported: exported, name, tip) =>
   switch (tip) {
   | Value =>
     Hashtbl.find_opt(exported.values, name)
@@ -258,7 +252,7 @@ let getAttribute = (file, stamp, name) => {
   switch (kind) {
   | Record(labels) =>
     let%opt label =
-      labels |> List.find_opt(label => label.SharedTypes.aname.txt == name);
+      labels |> List.find_opt(label => label.aname.txt == name);
     Some(label);
   | _ => None
   };

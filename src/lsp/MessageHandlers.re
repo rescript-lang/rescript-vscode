@@ -485,7 +485,7 @@ let handlers:
             | [{SharedTypes.name: {loc}, item}, ...tlp] =>
               let currentCl =
                 switch (item) {
-                | SharedTypes.Module.Value(typ) => [
+                | SharedTypes.MValue(typ) => [
                     (typ |> Shared.typeToString, loc),
                   ]
                 | Module(Structure({topLevel})) =>
@@ -723,12 +723,12 @@ let handlers:
       let%try (file, _extra) = State.fileForUri(state, ~package, uri);
       open SharedTypes;
 
-      let rec getItems = ({Module.topLevel}) => {
+      let rec getItems = ({topLevel}) => {
         let fn = ({name: {txt}, extentLoc, item}) => {
           let (item, siblings) =
             switch (item) {
-            | Module.Value(v) => (v |> Shared.variableKind, [])
-            | Type(t) => (t.decl |> Shared.declarationKind, [])
+            | MValue(v) => (v |> Shared.variableKind, [])
+            | MType(t) => (t.decl |> Shared.declarationKind, [])
             | Module(Structure(contents)) => (Module, getItems(contents))
             | Module(Ident(_)) => (Module, [])
             | ModuleType(_) => (ModuleType, [])
