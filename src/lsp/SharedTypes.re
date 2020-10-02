@@ -253,36 +253,34 @@ let rec pathFromVisibility = (visibilityPath, current) =>
 let pathFromVisibility = (visibilityPath, tipName) =>
   pathFromVisibility(visibilityPath, Tip(tipName));
 
-module Loc = {
-  type typed =
-    | LocalReference(int, tip)
-    | GlobalReference(string, path, tip)
-    | NotFound
-    | Definition(int, tip);
-  let typedToString = t =>
-    switch (t) {
-    | LocalReference(stamp, tip) =>
-      Printf.sprintf("Local(%d, %s)", stamp, tipToString(tip))
-    | GlobalReference(m, path, tip) =>
-      Printf.sprintf(
-        "Global(%s, %s, %s)",
-        m,
-        pathToString(path),
-        tipToString(tip),
-      )
-    | Definition(stamp, tip) =>
-      Printf.sprintf("Definition(%d, %s)", stamp, tipToString(tip))
-    | NotFound => "NotFound"
-    };
-  type t =
-    | Typed(Types.type_expr, typed)
-    | Constant(Asttypes.constant)
-    | Module(typed)
-    | TopLevelModule(string)
-    | TypeDefinition(string, Types.type_declaration, int)
-    | Explanation(string)
-    | Open;
-};
+type locKind =
+  | LocalReference(int, tip)
+  | GlobalReference(string, path, tip)
+  | NotFound
+  | Definition(int, tip);
+let locKindToString = t =>
+  switch (t) {
+  | LocalReference(stamp, tip) =>
+    Printf.sprintf("Local(%d, %s)", stamp, tipToString(tip))
+  | GlobalReference(m, path, tip) =>
+    Printf.sprintf(
+      "Global(%s, %s, %s)",
+      m,
+      pathToString(path),
+      tipToString(tip),
+    )
+  | Definition(stamp, tip) =>
+    Printf.sprintf("Definition(%d, %s)", stamp, tipToString(tip))
+  | NotFound => "NotFound"
+  };
+type loc =
+  | Typed(Types.type_expr, locKind)
+  | Constant(Asttypes.constant)
+  | LModule(locKind)
+  | TopLevelModule(string)
+  | TypeDefinition(string, Types.type_declaration, int)
+  | Explanation(string)
+  | Open;
 
 type openTracker = {
   path: Path.t,
@@ -296,7 +294,7 @@ type openTracker = {
 type extra = {
   internalReferences: Hashtbl.t(int, list(Location.t)),
   externalReferences: Hashtbl.t(string, list((path, tip, Location.t))),
-  mutable locations: list((Location.t, Loc.t)),
+  mutable locations: list((Location.t, loc)),
   /* This is the "open location", like the location...
      or maybe the >> location of the open ident maybe */
   /* OPTIMIZE: using a stack to come up with this would cut the computation time of this considerably. */
