@@ -19,7 +19,7 @@ type package = {
   opens: list(string),
   tmpPath: string,
   mutable rebuildTimer: float,
-  buildCommand: option((string, string)),
+  buildCommand: option(string),
   compilerPath: filePath,
   mlfmtPath: option(filePath),
   refmtPath: option(filePath),

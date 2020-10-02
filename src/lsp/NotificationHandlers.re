@@ -44,8 +44,8 @@ let checkPackageTimers = state => {
         ignore @@
         BuildCommand.runBuildCommand(
           ~reportDiagnostics,
-          state,
-          package.rootPath,
+          ~state,
+          ~rootPath=package.rootPath,
           package.buildCommand,
         );
       },

@@ -82,9 +82,9 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
     if (state.settings.autoRebuild) {
       BuildCommand.runBuildCommand(
         ~reportDiagnostics,
-        state,
-        rootPath,
-        Some((buildCommand, rootPath)),
+        ~state,
+        ~rootPath,
+        Some(buildCommand),
       );
     } else {
       Ok();
@@ -216,8 +216,7 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
     dependencyModules: dependencyModules |> List.map(fst),
     pathsForModule,
     nameForPath,
-    buildCommand:
-      state.settings.autoRebuild ? Some((buildCommand, rootPath)) : None,
+    buildCommand: state.settings.autoRebuild ? Some(buildCommand) : None,
     opens,
     tmpPath,
     namespace,

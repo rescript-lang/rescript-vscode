@@ -39,23 +39,23 @@ let rec getAffectedFiles = (root, lines) =>
     getAffectedFiles(root, rest)
   };
 
-let runBuildCommand = (~reportDiagnostics, state, root, buildCommand) =>
+let runBuildCommand = (~reportDiagnostics, ~state, ~rootPath, buildCommand) =>
   /** TODO check for a bsb.lock file & bail if it's there */
   {
     switch (buildCommand) {
     | None => Ok()
-    | Some((buildCommand, commandDirectory)) =>
+    | Some(buildCommand) =>
       Log.log(">> Build system running: " ++ buildCommand);
       let (stdout, stderr, _success) =
-        Commands.execFull(~pwd=commandDirectory, buildCommand);
+        Commands.execFull(~pwd=rootPath, buildCommand);
       Log.log(">>> stdout");
       Log.log(Utils.joinLines(stdout));
       Log.log(">>> stderr");
       let errors = Utils.joinLines(stderr);
       Log.log(errors);
-      let files = getAffectedFiles(commandDirectory, stdout @ stderr);
+      let files = getAffectedFiles(rootPath, stdout @ stderr);
       Log.log("Affected files: " ++ String.concat(" ", files));
-      let bsconfigJson = root /+ "bsconfig.json" |> Utils.toUri;
+      let bsconfigJson = rootPath /+ "bsconfig.json" |> Utils.toUri;
       let bsconfigClean = ref(true);
       files
       |> List.iter(uri => {
