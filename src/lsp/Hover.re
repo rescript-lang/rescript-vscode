@@ -140,7 +140,7 @@ let newHover =
         let parts =
           switch (res) {
           | `Declared => [Some(typeString), docstring]
-          | `Constructor({name: {txt}, args}) => [
+          | `Constructor({cname: {txt}, args}) => [
               Some(typeString),
               Some(
                 codeBlock(

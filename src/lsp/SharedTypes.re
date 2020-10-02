@@ -95,7 +95,7 @@ module Type = {
   module Attribute = {
     type t = {
       stamp: int,
-      name: Location.loc(string),
+      aname: Location.loc(string),
       typ: Types.type_expr,
       typLoc: Location.t,
     };
@@ -104,7 +104,7 @@ module Type = {
   module Constructor = {
     type t = {
       stamp: int,
-      name: Location.loc(string),
+      cname: Location.loc(string),
       args: list((Types.type_expr, Location.t)),
       res: option(Types.type_expr),
     };
