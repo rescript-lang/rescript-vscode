@@ -180,7 +180,7 @@ let rec forSignatureTypeItem =
                        let name = Ident.name(cd_id);
                        let stamp = Ident.binding_time(cd_id);
                        let item = {
-                         Type.Constructor.stamp,
+                         stamp,
                          cname: Location.mknoloc(name),
                          args:
                            (
@@ -221,7 +221,7 @@ let rec forSignatureTypeItem =
                        let astamp = Ident.binding_time(ld_id);
                        let name = Ident.name(ld_id);
                        {
-                         Type.Attribute.stamp: astamp,
+                         stamp: astamp,
                          aname: Location.mknoloc(name),
                          typ: ld_type,
                          typLoc: Location.none,
@@ -332,7 +332,7 @@ let forTypeDeclaration =
               |> List.map(({cd_id, cd_name: cname, cd_args, cd_res}) => {
                    let stamp = Ident.binding_time(cd_id);
                    {
-                     Type.Constructor.stamp,
+                     stamp,
                      cname,
                      args:
                        (
@@ -353,12 +353,7 @@ let forTypeDeclaration =
               |> List.map(
                    ({ld_id, ld_name: aname, ld_type: {ctyp_type, ctyp_loc}}) => {
                    let astamp = Ident.binding_time(ld_id);
-                   {
-                     Type.Attribute.stamp: astamp,
-                     aname,
-                     typ: ctyp_type,
-                     typLoc: ctyp_loc,
-                   };
+                   {stamp: astamp, aname, typ: ctyp_type, typLoc: ctyp_loc};
                  }),
             )
           },

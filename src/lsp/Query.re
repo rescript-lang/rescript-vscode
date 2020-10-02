@@ -258,10 +258,7 @@ let getAttribute = (file, stamp, name) => {
   switch (kind) {
   | Record(labels) =>
     let%opt label =
-      labels
-      |> List.find_opt(label =>
-           label.SharedTypes.Type.Attribute.aname.txt == name
-         );
+      labels |> List.find_opt(label => label.SharedTypes.aname.txt == name);
     Some(label);
   | _ => None
   };
@@ -272,10 +269,7 @@ let getConstructor = (file, stamp, name) => {
   switch (kind) {
   | Variant(constructors) =>
     let%opt const =
-      constructors
-      |> List.find_opt((const: SharedTypes.Type.Constructor.t) =>
-           const.cname.txt == name
-         );
+      constructors |> List.find_opt(const => const.cname.txt == name);
     Some(const);
   | _ => None
   };

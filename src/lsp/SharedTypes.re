@@ -91,31 +91,27 @@ let emptyDeclared = name => {
   item: (),
 };
 
+type attribute = {
+  stamp: int,
+  aname: Location.loc(string),
+  typ: Types.type_expr,
+  typLoc: Location.t,
+};
+
+type constructor = {
+  stamp: int,
+  cname: Location.loc(string),
+  args: list((Types.type_expr, Location.t)),
+  res: option(Types.type_expr),
+};
+
 module Type = {
-  module Attribute = {
-    type t = {
-      stamp: int,
-      aname: Location.loc(string),
-      typ: Types.type_expr,
-      typLoc: Location.t,
-    };
-  };
-
-  module Constructor = {
-    type t = {
-      stamp: int,
-      cname: Location.loc(string),
-      args: list((Types.type_expr, Location.t)),
-      res: option(Types.type_expr),
-    };
-  };
-
   type kind =
     | Abstract(option((Path.t, list(Types.type_expr))))
     | Open
     | Tuple(list(Types.type_expr))
-    | Record(list(Attribute.t))
-    | Variant(list(Constructor.t));
+    | Record(list(attribute))
+    | Variant(list(constructor));
 
   type t = {
     kind,
@@ -187,7 +183,7 @@ type stamps = {
   values: stampMap(declared(Types.type_expr)),
   modules: stampMap(declared(Module.kind)),
   moduleTypes: stampMap(declared(Module.kind)),
-  constructors: stampMap(declared(Type.Constructor.t)),
+  constructors: stampMap(declared(constructor)),
   /* moduleTypes: stampMap(declared(Module.kind)), */
 };
 

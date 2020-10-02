@@ -1,8 +1,7 @@
 open SharedTypes;
 
 open Infix;
-let showConstructor =
-    ({SharedTypes.Type.Constructor.cname: {txt}, args, res}) => {
+let showConstructor = ({cname: {txt}, args, res}) => {
   txt
   ++ (
     args == []
@@ -26,51 +25,50 @@ let rec pathOfModuleOpen = items =>
 /* TODO local opens */
 let resolveOpens = (~env, ~previous, opens, ~getModule) =>
   List.fold_left(
-    (previous, path) =>
-      {
-        /** Finding an open, first trying to find it in previoulsly resolved opens */
-        let rec loop = prev =>
-          switch (prev) {
-          | [] =>
-            switch (path) {
-            | Tip(_) => previous
-            | Nested(name, path) =>
-              switch (getModule(name)) {
+    (previous, path) => {
+      /** Finding an open, first trying to find it in previoulsly resolved opens */
+      let rec loop = prev =>
+        switch (prev) {
+        | [] =>
+          switch (path) {
+          | Tip(_) => previous
+          | Nested(name, path) =>
+            switch (getModule(name)) {
+            | None =>
+              Log.log("Could not get module " ++ name);
+              previous; /* TODO warn? */
+            | Some(file) =>
+              switch (
+                Query.resolvePath(
+                  ~env=Query.fileEnv(file),
+                  ~getModule,
+                  ~path,
+                )
+              ) {
               | None =>
-                Log.log("Could not get module " ++ name);
-                previous; /* TODO warn? */
-              | Some(file) =>
-                switch (
-                  Query.resolvePath(
-                    ~env=Query.fileEnv(file),
-                    ~getModule,
-                    ~path,
-                  )
-                ) {
-                | None =>
-                  Log.log("Could not resolve in " ++ name);
-                  previous;
-                | Some((env, _placeholder)) => previous @ [env]
-                }
+                Log.log("Could not resolve in " ++ name);
+                previous;
+              | Some((env, _placeholder)) => previous @ [env]
               }
             }
-          | [env, ...rest] =>
-            switch (Query.resolvePath(~env, ~getModule, ~path)) {
-            | None => loop(rest)
-            | Some((env, _placeholder)) => previous @ [env]
-            }
-          };
-        Log.log("resolving open " ++ pathToString(path));
-        switch (Query.resolvePath(~env, ~getModule, ~path)) {
-        | None =>
-          Log.log("Not local");
-          loop(previous);
-        | Some((env, _)) =>
-          Log.log("Was local");
-          previous @ [env];
+          }
+        | [env, ...rest] =>
+          switch (Query.resolvePath(~env, ~getModule, ~path)) {
+          | None => loop(rest)
+          | Some((env, _placeholder)) => previous @ [env]
+          }
         };
-      },
-      /* loop(previous) */
+      Log.log("resolving open " ++ pathToString(path));
+      switch (Query.resolvePath(~env, ~getModule, ~path)) {
+      | None =>
+        Log.log("Not local");
+        loop(previous);
+      | Some((env, _)) =>
+        Log.log("Was local");
+        previous @ [env];
+      };
+    },
+    /* loop(previous) */
     previous,
     opens,
   );
@@ -123,9 +121,7 @@ let completionForConstructors =
       | SharedTypes.Type.Variant(constructors) =>
         {
           constructors
-          |> List.filter((c: SharedTypes.Type.Constructor.t) =>
-               Utils.startsWith(c.cname.txt, prefix)
-             )
+          |> List.filter(c => Utils.startsWith(c.cname.txt, prefix))
           |> List.map(c => (c, t));
         }
         @ results
@@ -150,9 +146,7 @@ let completionForAttributes =
       | Record(attributes) =>
         (
           attributes
-          |> List.filter((c: SharedTypes.Type.Attribute.t) =>
-               Utils.startsWith(c.aname.txt, prefix)
-             )
+          |> List.filter(c => Utils.startsWith(c.aname.txt, prefix))
           |> List.map(c => (c, t))
         )
         @ results
@@ -265,8 +259,8 @@ type k =
   | Value(Types.type_expr)
   | Type(Type.t)
   | ModuleType(Module.kind)
-  | Constructor(Type.Constructor.t, declared(Type.t))
-  | Attribute(Type.Attribute.t, declared(Type.t))
+  | Constructor(constructor, declared(Type.t))
+  | Attribute(attribute, declared(Type.t))
   | FileModule(string);
 
 let kindToInt = k =>
@@ -316,10 +310,7 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {
-               ...emptyDeclared(c.SharedTypes.Type.Constructor.cname.txt),
-               item: Constructor(c, t),
-             }
+             {...emptyDeclared(c.cname.txt), item: Constructor(c, t)}
            )
       );
     } else {
@@ -342,10 +333,7 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {
-               ...emptyDeclared(c.SharedTypes.Type.Attribute.aname.txt),
-               item: Attribute(c, t),
-             }
+             {...emptyDeclared(c.aname.txt), item: Attribute(c, t)}
            )
       );
     } else {
@@ -383,10 +371,7 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {
-               ...emptyDeclared(c.SharedTypes.Type.Constructor.cname.txt),
-               item: Constructor(c, t),
-             }
+             {...emptyDeclared(c.cname.txt), item: Constructor(c, t)}
            )
       );
     } else {
@@ -412,10 +397,7 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {
-               ...emptyDeclared(c.SharedTypes.Type.Attribute.aname.txt),
-               item: Attribute(c, t),
-             }
+             {...emptyDeclared(c.aname.txt), item: Attribute(c, t)}
            )
       );
     } else {
@@ -456,10 +438,7 @@ let attributeCompletions = (~env: Query.queryEnv, ~suffix) => {
           suffix,
         )
         |> List.map(((c, t)) =>
-             {
-               ...emptyDeclared(c.SharedTypes.Type.Attribute.aname.txt),
-               item: Attribute(c, t),
-             }
+             {...emptyDeclared(c.aname.txt), item: Attribute(c, t)}
            )
       );
     } else {
@@ -614,10 +593,7 @@ let get =
                    switch (typ.item.SharedTypes.Type.kind) {
                    | Record(attributes) =>
                      let%opt attr =
-                       attributes
-                       |> List.find_opt((a: SharedTypes.Type.Attribute.t) =>
-                            a.aname.txt == name
-                          );
+                       attributes |> List.find_opt(a => a.aname.txt == name);
                      Log.log("Found attr " ++ name);
                      let%opt path = attr.typ |> Shared.digConstructor;
                      Hover.digConstructor(~env, ~getModule, path);
@@ -630,7 +606,7 @@ let get =
           | Record(attributes) =>
             Some(
               attributes
-              |> Utils.filterMap((a: SharedTypes.Type.Attribute.t) =>
+              |> Utils.filterMap(a =>
                    if (Utils.startsWith(a.aname.txt, suffix)) {
                      Some((
                        env.file.uri,

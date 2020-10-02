@@ -196,10 +196,7 @@ module F =
         | `Local({stamp, item: {kind: Record(attributes)}}) =>
           {
             let%opt_wrap {stamp: astamp} =
-              attributes
-              |> List.find_opt((a: SharedTypes.Type.Attribute.t) =>
-                   a.aname.txt == name
-                 );
+              attributes |> List.find_opt(a => a.aname.txt == name);
             addReference(astamp, nameLoc);
             Loc.LocalReference(stamp, Attribute(name));
           }
@@ -231,10 +228,7 @@ module F =
              | `Local({stamp, item: {kind: Record(attributes)}}) =>
                {
                  let%opt_wrap {stamp: astamp} =
-                   attributes
-                   |> List.find_opt((a: SharedTypes.Type.Attribute.t) =>
-                        a.aname.txt == name
-                      );
+                   attributes |> List.find_opt(a => a.aname.txt == name);
                  addReference(astamp, nameLoc);
                  Loc.LocalReference(stamp, Attribute(name));
                }
@@ -271,10 +265,7 @@ module F =
         | `Local({stamp, item: {kind: Variant(constructors)}}) =>
           {
             let%opt_wrap {stamp: cstamp} =
-              constructors
-              |> List.find_opt((c: SharedTypes.Type.Constructor.t) =>
-                   c.cname.txt == cstr_name
-                 );
+              constructors |> List.find_opt(c => c.cname.txt == cstr_name);
             addReference(cstamp, nameLoc);
             Loc.LocalReference(stamp, Constructor(name));
           }
@@ -602,7 +593,7 @@ let forFile = (~file) => {
        switch (d.item.Type.kind) {
        | Record(labels) =>
          labels
-         |> List.iter(({Type.Attribute.stamp, aname, typ}) => {
+         |> List.iter(({stamp, aname, typ}) => {
               addReference(stamp, aname.loc);
               addLocation(
                 aname.loc,
@@ -614,7 +605,7 @@ let forFile = (~file) => {
             })
        | Variant(constructos) =>
          constructos
-         |> List.iter(({Type.Constructor.stamp, cname}) => {
+         |> List.iter(({stamp, cname}) => {
               addReference(stamp, cname.loc);
               let t = {
                 Types.id: 0,
