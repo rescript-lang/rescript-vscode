@@ -181,7 +181,7 @@ let rec forSignatureTypeItem =
                        let stamp = Ident.binding_time(cd_id);
                        let item = {
                          Type.Constructor.stamp,
-                         name: Location.mknoloc(name),
+                         cname: Location.mknoloc(name),
                          args:
                            (
                              switch (cd_args) {
@@ -222,7 +222,7 @@ let rec forSignatureTypeItem =
                        let name = Ident.name(ld_id);
                        {
                          Type.Attribute.stamp: astamp,
-                         name: Location.mknoloc(name),
+                         aname: Location.mknoloc(name),
                          typ: ld_type,
                          typLoc: Location.none,
                        };
@@ -329,11 +329,11 @@ let forTypeDeclaration =
           | Ttype_variant(constructors) =>
             Variant(
               constructors
-              |> List.map(({cd_id, cd_name: name, cd_args, cd_res}) => {
+              |> List.map(({cd_id, cd_name: cname, cd_args, cd_res}) => {
                    let stamp = Ident.binding_time(cd_id);
                    {
                      Type.Constructor.stamp,
-                     name,
+                     cname,
                      args:
                        (
                          switch (cd_args) {
@@ -351,11 +351,11 @@ let forTypeDeclaration =
             Record(
               labels
               |> List.map(
-                   ({ld_id, ld_name: name, ld_type: {ctyp_type, ctyp_loc}}) => {
+                   ({ld_id, ld_name: aname, ld_type: {ctyp_type, ctyp_loc}}) => {
                    let astamp = Ident.binding_time(ld_id);
                    {
                      Type.Attribute.stamp: astamp,
-                     name,
+                     aname,
                      typ: ctyp_type,
                      typLoc: ctyp_loc,
                    };

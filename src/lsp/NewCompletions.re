@@ -2,7 +2,7 @@ open SharedTypes;
 
 open Infix;
 let showConstructor =
-    ({SharedTypes.Type.Constructor.name: {txt}, args, res}) => {
+    ({SharedTypes.Type.Constructor.cname: {txt}, args, res}) => {
   txt
   ++ (
     args == []
@@ -124,7 +124,7 @@ let completionForConstructors =
         {
           constructors
           |> List.filter((c: SharedTypes.Type.Constructor.t) =>
-               Utils.startsWith(c.name.txt, prefix)
+               Utils.startsWith(c.cname.txt, prefix)
              )
           |> List.map(c => (c, t));
         }
@@ -151,7 +151,7 @@ let completionForAttributes =
         (
           attributes
           |> List.filter((c: SharedTypes.Type.Attribute.t) =>
-               Utils.startsWith(c.name.txt, prefix)
+               Utils.startsWith(c.aname.txt, prefix)
              )
           |> List.map(c => (c, t))
         )
@@ -317,7 +317,7 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
         )
         |> List.map(((c, t)) =>
              {
-               ...emptyDeclared(c.SharedTypes.Type.Constructor.name.txt),
+               ...emptyDeclared(c.SharedTypes.Type.Constructor.cname.txt),
                item: Constructor(c, t),
              }
            )
@@ -343,7 +343,7 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
         )
         |> List.map(((c, t)) =>
              {
-               ...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt),
+               ...emptyDeclared(c.SharedTypes.Type.Attribute.aname.txt),
                item: Attribute(c, t),
              }
            )
@@ -384,7 +384,7 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
         )
         |> List.map(((c, t)) =>
              {
-               ...emptyDeclared(c.SharedTypes.Type.Constructor.name.txt),
+               ...emptyDeclared(c.SharedTypes.Type.Constructor.cname.txt),
                item: Constructor(c, t),
              }
            )
@@ -413,7 +413,7 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
         )
         |> List.map(((c, t)) =>
              {
-               ...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt),
+               ...emptyDeclared(c.SharedTypes.Type.Attribute.aname.txt),
                item: Attribute(c, t),
              }
            )
@@ -457,7 +457,7 @@ let attributeCompletions = (~env: Query.queryEnv, ~suffix) => {
         )
         |> List.map(((c, t)) =>
              {
-               ...emptyDeclared(c.SharedTypes.Type.Attribute.name.txt),
+               ...emptyDeclared(c.SharedTypes.Type.Attribute.aname.txt),
                item: Attribute(c, t),
              }
            )
@@ -616,7 +616,7 @@ let get =
                      let%opt attr =
                        attributes
                        |> List.find_opt((a: SharedTypes.Type.Attribute.t) =>
-                            a.name.txt == name
+                            a.aname.txt == name
                           );
                      Log.log("Found attr " ++ name);
                      let%opt path = attr.typ |> Shared.digConstructor;
@@ -631,11 +631,11 @@ let get =
             Some(
               attributes
               |> Utils.filterMap((a: SharedTypes.Type.Attribute.t) =>
-                   if (Utils.startsWith(a.name.txt, suffix)) {
+                   if (Utils.startsWith(a.aname.txt, suffix)) {
                      Some((
                        env.file.uri,
                        {
-                         ...emptyDeclared(a.name.txt),
+                         ...emptyDeclared(a.aname.txt),
                          item: Attribute(a, typ),
                        },
                      ));

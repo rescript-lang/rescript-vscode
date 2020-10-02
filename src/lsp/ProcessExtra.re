@@ -198,7 +198,7 @@ module F =
             let%opt_wrap {stamp: astamp} =
               attributes
               |> List.find_opt((a: SharedTypes.Type.Attribute.t) =>
-                   a.name.txt == name
+                   a.aname.txt == name
                  );
             addReference(astamp, nameLoc);
             Loc.LocalReference(stamp, Attribute(name));
@@ -233,7 +233,7 @@ module F =
                  let%opt_wrap {stamp: astamp} =
                    attributes
                    |> List.find_opt((a: SharedTypes.Type.Attribute.t) =>
-                        a.name.txt == name
+                        a.aname.txt == name
                       );
                  addReference(astamp, nameLoc);
                  Loc.LocalReference(stamp, Attribute(name));
@@ -272,8 +272,8 @@ module F =
           {
             let%opt_wrap {stamp: cstamp} =
               constructors
-              |> List.find_opt((a: SharedTypes.Type.Constructor.t) =>
-                   a.name.txt == cstr_name
+              |> List.find_opt((c: SharedTypes.Type.Constructor.t) =>
+                   c.cname.txt == cstr_name
                  );
             addReference(cstamp, nameLoc);
             Loc.LocalReference(stamp, Constructor(name));
@@ -602,20 +602,20 @@ let forFile = (~file) => {
        switch (d.item.Type.kind) {
        | Record(labels) =>
          labels
-         |> List.iter(({Type.Attribute.stamp, name, typ}) => {
-              addReference(stamp, name.loc);
+         |> List.iter(({Type.Attribute.stamp, aname, typ}) => {
+              addReference(stamp, aname.loc);
               addLocation(
-                name.loc,
+                aname.loc,
                 Loc.Typed(
                   typ,
-                  Loc.Definition(d.stamp, Attribute(name.txt)),
+                  Loc.Definition(d.stamp, Attribute(aname.txt)),
                 ),
               );
             })
        | Variant(constructos) =>
          constructos
-         |> List.iter(({Type.Constructor.stamp, name}) => {
-              addReference(stamp, name.loc);
+         |> List.iter(({Type.Constructor.stamp, cname}) => {
+              addReference(stamp, cname.loc);
               let t = {
                 Types.id: 0,
                 level: 0,
@@ -627,10 +627,10 @@ let forFile = (~file) => {
                   ),
               };
               addLocation(
-                name.loc,
+                cname.loc,
                 Loc.Typed(
                   t,
-                  Loc.Definition(d.stamp, Constructor(name.txt)),
+                  Loc.Definition(d.stamp, Constructor(cname.txt)),
                 ),
               );
             })

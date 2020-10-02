@@ -473,10 +473,10 @@ let definition = (~file, ~getModule, stamp, tip) => {
   switch (tip) {
   | Constructor(name) =>
     let%opt constructor = Query.getConstructor(file, stamp, name);
-    Some((file.uri, constructor.name.loc));
+    Some((file.uri, constructor.cname.loc));
   | Attribute(name) =>
     let%opt attribute = Query.getAttribute(file, stamp, name);
-    Some((file.uri, attribute.name.loc));
+    Some((file.uri, attribute.aname.loc));
   | Module => resolveModuleDefinition(~file, ~getModule, stamp)
   | _ =>
     let%opt declared = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
