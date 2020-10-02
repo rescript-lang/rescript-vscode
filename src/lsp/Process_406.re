@@ -2,14 +2,14 @@ open SharedTypes;
 
 let fileForCmt = (~moduleName, cmt, uri, processDoc) => {
   let%try infos = Shared.tryReadCmt(cmt);
-  ProcessCmt.forCmt(~moduleName, uri, processDoc, infos);
+  Ok(ProcessCmt.forCmt(~moduleName, uri, processDoc, infos));
 };
 
 let fullForCmt = (~moduleName, ~allLocations, cmt, uri, processDoc) => {
   let%try infos = Shared.tryReadCmt(cmt);
-  let%try file = ProcessCmt.forCmt(~moduleName, uri, processDoc, infos);
-  let%try_wrap extra = ProcessExtra.forCmt(~file, ~allLocations, infos);
-  {file, extra};
+  let file = ProcessCmt.forCmt(~moduleName, uri, processDoc, infos);
+  let extra = ProcessExtra.forCmt(~file, ~allLocations, infos);
+  Ok({file, extra});
 };
 
 let astForCmt = cmt => {
@@ -18,10 +18,9 @@ let astForCmt = cmt => {
   | Implementation(structure) =>
     /* The definition of my Compiler_libs_406 is different from ocaml-migrate-parsetree's in
        a couple small ways that don't actually change the in-memory representation :eyeroll: */
-    Ok
-      (`Implementation(Untypeast.untype_structure(structure)))
-      /* Printast.implementation(Stdlib.Format.str_formatter, Untypeast.untype_structure(structure));
-         Ok(Format.flush_str_formatter()); */
+    Ok(`Implementation(Untypeast.untype_structure(structure)))
+  /* Printast.implementation(Stdlib.Format.str_formatter, Untypeast.untype_structure(structure));
+     Ok(Format.flush_str_formatter()); */
   | Interface(signature) =>
     Ok(`Interface(Untypeast.untype_signature(signature)))
   /* Printast.interface(Stdlib.Format.str_formatter, Untypeast.untype_signature(signature));

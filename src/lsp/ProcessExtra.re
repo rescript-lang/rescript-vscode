@@ -703,12 +703,12 @@ let forCmt = (~file, ~allLocations, {cmt_annots}: Cmt_format.cmt_infos) =>
            }
          )
       |> List.concat;
-    Ok(forItems(~file, ~allLocations, items, parts));
+    forItems(~file, ~allLocations, items, parts);
   | Implementation(structure) =>
-    Ok(forItems(~file, ~allLocations, structure.str_items, [||]))
+    forItems(~file, ~allLocations, structure.str_items, [||])
   | Partial_interface(_)
   | Interface(_) =>
     /** TODO actually process signature items */
-    Ok(forItems(~file, ~allLocations, [], [||]))
-  | _ => Error("Invalid cmt file")
+    forItems(~file, ~allLocations, [], [||])
+  | _ => forItems(~file, ~allLocations, [], [||])
   };

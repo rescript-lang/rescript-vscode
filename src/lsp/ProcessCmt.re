@@ -654,13 +654,7 @@ let forCmt =
       modulePath: File(uri, moduleName),
     };
     let (docstring, contents) = forStructure(~env, items);
-    Ok({
-      uri,
-      moduleName: cmt_modname,
-      stamps: env.stamps,
-      docstring,
-      contents,
-    });
+    {uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents};
   | Partial_interface(parts) =>
     let items =
       parts
@@ -680,13 +674,7 @@ let forCmt =
       modulePath: File(uri, moduleName),
     };
     let (docstring, contents) = forSignature(~env, items);
-    Ok({
-      uri,
-      moduleName: cmt_modname,
-      stamps: env.stamps,
-      docstring,
-      contents,
-    });
+    {uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents};
   | Implementation(structure) =>
     let env = {
       scope: itemsExtent(structure.str_items),
@@ -695,13 +683,7 @@ let forCmt =
       modulePath: File(uri, moduleName),
     };
     let (docstring, contents) = forStructure(~env, structure.str_items);
-    Ok({
-      uri,
-      moduleName: cmt_modname,
-      stamps: env.stamps,
-      docstring,
-      contents,
-    });
+    {uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents};
   | Interface(signature) =>
     let env = {
       scope: sigItemsExtent(signature.sig_items),
@@ -710,12 +692,6 @@ let forCmt =
       modulePath: File(uri, moduleName),
     };
     let (docstring, contents) = forSignature(~env, signature.sig_items);
-    Ok({
-      uri,
-      moduleName: cmt_modname,
-      stamps: env.stamps,
-      docstring,
-      contents,
-    });
-  | _ => Error("Not a valid cmt")
+    {uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents};
+  | _ => SharedTypes.emptyFile(moduleName, uri)
   };
