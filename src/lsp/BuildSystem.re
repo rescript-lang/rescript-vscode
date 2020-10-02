@@ -43,30 +43,11 @@ let getBsPlatformDir = rootPath => {
   switch (result) {
   | Some(path) => Ok(path)
   | None =>
-    let resultSecondary =
-      ModuleResolution.resolveNodeModulePath(
-        ~startPath=rootPath,
-        "bsb-native",
-      );
-    switch (resultSecondary) {
-    | Some(path) => Ok(path)
-    | None =>
-      let message = "bs-platform could not be found";
-      Log.log(message);
-      Error(message);
-    };
+    let message = "bs-platform could not be found";
+    Log.log(message);
+    Error(message);
   };
 };
-
-/* One dir up, then into .bin.
-    Is .bin always in the modules directory?
-   */
-let getBsbExecutable = rootPath =>
-  RResult.InfixResult.(
-    getBsPlatformDir(rootPath)
-    |?>> Filename.dirname
-    |?>> (path => path /+ ".bin" /+ "bsb")
-  );
 
 let getCompiledBase = root => {
   Files.ifExists(root /+ "lib" /+ "bs");
