@@ -126,7 +126,7 @@ let justBscCommand =
 
 let runBsc =
     (
-      ~basePath,
+      ~rootPath,
       ~interface,
       ~reasonFormat,
       ~command,
@@ -145,8 +145,8 @@ let runBsc =
       includes,
       flags,
     );
-  Log.log({|➡️ running compiler |} ++ cmd ++ " with pwd " ++ basePath);
-  let (out, error, success) = Commands.execFull(~pwd=basePath, cmd);
+  Log.log({|➡️ running compiler |} ++ cmd ++ " with pwd " ++ rootPath);
+  let (out, error, success) = Commands.execFull(~pwd=rootPath, cmd);
   if (success) {
     Ok((out, error));
   } else {
@@ -157,7 +157,7 @@ let runBsc =
 let getInterface =
     (
       ~moduleName,
-      ~basePath,
+      ~rootPath,
       ~reasonFormat,
       text,
       ~cacheLocation,
@@ -179,7 +179,7 @@ let getInterface =
     };
   switch (
     runBsc(
-      ~basePath,
+      ~rootPath,
       ~interface,
       ~reasonFormat,
       ~command="-i",
@@ -221,7 +221,7 @@ let process =
     (
       ~uri,
       ~moduleName,
-      ~basePath,
+      ~rootPath,
       ~reasonFormat,
       text,
       ~cacheLocation,
@@ -257,7 +257,7 @@ let process =
   };
   switch (
     runBsc(
-      ~basePath,
+      ~rootPath,
       ~interface,
       ~reasonFormat,
       ~command="-c",

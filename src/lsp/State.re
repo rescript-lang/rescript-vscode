@@ -211,7 +211,7 @@ let getInterfaceFile = (uri, state, ~package: TopTypes.package) => {
   let%try refmtPath = refmtForUri(uri, package);
   AsYouType.getInterface(
     ~moduleName,
-    ~basePath=package.basePath,
+    ~rootPath=package.rootPath,
     ~reasonFormat=Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei"),
     text,
     ~cacheLocation=package.tmpPath,
@@ -253,7 +253,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) =>
         ~uri,
         ~moduleName,
         ~allLocations=state.settings.recordAllLocations,
-        ~basePath=package.basePath,
+        ~rootPath=package.rootPath,
         ~reasonFormat=
           Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei"),
         text,

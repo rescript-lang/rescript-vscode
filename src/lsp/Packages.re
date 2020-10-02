@@ -210,7 +210,7 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
   let interModuleDependencies = Hashtbl.create(List.length(localModules));
 
   {
-    basePath: rootPath,
+    rootPath,
     rebuildTimer: 0.,
     localModules: localModules |> List.map(fst),
     dependencyModules: dependencyModules |> List.map(fst),
@@ -280,8 +280,8 @@ let getPackage = (~reportDiagnostics, uri, state) =>
           lispRefmtPath:
             state.settings.lispRefmtLocation |?? package.lispRefmtPath,
         };
-        Hashtbl.replace(state.rootForUri, uri, package.basePath);
-        Hashtbl.replace(state.packagesByRoot, package.basePath, package);
+        Hashtbl.replace(state.rootForUri, uri, package.rootPath);
+        Hashtbl.replace(state.packagesByRoot, package.rootPath, package);
         Ok(package);
       };
 

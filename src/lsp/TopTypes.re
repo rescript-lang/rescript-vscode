@@ -5,7 +5,7 @@ type moduleName = string;
 
 /* Here are the things that will be different between jbuilder things */
 type package = {
-  basePath: filePath,
+  rootPath: filePath,
   /* Might change based on bsconfig.json / .merlin */
   includeDirectories: list(filePath),
   compilationFlags: string,
