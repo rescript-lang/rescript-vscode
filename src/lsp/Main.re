@@ -232,7 +232,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
              extra.locations
              |> List.iter(((location, loc)) => {
                   switch (loc) {
-                  | SharedTypes.Loc.Typed(_, LocalReference(tag, Type))
+                  | SharedTypes.Typed(_, LocalReference(tag, Type))
                       when tag <= 15 =>
                     ()
                   | Typed(
@@ -265,7 +265,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
                             location.loc_start.pos_cnum
                             - location.loc_start.pos_bol
                             + 1,
-                            SharedTypes.Loc.typedToString(t),
+                            SharedTypes.locKindToString(t),
                           ),
                           ...missing^,
                         ]

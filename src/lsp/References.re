@@ -59,15 +59,15 @@ let locForLocations = (~extra, location: Location.t) => {
  * Useful for "highlight" stuff. */
 let localReferencesForLoc = (~file, ~extra, loc) =>
   switch (loc) {
-  | Loc.Explanation(_)
+  | Explanation(_)
   | Typed(_, NotFound)
-  | Module(NotFound)
+  | LModule(NotFound)
   | TopLevelModule(_)
   | Constant(_)
   | Open => None
   | TypeDefinition(_, _, stamp) =>
     Hashtbl.find_opt(extra.internalReferences, stamp)
-  | Module(LocalReference(stamp, tip) | Definition(stamp, tip))
+  | LModule(LocalReference(stamp, tip) | Definition(stamp, tip))
   | Typed(_, LocalReference(stamp, tip) | Definition(stamp, tip)) =>
     open Infix;
     let%opt localStamp =
@@ -79,7 +79,7 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
       | _ => Some(stamp)
       };
     Hashtbl.find_opt(extra.internalReferences, localStamp);
-  | Module(GlobalReference(moduleName, path, tip))
+  | LModule(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
     let%opt_wrap refs =
       Hashtbl.find_opt(extra.externalReferences, moduleName);
@@ -117,17 +117,17 @@ let definedForLoc = (~file, ~getModule, loc) => {
   };
 
   switch (loc) {
-  | Loc.Explanation(_)
+  | Explanation(_)
   | Typed(_, NotFound)
-  | Module(NotFound)
+  | LModule(NotFound)
   | TopLevelModule(_)
   | Constant(_)
   | Open => None
   | Typed(_, LocalReference(stamp, tip) | Definition(stamp, tip))
-  | Module(LocalReference(stamp, tip) | Definition(stamp, tip)) =>
+  | LModule(LocalReference(stamp, tip) | Definition(stamp, tip)) =>
     inner(~file, stamp, tip)
   | TypeDefinition(_, _, stamp) => inner(~file, stamp, Type)
-  | Module(GlobalReference(moduleName, path, tip))
+  | LModule(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
     {
       maybeLog("Getting global " ++ moduleName);
@@ -343,9 +343,9 @@ let allReferencesForLoc =
       loc,
     ) => {
   switch (loc) {
-  | Loc.Explanation(_)
+  | Explanation(_)
   | Typed(_, NotFound)
-  | Module(NotFound)
+  | LModule(NotFound)
   | TopLevelModule(_)
   | Constant(_)
   | Open => Error("Not a valid loc")
@@ -363,7 +363,7 @@ let allReferencesForLoc =
     )
     |> RResult.orError("Could not get for local stamp")
   | Typed(_, LocalReference(stamp, tip) | Definition(stamp, tip))
-  | Module(LocalReference(stamp, tip) | Definition(stamp, tip)) =>
+  | LModule(LocalReference(stamp, tip) | Definition(stamp, tip)) =>
     maybeLog(
       "Finding references for "
       ++ file.uri
@@ -384,7 +384,7 @@ let allReferencesForLoc =
       tip,
     )
     |> RResult.orError("Could not get for local stamp");
-  | Module(GlobalReference(moduleName, path, tip))
+  | LModule(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
     let%try file =
       getModule(moduleName)
@@ -494,7 +494,7 @@ let orLog = (message, v) =>
 
 let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
   switch (loc) {
-  | Loc.Typed(_, Definition(stamp, tip)) =>
+  | Typed(_, Definition(stamp, tip)) =>
     maybeLog("Trying to find a defintion for a definition");
     let%opt declared = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
     maybeLog("Declared");
@@ -507,9 +507,9 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
     } else {
       None;
     };
-  | Loc.Explanation(_)
+  | Explanation(_)
   | Typed(_, NotFound)
-  | Module(NotFound | Definition(_, _))
+  | LModule(NotFound | Definition(_, _))
   | TypeDefinition(_, _, _)
   | Constant(_)
   | Open => None
@@ -522,11 +522,11 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
       |?> getSrc
       |> orLog("No src found");
     Some((Utils.toUri(src), Utils.topLoc(src)));
-  | Module(LocalReference(stamp, tip))
+  | LModule(LocalReference(stamp, tip))
   | Typed(_, LocalReference(stamp, tip)) =>
     maybeLog("Local defn " ++ tipToString(tip));
     definition(~file, ~getModule, stamp, tip);
-  | Module(GlobalReference(moduleName, path, tip))
+  | LModule(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
     maybeLog(
       "Global defn "

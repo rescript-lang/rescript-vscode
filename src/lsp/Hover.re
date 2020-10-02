@@ -59,11 +59,11 @@ open Infix;
 let newHover =
     (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showPath, loc) => {
   switch (loc) {
-  | SharedTypes.Loc.Explanation(text) => Some(text)
+  | SharedTypes.Explanation(text) => Some(text)
   /* TODO store a "defined" for Open (the module) */
   | Open => Some("an open")
   | TypeDefinition(_name, _tdecl, _stamp) => None
-  | Module(LocalReference(stamp, _tip)) =>
+  | LModule(LocalReference(stamp, _tip)) =>
     let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
     let%opt (file, declared) =
       References.resolveModuleReference(~file, ~getModule, md);
@@ -73,7 +73,7 @@ let newHover =
       | None => file.moduleName
       };
     showModule(~name, ~markdown, ~file, declared);
-  | Module(GlobalReference(moduleName, path, tip)) =>
+  | LModule(GlobalReference(moduleName, path, tip)) =>
     let%opt file = getModule(moduleName);
     let env = {Query.file, exported: file.contents.exported};
     let%opt (env, name) = Query.resolvePath(~env, ~path, ~getModule);
@@ -87,7 +87,7 @@ let newHover =
       | None => file.moduleName
       };
     showModule(~name, ~markdown, ~file, declared);
-  | Module(_) => None
+  | LModule(_) => None
   | TopLevelModule(name) =>
     let%opt file = getModule(name);
     showModule(~name=file.moduleName, ~markdown, ~file, None);

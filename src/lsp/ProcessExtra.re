@@ -140,21 +140,21 @@ module F =
       switch (Query.fromCompilerPath(~env, path)) {
       | `Stamp(stamp) =>
         addReference(stamp, identLoc);
-        Loc.LocalReference(stamp, tip);
-      | `Not_found => Loc.NotFound
+        LocalReference(stamp, tip);
+      | `Not_found => NotFound
       | `Global(moduleName, path) =>
         addExternalReference(moduleName, path, tip, identLoc);
-        Loc.GlobalReference(moduleName, path, tip);
+        GlobalReference(moduleName, path, tip);
       | `Exported(env, name) =>
         let res = {
           let%opt_wrap stamp = Hashtbl.find_opt(env.exported.values, name);
           addReference(stamp, identLoc);
-          Loc.LocalReference(stamp, tip);
+          LocalReference(stamp, tip);
         };
-        res |? Loc.NotFound;
-      | `GlobalMod(_) => Loc.NotFound
+        res |? NotFound;
+      | `GlobalMod(_) => NotFound
       };
-    addLocation(loc, Loc.Typed(typ, locType));
+    addLocation(loc, Typed(typ, locType));
   };
 
   let addForPathParent = (path, loc) => {
@@ -162,21 +162,21 @@ module F =
       switch (Query.fromCompilerPath(~env, path)) {
       | `GlobalMod(name) =>
         /* TODO track external references to filenames to handle renames well */
-        Loc.TopLevelModule(name)
+        TopLevelModule(name)
       | `Stamp(stamp) =>
         addReference(stamp, loc);
-        Module(LocalReference(stamp, Module));
-      | `Not_found => Module(NotFound)
+        LModule(LocalReference(stamp, Module));
+      | `Not_found => LModule(NotFound)
       | `Global(moduleName, path) =>
         addExternalReference(moduleName, path, Module, loc);
-        Module(GlobalReference(moduleName, path, Module));
+        LModule(GlobalReference(moduleName, path, Module));
       | `Exported(env, name) =>
         let res = {
           let%opt_wrap stamp = Hashtbl.find_opt(env.exported.modules, name);
           addReference(stamp, loc);
-          Loc.Module(LocalReference(stamp, Module));
+          LModule(LocalReference(stamp, Module));
         };
-        res |? Module(NotFound);
+        res |? LModule(NotFound);
       };
     addLocation(loc, locType);
   };
@@ -198,15 +198,15 @@ module F =
             let%opt_wrap {stamp: astamp} =
               attributes |> List.find_opt(a => a.aname.txt == name);
             addReference(astamp, nameLoc);
-            Loc.LocalReference(stamp, Attribute(name));
+            LocalReference(stamp, Attribute(name));
           }
-          |? Loc.NotFound
+          |? NotFound
         | `Global(moduleName, path) =>
           addExternalReference(moduleName, path, Attribute(name), nameLoc);
-          Loc.GlobalReference(moduleName, path, Attribute(name));
-        | _ => Loc.NotFound
+          GlobalReference(moduleName, path, Attribute(name));
+        | _ => NotFound
         };
-      addLocation(nameLoc, Loc.Typed(lbl_res, locType));
+      addLocation(nameLoc, Typed(lbl_res, locType));
     | _ => ()
     };
   };
@@ -230,9 +230,9 @@ module F =
                  let%opt_wrap {stamp: astamp} =
                    attributes |> List.find_opt(a => a.aname.txt == name);
                  addReference(astamp, nameLoc);
-                 Loc.LocalReference(stamp, Attribute(name));
+                 LocalReference(stamp, Attribute(name));
                }
-               |? Loc.NotFound
+               |? NotFound
              | `Global(moduleName, path) =>
                addExternalReference(
                  moduleName,
@@ -240,10 +240,10 @@ module F =
                  Attribute(name),
                  nameLoc,
                );
-               Loc.GlobalReference(moduleName, path, Attribute(name));
-             | _ => Loc.NotFound
+               GlobalReference(moduleName, path, Attribute(name));
+             | _ => NotFound
              };
-           addLocation(nameLoc, Loc.Typed(lbl_res, locType));
+           addLocation(nameLoc, Typed(lbl_res, locType));
          });
     | _ => ()
     };
@@ -267,15 +267,15 @@ module F =
             let%opt_wrap {stamp: cstamp} =
               constructors |> List.find_opt(c => c.cname.txt == cstr_name);
             addReference(cstamp, nameLoc);
-            Loc.LocalReference(stamp, Constructor(name));
+            LocalReference(stamp, Constructor(name));
           }
-          |? Loc.NotFound
+          |? NotFound
         | `Global(moduleName, path) =>
           addExternalReference(moduleName, path, Constructor(name), nameLoc);
-          Loc.GlobalReference(moduleName, path, Constructor(name));
-        | _ => Loc.NotFound
+          GlobalReference(moduleName, path, Constructor(name));
+        | _ => NotFound
         };
-      addLocation(nameLoc, Loc.Typed(constructorType, locType));
+      addLocation(nameLoc, Typed(constructorType, locType));
     | _ => ()
     };
   };
@@ -356,7 +356,7 @@ module F =
           },
         ]),
       )) =>
-      addLocation(loc, Loc.Explanation(doc))
+      addLocation(loc, Explanation(doc))
     | Tstr_include({incl_mod: expr}) => handle_module_expr(expr.mod_desc)
     | Tstr_module({mb_expr}) => handle_module_expr(mb_expr.mod_desc)
     | Tstr_open({open_path, open_txt: {txt, loc} as l}) =>
@@ -422,7 +422,7 @@ module F =
         addReference(stamp, name.loc);
         addLocation(
           name.loc,
-          Loc.Typed(val_desc.ctyp_type, Loc.Definition(stamp, Value)),
+          Typed(val_desc.ctyp_type, Definition(stamp, Value)),
         );
       };
     | _ => ()
@@ -458,10 +458,7 @@ module F =
           );
         Hashtbl.add(Collector.file.stamps.values, stamp, declared);
         addReference(stamp, name.loc);
-        addLocation(
-          name.loc,
-          Loc.Typed(pat_type, Loc.Definition(stamp, Value)),
-        );
+        addLocation(name.loc, Typed(pat_type, Definition(stamp, Value)));
       };
     /* Log.log("Entering pattern " ++ Utils.showLocation(pat_loc)); */
     switch (pat_desc) {
@@ -478,7 +475,7 @@ module F =
     | _ => ()
     };
     if (Collector.allLocations) {
-      addLocation(pat_loc, Loc.Typed(pat_type, Loc.NotFound));
+      addLocation(pat_loc, Typed(pat_type, NotFound));
     };
   };
 
@@ -514,7 +511,7 @@ module F =
            }),
       )
     | Texp_constant(constant) =>
-      addLocation(expression.exp_loc, Loc.Constant(constant))
+      addLocation(expression.exp_loc, Constant(constant))
     /* Skip unit and list literals */
     | Texp_construct({txt: Lident("()" | "::"), loc}, _, _args)
         when loc.loc_end.pos_cnum - loc.loc_start.pos_cnum != 2 =>
@@ -536,10 +533,7 @@ module F =
     | _ => ()
     };
     if (Collector.allLocations) {
-      addLocation(
-        expression.exp_loc,
-        Loc.Typed(expression.exp_type, Loc.NotFound),
-      );
+      addLocation(expression.exp_loc, Typed(expression.exp_type, NotFound));
     };
   };
 
@@ -572,22 +566,19 @@ let forFile = (~file) => {
     );
   file.stamps.modules
   |> Hashtbl.iter((stamp, d) => {
-       addLocation(d.name.loc, Loc.Module(Loc.Definition(stamp, Module)));
+       addLocation(d.name.loc, LModule(Definition(stamp, Module)));
        addReference(stamp, d.name.loc);
      });
   file.stamps.values
   |> Hashtbl.iter((stamp, d) => {
-       addLocation(
-         d.name.loc,
-         Loc.Typed(d.item, Loc.Definition(stamp, Value)),
-       );
+       addLocation(d.name.loc, Typed(d.item, Definition(stamp, Value)));
        addReference(stamp, d.name.loc);
      });
   file.stamps.types
   |> Hashtbl.iter((stamp, d) => {
        addLocation(
          d.name.loc,
-         Loc.TypeDefinition(d.name.txt, d.item.Type.decl, stamp),
+         TypeDefinition(d.name.txt, d.item.Type.decl, stamp),
        );
        addReference(stamp, d.name.loc);
        switch (d.item.Type.kind) {
@@ -597,10 +588,7 @@ let forFile = (~file) => {
               addReference(stamp, aname.loc);
               addLocation(
                 aname.loc,
-                Loc.Typed(
-                  typ,
-                  Loc.Definition(d.stamp, Attribute(aname.txt)),
-                ),
+                Typed(typ, Definition(d.stamp, Attribute(aname.txt))),
               );
             })
        | Variant(constructos) =>
@@ -619,10 +607,7 @@ let forFile = (~file) => {
               };
               addLocation(
                 cname.loc,
-                Loc.Typed(
-                  t,
-                  Loc.Definition(d.stamp, Constructor(cname.txt)),
-                ),
+                Typed(t, Definition(d.stamp, Constructor(cname.txt))),
               );
             })
        | _ => ()
