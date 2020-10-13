@@ -135,16 +135,28 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
            switch (uriLocOpt) {
            | None => []
            | Some((uri2, loc)) =>
+             let uriIsCurrentFile = uri == uri2;
+             let posIsZero = ({Lexing.pos_lnum, pos_bol, pos_cnum}) =>
+               pos_lnum == 1 && pos_cnum - pos_bol == 0;
+             // Skip if Uri is current and range is all zero
+             let skipZero =
+               uriIsCurrentFile
+               && loc.loc_start
+               |> posIsZero
+               && loc.loc_end
+               |> posIsZero;
              let range = ("range", Protocol.rangeOfLoc(loc));
-             [
-               (
-                 "definition",
-                 o(
-                   uri == uri2
-                     ? [range] : [("uri", Json.String(uri2)), range],
+             skipZero
+               ? []
+               : [
+                 (
+                   "definition",
+                   o(
+                     uriIsCurrentFile
+                       ? [range] : [("uri", Json.String(uri2)), range],
+                   ),
                  ),
-               ),
-             ];
+               ];
            };
          hover == [] && def == []
            ? None
