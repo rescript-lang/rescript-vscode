@@ -291,10 +291,15 @@ let check = (~definitions, ~quiet, rootPath, files) => {
 
 let dump = files => {
   let rootPath = Unix.getcwd();
+  let emptyState = TopTypes.empty();
   let state = {
-    ...TopTypes.empty(),
+    ...emptyState,
     rootPath,
     rootUri: Utils.toUri(rootPath),
+    settings: {
+      ...emptyState.settings,
+      autoRebuild: false,
+    },
   };
   files
   |> List.iter(filePath => {
