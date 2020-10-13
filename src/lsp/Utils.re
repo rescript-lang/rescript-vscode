@@ -254,7 +254,7 @@ let locationContainsFuzzy = ({Location.loc_start, loc_end}, (l, c)) =>
   tupleOfLexing(loc_start) <= (l, c)
   && tupleOfLexing(loc_end) >= (l - 5, c);
 
-let getEnvVar = (~env=Unix.environment()|>Array.to_list, varToFind) => {
+let getEnvVar = (~env=Unix.environment() |> Array.to_list, varToFind) => {
   let%opt var =
     env |> List.find_opt(var => startsWith(var, varToFind ++ "="));
 
@@ -296,4 +296,17 @@ let filterMap = f => {
       };
 
   aux([]);
+};
+
+let filterMapIndex = f => {
+  let rec aux = (accu, i) =>
+    fun
+    | [] => List.rev(accu)
+    | [x, ...l] =>
+      switch (f(i, x)) {
+      | None => aux(accu, i, l)
+      | Some(v) => aux([v, ...accu], i + 1, l)
+      };
+
+  aux([], 0);
 };

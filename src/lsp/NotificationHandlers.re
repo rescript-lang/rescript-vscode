@@ -90,9 +90,23 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
     ++ uri,
   );
   open JsonShort;
+  let dedupTable = Hashtbl.create(1);
+  let dedupHover = (hover, i) => {
+    let isCandidate = String.length(hover) > 10;
+    if (isCandidate) {
+      switch (Hashtbl.find_opt(dedupTable, hover)) {
+      | Some(n) => s("#" ++ string_of_int(n))
+      | None =>
+        Hashtbl.replace(dedupTable, hover, i);
+        s(hover);
+      };
+    } else {
+      s(hover);
+    };
+  };
   let locationsInfo =
     locations
-    |> List.map(((location: Location.t, loc)) => {
+    |> Utils.filterMapIndex((i, (location: Location.t, loc)) => {
          let hoverText =
            Hover.newHover(
              ~rootUri=state.rootUri,
@@ -103,7 +117,8 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
              loc,
            )
            |? "";
-         let hover = hoverText == "" ? [] : [("hover", s(hoverText))];
+         let hover =
+           hoverText == "" ? [] : [("hover", dedupHover(hoverText, i))];
 
          let position =
            location.loc_start |> Query.tupleOfLexing |> Utils.cmtLocFromVscode;
@@ -131,7 +146,11 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
                ),
              ];
            };
-         o([("range", Protocol.rangeOfLoc(location))] @ hover @ def);
+         hover == [] && def == []
+           ? None
+           : Some(
+               o([("range", Protocol.rangeOfLoc(location))] @ hover @ def),
+             );
        })
     |> l;
   Log.spamError := true;
