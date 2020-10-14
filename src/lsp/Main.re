@@ -305,8 +305,9 @@ let dump = files => {
   |> List.iter(filePath => {
        let filePath = maybeConcat(Unix.getcwd(), filePath);
        let uri = Utils.toUri(filePath);
-       switch (processFile(~state, ~uri, ~quiet=true)) {
-       | Some((package, Some({file, extra}))) =>
+       switch (State.getFullFromCmt(uri, state)) {
+       | Error(message) => print_endline(message)
+       | Ok((package, {file, extra})) =>
          NotificationHandlers.dumpLocations(
            state,
            ~package,
@@ -314,7 +315,6 @@ let dump = files => {
            ~extra,
            uri,
          )
-       | _ => ()
        };
      });
 };

@@ -284,6 +284,34 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) =>
     Ok(result);
   };
 
+let getFullFromCmt = (uri, state) => {
+  let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
+  let%try package =
+    Packages.getPackage(uri, state, ~reportDiagnostics=(_, _) => ());
+  let moduleName =
+    BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
+  switch (Hashtbl.find_opt(package.pathsForModule, moduleName)) {
+  | Some(paths) =>
+    let cmt = SharedTypes.getCmt(paths);
+    let%try full =
+      Process_406.fullForCmt(
+        ~moduleName,
+        ~allLocations=state.settings.recordAllLocations,
+        cmt,
+        uri,
+        x =>
+        x
+      );
+    Hashtbl.replace(
+      package.interModuleDependencies,
+      moduleName,
+      SharedTypes.hashList(full.extra.externalReferences) |> List.map(fst),
+    );
+    Ok((package, full));
+  | None => Error("can't find module " ++ moduleName)
+  };
+};
+
 let getLastDefinitions = (uri, state) =>
   switch (Hashtbl.find(state.lastDefinitions, uri)) {
   | exception Not_found => None
