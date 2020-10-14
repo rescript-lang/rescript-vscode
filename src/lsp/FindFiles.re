@@ -208,6 +208,7 @@ let findProjectFiles =
   files
   |> List.iter(path =>
        if (Filename.check_suffix(path, ".rei")
+           || Filename.check_suffix(path, ".resi")
            || Filename.check_suffix(path, ".mli")) {
          Log.log("Adding intf " ++ path);
          Hashtbl.replace(interfaces, getName(path), path);
@@ -218,6 +219,7 @@ let findProjectFiles =
     files
     |> Utils.filterMap(path =>
          if (Filename.check_suffix(path, ".re")
+             || Filename.check_suffix(path, ".res")
              || Filename.check_suffix(path, ".rel")
              || Filename.check_suffix(path, ".ml")) {
            let mname = getName(path);
