@@ -12,46 +12,23 @@ let checkPos =
       (line, char),
       {Location.loc_start: {pos_lnum, pos_bol, pos_cnum}, loc_end},
     ) =>
-  Lexing.(
-    if (line < pos_lnum || line == pos_lnum && char < pos_cnum - pos_bol) {
-      false;
-    } else if (line > loc_end.pos_lnum
-               || line == loc_end.pos_lnum
-               && char > loc_end.pos_cnum
-               - loc_end.pos_bol) {
-      false;
-    } else {
-      true;
-    }
-  );
+  if (line < pos_lnum || line == pos_lnum && char < pos_cnum - pos_bol) {
+    false;
+  } else if (line > loc_end.pos_lnum
+             || line == loc_end.pos_lnum
+             && char > loc_end.pos_cnum
+             - loc_end.pos_bol) {
+    false;
+  } else {
+    true;
+  };
 
 let locForPos = (~extra, pos) => {
-  extra.locations
-  |> Utils.find(((loc, l)) => {checkPos(pos, loc) ? Some((loc, l)) : None});
+  extra.locations |> List.find_opt(((loc, _l)) => checkPos(pos, loc));
 };
 
 let posMatch = ({Lexing.pos_cnum}, {Lexing.pos_cnum: c2}) => {
   pos_cnum == c2;
-};
-
-let locForLocations = (~extra, location: Location.t) => {
-  /* maybeLog("looking for " ++ Utils.showLocation(location)); */
-  extra.locations
-  |> Utils.find(((loc: Location.t, l)) => {
-       /* maybeLog("  > checking " ++ Utils.showLocation(loc));
-          maybeLog("    " ++ (switch l {
-            | Loc.Typed(_) => "typed"
-            | Constant(_) => "constant"
-            | Module(_) => "module"
-            | TopLevelModule(_) => "toplevelmodule"
-            | TypeDefinition(_) => "Typedefinition"
-            | Explanation(_) => "explanation"
-            | Open => "open"
-          })); */
-       posMatch(location.loc_start, loc.loc_start)
-       && posMatch(location.loc_end, loc.loc_end)
-         ? Some(l) : None
-     });
 };
 
 /** Other locations *within this file* that refer to the same thing.
