@@ -120,16 +120,13 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
          let hover =
            hoverText == "" ? [] : [("hover", dedupHover(hoverText, i))];
 
-         let position =
-           location.loc_start |> Query.tupleOfLexing |> Utils.cmtLocFromVscode;
          let uriLocOpt =
-           References.definitionForPos(
+           References.definitionForLoc(
              ~pathsForModule=package.pathsForModule,
              ~file,
-             ~extra,
              ~getUri=State.fileForUri(state, ~package),
              ~getModule=State.fileForModule(state, ~package),
-             position,
+             loc,
            );
          let def =
            switch (uriLocOpt) {
