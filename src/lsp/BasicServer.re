@@ -1,15 +1,9 @@
 type messageSeverity =
-  | Error
-  | Warning
-  | Info
-  | Log;
+  | Error;
 
 let severity = m =>
   switch (m) {
   | Error => 1
-  | Warning => 2
-  | Info => 3
-  | Log => 4
   };
 
 let showMessage = (typ, message) =>

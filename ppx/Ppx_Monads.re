@@ -54,7 +54,6 @@ open OCaml_402.Ast
  * https://ocsigen.org/lwt/dev/api/Ppx_lwt
  * https://github.com/zepalmer/ocaml-monadic
  */
-let fail = (loc, txt) => raise(Location.Error(Location.error(~loc, txt)));
 
 let rec process_bindings = (bindings) =>
   Parsetree.(
@@ -67,24 +66,6 @@ let rec process_bindings = (bindings) =>
         Ast_helper.Pat.tuple([binding.pvb_pat, pattern]),
         [%expr Let_syntax.join2([%e binding.pvb_expr], [%e expr])]
       )
-    }
-  );
-
-let process_let = (contents, loc) => {
-  open Parsetree;
-  let bindings =
-    switch contents {
-    | PStr([{pstr_desc: Pstr_value(Nonrecursive, bindings)}]) => bindings
-    | _ => fail(loc, "extension must contain a nonrecursive let binding")
-    };
-  process_bindings(bindings)
-};
-
-let getExpr = (contents, loc) =>
-  Parsetree.(
-    switch contents {
-    | PStr([{pstr_desc: Pstr_eval(expr, _)}]) => expr
-    | _ => fail(loc, "@else must contain an expression")
     }
   );
 

@@ -210,8 +210,6 @@ let cmtPath = (~cacheLocation, ~moduleName, ~uri) => {
   cacheLocation /+ moduleName ++ ".cmt" ++ (interface ? "i" : "");
 };
 
-let isMl = uri => Utils.endsWith(uri, "ml") || Utils.endsWith(uri, "mli");
-
 let getParsetree = (~cacheLocation, ~moduleName, ~uri) => {
   let cmt = cmtPath(~cacheLocation, ~moduleName, ~uri);
   Process_406.astForCmt(cmt);
