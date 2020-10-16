@@ -30,18 +30,6 @@ let (|??) = (o, d) =>
   | None => d
   | Some(v) => Some(v)
   };
-/** Lazy optional default operator */
-let (|?#) = (o, d) =>
-  switch (o) {
-  | None => Lazy.force(d)
-  | Some(v) => Some(v)
-  };
-/** Lazy optional default wrapped operator */
-let (|??#) = (o, d) =>
-  switch (o) {
-  | None => Lazy.force(d)
-  | Some(v) => Some(v)
-  };
 let (|?>) = (o, fn) =>
   switch (o) {
   | None => None
@@ -57,7 +45,6 @@ let fold = (o, d, f) =>
   | None => d
   | Some(v) => f(v)
   };
-let (|.!) = (fn, message, arg) => fn(arg) |! message;
 
 let (|?<) = (o, fn) =>
   switch (o) {

@@ -1,25 +1,5 @@
 open Infix;
 
-let shouldExist = (message, v) =>
-  Files.exists(v) ? v : failwith(message ++ ": " ++ v);
-let oneShouldExist = (message, items) => {
-  let rec loop = left =>
-    switch (left) {
-    | [] => failwith(message ++ " Looked at " ++ String.concat(", ", items))
-    | [one, ...more] => Files.exists(one) ? one : loop(more)
-    };
-  loop(items);
-};
-
-let ifOneExists = items => {
-  let rec loop = left =>
-    switch (left) {
-    | [] => None
-    | [one, ...more] => Files.exists(one) ? Some(one) : loop(more)
-    };
-  loop(items);
-};
-
 let ifDebug = (debug, name, fn, v) => {
   if (debug) {
     Log.log(name ++ ": " ++ fn(v));
@@ -95,20 +75,8 @@ let compiledBaseName = (~namespace, name) =>
     }
   );
 
-let cmtName = (~namespace, name) =>
-  compiledBaseName(~namespace, name)
-  ++ (name.[String.length(name) - 1] == 'i' ? ".cmti" : ".cmt");
-
 let getName = x =>
   Filename.basename(x) |> Filename.chop_extension |> String.capitalize_ascii;
-let namespacedName = (~namespace, x) =>
-  getName(x)
-  ++ (
-    switch (namespace) {
-    | None => ""
-    | Some(n) => "-" ++ n
-    }
-  );
 
 let filterDuplicates = cmts => {
   /* Remove .cmt's that have .cmti's */

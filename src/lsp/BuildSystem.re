@@ -1,16 +1,3 @@
-let getLine = (cmd, ~pwd) => {
-  switch (Commands.execFull(~pwd, cmd)) {
-  | ([line], _, true) => Ok(line)
-  | (out, err, _) =>
-    Error(
-      "Invalid response for "
-      ++ cmd
-      ++ "\n\n"
-      ++ String.concat("\n", out @ err),
-    )
-  };
-};
-
 let namespacedName = (namespace, name) =>
   switch (namespace) {
   | None => name

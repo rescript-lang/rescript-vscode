@@ -191,17 +191,6 @@ let rec find = (fn, items) =>
     }
   };
 
-let showLocation = ({Location.loc_start, loc_end}) =>
-  Lexing.(
-    Printf.sprintf(
-      "%d:%d - %d:%d",
-      loc_start.pos_lnum,
-      loc_start.pos_cnum - loc_start.pos_bol,
-      loc_end.pos_lnum,
-      loc_end.pos_cnum - loc_end.pos_bol,
-    )
-  );
-
 let joinLines = String.concat("\n");
 
 let dedup = items => {
