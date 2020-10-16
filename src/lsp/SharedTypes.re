@@ -180,7 +180,6 @@ type stamps = {
   types: stampMap(declared(Type.t)),
   values: stampMap(declared(Types.type_expr)),
   modules: stampMap(declared(moduleKind)),
-  moduleTypes: stampMap(declared(moduleKind)),
   constructors: stampMap(declared(constructor)),
 };
 
@@ -188,7 +187,6 @@ let initStamps = () => {
   types: Hashtbl.create(10),
   values: Hashtbl.create(10),
   modules: Hashtbl.create(10),
-  moduleTypes: Hashtbl.create(10),
   constructors: Hashtbl.create(10),
 };
 
@@ -216,8 +214,7 @@ type tip =
   | Type
   | Attribute(string)
   | Constructor(string)
-  | Module
-  | ModuleType;
+  | Module;
 
 let tipToString = tip =>
   switch (tip) {
@@ -226,7 +223,6 @@ let tipToString = tip =>
   | Attribute(a) => "Attribute(" ++ a ++ ")"
   | Constructor(a) => "Constructor(" ++ a ++ ")"
   | Module => "Module"
-  | ModuleType => "ModuleType"
   };
 
 type path =

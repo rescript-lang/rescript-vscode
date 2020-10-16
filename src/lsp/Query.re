@@ -224,13 +224,6 @@ let declaredForExportedTip = (~stamps: stamps, ~exported: exported, name, tip) =
       stamp =>
         Hashtbl.find_opt(stamps.modules, stamp) |?>> (x => {...x, item: ()})
     )
-  | ModuleType =>
-    Hashtbl.find_opt(exported.moduleTypes, name)
-    |?> (
-      stamp =>
-        Hashtbl.find_opt(stamps.moduleTypes, stamp)
-        |?>> (x => {...x, item: ()})
-    )
   };
 
 let declaredForTip = (~stamps, stamp, tip) =>
@@ -243,16 +236,13 @@ let declaredForTip = (~stamps, stamp, tip) =>
     Hashtbl.find_opt(stamps.types, stamp) |?>> (x => {...x, item: ()})
   | Module =>
     Hashtbl.find_opt(stamps.modules, stamp) |?>> (x => {...x, item: ()})
-  | ModuleType =>
-    Hashtbl.find_opt(stamps.moduleTypes, stamp) |?>> (x => {...x, item: ()})
   };
 
 let getAttribute = (file, stamp, name) => {
   let%opt {item: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
   switch (kind) {
   | Record(labels) =>
-    let%opt label =
-      labels |> List.find_opt(label => label.aname.txt == name);
+    let%opt label = labels |> List.find_opt(label => label.aname.txt == name);
     Some(label);
   | _ => None
   };
@@ -276,7 +266,6 @@ let exportedForTip = (~env, name, tip) =>
   | Constructor(_)
   | Type => Hashtbl.find_opt(env.exported.types, name)
   | Module => Hashtbl.find_opt(env.exported.modules, name)
-  | ModuleType => Hashtbl.find_opt(env.exported.moduleTypes, name)
   };
 
 let rec showVisibilityPath = (~env, ~getModule, path) =>
