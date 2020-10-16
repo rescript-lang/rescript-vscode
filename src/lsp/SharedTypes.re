@@ -149,7 +149,6 @@ type exported = {
   types: namedStampMap,
   values: namedStampMap,
   modules: namedStampMap,
-  moduleTypes: namedStampMap,
   /* constructors: namedStampMap, */
   /* classes: namedStampMap,
      classTypes: namedStampMap, */
@@ -158,7 +157,6 @@ let initExported = () => {
   types: Hashtbl.create(10),
   values: Hashtbl.create(10),
   modules: Hashtbl.create(10),
-  moduleTypes: Hashtbl.create(10),
   /* constructors: Hashtbl.create(10), */
 };
 type moduleItem =
