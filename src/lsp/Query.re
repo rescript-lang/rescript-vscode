@@ -287,8 +287,6 @@ let rec showVisibilityPath = (~env, ~getModule, path) =>
     | None => None
     | Some((file, path)) => Some((file, path @ [name]))
     }
-  | HiddenModule(_) => None
-  | Expression(_) => None
   };
 
 let rec getSourceUri = (~env, ~getModule, path) =>
@@ -303,7 +301,5 @@ let rec getSourceUri = (~env, ~getModule, path) =>
       getSourceUri(~env, ~getModule, inner);
     | Some((env, _declared)) => env.file.uri
     };
-  | ExportedModule(_, inner)
-  | HiddenModule(_, inner)
-  | Expression(inner) => getSourceUri(~env, ~getModule, inner)
+  | ExportedModule(_, inner) => getSourceUri(~env, ~getModule, inner)
   };
