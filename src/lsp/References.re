@@ -40,8 +40,7 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
   | Typed(_, NotFound)
   | LModule(NotFound)
   | TopLevelModule(_)
-  | Constant(_)
-  | Open => None
+  | Constant(_) => None
   | TypeDefinition(_, _, stamp) =>
     Hashtbl.find_opt(extra.internalReferences, stamp)
   | LModule(LocalReference(stamp, tip) | Definition(stamp, tip))
@@ -98,8 +97,7 @@ let definedForLoc = (~file, ~getModule, loc) => {
   | Typed(_, NotFound)
   | LModule(NotFound)
   | TopLevelModule(_)
-  | Constant(_)
-  | Open => None
+  | Constant(_) => None
   | Typed(_, LocalReference(stamp, tip) | Definition(stamp, tip))
   | LModule(LocalReference(stamp, tip) | Definition(stamp, tip)) =>
     inner(~file, stamp, tip)
@@ -324,8 +322,7 @@ let allReferencesForLoc =
   | Typed(_, NotFound)
   | LModule(NotFound)
   | TopLevelModule(_)
-  | Constant(_)
-  | Open => Error("Not a valid loc")
+  | Constant(_) => Error("Not a valid loc")
   | TypeDefinition(_, _, stamp) =>
     forLocalStamp(
       ~pathsForModule,
@@ -488,8 +485,7 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
   | Typed(_, NotFound)
   | LModule(NotFound | Definition(_, _))
   | TypeDefinition(_, _, _)
-  | Constant(_)
-  | Open => None
+  | Constant(_) => None
   | TopLevelModule(name) =>
     maybeLog("Toplevel " ++ name);
     open Infix;

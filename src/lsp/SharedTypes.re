@@ -279,8 +279,7 @@ type loc =
   | LModule(locKind)
   | TopLevelModule(string)
   | TypeDefinition(string, Types.type_declaration, int)
-  | Explanation(string)
-  | Open;
+  | Explanation(string);
 
 type openTracker = {
   path: Path.t,

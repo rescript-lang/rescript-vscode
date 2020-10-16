@@ -60,8 +60,6 @@ let newHover =
     (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showPath, loc) => {
   switch (loc) {
   | SharedTypes.Explanation(text) => Some(text)
-  /* TODO store a "defined" for Open (the module) */
-  | Open => Some("an open")
   | TypeDefinition(_name, _tdecl, _stamp) => None
   | LModule(LocalReference(stamp, _tip)) =>
     let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
