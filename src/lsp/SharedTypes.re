@@ -33,13 +33,6 @@ let showPaths = paths =>
     )
   };
 
-let getImpl = p =>
-  switch (p) {
-  | Impl(cmt, Some(s))
-  | IntfAndImpl(_, _, cmt, Some(s)) => Some((cmt, s))
-  | _ => None
-  };
-
 let getSrc = p =>
   switch (p) {
   | Intf(_, s)
