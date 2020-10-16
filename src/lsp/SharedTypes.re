@@ -114,7 +114,6 @@ module Type = {
 
   type t = {
     kind,
-    params: list((Types.type_expr, Location.t)),
     decl: Types.type_declaration,
   };
 };

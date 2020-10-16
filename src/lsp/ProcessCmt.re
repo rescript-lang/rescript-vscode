@@ -97,15 +97,14 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.exported, item) => {
       [{...declared, item: MValue(declared.item)}];
     | Sig_type(
         ident,
-        {type_params, type_loc, type_kind, type_manifest, type_attributes} as decl,
+        {type_loc, type_kind, type_manifest, type_attributes} as decl,
         _,
       ) =>
       let declared =
         addItem(
           ~extent=type_loc,
           ~item={
-            Type.params: type_params |> List.map(t => (t, Location.none)),
-            decl,
+            Type.decl,
             kind:
               switch (type_kind) {
               | Type_abstract =>
@@ -241,7 +240,6 @@ let forTypeDeclaration =
       {
         typ_id,
         typ_loc,
-        typ_params,
         typ_name: name,
         typ_attributes,
         typ_type,
@@ -254,9 +252,7 @@ let forTypeDeclaration =
     addItem(
       ~extent=typ_loc,
       ~item={
-        Type.params:
-          typ_params |> List.map(((t, _)) => (t.ctyp_type, t.ctyp_loc)),
-        decl: typ_type,
+        Type.decl: typ_type,
         kind:
           switch (typ_kind) {
           | Ttype_abstract =>
