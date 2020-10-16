@@ -1,6 +1,6 @@
 let shellEscape = path => Filename.quote(path);
 
-let execFull = (~input=?, ~pwd=?, ~env=Unix.environment(), cmd) => {
+let execFull = (~input=?, ~pwd=?, cmd) => {
   let cmd =
     if (Sys.os_type == "Win32") {
       Printf.sprintf("\"%s\"", cmd);
@@ -9,13 +9,13 @@ let execFull = (~input=?, ~pwd=?, ~env=Unix.environment(), cmd) => {
     };
   let env =
     switch (pwd) {
-    | None => env
+    | None => Unix.environment()
     | Some(pwd) =>
       Array.map(
         item =>
           String.length(item) > 4 && String.sub(item, 0, 4) == "PWD="
             ? "PWD=" ++ pwd : item,
-        env,
+        Unix.environment(),
       )
     };
   let prevCwd =
