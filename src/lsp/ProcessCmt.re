@@ -39,11 +39,6 @@ let sigItemsExtent = items => {
   );
 };
 
-let locStartPos = ({Location.loc_start: {pos_cnum, pos_lnum, pos_bol}}) => (
-  pos_lnum,
-  pos_cnum - pos_bol,
-);
-
 type env = {
   stamps,
   processDoc: string => string,
