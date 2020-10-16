@@ -2,60 +2,6 @@ open Typedtree;
 open SharedTypes;
 open Infix;
 
-let getTopDoc = structure => {
-  switch (structure) {
-  | [
-      {
-        str_desc:
-          Tstr_attribute((
-            {Asttypes.txt: "ocaml.doc" | "ocaml.text"},
-            PStr([
-              {
-                pstr_desc:
-                  Pstr_eval(
-                    {pexp_desc: Pexp_constant(Pconst_string(doc, _))},
-                    _,
-                  ),
-              },
-            ]),
-          )),
-      },
-      ...rest,
-    ] => (
-      Some(doc),
-      rest,
-    )
-  | _ => (None, structure)
-  };
-};
-
-let getTopSigDoc = structure => {
-  switch (structure) {
-  | [
-      {
-        sig_desc:
-          Tsig_attribute((
-            {Asttypes.txt: "ocaml.doc" | "ocaml.text"},
-            PStr([
-              {
-                pstr_desc:
-                  Pstr_eval(
-                    {pexp_desc: Pexp_constant(Pconst_string(doc, _))},
-                    _,
-                  ),
-              },
-            ]),
-          )),
-      },
-      ...rest,
-    ] => (
-      Some(doc),
-      rest,
-    )
-  | _ => (None, structure)
-  };
-};
-
 let itemsExtent = items => {
   Typedtree.(
     items == []
@@ -427,18 +373,17 @@ let forSignatureItem = (~env, ~exported: exported, item) => {
 };
 
 let forSignature = (~env, items) => {
-  let (doc, items) = getTopSigDoc(items);
   let exported = initExported();
   let topLevel =
     items |> List.map(forSignatureItem(~env, ~exported)) |> List.flatten;
-  (doc, {exported, topLevel});
+  {exported, topLevel};
 };
 
 let forTreeModuleType = (~env, {mty_desc}) =>
   switch (mty_desc) {
   | Tmty_ident(_) => None
   | Tmty_signature({sig_items}) =>
-    let (_doc, contents) = forSignature(~env, sig_items);
+    let contents = forSignature(~env, sig_items);
     Some(Structure(contents));
   | _ => None
   };
@@ -551,7 +496,7 @@ and forModule = (env, mod_desc, moduleName) =>
       scope: itemsExtent(structure.str_items),
       modulePath: ExportedModule(moduleName, env.modulePath),
     };
-    let (_doc, contents) = forStructure(~env, structure.str_items);
+    let contents = forStructure(~env, structure.str_items);
     Structure(contents);
   | Tmod_functor(ident, argName, maybeType, resultExpr) =>
     maybeType
@@ -600,7 +545,6 @@ and forModule = (env, mod_desc, moduleName) =>
   }
 
 and forStructure = (~env, items) => {
-  let (doc, items) = getTopDoc(items);
   let exported = initExported();
   let topLevel =
     List.fold_right(
@@ -608,7 +552,7 @@ and forStructure = (~env, items) => {
       items,
       [],
     );
-  (doc, {exported, topLevel});
+  {exported, topLevel};
 };
 
 let forCmt =
@@ -646,8 +590,8 @@ let forCmt =
       processDoc,
       modulePath: File(uri, moduleName),
     };
-    let (docstring, contents) = forStructure(~env, items);
-    {uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents};
+    let contents = forStructure(~env, items);
+    {uri, moduleName: cmt_modname, stamps: env.stamps, contents};
   | Partial_interface(parts) =>
     let items =
       parts
@@ -666,8 +610,8 @@ let forCmt =
       processDoc,
       modulePath: File(uri, moduleName),
     };
-    let (docstring, contents) = forSignature(~env, items);
-    {uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents};
+    let contents = forSignature(~env, items);
+    {uri, moduleName: cmt_modname, stamps: env.stamps, contents};
   | Implementation(structure) =>
     let env = {
       scope: itemsExtent(structure.str_items),
@@ -675,8 +619,8 @@ let forCmt =
       processDoc,
       modulePath: File(uri, moduleName),
     };
-    let (docstring, contents) = forStructure(~env, structure.str_items);
-    {uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents};
+    let contents = forStructure(~env, structure.str_items);
+    {uri, moduleName: cmt_modname, stamps: env.stamps, contents};
   | Interface(signature) =>
     let env = {
       scope: sigItemsExtent(signature.sig_items),
@@ -684,7 +628,7 @@ let forCmt =
       processDoc,
       modulePath: File(uri, moduleName),
     };
-    let (docstring, contents) = forSignature(~env, signature.sig_items);
-    {uri, moduleName: cmt_modname, stamps: env.stamps, docstring, contents};
+    let contents = forSignature(~env, signature.sig_items);
+    {uri, moduleName: cmt_modname, stamps: env.stamps, contents};
   | _ => SharedTypes.emptyFile(moduleName, uri)
   };
