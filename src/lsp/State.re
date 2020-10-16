@@ -368,25 +368,3 @@ let extraForModule = (state, ~package, modname) =>
   } else {
     None;
   };
-
-let maybeFound = (fn, a) =>
-  switch (fn(a)) {
-  | exception Not_found => None
-  | x => Some(x)
-  };
-
-let topLocation = uri => {
-  Location.loc_ghost: false,
-  loc_start: {
-    Lexing.pos_fname: uri,
-    pos_lnum: 1,
-    pos_cnum: 1,
-    pos_bol: 1,
-  },
-  loc_end: {
-    Lexing.pos_fname: uri,
-    pos_lnum: 1,
-    pos_cnum: 1,
-    pos_bol: 1,
-  },
-};
