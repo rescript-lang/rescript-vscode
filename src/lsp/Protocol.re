@@ -3,22 +3,7 @@ open JsonShort;
 let pos = (~line, ~character) =>
   o([("line", i(line)), ("character", i(character))]);
 
-let range = (~start, ~end_) => o([("start", start), ("end", end_)]);
-
 open Infix;
-
-let getTextDocument = doc => {
-  let%opt uri = Json.get("uri", doc) |?> Json.string;
-  let%opt version = Json.get("version", doc) |?> Json.number;
-  let%opt text = Json.get("text", doc) |?> Json.string;
-  Some((uri, version, text));
-};
-
-let getPosition = pos => {
-  let%opt line = Json.get("line", pos) |?> Json.number;
-  let%opt character = Json.get("character", pos) |?> Json.number;
-  Some((int_of_float(line), int_of_float(character)));
-};
 
 let rgetPosition = pos => {
   open RResult.InfixResult;

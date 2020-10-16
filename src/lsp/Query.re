@@ -268,27 +268,6 @@ let exportedForTip = (~env, name, tip) =>
   | Module => Hashtbl.find_opt(env.exported.modules, name)
   };
 
-let rec showVisibilityPath = (~env, ~getModule, path) =>
-  switch (path) {
-  | File(uri, moduleName) => Some(((uri, moduleName), []))
-  | NotVisible => None
-  | IncludedModule(path, inner) =>
-    Log.log("INCLUDED MODULE");
-    switch (resolveModuleFromCompilerPath(~env, ~getModule, path)) {
-    | None =>
-      Log.log("NOT FOUND");
-      showVisibilityPath(~env, ~getModule, inner);
-    | Some((env, _declared)) =>
-      Log.log("Got an included module path " ++ env.file.uri);
-      showVisibilityPath(~env, ~getModule, inner);
-    };
-  | ExportedModule(name, inner) =>
-    switch (showVisibilityPath(~env, ~getModule, inner)) {
-    | None => None
-    | Some((file, path)) => Some((file, path @ [name]))
-    }
-  };
-
 let rec getSourceUri = (~env, ~getModule, path) =>
   switch (path) {
   | File(uri, _moduleName) => uri

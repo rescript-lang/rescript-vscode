@@ -27,10 +27,6 @@ let locForPos = (~extra, pos) => {
   extra.locations |> List.find_opt(((loc, _l)) => checkPos(pos, loc));
 };
 
-let posMatch = ({Lexing.pos_cnum}, {Lexing.pos_cnum: c2}) => {
-  pos_cnum == c2;
-};
-
 /** Other locations *within this file* that refer to the same thing.
  *
  * Useful for "highlight" stuff. */

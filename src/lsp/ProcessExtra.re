@@ -29,11 +29,6 @@ let rec relative = (ident, path) =>
   | _ => None
   };
 
-let addOpen = (extra, path, loc, extent, ident) => {
-  let op = {path, loc, used: [], extent, ident};
-  Hashtbl.add(extra.opens, loc, op);
-};
-
 let findClosestMatchingOpen = (opens, path, ident, loc) => {
   let%opt openNeedle = relative(ident, path);
 
