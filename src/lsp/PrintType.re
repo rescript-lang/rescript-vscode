@@ -29,7 +29,7 @@ let break = Pretty.line("");
 let space = Pretty.line(" ");
 let dedent = Pretty.back(2, "");
 
-let str = Pretty.text;
+let str = (~len=?, s) => Pretty.text(~len?, s);
 let (@!) = Pretty.append;
 
 let sepd_list = (sep, items, loop) => {
@@ -243,7 +243,7 @@ let default = {
       stringifier.path(stringifier, path) @! str("." ++ name)
     | Papply(_, _) => str("<apply>")
     },
-  expr: print_expr,
+  expr: (~depth=?) => print_expr(~depth?),
   decl: print_decl,
 };
 
