@@ -659,16 +659,16 @@ let handlers:
               getFullLineOfPos(startPos, text) |> countLeading(' ');
             let cursorToFirstLineSpaces = substring |> countLeading(' ');
 
-            let appendIndent = (~firstLineSpaces=?, indent, s) => {
+            let appendIndent = (~firstLineSpaces, indent, s) => {
               let indentString = repeat(indent, " ");
               if (indent == 0) {
                 s;
               } else {
                 split_on_char('\n', s)
                 |> List.mapi((index, line) =>
-                     switch (index, firstLineSpaces, String.length(line)) {
-                     | (_, _, 0) => line
-                     | (0, Some(spaces), _) => repeat(spaces, " ") ++ line
+                     switch (index, String.length(line)) {
+                     | (_, 0) => line
+                     | (0, _) => repeat(firstLineSpaces, " ") ++ line
                      | _ => indentString ++ line
                      }
                    )
