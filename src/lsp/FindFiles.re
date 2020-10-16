@@ -31,7 +31,7 @@ let ifDebug = (debug, name, fn, v) => {
  * Returns a list of paths, relative to the provided `base`
  *
  */
-let getSourceDirectories = (~includeDev=false, base, config) => {
+let getSourceDirectories = (~includeDev, base, config) => {
   let rec handleItem = (current, item) => {
     switch (item) {
     | Json.Array(contents) =>
@@ -155,23 +155,17 @@ let getNamespace = config => {
     : None;
 };
 
-let collectFiles = (~compiledTransform=x => x, ~sourceDirectory=?, directory) => {
+let collectFiles = directory => {
   let allFiles = Files.readDirectory(directory);
   let compileds = allFiles |> List.filter(isCompiledFile) |> filterDuplicates;
-  let sources =
-    fold(sourceDirectory, allFiles, Files.readDirectory)
-    |> List.filter(isSourceFile)
-    |> filterDuplicates;
-  let sourceBase = sourceDirectory |? directory;
+  let sources = allFiles |> List.filter(isSourceFile) |> filterDuplicates;
   compileds
   |> List.map(path => {
        let modName = getName(path);
        let compiled = directory /+ path;
        let source =
          Utils.find(
-           name =>
-             compiledTransform(getName(name)) == modName
-               ? Some(sourceBase /+ name) : None,
+           name => getName(name) == modName ? Some(directory /+ name) : None,
            sources,
          );
        (modName, SharedTypes.Impl(compiled, source));
