@@ -60,9 +60,7 @@ type visibilityPath =
   | File(string, string)
   | NotVisible
   | IncludedModule(Path.t, visibilityPath)
-  | ExportedModule(string, visibilityPath)
-  | HiddenModule(string, visibilityPath)
-  | Expression(visibilityPath);
+  | ExportedModule(string, visibilityPath);
 
 type declared('t) = {
   name: Location.loc(string),
@@ -132,8 +130,6 @@ let isVisible = declared =>
       | NotVisible => false
       | IncludedModule(_, inner) => loop(inner)
       | ExportedModule(_, inner) => loop(inner)
-      | HiddenModule(_, _) => false
-      | Expression(_) => false
       };
     loop(declared.modulePath);
   };
@@ -232,9 +228,7 @@ let rec pathFromVisibility = (visibilityPath, current) =>
   | IncludedModule(_, inner) => pathFromVisibility(inner, current)
   | ExportedModule(name, inner) =>
     pathFromVisibility(inner, Nested(name, current))
-  | NotVisible
-  | HiddenModule(_, _)
-  | Expression(_) => None
+  | NotVisible => None
   };
 
 let pathFromVisibility = (visibilityPath, tipName) =>
