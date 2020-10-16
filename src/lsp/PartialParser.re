@@ -1,10 +1,3 @@
-type current =
-  | Comment(int)
-  | String
-  | Normal;
-/* NOTE disabled because I couldn't distinguish between char and 'a type variable */
-/* | Char; */
-
 let rec findBack = (text, char, i) =>
   if (i < 0) {
     0;
