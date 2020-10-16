@@ -32,7 +32,6 @@ let showModuleTopLevel =
            ++ ": "
            ++ (typ |> Shared.typeToString)  /* TODO indent */
            ++ ";"
-         | ModuleType(_) => "  module type " ++ item.name.txt ++ ";"
          }
        )
     |> String.concat("\n");

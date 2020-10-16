@@ -165,7 +165,6 @@ type moduleItem =
   | MValue(Types.type_expr)
   | MType(Type.t)
   | Module(moduleKind)
-  | ModuleType(moduleKind)
 and moduleContents = {
   exported,
   mutable topLevel: list(declared(moduleItem)),
