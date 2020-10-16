@@ -78,9 +78,3 @@ let empty = () => {
     autoRebuild: true,
   },
 };
-
-let forRootPath = rootPath => {
-  ...empty(),
-  rootPath,
-  rootUri: Utils.toUri(rootPath),
-};

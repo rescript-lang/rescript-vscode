@@ -160,19 +160,6 @@ let parseUri = uri => {
   };
 };
 
-let locationOffset = (loc, start, length) =>
-  Location.{
-    ...loc,
-    loc_start: {
-      ...loc.loc_start,
-      pos_cnum: loc.loc_start.pos_cnum + start,
-    },
-    loc_end: {
-      ...loc.loc_end,
-      pos_cnum: loc.loc_start.pos_cnum + start + length,
-    },
-  };
-
 let endOfLocation = (loc, length) =>
   Location.{
     ...loc,
@@ -188,15 +175,6 @@ let chopLocationEnd = (loc, length) =>
     loc_end: {
       ...loc.loc_end,
       pos_cnum: loc.loc_end.pos_cnum - length,
-    },
-  };
-
-let clampLocation = (loc, length) =>
-  Location.{
-    ...loc,
-    loc_end: {
-      ...loc.loc_start,
-      pos_cnum: loc.loc_start.pos_cnum + length,
     },
   };
 
@@ -226,9 +204,6 @@ let showLocation = ({Location.loc_start, loc_end}) =>
 
 let joinLines = String.concat("\n");
 
-let getName = x =>
-  Filename.basename(x) |> Filename.chop_extension |> String.capitalize_ascii;
-
 let dedup = items => {
   let m = Hashtbl.create(List.length(items));
   items
@@ -253,16 +228,6 @@ If it's within 5 lines, go with it.
 let locationContainsFuzzy = ({Location.loc_start, loc_end}, (l, c)) =>
   tupleOfLexing(loc_start) <= (l, c)
   && tupleOfLexing(loc_end) >= (l - 5, c);
-
-let getEnvVar = (~env=Unix.environment() |> Array.to_list, varToFind) => {
-  let%opt var =
-    env |> List.find_opt(var => startsWith(var, varToFind ++ "="));
-
-  switch (split_on_char('=', var)) {
-  | [_, value] => Some(value)
-  | _ => None
-  };
-};
 
 /*
  * Quotes filename when not quoted
