@@ -192,7 +192,6 @@ let initStamps = () => {
 
 type file = {
   uri: string,
-  docstring: option(string),
   stamps,
   moduleName: string,
   contents: moduleContents,
@@ -200,7 +199,6 @@ type file = {
 
 let emptyFile = (moduleName, uri) => {
   uri,
-  docstring: None,
   stamps: initStamps(),
   moduleName,
   contents: {
