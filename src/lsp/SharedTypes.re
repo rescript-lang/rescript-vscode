@@ -95,7 +95,6 @@ type attribute = {
   stamp: int,
   aname: Location.loc(string),
   typ: Types.type_expr,
-  typLoc: Location.t,
 };
 
 type constructor = {
