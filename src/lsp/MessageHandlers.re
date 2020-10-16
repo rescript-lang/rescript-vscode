@@ -731,7 +731,6 @@ let handlers:
             | MType(t) => (t.decl |> Shared.declarationKind, [])
             | Module(Structure(contents)) => (Module, getItems(contents))
             | Module(Ident(_)) => (Module, [])
-            | ModuleType(_) => (ModuleType, [])
             };
           if (extentLoc.loc_ghost) {
             siblings;
