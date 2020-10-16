@@ -1,14 +1,5 @@
 let split = (str, string) => Str.split(Str.regexp_string(str), string);
 
-let absify = path =>
-  if (path == "" || path == ".") {
-    Unix.getcwd();
-  } else if (Infix.isFullPath(path)) {
-    path;
-  } else {
-    Filename.concat(Unix.getcwd(), path);
-  };
-
 let removeExtraDots = path =>
   Str.global_replace(Str.regexp_string("/./"), "/", path)
   |> Str.global_replace(Str.regexp({|^\./\.\./|}), "../");
@@ -59,10 +50,6 @@ let relpath = (base, path) =>
     )
     |> removeExtraDots;
   };
-
-let symlink = (source, dest) => {
-  Unix.symlink(relpath(Filename.dirname(dest), source), dest);
-};
 
 let maybeStat = path =>
   try(Some(Unix.stat(path))) {
@@ -119,47 +106,11 @@ let writeFile = (path, contents) =>
   | _ => false
   };
 
-let writeFileExn = (path, contents) =>
-  if (!writeFile(path, contents)) {
-    failwith("Unable to write to file " ++ path);
-  };
-
 let writeFileResult = (path, contents) =>
   if (!writeFile(path, contents)) {
     Error("Unable to write to file " ++ path);
   } else {
     Ok();
-  };
-
-let copy = (~source, ~dest) =>
-  switch (maybeStat(source)) {
-  | None => false
-  | Some({Unix.st_perm}) =>
-    let fs = Unix.openfile(source, [Unix.O_RDONLY], st_perm);
-    let fd =
-      Unix.openfile(
-        dest,
-        [Unix.O_WRONLY, Unix.O_CREAT, Unix.O_TRUNC],
-        st_perm,
-      );
-    let buffer_size = 8192;
-    let buffer = Bytes.create(buffer_size);
-    let rec copy_loop = () =>
-      switch (Unix.read(fs, buffer, 0, buffer_size)) {
-      | 0 => ()
-      | r =>
-        ignore(Unix.write(fd, buffer, 0, r));
-        copy_loop();
-      };
-    copy_loop();
-    Unix.close(fs);
-    Unix.close(fd);
-    true;
-  };
-
-let copyExn = (~source, ~dest) =>
-  if (!copy(~source, ~dest)) {
-    failwith("Unable to copy " ++ source ++ " to " ++ dest);
   };
 
 let exists = path =>
@@ -173,12 +124,6 @@ let ifExists = path => exists(path) ? Some(path) : None;
 let isFile = path =>
   switch (maybeStat(path)) {
   | Some({Unix.st_kind: Unix.S_REG}) => true
-  | _ => false
-  };
-
-let isDirectory = path =>
-  switch (maybeStat(path)) {
-  | Some({Unix.st_kind: Unix.S_DIR}) => true
   | _ => false
   };
 
@@ -213,44 +158,6 @@ let rec mkdirp = dest =>
       failwith("Unable to create " ++ dest);
     };
   };
-
-let rec copyDeep = (~source, ~dest) => {
-  mkdirp(Filename.dirname(dest));
-  switch (maybeStat(source)) {
-  | None => ()
-  | Some({Unix.st_kind: Unix.S_DIR}) =>
-    readDirectory(source)
-    |> List.iter(name =>
-         copyDeep(
-           ~source=Filename.concat(source, name),
-           ~dest=Filename.concat(dest, name),
-         )
-       )
-  | Some({Unix.st_kind: Unix.S_REG}) => copy(~source, ~dest) |> ignore
-  | _ => ()
-  };
-};
-
-let rec removeDeep = path => {
-  switch (maybeStat(path)) {
-  | None => ()
-  | Some({Unix.st_kind: Unix.S_DIR}) =>
-    readDirectory(path)
-    |> List.iter(name => removeDeep(Filename.concat(path, name)));
-    Unix.rmdir(path);
-  | _ => Unix.unlink(path)
-  };
-};
-
-let rec walk = (path, fn) => {
-  switch (maybeStat(path)) {
-  | None => ()
-  | Some({Unix.st_kind: Unix.S_DIR}) =>
-    readDirectory(path)
-    |> List.iter(name => walk(Filename.concat(path, name), fn))
-  | _ => fn(path)
-  };
-};
 
 let rec collectDirs = path => {
   switch (maybeStat(path)) {

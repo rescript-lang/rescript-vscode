@@ -2,25 +2,12 @@ open RResult;
 open TopTypes;
 open Infix;
 
-let extend = (obj, items) =>
-  Json.obj(obj) |?>> (current => Json.Object(current @ items));
-
-let log = Log.log;
-let (-?>) = (_, b) => b;
-
 let maybeHash = (h, k) =>
   if (Hashtbl.mem(h, k)) {
     Some(Hashtbl.find(h, k));
   } else {
     None;
   };
-type handler =
-  | Handler(
-      string,
-      Json.t => result('a, string),
-      (state, 'a) => result((state, Json.t), string),
-    )
-    : handler;
 
 let getPackage =
   Packages.getPackage(
