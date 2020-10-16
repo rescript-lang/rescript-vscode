@@ -27,7 +27,6 @@ module T = {
     expr: (~depth: int=?, stringifier, Types.type_expr) => Pretty.doc,
     ident: (stringifier, Ident.t) => Pretty.doc,
     decl: (stringifier, string, string, Types.type_declaration) => Pretty.doc,
-    value: (stringifier, string, string, Types.type_expr) => Pretty.doc,
   };
 };
 open T;
@@ -197,13 +196,6 @@ let print_attr = (printer, {Types.ld_id, ld_mutable, ld_type}) => {
   @! printer.expr(printer, ld_type);
 };
 
-let print_value = (stringifier, realName, name, decl) => {
-  str("let ")
-  @! str(~len=String.length(realName), name)
-  @! str(": ")
-  @! stringifier.expr(stringifier, decl);
-};
-
 let print_decl = (stringifier, realName, name, decl) => {
   Types.(
     str("type ")
@@ -257,7 +249,6 @@ let default = {
       stringifier.path(stringifier, path, pathType) @! str("." ++ name)
     | Papply(_, _) => str("<apply>")
     },
-  value: print_value,
   expr: print_expr,
   decl: print_decl,
 };
