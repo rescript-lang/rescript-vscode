@@ -258,7 +258,6 @@ type k =
   | Module(moduleKind)
   | Value(Types.type_expr)
   | Type(Type.t)
-  | ModuleType(moduleKind)
   | Constructor(constructor, declared(Type.t))
   | Attribute(attribute, declared(Type.t))
   | FileModule(string);
@@ -267,7 +266,6 @@ let kindToInt = k =>
   switch (k) {
   | Module(_) => 9
   | FileModule(_) => 9
-  | ModuleType(_) => 9
   | Constructor(_, _) => 4
   | Attribute(_, _) => 5
   | Type(_) => 22
@@ -279,7 +277,6 @@ let detail = (name, contents) =>
   | Type({decl}) => decl |> Shared.declToString(name)
   | Value(typ) => typ |> Shared.typeToString
   | Module(_) => "module"
-  | ModuleType(_) => "module type"
   | FileModule(_) => "file module"
   | Attribute({typ}, t) =>
     name
