@@ -169,7 +169,6 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.exported, item) => {
                          stamp: astamp,
                          aname: Location.mknoloc(name),
                          typ: ld_type,
-                         typLoc: Location.none,
                        };
                      }),
                 )
@@ -294,10 +293,9 @@ let forTypeDeclaration =
           | Ttype_record(labels) =>
             Record(
               labels
-              |> List.map(
-                   ({ld_id, ld_name: aname, ld_type: {ctyp_type, ctyp_loc}}) => {
+              |> List.map(({ld_id, ld_name: aname, ld_type: {ctyp_type}}) => {
                    let astamp = Ident.binding_time(ld_id);
-                   {stamp: astamp, aname, typ: ctyp_type, typLoc: ctyp_loc};
+                   {stamp: astamp, aname, typ: ctyp_type};
                  }),
             )
           },
