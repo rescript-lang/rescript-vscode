@@ -8,8 +8,7 @@ type kinds =
   | Module
   | Enum
   | Interface
-  | TypeParameter
-  | ModuleType;
+  | TypeParameter;
 
 type filePath = string;
 type paths =

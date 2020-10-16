@@ -82,7 +82,6 @@ let locationContains = ({Location.loc_start, loc_end}, pos) =>
 let symbolKind = (kind: SharedTypes.kinds) =>
   switch (kind) {
   | Module => 2
-  | ModuleType => 2
   | Enum => 10
   | Interface => 11
   | Function => 12
