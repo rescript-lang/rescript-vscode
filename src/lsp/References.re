@@ -23,8 +23,19 @@ let checkPos =
     true;
   };
 
+let locsForPos = (~extra, pos) => {
+  extra.locations |> List.filter(((loc, _l)) => checkPos(pos, loc));
+};
+
 let locForPos = (~extra, pos) => {
-  extra.locations |> List.find_opt(((loc, _l)) => checkPos(pos, loc));
+  switch (locsForPos(~extra, pos)) {
+  | [(loc1, _), (loc2, _) as l, (loc3, _)]
+      when loc1 == loc2 && loc2 == loc3 =>
+    // heuristic for: [makeProps, make, createElements], give the loc of `make`
+    Some(l)
+  | [l, ..._] => Some(l)
+  | _ => None
+  };
 };
 
 /** Other locations *within this file* that refer to the same thing.
@@ -392,7 +403,7 @@ let allReferencesForLoc =
   };
 };
 
-let forPos = (~file, ~extra, pos) => {
+let refsForPos = (~file, ~extra, pos) => {
   let%opt (_, loc) = locForPos(~extra, pos);
   maybeLog("Got a loc for pos");
   let%opt refs = localReferencesForLoc(~file, ~extra, loc);
