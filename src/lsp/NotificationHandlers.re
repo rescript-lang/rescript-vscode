@@ -107,6 +107,16 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
   let locationsInfo =
     locations
     |> Utils.filterMapIndex((i, (location: Location.t, loc)) => {
+         let locIsModule =
+           switch (loc) {
+           | SharedTypes.LModule(_)
+           | TopLevelModule(_) => true
+           | TypeDefinition(_)
+           | Typed(_)
+           | Constant(_)
+           | Explanation(_) => false
+           };
+
          let hoverText =
            Hover.newHover(
              ~rootUri=state.rootUri,
@@ -128,24 +138,23 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
              ~getModule=State.fileForModule(state, ~package),
              loc,
            );
-         let def =
+         let (def, skipZero) =
            switch (uriLocOpt) {
-           | None => []
+           | None => ([], false)
            | Some((uri2, loc)) =>
              let uriIsCurrentFile = uri == uri2;
              let posIsZero = ({Lexing.pos_lnum, pos_bol, pos_cnum}) =>
                pos_lnum == 1 && pos_cnum - pos_bol == 0;
-             // Skip if Uri is current and range is all zero
+             // Skip if range is all zero, unless it's a module
              let skipZero =
-               uriIsCurrentFile
+               !locIsModule
                && loc.loc_start
                |> posIsZero
                && loc.loc_end
                |> posIsZero;
              let range = ("range", Protocol.rangeOfLoc(loc));
-             skipZero
-               ? []
-               : [
+             (
+               [
                  (
                    "definition",
                    o(
@@ -153,9 +162,12 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
                        ? [range] : [("uri", Json.String(uri2)), range],
                    ),
                  ),
-               ];
+               ],
+               skipZero,
+             );
            };
-         hover == [] && def == []
+         let skip = skipZero || hover == [] && def == [];
+         skip
            ? None
            : Some(
                o([("range", Protocol.rangeOfLoc(location))] @ hover @ def),
