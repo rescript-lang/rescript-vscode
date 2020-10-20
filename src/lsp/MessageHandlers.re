@@ -272,7 +272,7 @@ let handlers:
           let%opt (file, extra) =
             State.fileForUri(state, ~package, uri) |> toOptionAndLog;
 
-          let%opt_wrap refs = References.forPos(~file, ~extra, pos);
+          let%opt_wrap refs = References.refsForPos(~file, ~extra, pos);
           JsonShort.(
             state,
             l(
