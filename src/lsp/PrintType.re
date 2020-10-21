@@ -15,16 +15,6 @@ let rec collectArgs = (coll, typ) =>
   | _ => (coll, typ)
   };
 
-module T = {
-  type stringifier = {
-    path: (stringifier, Path.t) => Pretty.doc,
-    expr: (~depth: int=?, stringifier, Types.type_expr) => Pretty.doc,
-    ident: (stringifier, Ident.t) => Pretty.doc,
-    decl: (stringifier, string, string, Types.type_declaration) => Pretty.doc,
-  };
-};
-open T;
-
 let break = Pretty.line("");
 let space = Pretty.line(" ");
 let dedent = Pretty.back(2, "");
@@ -105,9 +95,11 @@ let makeNamer = () => {
 
 let namer = makeNamer();
 
-let print_expr = (~depth=0, stringifier, typ) => {
+let ident = id => str(Ident.name(id));
+
+let rec print_expr = (~depth=0, typ) => {
   /* Log.log("print_expr"); */
-  let loop = stringifier.expr(~depth=depth + 1, stringifier);
+  let loop = print_expr(~depth=depth + 1);
   if (depth > 20) {
     str("Too deep");
   } else {
@@ -132,7 +124,7 @@ let print_expr = (~depth=0, stringifier, typ) => {
         @! loop(result);
       | Ttuple(items) => tuple_list(items, loop)
       | Tconstr(path, args, _) =>
-        stringifier.path(stringifier, path)
+        print_path(path)
         @! (
           switch (args) {
           | [] => Pretty.empty
@@ -158,7 +150,14 @@ let print_expr = (~depth=0, stringifier, typ) => {
       }
     );
   };
-};
+}
+
+and print_path = path =>
+  switch (path) {
+  | Path.Pident(id) => ident(id)
+  | Pdot(path, name, _) => print_path(path) @! str("." ++ name)
+  | Papply(_, _) => str("<apply>")
+  };
 
 let print_constructor = (loop, {Types.cd_id, cd_args, cd_res}) => {
   let name = Ident.name(cd_id);
@@ -178,26 +177,26 @@ let print_constructor = (loop, {Types.cd_id, cd_args, cd_res}) => {
   );
 };
 
-let print_attr = (printer, {Types.ld_id, ld_mutable, ld_type}) => {
+let print_attr = ({Types.ld_id, ld_mutable, ld_type}) => {
   (
     switch (ld_mutable) {
     | Asttypes.Immutable => Pretty.empty
     | Mutable => str("mut ")
     }
   )
-  @! printer.ident(printer, ld_id)
+  @! ident(ld_id)
   @! str(": ")
-  @! printer.expr(printer, ld_type);
+  @! print_expr(ld_type);
 };
 
-let print_decl = (stringifier, realName, name, decl) => {
+let print_decl = (realName, name, decl) => {
   Types.(
     str("type ")
     @! str(~len=String.length(realName), name)
     @! (
       switch (decl.type_params) {
       | [] => Pretty.empty
-      | args => tuple_list(args, stringifier.expr(stringifier))
+      | args => tuple_list(args, print_expr)
       }
     )
     @! (
@@ -206,9 +205,7 @@ let print_decl = (stringifier, realName, name, decl) => {
       | Type_open => str(" = ..")
       | Type_record(labels, _representation) =>
         str(" = {")
-        @! indentGroup(
-             break @! commad_list(print_attr(stringifier), labels) @! dedent,
-           )
+        @! indentGroup(break @! commad_list(print_attr, labels) @! dedent)
         @! str("}")
       | Type_variant(constructors) =>
         str(" = ")
@@ -218,7 +215,7 @@ let print_decl = (stringifier, realName, name, decl) => {
              @! sepd_list(
                   space @! str("| "),
                   constructors,
-                  print_constructor(stringifier.expr(stringifier)),
+                  print_constructor(print_expr),
                 ),
            )
         @! break
@@ -227,24 +224,10 @@ let print_decl = (stringifier, realName, name, decl) => {
     @! (
       switch (decl.type_manifest) {
       | None => Pretty.empty
-      | Some(manifest) =>
-        str(" = ") @! stringifier.expr(stringifier, manifest)
+      | Some(manifest) => str(" = ") @! print_expr(manifest)
       }
     )
   );
-};
-
-let default = {
-  ident: (_, ident) => str(Ident.name(ident)),
-  path: (stringifier, path) =>
-    switch (path) {
-    | Path.Pident(ident) => stringifier.ident(stringifier, ident)
-    | Pdot(path, name, _) =>
-      stringifier.path(stringifier, path) @! str("." ++ name)
-    | Papply(_, _) => str("<apply>")
-    },
-  expr: (~depth=?) => print_expr(~depth?),
-  decl: print_decl,
 };
 
 let prettyString = (~width=60, doc) => {
@@ -257,10 +240,10 @@ let prettyString = (~width=60, doc) => {
       num => {
         Buffer.add_string(buffer, "\n");
         for (_ in 1 to num) {
-          Buffer.add_string(buffer, " ");
+          Buffer.add_char(buffer, ' ');
         };
       },
     doc,
   );
-  Buffer.to_bytes(buffer) |> Bytes.to_string;
+  Buffer.contents(buffer);
 };
