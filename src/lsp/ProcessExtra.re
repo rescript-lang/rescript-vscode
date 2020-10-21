@@ -652,7 +652,8 @@ let forItems = (~file, ~allLocations, items, parts) => {
        | Partial_class_expr(class_expr) => Iter.iter_class_expr(class_expr)
        | Partial_module_type(module_type) =>
          Iter.iter_module_type(module_type)
-       | _ => ()
+       | Partial_structure(_)
+       | Partial_structure_item(_) => ()
        }
      );
 
