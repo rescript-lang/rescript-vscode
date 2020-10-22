@@ -290,6 +290,7 @@ let check = (~definitions, ~quiet, rootPath, files) => {
 };
 
 let dump = files => {
+  Shared.cacheTypeToString := true;
   let rootPath = Unix.getcwd();
   let emptyState = TopTypes.empty();
   let state = {
