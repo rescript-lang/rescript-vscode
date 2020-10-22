@@ -69,8 +69,7 @@ let declarationKind = t =>
   };
 
 let declToString = (name, t) =>
-  PrintType.default.decl(PrintType.default, name, name, t)
-  |> PrintType.prettyString;
+  PrintType.print_decl(name, name, t) |> PrintType.prettyString;
 
 let labelToString = label =>
   switch (label) {
@@ -79,9 +78,17 @@ let labelToString = label =>
   | Labelled(label) => label
   };
 
-let typeToString = t => {
-  PrintType.default.expr(PrintType.default, t)
-  |> PrintType.prettyString(~width=40);
+let cacheTypeToString = ref(false);
+let typeTbl = Hashtbl.create(1);
+
+let typeToString = (t: Types.type_expr) => {
+  switch (cacheTypeToString^ ? Hashtbl.find_opt(typeTbl, (t.id, t)) : None) {
+  | None =>
+    let s = PrintType.print_expr(t) |> PrintType.prettyString(~width=40);
+    Hashtbl.replace(typeTbl, (t.id, t), s);
+    s;
+  | Some(s) => s
+  };
 };
 
 let rec getArguments = t =>
