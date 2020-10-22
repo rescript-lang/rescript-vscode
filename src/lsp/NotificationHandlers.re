@@ -175,7 +175,7 @@ let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
        })
     |> l;
   Log.spamError := true;
-  Log.log("ZZZ " ++ Json.stringify(locationsInfo));
+  Log.log(Json.stringify(locationsInfo));
   Log.spamError := false;
 };
 
