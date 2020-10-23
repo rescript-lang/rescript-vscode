@@ -304,6 +304,14 @@ let dump = files => {
   };
   files
   |> List.iter(filePath => {
+       let (filePath, selectPos) =
+         switch (filePath |> String.split_on_char(':')) {
+         | [filePath, line, char] => (
+             filePath,
+             Some((line |> int_of_string, char |> int_of_string)),
+           )
+         | _ => (filePath, None)
+         };
        let filePath = maybeConcat(Unix.getcwd(), filePath);
        let uri = Utils.toUri(filePath);
        switch (State.getFullFromCmt(uri, state)) {
@@ -314,6 +322,7 @@ let dump = files => {
            ~package,
            ~file,
            ~extra,
+           ~selectPos,
            uri,
          )
        };

@@ -79,16 +79,21 @@ let reloadAllState = state => {
   };
 };
 
-let dumpLocations = (state, ~package, ~file, ~extra, uri) => {
+let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
   let locations =
     extra.SharedTypes.locations
     |> List.filter(((l, _)) => !l.Location.loc_ghost);
-  Log.log(
-    "ZZZ found "
-    ++ string_of_int(List.length(locations))
-    ++ " locations in "
-    ++ uri,
-  );
+  let locations = {
+    switch (selectPos) {
+    | Some(pos) =>
+      let pos = Utils.cmtLocFromVscode(pos);
+      switch (References.locForPos(~extra={...extra, locations}, pos)) {
+      | None => []
+      | Some(l) => [l]
+      };
+    | None => locations
+    };
+  };
   open JsonShort;
   let dedupTable = Hashtbl.create(1);
   let dedupHover = (hover, i) => {
