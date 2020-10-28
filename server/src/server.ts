@@ -219,10 +219,15 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
     } else if (aa.method === "initialize") {
       // send the list of features we support
       let result: p.InitializeResult = {
+        // This tells the client: "hey, we support the following operations".
+        // Example: we want to expose "jump-to-definition".
+        // By adding `definitionProvider: true`, the client will now send "jump-to-definition" requests.
         capabilities: {
           // TODO: incremental sync?
           textDocumentSync: v.TextDocumentSyncKind.Full,
           documentFormattingProvider: true,
+          hoverProvider: true,
+          definitionProvider: true,
         },
       };
       let response: m.ResponseMessage = {
@@ -264,6 +269,33 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
         };
         process.send!(response);
       }
+    } else if (aa.method === p.HoverRequest.method) {
+      let dummyHoverResponse: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: aa.id,
+        // type result = Hover | null
+        // type Hover = {contents: MarkedString | MarkedString[] | MarkupContent, range?: Range}
+        result: { contents: "Time to go for a 20k run!" },
+      };
+
+      process.send!(dummyHoverResponse);
+    } else if (aa.method === p.DefinitionRequest.method) {
+      // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
+      let dummyDefinitionResponse: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: aa.id,
+        // result should be: Location | Array<Location> | Array<LocationLink> | null
+        result: {
+          uri: aa.params.textDocument.uri,
+          range: {
+            start: { line: 2, character: 4 },
+            end: { line: 2, character: 12 },
+          },
+        },
+        // error: code and message set in case an exception happens during the definition request.
+      };
+
+      process.send!(dummyDefinitionResponse);
     } else if (aa.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
       // the LSP alert box for these error replies sucks (e.g. doesn't actually
