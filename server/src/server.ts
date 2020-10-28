@@ -20,6 +20,8 @@ import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
+import { runDumpCommand } from "./dumpCommand";
+
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -313,32 +315,50 @@ process.on("message", (msg: m.Message) => {
         process.send!(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
-      let dummyHoverResponse: m.ResponseMessage = {
+      let emptyHoverResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         // type result = Hover | null
         // type Hover = {contents: MarkedString | MarkedString[] | MarkupContent, range?: Range}
-        result: { contents: "Time to go for a 20k run!" },
+        result: null,
       };
-
-      process.send!(dummyHoverResponse);
+      runDumpCommand(msg, (result) => {
+        if (result && result.hover) {
+          let hoverResponse: m.ResponseMessage = {
+            ...emptyHoverResponse,
+            result: {
+              contents: result.hover,
+            },
+          };
+          process.send!(hoverResponse);
+        } else {
+          process.send!(emptyHoverResponse);
+        }
+      });
     } else if (msg.method === p.DefinitionRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
-      let dummyDefinitionResponse: m.ResponseMessage = {
+      let emptyDefinitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         // result should be: Location | Array<Location> | Array<LocationLink> | null
-        result: {
-          uri: msg.params.textDocument.uri,
-          range: {
-            start: { line: 2, character: 4 },
-            end: { line: 2, character: 12 },
-          },
-        },
+        result: null,
         // error: code and message set in case an exception happens during the definition request.
       };
 
-      process.send!(dummyDefinitionResponse);
+      runDumpCommand(msg, (result) => {
+        if (result && result.definition) {
+          let definitionResponse: m.ResponseMessage = {
+            ...emptyDefinitionResponse,
+            result: {
+              uri: result.definition.uri || msg.params.textDocument.uri,
+              range: result.definition.range,
+            },
+          };
+          process.send!(definitionResponse);
+        } else {
+          process.send!(emptyDefinitionResponse);
+        }
+      });
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
       // the LSP alert box for these error replies sucks (e.g. doesn't actually
