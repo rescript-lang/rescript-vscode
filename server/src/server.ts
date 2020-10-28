@@ -19,10 +19,12 @@ import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
+import { ChildProcess } from "child_process";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
 let initialized = false;
+let serverSentRequestIdCounter = 0;
 // https://microsoft.github.io/language-server-protocol/specification#exit
 let shutdownRequestAlreadyReceived = false;
 let stupidFileContentCache: Map<string, string> = new Map();
@@ -31,6 +33,7 @@ let projectsFiles: Map<
   {
     openFiles: Set<string>;
     filesWithDiagnostics: Set<string>;
+    bsbWatcherByEditor: null | ChildProcess;
   }
 > = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
@@ -109,6 +112,10 @@ let stopWatchingCompilerLog = () => {
   compilerLogsWatcher.close();
 };
 
+type clientSentBuildAction = {
+  title: string;
+  projectRootPath: string;
+};
 let openedFile = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
 
@@ -120,6 +127,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
       projectsFiles.set(projectRootPath, {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
+        bsbWatcherByEditor: null,
       });
       compilerLogsWatcher.add(
         path.join(projectRootPath, c.compilerLogPartialPath)
@@ -127,6 +135,38 @@ let openedFile = (fileUri: string, fileContent: string) => {
     }
     let root = projectsFiles.get(projectRootPath)!;
     root.openFiles.add(filePath);
+    // check if .bsb.lock is still there. If not, start a bsb -w ourselves
+    // because otherwise the diagnostics info we'll display might be stale
+    let bsbLockPath = path.join(projectRootPath, c.bsbLock);
+    if (!fs.existsSync(bsbLockPath)) {
+      let bsbPath = path.join(projectRootPath, c.bsbPartialPath);
+      // TODO: sometime stale .bsb.lock dangling
+      // TODO: close watcher when lang-server shuts down
+      if (fs.existsSync(bsbPath)) {
+        let payload: clientSentBuildAction = {
+          title: c.startBuildAction,
+          projectRootPath: projectRootPath,
+        };
+        let params = {
+          type: p.MessageType.Info,
+          message: `Start a build for this project to get the freshest data?`,
+          actions: [payload],
+        };
+        let request: m.RequestMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: serverSentRequestIdCounter++,
+          method: "window/showMessageRequest",
+          params: params,
+        };
+        process.send!(request);
+        // the client might send us back the "start build" action, which we'll
+        // handle in the isResponseMessage check in the message handling way
+        // below
+      } else {
+        // we should send something to say that we can't find bsb.exe. But right now we'll silently not do anything
+      }
+    }
+
     // no need to call sendUpdatedDiagnostics() here; the watcher add will
     // call the listener which calls it
   }
@@ -147,6 +187,10 @@ let closedFile = (fileUri: string) => {
           path.join(projectRootPath, c.compilerLogPartialPath)
         );
         deleteProjectDiagnostics(projectRootPath);
+        if (root.bsbWatcherByEditor !== null) {
+          root.bsbWatcherByEditor.kill();
+          root.bsbWatcherByEditor = null;
+        }
       }
     }
   }
@@ -163,29 +207,28 @@ let getOpenedFileContent = (fileUri: string) => {
   return content;
 };
 
-process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
-  if ((a as m.RequestMessage).id == null) {
-    // this is a notification message, aka the client ends it and doesn't want a reply
-    let aa = a as m.NotificationMessage;
-    if (!initialized && aa.method !== "exit") {
+process.on("message", (msg: m.Message) => {
+  if (m.isNotificationMessage(msg)) {
+    // notification message, aka the client ends it and doesn't want a reply
+    if (!initialized && msg.method !== "exit") {
       // From spec: "Notifications should be dropped, except for the exit notification. This will allow the exit of a server without an initialize request"
       // For us: do nothing. We don't have anything we need to clean up right now
       // TODO: we might have things we need to clean up now... like some watcher stuff
-    } else if (aa.method === "exit") {
+    } else if (msg.method === "exit") {
       // The server should exit with success code 0 if the shutdown request has been received before; otherwise with error code 1
       if (shutdownRequestAlreadyReceived) {
         process.exit(0);
       } else {
         process.exit(1);
       }
-    } else if (aa.method === DidOpenTextDocumentNotification.method) {
-      let params = aa.params as p.DidOpenTextDocumentParams;
+    } else if (msg.method === DidOpenTextDocumentNotification.method) {
+      let params = msg.params as p.DidOpenTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt || extName === c.resiExt) {
         openedFile(params.textDocument.uri, params.textDocument.text);
       }
-    } else if (aa.method === DidChangeTextDocumentNotification.method) {
-      let params = aa.params as p.DidChangeTextDocumentParams;
+    } else if (msg.method === DidChangeTextDocumentNotification.method) {
+      let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt || extName === c.resiExt) {
         let changes = params.contentChanges;
@@ -199,24 +242,23 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
           );
         }
       }
-    } else if (aa.method === DidCloseTextDocumentNotification.method) {
-      let params = aa.params as p.DidCloseTextDocumentParams;
+    } else if (msg.method === DidCloseTextDocumentNotification.method) {
+      let params = msg.params as p.DidCloseTextDocumentParams;
       closedFile(params.textDocument.uri);
     }
-  } else {
-    // this is a request message, aka client sent request and waits for our mandatory reply
-    let aa = a as m.RequestMessage;
-    if (!initialized && aa.method !== "initialize") {
+  } else if (m.isRequestMessage(msg)) {
+    // request message, aka client sent request and waits for our mandatory reply
+    if (!initialized && msg.method !== "initialize") {
       let response: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
-        id: aa.id,
+        id: msg.id,
         error: {
           code: m.ErrorCodes.ServerNotInitialized,
           message: "Server not initialized.",
         },
       };
       process.send!(response);
-    } else if (aa.method === "initialize") {
+    } else if (msg.method === "initialize") {
       // send the list of features we support
       let result: p.InitializeResult = {
         // This tells the client: "hey, we support the following operations".
@@ -232,25 +274,25 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
       };
       let response: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
-        id: aa.id,
+        id: msg.id,
         result: result,
       };
       initialized = true;
       process.send!(response);
-    } else if (aa.method === "initialized") {
+    } else if (msg.method === "initialized") {
       // sent from client after initialize. Nothing to do for now
       let response: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
-        id: aa.id,
+        id: msg.id,
         result: null,
       };
       process.send!(response);
-    } else if (aa.method === "shutdown") {
+    } else if (msg.method === "shutdown") {
       // https://microsoft.github.io/language-server-protocol/specification#shutdown
       if (shutdownRequestAlreadyReceived) {
         let response: m.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
-          id: aa.id,
+          id: msg.id,
           error: {
             code: m.ErrorCodes.InvalidRequest,
             message: `Language server already received the shutdown request`,
@@ -261,32 +303,33 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
         shutdownRequestAlreadyReceived = true;
         // TODO: recheck logic around init/shutdown...
         stopWatchingCompilerLog();
+        // TODO: delete bsb watchers
 
         let response: m.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
-          id: aa.id,
+          id: msg.id,
           result: null,
         };
         process.send!(response);
       }
-    } else if (aa.method === p.HoverRequest.method) {
+    } else if (msg.method === p.HoverRequest.method) {
       let dummyHoverResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
-        id: aa.id,
+        id: msg.id,
         // type result = Hover | null
         // type Hover = {contents: MarkedString | MarkedString[] | MarkupContent, range?: Range}
         result: { contents: "Time to go for a 20k run!" },
       };
 
       process.send!(dummyHoverResponse);
-    } else if (aa.method === p.DefinitionRequest.method) {
+    } else if (msg.method === p.DefinitionRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
       let dummyDefinitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
-        id: aa.id,
+        id: msg.id,
         // result should be: Location | Array<Location> | Array<LocationLink> | null
         result: {
-          uri: aa.params.textDocument.uri,
+          uri: msg.params.textDocument.uri,
           range: {
             start: { line: 2, character: 4 },
             end: { line: 2, character: 12 },
@@ -296,7 +339,7 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
       };
 
       process.send!(dummyDefinitionResponse);
-    } else if (aa.method === p.DocumentFormattingRequest.method) {
+    } else if (msg.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
       // the LSP alert box for these error replies sucks (e.g. doesn't actually
       // display the message). In order to signal the client to display a proper
@@ -306,11 +349,11 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
       // nicer alert. Ugh.
       let fakeSuccessResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
-        id: aa.id,
+        id: msg.id,
         result: [],
       };
 
-      let params = aa.params as p.DocumentFormattingParams;
+      let params = msg.params as p.DocumentFormattingParams;
       let filePath = fileURLToPath(params.textDocument.uri);
       let extension = path.extname(params.textDocument.uri);
       if (extension !== c.resExt && extension !== c.resiExt) {
@@ -376,7 +419,7 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
               ];
               let response: m.ResponseMessage = {
                 jsonrpc: c.jsonrpcVersion,
-                id: aa.id,
+                id: msg.id,
                 result: result,
               };
               process.send!(response);
@@ -393,13 +436,40 @@ process.on("message", (a: m.RequestMessage | m.NotificationMessage) => {
     } else {
       let response: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
-        id: aa.id,
+        id: msg.id,
         error: {
           code: m.ErrorCodes.InvalidRequest,
           message: "Unrecognized editor request.",
         },
       };
       process.send!(response);
+    }
+  } else if (m.isResponseMessage(msg)) {
+    // response message. Currently the client should have only sent a response
+    // for asking us to start the build (see window/showMessageRequest in this
+    // file)
+
+    if (
+      msg.result != null &&
+      // @ts-ignore
+      msg.result.title != null &&
+      // @ts-ignore
+      msg.result.title === c.startBuildAction
+    ) {
+      let msg_ = msg.result as clientSentBuildAction;
+      let projectRootPath = msg_.projectRootPath;
+      let bsbPath = path.join(projectRootPath, c.bsbPartialPath);
+      // TODO: sometime stale .bsb.lock dangling
+      // TODO: close watcher when lang-server shuts down
+      if (fs.existsSync(bsbPath)) {
+        let bsbProcess = utils.runBsbWatcherUsingValidBsbPath(
+          bsbPath,
+          projectRootPath
+        );
+        let root = projectsFiles.get(projectRootPath)!;
+        root.bsbWatcherByEditor = bsbProcess;
+        bsbProcess.on("message", (a) => console.log("wtf======", a));
+      }
     }
   }
 });

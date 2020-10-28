@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as t from "vscode-languageserver-types";
 import * as tmp from 'tmp';
 import fs from 'fs';
+import { report } from 'process';
 
 // TODO: races here
 // TODO: this doesn't handle file:/// scheme
@@ -23,14 +24,14 @@ export let findProjectRootOfFile = (source: p.DocumentUri): null | p.DocumentUri
 	}
 }
 
-type formattingResult = {
+type execResult = {
 	kind: 'success',
 	result: string
 } | {
 	kind: 'error'
 	error: string,
 };
-export let formatUsingValidBscPath = (code: string, bscPath: p.DocumentUri, isInterface: boolean): formattingResult => {
+export let formatUsingValidBscPath = (code: string, bscPath: p.DocumentUri, isInterface: boolean): execResult => {
 	// library cleans up after itself. No need to manually remove temp file
 	let tmpobj = tmp.fileSync();
 	let extension = isInterface ? c.resiExt : c.resExt;
@@ -48,6 +49,23 @@ export let formatUsingValidBscPath = (code: string, bscPath: p.DocumentUri, isIn
 			error: e.message,
 		}
 	}
+}
+
+export let runBsbWatcherUsingValidBsbPath = (bsbPath: p.DocumentUri, projectRootPath: p.DocumentUri) => {
+	let process = childProcess.execFile(bsbPath, ['-w'], { cwd: projectRootPath })
+	return process
+	// try {
+	// 	let result = childProcess.execFileSync(bsbPath, [], { stdio: 'pipe', cwd: projectRootPath })
+	// 	return {
+	// 		kind: 'success',
+	// 		result: result.toString(),
+	// 	}
+	// } catch (e) {
+	// 	return {
+	// 		kind: 'error',
+	// 		error: e.message,
+	// 	}
+	// }
 }
 
 export let parseDiagnosticLocation = (location: string): Range => {
