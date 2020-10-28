@@ -90,10 +90,10 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^7.0.2",
-		"mocha": "^8.0.1",
 		"@types/node": "^12.12.0",
-		"eslint": "^6.4.0",
 		"@typescript-eslint/parser": "^2.3.0",
+		"eslint": "^6.4.0",
+		"mocha": "^8.0.1",
 		"typescript": "^3.9.4"
 	},
 	"dependencies": {
