@@ -21,9 +21,11 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 - Syntax errors diagnosis (only after formatting).
 
 ### Upcoming Features
+- Built-in bsb watcher (optional, and exposed explicitly as a pop-up; no worries of dangling build)
+- Type diagnosis
+- Jump to location
 - Formatting of temporary files
 - Formatting of files outside of a ReScript project root
-- Type diagnosis
 
 ## Develop
 
@@ -45,21 +47,23 @@ This repo happens to also contain a language-server usable by other editors. If 
 
 ### Running the Project
 
-- Run `npm install` in this folder. This installs all necessary npm modules in both the client and server folder
-- Open VS Code on this folder.
-- Press Ctrl+Shift+B to compile the client and server.
+- Run `npm install` at the root. This will also install the necessary npm modules in both the `client` and `server` folders.
+- Open VS Code to this folder.
 - Switch to the Debug viewlet (command palette -> View: Show Run and Debug).
-- Select `Launch Client` from the drop down.
-- Run the launch config.
-- If you want to debug the server as well use the launch configuration `Attach to Server`
-- In the [Extension Development Host] instance of VSCode, open a document in 'plain text' language mode.
-- Try `ReScript` mode formatting with `.res` or `.resi` files.
+- Select `Client + Server` from the drop down, launch it (green arrow):
+
+  <img width="235" alt="image" src="https://user-images.githubusercontent.com/1909539/97448097-7d186a80-18ed-11eb-82d6-d55b70f54811.png">
+
+  (If you're getting some Promise-related error alert, file an issue here so that we can find a workaround; this seems to be a VSCode bug).
+- In the [Extension Development Host] instance of VSCode that just opened, open a `.res` file.
+- Try various features.
+- When you make a change, Go to the same Debug viewlet's Call Stack panel and restart the client and the server:
+
+  <img width="359" alt="image" src="https://user-images.githubusercontent.com/1909539/97448639-19db0800-18ee-11eb-875a-d17cd1b141d1.png">
 
 #### Change the Grammar
 
 - Modify `grammars/rescript.tmLanguage.json`.
-
-Currently the best way to test it is to link your extension to `~/.vscode/extensions` then reload a separate test VSCode `.res` tab after each grammar change.
 
 For more grammar inspirations, check:
 - [TypeScript's grammar](https://github.com/microsoft/TypeScript-TmLanguage/blob/a771bc4e79deeae81a01d988a273e300290d0072/TypeScript.YAML-tmLanguage)
