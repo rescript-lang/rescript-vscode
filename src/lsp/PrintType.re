@@ -1,3 +1,5 @@
+let rescript = ref(true);
+
 let rec dig = typ =>
   switch (typ.Types.desc) {
   | Types.Tlink(inner) => dig(inner)
@@ -45,6 +47,15 @@ let tupleList = (items, printItem) => {
   @! indentGroup(break @! commadList(printItem, items) @! dedent)
   @! str(")");
 };
+
+let typeConstr = (items, printItem) =>
+  if (rescript^) {
+    str("<")
+    @! indentGroup(break @! commadList(printItem, items) @! dedent)
+    @! str(">");
+  } else {
+    tupleList(items, printItem);
+  };
 
 let showArgs = (loop, args) => {
   str("(")
@@ -128,14 +139,36 @@ let rec print_expr = (~depth=0, typ) => {
         @! (
           switch (args) {
           | [] => Pretty.empty
-          | args => tupleList(args, innerExpr)
+          | args => typeConstr(args, innerExpr)
           }
         )
       | Tlink(inner) => innerExpr(inner)
       | Tsubst(inner) => innerExpr(inner)
       | Tnil => str("(no type)")
+      | Tvariant({row_fields}) =>
+        str("[")
+        @! indentGroup(
+             break
+             @! (List.length(row_fields) <= 1 ? str("| ") : str(" "))
+             @! sepdList(
+                  space @! str("| "), row_fields, ((label, row_field)) =>
+                  switch (row_field) {
+                  | Rpresent(None)
+                  | Reither(_, [], _, _) => str("#" ++ label)
+                  | Rpresent(Some(t))
+                  | Reither(_, [t], _, _) =>
+                    str("#" ++ label)
+                    @! str("(")
+                    @! innerExpr(t)
+                    @! str(")")
+                  | Reither(_)
+                  | Rabsent => str("...")
+                  }
+                ),
+           )
+        @! str("]")
+        @! break
       | Tfield(_, _, _, _)
-      | Tvariant(_)
       | Tunivar(_)
       | Tpoly(_, _)
       | Tpackage(_, _, _)
@@ -166,7 +199,7 @@ let print_constructor = (loop, {Types.cd_id, cd_args, cd_res}) => {
     switch (cd_args) {
     | Cstr_tuple([]) => Pretty.empty
     | Cstr_record(_) => str("{...printing not supported...}")
-    | Cstr_tuple(args) => tupleList(args, loop)
+    | Cstr_tuple(args) => typeConstr(args, loop)
     }
   )
   @! (
@@ -196,7 +229,7 @@ let print_decl = (realName, name, decl) => {
     @! (
       switch (decl.type_params) {
       | [] => Pretty.empty
-      | args => tupleList(args, print_expr)
+      | args => typeConstr(args, print_expr)
       }
     )
     @! (
