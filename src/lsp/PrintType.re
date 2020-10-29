@@ -22,27 +22,27 @@ let dedent = Pretty.back(2, "");
 let str = (~len=?, s) => Pretty.text(~len?, s);
 let (@!) = Pretty.append;
 
-let sepd_list = (sep, items, loop) => {
+let sepd_list = (sep, items, printItem) => {
   let rec recur = items =>
     switch (items) {
     | [] => Pretty.empty
-    | [one] => loop(one)
+    | [one] => printItem(one)
     | [one, ...more] =>
-      let l = loop(one);
+      let l = printItem(one);
       l @! sep @! recur(more);
     };
   recur(items);
 };
 
-let commad_list = (loop, items) => {
-  sepd_list(str(",") @! space, items, loop);
+let commad_list = (printItem, items) => {
+  sepd_list(str(",") @! space, items, printItem);
 };
 
 let indentGroup = doc => Pretty.indent(2, Pretty.group(doc));
 
-let tuple_list = (items, loop) => {
+let tuple_list = (items, printItem) => {
   str("(")
-  @! indentGroup(break @! commad_list(loop, items) @! dedent)
+  @! indentGroup(break @! commad_list(printItem, items) @! dedent)
   @! str(")");
 };
 
@@ -99,7 +99,7 @@ let ident = id => str(Ident.name(id));
 
 let rec print_expr = (~depth=0, typ) => {
   /* Log.log("print_expr"); */
-  let loop = print_expr(~depth=depth + 1);
+  let innerExpr = print_expr(~depth=depth + 1);
   if (depth > 20) {
     str("Too deep");
   } else {
@@ -114,25 +114,25 @@ let rec print_expr = (~depth=0, typ) => {
           switch (args) {
           | [(Nolabel, typ)] =>
             switch (dig(typ)) {
-            | {desc: Ttuple(_)} => showArgs(loop, args)
-            | _ => loop(typ)
+            | {desc: Ttuple(_)} => showArgs(innerExpr, args)
+            | _ => innerExpr(typ)
             }
-          | _ => showArgs(loop, args)
+          | _ => showArgs(innerExpr, args)
           }
         )
         @! str(" => ")
-        @! loop(result);
-      | Ttuple(items) => tuple_list(items, loop)
+        @! innerExpr(result);
+      | Ttuple(items) => tuple_list(items, innerExpr)
       | Tconstr(path, args, _) =>
         print_path(path)
         @! (
           switch (args) {
           | [] => Pretty.empty
-          | args => tuple_list(args, loop)
+          | args => tuple_list(args, innerExpr)
           }
         )
-      | Tlink(inner) => loop(inner)
-      | Tsubst(inner) => loop(inner)
+      | Tlink(inner) => innerExpr(inner)
+      | Tsubst(inner) => innerExpr(inner)
       | Tnil => str("(no type)")
       | Tfield(_, _, _, _)
       | Tvariant(_)
