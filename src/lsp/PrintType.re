@@ -22,7 +22,7 @@ let dedent = Pretty.back(2, "");
 let str = (~len=?, s) => Pretty.text(~len?, s);
 let (@!) = Pretty.append;
 
-let sepd_list = (sep, items, printItem) => {
+let sepdList = (sep, items, printItem) => {
   let rec recur = items =>
     switch (items) {
     | [] => Pretty.empty
@@ -34,15 +34,15 @@ let sepd_list = (sep, items, printItem) => {
   recur(items);
 };
 
-let commad_list = (printItem, items) => {
-  sepd_list(str(",") @! space, items, printItem);
+let commadList = (printItem, items) => {
+  sepdList(str(",") @! space, items, printItem);
 };
 
 let indentGroup = doc => Pretty.indent(2, Pretty.group(doc));
 
-let tuple_list = (items, printItem) => {
+let tupleList = (items, printItem) => {
   str("(")
-  @! indentGroup(break @! commad_list(printItem, items) @! dedent)
+  @! indentGroup(break @! commadList(printItem, items) @! dedent)
   @! str(")");
 };
 
@@ -50,7 +50,7 @@ let showArgs = (loop, args) => {
   str("(")
   @! indentGroup(
        break
-       @! commad_list(
+       @! commadList(
             ((label, typ)) => {
               switch (label) {
               | Asttypes.Nolabel => loop(typ)
@@ -122,13 +122,13 @@ let rec print_expr = (~depth=0, typ) => {
         )
         @! str(" => ")
         @! innerExpr(result);
-      | Ttuple(items) => tuple_list(items, innerExpr)
+      | Ttuple(items) => tupleList(items, innerExpr)
       | Tconstr(path, args, _) =>
         print_path(path)
         @! (
           switch (args) {
           | [] => Pretty.empty
-          | args => tuple_list(args, innerExpr)
+          | args => tupleList(args, innerExpr)
           }
         )
       | Tlink(inner) => innerExpr(inner)
@@ -166,7 +166,7 @@ let print_constructor = (loop, {Types.cd_id, cd_args, cd_res}) => {
     switch (cd_args) {
     | Cstr_tuple([]) => Pretty.empty
     | Cstr_record(_) => str("{...printing not supported...}")
-    | Cstr_tuple(args) => tuple_list(args, loop)
+    | Cstr_tuple(args) => tupleList(args, loop)
     }
   )
   @! (
@@ -196,7 +196,7 @@ let print_decl = (realName, name, decl) => {
     @! (
       switch (decl.type_params) {
       | [] => Pretty.empty
-      | args => tuple_list(args, print_expr)
+      | args => tupleList(args, print_expr)
       }
     )
     @! (
@@ -205,14 +205,14 @@ let print_decl = (realName, name, decl) => {
       | Type_open => str(" = ..")
       | Type_record(labels, _representation) =>
         str(" = {")
-        @! indentGroup(break @! commad_list(print_attr, labels) @! dedent)
+        @! indentGroup(break @! commadList(print_attr, labels) @! dedent)
         @! str("}")
       | Type_variant(constructors) =>
         str(" = ")
         @! indentGroup(
              break
              @! str("| ")
-             @! sepd_list(
+             @! sepdList(
                   space @! str("| "),
                   constructors,
                   print_constructor(print_expr),
