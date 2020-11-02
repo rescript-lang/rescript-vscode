@@ -292,7 +292,7 @@ let getFullFromCmt = (uri, state) => {
     BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
   switch (Hashtbl.find_opt(package.pathsForModule, moduleName)) {
   | Some(paths) =>
-    let cmt = SharedTypes.getCmt(paths);
+    let cmt = SharedTypes.getCmt(~interface=Utils.endsWith(uri, "i"), paths);
     let%try full =
       Process_406.fullForCmt(
         ~moduleName,

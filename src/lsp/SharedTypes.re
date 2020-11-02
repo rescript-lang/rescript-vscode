@@ -33,11 +33,11 @@ let getSrc = p =>
   | IntfAndImpl(_, s, _, _) => Some(s)
   };
 
-let getCmt = p =>
+let getCmt = (~interface=true, p) =>
   switch (p) {
   | Impl(c, _)
-  | Intf(c, _)
-  | IntfAndImpl(c, _, _, _) => c
+  | Intf(c, _) => c
+  | IntfAndImpl(cint, _, cimpl, _) => interface ? cint : cimpl
   };
 
 /* TODO maybe track the loc's of these things */
