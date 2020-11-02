@@ -27,13 +27,12 @@ let makePathsForModule =
   let nameForPath = Hashtbl.create(30);
   let add = (name, paths) =>
     switch (paths) {
-    | SharedTypes.Intf(_, Some(path)) =>
-      Hashtbl.replace(nameForPath, path, name)
+    | SharedTypes.Intf(_, path) => Hashtbl.replace(nameForPath, path, name)
     | SharedTypes.Impl(_, Some(path)) =>
       Hashtbl.replace(nameForPath, path, name)
     | SharedTypes.IntfAndImpl(_, intf, _, impl) =>
-      intf |?< (path => Hashtbl.replace(nameForPath, path, name));
-      impl |?< (path => Hashtbl.replace(nameForPath, path, name));
+      Hashtbl.replace(nameForPath, intf, name);
+      Hashtbl.replace(nameForPath, impl, name);
     | _ => ()
     };
 

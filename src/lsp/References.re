@@ -146,7 +146,7 @@ let alternateDeclared = (~file, ~pathsForModule, ~getUri, declared, tip) => {
   let%opt paths = Hashtbl.find_opt(pathsForModule, file.moduleName);
   maybeLog("paths for " ++ file.moduleName);
   switch (paths) {
-  | IntfAndImpl(_, Some(intf), _, Some(impl)) =>
+  | IntfAndImpl(_, intf, _, impl) =>
     maybeLog("Have both!!");
     let intf = Utils.toUri(intf);
     let impl = Utils.toUri(impl);
