@@ -13,31 +13,24 @@ type kinds =
 type filePath = string;
 type paths =
   | Impl(filePath, option(filePath))
-  | Intf(filePath, option(filePath))
+  | Intf(filePath, filePath)
   // .cm(t)i, .mli, .cmt, .rei
-  | IntfAndImpl(filePath, option(filePath), filePath, option(filePath));
+  | IntfAndImpl(filePath, filePath, filePath, filePath);
 
 open Infix;
 let showPaths = paths =>
   switch (paths) {
   | Impl(cmt, src) => Printf.sprintf("Impl(%s, %s)", cmt, src |? "nil")
-  | Intf(cmti, src) => Printf.sprintf("Intf(%s, %s)", cmti, src |? "nil")
+  | Intf(cmti, src) => Printf.sprintf("Intf(%s, %s)", cmti, src)
   | IntfAndImpl(cmti, srci, cmt, src) =>
-    Printf.sprintf(
-      "IntfAndImpl(%s, %s, %s, %s)",
-      cmti,
-      srci |? "nil",
-      cmt,
-      src |? "nil",
-    )
+    Printf.sprintf("IntfAndImpl(%s, %s, %s, %s)", cmti, srci, cmt, src)
   };
 
 let getSrc = p =>
   switch (p) {
+  | Impl(_, s) => s
   | Intf(_, s)
-  | Impl(_, s)
-  | IntfAndImpl(_, Some(_) as s, _, _)
-  | IntfAndImpl(_, None, _, s) => s
+  | IntfAndImpl(_, s, _, _) => Some(s)
   };
 
 let getCmt = p =>

@@ -198,18 +198,13 @@ let findProjectFiles =
                  /* Log.log("Intf and impl " ++ cmti ++ " " ++ cmt); */
                  Some((
                    mname,
-                   SharedTypes.IntfAndImpl(
-                     cmti,
-                     Some(intf),
-                     cmt,
-                     Some(path),
-                   ),
+                   SharedTypes.IntfAndImpl(cmti, intf, cmt, path),
                  ));
                } else {
                  /* Log.log("Just intf " ++ cmti); */
                  Some((
                    mname,
-                   Intf(cmti, Some(intf)),
+                   Intf(cmti, intf),
                  ));
                };
              } else {
@@ -244,7 +239,7 @@ let findProjectFiles =
           Log.log("Extra intf " ++ intf);
           let cmti = compiledBase /+ base ++ ".cmti";
           if (Files.exists(cmti)) {
-            [(mname, SharedTypes.Intf(cmti, Some(intf))), ...res];
+            [(mname, SharedTypes.Intf(cmti, intf)), ...res];
           } else {
             res;
           };
