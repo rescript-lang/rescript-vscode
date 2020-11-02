@@ -1,5 +1,5 @@
 {
-  "checksum": "6f992a3fb59f8d722ace948f087ab55f",
+  "checksum": "e68cd70f24e866e1566573a64b6b9f3b",
   "root": "reason-language-server@link-dev:./package.json",
   "node": {
     "reason-language-server@link-dev:./package.json": {
@@ -16,7 +16,7 @@
         "ocaml@4.6.1000@d41d8cd9", "@opam/uri@opam:3.1.0@826aaae7",
         "@opam/reason@opam:3.6.0@58adb39a",
         "@opam/ppx_tools_versioned@opam:5.4.0@32d1a414",
-        "@opam/ocaml-migrate-parsetree@opam:1.7.3@dbcf3b47",
+        "@opam/ocaml-migrate-parsetree@opam:1.8.0@305b6173",
         "@opam/dune@opam:2.7.1@f5f493bc"
       ],
       "devDependencies": []
@@ -175,7 +175,7 @@
       "dependencies": [
         "ocaml@4.6.1000@d41d8cd9", "@opam/result@opam:1.5@6b753c82",
         "@opam/ocamlfind@opam:1.8.1@ff07b0f9",
-        "@opam/ocaml-migrate-parsetree@opam:1.7.3@dbcf3b47",
+        "@opam/ocaml-migrate-parsetree@opam:1.8.0@305b6173",
         "@opam/merlin-extend@opam:0.6@404f814c",
         "@opam/menhir@opam:20200624@8629ff13",
         "@opam/fix@opam:20200131@0ecd2f01", "@opam/dune@opam:2.7.1@f5f493bc",
@@ -183,7 +183,7 @@
       ],
       "devDependencies": [
         "ocaml@4.6.1000@d41d8cd9", "@opam/result@opam:1.5@6b753c82",
-        "@opam/ocaml-migrate-parsetree@opam:1.7.3@dbcf3b47",
+        "@opam/ocaml-migrate-parsetree@opam:1.8.0@305b6173",
         "@opam/merlin-extend@opam:0.6@404f814c",
         "@opam/menhir@opam:20200624@8629ff13",
         "@opam/fix@opam:20200131@0ecd2f01", "@opam/dune@opam:2.7.1@f5f493bc"
@@ -234,12 +234,12 @@
       "overrides": [],
       "dependencies": [
         "ocaml@4.6.1000@d41d8cd9",
-        "@opam/ocaml-migrate-parsetree@opam:1.7.3@dbcf3b47",
+        "@opam/ocaml-migrate-parsetree@opam:1.8.0@305b6173",
         "@opam/dune@opam:2.7.1@f5f493bc", "@esy-ocaml/substs@0.0.1@d41d8cd9"
       ],
       "devDependencies": [
         "ocaml@4.6.1000@d41d8cd9",
-        "@opam/ocaml-migrate-parsetree@opam:1.7.3@dbcf3b47",
+        "@opam/ocaml-migrate-parsetree@opam:1.8.0@305b6173",
         "@opam/dune@opam:2.7.1@f5f493bc"
       ]
     },
@@ -357,20 +357,20 @@
       ],
       "devDependencies": [ "ocaml@4.6.1000@d41d8cd9" ]
     },
-    "@opam/ocaml-migrate-parsetree@opam:1.7.3@dbcf3b47": {
-      "id": "@opam/ocaml-migrate-parsetree@opam:1.7.3@dbcf3b47",
+    "@opam/ocaml-migrate-parsetree@opam:1.8.0@305b6173": {
+      "id": "@opam/ocaml-migrate-parsetree@opam:1.8.0@305b6173",
       "name": "@opam/ocaml-migrate-parsetree",
-      "version": "opam:1.7.3",
+      "version": "opam:1.8.0",
       "source": {
         "type": "install",
         "source": [
-          "archive:https://opam.ocaml.org/cache/sha256/6d/6d85717bcf476b87f290714872ed4fbde0233dc899c3158a27f439d70224fb55#sha256:6d85717bcf476b87f290714872ed4fbde0233dc899c3158a27f439d70224fb55",
-          "archive:https://github.com/ocaml-ppx/ocaml-migrate-parsetree/releases/download/v1.7.3/ocaml-migrate-parsetree-v1.7.3.tbz#sha256:6d85717bcf476b87f290714872ed4fbde0233dc899c3158a27f439d70224fb55"
+          "archive:https://opam.ocaml.org/cache/sha256/b1/b1c2d176ff1444041f2775786ba605be796e46dfd2acb06c96f35d2bb88b8fb5#sha256:b1c2d176ff1444041f2775786ba605be796e46dfd2acb06c96f35d2bb88b8fb5",
+          "archive:https://github.com/ocaml-ppx/ocaml-migrate-parsetree/releases/download/v1.8.0/ocaml-migrate-parsetree-v1.8.0.tbz#sha256:b1c2d176ff1444041f2775786ba605be796e46dfd2acb06c96f35d2bb88b8fb5"
         ],
         "opam": {
           "name": "ocaml-migrate-parsetree",
-          "version": "1.7.3",
-          "path": "esy.lock/opam/ocaml-migrate-parsetree.1.7.3"
+          "version": "1.8.0",
+          "path": "esy.lock/opam/ocaml-migrate-parsetree.1.8.0"
         }
       },
       "overrides": [],
