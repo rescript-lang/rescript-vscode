@@ -135,12 +135,14 @@ let openedFile = (fileUri: string, fileContent: string) => {
     }
     let root = projectsFiles.get(projectRootPath)!;
     root.openFiles.add(filePath);
+    let firstOpenFileOfProject = root.openFiles.size === 1;
     // check if .bsb.lock is still there. If not, start a bsb -w ourselves
     // because otherwise the diagnostics info we'll display might be stale
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
-    if (!fs.existsSync(bsbLockPath)) {
+    if (firstOpenFileOfProject && !fs.existsSync(bsbLockPath)) {
       let bsbPath = path.join(projectRootPath, c.bsbPartialPath);
-      // TODO: sometime stale .bsb.lock dangling
+      // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
+      // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
       if (fs.existsSync(bsbPath)) {
         let payload: clientSentBuildAction = {
