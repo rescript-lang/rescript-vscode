@@ -41,7 +41,7 @@ let getCompiledBase = root => {
 };
 let getStdlib = base => {
   let%try_wrap bsPlatformDir = getBsPlatformDir(base);
-  [bsPlatformDir /+ "lib" /+ "ocaml"];
+  bsPlatformDir /+ "lib" /+ "ocaml";
 };
 
 let getCompiler = rootPath => {

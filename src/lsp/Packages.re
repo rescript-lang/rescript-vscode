@@ -92,7 +92,7 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
     };
 
   let compiledBase = BuildSystem.getCompiledBase(rootPath);
-  let%try stdLibDirectories = BuildSystem.getStdlib(rootPath);
+  let%try stdLibDirectory = BuildSystem.getStdlib(rootPath);
   let%try compilerPath = BuildSystem.getCompiler(rootPath);
   let mlfmtPath = state.settings.mlfmtLocation;
   let%try refmtPath = BuildSystem.getRefmt(rootPath);
@@ -224,7 +224,7 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
     compilationFlags: flags |> String.concat(" "),
     interModuleDependencies,
     includeDirectories:
-      localCompiledDirs @ dependencyDirectories @ stdLibDirectories,
+      localCompiledDirs @ dependencyDirectories @ [stdLibDirectory],
 
     compilerPath,
     mlfmtPath,
