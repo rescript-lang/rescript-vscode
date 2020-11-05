@@ -272,15 +272,6 @@ let findProjectFiles =
      |> List.filter(((_, (cmt, src))) => Files.exists(cmt))
    }; */
 
-let needsCompilerLibs = config => {
-  config
-  |> Json.get("ocaml-dependencies")
-  |?> Json.array
-  |? []
-  |> optMap(Json.string)
-  |> List.mem("compiler-libs");
-};
-
 let findDependencyFiles = (~debug, base, config) => {
   let deps =
     config
@@ -355,33 +346,8 @@ let findDependencyFiles = (~debug, base, config) => {
        });
   let (directories, files) = List.split(depFiles);
   let files = List.concat(files);
-  let%try stdlibDirectories = BuildSystem.getStdlib(base);
-  let directories = stdlibDirectories @ List.concat(directories);
-  let results =
-    files @ List.concat(List.map(collectFiles, stdlibDirectories));
-  let%try bsPlatformDir = BuildSystem.getBsPlatformDir(base);
-  Ok((
-    needsCompilerLibs(config)
-      ? [
-        bsPlatformDir
-        /+ "vendor"
-        /+ "ocaml"
-        /+ "lib"
-        /+ "ocaml"
-        /+ "compiler-libs",
-        ...directories,
-      ]
-      : directories,
-    needsCompilerLibs(config)
-      ? collectFiles(
-          bsPlatformDir
-          /+ "vendor"
-          /+ "ocaml"
-          /+ "lib"
-          /+ "ocaml"
-          /+ "compiler-libs",
-        )
-        @ results
-      : results,
-  ));
+  let%try stdlibDirectory = BuildSystem.getStdlib(base);
+  let directories = [stdlibDirectory, ...List.concat(directories)];
+  let results = files @ collectFiles(stdlibDirectory);
+  Ok((directories, results));
 };
