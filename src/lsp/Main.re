@@ -383,13 +383,16 @@ let hasOpts = (opts, names) => names |> List.exists(opts |> hasOpt);
 let hasVerbose = opts => hasOpts(opts, ["-v", "--verbose"]);
 
 let help = {|
-🎉 Reason Language Server 🎉
+Commands for Rescript Language Server
 
-Usage: run without arguments, and communicate over stdin/stdout,
-following the language server protocol as defined in
-https://microsoft.github.io/language-server-protocol/specification
+dump: compute definition and hover for Foo.res at line 0 and column 4:
+bin.exe dump src/Foo.res:0:4
 
-Logs are stored in `<project_root>/node_modules/.lsp/debug.log`.
+complete: compute autocomplete for Foo.res at line 0 and column 4,
+  where Foo.res is being edited and the editor content is in file current.res.
+bin.exe complete src/Foo.res:0:4 current.res
+
+The dump command can also omit `:line:column`, to show results for every position in the file. Several files can be specified on the command line.
 |};
 
 let showHelp = () => {
