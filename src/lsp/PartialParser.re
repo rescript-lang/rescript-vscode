@@ -180,7 +180,11 @@ let findCompletable = (text, offset) => {
         }
       );
   };
-  loop(offset - 1);
+  if (offset > String.length(text) || offset == 0) {
+    Nothing;
+  } else {
+    loop(offset - 1);
+  };
   /* } */
 };
 

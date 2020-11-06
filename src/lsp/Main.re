@@ -317,7 +317,7 @@ let dump = files => {
        switch (State.getFullFromCmt(uri, state)) {
        | Error(message) => print_endline(message)
        | Ok((package, {file, extra})) =>
-         NotificationHandlers.dumpLocations(
+         DumpCommand.dumpLocations(
            state,
            ~package,
            ~file,
@@ -327,6 +327,33 @@ let dump = files => {
          )
        };
      });
+};
+
+let complete = (~pathWithPos, ~currentFile) => {
+  let rootPath = Unix.getcwd();
+  let emptyState = TopTypes.empty();
+  let state = {
+    ...emptyState,
+    rootPath,
+    rootUri: Utils.toUri(rootPath),
+    settings: {
+      ...emptyState.settings,
+      autoRebuild: false,
+    },
+  };
+  switch (pathWithPos |> String.split_on_char(':')) {
+  | [filePath, line, char] =>
+    let pos = (line |> int_of_string, char |> int_of_string);
+    let filePath = maybeConcat(Unix.getcwd(), filePath);
+    let uri = Utils.toUri(filePath);
+    switch (State.getFullFromCmt(uri, state)) {
+    | Error(message) => print_endline(message)
+    | Ok((package, full)) =>
+      Hashtbl.replace(state.lastDefinitions, uri, full);
+      DumpCommand.autocomplete(~currentFile, ~full, ~package, ~pos, ~state);
+    };
+  | _ => ()
+  };
 };
 
 let parseArgs = args => {
@@ -412,6 +439,8 @@ let main = () => {
     };
     check(~definitions, ~quiet, rootPath, files);
   | (_opts, ["dump", ...files]) => dump(files)
+  | (_opts, ["complete", pathWithPos, currentFile]) =>
+    complete(~pathWithPos, ~currentFile)
   | _ => showHelp()
   };
 };
