@@ -20,8 +20,7 @@ import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
-import { runDumpCommand } from "./dumpCommand";
-
+import { runDumpCommand, runCompletionCommand } from "./dumpCommand";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -272,6 +271,7 @@ process.on("message", (msg: m.Message) => {
           documentFormattingProvider: true,
           hoverProvider: true,
           definitionProvider: true,
+          completionProvider: { triggerCharacters: ["."] },
         },
       };
       let response: m.ResponseMessage = {
@@ -357,6 +357,24 @@ process.on("message", (msg: m.Message) => {
           process.send!(definitionResponse);
         } else {
           process.send!(emptyDefinitionResponse);
+        }
+      });
+    } else if (msg.method === p.CompletionRequest.method) {
+      let emptyCompletionResponse: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: msg.id,
+        result: null,
+      };
+      let code = getOpenedFileContent(msg.params.textDocument.uri);
+      runCompletionCommand(msg, code, (result) => {
+        if (result) {
+          let definitionResponse: m.ResponseMessage = {
+            ...emptyCompletionResponse,
+            result: result,
+          };
+          process.send!(definitionResponse);
+        } else {
+          process.send!(emptyCompletionResponse);
         }
       });
     } else if (msg.method === p.DocumentFormattingRequest.method) {
