@@ -6,22 +6,21 @@ import { exec } from "child_process";
 import * as tmp from "tmp";
 import fs from "fs";
 
+let binaryPath = path.join(
+  path.dirname(__dirname),
+  process.platform,
+  "bin.exe"
+);
+
+export let binaryExists = fs.existsSync(binaryPath);
+
 let findExecutable = (uri: string) => {
   let filePath = fileURLToPath(uri);
   let projectRootPath = utils.findProjectRootOfFile(filePath);
-  if (projectRootPath == null) {
+  if (projectRootPath == null || !binaryExists) {
     return null;
   } else {
-    let binaryPath = path.join(
-      path.dirname(__dirname),
-      process.platform,
-      "bin.exe"
-    );
-    if (fs.existsSync(binaryPath)) {
-      return { binaryPath, filePath, cwd: projectRootPath };
-    } else {
-      return null;
-    }
+    return { binaryPath, filePath, cwd: projectRootPath };
   }
 };
 

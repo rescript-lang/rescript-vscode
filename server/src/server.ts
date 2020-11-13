@@ -20,7 +20,11 @@ import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
-import { runDumpCommand, runCompletionCommand } from "./dumpCommand";
+import {
+  binaryExists,
+  runDumpCommand,
+  runCompletionCommand,
+} from "./dumpCommand";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -269,9 +273,11 @@ process.on("message", (msg: m.Message) => {
           // TODO: incremental sync?
           textDocumentSync: v.TextDocumentSyncKind.Full,
           documentFormattingProvider: true,
-          hoverProvider: true,
-          definitionProvider: true,
-          completionProvider: { triggerCharacters: ["."] },
+          hoverProvider: binaryExists,
+          definitionProvider: binaryExists,
+          completionProvider: binaryExists
+            ? { triggerCharacters: ["."] }
+            : undefined,
         },
       };
       let response: m.ResponseMessage = {
