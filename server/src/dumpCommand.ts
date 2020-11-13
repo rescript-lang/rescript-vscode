@@ -12,8 +12,11 @@ let findExecutable = (uri: string) => {
   if (projectRootPath == null) {
     return null;
   } else {
-    // Currently assumes the dump command is "bin.exe" at the project root.
-    let binaryPath = path.join(projectRootPath, "bin.exe");
+    let binaryPath = path.join(
+      path.dirname(__dirname),
+      process.platform,
+      "bin.exe"
+    );
     if (fs.existsSync(binaryPath)) {
       return { binaryPath, filePath, cwd: projectRootPath };
     } else {
