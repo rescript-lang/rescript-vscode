@@ -283,14 +283,14 @@ jobs:
             tar -xf bin-darwin.tgz -C darwin
 
             # Pack everything up
-            tar -czvf binaries.tgz linux win32 darwin
+            tar -czvf rescript-language-support.tgz linux win32 darwin
       - store_artifacts:
-          path: artifacts/binaries.tgz
-          destination: binaries.tgz
+          path: artifacts/rescript-language-support.tgz
+          destination: rescript-language-support.tgz
       - persist_to_workspace:
-          root: artifacts
+          root: rescript-language-support
           paths:
-            - binaries.tgz
+            - rescript-language-support.tgz
 workflows:
   version: 2
   build_deploy:
