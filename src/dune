@@ -1,7 +1,7 @@
 (include_subdirs unqualified)
 (executable
-  (name Bin)
-  (public_name Bin)
+  (name RescriptEditorSupport)
+  (public_name RescriptEditorSupport)
   (libraries str reason ocaml-migrate-parsetree uri bigarray)
   (flags "-w" "+26+27+32+33+39")
   (preprocess (pps Ppx_monads))

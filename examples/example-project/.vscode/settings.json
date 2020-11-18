@@ -1,8 +1,6 @@
 {
   "editor.codeLens": true,
-  // "reason_language_server.location": "../../lib/bs/native/bin.native",
-  "reason_language_server.location": "../../bin.exe",
-  // "reason_language_server.location": "../lib/bs/native/bin.native.exe",
+  "reason_language_server.location": "../../_build/default/src/RescriptEditorSupport.exe",
   "reason_language_server.reloadOnChange": true,
   "reason_language_server.per_value_codelens": true,
   "reason_language_server.show_debug_errors": true,
