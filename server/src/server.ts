@@ -24,7 +24,7 @@ import {
   binaryExists,
   runDumpCommand,
   runCompletionCommand,
-} from "./dumpCommand";
+} from "./RescriptEditorSupport";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
