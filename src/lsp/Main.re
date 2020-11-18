@@ -289,73 +289,6 @@ let check = (~definitions, ~quiet, rootPath, files) => {
   Log.log("Ok");
 };
 
-let dump = files => {
-  Shared.cacheTypeToString := true;
-  let rootPath = Unix.getcwd();
-  let emptyState = TopTypes.empty();
-  let state = {
-    ...emptyState,
-    rootPath,
-    rootUri: Utils.toUri(rootPath),
-    settings: {
-      ...emptyState.settings,
-      autoRebuild: false,
-    },
-  };
-  files
-  |> List.iter(filePath => {
-       let (filePath, selectPos) =
-         switch (filePath |> String.split_on_char(':')) {
-         | [filePath, line, char] => (
-             filePath,
-             Some((line |> int_of_string, char |> int_of_string)),
-           )
-         | _ => (filePath, None)
-         };
-       let filePath = maybeConcat(Unix.getcwd(), filePath);
-       let uri = Utils.toUri(filePath);
-       switch (State.getFullFromCmt(uri, state)) {
-       | Error(message) => print_endline(message)
-       | Ok((package, {file, extra})) =>
-         DumpCommand.dumpLocations(
-           state,
-           ~package,
-           ~file,
-           ~extra,
-           ~selectPos,
-           uri,
-         )
-       };
-     });
-};
-
-let complete = (~pathWithPos, ~currentFile) => {
-  let rootPath = Unix.getcwd();
-  let emptyState = TopTypes.empty();
-  let state = {
-    ...emptyState,
-    rootPath,
-    rootUri: Utils.toUri(rootPath),
-    settings: {
-      ...emptyState.settings,
-      autoRebuild: false,
-    },
-  };
-  switch (pathWithPos |> String.split_on_char(':')) {
-  | [filePath, line, char] =>
-    let pos = (line |> int_of_string, char |> int_of_string);
-    let filePath = maybeConcat(Unix.getcwd(), filePath);
-    let uri = Utils.toUri(filePath);
-    switch (State.getFullFromCmt(uri, state)) {
-    | Error(message) => print_endline(message)
-    | Ok((package, full)) =>
-      Hashtbl.replace(state.lastDefinitions, uri, full);
-      DumpCommand.autocomplete(~currentFile, ~full, ~package, ~pos, ~state);
-    };
-  | _ => ()
-  };
-};
-
 let parseArgs = args => {
   switch (args) {
   | [] => assert(false)
@@ -385,12 +318,14 @@ let hasVerbose = opts => hasOpts(opts, ["-v", "--verbose"]);
 let help = {|
 Commands for Rescript Language Server
 
-dump: compute definition and hover for Foo.res at line 0 and column 4:
-bin.exe dump src/Foo.res:0:4
+-dump: compute definition and hover for Foo.res at line 0 and column 4:
 
-complete: compute autocomplete for Foo.res at line 0 and column 4,
-  where Foo.res is being edited and the editor content is in file current.res.
-bin.exe complete src/Foo.res:0:4 current.res
+rescript-editor-support.exe dump src/Foo.res:0:4
+
+-complete: compute autocomplete for Foo.res at line 0 and column 4,
+ where Foo.res is being edited and the editor content is in file current.res.
+
+rescript-editor-support.exe complete src/Foo.res:0:4 current.res
 
 The dump command can also omit `:line:column`, to show results for every position in the file. Several files can be specified on the command line.
 |};
@@ -440,9 +375,9 @@ let main = () => {
       Log.spamError := false;
     };
     check(~definitions, ~quiet, rootPath, files);
-  | (_opts, ["dump", ...files]) => dump(files)
+  | (_opts, ["dump", ...files]) => EditorSupportCommands.dump(files)
   | (_opts, ["complete", pathWithPos, currentFile]) =>
-    complete(~pathWithPos, ~currentFile)
+    EditorSupportCommands.complete(~pathWithPos, ~currentFile)
   | _ =>
     showHelp();
     exit(1);

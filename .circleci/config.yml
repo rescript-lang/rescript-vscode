@@ -130,11 +130,11 @@ jobs:
             dune build
       - run:
           name: Test
-          command: ./_build/default/src/Bin.exe --help 
+          command: ./_build/default/src/RescriptEditorSupport.exe --help 
       - run:
           name: Create tar file for executable
           command: |
-            cp _build/default/src/Bin.exe rescript-editor-support.exe
+            cp _build/default/src/RescriptEditorSupport.exe rescript-editor-support.exe
             tar -czvf artifacts/bin-linux.tgz rescript-editor-support.exe
       - store_artifacts:
           path: artifacts/bin-linux.tgz
@@ -177,11 +177,11 @@ jobs:
             dune build
       - run:
           name: Test
-          command: ./_build/default/src/Bin.exe --help 
+          command: ./_build/default/src/RescriptEditorSupport.exe --help 
       - run:
           name: Create tar file for executable
           command: |
-            cp _build/default/src/Bin.exe rescript-editor-support.exe
+            cp _build/default/src/RescriptEditorSupport.exe rescript-editor-support.exe
             tar -czvf artifacts/bin-darwin.tgz rescript-editor-support.exe
       - store_artifacts:
           path: artifacts/bin-darwin.tgz
@@ -241,11 +241,11 @@ jobs:
           command: |
              eval $(opam env)
              dune build
-             ./_build/default/src/Bin.exe --help
+             ./_build/default/src/RescriptEditorSupport.exe --help
       - run:
           name: Create tar file for executable
           command: |
-            cp _build/default/src/Bin.exe rescript-editor-support.exe
+            cp _build/default/src/RescriptEditorSupport.exe rescript-editor-support.exe
             tar -czvf artifacts/bin-win32.tgz rescript-editor-support.exe
       - store_artifacts:
           path: artifacts/bin-win32.tgz

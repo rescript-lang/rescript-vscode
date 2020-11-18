@@ -105,6 +105,39 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
   Log.spamError := false;
 };
 
+let dump = files => {
+  Shared.cacheTypeToString := true;
+  let rootPath = Unix.getcwd();
+  let emptyState = TopTypes.empty();
+  let state = {
+    ...emptyState,
+    rootPath,
+    rootUri: Utils.toUri(rootPath),
+    settings: {
+      ...emptyState.settings,
+      autoRebuild: false,
+    },
+  };
+  files
+  |> List.iter(filePath => {
+       let (filePath, selectPos) =
+         switch (filePath |> String.split_on_char(':')) {
+         | [filePath, line, char] => (
+             filePath,
+             Some((line |> int_of_string, char |> int_of_string)),
+           )
+         | _ => (filePath, None)
+         };
+       let filePath = maybeConcat(Unix.getcwd(), filePath);
+       let uri = Utils.toUri(filePath);
+       switch (State.getFullFromCmt(uri, state)) {
+       | Error(message) => print_endline(message)
+       | Ok((package, {file, extra})) =>
+         dumpLocations(state, ~package, ~file, ~extra, ~selectPos, uri)
+       };
+     });
+};
+
 let autocomplete = (~currentFile, ~full, ~package, ~pos, ~state) => {
   let parameters =
     switch (Files.readFile(currentFile)) {
@@ -187,4 +220,31 @@ let autocomplete = (~currentFile, ~full, ~package, ~pos, ~state) => {
   Log.spamError := true;
   Log.log(Json.stringify(completions));
   Log.spamError := false;
+};
+
+let complete = (~pathWithPos, ~currentFile) => {
+  let rootPath = Unix.getcwd();
+  let emptyState = TopTypes.empty();
+  let state = {
+    ...emptyState,
+    rootPath,
+    rootUri: Utils.toUri(rootPath),
+    settings: {
+      ...emptyState.settings,
+      autoRebuild: false,
+    },
+  };
+  switch (pathWithPos |> String.split_on_char(':')) {
+  | [filePath, line, char] =>
+    let pos = (line |> int_of_string, char |> int_of_string);
+    let filePath = maybeConcat(Unix.getcwd(), filePath);
+    let uri = Utils.toUri(filePath);
+    switch (State.getFullFromCmt(uri, state)) {
+    | Error(message) => print_endline(message)
+    | Ok((package, full)) =>
+      Hashtbl.replace(state.lastDefinitions, uri, full);
+      autocomplete(~currentFile, ~full, ~package, ~pos, ~state);
+    };
+  | _ => ()
+  };
 };
