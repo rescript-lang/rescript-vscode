@@ -245,7 +245,7 @@ jobs:
       - run:
           name: Create tar file for executable
           command: |
-            cp rescript-editor-support-link.exe rescript-editor-support.exe
+            cp _build/default/src/rescript-editor-support/RescriptEditorSupport.exe rescript-editor-support.exe
             tar -czvf artifacts/bin-win32.tgz rescript-editor-support.exe
       - store_artifacts:
           path: artifacts/bin-win32.tgz
