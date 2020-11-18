@@ -71,23 +71,13 @@ executors:
 commands:
   restore-opam-cache:
     steps:
-      #- run:
-          #name: Create cache breaker
-          #command: |
-            #echo "ocaml-4.06.1" > .circleci/opamcachebreaker
-            #opam --version >> .circleci/opamcachebreaker
-            #cat gentype.opam >> .circleci/opamcachebreaker
-            #cat package-lock.json >> .circleci/opamcachebreaker
-            #cat .circleci/config.yml >> .circleci/opamcachebreaker
       - restore_cache:
           keys:
-          #- v1-opam-cache-{{ arch }}-{{ checksum ".circleci/opamcachebreaker" }}
           - v1-opam-cache-{{ arch }}-v0
 
   save-opam-cache:
     steps:
       - save_cache:
-          #key: v1-opam-cache-{{ arch }}-{{ checksum ".circleci/opamcachebreaker" }}
           key: v1-opam-cache-{{ arch }}-v0
           paths:
             - ~/.opam
@@ -144,8 +134,8 @@ jobs:
       - run:
           name: Create tar file for executable
           command: |
-            cp _build/default/src/Bin.exe bin.exe
-            tar -czvf artifacts/bin-linux.tgz bin.exe
+            cp _build/default/src/Bin.exe rescript-editor-support.exe
+            tar -czvf artifacts/bin-linux.tgz rescript-editor-support.exe
       - store_artifacts:
           path: artifacts/bin-linux.tgz
           destination: bin-linux.tgz
@@ -191,8 +181,8 @@ jobs:
       - run:
           name: Create tar file for executable
           command: |
-            cp _build/default/src/Bin.exe bin.exe
-            tar -czvf artifacts/bin-darwin.tgz bin.exe
+            cp _build/default/src/Bin.exe rescript-editor-support.exe
+            tar -czvf artifacts/bin-darwin.tgz rescript-editor-support.exe
       - store_artifacts:
           path: artifacts/bin-darwin.tgz
           destination: bin-darwin.tgz
@@ -239,7 +229,6 @@ jobs:
             eval $(opam env)
             opam install reason.3.6.0 dune.1.11.4 ocaml-migrate-parsetree.1.3.1 ppx_tools_versioned uri --yes | cat
       - save_cache:
-          #key: opam-cache-{{ arch }}-{{ checksum "C:/tmp/repo/opamcachebreaker" }}
           key: v0-opam-cache-{{ arch }}
           paths:
             - C:/tools/cygwin/home/circleci/.opam
@@ -256,8 +245,8 @@ jobs:
       - run:
           name: Create tar file for executable
           command: |
-            cp _build/default/src/Bin.exe bin.exe
-            tar -czvf artifacts/bin-win32.tgz bin.exe
+            cp _build/default/src/Bin.exe rescript-editor-support.exe
+            tar -czvf artifacts/bin-win32.tgz rescript-editor-support.exe
       - store_artifacts:
           path: artifacts/bin-win32.tgz
           destination: bin-win32.tgz
@@ -272,7 +261,7 @@ jobs:
       - attach_workspace:
           at: ~/repo/artifacts
       - run:
-          name: Pack genType
+          name: Combine artifacts for the 3 platforms
           command: |
             cd artifacts
             mkdir linux
@@ -283,14 +272,14 @@ jobs:
             tar -xf bin-darwin.tgz -C darwin
 
             # Pack everything up
-            tar -czvf rescript-language-support.tgz linux win32 darwin
+            tar -czvf rescript-editor-support.tgz linux win32 darwin
       - store_artifacts:
-          path: artifacts/rescript-language-support.tgz
-          destination: rescript-language-support.tgz
+          path: artifacts/rescript-editor-support.tgz
+          destination: rescript-editor-support.tgz
       - persist_to_workspace:
-          root: rescript-language-support
+          root: artifacts
           paths:
-            - rescript-language-support.tgz
+            - rescript-editor-support.tgz
 workflows:
   version: 2
   build_deploy:
