@@ -241,7 +241,7 @@ jobs:
           command: |
              eval $(opam env)
              dune build
-             ./rescript-editor-support-link.exe --help
+             ./_build/default/src/rescript-editor-support/RescriptEditorSupport.exe --help
       - run:
           name: Create tar file for executable
           command: |
