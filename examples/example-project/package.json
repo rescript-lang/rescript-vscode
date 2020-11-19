@@ -1,10 +1,11 @@
 {
   "dependencies": {
-    "bs-platform": "8.3.2",
+    "bs-platform": "8.3.3",
     "reason-react": "^0.9.1"
   },
   "scripts": {
     "build": "bsb -make-world",
-    "start": "bsb -make-world -w"
+    "start": "bsb -make-world -w",
+    "clean": "bsb -clean"
   }
 }
