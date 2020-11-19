@@ -34,6 +34,24 @@ export let findProjectRootOfFile = (
 	}
 };
 
+// the "build root" represents the nearest directory containing a "bsconfig.json" file.
+// "bsconfig.json" can be used to locate the nearest build artefacts
+export let findBuildRootOfFile = (
+	source: p.DocumentUri
+): null | p.DocumentUri => {
+	let dir = path.dirname(source);
+	if (fs.existsSync(path.join(dir, c.bsconfigPartialPath))) {
+		return dir;
+	} else {
+		if (dir === source) {
+			// reached top
+			return null;
+		} else {
+			return findBuildRootOfFile(dir);
+		}
+	}
+};
+
 type execResult =
 	| {
 		kind: "success";
