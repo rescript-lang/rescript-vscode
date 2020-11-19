@@ -122,33 +122,33 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   stupidFileContentCache.set(filePath, fileContent);
 
-  let projectRootPath = utils.findProjectRootOfFile(filePath);
-  if (projectRootPath != null) {
-    if (!projectsFiles.has(projectRootPath)) {
-      projectsFiles.set(projectRootPath, {
+  let buildRootPath = utils.findBuildRootOfFile(filePath);
+  if (buildRootPath != null) {
+    if (!projectsFiles.has(buildRootPath)) {
+      projectsFiles.set(buildRootPath, {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
         bsbWatcherByEditor: null,
       });
       compilerLogsWatcher.add(
-        path.join(projectRootPath, c.compilerLogPartialPath)
+        path.join(buildRootPath, c.compilerLogPartialPath)
       );
     }
-    let root = projectsFiles.get(projectRootPath)!;
+    let root = projectsFiles.get(buildRootPath)!;
     root.openFiles.add(filePath);
     let firstOpenFileOfProject = root.openFiles.size === 1;
     // check if .bsb.lock is still there. If not, start a bsb -w ourselves
     // because otherwise the diagnostics info we'll display might be stale
-    let bsbLockPath = path.join(projectRootPath, c.bsbLock);
+    let bsbLockPath = path.join(buildRootPath, c.bsbLock);
     if (firstOpenFileOfProject && !fs.existsSync(bsbLockPath)) {
-      let bsbPath = path.join(projectRootPath, c.bsbPartialPath);
+      let bsbPath = path.join(buildRootPath, c.bsbPartialPath);
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
       if (fs.existsSync(bsbPath)) {
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
-          projectRootPath: projectRootPath,
+          projectRootPath: buildRootPath,
         };
         let params = {
           type: p.MessageType.Info,
@@ -179,17 +179,17 @@ let closedFile = (fileUri: string) => {
 
   stupidFileContentCache.delete(filePath);
 
-  let projectRootPath = utils.findProjectRootOfFile(filePath);
-  if (projectRootPath != null) {
-    let root = projectsFiles.get(projectRootPath);
+  let buildRootPath = utils.findBuildRootOfFile(filePath);
+  if (buildRootPath != null) {
+    let root = projectsFiles.get(buildRootPath);
     if (root != null) {
       root.openFiles.delete(filePath);
       // clear diagnostics too if no open files open in said project
       if (root.openFiles.size === 0) {
         compilerLogsWatcher.unwatch(
-          path.join(projectRootPath, c.compilerLogPartialPath)
+          path.join(buildRootPath, c.compilerLogPartialPath)
         );
-        deleteProjectDiagnostics(projectRootPath);
+        deleteProjectDiagnostics(buildRootPath);
         if (root.bsbWatcherByEditor !== null) {
           root.bsbWatcherByEditor.kill();
           root.bsbWatcherByEditor = null;
