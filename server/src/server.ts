@@ -415,7 +415,7 @@ process.on("message", (msg: m.Message) => {
         if (projectRootPath == null) {
           let params: p.ShowMessageParams = {
             type: p.MessageType.Error,
-            message: `Cannot find a nearby ${c.bsconfigPartialPath}. It's needed for determining the project's root.`,
+            message: `Cannot find a nearby ${c.bscPartialPath}. It's needed for determining the project's root.`,
           };
           let response: m.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
