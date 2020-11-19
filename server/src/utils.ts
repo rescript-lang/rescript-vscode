@@ -22,7 +22,7 @@ export let findProjectRootOfFile = (
 	source: p.DocumentUri
 ): null | p.DocumentUri => {
 	let dir = path.dirname(source);
-	if (fs.existsSync(path.join(dir, c.bsconfigPartialPath))) {
+	if (fs.existsSync(path.join(dir, c.bscPartialPath))) {
 		return dir;
 	} else {
 		if (dir === source) {
