@@ -205,13 +205,19 @@ let autocomplete = (~currentFile, ~full, ~package, ~pos, ~state) => {
                ("detail", NewCompletions.detail(name, item) |> s),
                (
                  "documentation",
-                 s(
-                   (docstring |? "No docs")
-                   ++ "\n\n"
-                   ++ uri
-                   ++ ":"
-                   ++ string_of_int(pos_lnum),
-                 ),
+                 o([
+                   ("kind", s("markdown")),
+                   (
+                     "value",
+                     s(
+                       (docstring |? "No docs")
+                       ++ "\n\n"
+                       ++ uri
+                       ++ ":"
+                       ++ string_of_int(pos_lnum),
+                     ),
+                   ),
+                 ]),
                ),
              ])
            })
