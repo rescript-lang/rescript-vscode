@@ -31,7 +31,13 @@ let locForPos = (~extra, pos) => {
   switch (locsForPos(~extra, pos)) {
   | [(loc1, _), (loc2, _) as l, (loc3, _)]
       when loc1 == loc2 && loc2 == loc3 =>
-    // heuristic for: [makeProps, make, createElements], give the loc of `make`
+    // JSX with at most one child
+    // heuristic for: [makeProps, make, createElement], give the loc of `make`
+    Some(l)
+  | [(loc1, _), (loc2, _), (loc3, _) as l, (loc4, _)]
+      when loc1 == loc2 && loc2 == loc3 && loc3 == loc4 =>
+    // JSX variadic, e.g. <C> {x} {y} </C>
+    // heuristic for: [makeProps, React.null, make, createElementVariadic], give the loc of `make`
     Some(l)
   | [l, ..._] => Some(l)
   | _ => None
