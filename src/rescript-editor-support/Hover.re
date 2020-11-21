@@ -36,7 +36,7 @@ let showModuleTopLevel =
        )
     |> String.concat("\n");
   let full = "module " ++ name ++ " = {" ++ "\n" ++ contents ++ "\n}";
-  Some(markdown ? "```\n" ++ full ++ "\n```" : full);
+  Some(markdown ? "```rescript\n" ++ full ++ "\n```" : full);
 };
 
 let showModule =
@@ -114,7 +114,8 @@ let newHover =
       /* Some(typ.toString()) */
     };
 
-    let codeBlock = text => markdown ? "```\n" ++ text ++ "\n```" : text;
+    let codeBlock = text =>
+      markdown ? "```rescript\n" ++ text ++ "\n```" : text;
     let typeString = codeBlock(typeString);
     let typeString =
       typeString
