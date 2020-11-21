@@ -42,8 +42,8 @@ export function runDumpCommand(
       msg.params.position.line +
       ":" +
       msg.params.position.character;
-    exec(command, { cwd: executable.cwd }, function (_error, _stdout, stderr) {
-      let result = JSON.parse(stderr);
+    exec(command, { cwd: executable.cwd }, function (_error, stdout, _stderr) {
+      let result = JSON.parse(stdout);
       if (result && result[0]) {
         onResult(result[0]);
       } else {
@@ -77,9 +77,9 @@ export function runCompletionCommand(
       " " +
       tmpname;
 
-    exec(command, { cwd: executable.cwd }, function (_error, _stdout, stderr) {
+    exec(command, { cwd: executable.cwd }, function (_error, stdout, _stderr) {
       tmpobj.removeCallback();
-      let result = JSON.parse(stderr);
+      let result = JSON.parse(stdout);
       if (result && result[0]) {
         onResult(result);
       } else {
