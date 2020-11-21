@@ -199,7 +199,7 @@ let print_constructor = (loop, {Types.cd_id, cd_args, cd_res}) => {
     switch (cd_args) {
     | Cstr_tuple([]) => Pretty.empty
     | Cstr_record(_) => str("{...printing not supported...}")
-    | Cstr_tuple(args) => typeConstr(args, loop)
+    | Cstr_tuple(args) => tupleList(args, loop)
     }
   )
   @! (
