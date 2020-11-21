@@ -100,9 +100,8 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
              );
        })
     |> l;
-  Log.spamError := true;
-  Log.log(Json.stringify(locationsInfo));
-  Log.spamError := false;
+
+  print_endline(Json.stringify(locationsInfo));
 };
 
 let dump = files => {
@@ -223,9 +222,7 @@ let autocomplete = (~currentFile, ~full, ~package, ~pos, ~state) => {
            })
         |> l;
 
-  Log.spamError := true;
-  Log.log(Json.stringify(completions));
-  Log.spamError := false;
+  print_endline(Json.stringify(completions));
 };
 
 let complete = (~pathWithPos, ~currentFile) => {
