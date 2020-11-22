@@ -4,7 +4,7 @@ The official VSCode plugin for ReScript.
 
 ## Prerequisite
 
-`bs-platform 8.2.0` installed locally in your project.
+`bs-platform 8.3.3` installed locally in your project.
 
 ## Installation
 
@@ -19,11 +19,11 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
   - Currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`.
   - Cannot be a temporary file
 - Syntax errors diagnosis (only after formatting).
-
-### Upcoming Features
 - Built-in bsb watcher (optional, and exposed explicitly as a pop-up; no worries of dangling build)
 - Type diagnosis
 - Jump to location
+
+### Upcoming Features
 - Formatting of temporary files
 - Formatting of files outside of a ReScript project root
 
