@@ -12,6 +12,13 @@ let digConstructor = (~env, ~getModule, path) => {
   };
 };
 
+let codeBlock = (~markdown, code) =>
+  if (markdown) {
+    Printf.sprintf("```rescript\n%s\n```", code);
+  } else {
+    code;
+  };
+
 let showModuleTopLevel =
     (
       ~name,
@@ -32,7 +39,7 @@ let showModuleTopLevel =
        )
     |> String.concat("\n");
   let full = "module " ++ name ++ " = {" ++ "\n" ++ contents ++ "\n}";
-  Some(markdown ? "```rescript\n" ++ full ++ "\n```" : full);
+  Some(codeBlock(~markdown, full));
 };
 
 let showModule =
@@ -55,7 +62,9 @@ let newHover =
     (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showPath, loc) => {
   switch (loc) {
   | SharedTypes.Explanation(text) => Some(text)
-  | TypeDefinition(_name, _tdecl, _stamp) => None
+  | TypeDefinition(name, decl, _stamp) =>
+    let typeDef = Shared.declToString(name, decl);
+    Some(codeBlock(~markdown, typeDef));
   | LModule(LocalReference(stamp, _tip)) =>
     let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
     let%opt (file, declared) =
@@ -110,15 +119,13 @@ let newHover =
       /* Some(typ.toString()) */
     };
 
-    let codeBlock = text =>
-      markdown ? "```rescript\n" ++ text ++ "\n```" : text;
-    let typeString = codeBlock(typeString);
+    let typeString = codeBlock(~markdown, typeString);
     let typeString =
       typeString
       ++ (
         switch (extraTypeInfo) {
         | None => ""
-        | Some(extra) => "\n\n" ++ codeBlock(extra)
+        | Some(extra) => "\n\n" ++ codeBlock(~markdown, extra)
         }
       );
 
@@ -138,6 +145,7 @@ let newHover =
               Some(typeString),
               Some(
                 codeBlock(
+                  ~markdown,
                   txt
                   ++ "("
                   ++ (
