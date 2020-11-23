@@ -25,13 +25,9 @@ let showModuleTopLevel =
          /*** TODO pretty print module contents */
          | SharedTypes.MType({decl}) =>
            "  " ++ (decl |> Shared.declToString(item.name.txt))
-         | Module(_) => "  module " ++ item.name.txt ++ ";"
+         | Module(_) => "  module " ++ item.name.txt
          | MValue(typ) =>
-           "  let "
-           ++ item.name.txt
-           ++ ": "
-           ++ (typ |> Shared.typeToString)  /* TODO indent */
-           ++ ";"
+           "  let " ++ item.name.txt ++ ": " ++ (typ |> Shared.typeToString) /* TODO indent */
          }
        )
     |> String.concat("\n");
