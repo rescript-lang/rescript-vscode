@@ -22,7 +22,7 @@ let space = Pretty.line(" ");
 let dedent = Pretty.back(2, "");
 
 let str = (~len=?, s) => Pretty.text(~len?, s);
-let (@!) = Pretty.append;
+let (+++) = Pretty.append;
 
 let sepdList = (sep, items, printItem) => {
   let rec recur = items =>
@@ -31,49 +31,49 @@ let sepdList = (sep, items, printItem) => {
     | [one] => printItem(one)
     | [one, ...more] =>
       let l = printItem(one);
-      l @! sep @! recur(more);
+      l +++ sep +++ recur(more);
     };
   recur(items);
 };
 
 let commadList = (printItem, items) => {
-  sepdList(str(",") @! space, items, printItem);
+  sepdList(str(",") +++ space, items, printItem);
 };
 
 let indentGroup = doc => Pretty.indent(2, Pretty.group(doc));
 
 let tupleList = (items, printItem) => {
   str("(")
-  @! indentGroup(break @! commadList(printItem, items) @! dedent)
-  @! str(")");
+  +++ indentGroup(break +++ commadList(printItem, items) +++ dedent)
+  +++ str(")");
 };
 
 let typeConstr = (items, printItem) =>
   if (rescript^) {
     str("<")
-    @! indentGroup(break @! commadList(printItem, items) @! dedent)
-    @! str(">");
+    +++ indentGroup(break +++ commadList(printItem, items) +++ dedent)
+    +++ str(">");
   } else {
     tupleList(items, printItem);
   };
 
 let showArgs = (loop, args) => {
   str("(")
-  @! indentGroup(
-       break
-       @! commadList(
-            ((label, typ)) => {
-              switch (label) {
-              | Asttypes.Nolabel => loop(typ)
-              | Labelled(label)
-              | Optional(label) => str("~" ++ label ++ ": ") @! loop(typ)
-              }
-            },
-            args,
-          )
-       @! dedent,
-     )
-  @! str(")");
+  +++ indentGroup(
+        break
+        +++ commadList(
+              ((label, typ)) => {
+                switch (label) {
+                | Asttypes.Nolabel => loop(typ)
+                | Labelled(label)
+                | Optional(label) => str("~" ++ label ++ ": ") +++ loop(typ)
+                }
+              },
+              args,
+            )
+        +++ dedent,
+      )
+  +++ str(")");
 };
 
 type namer = {
@@ -131,12 +131,12 @@ let rec print_expr = (~depth=0, typ) => {
           | _ => showArgs(innerExpr, args)
           }
         )
-        @! str(" => ")
-        @! innerExpr(result);
+        +++ str(" => ")
+        +++ innerExpr(result);
       | Ttuple(items) => tupleList(items, innerExpr)
       | Tconstr(path, args, _) =>
         print_path(path)
-        @! (
+        +++ (
           switch (args) {
           | [] => Pretty.empty
           | args => typeConstr(args, innerExpr)
@@ -147,27 +147,27 @@ let rec print_expr = (~depth=0, typ) => {
       | Tnil => str("(no type)")
       | Tvariant({row_fields}) =>
         str("[")
-        @! indentGroup(
-             break
-             @! (List.length(row_fields) <= 1 ? str("| ") : str(" "))
-             @! sepdList(
-                  space @! str("| "), row_fields, ((label, row_field)) =>
-                  switch (row_field) {
-                  | Rpresent(None)
-                  | Reither(_, [], _, _) => str("#" ++ label)
-                  | Rpresent(Some(t))
-                  | Reither(_, [t], _, _) =>
-                    str("#" ++ label)
-                    @! str("(")
-                    @! innerExpr(t)
-                    @! str(")")
-                  | Reither(_)
-                  | Rabsent => str("...")
-                  }
-                ),
-           )
-        @! str("]")
-        @! break
+        +++ indentGroup(
+              break
+              +++ (List.length(row_fields) <= 1 ? str("| ") : str(" "))
+              +++ sepdList(
+                    space +++ str("| "), row_fields, ((label, row_field)) =>
+                    switch (row_field) {
+                    | Rpresent(None)
+                    | Reither(_, [], _, _) => str("#" ++ label)
+                    | Rpresent(Some(t))
+                    | Reither(_, [t], _, _) =>
+                      str("#" ++ label)
+                      +++ str("(")
+                      +++ innerExpr(t)
+                      +++ str(")")
+                    | Reither(_)
+                    | Rabsent => str("...")
+                    }
+                  ),
+            )
+        +++ str("]")
+        +++ break
       | Tfield(_, _, _, _)
       | Tunivar(_)
       | Tpoly(_, _)
@@ -188,76 +188,79 @@ let rec print_expr = (~depth=0, typ) => {
 and print_path = path =>
   switch (path) {
   | Path.Pident(id) => ident(id)
-  | Pdot(path, name, _) => print_path(path) @! str("." ++ name)
+  | Pdot(path, name, _) => print_path(path) +++ str("." ++ name)
   | Papply(_, _) => str("<apply>")
   };
-
-let print_constructor = (loop, {Types.cd_id, cd_args, cd_res}) => {
-  let name = Ident.name(cd_id);
-  str(name)
-  @! (
-    switch (cd_args) {
-    | Cstr_tuple([]) => Pretty.empty
-    | Cstr_record(_) => str("{...printing not supported...}")
-    | Cstr_tuple(args) => tupleList(args, loop)
-    }
-  )
-  @! (
-    switch (cd_res) {
-    | None => Pretty.empty
-    | Some(typ) => str(": ") @! loop(typ)
-    }
-  );
-};
 
 let print_attr = ({Types.ld_id, ld_mutable, ld_type}) => {
   (
     switch (ld_mutable) {
     | Asttypes.Immutable => Pretty.empty
-    | Mutable => str("mut ")
+    | Mutable => str("mutable ")
     }
   )
-  @! ident(ld_id)
-  @! str(": ")
-  @! print_expr(ld_type);
+  +++ ident(ld_id)
+  +++ str(": ")
+  +++ print_expr(ld_type);
+};
+
+let print_constructor = (loop, {Types.cd_id, cd_args, cd_res}) => {
+  let name = Ident.name(cd_id);
+  str(name)
+  +++ (
+    switch (cd_args) {
+    | Cstr_tuple([]) => Pretty.empty
+    | Cstr_record(labels) =>
+      str("({")
+      +++ indentGroup(break +++ commadList(print_attr, labels) +++ dedent)
+      +++ str("})")
+    | Cstr_tuple(args) => tupleList(args, loop)
+    }
+  )
+  +++ (
+    switch (cd_res) {
+    | None => Pretty.empty
+    | Some(typ) => str(": ") +++ loop(typ)
+    }
+  );
 };
 
 let print_decl = (realName, name, decl) => {
   Types.(
     str("type ")
-    @! str(~len=String.length(realName), name)
-    @! (
+    +++ str(~len=String.length(realName), name)
+    +++ (
       switch (decl.type_params) {
       | [] => Pretty.empty
       | args => typeConstr(args, print_expr)
       }
     )
-    @! (
+    +++ (
       switch (decl.type_kind) {
       | Type_abstract => Pretty.empty
       | Type_open => str(" = ..")
       | Type_record(labels, _representation) =>
         str(" = {")
-        @! indentGroup(break @! commadList(print_attr, labels) @! dedent)
-        @! str("}")
+        +++ indentGroup(break +++ commadList(print_attr, labels) +++ dedent)
+        +++ str("}")
       | Type_variant(constructors) =>
         str(" = ")
-        @! indentGroup(
-             break
-             @! str("| ")
-             @! sepdList(
-                  space @! str("| "),
-                  constructors,
-                  print_constructor(print_expr),
-                ),
-           )
-        @! break
+        +++ indentGroup(
+              break
+              +++ str("| ")
+              +++ sepdList(
+                    space +++ str("| "),
+                    constructors,
+                    print_constructor(print_expr),
+                  ),
+            )
+        +++ break
       }
     )
-    @! (
+    +++ (
       switch (decl.type_manifest) {
       | None => Pretty.empty
-      | Some(manifest) => str(" = ") @! print_expr(manifest)
+      | Some(manifest) => str(" = ") +++ print_expr(manifest)
       }
     )
   );
