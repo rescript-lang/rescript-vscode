@@ -51,7 +51,7 @@ val back : int -> string -> doc
     "indent" function that defines how to print a newline and indent
     to a desired level.  The default arguments print to stdout. *)
 val print : ?width: int ->
-  ?output: (string -> unit) ->
-  ?indent: (int -> unit) ->
+  output: (string -> unit) ->
+  indent: (int -> unit) ->
   doc ->
   unit
