@@ -212,7 +212,9 @@ let print_constructor = (loop, {Types.cd_id, cd_args, cd_res}) => {
     | Cstr_tuple([]) => Pretty.empty
     | Cstr_record(labels) =>
       str("({")
-      +++ indentGroup(break +++ commadList(print_attr, labels) +++ dedent)
+      +++ indentGroup(
+            indentGroup(break +++ commadList(print_attr, labels) +++ dedent),
+          )
       +++ str("})")
     | Cstr_tuple(args) => tupleList(args, loop)
     }

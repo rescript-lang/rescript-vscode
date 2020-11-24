@@ -19,3 +19,21 @@ module J = {
 }
 
 let z = <J> {React.string("")} {React.string("")} </J>
+
+type inline =
+  | A({x: int, y: string})
+  | B({x: int, y: string})
+  | C({
+      x: int,
+      y: string,
+      z: string,
+      w: string,
+      x0: string,
+      q1: string,
+      q2: string,
+      q3: string,
+      q4: string,
+    })
+  | D({x: int, y: string})
+  | E({x: int, y: string})
+  | F
