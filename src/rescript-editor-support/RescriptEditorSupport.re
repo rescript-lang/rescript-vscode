@@ -117,7 +117,7 @@ let tick = state => {
 let orLog = (message, v) =>
   switch (v) {
   | None =>
-    print_endline(message);
+    prerr_endline(message);
     None;
   | Some(x) => Some(x)
   };
@@ -125,168 +125,25 @@ let orLog = (message, v) =>
 let processFile = (~state, ~uri, ~quiet) => {
   switch (Packages.getPackage(~reportDiagnostics=(_, _) => (), uri, state)) {
   | Error(message) =>
-    print_endline("  Unable to get package: " ++ uri);
-    print_endline(message);
+    prerr_endline("  Unable to get package: " ++ uri);
+    prerr_endline(message);
     None;
   | Ok(package) =>
     switch (State.getCompilationResult(uri, state, ~package)) {
     | Error(message) =>
-      print_endline("  Invalid compilation result: " ++ message);
+      prerr_endline("  Invalid compilation result: " ++ message);
       Some((package, None));
     | Ok(Success(_message, contents)) =>
       if (!quiet) {
-        print_endline("  Good: " ++ uri);
+        prerr_endline("  Good: " ++ uri);
       };
       Some((package, Some(contents)));
     | Ok(TypeError(message, _) | SyntaxError(message, _, _)) =>
-      print_endline("  Error compiling: " ++ uri);
-      print_endline(message);
+      prerr_endline("  Error compiling: " ++ uri);
+      prerr_endline(message);
       Some((package, None));
     }
   };
-};
-
-let singleDefinition = (~quiet, rootPath, filePath, line, col) => {
-  Log.log(
-    "# Reason Langauge Server - checking individual files to ensure they load & process correctly",
-  );
-  let rootPath =
-    rootPath == "." ? Unix.getcwd() : maybeConcat(Unix.getcwd(), rootPath);
-  let filePath = maybeConcat(Unix.getcwd(), filePath);
-  let state = {
-    ...TopTypes.empty(),
-    rootPath,
-    rootUri: Utils.toUri(rootPath),
-  };
-
-  let uri = Utils.toUri(filePath);
-  switch (processFile(~state, ~uri, ~quiet)) {
-  | Some((package, Some({file, extra}))) =>
-    let _ = {
-      let%opt_consume (location, loc) =
-        References.locForPos(~extra, (line, col - 1))
-        |> orLog(
-             Printf.sprintf(
-               "Nothing definable found at %s:%d:%d",
-               filePath,
-               line,
-               col,
-             ),
-           );
-      let%opt_consume (fname, dlocation) =
-        References.definitionForLoc(
-          ~pathsForModule=package.pathsForModule,
-          ~file,
-          ~getUri=State.fileForUri(state, ~package),
-          ~getModule=State.fileForModule(state, ~package),
-          loc,
-        )
-        |> orLog(
-             Printf.sprintf(
-               "Unable to resolve a definition for %s:%d:%d",
-               filePath,
-               location.loc_start.pos_lnum,
-               location.loc_start.pos_cnum - location.loc_start.pos_bol + 1,
-             ),
-           );
-      let%opt_consume fname = Utils.parseUri(fname);
-      Printf.printf(
-        "Definition for %s:%d:%d found at %s:%d:%d\n",
-        filePath,
-        location.loc_start.pos_lnum,
-        location.loc_start.pos_cnum - location.loc_start.pos_bol + 1,
-        fname,
-        dlocation.loc_start.pos_lnum,
-        dlocation.loc_start.pos_cnum - dlocation.loc_start.pos_bol + 1,
-      );
-    };
-    print_endline("  Good: " ++ uri);
-  | _ => ()
-  };
-};
-
-let check = (~definitions, ~quiet, rootPath, files) => {
-  Log.log(
-    "# Reason Langauge Server - checking individual files to ensure they load & process correctly",
-  );
-  let rootPath =
-    rootPath == "." ? Unix.getcwd() : maybeConcat(Unix.getcwd(), rootPath);
-  let state = {
-    ...TopTypes.empty(),
-    rootPath,
-    rootUri: Utils.toUri(rootPath),
-  };
-  files
-  |> List.iter(filePath => {
-       let filePath = maybeConcat(Unix.getcwd(), filePath);
-       let uri = Utils.toUri(filePath);
-       switch (processFile(~state, ~uri, ~quiet)) {
-       | Some((package, result)) =>
-         if (!definitions) {
-           Log.log(State.Show.state(state, package));
-         } else {
-           switch (result) {
-           | None => ()
-           | Some({file, extra}) =>
-             let missing = ref([]);
-             extra.locations
-             |> List.iter(((location, loc)) => {
-                  switch (loc) {
-                  | SharedTypes.Typed(_, LocalReference(tag, Type))
-                      when tag <= 15 =>
-                    ()
-                  | Typed(
-                      _,
-                      GlobalReference(_, _, Constructor("[]" | "::")),
-                    ) =>
-                    ()
-                  | Typed(
-                      _,
-                      (LocalReference(_, _) | GlobalReference(_, _, _)) as t,
-                    )
-                      when !location.Location.loc_ghost =>
-                    switch (
-                      References.definitionForLoc(
-                        ~pathsForModule=package.pathsForModule,
-                        ~file,
-                        ~getUri=State.fileForUri(state, ~package),
-                        ~getModule=State.fileForModule(state, ~package),
-                        loc,
-                      )
-                    ) {
-                    | None =>
-                      // missing := 1 + missing^;
-                      missing :=
-                        [
-                          Printf.sprintf(
-                            "   - \"%s:%d:%d\" : %s",
-                            filePath,
-                            location.loc_start.pos_lnum,
-                            location.loc_start.pos_cnum
-                            - location.loc_start.pos_bol
-                            + 1,
-                            SharedTypes.locKindToString(t),
-                          ),
-                          ...missing^,
-                        ]
-                    | Some(_defn) => ()
-                    }
-                  | _ => ()
-                  }
-                });
-             if (missing^ != []) {
-               print_endline(filePath);
-               print_endline(
-                 "  > " ++ string_of_int(List.length(missing^)) ++ " missing",
-               );
-               missing^ |> List.iter(text => print_endline(text));
-             };
-           };
-         }
-       | _ => ()
-       };
-     });
-  Log.log("Ok");
 };
 
 let parseArgs = args => {
@@ -331,7 +188,7 @@ The dump command can also omit `:line:column`, to show results for every positio
 |};
 
 let showHelp = () => {
-  print_endline(help);
+  prerr_endline(help);
 };
 
 let main = () => {
@@ -353,28 +210,6 @@ let main = () => {
     );
     Log.log("Finished");
     Log.out^ |?< close_out;
-  | (opts, ["definition", rootPath, file, line, col]) =>
-    let line = int_of_string(line);
-    let col = int_of_string(col);
-    let quiet = hasOpts(opts, ["-q", "--quiet"]);
-    if (opts |> hasVerbose) {
-      Log.spamError := true;
-      References.debugReferences := true;
-      MerlinFile.debug := true;
-    };
-    singleDefinition(~quiet, rootPath, file, line, col);
-  | (opts, ["check", rootPath, ...files]) =>
-    let definitions = hasOpts(opts, ["-d", "--definitions"]);
-    let quiet = hasOpts(opts, ["-q", "--quiet"]);
-    if (opts |> hasVerbose) {
-      Log.spamError := true;
-      // if (!definitions) {
-      MerlinFile.debug := true;
-      // }
-    } else {
-      Log.spamError := false;
-    };
-    check(~definitions, ~quiet, rootPath, files);
   | (_opts, ["dump", ...files]) => EditorSupportCommands.dump(files)
   | (_opts, ["complete", pathWithPos, currentFile]) =>
     EditorSupportCommands.complete(~pathWithPos, ~currentFile)

@@ -79,12 +79,6 @@ let text ?len string =
     single_line = true;
   }
 
-let print_indentation n =
-  print_char '\n';
-  for _ = 1 to n do
-  print_char ' ';
-  done
-
 let rec flatten doc =
   match doc.node with
     | Append (a, b) -> append (flatten a) (flatten b)
@@ -118,8 +112,8 @@ let push offset node (stack: stack) =
 
 let print
     ?width:(width=70)
-    ?output:(output=print_string)
-    ?indent:(indent=print_indentation)
+    ~output
+    ~indent
     doc =
   let rec loop currentIndent stack =
     match stack with

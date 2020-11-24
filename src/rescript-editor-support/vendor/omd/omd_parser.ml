@@ -154,24 +154,6 @@ struct
       extraction a portion of another lexing tree. *)
   let fix l =
     let rec loop accu = function
-      (* code to generate what follows...
-         List.iter (fun e ->
-         Printf.printf "
-         | %s::%s::tl ->
-            if trackfix then eprintf \"%s 1\\n%!\";
-            loop accu (%ss 0::tl)
-         | %ss n::%s::tl ->
-            if trackfix then eprintf \"%s 2\\n%!\";
-            loop accu (%ss(n+1)::tl)
-         | %s::%ss n::tl ->
-            if trackfix then eprintf \"%s 3\\n%!\";
-            loop accu (%ss(n+1)::tl)
-         | %ss a::%ss b::tl ->
-            if trackfix then eprintf \"%s 4\\n%!\";
-            loop accu (%ss(a+b+2)::tl)"
-         e e e e e e e e e e e e e e e e)
-         ["Ampersand"; "At"; "Backquote"; "Backslash"; "Bar"; "Caret"; "Cbrace"; "Colon"; "Comma"; "Cparenthesis"; "Cbracket"; "Dollar"; "Dot"; "Doublequote"; "Exclamation"; "Equal"; "Greaterthan"; "Hash"; "Lessthan"; "Minus"; "Newline"; "Obrace"; "Oparenthesis"; "Obracket"; "Percent"; "Plus"; "Question"; "Quote"; "Semicolon"; "Slash"; "Space"; "Star"; "Tab"; "Tilde"; "Underscore"];
-         print_string "| x::tl -> loop (x::accu) tl\n| [] -> List.rev accu\n"; *)
       | Ampersand::Ampersand::tl ->
         if trackfix then eprintf "(OMD) Ampersand 1\n";
         loop accu (Ampersands 0::tl)

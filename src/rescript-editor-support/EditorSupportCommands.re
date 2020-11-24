@@ -101,7 +101,7 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
        })
     |> l;
 
-  print_endline(Json.stringify(locationsInfo));
+  Json.stringify(locationsInfo);
 };
 
 let dump = files => {
@@ -129,11 +129,15 @@ let dump = files => {
          };
        let filePath = maybeConcat(Unix.getcwd(), filePath);
        let uri = Utils.toUri(filePath);
-       switch (State.getFullFromCmt(uri, state)) {
-       | Error(message) => print_endline(message)
-       | Ok((package, {file, extra})) =>
-         dumpLocations(state, ~package, ~file, ~extra, ~selectPos, uri)
-       };
+       let result =
+         switch (State.getFullFromCmt(uri, state)) {
+         | Error(message) =>
+           prerr_endline(message);
+           "[]";
+         | Ok((package, {file, extra})) =>
+           dumpLocations(state, ~package, ~file, ~extra, ~selectPos, uri)
+         };
+       print_endline(result);
      });
 };
 
@@ -222,7 +226,7 @@ let autocomplete = (~currentFile, ~full, ~package, ~pos, ~state) => {
            })
         |> l;
 
-  print_endline(Json.stringify(completions));
+  Json.stringify(completions);
 };
 
 let complete = (~pathWithPos, ~currentFile) => {
@@ -242,12 +246,16 @@ let complete = (~pathWithPos, ~currentFile) => {
     let pos = (line |> int_of_string, char |> int_of_string);
     let filePath = maybeConcat(Unix.getcwd(), filePath);
     let uri = Utils.toUri(filePath);
-    switch (State.getFullFromCmt(uri, state)) {
-    | Error(message) => print_endline(message)
-    | Ok((package, full)) =>
-      Hashtbl.replace(state.lastDefinitions, uri, full);
-      autocomplete(~currentFile, ~full, ~package, ~pos, ~state);
-    };
+    let result =
+      switch (State.getFullFromCmt(uri, state)) {
+      | Error(message) =>
+        prerr_endline(message);
+        "[]";
+      | Ok((package, full)) =>
+        Hashtbl.replace(state.lastDefinitions, uri, full);
+        autocomplete(~currentFile, ~full, ~package, ~pos, ~state);
+      };
+    print_endline(result);
   | _ => ()
   };
 };
