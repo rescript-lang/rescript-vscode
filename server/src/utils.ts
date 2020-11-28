@@ -2,7 +2,6 @@ import { Range } from "vscode-languageserver-textdocument";
 import * as c from "./constants";
 import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
-import * as path from "path";
 import * as t from "vscode-languageserver-types";
 import fs from "fs";
 import * as os from "os";
@@ -14,42 +13,6 @@ export let createFileInTempDir = (extension = "") => {
 	let tempFileName = tempFilePrefix + tempFileId + extension;
 	tempFileId = tempFileId + 1;
 	return path.join(os.tmpdir(), tempFileName);
-};
-
-// TODO: races here?
-// TODO: this doesn't handle file:/// scheme
-export let findProjectRootOfFile = (
-	source: p.DocumentUri
-): null | p.DocumentUri => {
-	let dir = path.dirname(source);
-	if (fs.existsSync(path.join(dir, c.bscPartialPath))) {
-		return dir;
-	} else {
-		if (dir === source) {
-			// reached top
-			return null;
-		} else {
-			return findProjectRootOfFile(dir);
-		}
-	}
-};
-
-// the "build root" represents the nearest directory containing a "bsconfig.json" file.
-// "bsconfig.json" can be used to locate the nearest build artefacts
-export let findBuildRootOfFile = (
-	source: p.DocumentUri
-): null | p.DocumentUri => {
-	let dir = path.dirname(source);
-	if (fs.existsSync(path.join(dir, c.bsconfigPartialPath))) {
-		return dir;
-	} else {
-		if (dir === source) {
-			// reached top
-			return null;
-		} else {
-			return findBuildRootOfFile(dir);
-		}
-	}
 };
 
 type execResult =

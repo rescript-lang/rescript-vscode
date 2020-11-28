@@ -1,5 +1,6 @@
 import process from "process";
 import * as p from "vscode-languageserver-protocol";
+import * as Project from "./project";
 import * as m from "vscode-jsonrpc/lib/messages";
 import * as v from "vscode-languageserver";
 import * as path from "path";
@@ -122,7 +123,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   stupidFileContentCache.set(filePath, fileContent);
 
-  let buildRootPath = utils.findBuildRootOfFile(filePath);
+  let buildRootPath = Project.findBuildRoot(filePath);
   if (buildRootPath != null) {
     if (!projectsFiles.has(buildRootPath)) {
       projectsFiles.set(buildRootPath, {
@@ -141,7 +142,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
     // because otherwise the diagnostics info we'll display might be stale
     let bsbLockPath = path.join(buildRootPath, c.bsbLock);
     if (firstOpenFileOfProject && !fs.existsSync(bsbLockPath)) {
-      let bsbPath = path.join(buildRootPath, c.bsbPartialPath);
+      let bsbPath = Project.bscPath(buildRootPath);
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
@@ -179,7 +180,7 @@ let closedFile = (fileUri: string) => {
 
   stupidFileContentCache.delete(filePath);
 
-  let buildRootPath = utils.findBuildRootOfFile(filePath);
+  let buildRootPath = Project.findBuildRoot(filePath);
   if (buildRootPath != null) {
     let root = projectsFiles.get(buildRootPath);
     if (root != null) {
@@ -411,8 +412,8 @@ process.on("message", (msg: m.Message) => {
         process.send!(fakeSuccessResponse);
         process.send!(response);
       } else {
-        let projectRootPath = utils.findProjectRootOfFile(filePath);
-        if (projectRootPath == null) {
+        let bscPath = Project.findBscPath(filePath);
+        if (bscPath == null) {
           let params: p.ShowMessageParams = {
             type: p.MessageType.Error,
             message: `Cannot find a nearby ${c.bscPartialPath}. It's needed for determining the project's root.`,
@@ -425,7 +426,6 @@ process.on("message", (msg: m.Message) => {
           process.send!(fakeSuccessResponse);
           process.send!(response);
         } else {
-          let bscPath = path.join(projectRootPath, c.bscPartialPath);
           if (!fs.existsSync(bscPath)) {
             let params: p.ShowMessageParams = {
               type: p.MessageType.Error,
