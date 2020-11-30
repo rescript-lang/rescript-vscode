@@ -343,7 +343,7 @@
           }
         },
         {
-          "match": "\\b(open|include)\\s*",
+          "match": "\\b(open|include)\\s+",
           "name": "keyword"
         }
       ]
