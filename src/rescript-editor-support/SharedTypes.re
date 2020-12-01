@@ -138,7 +138,7 @@ let initExported = () => {
 };
 type moduleItem =
   | MValue(Types.type_expr)
-  | MType(Type.t)
+  | MType(Type.t, Types.rec_status)
   | Module(moduleKind)
 and moduleContents = {
   exported,

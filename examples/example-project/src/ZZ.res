@@ -37,3 +37,32 @@ type inline =
   | D({x: int, y: string})
   | E({x: int, y: string})
   | F
+
+module MSig
+: {
+  type rec t = | A (list<s>)
+  and s = list<t>
+
+  let x : int
+} 
+= {
+  type rec t = | A (list<s>)
+  and s = list<t>
+
+  let x = 14
+}
+
+module Impl = {
+  type rec t = | A (list<s>)
+  and s = list<t>
+
+  type w = int
+
+  let x = 14
+}
+
+module Impl2 = { include Impl};
+
+module D = MSig
+module E = Impl
+module F = Impl2
