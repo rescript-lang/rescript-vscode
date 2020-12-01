@@ -30,8 +30,8 @@ let showModuleTopLevel =
     |> List.map(item =>
          switch (item.SharedTypes.item) {
          /*** TODO pretty print module contents */
-         | SharedTypes.MType({decl}) =>
-           "  " ++ (decl |> Shared.declToString(item.name.txt))
+         | SharedTypes.MType({decl}, recStatus) =>
+           "  " ++ (decl |> Shared.declToString(~recStatus, item.name.txt))
          | Module(_) => "  module " ++ item.name.txt
          | MValue(typ) =>
            "  let " ++ item.name.txt ++ ": " ++ (typ |> Shared.typeToString) /* TODO indent */

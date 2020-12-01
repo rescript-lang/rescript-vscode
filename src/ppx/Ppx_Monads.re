@@ -48,7 +48,7 @@ the result of the whole thing to be unit, use `let%consume`.
  */
 
 open Migrate_parsetree
-open OCaml_402.Ast
+open OCaml_406.Ast
 
 /***
  * https://ocsigen.org/lwt/dev/api/Ppx_lwt
@@ -154,7 +154,7 @@ let mapper =
         Ast_helper.Exp.attr(
           [%expr [%e front]([%e mapper.expr(mapper, expr)], ~f=([%p pat]) => [%e mapper.expr(mapper, continuation)])],
           ({txt: "ocaml.explanation", loc}, PStr([
-            Ast_helper.Str.eval(Ast_helper.Exp.constant(Const_string(explanation, None)))
+            Ast_helper.Str.eval(Ast_helper.Exp.constant(Pconst_string(explanation, None)))
           ]))
         )
       }
@@ -162,4 +162,4 @@ let mapper =
       }
   };
 
-let () = Driver.register(~name="ppx_monads", ~args=[], Versions.ocaml_402, (_config, _cookies) => mapper);
+let () = Driver.register(~name="ppx_monads", ~args=[], Versions.ocaml_406, (_config, _cookies) => mapper);

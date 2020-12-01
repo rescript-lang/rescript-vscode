@@ -93,7 +93,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.exported, item) => {
     | Sig_type(
         ident,
         {type_loc, type_kind, type_manifest, type_attributes} as decl,
-        _,
+        recStatus,
       ) =>
       let declared =
         addItem(
@@ -175,7 +175,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.exported, item) => {
           exported.types,
           env.stamps.types,
         );
-      [{...declared, item: MType(declared.item)}];
+      [{...declared, item: MType(declared.item, recStatus)}];
     /* | Sig_module({stamp, name}, {md_type: Mty_ident(path) | Mty_alias(path), md_attributes, md_loc}, _) =>
        let declared = addItem(~contents=Module.Ident(path), ~name=Location.mknoloc(name), ~stamp, ~env, md_attributes, exported.modules, env.stamps.modules);
        [{...declared, contents: Module.Module(declared.contents)}, ...items] */
@@ -204,9 +204,7 @@ and forSignatureType = (env, signature) => {
       (item, items) => {forSignatureTypeItem(env, exported, item) @ items},
       signature,
       [],
-    )
-    |> List.rev;
-
+    );
   {exported, topLevel};
 }
 and forModuleType = (env, moduleType) =>
@@ -241,6 +239,7 @@ let forTypeDeclaration =
         typ_kind,
         typ_manifest,
       },
+      ~recStatus,
     ) => {
   let stamp = Ident.binding_time(typ_id);
   let declared =
@@ -298,7 +297,7 @@ let forTypeDeclaration =
       exported.types,
       env.stamps.types,
     );
-  {...declared, item: MType(declared.item)};
+  {...declared, item: MType(declared.item, recStatus)};
 };
 
 let forSignatureItem = (~env, ~exported: exported, item) => {
@@ -316,8 +315,17 @@ let forSignatureItem = (~env, ~exported: exported, item) => {
         env.stamps.values,
       );
     [{...declared, item: MValue(declared.item)}];
-  | Tsig_type(_ /*402*/, decls) =>
-    decls |> List.map(forTypeDeclaration(~env, ~exported))
+  | Tsig_type(recFlag, decls) =>
+    decls
+    |> List.mapi((i, decl) => {
+         let recStatus =
+           switch (recFlag) {
+           | Recursive when i == 0 => Types.Trec_first
+           | Nonrecursive when i == 0 => Types.Trec_not
+           | _ => Types.Trec_next
+           };
+         decl |> forTypeDeclaration(~env, ~exported, ~recStatus);
+       })
   | Tsig_module({
       md_id,
       md_attributes,
@@ -352,8 +360,7 @@ let forSignatureItem = (~env, ~exported: exported, item) => {
         (item, items) => {forSignatureTypeItem(env, exported, item) @ items},
         incl_type,
         [],
-      )
-      |> List.rev;
+      );
 
     topLevel;
   /* TODO: process other things here */
@@ -447,8 +454,7 @@ let rec forItem = (~env, ~exported: exported, item) =>
         (item, items) => {forSignatureTypeItem(env, exported, item) @ items},
         incl_type,
         [],
-      )
-      |> List.rev;
+      );
 
     topLevel;
 
@@ -471,8 +477,17 @@ let rec forItem = (~env, ~exported: exported, item) =>
         env.stamps.values,
       );
     [{...declared, item: MValue(declared.item)}];
-  | Tstr_type(_, decls) =>
-    decls |> List.map(forTypeDeclaration(~env, ~exported))
+  | Tstr_type(recFlag, decls) =>
+    decls
+    |> List.mapi((i, decl) => {
+         let recStatus =
+           switch (recFlag) {
+           | Recursive when i == 0 => Types.Trec_first
+           | Nonrecursive when i == 0 => Types.Trec_not
+           | _ => Types.Trec_next
+           };
+         decl |> forTypeDeclaration(~env, ~exported, ~recStatus);
+       })
   | _ => []
   }
 

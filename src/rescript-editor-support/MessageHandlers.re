@@ -721,7 +721,7 @@ let handlers:
           let (item, siblings) =
             switch (item) {
             | MValue(v) => (v |> Shared.variableKind, [])
-            | MType(t) => (t.decl |> Shared.declarationKind, [])
+            | MType(t, _) => (t.decl |> Shared.declarationKind, [])
             | Module(Structure(contents)) => (Module, getItems(contents))
             | Module(Ident(_)) => (Module, [])
             };

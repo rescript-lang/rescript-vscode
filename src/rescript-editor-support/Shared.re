@@ -68,8 +68,8 @@ let declarationKind = t =>
   | Type_variant(_) => Enum
   };
 
-let declToString = (name, t) =>
-  PrintType.print_decl(name, name, t) |> PrintType.prettyString;
+let declToString = (~recStatus=Types.Trec_not, name, t) =>
+  PrintType.printDecl(~recStatus, name, t);
 
 let labelToString = label =>
   switch (label) {
@@ -84,7 +84,7 @@ let typeTbl = Hashtbl.create(1);
 let typeToString = (t: Types.type_expr) => {
   switch (cacheTypeToString^ ? Hashtbl.find_opt(typeTbl, (t.id, t)) : None) {
   | None =>
-    let s = PrintType.print_expr(t) |> PrintType.prettyString(~width=40);
+    let s = PrintType.printExpr(t);
     Hashtbl.replace(typeTbl, (t.id, t), s);
     s;
   | Some(s) => s
