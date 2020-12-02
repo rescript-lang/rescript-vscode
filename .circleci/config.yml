@@ -73,12 +73,12 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - v1-opam-cache-{{ arch }}-v0
+          - v2-opam-cache-{{ arch }}-v0
 
   save-opam-cache:
     steps:
       - save_cache:
-          key: v1-opam-cache-{{ arch }}-v0
+          key: v2-opam-cache-{{ arch }}-v0
           paths:
             - ~/.opam
             - _opam
