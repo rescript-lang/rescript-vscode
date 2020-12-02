@@ -62,7 +62,7 @@ executors:
     working_directory: ~/repo
   mac:
     macos:
-      xcode: "11.4.0"
+      xcode: "10.1.0"
     environment:
       <<: *opam_env
       OPAM_VERSION: 2.0.5
