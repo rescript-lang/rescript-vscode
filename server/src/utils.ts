@@ -4,8 +4,17 @@ import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
 import * as path from "path";
 import * as t from "vscode-languageserver-types";
-import * as tmp from "tmp";
 import fs from "fs";
+import * as os from "os";
+
+let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
+let tempFileId = 0;
+
+export let createFileInTempDir = (extension = "") => {
+	let tempFileName = tempFilePrefix + tempFileId + extension;
+	tempFileId = tempFileId + 1;
+	return path.join(os.tmpdir(), tempFileName);
+};
 
 // TODO: races here?
 // TODO: this doesn't handle file:/// scheme
@@ -39,15 +48,15 @@ export let formatUsingValidBscPath = (
 	bscPath: p.DocumentUri,
 	isInterface: boolean
 ): execResult => {
-	// library cleans up after itself. No need to manually remove temp file
-	let tmpobj = tmp.fileSync();
 	let extension = isInterface ? c.resiExt : c.resExt;
-	let fileToFormat = tmpobj.name + extension;
-	fs.writeFileSync(fileToFormat, code, { encoding: "utf-8" });
+	let formatTempFileFullPath = createFileInTempDir(extension);
+	fs.writeFileSync(formatTempFileFullPath, code, {
+		encoding: "utf-8",
+	});
 	try {
 		let result = childProcess.execFileSync(
 			bscPath,
-			["-color", "never", "-format", fileToFormat],
+			["-color", "never", "-format", formatTempFileFullPath],
 			{ stdio: "pipe" }
 		);
 		return {
@@ -59,6 +68,9 @@ export let formatUsingValidBscPath = (
 			kind: "error",
 			error: e.message,
 		};
+	} finally {
+		// async close is fine. We don't use this file name again
+		fs.unlink(formatTempFileFullPath, () => null);
 	}
 };
 

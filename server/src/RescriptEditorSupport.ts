@@ -3,7 +3,6 @@ import { RequestMessage } from "vscode-languageserver";
 import * as utils from "./utils";
 import * as path from "path";
 import { exec } from "child_process";
-import * as tmp from "tmp";
 import fs from "fs";
 
 let binaryPath = path.join(
@@ -62,8 +61,7 @@ export function runCompletionCommand(
   if (executable == null) {
     onResult(null);
   } else {
-    let tmpobj = tmp.fileSync();
-    let tmpname = tmpobj.name;
+    let tmpname = utils.createFileInTempDir();
     fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
     let command =
@@ -78,7 +76,8 @@ export function runCompletionCommand(
       tmpname;
 
     exec(command, { cwd: executable.cwd }, function (_error, stdout, _stderr) {
-      tmpobj.removeCallback();
+      // async close is fine. We don't use this file name again
+      fs.unlink(tmpname, () => null);
       let result = JSON.parse(stdout);
       if (result && result[0]) {
         onResult(result);
