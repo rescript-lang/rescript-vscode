@@ -104,6 +104,19 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
   Json.stringify(locationsInfo);
 };
 
+// Split (line,char) from filepath:line:char
+let splitLineChar = pathWithPos => {
+  let mkPos = (line, char) =>
+    Some((line |> int_of_string, char |> int_of_string));
+  switch (pathWithPos |> String.split_on_char(':')) {
+  | [filePath, line, char] => (filePath, mkPos(line, char))
+  | [drive, rest, line, char] =>
+    // c:\... on Windows
+    (drive ++ ":" ++ rest, mkPos(line, char))
+  | _ => (pathWithPos, None)
+  };
+};
+
 let dump = files => {
   Shared.cacheTypeToString := true;
   let rootPath = Unix.getcwd();
@@ -118,15 +131,8 @@ let dump = files => {
     },
   };
   files
-  |> List.iter(filePath => {
-       let (filePath, selectPos) =
-         switch (filePath |> String.split_on_char(':')) {
-         | [filePath, line, char] => (
-             filePath,
-             Some((line |> int_of_string, char |> int_of_string)),
-           )
-         | _ => (filePath, None)
-         };
+  |> List.iter(pathWithPos => {
+       let (filePath, selectPos) = pathWithPos |> splitLineChar;
        let filePath = maybeConcat(Unix.getcwd(), filePath);
        let uri = Utils.toUri(filePath);
        let result =
@@ -241,9 +247,8 @@ let complete = (~pathWithPos, ~currentFile) => {
       autoRebuild: false,
     },
   };
-  switch (pathWithPos |> String.split_on_char(':')) {
-  | [filePath, line, char] =>
-    let pos = (line |> int_of_string, char |> int_of_string);
+  switch (pathWithPos |> splitLineChar) {
+  | (filePath, Some(pos)) =>
     let filePath = maybeConcat(Unix.getcwd(), filePath);
     let uri = Utils.toUri(filePath);
     let result =
