@@ -29,7 +29,7 @@ This repo happens to also contain a language-server usable by other editors. If 
 
   <img width="235" alt="image" src="https://user-images.githubusercontent.com/1909539/97448097-7d186a80-18ed-11eb-82d6-d55b70f54811.png">
 
-  (If you're getting some Promise-related error alert, file an issue here so that we can find a workaround; this seems to be a VSCode bug).
+  (If you're getting some Promise-related error alert, file an issue here so that we can find a workaround; this seems to be a VSCode bug. We currently just kill all our node processes and redo this step).
 - In the [Extension Development Host] instance of VSCode that just opened, open a `.res` file.
 - Try various features.
 - When you make a change, Go to the same Debug viewlet's Call Stack panel and restart the client and the server:
