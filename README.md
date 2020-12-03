@@ -17,11 +17,12 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 - Syntax highlighting (`.res`, `.resi`).
 - Formatting, with caveats:
   - Currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`.
-  - Cannot be a temporary file
+  - Cannot be a temporary file.
 - Syntax errors diagnosis (only after formatting).
-- Built-in bsb watcher (optional, and exposed explicitly as a pop-up; no worries of dangling build)
-- Type diagnosis
-- Jump to location
+- Built-in bsb watcher (optional, and exposed explicitly as a pop-up; no worries of dangling build).
+- Type diagnosis.
+- Jump to location.
+- Autocomplete.
 
 ### Upcoming Features
 

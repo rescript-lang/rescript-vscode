@@ -1,4 +1,4 @@
-## 1.0.x (Unreleased)
+## 1.0.1
 
 - Fix temp file creation logic.
 
