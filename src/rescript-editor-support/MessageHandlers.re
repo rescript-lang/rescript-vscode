@@ -156,89 +156,22 @@ let handlers:
     "textDocument/completion",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
-      let%try (text, _version, _isClean) =
-        maybeHash(state.documentText, uri)
-        |> orError("No document text found");
-      let%try package = getPackage(uri, state);
-      let%try offset =
-        PartialParser.positionToOffset(text, pos)
-        |> orError("invalid offset");
-      open JsonShort; /* TODO get last non-syntax-erroring definitions */
-      /* let%try (file, extra) = State.fileForUri(state, ~package, uri) |> orError("No definitions"); */
-
-      let%try completions =
-        switch (PartialParser.findCompletable(text, offset)) {
-        | Nothing =>
-          Log.log("Nothing completable found :/");
-          Ok([]);
-        | Labeled(_) =>
-          Log.log(
-            "don't yet support completion for argument labels, but I hope to soon!",
-          );
-          Ok([]);
-        | Lident(string) =>
-          /* Log.log("Completing for string " ++ string); */
-          let parts = Str.split(Str.regexp_string("."), string);
-          let parts =
-            string.[String.length(string) - 1] == '.' ? parts @ [""] : parts;
-          let rawOpens = PartialParser.findOpens(text, offset);
-
-          let%try {SharedTypes.file, extra} =
-            State.getBestDefinitions(uri, state, ~package);
-          let allModules = package.localModules @ package.dependencyModules;
-          let items =
-            NewCompletions.get(
-              ~full={file, extra},
-              ~package,
-              ~rawOpens,
-              ~getModule=State.fileForModule(state, ~package),
-              ~allModules,
-              pos,
-              parts,
-            );
-          /* TODO(#107): figure out why we're getting duplicates. */
-          let items = Utils.dedup(items);
-          Ok(
-            items
-            |> List.map(
-                 (
-                   (
-                     uri,
-                     {
-                       SharedTypes.name: {
-                         txt: name,
-                         loc: {loc_start: {pos_lnum}},
-                       },
-                       docstring,
-                       item,
-                     },
-                   ),
-                 ) =>
-                 o([
-                   ("label", s(name)),
-                   ("kind", i(NewCompletions.kindToInt(item))),
-                   ("detail", NewCompletions.detail(name, item) |> s),
-                   (
-                     "documentation",
-                     o([
-                       ("kind", s("markdown")),
-                       (
-                         "value",
-                         s(
-                           (docstring |? "No docs")
-                           ++ "\n\n"
-                           ++ uri
-                           ++ ":"
-                           ++ string_of_int(pos_lnum),
-                         ),
-                       ),
-                     ]),
-                   ),
-                 ])
-               ),
-          );
+      let maybeText =
+        switch (Hashtbl.find_opt(state.documentText, uri)) {
+        | Some((text, _version, _isClean)) => Some(text)
+        | None => None
         };
-      Ok((state, l(completions)));
+      let%try package = getPackage(uri, state);
+      let%try full = State.getBestDefinitions(uri, state, ~package);
+      let completions =
+        NewCompletions.computeCompletions(
+          ~full,
+          ~maybeText,
+          ~package,
+          ~pos,
+          ~state,
+        );
+      Ok((state, completions));
     },
   ),
   (
