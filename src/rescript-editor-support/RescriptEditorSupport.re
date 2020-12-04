@@ -90,7 +90,7 @@ let getInitialState = params => {
         |? true
       );
 
-  let state = {...TopTypes.empty(), rootPath, rootUri: uri};
+  let state = {...TopTypes.empty(), rootUri: uri};
 
   Ok({
     ...state,
