@@ -168,24 +168,6 @@ let isCapitalized = name =>
     };
   };
 
-/**
-The three possibilities
-
-lower.suffix -> `Attribute([lower, lower], suffix)
-
-lower.Upper.suffix -> `AbsAttribute([Upper], suffix)
-
-Upper.lower -> `Normal([Upper], lower)
-*/
-
-let rec pathFromTokenParts = items => {
-  switch (items) {
-  | [] => assert(false)
-  | [one] => Tip(one)
-  | [one, ...rest] => Nested(one, pathFromTokenParts(rest))
-  };
-};
-
 let determineCompletion = items => {
   let rec loop = (offset, items) =>
     switch (items) {

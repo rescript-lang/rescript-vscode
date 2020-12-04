@@ -65,21 +65,6 @@ let rec startOfLident = (text, i) =>
     };
   };
 
-let rec findArgLabel = (text, i) =>
-  if (i < 0) {
-    None;
-  } else {
-    switch (text.[i]) {
-    | 'a'..'z'
-    | 'A'..'Z'
-    | '_'
-    | '0'..'9' => findArgLabel(text, i - 1)
-    /* TODO support ?punning and ~punning */
-    | '~' => Some(i)
-    | _ => None
-    };
-  };
-
 type completable =
   | Nothing
   | Labeled(string)

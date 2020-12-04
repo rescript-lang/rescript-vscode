@@ -106,38 +106,6 @@ let tick = state => {
   Diagnostics.checkDocumentTimers(state);
 };
 
-let orLog = (message, v) =>
-  switch (v) {
-  | None =>
-    prerr_endline(message);
-    None;
-  | Some(x) => Some(x)
-  };
-
-let processFile = (~state, ~uri, ~quiet) => {
-  switch (Packages.getPackage(~reportDiagnostics=(_, _) => (), uri, state)) {
-  | Error(message) =>
-    prerr_endline("  Unable to get package: " ++ uri);
-    prerr_endline(message);
-    None;
-  | Ok(package) =>
-    switch (State.getCompilationResult(uri, state, ~package)) {
-    | Error(message) =>
-      prerr_endline("  Invalid compilation result: " ++ message);
-      Some((package, None));
-    | Ok(Success(_message, contents)) =>
-      if (!quiet) {
-        prerr_endline("  Good: " ++ uri);
-      };
-      Some((package, Some(contents)));
-    | Ok(TypeError(message, _) | SyntaxError(message, _, _)) =>
-      prerr_endline("  Error compiling: " ++ uri);
-      prerr_endline(message);
-      Some((package, None));
-    }
-  };
-};
-
 let parseArgs = args => {
   switch (args) {
   | [] => assert(false)
