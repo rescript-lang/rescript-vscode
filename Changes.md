@@ -1,4 +1,8 @@
 ## master
+
+## Release 1.0.1 of rescript-vscode 
+This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/232ad609766c415048750c5cc828973a9995f382) is vendored in [rescript-vscode 1.0.1](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.1).
+
 - Support printing inline records.
 - Add typedef hover support.
 - Always output valid json, even in case of internal error.
