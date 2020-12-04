@@ -42,7 +42,6 @@ type settings = {
 };
 
 type state = {
-  rootPath: filePath,
   rootUri: uri,
   settings,
   documentText: Hashtbl.t(uri, (string, int, bool)),
@@ -55,7 +54,6 @@ type state = {
 };
 
 let empty = () => {
-  rootPath: "- uninitialized -",
   rootUri: "- uninitialized -",
   documentText: Hashtbl.create(5),
   documentTimers: Hashtbl.create(10),

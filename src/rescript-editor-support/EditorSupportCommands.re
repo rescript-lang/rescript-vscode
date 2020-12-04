@@ -123,7 +123,6 @@ let dump = files => {
   let emptyState = TopTypes.empty();
   let state = {
     ...emptyState,
-    rootPath,
     rootUri: Utils.toUri(rootPath),
     settings: {
       ...emptyState.settings,
@@ -165,7 +164,6 @@ let complete = (~pathWithPos, ~currentFile) => {
   let emptyState = TopTypes.empty();
   let state = {
     ...emptyState,
-    rootPath,
     rootUri: Utils.toUri(rootPath),
     settings: {
       ...emptyState.settings,
