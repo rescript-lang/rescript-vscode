@@ -80,76 +80,6 @@ let rec findArgLabel = (text, i) =>
     };
   };
 
-open Infix;
-
-let findFunctionCall = (text, offset) => {
-  let rec loop = (commas, labels, i) =>
-    if (i > 0) {
-      switch (text.[i]) {
-      | '}' =>
-        loop(
-          commas,
-          labels,
-          findBackSkippingCommentsAndStrings(text, '{', '}', i - 1, 0),
-        )
-      | ']' =>
-        loop(
-          commas,
-          labels,
-          findBackSkippingCommentsAndStrings(text, '[', ']', i - 1, 0),
-        )
-      | ')' =>
-        loop(
-          commas,
-          labels,
-          findBackSkippingCommentsAndStrings(text, '(', ')', i - 1, 0),
-        )
-      | '"' => loop(commas, labels, findBack(text, '"', i - 1))
-      | '=' =>
-        switch (findArgLabel(text, i - 1)) {
-        | None => loop(commas, labels, i - 1)
-        | Some(i0) =>
-          loop(
-            commas,
-            [String.sub(text, i0 + 1, i - i0 - 1), ...labels],
-            i0 - 1,
-          )
-        }
-      /* Not 100% this makes sense, but I think so? */
-      | '{'
-      | '[' => None
-      | '(' =>
-        switch (text.[i - 1]) {
-        | 'a'..'z'
-        | 'A'..'Z'
-        | '_'
-        | '0'..'9' =>
-          let i0 = startOfLident(text, i - 2);
-          Some((commas, labels, String.sub(text, i0, i - i0), i0));
-        | _ => loop(commas, labels, i - 1)
-        }
-      | ',' => loop(commas + 1, labels, i - 1)
-      | _ =>
-        if (i >= 1 && text.[i] == '/' && text.[i - 1] == '*') {
-          loop(commas, labels, findOpenComment(text, i - 2));
-        } else {
-          loop(commas, labels, i - 1);
-        }
-      };
-    } else {
-      None;
-    };
-  loop(0, [], offset)
-  |?>> (
-    ((commas, labels, lident, i)) => (
-      commas,
-      Array.of_list(labels),
-      lident,
-      i,
-    )
-  );
-};
-
 type completable =
   | Nothing
   | Labeled(string)
@@ -272,7 +202,7 @@ let offsetOfLine = (text, line) => {
 };
 
 let positionToOffset = (text, (line, character)) => {
-  offsetOfLine(text, line) |?>> (bol => bol + character);
+  Infix.(offsetOfLine(text, line) |?>> (bol => bol + character));
 };
 
 let offsetToPosition = (text, offset) => {

@@ -90,13 +90,3 @@ let typeToString = (t: Types.type_expr) => {
   | Some(s) => s
   };
 };
-
-let rec getArguments = t =>
-  switch (t.Types.desc) {
-  | Types.Tsubst(t)
-  | Tlink(t) => getArguments(t)
-  | Tarrow(label, argt, res, _) =>
-    let args = getArguments(res);
-    [(labelToString(label), argt), ...args];
-  | _ => []
-  };

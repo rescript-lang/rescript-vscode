@@ -8,7 +8,6 @@ let capabilities =
       ("textDocumentSync", i(1)),
       ("hoverProvider", t),
       ("completionProvider", o([("triggerCharacters", l([s(".")]))])),
-      ("signatureHelpProvider", o([("triggerCharacters", l([s("(")]))])),
       ("definitionProvider", t),
       ("typeDefinitionProvider", t),
       ("referencesProvider", t),
