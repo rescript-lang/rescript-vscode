@@ -7,14 +7,7 @@ let capabilities =
     o([
       ("textDocumentSync", i(1)),
       ("hoverProvider", t),
-      (
-        "completionProvider",
-        o([
-          ("resolveProvider", t),
-          /* TODO list # as trigger character */
-          ("triggerCharacters", l([s(".")])),
-        ]),
-      ),
+      ("completionProvider", o([("triggerCharacters", l([s(".")]))])),
       ("signatureHelpProvider", o([("triggerCharacters", l([s("(")]))])),
       ("definitionProvider", t),
       ("typeDefinitionProvider", t),

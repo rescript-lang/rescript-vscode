@@ -175,31 +175,6 @@ let handlers:
     },
   ),
   (
-    "completionItem/resolve",
-    (state, _params) => {
-      Ok
-        ((state, Json.Null));
-        /* switch (params |> Json.get("documentation") |?> Json.string) {
-           | Some(_) => Ok((state, params))
-           | None =>
-             let result = (params |> Json.get("data")
-             |?> data => Json.get("cmt", data) |?> Json.string
-             |?> cmt => Json.get("src", data) |?> Json.string
-             |?> src => Json.get("name", data) |?> Json.string
-             |?>> name => {
-               let (detail, docs) = Completions.getModuleResults(name, state, cmt, Some(src));
-
-               open JsonShort;
-               extend(params, [
-                 ("detail", detail |?>> s |? null),
-                 ("documentation", docs |?>> Protocol.contentKind(!state.settings.clientNeedsPlainText) |? null),
-               ]) |? params
-             }) |? params;
-             Ok((state, result))
-           } */
-    },
-  ),
-  (
     "textDocument/documentHighlight",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
