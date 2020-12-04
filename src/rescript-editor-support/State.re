@@ -2,46 +2,6 @@ open Infix;
 
 open TopTypes;
 
-module Show = {
-  let state =
-      ({rootPath}, {localModules, dependencyModules, pathsForModule}) => {
-    "Root: "
-    ++ rootPath
-    ++ "\nLocal\n"
-    ++ (
-      localModules
-      |> List.map(name => {
-           let paths = Hashtbl.find(pathsForModule, name);
-           Printf.sprintf(
-             "%s (%s : %s)",
-             name,
-             SharedTypes.getCmt(paths),
-             SharedTypes.getSrc(paths) |? "(no src!)",
-           );
-         })
-      |> String.concat("\n")
-    )
-    ++ "\nDeps\n"
-    ++ (
-      dependencyModules
-      |> List.map(modname =>
-           try({
-             let paths = Hashtbl.find(pathsForModule, modname);
-             Printf.sprintf(
-               "%s (%s : %s)",
-               modname,
-               SharedTypes.getCmt(paths),
-               SharedTypes.getSrc(paths) |? "",
-             );
-           }) {
-           | Not_found => "ERRROR " ++ modname
-           }
-         )
-      |> String.concat("\n")
-    );
-  };
-};
-
 let isMl = path =>
   Filename.check_suffix(path, ".ml") || Filename.check_suffix(path, ".mli");
 

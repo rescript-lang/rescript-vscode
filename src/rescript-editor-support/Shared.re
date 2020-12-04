@@ -71,13 +71,6 @@ let declarationKind = t =>
 let declToString = (~recStatus=Types.Trec_not, name, t) =>
   PrintType.printDecl(~recStatus, name, t);
 
-let labelToString = label =>
-  switch (label) {
-  | Asttypes.Nolabel => ""
-  | Optional(label)
-  | Labelled(label) => label
-  };
-
 let cacheTypeToString = ref(false);
 let typeTbl = Hashtbl.create(1);
 
