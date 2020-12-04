@@ -470,30 +470,6 @@ let resolveRawOpens = (~env, ~getModule, ~rawOpens, ~package) => {
   opens;
 };
 
-/** This function should live somewhere else */
-let findDeclaredValue =
-    (
-      ~file,
-      ~package,
-      /* the text that we found e.g. open A.B.C, this is "A.B.C" */
-      ~rawOpens,
-      ~getModule,
-      pos,
-      tokenParts,
-    ) => {
-  let env = Query.fileEnv(file);
-
-  let opens = resolveRawOpens(~env, ~getModule, ~rawOpens, ~package);
-
-  let path = pathFromTokenParts(tokenParts);
-
-  let%opt (env, suffix) =
-    getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path);
-
-  let%opt stamp = Hashtbl.find_opt(env.exported.values, suffix);
-  Hashtbl.find_opt(env.file.stamps.values, stamp);
-};
-
 let get =
     (~full, ~package, ~rawOpens, ~getModule, ~allModules, pos, tokenParts) => {
   Log.log(
