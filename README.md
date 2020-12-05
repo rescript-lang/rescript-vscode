@@ -2,7 +2,7 @@
 
 The official VSCode plugin for ReScript.
 
-![ezgif com-video-to-gif-2](https://user-images.githubusercontent.com/1909539/101266821-790b1400-3707-11eb-8e9f-fb7e36e660e6.gif)
+![Screen shot](https://user-images.githubusercontent.com/1909539/101266821-790b1400-3707-11eb-8e9f-fb7e36e660e6.gif)
 
 ## Prerequisite
 
