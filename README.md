@@ -2,6 +2,8 @@
 
 The official VSCode plugin for ReScript.
 
+![ezgif com-video-to-gif-2](https://user-images.githubusercontent.com/1909539/101266821-790b1400-3707-11eb-8e9f-fb7e36e660e6.gif)
+
 ## Prerequisite
 
 You **must** have `bs-platform 8.3.3` installed locally in your project, through the usual [npm installation](https://rescript-lang.org/docs/manual/latest/installation#integrate-into-existing-js-project). Older versions are not guaranteed to work.
@@ -20,9 +22,12 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
   - Cannot be a temporary file.
 - Syntax errors diagnosis (only after formatting).
 - Built-in bsb watcher (optional, and exposed explicitly as a pop-up; no worries of dangling build).
-- Type diagnosis.
+- Type hint.
 - Jump to location.
 - Autocomplete.
+- Snippets to ease a few syntaxes:
+  - `external` features such as `@bs.module` and `@bs.val`
+  - `try`, `for`, etc.
 
 ### Upcoming Features
 

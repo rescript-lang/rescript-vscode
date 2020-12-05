@@ -29,6 +29,12 @@
 				"url": "https://raw.githubusercontent.com/rescript-lang/rescript-compiler/master/docs/docson/build-schema.json"
 			}
 		],
+		"snippets": [
+			{
+				"language": "rescript",
+				"path": "./snippets.json"
+			}
+		],
 		"taskDefinitions_unused": [
 			{
 				"type": "bsb",
