@@ -23,6 +23,12 @@
 	],
 	"main": "./client/out/extension",
 	"contributes": {
+		"jsonValidation": [
+			{
+				"fileMatch": "bsconfig.json",
+				"url": "https://raw.githubusercontent.com/rescript-lang/rescript-compiler/master/docs/docson/build-schema.json"
+			}
+		],
 		"taskDefinitions_unused": [
 			{
 				"type": "bsb",
