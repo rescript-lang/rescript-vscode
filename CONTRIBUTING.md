@@ -38,11 +38,14 @@ This repo happens to also contain a language-server usable by other editors. If 
 
 ### Change the Grammar
 
+The _real_ source of truth for our grammar is at https://github.com/rescript-lang/rescript-sublime. We port that `sublime-syntax` grammar over to this weaker TextMate language grammar for VSCode and the rest. There are some subtle differences between the 2 grammars; currently we manually sync between them.
+
 - Modify `grammars/rescript.tmLanguage.json`.
 
 For more grammar inspirations, check:
 - [TypeScript's grammar](https://github.com/microsoft/TypeScript-TmLanguage/blob/a771bc4e79deeae81a01d988a273e300290d0072/TypeScript.YAML-tmLanguage)
 - [Writing a TextMate Grammar: Some Lessons Learned](https://www.apeth.com/nonblog/stories/textmatebundle.html)
+
 ## Editor Diagnostics
 
 They should be synced in from `lib/bs/.compiler.log` build. Don't take them from other places.
