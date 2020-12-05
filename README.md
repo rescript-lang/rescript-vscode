@@ -16,7 +16,8 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 
 ## Features
 
-- Syntax highlighting (`.res`, `.resi`).
+- Supports `.res`, `.resi` and `bsconfig.json`.
+- Syntax highlighting.
 - Formatting, with caveats:
   - Currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`.
   - Cannot be a temporary file.

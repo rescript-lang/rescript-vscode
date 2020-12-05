@@ -1,8 +1,8 @@
-## 1.0.x (Unreleased)
+## 1.0.2
 
-- All the usual features now work on `bsconfig.json` too!
-- Snippets, for ease a few syntaxes.
-- Improved highlighting for polymorphic variants
+- All the usual features (type hint, autocomplete) now work on `bsconfig.json` too!
+- Snippets, to ease a few syntaxes.
+- Improved highlighting for polymorphic variants. Don't abuse them please.
 
 ## 1.0.1
 
