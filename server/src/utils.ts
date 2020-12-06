@@ -61,7 +61,7 @@ export let findBscExeDirOfFile = (
 	}
 };
 
-type execResult =
+export type execResult =
 	| {
 		kind: "success";
 		result: string;
@@ -86,6 +86,58 @@ export let formatUsingValidBscPath = (
 			["-color", "never", "-format", formatTempFileFullPath],
 			{ stdio: "pipe" }
 		);
+		return {
+			kind: "success",
+			result: result.toString(),
+		};
+	} catch (e) {
+		return {
+			kind: "error",
+			error: e.message,
+		};
+	} finally {
+		// async close is fine. We don't use this file name again
+		fs.unlink(formatTempFileFullPath, () => null);
+	}
+};
+
+export let formatUsingRefmt = (
+	code: string,
+	projectRootPath: p.DocumentUri,
+	bscPath: p.DocumentUri,
+	isInterface: boolean
+): execResult => {
+	let extension = isInterface ? c.reiExt : c.reExt;
+	let formatTempFileFullPath = createFileInTempDir(extension);
+	let refmtPath;
+	try {
+		let bsconfig = JSON.parse(
+			fs.readFileSync(path.join(projectRootPath, c.bsconfigPartialPath), {
+				encoding: "utf-8",
+			})
+		);
+
+		if (typeof bsconfig.refmt === "string") {
+			refmtPath = path.join(projectRootPath, bsconfig.refmt);
+		}
+	} finally {
+		if (!refmtPath) {
+			refmtPath = path.join(path.dirname(bscPath), "refmt.exe");
+		}
+	}
+
+	fs.writeFileSync(formatTempFileFullPath, code, {
+		encoding: "utf-8",
+	});
+
+	try {
+		let result = childProcess.execFileSync(
+			refmtPath,
+			["--interface", JSON.stringify(isInterface), formatTempFileFullPath],
+			{ stdio: "pipe" }
+		);
+
+		// Write to output.
 		return {
 			kind: "success",
 			result: result.toString(),

@@ -233,13 +233,13 @@ process.on("message", (msg: m.Message) => {
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
-      if (extName === c.resExt || extName === c.resiExt) {
+      if (c.sourceExts.includes(extName)) {
         openedFile(params.textDocument.uri, params.textDocument.text);
       }
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
-      if (extName === c.resExt || extName === c.resiExt) {
+      if (c.sourceExts.includes(extName)) {
         let changes = params.contentChanges;
         if (changes.length === 0) {
           // no change?
@@ -404,10 +404,10 @@ process.on("message", (msg: m.Message) => {
       let params = msg.params as p.DocumentFormattingParams;
       let filePath = fileURLToPath(params.textDocument.uri);
       let extension = path.extname(params.textDocument.uri);
-      if (extension !== c.resExt && extension !== c.resiExt) {
+      if (!c.sourceExts.includes(extension)) {
         let params: p.ShowMessageParams = {
           type: p.MessageType.Error,
-          message: `Not a ${c.resExt} or ${c.resiExt} file. Cannot format it.`,
+          message: `Not a ${c.resExt}, ${c.resiExt}, ${c.reExt} or ${c.reiExt} file. Cannot format it.`,
         };
         let response: m.NotificationMessage = {
           jsonrpc: c.jsonrpcVersion,
@@ -436,11 +436,21 @@ process.on("message", (msg: m.Message) => {
           let resolvedBscPath = path.join(bscExeDir, c.bscExePartialPath);
           // code will always be defined here, even though technically it can be undefined
           let code = getOpenedFileContent(params.textDocument.uri);
-          let formattedResult = utils.formatUsingValidBscPath(
-            code,
-            resolvedBscPath,
-            extension === c.resiExt
-          );
+          let formattedResult: utils.execResult;
+          if (extension === c.reExt || extension === c.reiExt) {
+            formattedResult = utils.formatUsingRefmt(
+              code,
+              bscExeDir,
+              resolvedBscPath,
+              extension === c.reiExt
+            );
+          } else {
+            formattedResult = utils.formatUsingValidBscPath(
+              code,
+              resolvedBscPath,
+              extension === c.resiExt
+            );
+          }
           if (formattedResult.kind === "success") {
             let result: p.TextEdit[] = [
               {

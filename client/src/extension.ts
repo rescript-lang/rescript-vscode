@@ -84,6 +84,7 @@ export function activate(context: ExtensionContext) {
 		// Register the server for plain text documents
 		documentSelector: [
 			{ scheme: 'file', language: 'rescript' },
+			{ scheme: 'file', language: 'reason' }
 		],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace

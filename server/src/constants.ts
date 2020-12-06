@@ -18,4 +18,7 @@ export let bsconfigPartialPath = "bsconfig.json";
 export let compilerLogPartialPath = path.join("lib", "bs", ".compiler.log");
 export let resExt = ".res";
 export let resiExt = ".resi";
+export let reExt = ".re";
+export let reiExt = ".rei";
+export let sourceExts = [resExt, resiExt, reExt, reiExt];
 export let startBuildAction = "Start Build";
