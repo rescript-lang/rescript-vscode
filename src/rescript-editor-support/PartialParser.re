@@ -66,16 +66,22 @@ let rec startOfLident = (text, i) =>
   };
 
 type completable =
-  | Labeled(string)
-  | Lident(string);
+  | Clabel(string)
+  | Cpath(list(string));
 
 let findCompletable = (text, offset) => {
+  let mkPath = s => {
+    let parts = Str.split(Str.regexp_string("."), s);
+    let parts = s.[String.length(s) - 1] == '.' ? parts @ [""] : parts;
+    Cpath(parts);
+  };
+
   let rec loop = i => {
     i < 0
-      ? Some(Lident(String.sub(text, i + 1, offset - (i + 1))))
+      ? Some(mkPath(String.sub(text, i + 1, offset - (i + 1))))
       : (
         switch (text.[i]) {
-        | '~' => Some(Labeled(String.sub(text, i + 1, offset - (i + 1))))
+        | '~' => Some(Clabel(String.sub(text, i + 1, offset - (i + 1))))
         | 'a'..'z'
         | 'A'..'Z'
         | '0'..'9'
@@ -83,7 +89,7 @@ let findCompletable = (text, offset) => {
         | '_' => loop(i - 1)
         | _ =>
           i == offset - 1
-            ? None : Some(Lident(String.sub(text, i + 1, offset - (i + 1))))
+            ? None : Some(mkPath(String.sub(text, i + 1, offset - (i + 1))))
         }
       );
   };

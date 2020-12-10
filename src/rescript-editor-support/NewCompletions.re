@@ -444,8 +444,8 @@ let resolveRawOpens = (~env, ~getModule, ~rawOpens, ~package) => {
   opens;
 };
 
-let get =
-    (~full, ~package, ~rawOpens, ~getModule, ~allModules, pos, tokenParts) => {
+let getItems =
+    (~full, ~package, ~rawOpens, ~getModule, ~allModules, ~pos, ~parts) => {
   Log.log(
     "Opens folkz > "
     ++ string_of_int(List.length(rawOpens))
@@ -465,7 +465,7 @@ let get =
     ++ String.concat(" ", opens |> List.map(e => e.Query.file.uri)),
   );
 
-  switch (tokenParts) {
+  switch (parts) {
   | [] => []
   | [suffix] =>
     let locallyDefinedValues = localValueCompletions(~pos, ~env, suffix);
@@ -599,34 +599,29 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
       | Some(offset) =>
         switch (PartialParser.findCompletable(text, offset)) {
         | None => None
-        | Some(Labeled(_)) =>
+        | Some(Clabel(_)) =>
           /* Not supported yet */
           None
-        | Some(Lident(string)) => Some((text, offset, string))
+        | Some(Cpath(parts)) => Some((text, offset, parts))
         }
       }
     };
   let items =
     switch (parameters) {
     | None => []
-    | Some((text, offset, string)) =>
-      /* Log.log("Completing for string " ++ string); */
-      let parts = Str.split(Str.regexp_string("."), string);
-      let parts =
-        string.[String.length(string) - 1] == '.' ? parts @ [""] : parts;
+    | Some((text, offset, parts)) =>
       let rawOpens = PartialParser.findOpens(text, offset);
-
       let allModules =
         package.TopTypes.localModules @ package.dependencyModules;
       let items =
-        get(
+        getItems(
           ~full,
           ~package,
           ~rawOpens,
           ~getModule=State.fileForModule(state, ~package),
           ~allModules,
-          pos,
-          parts,
+          ~pos,
+          ~parts,
         );
       /* TODO(#107): figure out why we're getting duplicates. */
       Utils.dedup(items);
