@@ -587,6 +587,8 @@ let get =
   };
 };
 
+module J = JsonShort;
+
 let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
   let parameters =
     switch (maybeText) {
@@ -596,11 +598,11 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
       | None => None
       | Some(offset) =>
         switch (PartialParser.findCompletable(text, offset)) {
-        | Nothing => None
-        | Labeled(_) =>
+        | None => None
+        | Some(Labeled(_)) =>
           /* Not supported yet */
           None
-        | Lident(string) => Some((text, offset, string))
+        | Some(Lident(string)) => Some((text, offset, string))
         }
       }
     };
@@ -629,48 +631,43 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
       /* TODO(#107): figure out why we're getting duplicates. */
       Utils.dedup(items);
     };
-  open JsonShort;
-  let completions =
-    items == []
-      ? null
-      : items
-        |> List.map(
-             (
+  if (items == []) {
+    J.null;
+  } else {
+    items
+    |> List.map(
+         (
+           (
+             uri,
+             {
+               SharedTypes.name: {txt: name, loc: {loc_start: {pos_lnum}}},
+               docstring,
+               item,
+             },
+           ),
+         ) => {
+         J.o([
+           ("label", J.s(name)),
+           ("kind", J.i(kindToInt(item))),
+           ("detail", detail(name, item) |> J.s),
+           (
+             "documentation",
+             J.o([
+               ("kind", J.s("markdown")),
                (
-                 uri,
-                 {
-                   SharedTypes.name: {
-                     txt: name,
-                     loc: {loc_start: {pos_lnum}},
-                   },
-                   docstring,
-                   item,
-                 },
+                 "value",
+                 J.s(
+                   (docstring |? "No docs")
+                   ++ "\n\n"
+                   ++ uri
+                   ++ ":"
+                   ++ string_of_int(pos_lnum),
+                 ),
                ),
-             ) => {
-             o([
-               ("label", s(name)),
-               ("kind", i(kindToInt(item))),
-               ("detail", detail(name, item) |> s),
-               (
-                 "documentation",
-                 o([
-                   ("kind", s("markdown")),
-                   (
-                     "value",
-                     s(
-                       (docstring |? "No docs")
-                       ++ "\n\n"
-                       ++ uri
-                       ++ ":"
-                       ++ string_of_int(pos_lnum),
-                     ),
-                   ),
-                 ]),
-               ),
-             ])
-           })
-        |> l;
-
-  completions;
+             ]),
+           ),
+         ])
+       })
+    |> J.l;
+  };
 };

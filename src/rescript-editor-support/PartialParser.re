@@ -66,24 +66,16 @@ let rec startOfLident = (text, i) =>
   };
 
 type completable =
-  | Nothing
   | Labeled(string)
   | Lident(string);
 
 let findCompletable = (text, offset) => {
-  /* NOTE disabled the unterminated check... it got in the way too often */
-  /* if (hasUnterminatedCommentOrString(text, offset)) {
-       Log.log("Unterminated comment or string, can't do it. Sorry");
-       Nothing
-     } else { */
-  /* Log.log("Not unterminated"); */
-  /** TODO handle being in the middle of an identifier */
   let rec loop = i => {
     i < 0
-      ? Lident(String.sub(text, i + 1, offset - (i + 1)))
+      ? Some(Lident(String.sub(text, i + 1, offset - (i + 1))))
       : (
         switch (text.[i]) {
-        | '~' => Labeled(String.sub(text, i + 1, offset - (i + 1)))
+        | '~' => Some(Labeled(String.sub(text, i + 1, offset - (i + 1))))
         | 'a'..'z'
         | 'A'..'Z'
         | '0'..'9'
@@ -91,16 +83,15 @@ let findCompletable = (text, offset) => {
         | '_' => loop(i - 1)
         | _ =>
           i == offset - 1
-            ? Nothing : Lident(String.sub(text, i + 1, offset - (i + 1)))
+            ? None : Some(Lident(String.sub(text, i + 1, offset - (i + 1))))
         }
       );
   };
   if (offset > String.length(text) || offset == 0) {
-    Nothing;
+    None;
   } else {
     loop(offset - 1);
   };
-  /* } */
 };
 
 let findOpens = (text, offset) => {
