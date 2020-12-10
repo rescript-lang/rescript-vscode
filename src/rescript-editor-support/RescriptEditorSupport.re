@@ -1,39 +1,37 @@
 open Infix;
 open RResult;
-
+module J = JsonShort;
 module StringSet = Set.Make(String);
 let capabilities =
-  JsonShort.(
-    o([
-      ("textDocumentSync", i(1)),
-      ("hoverProvider", t),
-      ("completionProvider", o([("triggerCharacters", l([s(".")]))])),
-      ("definitionProvider", t),
-      ("typeDefinitionProvider", t),
-      ("referencesProvider", t),
-      ("documentSymbolProvider", t),
-      /*
-       * Found how to do the showReferences thing
-       * https://github.com/Microsoft/vscode/blob/c6b1114292288e76e2901e05e860faf3a08b4b5a/extensions/typescript-language-features/src/features/implementationsCodeLensProvider.ts
-       * but it seems I need to instantiate the object from javascript
-       */
-      ("codeActionProvider", t),
-      (
-        "executeCommandProvider",
-        o([
-          (
-            "commands",
-            l([s("reason-language-server.add_to_interface_inner")]),
-          ),
-        ]),
-      ),
-      ("codeLensProvider", o([("resolveProvider", t)])),
-      ("documentHighlightProvider", t),
-      ("documentRangeFormattingProvider", t),
-      ("documentFormattingProvider", t),
-      ("renameProvider", t),
-    ])
-  );
+  J.o([
+    ("textDocumentSync", J.i(1)),
+    ("hoverProvider", J.t),
+    ("completionProvider", J.o([("triggerCharacters", J.l([J.s(".")]))])),
+    ("definitionProvider", J.t),
+    ("typeDefinitionProvider", J.t),
+    ("referencesProvider", J.t),
+    ("documentSymbolProvider", J.t),
+    /*
+     * Found how to do the showReferences thing
+     * https://github.com/Microsoft/vscode/blob/c6b1114292288e76e2901e05e860faf3a08b4b5a/extensions/typescript-language-features/src/features/implementationsCodeLensProvider.ts
+     * but it seems I need to instantiate the object from javascript
+     */
+    ("codeActionProvider", J.t),
+    (
+      "executeCommandProvider",
+      J.o([
+        (
+          "commands",
+          J.l([J.s("reason-language-server.add_to_interface_inner")]),
+        ),
+      ]),
+    ),
+    ("codeLensProvider", J.o([("resolveProvider", J.t)])),
+    ("documentHighlightProvider", J.t),
+    ("documentRangeFormattingProvider", J.t),
+    ("documentFormattingProvider", J.t),
+    ("renameProvider", J.t),
+  ]);
 
 let getInitialState = params => {
   let uri =
@@ -48,31 +46,29 @@ let getInitialState = params => {
   Rpc.sendNotification(
     stdout,
     "client/registerCapability",
-    JsonShort.(
-      o([
-        (
-          "registrations",
-          l([
-            o([
-              ("id", s("watching")),
-              ("method", s("workspace/didChangeWatchedFiles")),
-              (
-                "registerOptions",
-                o([
-                  (
-                    "watchers",
-                    l([
-                      o([("globPattern", s("**/bsconfig.json"))]),
-                      o([("globPattern", s("**/.merlin"))]),
-                    ]),
-                  ),
-                ]),
-              ),
-            ]),
+    J.o([
+      (
+        "registrations",
+        J.l([
+          J.o([
+            ("id", J.s("watching")),
+            ("method", J.s("workspace/didChangeWatchedFiles")),
+            (
+              "registerOptions",
+              J.o([
+                (
+                  "watchers",
+                  J.l([
+                    J.o([("globPattern", J.s("**/bsconfig.json"))]),
+                    J.o([("globPattern", J.s("**/.merlin"))]),
+                  ]),
+                ),
+              ]),
+            ),
           ]),
-        ),
-      ])
-    ),
+        ]),
+      ),
+    ]),
   );
 
   /* if client needs plain text in any place, we disable markdown everywhere */

@@ -1,4 +1,5 @@
 open Infix;
+module J = JsonShort;
 
 let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
   let locations =
@@ -15,19 +16,18 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
     | None => locations
     };
   };
-  open JsonShort;
   let dedupTable = Hashtbl.create(1);
   let dedupHover = (hover, i) => {
     let isCandidate = String.length(hover) > 10;
     if (isCandidate) {
       switch (Hashtbl.find_opt(dedupTable, hover)) {
-      | Some(n) => s("#" ++ string_of_int(n))
+      | Some(n) => J.s("#" ++ string_of_int(n))
       | None =>
         Hashtbl.replace(dedupTable, hover, i);
-        s(hover);
+        J.s(hover);
       };
     } else {
-      s(hover);
+      J.s(hover);
     };
   };
   let locationsInfo =
@@ -83,7 +83,7 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
                [
                  (
                    "definition",
-                   o(
+                   J.o(
                      uriIsCurrentFile
                        ? [range] : [("uri", Json.String(uri2)), range],
                    ),
@@ -96,10 +96,12 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
          skip
            ? None
            : Some(
-               o([("range", Protocol.rangeOfLoc(location))] @ hover @ def),
+               J.o(
+                 [("range", Protocol.rangeOfLoc(location))] @ hover @ def,
+               ),
              );
        })
-    |> l;
+    |> J.l;
 
   Json.stringify(locationsInfo);
 };

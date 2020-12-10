@@ -1,6 +1,7 @@
 open RResult;
 open TopTypes;
 open Infix;
+module J = JsonShort;
 
 let maybeHash = (h, k) =>
   if (Hashtbl.mem(h, k)) {
@@ -83,14 +84,14 @@ let handlers:
             State.fileForUri(state, ~package, uri) |> toOptionAndLog;
 
           let%opt_wrap refs = References.refsForPos(~file, ~extra, pos);
-          JsonShort.(
+          (
             state,
-            l(
+            J.l(
               refs
               |> List.map(loc =>
-                   o([
+                   J.o([
                      ("range", Protocol.rangeOfLoc(loc)),
-                     ("kind", i(2)),
+                     ("kind", J.i(2)),
                    ])
                  ),
             ),
@@ -123,28 +124,26 @@ let handlers:
               loc,
             )
             |> toOptionAndLog;
-          JsonShort.(
-            Some((
-              state,
-              l(
-                allReferences
-                |> List.map(((fname, references)) => {
-                     let locs =
-                       fname == uri
-                         ? List.filter(
-                             loc => !Protocol.locationContains(loc, pos),
-                             references,
-                           )
-                         : references;
-                     locs
-                     |> List.map(loc => Protocol.locationOfLoc(~fname, loc));
-                   })
-                |> List.concat,
-              ),
-            ))
-          );
+          Some((
+            state,
+            J.l(
+              allReferences
+              |> List.map(((fname, references)) => {
+                   let locs =
+                     fname == uri
+                       ? List.filter(
+                           loc => !Protocol.locationContains(loc, pos),
+                           references,
+                         )
+                       : references;
+                   locs
+                   |> List.map(loc => Protocol.locationOfLoc(~fname, loc));
+                 })
+              |> List.concat,
+            ),
+          ));
         }
-        |? (state, Json.Null)
+        |? (state, J.null)
       );
     },
   ),
@@ -171,37 +170,35 @@ let handlers:
               loc,
             )
             |> toOptionAndLog;
-          JsonShort.(
-            Some(
-              Ok((
-                state,
-                o([
-                  (
-                    "changes",
-                    o(
-                      allReferences
-                      |> List.map(((fname, references)) =>
-                           (
-                             fname,
-                             l(
-                               references
-                               |> List.map(loc =>
-                                    o([
-                                      ("range", Protocol.rangeOfLoc(loc)),
-                                      ("newText", newName),
-                                    ])
-                                  ),
-                             ),
-                           )
-                         ),
-                    ),
+          Some(
+            Ok((
+              state,
+              J.o([
+                (
+                  "changes",
+                  J.o(
+                    allReferences
+                    |> List.map(((fname, references)) =>
+                         (
+                           fname,
+                           J.l(
+                             references
+                             |> List.map(loc =>
+                                  J.o([
+                                    ("range", Protocol.rangeOfLoc(loc)),
+                                    ("newText", newName),
+                                  ])
+                                ),
+                           ),
+                         )
+                       ),
                   ),
-                ]),
-              )),
-            )
+                ),
+              ]),
+            )),
           );
         }
-        |? Ok((state, Json.Null))
+        |? Ok((state, J.null))
       );
     },
   ),
@@ -237,23 +234,21 @@ let handlers:
             },
           ),
         ];
-        JsonShort.(
-          Ok((
-            state,
-            l(
-              items
-              |> List.map(((text, loc)) =>
-                   o([
-                     ("range", Protocol.rangeOfLoc(loc)),
-                     (
-                       "command",
-                       o([("title", s(text)), ("command", s(""))]),
-                     ),
-                   ])
-                 ),
-            ),
-          ))
-        );
+        Ok((
+          state,
+          J.l(
+            items
+            |> List.map(((text, loc)) =>
+                 J.o([
+                   ("range", Protocol.rangeOfLoc(loc)),
+                   (
+                     "command",
+                     J.o([("title", J.s(text)), ("command", J.s(""))]),
+                   ),
+                 ])
+               ),
+          ),
+        ));
       | Ok(package) =>
         /* Log.log("<< codleens me please"); */
 
@@ -330,23 +325,21 @@ let handlers:
           | Ok(Some(full)) => getLensItems(full)
           };
         };
-        JsonShort.(
-          Ok((
-            state,
-            l(
-              items
-              |> List.map(((text, loc)) =>
-                   o([
-                     ("range", Protocol.rangeOfLoc(loc)),
-                     (
-                       "command",
-                       o([("title", s(text)), ("command", s(""))]),
-                     ),
-                   ])
-                 ),
-            ),
-          ))
-        );
+        Ok((
+          state,
+          J.l(
+            items
+            |> List.map(((text, loc)) =>
+                 J.o([
+                   ("range", Protocol.rangeOfLoc(loc)),
+                   (
+                     "command",
+                     J.o([("title", J.s(text)), ("command", J.s(""))]),
+                   ),
+                 ])
+               ),
+          ),
+        ));
       };
     },
   ),
@@ -369,25 +362,21 @@ let handlers:
             ~showPath=state.settings.showModulePathOnHover,
             loc,
           );
-        JsonShort.(
-          Some(
-            Ok((
-              state,
-              o([
-                ("range", Protocol.rangeOfLoc(location)),
-                (
-                  "contents",
-                  text
-                  |> Protocol.contentKind(
-                       !state.settings.clientNeedsPlainText,
-                     ),
-                ),
-              ]),
-            )),
-          )
+        Some(
+          Ok((
+            state,
+            J.o([
+              ("range", Protocol.rangeOfLoc(location)),
+              (
+                "contents",
+                text
+                |> Protocol.contentKind(!state.settings.clientNeedsPlainText),
+              ),
+            ]),
+          )),
         );
       }
-      |? Ok((state, Json.Null));
+      |? Ok((state, J.null));
     },
   ),
   (
@@ -415,7 +404,7 @@ let handlers:
         /** TODO: instead of bailing, it should extend the selection to encompass the whole line, and then go for it. */
         (
           if (fst(start) == fst(end_) && text.[endPos] != '\n') {
-            Ok((state, JsonShort.null));
+            Ok((state, J.null));
           } else {
             let substring = String.sub(text, startPos, endPos - startPos);
             open Utils;
@@ -480,14 +469,14 @@ let handlers:
                 package,
               );
             let%try_wrap text = AsYouType.format(substring, fmtCmd);
-            JsonShort.(
+            (
               state,
-              l([
-                o([
+              J.l([
+                J.o([
                   ("range", Infix.(|!)(Json.get("range", params), "what")),
                   (
                     "newText",
-                    s(
+                    J.s(
                       repeat(leadingNewlines, "\n")
                       ++ appendIndent(
                            ~firstLineSpaces=cursorToFirstLineSpaces,
@@ -542,22 +531,20 @@ let handlers:
       getItems(file.contents)
       |> (
         items => {
-          JsonShort.(
-            Ok((
-              state,
-              l(
-                items
-                |> List.map(((name, loc, typ)) =>
-                     o([
-                       ("name", s(name)),
-                       ("kind", i(Protocol.symbolKind(typ))),
-                       ("location", Protocol.locationOfLoc(loc)),
-                       /* ("containerName", s(String.concat(".", path))) */
-                     ])
-                   ),
-              ),
-            ))
-          );
+          Ok((
+            state,
+            J.l(
+              items
+              |> List.map(((name, loc, typ)) =>
+                   J.o([
+                     ("name", J.s(name)),
+                     ("kind", J.i(Protocol.symbolKind(typ))),
+                     ("location", Protocol.locationOfLoc(loc)),
+                     /* ("containerName", s(String.concat(".", path))) */
+                   ])
+                 ),
+            ),
+          ));
         }
       );
     },
@@ -581,12 +568,12 @@ let handlers:
           package,
         );
       let%try_wrap newText = AsYouType.format(text, fmtCmd);
-      JsonShort.(
+      (
         state,
         text == newText
           ? Json.Null
-          : l([
-              o([
+          : J.l([
+              J.o([
                 (
                   "range",
                   Protocol.rangeOfInts(
@@ -597,7 +584,7 @@ let handlers:
                     0,
                   ),
                 ),
-                ("newText", s(newText)),
+                ("newText", J.s(newText)),
               ]),
             ]),
       );
@@ -642,22 +629,20 @@ let handlers:
               Some(decl |> Shared.declToString(name))
             | _ => None
             };
-          JsonShort.(
-            Some(
-              Ok((
-                state,
-                l([
-                  o([
-                    ("title", s("Add to interface file")),
-                    (
-                      "command",
-                      s("reason-language-server.add_to_interface_inner"),
-                    ),
-                    ("arguments", l([s(uri), s(signatureText)])),
-                  ]),
+          Some(
+            Ok((
+              state,
+              J.l([
+                J.o([
+                  ("title", J.s("Add to interface file")),
+                  (
+                    "command",
+                    J.s("reason-language-server.add_to_interface_inner"),
+                  ),
+                  ("arguments", J.l([J.s(uri), J.s(signatureText)])),
                 ]),
-              )),
-            )
+              ]),
+            )),
           );
         }
         |? Ok((state, Json.Null))
@@ -694,7 +679,6 @@ let handlers:
               );
             Ok((state, Json.Null));
           | Some((text, _, _)) =>
-            open JsonShort;
             let offset = String.length(text);
             let%try (line, col) =
               PartialParser.offsetToPosition(text, offset)
@@ -703,23 +687,23 @@ let handlers:
               Log.log,
               stdout,
               "workspace/applyEdit",
-              o([
-                ("label", s("Add item to interface")),
+              J.o([
+                ("label", J.s("Add item to interface")),
                 (
                   "edit",
-                  o([
+                  J.o([
                     (
                       "changes",
-                      o([
+                      J.o([
                         (
                           interfaceUri,
-                          l([
-                            o([
+                          J.l([
+                            J.o([
                               (
                                 "range",
                                 Protocol.rangeOfInts(line, col, line, col),
                               ),
-                              ("newText", s("\n\n" ++ signatureText)),
+                              ("newText", J.s("\n\n" ++ signatureText)),
                             ]),
                           ]),
                         ),

@@ -1,8 +1,8 @@
 open TopTypes;
 open Infix;
+module J = JsonShort;
 
 let makeDiagnostic = (documentText, ((line, c1, c2), message)) => {
-  open JsonShort;
   let text = String.concat("\n", message);
   let (l2, c22) =
     {
@@ -14,10 +14,10 @@ let makeDiagnostic = (documentText, ((line, c1, c2), message)) => {
   switch (ErrorParser.parseDependencyError(text)) {
   | None =>
     Some(
-      o([
+      J.o([
         ("range", Protocol.rangeOfInts(line, c1, l2, c22)),
-        ("message", s(text)),
-        ("severity", i(Utils.startsWith(text, "Warning") ? 2 : 1)),
+        ("message", J.s(text)),
+        ("severity", J.i(Utils.startsWith(text, "Warning") ? 2 : 1)),
       ]),
     )
   | Some(_) =>
@@ -42,66 +42,62 @@ let runDiagnostics = (uri, state, ~package) => {
   Log.log("Running diagnostics for " ++ uri);
   let%try_consume documentText = getText(state, uri);
   let%try_consume result = State.getCompilationResult(uri, state, ~package);
-  JsonShort.(
-    Rpc.sendNotification(
-      stdout,
-      "textDocument/publishDiagnostics",
-      o([
-        ("uri", s(uri)),
-        (
-          "diagnostics",
-          switch (result) {
-          | AsYouType.SyntaxError(text, otherText, _) =>
+  Rpc.sendNotification(
+    stdout,
+    "textDocument/publishDiagnostics",
+    J.o([
+      ("uri", J.s(uri)),
+      (
+        "diagnostics",
+        switch (result) {
+        | AsYouType.SyntaxError(text, otherText, _) =>
+          let errors =
+            ErrorParser.parseErrors(
+              Utils.splitLines(Utils.stripAnsii(otherText)),
+            );
+          let errors =
+            errors
+            |> List.filter(((_loc, message)) =>
+                 message
+                 != ["Error: Uninterpreted extension 'merlin.syntax-error'."]
+               );
+          let errors =
+            ErrorParser.parseErrors(
+              Utils.splitLines(Utils.stripAnsii(text)),
+            )
+            @ errors;
+          J.l(errors |> Utils.filterMap(makeDiagnostic(documentText)));
+        | Success(text, _) =>
+          if (String.trim(text) == "") {
+            J.l([]);
+          } else {
             let errors =
               ErrorParser.parseErrors(
-                Utils.splitLines(Utils.stripAnsii(otherText)),
+                Utils.splitLines(Utils.stripAnsii(text)),
               );
-            let errors =
-              errors
-              |> List.filter(((_loc, message)) =>
-                   message
-                   != [
-                        "Error: Uninterpreted extension 'merlin.syntax-error'.",
-                      ]
-                 );
-            let errors =
-              ErrorParser.parseErrors(
-                Utils.splitLines(Utils.stripAnsii(text)),
-              )
-              @ errors;
-            l(errors |> Utils.filterMap(makeDiagnostic(documentText)));
-          | Success(text, _) =>
-            if (String.trim(text) == "") {
-              l([]);
-            } else {
-              let errors =
-                ErrorParser.parseErrors(
-                  Utils.splitLines(Utils.stripAnsii(text)),
-                );
-              l(errors |> Utils.filterMap(makeDiagnostic(documentText)));
-            }
-          | TypeError(text, _) =>
-            Log.log("type error here " ++ text);
-            let errors =
-              ErrorParser.parseErrors(
-                Utils.splitLines(Utils.stripAnsii(text)),
-              )
-              |> List.filter(((_loc, message)) => {
-                   !
-                     Str.string_match(
-                       Str.regexp(
-                         {|.*Missing dependency [a-zA-Z]+ in search path|},
-                       ),
-                       String.concat(" ", message),
-                       0,
-                     )
-                 });
+            J.l(errors |> Utils.filterMap(makeDiagnostic(documentText)));
+          }
+        | TypeError(text, _) =>
+          Log.log("type error here " ++ text);
+          let errors =
+            ErrorParser.parseErrors(
+              Utils.splitLines(Utils.stripAnsii(text)),
+            )
+            |> List.filter(((_loc, message)) => {
+                 !
+                   Str.string_match(
+                     Str.regexp(
+                       {|.*Missing dependency [a-zA-Z]+ in search path|},
+                     ),
+                     String.concat(" ", message),
+                     0,
+                   )
+               });
 
-            l(errors |> Utils.filterMap(makeDiagnostic(documentText)));
-          },
-        ),
-      ]),
-    )
+          J.l(errors |> Utils.filterMap(makeDiagnostic(documentText)));
+        },
+      ),
+    ]),
   );
 };
 
