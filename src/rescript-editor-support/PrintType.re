@@ -1,4 +1,5 @@
 let printExpr = typ => {
+  Printtyp.reset_names();
   Res_doc.toString(
     ~width=60,
     Res_outcome_printer.printOutTypeDoc(Printtyp.tree_of_typexp(false, typ)),
@@ -6,6 +7,7 @@ let printExpr = typ => {
 };
 
 let printDecl = (~recStatus, name, decl) => {
+  Printtyp.reset_names();
   Res_doc.toString(
     ~width=60,
     Res_outcome_printer.printOutSigItemDoc(
