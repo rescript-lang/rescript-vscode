@@ -1,6 +1,7 @@
 open Infix;
 open RResult;
 open TopTypes;
+module J = JsonShort;
 
 let recompileDebounceTime = 0.5; /* seconds */
 
@@ -12,24 +13,27 @@ let getTextDocument = doc => {
 };
 
 let reportDiagnostics = (uri, result) => {
-  open JsonShort;
   let body =
     switch (result) {
     | `BuildFailed(lines) =>
-      o([
-        ("uri", s(uri)),
+      J.o([
+        ("uri", J.s(uri)),
         (
           "diagnostics",
-          l([
-            o([
+          J.l([
+            J.o([
               ("range", Protocol.rangeOfInts(0, 0, 5, 0)),
-              ("message", s(Utils.stripAnsii(String.concat("\n", lines)))),
-              ("severity", i(1)),
+              (
+                "message",
+                J.s(Utils.stripAnsii(String.concat("\n", lines))),
+              ),
+              ("severity", J.i(1)),
             ]),
           ]),
         ),
       ])
-    | `BuildSucceeded => o([("uri", s(uri)), ("diagnostics", l([]))])
+    | `BuildSucceeded =>
+      J.o([("uri", J.s(uri)), ("diagnostics", J.l([]))])
     };
   Rpc.sendNotification(stdout, "textDocument/publishDiagnostics", body);
 };

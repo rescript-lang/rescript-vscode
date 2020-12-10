@@ -1,3 +1,5 @@
+module J = JsonShort;
+
 type messageSeverity =
   | Error;
 
@@ -10,7 +12,7 @@ let showMessage = (typ, message) =>
   Rpc.sendNotification(
     stdout,
     "window/showMessage",
-    JsonShort.(o([("type", i(severity(typ))), ("message", s(message))])),
+    J.o([("type", J.i(severity(typ))), ("message", J.s(message))]),
   );
 
 let handleMessage = (messageHandlers, id, method, params, state) => {
@@ -21,12 +23,10 @@ let handleMessage = (messageHandlers, id, method, params, state) => {
     Rpc.sendError(
       stdout,
       id,
-      JsonShort.(
-        o([
-          ("code", i(-32601)), /* MethodNotFoundError */
-          ("message", s("Unexpected method: " ++ method)),
-        ])
-      ),
+      J.o([
+        ("code", J.i(-32601)), /* MethodNotFoundError */
+        ("message", J.s("Unexpected method: " ++ method)),
+      ]),
     );
     state;
   | handler =>
@@ -44,27 +44,23 @@ let handleMessage = (messageHandlers, id, method, params, state) => {
       Rpc.sendError(
         stdout,
         id,
-        JsonShort.(
-          o([
-            ("code", i(-32603)), /* InternalError */
-            ("message", s(string)),
-          ])
-        ),
+        J.o([
+          ("code", J.i(-32603)), /* InternalError */
+          ("message", J.s(string)),
+        ]),
       );
       state;
     | exception e =>
       Rpc.sendError(
         stdout,
         id,
-        JsonShort.(
-          o([
-            ("code", i(-32603)), /* InternalError */
-            (
-              "message",
-              s(Printexc.to_string(e) ++ Printexc.get_backtrace()),
-            ),
-          ])
-        ),
+        J.o([
+          ("code", J.i(-32603)), /* InternalError */
+          (
+            "message",
+            J.s(Printexc.to_string(e) ++ Printexc.get_backtrace()),
+          ),
+        ]),
       );
       /* }; */
       state;
@@ -151,15 +147,13 @@ let run =
         Rpc.sendError(
           stdout,
           id,
-          JsonShort.(
-            o([
-              ("code", i(-32603)), /* InternalError */
-              (
-                "message",
-                s(Printexc.to_string(e) ++ Printexc.get_backtrace()),
-              ),
-            ])
-          ),
+          J.o([
+            ("code", J.i(-32603)), /* InternalError */
+            (
+              "message",
+              J.s(Printexc.to_string(e) ++ Printexc.get_backtrace()),
+            ),
+          ]),
         );
       }
     | _ => failwith("Client must send 'initialize' as first event")

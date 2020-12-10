@@ -1,7 +1,7 @@
-open JsonShort;
+module J = JsonShort;
 
 let pos = (~line, ~character) =>
-  o([("line", i(line)), ("character", i(character))]);
+  J.o([("line", J.i(line)), ("character", J.i(character))]);
 
 open Infix;
 
@@ -28,24 +28,27 @@ let rPositionParams = params => {
 };
 
 let posOfLexing = ({Lexing.pos_lnum, pos_cnum, pos_bol}) =>
-  o([("line", i(pos_lnum - 1)), ("character", i(pos_cnum - pos_bol))]);
+  J.o([
+    ("line", J.i(pos_lnum - 1)),
+    ("character", J.i(pos_cnum - pos_bol)),
+  ]);
 
 let contentKind = (useMarkdown, text) =>
-  Json.Object([
-    ("kind", Json.String(useMarkdown ? "markdown" : "text")),
-    ("value", Json.String(text)),
+  J.o([
+    ("kind", J.s(useMarkdown ? "markdown" : "text")),
+    ("value", J.s(text)),
   ]);
 
 let rangeOfLoc = ({Location.loc_start, loc_end}) =>
-  o([("start", posOfLexing(loc_start)), ("end", posOfLexing(loc_end))]);
+  J.o([("start", posOfLexing(loc_start)), ("end", posOfLexing(loc_end))]);
 
 let locationOfLoc =
     (~fname=?, {Location.loc_start: {Lexing.pos_fname}} as loc) =>
-  o([
+  J.o([
     ("range", rangeOfLoc(loc)),
     (
       "uri",
-      s(
+      J.s(
         switch (fname) {
         | Some(x) => x
         | None => Utils.toUri(pos_fname)
@@ -55,7 +58,7 @@ let locationOfLoc =
   ]);
 
 let rangeOfInts = (l0, c0, l1, c1) =>
-  o([
+  J.o([
     ("start", pos(~line=l0, ~character=c0)),
     ("end", pos(~line=l1, ~character=c1)),
   ]);

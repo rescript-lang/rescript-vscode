@@ -1,4 +1,5 @@
 open Infix;
+module J = JsonShort;
 
 type jsonrpc =
   | Message(Json.t, string, Json.t)
@@ -25,7 +26,7 @@ let messageFromJson = json => {
   };
 };
 
-let readMessage = (input) => {
+let readMessage = input => {
   let clength = input_line(input);
   let cl = "Content-Length: ";
   let cll = String.length(cl);
@@ -66,32 +67,29 @@ let send = (output, content) => {
 };
 
 let sendMessage = (output, id, result) => {
-  open JsonShort;
   let content =
     Json.stringify(
-      o([("id", id), ("jsonrpc", s("2.0")), ("result", result)]),
+      J.o([("id", id), ("jsonrpc", J.s("2.0")), ("result", result)]),
     );
   Log.log("Sending response " ++ content);
   send(output, content);
 };
 
 let sendError = (output, id, error) => {
-  open JsonShort;
   let content =
     Json.stringify(
-      o([("id", id), ("jsonrpc", s("2.0")), ("error", error)]),
+      J.o([("id", id), ("jsonrpc", J.s("2.0")), ("error", error)]),
     );
   Log.log("Sending response " ++ content);
   send(output, content);
 };
 
 let sendNotification = (output, method, params) => {
-  open JsonShort;
   let content =
     Json.stringify(
-      o([
-        ("jsonrpc", s("2.0")),
-        ("method", s(method)),
+      J.o([
+        ("jsonrpc", J.s("2.0")),
+        ("method", J.s(method)),
         ("params", params),
       ]),
     );
@@ -102,14 +100,13 @@ let sendNotification = (output, method, params) => {
 let serverReqNum = ref(0);
 
 let sendRequest = (log, output, method, params) => {
-  open JsonShort;
   serverReqNum := serverReqNum^ + 1;
   let content =
     Json.stringify(
-      o([
-        ("id", s("server-" ++ string_of_int(serverReqNum^))),
-        ("jsonrpc", s("2.0")),
-        ("method", s(method)),
+      J.o([
+        ("id", J.s("server-" ++ string_of_int(serverReqNum^))),
+        ("jsonrpc", J.s("2.0")),
+        ("method", J.s(method)),
         ("params", params),
       ]),
     );
