@@ -16,12 +16,6 @@ let showConstructor = ({cname: {txt}, args, res}) => {
   ++ (res |?>> (typ => "\n" ++ (typ |> Shared.typeToString)) |? "");
 };
 
-let rec pathOfModuleOpen = items =>
-  switch (items) {
-  | [] => Tip("place holder")
-  | [one, ...rest] => Nested(one, pathOfModuleOpen(rest))
-  };
-
 /* TODO local opens */
 let resolveOpens = (~env, ~previous, opens, ~getModule) =>
   List.fold_left(
@@ -443,9 +437,7 @@ let resolveRawOpens = (~env, ~getModule, ~rawOpens, ~package) => {
       ~env,
       ~previous=
         List.map(Query.fileEnv, packageOpens |> Utils.filterMap(getModule)),
-      rawOpens
-      |> List.map(Str.split(Str.regexp_string(".")))
-      |> List.map(pathOfModuleOpen),
+      rawOpens,
       ~getModule,
     );
 
@@ -458,7 +450,7 @@ let get =
     "Opens folkz > "
     ++ string_of_int(List.length(rawOpens))
     ++ " "
-    ++ String.concat(" ... ", rawOpens),
+    ++ String.concat(" ... ", rawOpens |> List.map(pathToString)),
   );
   let env = Query.fileEnv(full.file);
 

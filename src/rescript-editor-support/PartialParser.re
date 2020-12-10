@@ -103,10 +103,17 @@ let findCompletable = (text, offset) => {
   /* } */
 };
 
-let findOpens = (text, current) => {
+let findOpens = (text, offset) => {
   let opens = ref([]);
-  let add = o => opens := [o, ...opens^];
-
+  let pathOfModuleOpen = o => {
+    let rec loop = items =>
+      switch (items) {
+      | [] => SharedTypes.Tip("place holder")
+      | [one, ...rest] => Nested(one, loop(rest))
+      };
+    loop(o |> Str.split(Str.regexp_string(".")));
+  };
+  let add = o => opens := [o |> pathOfModuleOpen, ...opens^];
   let maybeOpen = i0 => {
     let rec loop = i =>
       if (i < 4) {
@@ -168,7 +175,7 @@ let findOpens = (text, current) => {
         }
       };
     };
-  loop(current - 1) |> ignore;
+  loop(offset - 1) |> ignore;
   opens^;
 };
 
