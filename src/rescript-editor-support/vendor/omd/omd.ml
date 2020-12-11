@@ -25,7 +25,6 @@ let of_input lex ?extensions:e ?default_lang:d s =
   Parser.make_paragraphs md
 
 let of_string = of_input Omd_lexer.lex
-let of_bigarray = of_input Omd_lexer.lex_bigarray
 
 let to_html :
   ?override:(Omd_representation.element -> string option) ->

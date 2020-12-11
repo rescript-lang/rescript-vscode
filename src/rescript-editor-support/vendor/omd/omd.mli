@@ -121,12 +121,6 @@ val of_string : ?extensions:Omd_representation.extensions ->
     If you want to use a custom lexer or parser, use {!Omd_lexer.lex}
     and {!Omd_parser.parse}.  *)
 
-val of_bigarray : ?extensions:Omd_representation.extensions ->
-                  ?default_lang: name ->
-                  Omd_lexer.bigstring -> t
-(** As {!of_string}, but read input from a bigarray rather than from a
-    string. *)
-
 val set_default_lang : name -> t -> t
 (** [set_default_lang lang md] return a copy of [md] where the
     language of all [Code] or [Code_block] with an empty language is

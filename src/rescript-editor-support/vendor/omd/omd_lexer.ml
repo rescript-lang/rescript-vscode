@@ -326,30 +326,6 @@ end
 
 module Lex_string = Lex(StringLabels)
 let lex = Lex_string.lex
-
-type bigstring = (char,
-                  Bigarray.int8_unsigned_elt,
-                  Bigarray.c_layout) Bigarray.Array1.t
-
-module Bigarray_input : Input with type t = bigstring =
-struct
-  module BA = Bigarray
-
-  type t = bigstring
-  let get = BA.Array1.get
-  let length = BA.Array1.dim
-  let sub arr ~pos ~len =
-    if len < 0 || pos < 0 || pos + len > BA.Array1.dim arr
-    then invalid_arg "Bigarray_input.sub";
-    let s = Bytes.create len in
-    for i = 0 to len - 1 do
-      Bytes.unsafe_set s i (BA.Array1.unsafe_get arr (i + pos))
-    done;
-    Bytes.unsafe_to_string s
-end
-module Lex_bigarray = Lex(Bigarray_input)
-let lex_bigarray = Lex_bigarray.lex
-
 let make_space = function
   | 0 -> invalid_arg "Omd_lexer.make_space"
   | 1 -> Space
