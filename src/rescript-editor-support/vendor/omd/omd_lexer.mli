@@ -12,13 +12,6 @@ val lex : string -> t
     in highest priority whereas functions in [extensions] are applied
     with lowest priority. *)
 
-type bigstring = (char,
-                  Bigarray.int8_unsigned_elt,
-                  Bigarray.c_layout) Bigarray.Array1.t
-
-val lex_bigarray : bigstring -> t
-(** As {!lex}, but read input from a bigarray rather than from a string. *)
-
 val string_of_tokens : t -> string
 (** [string_of_tokens t] return the string corresponding to the token
     list [t]. *)

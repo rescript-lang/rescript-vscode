@@ -2,7 +2,7 @@
 (executable
   (name RescriptEditorSupport)
   (public_name rescript-editor-support.exe)
-  (libraries str ocaml-migrate-parsetree uri bigarray)
+  (libraries str compiler-libs.common uri unix)
   (flags "-w" "+26+27+32+33+39")
   (preprocess (pps Ppx_monads))
 )
