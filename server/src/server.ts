@@ -1,7 +1,5 @@
 import process from "process";
 import * as p from "vscode-languageserver-protocol";
-import * as t from "vscode-languageserver-types";
-import * as j from "vscode-jsonrpc";
 import * as m from "vscode-jsonrpc/lib/messages";
 import * as v from "vscode-languageserver";
 import * as path from "path";
@@ -11,8 +9,6 @@ import {
   DidOpenTextDocumentNotification,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
-  DidChangeWatchedFilesNotification,
-  CompletionResolveRequest,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as c from "./constants";
