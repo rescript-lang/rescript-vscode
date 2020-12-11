@@ -750,57 +750,6 @@ let handlers:
     },
   ),
   (
-    "custom:reasonLanguageServer/showPpxedSource",
-    (state, params) => {
-      let%try (uri, _pos) = Protocol.rPositionParams(params);
-      let%try package = getPackage(uri, state);
-      let%try (file, _extra) = State.fileForUri(state, ~package, uri);
-      let%try parsetree =
-        AsYouType.getParsetree(
-          ~uri,
-          ~moduleName=file.moduleName,
-          ~cacheLocation=package.tmpPath,
-        );
-      if (State.isMl(uri)) {
-        switch (parsetree) {
-        | `Implementation(str) =>
-          Pprintast.structure(Format.str_formatter, str)
-        | `Interface(int) => Pprintast.signature(Format.str_formatter, int)
-        };
-      } else {
-        module Convert =
-          Migrate_parsetree.Convert(
-            Migrate_parsetree.OCaml_406,
-            Migrate_parsetree.OCaml_408,
-          );
-        switch (parsetree) {
-        | `Implementation(str) =>
-          Reason_toolchain.RE.print_implementation_with_comments(
-            Format.str_formatter,
-            (Convert.copy_structure(str), []),
-          )
-        | `Interface(int) =>
-          Reason_toolchain.RE.print_interface_with_comments(
-            Format.str_formatter,
-            (Convert.copy_signature(int), []),
-          )
-        };
-      };
-      let source = Format.flush_str_formatter();
-
-      /* let source = State.isMl(uri) ? source : switch (package.refmtPath) {
-           | None => source
-           | Some(refmt) =>
-             let interface = Utils.endsWith(uri, "i");
-             switch (AsYouType.convertToRe(~formatWidth=None, ~interface, source, refmt)) {
-               | RResult.Error(_) => source
-               | Ok(s) => s
-             }
-         }; */
-      Ok((state, Json.String(source)));
-    },
-  ),
-  (
     "custom:reasonLanguageServer/showAst",
     (state, params) => {
       let%try (uri, _pos) = Protocol.rPositionParams(params);
