@@ -1,4 +1,3 @@
-open Infix;
 module J = JsonShort;
 
 let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
@@ -51,10 +50,12 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
              ~markdown=!state.settings.clientNeedsPlainText,
              ~showPath=state.settings.showModulePathOnHover,
              loc,
-           )
-           |? "";
+           );
          let hover =
-           hoverText == "" ? [] : [("hover", dedupHover(hoverText, i))];
+           switch (hoverText) {
+           | None => []
+           | Some(s) => [("hover", dedupHover(s, i))]
+           };
 
          let uriLocOpt =
            References.definitionForLoc(
@@ -134,7 +135,7 @@ let dump = files => {
   files
   |> List.iter(pathWithPos => {
        let (filePath, selectPos) = pathWithPos |> splitLineChar;
-       let filePath = maybeConcat(Unix.getcwd(), filePath);
+       let filePath = Files.maybeConcat(Unix.getcwd(), filePath);
        let uri = Utils.toUri(filePath);
        let result =
          switch (State.getFullFromCmt(uri, state)) {
@@ -174,7 +175,7 @@ let complete = (~pathWithPos, ~currentFile) => {
   };
   switch (pathWithPos |> splitLineChar) {
   | (filePath, Some(pos)) =>
-    let filePath = maybeConcat(Unix.getcwd(), filePath);
+    let filePath = Files.maybeConcat(Unix.getcwd(), filePath);
     let uri = Utils.toUri(filePath);
     let result =
       switch (State.getFullFromCmt(uri, state)) {

@@ -147,7 +147,7 @@ let findProjectFiles =
     (~debug, namespace, root, sourceDirectories, compiledBase) => {
   let files =
     sourceDirectories
-    |> List.map(Infix.fileConcat(root))
+    |> List.map(Files.fileConcat(root))
     |> ifDebug(debug, "Source directories", String.concat(" - "))
     |> List.map(name => Files.collect(name, isSourceFile))
     |> List.concat
@@ -308,7 +308,7 @@ let findDependencyFiles = (~debug, base, config) => {
                    Log.log("Compiled base: " ++ compiledBase);
                  };
                  let compiledDirectories =
-                   directories |> List.map(Infix.fileConcat(compiledBase));
+                   directories |> List.map(Files.fileConcat(compiledBase));
                  let compiledDirectories =
                    namespace == None
                      ? compiledDirectories

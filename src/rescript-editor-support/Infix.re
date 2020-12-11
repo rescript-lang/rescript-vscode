@@ -52,16 +52,6 @@ let (|?<) = (o, fn) =>
   | Some(v) => fn(v)
   };
 
-let fileConcat = (a, b) =>
-  if (b != ""
-      && b.[0] == '.'
-      && String.length(b) >= 2
-      && b.[1] == Filename.dir_sep.[0]) {
-    Filename.concat(a, String.sub(b, 2, String.length(b) - 2));
-  } else {
-    Filename.concat(a, b);
-  };
-
 let logIfAbsent = (message, x) =>
   switch (x) {
   | None =>
@@ -70,14 +60,4 @@ let logIfAbsent = (message, x) =>
   | _ => x
   };
 
-let isFullPath = b =>
-  b.[0] == '/' || Sys.win32 && String.length(b) > 1 && b.[1] == ':';
-
-let maybeConcat = (a, b) =>
-  if (b != "" && isFullPath(b)) {
-    b;
-  } else {
-    fileConcat(a, b);
-  };
-
-let (/+) = fileConcat;
+let (/+) = Files.fileConcat;
