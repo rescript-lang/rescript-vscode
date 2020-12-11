@@ -112,7 +112,7 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
     "Got source directories " ++ String.concat(" - ", localSourceDirs),
   );
   let localCompiledDirs =
-    localSourceDirs |> List.map(Infix.fileConcat(compiledBase));
+    localSourceDirs |> List.map(Files.fileConcat(compiledBase));
   let localCompiledDirs =
     namespace == None
       ? localCompiledDirs : [compiledBase, ...localCompiledDirs];
