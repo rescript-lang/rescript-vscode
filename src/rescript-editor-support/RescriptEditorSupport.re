@@ -41,7 +41,6 @@ let getInitialState = params => {
   Files.mkdirp(rootPath /+ "node_modules" /+ ".lsp");
   Log.setLocation(rootPath /+ "node_modules" /+ ".lsp" /+ "debug.log");
   Log.log("Hello - from " ++ Sys.executable_name);
-  Log.log("Previous log location: " ++ Log.initial_dest);
 
   Rpc.sendNotification(
     stdout,
