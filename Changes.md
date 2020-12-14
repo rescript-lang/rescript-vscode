@@ -1,5 +1,6 @@
 ## master
 - Fix issue where type variables are printed with global renaming when hovering or autocompleting a module (see https://github.com/rescript-lang/rescript-editor-support/issues/38).
+- Fix issue where a log file was always created (see https://github.com/rescript-lang/rescript-vscode/issues/47).
 
 ## Release 1.0.1 of rescript-vscode 
 This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/232ad609766c415048750c5cc828973a9995f382) is vendored in [rescript-vscode 1.0.1](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.1).
