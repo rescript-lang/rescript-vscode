@@ -62,16 +62,20 @@ let getTypeAtPath = (~env, path) => {
   | `Exported(env, name) =>
     let res = {
       let%opt stamp = Hashtbl.find_opt(env.exported.types, name);
-      let%opt_wrap declaredType =
-        Hashtbl.find_opt(env.file.stamps.types, stamp);
-      `Local(declaredType);
+      let declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
+      switch (declaredType) {
+      | Some(declaredType) => Some(`Local(declaredType))
+      | None => None
+      };
     };
     res |? `Not_found;
   | `Stamp(stamp) =>
     let res = {
-      let%opt_wrap declaredType =
-        Hashtbl.find_opt(env.file.stamps.types, stamp);
-      `Local(declaredType);
+      let declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
+      switch (declaredType) {
+      | Some(declaredType) => Some(`Local(declaredType))
+      | None => None
+      };
     };
     res |? `Not_found;
   };
@@ -141,12 +145,12 @@ module F =
         addExternalReference(moduleName, path, tip, identLoc);
         GlobalReference(moduleName, path, tip);
       | `Exported(env, name) =>
-        let res = {
-          let%opt_wrap stamp = Hashtbl.find_opt(env.exported.values, name);
+        switch (Hashtbl.find_opt(env.exported.values, name)) {
+        | Some(stamp) =>
           addReference(stamp, identLoc);
           LocalReference(stamp, tip);
-        };
-        res |? NotFound;
+        | None => NotFound
+        }
       | `GlobalMod(_) => NotFound
       };
     addLocation(loc, Typed(typ, locType));
@@ -166,12 +170,12 @@ module F =
         addExternalReference(moduleName, path, Module, loc);
         LModule(GlobalReference(moduleName, path, Module));
       | `Exported(env, name) =>
-        let res = {
-          let%opt_wrap stamp = Hashtbl.find_opt(env.exported.modules, name);
+        switch (Hashtbl.find_opt(env.exported.modules, name)) {
+        | Some(stamp) =>
           addReference(stamp, loc);
           LModule(LocalReference(stamp, Module));
-        };
-        res |? LModule(NotFound);
+        | None => LModule(NotFound)
+        }
       };
     addLocation(loc, locType);
   };
@@ -189,13 +193,12 @@ module F =
       let locType =
         switch (t) {
         | `Local({stamp, item: {kind: Record(attributes)}}) =>
-          {
-            let%opt_wrap {stamp: astamp} =
-              attributes |> List.find_opt(a => a.aname.txt == name);
+          switch (attributes |> List.find_opt(a => a.aname.txt == name)) {
+          | Some({stamp: astamp}) =>
             addReference(astamp, nameLoc);
             LocalReference(stamp, Attribute(name));
+          | None => NotFound
           }
-          |? NotFound
         | `Global(moduleName, path) =>
           addExternalReference(moduleName, path, Attribute(name), nameLoc);
           GlobalReference(moduleName, path, Attribute(name));
@@ -221,13 +224,12 @@ module F =
            let locType =
              switch (t) {
              | `Local({stamp, item: {kind: Record(attributes)}}) =>
-               {
-                 let%opt_wrap {stamp: astamp} =
-                   attributes |> List.find_opt(a => a.aname.txt == name);
+               switch (attributes |> List.find_opt(a => a.aname.txt == name)) {
+               | Some({stamp: astamp}) =>
                  addReference(astamp, nameLoc);
                  LocalReference(stamp, Attribute(name));
+               | None => NotFound
                }
-               |? NotFound
              | `Global(moduleName, path) =>
                addExternalReference(
                  moduleName,
@@ -258,13 +260,12 @@ module F =
       let locType =
         switch (t) {
         | `Local({stamp, item: {kind: Variant(constructors)}}) =>
-          {
-            let%opt_wrap {stamp: cstamp} =
-              constructors |> List.find_opt(c => c.cname.txt == cstr_name);
+          switch (constructors |> List.find_opt(c => c.cname.txt == cstr_name)) {
+          | Some({stamp: cstamp}) =>
             addReference(cstamp, nameLoc);
             LocalReference(stamp, Constructor(name));
+          | None => NotFound
           }
-          |? NotFound
         | `Global(moduleName, path) =>
           addExternalReference(moduleName, path, Constructor(name), nameLoc);
           GlobalReference(moduleName, path, Constructor(name));

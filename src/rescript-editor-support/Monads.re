@@ -1,18 +1,5 @@
-
-module type MonadThing = {
-  type t('a);
-  let map: (t('a), ~f: 'a => 'b) => t('b);
-  let bind: (t('a), ~f: 'a => t('b)) => t('b);
-  let consume: (t('a), ~f: 'a => unit) => unit;
-};
-
 module Option = {
   type t('a) = option('a);
-  let map = (value, ~f as use) =>
-    switch (value) {
-    | Some(x) => Some(use(x))
-    | None => None
-    };
   let bind = (value, ~f as use) =>
     switch (value) {
     | Some(x) => use(x)
@@ -25,7 +12,7 @@ module Option = {
     };
 };
 
-module O: MonadThing = Option;
+module O = Option;
 
 module Result = {
   let map /*: t 'a 'b => f::('a => 'c) => t 'c 'b*/ = (value, ~f as use) =>

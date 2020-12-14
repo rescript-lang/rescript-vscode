@@ -512,14 +512,13 @@ let getItems =
 
     switch (determineCompletion(multiple)) {
     | `Normal(path) =>
-      {
-        Log.log("normal " ++ pathToString(path));
-        let%opt_wrap (env, suffix) =
-          getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path);
+      Log.log("normal " ++ pathToString(path));
+      switch (getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path)) {
+      | Some((env, suffix)) =>
         Log.log("Got the env");
         valueCompletions(~env, suffix);
-      }
-      |? []
+      | None => []
+      };
     | `Attribute(target, suffix) =>
       {
         Log.log("suffix :" ++ suffix);
@@ -573,16 +572,14 @@ let getItems =
       }
       |? []
     | `AbsAttribute(path) =>
-      {
-        let%opt_wrap (env, suffix) =
-          getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path);
-
+      switch (getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path)) {
+      | None => []
+      | Some((env, suffix)) =>
         attributeCompletions(~env, ~suffix)
         @ List.concat(
             opens |> List.map(env => attributeCompletions(~env, ~suffix)),
-          );
+          )
       }
-      |? []
     };
   };
 };

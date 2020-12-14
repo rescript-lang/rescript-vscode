@@ -91,28 +91,6 @@ Alternatively, if you are just performing a side effect, and want
 the result of the whole thing to be unit, use `let%consume`.
 |};
 
-let opt_wrap_explanation = {|
-Optional declaration sugar:
-```
-let%opt_wrap name = value;
-otherStuff
-```
-is transformed into
-```
-switch (value) {
-| None => None
-| Some(name) => Some({
-    otherStuff
-  })
-}
-```
-The `wrap` suffix means that the `otherStuff` will be automatically
-wrapped in a `Some`.
-
-If you don't want this wrapping, then use `let%opt`.
-Alternatively, if you are just performing a side effect, and want
-the result of the whole thing to be unit, use `let%consume`.
-|};
 
 let opt_consume_explanation = {|
 Optional declaration sugar:
@@ -143,7 +121,6 @@ let mapper =
         ) as txt, loc}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_let(Nonrecursive, bindings, continuation)}, _attributes)}]))) => {
         let (front, explanation) = switch (txt) {
           | "opt" => ([%expr Monads.Option.bind], opt_explanation)
-          | "opt_wrap" => ([%expr Monads.Option.map], opt_wrap_explanation)
           | "opt_consume" => ([%expr Monads.Option.consume], opt_consume_explanation)
           | "try" => ([%expr Monads.Result.bind], "Sugar for the Result type")
           | "try_wrap" => ([%expr Monads.Result.map], "Sugar for the Result type - auto-wraps in `Ok()`")

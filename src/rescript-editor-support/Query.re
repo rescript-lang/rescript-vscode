@@ -148,16 +148,16 @@ let fromCompilerPath = (~env, path) => {
   | `Path(0, moduleName, path) => `Global((moduleName, path))
   | `GlobalMod(name) => `GlobalMod(name)
   | `Path(stamp, _moduleName, path) =>
-    let res = {
-      let%opt {item: kind} =
-        Hashtbl.find_opt(env.file.stamps.modules, stamp);
-      let%opt_wrap res = findInModule(~env, kind, path);
-      switch (res) {
-      | `Local(env, name) => `Exported((env, name))
-      | `Global(moduleName, fullPath) => `Global((moduleName, fullPath))
+    let res =
+      switch (Hashtbl.find_opt(env.file.stamps.modules, stamp)) {
+      | None => None
+      | Some({item: kind}) => findInModule(~env, kind, path)
       };
+    switch (res) {
+    | None => `Not_found
+    | Some(`Local(env, name)) => `Exported((env, name))
+    | Some(`Global(moduleName, fullPath)) => `Global((moduleName, fullPath))
     };
-    res |? `Not_found;
   };
 };
 
@@ -188,13 +188,18 @@ let resolveModuleFromCompilerPath = (~env, ~getModule, path) => {
 let resolveFromCompilerPath = (~env, ~getModule, path) => {
   switch (fromCompilerPath(~env, path)) {
   | `Global(moduleName, path) =>
-    let res = {
-      let%opt file = getModule(moduleName);
-      let env = {file, exported: file.contents.exported};
-      let%opt_wrap (env, name) = resolvePath(~env, ~getModule, ~path);
-      `Exported((env, name));
+    let res =
+      switch (getModule(moduleName)) {
+      | None => None
+      | Some(file) =>
+        let env = {file, exported: file.contents.exported};
+        resolvePath(~env, ~getModule, ~path);
+      };
+    switch (res) {
+    | None => `Not_found
+    | Some((env, name)) => `Exported((env, name))
     };
-    res |? `Not_found;
+
   | `Stamp(stamp) => `Stamp(stamp)
   | `GlobalMod(_) => `Not_found
   | `Not_found => `Not_found

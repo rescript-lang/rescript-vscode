@@ -70,12 +70,16 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
     Hashtbl.find_opt(extra.internalReferences, localStamp);
   | LModule(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
-    let%opt_wrap refs =
-      Hashtbl.find_opt(extra.externalReferences, moduleName);
-    refs
-    |> Utils.filterMap(((p, t, l)) =>
-         p == path && t == tip ? Some(l) : None
-       );
+    switch (Hashtbl.find_opt(extra.externalReferences, moduleName)) {
+    | None => None
+    | Some(refs) =>
+      Some(
+        refs
+        |> Utils.filterMap(((p, t, l)) =>
+             p == path && t == tip ? Some(l) : None
+           ),
+      )
+    }
   };
 
 let definedForLoc = (~file, ~getModule, loc) => {
