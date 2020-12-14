@@ -1,7 +1,5 @@
 let out = ref(None);
 
-let initial_dest = Filename.concat(Filename.get_temp_dir_name(), "lsp.log");
-
 let setLocation = location => {
   switch (out^) {
   | None => ()
