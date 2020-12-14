@@ -77,29 +77,28 @@ let handlers:
       let%try (uri, pos) = Protocol.rPositionParams(params);
       let%try package = getPackage(uri, state);
 
-      let res =
-        {
-          let pos = Utils.cmtLocFromVscode(pos);
-          let%opt (file, extra) =
-            State.fileForUri(state, ~package, uri) |> toOptionAndLog;
-
-          let%opt_wrap refs = References.refsForPos(~file, ~extra, pos);
-          (
-            state,
-            J.l(
-              refs
-              |> List.map(loc =>
-                   J.o([
-                     ("range", Protocol.rangeOfLoc(loc)),
-                     ("kind", J.i(2)),
-                   ])
-                 ),
-            ),
-          );
-        }
-        |? (state, Json.Null);
-
-      Ok(res);
+      let pos = Utils.cmtLocFromVscode(pos);
+      let refs =
+        switch (State.fileForUri(state, ~package, uri) |> toOptionAndLog) {
+        | None => None
+        | Some((file, extra)) => References.refsForPos(~file, ~extra, pos)
+        };
+      Ok((
+        state,
+        switch (refs) {
+        | None => J.null
+        | Some(refs) =>
+          J.l(
+            refs
+            |> List.map(loc =>
+                 J.o([
+                   ("range", Protocol.rangeOfLoc(loc)),
+                   ("kind", J.i(2)),
+                 ])
+               ),
+          )
+        },
+      ));
     },
   ),
   (

@@ -299,8 +299,10 @@ let docsForModule = (modname, state, ~package) =>
     let src = SharedTypes.getSrc(paths);
     Log.log("FINDING docs for module " ++ SharedTypes.showPaths(paths));
     Log.log("FINDING " ++ cmt ++ " src " ++ (src |? ""));
-    let%opt_wrap docs = docsForCmt(~moduleName=modname, cmt, src, state);
-    (docs, src);
+    switch (docsForCmt(~moduleName=modname, cmt, src, state)) {
+    | None => None
+    | Some(docs) => Some((docs, src))
+    };
   } else {
     Log.log("No path for module " ++ modname);
     None;
