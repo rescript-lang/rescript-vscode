@@ -28,10 +28,6 @@
 			{
 				"command": "reason-language-server.restart",
 				"title": "Restart Reason Language Server"
-			},
-			{
-				"command": "reason-language-server.show_ast",
-				"title": "Reason: Show the abstract syntax tree (AST) for this file."
 			}
 		],
 		"snippets": [

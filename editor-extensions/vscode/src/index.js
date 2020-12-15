@@ -179,56 +179,7 @@ function activate(context) {
 
     vscode.commands.registerCommand('reason-language-server.restart', restart);
 
-    class AstSourceProvider {
-        constructor() {
-            this.privateOnDidChange = new vscode.EventEmitter()
-            this.onDidChange = this.privateOnDidChange.event;
-        }
-        provideTextDocumentContent(uri, token) {
-            if (!client) {
-                return Promise.reject("No language client running")
-            }
-
-            return client.sendRequest("custom:reasonLanguageServer/showAst", {
-                "textDocument": {
-                    "uri": uri.with({scheme: 'file'}).toString(),
-                },
-                // unused currently
-                "position": {character: 0, line: 0},
-            })
-        }
-    }
-
-    const astProvider = new AstSourceProvider()
-
-    context.subscriptions.push(
-        vscode.workspace.onDidSaveTextDocument((document) => {
-            const uri = document.uri;
-            astProvider.privateOnDidChange.fire(uri.with({scheme: 'ast-source'}))
-        }),
-    );
-
     context.subscriptions.push(configureLanguage());
-
-    vscode.workspace.registerTextDocumentContentProvider("ast-source", astProvider);
-
-    const showAst = () => {
-        if (!client) {
-            return vscode.window.showInformationMessage('Language server not running');
-        }
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            return vscode.window.showInformationMessage('No active editor');
-        }
-        if (editor.document.languageId !== 'ocaml' && editor.document.languageId !== 'reason') {
-            return vscode.window.showInformationMessage('Not an OCaml or Reason file');
-        }
-
-        const document = TextDocument.create(editor.document.uri.with({scheme: 'ast-source'}), editor.document.languageId, 1, '');
-        vscode.window.showTextDocument(document);
-    };
-
-    vscode.commands.registerCommand('reason-language-server.show_ast', showAst);
 
     restart();
 
