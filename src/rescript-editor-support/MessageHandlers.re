@@ -9,8 +9,7 @@ let handlers:
     "textDocument/definition",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
-      let%try package = Packages.getPackage(uri, state);
-      let%try (file, extra) = State.fileForUri(state, ~package, uri);
+      let%try (package, {file, extra}) = State.getFullFromCmt(~state, ~uri);
 
       let position = Utils.cmtLocFromVscode(pos);
 
@@ -20,7 +19,7 @@ let handlers:
             ~pathsForModule=package.pathsForModule,
             ~file,
             ~extra,
-            ~getUri=State.fileForUri(state, ~package),
+            ~getUri=State.fileForUri(state),
             ~getModule=State.fileForModule(state, ~package),
             position,
           );
@@ -46,8 +45,7 @@ let handlers:
         | Some((text, _version, _isClean)) => Some(text)
         | None => None
         };
-      let%try package = Packages.getPackage(uri, state);
-      let%try full = State.getBestDefinitions(uri, state, ~package);
+      let%try (package, full) = State.getFullFromCmt(~state, ~uri);
       let completions =
         NewCompletions.computeCompletions(
           ~full,
@@ -63,11 +61,10 @@ let handlers:
     "textDocument/documentHighlight",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
-      let%try package = Packages.getPackage(uri, state);
 
       let pos = Utils.cmtLocFromVscode(pos);
       let refs =
-        switch (State.fileForUri(state, ~package, uri) |> toOptionAndLog) {
+        switch (State.fileForUri(state, uri) |> toOptionAndLog) {
         | None => None
         | Some((file, extra)) => References.refsForPos(~file, ~extra, pos)
         };
@@ -94,7 +91,7 @@ let handlers:
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
       let%try package = Packages.getPackage(uri, state);
-      let%try_wrap (file, extra) = State.fileForUri(state, ~package, uri);
+      let%try_wrap (file, extra) = State.fileForUri(state, uri);
       Infix.(
         {
           let%opt (_, loc) =
@@ -105,7 +102,7 @@ let handlers:
               ~file,
               ~extra,
               ~allModules=package.localModules,
-              ~getUri=State.fileForUri(state, ~package),
+              ~getUri=State.fileForUri(state),
               ~getModule=State.fileForModule(state, ~package),
               ~getExtra=State.extraForModule(state, ~package),
               loc,
@@ -139,7 +136,7 @@ let handlers:
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
       let%try package = Packages.getPackage(uri, state);
-      let%try (file, extra) = State.fileForUri(state, ~package, uri);
+      let%try (file, extra) = State.fileForUri(state, uri);
       let%try newName = RJson.get("newName", params);
       Infix.(
         {
@@ -152,7 +149,7 @@ let handlers:
               ~pathsForModule=package.pathsForModule,
               ~allModules=package.localModules,
               ~getModule=State.fileForModule(state, ~package),
-              ~getUri=State.fileForUri(state, ~package),
+              ~getUri=State.fileForUri(state),
               ~getExtra=State.extraForModule(state, ~package),
               loc,
             )
@@ -198,135 +195,89 @@ let handlers:
         |> RJson.get("textDocument")
         |?> RJson.get("uri")
         |?> RJson.string;
-      switch (Packages.getPackage(uri, state)) {
-      | Error(message) =>
-        let items = [
-          (
-            "Unable to load compilation data: " ++ message,
-            {
-              Location.loc_start: {
-                Lexing.pos_fname: "",
-                pos_lnum: 1,
-                pos_bol: 0,
-                pos_cnum: 0,
-              },
-              Location.loc_end: {
-                Lexing.pos_fname: "",
-                pos_lnum: 1,
-                pos_bol: 0,
-                pos_cnum: 0,
-              },
-              loc_ghost: false,
-            },
-          ),
-        ];
-        Ok((
-          state,
-          J.l(
-            items
-            |> List.map(((text, loc)) =>
-                 J.o([
-                   ("range", Protocol.rangeOfLoc(loc)),
-                   (
-                     "command",
-                     J.o([("title", J.s(text)), ("command", J.s(""))]),
-                   ),
-                 ])
-               ),
-          ),
-        ));
-      | Ok(package) =>
-        /* Log.log("<< codleens me please"); */
 
-        let topLoc = {
-          Location.loc_start: {
-            Lexing.pos_fname: "",
-            pos_lnum: 1,
-            pos_bol: 0,
-            pos_cnum: 0,
-          },
-          Location.loc_end: {
-            Lexing.pos_fname: "",
-            pos_lnum: 1,
-            pos_bol: 0,
-            pos_cnum: 0,
-          },
-          loc_ghost: false,
-        };
+      /* Log.log("<< codleens me please"); */
 
-        let getLensItems = ({SharedTypes.file, extra}) => {
-          /* getTypeLensTopLevel gives the list of per-value type codeLens
-             for every value in a module topLevel */
-          let rec getTypeLensTopLevel = topLevel => {
-            switch (topLevel) {
-            | [] => []
-            | [{SharedTypes.name: {loc}, item}, ...tlp] =>
-              let currentCl =
-                switch (item) {
-                | SharedTypes.MValue(typ) => [
-                    (typ |> Shared.typeToString, loc),
-                  ]
-                | Module(Structure({topLevel})) =>
-                  getTypeLensTopLevel(topLevel)
-                | _ => []
-                };
-              List.append(currentCl, getTypeLensTopLevel(tlp));
-            };
-          };
-          let showToplevelTypes = state.settings.perValueCodelens; /* TODO config option */
-          let lenses =
-            showToplevelTypes
-              ? file.contents.topLevel |> getTypeLensTopLevel : [];
-          let showOpens = state.settings.opensCodelens;
-          let lenses =
-            showOpens
-              ? lenses
-                @ {
-                  CodeLens.forOpens(extra);
-                }
-              : lenses;
-
-          let depsList =
-            List.map(fst, SharedTypes.hashList(extra.externalReferences));
-          let depsString =
-            depsList == [] ? "[none]" : String.concat(", ", depsList);
-          let lenses =
-            state.settings.dependenciesCodelens == true
-              ? [("Dependencies: " ++ depsString, topLoc), ...lenses]
-              : lenses;
-
-          lenses;
-        };
-
-        let items = {
-          let full =
-            switch (State.getCompilationResult(uri, state, ~package)) {
-            | Ok(Success(_, full)) => Ok(Some(full))
-            | Ok(_) => Ok(State.getLastDefinitions(uri, state))
-            | Error(m) => Error(m)
-            };
-          switch (full) {
-          | Error(message) => [(message, topLoc)]
-          | Ok(None) => [("Unable to get compilation data", topLoc)]
-          | Ok(Some(full)) => getLensItems(full)
-          };
-        };
-        Ok((
-          state,
-          J.l(
-            items
-            |> List.map(((text, loc)) =>
-                 J.o([
-                   ("range", Protocol.rangeOfLoc(loc)),
-                   (
-                     "command",
-                     J.o([("title", J.s(text)), ("command", J.s(""))]),
-                   ),
-                 ])
-               ),
-          ),
-        ));
+      let topLoc = {
+        Location.loc_start: {
+          Lexing.pos_fname: "",
+          pos_lnum: 1,
+          pos_bol: 0,
+          pos_cnum: 0,
+        },
+        Location.loc_end: {
+          Lexing.pos_fname: "",
+          pos_lnum: 1,
+          pos_bol: 0,
+          pos_cnum: 0,
+        },
+        loc_ghost: false,
       };
+
+      let getLensItems = ({SharedTypes.file, extra}) => {
+        /* getTypeLensTopLevel gives the list of per-value type codeLens
+           for every value in a module topLevel */
+        let rec getTypeLensTopLevel = topLevel => {
+          switch (topLevel) {
+          | [] => []
+          | [{SharedTypes.name: {loc}, item}, ...tlp] =>
+            let currentCl =
+              switch (item) {
+              | SharedTypes.MValue(typ) => [
+                  (typ |> Shared.typeToString, loc),
+                ]
+              | Module(Structure({topLevel})) =>
+                getTypeLensTopLevel(topLevel)
+              | _ => []
+              };
+            List.append(currentCl, getTypeLensTopLevel(tlp));
+          };
+        };
+        let showToplevelTypes = state.settings.perValueCodelens; /* TODO config option */
+        let lenses =
+          showToplevelTypes
+            ? file.contents.topLevel |> getTypeLensTopLevel : [];
+        let showOpens = state.settings.opensCodelens;
+        let lenses =
+          showOpens
+            ? lenses
+              @ {
+                CodeLens.forOpens(extra);
+              }
+            : lenses;
+
+        let depsList =
+          List.map(fst, SharedTypes.hashList(extra.externalReferences));
+        let depsString =
+          depsList == [] ? "[none]" : String.concat(", ", depsList);
+        let lenses =
+          state.settings.dependenciesCodelens == true
+            ? [("Dependencies: " ++ depsString, topLoc), ...lenses] : lenses;
+
+        lenses;
+      };
+
+      let items = {
+        switch (State.getFullFromCmt(~state, ~uri)) {
+        | Error(message) => [(message, topLoc)]
+        | Ok((_package, full)) => getLensItems(full)
+        };
+      };
+      Ok((
+        state,
+        J.l(
+          items
+          |> List.map(((text, loc)) =>
+               J.o([
+                 ("range", Protocol.rangeOfLoc(loc)),
+                 (
+                   "command",
+                   J.o([("title", J.s(text)), ("command", J.s(""))]),
+                 ),
+               ])
+             ),
+        ),
+      ));
     },
   ),
   (
@@ -334,7 +285,7 @@ let handlers:
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
       let%try package = Packages.getPackage(uri, state);
-      let%try (file, extra) = State.fileForUri(state, ~package, uri);
+      let%try (file, extra) = State.fileForUri(state, uri);
 
       {
         let pos = Utils.cmtLocFromVscode(pos);
@@ -374,9 +325,8 @@ let handlers:
         |> RJson.get("textDocument")
         |?> RJson.get("uri")
         |?> RJson.string;
-      let%try package = Packages.getPackage(uri, state);
 
-      let%try (file, _extra) = State.fileForUri(state, ~package, uri);
+      let%try (file, _extra) = State.fileForUri(state, uri);
       open SharedTypes;
 
       let rec getItems = ({topLevel}) => {
