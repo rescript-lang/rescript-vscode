@@ -3,25 +3,13 @@ open TopTypes;
 open Infix;
 module J = JsonShort;
 
-let maybeHash = (h, k) =>
-  if (Hashtbl.mem(h, k)) {
-    Some(Hashtbl.find(h, k));
-  } else {
-    None;
-  };
-
-let getPackage =
-  Packages.getPackage(
-    ~reportDiagnostics=NotificationHandlers.reportDiagnostics,
-  );
-
 let handlers:
   list((string, (state, Json.t) => result((state, Json.t), string))) = [
   (
     "textDocument/definition",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
-      let%try package = getPackage(uri, state);
+      let%try package = Packages.getPackage(uri, state);
       let%try (file, extra) = State.fileForUri(state, ~package, uri);
 
       let position = Utils.cmtLocFromVscode(pos);
@@ -58,7 +46,7 @@ let handlers:
         | Some((text, _version, _isClean)) => Some(text)
         | None => None
         };
-      let%try package = getPackage(uri, state);
+      let%try package = Packages.getPackage(uri, state);
       let%try full = State.getBestDefinitions(uri, state, ~package);
       let completions =
         NewCompletions.computeCompletions(
@@ -75,7 +63,7 @@ let handlers:
     "textDocument/documentHighlight",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
-      let%try package = getPackage(uri, state);
+      let%try package = Packages.getPackage(uri, state);
 
       let pos = Utils.cmtLocFromVscode(pos);
       let refs =
@@ -105,7 +93,7 @@ let handlers:
     "textDocument/references",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
-      let%try package = getPackage(uri, state);
+      let%try package = Packages.getPackage(uri, state);
       let%try_wrap (file, extra) = State.fileForUri(state, ~package, uri);
       Infix.(
         {
@@ -150,7 +138,7 @@ let handlers:
     "textDocument/rename",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
-      let%try package = getPackage(uri, state);
+      let%try package = Packages.getPackage(uri, state);
       let%try (file, extra) = State.fileForUri(state, ~package, uri);
       let%try newName = RJson.get("newName", params);
       Infix.(
@@ -210,8 +198,7 @@ let handlers:
         |> RJson.get("textDocument")
         |?> RJson.get("uri")
         |?> RJson.string;
-      /* let%try package = getPackage(uri, state); */
-      switch (getPackage(uri, state)) {
+      switch (Packages.getPackage(uri, state)) {
       | Error(message) =>
         let items = [
           (
@@ -346,7 +333,7 @@ let handlers:
     "textDocument/hover",
     (state, params) => {
       let%try (uri, pos) = Protocol.rPositionParams(params);
-      let%try package = getPackage(uri, state);
+      let%try package = Packages.getPackage(uri, state);
       let%try (file, extra) = State.fileForUri(state, ~package, uri);
 
       {
@@ -387,7 +374,7 @@ let handlers:
         |> RJson.get("textDocument")
         |?> RJson.get("uri")
         |?> RJson.string;
-      let%try package = getPackage(uri, state);
+      let%try package = Packages.getPackage(uri, state);
 
       let%try (file, _extra) = State.fileForUri(state, ~package, uri);
       open SharedTypes;

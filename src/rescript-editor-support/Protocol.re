@@ -1,8 +1,5 @@
 module J = JsonShort;
 
-let pos = (~line, ~character) =>
-  J.o([("line", J.i(line)), ("character", J.i(character))]);
-
 open Infix;
 
 let rgetPosition = pos => {
@@ -48,12 +45,6 @@ let locationOfLoc =
         },
       ),
     ),
-  ]);
-
-let rangeOfInts = (l0, c0, l1, c1) =>
-  J.o([
-    ("start", pos(~line=l0, ~character=c0)),
-    ("end", pos(~line=l1, ~character=c1)),
   ]);
 
 let locationContains = ({Location.loc_start, loc_end}, pos) =>

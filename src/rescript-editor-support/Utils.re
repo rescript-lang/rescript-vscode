@@ -54,11 +54,6 @@ let endsWith = (s, suffix) =>
 
 let cmtLocFromVscode = ((line, col)) => (line + 1, col);
 
-let splitLines = text => Str.split(Str.regexp_string("\n"), text);
-
-let stripAnsii = text =>
-  Str.global_replace(Str.regexp("\027\\[[0-9;]+m"), "", text);
-
 let sliceToEnd = (s, start) => {
   let l = String.length(s);
   start <= l ? String.sub(s, start, l - start) : "";

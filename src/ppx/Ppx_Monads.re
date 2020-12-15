@@ -116,15 +116,14 @@ let mapper =
     expr: (mapper, expr) =>
       switch expr.pexp_desc {
       | Pexp_extension(({txt: (
-        "opt" | "opt_wrap" | "opt_consume"
-        | "try" | "try_wrap" | "try_consume"
+        "opt" | "opt_consume"
+        | "try" | "try_wrap"
         ) as txt, loc}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_let(Nonrecursive, bindings, continuation)}, _attributes)}]))) => {
         let (front, explanation) = switch (txt) {
           | "opt" => ([%expr Monads.Option.bind], opt_explanation)
           | "opt_consume" => ([%expr Monads.Option.consume], opt_consume_explanation)
           | "try" => ([%expr Monads.Result.bind], "Sugar for the Result type")
           | "try_wrap" => ([%expr Monads.Result.map], "Sugar for the Result type - auto-wraps in `Ok()`")
-          | "try_consume" => ([%expr Monads.Result.consume], "Sugar for the Result type - side-effectful version")
           | _ => assert(false)
         };
         let (pat, expr) = process_bindings(bindings);

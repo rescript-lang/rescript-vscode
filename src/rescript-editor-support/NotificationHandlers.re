@@ -12,32 +12,6 @@ let getTextDocument = doc => {
   Some((uri, version, text));
 };
 
-let reportDiagnostics = (uri, result) => {
-  let body =
-    switch (result) {
-    | `BuildFailed(lines) =>
-      J.o([
-        ("uri", J.s(uri)),
-        (
-          "diagnostics",
-          J.l([
-            J.o([
-              ("range", Protocol.rangeOfInts(0, 0, 5, 0)),
-              (
-                "message",
-                J.s(Utils.stripAnsii(String.concat("\n", lines))),
-              ),
-              ("severity", J.i(1)),
-            ]),
-          ]),
-        ),
-      ])
-    | `BuildSucceeded =>
-      J.o([("uri", J.s(uri)), ("diagnostics", J.l([]))])
-    };
-  Rpc.sendNotification(stdout, "textDocument/publishDiagnostics", body);
-};
-
 let checkPackageTimers = state => {
   Hashtbl.iter(
     (_, package) =>
@@ -47,7 +21,6 @@ let checkPackageTimers = state => {
         // TODO report the error here
         ignore @@
         BuildCommand.runBuildCommand(
-          ~reportDiagnostics,
           ~state,
           ~rootPath=package.rootPath,
           package.buildCommand,
@@ -105,7 +78,7 @@ let notificationHandlers:
 
       let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
       if (FindFiles.isSourceFile(path)) {
-        let%try package = Packages.getPackage(~reportDiagnostics, uri, state);
+        let%try package = Packages.getPackage(uri, state);
         /* let name = FindFiles.getName(path); */
         if (!Hashtbl.mem(package.nameForPath, path)) {
           /* TODO: figure out what the name should be, and process it. */
@@ -176,7 +149,7 @@ let notificationHandlers:
         params
         |> RJson.get("textDocument")
         |?> (doc => RJson.get("uri", doc) |?> RJson.string);
-      let%try package = Packages.getPackage(~reportDiagnostics, uri, state);
+      let%try package = Packages.getPackage(uri, state);
       setPackageTimer(package);
       let moduleName = FindFiles.getName(uri);
       package.localModules
