@@ -82,11 +82,6 @@ let updateContents = (uri, text, version, state) => {
   state;
 };
 
-let getContents = (uri, state) => {
-  let (text, _, _) = Hashtbl.find(state.documentText, uri);
-  text;
-};
-
 let refmtForUri = (uri, package) =>
   if (Filename.check_suffix(uri, ".ml") || Filename.check_suffix(uri, ".mli")) {
     Ok(None);
@@ -105,82 +100,7 @@ let refmtForUri = (uri, package) =>
     };
   };
 
-let fmtCmdForUri = (~formatWidth, ~interface, uri, package) =>
-  if (Filename.check_suffix(uri, ".ml") || Filename.check_suffix(uri, ".mli")) {
-    switch (package.mlfmtPath) {
-    | None => Error("No formatter available for .ml(i) files")
-    | Some(fmtPath) => Ok(fmtPath)
-    };
-  } else if (Filename.check_suffix(uri, ".rel")
-             || Filename.check_suffix(uri, ".reli")) {
-    switch (package.lispRefmtPath) {
-    | None =>
-      Error("No lispRefmt path found, cannot process .rel or .reli files")
-    | Some(lispRefmt) =>
-      let cmd =
-        Printf.sprintf(
-          "%s --print re --print-width=%d --parse re%s",
-          Commands.shellEscape(lispRefmt),
-          formatWidth |? 80,
-          interface ? " -i true" : "",
-        );
-      Ok(cmd);
-    };
-  } else {
-    switch (package.refmtPath) {
-    | None =>
-      Error("No refmt found for dune project. Cannot process .re file")
-    | Some(refmt) =>
-      let cmd =
-        Printf.sprintf(
-          "%s --print re --print-width=%d --parse re%s",
-          Commands.shellEscape(refmt),
-          formatWidth |? 80,
-          interface ? " -i true" : "",
-        );
-      Ok(cmd);
-    };
-  };
-
 open Infix;
-
-let getInterfaceFile = (uri, state, ~package: TopTypes.package) => {
-  let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
-  let text =
-    Hashtbl.mem(state.documentText, uri)
-      ? {
-        let (text, _, _) = Hashtbl.find(state.documentText, uri);
-        text;
-      }
-      : {
-        let path = Utils.parseUri(uri) |! "not a uri: " ++ uri;
-        Files.readFileExn(path);
-      };
-  let%try moduleName =
-    switch (Hashtbl.find_opt(package.nameForPath, path)) {
-    | None =>
-      Hashtbl.iter(
-        (k, v) => Log.log("Path: " ++ k ++ "  " ++ v),
-        package.nameForPath,
-      );
-      Log.log("Can't find " ++ path);
-      Error("Can't find module name for path " ++ path);
-    | Some(x) => Ok(x)
-    };
-  let includes = package.includeDirectories;
-  let%try refmtPath = refmtForUri(uri, package);
-  AsYouType.getInterface(
-    ~moduleName,
-    ~rootPath=package.rootPath,
-    ~reasonFormat=Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei"),
-    text,
-    ~cacheLocation=package.tmpPath,
-    package.compilerPath,
-    refmtPath,
-    includes,
-    package.compilationFlags,
-  );
-};
 
 let getCompilationResult = (uri, state, ~package: TopTypes.package) =>
   if (Hashtbl.mem(state.compiledDocuments, uri)) {

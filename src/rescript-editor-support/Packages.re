@@ -94,7 +94,6 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
   let compiledBase = BuildSystem.getCompiledBase(rootPath);
   let%try stdLibDirectory = BuildSystem.getStdlib(rootPath);
   let%try compilerPath = BuildSystem.getCompiler(rootPath);
-  let mlfmtPath = state.settings.mlfmtLocation;
   let%try refmtPath = BuildSystem.getRefmt(rootPath);
   let%try tmpPath = BuildSystem.hiddenLocation(rootPath);
   let%try (dependencyDirectories, dependencyModules) =
@@ -227,7 +226,6 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
       localCompiledDirs @ dependencyDirectories @ [stdLibDirectory],
 
     compilerPath,
-    mlfmtPath,
     refmtPath: Some(refmtPath),
     /*** TODO detect this from node_modules */
     lispRefmtPath: None,

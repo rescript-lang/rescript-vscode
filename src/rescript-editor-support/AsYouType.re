@@ -53,33 +53,6 @@ let runRefmt = (~interface, ~moduleName, ~cacheLocation, text, refmt) => {
   };
 };
 
-let convertToRe = (~formatWidth, ~interface, text, refmt) => {
-  let (out, error, success) =
-    Commands.execFull(
-      ~input=text,
-      Printf.sprintf(
-        "%s --print re --print-width=%d --parse ml%s",
-        Commands.shellEscape(refmt),
-        formatWidth |? 80,
-        interface ? " -i true" : "",
-      ),
-    );
-  if (success) {
-    Ok(String.concat("\n", out) ++ "\n");
-  } else {
-    Error(String.concat("\n", out @ error));
-  };
-};
-
-let format = (text, fmtCmd) => {
-  let (out, error, success) = Commands.execFull(~input=text, fmtCmd);
-  if (success) {
-    Ok(String.concat("\n", out) ++ "\n");
-  } else {
-    Error(String.concat("\n", out @ error));
-  };
-};
-
 let justBscCommand =
     (
       ~interface,
@@ -151,57 +124,6 @@ let runBsc =
     Ok((out, error));
   } else {
     Error(out @ error);
-  };
-};
-
-let getInterface =
-    (
-      ~moduleName,
-      ~rootPath,
-      ~reasonFormat,
-      text,
-      ~cacheLocation,
-      compilerPath,
-      refmtPath,
-      includes,
-      flags,
-    ) => {
-  let interface = false;
-  let%try (_syntaxError, astFile) =
-    switch (refmtPath) {
-    | Some(refmtPath) =>
-      runRefmt(~interface, ~moduleName, ~cacheLocation, text, refmtPath)
-    | None =>
-      let astFile =
-        cacheLocation /+ moduleName ++ ".ast" ++ (interface ? "i" : "");
-      let%try () = Files.writeFileResult(astFile, text);
-      Ok((None, astFile));
-    };
-  switch (
-    runBsc(
-      ~rootPath,
-      ~interface,
-      ~reasonFormat,
-      ~command="-i",
-      compilerPath,
-      astFile,
-      includes,
-      flags,
-    )
-  ) {
-  | Error(lines) =>
-    Error(
-      "Failed to generate interface file\n\n" ++ String.concat("\n", lines),
-    )
-  | Ok((lines, _errlines)) =>
-    let text = String.concat("\n", lines);
-    Log.log("GOT ITNERFACE");
-    Log.log(text);
-    switch (reasonFormat, refmtPath) {
-    | (false, Some(refmt)) =>
-      convertToRe(~formatWidth=None, ~interface=true, text, refmt)
-    | _ => Ok(text)
-    };
   };
 };
 

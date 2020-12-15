@@ -21,16 +21,13 @@ type package = {
   mutable rebuildTimer: float,
   buildCommand: option(string),
   compilerPath: filePath,
-  mlfmtPath: option(filePath),
   refmtPath: option(filePath),
   /** TODO maybe make this general, so that I can support arbitrary syntaxes? */
   lispRefmtPath: option(filePath),
 };
 
 type settings = {
-  formatWidth: option(int),
   perValueCodelens: bool,
-  mlfmtLocation: option(string),
   refmtLocation: option(string),
   lispRefmtLocation: option(string),
   opensCodelens: bool,
@@ -63,8 +60,6 @@ let empty = () => {
   compiledDocuments: Hashtbl.create(10),
   lastDefinitions: Hashtbl.create(10),
   settings: {
-    formatWidth: None,
-    mlfmtLocation: None,
     refmtLocation: None,
     lispRefmtLocation: None,
     perValueCodelens: false,

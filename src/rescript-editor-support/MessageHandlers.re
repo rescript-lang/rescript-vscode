@@ -379,122 +379,6 @@ let handlers:
     },
   ),
   (
-    "textDocument/rangeFormatting",
-    (state, params) => {
-      open InfixResult;
-      let%try uri =
-        params
-        |> RJson.get("textDocument")
-        |?> RJson.get("uri")
-        |?> RJson.string;
-      let%try package = getPackage(uri, state);
-      let%try (start, end_) =
-        RJson.get("range", params) |?> Protocol.rgetRange;
-
-      let text = State.getContents(uri, state);
-      let maybeResult = {
-        let%try startPos =
-          PartialParser.positionToOffset(text, start)
-          |> orError("Invalid start position");
-        let%try endPos =
-          PartialParser.positionToOffset(text, end_)
-          |> orError("Invalid end position");
-
-        /** TODO: instead of bailing, it should extend the selection to encompass the whole line, and then go for it. */
-        (
-          if (fst(start) == fst(end_) && text.[endPos] != '\n') {
-            Ok((state, J.null));
-          } else {
-            let substring = String.sub(text, startPos, endPos - startPos);
-            open Utils;
-            let trailingNewlines = substring |> countTrailing('\n');
-            let (leadingNewlines, charsToFirstLines) = {
-              let splitted = substring |> split_on_char('\n');
-              let rec loop = (i, leadingLines, skipChars) => {
-                let line = List.nth(splitted, i);
-                switch (line |> String.trim |> String.length) {
-                | 0 =>
-                  loop(
-                    i + 1,
-                    leadingLines + 1,
-                    skipChars + (line |> String.length),
-                  )
-                | _ => (leadingLines, skipChars + 1)
-                };
-              };
-              loop(0, 0, 0);
-            };
-
-            /* Strip all leading new lines from substring */
-            let (startPos, substring) =
-              if (leadingNewlines > 0) {
-                (
-                  startPos + leadingNewlines,
-                  String.sub(
-                    substring,
-                    charsToFirstLines,
-                    String.length(substring) - charsToFirstLines,
-                  ),
-                );
-              } else {
-                (startPos, substring);
-              };
-
-            let indent =
-              getFullLineOfPos(startPos, text) |> countLeading(' ');
-            let cursorToFirstLineSpaces = substring |> countLeading(' ');
-
-            let appendIndent = (~firstLineSpaces, indent, s) => {
-              let indentString = repeat(indent, " ");
-              if (indent == 0) {
-                s;
-              } else {
-                split_on_char('\n', s)
-                |> List.mapi((index, line) =>
-                     switch (index, String.length(line)) {
-                     | (_, 0) => line
-                     | (0, _) => repeat(firstLineSpaces, " ") ++ line
-                     | _ => indentString ++ line
-                     }
-                   )
-                |> String.concat("\n");
-              };
-            };
-            let%try fmtCmd =
-              State.fmtCmdForUri(
-                ~formatWidth=state.settings.formatWidth,
-                ~interface=Utils.endsWith(uri, "i"),
-                uri,
-                package,
-              );
-            let%try_wrap text = AsYouType.format(substring, fmtCmd);
-            (
-              state,
-              J.l([
-                J.o([
-                  ("range", Infix.(|!)(Json.get("range", params), "what")),
-                  (
-                    "newText",
-                    J.s(
-                      repeat(leadingNewlines, "\n")
-                      ++ appendIndent(
-                           ~firstLineSpaces=cursorToFirstLineSpaces,
-                           indent,
-                           text,
-                         )
-                      ++ repeat(trailingNewlines, "\n"),
-                    ),
-                  ),
-                ]),
-              ]),
-            );
-          }
-        );
-      };
-      maybeResult;
-    },
-  ),
-  (
     "textDocument/documentSymbol",
     (state, params) => {
       open InfixResult;
@@ -545,47 +429,6 @@ let handlers:
             ),
           ));
         }
-      );
-    },
-  ),
-  (
-    "textDocument/formatting",
-    (state, params) => {
-      open InfixResult;
-      let%try uri =
-        params
-        |> RJson.get("textDocument")
-        |?> RJson.get("uri")
-        |?> RJson.string;
-      let%try package = getPackage(uri, state);
-      let text = State.getContents(uri, state);
-      let%try fmtCmd =
-        State.fmtCmdForUri(
-          ~formatWidth=state.settings.formatWidth,
-          ~interface=Utils.endsWith(uri, "i"),
-          uri,
-          package,
-        );
-      let%try_wrap newText = AsYouType.format(text, fmtCmd);
-      (
-        state,
-        text == newText
-          ? Json.Null
-          : J.l([
-              J.o([
-                (
-                  "range",
-                  Protocol.rangeOfInts(
-                    0,
-                    0,
-                    List.length(Str.split(Str.regexp_string("\n"), text))
-                    + 1,
-                    0,
-                  ),
-                ),
-                ("newText", J.s(newText)),
-              ]),
-            ]),
       );
     },
   ),
@@ -718,34 +561,6 @@ let handlers:
         }
       | _ => Error("Unexpected command " ++ command)
       };
-    },
-  ),
-  (
-    "custom:reasonLanguageServer/dumpFileData",
-    (state, params) => {
-      open InfixResult;
-      let%try uri = RJson.get("uri", params) |?> RJson.string;
-      let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
-      let%try package = getPackage(uri, state);
-      let interfacePath = path ++ ".dump.json";
-      let%try text = State.getInterfaceFile(uri, state, ~package);
-      let%try () = Files.writeFileResult(interfacePath, text);
-      /* let interfaceUri = uri ++ "i"; */
-      Ok((state, Json.Null));
-    },
-  ),
-  (
-    "custom:reasonLanguageServer/createInterface",
-    (state, params) => {
-      open InfixResult;
-      let%try uri = RJson.get("uri", params) |?> RJson.string;
-      let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
-      let%try package = getPackage(uri, state);
-      let interfacePath = path ++ "i";
-      let%try text = State.getInterfaceFile(uri, state, ~package);
-      let%try () = Files.writeFileResult(interfacePath, text);
-      /* let interfaceUri = uri ++ "i"; */
-      Ok((state, Json.Null));
     },
   ),
   (
