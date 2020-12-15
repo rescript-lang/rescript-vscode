@@ -96,20 +96,3 @@ let sendNotification = (output, method, params) => {
   Log.log("Sending notification " ++ content);
   send(output, content);
 };
-
-let serverReqNum = ref(0);
-
-let sendRequest = (log, output, method, params) => {
-  serverReqNum := serverReqNum^ + 1;
-  let content =
-    Json.stringify(
-      J.o([
-        ("id", J.s("server-" ++ string_of_int(serverReqNum^))),
-        ("jsonrpc", J.s("2.0")),
-        ("method", J.s(method)),
-        ("params", params),
-      ]),
-    );
-  log("Sending server request " ++ content);
-  send(output, content);
-};
