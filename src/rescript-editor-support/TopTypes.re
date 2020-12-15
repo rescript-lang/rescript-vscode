@@ -6,9 +6,6 @@ type moduleName = string;
 /* Here are the things that will be different between jbuilder things */
 type package = {
   rootPath: filePath,
-  /* Might change based on bsconfig.json / .merlin */
-  includeDirectories: list(filePath),
-  compilationFlags: string,
   /* Depend on bsb having already run */
   localModules: list(moduleName),
   interModuleDependencies: Hashtbl.t(moduleName, list(moduleName)),
@@ -18,16 +15,10 @@ type package = {
   namespace: option(string),
   opens: list(string),
   tmpPath: string,
-  compilerPath: filePath,
-  refmtPath: option(filePath),
-  /** TODO maybe make this general, so that I can support arbitrary syntaxes? */
-  lispRefmtPath: option(filePath),
 };
 
 type settings = {
   perValueCodelens: bool,
-  refmtLocation: option(string),
-  lispRefmtLocation: option(string),
   opensCodelens: bool,
   dependenciesCodelens: bool,
   clientNeedsPlainText: bool,
@@ -42,7 +33,6 @@ type state = {
   packagesByRoot: Hashtbl.t(string, package),
   rootForUri: Hashtbl.t(uri, string),
   cmtCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
-  lastDefinitions: Hashtbl.t(uri, SharedTypes.full),
 };
 
 let empty = () => {
@@ -51,10 +41,7 @@ let empty = () => {
   packagesByRoot: Hashtbl.create(1),
   rootForUri: Hashtbl.create(30),
   cmtCache: Hashtbl.create(30),
-  lastDefinitions: Hashtbl.create(10),
   settings: {
-    refmtLocation: None,
-    lispRefmtLocation: None,
     perValueCodelens: false,
     opensCodelens: true,
     dependenciesCodelens: true,

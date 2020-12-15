@@ -81,84 +81,9 @@ let updateContents = (uri, text, version, state) => {
   state;
 };
 
-let refmtForUri = (uri, package) =>
-  if (Filename.check_suffix(uri, ".ml") || Filename.check_suffix(uri, ".mli")) {
-    Ok(None);
-  } else if (Filename.check_suffix(uri, ".rel")
-             || Filename.check_suffix(uri, ".reli")) {
-    switch (package.lispRefmtPath) {
-    | None =>
-      Error("No lispRefmt path found, cannot process .rel or .reli files")
-    | Some(x) => Ok(Some(x))
-    };
-  } else {
-    switch (package.refmtPath) {
-    | None =>
-      Error("No refmt found for dune project. Cannot process .re file")
-    | Some(x) => Ok(Some(x))
-    };
-  };
-
 open Infix;
 
-let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
-  let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
-  let text =
-    Hashtbl.mem(state.documentText, uri)
-      ? {
-        let (text, _, _) = Hashtbl.find(state.documentText, uri);
-        text;
-      }
-      : {
-        let path = Utils.parseUri(uri) |! "not a uri: " ++ uri;
-        Files.readFileExn(path);
-      };
-  let moduleName =
-    BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
-  /* let%try moduleName = switch (Utils.maybeHash(package.nameForPath, path)) {
-       | None =>
-         Hashtbl.iter((k, v) => Log.log("Path: " ++ k ++ "  " ++ v), package.nameForPath);
-         Log.log("Can't find " ++ path ++ " in package " ++ package.basePath);
-         Error("Can't find module name for path " ++ path)
-       | Some(x) => Ok(x)
-     }; */
-  let includes = package.includeDirectories;
-  let%try refmtPath = refmtForUri(uri, package);
-  let%try result =
-    AsYouType.process(
-      ~uri,
-      ~moduleName,
-      ~allLocations=state.settings.recordAllLocations,
-      ~rootPath=package.rootPath,
-      ~reasonFormat=Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei"),
-      text,
-      ~cacheLocation=package.tmpPath,
-      package.compilerPath,
-      refmtPath,
-      includes,
-      package.compilationFlags,
-    );
-  switch (result) {
-  | AsYouType.SyntaxError(_) => ()
-  | AsYouType.TypeError(_, full) =>
-    if (!Hashtbl.mem(state.lastDefinitions, uri)) {
-      Log.log("<< Making lastDefinitions with type error for " ++ uri);
-      Hashtbl.replace(state.lastDefinitions, uri, full);
-    }
-  | Success(_, full) =>
-    Log.log("<< Replacing lastDefinitions for " ++ uri);
-
-    Hashtbl.replace(state.lastDefinitions, uri, full);
-    Hashtbl.replace(
-      package.interModuleDependencies,
-      moduleName,
-      SharedTypes.hashList(full.extra.externalReferences) |> List.map(fst),
-    );
-  };
-  Ok(result);
-};
-
-let getFullFromCmt = (uri, state) => {
+let getFullFromCmt = (~state, ~uri) => {
   let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
   let%try package = Packages.getPackage(uri, state);
   let moduleName =
@@ -185,25 +110,6 @@ let getFullFromCmt = (uri, state) => {
   };
 };
 
-let getLastDefinitions = (uri, state) =>
-  switch (Hashtbl.find(state.lastDefinitions, uri)) {
-  | exception Not_found => None
-  | data => Some(data)
-  };
-
-let tryExtra = p => {
-  let%try p = p;
-  Ok(AsYouType.getResult(p));
-};
-
-/* If there's a previous "good" version, use that, otherwise use the current version */
-let getBestDefinitions = (uri, state, ~package) =>
-  if (Hashtbl.mem(state.lastDefinitions, uri)) {
-    Ok(Hashtbl.find(state.lastDefinitions, uri));
-  } else {
-    tryExtra(getCompilationResult(uri, state, ~package));
-  };
-
 let docsForModule = (modname, state, ~package) =>
   if (Hashtbl.mem(package.pathsForModule, modname)) {
     let paths = Hashtbl.find(package.pathsForModule, modname);
@@ -221,9 +127,9 @@ let docsForModule = (modname, state, ~package) =>
     None;
   };
 
-let fileForUri = (state, ~package, uri) => {
-  let%try moduleData = getCompilationResult(uri, state, ~package) |> tryExtra;
-  Ok((moduleData.file, moduleData.extra));
+let fileForUri = (state, uri) => {
+  let%try (_package, {extra, file}) = getFullFromCmt(~state, ~uri);
+  Ok((file, extra));
 };
 
 let fileForModule = (state, ~package, modname) => {
@@ -236,10 +142,10 @@ let extraForModule = (state, ~package, modname) =>
     let paths = Hashtbl.find(package.pathsForModule, modname);
     /* TODO do better? */
     let%opt src = SharedTypes.getSrc(paths);
-    let%opt {extra} =
-      tryExtra(getCompilationResult(Utils.toUri(src), state, ~package))
-      |> RResult.toOptionAndLog;
-    Some(extra);
+    switch (getFullFromCmt(~state, ~uri=Utils.toUri(src))) {
+    | Ok((_package, {extra})) => Some(extra)
+    | Error(_) => None
+    };
   } else {
     None;
   };

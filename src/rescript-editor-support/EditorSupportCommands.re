@@ -61,7 +61,7 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
            References.definitionForLoc(
              ~pathsForModule=package.pathsForModule,
              ~file,
-             ~getUri=State.fileForUri(state, ~package),
+             ~getUri=State.fileForUri(state),
              ~getModule=State.fileForModule(state, ~package),
              loc,
            );
@@ -131,7 +131,7 @@ let dump = files => {
        let filePath = Files.maybeConcat(Unix.getcwd(), filePath);
        let uri = Utils.toUri(filePath);
        let result =
-         switch (State.getFullFromCmt(uri, state)) {
+         switch (State.getFullFromCmt(~state, ~uri)) {
          | Error(message) =>
            prerr_endline(message);
            "[]";
@@ -164,12 +164,11 @@ let complete = (~pathWithPos, ~currentFile) => {
     let filePath = Files.maybeConcat(Unix.getcwd(), filePath);
     let uri = Utils.toUri(filePath);
     let result =
-      switch (State.getFullFromCmt(uri, state)) {
+      switch (State.getFullFromCmt(~state, ~uri)) {
       | Error(message) =>
         prerr_endline(message);
         "[]";
       | Ok((package, full)) =>
-        Hashtbl.replace(state.lastDefinitions, uri, full);
         autocomplete(~currentFile, ~full, ~package, ~pos, ~state);
       };
     print_endline(result);

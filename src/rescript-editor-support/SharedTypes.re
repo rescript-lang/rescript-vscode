@@ -264,9 +264,4 @@ let initExtra = () => {
   opens: Hashtbl.create(10),
 };
 
-let initFull = (moduleName, uri) => {
-  file: emptyFile(moduleName, uri),
-  extra: initExtra(),
-};
-
 let hashList = h => Hashtbl.fold((a, b, c) => [(a, b), ...c], h, []);

@@ -84,33 +84,10 @@ let readFile = path => {
   };
 };
 
-let readFileExn = path =>
-  switch (readFile(path)) {
-  | None => failwith("Unable to read " ++ path)
-  | Some(text) => text
-  };
-
 let readFileResult = path =>
   switch (readFile(path)) {
   | None => Error("Unable to read " ++ path)
   | Some(text) => Ok(text)
-  };
-
-let writeFile = (path, contents) =>
-  try({
-    let out = open_out(path);
-    output_string(out, contents);
-    close_out(out);
-    true;
-  }) {
-  | _ => false
-  };
-
-let writeFileResult = (path, contents) =>
-  if (!writeFile(path, contents)) {
-    Error("Unable to write to file " ++ path);
-  } else {
-    Ok();
   };
 
 let exists = path =>
@@ -120,12 +97,6 @@ let exists = path =>
   };
 
 let ifExists = path => exists(path) ? Some(path) : None;
-
-let isFile = path =>
-  switch (maybeStat(path)) {
-  | Some({Unix.st_kind: Unix.S_REG}) => true
-  | _ => false
-  };
 
 let readDirectory = dir => {
   let maybeGet = handle =>

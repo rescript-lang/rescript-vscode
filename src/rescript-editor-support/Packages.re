@@ -1,6 +1,5 @@
 open Infix;
 open TopTypes;
-// open BuildCommand;
 
 let escapePreprocessingFlags = flag =>
   /* ppx escaping not supported on windows yet */
@@ -55,34 +54,11 @@ let newBsPackage = rootPath => {
   let%try raw = Files.readFileResult(rootPath /+ "bsconfig.json");
   let config = Json.parse(raw);
 
-  let%try bsPlatform = BuildSystem.getBsPlatformDir(rootPath);
-
-  let bsb =
-    switch (Files.ifExists(bsPlatform /+ "lib" /+ "bsb.exe")) {
-    | Some(x) => x
-    | None =>
-      switch (
-        Files.ifExists(
-          bsPlatform /+ Lazy.force(BuildSystem.nodePlatform) /+ "bsb.exe",
-        )
-      ) {
-      | Some(x) => x
-      | None => failwith("can not locate bsb.exe in " ++ bsPlatform)
-      }
-    };
-
-  let buildCommand = bsb ++ " -make-world";
-
   Log.log({|📣 📣 NEW BSB PACKAGE 📣 📣|});
   /* failwith("Wat"); */
   Log.log("- location: " ++ rootPath);
-  Log.log("- bsPlatform: " ++ bsPlatform);
-  Log.log("- build command: " ++ buildCommand);
 
   let compiledBase = BuildSystem.getCompiledBase(rootPath);
-  let%try stdLibDirectory = BuildSystem.getStdlib(rootPath);
-  let%try compilerPath = BuildSystem.getCompiler(rootPath);
-  let%try refmtPath = BuildSystem.getRefmt(rootPath);
   let%try tmpPath = BuildSystem.hiddenLocation(rootPath);
   let%try (dependencyDirectories, dependencyModules) =
     FindFiles.findDependencyFiles(~debug=true, rootPath, config);
@@ -98,12 +74,6 @@ let newBsPackage = rootPath => {
   Log.log(
     "Got source directories " ++ String.concat(" - ", localSourceDirs),
   );
-  let localCompiledDirs =
-    localSourceDirs |> List.map(Files.fileConcat(compiledBase));
-  let localCompiledDirs =
-    namespace == None
-      ? localCompiledDirs : [compiledBase, ...localCompiledDirs];
-
   let localModules =
     FindFiles.findProjectFiles(
       ~debug=true,
@@ -143,7 +113,7 @@ let newBsPackage = rootPath => {
     };
   Log.log("Dependency dirs " ++ String.concat(" ", dependencyDirectories));
 
-  let (flags, opens) = {
+  let opens = {
     let flags =
       MerlinFile.getFlags(rootPath)
       |> RResult.withDefault([""])
@@ -163,36 +133,7 @@ let newBsPackage = rootPath => {
         opens,
         flags,
       );
-    (flags, opens);
-  };
-
-  let flags = {
-    let jsPackageMode =
-      {
-        let specs = config |> Json.get("package-specs");
-        let spec =
-          switch (specs) {
-          | Some(Json.Array([item, ..._])) => Some(item)
-          | Some(Json.Object(_)) => specs
-          | _ => None
-          };
-        spec |?> Json.get("module") |?> Json.string;
-      }
-      |? "commonjs";
-    let flags =
-      switch (jsPackageMode) {
-      | "es6" as packageMode
-      | "es6-global" as packageMode => [
-          "-bs-package-name",
-          config |> Json.get("name") |?> Json.string |? "unnamed",
-          ...packageMode == "es6"
-               ? ["-bs-package-output", "es6:node_modules/.lsp", ...flags]
-               : flags,
-        ]
-      | _ => flags
-      };
-    /* flags */
-    ["-bs-no-builtin-ppx", ...flags];
+    opens;
   };
 
   let interModuleDependencies = Hashtbl.create(List.length(localModules));
@@ -206,15 +147,7 @@ let newBsPackage = rootPath => {
     opens,
     tmpPath,
     namespace,
-    compilationFlags: flags |> String.concat(" "),
     interModuleDependencies,
-    includeDirectories:
-      localCompiledDirs @ dependencyDirectories @ [stdLibDirectory],
-
-    compilerPath,
-    refmtPath: Some(refmtPath),
-    /*** TODO detect this from node_modules */
-    lispRefmtPath: None,
   };
 };
 
@@ -258,12 +191,6 @@ let getPackage = (uri, state) =>
       | `Bs(rootPath) =>
         let%try package = newBsPackage(rootPath);
         Files.mkdirp(package.tmpPath);
-        let package = {
-          ...package,
-          refmtPath: state.settings.refmtLocation |?? package.refmtPath,
-          lispRefmtPath:
-            state.settings.lispRefmtLocation |?? package.lispRefmtPath,
-        };
         Hashtbl.replace(state.rootForUri, uri, package.rootPath);
         Hashtbl.replace(state.packagesByRoot, package.rootPath, package);
         Ok(package);

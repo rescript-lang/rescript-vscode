@@ -65,13 +65,8 @@ let notificationHandlers:
   (
     "workspace/didChangeConfiguration",
     (state, params) => {
-      let nullIfEmpty = item => item == "" ? None : Some(item);
       let settings =
         params |> Json.get("settings") |?> Json.get("reason_language_server");
-      let refmtLocation =
-        settings |?> Json.get("refmt") |?> Json.string |?> nullIfEmpty;
-      let lispRefmtLocation =
-        settings |?> Json.get("lispRefmt") |?> Json.string |?> nullIfEmpty;
       let perValueCodelens =
         settings |?> Json.get("per_value_codelens") |?> Json.bool |? false;
       let opensCodelens =
@@ -89,8 +84,6 @@ let notificationHandlers:
         settings: {
           ...state.settings,
           perValueCodelens,
-          refmtLocation,
-          lispRefmtLocation,
           opensCodelens,
           dependenciesCodelens,
           showModulePathOnHover,
