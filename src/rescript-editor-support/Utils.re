@@ -15,39 +15,6 @@ let split_on_char = (sep, s) => {
   [sub(s, 0, j^), ...r^];
 };
 
-let getFullLineOfPos = (pos, s) => {
-  let left =
-    switch (String.rindex_from(s, pos, '\n') + 1) {
-    | pos => pos
-    | exception Not_found => 0
-    };
-  let right =
-    switch (String.index_from(s, pos, '\n') - 1) {
-    | pos => pos
-    | exception Not_found => String.length(s) - 1
-    };
-  String.sub(s, left, right - left);
-};
-
-let repeat = (length, s) => {
-  let result = ref("");
-  for (_ in 1 to length) {
-    result := result^ ++ s;
-  };
-  result^;
-};
-
-let countLeading = (value, s) => {
-  let length = String.length(s);
-  let rec loop = (count, i) =>
-    if (i < length && s.[i] == value) {
-      loop(count + 1, i + 1);
-    } else {
-      count;
-    };
-  loop(0, 0);
-};
-
 let topLoc = fname => {
   Location.loc_start: {
     Lexing.pos_fname: fname,
@@ -64,16 +31,6 @@ let topLoc = fname => {
   loc_ghost: false,
 };
 
-let countTrailing = (value, s) => {
-  let length = String.length(s);
-  let rec loop = (count, i) =>
-    if (i >= 0 && s.[i] == value) {
-      loop(count + 1, i - 1);
-    } else {
-      count;
-    };
-  loop(0, length - 1);
-};
 /**
  * `startsWith(string, prefix)`
  * true if the string starts with the prefix

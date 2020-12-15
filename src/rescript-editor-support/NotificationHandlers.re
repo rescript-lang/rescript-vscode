@@ -135,8 +135,6 @@ let notificationHandlers:
       let nullIfEmpty = item => item == "" ? None : Some(item);
       let settings =
         params |> Json.get("settings") |?> Json.get("reason_language_server");
-      let mlfmtLocation =
-        settings |?> Json.get("mlfmt") |?> Json.string |?> nullIfEmpty;
       let refmtLocation =
         settings |?> Json.get("refmt") |?> Json.string |?> nullIfEmpty;
       let lispRefmtLocation =
@@ -147,11 +145,6 @@ let notificationHandlers:
         settings |?> Json.get("opens_codelens") |?> Json.bool |? true;
       let dependenciesCodelens =
         settings |?> Json.get("dependencies_codelens") |?> Json.bool |? true;
-      let formatWidth =
-        settings
-        |?> Json.get("format_width")
-        |?> Json.number
-        |?>> int_of_float;
       let showModulePathOnHover =
         settings
         |?> Json.get("show_module_path_on_hover")
@@ -165,11 +158,9 @@ let notificationHandlers:
         settings: {
           ...state.settings,
           perValueCodelens,
-          mlfmtLocation,
           refmtLocation,
           lispRefmtLocation,
           opensCodelens,
-          formatWidth,
           dependenciesCodelens,
           showModulePathOnHover,
           autoRebuild,

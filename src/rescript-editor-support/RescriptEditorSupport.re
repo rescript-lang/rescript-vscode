@@ -28,8 +28,6 @@ let capabilities =
     ),
     ("codeLensProvider", J.o([("resolveProvider", J.t)])),
     ("documentHighlightProvider", J.t),
-    ("documentRangeFormattingProvider", J.t),
-    ("documentFormattingProvider", J.t),
     ("renameProvider", J.t),
   ]);
 
