@@ -127,16 +127,6 @@ let runBsc =
   };
 };
 
-let cmtPath = (~cacheLocation, ~moduleName, ~uri) => {
-  let interface = Utils.endsWith(uri, "i");
-  cacheLocation /+ moduleName ++ ".cmt" ++ (interface ? "i" : "");
-};
-
-let getParsetree = (~cacheLocation, ~moduleName, ~uri) => {
-  let cmt = cmtPath(~cacheLocation, ~moduleName, ~uri);
-  Process_406.astForCmt(cmt);
-};
-
 let process =
     (
       ~uri,

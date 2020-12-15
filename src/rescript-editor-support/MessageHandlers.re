@@ -563,24 +563,4 @@ let handlers:
       };
     },
   ),
-  (
-    "custom:reasonLanguageServer/showAst",
-    (state, params) => {
-      let%try (uri, _pos) = Protocol.rPositionParams(params);
-      let%try package = getPackage(uri, state);
-      let%try (file, _extra) = State.fileForUri(state, ~package, uri);
-      let%try parsetree =
-        AsYouType.getParsetree(
-          ~uri,
-          ~moduleName=file.moduleName,
-          ~cacheLocation=package.tmpPath,
-        );
-      switch (parsetree) {
-      | `Implementation(str) =>
-        Printast.implementation(Format.str_formatter, str)
-      | `Interface(int) => Printast.interface(Format.str_formatter, int)
-      };
-      Ok((state, Json.String(Format.flush_str_formatter())));
-    },
-  ),
 ];
