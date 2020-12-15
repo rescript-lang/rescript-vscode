@@ -79,11 +79,6 @@ let getInitialState = params => {
   });
 };
 
-let tick = state => {
-  NotificationHandlers.checkPackageTimers(state);
-  Diagnostics.checkDocumentTimers(state);
-};
-
 let parseArgs = args => {
   switch (args) {
   | [] => assert(false)
@@ -140,7 +135,6 @@ let main = () => {
     };
     Log.log("Booting up");
     BasicServer.run(
-      ~tick,
       ~messageHandlers=MessageHandlers.handlers,
       ~notificationHandlers=NotificationHandlers.notificationHandlers,
       ~capabilities=_params => capabilities,

@@ -3,8 +3,6 @@ open RResult;
 open TopTypes;
 module J = JsonShort;
 
-let recompileDebounceTime = 0.5; /* seconds */
-
 let getTextDocument = doc => {
   let%opt uri = Json.get("uri", doc) |?> Json.string;
   let%opt version = Json.get("version", doc) |?> Json.number;
@@ -12,46 +10,13 @@ let getTextDocument = doc => {
   Some((uri, version, text));
 };
 
-let checkPackageTimers = state => {
-  Hashtbl.iter(
-    (_, package) =>
-      if (package.rebuildTimer != 0.
-          && package.rebuildTimer < Unix.gettimeofday()) {
-        package.rebuildTimer = 0.;
-        // TODO report the error here
-        ignore @@
-        BuildCommand.runBuildCommand(
-          ~state,
-          ~rootPath=package.rootPath,
-          package.buildCommand,
-        );
-      },
-    state.packagesByRoot,
-  );
-};
-
-let setPackageTimer = package =>
-  if (package.rebuildTimer == 0.) {
-    package.rebuildTimer = Unix.gettimeofday() +. 0.01;
-  };
-
 let watchedFileContentsMap = Hashtbl.create(100);
 
 let reloadAllState = state => {
   Log.log("RELOADING ALL STATE");
-  Hashtbl.iter(
-    (uri, _) =>
-      Hashtbl.replace(
-        state.documentTimers,
-        uri,
-        Unix.gettimeofday() +. recompileDebounceTime,
-      ),
-    state.documentText,
-  );
   {
     ...TopTypes.empty(),
     documentText: state.documentText,
-    documentTimers: state.documentTimers,
     settings: state.settings,
   };
 };
@@ -69,11 +34,6 @@ let notificationHandlers:
         state.documentText,
         uri,
         (text, int_of_float(version), true),
-      );
-      Hashtbl.replace(
-        state.documentTimers,
-        uri,
-        Unix.gettimeofday() +. recompileDebounceTime,
       );
 
       let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
@@ -123,8 +83,6 @@ let notificationHandlers:
         |?> Json.get("show_module_path_on_hover")
         |?> Json.bool
         |? true;
-      let autoRebuild =
-        settings |?> Json.get("autoRebuild") |?> Json.bool |? true;
 
       Ok({
         ...state,
@@ -136,53 +94,13 @@ let notificationHandlers:
           opensCodelens,
           dependenciesCodelens,
           showModulePathOnHover,
-          autoRebuild,
         },
       });
     },
   ),
   (
     "textDocument/didSave",
-    (state, params) => {
-      open InfixResult;
-      let%try uri =
-        params
-        |> RJson.get("textDocument")
-        |?> (doc => RJson.get("uri", doc) |?> RJson.string);
-      let%try package = Packages.getPackage(uri, state);
-      setPackageTimer(package);
-      let moduleName = FindFiles.getName(uri);
-      package.localModules
-      |> List.iter(mname => {
-           let%opt_consume paths =
-             Hashtbl.find_opt(package.pathsForModule, mname);
-           let%opt_consume src = SharedTypes.getSrc(paths);
-           let otherUri = Utils.toUri(src);
-           let refs =
-             Hashtbl.find_opt(package.interModuleDependencies, mname);
-           Infix.(
-             if (mname != moduleName
-                 && (
-                   List.mem(moduleName, refs |? [])
-                   || (
-                     switch (Hashtbl.find(state.compiledDocuments, otherUri)) {
-                     | exception Not_found => true
-                     | Success(_) => false
-                     | SyntaxError(_) => false
-                     | TypeError(_) => true
-                     }
-                   )
-                 )) {
-               Hashtbl.remove(state.compiledDocuments, otherUri);
-               Hashtbl.replace(
-                 state.documentTimers,
-                 otherUri,
-                 Unix.gettimeofday() +. 0.015,
-               );
-             }
-           );
-         });
-
+    (state, _params) => {
       Ok(state);
     },
   ),
@@ -200,11 +118,6 @@ let notificationHandlers:
         |?> RJson.string;
       /* Hmm how do I know if it's modified? */
       let state = State.updateContents(uri, text, version, state);
-      Hashtbl.replace(
-        state.documentTimers,
-        uri,
-        Unix.gettimeofday() +. recompileDebounceTime,
-      );
       Ok(state);
     },
   ),
