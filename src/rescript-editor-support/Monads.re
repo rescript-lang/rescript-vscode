@@ -27,10 +27,4 @@ module Result = {
       | Ok(x) => use(x)
       | Error(e) => Error(e)
       };
-  let consume: (result('a, 'b), ~f: 'a => unit) => unit =
-    (value, ~f as use) =>
-      switch (value) {
-      | Ok(x) => use(x)
-      | Error(_) => ()
-      };
 };

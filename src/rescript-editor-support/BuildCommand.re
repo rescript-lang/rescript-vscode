@@ -39,7 +39,7 @@ let rec getAffectedFiles = (root, lines) =>
     getAffectedFiles(root, rest)
   };
 
-let runBuildCommand = (~reportDiagnostics, ~state, ~rootPath, buildCommand) =>
+let runBuildCommand = (~state, ~rootPath, buildCommand) =>
   /** TODO check for a bsb.lock file & bail if it's there */
   {
     switch (buildCommand) {
@@ -55,15 +55,8 @@ let runBuildCommand = (~reportDiagnostics, ~state, ~rootPath, buildCommand) =>
       Log.log(errors);
       let files = getAffectedFiles(rootPath, stdout @ stderr);
       Log.log("Affected files: " ++ String.concat(" ", files));
-      let bsconfigJson = rootPath /+ "bsconfig.json" |> Utils.toUri;
-      let bsconfigClean = ref(true);
       files
       |> List.iter(uri => {
-           if (Utils.endsWith(uri, "bsconfig.json")) {
-             bsconfigClean := false;
-             Log.log("Bsconfig.json sending");
-             reportDiagnostics(uri, `BuildFailed(stdout @ stderr));
-           };
            Hashtbl.remove(state.compiledDocuments, uri);
            Hashtbl.replace(
              state.documentTimers,
@@ -71,10 +64,6 @@ let runBuildCommand = (~reportDiagnostics, ~state, ~rootPath, buildCommand) =>
              Unix.gettimeofday() -. 0.01,
            );
          });
-      if (bsconfigClean^) {
-        Log.log("Cleaning bsconfig.json");
-        reportDiagnostics(bsconfigJson, `BuildSucceeded);
-      };
       /* TODO report notifications here */
       Ok();
     };

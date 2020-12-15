@@ -193,15 +193,3 @@ let offsetOfLine = (text, line) => {
 let positionToOffset = (text, (line, character)) => {
   Infix.(offsetOfLine(text, line) |?>> (bol => bol + character));
 };
-
-let offsetToPosition = (text, offset) => {
-  let ln = String.length(text);
-  let rec loop = (i, bol, lno) =>
-    i == offset
-      ? Some((lno, i - bol))
-      : i >= ln
-          ? None
-          : text.[i] == '\n'
-              ? loop(i + 1, i + 1, lno + 1) : loop(i + 1, bol, lno);
-  loop(0, 0, 0);
-};

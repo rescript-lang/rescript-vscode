@@ -166,8 +166,7 @@ let getCompilationResult = (uri, state, ~package: TopTypes.package) =>
 
 let getFullFromCmt = (uri, state) => {
   let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
-  let%try package =
-    Packages.getPackage(uri, state, ~reportDiagnostics=(_, _) => ());
+  let%try package = Packages.getPackage(uri, state);
   let moduleName =
     BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
   switch (Hashtbl.find_opt(package.pathsForModule, moduleName)) {

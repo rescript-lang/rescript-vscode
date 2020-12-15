@@ -51,7 +51,7 @@ let makePathsForModule =
   (pathsForModule, nameForPath);
 };
 
-let newBsPackage = (~reportDiagnostics, state, rootPath) => {
+let newBsPackage = (state, rootPath) => {
   let%try raw = Files.readFileResult(rootPath /+ "bsconfig.json");
   let config = Json.parse(raw);
 
@@ -81,12 +81,7 @@ let newBsPackage = (~reportDiagnostics, state, rootPath) => {
 
   let%try () =
     if (state.settings.autoRebuild) {
-      BuildCommand.runBuildCommand(
-        ~reportDiagnostics,
-        ~state,
-        ~rootPath,
-        Some(buildCommand),
-      );
+      BuildCommand.runBuildCommand(~state, ~rootPath, Some(buildCommand));
     } else {
       Ok();
     };
@@ -247,7 +242,7 @@ let findRoot = (uri, packagesByRoot) => {
   loop(Filename.dirname(path));
 };
 
-let getPackage = (~reportDiagnostics, uri, state) =>
+let getPackage = (uri, state) =>
   if (Hashtbl.mem(state.rootForUri, uri)) {
     Ok(
       Hashtbl.find(
@@ -270,7 +265,7 @@ let getPackage = (~reportDiagnostics, uri, state) =>
           ),
         );
       | `Bs(rootPath) =>
-        let%try package = newBsPackage(~reportDiagnostics, state, rootPath);
+        let%try package = newBsPackage(state, rootPath);
         Files.mkdirp(package.tmpPath);
         let package = {
           ...package,
