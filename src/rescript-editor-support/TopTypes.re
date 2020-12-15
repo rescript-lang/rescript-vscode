@@ -18,8 +18,6 @@ type package = {
   namespace: option(string),
   opens: list(string),
   tmpPath: string,
-  mutable rebuildTimer: float,
-  buildCommand: option(string),
   compilerPath: filePath,
   refmtPath: option(filePath),
   /** TODO maybe make this general, so that I can support arbitrary syntaxes? */
@@ -35,29 +33,24 @@ type settings = {
   clientNeedsPlainText: bool,
   showModulePathOnHover: bool,
   recordAllLocations: bool,
-  autoRebuild: bool,
 };
 
 type state = {
   rootUri: uri,
   settings,
   documentText: Hashtbl.t(uri, (string, int, bool)),
-  documentTimers: Hashtbl.t(uri, float),
   packagesByRoot: Hashtbl.t(string, package),
   rootForUri: Hashtbl.t(uri, string),
   cmtCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
-  compiledDocuments: Hashtbl.t(uri, AsYouType.result),
   lastDefinitions: Hashtbl.t(uri, SharedTypes.full),
 };
 
 let empty = () => {
   rootUri: "- uninitialized -",
   documentText: Hashtbl.create(5),
-  documentTimers: Hashtbl.create(10),
   packagesByRoot: Hashtbl.create(1),
   rootForUri: Hashtbl.create(30),
   cmtCache: Hashtbl.create(30),
-  compiledDocuments: Hashtbl.create(10),
   lastDefinitions: Hashtbl.create(10),
   settings: {
     refmtLocation: None,
@@ -68,6 +61,5 @@ let empty = () => {
     clientNeedsPlainText: false,
     showModulePathOnHover: true,
     recordAllLocations: false,
-    autoRebuild: true,
   },
 };

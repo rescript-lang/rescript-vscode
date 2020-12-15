@@ -91,7 +91,6 @@ let canRead = desc => {
 
 let run =
     (
-      ~tick,
       ~messageHandlers,
       ~notificationHandlers,
       ~getInitialState,
@@ -100,7 +99,6 @@ let run =
   let stdin_descr = Unix.descr_of_in_channel(stdin);
 
   let rec loop = (~isShuttingDown, state) => {
-    let state = tick(state);
     if (canRead(stdin_descr)) {
       switch (Rpc.readMessage(stdin)) {
       | Message(id, "shutdown", _params) =>

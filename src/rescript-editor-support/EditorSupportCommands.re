@@ -124,14 +124,7 @@ let dump = files => {
   Shared.cacheTypeToString := true;
   let rootPath = Unix.getcwd();
   let emptyState = TopTypes.empty();
-  let state = {
-    ...emptyState,
-    rootUri: Utils.toUri(rootPath),
-    settings: {
-      ...emptyState.settings,
-      autoRebuild: false,
-    },
-  };
+  let state = {...emptyState, rootUri: Utils.toUri(rootPath)};
   files
   |> List.iter(pathWithPos => {
        let (filePath, selectPos) = pathWithPos |> splitLineChar;
@@ -165,14 +158,7 @@ let autocomplete = (~currentFile, ~full, ~package, ~pos, ~state) => {
 let complete = (~pathWithPos, ~currentFile) => {
   let rootPath = Unix.getcwd();
   let emptyState = TopTypes.empty();
-  let state = {
-    ...emptyState,
-    rootUri: Utils.toUri(rootPath),
-    settings: {
-      ...emptyState.settings,
-      autoRebuild: false,
-    },
-  };
+  let state = {...emptyState, rootUri: Utils.toUri(rootPath)};
   switch (pathWithPos |> splitLineChar) {
   | (filePath, Some(pos)) =>
     let filePath = Files.maybeConcat(Unix.getcwd(), filePath);

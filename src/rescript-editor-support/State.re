@@ -73,7 +73,6 @@ let docsForCmt = (~moduleName, cmt, src, state) =>
   };
 
 let updateContents = (uri, text, version, state) => {
-  Hashtbl.remove(state.compiledDocuments, uri);
   Hashtbl.replace(
     state.documentText,
     uri,
@@ -102,67 +101,62 @@ let refmtForUri = (uri, package) =>
 
 open Infix;
 
-let getCompilationResult = (uri, state, ~package: TopTypes.package) =>
-  if (Hashtbl.mem(state.compiledDocuments, uri)) {
-    Ok(Hashtbl.find(state.compiledDocuments, uri));
-  } else {
-    let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
-    let text =
-      Hashtbl.mem(state.documentText, uri)
-        ? {
-          let (text, _, _) = Hashtbl.find(state.documentText, uri);
-          text;
-        }
-        : {
-          let path = Utils.parseUri(uri) |! "not a uri: " ++ uri;
-          Files.readFileExn(path);
-        };
-    let moduleName =
-      BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
-    /* let%try moduleName = switch (Utils.maybeHash(package.nameForPath, path)) {
-         | None =>
-           Hashtbl.iter((k, v) => Log.log("Path: " ++ k ++ "  " ++ v), package.nameForPath);
-           Log.log("Can't find " ++ path ++ " in package " ++ package.basePath);
-           Error("Can't find module name for path " ++ path)
-         | Some(x) => Ok(x)
-       }; */
-    let includes = package.includeDirectories;
-    let%try refmtPath = refmtForUri(uri, package);
-    let%try result =
-      AsYouType.process(
-        ~uri,
-        ~moduleName,
-        ~allLocations=state.settings.recordAllLocations,
-        ~rootPath=package.rootPath,
-        ~reasonFormat=
-          Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei"),
-        text,
-        ~cacheLocation=package.tmpPath,
-        package.compilerPath,
-        refmtPath,
-        includes,
-        package.compilationFlags,
-      );
-    Hashtbl.replace(state.compiledDocuments, uri, result);
-    switch (result) {
-    | AsYouType.SyntaxError(_) => ()
-    | AsYouType.TypeError(_, full) =>
-      if (!Hashtbl.mem(state.lastDefinitions, uri)) {
-        Log.log("<< Making lastDefinitions with type error for " ++ uri);
-        Hashtbl.replace(state.lastDefinitions, uri, full);
+let getCompilationResult = (uri, state, ~package: TopTypes.package) => {
+  let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
+  let text =
+    Hashtbl.mem(state.documentText, uri)
+      ? {
+        let (text, _, _) = Hashtbl.find(state.documentText, uri);
+        text;
       }
-    | Success(_, full) =>
-      Log.log("<< Replacing lastDefinitions for " ++ uri);
-
+      : {
+        let path = Utils.parseUri(uri) |! "not a uri: " ++ uri;
+        Files.readFileExn(path);
+      };
+  let moduleName =
+    BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
+  /* let%try moduleName = switch (Utils.maybeHash(package.nameForPath, path)) {
+       | None =>
+         Hashtbl.iter((k, v) => Log.log("Path: " ++ k ++ "  " ++ v), package.nameForPath);
+         Log.log("Can't find " ++ path ++ " in package " ++ package.basePath);
+         Error("Can't find module name for path " ++ path)
+       | Some(x) => Ok(x)
+     }; */
+  let includes = package.includeDirectories;
+  let%try refmtPath = refmtForUri(uri, package);
+  let%try result =
+    AsYouType.process(
+      ~uri,
+      ~moduleName,
+      ~allLocations=state.settings.recordAllLocations,
+      ~rootPath=package.rootPath,
+      ~reasonFormat=Utils.endsWith(uri, "re") || Utils.endsWith(uri, "rei"),
+      text,
+      ~cacheLocation=package.tmpPath,
+      package.compilerPath,
+      refmtPath,
+      includes,
+      package.compilationFlags,
+    );
+  switch (result) {
+  | AsYouType.SyntaxError(_) => ()
+  | AsYouType.TypeError(_, full) =>
+    if (!Hashtbl.mem(state.lastDefinitions, uri)) {
+      Log.log("<< Making lastDefinitions with type error for " ++ uri);
       Hashtbl.replace(state.lastDefinitions, uri, full);
-      Hashtbl.replace(
-        package.interModuleDependencies,
-        moduleName,
-        SharedTypes.hashList(full.extra.externalReferences) |> List.map(fst),
-      );
-    };
-    Ok(result);
+    }
+  | Success(_, full) =>
+    Log.log("<< Replacing lastDefinitions for " ++ uri);
+
+    Hashtbl.replace(state.lastDefinitions, uri, full);
+    Hashtbl.replace(
+      package.interModuleDependencies,
+      moduleName,
+      SharedTypes.hashList(full.extra.externalReferences) |> List.map(fst),
+    );
   };
+  Ok(result);
+};
 
 let getFullFromCmt = (uri, state) => {
   let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");

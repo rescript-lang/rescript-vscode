@@ -51,7 +51,7 @@ let makePathsForModule =
   (pathsForModule, nameForPath);
 };
 
-let newBsPackage = (state, rootPath) => {
+let newBsPackage = rootPath => {
   let%try raw = Files.readFileResult(rootPath /+ "bsconfig.json");
   let config = Json.parse(raw);
 
@@ -78,13 +78,6 @@ let newBsPackage = (state, rootPath) => {
   Log.log("- location: " ++ rootPath);
   Log.log("- bsPlatform: " ++ bsPlatform);
   Log.log("- build command: " ++ buildCommand);
-
-  let%try () =
-    if (state.settings.autoRebuild) {
-      BuildCommand.runBuildCommand(~state, ~rootPath, Some(buildCommand));
-    } else {
-      Ok();
-    };
 
   let compiledBase = BuildSystem.getCompiledBase(rootPath);
   let%try stdLibDirectory = BuildSystem.getStdlib(rootPath);
@@ -206,12 +199,10 @@ let newBsPackage = (state, rootPath) => {
 
   {
     rootPath,
-    rebuildTimer: 0.,
     localModules: localModules |> List.map(fst),
     dependencyModules: dependencyModules |> List.map(fst),
     pathsForModule,
     nameForPath,
-    buildCommand: state.settings.autoRebuild ? Some(buildCommand) : None,
     opens,
     tmpPath,
     namespace,
@@ -265,7 +256,7 @@ let getPackage = (uri, state) =>
           ),
         );
       | `Bs(rootPath) =>
-        let%try package = newBsPackage(state, rootPath);
+        let%try package = newBsPackage(rootPath);
         Files.mkdirp(package.tmpPath);
         let package = {
           ...package,

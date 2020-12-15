@@ -4,6 +4,5 @@
   "reason_language_server.reloadOnChange": true,
   "reason_language_server.per_value_codelens": true,
   "reason_language_server.show_debug_errors": true,
-  // "reason_language_server.autoRebuild": false,
   //"reason_language_server.show_module_path_on_hover": false
 }

@@ -143,8 +143,6 @@ let rec find = (fn, items) =>
     }
   };
 
-let joinLines = String.concat("\n");
-
 let dedup = items => {
   let m = Hashtbl.create(List.length(items));
   items
