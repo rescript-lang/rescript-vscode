@@ -73,11 +73,6 @@ let notificationHandlers:
         settings |?> Json.get("opens_codelens") |?> Json.bool |? true;
       let dependenciesCodelens =
         settings |?> Json.get("dependencies_codelens") |?> Json.bool |? true;
-      let showModulePathOnHover =
-        settings
-        |?> Json.get("show_module_path_on_hover")
-        |?> Json.bool
-        |? true;
 
       Ok({
         ...state,
@@ -86,7 +81,6 @@ let notificationHandlers:
           perValueCodelens,
           opensCodelens,
           dependenciesCodelens,
-          showModulePathOnHover,
         },
       });
     },

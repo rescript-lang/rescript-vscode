@@ -296,7 +296,6 @@ let handlers:
             ~file,
             ~getModule=State.fileForModule(state, ~package),
             ~markdown=!state.settings.clientNeedsPlainText,
-            ~showPath=state.settings.showModulePathOnHover,
             loc,
           );
         Some(
