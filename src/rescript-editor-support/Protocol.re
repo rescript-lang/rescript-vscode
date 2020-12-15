@@ -12,13 +12,6 @@ let rgetPosition = pos => {
   Ok((int_of_float(line), int_of_float(character)));
 };
 
-let rgetRange = pos => {
-  open RResult.InfixResult;
-  let%try start = RJson.get("start", pos) |?> rgetPosition;
-  let%try end_ = RJson.get("end", pos) |?> rgetPosition;
-  Ok((start, end_));
-};
-
 let rPositionParams = params => {
   open RResult.InfixResult;
   let%try uri =
