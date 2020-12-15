@@ -48,7 +48,6 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
              ~file,
              ~getModule=State.fileForModule(state, ~package),
              ~markdown=!state.settings.clientNeedsPlainText,
-             ~showPath=state.settings.showModulePathOnHover,
              loc,
            );
          let hover =
@@ -169,7 +168,7 @@ let complete = (~pathWithPos, ~currentFile) => {
         prerr_endline(message);
         "[]";
       | Ok((package, full)) =>
-        autocomplete(~currentFile, ~full, ~package, ~pos, ~state);
+        autocomplete(~currentFile, ~full, ~package, ~pos, ~state)
       };
     print_endline(result);
   | _ => ()

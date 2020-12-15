@@ -22,7 +22,6 @@ type settings = {
   opensCodelens: bool,
   dependenciesCodelens: bool,
   clientNeedsPlainText: bool,
-  showModulePathOnHover: bool,
   recordAllLocations: bool,
 };
 
@@ -46,7 +45,6 @@ let empty = () => {
     opensCodelens: true,
     dependenciesCodelens: true,
     clientNeedsPlainText: false,
-    showModulePathOnHover: true,
     recordAllLocations: false,
   },
 };

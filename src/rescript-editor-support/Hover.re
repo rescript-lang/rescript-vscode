@@ -58,8 +58,7 @@ let showModule =
 };
 
 open Infix;
-let newHover =
-    (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, ~showPath, loc) => {
+let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, ~markdown, loc) => {
   switch (loc) {
   | SharedTypes.Explanation(text) => Some(text)
   | TypeDefinition(name, decl, _stamp) =>
@@ -164,7 +163,7 @@ let newHover =
           | `Attribute(_) => [Some(typeString), docstring]
           };
 
-        let parts = showPath ? parts @ [Some(uri)] : parts;
+        let parts = parts @ [Some(uri)];
 
         Some(String.concat("\n\n", parts |> Utils.filterMap(x => x)));
       }
