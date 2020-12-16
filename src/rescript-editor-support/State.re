@@ -8,26 +8,15 @@ let isMl = path =>
 let odocToMd = text => MarkdownOfOCamldoc.convert(text);
 let compose = (fn1, fn2, arg) => fn1(arg) |> fn2;
 
-let converter = (src, usePlainText) => {
-  let mlToOutput =
-    compose(odocToMd, usePlainText ? Omd.to_text : Omd.to_markdown);
-  fold(src, mlToOutput, src =>
-    isMl(src)
-      ? mlToOutput
-      : usePlainText ? compose(Omd.of_string, Omd.to_text) : (x => x)
-  );
+let converter = src => {
+  let mlToOutput = compose(odocToMd, Omd.to_markdown);
+  fold(src, mlToOutput, src => isMl(src) ? mlToOutput : (x => x));
 };
 
-let newDocsForCmt =
-    (~moduleName, cmtCache, changed, cmt, src, clientNeedsPlainText) => {
+let newDocsForCmt = (~moduleName, cmtCache, changed, cmt, src) => {
   let uri = Utils.toUri(src |? cmt);
   let%opt file =
-    Process_406.fileForCmt(
-      ~moduleName,
-      cmt,
-      uri,
-      converter(src, clientNeedsPlainText),
-    )
+    Process_406.fileForCmt(~moduleName, cmt, uri, converter(src))
     |> RResult.toOptionAndLog;
   Hashtbl.replace(cmtCache, cmt, (changed, file));
   Some(file);
@@ -43,14 +32,7 @@ let docsForCmt = (~moduleName, cmt, src, state) =>
       None;
     | Some(changed) =>
       if (changed > mtime) {
-        newDocsForCmt(
-          ~moduleName,
-          state.cmtCache,
-          changed,
-          cmt,
-          src,
-          state.settings.clientNeedsPlainText,
-        );
+        newDocsForCmt(~moduleName, state.cmtCache, changed, cmt, src);
       } else {
         Some(docs);
       }
@@ -61,14 +43,7 @@ let docsForCmt = (~moduleName, cmt, src, state) =>
       Log.log("⚠️ cannot get docs for nonexistant cmt " ++ cmt);
       None;
     | Some(changed) =>
-      newDocsForCmt(
-        ~moduleName,
-        state.cmtCache,
-        changed,
-        cmt,
-        src,
-        state.settings.clientNeedsPlainText,
-      )
+      newDocsForCmt(~moduleName, state.cmtCache, changed, cmt, src)
     };
   };
 

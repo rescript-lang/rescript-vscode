@@ -1,7 +1,5 @@
 module J = JsonShort;
 
-open Infix;
-
 let rgetPosition = pos => {
   open RResult.InfixResult;
   let%try line = RJson.get("line", pos) |?> RJson.number;
@@ -23,11 +21,8 @@ let posOfLexing = ({Lexing.pos_lnum, pos_cnum, pos_bol}) =>
     ("character", J.i(pos_cnum - pos_bol)),
   ]);
 
-let contentKind = (useMarkdown, text) =>
-  J.o([
-    ("kind", J.s(useMarkdown ? "markdown" : "text")),
-    ("value", J.s(text)),
-  ]);
+let contentKind = text =>
+  J.o([("kind", J.s("markdown")), ("value", J.s(text))]);
 
 let rangeOfLoc = ({Location.loc_start, loc_end}) =>
   J.o([("start", posOfLexing(loc_start)), ("end", posOfLexing(loc_end))]);
@@ -64,11 +59,3 @@ let symbolKind = (kind: SharedTypes.kinds) =>
   | EnumMember => 22
   | TypeParameter => 26
   };
-
-/*
-   returns true if a MarkupKind[] contains "markdown"
- */
-let hasMarkdownCap = markupKind => {
-  let%opt kinds = Json.array(markupKind) |?>> optMap(Json.string);
-  Some(List.mem("markdown", kinds));
-};

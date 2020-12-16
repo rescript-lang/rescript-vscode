@@ -295,7 +295,6 @@ let handlers:
             ~rootUri=state.rootUri,
             ~file,
             ~getModule=State.fileForModule(state, ~package),
-            ~markdown=!state.settings.clientNeedsPlainText,
             loc,
           );
         Some(
@@ -303,11 +302,7 @@ let handlers:
             state,
             J.o([
               ("range", Protocol.rangeOfLoc(location)),
-              (
-                "contents",
-                text
-                |> Protocol.contentKind(!state.settings.clientNeedsPlainText),
-              ),
+              ("contents", text |> Protocol.contentKind),
             ]),
           )),
         );
