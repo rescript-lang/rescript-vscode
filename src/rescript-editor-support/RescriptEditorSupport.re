@@ -53,30 +53,9 @@ let getInitialState = params => {
     ]),
   );
 
-  /* if client needs plain text in any place, we disable markdown everywhere */
-  let clientNeedsPlainText =
-    !
-      Infix.(
-        Json.getPath("capabilities.textDocument.hover.contentFormat", params)
-        |?> Protocol.hasMarkdownCap
-        |? true
-        && Json.getPath(
-             "capabilities.textDocument.completion.completionItem.documentationFormat",
-             params,
-           )
-        |?> Protocol.hasMarkdownCap
-        |? true
-      );
-
   let state = {...TopTypes.empty(), rootUri: uri};
 
-  Ok({
-    ...state,
-    settings: {
-      ...state.settings,
-      clientNeedsPlainText,
-    },
-  });
+  Ok(state);
 };
 
 let parseArgs = args => {

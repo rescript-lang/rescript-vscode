@@ -47,7 +47,6 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
              ~rootUri=state.TopTypes.rootUri,
              ~file,
              ~getModule=State.fileForModule(state, ~package),
-             ~markdown=!state.settings.clientNeedsPlainText,
              loc,
            );
          let hover =

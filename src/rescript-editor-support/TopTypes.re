@@ -21,7 +21,6 @@ type settings = {
   perValueCodelens: bool,
   opensCodelens: bool,
   dependenciesCodelens: bool,
-  clientNeedsPlainText: bool,
   recordAllLocations: bool,
 };
 
@@ -44,7 +43,6 @@ let empty = () => {
     perValueCodelens: false,
     opensCodelens: true,
     dependenciesCodelens: true,
-    clientNeedsPlainText: false,
     recordAllLocations: false,
   },
 };
