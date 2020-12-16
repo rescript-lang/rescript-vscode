@@ -27,11 +27,6 @@ Based on `vscode-reasonml`, but with a language server backend that's written en
 ## Configuration
 all configuration is prefixed with `reason_language_server.`
 
-- `.format_width` - defaults to 80
-- `.per_value_codelens` - show the type of each toplevel value in a lens
-- `.dependencies_codelens` - list a files dependencies at the top
-- `.opens_codelens` - show what values are used from an `open`
-
 ## Debugging configuration
 most useful if your developing the language server
 

@@ -16,12 +16,7 @@ type package = {
   opens: list(string),
 };
 
-type settings = {
-  perValueCodelens: bool,
-  opensCodelens: bool,
-  dependenciesCodelens: bool,
-  recordAllLocations: bool,
-};
+type settings = {recordAllLocations: bool};
 
 type state = {
   rootUri: uri,
@@ -39,9 +34,6 @@ let empty = () => {
   rootForUri: Hashtbl.create(30),
   cmtCache: Hashtbl.create(30),
   settings: {
-    perValueCodelens: false,
-    opensCodelens: true,
-    dependenciesCodelens: true,
     recordAllLocations: false,
   },
 };
