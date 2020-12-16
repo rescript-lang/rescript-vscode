@@ -19,7 +19,6 @@
 	"activationEvents": [
 		"onLanguage:reason",
 		"onLanguage:ocaml",
-		"onLanguage:reason_lisp",
 		"onLanguage:bucklescript"
 	],
 	"main": "./src/index",
@@ -58,14 +57,6 @@
 						]
 					},
 					"description": "Only specify this if build system autodetection isn't working for you (for example if you have a bsconfig.json, and a dune file in the same project). The keys in this object should be in uri format, e.g. file:///some/path/here"
-				},
-				"reason_language_server.refmt": {
-					"type": "string",
-					"description": "Provide a custom location for the refmt binary"
-				},
-				"reason_language_server.lispRefmt": {
-					"type": "string",
-					"description": "Provide a location for the reason-lisp lispRefmt binary"
 				},
 				"reason_language_server.mlfmt": {
 					"type": "string",
@@ -120,11 +111,6 @@
 				"path": "./reason.json"
 			},
 			{
-				"language": "reason_lisp",
-				"scopeName": "source.reason_lisp",
-				"path": "./reason-lisp.json"
-			},
-			{
 				"scopeName": "markdown.reason.codeblock",
 				"path": "./reason-markdown-codeblock.json",
 				"injectTo": [
@@ -162,17 +148,6 @@
 					".mli"
 				],
 				"configuration": "./ocaml.configuration.json"
-			},
-			{
-				"id": "reason_lisp",
-				"aliases": [
-					"Reason Lisp"
-				],
-				"extensions": [
-					".rel",
-					".reli"
-				],
-				"configuration": "./reason-lisp.configuration.json"
 			},
 			{
 				"id": "bucklescript",

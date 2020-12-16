@@ -90,7 +90,6 @@ function activate(context) {
         documentSelector: [
             {scheme: 'file', language: 'reason'},
             {scheme: 'file', language: 'ocaml'},
-            {scheme: 'file', language: 'reason_lisp'},
             {scheme: 'file', language: 'bucklescript'}
         ],
         synchronize: {
