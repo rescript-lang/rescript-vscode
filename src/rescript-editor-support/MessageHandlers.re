@@ -233,26 +233,14 @@ let handlers:
             List.append(currentCl, getTypeLensTopLevel(tlp));
           };
         };
-        let showToplevelTypes = state.settings.perValueCodelens; /* TODO config option */
-        let lenses =
-          showToplevelTypes
-            ? file.contents.topLevel |> getTypeLensTopLevel : [];
-        let showOpens = state.settings.opensCodelens;
-        let lenses =
-          showOpens
-            ? lenses
-              @ {
-                CodeLens.forOpens(extra);
-              }
-            : lenses;
+        let lenses = file.contents.topLevel |> getTypeLensTopLevel;
+        let lenses = lenses @ CodeLens.forOpens(extra);
 
         let depsList =
           List.map(fst, SharedTypes.hashList(extra.externalReferences));
         let depsString =
           depsList == [] ? "[none]" : String.concat(", ", depsList);
-        let lenses =
-          state.settings.dependenciesCodelens == true
-            ? [("Dependencies: " ++ depsString, topLoc), ...lenses] : lenses;
+        let lenses = [("Dependencies: " ++ depsString, topLoc), ...lenses];
 
         lenses;
       };

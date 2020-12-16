@@ -50,31 +50,6 @@
           },
           "description": "Only specify this if build system autodetection isn't working for you (for example if you have a bsconfig.json, and a dune file in the same project). The keys in this object should be in uri format, e.g. file:///some/path/here"
         },
-        "reason_language_server.format_width": {
-          "type": "number",
-          "default": 80,
-          "description": "Format width (default=80)"
-        },
-        "reason_language_server.per_value_codelens": {
-          "type": "boolean",
-          "default": false,
-          "description": "Show the type for each top-level value in a codelens"
-        },
-        "reason_language_server.dependencies_codelens": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show the dependencies for a file at the top"
-        },
-        "reason_language_server.opens_codelens": {
-          "type": "boolean",
-          "default": true,
-          "description": "Indicate what values have been used from an open"
-        },
-        "reason_language_server.show_module_path_on_hover": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show the module path on hover"
-        },
         "reason_language_server.reloadOnChange": {
           "type": "boolean",
           "default": false,

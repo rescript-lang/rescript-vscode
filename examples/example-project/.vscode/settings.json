@@ -2,7 +2,5 @@
   "editor.codeLens": true,
   "reason_language_server.location": "../../_build/install/default/bin/rescript-editor-support.exe",
   "reason_language_server.reloadOnChange": true,
-  "reason_language_server.per_value_codelens": true,
   "reason_language_server.show_debug_errors": true,
-  //"reason_language_server.show_module_path_on_hover": false
 }
