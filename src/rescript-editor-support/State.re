@@ -66,15 +66,7 @@ let getFullFromCmt = (~state, ~uri) => {
   switch (Hashtbl.find_opt(package.pathsForModule, moduleName)) {
   | Some(paths) =>
     let cmt = SharedTypes.getCmt(~interface=Utils.endsWith(uri, "i"), paths);
-    let%try full =
-      Process_406.fullForCmt(
-        ~moduleName,
-        ~allLocations=state.settings.recordAllLocations,
-        cmt,
-        uri,
-        x =>
-        x
-      );
+    let%try full = Process_406.fullForCmt(~moduleName, cmt, uri, x => x);
     Hashtbl.replace(
       package.interModuleDependencies,
       moduleName,

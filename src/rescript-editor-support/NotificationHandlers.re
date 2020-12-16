@@ -14,11 +14,7 @@ let watchedFileContentsMap = Hashtbl.create(100);
 
 let reloadAllState = state => {
   Log.log("RELOADING ALL STATE");
-  {
-    ...TopTypes.empty(),
-    documentText: state.documentText,
-    settings: state.settings,
-  };
+  {...TopTypes.empty(), documentText: state.documentText};
 };
 
 let notificationHandlers:

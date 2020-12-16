@@ -16,11 +16,8 @@ type package = {
   opens: list(string),
 };
 
-type settings = {recordAllLocations: bool};
-
 type state = {
   rootUri: uri,
-  settings,
   documentText: Hashtbl.t(uri, (string, int, bool)),
   packagesByRoot: Hashtbl.t(string, package),
   rootForUri: Hashtbl.t(uri, string),
@@ -33,7 +30,4 @@ let empty = () => {
   packagesByRoot: Hashtbl.create(1),
   rootForUri: Hashtbl.create(30),
   cmtCache: Hashtbl.create(30),
-  settings: {
-    recordAllLocations: false,
-  },
 };

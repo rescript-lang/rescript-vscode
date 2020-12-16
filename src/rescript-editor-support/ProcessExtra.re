@@ -87,7 +87,6 @@ module F =
            let extra: extra;
            let file: file;
            let scopeExtent: ref(list(Location.t));
-           let allLocations: bool;
          },
        ) => {
   let extra = Collector.extra;
@@ -470,9 +469,6 @@ module F =
       addForPattern(stamp, name);
     | _ => ()
     };
-    if (Collector.allLocations) {
-      addLocation(pat_loc, Typed(pat_type, NotFound));
-    };
   };
 
   let enter_expression = expression => {
@@ -527,9 +523,6 @@ module F =
       | _ => ()
       }
     | _ => ()
-    };
-    if (Collector.allLocations) {
-      addLocation(expression.exp_loc, Typed(expression.exp_type, NotFound));
     };
   };
 
@@ -613,7 +606,7 @@ let forFile = (~file) => {
   extra;
 };
 
-let forItems = (~file, ~allLocations, items, parts) => {
+let forItems = (~file, items, parts) => {
   let extra = forFile(~file);
 
   let extent = ProcessCmt.itemsExtent(items);
@@ -635,7 +628,6 @@ let forItems = (~file, ~allLocations, items, parts) => {
           let scopeExtent = ref([extent]);
           let extra = extra;
           let file = file;
-          let allLocations = allLocations;
         })
       ),
     );
@@ -661,7 +653,7 @@ let forItems = (~file, ~allLocations, items, parts) => {
   extra;
 };
 
-let forCmt = (~file, ~allLocations, {cmt_annots}: Cmt_format.cmt_infos) =>
+let forCmt = (~file, {cmt_annots}: Cmt_format.cmt_infos) =>
   switch (cmt_annots) {
   | Partial_implementation(parts) =>
     let items =
@@ -676,12 +668,10 @@ let forCmt = (~file, ~allLocations, {cmt_annots}: Cmt_format.cmt_infos) =>
            }
          )
       |> List.concat;
-    forItems(~file, ~allLocations, items, parts);
-  | Implementation(structure) =>
-    forItems(~file, ~allLocations, structure.str_items, [||])
+    forItems(~file, items, parts);
+  | Implementation(structure) => forItems(~file, structure.str_items, [||])
   | Partial_interface(_)
   | Interface(_) =>
-    /** TODO actually process signature items */
-    forItems(~file, ~allLocations, [], [||])
-  | _ => forItems(~file, ~allLocations, [], [||])
+    /** TODO actually process signature items */ forItems(~file, [], [||])
+  | _ => forItems(~file, [], [||])
   };
