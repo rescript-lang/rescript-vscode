@@ -5,10 +5,10 @@ let fileForCmt = (~moduleName, cmt, uri, processDoc) => {
   Ok(ProcessCmt.forCmt(~moduleName, uri, processDoc, infos));
 };
 
-let fullForCmt = (~moduleName, ~allLocations, cmt, uri, processDoc) => {
+let fullForCmt = (~moduleName, cmt, uri, processDoc) => {
   let%try infos = Shared.tryReadCmt(cmt);
   let file = ProcessCmt.forCmt(~moduleName, uri, processDoc, infos);
-  let extra = ProcessExtra.forCmt(~file, ~allLocations, infos);
+  let extra = ProcessExtra.forCmt(~file, infos);
   Ok({file, extra});
 };
 
