@@ -59,7 +59,6 @@ let newBsPackage = rootPath => {
   Log.log("- location: " ++ rootPath);
 
   let compiledBase = BuildSystem.getCompiledBase(rootPath);
-  let%try tmpPath = BuildSystem.hiddenLocation(rootPath);
   let%try (dependencyDirectories, dependencyModules) =
     FindFiles.findDependencyFiles(~debug=true, rootPath, config);
   let%try_wrap compiledBase =
@@ -145,7 +144,6 @@ let newBsPackage = rootPath => {
     pathsForModule,
     nameForPath,
     opens,
-    tmpPath,
     namespace,
     interModuleDependencies,
   };
@@ -190,7 +188,6 @@ let getPackage = (uri, state) =>
         );
       | `Bs(rootPath) =>
         let%try package = newBsPackage(rootPath);
-        Files.mkdirp(package.tmpPath);
         Hashtbl.replace(state.rootForUri, uri, package.rootPath);
         Hashtbl.replace(state.packagesByRoot, package.rootPath, package);
         Ok(package);

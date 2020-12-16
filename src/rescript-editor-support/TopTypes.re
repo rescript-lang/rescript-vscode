@@ -14,7 +14,6 @@ type package = {
   nameForPath: Hashtbl.t(filePath, moduleName),
   namespace: option(string),
   opens: list(string),
-  tmpPath: string,
 };
 
 type settings = {

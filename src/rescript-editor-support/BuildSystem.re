@@ -28,7 +28,3 @@ let getStdlib = base => {
   let%try_wrap bsPlatformDir = getBsPlatformDir(base);
   bsPlatformDir /+ "lib" /+ "ocaml";
 };
-
-let hiddenLocation = rootPath => {
-  Ok(rootPath /+ "node_modules" /+ ".lsp");
-};
