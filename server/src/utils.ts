@@ -5,6 +5,7 @@ import * as p from "vscode-languageserver-protocol";
 import * as t from "vscode-languageserver-types";
 import fs from "fs";
 import * as os from "os";
+import path from "path";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;

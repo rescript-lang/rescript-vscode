@@ -1,6 +1,7 @@
 import { fileURLToPath } from "url";
 import { RequestMessage } from "vscode-languageserver";
 import * as utils from "./utils";
+import * as project from "./project";
 import * as path from "path";
 import { exec } from "child_process";
 import fs from "fs";
@@ -15,7 +16,7 @@ export let binaryExists = fs.existsSync(binaryPath);
 
 let findExecutable = (uri: string) => {
   let filePath = fileURLToPath(uri);
-  let projectRootPath = utils.findProjectRootOfFile(filePath);
+  let projectRootPath = project.findBscPath(filePath);
   if (projectRootPath == null || !binaryExists) {
     return null;
   } else {
