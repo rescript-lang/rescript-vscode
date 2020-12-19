@@ -1,7 +1,7 @@
 # Project heuristics
 
-Vscode and vim need to be able to detect the correct location of the `.compiler.log` and `bsc.exe` for diagnostics and formatting.
-Different project layouts result into different locations. The aim of this document is to formalize the different cases and specify where the editor tooling should search for `.compiler.log` and `bsc.exe` 
+Vscode and vim need to be able to detect the correct location of the `.compiler.log`, `bsc.exe` and `bsb` for diagnostics and formatting.
+Different project layouts result into different locations. The aim of this document is to formalize the different cases and specify where the editor tooling should search for `.compiler.log`, `bsc.exe` and `bsb`
 
 ## Heuristics
 
