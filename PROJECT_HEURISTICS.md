@@ -257,3 +257,5 @@ When `/root/folder2/src/Folder2App.res` is openend in the editor:
 1. `bsc.exe` can be found in `/root/node_modules/bs-platform/{platform}/bsc.exe`
 2. `.compiler.log` can be found in `/root/folder2/lib/bs/.compiler.log`
 3. `bsb` to get a build for this project and get the freshest data: `/root/folder2/node_modules/.bin/bsb`. Note that there's also a one in `/root/node_modules/.bin/bsb`. The bsb in the subfolder is a symlink to the one in the root's node_modules. Bsb needs a `bsconfig.json` in the current working directory, so the cwd for bsb needs to be `/root/folder2`
+
+**Note**: Running `yarn bsb -make-world` from `folder1` will build `folder2` due to pinned dependencies. When changes are maded to `folder2`, either `bsb -make-world` needs to be run from `folder1` or a `bsb` from `folder2` to get up to date diagnostics and type information in `folder2`.
