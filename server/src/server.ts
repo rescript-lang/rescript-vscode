@@ -105,9 +105,15 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
   }
 };
 
-let compilerLogsWatcher = chokidar.watch([]).on("all", (_e, changedPath) => {
-  sendUpdatedDiagnostics();
-});
+let compilerLogsWatcher = chokidar
+  .watch([], {
+    awaitWriteFinish: {
+      stabilityThreshold: 500,
+    },
+  })
+  .on("all", (_e, changedPath) => {
+    sendUpdatedDiagnostics();
+  });
 let stopWatchingCompilerLog = () => {
   // TODO: cleanup of compilerLogs?
   compilerLogsWatcher.close();
