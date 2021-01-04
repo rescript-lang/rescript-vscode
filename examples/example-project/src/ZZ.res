@@ -38,22 +38,20 @@ type inline =
   | E({x: int, y: string})
   | F
 
-module MSig
-: {
-  type rec t = | A (list<s>)
+module MSig: {
+  type rec t = A(list<s>)
   and s = list<t>
 
-  let x : int
-} 
-= {
-  type rec t = | A (list<s>)
+  let x: int
+} = {
+  type rec t = A(list<s>)
   and s = list<t>
 
   let x = 14
 }
 
 module Impl = {
-  type rec t = | A (list<s>)
+  type rec t = A(list<s>)
   and s = list<t>
 
   type w = int
@@ -61,8 +59,21 @@ module Impl = {
   let x = 14
 }
 
-module Impl2 = { include Impl};
+module Impl2 = {
+  include Impl
+}
 
 module D = MSig
 module E = Impl
 module F = Impl2
+
+@ocaml.doc("str docstring")
+type str = string
+
+@ocaml.doc("gr docstring")
+type gr = {x: int, s: str}
+
+let testRecordFields = (gr: gr) => {
+  let str = gr.s
+  str
+}

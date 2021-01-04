@@ -49,7 +49,6 @@ let showModule =
   };
 };
 
-open Infix;
 let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
   switch (loc) {
   | SharedTypes.Explanation(text) => Some(text)
@@ -98,43 +97,46 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
       | Const_nativeint(_) => "int"
       },
     )
-  | Typed(t, _) =>
-    let typeString = t |> Shared.typeToString;
-    let extraTypeInfo = {
-      let env = {Query.file, exported: file.contents.exported};
-      let%opt path = t |> Shared.digConstructor;
-      let%opt (_env, {name: {txt}, item: {decl}}) =
-        digConstructor(~env, ~getModule, path);
-      Some(decl |> Shared.declToString(txt));
-      /* TODO type declaration */
-      /* None */
-      /* Some(typ.toString()) */
+  | Typed(t, locKind) =>
+    let fromType = (~docstring, typ) => {
+      let typeString = codeBlock(typ |> Shared.typeToString);
+      let extraTypeInfo = {
+        let env = {Query.file, exported: file.contents.exported};
+        let%opt path = typ |> Shared.digConstructor;
+        let%opt (_env, {docstring, name: {txt}, item: {decl}}) =
+          digConstructor(~env, ~getModule, path);
+        Some((decl |> Shared.declToString(txt), docstring));
+      };
+      let (typeString, docstring) =
+        switch (extraTypeInfo) {
+        | None => (typeString, docstring)
+        | Some((extra, extraDocstring)) => (
+            typeString ++ "\n\n" ++ codeBlock(extra),
+            extraDocstring,
+          )
+        };
+      (Some(typeString), docstring);
     };
 
-    let typeString = codeBlock(typeString);
-    let typeString =
-      typeString
-      ++ (
-        switch (extraTypeInfo) {
-        | None => ""
-        | Some(extra) => "\n\n" ++ codeBlock(extra)
-        }
-      );
-
-    Some(
-      {
-        let%opt ({docstring}, {uri}, res) =
-          References.definedForLoc(~file, ~getModule, loc);
-
+    let parts =
+      switch (References.definedForLoc(~file, ~getModule, locKind)) {
+      | None =>
+        let (typeString, docstring) = t |> fromType(~docstring=None);
+        [typeString, docstring];
+      | Some((docstring, {uri}, res)) =>
         let uri =
           Utils.startsWith(uri, rootUri)
             ? "<root>" ++ Utils.sliceToEnd(uri, String.length(rootUri)) : uri;
 
         let parts =
           switch (res) {
-          | `Declared => [Some(typeString), docstring]
-          | `Constructor({cname: {txt}, args}) => [
-              Some(typeString),
+          | `Declared =>
+            let (typeString, docstring) = t |> fromType(~docstring);
+            [typeString, docstring];
+          | `Constructor({cname: {txt}, args}) =>
+            let (typeString, docstring) = t |> fromType(~docstring);
+            [
+              typeString,
               Some(
                 codeBlock(
                   txt
@@ -151,15 +153,15 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
                 ),
               ),
               docstring,
-            ]
-          | `Attribute(_) => [Some(typeString), docstring]
+            ];
+          | `Attribute({typ}) =>
+            let (typeString, docstring) = typ |> fromType(~docstring);
+            [typeString, docstring];
           };
 
-        let parts = parts @ [Some(uri)];
+        parts @ [Some(uri)];
+      };
 
-        Some(String.concat("\n\n", parts |> Utils.filterMap(x => x)));
-      }
-      |? typeString,
-    );
+    Some(String.concat("\n\n", parts |> Utils.filterMap(x => x)));
   };
 };
