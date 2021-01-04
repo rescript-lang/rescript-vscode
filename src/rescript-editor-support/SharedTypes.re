@@ -72,9 +72,9 @@ let emptyDeclared = name => {
   item: (),
 };
 
-type attribute = {
+type field = {
   stamp: int,
-  aname: Location.loc(string),
+  fname: Location.loc(string),
   typ: Types.type_expr,
 };
 
@@ -90,7 +90,7 @@ module Type = {
     | Abstract(option((Path.t, list(Types.type_expr))))
     | Open
     | Tuple(list(Types.type_expr))
-    | Record(list(attribute))
+    | Record(list(field))
     | Variant(list(constructor));
 
   type t = {
@@ -184,7 +184,7 @@ let emptyFile = (moduleName, uri) => {
 type tip =
   | Value
   | Type
-  | Attribute(string)
+  | Field(string)
   | Constructor(string)
   | Module;
 
@@ -192,7 +192,7 @@ let tipToString = tip =>
   switch (tip) {
   | Value => "Value"
   | Type => "Type"
-  | Attribute(a) => "Attribute(" ++ a ++ ")"
+  | Field(f) => "Field(" ++ f ++ ")"
   | Constructor(a) => "Constructor(" ++ a ++ ")"
   | Module => "Module"
   };

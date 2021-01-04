@@ -63,8 +63,7 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
       switch (tip) {
       | Constructor(name) =>
         Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
-      | Attribute(name) =>
-        Query.getAttribute(file, stamp, name) |?>> (x => x.stamp)
+      | Field(name) => Query.getField(file, stamp, name) |?>> (x => x.stamp)
       | _ => Some(stamp)
       };
     Hashtbl.find_opt(extra.internalReferences, localStamp);
@@ -88,9 +87,9 @@ let definedForLoc = (~file, ~getModule, locKind) => {
     | Constructor(name) =>
       let%opt constructor = Query.getConstructor(file, stamp, name);
       Some((None, file, `Constructor(constructor)));
-    | Attribute(name) =>
-      let%opt attribute = Query.getAttribute(file, stamp, name);
-      Some((None, file, `Attribute(attribute)));
+    | Field(name) =>
+      let%opt field = Query.getField(file, stamp, name);
+      Some((None, file, `Field(field)));
     | _ =>
       maybeLog(
         "Trying for declared "
@@ -100,7 +99,8 @@ let definedForLoc = (~file, ~getModule, locKind) => {
         ++ " in file "
         ++ file.uri,
       );
-      let%opt declared = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
+      let%opt declared =
+        Query.declaredForTip(~stamps=file.stamps, stamp, tip);
       Some((declared.docstring, file, `Declared));
     };
   };
@@ -223,8 +223,7 @@ let forLocalStamp =
     switch (tip) {
     | Constructor(name) =>
       Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
-    | Attribute(name) =>
-      Query.getAttribute(file, stamp, name) |?>> (x => x.stamp)
+    | Field(name) => Query.getField(file, stamp, name) |?>> (x => x.stamp)
     | _ => Some(stamp)
     };
   let%opt local = Hashtbl.find_opt(extra.internalReferences, localStamp);
@@ -253,8 +252,8 @@ let forLocalStamp =
               switch (tip) {
               | Constructor(name) =>
                 Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
-              | Attribute(name) =>
-                Query.getAttribute(file, stamp, name) |?>> (x => x.stamp)
+              | Field(name) =>
+                Query.getField(file, stamp, name) |?>> (x => x.stamp)
               | _ => Some(stamp)
               };
             let%opt local =
@@ -447,9 +446,9 @@ let definition = (~file, ~getModule, stamp, tip) => {
   | Constructor(name) =>
     let%opt constructor = Query.getConstructor(file, stamp, name);
     Some((file.uri, constructor.cname.loc));
-  | Attribute(name) =>
-    let%opt attribute = Query.getAttribute(file, stamp, name);
-    Some((file.uri, attribute.aname.loc));
+  | Field(name) =>
+    let%opt field = Query.getField(file, stamp, name);
+    Some((file.uri, field.fname.loc));
   | Module => resolveModuleDefinition(~file, ~getModule, stamp)
   | _ =>
     let%opt declared = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
