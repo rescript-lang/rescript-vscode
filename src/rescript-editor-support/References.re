@@ -82,19 +82,19 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
     }
   };
 
-let definedForLoc = (~file, ~getModule, loc) => {
+let definedForLoc = (~file, ~getModule, locKind) => {
   let inner = (~file, stamp, tip) => {
     switch (tip) {
     | Constructor(name) =>
       let%opt declared =
         Query.declaredForTip(~stamps=file.stamps, stamp, tip);
       let%opt constructor = Query.getConstructor(file, stamp, name);
-      Some((declared, file, `Constructor(constructor)));
+      Some((declared.docstring, file, `Constructor(constructor)));
     | Attribute(name) =>
       let%opt declared =
         Query.declaredForTip(~stamps=file.stamps, stamp, tip);
       let%opt attribute = Query.getAttribute(file, stamp, name);
-      Some((declared, file, `Attribute(attribute)));
+      Some((declared.docstring, file, `Attribute(attribute)));
     | _ =>
       maybeLog(
         "Trying for declared "
@@ -105,22 +105,15 @@ let definedForLoc = (~file, ~getModule, loc) => {
         ++ file.uri,
       );
       let%opt x = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
-      Some((x, file, `Declared));
+      Some((x.docstring, file, `Declared));
     };
   };
 
-  switch (loc) {
-  | Explanation(_)
-  | Typed(_, NotFound)
-  | LModule(NotFound)
-  | TopLevelModule(_)
-  | Constant(_) => None
-  | Typed(_, LocalReference(stamp, tip) | Definition(stamp, tip))
-  | LModule(LocalReference(stamp, tip) | Definition(stamp, tip)) =>
-    inner(~file, stamp, tip)
-  | TypeDefinition(_, _, stamp) => inner(~file, stamp, Type)
-  | LModule(GlobalReference(moduleName, path, tip))
-  | Typed(_, GlobalReference(moduleName, path, tip)) =>
+  switch (locKind) {
+  | NotFound => None
+  | LocalReference(stamp, tip)
+  | Definition(stamp, tip) => inner(~file, stamp, tip)
+  | GlobalReference(moduleName, path, tip) =>
     {
       maybeLog("Getting global " ++ moduleName);
       let%try file =
@@ -146,9 +139,6 @@ let definedForLoc = (~file, ~getModule, loc) => {
       Ok(res);
     }
     |> RResult.toOptionAndLog
-  /* let%try extra = getExtra(moduleName) |> RResult.orError("Failed to get extra for " ++ env.file.uri); */
-  /* maybeLog("Finding references for (global) " ++ file.uri ++ " and stamp " ++ string_of_int(stamp) ++ " and tip " ++ tipToString(tip)); */
-  /* forLocalStamp(~file, ~extra, ~allModules, ~getModule, ~getExtra, stamp, tip) |> RResult.orError("Could not get for local stamp") */
   };
 };
 

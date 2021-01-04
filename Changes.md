@@ -1,4 +1,5 @@
 ## master
+- Fix type shown when hovering on record fields (see https://github.com/rescript-lang/rescript-vscode/issues/52), and doc comments for records.
 - Fix issue where type variables are printed with global renaming when hovering or autocompleting a module (see https://github.com/rescript-lang/rescript-editor-support/issues/38).
 - Fix issue where a log file was always created (see https://github.com/rescript-lang/rescript-vscode/issues/47).
 - Add support for hover on the id of toplevel module definitions (```module Id = ...```).
