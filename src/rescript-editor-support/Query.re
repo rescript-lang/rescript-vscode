@@ -215,7 +215,7 @@ let declaredForExportedTip = (~stamps: stamps, ~exported: exported, name, tip) =
       stamp =>
         Hashtbl.find_opt(stamps.values, stamp) |?>> (x => {...x, item: ()})
     )
-  | Attribute(_)
+  | Field(_)
   | Constructor(_)
   | Type =>
     Hashtbl.find_opt(exported.types, name)
@@ -235,7 +235,7 @@ let declaredForTip = (~stamps, stamp, tip) =>
   switch (tip) {
   | Value =>
     Hashtbl.find_opt(stamps.values, stamp) |?>> (x => {...x, item: ()})
-  | Attribute(_)
+  | Field(_)
   | Constructor(_)
   | Type =>
     Hashtbl.find_opt(stamps.types, stamp) |?>> (x => {...x, item: ()})
@@ -243,12 +243,10 @@ let declaredForTip = (~stamps, stamp, tip) =>
     Hashtbl.find_opt(stamps.modules, stamp) |?>> (x => {...x, item: ()})
   };
 
-let getAttribute = (file, stamp, name) => {
+let getField = (file, stamp, name) => {
   let%opt {item: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
   switch (kind) {
-  | Record(labels) =>
-    let%opt label = labels |> List.find_opt(label => label.aname.txt == name);
-    Some(label);
+  | Record(fields) => fields |> List.find_opt(f => f.fname.txt == name)
   | _ => None
   };
 };
@@ -267,7 +265,7 @@ let getConstructor = (file, stamp, name) => {
 let exportedForTip = (~env, name, tip) =>
   switch (tip) {
   | Value => Hashtbl.find_opt(env.exported.values, name)
-  | Attribute(_)
+  | Field(_)
   | Constructor(_)
   | Type => Hashtbl.find_opt(env.exported.types, name)
   | Module => Hashtbl.find_opt(env.exported.modules, name)

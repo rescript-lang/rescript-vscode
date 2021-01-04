@@ -186,21 +186,21 @@ module F =
       let {Types.lbl_res} = item;
 
       let (name, typeLident) = handleConstructor(path, txt);
-      maybeAddUse(path, typeLident, loc, Attribute(name));
+      maybeAddUse(path, typeLident, loc, Field(name));
 
       let nameLoc = Utils.endOfLocation(loc, String.length(name));
       let locType =
         switch (t) {
-        | `Local({stamp, item: {kind: Record(attributes)}}) =>
-          switch (attributes |> List.find_opt(a => a.aname.txt == name)) {
+        | `Local({stamp, item: {kind: Record(fields)}}) =>
+          switch (fields |> List.find_opt(f => f.fname.txt == name)) {
           | Some({stamp: astamp}) =>
             addReference(astamp, nameLoc);
-            LocalReference(stamp, Attribute(name));
+            LocalReference(stamp, Field(name));
           | None => NotFound
           }
         | `Global(moduleName, path) =>
-          addExternalReference(moduleName, path, Attribute(name), nameLoc);
-          GlobalReference(moduleName, path, Attribute(name));
+          addExternalReference(moduleName, path, Field(name), nameLoc);
+          GlobalReference(moduleName, path, Field(name));
         | _ => NotFound
         };
       addLocation(nameLoc, Typed(lbl_res, locType));
@@ -217,26 +217,26 @@ module F =
            /* let name = Longident.last(txt); */
 
            let (name, typeLident) = handleConstructor(path, txt);
-           maybeAddUse(path, typeLident, loc, Attribute(name));
+           maybeAddUse(path, typeLident, loc, Field(name));
 
            let nameLoc = Utils.endOfLocation(loc, String.length(name));
            let locType =
              switch (t) {
-             | `Local({stamp, item: {kind: Record(attributes)}}) =>
-               switch (attributes |> List.find_opt(a => a.aname.txt == name)) {
+             | `Local({stamp, item: {kind: Record(fields)}}) =>
+               switch (fields |> List.find_opt(f => f.fname.txt == name)) {
                | Some({stamp: astamp}) =>
                  addReference(astamp, nameLoc);
-                 LocalReference(stamp, Attribute(name));
+                 LocalReference(stamp, Field(name));
                | None => NotFound
                }
              | `Global(moduleName, path) =>
                addExternalReference(
                  moduleName,
                  path,
-                 Attribute(name),
+                 Field(name),
                  nameLoc,
                );
-               GlobalReference(moduleName, path, Attribute(name));
+               GlobalReference(moduleName, path, Field(name));
              | _ => NotFound
              };
            addLocation(nameLoc, Typed(lbl_res, locType));
@@ -573,11 +573,11 @@ let forFile = (~file) => {
        switch (d.item.Type.kind) {
        | Record(labels) =>
          labels
-         |> List.iter(({stamp, aname, typ}) => {
-              addReference(stamp, aname.loc);
+         |> List.iter(({stamp, fname, typ}) => {
+              addReference(stamp, fname.loc);
               addLocation(
-                aname.loc,
-                Typed(typ, Definition(d.stamp, Attribute(aname.txt))),
+                fname.loc,
+                Typed(typ, Definition(d.stamp, Field(fname.txt))),
               );
             })
        | Variant(constructos) =>

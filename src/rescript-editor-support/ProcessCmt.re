@@ -46,12 +46,10 @@ type env = {
   scope: Location.t,
 };
 
-let newDeclared = ProcessAttributes.newDeclared;
-
 let addItem =
     (~name, ~extent, ~stamp, ~env, ~item, attributes, exported, stamps) => {
   let declared =
-    newDeclared(
+    ProcessAttributes.newDeclared(
       ~item,
       ~scope={
         Location.loc_start: extent.Location.loc_end,
@@ -133,7 +131,7 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.exported, item) => {
                          res: cd_res,
                        };
                        let declared =
-                         newDeclared(
+                         ProcessAttributes.newDeclared(
                            ~item,
                            ~extent=cd_loc,
                            ~scope={
@@ -153,15 +151,15 @@ let rec forSignatureTypeItem = (env, exported: SharedTypes.exported, item) => {
                        item;
                      }),
                 )
-              | Type_record(labels, _) =>
+              | Type_record(fields, _) =>
                 Record(
-                  labels
+                  fields
                   |> List.map(({ld_id, ld_type}) => {
                        let astamp = Ident.binding_time(ld_id);
                        let name = Ident.name(ld_id);
                        {
                          stamp: astamp,
-                         aname: Location.mknoloc(name),
+                         fname: Location.mknoloc(name),
                          typ: ld_type,
                        };
                      }),
@@ -280,12 +278,12 @@ let forTypeDeclaration =
                    };
                  }),
             )
-          | Ttype_record(labels) =>
+          | Ttype_record(fields) =>
             Record(
-              labels
-              |> List.map(({ld_id, ld_name: aname, ld_type: {ctyp_type}}) => {
-                   let astamp = Ident.binding_time(ld_id);
-                   {stamp: astamp, aname, typ: ctyp_type};
+              fields
+              |> List.map(({ld_id, ld_name: fname, ld_type: {ctyp_type}}) => {
+                   let fstamp = Ident.binding_time(ld_id);
+                   {stamp: fstamp, fname, typ: ctyp_type};
                  }),
             )
           },
@@ -511,7 +509,7 @@ and forModule = (env, mod_desc, moduleName) =>
           kind => {
             let stamp = Ident.binding_time(ident);
             let declared =
-              newDeclared(
+              ProcessAttributes.newDeclared(
                 ~item=kind,
                 ~name=argName,
                 ~scope={

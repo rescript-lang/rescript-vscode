@@ -33,7 +33,7 @@ let forOpen = (tracker: SharedTypes.openTracker) => {
       let current =
         switch (t) {
         | SharedTypes.Constructor(name) => [name, ...current]
-        | Attribute(name) => [name, ...current]
+        | Field(name) => [name, ...current]
         | _ => current
         };
       Hashtbl.replace(typeMap, name, current);

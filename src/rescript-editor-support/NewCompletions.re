@@ -127,7 +127,7 @@ let completionForConstructors =
   );
 };
 
-let completionForAttributes =
+let completionForFields =
     (
       exportedTypes,
       stamps: Hashtbl.t(int, SharedTypes.declared(SharedTypes.Type.t)),
@@ -137,11 +137,11 @@ let completionForAttributes =
     (_name, stamp, results) => {
       let t = Hashtbl.find(stamps, stamp);
       switch (t.item.kind) {
-      | Record(attributes) =>
+      | Record(fields) =>
         (
-          attributes
-          |> List.filter(c => Utils.startsWith(c.aname.txt, prefix))
-          |> List.map(c => (c, t))
+          fields
+          |> List.filter(f => Utils.startsWith(f.fname.txt, prefix))
+          |> List.map(f => (f, t))
         )
         @ results
       | _ => results
@@ -235,7 +235,7 @@ type k =
   | Value(Types.type_expr)
   | Type(Type.t)
   | Constructor(constructor, declared(Type.t))
-  | Attribute(attribute, declared(Type.t))
+  | Field(field, declared(Type.t))
   | FileModule(string);
 
 let kindToInt = k =>
@@ -243,7 +243,7 @@ let kindToInt = k =>
   | Module(_) => 9
   | FileModule(_) => 9
   | Constructor(_, _) => 4
-  | Attribute(_, _) => 5
+  | Field(_, _) => 5
   | Type(_) => 22
   | Value(_) => 12
   };
@@ -254,7 +254,7 @@ let detail = (name, contents) =>
   | Value(typ) => typ |> Shared.typeToString
   | Module(_) => "module"
   | FileModule(_) => "file module"
-  | Attribute({typ}, t) =>
+  | Field({typ}, t) =>
     name
     ++ ": "
     ++ (typ |> Shared.typeToString)
@@ -300,13 +300,9 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
           Type(t)
         )
       @ (
-        completionForAttributes(
-          env.exported.types,
-          env.file.stamps.types,
-          suffix,
-        )
-        |> List.map(((c, t)) =>
-             {...emptyDeclared(c.aname.txt), item: Attribute(c, t)}
+        completionForFields(env.exported.types, env.file.stamps.types, suffix)
+        |> List.map(((f, t)) =>
+             {...emptyDeclared(f.fname.txt), item: Field(f, t)}
            )
       );
     } else {
@@ -364,13 +360,9 @@ let valueCompletions = (~env: Query.queryEnv, suffix) => {
           Type(t)
         )
       @ (
-        completionForAttributes(
-          env.exported.types,
-          env.file.stamps.types,
-          suffix,
-        )
-        |> List.map(((c, t)) =>
-             {...emptyDeclared(c.aname.txt), item: Attribute(c, t)}
+        completionForFields(env.exported.types, env.file.stamps.types, suffix)
+        |> List.map(((f, t)) =>
+             {...emptyDeclared(f.fname.txt), item: Field(f, t)}
            )
       );
     } else {
@@ -405,13 +397,9 @@ let attributeCompletions = (~env: Query.queryEnv, ~suffix) => {
         )
       /* completionForExporteds(env.exported.types, env.file.stamps.types, suffix, t => Type(t)) @ */
       @ (
-        completionForAttributes(
-          env.exported.types,
-          env.file.stamps.types,
-          suffix,
-        )
-        |> List.map(((c, t)) =>
-             {...emptyDeclared(c.aname.txt), item: Attribute(c, t)}
+        completionForFields(env.exported.types, env.file.stamps.types, suffix)
+        |> List.map(((f, t)) =>
+             {...emptyDeclared(f.fname.txt), item: Field(f, t)}
            )
       );
     } else {
@@ -537,9 +525,9 @@ let getItems =
                  (current, name) => {
                    let%opt (env, typ) = current;
                    switch (typ.item.SharedTypes.Type.kind) {
-                   | Record(attributes) =>
+                   | Record(fields) =>
                      let%opt attr =
-                       attributes |> List.find_opt(a => a.aname.txt == name);
+                       fields |> List.find_opt(f => f.fname.txt == name);
                      Log.log("Found attr " ++ name);
                      let%opt path = attr.typ |> Shared.digConstructor;
                      Hover.digConstructor(~env, ~getModule, path);
@@ -549,17 +537,14 @@ let getItems =
                  Some((env, typ)),
                );
           switch (typ.item.kind) {
-          | Record(attributes) =>
+          | Record(fields) =>
             Some(
-              attributes
-              |> Utils.filterMap(a =>
-                   if (Utils.startsWith(a.aname.txt, suffix)) {
+              fields
+              |> Utils.filterMap(f =>
+                   if (Utils.startsWith(f.fname.txt, suffix)) {
                      Some((
                        env.file.uri,
-                       {
-                         ...emptyDeclared(a.aname.txt),
-                         item: Attribute(a, typ),
-                       },
+                       {...emptyDeclared(f.fname.txt), item: Field(f, typ)},
                      ));
                    } else {
                      None;

@@ -84,7 +84,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
   | TopLevelModule(name) =>
     let%opt file = getModule(name);
     showModule(~name=file.moduleName, ~file, None);
-  | Typed(_, Definition(_, Attribute(_) | Constructor(_))) => None
+  | Typed(_, Definition(_, Field(_) | Constructor(_))) => None
   | Constant(t) =>
     Some(
       switch (t) {
@@ -154,7 +154,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
               ),
               docstring,
             ];
-          | `Attribute({typ}) =>
+          | `Field({typ}) =>
             let (typeString, docstring) = typ |> fromType(~docstring);
             [typeString, docstring];
           };
