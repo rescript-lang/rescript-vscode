@@ -77,3 +77,8 @@ let testRecordFields = (gr: gr) => {
   let str = gr.s
   str
 }
+
+@ocaml.doc("vr docstring")
+type vr = | V1 | V2
+
+let v1 = V1
