@@ -86,15 +86,11 @@ let definedForLoc = (~file, ~getModule, locKind) => {
   let inner = (~file, stamp, tip) => {
     switch (tip) {
     | Constructor(name) =>
-      let%opt declared =
-        Query.declaredForTip(~stamps=file.stamps, stamp, tip);
       let%opt constructor = Query.getConstructor(file, stamp, name);
-      Some((declared.docstring, file, `Constructor(constructor)));
+      Some((None, file, `Constructor(constructor)));
     | Attribute(name) =>
-      let%opt declared =
-        Query.declaredForTip(~stamps=file.stamps, stamp, tip);
       let%opt attribute = Query.getAttribute(file, stamp, name);
-      Some((declared.docstring, file, `Attribute(attribute)));
+      Some((None, file, `Attribute(attribute)));
     | _ =>
       maybeLog(
         "Trying for declared "
@@ -104,8 +100,8 @@ let definedForLoc = (~file, ~getModule, locKind) => {
         ++ " in file "
         ++ file.uri,
       );
-      let%opt x = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
-      Some((x.docstring, file, `Declared));
+      let%opt declared = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
+      Some((declared.docstring, file, `Declared));
     };
   };
 
