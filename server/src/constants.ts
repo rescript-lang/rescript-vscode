@@ -9,7 +9,6 @@ export let bscExePartialPath = path.join(
   process.platform,
   "bsc.exe"
 );
-export let bscNodePartialPath = path.join("node_modules", ".bin", "bsc");
 
 // can't use the native bsb since we might need the watcher -w flag, which is only in the js wrapper
 // export let bsbPartialPath = path.join('node_modules', 'bs-platform', process.platform, 'bsb.exe');
