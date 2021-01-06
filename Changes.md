@@ -1,4 +1,8 @@
 ## master
+
+## Release 1.0.3 of rescript-vscode 
+This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/214d220d8573f9f0c8d54e623c163e01617bf124) is vendored in [rescript-vscode 1.0.3](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.3).
+
 - Fix type shown when hovering on record fields (see https://github.com/rescript-lang/rescript-vscode/issues/52), and doc comments for records.
 - Fix issue where type variables are printed with global renaming when hovering or autocompleting a module (see https://github.com/rescript-lang/rescript-editor-support/issues/38).
 - Fix issue where a log file was always created (see https://github.com/rescript-lang/rescript-vscode/issues/47).
