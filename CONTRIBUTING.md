@@ -6,7 +6,6 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 
 This repo happens to also contain a language-server usable by other editors. If you'd like to use this language-server with e.g. Atom, for now, you have to clone the repo and run `npm run compile`. The language server will be at `server/out/server.js`. Wire that into your editor.
 
-
 ## Repo Structure
 
 ```
@@ -123,3 +122,12 @@ The formatted result should be taken as-is, without any extra string trimming an
 The errors returned from `bsc.exe -format` should be discarded; in theory, they should have been duplicates of the errors from `.compiler.log`.
 
 In the future, we should consier showing the format errors when `.compiler.log` isn't found.
+
+## Release
+
+Currently the release is vetted and done by @chenglou.
+
+- Bump the version properly in `package.json` and make a new commit.
+- Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
+- Use `vsce publish` to publish. Official VSCode guide [here](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Only @chenglou has the publishing rights right now.
+- Not done! Make a new manual release [here](https://github.com/rescript-lang/rescript-vscode/releases); use `vsce package` to package up a standalone `.vsix` plugin and attach it onto that new release. This is for folks who don't use the VSCode marketplace.
