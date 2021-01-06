@@ -425,21 +425,30 @@ process.on("message", (msg: m.Message) => {
           process.send!(fakeSuccessResponse);
           process.send!(response);
         } else {
-          let bscExists = false;
-          let bscPath = path.join(projectRootPath, c.bscExePartialPath);
-          bscExists = fs.existsSync(bscPath);
-          if (!bscExists) {
-            // In certain cases the native bsc binaries might be put in an unknown location
-            // on the file system. Example: yarn workspaces.
-            // The only other guarantee we have is that the node bsc should be available in the
-            // project root + ./node_modules/.bin cf. package.json
-            bscPath = path.join(projectRootPath, c.bscNodePartialPath);
-            bscExists = fs.existsSync(bscPath);
-          }
-          if (!bscExists) {
+          let bscExePath = path.join(projectRootPath, c.bscExePartialPath);
+          let bscNodePath = path.join(projectRootPath, c.bscNodePartialPath);
+          // There are the native bsc.exe binaries the bs-platform package, and
+          // the javascript bsc wrapper within node_modules/.bin. The JS wrapper
+          // starts and finds the right platform-specific native binary to call.
+          // This has nontrivial overhead each formatting, so we try to directly
+          // invoke the platform-specific native binary (inside bs-platform).
+
+          // However, we won't always be able to find the bs-platform package;
+          // for example yarn workspace lifts up the dependencies packages to a
+          // directory higher (grumbles); that setup only leaves us to find
+          // node_modules/.bin (which it doesn't touch, thankfully). So for
+          // quirky npm setups, we need to have a graceful degradation and find
+          // the JS bsc wrapper. If we can't even find node_modules/.bin then we
+          // give up
+          let resolvedBscPath = fs.existsSync(bscExePath)
+            ? bscExePath
+            : fs.existsSync(bscNodePath)
+              ? bscNodePath
+              : null;
+          if (resolvedBscPath === null) {
             let params: p.ShowMessageParams = {
               type: p.MessageType.Error,
-              message: `Cannot find a nearby ${c.bscNodePartialPath}. It's needed for formatting.`,
+              message: `Cannot find a nearby ${c.bscExePartialPath} nor ${c.bscNodePartialPath}. It's needed for formatting.`,
             };
             let response: m.NotificationMessage = {
               jsonrpc: c.jsonrpcVersion,
@@ -453,7 +462,7 @@ process.on("message", (msg: m.Message) => {
             let code = getOpenedFileContent(params.textDocument.uri);
             let formattedResult = utils.formatUsingValidBscPath(
               code,
-              bscPath,
+              resolvedBscPath,
               extension === c.resiExt
             );
             if (formattedResult.kind === "success") {
