@@ -10,7 +10,12 @@
 	},
 	"publisher": "chenglou92",
 	"icon": "logo.png",
-	"categories": [],
+	"categories": [
+		"Programming Languages",
+		"Snippets",
+		"Linters",
+		"Formatters"
+	],
 	"keywords": [
 		"rescript",
 		"language-server"
