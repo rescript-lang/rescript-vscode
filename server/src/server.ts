@@ -419,9 +419,7 @@ process.on("message", (msg: m.Message) => {
       } else {
         // See comment on findBscExeDirOfFile for why we need
         // to recursively search for bsc.exe upward
-        let bscExeDir = utils.findBscExeDirOfFile(
-          filePath
-        );
+        let bscExeDir = utils.findBscExeDirOfFile(filePath);
         if (bscExeDir === null) {
           let params: p.ShowMessageParams = {
             type: p.MessageType.Error,
