@@ -141,7 +141,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
     // because otherwise the diagnostics info we'll display might be stale
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
     if (firstOpenFileOfProject && !fs.existsSync(bsbLockPath)) {
-      let bsbPath = path.join(projectRootPath, c.bsbPartialPath);
+      let bsbPath = path.join(projectRootPath, c.bsbNodePartialPath);
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
@@ -426,7 +426,7 @@ process.on("message", (msg: m.Message) => {
           process.send!(response);
         } else {
           let bscExists = false;
-          let bscPath = path.join(projectRootPath, c.bscPartialPath);
+          let bscPath = path.join(projectRootPath, c.bscExePartialPath);
           bscExists = fs.existsSync(bscPath);
           if (!bscExists) {
             // In certain cases the native bsc binaries might be put in an unknown location
@@ -510,7 +510,7 @@ process.on("message", (msg: m.Message) => {
     ) {
       let msg_ = msg.result as clientSentBuildAction;
       let projectRootPath = msg_.projectRootPath;
-      let bsbPath = path.join(projectRootPath, c.bsbPartialPath);
+      let bsbPath = path.join(projectRootPath, c.bsbNodePartialPath);
       // TODO: sometime stale .bsb.lock dangling
       // TODO: close watcher when lang-server shuts down
       if (fs.existsSync(bsbPath)) {
