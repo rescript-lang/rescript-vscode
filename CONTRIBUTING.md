@@ -105,13 +105,10 @@ The bad alternatives are:
 
 ## Format
 
-To find the location of `bsc` to run:
-- Look for the nearest `bsconfig.json`. That's the root of the project. \*
-- Search in that directory's `node_modules/bs-platform/{platform}/bsc.exe`.
+To find the location of `bsc.exe` to run the formatter:
+- Search in the file's directory's `node_modules/bs-platform/{platform}/bsc.exe`.
 	-	Do **not** directly use `node_modules/.bin/bsc` if you can help it. That's a Nodejs wrapper. Slow startup. We don't want our formatting to be momentarily stalled because some Nodejs cache went cold.
 	- `platform` can be `darwin`, `linux`, `win32` or `freebsd`.
-
-\*  Maybe we'll do this differently in the future because asking for a `bsconfig.json` just to format some files is rough.
 
 ### Formatting Newline
 
