@@ -44,19 +44,19 @@ export let findProjectRootOfFile = (
 // Also, if someone's ever formatting a regular project setup's dependency
 // (which is weird but whatever), they'll at least find an upward bs-platform
 // from the dependent.
-export let findBscExeDirUpwardFromProjectRoot = (
-	dir: p.DocumentUri
+export let findBscExeDirOfFile = (
+	source: p.DocumentUri
 ): null | p.DocumentUri => {
+	let dir = path.dirname(source);
 	let bscPath = path.join(dir, c.bscExePartialPath);
 	if (fs.existsSync(bscPath)) {
 		return dir;
 	} else {
-		let parentDir = path.dirname(dir);
-		if (parentDir === dir) {
+		if (dir === source) {
 			// reached the top
 			return null;
 		} else {
-			return findBscExeDirUpwardFromProjectRoot(parentDir);
+			return findBscExeDirOfFile(dir);
 		}
 	}
 };

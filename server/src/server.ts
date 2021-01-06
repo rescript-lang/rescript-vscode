@@ -417,11 +417,15 @@ process.on("message", (msg: m.Message) => {
         process.send!(fakeSuccessResponse);
         process.send!(response);
       } else {
-        let projectRootPath = utils.findProjectRootOfFile(filePath);
-        if (projectRootPath == null) {
+        // See comment on findBscExeDirOfFile for why we need
+        // to recursively search for bsc.exe upward
+        let bscExeDir = utils.findBscExeDirOfFile(
+          filePath
+        );
+        if (bscExeDir === null) {
           let params: p.ShowMessageParams = {
             type: p.MessageType.Error,
-            message: `Cannot find a nearby ${c.bsconfigPartialPath}. It's needed for determining the project's root.`,
+            message: `Cannot find a nearby ${c.bscExePartialPath}. It's needed for formatting.`,
           };
           let response: m.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
@@ -431,58 +435,39 @@ process.on("message", (msg: m.Message) => {
           process.send!(fakeSuccessResponse);
           process.send!(response);
         } else {
-          // See comment on findBscExeDirUpwardFromProjectRoot for why we need
-          // to recursively search for bsc.exe upward
-          let bscExeDir = utils.findBscExeDirUpwardFromProjectRoot(
-            projectRootPath
+          let resolvedBscPath = path.join(bscExeDir, c.bscExePartialPath);
+          // code will always be defined here, even though technically it can be undefined
+          let code = getOpenedFileContent(params.textDocument.uri);
+          let formattedResult = utils.formatUsingValidBscPath(
+            code,
+            resolvedBscPath,
+            extension === c.resiExt
           );
-          if (bscExeDir === null) {
-            let params: p.ShowMessageParams = {
-              type: p.MessageType.Error,
-              message: `Cannot find a nearby ${c.bscExePartialPath}. It's needed for formatting.`,
-            };
-            let response: m.NotificationMessage = {
+          if (formattedResult.kind === "success") {
+            let result: p.TextEdit[] = [
+              {
+                range: {
+                  start: { line: 0, character: 0 },
+                  end: {
+                    line: Number.MAX_VALUE,
+                    character: Number.MAX_VALUE,
+                  },
+                },
+                newText: formattedResult.result,
+              },
+            ];
+            let response: m.ResponseMessage = {
               jsonrpc: c.jsonrpcVersion,
-              method: "window/showMessage",
-              params: params,
+              id: msg.id,
+              result: result,
             };
-            process.send!(fakeSuccessResponse);
             process.send!(response);
           } else {
-            let resolvedBscPath = path.join(bscExeDir, c.bscExePartialPath);
-            // code will always be defined here, even though technically it can be undefined
-            let code = getOpenedFileContent(params.textDocument.uri);
-            let formattedResult = utils.formatUsingValidBscPath(
-              code,
-              resolvedBscPath,
-              extension === c.resiExt
-            );
-            if (formattedResult.kind === "success") {
-              let result: p.TextEdit[] = [
-                {
-                  range: {
-                    start: { line: 0, character: 0 },
-                    end: {
-                      line: Number.MAX_VALUE,
-                      character: Number.MAX_VALUE,
-                    },
-                  },
-                  newText: formattedResult.result,
-                },
-              ];
-              let response: m.ResponseMessage = {
-                jsonrpc: c.jsonrpcVersion,
-                id: msg.id,
-                result: result,
-              };
-              process.send!(response);
-            } else {
-              // let the diagnostics logic display the updated syntax errors,
-              // from the build.
-              // Again, not sending the actual errors. See fakeSuccessResponse
-              // above for explanation
-              process.send!(fakeSuccessResponse);
-            }
+            // let the diagnostics logic display the updated syntax errors,
+            // from the build.
+            // Again, not sending the actual errors. See fakeSuccessResponse
+            // above for explanation
+            process.send!(fakeSuccessResponse);
           }
         }
       }
