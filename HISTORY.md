@@ -1,6 +1,7 @@
 ## 1.0.3
 
 - Some diagnostics watcher staleness fix.
+- Various type hover fixes.
 - Monorepo/yarn workspace support. The performance of formatting is slightly and obligatory degraded, for those use-cases unforunately. Regular project setups aren't affected.
 
 ## 1.0.2
