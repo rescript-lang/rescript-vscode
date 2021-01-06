@@ -425,11 +425,21 @@ process.on("message", (msg: m.Message) => {
           process.send!(fakeSuccessResponse);
           process.send!(response);
         } else {
+          let bscExists = false;
           let bscPath = path.join(projectRootPath, c.bscPartialPath);
-          if (!fs.existsSync(bscPath)) {
+          bscExists = fs.existsSync(bscPath);
+          if (!bscExists) {
+            // In certain cases the native bsc binaries might be put in an unknown location
+            // on the file system. Example: yarn workspaces.
+            // The only other guarantee we have is that the node bsc should be available in the
+            // project root + ./node_modules/.bin cf. package.json
+            bscPath = path.join(projectRootPath, c.bscNodePartialPath);
+            bscExists = fs.existsSync(bscPath);
+          }
+          if (!bscExists) {
             let params: p.ShowMessageParams = {
               type: p.MessageType.Error,
-              message: `Cannot find a nearby ${c.bscPartialPath}. It's needed for formatting.`,
+              message: `Cannot find a nearby ${c.bscNodePartialPath}. It's needed for formatting.`,
             };
             let response: m.NotificationMessage = {
               jsonrpc: c.jsonrpcVersion,
