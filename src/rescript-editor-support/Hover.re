@@ -17,7 +17,11 @@ let codeBlock = code => {
 };
 
 let showModuleTopLevel =
-    (~name, topLevel: list(SharedTypes.declared(SharedTypes.moduleItem))) => {
+    (
+      ~docstring,
+      ~name,
+      topLevel: list(SharedTypes.declared(SharedTypes.moduleItem)),
+    ) => {
   let contents =
     topLevel
     |> List.map(item =>
@@ -32,19 +36,25 @@ let showModuleTopLevel =
        )
     |> String.concat("\n");
   let full = "module " ++ name ++ " = {" ++ "\n" ++ contents ++ "\n}";
-  Some(codeBlock(full));
+  let doc =
+    switch (docstring) {
+    | None => ""
+    | Some(s) => "\n" ++ s ++ "\n"
+    };
+  Some(doc ++ codeBlock(full));
 };
 
 let showModule =
     (
+      ~docstring,
       ~file: SharedTypes.file,
       ~name,
       declared: option(SharedTypes.declared(SharedTypes.moduleKind)),
     ) => {
   switch (declared) {
-  | None => showModuleTopLevel(~name, file.contents.topLevel)
+  | None => showModuleTopLevel(~docstring, ~name, file.contents.topLevel)
   | Some({item: Structure({topLevel})}) =>
-    showModuleTopLevel(~name, topLevel)
+    showModuleTopLevel(~docstring, ~name, topLevel)
   | Some({item: Ident(_)}) => Some("Unable to resolve module reference")
   };
 };
@@ -60,12 +70,12 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
     let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
     let%opt (file, declared) =
       References.resolveModuleReference(~file, ~getModule, md);
-    let name =
+    let (name, docstring) =
       switch (declared) {
-      | Some(d) => d.name.txt
-      | None => file.moduleName
+      | Some(d) => (d.name.txt, d.docstring)
+      | None => (file.moduleName, file.contents.docstring)
       };
-    showModule(~name, ~file, declared);
+    showModule(~docstring, ~name, ~file, declared);
   | LModule(GlobalReference(moduleName, path, tip)) =>
     let%opt file = getModule(moduleName);
     let env = {Query.file, exported: file.contents.exported};
@@ -74,16 +84,21 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
     let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
     let%opt (file, declared) =
       References.resolveModuleReference(~file, ~getModule, md);
-    let name =
+    let (name, docstring) =
       switch (declared) {
-      | Some(d) => d.name.txt
-      | None => file.moduleName
+      | Some(d) => (d.name.txt, d.docstring)
+      | None => (file.moduleName, file.contents.docstring)
       };
-    showModule(~name, ~file, declared);
+    showModule(~docstring, ~name, ~file, declared);
   | LModule(NotFound) => None
   | TopLevelModule(name) =>
     let%opt file = getModule(name);
-    showModule(~name=file.moduleName, ~file, None);
+    showModule(
+      ~docstring=file.contents.docstring,
+      ~name=file.moduleName,
+      ~file,
+      None,
+    );
   | Typed(_, Definition(_, Field(_) | Constructor(_))) => None
   | Constant(t) =>
     Some(
