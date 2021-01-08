@@ -84,3 +84,5 @@ type vr = | V1 | V2
 let v1 = V1
 
 module DoubleNested = ModuleWithDocComment.Nested.NestedAgain
+
+let uncurried = (. x) => x+1;
