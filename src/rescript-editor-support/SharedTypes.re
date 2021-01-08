@@ -141,8 +141,9 @@ type moduleItem =
   | MType(Type.t, Types.rec_status)
   | Module(moduleKind)
 and moduleContents = {
+  docstring: option(string),
   exported,
-  mutable topLevel: list(declared(moduleItem)),
+  topLevel: list(declared(moduleItem)),
 }
 and moduleKind =
   | Ident(Path.t)
@@ -176,6 +177,7 @@ let emptyFile = (moduleName, uri) => {
   stamps: initStamps(),
   moduleName,
   contents: {
+    docstring: None,
     exported: initExported(),
     topLevel: [],
   },

@@ -203,7 +203,7 @@ and forSignatureType = (env, signature) => {
       signature,
       [],
     );
-  {exported, topLevel};
+  {docstring: None, exported, topLevel};
 }
 and forModuleType = (env, moduleType) =>
   switch (moduleType) {
@@ -370,7 +370,14 @@ let forSignature = (~env, items) => {
   let exported = initExported();
   let topLevel =
     items |> List.map(forSignatureItem(~env, ~exported)) |> List.flatten;
-  {exported, topLevel};
+  let attributes =
+    switch (items) {
+    | [{sig_desc: Tsig_attribute(attribute)}, ..._] => [attribute]
+    | _ => []
+    };
+  let docstring =
+    ProcessAttributes.findDocAttribute(attributes) |?>> env.processDoc;
+  {docstring, exported, topLevel};
 };
 
 let forTreeModuleType = (~env, {mty_desc}) =>
@@ -554,7 +561,14 @@ and forStructure = (~env, items) => {
       items,
       [],
     );
-  {exported, topLevel};
+  let attributes =
+    switch (items) {
+    | [{str_desc: Tstr_attribute(attribute)}, ..._] => [attribute]
+    | _ => []
+    };
+  let docstring =
+    ProcessAttributes.findDocAttribute(attributes) |?>> env.processDoc;
+  {docstring, exported, topLevel};
 };
 
 let forCmt =

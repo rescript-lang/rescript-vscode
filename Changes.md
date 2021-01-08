@@ -1,4 +1,5 @@
 ## master
+- Add support for doc strings when hovering on modules.
 
 ## Release 1.0.3 of rescript-vscode 
 This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/214d220d8573f9f0c8d54e623c163e01617bf124) is vendored in [rescript-vscode 1.0.3](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.3).
