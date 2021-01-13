@@ -39,6 +39,10 @@
 			{
 				"language": "rescript",
 				"path": "./snippets.json"
+			},
+			{
+				"language": "reason",
+				"path": "./reason_snippets.json"
 			}
 		],
 		"taskDefinitions_unused": [
