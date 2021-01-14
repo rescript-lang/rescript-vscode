@@ -31,7 +31,6 @@ let rec findBackSkippingCommentsAndStrings = (text, char, pair, i, level) => {
   } else {
     switch (text.[i]) {
     | '"' => loop(findBack(text, '"', i - 1), level)
-    | '\'' => loop(findBack(text, '\'', i - 1), level)
     | '/' when i >= 1 && text.[i - 1] == '*' =>
       loop(findOpenComment(text, i - 2), level)
     | _ => loop(i - 1, level)
