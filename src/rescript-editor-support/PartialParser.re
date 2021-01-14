@@ -100,6 +100,16 @@ let findCompletable = (text, offset) => {
   };
 };
 
+// Check if the position is inside a `//` comment
+let rec insideLineComment = (text, offset) =>
+  if (offset <= 0 || text.[offset] == '\n') {
+    false;
+  } else if (offset > 0 && text.[offset] == '/' && text.[offset - 1] == '/') {
+    true;
+  } else {
+    insideLineComment(text, offset - 1);
+  };
+
 let findOpens = (text, offset) => {
   let opens = ref([]);
   let pathOfModuleOpen = o => {
@@ -128,7 +138,8 @@ let findOpens = (text, offset) => {
               && text.[at - 3] == 'o'
               && text.[at - 2] == 'p'
               && text.[at - 1] == 'e'
-              && text.[at] == 'n') {
+              && text.[at] == 'n'
+              && !insideLineComment(text, at - 4)) {
             add(String.sub(text, i + 1, i0 + 1 - (i + 1)));
             at - 4;
           } else {
