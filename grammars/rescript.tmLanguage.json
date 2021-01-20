@@ -28,7 +28,12 @@
     "commentBlock": {
       "name": "comment.block",
       "begin": "/\\*",
-      "end": "\\*/"
+      "end": "\\*/",
+      "patterns": [
+        {
+          "include": "#commentBlock"
+        }
+      ]
     },
     "punctuations": {
       "patterns": [
