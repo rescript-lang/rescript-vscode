@@ -1,3 +1,7 @@
+## 1.0.x (unreleased)
+
+- Properly highlight nested comments.
+
 ## 1.0.4
 
 - Some diagnostics watcher staleness fix.
