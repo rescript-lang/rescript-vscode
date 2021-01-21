@@ -8,6 +8,22 @@ The official VSCode plugin for ReScript.
 
 You **must** have `bs-platform 8.3.3` installed locally in your project, through the usual [npm installation](https://rescript-lang.org/docs/manual/latest/installation#integrate-into-existing-js-project). Older versions are not guaranteed to work.
 
+## Recommendation
+
+Our highlighting works well with most popular VSCode themes, such as:
+
+- Dark+ (default dark), Light+ (default light)
+- Solarized Dark, Solarized Light
+- Monokai Dimmed
+- Tomorrow Night Blue
+- Most preinstalled themes
+
+The only 2 themes we don't (and can't) support, due to their lack of coloring, are:
+
+- Dark (Visual Studio), Light (Visual Studio)
+
+If your custom theme doesn't seem to highlight much (e.g. no colors for upper-case JSX tag, no distinction between module and variant), try one of the recommended themes to see if that's the problem.
+
 ## Installation
 
 The plugin's on [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=chenglou92.rescript-vscode). In VSCode, `cmd-shift-p` -> "Install Extensions", then find "rescript-vscode".
