@@ -150,25 +150,18 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
             [typeString, docstring];
           | `Constructor({cname: {txt}, args}) =>
             let (typeString, docstring) = t |> fromType(~docstring);
-            [
-              typeString,
-              Some(
-                codeBlock(
-                  txt
-                  ++ "("
-                  ++ (
-                    args
-                    |> List.map(((t, _)) => {
-                         let typeString = t |> Shared.typeToString;
-                         typeString;
-                       })
-                    |> String.concat(", ")
-                  )
-                  ++ ")",
-                ),
-              ),
-              docstring,
-            ];
+
+            let argsString =
+              switch (args) {
+              | [] => ""
+              | _ =>
+                args
+                |> List.map(((t, _)) => Shared.typeToString(t))
+                |> String.concat(", ")
+                |> Printf.sprintf("(%s)")
+              };
+
+            [typeString, Some(codeBlock(txt ++ argsString)), docstring];
           | `Field({typ}) =>
             let (typeString, docstring) = typ |> fromType(~docstring);
             [typeString, docstring];
