@@ -297,6 +297,7 @@ export let parseCompilerLogOutput = (
 	let result: filesDiagnostics = {};
 	parsedDiagnostics.forEach((parsedDiagnostic) => {
 		let [fileAndLocationRow, ...diagnosticMessage] = parsedDiagnostic.content;
+
 		let fileAndLocation = fileAndLocationRow.trim()
 		let locationSeparator = findLocationSeparator(fileAndLocation)
 		let [file, location] = separateFileAndLocation(fileAndLocation, locationSeparator);
