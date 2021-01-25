@@ -171,9 +171,7 @@ let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
 	let file = fileAndLocation.slice(0, locationSeparator)
 	let location = fileAndLocation.slice(locationSeparator + 1)
 	switch (os.platform()) {
-		case "win32": {
-			return [`file:\\\\\\${file}`, location];
-		}
+		case "win32": return [`file:\\\\\\${file}`, location];
 		default: return [file, location]
 	}
 }
@@ -299,9 +297,9 @@ export let parseCompilerLogOutput = (
 
 	let result: filesDiagnostics = {};
 	parsedDiagnostics.forEach((parsedDiagnostic) => {
-		let [fileAndLocationRow, ...diagnosticMessage] = parsedDiagnostic.content;
+		let [fileAndLocationLine, ...diagnosticMessage] = parsedDiagnostic.content;
 
-		let fileAndLocation = fileAndLocationRow.trim()
+		let fileAndLocation = fileAndLocationLine.trim()
 		let [file, location] = separateFileAndLocation(fileAndLocation);
 
 		if (result[file] == null) {
