@@ -1,5 +1,5 @@
 import { Range } from "vscode-languageserver-textdocument";
-import * as c from "./letants";
+import * as c from "./constants";
 import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
 import * as path from "path";
