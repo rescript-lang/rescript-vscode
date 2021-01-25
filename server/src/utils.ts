@@ -159,11 +159,13 @@ export let parseDiagnosticLocation = (location: string): Range => {
 };
 
 let separateFileAndLocation = (fileAndLocation: string, locationSeparator: number): [string, string] => {
+	let file = fileAndLocation.slice(0, locationSeparator)
+	let location = fileAndLocation.slice(locationSeparator + 1)
 	switch (os.platform()) {
 		case "win32": {
-			return [`file:\\\\\\${fileAndLocation.slice(0, locationSeparator)}`, fileAndLocation.slice(locationSeparator + 1)];
+			return [`file:\\\\\\${file}`, location];
 		}
-		default: return [fileAndLocation.slice(locationSeparator), fileAndLocation.slice(locationSeparator + 1)]
+		default: return [file, location]
 	}
 }
 
