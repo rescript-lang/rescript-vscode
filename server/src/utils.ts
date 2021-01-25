@@ -1,5 +1,5 @@
 import { Range } from "vscode-languageserver-textdocument";
-import * as c from "./constants";
+import * as c from "./letants";
 import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
 import * as path from "path";
@@ -7,21 +7,21 @@ import * as t from "vscode-languageserver-types";
 import fs from "fs";
 import * as os from "os";
 
-const tempFilePrefix = "rescript_format_file_" + process.pid + "_";
+let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
 
-export const createFileInTempDir = (extension = "") => {
-	const tempFileName = tempFilePrefix + tempFileId + extension;
+export let createFileInTempDir = (extension = "") => {
+	let tempFileName = tempFilePrefix + tempFileId + extension;
 	tempFileId = tempFileId + 1;
 	return path.join(os.tmpdir(), tempFileName);
 };
 
 // TODO: races here?
 // TODO: this doesn't handle file:/// scheme
-export const findProjectRootOfFile = (
+export let findProjectRootOfFile = (
 	source: p.DocumentUri
 ): null | p.DocumentUri => {
-	const dir = path.dirname(source);
+	let dir = path.dirname(source);
 	if (fs.existsSync(path.join(dir, c.bsconfigPartialPath))) {
 		return dir;
 	} else {
@@ -44,11 +44,11 @@ export const findProjectRootOfFile = (
 // Also, if someone's ever formatting a regular project setup's dependency
 // (which is weird but whatever), they'll at least find an upward bs-platform
 // from the dependent.
-export const findBscExeDirOfFile = (
+export let findBscExeDirOfFile = (
 	source: p.DocumentUri
 ): null | p.DocumentUri => {
-	const dir = path.dirname(source);
-	const bscPath = path.join(dir, c.bscExePartialPath);
+	let dir = path.dirname(source);
+	let bscPath = path.join(dir, c.bscExePartialPath);
 	if (fs.existsSync(bscPath)) {
 		return dir;
 	} else {
@@ -70,18 +70,18 @@ type execResult =
 		kind: "error";
 		error: string;
 	};
-export const formatUsingValidBscPath = (
+export let formatUsingValidBscPath = (
 	code: string,
 	bscPath: p.DocumentUri,
 	isInterface: boolean
 ): execResult => {
-	const extension = isInterface ? c.resiExt : c.resExt;
-	const formatTempFileFullPath = createFileInTempDir(extension);
+	let extension = isInterface ? c.resiExt : c.resExt;
+	let formatTempFileFullPath = createFileInTempDir(extension);
 	fs.writeFileSync(formatTempFileFullPath, code, {
 		encoding: "utf-8",
 	});
 	try {
-		const result = childProcess.execFileSync(
+		let result = childProcess.execFileSync(
 			bscPath,
 			["-color", "never", "-format", formatTempFileFullPath],
 			{ stdio: "pipe" }
@@ -101,7 +101,7 @@ export const formatUsingValidBscPath = (
 	}
 };
 
-export const runBsbWatcherUsingValidBsbPath = (
+export let runBsbWatcherUsingValidBsbPath = (
 	bsbPath: p.DocumentUri,
 	projectRootPath: p.DocumentUri
 ) => {
@@ -127,7 +127,7 @@ export const runBsbWatcherUsingValidBsbPath = (
 	// }
 };
 
-export const parseDiagnosticLocation = (location: string): Range => {
+export let parseDiagnosticLocation = (location: string): Range => {
 	// example output location:
 	// 3:9
 	// 3:5-8
@@ -135,12 +135,12 @@ export const parseDiagnosticLocation = (location: string): Range => {
 
 	// language-server position is 0-based. Ours is 1-based. Don't forget to convert
 	// also, our end character is inclusive. Language-server's is exclusive
-	const isRange = location.indexOf("-") >= 0;
+	let isRange = location.indexOf("-") >= 0;
 	if (isRange) {
-		const [from, to] = location.split("-");
-		const [fromLine, fromChar] = from.split(":");
-		const isSingleLine = to.indexOf(":") >= 0;
-		const [toLine, toChar] = isSingleLine ? to.split(":") : [fromLine, to];
+		let [from, to] = location.split("-");
+		let [fromLine, fromChar] = from.split(":");
+		let isSingleLine = to.indexOf(":") >= 0;
+		let [toLine, toChar] = isSingleLine ? to.split(":") : [fromLine, to];
 		return {
 			start: {
 				line: parseInt(fromLine) - 1,
@@ -149,8 +149,8 @@ export const parseDiagnosticLocation = (location: string): Range => {
 			end: { line: parseInt(toLine) - 1, character: parseInt(toChar) },
 		};
 	} else {
-		const [line, char] = location.split(":");
-		const start = { line: parseInt(line) - 1, character: parseInt(char) };
+		let [line, char] = location.split(":");
+		let start = { line: parseInt(line) - 1, character: parseInt(char) };
 		return {
 			start: start,
 			end: start,
@@ -158,7 +158,7 @@ export const parseDiagnosticLocation = (location: string): Range => {
 	}
 };
 
-const separateFileAndLocation = (fileAndLocation: string, locationSeparator: number): [string, string] => {
+let separateFileAndLocation = (fileAndLocation: string, locationSeparator: number): [string, string] => {
 	switch (os.platform()) {
 		case "win32": {
 			return [`file:\\\\\\${fileAndLocation.slice(0, locationSeparator)}`, fileAndLocation.slice(locationSeparator + 1)];
@@ -167,7 +167,7 @@ const separateFileAndLocation = (fileAndLocation: string, locationSeparator: num
 	}
 }
 
-const findLocationSeparator = (fileAndLocation: string) => {
+let findLocationSeparator = (fileAndLocation: string) => {
 	switch (os.platform()) {
 		// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."
 		case "win32": return fileAndLocation.indexOf(":", 2);
@@ -182,7 +182,7 @@ type parsedCompilerLogResult = {
 	done: boolean;
 	result: filesDiagnostics;
 };
-export const parseCompilerLogOutput = (
+export let parseCompilerLogOutput = (
 	content: string
 ): parsedCompilerLogResult => {
 	/* example .compiler.log file content that we're gonna parse:
@@ -231,12 +231,12 @@ export const parseCompilerLogOutput = (
 		tag: t.DiagnosticTag | undefined;
 		content: string[];
 	};
-	const parsedDiagnostics: parsedDiagnostic[] = [];
-	const lines = content.split("\n");
+	let parsedDiagnostics: parsedDiagnostic[] = [];
+	let lines = content.split("\n");
 	let done = false;
 
 	for (let i = 0; i < lines.length; i++) {
-		const line = lines[i];
+		let line = lines[i];
 		if (line.startsWith("  We've found a bug for you!")) {
 			parsedDiagnostics.push({
 				code: undefined,
@@ -245,7 +245,7 @@ export const parseCompilerLogOutput = (
 				content: [],
 			});
 		} else if (line.startsWith("  Warning number ")) {
-			const warningNumber = parseInt(line.slice("  Warning number ".length));
+			let warningNumber = parseInt(line.slice("  Warning number ".length));
 			let tag: t.DiagnosticTag | undefined = undefined;
 			switch (warningNumber) {
 				case 11:
@@ -292,21 +292,21 @@ export const parseCompilerLogOutput = (
 		}
 	}
 
-	const result: filesDiagnostics = {};
+	let result: filesDiagnostics = {};
 	parsedDiagnostics.forEach((parsedDiagnostic) => {
-		const [fileAndLocation, ...diagnosticMessage] = parsedDiagnostic.content;
+		let [fileAndLocation, ...diagnosticMessage] = parsedDiagnostic.content;
 
-		const fileAndLocationTrimmed = fileAndLocation.trim()
+		let fileAndLocationTrimmed = fileAndLocation.trim()
 
 
 
-		const locationSeparator = findLocationSeparator(fileAndLocationTrimmed)
-		const [file, location] = separateFileAndLocation(fileAndLocationTrimmed, locationSeparator);
+		let locationSeparator = findLocationSeparator(fileAndLocationTrimmed)
+		let [file, location] = separateFileAndLocation(fileAndLocationTrimmed, locationSeparator);
 
 		if (result[file] == null) {
 			result[file] = [];
 		}
-		const cleanedUpDiagnostic =
+		let cleanedUpDiagnostic =
 			diagnosticMessage
 				.map((line) => {
 					// remove the spaces in front
