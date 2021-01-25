@@ -42,7 +42,7 @@ let handlers:
       let%try (uri, pos) = Protocol.rPositionParams(params);
       let maybeText =
         switch (Hashtbl.find_opt(state.documentText, uri)) {
-        | Some((text, _version, _isClean)) => Some(text)
+        | Some(text) => Some(text)
         | None => None
         };
       let%try (package, full) = State.getFullFromCmt(~state, ~uri);

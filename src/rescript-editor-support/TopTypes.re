@@ -18,7 +18,7 @@ type package = {
 
 type state = {
   rootUri: uri,
-  documentText: Hashtbl.t(uri, (string, int, bool)),
+  documentText: Hashtbl.t(uri, string),
   packagesByRoot: Hashtbl.t(string, package),
   rootForUri: Hashtbl.t(uri, string),
   cmtCache: Hashtbl.t(filePath, (float, SharedTypes.file)),

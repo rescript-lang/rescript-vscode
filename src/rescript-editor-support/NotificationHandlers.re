@@ -5,9 +5,8 @@ module J = JsonShort;
 
 let getTextDocument = doc => {
   let%opt uri = Json.get("uri", doc) |?> Json.string;
-  let%opt version = Json.get("version", doc) |?> Json.number;
   let%opt text = Json.get("text", doc) |?> Json.string;
-  Some((uri, version, text));
+  Some((uri, text));
 };
 
 let watchedFileContentsMap = Hashtbl.create(100);
@@ -22,15 +21,11 @@ let notificationHandlers:
   (
     "textDocument/didOpen",
     (state, params) => {
-      let%try (uri, version, text) =
+      let%try (uri, text) =
         Json.get("textDocument", params)
         |?> getTextDocument
         |> RResult.orError("Invalid params");
-      Hashtbl.replace(
-        state.documentText,
-        uri,
-        (text, int_of_float(version), true),
-      );
+      Hashtbl.replace(state.documentText, uri, text);
 
       let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
       if (FindFiles.isSourceFile(path)) {
@@ -76,14 +71,13 @@ let notificationHandlers:
       open InfixResult;
       let%try doc = params |> RJson.get("textDocument");
       let%try uri = RJson.get("uri", doc) |?> RJson.string;
-      let%try version = RJson.get("version", doc) |?> RJson.number;
       let%try changes = RJson.get("contentChanges", params) |?> RJson.array;
       let%try text =
         List.nth(changes, List.length(changes) - 1)
         |> RJson.get("text")
         |?> RJson.string;
       /* Hmm how do I know if it's modified? */
-      let state = State.updateContents(uri, text, version, state);
+      let state = State.updateContents(uri, text, state);
       Ok(state);
     },
   ),

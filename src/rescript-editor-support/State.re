@@ -47,12 +47,8 @@ let docsForCmt = (~moduleName, cmt, src, state) =>
     };
   };
 
-let updateContents = (uri, text, version, state) => {
-  Hashtbl.replace(
-    state.documentText,
-    uri,
-    (text, int_of_float(version), false),
-  );
+let updateContents = (uri, text, state) => {
+  Hashtbl.replace(state.documentText, uri, text);
   state;
 };
 
