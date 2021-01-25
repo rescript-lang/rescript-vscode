@@ -163,7 +163,7 @@ let separateFileAndLocation = (fileAndLocation: string, locationSeparator: numbe
 		case "win32": {
 			return [`file:\\\\\\${fileAndLocation.slice(0, locationSeparator)}`, fileAndLocation.slice(locationSeparator + 1)];
 		}
-		default: return [fileAndLocation.slice(2, locationSeparator), fileAndLocation.slice(locationSeparator + 1)]
+		default: return [fileAndLocation.slice(locationSeparator), fileAndLocation.slice(locationSeparator + 1)]
 	}
 }
 
