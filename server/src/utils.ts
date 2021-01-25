@@ -158,7 +158,16 @@ export let parseDiagnosticLocation = (location: string): Range => {
 	}
 };
 
-let separateFileAndLocation = (fileAndLocation: string, locationSeparator: number): [string, string] => {
+let findLocationSeparator = (fileAndLocation: string) => {
+	switch (os.platform()) {
+		// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."
+		case "win32": return fileAndLocation.indexOf(":", 2);
+		default: return fileAndLocation.indexOf(":")
+	}
+}
+
+let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
+	let locationSeparator = findLocationSeparator(fileAndLocation)
 	let file = fileAndLocation.slice(0, locationSeparator)
 	let location = fileAndLocation.slice(locationSeparator + 1)
 	switch (os.platform()) {
@@ -169,13 +178,7 @@ let separateFileAndLocation = (fileAndLocation: string, locationSeparator: numbe
 	}
 }
 
-let findLocationSeparator = (fileAndLocation: string) => {
-	switch (os.platform()) {
-		// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."
-		case "win32": return fileAndLocation.indexOf(":", 2);
-		default: return fileAndLocation.indexOf(":")
-	}
-}
+
 
 type filesDiagnostics = {
 	[key: string]: p.Diagnostic[];
@@ -299,8 +302,7 @@ export let parseCompilerLogOutput = (
 		let [fileAndLocationRow, ...diagnosticMessage] = parsedDiagnostic.content;
 
 		let fileAndLocation = fileAndLocationRow.trim()
-		let locationSeparator = findLocationSeparator(fileAndLocation)
-		let [file, location] = separateFileAndLocation(fileAndLocation, locationSeparator);
+		let [file, location] = separateFileAndLocation(fileAndLocation);
 
 		if (result[file] == null) {
 			result[file] = [];
