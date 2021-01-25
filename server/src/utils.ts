@@ -105,10 +105,14 @@ export let runBsbWatcherUsingValidBsbPath = (
 	bsbPath: p.DocumentUri,
 	projectRootPath: p.DocumentUri
 ) => {
-	let process = childProcess.execFile(bsbPath, ["-w"], {
-		cwd: projectRootPath,
-	});
-	return process;
+	switch (os.platform()) {
+		case "win32": return childProcess.exec(`${bsbPath}.cmd -w`, {
+			cwd: projectRootPath,
+		});
+		default: return childProcess.execFile(bsbPath, ["-w"], {
+			cwd: projectRootPath,
+		})
+	}
 	// try {
 	// 	let result = childProcess.execFileSync(bsbPath, [], { stdio: 'pipe', cwd: projectRootPath })
 	// 	return {
@@ -153,6 +157,25 @@ export let parseDiagnosticLocation = (location: string): Range => {
 		};
 	}
 };
+
+let separateFileAndLocation = (fileAndLocation: string, locationSeparator: number): [string, string] => {
+	let file = fileAndLocation.slice(0, locationSeparator)
+	let location = fileAndLocation.slice(locationSeparator + 1)
+	switch (os.platform()) {
+		case "win32": {
+			return [`file:\\\\\\${file}`, location];
+		}
+		default: return [file, location]
+	}
+}
+
+let findLocationSeparator = (fileAndLocation: string) => {
+	switch (os.platform()) {
+		// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."
+		case "win32": return fileAndLocation.indexOf(":", 2);
+		default: return fileAndLocation.indexOf(":")
+	}
+}
 
 type filesDiagnostics = {
 	[key: string]: p.Diagnostic[];
@@ -273,10 +296,12 @@ export let parseCompilerLogOutput = (
 
 	let result: filesDiagnostics = {};
 	parsedDiagnostics.forEach((parsedDiagnostic) => {
-		let [fileAndLocation, ...diagnosticMessage] = parsedDiagnostic.content;
-		let locationSeparator = fileAndLocation.indexOf(":");
-		let file = fileAndLocation.substring(2, locationSeparator);
-		let location = fileAndLocation.substring(locationSeparator + 1);
+		let [fileAndLocationRow, ...diagnosticMessage] = parsedDiagnostic.content;
+
+		let fileAndLocation = fileAndLocationRow.trim()
+		let locationSeparator = findLocationSeparator(fileAndLocation)
+		let [file, location] = separateFileAndLocation(fileAndLocation, locationSeparator);
+
 		if (result[file] == null) {
 			result[file] = [];
 		}
