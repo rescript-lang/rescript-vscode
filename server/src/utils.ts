@@ -187,7 +187,7 @@ export let parseCompilerLogOutput = (
 ): parsedCompilerLogResult => {
 	/* example .compiler.log file content that we're gonna parse:
 
-#Start(1600519680823) 
+#Start(1600519680823)
 
 	Syntax error!
 	/Users/chenglou/github/reason-react/src/test.res:1:8-2:3
