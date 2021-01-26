@@ -66,13 +66,23 @@ let rec startOfLident = (text, i) =>
 
 type completable =
   | Clabel(string)
-  | Cpath(list(string));
+  | Cpath(list(string))
+  | Cpipe(string);
 
 let findCompletable = (text, offset) => {
   let mkPath = s => {
-    let parts = Str.split(Str.regexp_string("."), s);
-    let parts = s.[String.length(s) - 1] == '.' ? parts @ [""] : parts;
-    Cpath(parts);
+    let len = String.length(s);
+    let pipeParts = Str.split(Str.regexp_string("->"), s);
+    if (len > 1
+        && s.[len - 2] == '-'
+        && s.[len - 1] == '>'
+        || List.length(pipeParts) > 1) {
+      Cpipe(s);
+    } else {
+      let parts = Str.split(Str.regexp_string("."), s);
+      let parts = s.[len - 1] == '.' ? parts @ [""] : parts;
+      Cpath(parts);
+    };
   };
 
   let rec loop = i => {
@@ -80,6 +90,7 @@ let findCompletable = (text, offset) => {
       ? Some(mkPath(String.sub(text, i + 1, offset - (i + 1))))
       : (
         switch (text.[i]) {
+        | '>' when i > 0 && text.[i - 1] == '-' => loop(i - 2)
         | '~' => Some(Clabel(String.sub(text, i + 1, offset - (i + 1))))
         | 'a'..'z'
         | 'A'..'Z'

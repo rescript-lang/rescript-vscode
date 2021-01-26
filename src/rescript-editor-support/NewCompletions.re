@@ -574,6 +574,30 @@ let getItems =
 
 module J = JsonShort;
 
+let mkItem = (~name, ~kind, ~detail, ~docstring, ~uri, ~pos_lnum) => {
+  J.o([
+    ("label", J.s(name)),
+    ("kind", J.i(kind)),
+    ("detail", detail |> J.s),
+    (
+      "documentation",
+      J.o([
+        ("kind", J.s("markdown")),
+        (
+          "value",
+          J.s(
+            (docstring |? "No docs")
+            ++ "\n\n"
+            ++ uri
+            ++ ":"
+            ++ string_of_int(pos_lnum),
+          ),
+        ),
+      ]),
+    ),
+  ]);
+};
+
 let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
   let parameters =
     switch (maybeText) {
@@ -582,19 +606,14 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
       switch (PartialParser.positionToOffset(text, pos)) {
       | None => None
       | Some(offset) =>
-        switch (PartialParser.findCompletable(text, offset)) {
-        | None => None
-        | Some(Clabel(_)) =>
-          /* Not supported yet */
-          None
-        | Some(Cpath(parts)) => Some((text, offset, parts))
-        }
+        Some((text, offset, PartialParser.findCompletable(text, offset)))
       }
     };
   let items =
     switch (parameters) {
     | None => []
-    | Some((text, offset, parts)) =>
+
+    | Some((text, offset, Some(Cpath(parts)))) =>
       let rawOpens = PartialParser.findOpens(text, offset);
       let allModules =
         package.TopTypes.localModules @ package.dependencyModules;
@@ -609,45 +628,57 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
           ~parts,
         );
       /* TODO(#107): figure out why we're getting duplicates. */
-      Utils.dedup(items);
+      items
+      |> Utils.dedup
+      |> List.map(
+           (
+             (
+               uri,
+               {
+                 SharedTypes.name: {txt: name, loc: {loc_start: {pos_lnum}}},
+                 docstring,
+                 item,
+               },
+             ),
+           ) =>
+           mkItem(
+             ~name,
+             ~kind=kindToInt(item),
+             ~detail=detail(name, item),
+             ~docstring,
+             ~uri,
+             ~pos_lnum,
+           )
+         );
+
+    | Some((_text, _offset, Some(Cpipe(s)))) => [
+        mkItem(
+          ~name="Foo.pipe",
+          ~kind=9,
+          ~detail=s,
+          ~docstring=None,
+          ~uri="uri",
+          ~pos_lnum=0,
+        ),
+        mkItem(
+          ~name="Foo.pine",
+          ~kind=9,
+          ~detail=s,
+          ~docstring=None,
+          ~uri="uri",
+          ~pos_lnum=0,
+        ),
+      ]
+
+    | Some((_, _, Some(Clabel(_)))) =>
+      // not supported yet
+      []
+
+    | Some((_, _, None)) => []
     };
   if (items == []) {
     J.null;
   } else {
-    items
-    |> List.map(
-         (
-           (
-             uri,
-             {
-               SharedTypes.name: {txt: name, loc: {loc_start: {pos_lnum}}},
-               docstring,
-               item,
-             },
-           ),
-         ) => {
-         J.o([
-           ("label", J.s(name)),
-           ("kind", J.i(kindToInt(item))),
-           ("detail", detail(name, item) |> J.s),
-           (
-             "documentation",
-             J.o([
-               ("kind", J.s("markdown")),
-               (
-                 "value",
-                 J.s(
-                   (docstring |? "No docs")
-                   ++ "\n\n"
-                   ++ Uri2.toString(uri)
-                   ++ ":"
-                   ++ string_of_int(pos_lnum),
-                 ),
-               ),
-             ]),
-           ),
-         ])
-       })
-    |> J.l;
+    items |> J.l;
   };
 };

@@ -5,7 +5,10 @@ let capabilities =
   J.o([
     ("textDocumentSync", J.i(1)),
     ("hoverProvider", J.t),
-    ("completionProvider", J.o([("triggerCharacters", J.l([J.s(".")]))])),
+    (
+      "completionProvider",
+      J.o([("triggerCharacters", J.l([J.s("."), J.s(">")]))]),
+    ),
     ("definitionProvider", J.t),
     ("typeDefinitionProvider", J.t),
     ("referencesProvider", J.t),
