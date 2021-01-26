@@ -201,11 +201,7 @@
         {
           "match": "->|\\|\\||&&|\\+\\+|\\*\\*|\\+\\.|\\+|-\\.|-|\\*\\.|\\*|/\\.|/|\\.\\.\\.|\\.\\.|\\|>|===|==|\\^|:=|!|>=(?! *\\?)|<=",
           "name": "keyword.operator"
-        }
-      ]
-    },
-    "assignment": {
-      "patterns": [
+        },
         {
           "match": "=",
           "name": "keyword.operator.assignment"
@@ -461,9 +457,6 @@
     },
     {
       "include": "#operator"
-    },
-    {
-      "include": "#assignment"
     },
     {
       "include": "#number"
