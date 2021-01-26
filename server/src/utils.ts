@@ -105,11 +105,12 @@ export let runBsbWatcherUsingValidBsbPath = (
 	bsbPath: p.DocumentUri,
 	projectRootPath: p.DocumentUri
 ) => {
-	switch (os.platform()) {
-		case "win32": return childProcess.exec(`${bsbPath}.cmd -w`, {
+	if (process.platform === "win32") {
+		return childProcess.exec(`${bsbPath}.cmd -w`, {
 			cwd: projectRootPath,
 		});
-		default: return childProcess.execFile(bsbPath, ["-w"], {
+	} else {
+		return childProcess.execFile(bsbPath, ["-w"], {
 			cwd: projectRootPath,
 		})
 	}
@@ -159,10 +160,11 @@ export let parseDiagnosticLocation = (location: string): Range => {
 };
 
 let findLocationSeparator = (fileAndLocation: string) => {
-	switch (os.platform()) {
-		// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."
-		case "win32": return fileAndLocation.indexOf(":", 2);
-		default: return fileAndLocation.indexOf(":")
+	// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."		
+	if (process.platform === "win32") {
+		return fileAndLocation.indexOf(":", 2);
+	} else {
+		return fileAndLocation.indexOf(":")
 	}
 }
 
@@ -170,9 +172,10 @@ let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
 	let locationSeparator = findLocationSeparator(fileAndLocation)
 	let file = fileAndLocation.slice(0, locationSeparator)
 	let location = fileAndLocation.slice(locationSeparator + 1)
-	switch (os.platform()) {
-		case "win32": return [`file:\\\\\\${file}`, location];
-		default: return [file, location]
+	if (process.platform === "win32") {
+		return [`file:\\\\\\${file}`, location];
+	} else {
+		return [file, location]
 	}
 }
 
