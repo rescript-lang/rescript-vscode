@@ -167,7 +167,7 @@ let findLocationSeparator = (fileAndLocation: string) => {
 	} else {
 		return fileAndLocation.indexOf(":");
 	}
-}
+};
 
 let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
 	let locationSeparator = findLocationSeparator(fileAndLocation);
@@ -175,7 +175,7 @@ let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
 	let location = fileAndLocation.slice(locationSeparator + 1);
 
 	return [URI.file(file).toString(), location];
-}
+};
 
 
 
