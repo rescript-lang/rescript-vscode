@@ -65,6 +65,11 @@ The build output is streamed into `lib/bs/.compiler.log`. Here are its various s
 
 Barring FS errors, there should be no other state to `.compiler.log`. Among others, this means the file is never present but empty.
 
+The compiler log contains exactly the same things you'd see in a regular terminal `bsb` guild, except:
+
+- The errors are indented 2 spaces
+- The extra `#Start` and `#Done` (which aren't indented).
+
 ### State 1
 
 Artifacts cleaning through `bsb -clean` removes `.compiler.log` and turns into state 1. If that's the case, remove the diagnostics in the editor too. One could argue that they should be kept, but that's misleading UX-wise, and harder to implement correctly.
@@ -83,6 +88,8 @@ Keep in mind that you might be tracking multiple `.compiler.log`s. You should do
 ### Stale Diagnostics Detection
 
 To check whether the artifacts are stale, do **not** check `.bsb.lock` at the project root. This is unreliable, since it's possible that `bsb` wasn't running in watcher mode. We also don't want to encourage overuse of the watcher mode, though it seems increasingly common.
+
+We currently do that; we wish we aren't.
 
 <!-- Instead, do `bsb.exe -- -n` -->
 
