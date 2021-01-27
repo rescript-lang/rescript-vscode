@@ -162,8 +162,9 @@ export let parseDiagnosticLocation = (location: string): Range => {
 
 let findLocationSeparator = (fileAndLocation: string) => {
 	// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."		
+	// and the two spaces at the start of the line
 	if (process.platform === "win32") {
-		return fileAndLocation.indexOf(":", 2);
+		return fileAndLocation.indexOf(":", 4);
 	} else {
 		return fileAndLocation.indexOf(":");
 	}
