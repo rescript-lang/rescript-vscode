@@ -165,16 +165,16 @@ let findLocationSeparator = (fileAndLocation: string) => {
 	if (process.platform === "win32") {
 		return fileAndLocation.indexOf(":", 2);
 	} else {
-		return fileAndLocation.indexOf(":")
+		return fileAndLocation.indexOf(":");
 	}
 }
 
 let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
-	let locationSeparator = findLocationSeparator(fileAndLocation)
-	let file = fileAndLocation.slice(0, locationSeparator)
-	let location = fileAndLocation.slice(locationSeparator + 1)
+	let locationSeparator = findLocationSeparator(fileAndLocation);
+	let file = fileAndLocation.slice(0, locationSeparator);
+	let location = fileAndLocation.slice(locationSeparator + 1);
 
-	return [URI.file(file).toString(), location]
+	return [URI.file(file).toString(), location];
 }
 
 
@@ -300,7 +300,7 @@ export let parseCompilerLogOutput = (
 	parsedDiagnostics.forEach((parsedDiagnostic) => {
 		let [fileAndLocationLine, ...diagnosticMessage] = parsedDiagnostic.content;
 
-		let fileAndLocation = fileAndLocationLine.trim()
+		let fileAndLocation = fileAndLocationLine.trim();
 		let [file, location] = separateFileAndLocation(fileAndLocation);
 
 		if (result[file] == null) {
