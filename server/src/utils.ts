@@ -6,6 +6,7 @@ import * as path from "path";
 import * as t from "vscode-languageserver-types";
 import fs from "fs";
 import * as os from "os";
+import { URI } from 'vscode-uri';
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -164,20 +165,17 @@ let findLocationSeparator = (fileAndLocation: string) => {
 	if (process.platform === "win32") {
 		return fileAndLocation.indexOf(":", 2);
 	} else {
-		return fileAndLocation.indexOf(":")
+		return fileAndLocation.indexOf(":");
 	}
-}
+};
 
 let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
-	let locationSeparator = findLocationSeparator(fileAndLocation)
-	let file = fileAndLocation.slice(2, locationSeparator)
-	let location = fileAndLocation.slice(locationSeparator + 1)
-	if (process.platform === "win32") {
-		return [`file:\\\\\\${file}`, location];
-	} else {
-		return [file, location]
-	}
-}
+	let locationSeparator = findLocationSeparator(fileAndLocation);
+	let file = fileAndLocation.slice(0, locationSeparator);
+	let location = fileAndLocation.slice(locationSeparator + 1);
+
+	return [URI.file(file).toString(), location];
+};
 
 
 
