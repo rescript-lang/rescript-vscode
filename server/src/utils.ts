@@ -112,7 +112,7 @@ export let runBsbWatcherUsingValidBsbPath = (
 	} else {
 		return childProcess.execFile(bsbPath, ["-w"], {
 			cwd: projectRootPath,
-		})
+		});
 	}
 	// try {
 	// 	let result = childProcess.execFileSync(bsbPath, [], { stdio: 'pipe', cwd: projectRootPath })
@@ -159,38 +159,8 @@ export let parseDiagnosticLocation = (location: string): Range => {
 	}
 };
 
-let findLocationSeparator = (fileAndLocation: string) => {
-	// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."
-	if (process.platform === "win32") {
-		return fileAndLocation.indexOf(":", 2);
-	} else {
-		return fileAndLocation.indexOf(":");
-	}
-};
-
-let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
-	let locationSeparator = findLocationSeparator(fileAndLocation);
-	let file = fileAndLocation.slice(0, locationSeparator);
-	let location = fileAndLocation.slice(locationSeparator + 1);
-
-	if (process.platform === "win32") {
-		return [`file:\\\\\\${file}`, location];
-	} else {
-		return [file, location]
-	}
-};
-
-type filesDiagnostics = {
-	[key: string]: p.Diagnostic[];
-};
-type parsedCompilerLogResult = {
-	done: boolean;
-	result: filesDiagnostics;
-};
-export let parseCompilerLogOutput = (
-	content: string
-): parsedCompilerLogResult => {
-	/* example .compiler.log file content that we're gonna parse:
+// Logic for parsing .compiler.log
+/* example .compiler.log content:
 
 #Start(1600519680823)
 
@@ -228,8 +198,36 @@ export let parseCompilerLogOutput = (
 	Somewhere wanted: int
 
 #Done(1600519680836)
-	*/
+*/
 
+// parser helper
+let splitFileAndLocation = (fileAndLocation: string) => {
+	let isWindows = process.platform === "win32";
+	// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."
+	let locationSeparator = isWindows
+		? fileAndLocation.indexOf(":", 2)
+		: fileAndLocation.indexOf(":");
+
+	let file = fileAndLocation.slice(0, locationSeparator);
+	let location = fileAndLocation.slice(locationSeparator + 1);
+
+	return {
+		file: isWindows ? `file:\\\\\\${file}` : file,
+		location,
+	};
+};
+
+// main parsing logic
+type filesDiagnostics = {
+	[key: string]: p.Diagnostic[];
+};
+type parsedCompilerLogResult = {
+	done: boolean;
+	result: filesDiagnostics;
+};
+export let parseCompilerLogOutput = (
+	content: string
+): parsedCompilerLogResult => {
 	type parsedDiagnostic = {
 		code: number | undefined;
 		severity: t.DiagnosticSeverity;
@@ -300,8 +298,7 @@ export let parseCompilerLogOutput = (
 	let result: filesDiagnostics = {};
 	parsedDiagnostics.forEach((parsedDiagnostic) => {
 		let [fileAndLocationLine, ...diagnosticMessage] = parsedDiagnostic.content;
-
-		let [file, location] = separateFileAndLocation(fileAndLocationLine.slice(2));
+		let { file, location } = splitFileAndLocation(fileAndLocationLine.slice(2));
 
 		if (result[file] == null) {
 			result[file] = [];
