@@ -244,7 +244,7 @@ export let parseCompilerLogOutput = (
     content: string[];
   };
   let parsedDiagnostics: parsedDiagnostic[] = [];
-  let lines = content.split("\n");
+  let lines = content.split(os.EOL);
   let done = false;
 
   for (let i = 0; i < lines.length; i++) {
