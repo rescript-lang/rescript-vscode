@@ -1,6 +1,7 @@
 ## 1.0.x (unreleased)
 
 - Properly highlight nested comments.
+- Fix Windows diagnostics!
 
 ## 1.0.4
 
