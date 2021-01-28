@@ -1,4 +1,3 @@
-import { Range } from "vscode-languageserver-textdocument";
 import * as c from "./constants";
 import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
@@ -128,37 +127,6 @@ export let runBsbWatcherUsingValidBsbPath = (
 	// }
 };
 
-export let parseDiagnosticLocation = (location: string): Range => {
-	// example output location:
-	// 3:9
-	// 3:5-8
-	// 3:9-6:1
-
-	// language-server position is 0-based. Ours is 1-based. Don't forget to convert
-	// also, our end character is inclusive. Language-server's is exclusive
-	let isRange = location.indexOf("-") >= 0;
-	if (isRange) {
-		let [from, to] = location.split("-");
-		let [fromLine, fromChar] = from.split(":");
-		let isSingleLine = to.indexOf(":") >= 0;
-		let [toLine, toChar] = isSingleLine ? to.split(":") : [fromLine, to];
-		return {
-			start: {
-				line: parseInt(fromLine) - 1,
-				character: parseInt(fromChar) - 1,
-			},
-			end: { line: parseInt(toLine) - 1, character: parseInt(toChar) },
-		};
-	} else {
-		let [line, char] = location.split(":");
-		let start = { line: parseInt(line) - 1, character: parseInt(char) };
-		return {
-			start: start,
-			end: start,
-		};
-	}
-};
-
 // Logic for parsing .compiler.log
 /* example .compiler.log content:
 
@@ -201,19 +169,60 @@ export let parseDiagnosticLocation = (location: string): Range => {
 */
 
 // parser helper
-let splitFileAndLocation = (fileAndLocation: string) => {
-	let isWindows = process.platform === "win32";
-	// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."
-	let locationSeparator = isWindows
-		? fileAndLocation.indexOf(":", 2)
-		: fileAndLocation.indexOf(":");
-
-	let file = fileAndLocation.slice(0, locationSeparator);
-	let location = fileAndLocation.slice(locationSeparator + 1);
-
+let parseFileAndRange = (fileAndRange: string) => {
+	// https://github.com/rescript-lang/rescript-compiler/blob/0a3f4bb32ca81e89cefd5a912b8795878836f883/jscomp/super_errors/super_location.ml#L19-L25
+	/* The file + location format can be:
+		a/b.res:10:20
+		a/b.res:10:20-21     <- last number here is the end char of line 10
+		a/b.res:10:20-30:11
+	*/
+	let regex = /(.+)\:(\d+)\:(\d+)(-(\d+)(\:(\d+))?)?$/;
+	/*            ^^ file
+											^^^ start line
+														 ^^^ start character
+																	^ optional range
+																		^^^ end line or chararacter
+																						^^^ end character
+	*/
+	// it's not possible that this regex fails. If it does, something's wrong in the caller
+	let [
+		_source,
+		file,
+		startLine,
+		startChar,
+		optionalEndGroup,
+		endLineOrChar,
+		_colonPlusEndCharOrNothing,
+		endCharOrNothing,
+	] = fileAndRange.match(regex)!;
+	// language-server position is 0-based. Ours is 1-based. Convert
+	// also, our end character is inclusive. Language-server's is exclusive
+	let range;
+	if (optionalEndGroup == null) {
+		let start = {
+			line: parseInt(startLine) - 1,
+			character: parseInt(startChar),
+		};
+		range = {
+			start: start,
+			end: start,
+		};
+	} else {
+		let isSingleLine = endCharOrNothing == null;
+		let [endLine, endChar] = isSingleLine
+			? [startLine, endLineOrChar]
+			: [endLineOrChar, endCharOrNothing];
+		range = {
+			start: {
+				line: parseInt(startLine) - 1,
+				character: parseInt(startChar) - 1,
+			},
+			end: { line: parseInt(endLine) - 1, character: parseInt(endChar) },
+		};
+	}
 	return {
-		file: isWindows ? `file:\\\\\\${file}` : file,
-		location,
+		file: process.platform === "win32" ? `file:\\\\\\${file}` : file,
+		range,
 	};
 };
 
@@ -297,8 +306,8 @@ export let parseCompilerLogOutput = (
 
 	let result: filesDiagnostics = {};
 	parsedDiagnostics.forEach((parsedDiagnostic) => {
-		let [fileAndLocationLine, ...diagnosticMessage] = parsedDiagnostic.content;
-		let { file, location } = splitFileAndLocation(fileAndLocationLine.slice(2));
+		let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
+		let { file, range } = parseFileAndRange(fileAndRangeLine.slice(2));
 
 		if (result[file] == null) {
 			result[file] = [];
@@ -316,7 +325,7 @@ export let parseCompilerLogOutput = (
 			severity: parsedDiagnostic.severity,
 			tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
 			code: parsedDiagnostic.code,
-			range: parseDiagnosticLocation(location),
+			range,
 			source: "ReScript",
 			message: cleanedUpDiagnostic,
 		});
