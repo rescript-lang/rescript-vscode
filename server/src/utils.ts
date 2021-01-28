@@ -194,7 +194,9 @@ let parseFileAndRange = (fileAndRange: string) => {
     endLineOrChar,
     _colonPlusEndCharOrNothing,
     endCharOrNothing,
-  ] = fileAndRange.match(regex)!;
+  ] = fileAndRange.trim().match(regex)!;
+  // for the trimming, see https://github.com/rescript-lang/rescript-vscode/pull/71#issuecomment-769160576
+
   // language-server position is 0-based. Ours is 1-based. Convert
   // also, our end character is inclusive. Language-server's is exclusive
   let range;
@@ -307,7 +309,7 @@ export let parseCompilerLogOutput = (
   let result: filesDiagnostics = {};
   parsedDiagnostics.forEach((parsedDiagnostic) => {
     let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
-    let { file, range } = parseFileAndRange(fileAndRangeLine.slice(2));
+    let { file, range } = parseFileAndRange(fileAndRangeLine);
 
     if (result[file] == null) {
       result[file] = [];
