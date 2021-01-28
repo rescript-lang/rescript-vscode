@@ -2,6 +2,7 @@
 
 - Properly highlight nested comments.
 - Fix Windows diagnostics!
+- Custom folding. See README
 
 ## 1.0.4
 

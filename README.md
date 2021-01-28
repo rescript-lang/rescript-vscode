@@ -45,6 +45,7 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 - Snippets to ease a few syntaxes:
   - `external` features such as `@bs.module` and `@bs.val`
   - `try`, `for`, etc.
+- Folding, and [custom folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) through `//#region` and `//#endregion`.
 
 ### Upcoming Features
 
