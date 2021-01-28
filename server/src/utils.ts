@@ -6,6 +6,7 @@ import * as path from "path";
 import * as t from "vscode-languageserver-types";
 import fs from "fs";
 import * as os from "os";
+import { URI } from 'vscode-uri';
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -105,10 +106,15 @@ export let runBsbWatcherUsingValidBsbPath = (
 	bsbPath: p.DocumentUri,
 	projectRootPath: p.DocumentUri
 ) => {
-	let process = childProcess.execFile(bsbPath, ["-w"], {
-		cwd: projectRootPath,
-	});
-	return process;
+	if (process.platform === "win32") {
+		return childProcess.exec(`${bsbPath}.cmd -w`, {
+			cwd: projectRootPath,
+		});
+	} else {
+		return childProcess.execFile(bsbPath, ["-w"], {
+			cwd: projectRootPath,
+		})
+	}
 	// try {
 	// 	let result = childProcess.execFileSync(bsbPath, [], { stdio: 'pipe', cwd: projectRootPath })
 	// 	return {
@@ -153,6 +159,25 @@ export let parseDiagnosticLocation = (location: string): Range => {
 		};
 	}
 };
+
+let findLocationSeparator = (fileAndLocation: string) => {
+	// Exclude the two first letters in windows paths to avoid the first colon in eg "c:\\.."		
+	if (process.platform === "win32") {
+		return fileAndLocation.indexOf(":", 2);
+	} else {
+		return fileAndLocation.indexOf(":");
+	}
+};
+
+let separateFileAndLocation = (fileAndLocation: string): [string, string] => {
+	let locationSeparator = findLocationSeparator(fileAndLocation);
+	let file = fileAndLocation.slice(0, locationSeparator);
+	let location = fileAndLocation.slice(locationSeparator + 1);
+
+	return [URI.file(file).toString(), location];
+};
+
+
 
 type filesDiagnostics = {
 	[key: string]: p.Diagnostic[];
@@ -273,10 +298,10 @@ export let parseCompilerLogOutput = (
 
 	let result: filesDiagnostics = {};
 	parsedDiagnostics.forEach((parsedDiagnostic) => {
-		let [fileAndLocation, ...diagnosticMessage] = parsedDiagnostic.content;
-		let locationSeparator = fileAndLocation.indexOf(":");
-		let file = fileAndLocation.substring(2, locationSeparator);
-		let location = fileAndLocation.substring(locationSeparator + 1);
+		let [fileAndLocationLine, ...diagnosticMessage] = parsedDiagnostic.content;
+
+		let [file, location] = separateFileAndLocation(fileAndLocationLine.slice(2));
+
 		if (result[file] == null) {
 			result[file] = [];
 		}
