@@ -1,7 +1,5 @@
 open SharedTypes;
 
-/* TODO maybe keep track of the "current module path" */
-/* maybe add a "current module path" for debugging purposes */
 type queryEnv = {
   file,
   exported,
@@ -111,11 +109,7 @@ let rec resolvePath = (~env, ~path, ~getModule) => {
   | `Local(env, name) => Some((env, name))
   | `Global(moduleName, fullPath) =>
     let%opt file = getModule(moduleName);
-    resolvePath(
-      ~env={file, exported: file.contents.exported},
-      ~path=fullPath,
-      ~getModule,
-    );
+    resolvePath(~env=fileEnv(file), ~path=fullPath, ~getModule);
   };
 };
 
@@ -131,11 +125,7 @@ let resolveFromStamps = (~env, ~path, ~getModule, ~pos) => {
     | `Local(env, name) => Some((env, name))
     | `Global(moduleName, fullPath) =>
       let%opt file = getModule(moduleName);
-      resolvePath(
-        ~env={file, exported: file.contents.exported},
-        ~path=fullPath,
-        ~getModule,
-      );
+      resolvePath(~env=fileEnv(file), ~path=fullPath, ~getModule);
     };
   };
 };
@@ -192,7 +182,7 @@ let resolveFromCompilerPath = (~env, ~getModule, path) => {
       switch (getModule(moduleName)) {
       | None => None
       | Some(file) =>
-        let env = {file, exported: file.contents.exported};
+        let env = fileEnv(file);
         resolvePath(~env, ~getModule, ~path);
       };
     switch (res) {

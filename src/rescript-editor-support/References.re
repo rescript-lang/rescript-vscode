@@ -115,7 +115,7 @@ let definedForLoc = (~file, ~getModule, locKind) => {
       let%try file =
         getModule(moduleName)
         |> RResult.orError("Cannot get module " ++ moduleName);
-      let env = {Query.file, exported: file.contents.exported};
+      let env = Query.fileEnv(file);
       let%try (env, name) =
         Query.resolvePath(~env, ~path, ~getModule)
         |> RResult.orError("Cannot resolve path " ++ pathToString(path));
@@ -176,7 +176,7 @@ let resolveModuleReference =
   switch (declared.item) {
   | Structure(_) => Some((file, Some(declared)))
   | Ident(path) =>
-    let env = {Query.file, exported: file.contents.exported};
+    let env = Query.fileEnv(file);
     switch (Query.fromCompilerPath(~env, path)) {
     | `Not_found => None
     | `Exported(env, name) =>
@@ -186,7 +186,7 @@ let resolveModuleReference =
     /* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) */
     | `Global(moduleName, path) =>
       let%opt file = getModule(moduleName);
-      let env = {file, Query.exported: file.contents.exported};
+      let env = Query.fileEnv(file);
       let%opt (env, name) = Query.resolvePath(~env, ~getModule, ~path);
       let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
       let%opt md = Hashtbl.find_opt(env.file.stamps.modules, stamp);
@@ -217,7 +217,7 @@ let forLocalStamp =
       stamp,
       tip,
     ) => {
-  let env = {Query.file, exported: file.contents.exported};
+  let env = Query.fileEnv(file);
   open Infix;
   let%opt localStamp =
     switch (tip) {
@@ -365,7 +365,7 @@ let allReferencesForLoc =
     let%try file =
       getModule(moduleName)
       |> RResult.orError("Cannot get module " ++ moduleName);
-    let env = {Query.file, exported: file.contents.exported};
+    let env = Query.fileEnv(file);
     let%try (env, name) =
       Query.resolvePath(~env, ~path, ~getModule)
       |> RResult.orError("Cannot resolve path " ++ pathToString(path));
@@ -512,7 +512,7 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
       ++ tipToString(tip),
     );
     let%opt file = getModule(moduleName);
-    let env = {Query.file, exported: file.contents.exported};
+    let env = Query.fileEnv(file);
     let%opt (env, name) = Query.resolvePath(~env, ~path, ~getModule);
     let%opt stamp = Query.exportedForTip(~env, name, tip);
     /** oooh wht do I do if the stamp is inside a pseudo-file? */
