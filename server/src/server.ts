@@ -496,7 +496,9 @@ process.on("message", (msg: m.Message) => {
       let projectRootPath = msg_.projectRootPath;
       let bsbPath = path.join(projectRootPath, c.bsbNodePartialPath);
       // TODO: sometime stale .bsb.lock dangling
-      // TODO: close watcher when lang-server shuts down
+      // TODO: close watcher when lang-server shuts down. However, by Node's
+      // default, these subprocesses are automatically killed when this
+      // language-server process exits
       if (fs.existsSync(bsbPath)) {
         let bsbProcess = utils.runBsbWatcherUsingValidBsbPath(
           bsbPath,
@@ -504,7 +506,7 @@ process.on("message", (msg: m.Message) => {
         );
         let root = projectsFiles.get(projectRootPath)!;
         root.bsbWatcherByEditor = bsbProcess;
-        bsbProcess.on("message", (a) => console.log("wtf======", a));
+        // bsbProcess.on("message", (a) => console.log(a));
       }
     }
   }
