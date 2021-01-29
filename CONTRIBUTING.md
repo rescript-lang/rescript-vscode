@@ -11,12 +11,15 @@ This repo happens to also contain a language-server usable by other editors. If 
 ```
 .
 ├── client // Language Client
-│   ├── src
-│   │   └── extension.ts // Language Client entry point
+│   └── src
+│       └── extension.ts // Language Client entry point
 ├── package.json // The extension manifest.
 └── server // Language Server
-    └── src
-        └── server.ts // Language Server entry point
+    ├── src
+    │   └── server.ts // Language Server entry point
+    ├── win32
+    ├── linux
+    └── darwin // these 3 folders contain rescript-editor-support.exe
 ```
 
 ## Run the Project
@@ -52,11 +55,15 @@ For more grammar inspirations, check:
 
 Snippets are also synced from https://github.com/rescript-lang/rescript-sublime. VSCode snippets docs [here](https://code.visualstudio.com/api/references/contribution-points#contributes.snippets).
 
-## Editor Diagnostics
+### Autocomplete, Jump To Definition, Type Hint, Etc.
 
-They should be synced in from `lib/bs/.compiler.log` build. Don't take them from other places.
+These are taken care of by the binary at [rescript-editor-support](https://github.com/rescript-lang/rescript-editor-support). We just invoke it in `RescriptEditorSupport.ts`.
 
 ## Rough Description Of How The Plugin Works
+
+### Editor Diagnostics
+
+They should be synced in from `lib/bs/.compiler.log` build. Don't take them from other places.
 
 ### `.compiler.log`
 
