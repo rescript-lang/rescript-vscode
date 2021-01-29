@@ -1,7 +1,9 @@
 
 # Rescript Editor Support
 
-Command-line for reading compiler artifacts (`.cmt` and `.cmti` files) and support jump to definition, hover, and autocomplete. This is intended to be used in higher level language servers.
+This is a private command line binary used by [rescript-vscode](https://github.com/rescript-lang/rescript-vscode) to power a few functionalities such as jump to definition, hover and autocomplete.
+
+The binary reads the `.cmt` and `.cmti` files and analyses them.
 
 ## Status
 
