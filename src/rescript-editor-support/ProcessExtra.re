@@ -123,10 +123,7 @@ module F =
       ],
     );
   };
-  let env = {
-    Query.file: Collector.file,
-    exported: Collector.file.contents.exported,
-  };
+  let env = Query.fileEnv(Collector.file);
 
   let getTypeAtPath = getTypeAtPath(~env);
 

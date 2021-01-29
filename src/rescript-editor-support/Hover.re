@@ -78,7 +78,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
     showModule(~docstring, ~name, ~file, declared);
   | LModule(GlobalReference(moduleName, path, tip)) =>
     let%opt file = getModule(moduleName);
-    let env = {Query.file, exported: file.contents.exported};
+    let env = Query.fileEnv(file);
     let%opt (env, name) = Query.resolvePath(~env, ~path, ~getModule);
     let%opt stamp = Query.exportedForTip(~env, name, tip);
     let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
@@ -116,7 +116,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
     let fromType = (~docstring, typ) => {
       let typeString = codeBlock(typ |> Shared.typeToString);
       let extraTypeInfo = {
-        let env = {Query.file, exported: file.contents.exported};
+        let env = Query.fileEnv(file);
         let%opt path = typ |> Shared.digConstructor;
         let%opt (_env, {docstring, name: {txt}, item: {decl}}) =
           digConstructor(~env, ~getModule, path);
