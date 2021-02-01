@@ -651,24 +651,161 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
            )
          );
 
-    | Some((_text, _offset, Some(Cpipe(s)))) => [
-        mkItem(
-          ~name="Foo.pipe",
-          ~kind=9,
-          ~detail=s,
-          ~docstring=None,
-          ~uri="uri",
-          ~pos_lnum=0,
-        ),
-        mkItem(
-          ~name="Foo.pine",
-          ~kind=9,
-          ~detail=s,
-          ~docstring=None,
-          ~uri="uri",
-          ~pos_lnum=0,
-        ),
-      ]
+    | Some((text, offset, Some(Cpipe(s)))) =>
+      let rawOpens = PartialParser.findOpens(text, offset);
+      let allModules =
+        package.TopTypes.localModules @ package.dependencyModules;
+      let parts = Str.split(Str.regexp_string("->"), s);
+      let items =
+        getItems(
+          ~full,
+          ~package,
+          ~rawOpens,
+          ~getModule=State.fileForModule(state, ~package),
+          ~allModules,
+          ~pos,
+          ~parts,
+        );
+
+      let removePackageOpens = modulePath =>
+        switch (modulePath) {
+        | [toplevel, ...rest] when package.opens |> List.mem(toplevel) => rest
+        | _ => modulePath
+        };
+
+      let rec removeRawOpen = (rawOpen, modulePath) =>
+        switch (rawOpen, modulePath) {
+        | (Tip(_), _) => Some(modulePath)
+        | (Nested(s, inner), [first, ...restPath]) when s == first =>
+          removeRawOpen(inner, restPath)
+        | _ => None
+        };
+
+      let rec removeRawOpens = (rawOpens, modulePath) =>
+        switch (rawOpens) {
+        | [rawOpen, ...restOpens] =>
+          let newModulePath =
+            switch (removeRawOpen(rawOpen, modulePath)) {
+            | None => modulePath
+            | Some(newModulePath) => newModulePath
+            };
+          removeRawOpens(restOpens, newModulePath);
+        | [] => modulePath
+        };
+
+      let pipeItems =
+        switch (items) {
+        | [(uri, {SharedTypes.item: Value(t)}), ..._] =>
+          let getModulePath = path => {
+            let rec loop = (path: Path.t) =>
+              switch (path) {
+              | Pident(id) => [Ident.name(id)]
+              | Pdot(p, s, _) => [s, ...loop(p)]
+              | Papply(_) => []
+              };
+            switch (loop(path)) {
+            | [_, ...rest] => List.rev(rest)
+            | [] => []
+            };
+          };
+          let modulePath =
+            switch (t.desc) {
+            | Tconstr(path, _, _) => getModulePath(path)
+            | Tlink({desc: Tconstr(path, _, _)}) => getModulePath(path)
+            | _ => []
+            };
+          switch (modulePath) {
+          | [_, ..._] =>
+            let modulePathMinusOpens =
+              modulePath
+              |> removePackageOpens
+              |> removeRawOpens(rawOpens)
+              |> String.concat(".");
+            let completionName = name =>
+              modulePathMinusOpens == ""
+                ? name : modulePathMinusOpens ++ "." ++ name;
+            let parts = modulePath @ [""];
+            let items =
+              getItems(
+                ~full,
+                ~package,
+                ~rawOpens,
+                ~getModule=State.fileForModule(state, ~package),
+                ~allModules,
+                ~pos,
+                ~parts,
+              );
+            items
+            |> List.filter(((_, {item})) =>
+                 switch (item) {
+                 | Value(_) => true
+                 | _ => false
+                 }
+               )
+            |> List.map(
+                 (
+                   (
+                     uri,
+                     {
+                       SharedTypes.name: {
+                         txt: name,
+                         loc: {loc_start: {pos_lnum}},
+                       },
+                       docstring,
+                       item,
+                     },
+                   ),
+                 ) =>
+                 mkItem(
+                   ~name=completionName(name),
+                   ~kind=kindToInt(item),
+                   ~detail=detail(name, item),
+                   ~docstring,
+                   ~uri,
+                   ~pos_lnum,
+                 )
+               );
+
+          | path => [
+              mkItem(
+                ~name=
+                  "can't complete type: "
+                  ++ Shared.typeToString(t)
+                  ++ " in: "
+                  ++ (path |> String.concat(".")),
+                ~kind=9,
+                ~detail=s,
+                ~docstring=None,
+                ~uri,
+                ~pos_lnum=0,
+              ),
+            ]
+          };
+
+        | _ => []
+        };
+
+      // let dummyItems = [
+      //   mkItem(
+      //     ~name="Foo.pipe",
+      //     ~kind=9,
+      //     ~detail=s,
+      //     ~docstring=None,
+      //     ~uri="uri",
+      //     ~pos_lnum=0,
+      //   ),
+      //   mkItem(
+      //     ~name="Foo.pine",
+      //     ~kind=9,
+      //     ~detail=s,
+      //     ~docstring=None,
+      //     ~uri="uri",
+      //     ~pos_lnum=0,
+      //   ),
+      // ];
+      let dummyItems = [];
+
+      dummyItems @ pipeItems;
 
     | Some((_, _, Some(Clabel(_)))) =>
       // not supported yet
