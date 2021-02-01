@@ -1,6 +1,6 @@
 let rec findBack = (text, char, i) =>
   if (i < 0) {
-    0;
+    i;
   } else if (text.[i] == char && (i == 0 || text.[i - 1] != '/')) {
     i - 1;
   } else {

@@ -3,6 +3,7 @@
 - Add support for printing uncurried function types in hover.
 - Fix autocomplete issue where `open Foo` would be picked up inside line comments (see https://github.com/rescript-lang/rescript-editor-support/issues/15).
 - Don't print parens as in `A()` for 0-ary variants.
+- Fix infinite loop in autocomplete that can cause `rescript-editor-support.exe` processes to use up 100% cpu.
 
 ## Release 1.0.3 of rescript-vscode 
 This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/214d220d8573f9f0c8d54e623c163e01617bf124) is vendored in [rescript-vscode 1.0.3](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.3).
