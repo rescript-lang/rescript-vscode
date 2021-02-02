@@ -144,7 +144,12 @@ module F =
         addExternalReference(moduleName, path, tip, identLoc);
         GlobalReference(moduleName, path, tip);
       | `Exported(env, name) =>
-        switch (Hashtbl.find_opt(env.exported.values, name)) {
+        switch (
+          Hashtbl.find_opt(
+            tip == Type ? env.exported.types : env.exported.values,
+            name,
+          )
+        ) {
         | Some(stamp) =>
           addReference(stamp, identLoc);
           LocalReference(stamp, tip);
@@ -230,12 +235,7 @@ module F =
                | None => NotFound
                }
              | `Global(moduleName, path) =>
-               addExternalReference(
-                 moduleName,
-                 path,
-                 Field(name),
-                 nameLoc,
-               );
+               addExternalReference(moduleName, path, Field(name), nameLoc);
                GlobalReference(moduleName, path, Field(name));
              | _ => NotFound
              };
