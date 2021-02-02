@@ -86,3 +86,12 @@ let v1 = V1
 module DoubleNested = ModuleWithDocComment.Nested.NestedAgain
 
 let uncurried = (. x) => x+1;
+
+module Inner = {
+  type tInner = int;
+  let vInner = 34
+}
+
+type typeInner = Inner.tInner;
+
+let valueInner = Inner.vInner;
