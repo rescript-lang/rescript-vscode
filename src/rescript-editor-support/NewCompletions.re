@@ -588,7 +588,7 @@ let mkItem = (~name, ~kind, ~detail, ~docstring, ~uri, ~pos_lnum) => {
           J.s(
             (docstring |? "No docs")
             ++ "\n\n"
-            ++ uri
+            ++ Uri2.toString(uri)
             ++ ":"
             ++ string_of_int(pos_lnum),
           ),
