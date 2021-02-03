@@ -4,16 +4,17 @@ open TopTypes;
 module J = JsonShort;
 
 let getTextDocument = doc => {
-  let%opt uri = Json.get("uri", doc) |?> Json.string;
+  let%opt uri = Json.get("uri", doc) |?> Json.string |?> Uri2.parse;
   let%opt text = Json.get("text", doc) |?> Json.string;
   Some((uri, text));
 };
 
-let watchedFileContentsMap = Hashtbl.create(100);
-
 let reloadAllState = state => {
   Log.log("RELOADING ALL STATE");
-  {...TopTypes.empty(), documentText: state.documentText};
+  {
+    ...TopTypes.empty(~rootUri=state.rootUri),
+    documentText: state.documentText,
+  };
 };
 
 let notificationHandlers:
@@ -27,7 +28,7 @@ let notificationHandlers:
         |> RResult.orError("Invalid params");
       Hashtbl.replace(state.documentText, uri, text);
 
-      let%try path = Utils.parseUri(uri) |> RResult.orError("Invalid uri");
+      let path = Uri2.toPath(uri);
       if (FindFiles.isSourceFile(path)) {
         let%try package = Packages.getPackage(uri, state);
         /* let name = FindFiles.getName(path); */
@@ -71,6 +72,7 @@ let notificationHandlers:
       open InfixResult;
       let%try doc = params |> RJson.get("textDocument");
       let%try uri = RJson.get("uri", doc) |?> RJson.string;
+      let%try uri = Uri2.parse(uri) |> RResult.orError("Not a uri");
       let%try changes = RJson.get("contentChanges", params) |?> RJson.array;
       let%try text =
         List.nth(changes, List.length(changes) - 1)
@@ -83,41 +85,8 @@ let notificationHandlers:
   ),
   (
     "workspace/didChangeWatchedFiles",
-    (state, params) => {
-      Log.log("Got a watched file change");
-      let%try changes = RJson.get("changes", params);
-      let%try changes = RJson.array(changes);
-      open InfixResult;
-      let shouldReload =
-        changes
-        |> List.exists(change =>
-             {
-               let%try uri = RJson.get("uri", change) |?> RJson.string;
-               let isRelevant = Utils.endsWith(uri, "/bsconfig.json");
-               if (!isRelevant) {
-                 Ok(false);
-               } else {
-                 let%try path =
-                   Utils.parseUri(uri) |> RResult.orError("Cannot parse URI");
-                 let%try contents = Files.readFileResult(path);
-                 if (!Hashtbl.mem(watchedFileContentsMap, uri)
-                     || Hashtbl.find(watchedFileContentsMap, uri) == contents) {
-                   Ok(false);
-                 } else {
-                   Hashtbl.replace(watchedFileContentsMap, uri, contents);
-                   Log.log("Reloading because a file changed: " ++ uri);
-                   Ok(true);
-                 };
-               };
-             }
-             |? false
-           );
-
-      if (shouldReload) {
-        Ok(reloadAllState(state));
-      } else {
-        Ok(state);
-      };
+    (state, _params) => {
+      Ok(state);
     },
   ),
 ];

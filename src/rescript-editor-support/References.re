@@ -97,7 +97,7 @@ let definedForLoc = (~file, ~getModule, locKind) => {
         ++ " "
         ++ string_of_int(stamp)
         ++ " in file "
-        ++ file.uri,
+        ++ Uri2.toString(file.uri),
       );
       let%opt declared =
         Query.declaredForTip(~stamps=file.stamps, stamp, tip);
@@ -144,10 +144,10 @@ let alternateDeclared = (~file, ~pathsForModule, ~getUri, declared, tip) => {
   switch (paths) {
   | IntfAndImpl(_, intf, _, impl) =>
     maybeLog("Have both!!");
-    let intf = Utils.toUri(intf);
-    let impl = Utils.toUri(impl);
-    if (intf == file.uri) {
-      let%opt (file, extra) = getUri(impl) |> RResult.toOptionAndLog;
+    let intfUri = Uri2.fromPath(intf);
+    let implUri = Uri2.fromPath(impl);
+    if (intfUri == file.uri) {
+      let%opt (file, extra) = getUri(implUri) |> RResult.toOptionAndLog;
       let%opt declared =
         Query.declaredForExportedTip(
           ~stamps=file.stamps,
@@ -157,7 +157,7 @@ let alternateDeclared = (~file, ~pathsForModule, ~getUri, declared, tip) => {
         );
       Some((file, extra, declared));
     } else {
-      let%opt (file, extra) = getUri(intf) |> RResult.toOptionAndLog;
+      let%opt (file, extra) = getUri(intfUri) |> RResult.toOptionAndLog;
       let%opt declared =
         Query.declaredForExportedTip(
           ~stamps=file.stamps,
@@ -342,7 +342,7 @@ let allReferencesForLoc =
   | LModule(LocalReference(stamp, tip) | Definition(stamp, tip)) =>
     maybeLog(
       "Finding references for "
-      ++ file.uri
+      ++ Uri2.toString(file.uri)
       ++ " and stamp "
       ++ string_of_int(stamp)
       ++ " and tip "
@@ -377,7 +377,7 @@ let allReferencesForLoc =
     let%try (file, extra) = getUri(env.file.uri);
     maybeLog(
       "Finding references for (global) "
-      ++ env.file.uri
+      ++ Uri2.toString(env.file.uri)
       ++ " and stamp "
       ++ string_of_int(stamp)
       ++ " and tip "
@@ -435,7 +435,7 @@ let resolveModuleDefinition = (~file, ~getModule, stamp) => {
   let%opt (file, declared) = resolveModuleReference(~file, ~getModule, md);
   let loc =
     switch (declared) {
-    | None => Utils.topLoc(file.uri)
+    | None => Utils.topLoc(Uri2.toPath(file.uri))
     | Some(declared) => validateLoc(declared.name.loc, declared.extentLoc)
     };
   Some((file.uri, loc));
@@ -455,7 +455,7 @@ let definition = (~file, ~getModule, stamp, tip) => {
     let loc = validateLoc(declared.name.loc, declared.extentLoc);
     let env = Query.fileEnv(file);
     let uri = Query.getSourceUri(~env, ~getModule, declared.modulePath);
-    maybeLog("Inner uri " ++ uri);
+    maybeLog("Inner uri " ++ Uri2.toString(uri));
     Some((uri, loc));
   };
 };
@@ -496,7 +496,7 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
       |> orLog("No paths found")
       |?> getSrc
       |> orLog("No src found");
-    Some((Utils.toUri(src), Utils.topLoc(src)));
+    Some((Uri2.fromPath(src), Utils.topLoc(src)));
   | LModule(LocalReference(stamp, tip))
   | Typed(_, LocalReference(stamp, tip)) =>
     maybeLog("Local defn " ++ tipToString(tip));

@@ -139,9 +139,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
         let (typeString, docstring) = t |> fromType(~docstring=None);
         [typeString, docstring];
       | Some((docstring, {uri}, res)) =>
-        let uri =
-          Utils.startsWith(uri, rootUri)
-            ? "<root>" ++ Utils.sliceToEnd(uri, String.length(rootUri)) : uri;
+        let pathFromRoot = uri |> Uri2.pathFromRoot(~rootUri);
 
         let parts =
           switch (res) {
@@ -167,7 +165,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
             [typeString, docstring];
           };
 
-        parts @ [Some(uri)];
+        parts @ [Some(pathFromRoot)];
       };
 
     Some(String.concat("\n\n", parts |> Utils.filterMap(x => x)));

@@ -1,7 +1,7 @@
 let fileForCmt:
-  (~moduleName: string, string, string, string => string) =>
+  (~moduleName: string, ~uri: Uri2.t, string, string => string) =>
   result(SharedTypes.file, string);
 
 let fullForCmt:
-  (~moduleName: string, string, string, string => string) =>
+  (~moduleName: string, ~uri: Uri2.t, string, string => string) =>
   result(SharedTypes.full, string);

@@ -40,9 +40,8 @@ let getCmt = (~interface=true, p) =>
   | IntfAndImpl(cint, _, cimpl, _) => interface ? cint : cimpl
   };
 
-/* TODO maybe track the loc's of these things */
 type visibilityPath =
-  | File(string, string)
+  | File(Uri2.t, string)
   | NotVisible
   | IncludedModule(Path.t, visibilityPath)
   | ExportedModule(string, visibilityPath);
@@ -166,7 +165,7 @@ let initStamps = () => {
 };
 
 type file = {
-  uri: string,
+  uri: Uri2.t,
   stamps,
   moduleName: string,
   contents: moduleContents,

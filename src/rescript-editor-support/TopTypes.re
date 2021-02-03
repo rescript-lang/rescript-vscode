@@ -1,5 +1,5 @@
 /* Aliases to make the intents clearer */
-type uri = string;
+type uri = Uri2.t;
 type filePath = string;
 type moduleName = string;
 
@@ -24,8 +24,8 @@ type state = {
   cmtCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
 };
 
-let empty = () => {
-  rootUri: "- uninitialized -",
+let empty = (~rootUri) => {
+  rootUri,
   documentText: Hashtbl.create(5),
   packagesByRoot: Hashtbl.create(1),
   rootForUri: Hashtbl.create(30),
