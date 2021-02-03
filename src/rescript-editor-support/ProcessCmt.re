@@ -574,7 +574,7 @@ and forStructure = (~env, items) => {
 let forCmt =
     (
       ~moduleName,
-      uri,
+      ~uri,
       processDoc,
       {cmt_modname, cmt_annots}: Cmt_format.cmt_infos,
     ) =>

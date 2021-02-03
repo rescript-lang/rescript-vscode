@@ -149,8 +149,8 @@ let newBsPackage = rootPath => {
   };
 };
 
-let findRoot = (uri, packagesByRoot) => {
-  let%opt path = Utils.parseUri(uri);
+let findRoot = (~uri, packagesByRoot) => {
+  let path = Uri2.toPath(uri);
   let rec loop = path =>
     if (path == "/") {
       None;
@@ -164,7 +164,7 @@ let findRoot = (uri, packagesByRoot) => {
   loop(Filename.dirname(path));
 };
 
-let getPackage = (uri, state) =>
+let getPackage = (~uri, state) =>
   if (Hashtbl.mem(state.rootForUri, uri)) {
     Ok(
       Hashtbl.find(
@@ -174,7 +174,7 @@ let getPackage = (uri, state) =>
     );
   } else {
     let%try root =
-      findRoot(uri, state.packagesByRoot)
+      findRoot(~uri, state.packagesByRoot)
       |> RResult.orError("No root directory found");
     let%try package =
       switch (root) {

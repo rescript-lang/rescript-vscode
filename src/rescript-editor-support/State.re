@@ -14,9 +14,9 @@ let converter = src => {
 };
 
 let newDocsForCmt = (~moduleName, cmtCache, changed, cmt, src) => {
-  let uri = Utils.toUri(src |? cmt);
+  let uri = Uri2.fromPath(src |? cmt);
   let%opt file =
-    Process_406.fileForCmt(~moduleName, cmt, uri, converter(src))
+    Process_406.fileForCmt(~moduleName, ~uri, cmt, converter(src))
     |> RResult.toOptionAndLog;
   Hashtbl.replace(cmtCache, cmt, (changed, file));
   Some(file);
@@ -55,14 +55,18 @@ let updateContents = (uri, text, state) => {
 open Infix;
 
 let getFullFromCmt = (~state, ~uri) => {
-  let%try path = Utils.parseUri(uri) |> RResult.orError("Not a uri");
+  let path = Uri2.toPath(uri);
   let%try package = Packages.getPackage(uri, state);
   let moduleName =
     BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
   switch (Hashtbl.find_opt(package.pathsForModule, moduleName)) {
   | Some(paths) =>
-    let cmt = SharedTypes.getCmt(~interface=Utils.endsWith(uri, "i"), paths);
-    let%try full = Process_406.fullForCmt(~moduleName, cmt, uri, x => x);
+    let cmt =
+      SharedTypes.getCmt(
+        ~interface=Utils.endsWith(path, "i"),
+        paths,
+      );
+    let%try full = Process_406.fullForCmt(~moduleName, ~uri, cmt, x => x);
     Hashtbl.replace(
       package.interModuleDependencies,
       moduleName,
@@ -105,7 +109,7 @@ let extraForModule = (state, ~package, modname) =>
     let paths = Hashtbl.find(package.pathsForModule, modname);
     /* TODO do better? */
     let%opt src = SharedTypes.getSrc(paths);
-    switch (getFullFromCmt(~state, ~uri=Utils.toUri(src))) {
+    switch (getFullFromCmt(~state, ~uri=Uri2.fromPath(src))) {
     | Ok((_package, {extra})) => Some(extra)
     | Error(_) => None
     };

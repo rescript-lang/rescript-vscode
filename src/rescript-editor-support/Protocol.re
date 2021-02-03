@@ -11,6 +11,7 @@ let rPositionParams = params => {
   open RResult.InfixResult;
   let%try uri =
     RJson.get("textDocument", params) |?> RJson.get("uri") |?> RJson.string;
+  let%try uri = Uri2.parse(uri) |> RResult.orError("Not a uri");
   let%try pos = RJson.get("position", params) |?> rgetPosition;
   Ok((uri, pos));
 };
@@ -28,19 +29,17 @@ let rangeOfLoc = ({Location.loc_start, loc_end}) =>
   J.o([("start", posOfLexing(loc_start)), ("end", posOfLexing(loc_end))]);
 
 let locationOfLoc =
-    (~fname=?, {Location.loc_start: {Lexing.pos_fname}} as loc) =>
+    (~fname=?, {Location.loc_start: {Lexing.pos_fname}} as loc) => {
+  let uri =
+    switch (fname) {
+    | Some(x) => x
+    | None => Uri2.fromPath(pos_fname)
+    };
   J.o([
     ("range", rangeOfLoc(loc)),
-    (
-      "uri",
-      J.s(
-        switch (fname) {
-        | Some(x) => x
-        | None => Utils.toUri(pos_fname)
-        },
-      ),
-    ),
+    ("uri", J.s(Uri2.toString(uri))),
   ]);
+};
 
 let locationContains = ({Location.loc_start, loc_end}, pos) =>
   Utils.tupleOfLexing(loc_start) <= pos

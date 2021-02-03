@@ -27,7 +27,7 @@ let handlers:
           Ok((
             state,
             Json.Object([
-              ("uri", Json.String(uri)),
+              ("uri", Json.String(Uri2.toString(uri))),
               ("range", Protocol.rangeOfLoc(loc)),
             ]),
           )),
@@ -164,7 +164,7 @@ let handlers:
                     allReferences
                     |> List.map(((fname, references)) =>
                          (
-                           fname,
+                           fname |> Uri2.toString,
                            J.l(
                              references
                              |> List.map(loc =>
@@ -195,6 +195,7 @@ let handlers:
         |> RJson.get("textDocument")
         |?> RJson.get("uri")
         |?> RJson.string;
+      let%try uri = Uri2.parse(uri) |> RResult.orError("Not a uri");
 
       /* Log.log("<< codleens me please"); */
 
@@ -307,6 +308,7 @@ let handlers:
         |> RJson.get("textDocument")
         |?> RJson.get("uri")
         |?> RJson.string;
+      let%try uri = Uri2.parse(uri) |> RResult.orError("Not a uri");
 
       let%try (file, _extra) = State.fileForUri(state, uri);
       open SharedTypes;

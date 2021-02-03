@@ -1,5 +1,4 @@
 open Infix;
-open RResult;
 module J = JsonShort;
 module StringSet = Set.Make(String);
 let capabilities =
@@ -17,9 +16,10 @@ let capabilities =
   ]);
 
 let getInitialState = params => {
-  let uri =
-    Json.get("rootUri", params) |?> Json.string |! "Must have a rootUri";
-  let%try rootPath = uri |> Utils.parseUri |> resultOfOption("No root uri");
+  let rootUri =
+    Json.get("rootUri", params) |?> Json.string |?> Uri2.parse;
+  let%try rootUri = rootUri |> RResult.orError("Not a uri");
+  let rootPath = Uri2.toPath(rootUri);
 
   Files.mkdirp(rootPath /+ "node_modules" /+ ".lsp");
   Log.setLocation(rootPath /+ "node_modules" /+ ".lsp" /+ "debug.log");
@@ -53,7 +53,7 @@ let getInitialState = params => {
     ]),
   );
 
-  let state = {...TopTypes.empty(), rootUri: uri};
+  let state = TopTypes.empty(~rootUri);
 
   Ok(state);
 };

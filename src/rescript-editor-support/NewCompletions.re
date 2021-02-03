@@ -210,7 +210,7 @@ let getEnvWithOpens =
     let rec loop = opens =>
       switch (opens) {
       | [env, ...rest] =>
-        Log.log("Looking for env in " ++ env.Query.file.uri);
+        Log.log("Looking for env in " ++ Uri2.toString(env.Query.file.uri));
         switch (Query.resolvePath(~env, ~getModule, ~path)) {
         | Some(x) => Some(x)
         | None => loop(rest)
@@ -313,7 +313,7 @@ let localValueCompletions = (~pos, ~env: Query.queryEnv, suffix) => {
 };
 
 let valueCompletions = (~env: Query.queryEnv, suffix) => {
-  Log.log(" - Completing in " ++ env.file.uri);
+  Log.log(" - Completing in " ++ Uri2.toString(env.file.uri));
   let results = [];
   let results =
     if (suffix == "" || isCapitalized(suffix)) {
@@ -450,7 +450,10 @@ let getItems =
     "Opens nows "
     ++ string_of_int(List.length(opens))
     ++ " "
-    ++ String.concat(" ", opens |> List.map(e => e.Query.file.uri)),
+    ++ String.concat(
+         " ",
+         opens |> List.map(e => Uri2.toString(e.Query.file.uri)),
+       ),
   );
 
   switch (parts) {
@@ -488,7 +491,7 @@ let getItems =
            /* Log.log("Checking " ++ name); */
            Utils.startsWith(name, suffix) && !String.contains(name, '-')
              ? Some((
-                 "wait for uri",
+                 env.file.uri,
                  {...emptyDeclared(name), item: FileModule(name)},
                ))
              : None
@@ -636,7 +639,7 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
                  J.s(
                    (docstring |? "No docs")
                    ++ "\n\n"
-                   ++ uri
+                   ++ Uri2.toString(uri)
                    ++ ":"
                    ++ string_of_int(pos_lnum),
                  ),

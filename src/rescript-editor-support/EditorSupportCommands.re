@@ -84,7 +84,8 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
                    "definition",
                    J.o(
                      uriIsCurrentFile
-                       ? [range] : [("uri", Json.String(uri2)), range],
+                       ? [range]
+                       : [("uri", Json.String(Uri2.toString(uri2))), range],
                    ),
                  ),
                ],
@@ -121,13 +122,12 @@ let splitLineChar = pathWithPos => {
 let dump = files => {
   Shared.cacheTypeToString := true;
   let rootPath = Unix.getcwd();
-  let emptyState = TopTypes.empty();
-  let state = {...emptyState, rootUri: Utils.toUri(rootPath)};
+  let state = TopTypes.empty(~rootUri=Uri2.fromPath(rootPath));
   files
   |> List.iter(pathWithPos => {
        let (filePath, selectPos) = pathWithPos |> splitLineChar;
        let filePath = Files.maybeConcat(Unix.getcwd(), filePath);
-       let uri = Utils.toUri(filePath);
+       let uri = Uri2.fromPath(filePath);
        let result =
          switch (State.getFullFromCmt(~state, ~uri)) {
          | Error(message) =>
@@ -155,12 +155,11 @@ let autocomplete = (~currentFile, ~full, ~package, ~pos, ~state) => {
 
 let complete = (~pathWithPos, ~currentFile) => {
   let rootPath = Unix.getcwd();
-  let emptyState = TopTypes.empty();
-  let state = {...emptyState, rootUri: Utils.toUri(rootPath)};
+  let state = TopTypes.empty(~rootUri=Uri2.fromPath(rootPath));
   switch (pathWithPos |> splitLineChar) {
   | (filePath, Some(pos)) =>
     let filePath = Files.maybeConcat(Unix.getcwd(), filePath);
-    let uri = Utils.toUri(filePath);
+    let uri = Uri2.fromPath(filePath);
     let result =
       switch (State.getFullFromCmt(~state, ~uri)) {
       | Error(message) =>
