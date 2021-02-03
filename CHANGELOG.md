@@ -1,8 +1,16 @@
-## 1.0.x (unreleased)
+## 1.0.5
 
+Features:
+- Custom folding. See README.
+- Support for doc strings when hovering on modules.
+- Jump to type definition for types defined in inner modules.
+
+Fixes:
 - Properly highlight nested comments.
-- Fix Windows diagnostics!
-- Custom folding. See README
+- Windows diagnostics!
+- Removed a potential infinite loop issue in autocomplete.
+- Don't autocomplete `open MyModule` inside line comments.
+- Don't print parentheses as in `A()` for 0-ary variants.
 
 ## 1.0.4
 
