@@ -655,8 +655,8 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
       let rawOpens = PartialParser.findOpens(text, offset);
       let allModules =
         package.TopTypes.localModules @ package.dependencyModules;
-      let parts = Str.split(Str.regexp_string("->"), s);
-      let items =
+
+      let getItems = parts =>
         getItems(
           ~full,
           ~package,
@@ -666,6 +666,23 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
           ~pos,
           ~parts,
         );
+
+      let getLhsType = (~lhs, ~partialName) => {
+        switch (getItems([lhs])) {
+        | [(_uri, {SharedTypes.item: Value(t)}), ..._] =>
+          Some((t, partialName))
+        | _ => None
+        };
+      };
+
+      let lhsType =
+        switch (Str.split(Str.regexp_string("->"), s)) {
+        | [lhs] => getLhsType(~lhs, ~partialName="")
+        | [lhs, partialName] => getLhsType(~lhs, ~partialName)
+        | _ =>
+          // Only allow one ->
+          None
+        };
 
       let removePackageOpens = modulePath =>
         switch (modulePath) {
@@ -693,119 +710,73 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
         | [] => modulePath
         };
 
-      let pipeItems =
-        switch (items) {
-        | [(uri, {SharedTypes.item: Value(t)}), ..._] =>
-          let getModulePath = path => {
-            let rec loop = (path: Path.t) =>
-              switch (path) {
-              | Pident(id) => [Ident.name(id)]
-              | Pdot(p, s, _) => [s, ...loop(p)]
-              | Papply(_) => []
-              };
-            switch (loop(path)) {
-            | [_, ...rest] => List.rev(rest)
-            | [] => []
+      switch (lhsType) {
+      | Some((t, partialName)) =>
+        let getModulePath = path => {
+          let rec loop = (path: Path.t) =>
+            switch (path) {
+            | Pident(id) => [Ident.name(id)]
+            | Pdot(p, s, _) => [s, ...loop(p)]
+            | Papply(_) => []
             };
+          switch (loop(path)) {
+          | [_, ...rest] => List.rev(rest)
+          | [] => []
           };
-          let modulePath =
-            switch (t.desc) {
-            | Tconstr(path, _, _) => getModulePath(path)
-            | Tlink({desc: Tconstr(path, _, _)}) => getModulePath(path)
-            | _ => []
-            };
-          switch (modulePath) {
-          | [_, ..._] =>
-            let modulePathMinusOpens =
-              modulePath
-              |> removePackageOpens
-              |> removeRawOpens(rawOpens)
-              |> String.concat(".");
-            let completionName = name =>
-              modulePathMinusOpens == ""
-                ? name : modulePathMinusOpens ++ "." ++ name;
-            let parts = modulePath @ [""];
-            let items =
-              getItems(
-                ~full,
-                ~package,
-                ~rawOpens,
-                ~getModule=State.fileForModule(state, ~package),
-                ~allModules,
-                ~pos,
-                ~parts,
-              );
-            items
-            |> List.filter(((_, {item})) =>
-                 switch (item) {
-                 | Value(_) => true
-                 | _ => false
-                 }
-               )
-            |> List.map(
+        };
+        let modulePath =
+          switch (t.desc) {
+          | Tconstr(path, _, _) => getModulePath(path)
+          | Tlink({desc: Tconstr(path, _, _)}) => getModulePath(path)
+          | _ => []
+          };
+        switch (modulePath) {
+        | [_, ..._] =>
+          let modulePathMinusOpens =
+            modulePath
+            |> removePackageOpens
+            |> removeRawOpens(rawOpens)
+            |> String.concat(".");
+          let completionName = name =>
+            modulePathMinusOpens == ""
+              ? name : modulePathMinusOpens ++ "." ++ name;
+          let parts = modulePath @ [partialName];
+          let items = getItems(parts);
+          items
+          |> List.filter(((_, {item})) =>
+               switch (item) {
+               | Value(_) => true
+               | _ => false
+               }
+             )
+          |> List.map(
+               (
                  (
-                   (
-                     uri,
-                     {
-                       SharedTypes.name: {
-                         txt: name,
-                         loc: {loc_start: {pos_lnum}},
-                       },
-                       docstring,
-                       item,
+                   uri,
+                   {
+                     SharedTypes.name: {
+                       txt: name,
+                       loc: {loc_start: {pos_lnum}},
                      },
-                   ),
-                 ) =>
-                 mkItem(
-                   ~name=completionName(name),
-                   ~kind=kindToInt(item),
-                   ~detail=detail(name, item),
-                   ~docstring,
-                   ~uri,
-                   ~pos_lnum,
-                 )
-               );
-
-          | path => [
-              mkItem(
-                ~name=
-                  "can't complete type: "
-                  ++ Shared.typeToString(t)
-                  ++ " in: "
-                  ++ (path |> String.concat(".")),
-                ~kind=9,
-                ~detail=s,
-                ~docstring=None,
-                ~uri,
-                ~pos_lnum=0,
-              ),
-            ]
-          };
+                     docstring,
+                     item,
+                   },
+                 ),
+               ) =>
+               mkItem(
+                 ~name=completionName(name),
+                 ~kind=kindToInt(item),
+                 ~detail=detail(name, item),
+                 ~docstring,
+                 ~uri,
+                 ~pos_lnum,
+               )
+             );
 
         | _ => []
         };
-
-      // let dummyItems = [
-      //   mkItem(
-      //     ~name="Foo.pipe",
-      //     ~kind=9,
-      //     ~detail=s,
-      //     ~docstring=None,
-      //     ~uri="uri",
-      //     ~pos_lnum=0,
-      //   ),
-      //   mkItem(
-      //     ~name="Foo.pine",
-      //     ~kind=9,
-      //     ~detail=s,
-      //     ~docstring=None,
-      //     ~uri="uri",
-      //     ~pos_lnum=0,
-      //   ),
-      // ];
-      let dummyItems = [];
-
-      dummyItems @ pipeItems;
+      | None => []
+      };
 
     | Some((_, _, Some(Clabel(_)))) =>
       // not supported yet
