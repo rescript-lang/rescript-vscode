@@ -280,7 +280,7 @@ process.on("message", (msg: m.Message) => {
           hoverProvider: binaryExists,
           definitionProvider: binaryExists,
           completionProvider: binaryExists
-            ? { triggerCharacters: ["."] }
+            ? { triggerCharacters: [".", ">"] }
             : undefined,
         },
       };
