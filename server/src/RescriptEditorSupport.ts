@@ -34,7 +34,7 @@ export function runDumpCommand(
     onResult(null);
   } else {
     let command =
-      `"executable.binaryPath"` +
+      `"${executable.binaryPath}"` +
       " dump " +
       executable.filePath +
       ":" +
@@ -64,8 +64,8 @@ export function runCompletionCommand(
     let tmpname = utils.createFileInTempDir();
     fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
-    let command =
-      `"executable.binaryPath"` +
+    let command = 
+      `"${executable.binaryPath}"` +
       " complete " +
       executable.filePath +
       ":" +
