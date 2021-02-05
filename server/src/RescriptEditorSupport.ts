@@ -36,11 +36,8 @@ export function runDumpCommand(
     let command =
       `"${executable.binaryPath}"` +
       " dump " +
-      executable.filePath +
-      ":" +
-      msg.params.position.line +
-      ":" +
-      msg.params.position.character;
+      `"${executable.filePath}:${msg.params.position.line}:${msg.params.position.character}"`;
+      
     exec(command, { cwd: executable.cwd }, function (_error, stdout, _stderr) {
       let result = JSON.parse(stdout);
       if (result && result[0]) {
@@ -64,14 +61,10 @@ export function runCompletionCommand(
     let tmpname = utils.createFileInTempDir();
     fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
-    let command = 
+    let command =
       `"${executable.binaryPath}"` +
       " complete " +
-      executable.filePath +
-      ":" +
-      msg.params.position.line +
-      ":" +
-      msg.params.position.character +
+      `"${executable.filePath}:${msg.params.position.line}:${msg.params.position.character}"` +
       " " +
       tmpname;
 
