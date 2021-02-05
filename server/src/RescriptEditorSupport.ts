@@ -34,7 +34,7 @@ export function runDumpCommand(
     onResult(null);
   } else {
     let command =
-      executable.binaryPath +
+      `"executable.binaryPath"` +
       " dump " +
       executable.filePath +
       ":" +
@@ -65,7 +65,7 @@ export function runCompletionCommand(
     fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
     let command =
-      executable.binaryPath +
+      `"executable.binaryPath"` +
       " complete " +
       executable.filePath +
       ":" +
