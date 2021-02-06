@@ -332,19 +332,16 @@ process.on("message", (msg: m.Message) => {
         // type Hover = {contents: MarkedString | MarkedString[] | MarkupContent, range?: Range}
         result: null,
       };
-      runDumpCommand(msg, (result) => {
-        if (result && result.hover) {
-          let hoverResponse: m.ResponseMessage = {
-            ...emptyHoverResponse,
-            result: {
-              contents: result.hover,
-            },
-          };
-          process.send!(hoverResponse);
-        } else {
-          process.send!(emptyHoverResponse);
-        }
-      });
+      let result = runDumpCommand(msg);
+      if (result !== null && result.hover != null) {
+        let hoverResponse: m.ResponseMessage = {
+          ...emptyHoverResponse,
+          result: { contents: result.hover },
+        };
+        process.send!(hoverResponse);
+      } else {
+        process.send!(emptyHoverResponse);
+      }
     } else if (msg.method === p.DefinitionRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
       let emptyDefinitionResponse: m.ResponseMessage = {
@@ -355,20 +352,19 @@ process.on("message", (msg: m.Message) => {
         // error: code and message set in case an exception happens during the definition request.
       };
 
-      runDumpCommand(msg, (result) => {
-        if (result && result.definition) {
-          let definitionResponse: m.ResponseMessage = {
-            ...emptyDefinitionResponse,
-            result: {
-              uri: result.definition.uri || msg.params.textDocument.uri,
-              range: result.definition.range,
-            },
-          };
-          process.send!(definitionResponse);
-        } else {
-          process.send!(emptyDefinitionResponse);
-        }
-      });
+      let result = runDumpCommand(msg);
+      if (result !== null && result.definition != null) {
+        let definitionResponse: m.ResponseMessage = {
+          ...emptyDefinitionResponse,
+          result: {
+            uri: result.definition.uri || msg.params.textDocument.uri,
+            range: result.definition.range,
+          },
+        };
+        process.send!(definitionResponse);
+      } else {
+        process.send!(emptyDefinitionResponse);
+      }
     } else if (msg.method === p.CompletionRequest.method) {
       let emptyCompletionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
@@ -376,17 +372,16 @@ process.on("message", (msg: m.Message) => {
         result: null,
       };
       let code = getOpenedFileContent(msg.params.textDocument.uri);
-      runCompletionCommand(msg, code, (result) => {
-        if (result) {
-          let definitionResponse: m.ResponseMessage = {
-            ...emptyCompletionResponse,
-            result: result,
-          };
-          process.send!(definitionResponse);
-        } else {
-          process.send!(emptyCompletionResponse);
-        }
-      });
+      let result = runCompletionCommand(msg, code);
+      if (result === null) {
+        process.send!(emptyCompletionResponse);
+      } else {
+        let definitionResponse: m.ResponseMessage = {
+          ...emptyCompletionResponse,
+          result: result,
+        };
+        process.send!(definitionResponse);
+      }
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
       // the LSP alert box for these error replies sucks (e.g. doesn't actually

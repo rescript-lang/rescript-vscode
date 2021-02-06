@@ -2,7 +2,7 @@ import { fileURLToPath } from "url";
 import { RequestMessage } from "vscode-languageserver";
 import * as utils from "./utils";
 import * as path from "path";
-import { exec } from "child_process";
+import { execSync } from "child_process";
 import fs from "fs";
 
 let binaryPath = path.join(
@@ -27,67 +27,74 @@ let findExecutable = (uri: string) => {
   }
 };
 
-export function runDumpCommand(
-  msg: RequestMessage,
-  onResult: (
-    result: { hover?: string; definition?: { uri?: string; range: any } } | null
-  ) => void
-) {
+type dumpCommandResult = {
+  hover?: string;
+  definition?: { uri?: string; range: any };
+};
+export function runDumpCommand(msg: RequestMessage): dumpCommandResult | null {
   let executable = findExecutable(msg.params.textDocument.uri);
   if (executable == null) {
-    onResult(null);
-  } else {
-    let command =
-      executable.binaryPathQuoted +
-      " dump " +
-      executable.filePathQuoted +
-      ":" +
-      msg.params.position.line +
-      ":" +
-      msg.params.position.character;
-    exec(command, { cwd: executable.cwd }, function (_error, stdout, _stderr) {
-      let result = JSON.parse(stdout);
-      if (result && result[0]) {
-        onResult(result[0]);
-      } else {
-        onResult(null);
-      }
-    });
+    return null;
+  }
+
+  let command =
+    executable.binaryPathQuoted +
+    " dump " +
+    executable.filePathQuoted +
+    ":" +
+    msg.params.position.line +
+    ":" +
+    msg.params.position.character;
+
+  try {
+    let stdout = execSync(command, { cwd: executable.cwd });
+    let parsed = JSON.parse(stdout.toString());
+    if (parsed && parsed[0]) {
+      return parsed[0];
+    } else {
+      return null;
+    }
+  } catch (error) {
+    // TODO: @cristianoc any exception possible?
+    return null;
   }
 }
 
+type completionCommandResult = [{ label: string }];
 export function runCompletionCommand(
   msg: RequestMessage,
-  code: string,
-  onResult: (result: [{ label: string }] | null) => void
-) {
+  code: string
+): completionCommandResult | null {
   let executable = findExecutable(msg.params.textDocument.uri);
   if (executable == null) {
-    onResult(null);
-  } else {
-    let tmpname = utils.createFileInTempDir();
-    fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
+    return null;
+  }
+  let tmpname = utils.createFileInTempDir();
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
-    let command =
-      executable.binaryPathQuoted +
-      " complete " +
-      executable.filePathQuoted +
-      ":" +
-      msg.params.position.line +
-      ":" +
-      msg.params.position.character +
-      " " +
-      tmpname;
+  let command =
+    executable.binaryPathQuoted +
+    " complete " +
+    executable.filePathQuoted +
+    ":" +
+    msg.params.position.line +
+    ":" +
+    msg.params.position.character +
+    " " +
+    tmpname;
 
-    exec(command, { cwd: executable.cwd }, function (_error, stdout, _stderr) {
-      // async close is fine. We don't use this file name again
-      fs.unlink(tmpname, () => null);
-      let result = JSON.parse(stdout);
-      if (result && result[0]) {
-        onResult(result);
-      } else {
-        onResult(null);
-      }
-    });
+  try {
+    let stdout = execSync(command, { cwd: executable.cwd });
+    let parsed = JSON.parse(stdout.toString());
+    if (parsed && parsed[0]) {
+      return parsed;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    // TODO: @cristianoc any exception possible?
+    return null;
+  } finally {
+    fs.unlink(tmpname, () => null);
   }
 }
