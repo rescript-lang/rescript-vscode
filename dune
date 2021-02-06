@@ -1,4 +1,4 @@
-(dirs :standard \ node_modules examples)
+(dirs :standard \ examples)
 (env
     (dev
       (flags (:standard -warn-error -A))))
