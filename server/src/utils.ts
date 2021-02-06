@@ -168,10 +168,14 @@ export let runBsbWatcherUsingValidBsbPath = (
 #Done(1600519680836)
 */
 
-// parser helper
+// parser helpers
+let normalizeFileForWindows = (file: string) => {
+  return process.platform === "win32" ? `file:\\\\\\${file}` : file;
+};
 let parseFileAndRange = (fileAndRange: string) => {
-  // https://github.com/rescript-lang/rescript-compiler/blob/0a3f4bb32ca81e89cefd5a912b8795878836f883/jscomp/super_errors/super_location.ml#L19-L25
+  // https://github.com/rescript-lang/rescript-compiler/blob/0a3f4bb32ca81e89cefd5a912b8795878836f883/jscomp/super_errors/super_location.ml#L15-L25
   /* The file + location format can be:
+    a/b.res <- fallback, no location available (usually due to bad ppx...)
     a/b.res:10:20
     a/b.res:10:20-21     <- last number here is the end char of line 10
     a/b.res:10:20-30:11
@@ -184,7 +188,20 @@ let parseFileAndRange = (fileAndRange: string) => {
                                     ^^^ end line or chararacter
                                             ^^^ end character
   */
-  // it's not possible that this regex fails. If it does, something's wrong in the caller
+  // for the trimming, see https://github.com/rescript-lang/rescript-vscode/pull/71#issuecomment-769160576
+  let trimmedFileAndRange = fileAndRange.trim();
+  let match = trimmedFileAndRange.match(regex);
+  if (match === null) {
+    // no location! Though LSP insist that we provide at least a dummy location
+    return {
+      file: normalizeFileForWindows(trimmedFileAndRange),
+      range: {
+        start: { line: 0, character: 0 },
+        end: { line: 0, character: 0 },
+      },
+    };
+  }
+
   let [
     _source,
     file,
@@ -194,8 +211,7 @@ let parseFileAndRange = (fileAndRange: string) => {
     endLineOrChar,
     _colonPlusEndCharOrNothing,
     endCharOrNothing,
-  ] = fileAndRange.trim().match(regex)!;
-  // for the trimming, see https://github.com/rescript-lang/rescript-vscode/pull/71#issuecomment-769160576
+  ] = match;
 
   // language-server position is 0-based. Ours is 1-based. Convert
   // also, our end character is inclusive. Language-server's is exclusive
@@ -223,7 +239,7 @@ let parseFileAndRange = (fileAndRange: string) => {
     };
   }
   return {
-    file: process.platform === "win32" ? `file:\\\\\\${file}` : file,
+    file: normalizeFileForWindows(file),
     range,
   };
 };
