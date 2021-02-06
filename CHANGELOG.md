@@ -1,5 +1,6 @@
 ## 1.0.x (unreleased)
 - Fix diagnostics when location's not found (advice: use fewer ppxes!). See [#77](https://github.com/rescript-lang/rescript-vscode/issues/77).
+- Fix request failing when there's a white space in the project path.
 
 ## 1.0.5
 
