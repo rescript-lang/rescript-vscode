@@ -15,13 +15,6 @@ This is a preliminary version for early testing, the CLI is not stable yet.
 dune build
 ```
 
-or
-
-```
-esy
-```
-
-
 ## Usage
 
 ### dump
