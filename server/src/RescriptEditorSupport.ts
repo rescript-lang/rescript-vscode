@@ -2,7 +2,7 @@ import { fileURLToPath } from "url";
 import { RequestMessage } from "vscode-languageserver";
 import * as utils from "./utils";
 import * as path from "path";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import fs from "fs";
 
 let binaryPath = path.join(
@@ -20,7 +20,7 @@ let findExecutable = (uri: string) => {
     return null;
   } else {
     return {
-      binaryPathQuoted: '"' + binaryPath + '"', // path could have white space
+      binaryPath: binaryPath,
       filePathQuoted: '"' + filePath + '"',
       cwd: projectRootPath,
     };
@@ -38,8 +38,6 @@ export function runDumpCommand(msg: RequestMessage): dumpCommandResult | null {
   }
 
   let command =
-    executable.binaryPathQuoted +
-    " dump " +
     executable.filePathQuoted +
     ":" +
     msg.params.position.line +
@@ -47,7 +45,9 @@ export function runDumpCommand(msg: RequestMessage): dumpCommandResult | null {
     msg.params.position.character;
 
   try {
-    let stdout = execSync(command, { cwd: executable.cwd });
+    let stdout = execFileSync(executable.binaryPath, ["dump", command], {
+      cwd: executable.cwd,
+    });
     let parsed = JSON.parse(stdout.toString());
     if (parsed && parsed[0]) {
       return parsed[0];
@@ -73,18 +73,18 @@ export function runCompletionCommand(
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
   let command =
-    executable.binaryPathQuoted +
-    " complete " +
     executable.filePathQuoted +
     ":" +
     msg.params.position.line +
     ":" +
-    msg.params.position.character +
-    " " +
-    tmpname;
+    msg.params.position.character;
 
   try {
-    let stdout = execSync(command, { cwd: executable.cwd });
+    let stdout = execFileSync(
+      executable.binaryPath,
+      ["complete", command, tmpname],
+      { cwd: executable.cwd }
+    );
     let parsed = JSON.parse(stdout.toString());
     if (parsed && parsed[0]) {
       return parsed;
