@@ -218,7 +218,7 @@ jobs:
             npm --version
       - restore_cache:
           keys:
-          - v2-opam-cache-{{ arch }}
+          - v3-opam-cache-{{ arch }}
       - opam_windows/init
       - opam_windows/create_switch
       - run:
@@ -231,7 +231,7 @@ jobs:
             eval $(opam env)
             opam install reason.3.6.0 dune.1.11.4 ocaml-migrate-parsetree.1.3.1 ppx_tools_versioned uri --yes | cat
       - save_cache:
-          key: v2-opam-cache-{{ arch }}
+          key: v3-opam-cache-{{ arch }}
           paths:
             - C:/tools/cygwin/home/circleci/.opam
             - _opam
