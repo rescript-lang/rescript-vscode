@@ -83,7 +83,6 @@ export let formatUsingValidBscPath = (
     let result = childProcess.execFileSync(
       bscPath,
       ["-color", "never", "-format", formatTempFileFullPath],
-      { stdio: "pipe" }
     );
     return {
       kind: "success",
@@ -113,18 +112,6 @@ export let runBsbWatcherUsingValidBsbPath = (
       cwd: projectRootPath,
     });
   }
-  // try {
-  // 	let result = childProcess.execFileSync(bsbPath, [], { stdio: 'pipe', cwd: projectRootPath })
-  // 	return {
-  // 		kind: 'success',
-  // 		result: result.toString(),
-  // 	}
-  // } catch (e) {
-  // 	return {
-  // 		kind: 'error',
-  // 		error: e.message,
-  // 	}
-  // }
 };
 
 // Logic for parsing .compiler.log
