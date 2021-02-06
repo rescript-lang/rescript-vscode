@@ -21,7 +21,7 @@ let findExecutable = (uri: string) => {
   } else {
     return {
       binaryPath: binaryPath,
-      filePathQuoted: '"' + filePath + '"',
+      filePath: filePath,
       cwd: projectRootPath,
     };
   }
@@ -38,7 +38,7 @@ export function runDumpCommand(msg: RequestMessage): dumpCommandResult | null {
   }
 
   let command =
-    executable.filePathQuoted +
+    executable.filePath +
     ":" +
     msg.params.position.line +
     ":" +
@@ -73,7 +73,7 @@ export function runCompletionCommand(
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
   let command =
-    executable.filePathQuoted +
+    executable.filePath +
     ":" +
     msg.params.position.line +
     ":" +
