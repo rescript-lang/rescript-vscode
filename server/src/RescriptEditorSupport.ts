@@ -19,7 +19,11 @@ let findExecutable = (uri: string) => {
   if (projectRootPath == null || !binaryExists) {
     return null;
   } else {
-    return { binaryPath, filePath, cwd: projectRootPath };
+    return {
+      binaryPathQuoted: '"' + binaryPath + '"', // path could have white space
+      filePathQuoted: '"' + filePath + '"',
+      cwd: projectRootPath,
+    };
   }
 };
 
@@ -34,9 +38,9 @@ export function runDumpCommand(
     onResult(null);
   } else {
     let command =
-      executable.binaryPath +
+      executable.binaryPathQuoted +
       " dump " +
-      executable.filePath +
+      executable.filePathQuoted +
       ":" +
       msg.params.position.line +
       ":" +
@@ -65,9 +69,9 @@ export function runCompletionCommand(
     fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
     let command =
-      executable.binaryPath +
+      executable.binaryPathQuoted +
       " complete " +
-      executable.filePath +
+      executable.filePathQuoted +
       ":" +
       msg.params.position.line +
       ":" +

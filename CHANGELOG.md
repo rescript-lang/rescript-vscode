@@ -1,3 +1,7 @@
+## master
+
+- Fix request failed when there's a white space in the project path.
+
 ## 1.0.5
 
 Features:
