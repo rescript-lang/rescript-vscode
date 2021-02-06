@@ -9,5 +9,5 @@
   "repository": { "url": "https://github.com/rescript-lang/rescript-editor-support", "type": "git" },
   "description": "A pure-reason implementation of a language server",
   "author": "Cristiano Calcagno",
-  "license": "ISC"
+  "license": "MIT"
 }
