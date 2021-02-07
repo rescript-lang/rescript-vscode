@@ -16,13 +16,14 @@ Our highlighting works well with most popular VSCode themes, such as:
 - Solarized Dark, Solarized Light
 - Monokai Dimmed
 - Tomorrow Night Blue
-- Most preinstalled themes
+- [One Dark Pro](https://marketplace.visualstudio.com/items?itemName=zhuangtongfa.Material-theme)
+- [Mariana Pro](https://marketplace.visualstudio.com/items?itemName=rickynormandeau.mariana-pro)
 
 The only 2 themes we don't (and can't) support, due to their lack of coloring, are:
 
 - Dark (Visual Studio), Light (Visual Studio)
 
-If your custom theme doesn't seem to highlight much (e.g. no colors for upper-case JSX tag, no distinction between module and variant), try one of the recommended themes to see if that's the problem.
+If your custom theme doesn't seem to highlight much (e.g. no colors for upper-case JSX tag, no distinction between module and variant), try one of the recommended themes to see if that's the problem. For more info, see [this post](https://github.com/rescript-lang/rescript-vscode/pull/8#issuecomment-764469070).
 
 ## Installation
 
