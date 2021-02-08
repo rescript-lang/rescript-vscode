@@ -65,6 +65,7 @@ let rec startOfLident = (text, i) =>
   };
 
 type completable =
+  | Cdecorator(string)
   | Clabel(string)
   | Cpath(list(string))
   | Cpipe(string);
@@ -92,6 +93,7 @@ let findCompletable = (text, offset) => {
         switch (text.[i]) {
         | '>' when i > 0 && text.[i - 1] == '-' => loop(i - 2)
         | '~' => Some(Clabel(String.sub(text, i + 1, offset - (i + 1))))
+        | '@' => Some(Cdecorator(String.sub(text, i + 1, offset - (i + 1))))
         | 'a'..'z'
         | 'A'..'Z'
         | '0'..'9'

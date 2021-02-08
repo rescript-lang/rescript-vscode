@@ -7,7 +7,7 @@ let capabilities =
     ("hoverProvider", J.t),
     (
       "completionProvider",
-      J.o([("triggerCharacters", J.l([J.s("."), J.s(">")]))]),
+      J.o([("triggerCharacters", J.l([J.s("."), J.s(">"), J.s("@")]))]),
     ),
     ("definitionProvider", J.t),
     ("typeDefinitionProvider", J.t),
@@ -19,8 +19,7 @@ let capabilities =
   ]);
 
 let getInitialState = params => {
-  let rootUri =
-    Json.get("rootUri", params) |?> Json.string |?> Uri2.parse;
+  let rootUri = Json.get("rootUri", params) |?> Json.string |?> Uri2.parse;
   let%try rootUri = rootUri |> RResult.orError("Not a uri");
   let rootPath = Uri2.toPath(rootUri);
 
