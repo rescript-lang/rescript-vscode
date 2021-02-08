@@ -778,6 +778,48 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
       | None => []
       };
 
+    | Some((_, _, Some(Cdecorator(prefix)))) =>
+      let mkDecorator = name =>
+        mkItem(
+          ~name,
+          ~kind=4,
+          ~detail="",
+          ~docstring=None,
+          ~uri=full.file.uri,
+          ~pos_lnum=fst(pos),
+        );
+      [
+        "as",
+        "deriving",
+        "genType",
+        "genType.as",
+        "genType.import",
+        "genType.opaque",
+        "get",
+        "get_index",
+        "inline",
+        "int",
+        "meth",
+        "module",
+        "new",
+        "obj",
+        "react.component",
+        "return",
+        "scope",
+        "send",
+        "set",
+        "set_index",
+        "string",
+        "this",
+        "unboxed",
+        "uncurry",
+        "unwrap",
+        "val",
+        "variadic",
+      ]
+      |> List.filter(decorator => Utils.startsWith(decorator, prefix))
+      |> List.map(mkDecorator);
+
     | Some((_, _, Some(Clabel(_)))) =>
       // not supported yet
       []

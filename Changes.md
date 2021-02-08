@@ -1,4 +1,10 @@
 ## master
+- Add support for autocomplete for `foo->`: the type of `foo` is used to determine the module to take completions from.
+- Add support for autocomplete for decorators such as `@module` and `@val`.
+
+## Release 1.0.5 of rescript-vscode
+This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/6bdd10f6af259edc5f9cbe5b9df06836de3ab865) is vendored in [rescript-vscode 1.0.5](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.5).
+
 - Add support for doc strings when hovering on modules.
 - Add support for printing uncurried function types in hover.
 - Fix autocomplete issue where `open Foo` would be picked up inside line comments (see https://github.com/rescript-lang/rescript-editor-support/issues/15).
@@ -6,7 +12,7 @@
 - Fix infinite loop in autocomplete that can cause `rescript-editor-support.exe` processes to use up 100% cpu.
 - Fix jump to type definition for types defined in an inner module.
 
-## Release 1.0.3 of rescript-vscode 
+## Release 1.0.3 of rescript-vscode
 This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/214d220d8573f9f0c8d54e623c163e01617bf124) is vendored in [rescript-vscode 1.0.3](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.3).
 
 - Fix type shown when hovering on record fields (see https://github.com/rescript-lang/rescript-vscode/issues/52), and doc comments for records.
