@@ -428,12 +428,12 @@ process.on("message", (msg: m.Message) => {
           process.send!(fakeSuccessResponse);
           process.send!(response);
         } else {
-          let resolvedBscPath = path.join(bscExeDir, c.bscExePartialPath);
+          let resolvedBscExePath = path.join(bscExeDir, c.bscExePartialPath);
           // code will always be defined here, even though technically it can be undefined
           let code = getOpenedFileContent(params.textDocument.uri);
-          let formattedResult = utils.formatUsingValidBscPath(
+          let formattedResult = utils.formatUsingValidBscExePath(
             code,
-            resolvedBscPath,
+            resolvedBscExePath,
             extension === c.resiExt
           );
           if (formattedResult.kind === "success") {
@@ -489,14 +489,14 @@ process.on("message", (msg: m.Message) => {
     ) {
       let msg_ = msg.result as clientSentBuildAction;
       let projectRootPath = msg_.projectRootPath;
-      let bsbPath = path.join(projectRootPath, c.bsbNodePartialPath);
+      let bsbNodePath = path.join(projectRootPath, c.bsbNodePartialPath);
       // TODO: sometime stale .bsb.lock dangling
       // TODO: close watcher when lang-server shuts down. However, by Node's
       // default, these subprocesses are automatically killed when this
       // language-server process exits
-      if (fs.existsSync(bsbPath)) {
-        let bsbProcess = utils.runBsbWatcherUsingValidBsbPath(
-          bsbPath,
+      if (fs.existsSync(bsbNodePath)) {
+        let bsbProcess = utils.runBsbWatcherUsingValidBsbNodePath(
+          bsbNodePath,
           projectRootPath
         );
         let root = projectsFiles.get(projectRootPath)!;

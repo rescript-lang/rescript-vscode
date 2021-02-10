@@ -69,9 +69,9 @@ type execResult =
     kind: "error";
     error: string;
   };
-export let formatUsingValidBscPath = (
+export let formatUsingValidBscExePath = (
   code: string,
-  bscPath: p.DocumentUri,
+  bscExePath: p.DocumentUri,
   isInterface: boolean
 ): execResult => {
   let extension = isInterface ? c.resiExt : c.resExt;
@@ -81,7 +81,7 @@ export let formatUsingValidBscPath = (
   });
   try {
     let result = childProcess.execFileSync(
-      bscPath,
+      bscExePath,
       ["-color", "never", "-format", formatTempFileFullPath],
     );
     return {
@@ -99,16 +99,28 @@ export let formatUsingValidBscPath = (
   }
 };
 
-export let runBsbWatcherUsingValidBsbPath = (
-  bsbPath: p.DocumentUri,
+export let runBsbWatcherUsingValidBsbNodePath = (
+  bsbNodePath: p.DocumentUri,
   projectRootPath: p.DocumentUri
 ) => {
   if (process.platform === "win32") {
-    return childProcess.exec(`${bsbPath}.cmd -w`, {
+    /*
+      - a node.js script in node_modules/.bin on windows is wrapped in a
+        batch script wrapper (there's also a regular binary of the same name on
+        windows, but that one's a shell script wrapper for cygwin). More info:
+        https://github.com/npm/cmd-shim/blob/c5118da34126e6639361fe9706a5ff07e726ed45/index.js#L1
+      - a batch script adds the suffix .cmd to the script
+      - you can't call batch scripts through the regular `execFile`:
+        https://nodejs.org/api/child_process.html#child_process_spawning_bat_and_cmd_files_on_windows
+      - So you have to use `exec` instead, and make sure you quote the path
+        (since the path might have spaces), which `execFile` would have done
+        for you under the hood
+    */
+    return childProcess.exec(`"${bsbNodePath}".cmd -w`, {
       cwd: projectRootPath,
     });
   } else {
-    return childProcess.execFile(bsbPath, ["-w"], {
+    return childProcess.execFile(bsbNodePath, ["-w"], {
       cwd: projectRootPath,
     });
   }
