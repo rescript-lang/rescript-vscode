@@ -1,6 +1,15 @@
 ## 1.0.x (unreleased)
-- Fix diagnostics when location's not found (advice: use fewer ppxes!). See [#77](https://github.com/rescript-lang/rescript-vscode/issues/77).
-- Fix request failing when there's a white space in the project path.
+
+Fixes:
+- Diagnostics crashing when a file's range isn't found (advice: use fewer ppxes that cause these bugs!). See [#77](https://github.com/rescript-lang/rescript-vscode/issues/77).
+- Weird behaviors when project path contains white space.
+- Proper audit of the windows bugs. Windows is now officially first-class!
+
+Syntax colors:
+- Highlight operators for default VSCode dark+ theme. This means slightly less diverse highlight for the other themes that previously already highlighted operators.
+- Worked with [One Dark Pro](https://marketplace.visualstudio.com/items?itemName=zhuangtongfa.Material-theme) and [Mariana Pro](https://marketplace.visualstudio.com/items?itemName=rickynormandeau.mariana-pro). We now officially recommend these 2 themes, in addition to the existing recommendations in README.
+- Highlight deprecated elements using the deprecation scopes.
+- JSX bracket highlight fix (still no color; before, some parts were erroneously highlighted).
 
 ## 1.0.5
 
