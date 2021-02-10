@@ -1,4 +1,4 @@
-## 1.0.x (unreleased)
+## 1.0.6
 
 Fixes:
 - Diagnostics crashing when a file's range isn't found (advice: use fewer ppxes that cause these bugs!). See [#77](https://github.com/rescript-lang/rescript-vscode/issues/77).
