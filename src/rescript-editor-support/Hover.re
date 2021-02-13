@@ -120,7 +120,13 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
         let%opt path = typ |> Shared.digConstructor;
         let%opt (_env, {docstring, name: {txt}, item: {decl}}) =
           digConstructor(~env, ~getModule, path);
-        Some((decl |> Shared.declToString(txt), docstring));
+        let isUncurriedInternal =
+          Utils.startsWith(Path.name(path), "Js.Fn.arity");
+        if (isUncurriedInternal) {
+          None;
+        } else {
+          Some((decl |> Shared.declToString(txt), docstring));
+        };
       };
       let (typeString, docstring) =
         switch (extraTypeInfo) {
