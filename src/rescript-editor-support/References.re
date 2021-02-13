@@ -29,6 +29,19 @@ let locsForPos = (~extra, pos) => {
 
 let locForPos = (~extra, pos) => {
   switch (locsForPos(~extra, pos)) {
+  | [
+      (loc1, Typed(_, LocalReference(_))),
+      (
+        loc2,
+        Typed(_, GlobalReference("Js_OO", Tip("unsafe_downgrade"), _)),
+      ),
+      (loc3, _) as l3,
+    ]
+      when loc1 == loc2 && loc2 == loc3 =>
+    // JSX and compiler combined:
+    // ~x becomes Js_OO.unsafe_downgrade(Props)#x
+    // heuristic for: [Props, unsafe_downgrade, x], give loc of `x`
+    Some(l3)
   | [(loc1, _), (loc2, _) as l, (loc3, _)]
       when loc1 == loc2 && loc2 == loc3 =>
     // JSX with at most one child
