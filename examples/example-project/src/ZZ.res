@@ -95,3 +95,6 @@ module Inner = {
 type typeInner = Inner.tInner;
 
 let valueInner = Inner.vInner;
+
+@ocaml.doc("Doc comment for functionWithTypeAnnotation")
+let functionWithTypeAnnotation : unit => int = () => 1

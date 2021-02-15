@@ -407,7 +407,8 @@ let rec forItem = (~env, ~exported: exported, item) =>
       ({vb_loc, vb_pat: {pat_desc, pat_type}, vb_attributes}) =>
         /* TODO get all the things out of the var. */
         switch (pat_desc) {
-        | Tpat_var(ident, name) =>
+        | Tpat_var(ident, name)
+        | Tpat_alias({pat_desc: Tpat_any}, ident, name) /* let x : t = ... */ =>
           let item = pat_type;
           let declared =
             addItem(
