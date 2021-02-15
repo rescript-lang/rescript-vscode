@@ -3,6 +3,8 @@
 - Add support for autocomplete for decorators such as `@module` and `@val`.
 - Fix issue for uncurried functions where the internal definition of `Js.Fn.arity` is shown on hover. (See https://github.com/rescript-lang/rescript-editor-support/issues/62).
 - Fix type hint when hovering over labeled arguments of components (See https://github.com/rescript-lang/rescript-editor-support/issues/63).
+- Fix issue where values declared with type annotation would not show up in autocomplete, and would show no doc comment on hover. (See https://github.com/rescript-lang/rescript-vscode/issues/72).
+
 
 ## Release 1.0.5 of rescript-vscode
 This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/6bdd10f6af259edc5f9cbe5b9df06836de3ab865) is vendored in [rescript-vscode 1.0.5](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.5).
