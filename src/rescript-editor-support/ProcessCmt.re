@@ -545,7 +545,12 @@ and forModule = (env, mod_desc, moduleName) =>
       modulePath: ExportedModule(moduleName, env.modulePath),
     };
     forModuleType(env, moduleType);
-  | Tmod_constraint(_expr, typ, _constraint, _coercion) =>
+  | Tmod_constraint(expr, _typ, Tmodtype_implicit, Tcoerce_structure(_)) =>
+    // implicit contraint synthesized during typechecking
+    // e.g. when the same id is defined twice (e.g. make with @react.component)
+    // skip the constraint and use the original module definition
+    forModule(env, expr.mod_desc, moduleName)
+  | Tmod_constraint(_expr, typ, constraint_, _coercion) =>
     /* TODO do this better I think */
     let env = {
       ...env,
