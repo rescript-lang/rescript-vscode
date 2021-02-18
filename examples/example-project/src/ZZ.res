@@ -98,3 +98,10 @@ let valueInner = Inner.vInner;
 
 @ocaml.doc("Doc comment for functionWithTypeAnnotation")
 let functionWithTypeAnnotation : unit => int = () => 1
+
+module HoverInsideModuleWithComponent = {
+  let x = 2 // check that hover on x works
+
+  @react.component
+  let make = () => React.null
+}
