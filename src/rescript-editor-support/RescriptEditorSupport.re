@@ -7,7 +7,12 @@ let capabilities =
     ("hoverProvider", J.t),
     (
       "completionProvider",
-      J.o([("triggerCharacters", J.l([J.s("."), J.s(">"), J.s("@")]))]),
+      J.o([
+        (
+          "triggerCharacters",
+          J.l([J.s("."), J.s(">"), J.s("@"), J.s("~")]),
+        ),
+      ]),
     ),
     ("definitionProvider", J.t),
     ("typeDefinitionProvider", J.t),

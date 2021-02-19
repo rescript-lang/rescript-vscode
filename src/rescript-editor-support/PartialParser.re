@@ -64,9 +64,32 @@ let rec startOfLident = (text, i) =>
     };
   };
 
+// foo(... ~arg) from ~arg find foo
+let findCallFromArgument = (text, offset) => {
+  let rec loop = (~i, ~nClosed) =>
+    if (i > 0) {
+      switch (text.[i]) {
+      | '(' when nClosed > 0 => loop(~i=i - 1, ~nClosed=nClosed - 1)
+
+      | '(' =>
+        let i1 = skipWhite(text, i - 1);
+        let i0 = startOfLident(text, i1);
+        let funLident = String.sub(text, i0, i1 - i0 + 1);
+        Str.split(Str.regexp_string("."), funLident);
+
+      | ')' => loop(~i=i - 1, ~nClosed=nClosed + 1)
+
+      | _ => loop(~i=i - 1, ~nClosed)
+      };
+    } else {
+      [];
+    };
+  loop(~i=offset, ~nClosed=0);
+};
+
 type completable =
   | Cdecorator(string)
-  | Clabel(string)
+  | Clabel(list(string), string)
   | Cpath(list(string))
   | Cpipe(string);
 
@@ -92,7 +115,10 @@ let findCompletable = (text, offset) => {
       : (
         switch (text.[i]) {
         | '>' when i > 0 && text.[i - 1] == '-' => loop(i - 2)
-        | '~' => Some(Clabel(String.sub(text, i + 1, offset - (i + 1))))
+        | '~' =>
+          let labelPrefix = String.sub(text, i + 1, offset - (i + 1));
+          let funPath = findCallFromArgument(text, i - 1);
+          Some(Clabel(funPath, labelPrefix));
         | '@' => Some(Cdecorator(String.sub(text, i + 1, offset - (i + 1))))
         | 'a'..'z'
         | 'A'..'Z'
