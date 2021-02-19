@@ -105,3 +105,9 @@ module HoverInsideModuleWithComponent = {
   @react.component
   let make = () => React.null
 }
+
+module Lib = {
+  let foo = (~age, ~name) => name ++ string_of_int(age)
+  let next = (~number=0, ~year) => number + year
+}
+

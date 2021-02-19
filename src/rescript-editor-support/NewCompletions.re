@@ -820,9 +820,54 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
       |> List.filter(decorator => Utils.startsWith(decorator, prefix))
       |> List.map(mkDecorator);
 
-    | Some((_, _, Some(Clabel(_)))) =>
-      // not supported yet
-      []
+    | Some((text, offset, Some(Clabel(funPath, prefix)))) =>
+      let rawOpens = PartialParser.findOpens(text, offset);
+      let allModules =
+        package.TopTypes.localModules @ package.dependencyModules;
+
+      let getItems = parts =>
+        getItems(
+          ~full,
+          ~package,
+          ~rawOpens,
+          ~getModule=State.fileForModule(state, ~package),
+          ~allModules,
+          ~pos,
+          ~parts,
+        );
+
+      let labels = {
+        switch (getItems(funPath)) {
+        | [(_uri, {SharedTypes.item: Value(typ)}), ..._] =>
+          let rec getLabels = (t: Types.type_expr) =>
+            switch (t.desc) {
+            | Tlink(t1)
+            | Tsubst(t1) => getLabels(t1)
+            | Tarrow(Labelled(l) | Optional(l), tArg, tRet, _) => [
+                (l, tArg),
+                ...getLabels(tRet),
+              ]
+            | Tarrow(Nolabel, _, tRet, _) => getLabels(tRet)
+            | _ => []
+            };
+          typ |> getLabels;
+        | _ => []
+        };
+      };
+
+      let mkLabel = ((name, typ)) =>
+        mkItem(
+          ~name,
+          ~kind=4,
+          ~detail=typ |> Shared.typeToString,
+          ~docstring=None,
+          ~uri=full.file.uri,
+          ~pos_lnum=fst(pos),
+        );
+
+      labels
+      |> List.filter(((name, _t)) => Utils.startsWith(name, prefix))
+      |> List.map(mkLabel);
 
     | Some((_, _, None)) => []
     };

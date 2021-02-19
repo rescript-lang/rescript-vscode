@@ -9,14 +9,6 @@ let getTextDocument = doc => {
   Some((uri, text));
 };
 
-let reloadAllState = state => {
-  Log.log("RELOADING ALL STATE");
-  {
-    ...TopTypes.empty(~rootUri=state.rootUri),
-    documentText: state.documentText,
-  };
-};
-
 let notificationHandlers:
   list((string, (state, Json.t) => result(state, string))) = [
   (
