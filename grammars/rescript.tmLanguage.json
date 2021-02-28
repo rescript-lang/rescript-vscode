@@ -280,38 +280,37 @@
     "attribute": {
       "patterns": [
         {
-          "match": "(@)(splice)",
+          "match": "(%%?|@@?)([A-Za-z_][A-Za-z0-9_\\.]*)",
           "captures": {
             "1": {
               "name": "storage.modifier punctuation.definition.annotation"
             },
             "2": {
-              "name": "invalid.illegal"
-            }
-          }
-        },
-        {
-          "match": "(@@?)(bs\\.)?([A-Za-z_][A-Za-z0-9_\\.]*)",
-          "captures": {
-            "1": {
-              "name": "storage.modifier punctuation.definition.annotation"
-            },
-            "2": {
-              "name": "invalid.deprecated"
-            },
-            "3": {
-              "name": "variable.annotation"
-            }
-          }
-        },
-        {
-          "match": "(%%?)([A-Za-z_][A-Za-z0-9_\\.]*)",
-          "captures": {
-            "1": {
-              "name": "storage.modifier punctuation.definition.annotation"
-            },
-            "2": {
-              "name": "variable.annotation"
+              "patterns": [
+                {
+                  "match": "bs\\.send\\.pipe",
+                  "name": "invalid.deprecated"
+                },
+                {
+                  "match": "splice",
+                  "name": "invalid.illegal"
+                },
+                {
+                  "match": "(bs\\.)?([A-Za-z_][A-Za-z0-9_\\.]*)",
+                  "captures": {
+                    "1": {
+                      "name": "invalid.deprecated"
+                    },
+                    "2": {
+                      "name": "variable.annotation"
+                    }
+                  }
+                },
+                {
+                  "match": "[A-Za-z_][A-Za-z0-9_\\.]*",
+                  "name": "variable.annotation"
+                }
+              ]
             }
           }
         }
