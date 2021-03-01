@@ -1,7 +1,7 @@
 ## master
 
 #### New features
-- Add support for autocomplete for `foo->`: the type of `foo` is used to determine the module to take completions from.
+- Add support for autocomplete for pipe-first `foo->`: the type of `foo` is used to determine the module to take completions from.
 - Add support for autocomplete for decorators such as `@module` and `@val`.
 - Add support for autocomplete of labelled arguments `foo(~label... )`.
 
