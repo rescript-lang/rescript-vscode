@@ -2,6 +2,7 @@ import process from "process";
 import * as p from "vscode-languageserver-protocol";
 import * as m from "vscode-jsonrpc/lib/messages";
 import * as v from "vscode-languageserver";
+import * as rpc from "vscode-jsonrpc";
 import * as path from "path";
 import fs from "fs";
 // TODO: check DidChangeWatchedFilesNotification.
@@ -39,6 +40,8 @@ let projectsFiles: Map<
 > = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
+let messageSender: any = {send: (msg: m.Message) => process.send!(msg)};
+
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
     let content = fs.readFileSync(
@@ -60,7 +63,7 @@ let sendUpdatedDiagnostics = () => {
         method: "textDocument/publishDiagnostics",
         params: params,
       };
-      process.send!(notification);
+      messageSender.send(notification);
 
       filesWithDiagnostics.add(file);
     });
@@ -78,7 +81,7 @@ let sendUpdatedDiagnostics = () => {
             method: "textDocument/publishDiagnostics",
             params: params,
           };
-          process.send!(notification);
+          messageSender.send(notification);
           filesWithDiagnostics.delete(file);
         }
       });
@@ -98,7 +101,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
         method: "textDocument/publishDiagnostics",
         params: params,
       };
-      process.send!(notification);
+      messageSender.send(notification);
     });
 
     projectsFiles.delete(projectRootPath);
@@ -167,7 +170,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
           method: "window/showMessageRequest",
           params: params,
         };
-        process.send!(request);
+        messageSender.send(request);
         // the client might send us back the "start build" action, which we'll
         // handle in the isResponseMessage check in the message handling way
         // below
@@ -216,7 +219,31 @@ let getOpenedFileContent = (fileUri: string) => {
   return content;
 };
 
-process.on("message", (msg: m.Message) => {
+let onMessage = (func: any) => {
+  process.on("message", (msg: m.Message) => {
+    func(messageSender.send, msg);
+  })
+};
+
+let argv = process.argv.slice(2);
+for (let i = 0; i < argv.length; i++) {
+  let arg = argv[i];
+  if (arg === "--stdio") {
+    let writer = new rpc.StreamMessageWriter(process.stdout);
+    let reader = new rpc.StreamMessageReader(process.stdin);
+    messageSender.send = (msg: m.Message) => writer.write(msg);
+    onMessage = ((func: any) => {
+      let callback = (message: m.Message) => {
+        func(messageSender.send, message);
+      }
+      reader.listen(callback);
+    });
+
+    break;
+  };
+}
+
+onMessage((send: any, msg: m.Message) => {
   if (m.isNotificationMessage(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
     if (!initialized && msg.method !== "exit") {
@@ -266,7 +293,7 @@ process.on("message", (msg: m.Message) => {
           message: "Server not initialized.",
         },
       };
-      process.send!(response);
+      send(response);
     } else if (msg.method === "initialize") {
       // send the list of features we support
       let result: p.InitializeResult = {
@@ -290,7 +317,7 @@ process.on("message", (msg: m.Message) => {
         result: result,
       };
       initialized = true;
-      process.send!(response);
+      send(response);
     } else if (msg.method === "initialized") {
       // sent from client after initialize. Nothing to do for now
       let response: m.ResponseMessage = {
@@ -298,7 +325,7 @@ process.on("message", (msg: m.Message) => {
         id: msg.id,
         result: null,
       };
-      process.send!(response);
+      send(response);
     } else if (msg.method === "shutdown") {
       // https://microsoft.github.io/language-server-protocol/specification#shutdown
       if (shutdownRequestAlreadyReceived) {
@@ -310,7 +337,7 @@ process.on("message", (msg: m.Message) => {
             message: `Language server already received the shutdown request`,
           },
         };
-        process.send!(response);
+        send(response);
       } else {
         shutdownRequestAlreadyReceived = true;
         // TODO: recheck logic around init/shutdown...
@@ -322,7 +349,7 @@ process.on("message", (msg: m.Message) => {
           id: msg.id,
           result: null,
         };
-        process.send!(response);
+        send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
       let emptyHoverResponse: m.ResponseMessage = {
@@ -338,9 +365,9 @@ process.on("message", (msg: m.Message) => {
           ...emptyHoverResponse,
           result: { contents: result.hover },
         };
-        process.send!(hoverResponse);
+        send(hoverResponse);
       } else {
-        process.send!(emptyHoverResponse);
+        send(emptyHoverResponse);
       }
     } else if (msg.method === p.DefinitionRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
@@ -361,9 +388,9 @@ process.on("message", (msg: m.Message) => {
             range: result.definition.range,
           },
         };
-        process.send!(definitionResponse);
+        send(definitionResponse);
       } else {
-        process.send!(emptyDefinitionResponse);
+        send(emptyDefinitionResponse);
       }
     } else if (msg.method === p.CompletionRequest.method) {
       let emptyCompletionResponse: m.ResponseMessage = {
@@ -374,13 +401,13 @@ process.on("message", (msg: m.Message) => {
       let code = getOpenedFileContent(msg.params.textDocument.uri);
       let result = runCompletionCommand(msg, code);
       if (result === null) {
-        process.send!(emptyCompletionResponse);
+        send(emptyCompletionResponse);
       } else {
         let definitionResponse: m.ResponseMessage = {
           ...emptyCompletionResponse,
           result: result,
         };
-        process.send!(definitionResponse);
+        send(definitionResponse);
       }
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
@@ -409,8 +436,8 @@ process.on("message", (msg: m.Message) => {
           method: "window/showMessage",
           params: params,
         };
-        process.send!(fakeSuccessResponse);
-        process.send!(response);
+        send(fakeSuccessResponse);
+        send(response);
       } else {
         // See comment on findBscExeDirOfFile for why we need
         // to recursively search for bsc.exe upward
@@ -425,8 +452,8 @@ process.on("message", (msg: m.Message) => {
             method: "window/showMessage",
             params: params,
           };
-          process.send!(fakeSuccessResponse);
-          process.send!(response);
+          send(fakeSuccessResponse);
+          send(response);
         } else {
           let resolvedBscExePath = path.join(bscExeDir, c.bscExePartialPath);
           // code will always be defined here, even though technically it can be undefined
@@ -454,13 +481,13 @@ process.on("message", (msg: m.Message) => {
               id: msg.id,
               result: result,
             };
-            process.send!(response);
+            send(response);
           } else {
             // let the diagnostics logic display the updated syntax errors,
             // from the build.
             // Again, not sending the actual errors. See fakeSuccessResponse
             // above for explanation
-            process.send!(fakeSuccessResponse);
+            send(fakeSuccessResponse);
           }
         }
       }
@@ -473,7 +500,7 @@ process.on("message", (msg: m.Message) => {
           message: "Unrecognized editor request.",
         },
       };
-      process.send!(response);
+      send(response);
     }
   } else if (m.isResponseMessage(msg)) {
     // response message. Currently the client should have only sent a response
