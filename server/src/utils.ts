@@ -142,6 +142,45 @@ export let runAnalysisAfterSanityCheck = (
     cwd: projectRootPath,
   });
   return JSON.parse(stdout.toString());
+}
+
+export let createInterfaceFileUsingValidBscExePath = (
+  filePath: string,
+  cmiPath: string,
+  bscExePath: p.DocumentUri
+): execResult => {
+  let mliTempFile = createFileInTempDir(c.mliExt);
+
+  try {
+    // First, create a temporary .mli file
+    let mliString = childProcess.execFileSync(
+      bscExePath,
+      ["-color", "never", "-i", cmiPath]
+    );
+
+    fs.writeFileSync(mliTempFile, mliString, { encoding: "utf-8"});
+
+    // Second, format the .mli into a .resi file
+    let resiString = childProcess.execFileSync(
+      bscExePath,
+      ["-color", "never", "-format", mliTempFile]
+    );
+
+    fs.writeFileSync(filePath + "i", resiString, { encoding: "utf-8"});
+
+    // Third, get rid of the .mli file
+    fs.unlink(mliTempFile, () => null);
+
+    return {
+      kind: "success",
+      result: "Interface successfully created.",
+    };
+  } catch (e) {
+    return {
+      kind: "error",
+      error: e.message,
+    };
+  }
 };
 
 export let runBuildWatcherUsingValidBuildPath = (
