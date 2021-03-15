@@ -445,16 +445,19 @@ let getItems =
   let packageOpens = ["Pervasives", ...package.TopTypes.opens];
   Log.log("Package opens " ++ String.concat(" ", packageOpens));
 
-  let opens = resolveRawOpens(~env, ~getModule, ~rawOpens, ~package);
+  let resolvedOpens = resolveRawOpens(~env, ~getModule, ~rawOpens, ~package);
   Log.log(
     "Opens nows "
-    ++ string_of_int(List.length(opens))
+    ++ string_of_int(List.length(resolvedOpens))
     ++ " "
     ++ String.concat(
          " ",
-         opens |> List.map(e => Uri2.toString(e.Query.file.uri)),
+         resolvedOpens |> List.map(e => Uri2.toString(e.Query.file.uri)),
        ),
   );
+
+  // Last open takes priority
+  let opens = List.rev(resolvedOpens);
 
   switch (parts) {
   | [] => []
