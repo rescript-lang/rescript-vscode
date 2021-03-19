@@ -42,7 +42,7 @@ type t =
   | Null;
 
 let string_of_number = (f) => {
-  let s = string_of_float(f);
+  let s = Js.Float.toString(f);
   if (s.[String.length(s) - 1] == '.') {
     String.sub(s, 0, String.length(s) - 1)
   } else {
@@ -180,7 +180,7 @@ let rec stringify = (t) =>
 
 let white = n => {
   let buffer = Buffer.create(n);
-  for (i in 0 to n - 1) {
+  for (_ in 0 to n - 1) {
     Buffer.add_char(buffer, ' ')
   };
   Buffer.contents(buffer)

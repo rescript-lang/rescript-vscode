@@ -10,8 +10,8 @@ let l = More.inner + More.n + Other.inner;
 
 let n = More.n;
 
-More.party;
-string_of_bool;
+let _ = More.party;
+let _ = string_of_bool;
 
 /* let m = {More.a: 2, b: 32.}; */
 
@@ -31,7 +31,7 @@ module Something = {
   }
 };
 
-open Something;
+open! Something;
 
 let y = x + 10;
 
@@ -50,7 +50,7 @@ let awesome = 100 + m.age;
 
 let thing = "thing";
 
-let transform = (x, y) => x ++ string_of_float(y);
+let transform = (x, y) => x ++ Js.Float.toString(y);
 
 let z = transform("hello ", 5.);
 
@@ -126,7 +126,7 @@ include OneOneOneOne.TwoTwoTwoTwo;
 
 include More;
 
-Other.oo.person.name;
+let _ = Other.oo.person.name;
 
 type lots =
 | Parties

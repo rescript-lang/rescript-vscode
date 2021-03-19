@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "bs-platform": "8.3.3",
+    "bs-platform": "9.0.2",
     "reason-react": "^0.9.1"
   },
   "scripts": {
