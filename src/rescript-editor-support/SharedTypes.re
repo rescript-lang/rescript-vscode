@@ -53,6 +53,7 @@ type declared('t) = {
   stamp: int,
   modulePath: visibilityPath,
   exported: bool,
+  deprecated: option(string),
   docstring: option(string),
   item: 't,
   /* TODO maybe add a uri? */
@@ -67,6 +68,7 @@ let emptyDeclared = name => {
   stamp: 0,
   modulePath: NotVisible,
   exported: false,
+  deprecated: None,
   docstring: None,
   item: (),
 };

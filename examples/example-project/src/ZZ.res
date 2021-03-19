@@ -111,3 +111,17 @@ module Lib = {
   let next = (~number=0, ~year) => number + year
 }
 
+@ocaml.doc("This module is commented")
+@deprecated("This module is deprecated")
+module Dep : {
+  @ocaml.doc("Some doc comment")
+  @deprecated("Use customDouble instead")
+  let customDouble : int => int
+
+  let customDouble2 : int => int
+} = {
+  let customDouble = foo => foo * 2
+  let customDouble2 = foo => foo * 2
+}
+
+let cc = Dep.customDouble(11)

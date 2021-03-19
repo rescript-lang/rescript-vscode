@@ -550,7 +550,7 @@ and forModule = (env, mod_desc, moduleName) =>
     // e.g. when the same id is defined twice (e.g. make with @react.component)
     // skip the constraint and use the original module definition
     forModule(env, expr.mod_desc, moduleName)
-  | Tmod_constraint(_expr, typ, constraint_, _coercion) =>
+  | Tmod_constraint(_expr, typ, _constraint, _coercion) =>
     /* TODO do this better I think */
     let env = {
       ...env,

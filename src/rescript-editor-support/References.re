@@ -99,10 +99,10 @@ let definedForLoc = (~file, ~getModule, locKind) => {
     switch (tip) {
     | Constructor(name) =>
       let%opt constructor = Query.getConstructor(file, stamp, name);
-      Some((None, file, `Constructor(constructor)));
+      Some((None, None, file, `Constructor(constructor)));
     | Field(name) =>
       let%opt field = Query.getField(file, stamp, name);
-      Some((None, file, `Field(field)));
+      Some((None, None, file, `Field(field)));
     | _ =>
       maybeLog(
         "Trying for declared "
@@ -114,7 +114,7 @@ let definedForLoc = (~file, ~getModule, locKind) => {
       );
       let%opt declared =
         Query.declaredForTip(~stamps=file.stamps, stamp, tip);
-      Some((declared.docstring, file, `Declared));
+      Some((declared.deprecated, declared.docstring, file, `Declared));
     };
   };
 

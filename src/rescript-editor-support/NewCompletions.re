@@ -577,26 +577,33 @@ let getItems =
 
 module J = JsonShort;
 
-let mkItem = (~name, ~kind, ~detail, ~docstring, ~uri, ~pos_lnum) => {
+let mkItem = (~name, ~kind, ~detail, ~deprecated, ~docstring, ~uri, ~pos_lnum) => {
+  let valueMessage =
+    (
+      switch (deprecated) {
+      | None => ""
+      | Some(s) => "Deprecated: " ++ s ++ "\n\n"
+      }
+    )
+    ++ (
+      switch (docstring) {
+      | None => ""
+      | Some(s) => s ++ "\n\n"
+      }
+    )
+    ++ "\n"
+    ++ Uri2.toString(uri)
+    ++ ":"
+    ++ string_of_int(pos_lnum);
+  let tags = deprecated == None ? [] : [J.i(1 /* deprecated */)];
   J.o([
     ("label", J.s(name)),
     ("kind", J.i(kind)),
+    ("tags", J.l(tags)),
     ("detail", detail |> J.s),
     (
       "documentation",
-      J.o([
-        ("kind", J.s("markdown")),
-        (
-          "value",
-          J.s(
-            (docstring |? "No docs")
-            ++ "\n\n"
-            ++ Uri2.toString(uri)
-            ++ ":"
-            ++ string_of_int(pos_lnum),
-          ),
-        ),
-      ]),
+      J.o([("kind", J.s("markdown")), ("value", J.s(valueMessage))]),
     ),
   ]);
 };
@@ -639,6 +646,7 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
                uri,
                {
                  SharedTypes.name: {txt: name, loc: {loc_start: {pos_lnum}}},
+                 deprecated,
                  docstring,
                  item,
                },
@@ -647,6 +655,7 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
            mkItem(
              ~name,
              ~kind=kindToInt(item),
+             ~deprecated,
              ~detail=detail(name, item),
              ~docstring,
              ~uri,
@@ -761,6 +770,7 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
                        txt: name,
                        loc: {loc_start: {pos_lnum}},
                      },
+                     deprecated,
                      docstring,
                      item,
                    },
@@ -770,6 +780,7 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
                  ~name=completionName(name),
                  ~kind=kindToInt(item),
                  ~detail=detail(name, item),
+                 ~deprecated,
                  ~docstring,
                  ~uri,
                  ~pos_lnum,
@@ -786,6 +797,7 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
         mkItem(
           ~name,
           ~kind=4,
+          ~deprecated=None,
           ~detail="",
           ~docstring=None,
           ~uri=full.file.uri,
@@ -862,6 +874,7 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
         mkItem(
           ~name,
           ~kind=4,
+          ~deprecated=None,
           ~detail=typ |> Shared.typeToString,
           ~docstring=None,
           ~uri=full.file.uri,
