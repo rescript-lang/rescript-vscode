@@ -27,6 +27,32 @@ let rec findDocAttribute = attributes => {
   );
 };
 
+let rec findDeprecatedAttribute = attributes => {
+  Parsetree.(
+    switch (attributes) {
+    | [] => None
+    | [
+        (
+          {Asttypes.txt: "deprecated"},
+          PStr([
+            {
+              pstr_desc:
+                Pstr_eval(
+                  {pexp_desc: Pexp_constant(Pconst_string(msg, _))},
+                  _,
+                ),
+            },
+          ]),
+        ),
+        ..._,
+      ] =>
+      Some(msg)
+    | [({Asttypes.txt: "deprecated"}, _), ..._] => Some("")
+    | [_, ...rest] => findDeprecatedAttribute(rest)
+    }
+  );
+};
+
 let newDeclared =
     (
       ~item,
@@ -46,6 +72,7 @@ let newDeclared =
     scopeLoc: scope,
     exported,
     modulePath,
+    deprecated: findDeprecatedAttribute(attributes),
     docstring: findDocAttribute(attributes) |?>> processDoc,
     item,
     /* scopeType: Let, */

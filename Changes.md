@@ -1,4 +1,7 @@
 ## master
+- Add support for @deprecated attributes in autocomplete and hover.
+
+## Upcoming Release of rescript-vscode
 
 #### New features
 - Add support for autocomplete for pipe-first `foo->`: the type of `foo` is used to determine the module to take completions from.
