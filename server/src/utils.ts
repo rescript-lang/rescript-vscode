@@ -314,8 +314,15 @@ export let parseCompilerLogOutput = (
       });
     } else if (line.startsWith("#Done(")) {
       done = true;
-    } else if (/^  +[0-9]+ /.test(line)) {
-      // code display. Swallow
+    } else if (/^  +([0-9]+| +|\.) (│|┆)/.test(line)) {
+      //         ^^ indent
+      //           ^^^^^^^^^^^^^^^ gutter
+      //                           ^^^^^   separator
+      // swallow code display. Examples:
+      //   10 │
+      //    . │
+      //      │
+      //   10 ┆
     } else if (line.startsWith("  ")) {
       parsedDiagnostics[parsedDiagnostics.length - 1].content.push(line);
     }
