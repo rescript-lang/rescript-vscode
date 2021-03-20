@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest. Below is an informal spec of how the plugin's server communicates with the actual compiler. If you're a ReScript editor plugin implementor, you should probably read this to understand the various important nuances.
+Thanks for your interest. Below is an informal spec of how the plugin's server communicates with the actual compiler. If you're a ReScript editor plugin implementor, you should probably read this to understand the various important nuances and copy it.
 
 ## Other Editors With Language-Server Support
 
@@ -80,6 +80,8 @@ The compiler log contains exactly the same things you'd see in a regular termina
 - The errors are indented 2 spaces
 - The extra `#Start` and `#Done` (which aren't indented).
 
+A parser for the diagnostics is [here](https://github.com/rescript-lang/rescript-vscode/blob/0dbf2eb9cdb0bd6d95be1aee88b73830feecb5cc/server/src/utils.ts#L129-L329).
+
 ### State 1
 
 Artifacts cleaning through `bsb -clean` removes `.compiler.log` and turns into state 1. If that's the case, remove the diagnostics in the editor too. One could argue that they should be kept, but that's misleading UX-wise, and harder to implement correctly.
@@ -113,17 +115,19 @@ The bad alternatives are:
 
 ## Running `bsb` in the Editor
 
-**Don't** do that unless you've prompted the user.
+**Don't** do that unless you've prompted the user. This plugin currently prompts the user upon opening thr first the first file of a project. It's not great, but otherwise lots of folks forget to start a `bsb` in the terminal to see the freshest diagnostics.
 
-- Running an implicit `bsb -w` automatically means you've acquired the build watch mode lockfile. The user won't be able to run his/her own `bsb -w` in the terminal.
-- Running a one-shot `bsb` doesn't conflict, but is a waste. It's also incorrect, as there might be external file system changes you're not detecting.
-- The build might be a step in a bigger build. The editor running `bsb` implicitly goes against that.
-- If you have multiple files with different project roots open, running all of the `bsb`s is too intense.
+Drawbacks:
+
+- Running an implicit `bsb -w` means you've acquired the build watch mode lockfile. The user won't be able to run his/her own `bsb -w` in the terminal.
+- Running a one-shot `bsb` doesn't conflict, but is a waste. It's also incorrect, as there might be external file system changes you're not detecting, e.g. version control changes.
+- The build might be a step in a bigger build. The editor running `bsb -w` by itself might clash with that.
+- If you have multiple files with different project roots open, running all of the `bsb -w`s is too intense.
 
 ## Format
 
 To find the location of `bsc.exe` to run the formatter:
-- Search in the file's directory's `node_modules/bs-platform/{platform}/bsc.exe`.
+- Search in the file's directory's `node_modules/bs-platform/{platform}/bsc.exe`. If not found, recursively search upward (because [monorepos](https://github.com/rescript-lang/rescript-vscode/blob/0dbf2eb9cdb0bd6d95be1aee88b73830feecb5cc/server/src/utils.ts#L39-L45)).
 	-	Do **not** directly use `node_modules/.bin/bsc` if you can help it. That's a Nodejs wrapper. Slow startup. We don't want our formatting to be momentarily stalled because some Nodejs cache went cold.
 	- `platform` can be `darwin`, `linux`, `win32` or `freebsd`.
 
