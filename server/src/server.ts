@@ -40,7 +40,40 @@ let projectsFiles: Map<
 > = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
-let messageSender: any = {send: (msg: m.Message) => process.send!(msg)};
+type messageHandler = (send: (msg: m.Message) => void, message: m.Message) => void;
+
+let makeStdioChannel = () => {
+  let writer = new rpc.StreamMessageWriter(process.stdout);
+  let reader = new rpc.StreamMessageReader(process.stdin);
+  let send = (msg: m.Message) => writer.write(msg);
+  return {
+    onMessage: ((func: messageHandler) => {
+      let callback = (message: m.Message) => {
+        func(send, message);
+      }
+      reader.listen(callback);
+    }),
+    send,
+  };
+}
+
+let makeNodeIpcChannel = () => {
+  let send = (msg: m.Message) => process.send!(msg);
+  return {
+    onMessage: (func: messageHandler) => {
+      process.on("message", (msg: m.Message) => {
+        func(send, msg);
+      })
+    },
+    send,
+  };
+}
+
+let channel = (
+  process.argv.includes("--stdio")
+    ? makeStdioChannel()
+    : makeNodeIpcChannel()
+);
 
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
@@ -63,7 +96,7 @@ let sendUpdatedDiagnostics = () => {
         method: "textDocument/publishDiagnostics",
         params: params,
       };
-      messageSender.send(notification);
+      channel.send(notification);
 
       filesWithDiagnostics.add(file);
     });
@@ -81,7 +114,7 @@ let sendUpdatedDiagnostics = () => {
             method: "textDocument/publishDiagnostics",
             params: params,
           };
-          messageSender.send(notification);
+          channel.send(notification);
           filesWithDiagnostics.delete(file);
         }
       });
@@ -101,7 +134,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
         method: "textDocument/publishDiagnostics",
         params: params,
       };
-      messageSender.send(notification);
+      channel.send(notification);
     });
 
     projectsFiles.delete(projectRootPath);
@@ -170,7 +203,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
           method: "window/showMessageRequest",
           params: params,
         };
-        messageSender.send(request);
+        channel.send(request);
         // the client might send us back the "start build" action, which we'll
         // handle in the isResponseMessage check in the message handling way
         // below
@@ -219,31 +252,7 @@ let getOpenedFileContent = (fileUri: string) => {
   return content;
 };
 
-let onMessage = (func: any) => {
-  process.on("message", (msg: m.Message) => {
-    func(messageSender.send, msg);
-  })
-};
-
-let argv = process.argv.slice(2);
-for (let i = 0; i < argv.length; i++) {
-  let arg = argv[i];
-  if (arg === "--stdio") {
-    let writer = new rpc.StreamMessageWriter(process.stdout);
-    let reader = new rpc.StreamMessageReader(process.stdin);
-    messageSender.send = (msg: m.Message) => writer.write(msg);
-    onMessage = ((func: any) => {
-      let callback = (message: m.Message) => {
-        func(messageSender.send, message);
-      }
-      reader.listen(callback);
-    });
-
-    break;
-  };
-}
-
-onMessage((send: any, msg: m.Message) => {
+channel.onMessage((send, msg: m.Message) => {
   if (m.isNotificationMessage(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
     if (!initialized && msg.method !== "exit") {
