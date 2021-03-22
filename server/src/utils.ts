@@ -142,34 +142,26 @@ export let runAnalysisAfterSanityCheck = (
     cwd: projectRootPath,
   });
   return JSON.parse(stdout.toString());
-}
+};
+
+let replaceFileExtension = (filePath: string, ext: string): string => {
+  let name = path.basename(filePath, path.extname(filePath));
+  return path.format({ dir: path.dirname(filePath), name, ext })
+};
 
 export let createInterfaceFileUsingValidBscExePath = (
   filePath: string,
   cmiPath: string,
   bscExePath: p.DocumentUri
 ): execResult => {
-  let mliTempFile = createFileInTempDir(c.mliExt);
-
   try {
-    // First, create a temporary .mli file
-    let mliString = childProcess.execFileSync(
-      bscExePath,
-      ["-color", "never", "-i", cmiPath]
-    );
-
-    fs.writeFileSync(mliTempFile, mliString, { encoding: "utf-8"});
-
-    // Second, format the .mli into a .resi file
     let resiString = childProcess.execFileSync(
       bscExePath,
-      ["-color", "never", "-format", mliTempFile]
+      ["-color", "never", cmiPath]
     );
 
-    fs.writeFileSync(filePath + "i", resiString, { encoding: "utf-8"});
-
-    // Third, get rid of the .mli file
-    fs.unlink(mliTempFile, () => null);
+    let resiPath = replaceFileExtension(filePath, c.resiExt)
+    fs.writeFileSync(resiPath, resiString, { encoding: "utf-8"});
 
     return {
       kind: "success",
