@@ -1,5 +1,6 @@
 ## master
 - Add support for @deprecated attributes in autocomplete and hover.
+- Support for upcoming `rescript` npm package for the compiler. Look for `rescript` in addition to `bs-platform` in `node_modules`.
 
 ## Upcoming Release of rescript-vscode
 
