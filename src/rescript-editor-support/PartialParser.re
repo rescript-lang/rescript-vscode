@@ -170,8 +170,16 @@ let findOpens = (text, offset) => {
         | '.'
         | '_'
         | '0'..'9' => loop(i - 1)
-        | ' ' =>
+        | ' '
+        | '!' =>
           let at = skipWhite(text, i - 1);
+          let at =
+            if (at >= 0 && text.[at] == '!') {
+              // handle open!
+              skipWhite(text, at - 1);
+            } else {
+              at;
+            };
           if (at >= 3
               && text.[at - 3] == 'o'
               && text.[at - 2] == 'p'
