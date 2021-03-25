@@ -608,284 +608,292 @@ let mkItem = (~name, ~kind, ~detail, ~deprecated, ~docstring, ~uri, ~pos_lnum) =
   ]);
 };
 
-let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
-  let parameters =
-    switch (maybeText) {
-    | None => None
-    | Some(text) =>
-      switch (PartialParser.positionToOffset(text, pos)) {
-      | None => None
-      | Some(offset) =>
-        Some((text, offset, PartialParser.findCompletable(text, offset)))
-      }
-    };
-  let items =
-    switch (parameters) {
-    | None => []
-
-    | Some((text, offset, Some(Cpath(parts)))) =>
-      let rawOpens = PartialParser.findOpens(text, offset);
-      let allModules =
-        package.TopTypes.localModules @ package.dependencyModules;
-      let items =
-        getItems(
-          ~full,
-          ~package,
-          ~rawOpens,
-          ~getModule=State.fileForModule(state, ~package),
-          ~allModules,
-          ~pos,
-          ~parts,
-        );
-      /* TODO(#107): figure out why we're getting duplicates. */
-      items
-      |> Utils.dedup
-      |> List.map(
+let processCompletable =
+    (
+      ~full,
+      ~package,
+      ~state,
+      ~pos,
+      ~text,
+      ~offset,
+      completable: PartialParser.completable,
+    ) =>
+  switch (completable) {
+  | Cpath(parts) =>
+    let rawOpens = PartialParser.findOpens(text, offset);
+    let allModules = package.TopTypes.localModules @ package.dependencyModules;
+    let items =
+      getItems(
+        ~full,
+        ~package,
+        ~rawOpens,
+        ~getModule=State.fileForModule(state, ~package),
+        ~allModules,
+        ~pos,
+        ~parts,
+      );
+    /* TODO(#107): figure out why we're getting duplicates. */
+    items
+    |> Utils.dedup
+    |> List.map(
+         (
            (
-             (
-               uri,
-               {
-                 SharedTypes.name: {txt: name, loc: {loc_start: {pos_lnum}}},
-                 deprecated,
-                 docstring,
-                 item,
-               },
-             ),
-           ) =>
-           mkItem(
-             ~name,
-             ~kind=kindToInt(item),
-             ~deprecated,
-             ~detail=detail(name, item),
-             ~docstring,
-             ~uri,
-             ~pos_lnum,
-           )
-         );
+             uri,
+             {
+               SharedTypes.name: {txt: name, loc: {loc_start: {pos_lnum}}},
+               deprecated,
+               docstring,
+               item,
+             },
+           ),
+         ) =>
+         mkItem(
+           ~name,
+           ~kind=kindToInt(item),
+           ~deprecated,
+           ~detail=detail(name, item),
+           ~docstring,
+           ~uri,
+           ~pos_lnum,
+         )
+       );
 
-    | Some((text, offset, Some(Cpipe(s)))) =>
-      let rawOpens = PartialParser.findOpens(text, offset);
-      let allModules =
-        package.TopTypes.localModules @ package.dependencyModules;
+  | Cpipe(s) =>
+    let rawOpens = PartialParser.findOpens(text, offset);
+    let allModules = package.TopTypes.localModules @ package.dependencyModules;
 
-      let getItems = parts =>
-        getItems(
-          ~full,
-          ~package,
-          ~rawOpens,
-          ~getModule=State.fileForModule(state, ~package),
-          ~allModules,
-          ~pos,
-          ~parts,
-        );
+    let getItems = parts =>
+      getItems(
+        ~full,
+        ~package,
+        ~rawOpens,
+        ~getModule=State.fileForModule(state, ~package),
+        ~allModules,
+        ~pos,
+        ~parts,
+      );
 
-      let getLhsType = (~lhs, ~partialName) => {
-        switch (getItems([lhs])) {
-        | [(_uri, {SharedTypes.item: Value(t)}), ..._] =>
-          Some((t, partialName))
-        | _ => None
-        };
+    let getLhsType = (~lhs, ~partialName) => {
+      switch (getItems([lhs])) {
+      | [(_uri, {SharedTypes.item: Value(t)}), ..._] =>
+        Some((t, partialName))
+      | _ => None
+      };
+    };
+
+    let lhsType =
+      switch (Str.split(Str.regexp_string("->"), s)) {
+      | [lhs] => getLhsType(~lhs, ~partialName="")
+      | [lhs, partialName] => getLhsType(~lhs, ~partialName)
+      | _ =>
+        // Only allow one ->
+        None
       };
 
-      let lhsType =
-        switch (Str.split(Str.regexp_string("->"), s)) {
-        | [lhs] => getLhsType(~lhs, ~partialName="")
-        | [lhs, partialName] => getLhsType(~lhs, ~partialName)
-        | _ =>
-          // Only allow one ->
-          None
-        };
+    let removePackageOpens = modulePath =>
+      switch (modulePath) {
+      | [toplevel, ...rest] when package.opens |> List.mem(toplevel) => rest
+      | _ => modulePath
+      };
 
-      let removePackageOpens = modulePath =>
-        switch (modulePath) {
-        | [toplevel, ...rest] when package.opens |> List.mem(toplevel) => rest
-        | _ => modulePath
-        };
+    let rec removeRawOpen = (rawOpen, modulePath) =>
+      switch (rawOpen, modulePath) {
+      | (Tip(_), _) => Some(modulePath)
+      | (Nested(s, inner), [first, ...restPath]) when s == first =>
+        removeRawOpen(inner, restPath)
+      | _ => None
+      };
 
-      let rec removeRawOpen = (rawOpen, modulePath) =>
-        switch (rawOpen, modulePath) {
-        | (Tip(_), _) => Some(modulePath)
-        | (Nested(s, inner), [first, ...restPath]) when s == first =>
-          removeRawOpen(inner, restPath)
-        | _ => None
-        };
-
-      let rec removeRawOpens = (rawOpens, modulePath) =>
-        switch (rawOpens) {
-        | [rawOpen, ...restOpens] =>
-          let newModulePath =
-            switch (removeRawOpen(rawOpen, modulePath)) {
-            | None => modulePath
-            | Some(newModulePath) => newModulePath
-            };
-          removeRawOpens(restOpens, newModulePath);
-        | [] => modulePath
-        };
-
-      switch (lhsType) {
-      | Some((t, partialName)) =>
-        let getModulePath = path => {
-          let rec loop = (path: Path.t) =>
-            switch (path) {
-            | Pident(id) => [Ident.name(id)]
-            | Pdot(p, s, _) => [s, ...loop(p)]
-            | Papply(_) => []
-            };
-          switch (loop(path)) {
-          | [_, ...rest] => List.rev(rest)
-          | [] => []
+    let rec removeRawOpens = (rawOpens, modulePath) =>
+      switch (rawOpens) {
+      | [rawOpen, ...restOpens] =>
+        let newModulePath =
+          switch (removeRawOpen(rawOpen, modulePath)) {
+          | None => modulePath
+          | Some(newModulePath) => newModulePath
           };
+        removeRawOpens(restOpens, newModulePath);
+      | [] => modulePath
+      };
+
+    switch (lhsType) {
+    | Some((t, partialName)) =>
+      let getModulePath = path => {
+        let rec loop = (path: Path.t) =>
+          switch (path) {
+          | Pident(id) => [Ident.name(id)]
+          | Pdot(p, s, _) => [s, ...loop(p)]
+          | Papply(_) => []
+          };
+        switch (loop(path)) {
+        | [_, ...rest] => List.rev(rest)
+        | [] => []
         };
-        let modulePath =
+      };
+      let modulePath =
+        switch (t.desc) {
+        | Tconstr(path, _, _) => getModulePath(path)
+        | Tlink({desc: Tconstr(path, _, _)}) => getModulePath(path)
+        | _ => []
+        };
+      switch (modulePath) {
+      | [_, ..._] =>
+        let modulePathMinusOpens =
+          modulePath
+          |> removePackageOpens
+          |> removeRawOpens(rawOpens)
+          |> String.concat(".");
+        let completionName = name =>
+          modulePathMinusOpens == ""
+            ? name : modulePathMinusOpens ++ "." ++ name;
+        let parts = modulePath @ [partialName];
+        let items = getItems(parts);
+        items
+        |> List.filter(((_, {item})) =>
+             switch (item) {
+             | Value(_) => true
+             | _ => false
+             }
+           )
+        |> List.map(
+             (
+               (
+                 uri,
+                 {
+                   SharedTypes.name: {
+                     txt: name,
+                     loc: {loc_start: {pos_lnum}},
+                   },
+                   deprecated,
+                   docstring,
+                   item,
+                 },
+               ),
+             ) =>
+             mkItem(
+               ~name=completionName(name),
+               ~kind=kindToInt(item),
+               ~detail=detail(name, item),
+               ~deprecated,
+               ~docstring,
+               ~uri,
+               ~pos_lnum,
+             )
+           );
+
+      | _ => []
+      };
+    | None => []
+    };
+
+  | Cdecorator(prefix) =>
+    let mkDecorator = name =>
+      mkItem(
+        ~name,
+        ~kind=4,
+        ~deprecated=None,
+        ~detail="",
+        ~docstring=None,
+        ~uri=full.file.uri,
+        ~pos_lnum=fst(pos),
+      );
+    [
+      "as",
+      "deriving",
+      "genType",
+      "genType.as",
+      "genType.import",
+      "genType.opaque",
+      "get",
+      "get_index",
+      "inline",
+      "int",
+      "meth",
+      "module",
+      "new",
+      "obj",
+      "react.component",
+      "return",
+      "scope",
+      "send",
+      "set",
+      "set_index",
+      "string",
+      "this",
+      "unboxed",
+      "uncurry",
+      "unwrap",
+      "val",
+      "variadic",
+    ]
+    |> List.filter(decorator => Utils.startsWith(decorator, prefix))
+    |> List.map(mkDecorator);
+
+  | Clabel(funPath, prefix) =>
+    let rawOpens = PartialParser.findOpens(text, offset);
+    let allModules = package.TopTypes.localModules @ package.dependencyModules;
+
+    let getItems = parts =>
+      getItems(
+        ~full,
+        ~package,
+        ~rawOpens,
+        ~getModule=State.fileForModule(state, ~package),
+        ~allModules,
+        ~pos,
+        ~parts,
+      );
+
+    let labels = {
+      switch (getItems(funPath)) {
+      | [(_uri, {SharedTypes.item: Value(typ)}), ..._] =>
+        let rec getLabels = (t: Types.type_expr) =>
           switch (t.desc) {
-          | Tconstr(path, _, _) => getModulePath(path)
-          | Tlink({desc: Tconstr(path, _, _)}) => getModulePath(path)
+          | Tlink(t1)
+          | Tsubst(t1) => getLabels(t1)
+          | Tarrow(Labelled(l) | Optional(l), tArg, tRet, _) => [
+              (l, tArg),
+              ...getLabels(tRet),
+            ]
+          | Tarrow(Nolabel, _, tRet, _) => getLabels(tRet)
           | _ => []
           };
-        switch (modulePath) {
-        | [_, ..._] =>
-          let modulePathMinusOpens =
-            modulePath
-            |> removePackageOpens
-            |> removeRawOpens(rawOpens)
-            |> String.concat(".");
-          let completionName = name =>
-            modulePathMinusOpens == ""
-              ? name : modulePathMinusOpens ++ "." ++ name;
-          let parts = modulePath @ [partialName];
-          let items = getItems(parts);
-          items
-          |> List.filter(((_, {item})) =>
-               switch (item) {
-               | Value(_) => true
-               | _ => false
-               }
-             )
-          |> List.map(
-               (
-                 (
-                   uri,
-                   {
-                     SharedTypes.name: {
-                       txt: name,
-                       loc: {loc_start: {pos_lnum}},
-                     },
-                     deprecated,
-                     docstring,
-                     item,
-                   },
-                 ),
-               ) =>
-               mkItem(
-                 ~name=completionName(name),
-                 ~kind=kindToInt(item),
-                 ~detail=detail(name, item),
-                 ~deprecated,
-                 ~docstring,
-                 ~uri,
-                 ~pos_lnum,
-               )
-             );
+        typ |> getLabels;
+      | _ => []
+      };
+    };
 
-        | _ => []
-        };
+    let mkLabel = ((name, typ)) =>
+      mkItem(
+        ~name,
+        ~kind=4,
+        ~deprecated=None,
+        ~detail=typ |> Shared.typeToString,
+        ~docstring=None,
+        ~uri=full.file.uri,
+        ~pos_lnum=fst(pos),
+      );
+
+    labels
+    |> List.filter(((name, _t)) => Utils.startsWith(name, prefix))
+    |> List.map(mkLabel);
+  };
+
+let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
+  let items =
+    switch (maybeText) {
+    | None => []
+    | Some(text) =>
+      switch (PartialParser.positionToOffset(text, pos)) {
       | None => []
-      };
-
-    | Some((_, _, Some(Cdecorator(prefix)))) =>
-      let mkDecorator = name =>
-        mkItem(
-          ~name,
-          ~kind=4,
-          ~deprecated=None,
-          ~detail="",
-          ~docstring=None,
-          ~uri=full.file.uri,
-          ~pos_lnum=fst(pos),
-        );
-      [
-        "as",
-        "deriving",
-        "genType",
-        "genType.as",
-        "genType.import",
-        "genType.opaque",
-        "get",
-        "get_index",
-        "inline",
-        "int",
-        "meth",
-        "module",
-        "new",
-        "obj",
-        "react.component",
-        "return",
-        "scope",
-        "send",
-        "set",
-        "set_index",
-        "string",
-        "this",
-        "unboxed",
-        "uncurry",
-        "unwrap",
-        "val",
-        "variadic",
-      ]
-      |> List.filter(decorator => Utils.startsWith(decorator, prefix))
-      |> List.map(mkDecorator);
-
-    | Some((text, offset, Some(Clabel(funPath, prefix)))) =>
-      let rawOpens = PartialParser.findOpens(text, offset);
-      let allModules =
-        package.TopTypes.localModules @ package.dependencyModules;
-
-      let getItems = parts =>
-        getItems(
-          ~full,
-          ~package,
-          ~rawOpens,
-          ~getModule=State.fileForModule(state, ~package),
-          ~allModules,
-          ~pos,
-          ~parts,
-        );
-
-      let labels = {
-        switch (getItems(funPath)) {
-        | [(_uri, {SharedTypes.item: Value(typ)}), ..._] =>
-          let rec getLabels = (t: Types.type_expr) =>
-            switch (t.desc) {
-            | Tlink(t1)
-            | Tsubst(t1) => getLabels(t1)
-            | Tarrow(Labelled(l) | Optional(l), tArg, tRet, _) => [
-                (l, tArg),
-                ...getLabels(tRet),
-              ]
-            | Tarrow(Nolabel, _, tRet, _) => getLabels(tRet)
-            | _ => []
-            };
-          typ |> getLabels;
-        | _ => []
-        };
-      };
-
-      let mkLabel = ((name, typ)) =>
-        mkItem(
-          ~name,
-          ~kind=4,
-          ~deprecated=None,
-          ~detail=typ |> Shared.typeToString,
-          ~docstring=None,
-          ~uri=full.file.uri,
-          ~pos_lnum=fst(pos),
-        );
-
-      labels
-      |> List.filter(((name, _t)) => Utils.startsWith(name, prefix))
-      |> List.map(mkLabel);
-
-    | Some((_, _, None)) => []
+      | Some(offset) =>
+        switch (PartialParser.findCompletable(text, offset)) {
+        | None => []
+        | Some(completable) =>
+          completable
+          |> processCompletable(~full, ~package, ~state, ~pos, ~text, ~offset)
+        }
+      }
     };
   if (items == []) {
     J.null;
