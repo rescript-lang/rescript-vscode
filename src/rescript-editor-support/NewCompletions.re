@@ -614,14 +614,26 @@ let processCompletable =
       ~package,
       ~state,
       ~pos,
-      ~text,
-      ~offset,
+      ~rawOpens,
+      ~allModules,
       completable: PartialParser.completable,
     ) =>
   switch (completable) {
+  | Cjsx(componentName, id) =>
+    ["first", "second"]
+    |> List.map(name =>
+         mkItem(
+           ~name=name ++ " " ++ componentName ++ " " ++ id,
+           ~kind=4,
+           ~deprecated=None,
+           ~detail="",
+           ~docstring=None,
+           ~uri=full.file.uri,
+           ~pos_lnum=fst(pos),
+         )
+       )
+
   | Cpath(parts) =>
-    let rawOpens = PartialParser.findOpens(text, offset);
-    let allModules = package.TopTypes.localModules @ package.dependencyModules;
     let items =
       getItems(
         ~full,
@@ -659,9 +671,6 @@ let processCompletable =
        );
 
   | Cpipe(s) =>
-    let rawOpens = PartialParser.findOpens(text, offset);
-    let allModules = package.TopTypes.localModules @ package.dependencyModules;
-
     let getItems = parts =>
       getItems(
         ~full,
@@ -830,9 +839,6 @@ let processCompletable =
     |> List.map(mkDecorator);
 
   | Clabel(funPath, prefix) =>
-    let rawOpens = PartialParser.findOpens(text, offset);
-    let allModules = package.TopTypes.localModules @ package.dependencyModules;
-
     let getItems = parts =>
       getItems(
         ~full,
@@ -890,8 +896,18 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
         switch (PartialParser.findCompletable(text, offset)) {
         | None => []
         | Some(completable) =>
+          let rawOpens = PartialParser.findOpens(text, offset);
+          let allModules =
+            package.TopTypes.localModules @ package.dependencyModules;
           completable
-          |> processCompletable(~full, ~package, ~state, ~pos, ~text, ~offset)
+          |> processCompletable(
+               ~full,
+               ~package,
+               ~state,
+               ~pos,
+               ~rawOpens,
+               ~allModules,
+             );
         }
       }
     };
