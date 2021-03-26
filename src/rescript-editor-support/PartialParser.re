@@ -87,11 +87,91 @@ let findCallFromArgument = (text, offset) => {
   loop(~i=offset, ~nClosed=0);
 };
 
+// Figure out whether id should be autocompleted as component prop.
+// Find JSX context ctx for component M to autocomplete id (already parsed) as a prop.
+// ctx ::= <M args id
+// arg ::= id | id = [?] val
+// val ::= id | "abc" | 42 | {...} | (...) | [...]
+let findJsxContext = (text, offset) => {
+  let rec loop = i => {
+    let i = skipWhite(text, i);
+    if (i > 0) {
+      switch (text.[i]) {
+      | '}' =>
+        let i1 = findBackSkippingCommentsAndStrings(text, '{', '}', i - 1, 0);
+        i1 > 0 ? beforeValue(i1) : None;
+      | ')' =>
+        let i1 = findBackSkippingCommentsAndStrings(text, '(', ')', i - 1, 0);
+        i1 > 0 ? beforeValue(i1) : None;
+      | ']' =>
+        let i1 = findBackSkippingCommentsAndStrings(text, '[', ']', i - 1, 0);
+        i1 > 0 ? beforeValue(i1) : None;
+      | '"' =>
+        let i1 = findBack(text, '"', i - 1);
+        i1 > 0 ? beforeValue(i1) : None;
+      | _ =>
+        let i1 = startOfLident(text, i);
+        let ident = String.sub(text, i1, i - i1 + 1);
+        if (i1 >= 1 && ident != "") {
+          switch (ident.[0]) {
+          | 'A'..'Z' when i1 >= 1 && text.[i1 - 1] == '<' => Some(ident)
+          | _ => beforeIdent(i1 - 1)
+          };
+        } else {
+          None;
+        };
+      };
+    } else {
+      None;
+    };
+  }
+  and beforeIdent = i => {
+    let i = skipWhite(text, i);
+    if (i > 0) {
+      switch (text.[i]) {
+      | '?' => fromEquals(i - 1)
+      | '=' => fromEquals(i)
+      | _ => loop(i - 1)
+      };
+    } else {
+      None;
+    };
+  }
+  and beforeValue = i => {
+    let i = skipWhite(text, i);
+    if (i > 0) {
+      switch (text.[i]) {
+      | '?' => fromEquals(i - 1)
+      | _ => fromEquals(i)
+      };
+    } else {
+      None;
+    };
+  }
+  and fromEquals = i => {
+    let i = skipWhite(text, i);
+    if (i > 0) {
+      switch (text.[i]) {
+      | '=' =>
+        let i = skipWhite(text, i - 1);
+        let i1 = startOfLident(text, i);
+        let ident = String.sub(text, i1, i - i1 + 1);
+        ident == "" ? None : loop(i1 - 1);
+      | _ => None
+      };
+    } else {
+      None;
+    };
+  };
+  loop(offset);
+};
+
 type completable =
-  | Cdecorator(string)
-  | Clabel(list(string), string)
-  | Cpath(list(string))
-  | Cpipe(string);
+  | Cdecorator(string) // e.g. @module
+  | Clabel(list(string), string) // e.g. (["M", "foo"], "label") for M.foo(...~label...)
+  | Cpath(list(string)) // e.g. ["M", "foo"] for M.foo
+  | Cjsx(string, string) // E.g. ["M", "id"] for <M ... id
+  | Cpipe(string); // E.g. "x->foo"
 
 let findCompletable = (text, offset) => {
   let mkPath = s => {
@@ -105,7 +185,14 @@ let findCompletable = (text, offset) => {
     } else {
       let parts = Str.split(Str.regexp_string("."), s);
       let parts = s.[len - 1] == '.' ? parts @ [""] : parts;
-      Cpath(parts);
+      switch (parts) {
+      | [id] when String.lowercase_ascii(id) == id =>
+        switch (findJsxContext(text, offset - len - 1)) {
+        | None => Cpath(parts)
+        | Some(componentName) => Cjsx(componentName, id)
+        }
+      | _ => Cpath(parts)
+      };
     };
   };
 
