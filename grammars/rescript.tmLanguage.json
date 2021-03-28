@@ -230,7 +230,7 @@
         }
       ]
     },
-    "array": {
+    "bracketAccess": {
       "patterns": [
         {
           "match": "\\[",
@@ -258,22 +258,6 @@
         {
           "match": "\\}",
           "name": "punctuation.section.braces.end"
-        }
-      ]
-    },
-    "objectAccess": {
-      "patterns": [
-        {
-          "match": "\\b[a-z_][0-9a-zA-Z_]*(\\[)",
-          "captures": {
-            "1": {
-              "name": "punctuation.section.brackets.begin"
-            }
-          }
-        },
-        {
-          "match": "\\]",
-          "name": "punctuation.section.brackets.end"
         }
       ]
     },
@@ -460,10 +444,7 @@
       "include": "#list"
     },
     {
-      "include": "#objectAccess"
-    },
-    {
-      "include": "#array"
+      "include": "#bracketAccess"
     },
     {
       "include": "#jsx"
