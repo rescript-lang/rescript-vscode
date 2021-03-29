@@ -4,7 +4,7 @@
 - Add support for autocomplete for pipe-first `foo->`: the type of `foo` is used to determine the module to take completions from.
 - Add support for autocomplete for decorators such as `@module` and `@val`.
 - Add support for autocomplete of labelled arguments `foo(~label... )`.
-- Add support for @deprecated attributes in autocomplete and hover.
+- Add support for @deprecated attributes in autocomplete.
 - Support for upcoming `rescript` npm package for the compiler. Looks for `rescript` in addition to `bs-platform` in `node_modules`.
 
 #### Fixes

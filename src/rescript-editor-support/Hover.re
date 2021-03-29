@@ -18,7 +18,6 @@ let codeBlock = code => {
 
 let showModuleTopLevel =
     (
-      ~deprecated,
       ~docstring,
       ~name,
       topLevel: list(SharedTypes.declared(SharedTypes.moduleItem)),
@@ -42,27 +41,20 @@ let showModuleTopLevel =
     | None => ""
     | Some(s) => "\n" ++ s ++ "\n"
     };
-  let depr =
-    switch (deprecated) {
-    | None => ""
-    | Some(s) => "\n Deprecated: " ++ s ++ "\n"
-    };
-  Some(depr ++ doc ++ codeBlock(full));
+  Some(doc ++ codeBlock(full));
 };
 
 let showModule =
     (
-      ~deprecated,
       ~docstring,
       ~file: SharedTypes.file,
       ~name,
       declared: option(SharedTypes.declared(SharedTypes.moduleKind)),
     ) => {
   switch (declared) {
-  | None =>
-    showModuleTopLevel(~deprecated, ~docstring, ~name, file.contents.topLevel)
+  | None => showModuleTopLevel(~docstring, ~name, file.contents.topLevel)
   | Some({item: Structure({topLevel})}) =>
-    showModuleTopLevel(~deprecated, ~docstring, ~name, topLevel)
+    showModuleTopLevel(~docstring, ~name, topLevel)
   | Some({item: Ident(_)}) => Some("Unable to resolve module reference")
   };
 };
@@ -78,12 +70,12 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
     let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
     let%opt (file, declared) =
       References.resolveModuleReference(~file, ~getModule, md);
-    let (name, deprecated, docstring) =
+    let (name, docstring) =
       switch (declared) {
-      | Some(d) => (d.name.txt, d.deprecated, d.docstring)
-      | None => (file.moduleName, None, file.contents.docstring)
+      | Some(d) => (d.name.txt, d.docstring)
+      | None => (file.moduleName, file.contents.docstring)
       };
-    showModule(~deprecated, ~docstring, ~name, ~file, declared);
+    showModule(~docstring, ~name, ~file, declared);
   | LModule(GlobalReference(moduleName, path, tip)) =>
     let%opt file = getModule(moduleName);
     let env = Query.fileEnv(file);
@@ -92,17 +84,16 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
     let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
     let%opt (file, declared) =
       References.resolveModuleReference(~file, ~getModule, md);
-    let (name, deprecated, docstring) =
+    let (name, docstring) =
       switch (declared) {
-      | Some(d) => (d.name.txt, d.deprecated, d.docstring)
-      | None => (file.moduleName, None, file.contents.docstring)
+      | Some(d) => (d.name.txt, d.docstring)
+      | None => (file.moduleName, file.contents.docstring)
       };
-    showModule(~deprecated, ~docstring, ~name, ~file, declared);
+    showModule(~docstring, ~name, ~file, declared);
   | LModule(NotFound) => None
   | TopLevelModule(name) =>
     let%opt file = getModule(name);
     showModule(
-      ~deprecated=None,
       ~docstring=file.contents.docstring,
       ~name=file.moduleName,
       ~file,
@@ -122,7 +113,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
       },
     )
   | Typed(t, locKind) =>
-    let fromType = (~deprecated, ~docstring, typ) => {
+    let fromType = (~docstring, typ) => {
       let typeString = codeBlock(typ |> Shared.typeToString);
       let extraTypeInfo = {
         let env = Query.fileEnv(file);
@@ -134,44 +125,35 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
         if (isUncurriedInternal) {
           None;
         } else {
-          Some((decl |> Shared.declToString(txt), deprecated, docstring));
+          Some((decl |> Shared.declToString(txt), docstring));
         };
       };
-      let (typeString, deprecated, docstring) =
+      let (typeString, docstring) =
         switch (extraTypeInfo) {
-        | None => (typeString, deprecated, docstring)
-        | Some((extra, extraDeprecated, extraDocstring)) => (
+        | None => (typeString, docstring)
+        | Some((extra, extraDocstring)) => (
             typeString ++ "\n\n" ++ codeBlock(extra),
-            extraDeprecated,
             extraDocstring,
           )
         };
-      let deprecatedMsg =
-        switch (deprecated) {
-        | None => None
-        | Some(s) => Some("Deprecated: " ++ s)
-        };
-      (Some(typeString), deprecatedMsg, docstring);
+      (Some(typeString), docstring);
     };
 
     let parts =
       switch (References.definedForLoc(~file, ~getModule, locKind)) {
       | None =>
-        let (typeString, deprecatedMsg, docstring) =
-          t |> fromType(~deprecated=None, ~docstring=None);
-        [typeString, deprecatedMsg, docstring];
-      | Some((deprecated, docstring, {uri}, res)) =>
+        let (typeString, docstring) = t |> fromType(~docstring=None);
+        [typeString, docstring];
+      | Some((docstring, {uri}, res)) =>
         let pathFromRoot = uri |> Uri2.pathFromRoot(~rootUri);
 
         let parts =
           switch (res) {
           | `Declared =>
-            let (typeString, deprecatedMsg, docstring) =
-              t |> fromType(~deprecated, ~docstring);
-            [typeString, deprecatedMsg, docstring];
+            let (typeString, docstring) = t |> fromType(~docstring);
+            [typeString, docstring];
           | `Constructor({cname: {txt}, args}) =>
-            let (typeString, deprecatedMsg, docstring) =
-              t |> fromType(~deprecated, ~docstring);
+            let (typeString, docstring) = t |> fromType(~docstring);
 
             let argsString =
               switch (args) {
@@ -183,16 +165,10 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
                 |> Printf.sprintf("(%s)")
               };
 
-            [
-              typeString,
-              Some(codeBlock(txt ++ argsString)),
-              deprecatedMsg,
-              docstring,
-            ];
+            [typeString, Some(codeBlock(txt ++ argsString)), docstring];
           | `Field({typ}) =>
-            let (typeString, deprecatedMsg, docstring) =
-              typ |> fromType(~deprecated, ~docstring);
-            [typeString, deprecatedMsg, docstring];
+            let (typeString, docstring) = typ |> fromType(~docstring);
+            [typeString, docstring];
           };
 
         parts @ [Some(pathFromRoot)];
