@@ -1,14 +1,11 @@
-## master
-- Add support for @deprecated attributes in autocomplete and hover.
-- Support for upcoming `rescript` npm package for the compiler. Look for `rescript` in addition to `bs-platform` in `node_modules`.
-- Autocomplete: add support for `open!` in addition to `open`.
-
 ## Upcoming Release of rescript-vscode
 
 #### New features
 - Add support for autocomplete for pipe-first `foo->`: the type of `foo` is used to determine the module to take completions from.
 - Add support for autocomplete for decorators such as `@module` and `@val`.
 - Add support for autocomplete of labelled arguments `foo(~label... )`.
+- Add support for @deprecated attributes in autocomplete and hover.
+- Support for upcoming `rescript` npm package for the compiler. Looks for `rescript` in addition to `bs-platform` in `node_modules`.
 
 #### Fixes
 
@@ -17,6 +14,7 @@
 - Fix issue where values declared with type annotation would not show up in autocomplete, and would show no doc comment on hover. (See https://github.com/rescript-lang/rescript-vscode/issues/72).
 - Fix hover on definitions inside a react component module, or whenever multiple definitins for the same value exist in the module (See https://github.com/rescript-lang/rescript-editor-support/issues/67).
 - Fix autocomplete issue where multiple open's were considered in the wrong priority order (See https://github.com/rescript-lang/rescript-editor-support/issues/72).
+- Autocomplete: add support for `open!` in addition to `open`.
 
 ## Release 1.0.5 of rescript-vscode
 This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/6bdd10f6af259edc5f9cbe5b9df06836de3ab865) is vendored in [rescript-vscode 1.0.5](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.5).
