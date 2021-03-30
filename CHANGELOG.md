@@ -1,3 +1,16 @@
+## 1.0.7
+
+Fixes:
+- Highlighting for some decorators and keywords.
+- Diagnostics display for long lines.
+- Various hover & autocomplete opportunities.
+
+Features:
+- Autocomplete for `->` pipe!
+- Autocomplete for decorators such as `@module` and `@val` and `@deprecated`.
+- Autocomplete for labels `func(~...)`.
+- Support for the upcoming `rescript` npm package.
+
 ## 1.0.6
 
 Fixes:
