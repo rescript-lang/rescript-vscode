@@ -19,7 +19,7 @@ module Uri: {
       ++ (
         Str.global_replace(Str.regexp_string("\\"), "/", path)
         |> Str.substitute_first(
-             Str.regexp("^\\([A-Z]\\):"),
+             Str.regexp("^\\([a-zA-Z]\\):"),
              text => {
                let name = Str.matched_group(1, text);
                "/" ++ String.lowercase_ascii(name) ++ "%3A";
