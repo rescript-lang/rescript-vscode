@@ -314,6 +314,8 @@ export let parseCompilerLogOutput = (
         tag: undefined,
         content: [],
       });
+    } else if (line.startsWith("#Start(")) {
+      // do nothing for now
     } else if (line.startsWith("#Done(")) {
       done = true;
     } else if (/^  +([0-9]+| +|\.) (│|┆)/.test(line)) {
@@ -326,6 +328,17 @@ export let parseCompilerLogOutput = (
       //      │
       //   10 ┆
     } else if (line.startsWith("  ")) {
+      // part of the actual diagnostics message
+      parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
+        line.slice(2)
+      );
+    } else if (line.trim() != "") {
+      // We'll assume that everything else is also part of the diagnostics too.
+      // Most of these should have been indented 2 spaces; sadly, some of them
+      // aren't (e.g. outcome printer printing badly, and certain old ocaml type
+      // messages not printing with indent). We used to get bug reports and fix
+      // the messages, but that strategy turned out too slow. One day we should
+      // revert to not having this branch...
       parsedDiagnostics[parsedDiagnostics.length - 1].content.push(line);
     }
   }
@@ -338,22 +351,14 @@ export let parseCompilerLogOutput = (
     if (result[file] == null) {
       result[file] = [];
     }
-    let cleanedUpDiagnostic =
-      diagnosticMessage
-        .map((line) => {
-          // remove the spaces in front
-          return line.slice(2);
-        })
-        .join("\n")
-        // remove start and end whitespaces/newlines
-        .trim() + "\n";
     result[file].push({
       severity: parsedDiagnostic.severity,
       tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
       code: parsedDiagnostic.code,
       range,
       source: "ReScript",
-      message: cleanedUpDiagnostic,
+      // remove start and end whitespaces/newlines
+      message: diagnosticMessage.join("\n").trim() + "\n",
     });
   });
 
