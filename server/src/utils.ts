@@ -80,10 +80,12 @@ export let formatUsingValidBscExePath = (
     encoding: "utf-8",
   });
   try {
-    let result = childProcess.execFileSync(
-      bscExePath,
-      ["-color", "never", "-format", formatTempFileFullPath],
-    );
+    let result = childProcess.execFileSync(bscExePath, [
+      "-color",
+      "never",
+      "-format",
+      formatTempFileFullPath,
+    ]);
     return {
       kind: "success",
       result: result.toString(),
