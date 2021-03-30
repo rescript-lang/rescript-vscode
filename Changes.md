@@ -1,4 +1,5 @@
-## Upcoming Release of rescript-vscode
+## Release 1.0.6 of rescript-vscode
+This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/03ee0d97b250474028d4fb08eac81ddb21ccb082) is vendored in [rescript-vscode 1.0.6](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.6).
 
 #### New features
 - Add support for autocomplete for pipe-first `foo->`: the type of `foo` is used to determine the module to take completions from.
