@@ -188,6 +188,14 @@
         }
       ]
     },
+    "typeParameter": {
+      "patterns": [
+        {
+          "match": "'[A-Za-z][A-Za-z0-9_]*",
+          "name": "support.type"
+        }
+      ]
+    },
     "number": {
       "patterns": [
         {
@@ -430,6 +438,9 @@
     },
     {
       "include": "#character"
+    },
+    {
+      "include": "#typeParameter"
     },
     {
       "include": "#string"
