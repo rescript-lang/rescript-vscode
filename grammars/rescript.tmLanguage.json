@@ -434,15 +434,15 @@
     "variable-declaration": {
       "patterns": [
         {
-          "match": "(?<=external )[a-z][a-z_A-Z_0-9_]*",
+          "match": "(?<=external )[a-z_][0-9a-zA-Z_]*",
           "name": "entity.name.function"
         },
         {
-          "match": "(?<=let )[a-z][a-z_A-Z_0-9_]*",
+          "match": "(?<=let )[a-z_][0-9a-zA-Z_]*",
           "name": "entity.name.function"
         },
         {
-          "match": "(?<=let rec )[a-z][a-z_A-Z_0-9_]*",
+          "match": "(?<=let rec )[a-z_][0-9a-zA-Z_]*",
           "name": "entity.name.function"
         }
       ]
@@ -450,15 +450,15 @@
     "type-declaration": {
       "patterns": [
         {
-          "match": "(?<=type )\\b[a-z][a-z_A-Z_0-9_]*",
+          "match": "(?<=type )[a-z_][0-9a-zA-Z_]*",
           "name": "entity.name.function"
         },
         {
-          "match": "(?<=and )\\b[a-z][a-z_A-Z_0-9_]*",
+          "match": "(?<=and )[a-z_][0-9a-zA-Z_]*",
           "name": "entity.name.function"
         },
         {
-          "match": "(?<=type rec )[a-z][a-z_A-Z_0-9_]*",
+          "match": "(?<=type rec )[a-z_][0-9a-zA-Z_]*",
           "name": "entity.name.function"
         }
       ]
