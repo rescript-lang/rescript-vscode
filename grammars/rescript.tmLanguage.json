@@ -444,10 +444,6 @@
         {
           "match": "(?<=let rec )[a-z][a-z_A-Z_0-9_]*",
           "name": "entity.name.function"
-        },
-        {
-          "match": "(?<=let )[_][a-z][a-z_A-Z_0-9_]*",
-          "name": "comment"
         }
       ]
     },
