@@ -21,10 +21,6 @@
       "name": "constant.language",
       "match": "\\b(true|false)\\b"
     },
-    "RE_UNIT": {
-      "name": "constant.language",
-      "match": "\\(\\)"
-    },
     "commentLine": {
       "match": "//.*",
       "name": "comment.line"
@@ -102,9 +98,6 @@
       "patterns": [
         {
           "include": "#RE_LITERAL"
-        },
-        {
-          "include": "#RE_UNIT"
         }
       ]
     },
