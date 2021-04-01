@@ -456,14 +456,12 @@ function onMessage(msg: m.Message) {
             extension === c.resiExt
           );
           if (formattedResult.kind === "success") {
+            let max = formattedResult.result.length;
             let result: p.TextEdit[] = [
               {
                 range: {
                   start: { line: 0, character: 0 },
-                  end: {
-                    line: Number.MAX_VALUE,
-                    character: Number.MAX_VALUE,
-                  },
+                  end: { line: max, character: max },
                 },
                 newText: formattedResult.result,
               },
