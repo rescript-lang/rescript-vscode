@@ -40,40 +40,8 @@ let projectsFiles: Map<
 > = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
-type messageHandler = (send: (msg: m.Message) => void, message: m.Message) => void;
-
-let makeStdioChannel = () => {
-  let writer = new rpc.StreamMessageWriter(process.stdout);
-  let reader = new rpc.StreamMessageReader(process.stdin);
-  let send = (msg: m.Message) => writer.write(msg);
-  return {
-    onMessage: ((func: messageHandler) => {
-      let callback = (message: m.Message) => {
-        func(send, message);
-      }
-      reader.listen(callback);
-    }),
-    send,
-  };
-}
-
-let makeNodeIpcChannel = () => {
-  let send = (msg: m.Message) => process.send!(msg);
-  return {
-    onMessage: (func: messageHandler) => {
-      process.on("message", (msg: m.Message) => {
-        func(send, msg);
-      })
-    },
-    send,
-  };
-}
-
-let channel = (
-  process.argv.includes("--stdio")
-    ? makeStdioChannel()
-    : makeNodeIpcChannel()
-);
+// will be properly defined later depending on the mode (stdio/node-rpc)
+let send: (msg: m.Message) => void = (_) => { };
 
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
@@ -96,7 +64,7 @@ let sendUpdatedDiagnostics = () => {
         method: "textDocument/publishDiagnostics",
         params: params,
       };
-      channel.send(notification);
+      send(notification);
 
       filesWithDiagnostics.add(file);
     });
@@ -114,7 +82,7 @@ let sendUpdatedDiagnostics = () => {
             method: "textDocument/publishDiagnostics",
             params: params,
           };
-          channel.send(notification);
+          send(notification);
           filesWithDiagnostics.delete(file);
         }
       });
@@ -134,7 +102,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
         method: "textDocument/publishDiagnostics",
         params: params,
       };
-      channel.send(notification);
+      send(notification);
     });
 
     projectsFiles.delete(projectRootPath);
@@ -203,7 +171,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
           method: "window/showMessageRequest",
           params: params,
         };
-        channel.send(request);
+        send(request);
         // the client might send us back the "start build" action, which we'll
         // handle in the isResponseMessage check in the message handling way
         // below
@@ -252,7 +220,22 @@ let getOpenedFileContent = (fileUri: string) => {
   return content;
 };
 
-channel.onMessage((send, msg: m.Message) => {
+// Start listening now!
+// We support two modes: the regular node RPC mode for VSCode, and the --stdio
+// mode for other editors The latter is _technically unsupported_. It's an
+// implementation detail that might change at any time
+if (process.argv.includes("--stdio")) {
+  let writer = new rpc.StreamMessageWriter(process.stdout);
+  let reader = new rpc.StreamMessageReader(process.stdin);
+  // proper `this` scope for writer
+  send = (msg: m.Message) => writer.write(msg);
+  reader.listen(onMessage);
+} else {
+  // proper `this` scope for process
+  send = (msg: m.Message) => process.send!(msg);
+  process.on("message", onMessage);
+}
+function onMessage(msg: m.Message) {
   if (m.isNotificationMessage(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
     if (!initialized && msg.method !== "exit") {
@@ -541,4 +524,4 @@ channel.onMessage((send, msg: m.Message) => {
       }
     }
   }
-});
+}
