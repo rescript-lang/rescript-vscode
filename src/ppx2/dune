@@ -1,0 +1,8 @@
+(executable
+  (name Ppx_Unmonads)
+  (public_name ppx_unmonads.exe)
+  (flags :standard -w -9)
+  (libraries compiler-libs ppx_tools_versioned)
+  (preprocess (pps ppx_tools_versioned.metaquot_406))
+  )
+

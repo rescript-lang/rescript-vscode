@@ -7,3 +7,8 @@ editor-extensions/vscode/*.zip
 examples/*/node_modules
 examples/*/lib
 editor-extensions/vscode/node_modules
+
+# TODO: remove this after un-monadification
+*.cm*
+*.out
+temp.txt
