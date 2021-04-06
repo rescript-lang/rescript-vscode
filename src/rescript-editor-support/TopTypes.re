@@ -17,15 +17,13 @@ type package = {
 };
 
 type state = {
-  rootUri: uri,
   documentText: Hashtbl.t(uri, string),
   packagesByRoot: Hashtbl.t(string, package),
   rootForUri: Hashtbl.t(uri, string),
   cmtCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
 };
 
-let empty = (~rootUri) => {
-  rootUri,
+let empty = () => {
   documentText: Hashtbl.create(5),
   packagesByRoot: Hashtbl.create(1),
   rootForUri: Hashtbl.create(30),

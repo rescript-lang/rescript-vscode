@@ -2,7 +2,6 @@ module Uri: {
   type t;
   let fromPath: string => t;
   let parse: string => option(t);
-  let pathFromRoot: (~rootUri: t, t) => string;
   let toPath: t => string;
   let toString: t => string;
 } = {
@@ -67,10 +66,6 @@ module Uri: {
     };
   let toPath = ({path}) => path;
   let toString = ({uri}) => uri;
-
-  let pathFromRoot = (~rootUri as {path: rootPath}, {path}) =>
-    Utils.startsWith(path, rootPath)
-      ? "<root>" ++ Utils.sliceToEnd(path, String.length(rootPath)) : path;
 };
 
 include Uri;

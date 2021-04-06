@@ -44,7 +44,6 @@ let dumpLocations = (state, ~package, ~file, ~extra, ~selectPos, uri) => {
 
          let hoverText =
            Hover.newHover(
-             ~rootUri=state.TopTypes.rootUri,
              ~file,
              ~getModule=State.fileForModule(state, ~package),
              loc,
@@ -121,8 +120,7 @@ let splitLineChar = pathWithPos => {
 
 let dump = files => {
   Shared.cacheTypeToString := true;
-  let rootPath = Unix.getcwd();
-  let state = TopTypes.empty(~rootUri=Uri2.fromPath(rootPath));
+  let state = TopTypes.empty();
   files
   |> List.iter(pathWithPos => {
        let (filePath, selectPos) = pathWithPos |> splitLineChar;
@@ -154,8 +152,7 @@ let autocomplete = (~currentFile, ~full, ~package, ~pos, ~state) => {
 };
 
 let complete = (~pathWithPos, ~currentFile) => {
-  let rootPath = Unix.getcwd();
-  let state = TopTypes.empty(~rootUri=Uri2.fromPath(rootPath));
+  let state = TopTypes.empty();
   switch (pathWithPos |> splitLineChar) {
   | (filePath, Some(pos)) =>
     let filePath = Files.maybeConcat(Unix.getcwd(), filePath);

@@ -59,7 +59,7 @@ let showModule =
   };
 };
 
-let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
+let newHover = (~file: SharedTypes.file, ~getModule, loc) => {
   switch (loc) {
   | SharedTypes.Explanation(text) => Some(text)
   | TypeDefinition(name, decl, _stamp) =>
@@ -144,9 +144,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
       | None =>
         let (typeString, docstring) = t |> fromType(~docstring=None);
         [typeString, docstring];
-      | Some((docstring, {uri}, res)) =>
-        let pathFromRoot = uri |> Uri2.pathFromRoot(~rootUri);
-
+      | Some((docstring, res)) =>
         let parts =
           switch (res) {
           | `Declared =>
@@ -171,7 +169,7 @@ let newHover = (~rootUri, ~file: SharedTypes.file, ~getModule, loc) => {
             [typeString, docstring];
           };
 
-        parts @ [Some(pathFromRoot)];
+        parts;
       };
 
     Some(String.concat("\n\n", parts |> Utils.filterMap(x => x)));
