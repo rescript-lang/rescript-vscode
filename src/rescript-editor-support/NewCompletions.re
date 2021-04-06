@@ -587,8 +587,8 @@ let mkItem = (~name, ~kind, ~detail, ~deprecated, ~docstring, ~uri, ~pos_lnum) =
     )
     ++ (
       switch (docstring) {
-      | None => ""
-      | Some(s) => s ++ "\n\n"
+      | [] => ""
+      | [_, ..._] => (docstring |> String.concat("\n")) ++ "\n\n"
       }
     )
     ++ "\n"
@@ -793,7 +793,7 @@ let processCompletable =
         ~kind=4,
         ~deprecated=None,
         ~detail="",
-        ~docstring=None,
+        ~docstring=[],
         ~uri=full.file.uri,
         ~pos_lnum=fst(pos),
       );
@@ -869,7 +869,7 @@ let processCompletable =
         ~kind=4,
         ~deprecated=None,
         ~detail=typ |> Shared.typeToString,
-        ~docstring=None,
+        ~docstring=[],
         ~uri=full.file.uri,
         ~pos_lnum=fst(pos),
       );

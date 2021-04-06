@@ -114,12 +114,7 @@ let definedForLoc = (~file, ~getModule, locKind) => {
       );
       let%opt declared =
         Query.declaredForTip(~stamps=file.stamps, stamp, tip);
-      let docstring =
-        switch (declared.docstring) {
-        | None => []
-        | Some(d) => [d]
-        };
-      Some((docstring, `Declared));
+      Some((declared.docstring, `Declared));
     };
   };
 
