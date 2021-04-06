@@ -133,45 +133,45 @@ let newHover = (~file: SharedTypes.file, ~getModule, loc) => {
         | None => (typeString, docstring)
         | Some((extra, extraDocstring)) => (
             typeString ++ "\n\n" ++ codeBlock(extra),
-            extraDocstring,
+            switch (extraDocstring) {
+            | None => []
+            | Some(d) => [d]
+            },
           )
         };
-      (Some(typeString), docstring);
+      (typeString, docstring);
     };
 
     let parts =
       switch (References.definedForLoc(~file, ~getModule, locKind)) {
       | None =>
-        let (typeString, docstring) = t |> fromType(~docstring=None);
-        [typeString, docstring];
+        let (typeString, docstring) = t |> fromType(~docstring=[]);
+        [typeString, ...docstring];
       | Some((docstring, res)) =>
-        let parts =
-          switch (res) {
-          | `Declared =>
-            let (typeString, docstring) = t |> fromType(~docstring);
-            [typeString, docstring];
-          | `Constructor({cname: {txt}, args}) =>
-            let (typeString, docstring) = t |> fromType(~docstring);
+        switch (res) {
+        | `Declared =>
+          let (typeString, docstring) = t |> fromType(~docstring);
+          [typeString, ...docstring];
+        | `Constructor({cname: {txt}, args}) =>
+          let (typeString, docstring) = t |> fromType(~docstring);
 
-            let argsString =
-              switch (args) {
-              | [] => ""
-              | _ =>
-                args
-                |> List.map(((t, _)) => Shared.typeToString(t))
-                |> String.concat(", ")
-                |> Printf.sprintf("(%s)")
-              };
+          let argsString =
+            switch (args) {
+            | [] => ""
+            | _ =>
+              args
+              |> List.map(((t, _)) => Shared.typeToString(t))
+              |> String.concat(", ")
+              |> Printf.sprintf("(%s)")
+            };
 
-            [typeString, Some(codeBlock(txt ++ argsString)), docstring];
-          | `Field({typ}) =>
-            let (typeString, docstring) = typ |> fromType(~docstring);
-            [typeString, docstring];
-          };
-
-        parts;
+          [typeString, codeBlock(txt ++ argsString), ...docstring];
+        | `Field({typ}) =>
+          let (typeString, docstring) = typ |> fromType(~docstring);
+          [typeString, ...docstring];
+        }
       };
 
-    Some(String.concat("\n\n", parts |> Utils.filterMap(x => x)));
+    Some(String.concat("\n\n", parts));
   };
 };
