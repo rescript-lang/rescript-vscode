@@ -281,7 +281,6 @@ let handlers:
         let%opt (location, loc) = References.locForPos(~extra, pos);
         let%opt text =
           Hover.newHover(
-            ~rootUri=state.rootUri,
             ~file,
             ~getModule=State.fileForModule(state, ~package),
             loc,

@@ -60,7 +60,7 @@ let getInitialState = params => {
     ]),
   );
 
-  let state = TopTypes.empty(~rootUri);
+  let state = TopTypes.empty();
 
   Ok(state);
 };
