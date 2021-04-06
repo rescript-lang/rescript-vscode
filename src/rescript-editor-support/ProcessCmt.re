@@ -41,7 +41,7 @@ let sigItemsExtent = items => {
 
 type env = {
   stamps,
-  processDoc: string => string,
+  processDoc: string => list(string),
   modulePath: visibilityPath,
   scope: Location.t,
 };
@@ -203,7 +203,7 @@ and forSignatureType = (env, signature) => {
       signature,
       [],
     );
-  {docstring: None, exported, topLevel};
+  {docstring: [], exported, topLevel};
 }
 and forModuleType = (env, moduleType) =>
   switch (moduleType) {
@@ -376,7 +376,10 @@ let forSignature = (~env, items) => {
     | _ => []
     };
   let docstring =
-    ProcessAttributes.findDocAttribute(attributes) |?>> env.processDoc;
+    switch (ProcessAttributes.findDocAttribute(attributes)) {
+    | None => []
+    | Some(d) => env.processDoc(d)
+    };
   {docstring, exported, topLevel};
 };
 
@@ -573,7 +576,10 @@ and forStructure = (~env, items) => {
     | _ => []
     };
   let docstring =
-    ProcessAttributes.findDocAttribute(attributes) |?>> env.processDoc;
+    switch (ProcessAttributes.findDocAttribute(attributes)) {
+    | None => []
+    | Some(d) => env.processDoc(d)
+    };
   {docstring, exported, topLevel};
 };
 

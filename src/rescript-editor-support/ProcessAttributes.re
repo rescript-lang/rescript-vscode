@@ -1,5 +1,4 @@
 open SharedTypes;
-open Infix;
 
 /* TODO should I hang on to location? */
 let rec findDocAttribute = attributes => {
@@ -73,7 +72,11 @@ let newDeclared =
     exported,
     modulePath,
     deprecated: findDeprecatedAttribute(attributes),
-    docstring: findDocAttribute(attributes) |?>> processDoc,
+    docstring:
+      switch (findDocAttribute(attributes)) {
+      | None => []
+      | Some(d) => processDoc(d)
+      },
     item,
     /* scopeType: Let, */
     /* scopeStart: env.scopeStart, */

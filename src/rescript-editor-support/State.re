@@ -9,8 +9,8 @@ let odocToMd = text => MarkdownOfOCamldoc.convert(text);
 let compose = (fn1, fn2, arg) => fn1(arg) |> fn2;
 
 let converter = src => {
-  let mlToOutput = compose(odocToMd, Omd.to_markdown);
-  fold(src, mlToOutput, src => isMl(src) ? mlToOutput : (x => x));
+  let mlToOutput = s => [compose(odocToMd, Omd.to_markdown, s)];
+  fold(src, mlToOutput, src => isMl(src) ? mlToOutput : (x => [x]));
 };
 
 let newDocsForCmt = (~moduleName, cmtCache, changed, cmt, src) => {
@@ -62,11 +62,8 @@ let getFullFromCmt = (~state, ~uri) => {
   switch (Hashtbl.find_opt(package.pathsForModule, moduleName)) {
   | Some(paths) =>
     let cmt =
-      SharedTypes.getCmt(
-        ~interface=Utils.endsWith(path, "i"),
-        paths,
-      );
-    let%try full = Process_406.fullForCmt(~moduleName, ~uri, cmt, x => x);
+      SharedTypes.getCmt(~interface=Utils.endsWith(path, "i"), paths);
+    let%try full = Process_406.fullForCmt(~moduleName, ~uri, cmt, x => [x]);
     Hashtbl.replace(
       package.interModuleDependencies,
       moduleName,

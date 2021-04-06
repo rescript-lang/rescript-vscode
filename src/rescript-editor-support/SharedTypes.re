@@ -54,7 +54,7 @@ type declared('t) = {
   modulePath: visibilityPath,
   exported: bool,
   deprecated: option(string),
-  docstring: option(string),
+  docstring: list(string),
   item: 't,
   /* TODO maybe add a uri? */
   /* scopeType: scope, */
@@ -69,7 +69,7 @@ let emptyDeclared = name => {
   modulePath: NotVisible,
   exported: false,
   deprecated: None,
-  docstring: None,
+  docstring: [],
   item: (),
 };
 
@@ -142,7 +142,7 @@ type moduleItem =
   | MType(Type.t, Types.rec_status)
   | Module(moduleKind)
 and moduleContents = {
-  docstring: option(string),
+  docstring: list(string),
   exported,
   topLevel: list(declared(moduleItem)),
 }
@@ -178,7 +178,7 @@ let emptyFile = (moduleName, uri) => {
   stamps: initStamps(),
   moduleName,
   contents: {
-    docstring: None,
+    docstring: [],
     exported: initExported(),
     topLevel: [],
   },

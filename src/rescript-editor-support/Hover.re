@@ -38,8 +38,8 @@ let showModuleTopLevel =
   let full = "module " ++ name ++ " = {" ++ "\n" ++ contents ++ "\n}";
   let doc =
     switch (docstring) {
-    | None => ""
-    | Some(s) => "\n" ++ s ++ "\n"
+    | [] => ""
+    | [_, ..._] => "\n" ++ (docstring |> String.concat("\n")) ++ "\n"
     };
   Some(doc ++ codeBlock(full));
 };
@@ -133,10 +133,7 @@ let newHover = (~file: SharedTypes.file, ~getModule, loc) => {
         | None => (typeString, docstring)
         | Some((extra, extraDocstring)) => (
             typeString ++ "\n\n" ++ codeBlock(extra),
-            switch (extraDocstring) {
-            | None => []
-            | Some(d) => [d]
-            },
+            extraDocstring,
           )
         };
       (typeString, docstring);
