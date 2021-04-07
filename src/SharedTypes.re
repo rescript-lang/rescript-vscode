@@ -1,15 +1,3 @@
-type kinds =
-  | Function
-  | Array
-  | Variable
-  | Object
-  | Null
-  | EnumMember
-  | Module
-  | Enum
-  | Interface
-  | TypeParameter;
-
 type filePath = string;
 type paths =
   | Impl(filePath, option(filePath))
@@ -214,7 +202,6 @@ type loc =
 type openTracker = {
   path: Path.t,
   loc: Location.t,
-  ident: Location.loc(Longident.t),
   extent: Location.t,
   mutable used: list((path, tip, Location.t)),
 };
