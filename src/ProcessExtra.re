@@ -1,6 +1,5 @@
 open Typedtree;
 open SharedTypes;
-open Infix;
 
 let handleConstructor = (path, txt) => {
   let typeName =
@@ -61,26 +60,21 @@ let getTypeAtPath = (~env, path) => {
   | `Global(moduleName, path) => `Global((moduleName, path))
   | `Not_found => `Not_found
   | `Exported(env, name) =>
-    let res =
-      switch (Hashtbl.find_opt(env.exported.types, name)) {
-      | None => None
-      | Some(stamp) =>
-        let declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
-        switch (declaredType) {
-        | Some(declaredType) => Some(`Local(declaredType))
-        | None => None
-        };
-      };
-    res |? `Not_found;
-  | `Stamp(stamp) =>
-    let res = {
+    switch (Hashtbl.find_opt(env.exported.types, name)) {
+    | None => `Not_found
+    | Some(stamp) =>
       let declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
       switch (declaredType) {
-      | Some(declaredType) => Some(`Local(declaredType))
-      | None => None
+      | Some(declaredType) => `Local(declaredType)
+      | None => `Not_found
       };
+    }
+  | `Stamp(stamp) =>
+    let declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
+    switch (declaredType) {
+    | Some(declaredType) => `Local(declaredType)
+    | None => `Not_found
     };
-    res |? `Not_found;
   };
 };
 

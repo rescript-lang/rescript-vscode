@@ -130,7 +130,10 @@ let main = () => {
       ~getInitialState,
     );
     Log.log("Finished");
-    Log.out^ |?< close_out;
+    switch (Log.out^) {
+    | None => ()
+    | Some(out) => close_out(out)
+    }
   | (_opts, ["dump", ...files]) => EditorSupportCommands.dump(files)
   | (_opts, ["complete", pathWithPos, currentFile]) =>
     EditorSupportCommands.complete(~pathWithPos, ~currentFile)
