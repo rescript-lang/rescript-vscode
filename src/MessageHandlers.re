@@ -1,6 +1,5 @@
 open RResult;
 open TopTypes;
-open Infix;
 module J = JsonShort;
 
 let handlers:
@@ -15,31 +14,26 @@ let handlers:
         | Error(e) => Error(e)
         | Ok((package, {file, extra})) =>
           let position = Utils.cmtLocFromVscode(pos);
-          (
-            switch (
-              References.definitionForPos(
-                ~pathsForModule=package.pathsForModule,
-                ~file,
-                ~extra,
-                ~getUri=State.fileForUri(state),
-                ~getModule=State.fileForModule(state, ~package),
-                position,
-              )
-            ) {
-            | None => None
-            | Some((uri, loc)) =>
-              Some(
-                Ok((
-                  state,
-                  Json.Object([
-                    ("uri", Json.String(Uri2.toString(uri))),
-                    ("range", Protocol.rangeOfLoc(loc)),
-                  ]),
-                )),
-              );
-            }
-          )
-          |? Ok((state, Json.Null));
+          switch (
+            References.definitionForPos(
+              ~pathsForModule=package.pathsForModule,
+              ~file,
+              ~extra,
+              ~getUri=State.fileForUri(state),
+              ~getModule=State.fileForModule(state, ~package),
+              position,
+            )
+          ) {
+          | None => Ok((state, Json.Null))
+          | Some((uri, loc)) =>
+            Ok((
+              state,
+              Json.Object([
+                ("uri", Json.String(Uri2.toString(uri))),
+                ("range", Protocol.rangeOfLoc(loc)),
+              ]),
+            ))
+          }
         }
       }
     }
@@ -114,53 +108,44 @@ let handlers:
           switch (State.fileForUri(state, uri)) {
           | Error(e) => Error(e)
           | Ok((file, extra)) =>
-            Ok(
-              Infix.(
-                (
-                  switch (
-                    References.locForPos(~extra, Utils.cmtLocFromVscode(pos))
-                  ) {
-                  | None => None
-                  | Some((_, loc)) =>
-                    switch (
-                      References.allReferencesForLoc(
-                        ~pathsForModule=package.pathsForModule,
-                        ~file,
-                        ~extra,
-                        ~allModules=package.localModules,
-                        ~getUri=State.fileForUri(state),
-                        ~getModule=State.fileForModule(state, ~package),
-                        ~getExtra=State.extraForModule(state, ~package),
-                        loc,
-                      )
-                      |> toOptionAndLog
-                    ) {
-                    | None => None
-                    | Some(allReferences) =>
-                      Some((
-                        state,
-                        J.l(
-                          allReferences
-                          |> List.map(((fname, references)) => {
-                               let locs =
-                                 fname == uri
-                                   ? List.filter(
-                                       loc => !Protocol.locationContains(loc, pos),
-                                       references,
-                                     )
-                                   : references;
-                               locs
-                               |> List.map(loc => Protocol.locationOfLoc(~fname, loc));
-                             })
-                          |> List.concat,
-                        ),
-                      ));
-                    }
-                  }
+            switch (References.locForPos(~extra, Utils.cmtLocFromVscode(pos))) {
+            | None => Ok((state, J.null))
+            | Some((_, loc)) =>
+              switch (
+                References.allReferencesForLoc(
+                  ~pathsForModule=package.pathsForModule,
+                  ~file,
+                  ~extra,
+                  ~allModules=package.localModules,
+                  ~getUri=State.fileForUri(state),
+                  ~getModule=State.fileForModule(state, ~package),
+                  ~getExtra=State.extraForModule(state, ~package),
+                  loc,
                 )
-                |? (state, J.null)
-              ),
-            )
+                |> toOptionAndLog
+              ) {
+              | None => Ok((state, J.null))
+              | Some(allReferences) =>
+                Ok((
+                  state,
+                  J.l(
+                    allReferences
+                    |> List.map(((fname, references)) => {
+                        let locs =
+                          fname == uri
+                            ? List.filter(
+                                loc => !Protocol.locationContains(loc, pos),
+                                references,
+                              )
+                            : references;
+                        locs
+                        |> List.map(loc => Protocol.locationOfLoc(~fname, loc));
+                      })
+                    |> List.concat,
+                  ),
+                ));
+              }
+            };
           }
         }
       }
@@ -181,59 +166,51 @@ let handlers:
             switch (RJson.get("newName", params)) {
             | Error(e) => Error(e)
             | Ok(newName) =>
-              open Infix;
-              (
+              switch (References.locForPos(~extra, Utils.cmtLocFromVscode(pos))) {
+              | None => Ok((state, J.null))
+              | Some((_, loc)) =>
                 switch (
-                  References.locForPos(~extra, Utils.cmtLocFromVscode(pos))
+                  References.allReferencesForLoc(
+                    ~file,
+                    ~extra,
+                    ~pathsForModule=package.pathsForModule,
+                    ~allModules=package.localModules,
+                    ~getModule=State.fileForModule(state, ~package),
+                    ~getUri=State.fileForUri(state),
+                    ~getExtra=State.extraForModule(state, ~package),
+                    loc,
+                  )
+                  |> toOptionAndLog
                 ) {
-                | None => None
-                | Some((_, loc)) =>
-                  switch (
-                    References.allReferencesForLoc(
-                      ~file,
-                      ~extra,
-                      ~pathsForModule=package.pathsForModule,
-                      ~allModules=package.localModules,
-                      ~getModule=State.fileForModule(state, ~package),
-                      ~getUri=State.fileForUri(state),
-                      ~getExtra=State.extraForModule(state, ~package),
-                      loc,
-                    )
-                    |> toOptionAndLog
-                  ) {
-                  | None => None
-                  | Some(allReferences) =>
-                    Some(
-                      Ok((
-                        state,
-                        J.o([
-                          (
-                            "changes",
-                            J.o(
-                              allReferences
-                              |> List.map(((fname, references)) =>
-                                    (
-                                      fname |> Uri2.toString,
-                                      J.l(
-                                        references
-                                        |> List.map(loc =>
-                                            J.o([
-                                              ( "range", Protocol.rangeOfLoc(loc)),
-                                              ("newText", newName),
-                                            ])
-                                          ),
+                | None => Ok((state, J.null))
+                | Some(allReferences) =>
+                  Ok((
+                    state,
+                    J.o([
+                      (
+                        "changes",
+                        J.o(
+                          allReferences
+                          |> List.map(((fname, references)) =>
+                                (
+                                  fname |> Uri2.toString,
+                                  J.l(
+                                    references
+                                    |> List.map(loc =>
+                                        J.o([
+                                          ( "range", Protocol.rangeOfLoc(loc)),
+                                          ("newText", newName),
+                                        ])
                                       ),
-                                    )
                                   ),
-                            ),
-                          ),
-                        ]),
+                                )
+                              ),
+                        ),
                       ),
-                    ))
-                  }
+                    ]),
+                  ))
                 }
-              )
-              |? Ok((state, J.null))
+              }
             }
           }
         }
@@ -336,33 +313,28 @@ let handlers:
           switch (State.fileForUri(state, uri)) {
           | Error(e) => Error(e)
           | Ok((file, extra)) =>
-            {
-              let pos = Utils.cmtLocFromVscode(pos);
-              switch (References.locForPos(~extra, pos)) {
-              | None => None
-              | Some((location, loc)) =>
-                switch (
-                  Hover.newHover(
-                    ~file,
-                    ~getModule=State.fileForModule(state, ~package),
-                    loc,
-                  )
-                ) {
-                | None => None
-                | Some(text) =>
-                  Some(
-                    Ok((
-                      state,
-                      J.o([
-                        ("range", Protocol.rangeOfLoc(location)),
-                        ("contents", text |> Protocol.contentKind),
-                      ]),
-                    ),
-                  ))
-                }
-              };
-            }
-            |? Ok((state, J.null))
+            let pos = Utils.cmtLocFromVscode(pos);
+            switch (References.locForPos(~extra, pos)) {
+            | None => Ok((state, J.null))
+            | Some((location, loc)) =>
+              switch (
+                Hover.newHover(
+                  ~file,
+                  ~getModule=State.fileForModule(state, ~package),
+                  loc,
+                )
+              ) {
+              | None => Ok((state, J.null))
+              | Some(text) =>
+                Ok((
+                  state,
+                  J.o([
+                    ("range", Protocol.rangeOfLoc(location)),
+                    ("contents", text |> Protocol.contentKind),
+                  ]),
+                ))
+              }
+            };
           }
         }
       }

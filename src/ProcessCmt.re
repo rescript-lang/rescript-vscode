@@ -512,33 +512,32 @@ and forModule = (env, mod_desc, moduleName) =>
     let contents = forStructure(~env, structure.str_items);
     Structure(contents);
   | Tmod_functor(ident, argName, maybeType, resultExpr) =>
-    maybeType
-    |?< (
-      t =>
-        forTreeModuleType(~env, t)
-        |?< (
-          kind => {
-            let stamp = Ident.binding_time(ident);
-            let declared =
-              ProcessAttributes.newDeclared(
-                ~item=kind,
-                ~name=argName,
-                ~scope={
-                  Location.loc_start: t.mty_loc.loc_end,
-                  loc_end: env.scope.loc_end,
-                  loc_ghost: false,
-                },
-                ~extent=t.Typedtree.mty_loc,
-                ~stamp,
-                ~modulePath=NotVisible,
-                ~processDoc=env.processDoc,
-                false,
-                [],
-              );
-            Hashtbl.add(env.stamps.modules, stamp, declared);
-          }
-        )
-    );
+    switch (maybeType) {
+    | None => ()
+    | Some(t) =>
+      switch (forTreeModuleType(~env, t)) {
+      | None => ()
+      | Some(kind) =>
+        let stamp = Ident.binding_time(ident);
+        let declared =
+          ProcessAttributes.newDeclared(
+            ~item=kind,
+            ~name=argName,
+            ~scope={
+              Location.loc_start: t.mty_loc.loc_end,
+              loc_end: env.scope.loc_end,
+              loc_ghost: false,
+            },
+            ~extent=t.Typedtree.mty_loc,
+            ~stamp,
+            ~modulePath=NotVisible,
+            ~processDoc=env.processDoc,
+            false,
+            [],
+          );
+        Hashtbl.add(env.stamps.modules, stamp, declared);
+      }
+    };
     forModule(env, resultExpr.mod_desc, moduleName);
   | Tmod_apply(functor_, _arg, _coercion) =>
     forModule(env, functor_.mod_desc, moduleName)

@@ -299,7 +299,6 @@ let findDependencyFiles = (~debug, base, config) => {
                  let namespace = getNamespace(inner);
                  let directories =
                    getSourceDirectories(~includeDev=false, loc, inner);
-                 /* |! "No compiled base found"; */
                  switch (BuildSystem.getCompiledBase(loc)) {
                  | None => None
                  | Some(compiledBase) =>

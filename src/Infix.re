@@ -46,12 +46,6 @@ let fold = (o, d, f) =>
   | Some(v) => f(v)
   };
 
-let (|?<) = (o, fn) =>
-  switch (o) {
-  | None => ()
-  | Some(v) => fn(v)
-  };
-
 let logIfAbsent = (message, x) =>
   switch (x) {
   | None =>

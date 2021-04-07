@@ -311,109 +311,102 @@ let forLocalStamp =
     switch (Hashtbl.find_opt(extra.internalReferences, localStamp)) {
     | None => None
     | Some(local) =>
-      open Infix;
+      maybeLog("Checking externals: " ++ string_of_int(stamp));
       let externals =
-        {
-          maybeLog("Checking externals: " ++ string_of_int(stamp));
-          switch (Query.declaredForTip(~stamps=env.file.stamps, stamp, tip)) {
-          | None => None
-          | Some(declared) =>
-            if (isVisible(declared)) {
-              /**
-                if this file has a corresponding interface or implementation file
-                also find the references in that file.
-                */
-              let alternativeReferences =
-                (
-                  switch (
-                    alternateDeclared(
-                      ~pathsForModule,
-                      ~file,
-                      ~getUri,
-                      declared,
-                      tip,
-                    )
-                  ) {
-                  | None => None
-                  | Some((file, extra, {stamp})) =>
-                    switch (
-                      switch (tip) {
-                      | Constructor(name) =>
-                        Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
-                      | Field(name) =>
-                        Query.getField(file, stamp, name) |?>> (x => x.stamp)
-                      | _ => Some(stamp)
-                      }
-                    ) {
-                    | None => None
-                    | Some(localStamp) =>
-                      switch (Hashtbl.find_opt(extra.internalReferences, localStamp)) {
-                      | None => None
-                      | Some(local) => Some([(file.uri, local)])
-                      }
-                    }
-                  }
-                )
-                |? [];
+        switch (Query.declaredForTip(~stamps=env.file.stamps, stamp, tip)) {
+        | None => []
+        | Some(declared) =>
+          if (isVisible(declared)) {
+            /**
+              if this file has a corresponding interface or implementation file
+              also find the references in that file.
+              */
+            let alternativeReferences =
               switch (
-                pathFromVisibility(declared.modulePath, declared.name.txt)
+                alternateDeclared(
+                  ~pathsForModule,
+                  ~file,
+                  ~getUri,
+                  declared,
+                  tip,
+                )
               ) {
-              | None => None
-              | Some(path) =>
-                maybeLog("Now checking path " ++ pathToString(path));
-                let thisModuleName = file.moduleName;
-                let externals =
-                  allModules
-                  |> List.filter(name => name != file.moduleName)
-                  |> Utils.filterMap(name =>
-                    {
+              | None => []
+              | Some((file, extra, {stamp})) =>
+                switch (
+                  switch (tip) {
+                  | Constructor(name) =>
+                    Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
+                  | Field(name) =>
+                    Query.getField(file, stamp, name) |?>> (x => x.stamp)
+                  | _ => Some(stamp)
+                  }
+                ) {
+                | None => []
+                | Some(localStamp) =>
+                  switch (Hashtbl.find_opt(extra.internalReferences, localStamp)) {
+                  | None => []
+                  | Some(local) => [(file.uri, local)]
+                  }
+                }
+              };
+            switch (
+              pathFromVisibility(declared.modulePath, declared.name.txt)
+            ) {
+            | None => []
+            | Some(path) =>
+              maybeLog("Now checking path " ++ pathToString(path));
+              let thisModuleName = file.moduleName;
+              let externals =
+                allModules
+                |> List.filter(name => name != file.moduleName)
+                |> Utils.filterMap(name =>
+                  {
+                    switch (
+                      getModule(name)
+                      |> RResult.orError(
+                          "Could not get file for module " ++ name,
+                        )
+                    ) {
+                    | Error(e) => Error(e)
+                    | Ok(file) =>
                       switch (
-                        getModule(name)
+                        getExtra(name)
                         |> RResult.orError(
-                            "Could not get file for module " ++ name,
+                            "Could not get extra for module " ++ name,
                           )
                       ) {
                       | Error(e) => Error(e)
-                      | Ok(file) =>
+                      | Ok(extra) =>
                         switch (
-                          getExtra(name)
+                          Hashtbl.find_opt(extra.externalReferences, thisModuleName)
                           |> RResult.orError(
-                              "Could not get extra for module " ++ name,
+                              "No references in "
+                              ++ name
+                              ++ " for "
+                              ++ thisModuleName,
                             )
                         ) {
                         | Error(e) => Error(e)
-                        | Ok(extra) =>
-                          switch (
-                            Hashtbl.find_opt(extra.externalReferences, thisModuleName)
-                            |> RResult.orError(
-                                "No references in "
-                                ++ name
-                                ++ " for "
-                                ++ thisModuleName,
-                              )
-                          ) {
-                          | Error(e) => Error(e)
-                          | Ok(refs) =>
-                            let refs =
-                              refs
-                              |> Utils.filterMap(((p, t, l)) =>
-                                  p == path && t == tip ? Some(l) : None
-                                );
-                            Ok((file.uri, refs));
-                          }
+                        | Ok(refs) =>
+                          let refs =
+                            refs
+                            |> Utils.filterMap(((p, t, l)) =>
+                                p == path && t == tip ? Some(l) : None
+                              );
+                          Ok((file.uri, refs));
                         }
                       }
-                    } |> RResult.toOptionAndLog
-                );
-                Some(alternativeReferences @ externals);
-              };
-            } else {
-              maybeLog("Not visible");
-              Some([]);
-            }
-          };
-        }
-        |? [];
+                    }
+                  } |> RResult.toOptionAndLog
+              );
+              alternativeReferences @ externals;
+            };
+          } else {
+            maybeLog("Not visible");
+            [];
+          }
+        };
       Some([(file.uri, local), ...externals]);
     }
   };

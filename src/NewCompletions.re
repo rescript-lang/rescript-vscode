@@ -1,7 +1,7 @@
 open SharedTypes;
 
-open Infix;
 let showConstructor = ({cname: {txt}, args, res}) => {
+  open Infix;
   txt
   ++ (
     args == []
@@ -500,7 +500,6 @@ let getItems =
          );
     locallyDefinedValues @ valuesFromOpens @ localModuleNames;
   | multiple =>
-    open Infix;
     Log.log("Completing for " ++ String.concat("<.>", multiple));
 
     switch (determineCompletion(multiple)) {
@@ -516,65 +515,61 @@ let getItems =
       {
         Log.log("suffix :" ++ suffix);
         switch (target) {
-        | [] => None
+        | [] => []
         | [first, ...rest] =>
           Log.log("-------------- Looking for " ++ first);
           switch (Query.findInScope(pos, first, env.file.stamps.values)) {
-          | None => None
+          | None => []
           | Some(declared) =>
             Log.log("Found it! " ++ declared.name.txt);
             switch (declared.item |> Shared.digConstructor) {
-            | None => None
+            | None => []
             | Some(path) =>
               switch (Hover.digConstructor(~env, ~getModule, path)) {
-              | None => None
+              | None => []
               | Some((env, typ)) =>
                 switch (
                   rest
-                  |> List.fold_left(
-                       (current, name) =>
-                         switch (current) {
-                         | None => None
-                         | Some((env, typ)) =>
-                           switch (typ.item.SharedTypes.Type.kind) {
-                           | Record(fields) =>
-                             switch (
-                               fields
-                               |> List.find_opt(f => f.fname.txt == name)
-                             ) {
-                             | None => None
-                             | Some(attr) =>
-                               Log.log("Found attr " ++ name);
-                               switch (attr.typ |> Shared.digConstructor) {
-                               | None => None
-                               | Some(path) =>
-                                 Hover.digConstructor(~env, ~getModule, path)
-                               };
-                             }
-                           | _ => None
-                           }
-                         },
-                       Some((env, typ)),
-                     )
+                  |> List.fold_left( (current, name) =>
+                      switch (current) {
+                      | None => None
+                      | Some((env, typ)) =>
+                        switch (typ.item.SharedTypes.Type.kind) {
+                        | Record(fields) =>
+                          switch (
+                            fields
+                            |> List.find_opt(f => f.fname.txt == name)
+                          ) {
+                          | None => None
+                          | Some(attr) =>
+                            Log.log("Found attr " ++ name);
+                            switch (attr.typ |> Shared.digConstructor) {
+                            | None => None
+                            | Some(path) =>
+                              Hover.digConstructor(~env, ~getModule, path)
+                            };
+                          }
+                        | _ => None
+                        }
+                      },
+                    Some((env, typ)),
+                  )
                 ) {
-                | None => None
+                | None => []
                 | Some((env, typ)) =>
                   switch (typ.item.kind) {
                   | Record(fields) =>
-                    Some(
-                      fields
-                      |> Utils.filterMap(f =>
-                           if (Utils.startsWith(f.fname.txt, suffix)) {
-                             Some((
-                               env.file.uri,
-                               {...emptyDeclared(f.fname.txt), item: Field(f, typ)},
-                             ));
-                           } else {
-                             None;
-                           }
-                         ),
+                    fields |> Utils.filterMap(f =>
+                      if (Utils.startsWith(f.fname.txt, suffix)) {
+                        Some((
+                          env.file.uri,
+                          {...emptyDeclared(f.fname.txt), item: Field(f, typ)},
+                        ));
+                      } else {
+                        None;
+                      }
                     )
-                  | _ => None
+                  | _ => []
                   }
                 }
               }
@@ -582,7 +577,6 @@ let getItems =
           };
         };
       }
-      |? []
     | `AbsAttribute(path) =>
       switch (getEnvWithOpens(~pos, ~env, ~getModule, ~opens, path)) {
       | None => []
