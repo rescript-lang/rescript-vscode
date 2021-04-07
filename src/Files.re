@@ -52,7 +52,7 @@ let relpath = (base, path) =>
   };
 
 let maybeStat = path =>
-  try (Some(Unix.stat(path))) {
+  try(Some(Unix.stat(path))) {
   | Unix.Unix_error(Unix.ENOENT, _, _) => None
   };
 
@@ -100,7 +100,7 @@ let ifExists = path => exists(path) ? Some(path) : None;
 
 let readDirectory = dir => {
   let maybeGet = handle =>
-    try (Some(Unix.readdir(handle))) {
+    try(Some(Unix.readdir(handle))) {
     | End_of_file => None
     };
   let rec loop = handle =>
@@ -119,16 +119,6 @@ let readDirectory = dir => {
   | handle => loop(handle)
   };
 };
-
-let rec mkdirp = dest =>
-  if (!exists(dest)) {
-    let parent = Filename.dirname(dest);
-    mkdirp(parent);
-    Unix.mkdir(dest, 0o740);
-    if (!exists(dest)) {
-      failwith("Unable to create " ++ dest);
-    };
-  };
 
 let rec collectDirs = path => {
   switch (maybeStat(path)) {

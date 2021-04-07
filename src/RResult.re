@@ -14,11 +14,6 @@ let toOptionAndLog = err =>
   };
 
 module InfixResult = {
-  let (|?>) = (a, fn) =>
-    switch (a) {
-    | Ok(a) => fn(a)
-    | Error(e) => Error(e)
-    };
   let (|?>>) = (a, fn) =>
     switch (a) {
     | Ok(a) => Ok(fn(a))

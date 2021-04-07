@@ -1,5 +1,3 @@
-let debug = ref(false);
-
 let parseMerlin = text => {
   let lines = Str.split(Str.regexp_string("\n"), text);
   List.fold_left(
