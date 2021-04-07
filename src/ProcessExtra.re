@@ -351,13 +351,12 @@ module F =
       addLocation(loc, Explanation(doc))
     | Tstr_include({incl_mod: expr}) => handle_module_expr(expr.mod_desc)
     | Tstr_module({mb_expr}) => handle_module_expr(mb_expr.mod_desc)
-    | Tstr_open({open_path, open_txt: {txt, loc} as l}) =>
+    | Tstr_open({open_path, open_txt: {txt, loc}}) =>
       /* Log.log("Have an open here"); */
       maybeAddUse(open_path, txt, loc, Module);
       let tracker = {
         path: open_path,
         loc,
-        ident: l,
         used: [],
         extent: {
           loc_ghost: true,
@@ -472,11 +471,11 @@ module F =
     expression.exp_extra
     |> List.iter(((e, eloc, _)) =>
          switch (e) {
-         | Texp_open(_, path, ident, _) =>
+         | Texp_open(_, path, _ident, _) =>
            Hashtbl.add(
              extra.opens,
              eloc,
-             {path, ident, loc: eloc, extent: expression.exp_loc, used: []},
+             {path, loc: eloc, extent: expression.exp_loc, used: []},
            )
          | _ => ()
          }

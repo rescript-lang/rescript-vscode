@@ -23,31 +23,18 @@ let makePathsForModule =
       dependencyModules: list((string, SharedTypes.paths)),
     ) => {
   let pathsForModule = Hashtbl.create(30);
-  let nameForPath = Hashtbl.create(30);
-  let add = (name, paths) =>
-    switch (paths) {
-    | SharedTypes.Intf(_, path) => Hashtbl.replace(nameForPath, path, name)
-    | SharedTypes.Impl(_, Some(path)) =>
-      Hashtbl.replace(nameForPath, path, name)
-    | SharedTypes.IntfAndImpl(_, intf, _, impl) =>
-      Hashtbl.replace(nameForPath, intf, name);
-      Hashtbl.replace(nameForPath, impl, name);
-    | _ => ()
-    };
 
   dependencyModules
   |> List.iter(((modName, paths)) => {
-       add(modName, paths);
-       Hashtbl.replace(pathsForModule, modName, paths);
+       Hashtbl.replace(pathsForModule, modName, paths)
      });
 
   localModules
   |> List.iter(((modName, paths)) => {
-       add(modName, paths);
-       Hashtbl.replace(pathsForModule, modName, paths);
+       Hashtbl.replace(pathsForModule, modName, paths)
      });
 
-  (pathsForModule, nameForPath);
+  pathsForModule;
 };
 
 let newBsPackage = rootPath =>
@@ -76,9 +63,14 @@ let newBsPackage = rootPath =>
           {
             let namespace = FindFiles.getNamespace(config);
             let localSourceDirs =
-              FindFiles.getSourceDirectories(~includeDev=true, rootPath, config);
+              FindFiles.getSourceDirectories(
+                ~includeDev=true,
+                rootPath,
+                config,
+              );
             Log.log(
-              "Got source directories " ++ String.concat(" - ", localSourceDirs),
+              "Got source directories "
+              ++ String.concat(" - ", localSourceDirs),
             );
             let localModules =
               FindFiles.findProjectFiles(
@@ -89,8 +81,8 @@ let newBsPackage = rootPath =>
                 compiledBase,
               );
             /* |> List.map(((name, paths)) => (switch (namespace) {
-            | None => name
-            | Some(n) => name ++ "-" ++ n }, paths)); */
+               | None => name
+               | Some(n) => name ++ "-" ++ n }, paths)); */
             Log.log(
               "-- All local modules found: "
               ++ string_of_int(List.length(localModules)),
@@ -105,7 +97,7 @@ let newBsPackage = rootPath =>
                  };
                });
 
-            let (pathsForModule, nameForPath) =
+            let pathsForModule =
               makePathsForModule(localModules, dependencyModules);
 
             let opens =
@@ -113,11 +105,15 @@ let newBsPackage = rootPath =>
               | None => []
               | Some(namespace) =>
                 let cmt = compiledBase /+ namespace ++ ".cmt";
-                Log.log("############ Namespaced as " ++ namespace ++ " at " ++ cmt);
+                Log.log(
+                  "############ Namespaced as " ++ namespace ++ " at " ++ cmt,
+                );
                 Hashtbl.add(pathsForModule, namespace, Impl(cmt, None));
                 [FindFiles.nameSpaceToName(namespace)];
               };
-            Log.log("Dependency dirs " ++ String.concat(" ", dependencyDirectories));
+            Log.log(
+              "Dependency dirs " ++ String.concat(" ", dependencyDirectories),
+            );
 
             let opens = {
               let flags =
@@ -142,14 +138,14 @@ let newBsPackage = rootPath =>
               opens;
             };
 
-            let interModuleDependencies = Hashtbl.create(List.length(localModules));
+            let interModuleDependencies =
+              Hashtbl.create(List.length(localModules));
 
             {
               rootPath,
               localModules: localModules |> List.map(fst),
               dependencyModules: dependencyModules |> List.map(fst),
               pathsForModule,
-              nameForPath,
               opens,
               namespace,
               interModuleDependencies,

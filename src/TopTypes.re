@@ -11,20 +11,17 @@ type package = {
   interModuleDependencies: Hashtbl.t(moduleName, list(moduleName)),
   dependencyModules: list(moduleName),
   pathsForModule: Hashtbl.t(moduleName, SharedTypes.paths),
-  nameForPath: Hashtbl.t(filePath, moduleName),
   namespace: option(string),
   opens: list(string),
 };
 
 type state = {
-  documentText: Hashtbl.t(uri, string),
   packagesByRoot: Hashtbl.t(string, package),
   rootForUri: Hashtbl.t(uri, string),
   cmtCache: Hashtbl.t(filePath, (float, SharedTypes.file)),
 };
 
 let empty = () => {
-  documentText: Hashtbl.create(5),
   packagesByRoot: Hashtbl.create(1),
   rootForUri: Hashtbl.create(30),
   cmtCache: Hashtbl.create(30),
