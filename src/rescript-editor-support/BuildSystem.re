@@ -14,10 +14,7 @@ let getBsPlatformDir = rootPath => {
     );
   let result =
     if (result == None) {
-      ModuleResolution.resolveNodeModulePath(
-        ~startPath=rootPath,
-        "rescript",
-      );
+      ModuleResolution.resolveNodeModulePath(~startPath=rootPath, "rescript");
     } else {
       result;
     };

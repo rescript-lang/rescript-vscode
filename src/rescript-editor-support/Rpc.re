@@ -42,7 +42,7 @@ let readMessage = input => {
     let raw = Buffer.contents(buffer);
     Log.log("Read message " ++ raw);
     let json =
-      try(Json.parse(raw)) {
+      try (Json.parse(raw)) {
       | Failure(message) =>
         failwith("Unable to parse message " ++ raw ++ " as json: " ++ message)
       | err =>

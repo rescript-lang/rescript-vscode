@@ -490,7 +490,7 @@ let getItems =
     /* TODO complete the namespaced name too */
     let localModuleNames =
       allModules
-      |> Utils.filterMap(name => {
+      |> Utils.filterMap(name =>
            /* Log.log("Checking " ++ name); */
            Utils.startsWith(name, suffix) && !String.contains(name, '-')
              ? Some((
@@ -498,7 +498,7 @@ let getItems =
                  {...emptyDeclared(name), item: FileModule(name)},
                ))
              : None
-         });
+         );
     locallyDefinedValues @ valuesFromOpens @ localModuleNames;
   | multiple =>
     open Infix;

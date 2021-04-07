@@ -89,7 +89,7 @@ let filterDuplicates = cmts => {
        }
      );
   cmts
-  |> List.filter(path => {
+  |> List.filter(path =>
        !(
          (
            Filename.check_suffix(path, ".re")
@@ -98,7 +98,7 @@ let filterDuplicates = cmts => {
          )
          && Hashtbl.mem(intfs, getName(path))
        )
-     });
+     );
 };
 
 let nameSpaceToName = n =>

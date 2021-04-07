@@ -1,4 +1,3 @@
-
 open Json;
 let o = o => Object(o);
 let s = s => String(s);

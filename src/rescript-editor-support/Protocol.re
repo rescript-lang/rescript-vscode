@@ -35,10 +35,7 @@ let locationOfLoc =
     | Some(x) => x
     | None => Uri2.fromPath(pos_fname)
     };
-  J.o([
-    ("range", rangeOfLoc(loc)),
-    ("uri", J.s(Uri2.toString(uri))),
-  ]);
+  J.o([("range", rangeOfLoc(loc)), ("uri", J.s(Uri2.toString(uri)))]);
 };
 
 let locationContains = ({Location.loc_start, loc_end}, pos) =>
