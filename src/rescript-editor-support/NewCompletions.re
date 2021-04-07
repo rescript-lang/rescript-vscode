@@ -491,7 +491,6 @@ let getItems =
     let localModuleNames =
       allModules
       |> Utils.filterMap(name =>
-           /* Log.log("Checking " ++ name); */
            Utils.startsWith(name, suffix) && !String.contains(name, '-')
              ? Some((
                  env.file.uri,
@@ -610,40 +609,78 @@ let mkItem = (~name, ~kind, ~detail, ~deprecated, ~docstring, ~uri, ~pos_lnum) =
 
 let processCompletable =
     (
+      ~findItems,
       ~full,
       ~package,
-      ~state,
       ~pos,
       ~rawOpens,
-      ~allModules,
       completable: PartialParser.completable,
     ) =>
   switch (completable) {
-  | Cjsx(componentName, id) =>
-    ["first", "second"]
-    |> List.map(name =>
-         mkItem(
-           ~name=name ++ " " ++ componentName ++ " " ++ id,
-           ~kind=4,
-           ~deprecated=None,
-           ~detail="",
-           ~docstring=[],
-           ~uri=full.file.uri,
-           ~pos_lnum=fst(pos),
-         )
-       )
+  | Cjsx(componentPath, prefix) =>
+    let items = findItems(~exact=true, componentPath @ ["make"]);
+    let labels = {
+      switch (items) {
+      | [(_uri, {SharedTypes.item: Value(typ)}), ..._] =>
+        let rec getFields = (texp: Types.type_expr) =>
+          switch (texp.desc) {
+          | Tfield(name, _, t1, t2) =>
+            let fields = t2 |> getFields;
+            [(name, t1), ...fields];
+
+          | Tlink(te) => te |> getFields
+          | Tvar(None) => []
+          | _ => []
+          };
+        let rec getLabels = (t: Types.type_expr) =>
+          switch (t.desc) {
+          | Tlink(t1)
+          | Tsubst(t1) => getLabels(t1)
+          | Tarrow(
+              Nolabel,
+              {
+                desc:
+                  Tconstr /* Js.t */(_, [{desc: Tobject(tObj, _)}], _) |
+                  Tobject(tObj, _),
+              },
+              _,
+              _,
+            ) =>
+            getFields(tObj)
+          | _ => []
+          };
+        typ |> getLabels;
+      | _ => []
+      };
+    };
+
+    let mkLabel_ = (name, typString) =>
+      mkItem(
+        ~name,
+        ~kind=4,
+        ~deprecated=None,
+        ~detail=typString,
+        ~docstring=[],
+        ~uri=full.file.uri,
+        ~pos_lnum=fst(pos),
+      );
+    let mkLabel = ((name, typ)) =>
+      mkLabel_(name, typ |> Shared.typeToString);
+    let keyLabel = mkLabel_("key", "string");
+
+    if (labels == []) {
+      [];
+    } else {
+      [
+        keyLabel,
+        ...labels
+           |> List.filter(((name, _t)) => Utils.startsWith(name, prefix))
+           |> List.map(mkLabel),
+      ];
+    };
 
   | Cpath(parts) =>
-    let items =
-      getItems(
-        ~full,
-        ~package,
-        ~rawOpens,
-        ~getModule=State.fileForModule(state, ~package),
-        ~allModules,
-        ~pos,
-        ~parts,
-      );
+    let items = parts |> findItems(~exact=false);
     /* TODO(#107): figure out why we're getting duplicates. */
     items
     |> Utils.dedup
@@ -671,19 +708,8 @@ let processCompletable =
        );
 
   | Cpipe(s) =>
-    let getItems = parts =>
-      getItems(
-        ~full,
-        ~package,
-        ~rawOpens,
-        ~getModule=State.fileForModule(state, ~package),
-        ~allModules,
-        ~pos,
-        ~parts,
-      );
-
     let getLhsType = (~lhs, ~partialName) => {
-      switch (getItems([lhs])) {
+      switch ([lhs] |> findItems(~exact=true)) {
       | [(_uri, {SharedTypes.item: Value(t)}), ..._] =>
         Some((t, partialName))
       | _ => None
@@ -701,7 +727,7 @@ let processCompletable =
 
     let removePackageOpens = modulePath =>
       switch (modulePath) {
-      | [toplevel, ...rest] when package.opens |> List.mem(toplevel) => rest
+      | [toplevel, ...rest] when package.TopTypes.opens |> List.mem(toplevel) => rest
       | _ => modulePath
       };
 
@@ -756,7 +782,7 @@ let processCompletable =
           modulePathMinusOpens == ""
             ? name : modulePathMinusOpens ++ "." ++ name;
         let parts = modulePath @ [partialName];
-        let items = getItems(parts);
+        let items = parts |> findItems(~exact=false);
         items
         |> List.filter(((_, {item})) =>
              switch (item) {
@@ -839,19 +865,8 @@ let processCompletable =
     |> List.map(mkDecorator);
 
   | Clabel(funPath, prefix) =>
-    let getItems = parts =>
-      getItems(
-        ~full,
-        ~package,
-        ~rawOpens,
-        ~getModule=State.fileForModule(state, ~package),
-        ~allModules,
-        ~pos,
-        ~parts,
-      );
-
     let labels = {
-      switch (getItems(funPath)) {
+      switch (funPath |> findItems(~exact=true)) {
       | [(_uri, {SharedTypes.item: Value(typ)}), ..._] =>
         let rec getLabels = (t: Types.type_expr) =>
           switch (t.desc) {
@@ -899,15 +914,28 @@ let computeCompletions = (~full, ~maybeText, ~package, ~pos, ~state) => {
           let rawOpens = PartialParser.findOpens(text, offset);
           let allModules =
             package.TopTypes.localModules @ package.dependencyModules;
+          let findItems = (~exact, parts) => {
+            let items =
+              getItems(
+                ~full,
+                ~package,
+                ~rawOpens,
+                ~getModule=State.fileForModule(state, ~package),
+                ~allModules,
+                ~pos,
+                ~parts,
+              );
+            switch (parts |> List.rev) {
+            | [last, ..._] when exact =>
+              items
+              |> List.filter(((_uri, {SharedTypes.name: {txt}})) =>
+                   txt == last
+                 )
+            | _ => items
+            };
+          };
           completable
-          |> processCompletable(
-               ~full,
-               ~package,
-               ~state,
-               ~pos,
-               ~rawOpens,
-               ~allModules,
-             );
+          |> processCompletable(~findItems, ~full, ~package, ~pos, ~rawOpens);
         }
       }
     };

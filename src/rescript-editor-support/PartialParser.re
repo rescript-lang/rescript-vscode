@@ -170,7 +170,7 @@ type completable =
   | Cdecorator(string) // e.g. @module
   | Clabel(list(string), string) // e.g. (["M", "foo"], "label") for M.foo(...~label...)
   | Cpath(list(string)) // e.g. ["M", "foo"] for M.foo
-  | Cjsx(string, string) // E.g. ["M", "id"] for <M ... id
+  | Cjsx(list(string), string) // E.g. (["M", "Comp"], "id") for <M.Comp ... id
   | Cpipe(string); // E.g. "x->foo"
 
 let findCompletable = (text, offset) => {
@@ -186,10 +186,11 @@ let findCompletable = (text, offset) => {
       let parts = Str.split(Str.regexp_string("."), s);
       let parts = s.[len - 1] == '.' ? parts @ [""] : parts;
       switch (parts) {
-      | [id] when String.lowercase_ascii(id) == id && false /* TODO */ =>
+      | [id] when String.lowercase_ascii(id) == id =>
         switch (findJsxContext(text, offset - len - 1)) {
         | None => Cpath(parts)
-        | Some(componentName) => Cjsx(componentName, id)
+        | Some(componentName) =>
+          Cjsx(Str.split(Str.regexp_string("."), componentName), id)
         }
       | _ => Cpath(parts)
       };
