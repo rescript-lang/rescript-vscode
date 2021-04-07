@@ -30,7 +30,8 @@ let getBsPlatformDir = rootPath => {
 let getCompiledBase = root => {
   Files.ifExists(root /+ "lib" /+ "bs");
 };
-let getStdlib = base => {
-  let%try_wrap bsPlatformDir = getBsPlatformDir(base);
-  bsPlatformDir /+ "lib" /+ "ocaml";
-};
+let getStdlib = base =>
+  switch (getBsPlatformDir(base)) {
+  | Error(e) => Error(e)
+  | Ok(bsPlatformDir) => Ok(bsPlatformDir /+ "lib" /+ "ocaml")
+  };
