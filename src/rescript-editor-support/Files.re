@@ -52,7 +52,7 @@ let relpath = (base, path) =>
   };
 
 let maybeStat = path =>
-  try(Some(Unix.stat(path))) {
+  try (Some(Unix.stat(path))) {
   | Unix.Unix_error(Unix.ENOENT, _, _) => None
   };
 
@@ -100,7 +100,7 @@ let ifExists = path => exists(path) ? Some(path) : None;
 
 let readDirectory = dir => {
   let maybeGet = handle =>
-    try(Some(Unix.readdir(handle))) {
+    try (Some(Unix.readdir(handle))) {
     | End_of_file => None
     };
   let rec loop = handle =>

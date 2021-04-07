@@ -44,9 +44,9 @@ let findClosestMatchingOpen = (opens, path, ident, loc) => {
       opens,
       [],
     )
-    |> List.sort((a: SharedTypes.openTracker, b) => {
+    |> List.sort((a: SharedTypes.openTracker, b) =>
          b.loc.loc_start.pos_cnum - a.loc.loc_start.pos_cnum
-       });
+       );
 
   switch (matching) {
   | [] => None
@@ -492,12 +492,12 @@ module F =
         expression.exp_type,
         fields
         |> Array.to_list
-        |> Utils.filterMap(((desc, item)) => {
+        |> Utils.filterMap(((desc, item)) =>
              switch (item) {
              | Overridden(loc, _) => Some((loc, desc, ()))
              | _ => None
              }
-           }),
+           ),
       )
     | Texp_constant(constant) =>
       addLocation(expression.exp_loc, Constant(constant))

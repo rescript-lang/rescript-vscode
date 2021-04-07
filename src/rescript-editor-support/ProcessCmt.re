@@ -199,7 +199,7 @@ and forSignatureType = (env, signature) => {
   let exported = initExported();
   let topLevel =
     List.fold_right(
-      (item, items) => {forSignatureTypeItem(env, exported, item) @ items},
+      (item, items) => forSignatureTypeItem(env, exported, item) @ items,
       signature,
       [],
     );
@@ -355,7 +355,7 @@ let forSignatureItem = (~env, ~exported: exported, item) => {
       };
     let topLevel =
       List.fold_right(
-        (item, items) => {forSignatureTypeItem(env, exported, item) @ items},
+        (item, items) => forSignatureTypeItem(env, exported, item) @ items,
         incl_type,
         [],
       );
@@ -460,7 +460,7 @@ let rec forItem = (~env, ~exported: exported, item) =>
       };
     let topLevel =
       List.fold_right(
-        (item, items) => {forSignatureTypeItem(env, exported, item) @ items},
+        (item, items) => forSignatureTypeItem(env, exported, item) @ items,
         incl_type,
         [],
       );
@@ -566,7 +566,7 @@ and forStructure = (~env, items) => {
   let exported = initExported();
   let topLevel =
     List.fold_right(
-      (item, results) => {forItem(~env, ~exported, item) @ results},
+      (item, results) => forItem(~env, ~exported, item) @ results,
       items,
       [],
     );
