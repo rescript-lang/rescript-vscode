@@ -72,14 +72,18 @@ let localReferencesForLoc = (~file, ~extra, loc) =>
   | LModule(LocalReference(stamp, tip) | Definition(stamp, tip))
   | Typed(_, LocalReference(stamp, tip) | Definition(stamp, tip)) =>
     open Infix;
-    let%opt localStamp =
+    switch (
       switch (tip) {
       | Constructor(name) =>
         Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
       | Field(name) => Query.getField(file, stamp, name) |?>> (x => x.stamp)
       | _ => Some(stamp)
-      };
-    Hashtbl.find_opt(extra.internalReferences, localStamp);
+      }
+    ) {
+    | None => None
+    | Some(localStamp) =>
+      Hashtbl.find_opt(extra.internalReferences, localStamp)
+    }
   | LModule(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
     switch (Hashtbl.find_opt(extra.externalReferences, moduleName)) {
@@ -98,11 +102,15 @@ let definedForLoc = (~file, ~getModule, locKind) => {
   let inner = (~file, stamp, tip) => {
     switch (tip) {
     | Constructor(name) =>
-      let%opt constructor = Query.getConstructor(file, stamp, name);
-      Some(([], `Constructor(constructor)));
+      switch (Query.getConstructor(file, stamp, name)) {
+      | None => None
+      | Some(constructor) => Some(([], `Constructor(constructor)))
+      }
     | Field(name) =>
-      let%opt field = Query.getField(file, stamp, name);
-      Some(([], `Field(field)));
+      switch (Query.getField(file, stamp, name)) {
+      | None => None
+      | Some(field) => Some(([], `Field(field)))
+      }
     | _ =>
       maybeLog(
         "Trying for declared "
@@ -112,9 +120,10 @@ let definedForLoc = (~file, ~getModule, locKind) => {
         ++ " in file "
         ++ Uri2.toString(file.uri),
       );
-      let%opt declared =
-        Query.declaredForTip(~stamps=file.stamps, stamp, tip);
-      Some((declared.docstring, `Declared));
+      switch (Query.declaredForTip(~stamps=file.stamps, stamp, tip)) {
+      | None => None
+      | Some(declared) => Some((declared.docstring, `Declared))
+      };
     };
   };
 
@@ -125,62 +134,95 @@ let definedForLoc = (~file, ~getModule, locKind) => {
   | GlobalReference(moduleName, path, tip) =>
     {
       maybeLog("Getting global " ++ moduleName);
-      let%try file =
+      switch (
         getModule(moduleName)
-        |> RResult.orError("Cannot get module " ++ moduleName);
-      let env = Query.fileEnv(file);
-      let%try (env, name) =
-        Query.resolvePath(~env, ~path, ~getModule)
-        |> RResult.orError("Cannot resolve path " ++ pathToString(path));
-      let%try stamp =
-        Query.exportedForTip(~env, name, tip)
-        |> RResult.orError(
-             "Exported not found for tip "
-             ++ name
-             ++ " > "
-             ++ tipToString(tip),
-           );
-      maybeLog("Getting for " ++ string_of_int(stamp) ++ " in " ++ name);
-      let%try res =
-        inner(~file=env.file, stamp, tip)
-        |> RResult.orError("could not get defined");
-      maybeLog("Yes!! got it");
-      Ok(res);
+        |> RResult.orError("Cannot get module " ++ moduleName)
+      ) {
+      | Error(e) => Error(e)
+      | Ok(file) =>
+        let env = Query.fileEnv(file);
+        switch (
+          Query.resolvePath(~env, ~path, ~getModule)
+          |> RResult.orError("Cannot resolve path " ++ pathToString(path))
+        ) {
+        | Error(e) => Error(e)
+        | Ok((env, name)) =>
+          switch (
+            Query.exportedForTip(~env, name, tip)
+            |> RResult.orError(
+                 "Exported not found for tip "
+                 ++ name
+                 ++ " > "
+                 ++ tipToString(tip),
+               )
+          ) {
+          | Error(e) => Error(e)
+          | Ok(stamp) =>
+            maybeLog(
+              "Getting for " ++ string_of_int(stamp) ++ " in " ++ name,
+            );
+            switch (
+              inner(~file=env.file, stamp, tip)
+              |> RResult.orError("could not get defined")
+            ) {
+            | Error(e) => Error(e)
+            | Ok(res) =>
+              maybeLog("Yes!! got it");
+              Ok(res);
+            };
+          }
+        };
+      };
     }
     |> RResult.toOptionAndLog
   };
 };
 
 let alternateDeclared = (~file, ~pathsForModule, ~getUri, declared, tip) => {
-  let%opt paths = Hashtbl.find_opt(pathsForModule, file.moduleName);
-  maybeLog("paths for " ++ file.moduleName);
-  switch (paths) {
-  | IntfAndImpl(_, intf, _, impl) =>
-    maybeLog("Have both!!");
-    let intfUri = Uri2.fromPath(intf);
-    let implUri = Uri2.fromPath(impl);
-    if (intfUri == file.uri) {
-      let%opt (file, extra) = getUri(implUri) |> RResult.toOptionAndLog;
-      let%opt declared =
-        Query.declaredForExportedTip(
-          ~stamps=file.stamps,
-          ~exported=file.contents.exported,
-          declared.name.txt,
-          tip,
-        );
-      Some((file, extra, declared));
-    } else {
-      let%opt (file, extra) = getUri(intfUri) |> RResult.toOptionAndLog;
-      let%opt declared =
-        Query.declaredForExportedTip(
-          ~stamps=file.stamps,
-          ~exported=file.contents.exported,
-          declared.name.txt,
-          tip,
-        );
-      Some((file, extra, declared));
+  switch (Hashtbl.find_opt(pathsForModule, file.moduleName)) {
+  | None => None
+  | Some(paths) =>
+    maybeLog("paths for " ++ file.moduleName);
+    switch (paths) {
+    | IntfAndImpl(_, intf, _, impl) =>
+      maybeLog("Have both!!");
+      let intfUri = Uri2.fromPath(intf);
+      let implUri = Uri2.fromPath(impl);
+      if (intfUri == file.uri) {
+        switch (getUri(implUri) |> RResult.toOptionAndLog) {
+        | None => None
+        | Some((file, extra)) =>
+          switch (
+            Query.declaredForExportedTip(
+              ~stamps=file.stamps,
+              ~exported=file.contents.exported,
+              declared.name.txt,
+              tip,
+            )
+          ) {
+          | None => None
+          | Some(declared) => Some((file, extra, declared))
+          }
+        };
+      } else {
+        switch (getUri(intfUri) |> RResult.toOptionAndLog) {
+        | None => None
+        | Some((file, extra)) =>
+          switch (
+            Query.declaredForExportedTip(
+              ~stamps=file.stamps,
+              ~exported=file.contents.exported,
+              declared.name.txt,
+              tip,
+            )
+          ) {
+          | None => None
+          | Some(declared) => Some((file, extra, declared))
+          }
+        };
+      };
+    | _ => None
     };
-  | _ => None
   };
 };
 
@@ -193,26 +235,50 @@ let resolveModuleReference =
     switch (Query.fromCompilerPath(~env, path)) {
     | `Not_found => None
     | `Exported(env, name) =>
-      let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
-      let%opt md = Hashtbl.find_opt(env.file.stamps.modules, stamp);
-      Some((env.file, Some(md)));
-    /* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) */
+      switch (Hashtbl.find_opt(env.exported.modules, name)) {
+      | None => None
+      | Some(stamp) =>
+        switch (Hashtbl.find_opt(env.file.stamps.modules, stamp)) {
+        | None => None
+        | Some(md) =>
+          Some((env.file, Some(md)))
+          /* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) */
+        }
+      }
     | `Global(moduleName, path) =>
-      let%opt file = getModule(moduleName);
-      let env = Query.fileEnv(file);
-      let%opt (env, name) = Query.resolvePath(~env, ~getModule, ~path);
-      let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
-      let%opt md = Hashtbl.find_opt(env.file.stamps.modules, stamp);
-      Some((env.file, Some(md)));
-    /* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) */
+      switch (getModule(moduleName)) {
+      | None => None
+      | Some(file) =>
+        let env = Query.fileEnv(file);
+        switch (Query.resolvePath(~env, ~getModule, ~path)) {
+        | None => None
+        | Some((env, name)) =>
+          switch (Hashtbl.find_opt(env.exported.modules, name)) {
+          | None => None
+          | Some(stamp) =>
+            switch (Hashtbl.find_opt(env.file.stamps.modules, stamp)) {
+            | None => None
+            | Some(md) =>
+              Some((env.file, Some(md)))
+              /* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) */
+            }
+          }
+        };
+      }
     | `Stamp(stamp) =>
-      let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
-      Some((file, Some(md)));
-    /* Some((file.uri, validateLoc(md.name.loc, md.extentLoc))) */
+      switch (Hashtbl.find_opt(file.stamps.modules, stamp)) {
+      | None => None
+      | Some(md) =>
+        Some((file, Some(md)))
+        /* Some((file.uri, validateLoc(md.name.loc, md.extentLoc))) */
+      }
     | `GlobalMod(name) =>
-      let%opt file = getModule(name);
-      /* maybeLog("Congrats, found a global mod"); */
-      Some((file, None));
+      switch (getModule(name)) {
+      | None => None
+      | Some(file) =>
+        /* maybeLog("Congrats, found a global mod"); */
+        Some((file, None))
+      }
     | _ => None
     };
   };
@@ -232,93 +298,125 @@ let forLocalStamp =
     ) => {
   let env = Query.fileEnv(file);
   open Infix;
-  let%opt localStamp =
+  switch (
     switch (tip) {
     | Constructor(name) =>
       Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
     | Field(name) => Query.getField(file, stamp, name) |?>> (x => x.stamp)
     | _ => Some(stamp)
-    };
-  let%opt local = Hashtbl.find_opt(extra.internalReferences, localStamp);
-  open Infix;
-  let externals =
-    {
-      maybeLog("Checking externals: " ++ string_of_int(stamp));
-      let%opt declared =
-        Query.declaredForTip(~stamps=env.file.stamps, stamp, tip);
-      if (isVisible(declared)) {
-        /**
-      if this file has a corresponding interface or implementation file
-      also find the references in that file.
-       */
-        let alternativeReferences =
-          {
-            let%opt (file, extra, {stamp}) =
-              alternateDeclared(
-                ~pathsForModule,
-                ~file,
-                ~getUri,
-                declared,
-                tip,
-              );
-            let%opt localStamp =
-              switch (tip) {
-              | Constructor(name) =>
-                Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
-              | Field(name) =>
-                Query.getField(file, stamp, name) |?>> (x => x.stamp)
-              | _ => Some(stamp)
-              };
-            let%opt local =
-              Hashtbl.find_opt(extra.internalReferences, localStamp);
-            Some([(file.uri, local)]);
-          }
-          |? [];
-
-        let%opt path =
-          pathFromVisibility(declared.modulePath, declared.name.txt);
-        maybeLog("Now checking path " ++ pathToString(path));
-        let thisModuleName = file.moduleName;
-        let externals =
-          allModules
-          |> List.filter(name => name != file.moduleName)
-          |> Utils.filterMap(name =>
-               {
-                 let%try file =
-                   getModule(name)
-                   |> RResult.orError(
-                        "Could not get file for module " ++ name,
-                      );
-                 let%try extra =
-                   getExtra(name)
-                   |> RResult.orError(
-                        "Could not get extra for module " ++ name,
-                      );
-                 let%try refs =
-                   Hashtbl.find_opt(extra.externalReferences, thisModuleName)
-                   |> RResult.orError(
-                        "No references in "
-                        ++ name
-                        ++ " for "
-                        ++ thisModuleName,
-                      );
-                 let refs =
-                   refs
-                   |> Utils.filterMap(((p, t, l)) =>
-                        p == path && t == tip ? Some(l) : None
-                      );
-                 Ok((file.uri, refs));
-               }
-               |> RResult.toOptionAndLog
-             );
-        Some(alternativeReferences @ externals);
-      } else {
-        maybeLog("Not visible");
-        Some([]);
-      };
     }
-    |? [];
-  Some([(file.uri, local), ...externals]);
+  ) {
+  | None => None
+  | Some(localStamp) =>
+    switch (Hashtbl.find_opt(extra.internalReferences, localStamp)) {
+    | None => None
+    | Some(local) =>
+      open Infix;
+      let externals =
+        {
+          maybeLog("Checking externals: " ++ string_of_int(stamp));
+          switch (Query.declaredForTip(~stamps=env.file.stamps, stamp, tip)) {
+          | None => None
+          | Some(declared) =>
+            if (isVisible(declared)) {
+              /**
+                if this file has a corresponding interface or implementation file
+                also find the references in that file.
+                */
+              let alternativeReferences =
+                (
+                  switch (
+                    alternateDeclared(
+                      ~pathsForModule,
+                      ~file,
+                      ~getUri,
+                      declared,
+                      tip,
+                    )
+                  ) {
+                  | None => None
+                  | Some((file, extra, {stamp})) =>
+                    switch (
+                      switch (tip) {
+                      | Constructor(name) =>
+                        Query.getConstructor(file, stamp, name) |?>> (x => x.stamp)
+                      | Field(name) =>
+                        Query.getField(file, stamp, name) |?>> (x => x.stamp)
+                      | _ => Some(stamp)
+                      }
+                    ) {
+                    | None => None
+                    | Some(localStamp) =>
+                      switch (Hashtbl.find_opt(extra.internalReferences, localStamp)) {
+                      | None => None
+                      | Some(local) => Some([(file.uri, local)])
+                      }
+                    }
+                  }
+                )
+                |? [];
+              switch (
+                pathFromVisibility(declared.modulePath, declared.name.txt)
+              ) {
+              | None => None
+              | Some(path) =>
+                maybeLog("Now checking path " ++ pathToString(path));
+                let thisModuleName = file.moduleName;
+                let externals =
+                  allModules
+                  |> List.filter(name => name != file.moduleName)
+                  |> Utils.filterMap(name =>
+                    {
+                      switch (
+                        getModule(name)
+                        |> RResult.orError(
+                            "Could not get file for module " ++ name,
+                          )
+                      ) {
+                      | Error(e) => Error(e)
+                      | Ok(file) =>
+                        switch (
+                          getExtra(name)
+                          |> RResult.orError(
+                              "Could not get extra for module " ++ name,
+                            )
+                        ) {
+                        | Error(e) => Error(e)
+                        | Ok(extra) =>
+                          switch (
+                            Hashtbl.find_opt(extra.externalReferences, thisModuleName)
+                            |> RResult.orError(
+                                "No references in "
+                                ++ name
+                                ++ " for "
+                                ++ thisModuleName,
+                              )
+                          ) {
+                          | Error(e) => Error(e)
+                          | Ok(refs) =>
+                            let refs =
+                              refs
+                              |> Utils.filterMap(((p, t, l)) =>
+                                  p == path && t == tip ? Some(l) : None
+                                );
+                            Ok((file.uri, refs));
+                          }
+                        }
+                      }
+                    } |> RResult.toOptionAndLog
+                );
+                Some(alternativeReferences @ externals);
+              };
+            } else {
+              maybeLog("Not visible");
+              Some([]);
+            }
+          };
+        }
+        |? [];
+      Some([(file.uri, local), ...externals]);
+    }
+  };
 };
 
 let allReferencesForLoc =
@@ -375,47 +473,64 @@ let allReferencesForLoc =
     |> RResult.orError("Could not get for local stamp");
   | LModule(GlobalReference(moduleName, path, tip))
   | Typed(_, GlobalReference(moduleName, path, tip)) =>
-    let%try file =
+    switch (
       getModule(moduleName)
-      |> RResult.orError("Cannot get module " ++ moduleName);
-    let env = Query.fileEnv(file);
-    let%try (env, name) =
-      Query.resolvePath(~env, ~path, ~getModule)
-      |> RResult.orError("Cannot resolve path " ++ pathToString(path));
-    let%try stamp =
-      Query.exportedForTip(~env, name, tip)
-      |> RResult.orError(
-           "Exported not found for tip " ++ name ++ " > " ++ tipToString(tip),
-         );
-    let%try (file, extra) = getUri(env.file.uri);
-    maybeLog(
-      "Finding references for (global) "
-      ++ Uri2.toString(env.file.uri)
-      ++ " and stamp "
-      ++ string_of_int(stamp)
-      ++ " and tip "
-      ++ tipToString(tip),
-    );
-    forLocalStamp(
-      ~pathsForModule,
-      ~getUri,
-      ~file,
-      ~extra,
-      ~allModules,
-      ~getModule,
-      ~getExtra,
-      stamp,
-      tip,
-    )
-    |> RResult.orError("Could not get for local stamp");
+      |> RResult.orError("Cannot get module " ++ moduleName)
+    ) {
+    | Error(e) => Error(e)
+    | Ok(file) =>
+      let env = Query.fileEnv(file);
+      switch (
+        Query.resolvePath(~env, ~path, ~getModule)
+        |> RResult.orError("Cannot resolve path " ++ pathToString(path))
+      ) {
+      | Error(e) => Error(e)
+      | Ok((env, name)) =>
+        switch (
+          Query.exportedForTip(~env, name, tip)
+          |> RResult.orError(
+            "Exported not found for tip " ++ name ++ " > " ++ tipToString(tip)
+          )
+        ) {
+        | Error(e) => Error(e)
+        | Ok(stamp) =>
+          switch (getUri(env.file.uri)) {
+          | Error(e) => Error(e)
+          | Ok((file, extra)) =>
+            maybeLog(
+              "Finding references for (global) "
+              ++ Uri2.toString(env.file.uri)
+              ++ " and stamp "
+              ++ string_of_int(stamp)
+              ++ " and tip "
+              ++ tipToString(tip),
+            );
+            forLocalStamp(
+              ~pathsForModule,
+              ~getUri,
+              ~file,
+              ~extra,
+              ~allModules,
+              ~getModule,
+              ~getExtra,
+              stamp,
+              tip,
+            )
+            |> RResult.orError("Could not get for local stamp");
+          }
+        }
+      };
+    }
   };
 };
 
 let refsForPos = (~file, ~extra, pos) => {
-  let%opt (_, loc) = locForPos(~extra, pos);
-  maybeLog("Got a loc for pos");
-  let%opt refs = localReferencesForLoc(~file, ~extra, loc);
-  Some(refs);
+  switch (locForPos(~extra, pos)) {
+  | None => None
+  | Some((_, loc)) =>
+    maybeLog("Got a loc for pos");
+    localReferencesForLoc(~file, ~extra, loc);
+  }
 };
 
 let validateLoc = (loc: Location.t, backup: Location.t) =>
@@ -444,32 +559,46 @@ let validateLoc = (loc: Location.t, backup: Location.t) =>
   };
 
 let resolveModuleDefinition = (~file, ~getModule, stamp) => {
-  let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
-  let%opt (file, declared) = resolveModuleReference(~file, ~getModule, md);
-  let loc =
-    switch (declared) {
-    | None => Utils.topLoc(Uri2.toPath(file.uri))
-    | Some(declared) => validateLoc(declared.name.loc, declared.extentLoc)
-    };
-  Some((file.uri, loc));
+  switch (Hashtbl.find_opt(file.stamps.modules, stamp)) {
+  | None => None
+  | Some(md) =>
+    switch (resolveModuleReference(~file, ~getModule, md)) {
+    | None => None
+    | Some((file, declared)) =>
+      let loc =
+        switch (declared) {
+        | None => Utils.topLoc(Uri2.toPath(file.uri))
+        | Some(declared) =>
+          validateLoc(declared.name.loc, declared.extentLoc)
+        };
+      Some((file.uri, loc));
+    }
+  };
 };
 
 let definition = (~file, ~getModule, stamp, tip) => {
   switch (tip) {
   | Constructor(name) =>
-    let%opt constructor = Query.getConstructor(file, stamp, name);
-    Some((file.uri, constructor.cname.loc));
+    switch (Query.getConstructor(file, stamp, name)) {
+    | None => None
+    | Some(constructor) => Some((file.uri, constructor.cname.loc))
+    }
   | Field(name) =>
-    let%opt field = Query.getField(file, stamp, name);
-    Some((file.uri, field.fname.loc));
+    switch (Query.getField(file, stamp, name)) {
+    | None => None
+    | Some(field) => Some((file.uri, field.fname.loc))
+    }
   | Module => resolveModuleDefinition(~file, ~getModule, stamp)
   | _ =>
-    let%opt declared = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
-    let loc = validateLoc(declared.name.loc, declared.extentLoc);
-    let env = Query.fileEnv(file);
-    let uri = Query.getSourceUri(~env, ~getModule, declared.modulePath);
-    maybeLog("Inner uri " ++ Uri2.toString(uri));
-    Some((uri, loc));
+    switch (Query.declaredForTip(~stamps=file.stamps, stamp, tip)) {
+    | None => None
+    | Some(declared) =>
+      let loc = validateLoc(declared.name.loc, declared.extentLoc);
+      let env = Query.fileEnv(file);
+      let uri = Query.getSourceUri(~env, ~getModule, declared.modulePath);
+      maybeLog("Inner uri " ++ Uri2.toString(uri));
+      Some((uri, loc));
+    }
   };
 };
 
@@ -485,16 +614,23 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
   switch (loc) {
   | Typed(_, Definition(stamp, tip)) =>
     maybeLog("Trying to find a defintion for a definition");
-    let%opt declared = Query.declaredForTip(~stamps=file.stamps, stamp, tip);
-    maybeLog("Declared");
-    if (declared.exported) {
-      maybeLog("exported, looking for alternate " ++ file.moduleName);
-      let%opt (file, _extra, declared) =
-        alternateDeclared(~pathsForModule, ~file, ~getUri, declared, tip);
-      let loc = validateLoc(declared.name.loc, declared.extentLoc);
-      Some((file.uri, loc));
-    } else {
-      None;
+    switch (Query.declaredForTip(~stamps=file.stamps, stamp, tip)) {
+    | None => None
+    | Some(declared) =>
+      maybeLog("Declared");
+      if (declared.exported) {
+        maybeLog("exported, looking for alternate " ++ file.moduleName);
+        switch (
+          alternateDeclared(~pathsForModule, ~file, ~getUri, declared, tip)
+        ) {
+        | None => None
+        | Some((file, _extra, declared)) =>
+          let loc = validateLoc(declared.name.loc, declared.extentLoc);
+          Some((file.uri, loc));
+        };
+      } else {
+        None;
+      };
     };
   | Explanation(_)
   | Typed(_, NotFound)
@@ -504,12 +640,15 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
   | TopLevelModule(name) =>
     maybeLog("Toplevel " ++ name);
     open Infix;
-    let%opt src =
+    switch (
       Hashtbl.find_opt(pathsForModule, name)
       |> orLog("No paths found")
       |?> getSrc
-      |> orLog("No src found");
-    Some((Uri2.fromPath(src), Utils.topLoc(src)));
+      |> orLog("No src found")
+    ) {
+    | None => None
+    | Some(src) => Some((Uri2.fromPath(src), Utils.topLoc(src)))
+    }
   | LModule(LocalReference(stamp, tip))
   | Typed(_, LocalReference(stamp, tip)) =>
     maybeLog("Local defn " ++ tipToString(tip));
@@ -524,19 +663,30 @@ let definitionForLoc = (~pathsForModule, ~file, ~getUri, ~getModule, loc) => {
       ++ " : "
       ++ tipToString(tip),
     );
-    let%opt file = getModule(moduleName);
-    let env = Query.fileEnv(file);
-    let%opt (env, name) = Query.resolvePath(~env, ~path, ~getModule);
-    let%opt stamp = Query.exportedForTip(~env, name, tip);
-    /** oooh wht do I do if the stamp is inside a pseudo-file? */
-    maybeLog("Got stamp " ++ string_of_int(stamp));
-    definition(~file=env.file, ~getModule, stamp, tip);
+    switch (getModule(moduleName)) {
+    | None => None
+    | Some(file) =>
+      let env = Query.fileEnv(file);
+      switch (Query.resolvePath(~env, ~path, ~getModule)) {
+      | None => None
+      | Some((env, name)) =>
+        switch (Query.exportedForTip(~env, name, tip)) {
+        | None => None
+        | Some(stamp) =>
+          /** oooh wht do I do if the stamp is inside a pseudo-file? */
+          maybeLog("Got stamp " ++ string_of_int(stamp));
+          definition(~file=env.file, ~getModule, stamp, tip);
+        }
+      };
+    };
   };
 };
 
 let definitionForPos =
-    (~pathsForModule, ~file, ~extra, ~getUri, ~getModule, pos) => {
-  let%opt (_, loc) = locForPos(~extra, pos);
-  maybeLog("Got a loc for pos");
-  definitionForLoc(~pathsForModule, ~file, ~getUri, ~getModule, loc);
-};
+    (~pathsForModule, ~file, ~extra, ~getUri, ~getModule, pos) =>
+  switch (locForPos(~extra, pos)) {
+  | None => None
+  | Some((_, loc)) =>
+    maybeLog("Got a loc for pos");
+    definitionForLoc(~pathsForModule, ~file, ~getUri, ~getModule, loc);
+  };
