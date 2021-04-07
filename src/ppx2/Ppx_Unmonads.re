@@ -115,21 +115,31 @@ let mapper =
       | Pexp_extension(({txt: (
         "opt" | "opt_consume"
         | "try" | "try_wrap"
-        ) as txt, loc}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_let(Nonrecursive, bindings, continuation)}, _attributes)}]))) => {
-        let (front, explanation) = switch (txt) {
-          | "opt" => ([%expr Monads.Option.bind], opt_explanation)
-          | "opt_consume" => ([%expr Monads.Option.consume], opt_consume_explanation)
-          | "try" => ([%expr Monads.Result.bind], "Sugar for the Result type")
-          | "try_wrap" => ([%expr Monads.Result.map], "Sugar for the Result type - auto-wraps in `Ok()`")
-          | _ => assert(false)
-        };
+        ) as txt}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_let(Nonrecursive, bindings, continuation)}, _attributes)}]))) => {
         let (pat, expr) = process_bindings(bindings);
-        Ast_helper.Exp.attr(
-          [%expr [%e front]([%e mapper.expr(mapper, expr)], ~f=([%p pat]) => [%e mapper.expr(mapper, continuation)])],
-          ({txt: "ocaml.explanation", loc}, PStr([
-            Ast_helper.Str.eval(Ast_helper.Exp.constant(Pconst_string(explanation, None)))
-          ]))
-        )
+        switch (txt) {
+        | "opt" =>
+          [%expr [%e [%expr switch [%e mapper.expr(mapper, expr)] {
+          | None => None
+          | Some([%p pat]) => [%e mapper.expr(mapper, continuation)]
+          }]]]
+        | "opt_consume" =>
+          [%expr [%e [%expr switch [%e mapper.expr(mapper, expr)] {
+          | None => ()
+          | Some([%p pat]) => [%e mapper.expr(mapper, continuation)]
+          }]]]
+        | "try" =>
+          [%expr [%e [%expr switch [%e mapper.expr(mapper, expr)] {
+          | Error(e) => Error(e)
+          | Ok([%p pat]) => [%e mapper.expr(mapper, continuation)]
+          }]]]
+        | "try_wrap" =>
+          [%expr [%e [%expr switch [%e mapper.expr(mapper, expr)] {
+          | Error(e) => Error(e)
+          | Ok([%p pat]) => Ok([%e mapper.expr(mapper, continuation)])
+          }]]]
+        | _ => assert(false)
+        };
       }
       | _ => Ast_mapper.default_mapper.expr(mapper, expr)
       }
