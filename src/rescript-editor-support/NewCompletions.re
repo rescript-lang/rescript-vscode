@@ -220,11 +220,14 @@ let getEnvWithOpens =
         | Tip(_) => None
         | Nested(top, path) =>
           Log.log("Getting module " ++ top);
-          let%opt file = getModule(top);
-          Log.log("got it");
-          let env = Query.fileEnv(file);
-          Query.resolvePath(~env, ~getModule, ~path)
-          |> Infix.logIfAbsent("Unable to resolve the path");
+          switch (getModule(top)) {
+          | None => None
+          | Some(file) =>
+            Log.log("got it");
+            let env = Query.fileEnv(file);
+            Query.resolvePath(~env, ~getModule, ~path)
+            |> Infix.logIfAbsent("Unable to resolve the path");
+          };
         }
       };
     loop(opens);
@@ -519,44 +522,66 @@ let getItems =
         | [] => None
         | [first, ...rest] =>
           Log.log("-------------- Looking for " ++ first);
-          let%opt declared =
-            Query.findInScope(pos, first, env.file.stamps.values);
-          Log.log("Found it! " ++ declared.name.txt);
-          let%opt path = declared.item |> Shared.digConstructor;
-          let%opt (env, typ) = Hover.digConstructor(~env, ~getModule, path);
-          let%opt (env, typ) =
-            rest
-            |> List.fold_left(
-                 (current, name) => {
-                   let%opt (env, typ) = current;
-                   switch (typ.item.SharedTypes.Type.kind) {
-                   | Record(fields) =>
-                     let%opt attr =
-                       fields |> List.find_opt(f => f.fname.txt == name);
-                     Log.log("Found attr " ++ name);
-                     let%opt path = attr.typ |> Shared.digConstructor;
-                     Hover.digConstructor(~env, ~getModule, path);
-                   | _ => None
-                   };
-                 },
-                 Some((env, typ)),
-               );
-          switch (typ.item.kind) {
-          | Record(fields) =>
-            Some(
-              fields
-              |> Utils.filterMap(f =>
-                   if (Utils.startsWith(f.fname.txt, suffix)) {
-                     Some((
-                       env.file.uri,
-                       {...emptyDeclared(f.fname.txt), item: Field(f, typ)},
-                     ));
-                   } else {
-                     None;
-                   }
-                 ),
-            )
-          | _ => None
+          switch (Query.findInScope(pos, first, env.file.stamps.values)) {
+          | None => None
+          | Some(declared) =>
+            Log.log("Found it! " ++ declared.name.txt);
+            switch (declared.item |> Shared.digConstructor) {
+            | None => None
+            | Some(path) =>
+              switch (Hover.digConstructor(~env, ~getModule, path)) {
+              | None => None
+              | Some((env, typ)) =>
+                switch (
+                  rest
+                  |> List.fold_left(
+                       (current, name) =>
+                         switch (current) {
+                         | None => None
+                         | Some((env, typ)) =>
+                           switch (typ.item.SharedTypes.Type.kind) {
+                           | Record(fields) =>
+                             switch (
+                               fields
+                               |> List.find_opt(f => f.fname.txt == name)
+                             ) {
+                             | None => None
+                             | Some(attr) =>
+                               Log.log("Found attr " ++ name);
+                               switch (attr.typ |> Shared.digConstructor) {
+                               | None => None
+                               | Some(path) =>
+                                 Hover.digConstructor(~env, ~getModule, path)
+                               };
+                             }
+                           | _ => None
+                           }
+                         },
+                       Some((env, typ)),
+                     )
+                ) {
+                | None => None
+                | Some((env, typ)) =>
+                  switch (typ.item.kind) {
+                  | Record(fields) =>
+                    Some(
+                      fields
+                      |> Utils.filterMap(f =>
+                           if (Utils.startsWith(f.fname.txt, suffix)) {
+                             Some((
+                               env.file.uri,
+                               {...emptyDeclared(f.fname.txt), item: Field(f, typ)},
+                             ));
+                           } else {
+                             None;
+                           }
+                         ),
+                    )
+                  | _ => None
+                  }
+                }
+              }
+            };
           };
         };
       }
