@@ -25,44 +25,47 @@ let capabilities =
 
 let getInitialState = params => {
   let rootUri = Json.get("rootUri", params) |?> Json.string |?> Uri2.parse;
-  let%try rootUri = rootUri |> RResult.orError("Not a uri");
-  let rootPath = Uri2.toPath(rootUri);
+  switch (rootUri |> RResult.orError("Not a uri")) {
+  | Error(e) => Error(e)
+  | Ok(rootUri) =>
+    let rootPath = Uri2.toPath(rootUri);
 
-  Files.mkdirp(rootPath /+ "node_modules" /+ ".lsp");
-  Log.setLocation(rootPath /+ "node_modules" /+ ".lsp" /+ "debug.log");
-  Log.log("Hello - from " ++ Sys.executable_name);
+    Files.mkdirp(rootPath /+ "node_modules" /+ ".lsp");
+    Log.setLocation(rootPath /+ "node_modules" /+ ".lsp" /+ "debug.log");
+    Log.log("Hello - from " ++ Sys.executable_name);
 
-  Rpc.sendNotification(
-    stdout,
-    "client/registerCapability",
-    J.o([
-      (
-        "registrations",
-        J.l([
-          J.o([
-            ("id", J.s("watching")),
-            ("method", J.s("workspace/didChangeWatchedFiles")),
-            (
-              "registerOptions",
-              J.o([
-                (
-                  "watchers",
-                  J.l([
-                    J.o([("globPattern", J.s("**/bsconfig.json"))]),
-                    J.o([("globPattern", J.s("**/.merlin"))]),
-                  ]),
-                ),
-              ]),
-            ),
+    Rpc.sendNotification(
+      stdout,
+      "client/registerCapability",
+      J.o([
+        (
+          "registrations",
+          J.l([
+            J.o([
+              ("id", J.s("watching")),
+              ("method", J.s("workspace/didChangeWatchedFiles")),
+              (
+                "registerOptions",
+                J.o([
+                  (
+                    "watchers",
+                    J.l([
+                      J.o([("globPattern", J.s("**/bsconfig.json"))]),
+                      J.o([("globPattern", J.s("**/.merlin"))]),
+                    ]),
+                  ),
+                ]),
+              ),
+            ]),
           ]),
-        ]),
-      ),
-    ]),
-  );
+        ),
+      ]),
+    );
 
-  let state = TopTypes.empty();
+    let state = TopTypes.empty();
 
-  Ok(state);
+    Ok(state);
+  };
 };
 
 let parseArgs = args => {
