@@ -29,30 +29,31 @@ let rec relative = (ident, path) =>
   | _ => None
   };
 
-let findClosestMatchingOpen = (opens, path, ident, loc) => {
-  let%opt openNeedle = relative(ident, path);
+let findClosestMatchingOpen = (opens, path, ident, loc) =>
+  switch (relative(ident, path)) {
+  | None => None
+  | Some(openNeedle) =>
+    let matching =
+      Hashtbl.fold(
+        (_, op, res) =>
+          if (Utils.locWithinLoc(loc, op.extent)
+              && Path.same(op.path, openNeedle)) {
+            [op, ...res];
+          } else {
+            res;
+          },
+        opens,
+        [],
+      )
+      |> List.sort((a: SharedTypes.openTracker, b) =>
+           b.loc.loc_start.pos_cnum - a.loc.loc_start.pos_cnum
+         );
 
-  let matching =
-    Hashtbl.fold(
-      (_, op, res) =>
-        if (Utils.locWithinLoc(loc, op.extent)
-            && Path.same(op.path, openNeedle)) {
-          [op, ...res];
-        } else {
-          res;
-        },
-      opens,
-      [],
-    )
-    |> List.sort((a: SharedTypes.openTracker, b) =>
-         b.loc.loc_start.pos_cnum - a.loc.loc_start.pos_cnum
-       );
-
-  switch (matching) {
-  | [] => None
-  | [first, ..._] => Some(first)
+    switch (matching) {
+    | [] => None
+    | [first, ..._] => Some(first)
+    };
   };
-};
 
 let getTypeAtPath = (~env, path) => {
   switch (Query.fromCompilerPath(~env, path)) {
@@ -60,14 +61,16 @@ let getTypeAtPath = (~env, path) => {
   | `Global(moduleName, path) => `Global((moduleName, path))
   | `Not_found => `Not_found
   | `Exported(env, name) =>
-    let res = {
-      let%opt stamp = Hashtbl.find_opt(env.exported.types, name);
-      let declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
-      switch (declaredType) {
-      | Some(declaredType) => Some(`Local(declaredType))
+    let res =
+      switch (Hashtbl.find_opt(env.exported.types, name)) {
       | None => None
+      | Some(stamp) =>
+        let declaredType = Hashtbl.find_opt(env.file.stamps.types, stamp);
+        switch (declaredType) {
+        | Some(declaredType) => Some(`Local(declaredType))
+        | None => None
+        };
       };
-    };
     res |? `Not_found;
   | `Stamp(stamp) =>
     let res = {
@@ -91,13 +94,16 @@ module F =
        ) => {
   let extra = Collector.extra;
 
-  let maybeAddUse = (path, ident, loc, tip) => {
-    let%opt_consume tracker =
-      findClosestMatchingOpen(extra.opens, path, ident, loc);
-    let%opt_consume relpath = Query.makeRelativePath(tracker.path, path);
-
-    tracker.used = [(relpath, tip, loc), ...tracker.used];
-  };
+  let maybeAddUse = (path, ident, loc, tip) =>
+    switch (findClosestMatchingOpen(extra.opens, path, ident, loc)) {
+    | None => ()
+    | Some(tracker) =>
+      switch (Query.makeRelativePath(tracker.path, path)) {
+      | None => ()
+      | Some(relpath) =>
+        tracker.used = [(relpath, tip, loc), ...tracker.used]
+      }
+    };
 
   let addLocation = (loc, ident) =>
     extra.locations = [(loc, ident), ...extra.locations];
