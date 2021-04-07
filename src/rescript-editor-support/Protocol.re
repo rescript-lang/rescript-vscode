@@ -2,18 +2,32 @@ module J = JsonShort;
 
 let rgetPosition = pos => {
   open RResult.InfixResult;
-  let%try line = RJson.get("line", pos) |?> RJson.number;
-  let%try character = RJson.get("character", pos) |?> RJson.number;
-  Ok((int_of_float(line), int_of_float(character)));
+  switch (RJson.get("line", pos) |?> RJson.number) {
+  | Error(e) => Error(e)
+  | Ok(line) =>
+    switch (RJson.get("character", pos) |?> RJson.number) {
+    | Error(e) => Error(e)
+    | Ok(character) => Ok((int_of_float(line), int_of_float(character)))
+    }
+  }
 };
 
 let rPositionParams = params => {
   open RResult.InfixResult;
-  let%try uri =
-    RJson.get("textDocument", params) |?> RJson.get("uri") |?> RJson.string;
-  let%try uri = Uri2.parse(uri) |> RResult.orError("Not a uri");
-  let%try pos = RJson.get("position", params) |?> rgetPosition;
-  Ok((uri, pos));
+  switch (
+    RJson.get("textDocument", params) |?> RJson.get("uri") |?> RJson.string
+  ) {
+  | Error(e) => Error(e)
+  | Ok(uri) =>
+    switch (Uri2.parse(uri) |> RResult.orError("Not a uri")) {
+    | Error(e) => Error(e)
+    | Ok(uri) =>
+      switch (RJson.get("position", params) |?> rgetPosition) {
+      | Error(e) => Error(e)
+      | Ok(pos) => Ok((uri, pos))
+      }
+    }
+  }
 };
 
 let posOfLexing = ({Lexing.pos_lnum, pos_cnum, pos_bol}) =>
