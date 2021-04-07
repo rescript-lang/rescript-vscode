@@ -51,11 +51,6 @@ let docsForCmt = (~moduleName, cmt, src, state) =>
     };
   };
 
-let updateContents = (uri, text, state) => {
-  Hashtbl.replace(state.documentText, uri, text);
-  state;
-};
-
 open Infix;
 
 let getFullFromCmt = (~state, ~uri) => {
@@ -75,7 +70,8 @@ let getFullFromCmt = (~state, ~uri) => {
         Hashtbl.replace(
           package.interModuleDependencies,
           moduleName,
-          SharedTypes.hashList(full.extra.externalReferences) |> List.map(fst),
+          SharedTypes.hashList(full.extra.externalReferences)
+          |> List.map(fst),
         );
         Ok((package, full));
       };
@@ -105,28 +101,12 @@ let fileForUri = (state, uri) => {
   switch (getFullFromCmt(~state, ~uri)) {
   | Error(e) => Error(e)
   | Ok((_package, {extra, file})) => Ok((file, extra))
-  }
+  };
 };
 
 let fileForModule = (state, ~package, modname) => {
   switch (docsForModule(modname, state, ~package)) {
   | None => None
   | Some((file, _)) => Some(file)
-  }
-};
-
-let extraForModule = (state, ~package, modname) =>
-  if (Hashtbl.mem(package.pathsForModule, modname)) {
-    let paths = Hashtbl.find(package.pathsForModule, modname);
-    /* TODO do better? */
-    switch (SharedTypes.getSrc(paths)) {
-    | None => None
-    | Some(src) =>
-      switch (getFullFromCmt(~state, ~uri=Uri2.fromPath(src))) {
-      | Ok((_package, {extra})) => Some(extra)
-      | Error(_) => None
-      }
-    };
-  } else {
-    None;
   };
+};

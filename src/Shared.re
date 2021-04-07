@@ -45,29 +45,6 @@ let digConstructor = expr => {
   };
 };
 
-let rec variableKind = t =>
-  switch (t.Types.desc) {
-  | Tlink(t) => variableKind(t)
-  | Tsubst(t) => variableKind(t)
-  | Tarrow(_) => SharedTypes.Function
-  | Ttuple(_) => Array
-  | Tconstr(_) => Variable
-  | Tobject(_) => Object
-  | Tnil => Null
-  | Tvariant(_) => EnumMember
-  | Tpoly(_) => EnumMember
-  | Tpackage(_) => Module
-  | _ => Variable
-  };
-
-let declarationKind = t =>
-  switch (t.Types.type_kind) {
-  | Type_open
-  | Type_abstract => SharedTypes.TypeParameter
-  | Type_record(_) => Interface
-  | Type_variant(_) => Enum
-  };
-
 let declToString = (~recStatus=Types.Trec_not, name, t) =>
   PrintType.printDecl(~recStatus, name, t);
 

@@ -107,19 +107,6 @@ module Type = {
    | Let
    | LetRec; */
 
-let isVisible = declared =>
-  declared.exported
-  && {
-    let rec loop = v =>
-      switch (v) {
-      | File(_) => true
-      | NotVisible => false
-      | IncludedModule(_, inner) => loop(inner)
-      | ExportedModule(_, inner) => loop(inner)
-      };
-    loop(declared.modulePath);
-  };
-
 type namedMap('t) = Hashtbl.t(string, 't);
 type namedStampMap = namedMap(int);
 
@@ -209,18 +196,6 @@ let rec pathToString = path =>
   | Tip(name) => name
   | Nested(name, inner) => name ++ "." ++ pathToString(inner)
   };
-
-let rec pathFromVisibility = (visibilityPath, current) =>
-  switch (visibilityPath) {
-  | File(_) => Some(current)
-  | IncludedModule(_, inner) => pathFromVisibility(inner, current)
-  | ExportedModule(name, inner) =>
-    pathFromVisibility(inner, Nested(name, current))
-  | NotVisible => None
-  };
-
-let pathFromVisibility = (visibilityPath, tipName) =>
-  pathFromVisibility(visibilityPath, Tip(tipName));
 
 type locKind =
   | LocalReference(int, tip)
