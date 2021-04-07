@@ -4,6 +4,5 @@ npm-debug.log
 *.install
 _build
 editor-extensions/vscode/*.zip
-examples/*/node_modules
 examples/*/lib
-editor-extensions/vscode/node_modules
+node_modules
