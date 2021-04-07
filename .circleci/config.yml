@@ -93,7 +93,7 @@ commands:
               opam switch create . 4.06.1 --deps-only | cat
             fi
             opam env >> $BASH_ENV
-            
+
 jobs:
   build_linux:
     executor: linux-opam
@@ -103,7 +103,7 @@ jobs:
       - attach_workspace:
           at: ~/repo/artifacts
       - run:
-          # installs LTS v12 `node`, `npm`, `zip` and `m4` 
+          # installs LTS v12 `node`, `npm`, `zip` and `m4`
           name: Install debian deps
           command: |
             sudo apt-get update
@@ -121,7 +121,7 @@ jobs:
       - run:
           name: Install opam dev dependencies
           command: |
-            opam install reason.3.6.0 dune.1.11.4 ocaml-migrate-parsetree.1.3.1 ppx_tools_versioned uri --yes | cat
+            opam install reason.3.6.0 dune.1.11.4 uri --yes | cat
       - save-opam-cache
       - run:
           name: Build
@@ -130,7 +130,7 @@ jobs:
             dune build
       - run:
           name: Test
-          command: ./_build/install/default/bin/rescript-editor-support.exe --help 
+          command: ./_build/install/default/bin/rescript-editor-support.exe --help
       - run:
           name: Create tar file for executable
           command: |
@@ -169,7 +169,7 @@ jobs:
       - run:
           name: Install opam dev dependencies
           command: |
-            opam install reason.3.6.0 dune.1.11.4 ocaml-migrate-parsetree.1.3.1 ppx_tools_versioned uri --yes | cat
+            opam install reason.3.6.0 dune.1.11.4 uri --yes | cat
       - save-opam-cache
       - run:
           name: Build
@@ -177,7 +177,7 @@ jobs:
             dune build
       - run:
           name: Test
-          command: ./_build/install/default/bin/rescript-editor-support.exe --help 
+          command: ./_build/install/default/bin/rescript-editor-support.exe --help
       - run:
           name: Create tar file for executable
           command: |
@@ -229,7 +229,7 @@ jobs:
           command: |
             cd /cygdrive/c/Users/circleci/project
             eval $(opam env)
-            opam install reason.3.6.0 dune.1.11.4 ocaml-migrate-parsetree.1.3.1 ppx_tools_versioned uri --yes | cat
+            opam install reason.3.6.0 dune.1.11.4 uri --yes | cat
       - save_cache:
           key: v3-opam-cache-{{ arch }}
           paths:
