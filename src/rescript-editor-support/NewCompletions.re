@@ -627,7 +627,7 @@ let processCompletable =
            ~kind=4,
            ~deprecated=None,
            ~detail="",
-           ~docstring=None,
+           ~docstring=[],
            ~uri=full.file.uri,
            ~pos_lnum=fst(pos),
          )
