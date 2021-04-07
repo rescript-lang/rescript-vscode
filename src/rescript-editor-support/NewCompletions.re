@@ -200,9 +200,6 @@ let getEnvWithOpens =
       ~opens: list(Query.queryEnv),
       path,
     ) =>
-  /* let%opt declared = ; */
-  /* for ppx, I think I'd like a "if this is nonnull, bail w/ it".
-     So the opposite of let%opt - let%bail or something */
   /* Query.resolvePath(~env, ~path, ~getModule) */
   switch (Query.resolveFromStamps(~env, ~path, ~getModule, ~pos)) {
   | Some(x) => Some(x)
