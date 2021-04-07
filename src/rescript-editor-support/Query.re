@@ -80,10 +80,15 @@ let rec resolvePathInner = (~env, ~path) => {
   switch (path) {
   | Tip(name) => Some(`Local((env, name)))
   | Nested(subName, subPath) =>
-    let%opt stamp = Hashtbl.find_opt(env.exported.modules, subName);
-    let%opt {item: kind} = Hashtbl.find_opt(env.file.stamps.modules, stamp);
-    findInModule(~env, kind, subPath);
-  };
+    switch (Hashtbl.find_opt(env.exported.modules, subName)) {
+    | None => None
+    | Some(stamp) =>
+      switch (Hashtbl.find_opt(env.file.stamps.modules, stamp)) {
+      | None => None
+      | Some({item: kind}) => findInModule(~env, kind, subPath)
+      }
+    }
+  }
 }
 and findInModule = (~env, kind, path) => {
   switch (kind) {
@@ -94,9 +99,10 @@ and findInModule = (~env, kind, path) => {
     if (stamp == 0) {
       Some(`Global((moduleName, fullPath)));
     } else {
-      let%opt {item: kind} =
-        Hashtbl.find_opt(env.file.stamps.modules, stamp);
-      findInModule(~env, kind, fullPath);
+      switch (Hashtbl.find_opt(env.file.stamps.modules, stamp)) {
+      | None => None
+      | Some({item: kind}) => findInModule(~env, kind, fullPath)
+      };
     };
   };
 };
@@ -104,12 +110,18 @@ and findInModule = (~env, kind, path) => {
 /* let rec findSubModule = (~env, ~getModule) */
 
 let rec resolvePath = (~env, ~path, ~getModule) => {
-  let%opt result = resolvePathInner(~env, ~path);
-  switch (result) {
-  | `Local(env, name) => Some((env, name))
-  | `Global(moduleName, fullPath) =>
-    let%opt file = getModule(moduleName);
-    resolvePath(~env=fileEnv(file), ~path=fullPath, ~getModule);
+  switch (resolvePathInner(~env, ~path)) {
+  | None => None
+  | Some(result) =>
+    switch (result) {
+    | `Local(env, name) => Some((env, name))
+    | `Global(moduleName, fullPath) =>
+      switch (getModule(moduleName)) {
+      | None => None
+      | Some(file) =>
+        resolvePath(~env=fileEnv(file), ~path=fullPath, ~getModule)
+      }
+    }
   };
 };
 
@@ -118,15 +130,24 @@ let resolveFromStamps = (~env, ~path, ~getModule, ~pos) => {
   | Tip(name) => Some((env, name))
   | Nested(name, inner) =>
     /* Log.log("Finding from stamps " ++ name); */
-    let%opt declared = findInScope(pos, name, env.file.stamps.modules);
-    /* Log.log("found it"); */
-    let%opt res = findInModule(~env, declared.item, inner);
-    switch (res) {
-    | `Local(env, name) => Some((env, name))
-    | `Global(moduleName, fullPath) =>
-      let%opt file = getModule(moduleName);
-      resolvePath(~env=fileEnv(file), ~path=fullPath, ~getModule);
-    };
+    switch (findInScope(pos, name, env.file.stamps.modules)) {
+    | None => None
+    | Some(declared) =>
+      /* Log.log("found it"); */
+      switch (findInModule(~env, declared.item, inner)) {
+      | None => None
+      | Some(res) =>
+        switch (res) {
+        | `Local(env, name) => Some((env, name))
+        | `Global(moduleName, fullPath) =>
+          switch (getModule(moduleName)) {
+          | None => None
+          | Some(file) =>
+            resolvePath(~env=fileEnv(file), ~path=fullPath, ~getModule)
+          }
+        }
+      }
+    }
   };
 };
 
@@ -154,24 +175,45 @@ let fromCompilerPath = (~env, path) => {
 let resolveModuleFromCompilerPath = (~env, ~getModule, path) => {
   switch (fromCompilerPath(~env, path)) {
   | `Global(moduleName, path) =>
-    let%opt file = getModule(moduleName);
-    let env = fileEnv(file);
-    let%opt (env, name) = resolvePath(~env, ~getModule, ~path);
-    let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
-    let%opt declared = Hashtbl.find_opt(env.file.stamps.modules, stamp);
-    Some((env, Some(declared)));
+    switch (getModule(moduleName)) {
+    | None => None
+    | Some(file) =>
+      let env = fileEnv(file);
+      switch (resolvePath(~env, ~getModule, ~path)) {
+      | None => None
+      | Some((env, name)) =>
+        switch (Hashtbl.find_opt(env.exported.modules, name)) {
+        | None => None
+        | Some(stamp) =>
+          switch (Hashtbl.find_opt(env.file.stamps.modules, stamp)) {
+          | None => None
+          | Some(declared) => Some((env, Some(declared)))
+          }
+        }
+      };
+    }
   | `Stamp(stamp) =>
-    let%opt declared = Hashtbl.find_opt(env.file.stamps.modules, stamp);
-    Some((env, Some(declared)));
+    switch (Hashtbl.find_opt(env.file.stamps.modules, stamp)) {
+    | None => None
+    | Some(declared) => Some((env, Some(declared)))
+    }
   | `GlobalMod(moduleName) =>
-    let%opt file = getModule(moduleName);
-    let env = fileEnv(file);
-    Some((env, None));
+    switch (getModule(moduleName)) {
+    | None => None
+    | Some(file) =>
+      let env = fileEnv(file);
+      Some((env, None));
+    }
   | `Not_found => None
   | `Exported(env, name) =>
-    let%opt stamp = Hashtbl.find_opt(env.exported.modules, name);
-    let%opt declared = Hashtbl.find_opt(env.file.stamps.modules, stamp);
-    Some((env, Some(declared)));
+    switch (Hashtbl.find_opt(env.exported.modules, name)) {
+    | None => None
+    | Some(stamp) =>
+      switch (Hashtbl.find_opt(env.file.stamps.modules, stamp)) {
+      | None => None
+      | Some(declared) => Some((env, Some(declared)))
+      }
+    }
   };
 };
 
@@ -234,21 +276,28 @@ let declaredForTip = (~stamps, stamp, tip) =>
   };
 
 let getField = (file, stamp, name) => {
-  let%opt {item: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
-  switch (kind) {
-  | Record(fields) => fields |> List.find_opt(f => f.fname.txt == name)
-  | _ => None
+  switch (Hashtbl.find_opt(file.stamps.types, stamp)) {
+  | None => None
+  | Some({item: {kind}}) =>
+    switch (kind) {
+    | Record(fields) => fields |> List.find_opt(f => f.fname.txt == name)
+    | _ => None
+    }
   };
 };
 
 let getConstructor = (file, stamp, name) => {
-  let%opt {item: {kind}} = Hashtbl.find_opt(file.stamps.types, stamp);
-  switch (kind) {
-  | Variant(constructors) =>
-    let%opt const =
-      constructors |> List.find_opt(const => const.cname.txt == name);
-    Some(const);
-  | _ => None
+  switch (Hashtbl.find_opt(file.stamps.types, stamp)) {
+  | None => None
+  | Some({item: {kind}}) =>
+    switch (kind) {
+    | Variant(constructors) =>
+      switch (constructors |> List.find_opt(const => const.cname.txt == name)) {
+      | None => None
+      | Some(const) => Some(const)
+      }
+    | _ => None
+    }
   };
 };
 
