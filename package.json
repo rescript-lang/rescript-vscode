@@ -2,7 +2,7 @@
   "name": "rescript-editor-support",
   "version": "1.0.0",
   "scripts": {
-    "dce": "dune build  @check @all && reanalyze.exe -dce-cmt _build -suppress src/rescript-editor-support/vendor"
+    "dce": "dune build  @check @all && reanalyze.exe -dce-cmt _build -suppress src/vendor"
   },
   "keywords": [ "rescript", "lsp", "ide" ],
   "private": true,
