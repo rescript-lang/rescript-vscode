@@ -2,12 +2,22 @@
   "name": "rescript-editor-support",
   "version": "1.0.0",
   "scripts": {
-    "dce": "dune build  @check @all && reanalyze.exe -dce-cmt _build -suppress src/vendor"
+    "dce": "dune build @check @all && node_modules/.bin/reanalyze -dce-cmt _build -suppress src/vendor"
   },
-  "keywords": [ "rescript", "lsp", "ide" ],
+  "keywords": [
+    "rescript",
+    "lsp",
+    "ide"
+  ],
   "private": true,
-  "repository": { "url": "https://github.com/rescript-lang/rescript-editor-support", "type": "git" },
+  "repository": {
+    "url": "https://github.com/rescript-lang/rescript-editor-support",
+    "type": "git"
+  },
   "description": "A pure-reason implementation of a language server",
   "author": "Cristiano Calcagno",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "reanalyze": "^2.15.0"
+  }
 }
