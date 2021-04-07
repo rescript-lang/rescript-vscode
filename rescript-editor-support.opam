@@ -12,7 +12,6 @@ depends: [
   "dune" {>= "2.7"}
   "ocaml" {= "4.06.1"}
   "reason" {= "3.6.0"}
-  "uri" {= "3.1.0"}
 ]
 build: [
   ["dune" "build" "-p" name "@install"]
