@@ -2,12 +2,19 @@ let digConstructor = (~env, ~getModule, path) => {
   switch (Query.resolveFromCompilerPath(~env, ~getModule, path)) {
   | `Not_found => None
   | `Stamp(stamp) =>
-    let%opt t = Hashtbl.find_opt(env.file.stamps.types, stamp);
-    Some((env, t));
+    switch (Hashtbl.find_opt(env.file.stamps.types, stamp)) {
+    | None => None
+    | Some(t) => Some((env, t))
+    }
   | `Exported(env, name) =>
-    let%opt stamp = Hashtbl.find_opt(env.exported.types, name);
-    let%opt t = Hashtbl.find_opt(env.file.stamps.types, stamp);
-    Some((env, t));
+    switch (Hashtbl.find_opt(env.exported.types, name)) {
+    | None => None
+    | Some(stamp) =>
+      switch (Hashtbl.find_opt(env.file.stamps.types, stamp)) {
+      | None => None
+      | Some(t) => Some((env, t))
+      }
+    }
   | _ => None
   };
 };
@@ -67,38 +74,60 @@ let newHover = (~file: SharedTypes.file, ~getModule, loc) => {
     Some(codeBlock(typeDef));
   | LModule(Definition(stamp, _tip))
   | LModule(LocalReference(stamp, _tip)) =>
-    let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
-    let%opt (file, declared) =
-      References.resolveModuleReference(~file, ~getModule, md);
-    let (name, docstring) =
-      switch (declared) {
-      | Some(d) => (d.name.txt, d.docstring)
-      | None => (file.moduleName, file.contents.docstring)
-      };
-    showModule(~docstring, ~name, ~file, declared);
+    switch (Hashtbl.find_opt(file.stamps.modules, stamp)) {
+    | None => None
+    | Some(md) =>
+      switch (References.resolveModuleReference(~file, ~getModule, md)) {
+      | None => None
+      | Some((file, declared)) =>
+        let (name, docstring) =
+          switch (declared) {
+          | Some(d) => (d.name.txt, d.docstring)
+          | None => (file.moduleName, file.contents.docstring)
+          };
+        showModule(~docstring, ~name, ~file, declared);
+      }
+    }
   | LModule(GlobalReference(moduleName, path, tip)) =>
-    let%opt file = getModule(moduleName);
-    let env = Query.fileEnv(file);
-    let%opt (env, name) = Query.resolvePath(~env, ~path, ~getModule);
-    let%opt stamp = Query.exportedForTip(~env, name, tip);
-    let%opt md = Hashtbl.find_opt(file.stamps.modules, stamp);
-    let%opt (file, declared) =
-      References.resolveModuleReference(~file, ~getModule, md);
-    let (name, docstring) =
-      switch (declared) {
-      | Some(d) => (d.name.txt, d.docstring)
-      | None => (file.moduleName, file.contents.docstring)
+    switch (getModule(moduleName)) {
+    | None => None
+    | Some(file) =>
+      let env = Query.fileEnv(file);
+      switch (Query.resolvePath(~env, ~path, ~getModule)) {
+      | None => None
+      | Some((env, name)) =>
+        switch (Query.exportedForTip(~env, name, tip)) {
+        | None => None
+        | Some(stamp) =>
+          switch (Hashtbl.find_opt(file.stamps.modules, stamp)) {
+          | None => None
+          | Some(md) =>
+            switch (References.resolveModuleReference(~file, ~getModule, md)) {
+            | None => None
+            | Some((file, declared)) =>
+              let (name, docstring) =
+                switch (declared) {
+                | Some(d) => (d.name.txt, d.docstring)
+                | None => (file.moduleName, file.contents.docstring)
+                };
+              showModule(~docstring, ~name, ~file, declared);
+            }
+          }
+        }
       };
-    showModule(~docstring, ~name, ~file, declared);
+    }
   | LModule(NotFound) => None
   | TopLevelModule(name) =>
-    let%opt file = getModule(name);
-    showModule(
-      ~docstring=file.contents.docstring,
-      ~name=file.moduleName,
-      ~file,
-      None,
-    );
+    switch (getModule(name)) {
+    | None => None
+    | Some(file) =>
+      showModule(
+        ~docstring=file.contents.docstring,
+        ~name=file.moduleName,
+        ~file,
+        None,
+      )
+    }
   | Typed(_, Definition(_, Field(_) | Constructor(_))) => None
   | Constant(t) =>
     Some(
@@ -117,15 +146,20 @@ let newHover = (~file: SharedTypes.file, ~getModule, loc) => {
       let typeString = codeBlock(typ |> Shared.typeToString);
       let extraTypeInfo = {
         let env = Query.fileEnv(file);
-        let%opt path = typ |> Shared.digConstructor;
-        let%opt (_env, {docstring, name: {txt}, item: {decl}}) =
-          digConstructor(~env, ~getModule, path);
-        let isUncurriedInternal =
-          Utils.startsWith(Path.name(path), "Js.Fn.arity");
-        if (isUncurriedInternal) {
-          None;
-        } else {
-          Some((decl |> Shared.declToString(txt), docstring));
+        switch (typ |> Shared.digConstructor) {
+        | None => None
+        | Some(path) =>
+          switch (digConstructor(~env, ~getModule, path)) {
+          | None => None
+          | Some((_env, {docstring, name: {txt}, item: {decl}})) =>
+            let isUncurriedInternal =
+              Utils.startsWith(Path.name(path), "Js.Fn.arity");
+            if (isUncurriedInternal) {
+              None;
+            } else {
+              Some((decl |> Shared.declToString(txt), docstring));
+            };
+          }
         };
       };
       let (typeString, docstring) =
