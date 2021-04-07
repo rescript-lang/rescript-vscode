@@ -125,3 +125,12 @@ module Dep : {
 }
 
 let cc = Dep.customDouble(11)
+
+module O = {
+  module Comp = {
+    @react.component
+    let make = (~first="", ~kas=11, ~foo=3, ~second, ~v) => React.string(first ++ second ++ string_of_int(foo))
+  }
+}
+
+let comp = <O.Comp key="12" second="abcc" v=12 />
