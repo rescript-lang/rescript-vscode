@@ -15,11 +15,15 @@ let converter = src => {
 
 let newDocsForCmt = (~moduleName, cmtCache, changed, cmt, src) => {
   let uri = Uri2.fromPath(src |? cmt);
-  let%opt file =
+  switch (
     Process_406.fileForCmt(~moduleName, ~uri, cmt, converter(src))
-    |> RResult.toOptionAndLog;
-  Hashtbl.replace(cmtCache, cmt, (changed, file));
-  Some(file);
+    |> RResult.toOptionAndLog
+  ) {
+  | None => None
+  | Some(file) =>
+    Hashtbl.replace(cmtCache, cmt, (changed, file));
+    Some(file);
+  };
 };
 
 let docsForCmt = (~moduleName, cmt, src, state) =>
@@ -56,21 +60,27 @@ open Infix;
 
 let getFullFromCmt = (~state, ~uri) => {
   let path = Uri2.toPath(uri);
-  let%try package = Packages.getPackage(uri, state);
-  let moduleName =
-    BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
-  switch (Hashtbl.find_opt(package.pathsForModule, moduleName)) {
-  | Some(paths) =>
-    let cmt =
-      SharedTypes.getCmt(~interface=Utils.endsWith(path, "i"), paths);
-    let%try full = Process_406.fullForCmt(~moduleName, ~uri, cmt, x => [x]);
-    Hashtbl.replace(
-      package.interModuleDependencies,
-      moduleName,
-      SharedTypes.hashList(full.extra.externalReferences) |> List.map(fst),
-    );
-    Ok((package, full));
-  | None => Error("can't find module " ++ moduleName)
+  switch (Packages.getPackage(uri, state)) {
+  | Error(e) => Error(e)
+  | Ok(package) =>
+    let moduleName =
+      BuildSystem.namespacedName(package.namespace, FindFiles.getName(path));
+    switch (Hashtbl.find_opt(package.pathsForModule, moduleName)) {
+    | Some(paths) =>
+      let cmt =
+        SharedTypes.getCmt(~interface=Utils.endsWith(path, "i"), paths);
+      switch (Process_406.fullForCmt(~moduleName, ~uri, cmt, x => [x])) {
+      | Error(e) => Error(e)
+      | Ok(full) =>
+        Hashtbl.replace(
+          package.interModuleDependencies,
+          moduleName,
+          SharedTypes.hashList(full.extra.externalReferences) |> List.map(fst),
+        );
+        Ok((package, full));
+      };
+    | None => Error("can't find module " ++ moduleName)
+    };
   };
 };
 
@@ -92,23 +102,30 @@ let docsForModule = (modname, state, ~package) =>
   };
 
 let fileForUri = (state, uri) => {
-  let%try (_package, {extra, file}) = getFullFromCmt(~state, ~uri);
-  Ok((file, extra));
+  switch (getFullFromCmt(~state, ~uri)) {
+  | Error(e) => Error(e)
+  | Ok((_package, {extra, file})) => Ok((file, extra))
+  }
 };
 
 let fileForModule = (state, ~package, modname) => {
-  let%opt (file, _) = docsForModule(modname, state, ~package);
-  Some(file);
+  switch (docsForModule(modname, state, ~package)) {
+  | None => None
+  | Some((file, _)) => Some(file)
+  }
 };
 
 let extraForModule = (state, ~package, modname) =>
   if (Hashtbl.mem(package.pathsForModule, modname)) {
     let paths = Hashtbl.find(package.pathsForModule, modname);
     /* TODO do better? */
-    let%opt src = SharedTypes.getSrc(paths);
-    switch (getFullFromCmt(~state, ~uri=Uri2.fromPath(src))) {
-    | Ok((_package, {extra})) => Some(extra)
-    | Error(_) => None
+    switch (SharedTypes.getSrc(paths)) {
+    | None => None
+    | Some(src) =>
+      switch (getFullFromCmt(~state, ~uri=Uri2.fromPath(src))) {
+      | Ok((_package, {extra})) => Some(extra)
+      | Error(_) => None
+      }
     };
   } else {
     None;
