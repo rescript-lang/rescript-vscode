@@ -186,7 +186,7 @@ let findCompletable = (text, offset) => {
       let parts = Str.split(Str.regexp_string("."), s);
       let parts = s.[len - 1] == '.' ? parts @ [""] : parts;
       switch (parts) {
-      | [id] when String.lowercase_ascii(id) == id =>
+      | [id] when String.lowercase_ascii(id) == id && false /* TODO */ =>
         switch (findJsxContext(text, offset - len - 1)) {
         | None => Cpath(parts)
         | Some(componentName) => Cjsx(componentName, id)
