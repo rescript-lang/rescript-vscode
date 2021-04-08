@@ -107,12 +107,12 @@ let convertItem item =
     | `Tag `Closed -> Omd.Text "Closed"
     | `Tag `Inline -> Omd.Text "Inline"
     | `Tag (`Canonical (path, _reference)) ->
-      (* output_string(stderr, "Warning: Unhandled tag 'Canonical' in ocamldoc (please tell the reason-language-server maintainers)\n"); *)
+      (* output_string(stderr, "Warning: Unhandled tag 'Canonical' in ocamldoc (please tell the rescript-editor-support maintainers)\n"); *)
       Omd.Text (showPath path) (* ++ ", " ++ handleRef(reference)) *)
     | `Tag _ ->
       output_string stderr
         "Warning: Unhandled tag in ocamldoc (please tell the \
-         reason-language-server maintainers)\n";
+         rescript-editor-support maintainers)\n";
       Omd.Text "Unhandled tag"
     | #nestable_block_element as item -> convertNestable item
   and convertNestable item =

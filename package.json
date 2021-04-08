@@ -14,7 +14,7 @@
     "url": "https://github.com/rescript-lang/rescript-editor-support",
     "type": "git"
   },
-  "description": "A pure-reason implementation of a language server",
+  "description": "Core editor analysis for ReScript's editor plugins",
   "author": "Cristiano Calcagno",
   "license": "MIT",
   "devDependencies": {

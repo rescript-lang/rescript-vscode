@@ -402,9 +402,6 @@ struct
             {path; loc = eloc; extent = expression.exp_loc; used = []}
         | _ -> ());
     match expression.exp_desc with
-    (*
-    | Texp_apply({exp_desc: Pexp_ident(_, {txt: Ldot(Lident("ReasonReact"), "element")})}, [(_, {exp_desc: Pexp_apply({exp_desc: Pexp_ident(_, {txt})}, _)})]) => {}
-    *)
     | Texp_ident (path, {txt; loc}, {val_type}) ->
       addForLongident (Some (val_type, Value)) path txt loc
     | Texp_record {fields} ->
