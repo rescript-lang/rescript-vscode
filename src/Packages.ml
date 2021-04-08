@@ -36,7 +36,7 @@ let newBsPackage rootPath =
       match
         compiledBase
         |> RResult.orError
-             "You need to run bsb first so that reason-language-server can \
+             "You need to run bsb first so that rescript-editor-support can \
               access the compiled artifacts.\n\
               Once you've run bsb, restart the language server."
       with
