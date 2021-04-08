@@ -73,12 +73,12 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - v2-opam-cache-{{ arch }}-v0
+          - v3-opam-cache-{{ arch }}-v0
 
   save-opam-cache:
     steps:
       - save_cache:
-          key: v2-opam-cache-{{ arch }}-v0
+          key: v3-opam-cache-{{ arch }}-v0
           paths:
             - ~/.opam
             - _opam
@@ -218,7 +218,7 @@ jobs:
             npm --version
       - restore_cache:
           keys:
-          - v3-opam-cache-{{ arch }}
+          - v4-opam-cache-{{ arch }}
       - opam_windows/init
       - opam_windows/create_switch
       - run:
@@ -231,7 +231,7 @@ jobs:
             eval $(opam env)
             opam install dune.1.11.4 --yes | cat
       - save_cache:
-          key: v3-opam-cache-{{ arch }}
+          key: v4-opam-cache-{{ arch }}
           paths:
             - C:/tools/cygwin/home/circleci/.opam
             - _opam
