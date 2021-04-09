@@ -43,6 +43,8 @@ let main () =
   | _opts, ["complete"; path; line; char; currentFile] ->
     EditorSupportCommands.complete ~path ~line:(int_of_string line)
       ~char:(int_of_string char) ~currentFile
+  | _opts, ["hover"; path; line; char] ->
+    EditorSupportCommands.hover ~path ~line:(int_of_string line) ~char:(int_of_string char)
   | _ ->
     showHelp ();
     exit 1

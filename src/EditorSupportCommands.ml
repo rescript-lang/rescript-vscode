@@ -1,3 +1,9 @@
+let posOfLexing {Lexing.pos_lnum; pos_cnum; pos_bol} =
+  Json.Object [("line", Json.Number (float_of_int (pos_lnum - 1))); ("character", Json.Number (float_of_int (pos_cnum - pos_bol)))]
+
+let rangeOfLoc {Location.loc_start; loc_end} =
+  Json.Object [("start", posOfLexing loc_start); ("end", posOfLexing loc_end)]
+
 let dumpLocations state ~package ~file ~extra ~selectPos uri =
   let locations =
     extra.SharedTypes.locations
@@ -60,7 +66,7 @@ let dumpLocations state ~package ~file ~extra ~selectPos uri =
               (not locIsModule) && loc.loc_start |> posIsZero
               && loc.loc_end |> posIsZero
             in
-            let range = ("range", Protocol.rangeOfLoc loc) in
+            let range = ("range", rangeOfLoc loc) in
             (
               [
                 ("definition",
@@ -76,7 +82,7 @@ let dumpLocations state ~package ~file ~extra ~selectPos uri =
         let skip = skipZero || (hover = [] && def = []) in
         match skip with
         | true -> None
-        | false -> Some (Json.Object ([("range", Protocol.rangeOfLoc location)] @ hover @ def)))
+        | false -> Some (Json.Object ([("range", rangeOfLoc location)] @ hover @ def)))
   in
   Json.stringify (Json.Array locationsInfo)
 
@@ -122,5 +128,78 @@ let complete ~path ~line ~char ~currentFile =
       NewCompletions.computeCompletions ~full ~maybeText ~package ~pos:(line, char) ~state
       |> List.map Protocol.stringifyCompletionItem
       |> Protocol.array
+  in
+  print_endline result
+
+let hover state ~file ~line ~char ~extra ~package =
+  let locations =
+    extra.SharedTypes.locations
+    |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
+  in
+  let locations =
+    let pos = (line, char) in
+    let pos = Utils.cmtLocFromVscode pos in
+    match References.locForPos ~extra:{extra with locations} pos with
+    | None -> []
+    | Some l -> [l]
+  in
+  let locationsInfo =
+    locations
+    |> Utils.filterMap (fun (_, loc) ->
+        let locIsModule =
+          match loc with
+          | SharedTypes.LModule _ | TopLevelModule _ -> true
+          | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
+        in
+        let hoverText =
+          Hover.newHover ~file
+            ~getModule:(State.fileForModule state ~package)
+            loc
+        in
+        let hover =
+          match hoverText with
+          | None -> None
+          | Some s ->
+            let open Protocol in
+            Some {
+              contents = s
+            }
+        in
+        let uriLocOpt =
+          References.definitionForLoc ~pathsForModule:package.pathsForModule
+            ~file ~getUri:(State.fileForUri state)
+            ~getModule:(State.fileForModule state ~package)
+            loc
+        in
+        let skipZero =
+          match uriLocOpt with
+          | None -> false
+          | Some (_, loc) ->
+            let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
+              pos_lnum = 1 && pos_cnum - pos_bol = 0
+            in
+            (* Skip if range is all zero, unless it's a module *)
+            (not locIsModule) && loc.loc_start |> posIsZero
+            && loc.loc_end |> posIsZero
+        in
+        match hover with
+        | Some hover when not skipZero -> Some hover
+        | _ -> None
+      )
+  in
+  match locationsInfo with
+  | [] -> Protocol.null
+  | head :: _ -> Protocol.stringifyHover head
+
+let hover ~path ~line ~char =
+  let state = TopTypes.empty () in
+  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
+  let uri = Uri2.fromPath filePath in
+  let result =
+    match State.getFullFromCmt ~state ~uri with
+    | Error message ->
+      Protocol.stringifyHover {contents = message}
+    | Ok (package, {file; extra}) ->
+      hover state ~file ~line ~char ~extra ~package
   in
   print_endline result
