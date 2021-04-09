@@ -138,3 +138,5 @@ let lll = List.make(3, 4)
 
 let abc = "abc"
 
+let arr = [1, 2, 3]
+
