@@ -116,6 +116,18 @@ type completable =
   | Cjsx of string list * string (* E.g. (["M", "Comp"], "id") for <M.Comp ... id *)
   | Cpipe of string (* E.g. "x->foo" *)
 
+
+let isLowercaseIdent id =
+  let rec loop i =
+    if i < 0 then true
+    else
+      match id.[i] with
+      | ('a' .. 'z' | '_') when i = 0 -> true
+      | ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_') when i > 0 -> loop (i - 1)
+      | _ -> false
+  in
+  loop (String.length id - 1)
+
 let findCompletable text offset =
   let mkPath s =
     let len = String.length s in
@@ -142,7 +154,9 @@ let findCompletable text offset =
     | true -> Some (mkPath (String.sub text (i + 1) (offset - (i + 1))))
     | false -> (
       match text.[i] with
-      | '>' when i > 0 && text.[i - 1] = '-' -> loop (i - 2)
+      | '>' when i > 0 && text.[i - 1] = '-' ->
+         let rest = String.sub text (i + 1) (offset - (i + 1)) in
+         if isLowercaseIdent rest then loop (i - 2) else Some (mkPath rest)
       | '~' ->
         let labelPrefix = String.sub text (i + 1) (offset - (i + 1)) in
         let funPath = findCallFromArgument text (i - 1) in
