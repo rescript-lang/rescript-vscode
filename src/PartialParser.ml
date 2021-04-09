@@ -109,6 +109,8 @@ let findJsxContext text offset =
   in
   loop offset
 
+type pipe = PipeId of string | PipeString
+
 type completable =
   | Cdecorator of string  (** e.g. @module *)
   | Clabel of string list * string
@@ -116,7 +118,7 @@ type completable =
   | Cpath of string list  (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string
       (** E.g. (["M", "Comp"], "id") for <M.Comp ... id *)
-  | Cpipe of string * string  (** E.g. ("x", "foo") for "x->foo" *)
+  | Cpipe of pipe * string  (** E.g. ("x", "foo") for "x->foo" *)
 
 let isLowercaseIdent id =
   let rec loop i =
@@ -148,11 +150,12 @@ let findCompletable text offset =
     let off = skipWhite text off in
     let rec loop i =
       match i < 0 with
-      | true -> Some (String.sub text 0 (i - 1))
+      | true -> Some (PipeId (String.sub text 0 (i - 1)))
       | false -> (
         match text.[i] with
         | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
-        | _ -> Some (String.sub text (i + 1) (off - i)))
+        | '"' when i == off -> Some PipeString
+        | _ -> Some (PipeId (String.sub text (i + 1) (off - i))))
     in
     match loop off with
     | None -> None
