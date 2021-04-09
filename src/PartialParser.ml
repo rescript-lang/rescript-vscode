@@ -116,7 +116,7 @@ type completable =
   | Cpath of string list  (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string
       (** E.g. (["M", "Comp"], "id") for <M.Comp ... id *)
-  | Cpipe of string  (** E.g. "x->foo" *)
+  | Cpipe of string * string  (** E.g. ("x", "foo") for "x->foo" *)
 
 let isLowercaseIdent id =
   let rec loop i =
@@ -132,24 +132,32 @@ let isLowercaseIdent id =
 let findCompletable text offset =
   let mkPath s =
     let len = String.length s in
-    let pipeParts = Str.split (Str.regexp_string "->") s in
-    if
-      (len > 1 && s.[len - 2] = '-' && s.[len - 1] = '>')
-      || List.length pipeParts > 1
-    then Cpipe s
-    else
-      let parts = Str.split (Str.regexp_string ".") s in
-      let parts =
-        match s.[len - 1] = '.' with true -> parts @ [""] | false -> parts
-      in
-      match parts with
-      | [id] when String.lowercase_ascii id = id -> (
-        match findJsxContext text (offset - len - 1) with
-        | None -> Cpath parts
-        | Some componentName ->
-          Cjsx (Str.split (Str.regexp_string ".") componentName, id))
-      | _ -> Cpath parts
+    let parts = Str.split (Str.regexp_string ".") s in
+    let parts =
+      match s.[len - 1] = '.' with true -> parts @ [""] | false -> parts
+    in
+    match parts with
+    | [id] when String.lowercase_ascii id = id -> (
+      match findJsxContext text (offset - len - 1) with
+      | None -> Cpath parts
+      | Some componentName ->
+        Cjsx (Str.split (Str.regexp_string ".") componentName, id))
+    | _ -> Cpath parts
   in
+  let mkPipe off partialName =
+    let rec loop i =
+      match i < 0 with
+      | true -> Some (String.sub text 0 (i - 1))
+      | false -> (
+        match text.[i] with
+        | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
+        | _ -> Some (String.sub text (i + 1) (off - i)))
+    in
+    match loop off with
+    | None -> None
+    | Some lhs -> Some (Cpipe (lhs, partialName))
+  in
+
   let suffix i = String.sub text (i + 1) (offset - (i + 1)) in
   let rec loop i =
     match i < 0 with
@@ -158,7 +166,8 @@ let findCompletable text offset =
       match text.[i] with
       | '>' when i > 0 && text.[i - 1] = '-' ->
         let rest = suffix i in
-        if isLowercaseIdent rest then loop (i - 2) else Some (mkPath rest)
+        if isLowercaseIdent rest then mkPipe (i - 2) rest
+        else Some (mkPath rest)
       | '~' ->
         let labelPrefix = suffix i in
         let funPath = findCallFromArgument text (i - 1) in
