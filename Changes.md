@@ -3,6 +3,7 @@
 - Don't show file path on hover.
 - Add autocomplete for props in JSX components.
 - Autocomplete: fix issue where `->` autocomplete was overruling `.`. See https://github.com/rescript-lang/rescript-editor-support/issues/99.
+- Add pipe autocomplete for builtin list, array, string, option types. And for string and array literals.
 
 ## Release 1.0.6 of rescript-vscode
 This [commit](https://github.com/rescript-lang/rescript-editor-support/commit/03ee0d97b250474028d4fb08eac81ddb21ccb082) is vendored in [rescript-vscode 1.0.6](https://github.com/rescript-lang/rescript-vscode/releases/tag/1.0.6).
