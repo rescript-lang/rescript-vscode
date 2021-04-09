@@ -155,14 +155,6 @@ let rec stringify t =
   | True -> "true"
   | False -> "false"
   | Null -> "null"
-  [@@ocaml.doc
-    " ```\n\
-    \ * let text = {|{\"hello\": \"folks\", \"aa\": [2, 3, \"four\"]}|};\n\
-    \ * let result = Json.stringify(Json.parse(text));\n\
-    \ * Js.log(result);\n\
-    \ * assert(text == result);\n\
-    \ * ```\n\
-    \ "]
 
 let white n =
   let buffer = Buffer.create n in

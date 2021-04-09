@@ -298,8 +298,6 @@ let resolveRawOpens ~env ~getModule ~rawOpens ~package =
       rawOpens ~getModule
   in
   opens
-  [@@ocaml.doc
-    "\n\nTODO filter out things that are defined after the current position\n\n"]
 
 let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
   Log.log
