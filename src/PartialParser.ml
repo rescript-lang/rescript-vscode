@@ -149,24 +149,25 @@ let findCompletable text offset =
           Cjsx (Str.split (Str.regexp_string ".") componentName, id) )
       | _ -> Cpath parts
   in
+  let suffix i = String.sub text (i + 1) (offset - (i + 1)) in
   let rec loop i =
     match i < 0 with
-    | true -> Some (mkPath (String.sub text (i + 1) (offset - (i + 1))))
+    | true -> Some (mkPath (suffix i))
     | false -> (
       match text.[i] with
       | '>' when i > 0 && text.[i - 1] = '-' ->
-         let rest = String.sub text (i + 1) (offset - (i + 1)) in
+         let rest = suffix i in
          if isLowercaseIdent rest then loop (i - 2) else Some (mkPath rest)
       | '~' ->
-        let labelPrefix = String.sub text (i + 1) (offset - (i + 1)) in
+        let labelPrefix = suffix i in
         let funPath = findCallFromArgument text (i - 1) in
         Some (Clabel (funPath, labelPrefix))
-      | '@' -> Some (Cdecorator (String.sub text (i + 1) (offset - (i + 1))))
+      | '@' -> Some (Cdecorator (suffix i))
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
       | _ -> (
         match i = offset - 1 with
         | true -> None
-        | false -> Some (mkPath (String.sub text (i + 1) (offset - (i + 1)))) )
+        | false -> Some (mkPath (suffix i)) )
       )
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)
