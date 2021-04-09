@@ -3,20 +3,20 @@ open SharedTypes
 let showConstructor {cname = {txt}; args; res} =
   let open Infix in
   txt
-  ^ ( match args = [] with
+  ^ (match args = [] with
     | true -> ""
     | false ->
       "("
       ^ String.concat ", "
           (args |> List.map (fun (typ, _) -> typ |> Shared.typeToString))
-      ^ ")" )
+      ^ ")")
   ^ (res |?>> (fun typ -> "\n" ^ (typ |> Shared.typeToString)) |? "")
 
 (* TODO: local opens *)
 let resolveOpens ~env ~previous opens ~getModule =
   List.fold_left
     (fun previous path ->
-      (** Finding an open, first trying to find it in previoulsly resolved opens *)
+      (* Finding an open, first trying to find it in previoulsly resolved opens *)
       let rec loop prev =
         match prev with
         | [] -> (
@@ -34,11 +34,11 @@ let resolveOpens ~env ~previous opens ~getModule =
               | None ->
                 Log.log ("Could not resolve in " ^ name);
                 previous
-              | Some (env, _placeholder) -> previous @ [env] ) ) )
+              | Some (env, _placeholder) -> previous @ [env])))
         | env :: rest -> (
           match Query.resolvePath ~env ~getModule ~path with
           | None -> loop rest
-          | Some (env, _placeholder) -> previous @ [env] )
+          | Some (env, _placeholder) -> previous @ [env])
       in
       Log.log ("resolving open " ^ pathToString path);
       match Query.resolvePath ~env ~getModule ~path with
@@ -61,8 +61,7 @@ let completionForDeclareds ~pos declareds prefix transformContents =
       then {declared with item = transformContents declared.item} :: results
       else
         (* Log.log("Nope doesn't count " ++ Utils.showLocation(declared.scopeLoc) ++ " " ++ m); *)
-        results
-    )
+        results)
     declareds []
 
 let completionForExporteds exporteds
@@ -84,9 +83,9 @@ let completionForConstructors exportedTypes
       let t = Hashtbl.find stamps stamp in
       match t.item.kind with
       | SharedTypes.Type.Variant constructors ->
-        ( constructors
+        (constructors
         |> List.filter (fun c -> Utils.startsWith c.cname.txt prefix)
-        |> List.map (fun c -> (c, t)) )
+        |> List.map (fun c -> (c, t)))
         @ results
       | _ -> results)
     exportedTypes []
@@ -98,9 +97,9 @@ let completionForFields exportedTypes
       let t = Hashtbl.find stamps stamp in
       match t.item.kind with
       | Record fields ->
-        ( fields
+        (fields
         |> List.filter (fun f -> Utils.startsWith f.fname.txt prefix)
-        |> List.map (fun f -> (f, t)) )
+        |> List.map (fun f -> (f, t)))
         @ results
       | _ -> results)
     exportedTypes []
@@ -127,7 +126,7 @@ let determineCompletion items =
         match loop (offset + String.length one + 1) rest with
         | `Normal path -> `AbsAttribute path
         | `Attribute (path, suffix) -> `Attribute (one :: path, suffix)
-        | x -> x )
+        | x -> x)
   in
   loop 0 items
 
@@ -149,7 +148,7 @@ let getEnvWithOpens ~pos ~(env : Query.queryEnv) ~getModule
         Log.log ("Looking for env in " ^ Uri2.toString env.Query.file.uri);
         match Query.resolvePath ~env ~getModule ~path with
         | Some x -> Some x
-        | None -> loop rest )
+        | None -> loop rest)
       | [] -> (
         match path with
         | Tip _ -> None
@@ -161,7 +160,7 @@ let getEnvWithOpens ~pos ~(env : Query.queryEnv) ~getModule
             Log.log "got it";
             let env = Query.fileEnv file in
             Query.resolvePath ~env ~getModule ~path
-            |> Infix.logIfAbsent "Unable to resolve the path" ) )
+            |> Infix.logIfAbsent "Unable to resolve the path"))
     in
     loop opens
 
@@ -204,11 +203,11 @@ let localValueCompletions ~pos ~(env : Query.queryEnv) suffix =
       results
       @ completionForDeclareds ~pos env.file.stamps.modules suffix (fun m ->
             Module m)
-      @ ( completionForConstructors env.exported.types env.file.stamps.types
-        (* TODO declared thingsz *)
-            suffix
+      @ (completionForConstructors env.exported.types env.file.stamps.types
+           (* TODO declared thingsz *)
+           suffix
         |> List.map (fun (c, t) ->
-               {(emptyDeclared c.cname.txt) with item = Constructor (c, t)}) )
+               {(emptyDeclared c.cname.txt) with item = Constructor (c, t)}))
     else results
   in
   let results =
@@ -218,9 +217,9 @@ let localValueCompletions ~pos ~(env : Query.queryEnv) suffix =
             Value v)
       @ completionForDeclareds ~pos env.file.stamps.types suffix (fun t ->
             Type t)
-      @ ( completionForFields env.exported.types env.file.stamps.types suffix
+      @ (completionForFields env.exported.types env.file.stamps.types suffix
         |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)}) )
+               {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
     else results
   in
   results |> List.map (fun x -> (env.file.uri, x))
@@ -241,11 +240,11 @@ let valueCompletions ~(env : Query.queryEnv) suffix =
       (* Log.log(" -- capitalized " ++ string_of_int(Hashtbl.length(env.exported.types)) ++ " exported types"); *)
       (* env.exported.types |> Hashtbl.iter((name, _) => Log.log("    > " ++ name)); *)
       results @ moduleCompletions
-      @ (
-        (* TODO declared thingsz *)
-        completionForConstructors env.exported.types env.file.stamps.types suffix
+      @ ((* TODO declared thingsz *)
+         completionForConstructors env.exported.types env.file.stamps.types
+           suffix
         |> List.map (fun (c, t) ->
-               {(emptyDeclared c.cname.txt) with item = Constructor (c, t)}) ) )
+               {(emptyDeclared c.cname.txt) with item = Constructor (c, t)})))
     else results
   in
   let results =
@@ -256,13 +255,13 @@ let valueCompletions ~(env : Query.queryEnv) suffix =
           (fun v -> Value v)
       @ completionForExporteds env.exported.types env.file.stamps.types suffix
           (fun t -> Type t)
-      @ ( completionForFields env.exported.types env.file.stamps.types suffix
+      @ (completionForFields env.exported.types env.file.stamps.types suffix
         |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)}) ) )
+               {(emptyDeclared f.fname.txt) with item = Field (f, t)})))
     else results
   in
   (* Log.log("Getting value completions " ++ env.file.uri);
-   Log.log(String.concat(", ", results |. Belt.List.map(x => x.name.txt))); *)
+     Log.log(String.concat(", ", results |. Belt.List.map(x => x.name.txt))); *)
   results |> List.map (fun x -> (env.file.uri, x))
 
 let attributeCompletions ~(env : Query.queryEnv) ~suffix =
@@ -280,9 +279,9 @@ let attributeCompletions ~(env : Query.queryEnv) ~suffix =
       @ completionForExporteds env.exported.values env.file.stamps.values suffix
           (fun v -> Value v)
       (* completionForExporteds(env.exported.types, env.file.stamps.types, suffix, t => Type(t)) @ *)
-      @ ( completionForFields env.exported.types env.file.stamps.types suffix
+      @ (completionForFields env.exported.types env.file.stamps.types suffix
         |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)}) )
+               {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
     else results
   in
   results |> List.map (fun x -> (env.file.uri, x))
@@ -304,20 +303,20 @@ let resolveRawOpens ~env ~getModule ~rawOpens ~package =
 
 let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
   Log.log
-    ( "Opens folkz > "
+    ("Opens folkz > "
     ^ string_of_int (List.length rawOpens)
     ^ " "
-    ^ String.concat " ... " (rawOpens |> List.map pathToString) );
+    ^ String.concat " ... " (rawOpens |> List.map pathToString));
   let env = Query.fileEnv full.file in
   let packageOpens = "Pervasives" :: package.TopTypes.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
   let resolvedOpens = resolveRawOpens ~env ~getModule ~rawOpens ~package in
   Log.log
-    ( "Opens nows "
+    ("Opens nows "
     ^ string_of_int (List.length resolvedOpens)
     ^ " "
     ^ String.concat " "
-        (resolvedOpens |> List.map (fun e -> Uri2.toString e.Query.file.uri)) );
+        (resolvedOpens |> List.map (fun e -> Uri2.toString e.Query.file.uri)));
   (* Last open takes priority *)
   let opens = List.rev resolvedOpens in
   match parts with
@@ -335,7 +334,7 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
                  if not (Hashtbl.mem alreadyUsedIdentifiers declared.name.txt)
                  then (
                    Hashtbl.add alreadyUsedIdentifiers declared.name.txt true;
-                   true )
+                   true)
                  else false)
                completionsFromThisOpen
              @ results)
@@ -364,7 +363,7 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
       | Some (env, suffix) ->
         Log.log "Got the env";
         valueCompletions ~env suffix
-      | None -> [] )
+      | None -> [])
     | `Attribute (target, suffix) -> (
       Log.log ("suffix :" ^ suffix);
       match target with
@@ -400,8 +399,8 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
                              match attr.typ |> Shared.digConstructor with
                              | None -> None
                              | Some path ->
-                               Hover.digConstructor ~env ~getModule path ) )
-                         | _ -> None ))
+                               Hover.digConstructor ~env ~getModule path))
+                         | _ -> None))
                      (Some (env, typ))
               with
               | None -> []
@@ -418,27 +417,30 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
                                  item = Field (f, typ);
                                } )
                          else None)
-                | _ -> [] ) ) ) ) ) )
+                | _ -> []))))))
     | `AbsAttribute path -> (
       match getEnvWithOpens ~pos ~env ~getModule ~opens path with
       | None -> []
       | Some (env, suffix) ->
         attributeCompletions ~env ~suffix
         @ List.concat
-            (opens |> List.map (fun env -> attributeCompletions ~env ~suffix)) )
-    )
+            (opens |> List.map (fun env -> attributeCompletions ~env ~suffix))))
 
 module J = JsonShort
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring ~uri ~pos_lnum =
   let valueMessage =
     (match deprecated with None -> "" | Some s -> "Deprecated: " ^ s ^ "\n\n")
-    ^ ( match docstring with
+    ^ (match docstring with
       | [] -> ""
-      | _ :: _ -> (docstring |> String.concat "\n") ^ "\n\n" )
+      | _ :: _ -> (docstring |> String.concat "\n") ^ "\n\n")
     ^ "\n" ^ Uri2.toString uri ^ ":" ^ string_of_int pos_lnum
   in
-  let tags = match deprecated = None with true -> [] | false -> [J.i 1 (* deprecated *)] in
+  let tags =
+    match deprecated = None with
+    | true -> []
+    | false -> [J.i 1 (* deprecated *)]
+  in
   J.o
     [
       ("label", J.s name);
@@ -493,9 +495,9 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     if labels = [] then []
     else
       keyLabel
-      :: ( labels
+      :: (labels
          |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
-         |> List.map mkLabel )
+         |> List.map mkLabel)
   | Cpath parts ->
     let items = parts |> findItems ~exact:false in
     (* TODO(#107): figure out why we're getting duplicates. *)
@@ -597,8 +599,8 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
                mkItem ~name:(completionName name) ~kind:(kindToInt item)
                  ~detail:(detail name item) ~deprecated ~docstring ~uri
                  ~pos_lnum)
-      | _ -> [] )
-    | None -> [] )
+      | _ -> [])
+    | None -> [])
   | Cdecorator prefix ->
     let mkDecorator name =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:"" ~docstring:[]
@@ -688,6 +690,6 @@ let computeCompletions ~full ~maybeText ~package ~pos ~state =
             | _ -> items
           in
           completable
-          |> processCompletable ~findItems ~full ~package ~pos ~rawOpens ) )
+          |> processCompletable ~findItems ~full ~package ~pos ~rawOpens))
   in
   if items = [] then J.null else items |> J.l
