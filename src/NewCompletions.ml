@@ -515,15 +515,31 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
            mkItem ~name ~kind:(kindToInt item) ~deprecated
              ~detail:(detail name item) ~docstring ~uri ~pos_lnum)
   | Cpipe s -> (
-    let getLhsType ~lhs ~partialName =
+    let getModulePath path =
+      let rec loop (path : Path.t) =
+        match path with
+        | Pident id -> [Ident.name id]
+        | Pdot (p, s, _) -> s :: loop p
+        | Papply _ -> []
+      in
+      match loop path with _ :: rest -> List.rev rest | [] -> []
+    in
+    let getLhsPath ~lhs ~partialName =
       match [lhs] |> findItems ~exact:true with
-      | (_uri, {SharedTypes.item = Value t}) :: _ -> Some (t, partialName)
+      | (_uri, {SharedTypes.item = Value t}) :: _ ->
+        let modulePath =
+          match t.desc with
+          | Tconstr (path, _, _) -> getModulePath path
+          | Tlink {desc = Tconstr (path, _, _)} -> getModulePath path
+          | _ -> []
+        in
+        Some (modulePath, partialName)
       | _ -> None
     in
-    let lhsType =
+    let lhsPath =
       match Str.split (Str.regexp_string "->") s with
-      | [lhs] -> getLhsType ~lhs ~partialName:""
-      | [lhs; partialName] -> getLhsType ~lhs ~partialName
+      | [lhs] -> getLhsPath ~lhs ~partialName:""
+      | [lhs; partialName] -> getLhsPath ~lhs ~partialName
       | _ ->
         (* Only allow one -> *)
         None
@@ -552,23 +568,8 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
         removeRawOpens restOpens newModulePath
       | [] -> modulePath
     in
-    match lhsType with
-    | Some (t, partialName) -> (
-      let getModulePath path =
-        let rec loop (path : Path.t) =
-          match path with
-          | Pident id -> [Ident.name id]
-          | Pdot (p, s, _) -> s :: loop p
-          | Papply _ -> []
-        in
-        match loop path with _ :: rest -> List.rev rest | [] -> []
-      in
-      let modulePath =
-        match t.desc with
-        | Tconstr (path, _, _) -> getModulePath path
-        | Tlink {desc = Tconstr (path, _, _)} -> getModulePath path
-        | _ -> []
-      in
+    match lhsPath with
+    | Some (modulePath, partialName) -> (
       match modulePath with
       | _ :: _ ->
         let modulePathMinusOpens =
