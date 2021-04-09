@@ -1,4 +1,3 @@
-module J = JsonShort
 module StringSet = Set.Make (String)
 
 let parseArgs args =

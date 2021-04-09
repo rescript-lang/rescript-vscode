@@ -424,8 +424,6 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
         @ List.concat
             (opens |> List.map (fun env -> attributeCompletions ~env ~suffix))))
 
-module J = JsonShort
-
 let mkItem ~name ~kind ~detail ~deprecated ~docstring ~uri ~pos_lnum =
   let valueMessage =
     (match deprecated with None -> "" | Some s -> "Deprecated: " ^ s ^ "\n\n")
@@ -437,17 +435,18 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring ~uri ~pos_lnum =
   let tags =
     match deprecated = None with
     | true -> []
-    | false -> [J.i 1 (* deprecated *)]
+    | false -> [1 (* deprecated *)]
   in
-  J.o
-    [
-      ("label", J.s name);
-      ("kind", J.i kind);
-      ("tags", J.l tags);
-      ("detail", detail |> J.s);
-      ( "documentation",
-        J.o [("kind", J.s "markdown"); ("value", J.s valueMessage)] );
-    ]
+  Protocol.{
+    label = name;
+    kind = kind;
+    tags = tags;
+    detail = detail;
+    documentation = {
+      kind = "markdown";
+      value = valueMessage;
+    };
+  }
 
 let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     (completable : PartialParser.completable) =
@@ -668,34 +667,31 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     |> List.map mkLabel
 
 let computeCompletions ~full ~maybeText ~package ~pos ~state =
-  let items =
-    match maybeText with
+  match maybeText with
+  | None -> []
+  | Some text -> (
+    match PartialParser.positionToOffset text pos with
     | None -> []
-    | Some text -> (
-      match PartialParser.positionToOffset text pos with
+    | Some offset -> (
+      match PartialParser.findCompletable text offset with
       | None -> []
-      | Some offset -> (
-        match PartialParser.findCompletable text offset with
-        | None -> []
-        | Some completable ->
-          let rawOpens = PartialParser.findOpens text offset in
-          let allModules =
-            package.TopTypes.localModules @ package.dependencyModules
+      | Some completable ->
+        let rawOpens = PartialParser.findOpens text offset in
+        let allModules =
+          package.TopTypes.localModules @ package.dependencyModules
+        in
+        let findItems ~exact parts =
+          let items =
+            getItems ~full ~package ~rawOpens
+              ~getModule:(State.fileForModule state ~package)
+              ~allModules ~pos ~parts
           in
-          let findItems ~exact parts =
-            let items =
-              getItems ~full ~package ~rawOpens
-                ~getModule:(State.fileForModule state ~package)
-                ~allModules ~pos ~parts
-            in
-            match parts |> List.rev with
-            | last :: _ when exact ->
-              items
-              |> List.filter (fun (_uri, {SharedTypes.name = {txt}}) ->
-                     txt = last)
-            | _ -> items
-          in
-          completable
-          |> processCompletable ~findItems ~full ~package ~pos ~rawOpens))
-  in
-  if items = [] then J.null else items |> J.l
+          match parts |> List.rev with
+          | last :: _ when exact ->
+            items
+            |> List.filter (fun (_uri, {SharedTypes.name = {txt}}) ->
+                   txt = last)
+          | _ -> items
+        in
+        completable
+        |> processCompletable ~findItems ~full ~package ~pos ~rawOpens))
