@@ -136,3 +136,5 @@ let comp = <O.Comp key="12" second="abcc" v=12 />
 
 let lll = List.make(3, 4)
 
+let abc = "abc"
+
