@@ -145,6 +145,7 @@ let findCompletable text offset =
     | _ -> Cpath parts
   in
   let mkPipe off partialName =
+    let off = skipWhite text off in
     let rec loop i =
       match i < 0 with
       | true -> Some (String.sub text 0 (i - 1))
