@@ -512,7 +512,7 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
          ->
            mkItem ~name ~kind:(kindToInt item) ~deprecated
              ~detail:(detail name item) ~docstring ~uri ~pos_lnum)
-  | Cpipe s -> (
+  | Cpipe (lhs, partialName) -> (
     let getModulePath path =
       let rec loop (path : Path.t) =
         match path with
@@ -534,14 +534,7 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
         Some (modulePath, partialName)
       | _ -> None
     in
-    let lhsPath =
-      match Str.split (Str.regexp_string "->") s with
-      | [lhs] -> getLhsPath ~lhs ~partialName:""
-      | [lhs; partialName] -> getLhsPath ~lhs ~partialName
-      | _ ->
-        (* Only allow one -> *)
-        None
-    in
+    let lhsPath = getLhsPath ~lhs ~partialName in
     let removePackageOpens modulePath =
       match modulePath with
       | toplevel :: rest when package.TopTypes.opens |> List.mem toplevel ->

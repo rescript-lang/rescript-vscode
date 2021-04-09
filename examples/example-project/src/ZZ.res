@@ -79,25 +79,25 @@ let testRecordFields = (gr: gr) => {
 }
 
 @ocaml.doc("vr docstring")
-type vr = | V1 | V2
+type vr = V1 | V2
 
 let v1 = V1
 
 module DoubleNested = ModuleWithDocComment.Nested.NestedAgain
 
-let uncurried = (. x) => x+1;
+let uncurried = (. x) => x + 1
 
 module Inner = {
-  type tInner = int;
+  type tInner = int
   let vInner = 34
 }
 
-type typeInner = Inner.tInner;
+type typeInner = Inner.tInner
 
-let valueInner = Inner.vInner;
+let valueInner = Inner.vInner
 
 @ocaml.doc("Doc comment for functionWithTypeAnnotation")
-let functionWithTypeAnnotation : unit => int = () => 1
+let functionWithTypeAnnotation: unit => int = () => 1
 
 module HoverInsideModuleWithComponent = {
   let x = 2 // check that hover on x works
@@ -111,14 +111,12 @@ module Lib = {
   let next = (~number=0, ~year) => number + year
 }
 
-@ocaml.doc("This module is commented")
-@deprecated("This module is deprecated")
-module Dep : {
-  @ocaml.doc("Some doc comment")
-  @deprecated("Use customDouble instead")
-  let customDouble : int => int
+@ocaml.doc("This module is commented") @deprecated("This module is deprecated")
+module Dep: {
+  @ocaml.doc("Some doc comment") @deprecated("Use customDouble instead")
+  let customDouble: int => int
 
-  let customDouble2 : int => int
+  let customDouble2: int => int
 } = {
   let customDouble = foo => foo * 2
   let customDouble2 = foo => foo * 2
@@ -129,8 +127,12 @@ let cc = Dep.customDouble(11)
 module O = {
   module Comp = {
     @react.component
-    let make = (~first="", ~kas=11, ~foo=3, ~second, ~v) => React.string(first ++ second ++ string_of_int(foo))
+    let make = (~first="", ~kas=11, ~foo=3, ~second, ~v) =>
+      React.string(first ++ second ++ string_of_int(foo))
   }
 }
 
 let comp = <O.Comp key="12" second="abcc" v=12 />
+
+let lll = List.make(3, 4)
+
