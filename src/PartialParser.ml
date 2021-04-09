@@ -109,7 +109,7 @@ let findJsxContext text offset =
   in
   loop offset
 
-type pipe = PipeId of string | PipeString
+type pipe = PipeId of string | PipeArray | PipeString
 
 type completable =
   | Cdecorator of string  (** e.g. @module *)
@@ -155,6 +155,7 @@ let findCompletable text offset =
         match text.[i] with
         | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
         | '"' when i == off -> Some PipeString
+        | ']' when i == off -> Some PipeArray
         | _ -> Some (PipeId (String.sub text (i + 1) (off - i))))
     in
     match loop off with
