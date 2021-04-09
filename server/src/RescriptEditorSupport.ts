@@ -1,5 +1,6 @@
 import { fileURLToPath } from "url";
 import { RequestMessage } from "vscode-languageserver";
+import { CompletionItem } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as path from "path";
 import { execFileSync } from "child_process";
@@ -60,11 +61,11 @@ export function runDumpCommand(msg: RequestMessage): dumpCommandResult | null {
   }
 }
 
-type completionCommandResult = [{ label: string }];
+// TODO: the result will never be null soon when the updated binary syncs
 export function runCompletionCommand(
   msg: RequestMessage,
   code: string
-): completionCommandResult | null {
+): CompletionItem[] | null {
   let executable = findExecutable(msg.params.textDocument.uri);
   if (executable == null) {
     return null;
