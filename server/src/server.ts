@@ -385,22 +385,13 @@ function onMessage(msg: m.Message) {
         send(emptyDefinitionResponse);
       }
     } else if (msg.method === p.CompletionRequest.method) {
-      let emptyCompletionResponse: m.ResponseMessage = {
+      let code = getOpenedFileContent(msg.params.textDocument.uri);
+      let completionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
-        result: null,
+        result: runCompletionCommand(msg, code),
       };
-      let code = getOpenedFileContent(msg.params.textDocument.uri);
-      let result = runCompletionCommand(msg, code);
-      if (result === null) {
-        send(emptyCompletionResponse);
-      } else {
-        let definitionResponse: m.ResponseMessage = {
-          ...emptyCompletionResponse,
-          result: result,
-        };
-        send(definitionResponse);
-      }
+      send(completionResponse);
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
       // the LSP alert box for these error replies sucks (e.g. doesn't actually
