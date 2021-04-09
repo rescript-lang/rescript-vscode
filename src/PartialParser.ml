@@ -63,16 +63,16 @@ let findJsxContext text offset =
       match text.[i] with
       | '}' -> (
         let i1 = findBackSkippingCommentsAndStrings text '{' '}' (i - 1) 0 in
-        match i1 > 0 with true -> beforeValue i1 | false -> None )
+        match i1 > 0 with true -> beforeValue i1 | false -> None)
       | ')' -> (
         let i1 = findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0 in
-        match i1 > 0 with true -> beforeValue i1 | false -> None )
+        match i1 > 0 with true -> beforeValue i1 | false -> None)
       | ']' -> (
         let i1 = findBackSkippingCommentsAndStrings text '[' ']' (i - 1) 0 in
-        match i1 > 0 with true -> beforeValue i1 | false -> None )
+        match i1 > 0 with true -> beforeValue i1 | false -> None)
       | '"' -> (
         let i1 = findBack text '"' (i - 1) in
-        match i1 > 0 with true -> beforeValue i1 | false -> None )
+        match i1 > 0 with true -> beforeValue i1 | false -> None)
       | _ ->
         let i1 = startOfLident text i in
         let ident = String.sub text i1 (i - i1 + 1) in
@@ -103,19 +103,18 @@ let findJsxContext text offset =
         let i = skipWhite text (i - 1) in
         let i1 = startOfLident text i in
         let ident = String.sub text i1 (i - i1 + 1) in
-        match ident = "" with true -> None | false -> loop (i1 - 1) )
+        match ident = "" with true -> None | false -> loop (i1 - 1))
       | _ -> None
     else None
   in
   loop offset
 
 type completable =
-  | Cdecorator of string (* e.g. @module *)
-  | Clabel of string list * string (* e.g. (["M", "foo"], "label") for M.foo(...~label...) *)
-  | Cpath of string list (* e.g. ["M", "foo"] for M.foo *)
-  | Cjsx of string list * string (* E.g. (["M", "Comp"], "id") for <M.Comp ... id *)
-  | Cpipe of string (* E.g. "x->foo" *)
-
+  | Cdecorator of string (** e.g. @module *)
+  | Clabel of string list * string (** e.g. (["M", "foo"], "label") for M.foo(...~label...) *)
+  | Cpath of string list (** e.g. ["M", "foo"] for M.foo *)
+  | Cjsx of string list * string (** E.g. (["M", "Comp"], "id") for <M.Comp ... id *)
+  | Cpipe of string  (** E.g. "x->foo" *)
 
 let isLowercaseIdent id =
   let rec loop i =
@@ -146,7 +145,7 @@ let findCompletable text offset =
         match findJsxContext text (offset - len - 1) with
         | None -> Cpath parts
         | Some componentName ->
-          Cjsx (Str.split (Str.regexp_string ".") componentName, id) )
+          Cjsx (Str.split (Str.regexp_string ".") componentName, id))
       | _ -> Cpath parts
   in
   let suffix i = String.sub text (i + 1) (offset - (i + 1)) in
@@ -156,8 +155,8 @@ let findCompletable text offset =
     | false -> (
       match text.[i] with
       | '>' when i > 0 && text.[i - 1] = '-' ->
-         let rest = suffix i in
-         if isLowercaseIdent rest then loop (i - 2) else Some (mkPath rest)
+        let rest = suffix i in
+        if isLowercaseIdent rest then loop (i - 2) else Some (mkPath rest)
       | '~' ->
         let labelPrefix = suffix i in
         let funPath = findCallFromArgument text (i - 1) in
@@ -167,8 +166,7 @@ let findCompletable text offset =
       | _ -> (
         match i = offset - 1 with
         | true -> None
-        | false -> Some (mkPath (suffix i)) )
-      )
+        | false -> Some (mkPath (suffix i))))
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)
 
@@ -212,7 +210,7 @@ let findOpens text offset =
             && not (insideLineComment text (at - 4))
           then (
             add (String.sub text (i + 1) (i0 + 1 - (i + 1)));
-            at - 4 )
+            at - 4)
           else at
         | _ -> i
     in
@@ -231,7 +229,7 @@ let findOpens text offset =
         | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' ->
           let i0 = startOfLident text (i - 3) in
           add (String.sub text i0 (i - i0 - 1))
-        | _ -> loop (i - 1) )
+        | _ -> loop (i - 1))
       | _ ->
         if i > 1 && text.[i] = '/' && text.[i - 1] = '*' then
           loop (findOpenComment text (i - 2))
@@ -250,8 +248,8 @@ let offsetOfLine text line =
       | '\n' -> (
         match lno = line - 1 with
         | true -> Some (i + 1)
-        | false -> loop (i + 1) (lno + 1) )
-      | _ -> loop (i + 1) lno )
+        | false -> loop (i + 1) (lno + 1))
+      | _ -> loop (i + 1) lno)
   in
   match line = 0 with true -> Some 0 | false -> loop 0 0
 
