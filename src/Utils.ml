@@ -9,7 +9,7 @@ let split_on_char sep s =
   for i = length s - 1 downto 0 do
     if unsafe_get s i = sep then (
       r := sub s (i + 1) (!j - i - 1) :: !r;
-      j := i )
+      j := i)
   done;
   sub s 0 !j :: !r
 
@@ -41,10 +41,6 @@ let endsWith s suffix =
 
 let cmtLocFromVscode (line, col) = (line + 1, col)
 
-let sliceToEnd s start =
-  let l = String.length s in
-  match start <= l with true -> String.sub s start (l - start) | false -> ""
-
 let locWithinLoc inner outer =
   let open Location in
   inner.loc_start.pos_cnum >= outer.loc_start.pos_cnum
@@ -64,23 +60,21 @@ let chopLocationEnd loc length =
     loc_end = {loc.loc_end with pos_cnum = loc.loc_end.pos_cnum - length};
   }
 
-let chopPrefix s prefix = sliceToEnd s (String.length prefix)
-
 (** An optional List.find *)
 let rec find fn items =
   match items with
   | [] -> None
   | one :: rest -> (
-    match fn one with None -> find fn rest | Some x -> Some x )
+    match fn one with None -> find fn rest | Some x -> Some x)
 
 let dedup items =
   let m = Hashtbl.create (List.length items) in
   items
   |> List.filter (fun a ->
-      if Hashtbl.mem m a then false
-      else (
-        Hashtbl.add m a ();
-        true ))
+         if Hashtbl.mem m a then false
+         else (
+           Hashtbl.add m a ();
+           true))
 
 let tupleOfLexing {Lexing.pos_lnum; pos_cnum; pos_bol} =
   (pos_lnum - 1, pos_cnum - pos_bol)
@@ -92,27 +86,11 @@ let tupleOfLexing {Lexing.pos_lnum; pos_cnum; pos_bol} =
 let locationContainsFuzzy {Location.loc_start; loc_end} (l, c) =
   tupleOfLexing loc_start <= (l, c) && tupleOfLexing loc_end >= (l - 5, c)
 
-(*
- * Quotes filename when not quoted
- * Example:
- * myFile.exe -> 'myFile.exe'
- * 'myFile.exe' -> 'myFile.exe'
- *)
-let maybeQuoteFilename filename =
-  let len = String.length filename in
-  if len < 1 then ""
-  else
-    let firstChar = filename.[0] in
-    let lastChar = filename.[len - 1] in
-    match (firstChar, lastChar) with
-    | '\'', '\'' | '"', '"' -> filename
-    | _ -> Filename.quote filename
-
 let filterMap f =
   let rec aux accu = function
     | [] -> List.rev accu
     | x :: l -> (
-      match f x with None -> aux accu l | Some v -> aux (v :: accu) l )
+      match f x with None -> aux accu l | Some v -> aux (v :: accu) l)
   in
   aux []
 
@@ -122,6 +100,6 @@ let filterMapIndex f =
     | x :: l -> (
       match f i x with
       | None -> aux accu i l
-      | Some v -> aux (v :: accu) (i + 1) l )
+      | Some v -> aux (v :: accu) (i + 1) l)
   in
   aux [] 0
