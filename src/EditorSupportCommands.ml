@@ -113,10 +113,9 @@ let dump files =
 
 let autocomplete ~currentFile ~full ~package ~pos ~state =
   let maybeText = Files.readFile currentFile in
-  let completions =
-    NewCompletions.computeCompletions ~full ~maybeText ~package ~pos ~state
-  in
-  Json.stringify completions
+  NewCompletions.computeCompletions ~full ~maybeText ~package ~pos ~state
+  |> List.map Protocol.stringifyCompletionItem
+  |> Protocol.array
 
 let complete ~pathWithPos ~currentFile =
   let state = TopTypes.empty () in
