@@ -201,8 +201,6 @@ type extra = {
   (* OPTIMIZE: using a stack to come up with this would cut the computation time of this considerably. *)
   opens : (Location.t, openTracker) Hashtbl.t;
 }
-[@@ocaml.doc
-  " These are the bits of info that we need to make in-app stuff awesome "]
 
 type full = {extra : extra; file : file}
 
