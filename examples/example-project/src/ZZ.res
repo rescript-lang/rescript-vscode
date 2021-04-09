@@ -140,3 +140,6 @@ let abc = "abc"
 
 let arr = [1, 2, 3]
 
+let some7 = Some(7)
+
+

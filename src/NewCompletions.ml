@@ -514,6 +514,7 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
              ~detail:(detail name item) ~docstring ~uri ~pos_lnum)
   | Cpipe (pipe, partialName) -> (
     let arrayModulePath = ["Js"; "Array2"] in
+    let optionModulePath = ["Belt"; "Option"] in
     let stringModulePath = ["Js"; "String2"] in
     let getModulePath path =
       let rec loop (path : Path.t) =
@@ -523,8 +524,9 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
         | Papply _ -> []
       in
       match path with
-      | Path.Pident id when Ident.name id = "string" -> stringModulePath
       | Path.Pident id when Ident.name id = "array" -> arrayModulePath
+      | Path.Pident id when Ident.name id = "option" -> optionModulePath
+      | Path.Pident id when Ident.name id = "string" -> stringModulePath
       | _ -> ( match loop path with _ :: rest -> List.rev rest | [] -> [])
     in
     let getLhsPath ~pipeId ~partialName =
