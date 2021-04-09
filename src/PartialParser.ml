@@ -110,10 +110,12 @@ let findJsxContext text offset =
   loop offset
 
 type completable =
-  | Cdecorator of string (** e.g. @module *)
-  | Clabel of string list * string (** e.g. (["M", "foo"], "label") for M.foo(...~label...) *)
-  | Cpath of string list (** e.g. ["M", "foo"] for M.foo *)
-  | Cjsx of string list * string (** E.g. (["M", "Comp"], "id") for <M.Comp ... id *)
+  | Cdecorator of string  (** e.g. @module *)
+  | Clabel of string list * string
+      (** e.g. (["M", "foo"], "label") for M.foo(...~label...) *)
+  | Cpath of string list  (** e.g. ["M", "foo"] for M.foo *)
+  | Cjsx of string list * string
+      (** E.g. (["M", "Comp"], "id") for <M.Comp ... id *)
   | Cpipe of string  (** E.g. "x->foo" *)
 
 let isLowercaseIdent id =
