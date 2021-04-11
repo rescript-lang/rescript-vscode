@@ -1,5 +1,3 @@
-module J = JsonShort
-
 let dumpLocations state ~package ~file ~extra ~selectPos uri =
   let locations =
     extra.SharedTypes.locations
@@ -19,11 +17,11 @@ let dumpLocations state ~package ~file ~extra ~selectPos uri =
     let isCandidate = String.length hover > 10 in
     if isCandidate then (
       match Hashtbl.find_opt dedupTable hover with
-      | Some n -> J.s ("#" ^ string_of_int n)
+      | Some n -> Json.String ("#" ^ string_of_int n)
       | None ->
         Hashtbl.replace dedupTable hover i;
-        J.s hover )
-    else J.s hover
+        Json.String hover )
+    else Json.String hover
   in
   let locationsInfo =
     locations
@@ -66,7 +64,7 @@ let dumpLocations state ~package ~file ~extra ~selectPos uri =
             (
               [
                 ("definition",
-                  J.o
+                  Json.Object
                     (match uriIsCurrentFile with
                     | true -> [range]
                     | false -> [("uri", Json.String (Uri2.toString uri2)); range])
@@ -78,10 +76,9 @@ let dumpLocations state ~package ~file ~extra ~selectPos uri =
         let skip = skipZero || (hover = [] && def = []) in
         match skip with
         | true -> None
-        | false -> Some (J.o ([("range", Protocol.rangeOfLoc location)] @ hover @ def)))
-    |> J.l
+        | false -> Some (Json.Object ([("range", Protocol.rangeOfLoc location)] @ hover @ def)))
   in
-  Json.stringify locationsInfo
+  Json.stringify (Json.Array locationsInfo)
 
 (* Split (line,char) from filepath:line:char *)
 let splitLineChar pathWithPos =
