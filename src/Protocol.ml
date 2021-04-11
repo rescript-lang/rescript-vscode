@@ -1,10 +1,8 @@
-module J = JsonShort
-
 let posOfLexing {Lexing.pos_lnum; pos_cnum; pos_bol} =
-  J.o [("line", J.i (pos_lnum - 1)); ("character", J.i (pos_cnum - pos_bol))]
+  Json.Object [("line", Json.Number (float_of_int (pos_lnum - 1))); ("character", Json.Number (float_of_int (pos_cnum - pos_bol)))]
 
 let rangeOfLoc {Location.loc_start; loc_end} =
-  J.o [("start", posOfLexing loc_start); ("end", posOfLexing loc_end)]
+  Json.Object [("start", posOfLexing loc_start); ("end", posOfLexing loc_end)]
 
 let array l = "[" ^ (String.concat ", " l) ^ "]"
 
