@@ -29,7 +29,7 @@ rescript-editor-support.exe dump src/Foo.res:0:4
 -complete: compute autocomplete for Foo.res at line 0 and column 4,
  where Foo.res is being edited and the editor content is in file current.res.
 
-rescript-editor-support.exe complete src/Foo.res:0:4 current.res
+rescript-editor-support.exe complete src/Foo.res 0 4 current.res
 
 The dump command can also omit `:line:column`, to show results for every position in the file. Several files can be specified on the command line.
 |}
@@ -40,8 +40,9 @@ let main () =
   match parseArgs (Sys.argv |> Array.to_list) with
   | opts, _ when hasOpts opts ["-h"; "--help"] -> showHelp ()
   | _opts, "dump" :: files -> EditorSupportCommands.dump files
-  | _opts, ["complete"; pathWithPos; currentFile] ->
-    EditorSupportCommands.complete ~pathWithPos ~currentFile
+  | _opts, ["complete"; path; line; char; currentFile] ->
+    EditorSupportCommands.complete ~path ~line:(int_of_string line)
+      ~char:(int_of_string char) ~currentFile
   | _ ->
     showHelp ();
     exit 1

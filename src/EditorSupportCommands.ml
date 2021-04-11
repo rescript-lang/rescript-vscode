@@ -108,25 +108,19 @@ let dump files =
       in
       print_endline result)
 
-let autocomplete ~currentFile ~full ~package ~pos ~state =
-  let maybeText = Files.readFile currentFile in
-  NewCompletions.computeCompletions ~full ~maybeText ~package ~pos ~state
-  |> List.map Protocol.stringifyCompletionItem
-  |> Protocol.array
-
-let complete ~pathWithPos ~currentFile =
+let complete ~path ~line ~char ~currentFile =
   let state = TopTypes.empty () in
-  match pathWithPos |> splitLineChar with
-  | filePath, Some pos ->
-    let filePath = Files.maybeConcat (Unix.getcwd ()) filePath in
-    let uri = Uri2.fromPath filePath in
-    let result =
-      match State.getFullFromCmt ~state ~uri with
-      | Error message ->
-        prerr_endline message;
-        "[]"
-      | Ok (package, full) ->
-        autocomplete ~currentFile ~full ~package ~pos ~state
-    in
-    print_endline result
-  | _ -> ()
+  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
+  let uri = Uri2.fromPath filePath in
+  let result =
+    match State.getFullFromCmt ~state ~uri with
+    | Error message ->
+      prerr_endline message;
+      "[]"
+    | Ok (package, full) ->
+      let maybeText = Files.readFile currentFile in
+      NewCompletions.computeCompletions ~full ~maybeText ~package ~pos:(line, char) ~state
+      |> List.map Protocol.stringifyCompletionItem
+      |> Protocol.array
+  in
+  print_endline result
