@@ -106,7 +106,7 @@ let dump files =
          in
          print_endline result)
 
-let complete ~path ~line ~char ~currentFile =
+let complete ~path ~line ~col ~currentFile =
   let state = TopTypes.empty () in
   let filePath = Files.maybeConcat (Unix.getcwd ()) path in
   let uri = Uri2.fromPath filePath in
@@ -118,19 +118,19 @@ let complete ~path ~line ~char ~currentFile =
     | Ok (package, full) ->
       let maybeText = Files.readFile currentFile in
       NewCompletions.computeCompletions ~full ~maybeText ~package
-        ~pos:(line, char) ~state
+        ~pos:(line, col) ~state
       |> List.map Protocol.stringifyCompletionItem
       |> Protocol.array
   in
   print_endline result
 
-let hover state ~file ~line ~char ~extra ~package =
+let hover state ~file ~line ~col ~extra ~package =
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
   let locations =
-    let pos = (line, char) in
+    let pos = (line, col) in
     let pos = Utils.cmtLocFromVscode pos in
     match References.locForPos ~extra:{extra with locations} pos with
     | None -> []
@@ -181,7 +181,7 @@ let hover state ~file ~line ~char ~extra ~package =
   | [] -> Protocol.null
   | head :: _ -> Protocol.stringifyHover head
 
-let hover ~path ~line ~char =
+let hover ~path ~line ~col =
   let state = TopTypes.empty () in
   let filePath = Files.maybeConcat (Unix.getcwd ()) path in
   let uri = Uri2.fromPath filePath in
@@ -189,18 +189,18 @@ let hover ~path ~line ~char =
     match State.getFullFromCmt ~state ~uri with
     | Error message -> Protocol.stringifyHover {contents = message}
     | Ok (package, {file; extra}) ->
-      hover state ~file ~line ~char ~extra ~package
+      hover state ~file ~line ~col ~extra ~package
   in
   print_endline result
 
-let definition state ~file ~line ~char ~extra ~package =
+let definition state ~file ~line ~col ~extra ~package =
   let open TopTypes in
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
   let locations =
-    let pos = (line, char) in
+    let pos = (line, col) in
     let pos = Utils.cmtLocFromVscode pos in
     match References.locForPos ~extra:{extra with locations} pos with
     | None -> []
@@ -243,7 +243,7 @@ let definition state ~file ~line ~char ~extra ~package =
   | [] -> Protocol.null
   | head :: _ -> Protocol.stringifyLocation head
 
-let definition ~path ~line ~char =
+let definition ~path ~line ~col =
   let state = TopTypes.empty () in
   let filePath = Files.maybeConcat (Unix.getcwd ()) path in
   let uri = Uri2.fromPath filePath in
@@ -251,6 +251,6 @@ let definition ~path ~line ~char =
     match State.getFullFromCmt ~state ~uri with
     | Error _message -> Protocol.null
     | Ok (package, {file; extra}) ->
-      definition state ~file ~line ~char ~extra ~package
+      definition state ~file ~line ~col ~extra ~package
   in
   print_endline result
