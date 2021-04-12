@@ -20,18 +20,26 @@ let hasOpts opts names = names |> List.exists (opts |> hasOpt)
 
 let help =
   {|
-Commands for Rescript Language Server
+**Private CLI For rescript-vscode usage only**
 
--dump: compute definition and hover for Foo.res at line 0 and column 4:
+Examples:
+  rescript-editor-support.exe dump src/MyFile.res src/MyFile2.res
+  rescript-editor-support.exe complete src/MyFile.res 0 4 currentContent.res
+  rescript-editor-support.exe hover src/MyFile.res 10 2
 
-rescript-editor-support.exe dump src/Foo.res:0:4
+Options:
+  dump: debugging. definition and hover for Foo.res and Foo2.res:
 
--complete: compute autocomplete for Foo.res at line 0 and column 4,
- where Foo.res is being edited and the editor content is in file current.res.
+    rescript-editor-support.exe dump src/Foo.res src/Foo2.res
 
-rescript-editor-support.exe complete src/Foo.res 0 4 current.res
+  complete: compute autocomplete for Foo.res at line 0 and column 4,
+    where Foo.res is being edited and the editor content is in file current.res.
 
-The dump command can also omit `:line:column`, to show results for every position in the file. Several files can be specified on the command line.
+    rescript-editor-support.exe complete src/Foo.res 0 4 current.res
+
+  hover: get inferred type for Foo.res at line 10 column 2:
+
+    rescript-editor-support.exe hover src/Foo.res 10 2
 |}
 
 let showHelp () = prerr_endline help
