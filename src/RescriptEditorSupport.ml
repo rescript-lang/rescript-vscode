@@ -40,6 +40,10 @@ Options:
   hover: get inferred type for Foo.res at line 10 column 2:
 
     rescript-editor-support.exe hover src/Foo.res 10 2
+
+  definition: get inferred type for Foo.res at line 10 column 2:
+
+    rescript-editor-support.exe definition src/Foo.res 10 2
 |}
 
 let showHelp () = prerr_endline help
@@ -53,6 +57,8 @@ let main () =
       ~char:(int_of_string char) ~currentFile
   | _opts, ["hover"; path; line; char] ->
     EditorSupportCommands.hover ~path ~line:(int_of_string line) ~char:(int_of_string char)
+  | _opts, ["definition"; path; line; char] ->
+    EditorSupportCommands.definition ~path ~line:(int_of_string line) ~char:(int_of_string char)
   | _ ->
     showHelp ();
     exit 1

@@ -192,3 +192,65 @@ let hover ~path ~line ~char =
       hover state ~file ~line ~char ~extra ~package
   in
   print_endline result
+
+let definition state ~file ~line ~char ~extra ~package =
+  let open TopTypes in
+  let locations =
+    extra.SharedTypes.locations
+    |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
+  in
+  let locations =
+    let pos = (line, char) in
+    let pos = Utils.cmtLocFromVscode pos in
+    match References.locForPos ~extra:{extra with locations} pos with
+    | None -> []
+    | Some l -> [l]
+  in
+  let locationsInfo =
+    locations
+    |> Utils.filterMap (fun (_, loc) ->
+           let locIsModule =
+             match loc with
+             | SharedTypes.LModule _ | TopLevelModule _ -> true
+             | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
+           in
+           let uriLocOpt =
+             References.definitionForLoc ~pathsForModule:package.pathsForModule
+               ~file ~getUri:(State.fileForUri state)
+               ~getModule:(State.fileForModule state ~package)
+               loc
+           in
+           let def, skipZero =
+             match uriLocOpt with
+             | None -> (None, false)
+             | Some (uri2, loc) ->
+               let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
+                 pos_lnum = 1 && pos_cnum - pos_bol = 0
+               in
+               (* Skip if range is all zero, unless it's a module *)
+               let skipZero =
+                 (not locIsModule) && loc.loc_start |> posIsZero
+                 && loc.loc_end |> posIsZero
+               in
+               let open Protocol in
+               ( Some {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc},
+                 skipZero )
+           in
+           let skip = skipZero || def = None in
+           match skip with true -> None | false -> def)
+  in
+  match locationsInfo with
+  | [] -> Protocol.null
+  | head :: _ -> Protocol.stringifyLocation head
+
+let definition ~path ~line ~char =
+  let state = TopTypes.empty () in
+  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
+  let uri = Uri2.fromPath filePath in
+  let result =
+    match State.getFullFromCmt ~state ~uri with
+    | Error _message -> Protocol.null
+    | Ok (package, {file; extra}) ->
+      definition state ~file ~line ~char ~extra ~package
+  in
+  print_endline result

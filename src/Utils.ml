@@ -41,6 +41,16 @@ let endsWith s suffix =
 
 let cmtLocFromVscode (line, col) = (line + 1, col)
 
+let cmtLocToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} = Protocol.{
+  line = pos_lnum - 1;
+  character = pos_cnum - pos_bol;
+}
+
+let cmtLocToRange {Location.loc_start; loc_end} = Protocol.{
+  start = cmtLocToPosition loc_start;
+  end_ = cmtLocToPosition loc_end;
+}
+
 let locWithinLoc inner outer =
   let open Location in
   inner.loc_start.pos_cnum >= outer.loc_start.pos_cnum
