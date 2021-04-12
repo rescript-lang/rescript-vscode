@@ -56,8 +56,8 @@ let dumpLocations state ~package ~file ~extra ~selectPos uri =
                in
                (* Skip if range is all zero, unless it's a module *)
                let skipZero =
-                 (not locIsModule) && loc.loc_start |> posIsZero
-                 && loc.loc_end |> posIsZero
+                 (not locIsModule) && posIsZero loc.loc_start
+                 && posIsZero loc.loc_end
                in
                let range = ("range", rangeOfLoc loc) in
                ( [
@@ -125,60 +125,44 @@ let complete ~path ~line ~col ~currentFile =
   print_endline result
 
 let hover state ~file ~line ~col ~extra ~package =
+  let open TopTypes in
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
-  let locations =
-    let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-    match References.locForPos ~extra:{extra with locations} pos with
-    | None -> []
-    | Some l -> [l]
-  in
-  let locationsInfo =
-    locations
-    |> Utils.filterMap (fun (_, loc) ->
-           let locIsModule =
-             match loc with
-             | SharedTypes.LModule _ | TopLevelModule _ -> true
-             | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
-           in
-           let hoverText =
-             Hover.newHover ~file
-               ~getModule:(State.fileForModule state ~package)
-               loc
-           in
-           let hover =
-             match hoverText with
-             | None -> None
-             | Some s ->
-               let open Protocol in
-               Some {contents = s}
-           in
-           let uriLocOpt =
-             References.definitionForLoc ~pathsForModule:package.pathsForModule
-               ~file ~getUri:(State.fileForUri state)
-               ~getModule:(State.fileForModule state ~package)
-               loc
-           in
-           let skipZero =
-             match uriLocOpt with
-             | None -> false
-             | Some (_, loc) ->
-               let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-                 pos_lnum = 1 && pos_cnum - pos_bol = 0
-               in
-               (* Skip if range is all zero, unless it's a module *)
-               (not locIsModule) && loc.loc_start |> posIsZero
-               && loc.loc_end |> posIsZero
-           in
-           match hover with
-           | Some hover when not skipZero -> Some hover
-           | _ -> None)
-  in
-  match locationsInfo with
-  | [] -> Protocol.null
-  | head :: _ -> Protocol.stringifyHover head
+  let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+  match References.locForPos ~extra:{extra with locations} pos with
+  | None -> Protocol.null
+  | Some (_, loc) -> (
+    let locIsModule =
+      match loc with
+      | SharedTypes.LModule _ | TopLevelModule _ -> true
+      | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
+    in
+    let uriLocOpt =
+      References.definitionForLoc ~pathsForModule:package.pathsForModule ~file
+        ~getUri:(State.fileForUri state)
+        ~getModule:(State.fileForModule state ~package)
+        loc
+    in
+    let skipZero =
+      match uriLocOpt with
+      | None -> false
+      | Some (_, loc) ->
+        let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
+          pos_lnum = 1 && pos_cnum - pos_bol = 0
+        in
+        (* Skip if range is all zero, unless it's a module *)
+        (not locIsModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
+    in
+    if skipZero then Protocol.null
+    else
+      let hoverText =
+        Hover.newHover ~file ~getModule:(State.fileForModule state ~package) loc
+      in
+      match hoverText with
+      | None -> Protocol.null
+      | Some s -> Protocol.stringifyHover {contents = s})
 
 let hover ~path ~line ~col =
   let state = TopTypes.empty () in
@@ -198,48 +182,35 @@ let definition state ~file ~line ~col ~extra ~package =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
-  let locations =
-    let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-    match References.locForPos ~extra:{extra with locations} pos with
-    | None -> []
-    | Some l -> [l]
-  in
-  let locationsInfo =
-    locations
-    |> Utils.filterMap (fun (_, loc) ->
-           let locIsModule =
-             match loc with
-             | SharedTypes.LModule _ | TopLevelModule _ -> true
-             | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
-           in
-           let uriLocOpt =
-             References.definitionForLoc ~pathsForModule:package.pathsForModule
-               ~file ~getUri:(State.fileForUri state)
-               ~getModule:(State.fileForModule state ~package)
-               loc
-           in
-           let def, skipZero =
-             match uriLocOpt with
-             | None -> (None, false)
-             | Some (uri2, loc) ->
-               let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-                 pos_lnum = 1 && pos_cnum - pos_bol = 0
-               in
-               (* Skip if range is all zero, unless it's a module *)
-               let skipZero =
-                 (not locIsModule) && loc.loc_start |> posIsZero
-                 && loc.loc_end |> posIsZero
-               in
-               let open Protocol in
-               ( Some {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc},
-                 skipZero )
-           in
-           let skip = skipZero || def = None in
-           match skip with true -> None | false -> def)
-  in
-  match locationsInfo with
-  | [] -> Protocol.null
-  | head :: _ -> Protocol.stringifyLocation head
+  let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+  match References.locForPos ~extra:{extra with locations} pos with
+  | None -> Protocol.null
+  | Some (_, loc) -> (
+    let locIsModule =
+      match loc with
+      | SharedTypes.LModule _ | TopLevelModule _ -> true
+      | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
+    in
+    let uriLocOpt =
+      References.definitionForLoc ~pathsForModule:package.pathsForModule ~file
+        ~getUri:(State.fileForUri state)
+        ~getModule:(State.fileForModule state ~package)
+        loc
+    in
+    match uriLocOpt with
+    | None -> Protocol.null
+    | Some (uri2, loc) ->
+      let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
+        pos_lnum = 1 && pos_cnum - pos_bol = 0
+      in
+      (* Skip if range is all zero, unless it's a module *)
+      let skipZero =
+        (not locIsModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
+      in
+      if skipZero then Protocol.null
+      else
+        Protocol.stringifyLocation
+          {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc})
 
 let definition ~path ~line ~col =
   let state = TopTypes.empty () in
