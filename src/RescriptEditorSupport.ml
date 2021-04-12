@@ -52,13 +52,13 @@ let main () =
   match parseArgs (Sys.argv |> Array.to_list) with
   | opts, _ when hasOpts opts ["-h"; "--help"] -> showHelp ()
   | _opts, "dump" :: files -> EditorSupportCommands.dump files
-  | _opts, ["complete"; path; line; char; currentFile] ->
+  | _opts, ["complete"; path; line; col; currentFile] ->
     EditorSupportCommands.complete ~path ~line:(int_of_string line)
-      ~char:(int_of_string char) ~currentFile
-  | _opts, ["hover"; path; line; char] ->
-    EditorSupportCommands.hover ~path ~line:(int_of_string line) ~char:(int_of_string char)
-  | _opts, ["definition"; path; line; char] ->
-    EditorSupportCommands.definition ~path ~line:(int_of_string line) ~char:(int_of_string char)
+      ~col:(int_of_string col) ~currentFile
+  | _opts, ["hover"; path; line; col] ->
+    EditorSupportCommands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
+  | _opts, ["definition"; path; line; col] ->
+    EditorSupportCommands.definition ~path ~line:(int_of_string line) ~col:(int_of_string col)
   | _ ->
     showHelp ();
     exit 1
