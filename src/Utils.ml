@@ -39,7 +39,7 @@ let endsWith s suffix =
     let l = String.length s in
     p <= String.length s && String.sub s (l - p) p = suffix
 
-let cmtLocFromVscode (line, col) = (line + 1, col)
+let protocolLineColToCmtLoc ~line ~col = (line + 1, col)
 
 let cmtLocToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} = Protocol.{
   line = pos_lnum - 1;
