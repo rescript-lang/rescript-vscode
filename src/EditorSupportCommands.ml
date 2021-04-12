@@ -15,8 +15,8 @@ let dumpLocations state ~package ~file ~extra ~selectPos uri =
   in
   let locations =
     match selectPos with
-    | Some pos -> (
-      let pos = Utils.cmtLocFromVscode pos in
+    | Some (line, col) -> (
+      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locForPos ~extra:{extra with locations} pos with
       | None -> []
       | Some l -> [l])
@@ -130,8 +130,7 @@ let hover state ~file ~line ~col ~extra ~package =
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
   let locations =
-    let pos = (line, col) in
-    let pos = Utils.cmtLocFromVscode pos in
+    let pos = Utils.protocolLineColToCmtLoc ~line ~col in
     match References.locForPos ~extra:{extra with locations} pos with
     | None -> []
     | Some l -> [l]
@@ -200,8 +199,7 @@ let definition state ~file ~line ~col ~extra ~package =
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
   let locations =
-    let pos = (line, col) in
-    let pos = Utils.cmtLocFromVscode pos in
+    let pos = Utils.protocolLineColToCmtLoc ~line ~col in
     match References.locForPos ~extra:{extra with locations} pos with
     | None -> []
     | Some l -> [l]
