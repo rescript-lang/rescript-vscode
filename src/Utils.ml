@@ -93,13 +93,3 @@ let filterMap f =
       match f x with None -> aux accu l | Some v -> aux (v :: accu) l)
   in
   aux []
-
-let filterMapIndex f =
-  let rec aux accu i = function
-    | [] -> List.rev accu
-    | x :: l -> (
-      match f i x with
-      | None -> aux accu i l
-      | Some v -> aux (v :: accu) (i + 1) l)
-  in
-  aux [] 0
