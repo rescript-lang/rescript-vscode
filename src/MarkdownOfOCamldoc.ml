@@ -24,7 +24,7 @@ let sliceToEnd text num =
   if ln <= num then "" else String.sub text num (ln - num)
 
 let stripLeft text =
-  let lines = Str.split (Str.regexp_string "\n") text in
+  let lines = String.split_on_char '\n' text in
   let rec loop lines =
     match lines with
     | [] -> 0
@@ -122,7 +122,7 @@ let convertItem item =
         match String.trim lang = "" with
         | true -> "ml"
         | false ->
-          let parts = Str.split (Str.regexp_string ";") (String.trim lang) in
+          let parts = String.split_on_char ';' (String.trim lang) in
           if
             List.mem "ml" parts || List.mem "ocaml" parts || List.mem "re" parts
             || List.mem "reason" parts

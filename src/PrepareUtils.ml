@@ -22,7 +22,7 @@ let trimFirst num string =
   | false -> ""
 
 let cleanOffStars doc =
-  let lines = Str.split (Str.regexp_string "\n") doc in
+  let lines = String.split_on_char '\n' doc in
   let rec loop lines =
     match lines with
     | [] -> None

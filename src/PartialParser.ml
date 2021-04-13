@@ -44,7 +44,7 @@ let findCallFromArgument text offset =
         let i1 = skipWhite text (i - 1) in
         let i0 = startOfLident text i1 in
         let funLident = String.sub text i0 (i1 - i0 + 1) in
-        Str.split (Str.regexp_string ".") funLident
+        String.split_on_char '.' funLident
       | ')' -> loop ~i:(i - 1) ~nClosed:(nClosed + 1)
       | _ -> loop ~i:(i - 1) ~nClosed
     else []
@@ -134,7 +134,7 @@ let isLowercaseIdent id =
 let findCompletable text offset =
   let mkPath s =
     let len = String.length s in
-    let parts = Str.split (Str.regexp_string ".") s in
+    let parts = String.split_on_char '.' s in
     let parts =
       match s.[len - 1] = '.' with true -> parts @ [""] | false -> parts
     in
@@ -143,7 +143,7 @@ let findCompletable text offset =
       match findJsxContext text (offset - len - 1) with
       | None -> Cpath parts
       | Some componentName ->
-        Cjsx (Str.split (Str.regexp_string ".") componentName, id))
+        Cjsx (String.split_on_char '.' componentName, id))
     | _ -> Cpath parts
   in
   let mkPipe off partialName =
@@ -200,7 +200,7 @@ let findOpens text offset =
       | [] -> SharedTypes.Tip "place holder"
       | one :: rest -> Nested (one, loop rest)
     in
-    loop (o |> Str.split (Str.regexp_string "."))
+    loop (o |> String.split_on_char '.')
   in
   let add o = opens := (o |> pathOfModuleOpen) :: !opens in
   let maybeOpen i0 =
