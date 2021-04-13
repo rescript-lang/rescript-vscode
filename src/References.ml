@@ -47,54 +47,54 @@ let definedForLoc ~file ~getModule locKind =
     | Constructor name -> (
       match Query.getConstructor file stamp name with
       | None -> None
-      | Some constructor -> Some ([], `Constructor constructor) )
+      | Some constructor -> Some ([], `Constructor constructor))
     | Field name -> (
       match Query.getField file stamp name with
       | None -> None
-      | Some field -> Some ([], `Field field) )
+      | Some field -> Some ([], `Field field))
     | _ -> (
       maybeLog
-        ( "Trying for declared " ^ tipToString tip ^ " " ^ string_of_int stamp
-        ^ " in file " ^ Uri2.toString file.uri );
+        ("Trying for declared " ^ tipToString tip ^ " " ^ string_of_int stamp
+       ^ " in file " ^ Uri2.toString file.uri);
       match Query.declaredForTip ~stamps:file.stamps stamp tip with
       | None -> None
-      | Some declared -> Some (declared.docstring, `Declared) )
+      | Some declared -> Some (declared.docstring, `Declared))
   in
   match locKind with
   | NotFound -> None
   | LocalReference (stamp, tip) | Definition (stamp, tip) ->
     inner ~file stamp tip
   | GlobalReference (moduleName, path, tip) ->
-    ( maybeLog ("Getting global " ^ moduleName);
-      match
-        getModule moduleName
-        |> RResult.orError ("Cannot get module " ^ moduleName)
-      with
-      | Error e -> Error e
-      | Ok file -> (
-        let env = Query.fileEnv file in
-        match
-          Query.resolvePath ~env ~path ~getModule
-          |> RResult.orError ("Cannot resolve path " ^ pathToString path)
-        with
-        | Error e -> Error e
-        | Ok (env, name) -> (
-          match
-            Query.exportedForTip ~env name tip
-            |> RResult.orError
-                 ("Exported not found for tip " ^ name ^ " > " ^ tipToString tip)
-          with
-          | Error e -> Error e
-          | Ok stamp -> (
-            maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
-            match
-              inner ~file:env.file stamp tip
-              |> RResult.orError "could not get defined"
-            with
-            | Error e -> Error e
-            | Ok res ->
-              maybeLog "Yes!! got it";
-              Ok res ) ) ) )
+    (maybeLog ("Getting global " ^ moduleName);
+     match
+       getModule moduleName
+       |> RResult.orError ("Cannot get module " ^ moduleName)
+     with
+     | Error e -> Error e
+     | Ok file -> (
+       let env = Query.fileEnv file in
+       match
+         Query.resolvePath ~env ~path ~getModule
+         |> RResult.orError ("Cannot resolve path " ^ pathToString path)
+       with
+       | Error e -> Error e
+       | Ok (env, name) -> (
+         match
+           Query.exportedForTip ~env name tip
+           |> RResult.orError
+                ("Exported not found for tip " ^ name ^ " > " ^ tipToString tip)
+         with
+         | Error e -> Error e
+         | Ok stamp -> (
+           maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
+           match
+             inner ~file:env.file stamp tip
+             |> RResult.orError "could not get defined"
+           with
+           | Error e -> Error e
+           | Ok res ->
+             maybeLog "Yes!! got it";
+             Ok res))))
     |> RResult.toOptionAndLog
 
 let alternateDeclared ~file ~pathsForModule ~getUri declared tip =
@@ -116,7 +116,7 @@ let alternateDeclared ~file ~pathsForModule ~getUri declared tip =
               ~exported:file.contents.exported declared.name.txt tip
           with
           | None -> None
-          | Some declared -> Some (file, extra, declared) )
+          | Some declared -> Some (file, extra, declared))
       else
         match getUri intfUri |> RResult.toOptionAndLog with
         | None -> None
@@ -126,8 +126,8 @@ let alternateDeclared ~file ~pathsForModule ~getUri declared tip =
               ~exported:file.contents.exported declared.name.txt tip
           with
           | None -> None
-          | Some declared -> Some (file, extra, declared) ) )
-    | _ -> None )
+          | Some declared -> Some (file, extra, declared)))
+    | _ -> None)
 
 let resolveModuleReference ~file ~getModule (declared : moduleKind declared) =
   match declared.item with
@@ -144,9 +144,7 @@ let resolveModuleReference ~file ~getModule (declared : moduleKind declared) =
         | None -> None
         | Some md ->
           Some (env.file, Some md)
-          (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)
-      )
-    )
+          (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)))
     | `Global (moduleName, path) -> (
       match getModule moduleName with
       | None -> None
@@ -163,25 +161,20 @@ let resolveModuleReference ~file ~getModule (declared : moduleKind declared) =
             | Some md ->
               Some (env.file, Some md)
               (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)
-          )
-        )
-      )
-    )
+            ))))
     | `Stamp stamp -> (
       match Hashtbl.find_opt file.stamps.modules stamp with
       | None -> None
       | Some md ->
         Some (file, Some md)
-        (* Some((file.uri, validateLoc(md.name.loc, md.extentLoc))) *)
-    )
+        (* Some((file.uri, validateLoc(md.name.loc, md.extentLoc))) *))
     | `GlobalMod name -> (
       match getModule name with
       | None -> None
       | Some file ->
         (* maybeLog("Congrats, found a global mod"); *)
-        Some (file, None)
-    )
-    | _ -> None )
+        Some (file, None))
+    | _ -> None)
 
 let validateLoc (loc : Location.t) (backup : Location.t) =
   if loc.loc_start.pos_cnum = -1 then
@@ -206,18 +199,18 @@ let resolveModuleDefinition ~file ~getModule stamp =
         | None -> Utils.topLoc (Uri2.toPath file.uri)
         | Some declared -> validateLoc declared.name.loc declared.extentLoc
       in
-      Some (file.uri, loc) )
+      Some (file.uri, loc))
 
 let definition ~file ~getModule stamp tip =
   match tip with
   | Constructor name -> (
     match Query.getConstructor file stamp name with
     | None -> None
-    | Some constructor -> Some (file.uri, constructor.cname.loc) )
+    | Some constructor -> Some (file.uri, constructor.cname.loc))
   | Field name -> (
     match Query.getField file stamp name with
     | None -> None
-    | Some field -> Some (file.uri, field.fname.loc) )
+    | Some field -> Some (file.uri, field.fname.loc))
   | Module -> resolveModuleDefinition ~file ~getModule stamp
   | _ -> (
     match Query.declaredForTip ~stamps:file.stamps stamp tip with
@@ -227,7 +220,7 @@ let definition ~file ~getModule stamp tip =
       let env = Query.fileEnv file in
       let uri = Query.getSourceUri ~env ~getModule declared.modulePath in
       maybeLog ("Inner uri " ^ Uri2.toString uri);
-      Some (uri, loc) )
+      Some (uri, loc))
 
 let orLog message v =
   match v with
@@ -250,8 +243,8 @@ let definitionForLoc ~pathsForModule ~file ~getUri ~getModule loc =
         | None -> None
         | Some (file, _extra, declared) ->
           let loc = validateLoc declared.name.loc declared.extentLoc in
-          Some (file.uri, loc) )
-      else None )
+          Some (file.uri, loc))
+      else None)
   | Explanation _
   | Typed (_, NotFound)
   | LModule (NotFound | Definition (_, _))
@@ -266,7 +259,7 @@ let definitionForLoc ~pathsForModule ~file ~getUri ~getModule loc =
       |> orLog "No paths found" |?> getSrc |> orLog "No src found"
     with
     | None -> None
-    | Some src -> Some (Uri2.fromPath src, Utils.topLoc src) )
+    | Some src -> Some (Uri2.fromPath src, Utils.topLoc src))
   | LModule (LocalReference (stamp, tip))
   | Typed (_, LocalReference (stamp, tip)) ->
     maybeLog ("Local defn " ^ tipToString tip);
@@ -274,8 +267,8 @@ let definitionForLoc ~pathsForModule ~file ~getUri ~getModule loc =
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, GlobalReference (moduleName, path, tip)) -> (
     maybeLog
-      ( "Global defn " ^ moduleName ^ " " ^ pathToString path ^ " : "
-      ^ tipToString tip );
+      ("Global defn " ^ moduleName ^ " " ^ pathToString path ^ " : "
+     ^ tipToString tip);
     match getModule moduleName with
     | None -> None
     | Some file -> (
@@ -286,6 +279,6 @@ let definitionForLoc ~pathsForModule ~file ~getUri ~getModule loc =
         match Query.exportedForTip ~env name tip with
         | None -> None
         | Some stamp ->
-          (** oooh wht do I do if the stamp is inside a pseudo-file? *)
+          (* oooh wht do I do if the stamp is inside a pseudo-file? *)
           maybeLog ("Got stamp " ^ string_of_int stamp);
-          definition ~file:env.file ~getModule stamp tip ) ) )
+          definition ~file:env.file ~getModule stamp tip)))
