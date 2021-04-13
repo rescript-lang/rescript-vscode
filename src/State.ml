@@ -63,8 +63,8 @@ let getFullFromCmt ~state ~uri =
       | Ok full ->
         Hashtbl.replace package.interModuleDependencies moduleName
           (SharedTypes.hashList full.extra.externalReferences |> List.map fst);
-        Ok (package, full) )
-    | None -> Error ("can't find module " ^ moduleName) )
+        Ok (package, full))
+    | None -> Error ("can't find module " ^ moduleName))
 
 let docsForModule modname state ~package =
   if Hashtbl.mem package.pathsForModule modname then (
@@ -76,10 +76,10 @@ let docsForModule modname state ~package =
     Log.log ("FINDING " ^ cmt ^ " src " ^ (src |? ""));
     match docsForCmt ~moduleName:modname cmt src state with
     | None -> None
-    | Some docs -> Some (docs, src) )
+    | Some docs -> Some (docs, src))
   else (
     Log.log ("No path for module " ^ modname);
-    None )
+    None)
 
 let fileForUri state uri =
   match getFullFromCmt ~state ~uri with
