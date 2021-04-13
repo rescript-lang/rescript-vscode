@@ -1,100 +1,41 @@
-let posOfLexing {Lexing.pos_lnum; pos_cnum; pos_bol} =
-  Json.Object
-    [
-      ("line", Json.Number (float_of_int (pos_lnum - 1)));
-      ("character", Json.Number (float_of_int (pos_cnum - pos_bol)));
-    ]
-
-let rangeOfLoc {Location.loc_start; loc_end} =
-  Json.Object [("start", posOfLexing loc_start); ("end", posOfLexing loc_end)]
-
-let dumpLocations state ~package ~file ~extra ~selectPos uri =
+let dumpLocations state ~package ~file ~extra =
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
-  let locations =
-    match selectPos with
-    | Some (line, col) -> (
-      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-      match References.locForPos ~extra:{extra with locations} pos with
-      | None -> []
-      | Some l -> [l])
-    | None -> locations
-  in
-  let locationsInfo =
-    locations
-    |> Utils.filterMap (fun ((location : Location.t), loc) ->
-           let locIsModule =
-             match loc with
-             | SharedTypes.LModule _ | TopLevelModule _ -> true
-             | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
-           in
-           let hoverText =
-             Hover.newHover ~file
-               ~getModule:(State.fileForModule state ~package)
-               loc
-           in
-           let hover =
-             match hoverText with
-             | None -> []
-             | Some s -> [("hover", Json.String s)]
-           in
-           let uriLocOpt =
-             References.definitionForLoc ~pathsForModule:package.pathsForModule
-               ~file ~getUri:(State.fileForUri state)
-               ~getModule:(State.fileForModule state ~package)
-               loc
-           in
-           let def, skipZero =
-             match uriLocOpt with
-             | None -> ([], false)
-             | Some (uri2, loc) ->
-               let uriIsCurrentFile = uri = uri2 in
-               let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-                 pos_lnum = 1 && pos_cnum - pos_bol = 0
-               in
-               (* Skip if range is all zero, unless it's a module *)
-               let skipZero =
-                 (not locIsModule) && posIsZero loc.loc_start
-                 && posIsZero loc.loc_end
-               in
-               let range = ("range", rangeOfLoc loc) in
-               ( [
-                   ( "definition",
-                     Json.Object
-                       (match uriIsCurrentFile with
-                       | true -> [range]
-                       | false ->
-                         [("uri", Json.String (Uri2.toString uri2)); range]) );
-                 ],
-                 skipZero )
-           in
-           let skip = skipZero || (hover = [] && def = []) in
-           match skip with
-           | true -> None
-           | false ->
-             Some (Json.Object ([("range", rangeOfLoc location)] @ hover @ def)))
-  in
-  Json.stringify (Json.Array locationsInfo)
-
-(* Split (line,char) from filepath:line:char *)
-let splitLineChar pathWithPos =
-  let mkPos line char = Some (line |> int_of_string, char |> int_of_string) in
-  match pathWithPos |> String.split_on_char ':' with
-  | [filePath; line; char] -> (filePath, mkPos line char)
-  | [drive; rest; line; char] ->
-    (* c:\... on Windows *)
-    (drive ^ ":" ^ rest, mkPos line char)
-  | _ -> (pathWithPos, None)
+  locations
+  |> List.map (fun ((location : Location.t), loc) ->
+         let hoverText =
+           Hover.newHover ~file
+             ~getModule:(State.fileForModule state ~package)
+             loc
+         in
+         let hover =
+           match hoverText with None -> "" | Some s -> String.escaped s
+         in
+         let uriLocOpt =
+           References.definitionForLoc ~pathsForModule:package.pathsForModule
+             ~file ~getUri:(State.fileForUri state)
+             ~getModule:(State.fileForModule state ~package)
+             loc
+         in
+         let def =
+           match uriLocOpt with
+           | None -> Protocol.null
+           | Some (uri2, loc) ->
+             Protocol.stringifyLocation
+               {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}
+         in
+         Protocol.stringifyRange (Utils.cmtLocToRange location)
+         ^ "\n  Hover: " ^ hover ^ "\n  Definition: " ^ def)
+  |> String.concat "\n\n"
 
 let dump files =
   Shared.cacheTypeToString := true;
   let state = TopTypes.empty () in
   files
-  |> List.iter (fun pathWithPos ->
-         let filePath, selectPos = pathWithPos |> splitLineChar in
-         let filePath = Files.maybeConcat (Unix.getcwd ()) filePath in
+  |> List.iter (fun path ->
+         let filePath = Files.maybeConcat (Unix.getcwd ()) path in
          let uri = Uri2.fromPath filePath in
          let result =
            match State.getFullFromCmt ~state ~uri with
@@ -102,7 +43,7 @@ let dump files =
              prerr_endline message;
              "[]"
            | Ok (package, {file; extra}) ->
-             dumpLocations state ~package ~file ~extra ~selectPos uri
+             dumpLocations state ~package ~file ~extra
          in
          print_endline result)
 
