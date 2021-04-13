@@ -66,33 +66,22 @@ let definedForLoc ~file ~getModule locKind =
     inner ~file stamp tip
   | GlobalReference (moduleName, path, tip) ->
     (maybeLog ("Getting global " ^ moduleName);
-     match
-       getModule moduleName
-       |> RResult.orError ("Cannot get module " ^ moduleName)
-     with
-     | Error e -> Error e
-     | Ok file -> (
+     match getModule moduleName with
+     | None -> Error ("Cannot get module " ^ moduleName)
+     | Some file -> (
        let env = Query.fileEnv file in
-       match
-         Query.resolvePath ~env ~path ~getModule
-         |> RResult.orError ("Cannot resolve path " ^ pathToString path)
-       with
-       | Error e -> Error e
-       | Ok (env, name) -> (
-         match
-           Query.exportedForTip ~env name tip
-           |> RResult.orError
-                ("Exported not found for tip " ^ name ^ " > " ^ tipToString tip)
-         with
-         | Error e -> Error e
-         | Ok stamp -> (
+       match Query.resolvePath ~env ~path ~getModule with
+       | None -> Error ("Cannot resolve path " ^ pathToString path)
+       | Some (env, name) -> (
+         match Query.exportedForTip ~env name tip with
+         | None ->
+           Error ("Exported not found for tip " ^ name ^ " > " ^ tipToString tip)
+         | Some stamp -> (
            maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
-           match
-             inner ~file:env.file stamp tip
-             |> RResult.orError "could not get defined"
-           with
-           | Error e -> Error e
-           | Ok res ->
+
+           match inner ~file:env.file stamp tip with
+           | None -> Error "could not get defined"
+           | Some res ->
              maybeLog "Yes!! got it";
              Ok res))))
     |> RResult.toOptionAndLog
