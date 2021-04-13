@@ -15,12 +15,11 @@ let converter src =
 
 let newDocsForCmt ~moduleName cmtCache changed cmt src =
   let uri = Uri2.fromPath (src |? cmt) in
-  match
-    Process_406.fileForCmt ~moduleName ~uri cmt (converter src)
-    |> RResult.toOptionAndLog
-  with
-  | None -> None
-  | Some file ->
+  match Process_406.fileForCmt ~moduleName ~uri cmt (converter src) with
+  | Error e ->
+    Log.log e;
+    None
+  | Ok file ->
     Hashtbl.replace cmtCache cmt (changed, file);
     Some file
 

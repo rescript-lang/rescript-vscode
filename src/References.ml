@@ -64,27 +64,33 @@ let definedForLoc ~file ~getModule locKind =
   | NotFound -> None
   | LocalReference (stamp, tip) | Definition (stamp, tip) ->
     inner ~file stamp tip
-  | GlobalReference (moduleName, path, tip) ->
-    (maybeLog ("Getting global " ^ moduleName);
-     match getModule moduleName with
-     | None -> Error ("Cannot get module " ^ moduleName)
-     | Some file -> (
-       let env = Query.fileEnv file in
-       match Query.resolvePath ~env ~path ~getModule with
-       | None -> Error ("Cannot resolve path " ^ pathToString path)
-       | Some (env, name) -> (
-         match Query.exportedForTip ~env name tip with
-         | None ->
-           Error ("Exported not found for tip " ^ name ^ " > " ^ tipToString tip)
-         | Some stamp -> (
-           maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
-
-           match inner ~file:env.file stamp tip with
-           | None -> Error "could not get defined"
-           | Some res ->
-             maybeLog "Yes!! got it";
-             Ok res))))
-    |> RResult.toOptionAndLog
+  | GlobalReference (moduleName, path, tip) -> (
+    maybeLog ("Getting global " ^ moduleName);
+    match getModule moduleName with
+    | None ->
+      Log.log ("Cannot get module " ^ moduleName);
+      None
+    | Some file -> (
+      let env = Query.fileEnv file in
+      match Query.resolvePath ~env ~path ~getModule with
+      | None ->
+        Log.log ("Cannot resolve path " ^ pathToString path);
+        None
+      | Some (env, name) -> (
+        match Query.exportedForTip ~env name tip with
+        | None ->
+          Log.log
+            ("Exported not found for tip " ^ name ^ " > " ^ tipToString tip);
+          None
+        | Some stamp -> (
+          maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
+          match inner ~file:env.file stamp tip with
+          | None ->
+            Log.log "could not get defined";
+            None
+          | Some res ->
+            maybeLog "Yes!! got it";
+            Some res))))
 
 let alternateDeclared ~file ~pathsForModule ~getUri declared tip =
   match Hashtbl.find_opt pathsForModule file.moduleName with
@@ -97,9 +103,11 @@ let alternateDeclared ~file ~pathsForModule ~getUri declared tip =
       let intfUri = Uri2.fromPath intf in
       let implUri = Uri2.fromPath impl in
       if intfUri = file.uri then
-        match getUri implUri |> RResult.toOptionAndLog with
-        | None -> None
-        | Some (file, extra) -> (
+        match getUri implUri with
+        | Error e ->
+          Log.log e;
+          None
+        | Ok (file, extra) -> (
           match
             Query.declaredForExportedTip ~stamps:file.stamps
               ~exported:file.contents.exported declared.name.txt tip
@@ -107,9 +115,11 @@ let alternateDeclared ~file ~pathsForModule ~getUri declared tip =
           | None -> None
           | Some declared -> Some (file, extra, declared))
       else
-        match getUri intfUri |> RResult.toOptionAndLog with
-        | None -> None
-        | Some (file, extra) -> (
+        match getUri intfUri with
+        | Error e ->
+          Log.log e;
+          None
+        | Ok (file, extra) -> (
           match
             Query.declaredForExportedTip ~stamps:file.stamps
               ~exported:file.contents.exported declared.name.txt tip
