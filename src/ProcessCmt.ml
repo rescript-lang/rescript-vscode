@@ -4,17 +4,14 @@ open Infix
 
 let itemsExtent items =
   let open Typedtree in
-  match items = [] with
-  | true -> Location.none
-  | false ->
-    let first = List.hd items in
+  match items with
+  | [] -> Location.none
+  | first :: _ ->
     let last = List.nth items (List.length items - 1) in
     let first, last =
-      match
-        first.str_loc.loc_start.pos_cnum < last.str_loc.loc_start.pos_cnum
-      with
-      | true -> (first, last)
-      | false -> (last, first)
+      if first.str_loc.loc_start.pos_cnum < last.str_loc.loc_start.pos_cnum then
+        (first, last)
+      else (last, first)
     in
     {
       loc_ghost = true;
@@ -24,10 +21,9 @@ let itemsExtent items =
 
 let sigItemsExtent items =
   let open Typedtree in
-  match items = [] with
-  | true -> Location.none
-  | false ->
-    let first = List.hd items in
+  match items with
+  | [] -> Location.none
+  | first :: _ ->
     let last = List.nth items (List.length items - 1) in
     {
       Location.loc_ghost = true;
@@ -82,18 +78,18 @@ let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
           {
             Type.decl;
             kind =
-              ( match type_kind with
+              (match type_kind with
               | Type_abstract -> (
                 match type_manifest with
                 | Some {desc = Tconstr (path, args, _)} ->
                   Abstract (Some (path, args))
                 | Some {desc = Ttuple items} -> Tuple items
                 (* TODO dig *)
-                | _ -> Abstract None )
+                | _ -> Abstract None)
               | Type_open -> Open
               | Type_variant constructors ->
                 Variant
-                  ( constructors
+                  (constructors
                   |> List.map
                        (fun {cd_loc; cd_id; cd_args; cd_res; cd_attributes} ->
                          let name = Ident.name cd_id in
@@ -103,11 +99,11 @@ let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
                              stamp;
                              cname = Location.mknoloc name;
                              args =
-                               ( match cd_args with
-                               | Cstr_tuple args -> args
+                               (match cd_args with
+                               | Cstr_tuple args ->
+                                 args |> List.map (fun t -> (t, Location.none))
                                (* TODO(406): constructor record args support *)
-                               | Cstr_record _ -> [] )
-                               |> List.map (fun t -> (t, Location.none));
+                               | Cstr_record _ -> []);
                              res = cd_res;
                            }
                          in
@@ -120,16 +116,15 @@ let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
                                  loc_ghost = false;
                                }
                              ~name:(Location.mknoloc name)
-                             ~stamp
-                             (* TODO maybe this needs another child *)
+                             ~stamp (* TODO maybe this needs another child *)
                              ~modulePath:env.modulePath
                              ~processDoc:env.processDoc true cd_attributes
                          in
                          Hashtbl.add env.stamps.constructors stamp declared;
-                         item) )
+                         item))
               | Type_record (fields, _) ->
                 Record
-                  ( fields
+                  (fields
                   |> List.map (fun {ld_id; ld_type} ->
                          let astamp = Ident.binding_time ld_id in
                          let name = Ident.name ld_id in
@@ -137,7 +132,7 @@ let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
                            stamp = astamp;
                            fname = Location.mknoloc name;
                            typ = ld_type;
-                         }) ) );
+                         })));
           }
         ~name:(Location.mknoloc (Ident.name ident))
         ~stamp:(Ident.binding_time ident) ~env type_attributes exported.types
@@ -145,8 +140,8 @@ let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
     in
     [{declared with item = MType (declared.item, recStatus)}]
   (* | Sig_module({stamp, name}, {md_type: Mty_ident(path) | Mty_alias(path), md_attributes, md_loc}, _) =>
-  let declared = addItem(~contents=Module.Ident(path), ~name=Location.mknoloc(name), ~stamp, ~env, md_attributes, exported.modules, env.stamps.modules);
-  [{...declared, contents: Module.Module(declared.contents)}, ...items] *)
+     let declared = addItem(~contents=Module.Ident(path), ~name=Location.mknoloc(name), ~stamp, ~env, md_attributes, exported.modules, env.stamps.modules);
+     [{...declared, contents: Module.Module(declared.contents)}, ...items] *)
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
       addItem ~extent:md_loc
@@ -197,7 +192,7 @@ let forTypeDeclaration ~env ~(exported : exported)
         {
           Type.decl = typ_type;
           kind =
-            ( match typ_kind with
+            (match typ_kind with
             | Ttype_abstract -> (
               match typ_manifest with
               | Some {ctyp_desc = Ttyp_constr (path, _lident, args)} ->
@@ -205,31 +200,35 @@ let forTypeDeclaration ~env ~(exported : exported)
               | Some {ctyp_desc = Ttyp_tuple items} ->
                 Tuple (items |> List.map (fun t -> t.ctyp_type))
               (* TODO dig *)
-              | _ -> Abstract None )
+              | _ -> Abstract None)
             | Ttype_open -> Open
             | Ttype_variant constructors ->
               Variant
-                ( constructors
+                (constructors
                 |> List.map (fun {cd_id; cd_name = cname; cd_args; cd_res} ->
                        let stamp = Ident.binding_time cd_id in
                        {
                          stamp;
                          cname;
                          args =
-                           ( match cd_args with
-                           | Cstr_tuple args -> args
+                           (match cd_args with
+                           | Cstr_tuple args ->
+                             args
+                             |> List.map (fun t -> (t.ctyp_type, t.ctyp_loc))
                            (* TODO(406) *)
-                           | Cstr_record _ -> [] )
-                           |> List.map (fun t -> (t.ctyp_type, t.ctyp_loc));
-                         res = (cd_res |?>> fun t -> t.ctyp_type);
-                       }) )
+                           | Cstr_record _ -> []);
+                         res =
+                           (match cd_res with
+                           | None -> None
+                           | Some t -> Some t.ctyp_type);
+                       }))
             | Ttype_record fields ->
               Record
-                ( fields
+                (fields
                 |> List.map
                      (fun {ld_id; ld_name = fname; ld_type = {ctyp_type}} ->
                        let fstamp = Ident.binding_time ld_id in
-                       {stamp = fstamp; fname; typ = ctyp_type}) ) );
+                       {stamp = fstamp; fname; typ = ctyp_type})));
         }
       ~name ~stamp ~env typ_attributes exported.types env.stamps.types
   in
@@ -322,7 +321,8 @@ let rec forItem ~env ~(exported : exported) item =
         (* TODO get all the things out of the var. *)
         match pat_desc with
         | Tpat_var (ident, name)
-        | Tpat_alias ({pat_desc = Tpat_any}, ident, name) (* let x : t = ... *) ->
+        | Tpat_alias ({pat_desc = Tpat_any}, ident, name) (* let x : t = ... *)
+          ->
           let item = pat_type in
           let declared =
             addItem ~name ~stamp:(Ident.binding_time ident) ~env ~extent:vb_loc
@@ -387,7 +387,7 @@ and forModule env mod_desc moduleName =
     let contents = forStructure ~env structure.str_items in
     Structure contents
   | Tmod_functor (ident, argName, maybeType, resultExpr) ->
-    ( match maybeType with
+    (match maybeType with
     | None -> ()
     | Some t -> (
       match forTreeModuleType ~env t with
@@ -405,7 +405,7 @@ and forModule env mod_desc moduleName =
             ~extent:t.Typedtree.mty_loc ~stamp ~modulePath:NotVisible
             ~processDoc:env.processDoc false []
         in
-        Hashtbl.add env.stamps.modules stamp declared ) );
+        Hashtbl.add env.stamps.modules stamp declared));
     forModule env resultExpr.mod_desc moduleName
   | Tmod_apply (functor_, _arg, _coercion) ->
     forModule env functor_.mod_desc moduleName
