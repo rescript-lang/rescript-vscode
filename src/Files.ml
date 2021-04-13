@@ -50,22 +50,13 @@ let maybeStat path =
 let getMtime path =
   match maybeStat path with Some {Unix.st_mtime} -> Some st_mtime | _ -> None
 
-let readFile path =
-  match maybeStat path with
-  | Some {Unix.st_kind = Unix.S_REG} ->
-    let ic = open_in path in
-    let try_read () =
-      match input_line ic with exception End_of_file -> None | x -> Some x
-    in
-    let rec loop acc =
-      match try_read () with
-      | Some s -> loop (s :: acc)
-      | None ->
-        close_in ic;
-        List.rev acc
-    in
-    let text = loop [] |> String.concat (String.make 1 '\n') in
-    Some text
+let readFile ~filename =
+  try
+    let chan = open_in filename in
+    let content = really_input_string chan (in_channel_length chan) in
+    close_in_noerr chan;
+    Some content
+  with
   | _ -> None
 
 let exists path = match maybeStat path with None -> false | Some _ -> true
