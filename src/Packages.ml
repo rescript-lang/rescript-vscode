@@ -25,15 +25,13 @@ let newBsPackage rootPath =
     match FindFiles.findDependencyFiles ~debug:true rootPath config with
     | Error e -> Error e
     | Ok (dependencyDirectories, dependencyModules) -> (
-      match
-        compiledBase
-        |> RResult.orError
-             "You need to run bsb first so that rescript-editor-support can \
-              access the compiled artifacts.\n\
-              Once you've run bsb, restart the language server."
-      with
-      | Error e -> Error e
-      | Ok compiledBase ->
+      match compiledBase with
+      | None ->
+        Error
+          "You need to run bsb first so that rescript-editor-support can \
+           access the compiled artifacts.\n\
+           Once you've run bsb, restart the language server."
+      | Some compiledBase ->
         Ok
           (let namespace = FindFiles.getNamespace config in
            let localSourceDirs =
@@ -118,12 +116,9 @@ let getPackage ~uri state =
   if Hashtbl.mem state.rootForUri uri then
     Ok (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))
   else
-    match
-      findRoot ~uri state.packagesByRoot
-      |> RResult.orError "No root directory found"
-    with
-    | Error e -> Error e
-    | Ok root -> (
+    match findRoot ~uri state.packagesByRoot with
+    | None -> Error "No root directory found"
+    | Some root -> (
       match
         match root with
         | `Root rootPath ->
