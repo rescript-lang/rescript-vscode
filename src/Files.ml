@@ -68,11 +68,6 @@ let readFile path =
     Some text
   | _ -> None
 
-let readFileResult path =
-  match readFile path with
-  | None -> Error ("Unable to read " ^ path)
-  | Some text -> Ok text
-
 let exists path = match maybeStat path with None -> false | Some _ -> true
 
 let ifExists path = match exists path with true -> Some path | false -> None

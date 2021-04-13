@@ -14,9 +14,10 @@ let makePathsForModule (localModules : (string * SharedTypes.paths) list)
   pathsForModule
 
 let newBsPackage rootPath =
-  match Files.readFileResult (rootPath /+ "bsconfig.json") with
-  | Error e -> Error e
-  | Ok raw -> (
+  let path = rootPath /+ "bsconfig.json" in
+  match Files.readFile path with
+  | None -> Error ("Unable to read " ^ path)
+  | Some raw -> (
     let config = Json.parse raw in
     Log.log {|📣 📣 NEW BSB PACKAGE 📣 📣|};
     (* failwith("Wat"); *)
