@@ -37,4 +37,5 @@ jobs:
 
     - run: npm install
 
-    - run: eval $(opam env) && dune build
+    - run: opam install . --deps-only
+    - run: eval $(opam env) && opam exec -- dune build
