@@ -1,0 +1,144 @@
+src/BuildSystem.cmx : src/ModuleResolution.cmx src/Log.cmx src/Infix.cmx \
+    src/Files.cmx
+src/EditorSupportCommands.cmx : src/Utils.cmx src/Uri2.cmx src/TopTypes.cmx \
+    src/State.cmx src/SharedTypes.cmx src/Shared.cmx src/References.cmx \
+    src/Protocol.cmx src/NewCompletions.cmx src/Hover.cmx src/Files.cmx
+src/Files.cmx :
+src/FindFiles.cmx : src/Utils.cmx src/SharedTypes.cmx \
+    src/ModuleResolution.cmx src/Log.cmx src/vendor/Json.cmx src/Infix.cmx \
+    src/Files.cmx src/BuildSystem.cmx
+src/Hover.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
+    src/References.cmx src/Query.cmx
+src/Infix.cmx : src/Log.cmx src/Files.cmx
+src/Log.cmx :
+src/MarkdownOfOCamldoc.cmx : src/vendor/odoc_parser/root.cmx \
+    src/vendor/odoc_parser/paths.cmx src/vendor/odoc_parser/parser_.cmx \
+    src/vendor/omd/omd.cmx src/Log.cmx src/vendor/odoc_parser/location_.cmx \
+    src/vendor/odoc_parser/error.cmx src/vendor/odoc_parser/comment.cmx
+src/ModuleResolution.cmx : src/Infix.cmx src/Files.cmx
+src/NewCompletions.cmx : src/Utils.cmx src/Uri2.cmx src/TopTypes.cmx \
+    src/State.cmx src/SharedTypes.cmx src/Shared.cmx src/Query.cmx \
+    src/Protocol.cmx src/PartialParser.cmx src/Log.cmx src/Infix.cmx \
+    src/Hover.cmx
+src/Packages.cmx : src/Uri2.cmx src/TopTypes.cmx src/SharedTypes.cmx \
+    src/Log.cmx src/vendor/Json.cmx src/Infix.cmx src/FindFiles.cmx \
+    src/Files.cmx src/BuildSystem.cmx
+src/PartialParser.cmx : src/SharedTypes.cmx src/Infix.cmx
+src/PrepareUtils.cmx :
+src/PrintType.cmx : src/vendor/res_outcome_printer/res_outcome_printer.cmx \
+    src/vendor/res_outcome_printer/res_doc.cmx
+src/ProcessAttributes.cmx : src/SharedTypes.cmx src/PrepareUtils.cmx
+src/ProcessCmt.cmx : src/Utils.cmx src/SharedTypes.cmx \
+    src/ProcessAttributes.cmx src/Infix.cmx
+src/ProcessExtra.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
+    src/Query.cmx src/ProcessCmt.cmx src/ProcessAttributes.cmx src/Log.cmx
+src/Process_406.cmx : src/SharedTypes.cmx src/Shared.cmx \
+    src/ProcessExtra.cmx src/ProcessCmt.cmx src/PrintType.cmx \
+    src/Process_406.cmi
+src/Process_406.cmi : src/Uri2.cmx src/SharedTypes.cmx
+src/Protocol.cmx :
+src/Query.cmx : src/SharedTypes.cmx src/Log.cmx src/Infix.cmx
+src/References.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
+    src/Query.cmx src/Log.cmx src/Infix.cmx
+src/RescriptEditorSupport.cmx : src/EditorSupportCommands.cmx
+src/Shared.cmx : src/PrintType.cmx src/Files.cmx
+src/SharedTypes.cmx : src/Utils.cmx src/Uri2.cmx src/Shared.cmx \
+    src/Infix.cmx
+src/State.cmx : src/Utils.cmx src/Uri2.cmx src/TopTypes.cmx \
+    src/SharedTypes.cmx src/Process_406.cmx src/Packages.cmx \
+    src/vendor/omd/omd.cmx src/MarkdownOfOCamldoc.cmx src/Log.cmx \
+    src/Infix.cmx src/FindFiles.cmx src/Files.cmx src/BuildSystem.cmx
+src/TopTypes.cmx : src/Uri2.cmx src/SharedTypes.cmx
+src/Uri2.cmx :
+src/Utils.cmx : src/Protocol.cmx
+src/vendor/Json.cmx :
+src/vendor/odoc_parser/ast.cmx : src/vendor/odoc_parser/paths.cmx \
+    src/vendor/odoc_parser/location_.cmx src/vendor/odoc_parser/comment.cmx
+src/vendor/odoc_parser/comment.cmx : src/vendor/odoc_parser/paths.cmx \
+    src/vendor/odoc_parser/location_.cmx
+src/vendor/odoc_parser/error.cmx : src/vendor/odoc_parser/location_.cmx
+src/vendor/odoc_parser/helpers.cmx : src/vendor/odoc_parser/paths.cmx
+src/vendor/odoc_parser/lang.cmx : src/vendor/odoc_parser/root.cmx \
+    src/vendor/odoc_parser/paths.cmx src/vendor/odoc_parser/comment.cmx
+src/vendor/odoc_parser/location_.cmx :
+src/vendor/odoc_parser/odoc_lexer.cmx : src/vendor/odoc_parser/token.cmx \
+    src/vendor/odoc_parser/parse_error.cmx \
+    src/vendor/odoc_parser/location_.cmx src/vendor/odoc_parser/error.cmx \
+    src/vendor/odoc_parser/odoc_lexer.cmi
+src/vendor/odoc_parser/odoc_lexer.cmi : src/vendor/odoc_parser/token.cmx \
+    src/vendor/odoc_parser/location_.cmx
+src/vendor/odoc_parser/parse_error.cmx : \
+    src/vendor/odoc_parser/location_.cmx src/vendor/odoc_parser/error.cmx
+src/vendor/odoc_parser/parser_.cmx : src/vendor/odoc_parser/syntax.cmx \
+    src/vendor/odoc_parser/semantics.cmx \
+    src/vendor/odoc_parser/odoc_lexer.cmx \
+    src/vendor/odoc_parser/location_.cmx src/vendor/odoc_parser/error.cmx \
+    src/vendor/odoc_parser/ast.cmx src/vendor/odoc_parser/parser_.cmi
+src/vendor/odoc_parser/parser_.cmi : src/vendor/odoc_parser/paths.cmi \
+    src/vendor/odoc_parser/error.cmx src/vendor/odoc_parser/comment.cmx \
+    src/vendor/odoc_parser/ast.cmx
+src/vendor/odoc_parser/paths.cmx : src/vendor/odoc_parser/root.cmx \
+    src/vendor/odoc_parser/paths_types.cmx src/vendor/odoc_parser/paths.cmi
+src/vendor/odoc_parser/paths.cmi : src/vendor/odoc_parser/root.cmi \
+    src/vendor/odoc_parser/paths_types.cmx
+src/vendor/odoc_parser/paths_types.cmx : src/vendor/odoc_parser/root.cmx
+src/vendor/odoc_parser/root.cmx : src/vendor/odoc_parser/root.cmi
+src/vendor/odoc_parser/root.cmi :
+src/vendor/odoc_parser/semantics.cmx : src/vendor/odoc_parser/token.cmx \
+    src/vendor/odoc_parser/paths.cmx src/vendor/odoc_parser/parse_error.cmx \
+    src/vendor/odoc_parser/location_.cmx src/vendor/odoc_parser/error.cmx \
+    src/vendor/odoc_parser/comment.cmx src/vendor/odoc_parser/ast.cmx \
+    src/vendor/odoc_parser/semantics.cmi
+src/vendor/odoc_parser/semantics.cmi : src/vendor/odoc_parser/paths.cmi \
+    src/vendor/odoc_parser/error.cmx src/vendor/odoc_parser/comment.cmx \
+    src/vendor/odoc_parser/ast.cmx
+src/vendor/odoc_parser/syntax.cmx : src/vendor/odoc_parser/token.cmx \
+    src/vendor/odoc_parser/parse_error.cmx \
+    src/vendor/odoc_parser/location_.cmx src/vendor/odoc_parser/helpers.cmx \
+    src/vendor/odoc_parser/error.cmx src/vendor/odoc_parser/comment.cmx \
+    src/vendor/odoc_parser/ast.cmx src/vendor/odoc_parser/syntax.cmi
+src/vendor/odoc_parser/syntax.cmi : src/vendor/odoc_parser/token.cmx \
+    src/vendor/odoc_parser/location_.cmx src/vendor/odoc_parser/error.cmx \
+    src/vendor/odoc_parser/ast.cmx
+src/vendor/odoc_parser/token.cmx : src/vendor/odoc_parser/comment.cmx
+src/vendor/omd/html_characters.cmx :
+src/vendor/omd/omd.cmx : src/vendor/omd/omd_representation.cmx \
+    src/vendor/omd/omd_parser.cmx src/vendor/omd/omd_lexer.cmx \
+    src/vendor/omd/omd_backend.cmx src/vendor/omd/omd.cmi
+src/vendor/omd/omd.cmi : src/vendor/omd/omd_representation.cmi
+src/vendor/omd/omd_backend.cmx : src/vendor/omd/omd_utils.cmx \
+    src/vendor/omd/omd_representation.cmx src/vendor/omd/omd_backend.cmi
+src/vendor/omd/omd_backend.cmi : src/vendor/omd/omd_utils.cmi \
+    src/vendor/omd/omd_representation.cmi
+src/vendor/omd/omd_html.cmx :
+src/vendor/omd/omd_lexer.cmx : src/vendor/omd/omd_utils.cmx \
+    src/vendor/omd/omd_representation.cmx src/vendor/omd/omd_lexer.cmi
+src/vendor/omd/omd_lexer.cmi : src/vendor/omd/omd_representation.cmi
+src/vendor/omd/omd_parser.cmx : src/vendor/omd/omd_utils.cmx \
+    src/vendor/omd/omd_representation.cmx src/vendor/omd/omd_lexer.cmx \
+    src/vendor/omd/omd_backend.cmx src/vendor/omd/omd_parser.cmi
+src/vendor/omd/omd_parser.cmi : src/vendor/omd/omd_utils.cmi \
+    src/vendor/omd/omd_representation.cmi
+src/vendor/omd/omd_representation.cmx : src/vendor/omd/omd_utils.cmx \
+    src/vendor/omd/omd_representation.cmi
+src/vendor/omd/omd_representation.cmi :
+src/vendor/omd/omd_types.cmx :
+src/vendor/omd/omd_utils.cmx : src/vendor/omd/omd_utils.cmi
+src/vendor/omd/omd_utils.cmi :
+src/vendor/omd/omd_xtxt.cmx : src/vendor/omd/omd_xtxt.cmi
+src/vendor/omd/omd_xtxt.cmi :
+src/vendor/res_outcome_printer/res_comment.cmx : \
+    src/vendor/res_outcome_printer/res_comment.cmi
+src/vendor/res_outcome_printer/res_comment.cmi :
+src/vendor/res_outcome_printer/res_doc.cmx : \
+    src/vendor/res_outcome_printer/res_minibuffer.cmx \
+    src/vendor/res_outcome_printer/res_doc.cmi
+src/vendor/res_outcome_printer/res_doc.cmi :
+src/vendor/res_outcome_printer/res_minibuffer.cmx : \
+    src/vendor/res_outcome_printer/res_minibuffer.cmi
+src/vendor/res_outcome_printer/res_minibuffer.cmi :
+src/vendor/res_outcome_printer/res_outcome_printer.cmx : \
+    src/vendor/res_outcome_printer/res_token.cmx \
+    src/vendor/res_outcome_printer/res_doc.cmx
+src/vendor/res_outcome_printer/res_token.cmx : \
+    src/vendor/res_outcome_printer/res_comment.cmx

@@ -6,3 +6,10 @@ _build
 examples/*/lib
 test/lib
 node_modules
+*.cmi
+*.cmt
+*.cmti
+*.cmx
+*.o
+lib/*
+!lib/README.md
