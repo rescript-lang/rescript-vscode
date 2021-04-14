@@ -1,44 +1,57 @@
 name: CI
 
 on:
-  pull_request:
   push:
-  schedule:
-    # Prime the caches every Monday
-    - cron: 0 1 * * MON
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - macos-latest
-          - ubuntu-latest
-          - windows-latest
-        ocaml-compiler:
-          - 4.06.x
+        os: [macos-latest, ubuntu-latest, windows-latest]
 
-
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{matrix.os}}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2.3.4
 
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14.x
+    - name: Cache OCaml's opam
+      uses: actions/cache@v2.1.5
+      with:
+        path: ~/.opam
+        key: ${{matrix.os}}-latest-ocaml-4.06.1
 
-      - run: npm ci
+    - name: Use OCaml
+      uses: avsm/setup-ocaml@v1.1.10
+      with:
+        ocaml-version: 4.06.1
 
-      - name: Use OCaml ${{ matrix.ocaml-compiler }}
-        uses: avsm/setup-ocaml@v2
-        with:
-          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+    - name: Use Node.js
+      uses: actions/setup-node@v2.1.5
+      with:
+        node-version: 14.4.0
 
-      - run: opam install . --deps-only
+    - run: npm ci
 
-      - run: opam exec -- dune build
+    # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
+    # Don't add deps. But if you ever do, un-comment these
+    # - run: opam pin add rescript-editor-support.dev . --no-action
+    # - run: opam install . --deps-only --with-doc --with-test
+
+    - run: eval $(opam env) && make
+      if: matrix.os != 'windows-latest'
+    - run: "& $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make"
+      if: matrix.os == 'windows-latest'
+
+    # Also avoids artifacts upload permission loss:
+    # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
+    - name: Compress files
+      run: tar -cvf rescript-editor-support.tar -C lib rescript-editor-support.exe
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{matrix.os}}-rescript-editor-support.exe
+        path: rescript-editor-support.tar
