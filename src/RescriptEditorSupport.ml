@@ -26,6 +26,7 @@ Examples:
   rescript-editor-support.exe dump src/MyFile.res src/MyFile2.res
   rescript-editor-support.exe complete src/MyFile.res 0 4 currentContent.res
   rescript-editor-support.exe hover src/MyFile.res 10 2
+  rescript-editor-support.exe definition src/MyFile.res 9 3
 
 Options:
   dump: debugging. definition and hover for Foo.res and Foo2.res:
