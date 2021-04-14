@@ -52,7 +52,8 @@ let getMtime path =
 
 let readFile ~filename =
   try
-    let chan = open_in filename in
+    (* windows can't use open_in *)
+    let chan = open_in_bin filename in
     let content = really_input_string chan (in_channel_length chan) in
     close_in_noerr chan;
     Some content
