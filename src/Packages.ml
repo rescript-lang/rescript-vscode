@@ -79,7 +79,7 @@ let newBsPackage rootPath =
                    match item |> Json.string with
                    | None -> opens
                    | Some s -> (
-                     let parts = Utils.split_on_char ' ' s in
+                     let parts = String.split_on_char ' ' s in
                      match parts with
                      | "-open" :: name :: _ -> name :: opens
                      | _ -> opens))
