@@ -7,10 +7,14 @@ let parseArgs args =
     let opts, pos =
       args |> List.rev
       |> List.fold_left
-          (fun (set, pos) arg ->
-            if arg <> "" && arg.[0] = '-' then (set |> StringSet.add arg, pos)
-            else (set, arg :: pos))
-          (StringSet.empty, [])
+           (fun (set, pos) arg ->
+             if arg = "-test" then (
+               Uri2.stripPath := true;
+               (set, pos) )
+             else if arg <> "" && arg.[0] = '-' then
+               (set |> StringSet.add arg, pos)
+             else (set, arg :: pos))
+           (StringSet.empty, [])
     in
     (opts, pos)
 
@@ -57,12 +61,14 @@ let main () =
     EditorSupportCommands.complete ~path ~line:(int_of_string line)
       ~col:(int_of_string col) ~currentFile
   | _opts, ["hover"; path; line; col] ->
-    EditorSupportCommands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
+    EditorSupportCommands.hover ~path ~line:(int_of_string line)
+      ~col:(int_of_string col)
   | _opts, ["definition"; path; line; col] ->
-    EditorSupportCommands.definition ~path ~line:(int_of_string line) ~col:(int_of_string col)
+    EditorSupportCommands.definition ~path ~line:(int_of_string line)
+      ~col:(int_of_string col)
   | _ ->
     showHelp ();
     exit 1
-;;
 
+;;
 main ()
