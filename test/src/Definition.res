@@ -1,4 +1,4 @@
-let x = 10
+let xx = 10
 
-let y = x
+let y = xx
 //      ^def
