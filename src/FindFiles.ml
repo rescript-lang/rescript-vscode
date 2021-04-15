@@ -46,11 +46,11 @@ let isSourceFile name =
   || Filename.check_suffix name ".mli"
 
 let compiledNameSpace name =
-  String.split_on_char '-' name
+  Str.split (Str.regexp_string "-") name
   |> List.map String.capitalize_ascii
   |> String.concat ""
   (* Remove underscores??? Whyyy bucklescript, whyyyy *)
-  |> String.split_on_char '_'
+  |> Str.split (Str.regexp_string "_")
   |> String.concat ""
 
 let compiledBaseName ~namespace name =
