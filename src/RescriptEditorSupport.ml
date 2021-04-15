@@ -8,11 +8,7 @@ let parseArgs args =
       args |> List.rev
       |> List.fold_left
            (fun (set, pos) arg ->
-             if arg = "-test" then (
-               Uri2.stripPath := true;
-               (set, pos) )
-             else if arg <> "" && arg.[0] = '-' then
-               (set |> StringSet.add arg, pos)
+             if arg <> "" && arg.[0] = '-' then (set |> StringSet.add arg, pos)
              else (set, arg :: pos))
            (StringSet.empty, [])
     in
@@ -66,6 +62,7 @@ let main () =
   | _opts, ["definition"; path; line; col] ->
     EditorSupportCommands.definition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
+  | _opts, ["test"; path] -> EditorSupportCommands.test ~path
   | _ ->
     showHelp ();
     exit 1
