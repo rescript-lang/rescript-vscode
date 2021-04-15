@@ -1,2 +1,0 @@
-module MyList = Belt.List
-MyList.

@@ -103,7 +103,7 @@ let hover state ~file ~line ~col ~extra ~package =
       in
       match hoverText with
       | None -> Protocol.null
-      | Some s -> Protocol.stringifyHover {contents = s})
+      | Some s -> Protocol.stringifyHover {contents = s} )
 
 let hover ~path ~line ~col =
   let state = TopTypes.empty () in
@@ -151,7 +151,7 @@ let definition state ~file ~line ~col ~extra ~package =
       if skipZero then Protocol.null
       else
         Protocol.stringifyLocation
-          {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc})
+          {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc} )
 
 let definition ~path ~line ~col =
   let state = TopTypes.empty () in
@@ -164,3 +164,37 @@ let definition ~path ~line ~col =
       definition state ~file ~line ~col ~extra ~package
   in
   print_endline result
+
+let test ~path =
+  Uri2.stripPath := true;
+  match Files.readFile path with
+  | None -> assert false
+  | Some text ->
+    let lines = text |> String.split_on_char '\n' in
+    let processLine i line =
+      if Str.string_match (Str.regexp "^//[ ]*\\^") line 0 then
+        let matched = Str.matched_string line in
+        let len = line |> String.length in
+        let mlen = String.length matched in
+        let rest = String.sub line mlen (len - mlen) in
+        let line = i - 1 in
+        let col = mlen - 1 in
+        if mlen >= 3 then
+          match String.sub rest 0 3 with
+          | "def" -> definition ~path ~line ~col
+          | "com" ->
+            let currentFile, cout = Filename.open_temp_file "def" "txt" in
+            lines
+            |> List.iteri (fun j l ->
+                   let lineToOutput =
+                     if j == i then String.sub rest 3 (len - mlen - 3) else l
+                   in
+                   Printf.fprintf cout "%s\n" lineToOutput);
+            let line = line + 1 in
+            let col = len - mlen - 3 in
+            close_out cout;
+            complete ~path ~line ~col ~currentFile;
+            Sys.remove currentFile
+          | _ -> ()
+    in
+    lines |> List.iteri processLine
