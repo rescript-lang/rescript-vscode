@@ -1,41 +1,44 @@
 name: CI
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
-    branches: [ master ]
+  push:
+  schedule:
+    # Prime the caches every Monday
+    - cron: 0 1 * * MON
 
 jobs:
   test:
-    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+        ocaml-compiler:
+          - 4.06.x
+
+
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2.3.4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Cache OCaml's opam
-      uses: actions/cache@v2.1.5
-      with:
-        path: ~/.opam
-        key: macos-latest-ocaml-4.06.1
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
 
-    - name: Cache npm
-      uses: actions/cache@v2.1.5
-      with:
-        path: ~/.npm
-        key: macos-latest-node-14.4.0-${{hashFiles('package-lock.json')}}
+      - run: npm ci
 
-    - name: Use OCaml
-      uses: avsm/setup-ocaml@v1.1.10
-      with:
-        ocaml-version: 4.06.1
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: avsm/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-    - name: Use Node.js
-      uses: actions/setup-node@v2.1.5
-      with:
-        node-version: 14.4.0
+      - run: opam install . --deps-only
 
-    - run: npm install
-
-    - run: opam install . --deps-only
-    - run: eval $(opam env) && opam exec -- dune build
+      - run: opam exec -- dune build
