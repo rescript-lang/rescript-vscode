@@ -1,1 +1,2 @@
+Hober src/Hover.res 0:4
 {"contents": "```rescript\nint\n```"}

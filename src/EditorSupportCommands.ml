@@ -181,9 +181,21 @@ let test ~path =
         let col = mlen - 1 in
         if mlen >= 3 then
           match String.sub rest 0 3 with
-          | "def" -> definition ~path ~line ~col
-          | "hov" -> hover ~path ~line ~col
+          | "def" ->
+            print_endline
+              ( "Definition " ^ path ^ " " ^ string_of_int line ^ ":"
+              ^ string_of_int col );
+            definition ~path ~line ~col
+          | "hov" ->
+            print_endline
+              ( "Hober " ^ path ^ " " ^ string_of_int line ^ ":"
+              ^ string_of_int col );
+
+            hover ~path ~line ~col
           | "com" ->
+            print_endline
+              ( "Complete " ^ path ^ " " ^ string_of_int line ^ ":"
+              ^ string_of_int col );
             let currentFile, cout = Filename.open_temp_file "def" "txt" in
             lines
             |> List.iteri (fun j l ->
