@@ -1,0 +1,333 @@
+[{
+    "label": "mapReverse",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "`mapReverse xs f`\n\nEquivalent to `reverse (map xs f)`\n\n```ml\nmapReverse [3;4;5] (fun x -> x * x) = [25;16;9];;\n```\n\n\n\nbelt_List.mli:299"}
+  }, {
+    "label": "makeBy",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int => 'a) => t<'a>",
+    "documentation": {"kind": "markdown", "value": "`makeBy n f`\n\n-     return a list of length `n` with element `i` initialized with `f i`\n\n\n-     return the empty list if `n` is negative\n\n\n\n```ml\nmakeBy 5 (fun i -> i) = [0;1;2;3;4];;\nmakeBy 5 (fun i -> i * i) = [0;1;4;9;16];;\n```\n\n\n\nbelt_List.mli:127"}
+  }, {
+    "label": "make",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, 'a) => t<'a>",
+    "documentation": {"kind": "markdown", "value": "`make n v`\n\n-     return a list of length `n` with each element filled with value `v`\n\n\n-     return the empty list if `n` is negative\n\n\n\n```ml\nmake 3 1 =  [1;1;1]\n```\n\n\n\nbelt_List.mli:115"}
+  }, {
+    "label": "mapReverse2U",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>",
+    "documentation": {"kind": "markdown", "value": "\nbelt_List.mli:391"}
+  }, {
+    "label": "map",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "`map xs f`\n\nreturn the list obtained by applying `f` to each element of `xs`\n\n```ml\nmap [1;2] (fun x-> x + 1) = [3;4]\n```\n\n\n\nbelt_List.mli:222"}
+  }, {
+    "label": "mapWithIndexU",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, (. int, 'a) => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nbelt_List.mli:258"}
+  }, {
+    "label": "mapU",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nbelt_List.mli:221"}
+  }, {
+    "label": "makeByU",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, (. int) => 'a) => t<'a>",
+    "documentation": {"kind": "markdown", "value": "\nbelt_List.mli:126"}
+  }, {
+    "label": "mapReverse2",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>",
+    "documentation": {"kind": "markdown", "value": "`mapReverse2 xs ys f`\n\nequivalent to `reverse (zipBy xs ys f)`\n\n```ml\nmapReverse2 [1;2;3] [1;2] (+) = [4;2]\n```\n\n\n\nbelt_List.mli:392"}
+  }, {
+    "label": "mapWithIndex",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "`mapWithIndex xs f` applies `f` to each element of `xs`. Function `f` takes two arguments: the index starting from 0 and the element from `xs`.\n\n```ml\nmapWithIndex [1;2;3] (fun i x -> i + x) =\n[0 + 1; 1 + 2; 2 + 3 ]\n```\n\n\n\nbelt_List.mli:259"}
+  }, {
+    "label": "mapReverseU",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nbelt_List.mli:298"}
+  }]
+[{
+    "label": "Floatarray",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": {"kind": "markdown", "value": "\narray.mli:267"}
+  }, {
+    "label": "fold_left",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'b) => 'a, 'a, array<'b>) => 'a",
+    "documentation": {"kind": "markdown", "value": "`Array.fold_left f x a` computes `f (... (f (f x a.(0)) a.(1)) ...) a.(n-1)`, where `n` is the length of the array `a`.\n\n\n\n\narray.mli:160"}
+  }, {
+    "label": "concat",
+    "kind": 12,
+    "tags": [],
+    "detail": "list<array<'a>> => array<'a>",
+    "documentation": {"kind": "markdown", "value": "Same as append, but concatenates a list of arrays.\n\n\n\n\narray.mli:95"}
+  }, {
+    "label": "mapi",
+    "kind": 12,
+    "tags": [],
+    "detail": "((int, 'a) => 'b, array<'a>) => array<'b>",
+    "documentation": {"kind": "markdown", "value": "Same as map, but the function is applied to the index of the element as first argument, and the element itself as second argument.\n\n\n\n\narray.mli:155"}
+  }, {
+    "label": "exists",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a => bool, array<'a>) => bool",
+    "documentation": {"kind": "markdown", "value": "`Array.exists p [|a1; ...; an|]` checks if at least one element of the array satisfies the predicate `p`. That is, it returns `(p a1) || (p a2) || ... || (p an)`.\n\nSince: 4.03.0\n\n\narray.mli:197"}
+  }, {
+    "label": "for_all",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a => bool, array<'a>) => bool",
+    "documentation": {"kind": "markdown", "value": "`Array.for_all p [|a1; ...; an|]` checks if all elements of the array satisfy the predicate `p`. That is, it returns `(p a1) && (p a2) && ... && (p an)`.\n\nSince: 4.03.0\n\n\narray.mli:191"}
+  }, {
+    "label": "copy",
+    "kind": 12,
+    "tags": [],
+    "detail": "array<'a> => array<'a>",
+    "documentation": {"kind": "markdown", "value": "`Array.copy a` returns a copy of `a`, that is, a fresh array containing the same elements as `a`.\n\n\n\n\narray.mli:107"}
+  }, {
+    "label": "iter2",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'b) => unit, array<'a>, array<'b>) => unit",
+    "documentation": {"kind": "markdown", "value": "`Array.iter2 f a b` applies function `f` to all the elements of `a` and `b`. Raise `Invalid_argument` if the arrays are not the same size.\n\nSince: 4.03.0\n\n\narray.mli:174"}
+  }, {
+    "label": "to_list",
+    "kind": 12,
+    "tags": [],
+    "detail": "array<'a> => list<'a>",
+    "documentation": {"kind": "markdown", "value": "`Array.to_list a` returns the list of all the elements of `a`.\n\n\n\n\narray.mli:129"}
+  }, {
+    "label": "stable_sort",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'a) => int, array<'a>) => unit",
+    "documentation": {"kind": "markdown", "value": "Same as sort, but the sorting algorithm is stable \\(i.e. elements that compare equal are kept in their original order\\) and not guaranteed to run in constant heap space.\n\nThe current implementation uses Merge Sort. It uses `n/2` words of heap space, where `n` is the length of the array. It is usually faster than the current implementation of sort.\n\n\n\n\narray.mli:243"}
+  }, {
+    "label": "iteri",
+    "kind": 12,
+    "tags": [],
+    "detail": "((int, 'a) => unit, array<'a>) => unit",
+    "documentation": {"kind": "markdown", "value": "Same as iter, but the function is applied with the index of the element as first argument, and the element itself as second argument.\n\n\n\n\narray.mli:145"}
+  }, {
+    "label": "memq",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, array<'a>) => bool",
+    "documentation": {"kind": "markdown", "value": "Same as mem, but uses physical equality instead of structural equality to compare array elements.\n\nSince: 4.03.0\n\n\narray.mli:208"}
+  }, {
+    "label": "map2",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'b) => 'c, array<'a>, array<'b>) => array<'c>",
+    "documentation": {"kind": "markdown", "value": "`Array.map2 f a b` applies function `f` to all the elements of `a` and `b`, and builds an array with the results returned by `f`: `[| f a.(0) b.(0); ...; f a.(Array.length a - 1) b.(Array.length b - 1)|]`. Raise `Invalid_argument` if the arrays are not the same size.\n\nSince: 4.03.0\n\n\narray.mli:180"}
+  }, {
+    "label": "set",
+    "kind": 12,
+    "tags": [],
+    "detail": "(array<'a>, int, 'a) => unit",
+    "documentation": {"kind": "markdown", "value": "`Array.set a n x` modifies array `a` in place, replacing element number `n` with `x`. You can also write `a.(n) <- x` instead of `Array.set a n x`.\n\nRaise `Invalid_argument \"index out of bounds\"` if `n` is outside the range 0 to `Array.length a - 1`.\n\n\n\n\narray.mli:30"}
+  }, {
+    "label": "make",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, 'a) => array<'a>",
+    "documentation": {"kind": "markdown", "value": "`Array.make n x` returns a fresh array of length `n`, initialized with `x`. All the elements of this new array are initially physically equal to `x` \\(in the sense of the `==` predicate\\). Consequently, if `x` is mutable, it is shared among all elements of the array, and modifying `x` through one of the array entries will modify all other entries at the same time.\n\nRaise `Invalid_argument` if `n < 0` or `n > Sys.max_array_length`. If the value of `x` is a floating-point number, then the maximum size is only `Sys.max_array_length / 2`.\n\n\n\n\narray.mli:38"}
+  }, {
+    "label": "make_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => array<float>",
+    "documentation": {"kind": "markdown", "value": "Deprecated: `Array.make_float` is an alias for create_float.\n\n\n\n\n\n\narray.mli:60"}
+  }, {
+    "label": "fold_right",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('b, 'a) => 'a, array<'b>, 'a) => 'a",
+    "documentation": {"kind": "markdown", "value": "`Array.fold_right f a x` computes `f a.(0) (f a.(1) ( ... (f a.(n-1) x) ...))`, where `n` is the length of the array `a`.\n\n\n\n\narray.mli:165"}
+  }, {
+    "label": "sort",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'a) => int, array<'a>) => unit",
+    "documentation": {"kind": "markdown", "value": "Sort an array in increasing order according to a comparison function. The comparison function must return 0 if its arguments compare as equal, a positive integer if the first is greater, and a negative integer if the first is smaller \\(see below for a complete specification\\). For example, compare is a suitable comparison function, provided there are no floating-point NaN values in the data. After calling `Array.sort`, the array is sorted in place in increasing order. `Array.sort` is guaranteed to run in constant heap space and \\(at most\\) logarithmic stack space.\n\nThe current implementation uses Heap Sort. It runs in constant stack space.\n\nSpecification of the comparison function: Let `a` be the array and `cmp` the comparison function. The following must be true for all x, y, z in a :\n\n-     `cmp x y` \\> 0 if and only if `cmp y x` < 0\n\n\n-     if `cmp x y` \\>= 0 and `cmp y z` \\>= 0 then `cmp x z` \\>= 0\n\n\n\nWhen `Array.sort` returns, `a` contains the same elements as before, reordered in such a way that for all i and j valid indices of `a` :\n\n-     `cmp a.(i) a.(j)` \\>= 0 if and only if i \\>= j\n\n\n\n\n\n\narray.mli:217"}
+  }, {
+    "label": "length",
+    "kind": 12,
+    "tags": [],
+    "detail": "array<'a> => int",
+    "documentation": {"kind": "markdown", "value": "Return the length \\(number of elements\\) of the given array.\n\n\n\n\narray.mli:18"}
+  }, {
+    "label": "sub",
+    "kind": 12,
+    "tags": [],
+    "detail": "(array<'a>, int, int) => array<'a>",
+    "documentation": {"kind": "markdown", "value": "`Array.sub a start len` returns a fresh array of length `len`, containing the elements number `start` to `start + len - 1` of array `a`.\n\nRaise `Invalid_argument \"Array.sub\"` if `start` and `len` do not designate a valid subarray of `a`; that is, if `start < 0`, or `len < 0`, or `start + len > Array.length a`.\n\n\n\n\narray.mli:98"}
+  }, {
+    "label": "of_list",
+    "kind": 12,
+    "tags": [],
+    "detail": "list<'a> => array<'a>",
+    "documentation": {"kind": "markdown", "value": "`Array.of_list l` returns a fresh array containing the elements of `l`.\n\n\n\n\narray.mli:132"}
+  }, {
+    "label": "iter",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a => unit, array<'a>) => unit",
+    "documentation": {"kind": "markdown", "value": "`Array.iter f a` applies function `f` in turn to all the elements of `a`. It is equivalent to `f a.(0); f a.(1); ...; f a.(Array.length a - 1); ()`.\n\n\n\n\narray.mli:140"}
+  }, {
+    "label": "map",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a => 'b, array<'a>) => array<'b>",
+    "documentation": {"kind": "markdown", "value": "`Array.map f a` applies function `f` to all the elements of `a`, and builds an array with the results returned by `f`: `[| f a.(0); f a.(1); ...; f a.(Array.length a - 1) |]`.\n\n\n\n\narray.mli:150"}
+  }, {
+    "label": "unsafe_get",
+    "kind": 12,
+    "tags": [],
+    "detail": "(array<'a>, int) => 'a",
+    "documentation": {"kind": "markdown", "value": "\narray.mli:264"}
+  }, {
+    "label": "make_matrix",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int, 'a) => array<array<'a>>",
+    "documentation": {"kind": "markdown", "value": "`Array.make_matrix dimx dimy e` returns a two-dimensional array \\(an array of arrays\\) with first dimension `dimx` and second dimension `dimy`. All the elements of this new matrix are initially physically equal to `e`. The element \\(`x,y`\\) of a matrix `m` is accessed with the notation `m.(x).(y)`.\n\nRaise `Invalid_argument` if `dimx` or `dimy` is negative or greater than max_array_length. If the value of `e` is a floating-point number, then the maximum size is only `Sys.max_array_length / 2`.\n\n\n\n\narray.mli:74"}
+  }, {
+    "label": "mem",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, array<'a>) => bool",
+    "documentation": {"kind": "markdown", "value": "`mem a l` is true if and only if `a` is equal to an element of `l`.\n\nSince: 4.03.0\n\n\narray.mli:203"}
+  }, {
+    "label": "get",
+    "kind": 12,
+    "tags": [],
+    "detail": "(array<'a>, int) => 'a",
+    "documentation": {"kind": "markdown", "value": "`Array.get a n` returns the element number `n` of array `a`. The first element has number 0. The last element has number `Array.length a - 1`. You can also write `a.(n)` instead of `Array.get a n`.\n\nRaise `Invalid_argument \"index out of bounds\"` if `n` is outside the range 0 to `(Array.length a - 1)`.\n\n\n\n\narray.mli:21"}
+  }, {
+    "label": "append",
+    "kind": 12,
+    "tags": [],
+    "detail": "(array<'a>, array<'a>) => array<'a>",
+    "documentation": {"kind": "markdown", "value": "`Array.append v1 v2` returns a fresh array containing the concatenation of the arrays `v1` and `v2`.\n\n\n\n\narray.mli:91"}
+  }, {
+    "label": "unsafe_set",
+    "kind": 12,
+    "tags": [],
+    "detail": "(array<'a>, int, 'a) => unit",
+    "documentation": {"kind": "markdown", "value": "\narray.mli:265"}
+  }, {
+    "label": "create_matrix",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int, 'a) => array<array<'a>>",
+    "documentation": {"kind": "markdown", "value": "Deprecated: `Array.create_matrix` is an alias for make_matrix.\n\n\n\n\n\n\narray.mli:87"}
+  }, {
+    "label": "create_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => array<float>",
+    "documentation": {"kind": "markdown", "value": "`Array.create_float n` returns a fresh float array of length `n`, with uninitialized data.\n\nSince: 4.03\n\n\narray.mli:55"}
+  }, {
+    "label": "create",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, 'a) => array<'a>",
+    "documentation": {"kind": "markdown", "value": "Deprecated: `Array.create` is an alias for make.\n\n\n\n\n\n\narray.mli:51"}
+  }, {
+    "label": "init",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int => 'a) => array<'a>",
+    "documentation": {"kind": "markdown", "value": "`Array.init n f` returns a fresh array of length `n`, with element number `i` initialized to the result of `f i`. In other terms, `Array.init n f` tabulates the results of `f` applied to the integers `0` to `n-1`.\n\nRaise `Invalid_argument` if `n < 0` or `n > Sys.max_array_length`. If the return type of `f` is `float`, then the maximum size is only `Sys.max_array_length / 2`.\n\n\n\n\narray.mli:64"}
+  }, {
+    "label": "fast_sort",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'a) => int, array<'a>) => unit",
+    "documentation": {"kind": "markdown", "value": "Same as sort or stable_sort, whichever is faster on typical input.\n\n\n\n\narray.mli:253"}
+  }, {
+    "label": "fill",
+    "kind": 12,
+    "tags": [],
+    "detail": "(array<'a>, int, int, 'a) => unit",
+    "documentation": {"kind": "markdown", "value": "`Array.fill a ofs len x` modifies the array `a` in place, storing `x` in elements number `ofs` to `ofs + len - 1`.\n\nRaise `Invalid_argument \"Array.fill\"` if `ofs` and `len` do not designate a valid subarray of `a`.\n\n\n\n\narray.mli:111"}
+  }, {
+    "label": "blit",
+    "kind": 12,
+    "tags": [],
+    "detail": "(array<'a>, int, array<'a>, int, int) => unit",
+    "documentation": {"kind": "markdown", "value": "`Array.blit v1 o1 v2 o2 len` copies `len` elements from array `v1`, starting at element number `o1`, to array `v2`, starting at element number `o2`. It works correctly even if `v1` and `v2` are the same array, and the source and destination chunks overlap.\n\nRaise `Invalid_argument \"Array.blit\"` if `o1` and `len` do not designate a valid subarray of `v1`, or if `o2` and `len` do not designate a valid subarray of `v2`.\n\n\n\n\narray.mli:118"}
+  }]
+[{
+    "label": "mapi",
+    "kind": 12,
+    "tags": [],
+    "detail": "((int, 'a) => 'b, array<'a>) => array<'b>",
+    "documentation": {"kind": "markdown", "value": "Same as map, but the function is applied to the index of the element as first argument, and the element itself as second argument.\n\n\n\n\narray.mli:155"}
+  }, {
+    "label": "memq",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, array<'a>) => bool",
+    "documentation": {"kind": "markdown", "value": "Same as mem, but uses physical equality instead of structural equality to compare array elements.\n\nSince: 4.03.0\n\n\narray.mli:208"}
+  }, {
+    "label": "map2",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'b) => 'c, array<'a>, array<'b>) => array<'c>",
+    "documentation": {"kind": "markdown", "value": "`Array.map2 f a b` applies function `f` to all the elements of `a` and `b`, and builds an array with the results returned by `f`: `[| f a.(0) b.(0); ...; f a.(Array.length a - 1) b.(Array.length b - 1)|]`. Raise `Invalid_argument` if the arrays are not the same size.\n\nSince: 4.03.0\n\n\narray.mli:180"}
+  }, {
+    "label": "make",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, 'a) => array<'a>",
+    "documentation": {"kind": "markdown", "value": "`Array.make n x` returns a fresh array of length `n`, initialized with `x`. All the elements of this new array are initially physically equal to `x` \\(in the sense of the `==` predicate\\). Consequently, if `x` is mutable, it is shared among all elements of the array, and modifying `x` through one of the array entries will modify all other entries at the same time.\n\nRaise `Invalid_argument` if `n < 0` or `n > Sys.max_array_length`. If the value of `x` is a floating-point number, then the maximum size is only `Sys.max_array_length / 2`.\n\n\n\n\narray.mli:38"}
+  }, {
+    "label": "make_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => array<float>",
+    "documentation": {"kind": "markdown", "value": "Deprecated: `Array.make_float` is an alias for create_float.\n\n\n\n\n\n\narray.mli:60"}
+  }, {
+    "label": "map",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a => 'b, array<'a>) => array<'b>",
+    "documentation": {"kind": "markdown", "value": "`Array.map f a` applies function `f` to all the elements of `a`, and builds an array with the results returned by `f`: `[| f a.(0); f a.(1); ...; f a.(Array.length a - 1) |]`.\n\n\n\n\narray.mli:150"}
+  }, {
+    "label": "make_matrix",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int, 'a) => array<array<'a>>",
+    "documentation": {"kind": "markdown", "value": "`Array.make_matrix dimx dimy e` returns a two-dimensional array \\(an array of arrays\\) with first dimension `dimx` and second dimension `dimy`. All the elements of this new matrix are initially physically equal to `e`. The element \\(`x,y`\\) of a matrix `m` is accessed with the notation `m.(x).(y)`.\n\nRaise `Invalid_argument` if `dimx` or `dimy` is negative or greater than max_array_length. If the value of `e` is a floating-point number, then the maximum size is only `Sys.max_array_length / 2`.\n\n\n\n\narray.mli:74"}
+  }, {
+    "label": "mem",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, array<'a>) => bool",
+    "documentation": {"kind": "markdown", "value": "`mem a l` is true if and only if `a` is equal to an element of `l`.\n\nSince: 4.03.0\n\n\narray.mli:203"}
+  }]
