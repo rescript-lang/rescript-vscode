@@ -1,0 +1,21 @@
+{"uri": "Jsx.res", "range": "{"start": "{"line": "2", "character": "6"}", "end": "{"line": "2", "character": "10"}"}"}
+[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "\nJsx.res:11"}
+  }, {
+    "label": "first",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "\nJsx.res:11"}
+  }, {
+    "label": "fun",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": {"kind": "markdown", "value": "\nJsx.res:11"}
+  }]
