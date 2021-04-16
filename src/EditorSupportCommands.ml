@@ -188,7 +188,7 @@ let test ~path =
             definition ~path ~line ~col
           | "hov" ->
             print_endline
-              ( "Hober " ^ path ^ " " ^ string_of_int line ^ ":"
+              ( "Hover " ^ path ^ " " ^ string_of_int line ^ ":"
               ^ string_of_int col );
 
             hover ~path ~line ~col
