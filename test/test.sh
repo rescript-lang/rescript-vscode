@@ -11,6 +11,7 @@ function maybeWait {
   [[ $((taskCount % 20)) = 0 ]] && wait
 }
 
+./node_modules/.bin/rescript build
 for file in src/**/*.res; do
   ../_build/install/default/bin/rescript-editor-support.exe test $file &> $(exp $file) & maybeWait
 done
