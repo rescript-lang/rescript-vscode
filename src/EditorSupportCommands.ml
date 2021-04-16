@@ -182,6 +182,7 @@ let test ~path =
         if mlen >= 3 then
           match String.sub rest 0 3 with
           | "def" -> definition ~path ~line ~col
+          | "hov" -> hover ~path ~line ~col
           | "com" ->
             let currentFile, cout = Filename.open_temp_file "def" "txt" in
             lines
