@@ -7,3 +7,9 @@ Hover src/Hover.res 3:5
 Hover src/Hover.res 6:7
 {"contents": "```rescript\nmodule Id = {\n  type x = int\n}\n```"}
 
+Hover src/Hover.res 19:11
+{"contents": "\nThis module is commented\n```rescript\nmodule Dep = {\n  let customDouble: int => int\n}\n```"}
+
+Hover src/Hover.res 22:11
+{"contents": "```rescript\nint => int\n```\n\nSome doc comment"}
+
