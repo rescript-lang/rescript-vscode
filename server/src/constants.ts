@@ -9,6 +9,12 @@ export let bscExePartialPath = path.join(
   process.platform,
   "bsc.exe"
 );
+export let bscExeReScriptPartialPath = path.join(
+  "node_modules",
+  "rescript",
+  process.platform,
+  "bsc.exe"
+);
 
 // can't use the native bsb since we might need the watcher -w flag, which is only in the js wrapper
 // export let bsbPartialPath = path.join('node_modules', 'bs-platform', process.platform, 'bsb.exe');

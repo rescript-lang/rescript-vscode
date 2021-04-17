@@ -47,8 +47,9 @@ export let findBscExeDirOfFile = (
   source: p.DocumentUri
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
-  let bscPath = path.join(dir, c.bscExePartialPath);
-  if (fs.existsSync(bscPath)) {
+  let bscExePath1 = path.join(dir, c.bscExeReScriptPartialPath);
+  let bscExePath2 = path.join(dir, c.bscExePartialPath);
+  if (fs.existsSync(bscExePath1) || fs.existsSync(bscExePath2)) {
     return dir;
   } else {
     if (dir === source) {
