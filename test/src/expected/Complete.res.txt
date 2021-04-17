@@ -337,3 +337,12 @@ Complete src/Complete.res 2:2
     "documentation": {"kind": "markdown", "value": "`mem a l` is true if and only if `a` is equal to an element of `l`.\n\nSince: 4.03.0\n\n\narray.mli:203"}
   }]
 
+Complete src/Complete.res 12:2
+[{
+    "label": "customDouble",
+    "kind": 12,
+    "tags": [1],
+    "detail": "int => int",
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment\n\n\nComplete.res:1"}
+  }]
+
