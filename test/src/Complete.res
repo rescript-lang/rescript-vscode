@@ -19,3 +19,5 @@ module Lib = {
 }
 
 //^com let x = foo(~
+
+//^com [1,2,3]->m
