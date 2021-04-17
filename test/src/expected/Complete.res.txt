@@ -400,3 +400,18 @@ Complete src/Complete.res 27:2
     "documentation": {"kind": "markdown", "value": "`eq optValue1 optvalue2 predicate`\n\nEvaluates two optional values for equality with respect to a predicate function.\n\nIf both `optValue1` and `optValue2` are `None`, returns `true`.\n\nIf one of the arguments is `Some value` and the other is `None`, returns `false`\n\nIf arguments are `Some value1` and `Some value2`, returns the result of `predicate value1 value2`; the `predicate` function must return a `bool`\n\n```ml\nlet clockEqual = (fun a b -> a mod 12 = b mod 12);;\neq (Some 3) (Some 15) clockEqual = true;;\neq (Some 3) None clockEqual = false;;\neq None (Some 3) clockEqual = false;;\neq None None clockEqual = true;;\n```\n\n\n\nbelt_Option.mli:159"}
   }]
 
+Complete src/Complete.res 36:2
+[{
+    "label": "ForAuto.abc",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": {"kind": "markdown", "value": "\nComplete.res:33"}
+  }, {
+    "label": "ForAuto.abd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": {"kind": "markdown", "value": "\nComplete.res:34"}
+  }]
+
