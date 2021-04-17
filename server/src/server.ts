@@ -428,7 +428,7 @@ function onMessage(msg: m.Message) {
         if (bscExeDir === null) {
           let params: p.ShowMessageParams = {
             type: p.MessageType.Error,
-            message: `Cannot find a nearby ${c.bscExePartialPath}. It's needed for formatting.`,
+            message: `Cannot find a nearby bsc.exe in bs-platform or rescript. It's needed for formatting.`,
           };
           let response: m.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
@@ -438,7 +438,9 @@ function onMessage(msg: m.Message) {
           send(fakeSuccessResponse);
           send(response);
         } else {
-          let resolvedBscExePath = path.join(bscExeDir, c.bscExePartialPath);
+          let bscExePath1 = path.join(bscExeDir, c.bscExeReScriptPartialPath);
+          let bscExePath2 = path.join(bscExeDir, c.bscExePartialPath);
+          let resolvedBscExePath = fs.existsSync(bscExePath1) ? bscExePath1 : bscExePath2;
           // code will always be defined here, even though technically it can be undefined
           let code = getOpenedFileContent(params.textDocument.uri);
           let formattedResult = utils.formatUsingValidBscExePath(
