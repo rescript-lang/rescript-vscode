@@ -21,3 +21,9 @@ module Lib = {
 //^com let x = foo(~
 
 //^com [1,2,3]->m
+
+//^com "abc"->toU
+
+let op = Some(3)
+
+//^com op->e

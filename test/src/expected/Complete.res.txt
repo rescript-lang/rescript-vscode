@@ -376,3 +376,27 @@ Complete src/Complete.res 21:2
     "documentation": {"kind": "markdown", "value": "\njs_array2.ml:126"}
   }]
 
+Complete src/Complete.res 23:2
+[{
+    "label": "Js.String2.toUpperCase",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": {"kind": "markdown", "value": "`toUpperCase str` converts `str` to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German `\195\159` capitalizes to two `S`es in a row.\n\n```ml\ntoUpperCase \"abc\" = \"ABC\";;\ntoUpperCase {js|Stra\195\159e|js} = {js|STRASSE|js};;\ntoLowerCase {js|\207\128\207\130|js} = {js|\206\160\206\163|js};;\n```\n\n\n\njs_string2.ml:601"}
+  }]
+
+Complete src/Complete.res 27:2
+[{
+    "label": "Belt.Option.eqU",
+    "kind": 12,
+    "tags": [],
+    "detail": "(option<'a>, option<'b>, (. 'a, 'b) => bool) => bool",
+    "documentation": {"kind": "markdown", "value": "Uncurried version of `eq`\n\n\n\n\nbelt_Option.mli:154"}
+  }, {
+    "label": "Belt.Option.eq",
+    "kind": 12,
+    "tags": [],
+    "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
+    "documentation": {"kind": "markdown", "value": "`eq optValue1 optvalue2 predicate`\n\nEvaluates two optional values for equality with respect to a predicate function.\n\nIf both `optValue1` and `optValue2` are `None`, returns `true`.\n\nIf one of the arguments is `Some value` and the other is `None`, returns `false`\n\nIf arguments are `Some value1` and `Some value2`, returns the result of `predicate value1 value2`; the `predicate` function must return a `bool`\n\n```ml\nlet clockEqual = (fun a b -> a mod 12 = b mod 12);;\neq (Some 3) (Some 15) clockEqual = true;;\neq (Some 3) None clockEqual = false;;\neq None (Some 3) clockEqual = false;;\neq None None clockEqual = true;;\n```\n\n\n\nbelt_Option.mli:159"}
+  }]
+
