@@ -179,8 +179,8 @@ let test ~path =
         let rest = String.sub line mlen (len - mlen) in
         let line = i - 1 in
         let col = mlen - 1 in
-        if mlen >= 3 then
-          match String.sub rest 0 3 with
+        if mlen >= 3 then (
+          ( match String.sub rest 0 3 with
           | "def" ->
             print_endline
               ( "Definition " ^ path ^ " " ^ string_of_int line ^ ":"
@@ -208,6 +208,7 @@ let test ~path =
             close_out cout;
             complete ~path ~line ~col ~currentFile;
             Sys.remove currentFile
-          | _ -> ()
+          | _ -> () );
+          print_newline () )
     in
     lines |> List.iteri processLine
