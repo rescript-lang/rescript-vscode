@@ -4,3 +4,6 @@ Hover src/Hover.res 0:4
 Hover src/Hover.res 3:5
 {"contents": "```rescript\ntype t = (int, float)\n```"}
 
+Hover src/Hover.res 6:7
+{"contents": "```rescript\nmodule Id = {\n  type x = int\n}\n```"}
+
