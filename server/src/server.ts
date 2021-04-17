@@ -440,7 +440,9 @@ function onMessage(msg: m.Message) {
         } else {
           let bscExePath1 = path.join(bscExeDir, c.bscExeReScriptPartialPath);
           let bscExePath2 = path.join(bscExeDir, c.bscExePartialPath);
-          let resolvedBscExePath = fs.existsSync(bscExePath1) ? bscExePath1 : bscExePath2;
+          let resolvedBscExePath = fs.existsSync(bscExePath1)
+            ? bscExePath1
+            : bscExePath2;
           // code will always be defined here, even though technically it can be undefined
           let code = getOpenedFileContent(params.textDocument.uri);
           let formattedResult = utils.formatUsingValidBscExePath(
