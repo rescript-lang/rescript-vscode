@@ -33,3 +33,7 @@ module HoverInsideModuleWithComponent = {
 @ocaml.doc("Doc comment for functionWithTypeAnnotation")
 let functionWithTypeAnnotation : unit => int = () => 1
 //  ^hov
+
+@react.component
+let make = (~name) => React.string(name)
+//           ^hov
