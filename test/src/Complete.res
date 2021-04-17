@@ -39,3 +39,19 @@ let fa:ForAuto.t = 34
 
 //^com "hello"->Js.Dict.u
 
+module O = {
+  module Comp = {
+    @react.component
+    let make = (~first="", ~zoo=3, ~second) =>
+      React.string(first ++ second ++ string_of_int(zoo))
+  }
+}
+
+let zzz = 11
+
+//^com let comp = <O.Comp second=z
+
+//^com let comp = <O.Comp z
+
+
+

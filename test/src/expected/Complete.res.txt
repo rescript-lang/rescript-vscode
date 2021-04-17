@@ -430,3 +430,27 @@ Complete src/Complete.res 38:2
     "documentation": {"kind": "markdown", "value": "Experimental internal function\n\n\n\n\njs_dict.mli:63"}
   }]
 
+Complete src/Complete.res 50:2
+[{
+    "label": "zzz",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "\nComplete.res:50"}
+  }]
+
+Complete src/Complete.res 52:2
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "\nComplete.res:53"}
+  }, {
+    "label": "zoo",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": {"kind": "markdown", "value": "\nComplete.res:53"}
+  }]
+
