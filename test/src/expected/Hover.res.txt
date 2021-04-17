@@ -16,3 +16,6 @@ Hover src/Hover.res 22:11
 Hover src/Hover.res 26:6
 {"contents": "```rescript\nint\n```"}
 
+Hover src/Hover.res 33:4
+{"contents": "```rescript\nunit => int\n```\n\nDoc comment for functionWithTypeAnnotation"}
+

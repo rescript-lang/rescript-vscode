@@ -29,3 +29,7 @@ module HoverInsideModuleWithComponent = {
   @react.component
   let make = () => React.null
 }
+
+@ocaml.doc("Doc comment for functionWithTypeAnnotation")
+let functionWithTypeAnnotation : unit => int = () => 1
+//  ^hov
