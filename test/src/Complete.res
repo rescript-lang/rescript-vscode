@@ -27,3 +27,13 @@ module Lib = {
 let op = Some(3)
 
 //^com op->e
+
+module ForAuto = {
+  type t = int
+  let abc = (x:t, _y:int) => x
+  let abd = (x:t, _y:int) => x
+}
+
+let fa:ForAuto.t = 34
+//^com fa->
+
