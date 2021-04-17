@@ -346,3 +346,18 @@ Complete src/Complete.res 12:2
     "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment\n\n\nComplete.res:1"}
   }]
 
+Complete src/Complete.res 19:2
+[{
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "\nComplete.res:20"}
+  }, {
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "\nComplete.res:20"}
+  }]
+

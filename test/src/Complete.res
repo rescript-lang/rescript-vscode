@@ -12,3 +12,10 @@ module Dep: {
 }
 
 //^com let cc = Dep.c
+
+module Lib = {
+  let foo = (~age, ~name) => name ++ string_of_int(age)
+  let next = (~number=0, ~year) => number + year
+}
+
+//^com let x = foo(~
