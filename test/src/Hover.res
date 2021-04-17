@@ -22,3 +22,10 @@ module D = Dep
 
 let cd = D.customDouble
 //         ^hov
+
+module HoverInsideModuleWithComponent = {
+  let x = 2 // check that hover on x works
+//    ^hov
+  @react.component
+  let make = () => React.null
+}

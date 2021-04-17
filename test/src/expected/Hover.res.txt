@@ -13,3 +13,6 @@ Hover src/Hover.res 19:11
 Hover src/Hover.res 22:11
 {"contents": "```rescript\nint => int\n```\n\nSome doc comment"}
 
+Hover src/Hover.res 26:6
+{"contents": "```rescript\nint\n```"}
+
