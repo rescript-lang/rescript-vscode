@@ -361,3 +361,18 @@ Complete src/Complete.res 19:2
     "documentation": {"kind": "markdown", "value": "\nComplete.res:20"}
   }]
 
+Complete src/Complete.res 21:2
+[{
+    "label": "Js.Array2.mapi",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\njs_array2.ml:127"}
+  }, {
+    "label": "Js.Array2.map",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\njs_array2.ml:126"}
+  }]
+
