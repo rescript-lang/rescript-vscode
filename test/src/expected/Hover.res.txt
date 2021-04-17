@@ -1,3 +1,6 @@
 Hover src/Hover.res 0:4
 {"contents": "```rescript\nint\n```"}
 
+Hover src/Hover.res 3:5
+{"contents": "```rescript\ntype t = (int, float)\n```"}
+
