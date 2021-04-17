@@ -10,3 +10,11 @@ module Inner = {
 
 type typeInner = Inner.tInner
 //                     ^def
+
+// open Belt
+let m1 = List.map
+//            ^hov
+
+open Belt
+let m2 = List.map
+//            ^hov
