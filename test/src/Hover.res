@@ -8,3 +8,17 @@ module Id = {
 //     ^hov
   type x = int
 }
+
+@ocaml.doc("This module is commented")
+module Dep: {
+  @ocaml.doc("Some doc comment")
+  let customDouble: int => int
+} = {
+  let customDouble = foo => foo * 2
+}
+
+module D = Dep
+//         ^hov
+
+let cd = D.customDouble
+//         ^hov
