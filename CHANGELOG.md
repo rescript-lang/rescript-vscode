@@ -1,8 +1,15 @@
+## 1.0.8
+Fixes:
+- Diagnostics display for long lines.
+
+Features:
+- Full support for the newest `rescript` npm package!
+- Highlight type parameters.
+
 ## 1.0.7
 
 Fixes:
 - Highlighting for some decorators and keywords.
-- Diagnostics display for long lines.
 - Various hover & autocomplete opportunities.
 
 Features:
