@@ -3,3 +3,8 @@ let abc = 22 + 34
 
 type t = (int, float)
 //   ^hov
+
+module Id = {
+//     ^hov
+  type x = int
+}
