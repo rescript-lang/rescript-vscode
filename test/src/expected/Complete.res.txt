@@ -415,3 +415,18 @@ Complete src/Complete.res 36:2
     "documentation": {"kind": "markdown", "value": "\nComplete.res:34"}
   }]
 
+Complete src/Complete.res 38:2
+[{
+    "label": "unsafeGet",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, key) => 'a",
+    "documentation": {"kind": "markdown", "value": "`unsafeGet dict key` return the value if the `key` exists, otherwise an **undefined** value is returned. Must be used only when the existence of a key is certain. \\(i.e. when having called `keys` function previously.\n\n```ml\nArray.iter (fun key -> Js.log (Js_dict.unsafeGet dic key)) (Js_dict.keys dict) \n```\n\n\n\njs_dict.mli:42"}
+  }, {
+    "label": "unsafeDeleteKey",
+    "kind": 12,
+    "tags": [],
+    "detail": "(. t<string>, string) => unit",
+    "documentation": {"kind": "markdown", "value": "Experimental internal function\n\n\n\n\njs_dict.mli:63"}
+  }]
+

@@ -37,3 +37,5 @@ module ForAuto = {
 let fa:ForAuto.t = 34
 //^com fa->
 
+//^com "hello"->Js.Dict.u
+
