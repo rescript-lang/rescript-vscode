@@ -37,3 +37,7 @@ let functionWithTypeAnnotation : unit => int = () => 1
 @react.component
 let make = (~name) => React.string(name)
 //           ^hov
+
+@react.component
+let make2 = (~name:string) => React.string(name)
+//           ^hov
