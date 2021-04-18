@@ -18,11 +18,12 @@ let locsForPos ~extra pos =
   extra.locations |> List.filter (fun (loc, _l) -> checkPos pos loc)
 
 let locForPos ~extra pos =
-  match locsForPos ~extra pos with
+  let locs = locsForPos ~extra pos in
+  match locs with
   | [(loc1, Typed (_, LocalReference _)); ((loc3, _) as l3)] when loc1 = loc3 ->
-    (* JSX and compiler combined: *)
-    (* ~x becomes Props#x *)
-    (* heuristic for: [Props, x], give loc of `x` *)
+    (* JSX and compiler combined:
+       ~x becomes Props#x
+       heuristic for: [Props, x], give loc of `x` *)
     Some l3
   | [
    (loc1, Typed (_, LocalReference _));
@@ -31,18 +32,31 @@ let locForPos ~extra pos =
   ]
   (* For older compiler 9.0 or earlier *)
     when loc1 = loc2 && loc2 = loc3 ->
-    (* JSX and compiler combined: *)
-    (* ~x becomes Js_OO.unsafe_downgrade(Props)#x *)
-    (* heuristic for: [Props, unsafe_downgrade, x], give loc of `x` *)
+    (* JSX and compiler combined:
+       ~x becomes Js_OO.unsafe_downgrade(Props)#x
+       heuristic for: [Props, unsafe_downgrade, x], give loc of `x` *)
     Some l3
+  | [
+   ((_, Typed (_, LocalReference (_, Value))) as _l1);
+   ((_, Typed (_, Definition (_, Value))) as l2);
+  ] ->
+    (* JSX on type-annotated labeled (~arg:t):
+       (~arg:t) becomes Props#arg
+       Props has the location range of arg:t
+       arg has the location range of arg
+       heuristic for: [Props, arg], give loc of `arg` *)
+    (* Printf.eprintf "l1 %s\nl2 %s\n"
+      (SharedTypes.locationToString _l1)
+      (SharedTypes.locationToString l2); *)
+    Some l2
   | [(loc1, _); ((loc2, _) as l); (loc3, _)] when loc1 = loc2 && loc2 = loc3 ->
-    (* JSX with at most one child *)
-    (* heuristic for: [makeProps, make, createElement], give the loc of `make` *)
+    (* JSX with at most one child
+       heuristic for: [makeProps, make, createElement], give the loc of `make` *)
     Some l
   | [(loc1, _); (loc2, _); ((loc3, _) as l); (loc4, _)]
     when loc1 = loc2 && loc2 = loc3 && loc3 = loc4 ->
-    (* JSX variadic, e.g. <C> {x} {y} </C> *)
-    (* heuristic for: [makeProps, React.null, make, createElementVariadic], give the loc of `make` *)
+    (* JSX variadic, e.g. <C> {x} {y} </C>
+       heuristic for: [makeProps  , React.null, make, createElementVariadic], give the loc of `make` *)
     Some l
   | l :: _ -> Some l
   | _ -> None

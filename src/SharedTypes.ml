@@ -24,7 +24,7 @@ let getCmt ?(interface = true) p =
   match p with
   | Impl (c, _) | Intf (c, _) -> c
   | IntfAndImpl (cint, _, cimpl, _) -> (
-    match interface with true -> cint | false -> cimpl )
+    match interface with true -> cint | false -> cimpl)
 
 type visibilityPath =
   | File of Uri2.t * string
@@ -42,9 +42,9 @@ type 't declared = {
   deprecated : string option;
   docstring : string list;
   item : 't;
-  (* TODO: maybe add a uri? *)
-  (* scopeType: scope, *)
-  (* scopeStart: (int, int), *)
+      (* TODO: maybe add a uri? *)
+      (* scopeType: scope, *)
+      (* scopeStart: (int, int), *)
 }
 
 let emptyDeclared name =
@@ -95,17 +95,16 @@ type exported = {
   types : namedStampMap;
   values : namedStampMap;
   modules : namedStampMap;
-  (* constructors: namedStampMap, *)
-  (* classes: namedStampMap,
-     classTypes: namedStampMap, *)
+      (* constructors: namedStampMap, *)
+      (* classes: namedStampMap,
+         classTypes: namedStampMap, *)
 }
 
 let initExported () =
   {
     types = Hashtbl.create 10;
     values = Hashtbl.create 10;
-    modules = Hashtbl.create 10;
-    (* constructors: Hashtbl.create(10), *)
+    modules = Hashtbl.create 10 (* constructors: Hashtbl.create(10), *);
   }
 
 type moduleItem =
@@ -191,7 +190,6 @@ type openTracker = {
   mutable used : (path * tip * Location.t) list;
 }
 
-(** These are the bits of info that we need to make in-app stuff awesome *)
 type extra = {
   internalReferences : (int, Location.t list) Hashtbl.t;
   externalReferences : (string, (path * tip * Location.t) list) Hashtbl.t;
@@ -201,6 +199,7 @@ type extra = {
   (* OPTIMIZE: using a stack to come up with this would cut the computation time of this considerably. *)
   opens : (Location.t, openTracker) Hashtbl.t;
 }
+(** These are the bits of info that we need to make in-app stuff awesome *)
 
 type full = {extra : extra; file : file}
 
@@ -213,3 +212,27 @@ let initExtra () =
   }
 
 let hashList h = Hashtbl.fold (fun a b c -> (a, b) :: c) h []
+
+let locKindToString = function
+  | LocalReference (_, tip) -> "(LocalReference " ^ tipToString tip ^ ")"
+  | GlobalReference _ -> "GlobalReference"
+  | NotFound -> "NotFound"
+  | Definition (_, tip) -> "(Definition " ^ tipToString tip ^ ")"
+
+let locToString = function
+  | Typed (e, locKind) ->
+    "Typed " ^ Shared.typeToString e ^ " " ^ locKindToString locKind
+  | Constant _ -> "Constant"
+  | LModule _ -> "LModule"
+  | TopLevelModule _ -> "TopLevelModule"
+  | TypeDefinition _ -> "TypeDefinition"
+  | Explanation _ -> "Explanation"
+
+let locationToString ({Location.loc_start; loc_end}, loc) =
+  let pos1 = Utils.cmtPosToPosition loc_start in
+  let pos2 = Utils.cmtPosToPosition loc_end in
+  Printf.sprintf "%d:%d-%d:%d %s" pos1.line pos1.character pos2.line
+    pos2.character (locToString loc)
+
+(* for debugging *)
+let _ = locationToString

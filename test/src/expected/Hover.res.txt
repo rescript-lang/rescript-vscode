@@ -22,3 +22,6 @@ Hover src/Hover.res 33:4
 Hover src/Hover.res 37:13
 {"contents": "```rescript\nstring\n```"}
 
+Hover src/Hover.res 41:13
+{"contents": "```rescript\nstring\n```"}
+
