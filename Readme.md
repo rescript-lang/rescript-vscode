@@ -8,23 +8,22 @@ The binary reads the `.cmt` and `.cmti` files and analyses them.
 
 ```
 opam switch 4.06.1
-opam opam install . --deps-only
 ```
 
 ## Build
 
 ```
-dune build
+make
 ```
 
-The built artifact is in `_build/install/default/bin/rescript-editor-support.exe`
+The built artifact is in `lib/rescript-editor-support.exe`
 
 ## Usage
 
 Run:
 
 ```sh
-_build/install/default/bin/rescript-editor-support.exe --help
+lib/rescript-editor-support.exe --help
 ```
 
 ## History

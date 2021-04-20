@@ -27,9 +27,12 @@ lib/rescript-editor-support.exe: $(SOURCE_FILES)
 
 build-native: lib/rescript-editor-support.exe depend
 
+dce: build-native
+	node_modules/.bin/reanalyze -dce-cmt src -suppress src/vendor
+
 clean:
 	git clean -dfx src
 
 .DEFAULT_GOAL := build-native
 
-.PHONY: depend clean build-native
+.PHONY: depend clean build-native dce

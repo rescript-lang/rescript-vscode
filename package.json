@@ -2,8 +2,7 @@
   "name": "rescript-editor-support",
   "version": "1.0.0",
   "scripts": {
-    "test": "cd test && ./test.sh",
-    "dce": "dune build @check @all && node_modules/.bin/reanalyze -dce-cmt _build -suppress src/vendor"
+    "test": "cd test && ./test.sh"
   },
   "keywords": [
     "rescript",
