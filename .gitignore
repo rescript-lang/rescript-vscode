@@ -1,8 +1,8 @@
 .DS_Store
 .merlin
+!/.merlin
 npm-debug.log
 *.install
-_build
 examples/*/lib
 test/lib
 node_modules

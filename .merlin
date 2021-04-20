@@ -1,0 +1,13 @@
+B src
+B src/vendor
+B src/vendor/odoc_parser
+B src/vendor/omd
+B src/vendor/res_outcome_printer
+
+S src
+S src/vendor
+S src/vendor/odoc_parser
+S src/vendor/omd
+S src/vendor/res_outcome_printer
+
+FLG -w +26+27+32+33+39

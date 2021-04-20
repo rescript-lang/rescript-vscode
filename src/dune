@@ -1,7 +1,0 @@
-(include_subdirs unqualified)
-(executable
-  (name RescriptEditorSupport)
-  (public_name rescript-editor-support.exe)
-  (libraries str compiler-libs.common unix)
-  (flags "-w" "+26+27+32+33+39")
-)
