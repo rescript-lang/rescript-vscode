@@ -534,7 +534,7 @@ function onMessage(msg: m.Message) {
           params: params,
         };
 
-        process.send!(response);
+        send(response);
       } else if (extension !== c.resExt) {
         let params: p.ShowMessageParams = {
           type: p.MessageType.Error,
@@ -547,7 +547,7 @@ function onMessage(msg: m.Message) {
           params: params,
         };
 
-        process.send!(response);
+        send(response);
       } else {
         let cmiPartialPath = filePath.split(projDir)[1].replace(c.resExt, c.cmiExt);
         let cmiPath = path.join(projDir, c.compilerDirPartialPath, cmiPartialPath);
@@ -565,9 +565,14 @@ function onMessage(msg: m.Message) {
             params,
           };
           
-          process.send!(response);
+          send(response);
         } else {
-          let resolvedBscExePath = path.join(bscExeDir, c.bscExePartialPath);
+          let bscExePath1 = path.join(bscExeDir, c.bscExeReScriptPartialPath);
+          let bscExePath2 = path.join(bscExeDir, c.bscExePartialPath);
+          let resolvedBscExePath = fs.existsSync(bscExePath1)
+            ? bscExePath1
+            : bscExePath2;
+
           let intfResult = utils.createInterfaceFileUsingValidBscExePath(filePath, cmiPath, resolvedBscExePath)
   
           if (intfResult.kind === "success") {
@@ -577,7 +582,7 @@ function onMessage(msg: m.Message) {
               result: intfResult.result,
             };
   
-            process.send!(response);
+            send(response);
           } else {
             let response: m.ResponseMessage = {
               jsonrpc: c.jsonrpcVersion,
@@ -588,7 +593,7 @@ function onMessage(msg: m.Message) {
               }
             };
 
-            process.send!(response);
+            send(response);
           }
         }
       }
