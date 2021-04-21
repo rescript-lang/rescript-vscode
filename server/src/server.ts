@@ -42,6 +42,8 @@ let projectsFiles: Map<
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: m.Message) => void = (_) => { };
 
+let createInterfaceRequest = new v.RequestType<null, string, void>("rescript-vscode.create_interface");
+
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
     let content = fs.readFileSync(
@@ -514,7 +516,7 @@ function onMessage(msg: m.Message) {
           }
         }
       }
-    } else if (msg.method === "custom:rescript-vscode.create_interface") {
+    } else if (msg.method === createInterfaceRequest.method) {
       let extension = path.extname(msg.params.uri);
       let filePath = fileURLToPath(msg.params.uri);
       let bscExeDir = utils.findBscExeDirOfFile(filePath);

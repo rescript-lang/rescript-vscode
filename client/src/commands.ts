@@ -1,6 +1,8 @@
 import * as fs from 'fs'
 import { window } from 'vscode';
-import { LanguageClient } from 'vscode-languageclient';
+import { LanguageClient, RequestType } from 'vscode-languageclient';
+
+let createInterfaceRequest = new RequestType<null, string, void>("rescript-vscode.create_interface")
 
 export const createInterface = (client: LanguageClient) => {
 	if (!client) {
@@ -17,7 +19,7 @@ export const createInterface = (client: LanguageClient) => {
 		return window.showInformationMessage('Interface file already exists');
 	}
 
-	client.sendRequest("custom:rescript-vscode.create_interface", {
+	client.sendRequest(createInterfaceRequest, {
 		uri: editor.document.uri.toString(),
 	})
 };
