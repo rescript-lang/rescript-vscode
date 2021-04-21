@@ -4,7 +4,7 @@
 npm-debug.log
 *.install
 examples/*/lib
-test/lib
+tests/lib
 node_modules
 *.cmi
 *.cmt

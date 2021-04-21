@@ -2,7 +2,7 @@
   "name": "rescript-editor-support",
   "version": "1.0.0",
   "scripts": {
-    "test": "cd test && ./test.sh"
+    "test": "cd tests && ./test.sh"
   },
   "keywords": [
     "rescript",
