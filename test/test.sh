@@ -4,7 +4,7 @@ function exp {
   echo "$(dirname $1)/expected/$(basename $1).txt"
 }
 
-./node_modules/.bin/rescript build
+./node_modules/.bin/rescript
 for file in src/**/*.res; do
-  ../_build/install/default/bin/rescript-editor-support.exe test $file &> $(exp $file)
+  ../lib/rescript-editor-support.exe test $file &> $(exp $file)
 done
