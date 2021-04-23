@@ -1,0 +1,11 @@
+.merlin
+!/.merlin
+*.install
+examples/*/lib
+tests/lib
+node_modules
+*.cmi
+*.cmt
+*.cmti
+*.cmx
+*.o

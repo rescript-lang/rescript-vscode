@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    runs-on: ${{matrix.os}}
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+
+    - name: Cache OCaml's opam
+      uses: actions/cache@v2.1.5
+      with:
+        path: ~/.opam
+        key: ${{matrix.os}}-latest-ocaml-4.06.1
+
+    - name: Use OCaml
+      uses: avsm/setup-ocaml@v1.1.10
+      with:
+        ocaml-version: 4.06.1
+
+    - name: Use Node.js
+      uses: actions/setup-node@v2.1.5
+      with:
+        node-version: 14.4.0
+
+    - run: npm ci
+
+    # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
+    # Don't add deps. But if you ever do, un-comment these
+    # - run: opam pin add rescript-editor-support.dev . --no-action
+    # - run: opam install . --deps-only --with-doc --with-test
+
+    - run: eval $(opam env) && cd analysis && make test
+      if: matrix.os != 'windows-latest'
+    # CI windows running the binary somehow stucks. Not sure why. Disable for now.
+    - run: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make"
+      if: matrix.os == 'windows-latest'
+
+    # Also avoids artifacts upload permission loss:
+    # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
+    - name: Compress files
+      run: tar -cvf binary.tar -C server/analysis_binaries current-platform.exe
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{matrix.os}}.exe
+        path: binary.tar
