@@ -18,6 +18,12 @@ make
 
 The built artifact is in `lib/rescript-editor-support.exe`
 
+## Test
+
+```
+make test
+```
+
 ## Usage
 
 Run:
