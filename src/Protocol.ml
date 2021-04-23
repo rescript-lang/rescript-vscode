@@ -33,7 +33,7 @@ type location = {
 }
 
 let stringifyPosition p =
-   Printf.sprintf {|{"line": "%i", "character": "%i"}|} p.line p.character
+   Printf.sprintf {|{"line": %i, "character": %i}|} p.line p.character
 
 let stringifyRange r =
    Printf.sprintf {|{"start": %s, "end": %s}|}
