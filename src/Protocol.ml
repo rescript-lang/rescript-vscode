@@ -36,7 +36,7 @@ let stringifyPosition p =
    Printf.sprintf {|{"line": "%i", "character": "%i"}|} p.line p.character
 
 let stringifyRange r =
-   Printf.sprintf {|{"start": "%s", "end": "%s"}|}
+   Printf.sprintf {|{"start": %s, "end": %s}|}
     (stringifyPosition r.start)
     (stringifyPosition r.end_)
 
@@ -63,7 +63,7 @@ let stringifyHover h =
   (String.escaped h.contents)
 
 let stringifyLocation h =
-  Printf.sprintf {|{"uri": "%s", "range": "%s"}|}
+  Printf.sprintf {|{"uri": "%s", "range": %s}|}
   (String.escaped h.uri)
   (stringifyRange h.range)
 
