@@ -1,9 +1,6 @@
 {
   "name": "rescript-editor-support",
   "version": "1.0.0",
-  "scripts": {
-    "test": "cd tests && ./test.sh"
-  },
   "keywords": [
     "rescript",
     "lsp",

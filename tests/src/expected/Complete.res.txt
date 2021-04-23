@@ -1,4 +1,4 @@
-Complete src/Complete.res 0:2
+Complete tests/src/Complete.res 0:2
 [{
     "label": "mapReverse",
     "kind": 12,
@@ -67,7 +67,7 @@ Complete src/Complete.res 0:2
     "documentation": {"kind": "markdown", "value": "\nbelt_List.mli:298"}
   }]
 
-Complete src/Complete.res 1:2
+Complete tests/src/Complete.res 1:2
 [{
     "label": "Floatarray",
     "kind": 9,
@@ -286,7 +286,7 @@ Complete src/Complete.res 1:2
     "documentation": {"kind": "markdown", "value": "`Array.blit v1 o1 v2 o2 len` copies `len` elements from array `v1`, starting at element number `o1`, to array `v2`, starting at element number `o2`. It works correctly even if `v1` and `v2` are the same array, and the source and destination chunks overlap.\n\nRaise `Invalid_argument \"Array.blit\"` if `o1` and `len` do not designate a valid subarray of `v1`, or if `o2` and `len` do not designate a valid subarray of `v2`.\n\n\n\n\narray.mli:118"}
   }]
 
-Complete src/Complete.res 2:2
+Complete tests/src/Complete.res 2:2
 [{
     "label": "mapi",
     "kind": 12,
@@ -337,7 +337,7 @@ Complete src/Complete.res 2:2
     "documentation": {"kind": "markdown", "value": "`mem a l` is true if and only if `a` is equal to an element of `l`.\n\nSince: 4.03.0\n\n\narray.mli:203"}
   }]
 
-Complete src/Complete.res 12:2
+Complete tests/src/Complete.res 12:2
 [{
     "label": "customDouble",
     "kind": 12,
@@ -346,7 +346,7 @@ Complete src/Complete.res 12:2
     "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment\n\n\nComplete.res:1"}
   }]
 
-Complete src/Complete.res 19:2
+Complete tests/src/Complete.res 19:2
 [{
     "label": "age",
     "kind": 4,
@@ -361,7 +361,7 @@ Complete src/Complete.res 19:2
     "documentation": {"kind": "markdown", "value": "\nComplete.res:20"}
   }]
 
-Complete src/Complete.res 21:2
+Complete tests/src/Complete.res 21:2
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -376,7 +376,7 @@ Complete src/Complete.res 21:2
     "documentation": {"kind": "markdown", "value": "\njs_array2.ml:126"}
   }]
 
-Complete src/Complete.res 23:2
+Complete tests/src/Complete.res 23:2
 [{
     "label": "Js.String2.toUpperCase",
     "kind": 12,
@@ -385,7 +385,7 @@ Complete src/Complete.res 23:2
     "documentation": {"kind": "markdown", "value": "`toUpperCase str` converts `str` to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German `\195\159` capitalizes to two `S`es in a row.\n\n```ml\ntoUpperCase \"abc\" = \"ABC\";;\ntoUpperCase {js|Stra\195\159e|js} = {js|STRASSE|js};;\ntoLowerCase {js|\207\128\207\130|js} = {js|\206\160\206\163|js};;\n```\n\n\n\njs_string2.ml:601"}
   }]
 
-Complete src/Complete.res 27:2
+Complete tests/src/Complete.res 27:2
 [{
     "label": "Belt.Option.eqU",
     "kind": 12,
@@ -400,7 +400,7 @@ Complete src/Complete.res 27:2
     "documentation": {"kind": "markdown", "value": "`eq optValue1 optvalue2 predicate`\n\nEvaluates two optional values for equality with respect to a predicate function.\n\nIf both `optValue1` and `optValue2` are `None`, returns `true`.\n\nIf one of the arguments is `Some value` and the other is `None`, returns `false`\n\nIf arguments are `Some value1` and `Some value2`, returns the result of `predicate value1 value2`; the `predicate` function must return a `bool`\n\n```ml\nlet clockEqual = (fun a b -> a mod 12 = b mod 12);;\neq (Some 3) (Some 15) clockEqual = true;;\neq (Some 3) None clockEqual = false;;\neq None (Some 3) clockEqual = false;;\neq None None clockEqual = true;;\n```\n\n\n\nbelt_Option.mli:159"}
   }]
 
-Complete src/Complete.res 36:2
+Complete tests/src/Complete.res 36:2
 [{
     "label": "ForAuto.abc",
     "kind": 12,
@@ -415,7 +415,7 @@ Complete src/Complete.res 36:2
     "documentation": {"kind": "markdown", "value": "\nComplete.res:34"}
   }]
 
-Complete src/Complete.res 38:2
+Complete tests/src/Complete.res 38:2
 [{
     "label": "unsafeGet",
     "kind": 12,
@@ -430,7 +430,7 @@ Complete src/Complete.res 38:2
     "documentation": {"kind": "markdown", "value": "Experimental internal function\n\n\n\n\njs_dict.mli:63"}
   }]
 
-Complete src/Complete.res 50:2
+Complete tests/src/Complete.res 50:2
 [{
     "label": "zzz",
     "kind": 12,
@@ -439,7 +439,7 @@ Complete src/Complete.res 50:2
     "documentation": {"kind": "markdown", "value": "\nComplete.res:50"}
   }]
 
-Complete src/Complete.res 52:2
+Complete tests/src/Complete.res 52:2
 [{
     "label": "key",
     "kind": 4,

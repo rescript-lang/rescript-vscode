@@ -1,27 +1,27 @@
-Hover src/Hover.res 0:4
+Hover tests/src/Hover.res 0:4
 {"contents": "```rescript\nint\n```"}
 
-Hover src/Hover.res 3:5
+Hover tests/src/Hover.res 3:5
 {"contents": "```rescript\ntype t = (int, float)\n```"}
 
-Hover src/Hover.res 6:7
+Hover tests/src/Hover.res 6:7
 {"contents": "```rescript\nmodule Id = {\n  type x = int\n}\n```"}
 
-Hover src/Hover.res 19:11
+Hover tests/src/Hover.res 19:11
 {"contents": "\nThis module is commented\n```rescript\nmodule Dep = {\n  let customDouble: int => int\n}\n```"}
 
-Hover src/Hover.res 22:11
+Hover tests/src/Hover.res 22:11
 {"contents": "```rescript\nint => int\n```\n\nSome doc comment"}
 
-Hover src/Hover.res 26:6
+Hover tests/src/Hover.res 26:6
 {"contents": "```rescript\nint\n```"}
 
-Hover src/Hover.res 33:4
+Hover tests/src/Hover.res 33:4
 {"contents": "```rescript\nunit => int\n```\n\nDoc comment for functionWithTypeAnnotation"}
 
-Hover src/Hover.res 37:13
+Hover tests/src/Hover.res 37:13
 {"contents": "```rescript\nstring\n```"}
 
-Hover src/Hover.res 41:13
+Hover tests/src/Hover.res 41:13
 {"contents": "```rescript\nstring\n```"}
 

@@ -1,10 +1,10 @@
-Definition src/Jsx.res 5:9
+Definition tests/src/Jsx.res 5:9
 {"uri": "Jsx.res", "range": "{"start": "{"line": "2", "character": "6"}", "end": "{"line": "2", "character": "10"}"}"}
 
-Complete src/Jsx.res 7:2
+Complete tests/src/Jsx.res 7:2
 []
 
-Complete src/Jsx.res 10:2
+Complete tests/src/Jsx.res 10:2
 [{
     "label": "key",
     "kind": 4,
