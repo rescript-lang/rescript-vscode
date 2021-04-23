@@ -112,6 +112,7 @@
 		"@typescript-eslint/parser": "^2.3.0",
 		"eslint": "^6.4.0",
 		"mocha": "^8.0.1",
+		"reanalyze": "^2.15.0",
 		"typescript": "^3.9.4"
 	},
 	"dependencies": {

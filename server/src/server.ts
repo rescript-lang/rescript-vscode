@@ -10,6 +10,7 @@ import {
   DidOpenTextDocumentNotification,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
+  Location,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as c from "./constants";
@@ -18,9 +19,7 @@ import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import {
-  binaryExists,
-  runDumpCommand,
-  runCompletionCommand,
+  runCompletionCommand, runDefinitionCommand, runHoverCommand,
 } from "./RescriptEditorSupport";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
@@ -296,11 +295,9 @@ function onMessage(msg: m.Message) {
           // TODO: incremental sync?
           textDocumentSync: v.TextDocumentSyncKind.Full,
           documentFormattingProvider: true,
-          hoverProvider: binaryExists,
-          definitionProvider: binaryExists,
-          completionProvider: binaryExists
-            ? { triggerCharacters: [".", ">", "@", "~"] }
-            : undefined,
+          hoverProvider: true,
+          definitionProvider: true,
+          completionProvider: { triggerCharacters: [".", ">", "@", "~"] },
         },
       };
       let response: m.ResponseMessage = {
@@ -351,11 +348,11 @@ function onMessage(msg: m.Message) {
         // type Hover = {contents: MarkedString | MarkedString[] | MarkupContent, range?: Range}
         result: null,
       };
-      let result = runDumpCommand(msg);
-      if (result !== null && result.hover != null) {
+      let result = runHoverCommand(msg);
+      if (result !== null) {
         let hoverResponse: m.ResponseMessage = {
           ...emptyHoverResponse,
-          result: { contents: result.hover },
+          result,
         };
         send(hoverResponse);
       } else {
@@ -371,14 +368,11 @@ function onMessage(msg: m.Message) {
         // error: code and message set in case an exception happens during the definition request.
       };
 
-      let result = runDumpCommand(msg);
-      if (result !== null && result.definition != null) {
+      let result = runDefinitionCommand(msg);
+      if (result !== null) {
         let definitionResponse: m.ResponseMessage = {
           ...emptyDefinitionResponse,
-          result: {
-            uri: result.definition.uri || msg.params.textDocument.uri,
-            range: result.definition.range,
-          },
+          result: result,
         };
         send(definitionResponse);
       } else {
