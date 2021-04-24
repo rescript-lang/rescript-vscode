@@ -1,0 +1,15 @@
+.DS_Store
+.merlin
+!/.merlin
+npm-debug.log
+*.install
+examples/*/lib
+tests/lib
+node_modules
+*.cmi
+*.cmt
+*.cmti
+*.cmx
+*.o
+lib/*
+!lib/README.md
