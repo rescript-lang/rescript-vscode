@@ -5,9 +5,5 @@
   "devDependencies": {
     "rescript": "9.1.1"
   },
-  "scripts": {
-    "build": "bsb -make-world",
-    "start": "bsb -make-world -w",
-    "clean": "bsb -clean"
-  }
+  "scripts": {}
 }
