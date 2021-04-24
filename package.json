@@ -103,13 +103,10 @@
 		"vscode:prepublish": "npm run clean && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-		"test": "sh ./scripts/e2e.sh"
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
 	"devDependencies": {
-		"@types/mocha": "^7.0.2",
 		"@types/node": "^12.12.0",
-		"mocha": "^8.0.1",
 		"reanalyze": "^2.15.0",
 		"typescript": "^3.9.4"
 	},
