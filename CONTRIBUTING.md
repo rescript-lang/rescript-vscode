@@ -10,21 +10,30 @@ This repo happens to also contain a language-server usable by other editors. If 
 
 ```
 .
-├── client // Language Client
+├── client // Language Client. VSCode UI
 │   └── src
 │       └── extension.ts // Language Client entry point
+├── analysis // Native binary powering hover, autocomplete, etc.
+│   ├── src
+│   └── run.exe // Dev-time analysis binary
 ├── package.json // The extension manifest.
 └── server // Language Server
     ├── src
     │   └── server.ts // Language Server entry point
-    ├── win32
-    ├── linux
-    └── darwin // these 3 folders contain rescript-editor-support.exe
+    └── analysis_binaries // Prod-time platform-specific analysis binaries
 ```
 
-## Run the Project
+## Install Dependencies
 
-- Run `npm install` at the root. This will also install the necessary npm modules in both the `client` and `server` folders.
+- Run `npm install` at the root. This will also install the npm modules for both the `client` and `server` folders.
+- `opam switch 4.06.1`. OPAM [here](https://opam.ocaml.org). This is needed for the `analysis` folder, which is native code.
+
+## Build & Run
+
+- `npm run compile`. You don't need this if you're developing this repo in VSCode. The compilation happens automatically in the background.
+- `cd analysis && make`.
+
+## Test
 - Open VS Code to this folder.
 - Switch to the Debug viewlet (command palette -> View: Show Run and Debug).
 - Select `Client + Server` from the drop down, launch it (green arrow):
@@ -40,6 +49,7 @@ This repo happens to also contain a language-server usable by other editors. If 
 - When you make a change, Go to the same Debug viewlet's Call Stack panel and restart the client and the server:
 
   <img width="359" alt="image" src="https://user-images.githubusercontent.com/1909539/97448639-19db0800-18ee-11eb-875a-d17cd1b141d1.png">
+- For the native analysis binary tests: `cd analysis && make test`.
 
 ### Change the Grammar
 
@@ -157,5 +167,6 @@ Currently the release is vetted and done by @chenglou.
 
 - Bump the version properly in `package.json` and lockfile and make a new commit.
 - Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
+- Download and unzip the 3 platforms' production binaries from the Github CI. Put them into `server/analysis_binaries`. Name them `darwin-run.exe`, `linux-run.exe` and `win32-run.exe`.
 - Use `vsce publish` to publish. Official VSCode guide [here](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Only @chenglou has the publishing rights right now.
 - Not done! Make a new manual release [here](https://github.com/rescript-lang/rescript-vscode/releases); use `vsce package` to package up a standalone `.vsix` plugin and attach it onto that new release. This is for folks who don't use the VSCode marketplace.
