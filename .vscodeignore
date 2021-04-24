@@ -5,8 +5,6 @@
 **/tsconfig.json
 contributing.md
 .github/**
-client/node_modules/@types
-client/node_modules/.bin
 server/node_modules/.bin
 node_modules/.bin
 analysis/

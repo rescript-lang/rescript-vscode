@@ -103,14 +103,16 @@
 		"vscode:prepublish": "npm run clean && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
+		"postinstall": "cd server && npm install"
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
+		"@types/vscode": "1.43.0",
 		"reanalyze": "^2.15.0",
 		"typescript": "^3.9.4"
 	},
 	"dependencies": {
-		"chokidar": "^3.4.2"
+		"chokidar": "^3.4.2",
+		"vscode-languageclient": "^6.1.3"
 	}
 }
