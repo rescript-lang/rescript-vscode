@@ -5,6 +5,8 @@ import * as path from "path";
 import * as t from "vscode-languageserver-types";
 import fs from "fs";
 import * as os from "os";
+import { fileURLToPath } from "url";
+import { RequestMessage } from "vscode-languageserver";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -100,6 +102,30 @@ export let formatUsingValidBscExePath = (
     // async close is fine. We don't use this file name again
     fs.unlink(formatTempFileFullPath, () => null);
   }
+};
+
+export let runAnalysisAfterSanityCheck = (
+  msg: RequestMessage,
+  getArgs: (filePath: string) => Array<string>
+) => {
+  let binaryPath;
+  if (fs.existsSync(c.analysisCurrentPlatformBinaryPath)) {
+    binaryPath = c.analysisCurrentPlatformBinaryPath;
+  } else if (fs.existsSync(c.analysisProductionBinaryPath)) {
+    binaryPath = c.analysisProductionBinaryPath;
+  } else {
+    return null;
+  }
+
+  let filePath = fileURLToPath(msg.params.textDocument.uri);
+  let projectRootPath = findProjectRootOfFile(filePath);
+  if (projectRootPath == null) {
+    return null;
+  }
+  let stdout = childProcess.execFileSync(binaryPath, getArgs(filePath), {
+    cwd: projectRootPath,
+  });
+  return JSON.parse(stdout.toString());
 };
 
 export let runBsbWatcherUsingValidBsbNodePath = (

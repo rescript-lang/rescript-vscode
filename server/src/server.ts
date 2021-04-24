@@ -10,7 +10,8 @@ import {
   DidOpenTextDocumentNotification,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
-  Location,
+  CompletionItem,
+  Hover,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as c from "./constants";
@@ -18,9 +19,7 @@ import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
-import {
-  runCompletionCommand, runDefinitionCommand, runHoverCommand,
-} from "./RescriptEditorSupport";
+import { Location } from "vscode-languageserver";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -341,30 +340,59 @@ function onMessage(msg: m.Message) {
         send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
+      let result: Hover | null = utils.runAnalysisAfterSanityCheck(
+        msg,
+        (filePath) => [
+          "hover",
+          filePath,
+          msg.params.position.line,
+          msg.params.position.character,
+        ]
+      );
       let hoverResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         // type result = Hover | null
         // type Hover = {contents: MarkedString | MarkedString[] | MarkupContent, range?: Range}
-        result: runHoverCommand(msg),
+        result,
       };
       send(hoverResponse);
     } else if (msg.method === p.DefinitionRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
+      let result: Location | null = utils.runAnalysisAfterSanityCheck(
+        msg,
+        (filePath) => [
+          "definition",
+          filePath,
+          msg.params.position.line,
+          msg.params.position.character,
+        ]
+      );
       let definitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
-        // result should be: Location | Array<Location> | Array<LocationLink> | null
-        result: runDefinitionCommand(msg),
+        result,
         // error: code and message set in case an exception happens during the definition request.
       };
       send(definitionResponse);
     } else if (msg.method === p.CompletionRequest.method) {
       let code = getOpenedFileContent(msg.params.textDocument.uri);
+      let tmpname = utils.createFileInTempDir();
+      fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
+      let result:
+        | CompletionItem[]
+        | null = utils.runAnalysisAfterSanityCheck(msg, (filePath) => [
+          "complete",
+          filePath,
+          msg.params.position.line,
+          msg.params.position.character,
+          tmpname,
+        ]);
+      fs.unlink(tmpname, () => null);
       let completionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
-        result: runCompletionCommand(msg, code),
+        result,
       };
       send(completionResponse);
     } else if (msg.method === p.DocumentFormattingRequest.method) {
