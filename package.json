@@ -99,7 +99,7 @@
 		]
 	},
 	"scripts": {
-		"clean": "rm -r client/out server/out",
+		"clean": "rm -rf client/out server/out",
 		"vscode:prepublish": "npm run clean && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
