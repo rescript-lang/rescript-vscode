@@ -3,7 +3,7 @@ function exp {
 }
 
 for file in tests/src/*.res; do
-  ../server/analysis_binaries/current-platform.exe test $file &> $(exp $file)
+  ./run.exe test $file &> $(exp $file)
 done
 
 warningYellow='\033[0;33m'
