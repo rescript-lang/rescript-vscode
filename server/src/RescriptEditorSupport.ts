@@ -36,25 +36,19 @@ export function runCompletionCommand(
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
 
-  try {
-    let stdout = execFileSync(
-      binaryPath,
-      [
-        "complete",
-        filePath,
-        msg.params.position.line,
-        msg.params.position.character,
-        tmpname,
-      ],
-      { cwd: projectRootPath }
-    );
-    return JSON.parse(stdout.toString());
-  } catch (error) {
-    // TODO: @cristianoc any exception possible?
-    return null;
-  } finally {
-    fs.unlink(tmpname, () => null);
-  }
+  let stdout = execFileSync(
+    binaryPath,
+    [
+      "complete",
+      filePath,
+      msg.params.position.line,
+      msg.params.position.character,
+      tmpname,
+    ],
+    { cwd: projectRootPath }
+  );
+  fs.unlink(tmpname, () => null);
+  return JSON.parse(stdout.toString());
 }
 
 export function runHoverCommand(msg: RequestMessage): Hover | null {
@@ -65,22 +59,17 @@ export function runHoverCommand(msg: RequestMessage): Hover | null {
     return null;
   }
 
-  try {
-    let stdout = execFileSync(
-      binaryPath,
-      [
-        "hover",
-        filePath,
-        msg.params.position.line,
-        msg.params.position.character,
-      ],
-      { cwd: projectRootPath }
-    );
-    return JSON.parse(stdout.toString());
-  } catch (error) {
-    // TODO: @cristianoc any exception possible?
-    return null;
-  }
+  let stdout = execFileSync(
+    binaryPath,
+    [
+      "hover",
+      filePath,
+      msg.params.position.line,
+      msg.params.position.character,
+    ],
+    { cwd: projectRootPath }
+  );
+  return JSON.parse(stdout.toString());
 }
 
 export function runDefinitionCommand(msg: RequestMessage): Location | null {
@@ -91,20 +80,15 @@ export function runDefinitionCommand(msg: RequestMessage): Location | null {
     return null;
   }
 
-  try {
-    let stdout = execFileSync(
-      binaryPath,
-      [
-        "definition",
-        filePath,
-        msg.params.position.line,
-        msg.params.position.character,
-      ],
-      { cwd: projectRootPath }
-    );
-    return JSON.parse(stdout.toString());
-  } catch (error) {
-    // TODO: @cristianoc any exception possible?
-    return null;
-  }
+  let stdout = execFileSync(
+    binaryPath,
+    [
+      "definition",
+      filePath,
+      msg.params.position.line,
+      msg.params.position.character,
+    ],
+    { cwd: projectRootPath }
+  );
+  return JSON.parse(stdout.toString());
 }
