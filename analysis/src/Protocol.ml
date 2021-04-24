@@ -42,7 +42,7 @@ let stringifyRange r =
 
 let stringifyMarkupContent (m: markupContent) =
   Printf.sprintf {|{"kind": "%s", "value": "%s"}|}
-  m.kind (String.escaped m.value)
+  m.kind (Json.escape m.value)
 
 let stringifyCompletionItem c =
   Printf.sprintf {|{
@@ -52,19 +52,19 @@ let stringifyCompletionItem c =
     "detail": "%s",
     "documentation": %s
   }|}
-  (String.escaped c.label)
+  (Json.escape c.label)
   c.kind
   (c.tags |> List.map string_of_int |> array)
-  (String.escaped c.detail)
+  (Json.escape c.detail)
   (stringifyMarkupContent c.documentation)
 
 let stringifyHover h =
   Printf.sprintf {|{"contents": "%s"}|}
-  (String.escaped h.contents)
+  (Json.escape h.contents)
 
 let stringifyLocation h =
   Printf.sprintf {|{"uri": "%s", "range": %s}|}
-  (String.escaped h.uri)
+  (Json.escape h.uri)
   (stringifyRange h.range)
 
 let null = "null"
