@@ -23,6 +23,7 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 
 - Run `npm install` at the root. This will also install the npm modules for both the `client` and `server` folders.
 - `opam switch 4.06.1`. OPAM [here](https://opam.ocaml.org). This is needed for the `analysis` folder, which is native code.
+- Optionally, you can `opam install ocamlformat` and format the `.ml` files in `analysis`.
 
 ## Build & Run
 
