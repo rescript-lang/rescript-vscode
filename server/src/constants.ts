@@ -16,19 +16,16 @@ export let bscExeReScriptPartialPath = path.join(
   "bsc.exe"
 );
 
-let analysisBinariesFolder = path.join(
+export let analysisDevPath = path.join(
   path.dirname(__dirname),
-  "analysis_binaries"
+  "..",
+  "analysis",
+  "run.exe"
 );
-// For local development and CI tests
-export let analysisCurrentPlatformBinaryPath = path.join(
-  analysisBinariesFolder,
-  "current-platform.exe"
-);
-// Platform-specific production binaries manually downloaded from CI
-export let analysisProductionBinaryPath = path.join(
-  analysisBinariesFolder,
-  process.platform + ".exe"
+export let analysisProdPath = path.join(
+  path.dirname(__dirname),
+  "analysis_binaries",
+  process.platform + "-run.exe"
 );
 
 // can't use the native bsb since we might need the watcher -w flag, which is only in the js wrapper

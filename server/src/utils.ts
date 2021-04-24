@@ -109,10 +109,10 @@ export let runAnalysisAfterSanityCheck = (
   getArgs: (filePath: string) => Array<string>
 ) => {
   let binaryPath;
-  if (fs.existsSync(c.analysisCurrentPlatformBinaryPath)) {
-    binaryPath = c.analysisCurrentPlatformBinaryPath;
-  } else if (fs.existsSync(c.analysisProductionBinaryPath)) {
-    binaryPath = c.analysisProductionBinaryPath;
+  if (fs.existsSync(c.analysisDevPath)) {
+    binaryPath = c.analysisDevPath;
+  } else if (fs.existsSync(c.analysisProdPath)) {
+    binaryPath = c.analysisProdPath;
   } else {
     return null;
   }
