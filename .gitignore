@@ -1,5 +1,14 @@
 .DS_Store
 out
 node_modules
-client/server
+examples/*/lib
+analysis/tests/lib
+analysis/tests/.merlin
+# artifacts from binary compilation
 *.exe
+*.cmi
+*.cmt
+*.cmti
+*.cmx
+*.o
+*.install
