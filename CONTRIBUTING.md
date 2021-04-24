@@ -2,10 +2,6 @@
 
 Thanks for your interest. Below is an informal spec of how the plugin's server communicates with the actual compiler. If you're a ReScript editor plugin implementor, you should probably read this to understand the various important nuances and copy it.
 
-## Other Editors With Language-Server Support
-
-This repo happens to also contain a language-server usable by other editors. If you'd like to use this language-server with e.g. Atom, for now, you have to clone the repo and run `npm run compile`. The language server will be at `server/out/server.js`. Wire that into your editor.
-
 ## Repo Structure
 
 ```
