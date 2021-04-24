@@ -36,7 +36,7 @@ src/Process_406.cmx : src/SharedTypes.cmx src/Shared.cmx \
     src/ProcessExtra.cmx src/ProcessCmt.cmx src/PrintType.cmx \
     src/Process_406.cmi
 src/Process_406.cmi : src/Uri2.cmx src/SharedTypes.cmx
-src/Protocol.cmx :
+src/Protocol.cmx : src/vendor/Json.cmx
 src/Query.cmx : src/SharedTypes.cmx src/Log.cmx src/Infix.cmx
 src/References.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/Query.cmx src/Log.cmx src/Infix.cmx

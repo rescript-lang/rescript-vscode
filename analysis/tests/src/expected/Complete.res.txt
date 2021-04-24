@@ -382,7 +382,7 @@ Complete tests/src/Complete.res 23:2
     "kind": 12,
     "tags": [],
     "detail": "t => t",
-    "documentation": {"kind": "markdown", "value": "`toUpperCase str` converts `str` to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German `\195\159` capitalizes to two `S`es in a row.\n\n```ml\ntoUpperCase \"abc\" = \"ABC\";;\ntoUpperCase {js|Stra\195\159e|js} = {js|STRASSE|js};;\ntoLowerCase {js|\207\128\207\130|js} = {js|\206\160\206\163|js};;\n```\n\n\n\njs_string2.ml:601"}
+    "documentation": {"kind": "markdown", "value": "`toUpperCase str` converts `str` to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German `ß` capitalizes to two `S`es in a row.\n\n```ml\ntoUpperCase \"abc\" = \"ABC\";;\ntoUpperCase {js|Straße|js} = {js|STRASSE|js};;\ntoLowerCase {js|πς|js} = {js|ΠΣ|js};;\n```\n\n\n\njs_string2.ml:601"}
   }]
 
 Complete tests/src/Complete.res 27:2
