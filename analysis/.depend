@@ -1,8 +1,9 @@
 src/BuildSystem.cmx : src/ModuleResolution.cmx src/Log.cmx src/Infix.cmx \
     src/Files.cmx
-src/EditorSupportCommands.cmx : src/Utils.cmx src/Uri2.cmx src/TopTypes.cmx \
-    src/State.cmx src/SharedTypes.cmx src/Shared.cmx src/References.cmx \
-    src/Protocol.cmx src/NewCompletions.cmx src/Hover.cmx src/Files.cmx
+src/Cli.cmx : src/Commands.cmx
+src/Commands.cmx : src/Utils.cmx src/Uri2.cmx src/TopTypes.cmx src/State.cmx \
+    src/SharedTypes.cmx src/Shared.cmx src/References.cmx src/Protocol.cmx \
+    src/NewCompletions.cmx src/Hover.cmx src/Files.cmx
 src/Files.cmx :
 src/FindFiles.cmx : src/Utils.cmx src/SharedTypes.cmx \
     src/ModuleResolution.cmx src/Log.cmx src/vendor/Json.cmx src/Infix.cmx \
@@ -40,7 +41,6 @@ src/Protocol.cmx : src/vendor/Json.cmx
 src/Query.cmx : src/SharedTypes.cmx src/Log.cmx src/Infix.cmx
 src/References.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/Query.cmx src/Log.cmx src/Infix.cmx
-src/RescriptEditorSupport.cmx : src/EditorSupportCommands.cmx
 src/Shared.cmx : src/PrintType.cmx src/Files.cmx
 src/SharedTypes.cmx : src/Utils.cmx src/Uri2.cmx src/Shared.cmx \
     src/Infix.cmx
