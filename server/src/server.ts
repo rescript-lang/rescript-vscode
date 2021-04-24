@@ -341,43 +341,24 @@ function onMessage(msg: m.Message) {
         send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
-      let emptyHoverResponse: m.ResponseMessage = {
+      let hoverResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         // type result = Hover | null
         // type Hover = {contents: MarkedString | MarkedString[] | MarkupContent, range?: Range}
-        result: null,
+        result: runHoverCommand(msg),
       };
-      let result = runHoverCommand(msg);
-      if (result !== null) {
-        let hoverResponse: m.ResponseMessage = {
-          ...emptyHoverResponse,
-          result,
-        };
-        send(hoverResponse);
-      } else {
-        send(emptyHoverResponse);
-      }
+      send(hoverResponse);
     } else if (msg.method === p.DefinitionRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
-      let emptyDefinitionResponse: m.ResponseMessage = {
+      let definitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         // result should be: Location | Array<Location> | Array<LocationLink> | null
-        result: null,
+        result: runDefinitionCommand(msg),
         // error: code and message set in case an exception happens during the definition request.
       };
-
-      let result = runDefinitionCommand(msg);
-      if (result !== null) {
-        let definitionResponse: m.ResponseMessage = {
-          ...emptyDefinitionResponse,
-          result: result,
-        };
-        send(definitionResponse);
-      } else {
-        send(emptyDefinitionResponse);
-      }
+      send(definitionResponse);
     } else if (msg.method === p.CompletionRequest.method) {
       let code = getOpenedFileContent(msg.params.textDocument.uri);
       let completionResponse: m.ResponseMessage = {
