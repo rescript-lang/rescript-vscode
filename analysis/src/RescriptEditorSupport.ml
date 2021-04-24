@@ -1,23 +1,3 @@
-module StringSet = Set.Make (String)
-
-let parseArgs args =
-  match args with
-  | [] -> assert false
-  | _ :: args ->
-    let opts, pos =
-      args |> List.rev
-      |> List.fold_left
-           (fun (set, pos) arg ->
-             if arg <> "" && arg.[0] = '-' then (set |> StringSet.add arg, pos)
-             else (set, arg :: pos))
-           (StringSet.empty, [])
-    in
-    (opts, pos)
-
-let hasOpt opts name = opts |> StringSet.mem name
-
-let hasOpts opts names = names |> List.exists (opts |> hasOpt)
-
 let help =
   {|
 **Private CLI For rescript-vscode usage only**
@@ -50,19 +30,19 @@ Options:
 let showHelp () = prerr_endline help
 
 let main () =
-  match parseArgs (Sys.argv |> Array.to_list) with
-  | opts, _ when hasOpts opts ["-h"; "--help"] -> showHelp ()
-  | _opts, "dump" :: files -> EditorSupportCommands.dump files
-  | _opts, ["complete"; path; line; col; currentFile] ->
+  match Array.to_list Sys.argv with
+  | [_; "complete"; path; line; col; currentFile] ->
     EditorSupportCommands.complete ~path ~line:(int_of_string line)
       ~col:(int_of_string col) ~currentFile
-  | _opts, ["hover"; path; line; col] ->
+  | [_; "hover"; path; line; col] ->
     EditorSupportCommands.hover ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
-  | _opts, ["definition"; path; line; col] ->
+  | [_; "definition"; path; line; col] ->
     EditorSupportCommands.definition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
-  | _opts, ["test"; path] -> EditorSupportCommands.test ~path
+  | _ :: "dump" :: files -> EditorSupportCommands.dump files
+  | [_; "test"; path] -> EditorSupportCommands.test ~path
+  | args when List.mem "-h" args || List.mem "--help" args -> showHelp ()
   | _ ->
     showHelp ();
     exit 1
