@@ -59,6 +59,16 @@ Snippets are also synced from https://github.com/rescript-lang/rescript-sublime.
 
 These are taken care of by the binary at [rescript-editor-support](https://github.com/rescript-lang/rescript-editor-support). We just invoke it in `RescriptEditorSupport.ts`.
 
+## Binary Invocation
+
+We call a few binaries and it's tricky to call them properly cross-platform. Here are some tips:
+
+- We try to call the binaries synchronously to avoid races.
+- Make sure you cater to calling a binary and passing e.g. a path with whitespace in it.
+- `execFile` and its sync version do the above for free.
+- `execFile` does not work on windows for batch scripts, which is what Node scripts are wrapped in. Use `exec`. See more [here](https://github.com/rescript-lang/rescript-vscode/blob/8fcc1ab428b8225c97d2c9a5b8e3a782c70d9439/server/src/utils.ts#L110).
+- Thankfully, many of our binaries are native, so we can keep using `execFile` most of the time.
+
 ## Rough Description Of How The Plugin Works
 
 ### Editor Diagnostics
