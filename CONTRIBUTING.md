@@ -12,8 +12,8 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 ├── analysis // Native binary powering hover, autocomplete, etc.
 │   ├── src
 │   └── run.exe // Dev-time analysis binary
-├── package.json // The extension manifest.
-└── server // Language Server
+├── package.json // The extension manifest
+└── server // Language Server. Usable standalone
     ├── src
     │   └── server.ts // Language Server entry point
     └── analysis_binaries // Prod-time platform-specific analysis binaries
