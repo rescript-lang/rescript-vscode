@@ -31,12 +31,7 @@ let sigItemsExtent items =
       loc_end = last.sig_loc.loc_end;
     }
 
-type env = {
-  stamps : stamps;
-  processDoc : string -> string list;
-  modulePath : visibilityPath;
-  scope : Location.t;
-}
+type env = {stamps : stamps; modulePath : visibilityPath; scope : Location.t}
 
 let addItem ~name ~extent ~stamp ~env ~item attributes exported stamps =
   let declared =
@@ -47,7 +42,7 @@ let addItem ~name ~extent ~stamp ~env ~item attributes exported stamps =
           loc_end = env.scope.loc_end;
           loc_ghost = false;
         }
-      ~extent ~name ~stamp ~modulePath:env.modulePath ~processDoc:env.processDoc
+      ~extent ~name ~stamp ~modulePath:env.modulePath
       (not (Hashtbl.mem exported name.txt))
       attributes
   in
@@ -117,8 +112,7 @@ let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
                                }
                              ~name:(Location.mknoloc name)
                              ~stamp (* TODO maybe this needs another child *)
-                             ~modulePath:env.modulePath
-                             ~processDoc:env.processDoc true cd_attributes
+                             ~modulePath:env.modulePath true cd_attributes
                          in
                          Hashtbl.add env.stamps.constructors stamp declared;
                          item))
@@ -291,7 +285,7 @@ let forSignature ~env items =
   let docstring =
     match ProcessAttributes.findDocAttribute attributes with
     | None -> []
-    | Some d -> env.processDoc d
+    | Some d -> [d]
   in
   {docstring; exported; topLevel}
 
@@ -402,8 +396,7 @@ and forModule env mod_desc moduleName =
                 loc_end = env.scope.loc_end;
                 loc_ghost = false;
               }
-            ~extent:t.Typedtree.mty_loc ~stamp ~modulePath:NotVisible
-            ~processDoc:env.processDoc false []
+            ~extent:t.Typedtree.mty_loc ~stamp ~modulePath:NotVisible false []
         in
         Hashtbl.add env.stamps.modules stamp declared));
     forModule env resultExpr.mod_desc moduleName
@@ -441,12 +434,11 @@ and forStructure ~env items =
   let docstring =
     match ProcessAttributes.findDocAttribute attributes with
     | None -> []
-    | Some d -> env.processDoc d
+    | Some d -> [d]
   in
   {docstring; exported; topLevel}
 
-let forCmt ~moduleName ~uri processDoc
-    ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
+let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
   match cmt_annots with
   | Partial_implementation parts ->
     let items =
@@ -474,7 +466,6 @@ let forCmt ~moduleName ~uri processDoc
       {
         scope = extent;
         stamps = initStamps ();
-        processDoc;
         modulePath = File (uri, moduleName);
       }
     in
@@ -494,7 +485,6 @@ let forCmt ~moduleName ~uri processDoc
       {
         scope = sigItemsExtent items;
         stamps = initStamps ();
-        processDoc;
         modulePath = File (uri, moduleName);
       }
     in
@@ -505,7 +495,6 @@ let forCmt ~moduleName ~uri processDoc
       {
         scope = itemsExtent structure.str_items;
         stamps = initStamps ();
-        processDoc;
         modulePath = File (uri, moduleName);
       }
     in
@@ -516,7 +505,6 @@ let forCmt ~moduleName ~uri processDoc
       {
         scope = sigItemsExtent signature.sig_items;
         stamps = initStamps ();
-        processDoc;
         modulePath = File (uri, moduleName);
       }
     in

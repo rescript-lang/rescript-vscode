@@ -344,7 +344,6 @@ struct
                 loc_end = (currentScopeExtent ()).loc_end;
               }
             ~modulePath:NotVisible
-            ~processDoc:(fun x -> [x])
             ~item:val_desc.ctyp_type false val_attributes
         in
         Hashtbl.add Collector.file.stamps.values stamp declared;
@@ -372,7 +371,6 @@ struct
                 loc_end = (currentScopeExtent ()).loc_end;
               }
             ~modulePath:NotVisible ~extent:pat_loc
-            ~processDoc:(fun x -> [x])
             ~item:pat_type false pat_attributes
         in
         Hashtbl.add Collector.file.stamps.values stamp declared;

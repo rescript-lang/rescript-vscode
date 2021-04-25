@@ -1,16 +1,14 @@
-open SharedTypes
-
-let fileForCmt ~moduleName ~uri cmt processDoc =
+let fileForCmt ~moduleName ~uri cmt =
   match Shared.tryReadCmt cmt with
   | Error e -> Error e
-  | Ok infos -> Ok (ProcessCmt.forCmt ~moduleName ~uri processDoc infos)
+  | Ok infos -> Ok (ProcessCmt.forCmt ~moduleName ~uri infos)
 
-let fullForCmt ~moduleName ~uri cmt processDoc =
+let fullForCmt ~moduleName ~uri cmt =
   match Shared.tryReadCmt cmt with
   | Error e -> Error e
   | Ok infos ->
-    let file = ProcessCmt.forCmt ~moduleName ~uri processDoc infos in
+    let file = ProcessCmt.forCmt ~moduleName ~uri infos in
     let extra = ProcessExtra.forCmt ~file infos in
-    Ok {file; extra}
+    Ok {SharedTypes.file; extra}
 
 module PrintType = PrintType

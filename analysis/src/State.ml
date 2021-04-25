@@ -1,15 +1,7 @@
-let isMl path =
-  Filename.check_suffix path ".ml" || Filename.check_suffix path ".mli"
-
-let converter src =
-  let mlToOutput s = [s] in
-  Infix.fold src mlToOutput (fun src ->
-      match isMl src with true -> mlToOutput | false -> fun x -> [x])
-
 let newDocsForCmt ~moduleName cmtCache changed cmt src =
   let open Infix in
   let uri = Uri2.fromPath (src |? cmt) in
-  match Process_406.fileForCmt ~moduleName ~uri cmt (converter src) with
+  match Process_406.fileForCmt ~moduleName ~uri cmt with
   | Error e ->
     Log.log e;
     None
@@ -51,7 +43,7 @@ let getFullFromCmt ~state ~uri =
     match Hashtbl.find_opt package.pathsForModule moduleName with
     | Some paths -> (
       let cmt = SharedTypes.getCmt ~interface:(Utils.endsWith path "i") paths in
-      match Process_406.fullForCmt ~moduleName ~uri cmt (fun x -> [x]) with
+      match Process_406.fullForCmt ~moduleName ~uri cmt with
       | Error e -> Error e
       | Ok full ->
         Hashtbl.replace package.interModuleDependencies moduleName
