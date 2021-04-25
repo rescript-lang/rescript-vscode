@@ -34,8 +34,8 @@ let rec findDeprecatedAttribute attributes =
   | ({Asttypes.txt = "deprecated"}, _) :: _ -> Some ""
   | _ :: rest -> findDeprecatedAttribute rest
 
-let newDeclared ~item ~scope ~extent ~name ~stamp ~modulePath ~processDoc
-    exported attributes =
+let newDeclared ~item ~scope ~extent ~name ~stamp ~modulePath exported
+    attributes =
   {
     name;
     stamp;
@@ -45,10 +45,6 @@ let newDeclared ~item ~scope ~extent ~name ~stamp ~modulePath ~processDoc
     modulePath;
     deprecated = findDeprecatedAttribute attributes;
     docstring =
-      ( match findDocAttribute attributes with
-      | None -> []
-      | Some d -> processDoc d );
+      (match findDocAttribute attributes with None -> [] | Some d -> [d]);
     item;
-    (* scopeType = Let; *)
-    (* scopeStart = env.scopeStart; *)
   }
