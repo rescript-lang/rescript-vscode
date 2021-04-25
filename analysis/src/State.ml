@@ -4,8 +4,6 @@ open TopTypes
 let isMl path =
   Filename.check_suffix path ".ml" || Filename.check_suffix path ".mli"
 
-let compose fn1 fn2 arg = fn1 arg |> fn2
-
 let converter src =
   let mlToOutput s = [s] in
   fold src mlToOutput (fun src ->
