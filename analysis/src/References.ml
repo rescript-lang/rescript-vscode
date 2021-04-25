@@ -46,8 +46,8 @@ let locForPos ~extra pos =
        arg has the location range of arg
        heuristic for: [Props, arg], give loc of `arg` *)
     (* Printf.eprintf "l1 %s\nl2 %s\n"
-      (SharedTypes.locationToString _l1)
-      (SharedTypes.locationToString l2); *)
+       (SharedTypes.locationToString _l1)
+       (SharedTypes.locationToString l2); *)
     Some l2
   | [(loc1, _); ((loc2, _) as l); (loc3, _)] when loc1 = loc2 && loc2 = loc3 ->
     (* JSX with at most one child
@@ -301,3 +301,113 @@ let definitionForLoc ~pathsForModule ~file ~getUri ~getModule loc =
           (* oooh wht do I do if the stamp is inside a pseudo-file? *)
           maybeLog ("Got stamp " ^ string_of_int stamp);
           definition ~file:env.file ~getModule stamp tip)))
+
+let isVisible (declared : _ SharedTypes.declared) =
+  declared.exported
+  &&
+  let rec loop v =
+    match v with
+    | File _ -> true
+    | NotVisible -> false
+    | IncludedModule (_, inner) -> loop inner
+    | ExportedModule (_, inner) -> loop inner
+  in
+  loop declared.modulePath
+
+let rec pathFromVisibility visibilityPath current =
+  match visibilityPath with
+  | File _ -> Some current
+  | IncludedModule (_, inner) -> pathFromVisibility inner current
+  | ExportedModule (name, inner) ->
+    pathFromVisibility inner (Nested (name, current))
+  | NotVisible -> None
+
+let pathFromVisibility visibilityPath tipName =
+  pathFromVisibility visibilityPath (Tip tipName)
+
+let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getUri
+    ~getExtra stamp tip =
+  let env = Query.fileEnv file in
+  let open Infix in
+  match
+    match tip with
+    | Constructor name ->
+      Query.getConstructor file stamp name |?>> fun x -> x.stamp
+    | Field name -> Query.getField file stamp name |?>> fun x -> x.stamp
+    | _ -> Some stamp
+  with
+  | None -> None
+  | Some localStamp -> (
+    match Hashtbl.find_opt extra.internalReferences localStamp with
+    | None -> None
+    | Some local ->
+      maybeLog ("Checking externals: " ^ string_of_int stamp);
+      let externals =
+        match Query.declaredForTip ~stamps:env.file.stamps stamp tip with
+        | None -> []
+        | Some declared ->
+          if isVisible declared then (
+            let alternativeReferences =
+              match
+                alternateDeclared ~pathsForModule ~file ~getUri declared tip
+              with
+              | None -> []
+              | Some (file, extra, {stamp}) -> (
+                match
+                  match tip with
+                  | Constructor name ->
+                    Query.getConstructor file stamp name |?>> fun x -> x.stamp
+                  | Field name ->
+                    Query.getField file stamp name |?>> fun x -> x.stamp
+                  | _ -> Some stamp
+                with
+                | None -> []
+                | Some localStamp -> (
+                  match
+                    Hashtbl.find_opt extra.internalReferences localStamp
+                  with
+                  | None -> []
+                  | Some local -> [(file.uri, local)]))
+              [@@ocaml.doc
+                "\n\
+                \              if this file has a corresponding interface or \
+                 implementation file\n\
+                \              also find the references in that file.\n\
+                \              "]
+            in
+            match pathFromVisibility declared.modulePath declared.name.txt with
+            | None -> []
+            | Some path ->
+              maybeLog ("Now checking path " ^ pathToString path);
+              let thisModuleName = file.moduleName in
+              let externals =
+                allModules
+                |> List.filter (fun name -> name <> file.moduleName)
+                |> Utils.filterMap (fun name ->
+                       match getModule name with
+                       | Error _ -> None
+                       | Ok file -> (
+                         match getExtra name with
+                         | Error _ -> None
+                         | Ok extra -> (
+                           match
+                             Hashtbl.find_opt extra.externalReferences
+                               thisModuleName
+                           with
+                           | None -> None
+                           | Some refs ->
+                             let refs =
+                               refs
+                               |> Utils.filterMap (fun (p, t, l) ->
+                                      match p = path && t = tip with
+                                      | true -> Some l
+                                      | false -> None)
+                             in
+                             Some (file.uri, refs))))
+              in
+              alternativeReferences @ externals)
+          else (
+            maybeLog "Not visible";
+            [])
+      in
+      Some ((file.uri, local) :: externals))
