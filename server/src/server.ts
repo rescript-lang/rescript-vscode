@@ -360,7 +360,7 @@ function onMessage(msg: m.Message) {
       send(hoverResponse);
     } else if (msg.method === p.DefinitionRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
-      let result: Location | null = utils.runAnalysisAfterSanityCheck(
+      let result: Location[] | null = utils.runAnalysisAfterSanityCheck(
         msg,
         (filePath) => [
           "definition",
