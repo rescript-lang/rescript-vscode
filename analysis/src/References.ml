@@ -368,12 +368,8 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getUri
                   with
                   | None -> []
                   | Some local -> [(file.uri, local)]))
-              [@@ocaml.doc
-                "\n\
-                \              if this file has a corresponding interface or \
-                 implementation file\n\
-                \              also find the references in that file.\n\
-                \              "]
+              (* if this file has a corresponding interface or implementation file
+                 also find the references in that file *)
             in
             match pathFromVisibility declared.modulePath declared.name.txt with
             | None -> []
@@ -385,8 +381,8 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getUri
                 |> List.filter (fun name -> name <> file.moduleName)
                 |> Utils.filterMap (fun name ->
                        match getModule name with
-                       | Error _ -> None
-                       | Ok file -> (
+                       | None -> None
+                       | Some file -> (
                          match getExtra name with
                          | Error _ -> None
                          | Ok extra -> (
@@ -411,3 +407,43 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getUri
             [])
       in
       Some ((file.uri, local) :: externals))
+
+let allReferencesForLoc ~pathsForModule ~getUri ~file ~extra ~allModules
+    ~getModule ~getExtra loc : _ option =
+  match loc with
+  | Explanation _
+  | Typed (_, NotFound)
+  | LModule NotFound
+  | TopLevelModule _ | Constant _ ->
+    None
+  | TypeDefinition (_, _, stamp) ->
+    forLocalStamp ~pathsForModule ~getUri ~file ~extra ~allModules ~getModule
+      ~getExtra stamp Type
+  | Typed (_, (LocalReference (stamp, tip) | Definition (stamp, tip)))
+  | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
+    maybeLog
+      ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
+     ^ string_of_int stamp ^ " and tip " ^ tipToString tip);
+    forLocalStamp ~pathsForModule ~getUri ~file ~extra ~allModules ~getModule
+      ~getExtra stamp tip
+  | LModule (GlobalReference (moduleName, path, tip))
+  | Typed (_, GlobalReference (moduleName, path, tip)) -> (
+    match getModule moduleName with
+    | None -> None
+    | Some file -> (
+      let env = Query.fileEnv file in
+      match Query.resolvePath ~env ~path ~getModule with
+      | None -> None
+      | Some (env, name) -> (
+        match Query.exportedForTip ~env name tip with
+        | None -> None
+        | Some stamp -> (
+          match getUri env.file.uri with
+          | Error _ -> None
+          | Ok (file, extra) ->
+            maybeLog
+              ("Finding references for (global) " ^ Uri2.toString env.file.uri
+             ^ " and stamp " ^ string_of_int stamp ^ " and tip "
+             ^ tipToString tip);
+            forLocalStamp ~pathsForModule ~getUri ~file ~extra ~allModules
+              ~getModule ~getExtra stamp tip))))
