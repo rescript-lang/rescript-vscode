@@ -336,10 +336,10 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getUri
     | Field name -> Query.getField file stamp name |?>> fun x -> x.stamp
     | _ -> Some stamp
   with
-  | None -> None
+  | None -> []
   | Some localStamp -> (
     match Hashtbl.find_opt extra.internalReferences localStamp with
-    | None -> None
+    | None -> []
     | Some local ->
       maybeLog ("Checking externals: " ^ string_of_int stamp);
       let externals =
@@ -406,7 +406,7 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getUri
             maybeLog "Not visible";
             [])
       in
-      Some ((file.uri, local) :: externals))
+      (file.uri, local) :: externals)
 
 let allReferencesForLoc ~pathsForModule ~getUri ~file ~extra ~allModules
     ~getModule ~getExtra loc =
@@ -415,7 +415,7 @@ let allReferencesForLoc ~pathsForModule ~getUri ~file ~extra ~allModules
   | Typed (_, NotFound)
   | LModule NotFound
   | TopLevelModule _ | Constant _ ->
-    None
+    []
   | TypeDefinition (_, _, stamp) ->
     forLocalStamp ~pathsForModule ~getUri ~file ~extra ~allModules ~getModule
       ~getExtra stamp Type
@@ -429,17 +429,17 @@ let allReferencesForLoc ~pathsForModule ~getUri ~file ~extra ~allModules
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, GlobalReference (moduleName, path, tip)) -> (
     match getModule moduleName with
-    | None -> None
+    | None -> []
     | Some file -> (
       let env = Query.fileEnv file in
       match Query.resolvePath ~env ~path ~getModule with
-      | None -> None
+      | None -> []
       | Some (env, name) -> (
         match Query.exportedForTip ~env name tip with
-        | None -> None
+        | None -> []
         | Some stamp -> (
           match getUri env.file.uri with
-          | Error _ -> None
+          | Error _ -> []
           | Ok (file, extra) ->
             maybeLog
               ("Finding references for (global) " ^ Uri2.toString env.file.uri

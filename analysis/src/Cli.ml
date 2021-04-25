@@ -22,9 +22,13 @@ Options:
 
     ./run.exe hover src/Foo.res 10 2
 
-  definition: get inferred type for Foo.res at line 10 column 2:
+  definition: get definition for item in Foo.res at line 10 column 2:
 
-    ./run.exe definition src/Foo.res 10 2|}
+    ./run.exe definition src/Foo.res 10 2
+
+  references: get references to item in Foo.res at line 10 column 2:
+
+  ./run.exe references src/Foo.res 10 2|}
 
 let main () =
   match Array.to_list Sys.argv with
@@ -35,6 +39,9 @@ let main () =
     Commands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
   | [_; "definition"; path; line; col] ->
     Commands.definition ~path ~line:(int_of_string line)
+      ~col:(int_of_string col)
+  | [_; "references"; path; line; col] ->
+    Commands.references ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
   | _ :: "dump" :: files -> Commands.dump files
   | [_; "test"; path] -> Commands.test ~path

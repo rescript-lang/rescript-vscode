@@ -128,15 +128,6 @@ let definition state ~file ~line ~col ~extra ~package =
   match References.locForPos ~extra:{extra with locations} pos with
   | None -> Protocol.null
   | Some (_, loc) -> (
-    let zzzTODO =
-      References.allReferencesForLoc ~pathsForModule:package.pathsForModule
-        ~file ~extra ~allModules:package.localModules
-        ~getUri:(State.fileForUri state)
-        ~getModule:(State.fileForModule state ~package)
-        ~getExtra:(State.extraForModule state ~package)
-        loc
-    in
-
     let locIsModule =
       match loc with
       | SharedTypes.LModule _ | TopLevelModule _ -> true
@@ -175,6 +166,53 @@ let definition ~path ~line ~col =
   in
   print_endline result
 
+let references state ~file ~line ~col ~extra ~package =
+  let open TopTypes in
+  let locations =
+    extra.SharedTypes.locations
+    |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
+  in
+  let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+
+  match References.locForPos ~extra:{extra with locations} pos with
+  | None -> Protocol.null
+  | Some (_, loc) ->
+    let allReferences =
+      References.allReferencesForLoc ~pathsForModule:package.pathsForModule
+        ~file ~extra ~allModules:package.localModules
+        ~getUri:(State.fileForUri state)
+        ~getModule:(State.fileForModule state ~package)
+        ~getExtra:(State.extraForModule state ~package)
+        loc
+    in
+    let allLocs =
+      allReferences
+      |> List.fold_left
+           (fun acc (uri2, references) ->
+             (references
+             |> List.map (fun loc ->
+                    Protocol.stringifyLocation
+                      {
+                        uri = Uri2.toString uri2;
+                        range = Utils.cmtLocToRange loc;
+                      }))
+             @ acc)
+           []
+    in
+    "[\n" ^ (allLocs |> String.concat ",\n") ^ "]"
+
+let references ~path ~line ~col =
+  let state = TopTypes.empty () in
+  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
+  let uri = Uri2.fromPath filePath in
+  let result =
+    match State.getFullFromCmt ~state ~uri with
+    | Error _message -> Protocol.null
+    | Ok (package, {file; extra}) ->
+      references state ~file ~line ~col ~extra ~package
+  in
+  print_endline result
+
 let test ~path =
   Uri2.stripPath := true;
   match Files.readFile path with
@@ -202,6 +240,11 @@ let test ~path =
              ^ string_of_int col);
 
             hover ~path ~line ~col
+          | "ref" ->
+            print_endline
+              ("References " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            references ~path ~line ~col
           | "com" ->
             print_endline
               ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"

@@ -77,7 +77,7 @@ let fileForModule state ~package modname =
   | Some (file, _) -> Some file
 
 let extraForModule state ~package modname =
-  if Hashtbl.mem package.pathsForModule modname then
+  if Hashtbl.mem package.TopTypes.pathsForModule modname then
     let paths = Hashtbl.find package.pathsForModule modname in
     match SharedTypes.getSrc paths with
     | None -> None
