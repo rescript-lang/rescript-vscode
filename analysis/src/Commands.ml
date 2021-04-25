@@ -199,7 +199,7 @@ let references state ~file ~line ~col ~extra ~package =
              @ acc)
            []
     in
-    "[\n" ^ (allLocs |> String.concat ",\n") ^ "]"
+    "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]"
 
 let references ~path ~line ~col =
   let state = TopTypes.empty () in
