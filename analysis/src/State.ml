@@ -75,3 +75,14 @@ let fileForModule state ~package modname =
   match docsForModule modname state ~package with
   | None -> None
   | Some (file, _) -> Some file
+
+let extraForModule state ~package modname =
+  if Hashtbl.mem package.TopTypes.pathsForModule modname then
+    let paths = Hashtbl.find package.pathsForModule modname in
+    match SharedTypes.getSrc paths with
+    | None -> None
+    | Some src -> (
+      match getFullFromCmt ~state ~uri:(Uri2.fromPath src) with
+      | Ok (_package, {extra}) -> Some extra
+      | Error _ -> None)
+  else None

@@ -1,0 +1,7 @@
+References tests/src/References.res 0:4
+[
+{"uri": "References.res", "range": {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 9}}},
+{"uri": "References.res", "range": {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 9}}},
+{"uri": "References.res", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}}
+]
+
