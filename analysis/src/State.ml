@@ -4,12 +4,10 @@ open TopTypes
 let isMl path =
   Filename.check_suffix path ".ml" || Filename.check_suffix path ".mli"
 
-let odocToMd text = MarkdownOfOCamldoc.convert text
-
 let compose fn1 fn2 arg = fn1 arg |> fn2
 
 let converter src =
-  let mlToOutput s = [compose odocToMd Omd.to_markdown s] in
+  let mlToOutput s = [s] in
   fold src mlToOutput (fun src ->
       match isMl src with true -> mlToOutput | false -> fun x -> [x])
 

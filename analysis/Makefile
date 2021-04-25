@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 MAKEFLAGS += --jobs 4
-INCLUDES = -I src -I src/vendor/odoc_parser -I src/vendor/omd -I src/vendor/res_outcome_printer -I src/vendor
+INCLUDES = -I src -I src/vendor/res_outcome_printer -I src/vendor
 
 OCAMLOPT = ocamlopt.opt
 OCAMLFLAGS = -g -w +26+27+32+33+39 -bin-annot -I +compiler-libs $(INCLUDES)
