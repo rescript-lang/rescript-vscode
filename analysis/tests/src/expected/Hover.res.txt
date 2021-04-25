@@ -17,7 +17,7 @@ Hover tests/src/Hover.res 26:6
 {"contents": "```rescript\nint\n```"}
 
 Hover tests/src/Hover.res 33:4
-{"contents": "```rescript\nunit => int\n```\n\nDoc comment for functionWithTypeAnnotation"}
+{"contents": "```rescript\nunit => int\n```\n\nDoc comment **for** functionWithTypeAnnotation"}
 
 Hover tests/src/Hover.res 37:13
 {"contents": "```rescript\nstring\n```"}
@@ -27,4 +27,7 @@ Hover tests/src/Hover.res 41:13
 
 Hover tests/src/Hover.res 44:10
 {"contents": "```rescript\nint\n```"}
+
+Hover tests/src/Hover.res 47:29
+{"contents": "```rescript\nunit => int\n```\n\nDoc comment **for** functionWithTypeAnnotation"}
 

@@ -30,7 +30,7 @@ module HoverInsideModuleWithComponent = {
   let make = () => React.null
 }
 
-@ocaml.doc("Doc comment for functionWithTypeAnnotation")
+@ocaml.doc("Doc comment **for** functionWithTypeAnnotation")
 let functionWithTypeAnnotation : unit => int = () => 1
 //  ^hov
 
@@ -44,3 +44,6 @@ let make2 = (~name:string) => React.string(name)
 
 let num = 34
 //        ^hov
+
+let withAnnot = OcamlFile.functionWithTypeAnnotation
+//                           ^hov
