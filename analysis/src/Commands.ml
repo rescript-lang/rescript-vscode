@@ -103,7 +103,7 @@ let hover state ~file ~line ~col ~extra ~package =
       in
       match hoverText with
       | None -> Protocol.null
-      | Some s -> Protocol.stringifyHover {contents = s} )
+      | Some s -> Protocol.stringifyHover {contents = s})
 
 let hover ~path ~line ~col =
   let state = TopTypes.empty () in
@@ -124,9 +124,19 @@ let definition state ~file ~line ~col ~extra ~package =
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+
   match References.locForPos ~extra:{extra with locations} pos with
   | None -> Protocol.null
   | Some (_, loc) -> (
+    let zzzTODO =
+      References.allReferencesForLoc ~pathsForModule:package.pathsForModule
+        ~file ~extra ~allModules:package.localModules
+        ~getUri:(State.fileForUri state)
+        ~getModule:(State.fileForModule state ~package)
+        ~getExtra:(State.extraForModule state ~package)
+        loc
+    in
+
     let locIsModule =
       match loc with
       | SharedTypes.LModule _ | TopLevelModule _ -> true
@@ -151,7 +161,7 @@ let definition state ~file ~line ~col ~extra ~package =
       if skipZero then Protocol.null
       else
         Protocol.stringifyLocation
-          {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc} )
+          {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc})
 
 let definition ~path ~line ~col =
   let state = TopTypes.empty () in
@@ -180,22 +190,22 @@ let test ~path =
         let line = i - 1 in
         let col = mlen - 1 in
         if mlen >= 3 then (
-          ( match String.sub rest 0 3 with
+          (match String.sub rest 0 3 with
           | "def" ->
             print_endline
-              ( "Definition " ^ path ^ " " ^ string_of_int line ^ ":"
-              ^ string_of_int col );
+              ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
             definition ~path ~line ~col
           | "hov" ->
             print_endline
-              ( "Hover " ^ path ^ " " ^ string_of_int line ^ ":"
-              ^ string_of_int col );
+              ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
 
             hover ~path ~line ~col
           | "com" ->
             print_endline
-              ( "Complete " ^ path ^ " " ^ string_of_int line ^ ":"
-              ^ string_of_int col );
+              ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
             let currentFile, cout = Filename.open_temp_file "def" "txt" in
             lines
             |> List.iteri (fun j l ->
@@ -208,7 +218,7 @@ let test ~path =
             close_out cout;
             complete ~path ~line ~col ~currentFile;
             Sys.remove currentFile
-          | _ -> () );
-          print_newline () )
+          | _ -> ());
+          print_newline ())
     in
     lines |> List.iteri processLine

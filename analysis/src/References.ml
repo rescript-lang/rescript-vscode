@@ -384,8 +384,8 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getUri
                        | None -> None
                        | Some file -> (
                          match getExtra name with
-                         | Error _ -> None
-                         | Ok extra -> (
+                         | None -> None
+                         | Some extra -> (
                            match
                              Hashtbl.find_opt extra.externalReferences
                                thisModuleName
@@ -409,7 +409,7 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getUri
       Some ((file.uri, local) :: externals))
 
 let allReferencesForLoc ~pathsForModule ~getUri ~file ~extra ~allModules
-    ~getModule ~getExtra loc : _ option =
+    ~getModule ~getExtra loc =
   match loc with
   | Explanation _
   | Typed (_, NotFound)
