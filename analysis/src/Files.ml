@@ -38,10 +38,10 @@ let relpath base path =
       loop (split Filename.dir_sep base) (split Filename.dir_sep path)
     in
     String.concat Filename.dir_sep
-      ( ( match base = [] with
-        | true -> ["."]
-        | false -> List.map (fun _ -> "..") base )
-      @ path )
+      ((match base = [] with
+       | true -> ["."]
+       | false -> List.map (fun _ -> "..") base)
+      @ path)
     |> removeExtraDots
 
 let maybeStat path =
@@ -57,40 +57,36 @@ let readFile ~filename =
     let content = really_input_string chan (in_channel_length chan) in
     close_in_noerr chan;
     Some content
-  with
-  | _ -> None
+  with _ -> None
 
 let exists path = match maybeStat path with None -> false | Some _ -> true
 
 let ifExists path = match exists path with true -> Some path | false -> None
 
 let readDirectory dir =
-  let maybeGet handle =
-    try Some (Unix.readdir handle) with End_of_file -> None
-  in
-  let rec loop handle =
-    match maybeGet handle with
-    | None ->
-      Unix.closedir handle;
-      []
-    | Some name
-      when name = Filename.current_dir_name || name = Filename.parent_dir_name
-      ->
-      loop handle
-    | Some name -> name :: loop handle
-  in
   match Unix.opendir dir with
   | exception Unix.Unix_error (Unix.ENOENT, "opendir", _dir) -> []
-  | handle -> loop handle
+  | handle ->
+    let rec loop handle =
+      try
+        let name = Unix.readdir handle in
+        if name = Filename.current_dir_name || name = Filename.parent_dir_name
+        then loop handle
+        else name :: loop handle
+      with End_of_file ->
+        Unix.closedir handle;
+        []
+    in
+    loop handle
 
 let rec collectDirs path =
   match maybeStat path with
   | None -> []
   | Some {Unix.st_kind = Unix.S_DIR} ->
     path
-    :: ( readDirectory path
+    :: (readDirectory path
        |> List.map (fun name -> collectDirs (Filename.concat path name))
-       |> List.concat )
+       |> List.concat)
   | _ -> []
 
 let rec collect ?(checkDir = fun _ -> true) path test =
@@ -100,10 +96,10 @@ let rec collect ?(checkDir = fun _ -> true) path test =
     if checkDir path then
       readDirectory path
       |> List.map (fun name ->
-          collect ~checkDir (Filename.concat path name) test)
+             collect ~checkDir (Filename.concat path name) test)
       |> List.concat
     else []
-  | _ -> ( match test path with true -> [path] | false -> [] )
+  | _ -> ( match test path with true -> [path] | false -> [])
 
 let fileConcat a b =
   if
