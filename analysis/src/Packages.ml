@@ -119,21 +119,13 @@ let getPackage ~uri state =
   else
     match findRoot ~uri state.packagesByRoot with
     | None -> Error "No root directory found"
-    | Some root -> (
-      match
-        match root with
-        | `Root rootPath ->
-          Hashtbl.replace state.rootForUri uri rootPath;
-          Ok
-            (Hashtbl.find state.packagesByRoot
-               (Hashtbl.find state.rootForUri uri))
-        | `Bs rootPath -> (
-          match newBsPackage rootPath with
-          | Error e -> Error e
-          | Ok package ->
-            Hashtbl.replace state.rootForUri uri package.rootPath;
-            Hashtbl.replace state.packagesByRoot package.rootPath package;
-            Ok package)
-      with
+    | Some (`Root rootPath) ->
+      Hashtbl.replace state.rootForUri uri rootPath;
+      Ok (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))
+    | Some (`Bs rootPath) -> (
+      match newBsPackage rootPath with
       | Error e -> Error e
-      | Ok package -> Ok package)
+      | Ok package ->
+        Hashtbl.replace state.rootForUri uri package.rootPath;
+        Hashtbl.replace state.packagesByRoot package.rootPath package;
+        Ok package)
