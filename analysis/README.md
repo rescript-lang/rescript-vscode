@@ -13,7 +13,7 @@ See main CONTRIBUTING.md's repo structure. Additionally, `examples/` is a conven
 ## Usage
 
 ```sh
-run.exe --help
+./run.exe --help
 ```
 
 ## History
