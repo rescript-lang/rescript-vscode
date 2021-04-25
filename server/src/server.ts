@@ -39,7 +39,7 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => { };
+let send: (msg: m.Message) => void = (_) => {};
 
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
@@ -296,6 +296,7 @@ function onMessage(msg: m.Message) {
           documentFormattingProvider: true,
           hoverProvider: true,
           definitionProvider: true,
+          referencesProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~"] },
         },
       };
@@ -375,6 +376,24 @@ function onMessage(msg: m.Message) {
         // error: code and message set in case an exception happens during the definition request.
       };
       send(definitionResponse);
+    } else if (msg.method === p.ReferencesRequest.method) {
+      // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
+      let result: Location | null = utils.runAnalysisAfterSanityCheck(
+        msg,
+        (filePath) => [
+          "references",
+          filePath,
+          msg.params.position.line,
+          msg.params.position.character,
+        ]
+      );
+      let definitionResponse: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: msg.id,
+        result,
+        // error: code and message set in case an exception happens during the definition request.
+      };
+      send(definitionResponse);
     } else if (msg.method === p.CompletionRequest.method) {
       let code = getOpenedFileContent(msg.params.textDocument.uri);
       let tmpname = utils.createFileInTempDir();
@@ -382,12 +401,12 @@ function onMessage(msg: m.Message) {
       let result:
         | CompletionItem[]
         | null = utils.runAnalysisAfterSanityCheck(msg, (filePath) => [
-          "complete",
-          filePath,
-          msg.params.position.line,
-          msg.params.position.character,
-          tmpname,
-        ]);
+        "complete",
+        filePath,
+        msg.params.position.line,
+        msg.params.position.character,
+        tmpname,
+      ]);
       fs.unlink(tmpname, () => null);
       let completionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
