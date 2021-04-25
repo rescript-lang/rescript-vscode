@@ -4,14 +4,14 @@ let digConstructor ~env ~getModule path =
   | `Stamp stamp -> (
     match Hashtbl.find_opt env.file.stamps.types stamp with
     | None -> None
-    | Some t -> Some (env, t) )
+    | Some t -> Some (env, t))
   | `Exported (env, name) -> (
     match Hashtbl.find_opt env.exported.types name with
     | None -> None
     | Some stamp -> (
       match Hashtbl.find_opt env.file.stamps.types stamp with
       | None -> None
-      | Some t -> Some (env, t) ) )
+      | Some t -> Some (env, t)))
   | _ -> None
 
 let codeBlock code = Printf.sprintf "```rescript\n%s\n```" code
@@ -21,22 +21,23 @@ let showModuleTopLevel ~docstring ~name
   let contents =
     topLevel
     |> List.map (fun item ->
-        match item.SharedTypes.item with
-        (* TODO pretty print module contents *)
-        | SharedTypes.MType ({decl}, recStatus) ->
-          "  " ^ (decl |> Shared.declToString ~recStatus item.name.txt)
-        | Module _ -> "  module " ^ item.name.txt
-        | MValue typ ->
-          "  let " ^ item.name.txt ^ ": " ^ (typ |> Shared.typeToString)) (* TODO indent *)
+           match item.SharedTypes.item with
+           (* TODO pretty print module contents *)
+           | SharedTypes.MType ({decl}, recStatus) ->
+             "  " ^ (decl |> Shared.declToString ~recStatus item.name.txt)
+           | Module _ -> "  module " ^ item.name.txt
+           | MValue typ ->
+             "  let " ^ item.name.txt ^ ": " ^ (typ |> Shared.typeToString))
+    (* TODO indent *)
     |> String.concat "\n"
   in
-  let full = "module " ^ name ^ " = {" ^ "\n" ^ contents ^ "\n}" in
+  let full = codeBlock ("module " ^ name ^ " = {" ^ "\n" ^ contents ^ "\n}") in
   let doc =
     match docstring with
     | [] -> ""
     | _ :: _ -> "\n" ^ (docstring |> String.concat "\n") ^ "\n"
   in
-  Some (doc ^ codeBlock full)
+  Some (doc ^ full)
 
 let showModule ~docstring ~(file : SharedTypes.file) ~name
     (declared : SharedTypes.moduleKind SharedTypes.declared option) =
@@ -65,7 +66,7 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
           | Some d -> (d.name.txt, d.docstring)
           | None -> (file.moduleName, file.contents.docstring)
         in
-        showModule ~docstring ~name ~file declared ) )
+        showModule ~docstring ~name ~file declared))
   | LModule (GlobalReference (moduleName, path, tip)) -> (
     match getModule moduleName with
     | None -> None
@@ -88,25 +89,26 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
                 | Some d -> (d.name.txt, d.docstring)
                 | None -> (file.moduleName, file.contents.docstring)
               in
-              showModule ~docstring ~name ~file declared ) ) ) ) )
+              showModule ~docstring ~name ~file declared)))))
   | LModule NotFound -> None
   | TopLevelModule name -> (
     match getModule name with
     | None -> None
     | Some file ->
       showModule ~docstring:file.contents.docstring ~name:file.moduleName ~file
-        None )
+        None)
   | Typed (_, Definition (_, (Field _ | Constructor _))) -> None
   | Constant t ->
     Some
-      ( match t with
-      | Const_int _ -> "int"
-      | Const_char _ -> "char"
-      | Const_string _ -> "string"
-      | Const_float _ -> "float"
-      | Const_int32 _ -> "int32"
-      | Const_int64 _ -> "int64"
-      | Const_nativeint _ -> "int" )
+      (codeBlock
+         (match t with
+         | Const_int _ -> "int"
+         | Const_char _ -> "char"
+         | Const_string _ -> "string"
+         | Const_float _ -> "float"
+         | Const_int32 _ -> "int32"
+         | Const_int64 _ -> "int64"
+         | Const_nativeint _ -> "int"))
   | Typed (t, locKind) ->
     let fromType ~docstring typ =
       let typeString = codeBlock (typ |> Shared.typeToString) in
@@ -122,7 +124,7 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
               Utils.startsWith (Path.name path) "Js.Fn.arity"
             in
             if isUncurriedInternal then None
-            else Some (decl |> Shared.declToString txt, docstring) )
+            else Some (decl |> Shared.declToString txt, docstring))
       in
       let typeString, docstring =
         match extraTypeInfo with
@@ -155,6 +157,6 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
           typeString :: codeBlock (txt ^ argsString) :: docstring
         | `Field {typ} ->
           let typeString, docstring = typ |> fromType ~docstring in
-          typeString :: docstring )
+          typeString :: docstring)
     in
     Some (String.concat "\n\n" parts)

@@ -41,3 +41,6 @@ let make = (~name) => React.string(name)
 @react.component
 let make2 = (~name:string) => React.string(name)
 //           ^hov
+
+let num = 34
+//        ^hov
