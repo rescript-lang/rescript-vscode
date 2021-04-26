@@ -16,8 +16,7 @@ let getSourceDirectories ~includeDev base config =
         Json.get "dir" item |?> Json.string |? "Must specify directory"
       in
       let typ =
-        if includeDev then
-        "lib"
+        if includeDev then "lib"
         else item |> Json.get "type" |?> Json.string |? "lib"
       in
       if typ = "dev" then []
@@ -109,9 +108,7 @@ let collectFiles directory =
          let source =
            Utils.find
              (fun name ->
-               if getName name = modName then
-               Some (directory /+ name)
-               else None)
+               if getName name = modName then Some (directory /+ name) else None)
              sources
          in
          (modName, SharedTypes.Impl (compiled, source)))

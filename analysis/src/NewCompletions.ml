@@ -553,8 +553,7 @@ let processCompletable ~findItems ~package ~rawOpens
           |> String.concat "."
         in
         let completionName name =
-          if modulePathMinusOpens = "" then
-          name
+          if modulePathMinusOpens = "" then name
           else modulePathMinusOpens ^ "." ^ name
         in
         let parts = modulePath @ [partialName] in

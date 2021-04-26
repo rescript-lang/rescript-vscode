@@ -4,16 +4,16 @@ let tryReadCmt cmt =
     match Cmt_format.read_cmt cmt with
     | exception Cmi_format.Error err ->
       Error
-        ( "Failed to load " ^ cmt ^ " as a cmt w/ ocaml version " ^ "406"
-        ^ ", error: "
+        ("Failed to load " ^ cmt ^ " as a cmt w/ ocaml version " ^ "406"
+       ^ ", error: "
         ^
-        ( Cmi_format.report_error Format.str_formatter err;
-          Format.flush_str_formatter () ) )
+        (Cmi_format.report_error Format.str_formatter err;
+         Format.flush_str_formatter ()))
     | exception err ->
       Error
-        ( "Invalid cmt format " ^ cmt
-        ^ " - probably wrong ocaml version, expected " ^ Config.version ^ " : "
-        ^ Printexc.to_string err )
+        ("Invalid cmt format " ^ cmt
+       ^ " - probably wrong ocaml version, expected " ^ Config.version ^ " : "
+       ^ Printexc.to_string err)
     | x -> Ok x
 
 (** TODO move to the Process_ stuff *)
@@ -26,9 +26,7 @@ let rec dig typ =
 
 let digConstructor expr =
   let expr = dig expr in
-  match expr.desc with
-  | Tconstr (path, _args, _memo) -> Some path
-  | _ -> None
+  match expr.desc with Tconstr (path, _args, _memo) -> Some path | _ -> None
 
 let declToString ?(recStatus = Types.Trec_not) name t =
   PrintType.printDecl ~recStatus name t
@@ -39,9 +37,7 @@ let typeTbl = Hashtbl.create 1
 
 let typeToString (t : Types.type_expr) =
   match
-    if !cacheTypeToString then
-    Hashtbl.find_opt typeTbl (t.id, t)
-    else None
+    if !cacheTypeToString then Hashtbl.find_opt typeTbl (t.id, t) else None
   with
   | None ->
     let s = PrintType.printExpr t in

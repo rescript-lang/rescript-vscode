@@ -13,25 +13,22 @@ let combine one two =
   | None, None -> None
   | Some a, None -> Some a
   | None, Some b -> Some b
-  | Some a, Some b -> ( if a = b then Some a else Some 0 )
+  | Some a, Some b -> if a = b then Some a else Some 0
 
 let trimFirst num string =
   let length = String.length string in
-  if length > num then
-String.sub string num (length - num)
-  else ""
+  if length > num then String.sub string num (length - num) else ""
 
 let cleanOffStars doc =
   let lines = Str.split (Str.regexp_string "\n") doc in
   let rec loop lines =
     match lines with
     | [] -> None
-    | [one] -> (
-      match String.trim one with "" -> None | _ -> findStars one )
+    | [one] -> ( match String.trim one with "" -> None | _ -> findStars one)
     | one :: rest -> (
       match String.trim one with
       | "" -> loop rest
-      | _ -> combine (findStars one) (loop rest) )
+      | _ -> combine (findStars one) (loop rest))
   in
   let num = loop lines in
   match num with
@@ -42,4 +39,4 @@ let cleanOffStars doc =
     | one :: rest ->
       (if findStars one <> None then trimFirst num one else String.trim one)
       ^ "\n"
-      ^ String.concat "\n" (rest |> List.map (trimFirst num)) )
+      ^ String.concat "\n" (rest |> List.map (trimFirst num)))

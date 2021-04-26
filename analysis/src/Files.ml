@@ -6,9 +6,8 @@ let removeExtraDots path =
 
 (* Win32 & MacOS are case-insensitive *)
 let pathEq =
-  if Sys.os_type = "Linux"
-  then fun a b -> a = b
-else fun a b -> String.lowercase_ascii a = String.lowercase_ascii b
+  if Sys.os_type = "Linux" then fun a b -> a = b
+  else fun a b -> String.lowercase_ascii a = String.lowercase_ascii b
 
 let pathStartsWith text prefix =
   String.length prefix <= String.length text
@@ -38,9 +37,7 @@ let relpath base path =
       loop (split Filename.dir_sep base) (split Filename.dir_sep path)
     in
     String.concat Filename.dir_sep
-      ((match base with
-       | [] -> ["."]
-       | _ -> List.map (fun _ -> "..") base)
+      ((match base with [] -> ["."] | _ -> List.map (fun _ -> "..") base)
       @ path)
     |> removeExtraDots
 
@@ -99,7 +96,7 @@ let rec collect ?(checkDir = fun _ -> true) path test =
              collect ~checkDir (Filename.concat path name) test)
       |> List.concat
     else []
-  | _ -> ( if test path then [path] else [])
+  | _ -> if test path then [path] else []
 
 let fileConcat a b =
   if

@@ -531,8 +531,8 @@ let extraForFile ~(file : SharedTypes.file) =
       (loc
       ::
       (if Hashtbl.mem extra.internalReferences stamp then
-      Hashtbl.find extra.internalReferences stamp
-    else []))
+       Hashtbl.find extra.internalReferences stamp
+      else []))
   in
   file.stamps.modules
   |> Hashtbl.iter (fun stamp d ->
