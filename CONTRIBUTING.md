@@ -162,7 +162,7 @@ In the future, we should consier showing the format errors when `.compiler.log` 
 
 Currently the release is vetted and done by @chenglou.
 
-- Bump the version properly in `package.json` and lockfile and make a new commit.
+- Bump the version properly in `package.json` and `server/package.json` and their lockfiles and make a new commit.
 - Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
 - Download and unzip the 3 platforms' production binaries from the Github CI. Put them into `server/analysis_binaries`. Name them `darwin-run.exe`, `linux-run.exe` and `win32-run.exe`.
 - Use `vsce publish` to publish. Official VSCode guide [here](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Only @chenglou has the publishing rights right now.
