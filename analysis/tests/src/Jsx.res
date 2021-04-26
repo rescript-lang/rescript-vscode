@@ -11,5 +11,4 @@ let d = <M first="abc" />
 
 //^com <M second="abc" f
 
-let e = <M   first="abc" />
-//         ^com
+//^com let e = <M 
