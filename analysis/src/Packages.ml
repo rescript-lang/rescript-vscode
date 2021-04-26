@@ -29,9 +29,7 @@ let newBsPackage rootPath =
       match compiledBase with
       | None ->
         Error
-          "You need to run bsb first so that rescript-editor-support can \
-           access the compiled artifacts.\n\
-           Once you've run bsb, restart the language server."
+          "Please run the build first so that the editor can analyze the project's artifacts."
       | Some compiledBase ->
         Ok
           (let namespace = FindFiles.getNamespace config in
