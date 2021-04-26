@@ -1,5 +1,3 @@
-let array l = "[" ^ (String.concat ", " l) ^ "]"
-
 type position = {
   line: int;
   character: int;
@@ -20,7 +18,7 @@ type completionItem = {
   kind: int;
   tags: int list;
   detail: string;
-  documentation: markupContent;
+  documentation: markupContent option;
 }
 
 type hover = {
@@ -31,6 +29,10 @@ type location = {
   uri: string;
   range: range;
 }
+
+let null = "null"
+
+let array l = "[" ^ (String.concat ", " l) ^ "]"
 
 let stringifyPosition p =
    Printf.sprintf {|{"line": %i, "character": %i}|} p.line p.character
@@ -56,7 +58,9 @@ let stringifyCompletionItem c =
   c.kind
   (c.tags |> List.map string_of_int |> array)
   (Json.escape c.detail)
-  (stringifyMarkupContent c.documentation)
+  (match c.documentation with
+  | None -> null
+  | Some doc -> stringifyMarkupContent doc)
 
 let stringifyHover h =
   Printf.sprintf {|{"contents": "%s"}|}
@@ -66,5 +70,3 @@ let stringifyLocation h =
   Printf.sprintf {|{"uri": "%s", "range": %s}|}
   (Json.escape h.uri)
   (stringifyRange h.range)
-
-let null = "null"

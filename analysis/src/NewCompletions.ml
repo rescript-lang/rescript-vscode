@@ -410,7 +410,7 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
             (opens |> List.map (fun env -> attributeCompletions ~env ~suffix))))
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
-  let valueMessage =
+  let docContent =
     (match deprecated with None -> "" | Some s -> "Deprecated: " ^ s ^ "\n\n")
     ^
     match docstring with [] -> "" | _ :: _ -> docstring |> String.concat "\n"
@@ -424,7 +424,9 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       kind;
       tags;
       detail;
-      documentation = {kind = "markdown"; value = valueMessage};
+      documentation =
+        (if docContent = "" then None
+        else Some {kind = "markdown"; value = docContent});
     }
 
 let processCompletable ~findItems ~package ~rawOpens
