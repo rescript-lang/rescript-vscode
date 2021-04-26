@@ -210,19 +210,16 @@ let localValueCompletions ~pos ~(env : ProcessCmt.queryEnv) suffix =
                {(emptyDeclared c.cname.txt) with item = Constructor (c, t)}))
     else results
   in
-  let results =
-    if suffix = "" || not (isCapitalized suffix) then
-      results
-      @ completionForDeclareds ~pos env.qFile.stamps.values suffix (fun v ->
-            Value v)
-      @ completionForDeclareds ~pos env.qFile.stamps.types suffix (fun t ->
-            Type t)
-      @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
-        |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
-    else results
-  in
-  results |> List.map (fun x -> (env.qFile.uri, x))
+  if suffix = "" || not (isCapitalized suffix) then
+    results
+    @ completionForDeclareds ~pos env.qFile.stamps.values suffix (fun v ->
+          Value v)
+    @ completionForDeclareds ~pos env.qFile.stamps.types suffix (fun t ->
+          Type t)
+    @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
+      |> List.map (fun (f, t) ->
+             {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
+  else results
 
 let valueCompletions ~(env : ProcessCmt.queryEnv) suffix =
   Log.log (" - Completing in " ^ Uri2.toString env.qFile.uri);
@@ -247,22 +244,17 @@ let valueCompletions ~(env : ProcessCmt.queryEnv) suffix =
                {(emptyDeclared c.cname.txt) with item = Constructor (c, t)})))
     else results
   in
-  let results =
-    if suffix = "" || not (isCapitalized suffix) then (
-      Log.log " -- not capitalized";
-      results
-      @ completionForExporteds env.qExported.values env.qFile.stamps.values
-          suffix (fun v -> Value v)
-      @ completionForExporteds env.qExported.types env.qFile.stamps.types suffix
-          (fun t -> Type t)
-      @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
-        |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)})))
-    else results
-  in
-  (* Log.log("Getting value completions " ++ env.file.uri);
-     Log.log(String.concat(", ", results |. Belt.List.map(x => x.name.txt))); *)
-  results |> List.map (fun x -> (env.qFile.uri, x))
+  if suffix = "" || not (isCapitalized suffix) then (
+    Log.log " -- not capitalized";
+    results
+    @ completionForExporteds env.qExported.values env.qFile.stamps.values suffix
+        (fun v -> Value v)
+    @ completionForExporteds env.qExported.types env.qFile.stamps.types suffix
+        (fun t -> Type t)
+    @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
+      |> List.map (fun (f, t) ->
+             {(emptyDeclared f.fname.txt) with item = Field (f, t)})))
+  else results
 
 let attributeCompletions ~(env : ProcessCmt.queryEnv) ~suffix =
   let results = [] in
@@ -273,18 +265,15 @@ let attributeCompletions ~(env : ProcessCmt.queryEnv) ~suffix =
           suffix (fun m -> Module m)
     else results
   in
-  let results =
-    if suffix = "" || not (isCapitalized suffix) then
-      results
-      @ completionForExporteds env.qExported.values env.qFile.stamps.values
-          suffix (fun v -> Value v)
-      (* completionForExporteds(env.exported.types, env.file.stamps.types, suffix, t => Type(t)) @ *)
-      @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
-        |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
-    else results
-  in
-  results |> List.map (fun x -> (env.qFile.uri, x))
+  if suffix = "" || not (isCapitalized suffix) then
+    results
+    @ completionForExporteds env.qExported.values env.qFile.stamps.values suffix
+        (fun v -> Value v)
+    (* completionForExporteds(env.exported.types, env.file.stamps.types, suffix, t => Type(t)) @ *)
+    @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
+      |> List.map (fun (f, t) ->
+             {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
+  else results
 
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
@@ -330,12 +319,12 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
            (fun results env ->
              let completionsFromThisOpen = valueCompletions ~env suffix in
              List.filter
-               (fun (_uri, declared) ->
-                 if not (Hashtbl.mem alreadyUsedIdentifiers declared.name.txt)
-                 then (
+               (fun declared ->
+                 if Hashtbl.mem alreadyUsedIdentifiers declared.name.txt then
+                   false
+                 else (
                    Hashtbl.add alreadyUsedIdentifiers declared.name.txt true;
-                   true)
-                 else false)
+                   true))
                completionsFromThisOpen
              @ results)
            []
@@ -344,14 +333,9 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
     let localModuleNames =
       allModules
       |> Utils.filterMap (fun name ->
-             match
-               Utils.startsWith name suffix && not (String.contains name '-')
-             with
-             | true ->
-               Some
-                 ( env.qFile.uri,
-                   {(emptyDeclared name) with item = FileModule name} )
-             | false -> None)
+             if Utils.startsWith name suffix && not (String.contains name '-')
+             then Some {(emptyDeclared name) with item = FileModule name}
+             else None)
     in
     locallyDefinedValues @ valuesFromOpens @ localModuleNames
   | multiple -> (
@@ -404,18 +388,17 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
                      (Some (env, typ))
               with
               | None -> []
-              | Some (env, typ) -> (
+              | Some (_env, typ) -> (
                 match typ.item.kind with
                 | Record fields ->
                   fields
                   |> Utils.filterMap (fun f ->
                          if Utils.startsWith f.fname.txt suffix then
                            Some
-                             ( env.qFile.uri,
-                               {
-                                 (emptyDeclared f.fname.txt) with
-                                 item = Field (f, typ);
-                               } )
+                             {
+                               (emptyDeclared f.fname.txt) with
+                               item = Field (f, typ);
+                             }
                          else None)
                 | _ -> []))))))
     | `AbsAttribute path -> (
@@ -426,13 +409,11 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
         @ List.concat
             (opens |> List.map (fun env -> attributeCompletions ~env ~suffix))))
 
-let mkItem ~name ~kind ~detail ~deprecated ~docstring ~uri ~pos_lnum =
+let mkItem ~name ~kind ~detail ~deprecated ~docstring =
   let valueMessage =
     (match deprecated with None -> "" | Some s -> "Deprecated: " ^ s ^ "\n\n")
-    ^ (match docstring with
-      | [] -> ""
-      | _ :: _ -> (docstring |> String.concat "\n") ^ "\n\n")
-    ^ "\n" ^ Uri2.toString uri ^ ":" ^ string_of_int pos_lnum
+    ^
+    match docstring with [] -> "" | _ :: _ -> docstring |> String.concat "\n"
   in
   let tags =
     match deprecated = None with true -> [] | false -> [1 (* deprecated *)]
@@ -446,14 +427,14 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring ~uri ~pos_lnum =
       documentation = {kind = "markdown"; value = valueMessage};
     }
 
-let processCompletable ~findItems ~full ~package ~pos ~rawOpens
+let processCompletable ~findItems ~package ~rawOpens
     (completable : PartialParser.completable) =
   match completable with
   | Cjsx (componentPath, prefix) ->
     let items = findItems ~exact:true (componentPath @ ["make"]) in
     let labels =
       match items with
-      | (_uri, {SharedTypes.item = Value typ}) :: _ ->
+      | {SharedTypes.item = Value typ} :: _ ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
           | Tfield (name, _, t1, t2) ->
@@ -483,7 +464,6 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     in
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
-        ~uri:full.file.uri ~pos_lnum:(fst pos)
     in
     let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
     let keyLabel = mkLabel_ "key" "string" in
@@ -498,17 +478,9 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     (* TODO(#107): figure out why we're getting duplicates. *)
     items |> Utils.dedup
     |> List.map
-         (fun
-           ( uri,
-             {
-               SharedTypes.name = {txt = name; loc = {loc_start = {pos_lnum}}};
-               deprecated;
-               docstring;
-               item;
-             } )
-         ->
+         (fun {SharedTypes.name = {txt = name}; deprecated; docstring; item} ->
            mkItem ~name ~kind:(kindToInt item) ~deprecated
-             ~detail:(detail name item) ~docstring ~uri ~pos_lnum)
+             ~detail:(detail name item) ~docstring)
   | Cpipe (pipe, partialName) -> (
     let arrayModulePath = ["Js"; "Array2"] in
     let listModulePath = ["Belt"; "List"] in
@@ -530,7 +502,7 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     in
     let getLhsPath ~pipeId ~partialName =
       match [pipeId] |> findItems ~exact:true with
-      | (_uri, {SharedTypes.item = Value t}) :: _ ->
+      | {SharedTypes.item = Value t} :: _ ->
         let modulePath =
           match t.desc with
           | Tconstr (path, _, _) -> getModulePath path
@@ -586,28 +558,18 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
         let parts = modulePath @ [partialName] in
         let items = parts |> findItems ~exact:false in
         items
-        |> List.filter (fun (_, {item}) ->
+        |> List.filter (fun {item} ->
                match item with Value _ -> true | _ -> false)
         |> List.map
-             (fun
-               ( uri,
-                 {
-                   SharedTypes.name =
-                     {txt = name; loc = {loc_start = {pos_lnum}}};
-                   deprecated;
-                   docstring;
-                   item;
-                 } )
+             (fun {SharedTypes.name = {txt = name}; deprecated; docstring; item}
              ->
                mkItem ~name:(completionName name) ~kind:(kindToInt item)
-                 ~detail:(detail name item) ~deprecated ~docstring ~uri
-                 ~pos_lnum)
+                 ~detail:(detail name item) ~deprecated ~docstring)
       | _ -> [])
     | None -> [])
   | Cdecorator prefix ->
     let mkDecorator name =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:"" ~docstring:[]
-        ~uri:full.file.uri ~pos_lnum:(fst pos)
     in
     [
       "as";
@@ -643,7 +605,7 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
   | Clabel (funPath, prefix) ->
     let labels =
       match funPath |> findItems ~exact:true with
-      | (_uri, {SharedTypes.item = Value typ}) :: _ ->
+      | {SharedTypes.item = Value typ} :: _ ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
           | Tlink t1 | Tsubst t1 -> getLabels t1
@@ -658,7 +620,7 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     let mkLabel (name, typ) =
       mkItem ~name ~kind:4 ~deprecated:None
         ~detail:(typ |> Shared.typeToString)
-        ~docstring:[] ~uri:full.file.uri ~pos_lnum:(fst pos)
+        ~docstring:[]
     in
     labels
     |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
@@ -684,10 +646,7 @@ let computeCompletions ~full ~maybeText ~package ~pos =
           in
           match parts |> List.rev with
           | last :: _ when exact ->
-            items
-            |> List.filter (fun (_uri, {SharedTypes.name = {txt}}) ->
-                   txt = last)
+            items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
           | _ -> items
         in
-        completable
-        |> processCompletable ~findItems ~full ~package ~pos ~rawOpens))
+        completable |> processCompletable ~findItems ~package ~rawOpens))
