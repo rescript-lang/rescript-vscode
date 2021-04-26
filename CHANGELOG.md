@@ -3,6 +3,7 @@
 Fixes:
 - Jump-to-definition on some Windows paths.
 - `->` autocomplete overruled `.`.
+- Hover on components in interface files.
 
 Features:
 - Show Outline
