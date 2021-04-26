@@ -25,3 +25,6 @@ Complete tests/src/Jsx.res 10:2
     "documentation": null
   }]
 
+Complete tests/src/Jsx.res 13:11
+[]
+

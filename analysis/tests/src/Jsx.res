@@ -10,3 +10,6 @@ let d = <M first="abc" />
 
 
 //^com <M second="abc" f
+
+let e = <M   first="abc" />
+//         ^com
