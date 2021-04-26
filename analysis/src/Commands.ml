@@ -13,7 +13,7 @@ let dumpLocations ~package ~file ~extra =
          in
          let uriLocOpt =
            References.definitionForLoc ~pathsForModule:package.pathsForModule
-             ~file ~getUri:State.fileForUri
+             ~file
              ~getModule:(State.fileForModule ~package)
              loc
          in
@@ -75,7 +75,6 @@ let hover ~file ~line ~col ~extra ~package =
     in
     let uriLocOpt =
       References.definitionForLoc ~pathsForModule:package.pathsForModule ~file
-        ~getUri:State.fileForUri
         ~getModule:(State.fileForModule ~package)
         loc
     in
@@ -125,7 +124,6 @@ let definition ~file ~line ~col ~extra ~package =
     in
     let uriLocOpt =
       References.definitionForLoc ~pathsForModule:package.pathsForModule ~file
-        ~getUri:State.fileForUri
         ~getModule:(State.fileForModule ~package)
         loc
     in
