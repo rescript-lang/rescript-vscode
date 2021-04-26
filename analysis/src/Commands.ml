@@ -133,7 +133,6 @@ let definition ~path ~line ~col =
   print_endline result
 
 let references ~file ~line ~col ~extra ~package =
-  let open TopTypes in
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
@@ -145,7 +144,7 @@ let references ~file ~line ~col ~extra ~package =
   | Some (_, loc) ->
     let allReferences =
       References.allReferencesForLoc ~package ~file ~extra
-        ~allModules:package.localModules ~getUri:ProcessCmt.fileForUri
+        ~getUri:ProcessCmt.fileForUri
         ~getExtra:(ProcessCmt.extraForModule ~package)
         loc
     in
