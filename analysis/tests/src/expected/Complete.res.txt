@@ -454,3 +454,87 @@ Complete tests/src/Complete.res 52:2
     "documentation": null
   }]
 
+DocumentSymbol tests/src/Complete.res
+[
+{
+            "name": "MyList",
+            "kind": 2,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 0, "character": 25}}},
+          },
+{
+            "name": "Dep",
+            "kind": 2,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 6, "character": 7}, "end": {"line": 11, "character": 1}}},
+          },
+{
+            "name": "customDouble",
+            "kind": 12,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 7, "character": 2}, "end": {"line": 8, "character": 30}}},
+          },
+{
+            "name": "Lib",
+            "kind": 2,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 15, "character": 7}, "end": {"line": 18, "character": 1}}},
+          },
+{
+            "name": "foo",
+            "kind": 12,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 16, "character": 2}, "end": {"line": 16, "character": 55}}},
+          },
+{
+            "name": "next",
+            "kind": 12,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 17, "character": 2}, "end": {"line": 17, "character": 48}}},
+          },
+{
+            "name": "op",
+            "kind": 13,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 26, "character": 0}, "end": {"line": 26, "character": 16}}},
+          },
+{
+            "name": "ForAuto",
+            "kind": 2,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 30, "character": 7}, "end": {"line": 34, "character": 1}}},
+          },
+{
+            "name": "t",
+            "kind": 26,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 31, "character": 2}, "end": {"line": 31, "character": 14}}},
+          },
+{
+            "name": "abc",
+            "kind": 12,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 30}}},
+          },
+{
+            "name": "abd",
+            "kind": 12,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 33, "character": 2}, "end": {"line": 33, "character": 30}}},
+          },
+{
+            "name": "fa",
+            "kind": 13,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 36, "character": 0}, "end": {"line": 36, "character": 21}}},
+          },
+{
+            "name": "O",
+            "kind": 2,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 41, "character": 7}, "end": {"line": 47, "character": 1}}},
+          },
+{
+            "name": "Comp",
+            "kind": 2,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 42, "character": 9}, "end": {"line": 46, "character": 3}}},
+          },
+{
+            "name": "make",
+            "kind": 12,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 44, "character": 4}, "end": {"line": 45, "character": 57}}},
+          },
+{
+            "name": "zzz",
+            "kind": 13,
+            "location": {"uri": "Complete.res", "range": {"start": {"line": 49, "character": 0}, "end": {"line": 49, "character": 12}}},
+          }
+]
+

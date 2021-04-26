@@ -170,6 +170,40 @@ let references ~path ~line ~col =
   in
   print_endline result
 
+let documentSymbol ~path =
+  let uri = Uri2.fromLocalPath path in
+  match ProcessCmt.fileForUri uri with
+  | Error _ -> print_endline Protocol.null
+  | Ok (file, _extra) ->
+    let open SharedTypes in
+    let rec getItems {topLevel} =
+      let fn {name = {txt}; extentLoc; item} =
+        let item, siblings =
+          match item with
+          | MValue v -> (v |> SharedTypes.variableKind, [])
+          | MType (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
+          | Module (Structure contents) -> (Module, getItems contents)
+          | Module (Ident _) -> (Module, [])
+        in
+        if extentLoc.loc_ghost then siblings
+        else (txt, extentLoc, item) :: siblings
+      in
+      let x = topLevel |> List.map fn |> List.concat in
+      x
+    in
+    let allSymbols =
+      getItems file.contents
+      |> List.map (fun (name, loc, kind) ->
+             Protocol.stringifyDocumentSymbolItem
+               {
+                 name;
+                 location =
+                   {uri = Uri2.toString uri; range = Utils.cmtLocToRange loc};
+                 kind = SharedTypes.symbolKind kind;
+               })
+    in
+    print_endline ("[\n" ^ (allSymbols |> String.concat ",\n") ^ "\n]")
+
 let test ~path =
   Uri2.stripPath := true;
   match Files.readFile path with
@@ -202,6 +236,9 @@ let test ~path =
               ("References " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             references ~path ~line ~col
+          | "doc" ->
+            print_endline ("DocumentSymbol " ^ path);
+            documentSymbol ~path
           | "com" ->
             print_endline
               ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"

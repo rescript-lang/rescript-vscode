@@ -233,5 +233,49 @@ let locationToString ({Location.loc_start; loc_end}, loc) =
   Printf.sprintf "%d:%d-%d:%d %s" pos1.line pos1.character pos2.line
     pos2.character (locToString loc)
 
+type kinds =
+  | Module
+  | Enum
+  | Interface
+  | Function
+  | Variable
+  | Array
+  | Object
+  | Null
+  | EnumMember
+  | TypeParameter
+
+let rec variableKind t =
+  match t.Types.desc with
+  | Tlink t -> variableKind t
+  | Tsubst t -> variableKind t
+  | Tarrow _ -> Function
+  | Ttuple _ -> Array
+  | Tconstr _ -> Variable
+  | Tobject _ -> Object
+  | Tnil -> Null
+  | Tvariant _ -> EnumMember
+  | Tpoly _ -> EnumMember
+  | Tpackage _ -> Module
+  | _ -> Variable
+
+let symbolKind = function
+  | Module -> 2
+  | Enum -> 10
+  | Interface -> 11
+  | Function -> 12
+  | Variable -> 13
+  | Array -> 18
+  | Object -> 19
+  | Null -> 21
+  | EnumMember -> 22
+  | TypeParameter -> 26
+
+let declarationKind t =
+  match t.Types.type_kind with
+  | Type_open | Type_abstract -> TypeParameter
+  | Type_record _ -> Interface
+  | Type_variant _ -> Enum
+
 (* for debugging *)
 let _ = locationToString
