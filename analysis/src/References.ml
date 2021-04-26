@@ -447,7 +447,7 @@ let forLocalStamp ~package ~file ~extra ~getExtra stamp tip =
       in
       (file.uri, local) :: externals)
 
-let allReferencesForLoc ~package ~getUri ~file ~extra ~getExtra loc =
+let allReferencesForLoc ~package ~file ~extra ~getExtra loc =
   match loc with
   | Explanation _
   | Typed (_, NotFound)
@@ -474,7 +474,7 @@ let allReferencesForLoc ~package ~getUri ~file ~extra ~getExtra loc =
         match ProcessCmt.exportedForTip ~env name tip with
         | None -> []
         | Some stamp -> (
-          match getUri env.file.uri with
+          match ProcessCmt.fileForUri env.file.uri with
           | Error _ -> []
           | Ok (file, extra) ->
             maybeLog

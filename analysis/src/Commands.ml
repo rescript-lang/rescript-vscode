@@ -144,7 +144,6 @@ let references ~file ~line ~col ~extra ~package =
   | Some (_, loc) ->
     let allReferences =
       References.allReferencesForLoc ~package ~file ~extra
-        ~getUri:ProcessCmt.fileForUri
         ~getExtra:(ProcessCmt.extraForModule ~package)
         loc
     in
