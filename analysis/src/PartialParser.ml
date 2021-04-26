@@ -61,18 +61,18 @@ let findJsxContext text offset =
     let i = skipWhite text i in
     if i > 0 then
       match text.[i] with
-      | '}' -> (
+      | '}' ->
         let i1 = findBackSkippingCommentsAndStrings text '{' '}' (i - 1) 0 in
-        match i1 > 0 with true -> beforeValue i1 | false -> None)
-      | ')' -> (
+        if i1 > 0 then beforeValue i1 else None
+      | ')' ->
         let i1 = findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0 in
-        match i1 > 0 with true -> beforeValue i1 | false -> None)
-      | ']' -> (
+        if i1 > 0 then beforeValue i1 else None
+      | ']' ->
         let i1 = findBackSkippingCommentsAndStrings text '[' ']' (i - 1) 0 in
-        match i1 > 0 with true -> beforeValue i1 | false -> None)
-      | '"' -> (
+        if i1 > 0 then beforeValue i1 else None
+      | '"' ->
         let i1 = findBack text '"' (i - 1) in
-        match i1 > 0 with true -> beforeValue i1 | false -> None)
+        if i1 > 0 then beforeValue i1 else None
       | _ ->
         let i1 = startOfLident text i in
         let ident = String.sub text i1 (i - i1 + 1) in
@@ -103,7 +103,7 @@ let findJsxContext text offset =
         let i = skipWhite text (i - 1) in
         let i1 = startOfLident text i in
         let ident = String.sub text i1 (i - i1 + 1) in
-        match ident = "" with true -> None | false -> loop (i1 - 1))
+        match ident with "" -> None | _ -> loop (i1 - 1))
       | _ -> None
     else None
   in
@@ -135,9 +135,7 @@ let findCompletable text offset =
   let mkPath s =
     let len = String.length s in
     let parts = Str.split (Str.regexp_string ".") s in
-    let parts =
-      match s.[len - 1] = '.' with true -> parts @ [""] | false -> parts
-    in
+    let parts = match s.[len - 1] with '.' -> parts @ [""] | _ -> parts in
     match parts with
     | [id] when String.lowercase_ascii id = id -> (
       match findJsxContext text (offset - len - 1) with
@@ -149,14 +147,13 @@ let findCompletable text offset =
   let mkPipe off partialName =
     let off = skipWhite text off in
     let rec loop i =
-      match i < 0 with
-      | true -> Some (PipeId (String.sub text 0 (i - 1)))
-      | false -> (
+      if i < 0 then Some (PipeId (String.sub text 0 (i - 1)))
+      else
         match text.[i] with
         | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
         | '"' when i == off -> Some PipeString
         | ']' when i == off -> Some PipeArray
-        | _ -> Some (PipeId (String.sub text (i + 1) (off - i))))
+        | _ -> Some (PipeId (String.sub text (i + 1) (off - i)))
     in
     match loop off with
     | None -> None
@@ -165,9 +162,8 @@ let findCompletable text offset =
 
   let suffix i = String.sub text (i + 1) (offset - (i + 1)) in
   let rec loop i =
-    match i < 0 with
-    | true -> Some (mkPath (suffix i))
-    | false -> (
+    if i < 0 then Some (mkPath (suffix i))
+    else
       match text.[i] with
       | '>' when i > 0 && text.[i - 1] = '-' ->
         let rest = suffix i in
@@ -179,10 +175,7 @@ let findCompletable text offset =
         Some (Clabel (funPath, labelPrefix))
       | '@' -> Some (Cdecorator (suffix i))
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
-      | _ -> (
-        match i = offset - 1 with
-        | true -> None
-        | false -> Some (mkPath (suffix i))))
+      | _ -> if i = offset - 1 then None else Some (mkPath (suffix i))
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)
 
@@ -257,18 +250,15 @@ let findOpens text offset =
 let offsetOfLine text line =
   let ln = String.length text in
   let rec loop i lno =
-    match i >= ln with
-    | true -> None
-    | false -> (
+    if i >= ln then None
+    else
       match text.[i] with
-      | '\n' -> (
-        match lno = line - 1 with
-        | true -> Some (i + 1)
-        | false -> loop (i + 1) (lno + 1))
-      | _ -> loop (i + 1) lno)
+      | '\n' -> if lno = line - 1 then Some (i + 1) else loop (i + 1) (lno + 1)
+      | _ -> loop (i + 1) lno
   in
-  match line = 0 with true -> Some 0 | false -> loop 0 0
+  match line with 0 -> Some 0 | _ -> loop 0 0
 
 let positionToOffset text (line, character) =
-  let open Infix in
-  offsetOfLine text line |?>> fun bol -> bol + character
+  match offsetOfLine text line with
+  | None -> None
+  | Some bol -> Some (bol + character)

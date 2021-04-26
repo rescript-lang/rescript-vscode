@@ -434,9 +434,8 @@ let forLocalStamp ~package ~file ~extra stamp tip =
                              let refs =
                                refs
                                |> Utils.filterMap (fun (p, t, l) ->
-                                      match p = path && t = tip with
-                                      | true -> Some l
-                                      | false -> None)
+                                      if p = path && t = tip then Some l
+                                      else None)
                              in
                              Some (file.uri, refs))))
               in

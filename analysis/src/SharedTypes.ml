@@ -23,8 +23,7 @@ let getSrc p =
 let getCmt ?(interface = true) p =
   match p with
   | Impl (c, _) | Intf (c, _) -> c
-  | IntfAndImpl (cint, _, cimpl, _) -> (
-    match interface with true -> cint | false -> cimpl)
+  | IntfAndImpl (cint, _, cimpl, _) -> if interface then cint else cimpl
 
 type visibilityPath =
   | File of Uri2.t * string

@@ -530,9 +530,9 @@ let extraForFile ~(file : SharedTypes.file) =
     Hashtbl.replace extra.internalReferences stamp
       (loc
       ::
-      (match Hashtbl.mem extra.internalReferences stamp with
-      | true -> Hashtbl.find extra.internalReferences stamp
-      | false -> []))
+      (if Hashtbl.mem extra.internalReferences stamp then
+       Hashtbl.find extra.internalReferences stamp
+      else []))
   in
   file.stamps.modules
   |> Hashtbl.iter (fun stamp d ->
@@ -689,18 +689,18 @@ struct
     Hashtbl.replace extra.internalReferences stamp
       (loc
       ::
-      (match Hashtbl.mem extra.internalReferences stamp with
-      | true -> Hashtbl.find extra.internalReferences stamp
-      | false -> []))
+      (if Hashtbl.mem extra.internalReferences stamp then
+       Hashtbl.find extra.internalReferences stamp
+      else []))
 
   let addExternalReference moduleName path tip loc =
     (* TODO need to follow the path, and be able to load the files to follow module references... *)
     Hashtbl.replace extra.externalReferences moduleName
       ((path, tip, loc)
       ::
-      (match Hashtbl.mem extra.externalReferences moduleName with
-      | true -> Hashtbl.find extra.externalReferences moduleName
-      | false -> []))
+      (if Hashtbl.mem extra.externalReferences moduleName then
+       Hashtbl.find extra.externalReferences moduleName
+      else []))
 
   let env = fileEnv Collector.file
 
@@ -720,9 +720,9 @@ struct
       | `Exported (env, name) -> (
         match
           Hashtbl.find_opt
-            (match tip = Type with
-            | true -> env.qExported.types
-            | false -> env.qExported.values)
+            (match tip with
+            | Type -> env.qExported.types
+            | _ -> env.qExported.values)
             name
         with
         | Some stamp ->
