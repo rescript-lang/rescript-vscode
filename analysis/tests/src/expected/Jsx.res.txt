@@ -10,18 +10,18 @@ Complete tests/src/Jsx.res 10:2
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "first",
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "fun",
     "kind": 4,
     "tags": [],
     "detail": "option<string>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }]
 

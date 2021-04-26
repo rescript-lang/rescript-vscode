@@ -22,7 +22,7 @@ Complete tests/src/Complete.res 0:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "map",
     "kind": 12,
@@ -34,19 +34,19 @@ Complete tests/src/Complete.res 0:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. int, 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "mapU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "makeByU",
     "kind": 12,
     "tags": [],
     "detail": "(int, (. int) => 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "mapReverse2",
     "kind": 12,
@@ -64,7 +64,7 @@ Complete tests/src/Complete.res 0:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }]
 
 Complete tests/src/Complete.res 1:2
@@ -73,7 +73,7 @@ Complete tests/src/Complete.res 1:2
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "fold_left",
     "kind": 12,
@@ -211,7 +211,7 @@ Complete tests/src/Complete.res 1:2
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int) => 'a",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "make_matrix",
     "kind": 12,
@@ -241,7 +241,7 @@ Complete tests/src/Complete.res 1:2
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, 'a) => unit",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "create_matrix",
     "kind": 12,
@@ -352,13 +352,13 @@ Complete tests/src/Complete.res 19:2
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "name",
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }]
 
 Complete tests/src/Complete.res 21:2
@@ -367,13 +367,13 @@ Complete tests/src/Complete.res 21:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "Js.Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }]
 
 Complete tests/src/Complete.res 23:2
@@ -406,13 +406,13 @@ Complete tests/src/Complete.res 36:2
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "ForAuto.abd",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }]
 
 Complete tests/src/Complete.res 38:2
@@ -436,7 +436,7 @@ Complete tests/src/Complete.res 50:2
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }]
 
 Complete tests/src/Complete.res 52:2
@@ -445,12 +445,12 @@ Complete tests/src/Complete.res 52:2
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }, {
     "label": "zoo",
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": {"kind": "markdown", "value": ""}
+    "documentation": null
   }]
 
