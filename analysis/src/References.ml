@@ -292,7 +292,7 @@ let orLog message v =
     None
   | _ -> v
 
-let definitionForLoc ~package ~file ~getModule loc =
+let definitionForLoc ~package ~file loc =
   match loc with
   | Typed (_, Definition (stamp, tip)) -> (
     maybeLog "Trying to find a defintion for a definition";
@@ -332,7 +332,7 @@ let definitionForLoc ~package ~file ~getModule loc =
     maybeLog
       ("Global defn " ^ moduleName ^ " " ^ pathToString path ^ " : "
      ^ tipToString tip);
-    match getModule moduleName with
+    match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
       let env = ProcessCmt.fileEnv file in
@@ -369,8 +369,7 @@ let rec pathFromVisibility visibilityPath current =
 let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath (Tip tipName)
 
-let forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
-    tip =
+let forLocalStamp ~package ~file ~extra ~allModules ~getExtra stamp tip =
   let env = ProcessCmt.fileEnv file in
   let open Infix in
   match
@@ -420,7 +419,7 @@ let forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
                 allModules
                 |> List.filter (fun name -> name <> file.moduleName)
                 |> Utils.filterMap (fun name ->
-                       match getModule name with
+                       match ProcessCmt.fileForModule ~package name with
                        | None -> None
                        | Some file -> (
                          match getExtra name with
@@ -448,8 +447,8 @@ let forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
       in
       (file.uri, local) :: externals)
 
-let allReferencesForLoc ~package ~getUri ~file ~extra ~allModules ~getModule
-    ~getExtra loc =
+let allReferencesForLoc ~package ~getUri ~file ~extra ~allModules ~getExtra loc
+    =
   match loc with
   | Explanation _
   | Typed (_, NotFound)
@@ -457,18 +456,16 @@ let allReferencesForLoc ~package ~getUri ~file ~extra ~allModules ~getModule
   | TopLevelModule _ | Constant _ ->
     []
   | TypeDefinition (_, _, stamp) ->
-    forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
-      Type
+    forLocalStamp ~package ~file ~extra ~allModules ~getExtra stamp Type
   | Typed (_, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ tipToString tip);
-    forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
-      tip
+    forLocalStamp ~package ~file ~extra ~allModules ~getExtra stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, GlobalReference (moduleName, path, tip)) -> (
-    match getModule moduleName with
+    match ProcessCmt.fileForModule ~package moduleName with
     | None -> []
     | Some file -> (
       let env = ProcessCmt.fileEnv file in
@@ -485,5 +482,5 @@ let allReferencesForLoc ~package ~getUri ~file ~extra ~allModules ~getModule
               ("Finding references for (global) " ^ Uri2.toString env.file.uri
              ^ " and stamp " ^ string_of_int stamp ^ " and tip "
              ^ tipToString tip);
-            forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra
-              stamp tip))))
+            forLocalStamp ~package ~file ~extra ~allModules ~getExtra stamp tip)
+        )))

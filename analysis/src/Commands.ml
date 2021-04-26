@@ -9,11 +9,7 @@ let dumpLocations ~package ~file ~extra =
          let hover =
            match hoverText with None -> "" | Some s -> String.escaped s
          in
-         let uriLocOpt =
-           References.definitionForLoc ~package ~file
-             ~getModule:(ProcessCmt.fileForModule ~package)
-             loc
-         in
+         let uriLocOpt = References.definitionForLoc ~package ~file loc in
          let def =
            match uriLocOpt with
            | None -> Protocol.null
@@ -69,11 +65,7 @@ let hover ~file ~line ~col ~extra ~package =
       | SharedTypes.LModule _ | TopLevelModule _ -> true
       | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
     in
-    let uriLocOpt =
-      References.definitionForLoc ~package ~file
-        ~getModule:(ProcessCmt.fileForModule ~package)
-        loc
-    in
+    let uriLocOpt = References.definitionForLoc ~package ~file loc in
     let skipZero =
       match uriLocOpt with
       | None -> false
@@ -86,9 +78,7 @@ let hover ~file ~line ~col ~extra ~package =
     in
     if skipZero then Protocol.null
     else
-      let hoverText =
-        Hover.newHover ~file ~package loc
-      in
+      let hoverText = Hover.newHover ~file ~package loc in
       match hoverText with
       | None -> Protocol.null
       | Some s -> Protocol.stringifyHover {contents = s})
@@ -117,11 +107,7 @@ let definition ~file ~line ~col ~extra ~package =
       | SharedTypes.LModule _ | TopLevelModule _ -> true
       | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
     in
-    let uriLocOpt =
-      References.definitionForLoc ~package ~file
-        ~getModule:(ProcessCmt.fileForModule ~package)
-        loc
-    in
+    let uriLocOpt = References.definitionForLoc ~package ~file loc in
     match uriLocOpt with
     | None -> Protocol.null
     | Some (uri2, loc) ->
@@ -160,7 +146,6 @@ let references ~file ~line ~col ~extra ~package =
     let allReferences =
       References.allReferencesForLoc ~package ~file ~extra
         ~allModules:package.localModules ~getUri:ProcessCmt.fileForUri
-        ~getModule:(ProcessCmt.fileForModule ~package)
         ~getExtra:(ProcessCmt.extraForModule ~package)
         loc
     in

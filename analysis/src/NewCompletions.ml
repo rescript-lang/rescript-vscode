@@ -139,7 +139,6 @@ let determineCompletion items =
 *)
 let getEnvWithOpens ~pos ~(env : ProcessCmt.queryEnv) ~package
     ~(opens : ProcessCmt.queryEnv list) path =
-  (* Query.resolvePath(~env, ~path, ~getModule) *)
   match ProcessCmt.resolveFromStamps ~env ~path ~package ~pos with
   | Some x -> Some x
   | None ->
@@ -288,7 +287,7 @@ let attributeCompletions ~(env : ProcessCmt.queryEnv) ~suffix =
   results |> List.map (fun x -> (env.file.uri, x))
 
 (* TODO filter out things that are defined after the current position *)
-let resolveRawOpens ~env ~getModule ~rawOpens ~package =
+let resolveRawOpens ~env ~rawOpens ~package =
   (* TODO Stdlib instead of Pervasives *)
   let packageOpens = "Pervasives" :: package.TopTypes.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
@@ -296,12 +295,12 @@ let resolveRawOpens ~env ~getModule ~rawOpens ~package =
     resolveOpens ~env
       ~previous:
         (List.map ProcessCmt.fileEnv
-           (packageOpens |> Utils.filterMap getModule))
+           (packageOpens |> Utils.filterMap (ProcessCmt.fileForModule ~package)))
       rawOpens ~package
   in
   opens
 
-let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
+let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
   Log.log
     ("Opens folkz > "
     ^ string_of_int (List.length rawOpens)
@@ -310,7 +309,7 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
   let env = ProcessCmt.fileEnv full.file in
   let packageOpens = "Pervasives" :: package.TopTypes.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
-  let resolvedOpens = resolveRawOpens ~env ~getModule ~rawOpens ~package in
+  let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
   Log.log
     ("Opens nows "
     ^ string_of_int (List.length resolvedOpens)
@@ -681,9 +680,7 @@ let computeCompletions ~full ~maybeText ~package ~pos =
         in
         let findItems ~exact parts =
           let items =
-            getItems ~full ~package ~rawOpens
-              ~getModule:(ProcessCmt.fileForModule ~package)
-              ~allModules ~pos ~parts
+            getItems ~full ~package ~rawOpens ~allModules ~pos ~parts
           in
           match parts |> List.rev with
           | last :: _ when exact ->
