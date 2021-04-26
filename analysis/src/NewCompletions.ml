@@ -13,7 +13,7 @@ let showConstructor {cname = {txt}; args; res} =
   ^ (res |?>> (fun typ -> "\n" ^ (typ |> Shared.typeToString)) |? "")
 
 (* TODO: local opens *)
-let resolveOpens ~env ~previous opens ~getModule =
+let resolveOpens ~env ~previous opens ~package =
   List.fold_left
     (fun previous path ->
       (* Finding an open, first trying to find it in previoulsly resolved opens *)
@@ -23,25 +23,26 @@ let resolveOpens ~env ~previous opens ~getModule =
           match path with
           | Tip _ -> previous
           | Nested (name, path) -> (
-            match getModule name with
+            match ProcessCmt.fileForModule ~package name with
             | None ->
               Log.log ("Could not get module " ^ name);
               previous (* TODO: warn? *)
             | Some file -> (
               match
-                Query.resolvePath ~env:(Query.fileEnv file) ~getModule ~path
+                ProcessCmt.resolvePath ~env:(ProcessCmt.fileEnv file) ~package
+                  ~path
               with
               | None ->
                 Log.log ("Could not resolve in " ^ name);
                 previous
               | Some (env, _placeholder) -> previous @ [env])))
         | env :: rest -> (
-          match Query.resolvePath ~env ~getModule ~path with
+          match ProcessCmt.resolvePath ~env ~package ~path with
           | None -> loop rest
           | Some (env, _placeholder) -> previous @ [env])
       in
       Log.log ("resolving open " ^ pathToString path);
-      match Query.resolvePath ~env ~getModule ~path with
+      match ProcessCmt.resolvePath ~env ~package ~path with
       | None ->
         Log.log "Not local";
         loop previous
@@ -136,17 +137,17 @@ let determineCompletion items =
    Maybe the way to fix it is to make note of what things in an open override
    locally defined things...
 *)
-let getEnvWithOpens ~pos ~(env : Query.queryEnv) ~getModule
-    ~(opens : Query.queryEnv list) path =
+let getEnvWithOpens ~pos ~(env : ProcessCmt.queryEnv) ~package
+    ~(opens : ProcessCmt.queryEnv list) path =
   (* Query.resolvePath(~env, ~path, ~getModule) *)
-  match Query.resolveFromStamps ~env ~path ~getModule ~pos with
+  match ProcessCmt.resolveFromStamps ~env ~path ~package ~pos with
   | Some x -> Some x
   | None ->
     let rec loop opens =
       match opens with
       | env :: rest -> (
-        Log.log ("Looking for env in " ^ Uri2.toString env.Query.file.uri);
-        match Query.resolvePath ~env ~getModule ~path with
+        Log.log ("Looking for env in " ^ Uri2.toString env.ProcessCmt.file.uri);
+        match ProcessCmt.resolvePath ~env ~package ~path with
         | Some x -> Some x
         | None -> loop rest)
       | [] -> (
@@ -154,12 +155,12 @@ let getEnvWithOpens ~pos ~(env : Query.queryEnv) ~getModule
         | Tip _ -> None
         | Nested (top, path) -> (
           Log.log ("Getting module " ^ top);
-          match getModule top with
+          match ProcessCmt.fileForModule ~package top with
           | None -> None
           | Some file ->
             Log.log "got it";
-            let env = Query.fileEnv file in
-            Query.resolvePath ~env ~getModule ~path
+            let env = ProcessCmt.fileEnv file in
+            ProcessCmt.resolvePath ~env ~package ~path
             |> Infix.logIfAbsent "Unable to resolve the path"))
     in
     loop opens
@@ -195,7 +196,7 @@ let detail name contents =
   | Constructor (c, t) ->
     showConstructor c ^ "\n\n" ^ (t.item.decl |> Shared.declToString t.name.txt)
 
-let localValueCompletions ~pos ~(env : Query.queryEnv) suffix =
+let localValueCompletions ~pos ~(env : ProcessCmt.queryEnv) suffix =
   let results = [] in
   Log.log "---------------- LOCAL VAL";
   let results =
@@ -224,7 +225,7 @@ let localValueCompletions ~pos ~(env : Query.queryEnv) suffix =
   in
   results |> List.map (fun x -> (env.file.uri, x))
 
-let valueCompletions ~(env : Query.queryEnv) suffix =
+let valueCompletions ~(env : ProcessCmt.queryEnv) suffix =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
   let results = [] in
   let results =
@@ -264,7 +265,7 @@ let valueCompletions ~(env : Query.queryEnv) suffix =
      Log.log(String.concat(", ", results |. Belt.List.map(x => x.name.txt))); *)
   results |> List.map (fun x -> (env.file.uri, x))
 
-let attributeCompletions ~(env : Query.queryEnv) ~suffix =
+let attributeCompletions ~(env : ProcessCmt.queryEnv) ~suffix =
   let results = [] in
   let results =
     if suffix = "" || isCapitalized suffix then
@@ -294,8 +295,9 @@ let resolveRawOpens ~env ~getModule ~rawOpens ~package =
   let opens =
     resolveOpens ~env
       ~previous:
-        (List.map Query.fileEnv (packageOpens |> Utils.filterMap getModule))
-      rawOpens ~getModule
+        (List.map ProcessCmt.fileEnv
+           (packageOpens |> Utils.filterMap getModule))
+      rawOpens ~package
   in
   opens
 
@@ -305,7 +307,7 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
     ^ string_of_int (List.length rawOpens)
     ^ " "
     ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let env = Query.fileEnv full.file in
+  let env = ProcessCmt.fileEnv full.file in
   let packageOpens = "Pervasives" :: package.TopTypes.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
   let resolvedOpens = resolveRawOpens ~env ~getModule ~rawOpens ~package in
@@ -314,7 +316,8 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
     ^ string_of_int (List.length resolvedOpens)
     ^ " "
     ^ String.concat " "
-        (resolvedOpens |> List.map (fun e -> Uri2.toString e.Query.file.uri)));
+        (resolvedOpens
+        |> List.map (fun e -> Uri2.toString e.ProcessCmt.file.uri)));
   (* Last open takes priority *)
   let opens = List.rev resolvedOpens in
   match parts with
@@ -357,7 +360,7 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
     match determineCompletion multiple with
     | `Normal path -> (
       Log.log ("normal " ^ pathToString path);
-      match getEnvWithOpens ~pos ~env ~getModule ~opens path with
+      match getEnvWithOpens ~pos ~env ~package ~opens path with
       | Some (env, suffix) ->
         Log.log "Got the env";
         valueCompletions ~env suffix
@@ -368,14 +371,14 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
       | [] -> []
       | first :: rest -> (
         Log.log ("-------------- Looking for " ^ first);
-        match Query.findInScope pos first env.file.stamps.values with
+        match ProcessCmt.findInScope pos first env.file.stamps.values with
         | None -> []
         | Some declared -> (
           Log.log ("Found it! " ^ declared.name.txt);
           match declared.item |> Shared.digConstructor with
           | None -> []
           | Some path -> (
-            match Hover.digConstructor ~env ~getModule path with
+            match Hover.digConstructor ~env ~package path with
             | None -> []
             | Some (env, typ) -> (
               match
@@ -397,7 +400,7 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
                              match attr.typ |> Shared.digConstructor with
                              | None -> None
                              | Some path ->
-                               Hover.digConstructor ~env ~getModule path))
+                               Hover.digConstructor ~env ~package path))
                          | _ -> None))
                      (Some (env, typ))
               with
@@ -417,7 +420,7 @@ let getItems ~full ~package ~rawOpens ~getModule ~allModules ~pos ~parts =
                          else None)
                 | _ -> []))))))
     | `AbsAttribute path -> (
-      match getEnvWithOpens ~pos ~env ~getModule ~opens path with
+      match getEnvWithOpens ~pos ~env ~package ~opens path with
       | None -> []
       | Some (env, suffix) ->
         attributeCompletions ~env ~suffix
@@ -679,7 +682,7 @@ let computeCompletions ~full ~maybeText ~package ~pos =
         let findItems ~exact parts =
           let items =
             getItems ~full ~package ~rawOpens
-              ~getModule:(State.fileForModule ~package)
+              ~getModule:(ProcessCmt.fileForModule ~package)
               ~allModules ~pos ~parts
           in
           match parts |> List.rev with

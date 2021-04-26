@@ -30,3 +30,4 @@ let state =
     rootForUri = Hashtbl.create 30;
     cmtCache = Hashtbl.create 30;
   }
+

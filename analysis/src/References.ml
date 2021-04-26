@@ -61,22 +61,53 @@ let locForPos ~extra pos =
   | l :: _ -> Some l
   | _ -> None
 
-let definedForLoc ~file ~getModule locKind =
+let declaredForTip ~stamps stamp tip =
+  let open Infix in
+  match tip with
+  | Value ->
+    Hashtbl.find_opt stamps.values stamp |?>> fun x -> {x with item = ()}
+  | Field _ | Constructor _ | Type ->
+    Hashtbl.find_opt stamps.types stamp |?>> fun x -> {x with item = ()}
+  | Module ->
+    Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
+
+let getField file stamp name =
+  match Hashtbl.find_opt file.stamps.types stamp with
+  | None -> None
+  | Some {item = {kind}} -> (
+    match kind with
+    | Record fields -> fields |> List.find_opt (fun f -> f.fname.txt = name)
+    | _ -> None)
+
+let getConstructor file stamp name =
+  match Hashtbl.find_opt file.stamps.types stamp with
+  | None -> None
+  | Some {item = {kind}} -> (
+    match kind with
+    | Variant constructors -> (
+      match
+        constructors |> List.find_opt (fun const -> const.cname.txt = name)
+      with
+      | None -> None
+      | Some const -> Some const)
+    | _ -> None)
+
+let definedForLoc ~file ~package locKind =
   let inner ~file stamp tip =
     match tip with
     | Constructor name -> (
-      match Query.getConstructor file stamp name with
+      match getConstructor file stamp name with
       | None -> None
       | Some constructor -> Some ([], `Constructor constructor))
     | Field name -> (
-      match Query.getField file stamp name with
+      match getField file stamp name with
       | None -> None
       | Some field -> Some ([], `Field field))
     | _ -> (
       maybeLog
         ("Trying for declared " ^ tipToString tip ^ " " ^ string_of_int stamp
        ^ " in file " ^ Uri2.toString file.uri);
-      match Query.declaredForTip ~stamps:file.stamps stamp tip with
+      match declaredForTip ~stamps:file.stamps stamp tip with
       | None -> None
       | Some declared -> Some (declared.docstring, `Declared))
   in
@@ -86,18 +117,18 @@ let definedForLoc ~file ~getModule locKind =
     inner ~file stamp tip
   | GlobalReference (moduleName, path, tip) -> (
     maybeLog ("Getting global " ^ moduleName);
-    match getModule moduleName with
+    match ProcessCmt.fileForModule ~package moduleName with
     | None ->
       Log.log ("Cannot get module " ^ moduleName);
       None
     | Some file -> (
-      let env = Query.fileEnv file in
-      match Query.resolvePath ~env ~path ~getModule with
+      let env = ProcessCmt.fileEnv file in
+      match ProcessCmt.resolvePath ~env ~path ~package with
       | None ->
         Log.log ("Cannot resolve path " ^ pathToString path);
         None
       | Some (env, name) -> (
-        match Query.exportedForTip ~env name tip with
+        match ProcessCmt.exportedForTip ~env name tip with
         | None ->
           Log.log
             ("Exported not found for tip " ^ name ^ " > " ^ tipToString tip);
@@ -112,6 +143,19 @@ let definedForLoc ~file ~getModule locKind =
             maybeLog "Yes!! got it";
             Some res))))
 
+let declaredForExportedTip ~(stamps : stamps) ~(exported : exported) name tip =
+  let open Infix in
+  match tip with
+  | Value ->
+    Hashtbl.find_opt exported.values name |?> fun stamp ->
+    Hashtbl.find_opt stamps.values stamp |?>> fun x -> {x with item = ()}
+  | Field _ | Constructor _ | Type ->
+    Hashtbl.find_opt exported.types name |?> fun stamp ->
+    Hashtbl.find_opt stamps.types stamp |?>> fun x -> {x with item = ()}
+  | Module ->
+    Hashtbl.find_opt exported.modules name |?> fun stamp ->
+    Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
+
 let alternateDeclared ~file ~package declared tip =
   match Hashtbl.find_opt package.TopTypes.pathsForModule file.moduleName with
   | None -> None
@@ -123,37 +167,37 @@ let alternateDeclared ~file ~package declared tip =
       let intfUri = Uri2.fromPath intf in
       let implUri = Uri2.fromPath impl in
       if intfUri = file.uri then
-        match State.fileForUri implUri with
+        match ProcessCmt.fileForUri implUri with
         | Error e ->
           Log.log e;
           None
         | Ok (file, extra) -> (
           match
-            Query.declaredForExportedTip ~stamps:file.stamps
+            declaredForExportedTip ~stamps:file.stamps
               ~exported:file.contents.exported declared.name.txt tip
           with
           | None -> None
           | Some declared -> Some (file, extra, declared))
       else
-        match State.fileForUri intfUri with
+        match ProcessCmt.fileForUri intfUri with
         | Error e ->
           Log.log e;
           None
         | Ok (file, extra) -> (
           match
-            Query.declaredForExportedTip ~stamps:file.stamps
+            declaredForExportedTip ~stamps:file.stamps
               ~exported:file.contents.exported declared.name.txt tip
           with
           | None -> None
           | Some declared -> Some (file, extra, declared)))
     | _ -> None)
 
-let resolveModuleReference ~file ~getModule (declared : moduleKind declared) =
+let resolveModuleReference ~file ~package (declared : moduleKind declared) =
   match declared.item with
   | Structure _ -> Some (file, Some declared)
   | Ident path -> (
-    let env = Query.fileEnv file in
-    match Query.fromCompilerPath ~env path with
+    let env = ProcessCmt.fileEnv file in
+    match ProcessCmt.fromCompilerPath ~env path with
     | `Not_found -> None
     | `Exported (env, name) -> (
       match Hashtbl.find_opt env.exported.modules name with
@@ -165,11 +209,11 @@ let resolveModuleReference ~file ~getModule (declared : moduleKind declared) =
           Some (env.file, Some md)
           (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)))
     | `Global (moduleName, path) -> (
-      match getModule moduleName with
+      match ProcessCmt.fileForModule ~package moduleName with
       | None -> None
       | Some file -> (
-        let env = Query.fileEnv file in
-        match Query.resolvePath ~env ~getModule ~path with
+        let env = ProcessCmt.fileEnv file in
+        match ProcessCmt.resolvePath ~env ~package ~path with
         | None -> None
         | Some (env, name) -> (
           match Hashtbl.find_opt env.exported.modules name with
@@ -188,7 +232,7 @@ let resolveModuleReference ~file ~getModule (declared : moduleKind declared) =
         Some (file, Some md)
         (* Some((file.uri, validateLoc(md.name.loc, md.extentLoc))) *))
     | `GlobalMod name -> (
-      match getModule name with
+      match ProcessCmt.fileForModule ~package name with
       | None -> None
       | Some file ->
         (* maybeLog("Congrats, found a global mod"); *)
@@ -206,11 +250,11 @@ let validateLoc (loc : Location.t) (backup : Location.t) =
     else backup
   else loc
 
-let resolveModuleDefinition ~file ~getModule stamp =
+let resolveModuleDefinition ~file ~package stamp =
   match Hashtbl.find_opt file.stamps.modules stamp with
   | None -> None
   | Some md -> (
-    match resolveModuleReference ~file ~getModule md with
+    match resolveModuleReference ~file ~package md with
     | None -> None
     | Some (file, declared) ->
       let loc =
@@ -220,24 +264,24 @@ let resolveModuleDefinition ~file ~getModule stamp =
       in
       Some (file.uri, loc))
 
-let definition ~file ~getModule stamp tip =
+let definition ~file ~package stamp tip =
   match tip with
   | Constructor name -> (
-    match Query.getConstructor file stamp name with
+    match getConstructor file stamp name with
     | None -> None
     | Some constructor -> Some (file.uri, constructor.cname.loc))
   | Field name -> (
-    match Query.getField file stamp name with
+    match getField file stamp name with
     | None -> None
     | Some field -> Some (file.uri, field.fname.loc))
-  | Module -> resolveModuleDefinition ~file ~getModule stamp
+  | Module -> resolveModuleDefinition ~file ~package stamp
   | _ -> (
-    match Query.declaredForTip ~stamps:file.stamps stamp tip with
+    match declaredForTip ~stamps:file.stamps stamp tip with
     | None -> None
     | Some declared ->
       let loc = validateLoc declared.name.loc declared.extentLoc in
-      let env = Query.fileEnv file in
-      let uri = Query.getSourceUri ~env ~getModule declared.modulePath in
+      let env = ProcessCmt.fileEnv file in
+      let uri = ProcessCmt.getSourceUri ~env ~package declared.modulePath in
       maybeLog ("Inner uri " ^ Uri2.toString uri);
       Some (uri, loc))
 
@@ -252,7 +296,7 @@ let definitionForLoc ~package ~file ~getModule loc =
   match loc with
   | Typed (_, Definition (stamp, tip)) -> (
     maybeLog "Trying to find a defintion for a definition";
-    match Query.declaredForTip ~stamps:file.stamps stamp tip with
+    match declaredForTip ~stamps:file.stamps stamp tip with
     | None -> None
     | Some declared ->
       maybeLog "Declared";
@@ -282,7 +326,7 @@ let definitionForLoc ~package ~file ~getModule loc =
   | LModule (LocalReference (stamp, tip))
   | Typed (_, LocalReference (stamp, tip)) ->
     maybeLog ("Local defn " ^ tipToString tip);
-    definition ~file ~getModule stamp tip
+    definition ~file ~package stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, GlobalReference (moduleName, path, tip)) -> (
     maybeLog
@@ -291,16 +335,16 @@ let definitionForLoc ~package ~file ~getModule loc =
     match getModule moduleName with
     | None -> None
     | Some file -> (
-      let env = Query.fileEnv file in
-      match Query.resolvePath ~env ~path ~getModule with
+      let env = ProcessCmt.fileEnv file in
+      match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
-        match Query.exportedForTip ~env name tip with
+        match ProcessCmt.exportedForTip ~env name tip with
         | None -> None
         | Some stamp ->
           (* oooh wht do I do if the stamp is inside a pseudo-file? *)
           maybeLog ("Got stamp " ^ string_of_int stamp);
-          definition ~file:env.file ~getModule stamp tip)))
+          definition ~file:env.file ~package stamp tip)))
 
 let isVisible (declared : _ SharedTypes.declared) =
   declared.exported
@@ -327,13 +371,12 @@ let pathFromVisibility visibilityPath tipName =
 
 let forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
     tip =
-  let env = Query.fileEnv file in
+  let env = ProcessCmt.fileEnv file in
   let open Infix in
   match
     match tip with
-    | Constructor name ->
-      Query.getConstructor file stamp name |?>> fun x -> x.stamp
-    | Field name -> Query.getField file stamp name |?>> fun x -> x.stamp
+    | Constructor name -> getConstructor file stamp name |?>> fun x -> x.stamp
+    | Field name -> getField file stamp name |?>> fun x -> x.stamp
     | _ -> Some stamp
   with
   | None -> []
@@ -343,7 +386,7 @@ let forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
     | Some local ->
       maybeLog ("Checking externals: " ^ string_of_int stamp);
       let externals =
-        match Query.declaredForTip ~stamps:env.file.stamps stamp tip with
+        match declaredForTip ~stamps:env.file.stamps stamp tip with
         | None -> []
         | Some declared ->
           if isVisible declared then (
@@ -354,9 +397,8 @@ let forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
                 match
                   match tip with
                   | Constructor name ->
-                    Query.getConstructor file stamp name |?>> fun x -> x.stamp
-                  | Field name ->
-                    Query.getField file stamp name |?>> fun x -> x.stamp
+                    getConstructor file stamp name |?>> fun x -> x.stamp
+                  | Field name -> getField file stamp name |?>> fun x -> x.stamp
                   | _ -> Some stamp
                 with
                 | None -> []
@@ -429,11 +471,11 @@ let allReferencesForLoc ~package ~getUri ~file ~extra ~allModules ~getModule
     match getModule moduleName with
     | None -> []
     | Some file -> (
-      let env = Query.fileEnv file in
-      match Query.resolvePath ~env ~path ~getModule with
+      let env = ProcessCmt.fileEnv file in
+      match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> []
       | Some (env, name) -> (
-        match Query.exportedForTip ~env name tip with
+        match ProcessCmt.exportedForTip ~env name tip with
         | None -> []
         | Some stamp -> (
           match getUri env.file.uri with

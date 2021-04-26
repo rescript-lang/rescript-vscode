@@ -5,15 +5,13 @@ let dumpLocations ~package ~file ~extra =
   in
   locations
   |> List.map (fun ((location : Location.t), loc) ->
-         let hoverText =
-           Hover.newHover ~file ~getModule:(State.fileForModule ~package) loc
-         in
+         let hoverText = Hover.newHover ~package ~file loc in
          let hover =
            match hoverText with None -> "" | Some s -> String.escaped s
          in
          let uriLocOpt =
            References.definitionForLoc ~package ~file
-             ~getModule:(State.fileForModule ~package)
+             ~getModule:(ProcessCmt.fileForModule ~package)
              loc
          in
          let def =
@@ -33,7 +31,7 @@ let dump files =
   |> List.iter (fun path ->
          let uri = Uri2.fromLocalPath path in
          let result =
-           match State.getFullFromCmt ~uri with
+           match ProcessCmt.getFullFromCmt ~uri with
            | Error message ->
              prerr_endline message;
              "[]"
@@ -44,7 +42,7 @@ let dump files =
 let complete ~path ~line ~col ~currentFile =
   let uri = Uri2.fromLocalPath path in
   let result =
-    match State.getFullFromCmt ~uri with
+    match ProcessCmt.getFullFromCmt ~uri with
     | Error message ->
       prerr_endline message;
       "[]"
@@ -73,7 +71,7 @@ let hover ~file ~line ~col ~extra ~package =
     in
     let uriLocOpt =
       References.definitionForLoc ~package ~file
-        ~getModule:(State.fileForModule ~package)
+        ~getModule:(ProcessCmt.fileForModule ~package)
         loc
     in
     let skipZero =
@@ -89,7 +87,7 @@ let hover ~file ~line ~col ~extra ~package =
     if skipZero then Protocol.null
     else
       let hoverText =
-        Hover.newHover ~file ~getModule:(State.fileForModule ~package) loc
+        Hover.newHover ~file ~package loc
       in
       match hoverText with
       | None -> Protocol.null
@@ -98,7 +96,7 @@ let hover ~file ~line ~col ~extra ~package =
 let hover ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
-    match State.getFullFromCmt ~uri with
+    match ProcessCmt.getFullFromCmt ~uri with
     | Error message -> Protocol.stringifyHover {contents = message}
     | Ok (package, {file; extra}) -> hover ~file ~line ~col ~extra ~package
   in
@@ -121,7 +119,7 @@ let definition ~file ~line ~col ~extra ~package =
     in
     let uriLocOpt =
       References.definitionForLoc ~package ~file
-        ~getModule:(State.fileForModule ~package)
+        ~getModule:(ProcessCmt.fileForModule ~package)
         loc
     in
     match uriLocOpt with
@@ -142,7 +140,7 @@ let definition ~file ~line ~col ~extra ~package =
 let definition ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
-    match State.getFullFromCmt ~uri with
+    match ProcessCmt.getFullFromCmt ~uri with
     | Error _message -> Protocol.null
     | Ok (package, {file; extra}) -> definition ~file ~line ~col ~extra ~package
   in
@@ -161,9 +159,9 @@ let references ~file ~line ~col ~extra ~package =
   | Some (_, loc) ->
     let allReferences =
       References.allReferencesForLoc ~package ~file ~extra
-        ~allModules:package.localModules ~getUri:State.fileForUri
-        ~getModule:(State.fileForModule ~package)
-        ~getExtra:(State.extraForModule ~package)
+        ~allModules:package.localModules ~getUri:ProcessCmt.fileForUri
+        ~getModule:(ProcessCmt.fileForModule ~package)
+        ~getExtra:(ProcessCmt.extraForModule ~package)
         loc
     in
     let allLocs =
@@ -185,7 +183,7 @@ let references ~file ~line ~col ~extra ~package =
 let references ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
-    match State.getFullFromCmt ~uri with
+    match ProcessCmt.getFullFromCmt ~uri with
     | Error _message -> Protocol.null
     | Ok (package, {file; extra}) -> references ~file ~line ~col ~extra ~package
   in
