@@ -8,6 +8,8 @@ Examples:
   ./run.exe hover src/MyFile.res 10 2
   ./run.exe definition src/MyFile.res 9 3
 
+Note: coordinates are zero-based, so the first position is 0 0.
+
 Options:
   dump: debugging. definition and hover for Foo.res and Foo2.res:
 
