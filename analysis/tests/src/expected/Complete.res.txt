@@ -538,3 +538,21 @@ DocumentSymbol tests/src/Complete.res
 }
 ]
 
+Complete tests/src/Complete.res 56:2
+[{
+    "label": "react.component",
+    "kind": 4,
+    "tags": [],
+    "detail": "",
+    "documentation": null
+  }]
+
+Complete tests/src/Complete.res 58:2
+[{
+    "label": "component",
+    "kind": 4,
+    "tags": [],
+    "detail": "",
+    "documentation": null
+  }]
+

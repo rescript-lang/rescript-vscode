@@ -602,6 +602,15 @@ let processCompletable ~findItems ~package ~rawOpens
       "variadic";
     ]
     |> List.filter (fun decorator -> Utils.startsWith decorator prefix)
+    |> List.map (fun decorator ->
+           let parts = String.split_on_char '.' prefix in
+           let len = String.length prefix in
+           let dec2 =
+             if List.length parts > 1 then
+               String.sub decorator len (String.length decorator - len)
+             else decorator
+           in
+           dec2)
     |> List.map mkDecorator
   | Clabel (funPath, prefix) ->
     let labels =
