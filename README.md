@@ -41,8 +41,9 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 - Build diagnostics.
 - Built-in bsb watcher (optional, and exposed explicitly as a pop-up; no worries of dangling build).
 - Type hint hover.
-- Jump to location.
+- Jump to definition.
 - Autocomplete.
+- Find references.
 - Snippets to ease a few syntaxes:
   - `external` features such as `@bs.module` and `@bs.val`
   - `try`, `for`, etc.
