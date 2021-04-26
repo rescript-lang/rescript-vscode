@@ -9,6 +9,12 @@ Complete tests/src/Jsx.res 7:2
     "detail": "string",
     "documentation": null
   }, {
+    "label": "second",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": null
+  }, {
     "label": "first",
     "kind": 4,
     "tags": [],
@@ -20,15 +26,9 @@ Complete tests/src/Jsx.res 7:2
     "tags": [],
     "detail": "option<string>",
     "documentation": null
-  }, {
-    "label": "second",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<string>",
-    "documentation": null
   }]
 
-Complete tests/src/Jsx.res 10:2
+Complete tests/src/Jsx.res 9:2
 [{
     "label": "key",
     "kind": 4,
@@ -49,12 +49,18 @@ Complete tests/src/Jsx.res 10:2
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 12:2
+Complete tests/src/Jsx.res 11:2
 [{
     "label": "key",
     "kind": 4,
     "tags": [],
     "detail": "string",
+    "documentation": null
+  }, {
+    "label": "second",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
     "documentation": null
   }, {
     "label": "first",
@@ -64,12 +70,6 @@ Complete tests/src/Jsx.res 12:2
     "documentation": null
   }, {
     "label": "fun",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<string>",
-    "documentation": null
-  }, {
-    "label": "second",
     "kind": 4,
     "tags": [],
     "detail": "option<string>",

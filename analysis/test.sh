@@ -2,7 +2,7 @@ function exp {
   echo "$(dirname $1)/expected/$(basename $1).txt"
 }
 
-for file in tests/src/*.res; do
+for file in tests/src/*.res[i]; do
   ./run.exe test $file &> $(exp $file)
 done
 

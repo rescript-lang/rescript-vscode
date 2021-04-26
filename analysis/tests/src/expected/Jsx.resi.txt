@@ -1,0 +1,6 @@
+Hover tests/src/Jsx.resi 1:4
+null
+
+Hover tests/src/Jsx.resi 4:4
+{"contents": "```rescript\nint\n```"}
+
