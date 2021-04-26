@@ -70,8 +70,9 @@ let hover ~file ~line ~col ~extra ~package =
       match uriLocOpt with
       | None -> false
       | Some (_, loc) ->
+        let isInterface = file.uri |> Uri2.isInterface in
         let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-          pos_lnum = 1 && pos_cnum - pos_bol = 0
+          (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
         in
         (* Skip if range is all zero, unless it's a module *)
         (not locIsModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
@@ -111,8 +112,9 @@ let definition ~file ~line ~col ~extra ~package =
     match uriLocOpt with
     | None -> Protocol.null
     | Some (uri2, loc) ->
+      let isInterface = file.uri |> Uri2.isInterface in
       let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-        pos_lnum = 1 && pos_cnum - pos_bol = 0
+        (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
       in
       (* Skip if range is all zero, unless it's a module *)
       let skipZero =
