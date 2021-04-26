@@ -35,6 +35,7 @@ jobs:
         node-version: 14.4.0
 
     - run: npm ci
+    - run: npm run compile
 
     # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
     # Don't add deps. But if you ever do, un-comment these
