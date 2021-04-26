@@ -176,6 +176,7 @@ let findCompletable text offset =
       | '@' -> Some (Cdecorator (suffix i))
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
       | ' ' when i = offset - 1 -> (
+        (* autocomplete with no id: check if inside JSX *)
         match findJsxContext text (offset - 1) with
         | None -> None
         | Some componentName ->
