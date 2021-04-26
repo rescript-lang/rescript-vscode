@@ -12,7 +12,6 @@
 		"url": "https://github.com/rescript-lang/rescript-vscode"
 	},
 	"dependencies": {
-		"chokidar": "^3.4.2",
 		"vscode-languageserver": "^6.1.1",
 		"vscode-languageserver-textdocument": "^1.0.1"
 	},

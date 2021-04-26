@@ -20,6 +20,7 @@ import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { Location } from "vscode-languageserver";
+import { SymbolInformation } from "vscode-languageserver";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -297,6 +298,7 @@ function onMessage(msg: m.Message) {
           hoverProvider: true,
           definitionProvider: true,
           referencesProvider: true,
+          documentSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~"] },
         },
       };
@@ -392,6 +394,20 @@ function onMessage(msg: m.Message) {
         id: msg.id,
         result,
         // error: code and message set in case an exception happens during the definition request.
+      };
+      send(definitionResponse);
+    } else if (msg.method === p.DocumentSymbolRequest.method) {
+      // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
+      let result:
+        | SymbolInformation[]
+        | null = utils.runAnalysisAfterSanityCheck(msg, (filePath) => [
+        "documentSymbol",
+        filePath,
+      ]);
+      let definitionResponse: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: msg.id,
+        result,
       };
       send(definitionResponse);
     } else if (msg.method === p.CompletionRequest.method) {

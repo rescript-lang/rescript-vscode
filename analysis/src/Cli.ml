@@ -30,7 +30,12 @@ Options:
 
   references: get references to item in Foo.res at line 10 column 2:
 
-  ./run.exe references src/Foo.res 10 2|}
+    ./run.exe references src/Foo.res 10 2
+
+  documentSymbol: get all symbols in Foo.res:
+
+    ./run.exe documentSymbol src/Foo.res 
+  |}
 
 let main () =
   match Array.to_list Sys.argv with
@@ -45,6 +50,7 @@ let main () =
   | [_; "references"; path; line; col] ->
     Commands.references ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
+  | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
   | _ :: "dump" :: files -> Commands.dump files
   | [_; "test"; path] -> Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
