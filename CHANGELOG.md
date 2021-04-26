@@ -5,11 +5,16 @@ Fixes:
 - `->` autocomplete overruled `.`.
 
 Features:
-- Autocomplete for props in JSX components.
-- `->` autocomplete for built-in list, array, string, option types. And for string and array literals.
+- Show References!
+- Hover now supports markdown docs!
 - Hover on labels in component functions with compiler version 9.1, and labels with type annotation.
 - Don't show file path on hover (cleaner).
-- Show References.
+- Autocomplete for props in JSX components.
+- `->` autocomplete for built-in list, array, string, option types. And for string and array literals.
+
+Breakages:
+- Very old linux versions are no longer supported.
+- Hover: no more odoc format support (but it'll still display as text).
 
 ## 1.0.8
 
