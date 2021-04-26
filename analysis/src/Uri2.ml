@@ -1,6 +1,8 @@
 module Uri : sig
   type t
 
+  val fromLocalPath : string -> t
+
   val fromPath : string -> t
 
   val stripPath : bool ref
@@ -17,12 +19,16 @@ end = struct
     if Sys.os_type = "Unix" then "file://" ^ path
     else
       "file://"
-      ^ ( Str.global_replace (Str.regexp_string "\\") "/" path
+      ^ (Str.global_replace (Str.regexp_string "\\") "/" path
         |> Str.substitute_first (Str.regexp "^\\([a-zA-Z]\\):") (fun text ->
                let name = Str.matched_group 1 text in
-               "/" ^ String.lowercase_ascii name ^ "%3A") )
+               "/" ^ String.lowercase_ascii name ^ "%3A"))
 
   let fromPath path = {path; uri = pathToUri path}
+
+  let fromLocalPath localPath =
+    let path = Files.maybeConcat (Unix.getcwd ()) localPath in
+    fromPath path
 
   let toPath {path} = path
 

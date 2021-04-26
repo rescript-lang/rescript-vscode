@@ -35,8 +35,7 @@ let dump files =
   let state = TopTypes.empty () in
   files
   |> List.iter (fun path ->
-         let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-         let uri = Uri2.fromPath filePath in
+         let uri = Uri2.fromLocalPath path in
          let result =
            match State.getFullFromCmt ~state ~uri with
            | Error message ->
@@ -49,8 +48,7 @@ let dump files =
 
 let complete ~path ~line ~col ~currentFile =
   let state = TopTypes.empty () in
-  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-  let uri = Uri2.fromPath filePath in
+  let uri = Uri2.fromLocalPath path in
   let result =
     match State.getFullFromCmt ~state ~uri with
     | Error message ->
@@ -107,8 +105,7 @@ let hover state ~file ~line ~col ~extra ~package =
 
 let hover ~path ~line ~col =
   let state = TopTypes.empty () in
-  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-  let uri = Uri2.fromPath filePath in
+  let uri = Uri2.fromLocalPath path in
   let result =
     match State.getFullFromCmt ~state ~uri with
     | Error message -> Protocol.stringifyHover {contents = message}
@@ -156,8 +153,7 @@ let definition state ~file ~line ~col ~extra ~package =
 
 let definition ~path ~line ~col =
   let state = TopTypes.empty () in
-  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-  let uri = Uri2.fromPath filePath in
+  let uri = Uri2.fromLocalPath path in
   let result =
     match State.getFullFromCmt ~state ~uri with
     | Error _message -> Protocol.null
@@ -203,8 +199,7 @@ let references state ~file ~line ~col ~extra ~package =
 
 let references ~path ~line ~col =
   let state = TopTypes.empty () in
-  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-  let uri = Uri2.fromPath filePath in
+  let uri = Uri2.fromLocalPath path in
   let result =
     match State.getFullFromCmt ~state ~uri with
     | Error _message -> Protocol.null
