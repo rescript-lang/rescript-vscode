@@ -549,7 +549,7 @@ Complete tests/src/Complete.res 56:2
 
 Complete tests/src/Complete.res 58:2
 [{
-    "label": "react.component",
+    "label": "component",
     "kind": 4,
     "tags": [],
     "detail": "",
