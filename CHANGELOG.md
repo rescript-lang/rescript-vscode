@@ -8,7 +8,7 @@ Features:
 - Show References!
 - Hover now supports markdown docs!
 - Hover on labels in component functions with compiler version 9.1, and labels with type annotation.
-- Don't show file path on hover (cleaner).
+- Don't show file path on hover and autocomplete (cleaner).
 - Autocomplete for props in JSX components.
 - `->` autocomplete for built-in list, array, string, option types. And for string and array literals.
 
