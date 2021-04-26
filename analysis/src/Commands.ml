@@ -143,9 +143,7 @@ let references ~file ~line ~col ~extra ~package =
   | None -> Protocol.null
   | Some (_, loc) ->
     let allReferences =
-      References.allReferencesForLoc ~package ~file ~extra
-        ~getExtra:(ProcessCmt.extraForModule ~package)
-        loc
+      References.allReferencesForLoc ~package ~file ~extra loc
     in
     let allLocs =
       allReferences

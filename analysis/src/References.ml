@@ -369,7 +369,7 @@ let rec pathFromVisibility visibilityPath current =
 let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath (Tip tipName)
 
-let forLocalStamp ~package ~file ~extra ~getExtra stamp tip =
+let forLocalStamp ~package ~file ~extra stamp tip =
   let env = ProcessCmt.fileEnv file in
   let open Infix in
   match
@@ -422,7 +422,7 @@ let forLocalStamp ~package ~file ~extra ~getExtra stamp tip =
                        match ProcessCmt.fileForModule ~package name with
                        | None -> None
                        | Some file -> (
-                         match getExtra name with
+                         match ProcessCmt.extraForModule ~package name with
                          | None -> None
                          | Some extra -> (
                            match
@@ -447,7 +447,7 @@ let forLocalStamp ~package ~file ~extra ~getExtra stamp tip =
       in
       (file.uri, local) :: externals)
 
-let allReferencesForLoc ~package ~file ~extra ~getExtra loc =
+let allReferencesForLoc ~package ~file ~extra loc =
   match loc with
   | Explanation _
   | Typed (_, NotFound)
@@ -455,13 +455,13 @@ let allReferencesForLoc ~package ~file ~extra ~getExtra loc =
   | TopLevelModule _ | Constant _ ->
     []
   | TypeDefinition (_, _, stamp) ->
-    forLocalStamp ~package ~file ~extra ~getExtra stamp Type
+    forLocalStamp ~package ~file ~extra stamp Type
   | Typed (_, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ tipToString tip);
-    forLocalStamp ~package ~file ~extra ~getExtra stamp tip
+    forLocalStamp ~package ~file ~extra stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, GlobalReference (moduleName, path, tip)) -> (
     match ProcessCmt.fileForModule ~package moduleName with
@@ -481,4 +481,4 @@ let allReferencesForLoc ~package ~file ~extra ~getExtra loc =
               ("Finding references for (global) " ^ Uri2.toString env.file.uri
              ^ " and stamp " ^ string_of_int stamp ^ " and tip "
              ^ tipToString tip);
-            forLocalStamp ~package ~file ~extra ~getExtra stamp tip))))
+            forLocalStamp ~package ~file ~extra stamp tip))))
