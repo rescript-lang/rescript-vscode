@@ -2,9 +2,9 @@ open Typedtree
 open SharedTypes
 open Infix
 
-type queryEnv = {file : file; exported : exported}
+type queryEnv = {qFile : file; qExported : exported}
 
-let fileEnv file = {file; exported = file.contents.exported}
+let fileEnv file = {qFile = file; qExported = file.contents.exported}
 
 let itemsExtent items =
   let open Typedtree in
@@ -618,21 +618,22 @@ let rec resolvePathInner ~env ~path =
   match path with
   | Tip name -> Some (`Local (env, name))
   | Nested (subName, subPath) -> (
-    match Hashtbl.find_opt env.exported.modules subName with
+    match Hashtbl.find_opt env.qExported.modules subName with
     | None -> None
     | Some stamp -> (
-      match Hashtbl.find_opt env.file.stamps.modules stamp with
+      match Hashtbl.find_opt env.qFile.stamps.modules stamp with
       | None -> None
       | Some {item = kind} -> findInModule ~env kind subPath))
 
 and findInModule ~env kind path =
   match kind with
-  | Structure {exported} -> resolvePathInner ~env:{env with exported} ~path
+  | Structure {exported} ->
+    resolvePathInner ~env:{env with qExported = exported} ~path
   | Ident modulePath -> (
     let stamp, moduleName, fullPath = joinPaths modulePath path in
     if stamp = 0 then Some (`Global (moduleName, fullPath))
     else
-      match Hashtbl.find_opt env.file.stamps.modules stamp with
+      match Hashtbl.find_opt env.qFile.stamps.modules stamp with
       | None -> None
       | Some {item = kind} -> findInModule ~env kind fullPath)
 
@@ -643,7 +644,7 @@ let fromCompilerPath ~env path =
   | `GlobalMod name -> `GlobalMod name
   | `Path (stamp, _moduleName, path) -> (
     let res =
-      match Hashtbl.find_opt env.file.stamps.modules stamp with
+      match Hashtbl.find_opt env.qFile.stamps.modules stamp with
       | None -> None
       | Some {item = kind} -> findInModule ~env kind path
     in
@@ -720,8 +721,8 @@ struct
         match
           Hashtbl.find_opt
             (match tip = Type with
-            | true -> env.exported.types
-            | false -> env.exported.values)
+            | true -> env.qExported.types
+            | false -> env.qExported.values)
             name
         with
         | Some stamp ->
@@ -746,7 +747,7 @@ struct
         addExternalReference moduleName path Module loc;
         LModule (GlobalReference (moduleName, path, Module))
       | `Exported (env, name) -> (
-        match Hashtbl.find_opt env.exported.modules name with
+        match Hashtbl.find_opt env.qExported.modules name with
         | Some stamp ->
           addReference stamp loc;
           LModule (LocalReference (stamp, Module))
@@ -760,15 +761,15 @@ struct
     | `Global (moduleName, path) -> `Global (moduleName, path)
     | `Not_found -> `Not_found
     | `Exported (env, name) -> (
-      match Hashtbl.find_opt env.exported.types name with
+      match Hashtbl.find_opt env.qExported.types name with
       | None -> `Not_found
       | Some stamp -> (
-        let declaredType = Hashtbl.find_opt env.file.stamps.types stamp in
+        let declaredType = Hashtbl.find_opt env.qFile.stamps.types stamp in
         match declaredType with
         | Some declaredType -> `Local declaredType
         | None -> `Not_found))
     | `Stamp stamp -> (
-      let declaredType = Hashtbl.find_opt env.file.stamps.types stamp in
+      let declaredType = Hashtbl.find_opt env.qFile.stamps.types stamp in
       match declaredType with
       | Some declaredType -> `Local declaredType
       | None -> `Not_found)
@@ -1261,7 +1262,7 @@ let resolveFromStamps ~(env : queryEnv) ~path ~package ~pos =
   | Tip name -> Some (env, name)
   | Nested (name, inner) -> (
     (* Log.log("Finding from stamps " ++ name); *)
-    match findInScope pos name env.file.stamps.modules with
+    match findInScope pos name env.qFile.stamps.modules with
     | None -> None
     | Some declared -> (
       (* Log.log("found it"); *)
@@ -1286,14 +1287,14 @@ let resolveModuleFromCompilerPath ~env ~package path =
       match resolvePath ~env ~package ~path with
       | None -> None
       | Some (env, name) -> (
-        match Hashtbl.find_opt env.exported.modules name with
+        match Hashtbl.find_opt env.qExported.modules name with
         | None -> None
         | Some stamp -> (
-          match Hashtbl.find_opt env.file.stamps.modules stamp with
+          match Hashtbl.find_opt env.qFile.stamps.modules stamp with
           | None -> None
           | Some declared -> Some (env, Some declared)))))
   | `Stamp stamp -> (
-    match Hashtbl.find_opt env.file.stamps.modules stamp with
+    match Hashtbl.find_opt env.qFile.stamps.modules stamp with
     | None -> None
     | Some declared -> Some (env, Some declared))
   | `GlobalMod moduleName -> (
@@ -1304,10 +1305,10 @@ let resolveModuleFromCompilerPath ~env ~package path =
       Some (env, None))
   | `Not_found -> None
   | `Exported (env, name) -> (
-    match Hashtbl.find_opt env.exported.modules name with
+    match Hashtbl.find_opt env.qExported.modules name with
     | None -> None
     | Some stamp -> (
-      match Hashtbl.find_opt env.file.stamps.modules stamp with
+      match Hashtbl.find_opt env.qFile.stamps.modules stamp with
       | None -> None
       | Some declared -> Some (env, Some declared)))
 
@@ -1332,18 +1333,18 @@ let resolveFromCompilerPath ~env ~package path =
 let rec getSourceUri ~(env : queryEnv) ~package path =
   match path with
   | File (uri, _moduleName) -> uri
-  | NotVisible -> env.file.uri
+  | NotVisible -> env.qFile.uri
   | IncludedModule (path, inner) -> (
     Log.log "INCLUDED MODULE";
     match resolveModuleFromCompilerPath ~env ~package path with
     | None ->
       Log.log "NOT FOUND";
       getSourceUri ~env ~package inner
-    | Some (env, _declared) -> env.file.uri)
+    | Some (env, _declared) -> env.qFile.uri)
   | ExportedModule (_, inner) -> getSourceUri ~env ~package inner
 
 let exportedForTip ~(env : queryEnv) name tip =
   match tip with
-  | Value -> Hashtbl.find_opt env.exported.values name
-  | Field _ | Constructor _ | Type -> Hashtbl.find_opt env.exported.types name
-  | Module -> Hashtbl.find_opt env.exported.modules name
+  | Value -> Hashtbl.find_opt env.qExported.values name
+  | Field _ | Constructor _ | Type -> Hashtbl.find_opt env.qExported.types name
+  | Module -> Hashtbl.find_opt env.qExported.modules name

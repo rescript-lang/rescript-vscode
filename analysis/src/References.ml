@@ -135,7 +135,7 @@ let definedForLoc ~file ~package locKind =
           None
         | Some stamp -> (
           maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
-          match inner ~file:env.file stamp tip with
+          match inner ~file:env.qFile stamp tip with
           | None ->
             Log.log "could not get defined";
             None
@@ -200,13 +200,13 @@ let resolveModuleReference ~file ~package (declared : moduleKind declared) =
     match ProcessCmt.fromCompilerPath ~env path with
     | `Not_found -> None
     | `Exported (env, name) -> (
-      match Hashtbl.find_opt env.exported.modules name with
+      match Hashtbl.find_opt env.qExported.modules name with
       | None -> None
       | Some stamp -> (
-        match Hashtbl.find_opt env.file.stamps.modules stamp with
+        match Hashtbl.find_opt env.qFile.stamps.modules stamp with
         | None -> None
         | Some md ->
-          Some (env.file, Some md)
+          Some (env.qFile, Some md)
           (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)))
     | `Global (moduleName, path) -> (
       match ProcessCmt.fileForModule ~package moduleName with
@@ -216,13 +216,13 @@ let resolveModuleReference ~file ~package (declared : moduleKind declared) =
         match ProcessCmt.resolvePath ~env ~package ~path with
         | None -> None
         | Some (env, name) -> (
-          match Hashtbl.find_opt env.exported.modules name with
+          match Hashtbl.find_opt env.qExported.modules name with
           | None -> None
           | Some stamp -> (
-            match Hashtbl.find_opt env.file.stamps.modules stamp with
+            match Hashtbl.find_opt env.qFile.stamps.modules stamp with
             | None -> None
             | Some md ->
-              Some (env.file, Some md)
+              Some (env.qFile, Some md)
               (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)
             ))))
     | `Stamp stamp -> (
@@ -344,7 +344,7 @@ let definitionForLoc ~package ~file loc =
         | Some stamp ->
           (* oooh wht do I do if the stamp is inside a pseudo-file? *)
           maybeLog ("Got stamp " ^ string_of_int stamp);
-          definition ~file:env.file ~package stamp tip)))
+          definition ~file:env.qFile ~package stamp tip)))
 
 let isVisible (declared : _ SharedTypes.declared) =
   declared.exported
@@ -385,7 +385,7 @@ let forLocalStamp ~package ~file ~extra stamp tip =
     | Some local ->
       maybeLog ("Checking externals: " ^ string_of_int stamp);
       let externals =
-        match declaredForTip ~stamps:env.file.stamps stamp tip with
+        match declaredForTip ~stamps:env.qFile.stamps stamp tip with
         | None -> []
         | Some declared ->
           if isVisible declared then (
@@ -474,11 +474,12 @@ let allReferencesForLoc ~package ~file ~extra loc =
         match ProcessCmt.exportedForTip ~env name tip with
         | None -> []
         | Some stamp -> (
-          match ProcessCmt.fileForUri env.file.uri with
+          match ProcessCmt.fileForUri env.qFile.uri with
           | Error _ -> []
           | Ok (file, extra) ->
             maybeLog
-              ("Finding references for (global) " ^ Uri2.toString env.file.uri
-             ^ " and stamp " ^ string_of_int stamp ^ " and tip "
-             ^ tipToString tip);
+              ("Finding references for (global) "
+              ^ Uri2.toString env.qFile.uri
+              ^ " and stamp " ^ string_of_int stamp ^ " and tip "
+              ^ tipToString tip);
             forLocalStamp ~package ~file ~extra stamp tip))))

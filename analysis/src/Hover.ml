@@ -2,14 +2,14 @@ let digConstructor ~env ~package path =
   match ProcessCmt.resolveFromCompilerPath ~env ~package path with
   | `Not_found -> None
   | `Stamp stamp -> (
-    match Hashtbl.find_opt env.file.stamps.types stamp with
+    match Hashtbl.find_opt env.qFile.stamps.types stamp with
     | None -> None
     | Some t -> Some (env, t))
   | `Exported (env, name) -> (
-    match Hashtbl.find_opt env.exported.types name with
+    match Hashtbl.find_opt env.qExported.types name with
     | None -> None
     | Some stamp -> (
-      match Hashtbl.find_opt env.file.stamps.types stamp with
+      match Hashtbl.find_opt env.qFile.stamps.types stamp with
       | None -> None
       | Some t -> Some (env, t)))
   | _ -> None
