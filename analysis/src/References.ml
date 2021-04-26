@@ -112,8 +112,8 @@ let definedForLoc ~file ~getModule locKind =
             maybeLog "Yes!! got it";
             Some res))))
 
-let alternateDeclared ~file ~pathsForModule declared tip =
-  match Hashtbl.find_opt pathsForModule file.moduleName with
+let alternateDeclared ~file ~package declared tip =
+  match Hashtbl.find_opt package.TopTypes.pathsForModule file.moduleName with
   | None -> None
   | Some paths -> (
     maybeLog ("paths for " ^ file.moduleName);
@@ -248,7 +248,7 @@ let orLog message v =
     None
   | _ -> v
 
-let definitionForLoc ~pathsForModule ~file ~getModule loc =
+let definitionForLoc ~package ~file ~getModule loc =
   match loc with
   | Typed (_, Definition (stamp, tip)) -> (
     maybeLog "Trying to find a defintion for a definition";
@@ -258,7 +258,7 @@ let definitionForLoc ~pathsForModule ~file ~getModule loc =
       maybeLog "Declared";
       if declared.exported then (
         maybeLog ("exported, looking for alternate " ^ file.moduleName);
-        match alternateDeclared ~pathsForModule ~file declared tip with
+        match alternateDeclared ~package ~file declared tip with
         | None -> None
         | Some (file, _extra, declared) ->
           let loc = validateLoc declared.name.loc declared.extentLoc in
@@ -274,7 +274,7 @@ let definitionForLoc ~pathsForModule ~file ~getModule loc =
     maybeLog ("Toplevel " ^ name);
     let open Infix in
     match
-      Hashtbl.find_opt pathsForModule name
+      Hashtbl.find_opt package.pathsForModule name
       |> orLog "No paths found" |?> getSrc |> orLog "No src found"
     with
     | None -> None
@@ -325,8 +325,8 @@ let rec pathFromVisibility visibilityPath current =
 let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath (Tip tipName)
 
-let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getExtra
-    stamp tip =
+let forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
+    tip =
   let env = Query.fileEnv file in
   let open Infix in
   match
@@ -348,7 +348,7 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getExtra
         | Some declared ->
           if isVisible declared then (
             let alternativeReferences =
-              match alternateDeclared ~pathsForModule ~file declared tip with
+              match alternateDeclared ~package ~file declared tip with
               | None -> []
               | Some (file, extra, {stamp}) -> (
                 match
@@ -406,8 +406,8 @@ let forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getExtra
       in
       (file.uri, local) :: externals)
 
-let allReferencesForLoc ~pathsForModule ~getUri ~file ~extra ~allModules
-    ~getModule ~getExtra loc =
+let allReferencesForLoc ~package ~getUri ~file ~extra ~allModules ~getModule
+    ~getExtra loc =
   match loc with
   | Explanation _
   | Typed (_, NotFound)
@@ -415,15 +415,15 @@ let allReferencesForLoc ~pathsForModule ~getUri ~file ~extra ~allModules
   | TopLevelModule _ | Constant _ ->
     []
   | TypeDefinition (_, _, stamp) ->
-    forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getExtra
-      stamp Type
+    forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
+      Type
   | Typed (_, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ tipToString tip);
-    forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule ~getExtra
-      stamp tip
+    forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra stamp
+      tip
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, GlobalReference (moduleName, path, tip)) -> (
     match getModule moduleName with
@@ -443,5 +443,5 @@ let allReferencesForLoc ~pathsForModule ~getUri ~file ~extra ~allModules
               ("Finding references for (global) " ^ Uri2.toString env.file.uri
              ^ " and stamp " ^ string_of_int stamp ^ " and tip "
              ^ tipToString tip);
-            forLocalStamp ~pathsForModule ~file ~extra ~allModules ~getModule
-              ~getExtra stamp tip))))
+            forLocalStamp ~package ~file ~extra ~allModules ~getModule ~getExtra
+              stamp tip))))

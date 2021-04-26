@@ -12,8 +12,7 @@ let dumpLocations ~package ~file ~extra =
            match hoverText with None -> "" | Some s -> String.escaped s
          in
          let uriLocOpt =
-           References.definitionForLoc ~pathsForModule:package.pathsForModule
-             ~file
+           References.definitionForLoc ~package ~file
              ~getModule:(State.fileForModule ~package)
              loc
          in
@@ -59,7 +58,6 @@ let complete ~path ~line ~col ~currentFile =
   print_endline result
 
 let hover ~file ~line ~col ~extra ~package =
-  let open TopTypes in
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
@@ -74,7 +72,7 @@ let hover ~file ~line ~col ~extra ~package =
       | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
     in
     let uriLocOpt =
-      References.definitionForLoc ~pathsForModule:package.pathsForModule ~file
+      References.definitionForLoc ~package ~file
         ~getModule:(State.fileForModule ~package)
         loc
     in
@@ -107,7 +105,6 @@ let hover ~path ~line ~col =
   print_endline result
 
 let definition ~file ~line ~col ~extra ~package =
-  let open TopTypes in
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
@@ -123,7 +120,7 @@ let definition ~file ~line ~col ~extra ~package =
       | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
     in
     let uriLocOpt =
-      References.definitionForLoc ~pathsForModule:package.pathsForModule ~file
+      References.definitionForLoc ~package ~file
         ~getModule:(State.fileForModule ~package)
         loc
     in
@@ -163,8 +160,8 @@ let references ~file ~line ~col ~extra ~package =
   | None -> Protocol.null
   | Some (_, loc) ->
     let allReferences =
-      References.allReferencesForLoc ~pathsForModule:package.pathsForModule
-        ~file ~extra ~allModules:package.localModules ~getUri:State.fileForUri
+      References.allReferencesForLoc ~package ~file ~extra
+        ~allModules:package.localModules ~getUri:State.fileForUri
         ~getModule:(State.fileForModule ~package)
         ~getExtra:(State.extraForModule ~package)
         loc
