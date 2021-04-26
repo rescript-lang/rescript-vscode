@@ -63,7 +63,7 @@ jobs:
       run: |
         cd analysis
         mkdir ${{matrix.artifact-folder}}
-        mv run.exe ${{matrix.artifact-folder}}/rescript-editor-analysis.exe
+        mv rescript-editor-analysis.exe ${{matrix.artifact-folder}}
         tar -cvf binary.tar ${{matrix.artifact-folder}}
 
     - uses: actions/upload-artifact@v2

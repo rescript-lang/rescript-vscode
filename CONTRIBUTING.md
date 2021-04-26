@@ -11,7 +11,7 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 │       └── extension.ts // Language Client entry point
 ├── analysis // Native binary powering hover, autocomplete, etc.
 │   ├── src
-│   └── run.exe // Dev-time analysis binary
+│   └── rescript-editor-analysis.exe // Dev-time analysis binary
 ├── package.json // The extension manifest
 └── server // Language Server. Usable standalone
     ├── src
@@ -164,6 +164,6 @@ Currently the release is vetted and done by @chenglou.
 
 - Bump the version properly in `package.json` and `server/package.json` and their lockfiles and make a new commit.
 - Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
-- Download and unzip the 3 platforms' production binaries from the Github CI. Put them into `server/analysis_binaries`. Name them `darwin-run.exe`, `linux-run.exe` and `win32-run.exe`.
+- Download and unzip the 3 platforms' production binaries from the Github CI. Put them into `server/analysis_binaries`.
 - Use `vsce publish` to publish. Official VSCode guide [here](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Only @chenglou has the publishing rights right now.
 - Not done! Make a new manual release [here](https://github.com/rescript-lang/rescript-vscode/releases); use `vsce package` to package up a standalone `.vsix` plugin and attach it onto that new release. This is for folks who don't use the VSCode marketplace.
