@@ -1,15 +1,15 @@
-let digConstructor ~env ~getModule path =
-  match Query.resolveFromCompilerPath ~env ~getModule path with
+let digConstructor ~env ~package path =
+  match ProcessCmt.resolveFromCompilerPath ~env ~package path with
   | `Not_found -> None
   | `Stamp stamp -> (
-    match Hashtbl.find_opt env.file.stamps.types stamp with
+    match Hashtbl.find_opt env.qFile.stamps.types stamp with
     | None -> None
     | Some t -> Some (env, t))
   | `Exported (env, name) -> (
-    match Hashtbl.find_opt env.exported.types name with
+    match Hashtbl.find_opt env.qExported.types name with
     | None -> None
     | Some stamp -> (
-      match Hashtbl.find_opt env.file.stamps.types stamp with
+      match Hashtbl.find_opt env.qFile.stamps.types stamp with
       | None -> None
       | Some t -> Some (env, t)))
   | _ -> None
@@ -47,7 +47,7 @@ let showModule ~docstring ~(file : SharedTypes.file) ~name
     showModuleTopLevel ~docstring ~name topLevel
   | Some {item = Ident _} -> Some "Unable to resolve module reference"
 
-let newHover ~(file : SharedTypes.file) ~getModule loc =
+let newHover ~(file : SharedTypes.file) ~package loc =
   match loc with
   | SharedTypes.Explanation text -> Some text
   | TypeDefinition (name, decl, _stamp) ->
@@ -58,7 +58,7 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
     match Hashtbl.find_opt file.stamps.modules stamp with
     | None -> None
     | Some md -> (
-      match References.resolveModuleReference ~file ~getModule md with
+      match References.resolveModuleReference ~file ~package md with
       | None -> None
       | Some (file, declared) ->
         let name, docstring =
@@ -68,20 +68,20 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
         in
         showModule ~docstring ~name ~file declared))
   | LModule (GlobalReference (moduleName, path, tip)) -> (
-    match getModule moduleName with
+    match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
-      let env = Query.fileEnv file in
-      match Query.resolvePath ~env ~path ~getModule with
+      let env = ProcessCmt.fileEnv file in
+      match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
-        match Query.exportedForTip ~env name tip with
+        match ProcessCmt.exportedForTip ~env name tip with
         | None -> None
         | Some stamp -> (
           match Hashtbl.find_opt file.stamps.modules stamp with
           | None -> None
           | Some md -> (
-            match References.resolveModuleReference ~file ~getModule md with
+            match References.resolveModuleReference ~file ~package md with
             | None -> None
             | Some (file, declared) ->
               let name, docstring =
@@ -92,7 +92,7 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
               showModule ~docstring ~name ~file declared)))))
   | LModule NotFound -> None
   | TopLevelModule name -> (
-    match getModule name with
+    match ProcessCmt.fileForModule ~package name with
     | None -> None
     | Some file ->
       showModule ~docstring:file.contents.docstring ~name:file.moduleName ~file
@@ -113,11 +113,11 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
     let fromType ~docstring typ =
       let typeString = codeBlock (typ |> Shared.typeToString) in
       let extraTypeInfo =
-        let env = Query.fileEnv file in
+        let env = ProcessCmt.fileEnv file in
         match typ |> Shared.digConstructor with
         | None -> None
         | Some path -> (
-          match digConstructor ~env ~getModule path with
+          match digConstructor ~env ~package path with
           | None -> None
           | Some (_env, {docstring; name = {txt}; item = {decl}}) ->
             let isUncurriedInternal =
@@ -135,7 +135,7 @@ let newHover ~(file : SharedTypes.file) ~getModule loc =
       (typeString, docstring)
     in
     let parts =
-      match References.definedForLoc ~file ~getModule locKind with
+      match References.definedForLoc ~file ~package locKind with
       | None ->
         let typeString, docstring = t |> fromType ~docstring:[] in
         typeString :: docstring

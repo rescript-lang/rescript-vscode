@@ -1,24 +1,15 @@
-let dumpLocations state ~package ~file ~extra =
+let dumpLocations ~package ~file ~extra =
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
   in
   locations
   |> List.map (fun ((location : Location.t), loc) ->
-         let hoverText =
-           Hover.newHover ~file
-             ~getModule:(State.fileForModule state ~package)
-             loc
-         in
+         let hoverText = Hover.newHover ~package ~file loc in
          let hover =
            match hoverText with None -> "" | Some s -> String.escaped s
          in
-         let uriLocOpt =
-           References.definitionForLoc ~pathsForModule:package.pathsForModule
-             ~file ~getUri:(State.fileForUri state)
-             ~getModule:(State.fileForModule state ~package)
-             loc
-         in
+         let uriLocOpt = References.definitionForLoc ~package ~file loc in
          let def =
            match uriLocOpt with
            | None -> Protocol.null
@@ -32,41 +23,35 @@ let dumpLocations state ~package ~file ~extra =
 
 let dump files =
   Shared.cacheTypeToString := true;
-  let state = TopTypes.empty () in
   files
   |> List.iter (fun path ->
-         let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-         let uri = Uri2.fromPath filePath in
+         let uri = Uri2.fromLocalPath path in
          let result =
-           match State.getFullFromCmt ~state ~uri with
+           match ProcessCmt.getFullFromCmt ~uri with
            | Error message ->
              prerr_endline message;
              "[]"
-           | Ok (package, {file; extra}) ->
-             dumpLocations state ~package ~file ~extra
+           | Ok (package, {file; extra}) -> dumpLocations ~package ~file ~extra
          in
          print_endline result)
 
 let complete ~path ~line ~col ~currentFile =
-  let state = TopTypes.empty () in
-  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-  let uri = Uri2.fromPath filePath in
+  let uri = Uri2.fromLocalPath path in
   let result =
-    match State.getFullFromCmt ~state ~uri with
+    match ProcessCmt.getFullFromCmt ~uri with
     | Error message ->
       prerr_endline message;
       "[]"
     | Ok (package, full) ->
       let maybeText = Files.readFile currentFile in
       NewCompletions.computeCompletions ~full ~maybeText ~package
-        ~pos:(line, col) ~state
+        ~pos:(line, col)
       |> List.map Protocol.stringifyCompletionItem
       |> Protocol.array
   in
   print_endline result
 
-let hover state ~file ~line ~col ~extra ~package =
-  let open TopTypes in
+let hover ~file ~line ~col ~extra ~package =
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
@@ -80,12 +65,7 @@ let hover state ~file ~line ~col ~extra ~package =
       | SharedTypes.LModule _ | TopLevelModule _ -> true
       | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
     in
-    let uriLocOpt =
-      References.definitionForLoc ~pathsForModule:package.pathsForModule ~file
-        ~getUri:(State.fileForUri state)
-        ~getModule:(State.fileForModule state ~package)
-        loc
-    in
+    let uriLocOpt = References.definitionForLoc ~package ~file loc in
     let skipZero =
       match uriLocOpt with
       | None -> false
@@ -98,27 +78,21 @@ let hover state ~file ~line ~col ~extra ~package =
     in
     if skipZero then Protocol.null
     else
-      let hoverText =
-        Hover.newHover ~file ~getModule:(State.fileForModule state ~package) loc
-      in
+      let hoverText = Hover.newHover ~file ~package loc in
       match hoverText with
       | None -> Protocol.null
       | Some s -> Protocol.stringifyHover {contents = s})
 
 let hover ~path ~line ~col =
-  let state = TopTypes.empty () in
-  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-  let uri = Uri2.fromPath filePath in
+  let uri = Uri2.fromLocalPath path in
   let result =
-    match State.getFullFromCmt ~state ~uri with
+    match ProcessCmt.getFullFromCmt ~uri with
     | Error message -> Protocol.stringifyHover {contents = message}
-    | Ok (package, {file; extra}) ->
-      hover state ~file ~line ~col ~extra ~package
+    | Ok (package, {file; extra}) -> hover ~file ~line ~col ~extra ~package
   in
   print_endline result
 
-let definition state ~file ~line ~col ~extra ~package =
-  let open TopTypes in
+let definition ~file ~line ~col ~extra ~package =
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
@@ -133,12 +107,7 @@ let definition state ~file ~line ~col ~extra ~package =
       | SharedTypes.LModule _ | TopLevelModule _ -> true
       | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
     in
-    let uriLocOpt =
-      References.definitionForLoc ~pathsForModule:package.pathsForModule ~file
-        ~getUri:(State.fileForUri state)
-        ~getModule:(State.fileForModule state ~package)
-        loc
-    in
+    let uriLocOpt = References.definitionForLoc ~package ~file loc in
     match uriLocOpt with
     | None -> Protocol.null
     | Some (uri2, loc) ->
@@ -155,19 +124,15 @@ let definition state ~file ~line ~col ~extra ~package =
           {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc})
 
 let definition ~path ~line ~col =
-  let state = TopTypes.empty () in
-  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-  let uri = Uri2.fromPath filePath in
+  let uri = Uri2.fromLocalPath path in
   let result =
-    match State.getFullFromCmt ~state ~uri with
+    match ProcessCmt.getFullFromCmt ~uri with
     | Error _message -> Protocol.null
-    | Ok (package, {file; extra}) ->
-      definition state ~file ~line ~col ~extra ~package
+    | Ok (package, {file; extra}) -> definition ~file ~line ~col ~extra ~package
   in
   print_endline result
 
-let references state ~file ~line ~col ~extra ~package =
-  let open TopTypes in
+let references ~file ~line ~col ~extra ~package =
   let locations =
     extra.SharedTypes.locations
     |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
@@ -178,12 +143,7 @@ let references state ~file ~line ~col ~extra ~package =
   | None -> Protocol.null
   | Some (_, loc) ->
     let allReferences =
-      References.allReferencesForLoc ~pathsForModule:package.pathsForModule
-        ~file ~extra ~allModules:package.localModules
-        ~getUri:(State.fileForUri state)
-        ~getModule:(State.fileForModule state ~package)
-        ~getExtra:(State.extraForModule state ~package)
-        loc
+      References.allReferencesForLoc ~package ~file ~extra loc
     in
     let allLocs =
       allReferences
@@ -202,14 +162,11 @@ let references state ~file ~line ~col ~extra ~package =
     "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]"
 
 let references ~path ~line ~col =
-  let state = TopTypes.empty () in
-  let filePath = Files.maybeConcat (Unix.getcwd ()) path in
-  let uri = Uri2.fromPath filePath in
+  let uri = Uri2.fromLocalPath path in
   let result =
-    match State.getFullFromCmt ~state ~uri with
+    match ProcessCmt.getFullFromCmt ~uri with
     | Error _message -> Protocol.null
-    | Ok (package, {file; extra}) ->
-      references state ~file ~line ~col ~extra ~package
+    | Ok (package, {file; extra}) -> references ~file ~line ~col ~extra ~package
   in
   print_endline result
 

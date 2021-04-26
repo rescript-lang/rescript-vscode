@@ -113,7 +113,7 @@ let findRoot ~uri packagesByRoot =
   in
   loop (Filename.dirname path)
 
-let getPackage ~uri state =
+let getPackage ~uri =
   if Hashtbl.mem state.rootForUri uri then
     Ok (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))
   else
