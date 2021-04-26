@@ -39,9 +39,9 @@ let typeTbl = Hashtbl.create 1
 
 let typeToString (t : Types.type_expr) =
   match
-    match !cacheTypeToString with
-    | true -> Hashtbl.find_opt typeTbl (t.id, t)
-    | false -> None
+    if !cacheTypeToString then
+    Hashtbl.find_opt typeTbl (t.id, t)
+    else None
   with
   | None ->
     let s = PrintType.printExpr t in

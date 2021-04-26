@@ -1,16 +1,16 @@
 open SharedTypes
 
 let showConstructor {cname = {txt}; args; res} =
-  let open Infix in
   txt
-  ^ (match args = [] with
-    | true -> ""
-    | false ->
+  ^ (match args with
+    | [] -> ""
+    | _ ->
       "("
-      ^ String.concat ", "
-          (args |> List.map (fun (typ, _) -> typ |> Shared.typeToString))
+      ^ (args
+        |> List.map (fun (typ, _) -> typ |> Shared.typeToString)
+        |> String.concat ", ")
       ^ ")")
-  ^ (res |?>> (fun typ -> "\n" ^ (typ |> Shared.typeToString)) |? "")
+  ^ match res with None -> "" | Some typ -> "\n" ^ (typ |> Shared.typeToString)
 
 (* TODO: local opens *)
 let resolveOpens ~env ~previous opens ~package =
@@ -229,7 +229,7 @@ let valueCompletions ~(env : ProcessCmt.queryEnv) suffix =
       (* Get rid of lowercase modules (#417) *)
       env.qExported.modules
       |> Hashtbl.filter_map_inplace (fun name key ->
-             match isCapitalized name with true -> Some key | false -> None);
+             if isCapitalized name then Some key else None);
       let moduleCompletions =
         completionForExporteds env.qExported.modules env.qFile.stamps.modules
           suffix (fun m -> Module m)
@@ -416,7 +416,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
     match docstring with [] -> "" | _ :: _ -> docstring |> String.concat "\n"
   in
   let tags =
-    match deprecated = None with true -> [] | false -> [1 (* deprecated *)]
+    match deprecated with None -> [] | Some _ -> [1 (* deprecated *)]
   in
   Protocol.
     {
@@ -553,9 +553,9 @@ let processCompletable ~findItems ~package ~rawOpens
           |> String.concat "."
         in
         let completionName name =
-          match modulePathMinusOpens = "" with
-          | true -> name
-          | false -> modulePathMinusOpens ^ "." ^ name
+          if modulePathMinusOpens = "" then
+          name
+          else modulePathMinusOpens ^ "." ^ name
         in
         let parts = modulePath @ [partialName] in
         let items = parts |> findItems ~exact:false in
