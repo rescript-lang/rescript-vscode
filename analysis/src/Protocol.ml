@@ -59,9 +59,9 @@ let stringifyLocation h =
 let stringifyDocumentSymbolItem i =
   Printf.sprintf
     {|{
-            "name": "%s",
-            "kind": %i,
-            "location": %s,
-          }|}
+        "name": "%s",
+        "kind": %i,
+        "location": %s
+}|}
     (Json.escape i.name) i.kind
     (stringifyLocation i.location)
