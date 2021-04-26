@@ -112,6 +112,7 @@
 		"typescript": "^3.9.4"
 	},
 	"dependencies": {
+		"chokidar": "^3.4.2",
 		"vscode-languageclient": "^6.1.3"
 	}
 }
