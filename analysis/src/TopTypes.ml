@@ -23,7 +23,8 @@ type state = {
   cmtCache : (filePath, float * SharedTypes.file) Hashtbl.t;
 }
 
-let empty () =
+(* There's only one state, so it can as well be global *)
+let state =
   {
     packagesByRoot = Hashtbl.create 1;
     rootForUri = Hashtbl.create 30;

@@ -433,20 +433,16 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring ~uri ~pos_lnum =
     ^ "\n" ^ Uri2.toString uri ^ ":" ^ string_of_int pos_lnum
   in
   let tags =
-    match deprecated = None with
-    | true -> []
-    | false -> [1 (* deprecated *)]
+    match deprecated = None with true -> [] | false -> [1 (* deprecated *)]
   in
-  Protocol.{
-    label = name;
-    kind = kind;
-    tags = tags;
-    detail = detail;
-    documentation = {
-      kind = "markdown";
-      value = valueMessage;
-    };
-  }
+  Protocol.
+    {
+      label = name;
+      kind;
+      tags;
+      detail;
+      documentation = {kind = "markdown"; value = valueMessage};
+    }
 
 let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     (completable : PartialParser.completable) =
@@ -666,7 +662,7 @@ let processCompletable ~findItems ~full ~package ~pos ~rawOpens
     |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
     |> List.map mkLabel
 
-let computeCompletions ~full ~maybeText ~package ~pos ~state =
+let computeCompletions ~full ~maybeText ~package ~pos =
   match maybeText with
   | None -> []
   | Some text -> (
@@ -683,7 +679,7 @@ let computeCompletions ~full ~maybeText ~package ~pos ~state =
         let findItems ~exact parts =
           let items =
             getItems ~full ~package ~rawOpens
-              ~getModule:(State.fileForModule state ~package)
+              ~getModule:(State.fileForModule ~package)
               ~allModules ~pos ~parts
           in
           match parts |> List.rev with

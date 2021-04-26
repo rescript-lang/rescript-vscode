@@ -32,9 +32,9 @@ let docsForCmt ~moduleName cmt src state =
 
 open Infix
 
-let getFullFromCmt ~state ~uri =
+let getFullFromCmt ~uri =
   let path = Uri2.toPath uri in
-  match Packages.getPackage uri state with
+  match Packages.getPackage uri with
   | Error e -> Error e
   | Ok package -> (
     let moduleName =
@@ -51,7 +51,7 @@ let getFullFromCmt ~state ~uri =
         Ok (package, full))
     | None -> Error ("can't find module " ^ moduleName))
 
-let docsForModule modname state ~package =
+let docsForModule modname ~package =
   if Hashtbl.mem package.TopTypes.pathsForModule modname then (
     let paths = Hashtbl.find package.pathsForModule modname in
     (* TODO: do better *)
@@ -59,30 +59,30 @@ let docsForModule modname state ~package =
     let src = SharedTypes.getSrc paths in
     Log.log ("FINDING docs for module " ^ SharedTypes.showPaths paths);
     Log.log ("FINDING " ^ cmt ^ " src " ^ (src |? ""));
-    match docsForCmt ~moduleName:modname cmt src state with
+    match docsForCmt ~moduleName:modname cmt src TopTypes.state with
     | None -> None
     | Some docs -> Some (docs, src))
   else (
     Log.log ("No path for module " ^ modname);
     None)
 
-let fileForUri state uri =
-  match getFullFromCmt ~state ~uri with
+let fileForUri uri =
+  match getFullFromCmt ~uri with
   | Error e -> Error e
   | Ok (_package, {extra; file}) -> Ok (file, extra)
 
-let fileForModule state ~package modname =
-  match docsForModule modname state ~package with
+let fileForModule ~package modname =
+  match docsForModule modname ~package with
   | None -> None
   | Some (file, _) -> Some file
 
-let extraForModule state ~package modname =
+let extraForModule ~package modname =
   if Hashtbl.mem package.TopTypes.pathsForModule modname then
     let paths = Hashtbl.find package.pathsForModule modname in
     match SharedTypes.getSrc paths with
     | None -> None
     | Some src -> (
-      match getFullFromCmt ~state ~uri:(Uri2.fromPath src) with
+      match getFullFromCmt ~uri:(Uri2.fromPath src) with
       | Ok (_package, {extra}) -> Some extra
       | Error _ -> None)
   else None
