@@ -175,6 +175,12 @@ let findCompletable text offset =
         Some (Clabel (funPath, labelPrefix))
       | '@' -> Some (Cdecorator (suffix i))
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
+      | ' ' when i = offset - 1 -> (
+        (* autocomplete with no id: check if inside JSX *)
+        match findJsxContext text (offset - 1) with
+        | None -> None
+        | Some componentName ->
+          Some (Cjsx (Str.split (Str.regexp_string ".") componentName, "")))
       | _ -> if i = offset - 1 then None else Some (mkPath (suffix i))
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)
