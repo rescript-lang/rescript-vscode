@@ -17,6 +17,9 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
     ├── src
     │   └── server.ts // Language Server entry point
     └── analysis_binaries // Prod-time platform-specific analysis binaries
+        ├── darwin
+        ├── linux
+        └── win32
 ```
 
 ## Install Dependencies
@@ -31,6 +34,7 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 - `cd analysis && make`.
 
 ## Test
+
 - Open VS Code to this folder.
 - Switch to the Debug viewlet (command palette -> View: Show Run and Debug).
 - Select `Client + Server` from the drop down, launch it (green arrow):
@@ -48,7 +52,7 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
   <img width="359" alt="image" src="https://user-images.githubusercontent.com/1909539/97448639-19db0800-18ee-11eb-875a-d17cd1b141d1.png">
 - For the native analysis binary tests: `cd analysis && make test`.
 
-### Change the Grammar
+## Change the Grammar
 
 The _real_ source of truth for our grammar is at https://github.com/rescript-lang/rescript-sublime. We port that `sublime-syntax` grammar over to this weaker TextMate language grammar for VSCode and the rest. There are some subtle differences between the 2 grammars; currently we manually sync between them.
 
@@ -58,13 +62,9 @@ For more grammar inspirations, check:
 - [TypeScript's grammar](https://github.com/microsoft/TypeScript-TmLanguage/blob/a771bc4e79deeae81a01d988a273e300290d0072/TypeScript.YAML-tmLanguage)
 - [Writing a TextMate Grammar: Some Lessons Learned](https://www.apeth.com/nonblog/stories/textmatebundle.html)
 
-### Snippets
+## Snippets
 
 Snippets are also synced from https://github.com/rescript-lang/rescript-sublime. VSCode snippets docs [here](https://code.visualstudio.com/api/references/contribution-points#contributes.snippets).
-
-### Autocomplete, Jump To Definition, Type Hint, Etc.
-
-These are taken care of by the binary at [rescript-editor-support](https://github.com/rescript-lang/rescript-editor-support). We just invoke it in `RescriptEditorSupport.ts`.
 
 ## Binary Invocation
 
@@ -75,6 +75,10 @@ We call a few binaries and it's tricky to call them properly cross-platform. Her
 - `execFile` and its sync version do the above for free.
 - `execFile` does not work on windows for batch scripts, which is what Node scripts are wrapped in. Use `exec`. See more [here](https://github.com/rescript-lang/rescript-vscode/blob/8fcc1ab428b8225c97d2c9a5b8e3a782c70d9439/server/src/utils.ts#L110).
 - Thankfully, many of our binaries are native, so we can keep using `execFile` most of the time.
+
+## General Coding Guidance
+
+- `server/` is a standalone folder that can be vendored by e.g. Vim and Sublime Text. Keep it light, don't add deps unless absolutely necessarily, and don't accidentally use a runtime dep from the top level `package.json`.
 
 ## Rough Description Of How The Plugin Works
 
@@ -167,3 +171,5 @@ Currently the release is vetted and done by @chenglou.
 - Download and unzip the 3 platforms' production binaries from the Github CI. Put them into `server/analysis_binaries`.
 - Use `vsce publish` to publish. Official VSCode guide [here](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Only @chenglou has the publishing rights right now.
 - Not done! Make a new manual release [here](https://github.com/rescript-lang/rescript-vscode/releases); use `vsce package` to package up a standalone `.vsix` plugin and attach it onto that new release. This is for folks who don't use the VSCode marketplace.
+
+For beta releases, we just do the last step and ask folks to try it.
