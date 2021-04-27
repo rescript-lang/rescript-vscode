@@ -7,11 +7,11 @@ open Infix
 
 let getBsPlatformDir rootPath =
   let result =
-    ModuleResolution.resolveNodeModulePath ~startPath:rootPath "bs-platform"
+    ModuleResolution.resolveNodeModulePath ~startPath:rootPath "rescript"
   in
   let result =
     if result = None then
-      ModuleResolution.resolveNodeModulePath ~startPath:rootPath "rescript"
+      ModuleResolution.resolveNodeModulePath ~startPath:rootPath "bs-platform"
     else result
   in
   match result with
