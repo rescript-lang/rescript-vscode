@@ -524,7 +524,8 @@ let fileForCmt ~moduleName ~uri cmt =
 let extraForFile ~(file : SharedTypes.file) =
   let extra = initExtra () in
   let addLocation loc ident =
-    extra.locations <- (loc, ident) :: extra.locations
+    if not loc.Warnings.loc_ghost then
+      extra.locations <- (loc, ident) :: extra.locations
   in
   let addReference stamp loc =
     Hashtbl.replace extra.internalReferences stamp

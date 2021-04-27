@@ -1,8 +1,5 @@
 let dumpLocations ~package ~file ~extra =
-  let locations =
-    extra.SharedTypes.locations
-    |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
-  in
+  let locations = extra.SharedTypes.locations in
   locations
   |> List.map (fun ((location : Location.t), loc) ->
          let hoverText = Hover.newHover ~package ~file loc in
@@ -52,10 +49,7 @@ let complete ~path ~line ~col ~currentFile =
   print_endline result
 
 let hover ~file ~line ~col ~extra ~package =
-  let locations =
-    extra.SharedTypes.locations
-    |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
-  in
+  let locations = extra.SharedTypes.locations in
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
   match References.locForPos ~extra:{extra with locations} pos with
   | None -> Protocol.null
@@ -94,10 +88,7 @@ let hover ~path ~line ~col =
   print_endline result
 
 let definition ~file ~line ~col ~extra ~package =
-  let locations =
-    extra.SharedTypes.locations
-    |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
-  in
+  let locations = extra.SharedTypes.locations in
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
 
   match References.locForPos ~extra:{extra with locations} pos with
@@ -135,10 +126,7 @@ let definition ~path ~line ~col =
   print_endline result
 
 let references ~file ~line ~col ~extra ~package =
-  let locations =
-    extra.SharedTypes.locations
-    |> List.filter (fun (l, _) -> not l.Location.loc_ghost)
-  in
+  let locations = extra.SharedTypes.locations in
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
 
   match References.locForPos ~extra:{extra with locations} pos with
@@ -187,8 +175,7 @@ let documentSymbol ~path =
           | Module (Structure contents) -> (Module, getItems contents)
           | Module (Ident _) -> (Module, [])
         in
-        if extentLoc.loc_ghost then siblings
-        else (txt, extentLoc, item) :: siblings
+        (txt, extentLoc, item) :: siblings
       in
       let x = topLevel |> List.map fn |> List.concat in
       x
