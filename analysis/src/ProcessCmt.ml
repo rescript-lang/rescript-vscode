@@ -310,6 +310,7 @@ let rec getModulePath mod_desc =
 let rec forItem ~env ~(exported : exported) item =
   match item.str_desc with
   | Tstr_value (_isRec, bindings) ->
+    let declareds = ref [] in
     let rec handlePattern attributes pat =
       match pat.pat_desc with
       | Tpat_var (ident, name)
@@ -320,16 +321,16 @@ let rec forItem ~env ~(exported : exported) item =
             ~extent:pat.pat_loc ~item attributes exported.values
             env.stamps.values
         in
-        [{declared with item = MValue declared.item}]
-      | Tpat_tuple pats -> pats |> List.map (handlePattern []) |> List.flatten
+        declareds := {declared with item = MValue declared.item} :: !declareds
+      | Tpat_tuple pats -> pats |> List.iter (fun p -> handlePattern [] p)
       | Tpat_record (items, _) ->
-        items |> List.map (fun (_, _, p) -> handlePattern [] p) |> List.flatten
-      | _ -> []
+        items |> List.iter (fun (_, _, p) -> handlePattern [] p)
+      | _ -> ()
     in
-    List.map
+    List.iter
       (fun {vb_pat; vb_attributes} -> handlePattern vb_attributes vb_pat)
-      bindings
-    |> List.flatten
+      bindings;
+    !declareds
   | Tstr_module
       {mb_id; mb_attributes; mb_loc; mb_name = name; mb_expr = {mod_desc}} ->
     let item = forModule env mod_desc name.txt in
