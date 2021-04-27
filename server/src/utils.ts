@@ -6,7 +6,7 @@ import * as t from "vscode-languageserver-types";
 import fs from "fs";
 import * as os from "os";
 import { fileURLToPath } from "url";
-import { RequestMessage } from "vscode-languageserver";
+import { RequestMessage } from "vscode-languageserver-protocol";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -105,8 +105,8 @@ export let formatUsingValidBscExePath = (
 };
 
 export let runAnalysisAfterSanityCheck = (
-  msg: RequestMessage,
-  getArgs: (filePath: string) => Array<string>
+  filePath: p.DocumentUri,
+  args: Array<any>
 ) => {
   let binaryPath;
   if (fs.existsSync(c.analysisDevPath)) {
@@ -117,12 +117,11 @@ export let runAnalysisAfterSanityCheck = (
     return null;
   }
 
-  let filePath = fileURLToPath(msg.params.textDocument.uri);
   let projectRootPath = findProjectRootOfFile(filePath);
   if (projectRootPath == null) {
     return null;
   }
-  let stdout = childProcess.execFileSync(binaryPath, getArgs(filePath), {
+  let stdout = childProcess.execFileSync(binaryPath, args, {
     cwd: projectRootPath,
   });
   return JSON.parse(stdout.toString());
