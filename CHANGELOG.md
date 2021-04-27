@@ -6,9 +6,9 @@ Fixes:
 - Hover on components in interface files.
 
 Features:
-- Show Outline
+- Show Outline!
 - Show References!
-- Hover now supports markdown docs!
+- Hover now supports markdown docs.
 - Hover on labels in component functions with compiler version 9.1, and labels with type annotation.
 - Don't show file path on hover and autocomplete (cleaner).
 - Autocomplete for props in JSX components.

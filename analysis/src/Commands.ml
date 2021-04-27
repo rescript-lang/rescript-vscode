@@ -33,7 +33,7 @@ let dump files =
          in
          print_endline result)
 
-let complete ~path ~line ~col ~currentFile =
+let completion ~path ~line ~col ~currentFile =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
@@ -239,7 +239,7 @@ let test ~path =
             let line = line + 1 in
             let col = len - mlen - 3 in
             close_out cout;
-            complete ~path ~line ~col ~currentFile;
+            completion ~path ~line ~col ~currentFile;
             Sys.remove currentFile
           | _ -> ());
           print_newline ())
