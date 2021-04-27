@@ -4,19 +4,19 @@ Complete tests/src/Complete.res 0:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": " [mapReverse xs f]\n\n    Equivalent to [reverse (map xs f)]\n\n    @example {[\n      mapReverse [3;4;5] (fun x -> x * x) = [25;16;9];;\n    ]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  `mapReverse xs f`\n\n  Equivalent to `reverse (map xs f)`\n\n  ```\n  mapReverse [3;4;5] (fun x -> x * x) = [25;16;9];;\n  ```\n"}
   }, {
     "label": "makeBy",
     "kind": 12,
     "tags": [],
     "detail": "(int, int => 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": " [makeBy n f] \n\n    - return a list of length [n] with element [i] initialized with [f i]\n    - return the empty list if [n] is negative\n\n    @example {[\n      makeBy 5 (fun i -> i) = [0;1;2;3;4];;\n      makeBy 5 (fun i -> i * i) = [0;1;4;9;16];;\n    ]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  `makeBy n f`\n\n  **return** a list of length `n` with element `i` initialized with `f i`\n\n  **return** the empty list if `n` is negative\n\n  ```\n  makeBy 5 (fun i -> i) = [0;1;2;3;4];;\n  makeBy 5 (fun i -> i * i) = [0;1;4;9;16];;\n  ```\n"}
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "  [make n v] \n\n     - return a list of length [n] with each element filled with value [v]  \n     - return the empty list if [n] is negative\n\n     @example {[\n       make 3 1 =  [1;1;1]\n     ]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  `make n v`\n\n  **return** a list of length `n` with each element filled with value `v`\n\n  **return** the empty list if `n` is negative\n\n  ```\n  make 3 1 =  [1;1;1]\n  ```\n"}
   }, {
     "label": "mapReverse2U",
     "kind": 12,
@@ -28,7 +28,7 @@ Complete tests/src/Complete.res 0:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n    [map xs f]\n\n    return the list obtained by applying [f] to each element of [xs]\n\n   @example {[\n     map [1;2] (fun x-> x + 1) = [3;4]\n   ]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  `map xs f`\n\n  **return** the list obtained by applying `f` to each element of `xs`\n\n  ```\n  map [1;2] (fun x-> x + 1) = [3;4]\n  ```\n"}
   }, {
     "label": "mapWithIndexU",
     "kind": 12,
@@ -52,13 +52,13 @@ Complete tests/src/Complete.res 0:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>",
-    "documentation": {"kind": "markdown", "value": " [mapReverse2 xs ys f]\n\n    equivalent to [reverse (zipBy xs ys f)]    \n\n    @example {[\n      mapReverse2 [1;2;3] [1;2] (+) = [4;2]\n    ]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  `mapReverse2 xs ys f`\n\n  equivalent to `reverse (zipBy xs ys f)`\n\n  ```\n  mapReverse2 [1;2;3] [1;2] (+) = [4;2]\n  ```\n"}
   }, {
     "label": "mapWithIndex",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": " [mapWithIndex xs f] applies [f] to each element of [xs]. Function [f] takes two arguments:\n    the index starting from 0 and the element from [xs].\n\n    @example {[\n      mapWithIndex [1;2;3] (fun i x -> i + x) =\n      [0 + 1; 1 + 2; 2 + 3 ]\n    ]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  `mapWithIndex xs f` applies `f` to each element of `xs`. Function `f` takes two arguments:\n  the index starting from 0 and the element from `xs`.\n\n  ```\n  mapWithIndex [1;2;3] (fun i x -> i + x) =\n    [0 + 1; 1 + 2; 2 + 3 ]\n  ```\n"}
   }, {
     "label": "mapReverseU",
     "kind": 12,
@@ -382,7 +382,7 @@ Complete tests/src/Complete.res 23:2
     "kind": 12,
     "tags": [],
     "detail": "t => t",
-    "documentation": {"kind": "markdown", "value": "\n  [toUpperCase str] converts [str] to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German [ß] capitalizes to two [S]es in a row.\n\n@example {[\n  toUpperCase \"abc\" = \"ABC\";;\n  toUpperCase {js|Straße|js} = {js|STRASSE|js};;\n  toLowerCase {js|πς|js} = {js|ΠΣ|js};;\n]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  `toUpperCase str` converts `str` to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German `ß` capitalizes to two `S`es in a row.\n\n  ```\n  toUpperCase \"abc\" = \"ABC\";;\n  toUpperCase {js|Straße|js} = {js|STRASSE|js};;\n  toLowerCase {js|πς|js} = {js|ΠΣ|js};;\n  ```\n"}
   }]
 
 Complete tests/src/Complete.res 27:2
@@ -391,13 +391,13 @@ Complete tests/src/Complete.res 27:2
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, (. 'a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   Uncurried version of [eq]\n"}
+    "documentation": {"kind": "markdown", "value": "\n   Uncurried version of `eq`\n"}
   }, {
     "label": "Belt.Option.eq",
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   [eq optValue1 optvalue2 predicate]\n\n   Evaluates two optional values for equality with respect to a predicate function.\n\n   If both [optValue1] and [optValue2] are [None], returns [true].\n\n   If one of the arguments is [Some value] and the other is [None], returns [false]\n\n   If arguments are [Some value1] and [Some value2], returns the result of [predicate value1 value2];\n   the [predicate] function must return a [bool]\n\n   @example {[\n     let clockEqual = (fun a b -> a mod 12 = b mod 12);;\n     eq (Some 3) (Some 15) clockEqual = true;;\n     eq (Some 3) None clockEqual = false;;\n     eq None (Some 3) clockEqual = false;;\n     eq None None clockEqual = true;;\n   ]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n   `eq optValue1 optvalue2 predicate`\n\n   Evaluates two optional values for equality with respect to a predicate function.\n\n   If both `optValue1` and `optValue2` are `None`, returns `true`.\n\n   If one of the arguments is `Some value` and the other is `None`, returns `false`\n\n   If arguments are `Some value1` and `Some value2`, returns the result of `predicate value1 value2`;\n   the `predicate` function must return a `bool`\n\n   ```\n   let clockEqual = (fun a b -> a mod 12 = b mod 12);;\n   eq (Some 3) (Some 15) clockEqual = true;;\n   eq (Some 3) None clockEqual = false;;\n   eq None (Some 3) clockEqual = false;;\n   eq None None clockEqual = true;;\n   ```\n"}
   }]
 
 Complete tests/src/Complete.res 36:2
@@ -421,7 +421,7 @@ Complete tests/src/Complete.res 38:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, key) => 'a",
-    "documentation": {"kind": "markdown", "value": " [unsafeGet dict key] return the value if the [key] exists, \n    otherwise an {b undefined} value is returned. Must be used only \n    when the existence of a key is certain. (i.e. when having called [keys]\n    function previously. \n\n    @example {[\n      Array.iter (fun key -> Js.log (Js_dict.unsafeGet dic key)) (Js_dict.keys dict) \n    ]} \n"}
+    "documentation": {"kind": "markdown", "value": "\n  `unsafeGet dict key` return the value if the `key` exists,\n  otherwise an **undefined** value is returned. Must be used only\n  when the existence of a key is certain. (i.e. when having called `keys`\n  function previously.\n\n  ```\n  Array.iter (fun key -> Js.log (Js_dict.unsafeGet dic key)) (Js_dict.keys dict)\n  ```\n"}
   }, {
     "label": "unsafeDeleteKey",
     "kind": 12,
