@@ -23,7 +23,7 @@ jobs:
             artifact-folder: linux
           - os: windows-latest
             # CI windows running the binary somehow stucks. Not sure why. Disable for now.
-            build: "dir ./node_modules/.bin/ && cat ./node_modules/.bin/reanalyze.cmd && cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make"
+            build: "readlink ./node_modules/.bin/reanalyze && cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make"
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
