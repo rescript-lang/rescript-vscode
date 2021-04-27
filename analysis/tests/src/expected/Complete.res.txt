@@ -527,6 +527,16 @@ DocumentSymbol tests/src/Complete.res
         "location": {"uri": "Complete.res", "range": {"start": {"line": 42, "character": 9}, "end": {"line": 46, "character": 3}}}
 },
 {
+        "name": "makeProps",
+        "kind": 12,
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 0, "character": -1}, "end": {"line": 0, "character": -1}}}
+},
+{
+        "name": "make",
+        "kind": 12,
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 0, "character": -1}, "end": {"line": 0, "character": -1}}}
+},
+{
         "name": "make",
         "kind": 12,
         "location": {"uri": "Complete.res", "range": {"start": {"line": 44, "character": 4}, "end": {"line": 45, "character": 57}}}
