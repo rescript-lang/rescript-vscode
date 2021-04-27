@@ -1,6 +1,6 @@
 import process from "process";
 import * as p from "vscode-languageserver-protocol";
-import * as m from "vscode-jsonrpc/lib/messages";
+import * as m from "vscode-jsonrpc/lib/common/messages";
 import * as v from "vscode-languageserver";
 import * as rpc from "vscode-jsonrpc";
 import * as path from "path";
@@ -40,7 +40,7 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => {};
+let send: (msg: m.Message) => void = (_) => { };
 
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
@@ -343,15 +343,14 @@ function onMessage(msg: m.Message) {
         send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
-      let result: Hover | null = utils.runAnalysisAfterSanityCheck(
-        msg,
-        (filePath) => [
-          "hover",
-          filePath,
-          msg.params.position.line,
-          msg.params.position.character,
-        ]
-      );
+      let params = msg.params as p.HoverParams;
+      let filePath = fileURLToPath(params.textDocument.uri);
+      let result: Hover | null = utils.runAnalysisAfterSanityCheck(filePath, [
+        "hover",
+        filePath,
+        params.position.line,
+        params.position.character,
+      ]);
       let hoverResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
@@ -362,15 +361,16 @@ function onMessage(msg: m.Message) {
       send(hoverResponse);
     } else if (msg.method === p.DefinitionRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
-      let result: Location[] | null = utils.runAnalysisAfterSanityCheck(
-        msg,
-        (filePath) => [
+      let params = msg.params as p.DefinitionParams;
+      let filePath = fileURLToPath(params.textDocument.uri);
+      let result:
+        | Location[]
+        | null = utils.runAnalysisAfterSanityCheck(filePath, [
           "definition",
           filePath,
-          msg.params.position.line,
-          msg.params.position.character,
-        ]
-      );
+          params.position.line,
+          params.position.character,
+        ]);
       let definitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
@@ -380,13 +380,15 @@ function onMessage(msg: m.Message) {
       send(definitionResponse);
     } else if (msg.method === p.ReferencesRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
+      let params = msg.params as p.ReferenceParams;
+      let filePath = fileURLToPath(params.textDocument.uri);
       let result: Location | null = utils.runAnalysisAfterSanityCheck(
-        msg,
-        (filePath) => [
+        filePath,
+        [
           "references",
           filePath,
-          msg.params.position.line,
-          msg.params.position.character,
+          params.position.line,
+          params.position.character,
         ]
       );
       let definitionResponse: m.ResponseMessage = {
@@ -398,12 +400,14 @@ function onMessage(msg: m.Message) {
       send(definitionResponse);
     } else if (msg.method === p.DocumentSymbolRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
+      let params = msg.params as p.DocumentSymbolParams;
+      let filePath = fileURLToPath(params.textDocument.uri);
       let result:
         | SymbolInformation[]
-        | null = utils.runAnalysisAfterSanityCheck(msg, (filePath) => [
-        "documentSymbol",
-        filePath,
-      ]);
+        | null = utils.runAnalysisAfterSanityCheck(filePath, [
+          "documentSymbol",
+          filePath,
+        ]);
       let definitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
@@ -411,18 +415,20 @@ function onMessage(msg: m.Message) {
       };
       send(definitionResponse);
     } else if (msg.method === p.CompletionRequest.method) {
-      let code = getOpenedFileContent(msg.params.textDocument.uri);
+      let params = msg.params as p.ReferenceParams;
+      let filePath = fileURLToPath(params.textDocument.uri);
+      let code = getOpenedFileContent(params.textDocument.uri);
       let tmpname = utils.createFileInTempDir();
       fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
       let result:
         | CompletionItem[]
-        | null = utils.runAnalysisAfterSanityCheck(msg, (filePath) => [
-        "complete",
-        filePath,
-        msg.params.position.line,
-        msg.params.position.character,
-        tmpname,
-      ]);
+        | null = utils.runAnalysisAfterSanityCheck(filePath, [
+          "complete",
+          filePath,
+          params.position.line,
+          params.position.character,
+          tmpname,
+        ]);
       fs.unlink(tmpname, () => null);
       let completionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
