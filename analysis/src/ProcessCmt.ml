@@ -919,17 +919,6 @@ struct
 
   let enter_structure_item item =
     match item.str_desc with
-    | Tstr_attribute
-        ( {Asttypes.txt = "ocaml.explanation"; loc},
-          PStr
-            [
-              {
-                pstr_desc =
-                  Pstr_eval
-                    ({pexp_desc = Pexp_constant (Pconst_string (doc, _))}, _);
-              };
-            ] ) ->
-      addLocation loc (Explanation doc)
     | Tstr_include {incl_mod = expr} -> handle_module_expr expr.mod_desc
     | Tstr_module {mb_expr} -> handle_module_expr mb_expr.mod_desc
     | Tstr_open {open_path; open_txt = {txt; loc}} ->

@@ -180,7 +180,6 @@ type loc =
   | LModule of locKind
   | TopLevelModule of string
   | TypeDefinition of string * Types.type_declaration * int
-  | Explanation of string
 
 type openTracker = {
   path : Path.t;
@@ -225,7 +224,6 @@ let locToString = function
   | LModule _ -> "LModule"
   | TopLevelModule _ -> "TopLevelModule"
   | TypeDefinition _ -> "TypeDefinition"
-  | Explanation _ -> "Explanation"
 
 let locationToString ({Location.loc_start; loc_end}, loc) =
   let pos1 = Utils.cmtPosToPosition loc_start in

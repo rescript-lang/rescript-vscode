@@ -49,8 +49,7 @@ let showModule ~docstring ~(file : SharedTypes.file) ~name
 
 let newHover ~(file : SharedTypes.file) ~package loc =
   match loc with
-  | SharedTypes.Explanation text -> Some text
-  | TypeDefinition (name, decl, _stamp) ->
+  | SharedTypes.TypeDefinition (name, decl, _stamp) ->
     let typeDef = Shared.declToString name decl in
     Some (codeBlock typeDef)
   | LModule (Definition (stamp, _tip)) | LModule (LocalReference (stamp, _tip))

@@ -308,7 +308,6 @@ let definitionForLoc ~package ~file loc =
           let loc = validateLoc declared.name.loc declared.extentLoc in
           Some (file.uri, loc))
       else None)
-  | Explanation _
   | Typed (_, NotFound)
   | LModule (NotFound | Definition (_, _))
   | TypeDefinition (_, _, _)
@@ -448,7 +447,6 @@ let forLocalStamp ~package ~file ~extra stamp tip =
 
 let allReferencesForLoc ~package ~file ~extra loc =
   match loc with
-  | Explanation _
   | Typed (_, NotFound)
   | LModule NotFound
   | TopLevelModule _ | Constant _ ->

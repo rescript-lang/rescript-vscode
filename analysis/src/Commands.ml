@@ -57,7 +57,7 @@ let hover ~file ~line ~col ~extra ~package =
     let locIsModule =
       match loc with
       | SharedTypes.LModule _ | TopLevelModule _ -> true
-      | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
+      | TypeDefinition _ | Typed _ | Constant _ -> false
     in
     let uriLocOpt = References.definitionForLoc ~package ~file loc in
     let skipZero =
@@ -97,7 +97,7 @@ let definition ~file ~line ~col ~extra ~package =
     let locIsModule =
       match loc with
       | SharedTypes.LModule _ | TopLevelModule _ -> true
-      | TypeDefinition _ | Typed _ | Constant _ | Explanation _ -> false
+      | TypeDefinition _ | Typed _ | Constant _ -> false
     in
     let uriLocOpt = References.definitionForLoc ~package ~file loc in
     match uriLocOpt with
