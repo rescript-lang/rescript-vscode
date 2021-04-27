@@ -20,12 +20,13 @@ export let analysisDevPath = path.join(
   path.dirname(__dirname),
   "..",
   "analysis",
-  "run.exe"
+  "rescript-editor-analysis.exe"
 );
 export let analysisProdPath = path.join(
   path.dirname(__dirname),
   "analysis_binaries",
-  process.platform + "-run.exe"
+  process.platform,
+  "rescript-editor-analysis.exe"
 );
 
 // can't use the native bsb since we might need the watcher -w flag, which is only in the js wrapper

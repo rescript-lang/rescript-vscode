@@ -12,6 +12,19 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        # syntax explanation:
+        # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
+        include:
+          - os: macos-latest
+            build: eval $(opam env) && cd analysis && make test
+            artifact-folder: darwin
+          - os: ubuntu-latest
+            build: eval $(opam env) && cd analysis && make test
+            artifact-folder: linux
+          - os: windows-latest
+            # CI windows running the binary somehow stucks. Not sure why. Disable for now.
+            build: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make"
+            artifact-folder: win32
 
     runs-on: ${{matrix.os}}
 
@@ -42,20 +55,19 @@ jobs:
     # - run: opam pin add rescript-editor-support.dev . --no-action
     # - run: opam install . --deps-only --with-doc --with-test
 
-    - run: eval $(opam env) && cd analysis && make test
-      if: matrix.os != 'windows-latest'
-    # CI windows running the binary somehow stucks. Not sure why. Disable for now.
-    - run: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make"
-      if: matrix.os == 'windows-latest'
+    - name: Build and test
+      run: ${{matrix.build}}
 
     # Also avoids artifacts upload permission loss:
     # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
     - name: Compress files
-      run: >
-        mv analysis/run.exe ${{matrix.os}}-run.exe &&
-        tar -cvf binary.tar ${{matrix.os}}-run.exe
+      run: |
+        cd analysis
+        mkdir ${{matrix.artifact-folder}}
+        mv rescript-editor-analysis.exe ${{matrix.artifact-folder}}
+        tar -cvf binary.tar ${{matrix.artifact-folder}}
 
     - uses: actions/upload-artifact@v2
       with:
-        name: ${{matrix.os}}-run.exe
-        path: binary.tar
+        name: ${{matrix.os}}
+        path: analysis/binary.tar

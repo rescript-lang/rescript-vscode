@@ -6,6 +6,8 @@ OCAMLOPT = ocamlopt.opt
 OCAMLFLAGS = -g -w +26+27+32+33+39 -bin-annot -I +compiler-libs $(INCLUDES)
 OCAMLDEP = ocamldep.opt
 
+OUTPUT = rescript-editor-analysis.exe
+
 %.cmi : %.mli
 	@echo Building $@
 	@$(OCAMLOPT) $(OCAMLFLAGS) -c $<
@@ -19,13 +21,13 @@ depend:
 
 SOURCE_FILES = $(shell $(OCAMLDEP) -sort `find src -name "*.ml"` | sed -E "s/\.ml/.cmx/g")
 
-run.exe: $(SOURCE_FILES)
+$(OUTPUT): $(SOURCE_FILES)
 	@echo Linking...
-	@$(OCAMLOPT) $(OCAMLFLAGS) -O2 -o run.exe \
+	@$(OCAMLOPT) $(OCAMLFLAGS) -O2 -o $(OUTPUT) \
 		-I +compiler-libs unix.cmxa str.cmxa ocamlcommon.cmxa $(INCLUDES) $(SOURCE_FILES)
 	@echo Done!
 
-build-native: run.exe depend
+build-native: $(OUTPUT) depend
 
 dce: build-native
 	../node_modules/.bin/reanalyze -dce-cmt src -suppress src/vendor

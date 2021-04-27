@@ -3,7 +3,7 @@ function exp {
 }
 
 for file in tests/src/*.res[i]; do
-  ./run.exe test $file &> $(exp $file)
+  ./rescript-editor-analysis.exe test $file &> $(exp $file)
 done
 
 warningYellow='\033[0;33m'
