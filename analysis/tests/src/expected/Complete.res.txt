@@ -479,17 +479,17 @@ DocumentSymbol tests/src/Complete.res
 {
         "name": "foo",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 16, "character": 2}, "end": {"line": 16, "character": 55}}}
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 16, "character": 6}, "end": {"line": 16, "character": 9}}}
 },
 {
         "name": "next",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 17, "character": 2}, "end": {"line": 17, "character": 48}}}
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 17, "character": 6}, "end": {"line": 17, "character": 10}}}
 },
 {
         "name": "op",
         "kind": 13,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 26, "character": 0}, "end": {"line": 26, "character": 16}}}
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 26, "character": 4}, "end": {"line": 26, "character": 6}}}
 },
 {
         "name": "ForAuto",
@@ -504,17 +504,17 @@ DocumentSymbol tests/src/Complete.res
 {
         "name": "abc",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 30}}}
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 32, "character": 6}, "end": {"line": 32, "character": 9}}}
 },
 {
         "name": "abd",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 33, "character": 2}, "end": {"line": 33, "character": 30}}}
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 33, "character": 6}, "end": {"line": 33, "character": 9}}}
 },
 {
         "name": "fa",
         "kind": 13,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 36, "character": 0}, "end": {"line": 36, "character": 21}}}
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 36, "character": 4}, "end": {"line": 36, "character": 6}}}
 },
 {
         "name": "O",
@@ -529,12 +529,12 @@ DocumentSymbol tests/src/Complete.res
 {
         "name": "make",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 44, "character": 4}, "end": {"line": 45, "character": 57}}}
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 44, "character": 8}, "end": {"line": 44, "character": 12}}}
 },
 {
         "name": "zzz",
         "kind": 13,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 49, "character": 0}, "end": {"line": 49, "character": 12}}}
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 49, "character": 4}, "end": {"line": 49, "character": 7}}}
 }
 ]
 

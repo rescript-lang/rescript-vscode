@@ -1,3 +1,6 @@
-Definition tests/src/Patterns.res 6:10
+Definition tests/src/Patterns.res 12:10
 {"uri": "Patterns.res", "range": {"start": {"line": 3, "character": 7}, "end": {"line": 3, "character": 10}}}
+
+Definition tests/src/Patterns.res 17:11
+null
 
