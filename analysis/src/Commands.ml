@@ -172,7 +172,8 @@ let documentSymbol ~path =
           | Module (Structure contents) -> (Module, getItems contents)
           | Module (Ident _) -> (Module, [])
         in
-        (txt, extentLoc, item) :: siblings
+        if extentLoc.loc_ghost then siblings
+        else (txt, extentLoc, item) :: siblings
       in
       let x = topLevel |> List.map fn |> List.concat in
       x
