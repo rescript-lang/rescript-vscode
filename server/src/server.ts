@@ -466,13 +466,13 @@ function onMessage(msg: m.Message) {
         send(fakeSuccessResponse);
         send(response);
       } else {
-        // See comment on findBscExeDirOfFile for why we need
+        // See comment on findBscNativeDirOfFile for why we need
         // to recursively search for bsc.exe upward
-        let bscExeDir = utils.findBscExeDirOfFile(filePath);
-        if (bscExeDir === null) {
+        let bscNativePath = utils.findBscNativeOfFile(filePath);
+        if (bscNativePath === null) {
           let params: p.ShowMessageParams = {
             type: p.MessageType.Error,
-            message: `Cannot find a nearby bsc.exe in bs-platform or rescript. It's needed for formatting.`,
+            message: `Cannot find a nearby bsc.exe in rescript or bs-platform. It's needed for formatting.`,
           };
           let response: m.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
@@ -482,16 +482,11 @@ function onMessage(msg: m.Message) {
           send(fakeSuccessResponse);
           send(response);
         } else {
-          let bscExePath1 = path.join(bscExeDir, c.bscExeReScriptPartialPath);
-          let bscExePath2 = path.join(bscExeDir, c.bscExePartialPath);
-          let resolvedBscExePath = fs.existsSync(bscExePath1)
-            ? bscExePath1
-            : bscExePath2;
           // code will always be defined here, even though technically it can be undefined
           let code = getOpenedFileContent(params.textDocument.uri);
-          let formattedResult = utils.formatUsingValidBscExePath(
+          let formattedResult = utils.formatUsingValidBscNativePath(
             code,
-            resolvedBscExePath,
+            bscNativePath,
             extension === c.resiExt
           );
           if (formattedResult.kind === "success") {
