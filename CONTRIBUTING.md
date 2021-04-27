@@ -166,10 +166,10 @@ In the future, we should consier showing the format errors when `.compiler.log` 
 
 Currently the release is vetted and done by @chenglou.
 
-- Bump the version properly in `package.json` and `server/package.json` and their lockfiles and make a new commit.
-- Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
-- Download and unzip the 3 platforms' production binaries from the Github CI. Put them into `server/analysis_binaries`.
-- Use `vsce publish` to publish. Official VSCode guide [here](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Only @chenglou has the publishing rights right now.
-- Not done! Make a new manual release [here](https://github.com/rescript-lang/rescript-vscode/releases); use `vsce package` to package up a standalone `.vsix` plugin and attach it onto that new release. This is for folks who don't use the VSCode marketplace.
+1. Bump the version properly in `package.json` and `server/package.json` and their lockfiles and make a new commit.
+2. Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
+3. Download and unzip the 3 platforms' production binaries from the Github CI. Put them into `server/analysis_binaries`.
+4. Use `vsce publish` to publish. Official VSCode guide [here](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Only @chenglou has the publishing rights right now.
+5. Not done! Make a new manual release [here](https://github.com/rescript-lang/rescript-vscode/releases); use `vsce package` to package up a standalone `.vsix` plugin and attach it onto that new release. This is for folks who don't use the VSCode marketplace.
 
-For beta releases, we just do the last step and ask folks to try it.
+For beta releases, skip step 4. Ask folks to try the `.vsix` directly.
