@@ -1,6 +1,5 @@
 open Typedtree
 open SharedTypes
-open Infix
 
 type queryEnv = {qFile : file; qExported : exported}
 
@@ -311,21 +310,25 @@ let rec getModulePath mod_desc =
 let rec forItem ~env ~(exported : exported) item =
   match item.str_desc with
   | Tstr_value (_isRec, bindings) ->
-    optMap
-      (fun {vb_loc; vb_pat = {pat_desc; pat_type}; vb_attributes} ->
-        (* TODO get all the things out of the var. *)
-        match pat_desc with
-        | Tpat_var (ident, name)
-        | Tpat_alias ({pat_desc = Tpat_any}, ident, name) (* let x : t = ... *)
-          ->
-          let item = pat_type in
-          let declared =
-            addItem ~name ~stamp:(Ident.binding_time ident) ~env ~extent:vb_loc
-              ~item vb_attributes exported.values env.stamps.values
-          in
-          Some {declared with item = MValue declared.item}
-        | _ -> None)
+    let rec handlePattern vb_loc vb_attributes {pat_desc; pat_type} =
+      match pat_desc with
+      | Tpat_var (ident, name)
+      | Tpat_alias ({pat_desc = Tpat_any}, ident, name) (* let x : t = ... *) ->
+        let item = pat_type in
+        let declared =
+          addItem ~name ~stamp:(Ident.binding_time ident) ~env ~extent:vb_loc
+            ~item vb_attributes exported.values env.stamps.values
+        in
+        [{declared with item = MValue declared.item}]
+      | Tpat_tuple pats ->
+        pats |> List.map (handlePattern vb_loc vb_attributes) |> List.flatten
+      | _ -> []
+    in
+    List.map
+      (fun {vb_loc; vb_pat; vb_attributes} ->
+        handlePattern vb_loc vb_attributes vb_pat)
       bindings
+    |> List.flatten
   | Tstr_module
       {mb_id; mb_attributes; mb_loc; mb_name = name; mb_expr = {mod_desc}} ->
     let item = forModule env mod_desc name.txt in

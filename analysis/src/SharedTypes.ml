@@ -219,7 +219,7 @@ let locKindToString = function
   | NotFound -> "NotFound"
   | Definition (_, tip) -> "(Definition " ^ tipToString tip ^ ")"
 
-let locToString = function
+let locTypeToString = function
   | Typed (e, locKind) ->
     "Typed " ^ Shared.typeToString e ^ " " ^ locKindToString locKind
   | Constant _ -> "Constant"
@@ -227,11 +227,14 @@ let locToString = function
   | TopLevelModule _ -> "TopLevelModule"
   | TypeDefinition _ -> "TypeDefinition"
 
-let locationToString ({Location.loc_start; loc_end}, loc) =
+let locItemToString {loc = {Location.loc_start; loc_end}; locType} =
   let pos1 = Utils.cmtPosToPosition loc_start in
   let pos2 = Utils.cmtPosToPosition loc_end in
   Printf.sprintf "%d:%d-%d:%d %s" pos1.line pos1.character pos2.line
-    pos2.character (locToString loc)
+    pos2.character (locTypeToString locType)
+
+(* needed for debugging *)
+let _ = locItemToString
 
 type kinds =
   | Module
@@ -276,6 +279,3 @@ let declarationKind t =
   | Type_open | Type_abstract -> TypeParameter
   | Type_record _ -> Interface
   | Type_variant _ -> Enum
-
-(* for debugging *)
-let _ = locationToString
