@@ -1,4 +1,7 @@
 ## master
+- Fix issue jumping to variables defined in complex patterns.
+
+## beta 2
 
 Fixes:
 - Jump-to-definition on some Windows paths.
