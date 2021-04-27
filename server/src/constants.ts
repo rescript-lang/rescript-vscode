@@ -29,9 +29,14 @@ export let analysisProdPath = path.join(
   "rescript-editor-analysis.exe"
 );
 
-// can't use the native bsb since we might need the watcher -w flag, which is only in the js wrapper
-// export let bsbPartialPath = path.join('node_modules', 'bs-platform', process.platform, 'bsb.exe');
+// can't use the native bsb/rescript since we might need the watcher -w flag, which is only in the JS wrapper
+export let rescriptNodePartialPath = path.join(
+  "node_modules",
+  ".bin",
+  "rescript"
+);
 export let bsbNodePartialPath = path.join("node_modules", ".bin", "bsb");
+
 export let bsbLock = ".bsb.lock";
 export let bsconfigPartialPath = "bsconfig.json";
 export let compilerLogPartialPath = path.join("lib", "bs", ".compiler.log");

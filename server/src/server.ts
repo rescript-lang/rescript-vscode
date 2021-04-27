@@ -150,11 +150,10 @@ let openedFile = (fileUri: string, fileContent: string) => {
     // because otherwise the diagnostics info we'll display might be stale
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
     if (firstOpenFileOfProject && !fs.existsSync(bsbLockPath)) {
-      let bsbPath = path.join(projectRootPath, c.bsbNodePartialPath);
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
-      if (fs.existsSync(bsbPath)) {
+      if (utils.findNodeBuildOfProjectRoot(projectRootPath) != null) {
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
           projectRootPath: projectRootPath,
@@ -540,14 +539,15 @@ function onMessage(msg: m.Message) {
     ) {
       let msg_ = msg.result as clientSentBuildAction;
       let projectRootPath = msg_.projectRootPath;
-      let bsbNodePath = path.join(projectRootPath, c.bsbNodePartialPath);
       // TODO: sometime stale .bsb.lock dangling
       // TODO: close watcher when lang-server shuts down. However, by Node's
       // default, these subprocesses are automatically killed when this
       // language-server process exits
-      if (fs.existsSync(bsbNodePath)) {
-        let bsbProcess = utils.runBsbWatcherUsingValidBsbNodePath(
-          bsbNodePath,
+      let found = utils.findNodeBuildOfProjectRoot(projectRootPath);
+      if (found != null) {
+        let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
+          found.buildPath,
+          found.isReScript,
           projectRootPath
         );
         let root = projectsFiles.get(projectRootPath)!;
