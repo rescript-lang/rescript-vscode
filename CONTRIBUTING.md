@@ -35,7 +35,7 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 
 ## Test
 
-- Open VS Code to this folder.
+- Open VS Code to the project root.
 - Switch to the Debug viewlet (command palette -> View: Show Run and Debug).
 - Select `Client + Server` from the drop down, launch it (green arrow):
 

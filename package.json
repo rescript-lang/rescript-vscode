@@ -103,7 +103,7 @@
 		"vscode:prepublish": "npm run clean && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"postinstall": "cd server && npm install"
+		"postinstall": "cd server && npm install && cd ../analysis/tests && npm install"
 	},
 	"devDependencies": {
 		"@types/node": "^14.14.41",
