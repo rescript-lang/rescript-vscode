@@ -137,9 +137,6 @@ let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
         env.stamps.types
     in
     [{declared with item = MType (declared.item, recStatus)}]
-  (* | Sig_module({stamp, name}, {md_type: Mty_ident(path) | Mty_alias(path), md_attributes, md_loc}, _) =>
-     let declared = addItem(~contents=Module.Ident(path), ~name=Location.mknoloc(name), ~stamp, ~env, md_attributes, exported.modules, env.stamps.modules);
-     [{...declared, contents: Module.Module(declared.contents)}, ...items] *)
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
       addItem ~extent:md_loc
@@ -521,12 +518,12 @@ let fileForCmt ~moduleName ~uri cmt =
   | Error e -> Error e
   | Ok infos -> Ok (forCmt ~moduleName ~uri infos)
 
+let addLocItem extra loc locType =
+  if not loc.Warnings.loc_ghost then
+    extra.locItems <- {loc; locType} :: extra.locItems
+
 let extraForFile ~(file : SharedTypes.file) =
   let extra = initExtra () in
-  let addLocation loc ident =
-    if not loc.Warnings.loc_ghost then
-      extra.locations <- (loc, ident) :: extra.locations
-  in
   let addReference stamp loc =
     Hashtbl.replace extra.internalReferences stamp
       (loc
@@ -537,15 +534,15 @@ let extraForFile ~(file : SharedTypes.file) =
   in
   file.stamps.modules
   |> Hashtbl.iter (fun stamp d ->
-         addLocation d.name.loc (LModule (Definition (stamp, Module)));
+         addLocItem extra d.name.loc (LModule (Definition (stamp, Module)));
          addReference stamp d.name.loc);
   file.stamps.values
   |> Hashtbl.iter (fun stamp d ->
-         addLocation d.name.loc (Typed (d.item, Definition (stamp, Value)));
+         addLocItem extra d.name.loc (Typed (d.item, Definition (stamp, Value)));
          addReference stamp d.name.loc);
   file.stamps.types
   |> Hashtbl.iter (fun stamp d ->
-         addLocation d.name.loc
+         addLocItem extra d.name.loc
            (TypeDefinition (d.name.txt, d.item.Type.decl, stamp));
          addReference stamp d.name.loc;
          match d.item.Type.kind with
@@ -553,7 +550,7 @@ let extraForFile ~(file : SharedTypes.file) =
            labels
            |> List.iter (fun {stamp; fname; typ} ->
                   addReference stamp fname.loc;
-                  addLocation fname.loc
+                  addLocItem extra fname.loc
                     (Typed (typ, Definition (d.stamp, Field fname.txt))))
          | Variant constructos ->
            constructos
@@ -571,7 +568,7 @@ let extraForFile ~(file : SharedTypes.file) =
                             ref Types.Mnil );
                     }
                   in
-                  addLocation cname.loc
+                  addLocItem extra cname.loc
                     (Typed (t, Definition (d.stamp, Constructor cname.txt))))
          | _ -> ());
   extra
@@ -684,8 +681,6 @@ struct
       | None -> ()
       | Some relpath -> tracker.used <- (relpath, tip, loc) :: tracker.used)
 
-  let addLocation loc ident = extra.locations <- (loc, ident) :: extra.locations
-
   let addReference stamp loc =
     Hashtbl.replace extra.internalReferences stamp
       (loc
@@ -732,7 +727,7 @@ struct
         | None -> NotFound)
       | `GlobalMod _ -> NotFound
     in
-    addLocation loc (Typed (typ, locType))
+    addLocItem extra loc (Typed (typ, locType))
 
   let addForPathParent path loc =
     let locType =
@@ -754,7 +749,7 @@ struct
           LModule (LocalReference (stamp, Module))
         | None -> LModule NotFound)
     in
-    addLocation loc locType
+    addLocItem extra loc locType
 
   let getTypeAtPath ~env path =
     match fromCompilerPath ~env path with
@@ -809,7 +804,7 @@ struct
           GlobalReference (moduleName, path, Field name)
         | _ -> NotFound
       in
-      addLocation nameLoc (Typed (lbl_res, locType))
+      addLocItem extra nameLoc (Typed (lbl_res, locType))
     | _ -> ()
 
   let addForRecord recordType items =
@@ -837,7 +832,7 @@ struct
                  GlobalReference (moduleName, path, Field name)
                | _ -> NotFound
              in
-             addLocation nameLoc (Typed (lbl_res, locType)))
+             addLocItem extra nameLoc (Typed (lbl_res, locType)))
     | _ -> ()
 
   let addForConstructor constructorType {Asttypes.txt; loc} {Types.cstr_name} =
@@ -863,7 +858,7 @@ struct
           GlobalReference (moduleName, path, Constructor name)
         | _ -> NotFound
       in
-      addLocation nameLoc (Typed (constructorType, locType))
+      addLocItem extra nameLoc (Typed (constructorType, locType))
     | _ -> ()
 
   let currentScopeExtent () =
@@ -973,14 +968,13 @@ struct
         in
         Hashtbl.add Collector.file.stamps.values stamp declared;
         addReference stamp name.loc;
-        addLocation name.loc
+        addLocItem extra name.loc
           (Typed (val_desc.ctyp_type, Definition (stamp, Value))))
     | _ -> ()
 
   let enter_core_type {ctyp_type; ctyp_desc} =
     match ctyp_desc with
     | Ttyp_constr (path, {txt; loc}, _args) ->
-      (* addForPath(path, txt, loc, Shared.makeFlexible(ctyp_type), Type) *)
       addForLongident (Some (ctyp_type, Type)) path txt loc
     | _ -> ()
 
@@ -1000,7 +994,7 @@ struct
         in
         Hashtbl.add Collector.file.stamps.values stamp declared;
         addReference stamp name.loc;
-        addLocation name.loc (Typed (pat_type, Definition (stamp, Value))))
+        addLocItem extra name.loc (Typed (pat_type, Definition (stamp, Value))))
     in
     (* Log.log("Entering pattern " ++ Utils.showLocation(pat_loc)); *)
     match pat_desc with
@@ -1035,7 +1029,7 @@ struct
                | Overridden (loc, _) -> Some (loc, desc, ())
                | _ -> None))
     | Texp_constant constant ->
-      addLocation expression.exp_loc (Constant constant)
+      addLocItem extra expression.exp_loc (Constant constant)
     (* Skip unit and list literals *)
     | Texp_construct ({txt = Lident ("()" | "::"); loc}, _, _args)
       when loc.loc_end.pos_cnum - loc.loc_start.pos_cnum <> 2 ->

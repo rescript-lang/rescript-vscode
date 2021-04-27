@@ -14,31 +14,33 @@ let checkPos (line, char)
   then false
   else true
 
-let locsForPos ~extra pos =
-  extra.locations |> List.filter (fun (loc, _l) -> checkPos pos loc)
+let locItemsForPos ~extra pos =
+  extra.locItems |> List.filter (fun {loc; locType = _} -> checkPos pos loc)
 
-let locForPos ~extra pos =
-  let locs = locsForPos ~extra pos in
-  match locs with
-  | [(loc1, Typed (_, LocalReference _)); ((loc3, _) as l3)] when loc1 = loc3 ->
+let locItemForPos ~extra pos =
+  let locItems = locItemsForPos ~extra pos in
+  match locItems with
+  | [({locType = Typed (_, LocalReference _)} as li1); li3]
+    when li1.loc = li3.loc ->
     (* JSX and compiler combined:
        ~x becomes Props#x
        heuristic for: [Props, x], give loc of `x` *)
-    Some l3
+    Some li3
   | [
-   (loc1, Typed (_, LocalReference _));
-   (loc2, Typed (_, GlobalReference ("Js_OO", Tip "unsafe_downgrade", _)));
-   ((loc3, _) as l3);
+   ({locType = Typed (_, LocalReference _)} as li1);
+   ({locType = Typed (_, GlobalReference ("Js_OO", Tip "unsafe_downgrade", _))}
+   as li2);
+   li3;
   ]
   (* For older compiler 9.0 or earlier *)
-    when loc1 = loc2 && loc2 = loc3 ->
+    when li1.loc = li2.loc && li2.loc = li3.loc ->
     (* JSX and compiler combined:
        ~x becomes Js_OO.unsafe_downgrade(Props)#x
        heuristic for: [Props, unsafe_downgrade, x], give loc of `x` *)
-    Some l3
+    Some li3
   | [
-   ((_, Typed (_, LocalReference (_, Value))) as _l1);
-   ((_, Typed (_, Definition (_, Value))) as l2);
+   {locType = Typed (_, LocalReference (_, Value))};
+   ({locType = Typed (_, Definition (_, Value))} as li2);
   ] ->
     (* JSX on type-annotated labeled (~arg:t):
        (~arg:t) becomes Props#arg
@@ -48,17 +50,17 @@ let locForPos ~extra pos =
     (* Printf.eprintf "l1 %s\nl2 %s\n"
        (SharedTypes.locationToString _l1)
        (SharedTypes.locationToString l2); *)
-    Some l2
-  | [(loc1, _); ((loc2, _) as l); (loc3, _)] when loc1 = loc2 && loc2 = loc3 ->
+    Some li2
+  | [li1; li2; li3] when li1.loc = li2.loc && li2.loc = li3.loc ->
     (* JSX with at most one child
        heuristic for: [makeProps, make, createElement], give the loc of `make` *)
-    Some l
-  | [(loc1, _); (loc2, _); ((loc3, _) as l); (loc4, _)]
-    when loc1 = loc2 && loc2 = loc3 && loc3 = loc4 ->
+    Some li2
+  | [li1; li2; li3; li4]
+    when li1.loc = li2.loc && li2.loc = li3.loc && li3.loc = li4.loc ->
     (* JSX variadic, e.g. <C> {x} {y} </C>
        heuristic for: [makeProps  , React.null, make, createElementVariadic], give the loc of `make` *)
-    Some l
-  | l :: _ -> Some l
+    Some li3
+  | li :: _ -> Some li
   | _ -> None
 
 let declaredForTip ~stamps stamp tip =
@@ -205,9 +207,7 @@ let resolveModuleReference ~file ~package (declared : moduleKind declared) =
       | Some stamp -> (
         match Hashtbl.find_opt env.qFile.stamps.modules stamp with
         | None -> None
-        | Some md ->
-          Some (env.qFile, Some md)
-          (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)))
+        | Some md -> Some (env.qFile, Some md)))
     | `Global (moduleName, path) -> (
       match ProcessCmt.fileForModule ~package moduleName with
       | None -> None
@@ -221,22 +221,15 @@ let resolveModuleReference ~file ~package (declared : moduleKind declared) =
           | Some stamp -> (
             match Hashtbl.find_opt env.qFile.stamps.modules stamp with
             | None -> None
-            | Some md ->
-              Some (env.qFile, Some md)
-              (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)
-            ))))
+            | Some md -> Some (env.qFile, Some md)))))
     | `Stamp stamp -> (
       match Hashtbl.find_opt file.stamps.modules stamp with
       | None -> None
-      | Some md ->
-        Some (file, Some md)
-        (* Some((file.uri, validateLoc(md.name.loc, md.extentLoc))) *))
+      | Some md -> Some (file, Some md))
     | `GlobalMod name -> (
       match ProcessCmt.fileForModule ~package name with
       | None -> None
-      | Some file ->
-        (* maybeLog("Congrats, found a global mod"); *)
-        Some (file, None))
+      | Some file -> Some (file, None))
     | _ -> None)
 
 let validateLoc (loc : Location.t) (backup : Location.t) =
@@ -292,8 +285,8 @@ let orLog message v =
     None
   | _ -> v
 
-let definitionForLoc ~package ~file loc =
-  match loc with
+let definitionForLocItem ~package ~file locItem =
+  match locItem.locType with
   | Typed (_, Definition (stamp, tip)) -> (
     maybeLog "Trying to find a defintion for a definition";
     match declaredForTip ~stamps:file.stamps stamp tip with
@@ -445,12 +438,9 @@ let forLocalStamp ~package ~file ~extra stamp tip =
       in
       (file.uri, local) :: externals)
 
-let allReferencesForLoc ~package ~file ~extra loc =
-  match loc with
-  | Typed (_, NotFound)
-  | LModule NotFound
-  | TopLevelModule _ | Constant _ ->
-    []
+let allReferencesForLocItem ~package ~file ~extra locItem =
+  match locItem.locType with
+  | Typed (_, NotFound) | LModule NotFound | TopLevelModule _ | Constant _ -> []
   | TypeDefinition (_, _, stamp) ->
     forLocalStamp ~package ~file ~extra stamp Type
   | Typed (_, (LocalReference (stamp, tip) | Definition (stamp, tip)))

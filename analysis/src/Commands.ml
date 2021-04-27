@@ -1,12 +1,13 @@
-let dumpLocations ~package ~file ~extra =
-  let locations = extra.SharedTypes.locations in
-  locations
-  |> List.map (fun ((location : Location.t), loc) ->
-         let hoverText = Hover.newHover ~package ~file loc in
+let dumpLocations ~package ~file ~extra:{SharedTypes.locItems} =
+  locItems
+  |> List.map (fun locItem ->
+         let hoverText = Hover.newHover ~package ~file locItem in
          let hover =
            match hoverText with None -> "" | Some s -> String.escaped s
          in
-         let uriLocOpt = References.definitionForLoc ~package ~file loc in
+         let uriLocOpt =
+           References.definitionForLocItem ~package ~file locItem
+         in
          let def =
            match uriLocOpt with
            | None -> Protocol.null
@@ -14,7 +15,7 @@ let dumpLocations ~package ~file ~extra =
              Protocol.stringifyLocation
                {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}
          in
-         Protocol.stringifyRange (Utils.cmtLocToRange location)
+         Protocol.stringifyRange (Utils.cmtLocToRange locItem.loc)
          ^ "\n  Hover: " ^ hover ^ "\n  Definition: " ^ def)
   |> String.concat "\n\n"
 
@@ -49,17 +50,16 @@ let complete ~path ~line ~col ~currentFile =
   print_endline result
 
 let hover ~file ~line ~col ~extra ~package =
-  let locations = extra.SharedTypes.locations in
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-  match References.locForPos ~extra:{extra with locations} pos with
+  match References.locItemForPos ~extra pos with
   | None -> Protocol.null
-  | Some (_, loc) -> (
-    let locIsModule =
-      match loc with
+  | Some locItem -> (
+    let isModule =
+      match locItem.locType with
       | SharedTypes.LModule _ | TopLevelModule _ -> true
       | TypeDefinition _ | Typed _ | Constant _ -> false
     in
-    let uriLocOpt = References.definitionForLoc ~package ~file loc in
+    let uriLocOpt = References.definitionForLocItem ~package ~file locItem in
     let skipZero =
       match uriLocOpt with
       | None -> false
@@ -69,11 +69,11 @@ let hover ~file ~line ~col ~extra ~package =
           (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
         in
         (* Skip if range is all zero, unless it's a module *)
-        (not locIsModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
+        (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
     in
     if skipZero then Protocol.null
     else
-      let hoverText = Hover.newHover ~file ~package loc in
+      let hoverText = Hover.newHover ~file ~package locItem in
       match hoverText with
       | None -> Protocol.null
       | Some s -> Protocol.stringifyHover {contents = s})
@@ -88,18 +88,17 @@ let hover ~path ~line ~col =
   print_endline result
 
 let definition ~file ~line ~col ~extra ~package =
-  let locations = extra.SharedTypes.locations in
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
 
-  match References.locForPos ~extra:{extra with locations} pos with
+  match References.locItemForPos ~extra pos with
   | None -> Protocol.null
-  | Some (_, loc) -> (
-    let locIsModule =
-      match loc with
+  | Some locItem -> (
+    let isModule =
+      match locItem.locType with
       | SharedTypes.LModule _ | TopLevelModule _ -> true
       | TypeDefinition _ | Typed _ | Constant _ -> false
     in
-    let uriLocOpt = References.definitionForLoc ~package ~file loc in
+    let uriLocOpt = References.definitionForLocItem ~package ~file locItem in
     match uriLocOpt with
     | None -> Protocol.null
     | Some (uri2, loc) ->
@@ -109,7 +108,7 @@ let definition ~file ~line ~col ~extra ~package =
       in
       (* Skip if range is all zero, unless it's a module *)
       let skipZero =
-        (not locIsModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
+        (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
       in
       if skipZero then Protocol.null
       else
@@ -126,14 +125,12 @@ let definition ~path ~line ~col =
   print_endline result
 
 let references ~file ~line ~col ~extra ~package =
-  let locations = extra.SharedTypes.locations in
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-
-  match References.locForPos ~extra:{extra with locations} pos with
+  match References.locItemForPos ~extra pos with
   | None -> Protocol.null
-  | Some (_, loc) ->
+  | Some locItem ->
     let allReferences =
-      References.allReferencesForLoc ~package ~file ~extra loc
+      References.allReferencesForLocItem ~package ~file ~extra locItem
     in
     let allLocs =
       allReferences
