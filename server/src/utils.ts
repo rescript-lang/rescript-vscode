@@ -54,15 +54,30 @@ export let findBscNativeOfFile = (
   let bscNativePath = path.join(dir, c.bscNativePartialPath);
 
   if (fs.existsSync(bscNativeReScriptPath)) {
-    return bscNativeReScriptPath
+    return bscNativeReScriptPath;
   } else if (fs.existsSync(bscNativePath)) {
-    return bscNativePath
+    return bscNativePath;
   } else if (dir === source) {
     // reached the top
-    return null
+    return null;
   } else {
     return findBscNativeOfFile(dir);
   }
+};
+
+// TODO: this doesn't handle file:/// scheme
+export let findNodeBuildOfProjectRoot = (
+  projectRootPath: p.DocumentUri
+): null | { buildPath: p.DocumentUri; isReScript: boolean } => {
+  let rescriptNodePath = path.join(projectRootPath, c.rescriptNodePartialPath);
+  let bsbNodePath = path.join(projectRootPath, c.bsbNodePartialPath);
+
+  if (fs.existsSync(rescriptNodePath)) {
+    return { buildPath: rescriptNodePath, isReScript: true };
+  } else if (fs.existsSync(bsbNodePath)) {
+    return { buildPath: bsbNodePath, isReScript: false };
+  }
+  return null;
 };
 
 type execResult =
@@ -129,10 +144,14 @@ export let runAnalysisAfterSanityCheck = (
   return JSON.parse(stdout.toString());
 };
 
-export let runBsbWatcherUsingValidBsbNodePath = (
-  bsbNodePath: p.DocumentUri,
+export let runBuildWatcherUsingValidBuildPath = (
+  buildPath: p.DocumentUri,
+  isRescript: boolean,
   projectRootPath: p.DocumentUri
 ) => {
+  let cwdEnv = {
+    cwd: projectRootPath,
+  };
   if (process.platform === "win32") {
     /*
       - a node.js script in node_modules/.bin on windows is wrapped in a
@@ -146,13 +165,17 @@ export let runBsbWatcherUsingValidBsbNodePath = (
         (since the path might have spaces), which `execFile` would have done
         for you under the hood
     */
-    return childProcess.exec(`"${bsbNodePath}".cmd -w`, {
-      cwd: projectRootPath,
-    });
+    if (isRescript) {
+      return childProcess.exec(`"${buildPath}".cmd build -w`, cwdEnv);
+    } else {
+      return childProcess.exec(`"${buildPath}".cmd -w`, cwdEnv);
+    }
   } else {
-    return childProcess.execFile(bsbNodePath, ["-w"], {
-      cwd: projectRootPath,
-    });
+    if (isRescript) {
+      return childProcess.execFile(buildPath, ["build", "-w"], cwdEnv);
+    } else {
+      return childProcess.execFile(buildPath, ["-w"], cwdEnv);
+    }
   }
 };
 
