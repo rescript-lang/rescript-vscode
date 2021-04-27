@@ -35,10 +35,8 @@ dce: build-native
 tests/node_modules/.bin/rescript:
 	@cd tests && npm install
 
-tests/lib/.compiler.log: tests/node_modules/.bin/rescript
-	@cd tests && node_modules/.bin/rescript build -with-deps
-
-test: dce tests/lib/.compiler.log
+test: dce tests/node_modules/.bin/rescript
+	@cd tests && node_modules/.bin/rescript
 	./test.sh
 
 clean:
