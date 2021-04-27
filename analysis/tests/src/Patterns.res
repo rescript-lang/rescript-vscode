@@ -11,6 +11,7 @@ module A = {
 
   let (a | a, b) = makeX()
 
+  let [v1,v2,v3] = [1,2,3]
 }
 
 let y = A.xxx
@@ -22,4 +23,7 @@ let n = A.name
 //         ^def
 
 let n = A.a
+//        ^def
+
+let n = A.v1
 //        ^def

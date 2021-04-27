@@ -322,7 +322,8 @@ let rec forItem ~env ~(exported : exported) item =
             env.stamps.values
         in
         declareds := {declared with item = MValue declared.item} :: !declareds
-      | Tpat_tuple pats -> pats |> List.iter (fun p -> handlePattern [] p)
+      | Tpat_tuple pats | Tpat_array pats ->
+        pats |> List.iter (fun p -> handlePattern [] p)
       | Tpat_or (p, _, _) -> handlePattern [] p
       | Tpat_record (items, _) ->
         items |> List.iter (fun (_, _, p) -> handlePattern [] p)
