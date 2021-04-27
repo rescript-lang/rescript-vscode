@@ -1,6 +1,6 @@
 {
   "name": "test",
   "sources": "src",
-  "bs-dependencies": ["reason-react"],
+  "bs-dependencies": ["@rescript/react"],
   "reason": { "react-jsx": 3 }
 }
