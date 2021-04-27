@@ -327,6 +327,7 @@ let rec forItem ~env ~(exported : exported) item =
       | Tpat_or (p, _, _) -> handlePattern [] p
       | Tpat_record (items, _) ->
         items |> List.iter (fun (_, _, p) -> handlePattern [] p)
+      | Tpat_lazy p -> handlePattern [] p
       | _ -> ()
     in
     List.iter
