@@ -310,23 +310,22 @@ let rec getModulePath mod_desc =
 let rec forItem ~env ~(exported : exported) item =
   match item.str_desc with
   | Tstr_value (_isRec, bindings) ->
-    let rec handlePattern vb_loc vb_attributes {pat_desc; pat_type} =
-      match pat_desc with
+    let rec handlePattern attributes pat =
+      match pat.pat_desc with
       | Tpat_var (ident, name)
       | Tpat_alias ({pat_desc = Tpat_any}, ident, name) (* let x : t = ... *) ->
-        let item = pat_type in
+        let item = pat.pat_type in
         let declared =
-          addItem ~name ~stamp:(Ident.binding_time ident) ~env ~extent:vb_loc
-            ~item vb_attributes exported.values env.stamps.values
+          addItem ~name ~stamp:(Ident.binding_time ident) ~env
+            ~extent:pat.pat_loc ~item attributes exported.values
+            env.stamps.values
         in
         [{declared with item = MValue declared.item}]
-      | Tpat_tuple pats ->
-        pats |> List.map (handlePattern vb_loc vb_attributes) |> List.flatten
+      | Tpat_tuple pats -> pats |> List.map (handlePattern []) |> List.flatten
       | _ -> []
     in
     List.map
-      (fun {vb_loc; vb_pat; vb_attributes} ->
-        handlePattern vb_loc vb_attributes vb_pat)
+      (fun {vb_pat; vb_attributes} -> handlePattern vb_attributes vb_pat)
       bindings
     |> List.flatten
   | Tstr_module
