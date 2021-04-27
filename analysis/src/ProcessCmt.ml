@@ -322,6 +322,8 @@ let rec forItem ~env ~(exported : exported) item =
         in
         [{declared with item = MValue declared.item}]
       | Tpat_tuple pats -> pats |> List.map (handlePattern []) |> List.flatten
+      | Tpat_record (items, _) ->
+        items |> List.map (fun (_, _, p) -> handlePattern [] p) |> List.flatten
       | _ -> []
     in
     List.map
