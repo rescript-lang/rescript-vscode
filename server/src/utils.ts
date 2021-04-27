@@ -5,8 +5,6 @@ import * as path from "path";
 import * as t from "vscode-languageserver-types";
 import fs from "fs";
 import * as os from "os";
-import { fileURLToPath } from "url";
-import { RequestMessage } from "vscode-languageserver-protocol";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -45,21 +43,25 @@ export let findProjectRootOfFile = (
 // Also, if someone's ever formatting a regular project setup's dependency
 // (which is weird but whatever), they'll at least find an upward bs-platform
 // from the dependent.
-export let findBscExeDirOfFile = (
+export let findBscNativeOfFile = (
   source: p.DocumentUri
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
-  let bscExePath1 = path.join(dir, c.bscExeReScriptPartialPath);
-  let bscExePath2 = path.join(dir, c.bscExePartialPath);
-  if (fs.existsSync(bscExePath1) || fs.existsSync(bscExePath2)) {
-    return dir;
+  // The rescript package's rescript command is a JS wrapper. `rescript format`
+  // also invokes another JS wrapper. _That_ JS wrapper ultimately calls the
+  // (unexposed) bsc -format anyway.
+  let bscNativeReScriptPath = path.join(dir, c.bscNativeReScriptPartialPath);
+  let bscNativePath = path.join(dir, c.bscNativePartialPath);
+
+  if (fs.existsSync(bscNativeReScriptPath)) {
+    return bscNativeReScriptPath
+  } else if (fs.existsSync(bscNativePath)) {
+    return bscNativePath
+  } else if (dir === source) {
+    // reached the top
+    return null
   } else {
-    if (dir === source) {
-      // reached the top
-      return null;
-    } else {
-      return findBscExeDirOfFile(dir);
-    }
+    return findBscNativeOfFile(dir);
   }
 };
 
@@ -72,9 +74,9 @@ type execResult =
     kind: "error";
     error: string;
   };
-export let formatUsingValidBscExePath = (
+export let formatUsingValidBscNativePath = (
   code: string,
-  bscExePath: p.DocumentUri,
+  bscNativePath: p.DocumentUri,
   isInterface: boolean
 ): execResult => {
   let extension = isInterface ? c.resiExt : c.resExt;
@@ -83,7 +85,7 @@ export let formatUsingValidBscExePath = (
     encoding: "utf-8",
   });
   try {
-    let result = childProcess.execFileSync(bscExePath, [
+    let result = childProcess.execFileSync(bscNativePath, [
       "-color",
       "never",
       "-format",

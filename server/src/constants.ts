@@ -3,15 +3,15 @@ import * as path from "path";
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
 export let jsonrpcVersion = "2.0";
-export let bscExePartialPath = path.join(
+export let bscNativeReScriptPartialPath = path.join(
   "node_modules",
-  "bs-platform",
+  "rescript",
   process.platform,
   "bsc.exe"
 );
-export let bscExeReScriptPartialPath = path.join(
+export let bscNativePartialPath = path.join(
   "node_modules",
-  "rescript",
+  "bs-platform",
   process.platform,
   "bsc.exe"
 );
