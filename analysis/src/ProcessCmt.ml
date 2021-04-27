@@ -314,7 +314,7 @@ let rec forItem ~env ~(exported : exported) item =
     let rec handlePattern attributes pat =
       match pat.pat_desc with
       | Tpat_var (ident, name)
-      | Tpat_alias ({pat_desc = Tpat_any}, ident, name) (* let x : t = ... *) ->
+      | Tpat_alias (_, ident, name) (* let x : t = ... *) ->
         let item = pat.pat_type in
         let declared =
           addItem ~name ~stamp:(Ident.binding_time ident) ~env
@@ -328,7 +328,10 @@ let rec forItem ~env ~(exported : exported) item =
       | Tpat_record (items, _) ->
         items |> List.iter (fun (_, _, p) -> handlePattern [] p)
       | Tpat_lazy p -> handlePattern [] p
-      | _ -> ()
+      | Tpat_any | Tpat_constant _
+      | Tpat_construct (_, _, _)
+      | Tpat_variant (_, _, _) ->
+        ()
     in
     List.iter
       (fun {vb_pat; vb_attributes} -> handlePattern vb_attributes vb_pat)
