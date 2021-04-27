@@ -47,8 +47,8 @@ let showModule ~docstring ~(file : SharedTypes.file) ~name
     showModuleTopLevel ~docstring ~name topLevel
   | Some {item = Ident _} -> Some "Unable to resolve module reference"
 
-let newHover ~(file : SharedTypes.file) ~package loc =
-  match loc with
+let newHover ~(file : SharedTypes.file) ~package locItem =
+  match locItem.SharedTypes.locType with
   | SharedTypes.TypeDefinition (name, decl, _stamp) ->
     let typeDef = Shared.declToString name decl in
     Some (codeBlock typeDef)

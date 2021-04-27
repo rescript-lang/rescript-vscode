@@ -174,12 +174,14 @@ type locKind =
   | NotFound
   | Definition of int * tip
 
-type loc =
+type locType =
   | Typed of Types.type_expr * locKind
   | Constant of Asttypes.constant
   | LModule of locKind
   | TopLevelModule of string
   | TypeDefinition of string * Types.type_declaration * int
+
+type locItem = {loc : Location.t; locType : locType}
 
 type openTracker = {
   path : Path.t;
@@ -191,7 +193,7 @@ type openTracker = {
 type extra = {
   internalReferences : (int, Location.t list) Hashtbl.t;
   externalReferences : (string, (path * tip * Location.t) list) Hashtbl.t;
-  mutable locations : (Location.t * loc) list;
+  mutable locItems : locItem list;
   (* This is the "open location", like the location...
      or maybe the >> location of the open ident maybe *)
   (* OPTIMIZE: using a stack to come up with this would cut the computation time of this considerably. *)
@@ -205,7 +207,7 @@ let initExtra () =
   {
     internalReferences = Hashtbl.create 10;
     externalReferences = Hashtbl.create 10;
-    locations = [];
+    locItems = [];
     opens = Hashtbl.create 10;
   }
 
