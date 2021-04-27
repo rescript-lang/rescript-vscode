@@ -4,19 +4,19 @@ Complete tests/src/Complete.res 0:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": " [mapReverse xs f]\n\n    Equivalent to [reverse (map xs f)]\n\n    @example {[\n      mapReverse [3;4;5] (fun x -> x * x) = [25;16;9];;\n    ]}\n"}
+    "documentation": {"kind": "markdown", "value": " [mapReverse xs f]\n\n    Equivalent to [reverse (map xs f)]\n    \n    @example {[\n      mapReverse [3;4;5] (fun x -> x * x) = [25;16;9];;\n    ]}\n"}
   }, {
     "label": "makeBy",
     "kind": 12,
     "tags": [],
     "detail": "(int, int => 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": " [makeBy n f] \n\n    - return a list of length [n] with element [i] initialized with [f i]\n    - return the empty list if [n] is negative\n\n    @example {[\n      makeBy 5 (fun i -> i) = [0;1;2;3;4];;\n      makeBy 5 (fun i -> i * i) = [0;1;4;9;16];;\n    ]}\n"}
+    "documentation": {"kind": "markdown", "value": " [makeBy n f] \n    \n    - return a list of length [n] with element [i] initialized with [f i]\n    - return the empty list if [n] is negative\n\n    @example {[\n      makeBy 5 (fun i -> i) = [0;1;2;3;4];;\n      makeBy 5 (fun i -> i * i) = [0;1;4;9;16];;\n    ]}\n"}
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "  [make n v] \n\n     - return a list of length [n] with each element filled with value [v]  \n     - return the empty list if [n] is negative\n\n     @example {[\n       make 3 1 =  [1;1;1]\n     ]}\n"}
+    "documentation": {"kind": "markdown", "value": "  [make n v] \n  \n    - return a list of length [n] with each element filled with value [v]  \n    - return the empty list if [n] is negative\n\n     @example {[\n       make 3 1 =  [1;1;1]\n     ]}\n"}
   }, {
     "label": "mapReverse2U",
     "kind": 12,
@@ -58,7 +58,7 @@ Complete tests/src/Complete.res 0:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": " [mapWithIndex xs f] applies [f] to each element of [xs]. Function [f] takes two arguments:\n    the index starting from 0 and the element from [xs].\n\n    @example {[\n      mapWithIndex [1;2;3] (fun i x -> i + x) =\n      [0 + 1; 1 + 2; 2 + 3 ]\n    ]}\n"}
+    "documentation": {"kind": "markdown", "value": " [mapWithIndex xs f] applies [f] to each element of [xs]. Function [f] takes two arguments:\n  the index starting from 0 and the element from [xs].\n\n    @example {[\n      mapWithIndex [1;2;3] (fun i x -> i + x) =\n      [0 + 1; 1 + 2; 2 + 3 ]\n    ]}\n"}
   }, {
     "label": "mapReverseU",
     "kind": 12,
@@ -391,13 +391,13 @@ Complete tests/src/Complete.res 27:2
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, (. 'a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   Uncurried version of [eq]\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Uncurried version of [eq]\n"}
   }, {
     "label": "Belt.Option.eq",
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   [eq optValue1 optvalue2 predicate]\n\n   Evaluates two optional values for equality with respect to a predicate function.\n\n   If both [optValue1] and [optValue2] are [None], returns [true].\n\n   If one of the arguments is [Some value] and the other is [None], returns [false]\n\n   If arguments are [Some value1] and [Some value2], returns the result of [predicate value1 value2];\n   the [predicate] function must return a [bool]\n\n   @example {[\n     let clockEqual = (fun a b -> a mod 12 = b mod 12);;\n     eq (Some 3) (Some 15) clockEqual = true;;\n     eq (Some 3) None clockEqual = false;;\n     eq None (Some 3) clockEqual = false;;\n     eq None None clockEqual = true;;\n   ]}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  [eq optValue1 optvalue2 predicate]\n  \n  Evaluates two optional values for equality with respect to a predicate function.\n  \n  If both [optValue1] and [optValue2] are [None], returns [true].\n  \n  If one of the arguments is [Some value] and the other is [None], returns [false]\n  \n  If arguments are [Some value1] and [Some value2], returns the result of [predicate value1 value2];\n  the [predicate] function must return a [bool]\n  \n  @example {[\n    let clockEqual = (fun a b -> a mod 12 = b mod 12);;\n    eq (Some 3) (Some 15) clockEqual = true;;\n    eq (Some 3) None clockEqual = false;;\n    eq None (Some 3) clockEqual = false;;\n    eq None None clockEqual = true;;\n  ]}\n"}
   }]
 
 Complete tests/src/Complete.res 36:2
@@ -421,7 +421,7 @@ Complete tests/src/Complete.res 38:2
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, key) => 'a",
-    "documentation": {"kind": "markdown", "value": " [unsafeGet dict key] return the value if the [key] exists, \n    otherwise an {b undefined} value is returned. Must be used only \n    when the existence of a key is certain. (i.e. when having called [keys]\n    function previously. \n\n    @example {[\n      Array.iter (fun key -> Js.log (Js_dict.unsafeGet dic key)) (Js_dict.keys dict) \n    ]} \n"}
+    "documentation": {"kind": "markdown", "value": " [unsafeGet dict key] return the value if the [key] exists, \n    otherwise an {b undefined} value is returned. Must be used only \n    when the existence of a key is certain. (i.e. when having called [keys]\n    function previously. \n\n@example {[\nArray.iter (fun key -> Js.log (Js_dict.unsafeGet dic key)) (Js_dict.keys dict) \n]} \n"}
   }, {
     "label": "unsafeDeleteKey",
     "kind": 12,
@@ -525,6 +525,16 @@ DocumentSymbol tests/src/Complete.res
         "name": "Comp",
         "kind": 2,
         "location": {"uri": "Complete.res", "range": {"start": {"line": 42, "character": 9}, "end": {"line": 46, "character": 3}}}
+},
+{
+        "name": "makeProps",
+        "kind": 12,
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 0, "character": -1}, "end": {"line": 0, "character": -1}}}
+},
+{
+        "name": "make",
+        "kind": 12,
+        "location": {"uri": "Complete.res", "range": {"start": {"line": 0, "character": -1}, "end": {"line": 0, "character": -1}}}
 },
 {
         "name": "make",
