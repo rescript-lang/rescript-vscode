@@ -21,7 +21,7 @@
 		"language-server"
 	],
 	"engines": {
-		"vscode": "^1.43.0"
+		"vscode": "^1.55.0"
 	},
 	"activationEvents": [
 		"onLanguage:rescript"
