@@ -8,6 +8,9 @@ module A = {
   let makeT = () => {name:"", age:0}
 
   let {name, age} = makeT()
+
+  let (a | a, b) = makeX()
+
 }
 
 let y = A.xxx
@@ -17,3 +20,6 @@ let z = A.yyy
 
 let n = A.name
 //         ^def
+
+let n = A.a
+//        ^def
