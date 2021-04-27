@@ -137,9 +137,6 @@ let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
         env.stamps.types
     in
     [{declared with item = MType (declared.item, recStatus)}]
-  (* | Sig_module({stamp, name}, {md_type: Mty_ident(path) | Mty_alias(path), md_attributes, md_loc}, _) =>
-     let declared = addItem(~contents=Module.Ident(path), ~name=Location.mknoloc(name), ~stamp, ~env, md_attributes, exported.modules, env.stamps.modules);
-     [{...declared, contents: Module.Module(declared.contents)}, ...items] *)
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
       addItem ~extent:md_loc
@@ -978,7 +975,6 @@ struct
   let enter_core_type {ctyp_type; ctyp_desc} =
     match ctyp_desc with
     | Ttyp_constr (path, {txt; loc}, _args) ->
-      (* addForPath(path, txt, loc, Shared.makeFlexible(ctyp_type), Type) *)
       addForLongident (Some (ctyp_type, Type)) path txt loc
     | _ -> ()
 

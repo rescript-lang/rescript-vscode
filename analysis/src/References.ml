@@ -207,9 +207,7 @@ let resolveModuleReference ~file ~package (declared : moduleKind declared) =
       | Some stamp -> (
         match Hashtbl.find_opt env.qFile.stamps.modules stamp with
         | None -> None
-        | Some md ->
-          Some (env.qFile, Some md)
-          (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)))
+        | Some md -> Some (env.qFile, Some md)))
     | `Global (moduleName, path) -> (
       match ProcessCmt.fileForModule ~package moduleName with
       | None -> None
@@ -223,22 +221,15 @@ let resolveModuleReference ~file ~package (declared : moduleKind declared) =
           | Some stamp -> (
             match Hashtbl.find_opt env.qFile.stamps.modules stamp with
             | None -> None
-            | Some md ->
-              Some (env.qFile, Some md)
-              (* Some((env.file.uri, validateLoc(md.name.loc, md.extentLoc))) *)
-            ))))
+            | Some md -> Some (env.qFile, Some md)))))
     | `Stamp stamp -> (
       match Hashtbl.find_opt file.stamps.modules stamp with
       | None -> None
-      | Some md ->
-        Some (file, Some md)
-        (* Some((file.uri, validateLoc(md.name.loc, md.extentLoc))) *))
+      | Some md -> Some (file, Some md))
     | `GlobalMod name -> (
       match ProcessCmt.fileForModule ~package name with
       | None -> None
-      | Some file ->
-        (* maybeLog("Congrats, found a global mod"); *)
-        Some (file, None))
+      | Some file -> Some (file, None))
     | _ -> None)
 
 let validateLoc (loc : Location.t) (backup : Location.t) =
