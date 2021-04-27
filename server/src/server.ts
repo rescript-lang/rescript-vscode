@@ -423,7 +423,7 @@ function onMessage(msg: m.Message) {
       let result:
         | CompletionItem[]
         | null = utils.runAnalysisAfterSanityCheck(filePath, [
-          "complete",
+          "completion",
           filePath,
           params.position.line,
           params.position.character,
