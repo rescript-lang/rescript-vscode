@@ -37,6 +37,8 @@ tests/node_modules/.bin/rescript:
 
 test: dce tests/node_modules/.bin/rescript
 	@cd tests && node_modules/.bin/rescript
+	@echo "cat -A makefile test======"
+	cat -A tests/src/expected/Auto.res.txt
 	./test.sh
 
 clean:

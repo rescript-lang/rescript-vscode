@@ -2,8 +2,8 @@ function exp {
   echo "$(dirname $1)/expected/$(basename $1).txt"
 }
 
-echo "git status right now====="
-git --no-pager diff --word-diff-regex=. tests/src/
+echo "cat -A test.sh"
+cat -A tests/src/expected/Auto.res.txt
 echo "done---------"
 
 node ./checkErrors.js
@@ -15,6 +15,10 @@ for file in tests/src/*.{res,resi}; do
   #   dos2unix $(exp $file)
   # fi
 done
+
+echo "cat -A test.sh second time"
+cat -A tests/src/expected/Auto.res.txt
+echo "done 2---------"
 
 warningYellow='\033[0;33m'
 successGreen='\033[0;32m'
