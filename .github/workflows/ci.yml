@@ -25,7 +25,7 @@ jobs:
             build: |
               cd analysis
               # git checkout converted these to windows newline. Convert back to unix newline here
-              dos2unix test.sh tests/src/*.res tests/src/*.resi
+              dos2unix test.sh tests/src/*.res tests/src/*.resi tests/src/expected/*
               & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test
             artifact-folder: win32
 
