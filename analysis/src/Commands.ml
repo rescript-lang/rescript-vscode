@@ -170,6 +170,9 @@ let documentSymbol ~path =
           | MValue v -> (v |> SharedTypes.variableKind, [])
           | MType (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
           | Module (Structure contents) -> (Module, getItems contents)
+          | Module (Constraint (_, Structure contents)) ->
+            (Module, getItems contents)
+          | Module (Constraint _) -> (Module, [])
           | Module (Ident _) -> (Module, [])
         in
         if extentLoc.loc_ghost then siblings

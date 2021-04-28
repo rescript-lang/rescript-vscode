@@ -375,6 +375,7 @@ let rec forItem ~env ~(exported : exported) item =
              | _ -> Types.Trec_next
            in
            decl |> forTypeDeclaration ~env ~exported ~recStatus)
+  | Tstr_modtype _ -> []
   | _ -> []
 
 and forModule env mod_desc moduleName =
@@ -422,12 +423,14 @@ and forModule env mod_desc moduleName =
     (* e.g. when the same id is defined twice (e.g. make with @react.component) *)
     (* skip the constraint and use the original module definition *)
     forModule env expr.mod_desc moduleName
-  | Tmod_constraint (_expr, typ, _constraint, _coercion) ->
+  | Tmod_constraint (expr, typ, _constraint, _coercion) ->
     (* TODO do this better I think *)
+    let forMod = forModule env expr.mod_desc moduleName in
     let env =
       {env with modulePath = ExportedModule (moduleName, env.modulePath)}
     in
-    forModuleType env typ
+    let forModTyp = forModuleType env typ in
+    Constraint (forMod, forModTyp)
 
 and forStructure ~env items =
   let exported = initExported () in
@@ -636,6 +639,7 @@ and findInModule ~env kind path =
   match kind with
   | Structure {exported} ->
     resolvePathInner ~env:{env with qExported = exported} ~path
+  | Constraint (_, k) -> findInModule ~env k path
   | Ident modulePath -> (
     let stamp, moduleName, fullPath = joinPaths modulePath path in
     if stamp = 0 then Some (`Global (moduleName, fullPath))

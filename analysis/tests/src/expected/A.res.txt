@@ -1,0 +1,3 @@
+Hover tests/src/A.res 4:7
+{"contents": "```rescript\nmodule JsLogger = {\n  let log: string => unit\n}\n```"}
+
