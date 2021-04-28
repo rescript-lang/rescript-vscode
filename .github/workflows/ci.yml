@@ -25,6 +25,8 @@ jobs:
             build: |
               cd analysis
               # git checkout converted these to windows newline. Convert back to unix newline here
+              echo "git diff now"
+              git diff
               echo "cat -A ci===="
               cat -A tests/src/expected/Auto.res.txt
               dos2unix test.sh tests/src/*.res tests/src/*.resi
