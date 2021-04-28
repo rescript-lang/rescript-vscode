@@ -26,12 +26,10 @@ jobs:
               cd analysis
               # git checkout converted these to windows newline. Convert back to unix newline here
               echo "git diff now"
-              git diff
-              echo "cat -A ci===="
-              cat -A tests/src/expected/Auto.res.txt
+              git diff tests/src/expected/Auto.res.txt
               dos2unix test.sh tests/src/*.res tests/src/*.resi
-              echo "cat -A ci second time===="
-              cat -A tests/src/expected/Auto.res.txt
+              echo "git diff again"
+              git diff tests/src/expected/Auto.res.txt
               echo "make now===="
               & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test
             artifact-folder: win32
