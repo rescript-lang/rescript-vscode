@@ -22,8 +22,11 @@ jobs:
             build: eval $(opam env) && cd analysis && make test
             artifact-folder: linux
           - os: windows-latest
-            # CI windows running the binary somehow stucks. Not sure why. Disable for now.
-            build: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make"
+            build: |
+              cd analysis
+              # git checkout converted these to windows newline. Convert back to unix newline here
+              dos2unix test.sh tests/src/*.res tests/src/*.resi
+              & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
