@@ -2,14 +2,18 @@ function exp {
   echo "$(dirname $1)/expected/$(basename $1).txt"
 }
 
-echo "git status right now"
-git --no-pager diff --word-diff-regex=. tests/src/expected/Auto.res.txt
-echo "done"
+echo "git status right now====="
+git --no-pager diff --word-diff-regex=. tests/src/
+echo "done---------"
 
 node ./checkErrors.js
 
 for file in tests/src/*.{res,resi}; do
   ./rescript-editor-analysis.exe test $file &> $(exp $file)
+  # CI
+  # if [ "$RUNNER_OS" == "Windows" ]; then
+  #   dos2unix $(exp $file)
+  # fi
 done
 
 warningYellow='\033[0;33m'
