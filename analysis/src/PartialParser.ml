@@ -57,45 +57,48 @@ let findCallFromArgument text offset =
 (* arg ::= id | id = [?] val *)
 (* val ::= id | "abc" | 42 | {...} | (...) | [...] *)
 let findJsxContext text offset =
-  let rec loop i =
+  let rec loop identsSeen i =
     let i = skipWhite text i in
     if i > 0 then
       match text.[i] with
       | '}' ->
         let i1 = findBackSkippingCommentsAndStrings text '{' '}' (i - 1) 0 in
-        if i1 > 0 then beforeValue i1 else None
+        if i1 > 0 then beforeValue identsSeen i1 else None
       | ')' ->
         let i1 = findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0 in
-        if i1 > 0 then beforeValue i1 else None
+        if i1 > 0 then beforeValue identsSeen i1 else None
       | ']' ->
         let i1 = findBackSkippingCommentsAndStrings text '[' ']' (i - 1) 0 in
-        if i1 > 0 then beforeValue i1 else None
+        if i1 > 0 then beforeValue identsSeen i1 else None
       | '"' ->
         let i1 = findBack text '"' (i - 1) in
-        if i1 > 0 then beforeValue i1 else None
+        if i1 > 0 then beforeValue identsSeen i1 else None
       | _ ->
         let i1 = startOfLident text i in
         let ident = String.sub text i1 (i - i1 + 1) in
         if i1 >= 1 && ident <> "" then
           match ident.[0] with
-          | 'A' .. 'Z' when i1 >= 1 && text.[i1 - 1] = '<' -> Some ident
-          | _ -> beforeIdent (i1 - 1)
+          | 'A' .. 'Z' when i1 >= 1 && text.[i1 - 1] = '<' ->
+            Some (ident, identsSeen)
+          | _ -> beforeIdent identsSeen (i1 - 1)
         else None
     else None
-  and beforeIdent i =
+  and beforeIdent identsSeen i =
     let i = skipWhite text i in
     if i > 0 then
       match text.[i] with
-      | '?' -> fromEquals (i - 1)
-      | '=' -> fromEquals i
-      | _ -> loop (i - 1)
+      | '?' -> fromEquals identsSeen (i - 1)
+      | '=' -> fromEquals identsSeen i
+      | _ -> loop identsSeen (i - 1)
     else None
-  and beforeValue i =
+  and beforeValue identsSeen i =
     let i = skipWhite text i in
     if i > 0 then
-      match text.[i] with '?' -> fromEquals (i - 1) | _ -> fromEquals i
+      match text.[i] with
+      | '?' -> fromEquals identsSeen (i - 1)
+      | _ -> fromEquals identsSeen i
     else None
-  and fromEquals i =
+  and fromEquals identsSeen i =
     let i = skipWhite text i in
     if i > 0 then
       match text.[i] with
@@ -103,11 +106,11 @@ let findJsxContext text offset =
         let i = skipWhite text (i - 1) in
         let i1 = startOfLident text i in
         let ident = String.sub text i1 (i - i1 + 1) in
-        match ident with "" -> None | _ -> loop (i1 - 1))
+        match ident with "" -> None | _ -> loop (ident :: identsSeen) (i1 - 1))
       | _ -> None
     else None
   in
-  loop offset
+  loop [] offset
 
 type pipe = PipeId of string | PipeArray | PipeString
 
@@ -116,8 +119,8 @@ type completable =
   | Clabel of string list * string
       (** e.g. (["M", "foo"], "label") for M.foo(...~label...) *)
   | Cpath of string list  (** e.g. ["M", "foo"] for M.foo *)
-  | Cjsx of string list * string
-      (** E.g. (["M", "Comp"], "id") for <M.Comp ... id *)
+  | Cjsx of string list * string * string list
+      (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
   | Cpipe of pipe * string  (** E.g. ("x", "foo") for "x->foo" *)
 
 let isLowercaseIdent id =
@@ -140,8 +143,8 @@ let findCompletable text offset =
     | [id] when String.lowercase_ascii id = id -> (
       match findJsxContext text (offset - len - 1) with
       | None -> Cpath parts
-      | Some componentName ->
-        Cjsx (Str.split (Str.regexp_string ".") componentName, id))
+      | Some (componentName, identsSeen) ->
+        Cjsx (Str.split (Str.regexp_string ".") componentName, id, identsSeen))
     | _ -> Cpath parts
   in
   let mkPipe off partialName =
@@ -179,8 +182,11 @@ let findCompletable text offset =
         (* autocomplete with no id: check if inside JSX *)
         match findJsxContext text (offset - 1) with
         | None -> None
-        | Some componentName ->
-          Some (Cjsx (Str.split (Str.regexp_string ".") componentName, "")))
+        | Some (componentName, identsSeen) ->
+          Some
+            (Cjsx
+               (Str.split (Str.regexp_string ".") componentName, "", identsSeen))
+        )
       | _ -> if i = offset - 1 then None else Some (mkPath (suffix i))
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)

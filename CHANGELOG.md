@@ -1,5 +1,6 @@
 ## master
 - Fix issue jumping to variables defined in complex patterns.
+- In Jsx autocomplete, don't suggest props already assigned.
 
 ## beta 2
 

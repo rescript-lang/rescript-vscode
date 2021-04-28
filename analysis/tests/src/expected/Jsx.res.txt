@@ -9,12 +9,6 @@ Complete tests/src/Jsx.res 7:2
     "detail": "string",
     "documentation": null
   }, {
-    "label": "second",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<string>",
-    "documentation": null
-  }, {
     "label": "first",
     "kind": 4,
     "tags": [],
