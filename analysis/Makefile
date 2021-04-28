@@ -32,11 +32,11 @@ build-native: $(OUTPUT) depend
 dce: build-native
 	../node_modules/.bin/reanalyze -dce-cmt src -suppress src/vendor
 
-tests/node_modules/.bin/rescript:
+tests/node_modules/.bin/bsb:
 	@cd tests && npm install
 
-test: dce tests/node_modules/.bin/rescript
-	@cd tests && node_modules/.bin/rescript
+test: dce tests/node_modules/.bin/bsb
+	@cd tests && node_modules/.bin/bsb -make-world
 	./test.sh
 
 clean:

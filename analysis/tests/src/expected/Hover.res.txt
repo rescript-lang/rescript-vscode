@@ -23,7 +23,7 @@ Hover tests/src/Hover.res 37:13
 {"contents": "```rescript\nstring\n```"}
 
 Hover tests/src/Hover.res 41:13
-{"contents": "```rescript\nstring\n```"}
+null
 
 Hover tests/src/Hover.res 44:10
 {"contents": "```rescript\nint\n```"}
