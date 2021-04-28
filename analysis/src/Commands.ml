@@ -52,7 +52,7 @@ let completion ~path ~line ~col ~currentFile =
 let hover ~file ~line ~col ~extra ~package =
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
   match References.locItemForPos ~extra pos with
-  | None -> Protocol.null
+  | None -> Protocol.null1
   | Some locItem -> (
     let isModule =
       match locItem.locType with
