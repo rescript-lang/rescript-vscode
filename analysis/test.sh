@@ -27,8 +27,8 @@ else
   cat tests/src/expected/Auto.res.txt
   echo "diff -u:"
   diff -u tests/src/Auto.res.txt_old tests/src/expected/Auto.res.txt
-  echo "trivial diff:"
-  diff -u tests/src/Auto.res.txt_old tests/src/expected/Hover.res.txt
+  echo "cmp:"
+  cmp tests/src/Auto.res.txt_old tests/src/expected/Auto.res.txt
   echo "done"
   exit 1
 fi
