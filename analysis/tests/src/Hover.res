@@ -53,3 +53,6 @@ module JsLogger: Logger = {
 //     ^hov
   let log = (msg: string) => Js.log(msg)
 }
+
+module JJ = JsLogger
+//            ^def

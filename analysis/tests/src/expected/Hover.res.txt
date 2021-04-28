@@ -31,3 +31,6 @@ Hover tests/src/Hover.res 44:10
 Hover tests/src/Hover.res 51:7
 {"contents": "```rescript\nmodule JsLogger = {\n  let log: string => unit\n}\n```"}
 
+Definition tests/src/Hover.res 56:14
+{"uri": "Hover.res", "range": {"start": {"line": 51, "character": 7}, "end": {"line": 51, "character": 15}}}
+
