@@ -432,7 +432,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
 let processCompletable ~findItems ~package ~rawOpens
     (completable : PartialParser.completable) =
   match completable with
-  | Cjsx (componentPath, prefix) ->
+  | Cjsx (componentPath, prefix, identsSeen) ->
     let items = findItems ~exact:true (componentPath @ ["make"]) in
     let labels =
       match items with
@@ -473,7 +473,8 @@ let processCompletable ~findItems ~package ~rawOpens
     else
       keyLabel
       :: (labels
-         |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
+         |> List.filter (fun (name, _t) ->
+                Utils.startsWith name prefix && not (List.mem name identsSeen))
          |> List.map mkLabel)
   | Cpath parts ->
     let items = parts |> findItems ~exact:false in
