@@ -26,7 +26,7 @@ jobs:
             build: |
               cd analysis
               dos2unix test.sh tests/src/*.res tests/src/*.resi
-              "& $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test"
+              "& $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make"
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
