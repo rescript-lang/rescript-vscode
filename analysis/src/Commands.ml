@@ -71,11 +71,11 @@ let hover ~file ~line ~col ~extra ~package =
         (* Skip if range is all zero, unless it's a module *)
         (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
     in
-    if skipZero then Protocol.null
+    if skipZero then Protocol.null2
     else
       let hoverText = Hover.newHover ~file ~package locItem in
       match hoverText with
-      | None -> Protocol.null
+      | None -> Protocol.null3
       | Some s -> Protocol.stringifyHover {contents = s})
 
 let hover ~path ~line ~col =

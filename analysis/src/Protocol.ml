@@ -19,6 +19,8 @@ type location = {uri : string; range : range}
 type documentSymbolItem = {name : string; kind : int; location : location}
 
 let null = "null"
+let null2 = "null2"
+let null3 = "null3"
 
 let array l = "[" ^ String.concat ", " l ^ "]"
 
