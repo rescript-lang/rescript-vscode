@@ -3,15 +3,17 @@ module A = {
 
   let (xxx, yyy) = makeX()
 
-  type t = {name:string, age:int}
-  
-  let makeT = () => {name:"", age:0}
+  type t = {name: string, age: int}
+
+  let makeT = () => {name: "", age: 0}
 
   let {name, age} = makeT()
 
   let (a | a, b) = makeX()
 
-  let [v1,v2,v3] = [1,2,3]
+  type rec arr = A(array<arr>)
+
+  let A([v1, _, _]) | _ as v1 = assert false
 
   let lazy lazyy = lazy 3
 }
@@ -21,14 +23,14 @@ let y = A.xxx
 
 let z = A.yyy
 
-let n = A.name
+let n1 = A.name
 //         ^def
 
-let n = A.a
-//        ^def
+let n2 = A.a
+//         ^def
 
-let n = A.v1
-//        ^def
+let n3 = A.v1
+//         ^def
 
-let n = A.lazyy
-//        ^def
+let n4 = A.lazyy
+//         ^def
