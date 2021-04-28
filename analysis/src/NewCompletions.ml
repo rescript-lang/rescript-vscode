@@ -53,7 +53,7 @@ let resolveOpens ~env ~previous opens ~package =
     previous opens
 
 let completionForDeclareds ~pos declareds prefix transformContents =
-  (* Log.log("complete for declares " ++ prefix); *)
+  (* Log.log("completion for declares " ++ prefix); *)
   Hashtbl.fold
     (fun _stamp declared results ->
       if

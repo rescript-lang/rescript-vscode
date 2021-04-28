@@ -1,4 +1,4 @@
-Complete tests/src/Complete.res 0:2
+Complete tests/src/Completion.res 0:2
 [{
     "label": "mapReverse",
     "kind": 12,
@@ -67,7 +67,7 @@ Complete tests/src/Complete.res 0:2
     "documentation": null
   }]
 
-Complete tests/src/Complete.res 1:2
+Complete tests/src/Completion.res 1:2
 [{
     "label": "Floatarray",
     "kind": 9,
@@ -286,7 +286,7 @@ Complete tests/src/Complete.res 1:2
     "documentation": {"kind": "markdown", "value": " [Array.blit v1 o1 v2 o2 len] copies [len] elements\n   from array [v1], starting at element number [o1], to array [v2],\n   starting at element number [o2]. It works correctly even if\n   [v1] and [v2] are the same array, and the source and\n   destination chunks overlap.\n\n   Raise [Invalid_argument \"Array.blit\"] if [o1] and [len] do not\n   designate a valid subarray of [v1], or if [o2] and [len] do not\n   designate a valid subarray of [v2]. "}
   }]
 
-Complete tests/src/Complete.res 2:2
+Complete tests/src/Completion.res 2:2
 [{
     "label": "mapi",
     "kind": 12,
@@ -337,7 +337,7 @@ Complete tests/src/Complete.res 2:2
     "documentation": {"kind": "markdown", "value": " [mem a l] is true if and only if [a] is equal\n   to an element of [l].\n   @since 4.03.0 "}
   }]
 
-Complete tests/src/Complete.res 12:2
+Complete tests/src/Completion.res 12:2
 [{
     "label": "customDouble",
     "kind": 12,
@@ -346,7 +346,7 @@ Complete tests/src/Complete.res 12:2
     "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment"}
   }]
 
-Complete tests/src/Complete.res 19:2
+Complete tests/src/Completion.res 19:2
 [{
     "label": "age",
     "kind": 4,
@@ -361,7 +361,7 @@ Complete tests/src/Complete.res 19:2
     "documentation": null
   }]
 
-Complete tests/src/Complete.res 21:2
+Complete tests/src/Completion.res 21:2
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -376,7 +376,7 @@ Complete tests/src/Complete.res 21:2
     "documentation": null
   }]
 
-Complete tests/src/Complete.res 23:2
+Complete tests/src/Completion.res 23:2
 [{
     "label": "Js.String2.toUpperCase",
     "kind": 12,
@@ -385,7 +385,7 @@ Complete tests/src/Complete.res 23:2
     "documentation": {"kind": "markdown", "value": "\n  `toUpperCase str` converts `str` to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German `ß` capitalizes to two `S`es in a row.\n\n  ```\n  toUpperCase \"abc\" = \"ABC\";;\n  toUpperCase {js|Straße|js} = {js|STRASSE|js};;\n  toLowerCase {js|πς|js} = {js|ΠΣ|js};;\n  ```\n"}
   }]
 
-Complete tests/src/Complete.res 27:2
+Complete tests/src/Completion.res 27:2
 [{
     "label": "Belt.Option.eqU",
     "kind": 12,
@@ -400,7 +400,7 @@ Complete tests/src/Complete.res 27:2
     "documentation": {"kind": "markdown", "value": "\n   `eq optValue1 optvalue2 predicate`\n\n   Evaluates two optional values for equality with respect to a predicate function.\n\n   If both `optValue1` and `optValue2` are `None`, returns `true`.\n\n   If one of the arguments is `Some value` and the other is `None`, returns `false`\n\n   If arguments are `Some value1` and `Some value2`, returns the result of `predicate value1 value2`;\n   the `predicate` function must return a `bool`\n\n   ```\n   let clockEqual = (fun a b -> a mod 12 = b mod 12);;\n   eq (Some 3) (Some 15) clockEqual = true;;\n   eq (Some 3) None clockEqual = false;;\n   eq None (Some 3) clockEqual = false;;\n   eq None None clockEqual = true;;\n   ```\n"}
   }]
 
-Complete tests/src/Complete.res 36:2
+Complete tests/src/Completion.res 36:2
 [{
     "label": "ForAuto.abc",
     "kind": 12,
@@ -415,7 +415,7 @@ Complete tests/src/Complete.res 36:2
     "documentation": null
   }]
 
-Complete tests/src/Complete.res 38:2
+Complete tests/src/Completion.res 38:2
 [{
     "label": "unsafeGet",
     "kind": 12,
@@ -430,7 +430,7 @@ Complete tests/src/Complete.res 38:2
     "documentation": {"kind": "markdown", "value": " Experimental internal function "}
   }]
 
-Complete tests/src/Complete.res 50:2
+Complete tests/src/Completion.res 50:2
 [{
     "label": "zzz",
     "kind": 12,
@@ -439,7 +439,7 @@ Complete tests/src/Complete.res 50:2
     "documentation": null
   }]
 
-Complete tests/src/Complete.res 52:2
+Complete tests/src/Completion.res 52:2
 [{
     "label": "key",
     "kind": 4,
@@ -454,91 +454,91 @@ Complete tests/src/Complete.res 52:2
     "documentation": null
   }]
 
-DocumentSymbol tests/src/Complete.res
+DocumentSymbol tests/src/Completion.res
 [
 {
         "name": "MyList",
         "kind": 2,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 0, "character": 25}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 0, "character": 25}}}
 },
 {
         "name": "Dep",
         "kind": 2,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 6, "character": 7}, "end": {"line": 11, "character": 1}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 6, "character": 7}, "end": {"line": 11, "character": 1}}}
 },
 {
         "name": "customDouble",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 7, "character": 2}, "end": {"line": 8, "character": 30}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 7, "character": 2}, "end": {"line": 8, "character": 30}}}
 },
 {
         "name": "Lib",
         "kind": 2,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 15, "character": 7}, "end": {"line": 18, "character": 1}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 15, "character": 7}, "end": {"line": 18, "character": 1}}}
 },
 {
         "name": "foo",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 16, "character": 6}, "end": {"line": 16, "character": 9}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 16, "character": 6}, "end": {"line": 16, "character": 9}}}
 },
 {
         "name": "next",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 17, "character": 6}, "end": {"line": 17, "character": 10}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 17, "character": 6}, "end": {"line": 17, "character": 10}}}
 },
 {
         "name": "op",
         "kind": 13,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 26, "character": 4}, "end": {"line": 26, "character": 6}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 26, "character": 4}, "end": {"line": 26, "character": 6}}}
 },
 {
         "name": "ForAuto",
         "kind": 2,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 30, "character": 7}, "end": {"line": 34, "character": 1}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 30, "character": 7}, "end": {"line": 34, "character": 1}}}
 },
 {
         "name": "t",
         "kind": 26,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 31, "character": 2}, "end": {"line": 31, "character": 14}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 31, "character": 2}, "end": {"line": 31, "character": 14}}}
 },
 {
         "name": "abc",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 32, "character": 6}, "end": {"line": 32, "character": 9}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 32, "character": 6}, "end": {"line": 32, "character": 9}}}
 },
 {
         "name": "abd",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 33, "character": 6}, "end": {"line": 33, "character": 9}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 33, "character": 6}, "end": {"line": 33, "character": 9}}}
 },
 {
         "name": "fa",
         "kind": 13,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 36, "character": 4}, "end": {"line": 36, "character": 6}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 36, "character": 4}, "end": {"line": 36, "character": 6}}}
 },
 {
         "name": "O",
         "kind": 2,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 41, "character": 7}, "end": {"line": 47, "character": 1}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 41, "character": 7}, "end": {"line": 47, "character": 1}}}
 },
 {
         "name": "Comp",
         "kind": 2,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 42, "character": 9}, "end": {"line": 46, "character": 3}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 42, "character": 9}, "end": {"line": 46, "character": 3}}}
 },
 {
         "name": "make",
         "kind": 12,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 44, "character": 8}, "end": {"line": 44, "character": 12}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 44, "character": 8}, "end": {"line": 44, "character": 12}}}
 },
 {
         "name": "zzz",
         "kind": 13,
-        "location": {"uri": "Complete.res", "range": {"start": {"line": 49, "character": 4}, "end": {"line": 49, "character": 7}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 49, "character": 4}, "end": {"line": 49, "character": 7}}}
 }
 ]
 
-Complete tests/src/Complete.res 56:2
+Complete tests/src/Completion.res 56:2
 [{
     "label": "react.component",
     "kind": 4,
@@ -547,7 +547,7 @@ Complete tests/src/Complete.res 56:2
     "documentation": null
   }]
 
-Complete tests/src/Complete.res 58:2
+Complete tests/src/Completion.res 58:2
 [{
     "label": "component",
     "kind": 4,

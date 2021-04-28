@@ -3,7 +3,7 @@ let help =
 **Private CLI For rescript-vscode usage only**
 
 API examples:
-  ./rescript-editor-analysis.exe complete src/MyFile.res 0 4 currentContent.res
+  ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 currentContent.res
   ./rescript-editor-analysis.exe definition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe documentSymbol src/Foo.res
   ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
