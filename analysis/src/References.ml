@@ -6,14 +6,6 @@ let maybeLog m = if !debugReferences then Log.log ("[ref] " ^ m)
 
 let checkPos (line, char)
     {Location.loc_start = {pos_lnum; pos_bol; pos_cnum}; loc_end} =
-  print_endline "References.checkPos loc_start pos_lnum, pos_bol, pos_cnum:";
-  print_endline (string_of_int pos_lnum);
-  print_endline (string_of_int pos_bol);
-  print_endline (string_of_int pos_cnum);
-  print_endline "References.checkPos loc_end pos_lnum, pos_bol, pos_cnum:";
-  print_endline (string_of_int loc_end.pos_lnum);
-  print_endline (string_of_int loc_end.pos_bol);
-  print_endline (string_of_int loc_end.pos_cnum);
   if line < pos_lnum || (line = pos_lnum && char < pos_cnum - pos_bol) then
     false
   else if
@@ -23,8 +15,6 @@ let checkPos (line, char)
   else true
 
 let locItemsForPos ~extra pos =
-  print_endline "References.locItemsForPos extra.locItems length:";
-  print_endline (string_of_int (List.length extra.locItems));
   extra.locItems |> List.filter (fun {loc; locType = _} -> checkPos pos loc)
 
 let locItemForPos ~extra pos =

@@ -51,12 +51,8 @@ let completion ~path ~line ~col ~currentFile =
 
 let hover ~file ~line ~col ~extra ~package =
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-  print_endline "Commands.hover pos:";
-  let (a, b) = pos in
-  print_endline (string_of_int a);
-  print_endline (string_of_int b);
   match References.locItemForPos ~extra pos with
-  | None -> Protocol.null1
+  | None -> Protocol.null
   | Some locItem -> (
     let isModule =
       match locItem.locType with
@@ -75,11 +71,11 @@ let hover ~file ~line ~col ~extra ~package =
         (* Skip if range is all zero, unless it's a module *)
         (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
     in
-    if skipZero then Protocol.null2
+    if skipZero then Protocol.null
     else
       let hoverText = Hover.newHover ~file ~package locItem in
       match hoverText with
-      | None -> Protocol.null3
+      | None -> Protocol.null
       | Some s -> Protocol.stringifyHover {contents = s})
 
 let hover ~path ~line ~col =
