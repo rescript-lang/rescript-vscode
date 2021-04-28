@@ -51,6 +51,10 @@ let completion ~path ~line ~col ~currentFile =
 
 let hover ~file ~line ~col ~extra ~package =
   let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+  print_endline "Commands.hover pos:";
+  let (a, b) = pos in
+  print_endline (string_of_int a);
+  print_endline (string_of_int b);
   match References.locItemForPos ~extra pos with
   | None -> Protocol.null1
   | Some locItem -> (

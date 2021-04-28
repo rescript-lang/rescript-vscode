@@ -15,6 +15,8 @@ let checkPos (line, char)
   else true
 
 let locItemsForPos ~extra pos =
+  print_endline "References.locItemsForPos extra.locItems length:";
+  print_endline (string_of_int (List.length extra.locItems));
   extra.locItems |> List.filter (fun {loc; locType = _} -> checkPos pos loc)
 
 let locItemForPos ~extra pos =
