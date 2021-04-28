@@ -8,5 +8,5 @@ Hover tests/src/Definition.res 14:14
 {"contents": "```rescript\n('a => 'b, list<'a>) => list<'b>\n```\n\n [List.map f [a1; ...; an]] applies function [f] to [a1, ..., an],\n   and builds the list [[f a1; ...; f an]]\n   with the results returned by [f].  Not tail-recursive. "}
 
 Hover tests/src/Definition.res 18:14
-{"contents": "```rescript\n(Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b>\n```\n\n\n  `map xs f`\n\n  **return** the list obtained by applying `f` to each element of `xs`\n\n  ```\n  map [1;2] (fun x-> x + 1) = [3;4]\n  ```\n"}
+{"contents": "```rescript\n(Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b>\n```\n\n\n    [map xs f]\n\n    return the list obtained by applying [f] to each element of [xs]\n\n   @example {[\n     map [1;2] (fun x-> x + 1) = [3;4]\n   ]}\n"}
 
