@@ -2,7 +2,7 @@ function exp {
   echo "$(dirname $1)/expected/$(basename $1).txt"
 }
 
-cat tests/src/expected/Auto.res.txt
+node ./checkErrors.js
 
 for file in tests/src/*.{res,resi}; do
   ./rescript-editor-analysis.exe test $file &> $(exp $file)
@@ -17,7 +17,7 @@ if [[ $diff = "" ]]; then
   printf "${successGreen}✅ No unstaged tests difference.${reset}\n"
 else
   printf "${warningYellow}⚠️ There are unstaged differences in tests/! Did you break a test?\n${diff}\n${reset}"
-  cat tests/src/expected/Auto.res.txt
+  node ./checkErrors.js
   git --no-pager diff tests/src/expected
   exit 1
 fi
