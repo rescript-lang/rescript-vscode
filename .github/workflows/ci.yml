@@ -23,7 +23,10 @@ jobs:
             artifact-folder: linux
           - os: windows-latest
             # CI windows running the binary somehow stucks. Not sure why. Disable for now.
-            build: "cd analysis && dos2unix test.sh && dos2unix tests/src/Auto.res && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test"
+            build: |
+              cd analysis
+              dos2unix test.sh tests/src/*.res tests/src/*.resi
+              "& $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test"
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
