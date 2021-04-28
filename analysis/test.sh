@@ -18,6 +18,6 @@ if [[ $diff = "" ]]; then
 else
   printf "${warningYellow}⚠️ There are unstaged differences in tests/! Did you break a test?\n${diff}\n${reset}"
   node ./checkErrors.js
-  git --no-pager diff tests/src/expected
+  git --no-pager diff --word-diff-regex=. tests/src/expected/Auto.res.txt
   exit 1
 fi
