@@ -4,6 +4,8 @@ function exp {
 
 node ./checkErrors.js
 
+cp tests/src/expected/Auto.res.txt tests/src/Auto.res.txt_old
+
 for file in tests/src/*.{res,resi}; do
   ./rescript-editor-analysis.exe test $file &> $(exp $file)
 done
@@ -19,5 +21,6 @@ else
   printf "${warningYellow}⚠️ There are unstaged differences in tests/! Did you break a test?\n${diff}\n${reset}"
   node ./checkErrors.js
   git --no-pager diff --word-diff-regex=. tests/src/expected/Auto.res.txt
+  diff -u tests/src/Auto.res.txt_old tests/src/expected/Auto.res.txt
   exit 1
 fi
