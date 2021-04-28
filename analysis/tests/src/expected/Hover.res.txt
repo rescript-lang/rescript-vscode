@@ -28,3 +28,6 @@ Hover tests/src/Hover.res 41:13
 Hover tests/src/Hover.res 44:10
 {"contents": "```rescript\nint\n```"}
 
+Hover tests/src/Hover.res 51:7
+{"contents": "```rescript\nmodule JsLogger = {\n  let log: string => unit\n}\n```"}
+

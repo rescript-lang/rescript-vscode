@@ -45,7 +45,9 @@ let showModule ~docstring ~(file : SharedTypes.file) ~name
   | None -> showModuleTopLevel ~docstring ~name file.contents.topLevel
   | Some {item = Structure {topLevel}} ->
     showModuleTopLevel ~docstring ~name topLevel
-  | Some {item = Ident _} -> Some "Unable to resolve module reference"
+  | Some {item = Constraint(Structure {topLevel}, _)} ->
+    showModuleTopLevel ~docstring ~name topLevel
+  | Some _ -> Some "Unable to resolve module reference"
 
 let newHover ~(file : SharedTypes.file) ~package locItem =
   match locItem.SharedTypes.locType with

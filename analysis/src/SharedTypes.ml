@@ -117,7 +117,10 @@ and moduleContents = {
   topLevel : moduleItem declared list;
 }
 
-and moduleKind = Ident of Path.t | Structure of moduleContents
+and moduleKind =
+  | Ident of Path.t
+  | Structure of moduleContents
+  | Constraint of moduleKind * moduleKind
 
 type 't stampMap = (int, 't) Hashtbl.t
 

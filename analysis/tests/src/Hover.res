@@ -44,3 +44,12 @@ let make2 = (~name:string) => React.string(name)
 
 let num = 34
 //        ^hov
+
+module type Logger = {
+  let log: string => unit
+}
+
+module JsLogger: Logger = {
+//     ^hov
+  let log = (msg: string) => Js.log(msg)
+}
