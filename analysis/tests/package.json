@@ -1,9 +1,9 @@
 {
   "scripts": {},
-  "dependencies": {
-    "rescript": "9.1.2"
-  },
   "devDependencies": {
     "@rescript/react": "^0.10.2"
+  },
+  "dependencies": {
+    "rescript": "^9.1.0"
   }
 }

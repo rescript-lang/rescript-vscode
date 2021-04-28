@@ -36,7 +36,7 @@ tests/node_modules/.bin/rescript:
 	@cd tests && npm install
 
 test: dce tests/node_modules/.bin/rescript
-	@cd tests && node_modules/.bin/rescript
+	@cd tests && node_modules/.bin/rescript build -with-deps
 	./test.sh
 
 clean:
