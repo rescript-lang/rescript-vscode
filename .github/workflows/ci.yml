@@ -25,17 +25,17 @@ jobs:
             build: |
               cd analysis
               # git checkout converted these to windows newline. Convert back to unix newline here
-              # dos2unix test.sh tests/src/*.res tests/src/*.resi tests/src/expected/*
+              dos2unix test.sh tests/src/*.res tests/src/*.resi tests/src/expected/*
               & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
 
     steps:
-    - name: Set git to use LF
-      run: |
-        git config --global core.autocrlf false
-        git config --global core.eol lf
+    # - name: Set git to use LF
+    #   run: |
+    #     git config --global core.autocrlf false
+    #     git config --global core.eol lf
 
     - uses: actions/checkout@v2.3.4
 
