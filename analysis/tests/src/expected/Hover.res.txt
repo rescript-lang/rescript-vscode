@@ -37,3 +37,9 @@ Definition tests/src/Hover.res 57:14
 Hover tests/src/Hover.res 61:9
 {"contents": "```rescript\nmodule IdDefinedTwice = {\n  let x: int\n  let y: int\n  let x: int\n}\n```"}
 
+Hover tests/src/Hover.res 70:7
+{"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
+
+Hover tests/src/Hover.res 73:7
+{"contents": "Unable to resolve module reference A"}
+
