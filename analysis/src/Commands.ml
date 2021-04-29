@@ -184,7 +184,7 @@ let test ~path =
   | Some text ->
     let lines = text |> String.split_on_char '\n' in
     let processLine i line =
-      if Str.string_match (Str.regexp "^//[ ]*\\^") line 0 then
+      if Str.string_match (Str.regexp "^ *//[ ]*\\^") line 0 then
         let matched = Str.matched_string line in
         let len = line |> String.length in
         let mlen = String.length matched in
