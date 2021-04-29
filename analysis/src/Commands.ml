@@ -49,79 +49,81 @@ let completion ~path ~line ~col ~currentFile =
   in
   print_endline result
 
-let hover ~file ~line ~col ~extra ~package =
-  let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-  match References.locItemForPos ~extra pos with
-  | None -> Protocol.null
-  | Some locItem -> (
-    let isModule =
-      match locItem.locType with
-      | SharedTypes.LModule _ | TopLevelModule _ -> true
-      | TypeDefinition _ | Typed _ | Constant _ -> false
-    in
-    let uriLocOpt = References.definitionForLocItem ~package ~file locItem in
-    let skipZero =
-      match uriLocOpt with
-      | None -> false
-      | Some (_, loc) ->
-        let isInterface = file.uri |> Uri2.isInterface in
-        let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-          (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
-        in
-        (* Skip if range is all zero, unless it's a module *)
-        (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
-    in
-    if skipZero then Protocol.null
-    else
-      let hoverText = Hover.newHover ~file ~package locItem in
-      match hoverText with
-      | None -> Protocol.null
-      | Some s -> Protocol.stringifyHover {contents = s})
-
 let hover ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | Error message -> Protocol.stringifyHover {contents = message}
-    | Ok (package, {file; extra}) -> hover ~file ~line ~col ~extra ~package
+    | Ok (package, {file; extra}) -> (
+      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+      match References.locItemForPos ~extra pos with
+      | None -> Protocol.null
+      | Some locItem -> (
+        let isModule =
+          match locItem.locType with
+          | SharedTypes.LModule _ | TopLevelModule _ -> true
+          | TypeDefinition _ | Typed _ | Constant _ -> false
+        in
+        let uriLocOpt =
+          References.definitionForLocItem ~package ~file locItem
+        in
+        let skipZero =
+          match uriLocOpt with
+          | None -> false
+          | Some (_, loc) ->
+            let isInterface = file.uri |> Uri2.isInterface in
+            let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
+              (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
+            in
+            (* Skip if range is all zero, unless it's a module *)
+            (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
+        in
+        if skipZero then Protocol.null
+        else
+          let hoverText = Hover.newHover ~file ~package locItem in
+          match hoverText with
+          | None -> Protocol.null
+          | Some s -> Protocol.stringifyHover {contents = s}))
   in
+
   print_endline result
-
-let definition ~file ~line ~col ~extra ~package =
-  let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-
-  match References.locItemForPos ~extra pos with
-  | None -> Protocol.null
-  | Some locItem -> (
-    let isModule =
-      match locItem.locType with
-      | SharedTypes.LModule _ | TopLevelModule _ -> true
-      | TypeDefinition _ | Typed _ | Constant _ -> false
-    in
-    let uriLocOpt = References.definitionForLocItem ~package ~file locItem in
-    match uriLocOpt with
-    | None -> Protocol.null
-    | Some (uri2, loc) ->
-      let isInterface = file.uri |> Uri2.isInterface in
-      let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-        (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
-      in
-      (* Skip if range is all zero, unless it's a module *)
-      let skipZero =
-        (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
-      in
-      if skipZero then Protocol.null
-      else
-        Protocol.stringifyLocation
-          {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc})
 
 let definition ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | Error _message -> Protocol.null
-    | Ok (package, {file; extra}) -> definition ~file ~line ~col ~extra ~package
+    | Ok (package, {file; extra}) -> (
+      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+
+      match References.locItemForPos ~extra pos with
+      | None -> Protocol.null
+      | Some locItem -> (
+        let isModule =
+          match locItem.locType with
+          | SharedTypes.LModule _ | TopLevelModule _ -> true
+          | TypeDefinition _ | Typed _ | Constant _ -> false
+        in
+        let uriLocOpt =
+          References.definitionForLocItem ~package ~file locItem
+        in
+        match uriLocOpt with
+        | None -> Protocol.null
+        | Some (uri2, loc) ->
+          let isInterface = file.uri |> Uri2.isInterface in
+          let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
+            (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
+          in
+          (* Skip if range is all zero, unless it's a module *)
+          let skipZero =
+            (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
+          in
+          if skipZero then Protocol.null
+          else
+            Protocol.stringifyLocation
+              {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}))
   in
+
   print_endline result
 
 let references ~file ~line ~col ~extra ~package =
