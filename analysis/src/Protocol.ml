@@ -59,7 +59,7 @@ let stringifyLocation h =
 let stringifyDocumentSymbolItem i =
   Printf.sprintf
     {|{
-        "namea": "%s",
+        "name": "%s",
         "kind": %i,
         "location": %s
 }|}
