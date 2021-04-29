@@ -39,15 +39,17 @@ let showModuleTopLevel ~docstring ~name
   in
   Some (doc ^ full)
 
-let showModule ~docstring ~(file : SharedTypes.file) ~name
+let rec showModule ~docstring ~(file : SharedTypes.file) ~name
     (declared : SharedTypes.moduleKind SharedTypes.declared option) =
   match declared with
   | None -> showModuleTopLevel ~docstring ~name file.contents.topLevel
   | Some {item = Structure {topLevel}} ->
     showModuleTopLevel ~docstring ~name topLevel
-  | Some {item = Constraint(Structure {topLevel}, _)} ->
-    showModuleTopLevel ~docstring ~name topLevel
-  | Some _ -> Some "Unable to resolve module reference"
+  | Some ({item = Constraint (_, moduleType)} as declared) ->
+    (* show the interface *)
+    showModule ~docstring ~file ~name (Some {declared with item = moduleType})
+  | Some {item = Ident path} ->
+    Some ("Unable to resolve module reference " ^ Path.name path)
 
 let newHover ~(file : SharedTypes.file) ~package locItem =
   match locItem.SharedTypes.locType with

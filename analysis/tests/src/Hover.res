@@ -52,6 +52,7 @@ module type Logger = {
 module JsLogger: Logger = {
 //     ^hov
   let log = (msg: string) => Js.log(msg)
+  let _oneMore = 3
 }
 
 module JJ = JsLogger

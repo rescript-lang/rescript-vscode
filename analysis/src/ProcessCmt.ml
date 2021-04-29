@@ -425,12 +425,12 @@ and forModule env mod_desc moduleName =
     forModule env expr.mod_desc moduleName
   | Tmod_constraint (expr, typ, _constraint, _coercion) ->
     (* TODO do this better I think *)
-    let forMod = forModule env expr.mod_desc moduleName in
+    let modKind = forModule env expr.mod_desc moduleName in
     let env =
       {env with modulePath = ExportedModule (moduleName, env.modulePath)}
     in
-    let forModTyp = forModuleType env typ in
-    Constraint (forMod, forModTyp)
+    let modTypeKind = forModuleType env typ in
+    Constraint (modKind, modTypeKind)
 
 and forStructure ~env items =
   let exported = initExported () in
