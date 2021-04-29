@@ -1,6 +1,8 @@
 let namespacedName namespace name =
   match namespace with None -> name | Some namespace -> name ^ "-" ^ namespace
 
+open Infix
+
 let getBsPlatformDir rootPath =
   let result =
     ModuleResolution.resolveNodeModulePath ~startPath:rootPath "rescript"
