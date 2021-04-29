@@ -1,9 +1,10 @@
-function exp {
-  echo "$(dirname $1)/expected/$(basename $1).txt"
-}
-
 for file in tests/src/*.{res,resi}; do
-  ./rescript-editor-analysis.exe test $file &> $(exp $file)
+  output="$(dirname $file)/expected/$(basename $file).txt"
+  ./rescript-editor-analysis.exe test $file &> $output
+  # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
+  if [ "$RUNNER_OS" == "Windows" ]; then
+    perl -pi -e 's/\r\n/\n/g' -- $output
+  fi
 done
 
 warningYellow='\033[0;33m'
