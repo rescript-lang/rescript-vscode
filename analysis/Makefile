@@ -30,25 +30,13 @@ $(OUTPUT): $(SOURCE_FILES)
 build-native: $(OUTPUT) depend
 
 dce: build-native
-	@echo "git diff makefile dce 1"
-	git diff tests/src/expected/Auto.res.txt
 	../node_modules/.bin/reanalyze -dce-cmt src -suppress src/vendor
-	@echo "git diff makefile dce 2"
-	git diff tests/src/expected/Auto.res.txt
 
 tests/node_modules/.bin/rescript:
-	@echo "git diff makefile rescript 1"
-	git diff tests/src/expected/Auto.res.txt
 	@cd tests && npm install
-	@echo "git diff makefile rescript 2"
-	git diff tests/src/expected/Auto.res.txt
 
 test: dce tests/node_modules/.bin/rescript
-	@echo "git diff makefile test 1"
-	git diff tests/src/expected/Auto.res.txt
 	@cd tests && node_modules/.bin/rescript
-	@echo "git diff makefile test 2"
-	git diff tests/src/expected/Auto.res.txt
 	./test.sh
 
 clean:
