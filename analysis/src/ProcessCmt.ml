@@ -1173,15 +1173,10 @@ let getFullFromCmt ~uri =
       | Ok full ->
         Hashtbl.replace package.interModuleDependencies moduleName
           (SharedTypes.hashList full.extra.externalReferences |> List.map fst);
-        Some (package, full))
+        Some full)
     | None ->
       prerr_endline ("can't find module " ^ moduleName);
       None)
-
-let fileForUri uri =
-  match getFullFromCmt ~uri with
-  | None -> None
-  | Some (_package, full) -> Some full
 
 let extraForModule ~package modname =
   if Hashtbl.mem package.pathsForModule modname then

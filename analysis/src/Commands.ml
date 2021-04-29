@@ -27,8 +27,7 @@ let dump files =
          let result =
            match ProcessCmt.getFullFromCmt ~uri with
            | None -> "[]"
-           | Some (package, {file; extra}) ->
-             dumpLocations ~package ~file ~extra
+           | Some {package; file; extra} -> dumpLocations ~package ~file ~extra
          in
          print_endline result)
 
@@ -37,10 +36,9 @@ let completion ~path ~line ~col ~currentFile =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> "[]"
-    | Some (package, full) ->
+    | Some full ->
       let maybeText = Files.readFile currentFile in
-      NewCompletions.computeCompletions ~full ~maybeText ~package
-        ~pos:(line, col)
+      NewCompletions.computeCompletions ~full ~maybeText ~pos:(line, col)
       |> List.map Protocol.stringifyCompletionItem
       |> Protocol.array
   in
@@ -51,7 +49,7 @@ let hover ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some (package, {file; extra}) -> (
+    | Some {package; file; extra} -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locItemForPos ~extra pos with
       | None -> Protocol.null
@@ -89,7 +87,7 @@ let definition ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some (package, {file; extra}) -> (
+    | Some {package; file; extra} -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
 
       match References.locItemForPos ~extra pos with
@@ -126,7 +124,7 @@ let references ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some (package, {file; extra}) -> (
+    | Some {package; file; extra} -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locItemForPos ~extra pos with
       | None -> Protocol.null
@@ -154,7 +152,7 @@ let references ~path ~line ~col =
 
 let documentSymbol ~path =
   let uri = Uri2.fromLocalPath path in
-  match ProcessCmt.fileForUri uri with
+  match ProcessCmt.getFullFromCmt ~uri with
   | None -> print_endline Protocol.null
   | Some {file} ->
     let open SharedTypes in

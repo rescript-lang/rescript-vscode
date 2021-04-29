@@ -169,7 +169,7 @@ let alternateDeclared ~file ~package declared tip =
       let intfUri = Uri2.fromPath intf in
       let implUri = Uri2.fromPath impl in
       if intfUri = file.uri then
-        match ProcessCmt.fileForUri implUri with
+        match ProcessCmt.getFullFromCmt ~uri:implUri with
         | None -> None
         | Some {file; extra} -> (
           match
@@ -179,7 +179,7 @@ let alternateDeclared ~file ~package declared tip =
           | None -> None
           | Some declared -> Some (file, extra, declared))
       else
-        match ProcessCmt.fileForUri intfUri with
+        match ProcessCmt.getFullFromCmt ~uri:intfUri with
         | None -> None
         | Some {file; extra} -> (
           match
@@ -414,7 +414,7 @@ let forLocalStamp ~package ~file ~extra stamp tip =
                        | Some file -> (
                          match ProcessCmt.extraForModule ~package name with
                          | None -> None
-                         | Some (_, {extra}) -> (
+                         | Some {extra} -> (
                            match
                              Hashtbl.find_opt extra.externalReferences
                                thisModuleName
@@ -459,7 +459,7 @@ let allReferencesForLocItem ~package ~file ~extra locItem =
         match ProcessCmt.exportedForTip ~env name tip with
         | None -> []
         | Some stamp -> (
-          match ProcessCmt.fileForUri env.qFile.uri with
+          match ProcessCmt.getFullFromCmt ~uri:env.qFile.uri with
           | None -> []
           | Some {file; extra} ->
             maybeLog

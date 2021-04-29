@@ -523,8 +523,7 @@ let processCompletable ~findItems ~package ~rawOpens
     in
     let removePackageOpens modulePath =
       match modulePath with
-      | toplevel :: rest when package.opens |> List.mem toplevel ->
-        rest
+      | toplevel :: rest when package.opens |> List.mem toplevel -> rest
       | _ -> modulePath
     in
     let rec removeRawOpen rawOpen modulePath =
@@ -637,7 +636,8 @@ let processCompletable ~findItems ~package ~rawOpens
     |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
     |> List.map mkLabel
 
-let computeCompletions ~full ~maybeText ~package ~pos =
+let computeCompletions ~full ~maybeText ~pos =
+  let package = full.package in
   match maybeText with
   | None -> []
   | Some text -> (
@@ -648,9 +648,7 @@ let computeCompletions ~full ~maybeText ~package ~pos =
       | None -> []
       | Some completable ->
         let rawOpens = PartialParser.findOpens text offset in
-        let allModules =
-          package.localModules @ package.dependencyModules
-        in
+        let allModules = package.localModules @ package.dependencyModules in
         let findItems ~exact parts =
           let items =
             getItems ~full ~package ~rawOpens ~allModules ~pos ~parts
