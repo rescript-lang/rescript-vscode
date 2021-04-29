@@ -45,9 +45,10 @@ let rec showModule ~docstring ~(file : SharedTypes.file) ~name
   | None -> showModuleTopLevel ~docstring ~name file.contents.topLevel
   | Some {item = Structure {topLevel}} ->
     showModuleTopLevel ~docstring ~name topLevel
-  | Some ({item = Constraint (_, moduleType)} as declared) ->
+  | Some ({item = Constraint (_moduleItem, moduleTypeItem)} as declared) ->
     (* show the interface *)
-    showModule ~docstring ~file ~name (Some {declared with item = moduleType})
+    showModule ~docstring ~file ~name
+      (Some {declared with item = moduleTypeItem})
   | Some {item = Ident path} ->
     Some ("Unable to resolve module reference " ^ Path.name path)
 

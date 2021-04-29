@@ -32,13 +32,13 @@ Hover tests/src/Hover.res 47:13
 {"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
 
 Hover tests/src/Hover.res 52:7
-{"contents": "```rescript\nmodule JsLogger = {\n  let log: string => unit\n  let _oneMore: int\n}\n```"}
+{"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
 
 Definition tests/src/Hover.res 58:14
-{"uri": "Hover.res", "range": {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 15}}}
+{"uri": "Hover.res", "range": {"start": {"line": 47, "character": 12}, "end": {"line": 47, "character": 18}}}
 
 Hover tests/src/Hover.res 62:9
-{"contents": "```rescript\nmodule IdDefinedTwice = {\n  let x: int\n  let y: int\n  let x: int\n}\n```"}
+{"contents": "```rescript\nmodule IdDefinedTwice = {\n  let y: int\n  let x: int\n}\n```"}
 
 Hover tests/src/Hover.res 71:7
 {"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
