@@ -4,6 +4,6 @@
     "@rescript/react": "^0.10.2"
   },
   "dependencies": {
-    "rescript": "^9.1.0"
+    "rescript": "^9.1.0-dev.1"
   }
 }
