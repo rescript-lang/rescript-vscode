@@ -4,7 +4,7 @@ for file in tests/src/*.{res,resi}; do
   # CI
   if [ "$RUNNER_OS" == "Windows" ]; then
     echo "sedding..."
-    sed -i "" $output
+    perl -pi -e 's/\r\n/\n/g' -- $output
   fi
 done
 
@@ -23,11 +23,11 @@ echo "perl======"
 perl -pi -e 's/\r\n/\n/g' -- tests/src/expected/Auto.res.txt
 cat -A tests/src/expected/Auto.res.txt
 echo "---"
-echo "zip unzip"
-zip -ll tests.zip tests/src/expected/*
-unzip -ll tests.zip
-cat -A tests/src/expected/Auto.res.txt
-echo "---"
+# echo "zip unzip"
+# zip -ll tests.zip tests/src/expected/*
+# unzip -ll tests.zip
+# cat -A tests/src/expected/Auto.res.txt
+# echo "---"
 
 warningYellow='\033[0;33m'
 successGreen='\033[0;32m'
