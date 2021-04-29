@@ -418,11 +418,6 @@ and forModule env mod_desc moduleName =
       {env with modulePath = ExportedModule (moduleName, env.modulePath)}
     in
     forModuleType env moduleType
-  | Tmod_constraint (expr, _typ, Tmodtype_implicit, Tcoerce_structure _) ->
-    (* implicit contraint synthesized during typechecking *)
-    (* e.g. when the same id is defined twice (e.g. make with @react.component) *)
-    (* skip the constraint and use the original module definition *)
-    forModule env expr.mod_desc moduleName
   | Tmod_constraint (expr, typ, _constraint, _coercion) ->
     (* TODO do this better I think *)
     let modKind = forModule env expr.mod_desc moduleName in
