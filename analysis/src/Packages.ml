@@ -1,5 +1,4 @@
 open Infix
-open TopTypes
 
 (* Creates the `pathsForModule` hashtbl, which maps a `moduleName` to it's `paths` (the ml/re, mli/rei, cmt, and cmti files) *)
 let makePathsForModule (localModules : (string * SharedTypes.paths) list)
@@ -29,7 +28,8 @@ let newBsPackage rootPath =
       match compiledBase with
       | None ->
         Error
-          "Please run the build first so that the editor can analyze the project's artifacts."
+          "Please run the build first so that the editor can analyze the \
+           project's artifacts."
       | Some compiledBase ->
         Ok
           (let namespace = FindFiles.getNamespace config in
@@ -92,7 +92,7 @@ let newBsPackage rootPath =
              Hashtbl.create (List.length localModules)
            in
            {
-             rootPath;
+             SharedTypes.rootPath;
              localModules = localModules |> List.map fst;
              dependencyModules = dependencyModules |> List.map fst;
              pathsForModule;
@@ -112,6 +112,7 @@ let findRoot ~uri packagesByRoot =
   loop (Filename.dirname path)
 
 let getPackage ~uri =
+  let open SharedTypes in
   if Hashtbl.mem state.rootForUri uri then
     Ok (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))
   else

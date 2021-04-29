@@ -1132,13 +1132,13 @@ let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
   | Partial_interface _ | Interface _ -> forItems ~file [] [||]
   | _ -> forItems ~file [] [||]
 
-let fullForCmt ~moduleName ~uri cmt =
+let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
   | Error e -> Error e
   | Ok infos ->
     let file = forCmt ~moduleName ~uri infos in
     let extra = extraForCmt ~file infos in
-    Ok {SharedTypes.file; extra}
+    Ok {file; extra; package}
 
 open SharedTypes
 
@@ -1166,7 +1166,7 @@ let getFullFromCmt ~uri =
     match Hashtbl.find_opt package.pathsForModule moduleName with
     | Some paths -> (
       let cmt = SharedTypes.getCmt ~interface:(Utils.endsWith path "i") paths in
-      match fullForCmt ~moduleName ~uri cmt with
+      match fullForCmt ~moduleName ~package ~uri cmt with
       | Error message ->
         prerr_endline message;
         None
@@ -1184,7 +1184,7 @@ let fileForUri uri =
   | Some (_package, full) -> Some full
 
 let extraForModule ~package modname =
-  if Hashtbl.mem package.TopTypes.pathsForModule modname then
+  if Hashtbl.mem package.pathsForModule modname then
     let paths = Hashtbl.find package.pathsForModule modname in
     match SharedTypes.getSrc paths with
     | None -> None
@@ -1192,7 +1192,7 @@ let extraForModule ~package modname =
   else None
 
 let docsForCmt ~moduleName cmt src state =
-  if Hashtbl.mem state.TopTypes.cmtCache cmt then
+  if Hashtbl.mem state.cmtCache cmt then
     let mtime, docs = Hashtbl.find state.cmtCache cmt in
     (* TODO: I should really throttle this mtime checking to like every 50 ms or so *)
     match Files.getMtime cmt with
@@ -1213,7 +1213,7 @@ let docsForCmt ~moduleName cmt src state =
     | Some changed -> newDocsForCmt ~moduleName state.cmtCache changed cmt src
 
 let docsForModule modname ~package =
-  if Hashtbl.mem package.TopTypes.pathsForModule modname then (
+  if Hashtbl.mem package.pathsForModule modname then (
     let paths = Hashtbl.find package.pathsForModule modname in
     (* TODO: do better *)
     let cmt = SharedTypes.getCmt paths in
@@ -1221,7 +1221,7 @@ let docsForModule modname ~package =
     Log.log ("FINDING docs for module " ^ SharedTypes.showPaths paths);
     let open Infix in
     Log.log ("FINDING " ^ cmt ^ " src " ^ (src |? ""));
-    match docsForCmt ~moduleName:modname cmt src TopTypes.state with
+    match docsForCmt ~moduleName:modname cmt src state with
     | None -> None
     | Some docs -> Some (docs, src))
   else (

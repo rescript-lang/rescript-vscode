@@ -278,7 +278,7 @@ let attributeCompletions ~(env : ProcessCmt.queryEnv) ~suffix =
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
   (* TODO Stdlib instead of Pervasives *)
-  let packageOpens = "Pervasives" :: package.TopTypes.opens in
+  let packageOpens = "Pervasives" :: package.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
   let opens =
     resolveOpens ~env
@@ -296,7 +296,7 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
     ^ " "
     ^ String.concat " ... " (rawOpens |> List.map pathToString));
   let env = ProcessCmt.fileEnv full.file in
-  let packageOpens = "Pervasives" :: package.TopTypes.opens in
+  let packageOpens = "Pervasives" :: package.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
   let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
   Log.log
@@ -523,7 +523,7 @@ let processCompletable ~findItems ~package ~rawOpens
     in
     let removePackageOpens modulePath =
       match modulePath with
-      | toplevel :: rest when package.TopTypes.opens |> List.mem toplevel ->
+      | toplevel :: rest when package.opens |> List.mem toplevel ->
         rest
       | _ -> modulePath
     in
@@ -649,7 +649,7 @@ let computeCompletions ~full ~maybeText ~package ~pos =
       | Some completable ->
         let rawOpens = PartialParser.findOpens text offset in
         let allModules =
-          package.TopTypes.localModules @ package.dependencyModules
+          package.localModules @ package.dependencyModules
         in
         let findItems ~exact parts =
           let items =

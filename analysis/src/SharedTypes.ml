@@ -204,7 +204,21 @@ type extra = {
 }
 (** These are the bits of info that we need to make in-app stuff awesome *)
 
-type full = {extra : extra; file : file}
+type moduleName = string
+
+(* Here are the things that will be different between jbuilder things *)
+type package = {
+  rootPath : filePath;
+  (* Depend on bsb having already run *)
+  localModules : moduleName list;
+  interModuleDependencies : (moduleName, moduleName list) Hashtbl.t;
+  dependencyModules : moduleName list;
+  pathsForModule : (moduleName, paths) Hashtbl.t;
+  namespace : string option;
+  opens : string list;
+}
+
+type full = {extra : extra; file : file; package : package}
 
 let initExtra () =
   {
@@ -212,6 +226,20 @@ let initExtra () =
     externalReferences = Hashtbl.create 10;
     locItems = [];
     opens = Hashtbl.create 10;
+  }
+
+type state = {
+  packagesByRoot : (string, package) Hashtbl.t;
+  rootForUri : (Uri2.t, string) Hashtbl.t;
+  cmtCache : (filePath, float * file) Hashtbl.t;
+}
+
+(* There's only one state, so it can as well be global *)
+let state =
+  {
+    packagesByRoot = Hashtbl.create 1;
+    rootForUri = Hashtbl.create 30;
+    cmtCache = Hashtbl.create 30;
   }
 
 let hashList h = Hashtbl.fold (fun a b c -> (a, b) :: c) h []

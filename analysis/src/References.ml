@@ -159,7 +159,7 @@ let declaredForExportedTip ~(stamps : stamps) ~(exported : exported) name tip =
     Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
 
 let alternateDeclared ~file ~package declared tip =
-  match Hashtbl.find_opt package.TopTypes.pathsForModule file.moduleName with
+  match Hashtbl.find_opt package.pathsForModule file.moduleName with
   | None -> None
   | Some paths -> (
     maybeLog ("paths for " ^ file.moduleName);
