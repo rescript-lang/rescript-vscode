@@ -57,6 +57,8 @@ OUTPUT = rescript-editor-analysis.exe
 foo:
 	@echo "git diff makefile foo"
 	git diff tests/src/expected/Auto.res.txt
+	@echo "cat -A Auto.res.txt in makefile"
+	cat -A tests/src/expected/Auto.res.txt
 
 .DEFAULT_GOAL := build-native
 
