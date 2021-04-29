@@ -122,7 +122,6 @@ let definition ~path ~line ~col =
             Protocol.stringifyLocation
               {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}))
   in
-
   print_endline result
 
 let references ~path ~line ~col =
@@ -154,7 +153,6 @@ let references ~path ~line ~col =
         in
         "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
   in
-
   print_endline result
 
 let documentSymbol ~path =
