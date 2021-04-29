@@ -6,8 +6,9 @@ for file in tests/src/*.{res,resi}; do
   echo $RUNNER_OS
   if [ "$RUNNER_OS" == "Windows" ]; then
     echo "sedding..."
-    sed -i "s/\r\n/\n/g" $output
+    sed -i "" $output
   fi
+  echo "catting"
   cat -A $output
 done
 
