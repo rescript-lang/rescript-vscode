@@ -1,4 +1,4 @@
-## 1.1.0
+## 1.1.1
 
 This update contains _lots_ of autocomplete, hover and jump-to-definition improvements. We'll list only a few below.
 
