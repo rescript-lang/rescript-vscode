@@ -22,21 +22,13 @@ jobs:
             build: eval $(opam env) && cd analysis && make test
             artifact-folder: linux
           - os: windows-latest
-            build: |
-              cd analysis
-              # git checkout converted these to windows newline. Convert back to unix newline here
-              # dos2unix test.sh tests/src/*.res tests/src/*.resi
-              echo "git diff ci"
-              git diff tests/src/expected/Auto.res.txt
-              echo "cat -A Auto.res.txt"
-              cat -A tests/src/expected/Auto.res.txt
-              echo "make now===="
-              & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test
+            build: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test"
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
 
     steps:
+    # needed for Windows testing
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
