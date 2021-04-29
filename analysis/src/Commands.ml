@@ -164,17 +164,15 @@ let documentSymbol ~path =
   | Ok (file, _extra) ->
     let open SharedTypes in
     let rec getItems {topLevel} =
+      let rec getItem = function
+        | MValue v -> (v |> SharedTypes.variableKind, [])
+        | MType (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
+        | Module (Structure contents) -> (Module, getItems contents)
+        | Module (Constraint (_, modTypeItem)) -> getItem (Module modTypeItem)
+        | Module (Ident _) -> (Module, [])
+      in
       let fn {name = {txt}; extentLoc; item} =
-        let item, siblings =
-          match item with
-          | MValue v -> (v |> SharedTypes.variableKind, [])
-          | MType (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
-          | Module (Structure contents) -> (Module, getItems contents)
-          | Module (Constraint (_, Structure contents)) ->
-            (Module, getItems contents)
-          | Module (Constraint _) -> (Module, [])
-          | Module (Ident _) -> (Module, [])
-        in
+        let item, siblings = getItem item in
         if extentLoc.loc_ghost then siblings
         else (txt, extentLoc, item) :: siblings
       in
