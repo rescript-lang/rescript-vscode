@@ -1,7 +1,5 @@
 let namespacedName namespace name =
-  match namespace with
-  | None -> name
-  | Some namespace -> name ^ "-" ^ namespace
+  match namespace with None -> name | Some namespace -> name ^ "-" ^ namespace
 
 open Infix
 
@@ -21,9 +19,11 @@ let getBsPlatformDir rootPath =
     Log.log message;
     Error message
 
-let getCompiledBase root = Files.ifExists (root /+ "lib" /+ "bs")
+let getCompiledBase root =
+  Files.ifExists (Filename.concat (Filename.concat root "lib") "bs")
 
 let getStdlib base =
   match getBsPlatformDir base with
   | Error e -> Error e
-  | Ok bsPlatformDir -> Ok (bsPlatformDir /+ "lib" /+ "ocaml")
+  | Ok bsPlatformDir ->
+    Ok (Filename.concat (Filename.concat bsPlatformDir "lib") "ocaml")
