@@ -40,7 +40,7 @@ test: dce tests/node_modules/.bin/rescript
 	./test.sh
 
 clean:
-	git clean -dfx src
+	git clean -dfx .
 
 .DEFAULT_GOAL := build-native
 
