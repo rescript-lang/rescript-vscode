@@ -1,13 +1,11 @@
-let dumpLocations ~package ~file ~extra:{SharedTypes.locItems} =
-  locItems
+let dumpLocations ~full =
+  full.SharedTypes.extra.locItems
   |> List.map (fun locItem ->
-         let hoverText = Hover.newHover ~package ~file locItem in
+         let hoverText = Hover.newHover ~full locItem in
          let hover =
            match hoverText with None -> "" | Some s -> String.escaped s
          in
-         let uriLocOpt =
-           References.definitionForLocItem ~package ~file locItem
-         in
+         let uriLocOpt = References.definitionForLocItem ~full locItem in
          let def =
            match uriLocOpt with
            | None -> Protocol.null
@@ -27,7 +25,7 @@ let dump files =
          let result =
            match ProcessCmt.getFullFromCmt ~uri with
            | None -> "[]"
-           | Some {package; file; extra} -> dumpLocations ~package ~file ~extra
+           | Some full -> dumpLocations ~full
          in
          print_endline result)
 
@@ -49,7 +47,7 @@ let hover ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some {package; file; extra} -> (
+    | Some ({file; extra} as full) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locItemForPos ~extra pos with
       | None -> Protocol.null
@@ -59,9 +57,7 @@ let hover ~path ~line ~col =
           | SharedTypes.LModule _ | TopLevelModule _ -> true
           | TypeDefinition _ | Typed _ | Constant _ -> false
         in
-        let uriLocOpt =
-          References.definitionForLocItem ~package ~file locItem
-        in
+        let uriLocOpt = References.definitionForLocItem ~full locItem in
         let skipZero =
           match uriLocOpt with
           | None -> false
@@ -75,7 +71,7 @@ let hover ~path ~line ~col =
         in
         if skipZero then Protocol.null
         else
-          let hoverText = Hover.newHover ~file ~package locItem in
+          let hoverText = Hover.newHover ~full locItem in
           match hoverText with
           | None -> Protocol.null
           | Some s -> Protocol.stringifyHover {contents = s}))
@@ -87,7 +83,7 @@ let definition ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some {package; file; extra} -> (
+    | Some ({file; extra} as full) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
 
       match References.locItemForPos ~extra pos with
@@ -98,9 +94,7 @@ let definition ~path ~line ~col =
           | SharedTypes.LModule _ | TopLevelModule _ -> true
           | TypeDefinition _ | Typed _ | Constant _ -> false
         in
-        let uriLocOpt =
-          References.definitionForLocItem ~package ~file locItem
-        in
+        let uriLocOpt = References.definitionForLocItem ~full locItem in
         match uriLocOpt with
         | None -> Protocol.null
         | Some (uri2, loc) ->

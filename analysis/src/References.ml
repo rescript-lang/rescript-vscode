@@ -283,7 +283,7 @@ let orLog message v =
     None
   | _ -> v
 
-let definitionForLocItem ~package ~file locItem =
+let definitionForLocItem ~full:{file; package} locItem =
   match locItem.locType with
   | Typed (_, Definition (stamp, tip)) -> (
     maybeLog "Trying to find a defintion for a definition";

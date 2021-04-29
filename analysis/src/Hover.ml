@@ -52,7 +52,7 @@ let rec showModule ~docstring ~(file : SharedTypes.file) ~name
   | Some {item = Ident path} ->
     Some ("Unable to resolve module reference " ^ Path.name path)
 
-let newHover ~(file : SharedTypes.file) ~package locItem =
+let newHover ~full:{SharedTypes.file; package} locItem =
   match locItem.SharedTypes.locType with
   | SharedTypes.TypeDefinition (name, decl, _stamp) ->
     let typeDef = Shared.declToString name decl in
