@@ -13,10 +13,10 @@ for file in tests/src/*.{res,resi}; do
   ./rescript-editor-analysis.exe test $file &> $(exp $file)
 done
 
-# CI
-if [ "$RUNNER_OS" == "Windows" ]; then
-  dos2unix tests/src/expected/*
-fi
+# # CI
+# if [ "$RUNNER_OS" == "Windows" ]; then
+#   dos2unix tests/src/expected/*
+# fi
 
 echo "cat -A test.sh last"
 cat -A tests/src/expected/Auto.res.txt
