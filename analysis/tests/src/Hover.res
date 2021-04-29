@@ -46,6 +46,7 @@ let num = 34
 //        ^hov
 
 module type Logger = {
+//           ^hov
   let log: string => unit
 }
 
