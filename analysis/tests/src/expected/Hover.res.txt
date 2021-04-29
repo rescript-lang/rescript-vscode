@@ -34,3 +34,6 @@ Hover tests/src/Hover.res 51:7
 Definition tests/src/Hover.res 57:14
 {"uri": "Hover.res", "range": {"start": {"line": 51, "character": 7}, "end": {"line": 51, "character": 15}}}
 
+Hover tests/src/Hover.res 61:9
+{"contents": "```rescript\nmodule IdDefindeTwice = {\n  let x: int\n  let y: int\n  let x: int\n}\n```"}
+

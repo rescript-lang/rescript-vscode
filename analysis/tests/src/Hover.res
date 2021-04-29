@@ -57,3 +57,11 @@ module JsLogger: Logger = {
 
 module JJ = JsLogger
 //            ^def
+
+
+module IdDefinedTwice = {
+//       ^hov
+  let x = 10
+  let y = 20
+  let x = 10
+}
