@@ -1,8 +1,6 @@
-## master
-- Fix issue jumping to variables defined in complex patterns.
-- In Jsx autocomplete, don't suggest props already assigned.
+## 1.1.0
 
-## beta 2
+This update contains _lots_ of autocomplete, hover and jump-to-definition improvements. We'll list only a few below.
 
 Fixes:
 - Jump-to-definition on some Windows paths.
@@ -10,12 +8,13 @@ Fixes:
 - Hover on components in interface files.
 
 Features:
-- Show References!
+- Show References! Works cross-files too.
 - Hover now supports markdown docs.
 - Hover on labels in component functions with compiler version 9.1, and labels with type annotation.
 - Don't show file path on hover and autocomplete (cleaner).
 - Autocomplete for props in JSX components.
 - `->` autocomplete for built-in list, array, string, option types. And for string and array literals.
+- Slimmer download.
 
 Breakages:
 - Very old linux versions are no longer supported.
