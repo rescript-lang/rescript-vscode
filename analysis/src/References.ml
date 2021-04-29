@@ -170,10 +170,8 @@ let alternateDeclared ~file ~package declared tip =
       let implUri = Uri2.fromPath impl in
       if intfUri = file.uri then
         match ProcessCmt.fileForUri implUri with
-        | Error e ->
-          Log.log e;
-          None
-        | Ok (file, extra) -> (
+        | None -> None
+        | Some {file; extra} -> (
           match
             declaredForExportedTip ~stamps:file.stamps
               ~exported:file.contents.exported declared.name.txt tip
@@ -182,10 +180,8 @@ let alternateDeclared ~file ~package declared tip =
           | Some declared -> Some (file, extra, declared))
       else
         match ProcessCmt.fileForUri intfUri with
-        | Error e ->
-          Log.log e;
-          None
-        | Ok (file, extra) -> (
+        | None -> None
+        | Some {file; extra} -> (
           match
             declaredForExportedTip ~stamps:file.stamps
               ~exported:file.contents.exported declared.name.txt tip
@@ -418,7 +414,7 @@ let forLocalStamp ~package ~file ~extra stamp tip =
                        | Some file -> (
                          match ProcessCmt.extraForModule ~package name with
                          | None -> None
-                         | Some extra -> (
+                         | Some (_, {extra}) -> (
                            match
                              Hashtbl.find_opt extra.externalReferences
                                thisModuleName
@@ -464,8 +460,8 @@ let allReferencesForLocItem ~package ~file ~extra locItem =
         | None -> []
         | Some stamp -> (
           match ProcessCmt.fileForUri env.qFile.uri with
-          | Error _ -> []
-          | Ok (file, extra) ->
+          | None -> []
+          | Some {file; extra} ->
             maybeLog
               ("Finding references for (global) "
               ^ Uri2.toString env.qFile.uri

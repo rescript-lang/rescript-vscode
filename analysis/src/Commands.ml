@@ -26,10 +26,9 @@ let dump files =
          let uri = Uri2.fromLocalPath path in
          let result =
            match ProcessCmt.getFullFromCmt ~uri with
-           | Error message ->
-             prerr_endline message;
-             "[]"
-           | Ok (package, {file; extra}) -> dumpLocations ~package ~file ~extra
+           | None -> "[]"
+           | Some (package, {file; extra}) ->
+             dumpLocations ~package ~file ~extra
          in
          print_endline result)
 
@@ -37,10 +36,8 @@ let completion ~path ~line ~col ~currentFile =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
-    | Error message ->
-      prerr_endline message;
-      "[]"
-    | Ok (package, full) ->
+    | None -> "[]"
+    | Some (package, full) ->
       let maybeText = Files.readFile currentFile in
       NewCompletions.computeCompletions ~full ~maybeText ~package
         ~pos:(line, col)
@@ -53,10 +50,8 @@ let hover ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
-    | Error message ->
-      prerr_endline message;
-      Protocol.null
-    | Ok (package, {file; extra}) -> (
+    | None -> Protocol.null
+    | Some (package, {file; extra}) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locItemForPos ~extra pos with
       | None -> Protocol.null
@@ -93,10 +88,8 @@ let definition ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
-    | Error message ->
-      prerr_endline message;
-      Protocol.null
-    | Ok (package, {file; extra}) -> (
+    | None -> Protocol.null
+    | Some (package, {file; extra}) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
 
       match References.locItemForPos ~extra pos with
@@ -132,10 +125,8 @@ let references ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
-    | Error message ->
-      prerr_endline message;
-      Protocol.null
-    | Ok (package, {file; extra}) -> (
+    | None -> Protocol.null
+    | Some (package, {file; extra}) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locItemForPos ~extra pos with
       | None -> Protocol.null
@@ -164,10 +155,8 @@ let references ~path ~line ~col =
 let documentSymbol ~path =
   let uri = Uri2.fromLocalPath path in
   match ProcessCmt.fileForUri uri with
-  | Error message ->
-    prerr_endline message;
-    print_endline Protocol.null
-  | Ok (file, _extra) ->
+  | None -> print_endline Protocol.null
+  | Some {file} ->
     let open SharedTypes in
     let rec getItems {topLevel} =
       let rec getItem = function

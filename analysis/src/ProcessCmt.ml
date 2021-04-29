@@ -1156,7 +1156,9 @@ let newDocsForCmt ~moduleName cmtCache changed cmt src =
 let getFullFromCmt ~uri =
   let path = Uri2.toPath uri in
   match Packages.getPackage uri with
-  | Error e -> Error e
+  | Error message ->
+    prerr_endline message;
+    None
   | Ok package -> (
     let moduleName =
       BuildSystem.namespacedName package.namespace (FindFiles.getName path)
@@ -1165,27 +1167,28 @@ let getFullFromCmt ~uri =
     | Some paths -> (
       let cmt = SharedTypes.getCmt ~interface:(Utils.endsWith path "i") paths in
       match fullForCmt ~moduleName ~uri cmt with
-      | Error e -> Error e
+      | Error message ->
+        prerr_endline message;
+        None
       | Ok full ->
         Hashtbl.replace package.interModuleDependencies moduleName
           (SharedTypes.hashList full.extra.externalReferences |> List.map fst);
-        Ok (package, full))
-    | None -> Error ("can't find module " ^ moduleName))
+        Some (package, full))
+    | None ->
+      prerr_endline ("can't find module " ^ moduleName);
+      None)
 
 let fileForUri uri =
   match getFullFromCmt ~uri with
-  | Error e -> Error e
-  | Ok (_package, {extra; file}) -> Ok (file, extra)
+  | None -> None
+  | Some (_package, full) -> Some full
 
 let extraForModule ~package modname =
   if Hashtbl.mem package.TopTypes.pathsForModule modname then
     let paths = Hashtbl.find package.pathsForModule modname in
     match SharedTypes.getSrc paths with
     | None -> None
-    | Some src -> (
-      match getFullFromCmt ~uri:(Uri2.fromPath src) with
-      | Ok (_package, {extra}) -> Some extra
-      | Error _ -> None)
+    | Some src -> getFullFromCmt ~uri:(Uri2.fromPath src)
   else None
 
 let docsForCmt ~moduleName cmt src state =
