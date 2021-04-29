@@ -26,3 +26,5 @@ let logIfAbsent message x =
     Log.log message;
     None
   | _ -> x
+
+let ( /+ ) = Files.fileConcat

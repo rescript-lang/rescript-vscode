@@ -29,7 +29,7 @@ end = struct
   let fromPath path = {path; uri = pathToUri path}
 
   let fromLocalPath localPath =
-    let path = Filename.concat (Unix.getcwd ()) localPath in
+    let path = Files.maybeConcat (Unix.getcwd ()) localPath in
     fromPath path
 
   let isInterface {path} = Filename.check_suffix path "i"

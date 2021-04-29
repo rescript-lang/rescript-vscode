@@ -4,15 +4,13 @@ let ifDebug debug name fn v =
   if debug then Log.log (name ^ ": " ^ fn v);
   v
 
-let ( ++ ) = Filename.concat
-
 (* Returns a list of paths, relative to the provided `base` *)
 let getSourceDirectories ~includeDev base config =
   let rec handleItem current item =
     match item with
     | Json.Array contents ->
       List.map (handleItem current) contents |> List.concat
-    | Json.String text -> [current ++ text]
+    | Json.String text -> [current /+ text]
     | Json.Object _ -> (
       let dir =
         Json.get "dir" item |?> Json.string |? "Must specify directory"
@@ -24,13 +22,13 @@ let getSourceDirectories ~includeDev base config =
       if typ = "dev" then []
       else
         match item |> Json.get "subdirs" with
-        | None | Some Json.False -> [current ++ dir]
+        | None | Some Json.False -> [current /+ dir]
         | Some Json.True ->
-          Files.collectDirs (base ++ current ++ dir)
+          Files.collectDirs (base /+ current /+ dir)
           (* |> ifDebug(true, "Subdirs", String.concat(" - ")) *)
           |> List.filter (fun name -> name <> Filename.current_dir_name)
           |> List.map (Files.relpath base)
-        | Some item -> (current ++ dir) :: handleItem (current ++ dir) item)
+        | Some item -> (current /+ dir) :: handleItem (current /+ dir) item)
     | _ -> failwith "Invalid subdirs entry"
   in
   match config |> Json.get "sources" with
@@ -106,11 +104,11 @@ let collectFiles directory =
   compileds
   |> List.map (fun path ->
          let modName = getName path in
-         let compiled = directory ++ path in
+         let compiled = directory /+ path in
          let source =
            Utils.find
              (fun name ->
-               if getName name = modName then Some (directory ++ name) else None)
+               if getName name = modName then Some (directory /+ name) else None)
              sources
          in
          (modName, SharedTypes.Impl (compiled, source)))
@@ -119,7 +117,7 @@ let collectFiles directory =
 let findProjectFiles ~debug namespace root sourceDirectories compiledBase =
   let files =
     sourceDirectories
-    |> List.map (Filename.concat root)
+    |> List.map (Files.fileConcat root)
     |> ifDebug debug "Source directories" (String.concat " - ")
     |> List.map (fun name -> Files.collect name isSourceFile)
     |> List.concat |> Utils.dedup
@@ -129,8 +127,8 @@ let findProjectFiles ~debug namespace root sourceDirectories compiledBase =
     |> Utils.filterMap(path => {
        let rel = Files.relpath(root, path);
        ifOneExists([
-         compiledBase ++ cmtName(~namespace, rel),
-         compiledBase ++ cmiName(~namespace, rel),
+         compiledBase /+ cmtName(~namespace, rel),
+         compiledBase /+ cmiName(~namespace, rel),
        ]) |?>> cm => (cm, path)
     })
     |> ifDebug(debug, "With compiled base", (items) => String.concat("\n", List.map(((a, b)) => a ++ " : " ++ b, items)))
@@ -163,8 +161,8 @@ let findProjectFiles ~debug namespace root sourceDirectories compiledBase =
              let base = compiledBaseName ~namespace (Files.relpath root path) in
              match intf with
              | Some intf ->
-               let cmti = (compiledBase ++ base) ^ ".cmti" in
-               let cmt = (compiledBase ++ base) ^ ".cmt" in
+               let cmti = (compiledBase /+ base) ^ ".cmti" in
+               let cmt = (compiledBase /+ base) ^ ".cmt" in
                if Files.exists cmti then
                  if Files.exists cmt then
                    (* Log.log("Intf and impl " ++ cmti ++ " " ++ cmt) *)
@@ -173,15 +171,15 @@ let findProjectFiles ~debug namespace root sourceDirectories compiledBase =
                else (
                  (* Log.log("Just intf " ++ cmti) *)
                  Log.log
-                   ("Bad source file (no cmt/cmti/cmi) " ^ (compiledBase ++ base)
+                   ("Bad source file (no cmt/cmti/cmi) " ^ (compiledBase /+ base)
                    );
                  None)
              | None ->
-               let cmt = (compiledBase ++ base) ^ ".cmt" in
+               let cmt = (compiledBase /+ base) ^ ".cmt" in
                if Files.exists cmt then Some (mname, Impl (cmt, Some path))
                else (
                  Log.log
-                   ("Bad source file (no cmt/cmi) " ^ (compiledBase ++ base));
+                   ("Bad source file (no cmt/cmi) " ^ (compiledBase /+ base));
                  None))
            else (
              Log.log ("Bad source file (extension) " ^ path);
@@ -193,7 +191,7 @@ let findProjectFiles ~debug namespace root sourceDirectories compiledBase =
          (fun mname intf res ->
            let base = compiledBaseName ~namespace (Files.relpath root intf) in
            Log.log ("Extra intf " ^ intf);
-           let cmti = (compiledBase ++ base) ^ ".cmti" in
+           let cmti = (compiledBase /+ base) ^ ".cmti" in
            if Files.exists cmti then
              (mname, SharedTypes.Intf (cmti, intf)) :: res
            else res)
@@ -207,7 +205,7 @@ let findProjectFiles ~debug namespace root sourceDirectories compiledBase =
   | None -> result
   | Some namespace ->
     let mname = nameSpaceToName namespace in
-    let cmt = (compiledBase ++ namespace) ^ ".cmt" in
+    let cmt = (compiledBase /+ namespace) ^ ".cmt" in
     Log.log ("adding namespace " ^ namespace ^ " : " ^ mname ^ " : " ^ cmt);
     (mname, Impl (cmt, None)) :: result
 
@@ -236,7 +234,7 @@ let findDependencyFiles ~debug base config =
            let result =
              ModuleResolution.resolveNodeModulePath ~startPath:base name
              |?> fun loc ->
-             let innerPath = loc ++ "bsconfig.json" in
+             let innerPath = loc /+ "bsconfig.json" in
              Log.log ("Dep loc " ^ innerPath);
              match Files.readFile innerPath with
              | Some text -> (
@@ -250,7 +248,7 @@ let findDependencyFiles ~debug base config =
                | Some compiledBase ->
                  if debug then Log.log ("Compiled base: " ^ compiledBase);
                  let compiledDirectories =
-                   directories |> List.map (Filename.concat compiledBase)
+                   directories |> List.map (Files.fileConcat compiledBase)
                  in
                  let compiledDirectories =
                    match namespace with
