@@ -343,6 +343,24 @@ let rec forItem ~env ~(exported : exported) item =
         mb_attributes exported.modules env.stamps.modules
     in
     [{declared with item = Module declared.item}]
+  | Tstr_modtype
+      {
+        mtd_name = name;
+        mtd_id;
+        mtd_attributes;
+        mtd_type = Some {mty_type = modType};
+        mtd_loc;
+      } ->
+    let env =
+      {env with modulePath = ExportedModule (name.txt, env.modulePath)}
+    in
+    let modTypeItem = forModuleType env modType in
+    let declared =
+      addItem ~item:modTypeItem ~name ~extent:mtd_loc
+        ~stamp:(Ident.binding_time mtd_id)
+        ~env mtd_attributes exported.modules env.stamps.modules
+    in
+    [{declared with item = Module modTypeItem}]
   | Tstr_include {incl_mod; incl_type} ->
     let env =
       match getModulePath incl_mod.mod_desc with
@@ -375,7 +393,6 @@ let rec forItem ~env ~(exported : exported) item =
              | _ -> Types.Trec_next
            in
            decl |> forTypeDeclaration ~env ~exported ~recStatus)
-  | Tstr_modtype _ -> []
   | _ -> []
 
 and forModule env mod_desc moduleName =
