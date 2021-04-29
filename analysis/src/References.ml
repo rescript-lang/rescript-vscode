@@ -194,11 +194,12 @@ let alternateDeclared ~file ~package declared tip =
           | Some declared -> Some (file, extra, declared)))
     | _ -> None)
 
-let resolveModuleReference ~file ~package (declared : moduleKind declared) =
+let rec resolveModuleReference ~file ~package (declared : moduleKind declared) =
   match declared.item with
   | Structure _ -> Some (file, Some declared)
-  | Constraint ((Structure _ | Constraint _), _) -> Some (file, Some declared)
-  | Ident path | Constraint (Ident path, _) -> (
+  | Constraint (moduleItem, _moduleTypeItem) ->
+    resolveModuleReference ~file ~package {declared with item = moduleItem}
+  | Ident path -> (
     let env = ProcessCmt.fileEnv file in
     match ProcessCmt.fromCompilerPath ~env path with
     | `Not_found -> None
