@@ -5,7 +5,7 @@ type t = (int, float)
 //   ^hov
 
 module Id = {
-//     ^hov
+  //   ^hov
   type x = int
 }
 
@@ -25,7 +25,7 @@ let cd = D.customDouble
 
 module HoverInsideModuleWithComponent = {
   let x = 2 // check that hover on x works
-//    ^hov
+  //  ^hov
   @react.component
   let make = () => React.null
 }
@@ -46,12 +46,12 @@ let num = 34
 //        ^hov
 
 module type Logger = {
-//           ^hov
+  //         ^hov
   let log: string => unit
 }
 
 module JsLogger: Logger = {
-//     ^hov
+  //   ^hov
   let log = (msg: string) => Js.log(msg)
   let _oneMore = 3
 }
@@ -61,10 +61,10 @@ module JJ = JsLogger
 
 
 module IdDefinedTwice = {
-//       ^hov
-  let x = 10
+  //     ^hov
+  let _x = 10
   let y = 20
-  let x = 10
+  let _x = 10
 }
 
 module A = {let x=13}
