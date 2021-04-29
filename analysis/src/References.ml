@@ -359,7 +359,7 @@ let rec pathFromVisibility visibilityPath current =
 let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath (Tip tipName)
 
-let forLocalStamp ~package ~file ~extra stamp tip =
+let forLocalStamp ~full:{file; extra; package} stamp tip =
   let env = ProcessCmt.fileEnv file in
   let open Infix in
   match
@@ -436,17 +436,16 @@ let forLocalStamp ~package ~file ~extra stamp tip =
       in
       (file.uri, local) :: externals)
 
-let allReferencesForLocItem ~package ~file ~extra locItem =
+let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
   | Typed (_, NotFound) | LModule NotFound | TopLevelModule _ | Constant _ -> []
-  | TypeDefinition (_, _, stamp) ->
-    forLocalStamp ~package ~file ~extra stamp Type
+  | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
   | Typed (_, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ tipToString tip);
-    forLocalStamp ~package ~file ~extra stamp tip
+    forLocalStamp ~full stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, GlobalReference (moduleName, path, tip)) -> (
     match ProcessCmt.fileForModule ~package moduleName with
@@ -461,10 +460,10 @@ let allReferencesForLocItem ~package ~file ~extra locItem =
         | Some stamp -> (
           match ProcessCmt.getFullFromCmt ~uri:env.qFile.uri with
           | None -> []
-          | Some {file; extra} ->
+          | Some full ->
             maybeLog
               ("Finding references for (global) "
               ^ Uri2.toString env.qFile.uri
               ^ " and stamp " ^ string_of_int stamp ^ " and tip "
               ^ tipToString tip);
-            forLocalStamp ~package ~file ~extra stamp tip))))
+            forLocalStamp ~full stamp tip))))

@@ -124,14 +124,12 @@ let references ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some {package; file; extra} -> (
+    | Some ({extra} as full) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locItemForPos ~extra pos with
       | None -> Protocol.null
       | Some locItem ->
-        let allReferences =
-          References.allReferencesForLocItem ~package ~file ~extra locItem
-        in
+        let allReferences = References.allReferencesForLocItem ~full locItem in
         let allLocs =
           allReferences
           |> List.fold_left
