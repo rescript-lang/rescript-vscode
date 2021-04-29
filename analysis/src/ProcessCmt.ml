@@ -634,7 +634,7 @@ and findInModule ~env kind path =
   match kind with
   | Structure {exported} ->
     resolvePathInner ~env:{env with qExported = exported} ~path
-  | Constraint (_, k) -> findInModule ~env k path
+  | Constraint (_, moduleTypeKind) -> findInModule ~env moduleTypeKind path
   | Ident modulePath -> (
     let stamp, moduleName, fullPath = joinPaths modulePath path in
     if stamp = 0 then Some (`Global (moduleName, fullPath))
