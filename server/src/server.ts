@@ -297,7 +297,7 @@ function onMessage(msg: m.Message) {
           hoverProvider: true,
           definitionProvider: true,
           referencesProvider: true,
-          documentSymbolProvider: true,
+          documentSymbolProvider: false,
           completionProvider: { triggerCharacters: [".", ">", "@", "~"] },
         },
       };
