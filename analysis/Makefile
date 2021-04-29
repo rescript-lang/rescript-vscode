@@ -37,6 +37,9 @@ tests/node_modules/.bin/rescript:
 
 test: dce tests/node_modules/.bin/rescript
 	@cd tests && node_modules/.bin/rescript
+	OCAMLOPT -o testmore.exe ./testmore.ml
+	OCAMLOPT -o testfile.exe ./testfile.ml
+	OCAMLOPT -o testfile2.exe ./testfile2.ml
 	./test.sh
 
 clean:
