@@ -107,7 +107,9 @@ let findRoot ~uri packagesByRoot =
     if path = "/" then None
     else if Hashtbl.mem packagesByRoot path then Some (`Root path)
     else if Files.exists (path /+ "bsconfig.json") then Some (`Bs path)
-    else loop (Filename.dirname path)
+    else
+      let parent = Filename.dirname path in
+      if parent = path then (* reached root *) None else loop parent
   in
   loop (Filename.dirname path)
 
