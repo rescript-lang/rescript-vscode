@@ -85,7 +85,6 @@ let hover ~path ~line ~col =
           | None -> Protocol.null
           | Some s -> Protocol.stringifyHover {contents = s}))
   in
-
   print_endline result
 
 let definition ~path ~line ~col =
@@ -126,37 +125,36 @@ let definition ~path ~line ~col =
 
   print_endline result
 
-let references ~file ~line ~col ~extra ~package =
-  let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-  match References.locItemForPos ~extra pos with
-  | None -> Protocol.null
-  | Some locItem ->
-    let allReferences =
-      References.allReferencesForLocItem ~package ~file ~extra locItem
-    in
-    let allLocs =
-      allReferences
-      |> List.fold_left
-           (fun acc (uri2, references) ->
-             (references
-             |> List.map (fun loc ->
-                    Protocol.stringifyLocation
-                      {
-                        uri = Uri2.toString uri2;
-                        range = Utils.cmtLocToRange loc;
-                      }))
-             @ acc)
-           []
-    in
-    "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]"
-
 let references ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | Error _message -> Protocol.null
-    | Ok (package, {file; extra}) -> references ~file ~line ~col ~extra ~package
+    | Ok (package, {file; extra}) -> (
+      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+      match References.locItemForPos ~extra pos with
+      | None -> Protocol.null
+      | Some locItem ->
+        let allReferences =
+          References.allReferencesForLocItem ~package ~file ~extra locItem
+        in
+        let allLocs =
+          allReferences
+          |> List.fold_left
+               (fun acc (uri2, references) ->
+                 (references
+                 |> List.map (fun loc ->
+                        Protocol.stringifyLocation
+                          {
+                            uri = Uri2.toString uri2;
+                            range = Utils.cmtLocToRange loc;
+                          }))
+                 @ acc)
+               []
+        in
+        "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
   in
+
   print_endline result
 
 let documentSymbol ~path =
