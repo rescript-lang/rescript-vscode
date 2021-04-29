@@ -97,17 +97,3 @@ let rec collect ?(checkDir = fun _ -> true) path test =
       |> List.concat
     else []
   | _ -> if test path then [path] else []
-
-let fileConcat a b =
-  if
-    b <> ""
-    && b.[0] = '.'
-    && String.length b >= 2
-    && b.[1] = Filename.dir_sep.[0]
-  then Filename.concat a (String.sub b 2 (String.length b - 2))
-  else Filename.concat a b
-
-let isFullPath b =
-  b.[0] = '/' || (Sys.win32 && String.length b > 1 && b.[1] = ':')
-
-let maybeConcat a b = if b <> "" && isFullPath b then b else fileConcat a b
