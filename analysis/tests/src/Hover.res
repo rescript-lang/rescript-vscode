@@ -65,3 +65,11 @@ module IdDefinedTwice = {
   let y = 20
   let x = 10
 }
+
+module A = {let x=13}
+
+module B = A
+//     ^hov
+
+module C = B
+//     ^hov
