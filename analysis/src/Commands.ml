@@ -53,7 +53,9 @@ let hover ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
-    | Error message -> Protocol.stringifyHover {contents = message}
+    | Error message ->
+      prerr_endline message;
+      Protocol.null
     | Ok (package, {file; extra}) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locItemForPos ~extra pos with
@@ -91,7 +93,9 @@ let definition ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
-    | Error _message -> Protocol.null
+    | Error message ->
+      prerr_endline message;
+      Protocol.null
     | Ok (package, {file; extra}) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
 
@@ -128,7 +132,9 @@ let references ~path ~line ~col =
   let uri = Uri2.fromLocalPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
-    | Error _message -> Protocol.null
+    | Error message ->
+      prerr_endline message;
+      Protocol.null
     | Ok (package, {file; extra}) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
       match References.locItemForPos ~extra pos with
@@ -158,7 +164,9 @@ let references ~path ~line ~col =
 let documentSymbol ~path =
   let uri = Uri2.fromLocalPath path in
   match ProcessCmt.fileForUri uri with
-  | Error _ -> print_endline Protocol.null
+  | Error message ->
+    prerr_endline message;
+    print_endline Protocol.null
   | Ok (file, _extra) ->
     let open SharedTypes in
     let rec getItems {topLevel} =
