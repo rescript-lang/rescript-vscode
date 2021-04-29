@@ -31,7 +31,7 @@ jobs:
               echo "cat -A Auto.res.txt"
               cat -A tests/src/expected/Auto.res.txt
               echo "make now===="
-              make foo
+              & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make foo
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
