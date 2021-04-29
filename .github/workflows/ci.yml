@@ -31,7 +31,7 @@ jobs:
               echo "git diff again"
               git diff tests/src/expected/Auto.res.txt
               echo "make now===="
-              & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test
+              & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make foo
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}

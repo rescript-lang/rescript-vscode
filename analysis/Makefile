@@ -54,6 +54,10 @@ test: dce tests/node_modules/.bin/rescript
 clean:
 	git clean -dfx src
 
+foo:
+	@echo "git diff makefile foo"
+	git diff tests/src/expected/Auto.res.txt
+
 .DEFAULT_GOAL := build-native
 
-.PHONY: depend clean build-native dce test
+.PHONY: depend clean build-native dce test foo
