@@ -21,7 +21,7 @@ let dump files =
   Shared.cacheTypeToString := true;
   files
   |> List.iter (fun path ->
-         let uri = Uri2.fromLocalPath path in
+         let uri = Uri2.fromPath path in
          let result =
            match ProcessCmt.getFullFromCmt ~uri with
            | None -> "[]"
@@ -30,7 +30,7 @@ let dump files =
          print_endline result)
 
 let completion ~path ~line ~col ~currentFile =
-  let uri = Uri2.fromLocalPath path in
+  let uri = Uri2.fromPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> "[]"
@@ -43,7 +43,7 @@ let completion ~path ~line ~col ~currentFile =
   print_endline result
 
 let hover ~path ~line ~col =
-  let uri = Uri2.fromLocalPath path in
+  let uri = Uri2.fromPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
@@ -79,7 +79,7 @@ let hover ~path ~line ~col =
   print_endline result
 
 let definition ~path ~line ~col =
-  let uri = Uri2.fromLocalPath path in
+  let uri = Uri2.fromPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
@@ -114,7 +114,7 @@ let definition ~path ~line ~col =
   print_endline result
 
 let references ~path ~line ~col =
-  let uri = Uri2.fromLocalPath path in
+  let uri = Uri2.fromPath path in
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
@@ -143,7 +143,7 @@ let references ~path ~line ~col =
   print_endline result
 
 let documentSymbol ~path =
-  let uri = Uri2.fromLocalPath path in
+  let uri = Uri2.fromPath path in
   match ProcessCmt.getFullFromCmt ~uri with
   | None -> print_endline Protocol.null
   | Some {file} ->
