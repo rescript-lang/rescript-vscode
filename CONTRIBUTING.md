@@ -79,6 +79,7 @@ We call a few binaries and it's tricky to call them properly cross-platform. Her
 ## General Coding Guidance
 
 - `server/` is a standalone folder that can be vendored by e.g. Vim and Sublime Text. Keep it light, don't add deps unless absolutely necessarily, and don't accidentally use a runtime dep from the top level `package.json`.
+- This codebase stayed alive by not trying to babysit long-living processes. Be fast, call a binary and shut down.
 
 ## Rough Description Of How The Plugin Works
 
