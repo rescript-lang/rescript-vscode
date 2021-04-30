@@ -134,7 +134,7 @@ let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
       addItem ~extent:md_loc
-        ~item:(forModuleType env md_type)
+        ~item:(forTypeModule env md_type)
         ~name:(Location.mknoloc (Ident.name ident))
         ~stamp:(Ident.binding_time ident) ~env md_attributes exported.modules
         env.stamps.modules
@@ -142,7 +142,7 @@ let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
     [{declared with item = Module declared.item}]
   | _ -> []
 
-and forSignatureType env signature =
+and forTypeSignature env signature =
   let exported = initExported () in
   let topLevel =
     List.fold_right
@@ -151,13 +151,13 @@ and forSignatureType env signature =
   in
   {docstring = []; exported; topLevel}
 
-and forModuleType env moduleType =
+and forTypeModule env moduleType =
   match moduleType with
   | Types.Mty_ident path -> Ident path
   | Mty_alias (_ (* 402 *), path) -> Ident path
-  | Mty_signature signature -> Structure (forSignatureType env signature)
+  | Mty_signature signature -> Structure (forTypeSignature env signature)
   | Mty_functor (_argIdent, _argType, resultType) ->
-    forModuleType env resultType
+    forTypeModule env resultType
 
 let getModuleTypePath mod_desc =
   match mod_desc with
@@ -246,7 +246,7 @@ let forSignatureItem ~env ~(exported : exported)
            decl |> forTypeDeclaration ~env ~exported ~recStatus)
   | Tsig_module
       {md_id; md_attributes; md_loc; md_name = name; md_type = {mty_type}} ->
-    let item = forModuleType env mty_type in
+    let item = forTypeModule env mty_type in
     let declared =
       addItem ~item ~name ~extent:md_loc ~stamp:(Ident.binding_time md_id) ~env
         md_attributes exported.modules env.stamps.modules
@@ -350,7 +350,7 @@ let rec forItem ~env ~(exported : exported) item =
     let env =
       {env with modulePath = ExportedModule (name.txt, env.modulePath)}
     in
-    let modTypeItem = forModuleType env modType in
+    let modTypeItem = forTypeModule env modType in
     let declared =
       addItem ~item:modTypeItem ~name ~extent:mtd_loc
         ~stamp:(Ident.binding_time mtd_id)
@@ -430,14 +430,14 @@ and forModule env mod_desc moduleName =
     let env =
       {env with modulePath = ExportedModule (moduleName, env.modulePath)}
     in
-    forModuleType env moduleType
+    forTypeModule env moduleType
   | Tmod_constraint (expr, typ, _constraint, _coercion) ->
     (* TODO do this better I think *)
     let modKind = forModule env expr.mod_desc moduleName in
     let env =
       {env with modulePath = ExportedModule (moduleName, env.modulePath)}
     in
-    let modTypeKind = forModuleType env typ in
+    let modTypeKind = forTypeModule env typ in
     Constraint (modKind, modTypeKind)
 
 and forStructure ~env items =
