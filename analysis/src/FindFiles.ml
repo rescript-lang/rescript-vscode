@@ -117,7 +117,7 @@ let collectFiles directory =
 let findProjectFiles ~debug namespace root sourceDirectories compiledBase =
   let files =
     sourceDirectories
-    |> List.map (Files.fileConcat root)
+    |> List.map (Filename.concat root)
     |> ifDebug debug "Source directories" (String.concat " - ")
     |> List.map (fun name -> Files.collect name isSourceFile)
     |> List.concat |> Utils.dedup
@@ -248,7 +248,7 @@ let findDependencyFiles ~debug base config =
                | Some compiledBase ->
                  if debug then Log.log ("Compiled base: " ^ compiledBase);
                  let compiledDirectories =
-                   directories |> List.map (Files.fileConcat compiledBase)
+                   directories |> List.map (Filename.concat compiledBase)
                  in
                  let compiledDirectories =
                    match namespace with
