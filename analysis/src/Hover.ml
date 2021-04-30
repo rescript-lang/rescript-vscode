@@ -75,7 +75,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
-      let env = SharedTypes.fileEnv file in
+      let env = SharedTypes.QueryEnv.fromFile file in
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
@@ -117,7 +117,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
     let fromType ~docstring typ =
       let typeString = codeBlock (typ |> Shared.typeToString) in
       let extraTypeInfo =
-        let env = SharedTypes.fileEnv file in
+        let env = SharedTypes.QueryEnv.fromFile file in
         match typ |> Shared.digConstructor with
         | None -> None
         | Some path -> (

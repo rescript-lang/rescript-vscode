@@ -29,7 +29,7 @@ let resolveOpens ~env ~previous opens ~package =
               previous (* TODO: warn? *)
             | Some file -> (
               match
-                ProcessCmt.resolvePath ~env:(SharedTypes.fileEnv file) ~package
+                ProcessCmt.resolvePath ~env:(QueryEnv.fromFile file) ~package
                   ~path
               with
               | None ->
@@ -137,14 +137,14 @@ let determineCompletion items =
    Maybe the way to fix it is to make note of what things in an open override
    locally defined things...
 *)
-let getEnvWithOpens ~pos ~(env : queryEnv) ~package ~(opens : queryEnv list)
+let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
     path =
   match ProcessCmt.resolveFromStamps ~env ~path ~package ~pos with
   | Some x -> Some x
   | None ->
     let rec loop opens =
       match opens with
-      | (env : queryEnv) :: rest -> (
+      | (env : QueryEnv.t) :: rest -> (
         Log.log ("Looking for env in " ^ Uri2.toString env.file.uri);
         match ProcessCmt.resolvePath ~env ~package ~path with
         | Some x -> Some x
@@ -158,7 +158,7 @@ let getEnvWithOpens ~pos ~(env : queryEnv) ~package ~(opens : queryEnv list)
           | None -> None
           | Some file ->
             Log.log "got it";
-            let env = SharedTypes.fileEnv file in
+            let env = QueryEnv.fromFile file in
             ProcessCmt.resolvePath ~env ~package ~path))
     in
     loop opens
@@ -194,7 +194,7 @@ let detail name contents =
   | Constructor (c, t) ->
     showConstructor c ^ "\n\n" ^ (t.item.decl |> Shared.declToString t.name.txt)
 
-let localValueCompletions ~pos ~(env : queryEnv) suffix =
+let localValueCompletions ~pos ~(env : QueryEnv.t) suffix =
   let results = [] in
   Log.log "---------------- LOCAL VAL";
   let results =
@@ -219,7 +219,7 @@ let localValueCompletions ~pos ~(env : queryEnv) suffix =
              {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
   else results
 
-let valueCompletions ~(env : queryEnv) suffix =
+let valueCompletions ~(env : QueryEnv.t) suffix =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
   let results = [] in
   let results =
@@ -254,7 +254,7 @@ let valueCompletions ~(env : queryEnv) suffix =
              {(emptyDeclared f.fname.txt) with item = Field (f, t)})))
   else results
 
-let attributeCompletions ~(env : queryEnv) ~suffix =
+let attributeCompletions ~(env : QueryEnv.t) ~suffix =
   let results = [] in
   let results =
     if suffix = "" || isCapitalized suffix then
@@ -281,7 +281,7 @@ let resolveRawOpens ~env ~rawOpens ~package =
   let opens =
     resolveOpens ~env
       ~previous:
-        (List.map fileEnv
+        (List.map QueryEnv.fromFile
            (packageOpens |> Utils.filterMap (ProcessCmt.fileForModule ~package)))
       rawOpens ~package
   in
@@ -293,7 +293,7 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
     ^ string_of_int (List.length rawOpens)
     ^ " "
     ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let env = fileEnv full.file in
+  let env = QueryEnv.fromFile full.file in
   let packageOpens = "Pervasives" :: package.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
   let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
@@ -303,7 +303,7 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
     ^ " "
     ^ String.concat " "
         (resolvedOpens
-        |> List.map (fun (e : queryEnv) -> Uri2.toString e.file.uri)));
+        |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
   (* Last open takes priority *)
   let opens = List.rev resolvedOpens in
   match parts with

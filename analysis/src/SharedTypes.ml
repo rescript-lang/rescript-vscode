@@ -103,9 +103,11 @@ let emptyFile moduleName uri =
     contents = {docstring = []; exported = initExported (); topLevel = []};
   }
 
-type queryEnv = {file : file; exported : exported}
+module QueryEnv = struct
+  type t = {file : file; exported : exported}
 
-let fileEnv file = {file; exported = file.contents.exported}
+  let fromFile file = {file; exported = file.contents.exported}
+end
 
 type filePath = string
 

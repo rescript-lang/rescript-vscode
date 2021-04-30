@@ -630,7 +630,7 @@ let rec makePath modulePath =
   | Papply (fnPath, _argPath) -> makePath fnPath
   | Pdot (inner, name, _) -> `Path (joinPaths inner (Tip name))
 
-let rec resolvePathInner ~env ~path =
+let rec resolvePathInner ~(env : QueryEnv.t) ~path =
   match path with
   | Tip name -> Some (`Local (env, name))
   | Nested (subName, subPath) -> (
@@ -653,7 +653,7 @@ and findInModule ~env kind path =
       | None -> None
       | Some {item = kind} -> findInModule ~env kind fullPath)
 
-let fromCompilerPath ~(env : queryEnv) path =
+let fromCompilerPath ~(env : QueryEnv.t) path =
   match makePath path with
   | `Stamp stamp -> `Stamp stamp
   | `Path (0, moduleName, path) -> `Global (moduleName, path)
@@ -716,7 +716,7 @@ struct
        Hashtbl.find extra.externalReferences moduleName
       else []))
 
-  let env = fileEnv Collector.file
+  let env = QueryEnv.fromFile Collector.file
 
   let addForPath path lident loc typ tip =
     maybeAddUse path lident loc tip;
@@ -1230,7 +1230,8 @@ let rec resolvePath ~env ~path ~package =
     | `Global (moduleName, fullPath) -> (
       match fileForModule ~package moduleName with
       | None -> None
-      | Some file -> resolvePath ~env:(fileEnv file) ~path:fullPath ~package))
+      | Some file ->
+        resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package))
 
 let tupleOfLexing {Lexing.pos_lnum; pos_cnum; pos_bol} =
   (pos_lnum - 1, pos_cnum - pos_bol)
@@ -1257,7 +1258,7 @@ let findInScope pos name stamps =
         result)
     stamps None
 
-let resolveFromStamps ~(env : queryEnv) ~path ~package ~pos =
+let resolveFromStamps ~(env : QueryEnv.t) ~path ~package ~pos =
   match path with
   | Tip name -> Some (env, name)
   | Nested (name, inner) -> (
@@ -1274,8 +1275,9 @@ let resolveFromStamps ~(env : queryEnv) ~path ~package ~pos =
         | `Global (moduleName, fullPath) -> (
           match fileForModule ~package moduleName with
           | None -> None
-          | Some file -> resolvePath ~env:(fileEnv file) ~path:fullPath ~package
-          ))))
+          | Some file ->
+            resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package)))
+    )
 
 let resolveModuleFromCompilerPath ~env ~package path =
   match fromCompilerPath ~env path with
@@ -1283,7 +1285,7 @@ let resolveModuleFromCompilerPath ~env ~package path =
     match fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
-      let env = fileEnv file in
+      let env = QueryEnv.fromFile file in
       match resolvePath ~env ~package ~path with
       | None -> None
       | Some (env, name) -> (
@@ -1301,7 +1303,7 @@ let resolveModuleFromCompilerPath ~env ~package path =
     match fileForModule ~package moduleName with
     | None -> None
     | Some file ->
-      let env = fileEnv file in
+      let env = QueryEnv.fromFile file in
       Some (env, None))
   | `Not_found -> None
   | `Exported (env, name) -> (
@@ -1319,7 +1321,7 @@ let resolveFromCompilerPath ~env ~package path =
       match fileForModule ~package moduleName with
       | None -> None
       | Some file ->
-        let env = fileEnv file in
+        let env = QueryEnv.fromFile file in
         resolvePath ~env ~package ~path
     in
     match res with
@@ -1330,7 +1332,7 @@ let resolveFromCompilerPath ~env ~package path =
   | `Not_found -> `Not_found
   | `Exported (env, name) -> `Exported (env, name)
 
-let rec getSourceUri ~(env : queryEnv) ~package path =
+let rec getSourceUri ~(env : QueryEnv.t) ~package path =
   match path with
   | File (uri, _moduleName) -> uri
   | NotVisible -> env.file.uri
@@ -1343,7 +1345,7 @@ let rec getSourceUri ~(env : queryEnv) ~package path =
     | Some (env, _declared) -> env.file.uri)
   | ExportedModule (_, inner) -> getSourceUri ~env ~package inner
 
-let exportedForTip ~(env : queryEnv) name tip =
+let exportedForTip ~(env : QueryEnv.t) name tip =
   match tip with
   | Value -> Hashtbl.find_opt env.exported.values name
   | Field _ | Constructor _ | Type -> Hashtbl.find_opt env.exported.types name

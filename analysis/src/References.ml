@@ -124,7 +124,7 @@ let definedForLoc ~file ~package locKind =
       Log.log ("Cannot get module " ^ moduleName);
       None
     | Some file -> (
-      let env = fileEnv file in
+      let env = QueryEnv.fromFile file in
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None ->
         Log.log ("Cannot resolve path " ^ pathToString path);
@@ -196,7 +196,7 @@ let rec resolveModuleReference ~file ~package (declared : moduleKind declared) =
   | Constraint (_moduleItem, moduleTypeItem) ->
     resolveModuleReference ~file ~package {declared with item = moduleTypeItem}
   | Ident path -> (
-    let env = fileEnv file in
+    let env = QueryEnv.fromFile file in
     match ProcessCmt.fromCompilerPath ~env path with
     | `Not_found -> None
     | `Exported (env, name) -> (
@@ -210,7 +210,7 @@ let rec resolveModuleReference ~file ~package (declared : moduleKind declared) =
       match ProcessCmt.fileForModule ~package moduleName with
       | None -> None
       | Some file -> (
-        let env = fileEnv file in
+        let env = QueryEnv.fromFile file in
         match ProcessCmt.resolvePath ~env ~package ~path with
         | None -> None
         | Some (env, name) -> (
@@ -271,7 +271,7 @@ let definition ~file ~package stamp tip =
     | None -> None
     | Some declared ->
       let loc = validateLoc declared.name.loc declared.extentLoc in
-      let env = fileEnv file in
+      let env = QueryEnv.fromFile file in
       let uri = ProcessCmt.getSourceUri ~env ~package declared.modulePath in
       maybeLog ("Inner uri " ^ Uri2.toString uri);
       Some (uri, loc))
@@ -325,7 +325,7 @@ let definitionForLocItem ~full:{file; package} locItem =
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
-      let env = fileEnv file in
+      let env = QueryEnv.fromFile file in
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
@@ -360,7 +360,7 @@ let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath (Tip tipName)
 
 let forLocalStamp ~full:{file; extra; package} stamp tip =
-  let env = fileEnv file in
+  let env = QueryEnv.fromFile file in
   let open Infix in
   match
     match tip with
@@ -451,7 +451,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> []
     | Some file -> (
-      let env = fileEnv file in
+      let env = QueryEnv.fromFile file in
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> []
       | Some (env, name) -> (
