@@ -17,9 +17,12 @@ let checkPos (line, char)
 let locItemsForPos ~extra pos =
   extra.locItems |> List.filter (fun {loc; locType = _} -> checkPos pos loc)
 
-let locItemForPos ~extra pos =
-  let locItems = locItemsForPos ~extra pos in
+let locItemForPos ~full pos =
+  let locItems = locItemsForPos ~extra:full.extra pos in
   match locItems with
+  | _ :: _ :: _ :: l :: _ when full.file.uri |> Uri2.isInterface ->
+    (* heuristic for makeProps in interface files *)
+    Some l
   | [({locType = Typed (_, LocalReference _)} as li1); li3]
     when li1.loc = li3.loc ->
     (* JSX and compiler combined:

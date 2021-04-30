@@ -47,9 +47,9 @@ let hover ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some ({file; extra} as full) -> (
+    | Some ({file} as full) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-      match References.locItemForPos ~extra pos with
+      match References.locItemForPos ~full pos with
       | None -> Protocol.null
       | Some locItem -> (
         let isModule =
@@ -83,10 +83,10 @@ let definition ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some ({file; extra} as full) -> (
+    | Some ({file} as full) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
 
-      match References.locItemForPos ~extra pos with
+      match References.locItemForPos ~full pos with
       | None -> Protocol.null
       | Some locItem -> (
         let isModule =
@@ -118,9 +118,9 @@ let references ~path ~line ~col =
   let result =
     match ProcessCmt.getFullFromCmt ~uri with
     | None -> Protocol.null
-    | Some ({extra} as full) -> (
+    | Some full -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-      match References.locItemForPos ~extra pos with
+      match References.locItemForPos ~full pos with
       | None -> Protocol.null
       | Some locItem ->
         let allReferences = References.allReferencesForLocItem ~full locItem in
