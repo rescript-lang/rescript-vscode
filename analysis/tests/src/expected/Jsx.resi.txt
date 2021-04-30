@@ -1,5 +1,5 @@
 Hover tests/src/Jsx.resi 1:4
-{"contents": "```rescript\n(~first: string, ~?key: string, unit) => {\"first\": string}\n```"}
+{"contents": "```rescript\nReact.componentLike<{\"first\": string}, React.element>\n```\n\n```rescript\ntype componentLike<'props, 'return> = 'props => 'return\n```"}
 
 Hover tests/src/Jsx.resi 4:4
 {"contents": "```rescript\nint\n```"}

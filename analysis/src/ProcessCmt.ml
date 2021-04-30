@@ -1073,7 +1073,8 @@ struct
     | _ -> ()
 end
 
-let forStructureItems ~(file : File.t) items parts =
+let forStructureItems ~(file : File.t) (items : Typedtree.structure_item list)
+    parts =
   let extra = extraForFile ~file in
   let extent = itemsExtent items in
   let extent =
@@ -1109,8 +1110,46 @@ let forStructureItems ~(file : File.t) items parts =
          | Partial_structure _ | Partial_structure_item _ -> ());
   extra
 
+let forSignatureItems ~(file : File.t) (items : Typedtree.signature_item list)
+    parts =
+  let extra = extraForFile ~file in
+  let extent = sigItemsExtent items in
+  let extent =
+    {
+      extent with
+      loc_end =
+        {
+          extent.loc_end with
+          pos_lnum = extent.loc_end.pos_lnum + 1000000;
+          pos_cnum = extent.loc_end.pos_cnum + 100000000;
+        };
+    }
+  in
+  (* TODO look through parts and extend the extent *)
+  let module Iter = TypedtreeIter.MakeIterator (F (struct
+    let scopeExtent = ref [extent]
+
+    let extra = extra
+
+    let file = file
+  end)) in
+  List.iter Iter.iter_signature_item items;
+  (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
+  parts
+  |> Array.iter (fun part ->
+         match part with
+         | Cmt_format.Partial_signature str -> Iter.iter_signature str
+         | Partial_signature_item str -> Iter.iter_signature_item str
+         | Partial_expression expression -> Iter.iter_expression expression
+         | Partial_pattern pattern -> Iter.iter_pattern pattern
+         | Partial_class_expr class_expr -> Iter.iter_class_expr class_expr
+         | Partial_module_type module_type -> Iter.iter_module_type module_type
+         | Partial_structure _ | Partial_structure_item _ -> ());
+  extra
+
 let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
   match cmt_annots with
+  | Implementation structure -> forStructureItems ~file structure.str_items [||]
   | Partial_implementation parts ->
     let items =
       parts |> Array.to_list
@@ -1123,8 +1162,18 @@ let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
       |> List.concat
     in
     forStructureItems ~file items parts
-  | Implementation structure -> forStructureItems ~file structure.str_items [||]
-  | Partial_interface _ | Interface _ -> forStructureItems ~file [] [||]
+  | Interface signature -> forSignatureItems ~file signature.sig_items [||]
+  | Partial_interface parts ->
+    let items =
+      parts |> Array.to_list
+      |> Utils.filterMap (fun (p : Cmt_format.binary_part) ->
+             match p with
+             | Partial_signature s -> Some s.sig_items
+             | Partial_signature_item str -> Some [str]
+             | _ -> None)
+      |> List.concat
+    in
+    forSignatureItems ~file items parts
   | _ -> forStructureItems ~file [] [||]
 
 let fullForCmt ~moduleName ~package ~uri cmt =
