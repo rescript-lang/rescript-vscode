@@ -19,10 +19,3 @@ let ( |?? ) o d = match o with None -> d | Some v -> Some v
 let ( |?> ) o fn = match o with None -> None | Some v -> fn v
 
 let ( |?>> ) o fn = match o with None -> None | Some v -> Some (fn v)
-
-let logIfAbsent message x =
-  match x with
-  | None ->
-    Log.log message;
-    None
-  | _ -> x

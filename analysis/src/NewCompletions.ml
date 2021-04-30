@@ -159,8 +159,7 @@ let getEnvWithOpens ~pos ~(env : ProcessCmt.queryEnv) ~package
           | Some file ->
             Log.log "got it";
             let env = ProcessCmt.fileEnv file in
-            ProcessCmt.resolvePath ~env ~package ~path
-            |> Infix.logIfAbsent "Unable to resolve the path"))
+            ProcessCmt.resolvePath ~env ~package ~path))
     in
     loop opens
 

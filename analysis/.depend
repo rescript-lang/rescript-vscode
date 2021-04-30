@@ -9,12 +9,12 @@ src/FindFiles.cmx : src/Utils.cmx src/SharedTypes.cmx \
     src/Files.cmx src/BuildSystem.cmx
 src/Hover.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
     src/References.cmx src/ProcessCmt.cmx
-src/Infix.cmx : src/Log.cmx
+src/Infix.cmx :
 src/Log.cmx :
 src/ModuleResolution.cmx : src/Files.cmx
 src/NewCompletions.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/Shared.cmx src/Protocol.cmx src/ProcessCmt.cmx src/PartialParser.cmx \
-    src/Log.cmx src/Infix.cmx src/Hover.cmx
+    src/Log.cmx src/Hover.cmx
 src/Packages.cmx : src/Uri2.cmx src/SharedTypes.cmx src/Log.cmx \
     src/vendor/Json.cmx src/Infix.cmx src/FindFiles.cmx src/Files.cmx \
     src/BuildSystem.cmx
