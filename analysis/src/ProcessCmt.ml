@@ -303,7 +303,7 @@ let rec getModulePath mod_desc =
   | Tmod_constraint (expr, _typ, _constraint, _coercion) ->
     getModulePath expr.mod_desc
 
-let rec forItem ~env ~(exported : exported) item =
+let rec forStructureItem ~env ~(exported : exported) item =
   match item.str_desc with
   | Tstr_value (_isRec, bindings) ->
     let declareds = ref [] in
@@ -444,7 +444,7 @@ and forStructure ~env items =
   let exported = initExported () in
   let topLevel =
     List.fold_right
-      (fun item results -> forItem ~env ~exported item @ results)
+      (fun item results -> forStructureItem ~env ~exported item @ results)
       items []
   in
   let attributes =
@@ -1073,7 +1073,7 @@ struct
     | _ -> ()
 end
 
-let forItems ~(file : File.t) items parts =
+let forStructureItems ~(file : File.t) items parts =
   let extra = extraForFile ~file in
   let extent = itemsExtent items in
   let extent =
@@ -1122,10 +1122,10 @@ let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    forItems ~file items parts
-  | Implementation structure -> forItems ~file structure.str_items [||]
-  | Partial_interface _ | Interface _ -> forItems ~file [] [||]
-  | _ -> forItems ~file [] [||]
+    forStructureItems ~file items parts
+  | Implementation structure -> forStructureItems ~file structure.str_items [||]
+  | Partial_interface _ | Interface _ -> forStructureItems ~file [] [||]
+  | _ -> forStructureItems ~file [] [||]
 
 let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
