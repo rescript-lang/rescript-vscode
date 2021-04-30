@@ -199,14 +199,11 @@ type extra = {
   (* OPTIMIZE: using a stack to come up with this would cut the computation time of this considerably. *)
   opens : (Location.t, openTracker) Hashtbl.t;
 }
-(** These are the bits of info that we need to make in-app stuff awesome *)
 
 type moduleName = string
 
-(* Here are the things that will be different between jbuilder things *)
 type package = {
   rootPath : filePath;
-  (* Depend on bsb having already run *)
   localModules : moduleName list;
   interModuleDependencies : (moduleName, moduleName list) Hashtbl.t;
   dependencyModules : moduleName list;

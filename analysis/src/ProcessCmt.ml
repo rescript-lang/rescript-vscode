@@ -48,7 +48,8 @@ let addItem ~name ~extent ~stamp ~env ~item attributes exported stamps =
   Hashtbl.add stamps stamp declared;
   declared
 
-let rec forSignatureTypeItem env (exported : SharedTypes.exported) item =
+let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
+    (item : Types.signature_item) =
   let open Types in
   match item with
   | Sig_value (ident, {val_type; val_attributes; val_loc = loc}) ->
@@ -145,7 +146,7 @@ and forSignatureType env signature =
   let exported = initExported () in
   let topLevel =
     List.fold_right
-      (fun item items -> forSignatureTypeItem env exported item @ items)
+      (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
       signature []
   in
   {docstring = []; exported; topLevel}
@@ -222,7 +223,8 @@ let forTypeDeclaration ~env ~(exported : exported)
   in
   {declared with item = MType (declared.item, recStatus)}
 
-let forSignatureItem ~env ~(exported : exported) item =
+let forSignatureItem ~env ~(exported : exported)
+    (item : Typedtree.signature_item) =
   match item.sig_desc with
   | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
     let declared =
@@ -259,7 +261,7 @@ let forSignatureItem ~env ~(exported : exported) item =
     in
     let topLevel =
       List.fold_right
-        (fun item items -> forSignatureTypeItem env exported item @ items)
+        (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
         incl_type []
     in
     topLevel
@@ -364,7 +366,7 @@ let rec forItem ~env ~(exported : exported) item =
     in
     let topLevel =
       List.fold_right
-        (fun item items -> forSignatureTypeItem env exported item @ items)
+        (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
         incl_type []
     in
     topLevel
