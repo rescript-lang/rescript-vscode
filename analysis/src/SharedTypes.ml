@@ -1,3 +1,112 @@
+type visibilityPath =
+  | File of Uri2.t * string
+  | NotVisible
+  | IncludedModule of Path.t * visibilityPath
+  | ExportedModule of string * visibilityPath
+
+type 't declared = {
+  name : string Location.loc;
+  extentLoc : Location.t;
+  scopeLoc : Location.t;
+  stamp : int;
+  modulePath : visibilityPath;
+  isExported : bool;
+  deprecated : string option;
+  docstring : string list;
+  item : 't;
+}
+
+type 't stampMap = (int, 't) Hashtbl.t
+
+type field = {stamp : int; fname : string Location.loc; typ : Types.type_expr}
+
+type constructor = {
+  stamp : int;
+  cname : string Location.loc;
+  args : (Types.type_expr * Location.t) list;
+  res : Types.type_expr option;
+}
+
+module Type = struct
+  type kind =
+    | Abstract of (Path.t * Types.type_expr list) option
+    | Open
+    | Tuple of Types.type_expr list
+    | Record of field list
+    | Variant of constructor list
+
+  type t = {kind : kind; decl : Types.type_declaration}
+end
+
+type 't namedMap = (string, 't) Hashtbl.t
+
+type namedStampMap = int namedMap
+
+type exported = {
+  types : namedStampMap;
+  values : namedStampMap;
+  modules : namedStampMap;
+}
+
+type moduleItem =
+  | MValue of Types.type_expr
+  | MType of Type.t * Types.rec_status
+  | Module of moduleKind
+
+and moduleContents = {
+  docstring : string list;
+  exported : exported;
+  topLevel : moduleItem declared list;
+}
+
+and moduleKind =
+  | Ident of Path.t
+  | Structure of moduleContents
+  | Constraint of moduleKind * moduleKind
+
+type stamps = {
+  types : Type.t declared stampMap;
+  values : Types.type_expr declared stampMap;
+  modules : moduleKind declared stampMap;
+  constructors : constructor declared stampMap;
+}
+
+type env = {stamps : stamps; modulePath : visibilityPath; scope : Location.t}
+
+type file = {
+  uri : Uri2.t;
+  stamps : stamps;
+  moduleName : string;
+  contents : moduleContents;
+}
+
+let initStamps () =
+  {
+    types = Hashtbl.create 10;
+    values = Hashtbl.create 10;
+    modules = Hashtbl.create 10;
+    constructors = Hashtbl.create 10;
+  }
+
+let initExported () =
+  {
+    types = Hashtbl.create 10;
+    values = Hashtbl.create 10;
+    modules = Hashtbl.create 10 (* constructors: Hashtbl.create(10), *);
+  }
+
+let emptyFile moduleName uri =
+  {
+    uri;
+    stamps = initStamps ();
+    moduleName;
+    contents = {docstring = []; exported = initExported (); topLevel = []};
+  }
+
+type queryEnv = {file : file; exported : exported}
+
+let fileEnv file = {file; exported = file.contents.exported}
+
 type filePath = string
 
 type paths =
@@ -25,27 +134,6 @@ let getCmt ?(interface = true) p =
   | Impl (c, _) | Intf (c, _) -> c
   | IntfAndImpl (cint, _, cimpl, _) -> if interface then cint else cimpl
 
-type visibilityPath =
-  | File of Uri2.t * string
-  | NotVisible
-  | IncludedModule of Path.t * visibilityPath
-  | ExportedModule of string * visibilityPath
-
-type 't declared = {
-  name : string Location.loc;
-  extentLoc : Location.t;
-  scopeLoc : Location.t;
-  stamp : int;
-  modulePath : visibilityPath;
-  exported : bool;
-  deprecated : string option;
-  docstring : string list;
-  item : 't;
-      (* TODO: maybe add a uri? *)
-      (* scopeType: scope, *)
-      (* scopeStart: (int, int), *)
-}
-
 let emptyDeclared name =
   {
     name = Location.mknoloc name;
@@ -53,105 +141,10 @@ let emptyDeclared name =
     scopeLoc = Location.none;
     stamp = 0;
     modulePath = NotVisible;
-    exported = false;
+    isExported = false;
     deprecated = None;
     docstring = [];
     item = ();
-  }
-
-type field = {stamp : int; fname : string Location.loc; typ : Types.type_expr}
-
-type constructor = {
-  stamp : int;
-  cname : string Location.loc;
-  args : (Types.type_expr * Location.t) list;
-  res : Types.type_expr option;
-}
-
-module Type = struct
-  type kind =
-    | Abstract of (Path.t * Types.type_expr list) option
-    | Open
-    | Tuple of Types.type_expr list
-    | Record of field list
-    | Variant of constructor list
-
-  type t = {kind : kind; decl : Types.type_declaration}
-end
-
-(* type scope =
-   | File
-   | Switch
-   | Module
-   | Let
-   | LetRec; *)
-
-type 't namedMap = (string, 't) Hashtbl.t
-
-type namedStampMap = int namedMap
-
-type exported = {
-  types : namedStampMap;
-  values : namedStampMap;
-  modules : namedStampMap;
-      (* constructors: namedStampMap, *)
-      (* classes: namedStampMap,
-         classTypes: namedStampMap, *)
-}
-
-let initExported () =
-  {
-    types = Hashtbl.create 10;
-    values = Hashtbl.create 10;
-    modules = Hashtbl.create 10 (* constructors: Hashtbl.create(10), *);
-  }
-
-type moduleItem =
-  | MValue of Types.type_expr
-  | MType of Type.t * Types.rec_status
-  | Module of moduleKind
-
-and moduleContents = {
-  docstring : string list;
-  exported : exported;
-  topLevel : moduleItem declared list;
-}
-
-and moduleKind =
-  | Ident of Path.t
-  | Structure of moduleContents
-  | Constraint of moduleKind * moduleKind
-
-type 't stampMap = (int, 't) Hashtbl.t
-
-type stamps = {
-  types : Type.t declared stampMap;
-  values : Types.type_expr declared stampMap;
-  modules : moduleKind declared stampMap;
-  constructors : constructor declared stampMap;
-}
-
-let initStamps () =
-  {
-    types = Hashtbl.create 10;
-    values = Hashtbl.create 10;
-    modules = Hashtbl.create 10;
-    constructors = Hashtbl.create 10;
-  }
-
-type file = {
-  uri : Uri2.t;
-  stamps : stamps;
-  moduleName : string;
-  contents : moduleContents;
-}
-
-let emptyFile moduleName uri =
-  {
-    uri;
-    stamps = initStamps ();
-    moduleName;
-    contents = {docstring = []; exported = initExported (); topLevel = []};
   }
 
 type tip = Value | Type | Field of string | Constructor of string | Module

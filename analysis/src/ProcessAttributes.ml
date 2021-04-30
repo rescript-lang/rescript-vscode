@@ -34,14 +34,14 @@ let rec findDeprecatedAttribute attributes =
   | ({Asttypes.txt = "deprecated"}, _) :: _ -> Some ""
   | _ :: rest -> findDeprecatedAttribute rest
 
-let newDeclared ~item ~scope ~extent ~name ~stamp ~modulePath exported
+let newDeclared ~item ~scope ~extent ~name ~stamp ~modulePath isExported
     attributes =
   {
     name;
     stamp;
     extentLoc = extent;
     scopeLoc = scope;
-    exported;
+    isExported;
     modulePath;
     deprecated = findDeprecatedAttribute attributes;
     docstring =

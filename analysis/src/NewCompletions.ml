@@ -29,7 +29,7 @@ let resolveOpens ~env ~previous opens ~package =
               previous (* TODO: warn? *)
             | Some file -> (
               match
-                ProcessCmt.resolvePath ~env:(ProcessCmt.fileEnv file) ~package
+                ProcessCmt.resolvePath ~env:(SharedTypes.fileEnv file) ~package
                   ~path
               with
               | None ->
@@ -137,15 +137,15 @@ let determineCompletion items =
    Maybe the way to fix it is to make note of what things in an open override
    locally defined things...
 *)
-let getEnvWithOpens ~pos ~(env : ProcessCmt.queryEnv) ~package
-    ~(opens : ProcessCmt.queryEnv list) path =
+let getEnvWithOpens ~pos ~(env : queryEnv) ~package ~(opens : queryEnv list)
+    path =
   match ProcessCmt.resolveFromStamps ~env ~path ~package ~pos with
   | Some x -> Some x
   | None ->
     let rec loop opens =
       match opens with
-      | env :: rest -> (
-        Log.log ("Looking for env in " ^ Uri2.toString env.ProcessCmt.qFile.uri);
+      | (env : queryEnv) :: rest -> (
+        Log.log ("Looking for env in " ^ Uri2.toString env.file.uri);
         match ProcessCmt.resolvePath ~env ~package ~path with
         | Some x -> Some x
         | None -> loop rest)
@@ -158,7 +158,7 @@ let getEnvWithOpens ~pos ~(env : ProcessCmt.queryEnv) ~package
           | None -> None
           | Some file ->
             Log.log "got it";
-            let env = ProcessCmt.fileEnv file in
+            let env = SharedTypes.fileEnv file in
             ProcessCmt.resolvePath ~env ~package ~path))
     in
     loop opens
@@ -194,15 +194,15 @@ let detail name contents =
   | Constructor (c, t) ->
     showConstructor c ^ "\n\n" ^ (t.item.decl |> Shared.declToString t.name.txt)
 
-let localValueCompletions ~pos ~(env : ProcessCmt.queryEnv) suffix =
+let localValueCompletions ~pos ~(env : queryEnv) suffix =
   let results = [] in
   Log.log "---------------- LOCAL VAL";
   let results =
     if suffix = "" || isCapitalized suffix then
       results
-      @ completionForDeclareds ~pos env.qFile.stamps.modules suffix (fun m ->
+      @ completionForDeclareds ~pos env.file.stamps.modules suffix (fun m ->
             Module m)
-      @ (completionForConstructors env.qExported.types env.qFile.stamps.types
+      @ (completionForConstructors env.exported.types env.file.stamps.types
            (* TODO declared thingsz *)
            suffix
         |> List.map (fun (c, t) ->
@@ -211,33 +211,32 @@ let localValueCompletions ~pos ~(env : ProcessCmt.queryEnv) suffix =
   in
   if suffix = "" || not (isCapitalized suffix) then
     results
-    @ completionForDeclareds ~pos env.qFile.stamps.values suffix (fun v ->
+    @ completionForDeclareds ~pos env.file.stamps.values suffix (fun v ->
           Value v)
-    @ completionForDeclareds ~pos env.qFile.stamps.types suffix (fun t ->
-          Type t)
-    @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
+    @ completionForDeclareds ~pos env.file.stamps.types suffix (fun t -> Type t)
+    @ (completionForFields env.exported.types env.file.stamps.types suffix
       |> List.map (fun (f, t) ->
              {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
   else results
 
-let valueCompletions ~(env : ProcessCmt.queryEnv) suffix =
-  Log.log (" - Completing in " ^ Uri2.toString env.qFile.uri);
+let valueCompletions ~(env : queryEnv) suffix =
+  Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
   let results = [] in
   let results =
     if suffix = "" || isCapitalized suffix then (
       (* Get rid of lowercase modules (#417) *)
-      env.qExported.modules
+      env.exported.modules
       |> Hashtbl.filter_map_inplace (fun name key ->
              if isCapitalized name then Some key else None);
       let moduleCompletions =
-        completionForExporteds env.qExported.modules env.qFile.stamps.modules
+        completionForExporteds env.exported.modules env.file.stamps.modules
           suffix (fun m -> Module m)
       in
       (* Log.log(" -- capitalized " ++ string_of_int(Hashtbl.length(env.exported.types)) ++ " exported types"); *)
       (* env.exported.types |> Hashtbl.iter((name, _) => Log.log("    > " ++ name)); *)
       results @ moduleCompletions
       @ ((* TODO declared thingsz *)
-         completionForConstructors env.qExported.types env.qFile.stamps.types
+         completionForConstructors env.exported.types env.file.stamps.types
            suffix
         |> List.map (fun (c, t) ->
                {(emptyDeclared c.cname.txt) with item = Constructor (c, t)})))
@@ -246,30 +245,30 @@ let valueCompletions ~(env : ProcessCmt.queryEnv) suffix =
   if suffix = "" || not (isCapitalized suffix) then (
     Log.log " -- not capitalized";
     results
-    @ completionForExporteds env.qExported.values env.qFile.stamps.values suffix
+    @ completionForExporteds env.exported.values env.file.stamps.values suffix
         (fun v -> Value v)
-    @ completionForExporteds env.qExported.types env.qFile.stamps.types suffix
+    @ completionForExporteds env.exported.types env.file.stamps.types suffix
         (fun t -> Type t)
-    @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
+    @ (completionForFields env.exported.types env.file.stamps.types suffix
       |> List.map (fun (f, t) ->
              {(emptyDeclared f.fname.txt) with item = Field (f, t)})))
   else results
 
-let attributeCompletions ~(env : ProcessCmt.queryEnv) ~suffix =
+let attributeCompletions ~(env : queryEnv) ~suffix =
   let results = [] in
   let results =
     if suffix = "" || isCapitalized suffix then
       results
-      @ completionForExporteds env.qExported.modules env.qFile.stamps.modules
+      @ completionForExporteds env.exported.modules env.file.stamps.modules
           suffix (fun m -> Module m)
     else results
   in
   if suffix = "" || not (isCapitalized suffix) then
     results
-    @ completionForExporteds env.qExported.values env.qFile.stamps.values suffix
+    @ completionForExporteds env.exported.values env.file.stamps.values suffix
         (fun v -> Value v)
     (* completionForExporteds(env.exported.types, env.file.stamps.types, suffix, t => Type(t)) @ *)
-    @ (completionForFields env.qExported.types env.qFile.stamps.types suffix
+    @ (completionForFields env.exported.types env.file.stamps.types suffix
       |> List.map (fun (f, t) ->
              {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
   else results
@@ -282,7 +281,7 @@ let resolveRawOpens ~env ~rawOpens ~package =
   let opens =
     resolveOpens ~env
       ~previous:
-        (List.map ProcessCmt.fileEnv
+        (List.map fileEnv
            (packageOpens |> Utils.filterMap (ProcessCmt.fileForModule ~package)))
       rawOpens ~package
   in
@@ -294,7 +293,7 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
     ^ string_of_int (List.length rawOpens)
     ^ " "
     ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let env = ProcessCmt.fileEnv full.file in
+  let env = fileEnv full.file in
   let packageOpens = "Pervasives" :: package.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
   let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
@@ -304,7 +303,7 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
     ^ " "
     ^ String.concat " "
         (resolvedOpens
-        |> List.map (fun e -> Uri2.toString e.ProcessCmt.qFile.uri)));
+        |> List.map (fun (e : queryEnv) -> Uri2.toString e.file.uri)));
   (* Last open takes priority *)
   let opens = List.rev resolvedOpens in
   match parts with
@@ -353,7 +352,7 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
       | [] -> []
       | first :: rest -> (
         Log.log ("-------------- Looking for " ^ first);
-        match ProcessCmt.findInScope pos first env.qFile.stamps.values with
+        match ProcessCmt.findInScope pos first env.file.stamps.values with
         | None -> []
         | Some declared -> (
           Log.log ("Found it! " ^ declared.name.txt);

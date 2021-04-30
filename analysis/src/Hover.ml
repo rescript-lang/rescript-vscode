@@ -2,14 +2,14 @@ let digConstructor ~env ~package path =
   match ProcessCmt.resolveFromCompilerPath ~env ~package path with
   | `Not_found -> None
   | `Stamp stamp -> (
-    match Hashtbl.find_opt env.qFile.stamps.types stamp with
+    match Hashtbl.find_opt env.file.stamps.types stamp with
     | None -> None
     | Some t -> Some (env, t))
   | `Exported (env, name) -> (
-    match Hashtbl.find_opt env.qExported.types name with
+    match Hashtbl.find_opt env.exported.types name with
     | None -> None
     | Some stamp -> (
-      match Hashtbl.find_opt env.qFile.stamps.types stamp with
+      match Hashtbl.find_opt env.file.stamps.types stamp with
       | None -> None
       | Some t -> Some (env, t)))
   | _ -> None
@@ -75,7 +75,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
-      let env = ProcessCmt.fileEnv file in
+      let env = SharedTypes.fileEnv file in
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
@@ -117,7 +117,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
     let fromType ~docstring typ =
       let typeString = codeBlock (typ |> Shared.typeToString) in
       let extraTypeInfo =
-        let env = ProcessCmt.fileEnv file in
+        let env = SharedTypes.fileEnv file in
         match typ |> Shared.digConstructor with
         | None -> None
         | Some path -> (
