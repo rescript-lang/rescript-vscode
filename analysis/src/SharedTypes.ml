@@ -48,6 +48,13 @@ type exported = {
   modules : namedStampMap;
 }
 
+let initExported () =
+  {
+    types = Hashtbl.create 10;
+    values = Hashtbl.create 10;
+    modules = Hashtbl.create 10;
+  }
+
 type moduleItem =
   | MValue of Types.type_expr
   | MType of Type.t * Types.rec_status
@@ -71,15 +78,6 @@ type stamps = {
   constructors : constructor declared stampMap;
 }
 
-type env = {stamps : stamps; modulePath : visibilityPath; scope : Location.t}
-
-type file = {
-  uri : Uri2.t;
-  stamps : stamps;
-  moduleName : string;
-  contents : moduleContents;
-}
-
 let initStamps () =
   {
     types = Hashtbl.create 10;
@@ -88,12 +86,14 @@ let initStamps () =
     constructors = Hashtbl.create 10;
   }
 
-let initExported () =
-  {
-    types = Hashtbl.create 10;
-    values = Hashtbl.create 10;
-    modules = Hashtbl.create 10 (* constructors: Hashtbl.create(10), *);
-  }
+type env = {stamps : stamps; modulePath : visibilityPath; scope : Location.t}
+
+type file = {
+  uri : Uri2.t;
+  stamps : stamps;
+  moduleName : string;
+  contents : moduleContents;
+}
 
 let emptyFile moduleName uri =
   {
