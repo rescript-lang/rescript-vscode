@@ -1,5 +1,5 @@
 Definition tests/src/Jsx.res 5:9
-{"uri": "Jsx.res", "range": {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}}
+{"uri": "tests/src/Jsx.res", "range": {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}}
 
 Complete tests/src/Jsx.res 7:2
 [{

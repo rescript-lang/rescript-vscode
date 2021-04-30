@@ -459,82 +459,82 @@ DocumentSymbol tests/src/Completion.res
 {
         "name": "MyList",
         "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 0, "character": 25}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 0, "character": 25}}}
 },
 {
         "name": "Dep",
         "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 6, "character": 7}, "end": {"line": 11, "character": 1}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 6, "character": 7}, "end": {"line": 11, "character": 1}}}
 },
 {
         "name": "customDouble",
         "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 7, "character": 2}, "end": {"line": 8, "character": 30}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 7, "character": 2}, "end": {"line": 8, "character": 30}}}
 },
 {
         "name": "Lib",
         "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 15, "character": 7}, "end": {"line": 18, "character": 1}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 15, "character": 7}, "end": {"line": 18, "character": 1}}}
 },
 {
         "name": "foo",
         "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 16, "character": 6}, "end": {"line": 16, "character": 9}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 16, "character": 6}, "end": {"line": 16, "character": 9}}}
 },
 {
         "name": "next",
         "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 17, "character": 6}, "end": {"line": 17, "character": 10}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 17, "character": 6}, "end": {"line": 17, "character": 10}}}
 },
 {
         "name": "op",
         "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 26, "character": 4}, "end": {"line": 26, "character": 6}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 26, "character": 4}, "end": {"line": 26, "character": 6}}}
 },
 {
         "name": "ForAuto",
         "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 30, "character": 7}, "end": {"line": 34, "character": 1}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 30, "character": 7}, "end": {"line": 34, "character": 1}}}
 },
 {
         "name": "t",
         "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 31, "character": 2}, "end": {"line": 31, "character": 14}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 31, "character": 2}, "end": {"line": 31, "character": 14}}}
 },
 {
         "name": "abc",
         "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 32, "character": 6}, "end": {"line": 32, "character": 9}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 32, "character": 6}, "end": {"line": 32, "character": 9}}}
 },
 {
         "name": "abd",
         "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 33, "character": 6}, "end": {"line": 33, "character": 9}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 33, "character": 6}, "end": {"line": 33, "character": 9}}}
 },
 {
         "name": "fa",
         "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 36, "character": 4}, "end": {"line": 36, "character": 6}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 36, "character": 4}, "end": {"line": 36, "character": 6}}}
 },
 {
         "name": "O",
         "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 41, "character": 7}, "end": {"line": 47, "character": 1}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 41, "character": 7}, "end": {"line": 47, "character": 1}}}
 },
 {
         "name": "Comp",
         "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 42, "character": 9}, "end": {"line": 46, "character": 3}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 42, "character": 9}, "end": {"line": 46, "character": 3}}}
 },
 {
         "name": "make",
         "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 44, "character": 8}, "end": {"line": 44, "character": 12}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 44, "character": 8}, "end": {"line": 44, "character": 12}}}
 },
 {
         "name": "zzz",
         "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 49, "character": 4}, "end": {"line": 49, "character": 7}}}
+        "location": {"uri": "tests/src/Completion.res", "range": {"start": {"line": 49, "character": 4}, "end": {"line": 49, "character": 7}}}
 }
 ]
 

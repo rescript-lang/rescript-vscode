@@ -35,7 +35,7 @@ Hover tests/src/Hover.res 52:7
 {"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
 
 Definition tests/src/Hover.res 58:14
-{"uri": "Hover.res", "range": {"start": {"line": 47, "character": 12}, "end": {"line": 47, "character": 18}}}
+{"uri": "tests/src/Hover.res", "range": {"start": {"line": 47, "character": 12}, "end": {"line": 47, "character": 18}}}
 
 Hover tests/src/Hover.res 62:9
 {"contents": "```rescript\nmodule IdDefinedTwice = {\n  let y: int\n  let _x: int\n}\n```"}

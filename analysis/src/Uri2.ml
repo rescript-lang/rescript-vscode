@@ -36,7 +36,11 @@ end = struct
 
   let toPath {path} = path
 
-  let toString {uri} = if !stripPath then Filename.basename uri else uri
+  let toString {uri} =
+    if !stripPath then
+      let n = Str.search_forward (Str.regexp "test") uri 0 in
+      String.sub uri n (String.length uri - n)
+    else uri
 end
 
 include Uri
