@@ -10,7 +10,7 @@ src/FindFiles.cmx : src/Utils.cmx src/SharedTypes.cmx \
     src/Files.cmx src/BuildSystem.cmx
 src/Hover.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
     src/References.cmx src/ProcessCmt.cmx
-src/Infix.cmx : src/Log.cmx src/Files.cmx
+src/Infix.cmx : src/Log.cmx
 src/Log.cmx :
 src/ModuleResolution.cmx : src/Infix.cmx src/Files.cmx
 src/NewCompletions.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
