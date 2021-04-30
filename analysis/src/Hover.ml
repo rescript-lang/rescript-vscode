@@ -39,7 +39,7 @@ let showModuleTopLevel ~docstring ~name
   in
   Some (doc ^ full)
 
-let rec showModule ~docstring ~(file : SharedTypes.file) ~name
+let rec showModule ~docstring ~(file : SharedTypes.File.t) ~name
     (declared : SharedTypes.moduleKind SharedTypes.declared option) =
   match declared with
   | None -> showModuleTopLevel ~docstring ~name file.contents.topLevel

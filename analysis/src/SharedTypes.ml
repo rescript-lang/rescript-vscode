@@ -88,23 +88,25 @@ let initStamps () =
 
 type env = {stamps : stamps; modulePath : visibilityPath; scope : Location.t}
 
-type file = {
-  uri : Uri2.t;
-  stamps : stamps;
-  moduleName : string;
-  contents : moduleContents;
-}
-
-let emptyFile moduleName uri =
-  {
-    uri;
-    stamps = initStamps ();
-    moduleName;
-    contents = {docstring = []; exported = initExported (); topLevel = []};
+module File = struct
+  type t = {
+    uri : Uri2.t;
+    stamps : stamps;
+    moduleName : string;
+    contents : moduleContents;
   }
 
+  let create moduleName uri =
+    {
+      uri;
+      stamps = initStamps ();
+      moduleName;
+      contents = {docstring = []; exported = initExported (); topLevel = []};
+    }
+end
+
 module QueryEnv = struct
-  type t = {file : file; exported : exported}
+  type t = {file : File.t; exported : exported}
 
   let fromFile file = {file; exported = file.contents.exported}
 end
@@ -213,7 +215,7 @@ type package = {
   opens : string list;
 }
 
-type full = {extra : extra; file : file; package : package}
+type full = {extra : extra; file : File.t; package : package}
 
 let initExtra () =
   {
@@ -226,7 +228,7 @@ let initExtra () =
 type state = {
   packagesByRoot : (string, package) Hashtbl.t;
   rootForUri : (Uri2.t, string) Hashtbl.t;
-  cmtCache : (filePath, float * file) Hashtbl.t;
+  cmtCache : (filePath, float * File.t) Hashtbl.t;
 }
 
 (* There's only one state, so it can as well be global *)

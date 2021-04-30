@@ -73,7 +73,7 @@ let declaredForTip ~stamps stamp tip =
   | Module ->
     Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
 
-let getField file stamp name =
+let getField (file : File.t) stamp name =
   match Hashtbl.find_opt file.stamps.types stamp with
   | None -> None
   | Some {item = {kind}} -> (
@@ -81,7 +81,7 @@ let getField file stamp name =
     | Record fields -> fields |> List.find_opt (fun f -> f.fname.txt = name)
     | _ -> None)
 
-let getConstructor file stamp name =
+let getConstructor (file : File.t) stamp name =
   match Hashtbl.find_opt file.stamps.types stamp with
   | None -> None
   | Some {item = {kind}} -> (
@@ -158,7 +158,7 @@ let declaredForExportedTip ~(stamps : stamps) ~(exported : exported) name tip =
     Hashtbl.find_opt exported.modules name |?> fun stamp ->
     Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
 
-let alternateDeclared ~file ~package declared tip =
+let alternateDeclared ~(file : File.t) ~package declared tip =
   match Hashtbl.find_opt package.pathsForModule file.moduleName with
   | None -> None
   | Some paths -> (
@@ -241,7 +241,7 @@ let validateLoc (loc : Location.t) (backup : Location.t) =
     else backup
   else loc
 
-let resolveModuleDefinition ~file ~package stamp =
+let resolveModuleDefinition ~(file : File.t) ~package stamp =
   match Hashtbl.find_opt file.stamps.modules stamp with
   | None -> None
   | Some md -> (

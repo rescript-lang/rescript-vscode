@@ -489,7 +489,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
       }
     in
     let contents = forStructure ~env items in
-    {uri; moduleName = cmt_modname; stamps = env.stamps; contents}
+    {File.uri; moduleName = cmt_modname; stamps = env.stamps; contents}
   | Partial_interface parts ->
     let items =
       parts |> Array.to_list
@@ -529,7 +529,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     in
     let contents = forSignature ~env signature.sig_items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; contents}
-  | _ -> SharedTypes.emptyFile moduleName uri
+  | _ -> File.create moduleName uri
 
 let fileForCmt ~moduleName ~uri cmt =
   match Shared.tryReadCmt cmt with
@@ -540,7 +540,7 @@ let addLocItem extra loc locType =
   if not loc.Warnings.loc_ghost then
     extra.locItems <- {loc; locType} :: extra.locItems
 
-let extraForFile ~(file : SharedTypes.file) =
+let extraForFile ~(file : File.t) =
   let extra = initExtra () in
   let addReference stamp loc =
     Hashtbl.replace extra.internalReferences stamp
@@ -672,7 +672,7 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
 module F (Collector : sig
   val extra : extra
 
-  val file : file
+  val file : File.t
 
   val scopeExtent : Location.t list ref
 end) =
@@ -1071,7 +1071,7 @@ struct
     | _ -> ()
 end
 
-let forItems ~(file : SharedTypes.file) items parts =
+let forItems ~(file : File.t) items parts =
   let extra = extraForFile ~file in
   let extent = itemsExtent items in
   let extent =
