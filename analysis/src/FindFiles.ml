@@ -1,11 +1,12 @@
-open Infix
-
 let ifDebug debug name fn v =
   if debug then Log.log (name ^ ": " ^ fn v);
   v
 
+let ( /+ ) = Filename.concat
+
 (* Returns a list of paths, relative to the provided `base` *)
 let getSourceDirectories ~includeDev base config =
+  let open Infix in
   let rec handleItem current item =
     match item with
     | Json.Array contents ->
@@ -87,6 +88,7 @@ let nameSpaceToName n =
 
 let getNamespace config =
   let ns = Json.get "namespace" config in
+  let open Infix in
   let isNamespaced =
     ns |?> Json.bool |? (ns |?> Json.string |?> (fun _ -> Some true) |? false)
   in
@@ -217,6 +219,7 @@ let loadStdlib = stdlib => {
 *)
 
 let findDependencyFiles ~debug base config =
+  let open Infix in
   let deps =
     config |> Json.get "bs-dependencies" |?> Json.array |? []
     |> optMap Json.string

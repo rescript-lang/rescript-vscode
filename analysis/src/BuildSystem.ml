@@ -1,9 +1,7 @@
 let namespacedName namespace name =
-  match namespace with
-  | None -> name
-  | Some namespace -> name ^ "-" ^ namespace
+  match namespace with None -> name | Some namespace -> name ^ "-" ^ namespace
 
-open Infix
+let ( /+ ) = Filename.concat
 
 let getBsPlatformDir rootPath =
   let result =

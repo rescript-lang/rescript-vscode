@@ -1,4 +1,4 @@
-open Infix
+let ( /+ ) = Filename.concat
 
 let rec resolveNodeModulePath ~startPath name =
   let path = startPath /+ "node_modules" /+ name in

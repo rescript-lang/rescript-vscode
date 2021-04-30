@@ -1,5 +1,4 @@
-src/BuildSystem.cmx : src/ModuleResolution.cmx src/Log.cmx src/Infix.cmx \
-    src/Files.cmx
+src/BuildSystem.cmx : src/ModuleResolution.cmx src/Log.cmx src/Files.cmx
 src/Cli.cmx : src/Commands.cmx
 src/Commands.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/Shared.cmx src/References.cmx src/Protocol.cmx src/ProcessCmt.cmx \
@@ -12,7 +11,7 @@ src/Hover.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
     src/References.cmx src/ProcessCmt.cmx
 src/Infix.cmx : src/Log.cmx
 src/Log.cmx :
-src/ModuleResolution.cmx : src/Infix.cmx src/Files.cmx
+src/ModuleResolution.cmx : src/Files.cmx
 src/NewCompletions.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/Shared.cmx src/Protocol.cmx src/ProcessCmt.cmx src/PartialParser.cmx \
     src/Log.cmx src/Infix.cmx src/Hover.cmx

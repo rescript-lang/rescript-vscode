@@ -13,7 +13,7 @@ let makePathsForModule (localModules : (string * SharedTypes.paths) list)
   pathsForModule
 
 let newBsPackage rootPath =
-  let path = rootPath /+ "bsconfig.json" in
+  let path = Filename.concat rootPath "bsconfig.json" in
   match Files.readFile path with
   | None -> Error ("Unable to read " ^ path)
   | Some raw -> (
@@ -63,7 +63,7 @@ let newBsPackage rootPath =
              match namespace with
              | None -> []
              | Some namespace ->
-               let cmt = (compiledBase /+ namespace) ^ ".cmt" in
+               let cmt = Filename.concat compiledBase namespace ^ ".cmt" in
                Log.log ("############ Namespaced as " ^ namespace ^ " at " ^ cmt);
                Hashtbl.add pathsForModule namespace (Impl (cmt, None));
                [FindFiles.nameSpaceToName namespace]
@@ -106,7 +106,8 @@ let findRoot ~uri packagesByRoot =
   let rec loop path =
     if path = "/" then None
     else if Hashtbl.mem packagesByRoot path then Some (`Root path)
-    else if Files.exists (path /+ "bsconfig.json") then Some (`Bs path)
+    else if Files.exists (Filename.concat path "bsconfig.json") then
+      Some (`Bs path)
     else
       let parent = Filename.dirname path in
       if parent = path then (* reached root *) None else loop parent
