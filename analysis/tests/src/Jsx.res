@@ -25,3 +25,4 @@ let y = 44
 
 //^com <M prop=list{1,2,3} k
 
+//^com <M prop=<N /> k
