@@ -1,5 +1,5 @@
 ## master
-- ppx autocomplete: handle values to the rhs of `=` without braces (variant, polymorphic variant, function call, list literal).
+- ppx autocomplete: handle values to the rhs of `=` without braces (variant, polymorphic variant, function call, list literal, nested component).
 
 ## 1.1.1
 
