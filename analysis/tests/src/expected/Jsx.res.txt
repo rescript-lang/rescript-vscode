@@ -71,6 +71,7 @@ Complete tests/src/Jsx.res 11:2
   }]
 
 Complete tests/src/Jsx.res 18:2
+skipOptIdent
 [{
     "label": "key",
     "kind": 4,
@@ -89,7 +90,17 @@ skipOptIdent
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 23:2
+Complete tests/src/Jsx.res 22:2
+skipOptIdent
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 24:2
 skipOptIdent
 [{
     "label": "key",

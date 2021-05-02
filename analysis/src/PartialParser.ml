@@ -69,8 +69,8 @@ let skipOptVariant text i =
    Find JSX context ctx for component M to autocomplete id (already parsed) as a prop.
    ctx ::= <M args id
    arg ::= id | id = [?] val
-   val ::= id | "abc" | 42 | {...} | optVariant (...) | [...]
-   optVariant ::= A | #a |  _nothing_
+   val ::= id | "abc" | 42 | optVariant {...} | optVariant (...) | [...]
+   optVariant ::= a | A | #a |  #A |  _nothing_
  *)
 let findJsxContext text offset =
   let rec loop identsSeen i =
@@ -79,7 +79,7 @@ let findJsxContext text offset =
       match text.[i] with
       | '}' ->
         let i1 = findBackSkippingCommentsAndStrings text '{' '}' (i - 1) 0 in
-        if i1 > 0 then beforeValue identsSeen i1 else None
+        if i1 > 0 then beforeParen identsSeen i1 else None
       | ')' ->
         let i1 = findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0 in
         if i1 > 0 then beforeParen identsSeen i1 else None

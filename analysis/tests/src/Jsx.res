@@ -21,5 +21,7 @@ let y = 44
 
 //^com <M prop=A(3) k
 
+//^com <M prop=foo(1+2) k
 
-//^com <M prop = #A (3) k
+//^com <M prop=list{1,2,3} k
+
