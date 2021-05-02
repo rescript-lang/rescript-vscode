@@ -16,3 +16,6 @@ let _ = <M first="abc" />
 let make = (~first) => React.string(first)
 
 let y = 44
+
+//^com <M prop={A(3)} k
+//^com <M prop=A(3) k
