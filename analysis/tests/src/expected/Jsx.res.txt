@@ -111,5 +111,11 @@ skipOptIdent
   }]
 
 Complete tests/src/Jsx.res 26:2
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
