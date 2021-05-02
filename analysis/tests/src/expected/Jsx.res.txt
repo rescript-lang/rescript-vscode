@@ -110,3 +110,6 @@ skipOptIdent
     "documentation": null
   }]
 
+Complete tests/src/Jsx.res 26:2
+[]
+
