@@ -51,11 +51,27 @@ let findCallFromArgument text offset =
   in
   loop ~i:offset ~nClosed:0
 
-(* Figure out whether id should be autocompleted as component prop. *)
-(* Find JSX context ctx for component M to autocomplete id (already parsed) as a prop. *)
-(* ctx ::= <M args id *)
-(* arg ::= id | id = [?] val *)
-(* val ::= id | "abc" | 42 | {...} | (...) | [...] *)
+(* skip A or #A if present *)
+let skipOptVariant text i =
+  prerr_endline "skipOptIdent";
+  if i > 0 then
+    match text.[i] with
+    | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' ->
+      let i = startOfLident text i - 1 in
+      let i =
+        if i > 0 then match text.[i] with '#' -> i - 1 | _ -> i else i
+      in
+      i
+    | _ -> i
+  else i
+
+(* Figure out whether id should be autocompleted as component prop.
+   Find JSX context ctx for component M to autocomplete id (already parsed) as a prop.
+   ctx ::= <M args id
+   arg ::= id | id = [?] val
+   val ::= id | "abc" | 42 | {...} | optVariant (...) | [...]
+   optVariant ::= A | #a |  _nothing_
+ *)
 let findJsxContext text offset =
   let rec loop identsSeen i =
     let i = skipWhite text i in
@@ -66,7 +82,7 @@ let findJsxContext text offset =
         if i1 > 0 then beforeValue identsSeen i1 else None
       | ')' ->
         let i1 = findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0 in
-        if i1 > 0 then beforeValue identsSeen i1 else None
+        if i1 > 0 then beforeParen identsSeen i1 else None
       | ']' ->
         let i1 = findBackSkippingCommentsAndStrings text '[' ']' (i - 1) 0 in
         if i1 > 0 then beforeValue identsSeen i1 else None
@@ -91,6 +107,9 @@ let findJsxContext text offset =
       | '=' -> fromEquals identsSeen i
       | _ -> loop identsSeen (i - 1)
     else None
+  and beforeParen identsSeen i =
+    let i = skipWhite text i in
+    beforeValue identsSeen (skipOptVariant text i)
   and beforeValue identsSeen i =
     let i = skipWhite text i in
     if i > 0 then
