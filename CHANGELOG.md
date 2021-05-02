@@ -1,3 +1,6 @@
+## master
+- ppx autocomplete: handle variant and polymorphic variant without braces.
+
 ## 1.1.1
 
 This update contains _lots_ of autocomplete, hover and jump-to-definition improvements. We'll list only a few below.
