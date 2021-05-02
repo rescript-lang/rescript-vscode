@@ -79,6 +79,23 @@ Complete tests/src/Jsx.res 18:2
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 19:2
-[]
+Complete tests/src/Jsx.res 20:2
+skipOptIdent
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 23:2
+skipOptIdent
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
