@@ -36,20 +36,46 @@ let rec startOfLident text i =
 
 (* foo(... ~arg) from ~arg find foo *)
 let findCallFromArgument text offset =
-  let rec loop ~i ~nClosed =
+  let none = ([], []) in
+  let rec loop identsSeen i =
+    let i = skipWhite text i in
     if i > 0 then
       match text.[i] with
-      | '(' when nClosed > 0 -> loop ~i:(i - 1) ~nClosed:(nClosed - 1)
+      | '}' ->
+        let i1 = findBackSkippingCommentsAndStrings text '{' '}' (i - 1) 0 in
+        if i1 > 0 then loop identsSeen i1 else none
+      | ')' ->
+        let i1 = findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0 in
+        if i1 > 0 then loop identsSeen i1 else none
+      | ']' ->
+        let i1 = findBackSkippingCommentsAndStrings text '[' ']' (i - 1) 0 in
+        if i1 > 0 then loop identsSeen i1 else none
+      | '"' ->
+        let i1 = findBack text '"' (i - 1) in
+        if i1 > 0 then loop identsSeen i1 else none
+      | '\'' ->
+        let i1 = findBack text '\'' (i - 1) in
+        if i1 > 0 then loop identsSeen i1 else none
+      | '`' ->
+        let i1 = findBack text '`' (i - 1) in
+        if i1 > 0 then loop identsSeen i1 else none
       | '(' ->
         let i1 = skipWhite text (i - 1) in
         let i0 = startOfLident text i1 in
         let funLident = String.sub text i0 (i1 - i0 + 1) in
-        Str.split (Str.regexp_string ".") funLident
-      | ')' -> loop ~i:(i - 1) ~nClosed:(nClosed + 1)
-      | _ -> loop ~i:(i - 1) ~nClosed
-    else []
+        (Str.split (Str.regexp_string ".") funLident, identsSeen)
+      | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' ->
+        let i1 = startOfLident text i in
+        let ident = String.sub text i1 (i - i1 + 1) in
+        if i1 - 1 > 0 then
+          match text.[i1 - 1] with
+          | '~' -> loop (ident :: identsSeen) (i1 - 2)
+          | _ -> loop identsSeen (i1 - 1)
+        else none
+      | _ -> loop identsSeen (i - 1)
+    else none
   in
-  loop ~i:offset ~nClosed:0
+  loop [] offset
 
 (* skip A or #A or %A if present *)
 let skipOptVariantExtension text i =
@@ -61,7 +87,7 @@ let skipOptVariantExtension text i =
         if i > 0 then match text.[i] with '#' | '%' -> i - 1 | _ -> i else i
       in
       i
-   | _ -> i
+    | _ -> i
   else i
 
 (* Figure out whether id should be autocompleted as component prop.
@@ -143,8 +169,8 @@ type pipe = PipeId of string | PipeArray | PipeString
 
 type completable =
   | Cdecorator of string  (** e.g. @module *)
-  | Clabel of string list * string
-      (** e.g. (["M", "foo"], "label") for M.foo(...~label...) *)
+  | Clabel of string list * string * string list
+      (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
   | Cpath of string list  (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
@@ -201,8 +227,8 @@ let findCompletable text offset =
         else Some (mkPath rest)
       | '~' ->
         let labelPrefix = suffix i in
-        let funPath = findCallFromArgument text (i - 1) in
-        Some (Clabel (funPath, labelPrefix))
+        let funPath, identsSeen = findCallFromArgument text (i - 1) in
+        Some (Clabel (funPath, labelPrefix, identsSeen))
       | '@' -> Some (Cdecorator (suffix i))
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
       | ' ' when i = offset - 1 -> (

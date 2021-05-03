@@ -18,7 +18,7 @@ module Lib = {
   let next = (~number=0, ~year) => number + year
 }
 
-//^com let x = foo(~
+//^com let x = Lib.foo(~
 
 //^com [1,2,3]->m
 
@@ -58,3 +58,9 @@ let zzz = 11
 //^com @reac
 
 //^com @react.
+
+//^com let x = Lib.foo(~name, ~
+
+//^com let x = Lib.foo(~age, ~
+
+//^com let x = Lib.foo(~age={3+4}, ~
