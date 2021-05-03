@@ -610,7 +610,7 @@ let processCompletable ~findItems ~package ~rawOpens
            in
            dec2)
     |> List.map mkDecorator
-  | Clabel (funPath, prefix) ->
+  | Clabel (funPath, prefix, identsSeen) ->
     let labels =
       match funPath |> findItems ~exact:true with
       | {SharedTypes.item = Value typ} :: _ ->
@@ -631,7 +631,8 @@ let processCompletable ~findItems ~package ~rawOpens
         ~docstring:[]
     in
     labels
-    |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
+    |> List.filter (fun (name, _t) ->
+           Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
 
 let computeCompletions ~full ~maybeText ~pos =
