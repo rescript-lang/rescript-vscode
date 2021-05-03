@@ -37,6 +37,6 @@ let y = 44
 
 //^com <M prop=`before${foo}` k
 
-//<M prop=module(@foo Three: X_int) k
+//^com <M prop=module(@foo Three: X_int) k
 
-//<M prop=%bs.raw("1") k
+//^com <M prop=%bs.raw("1") k

@@ -52,16 +52,16 @@ let findCallFromArgument text offset =
   loop ~i:offset ~nClosed:0
 
 (* skip A or #A if present *)
-let skipOptVariant text i =
-  prerr_endline "skipOptIdent";
+let rec skipOptVariant text i =
   if i > 0 then
     match text.[i] with
     | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' ->
       let i = startOfLident text i - 1 in
       let i =
-        if i > 0 then match text.[i] with '#' -> i - 1 | _ -> i else i
+        if i > 0 then match text.[i] with '#' | '%' -> i - 1 | _ -> i else i
       in
       i
+    | '%' -> skipOptVariant text (i - 1)
     | _ -> i
   else i
 
