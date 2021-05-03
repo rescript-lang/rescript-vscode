@@ -26,3 +26,17 @@ let y = 44
 //^com <M prop=list{1,2,3} k
 
 //^com <M prop=<N /> k
+
+//^com <M prop=1.5 k
+
+//^com <M prop=0X33 k
+
+//^com <M prop=12e+3 k
+
+//^com <M prop='z' k
+
+//^com <M prop=`before${foo}` k
+
+//<M prop=module(@foo Three: X_int) k
+
+//<M prop=%bs.raw("1") k

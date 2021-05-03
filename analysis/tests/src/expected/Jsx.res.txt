@@ -119,3 +119,48 @@ Complete tests/src/Jsx.res 26:2
     "documentation": null
   }]
 
+Complete tests/src/Jsx.res 28:2
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 30:2
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 32:2
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 34:2
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 36:2
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
