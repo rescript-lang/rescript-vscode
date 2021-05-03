@@ -114,7 +114,7 @@ let compilerLogsWatcher = chokidar
       stabilityThreshold: 1,
     },
   })
-  .on("all", (_e, changedPath) => {
+  .on("all", (_e, _changedPath) => {
     sendUpdatedDiagnostics();
   });
 let stopWatchingCompilerLog = () => {
@@ -534,6 +534,8 @@ function onMessage(msg: m.Message) {
       msg.result != null &&
       // @ts-ignore
       msg.result.title != null &&
+      // @ts-ignore
+      msg.result.projectRootPath != null &&
       // @ts-ignore
       msg.result.title === c.startBuildAction
     ) {
