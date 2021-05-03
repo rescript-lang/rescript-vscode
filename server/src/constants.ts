@@ -43,6 +43,5 @@ export let compilerDirPartialPath = path.join("lib", "bs");
 export let compilerLogPartialPath = path.join("lib", "bs", ".compiler.log");
 export let resExt = ".res";
 export let resiExt = ".resi";
-export let mliExt = ".mli";
 export let cmiExt = ".cmi";
 export let startBuildAction = "Start Build";

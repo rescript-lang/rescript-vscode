@@ -42,7 +42,11 @@ let projectsFiles: Map<
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: m.Message) => void = (_) => { };
 
-let createInterfaceRequest = new v.RequestType<null, string, void>("rescript-vscode.create_interface");
+interface CreateInterfaceRequestParams {
+	uri: string;
+};
+
+let createInterfaceRequest = new v.RequestType<CreateInterfaceRequestParams, string, void>("rescript-vscode.create_interface");
 
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
@@ -517,15 +521,16 @@ function onMessage(msg: m.Message) {
         }
       }
     } else if (msg.method === createInterfaceRequest.method) {
-      let extension = path.extname(msg.params.uri);
-      let filePath = fileURLToPath(msg.params.uri);
-      let bscExeDir = utils.findBscExeDirOfFile(filePath);
+      let params = msg.params as CreateInterfaceRequestParams;
+      let extension = path.extname(params.uri);
+      let filePath = fileURLToPath(params.uri);
+      let bscNativePath = utils.findBscNativeOfFile(filePath);
       let projDir = utils.findProjectRootOfFile(filePath);
 
-      if (bscExeDir === null || projDir === null) {
+      if (bscNativePath === null || projDir === null) {
         let params: p.ShowMessageParams = {
           type: p.MessageType.Error,
-          message: `Cannot find a nearby ${c.bscExePartialPath} to generate the interface file.`,
+          message: `Cannot find a nearby bsc.exe to generate the interface file.`,
         };
 
         let response: m.NotificationMessage = {
@@ -567,13 +572,7 @@ function onMessage(msg: m.Message) {
           
           send(response);
         } else {
-          let bscExePath1 = path.join(bscExeDir, c.bscExeReScriptPartialPath);
-          let bscExePath2 = path.join(bscExeDir, c.bscExePartialPath);
-          let resolvedBscExePath = fs.existsSync(bscExePath1)
-            ? bscExePath1
-            : bscExePath2;
-
-          let intfResult = utils.createInterfaceFileUsingValidBscExePath(filePath, cmiPath, resolvedBscExePath)
+          let intfResult = utils.createInterfaceFileUsingValidBscExePath(filePath, cmiPath, bscNativePath)
   
           if (intfResult.kind === "success") {
             let response: m.ResponseMessage = {

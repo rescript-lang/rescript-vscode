@@ -1,8 +1,12 @@
 import * as fs from 'fs'
 import { window } from 'vscode';
-import { LanguageClient, RequestType } from 'vscode-languageclient';
+import { LanguageClient, RequestType } from 'vscode-languageclient/node';
 
-let createInterfaceRequest = new RequestType<null, string, void>("rescript-vscode.create_interface")
+interface CreateInterfaceRequestParams {
+	uri: string;
+};
+
+let createInterfaceRequest = new RequestType<CreateInterfaceRequestParams, string, void>("rescript-vscode.create_interface");
 
 export const createInterface = (client: LanguageClient) => {
 	if (!client) {
