@@ -51,8 +51,8 @@ let findCallFromArgument text offset =
   in
   loop ~i:offset ~nClosed:0
 
-(* skip A or #A if present *)
-let rec skipOptVariant text i =
+(* skip A or #A or %A if present *)
+let skipOptVariantExtension text i =
   if i > 0 then
     match text.[i] with
     | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' ->
@@ -61,8 +61,7 @@ let rec skipOptVariant text i =
         if i > 0 then match text.[i] with '#' | '%' -> i - 1 | _ -> i else i
       in
       i
-    | '%' -> skipOptVariant text (i - 1)
-    | _ -> i
+   | _ -> i
   else i
 
 (* Figure out whether id should be autocompleted as component prop.
@@ -118,7 +117,7 @@ let findJsxContext text offset =
     else None
   and beforeParen identsSeen i =
     let i = skipWhite text i in
-    beforeValue identsSeen (skipOptVariant text i)
+    beforeValue identsSeen (skipOptVariantExtension text i)
   and beforeValue identsSeen i =
     let i = skipWhite text i in
     if i > 0 then
