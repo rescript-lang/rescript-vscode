@@ -68,8 +68,8 @@ let skipOptVariant text i =
 (* Figure out whether id should be autocompleted as component prop.
    Find JSX context ctx for component M to autocomplete id (already parsed) as a prop.
    ctx ::= <M args id
-   arg ::= id | id = [?] val
-   val ::= id | "abc" | 42 | optVariant {...} | optVariant (...) | <...> | [...]
+   arg ::= id | id = [?] atomicExpr
+   atomicExpr ::= id | "abc" | 'a' | 42 | `...` | optVariant {...} | optVariant (...) | <...> | [...]
    optVariant ::= a | A | #a |  #A |  _nothing_
  *)
 let findJsxContext text offset =
@@ -91,6 +91,12 @@ let findJsxContext text offset =
         if i1 > 0 then beforeValue identsSeen i1 else None
       | '"' ->
         let i1 = findBack text '"' (i - 1) in
+        if i1 > 0 then beforeValue identsSeen i1 else None
+      | '\'' ->
+        let i1 = findBack text '\'' (i - 1) in
+        if i1 > 0 then beforeValue identsSeen i1 else None
+      | '`' ->
+        let i1 = findBack text '`' (i - 1) in
         if i1 > 0 then beforeValue identsSeen i1 else None
       | _ ->
         let i1 = startOfLident text i in
