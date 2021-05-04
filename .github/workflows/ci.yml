@@ -18,7 +18,7 @@ jobs:
           - os: macos-latest
             build: eval $(opam env) && cd analysis && make test
             artifact-folder: darwin
-          - os: ubuntu-latest
+          - os: stu-18.04
             build: eval $(opam env) && cd analysis && make test
             artifact-folder: linux
           - os: windows-latest
