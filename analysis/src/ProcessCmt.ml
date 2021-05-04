@@ -535,8 +535,8 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
 
 let fileForCmt ~moduleName ~uri cmt =
   match Shared.tryReadCmt cmt with
-  | Error e -> Error e
-  | Ok infos -> Ok (forCmt ~moduleName ~uri infos)
+  | None -> None
+  | Some infos -> Some (forCmt ~moduleName ~uri infos)
 
 let addLocItem extra loc locType =
   if not loc.Warnings.loc_ghost then
@@ -1178,20 +1178,18 @@ let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
 
 let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
-  | Error e -> Error e
-  | Ok infos ->
+  | None -> None
+  | Some infos ->
     let file = forCmt ~moduleName ~uri infos in
     let extra = extraForCmt ~file infos in
-    Ok {file; extra; package}
+    Some {file; extra; package}
 
 open SharedTypes
 
 let newFileForCmt ~moduleName cmtCache changed ~cmt ~uri =
   match fileForCmt ~moduleName ~uri cmt with
-  | Error e ->
-    Log.log e;
-    None
-  | Ok file ->
+  | None -> None
+  | Some file ->
     Hashtbl.replace cmtCache cmt (changed, file);
     Some file
 
@@ -1209,10 +1207,8 @@ let getFullFromCmt ~uri =
     | Some paths -> (
       let cmt = SharedTypes.getCmt ~interface:(Utils.endsWith path "i") paths in
       match fullForCmt ~moduleName ~package ~uri cmt with
-      | Error message ->
-        prerr_endline message;
-        None
-      | Ok full ->
+      | None -> None
+      | Some full ->
         Hashtbl.replace package.interModuleDependencies moduleName
           (SharedTypes.hashList full.extra.externalReferences |> List.map fst);
         Some full)

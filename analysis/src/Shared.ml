@@ -1,20 +1,24 @@
 let tryReadCmt cmt =
-  if not (Files.exists cmt) then Error ("Cmt file does not exist " ^ cmt)
+  if not (Files.exists cmt) then (
+    Log.log ("Cmt file does not exist " ^ cmt);
+    None)
   else
     match Cmt_format.read_cmt cmt with
     | exception Cmi_format.Error err ->
-      Error
+      Log.log
         ("Failed to load " ^ cmt ^ " as a cmt w/ ocaml version " ^ "406"
        ^ ", error: "
         ^
         (Cmi_format.report_error Format.str_formatter err;
-         Format.flush_str_formatter ()))
+         Format.flush_str_formatter ()));
+      None
     | exception err ->
-      Error
+      Log.log
         ("Invalid cmt format " ^ cmt
        ^ " - probably wrong ocaml version, expected " ^ Config.version ^ " : "
-       ^ Printexc.to_string err)
-    | x -> Ok x
+       ^ Printexc.to_string err);
+      None
+    | x -> Some x
 
 (** TODO move to the Process_ stuff *)
 let rec dig typ =
