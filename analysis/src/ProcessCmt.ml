@@ -1230,7 +1230,7 @@ let extraForModule ~package modname =
     | Some src -> getFullFromCmt ~uri:(Uri2.fromPath src)
   else None
 
-let docsForCmt ~moduleName cmt src state =
+let fileForCmt ~moduleName cmt src state =
   if Hashtbl.mem state.cmtCache cmt then
     let mtime, docs = Hashtbl.find state.cmtCache cmt in
     (* TODO: I should really throttle this mtime checking to like every 50 ms or so *)
@@ -1251,7 +1251,7 @@ let docsForCmt ~moduleName cmt src state =
       None
     | Some changed -> newDocsForCmt ~moduleName state.cmtCache changed cmt src
 
-let docsForModule modname ~package =
+let fileForModule modname ~package =
   if Hashtbl.mem package.pathsForModule modname then (
     let paths = Hashtbl.find package.pathsForModule modname in
     (* TODO: do better *)
@@ -1260,17 +1260,12 @@ let docsForModule modname ~package =
     Log.log ("FINDING docs for module " ^ SharedTypes.showPaths paths);
     let open Infix in
     Log.log ("FINDING " ^ cmt ^ " src " ^ (src |? ""));
-    match docsForCmt ~moduleName:modname cmt src state with
+    match fileForCmt ~moduleName:modname cmt src state with
     | None -> None
-    | Some docs -> Some (docs, src))
+    | Some docs -> Some docs)
   else (
     Log.log ("No path for module " ^ modname);
     None)
-
-let fileForModule ~package modname =
-  match docsForModule modname ~package with
-  | None -> None
-  | Some (file, _) -> Some file
 
 let rec resolvePath ~env ~path ~package =
   match resolvePathInner ~env ~path with
