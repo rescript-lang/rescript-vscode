@@ -2,7 +2,6 @@ open Typedtree
 open SharedTypes
 
 let itemsExtent items =
-  let open Typedtree in
   match items with
   | [] -> Location.none
   | first :: _ ->
@@ -19,7 +18,6 @@ let itemsExtent items =
     }
 
 let sigItemsExtent items =
-  let open Typedtree in
   match items with
   | [] -> Location.none
   | first :: _ ->
@@ -223,7 +221,7 @@ let forTypeDeclaration ~env ~(exported : exported)
   in
   {declared with item = MType (declared.item, recStatus)}
 
-let forSignatureItem ~env ~(exported : exported)
+let rec forSignatureItem ~env ~(exported : exported)
     (item : Typedtree.signature_item) =
   match item.sig_desc with
   | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
@@ -252,6 +250,12 @@ let forSignatureItem ~env ~(exported : exported)
         md_attributes exported.modules env.stamps.modules
     in
     [{declared with item = Module declared.item}]
+  | Tsig_recmodule modDecls ->
+    modDecls
+    |> List.map (fun modDecl ->
+           forSignatureItem ~env ~exported
+             {item with sig_desc = Tsig_module modDecl})
+    |> List.flatten
   | Tsig_include {incl_mod; incl_type} ->
     let env =
       match getModuleTypePath incl_mod.mty_desc with
@@ -339,6 +343,12 @@ let rec forStructureItem ~env ~(exported : exported) item =
         mb_attributes exported.modules env.stamps.modules
     in
     [{declared with item = Module declared.item}]
+  | Tstr_recmodule modDecls ->
+    modDecls
+    |> List.map (fun modDecl ->
+           forStructureItem ~env ~exported
+             {item with str_desc = Tstr_module modDecl})
+    |> List.flatten
   | Tstr_modtype
       {
         mtd_name = name;
