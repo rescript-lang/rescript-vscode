@@ -1073,8 +1073,8 @@ struct
     | _ -> ()
 end
 
-let forStructureItems ~(file : File.t) (items : Typedtree.structure_item list)
-    parts =
+let extraForStructureItems ~(file : File.t)
+    (items : Typedtree.structure_item list) parts =
   let extra = extraForFile ~file in
   let extent = itemsExtent items in
   let extent =
@@ -1110,8 +1110,8 @@ let forStructureItems ~(file : File.t) (items : Typedtree.structure_item list)
          | Partial_structure _ | Partial_structure_item _ -> ());
   extra
 
-let forSignatureItems ~(file : File.t) (items : Typedtree.signature_item list)
-    parts =
+let extraForSignatureItems ~(file : File.t)
+    (items : Typedtree.signature_item list) parts =
   let extra = extraForFile ~file in
   let extent = sigItemsExtent items in
   let extent =
@@ -1149,7 +1149,8 @@ let forSignatureItems ~(file : File.t) (items : Typedtree.signature_item list)
 
 let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
   match cmt_annots with
-  | Implementation structure -> forStructureItems ~file structure.str_items [||]
+  | Implementation structure ->
+    extraForStructureItems ~file structure.str_items [||]
   | Partial_implementation parts ->
     let items =
       parts |> Array.to_list
@@ -1161,8 +1162,8 @@ let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    forStructureItems ~file items parts
-  | Interface signature -> forSignatureItems ~file signature.sig_items [||]
+    extraForStructureItems ~file items parts
+  | Interface signature -> extraForSignatureItems ~file signature.sig_items [||]
   | Partial_interface parts ->
     let items =
       parts |> Array.to_list
@@ -1173,8 +1174,8 @@ let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    forSignatureItems ~file items parts
-  | _ -> forStructureItems ~file [] [||]
+    extraForSignatureItems ~file items parts
+  | _ -> extraForStructureItems ~file [] [||]
 
 let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
