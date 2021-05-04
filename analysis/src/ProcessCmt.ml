@@ -1186,7 +1186,7 @@ let fullForCmt ~moduleName ~package ~uri cmt =
 
 open SharedTypes
 
-let newDocsForCmt ~moduleName cmtCache changed cmt src =
+let newFileForCmt ~moduleName cmtCache changed ~cmt ~src =
   let open Infix in
   let uri = Uri2.fromPath (src |? cmt) in
   match fileForCmt ~moduleName ~uri cmt with
@@ -1230,7 +1230,7 @@ let extraForModule ~package modname =
     | Some src -> getFullFromCmt ~uri:(Uri2.fromPath src)
   else None
 
-let fileForCmt ~moduleName cmt src state =
+let fileForCmt ~moduleName ~cmt ~src state =
   if Hashtbl.mem state.cmtCache cmt then
     let mtime, docs = Hashtbl.find state.cmtCache cmt in
     (* TODO: I should really throttle this mtime checking to like every 50 ms or so *)
@@ -1241,7 +1241,7 @@ let fileForCmt ~moduleName cmt src state =
       None
     | Some changed ->
       if changed > mtime then
-        newDocsForCmt ~moduleName state.cmtCache changed cmt src
+        newFileForCmt ~moduleName state.cmtCache changed ~cmt ~src
       else Some docs
   else
     match Files.getMtime cmt with
@@ -1249,7 +1249,7 @@ let fileForCmt ~moduleName cmt src state =
       Log.log
         ("\226\154\160\239\184\143 cannot get docs for nonexistant cmt " ^ cmt);
       None
-    | Some changed -> newDocsForCmt ~moduleName state.cmtCache changed cmt src
+    | Some changed -> newFileForCmt ~moduleName state.cmtCache changed ~cmt ~src
 
 let fileForModule modname ~package =
   if Hashtbl.mem package.pathsForModule modname then (
@@ -1260,7 +1260,7 @@ let fileForModule modname ~package =
     Log.log ("FINDING docs for module " ^ SharedTypes.showPaths paths);
     let open Infix in
     Log.log ("FINDING " ^ cmt ^ " src " ^ (src |? ""));
-    match fileForCmt ~moduleName:modname cmt src state with
+    match fileForCmt ~moduleName:modname ~cmt ~src state with
     | None -> None
     | Some docs -> Some docs)
   else (
