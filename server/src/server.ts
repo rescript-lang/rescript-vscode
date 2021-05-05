@@ -1,6 +1,6 @@
 import process from "process";
 import * as p from "vscode-languageserver-protocol";
-import * as m from "vscode-jsonrpc/lib/common/messages";
+import * as m from "vscode-jsonrpc/lib/messages";
 import * as v from "vscode-languageserver";
 import * as rpc from "vscode-jsonrpc";
 import * as path from "path";
@@ -43,7 +43,7 @@ let projectsFiles: Map<
 let send: (msg: m.Message) => void = (_) => { };
 
 interface CreateInterfaceRequestParams {
-	uri: string;
+  uri: string;
 };
 
 let createInterfaceRequest = new v.RequestType<CreateInterfaceRequestParams, string, void>("rescript-vscode.create_interface");
@@ -557,36 +557,36 @@ function onMessage(msg: m.Message) {
         let cmiPartialPath = utils.replaceFileExtension(filePath.split(projDir)[1], c.cmiExt);
         let cmiPath = path.join(projDir, c.compilerDirPartialPath, cmiPartialPath);
         let cmiAvailable = fs.existsSync(cmiPath);
-        
+
         if (!cmiAvailable) {
           let params: p.ShowMessageParams = {
             type: p.MessageType.Error,
             message: `No compiled interface file found. Please compile your project first.`
           };
-          
+
           let response: m.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
             method: "window/showMessage",
             params,
           };
-          
+
           send(response);
         } else {
           let intfResult = utils.createInterfaceFileUsingValidBscExePath(filePath, cmiPath, bscNativePath)
-  
+
           if (intfResult.kind === "success") {
             let response: m.ResponseMessage = {
               jsonrpc: c.jsonrpcVersion,
               id: msg.id,
               result: intfResult.result,
             };
-  
+
             send(response);
           } else {
             let response: m.ResponseMessage = {
               jsonrpc: c.jsonrpcVersion,
               id: msg.id,
-              error: { 
+              error: {
                 code: m.ErrorCodes.InternalError,
                 message: "Unable to create interface file."
               }
