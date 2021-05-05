@@ -1,3 +1,24 @@
 Hover tests/src/Div.res 1:10
 {"contents": "```rescript\n(\n  string,\n  ~?props: ReactDOMRe.domProps,\n  array<React.element>,\n) => React.element\n```"}
 
+Complete tests/src/Div.res 3:3
+[{
+    "label": "aria-details",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "aria-disabled",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
