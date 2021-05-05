@@ -193,11 +193,13 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
           | Some declared -> Some (file, extra, declared)))
     | _ -> None)
 
-let rec resolveModuleReference ~file ~package (declared : moduleKind declared) =
+let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
+    (declared : moduleKind declared) =
   match declared.item with
   | Structure _ -> Some (file, Some declared)
   | Constraint (_moduleItem, moduleTypeItem) ->
-    resolveModuleReference ~file ~package {declared with item = moduleTypeItem}
+    resolveModuleReference ~pathsSeen ~file ~package
+      {declared with item = moduleTypeItem}
   | Ident path -> (
     let env = QueryEnv.fromFile file in
     match ProcessCmt.fromCompilerPath ~env path with
@@ -226,6 +228,9 @@ let rec resolveModuleReference ~file ~package (declared : moduleKind declared) =
     | `Stamp stamp -> (
       match Hashtbl.find_opt file.stamps.modules stamp with
       | None -> None
+      | Some ({item = Ident path} as md) when not (List.mem path pathsSeen) ->
+        (* avoid possible infinite loops *)
+        resolveModuleReference ~file ~package ~pathsSeen:(path :: pathsSeen) md
       | Some md -> Some (file, Some md))
     | `GlobalMod name -> (
       match ProcessCmt.fileForModule ~package name with

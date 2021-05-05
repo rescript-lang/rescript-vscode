@@ -44,5 +44,5 @@ Hover tests/src/Hover.res 71:7
 {"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
 
 Hover tests/src/Hover.res 74:7
-{"contents": "Unable to resolve module reference A"}
+{"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
 
