@@ -27,16 +27,18 @@ let locItemForPos ~full pos =
   | _ :: _ :: _ :: l :: _ when full.file.uri |> Uri2.isInterface ->
     (* heuristic for makeProps in interface files *)
     Some l
-  | [({locType = Typed (_, LocalReference _)} as li1); li3]
+  | [({locType = Typed (_, _, LocalReference _)} as li1); li3]
     when li1.loc = li3.loc ->
     (* JSX and compiler combined:
        ~x becomes Props#x
        heuristic for: [Props, x], give loc of `x` *)
     Some li3
   | [
-   ({locType = Typed (_, LocalReference _)} as li1);
-   ({locType = Typed (_, GlobalReference ("Js_OO", Tip "unsafe_downgrade", _))}
-   as li2);
+   ({locType = Typed (_, _, LocalReference _)} as li1);
+   ({
+      locType =
+        Typed (_, _, GlobalReference ("Js_OO", Tip "unsafe_downgrade", _));
+    } as li2);
    li3;
   ]
   (* For older compiler 9.0 or earlier *)
@@ -46,8 +48,8 @@ let locItemForPos ~full pos =
        heuristic for: [Props, unsafe_downgrade, x], give loc of `x` *)
     Some li3
   | [
-   {locType = Typed (_, LocalReference (_, Value))};
-   ({locType = Typed (_, Definition (_, Value))} as li2);
+   {locType = Typed (_, _, LocalReference (_, Value))};
+   ({locType = Typed (_, _, Definition (_, Value))} as li2);
   ] ->
     (* JSX on type-annotated labeled (~arg:t):
        (~arg:t) becomes Props#arg
@@ -297,7 +299,7 @@ let orLog message v =
 
 let definitionForLocItem ~full:{file; package} locItem =
   match locItem.locType with
-  | Typed (_, Definition (stamp, tip)) -> (
+  | Typed (_, _, Definition (stamp, tip)) -> (
     maybeLog "Trying to find a defintion for a definition";
     match declaredForTip ~stamps:file.stamps stamp tip with
     | None -> None
@@ -311,7 +313,7 @@ let definitionForLocItem ~full:{file; package} locItem =
           let loc = validateLoc declared.name.loc declared.extentLoc in
           Some (file.uri, loc))
       else None)
-  | Typed (_, NotFound)
+  | Typed (_, _, NotFound)
   | LModule (NotFound | Definition (_, _))
   | TypeDefinition (_, _, _)
   | Constant _ ->
@@ -326,11 +328,11 @@ let definitionForLocItem ~full:{file; package} locItem =
     | None -> None
     | Some src -> Some (Uri2.fromPath src, Utils.topLoc src))
   | LModule (LocalReference (stamp, tip))
-  | Typed (_, LocalReference (stamp, tip)) ->
+  | Typed (_, _, LocalReference (stamp, tip)) ->
     maybeLog ("Local defn " ^ tipToString tip);
     definition ~file ~package stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
-  | Typed (_, GlobalReference (moduleName, path, tip)) -> (
+  | Typed (_, _, GlobalReference (moduleName, path, tip)) -> (
     maybeLog
       ("Global defn " ^ moduleName ^ " " ^ pathToString path ^ " : "
      ^ tipToString tip);
@@ -450,16 +452,17 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
 
 let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
-  | Typed (_, NotFound) | LModule NotFound | TopLevelModule _ | Constant _ -> []
+  | Typed (_, _, NotFound) | LModule NotFound | TopLevelModule _ | Constant _ ->
+    []
   | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
-  | Typed (_, (LocalReference (stamp, tip) | Definition (stamp, tip)))
+  | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ tipToString tip);
     forLocalStamp ~full stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
-  | Typed (_, GlobalReference (moduleName, path, tip)) -> (
+  | Typed (_, _, GlobalReference (moduleName, path, tip)) -> (
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> []
     | Some file -> (

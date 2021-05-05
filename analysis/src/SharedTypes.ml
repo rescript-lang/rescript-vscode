@@ -175,7 +175,7 @@ type locKind =
   | Definition of int * tip
 
 type locType =
-  | Typed of Types.type_expr * locKind
+  | Typed of string * Types.type_expr * locKind
   | Constant of Asttypes.constant
   | LModule of locKind
   | TopLevelModule of string
@@ -245,8 +245,8 @@ let locKindToString = function
   | Definition (_, tip) -> "(Definition " ^ tipToString tip ^ ")"
 
 let locTypeToString = function
-  | Typed (e, locKind) ->
-    "Typed " ^ Shared.typeToString e ^ " " ^ locKindToString locKind
+  | Typed (name, e, locKind) ->
+    "Typed " ^ name ^ " " ^ Shared.typeToString e ^ " " ^ locKindToString locKind
   | Constant _ -> "Constant"
   | LModule locKind -> "LModule " ^ locKindToString locKind
   | TopLevelModule _ -> "TopLevelModule"

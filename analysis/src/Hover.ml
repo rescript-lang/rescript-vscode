@@ -101,7 +101,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
     | Some file ->
       showModule ~docstring:file.contents.docstring ~name:file.moduleName ~file
         None)
-  | Typed (_, Definition (_, (Field _ | Constructor _))) -> None
+  | Typed (_, _, Definition (_, (Field _ | Constructor _))) -> None
   | Constant t ->
     Some
       (codeBlock
@@ -113,7 +113,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
          | Const_int32 _ -> "int32"
          | Const_int64 _ -> "int64"
          | Const_nativeint _ -> "int"))
-  | Typed (t, locKind) ->
+  | Typed (_, t, locKind) ->
     let fromType ~docstring typ =
       let typeString = codeBlock (typ |> Shared.typeToString) in
       let extraTypeInfo =
