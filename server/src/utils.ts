@@ -144,7 +144,7 @@ export let runAnalysisAfterSanityCheck = (
   return JSON.parse(stdout.toString());
 };
 
-let replaceFileExtension = (filePath: string, ext: string): string => {
+export let replaceFileExtension = (filePath: string, ext: string): string => {
   let name = path.basename(filePath, path.extname(filePath));
   return path.format({ dir: path.dirname(filePath), name, ext })
 };

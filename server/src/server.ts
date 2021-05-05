@@ -554,7 +554,7 @@ function onMessage(msg: m.Message) {
 
         send(response);
       } else {
-        let cmiPartialPath = filePath.split(projDir)[1].replace(c.resExt, c.cmiExt);
+        let cmiPartialPath = utils.replaceFileExtension(filePath.split(projDir)[1], c.cmiExt);
         let cmiPath = path.join(projDir, c.compilerDirPartialPath, cmiPartialPath);
         let cmiAvailable = fs.existsSync(cmiPath);
         
