@@ -144,6 +144,37 @@ export let runAnalysisAfterSanityCheck = (
   return JSON.parse(stdout.toString());
 };
 
+export let replaceFileExtension = (filePath: string, ext: string): string => {
+  let name = path.basename(filePath, path.extname(filePath));
+  return path.format({ dir: path.dirname(filePath), name, ext })
+};
+
+export let createInterfaceFileUsingValidBscExePath = (
+  filePath: string,
+  cmiPath: string,
+  bscExePath: p.DocumentUri
+): execResult => {
+  try {
+    let resiString = childProcess.execFileSync(
+      bscExePath,
+      ["-color", "never", cmiPath]
+    );
+
+    let resiPath = replaceFileExtension(filePath, c.resiExt)
+    fs.writeFileSync(resiPath, resiString, { encoding: "utf-8"});
+
+    return {
+      kind: "success",
+      result: "Interface successfully created.",
+    };
+  } catch (e) {
+    return {
+      kind: "error",
+      error: e.message,
+    };
+  }
+};
+
 export let runBuildWatcherUsingValidBuildPath = (
   buildPath: p.DocumentUri,
   isRescript: boolean,

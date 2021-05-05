@@ -1,5 +1,5 @@
 import * as path from "path";
-import { workspace, ExtensionContext } from "vscode";
+import { workspace, ExtensionContext, commands } from "vscode";
 
 import {
 	LanguageClient,
@@ -7,6 +7,8 @@ import {
 	ServerOptions,
 	TransportKind,
 } from "vscode-languageclient/node";
+
+import * as customCommands from './commands';
 
 let client: LanguageClient;
 
@@ -95,6 +97,11 @@ export function activate(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
+
+	// Register custom commands
+	commands.registerCommand('rescript-vscode.create_interface', () => {
+        customCommands.createInterface(client);
+    });
 
 	// Start the client. This will also launch the server
 	client.start();

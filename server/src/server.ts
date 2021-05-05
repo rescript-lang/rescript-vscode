@@ -42,6 +42,12 @@ let projectsFiles: Map<
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: m.Message) => void = (_) => { };
 
+interface CreateInterfaceRequestParams {
+	uri: string;
+};
+
+let createInterfaceRequest = new v.RequestType<CreateInterfaceRequestParams, string, void>("rescript-vscode.create_interface");
+
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
     let content = fs.readFileSync(
@@ -511,6 +517,82 @@ function onMessage(msg: m.Message) {
             // Again, not sending the actual errors. See fakeSuccessResponse
             // above for explanation
             send(fakeSuccessResponse);
+          }
+        }
+      }
+    } else if (msg.method === createInterfaceRequest.method) {
+      let params = msg.params as CreateInterfaceRequestParams;
+      let extension = path.extname(params.uri);
+      let filePath = fileURLToPath(params.uri);
+      let bscNativePath = utils.findBscNativeOfFile(filePath);
+      let projDir = utils.findProjectRootOfFile(filePath);
+
+      if (bscNativePath === null || projDir === null) {
+        let params: p.ShowMessageParams = {
+          type: p.MessageType.Error,
+          message: `Cannot find a nearby bsc.exe to generate the interface file.`,
+        };
+
+        let response: m.NotificationMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          method: "window/showMessage",
+          params: params,
+        };
+
+        send(response);
+      } else if (extension !== c.resExt) {
+        let params: p.ShowMessageParams = {
+          type: p.MessageType.Error,
+          message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
+        };
+
+        let response: m.NotificationMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          method: "window/showMessage",
+          params: params,
+        };
+
+        send(response);
+      } else {
+        let cmiPartialPath = utils.replaceFileExtension(filePath.split(projDir)[1], c.cmiExt);
+        let cmiPath = path.join(projDir, c.compilerDirPartialPath, cmiPartialPath);
+        let cmiAvailable = fs.existsSync(cmiPath);
+        
+        if (!cmiAvailable) {
+          let params: p.ShowMessageParams = {
+            type: p.MessageType.Error,
+            message: `No compiled interface file found. Please compile your project first.`
+          };
+          
+          let response: m.NotificationMessage = {
+            jsonrpc: c.jsonrpcVersion,
+            method: "window/showMessage",
+            params,
+          };
+          
+          send(response);
+        } else {
+          let intfResult = utils.createInterfaceFileUsingValidBscExePath(filePath, cmiPath, bscNativePath)
+  
+          if (intfResult.kind === "success") {
+            let response: m.ResponseMessage = {
+              jsonrpc: c.jsonrpcVersion,
+              id: msg.id,
+              result: intfResult.result,
+            };
+  
+            send(response);
+          } else {
+            let response: m.ResponseMessage = {
+              jsonrpc: c.jsonrpcVersion,
+              id: msg.id,
+              error: { 
+                code: m.ErrorCodes.InternalError,
+                message: "Unable to create interface file."
+              }
+            };
+
+            send(response);
           }
         }
       }

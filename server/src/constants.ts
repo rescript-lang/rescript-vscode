@@ -39,7 +39,9 @@ export let bsbNodePartialPath = path.join("node_modules", ".bin", "bsb");
 
 export let bsbLock = ".bsb.lock";
 export let bsconfigPartialPath = "bsconfig.json";
+export let compilerDirPartialPath = path.join("lib", "bs");
 export let compilerLogPartialPath = path.join("lib", "bs", ".compiler.log");
 export let resExt = ".res";
 export let resiExt = ".resi";
+export let cmiExt = ".cmi";
 export let startBuildAction = "Start Build";
