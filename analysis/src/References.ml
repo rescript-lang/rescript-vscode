@@ -19,6 +19,10 @@ let locItemsForPos ~extra pos =
 
 let locItemForPos ~full pos =
   let locItems = locItemsForPos ~extra:full.extra pos in
+  if !Log.spamError then
+    print_endline
+      ("locItems:\n"
+      ^ (locItems |> List.map locItemToString |> String.concat "\n"));
   match locItems with
   | _ :: _ :: _ :: l :: _ when full.file.uri |> Uri2.isInterface ->
     (* heuristic for makeProps in interface files *)
