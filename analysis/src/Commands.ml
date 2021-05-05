@@ -1,6 +1,7 @@
 let dumpLocations ~full =
   full.SharedTypes.extra.locItems
   |> List.map (fun locItem ->
+         let locItemTxt = SharedTypes.locItemToString locItem in
          let hoverText = Hover.newHover ~full locItem in
          let hover =
            match hoverText with None -> "" | Some s -> String.escaped s
@@ -14,7 +15,8 @@ let dumpLocations ~full =
                {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}
          in
          Protocol.stringifyRange (Utils.cmtLocToRange locItem.loc)
-         ^ "\n  Hover: " ^ hover ^ "\n  Definition: " ^ def)
+         ^ "\n  Hover: " ^ hover ^ "\n  Definition: " ^ def ^ "\n locItem: "
+         ^ locItemTxt)
   |> String.concat "\n\n"
 
 let dump files =
