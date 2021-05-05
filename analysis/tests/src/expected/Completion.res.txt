@@ -441,16 +441,16 @@ Complete tests/src/Completion.res 50:2
 
 Complete tests/src/Completion.res 52:2
 [{
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
     "label": "zoo",
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
+    "documentation": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
     "documentation": null
   }]
 

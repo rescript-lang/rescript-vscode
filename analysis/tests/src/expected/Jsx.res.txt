@@ -3,12 +3,6 @@ Definition tests/src/Jsx.res 5:9
 
 Complete tests/src/Jsx.res 7:2
 [{
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
     "label": "first",
     "kind": 4,
     "tags": [],
@@ -19,17 +13,17 @@ Complete tests/src/Jsx.res 7:2
     "kind": 4,
     "tags": [],
     "detail": "option<string>",
+    "documentation": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
     "documentation": null
   }]
 
 Complete tests/src/Jsx.res 9:2
 [{
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
     "label": "first",
     "kind": 4,
     "tags": [],
@@ -41,16 +35,16 @@ Complete tests/src/Jsx.res 9:2
     "tags": [],
     "detail": "option<string>",
     "documentation": null
-  }]
-
-Complete tests/src/Jsx.res 11:2
-[{
+  }, {
     "label": "key",
     "kind": 4,
     "tags": [],
     "detail": "string",
     "documentation": null
-  }, {
+  }]
+
+Complete tests/src/Jsx.res 11:2
+[{
     "label": "second",
     "kind": 4,
     "tags": [],
@@ -67,6 +61,12 @@ Complete tests/src/Jsx.res 11:2
     "kind": 4,
     "tags": [],
     "detail": "option<string>",
+    "documentation": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
     "documentation": null
   }]
 

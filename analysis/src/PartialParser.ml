@@ -128,7 +128,7 @@ let findJsxContext text offset =
         let ident = String.sub text i1 (i - i1 + 1) in
         if i1 >= 1 && ident <> "" then
           match ident.[0] with
-          | 'A' .. 'Z' when i1 >= 1 && text.[i1 - 1] = '<' ->
+          | ('a' .. 'z' | 'A' .. 'Z') when i1 >= 1 && text.[i1 - 1] = '<' ->
             Some (ident, identsSeen)
           | _ -> beforeIdent identsSeen (i1 - 1)
         else None
