@@ -164,12 +164,3 @@ let newHover ~full:{SharedTypes.file; package} locItem =
           typeString :: docstring)
     in
     Some (String.concat "\n\n" parts)
-
-
-module A = struct end
-
-module B = A
-
-module C = B
-
-module D = C
