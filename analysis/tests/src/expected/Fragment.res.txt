@@ -1,0 +1,6 @@
+Hover tests/src/Fragment.res 6:19
+{"contents": "```rescript\n{\"children\": 'children} => 'children\n```"}
+
+Hover tests/src/Fragment.res 9:56
+null
+

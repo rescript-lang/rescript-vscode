@@ -27,6 +27,17 @@ let locItemForPos ~full pos =
   | _ :: _ :: _ :: l :: _ when full.file.uri |> Uri2.isInterface ->
     (* heuristic for makeProps in interface files *)
     Some l
+  | [
+   {locType = Typed ("fragment", _, _)};
+   {locType = Typed ("createElement", _, _)};
+  ] ->
+    (* heuristic for </Comp> within a fragment *)
+    None
+  | {locType = Typed ("makeProps", _, _)}
+    :: ({locType = Typed ("make", _, _)} as l2) :: _ ->
+    (* heuristic for </Comp> within fragments: take make as makeProps does not work
+       the type is not greatl but jump to definition works *)
+    Some l2
   | [({locType = Typed (_, _, LocalReference _)} as li1); li3]
     when li1.loc = li3.loc ->
     (* JSX and compiler combined:
