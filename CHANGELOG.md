@@ -2,6 +2,7 @@
 - ppx autocomplete: handle more atomic expressions to the rhs of `=` without braces (variant, polymorphic variant, function call, list literal, nested component, characters, templates).
 - Autocomplete for function calls: only suggest labeled args that were not yet assigned.
 - Add support for recursive modules.
+- Add support for transitive module references.
 
 ## 1.1.1
 
