@@ -248,7 +248,7 @@ let locTypeToString = function
   | Typed (e, locKind) ->
     "Typed " ^ Shared.typeToString e ^ " " ^ locKindToString locKind
   | Constant _ -> "Constant"
-  | LModule _ -> "LModule"
+  | LModule locKind -> "LModule " ^ locKindToString locKind
   | TopLevelModule _ -> "TopLevelModule"
   | TypeDefinition _ -> "TypeDefinition"
 
