@@ -3,6 +3,7 @@
 - Autocomplete for function calls: only suggest labeled args that were not yet assigned.
 - Add support for recursive modules.
 - Add support for transitive module references.
+- Add heuristic for lowercase jsx.
 
 ## 1.1.1
 
