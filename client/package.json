@@ -1,0 +1,12 @@
+{
+  "name": "rescript-vscode-client",
+  "private": true,
+  "version": "0.0.0",
+  "description": "ReScript's language-client",
+  "keywords": [],
+  "author": "chenglou",
+  "license": "MIT",
+  "dependencies": {
+    "vscode-languageclient": "^7.0.0"
+  }
+}
