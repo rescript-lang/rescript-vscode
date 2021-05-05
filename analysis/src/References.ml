@@ -19,26 +19,29 @@ let locItemsForPos ~extra pos =
 
 let locItemForPos ~full pos =
   let locItems = locItemsForPos ~extra:full.extra pos in
-  if !Log.spamError then
+  if  !Log.spamError then
     print_endline
       ("locItems:\n"
       ^ (locItems |> List.map locItemToString |> String.concat "\n"));
   match locItems with
-  | _ :: _ :: _ :: ({locType = Typed ("makeProps", _, _)} as l) :: _
+  | _ :: _ :: _ :: ({locType = Typed ("makeProps", _, _)} as li) :: _
     when full.file.uri |> Uri2.isInterface ->
     (* heuristic for makeProps in interface files *)
-    Some l
+    Some li
   | [
    {locType = Typed ("fragment", _, _)};
    {locType = Typed ("createElement", _, _)};
   ] ->
     (* heuristic for </Comp> within a fragment *)
     None
+  | [{locType = Constant _}; ({locType = Typed ("createDOMElementVariadic", _, _)} as li2)] ->
+    (* heuristic for <div> *)
+    Some li2
   | {locType = Typed ("makeProps", _, _)}
-    :: ({locType = Typed ("make", _, _)} as l2) :: _ ->
+    :: ({locType = Typed ("make", _, _)} as li2) :: _ ->
     (* heuristic for </Comp> within fragments: take make as makeProps does not work
        the type is not greatl but jump to definition works *)
-    Some l2
+    Some li2
   | [({locType = Typed (_, _, LocalReference _)} as li1); li3]
     when li1.loc = li3.loc ->
     (* JSX and compiler combined:
