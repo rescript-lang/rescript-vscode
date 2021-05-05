@@ -24,7 +24,8 @@ let locItemForPos ~full pos =
       ("locItems:\n"
       ^ (locItems |> List.map locItemToString |> String.concat "\n"));
   match locItems with
-  | _ :: _ :: _ :: l :: _ when full.file.uri |> Uri2.isInterface ->
+  | _ :: _ :: _ :: ({locType = Typed ("makeProps", _, _)} as l) :: _
+    when full.file.uri |> Uri2.isInterface ->
     (* heuristic for makeProps in interface files *)
     Some l
   | [
@@ -67,9 +68,6 @@ let locItemForPos ~full pos =
        Props has the location range of arg:t
        arg has the location range of arg
        heuristic for: [Props, arg], give loc of `arg` *)
-    (* Printf.eprintf "l1 %s\nl2 %s\n"
-       (SharedTypes.locationToString _l1)
-       (SharedTypes.locationToString l2); *)
     Some li2
   | [li1; li2; li3] when li1.loc = li2.loc && li2.loc = li3.loc ->
     (* JSX with at most one child
