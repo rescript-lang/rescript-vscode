@@ -11,14 +11,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-18.04, windows-latest]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
           - os: macos-latest
             build: eval $(opam env) && cd analysis && make test
             artifact-folder: darwin
-          - os: ubuntu-latest
+          - os: ubuntu-18.04
             build: eval $(opam env) && cd analysis && make test
             artifact-folder: linux
           - os: windows-latest
@@ -43,9 +43,10 @@ jobs:
         key: ${{matrix.os}}-latest-ocaml-4.06.1
 
     - name: Use OCaml
-      uses: avsm/setup-ocaml@v2
+      uses: avsm/setup-ocaml@v1.1.10
       with:
-        ocaml-compiler: 4.06.x
+        ocaml-version: 4.06.1
+        ocaml-compiler: 4.06.1
 
     - name: Use Node.js
       uses: actions/setup-node@v2.1.5
