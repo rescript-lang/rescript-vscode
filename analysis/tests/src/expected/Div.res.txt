@@ -3,16 +3,10 @@ Hover tests/src/Div.res 1:10
 
 Complete tests/src/Div.res 3:3
 [{
-    "label": "aria-details",
+    "label": "dangerouslySetInnerHTML",
     "kind": 4,
     "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
-    "label": "aria-disabled",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
+    "detail": "{\"__html\": string}",
     "documentation": null
   }, {
     "label": "key",

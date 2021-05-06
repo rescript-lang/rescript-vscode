@@ -2,4 +2,4 @@
 let q = <div> </div>
 //        ^hov
 
-// ^com <div 
+// ^com <div dangerous
