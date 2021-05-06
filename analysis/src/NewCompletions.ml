@@ -1,5 +1,449 @@
 open SharedTypes
 
+let domLabels =
+  [
+    ("ariaDetails", "string");
+    ("ariaDisabled", "bool");
+    ("ariaHidden", "bool");
+    ("ariaKeyshortcuts", "string");
+    ("ariaLabel", "string");
+    ("ariaRoledescription", "string");
+    ("ariaExpanded", "bool");
+    ("ariaLevel", "int");
+    ("ariaModal", "bool");
+    ("ariaMultiline", "bool");
+    ("ariaMultiselectable", "bool");
+    ("ariaPlaceholder", "string");
+    ("ariaReadonly", "bool");
+    ("ariaRequired", "bool");
+    ("ariaSelected", "bool");
+    ("ariaSort", "string");
+    ("ariaValuemax", "float");
+    ("ariaValuemin", "float");
+    ("ariaValuenow", "float");
+    ("ariaValuetext", "string");
+    ("ariaAtomic", "bool");
+    ("ariaBusy", "bool");
+    ("ariaRelevant", "string");
+    ("ariaGrabbed", "bool");
+    ("ariaActivedescendant", "string");
+    ("ariaColcount", "int");
+    ("ariaColindex", "int");
+    ("ariaColspan", "int");
+    ("ariaControls", "string");
+    ("ariaDescribedby", "string");
+    ("ariaErrormessage", "string");
+    ("ariaFlowto", "string");
+    ("ariaLabelledby", "string");
+    ("ariaOwns", "string");
+    ("ariaPosinset", "int");
+    ("ariaRowcount", "int");
+    ("ariaRowindex", "int");
+    ("ariaRowspan", "int");
+    ("ariaSetsize", "int");
+    ("defaultChecked", "bool");
+    ("defaultValue", "string");
+    ("accessKey", "string");
+    ("contentEditable", "bool");
+    ("contextMenu", "string");
+    ("draggable", "bool");
+    ("hidden", "bool");
+    ("id", "string");
+    ("lang", "string");
+    ("style", "style");
+    ("spellCheck", "bool");
+    ("tabIndex", "int");
+    ("title", "string");
+    ("itemID", "string");
+    ("itemProp", "string");
+    ("itemRef", "string");
+    ("itemScope", "bool");
+    ("accept", "string");
+    ("acceptCharset", "string");
+    ("allowFullScreen", "bool");
+    ("alt", "string");
+    ("async", "bool");
+    ("autoFocus", "bool");
+    ("autoPlay", "bool");
+    ("challenge", "string");
+    ("charSet", "string");
+    ("checked", "bool");
+    ("cols", "int");
+    ("colSpan", "int");
+    ("content", "string");
+    ("controls", "bool");
+    ("default", "bool");
+    ("defer", "bool");
+    ("disabled", "bool");
+    ("form", "string");
+    ("headers", "string");
+    ("high", "int");
+    ("hrefLang", "string");
+    ("integrity", "string");
+    ("keyType", "string");
+    ("label", "string");
+    ("list", "string");
+    ("loop", "bool");
+    ("low", "int");
+    ("maxLength", "int");
+    ("mediaGroup", "string");
+    ("min", "string");
+    ("minLength", "int");
+    ("multiple", "bool");
+    ("muted", "bool");
+    ("name", "string");
+    ("nonce", "string");
+    ("noValidate", "bool");
+    ("optimum", "int");
+    ("placeholder", "string");
+    ("playsInline", "bool");
+    ("radioGroup", "string");
+    ("readOnly", "bool");
+    ("required", "bool");
+    ("reversed", "bool");
+    ("rows", "int");
+    ("rowSpan", "int");
+    ("scoped", "bool");
+    ("selected", "bool");
+    ("shape", "string");
+    ("size", "int");
+    ("sizes", "string");
+    ("span", "int");
+    ("srcDoc", "string");
+    ("srcLang", "string");
+    ("srcSet", "string");
+    ("start", "int");
+    ("step", "float");
+    ("target", "string");
+    ("useMap", "string");
+    ("value", "string");
+    ("onCopy", "ReactEvent.Clipboard.t => unit");
+    ("onCut", "ReactEvent.Clipboard.t => unit");
+    ("onPaste", "ReactEvent.Clipboard.t => unit");
+    ("onCompositionEnd", "ReactEvent.Composition.t => unit");
+    ("onCompositionStart", "ReactEvent.Composition.t => unit");
+    ("onCompositionUpdate", "ReactEvent.Composition.t => unit");
+    ("onKeyDown", "ReactEvent.Keyboard.t => unit");
+    ("onKeyPress", "ReactEvent.Keyboard.t => unit");
+    ("onKeyUp", "ReactEvent.Keyboard.t => unit");
+    ("onFocus", "ReactEvent.Focus.t => unit");
+    ("onBlur", "ReactEvent.Focus.t => unit");
+    ("onChange", "ReactEvent.Form.t => unit");
+    ("onInput", "ReactEvent.Form.t => unit");
+    ("onSubmit", "ReactEvent.Form.t => unit");
+    ("onInvalid", "ReactEvent.Form.t => unit");
+    ("onClick", "ReactEvent.Mouse.t => unit");
+    ("onContextMenu", "ReactEvent.Mouse.t => unit");
+    ("onDoubleClick", "ReactEvent.Mouse.t => unit");
+    ("onDrag", "ReactEvent.Mouse.t => unit");
+    ("onDragEnd", "ReactEvent.Mouse.t => unit");
+    ("onDragEnter", "ReactEvent.Mouse.t => unit");
+    ("onDragExit", "ReactEvent.Mouse.t => unit");
+    ("onDragLeave", "ReactEvent.Mouse.t => unit");
+    ("onDragOver", "ReactEvent.Mouse.t => unit");
+    ("onDragStart", "ReactEvent.Mouse.t => unit");
+    ("onDrop", "ReactEvent.Mouse.t => unit");
+    ("onMouseDown", "ReactEvent.Mouse.t => unit");
+    ("onMouseEnter", "ReactEvent.Mouse.t => unit");
+    ("onMouseLeave", "ReactEvent.Mouse.t => unit");
+    ("onMouseMove", "ReactEvent.Mouse.t => unit");
+    ("onMouseOut", "ReactEvent.Mouse.t => unit");
+    ("onMouseOver", "ReactEvent.Mouse.t => unit");
+    ("onMouseUp", "ReactEvent.Mouse.t => unit");
+    ("onSelect", "ReactEvent.Selection.t => unit");
+    ("onTouchCancel", "ReactEvent.Touch.t => unit");
+    ("onTouchEnd", "ReactEvent.Touch.t => unit");
+    ("onTouchMove", "ReactEvent.Touch.t => unit");
+    ("onTouchStart", "ReactEvent.Touch.t => unit");
+    ("onPointerOver", "ReactEvent.Pointer.t => unit");
+    ("onPointerEnter", "ReactEvent.Pointer.t => unit");
+    ("onPointerDown", "ReactEvent.Pointer.t => unit");
+    ("onPointerMove", "ReactEvent.Pointer.t => unit");
+    ("onPointerUp", "ReactEvent.Pointer.t => unit");
+    ("onPointerCancel", "ReactEvent.Pointer.t => unit");
+    ("onPointerOut", "ReactEvent.Pointer.t => unit");
+    ("onPointerLeave", "ReactEvent.Pointer.t => unit");
+    ("onGotPointerCapture", "ReactEvent.Pointer.t => unit");
+    ("onLostPointerCapture", "ReactEvent.Pointer.t => unit");
+    ("onScroll", "ReactEvent.UI.t => unit");
+    ("onWheel", "ReactEvent.Wheel.t => unit");
+    ("onAbort", "ReactEvent.Media.t => unit");
+    ("onCanPlay", "ReactEvent.Media.t => unit");
+    ("onCanPlayThrough", "ReactEvent.Media.t => unit");
+    ("onDurationChange", "ReactEvent.Media.t => unit");
+    ("onEmptied", "ReactEvent.Media.t => unit");
+    ("onEncrypetd", "ReactEvent.Media.t => unit");
+    ("onEnded", "ReactEvent.Media.t => unit");
+    ("onError", "ReactEvent.Media.t => unit");
+    ("onLoadedData", "ReactEvent.Media.t => unit");
+    ("onLoadedMetadata", "ReactEvent.Media.t => unit");
+    ("onLoadStart", "ReactEvent.Media.t => unit");
+    ("onPause", "ReactEvent.Media.t => unit");
+    ("onPlay", "ReactEvent.Media.t => unit");
+    ("onPlaying", "ReactEvent.Media.t => unit");
+    ("onProgress", "ReactEvent.Media.t => unit");
+    ("onRateChange", "ReactEvent.Media.t => unit");
+    ("onSeeked", "ReactEvent.Media.t => unit");
+    ("onSeeking", "ReactEvent.Media.t => unit");
+    ("onStalled", "ReactEvent.Media.t => unit");
+    ("onSuspend", "ReactEvent.Media.t => unit");
+    ("onTimeUpdate", "ReactEvent.Media.t => unit");
+    ("onVolumeChange", "ReactEvent.Media.t => unit");
+    ("onWaiting", "ReactEvent.Media.t => unit");
+    ("onAnimationStart", "ReactEvent.Animation.t => unit");
+    ("onAnimationEnd", "ReactEvent.Animation.t => unit");
+    ("onAnimationIteration", "ReactEvent.Animation.t => unit");
+    ("onTransitionEnd", "ReactEvent.Transition.t => unit");
+    ("accentHeight", "string");
+    ("accumulate", "string");
+    ("additive", "string");
+    ("alignmentBaseline", "string");
+    ("allowReorder", "string");
+    ("alphabetic", "string");
+    ("amplitude", "string");
+    ("arabicForm", "string");
+    ("ascent", "string");
+    ("attributeName", "string");
+    ("attributeType", "string");
+    ("autoReverse", "string");
+    ("azimuth", "string");
+    ("baseFrequency", "string");
+    ("baseProfile", "string");
+    ("baselineShift", "string");
+    ("bbox", "string");
+    ("bias", "string");
+    ("by", "string");
+    ("calcMode", "string");
+    ("capHeight", "string");
+    ("clip", "string");
+    ("clipPath", "string");
+    ("clipPathUnits", "string");
+    ("clipRule", "string");
+    ("colorInterpolation", "string");
+    ("colorInterpolationFilters", "string");
+    ("colorProfile", "string");
+    ("colorRendering", "string");
+    ("contentScriptType", "string");
+    ("contentStyleType", "string");
+    ("cursor", "string");
+    ("cx", "string");
+    ("cy", "string");
+    ("d", "string");
+    ("decelerate", "string");
+    ("descent", "string");
+    ("diffuseConstant", "string");
+    ("direction", "string");
+    ("display", "string");
+    ("divisor", "string");
+    ("dominantBaseline", "string");
+    ("dur", "string");
+    ("dx", "string");
+    ("dy", "string");
+    ("edgeMode", "string");
+    ("elevation", "string");
+    ("enableBackground", "string");
+    ("exponent", "string");
+    ("externalResourcesRequired", "string");
+    ("fill", "string");
+    ("fillOpacity", "string");
+    ("fillRule", "string");
+    ("filter", "string");
+    ("filterRes", "string");
+    ("filterUnits", "string");
+    ("floodColor", "string");
+    ("floodOpacity", "string");
+    ("focusable", "string");
+    ("fontFamily", "string");
+    ("fontSize", "string");
+    ("fontSizeAdjust", "string");
+    ("fontStretch", "string");
+    ("fontStyle", "string");
+    ("fontVariant", "string");
+    ("fontWeight", "string");
+    ("fomat", "string");
+    ("from", "string");
+    ("fx", "string");
+    ("fy", "string");
+    ("g1", "string");
+    ("g2", "string");
+    ("glyphName", "string");
+    ("glyphOrientationHorizontal", "string");
+    ("glyphOrientationVertical", "string");
+    ("glyphRef", "string");
+    ("gradientTransform", "string");
+    ("gradientUnits", "string");
+    ("hanging", "string");
+    ("horizAdvX", "string");
+    ("horizOriginX", "string");
+    ("ideographic", "string");
+    ("imageRendering", "string");
+    ("in2", "string");
+    ("intercept", "string");
+    ("k", "string");
+    ("k1", "string");
+    ("k2", "string");
+    ("k3", "string");
+    ("k4", "string");
+    ("kernelMatrix", "string");
+    ("kernelUnitLength", "string");
+    ("kerning", "string");
+    ("keyPoints", "string");
+    ("keySplines", "string");
+    ("keyTimes", "string");
+    ("lengthAdjust", "string");
+    ("letterSpacing", "string");
+    ("lightingColor", "string");
+    ("limitingConeAngle", "string");
+    ("local", "string");
+    ("markerEnd", "string");
+    ("markerHeight", "string");
+    ("markerMid", "string");
+    ("markerStart", "string");
+    ("markerUnits", "string");
+    ("markerWidth", "string");
+    ("mask", "string");
+    ("maskContentUnits", "string");
+    ("maskUnits", "string");
+    ("mathematical", "string");
+    ("mode", "string");
+    ("numOctaves", "string");
+    ("offset", "string");
+    ("opacity", "string");
+    ("operator", "string");
+    ("order", "string");
+    ("orient", "string");
+    ("orientation", "string");
+    ("origin", "string");
+    ("overflow", "string");
+    ("overflowX", "string");
+    ("overflowY", "string");
+    ("overlinePosition", "string");
+    ("overlineThickness", "string");
+    ("paintOrder", "string");
+    ("panose1", "string");
+    ("pathLength", "string");
+    ("patternContentUnits", "string");
+    ("patternTransform", "string");
+    ("patternUnits", "string");
+    ("pointerEvents", "string");
+    ("points", "string");
+    ("pointsAtX", "string");
+    ("pointsAtY", "string");
+    ("pointsAtZ", "string");
+    ("preserveAlpha", "string");
+    ("preserveAspectRatio", "string");
+    ("primitiveUnits", "string");
+    ("r", "string");
+    ("radius", "string");
+    ("refX", "string");
+    ("refY", "string");
+    ("renderingIntent", "string");
+    ("repeatCount", "string");
+    ("repeatDur", "string");
+    ("requiredExtensions", "string");
+    ("requiredFeatures", "string");
+    ("restart", "string");
+    ("result", "string");
+    ("rotate", "string");
+    ("rx", "string");
+    ("ry", "string");
+    ("scale", "string");
+    ("seed", "string");
+    ("shapeRendering", "string");
+    ("slope", "string");
+    ("spacing", "string");
+    ("specularConstant", "string");
+    ("specularExponent", "string");
+    ("speed", "string");
+    ("spreadMethod", "string");
+    ("startOffset", "string");
+    ("stdDeviation", "string");
+    ("stemh", "string");
+    ("stemv", "string");
+    ("stitchTiles", "string");
+    ("stopColor", "string");
+    ("stopOpacity", "string");
+    ("strikethroughPosition", "string");
+    ("strikethroughThickness", "string");
+    ("string", "string");
+    ("stroke", "string");
+    ("strokeDasharray", "string");
+    ("strokeDashoffset", "string");
+    ("strokeLinecap", "string");
+    ("strokeLinejoin", "string");
+    ("strokeMiterlimit", "string");
+    ("strokeOpacity", "string");
+    ("strokeWidth", "string");
+    ("surfaceScale", "string");
+    ("systemLanguage", "string");
+    ("tableValues", "string");
+    ("targetX", "string");
+    ("targetY", "string");
+    ("textAnchor", "string");
+    ("textDecoration", "string");
+    ("textLength", "string");
+    ("textRendering", "string");
+    ("transform", "string");
+    ("u1", "string");
+    ("u2", "string");
+    ("underlinePosition", "string");
+    ("underlineThickness", "string");
+    ("unicode", "string");
+    ("unicodeBidi", "string");
+    ("unicodeRange", "string");
+    ("unitsPerEm", "string");
+    ("vAlphabetic", "string");
+    ("vHanging", "string");
+    ("vIdeographic", "string");
+    ("vMathematical", "string");
+    ("values", "string");
+    ("vectorEffect", "string");
+    ("version", "string");
+    ("vertAdvX", "string");
+    ("vertAdvY", "string");
+    ("vertOriginX", "string");
+    ("vertOriginY", "string");
+    ("viewBox", "string");
+    ("viewTarget", "string");
+    ("visibility", "string");
+    ("widths", "string");
+    ("wordSpacing", "string");
+    ("writingMode", "string");
+    ("x", "string");
+    ("x1", "string");
+    ("x2", "string");
+    ("xChannelSelector", "string");
+    ("xHeight", "string");
+    ("xlinkActuate", "string");
+    ("xlinkArcrole", "string");
+    ("xlinkHref", "string");
+    ("xlinkRole", "string");
+    ("xlinkShow", "string");
+    ("xlinkTitle", "string");
+    ("xlinkType", "string");
+    ("xmlns", "string");
+    ("xmlnsXlink", "string");
+    ("xmlBase", "string");
+    ("xmlLang", "string");
+    ("xmlSpace", "string");
+    ("y", "string");
+    ("y1", "string");
+    ("y2", "string");
+    ("yChannelSelector", "string");
+    ("z", "string");
+    ("zoomAndPan", "string");
+    ("about", "string");
+    ("datatype", "string");
+    ("inlist", "string");
+    ("prefix", "string");
+    ("property", "string");
+    ("resource", "string");
+    ("typeof", "string");
+    ("vocab", "string");
+    ("dangerouslySetInnerHTML", "{\"__html\": string}");
+    ("suppressContentEditableWarning", "bool");
+  ]
+
 let showConstructor {cname = {txt}; args; res} =
   txt
   ^ (match args with
@@ -427,462 +871,18 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
         else Some {kind = "markdown"; value = docContent});
     }
 
-let processCompletable ~findItems ~package ~rawOpens
+let processCompletable ~findItems ~full ~package ~rawOpens
     (completable : PartialParser.completable) =
   match completable with
   | Cjsx ([id], prefix, identsSeen) when String.lowercase_ascii id = id ->
-    let labels =
-      [
-        ("ariaDetails", "string");
-        ("ariaDisabled", "bool");
-        ("ariaHidden", "bool");
-        ("ariaKeyshortcuts", "string");
-        ("ariaLabel", "string");
-        ("ariaRoledescription", "string");
-        ("ariaExpanded", "bool");
-        ("ariaLevel", "int");
-        ("ariaModal", "bool");
-        ("ariaMultiline", "bool");
-        ("ariaMultiselectable", "bool");
-        ("ariaPlaceholder", "string");
-        ("ariaReadonly", "bool");
-        ("ariaRequired", "bool");
-        ("ariaSelected", "bool");
-        ("ariaSort", "string");
-        ("ariaValuemax", "float");
-        ("ariaValuemin", "float");
-        ("ariaValuenow", "float");
-        ("ariaValuetext", "string");
-        ("ariaAtomic", "bool");
-        ("ariaBusy", "bool");
-        ("ariaRelevant", "string");
-        ("ariaGrabbed", "bool");
-        ("ariaActivedescendant", "string");
-        ("ariaColcount", "int");
-        ("ariaColindex", "int");
-        ("ariaColspan", "int");
-        ("ariaControls", "string");
-        ("ariaDescribedby", "string");
-        ("ariaErrormessage", "string");
-        ("ariaFlowto", "string");
-        ("ariaLabelledby", "string");
-        ("ariaOwns", "string");
-        ("ariaPosinset", "int");
-        ("ariaRowcount", "int");
-        ("ariaRowindex", "int");
-        ("ariaRowspan", "int");
-        ("ariaSetsize", "int");
-        ("defaultChecked", "bool");
-        ("defaultValue", "string");
-        ("accessKey", "string");
-        ("contentEditable", "bool");
-        ("contextMenu", "string");
-        ("draggable", "bool");
-        ("hidden", "bool");
-        ("id", "string");
-        ("lang", "string");
-        ("style", "style");
-        ("spellCheck", "bool");
-        ("tabIndex", "int");
-        ("title", "string");
-        ("itemID", "string");
-        ("itemProp", "string");
-        ("itemRef", "string");
-        ("itemScope", "bool");
-        ("accept", "string");
-        ("acceptCharset", "string");
-        ("allowFullScreen", "bool");
-        ("alt", "string");
-        ("async", "bool");
-        ("autoFocus", "bool");
-        ("autoPlay", "bool");
-        ("challenge", "string");
-        ("charSet", "string");
-        ("checked", "bool");
-        ("cols", "int");
-        ("colSpan", "int");
-        ("content", "string");
-        ("controls", "bool");
-        ("default", "bool");
-        ("defer", "bool");
-        ("disabled", "bool");
-        ("form", "string");
-        ("headers", "string");
-        ("high", "int");
-        ("hrefLang", "string");
-        ("integrity", "string");
-        ("keyType", "string");
-        ("label", "string");
-        ("list", "string");
-        ("loop", "bool");
-        ("low", "int");
-        ("maxLength", "int");
-        ("mediaGroup", "string");
-        ("min", "string");
-        ("minLength", "int");
-        ("multiple", "bool");
-        ("muted", "bool");
-        ("name", "string");
-        ("nonce", "string");
-        ("noValidate", "bool");
-        ("optimum", "int");
-        ("placeholder", "string");
-        ("playsInline", "bool");
-        ("radioGroup", "string");
-        ("readOnly", "bool");
-        ("required", "bool");
-        ("reversed", "bool");
-        ("rows", "int");
-        ("rowSpan", "int");
-        ("scoped", "bool");
-        ("selected", "bool");
-        ("shape", "string");
-        ("size", "int");
-        ("sizes", "string");
-        ("span", "int");
-        ("srcDoc", "string");
-        ("srcLang", "string");
-        ("srcSet", "string");
-        ("start", "int");
-        ("step", "float");
-        ("target", "string");
-        ("useMap", "string");
-        ("value", "string");
-        ("onCopy", "ReactEvent.Clipboard.t => unit");
-        ("onCut", "ReactEvent.Clipboard.t => unit");
-        ("onPaste", "ReactEvent.Clipboard.t => unit");
-        ("onCompositionEnd", "ReactEvent.Composition.t => unit");
-        ("onCompositionStart", "ReactEvent.Composition.t => unit");
-        ("onCompositionUpdate", "ReactEvent.Composition.t => unit");
-        ("onKeyDown", "ReactEvent.Keyboard.t => unit");
-        ("onKeyPress", "ReactEvent.Keyboard.t => unit");
-        ("onKeyUp", "ReactEvent.Keyboard.t => unit");
-        ("onFocus", "ReactEvent.Focus.t => unit");
-        ("onBlur", "ReactEvent.Focus.t => unit");
-        ("onChange", "ReactEvent.Form.t => unit");
-        ("onInput", "ReactEvent.Form.t => unit");
-        ("onSubmit", "ReactEvent.Form.t => unit");
-        ("onInvalid", "ReactEvent.Form.t => unit");
-        ("onClick", "ReactEvent.Mouse.t => unit");
-        ("onContextMenu", "ReactEvent.Mouse.t => unit");
-        ("onDoubleClick", "ReactEvent.Mouse.t => unit");
-        ("onDrag", "ReactEvent.Mouse.t => unit");
-        ("onDragEnd", "ReactEvent.Mouse.t => unit");
-        ("onDragEnter", "ReactEvent.Mouse.t => unit");
-        ("onDragExit", "ReactEvent.Mouse.t => unit");
-        ("onDragLeave", "ReactEvent.Mouse.t => unit");
-        ("onDragOver", "ReactEvent.Mouse.t => unit");
-        ("onDragStart", "ReactEvent.Mouse.t => unit");
-        ("onDrop", "ReactEvent.Mouse.t => unit");
-        ("onMouseDown", "ReactEvent.Mouse.t => unit");
-        ("onMouseEnter", "ReactEvent.Mouse.t => unit");
-        ("onMouseLeave", "ReactEvent.Mouse.t => unit");
-        ("onMouseMove", "ReactEvent.Mouse.t => unit");
-        ("onMouseOut", "ReactEvent.Mouse.t => unit");
-        ("onMouseOver", "ReactEvent.Mouse.t => unit");
-        ("onMouseUp", "ReactEvent.Mouse.t => unit");
-        ("onSelect", "ReactEvent.Selection.t => unit");
-        ("onTouchCancel", "ReactEvent.Touch.t => unit");
-        ("onTouchEnd", "ReactEvent.Touch.t => unit");
-        ("onTouchMove", "ReactEvent.Touch.t => unit");
-        ("onTouchStart", "ReactEvent.Touch.t => unit");
-        ("onPointerOver", "ReactEvent.Pointer.t => unit");
-        ("onPointerEnter", "ReactEvent.Pointer.t => unit");
-        ("onPointerDown", "ReactEvent.Pointer.t => unit");
-        ("onPointerMove", "ReactEvent.Pointer.t => unit");
-        ("onPointerUp", "ReactEvent.Pointer.t => unit");
-        ("onPointerCancel", "ReactEvent.Pointer.t => unit");
-        ("onPointerOut", "ReactEvent.Pointer.t => unit");
-        ("onPointerLeave", "ReactEvent.Pointer.t => unit");
-        ("onGotPointerCapture", "ReactEvent.Pointer.t => unit");
-        ("onLostPointerCapture", "ReactEvent.Pointer.t => unit");
-        ("onScroll", "ReactEvent.UI.t => unit");
-        ("onWheel", "ReactEvent.Wheel.t => unit");
-        ("onAbort", "ReactEvent.Media.t => unit");
-        ("onCanPlay", "ReactEvent.Media.t => unit");
-        ("onCanPlayThrough", "ReactEvent.Media.t => unit");
-        ("onDurationChange", "ReactEvent.Media.t => unit");
-        ("onEmptied", "ReactEvent.Media.t => unit");
-        ("onEncrypetd", "ReactEvent.Media.t => unit");
-        ("onEnded", "ReactEvent.Media.t => unit");
-        ("onError", "ReactEvent.Media.t => unit");
-        ("onLoadedData", "ReactEvent.Media.t => unit");
-        ("onLoadedMetadata", "ReactEvent.Media.t => unit");
-        ("onLoadStart", "ReactEvent.Media.t => unit");
-        ("onPause", "ReactEvent.Media.t => unit");
-        ("onPlay", "ReactEvent.Media.t => unit");
-        ("onPlaying", "ReactEvent.Media.t => unit");
-        ("onProgress", "ReactEvent.Media.t => unit");
-        ("onRateChange", "ReactEvent.Media.t => unit");
-        ("onSeeked", "ReactEvent.Media.t => unit");
-        ("onSeeking", "ReactEvent.Media.t => unit");
-        ("onStalled", "ReactEvent.Media.t => unit");
-        ("onSuspend", "ReactEvent.Media.t => unit");
-        ("onTimeUpdate", "ReactEvent.Media.t => unit");
-        ("onVolumeChange", "ReactEvent.Media.t => unit");
-        ("onWaiting", "ReactEvent.Media.t => unit");
-        ("onAnimationStart", "ReactEvent.Animation.t => unit");
-        ("onAnimationEnd", "ReactEvent.Animation.t => unit");
-        ("onAnimationIteration", "ReactEvent.Animation.t => unit");
-        ("onTransitionEnd", "ReactEvent.Transition.t => unit");
-        ("accentHeight", "string");
-        ("accumulate", "string");
-        ("additive", "string");
-        ("alignmentBaseline", "string");
-        ("allowReorder", "string");
-        ("alphabetic", "string");
-        ("amplitude", "string");
-        ("arabicForm", "string");
-        ("ascent", "string");
-        ("attributeName", "string");
-        ("attributeType", "string");
-        ("autoReverse", "string");
-        ("azimuth", "string");
-        ("baseFrequency", "string");
-        ("baseProfile", "string");
-        ("baselineShift", "string");
-        ("bbox", "string");
-        ("bias", "string");
-        ("by", "string");
-        ("calcMode", "string");
-        ("capHeight", "string");
-        ("clip", "string");
-        ("clipPath", "string");
-        ("clipPathUnits", "string");
-        ("clipRule", "string");
-        ("colorInterpolation", "string");
-        ("colorInterpolationFilters", "string");
-        ("colorProfile", "string");
-        ("colorRendering", "string");
-        ("contentScriptType", "string");
-        ("contentStyleType", "string");
-        ("cursor", "string");
-        ("cx", "string");
-        ("cy", "string");
-        ("d", "string");
-        ("decelerate", "string");
-        ("descent", "string");
-        ("diffuseConstant", "string");
-        ("direction", "string");
-        ("display", "string");
-        ("divisor", "string");
-        ("dominantBaseline", "string");
-        ("dur", "string");
-        ("dx", "string");
-        ("dy", "string");
-        ("edgeMode", "string");
-        ("elevation", "string");
-        ("enableBackground", "string");
-        ("exponent", "string");
-        ("externalResourcesRequired", "string");
-        ("fill", "string");
-        ("fillOpacity", "string");
-        ("fillRule", "string");
-        ("filter", "string");
-        ("filterRes", "string");
-        ("filterUnits", "string");
-        ("floodColor", "string");
-        ("floodOpacity", "string");
-        ("focusable", "string");
-        ("fontFamily", "string");
-        ("fontSize", "string");
-        ("fontSizeAdjust", "string");
-        ("fontStretch", "string");
-        ("fontStyle", "string");
-        ("fontVariant", "string");
-        ("fontWeight", "string");
-        ("fomat", "string");
-        ("from", "string");
-        ("fx", "string");
-        ("fy", "string");
-        ("g1", "string");
-        ("g2", "string");
-        ("glyphName", "string");
-        ("glyphOrientationHorizontal", "string");
-        ("glyphOrientationVertical", "string");
-        ("glyphRef", "string");
-        ("gradientTransform", "string");
-        ("gradientUnits", "string");
-        ("hanging", "string");
-        ("horizAdvX", "string");
-        ("horizOriginX", "string");
-        ("ideographic", "string");
-        ("imageRendering", "string");
-        ("in2", "string");
-        ("intercept", "string");
-        ("k", "string");
-        ("k1", "string");
-        ("k2", "string");
-        ("k3", "string");
-        ("k4", "string");
-        ("kernelMatrix", "string");
-        ("kernelUnitLength", "string");
-        ("kerning", "string");
-        ("keyPoints", "string");
-        ("keySplines", "string");
-        ("keyTimes", "string");
-        ("lengthAdjust", "string");
-        ("letterSpacing", "string");
-        ("lightingColor", "string");
-        ("limitingConeAngle", "string");
-        ("local", "string");
-        ("markerEnd", "string");
-        ("markerHeight", "string");
-        ("markerMid", "string");
-        ("markerStart", "string");
-        ("markerUnits", "string");
-        ("markerWidth", "string");
-        ("mask", "string");
-        ("maskContentUnits", "string");
-        ("maskUnits", "string");
-        ("mathematical", "string");
-        ("mode", "string");
-        ("numOctaves", "string");
-        ("offset", "string");
-        ("opacity", "string");
-        ("operator", "string");
-        ("order", "string");
-        ("orient", "string");
-        ("orientation", "string");
-        ("origin", "string");
-        ("overflow", "string");
-        ("overflowX", "string");
-        ("overflowY", "string");
-        ("overlinePosition", "string");
-        ("overlineThickness", "string");
-        ("paintOrder", "string");
-        ("panose1", "string");
-        ("pathLength", "string");
-        ("patternContentUnits", "string");
-        ("patternTransform", "string");
-        ("patternUnits", "string");
-        ("pointerEvents", "string");
-        ("points", "string");
-        ("pointsAtX", "string");
-        ("pointsAtY", "string");
-        ("pointsAtZ", "string");
-        ("preserveAlpha", "string");
-        ("preserveAspectRatio", "string");
-        ("primitiveUnits", "string");
-        ("r", "string");
-        ("radius", "string");
-        ("refX", "string");
-        ("refY", "string");
-        ("renderingIntent", "string");
-        ("repeatCount", "string");
-        ("repeatDur", "string");
-        ("requiredExtensions", "string");
-        ("requiredFeatures", "string");
-        ("restart", "string");
-        ("result", "string");
-        ("rotate", "string");
-        ("rx", "string");
-        ("ry", "string");
-        ("scale", "string");
-        ("seed", "string");
-        ("shapeRendering", "string");
-        ("slope", "string");
-        ("spacing", "string");
-        ("specularConstant", "string");
-        ("specularExponent", "string");
-        ("speed", "string");
-        ("spreadMethod", "string");
-        ("startOffset", "string");
-        ("stdDeviation", "string");
-        ("stemh", "string");
-        ("stemv", "string");
-        ("stitchTiles", "string");
-        ("stopColor", "string");
-        ("stopOpacity", "string");
-        ("strikethroughPosition", "string");
-        ("strikethroughThickness", "string");
-        ("string", "string");
-        ("stroke", "string");
-        ("strokeDasharray", "string");
-        ("strokeDashoffset", "string");
-        ("strokeLinecap", "string");
-        ("strokeLinejoin", "string");
-        ("strokeMiterlimit", "string");
-        ("strokeOpacity", "string");
-        ("strokeWidth", "string");
-        ("surfaceScale", "string");
-        ("systemLanguage", "string");
-        ("tableValues", "string");
-        ("targetX", "string");
-        ("targetY", "string");
-        ("textAnchor", "string");
-        ("textDecoration", "string");
-        ("textLength", "string");
-        ("textRendering", "string");
-        ("transform", "string");
-        ("u1", "string");
-        ("u2", "string");
-        ("underlinePosition", "string");
-        ("underlineThickness", "string");
-        ("unicode", "string");
-        ("unicodeBidi", "string");
-        ("unicodeRange", "string");
-        ("unitsPerEm", "string");
-        ("vAlphabetic", "string");
-        ("vHanging", "string");
-        ("vIdeographic", "string");
-        ("vMathematical", "string");
-        ("values", "string");
-        ("vectorEffect", "string");
-        ("version", "string");
-        ("vertAdvX", "string");
-        ("vertAdvY", "string");
-        ("vertOriginX", "string");
-        ("vertOriginY", "string");
-        ("viewBox", "string");
-        ("viewTarget", "string");
-        ("visibility", "string");
-        ("widths", "string");
-        ("wordSpacing", "string");
-        ("writingMode", "string");
-        ("x", "string");
-        ("x1", "string");
-        ("x2", "string");
-        ("xChannelSelector", "string");
-        ("xHeight", "string");
-        ("xlinkActuate", "string");
-        ("xlinkArcrole", "string");
-        ("xlinkHref", "string");
-        ("xlinkRole", "string");
-        ("xlinkShow", "string");
-        ("xlinkTitle", "string");
-        ("xlinkType", "string");
-        ("xmlns", "string");
-        ("xmlnsXlink", "string");
-        ("xmlBase", "string");
-        ("xmlLang", "string");
-        ("xmlSpace", "string");
-        ("y", "string");
-        ("y1", "string");
-        ("y2", "string");
-        ("yChannelSelector", "string");
-        ("z", "string");
-        ("zoomAndPan", "string");
-        ("about", "string");
-        ("datatype", "string");
-        ("inlist", "string");
-        ("prefix", "string");
-        ("property", "string");
-        ("resource", "string");
-        ("typeof", "string");
-        ("vocab", "string");
-        ("dangerouslySetInnerHTML", "{\"__html\": string}");
-        ("suppressContentEditableWarning", "bool");
-      ]
-    in
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
     in
     let mkLabel (name, typ) = mkLabel_ name typ in
     let keyLabel = mkLabel_ "key" "string" in
-    if labels = [] then []
+    if domLabels = [] then []
     else
-      (labels
+      (domLabels
       |> List.filter (fun (name, _t) ->
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
@@ -959,16 +959,57 @@ let processCompletable ~findItems ~package ~rawOpens
       | _ -> ( match loop path with _ :: rest -> List.rev rest | [] -> [])
     in
     let getLhsPath ~pipeId ~partialName =
-      match [pipeId] |> findItems ~exact:true with
-      | {SharedTypes.item = Value t} :: _ ->
-        let modulePath =
-          match t.desc with
-          | Tconstr (path, _, _) -> getModulePath path
-          | Tlink {desc = Tconstr (path, _, _)} -> getModulePath path
-          | _ -> []
-        in
-        Some (modulePath, partialName)
-      | _ -> None
+      let getConstr typ =
+        match typ.Types.desc with
+        | Tconstr (path, _, _)
+        | Tlink {desc = Tconstr (path, _, _)}
+        | Tpoly ({desc = Tconstr (path, _, _)}, []) ->
+          Some path
+        | _ -> None
+      in
+      let fromType typ =
+        match getConstr typ with
+        | None -> None
+        | Some path ->
+          let modulePath = getModulePath path in
+          Some (modulePath, partialName)
+      in
+      let getField ~env ~typ fieldName =
+        match getConstr typ with
+        | Some path -> (
+          match Hover.digConstructor ~env ~package path with
+          | None -> None
+          | Some (env1, declared) -> (
+            let t = declared.item in
+            match t.kind with
+            | Record fields -> (
+              match
+                fields
+                |> List.find_opt (fun field ->
+                       field.SharedTypes.fname.txt = fieldName)
+              with
+              | None -> None
+              | Some field -> Some (field.typ, env1))
+            | _ -> None))
+        | None -> None
+      in
+      let rec getFields ~env ~typ = function
+        | [] -> Some (typ, env)
+        | fieldName :: rest -> (
+          match getField ~env ~typ fieldName with
+          | None -> None
+          | Some (typ1, env1) -> getFields ~env:env1 ~typ:typ1 rest)
+      in
+      match String.split_on_char '.' pipeId with
+      | x :: fieldNames -> (
+        match [x] |> findItems ~exact:true with
+        | {SharedTypes.item = Value typ} :: _ -> (
+          let env = QueryEnv.fromFile full.file in
+          match getFields ~env ~typ fieldNames with
+          | None -> None
+          | Some (typ1, _env1) -> fromType typ1)
+        | _ -> None)
+      | [] -> None
     in
     let lhsPath =
       match pipe with
@@ -1114,4 +1155,4 @@ let computeCompletions ~full ~maybeText ~pos =
             items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
           | _ -> items
         in
-        completable |> processCompletable ~findItems ~package ~rawOpens))
+        completable |> processCompletable ~findItems ~full ~package ~rawOpens))

@@ -5,6 +5,7 @@
 - Add support for transitive module references.
 - Add heuristic for lowercase jsx.
 - Add autocomplete for lowercase jsx.
+- Add support for pipe autocompletion where the lhs is a record path.
 
 ## 1.1.1
 
