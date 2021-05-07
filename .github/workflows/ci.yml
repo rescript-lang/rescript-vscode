@@ -11,17 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-18.04, windows-latest]
+        os: [macos-11.0, ubuntu-18.04, windows-2016]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
-          - os: macos-latest
+          - os: macos-11.0
             build: eval $(opam env) && cd analysis && make test
             artifact-folder: darwin
           - os: ubuntu-18.04
             build: eval $(opam env) && cd analysis && make test
             artifact-folder: linux
-          - os: windows-latest
+          - os: windows-2016
             build: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test"
             artifact-folder: win32
 
