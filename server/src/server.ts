@@ -253,7 +253,7 @@ function hover(msg: p.RequestMessage) {
     ["hover", filePath, params.position.line, params.position.character],
     msg
   );
-  send(response);
+  return response;
 }
 
 function definition(msg: p.RequestMessage) {
@@ -265,7 +265,7 @@ function definition(msg: p.RequestMessage) {
     ["definition", filePath, params.position.line, params.position.character],
     msg
   );
-  send(response);
+  return response;
 }
 
 function references(msg: p.RequestMessage) {
@@ -276,13 +276,13 @@ function references(msg: p.RequestMessage) {
     filePath,
     params.position
   );
-  let definitionResponse: m.ResponseMessage = {
+  let response: m.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
     result,
     // error: code and message set in case an exception happens during the definition request.
   };
-  send(definitionResponse);
+  return response;
 }
 
 function rename(msg: p.RequestMessage) {
@@ -308,12 +308,12 @@ function rename(msg: p.RequestMessage) {
     });
     result = { changes };
   }
-  let renameResponse: m.ResponseMessage = {
+  let response: m.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
     result,
   };
-  send(renameResponse);
+  return response;
 }
 
 function documentSymbol(msg: p.RequestMessage) {
@@ -325,7 +325,7 @@ function documentSymbol(msg: p.RequestMessage) {
     ["documentSymbol", filePath],
     msg
   );
-  send(response);
+  return response;
 }
 
 function completion(msg: p.RequestMessage) {
@@ -346,7 +346,7 @@ function completion(msg: p.RequestMessage) {
     msg
   );
   fs.unlink(tmpname, () => null);
-  send(response);
+  return response;
 }
 
 function onMessage(msg: m.Message) {
@@ -459,17 +459,17 @@ function onMessage(msg: m.Message) {
         send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
-      hover(msg);
+      send(hover(msg));
     } else if (msg.method === p.DefinitionRequest.method) {
-      definition(msg);
+      send(definition(msg));
     } else if (msg.method === p.ReferencesRequest.method) {
-      references(msg);
+      send(references(msg));
     } else if (msg.method === p.RenameRequest.method) {
-      rename(msg);
+      send(rename(msg));
     } else if (msg.method === p.DocumentSymbolRequest.method) {
-      documentSymbol(msg);
+      send(documentSymbol(msg));
     } else if (msg.method === p.CompletionRequest.method) {
-      completion(msg);
+      send(completion(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
       // the LSP alert box for these error replies sucks (e.g. doesn't actually
