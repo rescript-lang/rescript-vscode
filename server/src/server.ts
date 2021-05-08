@@ -268,6 +268,23 @@ function definition(msg: p.RequestMessage) {
   send(response);
 }
 
+function references(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
+  let params = msg.params as p.ReferenceParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
+    filePath,
+    params.position
+  );
+  let definitionResponse: m.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result,
+    // error: code and message set in case an exception happens during the definition request.
+  };
+  send(definitionResponse);
+}
+
 function rename(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
   let params = msg.params as p.RenameParams;
@@ -297,23 +314,6 @@ function rename(msg: p.RequestMessage) {
     result,
   };
   send(renameResponse);
-}
-
-function references(msg: p.RequestMessage) {
-  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
-  let params = msg.params as p.ReferenceParams;
-  let filePath = fileURLToPath(params.textDocument.uri);
-  let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
-    filePath,
-    params.position
-  );
-  let definitionResponse: m.ResponseMessage = {
-    jsonrpc: c.jsonrpcVersion,
-    id: msg.id,
-    result,
-    // error: code and message set in case an exception happens during the definition request.
-  };
-  send(definitionResponse);
 }
 
 function documentSymbol(msg: p.RequestMessage) {
@@ -462,10 +462,10 @@ function onMessage(msg: m.Message) {
       hover(msg);
     } else if (msg.method === p.DefinitionRequest.method) {
       definition(msg);
-    } else if (msg.method === p.RenameRequest.method) {
-      rename(msg);
     } else if (msg.method === p.ReferencesRequest.method) {
       references(msg);
+    } else if (msg.method === p.RenameRequest.method) {
+      rename(msg);
     } else if (msg.method === p.DocumentSymbolRequest.method) {
       documentSymbol(msg);
     } else if (msg.method === p.CompletionRequest.method) {
