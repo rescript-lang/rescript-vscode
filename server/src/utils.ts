@@ -282,8 +282,8 @@ export let runBuildWatcherUsingValidBuildPath = (
 */
 
 // parser helpers
-let normalizeFileForWindows = (file: string) => {
-  return process.platform === "win32" ? `file:\\\\\\${file}` : file;
+let pathToURI = (file: string) => {
+  return process.platform === "win32" ? `file:\\\\\\${file}` : `file://${file}`;
 };
 let parseFileAndRange = (fileAndRange: string) => {
   // https://github.com/rescript-lang/rescript-compiler/blob/0a3f4bb32ca81e89cefd5a912b8795878836f883/jscomp/super_errors/super_location.ml#L15-L25
@@ -307,7 +307,7 @@ let parseFileAndRange = (fileAndRange: string) => {
   if (match === null) {
     // no location! Though LSP insist that we provide at least a dummy location
     return {
-      file: normalizeFileForWindows(trimmedFileAndRange),
+      file: pathToURI(trimmedFileAndRange),
       range: {
         start: { line: 0, character: 0 },
         end: { line: 0, character: 0 },
@@ -352,7 +352,7 @@ let parseFileAndRange = (fileAndRange: string) => {
     };
   }
   return {
-    file: normalizeFileForWindows(file),
+    file: pathToURI(file),
     range,
   };
 };
