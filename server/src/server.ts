@@ -20,7 +20,8 @@ import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { Location } from "vscode-languageserver";
-import { SymbolInformation } from "vscode-languageserver";
+import { SymbolInformation, WorkspaceEdit } from "vscode-languageserver";
+import { TextEdit } from "vscode-languageserver-types";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -307,6 +308,7 @@ function onMessage(msg: m.Message) {
           hoverProvider: true,
           definitionProvider: true,
           referencesProvider: true,
+          renameProvider: true,
           documentSymbolProvider: false,
           completionProvider: { triggerCharacters: [".", ">", "@", "~"] },
         },
@@ -386,6 +388,44 @@ function onMessage(msg: m.Message) {
         // error: code and message set in case an exception happens during the definition request.
       };
       send(definitionResponse);
+    } else if (msg.method === p.RenameRequest.method) {
+      // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
+      let params = msg.params as p.RenameParams;
+      let filePath = fileURLToPath(params.textDocument.uri);
+      let locations: Location[] | null = utils.runAnalysisAfterSanityCheck(
+        filePath,
+        [
+          "references",
+          filePath,
+          params.position.line,
+          params.position.character,
+        ]
+      );
+
+      let result: WorkspaceEdit | null;
+      if (locations === null) {
+        result = null;
+      } else {
+        let changes: { [uri: string]: TextEdit[] } = {};
+        locations.forEach(({ uri, range }) => {
+          let textEdit: TextEdit = {range, newText: params.newName};
+          if (uri in changes) {
+            changes[uri].push(textEdit);
+          } else {
+            changes[uri] = [textEdit]
+          }
+        });
+
+        result = {changes};
+      }
+
+      let renameResponse: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: msg.id,
+        result,
+      };
+
+      send(renameResponse);
     } else if (msg.method === p.ReferencesRequest.method) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
       let params = msg.params as p.ReferenceParams;
