@@ -3,6 +3,10 @@ import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
 import * as path from "path";
 import * as t from "vscode-languageserver-types";
+import {
+  RequestMessage,
+  ResponseMessage,
+} from "vscode-languageserver-protocol";
 import fs from "fs";
 import * as os from "os";
 
@@ -82,13 +86,13 @@ export let findNodeBuildOfProjectRoot = (
 
 type execResult =
   | {
-    kind: "success";
-    result: string;
-  }
+      kind: "success";
+      result: string;
+    }
   | {
-    kind: "error";
-    error: string;
-  };
+      kind: "error";
+      error: string;
+    };
 export let formatUsingValidBscNativePath = (
   code: string,
   bscNativePath: p.DocumentUri,
@@ -144,12 +148,34 @@ export let runAnalysisAfterSanityCheck = (
   return JSON.parse(stdout.toString());
 };
 
-export let getReferencesForPosition = (filePath: p.DocumentUri, position: p.Position) =>
-  runAnalysisAfterSanityCheck(filePath, ['references', filePath, position.line, position.character]);
+export let runAnalysisCommand = (
+  filePath: p.DocumentUri,
+  args: Array<any>,
+  msg: RequestMessage
+) => {
+  let result = runAnalysisAfterSanityCheck(filePath, args);
+  let response: ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result,
+  };
+  return response;
+};
+
+export let getReferencesForPosition = (
+  filePath: p.DocumentUri,
+  position: p.Position
+) =>
+  runAnalysisAfterSanityCheck(filePath, [
+    "references",
+    filePath,
+    position.line,
+    position.character,
+  ]);
 
 export let replaceFileExtension = (filePath: string, ext: string): string => {
   let name = path.basename(filePath, path.extname(filePath));
-  return path.format({ dir: path.dirname(filePath), name, ext })
+  return path.format({ dir: path.dirname(filePath), name, ext });
 };
 
 export let createInterfaceFileUsingValidBscExePath = (
@@ -158,13 +184,14 @@ export let createInterfaceFileUsingValidBscExePath = (
   bscExePath: p.DocumentUri
 ): execResult => {
   try {
-    let resiString = childProcess.execFileSync(
-      bscExePath,
-      ["-color", "never", cmiPath]
-    );
+    let resiString = childProcess.execFileSync(bscExePath, [
+      "-color",
+      "never",
+      cmiPath,
+    ]);
 
-    let resiPath = replaceFileExtension(filePath, c.resiExt)
-    fs.writeFileSync(resiPath, resiString, { encoding: "utf-8"});
+    let resiPath = replaceFileExtension(filePath, c.resiExt);
+    fs.writeFileSync(resiPath, resiString, { encoding: "utf-8" });
 
     return {
       kind: "success",
