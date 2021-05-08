@@ -40,13 +40,17 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => { };
+let send: (msg: m.Message) => void = (_) => {};
 
 interface CreateInterfaceRequestParams {
   uri: string;
-};
+}
 
-let createInterfaceRequest = new v.RequestType<CreateInterfaceRequestParams, string, void>("rescript-vscode.create_interface");
+let createInterfaceRequest = new v.RequestType<
+  CreateInterfaceRequestParams,
+  string,
+  void
+>("rescript-vscode.create_interface");
 
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
@@ -350,12 +354,10 @@ function onMessage(msg: m.Message) {
     } else if (msg.method === p.HoverRequest.method) {
       let params = msg.params as p.HoverParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      let result: Hover | null = utils.runAnalysisAfterSanityCheck(filePath, [
-        "hover",
+      let result: typeof p.HoverRequest.type = utils.runAnalysisAfterSanityCheck(
         filePath,
-        params.position.line,
-        params.position.character,
-      ]);
+        ["hover", filePath, params.position.line, params.position.character]
+      );
       let hoverResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
@@ -368,14 +370,15 @@ function onMessage(msg: m.Message) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
       let params = msg.params as p.DefinitionParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      let result:
-        | Location[]
-        | null = utils.runAnalysisAfterSanityCheck(filePath, [
+      let result: typeof p.DefinitionRequest.type = utils.runAnalysisAfterSanityCheck(
+        filePath,
+        [
           "definition",
           filePath,
           params.position.line,
           params.position.character,
-        ]);
+        ]
+      );
       let definitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
@@ -387,7 +390,7 @@ function onMessage(msg: m.Message) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
       let params = msg.params as p.ReferenceParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      let result: Location | null = utils.runAnalysisAfterSanityCheck(
+      let result: typeof p.ReferencesRequest.type = utils.runAnalysisAfterSanityCheck(
         filePath,
         [
           "references",
@@ -407,12 +410,10 @@ function onMessage(msg: m.Message) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
       let params = msg.params as p.DocumentSymbolParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      let result:
-        | SymbolInformation[]
-        | null = utils.runAnalysisAfterSanityCheck(filePath, [
-          "documentSymbol",
-          filePath,
-        ]);
+      let result: typeof p.DocumentSymbolRequest.type = utils.runAnalysisAfterSanityCheck(
+        filePath,
+        ["documentSymbol", filePath]
+      );
       let definitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
@@ -425,15 +426,16 @@ function onMessage(msg: m.Message) {
       let code = getOpenedFileContent(params.textDocument.uri);
       let tmpname = utils.createFileInTempDir();
       fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-      let result:
-        | CompletionItem[]
-        | null = utils.runAnalysisAfterSanityCheck(filePath, [
+      let result: typeof p.CompletionRequest.type = utils.runAnalysisAfterSanityCheck(
+        filePath,
+        [
           "completion",
           filePath,
           params.position.line,
           params.position.character,
           tmpname,
-        ]);
+        ]
+      );
       fs.unlink(tmpname, () => null);
       let completionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
@@ -554,14 +556,21 @@ function onMessage(msg: m.Message) {
 
         send(response);
       } else {
-        let cmiPartialPath = utils.replaceFileExtension(filePath.split(projDir)[1], c.cmiExt);
-        let cmiPath = path.join(projDir, c.compilerDirPartialPath, cmiPartialPath);
+        let cmiPartialPath = utils.replaceFileExtension(
+          filePath.split(projDir)[1],
+          c.cmiExt
+        );
+        let cmiPath = path.join(
+          projDir,
+          c.compilerDirPartialPath,
+          cmiPartialPath
+        );
         let cmiAvailable = fs.existsSync(cmiPath);
 
         if (!cmiAvailable) {
           let params: p.ShowMessageParams = {
             type: p.MessageType.Error,
-            message: `No compiled interface file found. Please compile your project first.`
+            message: `No compiled interface file found. Please compile your project first.`,
           };
 
           let response: m.NotificationMessage = {
@@ -572,7 +581,11 @@ function onMessage(msg: m.Message) {
 
           send(response);
         } else {
-          let intfResult = utils.createInterfaceFileUsingValidBscExePath(filePath, cmiPath, bscNativePath)
+          let intfResult = utils.createInterfaceFileUsingValidBscExePath(
+            filePath,
+            cmiPath,
+            bscNativePath
+          );
 
           if (intfResult.kind === "success") {
             let response: m.ResponseMessage = {
@@ -588,8 +601,8 @@ function onMessage(msg: m.Message) {
               id: msg.id,
               error: {
                 code: m.ErrorCodes.InternalError,
-                message: "Unable to create interface file."
-              }
+                message: "Unable to create interface file.",
+              },
             };
 
             send(response);
