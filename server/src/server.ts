@@ -21,6 +21,7 @@ import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { TextEdit } from "vscode-languageserver-types";
+import { OnReadOpts } from "node:net";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -243,6 +244,111 @@ if (process.argv.includes("--stdio")) {
   send = (msg: m.Message) => process.send!(msg);
   process.on("message", onMessage);
 }
+
+function hover(msg: p.RequestMessage) {
+  let params = msg.params as p.HoverParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let response = utils.runAnalysisCommand(
+    filePath,
+    ["hover", filePath, params.position.line, params.position.character],
+    msg
+  );
+  send(response);
+}
+
+function definition(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
+  let params = msg.params as p.DefinitionParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let response = utils.runAnalysisCommand(
+    filePath,
+    ["definition", filePath, params.position.line, params.position.character],
+    msg
+  );
+  send(response);
+}
+
+function rename(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
+  let params = msg.params as p.RenameParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let locations: p.Location[] | null = utils.getReferencesForPosition(
+    filePath,
+    params.position
+  );
+  let result: WorkspaceEdit | null;
+  if (locations === null) {
+    result = null;
+  } else {
+    let changes: { [uri: string]: TextEdit[] } = {};
+    locations.forEach(({ uri, range }) => {
+      let textEdit: TextEdit = { range, newText: params.newName };
+      if (uri in changes) {
+        changes[uri].push(textEdit);
+      } else {
+        changes[uri] = [textEdit];
+      }
+    });
+    result = { changes };
+  }
+  let renameResponse: m.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result,
+  };
+  send(renameResponse);
+}
+
+function references(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
+  let params = msg.params as p.ReferenceParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
+    filePath,
+    params.position
+  );
+  let definitionResponse: m.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result,
+    // error: code and message set in case an exception happens during the definition request.
+  };
+  send(definitionResponse);
+}
+
+function documentSymbol(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
+  let params = msg.params as p.DocumentSymbolParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let response = utils.runAnalysisCommand(
+    filePath,
+    ["documentSymbol", filePath],
+    msg
+  );
+  send(response);
+}
+
+function completion(msg: p.RequestMessage) {
+  let params = msg.params as p.ReferenceParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir();
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
+  let response = utils.runAnalysisCommand(
+    filePath,
+    [
+      "completion",
+      filePath,
+      params.position.line,
+      params.position.character,
+      tmpname,
+    ],
+    msg
+  );
+  fs.unlink(tmpname, () => null);
+  send(response);
+}
+
 function onMessage(msg: m.Message) {
   if (m.isNotificationMessage(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
@@ -353,105 +459,17 @@ function onMessage(msg: m.Message) {
         send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
-      let params = msg.params as p.HoverParams;
-      let filePath = fileURLToPath(params.textDocument.uri);
-      let response = utils.runAnalysisCommand(
-        filePath,
-        ["hover", filePath, params.position.line, params.position.character],
-        msg
-      );
-      send(response);
+      hover(msg);
     } else if (msg.method === p.DefinitionRequest.method) {
-      // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
-      let params = msg.params as p.DefinitionParams;
-      let filePath = fileURLToPath(params.textDocument.uri);
-      let response = utils.runAnalysisCommand(
-        filePath,
-        [
-          "definition",
-          filePath,
-          params.position.line,
-          params.position.character,
-        ],
-        msg
-      );
-      send(response);
+      definition(msg);
     } else if (msg.method === p.RenameRequest.method) {
-      // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
-      let params = msg.params as p.RenameParams;
-      let filePath = fileURLToPath(params.textDocument.uri);
-      let locations: p.Location[] | null = utils.getReferencesForPosition(
-        filePath,
-        params.position
-      );
-      let result: WorkspaceEdit | null;
-      if (locations === null) {
-        result = null;
-      } else {
-        let changes: { [uri: string]: TextEdit[] } = {};
-        locations.forEach(({ uri, range }) => {
-          let textEdit: TextEdit = { range, newText: params.newName };
-          if (uri in changes) {
-            changes[uri].push(textEdit);
-          } else {
-            changes[uri] = [textEdit];
-          }
-        });
-
-        result = { changes };
-      }
-
-      let renameResponse: m.ResponseMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        id: msg.id,
-        result,
-      };
-
-      send(renameResponse);
+      rename(msg);
     } else if (msg.method === p.ReferencesRequest.method) {
-      // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
-      let params = msg.params as p.ReferenceParams;
-      let filePath = fileURLToPath(params.textDocument.uri);
-      let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
-        filePath,
-        params.position
-      );
-      let definitionResponse: m.ResponseMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        id: msg.id,
-        result,
-        // error: code and message set in case an exception happens during the definition request.
-      };
-      send(definitionResponse);
+      references(msg);
     } else if (msg.method === p.DocumentSymbolRequest.method) {
-      // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
-      let params = msg.params as p.DocumentSymbolParams;
-      let filePath = fileURLToPath(params.textDocument.uri);
-      let response = utils.runAnalysisCommand(
-        filePath,
-        ["documentSymbol", filePath],
-        msg
-      );
-      send(response);
+      documentSymbol(msg);
     } else if (msg.method === p.CompletionRequest.method) {
-      let params = msg.params as p.ReferenceParams;
-      let filePath = fileURLToPath(params.textDocument.uri);
-      let code = getOpenedFileContent(params.textDocument.uri);
-      let tmpname = utils.createFileInTempDir();
-      fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-      let response = utils.runAnalysisCommand(
-        filePath,
-        [
-          "completion",
-          filePath,
-          params.position.line,
-          params.position.character,
-          tmpname,
-        ],
-        msg
-      );
-      fs.unlink(tmpname, () => null);
-      send(response);
+      completion(msg);
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       // technically, a formatting failure should reply with the error. Sadly
       // the LSP alert box for these error replies sucks (e.g. doesn't actually
