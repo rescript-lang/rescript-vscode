@@ -144,6 +144,9 @@ export let runAnalysisAfterSanityCheck = (
   return JSON.parse(stdout.toString());
 };
 
+export let getReferencesForPosition = (filePath: p.DocumentUri, position: p.Position) =>
+  runAnalysisAfterSanityCheck(filePath, ['references', filePath, position.line, position.character]);
+
 export let replaceFileExtension = (filePath: string, ext: string): string => {
   let name = path.basename(filePath, path.extname(filePath));
   return path.format({ dir: path.dirname(filePath), name, ext })

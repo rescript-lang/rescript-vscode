@@ -19,8 +19,7 @@ import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
-import { Location } from "vscode-languageserver";
-import { SymbolInformation, WorkspaceEdit } from "vscode-languageserver";
+import {  WorkspaceEdit } from "vscode-languageserver";
 import { TextEdit } from "vscode-languageserver-types";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
@@ -392,16 +391,7 @@ function onMessage(msg: m.Message) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
       let params = msg.params as p.RenameParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      let locations: Location[] | null = utils.runAnalysisAfterSanityCheck(
-        filePath,
-        [
-          "references",
-          filePath,
-          params.position.line,
-          params.position.character,
-        ]
-      );
-
+      let locations: p.Location[] | null = utils.getReferencesForPosition(filePath, params.position);
       let result: WorkspaceEdit | null;
       if (locations === null) {
         result = null;
@@ -430,15 +420,7 @@ function onMessage(msg: m.Message) {
       // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
       let params = msg.params as p.ReferenceParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      let result: typeof p.ReferencesRequest.type = utils.runAnalysisAfterSanityCheck(
-        filePath,
-        [
-          "references",
-          filePath,
-          params.position.line,
-          params.position.character,
-        ]
-      );
+      let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(filePath, params.position);
       let definitionResponse: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
