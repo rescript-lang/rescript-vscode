@@ -13,3 +13,5 @@ analysis/tests/.merlin
 *.cmx
 *.o
 *.install
+# opam local switch
+analysis/_opam
