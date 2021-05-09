@@ -5,6 +5,6 @@
   },
   "private": true,
   "devDependencies": {
-    "@rescript/react": "^0.10.2"
+    "@rescript/react": "^0.10.3"
   }
 }
