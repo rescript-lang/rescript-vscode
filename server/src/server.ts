@@ -41,7 +41,7 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => {};
+let send: (msg: m.Message) => void = (_) => { };
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -349,6 +349,174 @@ function completion(msg: p.RequestMessage) {
   return response;
 }
 
+function format(msg: p.RequestMessage): Array<m.Message> {
+  // technically, a formatting failure should reply with the error. Sadly
+  // the LSP alert box for these error replies sucks (e.g. doesn't actually
+  // display the message). In order to signal the client to display a proper
+  // alert box (sometime with actionable buttons), we need to first send
+  // back a fake success message (because each request mandates a
+  // response), then right away send a server notification to display a
+  // nicer alert. Ugh.
+  let fakeSuccessResponse: m.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: [],
+  };
+
+  let params = msg.params as p.DocumentFormattingParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  if (extension !== c.resExt && extension !== c.resiExt) {
+    let params: p.ShowMessageParams = {
+      type: p.MessageType.Error,
+      message: `Not a ${c.resExt} or ${c.resiExt} file. Cannot format it.`,
+    };
+    let response: m.NotificationMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      method: "window/showMessage",
+      params: params,
+    };
+    return [fakeSuccessResponse, response];
+  } else {
+    // See comment on findBscNativeDirOfFile for why we need
+    // to recursively search for bsc.exe upward
+    let bscNativePath = utils.findBscNativeOfFile(filePath);
+    if (bscNativePath === null) {
+      let params: p.ShowMessageParams = {
+        type: p.MessageType.Error,
+        message: `Cannot find a nearby bsc.exe in rescript or bs-platform. It's needed for formatting.`,
+      };
+      let response: m.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: "window/showMessage",
+        params: params,
+      };
+      return [fakeSuccessResponse, response]
+    } else {
+      // code will always be defined here, even though technically it can be undefined
+      let code = getOpenedFileContent(params.textDocument.uri);
+      let formattedResult = utils.formatUsingValidBscNativePath(
+        code,
+        bscNativePath,
+        extension === c.resiExt
+      );
+      if (formattedResult.kind === "success") {
+        let max = formattedResult.result.length;
+        let result: p.TextEdit[] = [
+          {
+            range: {
+              start: { line: 0, character: 0 },
+              end: { line: max, character: max },
+            },
+            newText: formattedResult.result,
+          },
+        ];
+        let response: m.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          result: result,
+        };
+        return [response];
+      } else {
+        // let the diagnostics logic display the updated syntax errors,
+        // from the build.
+        // Again, not sending the actual errors. See fakeSuccessResponse
+        // above for explanation
+        return [fakeSuccessResponse];
+      }
+    }
+  }
+}
+
+function createInterface(msg: p.RequestMessage): m.Message {
+  let params = msg.params as CreateInterfaceRequestParams;
+  let extension = path.extname(params.uri);
+  let filePath = fileURLToPath(params.uri);
+  let bscNativePath = utils.findBscNativeOfFile(filePath);
+  let projDir = utils.findProjectRootOfFile(filePath);
+
+  if (bscNativePath === null || projDir === null) {
+    let params: p.ShowMessageParams = {
+      type: p.MessageType.Error,
+      message: `Cannot find a nearby bsc.exe to generate the interface file.`,
+    };
+
+    let response: m.NotificationMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      method: "window/showMessage",
+      params: params,
+    };
+
+    return response;
+  } else if (extension !== c.resExt) {
+    let params: p.ShowMessageParams = {
+      type: p.MessageType.Error,
+      message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
+    };
+
+    let response: m.NotificationMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      method: "window/showMessage",
+      params: params,
+    };
+
+    return response;
+  } else {
+    let cmiPartialPath = utils.replaceFileExtension(
+      filePath.split(projDir)[1],
+      c.cmiExt
+    );
+    let cmiPath = path.join(
+      projDir,
+      c.compilerDirPartialPath,
+      cmiPartialPath
+    );
+    let cmiAvailable = fs.existsSync(cmiPath);
+
+    if (!cmiAvailable) {
+      let params: p.ShowMessageParams = {
+        type: p.MessageType.Error,
+        message: `No compiled interface file found. Please compile your project first.`,
+      };
+
+      let response: m.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: "window/showMessage",
+        params,
+      };
+
+      return response;
+    } else {
+      let intfResult = utils.createInterfaceFileUsingValidBscExePath(
+        filePath,
+        cmiPath,
+        bscNativePath
+      );
+
+      if (intfResult.kind === "success") {
+        let response: m.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          result: intfResult.result,
+        };
+
+        return response;
+      } else {
+        let response: m.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          error: {
+            code: m.ErrorCodes.InternalError,
+            message: "Unable to create interface file.",
+          },
+        };
+
+        return response;
+      }
+    }
+  }
+}
+
 function onMessage(msg: m.Message) {
   if (m.isNotificationMessage(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
@@ -471,171 +639,10 @@ function onMessage(msg: m.Message) {
     } else if (msg.method === p.CompletionRequest.method) {
       send(completion(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
-      // technically, a formatting failure should reply with the error. Sadly
-      // the LSP alert box for these error replies sucks (e.g. doesn't actually
-      // display the message). In order to signal the client to display a proper
-      // alert box (sometime with actionable buttons), we need to first send
-      // back a fake success message (because each request mandates a
-      // response), then right away send a server notification to display a
-      // nicer alert. Ugh.
-      let fakeSuccessResponse: m.ResponseMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        id: msg.id,
-        result: [],
-      };
-
-      let params = msg.params as p.DocumentFormattingParams;
-      let filePath = fileURLToPath(params.textDocument.uri);
-      let extension = path.extname(params.textDocument.uri);
-      if (extension !== c.resExt && extension !== c.resiExt) {
-        let params: p.ShowMessageParams = {
-          type: p.MessageType.Error,
-          message: `Not a ${c.resExt} or ${c.resiExt} file. Cannot format it.`,
-        };
-        let response: m.NotificationMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          method: "window/showMessage",
-          params: params,
-        };
-        send(fakeSuccessResponse);
-        send(response);
-      } else {
-        // See comment on findBscNativeDirOfFile for why we need
-        // to recursively search for bsc.exe upward
-        let bscNativePath = utils.findBscNativeOfFile(filePath);
-        if (bscNativePath === null) {
-          let params: p.ShowMessageParams = {
-            type: p.MessageType.Error,
-            message: `Cannot find a nearby bsc.exe in rescript or bs-platform. It's needed for formatting.`,
-          };
-          let response: m.NotificationMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            method: "window/showMessage",
-            params: params,
-          };
-          send(fakeSuccessResponse);
-          send(response);
-        } else {
-          // code will always be defined here, even though technically it can be undefined
-          let code = getOpenedFileContent(params.textDocument.uri);
-          let formattedResult = utils.formatUsingValidBscNativePath(
-            code,
-            bscNativePath,
-            extension === c.resiExt
-          );
-          if (formattedResult.kind === "success") {
-            let max = formattedResult.result.length;
-            let result: p.TextEdit[] = [
-              {
-                range: {
-                  start: { line: 0, character: 0 },
-                  end: { line: max, character: max },
-                },
-                newText: formattedResult.result,
-              },
-            ];
-            let response: m.ResponseMessage = {
-              jsonrpc: c.jsonrpcVersion,
-              id: msg.id,
-              result: result,
-            };
-            send(response);
-          } else {
-            // let the diagnostics logic display the updated syntax errors,
-            // from the build.
-            // Again, not sending the actual errors. See fakeSuccessResponse
-            // above for explanation
-            send(fakeSuccessResponse);
-          }
-        }
-      }
+      let responses = format(msg);
+      responses.forEach(response => send(response))
     } else if (msg.method === createInterfaceRequest.method) {
-      let params = msg.params as CreateInterfaceRequestParams;
-      let extension = path.extname(params.uri);
-      let filePath = fileURLToPath(params.uri);
-      let bscNativePath = utils.findBscNativeOfFile(filePath);
-      let projDir = utils.findProjectRootOfFile(filePath);
-
-      if (bscNativePath === null || projDir === null) {
-        let params: p.ShowMessageParams = {
-          type: p.MessageType.Error,
-          message: `Cannot find a nearby bsc.exe to generate the interface file.`,
-        };
-
-        let response: m.NotificationMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          method: "window/showMessage",
-          params: params,
-        };
-
-        send(response);
-      } else if (extension !== c.resExt) {
-        let params: p.ShowMessageParams = {
-          type: p.MessageType.Error,
-          message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
-        };
-
-        let response: m.NotificationMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          method: "window/showMessage",
-          params: params,
-        };
-
-        send(response);
-      } else {
-        let cmiPartialPath = utils.replaceFileExtension(
-          filePath.split(projDir)[1],
-          c.cmiExt
-        );
-        let cmiPath = path.join(
-          projDir,
-          c.compilerDirPartialPath,
-          cmiPartialPath
-        );
-        let cmiAvailable = fs.existsSync(cmiPath);
-
-        if (!cmiAvailable) {
-          let params: p.ShowMessageParams = {
-            type: p.MessageType.Error,
-            message: `No compiled interface file found. Please compile your project first.`,
-          };
-
-          let response: m.NotificationMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            method: "window/showMessage",
-            params,
-          };
-
-          send(response);
-        } else {
-          let intfResult = utils.createInterfaceFileUsingValidBscExePath(
-            filePath,
-            cmiPath,
-            bscNativePath
-          );
-
-          if (intfResult.kind === "success") {
-            let response: m.ResponseMessage = {
-              jsonrpc: c.jsonrpcVersion,
-              id: msg.id,
-              result: intfResult.result,
-            };
-
-            send(response);
-          } else {
-            let response: m.ResponseMessage = {
-              jsonrpc: c.jsonrpcVersion,
-              id: msg.id,
-              error: {
-                code: m.ErrorCodes.InternalError,
-                message: "Unable to create interface file.",
-              },
-            };
-
-            send(response);
-          }
-        }
-      }
+      send(createInterface(msg))
     } else {
       let response: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
