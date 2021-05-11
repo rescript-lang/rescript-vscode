@@ -451,10 +451,10 @@ function createInterface(msg: p.RequestMessage): m.Message {
 
     return response;
   } else
-    if (isReactComponent) {
+    if (extension !== c.resExt) {
       let params: p.ShowMessageParams = {
         type: p.MessageType.Error,
-        message: `Cannot create an interface for a file containing @react.component.`,
+        message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
       };
 
       let response: m.NotificationMessage = {
@@ -465,10 +465,10 @@ function createInterface(msg: p.RequestMessage): m.Message {
 
       return response;
     } else
-      if (extension !== c.resExt) {
+      if (isReactComponent) {
         let params: p.ShowMessageParams = {
           type: p.MessageType.Error,
-          message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
+          message: `Cannot create an interface for a file containing @react.component.`,
         };
 
         let response: m.NotificationMessage = {
