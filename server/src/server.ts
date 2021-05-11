@@ -437,10 +437,10 @@ function createInterface(msg: p.RequestMessage): m.Message {
   let code = getOpenedFileContent(params.uri);
   let isReactComponent = code.includes("@react.component");
 
-  if (isReactComponent) {
+  if (bscNativePath === null || projDir === null) {
     let params: p.ShowMessageParams = {
       type: p.MessageType.Error,
-      message: `Cannot create an interface for a file containing @react.component.`,
+      message: `Cannot find a nearby bsc.exe to generate the interface file.`,
     };
 
     let response: m.NotificationMessage = {
@@ -450,11 +450,11 @@ function createInterface(msg: p.RequestMessage): m.Message {
     };
 
     return response;
-} else
-    if (bscNativePath === null || projDir === null) {
+  } else
+    if (isReactComponent) {
       let params: p.ShowMessageParams = {
         type: p.MessageType.Error,
-        message: `Cannot find a nearby bsc.exe to generate the interface file.`,
+        message: `Cannot create an interface for a file containing @react.component.`,
       };
 
       let response: m.NotificationMessage = {
@@ -464,73 +464,74 @@ function createInterface(msg: p.RequestMessage): m.Message {
       };
 
       return response;
-    } else if (extension !== c.resExt) {
-      let params: p.ShowMessageParams = {
-        type: p.MessageType.Error,
-        message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
-      };
-
-      let response: m.NotificationMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        method: "window/showMessage",
-        params: params,
-      };
-
-      return response;
-    } else {
-      let cmiPartialPath = utils.replaceFileExtension(
-        filePath.split(projDir)[1],
-        c.cmiExt
-      );
-      let cmiPath = path.join(
-        projDir,
-        c.compilerDirPartialPath,
-        cmiPartialPath
-      );
-      let cmiAvailable = fs.existsSync(cmiPath);
-
-      if (!cmiAvailable) {
+    } else
+      if (extension !== c.resExt) {
         let params: p.ShowMessageParams = {
           type: p.MessageType.Error,
-          message: `No compiled interface file found. Please compile your project first.`,
+          message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
         };
 
         let response: m.NotificationMessage = {
           jsonrpc: c.jsonrpcVersion,
           method: "window/showMessage",
-          params,
+          params: params,
         };
 
         return response;
       } else {
-        let intfResult = utils.createInterfaceFileUsingValidBscExePath(
-          filePath,
-          cmiPath,
-          bscNativePath
+        let cmiPartialPath = utils.replaceFileExtension(
+          filePath.split(projDir)[1],
+          c.cmiExt
         );
+        let cmiPath = path.join(
+          projDir,
+          c.compilerDirPartialPath,
+          cmiPartialPath
+        );
+        let cmiAvailable = fs.existsSync(cmiPath);
 
-        if (intfResult.kind === "success") {
-          let response: m.ResponseMessage = {
+        if (!cmiAvailable) {
+          let params: p.ShowMessageParams = {
+            type: p.MessageType.Error,
+            message: `No compiled interface file found. Please compile your project first.`,
+          };
+
+          let response: m.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
-            id: msg.id,
-            result: intfResult.result,
+            method: "window/showMessage",
+            params,
           };
 
           return response;
         } else {
-          let response: m.ResponseMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            id: msg.id,
-            error: {
-              code: m.ErrorCodes.InternalError,
-              message: "Unable to create interface file.",
-            },
-          };
+          let intfResult = utils.createInterfaceFileUsingValidBscExePath(
+            filePath,
+            cmiPath,
+            bscNativePath
+          );
 
-          return response;
+          if (intfResult.kind === "success") {
+            let response: m.ResponseMessage = {
+              jsonrpc: c.jsonrpcVersion,
+              id: msg.id,
+              result: intfResult.result,
+            };
+
+            return response;
+          } else {
+            let response: m.ResponseMessage = {
+              jsonrpc: c.jsonrpcVersion,
+              id: msg.id,
+              error: {
+                code: m.ErrorCodes.InternalError,
+                message: "Unable to create interface file.",
+              },
+            };
+
+            return response;
+          }
         }
       }
-    }
 }
 
 function onMessage(msg: m.Message) {
