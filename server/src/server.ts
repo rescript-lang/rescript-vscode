@@ -451,6 +451,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
 
     return response;
   }
+
   if (extension !== c.resExt) {
     let params: p.ShowMessageParams = {
       type: p.MessageType.Error,
@@ -465,6 +466,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
 
     return response;
   }
+
   if (isReactComponent) {
     let params: p.ShowMessageParams = {
       type: p.MessageType.Error,
@@ -505,6 +507,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
 
     return response;
   };
+
   let intfResult = utils.createInterfaceFileUsingValidBscExePath(
     filePath,
     cmiPath,
