@@ -470,7 +470,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
   if (isReactComponent) {
     let params: p.ShowMessageParams = {
       type: p.MessageType.Error,
-      message: `Cannot create an interface for a file containing @react.component.`,
+      message: `Creating an interface with @react.component is not currently supported.`,
     };
 
     let response: m.NotificationMessage = {
