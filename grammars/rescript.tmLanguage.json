@@ -235,6 +235,14 @@
               "name": "variable.function variable.other"
             }
           }
+        },
+        {
+          "match": "(#)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.keyword"
+            }
+          }
         }
       ]
     },
