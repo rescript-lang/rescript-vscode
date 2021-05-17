@@ -44,6 +44,7 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 - Jump to definition.
 - Autocomplete.
 - Find references.
+- Rename.
 - Snippets to ease a few syntaxes:
   - `external` features such as `@bs.module` and `@bs.val`
   - `try`, `for`, etc.
@@ -54,6 +55,7 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 This repo also contains a language server that can power other editors. **However, the language server in this project is a pure implementation detail. We don't guarantee its stability for other editors' consumption** apart from Vim and Sublime Text.
 
 Still, if you'd like to use this language-server with other editors:
+
 - Get the release binaries from the Github Releases page.
 - Unzip the `.vsix` and get the `server` folder. That's the only folder you need.
 - The language server will be at `server/out/server.js`. Call it through node, and optionally pass `--stdio` if your editor doesn't support the default JSONRPC.
