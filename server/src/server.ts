@@ -41,7 +41,7 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => { };
+let send: (msg: m.Message) => void = (_) => {};
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -391,7 +391,7 @@ function format(msg: p.RequestMessage): Array<m.Message> {
         method: "window/showMessage",
         params: params,
       };
-      return [fakeSuccessResponse, response]
+      return [fakeSuccessResponse, response];
     } else {
       // code will always be defined here, even though technically it can be undefined
       let code = getOpenedFileContent(params.textDocument.uri);
@@ -480,17 +480,13 @@ function createInterface(msg: p.RequestMessage): m.Message {
     };
 
     return response;
-  };
+  }
 
   let cmiPartialPath = utils.replaceFileExtension(
     filePath.split(projDir)[1],
     c.cmiExt
   );
-  let cmiPath = path.join(
-    projDir,
-    c.compilerDirPartialPath,
-    cmiPartialPath
-  );
+  let cmiPath = path.join(projDir, c.compilerDirPartialPath, cmiPartialPath);
   let cmiAvailable = fs.existsSync(cmiPath);
 
   if (!cmiAvailable) {
@@ -506,7 +502,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
     };
 
     return response;
-  };
+  }
 
   let intfResult = utils.createInterfaceFileUsingValidBscExePath(
     filePath,
@@ -659,9 +655,9 @@ function onMessage(msg: m.Message) {
       send(completion(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       let responses = format(msg);
-      responses.forEach(response => send(response))
+      responses.forEach((response) => send(response));
     } else if (msg.method === createInterfaceRequest.method) {
-      send(createInterface(msg))
+      send(createInterface(msg));
     } else {
       let response: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,

@@ -1,29 +1,33 @@
-import * as fs from 'fs'
-import { window } from 'vscode';
-import { LanguageClient, RequestType } from 'vscode-languageclient/node';
+import * as fs from "fs";
+import { window } from "vscode";
+import { LanguageClient, RequestType } from "vscode-languageclient/node";
 
 interface CreateInterfaceRequestParams {
-	uri: string;
-};
+  uri: string;
+}
 
-let createInterfaceRequest = new RequestType<CreateInterfaceRequestParams, string, void>("rescript-vscode.create_interface");
+let createInterfaceRequest = new RequestType<
+  CreateInterfaceRequestParams,
+  string,
+  void
+>("rescript-vscode.create_interface");
 
 export const createInterface = (client: LanguageClient) => {
-	if (!client) {
-		return window.showInformationMessage('Language server not running');
-	}
-	
-	const editor = window.activeTextEditor;
+  if (!client) {
+    return window.showInformationMessage("Language server not running");
+  }
 
-	if (!editor) {
-		return window.showInformationMessage('No active editor');
-	}
+  const editor = window.activeTextEditor;
 
-	if (fs.existsSync(editor.document.uri.fsPath + 'i')) {
-		return window.showInformationMessage('Interface file already exists');
-	}
+  if (!editor) {
+    return window.showInformationMessage("No active editor");
+  }
 
-	client.sendRequest(createInterfaceRequest, {
-		uri: editor.document.uri.toString(),
-	})
+  if (fs.existsSync(editor.document.uri.fsPath + "i")) {
+    return window.showInformationMessage("Interface file already exists");
+  }
+
+  client.sendRequest(createInterfaceRequest, {
+    uri: editor.document.uri.toString(),
+  });
 };
