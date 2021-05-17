@@ -74,3 +74,16 @@ module B = A
 
 module C = B
 //     ^hov
+
+module Comp = {
+  @react.component
+  let make = (~children: React.element) => children
+}
+
+module Comp1 = Comp
+
+let _ = <Comp> <div /> <div /> </Comp>
+//        ^hov
+
+let _ = <Comp1> <div /> <div /> </Comp1>
+//        ^hov

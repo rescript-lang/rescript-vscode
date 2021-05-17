@@ -46,3 +46,9 @@ Hover tests/src/Hover.res 71:7
 Hover tests/src/Hover.res 74:7
 {"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
 
+Hover tests/src/Hover.res 84:10
+{"contents": "```rescript\n{\"children\": React.element} => React.element\n```"}
+
+Hover tests/src/Hover.res 87:10
+{"contents": "```rescript\n{\"children\": React.element} => React.element\n```"}
+
