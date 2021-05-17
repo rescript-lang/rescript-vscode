@@ -35,10 +35,6 @@
 			}
 		],
 		"commands": [
-			{
-				"command": "rescript-vscode.create_interface",
-				"title": "ReScript: Create an interface file for this implementation file."
-			}
 		],
 		"snippets": [
 			{
