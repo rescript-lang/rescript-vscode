@@ -10,8 +10,6 @@ import {
   DidOpenTextDocumentNotification,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
-  CompletionItem,
-  Hover,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as c from "./constants";
@@ -21,7 +19,6 @@ import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { TextEdit } from "vscode-languageserver-types";
-import { OnReadOpts } from "node:net";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
