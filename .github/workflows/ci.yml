@@ -43,7 +43,7 @@ jobs:
         key: ${{matrix.os}}-latest-ocaml-4.06.1
 
     - name: Use OCaml
-      uses: avsm/setup-ocaml@v1.1.10
+      uses: ocaml/setup-ocaml@v1.1.11
       with:
         ocaml-version: 4.06.1
 
