@@ -1076,8 +1076,23 @@ struct
     | Texp_let (_, _, _) ->
       (* TODO this scope tracking won't work for recursive *)
       addScopeExtent expression.exp_loc
-    | Texp_function {cases} -> (
-      match cases with [{c_rhs}] -> addScopeExtent c_rhs.exp_loc | _ -> ())
+    | Texp_function {arg_label; cases} -> (
+      match cases with
+      | [{c_lhs = {pat_desc = Tpat_var (ident, name)} as c_lhs; c_rhs}] ->
+        (match arg_label with
+        | Labelled _ | Optional _ ->
+          let loc_start = name.loc.loc_start in
+          (* skip `~` or `?` in the location of labeled arguments *)
+          let loc_start = {loc_start with pos_cnum = loc_start.pos_cnum + 1} in
+          let loc = {name.loc with loc_start} in
+          let name = {name with loc} in
+          let c_lhs = {c_lhs with pat_desc = Tpat_var (ident, name)} in
+          (* Force an earlier enter_pattern to control the location. *)
+          enter_pattern c_lhs
+        | Nolabel -> ());
+
+        addScopeExtent c_rhs.exp_loc
+      | _ -> ())
     | _ -> ()
 
   let leave_expression expression =

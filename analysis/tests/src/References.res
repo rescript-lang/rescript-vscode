@@ -7,5 +7,5 @@ let b = a
 
 let c = x
 
-let foo = (~x) => x + 1
-//                ^ref
+let foo = (~xx) => xx + 1
+//                 ^ref
