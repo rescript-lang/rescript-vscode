@@ -26,7 +26,7 @@ src/ProcessAttributes.cmx : src/SharedTypes.cmx src/PrepareUtils.cmx
 src/ProcessCmt.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/Shared.cmx src/ProcessAttributes.cmx src/Packages.cmx src/Log.cmx \
     src/FindFiles.cmx src/Files.cmx src/BuildSystem.cmx
-src/Protocol.cmx : src/vendor/Json.cmx
+src/Protocol.cmx : src/Uri2.cmx src/vendor/Json.cmx
 src/References.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/ProcessCmt.cmx src/Log.cmx src/Infix.cmx
 src/Shared.cmx : src/PrintType.cmx src/Log.cmx src/Files.cmx

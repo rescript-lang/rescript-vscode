@@ -475,7 +475,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       | None -> []
       | Some src ->
         let uri, loc = (Uri2.fromPath src, Utils.topLoc src) in
-        [(uri, [loc])]))
+        [(uri, [])]))
   | Typed (_, _, NotFound) | LModule NotFound | Constant _ -> []
   | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
   | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
