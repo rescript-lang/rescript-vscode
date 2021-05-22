@@ -19,7 +19,7 @@ let locItemsForPos ~extra pos =
 
 let locItemForPos ~full pos =
   let locItems = locItemsForPos ~extra:full.extra pos in
-  if  !Log.spamError then
+  if !Log.spamError then
     print_endline
       ("locItems:\n"
       ^ (locItems |> List.map locItemToString |> String.concat "\n"));
@@ -34,7 +34,10 @@ let locItemForPos ~full pos =
   ] ->
     (* heuristic for </Comp> within a fragment *)
     None
-  | [{locType = Constant _}; ({locType = Typed ("createDOMElementVariadic", _, _)} as li2)] ->
+  | [
+   {locType = Constant _};
+   ({locType = Typed ("createDOMElementVariadic", _, _)} as li2);
+  ] ->
     (* heuristic for <div> *)
     Some li2
   | {locType = Typed ("makeProps", _, _)}
@@ -464,8 +467,16 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
 
 let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
-  | Typed (_, _, NotFound) | LModule NotFound | TopLevelModule _ | Constant _ ->
-    []
+  | TopLevelModule moduleName -> (
+    match Hashtbl.find_opt package.pathsForModule moduleName with
+    | None -> []
+    | Some paths -> (
+      match getSrc paths with
+      | None -> []
+      | Some src ->
+        let uri, loc = (Uri2.fromPath src, Utils.topLoc src) in
+        [(uri, [loc])]))
+  | Typed (_, _, NotFound) | LModule NotFound | Constant _ -> []
   | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
   | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
