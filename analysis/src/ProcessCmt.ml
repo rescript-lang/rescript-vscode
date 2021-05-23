@@ -1077,6 +1077,9 @@ struct
       (* TODO this scope tracking won't work for recursive *)
       addScopeExtent expression.exp_loc
     | Texp_function {arg_label; cases} -> (
+      (* TODO special treatment of labeled arguments:
+         the location of ~xx should not include ~
+         check if this should be done in the parser instead *)
       match cases with
       | [{c_lhs = {pat_desc = Tpat_var (ident, name)} as c_lhs; c_rhs}] ->
         (match arg_label with
