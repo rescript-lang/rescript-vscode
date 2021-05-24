@@ -130,16 +130,14 @@ let references ~path ~line ~col =
           allReferences
           |> List.fold_left
                (fun acc (uri2, references) ->
-                 if references = [] then [Protocol.stringifyFileLocation uri2]
-                 else
-                   (references
-                   |> List.map (fun loc ->
-                          Protocol.stringifyLocation
-                            {
-                              uri = Uri2.toString uri2;
-                              range = Utils.cmtLocToRange loc;
-                            }))
-                   @ acc)
+                 (references
+                 |> List.map (fun loc ->
+                        Protocol.stringifyLocation
+                          {
+                            uri = Uri2.toString uri2;
+                            range = Utils.cmtLocToRange loc;
+                          }))
+                 @ acc)
                []
         in
         "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")

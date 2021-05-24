@@ -1,5 +1,8 @@
 References tests/src/Cross.res 0:17
 [
-{"uri": "References.res"}
+{"uri": "Cross.res", "range": {"start": {"line": 0, "character": 15}, "end": {"line": 0, "character": 25}}},
+{"uri": "Cross.res", "range": {"start": {"line": 3, "character": 16}, "end": {"line": 3, "character": 26}}},
+{"uri": "Cross.res", "range": {"start": {"line": 6, "character": 13}, "end": {"line": 6, "character": 23}}},
+{"uri": "Cross.res", "range": {"start": {"line": 8, "character": 16}, "end": {"line": 8, "character": 26}}}
 ]
 

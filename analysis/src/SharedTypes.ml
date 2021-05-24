@@ -193,6 +193,7 @@ type openTracker = {
 type extra = {
   internalReferences : (int, Location.t list) Hashtbl.t;
   externalReferences : (string, (path * tip * Location.t) list) Hashtbl.t;
+  fileReferences : (string, Location.t list) Hashtbl.t;
   mutable locItems : locItem list;
   (* This is the "open location", like the location...
      or maybe the >> location of the open ident maybe *)
@@ -218,6 +219,7 @@ let initExtra () =
   {
     internalReferences = Hashtbl.create 10;
     externalReferences = Hashtbl.create 10;
+    fileReferences = Hashtbl.create 10;
     locItems = [];
     opens = Hashtbl.create 10;
   }
@@ -246,7 +248,8 @@ let locKindToString = function
 
 let locTypeToString = function
   | Typed (name, e, locKind) ->
-    "Typed " ^ name ^ " " ^ Shared.typeToString e ^ " " ^ locKindToString locKind
+    "Typed " ^ name ^ " " ^ Shared.typeToString e ^ " "
+    ^ locKindToString locKind
   | Constant _ -> "Constant"
   | LModule locKind -> "LModule " ^ locKindToString locKind
   | TopLevelModule _ -> "TopLevelModule"
