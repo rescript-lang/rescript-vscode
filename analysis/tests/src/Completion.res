@@ -64,3 +64,7 @@ let zzz = 11
 //^com let x = Lib.foo(~age, ~
 
 //^com let x = Lib.foo(~age={3+4}, ~
+
+let _ = Lib.foo(//~age,
+//^com ~
+~age=3, ~name="")
