@@ -1,3 +1,6 @@
+## master
+- Find references to files as modules.
+
 ## 1.1.2
 
 Features:
