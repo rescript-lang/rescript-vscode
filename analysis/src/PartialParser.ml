@@ -21,6 +21,18 @@ let rec findBackSkippingCommentsAndStrings text char pair i level =
       loop (findOpenComment text (i - 2)) level
     | _ -> loop (i - 1) level
 
+let rec findLineComment text offset =
+  if offset <= 0 || text.[offset] = '\n' then None
+  else if offset > 0 && text.[offset] = '/' && text.[offset - 1] = '/' then
+    Some (offset - 1)
+  else findLineComment text (offset - 1)
+
+(* Check if the position is inside a `//` comment *)
+let insideLineComment text offset = findLineComment text offset <> None
+
+let skipLineComment text offset =
+  match findLineComment text offset with None -> offset | Some n -> n - 1
+
 let rec skipWhite text i =
   if i < 0 then 0
   else
@@ -38,6 +50,7 @@ let rec startOfLident text i =
 let findCallFromArgument text offset =
   let none = ([], []) in
   let rec loop identsSeen i =
+    let i = skipLineComment text i in
     let i = skipWhite text i in
     if i > 0 then
       match text.[i] with
@@ -243,12 +256,6 @@ let findCompletable text offset =
       | _ -> if i = offset - 1 then None else Some (mkPath (suffix i))
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)
-
-(* Check if the position is inside a `//` comment *)
-let rec insideLineComment text offset =
-  if offset <= 0 || text.[offset] = '\n' then false
-  else if offset > 0 && text.[offset] = '/' && text.[offset - 1] = '/' then true
-  else insideLineComment text (offset - 1)
 
 let findOpens text offset =
   let opens = ref [] in

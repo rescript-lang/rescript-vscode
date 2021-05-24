@@ -1,5 +1,6 @@
 ## master
 - Find references to files as modules.
+- Autocomplete: skip inline comments to decide if a labeled argument was already supplied.
 
 ## 1.1.2
 

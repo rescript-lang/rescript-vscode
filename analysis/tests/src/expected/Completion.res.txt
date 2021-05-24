@@ -585,6 +585,12 @@ Complete tests/src/Completion.res 64:2
 
 Complete tests/src/Completion.res 67:2
 [{
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
     "label": "name",
     "kind": 4,
     "tags": [],
