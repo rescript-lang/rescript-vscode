@@ -56,9 +56,6 @@ let stringifyLocation h =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
     (stringifyRange h.range)
 
-let stringifyFileLocation uri =
-  Printf.sprintf {|{"uri": "%s"}|} (Json.escape (Uri2.toString uri))
-
 let stringifyDocumentSymbolItem i =
   Printf.sprintf
     {|{

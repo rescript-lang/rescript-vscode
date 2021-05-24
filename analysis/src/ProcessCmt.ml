@@ -733,6 +733,14 @@ struct
        Hashtbl.find extra.externalReferences moduleName
       else []))
 
+  let addFileReference moduleName loc =
+    Hashtbl.replace extra.fileReferences moduleName
+      (loc
+      ::
+      (if Hashtbl.mem extra.fileReferences moduleName then
+       Hashtbl.find extra.fileReferences moduleName
+      else []))
+
   let env = QueryEnv.fromFile Collector.file
 
   let addForPath path lident loc typ tip =
@@ -767,9 +775,9 @@ struct
   let addForPathParent path loc =
     let locType =
       match fromCompilerPath ~env path with
-      | `GlobalMod name ->
-        (* TODO track external references to filenames to handle renames well *)
-        TopLevelModule name
+      | `GlobalMod moduleName ->
+        addFileReference moduleName loc;
+        TopLevelModule moduleName
       | `Stamp stamp ->
         addReference stamp loc;
         LModule (LocalReference (stamp, Module))
