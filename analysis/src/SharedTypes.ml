@@ -207,7 +207,6 @@ type package = {
   rootPath : filePath;
   projectFiles : file list;
   dependenciesFiles : file list;
-  interFileDependencies : (file, file list) Hashtbl.t;
   pathsForModule : (file, paths) Hashtbl.t;
   namespace : string option;
   opens : string list;
@@ -237,8 +236,6 @@ let state =
     rootForUri = Hashtbl.create 30;
     cmtCache = Hashtbl.create 30;
   }
-
-let hashList h = Hashtbl.fold (fun a b c -> (a, b) :: c) h []
 
 let locKindToString = function
   | LocalReference (_, tip) -> "(LocalReference " ^ tipToString tip ^ ")"

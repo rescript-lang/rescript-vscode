@@ -1246,14 +1246,9 @@ let getFullFromCmt ~uri =
       BuildSystem.namespacedName package.namespace (FindFiles.getName path)
     in
     match Hashtbl.find_opt package.pathsForModule moduleName with
-    | Some paths -> (
+    | Some paths ->
       let cmt = SharedTypes.getCmt ~interface:(Utils.endsWith path "i") paths in
-      match fullForCmt ~moduleName ~package ~uri cmt with
-      | None -> None
-      | Some full ->
-        Hashtbl.replace package.interFileDependencies moduleName
-          (SharedTypes.hashList full.extra.externalReferences |> List.map fst);
-        Some full)
+      fullForCmt ~moduleName ~package ~uri cmt
     | None ->
       prerr_endline ("can't find module " ^ moduleName);
       None)
