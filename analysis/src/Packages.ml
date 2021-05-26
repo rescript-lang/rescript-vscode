@@ -1,13 +1,12 @@
 open Infix
 
 (* Creates the `pathsForModule` hashtbl, which maps a `moduleName` to it's `paths` (the ml/re, mli/rei, cmt, and cmti files) *)
-let makePathsForModule (localModules : (string * SharedTypes.paths) list)
-    (dependencyModules : (string * SharedTypes.paths) list) =
+let makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths =
   let pathsForModule = Hashtbl.create 30 in
-  dependencyModules
+  dependenciesFilesAndPaths
   |> List.iter (fun (modName, paths) ->
          Hashtbl.replace pathsForModule modName paths);
-  localModules
+  projectFilesAndPaths
   |> List.iter (fun (modName, paths) ->
          Hashtbl.replace pathsForModule modName paths);
   pathsForModule
@@ -24,7 +23,7 @@ let newBsPackage rootPath =
     let compiledBase = BuildSystem.getCompiledBase rootPath in
     match FindFiles.findDependencyFiles rootPath config with
     | Error e -> Error e
-    | Ok (dependencyDirectories, dependencyFiles) -> (
+    | Ok (dependencyDirectories, dependenciesFilesAndPaths) -> (
       match compiledBase with
       | None ->
         Error
@@ -38,14 +37,14 @@ let newBsPackage rootPath =
            in
            Log.log
              ("Got source directories " ^ String.concat " - " localSourceDirs);
-           let projectFiles =
+           let projectFilesAndPaths =
              FindFiles.findProjectFiles namespace rootPath localSourceDirs
                compiledBase
            in
            Log.log
              ("-- All project files found: "
-             ^ string_of_int (List.length projectFiles));
-           projectFiles
+             ^ string_of_int (List.length projectFilesAndPaths));
+           projectFilesAndPaths
            |> List.iter (fun (name, paths) ->
                   Log.log name;
                   match paths with
@@ -53,7 +52,7 @@ let newBsPackage rootPath =
                   | Intf (cmi, _) -> Log.log ("intf " ^ cmi)
                   | _ -> Log.log "Both");
            let pathsForModule =
-             makePathsForModule projectFiles dependencyFiles
+             makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths
            in
            let opens_from_namespace =
              match namespace with
@@ -86,8 +85,8 @@ let newBsPackage rootPath =
            Log.log ("Opens from bsconfig: " ^ (opens |> String.concat " "));
            {
              SharedTypes.rootPath;
-             projectFiles = projectFiles |> List.map fst;
-             dependenciesFiles = dependencyFiles |> List.map fst;
+             projectFiles = projectFilesAndPaths |> List.map fst;
+             dependenciesFiles = dependenciesFilesAndPaths |> List.map fst;
              pathsForModule;
              opens;
              namespace;
