@@ -26,7 +26,6 @@ let getSourceDirectories ~includeDev base config =
         | None | Some Json.False -> [current /+ dir]
         | Some Json.True ->
           Files.collectDirs (base /+ current /+ dir)
-          (* |> ifDebug(true, "Subdirs", String.concat(" - ")) *)
           |> List.filter (fun name -> name <> Filename.current_dir_name)
           |> List.map (Files.relpath base)
         | Some item -> (current /+ dir) :: handleItem (current /+ dir) item)
@@ -116,28 +115,14 @@ let collectFiles directory =
          (modName, SharedTypes.Impl (compiled, source)))
 
 (* returns a list of (absolute path to cmt(i), relative path from base to source file) *)
-let findProjectFiles ~debug namespace root sourceDirectories compiledBase =
+let findProjectFiles namespace root sourceDirectories compiledBase =
   let files =
     sourceDirectories
     |> List.map (Filename.concat root)
-    |> ifDebug debug "Source directories" (String.concat " - ")
+    |> ifDebug true "Source directories" (String.concat " - ")
     |> List.map (fun name -> Files.collect name isSourceFile)
     |> List.concat |> Utils.dedup
-    |> ifDebug debug "Source files found" (String.concat " : ")
-    (*
-    |> filterDuplicates
-    |> Utils.filterMap(path => {
-       let rel = Files.relpath(root, path);
-       ifOneExists([
-         compiledBase /+ cmtName(~namespace, rel),
-         compiledBase /+ cmiName(~namespace, rel),
-       ]) |?>> cm => (cm, path)
-    })
-    |> ifDebug(debug, "With compiled base", (items) => String.concat("\n", List.map(((a, b)) => a ++ " : " ++ b, items)))
-    |> List.filter(((full, rel)) => Files.exists(full))
-    /* TODO more than just Impl() */
-    |> List.map(((cmt, src)) => (getName(src), SharedTypes.Impl(cmt, Some(src))))
-  *)
+    |> ifDebug true "Source files found" (String.concat " : ")
   in
   let interfaces = Hashtbl.create 100 in
   files
@@ -218,7 +203,7 @@ let loadStdlib = stdlib => {
 };
 *)
 
-let findDependencyFiles ~debug base config =
+let findDependencyFiles base config =
   let open Infix in
   let deps =
     config |> Json.get "bs-dependencies" |?> Json.array |? []
@@ -249,7 +234,7 @@ let findDependencyFiles ~debug base config =
                match BuildSystem.getCompiledBase loc with
                | None -> None
                | Some compiledBase ->
-                 if debug then Log.log ("Compiled base: " ^ compiledBase);
+                 Log.log ("Compiled base: " ^ compiledBase);
                  let compiledDirectories =
                    directories |> List.map (Filename.concat compiledBase)
                  in
@@ -259,8 +244,7 @@ let findDependencyFiles ~debug base config =
                    | Some _ -> compiledBase :: compiledDirectories
                  in
                  let files =
-                   findProjectFiles ~debug namespace loc directories
-                     compiledBase
+                   findProjectFiles namespace loc directories compiledBase
                  in
                  (*
               let files = switch (namespace) {
