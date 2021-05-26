@@ -459,15 +459,30 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
 let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
   | TopLevelModule moduleName ->
-    let locs =
-      match Hashtbl.find_opt full.extra.fileReferences moduleName with
-      | None -> []
-      | Some locs ->
-        locs
-        |> List.map (fun loc ->
-               (Uri2.fromPath loc.Location.loc_start.pos_fname, [loc]))
+    let otherModulesReferences =
+      package.localModules
+      |> Utils.filterMap (fun name ->
+             match ProcessCmt.fileForModule ~package name with
+             | None -> None
+             | Some file -> ProcessCmt.getFullFromCmt ~uri:file.uri)
+      |> List.map (fun full ->
+             match Hashtbl.find_opt full.extra.fileReferences moduleName with
+             | None -> []
+             | Some locs ->
+               locs
+               |> List.map (fun loc ->
+                      (Uri2.fromPath loc.Location.loc_start.pos_fname, [loc])))
+      |> List.flatten
     in
-    locs
+    let targetModuleReference =
+      match Hashtbl.find_opt package.pathsForModule moduleName with
+      | None -> []
+      | Some paths -> (
+        match SharedTypes.getSrc paths with
+        | None -> []
+        | Some src -> [(Uri2.fromPath src, [Utils.topLoc src])])
+    in
+    List.append targetModuleReference otherModulesReferences
   | Typed (_, _, NotFound) | LModule NotFound | Constant _ -> []
   | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
   | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
