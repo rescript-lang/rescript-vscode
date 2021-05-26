@@ -1133,9 +1133,8 @@ let processCompletable ~findItems ~full ~package ~rawOpens
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
 
-let computeCompletions ~full ~maybeText ~pos =
-  let package = full.package in
-  match maybeText with
+let computeCompletions ~uri ~textOpt ~pos =
+  match textOpt with
   | None -> []
   | Some text -> (
     match PartialParser.positionToOffset text pos with
@@ -1143,16 +1142,22 @@ let computeCompletions ~full ~maybeText ~pos =
     | Some offset -> (
       match PartialParser.findCompletable text offset with
       | None -> []
-      | Some completable ->
-        let rawOpens = PartialParser.findOpens text offset in
-        let allModules = package.localModules @ package.dependencyModules in
-        let findItems ~exact parts =
-          let items =
-            getItems ~full ~package ~rawOpens ~allModules ~pos ~parts
+      | Some completable -> (
+        match ProcessCmt.getFullFromCmt ~uri with
+        | None -> []
+        | Some full ->
+          let rawOpens = PartialParser.findOpens text offset in
+          let package = full.package in
+          let allModules = package.localModules @ package.dependencyModules in
+          let findItems ~exact parts =
+            let items =
+              getItems ~full ~package ~rawOpens ~allModules ~pos ~parts
+            in
+            match parts |> List.rev with
+            | last :: _ when exact ->
+              items
+              |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
+            | _ -> items
           in
-          match parts |> List.rev with
-          | last :: _ when exact ->
-            items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
-          | _ -> items
-        in
-        completable |> processCompletable ~findItems ~full ~package ~rawOpens))
+          completable |> processCompletable ~findItems ~full ~package ~rawOpens)
+      ))

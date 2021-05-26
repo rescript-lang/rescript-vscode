@@ -34,13 +34,10 @@ let dump files =
 let completion ~path ~line ~col ~currentFile =
   let uri = Uri2.fromPath path in
   let result =
-    match ProcessCmt.getFullFromCmt ~uri with
-    | None -> "[]"
-    | Some full ->
-      let maybeText = Files.readFile currentFile in
-      NewCompletions.computeCompletions ~full ~maybeText ~pos:(line, col)
-      |> List.map Protocol.stringifyCompletionItem
-      |> Protocol.array
+    let textOpt = Files.readFile currentFile in
+    NewCompletions.computeCompletions ~uri ~textOpt ~pos:(line, col)
+    |> List.map Protocol.stringifyCompletionItem
+    |> Protocol.array
   in
   print_endline result
 
