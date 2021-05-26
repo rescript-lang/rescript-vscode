@@ -15,7 +15,7 @@ import * as utils from "./utils";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { TextEdit } from "vscode-languageserver-types";
@@ -294,16 +294,34 @@ function rename(msg: p.RequestMessage) {
   if (locations === null) {
     result = null;
   } else {
-    let changes: { [uri: string]: TextEdit[] } = {};
+    let textEdits: { [uri: string]: TextEdit[] } = {};
+    let documentChanges: (p.RenameFile | p.TextDocumentEdit)[] = [];
+
     locations.forEach(({ uri, range }) => {
-      let textEdit: TextEdit = { range, newText: params.newName };
-      if (uri in changes) {
-        changes[uri].push(textEdit);
+      if (utils.isRangeTopOfFile(range)) {
+        let filePath = fileURLToPath(uri);
+        let newFilePath = `${path.dirname(filePath)}/${params.newName}${path.extname(filePath)}`;
+        let newUri = pathToFileURL(newFilePath).href;
+        let rename: p.RenameFile = { kind: "rename", oldUri: uri, newUri };
+        documentChanges.push(rename);
       } else {
-        changes[uri] = [textEdit];
+        let textEdit: TextEdit = { range, newText: params.newName };
+        if (uri in textEdits) {
+          textEdits[uri].push(textEdit);
+        } else {
+          textEdits[uri] = [textEdit];
+        }
       }
     });
-    result = { changes };
+
+    Object.entries(textEdits)
+      .forEach(([uri, edits]) => {
+        let textDocumentEdit = { textDocument: { uri, version: null }, edits };
+        documentChanges.push(textDocumentEdit);
+      });
+
+
+    result = { documentChanges };
   }
   let response: m.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,

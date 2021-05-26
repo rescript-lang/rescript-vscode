@@ -476,3 +476,11 @@ export let parseCompilerLogOutput = (
 
   return { done, result };
 };
+
+export let isRangeTopOfFile = (range: p.Range) =>
+  [
+    range.start.character,
+    range.start.line,
+    range.end.character,
+    range.end.line
+  ].every(n => n === 0);
