@@ -22,7 +22,7 @@ let newBsPackage rootPath =
     (* failwith("Wat"); *)
     Log.log ("- location: " ^ rootPath);
     let compiledBase = BuildSystem.getCompiledBase rootPath in
-    match FindFiles.findDependencyFiles ~debug:true rootPath config with
+    match FindFiles.findDependencyFiles rootPath config with
     | Error e -> Error e
     | Ok (dependencyDirectories, dependencyModules) -> (
       match compiledBase with
@@ -39,12 +39,8 @@ let newBsPackage rootPath =
            Log.log
              ("Got source directories " ^ String.concat " - " localSourceDirs);
            let localModules =
-             FindFiles.findProjectFiles ~debug:true namespace rootPath
-               localSourceDirs compiledBase
-             (*
-             |> List.map(((name, paths)) => (switch (namespace) {
-               | None => name
-               | Some(n) => name ++ "-" ++ n }, paths)); *)
+             FindFiles.findProjectFiles namespace rootPath localSourceDirs
+               compiledBase
            in
            Log.log
              ("-- All local modules found: "
