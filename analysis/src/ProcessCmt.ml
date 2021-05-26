@@ -1251,7 +1251,7 @@ let getFullFromCmt ~uri =
       match fullForCmt ~moduleName ~package ~uri cmt with
       | None -> None
       | Some full ->
-        Hashtbl.replace package.interModuleDependencies moduleName
+        Hashtbl.replace package.interFileDependencies moduleName
           (SharedTypes.hashList full.extra.externalReferences |> List.map fst);
         Some full)
     | None ->

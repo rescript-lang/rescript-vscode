@@ -201,14 +201,14 @@ type extra = {
   opens : (Location.t, openTracker) Hashtbl.t;
 }
 
-type moduleName = string
+type file = string
 
 type package = {
   rootPath : filePath;
-  localModules : moduleName list;
-  interModuleDependencies : (moduleName, moduleName list) Hashtbl.t;
-  dependencyModules : moduleName list;
-  pathsForModule : (moduleName, paths) Hashtbl.t;
+  projectFiles : file list;
+  dependenciesFiles : file list;
+  interFileDependencies : (file, file list) Hashtbl.t;
+  pathsForModule : (file, paths) Hashtbl.t;
   namespace : string option;
   opens : string list;
 }

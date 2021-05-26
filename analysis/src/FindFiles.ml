@@ -196,13 +196,6 @@ let findProjectFiles namespace root sourceDirectories compiledBase =
     Log.log ("adding namespace " ^ namespace ^ " : " ^ mname ^ " : " ^ cmt);
     (mname, Impl (cmt, None)) :: result
 
-(*
-let loadStdlib = stdlib => {
-  collectFiles(stdlib)
-  |> List.filter(((_, (cmt, src))) => Files.exists(cmt))
-};
-*)
-
 let findDependencyFiles base config =
   let open Infix in
   let deps =
@@ -246,17 +239,6 @@ let findDependencyFiles base config =
                  let files =
                    findProjectFiles namespace loc directories compiledBase
                  in
-                 (*
-              let files = switch (namespace) {
-              | None =>
-                  files
-              | Some(namespace) =>
-                files
-                |> List.map(((name, paths)) =>
-                      (namespace ++ "-" ++ name, paths)
-                    )
-              };
-              *)
                  Some (compiledDirectories, files))
              | None -> None
            in

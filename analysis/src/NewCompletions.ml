@@ -731,7 +731,7 @@ let resolveRawOpens ~env ~rawOpens ~package =
   in
   opens
 
-let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
+let getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts =
   Log.log
     ("Opens folkz > "
     ^ string_of_int (List.length rawOpens)
@@ -773,7 +773,7 @@ let getItems ~full ~package ~rawOpens ~allModules ~pos ~parts =
     in
     (* TODO complete the namespaced name too *)
     let localModuleNames =
-      allModules
+      allFiles
       |> Utils.filterMap (fun name ->
              if Utils.startsWith name suffix && not (String.contains name '-')
              then Some {(emptyDeclared name) with item = FileModule name}
@@ -1148,10 +1148,10 @@ let computeCompletions ~uri ~textOpt ~pos =
         | Some full ->
           let rawOpens = PartialParser.findOpens text offset in
           let package = full.package in
-          let allModules = package.localModules @ package.dependencyModules in
+          let allFiles = package.projectFiles @ package.dependenciesFiles in
           let findItems ~exact parts =
             let items =
-              getItems ~full ~package ~rawOpens ~allModules ~pos ~parts
+              getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts
             in
             match parts |> List.rev with
             | last :: _ when exact ->
