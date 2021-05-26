@@ -474,15 +474,19 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
                       (Uri2.fromPath loc.Location.loc_start.pos_fname, [loc])))
       |> List.flatten
     in
-    let targetModuleReference =
+    let targetModuleReferences =
       match Hashtbl.find_opt package.pathsForModule moduleName with
       | None -> []
       | Some paths -> (
-        match SharedTypes.getSrc paths with
-        | None -> []
-        | Some src -> [(Uri2.fromPath src, [Utils.topLoc src])])
+        let moduleSrcToRef src = (Uri2.fromPath src, [Utils.topLoc src]) in
+        match paths with
+        | Impl (_, None) -> []
+        | Impl (_, Some src) -> [moduleSrcToRef src]
+        | Intf (_, srci) -> [moduleSrcToRef srci]
+        | IntfAndImpl (_, srci, _, src) ->
+          [moduleSrcToRef srci; moduleSrcToRef src])
     in
-    List.append targetModuleReference otherModulesReferences
+    List.append targetModuleReferences otherModulesReferences
   | Typed (_, _, NotFound) | LModule NotFound | Constant _ -> []
   | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
   | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
