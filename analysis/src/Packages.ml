@@ -84,9 +84,6 @@ let newBsPackage rootPath =
              List.rev_append opens_from_bsc_flags opens_from_namespace
            in
            Log.log ("Opens from bsconfig: " ^ (opens |> String.concat " "));
-           let interFileDependencies =
-             Hashtbl.create (List.length projectFiles)
-           in
            {
              SharedTypes.rootPath;
              projectFiles = projectFiles |> List.map fst;
@@ -94,7 +91,6 @@ let newBsPackage rootPath =
              pathsForModule;
              opens;
              namespace;
-             interFileDependencies;
            })))
 
 let findRoot ~uri packagesByRoot =
