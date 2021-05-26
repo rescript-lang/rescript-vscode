@@ -435,7 +435,7 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
               maybeLog ("Now checking path " ^ pathToString path);
               let thisModuleName = file.moduleName in
               let externals =
-                package.localModules
+                package.projectFiles
                 |> List.filter (fun name -> name <> file.moduleName)
                 |> Utils.filterMap (fun name ->
                        match ProcessCmt.fileForModule ~package name with

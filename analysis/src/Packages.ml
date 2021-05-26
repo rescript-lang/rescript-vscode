@@ -24,7 +24,7 @@ let newBsPackage rootPath =
     let compiledBase = BuildSystem.getCompiledBase rootPath in
     match FindFiles.findDependencyFiles rootPath config with
     | Error e -> Error e
-    | Ok (dependencyDirectories, dependencyModules) -> (
+    | Ok (dependencyDirectories, dependencyFiles) -> (
       match compiledBase with
       | None ->
         Error
@@ -38,14 +38,14 @@ let newBsPackage rootPath =
            in
            Log.log
              ("Got source directories " ^ String.concat " - " localSourceDirs);
-           let localModules =
+           let projectFiles =
              FindFiles.findProjectFiles namespace rootPath localSourceDirs
                compiledBase
            in
            Log.log
-             ("-- All local modules found: "
-             ^ string_of_int (List.length localModules));
-           localModules
+             ("-- All project files found: "
+             ^ string_of_int (List.length projectFiles));
+           projectFiles
            |> List.iter (fun (name, paths) ->
                   Log.log name;
                   match paths with
@@ -53,7 +53,7 @@ let newBsPackage rootPath =
                   | Intf (cmi, _) -> Log.log ("intf " ^ cmi)
                   | _ -> Log.log "Both");
            let pathsForModule =
-             makePathsForModule localModules dependencyModules
+             makePathsForModule projectFiles dependencyFiles
            in
            let opens_from_namespace =
              match namespace with
@@ -84,17 +84,17 @@ let newBsPackage rootPath =
              List.rev_append opens_from_bsc_flags opens_from_namespace
            in
            Log.log ("Opens from bsconfig: " ^ (opens |> String.concat " "));
-           let interModuleDependencies =
-             Hashtbl.create (List.length localModules)
+           let interFileDependencies =
+             Hashtbl.create (List.length projectFiles)
            in
            {
              SharedTypes.rootPath;
-             localModules = localModules |> List.map fst;
-             dependencyModules = dependencyModules |> List.map fst;
+             projectFiles = projectFiles |> List.map fst;
+             dependenciesFiles = dependencyFiles |> List.map fst;
              pathsForModule;
              opens;
              namespace;
-             interModuleDependencies;
+             interFileDependencies;
            })))
 
 let findRoot ~uri packagesByRoot =
