@@ -49,7 +49,6 @@ let newBsPackage rootPath =
                   Log.log name;
                   match paths with
                   | SharedTypes.Impl (cmt, _) -> Log.log ("impl " ^ cmt)
-                  | Intf (cmi, _) -> Log.log ("intf " ^ cmi)
                   | _ -> Log.log "Both");
            let pathsForModule =
              makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths

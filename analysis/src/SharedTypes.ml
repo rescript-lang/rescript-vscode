@@ -115,7 +115,6 @@ type filePath = string
 
 type paths =
   | Impl of filePath * filePath option
-  | Intf of filePath * filePath
   (* .cm(t)i, .mli, .cmt, .rei *)
   | IntfAndImpl of filePath * filePath * filePath * filePath
 
@@ -124,18 +123,15 @@ open Infix
 let showPaths paths =
   match paths with
   | Impl (cmt, src) -> Printf.sprintf "Impl(%s, %s)" cmt (src |? "nil")
-  | Intf (cmti, src) -> Printf.sprintf "Intf(%s, %s)" cmti src
   | IntfAndImpl (cmti, srci, cmt, src) ->
     Printf.sprintf "IntfAndImpl(%s, %s, %s, %s)" cmti srci cmt src
 
 let getSrc p =
-  match p with
-  | Impl (_, s) -> s
-  | Intf (_, s) | IntfAndImpl (_, s, _, _) -> Some s
+  match p with Impl (_, s) -> s | IntfAndImpl (_, s, _, _) -> Some s
 
 let getCmt ?(interface = true) p =
   match p with
-  | Impl (c, _) | Intf (c, _) -> c
+  | Impl (c, _) -> c
   | IntfAndImpl (cint, _, cimpl, _) -> if interface then cint else cimpl
 
 let emptyDeclared name =

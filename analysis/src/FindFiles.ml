@@ -38,13 +38,17 @@ let getSourceDirectories ~includeDev base config =
 let isCompiledFile name =
   Filename.check_suffix name ".cmt" || Filename.check_suffix name ".cmti"
 
-let isSourceFile name =
+let isImplementation name =
   Filename.check_suffix name ".re"
-  || Filename.check_suffix name ".rei"
   || Filename.check_suffix name ".res"
-  || Filename.check_suffix name ".resi"
   || Filename.check_suffix name ".ml"
+
+let isInterface name =
+  Filename.check_suffix name ".rei"
+  || Filename.check_suffix name ".resi"
   || Filename.check_suffix name ".mli"
+
+let isSourceFile name = isImplementation name || isInterface name
 
 let compiledNameSpace name =
   String.split_on_char '-' name
@@ -124,27 +128,21 @@ let findProjectFiles namespace root sourceDirectories compiledBase =
     |> List.concat |> Utils.dedup
     |> ifDebug true "Source files found" (String.concat " : ")
   in
+
   let interfaces = Hashtbl.create 100 in
   files
   |> List.iter (fun path ->
-         if
-           Filename.check_suffix path ".rei"
-           || Filename.check_suffix path ".resi"
-           || Filename.check_suffix path ".mli"
-         then (
+         if isInterface path then (
            Log.log ("Adding intf " ^ path);
            Hashtbl.replace interfaces (getName path) path));
+
   let normals =
     files
     |> Utils.filterMap (fun path ->
-           if
-             Filename.check_suffix path ".re"
-             || Filename.check_suffix path ".res"
-             || Filename.check_suffix path ".ml"
-           then (
-             let mname = getName path in
-             let intf = Hashtbl.find_opt interfaces mname in
-             Hashtbl.remove interfaces mname;
+           if isImplementation path then (
+             let moduleName = getName path in
+             let intf = Hashtbl.find_opt interfaces moduleName in
+             Hashtbl.remove interfaces moduleName;
              let base = compiledBaseName ~namespace (Files.relpath root path) in
              match intf with
              | Some intf ->
@@ -153,8 +151,8 @@ let findProjectFiles namespace root sourceDirectories compiledBase =
                if Files.exists cmti then
                  if Files.exists cmt then
                    (* Log.log("Intf and impl " ++ cmti ++ " " ++ cmt) *)
-                   Some (mname, SharedTypes.IntfAndImpl (cmti, intf, cmt, path))
-                 else Some (mname, Intf (cmti, intf))
+                   Some (moduleName, SharedTypes.IntfAndImpl (cmti, intf, cmt, path))
+                 else None
                else (
                  (* Log.log("Just intf " ++ cmti) *)
                  Log.log
@@ -163,26 +161,15 @@ let findProjectFiles namespace root sourceDirectories compiledBase =
                  None)
              | None ->
                let cmt = (compiledBase /+ base) ^ ".cmt" in
-               if Files.exists cmt then Some (mname, Impl (cmt, Some path))
+               if Files.exists cmt then Some (moduleName, Impl (cmt, Some path))
                else (
                  Log.log
                    ("Bad source file (no cmt/cmi) " ^ (compiledBase /+ base));
                  None))
-           else (
-             Log.log ("Bad source file (extension) " ^ path);
-             None))
+           else None)
   in
   let result =
-    List.append normals
-      (Hashtbl.fold
-         (fun mname intf res ->
-           let base = compiledBaseName ~namespace (Files.relpath root intf) in
-           Log.log ("Extra intf " ^ intf);
-           let cmti = (compiledBase /+ base) ^ ".cmti" in
-           if Files.exists cmti then
-             (mname, SharedTypes.Intf (cmti, intf)) :: res
-           else res)
-         interfaces [])
+    normals
     |> List.map (fun (name, paths) ->
            match namespace with
            | None -> (name, paths)
