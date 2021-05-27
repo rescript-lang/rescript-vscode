@@ -107,7 +107,7 @@ let collectFiles directory =
   let compileds = allFiles |> List.filter isCompiledFile |> filterDuplicates in
   let sources = allFiles |> List.filter isSourceFile |> filterDuplicates in
   compileds
-  |> List.map (fun path ->
+  |> Utils.filterMap (fun path ->
          let modName = getName path in
          let cmt = directory /+ path in
          let resOpt =
@@ -116,7 +116,9 @@ let collectFiles directory =
                if getName name = modName then Some (directory /+ name) else None)
              sources
          in
-         (modName, SharedTypes.Impl {cmt; resOpt}))
+         match resOpt with
+         | None -> None
+         | Some res -> Some (modName, SharedTypes.Impl {cmt; res}))
 
 (* returns a list of (absolute path to cmt(i), relative path from base to source file) *)
 let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
@@ -161,8 +163,7 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
                  None)
              | None ->
                let cmt = (libBs /+ base) ^ ".cmt" in
-               if Files.exists cmt then
-                 Some (moduleName, Impl {cmt; resOpt = Some file})
+               if Files.exists cmt then Some (moduleName, Impl {cmt; res = file})
                else (
                  Log.log ("Bad source file (no cmt/cmi) " ^ (libBs /+ base));
                  None))
@@ -181,7 +182,7 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
     let moduleName = nameSpaceToName namespace in
     let cmt = (libBs /+ namespace) ^ ".cmt" in
     Log.log ("adding namespace " ^ namespace ^ " : " ^ moduleName ^ " : " ^ cmt);
-    (moduleName, Impl {cmt; resOpt = None}) :: result
+    (moduleName, Namespace {cmt}) :: result
 
 let findDependencyFiles base config =
   let open Infix in
