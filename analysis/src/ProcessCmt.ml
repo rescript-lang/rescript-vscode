@@ -1286,7 +1286,7 @@ let fileForModule modname ~package =
   if Hashtbl.mem package.pathsForModule modname then (
     let paths = Hashtbl.find package.pathsForModule modname in
     (* TODO: do better *)
-    let cmt = SharedTypes.getCmt paths in
+    let cmt = SharedTypes.getCmt ~interface:false paths in
     let uri =
       match SharedTypes.getSrc paths with
       | Some sourcePath -> Uri2.fromPath sourcePath
