@@ -1256,9 +1256,8 @@ let getFullFromCmt ~uri =
 let extraForModule ~package modname =
   if Hashtbl.mem package.pathsForModule modname then
     let paths = Hashtbl.find package.pathsForModule modname in
-    match SharedTypes.getSrc paths with
-    | None -> None
-    | Some src -> getFullFromCmt ~uri:(Uri2.fromPath src)
+    let uri = SharedTypes.getUri paths in
+    getFullFromCmt ~uri
   else None
 
 let fileForCmt ~moduleName ~cmt ~uri state =
@@ -1287,11 +1286,7 @@ let fileForModule modname ~package =
     let paths = Hashtbl.find package.pathsForModule modname in
     (* TODO: do better *)
     let cmt = SharedTypes.getCmt ~interface:false paths in
-    let uri =
-      match SharedTypes.getSrc paths with
-      | Some sourcePath -> Uri2.fromPath sourcePath
-      | None -> Uri2.fromPath cmt
-    in
+    let uri = SharedTypes.getUri paths in
     Log.log ("FINDING docs for module " ^ SharedTypes.showPaths paths);
     Log.log ("FINDING " ^ cmt ^ " uri " ^ Uri2.toString uri);
     match fileForCmt ~moduleName:modname ~cmt ~uri state with

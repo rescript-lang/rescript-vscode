@@ -130,11 +130,11 @@ let showPaths paths =
   | IntfAndImpl {cmti; resi; cmt; res} ->
     Printf.sprintf "IntfAndImpl(%s, %s, %s, %s)" cmti resi cmt res
 
-let getSrc p =
+let getUri p =
   match p with
-  | Impl {res} -> Some res
-  | Namespace _ -> None
-  | IntfAndImpl {resi} -> Some resi
+  | Impl {res} -> Uri2.fromPath res
+  | Namespace {cmt} -> Uri2.fromPath cmt
+  | IntfAndImpl {resi} -> Uri2.fromPath resi
 
 let getCmt ~interface p =
   match p with
