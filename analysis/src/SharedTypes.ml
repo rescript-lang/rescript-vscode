@@ -114,7 +114,8 @@ end
 type filePath = string
 
 type paths =
-  | Impl of {cmt : filePath; resOpt : filePath option}
+  | Impl of {cmt : filePath; res : filePath}
+  | Namespace of {cmt : filePath}
   | IntfAndImpl of {
       cmti : filePath;
       resi : filePath;
@@ -122,20 +123,23 @@ type paths =
       res : filePath;
     }
 
-open Infix
-
 let showPaths paths =
   match paths with
-  | Impl {cmt; resOpt} -> Printf.sprintf "Impl(%s, %s)" cmt (resOpt |? "nil")
+  | Impl {cmt; res} -> Printf.sprintf "Impl(%s, %s)" cmt res
+  | Namespace {cmt} -> Printf.sprintf "Namespace(%s)" cmt
   | IntfAndImpl {cmti; resi; cmt; res} ->
     Printf.sprintf "IntfAndImpl(%s, %s, %s, %s)" cmti resi cmt res
 
 let getSrc p =
-  match p with Impl {resOpt} -> resOpt | IntfAndImpl {resi} -> Some resi
+  match p with
+  | Impl {res} -> Some res
+  | Namespace _ -> None
+  | IntfAndImpl {resi} -> Some resi
 
 let getCmt ?(interface = true) p =
   match p with
   | Impl {cmt} -> cmt
+  | Namespace {cmt} -> cmt
   | IntfAndImpl {cmti; cmt} -> if interface then cmti else cmt
 
 let emptyDeclared name =

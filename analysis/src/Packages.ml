@@ -59,7 +59,7 @@ let newBsPackage rootPath =
              | Some namespace ->
                let cmt = Filename.concat libBs namespace ^ ".cmt" in
                Log.log ("############ Namespaced as " ^ namespace ^ " at " ^ cmt);
-               Hashtbl.add pathsForModule namespace (Impl {cmt; resOpt = None});
+               Hashtbl.add pathsForModule namespace (Namespace {cmt});
                [FindFiles.nameSpaceToName namespace]
            in
            Log.log ("Dependency dirs " ^ String.concat " " dependencyDirectories);
