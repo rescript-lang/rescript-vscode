@@ -1,0 +1,13 @@
+####{BSB GENERATED: NO EDIT
+B lib/bs
+FLG -open TryIt
+FLG -ppx '/Users/cristianoc/GitHub/rescript-vscode/analysis/examples/example-project/node_modules/rescript/darwin/bsc.exe -as-ppx -bs-jsx 3'
+S /Users/cristianoc/GitHub/rescript-vscode/analysis/examples/example-project/node_modules/rescript/lib/ocaml
+B /Users/cristianoc/GitHub/rescript-vscode/analysis/examples/example-project/node_modules/rescript/lib/ocaml
+FLG -open Belt
+FLG -w +a-4-9-20-40-41-42-50-61-102-32-26-27-33-40-42-61
+S /Users/cristianoc/GitHub/rescript-vscode/analysis/examples/example-project/node_modules/reason-react/lib/ocaml
+B /Users/cristianoc/GitHub/rescript-vscode/analysis/examples/example-project/node_modules/reason-react/lib/ocaml
+S src
+B lib/bs/src
+####BSB GENERATED: NO EDIT}
