@@ -188,12 +188,12 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
   | Some paths -> (
     maybeLog ("paths for " ^ file.moduleName);
     match paths with
-    | IntfAndImpl (_, intf, _, impl) -> (
+    | IntfAndImpl {resi; res} -> (
       maybeLog "Have both!!";
-      let intfUri = Uri2.fromPath intf in
-      let implUri = Uri2.fromPath impl in
-      if intfUri = file.uri then
-        match ProcessCmt.getFullFromCmt ~uri:implUri with
+      let resiUri = Uri2.fromPath resi in
+      let resUri = Uri2.fromPath res in
+      if resiUri = file.uri then
+        match ProcessCmt.getFullFromCmt ~uri:resUri with
         | None -> None
         | Some {file; extra} -> (
           match
@@ -203,7 +203,7 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
           | None -> None
           | Some declared -> Some (file, extra, declared))
       else
-        match ProcessCmt.getFullFromCmt ~uri:intfUri with
+        match ProcessCmt.getFullFromCmt ~uri:resiUri with
         | None -> None
         | Some {file; extra} -> (
           match
