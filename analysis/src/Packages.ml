@@ -48,7 +48,7 @@ let newBsPackage rootPath =
            |> List.iter (fun (name, paths) ->
                   Log.log name;
                   match paths with
-                  | SharedTypes.Impl (cmt, _) -> Log.log ("impl " ^ cmt)
+                  | SharedTypes.Impl {cmt} -> Log.log ("impl " ^ cmt)
                   | _ -> Log.log "Both");
            let pathsForModule =
              makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths
@@ -59,7 +59,7 @@ let newBsPackage rootPath =
              | Some namespace ->
                let cmt = Filename.concat libBs namespace ^ ".cmt" in
                Log.log ("############ Namespaced as " ^ namespace ^ " at " ^ cmt);
-               Hashtbl.add pathsForModule namespace (Impl (cmt, None));
+               Hashtbl.add pathsForModule namespace (Impl {cmt; resOpt = None});
                [FindFiles.nameSpaceToName namespace]
            in
            Log.log ("Dependency dirs " ^ String.concat " " dependencyDirectories);

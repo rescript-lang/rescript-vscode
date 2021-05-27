@@ -109,14 +109,14 @@ let collectFiles directory =
   compileds
   |> List.map (fun path ->
          let modName = getName path in
-         let compiled = directory /+ path in
-         let source =
+         let cmt = directory /+ path in
+         let resOpt =
            Utils.find
              (fun name ->
                if getName name = modName then Some (directory /+ name) else None)
              sources
          in
-         (modName, SharedTypes.Impl (compiled, source)))
+         (modName, SharedTypes.Impl {cmt; resOpt}))
 
 (* returns a list of (absolute path to cmt(i), relative path from base to source file) *)
 let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
@@ -141,11 +141,11 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
     |> Utils.filterMap (fun file ->
            if isImplementation file then (
              let moduleName = getName file in
-             let intf = Hashtbl.find_opt interfaces moduleName in
+             let resi = Hashtbl.find_opt interfaces moduleName in
              Hashtbl.remove interfaces moduleName;
              let base = compiledBaseName ~namespace (Files.relpath path file) in
-             match intf with
-             | Some intf ->
+             match resi with
+             | Some resi ->
                let cmti = (libBs /+ base) ^ ".cmti" in
                let cmt = (libBs /+ base) ^ ".cmt" in
                if Files.exists cmti then
@@ -153,20 +153,18 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
                    (* Log.log("Intf and impl " ++ cmti ++ " " ++ cmt) *)
                    Some
                      ( moduleName,
-                       SharedTypes.IntfAndImpl (cmti, intf, cmt, file) )
+                       SharedTypes.IntfAndImpl {cmti; resi; cmt; res = file} )
                  else None
                else (
                  (* Log.log("Just intf " ++ cmti) *)
-                 Log.log
-                   ("Bad source file (no cmt/cmti/cmi) " ^ (libBs /+ base)
-                   );
+                 Log.log ("Bad source file (no cmt/cmti/cmi) " ^ (libBs /+ base));
                  None)
              | None ->
                let cmt = (libBs /+ base) ^ ".cmt" in
-               if Files.exists cmt then Some (moduleName, Impl (cmt, Some file))
+               if Files.exists cmt then
+                 Some (moduleName, Impl {cmt; resOpt = Some file})
                else (
-                 Log.log
-                   ("Bad source file (no cmt/cmi) " ^ (libBs /+ base));
+                 Log.log ("Bad source file (no cmt/cmi) " ^ (libBs /+ base));
                  None))
            else None)
   in
@@ -183,7 +181,7 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
     let moduleName = nameSpaceToName namespace in
     let cmt = (libBs /+ namespace) ^ ".cmt" in
     Log.log ("adding namespace " ^ namespace ^ " : " ^ moduleName ^ " : " ^ cmt);
-    (moduleName, Impl (cmt, None)) :: result
+    (moduleName, Impl {cmt; resOpt = None}) :: result
 
 let findDependencyFiles base config =
   let open Infix in

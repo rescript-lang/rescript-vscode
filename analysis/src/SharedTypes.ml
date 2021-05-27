@@ -114,25 +114,29 @@ end
 type filePath = string
 
 type paths =
-  | Impl of filePath * filePath option
-  (* .cm(t)i, .mli, .cmt, .rei *)
-  | IntfAndImpl of filePath * filePath * filePath * filePath
+  | Impl of {cmt : filePath; resOpt : filePath option}
+  | IntfAndImpl of {
+      cmti : filePath;
+      resi : filePath;
+      cmt : filePath;
+      res : filePath;
+    }
 
 open Infix
 
 let showPaths paths =
   match paths with
-  | Impl (cmt, src) -> Printf.sprintf "Impl(%s, %s)" cmt (src |? "nil")
-  | IntfAndImpl (cmti, srci, cmt, src) ->
-    Printf.sprintf "IntfAndImpl(%s, %s, %s, %s)" cmti srci cmt src
+  | Impl {cmt; resOpt} -> Printf.sprintf "Impl(%s, %s)" cmt (resOpt |? "nil")
+  | IntfAndImpl {cmti; resi; cmt; res} ->
+    Printf.sprintf "IntfAndImpl(%s, %s, %s, %s)" cmti resi cmt res
 
 let getSrc p =
-  match p with Impl (_, s) -> s | IntfAndImpl (_, s, _, _) -> Some s
+  match p with Impl {resOpt} -> resOpt | IntfAndImpl {resi} -> Some resi
 
 let getCmt ?(interface = true) p =
   match p with
-  | Impl (c, _) -> c
-  | IntfAndImpl (cint, _, cimpl, _) -> if interface then cint else cimpl
+  | Impl {cmt} -> cmt
+  | IntfAndImpl {cmti; cmt} -> if interface then cmti else cmt
 
 let emptyDeclared name =
   {
