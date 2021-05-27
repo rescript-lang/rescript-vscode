@@ -305,13 +305,6 @@ let definition ~file ~package stamp tip =
       maybeLog ("Inner uri " ^ Uri2.toString uri);
       Some (uri, loc))
 
-let orLog message v =
-  match v with
-  | None ->
-    maybeLog message;
-    None
-  | _ -> v
-
 let definitionForLocItem ~full:{file; package} locItem =
   match locItem.locType with
   | Typed (_, _, Definition (stamp, tip)) -> (
@@ -335,13 +328,11 @@ let definitionForLocItem ~full:{file; package} locItem =
     None
   | TopLevelModule name -> (
     maybeLog ("Toplevel " ^ name);
-    let open Infix in
-    match
-      Hashtbl.find_opt package.pathsForModule name
-      |> orLog "No paths found" |?> getSrc |> orLog "No src found"
-    with
+    match Hashtbl.find_opt package.pathsForModule name with
     | None -> None
-    | Some src -> Some (Uri2.fromPath src, Utils.topLoc src))
+    | Some paths ->
+      let uri = getUri paths in
+      Some (uri, Utils.topLoc (Uri2.toPath uri)))
   | LModule (LocalReference (stamp, tip))
   | Typed (_, _, LocalReference (stamp, tip)) ->
     maybeLog ("Local defn " ^ tipToString tip);
