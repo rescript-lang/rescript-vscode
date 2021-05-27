@@ -136,7 +136,7 @@ let getSrc p =
   | Namespace _ -> None
   | IntfAndImpl {resi} -> Some resi
 
-let getCmt ?(interface = true) p =
+let getCmt ~interface p =
   match p with
   | Impl {cmt} -> cmt
   | Namespace {cmt} -> cmt
