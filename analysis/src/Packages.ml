@@ -18,18 +18,17 @@ let newBsPackage rootPath =
   | Some raw -> (
     let config = Json.parse raw in
     Log.log {|📣 📣 NEW BSB PACKAGE 📣 📣|};
-    (* failwith("Wat"); *)
     Log.log ("- location: " ^ rootPath);
-    let compiledBase = BuildSystem.getCompiledBase rootPath in
+    let libBs = BuildSystem.getLibBs rootPath in
     match FindFiles.findDependencyFiles rootPath config with
     | Error e -> Error e
     | Ok (dependencyDirectories, dependenciesFilesAndPaths) -> (
-      match compiledBase with
+      match libBs with
       | None ->
         Error
           "Please run the build first so that the editor can analyze the \
            project's artifacts."
-      | Some compiledBase ->
+      | Some libBs ->
         Ok
           (let namespace = FindFiles.getNamespace config in
            let sourceDirectories =
@@ -40,7 +39,7 @@ let newBsPackage rootPath =
              ("Got source directories " ^ String.concat " - " sourceDirectories);
            let projectFilesAndPaths =
              FindFiles.findProjectFiles ~namespace ~path:rootPath
-               ~sourceDirectories ~compiledBase
+               ~sourceDirectories ~libBs
            in
            Log.log
              ("-- All project files found: "
@@ -58,7 +57,7 @@ let newBsPackage rootPath =
              match namespace with
              | None -> []
              | Some namespace ->
-               let cmt = Filename.concat compiledBase namespace ^ ".cmt" in
+               let cmt = Filename.concat libBs namespace ^ ".cmt" in
                Log.log ("############ Namespaced as " ^ namespace ^ " at " ^ cmt);
                Hashtbl.add pathsForModule namespace (Impl (cmt, None));
                [FindFiles.nameSpaceToName namespace]

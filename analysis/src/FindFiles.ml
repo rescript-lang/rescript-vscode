@@ -119,7 +119,7 @@ let collectFiles directory =
          (modName, SharedTypes.Impl (compiled, source)))
 
 (* returns a list of (absolute path to cmt(i), relative path from base to source file) *)
-let findProjectFiles ~namespace ~path ~sourceDirectories ~compiledBase =
+let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
   let files =
     sourceDirectories
     |> List.map (Filename.concat path)
@@ -146,8 +146,8 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~compiledBase =
              let base = compiledBaseName ~namespace (Files.relpath path file) in
              match intf with
              | Some intf ->
-               let cmti = (compiledBase /+ base) ^ ".cmti" in
-               let cmt = (compiledBase /+ base) ^ ".cmt" in
+               let cmti = (libBs /+ base) ^ ".cmti" in
+               let cmt = (libBs /+ base) ^ ".cmt" in
                if Files.exists cmti then
                  if Files.exists cmt then
                    (* Log.log("Intf and impl " ++ cmti ++ " " ++ cmt) *)
@@ -158,15 +158,15 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~compiledBase =
                else (
                  (* Log.log("Just intf " ++ cmti) *)
                  Log.log
-                   ("Bad source file (no cmt/cmti/cmi) " ^ (compiledBase /+ base)
+                   ("Bad source file (no cmt/cmti/cmi) " ^ (libBs /+ base)
                    );
                  None)
              | None ->
-               let cmt = (compiledBase /+ base) ^ ".cmt" in
+               let cmt = (libBs /+ base) ^ ".cmt" in
                if Files.exists cmt then Some (moduleName, Impl (cmt, Some file))
                else (
                  Log.log
-                   ("Bad source file (no cmt/cmi) " ^ (compiledBase /+ base));
+                   ("Bad source file (no cmt/cmi) " ^ (libBs /+ base));
                  None))
            else None)
   in
@@ -181,7 +181,7 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~compiledBase =
   | None -> result
   | Some namespace ->
     let moduleName = nameSpaceToName namespace in
-    let cmt = (compiledBase /+ namespace) ^ ".cmt" in
+    let cmt = (libBs /+ namespace) ^ ".cmt" in
     Log.log ("adding namespace " ^ namespace ^ " : " ^ moduleName ^ " : " ^ cmt);
     (moduleName, Impl (cmt, None)) :: result
 
@@ -213,21 +213,20 @@ let findDependencyFiles base config =
                let sourceDirectories =
                  getSourceDirectories ~includeDev:false ~baseDir:path inner
                in
-               match BuildSystem.getCompiledBase path with
+               match BuildSystem.getLibBs path with
                | None -> None
-               | Some compiledBase ->
-                 Log.log ("Compiled base: " ^ compiledBase);
+               | Some libBs ->
+                 Log.log ("Compiled base: " ^ libBs);
                  let compiledDirectories =
-                   sourceDirectories |> List.map (Filename.concat compiledBase)
+                   sourceDirectories |> List.map (Filename.concat libBs)
                  in
                  let compiledDirectories =
                    match namespace with
                    | None -> compiledDirectories
-                   | Some _ -> compiledBase :: compiledDirectories
+                   | Some _ -> libBs :: compiledDirectories
                  in
                  let projectFiles =
-                   findProjectFiles ~namespace ~path ~sourceDirectories
-                     ~compiledBase
+                   findProjectFiles ~namespace ~path ~sourceDirectories ~libBs
                  in
                  Some (compiledDirectories, projectFiles))
              | None -> None

@@ -19,7 +19,7 @@ let getBsPlatformDir rootPath =
     Log.log message;
     Error message
 
-let getCompiledBase root = Files.ifExists (root /+ "lib" /+ "bs")
+let getLibBs root = Files.ifExists (root /+ "lib" /+ "bs")
 
 let getStdlib base =
   match getBsPlatformDir base with
