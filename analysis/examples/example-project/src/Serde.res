@@ -1,5 +1,5 @@
 let rec deserialize_Hello__TryIt____lockfile: Json.t => Belt.Result.t<
-  TryIt.Hello.lockfile,
+  MyNamespace.Hello.lockfile,
   string,
 > = record =>
   switch record {
@@ -121,7 +121,7 @@ let rec deserialize_Hello__TryIt____lockfile: Json.t => Belt.Result.t<
   | _ => Belt.Result.Error(@reason.raw_literal("Expected an object") "Expected an object")
   }
 and deserialize_Hello__TryIt____shortReference: Json.t => Belt.Result.t<
-  TryIt.Hello.shortReference,
+  MyNamespace.Hello.shortReference,
   string,
 > = value =>
   (
@@ -185,7 +185,7 @@ and deserialize_Belt_HashMapInt____t: 'arg0. (
   Json.t,
 ) => Belt.Result.t<Belt_HashMapInt.t<'arg0>, string> = bTransformer =>
   TransformHelpers.deserialize_Belt_HashMapInt____t(bTransformer)
-let rec serialize_Hello__TryIt____lockfile: TryIt.Hello.lockfile => Json.t = record => Json.Object(list{
+let rec serialize_Hello__TryIt____lockfile: MyNamespace.Hello.lockfile => Json.t = record => Json.Object(list{
   ("version", (i => Json.Number(float_of_int(i)))(record.version)),
   (
     "pastVersions",
@@ -208,7 +208,7 @@ let rec serialize_Hello__TryIt____lockfile: TryIt.Hello.lockfile => Json.t = rec
     )(record.current),
   ),
 })
-and serialize_Hello__TryIt____shortReference: TryIt.Hello.shortReference => Json.t = value =>
+and serialize_Hello__TryIt____shortReference: MyNamespace.Hello.shortReference => Json.t = value =>
   (
     ((arg0, arg1, arg2)) => Json.Array(list{
       (s => Json.String(s))(arg0),
@@ -220,4 +220,3 @@ and serialize_Belt_HashMapInt____t: 'arg0. (
   'arg0 => Json.t,
   Belt_HashMapInt.t<'arg0>,
 ) => Json.t = bTransformer => TransformHelpers.serialize_Belt_HashMapInt____t(bTransformer)
-
