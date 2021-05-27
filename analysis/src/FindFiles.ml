@@ -151,7 +151,9 @@ let findProjectFiles namespace root sourceDirectories compiledBase =
                if Files.exists cmti then
                  if Files.exists cmt then
                    (* Log.log("Intf and impl " ++ cmti ++ " " ++ cmt) *)
-                   Some (moduleName, SharedTypes.IntfAndImpl (cmti, intf, cmt, path))
+                   Some
+                     ( moduleName,
+                       SharedTypes.IntfAndImpl (cmti, intf, cmt, path) )
                  else None
                else (
                  (* Log.log("Just intf " ++ cmti) *)
@@ -178,10 +180,10 @@ let findProjectFiles namespace root sourceDirectories compiledBase =
   match namespace with
   | None -> result
   | Some namespace ->
-    let mname = nameSpaceToName namespace in
+    let moduleName = nameSpaceToName namespace in
     let cmt = (compiledBase /+ namespace) ^ ".cmt" in
-    Log.log ("adding namespace " ^ namespace ^ " : " ^ mname ^ " : " ^ cmt);
-    (mname, Impl (cmt, None)) :: result
+    Log.log ("adding namespace " ^ namespace ^ " : " ^ moduleName ^ " : " ^ cmt);
+    (moduleName, Impl (cmt, None)) :: result
 
 let findDependencyFiles base config =
   let open Infix in
