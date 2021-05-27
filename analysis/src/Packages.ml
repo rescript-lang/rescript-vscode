@@ -32,14 +32,15 @@ let newBsPackage rootPath =
       | Some compiledBase ->
         Ok
           (let namespace = FindFiles.getNamespace config in
-           let localSourceDirs =
-             FindFiles.getSourceDirectories ~includeDev:true rootPath config
+           let sourceDirectories =
+             FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
+               config
            in
            Log.log
-             ("Got source directories " ^ String.concat " - " localSourceDirs);
+             ("Got source directories " ^ String.concat " - " sourceDirectories);
            let projectFilesAndPaths =
-             FindFiles.findProjectFiles namespace rootPath localSourceDirs
-               compiledBase
+             FindFiles.findProjectFiles ~namespace ~path:rootPath
+               ~sourceDirectories ~compiledBase
            in
            Log.log
              ("-- All project files found: "
