@@ -398,13 +398,9 @@ function format(msg: p.RequestMessage): Array<m.Message> {
         extension === c.resiExt
       );
       if (formattedResult.kind === "success") {
-        let max = formattedResult.result.length;
         let result: p.TextEdit[] = [
           {
-            range: {
-              start: { line: 0, character: 0 },
-              end: { line: max, character: max },
-            },
+            range: utils.getSourceRange(code),
             newText: formattedResult.result,
           },
         ];
