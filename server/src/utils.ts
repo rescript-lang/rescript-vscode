@@ -476,23 +476,3 @@ export let parseCompilerLogOutput = (
 
   return { done, result };
 };
-
-export let getSourceRange = (source: string): p.Range => {
-  let start = { line: 0, character: 0 };
-
-  // Calculate end position
-  let len = source.length;
-  let line = 1;
-  let colStartIndex = 0;
-
-  for (let i = 0; i < len; i++) {
-    if (source[i] === "\n") {
-      line++;
-      colStartIndex = i + 1;
-    }
-  }
-
-  let end = { line: line, character: len - colStartIndex };
-
-  return { start, end };
-};
