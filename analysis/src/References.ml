@@ -477,12 +477,9 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
     let targetModuleReferences =
       match Hashtbl.find_opt package.pathsForModule moduleName with
       | None -> []
-      | Some paths -> (
+      | Some paths ->
         let moduleSrcToRef src = (Uri2.fromPath src, [Utils.topLoc src]) in
-        match paths with
-        | Impl {res} -> [moduleSrcToRef res]
-        | IntfAndImpl {resi; res} -> [moduleSrcToRef resi; moduleSrcToRef res]
-        | Namespace _ -> [])
+        getSrc paths |> List.map moduleSrcToRef
     in
     List.append targetModuleReferences otherModulesReferences
   | Typed (_, _, NotFound) | LModule NotFound | Constant _ -> []

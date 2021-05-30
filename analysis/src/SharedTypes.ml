@@ -130,6 +130,12 @@ let showPaths paths =
   | IntfAndImpl {cmti; resi; cmt; res} ->
     Printf.sprintf "IntfAndImpl(%s, %s, %s, %s)" cmti resi cmt res
 
+let getSrc p =
+  match p with
+  | Impl {res} -> [res]
+  | Namespace _ -> []
+  | IntfAndImpl {resi; res} -> [resi; res]
+
 let getUri p =
   match p with
   | Impl {res} -> Uri2.fromPath res
