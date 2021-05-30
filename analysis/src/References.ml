@@ -460,7 +460,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
   | TopLevelModule moduleName ->
     let otherModulesReferences =
-      package.localModules
+      package.projectFiles
       |> Utils.filterMap (fun name ->
              match ProcessCmt.fileForModule ~package name with
              | None -> None
@@ -480,11 +480,9 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       | Some paths -> (
         let moduleSrcToRef src = (Uri2.fromPath src, [Utils.topLoc src]) in
         match paths with
-        | Impl (_, None) -> []
-        | Impl (_, Some src) -> [moduleSrcToRef src]
-        | Intf (_, srci) -> [moduleSrcToRef srci]
-        | IntfAndImpl (_, srci, _, src) ->
-          [moduleSrcToRef srci; moduleSrcToRef src])
+        | Impl {res} -> [moduleSrcToRef res]
+        | IntfAndImpl {resi; res} -> [moduleSrcToRef resi; moduleSrcToRef res]
+        | Namespace _ -> [])
     in
     List.append targetModuleReferences otherModulesReferences
   | Typed (_, _, NotFound) | LModule NotFound | Constant _ -> []
