@@ -82,10 +82,11 @@ let stringifyDocumentSymbolItem i =
 
 let stringifyRenameFile rf =
   Printf.sprintf {|{
-  "kind": "rename",
+  "kind": "%s",
   "oldUri": "%s",
   "newUri": "%s"
 }|}
+    (match rf.kind with `rename -> "rename")
     (Json.escape rf.oldUri) (Json.escape rf.newUri)
 
 let stringifyTextEdit te =
