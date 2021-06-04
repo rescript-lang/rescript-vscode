@@ -18,6 +18,20 @@ type location = {uri : string; range : range}
 
 type documentSymbolItem = {name : string; kind : int; location : location}
 
+type renameFile = {kind : [`rename]; oldUri : string; newUri : string}
+
+type textEdit = {range : range; newText : string}
+
+type optionalVersionedTextDocumentIdentifier = {
+  version : int option;
+  uri : string;
+}
+
+type textDocumentEdit = {
+  textDocument : optionalVersionedTextDocumentIdentifier;
+  edits : textEdit list;
+}
+
 let null = "null"
 
 let array l = "[" ^ String.concat ", " l ^ "]"
@@ -52,7 +66,7 @@ let stringifyCompletionItem c =
 let stringifyHover h =
   Printf.sprintf {|{"contents": "%s"}|} (Json.escape h.contents)
 
-let stringifyLocation h =
+let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
     (stringifyRange h.range)
 
@@ -65,3 +79,34 @@ let stringifyDocumentSymbolItem i =
 }|}
     (Json.escape i.name) i.kind
     (stringifyLocation i.location)
+
+let stringifyRenameFile rf =
+  Printf.sprintf {|{
+  "kind": "rename",
+  "oldUri": "%s",
+  "newUri": "%s"
+}|}
+    (Json.escape rf.oldUri) (Json.escape rf.newUri)
+
+let stringifyTextEdit te =
+  Printf.sprintf {|{
+  "range": %s,
+  "newText": "%s"
+  }|}
+    (stringifyRange te.range) (Json.escape te.newText)
+
+let stringifyoptionalVersionedTextDocumentIdentifier td =
+  Printf.sprintf {|{
+  "version": %s,
+  "uri": "%s"
+  }|}
+    (match td.version with None -> null | Some v -> string_of_int v)
+    (Json.escape td.uri)
+
+let stringifyTextDocumentEdit tde =
+  Printf.sprintf {|{
+  "textDocument": %s,
+  "edits": %s
+  }|}
+    (stringifyoptionalVersionedTextDocumentIdentifier tde.textDocument)
+    (tde.edits |> List.map stringifyTextEdit |> array)

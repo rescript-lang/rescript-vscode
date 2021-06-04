@@ -8,6 +8,7 @@ API examples:
   ./rescript-editor-analysis.exe documentSymbol src/Foo.res
   ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
   ./rescript-editor-analysis.exe references src/MyFile.res 10 2
+  ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
 
 Dev-time examples:
   ./rescript-editor-analysis.exe dump src/MyFile.res src/MyFile2.res
@@ -38,6 +39,10 @@ Options:
 
     ./rescript-editor-analysis.exe references src/MyFile.res 10 2
 
+  rename: rename all appearances of item in MyFile.res at line 10 column 2 with foo:
+
+    ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
+
   dump: for debugging, show all definitions and hovers for MyFile.res and MyFile.res:
 
     ./rescript-editor-analysis.exe dump src/Foo.res src/MyFile.res
@@ -50,8 +55,8 @@ Options:
 let main () =
   match Array.to_list Sys.argv with
   | [_; "completion"; path; line; col; currentFile] ->
-    Commands.completion ~path ~line:(int_of_string line) ~col:(int_of_string col)
-      ~currentFile
+    Commands.completion ~path ~line:(int_of_string line)
+      ~col:(int_of_string col) ~currentFile
   | [_; "definition"; path; line; col] ->
     Commands.definition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
@@ -62,6 +67,9 @@ let main () =
   | [_; "references"; path; line; col] ->
     Commands.references ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
+  | [_; "rename"; path; line; col; newName] ->
+    Commands.rename ~path ~line:(int_of_string line) ~col:(int_of_string col)
+      ~newName
   | [_; "test"; path] -> Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
   | _ ->
