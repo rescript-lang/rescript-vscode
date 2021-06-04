@@ -7,6 +7,12 @@ let topLoc fname =
     loc_ghost = false;
   }
 
+let isTopLoc (loc : Warnings.loc) =
+  let isTopPos (pos : Lexing.position) =
+    pos.pos_lnum = 1 && pos.pos_bol = 0 && pos.pos_cnum = 0
+  in
+  isTopPos loc.loc_start && isTopPos loc.loc_end && loc.loc_ghost = false
+
 (**
  * `startsWith(string, prefix)`
  * true if the string starts with the prefix

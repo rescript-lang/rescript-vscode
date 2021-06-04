@@ -176,6 +176,78 @@ let documentSymbol ~path =
     in
     print_endline ("[\n" ^ (allSymbols |> String.concat ",\n") ^ "\n]")
 
+let rename ~path ~line ~col ~newName =
+  let uri = Uri2.fromPath path in
+  let result =
+    match ProcessCmt.getFullFromCmt ~uri with
+    | None -> Protocol.null
+    | Some full -> (
+      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
+      match References.locItemForPos ~full pos with
+      | None -> Protocol.null
+      | Some locItem ->
+        let allReferences = References.allReferencesForLocItem ~full locItem in
+        let referencesToToplevelModules, referencesToItems =
+          allReferences
+          |> List.fold_left
+               (fun acc (uri2, references) ->
+                 (references |> List.map (fun loc -> (uri2, loc))) @ acc)
+               []
+          |> List.partition (fun (_, loc) -> Utils.isTopLoc loc)
+        in
+        let fileRenames =
+          referencesToToplevelModules
+          |> List.map (fun (uri, _) ->
+                 let path = Uri2.toPath uri in
+                 let dir = Filename.dirname path in
+                 let ext = Filename.extension path in
+                 let sep = Filename.dir_sep in
+                 let newPath = dir ^ sep ^ newName ^ ext in
+                 let newUri = Uri2.fromPath newPath in
+                 Protocol.
+                   {
+                     kind = `rename;
+                     oldUri = uri |> Uri2.toString;
+                     newUri = newUri |> Uri2.toString;
+                   })
+        in
+        let textDocumentEdits =
+          let module StringMap = Misc.StringMap in
+          let textEditsByUri =
+            referencesToItems
+            |> List.map (fun (uri, loc) -> (Uri2.toString uri, loc))
+            |> List.fold_left
+                 (fun acc (uri, loc) ->
+                   let textEdit =
+                     Protocol.
+                       {range = Utils.cmtLocToRange loc; newText = newName}
+                   in
+                   match StringMap.find_opt uri acc with
+                   | None -> StringMap.add uri [textEdit] acc
+                   | Some prevEdits ->
+                     StringMap.add uri (textEdit :: prevEdits) acc)
+                 StringMap.empty
+          in
+          StringMap.fold
+            (fun uri edits acc ->
+              let textDocumentEdit =
+                Protocol.{textDocument = {uri; version = None}; edits}
+              in
+              textDocumentEdit :: acc)
+            textEditsByUri []
+        in
+        let fileRenamesString =
+          fileRenames |> List.map Protocol.stringifyRenameFile
+        in
+        let textDocumentEditsString =
+          textDocumentEdits |> List.map Protocol.stringifyTextDocumentEdit
+        in
+        "[\n"
+        ^ (fileRenamesString @ textDocumentEditsString |> String.concat ",\n")
+        ^ "\n]")
+  in
+  print_endline result
+
 let test ~path =
   Uri2.stripPath := true;
   match Files.readFile path with
