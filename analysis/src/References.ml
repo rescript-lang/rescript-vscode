@@ -426,7 +426,7 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
               maybeLog ("Now checking path " ^ pathToString path);
               let thisModuleName = file.moduleName in
               let externals =
-                package.projectFiles
+                package.projectFiles |> FileSet.elements
                 |> List.filter (fun name -> name <> file.moduleName)
                 |> Utils.filterMap (fun name ->
                        match ProcessCmt.fileForModule ~package name with
@@ -460,7 +460,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
   | TopLevelModule moduleName ->
     let otherModulesReferences =
-      package.projectFiles
+      package.projectFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
              match ProcessCmt.fileForModule ~package name with
              | None -> None
@@ -469,7 +469,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
              match Hashtbl.find_opt full.extra.fileReferences moduleName with
              | None -> []
              | Some locs ->
-               locs
+               locs |> LocationSet.elements
                |> List.map (fun loc ->
                       (Uri2.fromPath loc.Location.loc_start.pos_fname, [loc])))
       |> List.flatten
