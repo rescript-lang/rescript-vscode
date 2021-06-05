@@ -84,8 +84,12 @@ let newBsPackage rootPath =
            Log.log ("Opens from bsconfig: " ^ (opens |> String.concat " "));
            {
              SharedTypes.rootPath;
-             projectFiles = projectFilesAndPaths |> List.map fst;
-             dependenciesFiles = dependenciesFilesAndPaths |> List.map fst;
+             projectFiles =
+               projectFilesAndPaths |> List.map fst
+               |> SharedTypes.FileSet.of_list;
+             dependenciesFiles =
+               dependenciesFilesAndPaths |> List.map fst
+               |> SharedTypes.FileSet.of_list;
              pathsForModule;
              opens;
              namespace;

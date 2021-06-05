@@ -426,11 +426,10 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
               maybeLog ("Now checking path " ^ pathToString path);
               let thisModuleName = file.moduleName in
               let externals =
-                package.projectFiles
+                package.projectFiles |> FileSet.elements
                 |> List.filter (fun name ->
-                  
-                  prerr_endline ("filter " ^ name ^ " " ^ file.moduleName );
-                  name <> file.moduleName)
+                       prerr_endline ("filter " ^ name ^ " " ^ file.moduleName);
+                       name <> file.moduleName)
                 |> Utils.filterMap (fun name ->
                        match ProcessCmt.fileForModule ~package name with
                        | None -> None
@@ -463,7 +462,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
   | TopLevelModule moduleName ->
     let otherModulesReferences =
-      package.projectFiles
+      package.projectFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
              match ProcessCmt.fileForModule ~package name with
              | None -> None
@@ -489,7 +488,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
   | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
   | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
-    prerr_endline ("LocalRef");
+    prerr_endline "LocalRef";
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ tipToString tip);

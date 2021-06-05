@@ -773,7 +773,7 @@ let getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts =
     in
     (* TODO complete the namespaced name too *)
     let localModuleNames =
-      allFiles
+      allFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
              if Utils.startsWith name suffix && not (String.contains name '-')
              then Some {(emptyDeclared name) with item = FileModule name}
@@ -1148,7 +1148,9 @@ let computeCompletions ~uri ~textOpt ~pos =
         | Some full ->
           let rawOpens = PartialParser.findOpens text offset in
           let package = full.package in
-          let allFiles = package.projectFiles @ package.dependenciesFiles in
+          let allFiles =
+            FileSet.union package.projectFiles package.dependenciesFiles
+          in
           let findItems ~exact parts =
             let items =
               getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts

@@ -219,10 +219,12 @@ type extra = {
 
 type file = string
 
+module FileSet = Set.Make (String)
+
 type package = {
   rootPath : filePath;
-  projectFiles : file list;
-  dependenciesFiles : file list;
+  projectFiles : FileSet.t;
+  dependenciesFiles : FileSet.t;
   pathsForModule : (file, paths) Hashtbl.t;
   namespace : string option;
   opens : string list;

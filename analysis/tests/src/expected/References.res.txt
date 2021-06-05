@@ -2,30 +2,30 @@ References tests/src/References.res 0:4
 getPackage References.res
 LocalRef
 Checking externals: 1002
-filter Div References
-filter Definition References
 filter Auto References
-filter RecModules References
-filter Hover References
 filter Completion References
 filter Cross References
-filter Patterns References
-filter RecordCompletion References
-filter Jsx References
-filter References References
+filter Definition References
+filter Div References
 filter Fragment References
+filter Hover References
+filter Jsx References
+filter Patterns References
+filter RecModules References
+filter RecordCompletion References
+filter References References
 filter ReferencesWithInterface References
-getPackage Div.res
-getPackage Definition.res
 getPackage Auto.res
-getPackage RecModules.res
-getPackage Hover.res
 getPackage Completion.res
 getPackage Cross.res
-getPackage Patterns.res
-getPackage RecordCompletion.res
-getPackage Jsx.resi
+getPackage Definition.res
+getPackage Div.res
 getPackage Fragment.res
+getPackage Hover.res
+getPackage Jsx.resi
+getPackage Patterns.res
+getPackage RecModules.res
+getPackage RecordCompletion.res
 getPackage ReferencesWithInterface.resi
 [
 {"uri": "Cross.res", "range": {"start": {"line": 8, "character": 27}, "end": {"line": 8, "character": 28}}},
