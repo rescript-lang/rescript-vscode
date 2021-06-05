@@ -1,40 +1,4 @@
 References tests/src/ReferencesWithInterface.resi 3:4
-getPackage ReferencesWithInterface.resi
-LocalRef
-Checking externals: 1002
-found declared
-alternativeReferences
-alternateDeclared
-found paths
-both intf and impl
-resiUri:ReferencesWithInterface.resi file.uri:ReferencesWithInterface.resi
-getPackage ReferencesWithInterface.res
-found Full
-filter Auto ReferencesWithInterface
-filter Completion ReferencesWithInterface
-filter Cross ReferencesWithInterface
-filter Definition ReferencesWithInterface
-filter Div ReferencesWithInterface
-filter Fragment ReferencesWithInterface
-filter Hover ReferencesWithInterface
-filter Jsx ReferencesWithInterface
-filter Patterns ReferencesWithInterface
-filter RecModules ReferencesWithInterface
-filter RecordCompletion ReferencesWithInterface
-filter References ReferencesWithInterface
-filter ReferencesWithInterface ReferencesWithInterface
-getPackage Auto.res
-getPackage Completion.res
-getPackage Cross.res
-getPackage Definition.res
-getPackage Div.res
-getPackage Fragment.res
-getPackage Hover.res
-getPackage Jsx.resi
-getPackage Patterns.res
-getPackage RecModules.res
-getPackage RecordCompletion.res
-getPackage References.res
 [
 {"uri": "Cross.res", "range": {"start": {"line": 18, "character": 53}, "end": {"line": 18, "character": 54}}},
 {"uri": "Cross.res", "range": {"start": {"line": 14, "character": 53}, "end": {"line": 14, "character": 54}}},

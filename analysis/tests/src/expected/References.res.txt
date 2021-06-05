@@ -1,36 +1,4 @@
 References tests/src/References.res 0:4
-getPackage References.res
-LocalRef
-Checking externals: 1002
-found declared
-alternativeReferences
-alternateDeclared
-found paths
-filter Auto References
-filter Completion References
-filter Cross References
-filter Definition References
-filter Div References
-filter Fragment References
-filter Hover References
-filter Jsx References
-filter Patterns References
-filter RecModules References
-filter RecordCompletion References
-filter References References
-filter ReferencesWithInterface References
-getPackage Auto.res
-getPackage Completion.res
-getPackage Cross.res
-getPackage Definition.res
-getPackage Div.res
-getPackage Fragment.res
-getPackage Hover.res
-getPackage Jsx.resi
-getPackage Patterns.res
-getPackage RecModules.res
-getPackage RecordCompletion.res
-getPackage ReferencesWithInterface.resi
 [
 {"uri": "Cross.res", "range": {"start": {"line": 8, "character": 27}, "end": {"line": 8, "character": 28}}},
 {"uri": "Cross.res", "range": {"start": {"line": 3, "character": 27}, "end": {"line": 3, "character": 28}}},
@@ -41,10 +9,6 @@ getPackage ReferencesWithInterface.resi
 ]
 
 References tests/src/References.res 9:19
-getPackage References.res
-LocalRef
-Checking externals: 1007
-found declared
 [
 {"uri": "References.res", "range": {"start": {"line": 9, "character": 19}, "end": {"line": 9, "character": 21}}},
 {"uri": "References.res", "range": {"start": {"line": 9, "character": 12}, "end": {"line": 9, "character": 14}}}

@@ -183,26 +183,19 @@ let declaredForExportedTip ~(stamps : stamps) ~(exported : exported) name tip =
     Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
 
 let alternateDeclared ~(file : File.t) ~package declared tip =
-  prerr_endline "alternateDeclared";
   match Hashtbl.find_opt package.pathsForModule file.moduleName with
   | None -> None
   | Some paths -> (
-    prerr_endline "found paths";
     maybeLog ("paths for " ^ file.moduleName);
     match paths with
     | IntfAndImpl {resi; res} -> (
-      prerr_endline "both intf and impl";
       maybeLog "Have both!!";
       let resiUri = Uri2.fromPath resi in
       let resUri = Uri2.fromPath res in
-      prerr_endline
-        ("resiUri:" ^ Uri2.toString resiUri ^ " file.uri:"
-       ^ Uri2.toString file.uri);
       if resiUri = file.uri then
         match ProcessCmt.getFullFromCmt ~uri:resUri with
         | None -> None
         | Some {file; extra} -> (
-          prerr_endline "found Full";
           match
             declaredForExportedTip ~stamps:file.stamps
               ~exported:file.contents.exported declared.name.txt tip
@@ -400,15 +393,12 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
     match Hashtbl.find_opt extra.internalReferences localStamp with
     | None -> []
     | Some local ->
-      prerr_endline ("Checking externals: " ^ string_of_int stamp);
       let externals =
         match declaredForTip ~stamps:env.file.stamps stamp tip with
         | None -> []
         | Some declared ->
-          prerr_endline "found declared";
           if isVisible declared then (
             let alternativeReferences =
-              prerr_endline "alternativeReferences";
               match alternateDeclared ~package ~file declared tip with
               | None -> []
               | Some (file, extra, {stamp}) -> (
@@ -436,9 +426,7 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
               let thisModuleName = file.moduleName in
               let externals =
                 package.projectFiles |> FileSet.elements
-                |> List.filter (fun name ->
-                       prerr_endline ("filter " ^ name ^ " " ^ file.moduleName);
-                       name <> file.moduleName)
+                |> List.filter (fun name -> name <> file.moduleName)
                 |> Utils.filterMap (fun name ->
                        match ProcessCmt.fileForModule ~package name with
                        | None -> None
@@ -497,7 +485,6 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
   | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
   | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
-    prerr_endline "LocalRef";
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ tipToString tip);

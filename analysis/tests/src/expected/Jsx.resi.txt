@@ -1,20 +1,6 @@
 Hover tests/src/Jsx.resi 1:4
-getPackage Jsx.resi
-alternateDeclared
-found paths
-both intf and impl
-resiUri:Jsx.resi file.uri:Jsx.resi
-getPackage Jsx.res
-found Full
 {"contents": "```rescript\n(~first: string, ~?key: string, unit) => {\"first\": string}\n```"}
 
 Hover tests/src/Jsx.resi 4:4
-getPackage Jsx.resi
-alternateDeclared
-found paths
-both intf and impl
-resiUri:Jsx.resi file.uri:Jsx.resi
-getPackage Jsx.res
-found Full
 {"contents": "```rescript\nint\n```"}
 
