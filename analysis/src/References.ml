@@ -192,7 +192,7 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
       maybeLog "Have both!!";
       let resiUri = Uri2.fromPath resi in
       let resUri = Uri2.fromPath res in
-      if resiUri = file.uri then
+      if Uri2.isInterface file.uri then
         match ProcessCmt.getFullFromCmt ~uri:resUri with
         | None -> None
         | Some {file; extra} -> (
