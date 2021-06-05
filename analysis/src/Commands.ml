@@ -200,13 +200,12 @@ let rename ~path ~line ~col ~newName =
           |> List.map (fun (uri, _) ->
                  let path = Uri2.toPath uri in
                  let dir = Filename.dirname path in
-                 let ext = Filename.extension path in
-                 let sep = Filename.dir_sep in
-                 let newPath = dir ^ sep ^ newName ^ ext in
+                 let newPath =
+                   Filename.concat dir (newName ^ Filename.extension path)
+                 in
                  let newUri = Uri2.fromPath newPath in
                  Protocol.
                    {
-                     kind = `rename;
                      oldUri = uri |> Uri2.toString;
                      newUri = newUri |> Uri2.toString;
                    })

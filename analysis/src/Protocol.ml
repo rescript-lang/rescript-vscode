@@ -18,7 +18,7 @@ type location = {uri : string; range : range}
 
 type documentSymbolItem = {name : string; kind : int; location : location}
 
-type renameFile = {kind : [`rename]; oldUri : string; newUri : string}
+type renameFile = {oldUri : string; newUri : string}
 
 type textEdit = {range : range; newText : string}
 
@@ -80,14 +80,13 @@ let stringifyDocumentSymbolItem i =
     (Json.escape i.name) i.kind
     (stringifyLocation i.location)
 
-let stringifyRenameFile rf =
+let stringifyRenameFile {oldUri; newUri} =
   Printf.sprintf {|{
-  "kind": "%s",
+  "kind": "rename",
   "oldUri": "%s",
   "newUri": "%s"
 }|}
-    (match rf.kind with `rename -> "rename")
-    (Json.escape rf.oldUri) (Json.escape rf.newUri)
+    (Json.escape oldUri) (Json.escape newUri)
 
 let stringifyTextEdit te =
   Printf.sprintf {|{
