@@ -130,7 +130,7 @@ let references ~path ~line ~col =
                  let loc =
                    match locOpt with
                    | Some loc -> loc
-                   | None -> Utils.topLoc (Uri2.toPath uri2)
+                   | None -> Uri2.toTopLevelLoc uri2
                  in
                  Protocol.stringifyLocation
                    {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}

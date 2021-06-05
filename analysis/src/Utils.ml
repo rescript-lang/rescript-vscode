@@ -1,12 +1,3 @@
-let topLoc fname =
-  {
-    Location.loc_start =
-      {Lexing.pos_fname = fname; pos_lnum = 1; pos_bol = 0; pos_cnum = 0};
-    Location.loc_end =
-      {Lexing.pos_fname = fname; pos_lnum = 1; pos_bol = 0; pos_cnum = 0};
-    loc_ghost = false;
-  }
-
 (**
  * `startsWith(string, prefix)`
  * true if the string starts with the prefix

@@ -10,6 +10,8 @@ module Uri : sig
   val toPath : t -> string
 
   val toString : t -> string
+
+  val toTopLevelLoc : t -> Location.t
 end = struct
   type t = {path : string; uri : string}
 
@@ -29,6 +31,12 @@ end = struct
   let isInterface {path} = Filename.check_suffix path "i"
 
   let toPath {path} = path
+
+  let toTopLevelLoc {path} =
+    let topPos =
+      {Lexing.pos_fname = path; pos_lnum = 1; pos_bol = 0; pos_cnum = 0}
+    in
+    {Location.loc_start = topPos; Location.loc_end = topPos; loc_ghost = false}
 
   let toString {uri} = if !stripPath then Filename.basename uri else uri
 end

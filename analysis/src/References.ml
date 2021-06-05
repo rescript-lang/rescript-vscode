@@ -279,7 +279,7 @@ let resolveModuleDefinition ~(file : File.t) ~package stamp =
     | Some (file, declared) ->
       let loc =
         match declared with
-        | None -> Utils.topLoc (Uri2.toPath file.uri)
+        | None -> Uri2.toTopLevelLoc file.uri
         | Some declared -> validateLoc declared.name.loc declared.extentLoc
       in
       Some (file.uri, loc))
@@ -332,7 +332,7 @@ let definitionForLocItem ~full:{file; package} locItem =
     | None -> None
     | Some paths ->
       let uri = getUri paths in
-      Some (uri, Utils.topLoc (Uri2.toPath uri)))
+      Some (uri, Uri2.toTopLevelLoc uri))
   | LModule (LocalReference (stamp, tip))
   | Typed (_, _, LocalReference (stamp, tip)) ->
     maybeLog ("Local defn " ^ tipToString tip);
