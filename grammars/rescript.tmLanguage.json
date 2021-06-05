@@ -224,7 +224,7 @@
               "name": "punctuation.definition.keyword"
             },
             "3": {
-              "name": "variable.function variable.other"
+              "name": "variable.function variable.other variable.other.enummember constant.other.symbol"
             }
           }
         }
