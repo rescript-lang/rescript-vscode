@@ -431,7 +431,7 @@
         }
       ]
     },
-    "variable-declaration": {
+    "variableDeclaration": {
       "patterns": [
         {
           "match": "(?<=external )[a-z_][0-9a-zA-Z_]*",
@@ -447,7 +447,7 @@
         }
       ]
     },
-    "type-declaration": {
+    "typeDeclaration": {
       "patterns": [
         {
           "match": "(?<=type )[a-z_][0-9a-zA-Z_]*",
@@ -460,6 +460,14 @@
         {
           "match": "(?<=type rec )[a-z_][0-9a-zA-Z_]*",
           "name": "entity.name.function"
+        }
+      ]
+    },
+    "recordProperty": {
+      "patterns": [
+        {
+          "name": "variable.object.property",
+          "match": "([a-z_][0-9a-zA-Z_]*(?=:))"
         }
       ]
     }
@@ -526,10 +534,10 @@
       "include": "#punctuations"
     },
     {
-      "include": "#type-declaration"
+      "include": "#typeDeclaration"
     },
     {
-      "include": "#variable-declaration"
+      "include": "#variableDeclaration"
     }
   ]
 }
