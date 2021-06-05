@@ -17,3 +17,10 @@ let crossRefWithInterface2 = ReferencesWithInterface.x
 module RefWithInterface = ReferencesWithInterface
 
 let crossRefWithInterface3 = ReferencesWithInterface.x
+
+
+let _ = RenameWithInterface.x
+//           ^ren RenameWithInterfacePrime
+
+let _ = RenameWithInterface.x
+//                          ^ren xPrime

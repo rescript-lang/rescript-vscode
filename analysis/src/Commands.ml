@@ -283,6 +283,15 @@ let test ~path =
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
             documentSymbol ~path
+          | "ren" ->
+            let newName = String.sub rest 4 (len - mlen - 4) in
+            let () =
+              print_endline
+                ("Rename " ^ path ^ " " ^ string_of_int line ^ ":"
+               ^ string_of_int col ^ " " ^ newName)
+            in
+
+            rename ~path ~line ~col ~newName
           | "com" ->
             print_endline
               ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
