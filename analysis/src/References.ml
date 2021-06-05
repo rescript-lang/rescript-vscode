@@ -379,6 +379,8 @@ let rec pathFromVisibility visibilityPath current =
 let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath (Tip tipName)
 
+type references = {uri : Uri2.t; locs : Location.t list}
+
 let forLocalStamp ~full:{file; extra; package} stamp tip =
   let env = QueryEnv.fromFile file in
   let open Infix in
@@ -392,7 +394,7 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
   | Some localStamp -> (
     match Hashtbl.find_opt extra.internalReferences localStamp with
     | None -> []
-    | Some local ->
+    | Some locs ->
       maybeLog ("Checking externals: " ^ string_of_int stamp);
       let externals =
         match declaredForTip ~stamps:env.file.stamps stamp tip with
@@ -416,7 +418,7 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
                     Hashtbl.find_opt extra.internalReferences localStamp
                   with
                   | None -> []
-                  | Some local -> [(file.uri, local)]))
+                  | Some local -> [{uri = file.uri; locs = local}]))
               (* if this file has a corresponding interface or implementation file
                  also find the references in that file *)
             in
@@ -441,20 +443,20 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
                            with
                            | None -> None
                            | Some refs ->
-                             let refs =
+                             let locs =
                                refs
-                               |> Utils.filterMap (fun (p, t, l) ->
-                                      if p = path && t = tip then Some l
+                               |> Utils.filterMap (fun (p, t, locs) ->
+                                      if p = path && t = tip then Some locs
                                       else None)
                              in
-                             Some (file.uri, refs))))
+                             Some {uri = file.uri; locs})))
               in
               alternativeReferences @ externals)
           else (
             maybeLog "Not visible";
             [])
       in
-      (file.uri, local) :: externals)
+      {uri = file.uri; locs} :: externals)
 
 let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
@@ -471,14 +473,23 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
              | Some locs ->
                locs |> LocationSet.elements
                |> List.map (fun loc ->
-                      (Uri2.fromPath loc.Location.loc_start.pos_fname, [loc])))
+                      {
+                        uri = Uri2.fromPath loc.Location.loc_start.pos_fname;
+                        locs = [loc];
+                      }))
       |> List.flatten
     in
     let targetModuleReferences =
       match Hashtbl.find_opt package.pathsForModule moduleName with
       | None -> []
       | Some paths ->
-        let moduleSrcToRef src = (Uri2.fromPath src, [Utils.topLoc src]) in
+        let moduleSrcToRef src =
+          {
+            uri = Uri2.fromPath src;
+            (* XXX TODO use different runtime representation *)
+            locs = [Utils.topLoc src];
+          }
+        in
         getSrc paths |> List.map moduleSrcToRef
     in
     List.append targetModuleReferences otherModulesReferences

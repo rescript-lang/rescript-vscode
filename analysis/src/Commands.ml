@@ -126,8 +126,8 @@ let references ~path ~line ~col =
         let allLocs =
           allReferences
           |> List.fold_left
-               (fun acc (uri2, references) ->
-                 (references
+               (fun acc {References.uri = uri2; locs} ->
+                 (locs
                  |> List.map (fun loc ->
                         Protocol.stringifyLocation
                           {
@@ -190,8 +190,8 @@ let rename ~path ~line ~col ~newName =
         let referencesToToplevelModules, referencesToItems =
           allReferences
           |> List.fold_left
-               (fun acc (uri2, references) ->
-                 (references |> List.map (fun loc -> (uri2, loc))) @ acc)
+               (fun acc {References.uri = uri2; locs} ->
+                 (locs |> List.map (fun loc -> (uri2, loc))) @ acc)
                []
           |> List.partition (fun (_, loc) -> Utils.isTopLoc loc)
         in
