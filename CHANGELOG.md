@@ -1,6 +1,7 @@
 ## master
 - Find references to files as modules.
 - Autocomplete: skip inline comments to decide if a labeled argument was already supplied.
+- Rename: support file rename when renaming a module name.
 
 ## 1.1.2
 
