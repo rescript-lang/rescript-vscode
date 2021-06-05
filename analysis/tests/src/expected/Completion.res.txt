@@ -1,4 +1,5 @@
 Complete tests/src/Completion.res 0:2
+getPackage Completion.res
 [{
     "label": "mapReverse",
     "kind": 12,
@@ -68,6 +69,7 @@ Complete tests/src/Completion.res 0:2
   }]
 
 Complete tests/src/Completion.res 1:2
+getPackage Completion.res
 [{
     "label": "Floatarray",
     "kind": 9,
@@ -287,6 +289,7 @@ Complete tests/src/Completion.res 1:2
   }]
 
 Complete tests/src/Completion.res 2:2
+getPackage Completion.res
 [{
     "label": "mapi",
     "kind": 12,
@@ -338,6 +341,7 @@ Complete tests/src/Completion.res 2:2
   }]
 
 Complete tests/src/Completion.res 12:2
+getPackage Completion.res
 [{
     "label": "customDouble",
     "kind": 12,
@@ -347,6 +351,7 @@ Complete tests/src/Completion.res 12:2
   }]
 
 Complete tests/src/Completion.res 19:2
+getPackage Completion.res
 [{
     "label": "age",
     "kind": 4,
@@ -362,6 +367,7 @@ Complete tests/src/Completion.res 19:2
   }]
 
 Complete tests/src/Completion.res 21:2
+getPackage Completion.res
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -377,6 +383,7 @@ Complete tests/src/Completion.res 21:2
   }]
 
 Complete tests/src/Completion.res 23:2
+getPackage Completion.res
 [{
     "label": "Js.String2.toUpperCase",
     "kind": 12,
@@ -386,6 +393,7 @@ Complete tests/src/Completion.res 23:2
   }]
 
 Complete tests/src/Completion.res 27:2
+getPackage Completion.res
 [{
     "label": "Belt.Option.eqU",
     "kind": 12,
@@ -401,6 +409,7 @@ Complete tests/src/Completion.res 27:2
   }]
 
 Complete tests/src/Completion.res 36:2
+getPackage Completion.res
 [{
     "label": "ForAuto.abc",
     "kind": 12,
@@ -416,6 +425,7 @@ Complete tests/src/Completion.res 36:2
   }]
 
 Complete tests/src/Completion.res 38:2
+getPackage Completion.res
 [{
     "label": "unsafeGet",
     "kind": 12,
@@ -431,6 +441,7 @@ Complete tests/src/Completion.res 38:2
   }]
 
 Complete tests/src/Completion.res 50:2
+getPackage Completion.res
 [{
     "label": "zzz",
     "kind": 12,
@@ -440,6 +451,7 @@ Complete tests/src/Completion.res 50:2
   }]
 
 Complete tests/src/Completion.res 52:2
+getPackage Completion.res
 [{
     "label": "zoo",
     "kind": 4,
@@ -455,6 +467,7 @@ Complete tests/src/Completion.res 52:2
   }]
 
 DocumentSymbol tests/src/Completion.res
+getPackage Completion.res
 [
 {
         "name": "MyList",
@@ -539,6 +552,7 @@ DocumentSymbol tests/src/Completion.res
 ]
 
 Complete tests/src/Completion.res 56:2
+getPackage Completion.res
 [{
     "label": "react.component",
     "kind": 4,
@@ -548,6 +562,7 @@ Complete tests/src/Completion.res 56:2
   }]
 
 Complete tests/src/Completion.res 58:2
+getPackage Completion.res
 [{
     "label": "component",
     "kind": 4,
@@ -557,6 +572,7 @@ Complete tests/src/Completion.res 58:2
   }]
 
 Complete tests/src/Completion.res 60:2
+getPackage Completion.res
 [{
     "label": "age",
     "kind": 4,
@@ -566,6 +582,7 @@ Complete tests/src/Completion.res 60:2
   }]
 
 Complete tests/src/Completion.res 62:2
+getPackage Completion.res
 [{
     "label": "name",
     "kind": 4,
@@ -575,6 +592,7 @@ Complete tests/src/Completion.res 62:2
   }]
 
 Complete tests/src/Completion.res 64:2
+getPackage Completion.res
 [{
     "label": "name",
     "kind": 4,
@@ -584,6 +602,7 @@ Complete tests/src/Completion.res 64:2
   }]
 
 Complete tests/src/Completion.res 67:2
+getPackage Completion.res
 [{
     "label": "age",
     "kind": 4,

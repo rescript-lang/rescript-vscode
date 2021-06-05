@@ -1,4 +1,5 @@
 Complete tests/src/RecordCompletion.res 7:3
+getPackage RecordCompletion.res
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -14,6 +15,7 @@ Complete tests/src/RecordCompletion.res 7:3
   }]
 
 Complete tests/src/RecordCompletion.res 9:3
+getPackage RecordCompletion.res
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,

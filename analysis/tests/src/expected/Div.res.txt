@@ -1,7 +1,9 @@
 Hover tests/src/Div.res 1:10
+getPackage Div.res
 {"contents": "```rescript\n(\n  string,\n  ~?props: ReactDOMRe.domProps,\n  array<React.element>,\n) => React.element\n```"}
 
 Complete tests/src/Div.res 3:3
+getPackage Div.res
 [{
     "label": "dangerouslySetInnerHTML",
     "kind": 4,

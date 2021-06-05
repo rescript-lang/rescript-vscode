@@ -1,4 +1,32 @@
 References tests/src/References.res 0:4
+getPackage References.res
+LocalRef
+Checking externals: 1002
+filter Div References
+filter Definition References
+filter Auto References
+filter RecModules References
+filter Hover References
+filter Completion References
+filter Cross References
+filter Patterns References
+filter RecordCompletion References
+filter Jsx References
+filter References References
+filter Fragment References
+filter ReferencesWithInterface References
+getPackage Div.res
+getPackage Definition.res
+getPackage Auto.res
+getPackage RecModules.res
+getPackage Hover.res
+getPackage Completion.res
+getPackage Cross.res
+getPackage Patterns.res
+getPackage RecordCompletion.res
+getPackage Jsx.resi
+getPackage Fragment.res
+getPackage ReferencesWithInterface.resi
 [
 {"uri": "Cross.res", "range": {"start": {"line": 8, "character": 27}, "end": {"line": 8, "character": 28}}},
 {"uri": "Cross.res", "range": {"start": {"line": 3, "character": 27}, "end": {"line": 3, "character": 28}}},
@@ -9,6 +37,9 @@ References tests/src/References.res 0:4
 ]
 
 References tests/src/References.res 9:19
+getPackage References.res
+LocalRef
+Checking externals: 1007
 [
 {"uri": "References.res", "range": {"start": {"line": 9, "character": 19}, "end": {"line": 9, "character": 21}}},
 {"uri": "References.res", "range": {"start": {"line": 9, "character": 12}, "end": {"line": 9, "character": 14}}}

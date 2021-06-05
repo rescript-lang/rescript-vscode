@@ -1,4 +1,33 @@
 References tests/src/ReferencesWithInterface.res 0:4
+getPackage ReferencesWithInterface.res
+LocalRef
+Checking externals: 1002
+getPackage ReferencesWithInterface.resi
+filter Div ReferencesWithInterface
+filter Definition ReferencesWithInterface
+filter Auto ReferencesWithInterface
+filter RecModules ReferencesWithInterface
+filter Hover ReferencesWithInterface
+filter Completion ReferencesWithInterface
+filter Cross ReferencesWithInterface
+filter Patterns ReferencesWithInterface
+filter RecordCompletion ReferencesWithInterface
+filter Jsx ReferencesWithInterface
+filter References ReferencesWithInterface
+filter Fragment ReferencesWithInterface
+filter ReferencesWithInterface ReferencesWithInterface
+getPackage Div.res
+getPackage Definition.res
+getPackage Auto.res
+getPackage RecModules.res
+getPackage Hover.res
+getPackage Completion.res
+getPackage Cross.res
+getPackage Patterns.res
+getPackage RecordCompletion.res
+getPackage Jsx.resi
+getPackage References.res
+getPackage Fragment.res
 [
 {"uri": "Cross.res", "range": {"start": {"line": 18, "character": 53}, "end": {"line": 18, "character": 54}}},
 {"uri": "Cross.res", "range": {"start": {"line": 14, "character": 53}, "end": {"line": 14, "character": 54}}},

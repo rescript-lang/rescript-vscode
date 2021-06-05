@@ -1,4 +1,18 @@
 References tests/src/Cross.res 0:17
+getPackage Cross.res
+getPackage Div.res
+getPackage Definition.res
+getPackage Auto.res
+getPackage RecModules.res
+getPackage Hover.res
+getPackage Completion.res
+getPackage Cross.res
+getPackage Patterns.res
+getPackage RecordCompletion.res
+getPackage Jsx.resi
+getPackage References.res
+getPackage Fragment.res
+getPackage ReferencesWithInterface.resi
 [
 {"uri": "Cross.res", "range": {"start": {"line": 8, "character": 16}, "end": {"line": 8, "character": 26}}},
 {"uri": "Cross.res", "range": {"start": {"line": 6, "character": 13}, "end": {"line": 6, "character": 23}}},
@@ -8,6 +22,20 @@ References tests/src/Cross.res 0:17
 ]
 
 References tests/src/Cross.res 11:31
+getPackage Cross.res
+getPackage Div.res
+getPackage Definition.res
+getPackage Auto.res
+getPackage RecModules.res
+getPackage Hover.res
+getPackage Completion.res
+getPackage Cross.res
+getPackage Patterns.res
+getPackage RecordCompletion.res
+getPackage Jsx.resi
+getPackage References.res
+getPackage Fragment.res
+getPackage ReferencesWithInterface.resi
 [
 {"uri": "Cross.res", "range": {"start": {"line": 18, "character": 29}, "end": {"line": 18, "character": 52}}},
 {"uri": "Cross.res", "range": {"start": {"line": 16, "character": 26}, "end": {"line": 16, "character": 49}}},

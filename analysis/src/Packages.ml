@@ -105,6 +105,7 @@ let findRoot ~uri packagesByRoot =
   loop (Filename.dirname path)
 
 let getPackage ~uri =
+  prerr_endline ("getPackage " ^ Uri2.toString uri);
   let open SharedTypes in
   if Hashtbl.mem state.rootForUri uri then
     Ok (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))

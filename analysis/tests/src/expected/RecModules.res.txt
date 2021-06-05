@@ -1,6 +1,8 @@
 Hover tests/src/RecModules.res 18:12
+getPackage RecModules.res
 {"contents": "```rescript\nmodule C = {\n  type t\n  let createA: t => A.t\n}\n```"}
 
 Hover tests/src/RecModules.res 20:12
+getPackage RecModules.res
 {"contents": "```rescript\nmodule A = {\n  type t\n  let child: t => B.t\n}\n```"}
 
