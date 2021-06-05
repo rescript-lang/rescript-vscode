@@ -734,12 +734,12 @@ struct
       else []))
 
   let addFileReference moduleName loc =
-    Hashtbl.replace extra.fileReferences moduleName
-      (loc
-      ::
-      (if Hashtbl.mem extra.fileReferences moduleName then
-       Hashtbl.find extra.fileReferences moduleName
-      else []))
+    let newLocs =
+      match Hashtbl.find_opt extra.fileReferences moduleName with
+      | Some oldLocs -> LocationSet.add loc oldLocs
+      | None -> LocationSet.singleton loc
+    in
+    Hashtbl.replace extra.fileReferences moduleName newLocs
 
   let env = QueryEnv.fromFile Collector.file
 

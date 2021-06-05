@@ -200,10 +200,16 @@ type openTracker = {
   mutable used : (path * tip * Location.t) list;
 }
 
+module LocationSet = Set.Make (struct
+  include Location
+
+  let compare = compare (* polymorphic compare should be OK *)
+end)
+
 type extra = {
   internalReferences : (int, Location.t list) Hashtbl.t;
   externalReferences : (string, (path * tip * Location.t) list) Hashtbl.t;
-  fileReferences : (string, Location.t list) Hashtbl.t;
+  fileReferences : (string, LocationSet.t) Hashtbl.t;
   mutable locItems : locItem list;
   (* This is the "open location", like the location...
      or maybe the >> location of the open ident maybe *)

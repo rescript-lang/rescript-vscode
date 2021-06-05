@@ -469,7 +469,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
              match Hashtbl.find_opt full.extra.fileReferences moduleName with
              | None -> []
              | Some locs ->
-               locs
+               locs |> LocationSet.elements
                |> List.map (fun loc ->
                       (Uri2.fromPath loc.Location.loc_start.pos_fname, [loc])))
       |> List.flatten
