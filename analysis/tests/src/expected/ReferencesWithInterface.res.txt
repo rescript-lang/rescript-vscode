@@ -2,6 +2,12 @@ References tests/src/ReferencesWithInterface.res 0:4
 getPackage ReferencesWithInterface.res
 LocalRef
 Checking externals: 1002
+found declared
+alternativeReferences
+alternateDeclared
+found paths
+both intf and impl
+resiUri:ReferencesWithInterface.resi file.uri:ReferencesWithInterface.res
 getPackage ReferencesWithInterface.resi
 filter Auto ReferencesWithInterface
 filter Completion ReferencesWithInterface

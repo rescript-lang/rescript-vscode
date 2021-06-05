@@ -1,5 +1,7 @@
 Hover tests/src/Hover.res 0:4
 getPackage Hover.res
+alternateDeclared
+found paths
 {"contents": "```rescript\nint\n```"}
 
 Hover tests/src/Hover.res 3:5
@@ -20,10 +22,14 @@ getPackage Hover.res
 
 Hover tests/src/Hover.res 26:6
 getPackage Hover.res
+alternateDeclared
+found paths
 {"contents": "```rescript\nint\n```"}
 
 Hover tests/src/Hover.res 33:4
 getPackage Hover.res
+alternateDeclared
+found paths
 {"contents": "```rescript\nunit => int\n```\n\nDoc comment for functionWithTypeAnnotation"}
 
 Hover tests/src/Hover.res 37:13
