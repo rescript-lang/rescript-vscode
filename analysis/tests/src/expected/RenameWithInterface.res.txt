@@ -26,10 +26,10 @@ Rename tests/src/RenameWithInterface.res 0:4 y
   "uri": "Cross.res"
   },
   "edits": [{
-  "range": {"start": {"line": 21, "character": 28}, "end": {"line": 21, "character": 29}},
+  "range": {"start": {"line": 24, "character": 28}, "end": {"line": 24, "character": 29}},
   "newText": "y"
   }, {
-  "range": {"start": {"line": 24, "character": 28}, "end": {"line": 24, "character": 29}},
+  "range": {"start": {"line": 21, "character": 28}, "end": {"line": 21, "character": 29}},
   "newText": "y"
   }]
   }

@@ -379,7 +379,7 @@ let rec pathFromVisibility visibilityPath current =
 let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath (Tip tipName)
 
-type references = {uri : Uri2.t; locs : Location.t list}
+type references = {uri : Uri2.t; loc : Location.t}
 
 let forLocalStamp ~full:{file; extra; package} stamp tip =
   let env = QueryEnv.fromFile file in
@@ -418,7 +418,8 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
                     Hashtbl.find_opt extra.internalReferences localStamp
                   with
                   | None -> []
-                  | Some local -> [{uri = file.uri; locs = local}]))
+                  | Some locs ->
+                    locs |> List.map (fun loc -> {uri = file.uri; loc})))
               (* if this file has a corresponding interface or implementation file
                  also find the references in that file *)
             in
@@ -430,18 +431,18 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
               let externals =
                 package.projectFiles |> FileSet.elements
                 |> List.filter (fun name -> name <> file.moduleName)
-                |> Utils.filterMap (fun name ->
+                |> List.map (fun name ->
                        match ProcessCmt.fileForModule ~package name with
-                       | None -> None
+                       | None -> []
                        | Some file -> (
                          match ProcessCmt.extraForModule ~package name with
-                         | None -> None
+                         | None -> []
                          | Some {extra} -> (
                            match
                              Hashtbl.find_opt extra.externalReferences
                                thisModuleName
                            with
-                           | None -> None
+                           | None -> []
                            | Some refs ->
                              let locs =
                                refs
@@ -449,14 +450,18 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
                                       if p = path && t = tip then Some locs
                                       else None)
                              in
-                             Some {uri = file.uri; locs})))
+                             locs |> List.map (fun loc -> {uri = file.uri; loc})
+                           )))
+                |> List.concat
               in
               alternativeReferences @ externals)
           else (
             maybeLog "Not visible";
             [])
       in
-      {uri = file.uri; locs} :: externals)
+      List.append
+        (locs |> List.map (fun loc -> {uri = file.uri; loc}))
+        externals)
 
 let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
@@ -475,7 +480,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
                |> List.map (fun loc ->
                       {
                         uri = Uri2.fromPath loc.Location.loc_start.pos_fname;
-                        locs = [loc];
+                        loc;
                       }))
       |> List.flatten
     in
@@ -487,7 +492,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
           {
             uri = Uri2.fromPath src;
             (* XXX TODO use different runtime representation *)
-            locs = [Utils.topLoc src];
+            loc = Utils.topLoc src;
           }
         in
         getSrc paths |> List.map moduleSrcToRef
