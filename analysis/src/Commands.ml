@@ -126,7 +126,12 @@ let references ~path ~line ~col =
         let allLocs =
           allReferences
           |> List.fold_left
-               (fun acc {References.uri = uri2; loc} ->
+               (fun acc {References.uri = uri2; locOpt} ->
+                 let loc =
+                   match locOpt with
+                   | Some loc -> loc
+                   | None -> Utils.topLoc (Uri2.toPath uri2)
+                 in
                  Protocol.stringifyLocation
                    {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}
                  :: acc)
@@ -182,16 +187,20 @@ let rename ~path ~line ~col ~newName =
       | None -> Protocol.null
       | Some locItem ->
         let allReferences = References.allReferencesForLocItem ~full locItem in
-        let referencesToToplevelModules, referencesToItems =
+        let referencesToToplevelModules =
           allReferences
-          |> List.fold_left
-               (fun acc {References.uri = uri2; loc} -> (uri2, loc) :: acc)
-               []
-          |> List.partition (fun (_, loc) -> Utils.isTopLoc loc)
+          |> Utils.filterMap (fun {References.uri = uri2; locOpt} ->
+                 if locOpt = None then Some uri2 else None)
+        in
+        let referencesToItems =
+          allReferences
+          |> Utils.filterMap (function
+               | {References.uri = uri2; locOpt = Some loc} -> Some (uri2, loc)
+               | {locOpt = None} -> None)
         in
         let fileRenames =
           referencesToToplevelModules
-          |> List.map (fun (uri, _) ->
+          |> List.map (fun uri ->
                  let path = Uri2.toPath uri in
                  let dir = Filename.dirname path in
                  let newPath =

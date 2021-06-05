@@ -379,7 +379,10 @@ let rec pathFromVisibility visibilityPath current =
 let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath (Tip tipName)
 
-type references = {uri : Uri2.t; loc : Location.t}
+type references = {
+  uri : Uri2.t;
+  locOpt : Location.t option; (* None: reference to a toplevel module *)
+}
 
 let forLocalStamp ~full:{file; extra; package} stamp tip =
   let env = QueryEnv.fromFile file in
@@ -419,7 +422,9 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
                   with
                   | None -> []
                   | Some locs ->
-                    locs |> List.map (fun loc -> {uri = file.uri; loc})))
+                    locs
+                    |> List.map (fun loc -> {uri = file.uri; locOpt = Some loc})
+                  ))
               (* if this file has a corresponding interface or implementation file
                  also find the references in that file *)
             in
@@ -450,8 +455,9 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
                                       if p = path && t = tip then Some locs
                                       else None)
                              in
-                             locs |> List.map (fun loc -> {uri = file.uri; loc})
-                           )))
+                             locs
+                             |> List.map (fun loc ->
+                                    {uri = file.uri; locOpt = Some loc}))))
                 |> List.concat
               in
               alternativeReferences @ externals)
@@ -460,7 +466,7 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
             [])
       in
       List.append
-        (locs |> List.map (fun loc -> {uri = file.uri; loc}))
+        (locs |> List.map (fun loc -> {uri = file.uri; locOpt = Some loc}))
         externals)
 
 let allReferencesForLocItem ~full:({file; package} as full) locItem =
@@ -480,7 +486,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
                |> List.map (fun loc ->
                       {
                         uri = Uri2.fromPath loc.Location.loc_start.pos_fname;
-                        loc;
+                        locOpt = Some loc;
                       }))
       |> List.flatten
     in
@@ -488,13 +494,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       match Hashtbl.find_opt package.pathsForModule moduleName with
       | None -> []
       | Some paths ->
-        let moduleSrcToRef src =
-          {
-            uri = Uri2.fromPath src;
-            (* XXX TODO use different runtime representation *)
-            loc = Utils.topLoc src;
-          }
-        in
+        let moduleSrcToRef src = {uri = Uri2.fromPath src; locOpt = None} in
         getSrc paths |> List.map moduleSrcToRef
     in
     List.append targetModuleReferences otherModulesReferences

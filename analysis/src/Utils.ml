@@ -7,12 +7,6 @@ let topLoc fname =
     loc_ghost = false;
   }
 
-let isTopLoc (loc : Warnings.loc) =
-  let isTopPos (pos : Lexing.position) =
-    pos.pos_lnum = 1 && pos.pos_bol = 0 && pos.pos_cnum = 0
-  in
-  isTopPos loc.loc_start && isTopPos loc.loc_end && loc.loc_ghost = false
-
 (**
  * `startsWith(string, prefix)`
  * true if the string starts with the prefix
@@ -32,15 +26,11 @@ let endsWith s suffix =
 
 let protocolLineColToCmtLoc ~line ~col = (line + 1, col)
 
-let cmtPosToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} = Protocol.{
-  line = pos_lnum - 1;
-  character = pos_cnum - pos_bol;
-}
+let cmtPosToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} =
+  Protocol.{line = pos_lnum - 1; character = pos_cnum - pos_bol}
 
-let cmtLocToRange {Location.loc_start; loc_end} = Protocol.{
-  start = cmtPosToPosition loc_start;
-  end_ = cmtPosToPosition loc_end;
-}
+let cmtLocToRange {Location.loc_start; loc_end} =
+  Protocol.{start = cmtPosToPosition loc_start; end_ = cmtPosToPosition loc_end}
 
 let locWithinLoc inner outer =
   let open Location in
