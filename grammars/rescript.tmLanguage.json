@@ -51,31 +51,27 @@
         },
         {
           "match": "\\,",
-          "name": "punctuation.separator"
+          "name": "constant.character punctuation.separator"
         },
         {
           "match": "\\?|:",
-          "name": "punctuation.separator"
-        },
-        {
-          "match": "\\|(?!\\|)",
-          "name": "punctuation.separator"
+          "name": "constant.character punctuation.separator"
         },
         {
           "match": "\\{",
-          "name": "punctuation.section.braces.begin"
+          "name": "constant.character punctuation.section.braces.begin"
         },
         {
           "match": "\\}",
-          "name": "punctuation.section.braces.end"
+          "name": "constant.character punctuation.section.braces.end"
         },
         {
           "match": "\\(",
-          "name": "punctuation.section.parens.begin"
+          "name": "constant.character punctuation.section.parens.begin"
         },
         {
           "match": "\\)",
-          "name": "punctuation.section.parens.end"
+          "name": "constant.character punctuation.section.parens.end"
         }
       ]
     },
@@ -234,11 +230,11 @@
       "patterns": [
         {
           "match": "\\[",
-          "name": "punctuation.section.brackets.begin"
+          "name": "constant.character punctuation.section.brackets.begin"
         },
         {
           "match": "\\]",
-          "name": "punctuation.section.brackets.end"
+          "name": "constant.character punctuation.section.brackets.end"
         }
       ]
     },
@@ -251,13 +247,13 @@
               "name": "keyword"
             },
             "2": {
-              "name": "punctuation.section.braces.begin"
+              "name": "constant.character punctuation.section.braces.begin"
             }
           }
         },
         {
           "match": "\\}",
-          "name": "punctuation.section.braces.end"
+          "name": "constant.character punctuation.section.braces.end"
         }
       ]
     },
@@ -267,13 +263,13 @@
           "match": "\\b[a-z_][0-9a-zA-Z_]*(\\[)",
           "captures": {
             "1": {
-              "name": "punctuation.section.brackets.begin"
+              "name": "constant.character punctuation.section.brackets.begin"
             }
           }
         },
         {
           "match": "\\]",
-          "name": "punctuation.section.brackets.end"
+          "name": "constant.character punctuation.section.brackets.end"
         }
       ]
     },
