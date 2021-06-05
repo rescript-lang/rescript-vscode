@@ -286,48 +286,28 @@ function rename(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
   let params = msg.params as p.RenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let locations: p.Location[] | null = utils.getReferencesForPosition(
+  let documentChanges:
+    | (p.RenameFile | p.TextDocumentEdit)[]
+    | null = utils.runAnalysisAfterSanityCheck(filePath, [
+    "rename",
     filePath,
-    params.position
-  );
-  let result: WorkspaceEdit | null;
-  if (locations === null) {
-    result = null;
-  } else {
-    let textEdits: { [uri: string]: TextEdit[] } = {};
-    let documentChanges: (p.RenameFile | p.TextDocumentEdit)[] = [];
+    params.position.line,
+    params.position.character,
+    params.newName
+  ]);
 
-    locations.forEach(({ uri, range }) => {
-      if (utils.isRangeTopOfFile(range)) {
-        let filePath = fileURLToPath(uri);
-        let newFilePath = `${path.dirname(filePath)}/${params.newName}${path.extname(filePath)}`;
-        let newUri = pathToFileURL(newFilePath).href;
-        let rename: p.RenameFile = { kind: "rename", oldUri: uri, newUri };
-        documentChanges.push(rename);
-      } else {
-        let textEdit: TextEdit = { range, newText: params.newName };
-        if (uri in textEdits) {
-          textEdits[uri].push(textEdit);
-        } else {
-          textEdits[uri] = [textEdit];
-        }
-      }
-    });
+  let result: WorkspaceEdit | null = null;
 
-    Object.entries(textEdits)
-      .forEach(([uri, edits]) => {
-        let textDocumentEdit = { textDocument: { uri, version: null }, edits };
-        documentChanges.push(textDocumentEdit);
-      });
-
-
+  if (documentChanges !== null) {
     result = { documentChanges };
   }
+
   let response: m.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
-    result,
+    result
   };
+
   return response;
 }
 
