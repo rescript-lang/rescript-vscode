@@ -309,6 +309,8 @@ function prepareRename(msg: p.RequestMessage) {
           end.line >= pos.line
         );
       }
+
+      return false;
     });
 
     if (targetLoc != null) {
