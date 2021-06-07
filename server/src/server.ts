@@ -38,7 +38,7 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => {};
+let send: (msg: m.Message) => void = (_) => { };
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -282,6 +282,45 @@ function references(msg: p.RequestMessage) {
   return response;
 }
 
+function prepareRename(msg: p.RequestMessage): m.ResponseMessage {
+  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
+  let params = msg.params as p.PrepareRenameParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let locations: null | p.Location[] = utils.getReferencesForPosition(
+    filePath,
+    params.position
+  );
+
+  let result: p.Range | null = null;
+
+  if (locations !== null) {
+    locations.forEach(loc => {
+      if (
+        path.normalize(fileURLToPath(loc.uri)) ===
+        path.normalize(fileURLToPath(params.textDocument.uri))
+      ) {
+        let { start, end } = loc.range;
+        let pos = params.position;
+        if (
+          start.character <= pos.character &&
+          start.line <= pos.line &&
+          end.character >= pos.character &&
+          end.line >= pos.line
+        ) {
+          result = loc.range;
+        };
+      }
+    });
+  }
+
+  let response: m.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result
+  };
+  return response;
+}
+
 function rename(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
   let params = msg.params as p.RenameParams;
@@ -289,12 +328,12 @@ function rename(msg: p.RequestMessage) {
   let documentChanges:
     | (p.RenameFile | p.TextDocumentEdit)[]
     | null = utils.runAnalysisAfterSanityCheck(filePath, [
-    "rename",
-    filePath,
-    params.position.line,
-    params.position.character,
-    params.newName
-  ]);
+      "rename",
+      filePath,
+      params.position.line,
+      params.position.character,
+      params.newName
+    ]);
 
   let result: WorkspaceEdit | null = null;
 
@@ -591,7 +630,7 @@ function onMessage(msg: m.Message) {
           hoverProvider: true,
           definitionProvider: true,
           referencesProvider: true,
-          renameProvider: true,
+          renameProvider: { prepareProvider: true },
           documentSymbolProvider: false,
           completionProvider: { triggerCharacters: [".", ">", "@", "~"] },
         },
@@ -642,6 +681,8 @@ function onMessage(msg: m.Message) {
       send(definition(msg));
     } else if (msg.method === p.ReferencesRequest.method) {
       send(references(msg));
+    } else if (msg.method === p.PrepareRenameRequest.method) {
+      send(prepareRename(msg));
     } else if (msg.method === p.RenameRequest.method) {
       send(rename(msg));
     } else if (msg.method === p.DocumentSymbolRequest.method) {
