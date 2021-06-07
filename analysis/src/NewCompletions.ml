@@ -1133,32 +1133,33 @@ let processCompletable ~findItems ~full ~package ~rawOpens
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
 
-let getCompletable ~textOpt ~pos =
+let computeCompletions ~uri ~textOpt ~pos =
   match textOpt with
-  | None -> None
+  | None -> []
   | Some text -> (
     match PartialParser.positionToOffset text pos with
-    | None -> None
+    | None -> []
     | Some offset -> (
       match PartialParser.findCompletable text offset with
-      | None -> None
-      | Some completable ->
-        let rawOpens = PartialParser.findOpens text offset in
-        Some (completable, rawOpens)))
-
-let computeCompletions ~completable ~pos ~rawOpens ~uri =
-  match ProcessCmt.getFullFromCmt ~uri with
-  | None -> []
-  | Some full ->
-    let package = full.package in
-    let allFiles =
-      FileSet.union package.projectFiles package.dependenciesFiles
-    in
-    let findItems ~exact parts =
-      let items = getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts in
-      match parts |> List.rev with
-      | last :: _ when exact ->
-        items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
-      | _ -> items
-    in
-    completable |> processCompletable ~findItems ~full ~package ~rawOpens
+      | None -> []
+      | Some completable -> (
+        match ProcessCmt.getFullFromCmt ~uri with
+        | None -> []
+        | Some full ->
+          let rawOpens = PartialParser.findOpens text offset in
+          let package = full.package in
+          let allFiles =
+            FileSet.union package.projectFiles package.dependenciesFiles
+          in
+          let findItems ~exact parts =
+            let items =
+              getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts
+            in
+            match parts |> List.rev with
+            | last :: _ when exact ->
+              items
+              |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
+            | _ -> items
+          in
+          completable |> processCompletable ~findItems ~full ~package ~rawOpens)
+      ))

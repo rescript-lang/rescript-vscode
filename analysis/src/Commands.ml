@@ -33,16 +33,9 @@ let dump files =
 
 let completion ~path ~line ~col ~currentFile =
   let uri = Uri2.fromPath path in
-  let pos = (line, col) in
   let result =
     let textOpt = Files.readFile currentFile in
-    let completionItems =
-      match NewCompletions.getCompletable ~textOpt ~pos with
-      | None -> []
-      | Some (completable, rawOpens) ->
-        NewCompletions.computeCompletions ~completable ~pos ~rawOpens ~uri
-    in
-    completionItems
+    NewCompletions.computeCompletions ~uri ~textOpt ~pos:(line, col)
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array
   in
@@ -150,41 +143,38 @@ let references ~path ~line ~col =
 
 let documentSymbol ~path =
   let uri = Uri2.fromPath path in
-  let result =
-    match ProcessCmt.getFullFromCmt ~uri with
-    | None -> Protocol.null
-    | Some {file} ->
-      let open SharedTypes in
-      let rec getItems {topLevel} =
-        let rec getItem = function
-          | MValue v -> (v |> SharedTypes.variableKind, [])
-          | MType (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
-          | Module (Structure contents) -> (Module, getItems contents)
-          | Module (Constraint (_, modTypeItem)) -> getItem (Module modTypeItem)
-          | Module (Ident _) -> (Module, [])
-        in
-        let fn {name = {txt}; extentLoc; item} =
-          let item, siblings = getItem item in
-          if extentLoc.loc_ghost then siblings
-          else (txt, extentLoc, item) :: siblings
-        in
-        let x = topLevel |> List.map fn |> List.concat in
-        x
+  match ProcessCmt.getFullFromCmt ~uri with
+  | None -> print_endline Protocol.null
+  | Some {file} ->
+    let open SharedTypes in
+    let rec getItems {topLevel} =
+      let rec getItem = function
+        | MValue v -> (v |> SharedTypes.variableKind, [])
+        | MType (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
+        | Module (Structure contents) -> (Module, getItems contents)
+        | Module (Constraint (_, modTypeItem)) -> getItem (Module modTypeItem)
+        | Module (Ident _) -> (Module, [])
       in
-      let allSymbols =
-        getItems file.contents
-        |> List.map (fun (name, loc, kind) ->
-               Protocol.stringifyDocumentSymbolItem
-                 {
-                   name;
-                   location =
-                     {uri = Uri2.toString uri; range = Utils.cmtLocToRange loc};
-                   kind = SharedTypes.symbolKind kind;
-                 })
+      let fn {name = {txt}; extentLoc; item} =
+        let item, siblings = getItem item in
+        if extentLoc.loc_ghost then siblings
+        else (txt, extentLoc, item) :: siblings
       in
-      "[\n" ^ (allSymbols |> String.concat ",\n") ^ "\n]"
-  in
-  print_endline result
+      let x = topLevel |> List.map fn |> List.concat in
+      x
+    in
+    let allSymbols =
+      getItems file.contents
+      |> List.map (fun (name, loc, kind) ->
+             Protocol.stringifyDocumentSymbolItem
+               {
+                 name;
+                 location =
+                   {uri = Uri2.toString uri; range = Utils.cmtLocToRange loc};
+                 kind = SharedTypes.symbolKind kind;
+               })
+    in
+    print_endline ("[\n" ^ (allSymbols |> String.concat ",\n") ^ "\n]")
 
 let rename ~path ~line ~col ~newName =
   let uri = Uri2.fromPath path in
