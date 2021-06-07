@@ -38,7 +38,7 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => {};
+let send: (msg: m.Message) => void = (_) => { };
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -282,7 +282,7 @@ function references(msg: p.RequestMessage) {
   return response;
 }
 
-function prepareRename(msg: p.RequestMessage) {
+function prepareRename(msg: p.RequestMessage): m.ResponseMessage {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -293,29 +293,24 @@ function prepareRename(msg: p.RequestMessage) {
 
   let result: p.Range | null = null;
 
-  if (locations !== null && locations.length > 0) {
-    let targetLoc = locations.find(loc => {
+  if (locations !== null) {
+    locations.forEach(loc => {
       if (
         path.normalize(fileURLToPath(loc.uri)) ===
         path.normalize(fileURLToPath(params.textDocument.uri))
       ) {
         let { start, end } = loc.range;
         let pos = params.position;
-
-        return (
+        if (
           start.character <= pos.character &&
           start.line <= pos.line &&
           end.character >= pos.character &&
           end.line >= pos.line
-        );
+        ) {
+          result = loc.range;
+        };
       }
-
-      return false;
     });
-
-    if (targetLoc != null) {
-      result = targetLoc.range;
-    }
   }
 
   let response: m.ResponseMessage = {
@@ -333,12 +328,12 @@ function rename(msg: p.RequestMessage) {
   let documentChanges:
     | (p.RenameFile | p.TextDocumentEdit)[]
     | null = utils.runAnalysisAfterSanityCheck(filePath, [
-    "rename",
-    filePath,
-    params.position.line,
-    params.position.character,
-    params.newName
-  ]);
+      "rename",
+      filePath,
+      params.position.line,
+      params.position.character,
+      params.newName
+    ]);
 
   let result: WorkspaceEdit | null = null;
 
