@@ -1146,19 +1146,14 @@ let getCompletable ~textOpt ~pos =
         let rawOpens = PartialParser.findOpens text offset in
         Some (completable, rawOpens)))
 
-let computeCompletions ~completable ~pos ~rawOpens ~uri =
-  match ProcessCmt.getFullFromCmt ~uri with
-  | None -> []
-  | Some full ->
-    let package = full.package in
-    let allFiles =
-      FileSet.union package.projectFiles package.dependenciesFiles
-    in
-    let findItems ~exact parts =
-      let items = getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts in
-      match parts |> List.rev with
-      | last :: _ when exact ->
-        items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
-      | _ -> items
-    in
-    completable |> processCompletable ~findItems ~full ~package ~rawOpens
+let computeCompletions ~completable ~full ~pos ~rawOpens =
+  let package = full.package in
+  let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
+  let findItems ~exact parts =
+    let items = getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts in
+    match parts |> List.rev with
+    | last :: _ when exact ->
+      items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
+    | _ -> items
+  in
+  completable |> processCompletable ~findItems ~full ~package ~rawOpens

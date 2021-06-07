@@ -35,16 +35,18 @@ let dump files =
          print_endline result)
 
 let completion ~path ~line ~col ~currentFile =
-  let uri = Uri2.fromPath path in
   let pos = (line, col) in
   let result =
     let textOpt = Files.readFile currentFile in
     let completionItems =
       match NewCompletions.getCompletable ~textOpt ~pos with
       | None -> []
-      | Some (completable, rawOpens) ->
-        (* Only perform expensive operation if there are completables *)
-        NewCompletions.computeCompletions ~completable ~pos ~rawOpens ~uri
+      | Some (completable, rawOpens) -> (
+        (* Only perform expensive ast operations if there are completables *)
+        match getFull ~path with
+        | None -> []
+        | Some full ->
+          NewCompletions.computeCompletions ~completable ~full ~pos ~rawOpens)
     in
     completionItems
     |> List.map Protocol.stringifyCompletionItem
