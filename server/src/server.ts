@@ -44,11 +44,11 @@ interface CreateInterfaceRequestParams {
   uri: string;
 }
 
-let createInterfaceRequest = new v.RequestType<
-  CreateInterfaceRequestParams,
-  string,
-  void
->("rescript-vscode.create_interface");
+let createInterfaceRequest =
+  new v.RequestType<
+    CreateInterfaceRequestParams,
+    string,
+    void>("rescript-vscode.create_interface");
 
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
@@ -290,9 +290,7 @@ function prepareRename(msg: p.RequestMessage): m.ResponseMessage {
     filePath,
     params.position
   );
-
   let result: p.Range | null = null;
-
   if (locations !== null) {
     locations.forEach(loc => {
       if (
@@ -311,14 +309,12 @@ function prepareRename(msg: p.RequestMessage): m.ResponseMessage {
         };
       }
     });
-  }
-
-  let response: m.ResponseMessage = {
+  };
+  return {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
     result
   };
-  return response;
 }
 
 function rename(msg: p.RequestMessage) {
@@ -334,19 +330,15 @@ function rename(msg: p.RequestMessage) {
       params.position.character,
       params.newName
     ]);
-
   let result: WorkspaceEdit | null = null;
-
   if (documentChanges !== null) {
     result = { documentChanges };
-  }
-
+  };
   let response: m.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
     result
   };
-
   return response;
 }
 
@@ -396,7 +388,6 @@ function format(msg: p.RequestMessage): Array<m.Message> {
     id: msg.id,
     result: [],
   };
-
   let params = msg.params as p.DocumentFormattingParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let extension = path.extname(params.textDocument.uri);
