@@ -1,3 +1,7 @@
+let getFull ~path =
+  let uri = Uri2.fromPath path in
+  ProcessCmt.getFullFromCmt ~uri
+
 let dumpLocations ~full =
   full.SharedTypes.extra.locItems
   |> List.map (fun locItem ->
@@ -23,9 +27,8 @@ let dump files =
   Shared.cacheTypeToString := true;
   files
   |> List.iter (fun path ->
-         let uri = Uri2.fromPath path in
          let result =
-           match ProcessCmt.getFullFromCmt ~uri with
+           match getFull ~path with
            | None -> "[]"
            | Some full -> dumpLocations ~full
          in
