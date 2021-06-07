@@ -2,6 +2,7 @@
 - Find references to files as modules.
 - Autocomplete: skip inline comments to decide if a labeled argument was already supplied.
 - Rename: support file rename when renaming a module name.
+- Rename: use renameProvider to give a warning when it's not a symbol that can be renamed.
 
 ## 1.1.2
 
