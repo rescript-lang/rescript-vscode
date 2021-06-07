@@ -40,6 +40,7 @@ let completion ~path ~line ~col ~currentFile =
       match NewCompletions.getCompletable ~textOpt ~pos with
       | None -> []
       | Some (completable, rawOpens) ->
+        (* Only perform expensive operation if there are completables *)
         NewCompletions.computeCompletions ~completable ~pos ~rawOpens ~uri
     in
     completionItems
