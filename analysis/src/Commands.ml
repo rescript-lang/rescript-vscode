@@ -55,9 +55,8 @@ let completion ~path ~line ~col ~currentFile =
   print_endline result
 
 let hover ~path ~line ~col =
-  let uri = Uri2.fromPath path in
   let result =
-    match ProcessCmt.getFullFromCmt ~uri with
+    match getFull ~path with
     | None -> Protocol.null
     | Some ({file} as full) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
@@ -91,9 +90,8 @@ let hover ~path ~line ~col =
   print_endline result
 
 let definition ~path ~line ~col =
-  let uri = Uri2.fromPath path in
   let result =
-    match ProcessCmt.getFullFromCmt ~uri with
+    match getFull ~path with
     | None -> Protocol.null
     | Some ({file} as full) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
@@ -126,9 +124,8 @@ let definition ~path ~line ~col =
   print_endline result
 
 let references ~path ~line ~col =
-  let uri = Uri2.fromPath path in
   let result =
-    match ProcessCmt.getFullFromCmt ~uri with
+    match getFull ~path with
     | None -> Protocol.null
     | Some full -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
@@ -155,9 +152,8 @@ let references ~path ~line ~col =
   print_endline result
 
 let documentSymbol ~path =
-  let uri = Uri2.fromPath path in
   let result =
-    match ProcessCmt.getFullFromCmt ~uri with
+    match getFull ~path with
     | None -> Protocol.null
     | Some {file} ->
       let open SharedTypes in
@@ -184,7 +180,10 @@ let documentSymbol ~path =
                  {
                    name;
                    location =
-                     {uri = Uri2.toString uri; range = Utils.cmtLocToRange loc};
+                     {
+                       uri = Uri2.toString (Uri2.fromPath path);
+                       range = Utils.cmtLocToRange loc;
+                     };
                    kind = SharedTypes.symbolKind kind;
                  })
       in
@@ -193,9 +192,8 @@ let documentSymbol ~path =
   print_endline result
 
 let rename ~path ~line ~col ~newName =
-  let uri = Uri2.fromPath path in
   let result =
-    match ProcessCmt.getFullFromCmt ~uri with
+    match getFull ~path with
     | None -> Protocol.null
     | Some full -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
