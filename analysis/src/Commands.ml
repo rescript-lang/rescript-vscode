@@ -96,8 +96,7 @@ let definition ~path ~line ~col =
       match References.getLocItem ~full ~line ~col with
       | None -> None
       | Some locItem -> (
-        let uriLocOpt = References.definitionForLocItem ~full locItem in
-        match uriLocOpt with
+        match References.definitionForLocItem ~full locItem with
         | None -> None
         | Some (uri, loc) ->
           let isInterface = file.uri |> Uri2.isInterface in
