@@ -15,8 +15,6 @@ let endsWith s suffix =
     let l = String.length s in
     p <= String.length s && String.sub s (l - p) p = suffix
 
-let protocolLineColToCmtLoc ~line ~col = (line + 1, col)
-
 let cmtPosToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} =
   Protocol.{line = pos_lnum - 1; character = pos_cnum - pos_bol}
 

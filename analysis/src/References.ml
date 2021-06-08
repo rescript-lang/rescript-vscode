@@ -17,7 +17,10 @@ let checkPos (line, char)
 let locItemsForPos ~extra pos =
   extra.locItems |> List.filter (fun {loc; locType = _} -> checkPos pos loc)
 
-let locItemForPos ~full pos =
+let lineColToCmtLoc ~line ~col = (line + 1, col)
+
+let getLocItem ~full ~line ~col =
+  let pos = lineColToCmtLoc ~line ~col in
   let locItems = locItemsForPos ~extra:full.extra pos in
   if !Log.spamError then
     print_endline

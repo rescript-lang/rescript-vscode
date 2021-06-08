@@ -59,8 +59,7 @@ let hover ~path ~line ~col =
     match getFull ~path with
     | None -> Protocol.null
     | Some ({file} as full) -> (
-      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-      match References.locItemForPos ~full pos with
+      match References.getLocItem ~full ~line ~col with
       | None -> Protocol.null
       | Some locItem -> (
         let isModule =
@@ -94,8 +93,7 @@ let definition ~path ~line ~col =
     match getFull ~path with
     | None -> Protocol.null
     | Some ({file} as full) -> (
-      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-      match References.locItemForPos ~full pos with
+      match References.getLocItem ~full ~line ~col with
       | None -> Protocol.null
       | Some locItem -> (
         let uriLocOpt = References.definitionForLocItem ~full locItem in
@@ -128,8 +126,7 @@ let references ~path ~line ~col =
     match getFull ~path with
     | None -> Protocol.null
     | Some full -> (
-      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-      match References.locItemForPos ~full pos with
+      match References.getLocItem ~full ~line ~col with
       | None -> Protocol.null
       | Some locItem ->
         let allReferences = References.allReferencesForLocItem ~full locItem in
@@ -196,8 +193,7 @@ let rename ~path ~line ~col ~newName =
     match getFull ~path with
     | None -> Protocol.null
     | Some full -> (
-      let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-      match References.locItemForPos ~full pos with
+      match References.getLocItem ~full ~line ~col with
       | None -> Protocol.null
       | Some locItem ->
         let allReferences = References.allReferencesForLocItem ~full locItem in
