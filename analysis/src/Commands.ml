@@ -89,16 +89,16 @@ let hover ~path ~line ~col =
   print_endline result
 
 let definition ~path ~line ~col =
-  let result =
+  let locationOpt =
     match getFull ~path with
-    | None -> Protocol.null
+    | None -> None
     | Some ({file} as full) -> (
       match References.getLocItem ~full ~line ~col with
-      | None -> Protocol.null
+      | None -> None
       | Some locItem -> (
         let uriLocOpt = References.definitionForLocItem ~full locItem in
         match uriLocOpt with
-        | None -> Protocol.null
+        | None -> None
         | Some (uri, loc) ->
           let isInterface = file.uri |> Uri2.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
@@ -114,12 +114,18 @@ let definition ~path ~line ~col =
             (not isModule) && (not isInterface) && posIsZero loc.loc_start
             && posIsZero loc.loc_end
           in
-          if skipLoc then Protocol.null
+          if skipLoc then None
           else
-            Protocol.stringifyLocation
-              {uri = Uri2.toString uri; range = Utils.cmtLocToRange loc}))
+            Some
+              {
+                Protocol.uri = Uri2.toString uri;
+                range = Utils.cmtLocToRange loc;
+              }))
   in
-  print_endline result
+  print_endline
+    (match locationOpt with
+    | None -> Protocol.null
+    | Some location -> location |> Protocol.stringifyLocation)
 
 let references ~path ~line ~col =
   let allLocs =
