@@ -99,11 +99,6 @@ let definition ~path ~line ~col =
       match References.locItemForPos ~full pos with
       | None -> Protocol.null
       | Some locItem -> (
-        let isModule =
-          match locItem.locType with
-          | SharedTypes.LModule _ | TopLevelModule _ -> true
-          | TypeDefinition _ | Typed _ | Constant _ -> false
-        in
         let uriLocOpt = References.definitionForLocItem ~full locItem in
         match uriLocOpt with
         | None -> Protocol.null
@@ -111,6 +106,11 @@ let definition ~path ~line ~col =
           let isInterface = file.uri |> Uri2.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
             (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
+          in
+          let isModule =
+            match locItem.locType with
+            | SharedTypes.LModule _ | TopLevelModule _ -> true
+            | TypeDefinition _ | Typed _ | Constant _ -> false
           in
           (* Skip if range is all zero, unless it's a module *)
           let skipZero =
