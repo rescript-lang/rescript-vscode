@@ -95,14 +95,13 @@ let definition ~path ~line ~col =
     | None -> Protocol.null
     | Some ({file} as full) -> (
       let pos = Utils.protocolLineColToCmtLoc ~line ~col in
-
       match References.locItemForPos ~full pos with
       | None -> Protocol.null
       | Some locItem -> (
         let uriLocOpt = References.definitionForLocItem ~full locItem in
         match uriLocOpt with
         | None -> Protocol.null
-        | Some (uri2, loc) ->
+        | Some (uri, loc) ->
           let isInterface = file.uri |> Uri2.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
             (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
@@ -119,7 +118,7 @@ let definition ~path ~line ~col =
           if skipZero then Protocol.null
           else
             Protocol.stringifyLocation
-              {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}))
+              {uri = Uri2.toString uri; range = Utils.cmtLocToRange loc}))
   in
   print_endline result
 
