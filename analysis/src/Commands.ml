@@ -104,18 +104,19 @@ let definition ~path ~line ~col =
         | Some (uri, loc) ->
           let isInterface = file.uri |> Uri2.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-            (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
+            (* range is zero *)
+            pos_lnum = 1 && pos_cnum - pos_bol = 0
           in
           let isModule =
             match locItem.locType with
             | SharedTypes.LModule _ | TopLevelModule _ -> true
             | TypeDefinition _ | Typed _ | Constant _ -> false
           in
-          (* Skip if range is all zero, unless it's a module *)
-          let skipZero =
-            (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
+          let skipLoc =
+            (not isModule) && (not isInterface) && posIsZero loc.loc_start
+            && posIsZero loc.loc_end
           in
-          if skipZero then Protocol.null
+          if skipLoc then Protocol.null
           else
             Protocol.stringifyLocation
               {uri = Uri2.toString uri; range = Utils.cmtLocToRange loc}))
