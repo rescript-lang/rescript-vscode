@@ -122,31 +122,30 @@ let definition ~path ~line ~col =
   print_endline result
 
 let references ~path ~line ~col =
-  let result =
+  let allLocs =
     match getFull ~path with
-    | None -> Protocol.null
+    | None -> []
     | Some full -> (
       match References.getLocItem ~full ~line ~col with
-      | None -> Protocol.null
+      | None -> []
       | Some locItem ->
         let allReferences = References.allReferencesForLocItem ~full locItem in
-        let allLocs =
-          allReferences
-          |> List.fold_left
-               (fun acc {References.uri = uri2; locOpt} ->
-                 let loc =
-                   match locOpt with
-                   | Some loc -> loc
-                   | None -> Uri2.toTopLevelLoc uri2
-                 in
-                 Protocol.stringifyLocation
-                   {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}
-                 :: acc)
-               []
-        in
-        "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
+        allReferences
+        |> List.fold_left
+             (fun acc {References.uri = uri2; locOpt} ->
+               let loc =
+                 match locOpt with
+                 | Some loc -> loc
+                 | None -> Uri2.toTopLevelLoc uri2
+               in
+               Protocol.stringifyLocation
+                 {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}
+               :: acc)
+             [])
   in
-  print_endline result
+  print_endline
+    (if allLocs = [] then Protocol.null
+    else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
 
 let documentSymbol ~path =
   let result =
