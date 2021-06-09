@@ -10,7 +10,9 @@ let fromUri ~uri =
     in
     match Hashtbl.find_opt package.pathsForModule moduleName with
     | Some paths ->
-      let cmt = SharedTypes.getCmt ~interface:(Utils.endsWith path "i") paths in
+      let cmt =
+        SharedTypes.getCmtPath ~interface:(Utils.endsWith path "i") paths
+      in
       ProcessCmt.fullForCmt ~moduleName ~package ~uri cmt
     | None ->
       prerr_endline ("can't find module " ^ moduleName);

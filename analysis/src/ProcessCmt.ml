@@ -1260,7 +1260,7 @@ let fileForModule modname ~package =
   if Hashtbl.mem package.pathsForModule modname then (
     let paths = Hashtbl.find package.pathsForModule modname in
     (* TODO: do better *)
-    let cmt = SharedTypes.getCmt ~interface:false paths in
+    let cmt = SharedTypes.getCmtPath ~interface:false paths in
     let uri = SharedTypes.getUri paths in
     Log.log ("FINDING docs for module " ^ SharedTypes.showPaths paths);
     Log.log ("FINDING " ^ cmt ^ " uri " ^ Uri2.toString uri);

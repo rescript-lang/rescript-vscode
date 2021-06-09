@@ -142,7 +142,7 @@ let getUri p =
   | Namespace {cmt} -> Uri2.fromPath cmt
   | IntfAndImpl {resi} -> Uri2.fromPath resi
 
-let getCmt ~interface p =
+let getCmtPath ~interface p =
   match p with
   | Impl {cmt} -> cmt
   | Namespace {cmt} -> cmt
