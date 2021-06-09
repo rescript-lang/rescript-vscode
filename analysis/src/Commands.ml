@@ -1,7 +1,3 @@
-let getFull ~path =
-  let uri = Uri2.fromPath path in
-  ProcessCmt.getFullFromCmt ~uri
-
 let dumpLocations ~full =
   full.SharedTypes.extra.locItems
   |> List.map (fun locItem ->
@@ -28,7 +24,7 @@ let dump files =
   files
   |> List.iter (fun path ->
          let result =
-           match getFull ~path with
+           match Cmt.fromPath ~path with
            | None -> "[]"
            | Some full -> dumpLocations ~full
          in
@@ -43,7 +39,7 @@ let completion ~path ~line ~col ~currentFile =
       | None -> []
       | Some (completable, rawOpens) -> (
         (* Only perform expensive ast operations if there are completables *)
-        match getFull ~path with
+        match Cmt.fromPath ~path with
         | None -> []
         | Some full ->
           NewCompletions.computeCompletions ~completable ~full ~pos ~rawOpens)
@@ -56,7 +52,7 @@ let completion ~path ~line ~col ~currentFile =
 
 let hover ~path ~line ~col =
   let result =
-    match getFull ~path with
+    match Cmt.fromPath ~path with
     | None -> Protocol.null
     | Some ({file} as full) -> (
       match References.getLocItem ~full ~line ~col with
@@ -90,7 +86,7 @@ let hover ~path ~line ~col =
 
 let definition ~path ~line ~col =
   let locationOpt =
-    match getFull ~path with
+    match Cmt.fromPath ~path with
     | None -> None
     | Some ({file} as full) -> (
       match References.getLocItem ~full ~line ~col with
@@ -128,7 +124,7 @@ let definition ~path ~line ~col =
 
 let references ~path ~line ~col =
   let allLocs =
-    match getFull ~path with
+    match Cmt.fromPath ~path with
     | None -> []
     | Some full -> (
       match References.getLocItem ~full ~line ~col with
@@ -154,7 +150,7 @@ let references ~path ~line ~col =
 
 let documentSymbol ~path =
   let result =
-    match getFull ~path with
+    match Cmt.fromPath ~path with
     | None -> Protocol.null
     | Some {file} ->
       let open SharedTypes in
@@ -194,7 +190,7 @@ let documentSymbol ~path =
 
 let rename ~path ~line ~col ~newName =
   let result =
-    match getFull ~path with
+    match Cmt.fromPath ~path with
     | None -> Protocol.null
     | Some full -> (
       match References.getLocItem ~full ~line ~col with

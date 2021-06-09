@@ -196,7 +196,7 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
       let resiUri = Uri2.fromPath resi in
       let resUri = Uri2.fromPath res in
       if Uri2.isInterface file.uri then
-        match ProcessCmt.getFullFromCmt ~uri:resUri with
+        match Cmt.fromUri ~uri:resUri with
         | None -> None
         | Some {file; extra} -> (
           match
@@ -206,7 +206,7 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
           | None -> None
           | Some declared -> Some (file, extra, declared))
       else
-        match ProcessCmt.getFullFromCmt ~uri:resiUri with
+        match Cmt.fromUri ~uri:resiUri with
         | None -> None
         | Some {file; extra} -> (
           match
@@ -443,7 +443,7 @@ let forLocalStamp ~full:{file; extra; package} stamp tip =
                        match ProcessCmt.fileForModule ~package name with
                        | None -> []
                        | Some file -> (
-                         match ProcessCmt.extraForModule ~package name with
+                         match Cmt.fromModule ~package name with
                          | None -> []
                          | Some {extra} -> (
                            match
@@ -480,7 +480,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       |> Utils.filterMap (fun name ->
              match ProcessCmt.fileForModule ~package name with
              | None -> None
-             | Some file -> ProcessCmt.getFullFromCmt ~uri:file.uri)
+             | Some file -> Cmt.fromUri ~uri:file.uri)
       |> List.map (fun full ->
              match Hashtbl.find_opt full.extra.fileReferences moduleName with
              | None -> []
@@ -521,7 +521,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
         match ProcessCmt.exportedForTip ~env name tip with
         | None -> []
         | Some stamp -> (
-          match ProcessCmt.getFullFromCmt ~uri:env.file.uri with
+          match Cmt.fromUri ~uri:env.file.uri with
           | None -> []
           | Some full ->
             maybeLog

@@ -1235,31 +1235,6 @@ let newFileForCmt ~moduleName cmtCache changed ~cmt ~uri =
     Hashtbl.replace cmtCache cmt (changed, file);
     Some file
 
-let getFullFromCmt ~uri =
-  let path = Uri2.toPath uri in
-  match Packages.getPackage uri with
-  | Error message ->
-    prerr_endline message;
-    None
-  | Ok package -> (
-    let moduleName =
-      BuildSystem.namespacedName package.namespace (FindFiles.getName path)
-    in
-    match Hashtbl.find_opt package.pathsForModule moduleName with
-    | Some paths ->
-      let cmt = SharedTypes.getCmt ~interface:(Utils.endsWith path "i") paths in
-      fullForCmt ~moduleName ~package ~uri cmt
-    | None ->
-      prerr_endline ("can't find module " ^ moduleName);
-      None)
-
-let extraForModule ~package modname =
-  if Hashtbl.mem package.pathsForModule modname then
-    let paths = Hashtbl.find package.pathsForModule modname in
-    let uri = SharedTypes.getUri paths in
-    getFullFromCmt ~uri
-  else None
-
 let fileForCmt ~moduleName ~cmt ~uri state =
   if Hashtbl.mem state.cmtCache cmt then
     let mtime, docs = Hashtbl.find state.cmtCache cmt in
