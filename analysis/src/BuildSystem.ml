@@ -13,15 +13,15 @@ let getBsPlatformDir rootPath =
     else result
   in
   match result with
-  | Some path -> Ok path
+  | Some path -> Some path
   | None ->
     let message = "bs-platform could not be found" in
     Log.log message;
-    Error message
+    None
 
 let getLibBs root = Files.ifExists (root /+ "lib" /+ "bs")
 
 let getStdlib base =
   match getBsPlatformDir base with
-  | Error e -> Error e
-  | Ok bsPlatformDir -> Ok (bsPlatformDir /+ "lib" /+ "ocaml")
+  | None -> None
+  | Some bsPlatformDir -> Some (bsPlatformDir /+ "lib" /+ "ocaml")

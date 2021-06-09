@@ -11,25 +11,24 @@ let makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths =
          Hashtbl.replace pathsForModule modName paths);
   pathsForModule
 
-let newBsPackage rootPath =
-  let path = Filename.concat rootPath "bsconfig.json" in
-  match Files.readFile path with
-  | None -> Error ("Unable to read " ^ path)
+let newBsPackage ~rootPath =
+  let bsconfig = Filename.concat rootPath "bsconfig.json" in
+  match Files.readFile bsconfig with
+  | None ->
+    Log.log ("Unable to read " ^ bsconfig);
+    None
   | Some raw -> (
     let config = Json.parse raw in
     Log.log {|📣 📣 NEW BSB PACKAGE 📣 📣|};
     Log.log ("- location: " ^ rootPath);
     let libBs = BuildSystem.getLibBs rootPath in
     match FindFiles.findDependencyFiles rootPath config with
-    | Error e -> Error e
-    | Ok (dependencyDirectories, dependenciesFilesAndPaths) -> (
+    | None -> None
+    | Some (dependencyDirectories, dependenciesFilesAndPaths) -> (
       match libBs with
-      | None ->
-        Error
-          "Please run the build first so that the editor can analyze the \
-           project's artifacts."
+      | None -> None
       | Some libBs ->
-        Ok
+        Some
           (let namespace = FindFiles.getNamespace config in
            let sourceDirectories =
              FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
@@ -111,17 +110,20 @@ let findRoot ~uri packagesByRoot =
 let getPackage ~uri =
   let open SharedTypes in
   if Hashtbl.mem state.rootForUri uri then
-    Ok (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))
+    Some (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))
   else
     match findRoot ~uri state.packagesByRoot with
-    | None -> Error "No root directory found"
+    | None ->
+      Log.log "No root directory found";
+      None
     | Some (`Root rootPath) ->
       Hashtbl.replace state.rootForUri uri rootPath;
-      Ok (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))
+      Some
+        (Hashtbl.find state.packagesByRoot (Hashtbl.find state.rootForUri uri))
     | Some (`Bs rootPath) -> (
-      match newBsPackage rootPath with
-      | Error e -> Error e
-      | Ok package ->
+      match newBsPackage ~rootPath with
+      | None -> None
+      | Some package ->
         Hashtbl.replace state.rootForUri uri package.rootPath;
         Hashtbl.replace state.packagesByRoot package.rootPath package;
-        Ok package)
+        Some package)

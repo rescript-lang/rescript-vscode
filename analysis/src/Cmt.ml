@@ -3,10 +3,8 @@ open SharedTypes
 let fromUri ~uri =
   let path = Uri2.toPath uri in
   match Packages.getPackage ~uri with
-  | Error message ->
-    prerr_endline message;
-    None
-  | Ok package -> (
+  | None -> None
+  | Some package -> (
     let moduleName =
       BuildSystem.namespacedName package.namespace (FindFiles.getName path)
     in

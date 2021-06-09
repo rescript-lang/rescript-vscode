@@ -237,11 +237,11 @@ let findDependencyFiles base config =
              ([], []))
   in
   match BuildSystem.getStdlib base with
-  | Error e -> Error e
-  | Ok stdlibDirectory ->
+  | None -> None
+  | Some stdlibDirectory ->
     let compiledDirectories, projectFiles =
       let files, directories = List.split depFiles in
       (List.concat files, List.concat directories)
     in
     let allFiles = projectFiles @ collectFiles stdlibDirectory in
-    Ok (compiledDirectories, allFiles)
+    Some (compiledDirectories, allFiles)
