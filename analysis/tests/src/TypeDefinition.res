@@ -11,7 +11,7 @@ let y = {item: "foo"}
 type obj = {"foo": string}
 
 let obj: obj = {"foo": "bar"}
-//  ^type
+//  ^typ
 
 let f = r => r.item
 //           ^typ
