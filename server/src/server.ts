@@ -622,7 +622,7 @@ function onMessage(msg: m.Message) {
           definitionProvider: true,
           referencesProvider: true,
           renameProvider: { prepareProvider: true },
-          documentSymbolProvider: false,
+          documentSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~"] },
         },
       };
