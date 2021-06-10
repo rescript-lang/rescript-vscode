@@ -1,6 +1,7 @@
 type variant = Foo | Bar
 
 type record = {item: string}
+//       ^typ
 
 let x = Foo
 //  ^typ

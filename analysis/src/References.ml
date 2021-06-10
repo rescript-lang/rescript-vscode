@@ -361,7 +361,8 @@ let definitionForLocItem ~full:{file; package} locItem =
 
 let typeDefinitionForLocItem ~full:{file; package} locItem =
   match locItem.locType with
-  | Constant _ | TopLevelModule _ | LModule _ | TypeDefinition _ -> None
+  | Constant _ | TopLevelModule _ | LModule _ -> None
+  | TypeDefinition _ -> Some (file.uri, locItem.loc)
   | Typed (_, typ, _) -> (
     let env = SharedTypes.QueryEnv.fromFile file in
     match Shared.digConstructor typ with
