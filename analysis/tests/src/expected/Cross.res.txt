@@ -81,3 +81,6 @@ Rename tests/src/Cross.res 24:28 xPrime
   }
 ]
 
+TypeDefinition tests/src/Cross.res 28:5
+{"uri": "TypeDefinition.res", "range": {"start": {"line": 2, "character": 0}, "end": {"line": 2, "character": 28}}}
+

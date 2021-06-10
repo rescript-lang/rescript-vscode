@@ -24,3 +24,7 @@ let _ = RenameWithInterface.x
 
 let _ = RenameWithInterface.x
 //                          ^ren xPrime
+
+
+let typeDef = {TypeDefinition.item: "foobar"}
+//   ^typ
