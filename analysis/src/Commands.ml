@@ -122,6 +122,26 @@ let definition ~path ~line ~col =
     | None -> Protocol.null
     | Some location -> location |> Protocol.stringifyLocation)
 
+let typeDefinition ~path ~line ~col =
+  let maybeLocation =
+    match Cmt.fromPath ~path with
+    | None -> None
+    | Some full -> (
+      match References.getLocItem ~full ~line ~col with
+      | None -> None
+      | Some locItem -> (
+        match References.typeDefinitionForLocItem ~full locItem with
+        | None -> None
+        | Some (uri, loc) ->
+          Some
+            {Protocol.uri = Uri2.toString uri; range = Utils.cmtLocToRange loc})
+      )
+  in
+  print_endline
+    (match maybeLocation with
+    | None -> Protocol.null
+    | Some location -> location |> Protocol.stringifyLocation)
+
 let references ~path ~line ~col =
   let allLocs =
     match Cmt.fromPath ~path with
@@ -281,6 +301,11 @@ let test ~path =
               ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             definition ~path ~line ~col
+          | "typ" ->
+            print_endline
+              ("TypeDefinition " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            typeDefinition ~path ~line ~col
           | "hov" ->
             print_endline
               ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"

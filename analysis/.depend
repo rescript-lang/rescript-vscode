@@ -1,39 +1,106 @@
-src/BuildSystem.cmx : src/ModuleResolution.cmx src/Log.cmx src/Files.cmx
-src/Cli.cmx : src/Commands.cmx
-src/Cmt.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/ProcessCmt.cmx src/Packages.cmx src/FindFiles.cmx src/BuildSystem.cmx
-src/Commands.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/Shared.cmx src/References.cmx src/Protocol.cmx src/NewCompletions.cmx \
-    src/Hover.cmx src/Files.cmx src/Cmt.cmx
+src/BuildSystem.cmx : \
+    src/ModuleResolution.cmx \
+    src/Log.cmx \
+    src/Files.cmx
+src/Cli.cmx : \
+    src/Commands.cmx
+src/Cmt.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/ProcessCmt.cmx \
+    src/Packages.cmx \
+    src/FindFiles.cmx \
+    src/BuildSystem.cmx
+src/Commands.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/References.cmx \
+    src/Protocol.cmx \
+    src/NewCompletions.cmx \
+    src/Hover.cmx \
+    src/Files.cmx \
+    src/Cmt.cmx
 src/Files.cmx :
-src/FindFiles.cmx : src/Utils.cmx src/SharedTypes.cmx \
-    src/ModuleResolution.cmx src/Log.cmx src/vendor/Json.cmx src/Infix.cmx \
-    src/Files.cmx src/BuildSystem.cmx
-src/Hover.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
-    src/References.cmx src/ProcessCmt.cmx
+src/FindFiles.cmx : \
+    src/Utils.cmx \
+    src/SharedTypes.cmx \
+    src/ModuleResolution.cmx \
+    src/Log.cmx \
+    src/vendor/Json.cmx \
+    src/Infix.cmx \
+    src/Files.cmx \
+    src/BuildSystem.cmx
+src/Hover.cmx : \
+    src/Utils.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/References.cmx \
+    src/ProcessCmt.cmx
 src/Infix.cmx :
 src/Log.cmx :
-src/ModuleResolution.cmx : src/Files.cmx
-src/NewCompletions.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/Shared.cmx src/Protocol.cmx src/ProcessCmt.cmx src/PartialParser.cmx \
-    src/Log.cmx src/Hover.cmx
-src/Packages.cmx : src/Uri2.cmx src/SharedTypes.cmx src/Log.cmx \
-    src/vendor/Json.cmx src/Infix.cmx src/FindFiles.cmx src/Files.cmx \
+src/ModuleResolution.cmx : \
+    src/Files.cmx
+src/NewCompletions.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/Protocol.cmx \
+    src/ProcessCmt.cmx \
+    src/PartialParser.cmx \
+    src/Log.cmx \
+    src/Hover.cmx
+src/Packages.cmx : \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/Log.cmx \
+    src/vendor/Json.cmx \
+    src/Infix.cmx \
+    src/FindFiles.cmx \
+    src/Files.cmx \
     src/BuildSystem.cmx
-src/PartialParser.cmx : src/SharedTypes.cmx
+src/PartialParser.cmx : \
+    src/SharedTypes.cmx
 src/PrepareUtils.cmx :
-src/PrintType.cmx : src/vendor/res_outcome_printer/res_outcome_printer.cmx \
+src/PrintType.cmx : \
+    src/vendor/res_outcome_printer/res_outcome_printer.cmx \
     src/vendor/res_outcome_printer/res_doc.cmx
-src/ProcessAttributes.cmx : src/SharedTypes.cmx src/PrepareUtils.cmx
-src/ProcessCmt.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/Shared.cmx src/ProcessAttributes.cmx src/Log.cmx src/Files.cmx
-src/Protocol.cmx : src/vendor/Json.cmx
-src/References.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/ProcessCmt.cmx src/Log.cmx src/Infix.cmx src/Cmt.cmx
-src/Shared.cmx : src/PrintType.cmx src/Log.cmx src/Files.cmx
-src/SharedTypes.cmx : src/Utils.cmx src/Uri2.cmx src/Shared.cmx
+src/ProcessAttributes.cmx : \
+    src/SharedTypes.cmx \
+    src/PrepareUtils.cmx
+src/ProcessCmt.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/ProcessAttributes.cmx \
+    src/Log.cmx \
+    src/Files.cmx
+src/Protocol.cmx : \
+    src/vendor/Json.cmx
+src/References.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/ProcessCmt.cmx \
+    src/Log.cmx \
+    src/Infix.cmx \
+    src/Cmt.cmx
+src/Shared.cmx : \
+    src/PrintType.cmx \
+    src/Log.cmx \
+    src/Files.cmx
+src/SharedTypes.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/Shared.cmx
 src/Uri2.cmx :
-src/Utils.cmx : src/Protocol.cmx
+src/Utils.cmx : \
+    src/Protocol.cmx
 src/vendor/Json.cmx :
 src/vendor/res_outcome_printer/res_comment.cmx : \
     src/vendor/res_outcome_printer/res_comment.cmi

@@ -5,6 +5,7 @@ let help =
 API examples:
   ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 currentContent.res
   ./rescript-editor-analysis.exe definition src/MyFile.res 9 3
+  ./rescript-editor-analysis.exe typeDefinition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe documentSymbol src/Foo.res
   ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
   ./rescript-editor-analysis.exe references src/MyFile.res 10 2
@@ -26,6 +27,10 @@ Options:
   definition: get definition for item in MyFile.res at line 10 column 2:
 
     ./rescript-editor-analysis.exe definition src/MyFile.res 10 2
+
+  typeDefinition: get type definition for item in MyFile.res at line 10 column 2:
+
+    ./rescript-editor-analysis.exe typeDefinition src/MyFile.res 10 2
 
   documentSymbol: get all symbols declared in MyFile.res
 
@@ -59,6 +64,9 @@ let main () =
       ~col:(int_of_string col) ~currentFile
   | [_; "definition"; path; line; col] ->
     Commands.definition ~path ~line:(int_of_string line)
+      ~col:(int_of_string col)
+  | [_; "typeDefinition"; path; line; col] ->
+    Commands.typeDefinition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
   | _ :: "dump" :: files -> Commands.dump files
   | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
