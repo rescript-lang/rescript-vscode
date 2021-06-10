@@ -359,6 +359,29 @@ let definitionForLocItem ~full:{file; package} locItem =
           maybeLog ("Got stamp " ^ string_of_int stamp);
           definition ~file:env.file ~package stamp tip)))
 
+let typeDefinitionForLocItem ~full:{file; package} locItem =
+  match locItem.locType with
+  | Constant _ | TopLevelModule _ | LModule _ | TypeDefinition _ -> None
+  | Typed (_, typ, _) -> (
+    let env = SharedTypes.QueryEnv.fromFile file in
+    match Shared.digConstructor typ with
+    | None -> None
+    | Some path -> (
+      match ProcessCmt.resolveFromCompilerPath ~env ~package path with
+      | `Not_found -> None
+      | `Stamp stamp -> (
+        match Hashtbl.find_opt env.file.stamps.types stamp with
+        | None -> None
+        | Some declared -> Some (env.file.uri, declared.item.decl.type_loc))
+      | `Exported (env, name) -> (
+        match Hashtbl.find_opt env.exported.types name with
+        | None -> None
+        | Some stamp -> (
+          match Hashtbl.find_opt env.file.stamps.types stamp with
+          | None -> None
+          | Some declared -> Some (env.file.uri, declared.item.decl.type_loc))))
+    )
+
 let isVisible (declared : _ SharedTypes.declared) =
   declared.isExported
   &&

@@ -265,6 +265,18 @@ function definition(msg: p.RequestMessage) {
   return response;
 }
 
+function typeDefinition(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specification/specification-current/#textDocument_typeDefinition
+  let params = msg.params as p.TypeDefinitionParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let response = utils.runAnalysisCommand(
+    filePath,
+    ["typeDefinition", filePath, params.position.line, params.position.character],
+    msg
+  );
+  return response;
+}
+
 function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
@@ -620,6 +632,7 @@ function onMessage(msg: m.Message) {
           documentFormattingProvider: true,
           hoverProvider: true,
           definitionProvider: true,
+          typeDefinitionProvider: true,
           referencesProvider: true,
           renameProvider: { prepareProvider: true },
           documentSymbolProvider: true,
@@ -670,6 +683,8 @@ function onMessage(msg: m.Message) {
       send(hover(msg));
     } else if (msg.method === p.DefinitionRequest.method) {
       send(definition(msg));
+    } else if (msg.method === p.TypeDefinitionRequest.method) {
+      send(typeDefinition(msg));
     } else if (msg.method === p.ReferencesRequest.method) {
       send(references(msg));
     } else if (msg.method === p.PrepareRenameRequest.method) {
