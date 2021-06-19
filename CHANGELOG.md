@@ -5,6 +5,7 @@
 - Rename: use renameProvider to give a warning when it's not a symbol that can be renamed.
 - Add support for Go to Type Definition.
 - Restore documentSymbolProvider.
+- Restore creation of interface files (fully supported from compiler 9.1.3 onwards)
 
 ## 1.1.2
 
