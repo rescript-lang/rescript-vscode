@@ -24,7 +24,7 @@ SOURCE_FILES = $(shell $(OCAMLDEP) -sort `find src -name "*.ml"` | sed -E "s/\.m
 $(OUTPUT): $(SOURCE_FILES)
 	@echo Linking...
 	@$(OCAMLOPT) $(OCAMLFLAGS) -O2 -o $(OUTPUT) \
-		-I +compiler-libs unix.cmxa str.cmxa ocamlcommon.cmxa $(INCLUDES) $(SOURCE_FILES)
+		unix.cmxa str.cmxa ocamlcommon.cmxa $(INCLUDES) $(SOURCE_FILES)
 	@echo Done!
 
 build-native: $(OUTPUT) depend
