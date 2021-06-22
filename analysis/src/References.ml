@@ -185,6 +185,7 @@ let declaredForExportedTip ~(stamps : stamps) ~(exported : exported) name tip =
     Hashtbl.find_opt exported.modules name |?> fun stamp ->
     Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
 
+(** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
 let alternateDeclared ~(file : File.t) ~package declared tip =
   match Hashtbl.find_opt package.pathsForModule file.moduleName with
   | None -> None
@@ -193,28 +194,16 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
     match paths with
     | IntfAndImpl {resi; res} -> (
       maybeLog "Have both!!";
-      let resiUri = Uri2.fromPath resi in
-      let resUri = Uri2.fromPath res in
-      if Uri2.isInterface file.uri then
-        match Cmt.fromUri ~uri:resUri with
+      let alternateUri = if Uri2.isInterface file.uri then res else resi in
+      match Cmt.fromUri ~uri:(Uri2.fromPath alternateUri) with
+      | None -> None
+      | Some {file; extra} -> (
+        match
+          declaredForExportedTip ~stamps:file.stamps
+            ~exported:file.contents.exported declared.name.txt tip
+        with
         | None -> None
-        | Some {file; extra} -> (
-          match
-            declaredForExportedTip ~stamps:file.stamps
-              ~exported:file.contents.exported declared.name.txt tip
-          with
-          | None -> None
-          | Some declared -> Some (file, extra, declared))
-      else
-        match Cmt.fromUri ~uri:resiUri with
-        | None -> None
-        | Some {file; extra} -> (
-          match
-            declaredForExportedTip ~stamps:file.stamps
-              ~exported:file.contents.exported declared.name.txt tip
-          with
-          | None -> None
-          | Some declared -> Some (file, extra, declared)))
+        | Some declared -> Some (file, extra, declared)))
     | _ -> None)
 
 let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
