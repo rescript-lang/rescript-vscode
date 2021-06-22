@@ -31,3 +31,9 @@ let typeDef = {TypeDefinition.item: "foobar"}
 
 let _ = DefinitionWithInterface.y
 //                              ^def
+
+type defT = DefinitionWithInterface.t
+//                                  ^def
+
+type defT2 = DefinitionWithInterface.t
+//                                   ^typ
