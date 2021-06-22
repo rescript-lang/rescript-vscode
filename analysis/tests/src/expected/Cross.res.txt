@@ -85,5 +85,5 @@ TypeDefinition tests/src/Cross.res 28:5
 {"uri": "TypeDefinition.res", "range": {"start": {"line": 2, "character": 0}, "end": {"line": 2, "character": 28}}}
 
 Definition tests/src/Cross.res 31:32
-{"uri": "DefinitionWithInterface.resi", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}}
+{"uri": "DefinitionWithInterface.res", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}}
 

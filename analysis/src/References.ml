@@ -291,9 +291,16 @@ let definition ~file ~package stamp tip =
     match declaredForTip ~stamps:file.stamps stamp tip with
     | None -> None
     | Some declared ->
-      let loc = validateLoc declared.name.loc declared.extentLoc in
-      let env = QueryEnv.fromFile file in
-      let uri = ProcessCmt.getSourceUri ~env ~package declared.modulePath in
+      let fileImpl, declaredImpl =
+        match alternateDeclared ~package ~file declared tip with
+        | Some (fileImpl, _extra, declaredImpl) when Uri2.isInterface file.uri
+          ->
+          (fileImpl, declaredImpl)
+        | _ -> (file, declared)
+      in
+      let loc = validateLoc declaredImpl.name.loc declaredImpl.extentLoc in
+      let env = QueryEnv.fromFile fileImpl in
+      let uri = ProcessCmt.getSourceUri ~env ~package declaredImpl.modulePath in
       maybeLog ("Inner uri " ^ Uri2.toString uri);
       Some (uri, loc))
 
