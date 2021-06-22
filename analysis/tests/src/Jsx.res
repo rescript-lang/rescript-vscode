@@ -40,3 +40,6 @@ let y = 44
 //^com <M prop=module(@foo Three: X_int) k
 
 //^com <M prop=%bs.raw("1") k
+
+let _ = <Component />
+//         ^def
