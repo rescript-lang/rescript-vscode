@@ -28,3 +28,6 @@ let _ = RenameWithInterface.x
 
 let typeDef = {TypeDefinition.item: "foobar"}
 //   ^typ
+
+let _ = DefinitionWithInterface.y
+//                              ^def

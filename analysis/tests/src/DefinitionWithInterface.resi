@@ -1,0 +1,2 @@
+let y: int
+//  ^def
