@@ -6,6 +6,7 @@
 - Add support for Go to Type Definition.
 - Restore documentSymbolProvider.
 - Restore creation of interface files (fully supported from compiler 9.1.3 onwards)
+- When both interface and implementation are present, jump to the implementation.
 
 ## 1.1.2
 
