@@ -190,10 +190,9 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
   match Hashtbl.find_opt package.pathsForModule file.moduleName with
   | None -> None
   | Some paths -> (
-    maybeLog ("paths for " ^ file.moduleName);
     match paths with
     | IntfAndImpl {resi; res} -> (
-      maybeLog "Have both!!";
+      maybeLog ("alternateDeclared for " ^ file.moduleName ^ " has both resi and res");
       let alternateUri = if Uri2.isInterface file.uri then res else resi in
       match Cmt.fromUri ~uri:(Uri2.fromPath alternateUri) with
       | None -> None
@@ -204,7 +203,10 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
         with
         | None -> None
         | Some declared -> Some (file, extra, declared)))
-    | _ -> None)
+    | _ ->
+      maybeLog ("alternateDeclared for " ^ file.moduleName ^ " not found");
+
+      None)
 
 let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
     (declared : moduleKind declared) =
@@ -307,15 +309,18 @@ let definition ~file ~package stamp tip =
 let definitionForLocItem ~full:{file; package} locItem =
   match locItem.locType with
   | Typed (_, _, Definition (stamp, tip)) -> (
-    maybeLog "Trying to find a defintion for a definition";
+    maybeLog
+      ("Typed Definition stamp:" ^ string_of_int stamp ^ " tip:"
+     ^ tipToString tip);
     match declaredForTip ~stamps:file.stamps stamp tip with
     | None -> None
     | Some declared ->
-      maybeLog "Declared";
+      maybeLog ("Declared " ^ declared.name.txt);
       if declared.isExported then (
         maybeLog ("exported, looking for alternate " ^ file.moduleName);
         match alternateDeclared ~package ~file declared tip with
-        | None -> None
+        | None ->
+          None
         | Some (file, _extra, declared) ->
           let loc = validateLoc declared.name.loc declared.extentLoc in
           Some (file.uri, loc))
