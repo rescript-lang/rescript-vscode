@@ -1,0 +1,69 @@
+Debug tests/src/Debug.res 0:4
+📣 📣 NEW BSB PACKAGE 📣 📣
+- location: tests
+Deps @rescript/react
+Dep loc tests/node_modules/@rescript/react/bsconfig.json
+Compiled base: tests/node_modules/@rescript/react/lib/bs
+Source directories: tests/node_modules/@rescript/react/./src - tests/node_modules/@rescript/react/./src/legacy
+Source files found: tests/node_modules/@rescript/react/./src/ReactEvent.resi : tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.resi : tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.res : tests/node_modules/@rescript/react/./src/ReactDOMStyle.res : tests/node_modules/@rescript/react/./src/ReactTestUtils.resi : tests/node_modules/@rescript/react/./src/legacy/ReactDOMRe.res : tests/node_modules/@rescript/react/./src/legacy/ReasonReact.res : tests/node_modules/@rescript/react/./src/RescriptReactRouter.res : tests/node_modules/@rescript/react/./src/RescriptReactRouter.resi : tests/node_modules/@rescript/react/./src/ReactDOMServer.res : tests/node_modules/@rescript/react/./src/ReactEvent.res : tests/node_modules/@rescript/react/./src/ReactDOM.res : tests/node_modules/@rescript/react/./src/React.res : tests/node_modules/@rescript/react/./src/ReactTestUtils.res
+Adding intf tests/node_modules/@rescript/react/./src/ReactEvent.resi
+Adding intf tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.resi
+Adding intf tests/node_modules/@rescript/react/./src/ReactTestUtils.resi
+Adding intf tests/node_modules/@rescript/react/./src/RescriptReactRouter.resi
+Got source directories src
+Source directories: tests/src
+Source files found: tests/src/DefinitionWithInterface.res : tests/src/Div.res : tests/src/Definition.res : tests/src/Debug.res : tests/src/RenameWithInterface.res : tests/src/ReferencesWithInterface.resi : tests/src/Jsx.resi : tests/src/DefinitionWithInterface.resi : tests/src/Rename.res : tests/src/Auto.res : tests/src/RenameWithInterface.resi : tests/src/RecModules.res : tests/src/Hover.res : tests/src/TypeDefinition.res : tests/src/Completion.res : tests/src/Cross.res : tests/src/Patterns.res : tests/src/RecordCompletion.res : tests/src/Component.resi : tests/src/Jsx.res : tests/src/References.res : tests/src/Component.res : tests/src/Fragment.res : tests/src/ReferencesWithInterface.res
+Adding intf tests/src/ReferencesWithInterface.resi
+Adding intf tests/src/Jsx.resi
+Adding intf tests/src/DefinitionWithInterface.resi
+Adding intf tests/src/RenameWithInterface.resi
+Adding intf tests/src/Component.resi
+-- All project files found: 19
+DefinitionWithInterface
+Both
+Div
+impl tests/lib/bs/./src/Div.cmt
+Definition
+impl tests/lib/bs/./src/Definition.cmt
+Debug
+impl tests/lib/bs/./src/Debug.cmt
+RenameWithInterface
+Both
+Rename
+impl tests/lib/bs/./src/Rename.cmt
+Auto
+impl tests/lib/bs/./src/Auto.cmt
+RecModules
+impl tests/lib/bs/./src/RecModules.cmt
+Hover
+impl tests/lib/bs/./src/Hover.cmt
+TypeDefinition
+impl tests/lib/bs/./src/TypeDefinition.cmt
+Completion
+impl tests/lib/bs/./src/Completion.cmt
+Cross
+impl tests/lib/bs/./src/Cross.cmt
+Patterns
+impl tests/lib/bs/./src/Patterns.cmt
+RecordCompletion
+impl tests/lib/bs/./src/RecordCompletion.cmt
+Jsx
+Both
+References
+impl tests/lib/bs/./src/References.cmt
+Component
+Both
+Fragment
+impl tests/lib/bs/./src/Fragment.cmt
+ReferencesWithInterface
+Both
+Dependency dirs tests/node_modules/@rescript/react/lib/bs/./src tests/node_modules/@rescript/react/lib/bs/./src/legacy
+Opens from bsconfig: 
+locItems:
+0:4-0:5 Typed m (Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b> (Definition Value)
+[ref] Trying to find a defintion for a definition
+[ref] Declared
+[ref] exported, looking for alternate Debug
+[ref] paths for Debug
+null
+
