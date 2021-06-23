@@ -19,8 +19,6 @@ let newBsPackage ~rootPath =
     None
   | Some raw -> (
     let config = Json.parse raw in
-    Log.log {|📣 📣 NEW BSB PACKAGE 📣 📣|};
-    Log.log ("location: " ^ rootPath);
     let libBs = BuildSystem.getLibBs rootPath in
     match FindFiles.findDependencyFiles rootPath config with
     | None -> None
@@ -34,8 +32,6 @@ let newBsPackage ~rootPath =
              FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
                config
            in
-           Log.log
-             ("Got source directories " ^ String.concat " - " sourceDirectories);
            let projectFilesAndPaths =
              FindFiles.findProjectFiles ~namespace ~path:rootPath
                ~sourceDirectories ~libBs
