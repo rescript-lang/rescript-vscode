@@ -24,8 +24,8 @@ let getLocItem ~full ~line ~col =
   let locItems = locItemsForPos ~extra:full.extra pos in
   if !Log.spamError then
     print_endline
-      ("locItems:\n"
-      ^ (locItems |> List.map locItemToString |> String.concat "\n"));
+      ("locItems:\n  "
+      ^ (locItems |> List.map locItemToString |> String.concat "\n  "));
   match locItems with
   | _ :: _ :: _ :: ({locType = Typed ("makeProps", _, _)} as li) :: _
     when full.file.uri |> Uri2.isInterface ->

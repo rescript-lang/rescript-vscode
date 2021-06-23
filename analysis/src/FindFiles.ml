@@ -139,9 +139,7 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
   let interfaces = Hashtbl.create 100 in
   files
   |> StringSet.iter (fun path ->
-         if isInterface path then (
-           Log.log ("Adding intf " ^ Utils.dumpPath path);
-           Hashtbl.replace interfaces (getName path) path));
+         if isInterface path then Hashtbl.replace interfaces (getName path) path);
 
   let normals =
     files |> StringSet.elements

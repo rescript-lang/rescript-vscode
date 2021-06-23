@@ -125,10 +125,14 @@ type paths =
 
 let showPaths paths =
   match paths with
-  | Impl {cmt; res} -> Printf.sprintf "Impl(%s, %s)" cmt res
-  | Namespace {cmt} -> Printf.sprintf "Namespace(%s)" cmt
+  | Impl {cmt; res} ->
+    Printf.sprintf "Impl cmt:%s res:%s" (Utils.dumpPath cmt)
+      (Utils.dumpPath res)
+  | Namespace {cmt} -> Printf.sprintf "Namespace cmt:%s" (Utils.dumpPath cmt)
   | IntfAndImpl {cmti; resi; cmt; res} ->
-    Printf.sprintf "IntfAndImpl(%s, %s, %s, %s)" cmti resi cmt res
+    Printf.sprintf "IntfAndImpl cmti:%s resi:%s cmt:%s res:%s"
+      (Utils.dumpPath cmti) (Utils.dumpPath resi) (Utils.dumpPath cmt)
+      (Utils.dumpPath res)
 
 let getSrc p =
   match p with
@@ -203,7 +207,9 @@ type openTracker = {
 module LocationSet = Set.Make (struct
   include Location
 
-  let compare loc1 loc2 = compare loc2 loc1 (* polymorphic compare should be OK *)
+  let compare loc1 loc2 = compare loc2 loc1
+
+  (* polymorphic compare should be OK *)
 end)
 
 type extra = {

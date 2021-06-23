@@ -36,16 +36,9 @@ let newBsPackage ~rootPath =
              FindFiles.findProjectFiles ~namespace ~path:rootPath
                ~sourceDirectories ~libBs
            in
-           Log.log
-             ("-- All project files found: "
-             ^ string_of_int (List.length projectFilesAndPaths));
            projectFilesAndPaths
-           |> List.iter (fun (name, paths) ->
-                  Log.log name;
-                  match paths with
-                  | SharedTypes.Impl {cmt} ->
-                    Log.log ("impl " ^ Utils.dumpPath cmt)
-                  | _ -> Log.log "Both");
+           |> List.iter (fun (_name, paths) ->
+                  Log.log (SharedTypes.showPaths paths));
            let pathsForModule =
              makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths
            in
@@ -59,7 +52,7 @@ let newBsPackage ~rootPath =
                [FindFiles.nameSpaceToName namespace]
            in
            Log.log
-             ("Dependency dirs "
+             ("Dependency dirs: "
              ^ String.concat " "
                  (dependencyDirectories |> List.map Utils.dumpPath));
            let opens_from_bsc_flags =
