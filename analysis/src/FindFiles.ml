@@ -209,7 +209,6 @@ let findDependencyFiles base config =
              ModuleResolution.resolveNodeModulePath ~startPath:base name
              |?> fun path ->
              let innerPath = path /+ "bsconfig.json" in
-             Log.log ("Dep loc " ^ innerPath);
              match Files.readFile innerPath with
              | Some text -> (
                let inner = Json.parse text in
