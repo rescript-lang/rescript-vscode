@@ -1,4 +1,4 @@
-Debug tests/src/Debug.res 0:4
+Debug tests/src/Debug.res 0:20
 Dependencies: @rescript/react
 Source directories: tests/node_modules/@rescript/react/./src tests/node_modules/@rescript/react/./src/legacy
 Source files: tests/node_modules/@rescript/react/./src/React.res tests/node_modules/@rescript/react/./src/ReactDOM.res tests/node_modules/@rescript/react/./src/ReactDOMServer.res tests/node_modules/@rescript/react/./src/ReactDOMStyle.res tests/node_modules/@rescript/react/./src/ReactEvent.res tests/node_modules/@rescript/react/./src/ReactEvent.resi tests/node_modules/@rescript/react/./src/ReactTestUtils.res tests/node_modules/@rescript/react/./src/ReactTestUtils.resi tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.res tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.resi tests/node_modules/@rescript/react/./src/RescriptReactRouter.res tests/node_modules/@rescript/react/./src/RescriptReactRouter.resi tests/node_modules/@rescript/react/./src/legacy/ReactDOMRe.res tests/node_modules/@rescript/react/./src/legacy/ReasonReact.res
@@ -26,10 +26,14 @@ Impl cmt:tests/lib/bs/./src/TypeDefinition.cmt res:tests/src/TypeDefinition.res
 Dependency dirs: tests/node_modules/@rescript/react/lib/bs/./src tests/node_modules/@rescript/react/lib/bs/./src/legacy
 Opens from bsconfig: 
 locItems:
-  0:4-0:5 Typed m (Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b> (Definition Value)
-[ref] Typed Definition stamp:1002 tip:Value
-[ref] Declared m
-[ref] exported, looking for alternate Debug
-[ref] alternateDeclared for Debug not found
-null
+  0:18-0:21 Typed map (Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b> GlobalReference
+[ref] Global defn Belt List.map : Value
+FINDING docs for module Impl cmt:tests/node_modules/rescript/lib/ocaml/belt.cmt res:tests/node_modules/rescript/lib/ocaml/belt.ml
+FINDING tests/node_modules/rescript/lib/ocaml/belt.cmt uri belt.ml
+FINDING docs for module Impl cmt:tests/node_modules/rescript/lib/ocaml/belt_List.cmti res:tests/node_modules/rescript/lib/ocaml/belt_List.mli
+FINDING tests/node_modules/rescript/lib/ocaml/belt_List.cmti uri belt_List.mli
+[ref] Got stamp 1024
+[ref] alternateDeclared for Belt_List not found
+[ref] Inner uri belt_List.mli
+{"uri": "belt_List.mli", "range": {"start": {"line": 239, "character": 4}, "end": {"line": 239, "character": 7}}}
 
