@@ -73,3 +73,5 @@ let filterMap f =
       match f x with None -> aux accu l | Some v -> aux (v :: accu) l)
   in
   aux []
+
+let dumpPath path = Str.global_replace (Str.regexp_string "\\") "/" path
