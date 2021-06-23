@@ -27,9 +27,9 @@ Dependency dirs: tests/node_modules/@rescript/react/lib/bs/./src tests/node_modu
 Opens from bsconfig: 
 locItems:
   0:4-0:5 Typed m (Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b> (Definition Value)
-[ref] Trying to find a defintion for a definition
-[ref] Declared
+[ref] Typed Definition stamp:1002 tip:Value
+[ref] Declared m
 [ref] exported, looking for alternate Debug
-[ref] paths for Debug
+[ref] alternateDeclared for Debug not found
 null
 
