@@ -131,16 +131,18 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
   in
   dirs
   |> ifDebug true "Source directories" (fun s ->
-         s |> StringSet.elements |> String.concat " - ");
+         s |> StringSet.elements |> List.map Utils.dumpPath
+         |> String.concat " - ");
   files
   |> ifDebug true "Source files found" (fun s ->
-         s |> StringSet.elements |> String.concat " : ");
+         s |> StringSet.elements |> List.map Utils.dumpPath
+         |> String.concat " : ");
 
   let interfaces = Hashtbl.create 100 in
   files
   |> StringSet.iter (fun path ->
          if isInterface path then (
-           Log.log ("Adding intf " ^ path);
+           Log.log ("Adding intf " ^ Utils.dumpPath path);
            Hashtbl.replace interfaces (getName path) path));
 
   let normals =
@@ -219,7 +221,7 @@ let findDependencyFiles base config =
                match BuildSystem.getLibBs path with
                | None -> None
                | Some libBs ->
-                 Log.log ("Compiled base: " ^ libBs);
+                 Log.log ("Compiled base: " ^ Utils.dumpPath libBs);
                  let compiledDirectories =
                    sourceDirectories |> List.map (Filename.concat libBs)
                  in
