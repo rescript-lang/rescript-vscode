@@ -20,7 +20,7 @@ let newBsPackage ~rootPath =
   | Some raw -> (
     let config = Json.parse raw in
     Log.log {|📣 📣 NEW BSB PACKAGE 📣 📣|};
-    Log.log ("- location: " ^ rootPath);
+    Log.log ("location: " ^ rootPath);
     let libBs = BuildSystem.getLibBs rootPath in
     match FindFiles.findDependencyFiles rootPath config with
     | None -> None
