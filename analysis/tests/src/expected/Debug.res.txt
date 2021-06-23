@@ -1,6 +1,6 @@
 Debug tests/src/Debug.res 0:4
 📣 📣 NEW BSB PACKAGE 📣 📣
-- location: tests
+location: tests
 Deps @rescript/react
 Dep loc tests/node_modules/@rescript/react/bsconfig.json
 Compiled base: tests/node_modules/@rescript/react/lib/bs
