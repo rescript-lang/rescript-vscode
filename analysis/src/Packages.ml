@@ -47,7 +47,8 @@ let newBsPackage ~rootPath =
            |> List.iter (fun (name, paths) ->
                   Log.log name;
                   match paths with
-                  | SharedTypes.Impl {cmt} -> Log.log ("impl " ^ cmt)
+                  | SharedTypes.Impl {cmt} ->
+                    Log.log ("impl " ^ Utils.dumpPath cmt)
                   | _ -> Log.log "Both");
            let pathsForModule =
              makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths
@@ -61,7 +62,10 @@ let newBsPackage ~rootPath =
                Hashtbl.add pathsForModule namespace (Namespace {cmt});
                [FindFiles.nameSpaceToName namespace]
            in
-           Log.log ("Dependency dirs " ^ String.concat " " dependencyDirectories);
+           Log.log
+             ("Dependency dirs "
+             ^ String.concat " "
+                 (dependencyDirectories |> List.map Utils.dumpPath));
            let opens_from_bsc_flags =
              match Json.get "bsc-flags" config |?> Json.array with
              | Some l ->

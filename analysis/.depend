@@ -17,9 +17,9 @@ src/ModuleResolution.cmx : src/Files.cmx
 src/NewCompletions.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/Shared.cmx src/Protocol.cmx src/ProcessCmt.cmx src/PartialParser.cmx \
     src/Log.cmx src/Hover.cmx
-src/Packages.cmx : src/Uri2.cmx src/SharedTypes.cmx src/Log.cmx \
-    src/vendor/Json.cmx src/Infix.cmx src/FindFiles.cmx src/Files.cmx \
-    src/BuildSystem.cmx
+src/Packages.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
+    src/Log.cmx src/vendor/Json.cmx src/Infix.cmx src/FindFiles.cmx \
+    src/Files.cmx src/BuildSystem.cmx
 src/PartialParser.cmx : src/SharedTypes.cmx
 src/PrepareUtils.cmx :
 src/PrintType.cmx : src/vendor/res_outcome_printer/res_outcome_printer.cmx \
