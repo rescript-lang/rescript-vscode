@@ -2,7 +2,6 @@ Debug tests/src/Debug.res 0:4
 📣 📣 NEW BSB PACKAGE 📣 📣
 location: tests
 Deps @rescript/react
-Dep loc tests/node_modules/@rescript/react/bsconfig.json
 Compiled base: tests/node_modules/@rescript/react/lib/bs
 Source directories: tests/node_modules/@rescript/react/./src - tests/node_modules/@rescript/react/./src/legacy
 Source files found: tests/node_modules/@rescript/react/./src/React.res : tests/node_modules/@rescript/react/./src/ReactDOM.res : tests/node_modules/@rescript/react/./src/ReactDOMServer.res : tests/node_modules/@rescript/react/./src/ReactDOMStyle.res : tests/node_modules/@rescript/react/./src/ReactEvent.res : tests/node_modules/@rescript/react/./src/ReactEvent.resi : tests/node_modules/@rescript/react/./src/ReactTestUtils.res : tests/node_modules/@rescript/react/./src/ReactTestUtils.resi : tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.res : tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.resi : tests/node_modules/@rescript/react/./src/RescriptReactRouter.res : tests/node_modules/@rescript/react/./src/RescriptReactRouter.resi : tests/node_modules/@rescript/react/./src/legacy/ReactDOMRe.res : tests/node_modules/@rescript/react/./src/legacy/ReasonReact.res
