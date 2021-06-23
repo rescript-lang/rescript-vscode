@@ -1,6 +1,4 @@
-let ifDebug debug name fn v =
-  if debug then Log.log (name ^ ": " ^ fn v);
-  v
+let ifDebug debug name fn v = if debug then Log.log (name ^ ": " ^ fn v)
 
 let ( /+ ) = Filename.concat
 
@@ -122,24 +120,31 @@ let collectFiles directory =
 
 (* returns a list of (absolute path to cmt(i), relative path from base to source file) *)
 let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
-  let files =
-    sourceDirectories
-    |> List.map (Filename.concat path)
-    |> ifDebug true "Source directories" (String.concat " - ")
-    |> List.map (fun name -> Files.collect name isSourceFile)
-    |> List.concat |> Utils.dedup
-    |> ifDebug true "Source files found" (String.concat " : ")
+  let module StringSet = Set.Make (String) in
+  let dirs =
+    sourceDirectories |> List.map (Filename.concat path) |> StringSet.of_list
   in
+  let files =
+    dirs |> StringSet.elements
+    |> List.map (fun name -> Files.collect name isSourceFile)
+    |> List.concat |> StringSet.of_list
+  in
+  dirs
+  |> ifDebug true "Source directories" (fun s ->
+         s |> StringSet.elements |> String.concat " - ");
+  files
+  |> ifDebug true "Source files found" (fun s ->
+         s |> StringSet.elements |> String.concat " : ");
 
   let interfaces = Hashtbl.create 100 in
   files
-  |> List.iter (fun path ->
+  |> StringSet.iter (fun path ->
          if isInterface path then (
            Log.log ("Adding intf " ^ path);
            Hashtbl.replace interfaces (getName path) path));
 
   let normals =
-    files
+    files |> StringSet.elements
     |> Utils.filterMap (fun file ->
            if isImplementation file then (
              let moduleName = getName file in
