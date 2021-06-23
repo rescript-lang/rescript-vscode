@@ -131,12 +131,10 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
   in
   dirs
   |> ifDebug true "Source directories" (fun s ->
-         s |> StringSet.elements |> List.map Utils.dumpPath
-         |> String.concat " - ");
+         s |> StringSet.elements |> List.map Utils.dumpPath |> String.concat " ");
   files
-  |> ifDebug true "Source files found" (fun s ->
-         s |> StringSet.elements |> List.map Utils.dumpPath
-         |> String.concat " : ");
+  |> ifDebug true "Source files" (fun s ->
+         s |> StringSet.elements |> List.map Utils.dumpPath |> String.concat " ");
 
   let interfaces = Hashtbl.create 100 in
   files
@@ -203,7 +201,7 @@ let findDependencyFiles base config =
     |?> Json.array |? [] |> optMap Json.string
   in
   let deps = deps @ devDeps in
-  Log.log ("Deps " ^ String.concat ", " deps);
+  Log.log ("Dependencies: " ^ String.concat " " deps);
   let depFiles =
     deps
     |> List.map (fun name ->
@@ -221,7 +219,6 @@ let findDependencyFiles base config =
                match BuildSystem.getLibBs path with
                | None -> None
                | Some libBs ->
-                 Log.log ("Compiled base: " ^ Utils.dumpPath libBs);
                  let compiledDirectories =
                    sourceDirectories |> List.map (Filename.concat libBs)
                  in

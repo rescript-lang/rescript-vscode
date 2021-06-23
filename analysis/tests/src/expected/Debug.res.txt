@@ -1,17 +1,13 @@
 Debug tests/src/Debug.res 0:4
-📣 📣 NEW BSB PACKAGE 📣 📣
-location: tests
-Deps @rescript/react
-Compiled base: tests/node_modules/@rescript/react/lib/bs
-Source directories: tests/node_modules/@rescript/react/./src - tests/node_modules/@rescript/react/./src/legacy
-Source files found: tests/node_modules/@rescript/react/./src/React.res : tests/node_modules/@rescript/react/./src/ReactDOM.res : tests/node_modules/@rescript/react/./src/ReactDOMServer.res : tests/node_modules/@rescript/react/./src/ReactDOMStyle.res : tests/node_modules/@rescript/react/./src/ReactEvent.res : tests/node_modules/@rescript/react/./src/ReactEvent.resi : tests/node_modules/@rescript/react/./src/ReactTestUtils.res : tests/node_modules/@rescript/react/./src/ReactTestUtils.resi : tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.res : tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.resi : tests/node_modules/@rescript/react/./src/RescriptReactRouter.res : tests/node_modules/@rescript/react/./src/RescriptReactRouter.resi : tests/node_modules/@rescript/react/./src/legacy/ReactDOMRe.res : tests/node_modules/@rescript/react/./src/legacy/ReasonReact.res
+Dependencies: @rescript/react
+Source directories: tests/node_modules/@rescript/react/./src tests/node_modules/@rescript/react/./src/legacy
+Source files: tests/node_modules/@rescript/react/./src/React.res tests/node_modules/@rescript/react/./src/ReactDOM.res tests/node_modules/@rescript/react/./src/ReactDOMServer.res tests/node_modules/@rescript/react/./src/ReactDOMStyle.res tests/node_modules/@rescript/react/./src/ReactEvent.res tests/node_modules/@rescript/react/./src/ReactEvent.resi tests/node_modules/@rescript/react/./src/ReactTestUtils.res tests/node_modules/@rescript/react/./src/ReactTestUtils.resi tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.res tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.resi tests/node_modules/@rescript/react/./src/RescriptReactRouter.res tests/node_modules/@rescript/react/./src/RescriptReactRouter.resi tests/node_modules/@rescript/react/./src/legacy/ReactDOMRe.res tests/node_modules/@rescript/react/./src/legacy/ReasonReact.res
 Adding intf tests/node_modules/@rescript/react/./src/ReactEvent.resi
 Adding intf tests/node_modules/@rescript/react/./src/ReactTestUtils.resi
 Adding intf tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.resi
 Adding intf tests/node_modules/@rescript/react/./src/RescriptReactRouter.resi
-Got source directories src
 Source directories: tests/src
-Source files found: tests/src/Auto.res : tests/src/Completion.res : tests/src/Component.res : tests/src/Component.resi : tests/src/Cross.res : tests/src/Debug.res : tests/src/Definition.res : tests/src/DefinitionWithInterface.res : tests/src/DefinitionWithInterface.resi : tests/src/Div.res : tests/src/Fragment.res : tests/src/Hover.res : tests/src/Jsx.res : tests/src/Jsx.resi : tests/src/Patterns.res : tests/src/RecModules.res : tests/src/RecordCompletion.res : tests/src/References.res : tests/src/ReferencesWithInterface.res : tests/src/ReferencesWithInterface.resi : tests/src/Rename.res : tests/src/RenameWithInterface.res : tests/src/RenameWithInterface.resi : tests/src/TypeDefinition.res
+Source files: tests/src/Auto.res tests/src/Completion.res tests/src/Component.res tests/src/Component.resi tests/src/Cross.res tests/src/Debug.res tests/src/Definition.res tests/src/DefinitionWithInterface.res tests/src/DefinitionWithInterface.resi tests/src/Div.res tests/src/Fragment.res tests/src/Hover.res tests/src/Jsx.res tests/src/Jsx.resi tests/src/Patterns.res tests/src/RecModules.res tests/src/RecordCompletion.res tests/src/References.res tests/src/ReferencesWithInterface.res tests/src/ReferencesWithInterface.resi tests/src/Rename.res tests/src/RenameWithInterface.res tests/src/RenameWithInterface.resi tests/src/TypeDefinition.res
 Adding intf tests/src/Component.resi
 Adding intf tests/src/DefinitionWithInterface.resi
 Adding intf tests/src/Jsx.resi
