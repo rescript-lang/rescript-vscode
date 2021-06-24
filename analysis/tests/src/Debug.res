@@ -1,5 +1,5 @@
-let m = Belt.List.map
+let _ = Belt.List.map
 //                  ^deb
 
-let m = List.map
+let _ = List.map
 //            ^deb
