@@ -1262,8 +1262,7 @@ let fileForModule modname ~package =
     (* TODO: do better *)
     let cmt = SharedTypes.getCmtPath ~interface:false paths in
     let uri = SharedTypes.getUri paths in
-    Log.log ("FINDING docs for module " ^ SharedTypes.showPaths paths);
-    Log.log ("FINDING " ^ cmt ^ " uri " ^ Uri2.toString uri);
+    Log.log ("fileForModule " ^ SharedTypes.showPaths paths);
     match fileForCmt ~moduleName:modname ~cmt ~uri state with
     | None -> None
     | Some docs -> Some docs)
@@ -1272,12 +1271,14 @@ let fileForModule modname ~package =
     None)
 
 let rec resolvePath ~env ~path ~package =
+  Log.log ("resolvePath path:" ^ pathToString path);
   match resolvePathInner ~env ~path with
   | None -> None
   | Some result -> (
     match result with
     | `Local (env, name) -> Some (env, name)
     | `Global (moduleName, fullPath) -> (
+      Log.log ("resolvePath Global path:" ^ pathToString fullPath ^ " module:" ^ moduleName);
       match fileForModule ~package moduleName with
       | None -> None
       | Some file ->

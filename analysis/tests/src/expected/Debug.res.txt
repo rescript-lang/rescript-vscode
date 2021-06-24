@@ -27,11 +27,13 @@ Dependency dirs: tests/node_modules/@rescript/react/lib/bs/./src tests/node_modu
 Opens from bsconfig: 
 locItems:
   0:18-0:21 Typed map (Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b> GlobalReference
-[ref] Global defn Belt List.map : Value
-FINDING docs for module Impl cmt:tests/node_modules/rescript/lib/ocaml/belt.cmt res:tests/node_modules/rescript/lib/ocaml/belt.ml
-FINDING tests/node_modules/rescript/lib/ocaml/belt.cmt uri belt.ml
-FINDING docs for module Impl cmt:tests/node_modules/rescript/lib/ocaml/belt_List.cmti res:tests/node_modules/rescript/lib/ocaml/belt_List.mli
-FINDING tests/node_modules/rescript/lib/ocaml/belt_List.cmti uri belt_List.mli
+[ref] Typed GlobalReference moduleName:Belt path:List.map tip:Value
+fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/belt.cmt res:tests/node_modules/rescript/lib/ocaml/belt.ml
+resolvePath path:List.map
+resolvePath Global path:map module:Belt_List
+fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/belt_List.cmti res:tests/node_modules/rescript/lib/ocaml/belt_List.mli
+resolvePath path:map
+[ref] resolved path:map
 [ref] Got stamp 1024
 [ref] alternateDeclared for Belt_List not found
 [ref] Inner uri belt_List.mli

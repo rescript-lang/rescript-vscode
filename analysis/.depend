@@ -25,8 +25,8 @@ src/PrepareUtils.cmx :
 src/PrintType.cmx : src/vendor/res_outcome_printer/res_outcome_printer.cmx \
     src/vendor/res_outcome_printer/res_doc.cmx
 src/ProcessAttributes.cmx : src/SharedTypes.cmx src/PrepareUtils.cmx
-src/ProcessCmt.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/Shared.cmx src/ProcessAttributes.cmx src/Log.cmx src/Files.cmx
+src/ProcessCmt.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
+    src/ProcessAttributes.cmx src/Log.cmx src/Files.cmx
 src/Protocol.cmx : src/vendor/Json.cmx
 src/References.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
     src/Shared.cmx src/ProcessCmt.cmx src/Log.cmx src/Infix.cmx src/Cmt.cmx
