@@ -344,7 +344,7 @@ let definitionForLocItem ~full:{file; package} locItem =
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, _, GlobalReference (moduleName, path, tip)) -> (
     maybeLog
-      ("Global defn " ^ moduleName ^ " " ^ pathToString path ^ " : "
+      ("Typed GlobalReference moduleName:" ^ moduleName ^ " path:" ^ pathToString path ^ " tip:"
      ^ tipToString tip);
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
@@ -353,6 +353,7 @@ let definitionForLocItem ~full:{file; package} locItem =
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
+        maybeLog ("resolved path:" ^ name);
         match ProcessCmt.exportedForTip ~env name tip with
         | None -> None
         | Some stamp ->
