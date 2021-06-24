@@ -39,3 +39,15 @@ resolvePath path:map
 [ref] Inner uri belt_List.mli
 {"uri": "belt_List.mli", "range": {"start": {"line": 239, "character": 4}, "end": {"line": 239, "character": 7}}}
 
+Debug tests/src/Debug.res 3:14
+locItems:
+  3:13-3:16 Typed map ('a => 'b, list<'a>) => list<'b> GlobalReference
+[ref] Typed GlobalReference moduleName:List path:map tip:Value
+fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/list.cmti res:tests/node_modules/rescript/lib/ocaml/list.mli
+resolvePath path:map
+[ref] resolved path:map
+[ref] Got stamp 1018
+[ref] alternateDeclared for List not found
+[ref] Inner uri list.mli
+{"uri": "list.mli", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 7}}}
+
