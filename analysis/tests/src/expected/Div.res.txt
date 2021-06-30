@@ -1,5 +1,5 @@
 Hover tests/src/Div.res 1:10
-{"contents": "```rescript\n(\n  string,\n  ~?props: ReactDOMRe.domProps,\n  array<React.element>,\n) => React.element\n```"}
+{"contents": "```rescript\n(\n  string,\n  ~props: ReactDOMRe.domProps=?,\n  array<React.element>,\n) => React.element\n```"}
 
 Complete tests/src/Div.res 3:3
 [{
