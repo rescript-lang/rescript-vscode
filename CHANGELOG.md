@@ -1,10 +1,10 @@
-## master
+## 1.1.3
+
 - Find references to files as modules.
 - Autocomplete: skip inline comments to decide if a labeled argument was already supplied.
 - Rename: support file rename when renaming a module name.
 - Rename: use renameProvider to give a warning when it's not a symbol that can be renamed.
 - Add support for Go to Type Definition.
-- Restore documentSymbolProvider.
 - Restore creation of interface files (fully supported from compiler 9.1.3 onwards)
 - When both interface and implementation are present, jump to the implementation.
 
