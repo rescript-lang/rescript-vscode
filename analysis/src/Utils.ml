@@ -75,3 +75,5 @@ let filterMap f =
   aux []
 
 let dumpPath path = Str.global_replace (Str.regexp_string "\\") "/" path
+
+let isUncurriedInternal path = startsWith (Path.name path) "Js.Fn.arity"

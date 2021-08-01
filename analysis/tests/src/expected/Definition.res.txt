@@ -14,5 +14,5 @@ Hover tests/src/Definition.res 23:3
 {"contents": "```rescript\n(. int, int) => int\n```"}
 
 Definition tests/src/Definition.res 26:3
-{"uri": "js.ml", "range": {"start": {"line": 59, "character": 10}, "end": {"line": 59, "character": 16}}}
+{"uri": "Definition.res", "range": {"start": {"line": 21, "character": 4}, "end": {"line": 21, "character": 13}}}
 

@@ -1,3 +1,7 @@
+## master
+
+- Fix jump-to-definition for uncurried calls.
+
 ## 1.1.3
 
 Features:

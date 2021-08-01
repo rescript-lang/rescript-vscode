@@ -131,6 +131,7 @@ src/Uri2.cmx : \
     src/vendor/compiler-libs-406/location.cmx
 src/Utils.cmx : \
     src/Protocol.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
     src/vendor/compiler-libs-406/location.cmx
 src/vendor/Json.cmx :
 src/vendor/compiler-libs-406/ast_helper.cmx : \

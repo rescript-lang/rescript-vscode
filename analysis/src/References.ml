@@ -87,6 +87,9 @@ let getLocItem ~full ~line ~col =
     (* JSX variadic, e.g. <C> {x} {y} </C>
        heuristic for: [makeProps  , React.null, make, createElementVariadic], give the loc of `make` *)
     Some li3
+  | {locType = Typed (_, {desc = Tconstr (path, _, _)}, _)} :: li :: _
+    when Utils.isUncurriedInternal path ->
+    Some li
   | li :: _ -> Some li
   | _ -> None
 
@@ -192,7 +195,8 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
   | Some paths -> (
     match paths with
     | IntfAndImpl {resi; res} -> (
-      maybeLog ("alternateDeclared for " ^ file.moduleName ^ " has both resi and res");
+      maybeLog
+        ("alternateDeclared for " ^ file.moduleName ^ " has both resi and res");
       let alternateUri = if Uri2.isInterface file.uri then res else resi in
       match Cmt.fromUri ~uri:(Uri2.fromPath alternateUri) with
       | None -> None
@@ -319,8 +323,7 @@ let definitionForLocItem ~full:{file; package} locItem =
       if declared.isExported then (
         maybeLog ("exported, looking for alternate " ^ file.moduleName);
         match alternateDeclared ~package ~file declared tip with
-        | None ->
-          None
+        | None -> None
         | Some (file, _extra, declared) ->
           let loc = validateLoc declared.name.loc declared.extentLoc in
           Some (file.uri, loc))
@@ -344,8 +347,8 @@ let definitionForLocItem ~full:{file; package} locItem =
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, _, GlobalReference (moduleName, path, tip)) -> (
     maybeLog
-      ("Typed GlobalReference moduleName:" ^ moduleName ^ " path:" ^ pathToString path ^ " tip:"
-     ^ tipToString tip);
+      ("Typed GlobalReference moduleName:" ^ moduleName ^ " path:"
+     ^ pathToString path ^ " tip:" ^ tipToString tip);
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
