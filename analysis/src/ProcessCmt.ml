@@ -1146,7 +1146,7 @@ let extraForStructureItems ~(file : File.t)
          | Partial_signature_item str -> Iter.iter_signature_item str
          | Partial_expression expression -> Iter.iter_expression expression
          | Partial_pattern pattern -> Iter.iter_pattern pattern
-         | Partial_class_expr class_expr -> Iter.iter_class_expr class_expr
+         | Partial_class_expr () -> ()
          | Partial_module_type module_type -> Iter.iter_module_type module_type
          | Partial_structure _ | Partial_structure_item _ -> ());
   extra
@@ -1183,7 +1183,7 @@ let extraForSignatureItems ~(file : File.t)
          | Partial_signature_item str -> Iter.iter_signature_item str
          | Partial_expression expression -> Iter.iter_expression expression
          | Partial_pattern pattern -> Iter.iter_pattern pattern
-         | Partial_class_expr class_expr -> Iter.iter_class_expr class_expr
+         | Partial_class_expr () -> ()
          | Partial_module_type module_type -> Iter.iter_module_type module_type
          | Partial_structure _ | Partial_structure_item _ -> ());
   extra
@@ -1278,7 +1278,9 @@ let rec resolvePath ~env ~path ~package =
     match result with
     | `Local (env, name) -> Some (env, name)
     | `Global (moduleName, fullPath) -> (
-      Log.log ("resolvePath Global path:" ^ pathToString fullPath ^ " module:" ^ moduleName);
+      Log.log
+        ("resolvePath Global path:" ^ pathToString fullPath ^ " module:"
+       ^ moduleName);
       match fileForModule ~package moduleName with
       | None -> None
       | Some file ->

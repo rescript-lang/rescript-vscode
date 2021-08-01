@@ -1,43 +1,546 @@
-src/BuildSystem.cmx : src/ModuleResolution.cmx src/Log.cmx src/Files.cmx
-src/Cli.cmx : src/Commands.cmx
-src/Cmt.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/ProcessCmt.cmx src/Packages.cmx src/FindFiles.cmx src/BuildSystem.cmx
-src/Commands.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/Shared.cmx src/References.cmx src/Protocol.cmx src/NewCompletions.cmx \
-    src/Log.cmx src/Hover.cmx src/Files.cmx src/Cmt.cmx
+src/BuildSystem.cmx : \
+    src/ModuleResolution.cmx \
+    src/Log.cmx \
+    src/Files.cmx
+src/Cli.cmx : \
+    src/Commands.cmx
+src/Cmt.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/ProcessCmt.cmx \
+    src/Packages.cmx \
+    src/FindFiles.cmx \
+    src/BuildSystem.cmx
+src/Commands.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/References.cmx \
+    src/Protocol.cmx \
+    src/NewCompletions.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/Log.cmx \
+    src/Hover.cmx \
+    src/Files.cmx \
+    src/Cmt.cmx
 src/Files.cmx :
-src/FindFiles.cmx : src/Utils.cmx src/SharedTypes.cmx \
-    src/ModuleResolution.cmx src/Log.cmx src/vendor/Json.cmx src/Infix.cmx \
-    src/Files.cmx src/BuildSystem.cmx
-src/Hover.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
-    src/References.cmx src/ProcessCmt.cmx
+src/FindFiles.cmx : \
+    src/Utils.cmx \
+    src/SharedTypes.cmx \
+    src/ModuleResolution.cmx \
+    src/Log.cmx \
+    src/vendor/Json.cmx \
+    src/Infix.cmx \
+    src/Files.cmx \
+    src/BuildSystem.cmx
+src/Hover.cmx : \
+    src/Utils.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/References.cmx \
+    src/ProcessCmt.cmx \
+    src/vendor/compiler-libs-406/path.cmx
 src/Infix.cmx :
 src/Log.cmx :
-src/ModuleResolution.cmx : src/Files.cmx
-src/NewCompletions.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/Shared.cmx src/Protocol.cmx src/ProcessCmt.cmx src/PartialParser.cmx \
-    src/Log.cmx src/Hover.cmx
-src/Packages.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/Log.cmx src/vendor/Json.cmx src/Infix.cmx src/FindFiles.cmx \
-    src/Files.cmx src/BuildSystem.cmx
-src/PartialParser.cmx : src/SharedTypes.cmx
+src/ModuleResolution.cmx : \
+    src/Files.cmx
+src/NewCompletions.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/Protocol.cmx \
+    src/ProcessCmt.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/PartialParser.cmx \
+    src/Log.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/Hover.cmx
+src/Packages.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/Log.cmx \
+    src/vendor/Json.cmx \
+    src/Infix.cmx \
+    src/FindFiles.cmx \
+    src/Files.cmx \
+    src/BuildSystem.cmx
+src/PartialParser.cmx : \
+    src/SharedTypes.cmx
 src/PrepareUtils.cmx :
-src/PrintType.cmx : src/vendor/res_outcome_printer/res_outcome_printer.cmx \
-    src/vendor/res_outcome_printer/res_doc.cmx
-src/ProcessAttributes.cmx : src/SharedTypes.cmx src/PrepareUtils.cmx
-src/ProcessCmt.cmx : src/Utils.cmx src/SharedTypes.cmx src/Shared.cmx \
-    src/ProcessAttributes.cmx src/Log.cmx src/Files.cmx
-src/Protocol.cmx : src/vendor/Json.cmx
-src/References.cmx : src/Utils.cmx src/Uri2.cmx src/SharedTypes.cmx \
-    src/Shared.cmx src/ProcessCmt.cmx src/Log.cmx src/Infix.cmx src/Cmt.cmx
-src/Shared.cmx : src/PrintType.cmx src/Log.cmx src/Files.cmx
-src/SharedTypes.cmx : src/Utils.cmx src/Uri2.cmx src/Shared.cmx
-src/Uri2.cmx :
-src/Utils.cmx : src/Protocol.cmx
+src/PrintType.cmx : \
+    src/vendor/res_outcome_printer/res_outcome_printer.cmx \
+    src/vendor/res_outcome_printer/res_doc.cmx \
+    src/vendor/compiler-libs-406/printtyp.cmx \
+    src/vendor/compiler-libs-406/ident.cmx
+src/ProcessAttributes.cmx : \
+    src/SharedTypes.cmx \
+    src/PrepareUtils.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/ProcessCmt.cmx : \
+    src/vendor/compiler-libs-406/warnings.cmx \
+    src/Utils.cmx \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/typedtreeIter.cmx \
+    src/vendor/compiler-libs-406/typedtree.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/ProcessAttributes.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/Log.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/Files.cmx \
+    src/vendor/compiler-libs-406/cmt_format.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/Protocol.cmx : \
+    src/vendor/Json.cmx
+src/References.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/SharedTypes.cmx \
+    src/Shared.cmx \
+    src/ProcessCmt.cmx \
+    src/Log.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/Infix.cmx \
+    src/Cmt.cmx
+src/Shared.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/PrintType.cmx \
+    src/Log.cmx \
+    src/Files.cmx \
+    src/vendor/compiler-libs-406/config.cmx \
+    src/vendor/compiler-libs-406/cmt_format.cmx \
+    src/vendor/compiler-libs-406/cmi_format.cmx
+src/SharedTypes.cmx : \
+    src/Utils.cmx \
+    src/Uri2.cmx \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/Shared.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/Uri2.cmx : \
+    src/vendor/compiler-libs-406/location.cmx
+src/Utils.cmx : \
+    src/Protocol.cmx \
+    src/vendor/compiler-libs-406/location.cmx
 src/vendor/Json.cmx :
+src/vendor/compiler-libs-406/ast_helper.cmx : \
+    src/vendor/compiler-libs-406/syntaxerr.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/docstrings.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/ast_helper.cmi
+src/vendor/compiler-libs-406/ast_helper.cmi : \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/longident.cmi \
+    src/vendor/compiler-libs-406/location.cmi \
+    src/vendor/compiler-libs-406/docstrings.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/ast_mapper.cmx : \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/config.cmx \
+    src/vendor/compiler-libs-406/clflags.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/ast_helper.cmx \
+    src/vendor/compiler-libs-406/ast_mapper.cmi
+src/vendor/compiler-libs-406/ast_mapper.cmi : \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/location.cmi
+src/vendor/compiler-libs-406/asttypes.cmi : \
+    src/vendor/compiler-libs-406/location.cmi
+src/vendor/compiler-libs-406/bsb_db_decode.cmx : \
+    src/vendor/compiler-libs-406/ext_string.cmx \
+    src/vendor/compiler-libs-406/ext_pervasives.cmx \
+    src/vendor/compiler-libs-406/ext_io.cmx \
+    src/vendor/compiler-libs-406/ext_digest.cmx \
+    src/vendor/compiler-libs-406/bsb_db_decode.cmi
+src/vendor/compiler-libs-406/bsb_db_decode.cmi :
+src/vendor/compiler-libs-406/bsc_warnings.cmx :
+src/vendor/compiler-libs-406/btype.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/builtin_attributes.cmx : \
+    src/vendor/compiler-libs-406/warnings.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/builtin_attributes.cmi
+src/vendor/compiler-libs-406/builtin_attributes.cmi : \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/location.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/clflags.cmx : \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/clflags.cmi
+src/vendor/compiler-libs-406/clflags.cmi : \
+    src/vendor/compiler-libs-406/misc.cmx
+src/vendor/compiler-libs-406/cmi_format.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/config.cmx \
+    src/vendor/compiler-libs-406/cmi_format.cmi
+src/vendor/compiler-libs-406/cmi_format.cmi : \
+    src/vendor/compiler-libs-406/types.cmi
+src/vendor/compiler-libs-406/cmt_format.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/typedtree.cmx \
+    src/vendor/compiler-libs-406/tast_mapper.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/lexer.cmx \
+    src/vendor/compiler-libs-406/env.cmx \
+    src/vendor/compiler-libs-406/config.cmx \
+    src/vendor/compiler-libs-406/cmi_format.cmx \
+    src/vendor/compiler-libs-406/clflags.cmx \
+    src/vendor/compiler-libs-406/cmt_format.cmi
+src/vendor/compiler-libs-406/cmt_format.cmi : \
+    src/vendor/compiler-libs-406/types.cmi \
+    src/vendor/compiler-libs-406/typedtree.cmi \
+    src/vendor/compiler-libs-406/location.cmi \
+    src/vendor/compiler-libs-406/env.cmi \
+    src/vendor/compiler-libs-406/cmi_format.cmi
+src/vendor/compiler-libs-406/config.cmx : \
+    src/vendor/compiler-libs-406/config.cmi
+src/vendor/compiler-libs-406/config.cmi :
+src/vendor/compiler-libs-406/consistbl.cmx : \
+    src/vendor/compiler-libs-406/consistbl.cmi
+src/vendor/compiler-libs-406/consistbl.cmi :
+src/vendor/compiler-libs-406/ctype.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/subst.cmx \
+    src/vendor/compiler-libs-406/predef.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/ext_pervasives.cmx \
+    src/vendor/compiler-libs-406/env.cmx \
+    src/vendor/compiler-libs-406/config.cmx \
+    src/vendor/compiler-libs-406/clflags.cmx \
+    src/vendor/compiler-libs-406/btype.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/ctype.cmi
+src/vendor/compiler-libs-406/ctype.cmi : \
+    src/vendor/compiler-libs-406/types.cmi \
+    src/vendor/compiler-libs-406/path.cmi \
+    src/vendor/compiler-libs-406/longident.cmi \
+    src/vendor/compiler-libs-406/ident.cmi \
+    src/vendor/compiler-libs-406/env.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/datarepr.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/btype.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/datarepr.cmi
+src/vendor/compiler-libs-406/datarepr.cmi : \
+    src/vendor/compiler-libs-406/types.cmi \
+    src/vendor/compiler-libs-406/path.cmi \
+    src/vendor/compiler-libs-406/ident.cmi
+src/vendor/compiler-libs-406/docstrings.cmx : \
+    src/vendor/compiler-libs-406/warnings.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/docstrings.cmi
+src/vendor/compiler-libs-406/docstrings.cmi : \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/location.cmi
+src/vendor/compiler-libs-406/env.cmx : \
+    src/vendor/compiler-libs-406/warnings.cmx \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/tbl.cmx \
+    src/vendor/compiler-libs-406/subst.cmx \
+    src/vendor/compiler-libs-406/predef.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/datarepr.cmx \
+    src/vendor/compiler-libs-406/consistbl.cmx \
+    src/vendor/compiler-libs-406/config.cmx \
+    src/vendor/compiler-libs-406/cmi_format.cmx \
+    src/vendor/compiler-libs-406/clflags.cmx \
+    src/vendor/compiler-libs-406/builtin_attributes.cmx \
+    src/vendor/compiler-libs-406/btype.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/env.cmi
+src/vendor/compiler-libs-406/env.cmi : \
+    src/vendor/compiler-libs-406/warnings.cmx \
+    src/vendor/compiler-libs-406/types.cmi \
+    src/vendor/compiler-libs-406/subst.cmi \
+    src/vendor/compiler-libs-406/path.cmi \
+    src/vendor/compiler-libs-406/longident.cmi \
+    src/vendor/compiler-libs-406/location.cmi \
+    src/vendor/compiler-libs-406/ident.cmi \
+    src/vendor/compiler-libs-406/consistbl.cmi \
+    src/vendor/compiler-libs-406/cmi_format.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/ext_array.cmx : \
+    src/vendor/compiler-libs-406/ext_array.cmi
+src/vendor/compiler-libs-406/ext_array.cmi :
+src/vendor/compiler-libs-406/ext_bytes.cmx : \
+    src/vendor/compiler-libs-406/ext_bytes.cmi
+src/vendor/compiler-libs-406/ext_bytes.cmi :
+src/vendor/compiler-libs-406/ext_digest.cmx :
+src/vendor/compiler-libs-406/ext_io.cmx : \
+    src/vendor/compiler-libs-406/ext_pervasives.cmx \
+    src/vendor/compiler-libs-406/ext_io.cmi
+src/vendor/compiler-libs-406/ext_io.cmi :
+src/vendor/compiler-libs-406/ext_json_parse.cmx : \
+    src/vendor/compiler-libs-406/string_map.cmx \
+    src/vendor/compiler-libs-406/ext_position.cmx \
+    src/vendor/compiler-libs-406/ext_json_types.cmx \
+    src/vendor/compiler-libs-406/ext_array.cmx \
+    src/vendor/compiler-libs-406/ext_json_parse.cmi
+src/vendor/compiler-libs-406/ext_json_parse.cmi : \
+    src/vendor/compiler-libs-406/ext_json_types.cmx
+src/vendor/compiler-libs-406/ext_json_types.cmx : \
+    src/vendor/compiler-libs-406/string_map.cmx
+src/vendor/compiler-libs-406/ext_json_write.cmx : \
+    src/vendor/compiler-libs-406/string_map.cmx \
+    src/vendor/compiler-libs-406/ext_json_types.cmx \
+    src/vendor/compiler-libs-406/ext_json_write.cmi
+src/vendor/compiler-libs-406/ext_json_write.cmi : \
+    src/vendor/compiler-libs-406/ext_json_types.cmx
+src/vendor/compiler-libs-406/ext_pervasives.cmx : \
+    src/vendor/compiler-libs-406/ext_pervasives.cmi
+src/vendor/compiler-libs-406/ext_pervasives.cmi :
+src/vendor/compiler-libs-406/ext_position.cmx : \
+    src/vendor/compiler-libs-406/ext_position.cmi
+src/vendor/compiler-libs-406/ext_position.cmi :
+src/vendor/compiler-libs-406/ext_string.cmx : \
+    src/vendor/compiler-libs-406/ext_bytes.cmx \
+    src/vendor/compiler-libs-406/ext_string.cmi
+src/vendor/compiler-libs-406/ext_string.cmi :
+src/vendor/compiler-libs-406/ident.cmx : \
+    src/vendor/compiler-libs-406/identifiable.cmx \
+    src/vendor/compiler-libs-406/ident.cmi
+src/vendor/compiler-libs-406/ident.cmi : \
+    src/vendor/compiler-libs-406/identifiable.cmi
+src/vendor/compiler-libs-406/identifiable.cmx : \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/identifiable.cmi
+src/vendor/compiler-libs-406/identifiable.cmi :
+src/vendor/compiler-libs-406/lexer.cmx : \
+    src/vendor/compiler-libs-406/warnings.cmx \
+    src/vendor/compiler-libs-406/parser.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/docstrings.cmx \
+    src/vendor/compiler-libs-406/config.cmx \
+    src/vendor/compiler-libs-406/lexer.cmi
+src/vendor/compiler-libs-406/lexer.cmi : \
+    src/vendor/compiler-libs-406/parser.cmi \
+    src/vendor/compiler-libs-406/location.cmi
+src/vendor/compiler-libs-406/location.cmx : \
+    src/vendor/compiler-libs-406/warnings.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/clflags.cmx \
+    src/vendor/compiler-libs-406/location.cmi
+src/vendor/compiler-libs-406/location.cmi : \
+    src/vendor/compiler-libs-406/warnings.cmx
+src/vendor/compiler-libs-406/longident.cmx : \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/longident.cmi
+src/vendor/compiler-libs-406/longident.cmi :
+src/vendor/compiler-libs-406/map_gen.cmx :
+src/vendor/compiler-libs-406/misc.cmx :
+src/vendor/compiler-libs-406/oprint.cmx : \
+    src/vendor/compiler-libs-406/outcometree.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/oprint.cmi
+src/vendor/compiler-libs-406/oprint.cmi : \
+    src/vendor/compiler-libs-406/outcometree.cmi
+src/vendor/compiler-libs-406/outcometree.cmi : \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/parser.cmx : \
+    src/vendor/compiler-libs-406/syntaxerr.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/docstrings.cmx \
+    src/vendor/compiler-libs-406/clflags.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/ast_helper.cmx \
+    src/vendor/compiler-libs-406/parser.cmi
+src/vendor/compiler-libs-406/parser.cmi : \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/location.cmi \
+    src/vendor/compiler-libs-406/docstrings.cmi
+src/vendor/compiler-libs-406/parsetree.cmi : \
+    src/vendor/compiler-libs-406/longident.cmi \
+    src/vendor/compiler-libs-406/location.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/path.cmx : \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/ext_pervasives.cmx \
+    src/vendor/compiler-libs-406/path.cmi
+src/vendor/compiler-libs-406/path.cmi : \
+    src/vendor/compiler-libs-406/ident.cmi
+src/vendor/compiler-libs-406/predef.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/btype.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/predef.cmi
+src/vendor/compiler-libs-406/predef.cmi : \
+    src/vendor/compiler-libs-406/types.cmi \
+    src/vendor/compiler-libs-406/path.cmi \
+    src/vendor/compiler-libs-406/ident.cmi
+src/vendor/compiler-libs-406/primitive.cmx : \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/outcometree.cmi \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/primitive.cmi
+src/vendor/compiler-libs-406/primitive.cmi : \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/outcometree.cmi
+src/vendor/compiler-libs-406/printtyp.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/primitive.cmx \
+    src/vendor/compiler-libs-406/predef.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/outcometree.cmi \
+    src/vendor/compiler-libs-406/oprint.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/env.cmx \
+    src/vendor/compiler-libs-406/ctype.cmx \
+    src/vendor/compiler-libs-406/clflags.cmx \
+    src/vendor/compiler-libs-406/builtin_attributes.cmx \
+    src/vendor/compiler-libs-406/btype.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/printtyp.cmi
+src/vendor/compiler-libs-406/printtyp.cmi : \
+    src/vendor/compiler-libs-406/types.cmi \
+    src/vendor/compiler-libs-406/path.cmi \
+    src/vendor/compiler-libs-406/outcometree.cmi \
+    src/vendor/compiler-libs-406/longident.cmi \
+    src/vendor/compiler-libs-406/ident.cmi \
+    src/vendor/compiler-libs-406/env.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/string_map.cmx : \
+    src/vendor/compiler-libs-406/map_gen.cmx \
+    src/vendor/compiler-libs-406/ext_string.cmx \
+    src/vendor/compiler-libs-406/string_map.cmi
+src/vendor/compiler-libs-406/string_map.cmi : \
+    src/vendor/compiler-libs-406/map_gen.cmx
+src/vendor/compiler-libs-406/subst.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/tbl.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/clflags.cmx \
+    src/vendor/compiler-libs-406/btype.cmx \
+    src/vendor/compiler-libs-406/ast_mapper.cmx \
+    src/vendor/compiler-libs-406/subst.cmi
+src/vendor/compiler-libs-406/subst.cmi : \
+    src/vendor/compiler-libs-406/types.cmi \
+    src/vendor/compiler-libs-406/path.cmi \
+    src/vendor/compiler-libs-406/ident.cmi
+src/vendor/compiler-libs-406/syntaxerr.cmx : \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/syntaxerr.cmi
+src/vendor/compiler-libs-406/syntaxerr.cmi : \
+    src/vendor/compiler-libs-406/location.cmi
+src/vendor/compiler-libs-406/tast_mapper.cmx : \
+    src/vendor/compiler-libs-406/typedtree.cmx \
+    src/vendor/compiler-libs-406/env.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/tast_mapper.cmi
+src/vendor/compiler-libs-406/tast_mapper.cmi : \
+    src/vendor/compiler-libs-406/typedtree.cmi \
+    src/vendor/compiler-libs-406/env.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/tbl.cmx : \
+    src/vendor/compiler-libs-406/tbl.cmi
+src/vendor/compiler-libs-406/tbl.cmi :
+src/vendor/compiler-libs-406/typedtree.cmx : \
+    src/vendor/compiler-libs-406/types.cmx \
+    src/vendor/compiler-libs-406/primitive.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/env.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/typedtree.cmi
+src/vendor/compiler-libs-406/typedtree.cmi : \
+    src/vendor/compiler-libs-406/types.cmi \
+    src/vendor/compiler-libs-406/primitive.cmi \
+    src/vendor/compiler-libs-406/path.cmi \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/longident.cmi \
+    src/vendor/compiler-libs-406/location.cmi \
+    src/vendor/compiler-libs-406/ident.cmi \
+    src/vendor/compiler-libs-406/env.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/typedtreeIter.cmx : \
+    src/vendor/compiler-libs-406/typedtree.cmx \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/typedtreeIter.cmi
+src/vendor/compiler-libs-406/typedtreeIter.cmi : \
+    src/vendor/compiler-libs-406/typedtree.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/types.cmx : \
+    src/vendor/compiler-libs-406/primitive.cmx \
+    src/vendor/compiler-libs-406/path.cmx \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/longident.cmx \
+    src/vendor/compiler-libs-406/location.cmx \
+    src/vendor/compiler-libs-406/ident.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi \
+    src/vendor/compiler-libs-406/types.cmi
+src/vendor/compiler-libs-406/types.cmi : \
+    src/vendor/compiler-libs-406/primitive.cmi \
+    src/vendor/compiler-libs-406/path.cmi \
+    src/vendor/compiler-libs-406/parsetree.cmi \
+    src/vendor/compiler-libs-406/longident.cmi \
+    src/vendor/compiler-libs-406/location.cmi \
+    src/vendor/compiler-libs-406/ident.cmi \
+    src/vendor/compiler-libs-406/asttypes.cmi
+src/vendor/compiler-libs-406/warnings.cmx : \
+    src/vendor/compiler-libs-406/misc.cmx \
+    src/vendor/compiler-libs-406/config.cmx \
+    src/vendor/compiler-libs-406/bsc_warnings.cmx
 src/vendor/res_outcome_printer/res_comment.cmx : \
+    src/vendor/compiler-libs-406/location.cmx \
     src/vendor/res_outcome_printer/res_comment.cmi
-src/vendor/res_outcome_printer/res_comment.cmi :
+src/vendor/res_outcome_printer/res_comment.cmi : \
+    src/vendor/compiler-libs-406/location.cmi
 src/vendor/res_outcome_printer/res_doc.cmx : \
     src/vendor/res_outcome_printer/res_minibuffer.cmx \
     src/vendor/res_outcome_printer/res_doc.cmi
@@ -47,6 +550,9 @@ src/vendor/res_outcome_printer/res_minibuffer.cmx : \
 src/vendor/res_outcome_printer/res_minibuffer.cmi :
 src/vendor/res_outcome_printer/res_outcome_printer.cmx : \
     src/vendor/res_outcome_printer/res_token.cmx \
-    src/vendor/res_outcome_printer/res_doc.cmx
+    src/vendor/res_outcome_printer/res_doc.cmx \
+    src/vendor/compiler-libs-406/outcometree.cmi \
+    src/vendor/compiler-libs-406/oprint.cmx \
+    src/vendor/compiler-libs-406/asttypes.cmi
 src/vendor/res_outcome_printer/res_token.cmx : \
     src/vendor/res_outcome_printer/res_comment.cmx
