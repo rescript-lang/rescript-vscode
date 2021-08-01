@@ -124,10 +124,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
           match digConstructor ~env ~package path with
           | None -> None
           | Some (_env, {docstring; name = {txt}; item = {decl}}) ->
-            let isUncurriedInternal =
-              Utils.startsWith (Path.name path) "Js.Fn.arity"
-            in
-            if isUncurriedInternal then None
+            if Utils.isUncurriedInternal path then None
             else Some (decl |> Shared.declToString txt, docstring))
       in
       let typeString, docstring =
