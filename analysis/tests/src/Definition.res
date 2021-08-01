@@ -22,4 +22,7 @@ let m2 = List.map
 let uncurried = (. x, y) => x + y
 
 uncurried(. 3, 12)->ignore
+// ^hov
+
+uncurried(. 3, 12)->ignore
 // ^def
