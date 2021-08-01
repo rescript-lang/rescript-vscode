@@ -18,3 +18,8 @@ let m1 = List.map
 open Belt
 let m2 = List.map
 //            ^hov
+
+let uncurried = (. x, y) => x + y
+
+uncurried(. 3, 12)->ignore
+// ^def
