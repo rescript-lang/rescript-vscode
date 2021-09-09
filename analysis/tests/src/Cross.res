@@ -37,3 +37,5 @@ type defT = DefinitionWithInterface.t
 
 type defT2 = DefinitionWithInterface.t
 //                                   ^typ
+
+//^com DefinitionWithInterface.a
