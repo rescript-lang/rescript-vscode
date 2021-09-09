@@ -5,7 +5,6 @@ src/BuildSystem.cmx : \
 src/Cli.cmx : \
     src/Commands.cmx
 src/Cmt.cmx : \
-    src/Utils.cmx \
     src/Uri2.cmx \
     src/SharedTypes.cmx \
     src/ProcessCmt.cmx \
