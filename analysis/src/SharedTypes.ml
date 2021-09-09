@@ -146,11 +146,13 @@ let getUri p =
   | Namespace {cmt} -> Uri2.fromPath cmt
   | IntfAndImpl {resi} -> Uri2.fromPath resi
 
-let getCmtPath ~interface p =
+let getCmtPath ~uri p =
   match p with
   | Impl {cmt} -> cmt
   | Namespace {cmt} -> cmt
-  | IntfAndImpl {cmti; cmt} -> if interface then cmti else cmt
+  | IntfAndImpl {cmti; cmt} ->
+    let interface = Utils.endsWith (Uri2.toPath uri) "i" in
+    if interface then cmti else cmt
 
 let emptyDeclared name =
   {
