@@ -54,7 +54,7 @@ Options:
 
   test: run tests specified by special comments in file src/MyFile.res
 
-  ./rescript-editor-analysis.exe test src/src/MyFile.res
+    ./rescript-editor-analysis.exe test src/src/MyFile.res
 |}
 
 let main () =
