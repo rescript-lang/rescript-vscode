@@ -951,7 +951,6 @@ struct
       handle_module_expr arg.mod_desc
     | _ -> ()
 
-  open Typedtree
   include TypedtreeIter.DefaultIteratorArgument
 
   let enter_structure_item item =
