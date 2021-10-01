@@ -22,7 +22,7 @@ let lineColToCmtLoc ~line ~col = (line + 1, col)
 let getLocItem ~full ~line ~col =
   let pos = lineColToCmtLoc ~line ~col in
   let locItems = locItemsForPos ~extra:full.extra pos in
-  if !Log.spamError then
+  if !Log.verbose then
     print_endline
       ("locItems:\n  "
       ^ (locItems |> List.map locItemToString |> String.concat "\n  "));

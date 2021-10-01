@@ -1,3 +1,3 @@
-let spamError = ref false
+let verbose = ref false
 
-let log msg = if !spamError then print_endline msg
+let log msg = if !verbose then print_endline msg

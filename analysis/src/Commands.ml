@@ -297,12 +297,12 @@ let test ~path =
         if mlen >= 3 then (
           (match String.sub rest 0 3 with
           | "deb" ->
-            Log.spamError := true;
+            Log.verbose := true;
             print_endline
               ("Debug " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             let res = definition ~path ~line ~col in
-            Log.spamError := false;
+            Log.verbose := false;
             res
           | "def" ->
             print_endline
