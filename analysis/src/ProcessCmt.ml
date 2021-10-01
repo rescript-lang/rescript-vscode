@@ -48,7 +48,6 @@ let addItem ~name ~extent ~stamp ~env ~item attributes exported stamps =
 
 let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
     (item : Types.signature_item) =
-  let open Types in
   match item with
   | Sig_value (ident, {val_type; val_attributes; val_loc = loc}) ->
     let item = val_type in
@@ -82,7 +81,9 @@ let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
                 Variant
                   (constructors
                   |> List.map
-                       (fun {cd_loc; cd_id; cd_args; cd_res; cd_attributes} ->
+                       (fun
+                         {Types.cd_loc; cd_id; cd_args; cd_res; cd_attributes}
+                       ->
                          let name = Ident.name cd_id in
                          let stamp = Ident.binding_time cd_id in
                          let item =
@@ -115,7 +116,7 @@ let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
               | Type_record (fields, _) ->
                 Record
                   (fields
-                  |> List.map (fun {ld_id; ld_type} ->
+                  |> List.map (fun {Types.ld_id; ld_type} ->
                          let astamp = Ident.binding_time ld_id in
                          let name = Ident.name ld_id in
                          {
