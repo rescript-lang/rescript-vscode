@@ -301,7 +301,9 @@ let test ~path =
             print_endline
               ("Debug " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            definition ~path ~line ~col
+            let res = definition ~path ~line ~col in
+            Log.spamError := false;
+            res
           | "def" ->
             print_endline
               ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"
