@@ -42,4 +42,13 @@ let y = 44
 //^com <M prop=%bs.raw("1") k
 
 let _ = <Component />
-//         ^def
+//         ^def 
+
+module Ext = {
+  @react.component @module("@material-ui/core")
+  external make: (~align: string=?) => React.element = "Typography"
+}
+
+let extMake = Ext.make
+
+//^com <Ext al
