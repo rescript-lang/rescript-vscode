@@ -1,5 +1,5 @@
 ## master
-
+- Fix issue in JSX autocomplete when the component is declared external.
 - Fix jump-to-definition for uncurried calls.
 - Fix issue where values for autocomplete were pulled from implementations instead of interfaces.
 

@@ -49,6 +49,6 @@ module Ext = {
   external make: (~align: string=?) => React.element = "Typography"
 }
 
-let extMake = Ext.make
+let _extMake = Ext.make
 
 //^com <Ext al
