@@ -914,6 +914,19 @@ let processCompletable ~findItems ~full ~package ~rawOpens
                 _,
                 _ ) ->
             getFields tObj
+          | Tconstr
+              ( path,
+                [
+                  {
+                    desc =
+                      ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                      | Tobject (tObj, _) );
+                  };
+                  _;
+                ],
+                _ )
+            when Path.name path = "React.componentLike" ->
+            getFields tObj
           | _ -> []
         in
         typ |> getLabels
