@@ -109,7 +109,7 @@ let skipOptVariantExtension text i =
    arg ::= id | id = [?] atomicExpr
    atomicExpr ::= id | "abc" | 'a' | 42 | `...` | optVariant {...} | optVariant (...) | <...> | [...]
    optVariant ::= a | A | #a |  #A |  _nothing_
- *)
+*)
 let findJsxContext text offset =
   let rec loop identsSeen i =
     let i = skipWhite text i in
@@ -152,7 +152,7 @@ let findJsxContext text offset =
       match text.[i] with
       | '?' -> fromEquals identsSeen (i - 1)
       | '=' -> fromEquals identsSeen i
-      | _ -> loop identsSeen (i - 1)
+      | _ -> loop identsSeen i
     else None
   and beforeParen identsSeen i =
     let i = skipWhite text i in

@@ -2,6 +2,7 @@
 - Fix issue in JSX autocomplete when the component is declared external.
 - Fix jump-to-definition for uncurried calls.
 - Fix issue where values for autocomplete were pulled from implementations instead of interfaces.
+- Fix issue with autocomplete then punned props are used in JSX. E.g. `<M foo ...>`.
 
 ## 1.1.3
 
