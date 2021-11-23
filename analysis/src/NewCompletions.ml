@@ -879,14 +879,16 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
     in
     let mkLabel (name, typ) = mkLabel_ name typ in
-    let keyLabel = mkLabel_ "key" "string" in
+    let keyLabels =
+      if Utils.startsWith "key" prefix then [mkLabel_ "key" "string"] else []
+    in
     if domLabels = [] then []
     else
       (domLabels
       |> List.filter (fun (name, _t) ->
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
-      @ [keyLabel]
+      @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
     let items = findItems ~exact:true (componentPath @ ["make"]) in
     let labels =
@@ -936,14 +938,16 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
     in
     let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
-    let keyLabel = mkLabel_ "key" "string" in
+    let keyLabels =
+      if Utils.startsWith "key" prefix then [mkLabel_ "key" "string"] else []
+    in
     if labels = [] then []
     else
       (labels
       |> List.filter (fun (name, _t) ->
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
-      @ [keyLabel]
+      @ keyLabels
   | Cpath parts ->
     let items = parts |> findItems ~exact:false in
     (* TODO(#107): figure out why we're getting duplicates. *)
