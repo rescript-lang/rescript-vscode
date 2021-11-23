@@ -2,7 +2,7 @@
 - Fix issue in JSX autocomplete when the component is declared external.
 - Fix jump-to-definition for uncurried calls.
 - Fix issue where values for autocomplete were pulled from implementations instead of interfaces.
-- Add autocompletion for object access of the form foo["bar"].
+- Add autocompletion for object access of the form `foo["x"]` and `foo["x"]["y"]["z"]`. 
 - Fix issue with autocomplete then punned props are used in JSX. E.g. `<M foo ...>`.
 - Fix issue with JSX autocompletion not working after `foo=#variant`.
 
