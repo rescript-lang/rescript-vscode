@@ -1145,28 +1145,38 @@ let processCompletable ~findItems ~full ~package ~rawOpens
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
-  | Cobj (lhs, prefix) ->
-    let labels =
-      match [lhs] |> findItems ~exact:true with
-      | {SharedTypes.item = Value typ} :: _ ->
-        let rec getFields (texp : Types.type_expr) =
-          match texp.desc with
-          | Tfield (name, _, t1, t2) ->
-            let fields = t2 |> getFields in
-            (name, t1) :: fields
-          | Tlink te -> te |> getFields
-          | Tvar None -> []
-          | _ -> []
-        in
-        let rec getObj (t : Types.type_expr) =
-          match t.desc with
-          | Tlink t1 | Tsubst t1 -> getObj t1
-          | Tobject (tObj, _) -> getFields tObj
-          | _ -> []
-        in
-        getObj typ
+  | Cobj (lhs, path, prefix) ->
+    let rec getFields (texp : Types.type_expr) =
+      match texp.desc with
+      | Tfield (name, _, t1, t2) ->
+        let fields = t2 |> getFields in
+        (name, t1) :: fields
+      | Tlink te -> te |> getFields
+      | Tvar None -> []
       | _ -> []
     in
+    let rec getObj (t : Types.type_expr) =
+      match t.desc with
+      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getObj t1
+      | Tobject (tObj, _) -> getFields tObj
+      | _ -> []
+    in
+    let fields =
+      match [lhs] |> findItems ~exact:true with
+      | {SharedTypes.item = Value typ} :: _ -> getObj typ
+      | _ -> []
+    in
+    let rec resolvePath fields path =
+      match path with
+      | name :: restPath -> (
+        match fields |> List.find_opt (fun (n, _) -> n = name) with
+        | Some (_, fieldType) ->
+          let innerFields = getObj fieldType in
+          resolvePath innerFields restPath
+        | None -> [])
+      | [] -> fields
+    in
+    let labels = resolvePath fields path in
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
     in
