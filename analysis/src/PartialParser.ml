@@ -109,7 +109,7 @@ let skipOptVariantExtension text i =
    arg ::= id | id = [?] atomicExpr
    atomicExpr ::= id | "abc" | 'a' | 42 | `...` | optVariant {...} | optVariant (...) | <...> | [...]
    optVariant ::= a | A | #a |  #A |  _nothing_
- *)
+*)
 let findJsxContext text offset =
   let rec loop identsSeen i =
     let i = skipWhite text i in
@@ -187,6 +187,7 @@ type completable =
   | Cpath of string list  (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
+  | Cobj of string * string  (** e.g. ("foo", "bar") for foo['bar *)
   | Cpipe of pipe * string  (** E.g. ("x", "foo") for "x->foo" *)
 
 let isLowercaseIdent id =
@@ -228,6 +229,19 @@ let findCompletable text offset =
     | None -> None
     | Some lhs -> Some (Cpipe (lhs, partialName))
   in
+  let mkObj ~off ~partialName =
+    let off = skipWhite text off in
+    let rec loop i =
+      if i < 0 then Some (String.sub text 0 (i - 1))
+      else
+        match text.[i] with
+        | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' -> loop (i - 1)
+        | _ -> Some (String.sub text (i + 1) (off - i))
+    in
+    match loop off with
+    | None -> None
+    | Some lhs -> Some (Cobj (lhs, partialName))
+  in
 
   let suffix i = String.sub text (i + 1) (offset - (i + 1)) in
   let rec loop i =
@@ -243,6 +257,9 @@ let findCompletable text offset =
         let funPath, identsSeen = findCallFromArgument text (i - 1) in
         Some (Clabel (funPath, labelPrefix, identsSeen))
       | '@' -> Some (Cdecorator (suffix i))
+      | '"' when i > 0 && text.[i - 1] = '[' ->
+        let partialName = suffix i in
+        mkObj ~off:(i - 2) ~partialName
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
       | ' ' when i = offset - 1 -> (
         (* autocomplete with no id: check if inside JSX *)

@@ -535,6 +535,11 @@ DocumentSymbol tests/src/Completion.res
         "name": "zzz",
         "kind": 13,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 49, "character": 4}, "end": {"line": 49, "character": 7}}}
+},
+{
+        "name": "someObj",
+        "kind": 19,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 71, "character": 4}, "end": {"line": 71, "character": 11}}}
 }
 ]
 
@@ -595,6 +600,15 @@ Complete tests/src/Completion.res 67:2
     "kind": 4,
     "tags": [],
     "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 72:2
+[{
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
     "documentation": null
   }]
 
