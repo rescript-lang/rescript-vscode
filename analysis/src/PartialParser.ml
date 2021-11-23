@@ -108,7 +108,7 @@ let skipOptVariantExtension text i =
    ctx ::= <M args id
    arg ::= id | id = [?] atomicExpr
    atomicExpr ::= id | "abc" | 'a' | 42 | `...` | optVariant {...} | optVariant (...) | <...> | [...]
-   optVariant ::= a | A | #a |  #A |  _nothing_
+   optVariant ::= id | #id | %id |  _nothing_
 *)
 let findJsxContext text offset =
   let rec loop identsSeen i =
