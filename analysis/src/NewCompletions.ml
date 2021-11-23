@@ -1145,6 +1145,37 @@ let processCompletable ~findItems ~full ~package ~rawOpens
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
+  | Cobj (lhs, prefix) ->
+    let labels =
+      match [lhs] |> findItems ~exact:true with
+      | {SharedTypes.item = Value typ} :: _ ->
+        let rec getFields (texp : Types.type_expr) =
+          match texp.desc with
+          | Tfield (name, _, t1, t2) ->
+            let fields = t2 |> getFields in
+            (name, t1) :: fields
+          | Tlink te -> te |> getFields
+          | Tvar None -> []
+          | _ -> []
+        in
+        let rec getObj (t : Types.type_expr) =
+          match t.desc with
+          | Tlink t1 | Tsubst t1 -> getObj t1
+          | Tobject (tObj, _) -> getFields tObj
+          | _ -> []
+        in
+        getObj typ
+      | _ -> []
+    in
+    let mkLabel_ name typString =
+      mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
+    in
+    let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
+    if labels = [] then []
+    else
+      labels
+      |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
+      |> List.map mkLabel
 
 let getCompletable ~textOpt ~pos =
   match textOpt with

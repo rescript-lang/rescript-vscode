@@ -68,3 +68,7 @@ let zzz = 11
 let _ = Lib.foo(//~age,
 //^com ~
 ~age=3, ~name="")
+
+let someObj = {"name": "a", "age": 32}
+
+//^com someObj["a
