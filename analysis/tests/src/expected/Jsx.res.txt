@@ -211,3 +211,21 @@ Complete tests/src/Jsx.res 54:2
     "documentation": null
   }]
 
+Complete tests/src/Jsx.res 56:2
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 58:2
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+

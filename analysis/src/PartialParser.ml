@@ -107,7 +107,7 @@ let skipOptVariantExtension text i =
    Find JSX context ctx for component M to autocomplete id (already parsed) as a prop.
    ctx ::= <M args id
    arg ::= id | id = [?] atomicExpr
-   atomicExpr ::= id | "abc" | 'a' | 42 | `...` | optVariant {...} | optVariant (...) | <...> | [...]
+   atomicExpr ::= id | #id | "abc" | 'a' | 42 | `...` | optVariant {...} | optVariant (...) | <...> | [...]
    optVariant ::= id | #id | %id |  _nothing_
 *)
 let findJsxContext text offset =
@@ -143,7 +143,10 @@ let findJsxContext text offset =
           match ident.[0] with
           | ('a' .. 'z' | 'A' .. 'Z') when i1 >= 1 && text.[i1 - 1] = '<' ->
             Some (ident, identsSeen)
-          | _ -> beforeIdent ~ident identsSeen (i1 - 1)
+          | _ ->
+            if i1 >= 1 && text.[i1 - 1] = '#' then
+              beforeValue identsSeen (i1 - 2)
+            else beforeIdent ~ident identsSeen (i1 - 1)
         else None
     else None
   and beforeIdent ~ident identsSeen i =

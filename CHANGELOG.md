@@ -4,6 +4,7 @@
 - Fix issue where values for autocomplete were pulled from implementations instead of interfaces.
 - Add autocompletion for object access of the form foo["bar"].
 - Fix issue with autocomplete then punned props are used in JSX. E.g. `<M foo ...>`.
+- Fix issue with JSX autocompletion not working after `foo=#variant`.
 
 ## 1.1.3
 

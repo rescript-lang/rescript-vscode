@@ -54,3 +54,7 @@ let _ = (Ext.make, Ext.makeProps)
 //^com <Ext al
 
 //^com <M first 
+
+//^com <M first=#a k
+
+//^com <M first =  ?   #a k
