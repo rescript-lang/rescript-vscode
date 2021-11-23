@@ -143,16 +143,16 @@ let findJsxContext text offset =
           match ident.[0] with
           | ('a' .. 'z' | 'A' .. 'Z') when i1 >= 1 && text.[i1 - 1] = '<' ->
             Some (ident, identsSeen)
-          | _ -> beforeIdent identsSeen (i1 - 1)
+          | _ -> beforeIdent ~ident identsSeen (i1 - 1)
         else None
     else None
-  and beforeIdent identsSeen i =
+  and beforeIdent ~ident identsSeen i =
     let i = skipWhite text i in
     if i > 0 then
       match text.[i] with
       | '?' -> fromEquals identsSeen (i - 1)
       | '=' -> fromEquals identsSeen i
-      | _ -> loop identsSeen i
+      | _ -> (* punning *) loop (ident :: identsSeen) i
     else None
   and beforeParen identsSeen i =
     let i = skipWhite text i in
