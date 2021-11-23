@@ -637,7 +637,7 @@ function onMessage(msg: m.Message) {
           renameProvider: { prepareProvider: true },
           // disabled right now until we use the parser to show non-stale symbols per keystroke
           // documentSymbolProvider: true,
-          completionProvider: { triggerCharacters: [".", ">", "@", "~"] },
+          completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
         },
       };
       let response: m.ResponseMessage = {
