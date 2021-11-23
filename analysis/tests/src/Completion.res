@@ -3,6 +3,7 @@ module MyList = Belt.List
 //^com Array.
 //^com Array.m
 
+
 module Dep: {
   @ocaml.doc("Some doc comment") @deprecated("Use customDouble instead")
   let customDouble: int => int
@@ -29,11 +30,11 @@ let op = Some(3)
 
 module ForAuto = {
   type t = int
-  let abc = (x: t, _y: int) => x
-  let abd = (x: t, _y: int) => x
+  let abc = (x:t, _y:int) => x
+  let abd = (x:t, _y:int) => x
 }
 
-let fa: ForAuto.t = 34
+let fa:ForAuto.t = 34
 //^com fa->
 
 //^com "hello"->Js.Dict.u
@@ -41,7 +42,8 @@ let fa: ForAuto.t = 34
 module O = {
   module Comp = {
     @react.component
-    let make = (~first="", ~zoo=3, ~second) => React.string(first ++ second ++ string_of_int(zoo))
+    let make = (~first="", ~zoo=3, ~second) =>
+      React.string(first ++ second ++ string_of_int(zoo))
   }
 }
 
@@ -63,12 +65,9 @@ let zzz = 11
 
 //^com let x = Lib.foo(~age={3+4}, ~
 
-let _ = Lib.foo(
-  //~age,
-  //^com ~
-  ~age=3,
-  ~name="",
-)
+let _ = Lib.foo(//~age,
+//^com ~
+~age=3, ~name="")
 
 let someObj = {"name": "a", "age": 32}
 
