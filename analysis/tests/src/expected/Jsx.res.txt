@@ -134,13 +134,7 @@ Complete tests/src/Jsx.res 30:2
   }]
 
 Complete tests/src/Jsx.res 32:2
-[{
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+[]
 
 Complete tests/src/Jsx.res 34:2
 [{
@@ -184,6 +178,27 @@ Definition tests/src/Jsx.res 43:11
 Complete tests/src/Jsx.res 52:2
 [{
     "label": "align",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 54:2
+[{
+    "label": "second",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": null
+  }, {
+    "label": "fun",
     "kind": 4,
     "tags": [],
     "detail": "option<string>",

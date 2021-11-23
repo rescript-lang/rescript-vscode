@@ -52,3 +52,5 @@ module Ext = {
 let _ = (Ext.make, Ext.makeProps)
 
 //^com <Ext al
+
+//^com <M first 
