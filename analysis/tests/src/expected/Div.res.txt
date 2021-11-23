@@ -8,11 +8,5 @@ Complete tests/src/Div.res 3:3
     "tags": [],
     "detail": "{\"__html\": string}",
     "documentation": null
-  }, {
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
   }]
 

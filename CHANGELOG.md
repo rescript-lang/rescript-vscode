@@ -5,6 +5,7 @@
 - Add autocompletion for object access of the form `foo["x"]` and `foo["x"]["y"]["z"]`. 
 - Fix issue with autocomplete then punned props are used in JSX. E.g. `<M foo ...>`.
 - Fix issue with JSX autocompletion not working after `foo=#variant`.
+- Fix issue in JSX autocompletion where the `key` label would always appear.
 
 ## 1.1.3
 

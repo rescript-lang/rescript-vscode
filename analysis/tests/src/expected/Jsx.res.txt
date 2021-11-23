@@ -35,12 +35,6 @@ Complete tests/src/Jsx.res 9:2
     "tags": [],
     "detail": "option<string>",
     "documentation": null
-  }, {
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
   }]
 
 Complete tests/src/Jsx.res 11:2
@@ -181,12 +175,6 @@ Complete tests/src/Jsx.res 52:2
     "kind": 4,
     "tags": [],
     "detail": "option<string>",
-    "documentation": null
-  }, {
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
     "documentation": null
   }]
 
