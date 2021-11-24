@@ -1,4 +1,5 @@
-Debug tests/src/Debug.res 0:20
+
+Definition tests/src/Debug.res 1:20
 Dependencies: @rescript/react
 Source directories: tests/node_modules/@rescript/react/./src tests/node_modules/@rescript/react/./src/legacy
 Source files: tests/node_modules/@rescript/react/./src/React.res tests/node_modules/@rescript/react/./src/ReactDOM.res tests/node_modules/@rescript/react/./src/ReactDOMServer.res tests/node_modules/@rescript/react/./src/ReactDOMStyle.res tests/node_modules/@rescript/react/./src/ReactEvent.res tests/node_modules/@rescript/react/./src/ReactEvent.resi tests/node_modules/@rescript/react/./src/ReactTestUtils.res tests/node_modules/@rescript/react/./src/ReactTestUtils.resi tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.res tests/node_modules/@rescript/react/./src/RescriptReactErrorBoundary.resi tests/node_modules/@rescript/react/./src/RescriptReactRouter.res tests/node_modules/@rescript/react/./src/RescriptReactRouter.resi tests/node_modules/@rescript/react/./src/legacy/ReactDOMRe.res tests/node_modules/@rescript/react/./src/legacy/ReasonReact.res
@@ -27,7 +28,7 @@ Impl cmt:tests/lib/bs/./src/TypeDefinition.cmt res:tests/src/TypeDefinition.res
 Dependency dirs: tests/node_modules/@rescript/react/lib/bs/./src tests/node_modules/@rescript/react/lib/bs/./src/legacy
 Opens from bsconfig: 
 locItems:
-  0:18-0:21 Typed map (Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b> GlobalReference
+  1:18-1:21 Typed map (Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b> GlobalReference
 [ref] Typed GlobalReference moduleName:Belt path:List.map tip:Value
 fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/belt.cmt res:tests/node_modules/rescript/lib/ocaml/belt.ml
 resolvePath path:List.map
@@ -40,9 +41,9 @@ resolvePath path:map
 [ref] Inner uri belt_List.mli
 {"uri": "belt_List.mli", "range": {"start": {"line": 239, "character": 4}, "end": {"line": 239, "character": 7}}}
 
-Debug tests/src/Debug.res 3:14
+Definition tests/src/Debug.res 4:14
 locItems:
-  3:13-3:16 Typed map ('a => 'b, list<'a>) => list<'b> GlobalReference
+  4:13-4:16 Typed map ('a => 'b, list<'a>) => list<'b> GlobalReference
 [ref] Typed GlobalReference moduleName:List path:map tip:Value
 fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/list.cmti res:tests/node_modules/rescript/lib/ocaml/list.mli
 resolvePath path:map
@@ -51,4 +52,5 @@ resolvePath path:map
 [ref] alternateDeclared for List not found
 [ref] Inner uri list.mli
 {"uri": "list.mli", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 7}}}
+
 

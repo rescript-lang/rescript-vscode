@@ -296,14 +296,8 @@ let test ~path =
         let col = mlen - 1 in
         if mlen >= 3 then (
           (match String.sub rest 0 3 with
-          | "deb" ->
-            Log.verbose := true;
-            print_endline
-              ("Debug " ^ path ^ " " ^ string_of_int line ^ ":"
-             ^ string_of_int col);
-            let res = definition ~path ~line ~col in
-            Log.verbose := false;
-            res
+          | "db+" -> Log.verbose := true
+          | "db-" -> Log.verbose := false
           | "def" ->
             print_endline
               ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"
