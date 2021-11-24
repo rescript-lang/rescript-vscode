@@ -731,13 +731,14 @@ let resolveRawOpens ~env ~rawOpens ~package =
   in
   opens
 
-let getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts =
+let getItems ~full ~rawOpens ~allFiles ~pos ~parts =
   Log.log
     ("Opens folkz > "
     ^ string_of_int (List.length rawOpens)
     ^ " "
     ^ String.concat " ... " (rawOpens |> List.map pathToString));
   let env = QueryEnv.fromFile full.file in
+  let package = full.package in
   let packageOpens = "Pervasives" :: package.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
   let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
@@ -1215,7 +1216,7 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let findItems ~exact parts =
-    let items = getItems ~full ~package ~rawOpens ~allFiles ~pos ~parts in
+    let items = getItems ~full ~rawOpens ~allFiles ~pos ~parts in
     match parts |> List.rev with
     | last :: _ when exact ->
       items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
