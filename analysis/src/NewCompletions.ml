@@ -1159,10 +1159,17 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       | Tvar None -> []
       | _ -> []
     in
+    let envRef = ref (QueryEnv.fromFile full.file) in
     let rec getObj (t : Types.type_expr) =
       match t.desc with
       | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getObj t1
       | Tobject (tObj, _) -> getFields tObj
+      | Tconstr (path, _, _) -> (
+        match Hover.digConstructor ~env:envRef.contents ~package path with
+        | Some (env, {item = {decl = {type_manifest = Some tt}}}) ->
+          envRef := env;
+          getObj tt
+        | _ -> [])
       | _ -> []
     in
     let fields =

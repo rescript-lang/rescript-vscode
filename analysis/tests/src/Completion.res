@@ -76,3 +76,10 @@ let someObj = {"name": "a", "age": 32}
 let nestedObj = {"x": {"y": {"name": "a", "age": 32}}}
 
 //^com nestedObj["x"]["y"]["
+
+let o : Obj.objT = assert false
+//^com o["a
+
+type nestedObjT = {"x": Obj.nestedObjT}
+let no : nestedObjT = assert false
+//^com no["x"]["y"]["
