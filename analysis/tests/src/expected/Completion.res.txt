@@ -554,6 +554,21 @@ DocumentSymbol tests/src/Completion.res
         "name": "no",
         "kind": 13,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 83, "character": 4}, "end": {"line": 83, "character": 6}}}
+},
+{
+        "name": "r",
+        "kind": 11,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 86, "character": 0}, "end": {"line": 86, "character": 26}}}
+},
+{
+        "name": "rAlias",
+        "kind": 26,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 87, "character": 0}, "end": {"line": 87, "character": 15}}}
+},
+{
+        "name": "r",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 88, "character": 4}, "end": {"line": 88, "character": 5}}}
 }
 ]
 
@@ -662,6 +677,21 @@ Complete tests/src/Completion.res 83:2
     "kind": 4,
     "tags": [],
     "detail": "int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 88:3
+[{
+    "label": "x",
+    "kind": 5,
+    "tags": [],
+    "detail": "x: int\n\ntype r = {x: int, y: string}",
+    "documentation": null
+  }, {
+    "label": "y",
+    "kind": 5,
+    "tags": [],
+    "detail": "y: string\n\ntype r = {x: int, y: string}",
     "documentation": null
   }]
 

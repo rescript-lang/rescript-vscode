@@ -83,3 +83,8 @@ let o : Obj.objT = assert false
 type nestedObjT = {"x": Obj.nestedObjT}
 let no : nestedObjT = assert false
 //^com no["x"]["y"]["
+
+type r = {x:int, y:string}
+type rAlias = r
+let r:rAlias = assert false
+// ^com r.

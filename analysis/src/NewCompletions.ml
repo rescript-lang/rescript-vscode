@@ -731,6 +731,30 @@ let resolveRawOpens ~env ~rawOpens ~package =
   in
   opens
 
+let rec extractRecordType ~env ~package (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractRecordType ~env ~package t1
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, ({item = {kind = Record fields}} as typ)) ->
+      Some (env, fields, typ)
+    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+      extractRecordType ~env ~package t1
+    | _ -> None)
+  | _ -> None
+
+let rec extractObjectType ~env ~package (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+    extractObjectType ~env ~package t1
+  | Tobject (tObj, _) -> Some (env, tObj)
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+      extractObjectType ~env ~package t1
+    | _ -> None)
+  | _ -> None
+
 let getItems ~full ~rawOpens ~allFiles ~pos ~parts =
   Log.log
     ("Opens folkz > "
@@ -801,49 +825,36 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~parts =
         | None -> []
         | Some declared -> (
           Log.log ("Found it! " ^ declared.name.txt);
-          match declared.item |> Shared.digConstructor with
+          match declared.item |> extractRecordType ~env ~package with
           | None -> []
-          | Some path -> (
-            match References.digConstructor ~env ~package path with
-            | None -> []
-            | Some (env, typ) -> (
-              match
-                rest
-                |> List.fold_left
-                     (fun current name ->
-                       match current with
+          | Some (env, fields, typ) -> (
+            match
+              rest
+              |> List.fold_left
+                   (fun current name ->
+                     match current with
+                     | None -> None
+                     | Some (env, fields, _) -> (
+                       match
+                         fields |> List.find_opt (fun f -> f.fname.txt = name)
+                       with
                        | None -> None
-                       | Some (env, typ) -> (
-                         match typ.item.SharedTypes.Type.kind with
-                         | Record fields -> (
-                           match
-                             fields
-                             |> List.find_opt (fun f -> f.fname.txt = name)
-                           with
-                           | None -> None
-                           | Some attr -> (
-                             Log.log ("Found attr " ^ name);
-                             match attr.typ |> Shared.digConstructor with
-                             | None -> None
-                             | Some path ->
-                               References.digConstructor ~env ~package path))
-                         | _ -> None))
-                     (Some (env, typ))
-              with
-              | None -> []
-              | Some (_env, typ) -> (
-                match typ.item.kind with
-                | Record fields ->
-                  fields
-                  |> Utils.filterMap (fun f ->
-                         if Utils.startsWith f.fname.txt suffix then
-                           Some
-                             {
-                               (emptyDeclared f.fname.txt) with
-                               item = Field (f, typ);
-                             }
-                         else None)
-                | _ -> []))))))
+                       | Some attr ->
+                         Log.log ("Found attr " ^ name);
+                         attr.typ |> extractRecordType ~env ~package))
+                   (Some (env, fields, typ))
+            with
+            | None -> []
+            | Some (_env, fields, typ) ->
+              fields
+              |> Utils.filterMap (fun f ->
+                     if Utils.startsWith f.fname.txt suffix then
+                       Some
+                         {
+                           (emptyDeclared f.fname.txt) with
+                           item = Field (f, typ);
+                         }
+                     else None)))))
     | `AbsAttribute path -> (
       match getEnvWithOpens ~pos ~env ~package ~opens path with
       | None -> []
@@ -993,22 +1004,15 @@ let processCompletable ~findItems ~full ~package ~rawOpens
           Some (modulePath, partialName)
       in
       let getField ~env ~typ fieldName =
-        match getConstr typ with
-        | Some path -> (
-          match References.digConstructor ~env ~package path with
+        match extractRecordType typ ~env ~package with
+        | Some (env1, fields, _) -> (
+          match
+            fields
+            |> List.find_opt (fun field ->
+                   field.SharedTypes.fname.txt = fieldName)
+          with
           | None -> None
-          | Some (env1, declared) -> (
-            let t = declared.item in
-            match t.kind with
-            | Record fields -> (
-              match
-                fields
-                |> List.find_opt (fun field ->
-                       field.SharedTypes.fname.txt = fieldName)
-              with
-              | None -> None
-              | Some field -> Some (field.typ, env1))
-            | _ -> None))
+          | Some field -> Some (field.typ, env1))
         | None -> None
       in
       let rec getFields ~env ~typ = function
@@ -1161,21 +1165,16 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       | _ -> []
     in
     let envRef = ref (QueryEnv.fromFile full.file) in
-    let rec getObj (t : Types.type_expr) =
-      match t.desc with
-      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getObj t1
-      | Tobject (tObj, _) -> getFields tObj
-      | Tconstr (path, _, _) -> (
-        match References.digConstructor ~env:envRef.contents ~package path with
-        | Some (env, {item = {decl = {type_manifest = Some tt}}}) ->
-          envRef := env;
-          getObj tt
-        | _ -> [])
-      | _ -> []
+    let getObjectFields (t : Types.type_expr) =
+      match t |> extractObjectType ~env:envRef.contents ~package with
+      | Some (env, tObj) ->
+        envRef := env;
+        getFields tObj
+      | None -> []
     in
     let fields =
       match [lhs] |> findItems ~exact:true with
-      | {SharedTypes.item = Value typ} :: _ -> getObj typ
+      | {SharedTypes.item = Value typ} :: _ -> getObjectFields typ
       | _ -> []
     in
     let rec resolvePath fields path =
@@ -1183,7 +1182,7 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       | name :: restPath -> (
         match fields |> List.find_opt (fun (n, _) -> n = name) with
         | Some (_, fieldType) ->
-          let innerFields = getObj fieldType in
+          let innerFields = getObjectFields fieldType in
           resolvePath innerFields restPath
         | None -> [])
       | [] -> fields
