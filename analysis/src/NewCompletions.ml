@@ -745,8 +745,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
 
 let rec extractObjectType ~env ~package (t : Types.type_expr) =
   match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
-    extractObjectType ~env ~package t1
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractObjectType ~env ~package t1
   | Tobject (tObj, _) -> Some (env, tObj)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
@@ -1164,30 +1163,28 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       | Tvar None -> []
       | _ -> []
     in
-    let envRef = ref (QueryEnv.fromFile full.file) in
-    let getObjectFields (t : Types.type_expr) =
-      match t |> extractObjectType ~env:envRef.contents ~package with
-      | Some (env, tObj) ->
-        envRef := env;
-        getFields tObj
-      | None -> []
+    let getObjectFields ~env (t : Types.type_expr) =
+      match t |> extractObjectType ~env ~package with
+      | Some (env, tObj) -> (env, getFields tObj)
+      | None -> (env, [])
     in
-    let fields =
-      match [lhs] |> findItems ~exact:true with
-      | {SharedTypes.item = Value typ} :: _ -> getObjectFields typ
-      | _ -> []
-    in
-    let rec resolvePath fields path =
+    let rec resolvePath ~env fields path =
       match path with
       | name :: restPath -> (
         match fields |> List.find_opt (fun (n, _) -> n = name) with
         | Some (_, fieldType) ->
-          let innerFields = getObjectFields fieldType in
-          resolvePath innerFields restPath
+          let env, innerFields = getObjectFields ~env fieldType in
+          resolvePath ~env innerFields restPath
         | None -> [])
       | [] -> fields
     in
-    let labels = resolvePath fields path in
+    let env0 = QueryEnv.fromFile full.file in
+    let env, fields =
+      match [lhs] |> findItems ~exact:true with
+      | {SharedTypes.item = Value typ} :: _ -> getObjectFields ~env:env0 typ
+      | _ -> (env0, [])
+    in
+    let labels = resolvePath ~env fields path in
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
     in
