@@ -804,7 +804,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~parts =
           match declared.item |> Shared.digConstructor with
           | None -> []
           | Some path -> (
-            match Hover.digConstructor ~env ~package path with
+            match References.digConstructor ~env ~package path with
             | None -> []
             | Some (env, typ) -> (
               match
@@ -826,7 +826,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~parts =
                              match attr.typ |> Shared.digConstructor with
                              | None -> None
                              | Some path ->
-                               Hover.digConstructor ~env ~package path))
+                               References.digConstructor ~env ~package path))
                          | _ -> None))
                      (Some (env, typ))
               with
@@ -995,7 +995,7 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       let getField ~env ~typ fieldName =
         match getConstr typ with
         | Some path -> (
-          match Hover.digConstructor ~env ~package path with
+          match References.digConstructor ~env ~package path with
           | None -> None
           | Some (env1, declared) -> (
             let t = declared.item in
@@ -1166,7 +1166,7 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getObj t1
       | Tobject (tObj, _) -> getFields tObj
       | Tconstr (path, _, _) -> (
-        match Hover.digConstructor ~env:envRef.contents ~package path with
+        match References.digConstructor ~env:envRef.contents ~package path with
         | Some (env, {item = {decl = {type_manifest = Some tt}}}) ->
           envRef := env;
           getObj tt

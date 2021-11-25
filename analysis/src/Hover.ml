@@ -1,19 +1,3 @@
-let digConstructor ~env ~package path =
-  match ProcessCmt.resolveFromCompilerPath ~env ~package path with
-  | `Not_found -> None
-  | `Stamp stamp -> (
-    match Hashtbl.find_opt env.file.stamps.types stamp with
-    | None -> None
-    | Some t -> Some (env, t))
-  | `Exported (env, name) -> (
-    match Hashtbl.find_opt env.exported.types name with
-    | None -> None
-    | Some stamp -> (
-      match Hashtbl.find_opt env.file.stamps.types stamp with
-      | None -> None
-      | Some t -> Some (env, t)))
-  | _ -> None
-
 let codeBlock code = Printf.sprintf "```rescript\n%s\n```" code
 
 let showModuleTopLevel ~docstring ~name
@@ -121,7 +105,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
         match typ |> Shared.digConstructor with
         | None -> None
         | Some path -> (
-          match digConstructor ~env ~package path with
+          match References.digConstructor ~env ~package path with
           | None -> None
           | Some (_env, {docstring; name = {txt}; item = {decl}}) ->
             if Utils.isUncurriedInternal path then None

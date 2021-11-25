@@ -51,13 +51,13 @@ src/NewCompletions.cmx : \
     src/vendor/compiler-libs-406/types.cmx \
     src/SharedTypes.cmx \
     src/Shared.cmx \
+    src/References.cmx \
     src/Protocol.cmx \
     src/ProcessCmt.cmx \
     src/vendor/compiler-libs-406/path.cmx \
     src/PartialParser.cmx \
     src/Log.cmx \
-    src/vendor/compiler-libs-406/ident.cmx \
-    src/Hover.cmx
+    src/vendor/compiler-libs-406/ident.cmx
 src/Packages.cmx : \
     src/Utils.cmx \
     src/Uri2.cmx \
