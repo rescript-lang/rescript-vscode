@@ -555,25 +555,25 @@ let isCapitalized name =
     let c = name.[0] in
     match c with 'A' .. 'Z' -> true | _ -> false
 
-let determineCompletion items =
-  let rec loop offset items =
-    match items with
+let determineCompletion parts =
+  let rec loop parts =
+    match parts with
     | [] -> assert false
     | [one] -> `Normal (Tip one)
     | [one; two] when not (isCapitalized one) -> `Attribute ([one], two)
     | [one; two] -> `Normal (Nested (one, Tip two))
     | one :: rest -> (
       if isCapitalized one then
-        match loop (offset + String.length one + 1) rest with
+        match loop rest with
         | `Normal path -> `Normal (Nested (one, path))
         | x -> x
       else
-        match loop (offset + String.length one + 1) rest with
+        match loop rest with
         | `Normal path -> `AbsAttribute path
         | `Attribute (path, suffix) -> `Attribute (one :: path, suffix)
         | x -> x)
   in
-  loop 0 items
+  loop parts
 
 (* Note: This is a hack. It will be wrong some times if you have a local thing
    that overrides an open.
