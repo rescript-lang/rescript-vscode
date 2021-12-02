@@ -754,7 +754,7 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let getItems ~full ~rawOpens ~allFiles ~pos ~parts =
+let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
   Log.log
     ("Opens folkz > "
     ^ string_of_int (List.length rawOpens)
@@ -774,7 +774,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~parts =
         |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
   (* Last open takes priority *)
   let opens = List.rev resolvedOpens in
-  match parts with
+  match dotpath with
   | [] -> []
   | [suffix] ->
     let locallyDefinedValues = localValueCompletions ~pos ~env suffix in
@@ -882,7 +882,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
         else Some {kind = "markdown"; value = docContent});
     }
 
-let processCompletable ~findItems ~full ~package ~rawOpens
+let processCompletable ~processDotPath ~full ~package ~rawOpens
     (completable : PartialParser.completable) =
   match completable with
   | Cjsx ([id], prefix, identsSeen) when String.lowercase_ascii id = id ->
@@ -901,9 +901,9 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       |> List.map mkLabel)
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
-    let items = findItems ~exact:true (componentPath @ ["make"]) in
+    let declareds = processDotPath ~exact:true (componentPath @ ["make"]) in
     let labels =
-      match items with
+      match declareds with
       | {SharedTypes.item = Value typ} :: _ ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
@@ -959,10 +959,10 @@ let processCompletable ~findItems ~full ~package ~rawOpens
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
       @ keyLabels
-  | Cpath parts ->
-    let items = parts |> findItems ~exact:false in
+  | Cdotpath dotpath ->
+    let declareds = dotpath |> processDotPath ~exact:false in
     (* TODO(#107): figure out why we're getting duplicates. *)
-    items |> Utils.dedup
+    declareds |> Utils.dedup
     |> List.map
          (fun {SharedTypes.name = {txt = name}; deprecated; docstring; item} ->
            mkItem ~name ~kind:(kindToInt item) ~deprecated
@@ -1023,7 +1023,7 @@ let processCompletable ~findItems ~full ~package ~rawOpens
       in
       match String.split_on_char '.' pipeId with
       | x :: fieldNames -> (
-        match [x] |> findItems ~exact:true with
+        match [x] |> processDotPath ~exact:true with
         | {SharedTypes.item = Value typ} :: _ -> (
           let env = QueryEnv.fromFile full.file in
           match getFields ~env ~typ fieldNames with
@@ -1073,9 +1073,9 @@ let processCompletable ~findItems ~full ~package ~rawOpens
           if modulePathMinusOpens = "" then name
           else modulePathMinusOpens ^ "." ^ name
         in
-        let parts = modulePath @ [partialName] in
-        let items = parts |> findItems ~exact:false in
-        items
+        let dotpath = modulePath @ [partialName] in
+        let declareds = dotpath |> processDotPath ~exact:false in
+        declareds
         |> List.filter (fun {item} ->
                match item with Value _ -> true | _ -> false)
         |> List.map
@@ -1131,7 +1131,7 @@ let processCompletable ~findItems ~full ~package ~rawOpens
     |> List.map mkDecorator
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
-      match funPath |> findItems ~exact:true with
+      match funPath |> processDotPath ~exact:true with
       | {SharedTypes.item = Value typ} :: _ ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
@@ -1180,7 +1180,7 @@ let processCompletable ~findItems ~full ~package ~rawOpens
     in
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
-      match [lhs] |> findItems ~exact:true with
+      match [lhs] |> processDotPath ~exact:true with
       | {SharedTypes.item = Value typ} :: _ -> getObjectFields ~env:env0 typ
       | _ -> (env0, [])
     in
@@ -1211,11 +1211,11 @@ let getCompletable ~textOpt ~pos =
 let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
-  let findItems ~exact parts =
-    let items = getItems ~full ~rawOpens ~allFiles ~pos ~parts in
-    match parts |> List.rev with
+  let processDotPath ~exact dotpath =
+    let items = getItems ~full ~rawOpens ~allFiles ~pos ~dotpath in
+    match dotpath |> List.rev with
     | last :: _ when exact ->
       items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
     | _ -> items
   in
-  completable |> processCompletable ~findItems ~full ~package ~rawOpens
+  completable |> processCompletable ~processDotPath ~full ~package ~rawOpens

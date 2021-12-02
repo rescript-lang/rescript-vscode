@@ -187,7 +187,7 @@ type completable =
   | Cdecorator of string  (** e.g. @module *)
   | Clabel of string list * string * string list
       (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
-  | Cpath of string list  (** e.g. ["M", "foo"] for M.foo *)
+  | Cdotpath of string list  (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
   | Cobj of string * string list * string
@@ -208,15 +208,17 @@ let isLowercaseIdent id =
 let findCompletable text offset =
   let mkPath s =
     let len = String.length s in
-    let parts = Str.split (Str.regexp_string ".") s in
-    let parts = match s.[len - 1] with '.' -> parts @ [""] | _ -> parts in
-    match parts with
+    let dotpath = Str.split (Str.regexp_string ".") s in
+    let dotpath =
+      match s.[len - 1] with '.' -> dotpath @ [""] | _ -> dotpath
+    in
+    match dotpath with
     | [id] when String.lowercase_ascii id = id -> (
       match findJsxContext text (offset - len - 1) with
-      | None -> Cpath parts
+      | None -> Cdotpath dotpath
       | Some (componentName, identsSeen) ->
         Cjsx (Str.split (Str.regexp_string ".") componentName, id, identsSeen))
-    | _ -> Cpath parts
+    | _ -> Cdotpath dotpath
   in
   let mkPipe off partialName =
     let off = skipWhite text off in
