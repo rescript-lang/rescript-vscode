@@ -609,32 +609,6 @@ let extraForFile ~(file : File.t) =
          | _ -> ());
   extra
 
-let rec relative ident path =
-  match (ident, path) with
-  | Longident.Lident name, Path.Pdot (path, pname, _) when pname = name ->
-    Some path
-  | Longident.Ldot (ident, name), Path.Pdot (path, pname, _) when pname = name
-    ->
-    relative ident path
-  (* | (Ldot(Lident("*predef*" | "exn"), _), Pident(_)) => None *)
-  | _ -> None
-
-let findClosestMatchingOpen opens path ident loc =
-  match relative ident path with
-  | None -> None
-  | Some openNeedle -> (
-    let matching =
-      Hashtbl.fold
-        (fun _ op res ->
-          if Utils.locWithinLoc loc op.extent && Path.same op.path openNeedle
-          then op :: res
-          else res)
-        opens []
-      |> List.sort (fun (a : SharedTypes.openTracker) b ->
-             b.loc.loc_start.pos_cnum - a.loc.loc_start.pos_cnum)
-    in
-    match matching with [] -> None | first :: _ -> Some first)
-
 let rec joinPaths modulePath path =
   match modulePath with
   | Path.Pident ident -> (ident.stamp, ident.name, path)
@@ -698,26 +672,6 @@ end) =
 struct
   let extra = Collector.extra
 
-  let makeRelativePath basePath otherPath =
-    let rec loop base other tip =
-      if Path.same base other then Some tip
-      else
-        match other with
-        | Pdot (inner, name, _) -> loop basePath inner (Nested (name, tip))
-        | _ -> None
-    in
-    match otherPath with
-    | Path.Pdot (inner, name, _) -> loop basePath inner (Tip name)
-    | _ -> None
-
-  let maybeAddUse path ident loc tip =
-    match findClosestMatchingOpen extra.opens path ident loc with
-    | None -> ()
-    | Some tracker -> (
-      match makeRelativePath tracker.path path with
-      | None -> ()
-      | Some relpath -> tracker.used <- (relpath, tip, loc) :: tracker.used)
-
   let addReference stamp loc =
     Hashtbl.replace extra.internalReferences stamp
       (loc
@@ -746,7 +700,6 @@ struct
   let env = QueryEnv.fromFile Collector.file
 
   let addForPath path lident loc typ tip =
-    maybeAddUse path lident loc tip;
     let identName = Longident.last lident in
     let identLoc = Utils.endOfLocation loc (String.length identName) in
     let locType =
@@ -815,17 +768,10 @@ struct
       | Some declaredType -> `Local declaredType
       | None -> `Not_found)
 
-  let handleConstructor path txt =
-    let typeName =
-      match path with
-      | Path.Pdot (_path, typename, _) -> typename
-      | Pident ident -> Ident.name ident
-      | _ -> assert false
-    in
-    let open Longident in
+  let handleConstructor txt =
     match txt with
-    | Longident.Lident name -> (name, Lident typeName)
-    | Ldot (left, name) -> (name, Ldot (left, typeName))
+    | Longident.Lident name -> name
+    | Ldot (_left, name) -> name
     | Lapply (_, _) -> assert false
 
   let addForField recordType item {Asttypes.txt; loc} =
@@ -833,8 +779,7 @@ struct
     | Tconstr (path, _args, _memo) ->
       let t = getTypeAtPath ~env path in
       let {Types.lbl_res} = item in
-      let name, typeLident = handleConstructor path txt in
-      maybeAddUse path typeLident loc (Field name);
+      let name = handleConstructor txt in
       let nameLoc = Utils.endOfLocation loc (String.length name) in
       let locType =
         match t with
@@ -859,8 +804,7 @@ struct
       items
       |> List.iter (fun ({Asttypes.txt; loc}, {Types.lbl_res}, _) ->
              (* let name = Longident.last(txt); *)
-             let name, typeLident = handleConstructor path txt in
-             maybeAddUse path typeLident loc (Field name);
+             let name = handleConstructor txt in
              let nameLoc = Utils.endOfLocation loc (String.length name) in
              let locType =
                match t with
@@ -883,8 +827,7 @@ struct
   let addForConstructor constructorType {Asttypes.txt; loc} {Types.cstr_name} =
     match (Shared.dig constructorType).desc with
     | Tconstr (path, _args, _memo) ->
-      let name, typeLident = handleConstructor path txt in
-      maybeAddUse path typeLident loc (Constructor name);
+      let name = handleConstructor txt in
       let nameLoc = Utils.endOfLocation loc (String.length name) in
       let t = getTypeAtPath ~env path in
       let locType =
@@ -944,7 +887,6 @@ struct
     | Tmod_constraint (expr, _, _, _) -> handle_module_expr expr.mod_desc
     | Tmod_ident (path, {txt; loc}) ->
       Log.log ("Ident!! " ^ String.concat "." (Longident.flatten txt));
-      maybeAddUse path txt loc Module;
       addForLongident None path txt loc
     | Tmod_functor (_ident, _argName, _maybeType, resultExpr) ->
       handle_module_expr resultExpr.mod_desc
@@ -961,22 +903,8 @@ struct
     | Tstr_module {mb_expr} -> handle_module_expr mb_expr.mod_desc
     | Tstr_open {open_path; open_txt = {txt; loc}} ->
       (* Log.log("Have an open here"); *)
-      maybeAddUse open_path txt loc Module;
-      let tracker =
-        {
-          path = open_path;
-          loc;
-          used = [];
-          extent =
-            {
-              loc_ghost = true;
-              loc_start = loc.loc_end;
-              loc_end = (currentScopeExtent ()).loc_end;
-            };
-        }
-      in
       addForLongident None open_path txt loc;
-      Hashtbl.replace Collector.extra.opens loc tracker
+      Hashtbl.replace Collector.extra.opens loc ()
     | _ -> ()
 
   let enter_structure {str_items} =
@@ -1058,9 +986,7 @@ struct
     expression.exp_extra
     |> List.iter (fun (e, eloc, _) ->
            match e with
-           | Texp_open (_, path, _ident, _) ->
-             Hashtbl.add extra.opens eloc
-               {path; loc = eloc; extent = expression.exp_loc; used = []}
+           | Texp_open (_, _path, _ident, _) -> Hashtbl.add extra.opens eloc ()
            | _ -> ());
     match expression.exp_desc with
     | Texp_ident (path, {txt; loc}, {val_type}) ->

@@ -21,11 +21,6 @@ let cmtPosToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} =
 let cmtLocToRange {Location.loc_start; loc_end} =
   Protocol.{start = cmtPosToPosition loc_start; end_ = cmtPosToPosition loc_end}
 
-let locWithinLoc inner outer =
-  let open Location in
-  inner.loc_start.pos_cnum >= outer.loc_start.pos_cnum
-  && inner.loc_end.pos_cnum <= outer.loc_end.pos_cnum
-
 let endOfLocation loc length =
   let open Location in
   {

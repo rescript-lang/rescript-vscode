@@ -177,8 +177,6 @@ let tipToString tip =
   | Constructor a -> "Constructor(" ^ a ^ ")"
   | Module -> "Module"
 
-type path = Tip of string | Nested of string * path
-
 let pathToString path = path |> String.concat "."
 
 type locKind =
@@ -195,13 +193,6 @@ type locType =
   | TypeDefinition of string * Types.type_declaration * int
 
 type locItem = {loc : Location.t; locType : locType}
-
-type openTracker = {
-  path : Path.t;
-  loc : Location.t;
-  extent : Location.t;
-  mutable used : (path * tip * Location.t) list;
-}
 
 module LocationSet = Set.Make (struct
   include Location
@@ -220,7 +211,7 @@ type extra = {
   (* This is the "open location", like the location...
      or maybe the >> location of the open ident maybe *)
   (* OPTIMIZE: using a stack to come up with this would cut the computation time of this considerably. *)
-  opens : (Location.t, openTracker) Hashtbl.t;
+  opens : (Location.t, unit) Hashtbl.t;
 }
 
 type file = string
