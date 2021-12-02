@@ -555,25 +555,30 @@ let isCapitalized name =
     let c = name.[0] in
     match c with 'A' .. 'Z' -> true | _ -> false
 
-let determineCompletion parts =
-  let rec loop parts =
-    match parts with
+type completion =
+  | AbsAttribute of path
+  | Attribute of string list * string
+  | Normal of path
+
+let determineCompletion dotpath =
+  let rec loop dotpath =
+    match dotpath with
     | [] -> assert false
-    | [one] -> `Normal (Tip one)
-    | [one; two] when not (isCapitalized one) -> `Attribute ([one], two)
-    | [one; two] -> `Normal (Nested (one, Tip two))
+    | [one] -> Normal (Tip one)
+    | [one; two] when not (isCapitalized one) -> Attribute ([one], two)
+    | [one; two] -> Normal (Nested (one, Tip two))
     | one :: rest -> (
       if isCapitalized one then
         match loop rest with
-        | `Normal path -> `Normal (Nested (one, path))
+        | Normal path -> Normal (Nested (one, path))
         | x -> x
       else
         match loop rest with
-        | `Normal path -> `AbsAttribute path
-        | `Attribute (path, suffix) -> `Attribute (one :: path, suffix)
+        | Normal path -> AbsAttribute path
+        | Attribute (path, suffix) -> Attribute (one :: path, suffix)
         | x -> x)
   in
-  loop parts
+  loop dotpath
 
 (* Note: This is a hack. It will be wrong some times if you have a local thing
    that overrides an open.
@@ -804,17 +809,17 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
              else None)
     in
     locallyDefinedValues @ valuesFromOpens @ localModuleNames
-  | multiple -> (
-    Log.log ("Completing for " ^ String.concat "<.>" multiple);
-    match determineCompletion multiple with
-    | `Normal path -> (
+  | _ -> (
+    Log.log ("Completing for " ^ String.concat "<.>" dotpath);
+    match determineCompletion dotpath with
+    | Normal path -> (
       Log.log ("normal " ^ pathToString path);
       match getEnvWithOpens ~pos ~env ~package ~opens path with
       | Some (env, suffix) ->
         Log.log "Got the env";
         valueCompletions ~env suffix
       | None -> [])
-    | `Attribute (target, suffix) -> (
+    | Attribute (target, suffix) -> (
       Log.log ("suffix :" ^ suffix);
       match target with
       | [] -> []
@@ -854,7 +859,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
                            item = Field (f, typ);
                          }
                      else None)))))
-    | `AbsAttribute path -> (
+    | AbsAttribute path -> (
       match getEnvWithOpens ~pos ~env ~package ~opens path with
       | None -> []
       | Some (env, suffix) ->
@@ -1212,10 +1217,10 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let processDotPath ~exact dotpath =
-    let items = getItems ~full ~rawOpens ~allFiles ~pos ~dotpath in
+    let declareds = getItems ~full ~rawOpens ~allFiles ~pos ~dotpath in
     match dotpath |> List.rev with
     | last :: _ when exact ->
-      items |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
-    | _ -> items
+      declareds |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
+    | _ -> declareds
   in
   completable |> processCompletable ~processDotPath ~full ~package ~rawOpens
