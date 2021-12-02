@@ -465,8 +465,8 @@ let resolveOpens ~env ~previous opens ~package =
         match prev with
         | [] -> (
           match path with
-          | Tip _ -> previous
-          | Nested (name, path) -> (
+          | [] | [_] -> previous
+          | name :: path -> (
             match ProcessCmt.fileForModule ~package name with
             | None ->
               Log.log ("Could not get module " ^ name);
@@ -556,22 +556,20 @@ let isCapitalized name =
     match c with 'A' .. 'Z' -> true | _ -> false
 
 type completion =
-  | AbsAttribute of path
+  | AbsAttribute of string list
   | Attribute of string list * string
-  | Normal of path
+  | Normal of string list
 
 let determineCompletion dotpath =
   let rec loop dotpath =
     match dotpath with
     | [] -> assert false
-    | [one] -> Normal (Tip one)
+    | [one] -> Normal [one]
     | [one; two] when not (isCapitalized one) -> Attribute ([one], two)
-    | [one; two] -> Normal (Nested (one, Tip two))
+    | [one; two] -> Normal [one; two]
     | one :: rest -> (
       if isCapitalized one then
-        match loop rest with
-        | Normal path -> Normal (Nested (one, path))
-        | x -> x
+        match loop rest with Normal path -> Normal (one :: path) | x -> x
       else
         match loop rest with
         | Normal path -> AbsAttribute path
@@ -600,8 +598,8 @@ let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
         | None -> loop rest)
       | [] -> (
         match path with
-        | Tip _ -> None
-        | Nested (top, path) -> (
+        | [] | [_] -> None
+        | top :: path -> (
           Log.log ("Getting module " ^ top);
           match ProcessCmt.fileForModule ~package top with
           | None -> None
@@ -1050,8 +1048,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     in
     let rec removeRawOpen rawOpen modulePath =
       match (rawOpen, modulePath) with
-      | Tip _, _ -> Some modulePath
-      | Nested (s, inner), first :: restPath when s = first ->
+      | [_], _ -> Some modulePath
+      | s :: inner, first :: restPath when s = first ->
         removeRawOpen inner restPath
       | _ -> None
     in

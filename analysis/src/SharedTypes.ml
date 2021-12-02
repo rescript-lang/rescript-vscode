@@ -179,14 +179,11 @@ let tipToString tip =
 
 type path = Tip of string | Nested of string * path
 
-let rec pathToString path =
-  match path with
-  | Tip name -> name
-  | Nested (name, inner) -> name ^ "." ^ pathToString inner
+let pathToString path = path |> String.concat "."
 
 type locKind =
   | LocalReference of int * tip
-  | GlobalReference of string * path * tip
+  | GlobalReference of string * string list * tip
   | NotFound
   | Definition of int * tip
 
@@ -216,7 +213,8 @@ end)
 
 type extra = {
   internalReferences : (int, Location.t list) Hashtbl.t;
-  externalReferences : (string, (path * tip * Location.t) list) Hashtbl.t;
+  externalReferences :
+    (string, (string list * tip * Location.t) list) Hashtbl.t;
   fileReferences : (string, LocationSet.t) Hashtbl.t;
   mutable locItems : locItem list;
   (* This is the "open location", like the location...

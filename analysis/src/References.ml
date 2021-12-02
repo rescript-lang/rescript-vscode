@@ -56,10 +56,8 @@ let getLocItem ~full ~line ~col =
     Some li3
   | [
    ({locType = Typed (_, _, LocalReference _)} as li1);
-   ({
-      locType =
-        Typed (_, _, GlobalReference ("Js_OO", Tip "unsafe_downgrade", _));
-    } as li2);
+   ({locType = Typed (_, _, GlobalReference ("Js_OO", ["unsafe_downgrade"], _))}
+   as li2);
    li3;
   ]
   (* For older compiler 9.0 or earlier *)
@@ -409,12 +407,11 @@ let rec pathFromVisibility visibilityPath current =
   match visibilityPath with
   | File _ -> Some current
   | IncludedModule (_, inner) -> pathFromVisibility inner current
-  | ExportedModule (name, inner) ->
-    pathFromVisibility inner (Nested (name, current))
+  | ExportedModule (name, inner) -> pathFromVisibility inner (name :: current)
   | NotVisible -> None
 
 let pathFromVisibility visibilityPath tipName =
-  pathFromVisibility visibilityPath (Tip tipName)
+  pathFromVisibility visibilityPath [tipName]
 
 type references = {
   uri : Uri2.t;

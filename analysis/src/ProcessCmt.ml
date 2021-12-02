@@ -639,19 +639,20 @@ let rec joinPaths modulePath path =
   match modulePath with
   | Path.Pident ident -> (ident.stamp, ident.name, path)
   | Papply (fnPath, _argPath) -> joinPaths fnPath path
-  | Pdot (inner, name, _) -> joinPaths inner (Nested (name, path))
+  | Pdot (inner, name, _) -> joinPaths inner (name :: path)
 
 let rec makePath modulePath =
   match modulePath with
   | Path.Pident ident when ident.stamp == 0 -> `GlobalMod ident.name
   | Pident ident -> `Stamp ident.stamp
   | Papply (fnPath, _argPath) -> makePath fnPath
-  | Pdot (inner, name, _) -> `Path (joinPaths inner (Tip name))
+  | Pdot (inner, name, _) -> `Path (joinPaths inner [name])
 
 let rec resolvePathInner ~(env : QueryEnv.t) ~path =
   match path with
-  | Tip name -> Some (`Local (env, name))
-  | Nested (subName, subPath) -> (
+  | [] -> None
+  | [name] -> Some (`Local (env, name))
+  | subName :: subPath -> (
     match Hashtbl.find_opt env.exported.modules subName with
     | None -> None
     | Some stamp -> (
@@ -1313,8 +1314,9 @@ let findInScope pos name stamps =
 
 let resolveFromStamps ~(env : QueryEnv.t) ~path ~package ~pos =
   match path with
-  | Tip name -> Some (env, name)
-  | Nested (name, inner) -> (
+  | [] -> None
+  | [name] -> Some (env, name)
+  | name :: inner -> (
     (* Log.log("Finding from stamps " ++ name); *)
     match findInScope pos name env.file.stamps.modules with
     | None -> None

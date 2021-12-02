@@ -292,8 +292,8 @@ let findOpens text offset =
   let pathOfModuleOpen o =
     let rec loop items =
       match items with
-      | [] -> SharedTypes.Tip "place holder"
-      | one :: rest -> Nested (one, loop rest)
+      | [] -> ["place holder"]
+      | one :: rest -> one :: loop rest
     in
     loop (o |> Str.split (Str.regexp_string "."))
   in
