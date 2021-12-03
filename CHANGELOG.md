@@ -7,6 +7,7 @@
 - Fix issue with JSX autocompletion not working after `foo=#variant`.
 - Fix issue in JSX autocompletion where the `key` label would always appear.
 - Fix issue in record field autocomplete not working with type aliases.
+- Support autocomplete of records for variables defined in other files.
 
 ## 1.1.3
 

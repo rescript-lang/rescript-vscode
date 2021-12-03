@@ -557,7 +557,7 @@ let isCapitalized name =
 
 type completion =
   | AbsAttribute of string list
-  | Attribute of string list * string
+  | Attribute of string list * string list * string
   | Normal of string list
 
 let determineCompletion dotpath =
@@ -565,15 +565,20 @@ let determineCompletion dotpath =
     match dotpath with
     | [] -> assert false
     | [one] -> Normal [one]
-    | [one; two] when not (isCapitalized one) -> Attribute ([one], two)
+    | [one; two] when not (isCapitalized one) -> Attribute ([one], [], two)
     | [one; two] -> Normal [one; two]
     | one :: rest -> (
       if isCapitalized one then
-        match loop rest with Normal path -> Normal (one :: path) | x -> x
+        match loop rest with
+        | Normal path -> Normal (one :: path)
+        | Attribute (firstPath, rest, suffix) ->
+          Attribute (one :: firstPath, rest, suffix)
+        | AbsAttribute _ as x -> x
       else
         match loop rest with
         | Normal path -> AbsAttribute path
-        | Attribute (path, suffix) -> Attribute (one :: path, suffix)
+        | Attribute ([first], path, suffix) ->
+          Attribute ([one], first :: path, suffix)
         | x -> x)
   in
   loop dotpath
@@ -585,7 +590,7 @@ let determineCompletion dotpath =
    locally defined things...
 *)
 let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
-    path =
+    (path : string list) =
   match ProcessCmt.resolveFromStamps ~env ~path ~package ~pos with
   | Some x -> Some x
   | None ->
@@ -817,13 +822,13 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
         Log.log "Got the env";
         valueCompletions ~env suffix
       | None -> [])
-    | Attribute (target, suffix) -> (
+    | Attribute (firstPath, rest, suffix) -> (
       Log.log ("suffix :" ^ suffix);
-      match target with
-      | [] -> []
-      | first :: rest -> (
-        Log.log ("-------------- Looking for " ^ first);
-        match ProcessCmt.findInScope pos first env.file.stamps.values with
+      Log.log
+        ("-------------- Looking for " ^ (firstPath |> SharedTypes.pathToString));
+      match getEnvWithOpens ~pos ~env ~package ~opens firstPath with
+      | Some (env, name) -> (
+        match ProcessCmt.findInScope pos name env.file.stamps.values with
         | None -> []
         | Some declared -> (
           Log.log ("Found it! " ^ declared.name.txt);
@@ -856,7 +861,8 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
                            (emptyDeclared f.fname.txt) with
                            item = Field (f, typ);
                          }
-                     else None)))))
+                     else None))))
+      | None -> [])
     | AbsAttribute path -> (
       match getEnvWithOpens ~pos ~env ~package ~opens path with
       | None -> []

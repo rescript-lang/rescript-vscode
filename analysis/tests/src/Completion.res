@@ -88,3 +88,5 @@ type r = {x:int, y:string}
 type rAlias = r
 let r:rAlias = assert false
 // ^com r.
+
+// ^com Obj.Rec.recordVal.
