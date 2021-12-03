@@ -557,7 +557,7 @@ let isCapitalized name =
 
 type completion =
   | AbsAttribute of string list
-  | Attribute of string list * string list * string
+  | RecordAccess of string list * string list * string (* e.g. A.B.var .f1.f2 .f3 *)
   | Normal of string list
 
 let determineCompletion dotpath =
@@ -565,20 +565,20 @@ let determineCompletion dotpath =
     match dotpath with
     | [] -> assert false
     | [one] -> Normal [one]
-    | [one; two] when not (isCapitalized one) -> Attribute ([one], [], two)
+    | [one; two] when not (isCapitalized one) -> RecordAccess ([one], [], two)
     | [one; two] -> Normal [one; two]
     | one :: rest -> (
       if isCapitalized one then
         match loop rest with
         | Normal path -> Normal (one :: path)
-        | Attribute (firstPath, rest, suffix) ->
-          Attribute (one :: firstPath, rest, suffix)
+        | RecordAccess (valuePath, middleFields, lastField) ->
+          RecordAccess (one :: valuePath, middleFields, lastField)
         | AbsAttribute _ as x -> x
       else
         match loop rest with
         | Normal path -> AbsAttribute path
-        | Attribute ([first], path, suffix) ->
-          Attribute ([one], first :: path, suffix)
+        | RecordAccess ([name], middleFields, lastField) ->
+          RecordAccess ([one], name :: middleFields, lastField)
         | x -> x)
   in
   loop dotpath
@@ -615,7 +615,7 @@ let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
     in
     loop opens
 
-type k =
+type kind =
   | Module of moduleKind
   | Value of Types.type_expr
   | Type of Type.t
@@ -623,8 +623,8 @@ type k =
   | Field of field * Type.t declared
   | FileModule of string
 
-let kindToInt k =
-  match k with
+let kindToInt kind =
+  match kind with
   | Module _ -> 9
   | FileModule _ -> 9
   | Constructor (_, _) -> 4
@@ -822,11 +822,11 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
         Log.log "Got the env";
         valueCompletions ~env suffix
       | None -> [])
-    | Attribute (firstPath, rest, suffix) -> (
-      Log.log ("suffix :" ^ suffix);
+    | RecordAccess (valuePath, middleFields, lastField) -> (
+      Log.log ("lastField :" ^ lastField);
       Log.log
-        ("-------------- Looking for " ^ (firstPath |> SharedTypes.pathToString));
-      match getEnvWithOpens ~pos ~env ~package ~opens firstPath with
+        ("-------------- Looking for " ^ (valuePath |> SharedTypes.pathToString));
+      match getEnvWithOpens ~pos ~env ~package ~opens valuePath with
       | Some (env, name) -> (
         match ProcessCmt.findInScope pos name env.file.stamps.values with
         | None -> []
@@ -836,7 +836,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
           | None -> []
           | Some (env, fields, typ) -> (
             match
-              rest
+              middleFields
               |> List.fold_left
                    (fun current name ->
                      match current with
@@ -854,12 +854,12 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
             | None -> []
             | Some (_env, fields, typ) ->
               fields
-              |> Utils.filterMap (fun f ->
-                     if Utils.startsWith f.fname.txt suffix then
+              |> Utils.filterMap (fun field ->
+                     if Utils.startsWith field.fname.txt lastField then
                        Some
                          {
-                           (emptyDeclared f.fname.txt) with
-                           item = Field (f, typ);
+                           (emptyDeclared field.fname.txt) with
+                           item = Field (field, typ);
                          }
                      else None))))
       | None -> [])
