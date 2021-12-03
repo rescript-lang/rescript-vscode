@@ -177,7 +177,9 @@ let tipToString tip =
   | Constructor a -> "Constructor(" ^ a ^ ")"
   | Module -> "Module"
 
-let pathToString path = path |> String.concat "."
+type path = string list
+
+let pathToString (path : path) = path |> String.concat "."
 
 type locKind =
   | LocalReference of int * tip
