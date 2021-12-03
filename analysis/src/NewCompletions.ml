@@ -556,9 +556,10 @@ let isCapitalized name =
     match c with 'A' .. 'Z' -> true | _ -> false
 
 type completion =
-  | AbsAttribute of string list (* e.g. _somepath_.A.B.field *)
+  | QualifiedRecordAccess of string list (* e.g. _.A.B.field where _ indicates a path ending in a lowercase id *)
   | RecordAccess of string list * string list * string (* e.g. A.B.var .f1.f2 .f3 *)
-  | Path of string list (* e.g. A.B.var or A.B *)
+  | Path of string list
+(* e.g. A.B.var or A.B *)
 
 let determineCompletion dotpath =
   let rec loop dotpath =
@@ -574,13 +575,22 @@ let determineCompletion dotpath =
         | Path path -> Path (one :: path)
         | RecordAccess (valuePath, middleFields, lastField) ->
           RecordAccess (one :: valuePath, middleFields, lastField)
-        | AbsAttribute _ as x -> x
+        | QualifiedRecordAccess _ as completion ->
+          (* A. _.B.field  -> _.B.field *)
+          completion
       else
         match loop rest with
-        | Path path -> AbsAttribute path
+        | Path path ->
+          (* x. B.field -> _.B.field *)
+          QualifiedRecordAccess path
         | RecordAccess ([name], middleFields, lastField) ->
           RecordAccess ([one], name :: middleFields, lastField)
-        | x -> x)
+        | RecordAccess (valuePath, middleFields, lastField) ->
+          (* x.A.B.v.f1.f2.f3 --> .A.B.v.f1.f2.f3 *)
+          QualifiedRecordAccess (valuePath @ middleFields @ [lastField])
+        | QualifiedRecordAccess _ as completion ->
+          (* x. _.A.f -> _.A.f *)
+          completion)
   in
   loop dotpath
 
@@ -864,7 +874,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
                          }
                      else None))))
       | None -> [])
-    | AbsAttribute path -> (
+    | QualifiedRecordAccess path -> (
       match getEnvWithOpens ~pos ~env ~package ~opens path with
       | None -> []
       | Some (env, suffix) ->
