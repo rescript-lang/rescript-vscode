@@ -695,3 +695,18 @@ Complete tests/src/Completion.res 88:3
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 90:3
+[{
+    "label": "xx",
+    "kind": 5,
+    "tags": [],
+    "detail": "xx: int\n\ntype recordt = {xx: int, ss: string}",
+    "documentation": null
+  }, {
+    "label": "ss",
+    "kind": 5,
+    "tags": [],
+    "detail": "ss: string\n\ntype recordt = {xx: int, ss: string}",
+    "documentation": null
+  }]
+
