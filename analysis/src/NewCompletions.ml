@@ -556,12 +556,12 @@ let isCapitalized name =
     match c with 'A' .. 'Z' -> true | _ -> false
 
 type completion =
-  | QualifiedRecordAccess of string list (* e.g. _.A.B.field where _ indicates a path ending in a lowercase id *)
-  | RecordAccess of string list * string list * string (* e.g. A.B.var .f1.f2 .f3 *)
-  | Path of string list
+  | QualifiedRecordAccess of path (* e.g. _.A.B.field where _ indicates a path ending in a lowercase id *)
+  | RecordAccess of path * path * string (* e.g. A.B.var .f1.f2 .f3 *)
+  | Path of path
 (* e.g. A.B.var or A.B *)
 
-let determineCompletion dotpath =
+let determineCompletion (dotpath : path) =
   let rec loop dotpath =
     match dotpath with
     | [] -> assert false
