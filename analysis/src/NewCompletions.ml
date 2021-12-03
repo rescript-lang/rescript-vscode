@@ -556,27 +556,28 @@ let isCapitalized name =
     match c with 'A' .. 'Z' -> true | _ -> false
 
 type completion =
-  | AbsAttribute of string list
+  | AbsAttribute of string list (* e.g. _somepath_.A.B.field *)
   | RecordAccess of string list * string list * string (* e.g. A.B.var .f1.f2 .f3 *)
-  | Normal of string list
+  | Path of string list (* e.g. A.B.var or A.B *)
 
 let determineCompletion dotpath =
   let rec loop dotpath =
     match dotpath with
     | [] -> assert false
-    | [one] -> Normal [one]
-    | [one; two] when not (isCapitalized one) -> RecordAccess ([one], [], two)
-    | [one; two] -> Normal [one; two]
+    | [one] -> Path [one]
+    | [one; two] ->
+      if isCapitalized one then Path [one; two]
+      else RecordAccess ([one], [], two)
     | one :: rest -> (
       if isCapitalized one then
         match loop rest with
-        | Normal path -> Normal (one :: path)
+        | Path path -> Path (one :: path)
         | RecordAccess (valuePath, middleFields, lastField) ->
           RecordAccess (one :: valuePath, middleFields, lastField)
         | AbsAttribute _ as x -> x
       else
         match loop rest with
-        | Normal path -> AbsAttribute path
+        | Path path -> AbsAttribute path
         | RecordAccess ([name], middleFields, lastField) ->
           RecordAccess ([one], name :: middleFields, lastField)
         | x -> x)
@@ -815,8 +816,8 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
   | _ -> (
     Log.log ("Completing for " ^ String.concat "<.>" dotpath);
     match determineCompletion dotpath with
-    | Normal path -> (
-      Log.log ("normal " ^ pathToString path);
+    | Path path -> (
+      Log.log ("Path " ^ pathToString path);
       match getEnvWithOpens ~pos ~env ~package ~opens path with
       | Some (env, suffix) ->
         Log.log "Got the env";
