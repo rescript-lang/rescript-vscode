@@ -569,6 +569,16 @@ DocumentSymbol tests/src/Completion.res
         "name": "r",
         "kind": 13,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 88, "character": 4}, "end": {"line": 88, "character": 5}}}
+},
+{
+        "name": "myAmazingFunction",
+        "kind": 12,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 93, "character": 4}, "end": {"line": 93, "character": 21}}}
+},
+{
+        "name": "make",
+        "kind": 12,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 96, "character": 4}, "end": {"line": 96, "character": 8}}}
 }
 ]
 
@@ -707,6 +717,15 @@ Complete tests/src/Completion.res 90:3
     "kind": 5,
     "tags": [],
     "detail": "ss: string\n\ntype recordt = {xx: int, ss: string}",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 96:3
+[{
+    "label": "myAmazingFunction",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
     "documentation": null
   }]
 

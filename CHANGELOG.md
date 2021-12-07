@@ -8,6 +8,7 @@
 - Fix issue in JSX autocompletion where the `key` label would always appear.
 - Fix issue in record field autocomplete not working with type aliases.
 - Support autocomplete of records for variables defined in other files.
+- Fix issue where autocomplete for local values would not work in the presence of `@react.component` annotations.
 
 ## 1.1.3
 
