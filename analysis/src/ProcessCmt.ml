@@ -1,34 +1,25 @@
 open Typedtree
 open SharedTypes
 
-let itemsExtent items =
-  let items = items |> List.filter (fun item -> not item.str_loc.loc_ghost) in
-  match items with
+let locsExtent locs =
+  let locs = locs |> List.filter (fun loc -> not loc.Location.loc_ghost) in
+  (* This filters out ghost locs, but still assumes positions are ordered.
+     Perhaps compute min/max. *)
+  match locs with
   | [] -> Location.none
   | first :: _ ->
-    let last = List.nth items (List.length items - 1) in
+    let last = List.nth locs (List.length locs - 1) in
     let first, last =
-      if first.str_loc.loc_start.pos_cnum < last.str_loc.loc_start.pos_cnum then
-        (first, last)
+      if first.loc_start.pos_cnum < last.loc_start.pos_cnum then (first, last)
       else (last, first)
     in
-    {
-      loc_ghost = true;
-      loc_start = first.str_loc.loc_start;
-      loc_end = last.str_loc.loc_end;
-    }
+    {loc_ghost = true; loc_start = first.loc_start; loc_end = last.loc_end}
+
+let impItemsExtent items =
+  items |> List.map (fun item -> item.Typedtree.str_loc) |> locsExtent
 
 let sigItemsExtent items =
-  let items = items |> List.filter (fun item -> not item.sig_loc.loc_ghost) in
-  match items with
-  | [] -> Location.none
-  | first :: _ ->
-    let last = List.nth items (List.length items - 1) in
-    {
-      Location.loc_ghost = true;
-      loc_start = first.sig_loc.loc_start;
-      loc_end = last.sig_loc.loc_end;
-    }
+  items |> List.map (fun item -> item.Typedtree.sig_loc) |> locsExtent
 
 let addItem ~name ~extent ~stamp ~env ~item attributes exported stamps =
   let declared =
@@ -411,7 +402,7 @@ and forModule env mod_desc moduleName =
     let env =
       {
         env with
-        scope = itemsExtent structure.str_items;
+        scope = impItemsExtent structure.str_items;
         modulePath = ExportedModule (moduleName, env.modulePath);
       }
     in
@@ -484,7 +475,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    let extent = itemsExtent items in
+    let extent = impItemsExtent items in
     let extent =
       {
         extent with
@@ -527,7 +518,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
   | Implementation structure ->
     let env =
       {
-        scope = itemsExtent structure.str_items;
+        scope = impItemsExtent structure.str_items;
         stamps = initStamps ();
         modulePath = File (uri, moduleName);
       }
@@ -1046,7 +1037,7 @@ end
 let extraForStructureItems ~(file : File.t)
     (items : Typedtree.structure_item list) parts =
   let extra = extraForFile ~file in
-  let extent = itemsExtent items in
+  let extent = impItemsExtent items in
   let extent =
     {
       extent with
