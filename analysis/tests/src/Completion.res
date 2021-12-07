@@ -90,3 +90,11 @@ let r:rAlias = assert false
 // ^com r.
 
 // ^com Obj.Rec.recordVal.
+
+let myAmazingFunction = (x,y) => x+y
+
+@react.component
+let make = () => {
+// ^com my
+  <> </>
+}

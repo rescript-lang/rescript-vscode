@@ -2,6 +2,7 @@ open Typedtree
 open SharedTypes
 
 let itemsExtent items =
+  let items = items |> List.filter (fun item -> not item.str_loc.loc_ghost) in
   match items with
   | [] -> Location.none
   | first :: _ ->
@@ -18,6 +19,7 @@ let itemsExtent items =
     }
 
 let sigItemsExtent items =
+  let items = items |> List.filter (fun item -> not item.sig_loc.loc_ghost) in
   match items with
   | [] -> Location.none
   | first :: _ ->
