@@ -1,5 +1,5 @@
 import * as path from "path";
-import { workspace, ExtensionContext, commands } from "vscode";
+import { workspace, ExtensionContext, commands, languages } from "vscode";
 
 import {
   LanguageClient,
@@ -98,10 +98,25 @@ export function activate(context: ExtensionContext) {
     clientOptions
   );
 
+  // Create a custom diagnostics collection, for cases where we want to report diagnostics
+  // programatically from inside of the extension.
+  let diagnosticsCollection = languages.createDiagnosticCollection("rescript");
+
   // Register custom commands
   commands.registerCommand("rescript-vscode.create_interface", () => {
     customCommands.createInterface(client);
   });
+
+  commands.registerCommand("rescript-vscode.run_dead_code_analysis", () => {
+    customCommands.deadCodeAnalysisWithReanalyze(diagnosticsCollection);
+  });
+
+  commands.registerCommand(
+    "rescript-vscode.clear_dead_code_analysis_results",
+    () => {
+      diagnosticsCollection.clear();
+    }
+  );
 
   // Start the client. This will also launch the server
   client.start();
