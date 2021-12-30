@@ -37,10 +37,12 @@ export const createInterface = (client: LanguageClient) => {
 };
 
 export const deadCodeAnalysisWithReanalyze = (
+  targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
 ) => {
   runDeadCodeAnalysisWithReanalyze(
+    targetDir,
     diagnosticsCollection,
     diagnosticsResultCodeActions
   );

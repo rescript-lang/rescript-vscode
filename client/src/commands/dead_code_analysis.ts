@@ -105,7 +105,6 @@ let dceTextToDiagnostics = (
     if (processedFileInfo != null) {
       // reanalyze prints the severity first in the title, and then the rest of
       // the title after.
-      window.showInformationMessage(title);
       let [severityRaw, ...issueTitleParts] = title.split(" ");
       let issueTitle = issueTitleParts.join(" ");
 
@@ -189,6 +188,7 @@ let dceTextToDiagnostics = (
 };
 
 export const runDeadCodeAnalysisWithReanalyze = (
+  targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
 ) => {
@@ -197,12 +197,10 @@ export const runDeadCodeAnalysisWithReanalyze = (
   diagnosticsResultCodeActions.clear();
 
   let currentDocument = window.activeTextEditor.document;
+  let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
   let p = cp.spawn("npx", ["reanalyze", "-dce"], {
-    // Pointing reanalyze to the dir of the current file path is fine,
-    // because reanalyze will walk upwards looking for a bsconfig.json in
-    // order to find the correct project root.
-    cwd: path.dirname(currentDocument.uri.fsPath),
+    cwd,
   });
 
   if (p.stdout == null) {
