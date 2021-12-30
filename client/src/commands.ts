@@ -1,7 +1,10 @@
 import * as fs from "fs";
 import { window, DiagnosticCollection } from "vscode";
 import { LanguageClient, RequestType } from "vscode-languageclient/node";
-import { runDeadCodeAnalysisWithReanalyze } from "./commands/dead_code_analysis";
+import {
+  DiagnosticsResultCodeActionsMap,
+  runDeadCodeAnalysisWithReanalyze,
+} from "./commands/dead_code_analysis";
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -34,7 +37,11 @@ export const createInterface = (client: LanguageClient) => {
 };
 
 export const deadCodeAnalysisWithReanalyze = (
-  diagnosticsCollection: DiagnosticCollection
+  diagnosticsCollection: DiagnosticCollection,
+  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
 ) => {
-  runDeadCodeAnalysisWithReanalyze(diagnosticsCollection);
+  runDeadCodeAnalysisWithReanalyze(
+    diagnosticsCollection,
+    diagnosticsResultCodeActions
+  );
 };

@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import * as cp from "child_process";
 import * as path from "path";
 import {
@@ -9,24 +8,17 @@ import {
   Position,
   DiagnosticSeverity,
   Uri,
+  CodeAction,
+  CodeActionKind,
+  WorkspaceEdit,
 } from "vscode";
-import { DocumentUri } from "vscode-languageclient";
 
-let findProjectRootOfFile = (source: DocumentUri): null | DocumentUri => {
-  let dir = path.dirname(source);
-  if (fs.existsSync(path.join(dir, "bsconfig.json"))) {
-    return dir;
-  } else {
-    if (dir === source) {
-      // reached top
-      return null;
-    } else {
-      return findProjectRootOfFile(dir);
-    }
-  }
-};
+export type DiagnosticsResultCodeActionsMap = Map<
+  string,
+  { range: Range; codeAction: CodeAction }[]
+>;
 
-let fileInfoRegex = /File "(.+)", line (\d)+, characters ([\d-]+)/;
+let fileInfoRegex = /File "(.+)", line (\d)+, characters ([\d-]+)/g;
 
 let extractFileInfo = (
   fileInfo: string
@@ -76,16 +68,12 @@ let extractFileInfo = (
 };
 
 let dceTextToDiagnostics = (
-  dceText: string
+  dceText: string,
+  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
 ): {
   diagnosticsMap: Map<string, Diagnostic[]>;
-  hasMoreDiagnostics: boolean;
-  totalDiagnosticsCount: number;
-  savedDiagnostics: number;
 } => {
   let diagnosticsMap: Map<string, Diagnostic[]> = new Map();
-  let savedDiagnostics = 0;
-  let totalDiagnosticsCount = 0;
 
   // Each section with a single issue found is seprated by two line breaks in
   // the reanalyze output. Here's an example of how a section typically looks:
@@ -103,8 +91,8 @@ let dceTextToDiagnostics = (
 
       // These aren't in use yet, but can power code actions that can
       // automatically add the @dead annotations reanalyze is suggesting to us.
-      _lineNumToReplace,
-      _lineContentToReplace,
+      lineNumToReplace,
+      lineContentToReplace,
 
       ..._rest
     ] = chunk.split("\n");
@@ -112,15 +100,6 @@ let dceTextToDiagnostics = (
     let processedFileInfo = extractFileInfo(fileInfo);
 
     if (processedFileInfo != null) {
-      // We'll limit the amount of diagnostics to display somewhat. This is also
-      // in part because we don't "watch" for changes with reanalyze, so the
-      // user will need to re-run the command fairly often anyway as issues are
-      // fixed, in order to get rid of the stale problems reported.
-      if (savedDiagnostics > 20) {
-        totalDiagnosticsCount++;
-        return;
-      }
-
       // reanalyze prints the severity first in the title, and then the rest of
       // the title after.
       let [severityRaw, ...issueTitleParts] = title.split(" ");
@@ -147,51 +126,81 @@ let dceTextToDiagnostics = (
         parseInt(endCharacter, 10)
       );
 
+      let issueLocationRange = new Range(startPos, endPos);
+
       let severity =
         severityRaw === "Error"
           ? DiagnosticSeverity.Error
           : DiagnosticSeverity.Warning;
 
       let diagnostic = new Diagnostic(
-        new Range(startPos, endPos),
+        issueLocationRange,
         `${issueTitle}: ${text}`,
         severity
       );
-
-      savedDiagnostics++;
 
       if (diagnosticsMap.has(processedFileInfo.filePath)) {
         diagnosticsMap.get(processedFileInfo.filePath).push(diagnostic);
       } else {
         diagnosticsMap.set(processedFileInfo.filePath, [diagnostic]);
       }
+
+      // Let's see if there's a valid code action that can be produced from this diagnostic.
+      if (lineNumToReplace != null && lineContentToReplace != null) {
+        let actualLineToReplaceStr = lineNumToReplace.split("<-- line ").pop();
+
+        if (actualLineToReplaceStr != null) {
+          let codeAction = new CodeAction(`Annotate with @dead`);
+          codeAction.kind = CodeActionKind.RefactorRewrite;
+
+          let codeActionEdit = new WorkspaceEdit();
+
+          codeActionEdit.replace(
+            Uri.parse(processedFileInfo.filePath),
+            // Make sure the full line is replaced
+            new Range(
+              new Position(issueLocationRange.start.line, 0),
+              new Position(issueLocationRange.start.line, 999999)
+            ),
+            lineContentToReplace.trim()
+          );
+
+          codeAction.edit = codeActionEdit;
+
+          if (diagnosticsResultCodeActions.has(processedFileInfo.filePath)) {
+            diagnosticsResultCodeActions
+              .get(processedFileInfo.filePath)
+              .push({ range: issueLocationRange, codeAction });
+          } else {
+            diagnosticsResultCodeActions.set(processedFileInfo.filePath, [
+              { range: issueLocationRange, codeAction },
+            ]);
+          }
+        }
+      }
     }
   });
 
   return {
     diagnosticsMap,
-    hasMoreDiagnostics: totalDiagnosticsCount > savedDiagnostics,
-    savedDiagnostics,
-    totalDiagnosticsCount,
   };
 };
 
 export const runDeadCodeAnalysisWithReanalyze = (
-  diagnosticsCollection: DiagnosticCollection
+  diagnosticsCollection: DiagnosticCollection,
+  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
 ) => {
+  // Clear old diagnostics and code actions state.
   diagnosticsCollection.clear();
+  diagnosticsResultCodeActions.clear();
+
   let currentDocument = window.activeTextEditor.document;
-  let projectRootOfFile = findProjectRootOfFile(currentDocument.uri.fsPath);
 
-  if (!projectRootOfFile) {
-    window.showWarningMessage(
-      "Could not determine project root of current file."
-    );
-    return;
-  }
-
-  const p = cp.spawn("npx", ["reanalyze", "-dce"], {
-    cwd: projectRootOfFile,
+  let p = cp.spawn("npx", ["reanalyze", "-dce"], {
+    // Pointing reanalyze to the dir of the current file path is fine,
+    // because reanalyze will walk upwards looking for a bsconfig.json in
+    // order to find the correct project root.
+    cwd: path.dirname(currentDocument.uri.fsPath),
   });
 
   if (p.stdout == null) {
@@ -212,7 +221,7 @@ export const runDeadCodeAnalysisWithReanalyze = (
     // here.
     if (e.includes("End_of_file")) {
       window.showErrorMessage(
-        `Something went wrong trying to run reanalyze. Please try cleaning and rebuilding your ReScript project, and then run this command again.`
+        `Something went wrong trying to run reanalyze. Please try cleaning and rebuilding your ReScript project.`
       );
     } else {
       window.showErrorMessage(
@@ -222,21 +231,13 @@ export const runDeadCodeAnalysisWithReanalyze = (
   });
 
   p.on("close", () => {
-    let {
-      diagnosticsMap,
-      hasMoreDiagnostics,
-      savedDiagnostics,
-      totalDiagnosticsCount,
-    } = dceTextToDiagnostics(data);
+    let { diagnosticsMap } = dceTextToDiagnostics(
+      data,
+      diagnosticsResultCodeActions
+    );
 
     diagnosticsMap.forEach((diagnostics, filePath) => {
       diagnosticsCollection.set(Uri.parse(filePath), diagnostics);
     });
-
-    if (hasMoreDiagnostics) {
-      window.showInformationMessage(
-        `Showing ${savedDiagnostics} of in total ${totalDiagnosticsCount} issues found. Re-run this command again as you fix issues.`
-      );
-    }
   });
 };

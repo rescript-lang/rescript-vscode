@@ -40,12 +40,8 @@
 				"title": "ReScript: Create an interface file for this implementation file."
 			},
 			{
-				"command": "rescript-vscode.run_dead_code_analysis",
-				"title": "ReScript: Run dead code analysis."
-			},
-			{
-				"command": "rescript-vscode.clear_dead_code_analysis_results",
-				"title": "ReScript: Clear dead code analysis results."
+				"command": "rescript-vscode.start_dead_code_analysis",
+				"title": "ReScript: Start dead code analysis."
 			}
 		],
 		"snippets": [
