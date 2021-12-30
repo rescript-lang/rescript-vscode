@@ -76,7 +76,12 @@ let dceTextToDiagnostics = (
   let diagnosticsMap: Map<string, Diagnostic[]> = new Map();
 
   // Each section with a single issue found is seprated by two line breaks in
-  // the reanalyze output. Here's an example of how a section typically looks:
+  // the reanalyze output. The section contains information about the issue
+  // itself, what line/char and in what file it was found, as well as a
+  // suggestion for what you can replace the line containing the issue with to
+  // suppress the issue reported.
+  //
+  // Here's an example of how a section typically looks:
   //
   // Warning Dead Value
   // File "/Users/zth/git/rescript-intro/src/Machine.res", line 2, characters 0-205
@@ -89,12 +94,10 @@ let dceTextToDiagnostics = (
       fileInfo,
       text,
 
-      // These aren't in use yet, but can power code actions that can
-      // automatically add the @dead annotations reanalyze is suggesting to us.
+      // These, if they exist, will power code actions for inserting the "fixed"
+      // line that reanalyze might suggest.
       lineNumToReplace,
       lineContentToReplace,
-
-      ..._rest
     ] = chunk.split("\n");
 
     let processedFileInfo = extractFileInfo(fileInfo);
@@ -102,6 +105,7 @@ let dceTextToDiagnostics = (
     if (processedFileInfo != null) {
       // reanalyze prints the severity first in the title, and then the rest of
       // the title after.
+      window.showInformationMessage(title);
       let [severityRaw, ...issueTitleParts] = title.split(" ");
       let issueTitle = issueTitleParts.join(" ");
 
@@ -115,12 +119,6 @@ let dceTextToDiagnostics = (
         parseInt(startCharacter, 10)
       );
 
-      // This isn't correct, and will only highlight a single line, even if the
-      // highlight should in fact span multiple lines. This is because reanalyze
-      // gives us a line start, and a character interval. But, VSCode wants a
-      // line for the end of the selection too. And, to figure that out, we'd
-      // need to read the entire file with the issues present and calculate it.
-      // So, postponing that for now. Maybe there's a better way.
       let endPos = new Position(
         parseInt(processedFileInfo.line, 10) - 1,
         parseInt(endCharacter, 10)
@@ -145,7 +143,11 @@ let dceTextToDiagnostics = (
         diagnosticsMap.set(processedFileInfo.filePath, [diagnostic]);
       }
 
-      // Let's see if there's a valid code action that can be produced from this diagnostic.
+      // If reanalyze suggests a fix, we'll set that up as a refactor code
+      // action in VSCode. This way, it'll be easy to suppress the issue
+      // reported if wanted. We also save the range of the issue, so we can
+      // leverage that to make looking up the code actions for each cursor
+      // position very cheap.
       if (lineNumToReplace != null && lineContentToReplace != null) {
         let actualLineToReplaceStr = lineNumToReplace.split("<-- line ").pop();
 
