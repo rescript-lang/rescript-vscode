@@ -108,12 +108,13 @@ export function activate(context: ExtensionContext) {
 
   // Create a custom diagnostics collection, for cases where we want to report
   // diagnostics programatically from inside of the extension. The reason this
-  // is separate from the diagnostics provided by the LS server itself, is that
+  // is separate from the diagnostics provided by the LS server itself is that
   // this should be possible to clear independently of the other diagnostics
-  // coming from the ReScript compiler itself.
+  // coming from the ReScript compiler.
   let diagnosticsCollection = languages.createDiagnosticCollection("rescript");
 
-  // This map will hold code actions produced by the dead code analysis.
+  // This map will hold code actions produced by the dead code analysis, in a
+  // format that's cheap to look up.
   let diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap = new Map();
   let inDeadCodeAnalysisMode = { current: false };
   let deadCodeAnalysisRunningStatusBarItem = window.createStatusBarItem(
@@ -121,7 +122,7 @@ export function activate(context: ExtensionContext) {
   );
 
   // This code actions provider yields the code actions potentially extracted
-  // from the dead code analysis.
+  // from the dead code analysis to the editor.
   languages.registerCodeActionsProvider("rescript", {
     async provideCodeActions(document, rangeOrSelection) {
       let availableActions =
