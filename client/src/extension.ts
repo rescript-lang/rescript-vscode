@@ -116,10 +116,14 @@ export function activate(context: ExtensionContext) {
   // This map will hold code actions produced by the dead code analysis, in a
   // format that's cheap to look up.
   let diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap = new Map();
-  let inDeadCodeAnalysisMode = { current: false };
   let deadCodeAnalysisRunningStatusBarItem = window.createStatusBarItem(
     StatusBarAlignment.Right
   );
+
+  let inDeadCodeAnalysisState: {
+    active: boolean;
+    activatedFromDirectory: string | null;
+  } = { active: false, activatedFromDirectory: null };
 
   // This code actions provider yields the code actions potentially extracted
   // from the dead code analysis to the editor.
@@ -144,22 +148,41 @@ export function activate(context: ExtensionContext) {
 
   // Starts the dead code analysis mode.
   commands.registerCommand("rescript-vscode.start_dead_code_analysis", () => {
-    inDeadCodeAnalysisMode.current = true;
+    // Save the directory this first ran from, and re-use that when continuously
+    // running the analysis. This is so that the target of the analysis does not
+    // change on subsequent runs, if there are multiple ReScript projects open
+    // in the editor.
+    let currentDocument = window.activeTextEditor.document;
+
+    inDeadCodeAnalysisState.active = true;
+
+    // Pointing reanalyze to the dir of the current file path is fine, because
+    // reanalyze will walk upwards looking for a bsconfig.json in order to find
+    // the correct project root.
+    inDeadCodeAnalysisState.activatedFromDirectory = path.dirname(
+      currentDocument.uri.fsPath
+    );
+
     deadCodeAnalysisRunningStatusBarItem.command =
       "rescript-vscode.stop_dead_code_analysis";
     deadCodeAnalysisRunningStatusBarItem.show();
     deadCodeAnalysisRunningStatusBarItem.text =
       "$(debug-stop) Stop Dead Code Analysis mode";
+
     customCommands.deadCodeAnalysisWithReanalyze(
+      inDeadCodeAnalysisState.activatedFromDirectory,
       diagnosticsCollection,
       diagnosticsResultCodeActions
     );
   });
 
   commands.registerCommand("rescript-vscode.stop_dead_code_analysis", () => {
-    inDeadCodeAnalysisMode.current = false;
+    inDeadCodeAnalysisState.active = false;
+    inDeadCodeAnalysisState.activatedFromDirectory = null;
+
     diagnosticsCollection.clear();
     diagnosticsResultCodeActions.clear();
+
     deadCodeAnalysisRunningStatusBarItem.hide();
   });
 
@@ -172,8 +195,9 @@ export function activate(context: ExtensionContext) {
   client.onReady().then(() => {
     context.subscriptions.push(
       client.onNotification("rescript/compilationFinished", () => {
-        if (inDeadCodeAnalysisMode.current === true) {
+        if (inDeadCodeAnalysisState.active === true) {
           customCommands.deadCodeAnalysisWithReanalyze(
+            inDeadCodeAnalysisState.activatedFromDirectory,
             diagnosticsCollection,
             diagnosticsResultCodeActions
           );
