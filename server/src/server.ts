@@ -115,6 +115,14 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     projectsFiles.delete(projectRootPath);
   }
 };
+let sendCompilationFinishedMessage = () => {
+  let notification: m.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "rescript/compilationFinished",
+  };
+  
+  send(notification);
+};
 
 let compilerLogsWatcher = chokidar
   .watch([], {
@@ -124,6 +132,7 @@ let compilerLogsWatcher = chokidar
   })
   .on("all", (_e, changedPath) => {
     sendUpdatedDiagnostics();
+    sendCompilationFinishedMessage();
   });
 let stopWatchingCompilerLog = () => {
   // TODO: cleanup of compilerLogs?
