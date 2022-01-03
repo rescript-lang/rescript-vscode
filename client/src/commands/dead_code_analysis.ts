@@ -19,7 +19,7 @@ export type DiagnosticsResultCodeActionsMap = Map<
   { range: Range; codeAction: CodeAction }[]
 >;
 
-let fileInfoRegex = /File "(.+)", line (\d)+, characters ([\d-]+)/g;
+let fileInfoRegex = /File "(.+)", line (\d+), characters ([\d-]+)/g;
 
 let extractFileInfo = (
   fileInfo: string
@@ -107,23 +107,26 @@ let dceTextToDiagnostics = (
       let [startCharacter, endCharacter] =
         processedFileInfo.characters.split("-");
 
+      let parsedLine = parseInt(processedFileInfo.line, 10);
+
       let startPos = new Position(
         // reanalyze reports lines as index 1 based, while VSCode wants them
         // index 0 based. reanalyze reports diagnostics for an entire file on
         // line 0 (and chars 0-0). So, we need to ensure that we don't give
         // VSCode a negative line index, or it'll be sad.
-        Math.max(0, parseInt(processedFileInfo.line, 10) - 1),
+        Math.max(0, parsedLine - 1),
         Math.max(0, parseInt(startCharacter, 10))
       );
 
       let endPos = new Position(
-        Math.max(0, parseInt(processedFileInfo.line, 10) - 1),
+        Math.max(0, parsedLine - 1),
         Math.max(0, parseInt(endCharacter, 10))
       );
 
-      // Detect if this is a dead module diagnostic. If so, highlight the
-      // entire file.
-      if (title === "Warning Dead Module") {
+      // Detect if this diagnostic is for the entire file. If so, reanalyze will
+      // say that the issue is on line 0 and chars 0-0. This code below ensures
+      // that the full file is highlighted, if that's the case.
+      if (parsedLine === 0 && processedFileInfo.characters === "0-0") {
         startPos = new Position(0, 0);
         endPos = new Position(99999, 0);
       }
@@ -166,7 +169,7 @@ let dceTextToDiagnostics = (
               new Position(issueLocationRange.start.line, 0),
               new Position(issueLocationRange.start.line, 999999)
             ),
-            lineContentToReplace.trim()
+            lineContentToReplace
           );
 
           codeAction.edit = codeActionEdit;
