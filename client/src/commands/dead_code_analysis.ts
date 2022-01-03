@@ -91,7 +91,7 @@ let dceTextToDiagnostics = (
   // @dead("+use") let use = (initialState: 'a, handleEvent: ('a, 'b) => 'a) => {
   dceText.split("\n\n").forEach((chunk) => {
     let [
-      title,
+      _title,
       fileInfo,
       text,
 
@@ -162,6 +162,8 @@ let dceTextToDiagnostics = (
 
           let codeActionEdit = new WorkspaceEdit();
 
+          // In the future, it would be cool to have an additional code action
+          // here for automatically removing whatever the thing that's dead is.
           codeActionEdit.replace(
             Uri.parse(processedFileInfo.filePath),
             // Make sure the full line is replaced
@@ -169,7 +171,9 @@ let dceTextToDiagnostics = (
               new Position(issueLocationRange.start.line, 0),
               new Position(issueLocationRange.start.line, 999999)
             ),
-            lineContentToReplace
+            // reanalyze seems to add two extra spaces at the start of the line
+            // content to replace.
+            lineContentToReplace.slice(2)
           );
 
           codeAction.edit = codeActionEdit;
@@ -198,10 +202,6 @@ export const runDeadCodeAnalysisWithReanalyze = (
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
 ) => {
-  // Clear old diagnostics and code actions state.
-  diagnosticsCollection.clear();
-  diagnosticsResultCodeActions.clear();
-
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
@@ -237,10 +237,15 @@ export const runDeadCodeAnalysisWithReanalyze = (
   });
 
   p.on("close", () => {
+    diagnosticsResultCodeActions.clear();
     let { diagnosticsMap } = dceTextToDiagnostics(
       data,
       diagnosticsResultCodeActions
     );
+
+    // Clear old diagnostics and code actions state before setting up the new
+    // state.
+    diagnosticsCollection.clear();
 
     diagnosticsMap.forEach((diagnostics, filePath) => {
       diagnosticsCollection.set(Uri.parse(filePath), diagnostics);
