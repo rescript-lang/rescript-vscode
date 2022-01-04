@@ -243,9 +243,14 @@ export const runDeadCodeAnalysisWithReanalyze = (
       diagnosticsResultCodeActions
     );
 
-    // Clear old diagnostics and code actions state before setting up the new
-    // state.
-    diagnosticsCollection.clear();
+    // This smoothens the experience of the diagnostics updating a bit by
+    // clearing only the visible diagnostics that has been fixed after the
+    // updated diagnostics has been applied.
+    diagnosticsCollection.forEach((uri, _) => {
+      if (!diagnosticsMap.has(uri.fsPath)) {
+        diagnosticsCollection.delete(uri);
+      }
+    });
 
     diagnosticsMap.forEach((diagnostics, filePath) => {
       diagnosticsCollection.set(Uri.parse(filePath), diagnostics);
