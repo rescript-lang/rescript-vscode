@@ -38,6 +38,10 @@
 			{
 				"command": "rescript-vscode.create_interface",
 				"title": "ReScript: Create an interface file for this implementation file."
+			},
+			{
+				"command": "rescript-vscode.start_dead_code_analysis",
+				"title": "ReScript: Start dead code analysis."
 			}
 		],
 		"snippets": [

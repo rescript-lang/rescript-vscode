@@ -1,5 +1,12 @@
 import * as path from "path";
-import { workspace, ExtensionContext, commands } from "vscode";
+import {
+  workspace,
+  ExtensionContext,
+  commands,
+  languages,
+  window,
+  StatusBarAlignment,
+} from "vscode";
 
 import {
   LanguageClient,
@@ -9,6 +16,7 @@ import {
 } from "vscode-languageclient/node";
 
 import * as customCommands from "./commands";
+import { DiagnosticsResultCodeActionsMap } from "./commands/dead_code_analysis";
 
 let client: LanguageClient;
 
@@ -98,13 +106,108 @@ export function activate(context: ExtensionContext) {
     clientOptions
   );
 
+  // Create a custom diagnostics collection, for cases where we want to report
+  // diagnostics programatically from inside of the extension. The reason this
+  // is separate from the diagnostics provided by the LS server itself is that
+  // this should be possible to clear independently of the other diagnostics
+  // coming from the ReScript compiler.
+  let diagnosticsCollection = languages.createDiagnosticCollection("rescript");
+
+  // This map will hold code actions produced by the dead code analysis, in a
+  // format that's cheap to look up.
+  let diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap = new Map();
+  let deadCodeAnalysisRunningStatusBarItem = window.createStatusBarItem(
+    StatusBarAlignment.Right
+  );
+
+  let inDeadCodeAnalysisState: {
+    active: boolean;
+    activatedFromDirectory: string | null;
+  } = { active: false, activatedFromDirectory: null };
+
+  // This code actions provider yields the code actions potentially extracted
+  // from the dead code analysis to the editor.
+  languages.registerCodeActionsProvider("rescript", {
+    async provideCodeActions(document, rangeOrSelection) {
+      let availableActions =
+        diagnosticsResultCodeActions.get(document.uri.fsPath) ?? [];
+
+      return availableActions
+        .filter(
+          ({ range }) =>
+            range.contains(rangeOrSelection) || range.isEqual(rangeOrSelection)
+        )
+        .map(({ codeAction }) => codeAction);
+    },
+  });
+
   // Register custom commands
   commands.registerCommand("rescript-vscode.create_interface", () => {
     customCommands.createInterface(client);
   });
 
+  // Starts the dead code analysis mode.
+  commands.registerCommand("rescript-vscode.start_dead_code_analysis", () => {
+    // Save the directory this first ran from, and re-use that when continuously
+    // running the analysis. This is so that the target of the analysis does not
+    // change on subsequent runs, if there are multiple ReScript projects open
+    // in the editor.
+    let currentDocument = window.activeTextEditor.document;
+
+    inDeadCodeAnalysisState.active = true;
+
+    // Pointing reanalyze to the dir of the current file path is fine, because
+    // reanalyze will walk upwards looking for a bsconfig.json in order to find
+    // the correct project root.
+    inDeadCodeAnalysisState.activatedFromDirectory = path.dirname(
+      currentDocument.uri.fsPath
+    );
+
+    deadCodeAnalysisRunningStatusBarItem.command =
+      "rescript-vscode.stop_dead_code_analysis";
+    deadCodeAnalysisRunningStatusBarItem.show();
+    deadCodeAnalysisRunningStatusBarItem.text =
+      "$(debug-stop) Stop Dead Code Analysis mode";
+
+    customCommands.deadCodeAnalysisWithReanalyze(
+      inDeadCodeAnalysisState.activatedFromDirectory,
+      diagnosticsCollection,
+      diagnosticsResultCodeActions
+    );
+  });
+
+  commands.registerCommand("rescript-vscode.stop_dead_code_analysis", () => {
+    inDeadCodeAnalysisState.active = false;
+    inDeadCodeAnalysisState.activatedFromDirectory = null;
+
+    diagnosticsCollection.clear();
+    diagnosticsResultCodeActions.clear();
+
+    deadCodeAnalysisRunningStatusBarItem.hide();
+  });
+
+  // This sets up a listener that, if we're in dead code analysis mode, triggers
+  // dead code analysis as the LS server reports that ReScript compilation has
+  // finished. This is needed because dead code analysis must wait until
+  // compilation has finished, and the most reliable source for that is the LS
+  // server, that already keeps track of when the compiler finishes in order to
+  // other provide fresh diagnostics.
+  client.onReady().then(() => {
+    context.subscriptions.push(
+      client.onNotification("rescript/compilationFinished", () => {
+        if (inDeadCodeAnalysisState.active === true) {
+          customCommands.deadCodeAnalysisWithReanalyze(
+            inDeadCodeAnalysisState.activatedFromDirectory,
+            diagnosticsCollection,
+            diagnosticsResultCodeActions
+          );
+        }
+      })
+    );
+  });
+
   // Start the client. This will also launch the server
-  client.start();
+  context.subscriptions.push(client.start());
 }
 
 export function deactivate(): Thenable<void> | undefined {
