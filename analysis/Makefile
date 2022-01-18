@@ -1,6 +1,7 @@
 SHELL = /bin/bash
 
 build-native:
+	rm -f rescript-editor-analysis.exe
 	dune build
 	cp _build/install/default/bin/rescript-editor-analysis.exe rescript-editor-analysis.exe
 
