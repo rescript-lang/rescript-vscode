@@ -31,7 +31,7 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 ## Build & Run
 
 - `npm run compile`. You don't need this if you're developing this repo in VSCode. The compilation happens automatically in the background.
-- `cd analysis && make depend && make` (you only need `make depend` for the first run).
+- `cd analysis && make`.
 
 ## Test
 
