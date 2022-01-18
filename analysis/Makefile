@@ -2,6 +2,7 @@ SHELL = /bin/bash
 
 build-native:
 	dune build
+	cp _build/install/default/bin/rescript-editor-analysis.exe rescript-editor-analysis.exe
 
 dce:
 	dune build @check @all
@@ -15,6 +16,7 @@ test: build-native tests/node_modules/.bin/rescript
 	./test.sh
 
 clean: tests/node_modules/.bin/rescript
+	rm -f rescript-editor-analysis.exe
 	@cd tests && node_modules/.bin/rescript clean
 	dune clean
 
