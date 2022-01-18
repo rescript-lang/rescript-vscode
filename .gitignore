@@ -4,12 +4,5 @@ node_modules
 examples/*/lib
 analysis/tests/lib
 analysis/tests/.bsb.lock
+analysis/_build
 analysis/tests/.merlin
-# artifacts from binary compilation
-*.exe
-*.cmi
-*.cmt
-*.cmti
-*.cmx
-*.o
-*.install
