@@ -53,6 +53,7 @@ jobs:
         node-version: 14.4.0
 
     - run: npm ci
+    - run: opam install dune
     - run: npm run compile
 
     # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
@@ -69,7 +70,7 @@ jobs:
       run: |
         cd analysis
         mkdir ${{matrix.artifact-folder}}
-        mv rescript-editor-analysis.exe ${{matrix.artifact-folder}}
+        mv _build/install/default/bin/rescript-editor-analysis.exe ${{matrix.artifact-folder}}
         tar -cvf binary.tar ${{matrix.artifact-folder}}
 
     - uses: actions/upload-artifact@v2
