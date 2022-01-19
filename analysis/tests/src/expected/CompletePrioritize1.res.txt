@@ -1,0 +1,9 @@
+Complete tests/src/CompletePrioritize1.res 4:2
+[{
+    "label": "Test.add",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": null
+  }]
+
