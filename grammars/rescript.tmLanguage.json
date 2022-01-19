@@ -127,7 +127,7 @@
         {
           "name": "string.template",
           "begin": "([a-z_][0-9a-zA-Z_]*)?(`)",
-          "end": "[^\\]`",
+          "end": "[^\\\\]`",
           "beginCaptures": {
             "1": {
               "name": "variables.annotation"
