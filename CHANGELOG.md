@@ -9,6 +9,7 @@
 - Fix issue in record field autocomplete not working with type aliases.
 - Support autocomplete of records for variables defined in other files.
 - Fix issue where autocomplete for local values would not work in the presence of `@react.component` annotations.
+- Improve autocomplete when several values have the same name, with a heuristic to approximate the correct scope.
 
 ## 1.1.3
 

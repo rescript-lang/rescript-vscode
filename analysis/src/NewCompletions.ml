@@ -1235,7 +1235,22 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
     let declareds = getItems ~full ~rawOpens ~allFiles ~pos ~dotpath in
     match dotpath |> List.rev with
     | last :: _ when exact ->
-      declareds |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
+      (* Heuristic to approximate scope.
+         Take the last position before pos if any, or just return the first element. *)
+      let rec prioritize decls =
+        match decls with
+        | d1 :: d2 :: rest ->
+          let pos2 = d2.extentLoc.loc_start |> Utils.tupleOfLexing in
+          if pos2 >= pos then prioritize (d1 :: rest)
+          else
+            let pos1 = d1.extentLoc.loc_start |> Utils.tupleOfLexing in
+            if pos1 <= pos2 then prioritize (d2 :: rest)
+            else prioritize (d1 :: rest)
+        | [] | [_] -> decls
+      in
+      declareds
+      |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
+      |> prioritize
     | _ -> declareds
   in
   completable |> processCompletable ~processDotPath ~full ~package ~rawOpens
