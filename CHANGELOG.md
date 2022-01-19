@@ -1,15 +1,22 @@
 ## master
+
+Features:
+
+- Add autocompletion for object access of the form `foo["x"]` and `foo["x"]["y"]["z"]`.
+- Support autocomplete of records for variables defined in other files.
+- Improve autocomplete when several values have the same name, with a heuristic to approximate the correct scope.
+- Add a "Dead Code Analysis" mode that will highlight globally dead values, redundant optional arguments, dead modules, dead types (records and variants) ([#334](https://github.com/rescript-lang/rescript-vscode/pull/334))
+
+Fixes:
+
 - Fix issue in JSX autocomplete when the component is declared external.
 - Fix jump-to-definition for uncurried calls.
 - Fix issue where values for autocomplete were pulled from implementations instead of interfaces.
-- Add autocompletion for object access of the form `foo["x"]` and `foo["x"]["y"]["z"]`. 
 - Fix issue with autocomplete then punned props are used in JSX. E.g. `<M foo ...>`.
 - Fix issue with JSX autocompletion not working after `foo=#variant`.
 - Fix issue in JSX autocompletion where the `key` label would always appear.
 - Fix issue in record field autocomplete not working with type aliases.
-- Support autocomplete of records for variables defined in other files.
 - Fix issue where autocomplete for local values would not work in the presence of `@react.component` annotations.
-- Improve autocomplete when several values have the same name, with a heuristic to approximate the correct scope.
 
 ## 1.1.3
 
