@@ -50,6 +50,24 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
   - `try`, `for`, etc.
 - Folding, and [custom folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) through `//#region` and `//#endregion`.
 
+### Experimental Features
+
+#### Dead Code Analysis mode
+
+Runs dead code analysis via [reanalyze](https://github.com/rescript-association/reanalyze).
+
+##### Usage
+
+Open the command palette and run `> ReScript: Start dead code analysis.`. This will start dead code analysis in the ReScript project of the file you run the command from.
+
+Dead code is highlighted in the editor, and code actions for suppressing dead code warnings are available in most cases.
+
+When done, stop the dead code analysis mode by clicking the `Stop Dead Code Analysis mode` button in the editor status bar. This will clear all reported dead code warnings.
+
+##### Caveats
+
+Currently does not work for full monorepo dead code analysis (although it should work for each monorepo package individually).
+
 ## Use with Other Editors
 
 This repo also contains a language server that can power other editors. **However, the language server in this project is a pure implementation detail. We don't guarantee its stability for other editors' consumption** apart from Vim and Sublime Text.
