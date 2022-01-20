@@ -142,9 +142,11 @@ export let runAnalysisAfterSanityCheck = (
   if (projectRootPath == null) {
     return null;
   }
-  let stdout = childProcess.execFileSync(binaryPath, args, {
+  let options: childProcess.ExecFileSyncOptions = {
     cwd: projectRootPath,
-  });
+    maxBuffer: Infinity,
+  };
+  let stdout = childProcess.execFileSync(binaryPath, args, options);
   return JSON.parse(stdout.toString());
 };
 

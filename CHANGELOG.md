@@ -17,6 +17,7 @@ Fixes:
 - Fix issue in JSX autocompletion where the `key` label would always appear.
 - Fix issue in record field autocomplete not working with type aliases.
 - Fix issue where autocomplete for local values would not work in the presence of `@react.component` annotations.
+- Fix issue where the server would crash on large output produced by the binary command.
 
 ## 1.1.3
 
