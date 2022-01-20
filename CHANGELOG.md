@@ -18,6 +18,7 @@ Fixes:
 - Fix issue in record field autocomplete not working with type aliases.
 - Fix issue where autocomplete for local values would not work in the presence of `@react.component` annotations.
 - Fix issue where the server would crash on large output produced by the binary command.
+- Fix issue where the server would crash when a file has a self cycle.
 
 ## 1.1.3
 
