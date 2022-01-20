@@ -64,6 +64,8 @@ Dead code is highlighted in the editor, and code actions for suppressing dead co
 
 When done, stop the dead code analysis mode by clicking the `Stop Dead Code Analysis mode` button in the editor status bar. This will clear all reported dead code warnings.
 
+**Note:** This mode uses `npx reanalyze` to run the analysis binary. For reproducible results, install `reanalyze` with `npm install reanalyze --save-dev`.
+
 ##### Caveats
 
 Currently does not work for full monorepo dead code analysis (although it should work for each monorepo package individually).
