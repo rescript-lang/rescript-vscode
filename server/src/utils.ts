@@ -389,6 +389,14 @@ export let parseCompilerLogOutput = (
         tag: undefined,
         content: [],
       });
+    } else if (line.startsWith("FAILED:")) {
+      // File with a self cycle
+      parsedDiagnostics.push({
+        code: undefined,
+        severity: t.DiagnosticSeverity.Error,
+        tag: undefined,
+        content: [line],
+      });
     } else if (line.startsWith("  Warning number ")) {
       let warningNumber = parseInt(line.slice("  Warning number ".length));
       let tag: t.DiagnosticTag | undefined = undefined;
