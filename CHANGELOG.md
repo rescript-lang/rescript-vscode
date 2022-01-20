@@ -1,5 +1,7 @@
 ## master
 
+## 1.2.0
+
 Features:
 
 - Add autocompletion for object access of the form `foo["x"]` and `foo["x"]["y"]["z"]`.
