@@ -117,7 +117,7 @@ export let formatUsingValidBscNativePath = (
   } catch (e) {
     return {
       kind: "error",
-      error: e.message,
+      error: e instanceof Error ? e.message : String(e),
     };
   } finally {
     // async close is fine. We don't use this file name again
@@ -200,7 +200,7 @@ export let createInterfaceFileUsingValidBscExePath = (
   } catch (e) {
     return {
       kind: "error",
-      error: e.message,
+      error: e instanceof Error ? e.message : String(e),
     };
   }
 };
