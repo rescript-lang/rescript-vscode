@@ -1,5 +1,6 @@
 ## master
 - Fix issue with highlighting of templates introduced in release 1.2.0.
+- Fix crash when the project contains OCaml files that have warnings.
 
 ## 1.2.0
 

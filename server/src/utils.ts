@@ -440,6 +440,13 @@ export let parseCompilerLogOutput = (
       // do nothing for now
     } else if (line.startsWith("#Done(")) {
       done = true;
+    } else if (
+      line.startsWith("File ") &&
+      i + 1 < lines.length &&
+      lines[i + 1].startsWith("Warning ")
+    ) {
+      // OCaml warning: skip
+      i++;
     } else if (/^  +([0-9]+| +|\.) (│|┆)/.test(line)) {
       //         ^^ indent
       //           ^^^^^^^^^^^^^^^ gutter
