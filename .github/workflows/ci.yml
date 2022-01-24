@@ -40,7 +40,7 @@ jobs:
       uses: actions/cache@v2.1.5
       with:
         path: ~/.opam
-        key: ${{matrix.os}}-rescript-vscode-v2
+        key: ${{matrix.os}}-rescript-vscode-v3
 
     - name: Use OCaml
       uses: ocaml/setup-ocaml@v2
