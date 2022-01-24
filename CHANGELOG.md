@@ -1,6 +1,7 @@
 ## master
 - Fix issue with highlighting of templates introduced in release 1.2.0.
 - Fix crash when the project contains OCaml files that have warnings.
+- Fix crash on hover when a dependency (OCaml) contains a type with functor application.
 
 ## 1.2.0
 
