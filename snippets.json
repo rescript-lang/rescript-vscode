@@ -54,7 +54,6 @@
 	},
 	"Global External Object": {
 		"prefix": [
-			"@bs",
 			"external"
 		],
 		"body": [
@@ -63,7 +62,6 @@
 	},
 	"Global External Module": {
 		"prefix": [
-			"@bs",
 			"external"
 		],
 		"body": [
@@ -72,7 +70,6 @@
 	},
 	"JS Module External": {
 		"prefix": [
-			"@bs",
 			"external"
 		],
 		"body": [
@@ -81,7 +78,6 @@
 	},
 	"JS Module Default External": {
 		"prefix": [
-			"@bs",
 			"external"
 		],
 		"body": [
