@@ -1,11 +1,11 @@
 let add = 3
 
 module Of (M : sig end) = struct
-  type t = int
+  type _t = int
 end
 
 module M = struct end
 
 module Int = struct
-  type t = Of(M).t
+  type _t = Of(M)._t
 end
