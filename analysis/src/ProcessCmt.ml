@@ -657,9 +657,7 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
 
 module F (Collector : sig
   val extra : extra
-
   val file : File.t
-
   val scopeExtent : Location.t list ref
 end) =
 struct
@@ -852,8 +850,14 @@ struct
     if List.length !Collector.scopeExtent > 1 then
       Collector.scopeExtent := List.tl !Collector.scopeExtent
 
+  let rec lidIsComplex (lid : Longident.t) =
+    match lid with
+    | Lapply _ -> true
+    | Ldot (lid, _) -> lidIsComplex lid
+    | _ -> false
+
   let rec addForLongident top (path : Path.t) (txt : Longident.t) loc =
-    if not loc.Location.loc_ghost then (
+    if (not loc.Location.loc_ghost) && not (lidIsComplex txt) then (
       let idLength =
         String.length (String.concat "." (Longident.flatten txt))
       in
@@ -879,7 +883,8 @@ struct
     match expr with
     | Tmod_constraint (expr, _, _, _) -> handle_module_expr expr.mod_desc
     | Tmod_ident (path, {txt; loc}) ->
-      Log.log ("Ident!! " ^ String.concat "." (Longident.flatten txt));
+      if not (lidIsComplex txt) then
+        Log.log ("Ident!! " ^ String.concat "." (Longident.flatten txt));
       addForLongident None path txt loc
     | Tmod_functor (_ident, _argName, _maybeType, resultExpr) ->
       handle_module_expr resultExpr.mod_desc
@@ -1052,9 +1057,7 @@ let extraForStructureItems ~(file : File.t)
   (* TODO look through parts and extend the extent *)
   let module Iter = TypedtreeIter.MakeIterator (F (struct
     let scopeExtent = ref [extent]
-
     let extra = extra
-
     let file = file
   end)) in
   List.iter Iter.iter_structure_item items;
@@ -1089,9 +1092,7 @@ let extraForSignatureItems ~(file : File.t)
   (* TODO look through parts and extend the extent *)
   let module Iter = TypedtreeIter.MakeIterator (F (struct
     let scopeExtent = ref [extent]
-
     let extra = extra
-
     let file = file
   end)) in
   List.iter Iter.iter_signature_item items;
