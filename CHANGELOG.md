@@ -1,7 +1,7 @@
 ## master
 - Fix issue with highlighting of templates introduced in release 1.2.0.
 - Fix crash when the project contains OCaml files that have warnings.
-- Fix crash on hover when a dependency (OCaml) contains a type with functor application.
+- Fix crash on hover when a dependency contains a type with functor application. This is not expressible in ReScript syntax, but can appear in a dependent OCaml package and be pulled in for processing by the extension.
 
 ## 1.2.0
 
