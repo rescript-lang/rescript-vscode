@@ -15,7 +15,7 @@
     },
     "RE_KEYWORDS": {
       "name": "keyword.control",
-      "match": "\\b(and|as|assert|constraint|downto|else|exception|external|false|for|if|in|include|lazy|let|module|mutable|of|open|rec|switch|to|true|try|type|when|while|with)\\b"
+      "match": "\\b(and|as|assert|constraint|else|exception|external|false|for|if|in|include|lazy|let|module|mutable|of|open|rec|switch|true|try|type|when|while|with)\\b"
     },
     "RE_LITERAL": {
       "name": "constant.language",
