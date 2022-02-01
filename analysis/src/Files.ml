@@ -19,12 +19,9 @@ let relpath base path =
   if pathStartsWith path base then
     let baselen = String.length base in
     let rest = String.sub path baselen (String.length path - baselen) in
-    if rest = "" then "." ^ Filename.dir_sep
-    else if rest.[0] = Filename.dir_sep.[0] then
-      if String.length rest > 1 && rest.[1] = '.' then sliceToEnd rest 1
-      else "." ^ rest
-    else if rest.[0] = '.' then rest
-    else "." ^ Filename.dir_sep ^ rest
+    (if rest <> "" && rest.[0] = Filename.dir_sep.[0] then sliceToEnd rest 1
+    else rest)
+    |> removeExtraDots
   else
     let rec loop bp pp =
       match (bp, pp) with
@@ -57,7 +54,6 @@ let readFile ~filename =
   with _ -> None
 
 let exists path = match maybeStat path with None -> false | Some _ -> true
-
 let ifExists path = if exists path then Some path else None
 
 let readDirectory dir =

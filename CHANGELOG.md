@@ -1,4 +1,5 @@
 ## master
+- Fix issue where using paths of the form `./something` would show multiple copies of the same file in vscode.
 
 ## 1.2.1
 
