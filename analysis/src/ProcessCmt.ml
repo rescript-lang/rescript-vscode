@@ -765,11 +765,10 @@ struct
     | Ldot (_left, name) -> name
     | Lapply (_, _) -> assert false
 
-  let addForField recordType item {Asttypes.txt; loc} =
+  let addForField recordType fieldType {Asttypes.txt; loc} =
     match (Shared.dig recordType).desc with
     | Tconstr (path, _args, _memo) ->
       let t = getTypeAtPath ~env path in
-      let {Types.lbl_res} = item in
       let name = handleConstructor txt in
       let nameLoc = Utils.endOfLocation loc (String.length name) in
       let locType =
@@ -785,7 +784,7 @@ struct
           GlobalReference (moduleName, path, Field name)
         | _ -> NotFound
       in
-      addLocItem extra nameLoc (Typed (name, lbl_res, locType))
+      addLocItem extra nameLoc (Typed (name, fieldType, locType))
     | _ -> ()
 
   let addForRecord recordType items =
@@ -1004,8 +1003,8 @@ struct
       ()
     | Texp_construct (lident, constructor, _args) ->
       addForConstructor expression.exp_type lident constructor
-    | Texp_field (inner, lident, label_description) ->
-      addForField inner.exp_type label_description lident
+    | Texp_field (inner, lident, _label_description) ->
+      addForField inner.exp_type expression.exp_type lident
     | Texp_let (_, _, _) ->
       (* TODO this scope tracking won't work for recursive *)
       addScopeExtent expression.exp_loc

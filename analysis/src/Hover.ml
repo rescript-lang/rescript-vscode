@@ -140,8 +140,8 @@ let newHover ~full:{SharedTypes.file; package} locItem =
               |> String.concat ", " |> Printf.sprintf "(%s)"
           in
           typeString :: codeBlock (txt ^ argsString) :: docstring
-        | `Field {typ} ->
-          let typeString, docstring = typ |> fromType ~docstring in
+        | `Field ->
+          let typeString, docstring = t |> fromType ~docstring in
           typeString :: docstring)
     in
     Some (String.concat "\n\n" parts)
