@@ -52,3 +52,6 @@ Hover tests/src/Hover.res 84:10
 Hover tests/src/Hover.res 87:10
 {"contents": "```rescript\n{\"children\": React.element} => React.element\n```"}
 
+Hover tests/src/Hover.res 92:25
+{"contents": "```rescript\nfloat\n```"}
+

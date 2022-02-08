@@ -87,3 +87,8 @@ let _ = <Comp> <div /> <div /> </Comp>
 
 let _ = <Comp1> <div /> <div /> </Comp1>
 //        ^hov
+
+type r<'a> = {i: 'a, f: float}
+
+let _get = r => r.f +. r.i
+//                       ^hov
