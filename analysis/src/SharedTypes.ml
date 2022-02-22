@@ -1,8 +1,8 @@
-type visibilityPath =
+type modulePath =
   | File of Uri2.t * string
   | NotVisible
-  | IncludedModule of Path.t * visibilityPath
-  | ExportedModule of string * visibilityPath
+  | IncludedModule of Path.t * modulePath
+  | ExportedModule of string * modulePath
 
 type field = {stamp : int; fname : string Location.loc; typ : Types.type_expr}
 
@@ -48,7 +48,7 @@ type 't declared = {
   extentLoc : Location.t;
   scopeLoc : Location.t;
   stamp : int;
-  modulePath : visibilityPath;
+  modulePath : modulePath;
   isExported : bool;
   deprecated : string option;
   docstring : string list;
@@ -108,7 +108,9 @@ module Stamps = struct
     }
 end
 
-type env = {stamps : Stamps.t; modulePath : visibilityPath; scope : Location.t}
+module Env = struct
+  type t = {stamps : Stamps.t; modulePath : modulePath; scope : Location.t}
+end
 
 module File = struct
   type t = {
