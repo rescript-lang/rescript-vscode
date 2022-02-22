@@ -174,10 +174,10 @@ let documentSymbol ~path =
     | None -> Protocol.null
     | Some {file} ->
       let open SharedTypes in
-      let rec getItems {topLevel} =
+      let rec getItems {ModuleKind.topLevel} =
         let rec getItem = function
-          | MValue v -> (v |> SharedTypes.variableKind, [])
-          | MType (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
+          | ModuleKind.Value v -> (v |> SharedTypes.variableKind, [])
+          | Type (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
           | Module (Structure contents) -> (Module, getItems contents)
           | Module (Constraint (_, modTypeItem)) -> getItem (Module modTypeItem)
           | Module (Ident _) -> (Module, [])

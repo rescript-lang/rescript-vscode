@@ -50,7 +50,7 @@ let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
         ~extent:loc ~stamp:(Ident.binding_time ident) ~env ~item val_attributes
         exported.values env.stamps.values
     in
-    [{declared with item = MValue declared.item}]
+    [{declared with item = ModuleKind.Value declared.item}]
   | Sig_type
       ( ident,
         ({type_loc; type_kind; type_manifest; type_attributes} as decl),
@@ -122,7 +122,7 @@ let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
         ~stamp:(Ident.binding_time ident) ~env type_attributes exported.types
         env.stamps.types
     in
-    [{declared with item = MType (declared.item, recStatus)}]
+    [{declared with item = Type (declared.item, recStatus)}]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
       addItem ~extent:md_loc
@@ -141,7 +141,7 @@ and forTypeSignature env signature =
       (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
       signature []
   in
-  {docstring = []; exported; topLevel}
+  {ModuleKind.docstring = []; exported; topLevel}
 
 and forTypeModule env moduleType =
   match moduleType with
@@ -213,7 +213,7 @@ let forTypeDeclaration ~env ~(exported : exported)
         }
       ~name ~stamp ~env typ_attributes exported.types env.stamps.types
   in
-  {declared with item = MType (declared.item, recStatus)}
+  {declared with item = ModuleKind.Type (declared.item, recStatus)}
 
 let rec forSignatureItem ~env ~(exported : exported)
     (item : Typedtree.signature_item) =
@@ -225,7 +225,7 @@ let rec forSignatureItem ~env ~(exported : exported)
         ~extent:val_loc ~item:val_desc.ctyp_type ~env val_attributes
         exported.values env.stamps.values
     in
-    [{declared with item = MValue declared.item}]
+    [{declared with item = ModuleKind.Value declared.item}]
   | Tsig_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -281,14 +281,14 @@ let forSignature ~env items =
     | None -> []
     | Some d -> [d]
   in
-  {docstring; exported; topLevel}
+  {ModuleKind.docstring; exported; topLevel}
 
 let forTreeModuleType ~env {mty_desc} =
   match mty_desc with
   | Tmty_ident _ -> None
   | Tmty_signature {sig_items} ->
     let contents = forSignature ~env sig_items in
-    Some (Structure contents)
+    Some (ModuleKind.Structure contents)
   | _ -> None
 
 let rec getModulePath mod_desc =
@@ -315,7 +315,8 @@ let rec forStructureItem ~env ~(exported : exported) item =
             ~extent:pat.pat_loc ~item attributes exported.values
             env.stamps.values
         in
-        declareds := {declared with item = MValue declared.item} :: !declareds
+        declareds :=
+          {declared with item = ModuleKind.Value declared.item} :: !declareds
       | Tpat_tuple pats | Tpat_array pats | Tpat_construct (_, _, pats) ->
         pats |> List.iter (fun p -> handlePattern [] p)
       | Tpat_or (p, _, _) -> handlePattern [] p
@@ -382,7 +383,7 @@ let rec forStructureItem ~env ~(exported : exported) item =
         ~stamp:(Ident.binding_time val_id)
         ~env val_attributes exported.values env.stamps.values
     in
-    [{declared with item = MValue declared.item}]
+    [{declared with item = Value declared.item}]
   | Tstr_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -1319,7 +1320,7 @@ let rec getSourceUri ~(env : QueryEnv.t) ~package path =
     | Some (env, _declared) -> env.file.uri)
   | ExportedModule (_, inner) -> getSourceUri ~env ~package inner
 
-let exportedForTip ~(env : QueryEnv.t) name tip =
+let exportedForTip ~(env : QueryEnv.t) name (tip : Tip.t) =
   match tip with
   | Value -> Hashtbl.find_opt env.exported.values name
   | Field _ | Constructor _ | Type -> Hashtbl.find_opt env.exported.types name
