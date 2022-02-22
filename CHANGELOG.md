@@ -1,6 +1,7 @@
 ## master
 - Fix issue where using paths of the form `./something` would show multiple copies of the same file in vscode.
 - When hovering on a field access, show the instantiated type of the field.
+- Support autocomplete for objects from another module `M.x[...`.
 
 ## 1.2.1
 

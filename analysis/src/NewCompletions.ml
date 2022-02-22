@@ -672,15 +672,19 @@ let localValueCompletions ~pos ~(env : QueryEnv.t) suffix =
                {(emptyDeclared c.cname.txt) with item = Constructor (c, t)}))
     else results
   in
-  if suffix = "" || not (isCapitalized suffix) then
-    results
-    @ completionForDeclareds ~pos env.file.stamps.values suffix (fun v ->
-          Value v)
-    @ completionForDeclareds ~pos env.file.stamps.types suffix (fun t -> Type t)
-    @ (completionForFields env.exported.types env.file.stamps.types suffix
-      |> List.map (fun (f, t) ->
-             {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
-  else results
+  let results =
+    if suffix = "" || not (isCapitalized suffix) then
+      results
+      @ completionForDeclareds ~pos env.file.stamps.values suffix (fun v ->
+            Value v)
+      @ completionForDeclareds ~pos env.file.stamps.types suffix (fun t ->
+            Type t)
+      @ (completionForFields env.exported.types env.file.stamps.types suffix
+        |> List.map (fun (f, t) ->
+               {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
+    else results
+  in
+  results |> List.map (fun r -> (r, env))
 
 let valueCompletions ~(env : QueryEnv.t) suffix =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
@@ -705,17 +709,20 @@ let valueCompletions ~(env : QueryEnv.t) suffix =
                {(emptyDeclared c.cname.txt) with item = Constructor (c, t)})))
     else results
   in
-  if suffix = "" || not (isCapitalized suffix) then (
-    Log.log " -- not capitalized";
-    results
-    @ completionForExporteds env.exported.values env.file.stamps.values suffix
-        (fun v -> Value v)
-    @ completionForExporteds env.exported.types env.file.stamps.types suffix
-        (fun t -> Type t)
-    @ (completionForFields env.exported.types env.file.stamps.types suffix
-      |> List.map (fun (f, t) ->
-             {(emptyDeclared f.fname.txt) with item = Field (f, t)})))
-  else results
+  let results =
+    if suffix = "" || not (isCapitalized suffix) then (
+      Log.log " -- not capitalized";
+      results
+      @ completionForExporteds env.exported.values env.file.stamps.values suffix
+          (fun v -> Value v)
+      @ completionForExporteds env.exported.types env.file.stamps.types suffix
+          (fun t -> Type t)
+      @ (completionForFields env.exported.types env.file.stamps.types suffix
+        |> List.map (fun (f, t) ->
+               {(emptyDeclared f.fname.txt) with item = Field (f, t)})))
+    else results
+  in
+  results |> List.map (fun r -> (r, env))
 
 let attributeCompletions ~(env : QueryEnv.t) ~suffix =
   let results = [] in
@@ -726,15 +733,18 @@ let attributeCompletions ~(env : QueryEnv.t) ~suffix =
           suffix (fun m -> Module m)
     else results
   in
-  if suffix = "" || not (isCapitalized suffix) then
-    results
-    @ completionForExporteds env.exported.values env.file.stamps.values suffix
-        (fun v -> Value v)
-    (* completionForExporteds(env.exported.types, env.file.stamps.types, suffix, t => Type(t)) @ *)
-    @ (completionForFields env.exported.types env.file.stamps.types suffix
-      |> List.map (fun (f, t) ->
-             {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
-  else results
+  let results =
+    if suffix = "" || not (isCapitalized suffix) then
+      results
+      @ completionForExporteds env.exported.values env.file.stamps.values suffix
+          (fun v -> Value v)
+      (* completionForExporteds(env.exported.types, env.file.stamps.types, suffix, t => Type(t)) @ *)
+      @ (completionForFields env.exported.types env.file.stamps.types suffix
+        |> List.map (fun (f, t) ->
+               {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
+    else results
+  in
+  results |> List.map (fun r -> (r, env))
 
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
@@ -804,7 +814,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
            (fun results env ->
              let completionsFromThisOpen = valueCompletions ~env suffix in
              List.filter
-               (fun declared ->
+               (fun (declared, _env) ->
                  if Hashtbl.mem alreadyUsedIdentifiers declared.name.txt then
                    false
                  else (
@@ -819,7 +829,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
       allFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
              if Utils.startsWith name suffix && not (String.contains name '-')
-             then Some {(emptyDeclared name) with item = FileModule name}
+             then Some ({(emptyDeclared name) with item = FileModule name}, env)
              else None)
     in
     locallyDefinedValues @ valuesFromOpens @ localModuleNames
@@ -863,15 +873,16 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
                    (Some (env, fields, typ))
             with
             | None -> []
-            | Some (_env, fields, typ) ->
+            | Some (env, fields, typ) ->
               fields
               |> Utils.filterMap (fun field ->
                      if Utils.startsWith field.fname.txt lastField then
                        Some
-                         {
-                           (emptyDeclared field.fname.txt) with
-                           item = Field (field, typ);
-                         }
+                         ( {
+                             (emptyDeclared field.fname.txt) with
+                             item = Field (field, typ);
+                           },
+                           env )
                      else None))))
       | None -> [])
     | QualifiedRecordAccess path -> (
@@ -924,7 +935,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     let declareds = processDotPath ~exact:true (componentPath @ ["make"]) in
     let labels =
       match declareds with
-      | {SharedTypes.item = Value typ} :: _ ->
+      | ({SharedTypes.item = Value typ}, _env) :: _ ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
           | Tfield (name, _, t1, t2) ->
@@ -984,7 +995,9 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     (* TODO(#107): figure out why we're getting duplicates. *)
     declareds |> Utils.dedup
     |> List.map
-         (fun {SharedTypes.name = {txt = name}; deprecated; docstring; item} ->
+         (fun
+           ({SharedTypes.name = {txt = name}; deprecated; docstring; item}, _env)
+         ->
            mkItem ~name ~kind:(kindToInt item) ~deprecated
              ~detail:(detail name item) ~docstring)
   | Cpipe (pipe, partialName) -> (
@@ -1044,8 +1057,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       match String.split_on_char '.' pipeId with
       | x :: fieldNames -> (
         match [x] |> processDotPath ~exact:true with
-        | {SharedTypes.item = Value typ} :: _ -> (
-          let env = QueryEnv.fromFile full.file in
+        | ({SharedTypes.item = Value typ}, env) :: _ -> (
           match getFields ~env ~typ fieldNames with
           | None -> None
           | Some (typ1, _env1) -> fromType typ1)
@@ -1096,10 +1108,12 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
         let dotpath = modulePath @ [partialName] in
         let declareds = dotpath |> processDotPath ~exact:false in
         declareds
-        |> List.filter (fun {item} ->
+        |> List.filter (fun ({item}, _env) ->
                match item with Value _ -> true | _ -> false)
         |> List.map
-             (fun {SharedTypes.name = {txt = name}; deprecated; docstring; item}
+             (fun
+               ( {SharedTypes.name = {txt = name}; deprecated; docstring; item},
+                 _env )
              ->
                mkItem ~name:(completionName name) ~kind:(kindToInt item)
                  ~detail:(detail name item) ~deprecated ~docstring)
@@ -1152,7 +1166,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
       match funPath |> processDotPath ~exact:true with
-      | {SharedTypes.item = Value typ} :: _ ->
+      | ({SharedTypes.item = Value typ}, _env) :: _ ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
           | Tlink t1 | Tsubst t1 -> getLabels t1
@@ -1200,8 +1214,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     in
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
-      match [lhs] |> processDotPath ~exact:true with
-      | {SharedTypes.item = Value typ} :: _ -> getObjectFields ~env:env0 typ
+      match lhs |> processDotPath ~exact:true with
+      | ({SharedTypes.item = Value typ}, env) :: _ -> getObjectFields ~env typ
       | _ -> (env0, [])
     in
     let labels = resolvePath ~env fields path in
@@ -1225,7 +1239,9 @@ let getCompletable ~textOpt ~pos =
       match PartialParser.findCompletable text offset with
       | None -> None
       | Some completable ->
-        let rawOpens = PartialParser.findOpens text offset in
+        let offsetFromLineStart = offset - snd pos in
+        (* try to avoid confusion e.g. unclosed quotes at current position *)
+        let rawOpens = PartialParser.findOpens text offsetFromLineStart in
         Some (completable, rawOpens)))
 
 let computeCompletions ~completable ~full ~pos ~rawOpens =
@@ -1239,17 +1255,17 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
          Take the last position before pos if any, or just return the first element. *)
       let rec prioritize decls =
         match decls with
-        | d1 :: d2 :: rest ->
+        | (d1, e1) :: (d2, e2) :: rest ->
           let pos2 = d2.extentLoc.loc_start |> Utils.tupleOfLexing in
-          if pos2 >= pos then prioritize (d1 :: rest)
+          if pos2 >= pos then prioritize ((d1, e1) :: rest)
           else
             let pos1 = d1.extentLoc.loc_start |> Utils.tupleOfLexing in
-            if pos1 <= pos2 then prioritize (d2 :: rest)
-            else prioritize (d1 :: rest)
+            if pos1 <= pos2 then prioritize ((d2, e2) :: rest)
+            else prioritize ((d1, e1) :: rest)
         | [] | [_] -> decls
       in
       declareds
-      |> List.filter (fun {SharedTypes.name = {txt}} -> txt = last)
+      |> List.filter (fun ({SharedTypes.name = {txt}}, _env) -> txt = last)
       |> prioritize
     | _ -> declareds
   in
