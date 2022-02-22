@@ -90,7 +90,7 @@ let getLocItem ~full ~line ~col =
   | li :: _ -> Some li
   | _ -> None
 
-let declaredForTip ~stamps stamp (tip : Tip.t) =
+let declaredForTip ~(stamps : Stamps.t) stamp (tip : Tip.t) =
   let open Infix in
   match tip with
   | Value ->
@@ -169,7 +169,7 @@ let definedForLoc ~file ~package locKind =
             maybeLog "Yes!! got it";
             Some res))))
 
-let declaredForExportedTip ~(stamps : stamps) ~(exported : exported) name
+let declaredForExportedTip ~(stamps : Stamps.t) ~(exported : Exported.t) name
     (tip : Tip.t) =
   let open Infix in
   match tip with

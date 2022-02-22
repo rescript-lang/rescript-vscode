@@ -39,7 +39,7 @@ let addItem ~name ~extent ~stamp ~env ~item attributes exported stamps =
   Hashtbl.add stamps stamp declared;
   declared
 
-let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
+let rec forTypeSignatureItem ~env ~(exported : SharedTypes.Exported.t)
     (item : Types.signature_item) =
   match item with
   | Sig_value (ident, {val_type; val_attributes; val_loc = loc}) ->
@@ -135,7 +135,7 @@ let rec forTypeSignatureItem ~env ~(exported : SharedTypes.exported)
   | _ -> []
 
 and forTypeSignature env signature =
-  let exported = initExported () in
+  let exported = Exported.init () in
   let topLevel =
     List.fold_right
       (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
@@ -156,7 +156,7 @@ let getModuleTypePath mod_desc =
   | Tmty_ident (path, _) | Tmty_alias (path, _) -> Some path
   | Tmty_signature _ | Tmty_functor _ | Tmty_with _ | Tmty_typeof _ -> None
 
-let forTypeDeclaration ~env ~(exported : exported)
+let forTypeDeclaration ~env ~(exported : Exported.t)
     {
       typ_id;
       typ_loc;
@@ -215,7 +215,7 @@ let forTypeDeclaration ~env ~(exported : exported)
   in
   {declared with item = ModuleKind.Type (declared.item, recStatus)}
 
-let rec forSignatureItem ~env ~(exported : exported)
+let rec forSignatureItem ~env ~(exported : Exported.t)
     (item : Typedtree.signature_item) =
   match item.sig_desc with
   | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
@@ -267,7 +267,7 @@ let rec forSignatureItem ~env ~(exported : exported)
   | _ -> []
 
 let forSignature ~env items =
-  let exported = initExported () in
+  let exported = Exported.init () in
   let topLevel =
     items |> List.map (forSignatureItem ~env ~exported) |> List.flatten
   in
@@ -301,7 +301,7 @@ let rec getModulePath mod_desc =
   | Tmod_constraint (expr, _typ, _constraint, _coercion) ->
     getModulePath expr.mod_desc
 
-let rec forStructureItem ~env ~(exported : exported) item =
+let rec forStructureItem ~env ~(exported : Exported.t) item =
   match item.str_desc with
   | Tstr_value (_isRec, bindings) ->
     let declareds = ref [] in
@@ -446,7 +446,7 @@ and forModule env mod_desc moduleName =
     Constraint (modKind, modTypeKind)
 
 and forStructure ~env items =
-  let exported = initExported () in
+  let exported = Exported.init () in
   let topLevel =
     List.fold_right
       (fun item results -> forStructureItem ~env ~exported item @ results)
@@ -491,7 +491,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     let env =
       {
         scope = extent;
-        stamps = initStamps ();
+        stamps = Stamps.init ();
         modulePath = File (uri, moduleName);
       }
     in
@@ -510,7 +510,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     let env =
       {
         scope = sigItemsExtent items;
-        stamps = initStamps ();
+        stamps = Stamps.init ();
         modulePath = File (uri, moduleName);
       }
     in
@@ -520,7 +520,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     let env =
       {
         scope = impItemsExtent structure.str_items;
-        stamps = initStamps ();
+        stamps = Stamps.init ();
         modulePath = File (uri, moduleName);
       }
     in
@@ -530,7 +530,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     let env =
       {
         scope = sigItemsExtent signature.sig_items;
-        stamps = initStamps ();
+        stamps = Stamps.init ();
         modulePath = File (uri, moduleName);
       }
     in
