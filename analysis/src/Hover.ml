@@ -1,13 +1,15 @@
+open SharedTypes
+
 let codeBlock code = Printf.sprintf "```rescript\n%s\n```" code
 
 let showModuleTopLevel ~docstring ~name
-    (topLevel : SharedTypes.ModuleKind.moduleItem SharedTypes.declared list) =
+    (topLevel : ModuleKind.moduleItem Declared.t list) =
   let contents =
     topLevel
     |> List.map (fun item ->
-           match item.SharedTypes.item with
+           match item.Declared.item with
            (* TODO pretty print module contents *)
-           | SharedTypes.ModuleKind.Type ({decl}, recStatus) ->
+           | ModuleKind.Type ({decl}, recStatus) ->
              "  " ^ (decl |> Shared.declToString ~recStatus item.name.txt)
            | Module _ -> "  module " ^ item.name.txt
            | Value typ ->
@@ -23,8 +25,8 @@ let showModuleTopLevel ~docstring ~name
   in
   Some (doc ^ full)
 
-let rec showModule ~docstring ~(file : SharedTypes.File.t) ~name
-    (declared : SharedTypes.ModuleKind.t SharedTypes.declared option) =
+let rec showModule ~docstring ~(file : File.t) ~name
+    (declared : ModuleKind.t Declared.t option) =
   match declared with
   | None -> showModuleTopLevel ~docstring ~name file.contents.topLevel
   | Some {item = Structure {topLevel}} ->
@@ -36,9 +38,9 @@ let rec showModule ~docstring ~(file : SharedTypes.File.t) ~name
   | Some {item = Ident path} ->
     Some ("Unable to resolve module reference " ^ Path.name path)
 
-let newHover ~full:{SharedTypes.file; package} locItem =
-  match locItem.SharedTypes.locType with
-  | SharedTypes.TypeDefinition (name, decl, _stamp) ->
+let newHover ~full:{file; package} locItem =
+  match locItem.locType with
+  | TypeDefinition (name, decl, _stamp) ->
     let typeDef = Shared.declToString name decl in
     Some (codeBlock typeDef)
   | LModule (Definition (stamp, _tip)) | LModule (LocalReference (stamp, _tip))
@@ -59,7 +61,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
-      let env = SharedTypes.QueryEnv.fromFile file in
+      let env = QueryEnv.fromFile file in
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
@@ -101,7 +103,7 @@ let newHover ~full:{SharedTypes.file; package} locItem =
     let fromType ~docstring typ =
       let typeString = codeBlock (typ |> Shared.typeToString) in
       let extraTypeInfo =
-        let env = SharedTypes.QueryEnv.fromFile file in
+        let env = QueryEnv.fromFile file in
         match typ |> Shared.digConstructor with
         | None -> None
         | Some path -> (

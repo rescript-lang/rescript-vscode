@@ -43,17 +43,32 @@ module Exported = struct
     }
 end
 
-type 't declared = {
-  name : string Location.loc;
-  extentLoc : Location.t;
-  scopeLoc : Location.t;
-  stamp : int;
-  modulePath : modulePath;
-  isExported : bool;
-  deprecated : string option;
-  docstring : string list;
-  item : 't;
-}
+module Declared = struct
+  type 'item t = {
+    name : string Location.loc;
+    extentLoc : Location.t;
+    scopeLoc : Location.t;
+    stamp : int;
+    modulePath : modulePath;
+    isExported : bool;
+    deprecated : string option;
+    docstring : string list;
+    item : 'item;
+  }
+
+  let empty name =
+    {
+      name = Location.mknoloc name;
+      extentLoc = Location.none;
+      scopeLoc = Location.none;
+      stamp = 0;
+      modulePath = NotVisible;
+      isExported = false;
+      deprecated = None;
+      docstring = [];
+      item = ();
+    }
+end
 
 module ModuleKind = struct
   type moduleItem =
@@ -64,7 +79,7 @@ module ModuleKind = struct
   and contents = {
     docstring : string list;
     exported : Exported.t;
-    topLevel : moduleItem declared list;
+    topLevel : moduleItem Declared.t list;
   }
 
   and t = Ident of Path.t | Structure of contents | Constraint of t * t
@@ -75,8 +90,8 @@ module Kind = struct
     | Module of ModuleKind.t
     | Value of Types.type_expr
     | Type of Type.t
-    | Constructor of Constructor.t * Type.t declared
-    | Field of field * Type.t declared
+    | Constructor of Constructor.t * Type.t Declared.t
+    | Field of field * Type.t Declared.t
     | FileModule of string
 
   let toInt kind =
@@ -90,7 +105,7 @@ module Kind = struct
 end
 
 module Stamps = struct
-  type 't stampMap = (int, 't declared) Hashtbl.t
+  type 't stampMap = (int, 't Declared.t) Hashtbl.t
 
   type t = {
     types : Type.t stampMap;
@@ -177,19 +192,6 @@ let getCmtPath ~uri p =
   | IntfAndImpl {cmti; cmt} ->
     let interface = Utils.endsWith (Uri2.toPath uri) "i" in
     if interface then cmti else cmt
-
-let emptyDeclared name =
-  {
-    name = Location.mknoloc name;
-    extentLoc = Location.none;
-    scopeLoc = Location.none;
-    stamp = 0;
-    modulePath = NotVisible;
-    isExported = false;
-    deprecated = None;
-    docstring = [];
-    item = ();
-  }
 
 module Tip = struct
   type t = Value | Type | Field of string | Constructor of string | Module

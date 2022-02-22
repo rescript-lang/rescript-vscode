@@ -185,7 +185,7 @@ let declaredForExportedTip ~(stamps : Stamps.t) ~(exported : Exported.t) name
     Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
 
 (** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
-let alternateDeclared ~(file : File.t) ~package declared tip =
+let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
   match Hashtbl.find_opt package.pathsForModule file.moduleName with
   | None -> None
   | Some paths -> (
@@ -209,7 +209,7 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
       None)
 
 let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
-    (declared : ModuleKind.t declared) =
+    (declared : ModuleKind.t Declared.t) =
   match declared.item with
   | Structure _ -> Some (file, Some declared)
   | Constraint (_moduleItem, moduleTypeItem) ->
@@ -381,7 +381,7 @@ let typeDefinitionForLocItem ~full:{file; package} locItem =
   | Constant _ | TopLevelModule _ | LModule _ -> None
   | TypeDefinition _ -> Some (file.uri, locItem.loc)
   | Typed (_, typ, _) -> (
-    let env = SharedTypes.QueryEnv.fromFile file in
+    let env = QueryEnv.fromFile file in
     match Shared.digConstructor typ with
     | None -> None
     | Some path -> (
@@ -389,7 +389,7 @@ let typeDefinitionForLocItem ~full:{file; package} locItem =
       | Some (env, declared) -> Some (env.file.uri, declared.item.decl.type_loc)
       | None -> None))
 
-let isVisible (declared : _ SharedTypes.declared) =
+let isVisible (declared : _ Declared.t) =
   declared.isExported
   &&
   let rec loop v =

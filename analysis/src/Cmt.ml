@@ -10,7 +10,7 @@ let fromUri ~uri =
     in
     match Hashtbl.find_opt package.pathsForModule moduleName with
     | Some paths ->
-      let cmt = SharedTypes.getCmtPath ~uri paths in
+      let cmt = getCmtPath ~uri paths in
       ProcessCmt.fullForCmt ~moduleName ~package ~uri cmt
     | None ->
       prerr_endline ("can't find module " ^ moduleName);
@@ -19,7 +19,7 @@ let fromUri ~uri =
 let fromModule ~package modname =
   if Hashtbl.mem package.pathsForModule modname then
     let paths = Hashtbl.find package.pathsForModule modname in
-    let uri = SharedTypes.getUri paths in
+    let uri = getUri paths in
     fromUri ~uri
   else None
 
