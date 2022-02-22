@@ -28,11 +28,20 @@ type 't stampMap = (int, 't) Hashtbl.t
 type 't namedMap = (string, 't) Hashtbl.t
 type namedStampMap = int namedMap
 
-type exported = {
-  types : namedStampMap;
-  values : namedStampMap;
-  modules : namedStampMap;
-}
+module Exported = struct
+  type t = {
+    types : namedStampMap;
+    values : namedStampMap;
+    modules : namedStampMap;
+  }
+
+  let init () =
+    {
+      types = Hashtbl.create 10;
+      values = Hashtbl.create 10;
+      modules = Hashtbl.create 10;
+    }
+end
 
 type 't declared = {
   name : string Location.loc;
@@ -54,7 +63,7 @@ module ModuleKind = struct
 
   and contents = {
     docstring : string list;
-    exported : exported;
+    exported : Exported.t;
     topLevel : moduleItem declared list;
   }
 
@@ -80,34 +89,29 @@ module Kind = struct
     | Value _ -> 12
 end
 
-let initExported () =
-  {
-    types = Hashtbl.create 10;
-    values = Hashtbl.create 10;
-    modules = Hashtbl.create 10;
+module Stamps = struct
+  type t = {
+    types : Type.t declared stampMap;
+    values : Types.type_expr declared stampMap;
+    modules : ModuleKind.t declared stampMap;
+    constructors : constructor declared stampMap;
   }
 
-type stamps = {
-  types : Type.t declared stampMap;
-  values : Types.type_expr declared stampMap;
-  modules : ModuleKind.t declared stampMap;
-  constructors : constructor declared stampMap;
-}
+  let init () =
+    {
+      types = Hashtbl.create 10;
+      values = Hashtbl.create 10;
+      modules = Hashtbl.create 10;
+      constructors = Hashtbl.create 10;
+    }
+end
 
-let initStamps () =
-  {
-    types = Hashtbl.create 10;
-    values = Hashtbl.create 10;
-    modules = Hashtbl.create 10;
-    constructors = Hashtbl.create 10;
-  }
-
-type env = {stamps : stamps; modulePath : visibilityPath; scope : Location.t}
+type env = {stamps : Stamps.t; modulePath : visibilityPath; scope : Location.t}
 
 module File = struct
   type t = {
     uri : Uri2.t;
-    stamps : stamps;
+    stamps : Stamps.t;
     moduleName : string;
     contents : ModuleKind.contents;
   }
@@ -115,14 +119,14 @@ module File = struct
   let create moduleName uri =
     {
       uri;
-      stamps = initStamps ();
+      stamps = Stamps.init ();
       moduleName;
-      contents = {docstring = []; exported = initExported (); topLevel = []};
+      contents = {docstring = []; exported = Exported.init (); topLevel = []};
     }
 end
 
 module QueryEnv = struct
-  type t = {file : File.t; exported : exported}
+  type t = {file : File.t; exported : Exported.t}
 
   let fromFile file = {file; exported = file.contents.exported}
 end
