@@ -7,3 +7,5 @@ module Rec = {
 
   let recordVal: recordt = assert false
 }
+
+let object: objT = {"name": "abc", "age": 4}

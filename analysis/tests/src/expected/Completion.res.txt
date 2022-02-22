@@ -729,3 +729,18 @@ Complete tests/src/Completion.res 96:3
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 100:3
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
+

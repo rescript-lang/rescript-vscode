@@ -98,3 +98,5 @@ let make = () => {
 // ^com my
   <> </>
 }
+
+// ^com Obj.object["
