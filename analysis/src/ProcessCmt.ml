@@ -40,7 +40,7 @@ let addItem ~name ~extent ~stamp ~(env : Env.t) ~item attributes exported stamps
   Hashtbl.add stamps stamp declared;
   declared
 
-let rec forTypeSignatureItem ~env ~(exported : SharedTypes.Exported.t)
+let rec forTypeSignatureItem ~env ~(exported : Exported.t)
     (item : Types.signature_item) =
   match item with
   | Sig_value (ident, {val_type; val_attributes; val_loc = loc}) ->
@@ -559,16 +559,16 @@ let extraForFile ~(file : File.t) =
       else []))
   in
   file.stamps.modules
-  |> Hashtbl.iter (fun stamp d ->
+  |> Hashtbl.iter (fun stamp (d : ModuleKind.t Declared.t) ->
          addLocItem extra d.name.loc (LModule (Definition (stamp, Module)));
          addReference stamp d.name.loc);
   file.stamps.values
-  |> Hashtbl.iter (fun stamp d ->
+  |> Hashtbl.iter (fun stamp (d : Types.type_expr Declared.t) ->
          addLocItem extra d.name.loc
            (Typed (d.name.txt, d.item, Definition (stamp, Value)));
          addReference stamp d.name.loc);
   file.stamps.types
-  |> Hashtbl.iter (fun stamp d ->
+  |> Hashtbl.iter (fun stamp (d : Type.t Declared.t) ->
          addLocItem extra d.name.loc
            (TypeDefinition (d.name.txt, d.item.Type.decl, stamp));
          addReference stamp d.name.loc;
@@ -1183,9 +1183,9 @@ let fileForModule modname ~package =
   if Hashtbl.mem package.pathsForModule modname then (
     let paths = Hashtbl.find package.pathsForModule modname in
     (* TODO: do better *)
-    let uri = SharedTypes.getUri paths in
-    let cmt = SharedTypes.getCmtPath ~uri paths in
-    Log.log ("fileForModule " ^ SharedTypes.showPaths paths);
+    let uri = getUri paths in
+    let cmt = getCmtPath ~uri paths in
+    Log.log ("fileForModule " ^ showPaths paths);
     match fileForCmt ~moduleName:modname ~cmt ~uri state with
     | None -> None
     | Some docs -> Some docs)
@@ -1217,7 +1217,7 @@ let locationIsBefore {Location.loc_start} pos = tupleOfLexing loc_start <= pos
 let findInScope pos name stamps =
   (* Log.log("Find " ++ name ++ " with " ++ string_of_int(Hashtbl.length(stamps)) ++ " stamps"); *)
   Hashtbl.fold
-    (fun _stamp declared result ->
+    (fun _stamp (declared : _ Declared.t) result ->
       if declared.name.txt = name then
         (* Log.log("a stamp " ++ Utils.showLocation(declared.scopeLoc) ++ " " ++ string_of_int(l) ++ "," ++ string_of_int(c)); *)
         if locationIsBefore declared.scopeLoc pos then

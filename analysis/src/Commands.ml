@@ -1,7 +1,9 @@
+open SharedTypes
+
 let dumpLocations ~full =
-  full.SharedTypes.extra.locItems
+  full.extra.locItems
   |> List.map (fun locItem ->
-         let locItemTxt = SharedTypes.locItemToString locItem in
+         let locItemTxt = locItemToString locItem in
          let hoverText = Hover.newHover ~full locItem in
          let hover =
            match hoverText with None -> "" | Some s -> String.escaped s
@@ -60,7 +62,7 @@ let hover ~path ~line ~col =
       | Some locItem -> (
         let isModule =
           match locItem.locType with
-          | SharedTypes.LModule _ | TopLevelModule _ -> true
+          | LModule _ | TopLevelModule _ -> true
           | TypeDefinition _ | Typed _ | Constant _ -> false
         in
         let uriLocOpt = References.definitionForLocItem ~full locItem in
@@ -102,7 +104,7 @@ let definition ~path ~line ~col =
           in
           let isModule =
             match locItem.locType with
-            | SharedTypes.LModule _ | TopLevelModule _ -> true
+            | LModule _ | TopLevelModule _ -> true
             | TypeDefinition _ | Typed _ | Constant _ -> false
           in
           let skipLoc =
@@ -176,13 +178,13 @@ let documentSymbol ~path =
       let open SharedTypes in
       let rec getItems {ModuleKind.topLevel} =
         let rec getItem = function
-          | ModuleKind.Value v -> (v |> SharedTypes.variableKind, [])
-          | Type (t, _) -> (t.decl |> SharedTypes.declarationKind, [])
+          | ModuleKind.Value v -> (v |> variableKind, [])
+          | Type (t, _) -> (t.decl |> declarationKind, [])
           | Module (Structure contents) -> (Module, getItems contents)
           | Module (Constraint (_, modTypeItem)) -> getItem (Module modTypeItem)
           | Module (Ident _) -> (Module, [])
         in
-        let fn {name = {txt}; extentLoc; item} =
+        let fn {Declared.name = {txt}; extentLoc; item} =
           let item, siblings = getItem item in
           if extentLoc.loc_ghost then siblings
           else (txt, extentLoc, item) :: siblings
@@ -201,7 +203,7 @@ let documentSymbol ~path =
                        uri = Uri2.toString (Uri2.fromPath path);
                        range = Utils.cmtLocToRange loc;
                      };
-                   kind = SharedTypes.symbolKind kind;
+                   kind = symbolKind kind;
                  })
       in
       "[\n" ^ (allSymbols |> String.concat ",\n") ^ "\n]"

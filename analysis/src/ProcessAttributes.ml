@@ -37,7 +37,7 @@ let rec findDeprecatedAttribute attributes =
 let newDeclared ~item ~scope ~extent ~name ~stamp ~modulePath isExported
     attributes =
   {
-    name;
+    Declared.name;
     stamp;
     extentLoc = extent;
     scopeLoc = scope;

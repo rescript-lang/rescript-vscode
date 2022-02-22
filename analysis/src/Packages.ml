@@ -1,4 +1,5 @@
 open Infix
+open SharedTypes
 
 (* Creates the `pathsForModule` hashtbl, which maps a `moduleName` to it's `paths` (the ml/re, mli/rei, cmt, and cmti files) *)
 let makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths =
@@ -37,8 +38,7 @@ let newBsPackage ~rootPath =
                ~sourceDirectories ~libBs
            in
            projectFilesAndPaths
-           |> List.iter (fun (_name, paths) ->
-                  Log.log (SharedTypes.showPaths paths));
+           |> List.iter (fun (_name, paths) -> Log.log (showPaths paths));
            let pathsForModule =
              makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths
            in
@@ -75,13 +75,11 @@ let newBsPackage ~rootPath =
            in
            Log.log ("Opens from bsconfig: " ^ (opens |> String.concat " "));
            {
-             SharedTypes.rootPath;
+             rootPath;
              projectFiles =
-               projectFilesAndPaths |> List.map fst
-               |> SharedTypes.FileSet.of_list;
+               projectFilesAndPaths |> List.map fst |> FileSet.of_list;
              dependenciesFiles =
-               dependenciesFilesAndPaths |> List.map fst
-               |> SharedTypes.FileSet.of_list;
+               dependenciesFilesAndPaths |> List.map fst |> FileSet.of_list;
              pathsForModule;
              opens;
              namespace;
