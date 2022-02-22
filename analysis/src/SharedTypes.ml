@@ -6,12 +6,14 @@ type visibilityPath =
 
 type field = {stamp : int; fname : string Location.loc; typ : Types.type_expr}
 
-type constructor = {
-  stamp : int;
-  cname : string Location.loc;
-  args : (Types.type_expr * Location.t) list;
-  res : Types.type_expr option;
-}
+module Constructor = struct
+  type t = {
+    stamp : int;
+    cname : string Location.loc;
+    args : (Types.type_expr * Location.t) list;
+    res : Types.type_expr option;
+  }
+end
 
 module Type = struct
   type kind =
@@ -19,7 +21,7 @@ module Type = struct
     | Open
     | Tuple of Types.type_expr list
     | Record of field list
-    | Variant of constructor list
+    | Variant of Constructor.t list
 
   type t = {kind : kind; decl : Types.type_declaration}
 end
@@ -75,7 +77,7 @@ module Kind = struct
     | Module of ModuleKind.t
     | Value of Types.type_expr
     | Type of Type.t
-    | Constructor of constructor * Type.t declared
+    | Constructor of Constructor.t * Type.t declared
     | Field of field * Type.t declared
     | FileModule of string
 
@@ -94,7 +96,7 @@ module Stamps = struct
     types : Type.t declared stampMap;
     values : Types.type_expr declared stampMap;
     modules : ModuleKind.t declared stampMap;
-    constructors : constructor declared stampMap;
+    constructors : Constructor.t declared stampMap;
   }
 
   let init () =

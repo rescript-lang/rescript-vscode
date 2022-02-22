@@ -444,7 +444,7 @@ let domLabels =
     ("suppressContentEditableWarning", "bool");
   ]
 
-let showConstructor {cname = {txt}; args; res} =
+let showConstructor {Constructor.cname = {txt}; args; res} =
   txt
   ^ (match args with
     | [] -> ""
@@ -552,13 +552,17 @@ let completionForConstructors ~(env : QueryEnv.t) ~suffix =
       match t.item.kind with
       | SharedTypes.Type.Variant constructors ->
         (constructors
-        |> List.filter (fun c -> Utils.startsWith c.cname.txt suffix)
+        |> List.filter (fun c ->
+               Utils.startsWith c.Constructor.cname.txt suffix)
         |> List.map (fun c -> (c, t)))
         @ results
       | _ -> results)
     env.exported.types []
   |> List.map (fun (c, t) ->
-         {(emptyDeclared c.cname.txt) with item = Kind.Constructor (c, t)})
+         {
+           (emptyDeclared c.Constructor.cname.txt) with
+           item = Kind.Constructor (c, t);
+         })
 
 let completionForFields ~(env : QueryEnv.t) ~suffix =
   Hashtbl.fold

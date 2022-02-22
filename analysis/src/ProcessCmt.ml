@@ -81,7 +81,7 @@ let rec forTypeSignatureItem ~env ~(exported : SharedTypes.Exported.t)
                          let stamp = Ident.binding_time cd_id in
                          let item =
                            {
-                             stamp;
+                             Constructor.stamp;
                              cname = Location.mknoloc name;
                              args =
                                (match cd_args with
@@ -189,7 +189,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                 |> List.map (fun {cd_id; cd_name = cname; cd_args; cd_res} ->
                        let stamp = Ident.binding_time cd_id in
                        {
-                         stamp;
+                         Constructor.stamp;
                          cname;
                          args =
                            (match cd_args with
@@ -579,9 +579,9 @@ let extraForFile ~(file : File.t) =
                   addLocItem extra fname.loc
                     (Typed
                        (d.name.txt, typ, Definition (d.stamp, Field fname.txt))))
-         | Variant constructos ->
-           constructos
-           |> List.iter (fun {stamp; cname} ->
+         | Variant constructors ->
+           constructors
+           |> List.iter (fun {Constructor.stamp; cname} ->
                   addReference stamp cname.loc;
                   let t =
                     {
@@ -825,7 +825,8 @@ struct
         match t with
         | `Local {stamp; item = {kind = Variant constructors}} -> (
           match
-            constructors |> List.find_opt (fun c -> c.cname.txt = cstr_name)
+            constructors
+            |> List.find_opt (fun c -> c.Constructor.cname.txt = cstr_name)
           with
           | Some {stamp = cstamp} ->
             addReference cstamp nameLoc;
