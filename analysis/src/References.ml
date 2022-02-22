@@ -115,7 +115,8 @@ let getConstructor (file : File.t) stamp name =
     match kind with
     | Variant constructors -> (
       match
-        constructors |> List.find_opt (fun const -> const.cname.txt = name)
+        constructors
+        |> List.find_opt (fun const -> const.Constructor.cname.txt = name)
       with
       | None -> None
       | Some const -> Some const)
