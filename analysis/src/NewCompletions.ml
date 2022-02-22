@@ -496,6 +496,23 @@ let resolveOpens ~env ~previous opens ~package =
     (* loop(previous) *)
     previous opens
 
+type kind =
+  | Module of moduleKind
+  | Value of Types.type_expr
+  | Type of Type.t
+  | Constructor of constructor * Type.t declared
+  | Field of field * Type.t declared
+  | FileModule of string
+
+let kindToInt kind =
+  match kind with
+  | Module _ -> 9
+  | FileModule _ -> 9
+  | Constructor (_, _) -> 4
+  | Field (_, _) -> 5
+  | Type _ -> 22
+  | Value _ -> 12
+
 let completionForDeclareds ~pos declareds prefix transformContents =
   (* Log.log("completion for declares " ++ prefix); *)
   Hashtbl.fold
@@ -521,33 +538,47 @@ let completionForExporteds exporteds
       else results)
     exporteds []
 
-let completionForConstructors exportedTypes
-    (stamps : (int, SharedTypes.Type.t SharedTypes.declared) Hashtbl.t) prefix =
+let completionForExportedsModules ~env ~suffix =
+  completionForExporteds env.QueryEnv.exported.modules env.file.stamps.modules
+    suffix (fun m -> Module m)
+
+let completionForExportedsValues ~env ~suffix =
+  completionForExporteds env.QueryEnv.exported.values env.file.stamps.values
+    suffix (fun v -> Value v)
+
+let completionForExportedsTypes ~env ~suffix =
+  completionForExporteds env.QueryEnv.exported.types env.file.stamps.types
+    suffix (fun t -> Type t)
+
+let completionForConstructors ~(env : QueryEnv.t) ~suffix =
   Hashtbl.fold
     (fun _name stamp results ->
-      let t = Hashtbl.find stamps stamp in
+      let t = Hashtbl.find env.file.stamps.types stamp in
       match t.item.kind with
       | SharedTypes.Type.Variant constructors ->
         (constructors
-        |> List.filter (fun c -> Utils.startsWith c.cname.txt prefix)
+        |> List.filter (fun c -> Utils.startsWith c.cname.txt suffix)
         |> List.map (fun c -> (c, t)))
         @ results
       | _ -> results)
-    exportedTypes []
+    env.exported.types []
+  |> List.map (fun (c, t) ->
+         {(emptyDeclared c.cname.txt) with item = Constructor (c, t)})
 
-let completionForFields exportedTypes
-    (stamps : (int, SharedTypes.Type.t SharedTypes.declared) Hashtbl.t) prefix =
+let completionForFields ~(env : QueryEnv.t) ~suffix =
   Hashtbl.fold
     (fun _name stamp results ->
-      let t = Hashtbl.find stamps stamp in
+      let t = Hashtbl.find env.file.stamps.types stamp in
       match t.item.kind with
       | Record fields ->
         (fields
-        |> List.filter (fun f -> Utils.startsWith f.fname.txt prefix)
+        |> List.filter (fun f -> Utils.startsWith f.fname.txt suffix)
         |> List.map (fun f -> (f, t)))
         @ results
       | _ -> results)
-    exportedTypes []
+    env.exported.types []
+  |> List.map (fun (f, t) ->
+         {(emptyDeclared f.fname.txt) with item = Field (f, t)})
 
 let isCapitalized name =
   if name = "" then false
@@ -626,23 +657,6 @@ let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
     in
     loop opens
 
-type kind =
-  | Module of moduleKind
-  | Value of Types.type_expr
-  | Type of Type.t
-  | Constructor of constructor * Type.t declared
-  | Field of field * Type.t declared
-  | FileModule of string
-
-let kindToInt kind =
-  match kind with
-  | Module _ -> 9
-  | FileModule _ -> 9
-  | Constructor (_, _) -> 4
-  | Field (_, _) -> 5
-  | Type _ -> 22
-  | Value _ -> 12
-
 let detail name contents =
   match contents with
   | Type {decl} -> decl |> Shared.declToString name
@@ -657,19 +671,18 @@ let detail name contents =
   | Constructor (c, t) ->
     showConstructor c ^ "\n\n" ^ (t.item.decl |> Shared.declToString t.name.txt)
 
+let completionForDeclaredsModules ~pos ~env ~suffix =
+  completionForDeclareds ~pos env.QueryEnv.file.stamps.modules suffix (fun m ->
+      Module m)
+
 let localValueCompletions ~pos ~(env : QueryEnv.t) suffix =
   let results = [] in
   Log.log "---------------- LOCAL VAL";
   let results =
     if suffix = "" || isCapitalized suffix then
       results
-      @ completionForDeclareds ~pos env.file.stamps.modules suffix (fun m ->
-            Module m)
-      @ (completionForConstructors env.exported.types env.file.stamps.types
-           (* TODO declared thingsz *)
-           suffix
-        |> List.map (fun (c, t) ->
-               {(emptyDeclared c.cname.txt) with item = Constructor (c, t)}))
+      @ completionForDeclaredsModules ~pos ~env ~suffix
+      @ completionForConstructors ~env ~suffix
     else results
   in
   let results =
@@ -679,9 +692,7 @@ let localValueCompletions ~pos ~(env : QueryEnv.t) suffix =
             Value v)
       @ completionForDeclareds ~pos env.file.stamps.types suffix (fun t ->
             Type t)
-      @ (completionForFields env.exported.types env.file.stamps.types suffix
-        |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
+      @ completionForFields ~env ~suffix
     else results
   in
   results |> List.map (fun r -> (r, env))
@@ -695,31 +706,18 @@ let valueCompletions ~(env : QueryEnv.t) suffix =
       env.exported.modules
       |> Hashtbl.filter_map_inplace (fun name key ->
              if isCapitalized name then Some key else None);
-      let moduleCompletions =
-        completionForExporteds env.exported.modules env.file.stamps.modules
-          suffix (fun m -> Module m)
-      in
-      (* Log.log(" -- capitalized " ++ string_of_int(Hashtbl.length(env.exported.types)) ++ " exported types"); *)
-      (* env.exported.types |> Hashtbl.iter((name, _) => Log.log("    > " ++ name)); *)
-      results @ moduleCompletions
-      @ ((* TODO declared thingsz *)
-         completionForConstructors env.exported.types env.file.stamps.types
-           suffix
-        |> List.map (fun (c, t) ->
-               {(emptyDeclared c.cname.txt) with item = Constructor (c, t)})))
+      results
+      @ completionForExportedsModules ~env ~suffix
+      @ completionForConstructors ~env ~suffix)
     else results
   in
   let results =
     if suffix = "" || not (isCapitalized suffix) then (
       Log.log " -- not capitalized";
       results
-      @ completionForExporteds env.exported.values env.file.stamps.values suffix
-          (fun v -> Value v)
-      @ completionForExporteds env.exported.types env.file.stamps.types suffix
-          (fun t -> Type t)
-      @ (completionForFields env.exported.types env.file.stamps.types suffix
-        |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)})))
+      @ completionForExportedsValues ~env ~suffix
+      @ completionForExportedsTypes ~env ~suffix
+      @ completionForFields ~env ~suffix)
     else results
   in
   results |> List.map (fun r -> (r, env))
@@ -728,20 +726,14 @@ let attributeCompletions ~(env : QueryEnv.t) ~suffix =
   let results = [] in
   let results =
     if suffix = "" || isCapitalized suffix then
-      results
-      @ completionForExporteds env.exported.modules env.file.stamps.modules
-          suffix (fun m -> Module m)
+      results @ completionForExportedsModules ~env ~suffix
     else results
   in
   let results =
     if suffix = "" || not (isCapitalized suffix) then
       results
-      @ completionForExporteds env.exported.values env.file.stamps.values suffix
-          (fun v -> Value v)
-      (* completionForExporteds(env.exported.types, env.file.stamps.types, suffix, t => Type(t)) @ *)
-      @ (completionForFields env.exported.types env.file.stamps.types suffix
-        |> List.map (fun (f, t) ->
-               {(emptyDeclared f.fname.txt) with item = Field (f, t)}))
+      @ completionForExportedsValues ~env ~suffix
+      @ completionForFields ~env ~suffix
     else results
   in
   results |> List.map (fun r -> (r, env))
