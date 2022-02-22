@@ -4,20 +4,6 @@ type visibilityPath =
   | IncludedModule of Path.t * visibilityPath
   | ExportedModule of string * visibilityPath
 
-type 't declared = {
-  name : string Location.loc;
-  extentLoc : Location.t;
-  scopeLoc : Location.t;
-  stamp : int;
-  modulePath : visibilityPath;
-  isExported : bool;
-  deprecated : string option;
-  docstring : string list;
-  item : 't;
-}
-
-type 't stampMap = (int, 't) Hashtbl.t
-
 type field = {stamp : int; fname : string Location.loc; typ : Types.type_expr}
 
 type constructor = {
@@ -38,8 +24,8 @@ module Type = struct
   type t = {kind : kind; decl : Types.type_declaration}
 end
 
+type 't stampMap = (int, 't) Hashtbl.t
 type 't namedMap = (string, 't) Hashtbl.t
-
 type namedStampMap = int namedMap
 
 type exported = {
@@ -48,6 +34,52 @@ type exported = {
   modules : namedStampMap;
 }
 
+type 't declared = {
+  name : string Location.loc;
+  extentLoc : Location.t;
+  scopeLoc : Location.t;
+  stamp : int;
+  modulePath : visibilityPath;
+  isExported : bool;
+  deprecated : string option;
+  docstring : string list;
+  item : 't;
+}
+
+module ModuleKind = struct
+  type moduleItem =
+    | Value of Types.type_expr
+    | Type of Type.t * Types.rec_status
+    | Module of t
+
+  and contents = {
+    docstring : string list;
+    exported : exported;
+    topLevel : moduleItem declared list;
+  }
+
+  and t = Ident of Path.t | Structure of contents | Constraint of t * t
+end
+
+module Kind = struct
+  type t =
+    | Module of ModuleKind.t
+    | Value of Types.type_expr
+    | Type of Type.t
+    | Constructor of constructor * Type.t declared
+    | Field of field * Type.t declared
+    | FileModule of string
+
+  let toInt kind =
+    match kind with
+    | Module _ -> 9
+    | FileModule _ -> 9
+    | Constructor (_, _) -> 4
+    | Field (_, _) -> 5
+    | Type _ -> 22
+    | Value _ -> 12
+end
+
 let initExported () =
   {
     types = Hashtbl.create 10;
@@ -55,26 +87,10 @@ let initExported () =
     modules = Hashtbl.create 10;
   }
 
-type moduleItem =
-  | MValue of Types.type_expr
-  | MType of Type.t * Types.rec_status
-  | Module of moduleKind
-
-and moduleContents = {
-  docstring : string list;
-  exported : exported;
-  topLevel : moduleItem declared list;
-}
-
-and moduleKind =
-  | Ident of Path.t
-  | Structure of moduleContents
-  | Constraint of moduleKind * moduleKind
-
 type stamps = {
   types : Type.t declared stampMap;
   values : Types.type_expr declared stampMap;
-  modules : moduleKind declared stampMap;
+  modules : ModuleKind.t declared stampMap;
   constructors : constructor declared stampMap;
 }
 
@@ -93,7 +109,7 @@ module File = struct
     uri : Uri2.t;
     stamps : stamps;
     moduleName : string;
-    contents : moduleContents;
+    contents : ModuleKind.contents;
   }
 
   let create moduleName uri =
@@ -167,25 +183,27 @@ let emptyDeclared name =
     item = ();
   }
 
-type tip = Value | Type | Field of string | Constructor of string | Module
+module Tip = struct
+  type t = Value | Type | Field of string | Constructor of string | Module
 
-let tipToString tip =
-  match tip with
-  | Value -> "Value"
-  | Type -> "Type"
-  | Field f -> "Field(" ^ f ^ ")"
-  | Constructor a -> "Constructor(" ^ a ^ ")"
-  | Module -> "Module"
+  let toString tip =
+    match tip with
+    | Value -> "Value"
+    | Type -> "Type"
+    | Field f -> "Field(" ^ f ^ ")"
+    | Constructor a -> "Constructor(" ^ a ^ ")"
+    | Module -> "Module"
+end
 
 type path = string list
 
 let pathToString (path : path) = path |> String.concat "."
 
 type locKind =
-  | LocalReference of int * tip
-  | GlobalReference of string * string list * tip
+  | LocalReference of int * Tip.t
+  | GlobalReference of string * string list * Tip.t
   | NotFound
-  | Definition of int * tip
+  | Definition of int * Tip.t
 
 type locType =
   | Typed of string * Types.type_expr * locKind
@@ -207,7 +225,7 @@ end)
 type extra = {
   internalReferences : (int, Location.t list) Hashtbl.t;
   externalReferences :
-    (string, (string list * tip * Location.t) list) Hashtbl.t;
+    (string, (string list * Tip.t * Location.t) list) Hashtbl.t;
   fileReferences : (string, LocationSet.t) Hashtbl.t;
   mutable locItems : locItem list;
   (* This is the "open location", like the location...
@@ -255,10 +273,10 @@ let state =
   }
 
 let locKindToString = function
-  | LocalReference (_, tip) -> "(LocalReference " ^ tipToString tip ^ ")"
+  | LocalReference (_, tip) -> "(LocalReference " ^ Tip.toString tip ^ ")"
   | GlobalReference _ -> "GlobalReference"
   | NotFound -> "NotFound"
-  | Definition (_, tip) -> "(Definition " ^ tipToString tip ^ ")"
+  | Definition (_, tip) -> "(Definition " ^ Tip.toString tip ^ ")"
 
 let locTypeToString = function
   | Typed (name, e, locKind) ->
@@ -278,23 +296,25 @@ let locItemToString {loc = {Location.loc_start; loc_end}; locType} =
 (* needed for debugging *)
 let _ = locItemToString
 
-type kinds =
-  | Module
-  | Enum
-  | Interface
-  | Function
-  | Variable
-  | Array
-  | Object
-  | Null
-  | EnumMember
-  | TypeParameter
+module SymbolKind = struct
+  type t =
+    | Module
+    | Enum
+    | Interface
+    | Function
+    | Variable
+    | Array
+    | Object
+    | Null
+    | EnumMember
+    | TypeParameter
+end
 
 let rec variableKind t =
   match t.Types.desc with
   | Tlink t -> variableKind t
   | Tsubst t -> variableKind t
-  | Tarrow _ -> Function
+  | Tarrow _ -> SymbolKind.Function
   | Ttuple _ -> Array
   | Tconstr _ -> Variable
   | Tobject _ -> Object
@@ -305,7 +325,7 @@ let rec variableKind t =
   | _ -> Variable
 
 let symbolKind = function
-  | Module -> 2
+  | SymbolKind.Module -> 2
   | Enum -> 10
   | Interface -> 11
   | Function -> 12
@@ -318,6 +338,6 @@ let symbolKind = function
 
 let declarationKind t =
   match t.Types.type_kind with
-  | Type_open | Type_abstract -> TypeParameter
+  | Type_open | Type_abstract -> SymbolKind.TypeParameter
   | Type_record _ -> Interface
   | Type_variant _ -> Enum

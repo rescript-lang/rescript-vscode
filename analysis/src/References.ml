@@ -1,7 +1,6 @@
 open SharedTypes
 
 let debugReferences = ref true
-
 let maybeLog m = if !debugReferences then Log.log ("[ref] " ^ m)
 
 let checkPos (line, char)
@@ -91,7 +90,7 @@ let getLocItem ~full ~line ~col =
   | li :: _ -> Some li
   | _ -> None
 
-let declaredForTip ~stamps stamp tip =
+let declaredForTip ~stamps stamp (tip : Tip.t) =
   let open Infix in
   match tip with
   | Value ->
@@ -123,16 +122,16 @@ let getConstructor (file : File.t) stamp name =
     | _ -> None)
 
 let definedForLoc ~file ~package locKind =
-  let inner ~file stamp tip =
+  let inner ~file stamp (tip : Tip.t) =
     match tip with
     | Constructor name -> (
       match getConstructor file stamp name with
       | None -> None
       | Some constructor -> Some ([], `Constructor constructor))
-    | Field _name -> Some([], `Field)
+    | Field _name -> Some ([], `Field)
     | _ -> (
       maybeLog
-        ("Trying for declared " ^ tipToString tip ^ " " ^ string_of_int stamp
+        ("Trying for declared " ^ Tip.toString tip ^ " " ^ string_of_int stamp
        ^ " in file " ^ Uri2.toString file.uri);
       match declaredForTip ~stamps:file.stamps stamp tip with
       | None -> None
@@ -158,7 +157,7 @@ let definedForLoc ~file ~package locKind =
         match ProcessCmt.exportedForTip ~env name tip with
         | None ->
           Log.log
-            ("Exported not found for tip " ^ name ^ " > " ^ tipToString tip);
+            ("Exported not found for tip " ^ name ^ " > " ^ Tip.toString tip);
           None
         | Some stamp -> (
           maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
@@ -170,7 +169,8 @@ let definedForLoc ~file ~package locKind =
             maybeLog "Yes!! got it";
             Some res))))
 
-let declaredForExportedTip ~(stamps : stamps) ~(exported : exported) name tip =
+let declaredForExportedTip ~(stamps : stamps) ~(exported : exported) name
+    (tip : Tip.t) =
   let open Infix in
   match tip with
   | Value ->
@@ -208,7 +208,7 @@ let alternateDeclared ~(file : File.t) ~package declared tip =
       None)
 
 let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
-    (declared : moduleKind declared) =
+    (declared : ModuleKind.t declared) =
   match declared.item with
   | Structure _ -> Some (file, Some declared)
   | Constraint (_moduleItem, moduleTypeItem) ->
@@ -277,7 +277,7 @@ let resolveModuleDefinition ~(file : File.t) ~package stamp =
       in
       Some (file.uri, loc))
 
-let definition ~file ~package stamp tip =
+let definition ~file ~package stamp (tip : Tip.t) =
   match tip with
   | Constructor name -> (
     match getConstructor file stamp name with
@@ -310,7 +310,7 @@ let definitionForLocItem ~full:{file; package} locItem =
   | Typed (_, _, Definition (stamp, tip)) -> (
     maybeLog
       ("Typed Definition stamp:" ^ string_of_int stamp ^ " tip:"
-     ^ tipToString tip);
+     ^ Tip.toString tip);
     match declaredForTip ~stamps:file.stamps stamp tip with
     | None -> None
     | Some declared ->
@@ -337,13 +337,13 @@ let definitionForLocItem ~full:{file; package} locItem =
       Some (uri, Uri2.toTopLevelLoc uri))
   | LModule (LocalReference (stamp, tip))
   | Typed (_, _, LocalReference (stamp, tip)) ->
-    maybeLog ("Local defn " ^ tipToString tip);
+    maybeLog ("Local defn " ^ Tip.toString tip);
     definition ~file ~package stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, _, GlobalReference (moduleName, path, tip)) -> (
     maybeLog
       ("Typed GlobalReference moduleName:" ^ moduleName ^ " path:"
-     ^ pathToString path ^ " tip:" ^ tipToString tip);
+     ^ pathToString path ^ " tip:" ^ Tip.toString tip);
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
@@ -415,7 +415,7 @@ type references = {
   locOpt : Location.t option; (* None: reference to a toplevel module *)
 }
 
-let forLocalStamp ~full:{file; extra; package} stamp tip =
+let forLocalStamp ~full:{file; extra; package} stamp (tip : Tip.t) =
   let env = QueryEnv.fromFile file in
   let open Infix in
   match
@@ -535,7 +535,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
-     ^ string_of_int stamp ^ " and tip " ^ tipToString tip);
+     ^ string_of_int stamp ^ " and tip " ^ Tip.toString tip);
     forLocalStamp ~full stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
   | Typed (_, _, GlobalReference (moduleName, path, tip)) -> (
@@ -555,5 +555,5 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
             maybeLog
               ("Finding references for (global) " ^ Uri2.toString env.file.uri
              ^ " and stamp " ^ string_of_int stamp ^ " and tip "
-             ^ tipToString tip);
+             ^ Tip.toString tip);
             forLocalStamp ~full stamp tip))))

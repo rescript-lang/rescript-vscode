@@ -1,16 +1,16 @@
 let codeBlock code = Printf.sprintf "```rescript\n%s\n```" code
 
 let showModuleTopLevel ~docstring ~name
-    (topLevel : SharedTypes.moduleItem SharedTypes.declared list) =
+    (topLevel : SharedTypes.ModuleKind.moduleItem SharedTypes.declared list) =
   let contents =
     topLevel
     |> List.map (fun item ->
            match item.SharedTypes.item with
            (* TODO pretty print module contents *)
-           | SharedTypes.MType ({decl}, recStatus) ->
+           | SharedTypes.ModuleKind.Type ({decl}, recStatus) ->
              "  " ^ (decl |> Shared.declToString ~recStatus item.name.txt)
            | Module _ -> "  module " ^ item.name.txt
-           | MValue typ ->
+           | Value typ ->
              "  let " ^ item.name.txt ^ ": " ^ (typ |> Shared.typeToString))
     (* TODO indent *)
     |> String.concat "\n"
@@ -24,7 +24,7 @@ let showModuleTopLevel ~docstring ~name
   Some (doc ^ full)
 
 let rec showModule ~docstring ~(file : SharedTypes.File.t) ~name
-    (declared : SharedTypes.moduleKind SharedTypes.declared option) =
+    (declared : SharedTypes.ModuleKind.t SharedTypes.declared option) =
   match declared with
   | None -> showModuleTopLevel ~docstring ~name file.contents.topLevel
   | Some {item = Structure {topLevel}} ->

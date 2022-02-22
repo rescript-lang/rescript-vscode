@@ -496,23 +496,6 @@ let resolveOpens ~env ~previous opens ~package =
     (* loop(previous) *)
     previous opens
 
-type kind =
-  | Module of moduleKind
-  | Value of Types.type_expr
-  | Type of Type.t
-  | Constructor of constructor * Type.t declared
-  | Field of field * Type.t declared
-  | FileModule of string
-
-let kindToInt kind =
-  match kind with
-  | Module _ -> 9
-  | FileModule _ -> 9
-  | Constructor (_, _) -> 4
-  | Field (_, _) -> 5
-  | Type _ -> 22
-  | Value _ -> 12
-
 let completionForDeclareds ~pos declareds prefix transformContents =
   (* Log.log("completion for declares " ++ prefix); *)
   Hashtbl.fold
@@ -528,15 +511,15 @@ let completionForDeclareds ~pos declareds prefix transformContents =
 
 let completionForDeclaredModules ~pos ~env ~suffix =
   completionForDeclareds ~pos env.QueryEnv.file.stamps.modules suffix (fun m ->
-      Module m)
+      Kind.Module m)
 
 let completionForDeclaredValues ~pos ~env ~suffix =
   completionForDeclareds ~pos env.QueryEnv.file.stamps.values suffix (fun m ->
-      Value m)
+      Kind.Value m)
 
 let completionForDeclaredTypes ~pos ~env ~suffix =
   completionForDeclareds ~pos env.QueryEnv.file.stamps.types suffix (fun m ->
-      Type m)
+      Kind.Type m)
 
 let completionForExporteds exporteds
     (stamps : (int, 'a SharedTypes.declared) Hashtbl.t) prefix transformContents
@@ -552,15 +535,15 @@ let completionForExporteds exporteds
 
 let completionForExportedModules ~env ~suffix =
   completionForExporteds env.QueryEnv.exported.modules env.file.stamps.modules
-    suffix (fun m -> Module m)
+    suffix (fun m -> Kind.Module m)
 
 let completionForExportedValues ~env ~suffix =
   completionForExporteds env.QueryEnv.exported.values env.file.stamps.values
-    suffix (fun v -> Value v)
+    suffix (fun v -> Kind.Value v)
 
 let completionForExportedTypes ~env ~suffix =
   completionForExporteds env.QueryEnv.exported.types env.file.stamps.types
-    suffix (fun t -> Type t)
+    suffix (fun t -> Kind.Type t)
 
 let completionForConstructors ~(env : QueryEnv.t) ~suffix =
   Hashtbl.fold
@@ -575,7 +558,7 @@ let completionForConstructors ~(env : QueryEnv.t) ~suffix =
       | _ -> results)
     env.exported.types []
   |> List.map (fun (c, t) ->
-         {(emptyDeclared c.cname.txt) with item = Constructor (c, t)})
+         {(emptyDeclared c.cname.txt) with item = Kind.Constructor (c, t)})
 
 let completionForFields ~(env : QueryEnv.t) ~suffix =
   Hashtbl.fold
@@ -590,7 +573,7 @@ let completionForFields ~(env : QueryEnv.t) ~suffix =
       | _ -> results)
     env.exported.types []
   |> List.map (fun (f, t) ->
-         {(emptyDeclared f.fname.txt) with item = Field (f, t)})
+         {(emptyDeclared f.fname.txt) with item = Kind.Field (f, t)})
 
 let isCapitalized name =
   if name = "" then false
@@ -669,8 +652,8 @@ let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
     in
     loop opens
 
-let detail name contents =
-  match contents with
+let detail name (kind : Kind.t) =
+  match kind with
   | Type {decl} -> decl |> Shared.declToString name
   | Value typ -> typ |> Shared.typeToString
   | Module _ -> "module"
@@ -827,7 +810,9 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
       allFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
              if Utils.startsWith name suffix && not (String.contains name '-')
-             then Some ({(emptyDeclared name) with item = FileModule name}, env)
+             then
+               Some
+                 ({(emptyDeclared name) with item = Kind.FileModule name}, env)
              else None)
     in
     locallyDefinedValues @ valuesFromOpens @ localModuleNames
@@ -878,7 +863,7 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
                        Some
                          ( {
                              (emptyDeclared field.fname.txt) with
-                             item = Field (field, typ);
+                             item = Kind.Field (field, typ);
                            },
                            env )
                      else None))))
@@ -933,7 +918,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     let declareds = processDotPath ~exact:true (componentPath @ ["make"]) in
     let labels =
       match declareds with
-      | ({SharedTypes.item = Value typ}, _env) :: _ ->
+      | ({SharedTypes.item = Kind.Value typ}, _env) :: _ ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
           | Tfield (name, _, t1, t2) ->
@@ -996,7 +981,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
          (fun
            ({SharedTypes.name = {txt = name}; deprecated; docstring; item}, _env)
          ->
-           mkItem ~name ~kind:(kindToInt item) ~deprecated
+           mkItem ~name ~kind:(Kind.toInt item) ~deprecated
              ~detail:(detail name item) ~docstring)
   | Cpipe (pipe, partialName) -> (
     let arrayModulePath = ["Js"; "Array2"] in
@@ -1107,13 +1092,13 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
         let declareds = dotpath |> processDotPath ~exact:false in
         declareds
         |> List.filter (fun ({item}, _env) ->
-               match item with Value _ -> true | _ -> false)
+               match item with Kind.Value _ -> true | _ -> false)
         |> List.map
              (fun
                ( {SharedTypes.name = {txt = name}; deprecated; docstring; item},
                  _env )
              ->
-               mkItem ~name:(completionName name) ~kind:(kindToInt item)
+               mkItem ~name:(completionName name) ~kind:(Kind.toInt item)
                  ~detail:(detail name item) ~deprecated ~docstring)
       | _ -> [])
     | None -> [])
