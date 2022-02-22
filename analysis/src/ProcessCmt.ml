@@ -21,7 +21,8 @@ let impItemsExtent items =
 let sigItemsExtent items =
   items |> List.map (fun item -> item.Typedtree.sig_loc) |> locsExtent
 
-let addItem ~name ~extent ~stamp ~env ~item attributes exported stamps =
+let addItem ~name ~extent ~stamp ~(env : Env.t) ~item attributes exported stamps
+    =
   let declared =
     ProcessAttributes.newDeclared ~item
       ~scope:
@@ -490,7 +491,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     in
     let env =
       {
-        scope = extent;
+        Env.scope = extent;
         stamps = Stamps.init ();
         modulePath = File (uri, moduleName);
       }
@@ -509,7 +510,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     in
     let env =
       {
-        scope = sigItemsExtent items;
+        Env.scope = sigItemsExtent items;
         stamps = Stamps.init ();
         modulePath = File (uri, moduleName);
       }
@@ -519,7 +520,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
   | Implementation structure ->
     let env =
       {
-        scope = impItemsExtent structure.str_items;
+        Env.scope = impItemsExtent structure.str_items;
         stamps = Stamps.init ();
         modulePath = File (uri, moduleName);
       }
@@ -529,7 +530,7 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
   | Interface signature ->
     let env =
       {
-        scope = sigItemsExtent signature.sig_items;
+        Env.scope = sigItemsExtent signature.sig_items;
         stamps = Stamps.init ();
         modulePath = File (uri, moduleName);
       }
