@@ -26,11 +26,9 @@ module Type = struct
   type t = {kind : kind; decl : Types.type_declaration}
 end
 
-type 't stampMap = (int, 't) Hashtbl.t
-type 't namedMap = (string, 't) Hashtbl.t
-type namedStampMap = int namedMap
-
 module Exported = struct
+  type namedStampMap = (string, int) Hashtbl.t
+
   type t = {
     types : namedStampMap;
     values : namedStampMap;
@@ -92,11 +90,13 @@ module Kind = struct
 end
 
 module Stamps = struct
+  type 't stampMap = (int, 't declared) Hashtbl.t
+
   type t = {
-    types : Type.t declared stampMap;
-    values : Types.type_expr declared stampMap;
-    modules : ModuleKind.t declared stampMap;
-    constructors : Constructor.t declared stampMap;
+    types : Type.t stampMap;
+    values : Types.type_expr stampMap;
+    modules : ModuleKind.t stampMap;
+    constructors : Constructor.t stampMap;
   }
 
   let init () =
