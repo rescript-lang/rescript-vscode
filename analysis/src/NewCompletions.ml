@@ -526,6 +526,18 @@ let completionForDeclareds ~pos declareds prefix transformContents =
         results)
     declareds []
 
+let completionForDeclaredModules ~pos ~env ~suffix =
+  completionForDeclareds ~pos env.QueryEnv.file.stamps.modules suffix (fun m ->
+      Module m)
+
+let completionForDeclaredValues ~pos ~env ~suffix =
+  completionForDeclareds ~pos env.QueryEnv.file.stamps.values suffix (fun m ->
+      Value m)
+
+let completionForDeclaredTypes ~pos ~env ~suffix =
+  completionForDeclareds ~pos env.QueryEnv.file.stamps.types suffix (fun m ->
+      Type m)
+
 let completionForExporteds exporteds
     (stamps : (int, 'a SharedTypes.declared) Hashtbl.t) prefix transformContents
     =
@@ -538,15 +550,15 @@ let completionForExporteds exporteds
       else results)
     exporteds []
 
-let completionForExportedsModules ~env ~suffix =
+let completionForExportedModules ~env ~suffix =
   completionForExporteds env.QueryEnv.exported.modules env.file.stamps.modules
     suffix (fun m -> Module m)
 
-let completionForExportedsValues ~env ~suffix =
+let completionForExportedValues ~env ~suffix =
   completionForExporteds env.QueryEnv.exported.values env.file.stamps.values
     suffix (fun v -> Value v)
 
-let completionForExportedsTypes ~env ~suffix =
+let completionForExportedTypes ~env ~suffix =
   completionForExporteds env.QueryEnv.exported.types env.file.stamps.types
     suffix (fun t -> Type t)
 
@@ -671,27 +683,21 @@ let detail name contents =
   | Constructor (c, t) ->
     showConstructor c ^ "\n\n" ^ (t.item.decl |> Shared.declToString t.name.txt)
 
-let completionForDeclaredsModules ~pos ~env ~suffix =
-  completionForDeclareds ~pos env.QueryEnv.file.stamps.modules suffix (fun m ->
-      Module m)
-
 let localValueCompletions ~pos ~(env : QueryEnv.t) suffix =
   let results = [] in
   Log.log "---------------- LOCAL VAL";
   let results =
     if suffix = "" || isCapitalized suffix then
       results
-      @ completionForDeclaredsModules ~pos ~env ~suffix
+      @ completionForDeclaredModules ~pos ~env ~suffix
       @ completionForConstructors ~env ~suffix
     else results
   in
   let results =
     if suffix = "" || not (isCapitalized suffix) then
       results
-      @ completionForDeclareds ~pos env.file.stamps.values suffix (fun v ->
-            Value v)
-      @ completionForDeclareds ~pos env.file.stamps.types suffix (fun t ->
-            Type t)
+      @ completionForDeclaredValues ~pos ~env ~suffix
+      @ completionForDeclaredTypes ~pos ~env ~suffix
       @ completionForFields ~env ~suffix
     else results
   in
@@ -707,7 +713,7 @@ let valueCompletions ~(env : QueryEnv.t) suffix =
       |> Hashtbl.filter_map_inplace (fun name key ->
              if isCapitalized name then Some key else None);
       results
-      @ completionForExportedsModules ~env ~suffix
+      @ completionForExportedModules ~env ~suffix
       @ completionForConstructors ~env ~suffix)
     else results
   in
@@ -715,8 +721,8 @@ let valueCompletions ~(env : QueryEnv.t) suffix =
     if suffix = "" || not (isCapitalized suffix) then (
       Log.log " -- not capitalized";
       results
-      @ completionForExportedsValues ~env ~suffix
-      @ completionForExportedsTypes ~env ~suffix
+      @ completionForExportedValues ~env ~suffix
+      @ completionForExportedTypes ~env ~suffix
       @ completionForFields ~env ~suffix)
     else results
   in
@@ -726,13 +732,13 @@ let attributeCompletions ~(env : QueryEnv.t) ~suffix =
   let results = [] in
   let results =
     if suffix = "" || isCapitalized suffix then
-      results @ completionForExportedsModules ~env ~suffix
+      results @ completionForExportedModules ~env ~suffix
     else results
   in
   let results =
     if suffix = "" || not (isCapitalized suffix) then
       results
-      @ completionForExportedsValues ~env ~suffix
+      @ completionForExportedValues ~env ~suffix
       @ completionForFields ~env ~suffix
     else results
   in
