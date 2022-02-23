@@ -528,10 +528,17 @@ function createInterface(msg: p.RequestMessage): m.Message {
     return response;
   }
 
-  let cmiPartialPath = utils.replaceFileExtension(
-    filePath.split(projDir)[1],
-    c.cmiExt
+  let resPartialPath = filePath.split(projDir)[1];
+
+  // The .cmi filename may have a namespace suffix appended.
+  let namespace = utils.getNamespaceNameFromBsConfig(projDir);
+  let suffixToAppend = namespace ? "-" + namespace : "";
+
+  let cmiPartialPath = path.join(
+    path.dirname(resPartialPath),
+    path.basename(resPartialPath, c.resExt) + suffixToAppend + c.cmiExt
   );
+
   let cmiPath = path.join(projDir, c.compilerDirPartialPath, cmiPartialPath);
   let cmiAvailable = fs.existsSync(cmiPath);
 
