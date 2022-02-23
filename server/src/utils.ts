@@ -180,6 +180,31 @@ export let replaceFileExtension = (filePath: string, ext: string): string => {
   return path.format({ dir: path.dirname(filePath), name, ext });
 };
 
+export const toCamelCase = (text: string): string => {
+  return text
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (s: string) => s.toUpperCase())
+    .replace(/(\s|-)+/g, "");
+};
+
+export const getNamespaceNameFromBsConfig = (
+  projDir: p.DocumentUri
+): string | null => {
+  let bsconfigFile = fs.readFileSync(
+    path.join(projDir, c.bsconfigPartialPath),
+    { encoding: "utf-8" }
+  );
+
+  let bsconfig = JSON.parse(bsconfigFile);
+
+  if (bsconfig.namespace === true) {
+    return toCamelCase(bsconfig.name);
+  } else if (typeof bsconfig.namespace === "string") {
+    return toCamelCase(bsconfig.namespace);
+  } else {
+    return null;
+  }
+};
+
 export let createInterfaceFileUsingValidBscExePath = (
   filePath: string,
   cmiPath: string,
