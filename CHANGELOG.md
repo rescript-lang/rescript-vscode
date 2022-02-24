@@ -2,6 +2,7 @@
 - Fix issue where using paths of the form `./something` would show multiple copies of the same file in vscode.
 - When hovering on a field access, show the instantiated type of the field.
 - Support autocomplete for objects from another module `M.x[...`.
+- Fix command for creating interface files when the project uses namespaces.
 
 ## 1.2.1
 
