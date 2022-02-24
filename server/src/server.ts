@@ -531,8 +531,25 @@ function createInterface(msg: p.RequestMessage): m.Message {
   let resPartialPath = filePath.split(projDir)[1];
 
   // The .cmi filename may have a namespace suffix appended.
-  let namespace = utils.getNamespaceNameFromBsConfig(projDir);
-  let suffixToAppend = namespace ? "-" + namespace : "";
+  let namespaceResult = utils.getNamespaceNameFromBsConfig(projDir);
+
+  if (namespaceResult.kind === "error") {
+    let params: p.ShowMessageParams = {
+      type: p.MessageType.Error,
+      message: `Error reading bsconfig file.`,
+    };
+
+    let response: m.NotificationMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      method: "window/showMessage",
+      params,
+    };
+
+    return response;
+  }
+
+  let namespace = namespaceResult.result
+  let suffixToAppend = namespace.length > 0 ? "-" + namespace : "";
 
   let cmiPartialPath = path.join(
     path.dirname(resPartialPath),

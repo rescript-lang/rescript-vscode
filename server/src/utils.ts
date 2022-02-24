@@ -188,20 +188,31 @@ export const toCamelCase = (text: string): string => {
 
 export const getNamespaceNameFromBsConfig = (
   projDir: p.DocumentUri
-): string | null => {
-  let bsconfigFile = fs.readFileSync(
-    path.join(projDir, c.bsconfigPartialPath),
-    { encoding: "utf-8" }
-  );
+): execResult => {
+  try {
+    let bsconfigFile = fs.readFileSync(
+      path.join(projDir, c.bsconfigPartialPath),
+      { encoding: "utf-8" }
+    );
 
-  let bsconfig = JSON.parse(bsconfigFile);
+    let bsconfig = JSON.parse(bsconfigFile);
+    let result = "";
 
-  if (bsconfig.namespace === true) {
-    return toCamelCase(bsconfig.name);
-  } else if (typeof bsconfig.namespace === "string") {
-    return toCamelCase(bsconfig.namespace);
-  } else {
-    return null;
+    if (bsconfig.namespace === true) {
+      result = toCamelCase(bsconfig.name);
+    } else if (typeof bsconfig.namespace === "string") {
+      result = toCamelCase(bsconfig.namespace);
+    }
+
+    return {
+      kind: "success",
+      result,
+    };
+  } catch (e) {
+    return {
+      kind: "error",
+      error: e instanceof Error ? e.message : String(e),
+    };
   }
 };
 
