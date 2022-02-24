@@ -496,88 +496,83 @@ let resolveOpens ~env ~previous opens ~package =
     (* loop(previous) *)
     previous opens
 
-let completionForDeclareds ~pos declareds prefix transformContents =
+let completionForDeclareds ~pos iter stamps prefix transformContents =
   (* Log.log("completion for declares " ++ prefix); *)
-  Hashtbl.fold
-    (fun _stamp (declared : _ Declared.t) results ->
+  let res = ref [] in
+  iter
+    (fun _stamp (declared : _ Declared.t) ->
       if
         Utils.startsWith declared.name.txt prefix
         && Utils.locationContainsFuzzy declared.scopeLoc pos
-      then {declared with item = transformContents declared.item} :: results
-      else
-        (* Log.log("Nope doesn't count " ++ Utils.showLocation(declared.scopeLoc) ++ " " ++ m); *)
-        results)
-    declareds []
+      then res := {declared with item = transformContents declared.item} :: !res)
+    stamps;
+  !res
 
 let completionForDeclaredModules ~pos ~env ~suffix =
-  completionForDeclareds ~pos env.QueryEnv.file.stamps.modules suffix (fun m ->
-      Kind.Module m)
+  completionForDeclareds ~pos Stamps.iterModules env.QueryEnv.file.stamps suffix
+    (fun m -> Kind.Module m)
 
 let completionForDeclaredValues ~pos ~env ~suffix =
-  completionForDeclareds ~pos env.QueryEnv.file.stamps.values suffix (fun m ->
-      Kind.Value m)
+  completionForDeclareds ~pos Stamps.iterValues env.QueryEnv.file.stamps suffix
+    (fun m -> Kind.Value m)
 
 let completionForDeclaredTypes ~pos ~env ~suffix =
-  completionForDeclareds ~pos env.QueryEnv.file.stamps.types suffix (fun m ->
-      Kind.Type m)
+  completionForDeclareds ~pos Stamps.iterTypes env.QueryEnv.file.stamps suffix
+    (fun m -> Kind.Type m)
 
-let completionForExporteds exporteds
-    (stamps : (int, _ Declared.t) Hashtbl.t) prefix
-    transformContents =
+let completionForExporteds exporteds getDeclared prefix transformContents =
   Hashtbl.fold
     (fun name stamp results ->
       (* Log.log("checking exported: " ++ name); *)
       if Utils.startsWith name prefix then
-        let declared = Hashtbl.find stamps stamp in
-        {declared with item = transformContents declared.item} :: results
+        match getDeclared stamp with
+        | Some (declared : _ Declared.t) ->
+          {declared with item = transformContents declared.item} :: results
+        | None -> results
       else results)
     exporteds []
 
 let completionForExportedModules ~env ~suffix =
-  completionForExporteds env.QueryEnv.exported.modules env.file.stamps.modules
-    suffix (fun m -> Kind.Module m)
+  completionForExporteds env.QueryEnv.exported.modules
+    (Stamps.findModule env.file.stamps) suffix (fun m -> Kind.Module m)
 
 let completionForExportedValues ~env ~suffix =
-  completionForExporteds env.QueryEnv.exported.values env.file.stamps.values
-    suffix (fun v -> Kind.Value v)
+  completionForExporteds env.QueryEnv.exported.values
+    (Stamps.findValue env.file.stamps) suffix (fun v -> Kind.Value v)
 
 let completionForExportedTypes ~env ~suffix =
-  completionForExporteds env.QueryEnv.exported.types env.file.stamps.types
-    suffix (fun t -> Kind.Type t)
+  completionForExporteds env.QueryEnv.exported.types
+    (Stamps.findType env.file.stamps) suffix (fun t -> Kind.Type t)
 
 let completionForConstructors ~(env : QueryEnv.t) ~suffix =
   Hashtbl.fold
     (fun _name stamp results ->
-      let t = Hashtbl.find env.file.stamps.types stamp in
-      match t.item.kind with
-      | Type.Variant constructors ->
+      match Stamps.findType env.file.stamps stamp with
+      | Some ({item = {kind = Type.Variant constructors}} as t) ->
         (constructors
         |> List.filter (fun c ->
                Utils.startsWith c.Constructor.cname.txt suffix)
-        |> List.map (fun c -> (c, t)))
+        |> List.map (fun c ->
+               {
+                 (Declared.empty c.Constructor.cname.txt) with
+                 item = Kind.Constructor (c, t);
+               }))
         @ results
       | _ -> results)
     env.exported.types []
-  |> List.map (fun (c, t) ->
-         {
-           (Declared.empty c.Constructor.cname.txt) with
-           item = Kind.Constructor (c, t);
-         })
 
 let completionForFields ~(env : QueryEnv.t) ~suffix =
   Hashtbl.fold
     (fun _name stamp results ->
-      let t = Hashtbl.find env.file.stamps.types stamp in
-      match t.item.kind with
-      | Record fields ->
+      match Stamps.findType env.file.stamps stamp with
+      | Some ({item = {kind = Record fields}} as t) ->
         (fields
         |> List.filter (fun f -> Utils.startsWith f.fname.txt suffix)
-        |> List.map (fun f -> (f, t)))
+        |> List.map (fun f ->
+               {(Declared.empty f.fname.txt) with item = Kind.Field (f, t)}))
         @ results
       | _ -> results)
     env.exported.types []
-  |> List.map (fun (f, t) ->
-         {(Declared.empty f.fname.txt) with item = Kind.Field (f, t)})
 
 let isCapitalized name =
   if name = "" then false
@@ -832,11 +827,12 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
       | None -> [])
     | RecordAccess (valuePath, middleFields, lastField) -> (
       Log.log ("lastField :" ^ lastField);
-      Log.log
-        ("-------------- Looking for " ^ (valuePath |> pathToString));
+      Log.log ("-------------- Looking for " ^ (valuePath |> pathToString));
       match getEnvWithOpens ~pos ~env ~package ~opens valuePath with
       | Some (env, name) -> (
-        match ProcessCmt.findInScope pos name env.file.stamps.values with
+        match
+          ProcessCmt.findInScope pos name Stamps.iterValues env.file.stamps
+        with
         | None -> []
         | Some declared -> (
           Log.log ("Found it! " ^ declared.name.txt);
@@ -1025,9 +1021,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
         match extractRecordType typ ~env ~package with
         | Some (env1, fields, _) -> (
           match
-            fields
-            |> List.find_opt (fun field ->
-                   field.fname.txt = fieldName)
+            fields |> List.find_opt (fun field -> field.fname.txt = fieldName)
           with
           | None -> None
           | Some field -> Some (field.typ, env1))

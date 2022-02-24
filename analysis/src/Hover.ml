@@ -45,7 +45,7 @@ let newHover ~full:{file; package} locItem =
     Some (codeBlock typeDef)
   | LModule (Definition (stamp, _tip)) | LModule (LocalReference (stamp, _tip))
     -> (
-    match Hashtbl.find_opt file.stamps.modules stamp with
+    match Stamps.findModule file.stamps stamp with
     | None -> None
     | Some md -> (
       match References.resolveModuleReference ~file ~package md with
@@ -68,7 +68,7 @@ let newHover ~full:{file; package} locItem =
         match ProcessCmt.exportedForTip ~env name tip with
         | None -> None
         | Some stamp -> (
-          match Hashtbl.find_opt file.stamps.modules stamp with
+          match Stamps.findModule file.stamps stamp with
           | None -> None
           | Some md -> (
             match References.resolveModuleReference ~file ~package md with
