@@ -93,15 +93,13 @@ let getLocItem ~full ~line ~col =
 let declaredForTip ~(stamps : Stamps.t) stamp (tip : Tip.t) =
   let open Infix in
   match tip with
-  | Value ->
-    Hashtbl.find_opt stamps.values stamp |?>> fun x -> {x with item = ()}
+  | Value -> Stamps.findValue stamps stamp |?>> fun x -> {x with item = ()}
   | Field _ | Constructor _ | Type ->
-    Hashtbl.find_opt stamps.types stamp |?>> fun x -> {x with item = ()}
-  | Module ->
-    Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
+    Stamps.findType stamps stamp |?>> fun x -> {x with item = ()}
+  | Module -> Stamps.findModule stamps stamp |?>> fun x -> {x with item = ()}
 
 let getField (file : File.t) stamp name =
-  match Hashtbl.find_opt file.stamps.types stamp with
+  match Stamps.findType file.stamps stamp with
   | None -> None
   | Some {item = {kind}} -> (
     match kind with
@@ -109,7 +107,7 @@ let getField (file : File.t) stamp name =
     | _ -> None)
 
 let getConstructor (file : File.t) stamp name =
-  match Hashtbl.find_opt file.stamps.types stamp with
+  match Stamps.findType file.stamps stamp with
   | None -> None
   | Some {item = {kind}} -> (
     match kind with
@@ -176,13 +174,13 @@ let declaredForExportedTip ~(stamps : Stamps.t) ~(exported : Exported.t) name
   match tip with
   | Value ->
     Hashtbl.find_opt exported.values name |?> fun stamp ->
-    Hashtbl.find_opt stamps.values stamp |?>> fun x -> {x with item = ()}
+    Stamps.findValue stamps stamp |?>> fun x -> {x with item = ()}
   | Field _ | Constructor _ | Type ->
     Hashtbl.find_opt exported.types name |?> fun stamp ->
-    Hashtbl.find_opt stamps.types stamp |?>> fun x -> {x with item = ()}
+    Stamps.findType stamps stamp |?>> fun x -> {x with item = ()}
   | Module ->
     Hashtbl.find_opt exported.modules name |?> fun stamp ->
-    Hashtbl.find_opt stamps.modules stamp |?>> fun x -> {x with item = ()}
+    Stamps.findModule stamps stamp |?>> fun x -> {x with item = ()}
 
 (** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
 let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
@@ -223,7 +221,7 @@ let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
       match Hashtbl.find_opt env.exported.modules name with
       | None -> None
       | Some stamp -> (
-        match Hashtbl.find_opt env.file.stamps.modules stamp with
+        match Stamps.findModule env.file.stamps stamp with
         | None -> None
         | Some md -> Some (env.file, Some md)))
     | `Global (moduleName, path) -> (
@@ -237,11 +235,11 @@ let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
           match Hashtbl.find_opt env.exported.modules name with
           | None -> None
           | Some stamp -> (
-            match Hashtbl.find_opt env.file.stamps.modules stamp with
+            match Stamps.findModule env.file.stamps stamp with
             | None -> None
             | Some md -> Some (env.file, Some md)))))
     | `Stamp stamp -> (
-      match Hashtbl.find_opt file.stamps.modules stamp with
+      match Stamps.findModule file.stamps stamp with
       | None -> None
       | Some ({item = Ident path} as md) when not (List.mem path pathsSeen) ->
         (* avoid possible infinite loops *)
@@ -265,7 +263,7 @@ let validateLoc (loc : Location.t) (backup : Location.t) =
   else loc
 
 let resolveModuleDefinition ~(file : File.t) ~package stamp =
-  match Hashtbl.find_opt file.stamps.modules stamp with
+  match Stamps.findModule file.stamps stamp with
   | None -> None
   | Some md -> (
     match resolveModuleReference ~file ~package md with
@@ -364,14 +362,14 @@ let digConstructor ~env ~package path =
   match ProcessCmt.resolveFromCompilerPath ~env ~package path with
   | `Not_found -> None
   | `Stamp stamp -> (
-    match Hashtbl.find_opt env.file.stamps.types stamp with
+    match Stamps.findType env.file.stamps stamp with
     | None -> None
     | Some t -> Some (env, t))
   | `Exported (env, name) -> (
     match Hashtbl.find_opt env.exported.types name with
     | None -> None
     | Some stamp -> (
-      match Hashtbl.find_opt env.file.stamps.types stamp with
+      match Stamps.findType env.file.stamps stamp with
       | None -> None
       | Some t -> Some (env, t)))
   | _ -> None

@@ -21,8 +21,8 @@ let impItemsExtent items =
 let sigItemsExtent items =
   items |> List.map (fun item -> item.Typedtree.sig_loc) |> locsExtent
 
-let addItem ~name ~extent ~stamp ~(env : Env.t) ~item attributes exported stamps
-    =
+let addItem ~name ~extent ~stamp ~(env : Env.t) ~item attributes exported
+    addStamp =
   let declared =
     ProcessAttributes.newDeclared ~item
       ~scope:
@@ -37,7 +37,7 @@ let addItem ~name ~extent ~stamp ~(env : Env.t) ~item attributes exported stamps
   in
   if not (Hashtbl.mem exported name.txt) then
     Hashtbl.add exported name.txt stamp;
-  Hashtbl.add stamps stamp declared;
+  addStamp env.stamps stamp declared;
   declared
 
 let rec forTypeSignatureItem ~env ~(exported : Exported.t)
@@ -49,7 +49,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
       addItem
         ~name:(Location.mknoloc (Ident.name ident))
         ~extent:loc ~stamp:(Ident.binding_time ident) ~env ~item val_attributes
-        exported.values env.stamps.values
+        exported.values Stamps.addValue
     in
     [{declared with item = ModuleKind.Value declared.item}]
   | Sig_type
@@ -105,7 +105,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
                              ~stamp (* TODO maybe this needs another child *)
                              ~modulePath:env.modulePath true cd_attributes
                          in
-                         Hashtbl.add env.stamps.constructors stamp declared;
+                         Stamps.addConstructor env.stamps stamp declared;
                          item))
               | Type_record (fields, _) ->
                 Record
@@ -121,7 +121,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
           }
         ~name:(Location.mknoloc (Ident.name ident))
         ~stamp:(Ident.binding_time ident) ~env type_attributes exported.types
-        env.stamps.types
+        Stamps.addType
     in
     [{declared with item = Type (declared.item, recStatus)}]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
@@ -130,7 +130,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         ~item:(forTypeModule env md_type)
         ~name:(Location.mknoloc (Ident.name ident))
         ~stamp:(Ident.binding_time ident) ~env md_attributes exported.modules
-        env.stamps.modules
+        Stamps.addModule
     in
     [{declared with item = Module declared.item}]
   | _ -> []
@@ -212,7 +212,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                        let fstamp = Ident.binding_time ld_id in
                        {stamp = fstamp; fname; typ = ctyp_type})));
         }
-      ~name ~stamp ~env typ_attributes exported.types env.stamps.types
+      ~name ~stamp ~env typ_attributes exported.types Stamps.addType
   in
   {declared with item = ModuleKind.Type (declared.item, recStatus)}
 
@@ -224,7 +224,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
       addItem ~name
         ~stamp:(Ident.binding_time val_id)
         ~extent:val_loc ~item:val_desc.ctyp_type ~env val_attributes
-        exported.values env.stamps.values
+        exported.values Stamps.addValue
     in
     [{declared with item = ModuleKind.Value declared.item}]
   | Tsig_type (recFlag, decls) ->
@@ -242,7 +242,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
     let item = forTypeModule env mty_type in
     let declared =
       addItem ~item ~name ~extent:md_loc ~stamp:(Ident.binding_time md_id) ~env
-        md_attributes exported.modules env.stamps.modules
+        md_attributes exported.modules Stamps.addModule
     in
     [{declared with item = Module declared.item}]
   | Tsig_recmodule modDecls ->
@@ -313,8 +313,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         let item = pat.pat_type in
         let declared =
           addItem ~name ~stamp:(Ident.binding_time ident) ~env
-            ~extent:pat.pat_loc ~item attributes exported.values
-            env.stamps.values
+            ~extent:pat.pat_loc ~item attributes exported.values Stamps.addValue
         in
         declareds :=
           {declared with item = ModuleKind.Value declared.item} :: !declareds
@@ -336,7 +335,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
     let item = forModule env mod_desc name.txt in
     let declared =
       addItem ~item ~name ~extent:mb_loc ~stamp:(Ident.binding_time mb_id) ~env
-        mb_attributes exported.modules env.stamps.modules
+        mb_attributes exported.modules Stamps.addModule
     in
     [{declared with item = Module declared.item}]
   | Tstr_recmodule modDecls ->
@@ -360,7 +359,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
     let declared =
       addItem ~item:modTypeItem ~name ~extent:mtd_loc
         ~stamp:(Ident.binding_time mtd_id)
-        ~env mtd_attributes exported.modules env.stamps.modules
+        ~env mtd_attributes exported.modules Stamps.addModule
     in
     [{declared with item = Module modTypeItem}]
   | Tstr_include {incl_mod; incl_type} ->
@@ -382,7 +381,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
     let declared =
       addItem ~extent:val_loc ~item:val_type ~name
         ~stamp:(Ident.binding_time val_id)
-        ~env val_attributes exported.values env.stamps.values
+        ~env val_attributes exported.values Stamps.addValue
     in
     [{declared with item = Value declared.item}]
   | Tstr_type (recFlag, decls) ->
@@ -428,7 +427,7 @@ and forModule env mod_desc moduleName =
               }
             ~extent:t.Typedtree.mty_loc ~stamp ~modulePath:NotVisible false []
         in
-        Hashtbl.add env.stamps.modules stamp declared));
+        Stamps.addModule env.stamps stamp declared));
     forModule env resultExpr.mod_desc moduleName
   | Tmod_apply (functor_, _arg, _coercion) ->
     forModule env functor_.mod_desc moduleName
@@ -558,17 +557,17 @@ let extraForFile ~(file : File.t) =
        Hashtbl.find extra.internalReferences stamp
       else []))
   in
-  file.stamps.modules
-  |> Hashtbl.iter (fun stamp (d : ModuleKind.t Declared.t) ->
+  file.stamps
+  |> Stamps.iterModules (fun stamp (d : ModuleKind.t Declared.t) ->
          addLocItem extra d.name.loc (LModule (Definition (stamp, Module)));
          addReference stamp d.name.loc);
-  file.stamps.values
-  |> Hashtbl.iter (fun stamp (d : Types.type_expr Declared.t) ->
+  file.stamps
+  |> Stamps.iterValues (fun stamp (d : Types.type_expr Declared.t) ->
          addLocItem extra d.name.loc
            (Typed (d.name.txt, d.item, Definition (stamp, Value)));
          addReference stamp d.name.loc);
-  file.stamps.types
-  |> Hashtbl.iter (fun stamp (d : Type.t Declared.t) ->
+  file.stamps
+  |> Stamps.iterTypes (fun stamp (d : Type.t Declared.t) ->
          addLocItem extra d.name.loc
            (TypeDefinition (d.name.txt, d.item.Type.decl, stamp));
          addReference stamp d.name.loc;
@@ -625,7 +624,7 @@ let rec resolvePathInner ~(env : QueryEnv.t) ~path =
     match Hashtbl.find_opt env.exported.modules subName with
     | None -> None
     | Some stamp -> (
-      match Hashtbl.find_opt env.file.stamps.modules stamp with
+      match Stamps.findModule env.file.stamps stamp with
       | None -> None
       | Some {item = kind} -> findInModule ~env kind subPath))
 
@@ -637,7 +636,7 @@ and findInModule ~env kind path =
     let stamp, moduleName, fullPath = joinPaths modulePath path in
     if stamp = 0 then Some (`Global (moduleName, fullPath))
     else
-      match Hashtbl.find_opt env.file.stamps.modules stamp with
+      match Stamps.findModule env.file.stamps stamp with
       | None -> None
       | Some {item = kind} -> findInModule ~env kind fullPath)
 
@@ -648,7 +647,7 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
   | `GlobalMod name -> `GlobalMod name
   | `Path (stamp, _moduleName, path) -> (
     let res =
-      match Hashtbl.find_opt env.file.stamps.modules stamp with
+      match Stamps.findModule env.file.stamps stamp with
       | None -> None
       | Some {item = kind} -> findInModule ~env kind path
     in
@@ -751,12 +750,12 @@ struct
       match Hashtbl.find_opt env.exported.types name with
       | None -> `Not_found
       | Some stamp -> (
-        let declaredType = Hashtbl.find_opt env.file.stamps.types stamp in
+        let declaredType = Stamps.findType env.file.stamps stamp in
         match declaredType with
         | Some declaredType -> `Local declaredType
         | None -> `Not_found))
     | `Stamp stamp -> (
-      let declaredType = Hashtbl.find_opt env.file.stamps.types stamp in
+      let declaredType = Stamps.findType env.file.stamps stamp in
       match declaredType with
       | Some declaredType -> `Local declaredType
       | None -> `Not_found)
@@ -926,7 +925,7 @@ struct
     match item.sig_desc with
     | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
       let stamp = Ident.binding_time val_id in
-      if not (Hashtbl.mem Collector.file.stamps.values stamp) then (
+      if Stamps.findValue Collector.file.stamps stamp = None then (
         let declared =
           ProcessAttributes.newDeclared ~name ~stamp ~extent:val_loc
             ~scope:
@@ -937,7 +936,7 @@ struct
               }
             ~modulePath:NotVisible ~item:val_desc.ctyp_type false val_attributes
         in
-        Hashtbl.add Collector.file.stamps.values stamp declared;
+        Stamps.addValue Collector.file.stamps stamp declared;
         addReference stamp name.loc;
         addLocItem extra name.loc
           (Typed (name.txt, val_desc.ctyp_type, Definition (stamp, Value))))
@@ -951,7 +950,7 @@ struct
 
   let enter_pattern {pat_desc; pat_loc; pat_type; pat_attributes} =
     let addForPattern stamp name =
-      if not (Hashtbl.mem Collector.file.stamps.values stamp) then (
+      if Stamps.findValue Collector.file.stamps stamp = None then (
         let declared =
           ProcessAttributes.newDeclared ~name ~stamp
             ~scope:
@@ -963,7 +962,7 @@ struct
             ~modulePath:NotVisible ~extent:pat_loc ~item:pat_type false
             pat_attributes
         in
-        Hashtbl.add Collector.file.stamps.values stamp declared;
+        Stamps.addValue Collector.file.stamps stamp declared;
         addReference stamp name.loc;
         addLocItem extra name.loc
           (Typed (name.txt, pat_type, Definition (stamp, Value))))
@@ -1214,25 +1213,23 @@ let tupleOfLexing {Lexing.pos_lnum; pos_cnum; pos_bol} =
 
 let locationIsBefore {Location.loc_start} pos = tupleOfLexing loc_start <= pos
 
-let findInScope pos name stamps =
+let findInScope pos name iter stamps =
   (* Log.log("Find " ++ name ++ " with " ++ string_of_int(Hashtbl.length(stamps)) ++ " stamps"); *)
-  Hashtbl.fold
-    (fun _stamp (declared : _ Declared.t) result ->
+  let res = ref None in
+  iter
+    (fun _stamp (declared : _ Declared.t) ->
       if declared.name.txt = name then
         (* Log.log("a stamp " ++ Utils.showLocation(declared.scopeLoc) ++ " " ++ string_of_int(l) ++ "," ++ string_of_int(c)); *)
         if locationIsBefore declared.scopeLoc pos then
-          match result with
-          | None -> Some declared
+          match !res with
+          | None -> res := Some declared
           | Some current ->
             if
               current.name.loc.loc_start.pos_cnum
               < declared.name.loc.loc_start.pos_cnum
-            then Some declared
-            else result
-        else result
-      else (* Log.log("wrong name " ++ declared.name.txt); *)
-        result)
-    stamps None
+            then res := Some declared)
+    stamps;
+  !res
 
 let resolveFromStamps ~(env : QueryEnv.t) ~path ~package ~pos =
   match path with
@@ -1240,7 +1237,7 @@ let resolveFromStamps ~(env : QueryEnv.t) ~path ~package ~pos =
   | [name] -> Some (env, name)
   | name :: inner -> (
     (* Log.log("Finding from stamps " ++ name); *)
-    match findInScope pos name env.file.stamps.modules with
+    match findInScope pos name Stamps.iterModules env.file.stamps with
     | None -> None
     | Some declared -> (
       (* Log.log("found it"); *)
@@ -1269,11 +1266,11 @@ let resolveModuleFromCompilerPath ~env ~package path =
         match Hashtbl.find_opt env.exported.modules name with
         | None -> None
         | Some stamp -> (
-          match Hashtbl.find_opt env.file.stamps.modules stamp with
+          match Stamps.findModule env.file.stamps stamp with
           | None -> None
           | Some declared -> Some (env, Some declared)))))
   | `Stamp stamp -> (
-    match Hashtbl.find_opt env.file.stamps.modules stamp with
+    match Stamps.findModule env.file.stamps stamp with
     | None -> None
     | Some declared -> Some (env, Some declared))
   | `GlobalMod moduleName -> (
@@ -1287,7 +1284,7 @@ let resolveModuleFromCompilerPath ~env ~package path =
     match Hashtbl.find_opt env.exported.modules name with
     | None -> None
     | Some stamp -> (
-      match Hashtbl.find_opt env.file.stamps.modules stamp with
+      match Stamps.findModule env.file.stamps stamp with
       | None -> None
       | Some declared -> Some (env, Some declared)))
 

@@ -104,7 +104,21 @@ module Kind = struct
     | Value _ -> 12
 end
 
-module Stamps = struct
+module Stamps : sig
+  type t
+
+  val addConstructor : t -> int -> Constructor.t Declared.t -> unit
+  val addModule : t -> int -> ModuleKind.t Declared.t -> unit
+  val addType : t -> int -> Type.t Declared.t -> unit
+  val addValue : t -> int -> Types.type_expr Declared.t -> unit
+  val findModule : t -> int -> ModuleKind.t Declared.t option
+  val findType : t -> int -> Type.t Declared.t option
+  val findValue : t -> int -> Types.type_expr Declared.t option
+  val init : unit -> t
+  val iterModules : (int -> ModuleKind.t Declared.t -> unit) -> t -> unit
+  val iterTypes : (int -> Type.t Declared.t -> unit) -> t -> unit
+  val iterValues : (int -> Types.type_expr Declared.t -> unit) -> t -> unit
+end = struct
   type 't stampMap = (int, 't Declared.t) Hashtbl.t
 
   type t = {
@@ -121,6 +135,21 @@ module Stamps = struct
       modules = Hashtbl.create 10;
       constructors = Hashtbl.create 10;
     }
+
+  let addConstructor stamps stamp declared =
+    Hashtbl.add stamps.constructors stamp declared
+
+  let addModule stamps stamp declared =
+    Hashtbl.add stamps.modules stamp declared
+
+  let addType stamps stamp declared = Hashtbl.add stamps.types stamp declared
+  let addValue stamps stamp declared = Hashtbl.add stamps.values stamp declared
+  let findModule stamps stamp = Hashtbl.find_opt stamps.modules stamp
+  let findType stamps stamp = Hashtbl.find_opt stamps.types stamp
+  let findValue stamps stamp = Hashtbl.find_opt stamps.values stamp
+  let iterModules f stamps = Hashtbl.iter f stamps.modules
+  let iterTypes f stamps = Hashtbl.iter f stamps.types
+  let iterValues f stamps = Hashtbl.iter f stamps.values
 end
 
 module Env = struct
