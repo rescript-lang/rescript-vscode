@@ -146,6 +146,10 @@ export function activate(context: ExtensionContext) {
     customCommands.createInterface(client);
   });
 
+  commands.registerCommand("rescript-vscode.open_compiled", () => {
+    customCommands.openCompiled(client);
+  });
+
   // Starts the dead code analysis mode.
   commands.registerCommand("rescript-vscode.start_dead_code_analysis", () => {
     // Save the directory this first ran from, and re-use that when continuously

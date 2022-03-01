@@ -186,16 +186,20 @@ export const toCamelCase = (text: string): string => {
     .replace(/(\s|-)+/g, "");
 };
 
+const readBsConfig = (projDir: p.DocumentUri) => {
+  let bsconfigFile = fs.readFileSync(
+    path.join(projDir, c.bsconfigPartialPath),
+    { encoding: "utf-8" }
+  );
+
+  return JSON.parse(bsconfigFile);
+};
+
 export const getNamespaceNameFromBsConfig = (
   projDir: p.DocumentUri
 ): execResult => {
   try {
-    let bsconfigFile = fs.readFileSync(
-      path.join(projDir, c.bsconfigPartialPath),
-      { encoding: "utf-8" }
-    );
-
-    let bsconfig = JSON.parse(bsconfigFile);
+    let bsconfig = readBsConfig(projDir);
     let result = "";
 
     if (bsconfig.namespace === true) {
@@ -234,6 +238,60 @@ export let createInterfaceFileUsingValidBscExePath = (
     return {
       kind: "success",
       result: "Interface successfully created.",
+    };
+  } catch (e) {
+    return {
+      kind: "error",
+      error: e instanceof Error ? e.message : String(e),
+    };
+  }
+};
+
+export let getCompiledFilePath = (
+  filePath: string,
+  projDir: string
+): execResult => {
+  try {
+    let bsConfig = readBsConfig(projDir);
+
+    let pkgSpecs = bsConfig["package-specs"];
+    let pathFragment = "";
+    let moduleFormatObj: any = {};
+
+    let module = c.bsconfigModuleDefault;
+    let suffix = c.bsconfigSuffixDefault;
+
+    if (pkgSpecs && pkgSpecs.module) {
+      moduleFormatObj = pkgSpecs;
+    } else if (pkgSpecs && pkgSpecs[0]) {
+      if (typeof pkgSpecs[0] === "string") {
+        module = pkgSpecs[0];
+      } else {
+        moduleFormatObj = pkgSpecs[0];
+      }
+    }
+
+    if (moduleFormatObj["module"]) {
+      module = moduleFormatObj["module"];
+    }
+
+    if (!moduleFormatObj["in-source"]) {
+      pathFragment = "lib/" + module.replace("-", "_");
+    }
+
+    if (moduleFormatObj.suffix) {
+      suffix = moduleFormatObj.suffix;
+    } else if (bsConfig.suffix) {
+      suffix = bsConfig.suffix;
+    }
+
+    let partialFilePath = filePath.split(projDir)[1];
+    let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
+    let result = path.join(projDir, pathFragment, compiledPartialPath);
+
+    return {
+      kind: "success",
+      result,
     };
   } catch (e) {
     return {

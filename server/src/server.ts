@@ -50,6 +50,16 @@ let createInterfaceRequest =
     string,
     void>("rescript-vscode.create_interface");
 
+interface OpenCompiledFileParams {
+  uri: string;
+}
+
+let openCompiledFileRequest = new v.RequestType<
+  OpenCompiledFileParams,
+  OpenCompiledFileParams,
+  void
+>("rescript-vscode.open_compiled");
+
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
     let content = fs.readFileSync(
@@ -120,7 +130,7 @@ let sendCompilationFinishedMessage = () => {
     jsonrpc: c.jsonrpcVersion,
     method: "rescript/compilationFinished",
   };
-  
+
   send(notification);
 };
 
@@ -548,7 +558,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
     return response;
   }
 
-  let namespace = namespaceResult.result
+  let namespace = namespaceResult.result;
   let suffixToAppend = namespace.length > 0 ? "-" + namespace : "";
 
   let cmiPartialPath = path.join(
@@ -600,6 +610,56 @@ function createInterface(msg: p.RequestMessage): m.Message {
 
     return response;
   }
+}
+
+function openCompiledFile(msg: p.RequestMessage): m.Message {
+  let params = msg.params as OpenCompiledFileParams;
+  let filePath = fileURLToPath(params.uri);
+  let projDir = utils.findProjectRootOfFile(filePath);
+
+  if (projDir === null) {
+    let params: p.ShowMessageParams = {
+      type: p.MessageType.Error,
+      message: `Cannot locate project directory.`,
+    };
+
+    let response: m.NotificationMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      method: "window/showMessage",
+      params: params,
+    };
+
+    return response;
+  }
+
+  let compiledFilePath = utils.getCompiledFilePath(filePath, projDir);
+
+  if (compiledFilePath.kind === "error" || !fs.existsSync(compiledFilePath.result)) {
+    let params: p.ShowMessageParams = {
+      type: p.MessageType.Error,
+      message: `No compiled file found. Please compile your project first.`,
+    };
+
+    let response: m.NotificationMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      method: "window/showMessage",
+      params,
+    };
+
+    return response;
+  }
+
+  let result: OpenCompiledFileParams = {
+    uri: compiledFilePath.result,
+  };
+
+  let response: m.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result,
+  };
+
+  return response;
 }
 
 function onMessage(msg: m.Message) {
@@ -734,6 +794,8 @@ function onMessage(msg: m.Message) {
       responses.forEach((response) => send(response));
     } else if (msg.method === createInterfaceRequest.method) {
       send(createInterface(msg));
+    } else if (msg.method === openCompiledFileRequest.method) {
+      send(openCompiledFile(msg));
     } else {
       let response: m.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
