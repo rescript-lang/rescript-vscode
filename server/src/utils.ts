@@ -187,37 +187,42 @@ export const toCamelCase = (text: string): string => {
 };
 
 const readBsConfig = (projDir: p.DocumentUri) => {
-  let bsconfigFile = fs.readFileSync(
-    path.join(projDir, c.bsconfigPartialPath),
-    { encoding: "utf-8" }
-  );
+  try {
+    let bsconfigFile = fs.readFileSync(
+      path.join(projDir, c.bsconfigPartialPath),
+      { encoding: "utf-8" }
+    );
 
-  return JSON.parse(bsconfigFile);
+    let result = JSON.parse(bsconfigFile);
+    return result;
+  } catch (e) {
+    return null;
+  }
 };
 
 export const getNamespaceNameFromBsConfig = (
   projDir: p.DocumentUri
 ): execResult => {
-  try {
-    let bsconfig = readBsConfig(projDir);
-    let result = "";
+  let bsconfig = readBsConfig(projDir);
+  let result = "";
 
-    if (bsconfig.namespace === true) {
-      result = toCamelCase(bsconfig.name);
-    } else if (typeof bsconfig.namespace === "string") {
-      result = toCamelCase(bsconfig.namespace);
-    }
-
-    return {
-      kind: "success",
-      result,
-    };
-  } catch (e) {
+  if (!bsconfig) {
     return {
       kind: "error",
-      error: e instanceof Error ? e.message : String(e),
+      error: "Could not read bsconfig",
     };
   }
+
+  if (bsconfig.namespace === true) {
+    result = toCamelCase(bsconfig.name);
+  } else if (typeof bsconfig.namespace === "string") {
+    result = toCamelCase(bsconfig.namespace);
+  }
+
+  return {
+    kind: "success",
+    result,
+  };
 };
 
 export let createInterfaceFileUsingValidBscExePath = (
@@ -251,54 +256,54 @@ export let getCompiledFilePath = (
   filePath: string,
   projDir: string
 ): execResult => {
-  try {
-    let bsConfig = readBsConfig(projDir);
+  let bsconfig = readBsConfig(projDir);
 
-    let pkgSpecs = bsConfig["package-specs"];
-    let pathFragment = "";
-    let moduleFormatObj: any = {};
-
-    let module = c.bsconfigModuleDefault;
-    let suffix = c.bsconfigSuffixDefault;
-
-    if (pkgSpecs && pkgSpecs.module) {
-      moduleFormatObj = pkgSpecs;
-    } else if (pkgSpecs && pkgSpecs[0]) {
-      if (typeof pkgSpecs[0] === "string") {
-        module = pkgSpecs[0];
-      } else {
-        moduleFormatObj = pkgSpecs[0];
-      }
-    }
-
-    if (moduleFormatObj["module"]) {
-      module = moduleFormatObj["module"];
-    }
-
-    if (!moduleFormatObj["in-source"]) {
-      pathFragment = "lib/" + module.replace("-", "_");
-    }
-
-    if (moduleFormatObj.suffix) {
-      suffix = moduleFormatObj.suffix;
-    } else if (bsConfig.suffix) {
-      suffix = bsConfig.suffix;
-    }
-
-    let partialFilePath = filePath.split(projDir)[1];
-    let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
-    let result = path.join(projDir, pathFragment, compiledPartialPath);
-
-    return {
-      kind: "success",
-      result,
-    };
-  } catch (e) {
+  if (!bsconfig) {
     return {
       kind: "error",
-      error: e instanceof Error ? e.message : String(e),
+      error: "Could not read bsconfig",
     };
   }
+
+  let pkgSpecs = bsconfig["package-specs"];
+  let pathFragment = "";
+  let moduleFormatObj: any = {};
+
+  let module = c.bsconfigModuleDefault;
+  let suffix = c.bsconfigSuffixDefault;
+
+  if (pkgSpecs && pkgSpecs.module) {
+    moduleFormatObj = pkgSpecs;
+  } else if (pkgSpecs && pkgSpecs[0]) {
+    if (typeof pkgSpecs[0] === "string") {
+      module = pkgSpecs[0];
+    } else {
+      moduleFormatObj = pkgSpecs[0];
+    }
+  }
+
+  if (moduleFormatObj["module"]) {
+    module = moduleFormatObj["module"];
+  }
+
+  if (!moduleFormatObj["in-source"]) {
+    pathFragment = "lib/" + module.replace("-", "_");
+  }
+
+  if (moduleFormatObj.suffix) {
+    suffix = moduleFormatObj.suffix;
+  } else if (bsconfig.suffix) {
+    suffix = bsconfig.suffix;
+  }
+
+  let partialFilePath = filePath.split(projDir)[1];
+  let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
+  let result = path.join(projDir, pathFragment, compiledPartialPath);
+
+  return {
+    kind: "success",
+    result,
+  };
 };
 
 export let runBuildWatcherUsingValidBuildPath = (
