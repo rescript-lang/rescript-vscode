@@ -3,6 +3,7 @@
 - When hovering on a field access, show the instantiated type of the field.
 - Support autocomplete for objects from another module `M.x[...`.
 - Fix command for creating interface files when the project uses namespaces.
+- Added command `ReScript: Open the compiled JS file for this implementation file.`.
 
 ## 1.2.1
 
