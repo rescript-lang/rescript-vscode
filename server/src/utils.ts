@@ -252,6 +252,18 @@ export let createInterfaceFileUsingValidBscExePath = (
   }
 };
 
+let getCompiledFolderName = (moduleFormat: string): string => {
+  switch (moduleFormat) {
+    case "es6":
+      return "es6";
+    case "es6-global":
+      return "es6_global";
+    case "commonjs":
+    default:
+      return "js";
+  }
+};
+
 export let getCompiledFilePath = (
   filePath: string,
   projDir: string
@@ -272,13 +284,17 @@ export let getCompiledFilePath = (
   let module = c.bsconfigModuleDefault;
   let suffix = c.bsconfigSuffixDefault;
 
-  if (pkgSpecs && pkgSpecs.module) {
-    moduleFormatObj = pkgSpecs;
-  } else if (pkgSpecs && pkgSpecs[0]) {
-    if (typeof pkgSpecs[0] === "string") {
-      module = pkgSpecs[0];
-    } else {
-      moduleFormatObj = pkgSpecs[0];
+  if (pkgSpecs) {
+    if (pkgSpecs.module) {
+      moduleFormatObj = pkgSpecs;
+    } else if (typeof pkgSpecs === "string") {
+      module = pkgSpecs;
+    } else if (pkgSpecs[0]) {
+      if (typeof pkgSpecs[0] === "string") {
+        module = pkgSpecs[0];
+      } else {
+        moduleFormatObj = pkgSpecs[0];
+      }
     }
   }
 
@@ -287,7 +303,7 @@ export let getCompiledFilePath = (
   }
 
   if (!moduleFormatObj["in-source"]) {
-    pathFragment = "lib/" + module.replace("-", "_");
+    pathFragment = "lib/" + getCompiledFolderName(module);
   }
 
   if (moduleFormatObj.suffix) {
