@@ -634,10 +634,18 @@ function openCompiledFile(msg: p.RequestMessage): m.Message {
 
   let compiledFilePath = utils.getCompiledFilePath(filePath, projDir);
 
-  if (compiledFilePath.kind === "error" || !fs.existsSync(compiledFilePath.result)) {
+  if (
+    compiledFilePath.kind === "error" ||
+    !fs.existsSync(compiledFilePath.result)
+  ) {
+    let message =
+      compiledFilePath.kind === "success"
+        ? `No compiled file found. Expected it at: ${compiledFilePath.result}`
+        : `No compiled file found. Please compile your project first.`;
+
     let params: p.ShowMessageParams = {
       type: p.MessageType.Error,
-      message: `No compiled file found. Please compile your project first.`,
+      message,
     };
 
     let response: m.NotificationMessage = {
