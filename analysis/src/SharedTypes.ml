@@ -121,35 +121,56 @@ module Stamps : sig
 end = struct
   type 't stampMap = (int, 't Declared.t) Hashtbl.t
 
-  type t = {
-    types : Type.t stampMap;
-    values : Types.type_expr stampMap;
-    modules : ModuleKind.t stampMap;
-    constructors : Constructor.t stampMap;
-  }
+  type kind =
+    | KType of Type.t Declared.t
+    | KValue of Types.type_expr Declared.t
+    | KModule of ModuleKind.t Declared.t
+    | KConstructor of Constructor.t Declared.t
 
-  let init () =
-    {
-      types = Hashtbl.create 10;
-      values = Hashtbl.create 10;
-      modules = Hashtbl.create 10;
-      constructors = Hashtbl.create 10;
-    }
+  type t = (int, kind) Hashtbl.t
 
-  let addConstructor stamps stamp declared =
-    Hashtbl.add stamps.constructors stamp declared
+  let init () = Hashtbl.create 10
+
+  let addConstructor (stamps : t) stamp declared =
+    Hashtbl.add stamps stamp (KConstructor declared)
 
   let addModule stamps stamp declared =
-    Hashtbl.add stamps.modules stamp declared
+    Hashtbl.add stamps stamp (KModule declared)
 
-  let addType stamps stamp declared = Hashtbl.add stamps.types stamp declared
-  let addValue stamps stamp declared = Hashtbl.add stamps.values stamp declared
-  let findModule stamps stamp = Hashtbl.find_opt stamps.modules stamp
-  let findType stamps stamp = Hashtbl.find_opt stamps.types stamp
-  let findValue stamps stamp = Hashtbl.find_opt stamps.values stamp
-  let iterModules f stamps = Hashtbl.iter f stamps.modules
-  let iterTypes f stamps = Hashtbl.iter f stamps.types
-  let iterValues f stamps = Hashtbl.iter f stamps.values
+  let addType stamps stamp declared = Hashtbl.add stamps stamp (KType declared)
+
+  let addValue stamps stamp declared =
+    Hashtbl.add stamps stamp (KValue declared)
+
+  let findModule stamps stamp =
+    match Hashtbl.find_opt stamps stamp with
+    | Some (KModule declared) -> Some declared
+    | _ -> None
+
+  let findType stamps stamp =
+    match Hashtbl.find_opt stamps stamp with
+    | Some (KType declared) -> Some declared
+    | _ -> None
+
+  let findValue stamps stamp =
+    match Hashtbl.find_opt stamps stamp with
+    | Some (KValue declared) -> Some declared
+    | _ -> None
+
+  let iterModules f stamps =
+    Hashtbl.iter
+      (fun stamp d -> match d with KModule d -> f stamp d | _ -> ())
+      stamps
+
+  let iterTypes f stamps =
+    Hashtbl.iter
+      (fun stamp d -> match d with KType d -> f stamp d | _ -> ())
+      stamps
+
+  let iterValues f stamps =
+    Hashtbl.iter
+      (fun stamp d -> match d with KValue d -> f stamp d | _ -> ())
+      stamps
 end
 
 module Env = struct
