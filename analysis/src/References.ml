@@ -173,13 +173,13 @@ let declaredForExportedTip ~(stamps : Stamps.t) ~(exported : Exported.t) name
   let open Infix in
   match tip with
   | Value ->
-    Hashtbl.find_opt exported.values name |?> fun stamp ->
+    Exported.find exported Exported.Value name |?> fun stamp ->
     Stamps.findValue stamps stamp |?>> fun x -> {x with item = ()}
   | Field _ | Constructor _ | Type ->
-    Hashtbl.find_opt exported.types name |?> fun stamp ->
+    Exported.find exported Exported.Type name |?> fun stamp ->
     Stamps.findType stamps stamp |?>> fun x -> {x with item = ()}
   | Module ->
-    Hashtbl.find_opt exported.modules name |?> fun stamp ->
+    Exported.find exported Exported.Module name |?> fun stamp ->
     Stamps.findModule stamps stamp |?>> fun x -> {x with item = ()}
 
 (** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
@@ -218,7 +218,7 @@ let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
     match ProcessCmt.fromCompilerPath ~env path with
     | `Not_found -> None
     | `Exported (env, name) -> (
-      match Hashtbl.find_opt env.exported.modules name with
+      match Exported.find env.exported Exported.Module name with
       | None -> None
       | Some stamp -> (
         match Stamps.findModule env.file.stamps stamp with
@@ -232,7 +232,7 @@ let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
         match ProcessCmt.resolvePath ~env ~package ~path with
         | None -> None
         | Some (env, name) -> (
-          match Hashtbl.find_opt env.exported.modules name with
+          match Exported.find env.exported Exported.Module name with
           | None -> None
           | Some stamp -> (
             match Stamps.findModule env.file.stamps stamp with
@@ -366,7 +366,7 @@ let digConstructor ~env ~package path =
     | None -> None
     | Some t -> Some (env, t))
   | `Exported (env, name) -> (
-    match Hashtbl.find_opt env.exported.types name with
+    match Exported.find env.exported Exported.Type name with
     | None -> None
     | Some stamp -> (
       match Stamps.findType env.file.stamps stamp with
