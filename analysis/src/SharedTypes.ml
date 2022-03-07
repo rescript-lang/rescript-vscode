@@ -89,19 +89,6 @@ module Declared = struct
     docstring : string list;
     item : 'item;
   }
-
-  let empty name =
-    {
-      name = Location.mknoloc name;
-      extentLoc = Location.none;
-      scopeLoc = Location.none;
-      stamp = 0;
-      modulePath = NotVisible;
-      isExported = false;
-      deprecated = None;
-      docstring = [];
-      item = ();
-    }
 end
 
 module ModuleKind = struct
@@ -119,8 +106,8 @@ module ModuleKind = struct
   and t = Ident of Path.t | Structure of contents | Constraint of t * t
 end
 
-module Kind = struct
-  type t =
+module Completion = struct
+  type kind =
     | Module of ModuleKind.t
     | Value of Types.type_expr
     | Type of Type.t
@@ -128,7 +115,18 @@ module Kind = struct
     | Field of field * Type.t Declared.t
     | FileModule of string
 
-  let toInt kind =
+  type t = {
+    name : string;
+    extentLoc : Location.t;
+    deprecated : string option;
+    docstring : string list;
+    kind : kind;
+  }
+
+  let create ~name ~kind =
+    {name; extentLoc = Location.none; deprecated = None; docstring = []; kind}
+
+  let kindToInt kind =
     match kind with
     | Module _ -> 9
     | FileModule _ -> 9
