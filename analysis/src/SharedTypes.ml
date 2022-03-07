@@ -30,17 +30,51 @@ module Exported = struct
   type namedStampMap = (string, int) Hashtbl.t
 
   type t = {
-    types : namedStampMap;
-    values : namedStampMap;
-    modules : namedStampMap;
+    types_ : namedStampMap;
+    values_ : namedStampMap;
+    modules_ : namedStampMap;
   }
+
+  type kind = Type | Value | Module
 
   let init () =
     {
-      types = Hashtbl.create 10;
-      values = Hashtbl.create 10;
-      modules = Hashtbl.create 10;
+      types_ = Hashtbl.create 10;
+      values_ = Hashtbl.create 10;
+      modules_ = Hashtbl.create 10;
     }
+
+  let add t kind name x =
+    let tbl =
+      match kind with
+      | Type -> t.types_
+      | Value -> t.values_
+      | Module -> t.modules_
+    in
+    if Hashtbl.mem tbl name then false
+    else
+      let () = Hashtbl.add tbl name x in
+      true
+
+  let find t kind name =
+    let tbl =
+      match kind with
+      | Type -> t.types_
+      | Value -> t.values_
+      | Module -> t.modules_
+    in
+    Hashtbl.find_opt tbl name
+
+  let iter t kind f =
+    let tbl =
+      match kind with
+      | Type -> t.types_
+      | Value -> t.values_
+      | Module -> t.modules_
+    in
+    Hashtbl.iter f tbl
+
+  let removeModule {modules_} name = Hashtbl.remove modules_ name
 end
 
 module Declared = struct

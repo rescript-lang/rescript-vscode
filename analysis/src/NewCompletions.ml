@@ -520,59 +520,60 @@ let completionForDeclaredTypes ~pos ~env ~suffix =
   completionForDeclareds ~pos Stamps.iterTypes env.QueryEnv.file.stamps suffix
     (fun m -> Kind.Type m)
 
-let completionForExporteds exporteds getDeclared prefix transformContents =
-  Hashtbl.fold
-    (fun name stamp results ->
+let completionForExporteds iterExported getDeclared prefix transformContents =
+  let res = ref [] in
+  iterExported (fun name stamp ->
       (* Log.log("checking exported: " ++ name); *)
       if Utils.startsWith name prefix then
         match getDeclared stamp with
         | Some (declared : _ Declared.t) ->
-          {declared with item = transformContents declared.item} :: results
-        | None -> results
-      else results)
-    exporteds []
+          res := {declared with item = transformContents declared.item} :: !res
+        | None -> ());
+  !res
 
 let completionForExportedModules ~env ~suffix =
-  completionForExporteds env.QueryEnv.exported.modules
+  completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
     (Stamps.findModule env.file.stamps) suffix (fun m -> Kind.Module m)
 
 let completionForExportedValues ~env ~suffix =
-  completionForExporteds env.QueryEnv.exported.values
+  completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
     (Stamps.findValue env.file.stamps) suffix (fun v -> Kind.Value v)
 
 let completionForExportedTypes ~env ~suffix =
-  completionForExporteds env.QueryEnv.exported.types
+  completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
     (Stamps.findType env.file.stamps) suffix (fun t -> Kind.Type t)
 
 let completionForConstructors ~(env : QueryEnv.t) ~suffix =
-  Hashtbl.fold
-    (fun _name stamp results ->
+  let res = ref [] in
+  Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
       | Some ({item = {kind = Type.Variant constructors}} as t) ->
-        (constructors
-        |> List.filter (fun c ->
-               Utils.startsWith c.Constructor.cname.txt suffix)
-        |> List.map (fun c ->
-               {
-                 (Declared.empty c.Constructor.cname.txt) with
-                 item = Kind.Constructor (c, t);
-               }))
-        @ results
-      | _ -> results)
-    env.exported.types []
+        res :=
+          (constructors
+          |> List.filter (fun c ->
+                 Utils.startsWith c.Constructor.cname.txt suffix)
+          |> List.map (fun c ->
+                 {
+                   (Declared.empty c.Constructor.cname.txt) with
+                   item = Kind.Constructor (c, t);
+                 }))
+          @ !res
+      | _ -> ());
+  !res
 
 let completionForFields ~(env : QueryEnv.t) ~suffix =
-  Hashtbl.fold
-    (fun _name stamp results ->
+  let res = ref [] in
+  Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
       | Some ({item = {kind = Record fields}} as t) ->
-        (fields
-        |> List.filter (fun f -> Utils.startsWith f.fname.txt suffix)
-        |> List.map (fun f ->
-               {(Declared.empty f.fname.txt) with item = Kind.Field (f, t)}))
-        @ results
-      | _ -> results)
-    env.exported.types []
+        res :=
+          (fields
+          |> List.filter (fun f -> Utils.startsWith f.fname.txt suffix)
+          |> List.map (fun f ->
+                 {(Declared.empty f.fname.txt) with item = Kind.Field (f, t)}))
+          @ !res
+      | _ -> ());
+  !res
 
 let isCapitalized name =
   if name = "" then false
@@ -691,9 +692,9 @@ let valueCompletions ~(env : QueryEnv.t) suffix =
   let results =
     if suffix = "" || isCapitalized suffix then (
       (* Get rid of lowercase modules (#417) *)
-      env.exported.modules
-      |> Hashtbl.filter_map_inplace (fun name key ->
-             if isCapitalized name then Some key else None);
+      Exported.iter env.exported Exported.Module (fun name _ ->
+          if not (isCapitalized name) then
+            Exported.removeModule env.exported name);
       results
       @ completionForExportedModules ~env ~suffix
       @ completionForConstructors ~env ~suffix)
