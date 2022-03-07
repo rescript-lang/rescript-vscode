@@ -504,21 +504,31 @@ let completionForDeclareds ~pos iter stamps prefix transformContents =
       if
         Utils.startsWith declared.name.txt prefix
         && Utils.locationContainsFuzzy declared.scopeLoc pos
-      then res := {declared with item = transformContents declared.item} :: !res)
+      then
+        res :=
+          {
+            (Completion.create ~name:declared.name.txt
+               ~kind:(transformContents declared.item))
+            with
+            extentLoc = declared.extentLoc;
+            deprecated = declared.deprecated;
+            docstring = declared.docstring;
+          }
+          :: !res)
     stamps;
   !res
 
 let completionForDeclaredModules ~pos ~env ~suffix =
   completionForDeclareds ~pos Stamps.iterModules env.QueryEnv.file.stamps suffix
-    (fun m -> Kind.Module m)
+    (fun m -> Completion.Module m)
 
 let completionForDeclaredValues ~pos ~env ~suffix =
   completionForDeclareds ~pos Stamps.iterValues env.QueryEnv.file.stamps suffix
-    (fun m -> Kind.Value m)
+    (fun m -> Completion.Value m)
 
 let completionForDeclaredTypes ~pos ~env ~suffix =
   completionForDeclareds ~pos Stamps.iterTypes env.QueryEnv.file.stamps suffix
-    (fun m -> Kind.Type m)
+    (fun m -> Completion.Type m)
 
 let completionForExporteds iterExported getDeclared prefix transformContents =
   let res = ref [] in
@@ -527,21 +537,30 @@ let completionForExporteds iterExported getDeclared prefix transformContents =
       if Utils.startsWith name prefix then
         match getDeclared stamp with
         | Some (declared : _ Declared.t) ->
-          res := {declared with item = transformContents declared.item} :: !res
+          res :=
+            {
+              (Completion.create ~name:declared.name.txt
+                 ~kind:(transformContents declared.item))
+              with
+              extentLoc = declared.extentLoc;
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !res
         | None -> ());
   !res
 
 let completionForExportedModules ~env ~suffix =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
-    (Stamps.findModule env.file.stamps) suffix (fun m -> Kind.Module m)
+    (Stamps.findModule env.file.stamps) suffix (fun m -> Completion.Module m)
 
 let completionForExportedValues ~env ~suffix =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
-    (Stamps.findValue env.file.stamps) suffix (fun v -> Kind.Value v)
+    (Stamps.findValue env.file.stamps) suffix (fun v -> Completion.Value v)
 
 let completionForExportedTypes ~env ~suffix =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
-    (Stamps.findType env.file.stamps) suffix (fun t -> Kind.Type t)
+    (Stamps.findType env.file.stamps) suffix (fun t -> Completion.Type t)
 
 let completionForConstructors ~(env : QueryEnv.t) ~suffix =
   let res = ref [] in
@@ -553,10 +572,8 @@ let completionForConstructors ~(env : QueryEnv.t) ~suffix =
           |> List.filter (fun c ->
                  Utils.startsWith c.Constructor.cname.txt suffix)
           |> List.map (fun c ->
-                 {
-                   (Declared.empty c.Constructor.cname.txt) with
-                   item = Kind.Constructor (c, t);
-                 }))
+                 Completion.create ~name:c.Constructor.cname.txt
+                   ~kind:(Completion.Constructor (c, t))))
           @ !res
       | _ -> ());
   !res
@@ -570,7 +587,8 @@ let completionForFields ~(env : QueryEnv.t) ~suffix =
           (fields
           |> List.filter (fun f -> Utils.startsWith f.fname.txt suffix)
           |> List.map (fun f ->
-                 {(Declared.empty f.fname.txt) with item = Kind.Field (f, t)}))
+                 Completion.create ~name:f.fname.txt
+                   ~kind:(Completion.Field (f, t))))
           @ !res
       | _ -> ());
   !res
@@ -652,7 +670,7 @@ let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
     in
     loop opens
 
-let detail name (kind : Kind.t) =
+let detail name (kind : Completion.kind) =
   match kind with
   | Type {decl} -> decl |> Shared.declToString name
   | Value typ -> typ |> Shared.typeToString
@@ -764,7 +782,7 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
+let getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath =
   Log.log
     ("Opens folkz > "
     ^ string_of_int (List.length rawOpens)
@@ -795,11 +813,10 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
            (fun results env ->
              let completionsFromThisOpen = valueCompletions ~env suffix in
              List.filter
-               (fun ((declared : Kind.t Declared.t), _env) ->
-                 if Hashtbl.mem alreadyUsedIdentifiers declared.name.txt then
-                   false
+               (fun ((declared : Completion.t), _env) ->
+                 if Hashtbl.mem alreadyUsedIdentifiers declared.name then false
                  else (
-                   Hashtbl.add alreadyUsedIdentifiers declared.name.txt true;
+                   Hashtbl.add alreadyUsedIdentifiers declared.name true;
                    true))
                completionsFromThisOpen
              @ results)
@@ -812,7 +829,8 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
              if Utils.startsWith name suffix && not (String.contains name '-')
              then
                Some
-                 ({(Declared.empty name) with item = Kind.FileModule name}, env)
+                 ( Completion.create ~name ~kind:(Completion.FileModule name),
+                   env )
              else None)
     in
     locallyDefinedValues @ valuesFromOpens @ localModuleNames
@@ -862,10 +880,8 @@ let getItems ~full ~rawOpens ~allFiles ~pos ~dotpath =
               |> Utils.filterMap (fun field ->
                      if Utils.startsWith field.fname.txt lastField then
                        Some
-                         ( {
-                             (Declared.empty field.fname.txt) with
-                             item = Kind.Field (field, typ);
-                           },
+                         ( Completion.create ~name:field.fname.txt
+                             ~kind:(Completion.Field (field, typ)),
                            env )
                      else None))))
       | None -> [])
@@ -916,10 +932,10 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       |> List.map mkLabel)
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
-    let declareds = processDotPath ~exact:true (componentPath @ ["make"]) in
+    let completions = processDotPath ~exact:true (componentPath @ ["make"]) in
     let labels =
-      match declareds with
-      | ({Declared.item = Kind.Value typ}, _env) :: _ ->
+      match completions with
+      | ({Completion.kind = Completion.Value typ}, _env) :: _ ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
           | Tfield (name, _, t1, t2) ->
@@ -975,14 +991,13 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       |> List.map mkLabel)
       @ keyLabels
   | Cdotpath dotpath ->
-    let declareds = dotpath |> processDotPath ~exact:false in
+    let completions = dotpath |> processDotPath ~exact:false in
     (* TODO(#107): figure out why we're getting duplicates. *)
-    declareds |> Utils.dedup
-    |> List.map
-         (fun ({Declared.name = {txt = name}; deprecated; docstring; item}, _env)
-         ->
-           mkItem ~name ~kind:(Kind.toInt item) ~deprecated
-             ~detail:(detail name item) ~docstring)
+    completions |> Utils.dedup
+    |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
+           mkItem ~name
+             ~kind:(Completion.kindToInt kind)
+             ~deprecated ~detail:(detail name kind) ~docstring)
   | Cpipe (pipe, partialName) -> (
     let arrayModulePath = ["Js"; "Array2"] in
     let listModulePath = ["Belt"; "List"] in
@@ -1038,7 +1053,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       match String.split_on_char '.' pipeId with
       | x :: fieldNames -> (
         match [x] |> processDotPath ~exact:true with
-        | ({Declared.item = Value typ}, env) :: _ -> (
+        | ({Completion.kind = Value typ}, env) :: _ -> (
           match getFields ~env ~typ fieldNames with
           | None -> None
           | Some (typ1, _env1) -> fromType typ1)
@@ -1089,15 +1104,13 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
         let dotpath = modulePath @ [partialName] in
         let declareds = dotpath |> processDotPath ~exact:false in
         declareds
-        |> List.filter (fun ({Declared.item}, _env) ->
-               match item with Kind.Value _ -> true | _ -> false)
+        |> List.filter (fun ({Completion.kind}, _env) ->
+               match kind with Completion.Value _ -> true | _ -> false)
         |> List.map
-             (fun
-               ( {Declared.name = {txt = name}; deprecated; docstring; item},
-                 _env )
-             ->
-               mkItem ~name:(completionName name) ~kind:(Kind.toInt item)
-                 ~detail:(detail name item) ~deprecated ~docstring)
+             (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
+               mkItem ~name:(completionName name)
+                 ~kind:(Completion.kindToInt kind)
+                 ~detail:(detail name kind) ~deprecated ~docstring)
       | _ -> [])
     | None -> [])
   | Cdecorator prefix ->
@@ -1147,7 +1160,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
       match funPath |> processDotPath ~exact:true with
-      | ({Declared.item = Value typ}, _env) :: _ ->
+      | ({Completion.kind = Value typ}, _env) :: _ ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
           | Tlink t1 | Tsubst t1 -> getLabels t1
@@ -1196,7 +1209,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
       match lhs |> processDotPath ~exact:true with
-      | ({Declared.item = Value typ}, env) :: _ -> getObjectFields ~env typ
+      | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
       | _ -> (env0, [])
     in
     let labels = resolvePath ~env fields path in
@@ -1229,7 +1242,7 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let processDotPath ~exact dotpath =
-    let declareds = getItems ~full ~rawOpens ~allFiles ~pos ~dotpath in
+    let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath in
     match dotpath |> List.rev with
     | last :: _ when exact ->
       (* Heuristic to approximate scope.
@@ -1237,7 +1250,7 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
       let rec prioritize decls =
         match decls with
         | (d1, e1) :: (d2, e2) :: rest ->
-          let pos2 = d2.Declared.extentLoc.loc_start |> Utils.tupleOfLexing in
+          let pos2 = d2.Completion.extentLoc.loc_start |> Utils.tupleOfLexing in
           if pos2 >= pos then prioritize ((d1, e1) :: rest)
           else
             let pos1 = d1.extentLoc.loc_start |> Utils.tupleOfLexing in
@@ -1245,9 +1258,9 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
             else prioritize ((d1, e1) :: rest)
         | [] | [_] -> decls
       in
-      declareds
-      |> List.filter (fun ({Declared.name = {txt}}, _env) -> txt = last)
+      completions
+      |> List.filter (fun ({Completion.name}, _env) -> name = last)
       |> prioritize
-    | _ -> declareds
+    | _ -> completions
   in
   completable |> processCompletable ~processDotPath ~full ~package ~rawOpens
