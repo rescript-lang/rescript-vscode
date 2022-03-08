@@ -28,9 +28,9 @@ let showModuleTopLevel ~docstring ~name
 let rec showModule ~docstring ~(file : File.t) ~name
     (declared : ModuleKind.t Declared.t option) =
   match declared with
-  | None -> showModuleTopLevel ~docstring ~name file.contents.topLevel
-  | Some {item = Structure {topLevel}} ->
-    showModuleTopLevel ~docstring ~name topLevel
+  | None -> showModuleTopLevel ~docstring ~name file.structure.items
+  | Some {item = Structure {items}} ->
+    showModuleTopLevel ~docstring ~name items
   | Some ({item = Constraint (_moduleItem, moduleTypeItem)} as declared) ->
     (* show the interface *)
     showModule ~docstring ~file ~name
@@ -54,7 +54,7 @@ let newHover ~full:{file; package} locItem =
         let name, docstring =
           match declared with
           | Some d -> (d.name.txt, d.docstring)
-          | None -> (file.moduleName, file.contents.docstring)
+          | None -> (file.moduleName, file.structure.docstring)
         in
         showModule ~docstring ~name ~file declared))
   | LModule (GlobalReference (moduleName, path, tip)) -> (
@@ -77,7 +77,7 @@ let newHover ~full:{file; package} locItem =
               let name, docstring =
                 match declared with
                 | Some d -> (d.name.txt, d.docstring)
-                | None -> (file.moduleName, file.contents.docstring)
+                | None -> (file.moduleName, file.structure.docstring)
               in
               showModule ~docstring ~name ~file declared)))))
   | LModule NotFound -> None
@@ -85,7 +85,7 @@ let newHover ~full:{file; package} locItem =
     match ProcessCmt.fileForModule ~package name with
     | None -> None
     | Some file ->
-      showModule ~docstring:file.contents.docstring ~name:file.moduleName ~file
+      showModule ~docstring:file.structure.docstring ~name:file.moduleName ~file
         None)
   | Typed (_, _, Definition (_, (Field _ | Constructor _))) -> None
   | Constant t ->

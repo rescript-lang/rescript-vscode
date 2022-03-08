@@ -197,7 +197,7 @@ let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
       | Some {file; extra} -> (
         match
           declaredForExportedTip ~stamps:file.stamps
-            ~exported:file.contents.exported declared.name.txt tip
+            ~exported:file.structure.exported declared.name.txt tip
         with
         | None -> None
         | Some declared -> Some (file, extra, declared)))

@@ -97,13 +97,13 @@ module ModuleKind = struct
     | Type of Type.t * Types.rec_status
     | Module of t
 
-  and contents = {
+  and structure = {
     docstring : string list;
     exported : Exported.t;
-    topLevel : moduleItem Declared.t list;
+    items : moduleItem Declared.t list;
   }
 
-  and t = Ident of Path.t | Structure of contents | Constraint of t * t
+  and t = Ident of Path.t | Structure of structure | Constraint of t * t
 end
 
 module Completion = struct
@@ -214,7 +214,7 @@ module File = struct
     uri : Uri2.t;
     stamps : Stamps.t;
     moduleName : string;
-    contents : ModuleKind.contents;
+    structure : ModuleKind.structure;
   }
 
   let create moduleName uri =
@@ -222,14 +222,14 @@ module File = struct
       uri;
       stamps = Stamps.init ();
       moduleName;
-      contents = {docstring = []; exported = Exported.init (); topLevel = []};
+      structure = {docstring = []; exported = Exported.init (); items = []};
     }
 end
 
 module QueryEnv = struct
   type t = {file : File.t; exported : Exported.t}
 
-  let fromFile file = {file; exported = file.contents.exported}
+  let fromFile file = {file; exported = file.structure.exported}
 end
 
 type filePath = string
