@@ -132,15 +132,21 @@ let dceTextToDiagnostics = (
       }
 
       let issueLocationRange = new Range(startPos, endPos);
+      let diagnosticText = text.trim();
 
       let diagnostic = new Diagnostic(
         issueLocationRange,
-        text.trim(),
+        diagnosticText,
         DiagnosticSeverity.Warning
       );
 
-      // This will render the part of the code as unused
-      diagnostic.tags = [DiagnosticTag.Unnecessary];
+      // Everything reanalyze reports is about dead code, except for redundant
+      // optional arguments. This will ensure that everything but reduntant
+      // optional arguments is highlighted as unecessary/unused code in the
+      // editor.
+      if (!diagnosticText.toLowerCase().startsWith("optional argument")) {
+        diagnostic.tags = [DiagnosticTag.Unnecessary];
+      }
 
       if (diagnosticsMap.has(processedFileInfo.filePath)) {
         diagnosticsMap.get(processedFileInfo.filePath).push(diagnostic);
