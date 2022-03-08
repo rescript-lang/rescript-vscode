@@ -137,12 +137,12 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
 
 and forTypeSignature env signature =
   let exported = Exported.init () in
-  let topLevel =
+  let items =
     List.fold_right
       (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
       signature []
   in
-  {ModuleKind.docstring = []; exported; topLevel}
+  {ModuleKind.docstring = []; exported; items}
 
 and forTypeModule env moduleType =
   match moduleType with
@@ -272,13 +272,13 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
   (* TODO: process other things here *)
   | _ -> []
 
-let forSignature ~env items =
+let forSignature ~env sigItems =
   let exported = Exported.init () in
-  let topLevel =
-    items |> List.map (forSignatureItem ~env ~exported) |> List.flatten
+  let items =
+    sigItems |> List.map (forSignatureItem ~env ~exported) |> List.flatten
   in
   let attributes =
-    match items with
+    match sigItems with
     | {sig_desc = Tsig_attribute attribute} :: _ -> [attribute]
     | _ -> []
   in
@@ -287,7 +287,7 @@ let forSignature ~env items =
     | None -> []
     | Some d -> [d]
   in
-  {ModuleKind.docstring; exported; topLevel}
+  {ModuleKind.docstring; exported; items}
 
 let forTreeModuleType ~env {mty_desc} =
   match mty_desc with
@@ -458,15 +458,15 @@ and forModule env mod_desc moduleName =
     let modTypeKind = forTypeModule env typ in
     Constraint (modKind, modTypeKind)
 
-and forStructure ~env items =
+and forStructure ~env strItems =
   let exported = Exported.init () in
-  let topLevel =
+  let items =
     List.fold_right
       (fun item results -> forStructureItem ~env ~exported item @ results)
-      items []
+      strItems []
   in
   let attributes =
-    match items with
+    match strItems with
     | {str_desc = Tstr_attribute attribute} :: _ -> [attribute]
     | _ -> []
   in
@@ -475,7 +475,7 @@ and forStructure ~env items =
     | None -> []
     | Some d -> [d]
   in
-  {docstring; exported; topLevel}
+  {docstring; exported; items}
 
 let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
   match cmt_annots with
@@ -508,8 +508,8 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
         modulePath = File (uri, moduleName);
       }
     in
-    let contents = forStructure ~env items in
-    {File.uri; moduleName = cmt_modname; stamps = env.stamps; contents}
+    let structure = forStructure ~env items in
+    {File.uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Partial_interface parts ->
     let items =
       parts |> Array.to_list
@@ -527,8 +527,8 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
         modulePath = File (uri, moduleName);
       }
     in
-    let contents = forSignature ~env items in
-    {uri; moduleName = cmt_modname; stamps = env.stamps; contents}
+    let structure = forSignature ~env items in
+    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Implementation structure ->
     let env =
       {
@@ -537,8 +537,8 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
         modulePath = File (uri, moduleName);
       }
     in
-    let contents = forStructure ~env structure.str_items in
-    {uri; moduleName = cmt_modname; stamps = env.stamps; contents}
+    let structure = forStructure ~env structure.str_items in
+    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Interface signature ->
     let env =
       {
@@ -547,8 +547,8 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
         modulePath = File (uri, moduleName);
       }
     in
-    let contents = forSignature ~env signature.sig_items in
-    {uri; moduleName = cmt_modname; stamps = env.stamps; contents}
+    let structure = forSignature ~env signature.sig_items in
+    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | _ -> File.create moduleName uri
 
 let fileForCmt ~moduleName ~uri cmt =

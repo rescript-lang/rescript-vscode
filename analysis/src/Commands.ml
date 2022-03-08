@@ -176,11 +176,11 @@ let documentSymbol ~path =
     | None -> Protocol.null
     | Some {file} ->
       let open SharedTypes in
-      let rec getItems {ModuleKind.topLevel} =
+      let rec getItems topLevel =
         let rec getItem = function
           | ModuleKind.Value v -> (v |> variableKind, [])
           | Type (t, _) -> (t.decl |> declarationKind, [])
-          | Module (Structure contents) -> (Module, getItems contents)
+          | Module (Structure contents) -> (Module, getItems contents.items)
           | Module (Constraint (_, modTypeItem)) -> getItem (Module modTypeItem)
           | Module (Ident _) -> (Module, [])
         in
@@ -193,7 +193,7 @@ let documentSymbol ~path =
         x
       in
       let allSymbols =
-        getItems file.contents
+        getItems file.structure.items
         |> List.map (fun (name, loc, kind) ->
                Protocol.stringifyDocumentSymbolItem
                  {
