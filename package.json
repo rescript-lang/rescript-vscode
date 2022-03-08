@@ -48,6 +48,10 @@
 			{
 				"command": "rescript-vscode.start_dead_code_analysis",
 				"title": "ReScript: Start dead code analysis."
+			},
+			{
+				"command": "rescript-vscode.stop_dead_code_analysis",
+				"title": "ReScript: Stop dead code analysis."
 			}
 		],
 		"menus": {
