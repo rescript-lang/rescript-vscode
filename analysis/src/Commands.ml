@@ -349,6 +349,26 @@ let test ~path =
             close_out cout;
             completion ~path ~line ~col ~currentFile;
             Sys.remove currentFile
+          | "par" ->
+            print_endline ("Parse " ^ path);
+            if Filename.check_suffix path ".res" then
+              let parser =
+                Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+              in
+              let {Res_driver.parsetree = structure; diagnostics} =
+                parser ~filename:path
+              in
+              Printf.printf "structure items:%d diagnostics:%d \n"
+                (List.length structure) (List.length diagnostics)
+            else
+              let parser =
+                Res_driver.parsingEngine.parseInterface ~forPrinter:false
+              in
+              let {Res_driver.parsetree = signature; diagnostics} =
+                parser ~filename:path
+              in
+              Printf.printf "signature items:%d diagnostics:%d \n"
+                (List.length signature) (List.length diagnostics)
           | _ -> ());
           print_newline ())
     in
