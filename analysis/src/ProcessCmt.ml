@@ -49,7 +49,13 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [{declared with item = ModuleKind.Value declared.item}]
+    [
+      {
+        Module.kind = Module.Value declared.item;
+        name = declared.name.txt;
+        extentLoc = declared.extentLoc;
+      };
+    ]
   | Sig_type
       ( ident,
         ({type_loc; type_kind; type_manifest; type_attributes} as decl),
@@ -122,7 +128,13 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Type)
         Stamps.addType
     in
-    [{declared with item = Type (declared.item, recStatus)}]
+    [
+      {
+        Module.kind = Type (declared.item, recStatus);
+        name = declared.name.txt;
+        extentLoc = declared.extentLoc;
+      };
+    ]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
       addItem ~extent:md_loc
@@ -132,7 +144,13 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [{declared with item = Module declared.item}]
+    [
+      {
+        Module.kind = Module declared.item;
+        name = declared.name.txt;
+        extentLoc = declared.extentLoc;
+      };
+    ]
   | _ -> []
 
 and forTypeSignature env signature =
@@ -142,7 +160,7 @@ and forTypeSignature env signature =
       (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
       signature []
   in
-  {ModuleKind.docstring = []; exported; items}
+  {Module.docstring = []; exported; items}
 
 and forTypeModule env moduleType =
   match moduleType with
@@ -216,7 +234,11 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
       (Exported.add exported Exported.Type)
       Stamps.addType
   in
-  {declared with item = ModuleKind.Type (declared.item, recStatus)}
+  {
+    Module.kind = Module.Type (declared.item, recStatus);
+    name = declared.name.txt;
+    extentLoc = declared.extentLoc;
+  }
 
 let rec forSignatureItem ~env ~(exported : Exported.t)
     (item : Typedtree.signature_item) =
@@ -229,7 +251,13 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [{declared with item = ModuleKind.Value declared.item}]
+    [
+      {
+        Module.kind = Module.Value declared.item;
+        name = declared.name.txt;
+        extentLoc = declared.extentLoc;
+      };
+    ]
   | Tsig_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -249,7 +277,13 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [{declared with item = Module declared.item}]
+    [
+      {
+        Module.kind = Module declared.item;
+        name = declared.name.txt;
+        extentLoc = declared.extentLoc;
+      };
+    ]
   | Tsig_recmodule modDecls ->
     modDecls
     |> List.map (fun modDecl ->
@@ -287,14 +321,14 @@ let forSignature ~env sigItems =
     | None -> []
     | Some d -> [d]
   in
-  {ModuleKind.docstring; exported; items}
+  {Module.docstring; exported; items}
 
 let forTreeModuleType ~env {mty_desc} =
   match mty_desc with
   | Tmty_ident _ -> None
   | Tmty_signature {sig_items} ->
     let contents = forSignature ~env sig_items in
-    Some (ModuleKind.Structure contents)
+    Some (Module.Structure contents)
   | _ -> None
 
 let rec getModulePath mod_desc =
@@ -310,7 +344,7 @@ let rec getModulePath mod_desc =
 let rec forStructureItem ~env ~(exported : Exported.t) item =
   match item.str_desc with
   | Tstr_value (_isRec, bindings) ->
-    let declareds = ref [] in
+    let items = ref [] in
     let rec handlePattern attributes pat =
       match pat.pat_desc with
       | Tpat_var (ident, name)
@@ -322,8 +356,13 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
             (Exported.add exported Exported.Value)
             Stamps.addValue
         in
-        declareds :=
-          {declared with item = ModuleKind.Value declared.item} :: !declareds
+        items :=
+          {
+            Module.kind = Module.Value declared.item;
+            name = declared.name.txt;
+            extentLoc = declared.extentLoc;
+          }
+          :: !items
       | Tpat_tuple pats | Tpat_array pats | Tpat_construct (_, _, pats) ->
         pats |> List.iter (fun p -> handlePattern [] p)
       | Tpat_or (p, _, _) -> handlePattern [] p
@@ -336,7 +375,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
     List.iter
       (fun {vb_pat; vb_attributes} -> handlePattern vb_attributes vb_pat)
       bindings;
-    !declareds
+    !items
   | Tstr_module
       {mb_id; mb_attributes; mb_loc; mb_name = name; mb_expr = {mod_desc}} ->
     let item = forModule env mod_desc name.txt in
@@ -346,7 +385,13 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [{declared with item = Module declared.item}]
+    [
+      {
+        Module.kind = Module declared.item;
+        name = declared.name.txt;
+        extentLoc = declared.extentLoc;
+      };
+    ]
   | Tstr_recmodule modDecls ->
     modDecls
     |> List.map (fun modDecl ->
@@ -372,7 +417,13 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [{declared with item = Module modTypeItem}]
+    [
+      {
+        Module.kind = Module modTypeItem;
+        name = declared.name.txt;
+        extentLoc = declared.extentLoc;
+      };
+    ]
   | Tstr_include {incl_mod; incl_type} ->
     let env =
       match getModulePath incl_mod.mod_desc with
@@ -396,7 +447,13 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [{declared with item = Value declared.item}]
+    [
+      {
+        Module.kind = Value declared.item;
+        name = declared.name.txt;
+        extentLoc = declared.extentLoc;
+      };
+    ]
   | Tstr_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -571,7 +628,7 @@ let extraForFile ~(file : File.t) =
       else []))
   in
   file.stamps
-  |> Stamps.iterModules (fun stamp (d : ModuleKind.t Declared.t) ->
+  |> Stamps.iterModules (fun stamp (d : Module.t Declared.t) ->
          addLocItem extra d.name.loc (LModule (Definition (stamp, Module)));
          addReference stamp d.name.loc);
   file.stamps

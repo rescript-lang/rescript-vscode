@@ -2,18 +2,17 @@ open SharedTypes
 
 let codeBlock code = Printf.sprintf "```rescript\n%s\n```" code
 
-let showModuleTopLevel ~docstring ~name
-    (topLevel : ModuleKind.moduleItem Declared.t list) =
+let showModuleTopLevel ~docstring ~name (topLevel : Module.item list) =
   let contents =
     topLevel
     |> List.map (fun item ->
-           match item.Declared.item with
+           match item.Module.kind with
            (* TODO pretty print module contents *)
-           | ModuleKind.Type ({decl}, recStatus) ->
-             "  " ^ (decl |> Shared.declToString ~recStatus item.name.txt)
-           | Module _ -> "  module " ^ item.name.txt
+           | Type ({decl}, recStatus) ->
+             "  " ^ (decl |> Shared.declToString ~recStatus item.name)
+           | Module _ -> "  module " ^ item.name
            | Value typ ->
-             "  let " ^ item.name.txt ^ ": " ^ (typ |> Shared.typeToString))
+             "  let " ^ item.name ^ ": " ^ (typ |> Shared.typeToString))
     (* TODO indent *)
     |> String.concat "\n"
   in
@@ -26,11 +25,10 @@ let showModuleTopLevel ~docstring ~name
   Some (doc ^ full)
 
 let rec showModule ~docstring ~(file : File.t) ~name
-    (declared : ModuleKind.t Declared.t option) =
+    (declared : Module.t Declared.t option) =
   match declared with
   | None -> showModuleTopLevel ~docstring ~name file.structure.items
-  | Some {item = Structure {items}} ->
-    showModuleTopLevel ~docstring ~name items
+  | Some {item = Structure {items}} -> showModuleTopLevel ~docstring ~name items
   | Some ({item = Constraint (_moduleItem, moduleTypeItem)} as declared) ->
     (* show the interface *)
     showModule ~docstring ~file ~name

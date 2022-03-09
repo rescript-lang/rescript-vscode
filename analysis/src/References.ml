@@ -207,7 +207,7 @@ let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
       None)
 
 let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
-    (declared : ModuleKind.t Declared.t) =
+    (declared : Module.t Declared.t) =
   match declared.item with
   | Structure _ -> Some (file, Some declared)
   | Constraint (_moduleItem, moduleTypeItem) ->
