@@ -573,7 +573,9 @@ let completionForConstructors ~(env : QueryEnv.t) ~suffix =
                  Utils.startsWith c.Constructor.cname.txt suffix)
           |> List.map (fun c ->
                  Completion.create ~name:c.Constructor.cname.txt
-                   ~kind:(Completion.Constructor (c, t))))
+                   ~kind:
+                     (Completion.Constructor
+                        (c, t.item.decl |> Shared.declToString t.name.txt))))
           @ !res
       | _ -> ());
   !res
@@ -588,7 +590,9 @@ let completionForFields ~(env : QueryEnv.t) ~suffix =
           |> List.filter (fun f -> Utils.startsWith f.fname.txt suffix)
           |> List.map (fun f ->
                  Completion.create ~name:f.fname.txt
-                   ~kind:(Completion.Field (f, t))))
+                   ~kind:
+                     (Completion.Field
+                        (f, t.item.decl |> Shared.declToString t.name.txt))))
           @ !res
       | _ -> ());
   !res
@@ -676,13 +680,8 @@ let detail name (kind : Completion.kind) =
   | Value typ -> typ |> Shared.typeToString
   | Module _ -> "module"
   | FileModule _ -> "file module"
-  | Field ({typ}, t) ->
-    name ^ ": "
-    ^ (typ |> Shared.typeToString)
-    ^ "\n\n"
-    ^ (t.item.decl |> Shared.declToString t.name.txt)
-  | Constructor (c, t) ->
-    showConstructor c ^ "\n\n" ^ (t.item.decl |> Shared.declToString t.name.txt)
+  | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
+  | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
 let localValueCompletions ~pos ~(env : QueryEnv.t) suffix =
   let results = [] in
@@ -857,7 +856,7 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath =
           Log.log ("Found it! " ^ declared.name.txt);
           match declared.item |> extractRecordType ~env ~package with
           | None -> []
-          | Some (env, fields, typ) -> (
+          | Some (env, fields, typDecl) -> (
             match
               middleFields
               |> List.fold_left
@@ -872,16 +871,20 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath =
                        | Some attr ->
                          Log.log ("Found attr " ^ name);
                          attr.typ |> extractRecordType ~env ~package))
-                   (Some (env, fields, typ))
+                   (Some (env, fields, typDecl))
             with
             | None -> []
-            | Some (env, fields, typ) ->
+            | Some (env, fields, typDecl) ->
               fields
               |> Utils.filterMap (fun field ->
                      if Utils.startsWith field.fname.txt lastField then
                        Some
                          ( Completion.create ~name:field.fname.txt
-                             ~kind:(Completion.Field (field, typ)),
+                             ~kind:
+                               (Completion.Field
+                                  ( field,
+                                    typDecl.item.decl
+                                    |> Shared.declToString typDecl.name.txt )),
                            env )
                      else None))))
       | None -> [])
