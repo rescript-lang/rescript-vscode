@@ -91,16 +91,18 @@ module Declared = struct
   }
 end
 
-module ModuleKind = struct
-  type moduleItem =
+module Module = struct
+  type kind =
     | Value of Types.type_expr
     | Type of Type.t * Types.rec_status
     | Module of t
 
+  and item = {kind : kind; name : string; extentLoc : Location.t}
+
   and structure = {
     docstring : string list;
     exported : Exported.t;
-    items : moduleItem Declared.t list;
+    items : item list;
   }
 
   and t = Ident of Path.t | Structure of structure | Constraint of t * t
@@ -108,7 +110,7 @@ end
 
 module Completion = struct
   type kind =
-    | Module of ModuleKind.t
+    | Module of Module.t
     | Value of Types.type_expr
     | Type of Type.t
     | Constructor of Constructor.t * Type.t Declared.t
@@ -140,14 +142,14 @@ module Stamps : sig
   type t
 
   val addConstructor : t -> int -> Constructor.t Declared.t -> unit
-  val addModule : t -> int -> ModuleKind.t Declared.t -> unit
+  val addModule : t -> int -> Module.t Declared.t -> unit
   val addType : t -> int -> Type.t Declared.t -> unit
   val addValue : t -> int -> Types.type_expr Declared.t -> unit
-  val findModule : t -> int -> ModuleKind.t Declared.t option
+  val findModule : t -> int -> Module.t Declared.t option
   val findType : t -> int -> Type.t Declared.t option
   val findValue : t -> int -> Types.type_expr Declared.t option
   val init : unit -> t
-  val iterModules : (int -> ModuleKind.t Declared.t -> unit) -> t -> unit
+  val iterModules : (int -> Module.t Declared.t -> unit) -> t -> unit
   val iterTypes : (int -> Type.t Declared.t -> unit) -> t -> unit
   val iterValues : (int -> Types.type_expr Declared.t -> unit) -> t -> unit
 end = struct
@@ -156,7 +158,7 @@ end = struct
   type kind =
     | KType of Type.t Declared.t
     | KValue of Types.type_expr Declared.t
-    | KModule of ModuleKind.t Declared.t
+    | KModule of Module.t Declared.t
     | KConstructor of Constructor.t Declared.t
 
   type t = (int, kind) Hashtbl.t
@@ -214,7 +216,7 @@ module File = struct
     uri : Uri2.t;
     stamps : Stamps.t;
     moduleName : string;
-    structure : ModuleKind.structure;
+    structure : Module.structure;
   }
 
   let create moduleName uri =

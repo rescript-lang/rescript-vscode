@@ -178,16 +178,16 @@ let documentSymbol ~path =
       let open SharedTypes in
       let rec getItems topLevel =
         let rec getItem = function
-          | ModuleKind.Value v -> (v |> variableKind, [])
+          | Module.Value v -> (v |> variableKind, [])
           | Type (t, _) -> (t.decl |> declarationKind, [])
           | Module (Structure contents) -> (Module, getItems contents.items)
           | Module (Constraint (_, modTypeItem)) -> getItem (Module modTypeItem)
           | Module (Ident _) -> (Module, [])
         in
-        let fn {Declared.name = {txt}; extentLoc; item} =
-          let item, siblings = getItem item in
+        let fn {Module.name; extentLoc; kind} =
+          let item, siblings = getItem kind in
           if extentLoc.loc_ghost then siblings
-          else (txt, extentLoc, item) :: siblings
+          else (name, extentLoc, item) :: siblings
         in
         let x = topLevel |> List.map fn |> List.concat in
         x
