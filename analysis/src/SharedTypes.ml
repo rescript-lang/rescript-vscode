@@ -77,20 +77,6 @@ module Exported = struct
   let removeModule {modules_} name = Hashtbl.remove modules_ name
 end
 
-module Declared = struct
-  type 'item t = {
-    name : string Location.loc;
-    extentLoc : Location.t;
-    scopeLoc : Location.t;
-    stamp : int;
-    modulePath : modulePath;
-    isExported : bool;
-    deprecated : string option;
-    docstring : string list;
-    item : 'item;
-  }
-end
-
 module Module = struct
   type kind =
     | Value of Types.type_expr
@@ -108,34 +94,18 @@ module Module = struct
   and t = Ident of Path.t | Structure of structure | Constraint of t * t
 end
 
-module Completion = struct
-  type kind =
-    | Module of Module.t
-    | Value of Types.type_expr
-    | Type of Type.t
-    | Constructor of Constructor.t * Type.t Declared.t
-    | Field of field * Type.t Declared.t
-    | FileModule of string
-
-  type t = {
-    name : string;
+module Declared = struct
+  type 'item t = {
+    name : string Location.loc;
     extentLoc : Location.t;
+    scopeLoc : Location.t;
+    stamp : int;
+    modulePath : modulePath;
+    isExported : bool;
     deprecated : string option;
     docstring : string list;
-    kind : kind;
+    item : 'item;
   }
-
-  let create ~name ~kind =
-    {name; extentLoc = Location.none; deprecated = None; docstring = []; kind}
-
-  let kindToInt kind =
-    match kind with
-    | Module _ -> 9
-    | FileModule _ -> 9
-    | Constructor (_, _) -> 4
-    | Field (_, _) -> 5
-    | Type _ -> 22
-    | Value _ -> 12
 end
 
 module Stamps : sig
@@ -205,6 +175,36 @@ end = struct
     Hashtbl.iter
       (fun stamp d -> match d with KValue d -> f stamp d | _ -> ())
       stamps
+end
+
+module Completion = struct
+  type kind =
+    | Module of Module.t
+    | Value of Types.type_expr
+    | Type of Type.t
+    | Constructor of Constructor.t * Type.t Declared.t
+    | Field of field * Type.t Declared.t
+    | FileModule of string
+
+  type t = {
+    name : string;
+    extentLoc : Location.t;
+    deprecated : string option;
+    docstring : string list;
+    kind : kind;
+  }
+
+  let create ~name ~kind =
+    {name; extentLoc = Location.none; deprecated = None; docstring = []; kind}
+
+  let kindToInt kind =
+    match kind with
+    | Module _ -> 9
+    | FileModule _ -> 9
+    | Constructor (_, _) -> 4
+    | Field (_, _) -> 5
+    | Type _ -> 22
+    | Value _ -> 12
 end
 
 module Env = struct
