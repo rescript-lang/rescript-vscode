@@ -94,6 +94,36 @@ module Module = struct
   and t = Ident of Path.t | Structure of structure | Constraint of t * t
 end
 
+module Completion = struct
+  type kind =
+    | Module of Module.t
+    | Value of Types.type_expr
+    | Type of Type.t
+    | Constructor of Constructor.t * string
+    | Field of field * string
+    | FileModule of string
+
+  type t = {
+    name : string;
+    extentLoc : Location.t;
+    deprecated : string option;
+    docstring : string list;
+    kind : kind;
+  }
+
+  let create ~name ~kind =
+    {name; extentLoc = Location.none; deprecated = None; docstring = []; kind}
+
+  let kindToInt kind =
+    match kind with
+    | Module _ -> 9
+    | FileModule _ -> 9
+    | Constructor (_, _) -> 4
+    | Field (_, _) -> 5
+    | Type _ -> 22
+    | Value _ -> 12
+end
+
 module Declared = struct
   type 'item t = {
     name : string Location.loc;
@@ -175,36 +205,6 @@ end = struct
     Hashtbl.iter
       (fun stamp d -> match d with KValue d -> f stamp d | _ -> ())
       stamps
-end
-
-module Completion = struct
-  type kind =
-    | Module of Module.t
-    | Value of Types.type_expr
-    | Type of Type.t
-    | Constructor of Constructor.t * Type.t Declared.t
-    | Field of field * Type.t Declared.t
-    | FileModule of string
-
-  type t = {
-    name : string;
-    extentLoc : Location.t;
-    deprecated : string option;
-    docstring : string list;
-    kind : kind;
-  }
-
-  let create ~name ~kind =
-    {name; extentLoc = Location.none; deprecated = None; docstring = []; kind}
-
-  let kindToInt kind =
-    match kind with
-    | Module _ -> 9
-    | FileModule _ -> 9
-    | Constructor (_, _) -> 4
-    | Field (_, _) -> 5
-    | Type _ -> 22
-    | Value _ -> 12
 end
 
 module Env = struct
