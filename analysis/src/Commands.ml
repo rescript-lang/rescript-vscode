@@ -282,6 +282,24 @@ let rename ~path ~line ~col ~newName =
   in
   print_endline result
 
+let parser ~path =
+  if Filename.check_suffix path ".res" then
+    let parser =
+      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+    in
+    let {Res_driver.parsetree = structure; diagnostics} =
+      parser ~filename:path
+    in
+    Printf.printf "structure items:%d diagnostics:%d \n" (List.length structure)
+      (List.length diagnostics)
+  else
+    let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
+    let {Res_driver.parsetree = signature; diagnostics} =
+      parser ~filename:path
+    in
+    Printf.printf "signature items:%d diagnostics:%d \n" (List.length signature)
+      (List.length diagnostics)
+
 let test ~path =
   Uri2.stripPath := true;
   match Files.readFile path with
@@ -314,7 +332,6 @@ let test ~path =
             print_endline
               ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-
             hover ~path ~line ~col
           | "ref" ->
             print_endline
@@ -331,7 +348,6 @@ let test ~path =
                 ("Rename " ^ path ^ " " ^ string_of_int line ^ ":"
                ^ string_of_int col ^ " " ^ newName)
             in
-
             rename ~path ~line ~col ~newName
           | "com" ->
             print_endline
@@ -351,24 +367,7 @@ let test ~path =
             Sys.remove currentFile
           | "par" ->
             print_endline ("Parse " ^ path);
-            if Filename.check_suffix path ".res" then
-              let parser =
-                Res_driver.parsingEngine.parseImplementation ~forPrinter:false
-              in
-              let {Res_driver.parsetree = structure; diagnostics} =
-                parser ~filename:path
-              in
-              Printf.printf "structure items:%d diagnostics:%d \n"
-                (List.length structure) (List.length diagnostics)
-            else
-              let parser =
-                Res_driver.parsingEngine.parseInterface ~forPrinter:false
-              in
-              let {Res_driver.parsetree = signature; diagnostics} =
-                parser ~filename:path
-              in
-              Printf.printf "signature items:%d diagnostics:%d \n"
-                (List.length signature) (List.length diagnostics)
+            parser ~path
           | _ -> ());
           print_newline ())
     in
