@@ -1,0 +1,2 @@
+let _ = <Component />
+// ^par 
