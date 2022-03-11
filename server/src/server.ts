@@ -392,7 +392,8 @@ function semanticTokens(msg: p.RequestMessage) {
   let params = msg.params as p.SemanticTokensParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
-  let tmpname = utils.createFileInTempDir();
+  let extension = path.extname(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = utils.runAnalysisCommand(
     filePath,
