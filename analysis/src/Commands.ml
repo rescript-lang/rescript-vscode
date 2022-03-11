@@ -282,6 +282,31 @@ let rename ~path ~line ~col ~newName =
   in
   print_endline result
 
+type tokenLegend = {tokenTypes : string array; tokenModifiers : string array}
+
+(* This needs to stay synced with the same legend in `server.ts` *)
+let tokenLegend = {tokenTypes = [|"keyword"|]; tokenModifiers = [||]}
+
+(* These are not used yet, but taken from https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
+type tokenAtLoc = {
+  line : int;
+  startChar : int;
+  length : int;
+  tokenType : int;
+  tokenModifiers : int;
+}
+
+type tokenAtDelta = {
+  deltaLine : int;
+  deltaStartChar : int;
+  length : int;
+  tokenType : int;
+  tokenModifiers : int;
+}
+
+(* TEST: This will color the first 3 letters of any ReScript file as a keyword.*)
+let parserTest () = Printf.printf "{\"data\":[0,0,3,0,0]}"
+
 let parser ~path =
   if Filename.check_suffix path ".res" then (
     let parser =
