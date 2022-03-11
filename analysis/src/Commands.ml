@@ -282,30 +282,43 @@ let rename ~path ~line ~col ~newName =
   in
   print_endline result
 
-type tokenLegend = {tokenTypes : string array; tokenModifiers : string array}
+module Token = struct
+  type legend = {tokenTypes : string array; tokenModifiers : string array}
 
-(* This needs to stay synced with the same legend in `server.ts` *)
-let tokenLegend = {tokenTypes = [|"keyword"|]; tokenModifiers = [||]}
+  (* This needs to stay synced with the same legend in `server.ts` *)
+  (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
+  type tokenType = Keyword
+  type tokenModifiers = NoModifier
 
-(* These are not used yet, but taken from https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
-type tokenAtLoc = {
-  line : int;
-  startChar : int;
-  length : int;
-  tokenType : int;
-  tokenModifiers : int;
-}
+  let tokenTypeToString = function Keyword -> "0"
+  let tokenModifiersToString = function NoModifier -> "0"
 
-type tokenAtDelta = {
-  deltaLine : int;
-  deltaStartChar : int;
-  length : int;
-  tokenType : int;
-  tokenModifiers : int;
-}
+  type emitter = {
+    buf : Buffer.t;
+    mutable lastLine : int;
+    mutable lastChar : int;
+  }
 
-(* TEST: This will color the first 3 letters of any ReScript file as a keyword.*)
-let parserTest () = Printf.printf "{\"data\":[0,0,3,0,0]}"
+  let createEmitter () = {buf = Buffer.create 0; lastLine = 0; lastChar = 0}
+
+  let emit ~line ~char ~length ~type_ ?(modifiers = NoModifier) e =
+    let deltaLine = line - e.lastLine in
+    let deltaChar = char - e.lastChar in
+    e.lastLine <- line;
+    e.lastChar <- char;
+    if Buffer.length e.buf > 0 then Buffer.add_char e.buf ',';
+    Buffer.add_string e.buf
+      (string_of_int deltaLine ^ "," ^ string_of_int deltaChar ^ ","
+     ^ string_of_int length ^ "," ^ tokenTypeToString type_ ^ ","
+      ^ tokenModifiersToString modifiers);
+    ()
+end
+
+let semanticTokensTest () =
+  let emitter = Token.createEmitter () in
+  emitter |> Token.emit ~line:0 ~char:0 ~length:3 ~type_:Token.Keyword;
+  emitter |> Token.emit ~line:1 ~char:2 ~length:3 ~type_:Token.Keyword;
+  Printf.printf "{\"data\":[%s]}" (Buffer.contents emitter.buf)
 
 let parser ~path =
   if Filename.check_suffix path ".res" then (
