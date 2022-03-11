@@ -314,7 +314,7 @@ module Token = struct
     ()
 end
 
-let semanticTokensTest () =
+let semanticTokensTest ~currentFile =
   let emitter = Token.createEmitter () in
   emitter |> Token.emit ~line:0 ~char:0 ~length:3 ~type_:Token.Keyword;
   emitter |> Token.emit ~line:1 ~char:2 ~length:3 ~type_:Token.Keyword;
