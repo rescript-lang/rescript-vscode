@@ -282,134 +282,6 @@ let rename ~path ~line ~col ~newName =
   in
   print_endline result
 
-module Token = struct
-  type legend = {tokenTypes : string array; tokenModifiers : string array}
-
-  (* This needs to stay synced with the same legend in `server.ts` *)
-  (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
-  type tokenType = Keyword
-  type tokenModifiers = NoModifier
-
-  let tokenTypeToString = function Keyword -> "0"
-  let tokenModifiersToString = function NoModifier -> "0"
-
-  type emitter = {
-    buf : Buffer.t;
-    mutable lastLine : int;
-    mutable lastChar : int;
-  }
-
-  let createEmitter () = {buf = Buffer.create 0; lastLine = 0; lastChar = 0}
-
-  let emit ~line ~char ~length ~type_ ?(modifiers = NoModifier) e =
-    let deltaLine = line - e.lastLine in
-    let deltaChar = char - e.lastChar in
-    e.lastLine <- line;
-    e.lastChar <- char;
-    if Buffer.length e.buf > 0 then Buffer.add_char e.buf ',';
-    Buffer.add_string e.buf
-      (string_of_int deltaLine ^ "," ^ string_of_int deltaChar ^ ","
-     ^ string_of_int length ^ "," ^ tokenTypeToString type_ ^ ","
-      ^ tokenModifiersToString modifiers);
-    ()
-end
-
-let semanticTokensTest ~currentFile =
-  let emitter = Token.createEmitter () in
-  emitter |> Token.emit ~line:0 ~char:0 ~length:3 ~type_:Token.Keyword;
-  emitter |> Token.emit ~line:1 ~char:2 ~length:3 ~type_:Token.Keyword;
-  Printf.printf "{\"data\":[%s]}" (Buffer.contents emitter.buf)
-
-let parser ~path =
-  let jsxName lident =
-    let rec flatten acc lident =
-      match lident with
-      | Longident.Lident txt -> txt :: acc
-      | Ldot (lident, txt) ->
-        let acc = if txt = "createElement" then acc else txt :: acc in
-        flatten acc lident
-      | _ -> acc
-    in
-    match lident with
-    | Longident.Lident txt -> txt
-    | _ as lident ->
-      let segments = flatten [] lident in
-      segments |> String.concat "."
-  in
-  let locToString (loc : Location.t) =
-    let lineStart, colStart = Utils.tupleOfLexing loc.loc_start in
-    let lineEnd, colEnd = Utils.tupleOfLexing loc.loc_end in
-    Printf.sprintf "(%d,%d)->(%d,%d)" lineStart colStart lineEnd colEnd
-  in
-  let processTypeArg (coreType : Parsetree.core_type) =
-    Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc)
-  in
-
-  let typ (mapper : Ast_mapper.mapper) (coreType : Parsetree.core_type) =
-    match coreType.ptyp_desc with
-    | Ptyp_constr (_lident, args) ->
-      args |> List.iter processTypeArg;
-      Ast_mapper.default_mapper.typ mapper coreType
-    | _ -> Ast_mapper.default_mapper.typ mapper coreType
-  in
-  let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
-    match e.pexp_desc with
-    | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
-      when Res_parsetree_viewer.isJsxExpression e ->
-      let rec isSelfClosing args =
-        match args with
-        | [] -> false
-        | [
-         ( Asttypes.Labelled "children",
-           {
-             Parsetree.pexp_desc =
-               Pexp_construct ({txt = Longident.Lident "[]"}, None);
-           } );
-         _;
-        ] ->
-          true
-        | _ :: rest -> isSelfClosing rest
-      in
-      Printf.printf "JsxOpen: %s %s\n" (jsxName lident.txt)
-        (locToString pexp_loc);
-      (if not (isSelfClosing args) then
-       let lineStart, colStart = Utils.tupleOfLexing pexp_loc.loc_start in
-       let lineEnd, colEnd = Utils.tupleOfLexing pexp_loc.loc_end in
-       let size = if lineStart = lineEnd then colEnd - colStart else 0 in
-       let lineEndWhole, colEndWhole = Utils.tupleOfLexing e.pexp_loc.loc_end in
-       if size > 0 && colEndWhole > size then
-         Printf.printf "JsxClose: (%d,%d)->(%d,%d)\n" lineEndWhole
-           (colEndWhole - size - 1)
-           lineEndWhole (colEndWhole - 1));
-      Ast_mapper.default_mapper.expr mapper e
-    | Pexp_apply ({pexp_loc}, _) when Res_parsetree_viewer.isBinaryExpression e
-      ->
-      Printf.printf "BinaryExp: %s\n" (locToString pexp_loc);
-      Ast_mapper.default_mapper.expr mapper e
-    | _ -> Ast_mapper.default_mapper.expr mapper e
-  in
-
-  let mapper = {Ast_mapper.default_mapper with expr; typ} in
-
-  if Filename.check_suffix path ".res" then (
-    let parser =
-      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
-    in
-    let {Res_driver.parsetree = structure; diagnostics} =
-      parser ~filename:path
-    in
-    Printf.printf "structure items:%d diagnostics:%d \n" (List.length structure)
-      (List.length diagnostics);
-    mapper.structure mapper structure |> ignore)
-  else
-    let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
-    let {Res_driver.parsetree = signature; diagnostics} =
-      parser ~filename:path
-    in
-    Printf.printf "signature items:%d diagnostics:%d \n" (List.length signature)
-      (List.length diagnostics);
-    mapper.signature mapper signature |> ignore
-
 let test ~path =
   Uri2.stripPath := true;
   match Files.readFile path with
@@ -477,7 +349,9 @@ let test ~path =
             Sys.remove currentFile
           | "par" ->
             print_endline ("Parse " ^ path);
-            parser ~path
+            SemanticTokens.parser ~debug:true
+              ~emitter:(SemanticTokens.Token.createEmitter ())
+              ~path
           | _ -> ());
           print_newline ())
     in
