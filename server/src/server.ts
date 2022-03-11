@@ -15,10 +15,9 @@ import * as utils from "./utils";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
-import { fileURLToPath, pathToFileURL } from "url";
+import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
-import { TextEdit } from "vscode-languageserver-types";
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -38,17 +37,17 @@ let projectsFiles: Map<
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => { };
+let send: (msg: m.Message) => void = (_) => {};
 
 interface CreateInterfaceRequestParams {
   uri: string;
 }
 
-let createInterfaceRequest =
-  new v.RequestType<
-    CreateInterfaceRequestParams,
-    string,
-    void>("rescript-vscode.create_interface");
+let createInterfaceRequest = new v.RequestType<
+  CreateInterfaceRequestParams,
+  string,
+  void
+>("rescript-vscode.create_interface");
 
 interface OpenCompiledFileParams {
   uri: string;
@@ -66,9 +65,8 @@ let sendUpdatedDiagnostics = () => {
       path.join(projectRootPath, c.compilerLogPartialPath),
       { encoding: "utf-8" }
     );
-    let { done, result: filesAndErrors } = utils.parseCompilerLogOutput(
-      content
-    );
+    let { done, result: filesAndErrors } =
+      utils.parseCompilerLogOutput(content);
 
     // diff
     Object.keys(filesAndErrors).forEach((file) => {
@@ -290,7 +288,12 @@ function typeDefinition(msg: p.RequestMessage) {
   let filePath = fileURLToPath(params.textDocument.uri);
   let response = utils.runAnalysisCommand(
     filePath,
-    ["typeDefinition", filePath, params.position.line, params.position.character],
+    [
+      "typeDefinition",
+      filePath,
+      params.position.line,
+      params.position.character,
+    ],
     msg
   );
   return response;
@@ -323,7 +326,7 @@ function prepareRename(msg: p.RequestMessage): m.ResponseMessage {
   );
   let result: p.Range | null = null;
   if (locations !== null) {
-    locations.forEach(loc => {
+    locations.forEach((loc) => {
       if (
         path.normalize(fileURLToPath(loc.uri)) ===
         path.normalize(fileURLToPath(params.textDocument.uri))
@@ -337,14 +340,14 @@ function prepareRename(msg: p.RequestMessage): m.ResponseMessage {
           end.line >= pos.line
         ) {
           result = loc.range;
-        };
+        }
       }
     });
-  };
+  }
   return {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
-    result
+    result,
   };
 }
 
@@ -352,23 +355,22 @@ function rename(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
   let params = msg.params as p.RenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let documentChanges:
-    | (p.RenameFile | p.TextDocumentEdit)[]
-    | null = utils.runAnalysisAfterSanityCheck(filePath, [
+  let documentChanges: (p.RenameFile | p.TextDocumentEdit)[] | null =
+    utils.runAnalysisAfterSanityCheck(filePath, [
       "rename",
       filePath,
       params.position.line,
       params.position.character,
-      params.newName
+      params.newName,
     ]);
   let result: WorkspaceEdit | null = null;
   if (documentChanges !== null) {
     result = { documentChanges };
-  };
+  }
   let response: m.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
-    result
+    result,
   };
   return response;
 }
@@ -380,6 +382,18 @@ function documentSymbol(msg: p.RequestMessage) {
   let response = utils.runAnalysisCommand(
     filePath,
     ["documentSymbol", filePath],
+    msg
+  );
+  return response;
+}
+
+function semanticTokens(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens
+  let params = msg.params as p.SemanticTokensParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let response = utils.runAnalysisCommand(
+    filePath,
+    ["semanticTokens", filePath],
     msg
   );
   return response;
@@ -739,6 +753,12 @@ function onMessage(msg: m.Message) {
           // disabled right now until we use the parser to show non-stale symbols per keystroke
           // documentSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
+          semanticTokensProvider: {
+            legend: { tokenTypes: ["keyword"], tokenModifiers: [] },
+            documentSelector: null,
+            // TODO: Support range for full, and add delta support
+            full: true,
+          },
         },
       };
       let response: m.ResponseMessage = {
@@ -797,6 +817,8 @@ function onMessage(msg: m.Message) {
       send(documentSymbol(msg));
     } else if (msg.method === p.CompletionRequest.method) {
       send(completion(msg));
+    } else if (msg.method === p.SemanticTokensRequest.method) {
+      send(semanticTokens(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       let responses = format(msg);
       responses.forEach((response) => send(response));
