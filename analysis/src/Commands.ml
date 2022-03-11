@@ -321,6 +321,76 @@ let semanticTokensTest ~currentFile =
   Printf.printf "{\"data\":[%s]}" (Buffer.contents emitter.buf)
 
 let parser ~path =
+  let jsxName lident =
+    let rec flatten acc lident =
+      match lident with
+      | Longident.Lident txt -> txt :: acc
+      | Ldot (lident, txt) ->
+        let acc = if txt = "createElement" then acc else txt :: acc in
+        flatten acc lident
+      | _ -> acc
+    in
+    match lident with
+    | Longident.Lident txt -> txt
+    | _ as lident ->
+      let segments = flatten [] lident in
+      segments |> String.concat "."
+  in
+  let locToString (loc : Location.t) =
+    let lineStart, colStart = Utils.tupleOfLexing loc.loc_start in
+    let lineEnd, colEnd = Utils.tupleOfLexing loc.loc_end in
+    Printf.sprintf "(%d,%d)->(%d,%d)" lineStart colStart lineEnd colEnd
+  in
+  let processTypeArg (coreType : Parsetree.core_type) =
+    Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc)
+  in
+
+  let typ (mapper : Ast_mapper.mapper) (coreType : Parsetree.core_type) =
+    match coreType.ptyp_desc with
+    | Ptyp_constr (_lident, args) ->
+      args |> List.iter processTypeArg;
+      Ast_mapper.default_mapper.typ mapper coreType
+    | _ -> Ast_mapper.default_mapper.typ mapper coreType
+  in
+  let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
+    match e.pexp_desc with
+    | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
+      when Res_parsetree_viewer.isJsxExpression e ->
+      let rec isSelfClosing args =
+        match args with
+        | [] -> false
+        | [
+         ( Asttypes.Labelled "children",
+           {
+             Parsetree.pexp_desc =
+               Pexp_construct ({txt = Longident.Lident "[]"}, None);
+           } );
+         _;
+        ] ->
+          true
+        | _ :: rest -> isSelfClosing rest
+      in
+      Printf.printf "JsxOpen: %s %s\n" (jsxName lident.txt)
+        (locToString pexp_loc);
+      (if not (isSelfClosing args) then
+       let lineStart, colStart = Utils.tupleOfLexing pexp_loc.loc_start in
+       let lineEnd, colEnd = Utils.tupleOfLexing pexp_loc.loc_end in
+       let size = if lineStart = lineEnd then colEnd - colStart else 0 in
+       let lineEndWhole, colEndWhole = Utils.tupleOfLexing e.pexp_loc.loc_end in
+       if size > 0 && colEndWhole > size then
+         Printf.printf "JsxClose: (%d,%d)->(%d,%d)\n" lineEndWhole
+           (colEndWhole - size - 1)
+           lineEndWhole (colEndWhole - 1));
+      Ast_mapper.default_mapper.expr mapper e
+    | Pexp_apply ({pexp_loc}, _) when Res_parsetree_viewer.isBinaryExpression e
+      ->
+      Printf.printf "BinaryExp: %s\n" (locToString pexp_loc);
+      Ast_mapper.default_mapper.expr mapper e
+    | _ -> Ast_mapper.default_mapper.expr mapper e
+  in
+
+  let mapper = {Ast_mapper.default_mapper with expr; typ} in
+
   if Filename.check_suffix path ".res" then (
     let parser =
       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
@@ -330,138 +400,15 @@ let parser ~path =
     in
     Printf.printf "structure items:%d diagnostics:%d \n" (List.length structure)
       (List.length diagnostics);
-
-    let jsxName lident =
-      let rec flatten acc lident =
-        match lident with
-        | Longident.Lident txt -> txt :: acc
-        | Ldot (lident, txt) ->
-          let acc = if txt = "createElement" then acc else txt :: acc in
-          flatten acc lident
-        | _ -> acc
-      in
-      match lident with
-      | Longident.Lident txt -> txt
-      | _ as lident ->
-        let segments = flatten [] lident in
-        segments |> String.concat "."
-    in
-    let locToString (loc : Location.t) =
-      let lineStart, colStart = Utils.tupleOfLexing loc.loc_start in
-      let lineEnd, colEnd = Utils.tupleOfLexing loc.loc_end in
-      Printf.sprintf "(%d,%d)->(%d,%d)" lineStart colStart lineEnd colEnd
-    in
-    let rec processExpression (expr : Parsetree.expression) =
-      match expr.pexp_desc with
-      | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
-        when Res_parsetree_viewer.isJsxExpression expr ->
-        let rec isSelfClosing args =
-          match args with
-          | [] -> false
-          | [
-           ( Asttypes.Labelled "children",
-             {
-               Parsetree.pexp_desc =
-                 Pexp_construct ({txt = Longident.Lident "[]"}, None);
-             } );
-           _;
-          ] ->
-            true
-          | _ :: rest -> isSelfClosing rest
-        in
-        Printf.printf "JsxOpen: %s %s\n" (jsxName lident.txt)
-          (locToString pexp_loc);
-        (if not (isSelfClosing args) then
-         let lineStart, colStart = Utils.tupleOfLexing pexp_loc.loc_start in
-         let lineEnd, colEnd = Utils.tupleOfLexing pexp_loc.loc_end in
-         let size = if lineStart = lineEnd then colEnd - colStart else 0 in
-         let lineEndWhole, colEndWhole =
-           Utils.tupleOfLexing expr.pexp_loc.loc_end
-         in
-         if size > 0 && colEndWhole > size then
-           Printf.printf "JsxClose: (%d,%d)->(%d,%d)\n" lineEndWhole
-             (colEndWhole - size - 1)
-             lineEndWhole (colEndWhole - 1));
-        args |> List.iter (fun (_lbl, e) -> processExpression e)
-      | Pexp_apply ({pexp_loc}, args)
-        when Res_parsetree_viewer.isBinaryExpression expr ->
-        Printf.printf "BinaryExp: %s\n" (locToString pexp_loc);
-        args |> List.iter (fun (_lbl, e) -> processExpression e)
-      | Pexp_apply (f, args) ->
-        processExpression f;
-        args |> List.iter (fun (_lbl, e) -> processExpression e)
-      | Pexp_construct (_lidend, expOpt) -> processExpressionOption expOpt
-      | Pexp_tuple exprs -> exprs |> List.iter processExpression
-      | Pexp_ident _ -> ()
-      | Pexp_constant _ -> ()
-      | Pexp_unreachable -> assert false
-      | Pexp_let (_, _, _) -> assert false
-      | Pexp_function _ -> assert false
-      | Pexp_fun (_, _, _, _) -> assert false
-      | Pexp_match (_, _) -> assert false
-      | Pexp_try (_, _) -> assert false
-      | Pexp_variant (_, _) -> assert false
-      | Pexp_record (_, _) -> assert false
-      | Pexp_field (_, _) -> assert false
-      | Pexp_setfield (_, _, _) -> assert false
-      | Pexp_array _ -> assert false
-      | Pexp_ifthenelse (_, _, _) -> assert false
-      | Pexp_sequence (_, _) -> assert false
-      | Pexp_while (_, _) -> assert false
-      | Pexp_for (_, _, _, _, _) -> assert false
-      | Pexp_constraint (_, _) -> assert false
-      | Pexp_coerce (_, _, _) -> assert false
-      | Pexp_send (_, _) -> assert false
-      | Pexp_new _ -> assert false
-      | Pexp_setinstvar (_, _) -> assert false
-      | Pexp_override _ -> assert false
-      | Pexp_letmodule (_, _, _) -> assert false
-      | Pexp_letexception (_, _) -> assert false
-      | Pexp_assert _ -> assert false
-      | Pexp_lazy _ -> assert false
-      | Pexp_poly (_, _) -> assert false
-      | Pexp_object _ -> assert false
-      | Pexp_newtype (_, _) -> assert false
-      | Pexp_pack _ -> assert false
-      | Pexp_open (_, _, _) -> assert false
-      | Pexp_extension _ -> assert false
-    and processExpressionOption = function
-      | None -> ()
-      | Some e -> processExpression e
-    in
-
-    let processValueBinding (binding : Parsetree.value_binding) =
-      processExpression binding.pvb_expr
-    in
-    let rec processTypeArg (coreType : Parsetree.core_type) =
-      Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc);
-      processCoreType coreType
-    and processCoreType (coreType : Parsetree.core_type) =
-      match coreType.ptyp_desc with
-      | Ptyp_constr (_lident, args) -> args |> List.iter processTypeArg
-      | _ -> ()
-    in
-    let processTypeDeclaration (typeDecl : Parsetree.type_declaration) =
-      match typeDecl.ptype_manifest with
-      | Some t -> processCoreType t
-      | None -> ()
-    in
-    let processStructureItem (item : Parsetree.structure_item) =
-      match item.pstr_desc with
-      | Pstr_value (_recFlag, bindings) ->
-        bindings |> List.iter processValueBinding
-      | Pstr_type (_recFlat, typeDecls) ->
-        typeDecls |> List.iter processTypeDeclaration
-      | _ -> ()
-    in
-    structure |> List.iter processStructureItem)
+    mapper.structure mapper structure |> ignore)
   else
     let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
     let {Res_driver.parsetree = signature; diagnostics} =
       parser ~filename:path
     in
     Printf.printf "signature items:%d diagnostics:%d \n" (List.length signature)
-      (List.length diagnostics)
+      (List.length diagnostics);
+    mapper.signature mapper signature |> ignore
 
 let test ~path =
   Uri2.stripPath := true;
