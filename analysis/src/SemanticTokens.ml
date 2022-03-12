@@ -53,15 +53,30 @@ let locToString (loc : Location.t) =
   let posStart, posEnd = locToPositions loc in
   Printf.sprintf "%s->%s" (posToString posStart) (posToString posEnd)
 
-let emitFromLoc loc emitter =
-  let posStart, posEnd = locToPositions loc in
+let emitFromPos posStart posEnd ~type_ emitter =
   let length =
     if fst posStart = fst posEnd then snd posEnd - snd posStart else 0
   in
   if length > 0 then
     emitter
-    |> Token.add ~line:(fst posStart) ~char:(snd posStart) ~length
-         ~type_:Token.Keyword
+    |> Token.add ~line:(fst posStart) ~char:(snd posStart) ~length ~type_
+
+let emitFromLoc ~loc ~type_ emitter =
+  let posStart, posEnd = locToPositions loc in
+  emitter |> emitFromPos posStart posEnd ~type_
+
+let emitJsxOpen ~id ~debug ~loc emitter =
+  if debug then Printf.printf "JsxOpen: %s %s\n" id (locToString loc);
+  emitter |> emitFromLoc ~loc ~type_:Token.Keyword
+
+let emitVariable ~id ~debug ~loc emitter =
+  if debug then Printf.printf "Variable: %s %s\n" id (locToString loc);
+  emitter |> emitFromLoc ~loc ~type_:Token.Keyword
+
+let emitJsxClose ~debug ~posStart ~posEnd emitter =
+  let l1, c1 = posStart and l2, c2 = posEnd in
+  if debug then Printf.printf "JsxClose: (%d,%d)->(%d,%d)\n" l1 c1 l2 c2;
+  emitter |> emitFromPos posStart posEnd ~type_:Token.Keyword
 
 let parser ~debug ~emitter ~path =
   let jsxName lident =
@@ -82,7 +97,10 @@ let parser ~debug ~emitter ~path =
   let processTypeArg (coreType : Parsetree.core_type) =
     if debug then Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc)
   in
-
+  let isLowercaseId id =
+    let c = id.[0] in
+    c == '_' || (c >= 'a' && c <= 'z')
+  in
   let typ (mapper : Ast_mapper.mapper) (coreType : Parsetree.core_type) =
     match coreType.ptyp_desc with
     | Ptyp_constr (_lident, args) ->
@@ -90,8 +108,18 @@ let parser ~debug ~emitter ~path =
       Ast_mapper.default_mapper.typ mapper coreType
     | _ -> Ast_mapper.default_mapper.typ mapper coreType
   in
+  let pat (mapper : Ast_mapper.mapper) (p : Parsetree.pattern) =
+    match p.ppat_desc with
+    | Ppat_var {loc; txt = id} ->
+      if isLowercaseId id then emitter |> emitVariable ~id ~debug ~loc;
+      Ast_mapper.default_mapper.pat mapper p
+    | _ -> Ast_mapper.default_mapper.pat mapper p
+  in
   let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
     match e.pexp_desc with
+    | Pexp_ident {txt = Lident id; loc} ->
+      if isLowercaseId id then emitter |> emitVariable ~id ~debug ~loc;
+      Ast_mapper.default_mapper.expr mapper e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
       when Res_parsetree_viewer.isJsxExpression e ->
       let rec isSelfClosing args =
@@ -108,26 +136,17 @@ let parser ~debug ~emitter ~path =
           true
         | _ :: rest -> isSelfClosing rest
       in
-
-      if debug then
-        Printf.printf "JsxOpen: %s %s\n" (jsxName lident.txt)
-          (locToString pexp_loc);
-      emitter |> emitFromLoc pexp_loc;
-
+      emitter |> emitJsxOpen ~id:(jsxName lident.txt) ~debug ~loc:pexp_loc;
       (if not (isSelfClosing args) then
        let lineStart, colStart = Utils.tupleOfLexing pexp_loc.loc_start in
        let lineEnd, colEnd = Utils.tupleOfLexing pexp_loc.loc_end in
        let length = if lineStart = lineEnd then colEnd - colStart else 0 in
        let lineEndWhole, colEndWhole = Utils.tupleOfLexing e.pexp_loc.loc_end in
-       if length > 0 && colEndWhole > length then (
-         let line = lineEndWhole in
-         let char = colEndWhole - length - 1 in
-
-         if debug then
-           Printf.printf "JsxClose: (%d,%d)->(%d,%d)\n" line char lineEndWhole
-             (colEndWhole - 1);
-         emitter |> Token.add ~line ~char ~length ~type_:Token.Keyword));
-
+       if length > 0 && colEndWhole > length then
+         emitter
+         |> emitJsxClose ~debug
+              ~posStart:(lineEndWhole, colEndWhole - length - 1)
+              ~posEnd:(lineEndWhole, colEndWhole - 1));
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_apply ({pexp_loc}, _) when Res_parsetree_viewer.isBinaryExpression e
       ->
@@ -136,7 +155,7 @@ let parser ~debug ~emitter ~path =
     | _ -> Ast_mapper.default_mapper.expr mapper e
   in
 
-  let mapper = {Ast_mapper.default_mapper with expr; typ} in
+  let mapper = {Ast_mapper.default_mapper with expr; pat; typ} in
 
   if Filename.check_suffix path ".res" then (
     let parser =
