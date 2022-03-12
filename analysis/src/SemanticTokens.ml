@@ -3,10 +3,14 @@ module Token = struct
 
   (* This needs to stay synced with the same legend in `server.ts` *)
   (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
-  type tokenType = Keyword | Variable
+  type tokenType = Keyword | Variable | Type
   type tokenModifiers = NoModifier
 
-  let tokenTypeToString = function Keyword -> "0" | Variable -> "1"
+  let tokenTypeToString = function
+    | Keyword -> "0"
+    | Variable -> "1"
+    | Type -> "2"
+
   let tokenModifiersToString = function NoModifier -> "0"
 
   type token = int * int * int * tokenType * tokenModifiers
@@ -73,6 +77,10 @@ let emitVariable ~id ~debug ~loc emitter =
   if debug then Printf.printf "Variable: %s %s\n" id (locToString loc);
   emitter |> emitFromLoc ~loc ~type_:Token.Variable
 
+let emitType ~id ~debug ~loc emitter =
+  if debug then Printf.printf "Type: %s %s\n" id (locToString loc);
+  emitter |> emitFromLoc ~loc ~type_:Token.Type
+
 let emitJsxClose ~debug ~posStart ~posEnd emitter =
   let l1, c1 = posStart and l2, c2 = posEnd in
   if debug then Printf.printf "JsxClose: (%d,%d)->(%d,%d)\n" l1 c1 l2 c2;
@@ -103,10 +111,19 @@ let parser ~debug ~emitter ~path =
   in
   let typ (mapper : Ast_mapper.mapper) (coreType : Parsetree.core_type) =
     match coreType.ptyp_desc with
-    | Ptyp_constr (_lident, args) ->
+    | Ptyp_constr ({txt; loc}, args) ->
+      (match txt with
+      | Lident id -> emitter |> emitType ~id ~debug ~loc
+      | _ -> ());
       args |> List.iter processTypeArg;
       Ast_mapper.default_mapper.typ mapper coreType
     | _ -> Ast_mapper.default_mapper.typ mapper coreType
+  in
+  let type_declaration (mapper : Ast_mapper.mapper)
+      (tydecl : Parsetree.type_declaration) =
+    emitter
+    |> emitType ~id:tydecl.ptype_name.txt ~debug ~loc:tydecl.ptype_name.loc;
+    Ast_mapper.default_mapper.type_declaration mapper tydecl
   in
   let pat (mapper : Ast_mapper.mapper) (p : Parsetree.pattern) =
     match p.ppat_desc with
@@ -155,7 +172,9 @@ let parser ~debug ~emitter ~path =
     | _ -> Ast_mapper.default_mapper.expr mapper e
   in
 
-  let mapper = {Ast_mapper.default_mapper with expr; pat; typ} in
+  let mapper =
+    {Ast_mapper.default_mapper with expr; pat; typ; type_declaration}
+  in
 
   if Filename.check_suffix path ".res" then (
     let parser =

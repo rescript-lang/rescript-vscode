@@ -759,7 +759,10 @@ function onMessage(msg: m.Message) {
           // documentSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
           semanticTokensProvider: {
-            legend: { tokenTypes: ["keyword", "variable"], tokenModifiers: [] },
+            legend: {
+              tokenTypes: ["keyword", "variable", "type"],
+              tokenModifiers: [],
+            },
             documentSelector: null,
             // TODO: Support range for full, and add delta support
             full: true,
