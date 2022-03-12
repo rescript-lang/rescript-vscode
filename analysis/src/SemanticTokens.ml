@@ -3,13 +3,14 @@ module Token = struct
 
   (* This needs to stay synced with the same legend in `server.ts` *)
   (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
-  type tokenType = Keyword | Variable | Type
+  type tokenType = Keyword | Variable | Type | JsxTag
   type tokenModifiers = NoModifier
 
   let tokenTypeToString = function
     | Keyword -> "0"
     | Variable -> "1"
     | Type -> "2"
+    | JsxTag -> "3"
 
   let tokenModifiersToString = function NoModifier -> "0"
 
@@ -71,7 +72,7 @@ let emitFromLoc ~loc ~type_ emitter =
 
 let emitJsxOpen ~id ~debug ~loc emitter =
   if debug then Printf.printf "JsxOpen: %s %s\n" id (locToString loc);
-  emitter |> emitFromLoc ~loc ~type_:Token.Keyword
+  emitter |> emitFromLoc ~loc ~type_:Token.JsxTag
 
 let emitVariable ~id ~debug ~loc emitter =
   if debug then Printf.printf "Variable: %s %s\n" id (locToString loc);
@@ -84,7 +85,7 @@ let emitType ~id ~debug ~loc emitter =
 let emitJsxClose ~debug ~posStart ~posEnd emitter =
   let l1, c1 = posStart and l2, c2 = posEnd in
   if debug then Printf.printf "JsxClose: (%d,%d)->(%d,%d)\n" l1 c1 l2 c2;
-  emitter |> emitFromPos posStart posEnd ~type_:Token.Keyword
+  emitter |> emitFromPos posStart posEnd ~type_:Token.JsxTag
 
 let parser ~debug ~emitter ~path =
   let jsxName lident =
