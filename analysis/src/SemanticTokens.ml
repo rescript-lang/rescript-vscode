@@ -58,6 +58,14 @@ let locToString (loc : Location.t) =
   let posStart, posEnd = locToPositions loc in
   Printf.sprintf "%s->%s" (posToString posStart) (posToString posEnd)
 
+let isLowercaseId id =
+  let c = id.[0] in
+  c == '_' || (c >= 'a' && c <= 'z')
+
+let isUppercaseId id =
+  let c = id.[0] in
+  c >= 'A' && c <= 'Z'
+
 let emitFromPos posStart posEnd ~type_ emitter =
   let length =
     if fst posStart = fst posEnd then snd posEnd - snd posStart else 0
@@ -70,45 +78,63 @@ let emitFromLoc ~loc ~type_ emitter =
   let posStart, posEnd = locToPositions loc in
   emitter |> emitFromPos posStart posEnd ~type_
 
-let emitJsxOpen ~id ~debug ~loc emitter =
-  if debug then Printf.printf "JsxOpen: %s %s\n" id (locToString loc);
-  emitter |> emitFromLoc ~loc ~type_:Token.JsxTag
+let emitLongident ~backwards ~pos ~jsx ~lid ~debug emitter =
+  let rec flatten acc lid =
+    match lid with
+    | Longident.Lident txt -> txt :: acc
+    | Ldot (lid, txt) ->
+      let acc = if jsx && txt = "createElement" then acc else txt :: acc in
+      flatten acc lid
+    | _ -> acc
+  in
+  let rec loop pos segments =
+    match segments with
+    | [id] when isUppercaseId id || isLowercaseId id ->
+      if debug then Printf.printf "Lident: %s %s\n" id (posToString pos);
+      emitter
+      |> emitFromPos pos
+           (fst pos, snd pos + String.length id)
+           ~type_:(if isUppercaseId id then Token.JsxTag else Token.Variable)
+    | id :: segments when isUppercaseId id || isLowercaseId id ->
+      if debug then Printf.printf "Ldot: %s %s\n" id (posToString pos);
+      let length = String.length id in
+      emitter
+      |> emitFromPos pos
+           (fst pos, snd pos + length)
+           ~type_:(if isUppercaseId id then Token.JsxTag else Token.Variable);
+      loop (fst pos, snd pos + length + 1) segments
+    | _ -> ()
+  in
+  let segments = flatten [] lid in
+  let segments = if backwards then List.rev segments else segments in
+  if backwards then (
+    let totalLength = segments |> String.concat "." |> String.length in
+    if snd pos >= totalLength then
+      loop (fst pos, snd pos - totalLength) segments)
+  else loop pos segments
 
 let emitVariable ~id ~debug ~loc emitter =
-  if debug then Printf.printf "Variable: %s %s\n" id (locToString loc);
-  emitter |> emitFromLoc ~loc ~type_:Token.Variable
+  emitter
+  |> emitLongident ~backwards:false
+       ~pos:(Utils.tupleOfLexing loc.Location.loc_start)
+       ~jsx:false ~lid:(Longident.Lident id) ~debug
+
+let emitJsxOpen ~lid ~debug ~loc emitter =
+  emitter
+  |> emitLongident ~backwards:false
+       ~pos:(Utils.tupleOfLexing loc.Location.loc_start)
+       ~lid ~jsx:true ~debug
+
+let emitJsxClose ~lid ~debug ~pos emitter =
+  emitter |> emitLongident ~backwards:true ~pos ~lid ~jsx:true ~debug
 
 let emitType ~id ~debug ~loc emitter =
   if debug then Printf.printf "Type: %s %s\n" id (locToString loc);
   emitter |> emitFromLoc ~loc ~type_:Token.Type
 
-let emitJsxClose ~debug ~posStart ~posEnd emitter =
-  let l1, c1 = posStart and l2, c2 = posEnd in
-  if debug then Printf.printf "JsxClose: (%d,%d)->(%d,%d)\n" l1 c1 l2 c2;
-  emitter |> emitFromPos posStart posEnd ~type_:Token.JsxTag
-
 let parser ~debug ~emitter ~path =
-  let jsxName lident =
-    let rec flatten acc lident =
-      match lident with
-      | Longident.Lident txt -> txt :: acc
-      | Ldot (lident, txt) ->
-        let acc = if txt = "createElement" then acc else txt :: acc in
-        flatten acc lident
-      | _ -> acc
-    in
-    match lident with
-    | Longident.Lident txt -> txt
-    | _ as lident ->
-      let segments = flatten [] lident in
-      segments |> String.concat "."
-  in
   let processTypeArg (coreType : Parsetree.core_type) =
     if debug then Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc)
-  in
-  let isLowercaseId id =
-    let c = id.[0] in
-    c == '_' || (c >= 'a' && c <= 'z')
   in
   let typ (mapper : Ast_mapper.mapper) (coreType : Parsetree.core_type) =
     match coreType.ptyp_desc with
@@ -135,8 +161,11 @@ let parser ~debug ~emitter ~path =
   in
   let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
     match e.pexp_desc with
-    | Pexp_ident {txt = Lident id; loc} ->
-      if isLowercaseId id then emitter |> emitVariable ~id ~debug ~loc;
+    | Pexp_ident {txt = lid; loc} ->
+      emitter
+      |> emitLongident ~backwards:false
+           ~pos:(Utils.tupleOfLexing loc.loc_start)
+           ~lid ~jsx:false ~debug;
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
       when Res_parsetree_viewer.isJsxExpression e ->
@@ -154,7 +183,7 @@ let parser ~debug ~emitter ~path =
           true
         | _ :: rest -> isSelfClosing rest
       in
-      emitter |> emitJsxOpen ~id:(jsxName lident.txt) ~debug ~loc:pexp_loc;
+      emitter |> emitJsxOpen ~lid:lident.txt ~debug ~loc:pexp_loc;
       (if not (isSelfClosing args) then
        let lineStart, colStart = Utils.tupleOfLexing pexp_loc.loc_start in
        let lineEnd, colEnd = Utils.tupleOfLexing pexp_loc.loc_end in
@@ -162,10 +191,15 @@ let parser ~debug ~emitter ~path =
        let lineEndWhole, colEndWhole = Utils.tupleOfLexing e.pexp_loc.loc_end in
        if length > 0 && colEndWhole > length then
          emitter
-         |> emitJsxClose ~debug
-              ~posStart:(lineEndWhole, colEndWhole - length - 1)
-              ~posEnd:(lineEndWhole, colEndWhole - 1));
-      Ast_mapper.default_mapper.expr mapper e
+         |> emitJsxClose ~debug ~lid:lident.txt
+              ~pos:(lineEndWhole, colEndWhole - 1));
+      (* only process again arguments, not the jsx label *)
+      let _ =
+        args
+        |> List.map (fun (_lbl, arg) ->
+               Ast_mapper.default_mapper.expr mapper arg)
+      in
+      e
     | Pexp_apply ({pexp_loc}, _) when Res_parsetree_viewer.isBinaryExpression e
       ->
       if debug then Printf.printf "BinaryExp: %s\n" (locToString pexp_loc);
