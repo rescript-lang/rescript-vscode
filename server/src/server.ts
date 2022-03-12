@@ -760,7 +760,7 @@ function onMessage(msg: m.Message) {
           completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
           semanticTokensProvider: {
             legend: {
-              tokenTypes: ["keyword", "variable", "type"],
+              tokenTypes: ["keyword", "variable", "type", "jsx-tag"],
               tokenModifiers: [],
             },
             documentSelector: null,

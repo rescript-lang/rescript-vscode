@@ -28,6 +28,13 @@
 	],
 	"main": "./client/out/extension",
 	"contributes": {
+		"semanticTokenScopes": [
+			{
+				"scopes": {
+					"jsx-tag": ["entity.name.tag"]
+				}
+			}
+		],
 		"jsonValidation": [
 			{
 				"fileMatch": "bsconfig.json",
