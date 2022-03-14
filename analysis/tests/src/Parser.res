@@ -61,6 +61,8 @@ module T = {
     someOtherField: string,
     theParam: 'typeParameter,
   }
+
+  type someEnum = A | B | C
 }
 
 let foo = x => x.T.someField
