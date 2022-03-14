@@ -12,6 +12,12 @@ module Token = struct
     | Type -> "2"
     | Module -> "3"
 
+  let tokenTypeDebug = function
+    | Keyword -> "Keyword"
+    | Variable -> "Variable"
+    | Type -> "Type"
+    | Module -> "Module"
+
   let tokenModifiersToString = function NoModifier -> "0"
 
   type token = int * int * int * tokenType * tokenModifiers
@@ -91,18 +97,18 @@ let emitLongident ?(backwards = false) ?(jsx = false)
   let rec loop pos segments =
     match segments with
     | [id] when isUppercaseId id || isLowercaseId id ->
-      if debug then Printf.printf "Lident: %s %s\n" id (posToString pos);
-      emitter
-      |> emitFromPos pos
-           (fst pos, snd pos + String.length id)
-           ~type_:(if isUppercaseId id then moduleToken else Variable)
+      let type_ = if isUppercaseId id then moduleToken else Variable in
+      if debug then
+        Printf.printf "Lident: %s %s %s\n" id (posToString pos)
+          (Token.tokenTypeDebug type_);
+      emitter |> emitFromPos pos (fst pos, snd pos + String.length id) ~type_
     | id :: segments when isUppercaseId id || isLowercaseId id ->
-      if debug then Printf.printf "Ldot: %s %s\n" id (posToString pos);
+      let type_ = if isUppercaseId id then moduleToken else Variable in
+      if debug then
+        Printf.printf "Ldot: %s %s %s\n" id (posToString pos)
+          (Token.tokenTypeDebug type_);
       let length = String.length id in
-      emitter
-      |> emitFromPos pos
-           (fst pos, snd pos + length)
-           ~type_:(if isUppercaseId id then moduleToken else Variable);
+      emitter |> emitFromPos pos (fst pos, snd pos + length) ~type_;
       loop (fst pos, snd pos + length + 1) segments
     | _ -> ()
   in
