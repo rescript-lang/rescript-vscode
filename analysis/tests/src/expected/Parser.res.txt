@@ -1,5 +1,5 @@
 Parse tests/src/Parser.res
-structure items:15 diagnostics:0 
+structure items:17 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
@@ -52,4 +52,11 @@ Ldot: XX (51,5) Namespace
 Lident: YY (51,8) Namespace
 Type: tt (53,5)->(53,7)
 Type: t (53,10)->(53,11)
+Lident: T (57,7) Namespace
+Type: someRecord (58,7)->(58,17)
+Type: int (59,15)->(59,18)
+Type: string (60,20)->(60,26)
+Lident: x (65,15) Variable
+Lident: x (65,10) Variable
+Lident: foo (65,4) Variable
 
