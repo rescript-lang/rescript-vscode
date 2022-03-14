@@ -31,7 +31,7 @@
 		"semanticTokenScopes": [
 			{
 				"scopes": {
-					"module-tag": ["entity.name.tag"]
+					"jsx-tag": ["entity.name.tag"]
 				}
 			}
 		],
