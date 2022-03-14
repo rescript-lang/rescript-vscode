@@ -160,6 +160,12 @@ let emitRecordLabel ~(label : Longident.t Location.loc) ~debug emitter =
        ~pos:(Utils.tupleOfLexing label.loc.loc_start)
        ~lid:label.txt ~debug
 
+let emitVariant ~(name : Longident.t Location.loc) ~debug emitter =
+  emitter
+  |> emitLongident ~upperCaseToken:Token.EnumMember
+       ~pos:(Utils.tupleOfLexing name.loc.loc_start)
+       ~lid:name.txt ~debug
+
 let parser ~debug ~emitter ~path =
   let processTypeArg (coreType : Parsetree.core_type) =
     if debug then Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc)
@@ -188,6 +194,9 @@ let parser ~debug ~emitter ~path =
     | Ppat_record (cases, _) ->
       cases
       |> List.iter (fun (label, _) -> emitter |> emitRecordLabel ~label ~debug);
+      Ast_mapper.default_mapper.pat mapper p
+    | Ppat_construct (name, _) ->
+      emitter |> emitVariant ~name ~debug;
       Ast_mapper.default_mapper.pat mapper p
     | _ -> Ast_mapper.default_mapper.pat mapper p
   in
@@ -240,6 +249,9 @@ let parser ~debug ~emitter ~path =
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_field (_, label) | Pexp_setfield (_, label, _) ->
       emitter |> emitRecordLabel ~label ~debug;
+      Ast_mapper.default_mapper.expr mapper e
+    | Pexp_construct (name, _) ->
+      emitter |> emitVariant ~name ~debug;
       Ast_mapper.default_mapper.expr mapper e
     | _ -> Ast_mapper.default_mapper.expr mapper e
   in
@@ -301,10 +313,19 @@ let parser ~debug ~emitter ~path =
          ~debug;
     Ast_mapper.default_mapper.label_declaration mapper ld
   in
+  let constructor_declaration (mapper : Ast_mapper.mapper)
+      (cd : Parsetree.constructor_declaration) =
+    emitter
+    |> emitVariant
+         ~name:{loc = cd.pcd_name.loc; txt = Longident.Lident cd.pcd_name.txt}
+         ~debug;
+    Ast_mapper.default_mapper.constructor_declaration mapper cd
+  in
 
   let mapper =
     {
       Ast_mapper.default_mapper with
+      constructor_declaration;
       expr;
       label_declaration;
       module_declaration;
