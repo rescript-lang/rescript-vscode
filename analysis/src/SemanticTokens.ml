@@ -3,14 +3,14 @@ module Token = struct
 
   (* This needs to stay synced with the same legend in `server.ts` *)
   (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
-  type tokenType = Keyword | Variable | Type | JsxTag
+  type tokenType = Keyword | Variable | Type | Module
   type tokenModifiers = NoModifier
 
   let tokenTypeToString = function
     | Keyword -> "0"
     | Variable -> "1"
     | Type -> "2"
-    | JsxTag -> "3"
+    | Module -> "3"
 
   let tokenModifiersToString = function NoModifier -> "0"
 
@@ -94,14 +94,14 @@ let emitLongident ~backwards ~pos ~jsx ~lid ~debug emitter =
       emitter
       |> emitFromPos pos
            (fst pos, snd pos + String.length id)
-           ~type_:(if isUppercaseId id then Token.JsxTag else Token.Variable)
+           ~type_:(if isUppercaseId id then Module else Token.Variable)
     | id :: segments when isUppercaseId id || isLowercaseId id ->
       if debug then Printf.printf "Ldot: %s %s\n" id (posToString pos);
       let length = String.length id in
       emitter
       |> emitFromPos pos
            (fst pos, snd pos + length)
-           ~type_:(if isUppercaseId id then Token.JsxTag else Token.Variable);
+           ~type_:(if isUppercaseId id then Module else Token.Variable);
       loop (fst pos, snd pos + length + 1) segments
     | _ -> ()
   in
