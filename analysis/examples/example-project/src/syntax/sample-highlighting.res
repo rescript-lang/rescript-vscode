@@ -18,6 +18,13 @@ type someEnum =
   | AnotherMember
   | SomeMemberWithPayload(someRecord<int>)
 
+type somePolyEnum = [
+  | #someMember
+  | #AnotherMember
+  | #SomeMemberWithPayload(someRecord<int>)
+  | #"fourth Member"
+]
+
 // Destructuring
 let destructuring = () => {
   let someVar = (1, 2, 3)
@@ -32,12 +39,24 @@ let destructuring = () => {
   someField
 }
 
+module SomeModule = {
+  type t = Some | Value | Here
+}
+
 // JSX
 module SomeComponent = {
   @react.component
-  let make = () => {
+  let make = (
+    ~someProp: int,
+    ~otherProp: string,
+    ~thirdProp: SomeModule.t,
+    ~fourth: somePolyEnum=#"fourth member",
+  ) => {
     React.null
   }
 }
 
-let jsx = <div> <SomeComponent /> </div>
+let jsx =
+  <div>
+    <SomeComponent someProp=123 otherProp="hello" thirdProp=Value fourth=#AnotherMember />
+  </div>
