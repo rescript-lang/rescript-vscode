@@ -60,6 +60,9 @@ Lident: someOtherField (60,4) Property
 Type: string (60,20)->(60,26)
 Lident: theParam (61,4) Property
 Type: someEnum (64,7)->(64,15)
+Lident: A (64,18) EnumMember
+Lident: B (64,22) EnumMember
+Lident: C (64,26) EnumMember
 Ldot: T (67,17) Namespace
 Lident: someField (67,19) Property
 Lident: x (67,15) Variable
