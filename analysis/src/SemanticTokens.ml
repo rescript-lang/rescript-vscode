@@ -3,7 +3,15 @@ module Token = struct
 
   (* This needs to stay synced with the same legend in `server.ts` *)
   (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
-  type tokenType = Keyword | Variable | Type | JsxTag | Namespace
+  type tokenType =
+    | Keyword
+    | Variable
+    | Type
+    | JsxTag
+    | Namespace
+    | EnumMember
+    | Property
+
   type tokenModifiers = NoModifier
 
   let tokenTypeToString = function
@@ -12,6 +20,8 @@ module Token = struct
     | Type -> "2"
     | JsxTag -> "3"
     | Namespace -> "4"
+    | EnumMember -> "5"
+    | Property -> "6"
 
   let tokenTypeDebug = function
     | Keyword -> "Keyword"
@@ -19,6 +29,8 @@ module Token = struct
     | Type -> "Type"
     | JsxTag -> "JsxTag"
     | Namespace -> "Namespace"
+    | EnumMember -> "EnumMember"
+    | Property -> "Property"
 
   let tokenModifiersToString = function NoModifier -> "0"
 
@@ -87,8 +99,8 @@ let emitFromLoc ~loc ~type_ emitter =
   emitter |> emitFromPos posStart posEnd ~type_
 
 let emitLongident ?(backwards = false) ?(jsx = false)
-    ?(moduleToken = Token.Namespace) ~pos ~lid ~debug emitter =
-  let variableToken = if jsx then Token.JsxTag else Variable in
+    ?(lowerCaseToken = if jsx then Token.JsxTag else Variable)
+    ?(upperCaseToken = Token.Namespace) ~pos ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -100,13 +112,13 @@ let emitLongident ?(backwards = false) ?(jsx = false)
   let rec loop pos segments =
     match segments with
     | [id] when isUppercaseId id || isLowercaseId id ->
-      let type_ = if isUppercaseId id then moduleToken else variableToken in
+      let type_ = if isUppercaseId id then upperCaseToken else lowerCaseToken in
       if debug then
         Printf.printf "Lident: %s %s %s\n" id (posToString pos)
           (Token.tokenTypeDebug type_);
       emitter |> emitFromPos pos (fst pos, snd pos + String.length id) ~type_
     | id :: segments when isUppercaseId id || isLowercaseId id ->
-      let type_ = if isUppercaseId id then moduleToken else variableToken in
+      let type_ = if isUppercaseId id then upperCaseToken else lowerCaseToken in
       if debug then
         Printf.printf "Ldot: %s %s %s\n" id (posToString pos)
           (Token.tokenTypeDebug type_);
@@ -142,6 +154,12 @@ let emitType ~id ~debug ~loc emitter =
   if debug then Printf.printf "Type: %s %s\n" id (locToString loc);
   emitter |> emitFromLoc ~loc ~type_:Token.Type
 
+let emitRecordLabel ~(label : Longident.t Location.loc) ~debug emitter =
+  emitter
+  |> emitLongident ~lowerCaseToken:Token.Property
+       ~pos:(Utils.tupleOfLexing label.loc.loc_start)
+       ~lid:label.txt ~debug
+
 let parser ~debug ~emitter ~path =
   let processTypeArg (coreType : Parsetree.core_type) =
     if debug then Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc)
@@ -166,6 +184,10 @@ let parser ~debug ~emitter ~path =
     match p.ppat_desc with
     | Ppat_var {loc; txt = id} ->
       if isLowercaseId id then emitter |> emitVariable ~id ~debug ~loc;
+      Ast_mapper.default_mapper.pat mapper p
+    | Ppat_record (cases, _) ->
+      cases
+      |> List.iter (fun (label, _) -> emitter |> emitRecordLabel ~label ~debug);
       Ast_mapper.default_mapper.pat mapper p
     | _ -> Ast_mapper.default_mapper.pat mapper p
   in
@@ -212,6 +234,13 @@ let parser ~debug ~emitter ~path =
       ->
       if debug then Printf.printf "BinaryExp: %s\n" (locToString pexp_loc);
       Ast_mapper.default_mapper.expr mapper e
+    | Pexp_record (cases, _) ->
+      cases
+      |> List.iter (fun (label, _) -> emitter |> emitRecordLabel ~label ~debug);
+      Ast_mapper.default_mapper.expr mapper e
+    | Pexp_field (_, label) | Pexp_setfield (_, label, _) ->
+      emitter |> emitRecordLabel ~label ~debug;
+      Ast_mapper.default_mapper.expr mapper e
     | _ -> Ast_mapper.default_mapper.expr mapper e
   in
   let module_expr (mapper : Ast_mapper.mapper) (me : Parsetree.module_expr) =
@@ -242,7 +271,7 @@ let parser ~debug ~emitter ~path =
     match mt.pmty_desc with
     | Pmty_ident {txt = lid; loc} ->
       emitter
-      |> emitLongident ~moduleToken:Token.Type
+      |> emitLongident ~upperCaseToken:Token.Type
            ~pos:(Utils.tupleOfLexing loc.loc_start)
            ~lid ~debug;
       Ast_mapper.default_mapper.module_type mapper mt
@@ -251,7 +280,7 @@ let parser ~debug ~emitter ~path =
   let module_type_declaration (mapper : Ast_mapper.mapper)
       (mtd : Parsetree.module_type_declaration) =
     emitter
-    |> emitLongident ~moduleToken:Token.Type
+    |> emitLongident ~upperCaseToken:Token.Type
          ~pos:(Utils.tupleOfLexing mtd.pmtd_name.loc.loc_start)
          ~lid:(Longident.Lident mtd.pmtd_name.txt) ~debug;
     Ast_mapper.default_mapper.module_type_declaration mapper mtd
@@ -264,11 +293,20 @@ let parser ~debug ~emitter ~path =
          ~lid:od.popen_lid.txt ~debug;
     Ast_mapper.default_mapper.open_description mapper od
   in
+  let label_declaration (mapper : Ast_mapper.mapper)
+      (ld : Parsetree.label_declaration) =
+    emitter
+    |> emitRecordLabel
+         ~label:{loc = ld.pld_name.loc; txt = Longident.Lident ld.pld_name.txt}
+         ~debug;
+    Ast_mapper.default_mapper.label_declaration mapper ld
+  in
 
   let mapper =
     {
       Ast_mapper.default_mapper with
       expr;
+      label_declaration;
       module_declaration;
       module_binding;
       module_expr;
