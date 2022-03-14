@@ -32,13 +32,30 @@ let destructuring = () => {
   return someField;
 };
 
+namespace SomeModule {
+  export enum t {
+    Some,
+    Value,
+    Here,
+  }
+}
+
 // JSX
-const SomeComponent = () => {
+interface Props {
+  someProp: number;
+  otherProp: string;
+  thirdProp: SomeModule.t;
+}
+const SomeComponent = ({ someProp, otherProp, thirdProp }: Props) => {
   return null;
 };
 
 let jsx = (
   <div>
-    <SomeComponent />
+    <SomeComponent
+      someProp={123}
+      otherProp="hello"
+      thirdProp={SomeModule.t.Value}
+    />
   </div>
 );
