@@ -78,7 +78,7 @@ let emitFromLoc ~loc ~type_ emitter =
   let posStart, posEnd = locToPositions loc in
   emitter |> emitFromPos posStart posEnd ~type_
 
-let emitLongident ~backwards ~pos ~jsx ~lid ~debug emitter =
+let emitLongident ?(backwards = false) ?(jsx = false) ~pos ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -115,13 +115,13 @@ let emitLongident ~backwards ~pos ~jsx ~lid ~debug emitter =
 
 let emitVariable ~id ~debug ~loc emitter =
   emitter
-  |> emitLongident ~backwards:false
+  |> emitLongident
        ~pos:(Utils.tupleOfLexing loc.Location.loc_start)
-       ~jsx:false ~lid:(Longident.Lident id) ~debug
+       ~lid:(Longident.Lident id) ~debug
 
 let emitJsxOpen ~lid ~debug ~loc emitter =
   emitter
-  |> emitLongident ~backwards:false
+  |> emitLongident
        ~pos:(Utils.tupleOfLexing loc.Location.loc_start)
        ~lid ~jsx:true ~debug
 
@@ -163,9 +163,7 @@ let parser ~debug ~emitter ~path =
     match e.pexp_desc with
     | Pexp_ident {txt = lid; loc} ->
       emitter
-      |> emitLongident ~backwards:false
-           ~pos:(Utils.tupleOfLexing loc.loc_start)
-           ~lid ~jsx:false ~debug;
+      |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
       when Res_parsetree_viewer.isJsxExpression e ->
@@ -206,9 +204,69 @@ let parser ~debug ~emitter ~path =
       Ast_mapper.default_mapper.expr mapper e
     | _ -> Ast_mapper.default_mapper.expr mapper e
   in
+  let module_expr (mapper : Ast_mapper.mapper) (me : Parsetree.module_expr) =
+    match me.pmod_desc with
+    | Pmod_ident {txt = lid; loc} ->
+      emitter
+      |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
+      Ast_mapper.default_mapper.module_expr mapper me
+    | _ -> Ast_mapper.default_mapper.module_expr mapper me
+  in
+  let module_binding (mapper : Ast_mapper.mapper)
+      (mb : Parsetree.module_binding) =
+    emitter
+    |> emitLongident
+         ~pos:(Utils.tupleOfLexing mb.pmb_name.loc.loc_start)
+         ~lid:(Longident.Lident mb.pmb_name.txt) ~debug;
+    Ast_mapper.default_mapper.module_binding mapper mb
+  in
+  let module_declaration (mapper : Ast_mapper.mapper)
+      (md : Parsetree.module_declaration) =
+    emitter
+    |> emitLongident
+         ~pos:(Utils.tupleOfLexing md.pmd_name.loc.loc_start)
+         ~lid:(Longident.Lident md.pmd_name.txt) ~debug;
+    Ast_mapper.default_mapper.module_declaration mapper md
+  in
+  let module_type (mapper : Ast_mapper.mapper) (mt : Parsetree.module_type) =
+    match mt.pmty_desc with
+    | Pmty_ident {txt = lid; loc} ->
+      emitter
+      |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
+      Ast_mapper.default_mapper.module_type mapper mt
+    | _ -> Ast_mapper.default_mapper.module_type mapper mt
+  in
+  let module_type_declaration (mapper : Ast_mapper.mapper)
+      (mtd : Parsetree.module_type_declaration) =
+    emitter
+    |> emitLongident
+         ~pos:(Utils.tupleOfLexing mtd.pmtd_name.loc.loc_start)
+         ~lid:(Longident.Lident mtd.pmtd_name.txt) ~debug;
+    Ast_mapper.default_mapper.module_type_declaration mapper mtd
+  in
+  let open_description (mapper : Ast_mapper.mapper)
+      (od : Parsetree.open_description) =
+    emitter
+    |> emitLongident
+         ~pos:(Utils.tupleOfLexing od.popen_lid.loc.loc_start)
+         ~lid:od.popen_lid.txt ~debug;
+    Ast_mapper.default_mapper.open_description mapper od
+  in
 
   let mapper =
-    {Ast_mapper.default_mapper with expr; pat; typ; type_declaration}
+    {
+      Ast_mapper.default_mapper with
+      expr;
+      module_declaration;
+      module_binding;
+      module_expr;
+      module_type;
+      module_type_declaration;
+      open_description;
+      pat;
+      typ;
+      type_declaration;
+    }
   in
 
   if Filename.check_suffix path ".res" then (
