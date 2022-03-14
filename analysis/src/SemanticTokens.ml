@@ -136,10 +136,8 @@ let emitLongident ?(backwards = false) ?(jsx = false)
   else loop pos segments
 
 let emitVariable ~id ~debug ~loc emitter =
-  emitter
-  |> emitLongident
-       ~pos:(Utils.tupleOfLexing loc.Location.loc_start)
-       ~lid:(Longident.Lident id) ~debug
+  if debug then Printf.printf "Variable: %s %s\n" id (locToString loc);
+  emitter |> emitFromLoc ~loc ~type_:Variable
 
 let emitJsxOpen ~lid ~debug ~loc emitter =
   emitter
@@ -188,8 +186,9 @@ let parser ~debug ~emitter ~path =
   in
   let pat (mapper : Ast_mapper.mapper) (p : Parsetree.pattern) =
     match p.ppat_desc with
-    | Ppat_var {loc; txt = id} ->
-      if isLowercaseId id then emitter |> emitVariable ~id ~debug ~loc;
+    | Ppat_var {txt = id} ->
+      if isLowercaseId id then
+        emitter |> emitVariable ~id ~debug ~loc:p.ppat_loc;
       Ast_mapper.default_mapper.pat mapper p
     | Ppat_record (cases, _) ->
       cases
