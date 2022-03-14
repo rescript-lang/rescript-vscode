@@ -1,26 +1,26 @@
 Parse tests/src/Parser.res
 structure items:15 diagnostics:0 
-Lident: M (0,7) Module
-Lident: C (1,9) Module
-Lident: Component (1,13) Module
-Lident: Component (4,10) Module
+Lident: M (0,7) Namespace
+Lident: C (1,9) Namespace
+Lident: Component (1,13) Namespace
+Lident: Component (4,10) Namespace
 Lident: _c (4,4) Variable
-Ldot: M (6,11) Module
-Lident: C (6,13) Module
+Ldot: M (6,11) Namespace
+Lident: C (6,13) Namespace
 Lident: _mc (6,4) Variable
-Lident: div (8,10) Variable
+Lident: div (8,10) JsxTag
 Lident: _d (8,4) Variable
-Lident: div (11,3) Variable
-Lident: div (16,4) Variable
-Ldot: React (12,5) Module
+Lident: div (11,3) JsxTag
+Lident: div (16,4) JsxTag
+Ldot: React (12,5) Namespace
 Lident: string (12,11) Variable
-Lident: div (13,5) Variable
-Lident: div (13,34) Variable
-Ldot: React (13,11) Module
+Lident: div (13,5) JsxTag
+Lident: div (13,34) JsxTag
+Ldot: React (13,11) Namespace
 Lident: string (13,17) Variable
-Ldot: React (14,5) Module
+Ldot: React (14,5) Namespace
 Lident: string (14,11) Variable
-Ldot: React (15,5) Module
+Ldot: React (15,5) Namespace
 Lident: string (15,11) Variable
 Lident: _d2 (10,4) Variable
 Type: pair (18,5)->(18,9)
@@ -40,16 +40,16 @@ BinaryExp: (31,14)->(31,16)
 BinaryExp: (31,10)->(31,11)
 BinaryExp: (31,19)->(31,20)
 Lident: MT (33,12) Type
-Lident: DDF (34,9) Module
-Lident: DDF (39,7) Module
+Lident: DDF (34,9) Namespace
+Lident: DDF (39,7) Namespace
 Lident: MT (39,12) Type
-Lident: DDF (40,9) Module
-Lident: XX (45,7) Module
-Lident: YY (46,9) Module
+Lident: DDF (40,9) Namespace
+Lident: XX (45,7) Namespace
+Lident: YY (46,9) Namespace
 Type: t (47,9)->(47,10)
 Type: int (47,13)->(47,16)
-Ldot: XX (51,5) Module
-Lident: YY (51,8) Module
+Ldot: XX (51,5) Namespace
+Lident: YY (51,8) Namespace
 Type: tt (53,5)->(53,7)
 Type: t (53,10)->(53,11)
 

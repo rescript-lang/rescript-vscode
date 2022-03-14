@@ -3,20 +3,22 @@ module Token = struct
 
   (* This needs to stay synced with the same legend in `server.ts` *)
   (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
-  type tokenType = Keyword | Variable | Type | Module
+  type tokenType = Keyword | Variable | Type | JsxTag | Namespace
   type tokenModifiers = NoModifier
 
   let tokenTypeToString = function
     | Keyword -> "0"
     | Variable -> "1"
     | Type -> "2"
-    | Module -> "3"
+    | JsxTag -> "3"
+    | Namespace -> "4"
 
   let tokenTypeDebug = function
     | Keyword -> "Keyword"
     | Variable -> "Variable"
     | Type -> "Type"
-    | Module -> "Module"
+    | JsxTag -> "JsxTag"
+    | Namespace -> "Namespace"
 
   let tokenModifiersToString = function NoModifier -> "0"
 
@@ -85,7 +87,8 @@ let emitFromLoc ~loc ~type_ emitter =
   emitter |> emitFromPos posStart posEnd ~type_
 
 let emitLongident ?(backwards = false) ?(jsx = false)
-    ?(moduleToken = Token.Module) ~pos ~lid ~debug emitter =
+    ?(moduleToken = Token.Namespace) ~pos ~lid ~debug emitter =
+  let variableToken = if jsx then Token.JsxTag else Variable in
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -97,13 +100,13 @@ let emitLongident ?(backwards = false) ?(jsx = false)
   let rec loop pos segments =
     match segments with
     | [id] when isUppercaseId id || isLowercaseId id ->
-      let type_ = if isUppercaseId id then moduleToken else Variable in
+      let type_ = if isUppercaseId id then moduleToken else variableToken in
       if debug then
         Printf.printf "Lident: %s %s %s\n" id (posToString pos)
           (Token.tokenTypeDebug type_);
       emitter |> emitFromPos pos (fst pos, snd pos + String.length id) ~type_
     | id :: segments when isUppercaseId id || isLowercaseId id ->
-      let type_ = if isUppercaseId id then moduleToken else Variable in
+      let type_ = if isUppercaseId id then moduleToken else variableToken in
       if debug then
         Printf.printf "Ldot: %s %s %s\n" id (posToString pos)
           (Token.tokenTypeDebug type_);
