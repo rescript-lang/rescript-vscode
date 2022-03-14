@@ -53,4 +53,14 @@ open XX.YY
 
 type tt = t
 
-// ^par 
+// ^par
+
+module T = {
+  type someRecord<'typeParameter> = {
+    someField: int,
+    someOtherField: string,
+    theParam: 'typeParameter,
+  }
+}
+
+let foo = x => x.T.someField
