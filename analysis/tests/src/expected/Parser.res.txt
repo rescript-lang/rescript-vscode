@@ -1,5 +1,8 @@
 Parse tests/src/Parser.res
-structure items:10 diagnostics:0 
+structure items:15 diagnostics:0 
+Lident: M (0,7)
+Lident: C (1,9)
+Lident: Component (1,13)
 Lident: Component (4,10)
 Lident: _c (4,4)
 Ldot: M (6,11)
@@ -36,4 +39,17 @@ Type: looooooooooooooooooooooooooooooooooooooong_string (27,4)->(27,53)
 BinaryExp: (31,14)->(31,16)
 BinaryExp: (31,10)->(31,11)
 BinaryExp: (31,19)->(31,20)
+Lident: MT (33,12)
+Lident: DDF (34,9)
+Lident: DDF (39,7)
+Lident: MT (39,12)
+Lident: DDF (40,9)
+Lident: XX (45,7)
+Lident: YY (46,9)
+Type: t (47,9)->(47,10)
+Type: int (47,13)->(47,16)
+Ldot: XX (51,5)
+Lident: YY (51,8)
+Type: tt (53,5)->(53,7)
+Type: t (53,10)->(53,11)
 

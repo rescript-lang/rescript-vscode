@@ -31,4 +31,26 @@ type pairIntString = list<
 
 let _ = 3 < 4 || 3 > 4
 
+module type MT = {
+  module DDF: {
+
+  }
+}
+
+module DDF: MT = {
+  module DDF = {
+
+  }
+}
+
+module XX = {
+  module YY = {
+    type t = int
+  }
+}
+
+open XX.YY
+
+type tt = t
+
 // ^par 
