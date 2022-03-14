@@ -56,7 +56,8 @@ Lident: T (57,7) Namespace
 Type: someRecord (58,7)->(58,17)
 Type: int (59,15)->(59,18)
 Type: string (60,20)->(60,26)
-Lident: x (65,15) Variable
-Lident: x (65,10) Variable
-Lident: foo (65,4) Variable
+Type: someEnum (64,7)->(64,15)
+Lident: x (67,15) Variable
+Lident: x (67,10) Variable
+Lident: foo (67,4) Variable
 
