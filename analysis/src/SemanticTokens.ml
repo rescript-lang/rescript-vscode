@@ -78,7 +78,8 @@ let emitFromLoc ~loc ~type_ emitter =
   let posStart, posEnd = locToPositions loc in
   emitter |> emitFromPos posStart posEnd ~type_
 
-let emitLongident ?(backwards = false) ?(jsx = false) ~pos ~lid ~debug emitter =
+let emitLongident ?(backwards = false) ?(jsx = false)
+    ?(moduleToken = Token.Module) ~pos ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -94,14 +95,14 @@ let emitLongident ?(backwards = false) ?(jsx = false) ~pos ~lid ~debug emitter =
       emitter
       |> emitFromPos pos
            (fst pos, snd pos + String.length id)
-           ~type_:(if isUppercaseId id then Module else Token.Variable)
+           ~type_:(if isUppercaseId id then moduleToken else Variable)
     | id :: segments when isUppercaseId id || isLowercaseId id ->
       if debug then Printf.printf "Ldot: %s %s\n" id (posToString pos);
       let length = String.length id in
       emitter
       |> emitFromPos pos
            (fst pos, snd pos + length)
-           ~type_:(if isUppercaseId id then Module else Token.Variable);
+           ~type_:(if isUppercaseId id then moduleToken else Variable);
       loop (fst pos, snd pos + length + 1) segments
     | _ -> ()
   in
@@ -232,14 +233,16 @@ let parser ~debug ~emitter ~path =
     match mt.pmty_desc with
     | Pmty_ident {txt = lid; loc} ->
       emitter
-      |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
+      |> emitLongident ~moduleToken:Token.Type
+           ~pos:(Utils.tupleOfLexing loc.loc_start)
+           ~lid ~debug;
       Ast_mapper.default_mapper.module_type mapper mt
     | _ -> Ast_mapper.default_mapper.module_type mapper mt
   in
   let module_type_declaration (mapper : Ast_mapper.mapper)
       (mtd : Parsetree.module_type_declaration) =
     emitter
-    |> emitLongident
+    |> emitLongident ~moduleToken:Token.Type
          ~pos:(Utils.tupleOfLexing mtd.pmtd_name.loc.loc_start)
          ~lid:(Longident.Lident mtd.pmtd_name.txt) ~debug;
     Ast_mapper.default_mapper.module_type_declaration mapper mtd
