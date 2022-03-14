@@ -1,15 +1,15 @@
 Parse tests/src/Parser.res
-structure items:17 diagnostics:0 
+structure items:18 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
 Lident: Component (4,10) Namespace
-Lident: _c (4,4) Variable
+Variable: _c (4,4)->(4,6)
 Ldot: M (6,11) Namespace
 Lident: C (6,13) Namespace
-Lident: _mc (6,4) Variable
+Variable: _mc (6,4)->(6,7)
 Lident: div (8,10) JsxTag
-Lident: _d (8,4) Variable
+Variable: _d (8,4)->(8,6)
 Lident: div (11,3) JsxTag
 Lident: div (16,4) JsxTag
 Ldot: React (12,5) Namespace
@@ -22,7 +22,7 @@ Ldot: React (14,5) Namespace
 Lident: string (14,11) Variable
 Ldot: React (15,5) Namespace
 Lident: string (15,11) Variable
-Lident: _d2 (10,4) Variable
+Variable: _d2 (10,4)->(10,7)
 Type: pair (18,5)->(18,9)
 Type: looooooooooooooooooooooooooooooooooooooong_int (20,5)->(20,51)
 Type: int (20,54)->(20,57)
@@ -66,6 +66,12 @@ Lident: C (64,26) EnumMember
 Ldot: T (67,17) Namespace
 Lident: someField (67,19) Property
 Lident: x (67,15) Variable
-Lident: x (67,10) Variable
-Lident: foo (67,4) Variable
+Variable: x (67,10)->(67,11)
+Variable: foo (67,4)->(67,7)
+BinaryExp: (69,36)->(69,37)
+Lident: hello (69,30) Variable
+Lident: world (69,38) Variable
+Variable: world (69,19)->(69,25)
+Variable: hello (69,11)->(69,17)
+Variable: add (69,4)->(69,7)
 

@@ -66,3 +66,5 @@ module T = {
 }
 
 let foo = x => x.T.someField
+
+let add = (~hello, ~world) => hello + world
