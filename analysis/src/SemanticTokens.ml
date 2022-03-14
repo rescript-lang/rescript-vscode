@@ -232,11 +232,7 @@ let parser ~debug ~emitter ~path =
          |> emitJsxClose ~debug ~lid:lident.txt
               ~pos:(lineEndWhole, colEndWhole - 1));
       (* only process again arguments, not the jsx label *)
-      let _ =
-        args
-        |> List.map (fun (_lbl, arg) ->
-               Ast_mapper.default_mapper.expr mapper arg)
-      in
+      let _ = args |> List.map (fun (_lbl, arg) -> mapper.expr mapper arg) in
       e
     | Pexp_apply ({pexp_loc}, _) when Res_parsetree_viewer.isBinaryExpression e
       ->
