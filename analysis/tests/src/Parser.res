@@ -67,4 +67,8 @@ module T = {
 
 let foo = x => x.T.someField
 
-let add = (~hello, ~world) => hello + world
+let add = (~hello as x, ~world) => x + world
+
+let _ = add(~hello=3)
+
+let _ = <div scale="abc" />

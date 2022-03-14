@@ -1,5 +1,5 @@
 Parse tests/src/Parser.res
-structure items:18 diagnostics:0 
+structure items:20 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
@@ -68,10 +68,12 @@ Lident: someField (67,19) Property
 Lident: x (67,15) Variable
 Variable: x (67,10)->(67,11)
 Variable: foo (67,4)->(67,7)
-BinaryExp: (69,36)->(69,37)
-Lident: hello (69,30) Variable
-Lident: world (69,38) Variable
-Variable: world (69,19)->(69,25)
-Variable: hello (69,11)->(69,17)
+BinaryExp: (69,37)->(69,38)
+Lident: x (69,35) Variable
+Lident: world (69,39) Variable
+Variable: world (69,24)->(69,30)
+Variable: x (69,21)->(69,22)
 Variable: add (69,4)->(69,7)
+Lident: add (71,8) Variable
+Lident: div (73,9) JsxTag
 
