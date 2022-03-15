@@ -71,4 +71,4 @@ let add = (~hello as x, ~world) => x + world
 
 let _ = add(~hello=3)
 
-let _ = <div scale="abc" />
+let _ = <div scale="abc"> <div /> </div>
