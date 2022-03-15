@@ -43,6 +43,9 @@ module SomeModule = {
   type t = Some | Value | Here
 }
 
+// Strings
+let interpolated = `${numberBinding} ${"123"}`
+
 // JSX
 module SomeComponent = {
   @react.component
