@@ -76,4 +76,6 @@ Variable: x (69,21)->(69,22)
 Variable: add (69,4)->(69,7)
 Lident: add (71,8) Variable
 Lident: div (73,9) JsxTag
+Lident: div (73,36) JsxTag
+Lident: div (73,27) JsxTag
 
