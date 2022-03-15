@@ -161,13 +161,13 @@
               "begin": "\\$\\{",
               "beginCaptures": {
                 "0": {
-                  "name": "punctuation.section.interpolation.begin"
+                  "name": "punctuation.definition.template-expression.begin"
                 }
               },
               "end": "\\}",
               "endCaptures": {
                 "0": {
-                  "name": "punctuation.section.interpolation.end"
+                  "name": "punctuation.definition.template-expression.end"
                 }
               },
               "patterns": [
