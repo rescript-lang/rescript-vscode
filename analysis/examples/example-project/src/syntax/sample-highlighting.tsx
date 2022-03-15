@@ -1,6 +1,10 @@
 // Bindings
 let numberBinding = 123;
 
+const SomeComp = {
+  Nested: () => null,
+};
+
 let someFunction = (param: number): number => {
   let innerBinding = param + 2;
   return innerBinding;
