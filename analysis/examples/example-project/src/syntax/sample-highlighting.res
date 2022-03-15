@@ -54,9 +54,17 @@ module SomeComponent = {
   ) => {
     React.null
   }
+
+  module Nested = {
+    @react.component
+    let make = (~children) => {
+      <> {children} </>
+    }
+  }
 }
 
 let jsx =
   <div>
     <SomeComponent someProp=123 otherProp="hello" thirdProp=Value fourth=#AnotherMember />
+    <SomeComponent.Nested> {React.string("Nested")} </SomeComponent.Nested>
   </div>
