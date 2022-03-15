@@ -206,6 +206,14 @@
         }
       ]
     },
+    "defaultIdIsVariable": {
+      "patterns": [
+        {
+          "match": "[A-Za-z_][A-Za-z0-9]*",
+          "name": "variable"
+        }
+      ]
+    },
     "number": {
       "patterns": [
         {
@@ -501,6 +509,9 @@
     },
     {
       "include": "#punctuations"
+    },
+    {
+      "include": "#defaultIdIsVariable"
     }
   ]
 }
