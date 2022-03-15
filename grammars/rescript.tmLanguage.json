@@ -17,6 +17,10 @@
       "name": "keyword.control",
       "match": "\\b(and|as|assert|constraint|downto|else|exception|external|false|for|if|in|include|lazy|module|mutable|of|open|rec|switch|to|true|try|type|when|while|with)\\b"
     },
+    "RE_CONSTANTS_BOOL": {
+      "name": "constant.language.boolean",
+      "match": "\\b(false|true)\\b"
+    },
     "RE_LET": {
       "name": "keyword",
       "match": "\\b(let)\\b"
@@ -105,6 +109,9 @@
       "patterns": [
         {
           "include": "#RE_LITERAL"
+        },
+        {
+          "include": "#RE_CONSTANTS_BOOL"
         }
       ]
     },
