@@ -209,7 +209,7 @@
     "defaultIdIsVariable": {
       "patterns": [
         {
-          "match": "[A-Za-z_][A-Za-z0-9]*",
+          "match": "[A-Za-z][A-Za-z0-9]*",
           "name": "variable"
         }
       ]
