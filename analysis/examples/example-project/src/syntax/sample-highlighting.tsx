@@ -44,6 +44,9 @@ namespace SomeModule {
   }
 }
 
+// Strings
+let interpolated = `${numberBinding} ${"123"}`;
+
 // JSX
 interface Props {
   someProp: number;
