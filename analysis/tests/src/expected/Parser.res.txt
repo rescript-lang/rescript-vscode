@@ -8,14 +8,18 @@ Variable: _c (4,4)->(4,6)
 Ldot: M (6,11) Namespace
 Lident: C (6,13) Namespace
 Variable: _mc (6,4)->(6,7)
-Lident: div (8,10) JsxTag
+Lident: div (8,10) Variable
 Variable: _d (8,4)->(8,6)
-Lident: div (11,3) JsxTag
-Lident: div (16,4) JsxTag
+Lident: div (11,3) Variable
+Lident: div (16,4) Variable
+JsxTag >: (11,6)
+JsxTag >: (16,7)
 Ldot: React (12,5) Namespace
 Lident: string (12,11) Variable
-Lident: div (13,5) JsxTag
-Lident: div (13,34) JsxTag
+Lident: div (13,5) Variable
+Lident: div (13,34) Variable
+JsxTag >: (13,8)
+JsxTag >: (13,37)
 Ldot: React (13,11) Namespace
 Lident: string (13,17) Variable
 Ldot: React (14,5) Namespace
@@ -75,9 +79,11 @@ Variable: world (69,24)->(69,30)
 Variable: x (69,21)->(69,22)
 Variable: add (69,4)->(69,7)
 Lident: add (71,8) Variable
-Lident: div (73,9) JsxTag
-Lident: div (73,36) JsxTag
-Lident: div (73,27) JsxTag
+Lident: div (73,9) Variable
+Lident: div (73,36) Variable
+JsxTag >: (73,24)
+JsxTag >: (73,39)
+Lident: div (73,27) Variable
 Lident: SomeComponent (75,7) Namespace
 Lident: Nested (76,9) Namespace
 Lident: children (79,10) Variable
@@ -87,5 +93,7 @@ Ldot: SomeComponent (84,9) Namespace
 Lident: Nested (84,23) Namespace
 Ldot: SomeComponent (84,41) Namespace
 Lident: Nested (84,55) Namespace
-Lident: div (84,32) JsxTag
+JsxTag >: (84,29)
+JsxTag >: (84,61)
+Lident: div (84,32) Variable
 

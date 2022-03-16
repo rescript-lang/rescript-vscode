@@ -99,8 +99,8 @@ let emitFromLoc ~loc ~type_ emitter =
   emitter |> emitFromPos posStart posEnd ~type_
 
 let emitLongident ?(backwards = false) ?(jsx = false)
-    ?(lowerCaseToken = if jsx then Token.JsxTag else Variable)
-    ?(upperCaseToken = Token.Namespace) ~pos ~lid ~debug emitter =
+    ?(lowerCaseToken = Token.Variable) ?(upperCaseToken = Token.Namespace) ~pos
+    ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -146,6 +146,10 @@ let emitJsxOpen ~lid ~debug ~loc emitter =
 
 let emitJsxClose ~lid ~debug ~pos emitter =
   emitter |> emitLongident ~backwards:true ~pos ~lid ~jsx:true ~debug
+
+let emitJsxTag ~debug ~pos emitter =
+  if debug then Printf.printf "JsxTag >: %s\n" (posToString pos);
+  emitter |> emitFromPos pos (fst pos, snd pos + 1) ~type_:Token.JsxTag
 
 let emitType ~id ~debug ~loc emitter =
   if debug then Printf.printf "Type: %s %s\n" id (locToString loc);
@@ -226,10 +230,25 @@ let parser ~debug ~emitter ~path =
        let lineEnd, colEnd = Utils.tupleOfLexing pexp_loc.loc_end in
        let length = if lineStart = lineEnd then colEnd - colStart else 0 in
        let lineEndWhole, colEndWhole = Utils.tupleOfLexing e.pexp_loc.loc_end in
-       if length > 0 && colEndWhole > length then
+       if length > 0 && colEndWhole > length then (
          emitter
          |> emitJsxClose ~debug ~lid:lident.txt
-              ~pos:(lineEndWhole, colEndWhole - 1));
+              ~pos:(lineEndWhole, colEndWhole - 1);
+
+         let rec emitGreatherthanAfterProps args =
+           match args with
+           | (Asttypes.Labelled "children", {Parsetree.pexp_loc = {loc_start}})
+             :: _ ->
+             emitter |> emitJsxTag ~debug ~pos:(Utils.tupleOfLexing loc_start)
+           | _ :: args -> emitGreatherthanAfterProps args
+           | [] -> ()
+         in
+         emitGreatherthanAfterProps args (* <foo ...props > <-- *);
+         emitter (* <foo> ... </foo> <-- *)
+         |> emitJsxTag ~debug
+              ~pos:
+                (let pos = Utils.tupleOfLexing e.pexp_loc.loc_end in
+                 (fst pos, snd pos - 1))));
       (* only process again arguments, not the jsx label *)
       let _ = args |> List.map (fun (_lbl, arg) -> mapper.expr mapper arg) in
       e

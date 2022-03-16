@@ -31,7 +31,7 @@
 		"semanticTokenScopes": [
 			{
 				"scopes": {
-					"jsx-tag": ["entity.name.tag"]
+					"jsx-tag": ["punctuation.definition.tag"]
 				}
 			}
 		],
