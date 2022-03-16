@@ -31,7 +31,8 @@
 		"semanticTokenScopes": [
 			{
 				"scopes": {
-					"jsx-tag": ["punctuation.definition.tag"]
+					"jsx-tag": ["punctuation.definition.tag"],
+					"keyword-tag": ["keyword"]
 				}
 			}
 		],

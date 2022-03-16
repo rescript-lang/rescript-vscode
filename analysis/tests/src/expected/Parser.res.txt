@@ -45,9 +45,8 @@ TypeArg: (26,4)->(26,50)
 TypeArg: (27,4)->(27,53)
 Type: looooooooooooooooooooooooooooooooooooooong_int (26,4)->(26,50)
 Type: looooooooooooooooooooooooooooooooooooooong_string (27,4)->(27,53)
-BinaryExp: (31,14)->(31,16)
-BinaryExp: (31,10)->(31,11)
-BinaryExp: (31,19)->(31,20)
+Binary operator < (31,10)->(31,11)
+Binary operator > (31,19)->(31,20)
 Lident: MT (33,12) Type
 Lident: DDF (34,9) Namespace
 Lident: DDF (39,7) Namespace
@@ -77,7 +76,6 @@ Lident: someField (67,19) Property
 Lident: x (67,15) Variable
 Variable: x (67,10)->(67,11)
 Variable: foo (67,4)->(67,7)
-BinaryExp: (69,37)->(69,38)
 Lident: x (69,35) Variable
 Lident: world (69,39) Variable
 Variable: world (69,24)->(69,30)
