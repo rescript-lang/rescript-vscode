@@ -344,22 +344,48 @@
     "jsx": {
       "patterns": [
         {
-          "match": "<>|</>|/>"
+          "match": "<>|</>|/>",
+          "name": "punctuation.definition.tag"
         },
         {
           "match": "</([A-Z_][0-9a-zA-Z_]*)",
           "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
             "1": {
               "name": "entity.name.namespace"
             }
           }
         },
         {
-          "match": "</([a-z_][0-9a-zA-Z_]*)"
+          "match": "</([a-z_][0-9a-zA-Z_]*)",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
+            "1": {
+              "name": "variable"
+            }
+          }
+        },
+        {
+          "match": "<([a-z_][0-9a-zA-Z_]*)",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
+            "1": {
+              "name": "variable"
+            }
+          }
         },
         {
           "match": "<([A-Z_][0-9a-zA-Z_]*)",
           "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
             "1": {
               "name": "entity.name.namespace"
             }
