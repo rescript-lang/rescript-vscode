@@ -258,9 +258,14 @@ let parser ~debug ~emitter ~path =
       (* only process again arguments, not the jsx label *)
       let _ = args |> List.map (fun (_lbl, arg) -> mapper.expr mapper arg) in
       e
-    | Pexp_apply ({pexp_loc}, _) when Res_parsetree_viewer.isBinaryExpression e
-      ->
-      if debug then Printf.printf "BinaryExp: %s\n" (locToString pexp_loc);
+    | Pexp_apply
+        ( {
+            pexp_desc =
+              Pexp_ident {txt = Longident.Lident (("<" | ">") as op); loc};
+          },
+          [_; _] ) ->
+      if debug then Printf.printf "Binary operator %s %s\n" op (locToString loc);
+      emitter |> emitFromLoc ~loc ~type_:Keyword;
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_record (cases, _) ->
       cases
