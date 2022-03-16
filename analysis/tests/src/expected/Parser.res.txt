@@ -85,7 +85,7 @@ Variable: children (78,16)->(78,25)
 Variable: make (78,8)->(78,12)
 Ldot: SomeComponent (84,9) Namespace
 Lident: Nested (84,23) Namespace
-Ldot: Nested (84,41) Namespace
-Lident: SomeComponent (84,48) Namespace
+Ldot: SomeComponent (84,41) Namespace
+Lident: Nested (84,55) Namespace
 Lident: div (84,32) JsxTag
 
