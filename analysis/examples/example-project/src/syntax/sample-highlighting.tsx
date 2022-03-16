@@ -46,6 +46,23 @@ namespace SomeModule {
   }
 }
 
+// Decorators and classes
+function someDecorator() {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
+    console.log("first(): called");
+  };
+}
+
+class SomeClass {
+  @someDecorator() doStuff() {
+    return 123;
+  }
+}
+
 // Strings
 let interpolated = `${numberBinding} ${"123"}`;
 
@@ -70,3 +87,6 @@ let jsx = (
     {"Hello"}
   </div>
 );
+function Property() {
+  throw new Error("Function not implemented.");
+}

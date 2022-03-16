@@ -308,7 +308,7 @@
           "match": "(%%?|@@?)([A-Za-z_][A-Za-z0-9_\\.]*)",
           "captures": {
             "1": {
-              "name": "storage.modifier punctuation.definition.annotation"
+              "name": "punctuation.decorator"
             },
             "2": {
               "patterns": [
@@ -327,13 +327,13 @@
                       "name": "invalid.deprecated"
                     },
                     "2": {
-                      "name": "variable.annotation"
+                      "name": "entity.name.function"
                     }
                   }
                 },
                 {
                   "match": "[A-Za-z_][A-Za-z0-9_\\.]*",
-                  "name": "variable.annotation"
+                  "name": "entity.name.function"
                 }
               ]
             }
