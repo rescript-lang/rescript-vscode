@@ -147,8 +147,8 @@ let emitJsxOpen ~lid ~debug ~loc emitter =
 let emitJsxClose ~lid ~debug ~pos emitter =
   emitter |> emitLongident ~backwards:true ~pos ~lid ~jsx:true ~debug
 
-let emitJsxTag ~debug ~pos emitter =
-  if debug then Printf.printf "JsxTag >: %s\n" (posToString pos);
+let emitJsxTag ~debug ~name ~pos emitter =
+  if debug then Printf.printf "JsxTag %s: %s\n" name (posToString pos);
   emitter |> emitFromPos pos (fst pos, snd pos + 1) ~type_:Token.JsxTag
 
 let emitType ~id ~debug ~loc emitter =
@@ -224,6 +224,11 @@ let parser ~debug ~emitter ~path =
           true
         | _ :: rest -> isSelfClosing rest
       in
+      emitter
+      |> emitJsxTag ~debug ~name:"<"
+           ~pos:
+             (let pos = Utils.tupleOfLexing e.pexp_loc.loc_start in
+              (fst pos, snd pos - 1 (* the AST skips the loc of < somehow *)));
       emitter |> emitJsxOpen ~lid:lident.txt ~debug ~loc:pexp_loc;
       (if not (isSelfClosing args) then
        let lineStart, colStart = Utils.tupleOfLexing pexp_loc.loc_start in
@@ -239,13 +244,14 @@ let parser ~debug ~emitter ~path =
            match args with
            | (Asttypes.Labelled "children", {Parsetree.pexp_loc = {loc_start}})
              :: _ ->
-             emitter |> emitJsxTag ~debug ~pos:(Utils.tupleOfLexing loc_start)
+             emitter
+             |> emitJsxTag ~debug ~name:">" ~pos:(Utils.tupleOfLexing loc_start)
            | _ :: args -> emitGreatherthanAfterProps args
            | [] -> ()
          in
          emitGreatherthanAfterProps args (* <foo ...props > <-- *);
          emitter (* <foo> ... </foo> <-- *)
-         |> emitJsxTag ~debug
+         |> emitJsxTag ~debug ~name:">"
               ~pos:
                 (let pos = Utils.tupleOfLexing e.pexp_loc.loc_end in
                  (fst pos, snd pos - 1))));
