@@ -16,6 +16,7 @@ type someRecord<typeParameter> = {
   someOtherField: string;
   theParam: typeParameter;
   another: boolean;
+  to: string;
 };
 
 enum someEnum {
@@ -32,6 +33,7 @@ let destructuring = () => {
     someOtherField: "hello",
     theParam: 2,
     another: true,
+    to: "123",
   };
   let { someField, someOtherField, theParam } = someObj;
 
