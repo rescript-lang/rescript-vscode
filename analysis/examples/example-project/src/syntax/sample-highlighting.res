@@ -11,6 +11,7 @@ type someRecord<'typeParameter> = {
   someField: int,
   someOtherField: string,
   theParam: typeParameter,
+  another: bool,
 }
 
 type someEnum =
@@ -33,6 +34,7 @@ let destructuring = () => {
     someField: 1,
     someOtherField: "hello",
     theParam: 2,
+    another: true,
   }
   let {someField, someOtherField, theParam} = someObj
 
