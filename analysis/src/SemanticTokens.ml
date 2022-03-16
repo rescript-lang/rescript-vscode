@@ -128,7 +128,6 @@ let emitLongident ?(backwards = false) ?(jsx = false)
     | _ -> ()
   in
   let segments = flatten [] lid in
-  let segments = if backwards then List.rev segments else segments in
   if backwards then (
     let totalLength = segments |> String.concat "." |> String.length in
     if snd pos >= totalLength then
