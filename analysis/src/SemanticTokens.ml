@@ -277,6 +277,9 @@ let parser ~debug ~emitter ~path =
     | Pexp_field (_, label) | Pexp_setfield (_, label, _) ->
       emitter |> emitRecordLabel ~label ~debug;
       Ast_mapper.default_mapper.expr mapper e
+    | Pexp_construct ({txt = Lident ("true" | "false")}, _) ->
+      (* Don't emit true or false *)
+      Ast_mapper.default_mapper.expr mapper e
     | Pexp_construct (name, _) ->
       emitter |> emitVariant ~name ~debug;
       Ast_mapper.default_mapper.expr mapper e

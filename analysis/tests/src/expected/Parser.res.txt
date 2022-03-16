@@ -1,5 +1,5 @@
 Parse tests/src/Parser.res
-structure items:22 diagnostics:0 
+structure items:23 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
