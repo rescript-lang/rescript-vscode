@@ -11,6 +11,7 @@ module Token = struct
     | Namespace
     | EnumMember
     | Property
+    | JsxLowercase
 
   type tokenModifiers = NoModifier
 
@@ -22,6 +23,7 @@ module Token = struct
     | Namespace -> "4"
     | EnumMember -> "5"
     | Property -> "6"
+    | JsxLowercase -> "7"
 
   let tokenTypeDebug = function
     | Keyword -> "Keyword"
@@ -31,6 +33,7 @@ module Token = struct
     | Namespace -> "Namespace"
     | EnumMember -> "EnumMember"
     | Property -> "Property"
+    | JsxLowercase -> "JsxLowercase"
 
   let tokenModifiersToString = function NoModifier -> "0"
 
@@ -99,8 +102,8 @@ let emitFromLoc ~loc ~type_ emitter =
   emitter |> emitFromPos posStart posEnd ~type_
 
 let emitLongident ?(backwards = false) ?(jsx = false)
-    ?(lowerCaseToken = Token.Variable) ?(upperCaseToken = Token.Namespace) ~pos
-    ~lid ~debug emitter =
+    ?(lowerCaseToken = if jsx then Token.JsxLowercase else Token.Variable)
+    ?(upperCaseToken = Token.Namespace) ~pos ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
