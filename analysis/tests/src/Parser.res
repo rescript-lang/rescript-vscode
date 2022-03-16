@@ -83,3 +83,5 @@ module SomeComponent = {
 }
 
 let _ = <SomeComponent.Nested> <div /> </SomeComponent.Nested>
+
+let _ = true
