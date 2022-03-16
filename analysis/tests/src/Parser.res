@@ -72,3 +72,14 @@ let add = (~hello as x, ~world) => x + world
 let _ = add(~hello=3)
 
 let _ = <div scale="abc"> <div /> </div>
+
+module SomeComponent = {
+  module Nested = {
+    @react.component
+    let make = (~children) => {
+      <> {children} </>
+    }
+  }
+}
+
+let _ = <SomeComponent.Nested> <div /> </SomeComponent.Nested>
