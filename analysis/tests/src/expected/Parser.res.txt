@@ -1,5 +1,5 @@
 Parse tests/src/Parser.res
-structure items:20 diagnostics:0 
+structure items:22 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
@@ -78,4 +78,14 @@ Lident: add (71,8) Variable
 Lident: div (73,9) JsxTag
 Lident: div (73,36) JsxTag
 Lident: div (73,27) JsxTag
+Lident: SomeComponent (75,7) Namespace
+Lident: Nested (76,9) Namespace
+Lident: children (79,10) Variable
+Variable: children (78,16)->(78,25)
+Variable: make (78,8)->(78,12)
+Ldot: SomeComponent (84,9) Namespace
+Lident: Nested (84,23) Namespace
+Ldot: Nested (84,41) Namespace
+Lident: SomeComponent (84,48) Namespace
+Lident: div (84,32) JsxTag
 
