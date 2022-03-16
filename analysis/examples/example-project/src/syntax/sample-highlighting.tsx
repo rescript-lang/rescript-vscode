@@ -15,6 +15,7 @@ type someRecord<typeParameter> = {
   someField: number;
   someOtherField: string;
   theParam: typeParameter;
+  another: boolean;
 };
 
 enum someEnum {
@@ -30,6 +31,7 @@ let destructuring = () => {
     someField: 1,
     someOtherField: "hello",
     theParam: 2,
+    another: true,
   };
   let { someField, someOtherField, theParam } = someObj;
 
@@ -64,5 +66,7 @@ let jsx = (
       otherProp="hello"
       thirdProp={SomeModule.t.Value}
     />
+    <SomeComp.Nested />
+    {"Hello"}
   </div>
 );
