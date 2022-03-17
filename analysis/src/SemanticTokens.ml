@@ -200,6 +200,9 @@ let parser ~debug ~emitter ~path =
       if isLowercaseId id then
         emitter |> emitVariable ~id ~debug ~loc:p.ppat_loc;
       Ast_mapper.default_mapper.pat mapper p
+    | Ppat_construct ({txt = Lident ("true" | "false")}, _) ->
+      (* Don't emit true or false *)
+      Ast_mapper.default_mapper.pat mapper p
     | Ppat_record (cases, _) ->
       cases
       |> List.iter (fun (label, _) -> emitter |> emitRecordLabel ~label ~debug);
@@ -214,7 +217,8 @@ let parser ~debug ~emitter ~path =
     | Pexp_ident {txt = Lident id}
       when snd (Utils.tupleOfLexing e.pexp_loc.loc_end)
            - snd (Utils.tupleOfLexing e.pexp_loc.loc_start)
-           > String.length id (* /"stuff" *) ->
+           > String.length id
+           (* /"stuff" *) ->
       let type_ = Token.Variable in
       if debug then
         Printf.printf "QuotedIdent: %s %s %s\n" id
