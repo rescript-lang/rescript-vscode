@@ -84,4 +84,22 @@ module SomeComponent = {
 
 let _ = <SomeComponent.Nested> <div /> </SomeComponent.Nested>
 
-let _ = true
+// true/false
+let _ = true || false
+
+// to/downto as label
+let toAs = (~to as x) => x
+let _toEquals = toAs(~to=10)
+
+let to = 1
+for _ in to + to to to + to {
+  ()
+}
+
+module ToAsProp = {
+  @react.component
+  let make = (~to) => {
+    <> {React.int(to)} </>
+  }
+}
+let _ = <ToAsProp to=3 />

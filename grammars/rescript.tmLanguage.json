@@ -17,6 +17,32 @@
       "name": "keyword.control",
       "match": "\\b(and|as|assert|constraint|downto|else|exception|external|for|if|in|include|lazy|module|mutable|of|open|rec|switch|to|try|type|when|while|with)\\b"
     },
+    "RE_TO_DOWNTO_AS_LABELS": {
+      "patterns": [
+        {
+          "match": "(to|downto)\\s*(=)",
+          "captures": {
+            "1": {
+              "name": "variable"
+            },
+            "2": {
+              "name": "keyword.operator keyword"
+            }
+          }
+        },
+        {
+          "match": "(to|downto)\\s*(as)",
+          "captures": {
+            "1": {
+              "name": "variable"
+            },
+            "2": {
+              "name": "keyword.control"
+            }
+          }
+        }
+      ]
+    },
     "RE_CONSTANTS_BOOL": {
       "name": "constant.language.boolean",
       "match": "\\b(false|true)\\b"
@@ -93,6 +119,9 @@
     },
     "keyword": {
       "patterns": [
+        {
+          "include": "#RE_TO_DOWNTO_AS_LABELS"
+        },
         {
           "include": "#RE_KEYWORDS"
         },
