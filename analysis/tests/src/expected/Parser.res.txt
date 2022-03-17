@@ -1,5 +1,5 @@
 Parse tests/src/Parser.res
-structure items:32 diagnostics:0 
+structure items:33 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
@@ -32,19 +32,19 @@ Lident: string (14,11) Variable
 Ldot: React (15,5) Namespace
 Lident: string (15,11) Variable
 Variable: _d2 (10,4)->(10,7)
-Type: pair (18,5)->(18,9)
-Type: looooooooooooooooooooooooooooooooooooooong_int (20,5)->(20,51)
-Type: int (20,54)->(20,57)
-Type: looooooooooooooooooooooooooooooooooooooong_string (22,5)->(22,54)
-Type: string (22,57)->(22,63)
-Type: pairIntString (24,5)->(24,18)
-Type: list (24,21)->(24,25)
+Lident: pair (18,5) Type
+Lident: looooooooooooooooooooooooooooooooooooooong_int (20,5) Type
+Lident: int (20,54) Type
+Lident: looooooooooooooooooooooooooooooooooooooong_string (22,5) Type
+Lident: string (22,57) Type
+Lident: pairIntString (24,5) Type
+Lident: list (24,21) Type
 TypeArg: (25,2)->(28,3)
-Type: pair (25,2)->(25,6)
+Lident: pair (25,2) Type
 TypeArg: (26,4)->(26,50)
 TypeArg: (27,4)->(27,53)
-Type: looooooooooooooooooooooooooooooooooooooong_int (26,4)->(26,50)
-Type: looooooooooooooooooooooooooooooooooooooong_string (27,4)->(27,53)
+Lident: looooooooooooooooooooooooooooooooooooooong_int (26,4) Type
+Lident: looooooooooooooooooooooooooooooooooooooong_string (27,4) Type
 Binary operator < (31,10)->(31,11)
 Binary operator > (31,19)->(31,20)
 Lident: MT (33,12) Type
@@ -54,20 +54,20 @@ Lident: MT (39,12) Type
 Lident: DDF (40,9) Namespace
 Lident: XX (45,7) Namespace
 Lident: YY (46,9) Namespace
-Type: t (47,9)->(47,10)
-Type: int (47,13)->(47,16)
+Lident: t (47,9) Type
+Lident: int (47,13) Type
 Ldot: XX (51,5) Namespace
 Lident: YY (51,8) Namespace
-Type: tt (53,5)->(53,7)
-Type: t (53,10)->(53,11)
+Lident: tt (53,5) Type
+Lident: t (53,10) Type
 Lident: T (57,7) Namespace
-Type: someRecord (58,7)->(58,17)
+Lident: someRecord (58,7) Type
 Lident: someField (59,4) Property
-Type: int (59,15)->(59,18)
+Lident: int (59,15) Type
 Lident: someOtherField (60,4) Property
-Type: string (60,20)->(60,26)
+Lident: string (60,20) Type
 Lident: theParam (61,4) Property
-Type: someEnum (64,7)->(64,15)
+Lident: someEnum (64,7) Type
 Lident: A (64,18) EnumMember
 Lident: B (64,22) EnumMember
 Lident: C (64,26) EnumMember
@@ -126,4 +126,8 @@ QuotedIdent: true (108,8) Variable
 Ldot: T (110,19) Namespace
 Lident: A (110,21) EnumMember
 Variable: enumInModule (110,4)->(110,16)
+Lident: typeInModule (112,5) Type
+Ldot: XX (112,20) Namespace
+Ldot: YY (112,23) Namespace
+Lident: t (112,26) Type
 

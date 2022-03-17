@@ -163,9 +163,11 @@ let emitJsxTag ~debug ~name ~pos emitter =
   if debug then Printf.printf "JsxTag %s: %s\n" name (posToString pos);
   emitter |> emitFromPos pos (fst pos, snd pos + 1) ~type_:Token.JsxTag
 
-let emitType ~id ~debug ~loc emitter =
-  if debug then Printf.printf "Type: %s %s\n" id (locToString loc);
-  emitter |> emitFromLoc ~loc ~type_:Token.Type
+let emitType ~lid ~debug ~loc emitter =
+  emitter
+  |> emitLongident ~lowerCaseToken:Token.Type
+       ~pos:(Utils.tupleOfLexing loc.Location.loc_start)
+       ~lid ~debug
 
 let emitRecordLabel ~(label : Longident.t Location.loc) ~debug emitter =
   emitter
@@ -185,10 +187,8 @@ let parser ~debug ~emitter ~path =
   in
   let typ (mapper : Ast_mapper.mapper) (coreType : Parsetree.core_type) =
     match coreType.ptyp_desc with
-    | Ptyp_constr ({txt; loc}, args) ->
-      (match txt with
-      | Lident id -> emitter |> emitType ~id ~debug ~loc
-      | _ -> ());
+    | Ptyp_constr ({txt = lid; loc}, args) ->
+      emitter |> emitType ~lid ~debug ~loc;
       args |> List.iter processTypeArg;
       Ast_mapper.default_mapper.typ mapper coreType
     | _ -> Ast_mapper.default_mapper.typ mapper coreType
@@ -196,7 +196,8 @@ let parser ~debug ~emitter ~path =
   let type_declaration (mapper : Ast_mapper.mapper)
       (tydecl : Parsetree.type_declaration) =
     emitter
-    |> emitType ~id:tydecl.ptype_name.txt ~debug ~loc:tydecl.ptype_name.loc;
+    |> emitType ~lid:(Lident tydecl.ptype_name.txt) ~debug
+         ~loc:tydecl.ptype_name.loc;
     Ast_mapper.default_mapper.type_declaration mapper tydecl
   in
   let pat (mapper : Ast_mapper.mapper) (p : Parsetree.pattern) =
