@@ -109,3 +109,5 @@ let \"true" = 4
 let _ = \"true"
 
 let enumInModule = T.A
+
+type typeInModule = XX.YY.t
