@@ -111,3 +111,18 @@ let _ = \"true"
 let enumInModule = T.A
 
 type typeInModule = XX.YY.t
+
+module QQ = {
+  type somePolyEnumType = [
+    | #someMember
+    | #AnotherMember
+    | #SomeMemberWithPayload(list<int>)
+    | #"fourth Member"
+  ]
+}
+
+let _ = x =>
+  switch x {
+  | #stuff => 3
+  | #...QQ.somePolyEnumType => 4
+  }

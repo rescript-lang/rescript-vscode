@@ -216,6 +216,9 @@ let parser ~debug ~emitter ~path =
     | Ppat_construct (name, _) ->
       emitter |> emitVariant ~name ~debug;
       Ast_mapper.default_mapper.pat mapper p
+    | Ppat_type {txt = lid; loc} ->
+      emitter |> emitType ~lid ~debug ~loc;
+      Ast_mapper.default_mapper.pat mapper p
     | _ -> Ast_mapper.default_mapper.pat mapper p
   in
   let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
