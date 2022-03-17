@@ -211,6 +211,17 @@ let parser ~debug ~emitter ~path =
   in
   let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
     match e.pexp_desc with
+    | Pexp_ident {txt = Lident id}
+      when snd (Utils.tupleOfLexing e.pexp_loc.loc_end)
+           - snd (Utils.tupleOfLexing e.pexp_loc.loc_start)
+           > String.length id (* /"stuff" *) ->
+      let type_ = Token.Variable in
+      if debug then
+        Printf.printf "QuotedIdent: %s %s %s\n" id
+          (posToString (Utils.tupleOfLexing e.pexp_loc.loc_start))
+          (Token.tokenTypeDebug type_);
+      emitter |> emitFromLoc ~loc:e.pexp_loc ~type_;
+      Ast_mapper.default_mapper.expr mapper e
     | Pexp_ident {txt = lid; loc} ->
       emitter
       |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
