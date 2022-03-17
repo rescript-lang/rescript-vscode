@@ -225,27 +225,33 @@ let parser ~debug ~emitter ~path =
          Component names:
           - handled like other Longitent.t, except lowercase id is marked Token.JsxLowercase
       *)
-      let rec isSelfClosing args =
-        match args with
-        | [] -> false
-        | [
-         ( Asttypes.Labelled "children",
-           {
-             Parsetree.pexp_desc =
-               Pexp_construct ({txt = Longident.Lident "[]"}, None);
-           } );
-         _;
-        ] ->
-          true
-        | _ :: rest -> isSelfClosing rest
-      in
-      emitter (* --> <div..  *)
+      emitter (* --> <div... *)
       |> emitJsxTag ~debug ~name:"<"
            ~pos:
              (let pos = Utils.tupleOfLexing e.pexp_loc.loc_start in
               (fst pos, snd pos - 1 (* the AST skips the loc of < somehow *)));
       emitter |> emitJsxOpen ~lid:lident.txt ~debug ~loc:pexp_loc;
-      (if not (isSelfClosing args) then
+
+      let posOfGreatherthanAfterProps =
+        let rec loop = function
+          | (Asttypes.Labelled "children", {Parsetree.pexp_loc = {loc_start}})
+            :: _ ->
+            Utils.tupleOfLexing loc_start
+          | _ :: args -> loop args
+          | [] -> (-1, -1)
+          (* should not happen *)
+        in
+        loop args
+      in
+      let posOfFinalGreatherthan =
+        let pos = Utils.tupleOfLexing e.pexp_loc.loc_end in
+        (fst pos, snd pos - 1)
+      in
+      let selfClosing =
+        fst posOfGreatherthanAfterProps == fst posOfFinalGreatherthan
+        && snd posOfGreatherthanAfterProps + 1 == snd posOfFinalGreatherthan
+      in
+      (if not selfClosing then
        let lineStart, colStart = Utils.tupleOfLexing pexp_loc.loc_start in
        let lineEnd, colEnd = Utils.tupleOfLexing pexp_loc.loc_end in
        let length = if lineStart = lineEnd then colEnd - colStart else 0 in
@@ -254,22 +260,10 @@ let parser ~debug ~emitter ~path =
          emitter
          |> emitJsxClose ~debug ~lid:lident.txt
               ~pos:(lineEndWhole, colEndWhole - 1);
-
-         let rec emitGreatherthanAfterProps args =
-           match args with
-           | (Asttypes.Labelled "children", {Parsetree.pexp_loc = {loc_start}})
-             :: _ ->
-             emitter
-             |> emitJsxTag ~debug ~name:">" ~pos:(Utils.tupleOfLexing loc_start)
-           | _ :: args -> emitGreatherthanAfterProps args
-           | [] -> ()
-         in
-         emitGreatherthanAfterProps args (* <foo ...props > <-- *);
+         emitter (* <foo ...props > <-- *)
+         |> emitJsxTag ~debug ~name:">" ~pos:posOfGreatherthanAfterProps;
          emitter (* <foo> ... </foo> <-- *)
-         |> emitJsxTag ~debug ~name:">"
-              ~pos:
-                (let pos = Utils.tupleOfLexing e.pexp_loc.loc_end in
-                 (fst pos, snd pos - 1))));
+         |> emitJsxTag ~debug ~name:">" ~pos:posOfFinalGreatherthan));
 
       let _ = args |> List.map (fun (_lbl, arg) -> mapper.expr mapper arg) in
       e
