@@ -217,6 +217,14 @@ let parser ~debug ~emitter ~path =
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
       when Res_parsetree_viewer.isJsxExpression e ->
+      (*
+         Angled brackets:
+          - These are handled in the grammar:  <>  </>  </  />
+          - Here we handle `<` and `>`
+
+         Component names:
+          - handled like other Longitent.t, except lowercase id is marked Token.JsxLowercase
+      *)
       let rec isSelfClosing args =
         match args with
         | [] -> false
@@ -231,7 +239,7 @@ let parser ~debug ~emitter ~path =
           true
         | _ :: rest -> isSelfClosing rest
       in
-      emitter
+      emitter (* --> <div..  *)
       |> emitJsxTag ~debug ~name:"<"
            ~pos:
              (let pos = Utils.tupleOfLexing e.pexp_loc.loc_start in
@@ -262,7 +270,7 @@ let parser ~debug ~emitter ~path =
               ~pos:
                 (let pos = Utils.tupleOfLexing e.pexp_loc.loc_end in
                  (fst pos, snd pos - 1))));
-      (* only process again arguments, not the jsx label *)
+
       let _ = args |> List.map (fun (_lbl, arg) -> mapper.expr mapper arg) in
       e
     | Pexp_apply
