@@ -1,5 +1,5 @@
 Parse tests/src/Parser.res
-structure items:31 diagnostics:0 
+structure items:32 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
@@ -123,4 +123,7 @@ JsxTag <: (104,8)
 Lident: ToAsProp (104,9) Namespace
 Variable: true (107,4)->(107,11)
 QuotedIdent: true (108,8) Variable
+Ldot: T (110,19) EnumMember
+Lident: A (110,21) EnumMember
+Variable: enumInModule (110,4)->(110,16)
 
