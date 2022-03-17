@@ -1,5 +1,5 @@
 Parse tests/src/Parser.res
-structure items:23 diagnostics:0 
+structure items:29 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
@@ -103,4 +103,22 @@ JsxTag >: (84,29)
 JsxTag >: (84,61)
 JsxTag <: (84,31)
 Lident: div (84,32) JsxLowercase
+Lident: x (90,25) Variable
+Variable: x (90,19)->(90,20)
+Variable: toAs (90,4)->(90,8)
+Lident: toAs (91,16) Variable
+Variable: _toEquals (91,4)->(91,13)
+Variable: to (93,4)->(93,6)
+Lident: to (94,20) Variable
+Lident: to (94,25) Variable
+Lident: to (94,9) Variable
+Lident: to (94,14) Variable
+Lident: ToAsProp (98,7) Namespace
+Lident: to (101,18) Variable
+Ldot: React (101,8) Namespace
+Lident: int (101,14) Variable
+Variable: to (100,14)->(100,17)
+Variable: make (100,6)->(100,10)
+JsxTag <: (104,8)
+Lident: ToAsProp (104,9) Namespace
 
