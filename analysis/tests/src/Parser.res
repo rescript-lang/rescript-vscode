@@ -107,3 +107,5 @@ let _ = <ToAsProp to=3 />
 // quoted identifiers
 let \"true" = 4
 let _ = \"true"
+
+let enumInModule = T.A
