@@ -1,5 +1,5 @@
 Parse tests/src/Parser.res
-structure items:33 diagnostics:0 
+structure items:35 diagnostics:0 
 Lident: M (0,7) Namespace
 Lident: C (1,9) Namespace
 Lident: Component (1,13) Namespace
@@ -130,4 +130,13 @@ Lident: typeInModule (112,5) Type
 Ldot: XX (112,20) Namespace
 Ldot: YY (112,23) Namespace
 Lident: t (112,26) Type
+Lident: QQ (114,7) Namespace
+Lident: somePolyEnumType (115,7) Type
+Lident: list (118,29) Type
+TypeArg: (118,34)->(118,37)
+Lident: int (118,34) Type
+Ldot: QQ (126,8) Namespace
+Lident: somePolyEnumType (126,11) Type
+Lident: x (124,9) Variable
+Variable: x (123,8)->(123,9)
 

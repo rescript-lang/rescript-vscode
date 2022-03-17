@@ -270,16 +270,24 @@
           "name": "variable.function variable.other"
         },
         {
-          "match": "(#)(\\.\\.\\.)?([a-zA-Z][0-9a-zA-Z_]*)\\b",
+          "match": "(#)\\s*([a-zA-Z][0-9a-zA-Z_]*)\\b",
           "captures": {
             "1": {
-              "name": "punctuation.definition.keyword"
+              "name": "variable.other.enummember"
             },
             "2": {
-              "name": "punctuation.definition.keyword"
+              "name": "variable.other.enummember"
+            }
+          }
+        },
+        {
+          "match": "(#)\\s*(\\.\\.\\.)\\b",
+          "captures": {
+            "1": {
+              "name": "variable.other.enummember"
             },
-            "3": {
-              "name": "variable.function variable.other"
+            "2": {
+              "name": "variable.other.enummember"
             }
           }
         },
@@ -287,7 +295,7 @@
           "match": "(#)",
           "captures": {
             "1": {
-              "name": "punctuation.definition.keyword"
+              "name": "variable.other.enummember"
             }
           }
         }
