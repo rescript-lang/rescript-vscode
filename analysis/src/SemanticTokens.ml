@@ -107,7 +107,8 @@ let emitFromLoc ~loc ~type_ emitter =
 
 let emitLongident ?(backwards = false) ?(jsx = false)
     ?(lowerCaseToken = if jsx then Token.JsxLowercase else Token.Variable)
-    ?(upperCaseToken = Token.Namespace) ~pos ~lid ~debug emitter =
+    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ~pos ~lid ~debug
+    emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -119,7 +120,11 @@ let emitLongident ?(backwards = false) ?(jsx = false)
   let rec loop pos segments =
     match segments with
     | [id] when isUppercaseId id || isLowercaseId id ->
-      let type_ = if isUppercaseId id then upperCaseToken else lowerCaseToken in
+      let type_ =
+        match lastToken with
+        | Some type_ -> type_
+        | None -> if isUppercaseId id then upperCaseToken else lowerCaseToken
+      in
       if debug then
         Printf.printf "Lident: %s %s %s\n" id (posToString pos)
           (Token.tokenTypeDebug type_);
@@ -170,7 +175,7 @@ let emitRecordLabel ~(label : Longident.t Location.loc) ~debug emitter =
 
 let emitVariant ~(name : Longident.t Location.loc) ~debug emitter =
   emitter
-  |> emitLongident ~upperCaseToken:Token.EnumMember
+  |> emitLongident ~lastToken:(Some Token.EnumMember)
        ~pos:(Utils.tupleOfLexing name.loc.loc_start)
        ~lid:name.txt ~debug
 

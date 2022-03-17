@@ -123,7 +123,7 @@ JsxTag <: (104,8)
 Lident: ToAsProp (104,9) Namespace
 Variable: true (107,4)->(107,11)
 QuotedIdent: true (108,8) Variable
-Ldot: T (110,19) EnumMember
+Ldot: T (110,19) Namespace
 Lident: A (110,21) EnumMember
 Variable: enumInModule (110,4)->(110,16)
 
