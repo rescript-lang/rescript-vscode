@@ -82,10 +82,14 @@ let locToString (loc : Location.t) =
   Printf.sprintf "%s->%s" (posToString posStart) (posToString posEnd)
 
 let isLowercaseId id =
+  id <> ""
+  &&
   let c = id.[0] in
   c == '_' || (c >= 'a' && c <= 'z')
 
 let isUppercaseId id =
+  id <> ""
+  &&
   let c = id.[0] in
   c >= 'A' && c <= 'Z'
 
