@@ -4,7 +4,7 @@ module Token = struct
   (* This needs to stay synced with the same legend in `server.ts` *)
   (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
   type tokenType =
-    | Keyword
+    | Operator
     | Variable
     | Type
     | JsxTag
@@ -16,7 +16,7 @@ module Token = struct
   type tokenModifiers = NoModifier
 
   let tokenTypeToString = function
-    | Keyword -> "0"
+    | Operator -> "0"
     | Variable -> "1"
     | Type -> "2"
     | JsxTag -> "3"
@@ -26,7 +26,7 @@ module Token = struct
     | JsxLowercase -> "7"
 
   let tokenTypeDebug = function
-    | Keyword -> "Keyword"
+    | Operator -> "Operator"
     | Variable -> "Variable"
     | Type -> "Type"
     | JsxTag -> "JsxTag"
@@ -298,7 +298,7 @@ let parser ~debug ~emitter ~path =
           },
           [_; _] ) ->
       if debug then Printf.printf "Binary operator %s %s\n" op (locToString loc);
-      emitter |> emitFromLoc ~loc ~type_:Keyword;
+      emitter |> emitFromLoc ~loc ~type_:Operator;
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_record (cases, _) ->
       cases
