@@ -29,7 +29,7 @@ type pairIntString = list<
   >,
 >
 
-let _ = 3 < 4 || 3 > 4
+let _ = !(3 < 4) || 3 > 4
 
 module type MT = {
   module DDF: {

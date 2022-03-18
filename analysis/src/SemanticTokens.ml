@@ -236,8 +236,9 @@ let parser ~debug ~emitter ~path =
       emitter |> emitFromLoc ~loc:e.pexp_loc ~type_;
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_ident {txt = lid; loc} ->
-      emitter
-      |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
+      if lid <> Lident "not" then
+        emitter
+        |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
       when Res_parsetree_viewer.isJsxExpression e ->
