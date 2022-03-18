@@ -1,17 +1,33 @@
-module Token = struct
-  type legend = {tokenTypes : string array; tokenModifiers : string array}
+(*
+   Generally speaking, semantic highlighting here takes care of categorizing identifiers,
+   since the kind of an identifier is highly context-specific and hard to catch with a grammar.
 
+   The big exception is labels, whose location is not represented in the AST
+   E.g. function definition such as (~foo as _) =>, application (~foo=3) and prop <div foo=3>.
+   Labels are handled in the grammar, not here.
+   Punned labels such as (~foo) => are both labels and identifiers. They are overridden here.
+
+   There are 2 cases where the grammar and semantic highlighting work jointly.
+   The styles emitted in the grammar and here need to be kept in sync.
+   1) For jsx angled brackets, the grammar handles basic cases such as />
+      whose location is not in the AST.
+      Instead < and > are handled here. Those would be difficult to disambiguate in a grammar.
+   2) Most operators are handled in the grammar. Except < and > are handled here.
+      The reason is again that < and > would be difficult do disambiguate in a grammar.
+*)
+
+module Token = struct
   (* This needs to stay synced with the same legend in `server.ts` *)
   (* See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens *)
   type tokenType =
-    | Operator
-    | Variable
-    | Type
-    | JsxTag
-    | Namespace
-    | EnumMember
-    | Property
-    | JsxLowercase
+    | Operator  (** < and > *)
+    | Variable  (** let x = *)
+    | Type  (** type t = *)
+    | JsxTag  (** the < and > in <div> *)
+    | Namespace  (** module M = *)
+    | EnumMember  (** variant A or poly variant #A *)
+    | Property  (** {x:...} *)
+    | JsxLowercase  (** div in <div> *)
 
   type tokenModifiers = NoModifier
 
@@ -47,7 +63,8 @@ module Token = struct
 
   let createEmitter () = {tokens = []; lastLine = 0; lastChar = 0}
 
-  let add ~line ~char ~length ~type_ ?(modifiers = NoModifier) e =
+  let add ~line ~char ~length ~type_ e =
+    let modifiers = NoModifier in
     e.tokens <- (line, char, length, type_, modifiers) :: e.tokens
 
   let emitToken buf (line, char, length, type_, modifiers) e =
@@ -264,9 +281,9 @@ let parser ~debug ~emitter ~path =
             :: _ ->
             Utils.tupleOfLexing loc_start
           | _ :: args -> loop args
-          | [] -> (-1, -1)
-          (* should not happen *)
+          | [] -> (* should not happen *) (-1, -1)
         in
+
         loop args
       in
       let posOfFinalGreatherthan =
@@ -276,6 +293,7 @@ let parser ~debug ~emitter ~path =
       let selfClosing =
         fst posOfGreatherthanAfterProps == fst posOfFinalGreatherthan
         && snd posOfGreatherthanAfterProps + 1 == snd posOfFinalGreatherthan
+        (* there's an off-by one somehow in the AST *)
       in
       (if not selfClosing then
        let lineStart, colStart = Utils.tupleOfLexing pexp_loc.loc_start in
