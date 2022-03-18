@@ -45,8 +45,8 @@ TypeArg: (26,4)->(26,50)
 TypeArg: (27,4)->(27,53)
 Lident: looooooooooooooooooooooooooooooooooooooong_int (26,4) Type
 Lident: looooooooooooooooooooooooooooooooooooooong_string (27,4) Type
-Binary operator < (31,10)->(31,11)
-Binary operator > (31,19)->(31,20)
+Binary operator < (31,12)->(31,13)
+Binary operator > (31,22)->(31,23)
 Lident: MT (33,12) Type
 Lident: DDF (34,9) Namespace
 Lident: DDF (39,7) Namespace
