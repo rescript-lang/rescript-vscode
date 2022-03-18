@@ -32,8 +32,7 @@
 			{
 				"scopes": {
 					"jsx-lowercase": ["entity.name.tag"],
-					"jsx-tag": ["punctuation.definition.tag"],
-					"keyword-tag": ["keyword"]
+					"jsx-tag": ["punctuation.definition.tag"]
 				}
 			}
 		],

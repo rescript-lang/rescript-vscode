@@ -761,7 +761,7 @@ function onMessage(msg: m.Message) {
           semanticTokensProvider: {
             legend: {
               tokenTypes: [
-                "keyword-tag",
+                "operator",
                 "variable",
                 "type",
                 "jsx-tag",
