@@ -126,3 +126,5 @@ let _ = x =>
   | #stuff => 3
   | #...QQ.somePolyEnumType => 4
   }
+
+let _ = 3 == 3 || 3 === 3

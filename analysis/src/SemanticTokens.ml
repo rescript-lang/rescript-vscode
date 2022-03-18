@@ -224,9 +224,10 @@ let parser ~debug ~emitter ~path =
   let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
     match e.pexp_desc with
     | Pexp_ident {txt = Lident id}
-      when snd (Utils.tupleOfLexing e.pexp_loc.loc_end)
-           - snd (Utils.tupleOfLexing e.pexp_loc.loc_start)
-           > String.length id
+      when id <> "=" && id <> "=="
+           && snd (Utils.tupleOfLexing e.pexp_loc.loc_end)
+              - snd (Utils.tupleOfLexing e.pexp_loc.loc_start)
+              > String.length id
            (* /"stuff" *) ->
       let type_ = Token.Variable in
       if debug then
