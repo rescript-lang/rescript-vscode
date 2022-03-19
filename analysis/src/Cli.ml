@@ -70,8 +70,6 @@ let main () =
       ~col:(int_of_string col)
   | _ :: "dump" :: files -> Commands.dump files
   | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
-  | [_; "semanticTokens"; currentFile] ->
-    SemanticTokens.testCommand ~currentFile
   | [_; "hover"; path; line; col] ->
     Commands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
   | [_; "references"; path; line; col] ->
@@ -85,6 +83,6 @@ let main () =
   | _ ->
     prerr_endline help;
     exit 1
-;;
 
+;;
 main ()

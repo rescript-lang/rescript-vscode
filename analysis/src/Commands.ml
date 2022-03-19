@@ -314,6 +314,7 @@ let test ~path =
             print_endline
               ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
+
             hover ~path ~line ~col
           | "ref" ->
             print_endline
@@ -330,6 +331,7 @@ let test ~path =
                 ("Rename " ^ path ^ " " ^ string_of_int line ^ ":"
                ^ string_of_int col ^ " " ^ newName)
             in
+
             rename ~path ~line ~col ~newName
           | "com" ->
             print_endline
@@ -347,11 +349,6 @@ let test ~path =
             close_out cout;
             completion ~path ~line ~col ~currentFile;
             Sys.remove currentFile
-          | "par" ->
-            print_endline ("Parse " ^ path);
-            SemanticTokens.parser ~debug:true
-              ~emitter:(SemanticTokens.Token.createEmitter ())
-              ~path
           | _ -> ());
           print_newline ())
     in
