@@ -1276,10 +1276,8 @@ let rec resolvePath ~env ~path ~package =
       | Some file ->
         resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package))
 
-let tupleOfLexing {Lexing.pos_lnum; pos_cnum; pos_bol} =
-  (pos_lnum - 1, pos_cnum - pos_bol)
-
-let locationIsBefore {Location.loc_start} pos = tupleOfLexing loc_start <= pos
+let locationIsBefore {Location.loc_start} pos =
+  Utils.tupleOfLexing loc_start <= pos
 
 let findInScope pos name iter stamps =
   (* Log.log("Find " ++ name ++ " with " ++ string_of_int(Hashtbl.length(stamps)) ++ " stamps"); *)
