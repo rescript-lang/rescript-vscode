@@ -768,7 +768,7 @@ function onMessage(msg: m.Message) {
                 "namespace",
                 "enumMember",
                 "property",
-                "jsx-lowercase"
+                "jsx-lowercase",
               ],
               tokenModifiers: [],
             },
