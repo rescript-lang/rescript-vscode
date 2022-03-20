@@ -538,9 +538,12 @@ export let parseCompilerLogOutput = (
           tag = t.DiagnosticTag.Deprecated;
           break;
       }
+      let severity = line.includes("(configured as error)")
+        ? t.DiagnosticSeverity.Error
+        : t.DiagnosticSeverity.Warning;
       parsedDiagnostics.push({
         code: Number.isNaN(warningNumber) ? undefined : warningNumber,
-        severity: t.DiagnosticSeverity.Warning,
+        severity,
         tag: tag,
         content: [],
       });
