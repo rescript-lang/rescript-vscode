@@ -124,8 +124,8 @@ let emitFromLoc ~loc ~type_ emitter =
 
 let emitLongident ?(backwards = false) ?(jsx = false)
     ?(lowerCaseToken = if jsx then Token.JsxLowercase else Token.Variable)
-    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ~pos ~lid ~debug
-    emitter =
+    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ?(posEnd = None)
+    ~pos ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -142,10 +142,19 @@ let emitLongident ?(backwards = false) ?(jsx = false)
         | Some type_ -> type_
         | None -> if isUppercaseId id then upperCaseToken else lowerCaseToken
       in
+      let posAfter = (fst pos, snd pos + String.length id) in
+      let posEnd, lenMismatch =
+        (* There could be a length mismatch when ids are quoted
+           e.g. variable /"true" or object field {"x":...} *)
+        match posEnd with
+        | Some posEnd -> (posEnd, posEnd <> posAfter)
+        | None -> (posAfter, false)
+      in
       if debug then
-        Printf.printf "Lident: %s %s %s\n" id (posToString pos)
+        Printf.printf "Lident: %s %s%s %s\n" id (posToString pos)
+          (if lenMismatch then "->" ^ posToString posEnd else "")
           (Token.tokenTypeDebug type_);
-      emitter |> emitFromPos pos (fst pos, snd pos + String.length id) ~type_
+      emitter |> emitFromPos pos posEnd ~type_
     | id :: segments when isUppercaseId id || isLowercaseId id ->
       let type_ = if isUppercaseId id then upperCaseToken else lowerCaseToken in
       if debug then
@@ -190,6 +199,7 @@ let emitRecordLabel ~(label : Longident.t Location.loc) ~debug emitter =
   emitter
   |> emitLongident ~lowerCaseToken:Token.Property
        ~pos:(Utils.tupleOfLexing label.loc.loc_start)
+       ~posEnd:(Some (Utils.tupleOfLexing label.loc.loc_end))
        ~lid:label.txt ~debug
 
 let emitVariant ~(name : Longident.t Location.loc) ~debug emitter =
@@ -240,23 +250,13 @@ let parser ~debug ~emitter ~path =
   in
   let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
     match e.pexp_desc with
-    | Pexp_ident {txt = Lident id}
-      when id <> "=" && id <> "=="
-           && snd (Utils.tupleOfLexing e.pexp_loc.loc_end)
-              - snd (Utils.tupleOfLexing e.pexp_loc.loc_start)
-              > String.length id
-           (* /"stuff" *) ->
-      let type_ = Token.Variable in
-      if debug then
-        Printf.printf "QuotedIdent: %s %s %s\n" id
-          (posToString (Utils.tupleOfLexing e.pexp_loc.loc_start))
-          (Token.tokenTypeDebug type_);
-      emitter |> emitFromLoc ~loc:e.pexp_loc ~type_;
-      Ast_mapper.default_mapper.expr mapper e
     | Pexp_ident {txt = lid; loc} ->
       if lid <> Lident "not" then
         emitter
-        |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
+        |> emitLongident
+             ~pos:(Utils.tupleOfLexing loc.loc_start)
+             ~posEnd:(Some (Utils.tupleOfLexing loc.loc_end))
+             ~lid ~debug;
       Ast_mapper.default_mapper.expr mapper e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
       when Res_parsetree_viewer.isJsxExpression e ->
