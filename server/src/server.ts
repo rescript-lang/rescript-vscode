@@ -765,7 +765,7 @@ function onMessage(msg: m.Message) {
                 "variable",
                 "type",
                 "jsx-tag",
-                "namespace",
+                "class",
                 "enumMember",
                 "property",
                 "jsx-lowercase",
