@@ -3,19 +3,9 @@
   "name": "ReScript",
   "scopeName": "source.rescript",
   "repository": {
-    "RE_IDENT": {
-      "match": "[a-z_][0-9a-zA-Z_]*"
-    },
-    "RE_ATTRIBUTE": {
-      "match": "[A-Za-z_][A-Za-z0-9_\\.]*"
-    },
-    "RE_MODULE_IDENT": {
-      "name": "entity.name.namespace",
-      "match": "[A-Z_][0-9a-zA-Z_]*"
-    },
-    "RE_KEYWORDS": {
+    "RE_KEYWORD_CONTROL": {
       "name": "keyword.control",
-      "match": "\\b(and|as|assert|constraint|downto|else|exception|external|for|if|in|include|lazy|module|mutable|of|open|rec|switch|to|try|type|when|while|with)\\b"
+      "match": "\\b(and|as|assert|constraint|downto|else|exception|external|for|if|in|lazy|mutable|rec|switch|to|try|when|while|with)\\b"
     },
     "RE_TO_DOWNTO_AS_LABELS": {
       "patterns": [
@@ -47,9 +37,9 @@
       "name": "constant.language.boolean",
       "match": "\\b(false|true)\\b"
     },
-    "RE_LET": {
+    "RE_KEYWORD": {
       "name": "keyword",
-      "match": "\\b(let)\\b"
+      "match": "\\b(include|let|module|of|open|type)\\b"
     },
     "commentLine": {
       "match": "//.*",
@@ -109,24 +99,16 @@
         }
       ]
     },
-    "storage": {
-      "patterns": [
-        {
-          "match": "\\btype\\b",
-          "name": "storage.type"
-        }
-      ]
-    },
     "keyword": {
       "patterns": [
         {
           "include": "#RE_TO_DOWNTO_AS_LABELS"
         },
         {
-          "include": "#RE_KEYWORDS"
+          "include": "#RE_KEYWORD_CONTROL"
         },
         {
-          "include": "#RE_LET"
+          "include": "#RE_KEYWORD"
         }
       ]
     },
@@ -266,10 +248,6 @@
     "constructor": {
       "patterns": [
         {
-          "match": "\\b[A-Z][0-9a-zA-Z_]*\\b",
-          "name": "variable.function variable.other"
-        },
-        {
           "match": "(#)\\s*([a-zA-Z][0-9a-zA-Z_]*)\\b",
           "captures": {
             "1": {
@@ -374,94 +352,6 @@
     "jsx": {
       "match": "<>|</>|</|/>",
       "name": "punctuation.definition.tag"
-    },
-    "openOrIncludeModule": {
-      "patterns": [
-        {
-          "match": "\\b(open|include)\\s+([A-Z_][0-9a-zA-Z_]*((\\.)([A-Z_][0-9a-zA-Z_]*))*)",
-          "captures": {
-            "1": {
-              "name": "keyword"
-            },
-            "2": {
-              "patterns": [
-                {
-                  "include": "#moduleAccessEndsWithModule"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "match": "\\b(open|include)\\s+",
-          "name": "keyword"
-        }
-      ]
-    },
-    "moduleAccessEndsWithModule": {
-      "patterns": [
-        {
-          "match": "[A-Z_][0-9a-zA-Z_]*",
-          "name": "entity.name.namespace"
-        },
-        {
-          "match": "(\\.)([A-Z_][0-9a-zA-Z_]*)",
-          "captures": {
-            "1": {
-              "name": "punctuation.accessor"
-            },
-            "2": {
-              "name": "entity.name.namespace"
-            }
-          }
-        }
-      ]
-    },
-    "moduleAccess": {
-      "patterns": [
-        {
-          "match": "\\b([A-Z_][0-9a-zA-Z_]*)(\\.)",
-          "captures": {
-            "1": {
-              "name": "entity.name.namespace"
-            },
-            "2": {
-              "name": "punctuation.accessor"
-            }
-          }
-        }
-      ]
-    },
-    "moduleDeclaration": {
-      "patterns": [
-        {
-          "match": "\\b(module)\\s+(type\\s+)?(of\\s+)?([A-Z_][0-9a-zA-Z_]*)",
-          "captures": {
-            "1": {
-              "name": "keyword"
-            },
-            "2": {
-              "name": "keyword"
-            },
-            "3": {
-              "name": "keyword"
-            },
-            "4": {
-              "name": "entity.name.namespace"
-            }
-          },
-          "patterns": [
-            {
-              "match": "\\s*:\\s*([A-Z_][0-9a-zA-Z_]*)",
-              "captures": {
-                "1": {
-                  "name": "entity.name.namespace"
-                }
-              }
-            }
-          ]
-        }
-      ]
     }
   },
   "patterns": [
