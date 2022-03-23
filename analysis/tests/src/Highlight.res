@@ -53,7 +53,7 @@ open XX.YY
 
 type tt = t
 
-// ^par
+// ^hig
 
 module T = {
   type someRecord<'typeParameter> = {

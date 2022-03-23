@@ -347,9 +347,9 @@ let test ~path =
             close_out cout;
             completion ~path ~line ~col ~currentFile;
             Sys.remove currentFile
-          | "par" ->
-            print_endline ("Parse " ^ path);
-            SemanticTokens.parser ~debug:true
+          | "hig" ->
+            print_endline ("Highlight " ^ path);
+            SemanticTokens.command ~debug:true
               ~emitter:(SemanticTokens.Token.createEmitter ())
               ~path
           | _ -> ());

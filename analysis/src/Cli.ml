@@ -71,7 +71,7 @@ let main () =
   | _ :: "dump" :: files -> Commands.dump files
   | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
   | [_; "semanticTokens"; currentFile] ->
-    SemanticTokens.testCommand ~currentFile
+    SemanticTokens.semanticTokens ~currentFile
   | [_; "hover"; path; line; col] ->
     Commands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
   | [_; "references"; path; line; col] ->

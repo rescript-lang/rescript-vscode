@@ -208,7 +208,7 @@ let emitVariant ~(name : Longident.t Location.loc) ~debug emitter =
        ~pos:(Utils.tupleOfLexing name.loc.loc_start)
        ~lid:name.txt ~debug
 
-let parser ~debug ~emitter ~path =
+let command ~debug ~emitter ~path =
   let processTypeArg (coreType : Parsetree.core_type) =
     if debug then Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc)
   in
@@ -441,8 +441,7 @@ let parser ~debug ~emitter ~path =
         (List.length signature) (List.length diagnostics);
     mapper.signature mapper signature |> ignore
 
-let testCommand ~currentFile =
+let semanticTokens ~currentFile =
   let emitter = Token.createEmitter () in
-  parser ~emitter ~debug:false ~path:currentFile;
-  (* emitter |> Token.add ~line:0 ~char:0 ~length:3 ~type_:Token.Keyword; *)
+  command ~emitter ~debug:false ~path:currentFile;
   Printf.printf "{\"data\":[%s]}" (Token.emit emitter)
