@@ -438,43 +438,15 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
     ],
     msg
   );
-  let result: null | {
-    content: string;
-    range: {
-      start: { line: number; character: number };
-      end: { line: number; character: number };
-    };
-  } = response.result as any;
+
+  let { result } = response;
 
   let res: v.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
   };
 
-  if (result == null) {
-    res.result = null;
-    return res;
-  }
-
-  let textEdit: v.TextEdit = { newText: result.content, range: result.range };
-
-  let codeAction: v.CodeAction = {
-    title: "Unwrap optional",
-    kind: v.CodeActionKind.RefactorRewrite,
-    edit: {
-      documentChanges: [
-        {
-          textDocument: {
-            version: null,
-            uri: params.textDocument.uri,
-          },
-          edits: [textEdit],
-        },
-      ],
-    },
-  };
-
-  res.result = [codeAction];
+  res.result = result ?? null;
   return res;
 }
 
