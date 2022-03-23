@@ -4,6 +4,7 @@
 - Support autocomplete for objects from another module `M.x[...`.
 - Fix command for creating interface files when the project uses namespaces.
 - Added command `ReScript: Open the compiled JS file for this implementation file.`.
+- Use semantic syntax highlighting (https://github.com/rescript-lang/rescript-vscode/pull/367).
 
 ## 1.2.1
 
