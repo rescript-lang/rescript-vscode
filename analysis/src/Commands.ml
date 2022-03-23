@@ -84,11 +84,42 @@ let codeAction ~path ~line ~col =
           match locItem.SharedTypes.locType with
           | Typed (n, t, _) -> (
             match Printtyp.tree_of_typexp false t with
-            | Otyp_constr (Oide_ident "option", _) -> Protocol.stringifyCodeAction {range = Utils.cmtLocToRange locItem.loc; newText = "switch " ^ n ^ " { | None => failWith(\"TODO\") | Some(" ^ n ^ ") => _" ^ n ^ " }"}
-            | _ -> Protocol.null
-          )
-          | Constant _constant ->
-            Protocol.stringifyHover {contents = "constant"}
+            | Otyp_constr (Oide_ident "option", _) ->
+              let range = Utils.cmtLocToRange locItem.loc in
+              CodeActions.(
+                stringifyCodeActions
+                  [
+                    CodeAction.make ~title:"Unwrap optional"
+                      ~kind:RefactorRewrite
+                      ~edit:
+                        (CodeActionEdit.make
+                           ~documentChanges:
+                             [
+                               DocumentChange.make
+                                 ~textDocument:
+                                   (TextDocument.make ~version:None ~uri:path)
+                                 ~edits:
+                                   [
+                                     TextEdit.make
+                                       ~newText:
+                                         ("switch " ^ n
+                                        ^ " { | None => failWith(\"TODO\") | \
+                                           Some(" ^ n ^ ") => _" ^ n ^ " }")
+                                       ~range:
+                                         (TextEditRange.make
+                                            ~start:
+                                              (Position.make
+                                                 ~line:range.start.line
+                                                 ~character:
+                                                   range.start.character)
+                                            ~end_:
+                                              (Position.make
+                                                 ~line:range.end_.line
+                                                 ~character:range.end_.character));
+                                   ];
+                             ]);
+                  ])
+            | _ -> Protocol.null)
           | _ -> Protocol.null))
   in
   print_endline result
