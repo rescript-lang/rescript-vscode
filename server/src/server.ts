@@ -425,6 +425,59 @@ function completion(msg: p.RequestMessage) {
   return response;
 }
 
+function codeAction(msg: p.RequestMessage): p.ResponseMessage {
+  let params = msg.params as p.CodeActionParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let response = utils.runAnalysisCommand(
+    filePath,
+    [
+      "codeAction",
+      filePath,
+      params.range.start.line,
+      params.range.start.character,
+    ],
+    msg
+  );
+  let result: null | {
+    content: string;
+    range: {
+      start: { line: number; character: number };
+      end: { line: number; character: number };
+    };
+  } = response.result as any;
+
+  let res: v.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+  };
+
+  if (result == null) {
+    res.result = null;
+    return res;
+  }
+
+  let textEdit: v.TextEdit = { newText: result.content, range: result.range };
+
+  let codeAction: v.CodeAction = {
+    title: "Unwrap optional",
+    kind: v.CodeActionKind.RefactorRewrite,
+    edit: {
+      documentChanges: [
+        {
+          textDocument: {
+            version: null,
+            uri: params.textDocument.uri,
+          },
+          edits: [textEdit],
+        },
+      ],
+    },
+  };
+
+  res.result = [codeAction];
+  return res;
+}
+
 function format(msg: p.RequestMessage): Array<m.Message> {
   // technically, a formatting failure should reply with the error. Sadly
   // the LSP alert box for these error replies sucks (e.g. doesn't actually
@@ -754,6 +807,7 @@ function onMessage(msg: m.Message) {
           definitionProvider: true,
           typeDefinitionProvider: true,
           referencesProvider: true,
+          codeActionProvider: true,
           renameProvider: { prepareProvider: true },
           // disabled right now until we use the parser to show non-stale symbols per keystroke
           // documentSymbolProvider: true,
@@ -836,6 +890,8 @@ function onMessage(msg: m.Message) {
       send(completion(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
       send(semanticTokens(msg));
+    } else if (msg.method === p.CodeActionRequest.method) {
+      send(codeAction(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       let responses = format(msg);
       responses.forEach((response) => send(response));
