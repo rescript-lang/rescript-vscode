@@ -1,4 +1,4 @@
-Parse tests/src/Parser.res
+Parse tests/src/Highlight.res
 structure items:38 diagnostics:0 
 Lident: M (0,7) Class
 Lident: C (1,9) Class
