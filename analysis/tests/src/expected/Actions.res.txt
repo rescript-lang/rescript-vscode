@@ -1,0 +1,34 @@
+Actions tests/src/Actions.res 3:10
+Hit _ifThenElse
+type kind = First | Second | Third
+
+let _ = (kind, kindStr) => {
+  let _ifThenElse = switch kind {
+  | First => //    ^act
+    "First"
+  | _ => "Not First"
+  }
+
+  let _ternary = "First" != kindStr ? "Not First" : "First"
+  //     ^act
+}
+
+Actions tests/src/Actions.res 10:9
+Hit _ternary
+type kind = First | Second | Third
+
+let _ = (kind, kindStr) => {
+  let _ifThenElse = if kind == First {
+    //    ^act
+    "First"
+  } else {
+    "Not First"
+  }
+
+  let _ternary = switch kindStr {
+  | "First" => "First"
+  | _ => "Not First"
+  }
+  //     ^act
+}
+
