@@ -89,35 +89,13 @@ let codeAction ~path ~line ~col =
               CodeActions.(
                 stringifyCodeActions
                   [
-                    CodeAction.make ~title:"Unwrap optional"
-                      ~kind:RefactorRewrite
-                      ~edit:
-                        (CodeActionEdit.make
-                           ~documentChanges:
-                             [
-                               DocumentChange.make
-                                 ~textDocument:
-                                   (TextDocument.make ~version:None ~uri:path)
-                                 ~edits:
-                                   [
-                                     TextEdit.make
-                                       ~newText:
-                                         ("switch " ^ n
-                                        ^ " { | None => failWith(\"TODO\") | \
-                                           Some(" ^ n ^ ") => _" ^ n ^ " }")
-                                       ~range:
-                                         (TextEditRange.make
-                                            ~start:
-                                              (Position.make
-                                                 ~line:range.start.line
-                                                 ~character:
-                                                   range.start.character)
-                                            ~end_:
-                                              (Position.make
-                                                 ~line:range.end_.line
-                                                 ~character:range.end_.character));
-                                   ];
-                             ]);
+                    CodeAction.makeRangeReplace ~title:"Unwrap optional"
+                      ~kind:RefactorRewrite ~file:path
+                      ~newText:
+                        ("switch " ^ n
+                       ^ " { | None => failWith(\"TODO\") | Some(" ^ n
+                       ^ ") => _" ^ n ^ " }")
+                      ~range;
                   ])
             | _ -> Protocol.null)
           | _ -> Protocol.null))

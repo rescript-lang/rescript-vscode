@@ -1,7 +1,5 @@
 type position = {line : int; character : int}
-
 type range = {start : position; end_ : position}
-
 type markupContent = {kind : string; value : string}
 
 type completionItem = {
@@ -13,15 +11,10 @@ type completionItem = {
 }
 
 type hover = {contents : string}
-
 type location = {uri : string; range : range}
-
 type documentSymbolItem = {name : string; kind : int; location : location}
-
 type codeAction = {newText : string; range : range}
-
 type renameFile = {oldUri : string; newUri : string}
-
 type textEdit = {range : range; newText : string}
 
 type optionalVersionedTextDocumentIdentifier = {
@@ -34,8 +27,9 @@ type textDocumentEdit = {
   edits : textEdit list;
 }
 
-let null = "null"
+type codeActionEdit = {documentChanges : textDocumentEdit list}
 
+let null = "null"
 let array l = "[" ^ String.concat ", " l ^ "]"
 
 let stringifyPosition p =
@@ -74,8 +68,7 @@ let stringifyCodeAction c =
         "content": "%s",
         "range": %s
 }|}
-    (Json.escape c.newText)
-    (stringifyRange c.range)
+    (Json.escape c.newText) (stringifyRange c.range)
 
 let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
@@ -121,3 +114,7 @@ let stringifyTextDocumentEdit tde =
   }|}
     (stringifyoptionalVersionedTextDocumentIdentifier tde.textDocument)
     (tde.edits |> List.map stringifyTextEdit |> array)
+
+let stringifyCodeActionEdit cae =
+  Printf.sprintf {|{"documentChanges": %s}|}
+    (cae.documentChanges |> List.map stringifyTextDocumentEdit |> array)
