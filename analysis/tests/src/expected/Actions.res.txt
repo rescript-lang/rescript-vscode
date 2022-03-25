@@ -1,7 +1,8 @@
-Actions tests/src/Actions.res 3:10
+Actions tests/src/Actions.res 4:10
 Hit _ifThenElse
 Formatted:
 type kind = First | Second | Third
+type r = {name: string, age: int}
 
 let _ = (kind, kindStr) => {
   let _ifThenElse = switch kind {
@@ -10,14 +11,15 @@ let _ = (kind, kindStr) => {
   | _ => "Not First"
   }
 
-  let _ternary = "First" != kindStr ? "Not First" : "First"
+  let _ternary = #kind("First", {name: "abc", age: 3}) != kindStr ? "Not First" : "First"
   //     ^act
 }
 
-Actions tests/src/Actions.res 10:9
+Actions tests/src/Actions.res 11:9
 Hit _ternary
 Formatted:
 type kind = First | Second | Third
+type r = {name: string, age: int}
 
 let _ = (kind, kindStr) => {
   let _ifThenElse = if kind == First {
@@ -28,7 +30,7 @@ let _ = (kind, kindStr) => {
   }
 
   let _ternary = switch kindStr {
-  | "First" => "First"
+  | #kind("First", {name: "abc", age: 3}) => "First"
   | _ => "Not First"
   }
   //     ^act
