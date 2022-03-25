@@ -2,18 +2,41 @@ let posInLoc ~pos ~loc =
   Utils.tupleOfLexing loc.Location.loc_start <= pos
   && pos < Utils.tupleOfLexing loc.loc_end
 
+let rec listToPat ~itemToPat = function
+  | [] -> Some []
+  | x :: xList -> (
+    match (itemToPat x, listToPat ~itemToPat xList) with
+    | Some p, Some pList -> Some (p :: pList)
+    | _ -> None)
+
 let rec expToPat (exp : Parsetree.expression) =
   let mkPat ppat_desc =
     Ast_helper.Pat.mk ~loc:exp.pexp_loc ~attrs:exp.pexp_attributes ppat_desc
   in
   match exp.pexp_desc with
-  | Pexp_construct (lid, None) ->
-    Some (mkPat (Parsetree.Ppat_construct (lid, None)))
+  | Pexp_construct (lid, None) -> Some (mkPat (Ppat_construct (lid, None)))
   | Pexp_construct (lid, Some e1) -> (
     match expToPat e1 with
     | None -> None
-    | Some p1 -> Some (mkPat (Parsetree.Ppat_construct (lid, Some p1))))
-  | Pexp_constant c -> Some (mkPat (Parsetree.Ppat_constant c))
+    | Some p1 -> Some (mkPat (Ppat_construct (lid, Some p1))))
+  | Pexp_variant (label, None) -> Some (mkPat (Ppat_variant (label, None)))
+  | Pexp_variant (label, Some e1) -> (
+    match expToPat e1 with
+    | None -> None
+    | Some p1 -> Some (mkPat (Ppat_variant (label, Some p1))))
+  | Pexp_constant c -> Some (mkPat (Ppat_constant c))
+  | Pexp_tuple eList -> (
+    match listToPat ~itemToPat:expToPat eList with
+    | None -> None
+    | Some patList -> Some (mkPat (Ppat_tuple patList)))
+  | Pexp_record (items, None) -> (
+    let itemToPat (x, e) =
+      match expToPat e with None -> None | Some p -> Some (x, p)
+    in
+    match listToPat ~itemToPat items with
+    | None -> None
+    | Some patItems -> Some (mkPat (Ppat_record (patItems, Closed))))
+  | Pexp_record (_, Some _) -> None
   | _ -> None
 
 let mkMapper ~pos ~changed =
