@@ -76,14 +76,13 @@ let command ~path ~pos =
     let parser =
       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
     in
-    let {Res_driver.parsetree = structure; comments; filename} =
-      parser ~filename:path
-    in
+    let {Res_driver.parsetree = structure; comments} = parser ~filename:path in
     let printer =
-      Res_driver.printEngine.printImplementation
-        ~width:!Res_cli.ResClflags.width ~comments ~filename
+      Res_printer.printImplementation ~width:!Res_cli.ResClflags.width ~comments
     in
     let changed = ref false in
     let mapper = mkMapper ~pos ~changed in
     let newStructure = mapper.structure mapper structure in
-    if !changed then printer newStructure
+    if !changed then
+      let formatted = printer newStructure in
+      Printf.printf "Formatted:\n%s" formatted
