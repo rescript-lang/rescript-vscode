@@ -1,36 +1,39 @@
-Actions tests/src/Actions.res 4:20
+Actions tests/src/Actions.res 6:5
 Formatted:
 type kind = First | Second | Third
 type r = {name: string, age: int}
 
-let _ = (kind, kindStr) => {
-  let _ifThenElse = switch kind {
-  | First => //              ^act
-    "First"
-  | _ => "Not First"
-  }
+let ret = _ => assert false
+let kind = assert false
 
-  let _ternary = #kind("First", {name: "abc", age: 3}) != kindStr ? "Not First" : "First"
-  //             ^act
+switch kind {
+| First =>
+  // ^act
+  ret("First")
+| _ => ret("Not First")
 }
 
-Actions tests/src/Actions.res 11:17
+#kind("First", {name: "abc", age: 3}) != kind ? ret("Not First") : ret("First")
+//             ^act
+
+Actions tests/src/Actions.res 13:15
 Formatted:
 type kind = First | Second | Third
 type r = {name: string, age: int}
 
-let _ = (kind, kindStr) => {
-  let _ifThenElse = if kind == First {
-    //              ^act
-    "First"
-  } else {
-    "Not First"
-  }
+let ret = _ => assert false
+let kind = assert false
 
-  let _ternary = switch kindStr {
-  | #kind("First", {name: "abc", age: 3}) => "First"
-  | _ => "Not First"
-  }
-  //             ^act
+if kind == First {
+  // ^act
+  ret("First")
+} else {
+  ret("Not First")
+}
+
+switch kind {
+| #kind("First", {name: "abc", age: 3}) => ret("First")
+//             ^act
+| _ => ret("Not First")
 }
 
