@@ -1,14 +1,15 @@
 type kind = First | Second | Third
 type r = {name: string, age: int}
 
-let _ = (kind, kindStr) => {
-  let _ifThenElse = if kind == First {
-    //              ^act
-    "First"
-  } else {
-    "Not First"
-  }
+let ret = _ => assert false
+let kind = assert false
 
-  let _ternary = #kind("First", {name: "abc", age: 3}) != kindStr ? "Not First" : "First"
-  //             ^act
+if kind == First {
+  // ^act
+  ret("First")
+} else {
+  ret("Not First")
 }
+
+#kind("First", {name: "abc", age: 3}) != kind ? ret("Not First") : ret("First")
+//             ^act
