@@ -1,5 +1,6 @@
 Actions tests/src/Actions.res 3:10
 Hit _ifThenElse
+Formatted:
 type kind = First | Second | Third
 
 let _ = (kind, kindStr) => {
@@ -15,6 +16,7 @@ let _ = (kind, kindStr) => {
 
 Actions tests/src/Actions.res 10:9
 Hit _ternary
+Formatted:
 type kind = First | Second | Third
 
 let _ = (kind, kindStr) => {
