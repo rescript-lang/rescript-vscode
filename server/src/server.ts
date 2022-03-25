@@ -12,6 +12,7 @@ import {
   DidCloseTextDocumentNotification,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
+import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
@@ -35,6 +36,9 @@ let projectsFiles: Map<
   }
 > = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
+
+// This keeps track of code actions extracted from diagnostics.
+let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: m.Message) => void = (_) => {};
@@ -65,8 +69,13 @@ let sendUpdatedDiagnostics = () => {
       path.join(projectRootPath, c.compilerLogPartialPath),
       { encoding: "utf-8" }
     );
-    let { done, result: filesAndErrors } =
-      utils.parseCompilerLogOutput(content);
+    let {
+      done,
+      result: filesAndErrors,
+      codeActions,
+    } = utils.parseCompilerLogOutput(content);
+
+    codeActionsFromDiagnostics = codeActions;
 
     // diff
     Object.keys(filesAndErrors).forEach((file) => {
@@ -428,6 +437,17 @@ function completion(msg: p.RequestMessage) {
 function codeAction(msg: p.RequestMessage): p.ResponseMessage {
   let params = msg.params as p.CodeActionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
+
+  // Check local code actions coming from the diagnostics.
+  let localResults: v.CodeAction[] = [];
+  codeActionsFromDiagnostics[params.textDocument.uri]?.forEach(
+    ({ range, codeAction }) => {
+      if (utils.rangeContainsRange(range, params.range)) {
+        localResults.push(codeAction);
+      }
+    }
+  );
+
   let response = utils.runAnalysisCommand(
     filePath,
     [
@@ -446,7 +466,10 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
     id: msg.id,
   };
 
-  res.result = result ?? null;
+  res.result =
+    result != null && Array.isArray(result)
+      ? [...localResults, result]
+      : localResults;
   return res;
 }
 

@@ -1,4 +1,5 @@
 import * as c from "./constants";
+import * as codeActions from "./codeActions";
 import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
 import * as path from "path";
@@ -481,6 +482,7 @@ type filesDiagnostics = {
 type parsedCompilerLogResult = {
   done: boolean;
   result: filesDiagnostics;
+  codeActions: codeActions.filesCodeActions;
 };
 export let parseCompilerLogOutput = (
   content: string
@@ -591,6 +593,8 @@ export let parseCompilerLogOutput = (
   }
 
   let result: filesDiagnostics = {};
+  let foundCodeActions: codeActions.filesCodeActions = {};
+
   parsedDiagnostics.forEach((parsedDiagnostic) => {
     let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
     let { file, range } = parseFileAndRange(fileAndRangeLine);
@@ -598,7 +602,8 @@ export let parseCompilerLogOutput = (
     if (result[file] == null) {
       result[file] = [];
     }
-    result[file].push({
+
+    let diagnostic: p.Diagnostic = {
       severity: parsedDiagnostic.severity,
       tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
       code: parsedDiagnostic.code,
@@ -606,8 +611,50 @@ export let parseCompilerLogOutput = (
       source: "ReScript",
       // remove start and end whitespaces/newlines
       message: diagnosticMessage.join("\n").trim() + "\n",
+    };
+
+    // Check for potential code actions
+    codeActions.findCodeActionsInDiagnosticsMessage({
+      addFoundActionsHere: foundCodeActions,
+      diagnostic,
+      diagnosticMessage,
+      file,
+      range,
     });
+
+    result[file].push(diagnostic);
   });
 
-  return { done, result };
+  return { done, result, codeActions: foundCodeActions };
+};
+
+export let rangeContainsRange = (
+  range: p.Range,
+  otherRange: p.Range
+): boolean => {
+  if (
+    otherRange.start.line < range.start.line ||
+    otherRange.end.line < range.start.line
+  ) {
+    return false;
+  }
+  if (
+    otherRange.start.line > range.end.line ||
+    otherRange.end.line > range.end.line
+  ) {
+    return false;
+  }
+  if (
+    otherRange.start.line === range.start.line &&
+    otherRange.start.character < range.start.character
+  ) {
+    return false;
+  }
+  if (
+    otherRange.end.line === range.end.line &&
+    otherRange.end.character > range.end.character
+  ) {
+    return false;
+  }
+  return true;
 };
