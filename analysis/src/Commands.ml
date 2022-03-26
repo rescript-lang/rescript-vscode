@@ -400,11 +400,11 @@ let test ~path =
             SemanticTokens.command ~debug:true
               ~emitter:(SemanticTokens.Token.createEmitter ())
               ~path
-          | "act" ->
+          | "xfm" ->
             print_endline
-              ("Actions " ^ path ^ " " ^ string_of_int line ^ ":"
+              ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            Actions.command ~path ~pos:(line, col)
+            Xform.command ~path ~pos:(line, col)
           | _ -> ());
           print_newline ())
     in
