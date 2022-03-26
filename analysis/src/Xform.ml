@@ -101,17 +101,21 @@ module IfThenElse = struct
     if !changed then Some newStructure else None
 end
 
+let parse ~filename =
+  let {Res_driver.parsetree = structure; comments} =
+    Res_driver.parsingEngine.parseImplementation ~forPrinter:false ~filename
+  in
+  let print ~structure =
+    Res_printer.printImplementation ~width:!Res_cli.ResClflags.width ~comments
+      structure
+  in
+  (structure, print)
+
 let command ~path ~pos =
   if Filename.check_suffix path ".res" then
-    let parser =
-      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
-    in
-    let {Res_driver.parsetree = structure; comments} = parser ~filename:path in
-    let printer =
-      Res_printer.printImplementation ~width:!Res_cli.ResClflags.width ~comments
-    in
+    let structure, print = parse ~filename:path in
     match IfThenElse.xform ~pos structure with
     | None -> ()
     | Some newStructure ->
-      let formatted = printer newStructure in
+      let formatted = print newStructure in
       Printf.printf "Hit IfThenElse. Formatted:\n%s" formatted
