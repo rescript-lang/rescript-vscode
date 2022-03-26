@@ -378,11 +378,11 @@ let test ~path =
               dir ++ parent_dir_name ++ "lib" ++ "bs" ++ "src" ++ name
             in
             Printf.printf "%s" (CreateInterface.command ~path ~cmiFile)
-          | "act" ->
+          | "xfm" ->
             print_endline
-              ("Actions " ^ path ^ " " ^ string_of_int line ^ ":"
+              ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            Actions.command ~path ~pos:(line, col)
+            Xform.command ~path ~pos:(line, col)
           | _ -> ());
           print_newline ())
     in
