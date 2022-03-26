@@ -1,36 +1,13 @@
 Xform tests/src/Xform.res 6:5
-Hit IfThenElse. Formatted:
-type kind = First | Second | Third
-type r = {name: string, age: int}
-
-let ret = _ => assert false
-let kind = assert false
-
+Hit IfThenElse firstLineDifferent:6 lastLineEqual:11 newLines:
 switch kind {
 | First =>
   // ^xfm
   ret("First")
 | _ => ret("Not First")
-}
-
-#kind("First", {name: "abc", age: 3}) != kind ? ret("Not First") : ret("First")
-//             ^xfm
 
 Xform tests/src/Xform.res 13:15
-Hit IfThenElse. Formatted:
-type kind = First | Second | Third
-type r = {name: string, age: int}
-
-let ret = _ => assert false
-let kind = assert false
-
-if kind == First {
-  // ^xfm
-  ret("First")
-} else {
-  ret("Not First")
-}
-
+Hit IfThenElse firstLineDifferent:13 lastLineEqual:15 newLines:
 switch kind {
 | #kind("First", {name: "abc", age: 3}) => ret("First")
 //             ^xfm
