@@ -466,10 +466,13 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
     id: msg.id,
   };
 
-  res.result =
+  // We must send `null` when there are no results, empty array isn't enough.
+  let codeActions =
     result != null && Array.isArray(result)
-      ? [...localResults, result]
+      ? [...localResults, ...result]
       : localResults;
+
+  res.result = codeActions.length > 0 ? codeActions : null;
   return res;
 }
 

@@ -55,52 +55,8 @@ let hover ~path ~line ~col =
   print_endline result
 
 let codeAction ~path ~line ~col =
-  let result =
-    match Cmt.fromPath ~path with
-    | None -> Protocol.null
-    | Some ({file} as full) -> (
-      match References.getLocItem ~full ~line ~col with
-      | None -> Protocol.null
-      | Some locItem -> (
-        let isModule =
-          match locItem.locType with
-          | SharedTypes.LModule _ | TopLevelModule _ -> true
-          | TypeDefinition _ | Typed _ | Constant _ -> false
-        in
-        let uriLocOpt = References.definitionForLocItem ~full locItem in
-        let skipZero =
-          match uriLocOpt with
-          | None -> false
-          | Some (_, loc) ->
-            let isInterface = file.uri |> Uri2.isInterface in
-            let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-              (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
-            in
-            (* Skip if range is all zero, unless it's a module *)
-            (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
-        in
-        if skipZero then Protocol.null
-        else
-          match locItem.SharedTypes.locType with
-          | Typed (n, t, _) -> (
-            match Printtyp.tree_of_typexp false t with
-            | Otyp_constr (Oide_ident "option", _) ->
-              let range = Utils.cmtLocToRange locItem.loc in
-              CodeActions.(
-                stringifyCodeActions
-                  [
-                    CodeAction.makeRangeReplace ~title:"Unwrap optional"
-                      ~kind:RefactorRewrite ~file:path
-                      ~newText:
-                        ("switch " ^ n
-                       ^ " { | None => failWith(\"TODO\") | Some(" ^ n
-                       ^ ") => _" ^ n ^ " }")
-                      ~range;
-                  ])
-            | _ -> Protocol.null)
-          | _ -> Protocol.null))
-  in
-  print_endline result
+  Xform.extractCodeActions ~path ~pos:(line, col)
+  |> CodeActions.stringifyCodeActions |> print_endline
 
 let definition ~path ~line ~col =
   let locationOpt =

@@ -148,3 +148,33 @@ let command ~path ~pos =
         "Hit IfThenElse firstLineDifferent:%d lastLineEqual:%d newLines:\n%s\n"
         firstLineDifferent lastLineEqual
         (newLines |> String.concat "\n")
+
+open CodeActions
+
+let extractCodeActions ~path ~pos =
+  if Filename.check_suffix path ".res" then (
+    let structure, print = parse ~filename:path in
+    let actions = ref [] in
+    (match IfThenElse.xform ~pos structure with
+    | None -> ()
+    | Some newStructure ->
+      let formatted = print newStructure in
+      let firstLineDifferent, lastLineEqual, newLines =
+        diff ~filename:path ~newContents:formatted
+      in
+
+      actions :=
+        CodeAction.makeRangeReplace ~title:"Replace with switch"
+          ~kind:RefactorRewrite
+          ~file:path
+            (* We add an explicit ending newline to the text to put the first
+               character after the replace back in the correct place. *)
+          ~newText:((newLines |> String.concat "\n") ^ "\n")
+          ~range:
+            {
+              start = {line = firstLineDifferent; character = 0};
+              end_ = {line = lastLineEqual; character = 0};
+            }
+        :: !actions);
+    !actions)
+  else []
