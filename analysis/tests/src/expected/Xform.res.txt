@@ -1,16 +1,16 @@
 Xform tests/src/Xform.res 6:5
-Hit IfThenElse firstLineDifferent:6 lastLineEqual:11 newLines:
+Hit IfThenElse {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}} newText:
 switch kind {
 | First =>
   // ^xfm
   ret("First")
 | _ => ret("Not First")
+}
 
 Xform tests/src/Xform.res 13:15
-Hit IfThenElse firstLineDifferent:13 lastLineEqual:15 newLines:
+Hit IfThenElse {"start": {"line": 13, "character": 0}, "end": {"line": 13, "character": 79}} newText:
 switch kind {
 | #kind("First", {name: "abc", age: 3}) => ret("First")
-//             ^xfm
 | _ => ret("Not First")
 }
 

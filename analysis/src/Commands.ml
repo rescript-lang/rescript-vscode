@@ -334,11 +334,16 @@ let test ~path =
               dir ++ parent_dir_name ++ "lib" ++ "bs" ++ "src" ++ name
             in
             Printf.printf "%s" (CreateInterface.command ~path ~cmiFile)
-          | "xfm" ->
+          | "xfm" -> (
             print_endline
               ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            Xform.command ~path ~pos:(line, col)
+            match Xform.command ~path ~pos:(line, col) with
+            | Some (range, newText) ->
+              Printf.printf "Hit IfThenElse %s newText:\n%s\n"
+                (Protocol.stringifyRange range)
+                newText
+            | None -> ())
           | _ -> ());
           print_newline ())
     in

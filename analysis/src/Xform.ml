@@ -4,6 +4,15 @@ let posInLoc ~pos ~loc =
   Utils.tupleOfLexing loc.Location.loc_start <= pos
   && pos < Utils.tupleOfLexing loc.loc_end
 
+let mkPosition (p : Lexing.position) =
+  let line, character = Utils.tupleOfLexing p in
+  {Protocol.line; character}
+
+let rangeOfLoc (loc : Location.t) =
+  let start = mkPosition loc.loc_start in
+  let end_ = mkPosition loc.loc_end in
+  {Protocol.start; end_}
+
 module IfThenElse = struct
   (* Convert if-then-else to switch *)
 
@@ -87,7 +96,7 @@ module IfThenElse = struct
       in
       match newExp with
       | Some newExp ->
-        changed := true;
+        changed := Some newExp;
         newExp
       | None -> Ast_mapper.default_mapper.expr mapper e
     in
@@ -95,21 +104,46 @@ module IfThenElse = struct
     {Ast_mapper.default_mapper with expr}
 
   let xform ~pos structure =
-    let changed = ref false in
+    let changed = ref None in
     let mapper = mkMapper ~pos ~changed in
-    let newStructure = mapper.structure mapper structure in
-    if !changed then Some newStructure else None
+    let _ = mapper.structure mapper structure in
+    !changed
 end
+
+let indent n text =
+  let spaces = String.make n ' ' in
+  let len = String.length text in
+  let text =
+    if len != 0 && text.[len - 1] = '\n' then String.sub text 0 (len - 1)
+    else text
+  in
+  let lines = String.split_on_char '\n' text in
+  match lines with
+  | [] -> ""
+  | [line] -> line
+  | line :: lines ->
+    line ^ "\n"
+    ^ (lines |> List.map (fun line -> spaces ^ line) |> String.concat "\n")
 
 let parse ~filename =
   let {Res_driver.parsetree = structure; comments} =
     Res_driver.parsingEngine.parseImplementation ~forPrinter:false ~filename
   in
-  let print ~structure =
-    Res_printer.printImplementation ~width:!Res_cli.ResClflags.width ~comments
-      structure
+  let printExpr ~(range : Protocol.range) (expr : Parsetree.expression) =
+    let structure = [Ast_helper.Str.eval ~loc:expr.pexp_loc expr] in
+    let filterComments = function
+      (* Relevant comments in the range of the expression *)
+      | comment ->
+        posInLoc
+          ~pos:((Res_comment.loc comment).loc_start |> Utils.tupleOfLexing)
+          ~loc:expr.pexp_loc
+    in
+    structure
+    |> Res_printer.printImplementation ~width:!Res_cli.ResClflags.width
+         ~comments:(List.filter filterComments comments)
+    |> indent range.start.character
   in
-  (structure, print)
+  (structure, printExpr)
 
 let diff ~filename ~newContents =
   match Files.readFile ~filename with
@@ -136,45 +170,22 @@ let diff ~filename ~newContents =
 
 let command ~path ~pos =
   if Filename.check_suffix path ".res" then
-    let structure, print = parse ~filename:path in
+    let structure, printExpr = parse ~filename:path in
     match IfThenElse.xform ~pos structure with
-    | None -> ()
-    | Some newStructure ->
-      let formatted = print newStructure in
-      let firstLineDifferent, lastLineEqual, newLines =
-        diff ~filename:path ~newContents:formatted
-      in
-      Printf.printf
-        "Hit IfThenElse firstLineDifferent:%d lastLineEqual:%d newLines:\n%s\n"
-        firstLineDifferent lastLineEqual
-        (newLines |> String.concat "\n")
+    | None -> None
+    | Some newExpr ->
+      let range = rangeOfLoc newExpr.pexp_loc in
+      let newText = printExpr ~range newExpr in
+      Some (range, newText)
+  else None
 
 open CodeActions
 
 let extractCodeActions ~path ~pos =
-  if Filename.check_suffix path ".res" then (
-    let structure, print = parse ~filename:path in
-    let actions = ref [] in
-    (match IfThenElse.xform ~pos structure with
-    | None -> ()
-    | Some newStructure ->
-      let formatted = print newStructure in
-      let firstLineDifferent, lastLineEqual, newLines =
-        diff ~filename:path ~newContents:formatted
-      in
-
-      actions :=
-        CodeAction.makeRangeReplace ~title:"Replace with switch"
-          ~kind:RefactorRewrite
-          ~file:path
-            (* We add an explicit ending newline to the text to put the first
-               character after the replace back in the correct place. *)
-          ~newText:((newLines |> String.concat "\n") ^ "\n")
-          ~range:
-            {
-              start = {line = firstLineDifferent; character = 0};
-              end_ = {line = lastLineEqual; character = 0};
-            }
-        :: !actions);
-    !actions)
-  else []
+  match command ~path ~pos with
+  | Some (range, newText) ->
+    [
+      CodeAction.makeRangeReplace ~title:"Replace with switch"
+        ~kind:RefactorRewrite ~file:path ~newText ~range;
+    ]
+  | None -> []
