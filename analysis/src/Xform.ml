@@ -53,8 +53,8 @@ module IfThenElse = struct
     | Pexp_record (_, Some _) -> None
     | _ -> None
 
-  let mkMapper ~pos ~changed =
-    let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
+  let mkIterator ~pos ~changed =
+    let expr (iterator : Ast_iterator.iterator) (e : Parsetree.expression) =
       let newExp =
         match e.pexp_desc with
         | Pexp_ifthenelse
@@ -95,18 +95,16 @@ module IfThenElse = struct
         | _ -> None
       in
       match newExp with
-      | Some newExp ->
-        changed := Some newExp;
-        newExp
-      | None -> Ast_mapper.default_mapper.expr mapper e
+      | Some newExp -> changed := Some newExp
+      | None -> Ast_iterator.default_iterator.expr iterator e
     in
 
-    {Ast_mapper.default_mapper with expr}
+    {Ast_iterator.default_iterator with expr}
 
   let xform ~pos structure =
     let changed = ref None in
-    let mapper = mkMapper ~pos ~changed in
-    let _ = mapper.structure mapper structure in
+    let iterator = mkIterator ~pos ~changed in
+    iterator.structure iterator structure;
     !changed
 end
 
