@@ -342,17 +342,15 @@ let test ~path =
               Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile:path
             in
             codeActions
-            |> List.iter (fun codeAction ->
-                   match codeAction with
-                   | {
-                    Protocol.title;
-                    edit = {documentChanges = [{edits = [{range; newText}]}]};
-                   } ->
-                     Printf.printf "Hit %s %s\nnewText:\n%s\n" title
-                       (Protocol.stringifyRange range)
-                       newText
-                   | _ -> assert false
-                   (* TODO *))
+            |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
+                   Printf.printf "Hit: %s\n" title;
+                   documentChanges
+                   |> List.iter (fun {Protocol.edits} ->
+                          edits
+                          |> List.iter (fun {Protocol.range; newText} ->
+                                 Printf.printf "%s\nnewText:\n%s\n"
+                                   (Protocol.stringifyRange range)
+                                   newText)))
           | _ -> ());
           print_newline ())
     in

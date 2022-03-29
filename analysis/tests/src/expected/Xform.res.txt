@@ -1,5 +1,6 @@
 Xform tests/src/Xform.res 6:5
-Hit Replace with switch {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
+Hit: Replace with switch
+{"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
 newText:
 switch kind {
 | First =>
@@ -9,7 +10,8 @@ switch kind {
 }
 
 Xform tests/src/Xform.res 13:15
-Hit Replace with switch {"start": {"line": 13, "character": 0}, "end": {"line": 13, "character": 79}}
+Hit: Replace with switch
+{"start": {"line": 13, "character": 0}, "end": {"line": 13, "character": 79}}
 newText:
 switch kind {
 | #kind("First", {name: "abc", age: 3}) => ret("First")
