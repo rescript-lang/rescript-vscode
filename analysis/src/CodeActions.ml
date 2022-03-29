@@ -18,19 +18,14 @@ let stringifyCodeActions codeActions =
   Printf.sprintf {|%s|} (codeActions |> List.map stringifyCodeAction |> array)
 
 module CodeAction = struct
-  let makeRangeReplace ~title ~kind ~file ~newText ~range =
+  let makeRangeReplace ~title ~kind ~uri ~newText ~range =
     {
       title;
       kind;
       edit =
         {
           documentChanges =
-            [
-              {
-                textDocument = {version = None; uri = file};
-                edits = [{newText; range}];
-              };
-            ];
+            [{textDocument = {version = None; uri}; edits = [{newText; range}]}];
         };
     }
 end

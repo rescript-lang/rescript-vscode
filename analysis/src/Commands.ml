@@ -54,8 +54,8 @@ let hover ~path ~line ~col =
   in
   print_endline result
 
-let codeAction ~path ~line ~col =
-  Xform.extractCodeActions ~path ~pos:(line, col)
+let codeAction ~path ~line ~col ~currentFile =
+  Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile
   |> CodeActions.stringifyCodeActions |> print_endline
 
 let definition ~path ~line ~col =
@@ -338,7 +338,7 @@ let test ~path =
             print_endline
               ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            match Xform.command ~path ~pos:(line, col) with
+            match Xform.command ~currentFile:path ~pos:(line, col) with
             | Some (range, newText) ->
               Printf.printf "Hit IfThenElse %s newText:\n%s\n"
                 (Protocol.stringifyRange range)

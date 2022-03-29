@@ -168,9 +168,9 @@ let diff ~filename ~newContents =
     let newLines = List.rev newR in
     (firstLineDifferent, lastLineEqual, newLines)
 
-let command ~path ~pos =
-  if Filename.check_suffix path ".res" then
-    let structure, printExpr = parse ~filename:path in
+let command ~currentFile ~pos =
+  if Filename.check_suffix currentFile ".res" then
+    let structure, printExpr = parse ~filename:currentFile in
     match IfThenElse.xform ~pos structure with
     | None -> None
     | Some newExpr ->
@@ -181,11 +181,11 @@ let command ~path ~pos =
 
 open CodeActions
 
-let extractCodeActions ~path ~pos =
-  match command ~path ~pos with
+let extractCodeActions ~path ~pos ~currentFile =
+  match command ~currentFile ~pos with
   | Some (range, newText) ->
     [
       CodeAction.makeRangeReplace ~title:"Replace with switch"
-        ~kind:RefactorRewrite ~file:path ~newText ~range;
+        ~kind:RefactorRewrite ~uri:path ~newText ~range;
     ]
   | None -> []

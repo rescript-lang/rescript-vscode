@@ -437,6 +437,9 @@ function completion(msg: p.RequestMessage) {
 function codeAction(msg: p.RequestMessage): p.ResponseMessage {
   let params = msg.params as p.CodeActionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir(extension);
 
   // Check local code actions coming from the diagnostics.
   let localResults: v.CodeAction[] = [];
@@ -448,6 +451,7 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
     }
   );
 
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = utils.runAnalysisCommand(
     filePath,
     [
@@ -455,9 +459,12 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
       filePath,
       params.range.start.line,
       params.range.start.character,
+      tmpname
     ],
     msg
   );
+  fs.unlink(tmpname, () => null);
+
 
   let { result } = response;
 
