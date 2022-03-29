@@ -7472,7 +7472,7 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'class_descriptions) in
     Obj.repr(
 # 855 "ml/parser.mly"
-      ( let (l, ext) = _1 in mksig_ext (Psig_class (List.rev l)) ext )
+      ( let (_l, ext) = _1 in mksig_ext (Psig_class ()) ext )
 # 7477 "ml/parser.ml"
                : 'signature_item))
 ; (fun __caml_parser_env ->

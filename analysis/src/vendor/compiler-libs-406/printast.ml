@@ -696,9 +696,7 @@ and signature_item i ppf x =
       line i ppf "Psig_include\n";
       module_type i ppf incl.pincl_mod;
       attributes i ppf incl.pincl_attributes
-  | Psig_class (l) ->
-      line i ppf "Psig_class\n";
-      list i class_description ppf l;
+  | Psig_class () -> ()
   | Psig_class_type (l) ->
       line i ppf "Psig_class_type\n";
       list i class_type_declaration ppf l;
