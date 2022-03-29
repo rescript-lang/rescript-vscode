@@ -3,16 +3,17 @@ structure items:38 diagnostics:0
 Lident: M (0,7) Class
 Lident: C (1,9) Class
 Lident: Component (1,13) Class
+Variable: _c (4,4)->(4,6)
 JsxTag <: (4,9)
 Lident: Component (4,10) Class
-Variable: _c (4,4)->(4,6)
+Variable: _mc (6,4)->(6,7)
 JsxTag <: (6,10)
 Ldot: M (6,11) Class
 Lident: C (6,13) Class
-Variable: _mc (6,4)->(6,7)
+Variable: _d (8,4)->(8,6)
 JsxTag <: (8,9)
 Lident: div (8,10) JsxLowercase
-Variable: _d (8,4)->(8,6)
+Variable: _d2 (10,4)->(10,7)
 JsxTag <: (11,2)
 Lident: div (11,3) JsxLowercase
 Lident: div (16,4) JsxLowercase
@@ -31,7 +32,6 @@ Ldot: React (14,5) Class
 Lident: string (14,11) Variable
 Ldot: React (15,5) Class
 Lident: string (15,11) Variable
-Variable: _d2 (10,4)->(10,7)
 Lident: pair (18,5) Type
 Lident: looooooooooooooooooooooooooooooooooooooong_int (20,5) Type
 Lident: int (20,54) Type
@@ -50,8 +50,8 @@ Binary operator > (31,22)->(31,23)
 Lident: MT (33,12) Type
 Lident: DDF (34,9) Class
 Lident: DDF (39,7) Class
-Lident: MT (39,12) Type
 Lident: DDF (40,9) Class
+Lident: MT (39,12) Type
 Lident: XX (45,7) Class
 Lident: YY (46,9) Class
 Lident: t (47,9) Type
@@ -71,16 +71,16 @@ Lident: someEnum (64,7) Type
 Lident: A (64,18) EnumMember
 Lident: B (64,22) EnumMember
 Lident: C (64,26) EnumMember
+Variable: foo (67,4)->(67,7)
+Variable: x (67,10)->(67,11)
 Ldot: T (67,17) Class
 Lident: someField (67,19) Property
 Lident: x (67,15) Variable
-Variable: x (67,10)->(67,11)
-Variable: foo (67,4)->(67,7)
+Variable: add (69,4)->(69,7)
+Variable: x (69,21)->(69,22)
+Variable: world (69,24)->(69,30)
 Lident: x (69,35) Variable
 Lident: world (69,39) Variable
-Variable: world (69,24)->(69,30)
-Variable: x (69,21)->(69,22)
-Variable: add (69,4)->(69,7)
 Lident: add (71,8) Variable
 JsxTag <: (73,8)
 Lident: div (73,9) JsxLowercase
@@ -91,9 +91,9 @@ JsxTag <: (73,26)
 Lident: div (73,27) JsxLowercase
 Lident: SomeComponent (75,7) Class
 Lident: Nested (76,9) Class
-Lident: children (79,10) Variable
-Variable: children (78,16)->(78,25)
 Variable: make (78,8)->(78,12)
+Variable: children (78,16)->(78,25)
+Lident: children (79,10) Variable
 JsxTag <: (84,8)
 Ldot: SomeComponent (84,9) Class
 Lident: Nested (84,23) Class
@@ -103,29 +103,29 @@ JsxTag >: (84,29)
 JsxTag >: (84,61)
 JsxTag <: (84,31)
 Lident: div (84,32) JsxLowercase
-Lident: x (90,25) Variable
-Variable: x (90,19)->(90,20)
 Variable: toAs (90,4)->(90,8)
-Lident: toAs (91,16) Variable
+Variable: x (90,19)->(90,20)
+Lident: x (90,25) Variable
 Variable: _toEquals (91,4)->(91,13)
+Lident: toAs (91,16) Variable
 Variable: to (93,4)->(93,6)
-Lident: to (94,20) Variable
-Lident: to (94,25) Variable
 Lident: to (94,9) Variable
 Lident: to (94,14) Variable
+Lident: to (94,20) Variable
+Lident: to (94,25) Variable
 Lident: ToAsProp (98,7) Class
-Lident: to (101,18) Variable
+Variable: make (100,6)->(100,10)
+Variable: to (100,14)->(100,17)
 Ldot: React (101,8) Class
 Lident: int (101,14) Variable
-Variable: to (100,14)->(100,17)
-Variable: make (100,6)->(100,10)
+Lident: to (101,18) Variable
 JsxTag <: (104,8)
 Lident: ToAsProp (104,9) Class
 Variable: true (107,4)->(107,11)
 Lident: true (108,8)->(108,15) Variable
+Variable: enumInModule (110,4)->(110,16)
 Ldot: T (110,19) Class
 Lident: A (110,21) EnumMember
-Variable: enumInModule (110,4)->(110,16)
 Lident: typeInModule (112,5) Type
 Ldot: XX (112,20) Class
 Ldot: YY (112,23) Class
@@ -135,9 +135,9 @@ Lident: somePolyEnumType (115,7) Type
 Lident: list (118,29) Type
 TypeArg: (118,34)->(118,37)
 Lident: int (118,34) Type
+Variable: x (123,8)->(123,9)
+Lident: x (124,9) Variable
 Ldot: QQ (126,8) Class
 Lident: somePolyEnumType (126,11) Type
-Lident: x (124,9) Variable
-Variable: x (123,8)->(123,9)
 Lident: abc (133,9)->(133,14) Property
 

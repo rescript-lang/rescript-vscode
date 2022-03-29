@@ -212,43 +212,43 @@ let command ~debug ~emitter ~path =
   let processTypeArg (coreType : Parsetree.core_type) =
     if debug then Printf.printf "TypeArg: %s\n" (locToString coreType.ptyp_loc)
   in
-  let typ (mapper : Ast_mapper.mapper) (coreType : Parsetree.core_type) =
+  let typ (iterator : Ast_iterator.iterator) (coreType : Parsetree.core_type) =
     match coreType.ptyp_desc with
     | Ptyp_constr ({txt = lid; loc}, args) ->
       emitter |> emitType ~lid ~debug ~loc;
       args |> List.iter processTypeArg;
-      Ast_mapper.default_mapper.typ mapper coreType
-    | _ -> Ast_mapper.default_mapper.typ mapper coreType
+      Ast_iterator.default_iterator.typ iterator coreType
+    | _ -> Ast_iterator.default_iterator.typ iterator coreType
   in
-  let type_declaration (mapper : Ast_mapper.mapper)
+  let type_declaration (iterator : Ast_iterator.iterator)
       (tydecl : Parsetree.type_declaration) =
     emitter
     |> emitType ~lid:(Lident tydecl.ptype_name.txt) ~debug
          ~loc:tydecl.ptype_name.loc;
-    Ast_mapper.default_mapper.type_declaration mapper tydecl
+    Ast_iterator.default_iterator.type_declaration iterator tydecl
   in
-  let pat (mapper : Ast_mapper.mapper) (p : Parsetree.pattern) =
+  let pat (iterator : Ast_iterator.iterator) (p : Parsetree.pattern) =
     match p.ppat_desc with
     | Ppat_var {txt = id} ->
       if isLowercaseId id then
         emitter |> emitVariable ~id ~debug ~loc:p.ppat_loc;
-      Ast_mapper.default_mapper.pat mapper p
+      Ast_iterator.default_iterator.pat iterator p
     | Ppat_construct ({txt = Lident ("true" | "false")}, _) ->
       (* Don't emit true or false *)
-      Ast_mapper.default_mapper.pat mapper p
+      Ast_iterator.default_iterator.pat iterator p
     | Ppat_record (cases, _) ->
       cases
       |> List.iter (fun (label, _) -> emitter |> emitRecordLabel ~label ~debug);
-      Ast_mapper.default_mapper.pat mapper p
+      Ast_iterator.default_iterator.pat iterator p
     | Ppat_construct (name, _) ->
       emitter |> emitVariant ~name ~debug;
-      Ast_mapper.default_mapper.pat mapper p
+      Ast_iterator.default_iterator.pat iterator p
     | Ppat_type {txt = lid; loc} ->
       emitter |> emitType ~lid ~debug ~loc;
-      Ast_mapper.default_mapper.pat mapper p
-    | _ -> Ast_mapper.default_mapper.pat mapper p
+      Ast_iterator.default_iterator.pat iterator p
+    | _ -> Ast_iterator.default_iterator.pat iterator p
   in
-  let expr (mapper : Ast_mapper.mapper) (e : Parsetree.expression) =
+  let expr (iterator : Ast_iterator.iterator) (e : Parsetree.expression) =
     match e.pexp_desc with
     | Pexp_ident {txt = lid; loc} ->
       if lid <> Lident "not" then
@@ -257,7 +257,7 @@ let command ~debug ~emitter ~path =
              ~pos:(Utils.tupleOfLexing loc.loc_start)
              ~posEnd:(Some (Utils.tupleOfLexing loc.loc_end))
              ~lid ~debug;
-      Ast_mapper.default_mapper.expr mapper e
+      Ast_iterator.default_iterator.expr iterator e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
       when Res_parsetree_viewer.isJsxExpression e ->
       (*
@@ -309,8 +309,7 @@ let command ~debug ~emitter ~path =
          emitter (* <foo> ... </foo> <-- *)
          |> emitJsxTag ~debug ~name:">" ~pos:posOfFinalGreatherthan));
 
-      let _ = args |> List.map (fun (_lbl, arg) -> mapper.expr mapper arg) in
-      e
+      args |> List.iter (fun (_lbl, arg) -> iterator.expr iterator arg)
     | Pexp_apply
         ( {
             pexp_desc =
@@ -319,92 +318,94 @@ let command ~debug ~emitter ~path =
           [_; _] ) ->
       if debug then Printf.printf "Binary operator %s %s\n" op (locToString loc);
       emitter |> emitFromLoc ~loc ~type_:Operator;
-      Ast_mapper.default_mapper.expr mapper e
+      Ast_iterator.default_iterator.expr iterator e
     | Pexp_record (cases, _) ->
       cases
       |> List.iter (fun (label, _) -> emitter |> emitRecordLabel ~label ~debug);
-      Ast_mapper.default_mapper.expr mapper e
+      Ast_iterator.default_iterator.expr iterator e
     | Pexp_field (_, label) | Pexp_setfield (_, label, _) ->
       emitter |> emitRecordLabel ~label ~debug;
-      Ast_mapper.default_mapper.expr mapper e
+      Ast_iterator.default_iterator.expr iterator e
     | Pexp_construct ({txt = Lident ("true" | "false")}, _) ->
       (* Don't emit true or false *)
-      Ast_mapper.default_mapper.expr mapper e
+      Ast_iterator.default_iterator.expr iterator e
     | Pexp_construct (name, _) ->
       emitter |> emitVariant ~name ~debug;
-      Ast_mapper.default_mapper.expr mapper e
-    | _ -> Ast_mapper.default_mapper.expr mapper e
+      Ast_iterator.default_iterator.expr iterator e
+    | _ -> Ast_iterator.default_iterator.expr iterator e
   in
-  let module_expr (mapper : Ast_mapper.mapper) (me : Parsetree.module_expr) =
+  let module_expr (iterator : Ast_iterator.iterator)
+      (me : Parsetree.module_expr) =
     match me.pmod_desc with
     | Pmod_ident {txt = lid; loc} ->
       emitter
       |> emitLongident ~pos:(Utils.tupleOfLexing loc.loc_start) ~lid ~debug;
-      Ast_mapper.default_mapper.module_expr mapper me
-    | _ -> Ast_mapper.default_mapper.module_expr mapper me
+      Ast_iterator.default_iterator.module_expr iterator me
+    | _ -> Ast_iterator.default_iterator.module_expr iterator me
   in
-  let module_binding (mapper : Ast_mapper.mapper)
+  let module_binding (iterator : Ast_iterator.iterator)
       (mb : Parsetree.module_binding) =
     emitter
     |> emitLongident
          ~pos:(Utils.tupleOfLexing mb.pmb_name.loc.loc_start)
          ~lid:(Longident.Lident mb.pmb_name.txt) ~debug;
-    Ast_mapper.default_mapper.module_binding mapper mb
+    Ast_iterator.default_iterator.module_binding iterator mb
   in
-  let module_declaration (mapper : Ast_mapper.mapper)
+  let module_declaration (iterator : Ast_iterator.iterator)
       (md : Parsetree.module_declaration) =
     emitter
     |> emitLongident
          ~pos:(Utils.tupleOfLexing md.pmd_name.loc.loc_start)
          ~lid:(Longident.Lident md.pmd_name.txt) ~debug;
-    Ast_mapper.default_mapper.module_declaration mapper md
+    Ast_iterator.default_iterator.module_declaration iterator md
   in
-  let module_type (mapper : Ast_mapper.mapper) (mt : Parsetree.module_type) =
+  let module_type (iterator : Ast_iterator.iterator)
+      (mt : Parsetree.module_type) =
     match mt.pmty_desc with
     | Pmty_ident {txt = lid; loc} ->
       emitter
       |> emitLongident ~upperCaseToken:Token.Type
            ~pos:(Utils.tupleOfLexing loc.loc_start)
            ~lid ~debug;
-      Ast_mapper.default_mapper.module_type mapper mt
-    | _ -> Ast_mapper.default_mapper.module_type mapper mt
+      Ast_iterator.default_iterator.module_type iterator mt
+    | _ -> Ast_iterator.default_iterator.module_type iterator mt
   in
-  let module_type_declaration (mapper : Ast_mapper.mapper)
+  let module_type_declaration (iterator : Ast_iterator.iterator)
       (mtd : Parsetree.module_type_declaration) =
     emitter
     |> emitLongident ~upperCaseToken:Token.Type
          ~pos:(Utils.tupleOfLexing mtd.pmtd_name.loc.loc_start)
          ~lid:(Longident.Lident mtd.pmtd_name.txt) ~debug;
-    Ast_mapper.default_mapper.module_type_declaration mapper mtd
+    Ast_iterator.default_iterator.module_type_declaration iterator mtd
   in
-  let open_description (mapper : Ast_mapper.mapper)
+  let open_description (iterator : Ast_iterator.iterator)
       (od : Parsetree.open_description) =
     emitter
     |> emitLongident
          ~pos:(Utils.tupleOfLexing od.popen_lid.loc.loc_start)
          ~lid:od.popen_lid.txt ~debug;
-    Ast_mapper.default_mapper.open_description mapper od
+    Ast_iterator.default_iterator.open_description iterator od
   in
-  let label_declaration (mapper : Ast_mapper.mapper)
+  let label_declaration (iterator : Ast_iterator.iterator)
       (ld : Parsetree.label_declaration) =
     emitter
     |> emitRecordLabel
          ~label:{loc = ld.pld_name.loc; txt = Longident.Lident ld.pld_name.txt}
          ~debug;
-    Ast_mapper.default_mapper.label_declaration mapper ld
+    Ast_iterator.default_iterator.label_declaration iterator ld
   in
-  let constructor_declaration (mapper : Ast_mapper.mapper)
+  let constructor_declaration (iterator : Ast_iterator.iterator)
       (cd : Parsetree.constructor_declaration) =
     emitter
     |> emitVariant
          ~name:{loc = cd.pcd_name.loc; txt = Longident.Lident cd.pcd_name.txt}
          ~debug;
-    Ast_mapper.default_mapper.constructor_declaration mapper cd
+    Ast_iterator.default_iterator.constructor_declaration iterator cd
   in
 
-  let mapper =
+  let iterator =
     {
-      Ast_mapper.default_mapper with
+      Ast_iterator.default_iterator with
       constructor_declaration;
       expr;
       label_declaration;
@@ -430,7 +431,7 @@ let command ~debug ~emitter ~path =
     if debug then
       Printf.printf "structure items:%d diagnostics:%d \n"
         (List.length structure) (List.length diagnostics);
-    mapper.structure mapper structure |> ignore)
+    iterator.structure iterator structure |> ignore)
   else
     let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
     let {Res_driver.parsetree = signature; diagnostics} =
@@ -439,7 +440,7 @@ let command ~debug ~emitter ~path =
     if debug then
       Printf.printf "signature items:%d diagnostics:%d \n"
         (List.length signature) (List.length diagnostics);
-    mapper.signature mapper signature |> ignore
+    iterator.signature iterator signature |> ignore
 
 let semanticTokens ~currentFile =
   let emitter = Token.createEmitter () in
