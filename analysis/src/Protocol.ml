@@ -27,6 +27,13 @@ type textDocumentEdit = {
 }
 
 type codeActionEdit = {documentChanges : textDocumentEdit list}
+type codeActionKind = RefactorRewrite
+
+type codeAction = {
+  title : string;
+  codeActionKind : codeActionKind;
+  edit : codeActionEdit;
+}
 
 let null = "null"
 let array l = "[" ^ String.concat ", " l ^ "]"
@@ -106,6 +113,14 @@ let stringifyTextDocumentEdit tde =
     (stringifyoptionalVersionedTextDocumentIdentifier tde.textDocument)
     (tde.edits |> List.map stringifyTextEdit |> array)
 
+let codeActionKindToString kind =
+  match kind with RefactorRewrite -> "refactor.rewrite"
+
 let stringifyCodeActionEdit cae =
   Printf.sprintf {|{"documentChanges": %s}|}
     (cae.documentChanges |> List.map stringifyTextDocumentEdit |> array)
+
+let stringifyCodeAction ca =
+  Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title
+    (codeActionKindToString ca.codeActionKind)
+    (ca.edit |> stringifyCodeActionEdit)

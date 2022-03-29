@@ -1,31 +1,17 @@
-open Protocol
-
-type kind = RefactorRewrite
-
-let kindToString kind = match kind with RefactorRewrite -> "refactor.rewrite"
-
-type codeAction = {title : string; kind : kind; edit : codeActionEdit}
-
-let stringifyCodeAction ca =
-  Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title
-    (kindToString ca.kind)
-    (ca.edit |> stringifyCodeActionEdit)
-
 (* This is the return that's expected when resolving code actions *)
-type result = codeAction list
+type result = Protocol.codeAction list
 
 let stringifyCodeActions codeActions =
-  Printf.sprintf {|%s|} (codeActions |> List.map stringifyCodeAction |> array)
+  Printf.sprintf {|%s|}
+    (codeActions |> List.map Protocol.stringifyCodeAction |> Protocol.array)
 
-module CodeAction = struct
-  let makeRangeReplace ~title ~kind ~uri ~newText ~range =
-    {
-      title;
-      kind;
-      edit =
-        {
-          documentChanges =
-            [{textDocument = {version = None; uri}; edits = [{newText; range}]}];
-        };
-    }
-end
+let make ~title ~kind ~uri ~newText ~range =
+  {
+    Protocol.title;
+    codeActionKind = kind;
+    edit =
+      {
+        documentChanges =
+          [{textDocument = {version = None; uri}; edits = [{newText; range}]}];
+      };
+  }

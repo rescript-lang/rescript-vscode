@@ -179,13 +179,11 @@ let command ~currentFile ~pos =
       Some (range, newText)
   else None
 
-open CodeActions
-
 let extractCodeActions ~path ~pos ~currentFile =
   match command ~currentFile ~pos with
   | Some (range, newText) ->
     [
-      CodeAction.makeRangeReplace ~title:"Replace with switch"
-        ~kind:RefactorRewrite ~uri:path ~newText ~range;
+      CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
+        ~uri:path ~newText ~range;
     ]
   | None -> []
