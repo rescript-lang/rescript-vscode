@@ -334,16 +334,25 @@ let test ~path =
               dir ++ parent_dir_name ++ "lib" ++ "bs" ++ "src" ++ name
             in
             Printf.printf "%s" (CreateInterface.command ~path ~cmiFile)
-          | "xfm" -> (
+          | "xfm" ->
             print_endline
               ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            match Xform.command ~currentFile:path ~pos:(line, col) with
-            | Some (range, newText) ->
-              Printf.printf "Hit IfThenElse %s newText:\n%s\n"
-                (Protocol.stringifyRange range)
-                newText
-            | None -> ())
+            let codeActions =
+              Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile:path
+            in
+            codeActions
+            |> List.iter (fun codeAction ->
+                   match codeAction with
+                   | {
+                    Protocol.title;
+                    edit = {documentChanges = [{edits = [{range; newText}]}]};
+                   } ->
+                     Printf.printf "Hit %s %s\nnewText:\n%s\n" title
+                       (Protocol.stringifyRange range)
+                       newText
+                   | _ -> assert false
+                   (* TODO *))
           | _ -> ());
           print_newline ())
     in

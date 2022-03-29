@@ -1,5 +1,6 @@
 Xform tests/src/Xform.res 6:5
-Hit IfThenElse {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}} newText:
+Hit Replace with switch {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
+newText:
 switch kind {
 | First =>
   // ^xfm
@@ -8,7 +9,8 @@ switch kind {
 }
 
 Xform tests/src/Xform.res 13:15
-Hit IfThenElse {"start": {"line": 13, "character": 0}, "end": {"line": 13, "character": 79}} newText:
+Hit Replace with switch {"start": {"line": 13, "character": 0}, "end": {"line": 13, "character": 79}}
+newText:
 switch kind {
 | #kind("First", {name: "abc", age: 3}) => ret("First")
 | _ => ret("Not First")
