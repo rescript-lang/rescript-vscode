@@ -705,7 +705,7 @@ and signature_item_desc =
         (* open X *)
   | Psig_include of include_description
         (* include MT *)
-  | Psig_class of class_description list
+  | Psig_class of unit
         (* class c1 : ... and ... and cn : ... *)
   | Psig_class_type of class_type_declaration list
         (* class type ct1 = ... and ... and ctn = ... *)
