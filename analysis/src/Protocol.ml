@@ -13,7 +13,6 @@ type completionItem = {
 type hover = {contents : string}
 type location = {uri : string; range : range}
 type documentSymbolItem = {name : string; kind : int; location : location}
-type codeAction = {newText : string; range : range}
 type renameFile = {oldUri : string; newUri : string}
 type textEdit = {range : range; newText : string}
 
@@ -61,14 +60,6 @@ let stringifyCompletionItem c =
 
 let stringifyHover h =
   Printf.sprintf {|{"contents": "%s"}|} (Json.escape h.contents)
-
-let stringifyCodeAction c =
-  Printf.sprintf
-    {|{
-        "content": "%s",
-        "range": %s
-}|}
-    (Json.escape c.newText) (stringifyRange c.range)
 
 let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
