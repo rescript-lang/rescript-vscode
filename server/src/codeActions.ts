@@ -89,6 +89,8 @@ let didYouMeanAction: codeActionExtractor = ({
           },
         },
         diagnostics: [diagnostic],
+        kind: p.CodeActionKind.QuickFix,
+        isPreferred: true,
       };
 
       codeActions[file].push({
@@ -206,6 +208,8 @@ let addUndefinedRecordFields: codeActionExtractor = ({
           },
         },
         diagnostics: [diagnostic],
+        kind: p.CodeActionKind.QuickFix,
+        isPreferred: true,
       };
 
       codeActions[file].push({
@@ -274,6 +278,8 @@ let simpleConversion: codeActionExtractor = ({
           },
         },
         diagnostics: [diagnostic],
+        kind: p.CodeActionKind.QuickFix,
+        isPreferred: true,
       };
 
       codeActions[file].push({
@@ -332,6 +338,8 @@ let topLevelUnitType: codeActionExtractor = ({
         },
       },
       diagnostics: [diagnostic],
+      kind: p.CodeActionKind.QuickFix,
+      isPreferred: true,
     };
 
     codeActions[file].push({
