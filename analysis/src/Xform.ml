@@ -121,7 +121,7 @@ module AddTypeAnnotation = struct
         let range =
           rangeOfLoc {locItem.loc with loc_start = locItem.loc.loc_end}
         in
-        let newText = " : " ^ (typ |> Shared.typeToString) in
+        let newText = ": " ^ (typ |> Shared.typeToString) in
         let codeAction =
           CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
             ~uri:path ~newText ~range
