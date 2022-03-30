@@ -5,6 +5,7 @@
 - Fix command for creating interface files when the project uses namespaces.
 - Added command `ReScript: Open the compiled JS file for this implementation file.`.
 - Use semantic syntax highlighting (https://github.com/rescript-lang/rescript-vscode/pull/367).
+- Report "Fatal error" when it happens in the compiler log (e.g. a make function with type annotation) and don't crash the extension.
 
 ## 1.2.1
 
