@@ -20,15 +20,15 @@ switch kind {
 
 Xform tests/src/Xform.res 16:5
 Hit: Add type annotation
-{"start": {"line": 16, "character": 4}, "end": {"line": 16, "character": 8}}
+{"start": {"line": 16, "character": 8}, "end": {"line": 16, "character": 8}}
 newText:
-name : string
+ : string
 
 Xform tests/src/Xform.res 19:5
 
 Xform tests/src/Xform.res 29:9
 Hit: Add type annotation
-{"start": {"line": 29, "character": 9}, "end": {"line": 29, "character": 10}}
+{"start": {"line": 29, "character": 10}, "end": {"line": 29, "character": 10}}
 newText:
-q : T.r
+ : T.r
 

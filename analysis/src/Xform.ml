@@ -117,13 +117,11 @@ module AddTypeAnnotation = struct
     | None -> None
     | Some locItem -> (
       match locItem.locType with
-      | Typed (name, typ, Definition (stamp, Value, false (* isTypeAnnotated *)))
-        ->
-        if false then
-          Printf.printf "Definition %s stamp:%d isTypeAnnotated:%b\n" name stamp
-            false;
-        let range = rangeOfLoc locItem.loc in
-        let newText = name ^ " : " ^ (typ |> Shared.typeToString) in
+      | Typed (_name, typ, Definition (_, Value, false (* isTypeAnnotated *))) ->
+        let range =
+          rangeOfLoc {locItem.loc with loc_start = locItem.loc.loc_end}
+        in
+        let newText = " : " ^ (typ |> Shared.typeToString) in
         let codeAction =
           CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
             ~uri:path ~newText ~range
