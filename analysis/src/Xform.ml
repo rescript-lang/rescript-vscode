@@ -108,6 +108,30 @@ module IfThenElse = struct
     !changed
 end
 
+module AddTypeAnnotation = struct
+  (* Add type annotation to value declaration *)
+
+  let getAction ~path ~pos ~full =
+    let line, col = pos in
+    match References.getLocItem ~full ~line ~col with
+    | None -> None
+    | Some locItem -> (
+      match locItem.locType with
+      | Typed (name, typ, Definition (stamp, Value, false (* isTypeAnnotated *)))
+        ->
+        if false then
+          Printf.printf "Definition %s stamp:%d isTypeAnnotated:%b\n" name stamp
+            false;
+        let range = rangeOfLoc locItem.loc in
+        let newText = name ^ " : " ^ (typ |> Shared.typeToString) in
+        let codeAction =
+          CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
+            ~uri:path ~newText ~range
+        in
+        Some codeAction
+      | _ -> None)
+end
+
 let indent n text =
   let spaces = String.make n ' ' in
   let len = String.length text in
@@ -168,16 +192,23 @@ let diff ~filename ~newContents =
 
 let extractCodeActions ~path ~pos ~currentFile =
   let codeActions = ref [] in
-  (if Filename.check_suffix currentFile ".res" then
-   let structure, printExpr = parse ~filename:currentFile in
-   match IfThenElse.xform ~pos structure with
-   | None -> ()
-   | Some newExpr ->
-     let range = rangeOfLoc newExpr.pexp_loc in
-     let newText = printExpr ~range newExpr in
-     let codeAction =
-       CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
-         ~uri:path ~newText ~range
-     in
-     codeActions := codeAction :: !codeActions);
+  if Filename.check_suffix currentFile ".res" then (
+    let structure, printExpr = parse ~filename:currentFile in
+    let fullOpt = Cmt.fromPath ~path in
+    (match fullOpt with
+    | None -> ()
+    | Some full -> (
+      match AddTypeAnnotation.getAction ~path ~pos ~full with
+      | None -> ()
+      | Some action -> codeActions := action :: !codeActions));
+    match IfThenElse.xform ~pos structure with
+    | None -> ()
+    | Some newExpr ->
+      let range = rangeOfLoc newExpr.pexp_loc in
+      let newText = printExpr ~range newExpr in
+      let codeAction =
+        CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
+          ~uri:path ~newText ~range
+      in
+      codeActions := codeAction :: !codeActions);
   !codeActions
