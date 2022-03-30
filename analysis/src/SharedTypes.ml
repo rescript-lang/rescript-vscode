@@ -132,6 +132,7 @@ module Declared = struct
     stamp : int;
     modulePath : modulePath;
     isExported : bool;
+    isTypeAnnotated : bool;
     deprecated : string option;
     docstring : string list;
     item : 'item;
@@ -297,7 +298,7 @@ type locKind =
   | LocalReference of int * Tip.t
   | GlobalReference of string * string list * Tip.t
   | NotFound
-  | Definition of int * Tip.t
+  | Definition of int * Tip.t * (* whether it is type annotated *) bool
 
 type locType =
   | Typed of string * Types.type_expr * locKind
@@ -370,7 +371,8 @@ let locKindToString = function
   | LocalReference (_, tip) -> "(LocalReference " ^ Tip.toString tip ^ ")"
   | GlobalReference _ -> "GlobalReference"
   | NotFound -> "NotFound"
-  | Definition (_, tip) -> "(Definition " ^ Tip.toString tip ^ ")"
+  | Definition (_, tip, _hasTypeAnnotation) ->
+    "(Definition " ^ Tip.toString tip ^ ")"
 
 let locTypeToString = function
   | Typed (name, e, locKind) ->

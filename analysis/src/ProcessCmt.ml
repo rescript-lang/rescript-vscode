@@ -22,7 +22,7 @@ let sigItemsExtent items =
   items |> List.map (fun item -> item.Typedtree.sig_loc) |> locsExtent
 
 let addItem ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t) ~item
-    attributes addExported addStamp =
+    ?(isTypeAnnotated = false) attributes addExported addStamp =
   let isExported = addExported name.txt stamp in
   let declared =
     ProcessAttributes.newDeclared ~item
@@ -32,7 +32,8 @@ let addItem ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t) ~item
           loc_end = env.scope.loc_end;
           loc_ghost = false;
         }
-      ~extent ~name ~stamp ~modulePath:env.modulePath isExported attributes
+      ~extent ~name ~stamp ~modulePath:env.modulePath ~isExported
+      ~isTypeAnnotated attributes
   in
   addStamp env.stamps stamp declared;
   declared
@@ -45,7 +46,8 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
     let declared =
       addItem
         ~name:(Location.mknoloc (Ident.name ident))
-        ~extent:loc ~stamp:(Ident.binding_time ident) ~env ~item val_attributes
+        ~extent:loc ~stamp:(Ident.binding_time ident) ~env ~item
+        ~isTypeAnnotated:true val_attributes
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
@@ -107,7 +109,8 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
                                }
                              ~name:(Location.mknoloc name)
                              ~stamp (* TODO maybe this needs another child *)
-                             ~modulePath:env.modulePath true cd_attributes
+                             ~modulePath:env.modulePath ~isExported:true
+                             cd_attributes
                          in
                          Stamps.addConstructor env.stamps stamp declared;
                          item))
@@ -247,7 +250,8 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
     let declared =
       addItem ~name
         ~stamp:(Ident.binding_time val_id)
-        ~extent:val_loc ~item:val_desc.ctyp_type ~env val_attributes
+        ~extent:val_loc ~item:val_desc.ctyp_type ~env ~isTypeAnnotated:true
+        val_attributes
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
@@ -341,6 +345,10 @@ let rec getModulePath mod_desc =
   | Tmod_constraint (expr, _typ, _constraint, _coercion) ->
     getModulePath expr.mod_desc
 
+let patIsTypeAnnotated pat =
+  pat.pat_extra
+  |> List.exists (function Tpat_constraint _, _, _ -> true | _ -> false)
+
 let rec forStructureItem ~env ~(exported : Exported.t) item =
   match item.str_desc with
   | Tstr_value (_isRec, bindings) ->
@@ -352,7 +360,8 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         let item = pat.pat_type in
         let declared =
           addItem ~name ~stamp:(Ident.binding_time ident) ~env
-            ~extent:pat.pat_loc ~item attributes
+            ~extent:pat.pat_loc ~item ~isTypeAnnotated:(patIsTypeAnnotated pat)
+            attributes
             (Exported.add exported Exported.Value)
             Stamps.addValue
         in
@@ -443,7 +452,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
     let declared =
       addItem ~extent:val_loc ~item:val_type ~name
         ~stamp:(Ident.binding_time val_id)
-        ~env val_attributes
+        ~env ~isTypeAnnotated:true val_attributes
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
@@ -495,7 +504,8 @@ and forModule env mod_desc moduleName =
                 loc_end = env.scope.loc_end;
                 loc_ghost = false;
               }
-            ~extent:t.Typedtree.mty_loc ~stamp ~modulePath:NotVisible false []
+            ~extent:t.Typedtree.mty_loc ~stamp ~modulePath:NotVisible
+            ~isExported:false []
         in
         Stamps.addModule env.stamps stamp declared));
     forModule env resultExpr.mod_desc moduleName
@@ -629,12 +639,14 @@ let extraForFile ~(file : File.t) =
   in
   file.stamps
   |> Stamps.iterModules (fun stamp (d : Module.t Declared.t) ->
-         addLocItem extra d.name.loc (LModule (Definition (stamp, Module)));
+         addLocItem extra d.name.loc
+           (LModule (Definition (stamp, Module, false)));
          addReference stamp d.name.loc);
   file.stamps
   |> Stamps.iterValues (fun stamp (d : Types.type_expr Declared.t) ->
          addLocItem extra d.name.loc
-           (Typed (d.name.txt, d.item, Definition (stamp, Value)));
+           (Typed
+              (d.name.txt, d.item, Definition (stamp, Value, d.isTypeAnnotated)));
          addReference stamp d.name.loc);
   file.stamps
   |> Stamps.iterTypes (fun stamp (d : Type.t Declared.t) ->
@@ -648,7 +660,9 @@ let extraForFile ~(file : File.t) =
                   addReference stamp fname.loc;
                   addLocItem extra fname.loc
                     (Typed
-                       (d.name.txt, typ, Definition (d.stamp, Field fname.txt))))
+                       ( d.name.txt,
+                         typ,
+                         Definition (d.stamp, Field fname.txt, false) )))
          | Variant constructors ->
            constructors
            |> List.iter (fun {Constructor.stamp; cname} ->
@@ -669,7 +683,7 @@ let extraForFile ~(file : File.t) =
                     (Typed
                        ( d.name.txt,
                          t,
-                         Definition (d.stamp, Constructor cname.txt) )))
+                         Definition (d.stamp, Constructor cname.txt, false) )))
          | _ -> ());
   extra
 
@@ -1002,12 +1016,13 @@ struct
                 loc_start = val_loc.loc_end;
                 loc_end = (currentScopeExtent ()).loc_end;
               }
-            ~modulePath:NotVisible ~item:val_desc.ctyp_type false val_attributes
+            ~modulePath:NotVisible ~item:val_desc.ctyp_type ~isExported:false
+            ~isTypeAnnotated:true val_attributes
         in
         Stamps.addValue Collector.file.stamps stamp declared;
         addReference stamp name.loc;
         addLocItem extra name.loc
-          (Typed (name.txt, val_desc.ctyp_type, Definition (stamp, Value))))
+          (Typed (name.txt, val_desc.ctyp_type, Definition (stamp, Value, true))))
     | _ -> ()
 
   let enter_core_type {ctyp_type; ctyp_desc} =
@@ -1016,7 +1031,7 @@ struct
       addForLongident (Some (ctyp_type, Type)) path txt loc
     | _ -> ()
 
-  let enter_pattern {pat_desc; pat_loc; pat_type; pat_attributes} =
+  let enter_pattern ({pat_desc; pat_loc; pat_type; pat_attributes} as pat) =
     let addForPattern stamp name =
       if Stamps.findValue Collector.file.stamps stamp = None then (
         let declared =
@@ -1027,13 +1042,14 @@ struct
                 loc_start = pat_loc.loc_end;
                 loc_end = (currentScopeExtent ()).loc_end;
               }
-            ~modulePath:NotVisible ~extent:pat_loc ~item:pat_type false
+            ~modulePath:NotVisible ~extent:pat_loc ~item:pat_type
+            ~isExported:false ~isTypeAnnotated:(patIsTypeAnnotated pat)
             pat_attributes
         in
         Stamps.addValue Collector.file.stamps stamp declared;
         addReference stamp name.loc;
         addLocItem extra name.loc
-          (Typed (name.txt, pat_type, Definition (stamp, Value))))
+          (Typed (name.txt, pat_type, Definition (stamp, Value, false))))
     in
     (* Log.log("Entering pattern " ++ Utils.showLocation(pat_loc)); *)
     match pat_desc with
