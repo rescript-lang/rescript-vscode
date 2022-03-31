@@ -92,3 +92,6 @@ type r<'a> = {i: 'a, f: float}
 
 let _get = r => r.f +. r.i
 //                       ^hov
+
+let withAs = (~xx as yyy) => yyy + 1
+//                   ^hov

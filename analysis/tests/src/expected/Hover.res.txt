@@ -55,3 +55,6 @@ Hover tests/src/Hover.res 87:10
 Hover tests/src/Hover.res 92:25
 {"contents": "```rescript\nfloat\n```"}
 
+Hover tests/src/Hover.res 95:21
+{"contents": "```rescript\nint\n```"}
+
