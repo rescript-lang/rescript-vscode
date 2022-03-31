@@ -38,3 +38,6 @@ let withAs = (~x as name) => name + 1
 @react.component
 let make = (~name) => React.string(name)
 //   ^xfm
+
+let _ = (~x) => x+1
+//       ^xfm

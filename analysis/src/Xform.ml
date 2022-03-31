@@ -166,12 +166,14 @@ module AddTypeAnnotation = struct
       | Some locItem -> (
         match locItem.locType with
         | Typed (name, typ, _) ->
-          let range = rangeOfLoc locItem.loc in
-          let newText = name ^ ": " ^ (typ |> Shared.typeToString) in
-          let newText =
+          let range, newText =
             match annotation with
-            | Plain -> newText
-            | WithParens -> "(" ^ newText ^ ")"
+            | Plain ->
+              ( rangeOfLoc {locItem.loc with loc_start = locItem.loc.loc_end},
+                ": " ^ (typ |> Shared.typeToString) )
+            | WithParens ->
+              ( rangeOfLoc locItem.loc,
+                "(" ^ name ^ ": " ^ (typ |> Shared.typeToString) ^ ")" )
           in
           let codeAction =
             CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
