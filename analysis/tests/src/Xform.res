@@ -31,3 +31,6 @@ let foo = x =>
   | Some(q) => q.T.a + 1
   //     ^xfm
   }
+
+let withAs = (~x as name) => name+1
+//                   ^xfm

@@ -34,3 +34,9 @@ newText:
 
 Xform tests/src/Xform.res 30:9
 
+Xform tests/src/Xform.res 34:21
+Hit: Add type annotation
+{"start": {"line": 34, "character": 21}, "end": {"line": 34, "character": 24}}
+newText:
+name: int
+
