@@ -111,23 +111,39 @@ end
 module AddTypeAnnotation = struct
   (* Add type annotation to value declaration *)
 
-  let getAction ~path ~pos ~full =
+  let mkIterator ~pos ~result =
+    let pat (iterator : Ast_iterator.iterator) (p : Parsetree.pattern) =
+      match p.ppat_desc with
+      | Ppat_var {loc} when posInLoc ~pos ~loc -> result := Some ()
+      | Ppat_constraint _ -> ()
+      | _ -> Ast_iterator.default_iterator.pat iterator p
+    in
+    {Ast_iterator.default_iterator with pat}
+
+  let getAction ~path ~pos ~full ~structure =
     let line, col = pos in
-    match References.getLocItem ~full ~line ~col with
+
+    let result = ref None in
+    let iterator = mkIterator ~pos ~result in
+    iterator.structure iterator structure;
+    match !result with
     | None -> None
-    | Some locItem -> (
-      match locItem.locType with
-      | Typed (_name, typ, Definition (_, Value, false (* isTypeAnnotated *))) ->
-        let range =
-          rangeOfLoc {locItem.loc with loc_start = locItem.loc.loc_end}
-        in
-        let newText = ": " ^ (typ |> Shared.typeToString) in
-        let codeAction =
-          CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
-            ~uri:path ~newText ~range
-        in
-        Some codeAction
-      | _ -> None)
+    | Some _ -> (
+      match References.getLocItem ~full ~line ~col with
+      | None -> None
+      | Some locItem -> (
+        match locItem.locType with
+        | Typed (_name, typ, _) ->
+          let range =
+            rangeOfLoc {locItem.loc with loc_start = locItem.loc.loc_end}
+          in
+          let newText = ": " ^ (typ |> Shared.typeToString) in
+          let codeAction =
+            CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
+              ~uri:path ~newText ~range
+          in
+          Some codeAction
+        | _ -> None))
 end
 
 let indent n text =
@@ -196,7 +212,7 @@ let extractCodeActions ~path ~pos ~currentFile =
     (match fullOpt with
     | None -> ()
     | Some full -> (
-      match AddTypeAnnotation.getAction ~path ~pos ~full with
+      match AddTypeAnnotation.getAction ~path ~pos ~full ~structure with
       | None -> ()
       | Some action -> codeActions := action :: !codeActions));
     match IfThenElse.xform ~pos structure with
