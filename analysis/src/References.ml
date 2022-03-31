@@ -67,7 +67,7 @@ let getLocItem ~full ~line ~col =
     Some li3
   | [
    {locType = Typed (_, _, LocalReference (_, Value))};
-   ({locType = Typed (_, _, Definition (_, Value, _))} as li2);
+   ({locType = Typed (_, _, Definition (_, Value))} as li2);
   ] ->
     (* JSX on type-annotated labeled (~arg:t):
        (~arg:t) becomes Props#arg
@@ -138,7 +138,7 @@ let definedForLoc ~file ~package locKind =
   in
   match locKind with
   | NotFound -> None
-  | LocalReference (stamp, tip) | Definition (stamp, tip, _) ->
+  | LocalReference (stamp, tip) | Definition (stamp, tip) ->
     inner ~file stamp tip
   | GlobalReference (moduleName, path, tip) -> (
     maybeLog ("Getting global " ^ moduleName);
@@ -306,7 +306,7 @@ let definition ~file ~package stamp (tip : Tip.t) =
 
 let definitionForLocItem ~full:{file; package} locItem =
   match locItem.locType with
-  | Typed (_, _, Definition (stamp, tip, _)) -> (
+  | Typed (_, _, Definition (stamp, tip)) -> (
     maybeLog
       ("Typed Definition stamp:" ^ string_of_int stamp ^ " tip:"
      ^ Tip.toString tip);
@@ -323,7 +323,7 @@ let definitionForLocItem ~full:{file; package} locItem =
           Some (file.uri, loc))
       else None)
   | Typed (_, _, NotFound)
-  | LModule (NotFound | Definition _)
+  | LModule (NotFound | Definition (_, _))
   | TypeDefinition (_, _, _)
   | Constant _ ->
     None
@@ -530,8 +530,8 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
     List.append targetModuleReferences otherModulesReferences
   | Typed (_, _, NotFound) | LModule NotFound | Constant _ -> []
   | TypeDefinition (_, _, stamp) -> forLocalStamp ~full stamp Type
-  | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip, _)))
-  | LModule (LocalReference (stamp, tip) | Definition (stamp, tip, _)) ->
+  | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
+  | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
     maybeLog
       ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ Tip.toString tip);

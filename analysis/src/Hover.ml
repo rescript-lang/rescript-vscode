@@ -41,8 +41,8 @@ let newHover ~full:{file; package} locItem =
   | TypeDefinition (name, decl, _stamp) ->
     let typeDef = Shared.declToString name decl in
     Some (codeBlock typeDef)
-  | LModule (Definition (stamp, _tip, _))
-  | LModule (LocalReference (stamp, _tip)) -> (
+  | LModule (Definition (stamp, _tip)) | LModule (LocalReference (stamp, _tip))
+    -> (
     match Stamps.findModule file.stamps stamp with
     | None -> None
     | Some md -> (
@@ -85,7 +85,7 @@ let newHover ~full:{file; package} locItem =
     | Some file ->
       showModule ~docstring:file.structure.docstring ~name:file.moduleName ~file
         None)
-  | Typed (_, _, Definition (_, (Field _ | Constructor _), _)) -> None
+  | Typed (_, _, Definition (_, (Field _ | Constructor _))) -> None
   | Constant t ->
     Some
       (codeBlock
