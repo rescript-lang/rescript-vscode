@@ -25,6 +25,7 @@ module T = {
 }
 
 let foo = x =>
+  //      ^xfm
   switch x {
   | None => 33
   | Some(q) => q.T.a + 1

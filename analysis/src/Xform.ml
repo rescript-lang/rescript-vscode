@@ -111,14 +111,39 @@ end
 module AddTypeAnnotation = struct
   (* Add type annotation to value declaration *)
 
+  type annotation = Plain | WithParens
+
   let mkIterator ~pos ~result =
-    let pat (iterator : Ast_iterator.iterator) (p : Parsetree.pattern) =
-      match p.ppat_desc with
-      | Ppat_var {loc} when posInLoc ~pos ~loc -> result := Some ()
-      | Ppat_constraint _ -> ()
-      | _ -> Ast_iterator.default_iterator.pat iterator p
+    let processPattern ?(isUnlabeledOnlyArg = false) (pat : Parsetree.pattern) =
+      match pat.ppat_desc with
+      | Ppat_var {loc} when posInLoc ~pos ~loc ->
+        result := Some (if isUnlabeledOnlyArg then WithParens else Plain)
+      | _ -> ()
     in
-    {Ast_iterator.default_iterator with pat}
+    let rec processFunction ~argNum (e : Parsetree.expression) =
+      match e.pexp_desc with
+      | Pexp_fun (argLabel, _, pat, e) ->
+        let isUnlabeledOnlyArg =
+          argNum = 1 && argLabel = Nolabel
+          && match e.pexp_desc with Pexp_fun _ -> false | _ -> true
+        in
+        processPattern ~isUnlabeledOnlyArg pat;
+        processFunction ~argNum:(argNum + 1) e
+      | _ -> ()
+    in
+    let structure_item (iterator : Ast_iterator.iterator)
+        (si : Parsetree.structure_item) =
+      match si.pstr_desc with
+      | Pstr_value (_recFlag, bindings) ->
+        let processBinding (vb : Parsetree.value_binding) =
+          processPattern vb.pvb_pat;
+          processFunction vb.pvb_expr
+        in
+        bindings |> List.iter (processBinding ~argNum:1);
+        Ast_iterator.default_iterator.structure_item iterator si
+      | _ -> Ast_iterator.default_iterator.structure_item iterator si
+    in
+    {Ast_iterator.default_iterator with structure_item}
 
   let getAction ~path ~pos ~full ~structure =
     let line, col = pos in
@@ -128,16 +153,19 @@ module AddTypeAnnotation = struct
     iterator.structure iterator structure;
     match !result with
     | None -> None
-    | Some _ -> (
+    | Some annotation -> (
       match References.getLocItem ~full ~line ~col with
       | None -> None
       | Some locItem -> (
         match locItem.locType with
-        | Typed (_name, typ, _) ->
-          let range =
-            rangeOfLoc {locItem.loc with loc_start = locItem.loc.loc_end}
+        | Typed (name, typ, _) ->
+          let range = rangeOfLoc locItem.loc in
+          let newText = name ^ ": " ^ (typ |> Shared.typeToString) in
+          let newText =
+            match annotation with
+            | Plain -> newText
+            | WithParens -> "(" ^ newText ^ ")"
           in
-          let newText = ": " ^ (typ |> Shared.typeToString) in
           let codeAction =
             CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
               ~uri:path ~newText ~range
