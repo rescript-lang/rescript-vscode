@@ -30,6 +30,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
       addUndefinedRecordFields,
       simpleConversion,
       topLevelUnitType,
+      applyUncurried,
     ];
 
     for (let action of actions) {
@@ -289,6 +290,58 @@ let simpleConversion: codeActionExtractor = ({
 
       return true;
     }
+  }
+
+  return false;
+};
+
+let applyUncurried: codeActionExtractor = ({
+  line,
+  codeActions,
+  file,
+  range,
+  diagnostic,
+}) => {
+  if (
+    line.startsWith(
+      "This is an uncurried ReScript function. It must be applied with a dot."
+    )
+  ) {
+    const locOfOpenFnParens = {
+      line: range.end.line,
+      character: range.end.character + 1,
+    };
+
+    codeActions[file] = codeActions[file] || [];
+    let codeAction: p.CodeAction = {
+      title: `Apply uncurried function call with dot`,
+      edit: {
+        changes: {
+          [file]: [
+            {
+              range: {
+                start: locOfOpenFnParens,
+                end: locOfOpenFnParens,
+              },
+              /*
+               * Turns `fn(123)` into `fn(. 123)`.
+               */
+              newText: `. `,
+            },
+          ],
+        },
+      },
+      diagnostics: [diagnostic],
+      kind: p.CodeActionKind.QuickFix,
+      isPreferred: true,
+    };
+
+    codeActions[file].push({
+      range,
+      codeAction,
+    });
+
+    return true;
   }
 
   return false;
