@@ -40,3 +40,5 @@ Hit: Add type annotation
 newText:
 name: int
 
+Xform tests/src/Xform.res 38:5
+
