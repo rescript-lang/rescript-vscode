@@ -120,11 +120,15 @@ jobs:
     - name: Cleanup tar file
       run: rm binary.tar
       working-directory: ./server/analysis_binaries
+
+    - name: Store short commit SHA for filename
+      id: vars
+      run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
       
     - name: Package Extension
-      run: npx vsce package -o rescript-vscode-${{ github.ref_name }}.vsix
+      run: npx vsce package -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
       
     - uses: actions/upload-artifact@v2
       with:
-        name: rescript-vscode-${{ github.ref_name }}.vsix
-        path: rescript-vscode-${{ github.ref_name }}.vsix
+        name: rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
+        path: rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
