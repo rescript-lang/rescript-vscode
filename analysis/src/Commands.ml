@@ -352,6 +352,16 @@ let test ~path =
             SemanticTokens.command ~debug:true
               ~emitter:(SemanticTokens.Token.createEmitter ())
               ~path
+          | "int" ->
+            print_endline ("Create Interface " ^ path);
+            let cmiFile =
+              let open Filename in
+              let ( ++ ) = concat in
+              let name = chop_extension (basename path) ^ ".cmi" in
+              let dir = dirname path in
+              dir ++ parent_dir_name ++ "lib" ++ "bs" ++ "src" ++ name
+            in
+            CreateInterface.command ~cmiFile
           | _ -> ());
           print_newline ())
     in
