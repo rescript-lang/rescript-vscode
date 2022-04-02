@@ -1,0 +1,16 @@
+Create Interface tests/src/CreateInterface.res
+type r = {name: string, age: int}
+let add: (~x: int, ~y: int) => int
+@react.component
+let make: (~name: string) => React.element
+@react.component
+let otherComponentName: (~name: string) => React.element
+module Mod: {
+  @react.component
+  let make: (~name: string) => React.element
+}
+module type ModTyp = {
+  @react.component
+  let make: (~name: string) => React.element
+}
+

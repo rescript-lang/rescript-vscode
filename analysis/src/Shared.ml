@@ -20,6 +20,15 @@ let tryReadCmt cmt =
       None
     | x -> Some x
 
+let tryReadCmi cmi =
+  if not (Files.exists cmi) then None
+  else
+    match Cmt_format.read_cmi cmi with
+    | exception _ ->
+      Log.log ("Failed to load " ^ cmi);
+      None
+    | x -> Some x
+
 (** TODO move to the Process_ stuff *)
 let rec dig typ =
   match typ.Types.desc with
@@ -36,7 +45,6 @@ let declToString ?(recStatus = Types.Trec_not) name t =
   PrintType.printDecl ~recStatus name t
 
 let cacheTypeToString = ref false
-
 let typeTbl = Hashtbl.create 1
 
 let typeToString (t : Types.type_expr) =
