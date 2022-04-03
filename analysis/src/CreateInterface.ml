@@ -63,7 +63,11 @@ let printSignature ~signature =
         | Some mt -> Some (processModuleType mt)
       in
       Sig_modtype (id, {mtd with mtd_type}) :: processSignature rest
-    | (Sig_type _ as item) :: items -> item :: processSignature items
+    | (Sig_value (_id, {val_kind = Val_prim prim; val_loc}) as item) :: items
+      when prim.prim_native_name <> "" && prim.prim_native_name.[0] = '\132' ->
+      Printf.printf "Rescript prim_name:%s %s\n" prim.prim_name
+        (SemanticTokens.locToString val_loc);
+      item :: processSignature items
     | item :: rest -> item :: processSignature rest
     | [] -> []
   and processModuleType = function
