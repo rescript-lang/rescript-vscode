@@ -19,3 +19,28 @@ module type ModTyp = {
   @react.component
   let make: (~name: string) => React.element
 }
+
+@module("path") external dirname: string => string = "dirname"
+
+@module("path") @variadic
+external join: array<string> => string = "join"
+
+@val
+external padLeft: (
+  string,
+  @unwrap
+  [
+    | #Str(string)
+    | #Int(int)
+  ],
+) => string = "padLeft"
+
+@module("fs")
+external readFileSync: (
+  ~name: string,
+  @string
+  [
+    | #utf8
+    | @as("ascii") #useAscii
+  ],
+) => string = "readFileSync"
