@@ -474,6 +474,213 @@ let parseFileAndRange = (fileAndRange: string) => {
   };
 };
 
+// Extracts file info from: File "/Users/whatever/project/src/Interface.resi",
+// line 2, characters 1-23
+//
+// Note that "characters" above might actually span multiple lines, but the
+// compiler just reports the start line and character, and we need to calculate
+// the final line/character ourselves via offset if we need it.
+let parseFileInfo = (fileInfoLine: string) => {
+  let regex = /File "(.+)", line (\d+), characters ([\d-]+):/;
+  let trimmedFileInfoLine = fileInfoLine.trim();
+  let match = trimmedFileInfoLine.match(regex);
+  if (match === null) {
+    return null;
+  }
+  let [_, file, line, characters] = match;
+  if (file == null || line == null || characters == null) {
+    return null;
+  }
+  let [startChar, endChar] = characters.split("-");
+  if (startChar == null || endChar == null) {
+    return null;
+  }
+  let lineAdjusted = parseInt(line) - 1;
+  return {
+    file: pathToURI(file),
+    range: {
+      start: {
+        line: lineAdjusted,
+        character: parseInt(startChar) - 1,
+      },
+      end: {
+        line: lineAdjusted,
+        character: parseInt(endChar) - 1,
+      },
+    },
+  };
+};
+
+let handleInterfaceFileDiagnostics = (
+  diagnosticMessage: string[],
+  result: filesDiagnostics,
+  parsedDiagnostic: parsedDiagnostic
+): { didHandleInterfaceFileDiagnostics: boolean } => {
+  if (
+    diagnosticMessage.some((line) =>
+      // This message is at the start of all issues related to interface files.
+      line.includes("does not match the interface")
+    )
+  ) {
+    // Let's attempt to classify what type of interface file issue this is.
+    for (let index = 0; index <= diagnosticMessage.length - 1; index += 1) {
+      let line = diagnosticMessage[index];
+      let array = diagnosticMessage;
+
+      // The implementation /Users/some/project/src/Interface.res
+      //     does not match the interface src/interface-RescriptIntro.cmi:
+      //     Values do not match:
+      //       let bar: int => int
+      //     is not included in
+      //       let bar: (
+      // ~some: int,
+      // ~thing: int,
+      // ~another: string,
+      // ~andSome: bool,
+      // ~anotherOne: bool,
+      // ~andAgain: bool,
+      // ) => int
+      //     File "/Users/some/project/src/Interface.resi", line 2, characters 1-127:
+      //       Expected declaration
+      //     File "/Users/some/project/src/Interface.res", line 3, characters 5-8:
+      //       Actual declaration
+      if (line.includes("Values do not match:")) {
+        // The definitions can be multiple lines, so let's move through the
+        // remaining lines, piecing together what we need.
+        let implementationDefinition: string[] = [];
+        let interfaceDefinition: string[] = [];
+
+        // The implementation always comes first.
+        let in_: "implementation" | "interface" = "implementation";
+
+        for (let i = index + 1; i <= array.length - 1; i += 1) {
+          let thisLine = array[i];
+
+          // Take the implementation definition until we reach "is not
+          // included in", and then skip to the next line, which is the start
+          // of the interface definition.
+          let lineTrimmed = thisLine.trim();
+
+          if (lineTrimmed === "is not included in") {
+            in_ = "interface";
+            continue;
+          }
+
+          // If we reach `File "`, we know we're at the end of the message and
+          // have got what we need, and can finish off my looking at the rest of
+          // the string all at once.
+          if (lineTrimmed.startsWith(`File "`)) {
+            let [interfaceFileInfoLine, _, implementationFileInfoLine] =
+              array.slice(i);
+
+            let interfaceFileInfo = parseFileInfo(interfaceFileInfoLine);
+            let implementationFileInfo = parseFileInfo(
+              implementationFileInfoLine
+            );
+
+            if (interfaceFileInfo == null || implementationFileInfo == null) {
+              break;
+            }
+
+            let interfaceDefinitionStr = interfaceDefinition
+              .map((line, index, array) => {
+                let lineTrimmed = line.trim();
+                if (index === 0 || index === array.length - 1) {
+                  return lineTrimmed;
+                }
+                return "  " + lineTrimmed;
+              })
+              .join("\n");
+
+            let implementationDefinitionStr = implementationDefinition
+              .map((line, index, array) => {
+                let lineTrimmed = line.trim();
+                if (index === 0 || index === array.length - 1) {
+                  return lineTrimmed;
+                }
+                return "  " + lineTrimmed;
+              })
+              .join("\n");
+
+            if (result[interfaceFileInfo.file] == null) {
+              result[interfaceFileInfo.file] = [];
+            }
+
+            if (result[implementationFileInfo.file] == null) {
+              result[implementationFileInfo.file] = [];
+            }
+
+            result[interfaceFileInfo.file].push({
+              severity: parsedDiagnostic.severity,
+              tags:
+                parsedDiagnostic.tag === undefined
+                  ? []
+                  : [parsedDiagnostic.tag],
+              code: parsedDiagnostic.code,
+              range: interfaceFileInfo.range,
+              source: "ReScript",
+              // We'll add a custom message here for the diagnostic. The full
+              // compiler message is still visible wherever the user runs the
+              // compiler, but since we've extracted a lot of information
+              // here, we'll take the time to clean up the error message a
+              // bit.
+              message: [
+                `This type signature does not match the implementation. The implementation in "${path.basename(
+                  implementationFileInfo.file
+                )}" currently has the following type signature:`,
+                "",
+                implementationDefinitionStr,
+                "",
+              ].join("\n"),
+            });
+
+            result[implementationFileInfo.file].push({
+              severity: parsedDiagnostic.severity,
+              tags:
+                parsedDiagnostic.tag === undefined
+                  ? []
+                  : [parsedDiagnostic.tag],
+              code: parsedDiagnostic.code,
+              range: implementationFileInfo.range,
+              source: "ReScript",
+              // Same as for the interface file, we'll clean this message up a
+              // bit here.
+              message: [
+                `This implementation does not match the type signature defined in the interface file ("${path.basename(
+                  interfaceFileInfo.file
+                )}"). The interface defines the following type signature:`,
+                "",
+                interfaceDefinitionStr,
+                "",
+                "...but this implementation's type signature is:",
+                "",
+                implementationDefinitionStr,
+                "",
+              ].join("\n"),
+            });
+
+            return { didHandleInterfaceFileDiagnostics: true };
+          }
+
+          // This needs to run after we've checked for the ending `File "`
+          // line.
+          switch (in_) {
+            case "implementation": {
+              implementationDefinition.push(thisLine);
+              break;
+            }
+            case "interface": {
+              interfaceDefinition.push(thisLine);
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  return { didHandleInterfaceFileDiagnostics: false };
+};
+
 // main parsing logic
 type filesDiagnostics = {
   [key: string]: p.Diagnostic[];
@@ -482,15 +689,15 @@ type parsedCompilerLogResult = {
   done: boolean;
   result: filesDiagnostics;
 };
+type parsedDiagnostic = {
+  code: number | undefined;
+  severity: t.DiagnosticSeverity;
+  tag: t.DiagnosticTag | undefined;
+  content: string[];
+};
 export let parseCompilerLogOutput = (
   content: string
 ): parsedCompilerLogResult => {
-  type parsedDiagnostic = {
-    code: number | undefined;
-    severity: t.DiagnosticSeverity;
-    tag: t.DiagnosticTag | undefined;
-    content: string[];
-  };
   let parsedDiagnostics: parsedDiagnostic[] = [];
   let lines = content.split(os.EOL);
   let done = false;
@@ -601,19 +808,33 @@ export let parseCompilerLogOutput = (
   parsedDiagnostics.forEach((parsedDiagnostic) => {
     let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
     let { file, range } = parseFileAndRange(fileAndRangeLine);
+    // remove start and end whitespaces/newlines
+    let message = diagnosticMessage.join("\n").trim() + "\n";
 
     if (result[file] == null) {
       result[file] = [];
     }
-    result[file].push({
-      severity: parsedDiagnostic.severity,
-      tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
-      code: parsedDiagnostic.code,
-      range,
-      source: "ReScript",
-      // remove start and end whitespaces/newlines
-      message: diagnosticMessage.join("\n").trim() + "\n",
-    });
+
+    // Check if this error is related to interfaces. If so, we want to produce
+    // one diagnostic for the implementation file, and one for the interface
+    // file, and clean up the error message some.
+    let { didHandleInterfaceFileDiagnostics } = handleInterfaceFileDiagnostics(
+      diagnosticMessage,
+      result,
+      parsedDiagnostic
+    );
+
+    // This is a regular diagnostic, unrelated to interface files.
+    if (!didHandleInterfaceFileDiagnostics) {
+      result[file].push({
+        severity: parsedDiagnostic.severity,
+        tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
+        code: parsedDiagnostic.code,
+        range,
+        source: "ReScript",
+        message,
+      });
+    }
   });
 
   return { done, result };
