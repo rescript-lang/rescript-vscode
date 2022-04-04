@@ -7,6 +7,7 @@
 - Use semantic syntax highlighting (https://github.com/rescript-lang/rescript-vscode/pull/367).
 - Report "Fatal error" when it happens in the compiler log (e.g. a make function with type annotation) and don't crash the extension.
 - Fix issue in functions the form "~foo as name" where the location would only cover "ame".
+- Extend the command to create an interface file, to support components and ReScript decorators used in bindings.
 
 ## 1.2.1
 
