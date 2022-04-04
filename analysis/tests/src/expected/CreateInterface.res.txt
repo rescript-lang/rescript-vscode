@@ -39,7 +39,7 @@ module RFS: {
 module Functor: () =>
 {
   @react.component
-  let make: (~name: string) => React.element
+  let make: unit => React.element
 }
 module type FT = {
   module Functor: (
