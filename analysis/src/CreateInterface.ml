@@ -62,9 +62,9 @@ let printSignature ~signature =
           | Trec_not -> "module "
           | Trec_first -> "module rec "
           | Trec_next -> "and ")
-        ^ Ident.name id ^ ": {\n");
-      processModuleType ~indent:(indent ^ "  ") modDecl.md_type;
-      Buffer.add_string buf (indent ^ "}\n");
+        ^ Ident.name id ^ ": ");
+      processModuleType ~indent modDecl.md_type;
+      Buffer.add_string buf "\n";
       processSignature ~indent rest
     | Sig_modtype (id, mtd) :: rest ->
       let () =
@@ -72,10 +72,9 @@ let printSignature ~signature =
         | None ->
           Buffer.add_string buf (indent ^ "module type " ^ Ident.name id ^ "\n")
         | Some mt ->
-          Buffer.add_string buf
-            (indent ^ "module type " ^ Ident.name id ^ " = {\n");
-          processModuleType ~indent:(indent ^ "  ") mt;
-          Buffer.add_string buf (indent ^ "}\n")
+          Buffer.add_string buf (indent ^ "module type " ^ Ident.name id ^ " = ");
+          processModuleType ~indent mt;
+          Buffer.add_string buf "\n"
       in
       processSignature ~indent rest
     | Sig_value (id, ({val_kind = Val_prim prim; val_loc} as vd)) :: items
@@ -114,10 +113,44 @@ let printSignature ~signature =
       (* not needed *)
       processSignature ~indent items
     | [] -> ()
-  and processModuleType ~indent = function
-    | Types.Mty_signature signature -> processSignature ~indent signature
-    | mt -> assert false
-    (* TODO: print and indent *)
+  and processModuleType ~indent (mt : Types.module_type) =
+    match mt with
+    | Mty_signature signature ->
+      Buffer.add_string buf "{\n";
+      processSignature ~indent:(indent ^ "  ") signature;
+      Buffer.add_string buf (indent ^ "}")
+    | Mty_functor _ ->
+      let rec collectFunctorArgs ~args (mt : Types.module_type) =
+        match mt with
+        | Mty_functor (id, None, mt) when Ident.name id = "*" ->
+          collectFunctorArgs ~args mt
+        | Mty_functor (id, mto, mt) ->
+          collectFunctorArgs ~args:((id, mto) :: args) mt
+        | mt -> (List.rev args, mt)
+      in
+      let args, retMt = collectFunctorArgs ~args:[] mt in
+      Buffer.add_string buf "(";
+      args
+      |> List.iter (fun (id, mto) ->
+             Buffer.add_string buf ("\n" ^ indent ^ "  ");
+             (match mto with
+             | None -> Buffer.add_string buf (Ident.name id)
+             | Some mt ->
+               Buffer.add_string buf (Ident.name id ^ ": ");
+               processModuleType ~indent:(indent ^ "  ") mt);
+             Buffer.add_string buf ",");
+      if args <> [] then Buffer.add_string buf ("\n" ^ indent);
+      Buffer.add_string buf (") =>\n" ^ indent);
+      processModuleType ~indent retMt
+    | Mty_ident path | Mty_alias (_, path) ->
+      let rec outIdentToString (ident : Outcometree.out_ident) =
+        match ident with
+        | Oide_ident s -> s
+        | Oide_dot (ident, s) -> outIdentToString ident ^ "." ^ s
+        | Oide_apply (call, arg) ->
+          outIdentToString call ^ "(" ^ outIdentToString arg ^ ")"
+      in
+      Buffer.add_string buf (outIdentToString (Printtyp.tree_of_path path))
   in
 
   processSignature ~indent:"" signature;
