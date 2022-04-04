@@ -44,3 +44,24 @@ external readFileSync: (
     | @as("ascii") #useAscii
   ],
 ) => string = "readFileSync"
+
+module Functor = () => {
+  @react.component
+  let make = (~name) => React.string(name)
+}
+
+module type FT = {
+  module Functor: (
+    X: {
+      let a: int
+      @react.component
+      let make: (~name: string) => React.element
+      let b: int
+    },
+    Y: ModTyp,
+  ) =>
+  {
+    @react.component
+    let make: (~name: string) => React.element
+  }
+}

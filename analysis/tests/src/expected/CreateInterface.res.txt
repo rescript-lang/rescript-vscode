@@ -22,4 +22,24 @@ external join: array<string> => string = "join" "#rescript-external"
 external padLeft: (string, [#Int(int) | #Str(string)]) => string = "padLeft" "#rescript-external"
 external readFileSync: (~name: string, [#useAscii | #utf8]) => string =
   "readFileSync" "#rescript-external"
+module Functor: () =>
+{
+  @react.component
+  let make: (~name: string) => React.element
+}
+module type FT = {
+  module Functor: (
+    X: {
+      let a: int
+      @react.component
+      let make: (~name: string) => React.element
+      let b: int
+    },
+    Y: ModTyp,
+  ) =>
+  {
+    @react.component
+    let make: (~name: string) => React.element
+  }
+}
 
