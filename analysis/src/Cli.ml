@@ -48,10 +48,6 @@ Options:
 
     ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
 
-  dump: for debugging, show all definitions and hovers for MyFile.res and MyFile.res:
-
-    ./rescript-editor-analysis.exe dump src/Foo.res src/MyFile.res
-
   test: run tests specified by special comments in file src/MyFile.res
 
     ./rescript-editor-analysis.exe test src/src/MyFile.res
@@ -68,7 +64,6 @@ let main () =
   | [_; "typeDefinition"; path; line; col] ->
     Commands.typeDefinition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
-  | _ :: "dump" :: files -> Commands.dump files
   | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
   | [_; "semanticTokens"; currentFile] ->
     SemanticTokens.semanticTokens ~currentFile

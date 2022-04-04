@@ -4,9 +4,6 @@ module SourceFileExtractor = struct
     | None -> [||]
     | Some text -> text |> String.split_on_char '\n' |> Array.of_list
 
-  let getLine lines n =
-    if n >= 0 && n < Array.length lines then lines.(n) else ""
-
   let extract lines ~posStart ~posEnd =
     let lineStart, colStart = posStart in
     let lineEnd, colEnd = posEnd in
