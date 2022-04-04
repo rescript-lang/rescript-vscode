@@ -61,4 +61,22 @@ module BeltList = Belt.List
 module type MT2 = ModTyp
 module rec RM: ModTyp
 and D: ModTyp
+module type OptT = {
+  @react.component
+  let withOpt1: (~y: int, ~x: option<int>) => int
+  @react.component
+  let withOpt2: (~y: int, ~x: option<int>) => int
+  @react.component
+  let withOpt3: (~y: int, ~x: option<int>) => int
+}
+module Opt: {
+  @react.component
+  let withOpt1: (~x: option<int>, ~y: int) => int
+  @react.component
+  let withOpt2: (~x: option<int>, ~y: int) => int
+  @react.component
+  let withOpt3: (~x: option<int>, ~y: int) => int
+}
+module Opt2: OptT
+module Opt3 = Opt
 
