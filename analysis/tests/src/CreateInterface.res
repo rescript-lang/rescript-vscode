@@ -67,3 +67,12 @@ module type FT = {
     let make: (~name: string) => React.element
   }
 }
+
+module NormaList = List
+open Belt
+module BeltList = List
+
+module type MT2 = ModTyp
+
+module rec RM: ModTyp = D
+and D: ModTyp = Mod

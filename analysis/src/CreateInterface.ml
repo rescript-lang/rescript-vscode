@@ -89,13 +89,16 @@ let printSignature ~extractor ~signature =
       Buffer.add_string buf (indent ^ newItemStr ^ "\n");
       processSignature ~indent rest
     | Sig_module (id, modDecl, recStatus) :: rest ->
+      let colonOrEquals =
+        match modDecl.md_type with Mty_alias _ -> " = " | _ -> ": "
+      in
       Buffer.add_string buf
         (indent
         ^ (match recStatus with
           | Trec_not -> "module "
           | Trec_first -> "module rec "
           | Trec_next -> "and ")
-        ^ Ident.name id ^ ": ");
+        ^ Ident.name id ^ colonOrEquals);
       processModuleType ~indent modDecl.md_type;
       Buffer.add_string buf "\n";
       processSignature ~indent rest
