@@ -32,12 +32,27 @@ module SourceFileExtractor = struct
 end
 
 let printSignature ~extractor ~signature =
-  let rec objectToFun typ ~rhs =
+  let objectToFun typ ~rhs =
+    let rec loop typ ~rhs =
+      match typ.Types.desc with
+      | Tfield (name, _kind, t, obj) ->
+        {typ with desc = Tarrow (Labelled name, t, loop obj ~rhs, Cok)}
+      | Tnil -> rhs
+      | _ -> (* should not happen *) assert false
+    in
     match typ.Types.desc with
-    | Tfield (name, _kind, t, obj) ->
-      {typ with desc = Tarrow (Labelled name, t, objectToFun obj ~rhs, Cok)}
-    | Tnil -> rhs
-    | _ -> (* should not happen *) assert false
+    | Tnil ->
+      (* fun with no arguments *)
+      {
+        typ with
+        desc =
+          Tarrow
+            ( Nolabel,
+              Ctype.newconstr (Path.Pident (Ident.create "unit")) [],
+              rhs,
+              Cok );
+      }
+    | _ -> loop typ ~rhs
   in
 
   Printtyp.reset_names ();
