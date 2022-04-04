@@ -1,37 +1,5 @@
 open SharedTypes
 
-let dumpLocations ~full =
-  full.extra.locItems
-  |> List.map (fun locItem ->
-         let locItemTxt = locItemToString locItem in
-         let hoverText = Hover.newHover ~full locItem in
-         let hover =
-           match hoverText with None -> "" | Some s -> String.escaped s
-         in
-         let uriLocOpt = References.definitionForLocItem ~full locItem in
-         let def =
-           match uriLocOpt with
-           | None -> Protocol.null
-           | Some (uri2, loc) ->
-             Protocol.stringifyLocation
-               {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}
-         in
-         Protocol.stringifyRange (Utils.cmtLocToRange locItem.loc)
-         ^ "\n  Hover: " ^ hover ^ "\n  Definition: " ^ def ^ "\n locItem: "
-         ^ locItemTxt)
-  |> String.concat "\n\n"
-
-let dump files =
-  Shared.cacheTypeToString := true;
-  files
-  |> List.iter (fun path ->
-         let result =
-           match Cmt.fromPath ~path with
-           | None -> "[]"
-           | Some full -> dumpLocations ~full
-         in
-         print_endline result)
-
 let completion ~path ~line ~col ~currentFile =
   let pos = (line, col) in
   let result =
