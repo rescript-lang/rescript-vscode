@@ -56,4 +56,9 @@ module type FT = {
     let make: (~name: string) => React.element
   }
 }
+module NormaList = List
+module BeltList = Belt.List
+module type MT2 = ModTyp
+module rec RM: ModTyp
+and D: ModTyp
 
