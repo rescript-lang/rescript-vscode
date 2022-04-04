@@ -76,3 +76,38 @@ module type MT2 = ModTyp
 
 module rec RM: ModTyp = D
 and D: ModTyp = Mod
+
+module type OptT = {
+  @react.component
+  let withOpt1: (~x: int=?, ~y: int) => int
+
+  @react.component
+  let withOpt2: (~x: int=?, ~y: int) => int
+
+  @react.component
+  let withOpt3: (~x: option<int>, ~y: int) => int
+}
+
+module Opt = {
+  @react.component
+  let withOpt1 = (~x=3, ~y) => x + y
+
+  @react.component
+  let withOpt2 = (~x=?, ~y) =>
+    switch x {
+    | None => 0
+    | Some(x) => x
+    } +
+    y
+
+  @react.component
+  let withOpt3 = (~x, ~y) =>
+    switch x {
+    | None => 0
+    | Some(x) => x
+    } +
+    y
+}
+
+module Opt2: OptT = Opt
+module Opt3 = Opt
