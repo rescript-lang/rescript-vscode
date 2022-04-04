@@ -32,19 +32,42 @@ module SourceFileExtractor = struct
 end
 
 let printSignature ~extractor ~signature =
-  let objectToFun typ ~rhs =
-    let rec loop typ ~rhs =
+  let objectPropsToFun objTyp ~rhs ~makePropsType =
+    let propsTbl = Hashtbl.create 1 in
+    (* Process the object type of the make function, and map field names to types. *)
+    let rec processObjType typ =
       match typ.Types.desc with
+      | Tfield (name, kind, {desc = Tlink t | Tsubst t | Tpoly (t, [])}, obj) ->
+        processObjType {typ with desc = Tfield (name, kind, t, obj)}
       | Tfield (name, _kind, t, obj) ->
-        {typ with desc = Tarrow (Labelled name, t, loop obj ~rhs, Cok)}
-      | Tnil -> rhs
+        Hashtbl.add propsTbl name t;
+        processObjType obj
+      | Tnil -> ()
       | _ -> (* should not happen *) assert false
     in
-    match typ.Types.desc with
+
+    processObjType objTyp;
+
+    (* Traverse the type of the makeProps function, and fill the prop types
+       by using the corresponding field in the object type of the make function *)
+    let rec fillPropsTypes makePropsType ~rhs =
+      match makePropsType.Types.desc with
+      | Tarrow (((Labelled lbl | Optional lbl) as argLbl), _, retT, c) -> (
+        match Hashtbl.find_opt propsTbl lbl with
+        | Some propT ->
+          {
+            makePropsType with
+            desc = Tarrow (argLbl, propT, fillPropsTypes retT ~rhs, c);
+          }
+        | None -> fillPropsTypes retT ~rhs)
+      | _ -> rhs
+    in
+
+    match objTyp.Types.desc with
     | Tnil ->
-      (* fun with no arguments *)
+      (* component with zero props *)
       {
-        typ with
+        objTyp with
         desc =
           Tarrow
             ( Nolabel,
@@ -52,7 +75,7 @@ let printSignature ~extractor ~signature =
               rhs,
               Cok );
       }
-    | _ -> loop typ ~rhs
+    | _ -> fillPropsTypes makePropsType ~rhs
   in
 
   Printtyp.reset_names ();
@@ -65,17 +88,18 @@ let printSignature ~extractor ~signature =
 
   let rec processSignature ~indent (signature : Types.signature) : unit =
     match signature with
-    | Sig_value (id1, vd1)
+    | Sig_value
+        (id1 (* makeProps *), {val_loc = makePropsLoc; val_type = makePropsType})
       :: Sig_value
-           ( id2,
+           ( id2 (* make *),
              ({
                 val_type = {desc = Tarrow (_, {desc = Tobject (tObj, _)}, t2, _)};
               } as vd2) )
          :: rest
       when Ident.name id1 = Ident.name id2 ^ "Props"
-           && (* from implementation *) vd1.val_loc.loc_ghost ->
+           && (* from implementation *) makePropsLoc.loc_ghost ->
       (* {"name": string} => React.element  ~~>  (~name:string) => React.element *)
-      let funType = tObj |> objectToFun ~rhs:t2 in
+      let funType = tObj |> objectPropsToFun ~rhs:t2 ~makePropsType in
       let newItemStr =
         sigItemToString
           (Printtyp.tree_of_value_description id2 {vd2 with val_type = funType})
@@ -83,19 +107,20 @@ let printSignature ~extractor ~signature =
       Buffer.add_string buf (indent ^ "@react.component\n");
       Buffer.add_string buf (indent ^ newItemStr ^ "\n");
       processSignature ~indent rest
-    | Sig_value (id1, vd1)
+    | Sig_value
+        (id1 (* makeProps *), {val_loc = makePropsLoc; val_type = makePropsType})
       :: Sig_value
-           ( id2,
+           ( id2 (* make *),
              ({
                 val_type =
                   {desc = Tconstr (_, [{desc = Tobject (tObj, _)}; t2], _)};
               } as vd2) )
          :: rest
       when Ident.name id1 = Ident.name id2 ^ "Props"
-           && (* from interface *) vd1.val_loc = vd2.val_loc ->
+           && (* from interface *) makePropsLoc = vd2.val_loc ->
       (* React.componentLike<{"name": string}, React.element>  ~~>
          (~name:string) => React.element *)
-      let funType = tObj |> objectToFun ~rhs:t2 in
+      let funType = tObj |> objectPropsToFun ~rhs:t2 ~makePropsType in
       let newItemStr =
         sigItemToString
           (Printtyp.tree_of_value_description id2 {vd2 with val_type = funType})
