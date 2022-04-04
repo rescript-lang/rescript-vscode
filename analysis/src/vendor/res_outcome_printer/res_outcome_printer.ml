@@ -166,7 +166,7 @@ let printPolyVarIdent txt =
          Doc.group (
            Doc.join ~sep:Doc.line (List.map printOutAttributeDoc attrs)
          );
-         Doc.hardLine;
+         Doc.line;
        ]
 
    let rec collectArrowArgs (outType: Outcometree.out_type) args =
