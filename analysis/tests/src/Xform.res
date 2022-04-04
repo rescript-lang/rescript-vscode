@@ -39,5 +39,14 @@ let withAs = (~x as name) => name + 1
 let make = (~name) => React.string(name)
 //   ^xfm
 
-let _ = (~x) => x+1
+let _ = (~x) => x + 1
 //       ^xfm
+
+let noBraces = () => name
+//               ^xfm
+
+let nested = () => {
+  let noBraces = () => "someNewFunc"
+  //                  ^xfm
+  ignore(noBraces())
+}

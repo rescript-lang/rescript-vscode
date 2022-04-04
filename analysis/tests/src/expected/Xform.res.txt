@@ -27,14 +27,40 @@ newText:
 Xform tests/src/Xform.res 19:5
 
 Xform tests/src/Xform.res 26:10
+Hit: Add braces to function
+{"start": {"line": 26, "character": 10}, "end": {"line": 32, "character": 3}}
+newText:
+x => {
+            //      ^xfm
+            switch x {
+            | None => 33
+            | Some(q) => q.T.a + 1
+            //     ^xfm
+            }
+          }
 Hit: Add type annotation
 {"start": {"line": 26, "character": 10}, "end": {"line": 26, "character": 11}}
 newText:
 (x: option<T.r>)
 
 Xform tests/src/Xform.res 30:9
+Hit: Add braces to function
+{"start": {"line": 26, "character": 10}, "end": {"line": 32, "character": 3}}
+newText:
+x => {
+            //      ^xfm
+            switch x {
+            | None => 33
+            | Some(q) => q.T.a + 1
+            //     ^xfm
+            }
+          }
 
 Xform tests/src/Xform.res 34:21
+Hit: Add braces to function
+{"start": {"line": 34, "character": 13}, "end": {"line": 34, "character": 37}}
+newText:
+(~x as name) => {name + 1}
 Hit: Add type annotation
 {"start": {"line": 34, "character": 24}, "end": {"line": 34, "character": 24}}
 newText:
@@ -43,8 +69,24 @@ newText:
 Xform tests/src/Xform.res 38:5
 
 Xform tests/src/Xform.res 41:9
+Hit: Add braces to function
+{"start": {"line": 41, "character": 8}, "end": {"line": 41, "character": 21}}
+newText:
+(~x) => {x + 1}
 Hit: Add type annotation
 {"start": {"line": 41, "character": 11}, "end": {"line": 41, "character": 11}}
 newText:
 : int
+
+Xform tests/src/Xform.res 44:17
+Hit: Add braces to function
+{"start": {"line": 44, "character": 15}, "end": {"line": 44, "character": 25}}
+newText:
+() => {name}
+
+Xform tests/src/Xform.res 48:22
+Hit: Add braces to function
+{"start": {"line": 48, "character": 17}, "end": {"line": 48, "character": 36}}
+newText:
+() => {"someNewFunc"}
 

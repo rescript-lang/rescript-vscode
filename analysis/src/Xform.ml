@@ -1,5 +1,7 @@
 (** Code transformations using the parser/printer and ast operations *)
 
+let isBracedExpr = Res_parsetree_viewer.isBracedExpr
+
 let posInLoc ~pos ~loc =
   Utils.tupleOfLexing loc.Location.loc_start <= pos
   && pos < Utils.tupleOfLexing loc.loc_end
@@ -97,6 +99,44 @@ module IfThenElse = struct
       match newExp with
       | Some newExp -> changed := Some newExp
       | None -> Ast_iterator.default_iterator.expr iterator e
+    in
+
+    {Ast_iterator.default_iterator with expr}
+
+  let xform ~pos structure =
+    let changed = ref None in
+    let iterator = mkIterator ~pos ~changed in
+    iterator.structure iterator structure;
+    !changed
+end
+
+module AddBracesToFn = struct
+  (* Add braces to fn without braces *)
+
+  let mkIterator ~pos ~changed =
+    let expr (iterator : Ast_iterator.iterator) (e : Parsetree.expression) =
+      (match e.pexp_desc with
+      | Pexp_fun (argLabel, expr, pat, funExpr)
+        when posInLoc ~pos ~loc:e.pexp_loc && isBracedExpr funExpr = false ->
+        changed :=
+          Some
+            {
+              e with
+              pexp_desc =
+                Pexp_fun
+                  ( argLabel,
+                    expr,
+                    pat,
+                    {
+                      funExpr with
+                      pexp_attributes =
+                        ( Location.mkloc "ns.braces" e.pexp_loc,
+                          Parsetree.PStr [] )
+                        :: funExpr.pexp_attributes;
+                    } );
+            }
+      | _ -> ());
+      Ast_iterator.default_iterator.expr iterator e
     in
 
     {Ast_iterator.default_iterator with expr}
@@ -252,13 +292,24 @@ let extractCodeActions ~path ~pos ~currentFile =
       match AddTypeAnnotation.getAction ~path ~pos ~full ~structure with
       | None -> ()
       | Some action -> codeActions := action :: !codeActions));
-    match IfThenElse.xform ~pos structure with
+    (match IfThenElse.xform ~pos structure with
     | None -> ()
     | Some newExpr ->
       let range = rangeOfLoc newExpr.pexp_loc in
       let newText = printExpr ~range newExpr in
       let codeAction =
         CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
+          ~uri:path ~newText ~range
+      in
+      codeActions := codeAction :: !codeActions);
+
+    match AddBracesToFn.xform ~pos structure with
+    | None -> ()
+    | Some newExpr ->
+      let range = rangeOfLoc newExpr.pexp_loc in
+      let newText = printExpr ~range newExpr in
+      let codeAction =
+        CodeActions.make ~title:"Add braces to function" ~kind:RefactorRewrite
           ~uri:path ~newText ~range
       in
       codeActions := codeAction :: !codeActions);
