@@ -7,16 +7,15 @@ let printSignature ~signature =
     | _ -> (* should not happen *) assert false
   in
 
-  (* val_attributes is ignored by Printtyp.tree_of_signature
-     so we store the info as primitive in val_kind, and later post-process
-     the outcome tree to add the attribute instead *)
-  let val_kind_component : Types.value_kind =
-    Val_prim
-      (Primitive.make ~name:"react.component" ~alloc:false ~native_name:""
-         ~native_repr_args:[] ~native_repr_res:Same_as_ocaml_repr)
+  Printtyp.reset_names ();
+  let sigItemToString (item : Outcometree.out_sig_item) =
+    item |> Res_outcome_printer.printOutSigItemDoc
+    |> Res_doc.toString ~width:!Res_cli.ResClflags.width
   in
 
-  let rec processSignature (signature : Types.signature) =
+  let buf = Buffer.create 10 in
+
+  let rec processSignature ~indent (signature : Types.signature) : unit =
     match signature with
     | Sig_value (id1, vd1)
       :: Sig_value
@@ -26,14 +25,16 @@ let printSignature ~signature =
               } as vd2) )
          :: rest
       when Ident.name id1 = Ident.name id2 ^ "Props"
-           && (* normal case *) vd1.val_loc.loc_ghost ->
+           && (* from implementation *) vd1.val_loc.loc_ghost ->
       (* {"name": string} => React.element  ~~>  (~name:string) => React.element *)
-      let newItem =
-        let funType = tObj |> objectToFun ~rhs:t2 in
-        Types.Sig_value
-          (id2, {vd2 with val_type = funType; val_kind = val_kind_component})
+      let funType = tObj |> objectToFun ~rhs:t2 in
+      let newItemStr =
+        sigItemToString
+          (Printtyp.tree_of_value_description id2 {vd2 with val_type = funType})
       in
-      newItem :: processSignature rest
+      Buffer.add_string buf (indent ^ "@react.component\n");
+      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
+      processSignature ~indent rest
     | Sig_value (id1, vd1)
       :: Sig_value
            ( id2,
@@ -43,71 +44,84 @@ let printSignature ~signature =
               } as vd2) )
          :: rest
       when Ident.name id1 = Ident.name id2 ^ "Props"
-           && (* module type *) vd1.val_loc = vd2.val_loc ->
+           && (* from interface *) vd1.val_loc = vd2.val_loc ->
       (* React.componentLike<{"name": string}, React.element>  ~~>
          (~name:string) => React.element *)
-      let newItem =
-        let funType = tObj |> objectToFun ~rhs:t2 in
-        Types.Sig_value
-          (id2, {vd2 with val_type = funType; val_kind = val_kind_component})
+      let funType = tObj |> objectToFun ~rhs:t2 in
+      let newItemStr =
+        sigItemToString
+          (Printtyp.tree_of_value_description id2 {vd2 with val_type = funType})
       in
-      newItem :: processSignature rest
+      Buffer.add_string buf (indent ^ "@react.component\n");
+      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
+      processSignature ~indent rest
     | Sig_module (id, modDecl, recStatus) :: rest ->
-      let md_type = processModuleType modDecl.md_type in
-      Sig_module (id, {modDecl with md_type}, recStatus)
-      :: processSignature rest
+      Buffer.add_string buf
+        (indent
+        ^ (match recStatus with
+          | Trec_not -> "module "
+          | Trec_first -> "module rec "
+          | Trec_next -> "and ")
+        ^ Ident.name id ^ ": {\n");
+      processModuleType ~indent:(indent ^ "  ") modDecl.md_type;
+      Buffer.add_string buf (indent ^ "}\n");
+      processSignature ~indent rest
     | Sig_modtype (id, mtd) :: rest ->
-      let mtd_type =
+      let () =
         match mtd.mtd_type with
-        | None -> None
-        | Some mt -> Some (processModuleType mt)
+        | None ->
+          Buffer.add_string buf (indent ^ "module type " ^ Ident.name id ^ "\n")
+        | Some mt ->
+          Buffer.add_string buf
+            (indent ^ "module type " ^ Ident.name id ^ " = {\n");
+          processModuleType ~indent:(indent ^ "  ") mt;
+          Buffer.add_string buf (indent ^ "}\n")
       in
-      Sig_modtype (id, {mtd with mtd_type}) :: processSignature rest
-    | (Sig_value (_id, {val_kind = Val_prim prim; val_loc}) as item) :: items
+      processSignature ~indent rest
+    | Sig_value (id, ({val_kind = Val_prim prim; val_loc} as vd)) :: items
       when prim.prim_native_name <> "" && prim.prim_native_name.[0] = '\132' ->
       Printf.printf "Rescript prim_name:%s %s\n" prim.prim_name
         (SemanticTokens.locToString val_loc);
-      item :: processSignature items
-    | item :: rest -> item :: processSignature rest
-    | [] -> []
-  and processModuleType = function
-    | Types.Mty_signature signature ->
-      Types.Mty_signature (processSignature signature)
-    | mt -> mt
+      let newItemStr =
+        sigItemToString (Printtyp.tree_of_value_description id vd)
+      in
+      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
+      processSignature ~indent items
+    | Sig_value (id, vd) :: items ->
+      let newItemStr =
+        sigItemToString (Printtyp.tree_of_value_description id vd)
+      in
+      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
+      processSignature ~indent items
+    | Sig_type (id, typeDecl, resStatus) :: items ->
+      let newItemStr =
+        sigItemToString
+          (Printtyp.tree_of_type_declaration id typeDecl resStatus)
+      in
+      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
+      processSignature ~indent items
+    | Sig_typext (id, extConstr, extStatus) :: items ->
+      let newItemStr =
+        sigItemToString
+          (Printtyp.tree_of_extension_constructor id extConstr extStatus)
+      in
+      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
+      processSignature ~indent items
+    | Sig_class _ :: items ->
+      (* not needed *)
+      processSignature ~indent items
+    | Sig_class_type _ :: items ->
+      (* not needed *)
+      processSignature ~indent items
+    | [] -> ()
+  and processModuleType ~indent = function
+    | Types.Mty_signature signature -> processSignature ~indent signature
+    | mt -> assert false
+    (* TODO: print and indent *)
   in
 
-  (* Convert the primitive "react.component" back to an attribute *)
-  let rec postProcessOutSig outSig = outSig |> List.map prostProcessOutSigItem
-  and prostProcessOutSigItem outSigItem =
-    match outSigItem with
-    | Outcometree.Osig_value vd -> (
-      match vd.oval_prims with
-      | ["react.component"] ->
-        Outcometree.Osig_value
-          {
-            vd with
-            oval_prims = [];
-            oval_attributes = [{oattr_name = "react.component"}];
-          }
-      | _ -> outSigItem)
-    | Osig_module (name, Omty_signature osig, recStatus) ->
-      Osig_module (name, Omty_signature (postProcessOutSig osig), recStatus)
-    | Osig_modtype (name, Omty_signature osig) ->
-      Osig_modtype (name, Omty_signature (postProcessOutSig osig))
-    | _ -> outSigItem
-  in
-
-  let signature = processSignature signature in
-  let outSig = Printtyp.tree_of_signature signature in
-  let outSig = postProcessOutSig outSig in
-  Printtyp.reset_names ();
-  let lines =
-    outSig
-    |> List.map (fun item ->
-           Res_doc.toString ~width:!Res_cli.ResClflags.width
-             (Res_outcome_printer.printOutSigItemDoc item))
-  in
-  Printf.printf "%s\n" (lines |> String.concat "\n")
+  processSignature ~indent:"" signature;
+  Printf.printf "%s" (Buffer.contents buf)
 
 let command ~cmiFile =
   match Shared.tryReadCmi cmiFile with
