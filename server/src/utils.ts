@@ -225,33 +225,6 @@ export const getNamespaceNameFromBsConfig = (
   };
 };
 
-export let createInterfaceFileUsingValidBscExePath = (
-  filePath: string,
-  cmiPath: string,
-  bscExePath: p.DocumentUri
-): execResult => {
-  try {
-    let resiString = childProcess.execFileSync(bscExePath, [
-      "-color",
-      "never",
-      cmiPath,
-    ]);
-
-    let resiPath = replaceFileExtension(filePath, c.resiExt);
-    fs.writeFileSync(resiPath, resiString, { encoding: "utf-8" });
-
-    return {
-      kind: "success",
-      result: "Interface successfully created.",
-    };
-  } catch (e) {
-    return {
-      kind: "error",
-      error: e instanceof Error ? e.message : String(e),
-    };
-  }
-};
-
 let getCompiledFolderName = (moduleFormat: string): string => {
   switch (moduleFormat) {
     case "es6":

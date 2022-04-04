@@ -48,6 +48,14 @@ Options:
 
     ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
 
+  semanticTokens: return token semantic highlighting info for MyFile.res
+
+    ./rescript-editor-analysis.exe semanticTokens src/MyFile.res
+
+  createInterface: print to stdout the interface file for src/MyFile.res
+
+    ./rescript-editor-analysis.exe createInterface src/MyFile.res lib/bs/src/MyFile.cmi
+
   test: run tests specified by special comments in file src/MyFile.res
 
     ./rescript-editor-analysis.exe test src/src/MyFile.res
@@ -65,8 +73,6 @@ let main () =
     Commands.typeDefinition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
   | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
-  | [_; "semanticTokens"; currentFile] ->
-    SemanticTokens.semanticTokens ~currentFile
   | [_; "hover"; path; line; col] ->
     Commands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
   | [_; "references"; path; line; col] ->
@@ -75,6 +81,11 @@ let main () =
   | [_; "rename"; path; line; col; newName] ->
     Commands.rename ~path ~line:(int_of_string line) ~col:(int_of_string col)
       ~newName
+  | [_; "semanticTokens"; currentFile] ->
+    SemanticTokens.semanticTokens ~currentFile
+  | [_; "createInterface"; path; cmiFile] ->
+    Printf.printf "\"%s\""
+      (Json.escape (CreateInterface.command ~path ~cmiFile))
   | [_; "test"; path] -> Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
   | _ ->

@@ -190,11 +190,11 @@ let printSignature ~extractor ~signature =
   in
 
   processSignature ~indent:"" signature;
-  Printf.printf "%s" (Buffer.contents buf)
+  Buffer.contents buf
 
 let command ~path ~cmiFile =
   match Shared.tryReadCmi cmiFile with
   | Some cmi_info ->
     let extractor = SourceFileExtractor.create ~path in
     printSignature ~extractor ~signature:cmi_info.cmi_sign
-  | None -> ()
+  | None -> ""
