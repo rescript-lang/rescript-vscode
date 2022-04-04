@@ -507,15 +507,12 @@ function createInterface(msg: p.RequestMessage): m.Message {
   let params = msg.params as CreateInterfaceRequestParams;
   let extension = path.extname(params.uri);
   let filePath = fileURLToPath(params.uri);
-  let bscNativePath = utils.findBscNativeOfFile(filePath);
   let projDir = utils.findProjectRootOfFile(filePath);
-  let code = getOpenedFileContent(params.uri);
-  let isReactComponent = code.includes("@react.component");
 
-  if (bscNativePath === null || projDir === null) {
+  if (projDir === null) {
     let params: p.ShowMessageParams = {
       type: p.MessageType.Error,
-      message: `Cannot find a nearby bsc.exe to generate the interface file.`,
+      message: `Cannot locate project directory to generate the interface file.`,
     };
 
     let response: m.NotificationMessage = {
@@ -531,21 +528,6 @@ function createInterface(msg: p.RequestMessage): m.Message {
     let params: p.ShowMessageParams = {
       type: p.MessageType.Error,
       message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
-    };
-
-    let response: m.NotificationMessage = {
-      jsonrpc: c.jsonrpcVersion,
-      method: "window/showMessage",
-      params: params,
-    };
-
-    return response;
-  }
-
-  if (isReactComponent) {
-    let params: p.ShowMessageParams = {
-      type: p.MessageType.Error,
-      message: `Creating an interface with @react.component is not currently supported.`,
     };
 
     let response: m.NotificationMessage = {
@@ -603,21 +585,23 @@ function createInterface(msg: p.RequestMessage): m.Message {
     return response;
   }
 
-  let intfResult = utils.createInterfaceFileUsingValidBscExePath(
+  let response = utils.runAnalysisCommand(
     filePath,
-    cmiPath,
-    bscNativePath
+    ["createInterface", filePath, cmiPath],
+    msg
   );
+  let result = typeof response.result === "string" ? response.result : "";
 
-  if (intfResult.kind === "success") {
+  try {
+    let resiPath = utils.replaceFileExtension(filePath, c.resiExt);
+    fs.writeFileSync(resiPath, result, { encoding: "utf-8" });
     let response: m.ResponseMessage = {
       jsonrpc: c.jsonrpcVersion,
       id: msg.id,
-      result: intfResult.result,
+      result: "Interface successfully created.",
     };
-
     return response;
-  } else {
+  } catch (e) {
     let response: m.ResponseMessage = {
       jsonrpc: c.jsonrpcVersion,
       id: msg.id,
@@ -626,7 +610,6 @@ function createInterface(msg: p.RequestMessage): m.Message {
         message: "Unable to create interface file.",
       },
     };
-
     return response;
   }
 }
