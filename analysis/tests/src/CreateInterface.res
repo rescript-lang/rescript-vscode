@@ -35,15 +35,17 @@ external padLeft: (
   ],
 ) => string = "padLeft"
 
-@module("fs")
-external readFileSync: (
-  ~name: string,
-  @string
-  [
-    | #utf8
-    | @as("ascii") #useAscii
-  ],
-) => string = "readFileSync"
+module RFS = {
+  @module("fs")
+  external readFileSync: (
+    ~name: string,
+    @string
+    [
+      | #utf8
+      | @as("ascii") #useAscii
+    ],
+  ) => string = "readFileSync"
+}
 
 module Functor = () => {
   @react.component

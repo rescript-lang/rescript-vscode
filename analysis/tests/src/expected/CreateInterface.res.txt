@@ -1,8 +1,4 @@
 Create Interface tests/src/CreateInterface.res
-Rescript prim_name:dirname (22,0)->(22,62)
-Rescript prim_name:join (24,0)->(25,47)
-Rescript prim_name:padLeft (27,0)->(35,23)
-Rescript prim_name:readFileSync (37,0)->(45,28)
 type r = {name: string, age: int}
 let add: (~x: int, ~y: int) => int
 @react.component
@@ -17,11 +13,29 @@ module type ModTyp = {
   @react.component
   let make: (~name: string) => React.element
 }
-external dirname: string => string = "dirname" "#rescript-external"
-external join: array<string> => string = "join" "#rescript-external"
-external padLeft: (string, [#Int(int) | #Str(string)]) => string = "padLeft" "#rescript-external"
-external readFileSync: (~name: string, [#useAscii | #utf8]) => string =
-  "readFileSync" "#rescript-external"
+@module("path") external dirname: string => string = "dirname"
+@module("path") @variadic
+external join: array<string> => string = "join"
+@val
+external padLeft: (
+  string,
+  @unwrap
+  [
+    | #Str(string)
+    | #Int(int)
+  ],
+) => string = "padLeft"
+module RFS: {
+  @module("fs")
+  external readFileSync: (
+    ~name: string,
+    @string
+    [
+      | #utf8
+      | @as("ascii") #useAscii
+    ],
+  ) => string = "readFileSync"
+}
 module Functor: () =>
 {
   @react.component

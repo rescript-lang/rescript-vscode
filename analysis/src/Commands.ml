@@ -361,7 +361,7 @@ let test ~path =
               let dir = dirname path in
               dir ++ parent_dir_name ++ "lib" ++ "bs" ++ "src" ++ name
             in
-            CreateInterface.command ~cmiFile
+            CreateInterface.command ~path ~cmiFile
           | _ -> ());
           print_newline ())
     in
