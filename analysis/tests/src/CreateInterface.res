@@ -111,3 +111,10 @@ module Opt = {
 
 module Opt2: OptT = Opt
 module Opt3 = Opt
+
+module Memo = {
+  @react.component
+  let make = (~name) => React.string(name)
+
+  let make = React.memo(make)
+}

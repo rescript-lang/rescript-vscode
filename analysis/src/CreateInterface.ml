@@ -113,6 +113,35 @@ let printSignature ~extractor ~signature =
            ( id2 (* make *),
              ({
                 val_type =
+                  {
+                    desc =
+                      Tconstr
+                        ( Pdot (Pident {name = "React"}, "component", _),
+                          [{desc = Tobject (tObj, _)}],
+                          _ );
+                  };
+              } as vd2) )
+         :: rest
+      when Ident.name id1 = Ident.name id2 ^ "Props"
+           && (* from implementation *) makePropsLoc.loc_ghost ->
+      (* React.component<{"name": string}>  ~~>  (~name:string) => React.element *)
+      let reactElement =
+        Ctype.newconstr (Pdot (Pident (Ident.create "React"), "element", 0)) []
+      in
+      let funType = tObj |> objectPropsToFun ~rhs:reactElement ~makePropsType in
+      let newItemStr =
+        sigItemToString
+          (Printtyp.tree_of_value_description id2 {vd2 with val_type = funType})
+      in
+      Buffer.add_string buf (indent ^ "@react.component\n");
+      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
+      processSignature ~indent rest
+    | Sig_value
+        (id1 (* makeProps *), {val_loc = makePropsLoc; val_type = makePropsType})
+      :: Sig_value
+           ( id2 (* make *),
+             ({
+                val_type =
                   {desc = Tconstr (_, [{desc = Tobject (tObj, _)}; t2], _)};
               } as vd2) )
          :: rest
