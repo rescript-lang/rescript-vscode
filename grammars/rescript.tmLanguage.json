@@ -350,8 +350,133 @@
       ]
     },
     "jsx": {
-      "match": "<>|</>|</|/>",
-      "name": "punctuation.definition.tag"
+      "patterns": [
+        {
+          "match": "<>|</>|</|/>",
+          "name": "punctuation.definition.tag"
+        },
+        {
+          "match": "</([A-Z_][0-9a-zA-Z_]*)",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
+            "1": {
+              "name": "entity.name.namespace"
+            }
+          }
+        },
+        {
+          "match": "</([a-z_][0-9a-zA-Z_]*)",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
+            "1": {
+              "name": "variable"
+            }
+          }
+        },
+        {
+          "match": "<([A-Z_][0-9a-zA-Z_]*)",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
+            "1": {
+              "name": "entity.name.namespace"
+            }
+          }
+        }
+      ]
+    },
+    "openOrIncludeModule": {
+      "patterns": [
+        {
+          "match": "\\b(open|include)\\s+([A-Z_][0-9a-zA-Z_]*((\\.)([A-Z_][0-9a-zA-Z_]*))*)",
+          "captures": {
+            "1": {
+              "name": "keyword"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "include": "#moduleAccessEndsWithModule"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "match": "\\b(open|include)\\s+",
+          "name": "keyword"
+        }
+      ]
+    },
+    "moduleAccessEndsWithModule": {
+      "patterns": [
+        {
+          "match": "[A-Z_][0-9a-zA-Z_]*",
+          "name": "entity.name.namespace"
+        },
+        {
+          "match": "(\\.)([A-Z_][0-9a-zA-Z_]*)",
+          "captures": {
+            "1": {
+              "name": "punctuation.accessor"
+            },
+            "2": {
+              "name": "entity.name.namespace"
+            }
+          }
+        }
+      ]
+    },
+    "moduleAccess": {
+      "patterns": [
+        {
+          "match": "\\b([A-Z_][0-9a-zA-Z_]*)(\\.)",
+          "captures": {
+            "1": {
+              "name": "entity.name.namespace"
+            },
+            "2": {
+              "name": "punctuation.accessor"
+            }
+          }
+        }
+      ]
+    },
+    "moduleDeclaration": {
+      "patterns": [
+        {
+          "match": "\\b(module)\\s+(type\\s+)?(of\\s+)?([A-Z_][0-9a-zA-Z_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword"
+            },
+            "2": {
+              "name": "keyword"
+            },
+            "3": {
+              "name": "keyword"
+            },
+            "4": {
+              "name": "entity.name.namespace"
+            }
+          },
+          "patterns": [
+            {
+              "match": "\\s*:\\s*([A-Z_][0-9a-zA-Z_]*)",
+              "captures": {
+                "1": {
+                  "name": "entity.name.namespace"
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   },
   "patterns": [
