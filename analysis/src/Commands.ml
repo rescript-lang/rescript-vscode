@@ -348,9 +348,12 @@ let test ~path =
                    |> List.iter (fun {Protocol.edits} ->
                           edits
                           |> List.iter (fun {Protocol.range; newText} ->
-                                 Printf.printf "%s\nnewText:\n%s\n"
+                                 let indent =
+                                   String.make range.start.character ' '
+                                 in
+                                 Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
                                    (Protocol.stringifyRange range)
-                                   newText)))
+                                   indent indent newText)))
           | _ -> ());
           print_newline ())
     in
