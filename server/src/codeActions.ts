@@ -15,6 +15,53 @@ interface findCodeActionsConfig {
   addFoundActionsHere: filesCodeActions;
 }
 
+let wrapRangeInText = (
+  range: p.Range,
+  wrapStart: string,
+  wrapEnd: string
+): p.TextEdit[] => {
+  // We need to adjust the start of where we replace if this is a single
+  // character on a single line.
+  let offset =
+    range.start.line === range.end.line &&
+    range.start.character === range.end.character
+      ? 1
+      : 0;
+
+  let startRange = {
+    start: {
+      line: range.start.line,
+      character: range.start.character - offset,
+    },
+    end: {
+      line: range.start.line,
+      character: range.start.character - offset,
+    },
+  };
+
+  let endRange = {
+    start: {
+      line: range.end.line,
+      character: range.end.character,
+    },
+    end: {
+      line: range.end.line,
+      character: range.end.character,
+    },
+  };
+
+  return [
+    {
+      range: startRange,
+      newText: wrapStart,
+    },
+    {
+      range: endRange,
+      newText: wrapEnd,
+    },
+  ];
+};
+
 export let findCodeActionsInDiagnosticsMessage = ({
   diagnostic,
   diagnosticMessage,
@@ -187,6 +234,11 @@ let addUndefinedRecordFields: codeActionExtractor = ({
           .join(", ");
       }
 
+      let beforeEndingRecordBraceLoc = {
+        line: range.end.line,
+        character: range.end.character - 1,
+      };
+
       let codeAction: p.CodeAction = {
         title: `Add missing record fields`,
         edit: {
@@ -194,14 +246,8 @@ let addUndefinedRecordFields: codeActionExtractor = ({
             [file]: [
               {
                 range: {
-                  start: {
-                    line: range.end.line,
-                    character: range.end.character - 1,
-                  },
-                  end: {
-                    line: range.end.line,
-                    character: range.end.character - 1,
-                  },
+                  start: beforeEndingRecordBraceLoc,
+                  end: beforeEndingRecordBraceLoc,
                 },
                 newText,
               },
@@ -244,38 +290,12 @@ let simpleConversion: codeActionExtractor = ({
 
     if (from != null && to != null && fn != null) {
       codeActions[file] = codeActions[file] || [];
+
       let codeAction: p.CodeAction = {
         title: `Convert ${from} to ${to} with ${fn}`,
         edit: {
           changes: {
-            [file]: [
-              {
-                range: {
-                  start: {
-                    line: range.start.line,
-                    character: range.start.character,
-                  },
-                  end: {
-                    line: range.start.line,
-                    character: range.start.character,
-                  },
-                },
-                newText: `${fn}(`,
-              },
-              {
-                range: {
-                  start: {
-                    line: range.end.line,
-                    character: range.end.character,
-                  },
-                  end: {
-                    line: range.end.line,
-                    character: range.end.character,
-                  },
-                },
-                newText: `)`,
-              },
-            ],
+            [file]: wrapRangeInText(range, `${fn}(`, `)`),
           },
         },
         diagnostics: [diagnostic],
@@ -360,34 +380,7 @@ let topLevelUnitType: codeActionExtractor = ({
       title: `Wrap expression in ignore`,
       edit: {
         changes: {
-          [file]: [
-            {
-              range: {
-                start: {
-                  line: range.start.line,
-                  character: range.start.character,
-                },
-                end: {
-                  line: range.start.line,
-                  character: range.start.character,
-                },
-              },
-              newText: `ignore(`,
-            },
-            {
-              range: {
-                start: {
-                  line: range.end.line,
-                  character: range.end.character,
-                },
-                end: {
-                  line: range.end.line,
-                  character: range.end.character,
-                },
-              },
-              newText: `)`,
-            },
-          ],
+          [file]: wrapRangeInText(range, "ignore(", ")"),
         },
       },
       diagnostics: [diagnostic],
