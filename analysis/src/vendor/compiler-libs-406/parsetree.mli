@@ -233,6 +233,7 @@ and expression =
     {
      pexp_desc: expression_desc;
      pexp_loc: Location.t;
+     mutable (* Careful, the original parse tree is not mutable *)
      pexp_attributes: attributes; (* ... [@id1] [@id2] *)
     }
 

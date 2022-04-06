@@ -42,11 +42,26 @@ let make = (~name) => React.string(name)
 let _ = (~x) => x + 1
 //       ^xfm
 
+//
+// Add braces to the body of a function
+//
+
 let noBraces = () => name
-//               ^xfm
+//                   ^xfm
 
 let nested = () => {
-  let noBraces = () => "someNewFunc"
-  //                  ^xfm
-  ignore(noBraces())
+  let _noBraces = (_x, _y, _z) => "someNewFunc"
+  //                              ^xfm
+}
+
+let bar = () => {
+  module Inner = {
+    let foo = (_x, y, _z) =>
+      switch y {
+      | #some => 3
+      | #stuff => 4
+      }
+    //^xfm
+  }
+  Inner.foo(1)
 }

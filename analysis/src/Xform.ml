@@ -114,32 +114,49 @@ module AddBracesToFn = struct
   (* Add braces to fn without braces *)
 
   let mkIterator ~pos ~changed =
+    (* While iterating the AST, keep info on which structure item we are in.
+       Printing from the structure item, rather than the body of the function,
+       gives better local pretty printing *)
+    let currentStructureItem = ref None in
+
+    let structure_item (iterator : Ast_iterator.iterator)
+        (item : Parsetree.structure_item) =
+      let saved = !currentStructureItem in
+      currentStructureItem := Some item;
+      Ast_iterator.default_iterator.structure_item iterator item;
+      currentStructureItem := saved
+    in
     let expr (iterator : Ast_iterator.iterator) (e : Parsetree.expression) =
+      let bracesAttribute =
+        let loc =
+          {
+            Location.none with
+            loc_start = Lexing.dummy_pos;
+            loc_end =
+              {
+                Lexing.dummy_pos with
+                pos_lnum = Lexing.dummy_pos.pos_lnum + 1 (* force line break *);
+              };
+          }
+        in
+        (Location.mkloc "ns.braces" loc, Parsetree.PStr [])
+      in
+      let isFunction = function
+        | {Parsetree.pexp_desc = Pexp_fun _} -> true
+        | _ -> false
+      in
       (match e.pexp_desc with
-      | Pexp_fun (argLabel, expr, pat, funExpr)
-        when posInLoc ~pos ~loc:e.pexp_loc && isBracedExpr funExpr = false ->
-        changed :=
-          Some
-            {
-              e with
-              pexp_desc =
-                Pexp_fun
-                  ( argLabel,
-                    expr,
-                    pat,
-                    {
-                      funExpr with
-                      pexp_attributes =
-                        ( Location.mkloc "ns.braces" e.pexp_loc,
-                          Parsetree.PStr [] )
-                        :: funExpr.pexp_attributes;
-                    } );
-            }
+      | Pexp_fun (_, _, _, bodyExpr)
+        when posInLoc ~pos ~loc:bodyExpr.pexp_loc
+             && isBracedExpr bodyExpr = false
+             && isFunction bodyExpr = false ->
+        bodyExpr.pexp_attributes <- bracesAttribute :: bodyExpr.pexp_attributes;
+        changed := !currentStructureItem
       | _ -> ());
       Ast_iterator.default_iterator.expr iterator e
     in
 
-    {Ast_iterator.default_iterator with expr}
+    {Ast_iterator.default_iterator with expr; structure_item}
 
   let xform ~pos structure =
     let changed = ref None in
@@ -242,21 +259,31 @@ let parse ~filename =
   let {Res_driver.parsetree = structure; comments} =
     Res_driver.parsingEngine.parseImplementation ~forPrinter:false ~filename
   in
+  let filterComments ~loc comments =
+    (* Relevant comments in the range of the expression *)
+    let filter comment =
+      posInLoc
+        ~pos:((Res_comment.loc comment).loc_start |> Utils.tupleOfLexing)
+        ~loc
+    in
+    comments |> List.filter filter
+  in
   let printExpr ~(range : Protocol.range) (expr : Parsetree.expression) =
     let structure = [Ast_helper.Str.eval ~loc:expr.pexp_loc expr] in
-    let filterComments = function
-      (* Relevant comments in the range of the expression *)
-      | comment ->
-        posInLoc
-          ~pos:((Res_comment.loc comment).loc_start |> Utils.tupleOfLexing)
-          ~loc:expr.pexp_loc
-    in
     structure
     |> Res_printer.printImplementation ~width:!Res_cli.ResClflags.width
-         ~comments:(List.filter filterComments comments)
+         ~comments:(comments |> filterComments ~loc:expr.pexp_loc)
     |> indent range.start.character
   in
-  (structure, printExpr)
+  let printStructureItem ~(range : Protocol.range)
+      (item : Parsetree.structure_item) =
+    let structure = [item] in
+    structure
+    |> Res_printer.printImplementation ~width:!Res_cli.ResClflags.width
+         ~comments:(comments |> filterComments ~loc:item.pstr_loc)
+    |> indent range.start.character
+  in
+  (structure, printExpr, printStructureItem)
 
 let diff ~filename ~newContents =
   match Files.readFile ~filename with
@@ -284,7 +311,9 @@ let diff ~filename ~newContents =
 let extractCodeActions ~path ~pos ~currentFile =
   let codeActions = ref [] in
   if Filename.check_suffix currentFile ".res" then (
-    let structure, printExpr = parse ~filename:currentFile in
+    let structure, printExpr, printStructureItem =
+      parse ~filename:currentFile
+    in
     let fullOpt = Cmt.fromPath ~path in
     (match fullOpt with
     | None -> ()
@@ -305,9 +334,9 @@ let extractCodeActions ~path ~pos ~currentFile =
 
     match AddBracesToFn.xform ~pos structure with
     | None -> ()
-    | Some newExpr ->
-      let range = rangeOfLoc newExpr.pexp_loc in
-      let newText = printExpr ~range newExpr in
+    | Some newStructureItem ->
+      let range = rangeOfLoc newStructureItem.pstr_loc in
+      let newText = printStructureItem ~range newStructureItem in
       let codeAction =
         CodeActions.make ~title:"Add braces to function" ~kind:RefactorRewrite
           ~uri:path ~newText ~range

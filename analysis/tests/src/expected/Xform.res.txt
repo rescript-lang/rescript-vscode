@@ -30,18 +30,6 @@ newText:
 Xform tests/src/Xform.res 19:5
 
 Xform tests/src/Xform.res 26:10
-Hit: Add braces to function
-{"start": {"line": 26, "character": 10}, "end": {"line": 32, "character": 3}}
-newText:
-          <--here
-          x => {
-            //      ^xfm
-            switch x {
-            | None => 33
-            | Some(q) => q.T.a + 1
-            //     ^xfm
-            }
-          }
 Hit: Add type annotation
 {"start": {"line": 26, "character": 10}, "end": {"line": 26, "character": 11}}
 newText:
@@ -50,24 +38,19 @@ newText:
 
 Xform tests/src/Xform.res 30:9
 Hit: Add braces to function
-{"start": {"line": 26, "character": 10}, "end": {"line": 32, "character": 3}}
+{"start": {"line": 26, "character": 0}, "end": {"line": 32, "character": 3}}
 newText:
-          <--here
-          x => {
-            //      ^xfm
-            switch x {
-            | None => 33
-            | Some(q) => q.T.a + 1
-            //     ^xfm
-            }
-          }
+<--here
+let foo = x => {
+  //      ^xfm
+  switch x {
+  | None => 33
+  | Some(q) => q.T.a + 1
+  //     ^xfm
+  }
+}
 
 Xform tests/src/Xform.res 34:21
-Hit: Add braces to function
-{"start": {"line": 34, "character": 13}, "end": {"line": 34, "character": 37}}
-newText:
-             <--here
-             (~x as name) => {name + 1}
 Hit: Add type annotation
 {"start": {"line": 34, "character": 24}, "end": {"line": 34, "character": 24}}
 newText:
@@ -77,28 +60,42 @@ newText:
 Xform tests/src/Xform.res 38:5
 
 Xform tests/src/Xform.res 41:9
-Hit: Add braces to function
-{"start": {"line": 41, "character": 8}, "end": {"line": 41, "character": 21}}
-newText:
-        <--here
-        (~x) => {x + 1}
 Hit: Add type annotation
 {"start": {"line": 41, "character": 11}, "end": {"line": 41, "character": 11}}
 newText:
            <--here
            : int
 
-Xform tests/src/Xform.res 44:17
+Xform tests/src/Xform.res 48:21
 Hit: Add braces to function
-{"start": {"line": 44, "character": 15}, "end": {"line": 44, "character": 25}}
+{"start": {"line": 48, "character": 0}, "end": {"line": 48, "character": 25}}
 newText:
-               <--here
-               () => {name}
+<--here
+let noBraces = () => {
+  name
+}
 
-Xform tests/src/Xform.res 48:22
+Xform tests/src/Xform.res 52:34
 Hit: Add braces to function
-{"start": {"line": 48, "character": 17}, "end": {"line": 48, "character": 36}}
+{"start": {"line": 51, "character": 0}, "end": {"line": 54, "character": 1}}
 newText:
-                 <--here
-                 () => {"someNewFunc"}
+<--here
+let nested = () => {
+  let _noBraces = (_x, _y, _z) => {
+    "someNewFunc"
+  }
+  //                              ^xfm
+}
+
+Xform tests/src/Xform.res 62:6
+Hit: Add braces to function
+{"start": {"line": 58, "character": 4}, "end": {"line": 62, "character": 7}}
+newText:
+    <--here
+    let foo = (_x, y, _z) => {
+      switch y {
+      | #some => 3
+      | #stuff => 4
+      }
+    }
 
