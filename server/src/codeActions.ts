@@ -62,6 +62,26 @@ let wrapRangeInText = (
   ];
 };
 
+let insertBeforeEndingChar = (
+  range: p.Range,
+  newText: string
+): p.TextEdit[] => {
+  let beforeEndingChar = {
+    line: range.end.line,
+    character: range.end.character - 1,
+  };
+
+  return [
+    {
+      range: {
+        start: beforeEndingChar,
+        end: beforeEndingChar,
+      },
+      newText,
+    },
+  ];
+};
+
 export let findCodeActionsInDiagnosticsMessage = ({
   diagnostic,
   diagnosticMessage,
@@ -78,6 +98,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
       simpleConversion,
       topLevelUnitType,
       applyUncurried,
+      simpleAddMissingCases,
     ];
 
     for (let action of actions) {
@@ -234,24 +255,11 @@ let addUndefinedRecordFields: codeActionExtractor = ({
           .join(", ");
       }
 
-      let beforeEndingRecordBraceLoc = {
-        line: range.end.line,
-        character: range.end.character - 1,
-      };
-
       let codeAction: p.CodeAction = {
         title: `Add missing record fields`,
         edit: {
           changes: {
-            [file]: [
-              {
-                range: {
-                  start: beforeEndingRecordBraceLoc,
-                  end: beforeEndingRecordBraceLoc,
-                },
-                newText,
-              },
-            ],
+            [file]: insertBeforeEndingChar(range, newText),
           },
         },
         diagnostics: [diagnostic],
@@ -381,6 +389,145 @@ let topLevelUnitType: codeActionExtractor = ({
       edit: {
         changes: {
           [file]: wrapRangeInText(range, "ignore(", ")"),
+        },
+      },
+      diagnostics: [diagnostic],
+      kind: p.CodeActionKind.QuickFix,
+      isPreferred: true,
+    };
+
+    codeActions[file].push({
+      range,
+      codeAction,
+    });
+
+    return true;
+  }
+
+  return false;
+};
+
+// This protects against the fact that the compiler currently returns most
+// text in OCaml. It also ensures that we only return simple constructors.
+let isValidVariantCase = (text: string): boolean => {
+  if (text.startsWith("(") || text.includes(",")) {
+    return false;
+  }
+
+  return true;
+};
+
+// Untransformed is typically OCaml, and looks like these examples:
+//
+// `SomeVariantName
+//
+// SomeVariantWithPayload _
+//
+// ...and we'll need to transform this into proper ReScript. In the future, the
+// compiler itself should of course output real ReScript. But it currently does
+// not.
+let transformVariant = (variant: string): string | null => {
+  // Convert old polyvariant notation to new
+  let text = variant.replace(/`/g, "#");
+
+  // Fix payloads
+  if (text.includes(" ")) {
+    let [variantText, payloadText] = text.split(" ");
+
+    // If the payload itself starts with (, it's another variant with a
+    // constructor. We bail in that case, for now at least. We'll be able to
+    // revisit this in the future when the compiler prints real ReScript syntax.
+    if (payloadText.startsWith("(")) {
+      return null;
+    }
+
+    text = `${variantText}(${payloadText})`;
+  }
+
+  return text;
+};
+
+let simpleAddMissingCases: codeActionExtractor = ({
+  line,
+  codeActions,
+  file,
+  range,
+  diagnostic,
+  array,
+  index,
+}) => {
+  // Examples:
+  //
+  // You forgot to handle a possible case here, for example:
+  // (AnotherValue|Third|Fourth)
+  //
+  // You forgot to handle a possible case here, for example:
+  // (`AnotherValue|`Third|`Fourth)
+  //
+  // You forgot to handle a possible case here, for example:
+  // `AnotherValue
+  //
+  // You forgot to handle a possible case here, for example:
+  // AnotherValue
+
+  if (
+    line.startsWith("You forgot to handle a possible case here, for example:")
+  ) {
+    let cases: string[] = [];
+
+    // This collects the rest of the fields if fields are printed on
+    // multiple lines.
+    array.slice(index + 1).forEach((line) => {
+      let theLine = line.trim();
+
+      let hasMultipleCases = theLine.includes("|");
+
+      if (hasMultipleCases) {
+        cases.push(
+          ...(theLine
+            // Remove leading and ending parens
+            .slice(1, theLine.length - 1)
+            .split("|")
+            .filter(isValidVariantCase)
+            .map(transformVariant)
+            .filter(Boolean) as string[])
+        );
+      } else {
+        let transformed = transformVariant(theLine);
+        if (isValidVariantCase(theLine) && transformed != null) {
+          cases.push(transformed);
+        }
+      }
+    });
+
+    if (cases.length === 0) {
+      return false;
+    }
+
+    // The end char is the closing brace. In switches, the leading `|` always
+    // has the same left padding as the end brace.
+    let paddingContentSwitchCase = Array.from({
+      length: range.end.character,
+    }).join(" ");
+
+    let newText = cases
+      .map((variantName, index) => {
+        // The first case will automatically be padded because we're inserting
+        // it where the end brace is currently located.
+        let padding = index === 0 ? "" : paddingContentSwitchCase;
+        return `${padding}| ${variantName} => assert false`;
+      })
+      .join("\n");
+
+    // Let's put the end brace back where it was (we still have it to the direct right of us).
+    newText += `\n${paddingContentSwitchCase}`;
+
+    codeActions[file] = codeActions[file] || [];
+    let codeAction: p.CodeAction = {
+      title: `Insert missing cases`,
+      edit: {
+        changes: {
+          [file]: insertBeforeEndingChar(range, newText),
         },
       },
       diagnostics: [diagnostic],
