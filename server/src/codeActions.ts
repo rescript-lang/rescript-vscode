@@ -99,6 +99,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
       topLevelUnitType,
       applyUncurried,
       simpleAddMissingCases,
+      simpleWrapOptionalWithSome,
     ];
 
     for (let action of actions) {
@@ -541,6 +542,67 @@ let simpleAddMissingCases: codeActionExtractor = ({
     });
 
     return true;
+  }
+
+  return false;
+};
+
+let simpleWrapOptionalWithSome: codeActionExtractor = ({
+  line,
+  codeActions,
+  file,
+  range,
+  diagnostic,
+  array,
+  index,
+}) => {
+  // Examples:
+  //
+  // 46 │ let as_ = {
+  // 47 │   someProp: "123",
+  // 48 │   another: "123",
+  // 49 │ }
+  // 50 │
+  // This has type: string
+  // Somewhere wanted: option<string>
+
+  if (line.startsWith("Somewhere wanted: option<")) {
+    let somewhereWantedLine = line;
+    let thisHasTypeLine = array[index - 1];
+    let hasTypeText = thisHasTypeLine.split("This has type: ")[1].trim();
+    let somewhereWantedText = somewhereWantedLine
+      .split("Somewhere wanted: option<")[1]
+      .trim();
+
+    // Remove ending `>` so we can compare the underlying types
+    somewhereWantedText = somewhereWantedText.slice(
+      0,
+      somewhereWantedText.length - 1
+    );
+
+    // We only trigger the code action if the thing that's already there is the
+    // exact same type.
+    if (hasTypeText === somewhereWantedText) {
+      codeActions[file] = codeActions[file] || [];
+      let codeAction: p.CodeAction = {
+        title: `Wrap value in Some`,
+        edit: {
+          changes: {
+            [file]: wrapRangeInText(range, "Some(", ")"),
+          },
+        },
+        diagnostics: [diagnostic],
+        kind: p.CodeActionKind.QuickFix,
+        isPreferred: true,
+      };
+
+      codeActions[file].push({
+        range,
+        codeAction,
+      });
+
+      return true;
+    }
   }
 
   return false;
