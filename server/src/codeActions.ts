@@ -100,6 +100,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
       applyUncurried,
       simpleAddMissingCases,
       simpleWrapOptionalWithSome,
+      simpleUnwrapOptional,
     ];
 
     for (let action of actions) {
@@ -589,6 +590,92 @@ let simpleWrapOptionalWithSome: codeActionExtractor = ({
         edit: {
           changes: {
             [file]: wrapRangeInText(range, "Some(", ")"),
+          },
+        },
+        diagnostics: [diagnostic],
+        kind: p.CodeActionKind.QuickFix,
+        isPreferred: true,
+      };
+
+      codeActions[file].push({
+        range,
+        codeAction,
+      });
+
+      return true;
+    }
+  }
+
+  return false;
+};
+
+let simpleUnwrapOptional: codeActionExtractor = ({
+  line,
+  codeActions,
+  file,
+  range,
+  diagnostic,
+  array,
+  index,
+}) => {
+  // Examples:
+  //
+  // 47 │
+  // 48 │ let as_ = {
+  // 49 │   someProp: optional,
+  // 50 │   another: Some("123"),
+  // 51 │ }
+
+  // This has type: option<string>
+  // Somewhere wanted: string
+
+  if (line.startsWith("This has type: option<")) {
+    let thisHasTypeLine = line;
+    let hasTypeText = thisHasTypeLine.split("This has type: option<")[1].trim();
+    // Remove ending `>` so we can compare the underlying types
+    hasTypeText = hasTypeText.slice(0, hasTypeText.length - 1);
+
+    let somewhereWantedLine = array[index + 1];
+    let somewhereWantedText = somewhereWantedLine
+      .split("Somewhere wanted: ")[1]
+      .trim();
+
+    // We only trigger the code action if the thing that's already there is the
+    // exact same type.
+    if (hasTypeText === somewhereWantedText) {
+      codeActions[file] = codeActions[file] || [];
+
+      // We can figure out default values for primitives etc.
+      let defaultValue = "assert false";
+
+      switch (somewhereWantedText) {
+        case "string": {
+          defaultValue = `"-"`;
+          break;
+        }
+        case "bool": {
+          defaultValue = `false`;
+          break;
+        }
+        case "int": {
+          defaultValue = `-1`;
+          break;
+        }
+        case "float": {
+          defaultValue = `-1.`;
+          break;
+        }
+      }
+
+      let codeAction: p.CodeAction = {
+        title: `Unwrap optional value`,
+        edit: {
+          changes: {
+            [file]: wrapRangeInText(
+              range,
+              "switch ",
+              ` { | None => ${defaultValue} | Some(v) => v }`
+            ),
           },
         },
         diagnostics: [diagnostic],
