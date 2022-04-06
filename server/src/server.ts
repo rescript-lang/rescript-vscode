@@ -404,6 +404,31 @@ function semanticTokens(msg: p.RequestMessage) {
   return response;
 }
 
+function semanticTokensRange(msg: p.RequestMessage) {
+  // This works the same as the full semantic tokens request, but we also pass
+  // the range.
+  let params = msg.params as p.SemanticTokensRangeParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir(extension);
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
+  let response = utils.runAnalysisCommand(
+    filePath,
+    [
+      "semanticTokens",
+      tmpname,
+      params.range.start.line,
+      params.range.start.character,
+      params.range.end.line,
+      params.range.end.character,
+    ],
+    msg
+  );
+  fs.unlink(tmpname, () => null);
+  return response;
+}
+
 function completion(msg: p.RequestMessage) {
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -756,8 +781,8 @@ function onMessage(msg: m.Message) {
               tokenModifiers: [],
             },
             documentSelector: null,
-            // TODO: Support range for full, and add delta support
             full: true,
+            range: true,
           },
         },
       };
@@ -819,6 +844,8 @@ function onMessage(msg: m.Message) {
       send(completion(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
       send(semanticTokens(msg));
+    } else if (msg.method === p.SemanticTokensRangeRequest.method) {
+      send(semanticTokensRange(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       let responses = format(msg);
       responses.forEach((response) => send(response));

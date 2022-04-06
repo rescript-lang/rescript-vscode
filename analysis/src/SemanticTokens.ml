@@ -446,3 +446,8 @@ let semanticTokens ~currentFile =
   let emitter = Token.createEmitter () in
   command ~emitter ~debug:false ~path:currentFile;
   Printf.printf "{\"data\":[%s]}" (Token.emit emitter)
+
+let semanticTokensRange ~currentFile ~range:_ =
+  let emitter = Token.createEmitter () in
+  command ~emitter ~debug:false ~path:currentFile;
+  Printf.printf "{\"data\":[%s]}" (Token.emit emitter)
