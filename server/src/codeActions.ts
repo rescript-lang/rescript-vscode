@@ -96,7 +96,6 @@ export let findCodeActionsInDiagnosticsMessage = ({
       didYouMeanAction,
       addUndefinedRecordFields,
       simpleConversion,
-      topLevelUnitType,
       applyUncurried,
       simpleAddMissingCases,
       simpleWrapOptionalWithSome,
@@ -370,41 +369,6 @@ let applyUncurried: codeActionExtractor = ({
               newText: `. `,
             },
           ],
-        },
-      },
-      diagnostics: [diagnostic],
-      kind: p.CodeActionKind.QuickFix,
-      isPreferred: true,
-    };
-
-    codeActions[file].push({
-      range,
-      codeAction,
-    });
-
-    return true;
-  }
-
-  return false;
-};
-
-// This action detects the compiler erroring when it finds a top level value
-// that's not `unit`, and offers to wrap that value in `ignore`, which will make
-// it compile.
-let topLevelUnitType: codeActionExtractor = ({
-  line,
-  codeActions,
-  file,
-  range,
-  diagnostic,
-}) => {
-  if (line.startsWith("Toplevel expression is expected to have unit type.")) {
-    codeActions[file] = codeActions[file] || [];
-    let codeAction: p.CodeAction = {
-      title: `Wrap expression in ignore`,
-      edit: {
-        changes: {
-          [file]: wrapRangeInText(range, "ignore(", ")"),
         },
       },
       diagnostics: [diagnostic],
