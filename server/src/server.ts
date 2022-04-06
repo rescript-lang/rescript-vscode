@@ -416,7 +416,7 @@ function semanticTokensRange(msg: p.RequestMessage) {
   let response = utils.runAnalysisCommand(
     filePath,
     [
-      "semanticTokens",
+      "semanticTokensRange",
       tmpname,
       params.range.start.line,
       params.range.start.character,

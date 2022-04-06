@@ -59,9 +59,12 @@ module Token = struct
     mutable tokens : token list;
     mutable lastLine : int;
     mutable lastChar : int;
+    posStart : (int * int) option;
+    posEnd : (int * int) option;
   }
 
-  let createEmitter () = {tokens = []; lastLine = 0; lastChar = 0}
+  let createEmitter ?posStart ?posEnd () =
+    {tokens = []; lastLine = 0; lastChar = 0; posStart; posEnd}
 
   let add ~line ~char ~length ~type_ e =
     let modifiers = NoModifier in
@@ -81,6 +84,11 @@ module Token = struct
   let emit e =
     let sortedTokens =
       e.tokens
+      |> List.filter (fun (l, c, _, _, _) ->
+             match (e.posStart, e.posEnd) with
+             | Some (lStart, cStart), Some (lEnd, cEnd) ->
+               (lStart, cStart) <= (l, c) && (l, c) < (lEnd, cEnd)
+             | _ -> true)
       |> List.sort (fun (l1, c1, _, _, _) (l2, c2, _, _, _) ->
              if l1 = l2 then compare c1 c2 else compare l1 l2)
     in
@@ -447,7 +455,7 @@ let semanticTokens ~currentFile =
   command ~emitter ~debug:false ~path:currentFile;
   Printf.printf "{\"data\":[%s]}" (Token.emit emitter)
 
-let semanticTokensRange ~currentFile ~range:_ =
-  let emitter = Token.createEmitter () in
+let semanticTokensRange ~currentFile ~posStart ~posEnd =
+  let emitter = Token.createEmitter ~posStart ~posEnd () in
   command ~emitter ~debug:false ~path:currentFile;
   Printf.printf "{\"data\":[%s]}" (Token.emit emitter)

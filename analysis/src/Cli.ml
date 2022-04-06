@@ -87,16 +87,8 @@ let main () =
    _; "semanticTokensRange"; currentFile; startLine; startChar; endLine; endChar;
   ] ->
     SemanticTokens.semanticTokensRange ~currentFile
-      ~range:
-        {
-          Protocol.start =
-            {
-              line = int_of_string startLine;
-              character = int_of_string startChar;
-            };
-          end_ =
-            {line = int_of_string endLine; character = int_of_string endChar};
-        }
+      ~posStart:(int_of_string startLine, int_of_string startChar)
+      ~posEnd:(int_of_string endLine, int_of_string endChar)
   | [_; "createInterface"; path; cmiFile] ->
     Printf.printf "\"%s\""
       (Json.escape (CreateInterface.command ~path ~cmiFile))
