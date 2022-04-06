@@ -86,73 +86,50 @@ let printSignature ~extractor ~signature =
 
   let buf = Buffer.create 10 in
 
+  let getComponentType (typ : Types.type_expr) =
+    let reactElement =
+      Ctype.newconstr (Pdot (Pident (Ident.create "React"), "element", 0)) []
+    in
+    match typ.desc with
+    | Tarrow (_, {desc = Tobject (tObj, _)}, retType, _) -> Some (tObj, retType)
+    | Tconstr
+        ( Pdot (Pident {name = "React"}, "component", _),
+          [{desc = Tobject (tObj, _)}],
+          _ ) ->
+      Some (tObj, reactElement)
+    | Tconstr
+        ( Pdot (Pident {name = "React"}, "componentLike", _),
+          [{desc = Tobject (tObj, _)}; retType],
+          _ ) ->
+      Some (tObj, retType)
+    | _ -> None
+  in
+
   let rec processSignature ~indent (signature : Types.signature) : unit =
     match signature with
     | Sig_value
-        (id1 (* makeProps *), {val_loc = makePropsLoc; val_type = makePropsType})
-      :: Sig_value
-           ( id2 (* make *),
-             ({
-                val_type = {desc = Tarrow (_, {desc = Tobject (tObj, _)}, t2, _)};
-              } as vd2) )
-         :: rest
-      when Ident.name id1 = Ident.name id2 ^ "Props"
-           && (* from implementation *) makePropsLoc.loc_ghost ->
-      (* {"name": string} => React.element  ~~>  (~name:string) => React.element *)
-      let funType = tObj |> objectPropsToFun ~rhs:t2 ~makePropsType in
+        ( makePropsId (* makeProps *),
+          {val_loc = makePropsLoc; val_type = makePropsType} )
+      :: Sig_value (makeId (* make *), makeValueDesc) :: rest
+      when Ident.name makePropsId = Ident.name makeId ^ "Props"
+           && ((* from implementation *) makePropsLoc.loc_ghost
+             || (* from interface *) makePropsLoc = makeValueDesc.val_loc)
+           && getComponentType makeValueDesc.val_type <> None ->
+      (*
+        {"name": string} => retType  ~~>  (~name:string) => retType
+        React.component<{"name": string}>  ~~>  (~name:string) => React.element
+        React.componentLike<{"name": string}, retType>  ~~>  (~name:string) => retType
+      *)
+      let tObj, retType =
+        match getComponentType makeValueDesc.val_type with
+        | None -> assert false
+        | Some (tObj, retType) -> (tObj, retType)
+      in
+      let funType = tObj |> objectPropsToFun ~rhs:retType ~makePropsType in
       let newItemStr =
         sigItemToString
-          (Printtyp.tree_of_value_description id2 {vd2 with val_type = funType})
-      in
-      Buffer.add_string buf (indent ^ "@react.component\n");
-      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
-      processSignature ~indent rest
-    | Sig_value
-        (id1 (* makeProps *), {val_loc = makePropsLoc; val_type = makePropsType})
-      :: Sig_value
-           ( id2 (* make *),
-             ({
-                val_type =
-                  {
-                    desc =
-                      Tconstr
-                        ( Pdot (Pident {name = "React"}, "component", _),
-                          [{desc = Tobject (tObj, _)}],
-                          _ );
-                  };
-              } as vd2) )
-         :: rest
-      when Ident.name id1 = Ident.name id2 ^ "Props"
-           && (* from implementation *) makePropsLoc.loc_ghost ->
-      (* React.component<{"name": string}>  ~~>  (~name:string) => React.element *)
-      let reactElement =
-        Ctype.newconstr (Pdot (Pident (Ident.create "React"), "element", 0)) []
-      in
-      let funType = tObj |> objectPropsToFun ~rhs:reactElement ~makePropsType in
-      let newItemStr =
-        sigItemToString
-          (Printtyp.tree_of_value_description id2 {vd2 with val_type = funType})
-      in
-      Buffer.add_string buf (indent ^ "@react.component\n");
-      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
-      processSignature ~indent rest
-    | Sig_value
-        (id1 (* makeProps *), {val_loc = makePropsLoc; val_type = makePropsType})
-      :: Sig_value
-           ( id2 (* make *),
-             ({
-                val_type =
-                  {desc = Tconstr (_, [{desc = Tobject (tObj, _)}; t2], _)};
-              } as vd2) )
-         :: rest
-      when Ident.name id1 = Ident.name id2 ^ "Props"
-           && (* from interface *) makePropsLoc = vd2.val_loc ->
-      (* React.componentLike<{"name": string}, React.element>  ~~>
-         (~name:string) => React.element *)
-      let funType = tObj |> objectPropsToFun ~rhs:t2 ~makePropsType in
-      let newItemStr =
-        sigItemToString
-          (Printtyp.tree_of_value_description id2 {vd2 with val_type = funType})
+          (Printtyp.tree_of_value_description makeId
+             {makeValueDesc with val_type = funType})
       in
       Buffer.add_string buf (indent ^ "@react.component\n");
       Buffer.add_string buf (indent ^ newItemStr ^ "\n");
