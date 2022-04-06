@@ -133,6 +133,9 @@ interface codeActionExtractorConfig {
 
 type codeActionExtractor = (config: codeActionExtractorConfig) => boolean;
 
+// This action extracts hints the compiler emits for misspelled identifiers, and
+// offers to replace the misspelled name with the correct name suggested by the
+// compiler.
 let didYouMeanAction: codeActionExtractor = ({
   codeActions,
   diagnostic,
@@ -176,6 +179,10 @@ let didYouMeanAction: codeActionExtractor = ({
   return false;
 };
 
+// This action handles when the compiler errors on certain fields of a record
+// being undefined. We then offers an action that inserts all of the record
+// fields, with an `assert false` dummy value. `assert false` is so applying the
+// code action actually compiles.
 let addUndefinedRecordFields: codeActionExtractor = ({
   array,
   codeActions,
@@ -281,6 +288,8 @@ let addUndefinedRecordFields: codeActionExtractor = ({
   return false;
 };
 
+// This action detects suggestions of converting between mismatches in types
+// that the compiler tells us about.
 let simpleConversion: codeActionExtractor = ({
   line,
   codeActions,
@@ -325,6 +334,8 @@ let simpleConversion: codeActionExtractor = ({
   return false;
 };
 
+// This action will apply a curried function (essentially inserting a dot in the
+// correct place).
 let applyUncurried: codeActionExtractor = ({
   line,
   codeActions,
@@ -377,6 +388,9 @@ let applyUncurried: codeActionExtractor = ({
   return false;
 };
 
+// This action detects the compiler erroring when it finds a top level value
+// that's not `unit`, and offers to wrap that value in `ignore`, which will make
+// it compile.
 let topLevelUnitType: codeActionExtractor = ({
   line,
   codeActions,
@@ -449,6 +463,12 @@ let transformVariant = (variant: string): string | null => {
   return text;
 };
 
+// This action detects missing cases for exhaustive pattern matches, and offers
+// to insert dummy branches (using `assert false`) for those branches. Right now
+// it works on single variants/polyvariants with and without payloads. In the
+// future it could be made to work on anything the compiler tell us about, but
+// the compiler needs to emit proper ReScript in the error messages for that to
+// work.
 let simpleAddMissingCases: codeActionExtractor = ({
   line,
   codeActions,
@@ -548,6 +568,9 @@ let simpleAddMissingCases: codeActionExtractor = ({
   return false;
 };
 
+// This detects concrete variables or values put in a position which expects an
+// optional of that same type, and offers to wrap the value/variable in
+// `Some()`.
 let simpleWrapOptionalWithSome: codeActionExtractor = ({
   line,
   codeActions,
@@ -609,6 +632,8 @@ let simpleWrapOptionalWithSome: codeActionExtractor = ({
   return false;
 };
 
+// This detects when an optional is passed into a non optional slot, and offers
+// to insert a switch for unwrapping that optional.
 let simpleUnwrapOptional: codeActionExtractor = ({
   line,
   codeActions,
