@@ -121,7 +121,6 @@ export let formatUsingValidBscNativePath = (
       let result = runAnalysisAfterSanityCheck(
         formatTempFileFullPath,
         ["format", formatTempFileFullPath],
-        false,
         false
       );
 
@@ -144,8 +143,7 @@ export let formatUsingValidBscNativePath = (
 export let runAnalysisAfterSanityCheck = (
   filePath: p.DocumentUri,
   args: Array<any>,
-  projectRequired = false,
-  parseJson = true
+  projectRequired = false
 ) => {
   let binaryPath;
   if (fs.existsSync(c.analysisDevPath)) {
@@ -166,11 +164,7 @@ export let runAnalysisAfterSanityCheck = (
   };
   let stdout = childProcess.execFileSync(binaryPath, args, options);
 
-  if (parseJson) {
-    return JSON.parse(stdout.toString());
-  } else {
-    return stdout.toString();
-  }
+  return JSON.parse(stdout.toString());
 };
 
 export let runAnalysisCommand = (

@@ -256,14 +256,13 @@ let format ~path =
       Res_driver.parsingEngine.parseImplementation ~forPrinter:true
         ~filename:path
     in
-    Res_driver.printEngine.printImplementation !Res_cli.ResClflags.width path
-      comments structure
+    Res_printer.printImplementation !Res_cli.ResClflags.width structure comments
   else if Filename.check_suffix path ".resi" then
     let {Res_driver.parsetree = signature; comments} =
       Res_driver.parsingEngine.parseInterface ~forPrinter:true ~filename:path
     in
-    Res_driver.printEngine.printInterface !Res_cli.ResClflags.width path
-      comments signature
+    Res_printer.printInterface !Res_cli.ResClflags.width signature comments
+  else ""
 
 let test ~path =
   Uri2.stripPath := true;

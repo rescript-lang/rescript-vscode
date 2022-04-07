@@ -90,7 +90,8 @@ let main () =
   | [_; "createInterface"; path; cmiFile] ->
     Printf.printf "\"%s\""
       (Json.escape (CreateInterface.command ~path ~cmiFile))
-  | [_; "format"; path] -> Commands.format ~path
+  | [_; "format"; path] ->
+    Printf.printf "\"%s\"" (Json.escape (Commands.format ~path))
   | [_; "test"; path] -> Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
   | _ ->
