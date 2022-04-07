@@ -386,7 +386,8 @@ function documentSymbol(msg: p.RequestMessage) {
   let response = utils.runAnalysisCommand(
     filePath,
     ["documentSymbol", tmpname],
-    msg
+    msg,
+    /* projectRequired */ false
   );
   fs.unlink(tmpname, () => null);
   return response;
