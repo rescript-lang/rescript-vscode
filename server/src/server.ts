@@ -379,11 +379,16 @@ function documentSymbol(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
   let params = msg.params as p.DocumentSymbolParams;
   let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir(extension);
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = utils.runAnalysisCommand(
     filePath,
-    ["documentSymbol", filePath],
+    ["documentSymbol", tmpname],
     msg
   );
+  fs.unlink(tmpname, () => null);
   return response;
 }
 
