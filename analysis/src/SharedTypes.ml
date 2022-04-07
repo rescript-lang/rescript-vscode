@@ -389,27 +389,3 @@ let locItemToString {loc = {Location.loc_start; loc_end}; locType} =
 
 (* needed for debugging *)
 let _ = locItemToString
-
-module SymbolKind = struct
-  type t =
-    | Module
-    | Property
-    | Function
-    | Variable
-    | Constant
-    | String
-    | Number
-    | EnumMember
-    | TypeParameter
-end
-
-let symbolKind = function
-  | SymbolKind.Module -> 2
-  | Property -> 7
-  | Function -> 12
-  | Variable -> 13
-  | Constant -> 14
-  | String -> 15
-  | Number -> 16
-  | EnumMember -> 22
-  | TypeParameter -> 26
