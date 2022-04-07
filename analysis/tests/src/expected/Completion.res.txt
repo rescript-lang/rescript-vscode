@@ -616,6 +616,11 @@ DocumentSymbol tests/src/Completion.res
         "location": {"uri": "Completion.res", "range": {"start": {"line": 113, "character": 2}, "end": {"line": 113, "character": 22}}}
 },
 {
+        "name": "Inner",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 115, "character": 2}, "end": {"line": 118, "character": 3}}}
+},
+{
         "name": "z",
         "kind": 26,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 16}}}

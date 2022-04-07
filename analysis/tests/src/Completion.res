@@ -117,5 +117,5 @@ let foo = {
     type z = int
     let v = 44
   }
-  add(x, y)
+  add((x: Inner.z), Inner.v + y)
 }

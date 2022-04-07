@@ -34,14 +34,6 @@ let command ~path =
     | Pexp_constant _ -> Constant
     | _ -> Variable
   in
-  let value_binding (iterator : Ast_iterator.iterator)
-      (vb : Parsetree.value_binding) =
-    (match vb.pvb_pat.ppat_desc with
-    | Ppat_var {txt} | Ppat_constraint ({ppat_desc = Ppat_var {txt}}, _) ->
-      symbols := (txt, vb.pvb_loc, exprKind vb.pvb_expr) :: !symbols
-    | _ -> ());
-    Ast_iterator.default_iterator.value_binding iterator vb
-  in
   let processTypeKind (tk : Parsetree.type_kind) =
     match tk with
     | Ptype_variant constrDecls ->
@@ -66,6 +58,23 @@ let command ~path =
   in
   let processModuleDeclaration (md : Parsetree.module_declaration) =
     symbols := (md.pmd_name.txt, md.pmd_loc, Module) :: !symbols
+  in
+  let value_binding (iterator : Ast_iterator.iterator)
+      (vb : Parsetree.value_binding) =
+    (match vb.pvb_pat.ppat_desc with
+    | Ppat_var {txt} | Ppat_constraint ({ppat_desc = Ppat_var {txt}}, _) ->
+      symbols := (txt, vb.pvb_loc, exprKind vb.pvb_expr) :: !symbols
+    | _ -> ());
+    Ast_iterator.default_iterator.value_binding iterator vb
+  in
+  let expr (iterator : Ast_iterator.iterator) (e : Parsetree.expression) =
+    (match e.pexp_desc with
+    | Pexp_letmodule ({txt}, modExpr, _) ->
+      symbols :=
+        (txt, {e.pexp_loc with loc_end = modExpr.pmod_loc.loc_end}, Module)
+        :: !symbols
+    | _ -> ());
+    Ast_iterator.default_iterator.expr iterator e
   in
   let structure_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.structure_item) =
@@ -99,9 +108,10 @@ let command ~path =
   let iterator =
     {
       Ast_iterator.default_iterator with
-      structure_item;
-      signature_item;
+      expr;
       module_expr;
+      signature_item;
+      structure_item;
       value_binding;
     }
   in
