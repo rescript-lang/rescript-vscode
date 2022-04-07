@@ -250,6 +250,19 @@ let rename ~path ~line ~col ~newName =
   in
   print_endline result
 
+let format ~path =
+  if Filename.check_suffix path ".res" then
+    let {Res_driver.parsetree = structure; comments} =
+      Res_driver.parsingEngine.parseImplementation ~forPrinter:true
+        ~filename:path
+    in
+    Res_driver.printEngine.printImplementation 80 path comments structure
+  else if Filename.check_suffix path ".resi" then
+    let {Res_driver.parsetree = structure; comments} =
+      Res_driver.parsingEngine.parseInterface ~forPrinter:true ~filename:path
+    in
+    Res_driver.printEngine.printInterface 80 path comments structure
+
 let test ~path =
   Uri2.stripPath := true;
   match Files.readFile path with

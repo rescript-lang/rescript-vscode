@@ -56,6 +56,10 @@ Options:
 
     ./rescript-editor-analysis.exe createInterface src/MyFile.res lib/bs/src/MyFile.cmi
 
+  format: print to stdout the formatted version of the provided file
+
+    ./rescript-editor-analysis.exe format src/MyFile.res
+
   test: run tests specified by special comments in file src/MyFile.res
 
     ./rescript-editor-analysis.exe test src/src/MyFile.res
@@ -86,6 +90,7 @@ let main () =
   | [_; "createInterface"; path; cmiFile] ->
     Printf.printf "\"%s\""
       (Json.escape (CreateInterface.command ~path ~cmiFile))
+  | [_; "format"; path] -> Commands.format ~path
   | [_; "test"; path] -> Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
   | _ ->
