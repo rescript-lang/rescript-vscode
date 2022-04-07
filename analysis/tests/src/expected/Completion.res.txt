@@ -593,7 +593,7 @@ DocumentSymbol tests/src/Completion.res
 {
         "name": "foo",
         "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 103, "character": 0}, "end": {"line": 120, "character": 1}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 103, "character": 0}, "end": {"line": 122, "character": 1}}}
 },
 {
         "name": "x",
@@ -629,6 +629,16 @@ DocumentSymbol tests/src/Completion.res
         "name": "v",
         "kind": 16,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 117, "character": 4}, "end": {"line": 117, "character": 14}}}
+},
+{
+        "name": "MyException",
+        "kind": 9,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 119, "character": 2}, "end": {"line": 119, "character": 62}}}
+},
+{
+        "name": "MyOtherException",
+        "kind": 9,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 124, "character": 0}, "end": {"line": 124, "character": 26}}}
 }
 ]
 
