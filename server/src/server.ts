@@ -740,7 +740,7 @@ function onMessage(msg: m.Message) {
           referencesProvider: true,
           renameProvider: { prepareProvider: true },
           // disabled right now until we use the parser to show non-stale symbols per keystroke
-          // documentSymbolProvider: true,
+          documentSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
           semanticTokensProvider: {
             legend: {
