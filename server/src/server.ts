@@ -398,7 +398,8 @@ function semanticTokens(msg: p.RequestMessage) {
   let response = utils.runAnalysisCommand(
     filePath,
     ["semanticTokens", tmpname],
-    msg
+    msg,
+    /* projectRequired */ false
   );
   fs.unlink(tmpname, () => null);
   return response;

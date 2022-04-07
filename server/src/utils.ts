@@ -127,7 +127,8 @@ export let formatUsingValidBscNativePath = (
 
 export let runAnalysisAfterSanityCheck = (
   filePath: p.DocumentUri,
-  args: Array<any>
+  args: Array<any>,
+  projectRequired=false
 ) => {
   let binaryPath;
   if (fs.existsSync(c.analysisDevPath)) {
@@ -139,11 +140,11 @@ export let runAnalysisAfterSanityCheck = (
   }
 
   let projectRootPath = findProjectRootOfFile(filePath);
-  if (projectRootPath == null) {
+  if (projectRootPath == null && projectRequired) {
     return null;
   }
   let options: childProcess.ExecFileSyncOptions = {
-    cwd: projectRootPath,
+    cwd: projectRootPath || undefined,
     maxBuffer: Infinity,
   };
   let stdout = childProcess.execFileSync(binaryPath, args, options);
@@ -153,9 +154,10 @@ export let runAnalysisAfterSanityCheck = (
 export let runAnalysisCommand = (
   filePath: p.DocumentUri,
   args: Array<any>,
-  msg: RequestMessage
+  msg: RequestMessage,
+  projectRequired = true
 ) => {
-  let result = runAnalysisAfterSanityCheck(filePath, args);
+  let result = runAnalysisAfterSanityCheck(filePath, args, projectRequired);
   let response: ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
