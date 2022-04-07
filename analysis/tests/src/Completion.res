@@ -113,5 +113,9 @@ let foo = {
     }
   let z = assert false
   let _ = z
+  module Inner = {
+    type z = int
+    let v = 44
+  }
   add(x, y)
 }
