@@ -76,7 +76,7 @@ let main () =
   | [_; "typeDefinition"; path; line; col] ->
     Commands.typeDefinition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
-  | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
+  | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
   | [_; "hover"; path; line; col] ->
     Commands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
   | [_; "references"; path; line; col] ->

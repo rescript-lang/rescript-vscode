@@ -379,11 +379,17 @@ function documentSymbol(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
   let params = msg.params as p.DocumentSymbolParams;
   let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir(extension);
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = utils.runAnalysisCommand(
     filePath,
-    ["documentSymbol", filePath],
-    msg
+    ["documentSymbol", tmpname],
+    msg,
+    /* projectRequired */ false
   );
+  fs.unlink(tmpname, () => null);
   return response;
 }
 
@@ -727,8 +733,7 @@ function onMessage(msg: m.Message) {
           typeDefinitionProvider: true,
           referencesProvider: true,
           renameProvider: { prepareProvider: true },
-          // disabled right now until we use the parser to show non-stale symbols per keystroke
-          // documentSymbolProvider: true,
+          documentSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
           semanticTokensProvider: {
             legend: {

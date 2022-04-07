@@ -83,7 +83,7 @@ module Module = struct
     | Type of Type.t * Types.rec_status
     | Module of t
 
-  and item = {kind : kind; name : string; extentLoc : Location.t}
+  and item = {kind : kind; name : string}
 
   and structure = {
     docstring : string list;
@@ -389,49 +389,3 @@ let locItemToString {loc = {Location.loc_start; loc_end}; locType} =
 
 (* needed for debugging *)
 let _ = locItemToString
-
-module SymbolKind = struct
-  type t =
-    | Module
-    | Enum
-    | Interface
-    | Function
-    | Variable
-    | Array
-    | Object
-    | Null
-    | EnumMember
-    | TypeParameter
-end
-
-let rec variableKind t =
-  match t.Types.desc with
-  | Tlink t -> variableKind t
-  | Tsubst t -> variableKind t
-  | Tarrow _ -> SymbolKind.Function
-  | Ttuple _ -> Array
-  | Tconstr _ -> Variable
-  | Tobject _ -> Object
-  | Tnil -> Null
-  | Tvariant _ -> EnumMember
-  | Tpoly _ -> EnumMember
-  | Tpackage _ -> Module
-  | _ -> Variable
-
-let symbolKind = function
-  | SymbolKind.Module -> 2
-  | Enum -> 10
-  | Interface -> 11
-  | Function -> 12
-  | Variable -> 13
-  | Array -> 18
-  | Object -> 19
-  | Null -> 21
-  | EnumMember -> 22
-  | TypeParameter -> 26
-
-let declarationKind t =
-  match t.Types.type_kind with
-  | Type_open | Type_abstract -> SymbolKind.TypeParameter
-  | Type_record _ -> Interface
-  | Type_variant _ -> Enum
