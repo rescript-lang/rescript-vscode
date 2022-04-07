@@ -593,7 +593,7 @@ DocumentSymbol tests/src/Completion.res
 {
         "name": "foo",
         "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 103, "character": 0}, "end": {"line": 116, "character": 1}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 103, "character": 0}, "end": {"line": 120, "character": 1}}}
 },
 {
         "name": "x",
@@ -614,6 +614,16 @@ DocumentSymbol tests/src/Completion.res
         "name": "z",
         "kind": 13,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 113, "character": 2}, "end": {"line": 113, "character": 22}}}
+},
+{
+        "name": "z",
+        "kind": 26,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 16}}}
+},
+{
+        "name": "v",
+        "kind": 16,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 117, "character": 4}, "end": {"line": 117, "character": 14}}}
 }
 ]
 
