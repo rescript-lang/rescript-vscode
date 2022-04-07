@@ -53,7 +53,6 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
       {
         Module.kind = Module.Value declared.item;
         name = declared.name.txt;
-        extentLoc = declared.extentLoc;
       };
     ]
   | Sig_type
@@ -132,7 +131,6 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
       {
         Module.kind = Type (declared.item, recStatus);
         name = declared.name.txt;
-        extentLoc = declared.extentLoc;
       };
     ]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
@@ -148,7 +146,6 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
       {
         Module.kind = Module declared.item;
         name = declared.name.txt;
-        extentLoc = declared.extentLoc;
       };
     ]
   | _ -> []
@@ -237,7 +234,6 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
   {
     Module.kind = Module.Type (declared.item, recStatus);
     name = declared.name.txt;
-    extentLoc = declared.extentLoc;
   }
 
 let rec forSignatureItem ~env ~(exported : Exported.t)
@@ -255,7 +251,6 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
       {
         Module.kind = Module.Value declared.item;
         name = declared.name.txt;
-        extentLoc = declared.extentLoc;
       };
     ]
   | Tsig_type (recFlag, decls) ->
@@ -281,7 +276,6 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
       {
         Module.kind = Module declared.item;
         name = declared.name.txt;
-        extentLoc = declared.extentLoc;
       };
     ]
   | Tsig_recmodule modDecls ->
@@ -357,11 +351,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
             Stamps.addValue
         in
         items :=
-          {
-            Module.kind = Module.Value declared.item;
-            name = declared.name.txt;
-            extentLoc = declared.extentLoc;
-          }
+          {Module.kind = Module.Value declared.item; name = declared.name.txt}
           :: !items
       | Tpat_tuple pats | Tpat_array pats | Tpat_construct (_, _, pats) ->
         pats |> List.iter (fun p -> handlePattern [] p)
@@ -389,7 +379,6 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
       {
         Module.kind = Module declared.item;
         name = declared.name.txt;
-        extentLoc = declared.extentLoc;
       };
     ]
   | Tstr_recmodule modDecls ->
@@ -421,7 +410,6 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
       {
         Module.kind = Module modTypeItem;
         name = declared.name.txt;
-        extentLoc = declared.extentLoc;
       };
     ]
   | Tstr_include {incl_mod; incl_type} ->
@@ -451,7 +439,6 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
       {
         Module.kind = Value declared.item;
         name = declared.name.txt;
-        extentLoc = declared.extentLoc;
       };
     ]
   | Tstr_type (recFlag, decls) ->
@@ -1080,7 +1067,7 @@ struct
       addScopeExtent expression.exp_loc
     | Texp_function {cases} -> (
       match cases with
-      | [{c_lhs = {pat_desc = Tpat_var _}; c_rhs}]->
+      | [{c_lhs = {pat_desc = Tpat_var _}; c_rhs}] ->
         addScopeExtent c_rhs.exp_loc
       | _ -> ())
     | _ -> ()
