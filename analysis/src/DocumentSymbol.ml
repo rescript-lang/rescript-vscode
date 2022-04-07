@@ -34,11 +34,13 @@ let command ~path =
     | Pexp_constant _ -> Constant
     | _ -> Variable
   in
-  let processValueBinding (vb : Parsetree.value_binding) =
-    match vb.pvb_pat.ppat_desc with
+  let value_binding (iterator : Ast_iterator.iterator)
+      (vb : Parsetree.value_binding) =
+    (match vb.pvb_pat.ppat_desc with
     | Ppat_var {txt} | Ppat_constraint ({ppat_desc = Ppat_var {txt}}, _) ->
       symbols := (txt, vb.pvb_loc, exprKind vb.pvb_expr) :: !symbols
-    | _ -> ()
+    | _ -> ());
+    Ast_iterator.default_iterator.value_binding iterator vb
   in
   let processTypeKind (tk : Parsetree.type_kind) =
     match tk with
@@ -68,8 +70,7 @@ let command ~path =
   let structure_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.structure_item) =
     (match item.pstr_desc with
-    | Pstr_value (_recFlag, valueBindings) ->
-      valueBindings |> List.iter processValueBinding
+    | Pstr_value _ -> ()
     | Pstr_primitive vd -> processValueDescription vd
     | Pstr_type (_, typDecls) -> typDecls |> List.iter processTypeDeclaration
     | Pstr_module mb -> processModuleBinding mb
@@ -101,6 +102,7 @@ let command ~path =
       structure_item;
       signature_item;
       module_expr;
+      value_binding;
     }
   in
 

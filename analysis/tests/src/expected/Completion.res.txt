@@ -589,6 +589,31 @@ DocumentSymbol tests/src/Completion.res
         "name": "make",
         "kind": 12,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 96, "character": 0}, "end": {"line": 99, "character": 1}}}
+},
+{
+        "name": "foo",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 103, "character": 0}, "end": {"line": 116, "character": 1}}}
+},
+{
+        "name": "x",
+        "kind": 16,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 104, "character": 2}, "end": {"line": 106, "character": 3}}}
+},
+{
+        "name": "y",
+        "kind": 16,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 107, "character": 2}, "end": {"line": 107, "character": 11}}}
+},
+{
+        "name": "add",
+        "kind": 12,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 108, "character": 2}, "end": {"line": 112, "character": 5}}}
+},
+{
+        "name": "z",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 113, "character": 2}, "end": {"line": 113, "character": 22}}}
 }
 ]
 
