@@ -117,5 +117,9 @@ let foo = {
     type z = int
     let v = 44
   }
+  exception MyException (int, string, float, array<Js.Json.t>)
+  let _ = raise(MyException(2, "", 1.0, []))
   add((x: Inner.z), Inner.v + y)
 }
+
+exception MyOtherException

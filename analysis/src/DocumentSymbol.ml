@@ -3,6 +3,7 @@
 type kind =
   | Module
   | Property
+  | Constructor
   | Function
   | Variable
   | Constant
@@ -14,6 +15,7 @@ type kind =
 let kindNumber = function
   | Module -> 2
   | Property -> 7
+  | Constructor -> 9
   | Function -> 12
   | Variable -> 13
   | Constant -> 14
@@ -59,6 +61,9 @@ let command ~path =
   let processModuleDeclaration (md : Parsetree.module_declaration) =
     symbols := (md.pmd_name.txt, md.pmd_loc, Module) :: !symbols
   in
+  let processExtensionConstructor (et : Parsetree.extension_constructor) =
+    symbols := (et.pext_name.txt, et.pext_loc, Constructor) :: !symbols
+  in
   let value_binding (iterator : Ast_iterator.iterator)
       (vb : Parsetree.value_binding) =
     (match vb.pvb_pat.ppat_desc with
@@ -73,6 +78,7 @@ let command ~path =
       symbols :=
         (txt, {e.pexp_loc with loc_end = modExpr.pmod_loc.loc_end}, Module)
         :: !symbols
+    | Pexp_letexception (ec, _) -> processExtensionConstructor ec
     | _ -> ());
     Ast_iterator.default_iterator.expr iterator e
   in
@@ -84,6 +90,7 @@ let command ~path =
     | Pstr_type (_, typDecls) -> typDecls |> List.iter processTypeDeclaration
     | Pstr_module mb -> processModuleBinding mb
     | Pstr_recmodule mbs -> mbs |> List.iter processModuleBinding
+    | Pstr_exception ec -> processExtensionConstructor ec
     | _ -> Ast_iterator.default_iterator.structure_item iterator item);
     Ast_iterator.default_iterator.structure_item iterator item
   in
@@ -94,6 +101,7 @@ let command ~path =
     | Psig_type (_, typDecls) -> typDecls |> List.iter processTypeDeclaration
     | Psig_module md -> processModuleDeclaration md
     | Psig_recmodule mds -> mds |> List.iter processModuleDeclaration
+    | Psig_exception ec -> processExtensionConstructor ec
     | _ -> ());
     Ast_iterator.default_iterator.signature_item iterator item
   in
