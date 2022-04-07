@@ -1,18 +1,18 @@
-module SymbolKind = struct
-  type t =
-    | Module
-    | Property
-    | Function
-    | Variable
-    | Constant
-    | String
-    | Number
-    | EnumMember
-    | TypeParameter
-end
+(* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol *)
 
-let symbolKind = function
-  | SymbolKind.Module -> 2
+type kind =
+  | Module
+  | Property
+  | Function
+  | Variable
+  | Constant
+  | String
+  | Number
+  | EnumMember
+  | TypeParameter
+
+let kindNumber = function
+  | Module -> 2
   | Property -> 7
   | Function -> 12
   | Variable -> 13
@@ -26,13 +26,13 @@ let command ~path =
   let symbols = ref [] in
   let rec exprKind (exp : Parsetree.expression) =
     match exp.pexp_desc with
-    | Pexp_fun _ -> SymbolKind.Function
-    | Pexp_function _ -> SymbolKind.Function
+    | Pexp_fun _ -> Function
+    | Pexp_function _ -> Function
     | Pexp_constraint (e, _) -> exprKind e
-    | Pexp_constant (Pconst_string _) -> SymbolKind.String
-    | Pexp_constant (Pconst_float _ | Pconst_integer _) -> SymbolKind.Number
-    | Pexp_constant _ -> SymbolKind.Constant
-    | _ -> SymbolKind.Variable
+    | Pexp_constant (Pconst_string _) -> String
+    | Pexp_constant (Pconst_float _ | Pconst_integer _) -> Number
+    | Pexp_constant _ -> Constant
+    | _ -> Variable
   in
   let processValueBinding (vb : Parsetree.value_binding) =
     match vb.pvb_pat.ppat_desc with
@@ -45,28 +45,25 @@ let command ~path =
     | Ptype_variant constrDecls ->
       constrDecls
       |> List.iter (fun (cd : Parsetree.constructor_declaration) ->
-             symbols :=
-               (cd.pcd_name.txt, cd.pcd_loc, SymbolKind.EnumMember) :: !symbols)
+             symbols := (cd.pcd_name.txt, cd.pcd_loc, EnumMember) :: !symbols)
     | Ptype_record labelDecls ->
       labelDecls
       |> List.iter (fun (ld : Parsetree.label_declaration) ->
-             symbols :=
-               (ld.pld_name.txt, ld.pld_loc, SymbolKind.Property) :: !symbols)
+             symbols := (ld.pld_name.txt, ld.pld_loc, Property) :: !symbols)
     | _ -> ()
   in
   let processTypeDeclaration (td : Parsetree.type_declaration) =
-    symbols :=
-      (td.ptype_name.txt, td.ptype_loc, SymbolKind.TypeParameter) :: !symbols;
+    symbols := (td.ptype_name.txt, td.ptype_loc, TypeParameter) :: !symbols;
     processTypeKind td.ptype_kind
   in
   let processValueDescription (vd : Parsetree.value_description) =
-    symbols := (vd.pval_name.txt, vd.pval_loc, SymbolKind.Variable) :: !symbols
+    symbols := (vd.pval_name.txt, vd.pval_loc, Variable) :: !symbols
   in
   let processModuleBinding (mb : Parsetree.module_binding) =
-    symbols := (mb.pmb_name.txt, mb.pmb_loc, SymbolKind.Module) :: !symbols
+    symbols := (mb.pmb_name.txt, mb.pmb_loc, Module) :: !symbols
   in
   let processModuleDeclaration (md : Parsetree.module_declaration) =
-    symbols := (md.pmd_name.txt, md.pmd_loc, SymbolKind.Module) :: !symbols
+    symbols := (md.pmd_name.txt, md.pmd_loc, Module) :: !symbols
   in
   let structure_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.structure_item) =
@@ -128,7 +125,7 @@ let command ~path =
                    uri = Uri2.toString (Uri2.fromPath path);
                    range = Utils.cmtLocToRange loc;
                  };
-               kind = symbolKind kind;
+               kind = kindNumber kind;
              })
     |> String.concat ",\n"
   in
