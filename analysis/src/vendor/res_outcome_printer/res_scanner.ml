@@ -445,10 +445,12 @@ let scanMultiLineComment scanner =
       scan ~depth
   in
   scan ~depth:0;
+  let length = scanner.offset - 2 - contentStartOff in
+  let length = if length < 0 (* in case of EOF *) then 0 else length in
   Token.Comment (
     Comment.makeMultiLineComment
       ~loc:(Location.{loc_start = startPos; loc_end = (position scanner); loc_ghost = false})
-      ((String.sub [@doesNotRaise]) scanner.src contentStartOff (scanner.offset - 2 - contentStartOff))
+      ((String.sub [@doesNotRaise]) scanner.src contentStartOff length)
   )
 
 let scanTemplateLiteralToken scanner =
