@@ -248,6 +248,10 @@
     "constructor": {
       "patterns": [
         {
+          "match": "\\b[A-Z][0-9a-zA-Z_]*\\b",
+          "name": "variable.other.enummember"
+        },
+        {
           "match": "(#)\\s*([a-zA-Z][0-9a-zA-Z_]*)\\b",
           "captures": {
             "1": {
