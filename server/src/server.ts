@@ -466,7 +466,7 @@ function format(msg: p.RequestMessage): Array<m.Message> {
 
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
-    let formattedResult = utils.formatUsingValidBscNativePath(
+    let formattedResult = utils.formatCode(
       code,
       bscNativePath,
       extension === c.resiExt

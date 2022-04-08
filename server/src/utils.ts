@@ -93,7 +93,7 @@ type execResult =
       kind: "error";
       error: string;
     };
-export let formatUsingValidBscNativePath = (
+export let formatCode = (
   code: string,
   bscNativePath: p.DocumentUri | null,
   isInterface: boolean
@@ -123,6 +123,16 @@ export let formatUsingValidBscNativePath = (
         ["format", formatTempFileFullPath],
         false
       );
+
+      // The formatter returning an empty string means it couldn't format the
+      // sources, probably because of errors. In that case, we bail from
+      // formatting by returning the unformatted content.
+      if (result === "") {
+        return {
+          kind: "success",
+          result: code,
+        };
+      }
 
       return {
         kind: "success",
