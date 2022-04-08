@@ -92,7 +92,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
   diagnosticMessage.forEach((line, index, array) => {
     // Because of how actions work, there can only be one per diagnostic. So,
     // halt whenever a code action has been found.
-    let actions = [
+    let codeActionEtractors = [
       didYouMeanAction,
       addUndefinedRecordFields,
       simpleConversion,
@@ -102,9 +102,11 @@ export let findCodeActionsInDiagnosticsMessage = ({
       simpleUnwrapOptional,
     ];
 
-    for (let action of actions) {
-      if (
-        action({
+    for (let extractCodeAction of codeActionEtractors) {
+      let didFindAction = false;
+
+      try {
+        didFindAction = extractCodeAction({
           array,
           codeActions,
           diagnostic,
@@ -112,8 +114,12 @@ export let findCodeActionsInDiagnosticsMessage = ({
           index,
           line,
           range,
-        })
-      ) {
+        });
+      } catch (e) {
+        console.error(e);
+      }
+
+      if (didFindAction) {
         break;
       }
     }
