@@ -142,46 +142,6 @@ let references ~path ~line ~col =
     (if allLocs = [] then Protocol.null
     else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
 
-let documentSymbol ~path =
-  let result =
-    match Cmt.fromPath ~path with
-    | None -> Protocol.null
-    | Some {file} ->
-      let open SharedTypes in
-      let rec getItems topLevel =
-        let rec getItem = function
-          | Module.Value v -> (v |> variableKind, [])
-          | Type (t, _) -> (t.decl |> declarationKind, [])
-          | Module (Structure contents) -> (Module, getItems contents.items)
-          | Module (Constraint (_, modTypeItem)) -> getItem (Module modTypeItem)
-          | Module (Ident _) -> (Module, [])
-        in
-        let fn {Module.name; extentLoc; kind} =
-          let item, siblings = getItem kind in
-          if extentLoc.loc_ghost then siblings
-          else (name, extentLoc, item) :: siblings
-        in
-        let x = topLevel |> List.map fn |> List.concat in
-        x
-      in
-      let allSymbols =
-        getItems file.structure.items
-        |> List.map (fun (name, loc, kind) ->
-               Protocol.stringifyDocumentSymbolItem
-                 {
-                   name;
-                   location =
-                     {
-                       uri = Uri2.toString (Uri2.fromPath path);
-                       range = Utils.cmtLocToRange loc;
-                     };
-                   kind = symbolKind kind;
-                 })
-      in
-      "[\n" ^ (allSymbols |> String.concat ",\n") ^ "\n]"
-  in
-  print_endline result
-
 let rename ~path ~line ~col ~newName =
   let result =
     match Cmt.fromPath ~path with
@@ -254,6 +214,24 @@ let rename ~path ~line ~col ~newName =
   in
   print_endline result
 
+let format ~path =
+  if Filename.check_suffix path ".res" then
+    let {Res_driver.parsetree = structure; comments; diagnostics} =
+      Res_driver.parsingEngine.parseImplementation ~forPrinter:true
+        ~filename:path
+    in
+    if List.length diagnostics > 0 then ""
+    else
+      Res_printer.printImplementation !Res_cli.ResClflags.width structure
+        comments
+  else if Filename.check_suffix path ".resi" then
+    let {Res_driver.parsetree = signature; comments; diagnostics} =
+      Res_driver.parsingEngine.parseInterface ~forPrinter:true ~filename:path
+    in
+    if List.length diagnostics > 0 then ""
+    else Res_printer.printInterface !Res_cli.ResClflags.width signature comments
+  else ""
+
 let test ~path =
   Uri2.stripPath := true;
   match Files.readFile path with
@@ -294,7 +272,7 @@ let test ~path =
             references ~path ~line ~col
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
-            documentSymbol ~path
+            DocumentSymbol.command ~path
           | "ren" ->
             let newName = String.sub rest 4 (len - mlen - 4) in
             let () =

@@ -94,27 +94,49 @@ type execResult =
       kind: "error";
       error: string;
     };
-export let formatUsingValidBscNativePath = (
-  code: string,
-  bscNativePath: p.DocumentUri,
-  isInterface: boolean
-): execResult => {
-  let extension = isInterface ? c.resiExt : c.resExt;
+export let formatCode = (filePath: string, code: string): execResult => {
+  let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
   fs.writeFileSync(formatTempFileFullPath, code, {
     encoding: "utf-8",
   });
   try {
-    let result = childProcess.execFileSync(bscNativePath, [
-      "-color",
-      "never",
-      "-format",
-      formatTempFileFullPath,
-    ]);
-    return {
-      kind: "success",
-      result: result.toString(),
-    };
+    // See comment on findBscNativeDirOfFile for why we need
+    // to recursively search for bsc.exe upward
+    let bscNativePath = findBscNativeOfFile(filePath);
+
+    // Default to using the project formatter. If not, use the one we ship with
+    // the analysis binary in the extension itself.
+    if (bscNativePath != null) {
+      let result = childProcess.execFileSync(bscNativePath, [
+        "-color",
+        "never",
+        "-format",
+        formatTempFileFullPath,
+      ]);
+      return {
+        kind: "success",
+        result: result.toString(),
+      };
+    } else {
+      let result = runAnalysisAfterSanityCheck(
+        formatTempFileFullPath,
+        ["format", formatTempFileFullPath],
+        false
+      );
+
+      // The formatter returning an empty string means it couldn't format the
+      // sources, probably because of errors. In that case, we bail from
+      // formatting by returning the unformatted content.
+      if (result === "") {
+        result = code;
+      }
+
+      return {
+        kind: "success",
+        result,
+      };
+    }
   } catch (e) {
     return {
       kind: "error",
@@ -128,7 +150,8 @@ export let formatUsingValidBscNativePath = (
 
 export let runAnalysisAfterSanityCheck = (
   filePath: p.DocumentUri,
-  args: Array<any>
+  args: Array<any>,
+  projectRequired = false
 ) => {
   let binaryPath;
   if (fs.existsSync(c.analysisDevPath)) {
@@ -140,23 +163,25 @@ export let runAnalysisAfterSanityCheck = (
   }
 
   let projectRootPath = findProjectRootOfFile(filePath);
-  if (projectRootPath == null) {
+  if (projectRootPath == null && projectRequired) {
     return null;
   }
   let options: childProcess.ExecFileSyncOptions = {
-    cwd: projectRootPath,
+    cwd: projectRootPath || undefined,
     maxBuffer: Infinity,
   };
   let stdout = childProcess.execFileSync(binaryPath, args, options);
+
   return JSON.parse(stdout.toString());
 };
 
 export let runAnalysisCommand = (
   filePath: p.DocumentUri,
   args: Array<any>,
-  msg: RequestMessage
+  msg: RequestMessage,
+  projectRequired = true
 ) => {
-  let result = runAnalysisAfterSanityCheck(filePath, args);
+  let result = runAnalysisAfterSanityCheck(filePath, args, projectRequired);
   let response: ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,

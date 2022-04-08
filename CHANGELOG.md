@@ -1,4 +1,5 @@
 ## master
+
 - Fix issue where using paths of the form `./something` would show multiple copies of the same file in vscode.
 - When hovering on a field access, show the instantiated type of the field.
 - Support autocomplete for objects from another module `M.x[...`.
@@ -8,6 +9,8 @@
 - Report "Fatal error" when it happens in the compiler log (e.g. a make function with type annotation) and don't crash the extension.
 - Fix issue in functions the form "~foo as name" where the location would only cover "ame".
 - Extend the command to create an interface file, to support components and ReScript decorators used in bindings.
+- Enable formatting files without needing the file to be in an actual ReScript project.
+- New feature: Show Outline which was previously disabled.
 
 ## 1.2.1
 

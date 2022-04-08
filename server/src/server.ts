@@ -388,11 +388,17 @@ function documentSymbol(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
   let params = msg.params as p.DocumentSymbolParams;
   let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir(extension);
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = utils.runAnalysisCommand(
     filePath,
-    ["documentSymbol", filePath],
-    msg
+    ["documentSymbol", tmpname],
+    msg,
+    /* projectRequired */ false
   );
+  fs.unlink(tmpname, () => null);
   return response;
 }
 
@@ -407,7 +413,8 @@ function semanticTokens(msg: p.RequestMessage) {
   let response = utils.runAnalysisCommand(
     filePath,
     ["semanticTokens", tmpname],
-    msg
+    msg,
+    /* projectRequired */ false
   );
   fs.unlink(tmpname, () => null);
   return response;
@@ -511,52 +518,32 @@ function format(msg: p.RequestMessage): Array<m.Message> {
     };
     return [fakeSuccessResponse, response];
   } else {
-    // See comment on findBscNativeDirOfFile for why we need
-    // to recursively search for bsc.exe upward
-    let bscNativePath = utils.findBscNativeOfFile(filePath);
-    if (bscNativePath === null) {
-      let params: p.ShowMessageParams = {
-        type: p.MessageType.Error,
-        message: `Cannot find a nearby bsc.exe in rescript or bs-platform. It's needed for formatting.`,
-      };
-      let response: m.NotificationMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        method: "window/showMessage",
-        params: params,
-      };
-      return [fakeSuccessResponse, response];
-    } else {
-      // code will always be defined here, even though technically it can be undefined
-      let code = getOpenedFileContent(params.textDocument.uri);
-      let formattedResult = utils.formatUsingValidBscNativePath(
-        code,
-        bscNativePath,
-        extension === c.resiExt
-      );
-      if (formattedResult.kind === "success") {
-        let max = code.length;
-        let result: p.TextEdit[] = [
-          {
-            range: {
-              start: { line: 0, character: 0 },
-              end: { line: max, character: max },
-            },
-            newText: formattedResult.result,
+    // code will always be defined here, even though technically it can be undefined
+    let code = getOpenedFileContent(params.textDocument.uri);
+    let formattedResult = utils.formatCode(filePath, code);
+    if (formattedResult.kind === "success") {
+      let max = code.length;
+      let result: p.TextEdit[] = [
+        {
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: max, character: max },
           },
-        ];
-        let response: m.ResponseMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          id: msg.id,
-          result: result,
-        };
-        return [response];
-      } else {
-        // let the diagnostics logic display the updated syntax errors,
-        // from the build.
-        // Again, not sending the actual errors. See fakeSuccessResponse
-        // above for explanation
-        return [fakeSuccessResponse];
-      }
+          newText: formattedResult.result,
+        },
+      ];
+      let response: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: msg.id,
+        result: result,
+      };
+      return [response];
+    } else {
+      // let the diagnostics logic display the updated syntax errors,
+      // from the build.
+      // Again, not sending the actual errors. See fakeSuccessResponse
+      // above for explanation
+      return [fakeSuccessResponse];
     }
   }
 }
@@ -797,8 +784,7 @@ function onMessage(msg: m.Message) {
           referencesProvider: true,
           codeActionProvider: true,
           renameProvider: { prepareProvider: true },
-          // disabled right now until we use the parser to show non-stale symbols per keystroke
-          // documentSymbolProvider: true,
+          documentSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
           semanticTokensProvider: {
             legend: {

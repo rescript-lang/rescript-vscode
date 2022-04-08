@@ -100,3 +100,26 @@ let make = () => {
 }
 
 // ^com Obj.object["
+
+let foo = {
+  let x = {
+    3
+  }
+  let y = 4
+  let add = (a, b) =>
+    switch a {
+    | 3 => a + b
+    | _ => 42
+    }
+  let z = assert false
+  let _ = z
+  module Inner = {
+    type z = int
+    let v = 44
+  }
+  exception MyException (int, string, float, array<Js.Json.t>)
+  let _ = raise(MyException(2, "", 1.0, []))
+  add((x: Inner.z), Inner.v + y)
+}
+
+exception MyOtherException
