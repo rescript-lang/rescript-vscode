@@ -362,7 +362,7 @@
               "name": "punctuation.definition.tag"
             },
             "1": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             }
           }
         },
@@ -384,7 +384,7 @@
               "name": "punctuation.definition.tag"
             },
             "1": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             }
           }
         }
@@ -417,7 +417,7 @@
       "patterns": [
         {
           "match": "[A-Z_][0-9a-zA-Z_]*",
-          "name": "entity.name.namespace"
+          "name": "entity.name.class"
         },
         {
           "match": "(\\.)([A-Z_][0-9a-zA-Z_]*)",
@@ -426,7 +426,7 @@
               "name": "punctuation.accessor"
             },
             "2": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             }
           }
         }
@@ -438,7 +438,7 @@
           "match": "\\b([A-Z_][0-9a-zA-Z_]*)(\\.)",
           "captures": {
             "1": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             },
             "2": {
               "name": "punctuation.accessor"
@@ -462,7 +462,7 @@
               "name": "keyword"
             },
             "4": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             }
           },
           "patterns": [
@@ -470,7 +470,7 @@
               "match": "\\s*:\\s*([A-Z_][0-9a-zA-Z_]*)",
               "captures": {
                 "1": {
-                  "name": "entity.name.namespace"
+                  "name": "entity.name.class"
                 }
               }
             }
