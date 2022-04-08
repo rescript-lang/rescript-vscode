@@ -460,17 +460,9 @@ function format(msg: p.RequestMessage): Array<m.Message> {
     };
     return [fakeSuccessResponse, response];
   } else {
-    // See comment on findBscNativeDirOfFile for why we need
-    // to recursively search for bsc.exe upward
-    let bscNativePath = utils.findBscNativeOfFile(filePath);
-
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
-    let formattedResult = utils.formatCode(
-      code,
-      bscNativePath,
-      extension === c.resiExt
-    );
+    let formattedResult = utils.formatCode(filePath, code);
     if (formattedResult.kind === "success") {
       let max = code.length;
       let result: p.TextEdit[] = [

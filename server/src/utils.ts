@@ -93,17 +93,17 @@ type execResult =
       kind: "error";
       error: string;
     };
-export let formatCode = (
-  code: string,
-  bscNativePath: p.DocumentUri | null,
-  isInterface: boolean
-): execResult => {
-  let extension = isInterface ? c.resiExt : c.resExt;
+export let formatCode = (filePath: string, code: string): execResult => {
+  let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
   fs.writeFileSync(formatTempFileFullPath, code, {
     encoding: "utf-8",
   });
   try {
+    // See comment on findBscNativeDirOfFile for why we need
+    // to recursively search for bsc.exe upward
+    let bscNativePath = findBscNativeOfFile(filePath);
+
     // Default to using the project formatter. If not, use the one we ship with
     // the analysis binary in the extension itself.
     if (bscNativePath != null) {
@@ -128,10 +128,7 @@ export let formatCode = (
       // sources, probably because of errors. In that case, we bail from
       // formatting by returning the unformatted content.
       if (result === "") {
-        return {
-          kind: "success",
-          result: code,
-        };
+        result = code;
       }
 
       return {
