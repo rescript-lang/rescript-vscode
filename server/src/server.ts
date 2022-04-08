@@ -463,49 +463,37 @@ function format(msg: p.RequestMessage): Array<m.Message> {
     // See comment on findBscNativeDirOfFile for why we need
     // to recursively search for bsc.exe upward
     let bscNativePath = utils.findBscNativeOfFile(filePath);
-    if (bscNativePath === null) {
-      let params: p.ShowMessageParams = {
-        type: p.MessageType.Error,
-        message: `Cannot find a nearby bsc.exe in rescript or bs-platform. It's needed for formatting.`,
-      };
-      let response: m.NotificationMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        method: "window/showMessage",
-        params: params,
-      };
-      return [fakeSuccessResponse, response];
-    } else {
-      // code will always be defined here, even though technically it can be undefined
-      let code = getOpenedFileContent(params.textDocument.uri);
-      let formattedResult = utils.formatUsingValidBscNativePath(
-        code,
-        bscNativePath,
-        extension === c.resiExt
-      );
-      if (formattedResult.kind === "success") {
-        let max = code.length;
-        let result: p.TextEdit[] = [
-          {
-            range: {
-              start: { line: 0, character: 0 },
-              end: { line: max, character: max },
-            },
-            newText: formattedResult.result,
+
+    // code will always be defined here, even though technically it can be undefined
+    let code = getOpenedFileContent(params.textDocument.uri);
+    let formattedResult = utils.formatCode(
+      code,
+      bscNativePath,
+      extension === c.resiExt
+    );
+    if (formattedResult.kind === "success") {
+      let max = code.length;
+      let result: p.TextEdit[] = [
+        {
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: max, character: max },
           },
-        ];
-        let response: m.ResponseMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          id: msg.id,
-          result: result,
-        };
-        return [response];
-      } else {
-        // let the diagnostics logic display the updated syntax errors,
-        // from the build.
-        // Again, not sending the actual errors. See fakeSuccessResponse
-        // above for explanation
-        return [fakeSuccessResponse];
-      }
+          newText: formattedResult.result,
+        },
+      ];
+      let response: m.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: msg.id,
+        result: result,
+      };
+      return [response];
+    } else {
+      // let the diagnostics logic display the updated syntax errors,
+      // from the build.
+      // Again, not sending the actual errors. See fakeSuccessResponse
+      // above for explanation
+      return [fakeSuccessResponse];
     }
   }
 }

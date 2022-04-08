@@ -93,9 +93,9 @@ type execResult =
       kind: "error";
       error: string;
     };
-export let formatUsingValidBscNativePath = (
+export let formatCode = (
   code: string,
-  bscNativePath: p.DocumentUri,
+  bscNativePath: p.DocumentUri | null,
   isInterface: boolean
 ): execResult => {
   let extension = isInterface ? c.resiExt : c.resExt;
@@ -104,16 +104,41 @@ export let formatUsingValidBscNativePath = (
     encoding: "utf-8",
   });
   try {
-    let result = childProcess.execFileSync(bscNativePath, [
-      "-color",
-      "never",
-      "-format",
-      formatTempFileFullPath,
-    ]);
-    return {
-      kind: "success",
-      result: result.toString(),
-    };
+    // Default to using the project formatter. If not, use the one we ship with
+    // the analysis binary in the extension itself.
+    if (bscNativePath != null) {
+      let result = childProcess.execFileSync(bscNativePath, [
+        "-color",
+        "never",
+        "-format",
+        formatTempFileFullPath,
+      ]);
+      return {
+        kind: "success",
+        result: result.toString(),
+      };
+    } else {
+      let result = runAnalysisAfterSanityCheck(
+        formatTempFileFullPath,
+        ["format", formatTempFileFullPath],
+        false
+      );
+
+      // The formatter returning an empty string means it couldn't format the
+      // sources, probably because of errors. In that case, we bail from
+      // formatting by returning the unformatted content.
+      if (result === "") {
+        return {
+          kind: "success",
+          result: code,
+        };
+      }
+
+      return {
+        kind: "success",
+        result,
+      };
+    }
   } catch (e) {
     return {
       kind: "error",
@@ -128,7 +153,7 @@ export let formatUsingValidBscNativePath = (
 export let runAnalysisAfterSanityCheck = (
   filePath: p.DocumentUri,
   args: Array<any>,
-  projectRequired=false
+  projectRequired = false
 ) => {
   let binaryPath;
   if (fs.existsSync(c.analysisDevPath)) {
@@ -148,6 +173,7 @@ export let runAnalysisAfterSanityCheck = (
     maxBuffer: Infinity,
   };
   let stdout = childProcess.execFileSync(binaryPath, args, options);
+
   return JSON.parse(stdout.toString());
 };
 
