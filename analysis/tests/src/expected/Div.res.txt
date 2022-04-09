@@ -2,6 +2,8 @@ Hover tests/src/Div.res 1:10
 {"contents": "```rescript\n(\n  string,\n  ~props: ReactDOMRe.domProps=?,\n  array<React.element>,\n) => React.element\n```"}
 
 Complete tests/src/Div.res 3:3
+Found expr:(4,2)->(4,15)
+Found expr:(4,6)->(4,15)
 [{
     "label": "dangerouslySetInnerHTML",
     "kind": 4,

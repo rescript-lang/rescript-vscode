@@ -1,9 +1,44 @@
 open SharedTypes
 
-let completion ~path ~line ~col ~currentFile =
+let posInLoc ~pos ~loc =
+  Utils.tupleOfLexing loc.Location.loc_start <= pos
+  && pos < Utils.tupleOfLexing loc.loc_end
+
+let completionWithParser ~debug ~path ~pos ~currentFile ~textOpt =
+  let text = match textOpt with Some text -> text | None -> assert false in
+  let offset =
+    match PartialParser.positionToOffset text pos with
+    | Some offset -> offset
+    | None -> assert false
+  in
+  let line, col = pos in
+  let offsetNoWhite = PartialParser.skipWhite text offset in
+  let posNoWhite = (line, max 0 col - offset + offsetNoWhite) in
+
+  if Filename.check_suffix path ".res" then (
+    let parser =
+      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+    in
+    let found = ref false in
+    let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
+      if posInLoc ~pos:posNoWhite ~loc:expr.pexp_loc then (
+        found := true;
+        if debug then
+          Printf.printf "Found expr:%s\n"
+            (SemanticTokens.locToString expr.pexp_loc));
+      Ast_iterator.default_iterator.expr iterator expr
+    in
+    let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
+    let iterator = {Ast_iterator.default_iterator with expr} in
+    iterator.structure iterator structure |> ignore;
+    if not !found then if debug then Printf.printf "XXX Not found!\n")
+
+let completion ~debug ~path ~line ~col ~currentFile =
   let pos = (line, col) in
+
   let result =
     let textOpt = Files.readFile currentFile in
+    completionWithParser ~debug ~path ~pos ~currentFile ~textOpt;
     let completionItems =
       match NewCompletions.getCompletable ~textOpt ~pos with
       | None -> []
@@ -216,10 +251,9 @@ let format ~path =
       Res_driver.parsingEngine.parseImplementation ~forPrinter:true
         ~filename:path
     in
-    if List.length diagnostics > 0 then ""
-    else
-      Res_printer.printImplementation !Res_cli.ResClflags.width structure
-        comments
+    (* if List.length diagnostics > 0 then ""
+       else *)
+    Res_printer.printImplementation !Res_cli.ResClflags.width structure comments
   else if Filename.check_suffix path ".resi" then
     let {Res_driver.parsetree = signature; comments; diagnostics} =
       Res_driver.parsingEngine.parseInterface ~forPrinter:true ~filename:path
@@ -291,7 +325,7 @@ let test ~path =
             let line = line + 1 in
             let col = len - mlen - 3 in
             close_out cout;
-            completion ~path ~line ~col ~currentFile;
+            completion ~debug:true ~path ~line ~col ~currentFile;
             Sys.remove currentFile
           | "hig" ->
             print_endline ("Highlight " ^ path);

@@ -1,4 +1,5 @@
 Complete tests/src/CompletePrioritize1.res 4:2
+Found expr:(5,2)->(5,4)
 [{
     "label": "Test.add",
     "kind": 12,

@@ -3527,8 +3527,11 @@ and parseValueOrConstructor p =
       Ast_helper.Exp.ident ~loc (Location.mkloc lident loc)
     | token ->
       Parser.next p;
+      let loc = mkLoc startPos p.prevEndPos in
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      Recover.defaultExpr()
+      let lident = buildLongident ("$"::acc) in
+      Ast_helper.Exp.ident ~loc (Location.mkloc lident loc)
+      (* Recover.defaultExpr() *)
   in
   aux p []
 

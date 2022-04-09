@@ -2,6 +2,8 @@ Definition tests/src/Jsx.res 5:9
 {"uri": "Jsx.res", "range": {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}}
 
 Complete tests/src/Jsx.res 7:2
+Found expr:(8,2)->(8,13)
+Found expr:(8,11)->(8,13)
 [{
     "label": "first",
     "kind": 4,
@@ -23,6 +25,8 @@ Complete tests/src/Jsx.res 7:2
   }]
 
 Complete tests/src/Jsx.res 9:2
+Found expr:(10,2)->(10,18)
+Found expr:(10,17)->(10,18)
 [{
     "label": "first",
     "kind": 4,
@@ -38,6 +42,8 @@ Complete tests/src/Jsx.res 9:2
   }]
 
 Complete tests/src/Jsx.res 11:2
+Found expr:(12,10)->(12,11)
+Found expr:(12,10)->(12,11)
 [{
     "label": "second",
     "kind": 4,
@@ -65,6 +71,8 @@ Complete tests/src/Jsx.res 11:2
   }]
 
 Complete tests/src/Jsx.res 18:2
+Found expr:(19,2)->(19,17)
+Found expr:(19,16)->(19,17)
 [{
     "label": "key",
     "kind": 4,
@@ -74,6 +82,8 @@ Complete tests/src/Jsx.res 18:2
   }]
 
 Complete tests/src/Jsx.res 20:2
+Found expr:(21,2)->(21,15)
+Found expr:(21,14)->(21,15)
 [{
     "label": "key",
     "kind": 4,
@@ -83,6 +93,8 @@ Complete tests/src/Jsx.res 20:2
   }]
 
 Complete tests/src/Jsx.res 22:2
+Found expr:(23,2)->(23,19)
+Found expr:(23,18)->(23,19)
 [{
     "label": "key",
     "kind": 4,
@@ -92,6 +104,8 @@ Complete tests/src/Jsx.res 22:2
   }]
 
 Complete tests/src/Jsx.res 24:2
+Found expr:(25,2)->(25,22)
+Found expr:(25,21)->(25,22)
 [{
     "label": "key",
     "kind": 4,
@@ -101,6 +115,8 @@ Complete tests/src/Jsx.res 24:2
   }]
 
 Complete tests/src/Jsx.res 26:2
+Found expr:(27,2)->(27,16)
+Found expr:(27,15)->(27,16)
 [{
     "label": "key",
     "kind": 4,
@@ -110,6 +126,8 @@ Complete tests/src/Jsx.res 26:2
   }]
 
 Complete tests/src/Jsx.res 28:2
+Found expr:(29,2)->(29,14)
+Found expr:(29,13)->(29,14)
 [{
     "label": "key",
     "kind": 4,
@@ -119,6 +137,8 @@ Complete tests/src/Jsx.res 28:2
   }]
 
 Complete tests/src/Jsx.res 30:2
+Found expr:(31,2)->(31,15)
+Found expr:(31,14)->(31,15)
 [{
     "label": "key",
     "kind": 4,
@@ -128,9 +148,13 @@ Complete tests/src/Jsx.res 30:2
   }]
 
 Complete tests/src/Jsx.res 32:2
+Found expr:(33,2)->(33,16)
+Found expr:(33,15)->(33,16)
 []
 
 Complete tests/src/Jsx.res 34:2
+Found expr:(35,2)->(35,14)
+Found expr:(35,13)->(35,14)
 [{
     "label": "key",
     "kind": 4,
@@ -140,6 +164,8 @@ Complete tests/src/Jsx.res 34:2
   }]
 
 Complete tests/src/Jsx.res 36:2
+Found expr:(37,2)->(37,25)
+Found expr:(37,24)->(37,25)
 [{
     "label": "key",
     "kind": 4,
@@ -149,6 +175,8 @@ Complete tests/src/Jsx.res 36:2
   }]
 
 Complete tests/src/Jsx.res 38:2
+Found expr:(39,2)->(39,36)
+Found expr:(39,35)->(39,36)
 [{
     "label": "key",
     "kind": 4,
@@ -158,6 +186,8 @@ Complete tests/src/Jsx.res 38:2
   }]
 
 Complete tests/src/Jsx.res 40:2
+Found expr:(41,2)->(41,23)
+Found expr:(41,22)->(41,23)
 [{
     "label": "key",
     "kind": 4,
@@ -170,6 +200,8 @@ Definition tests/src/Jsx.res 43:11
 {"uri": "Component.res", "range": {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 8}}}
 
 Complete tests/src/Jsx.res 52:2
+Found expr:(53,2)->(53,8)
+Found expr:(53,6)->(53,8)
 [{
     "label": "align",
     "kind": 4,
@@ -179,6 +211,8 @@ Complete tests/src/Jsx.res 52:2
   }]
 
 Complete tests/src/Jsx.res 54:2
+Found expr:(55,2)->(55,9)
+Found expr:(55,4)->(55,9)
 [{
     "label": "second",
     "kind": 4,
@@ -200,6 +234,8 @@ Complete tests/src/Jsx.res 54:2
   }]
 
 Complete tests/src/Jsx.res 56:2
+Found expr:(57,2)->(57,14)
+Found expr:(57,13)->(57,14)
 [{
     "label": "key",
     "kind": 4,
@@ -209,6 +245,8 @@ Complete tests/src/Jsx.res 56:2
   }]
 
 Complete tests/src/Jsx.res 58:2
+Found expr:(59,2)->(59,21)
+Found expr:(59,20)->(59,21)
 [{
     "label": "key",
     "kind": 4,
