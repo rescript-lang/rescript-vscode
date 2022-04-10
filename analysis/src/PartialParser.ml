@@ -36,7 +36,9 @@ let skipLineComment text offset =
 let rec skipWhite text i =
   if i < 0 then 0
   else
-    match text.[i] with ' ' | '\n' | '\t' -> skipWhite text (i - 1) | _ -> i
+    match text.[i] with
+    | ' ' | '\n' | 'r' | '\t' -> skipWhite text (i - 1)
+    | _ -> i
 
 let rec startOfLident text i =
   if i < 0 then 0
