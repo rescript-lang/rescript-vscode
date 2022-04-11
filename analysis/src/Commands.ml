@@ -4,6 +4,57 @@ let posInLoc ~pos ~loc =
   Utils.tupleOfLexing loc.Location.loc_start <= pos
   && pos < Utils.tupleOfLexing loc.loc_end
 
+let extractJsxProps ~text (expr : Parsetree.expression) =
+  let rec extractLabelPos ~pos ~i str =
+    if i < String.length str then
+      match str.[i] with
+      | ' ' | '\r' | '\t' ->
+        extractLabelPos ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
+      | '\n' -> extractLabelPos ~pos:(fst pos + 1, 0) ~i:(i + 1) str
+      | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' -> Some pos
+      | _ -> None
+    else None
+  in
+  match expr.pexp_desc with
+  | Pexp_apply (eComp, args) ->
+    (* To check if tha prop is punned, take the string between the last prop
+         (or the end of e) and the expr in the arg.
+       If it's whitespace only, then it's a punned <C prop />.
+       If it's "?" then it's a punned optional <C ?prop />.
+       Otherwise it should be "id =" perhaps followed by "?".
+    *)
+    let rec processProps ~lastOffset ~lastPos args =
+      match args with
+      | (Asttypes.Labelled "children", _) :: _ -> []
+      | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
+        let ePosStart = Utils.tupleOfLexing eProp.pexp_loc.loc_start in
+        let ePosEnd = Utils.tupleOfLexing eProp.pexp_loc.loc_end in
+        match
+          ( PartialParser.positionToOffset text ePosStart,
+            PartialParser.positionToOffset text ePosEnd )
+        with
+        | Some offsetStart, Some offsetEnd ->
+          let label = String.sub text lastOffset (offsetStart - lastOffset) in
+          let labelPos =
+            match extractLabelPos ~pos:lastPos ~i:0 label with
+            | Some pos -> pos
+            | None -> (* Must be punned *) ePosStart
+          in
+          (s, labelPos, eProp)
+          :: processProps ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
+        | _ -> assert false)
+      | _ -> []
+    in
+    let posAfterCompName = Utils.tupleOfLexing eComp.pexp_loc.loc_end in
+    let offsetAfterCompName =
+      match PartialParser.positionToOffset text posAfterCompName with
+      | None -> assert false
+      | Some offset -> offset
+    in
+    args
+    |> processProps ~lastOffset:offsetAfterCompName ~lastPos:posAfterCompName
+  | _ -> []
+
 let completionWithParser ~debug ~path ~pos ~currentFile ~textOpt =
   let text = match textOpt with Some text -> text | None -> assert false in
   let offset =
@@ -23,9 +74,24 @@ let completionWithParser ~debug ~path ~pos ~currentFile ~textOpt =
     let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
       if posInLoc ~pos:posNoWhite ~loc:expr.pexp_loc then (
         found := true;
+        let exprKind =
+          match expr.pexp_desc with
+          | Pexp_apply _ when Res_parsetree_viewer.isJsxExpression expr ->
+            let props = extractJsxProps ~text expr in
+            " JSX "
+            ^ (props
+              |> List.map (fun (lbl, lblPos, (eProp : Parsetree.expression)) ->
+                     Printf.sprintf "(%s:%s e:%s)" lbl
+                       (SemanticTokens.posToString lblPos)
+                       (SemanticTokens.locToString eProp.pexp_loc))
+              |> String.concat ", ")
+          | _ -> ""
+        in
         if debug then
-          Printf.printf "Found expr:%s\n"
-            (SemanticTokens.locToString expr.pexp_loc));
+          Printf.printf "posNoWhite:%s Found expr:%s%s\n"
+            (SemanticTokens.posToString posNoWhite ^ " ")
+            (SemanticTokens.locToString expr.pexp_loc)
+            exprKind);
       Ast_iterator.default_iterator.expr iterator expr
     in
     let {Res_driver.parsetree = structure} = parser ~filename:currentFile in

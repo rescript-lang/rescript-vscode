@@ -2,8 +2,8 @@ Definition tests/src/Jsx.res 5:9
 {"uri": "Jsx.res", "range": {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}}
 
 Complete tests/src/Jsx.res 7:2
-Found expr:(8,2)->(8,13)
-Found expr:(8,11)->(8,13)
+posNoWhite:(8,12)  Found expr:(8,2)->(8,13) JSX (second:(8,4) e:(8,11)->(8,13))
+posNoWhite:(8,12)  Found expr:(8,11)->(8,13)
 [{
     "label": "first",
     "kind": 4,
@@ -25,8 +25,8 @@ Found expr:(8,11)->(8,13)
   }]
 
 Complete tests/src/Jsx.res 9:2
-Found expr:(10,2)->(10,18)
-Found expr:(10,17)->(10,18)
+posNoWhite:(10,17)  Found expr:(10,2)->(10,18) JSX (second:(10,4) e:(10,11)->(10,16)), (f:(10,17) e:(10,17)->(10,18))
+posNoWhite:(10,17)  Found expr:(10,17)->(10,18)
 [{
     "label": "first",
     "kind": 4,
@@ -42,8 +42,8 @@ Found expr:(10,17)->(10,18)
   }]
 
 Complete tests/src/Jsx.res 11:2
-Found expr:(12,10)->(12,11)
-Found expr:(12,10)->(12,11)
+posNoWhite:(12,10)  Found expr:(12,10)->(12,11) JSX 
+posNoWhite:(12,10)  Found expr:(12,10)->(12,11)
 [{
     "label": "second",
     "kind": 4,
@@ -71,8 +71,8 @@ Found expr:(12,10)->(12,11)
   }]
 
 Complete tests/src/Jsx.res 18:2
-Found expr:(19,2)->(19,17)
-Found expr:(19,16)->(19,17)
+posNoWhite:(19,16)  Found expr:(19,2)->(19,17) JSX (prop:(19,4) e:(19,10)->(19,14)), (k:(19,16) e:(19,16)->(19,17))
+posNoWhite:(19,16)  Found expr:(19,16)->(19,17)
 [{
     "label": "key",
     "kind": 4,
@@ -82,8 +82,8 @@ Found expr:(19,16)->(19,17)
   }]
 
 Complete tests/src/Jsx.res 20:2
-Found expr:(21,2)->(21,15)
-Found expr:(21,14)->(21,15)
+posNoWhite:(21,14)  Found expr:(21,2)->(21,15) JSX (prop:(21,4) e:(21,9)->(21,13)), (k:(21,14) e:(21,14)->(21,15))
+posNoWhite:(21,14)  Found expr:(21,14)->(21,15)
 [{
     "label": "key",
     "kind": 4,
@@ -93,8 +93,8 @@ Found expr:(21,14)->(21,15)
   }]
 
 Complete tests/src/Jsx.res 22:2
-Found expr:(23,2)->(23,19)
-Found expr:(23,18)->(23,19)
+posNoWhite:(23,18)  Found expr:(23,2)->(23,19) JSX (prop:(23,4) e:(23,9)->(23,17)), (k:(23,18) e:(23,18)->(23,19))
+posNoWhite:(23,18)  Found expr:(23,18)->(23,19)
 [{
     "label": "key",
     "kind": 4,
@@ -104,8 +104,8 @@ Found expr:(23,18)->(23,19)
   }]
 
 Complete tests/src/Jsx.res 24:2
-Found expr:(25,2)->(25,22)
-Found expr:(25,21)->(25,22)
+posNoWhite:(25,21)  Found expr:(25,2)->(25,22) JSX (prop:(25,4) e:(25,9)->(25,20)), (k:(25,21) e:(25,21)->(25,22))
+posNoWhite:(25,21)  Found expr:(25,21)->(25,22)
 [{
     "label": "key",
     "kind": 4,
@@ -115,8 +115,8 @@ Found expr:(25,21)->(25,22)
   }]
 
 Complete tests/src/Jsx.res 26:2
-Found expr:(27,2)->(27,16)
-Found expr:(27,15)->(27,16)
+posNoWhite:(27,15)  Found expr:(27,2)->(27,16) JSX (prop:(27,4) e:(27,10)->(27,14)), (k:(27,15) e:(27,15)->(27,16))
+posNoWhite:(27,15)  Found expr:(27,15)->(27,16)
 [{
     "label": "key",
     "kind": 4,
@@ -126,8 +126,8 @@ Found expr:(27,15)->(27,16)
   }]
 
 Complete tests/src/Jsx.res 28:2
-Found expr:(29,2)->(29,14)
-Found expr:(29,13)->(29,14)
+posNoWhite:(29,13)  Found expr:(29,2)->(29,14) JSX (prop:(29,4) e:(29,9)->(29,12)), (k:(29,13) e:(29,13)->(29,14))
+posNoWhite:(29,13)  Found expr:(29,13)->(29,14)
 [{
     "label": "key",
     "kind": 4,
@@ -137,8 +137,8 @@ Found expr:(29,13)->(29,14)
   }]
 
 Complete tests/src/Jsx.res 30:2
-Found expr:(31,2)->(31,15)
-Found expr:(31,14)->(31,15)
+posNoWhite:(31,14)  Found expr:(31,2)->(31,15) JSX (prop:(31,4) e:(31,9)->(31,13)), (k:(31,14) e:(31,14)->(31,15))
+posNoWhite:(31,14)  Found expr:(31,14)->(31,15)
 [{
     "label": "key",
     "kind": 4,
@@ -148,13 +148,13 @@ Found expr:(31,14)->(31,15)
   }]
 
 Complete tests/src/Jsx.res 32:2
-Found expr:(33,2)->(33,16)
-Found expr:(33,15)->(33,16)
+posNoWhite:(33,15)  Found expr:(33,2)->(33,16) JSX (prop:(33,4) e:(33,9)->(33,14)), (k:(33,15) e:(33,15)->(33,16))
+posNoWhite:(33,15)  Found expr:(33,15)->(33,16)
 []
 
 Complete tests/src/Jsx.res 34:2
-Found expr:(35,2)->(35,14)
-Found expr:(35,13)->(35,14)
+posNoWhite:(35,13)  Found expr:(35,2)->(35,14) JSX (prop:(35,4) e:(35,9)->(35,12)), (k:(35,13) e:(35,13)->(35,14))
+posNoWhite:(35,13)  Found expr:(35,13)->(35,14)
 [{
     "label": "key",
     "kind": 4,
@@ -164,8 +164,8 @@ Found expr:(35,13)->(35,14)
   }]
 
 Complete tests/src/Jsx.res 36:2
-Found expr:(37,2)->(37,25)
-Found expr:(37,24)->(37,25)
+posNoWhite:(37,24)  Found expr:(37,2)->(37,25) JSX (prop:(37,4) e:(37,9)->(37,23)), (k:(37,24) e:(37,24)->(37,25))
+posNoWhite:(37,24)  Found expr:(37,24)->(37,25)
 [{
     "label": "key",
     "kind": 4,
@@ -175,8 +175,8 @@ Found expr:(37,24)->(37,25)
   }]
 
 Complete tests/src/Jsx.res 38:2
-Found expr:(39,2)->(39,36)
-Found expr:(39,35)->(39,36)
+posNoWhite:(39,35)  Found expr:(39,2)->(39,36) JSX (prop:(39,4) e:(39,9)->(39,34)), (k:(39,35) e:(39,35)->(39,36))
+posNoWhite:(39,35)  Found expr:(39,35)->(39,36)
 [{
     "label": "key",
     "kind": 4,
@@ -186,8 +186,8 @@ Found expr:(39,35)->(39,36)
   }]
 
 Complete tests/src/Jsx.res 40:2
-Found expr:(41,2)->(41,23)
-Found expr:(41,22)->(41,23)
+posNoWhite:(41,22)  Found expr:(41,2)->(41,23) JSX (prop:(41,4) e:(41,9)->(41,21)), (k:(41,22) e:(41,22)->(41,23))
+posNoWhite:(41,22)  Found expr:(41,22)->(41,23)
 [{
     "label": "key",
     "kind": 4,
@@ -200,8 +200,8 @@ Definition tests/src/Jsx.res 43:11
 {"uri": "Component.res", "range": {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 8}}}
 
 Complete tests/src/Jsx.res 52:2
-Found expr:(53,2)->(53,8)
-Found expr:(53,6)->(53,8)
+posNoWhite:(53,7)  Found expr:(53,2)->(53,8) JSX (al:(53,6) e:(53,6)->(53,8))
+posNoWhite:(53,7)  Found expr:(53,6)->(53,8)
 [{
     "label": "align",
     "kind": 4,
@@ -211,8 +211,8 @@ Found expr:(53,6)->(53,8)
   }]
 
 Complete tests/src/Jsx.res 54:2
-Found expr:(55,2)->(55,9)
-Found expr:(55,4)->(55,9)
+posNoWhite:(55,8)  Found expr:(55,2)->(55,9) JSX (first:(55,4) e:(55,4)->(55,9))
+posNoWhite:(55,8)  Found expr:(55,4)->(55,9)
 [{
     "label": "second",
     "kind": 4,
@@ -234,8 +234,8 @@ Found expr:(55,4)->(55,9)
   }]
 
 Complete tests/src/Jsx.res 56:2
-Found expr:(57,2)->(57,14)
-Found expr:(57,13)->(57,14)
+posNoWhite:(57,13)  Found expr:(57,2)->(57,14) JSX (first:(57,4) e:(57,10)->(57,12)), (k:(57,13) e:(57,13)->(57,14))
+posNoWhite:(57,13)  Found expr:(57,13)->(57,14)
 [{
     "label": "key",
     "kind": 4,
@@ -245,8 +245,8 @@ Found expr:(57,13)->(57,14)
   }]
 
 Complete tests/src/Jsx.res 58:2
-Found expr:(59,2)->(59,21)
-Found expr:(59,20)->(59,21)
+posNoWhite:(59,20)  Found expr:(59,2)->(59,21) JSX (first:(59,4) e:(59,17)->(59,19)), (k:(59,20) e:(59,20)->(59,21))
+posNoWhite:(59,20)  Found expr:(59,20)->(59,21)
 [{
     "label": "key",
     "kind": 4,
