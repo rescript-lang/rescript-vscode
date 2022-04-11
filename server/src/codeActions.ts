@@ -1,6 +1,7 @@
 // This file holds code actions derived from diagnostics. There are more code
 // actions available in the extension, but they are derived via the analysis
 // OCaml binary.
+import { match } from "assert";
 import * as p from "vscode-languageserver-protocol";
 
 export type filesCodeActions = {
@@ -82,6 +83,52 @@ let insertBeforeEndingChar = (
   ];
 };
 
+let removeTrailingComma = (text: string): string => {
+  let str = text.trim();
+  if (str.endsWith(",")) {
+    return str.slice(0, str.length - 1);
+  }
+
+  return str;
+};
+
+let extractTypename = (lines: string[]): string => {
+  let arrFiltered: string[] = [];
+
+  for (let i = 0; i <= lines.length - 1; i += 1) {
+    let line = lines[i];
+    if (line.includes("(defined as")) {
+      let [typeStr, _] = line.split("(defined as");
+      arrFiltered.push(removeTrailingComma(typeStr));
+      break;
+    } else {
+      arrFiltered.push(removeTrailingComma(line));
+    }
+  }
+
+  return arrFiltered.join("").trim();
+};
+
+let takeUntil = (array: string[], startsWith: string): string[] => {
+  let res: string[] = [];
+  let arr = array.slice();
+
+  let matched = false;
+  arr.forEach((line) => {
+    if (matched) {
+      return;
+    }
+
+    if (line.startsWith(startsWith)) {
+      matched = true;
+    } else {
+      res.push(line);
+    }
+  });
+
+  return res;
+};
+
 export let findCodeActionsInDiagnosticsMessage = ({
   diagnostic,
   diagnosticMessage,
@@ -93,13 +140,12 @@ export let findCodeActionsInDiagnosticsMessage = ({
     // Because of how actions work, there can only be one per diagnostic. So,
     // halt whenever a code action has been found.
     let codeActionEtractors = [
+      simpleTypeMismatches,
       didYouMeanAction,
       addUndefinedRecordFields,
       simpleConversion,
       applyUncurried,
       simpleAddMissingCases,
-      simpleWrapOptionalWithSome,
-      simpleUnwrapOptional,
     ];
 
     for (let extractCodeAction of codeActionEtractors) {
@@ -393,16 +439,6 @@ let applyUncurried: codeActionExtractor = ({
   return false;
 };
 
-// This protects against the fact that the compiler currently returns most
-// text in OCaml. It also ensures that we only return simple constructors.
-let isValidVariantCase = (text: string): boolean => {
-  if (text.startsWith("(") || text.includes(",")) {
-    return false;
-  }
-
-  return true;
-};
-
 // Untransformed is typically OCaml, and looks like these examples:
 //
 // `SomeVariantName
@@ -412,18 +448,37 @@ let isValidVariantCase = (text: string): boolean => {
 // ...and we'll need to transform this into proper ReScript. In the future, the
 // compiler itself should of course output real ReScript. But it currently does
 // not.
-let transformVariant = (variant: string): string | null => {
-  // Convert old polyvariant notation to new
-  let text = variant.replace(/`/g, "#");
+//
+// Note that we're trying to not be too clever here, so we'll only try to
+// convert the very simplest cases - single variant/polyvariant, with single
+// payloads. No records, tuples etc yet. We can add those when the compiler
+// outputs them in proper ReScript.
+let transformMatchPattern = (matchPattern: string): string | null => {
+  if (
+    // Parens means tuples or more complicated payloads. Bail.
+    matchPattern.includes("(") ||
+    // Braces means records. Bail.
+    matchPattern.includes("{")
+  ) {
+    return null;
+  }
 
-  // Fix payloads
+  let text = matchPattern.replace(/`/g, "#");
+
+  let payloadRegexp = / /g;
+  let matched = text.match(payloadRegexp);
+
+  // Constructors are preceded by a single space. Bail if there's more than 1.
+  if (matched != null && matched.length > 2) {
+    return null;
+  }
+
+  // Fix payloads if they can be fixed. If not, bail.
   if (text.includes(" ")) {
     let [variantText, payloadText] = text.split(" ");
 
-    // If the payload itself starts with (, it's another variant with a
-    // constructor. We bail in that case, for now at least. We'll be able to
-    // revisit this in the future when the compiler prints real ReScript syntax.
-    if (payloadText.startsWith("(")) {
+    let transformedPayloadText = transformMatchPattern(payloadText);
+    if (transformedPayloadText == null) {
       return null;
     }
 
@@ -461,6 +516,10 @@ let simpleAddMissingCases: codeActionExtractor = ({
   //
   // You forgot to handle a possible case here, for example:
   // AnotherValue
+  //
+  // You forgot to handle a possible case here, for example:
+  // (`One _|`Two _|
+  // `Three _)
 
   if (
     line.startsWith("You forgot to handle a possible case here, for example:")
@@ -469,28 +528,36 @@ let simpleAddMissingCases: codeActionExtractor = ({
 
     // This collects the rest of the fields if fields are printed on
     // multiple lines.
-    array.slice(index + 1).forEach((line) => {
-      let theLine = line.trim();
+    let allCasesAsOneLine = array
+      .slice(index + 1)
+      .join("")
+      .trim();
 
-      let hasMultipleCases = theLine.includes("|");
+    // Remove leading and ending parens
+    allCasesAsOneLine = allCasesAsOneLine.slice(
+      1,
+      allCasesAsOneLine.length - 1
+    );
 
-      if (hasMultipleCases) {
-        cases.push(
-          ...(theLine
-            // Remove leading and ending parens
-            .slice(1, theLine.length - 1)
-            .split("|")
-            .filter(isValidVariantCase)
-            .map(transformVariant)
-            .filter(Boolean) as string[])
-        );
-      } else {
-        let transformed = transformVariant(theLine);
-        if (isValidVariantCase(theLine) && transformed != null) {
-          cases.push(transformed);
-        }
+    // Any parens left means this is a more complex match. Bail.
+    if (allCasesAsOneLine.includes("(")) {
+      return false;
+    }
+
+    let hasMultipleCases = allCasesAsOneLine.includes("|");
+    if (hasMultipleCases) {
+      cases.push(
+        ...(allCasesAsOneLine
+          .split("|")
+          .map(transformMatchPattern)
+          .filter(Boolean) as string[])
+      );
+    } else {
+      let transformed = transformMatchPattern(allCasesAsOneLine);
+      if (transformed != null) {
+        cases.push(transformed);
       }
-    });
+    }
 
     if (cases.length === 0) {
       return false;
@@ -541,7 +608,7 @@ let simpleAddMissingCases: codeActionExtractor = ({
 // This detects concrete variables or values put in a position which expects an
 // optional of that same type, and offers to wrap the value/variable in
 // `Some()`.
-let simpleWrapOptionalWithSome: codeActionExtractor = ({
+let simpleTypeMismatches: codeActionExtractor = ({
   line,
   codeActions,
   file,
@@ -559,91 +626,32 @@ let simpleWrapOptionalWithSome: codeActionExtractor = ({
   // 50 │
   // This has type: string
   // Somewhere wanted: option<string>
-
-  if (line.startsWith("Somewhere wanted: option<")) {
-    let somewhereWantedLine = line;
-    let thisHasTypeLine = array[index - 1];
-    let hasTypeText = thisHasTypeLine.split("This has type: ")[1].trim();
-    let somewhereWantedText = somewhereWantedLine
-      .split("Somewhere wanted: option<")[1]
-      .trim();
-
-    // Remove ending `>` so we can compare the underlying types
-    somewhereWantedText = somewhereWantedText.slice(
-      0,
-      somewhereWantedText.length - 1
-    );
-
-    // We only trigger the code action if the thing that's already there is the
-    // exact same type.
-    if (hasTypeText === somewhereWantedText) {
-      codeActions[file] = codeActions[file] || [];
-      let codeAction: p.CodeAction = {
-        title: `Wrap value in Some`,
-        edit: {
-          changes: {
-            [file]: wrapRangeInText(range, "Some(", ")"),
-          },
-        },
-        diagnostics: [diagnostic],
-        kind: p.CodeActionKind.QuickFix,
-        isPreferred: true,
-      };
-
-      codeActions[file].push({
-        range,
-        codeAction,
-      });
-
-      return true;
-    }
-  }
-
-  return false;
-};
-
-// This detects when an optional is passed into a non optional slot, and offers
-// to insert a switch for unwrapping that optional.
-let simpleUnwrapOptional: codeActionExtractor = ({
-  line,
-  codeActions,
-  file,
-  range,
-  diagnostic,
-  array,
-  index,
-}) => {
-  // Examples:
   //
-  // 47 │
-  // 48 │ let as_ = {
-  // 49 │   someProp: optional,
-  // 50 │   another: Some("123"),
-  // 51 │ }
+  // ...but types etc can also be on multilines, so we need a good
+  // amount of cleanup.
 
-  // This has type: option<string>
-  // Somewhere wanted: string
+  let lookFor = "This has type:";
 
-  if (line.startsWith("This has type: option<")) {
-    let thisHasTypeLine = line;
-    let hasTypeText = thisHasTypeLine.split("This has type: option<")[1].trim();
-    // Remove ending `>` so we can compare the underlying types
-    hasTypeText = hasTypeText.slice(0, hasTypeText.length - 1);
+  if (line.startsWith(lookFor)) {
+    let thisHasTypeArr = takeUntil(
+      [line.slice(lookFor.length), ...array.slice(index + 1)],
+      "Somewhere wanted:"
+    );
+    let somewhereWantedArr = array
+      .slice(index + thisHasTypeArr.length)
+      .map((line) => line.replace("Somewhere wanted:", ""));
 
-    let somewhereWantedLine = array[index + 1];
-    let somewhereWantedText = somewhereWantedLine
-      .split("Somewhere wanted: ")[1]
-      .trim();
+    let thisHasType = extractTypename(thisHasTypeArr);
+    let somewhereWanted = extractTypename(somewhereWantedArr);
 
-    // We only trigger the code action if the thing that's already there is the
-    // exact same type.
-    if (hasTypeText === somewhereWantedText) {
+    // Switching over an option
+    if (thisHasType === `option<${somewhereWanted}>`) {
       codeActions[file] = codeActions[file] || [];
 
       // We can figure out default values for primitives etc.
       let defaultValue = "assert false";
 
-      switch (somewhereWantedText) {
+      switch (somewhereWanted) {
         case "string": {
           defaultValue = `"-"`;
           break;
@@ -671,6 +679,30 @@ let simpleUnwrapOptional: codeActionExtractor = ({
               "switch ",
               ` { | None => ${defaultValue} | Some(v) => v }`
             ),
+          },
+        },
+        diagnostics: [diagnostic],
+        kind: p.CodeActionKind.QuickFix,
+        isPreferred: true,
+      };
+
+      codeActions[file].push({
+        range,
+        codeAction,
+      });
+
+      return true;
+    }
+
+    // Wrapping a non-optional in Some
+    if (`option<${thisHasType}>` === somewhereWanted) {
+      codeActions[file] = codeActions[file] || [];
+
+      let codeAction: p.CodeAction = {
+        title: `Wrap value in Some`,
+        edit: {
+          changes: {
+            [file]: wrapRangeInText(range, "Some(", ")"),
           },
         },
         diagnostics: [diagnostic],
