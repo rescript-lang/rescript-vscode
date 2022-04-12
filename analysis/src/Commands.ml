@@ -180,24 +180,26 @@ let completion ~debug ~path ~pos ~currentFile =
         completionWithParser ~debug ~path ~posCursor:pos ~currentFile ~text
       in
       let completionItems =
-        match NewCompletions.getCompletable ~text ~pos with
+        match PartialParser.positionToOffset text pos with
         | None -> []
-        | Some (completable, rawOpens) -> (
-          if debug then
-            Printf.printf "Completable: %s\n"
-              (PartialParser.completableToString completable);
-          let () =
-            match completable with
-            | Cjsx _ -> assert (jsxCompletable = Some completable)
-            | _ ->
-              if jsxCompletable <> None && debug then
-                Printf.printf "XXX inconsistency\n"
-          in
-          (* Only perform expensive ast operations if there are completables *)
-          match Cmt.fromPath ~path with
-          | None -> []
-          | Some full ->
-            NewCompletions.computeCompletions ~completable ~full ~pos ~rawOpens)
+        | Some offset -> (
+          match (jsxCompletable, PartialParser.findCompletable text offset) with
+          | None, None -> []
+          | Some completable, _ | _, Some completable -> (
+            if debug then
+              Printf.printf "Completable: %s\n"
+                (PartialParser.completableToString completable);
+            let rawOpens =
+              let offsetFromLineStart = offset - snd pos in
+              (* try to avoid confusion e.g. unclosed quotes at current position *)
+              PartialParser.findOpens text offsetFromLineStart
+            in
+            (* Only perform expensive ast operations if there are completables *)
+            match Cmt.fromPath ~path with
+            | None -> []
+            | Some full ->
+              NewCompletions.computeCompletions ~completable ~full ~pos
+                ~rawOpens))
       in
       completionItems
   in
