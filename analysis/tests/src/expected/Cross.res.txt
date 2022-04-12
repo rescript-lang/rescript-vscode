@@ -94,7 +94,7 @@ TypeDefinition tests/src/Cross.res 37:37
 {"uri": "DefinitionWithInterface.resi", "range": {"start": {"line": 3, "character": 0}, "end": {"line": 3, "character": 6}}}
 
 Complete tests/src/Cross.res 39:2
-posNoWhite:(40,25)  Found expr:(40,1)->(40,26)
+posCursor:(40,26) posNoWhite:(40,25) Found expr:(40,1)->(40,26)
 Completable: Cdotpath([DefinitionWithInterface, a])
 []
 

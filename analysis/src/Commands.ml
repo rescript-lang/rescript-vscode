@@ -23,9 +23,10 @@ let extractJsxProps ~text (expr : Parsetree.expression) =
        If it's "?" then it's a punned optional <C ?prop />.
        Otherwise it should be "id =" perhaps followed by "?".
     *)
-    let rec processProps ~lastOffset ~lastPos args =
+    let rec processProps ~lastOffset ~lastPos ~acc args =
       match args with
-      | (Asttypes.Labelled "children", _) :: _ -> []
+      | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
+        (List.rev acc, pexp_loc)
       | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
         let ePosStart = Utils.tupleOfLexing eProp.pexp_loc.loc_start in
         let ePosEnd = Utils.tupleOfLexing eProp.pexp_loc.loc_end in
@@ -40,10 +41,11 @@ let extractJsxProps ~text (expr : Parsetree.expression) =
             | Some pos -> pos
             | None -> (* Must be punned *) ePosStart
           in
-          (s, labelPos, eProp)
-          :: processProps ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
+          processProps
+            ~acc:((s, labelPos, eProp) :: acc)
+            ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
         | _ -> assert false)
-      | _ -> []
+      | _ -> (* should not happen *) ([], Location.none)
     in
     let posAfterCompName = Utils.tupleOfLexing eComp.pexp_loc.loc_end in
     let offsetAfterCompName =
@@ -53,18 +55,21 @@ let extractJsxProps ~text (expr : Parsetree.expression) =
     in
     args
     |> processProps ~lastOffset:offsetAfterCompName ~lastPos:posAfterCompName
-  | _ -> []
+         ~acc:[]
+  | _ -> (* should not happen *) ([], Location.none)
 
-let completionWithParser ~debug ~path ~pos ~currentFile ~textOpt =
+let completionWithParser ~debug ~path ~posCursor ~currentFile ~textOpt =
   let text = match textOpt with Some text -> text | None -> assert false in
   let offset =
-    match PartialParser.positionToOffset text pos with
+    match PartialParser.positionToOffset text posCursor with
     | Some offset -> offset
     | None -> assert false
   in
-  let line, col = pos in
   let offsetNoWhite = PartialParser.skipWhite text offset in
-  let posNoWhite = (line, max 0 col - offset + offsetNoWhite) in
+  let posNoWhite =
+    let line, col = posCursor in
+    (line, max 0 col - offset + offsetNoWhite)
+  in
 
   let flattenComponentName lid =
     let rec loop acc lid =
@@ -86,27 +91,28 @@ let completionWithParser ~debug ~path ~pos ~currentFile ~textOpt =
     let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
       if posInLoc ~pos:posNoWhite ~loc:expr.pexp_loc then (
         found := true;
-        let exprKind =
-          match expr.pexp_desc with
-          | Pexp_apply ({pexp_desc = Pexp_ident lident}, _)
-            when Res_parsetree_viewer.isJsxExpression expr ->
-            let props = extractJsxProps ~text expr in
-            " JSX "
-            ^ (lident.txt |> flattenComponentName |> String.concat ",")
-            ^ " "
-            ^ (props
-              |> List.map (fun (lbl, lblPos, (eProp : Parsetree.expression)) ->
-                     Printf.sprintf "(%s:%s e:%s)" lbl
-                       (SemanticTokens.posToString lblPos)
-                       (SemanticTokens.locToString eProp.pexp_loc))
-              |> String.concat ", ")
-          | _ -> ""
-        in
         if debug then
-          Printf.printf "posNoWhite:%s Found expr:%s%s\n"
-            (SemanticTokens.posToString posNoWhite ^ " ")
-            (SemanticTokens.locToString expr.pexp_loc)
-            exprKind);
+          Printf.printf "posCursor:%s posNoWhite:%s Found expr:%s\n"
+            (SemanticTokens.posToString posCursor)
+            (SemanticTokens.posToString posNoWhite)
+            (SemanticTokens.locToString expr.pexp_loc);
+
+        match expr.pexp_desc with
+        | Pexp_apply
+            ({pexp_desc = Pexp_ident {txt = compName; loc = compNameLoc}}, _)
+          when Res_parsetree_viewer.isJsxExpression expr ->
+          let props, childrenLoc = extractJsxProps ~text expr in
+          Printf.printf "JSX %s:%s children:%s %s\n"
+            (compName |> flattenComponentName |> String.concat ",")
+            (SemanticTokens.locToString compNameLoc)
+            (SemanticTokens.locToString childrenLoc)
+            (props
+            |> List.map (fun (lbl, lblPos, (eProp : Parsetree.expression)) ->
+                   Printf.sprintf "(%s:%s e:%s)" lbl
+                     (SemanticTokens.posToString lblPos)
+                     (SemanticTokens.locToString eProp.pexp_loc))
+            |> String.concat ", ")
+        | _ -> ());
       Ast_iterator.default_iterator.expr iterator expr
     in
     let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
@@ -119,7 +125,7 @@ let completion ~debug ~path ~line ~col ~currentFile =
 
   let result =
     let textOpt = Files.readFile currentFile in
-    completionWithParser ~debug ~path ~pos ~currentFile ~textOpt;
+    completionWithParser ~debug ~path ~posCursor:pos ~currentFile ~textOpt;
     let completionItems =
       match NewCompletions.getCompletable ~textOpt ~pos with
       | None -> []

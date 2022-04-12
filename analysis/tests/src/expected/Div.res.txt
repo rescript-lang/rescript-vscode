@@ -2,8 +2,9 @@ Hover tests/src/Div.res 1:10
 {"contents": "```rescript\n(\n  string,\n  ~props: ReactDOMRe.domProps=?,\n  array<React.element>,\n) => React.element\n```"}
 
 Complete tests/src/Div.res 3:3
-posNoWhite:(4,14)  Found expr:(4,2)->(4,15) JSX div (dangerous:(4,6) e:(4,6)->(4,15))
-posNoWhite:(4,14)  Found expr:(4,6)->(4,15)
+posCursor:(4,15) posNoWhite:(4,14) Found expr:(4,2)->(4,15)
+JSX div:(4,2)->(4,5) children:(0,-1)->(0,-1) (dangerous:(4,6) e:(4,6)->(4,15))
+posCursor:(4,15) posNoWhite:(4,14) Found expr:(4,6)->(4,15)
 Completable: Cjsx([div], dangerous, [])
 [{
     "label": "dangerouslySetInnerHTML",
