@@ -171,9 +171,14 @@ Complete tests/src/Jsx.res 32:2
 posCursor:(33,16) posNoWhite:(33,15) Found expr:(33,2)->(33,16)
 JSX M:(33,2)->(33,3) childrenStart:None (prop:(33,4)->(33,8) e:(33,9)->(33,14)), (k:(33,15)->(33,16) e:(33,15)->(33,16))
 posCursor:(33,16) posNoWhite:(33,15) Found expr:(33,15)->(33,16)
-Completable: Cdotpath([k])
-XXX inconsistency
-[]
+Completable: Cjsx([M], k, [prop])
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete tests/src/Jsx.res 34:2
 posCursor:(35,14) posNoWhite:(35,13) Found expr:(35,2)->(35,14)

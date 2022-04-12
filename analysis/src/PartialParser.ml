@@ -92,97 +92,6 @@ let findCallFromArgument text offset =
   in
   loop [] offset
 
-(* skip A or #A or %A if present *)
-let skipOptVariantExtension text i =
-  if i > 0 then
-    match text.[i] with
-    | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' ->
-      let i = startOfLident text i - 1 in
-      let i =
-        if i > 0 then match text.[i] with '#' | '%' -> i - 1 | _ -> i else i
-      in
-      i
-    | _ -> i
-  else i
-
-(* Figure out whether id should be autocompleted as component prop.
-   Find JSX context ctx for component M to autocomplete id (already parsed) as a prop.
-   ctx ::= <M args id
-   arg ::= id | id = [?] atomicExpr
-   atomicExpr ::= id | #id | "abc" | 'a' | 42 | `...` | optVariant {...} | optVariant (...) | <...> | [...]
-   optVariant ::= id | #id | %id |  _nothing_
-*)
-let findJsxContext text offset =
-  let rec loop identsSeen i =
-    let i = skipWhite text i in
-    if i > 0 then
-      match text.[i] with
-      | '}' ->
-        let i1 = findBackSkippingCommentsAndStrings text '{' '}' (i - 1) 0 in
-        if i1 > 0 then beforeParen identsSeen i1 else None
-      | ')' ->
-        let i1 = findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0 in
-        if i1 > 0 then beforeParen identsSeen i1 else None
-      | '>' ->
-        let i1 = findBackSkippingCommentsAndStrings text '<' '>' (i - 1) 0 in
-        if i1 > 0 then beforeValue identsSeen i1 else None
-      | ']' ->
-        let i1 = findBackSkippingCommentsAndStrings text '[' ']' (i - 1) 0 in
-        if i1 > 0 then beforeValue identsSeen i1 else None
-      | '"' ->
-        let i1 = findBack text '"' (i - 1) in
-        if i1 > 0 then beforeValue identsSeen i1 else None
-      | '\'' ->
-        let i1 = findBack text '\'' (i - 1) in
-        if i1 > 0 then beforeValue identsSeen i1 else None
-      | '`' ->
-        let i1 = findBack text '`' (i - 1) in
-        if i1 > 0 then beforeValue identsSeen i1 else None
-      | _ ->
-        let i1 = startOfLident text i in
-        let ident = String.sub text i1 (i - i1 + 1) in
-        if i1 >= 1 && ident <> "" then
-          match ident.[0] with
-          | ('a' .. 'z' | 'A' .. 'Z') when i1 >= 1 && text.[i1 - 1] = '<' ->
-            Some (ident, identsSeen)
-          | _ ->
-            if i1 >= 1 && text.[i1 - 1] = '#' then
-              beforeValue identsSeen (i1 - 2)
-            else beforeIdent ~ident identsSeen (i1 - 1)
-        else None
-    else None
-  and beforeIdent ~ident identsSeen i =
-    let i = skipWhite text i in
-    if i > 0 then
-      match text.[i] with
-      | '?' -> fromEquals identsSeen (i - 1)
-      | '=' -> fromEquals identsSeen i
-      | _ -> (* punning *) loop (ident :: identsSeen) i
-    else None
-  and beforeParen identsSeen i =
-    let i = skipWhite text i in
-    beforeValue identsSeen (skipOptVariantExtension text i)
-  and beforeValue identsSeen i =
-    let i = skipWhite text i in
-    if i > 0 then
-      match text.[i] with
-      | '?' -> fromEquals identsSeen (i - 1)
-      | _ -> fromEquals identsSeen i
-    else None
-  and fromEquals identsSeen i =
-    let i = skipWhite text i in
-    if i > 0 then
-      match text.[i] with
-      | '=' -> (
-        let i = skipWhite text (i - 1) in
-        let i1 = startOfLident text i in
-        let ident = String.sub text i1 (i - i1 + 1) in
-        match ident with "" -> None | _ -> loop (ident :: identsSeen) (i1 - 1))
-      | _ -> None
-    else None
-  in
-  loop [] offset
-
 type pipe = PipeId of string | PipeArray | PipeString
 
 type completable =
@@ -235,11 +144,7 @@ let findCompletable text offset =
       match s.[len - 1] with '.' -> dotpath @ [""] | _ -> dotpath
     in
     match dotpath with
-    | [id] when String.lowercase_ascii id = id -> (
-      match findJsxContext text (offset - len - 1) with
-      | None -> Cdotpath dotpath
-      | Some (componentName, identsSeen) ->
-        Cjsx (Str.split (Str.regexp_string ".") componentName, id, identsSeen))
+    | [id] when String.lowercase_ascii id = id -> Cdotpath dotpath
     | _ -> Cdotpath dotpath
   in
   let mkPipe off partialName =
@@ -301,15 +206,9 @@ let findCompletable text offset =
         let partialName = suffix i in
         mkObj ~off:(i - 2) ~partialName
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
-      | ' ' when i = offset - 1 -> (
-        (* autocomplete with no id: check if inside JSX *)
-        match findJsxContext text (offset - 1) with
-        | None -> None
-        | Some (componentName, identsSeen) ->
-          Some
-            (Cjsx
-               (Str.split (Str.regexp_string ".") componentName, "", identsSeen))
-        )
+      | ' ' when i = offset - 1 ->
+        (* autocomplete with no id *)
+        None
       | _ -> if i = offset - 1 then None else Some (mkPath (suffix i))
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)
