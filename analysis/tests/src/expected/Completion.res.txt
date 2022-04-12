@@ -1,5 +1,6 @@
 Complete tests/src/Completion.res 0:2
 posNoWhite:(1,8)  Found expr:(1,1)->(1,9)
+Completable: Cdotpath([MyList, m])
 [{
     "label": "mapReverse",
     "kind": 12,
@@ -70,6 +71,7 @@ posNoWhite:(1,8)  Found expr:(1,1)->(1,9)
 
 Complete tests/src/Completion.res 1:2
 posNoWhite:(2,6)  Found expr:(2,1)->(6,6)
+Completable: Cdotpath([Array, ""])
 [{
     "label": "Floatarray",
     "kind": 9,
@@ -290,6 +292,7 @@ posNoWhite:(2,6)  Found expr:(2,1)->(6,6)
 
 Complete tests/src/Completion.res 2:2
 posNoWhite:(3,7)  Found expr:(3,1)->(3,8)
+Completable: Cdotpath([Array, m])
 [{
     "label": "mapi",
     "kind": 12,
@@ -342,6 +345,7 @@ posNoWhite:(3,7)  Found expr:(3,1)->(3,8)
 
 Complete tests/src/Completion.res 12:2
 posNoWhite:(13,14)  Found expr:(13,10)->(13,15)
+Completable: Cdotpath([Dep, c])
 [{
     "label": "customDouble",
     "kind": 12,
@@ -352,6 +356,7 @@ posNoWhite:(13,14)  Found expr:(13,10)->(13,15)
 
 Complete tests/src/Completion.res 19:2
 posNoWhite:(20,17)  Found expr:(20,9)->(20,18)
+Completable: Clabel([Lib, foo], "", [])
 [{
     "label": "age",
     "kind": 4,
@@ -369,6 +374,7 @@ posNoWhite:(20,17)  Found expr:(20,9)->(20,18)
 Complete tests/src/Completion.res 21:2
 posNoWhite:(22,10)  Found expr:(22,1)->(22,11)
 posNoWhite:(22,10)  Found expr:(22,10)->(22,11)
+Completable: Cpipe(PipeArray, m)
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -386,6 +392,7 @@ posNoWhite:(22,10)  Found expr:(22,10)->(22,11)
 Complete tests/src/Completion.res 23:2
 posNoWhite:(24,10)  Found expr:(24,1)->(24,11)
 posNoWhite:(24,10)  Found expr:(24,8)->(24,11)
+Completable: Cpipe(PipeString, toU)
 [{
     "label": "Js.String2.toUpperCase",
     "kind": 12,
@@ -397,6 +404,7 @@ posNoWhite:(24,10)  Found expr:(24,8)->(24,11)
 Complete tests/src/Completion.res 27:2
 posNoWhite:(28,5)  Found expr:(28,1)->(28,6)
 posNoWhite:(28,5)  Found expr:(28,5)->(28,6)
+Completable: Cpipe(op, e)
 [{
     "label": "Belt.Option.eqU",
     "kind": 12,
@@ -415,6 +423,7 @@ Complete tests/src/Completion.res 36:2
 posNoWhite:(37,4)  Found expr:(37,1)->(46,3)
 posNoWhite:(37,4)  Found expr:(37,1)->(41,8)
 posNoWhite:(37,4)  Found expr:(37,3)->(37,5)
+Completable: Cpipe(fa, "")
 [{
     "label": "ForAuto.abc",
     "kind": 12,
@@ -432,6 +441,7 @@ posNoWhite:(37,4)  Found expr:(37,3)->(37,5)
 Complete tests/src/Completion.res 38:2
 posNoWhite:(39,18)  Found expr:(39,1)->(39,19)
 posNoWhite:(39,18)  Found expr:(39,10)->(39,19)
+Completable: Cdotpath([Js, Dict, u])
 [{
     "label": "unsafeGet",
     "kind": 12,
@@ -449,6 +459,7 @@ posNoWhite:(39,18)  Found expr:(39,10)->(39,19)
 Complete tests/src/Completion.res 50:2
 posNoWhite:(51,27)  Found expr:(51,13)->(51,28) JSX (second:(51,20) e:(51,27)->(51,28))
 posNoWhite:(51,27)  Found expr:(51,27)->(51,28)
+Completable: Cdotpath([z])
 [{
     "label": "zzz",
     "kind": 12,
@@ -460,6 +471,7 @@ posNoWhite:(51,27)  Found expr:(51,27)->(51,28)
 Complete tests/src/Completion.res 52:2
 posNoWhite:(53,20)  Found expr:(53,13)->(53,21) JSX (z:(53,20) e:(53,20)->(53,21))
 posNoWhite:(53,20)  Found expr:(53,20)->(53,21)
+Completable: Cjsx([O, Comp], z, [])
 [{
     "label": "zoo",
     "kind": 4,
@@ -664,6 +676,7 @@ DocumentSymbol tests/src/Completion.res
 
 Complete tests/src/Completion.res 56:2
 XXX Not found!
+Completable: Cdecorator(reac)
 [{
     "label": "react.component",
     "kind": 4,
@@ -674,6 +687,7 @@ XXX Not found!
 
 Complete tests/src/Completion.res 58:2
 posNoWhite:(59,7)  Found expr:(0,-1)->(69,17)
+Completable: Cdecorator(react.)
 [{
     "label": "component",
     "kind": 4,
@@ -684,6 +698,7 @@ posNoWhite:(59,7)  Found expr:(0,-1)->(69,17)
 
 Complete tests/src/Completion.res 60:2
 posNoWhite:(61,24)  Found expr:(61,9)->(61,25)
+Completable: Clabel([Lib, foo], "", [name])
 [{
     "label": "age",
     "kind": 4,
@@ -694,6 +709,7 @@ posNoWhite:(61,24)  Found expr:(61,9)->(61,25)
 
 Complete tests/src/Completion.res 62:2
 posNoWhite:(63,23)  Found expr:(63,9)->(63,24)
+Completable: Clabel([Lib, foo], "", [age])
 [{
     "label": "name",
     "kind": 4,
@@ -704,6 +720,7 @@ posNoWhite:(63,23)  Found expr:(63,9)->(63,24)
 
 Complete tests/src/Completion.res 64:2
 posNoWhite:(65,29)  Found expr:(65,9)->(65,30)
+Completable: Clabel([Lib, foo], "", [age])
 [{
     "label": "name",
     "kind": 4,
@@ -714,6 +731,7 @@ posNoWhite:(65,29)  Found expr:(65,9)->(65,30)
 
 Complete tests/src/Completion.res 67:2
 posNoWhite:(68,1)  Found expr:(67,8)->(69,17)
+Completable: Clabel([Lib, foo], "", [])
 [{
     "label": "age",
     "kind": 4,
@@ -730,6 +748,7 @@ posNoWhite:(68,1)  Found expr:(67,8)->(69,17)
 
 Complete tests/src/Completion.res 72:2
 posNoWhite:(73,10)  Found expr:(73,8)->(75,18)
+Completable: Cobj([someObj], [], a)
 [{
     "label": "age",
     "kind": 4,
@@ -740,6 +759,7 @@ posNoWhite:(73,10)  Found expr:(73,8)->(75,18)
 
 Complete tests/src/Completion.res 76:2
 posNoWhite:(77,21)  Found expr:(77,20)->(80,10)
+Completable: Cobj([nestedObj], [x, y], "")
 [{
     "label": "age",
     "kind": 4,
@@ -756,6 +776,7 @@ posNoWhite:(77,21)  Found expr:(77,20)->(80,10)
 
 Complete tests/src/Completion.res 79:2
 posNoWhite:(80,4)  Found expr:(80,2)->(82,20)
+Completable: Cobj([o], [], a)
 [{
     "label": "age",
     "kind": 4,
@@ -766,6 +787,7 @@ posNoWhite:(80,4)  Found expr:(80,2)->(82,20)
 
 Complete tests/src/Completion.res 83:2
 posNoWhite:(84,14)  Found expr:(84,13)->(101,20)
+Completable: Cobj([no], [x, y], "")
 [{
     "label": "name",
     "kind": 4,
@@ -782,6 +804,7 @@ posNoWhite:(84,14)  Found expr:(84,13)->(101,20)
 
 Complete tests/src/Completion.res 88:3
 posNoWhite:(89,2)  Found expr:(89,1)->(93,3)
+Completable: Cdotpath([r, ""])
 [{
     "label": "x",
     "kind": 5,
@@ -798,6 +821,7 @@ posNoWhite:(89,2)  Found expr:(89,1)->(93,3)
 
 Complete tests/src/Completion.res 90:3
 posNoWhite:(91,18)  Found expr:(91,1)->(93,3)
+Completable: Cdotpath([Obj, Rec, recordVal, ""])
 [{
     "label": "xx",
     "kind": 5,
@@ -816,6 +840,7 @@ Complete tests/src/Completion.res 96:3
 posNoWhite:(97,2)  Found expr:(96,11)->(99,1)
 posNoWhite:(97,2)  Found expr:(97,1)->(98,5)
 posNoWhite:(97,2)  Found expr:(97,1)->(97,3)
+Completable: Cdotpath([my])
 [{
     "label": "myAmazingFunction",
     "kind": 12,
@@ -826,6 +851,7 @@ posNoWhite:(97,2)  Found expr:(97,1)->(97,3)
 
 Complete tests/src/Completion.res 100:3
 posNoWhite:(101,12)  Found expr:(101,11)->(120,32)
+Completable: Cobj([Obj, object], [], "")
 [{
     "label": "name",
     "kind": 4,

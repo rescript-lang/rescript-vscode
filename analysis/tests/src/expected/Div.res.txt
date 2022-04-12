@@ -4,6 +4,7 @@ Hover tests/src/Div.res 1:10
 Complete tests/src/Div.res 3:3
 posNoWhite:(4,14)  Found expr:(4,2)->(4,15) JSX (dangerous:(4,6) e:(4,6)->(4,15))
 posNoWhite:(4,14)  Found expr:(4,6)->(4,15)
+Completable: Cjsx([div], dangerous, [])
 [{
     "label": "dangerouslySetInnerHTML",
     "kind": 4,
