@@ -868,3 +868,16 @@ Completable: Cobj([Obj, object], [], "")
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 125:3
+posCursor:(126,4) posNoWhite:(126,3) Found expr:(126,2)->(126,4)
+JSX O:(126,2)->(126,4) childrenStart:None 
+posCursor:(126,4) posNoWhite:(126,3) Found expr:(126,2)->(126,4)
+Completable: Cdotpath([O, ""])
+[{
+    "label": "Comp",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
+

@@ -123,3 +123,5 @@ let foo = {
 }
 
 exception MyOtherException
+
+// ^com <O.
