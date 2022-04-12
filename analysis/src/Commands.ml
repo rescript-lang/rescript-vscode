@@ -4,13 +4,38 @@ let posInLoc ~pos ~loc =
   Utils.tupleOfLexing loc.Location.loc_start <= pos
   && pos < Utils.tupleOfLexing loc.loc_end
 
-type prop = {name : string; pos : int * int; exp : Parsetree.expression}
+type prop = {
+  name : string;
+  posStart : int * int;
+  posEnd : int * int;
+  exp : Parsetree.expression;
+}
 
 type jsxProps = {
   componentPath : string list;
   props : prop list;
   childrenStart : (int * int) option;
 }
+
+let findJsxPropCompletable ~jsxProps ~endPos ~pos =
+  let rec loop ~seen props =
+    match props with
+    | prop :: rest ->
+      if prop.posEnd = pos then
+        Some (PartialParser.Cjsx (jsxProps.componentPath, prop.name, seen))
+      else if posInLoc ~pos ~loc:prop.exp.pexp_loc then None
+      else loop ~seen:(seen @ [prop.name]) rest
+    | [] ->
+      let posAfterProps =
+        match jsxProps.childrenStart with
+        | Some childrenPos -> childrenPos
+        | None -> endPos
+      in
+      if pos <= posAfterProps then
+        Some (PartialParser.Cjsx (jsxProps.componentPath, "", seen))
+      else None
+  in
+  loop ~seen:[] jsxProps.props
 
 let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
   let rec extractLabelPos ~pos ~i str =
@@ -59,7 +84,14 @@ let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
           | None -> (* Must be punned *) ePosStart
         in
         processProps
-          ~acc:({name = s; pos = labelPos; exp = eProp} :: acc)
+          ~acc:
+            ({
+               name = s;
+               posStart = labelPos;
+               posEnd = (fst labelPos, snd labelPos + String.length s);
+               exp = eProp;
+             }
+            :: acc)
           ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
       | _ -> assert false)
     | _ ->
@@ -82,7 +114,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     | Some offset -> offset
     | None -> assert false
   in
-  let offsetNoWhite = PartialParser.skipWhite text offset in
+  let offsetNoWhite = PartialParser.skipWhite text (offset - 1) in
   let posNoWhite =
     let line, col = posCursor in
     (line, max 0 col - offset + offsetNoWhite)
@@ -105,23 +137,36 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         match expr.pexp_desc with
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
-          let {componentPath; props; childrenStart} =
-            extractJsxProps ~text ~compName ~args
-          in
+          let jsxProps = extractJsxProps ~text ~compName ~args in
           if debug then
             Printf.printf "JSX %s:%s childrenStart:%s %s\n"
-              (componentPath |> String.concat ",")
+              (jsxProps.componentPath |> String.concat ",")
               (SemanticTokens.locToString compName.loc)
-              (match childrenStart with
+              (match jsxProps.childrenStart with
               | None -> "None"
               | Some childrenPosStart ->
                 SemanticTokens.posToString childrenPosStart)
-              (props
-              |> List.map (fun {name; pos; exp} ->
-                     Printf.sprintf "(%s:%s e:%s)" name
-                       (SemanticTokens.posToString pos)
+              (jsxProps.props
+              |> List.map (fun {name; posStart; posEnd; exp} ->
+                     Printf.sprintf "(%s:%s->%s e:%s)" name
+                       (SemanticTokens.posToString posStart)
+                       (SemanticTokens.posToString posEnd)
                        (SemanticTokens.locToString exp.pexp_loc))
-              |> String.concat ", ")
+              |> String.concat ", ");
+          let () =
+            match
+              findJsxPropCompletable ~jsxProps
+                ~endPos:(Utils.tupleOfLexing expr.pexp_loc.loc_end)
+                ~pos:posCursor
+            with
+            | Some completable ->
+              ();
+              (* if debug then
+                Printf.printf "Found JSX completable %s\n"
+                  (PartialParser.completableToString completable) *)
+            | None -> ()
+          in
+          ()
         | _ -> ());
       Ast_iterator.default_iterator.expr iterator expr
     in
@@ -134,7 +179,7 @@ let completion ~debug ~path ~pos ~currentFile =
   let result =
     let textOpt = Files.readFile currentFile in
     match textOpt with
-    | None -> []
+    | None | Some "" -> []
     | Some text ->
       completionWithParser ~debug ~path ~posCursor:pos ~currentFile ~text;
       let completionItems =
