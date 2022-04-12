@@ -17,21 +17,23 @@ type jsxProps = {
   childrenStart : (int * int) option;
 }
 
-let findJsxPropCompletable ~jsxProps ~endPos ~pos =
+let findJsxPropCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
+    =
   let rec loop ~seen props =
     match props with
     | prop :: rest ->
-      if prop.posStart <= pos && pos < prop.posEnd then
+      if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
         Some (PartialParser.Cjsx (jsxProps.componentPath, prop.name, seen))
-      else if posInLoc ~pos ~loc:prop.exp.pexp_loc then None
+      else if posInLoc ~pos:posBeforeCursor ~loc:prop.exp.pexp_loc then None
       else loop ~seen:(seen @ [prop.name]) rest
     | [] ->
       let beforeChildrenStart =
         match jsxProps.childrenStart with
-        | Some childrenPos ->  pos < childrenPos
-        | None ->  pos <= endPos
+        | Some childrenPos -> posBeforeCursor < childrenPos
+        | None -> posBeforeCursor <= endPos
       in
-      if beforeChildrenStart then
+      let afterCompName = posBeforeCursor >= posAfterCompName in
+      if afterCompName && beforeChildrenStart then
         Some (PartialParser.Cjsx (jsxProps.componentPath, "", seen))
       else None
   in
@@ -157,7 +159,8 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           let jsxCompletable =
             findJsxPropCompletable ~jsxProps
               ~endPos:(Utils.tupleOfLexing expr.pexp_loc.loc_end)
-              ~pos:(fst posCursor, max 0 (snd posCursor - 1))
+              ~posBeforeCursor:(fst posCursor, max 0 (snd posCursor - 1))
+              ~posAfterCompName:(Utils.tupleOfLexing compName.loc.loc_end)
           in
           result := jsxCompletable
         | _ -> ());
