@@ -4,7 +4,7 @@ let posInLoc ~pos ~loc =
   Utils.tupleOfLexing loc.Location.loc_start <= pos
   && pos < Utils.tupleOfLexing loc.loc_end
 
-let extractJsxProps ~text (expr : Parsetree.expression) =
+let extractJsxProps ~text ~(eComp : Parsetree.expression) ~args =
   let rec extractLabelPos ~pos ~i str =
     if i < String.length str then
       match str.[i] with
@@ -15,48 +15,41 @@ let extractJsxProps ~text (expr : Parsetree.expression) =
       | _ -> None
     else None
   in
-  match expr.pexp_desc with
-  | Pexp_apply (eComp, args) ->
-    (* To check if tha prop is punned, take the string between the last prop
-         (or the end of e) and the expr in the arg.
-       If it's whitespace only, then it's a punned <C prop />.
-       If it's "?" then it's a punned optional <C ?prop />.
-       Otherwise it should be "id =" perhaps followed by "?".
-    *)
-    let rec processProps ~lastOffset ~lastPos ~acc args =
-      match args with
-      | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
-        (List.rev acc, pexp_loc)
-      | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
-        let ePosStart = Utils.tupleOfLexing eProp.pexp_loc.loc_start in
-        let ePosEnd = Utils.tupleOfLexing eProp.pexp_loc.loc_end in
-        match
-          ( PartialParser.positionToOffset text ePosStart,
-            PartialParser.positionToOffset text ePosEnd )
-        with
-        | Some offsetStart, Some offsetEnd ->
-          let label = String.sub text lastOffset (offsetStart - lastOffset) in
-          let labelPos =
-            match extractLabelPos ~pos:lastPos ~i:0 label with
-            | Some pos -> pos
-            | None -> (* Must be punned *) ePosStart
-          in
-          processProps
-            ~acc:((s, labelPos, eProp) :: acc)
-            ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
-        | _ -> assert false)
-      | _ -> (* should not happen *) ([], Location.none)
-    in
-    let posAfterCompName = Utils.tupleOfLexing eComp.pexp_loc.loc_end in
-    let offsetAfterCompName =
-      match PartialParser.positionToOffset text posAfterCompName with
-      | None -> assert false
-      | Some offset -> offset
-    in
-    args
-    |> processProps ~lastOffset:offsetAfterCompName ~lastPos:posAfterCompName
-         ~acc:[]
-  | _ -> (* should not happen *) ([], Location.none)
+  let rec processProps ~lastOffset ~lastPos ~acc args =
+    match args with
+    | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
+      ( List.rev acc,
+        if pexp_loc.loc_ghost then None
+        else Some (Utils.tupleOfLexing pexp_loc.loc_start) )
+    | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
+      let ePosStart = Utils.tupleOfLexing eProp.pexp_loc.loc_start in
+      let ePosEnd = Utils.tupleOfLexing eProp.pexp_loc.loc_end in
+      match
+        ( PartialParser.positionToOffset text ePosStart,
+          PartialParser.positionToOffset text ePosEnd )
+      with
+      | Some offsetStart, Some offsetEnd ->
+        let label = String.sub text lastOffset (offsetStart - lastOffset) in
+        let labelPos =
+          match extractLabelPos ~pos:lastPos ~i:0 label with
+          | Some pos -> pos
+          | None -> (* Must be punned *) ePosStart
+        in
+        processProps
+          ~acc:((s, labelPos, eProp) :: acc)
+          ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
+      | _ -> assert false)
+    | _ -> (* should not happen *) ([], None)
+  in
+  let posAfterCompName = Utils.tupleOfLexing eComp.pexp_loc.loc_end in
+  let offsetAfterCompName =
+    match PartialParser.positionToOffset text posAfterCompName with
+    | None -> assert false
+    | Some offset -> offset
+  in
+  args
+  |> processProps ~lastOffset:offsetAfterCompName ~lastPos:posAfterCompName
+       ~acc:[]
 
 let completionWithParser ~debug ~path ~posCursor ~currentFile ~textOpt =
   let text = match textOpt with Some text -> text | None -> assert false in
@@ -99,13 +92,18 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~textOpt =
 
         match expr.pexp_desc with
         | Pexp_apply
-            ({pexp_desc = Pexp_ident {txt = compName; loc = compNameLoc}}, _)
+            ( ({pexp_desc = Pexp_ident {txt = compName; loc = compNameLoc}} as
+              eComp),
+              args )
           when Res_parsetree_viewer.isJsxExpression expr ->
-          let props, childrenLoc = extractJsxProps ~text expr in
-          Printf.printf "JSX %s:%s children:%s %s\n"
+          let props, childrenPosStartOpt = extractJsxProps ~text ~eComp ~args in
+          Printf.printf "JSX %s:%s childrenStart:%s %s\n"
             (compName |> flattenComponentName |> String.concat ",")
             (SemanticTokens.locToString compNameLoc)
-            (SemanticTokens.locToString childrenLoc)
+            (match childrenPosStartOpt with
+            | None -> "None"
+            | Some childrenPosStart ->
+              SemanticTokens.posToString childrenPosStart)
             (props
             |> List.map (fun (lbl, lblPos, (eProp : Parsetree.expression)) ->
                    Printf.sprintf "(%s:%s e:%s)" lbl

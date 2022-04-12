@@ -3,7 +3,7 @@ Definition tests/src/Jsx.res 5:9
 
 Complete tests/src/Jsx.res 7:2
 posCursor:(8,14) posNoWhite:(8,12) Found expr:(8,2)->(8,13)
-JSX M:(8,2)->(8,3) children:(0,-1)->(0,-1) (second:(8,4) e:(8,11)->(8,13))
+JSX M:(8,2)->(8,3) childrenStart:None (second:(8,4) e:(8,11)->(8,13))
 posCursor:(8,14) posNoWhite:(8,12) Found expr:(8,11)->(8,13)
 Completable: Cjsx([M], "", [second])
 [{
@@ -28,7 +28,7 @@ Completable: Cjsx([M], "", [second])
 
 Complete tests/src/Jsx.res 9:2
 posCursor:(10,18) posNoWhite:(10,17) Found expr:(10,2)->(10,18)
-JSX M:(10,2)->(10,3) children:(0,-1)->(0,-1) (second:(10,4) e:(10,11)->(10,16)), (f:(10,17) e:(10,17)->(10,18))
+JSX M:(10,2)->(10,3) childrenStart:None (second:(10,4) e:(10,11)->(10,16)), (f:(10,17) e:(10,17)->(10,18))
 posCursor:(10,18) posNoWhite:(10,17) Found expr:(10,17)->(10,18)
 Completable: Cjsx([M], f, [second])
 [{
@@ -47,7 +47,7 @@ Completable: Cjsx([M], f, [second])
 
 Complete tests/src/Jsx.res 11:2
 posCursor:(12,12) posNoWhite:(12,10) Found expr:(12,10)->(12,11)
-JSX M:(12,10)->(12,11) children:(0,-1)->(0,-1) 
+JSX M:(12,10)->(12,11) childrenStart:None 
 posCursor:(12,12) posNoWhite:(12,10) Found expr:(12,10)->(12,11)
 Completable: Cjsx([M], "", [])
 [{
@@ -78,7 +78,7 @@ Completable: Cjsx([M], "", [])
 
 Complete tests/src/Jsx.res 18:2
 posCursor:(19,17) posNoWhite:(19,16) Found expr:(19,2)->(19,17)
-JSX M:(19,2)->(19,3) children:(0,-1)->(0,-1) (prop:(19,4) e:(19,10)->(19,14)), (k:(19,16) e:(19,16)->(19,17))
+JSX M:(19,2)->(19,3) childrenStart:None (prop:(19,4) e:(19,10)->(19,14)), (k:(19,16) e:(19,16)->(19,17))
 posCursor:(19,17) posNoWhite:(19,16) Found expr:(19,16)->(19,17)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -91,7 +91,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 20:2
 posCursor:(21,15) posNoWhite:(21,14) Found expr:(21,2)->(21,15)
-JSX M:(21,2)->(21,3) children:(0,-1)->(0,-1) (prop:(21,4) e:(21,9)->(21,13)), (k:(21,14) e:(21,14)->(21,15))
+JSX M:(21,2)->(21,3) childrenStart:None (prop:(21,4) e:(21,9)->(21,13)), (k:(21,14) e:(21,14)->(21,15))
 posCursor:(21,15) posNoWhite:(21,14) Found expr:(21,14)->(21,15)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -104,7 +104,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 22:2
 posCursor:(23,19) posNoWhite:(23,18) Found expr:(23,2)->(23,19)
-JSX M:(23,2)->(23,3) children:(0,-1)->(0,-1) (prop:(23,4) e:(23,9)->(23,17)), (k:(23,18) e:(23,18)->(23,19))
+JSX M:(23,2)->(23,3) childrenStart:None (prop:(23,4) e:(23,9)->(23,17)), (k:(23,18) e:(23,18)->(23,19))
 posCursor:(23,19) posNoWhite:(23,18) Found expr:(23,18)->(23,19)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -117,7 +117,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 24:2
 posCursor:(25,22) posNoWhite:(25,21) Found expr:(25,2)->(25,22)
-JSX M:(25,2)->(25,3) children:(0,-1)->(0,-1) (prop:(25,4) e:(25,9)->(25,20)), (k:(25,21) e:(25,21)->(25,22))
+JSX M:(25,2)->(25,3) childrenStart:None (prop:(25,4) e:(25,9)->(25,20)), (k:(25,21) e:(25,21)->(25,22))
 posCursor:(25,22) posNoWhite:(25,21) Found expr:(25,21)->(25,22)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -130,7 +130,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 26:2
 posCursor:(27,16) posNoWhite:(27,15) Found expr:(27,2)->(27,16)
-JSX M:(27,2)->(27,3) children:(0,-1)->(0,-1) (prop:(27,4) e:(27,10)->(27,14)), (k:(27,15) e:(27,15)->(27,16))
+JSX M:(27,2)->(27,3) childrenStart:None (prop:(27,4) e:(27,10)->(27,14)), (k:(27,15) e:(27,15)->(27,16))
 posCursor:(27,16) posNoWhite:(27,15) Found expr:(27,15)->(27,16)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -143,7 +143,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 28:2
 posCursor:(29,14) posNoWhite:(29,13) Found expr:(29,2)->(29,14)
-JSX M:(29,2)->(29,3) children:(0,-1)->(0,-1) (prop:(29,4) e:(29,9)->(29,12)), (k:(29,13) e:(29,13)->(29,14))
+JSX M:(29,2)->(29,3) childrenStart:None (prop:(29,4) e:(29,9)->(29,12)), (k:(29,13) e:(29,13)->(29,14))
 posCursor:(29,14) posNoWhite:(29,13) Found expr:(29,13)->(29,14)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -156,7 +156,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 30:2
 posCursor:(31,15) posNoWhite:(31,14) Found expr:(31,2)->(31,15)
-JSX M:(31,2)->(31,3) children:(0,-1)->(0,-1) (prop:(31,4) e:(31,9)->(31,13)), (k:(31,14) e:(31,14)->(31,15))
+JSX M:(31,2)->(31,3) childrenStart:None (prop:(31,4) e:(31,9)->(31,13)), (k:(31,14) e:(31,14)->(31,15))
 posCursor:(31,15) posNoWhite:(31,14) Found expr:(31,14)->(31,15)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -169,14 +169,14 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 32:2
 posCursor:(33,16) posNoWhite:(33,15) Found expr:(33,2)->(33,16)
-JSX M:(33,2)->(33,3) children:(0,-1)->(0,-1) (prop:(33,4) e:(33,9)->(33,14)), (k:(33,15) e:(33,15)->(33,16))
+JSX M:(33,2)->(33,3) childrenStart:None (prop:(33,4) e:(33,9)->(33,14)), (k:(33,15) e:(33,15)->(33,16))
 posCursor:(33,16) posNoWhite:(33,15) Found expr:(33,15)->(33,16)
 Completable: Cdotpath([k])
 []
 
 Complete tests/src/Jsx.res 34:2
 posCursor:(35,14) posNoWhite:(35,13) Found expr:(35,2)->(35,14)
-JSX M:(35,2)->(35,3) children:(0,-1)->(0,-1) (prop:(35,4) e:(35,9)->(35,12)), (k:(35,13) e:(35,13)->(35,14))
+JSX M:(35,2)->(35,3) childrenStart:None (prop:(35,4) e:(35,9)->(35,12)), (k:(35,13) e:(35,13)->(35,14))
 posCursor:(35,14) posNoWhite:(35,13) Found expr:(35,13)->(35,14)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -189,7 +189,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 36:2
 posCursor:(37,25) posNoWhite:(37,24) Found expr:(37,2)->(37,25)
-JSX M:(37,2)->(37,3) children:(0,-1)->(0,-1) (prop:(37,4) e:(37,9)->(37,23)), (k:(37,24) e:(37,24)->(37,25))
+JSX M:(37,2)->(37,3) childrenStart:None (prop:(37,4) e:(37,9)->(37,23)), (k:(37,24) e:(37,24)->(37,25))
 posCursor:(37,25) posNoWhite:(37,24) Found expr:(37,24)->(37,25)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -202,7 +202,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 38:2
 posCursor:(39,36) posNoWhite:(39,35) Found expr:(39,2)->(39,36)
-JSX M:(39,2)->(39,3) children:(0,-1)->(0,-1) (prop:(39,4) e:(39,9)->(39,34)), (k:(39,35) e:(39,35)->(39,36))
+JSX M:(39,2)->(39,3) childrenStart:None (prop:(39,4) e:(39,9)->(39,34)), (k:(39,35) e:(39,35)->(39,36))
 posCursor:(39,36) posNoWhite:(39,35) Found expr:(39,35)->(39,36)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -215,7 +215,7 @@ Completable: Cjsx([M], k, [prop])
 
 Complete tests/src/Jsx.res 40:2
 posCursor:(41,23) posNoWhite:(41,22) Found expr:(41,2)->(41,23)
-JSX M:(41,2)->(41,3) children:(0,-1)->(0,-1) (prop:(41,4) e:(41,9)->(41,21)), (k:(41,22) e:(41,22)->(41,23))
+JSX M:(41,2)->(41,3) childrenStart:None (prop:(41,4) e:(41,9)->(41,21)), (k:(41,22) e:(41,22)->(41,23))
 posCursor:(41,23) posNoWhite:(41,22) Found expr:(41,22)->(41,23)
 Completable: Cjsx([M], k, [prop])
 [{
@@ -231,7 +231,7 @@ Definition tests/src/Jsx.res 43:11
 
 Complete tests/src/Jsx.res 52:2
 posCursor:(53,8) posNoWhite:(53,7) Found expr:(53,2)->(53,8)
-JSX Ext:(53,2)->(53,5) children:(0,-1)->(0,-1) (al:(53,6) e:(53,6)->(53,8))
+JSX Ext:(53,2)->(53,5) childrenStart:None (al:(53,6) e:(53,6)->(53,8))
 posCursor:(53,8) posNoWhite:(53,7) Found expr:(53,6)->(53,8)
 Completable: Cjsx([Ext], al, [])
 [{
@@ -244,7 +244,7 @@ Completable: Cjsx([Ext], al, [])
 
 Complete tests/src/Jsx.res 54:2
 posCursor:(55,10) posNoWhite:(55,8) Found expr:(55,2)->(55,9)
-JSX M:(55,2)->(55,3) children:(0,-1)->(0,-1) (first:(55,4) e:(55,4)->(55,9))
+JSX M:(55,2)->(55,3) childrenStart:None (first:(55,4) e:(55,4)->(55,9))
 posCursor:(55,10) posNoWhite:(55,8) Found expr:(55,4)->(55,9)
 Completable: Cjsx([M], "", [first])
 [{
@@ -269,7 +269,7 @@ Completable: Cjsx([M], "", [first])
 
 Complete tests/src/Jsx.res 56:2
 posCursor:(57,14) posNoWhite:(57,13) Found expr:(57,2)->(57,14)
-JSX M:(57,2)->(57,3) children:(0,-1)->(0,-1) (first:(57,4) e:(57,10)->(57,12)), (k:(57,13) e:(57,13)->(57,14))
+JSX M:(57,2)->(57,3) childrenStart:None (first:(57,4) e:(57,10)->(57,12)), (k:(57,13) e:(57,13)->(57,14))
 posCursor:(57,14) posNoWhite:(57,13) Found expr:(57,13)->(57,14)
 Completable: Cjsx([M], k, [first])
 [{
@@ -282,7 +282,7 @@ Completable: Cjsx([M], k, [first])
 
 Complete tests/src/Jsx.res 58:2
 posCursor:(59,21) posNoWhite:(59,20) Found expr:(59,2)->(59,21)
-JSX M:(59,2)->(59,3) children:(0,-1)->(0,-1) (first:(59,4) e:(59,17)->(59,19)), (k:(59,20) e:(59,20)->(59,21))
+JSX M:(59,2)->(59,3) childrenStart:None (first:(59,4) e:(59,17)->(59,19)), (k:(59,20) e:(59,20)->(59,21))
 posCursor:(59,21) posNoWhite:(59,20) Found expr:(59,20)->(59,21)
 Completable: Cjsx([M], k, [first])
 [{
