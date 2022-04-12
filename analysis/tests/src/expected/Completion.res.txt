@@ -458,7 +458,7 @@ Completable: Cdotpath([Js, Dict, u])
 
 Complete tests/src/Completion.res 50:2
 posCursor:(51,28) posNoWhite:(51,27) Found expr:(51,13)->(51,28)
-JSX O,Comp:(51,13)->(51,19) childrenStart:None (second:(51,20) e:(51,27)->(51,28))
+JSX O,Comp:(51,13)->(51,19) childrenStart:None (second:(51,20)->(51,26) e:(51,27)->(51,28))
 posCursor:(51,28) posNoWhite:(51,27) Found expr:(51,27)->(51,28)
 Completable: Cdotpath([z])
 [{
@@ -471,7 +471,7 @@ Completable: Cdotpath([z])
 
 Complete tests/src/Completion.res 52:2
 posCursor:(53,21) posNoWhite:(53,20) Found expr:(53,13)->(53,21)
-JSX O,Comp:(53,13)->(53,19) childrenStart:None (z:(53,20) e:(53,20)->(53,21))
+JSX O,Comp:(53,13)->(53,19) childrenStart:None (z:(53,20)->(53,21) e:(53,20)->(53,21))
 posCursor:(53,21) posNoWhite:(53,20) Found expr:(53,20)->(53,21)
 Completable: Cjsx([O, Comp], z, [])
 [{
