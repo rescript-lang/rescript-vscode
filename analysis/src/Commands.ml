@@ -26,12 +26,12 @@ let findJsxPropCompletable ~jsxProps ~endPos ~pos =
       else if posInLoc ~pos ~loc:prop.exp.pexp_loc then None
       else loop ~seen:(seen @ [prop.name]) rest
     | [] ->
-      let posAfterProps =
+      let beforeChildrenStart =
         match jsxProps.childrenStart with
-        | Some childrenPos -> childrenPos
-        | None -> endPos
+        | Some childrenPos ->  pos < childrenPos
+        | None ->  pos <= endPos
       in
-      if pos <= posAfterProps then
+      if beforeChildrenStart then
         Some (PartialParser.Cjsx (jsxProps.componentPath, "", seen))
       else None
   in
