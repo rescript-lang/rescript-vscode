@@ -68,8 +68,9 @@ Options:
 let main () =
   match Array.to_list Sys.argv with
   | [_; "completion"; path; line; col; currentFile] ->
-    Commands.completion ~debug:false ~path ~line:(int_of_string line)
-      ~col:(int_of_string col) ~currentFile
+    Commands.completion ~debug:false ~path
+      ~pos:(int_of_string line, int_of_string col)
+      ~currentFile
   | [_; "definition"; path; line; col] ->
     Commands.definition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)

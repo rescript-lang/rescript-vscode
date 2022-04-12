@@ -1226,20 +1226,17 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
       |> List.map mkLabel
 
-let getCompletable ~textOpt ~pos =
-  match textOpt with
+let getCompletable ~text ~pos =
+  match PartialParser.positionToOffset text pos with
   | None -> None
-  | Some text -> (
-    match PartialParser.positionToOffset text pos with
+  | Some offset -> (
+    match PartialParser.findCompletable text offset with
     | None -> None
-    | Some offset -> (
-      match PartialParser.findCompletable text offset with
-      | None -> None
-      | Some completable ->
-        let offsetFromLineStart = offset - snd pos in
-        (* try to avoid confusion e.g. unclosed quotes at current position *)
-        let rawOpens = PartialParser.findOpens text offsetFromLineStart in
-        Some (completable, rawOpens)))
+    | Some completable ->
+      let offsetFromLineStart = offset - snd pos in
+      (* try to avoid confusion e.g. unclosed quotes at current position *)
+      let rawOpens = PartialParser.findOpens text offsetFromLineStart in
+      Some (completable, rawOpens))
 
 let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
