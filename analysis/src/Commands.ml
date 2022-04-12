@@ -66,6 +66,18 @@ let completionWithParser ~debug ~path ~pos ~currentFile ~textOpt =
   let offsetNoWhite = PartialParser.skipWhite text offset in
   let posNoWhite = (line, max 0 col - offset + offsetNoWhite) in
 
+  let flattenComponentName lid =
+    let rec loop acc lid =
+      match lid with
+      | Longident.Lident txt -> txt :: acc
+      | Ldot (lid, txt) ->
+        let acc = if txt = "createElement" then acc else txt :: acc in
+        loop acc lid
+      | _ -> acc
+    in
+    loop [] lid
+  in
+
   if Filename.check_suffix path ".res" then (
     let parser =
       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
@@ -76,9 +88,12 @@ let completionWithParser ~debug ~path ~pos ~currentFile ~textOpt =
         found := true;
         let exprKind =
           match expr.pexp_desc with
-          | Pexp_apply _ when Res_parsetree_viewer.isJsxExpression expr ->
+          | Pexp_apply ({pexp_desc = Pexp_ident lident}, _)
+            when Res_parsetree_viewer.isJsxExpression expr ->
             let props = extractJsxProps ~text expr in
             " JSX "
+            ^ (lident.txt |> flattenComponentName |> String.concat ",")
+            ^ " "
             ^ (props
               |> List.map (fun (lbl, lblPos, (eProp : Parsetree.expression)) ->
                      Printf.sprintf "(%s:%s e:%s)" lbl
