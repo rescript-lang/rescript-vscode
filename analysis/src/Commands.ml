@@ -21,7 +21,7 @@ let findJsxPropCompletable ~jsxProps ~endPos ~pos =
   let rec loop ~seen props =
     match props with
     | prop :: rest ->
-      if prop.posEnd = pos then
+      if prop.posStart <= pos && pos < prop.posEnd then
         Some (PartialParser.Cjsx (jsxProps.componentPath, prop.name, seen))
       else if posInLoc ~pos ~loc:prop.exp.pexp_loc then None
       else loop ~seen:(seen @ [prop.name]) rest
@@ -125,6 +125,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
     in
     let found = ref false in
+    let result = ref None in
     let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
       if posInLoc ~pos:posNoWhite ~loc:expr.pexp_loc then (
         found := true;
@@ -153,27 +154,21 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
                        (SemanticTokens.posToString posEnd)
                        (SemanticTokens.locToString exp.pexp_loc))
               |> String.concat ", ");
-          let () =
-            match
-              findJsxPropCompletable ~jsxProps
-                ~endPos:(Utils.tupleOfLexing expr.pexp_loc.loc_end)
-                ~pos:posCursor
-            with
-            | Some completable ->
-              ();
-              (* if debug then
-                Printf.printf "Found JSX completable %s\n"
-                  (PartialParser.completableToString completable) *)
-            | None -> ()
+          let jsxCompletable =
+            findJsxPropCompletable ~jsxProps
+              ~endPos:(Utils.tupleOfLexing expr.pexp_loc.loc_end)
+              ~pos:(fst posCursor, max 0 (snd posCursor - 1))
           in
-          ()
+          result := jsxCompletable
         | _ -> ());
       Ast_iterator.default_iterator.expr iterator expr
     in
     let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
     let iterator = {Ast_iterator.default_iterator with expr} in
     iterator.structure iterator structure |> ignore;
-    if not !found then if debug then Printf.printf "XXX Not found!\n")
+    if !found = false then if debug then Printf.printf "XXX Not found!\n";
+    !result)
+  else None
 
 let completion ~debug ~path ~pos ~currentFile =
   let result =
@@ -181,7 +176,9 @@ let completion ~debug ~path ~pos ~currentFile =
     match textOpt with
     | None | Some "" -> []
     | Some text ->
-      completionWithParser ~debug ~path ~posCursor:pos ~currentFile ~text;
+      let jsxCompletable =
+        completionWithParser ~debug ~path ~posCursor:pos ~currentFile ~text
+      in
       let completionItems =
         match NewCompletions.getCompletable ~text ~pos with
         | None -> []
@@ -189,6 +186,13 @@ let completion ~debug ~path ~pos ~currentFile =
           if debug then
             Printf.printf "Completable: %s\n"
               (PartialParser.completableToString completable);
+          let () =
+            match completable with
+            | Cjsx _ -> assert (jsxCompletable = Some completable)
+            | _ ->
+              if jsxCompletable <> None && debug then
+                Printf.printf "XXX inconsistency\n"
+          in
           (* Only perform expensive ast operations if there are completables *)
           match Cmt.fromPath ~path with
           | None -> []
