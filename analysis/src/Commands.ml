@@ -109,6 +109,9 @@ let completion ~debug ~path ~line ~col ~currentFile =
       match NewCompletions.getCompletable ~textOpt ~pos with
       | None -> []
       | Some (completable, rawOpens) -> (
+        if debug then
+          Printf.printf "Completable: %s\n"
+            (PartialParser.completableToString completable);
         (* Only perform expensive ast operations if there are completables *)
         match Cmt.fromPath ~path with
         | None -> []

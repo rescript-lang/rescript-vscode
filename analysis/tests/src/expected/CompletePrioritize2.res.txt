@@ -1,5 +1,6 @@
 Complete tests/src/CompletePrioritize2.res 8:2
 posNoWhite:(9,3)  Found expr:(9,2)->(9,4)
+Completable: Cpipe(a, "")
 [{
     "label": "Test.add",
     "kind": 12,

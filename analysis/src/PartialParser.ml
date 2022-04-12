@@ -196,6 +196,26 @@ type completable =
       (** e.g. (["M", "foo"], ["a", "b"], "bar") for M.foo["a"]["b"]["bar" *)
   | Cpipe of pipe * string  (** E.g. ("x", "foo") for "x->foo" *)
 
+let completableToString =
+  let str s = if s = "" then "\"\"" else s in
+  let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
+  function
+  | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
+  | Clabel (sl1, s, sl2) ->
+    "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+  | Cdotpath sl -> "Cdotpath(" ^ (sl |> list) ^ ")"
+  | Cjsx (sl1, s, sl2) ->
+    "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+  | Cobj (sl1, sl2, s) ->
+    "Cobj(" ^ (sl1 |> list) ^ ", " ^ (sl2 |> list) ^ ", " ^ str s ^ ")"
+  | Cpipe (pipe, s) ->
+    "Cpipe("
+    ^ (match pipe with
+      | PipeId s -> str s
+      | PipeArray -> "PipeArray"
+      | PipeString -> "PipeString")
+    ^ ", " ^ str s ^ ")"
+
 let isLowercaseIdent id =
   let rec loop i =
     if i < 0 then true
