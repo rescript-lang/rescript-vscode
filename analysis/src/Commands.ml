@@ -108,19 +108,20 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           let {componentPath; props; childrenStart} =
             extractJsxProps ~text ~compName ~args
           in
-          Printf.printf "JSX %s:%s childrenStart:%s %s\n"
-            (componentPath |> String.concat ",")
-            (SemanticTokens.locToString compName.loc)
-            (match childrenStart with
-            | None -> "None"
-            | Some childrenPosStart ->
-              SemanticTokens.posToString childrenPosStart)
-            (props
-            |> List.map (fun {name; pos; exp} ->
-                   Printf.sprintf "(%s:%s e:%s)" name
-                     (SemanticTokens.posToString pos)
-                     (SemanticTokens.locToString exp.pexp_loc))
-            |> String.concat ", ")
+          if debug then
+            Printf.printf "JSX %s:%s childrenStart:%s %s\n"
+              (componentPath |> String.concat ",")
+              (SemanticTokens.locToString compName.loc)
+              (match childrenStart with
+              | None -> "None"
+              | Some childrenPosStart ->
+                SemanticTokens.posToString childrenPosStart)
+              (props
+              |> List.map (fun {name; pos; exp} ->
+                     Printf.sprintf "(%s:%s e:%s)" name
+                       (SemanticTokens.posToString pos)
+                       (SemanticTokens.locToString exp.pexp_loc))
+              |> String.concat ", ")
         | _ -> ());
       Ast_iterator.default_iterator.expr iterator expr
     in
