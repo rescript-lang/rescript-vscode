@@ -299,3 +299,9 @@ Completable: Cjsx([M], k, [first])
     "documentation": null
   }]
 
+Complete tests/src/Jsx.res 60:2
+posCursor:(61,4) posNoWhite:(61,3) Found expr:(61,2)->(61,4)
+JSX M:(61,2)->(61,3) childrenStart:(61,3) 
+posCursor:(61,4) posNoWhite:(61,3) Found expr:(61,3)->(62,0)
+[]
+
