@@ -113,7 +113,7 @@ let printSignature ~extractor ~signature =
       :: Sig_value (makeId (* make *), makeValueDesc) :: rest
       when Ident.name makePropsId = Ident.name makeId ^ "Props"
            && ((* from implementation *) makePropsLoc.loc_ghost
-             || (* from interface *) makePropsLoc = makeValueDesc.val_loc)
+              || (* from interface *) makePropsLoc = makeValueDesc.val_loc)
            && getComponentType makeValueDesc.val_type <> None ->
       (*
         {"name": string} => retType  ~~>  (~name:string) => retType
@@ -164,8 +164,7 @@ let printSignature ~extractor ~signature =
       (* Rescript primitive name, e.g. @val external ...
          Copy the external declaration verbatim from the implementation file *)
       let lines =
-        let posStart = val_loc.loc_start |> Utils.tupleOfLexing in
-        let posEnd = val_loc.loc_end |> Utils.tupleOfLexing in
+        let posStart, posEnd = Loc.range val_loc in
         extractor |> SourceFileExtractor.extract ~posStart ~posEnd
       in
       Buffer.add_string buf ((lines |> String.concat "\n") ^ "\n");
