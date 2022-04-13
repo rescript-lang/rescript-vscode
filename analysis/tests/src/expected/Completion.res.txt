@@ -740,20 +740,8 @@ Completable: Clabel([Lib, foo], "", [age])
 Complete tests/src/Completion.res 67:2
 posCursor:[68:2] posNoWhite:[68:1] Found expr:[67:8->69:17]
 Pexp_apply ...[67:8->67:15] (~age69:1->69:4=...[69:5->69:6], ~name69:9->69:13=...[69:14->69:16])
-Completable: Clabel([Lib, foo], "", [])
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }, {
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+Completable: Clabel([Lib, foo], "", [age, name])
+[]
 
 Complete tests/src/Completion.res 72:2
 posCursor:[73:11] posNoWhite:[73:10] Found expr:[73:8->75:18]
