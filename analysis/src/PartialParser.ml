@@ -30,9 +30,6 @@ let rec findLineComment text offset =
 (* Check if the position is inside a `//` comment *)
 let insideLineComment text offset = findLineComment text offset <> None
 
-let skipLineComment text offset =
-  match findLineComment text offset with None -> offset | Some n -> n - 1
-
 let rec skipWhite text i =
   if i < 0 then 0
   else
@@ -47,50 +44,6 @@ let rec startOfLident text i =
     | 'a' .. 'z' | 'A' .. 'Z' | '.' | '_' | '0' .. '9' ->
       startOfLident text (i - 1)
     | _ -> i + 1
-
-(* foo(... ~arg) from ~arg find foo *)
-let findCallFromArgument text offset =
-  let none = ([], []) in
-  let rec loop identsSeen i =
-    let i = skipLineComment text i in
-    let i = skipWhite text i in
-    if i > 0 then
-      match text.[i] with
-      | '}' ->
-        let i1 = findBackSkippingCommentsAndStrings text '{' '}' (i - 1) 0 in
-        if i1 > 0 then loop identsSeen i1 else none
-      | ')' ->
-        let i1 = findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0 in
-        if i1 > 0 then loop identsSeen i1 else none
-      | ']' ->
-        let i1 = findBackSkippingCommentsAndStrings text '[' ']' (i - 1) 0 in
-        if i1 > 0 then loop identsSeen i1 else none
-      | '"' ->
-        let i1 = findBack text '"' (i - 1) in
-        if i1 > 0 then loop identsSeen i1 else none
-      | '\'' ->
-        let i1 = findBack text '\'' (i - 1) in
-        if i1 > 0 then loop identsSeen i1 else none
-      | '`' ->
-        let i1 = findBack text '`' (i - 1) in
-        if i1 > 0 then loop identsSeen i1 else none
-      | '(' ->
-        let i1 = skipWhite text (i - 1) in
-        let i0 = startOfLident text i1 in
-        let funLident = String.sub text i0 (i1 - i0 + 1) in
-        (Str.split (Str.regexp_string ".") funLident, identsSeen)
-      | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' ->
-        let i1 = startOfLident text i in
-        let ident = String.sub text i1 (i - i1 + 1) in
-        if i1 - 1 > 0 then
-          match text.[i1 - 1] with
-          | '~' -> loop (ident :: identsSeen) (i1 - 2)
-          | _ -> loop identsSeen (i1 - 1)
-        else none
-      | _ -> loop identsSeen (i - 1)
-    else none
-  in
-  loop [] offset
 
 type pipe = PipeId of string | PipeArray | PipeString
 
@@ -197,10 +150,7 @@ let findCompletable text offset =
         let rest = suffix i in
         if isLowercaseIdent rest then mkPipe (i - 2) rest
         else Some (mkPath rest)
-      | '~' ->
-        let labelPrefix = suffix i in
-        let funPath, identsSeen = findCallFromArgument text (i - 1) in
-        Some (Clabel (funPath, labelPrefix, identsSeen))
+      | '~' -> None
       | '@' -> Some (Cdecorator (suffix i))
       | '"' when i > 0 && text.[i - 1] = '[' ->
         let partialName = suffix i in
