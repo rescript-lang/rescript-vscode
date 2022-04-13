@@ -89,31 +89,6 @@ let findCompletable text offset =
     | [id] when String.lowercase_ascii id = id -> Cdotpath dotpath
     | _ -> Cdotpath dotpath
   in
-  let mkObj ~off ~partialName =
-    let off = skipWhite text off in
-    let rec loop off path i =
-      if i < 0 then
-        let id = String.sub text 0 (i - 1) in
-        Some ([], [id])
-      else
-        match text.[i] with
-        | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '.' ->
-          loop off path (i - 1)
-        | ']' when i > 1 && text.[i - 1] = '"' ->
-          let i0 = i - 2 in
-          let i1 = startOfLident text i0 in
-          let ident = String.sub text i1 (i0 - i1 + 1) in
-          if ident <> "" && i1 > 1 && text.[i1 - 1] = '"' && text.[i1 - 2] = '['
-          then loop (off - i + i1 - 3) (ident :: path) (i1 - 3)
-          else None
-        | _ ->
-          let id = String.sub text (i + 1) (off - i) in
-          Some (path, Str.split (Str.regexp_string ".") id)
-    in
-    match loop off [] off with
-    | None -> None
-    | Some (path, lhs) -> Some (Cobj (lhs, path, partialName))
-  in
 
   let suffix i = String.sub text (i + 1) (offset - (i + 1)) in
   let rec loop i =
@@ -122,9 +97,6 @@ let findCompletable text offset =
       match text.[i] with
       | '~' -> None
       | '@' -> Some (Cdecorator (suffix i))
-      | '"' when i > 0 && text.[i - 1] = '[' ->
-        let partialName = suffix i in
-        mkObj ~off:(i - 2) ~partialName
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
       | ' ' when i = offset - 1 ->
         (* autocomplete with no id *)
