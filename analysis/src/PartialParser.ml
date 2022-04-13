@@ -45,7 +45,7 @@ let rec startOfLident text i =
       startOfLident text (i - 1)
     | _ -> i + 1
 
-type pipe = PipeId of string | PipeArray | PipeString
+type pipe = PipeId of string list | PipeArray | PipeString
 
 type completable =
   | Cdecorator of string  (** e.g. @module *)
@@ -73,7 +73,7 @@ let completableToString =
   | Cpipe (pipe, s) ->
     "Cpipe("
     ^ (match pipe with
-      | PipeId s -> str s
+      | PipeId sl -> sl |> list
       | PipeArray -> "PipeArray"
       | PipeString -> "PipeString")
     ^ ", " ^ str s ^ ")"
@@ -103,13 +103,17 @@ let findCompletable text offset =
   let mkPipe off partialName =
     let off = skipWhite text off in
     let rec loop i =
-      if i < 0 then Some (PipeId (String.sub text 0 (i - 1)))
+      if i < 0 then
+        Some (PipeId (String.split_on_char '\n' (String.sub text 0 (i - 1))))
       else
         match text.[i] with
         | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
         | '"' when i == off -> Some PipeString
         | ']' when i == off -> Some PipeArray
-        | _ -> Some (PipeId (String.sub text (i + 1) (off - i)))
+        | _ ->
+          Some
+            (PipeId
+               (String.split_on_char '\n' (String.sub text (i + 1) (off - i))))
     in
     match loop off with
     | None -> None

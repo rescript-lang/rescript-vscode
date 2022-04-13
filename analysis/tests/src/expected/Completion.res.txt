@@ -405,7 +405,7 @@ Completable: Cpipe(PipeString, toU)
 Complete tests/src/Completion.res 27:2
 posCursor:[28:6] posNoWhite:[28:5] Found expr:[28:1->28:6]
 posCursor:[28:6] posNoWhite:[28:5] Found expr:[28:5->28:6]
-Completable: Cpipe(op, e)
+Completable: Cpipe([op], e)
 [{
     "label": "Belt.Option.eqU",
     "kind": 12,
@@ -425,7 +425,7 @@ posCursor:[37:5] posNoWhite:[37:4] Found expr:[37:1->46:3]
 Pexp_apply ...[41:9->41:10] (...[37:1->41:8], ...[42:2->46:3])
 posCursor:[37:5] posNoWhite:[37:4] Found expr:[37:1->41:8]
 posCursor:[37:5] posNoWhite:[37:4] Found expr:[37:3->37:5]
-Completable: Cpipe(fa, "")
+Completable: Cpipe([fa], "")
 [{
     "label": "ForAuto.abc",
     "kind": 12,
