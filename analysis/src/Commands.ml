@@ -364,6 +364,40 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
             in
             result := expApplyCompletable
+          | Pexp_send (lhs, {txt; loc}) -> (
+            (* e["txt"]
+               If the string for txt is not closed, it could go over several lines.
+               Only take the first like to represent the label *)
+            let txtLines = txt |> String.split_on_char '\n' in
+            let label = List.hd txtLines in
+            let labelRange =
+              let l, c = Loc.start loc in
+              ((l, c + 1), (l, c + 1 + String.length label))
+            in
+
+            let rec processLhs (lhs : Parsetree.expression) =
+              match lhs.pexp_desc with
+              | Pexp_ident id -> Some (flattenLongIdent id.txt, [])
+              | Pexp_send (e1, {txt}) -> (
+                match processLhs e1 with
+                | None -> None
+                | Some (idPath, nestedPath) -> Some (idPath, nestedPath @ [txt])
+                )
+              | _ -> None
+            in
+
+            if debug then
+              Printf.printf "XXX Pexp_send %s%s e:%s\n" label
+                (Range.toString labelRange)
+                (Loc.toString lhs.pexp_loc);
+            if
+              labelRange |> Range.hasPos ~pos:posBeforeCursor
+              || (label = "" && posCursor = fst labelRange)
+            then
+              match processLhs lhs with
+              | Some (idPath, nestedPath) ->
+                result := Some (PartialParser.Cobj (idPath, nestedPath, label))
+              | None -> ())
           | _ -> ());
         Ast_iterator.default_iterator.expr iterator expr
     in
