@@ -92,11 +92,11 @@ end
 let locToPositions (loc : Location.t) =
   (Utils.tupleOfLexing loc.loc_start, Utils.tupleOfLexing loc.loc_end)
 
-let posToString (loc, col) = Printf.sprintf "(%d,%d)" loc col
+let posToString (loc, col) = Printf.sprintf "%d:%d" loc col
 
 let locToString (loc : Location.t) =
   let posStart, posEnd = locToPositions loc in
-  Printf.sprintf "%s->%s" (posToString posStart) (posToString posEnd)
+  Printf.sprintf "[%s->%s]" (posToString posStart) (posToString posEnd)
 
 let isLowercaseId id =
   id <> ""
