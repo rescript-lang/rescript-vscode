@@ -242,7 +242,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       if posInLoc ~pos:posNoWhite ~loc:expr.pexp_loc then (
         found := true;
         if debug then
-          Printf.printf "posCursor:%s posNoWhite:%s Found expr:%s\n"
+          Printf.printf "posCursor:[%s] posNoWhite:[%s] Found expr:%s\n"
             (SemanticTokens.posToString posCursor)
             (SemanticTokens.posToString posNoWhite)
             (SemanticTokens.locToString expr.pexp_loc);
@@ -252,20 +252,20 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           when Res_parsetree_viewer.isJsxExpression expr ->
           let jsxProps = extractJsxProps ~text ~compName ~args in
           if debug then
-            Printf.printf "JSX %s:%s childrenStart:%s %s\n"
+            Printf.printf "JSX <%s:%s %s> _children:%s\n"
               (jsxProps.componentPath |> String.concat ",")
               (SemanticTokens.locToString compName.loc)
-              (match jsxProps.childrenStart with
-              | None -> "None"
-              | Some childrenPosStart ->
-                SemanticTokens.posToString childrenPosStart)
               (jsxProps.props
               |> List.map (fun {name; posStart; posEnd; exp} ->
-                     Printf.sprintf "(%s:%s->%s e:%s)" name
+                     Printf.sprintf "%s[%s->%s]=...%s" name
                        (SemanticTokens.posToString posStart)
                        (SemanticTokens.posToString posEnd)
                        (SemanticTokens.locToString exp.pexp_loc))
-              |> String.concat ", ");
+              |> String.concat " ")
+              (match jsxProps.childrenStart with
+              | None -> "None"
+              | Some childrenPosStart ->
+                SemanticTokens.posToString childrenPosStart);
           let jsxCompletable =
             findJsxPropCompletable ~jsxProps
               ~endPos:(Utils.tupleOfLexing expr.pexp_loc.loc_end)

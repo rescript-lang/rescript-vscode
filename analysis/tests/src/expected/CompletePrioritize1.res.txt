@@ -1,5 +1,5 @@
 Complete tests/src/CompletePrioritize1.res 4:2
-posCursor:(5,4) posNoWhite:(5,3) Found expr:(5,2)->(5,4)
+posCursor:[5:4] posNoWhite:[5:3] Found expr:[5:2->5:4]
 Completable: Cpipe(a, "")
 [{
     "label": "Test.add",
