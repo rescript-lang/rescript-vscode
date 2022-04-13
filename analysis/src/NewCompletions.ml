@@ -1020,7 +1020,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       | Path.Pident id when Ident.name id = "string" -> stringModulePath
       | _ -> ( match loop path with _ :: rest -> List.rev rest | [] -> [])
     in
-    let getLhsPath ~pipeId ~partialName =
+    let getLhsPath ~pipeIdPath ~partialName =
       let getConstr typ =
         match typ.Types.desc with
         | Tconstr (path, _, _)
@@ -1053,7 +1053,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
           | None -> None
           | Some (typ1, env1) -> getFields ~env:env1 ~typ:typ1 rest)
       in
-      match String.split_on_char '.' pipeId with
+      match pipeIdPath with
       | x :: fieldNames -> (
         match [x] |> processDotPath ~exact:true with
         | ({Completion.kind = Value typ}, env) :: _ -> (
@@ -1065,7 +1065,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     in
     let lhsPath =
       match pipe with
-      | PipeId pipeId -> getLhsPath ~pipeId ~partialName
+      | PipeId pipeIdPath -> getLhsPath ~pipeIdPath ~partialName
       | PipeString -> Some (stringModulePath, partialName)
       | PipeArray -> Some (arrayModulePath, partialName)
     in

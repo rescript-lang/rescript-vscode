@@ -57,7 +57,7 @@ let rec skipComment ~pos ~i ~depth str =
     | _ -> skipComment ~depth ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
   else None
 
-let flattenLongIdent ~jsx lid =
+let flattenLongIdent ?(jsx = false) lid =
   let rec loop acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -146,7 +146,7 @@ type arg = {label : label; exp : Parsetree.expression}
 
 let findExpApplyCompletable ~(args : arg list) ~endPos ~posBeforeCursor
     ~(funName : Longident.t Location.loc) =
-  let funPath = flattenLongIdent ~jsx:false funName.txt in
+  let funPath = flattenLongIdent funName.txt in
   let posAfterFunName = Loc.end_ funName.loc in
   let allNames =
     List.fold_right
@@ -264,60 +264,108 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     let found = ref false in
     let result = ref None in
     let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
-      if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite then (
+      let setFound () =
         found := true;
         if debug then
           Printf.printf "posCursor:[%s] posNoWhite:[%s] Found expr:%s\n"
             (Pos.toString posCursor) (Pos.toString posNoWhite)
-            (Loc.toString expr.pexp_loc);
+            (Loc.toString expr.pexp_loc)
+      in
+      let setPipeResult ~(lhs : Parsetree.expression) ~id =
+        let rec findPipe (e : Parsetree.expression) =
+          match e.pexp_desc with
+          | Pexp_constant (Pconst_string _) -> Some PartialParser.PipeString
+          | Pexp_array _ -> Some PartialParser.PipeArray
+          | Pexp_ident {txt} ->
+            Some (PartialParser.PipeId (flattenLongIdent txt))
+          | Pexp_field (e1, {txt}) -> (
+            match findPipe e1 with
+            | Some (PipeId path) -> Some (PipeId (path @ flattenLongIdent txt))
+            | _ -> None)
+          | _ -> None
+        in
+        match findPipe lhs with
+        | Some pipe ->
+          result := Some (PartialParser.Cpipe (pipe, id));
+          true
+        | None -> false
+      in
 
-        match expr.pexp_desc with
-        | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
-          when Res_parsetree_viewer.isJsxExpression expr ->
-          let jsxProps = extractJsxProps ~text ~compName ~args in
-          if debug then
-            Printf.printf "JSX <%s:%s %s> _children:%s\n"
-              (jsxProps.componentPath |> String.concat ",")
-              (Loc.toString compName.loc)
-              (jsxProps.props
-              |> List.map (fun {name; posStart; posEnd; exp} ->
-                     Printf.sprintf "%s[%s->%s]=...%s" name
-                       (Pos.toString posStart) (Pos.toString posEnd)
-                       (Loc.toString exp.pexp_loc))
-              |> String.concat " ")
-              (match jsxProps.childrenStart with
-              | None -> "None"
-              | Some childrenPosStart -> Pos.toString childrenPosStart);
-          let jsxCompletable =
-            findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
-              ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
-          in
-          result := jsxCompletable
-        | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
-          (* Pipe *)
-          ()
-        | Pexp_apply ({pexp_desc = Pexp_ident funName}, args) ->
-          let args = extractExpApplyArgs ~text ~funName ~args in
-          if debug then
-            Printf.printf "Pexp_apply ...%s (%s)\n" (Loc.toString funName.loc)
-              (args
-              |> List.map (fun {label; exp} ->
-                     Printf.sprintf "%s...%s"
-                       (match label with
-                       | None -> ""
-                       | Some {name; opt; posStart; posEnd} ->
-                         "~" ^ name ^ Pos.toString posStart ^ "->"
-                         ^ Pos.toString posEnd ^ "="
-                         ^ if opt then "?" else "")
-                       (Loc.toString exp.pexp_loc))
-              |> String.concat ", ");
-          let expApplyCompletable =
-            findExpApplyCompletable ~funName ~args
-              ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
-          in
-          result := expApplyCompletable
-        | _ -> ());
-      Ast_iterator.default_iterator.expr iterator expr
+      match expr.pexp_desc with
+      | Pexp_apply
+          ( {pexp_desc = Pexp_ident {txt = Lident "|."; loc = opLoc}},
+            [
+              (_, lhs);
+              (_, {pexp_desc = Pexp_extension _; pexp_loc = {loc_ghost = true}});
+            ] )
+        when opLoc |> Loc.hasPos ~pos:posBeforeCursor ->
+        (* Case foo-> when the parser adds a ghost expression to the rhs
+           so the apply expression does not include the cursor *)
+        if setPipeResult ~lhs ~id:"" then setFound ()
+      | _ ->
+        if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite then (
+          setFound ();
+          match expr.pexp_desc with
+          | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
+            when Res_parsetree_viewer.isJsxExpression expr ->
+            let jsxProps = extractJsxProps ~text ~compName ~args in
+            if debug then
+              Printf.printf "JSX <%s:%s %s> _children:%s\n"
+                (jsxProps.componentPath |> String.concat ",")
+                (Loc.toString compName.loc)
+                (jsxProps.props
+                |> List.map (fun {name; posStart; posEnd; exp} ->
+                       Printf.sprintf "%s[%s->%s]=...%s" name
+                         (Pos.toString posStart) (Pos.toString posEnd)
+                         (Loc.toString exp.pexp_loc))
+                |> String.concat " ")
+                (match jsxProps.childrenStart with
+                | None -> "None"
+                | Some childrenPosStart -> Pos.toString childrenPosStart);
+            let jsxCompletable =
+              findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
+                ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
+            in
+            result := jsxCompletable
+          | Pexp_apply
+              ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+                [
+                  (_, lhs);
+                  (_, {pexp_desc = Pexp_ident {txt = Longident.Lident id; loc}});
+                ] )
+            when loc |> Loc.hasPos ~pos:posBeforeCursor ->
+            (* Case foo->id *)
+            setPipeResult ~lhs ~id |> ignore
+          | Pexp_apply
+              ( {pexp_desc = Pexp_ident {txt = Lident "|."; loc = opLoc}},
+                [(_, lhs); _] )
+            when Loc.end_ opLoc = posCursor ->
+            (* Case foo-> *)
+            setPipeResult ~lhs ~id:"" |> ignore
+          | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
+            ()
+          | Pexp_apply ({pexp_desc = Pexp_ident funName}, args) ->
+            let args = extractExpApplyArgs ~text ~funName ~args in
+            if debug then
+              Printf.printf "Pexp_apply ...%s (%s)\n" (Loc.toString funName.loc)
+                (args
+                |> List.map (fun {label; exp} ->
+                       Printf.sprintf "%s...%s"
+                         (match label with
+                         | None -> ""
+                         | Some {name; opt; posStart; posEnd} ->
+                           "~" ^ name ^ Pos.toString posStart ^ "->"
+                           ^ Pos.toString posEnd ^ "="
+                           ^ if opt then "?" else "")
+                         (Loc.toString exp.pexp_loc))
+                |> String.concat ", ");
+            let expApplyCompletable =
+              findExpApplyCompletable ~funName ~args
+                ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
+            in
+            result := expApplyCompletable
+          | _ -> ());
+        Ast_iterator.default_iterator.expr iterator expr
     in
     let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
     let iterator = {Ast_iterator.default_iterator with expr} in
