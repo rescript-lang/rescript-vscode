@@ -39,10 +39,40 @@ let findJsxPropCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
   in
   loop ~seen:[] jsxProps.props
 
+let rec skipLineComment ~pos ~i str =
+  if i < String.length str then
+    match str.[i] with
+    | '\n' -> Some ((fst pos + 1, 0), i + 1)
+    | _ -> skipLineComment ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
+  else None
+
+let rec skipComment ~pos ~i ~depth str =
+  if i < String.length str then
+    match str.[i] with
+    | '\n' -> skipComment ~depth ~pos:(fst pos + 1, 0) ~i:(i + 1) str
+    | '/' when i + 1 < String.length str && str.[i + 1] = '*' ->
+      skipComment ~depth:(depth + 1) ~pos:(fst pos, snd pos + 2) ~i:(i + 2) str
+    | '*' when i + 1 < String.length str && str.[i + 1] = '/' ->
+      if depth > 1 then
+        skipComment ~depth:(depth - 1)
+          ~pos:(fst pos, snd pos + 2)
+          ~i:(i + 2) str
+      else Some ((fst pos, snd pos + 2), i + 2)
+    | _ -> skipComment ~depth ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
+  else None
+
 let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
   let rec extractLabelPos ~pos ~i str =
     if i < String.length str then
       match str.[i] with
+      | '/' when i + 1 < String.length str && str.[i + 1] = '/' -> (
+        match skipLineComment ~pos ~i str with
+        | Some (pos, i) -> extractLabelPos ~pos ~i str
+        | None -> None)
+      | '/' when i + 1 < String.length str && str.[i + 1] = '*' -> (
+        match skipComment ~depth:0 ~pos ~i str with
+        | Some (pos, i) -> extractLabelPos ~pos ~i str
+        | None -> None)
       | ' ' | '\r' | '\t' ->
         extractLabelPos ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
       | '\n' -> extractLabelPos ~pos:(fst pos + 1, 0) ~i:(i + 1) str
@@ -110,6 +140,86 @@ let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
   |> processProps ~lastOffset:offsetAfterCompName ~lastPos:posAfterCompName
        ~acc:[]
 
+type labelled = {
+  name : string;
+  opt : bool;
+  posStart : int * int;
+  posEnd : int * int;
+}
+
+type label = labelled option
+type arg = {label : label; exp : Parsetree.expression}
+
+let extractExpApplyArgs ~text ~eFun ~args =
+  let rec extractLabelPos ~pos ~i str =
+    if i < String.length str then
+      match str.[i] with
+      | '/' when i + 1 < String.length str && str.[i + 1] = '/' -> (
+        match skipLineComment ~pos ~i str with
+        | Some (pos, i) -> extractLabelPos ~pos ~i str
+        | None -> None)
+      | '/' when i + 1 < String.length str && str.[i + 1] = '*' -> (
+        match skipComment ~depth:0 ~pos ~i str with
+        | Some (pos, i) -> extractLabelPos ~pos ~i str
+        | None -> None)
+      | ' ' | '\r' | '\t' | ',' | '(' | '~' ->
+        extractLabelPos ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
+      | '\n' -> extractLabelPos ~pos:(fst pos + 1, 0) ~i:(i + 1) str
+      | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' -> Some pos
+      | _ -> None
+    else None
+  in
+  let rec processArgs ~lastOffset ~lastPos ~acc args =
+    match args with
+    | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
+      :: rest -> (
+      let ePosStart = Utils.tupleOfLexing e.pexp_loc.loc_start in
+      let ePosEnd = Utils.tupleOfLexing e.pexp_loc.loc_end in
+      match
+        ( PartialParser.positionToOffset text ePosStart,
+          PartialParser.positionToOffset text ePosEnd )
+      with
+      | Some offsetStart, Some offsetEnd ->
+        let labelText = String.sub text lastOffset (offsetStart - lastOffset) in
+        let labelPos =
+          match extractLabelPos ~pos:lastPos ~i:0 labelText with
+          | Some pos -> pos
+          | None -> (* Must be punned *) ePosStart
+        in
+        let labelled =
+          {
+            name = s;
+            opt = (match label with Optional _ -> true | _ -> false);
+            posStart = labelPos;
+            posEnd = (fst labelPos, snd labelPos + String.length s);
+          }
+        in
+        processArgs
+          ~acc:({label = Some labelled; exp = e} :: acc)
+          ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
+      | _ -> assert false)
+    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest -> (
+      if e.pexp_loc.loc_ghost then processArgs ~acc ~lastOffset ~lastPos rest
+      else
+        let ePosEnd = Utils.tupleOfLexing e.pexp_loc.loc_end in
+        match PartialParser.positionToOffset text ePosEnd with
+        | Some offsetEnd ->
+          processArgs
+            ~acc:({label = None; exp = e} :: acc)
+            ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
+        | _ ->
+          (* should not happen *)
+          assert false)
+    | [] -> List.rev acc
+  in
+  let lastPos = Utils.tupleOfLexing eFun.Parsetree.pexp_loc.loc_end in
+  let lastOffset =
+    match PartialParser.positionToOffset text lastPos with
+    | Some offset -> offset
+    | None -> assert false
+  in
+  args |> processArgs ~lastOffset ~lastPos ~acc:[]
+
 let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   let offset =
     match PartialParser.positionToOffset text posCursor with
@@ -163,6 +273,28 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               ~posAfterCompName:(Utils.tupleOfLexing compName.loc.loc_end)
           in
           result := jsxCompletable
+        | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
+          (* Pipe *)
+          ()
+        | Pexp_apply (eFun, args) ->
+          let args = extractExpApplyArgs ~text ~eFun ~args in
+          if debug then
+            Printf.printf "Pexp_apply ...%s (%s)\n"
+              (SemanticTokens.locToString eFun.pexp_loc)
+              (args
+              |> List.map (fun {label; exp} ->
+                     Printf.sprintf "%s...%s"
+                       (match label with
+                       | None -> ""
+                       | Some {name; opt; posStart; posEnd} ->
+                         "~" ^ name
+                         ^ SemanticTokens.posToString posStart
+                         ^ "->"
+                         ^ SemanticTokens.posToString posEnd
+                         ^ "="
+                         ^ if opt then "?" else "")
+                       (SemanticTokens.locToString exp.pexp_loc))
+              |> String.concat ", ")
         | _ -> ());
       Ast_iterator.default_iterator.expr iterator expr
     in
