@@ -9,6 +9,7 @@ import {
 } from "vscode-languageserver-protocol";
 import fs from "fs";
 import * as os from "os";
+import { processDiagnosticMessage } from "./processDiagnosticMessage";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -609,8 +610,7 @@ export let parseCompilerLogOutput = (
       code: parsedDiagnostic.code,
       range,
       source: "ReScript",
-      // remove start and end whitespaces/newlines
-      message: diagnosticMessage.join("\n").trim() + "\n",
+      message: processDiagnosticMessage(diagnosticMessage),
     });
   });
 
