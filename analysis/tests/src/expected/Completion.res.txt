@@ -744,7 +744,7 @@ Completable: Clabel([Lib, foo], "", [age, name])
 []
 
 Complete tests/src/Completion.res 72:2
-posCursor:[73:11] posNoWhite:[73:10] Found expr:[73:8->75:18]
+posCursor:[73:11] posNoWhite:[73:10] Found expr:[73:1->75:18]
 Completable: Cobj([someObj], [], a)
 [{
     "label": "age",
@@ -755,7 +755,7 @@ Completable: Cobj([someObj], [], a)
   }]
 
 Complete tests/src/Completion.res 76:2
-posCursor:[77:22] posNoWhite:[77:21] Found expr:[77:20->80:10]
+posCursor:[77:22] posNoWhite:[77:21] Found expr:[77:1->80:10]
 Completable: Cobj([nestedObj], [x, y], "")
 [{
     "label": "age",
@@ -772,7 +772,7 @@ Completable: Cobj([nestedObj], [x, y], "")
   }]
 
 Complete tests/src/Completion.res 79:2
-posCursor:[80:5] posNoWhite:[80:4] Found expr:[80:2->82:20]
+posCursor:[80:5] posNoWhite:[80:4] Found expr:[80:1->82:20]
 Completable: Cobj([o], [], a)
 [{
     "label": "age",
@@ -783,7 +783,7 @@ Completable: Cobj([o], [], a)
   }]
 
 Complete tests/src/Completion.res 83:2
-posCursor:[84:15] posNoWhite:[84:14] Found expr:[84:13->101:20]
+posCursor:[84:15] posNoWhite:[84:14] Found expr:[84:1->101:20]
 Completable: Cobj([no], [x, y], "")
 [{
     "label": "name",
@@ -847,7 +847,7 @@ Completable: Cdotpath([my])
   }]
 
 Complete tests/src/Completion.res 100:3
-posCursor:[101:13] posNoWhite:[101:12] Found expr:[101:11->120:32]
+posCursor:[101:13] posNoWhite:[101:12] Found expr:[101:1->120:32]
 Completable: Cobj([Obj, object], [], "")
 [{
     "label": "name",
