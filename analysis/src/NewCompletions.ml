@@ -1238,10 +1238,10 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
       let rec prioritize decls =
         match decls with
         | (d1, e1) :: (d2, e2) :: rest ->
-          let pos2 = d2.Completion.extentLoc.loc_start |> Utils.tupleOfLexing in
+          let pos2 = d2.Completion.extentLoc.loc_start |> Pos.ofLexing in
           if pos2 >= pos then prioritize ((d1, e1) :: rest)
           else
-            let pos1 = d1.extentLoc.loc_start |> Utils.tupleOfLexing in
+            let pos1 = d1.extentLoc.loc_start |> Pos.ofLexing in
             if pos1 <= pos2 then prioritize ((d2, e2) :: rest)
             else prioritize ((d1, e1) :: rest)
         | [] | [_] -> decls

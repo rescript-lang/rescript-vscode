@@ -1,9 +1,5 @@
 open SharedTypes
 
-let posInLoc ~pos ~loc =
-  Utils.tupleOfLexing loc.Location.loc_start <= pos
-  && pos < Utils.tupleOfLexing loc.loc_end
-
 type prop = {
   name : string;
   posStart : int * int;
@@ -24,7 +20,7 @@ let findJsxPropCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
     | prop :: rest ->
       if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
         Some (PartialParser.Cjsx (jsxProps.componentPath, prop.name, seen))
-      else if posInLoc ~pos:posBeforeCursor ~loc:prop.exp.pexp_loc then None
+      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
       else loop ~seen:(seen @ [prop.name]) rest
     | [] ->
       let beforeChildrenStart =
@@ -98,12 +94,10 @@ let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
         componentPath = flattenComponentName compName.txt;
         props = List.rev acc;
         childrenStart =
-          (if pexp_loc.loc_ghost then None
-          else Some (Utils.tupleOfLexing pexp_loc.loc_start));
+          (if pexp_loc.loc_ghost then None else Some (Loc.start pexp_loc));
       }
     | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
-      let ePosStart = Utils.tupleOfLexing eProp.pexp_loc.loc_start in
-      let ePosEnd = Utils.tupleOfLexing eProp.pexp_loc.loc_end in
+      let ePosStart, ePosEnd = Loc.range eProp.pexp_loc in
       match
         ( PartialParser.positionToOffset text ePosStart,
           PartialParser.positionToOffset text ePosEnd )
@@ -130,7 +124,7 @@ let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
       (* should not happen *)
       {componentPath = []; props = []; childrenStart = None}
   in
-  let posAfterCompName = Utils.tupleOfLexing compName.loc.loc_end in
+  let posAfterCompName = Loc.end_ compName.loc in
   let offsetAfterCompName =
     match PartialParser.positionToOffset text posAfterCompName with
     | None -> assert false
@@ -173,8 +167,7 @@ let extractExpApplyArgs ~text ~eFun ~args =
     match args with
     | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
       :: rest -> (
-      let ePosStart = Utils.tupleOfLexing e.pexp_loc.loc_start in
-      let ePosEnd = Utils.tupleOfLexing e.pexp_loc.loc_end in
+      let ePosStart, ePosEnd = Loc.range e.pexp_loc in
       match
         ( PartialParser.positionToOffset text ePosStart,
           PartialParser.positionToOffset text ePosEnd )
@@ -201,7 +194,7 @@ let extractExpApplyArgs ~text ~eFun ~args =
     | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest -> (
       if e.pexp_loc.loc_ghost then processArgs ~acc ~lastOffset ~lastPos rest
       else
-        let ePosEnd = Utils.tupleOfLexing e.pexp_loc.loc_end in
+        let ePosEnd = Loc.end_ e.pexp_loc in
         match PartialParser.positionToOffset text ePosEnd with
         | Some offsetEnd ->
           processArgs
@@ -212,7 +205,7 @@ let extractExpApplyArgs ~text ~eFun ~args =
           assert false)
     | [] -> List.rev acc
   in
-  let lastPos = Utils.tupleOfLexing eFun.Parsetree.pexp_loc.loc_end in
+  let lastPos = Loc.end_ eFun.Parsetree.pexp_loc in
   let lastOffset =
     match PartialParser.positionToOffset text lastPos with
     | Some offset -> offset
@@ -239,7 +232,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     let found = ref false in
     let result = ref None in
     let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
-      if posInLoc ~pos:posNoWhite ~loc:expr.pexp_loc then (
+      if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite then (
         found := true;
         if debug then
           Printf.printf "posCursor:[%s] posNoWhite:[%s] Found expr:%s\n"
@@ -264,10 +257,9 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               | None -> "None"
               | Some childrenPosStart -> Pos.toString childrenPosStart);
           let jsxCompletable =
-            findJsxPropCompletable ~jsxProps
-              ~endPos:(Utils.tupleOfLexing expr.pexp_loc.loc_end)
+            findJsxPropCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
               ~posBeforeCursor:(fst posCursor, max 0 (snd posCursor - 1))
-              ~posAfterCompName:(Utils.tupleOfLexing compName.loc.loc_end)
+              ~posAfterCompName:(Loc.end_ compName.loc)
           in
           result := jsxCompletable
         | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->

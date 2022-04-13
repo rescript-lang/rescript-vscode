@@ -49,12 +49,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [
-      {
-        Module.kind = Module.Value declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module.Value declared.item; name = declared.name.txt}]
   | Sig_type
       ( ident,
         ({type_loc; type_kind; type_manifest; type_attributes} as decl),
@@ -127,12 +122,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Type)
         Stamps.addType
     in
-    [
-      {
-        Module.kind = Type (declared.item, recStatus);
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Type (declared.item, recStatus); name = declared.name.txt}]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
       addItem ~extent:md_loc
@@ -142,12 +132,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [
-      {
-        Module.kind = Module declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module declared.item; name = declared.name.txt}]
   | _ -> []
 
 and forTypeSignature env signature =
@@ -247,12 +232,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [
-      {
-        Module.kind = Module.Value declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module.Value declared.item; name = declared.name.txt}]
   | Tsig_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -272,12 +252,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [
-      {
-        Module.kind = Module declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module declared.item; name = declared.name.txt}]
   | Tsig_recmodule modDecls ->
     modDecls
     |> List.map (fun modDecl ->
@@ -375,12 +350,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [
-      {
-        Module.kind = Module declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module declared.item; name = declared.name.txt}]
   | Tstr_recmodule modDecls ->
     modDecls
     |> List.map (fun modDecl ->
@@ -406,12 +376,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [
-      {
-        Module.kind = Module modTypeItem;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module modTypeItem; name = declared.name.txt}]
   | Tstr_include {incl_mod; incl_type} ->
     let env =
       match getModulePath incl_mod.mod_desc with
@@ -435,12 +400,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [
-      {
-        Module.kind = Value declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Value declared.item; name = declared.name.txt}]
   | Tstr_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -1248,8 +1208,7 @@ let rec resolvePath ~env ~path ~package =
       | Some file ->
         resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package))
 
-let locationIsBefore {Location.loc_start} pos =
-  Utils.tupleOfLexing loc_start <= pos
+let locationIsBefore {Location.loc_start} pos = Pos.ofLexing loc_start <= pos
 
 let findInScope pos name iter stamps =
   (* Log.log("Find " ++ name ++ " with " ++ string_of_int(Hashtbl.length(stamps)) ++ " stamps"); *)
