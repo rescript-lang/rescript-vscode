@@ -1921,7 +1921,7 @@ and parseBracketAccess p expr startPos =
     let rbracket = p.prevEndPos in
     let e =
       let identLoc = mkLoc stringStart stringEnd in
-      let loc = mkLoc lbracket rbracket in
+      let loc = mkLoc startPos rbracket in
       Ast_helper.Exp.send ~loc expr (Location.mkloc s identLoc)
     in
     let e = parsePrimaryExpr ~operand:e p in
