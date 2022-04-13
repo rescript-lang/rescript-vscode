@@ -78,17 +78,6 @@ let completableToString =
       | PipeString -> "PipeString")
     ^ ", " ^ str s ^ ")"
 
-let isLowercaseIdent id =
-  let rec loop i =
-    if i < 0 then true
-    else
-      match id.[i] with
-      | ('a' .. 'z' | '_') when i = 0 -> true
-      | ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_') when i > 0 -> loop (i - 1)
-      | _ -> false
-  in
-  loop (String.length id - 1)
-
 let findCompletable text offset =
   let mkPath s =
     let len = String.length s in
@@ -99,25 +88,6 @@ let findCompletable text offset =
     match dotpath with
     | [id] when String.lowercase_ascii id = id -> Cdotpath dotpath
     | _ -> Cdotpath dotpath
-  in
-  let mkPipe off partialName =
-    let off = skipWhite text off in
-    let rec loop i =
-      if i < 0 then
-        Some (PipeId (String.split_on_char '\n' (String.sub text 0 (i - 1))))
-      else
-        match text.[i] with
-        | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
-        | '"' when i == off -> Some PipeString
-        | ']' when i == off -> Some PipeArray
-        | _ ->
-          Some
-            (PipeId
-               (String.split_on_char '\n' (String.sub text (i + 1) (off - i))))
-    in
-    match loop off with
-    | None -> None
-    | Some lhs -> Some (Cpipe (lhs, partialName))
   in
   let mkObj ~off ~partialName =
     let off = skipWhite text off in
@@ -150,10 +120,6 @@ let findCompletable text offset =
     if i < 0 then Some (mkPath (suffix i))
     else
       match text.[i] with
-      | '>' when i > 0 && text.[i - 1] = '-' ->
-        let rest = suffix i in
-        if isLowercaseIdent rest then mkPipe (i - 2) rest
-        else Some (mkPath rest)
       | '~' -> None
       | '@' -> Some (Cdecorator (suffix i))
       | '"' when i > 0 && text.[i - 1] = '[' ->
