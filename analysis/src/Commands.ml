@@ -243,9 +243,8 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         found := true;
         if debug then
           Printf.printf "posCursor:[%s] posNoWhite:[%s] Found expr:%s\n"
-            (SemanticTokens.posToString posCursor)
-            (SemanticTokens.posToString posNoWhite)
-            (SemanticTokens.locToString expr.pexp_loc);
+            (Pos.toString posCursor) (Pos.toString posNoWhite)
+            (Loc.toString expr.pexp_loc);
 
         match expr.pexp_desc with
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
@@ -254,18 +253,16 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           if debug then
             Printf.printf "JSX <%s:%s %s> _children:%s\n"
               (jsxProps.componentPath |> String.concat ",")
-              (SemanticTokens.locToString compName.loc)
+              (Loc.toString compName.loc)
               (jsxProps.props
               |> List.map (fun {name; posStart; posEnd; exp} ->
                      Printf.sprintf "%s[%s->%s]=...%s" name
-                       (SemanticTokens.posToString posStart)
-                       (SemanticTokens.posToString posEnd)
-                       (SemanticTokens.locToString exp.pexp_loc))
+                       (Pos.toString posStart) (Pos.toString posEnd)
+                       (Loc.toString exp.pexp_loc))
               |> String.concat " ")
               (match jsxProps.childrenStart with
               | None -> "None"
-              | Some childrenPosStart ->
-                SemanticTokens.posToString childrenPosStart);
+              | Some childrenPosStart -> Pos.toString childrenPosStart);
           let jsxCompletable =
             findJsxPropCompletable ~jsxProps
               ~endPos:(Utils.tupleOfLexing expr.pexp_loc.loc_end)
@@ -280,20 +277,17 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           let args = extractExpApplyArgs ~text ~eFun ~args in
           if debug then
             Printf.printf "Pexp_apply ...%s (%s)\n"
-              (SemanticTokens.locToString eFun.pexp_loc)
+              (Loc.toString eFun.pexp_loc)
               (args
               |> List.map (fun {label; exp} ->
                      Printf.sprintf "%s...%s"
                        (match label with
                        | None -> ""
                        | Some {name; opt; posStart; posEnd} ->
-                         "~" ^ name
-                         ^ SemanticTokens.posToString posStart
-                         ^ "->"
-                         ^ SemanticTokens.posToString posEnd
-                         ^ "="
+                         "~" ^ name ^ Pos.toString posStart ^ "->"
+                         ^ Pos.toString posEnd ^ "="
                          ^ if opt then "?" else "")
-                       (SemanticTokens.locToString exp.pexp_loc))
+                       (Loc.toString exp.pexp_loc))
               |> String.concat ", ")
         | _ -> ());
       Ast_iterator.default_iterator.expr iterator expr
