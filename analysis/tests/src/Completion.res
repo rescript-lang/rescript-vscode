@@ -133,3 +133,9 @@ let q:bb = assert false
 // ^com q.aa.n
 
 // ^com Lis
+
+module WithChildren = {
+  @react.component
+  let make = (~children, ~name as _: string) => <jsx> children </jsx>
+}
+// ^com <WithChildren 
