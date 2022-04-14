@@ -1,49 +1,9 @@
-let rec findBack text char i =
-  if i < 0 then i
-  else if text.[i] = char && (i = 0 || text.[i - 1] <> '/') then i - 1
-  else findBack text char (i - 1)
-
-let rec findOpenComment text i =
-  if i < 1 then 0
-  else if text.[i] = '*' && text.[i - 1] = '/' then i - 2
-  else findOpenComment text (i - 1)
-
-let rec findBackSkippingCommentsAndStrings text char pair i level =
-  let loop = findBackSkippingCommentsAndStrings text char pair in
-  if i < 0 then 0
-  else if text.[i] = char then
-    if level = 0 then i - 1 else loop (i - 1) (level - 1)
-  else if text.[i] = pair then loop (i - 1) (level + 1)
-  else
-    match text.[i] with
-    | '"' -> loop (findBack text '"' (i - 1)) level
-    | '/' when i >= 1 && text.[i - 1] = '*' ->
-      loop (findOpenComment text (i - 2)) level
-    | _ -> loop (i - 1) level
-
-let rec findLineComment text offset =
-  if offset <= 0 || text.[offset] = '\n' then None
-  else if offset > 0 && text.[offset] = '/' && text.[offset - 1] = '/' then
-    Some (offset - 1)
-  else findLineComment text (offset - 1)
-
-(* Check if the position is inside a `//` comment *)
-let insideLineComment text offset = findLineComment text offset <> None
-
 let rec skipWhite text i =
   if i < 0 then 0
   else
     match text.[i] with
     | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
     | _ -> i
-
-let rec startOfLident text i =
-  if i < 0 then 0
-  else
-    match text.[i] with
-    | 'a' .. 'z' | 'A' .. 'Z' | '.' | '_' | '0' .. '9' ->
-      startOfLident text (i - 1)
-    | _ -> i + 1
 
 type pipe = PipeId of string list | PipeArray | PipeString
 
@@ -92,68 +52,6 @@ let findCompletable text offset =
       | _ -> if i = offset - 1 then None else None
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)
-
-let findOpens text offset =
-  let opens = ref [] in
-  let pathOfModuleOpen o =
-    let rec loop items =
-      match items with
-      | [] -> ["place holder"]
-      | one :: rest -> one :: loop rest
-    in
-    loop (o |> Str.split (Str.regexp_string "."))
-  in
-  let add o = opens := (o |> pathOfModuleOpen) :: !opens in
-  let maybeOpen i0 =
-    let rec loop i =
-      if i < 4 then 0
-      else
-        match text.[i] with
-        | 'a' .. 'z' | 'A' .. 'Z' | '.' | '_' | '0' .. '9' -> loop (i - 1)
-        | ' ' | '!' ->
-          let at = skipWhite text (i - 1) in
-          let at =
-            if at >= 0 && text.[at] = '!' then
-              (* handle open! *)
-              skipWhite text (at - 1)
-            else at
-          in
-          if
-            at >= 3
-            && text.[at - 3] = 'o'
-            && text.[at - 2] = 'p'
-            && text.[at - 1] = 'e'
-            && text.[at] = 'n'
-            && not (insideLineComment text (at - 4))
-          then (
-            add (String.sub text (i + 1) (i0 + 1 - (i + 1)));
-            at - 4)
-          else at
-        | _ -> i
-    in
-    loop (i0 - 1)
-  in
-  let rec loop i =
-    if i > 1 then
-      match text.[i] with
-      | '}' -> loop (findBackSkippingCommentsAndStrings text '{' '}' (i - 1) 0)
-      | ']' -> loop (findBackSkippingCommentsAndStrings text '[' ']' (i - 1) 0)
-      | ')' -> loop (findBackSkippingCommentsAndStrings text '(' ')' (i - 1) 0)
-      | '"' -> loop (findBack text '"' (i - 1))
-      | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' -> loop (maybeOpen i)
-      | '(' when text.[i - 1] = '.' -> (
-        match text.[i - 2] with
-        | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' ->
-          let i0 = startOfLident text (i - 3) in
-          add (String.sub text i0 (i - i0 - 1))
-        | _ -> loop (i - 1))
-      | _ ->
-        if i > 1 && text.[i] = '/' && text.[i - 1] = '*' then
-          loop (findOpenComment text (i - 2))
-        else loop (i - 1)
-  in
-  loop (offset - 1) |> ignore;
-  !opens
 
 let offsetOfLine text line =
   let ln = String.length text in
