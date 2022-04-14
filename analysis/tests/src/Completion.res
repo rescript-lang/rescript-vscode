@@ -131,3 +131,5 @@ type bb = {aa:aa, w:int}
 let q:bb = assert false
 // ^com q.aa.
 // ^com q.aa.n
+
+// ^com Lis
