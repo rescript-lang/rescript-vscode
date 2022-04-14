@@ -349,3 +349,17 @@ Completable: Cjsx([WithChildren], "", [])
     "documentation": null
   }]
 
+Complete tests/src/Jsx.res 69:2
+posCursor:[70:16] posNoWhite:[70:15] Found expr:[70:2->70:16]
+JSX <WithChildren:[70:2->70:14] n[70:15->70:16]=...[70:15->70:16]> _children:None
+posCursor:[70:16] posNoWhite:[70:15] Found expr:[70:15->70:16]
+Pexp_ident n:[70:15->70:16]
+Completable: Cjsx([WithChildren], n, [n])
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
