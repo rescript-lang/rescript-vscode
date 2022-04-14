@@ -557,32 +557,24 @@ let completion ~debug ~path ~pos ~currentFile =
     match textOpt with
     | None | Some "" -> []
     | Some text ->
-      let jsxCompletable =
-        completionWithParser ~debug ~path ~posCursor:pos ~currentFile ~text
-      in
       let completionItems =
-        match PartialParser.positionToOffset text pos with
+        match
+          completionWithParser ~debug ~path ~posCursor:pos ~currentFile ~text
+        with
         | None -> []
-        | Some offset -> (
-          match
-            (jsxCompletable, (PartialParser.findCompletable text offset, []))
-          with
-          | None, (None, _) -> []
-          | Some (completable, opensInScope), _
-          | _, (Some completable, opensInScope) -> (
-            if debug then
-              Printf.printf "Completable: %s\n"
-                (PartialParser.completableToString completable);
-            let rawOpens =
-              opensInScope
-              |> List.map (fun id -> flattenLongIdent id @ ["place holder"])
-            in
-            (* Only perform expensive ast operations if there are completables *)
-            match Cmt.fromPath ~path with
-            | None -> []
-            | Some full ->
-              NewCompletions.computeCompletions ~completable ~full ~pos
-                ~rawOpens))
+        | Some (completable, opensInScope) -> (
+          if debug then
+            Printf.printf "Completable: %s\n"
+              (PartialParser.completableToString completable);
+          let rawOpens =
+            opensInScope
+            |> List.map (fun id -> flattenLongIdent id @ ["place holder"])
+          in
+          (* Only perform expensive ast operations if there are completables *)
+          match Cmt.fromPath ~path with
+          | None -> []
+          | Some full ->
+            NewCompletions.computeCompletions ~completable ~full ~pos ~rawOpens)
       in
       completionItems
   in
