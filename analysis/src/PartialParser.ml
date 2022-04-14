@@ -79,29 +79,17 @@ let completableToString =
     ^ ", " ^ str s ^ ")"
 
 let findCompletable text offset =
-  let mkPath s =
-    let len = String.length s in
-    let dotpath = Str.split (Str.regexp_string ".") s in
-    let dotpath =
-      match s.[len - 1] with '.' -> dotpath @ [""] | _ -> dotpath
-    in
-    match dotpath with
-    | [id] when String.lowercase_ascii id = id -> Cdotpath dotpath
-    | _ -> Cdotpath dotpath
-  in
-
   let suffix i = String.sub text (i + 1) (offset - (i + 1)) in
   let rec loop i =
-    if i < 0 then Some (mkPath (suffix i))
+    if i < 0 then None
     else
       match text.[i] with
-      | '~' -> None
       | '@' -> Some (Cdecorator (suffix i))
       | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
       | ' ' when i = offset - 1 ->
         (* autocomplete with no id *)
         None
-      | _ -> if i = offset - 1 then None else Some (mkPath (suffix i))
+      | _ -> if i = offset - 1 then None else None
   in
   if offset > String.length text || offset = 0 then None else loop (offset - 1)
 
