@@ -272,6 +272,38 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     in
     let found = ref false in
     let result = ref None in
+    let opensInScope = ref [] in
+    let setResultOpt x =
+      if !result = None then
+        match x with None -> () | Some x -> result := Some (x, !opensInScope)
+    in
+    let setResult x = setResultOpt (Some x) in
+    let structure (iterator : Ast_iterator.iterator)
+        (structure : Parsetree.structure) =
+      let oldOpens = !opensInScope in
+      Ast_iterator.default_iterator.structure iterator structure;
+      opensInScope := oldOpens
+    in
+    let structure_item (iterator : Ast_iterator.iterator)
+        (item : Parsetree.structure_item) =
+      (match item.pstr_desc with
+      | Pstr_open {popen_lid} -> opensInScope := popen_lid.txt :: !opensInScope
+      | _ -> ());
+      Ast_iterator.default_iterator.structure_item iterator item
+    in
+    let signature (iterator : Ast_iterator.iterator)
+        (signature : Parsetree.signature) =
+      let oldOpens = !opensInScope in
+      Ast_iterator.default_iterator.signature iterator signature;
+      opensInScope := oldOpens
+    in
+    let signature_item (iterator : Ast_iterator.iterator)
+        (item : Parsetree.signature_item) =
+      (match item.psig_desc with
+      | Psig_open {popen_lid} -> opensInScope := popen_lid.txt :: !opensInScope
+      | _ -> ());
+      Ast_iterator.default_iterator.signature_item iterator item
+    in
     let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
       let setFound () =
         found := true;
@@ -295,7 +327,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         in
         match findPipe lhs with
         | Some pipe ->
-          result := Some (PartialParser.Cpipe (pipe, id));
+          setResult (PartialParser.Cpipe (pipe, id));
           true
         | None -> false
       in
@@ -321,9 +353,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
                 (flattenLongIdent id.txt |> String.concat ".")
                 (Loc.toString id.loc);
             if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-              if !result = None then
-                result :=
-                  Some (PartialParser.Cdotpath (flattenLongIdent id.txt))
+              setResult (PartialParser.Cdotpath (flattenLongIdent id.txt))
           | Pexp_construct (id, eOpt) ->
             if debug then
               Printf.printf "Pexp_construct %s:%s %s\n"
@@ -335,10 +365,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             if
               eOpt = None && (not id.loc.loc_ghost)
               && id.loc |> Loc.hasPos ~pos:posBeforeCursor
-            then
-              if !result = None then
-                result :=
-                  Some (PartialParser.Cdotpath (flattenLongIdent id.txt))
+            then setResult (PartialParser.Cdotpath (flattenLongIdent id.txt))
           | Pexp_field (e, fieldName) -> (
             if debug then
               Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
@@ -355,15 +382,11 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             in
             if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
               match digLhs e with
-              | Some path ->
-                if !result = None then
-                  result := Some (PartialParser.Cdotpath path)
+              | Some path -> setResult (PartialParser.Cdotpath path)
               | None -> ()
             else if Loc.end_ e.pexp_loc = posBeforeCursor then
               match digLhs e with
-              | Some path ->
-                if !result = None then
-                  result := Some (PartialParser.Cdotpath (path @ [""]))
+              | Some path -> setResult (PartialParser.Cdotpath (path @ [""]))
               | None -> ())
           | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
             when Res_parsetree_viewer.isJsxExpression expr ->
@@ -385,14 +408,11 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
                 ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
             in
-            if jsxCompletable <> None then result := jsxCompletable
-            else if
-              compName.loc |> Loc.hasPos ~pos:posBeforeCursor && !result = None
-            then
-              result :=
-                Some
-                  (PartialParser.Cdotpath
-                     (flattenLongIdent ~jsx:true compName.txt))
+            if jsxCompletable <> None then setResultOpt jsxCompletable
+            else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
+              setResult
+                (PartialParser.Cdotpath
+                   (flattenLongIdent ~jsx:true compName.txt))
           | Pexp_apply
               ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
                 [
@@ -429,7 +449,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               findExpApplyCompletable ~funName ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
             in
-            if expApplyCompletable <> None then result := expApplyCompletable
+            setResultOpt expApplyCompletable
           | Pexp_send (lhs, {txt; loc}) -> (
             (* e["txt"]
                If the string for txt is not closed, it could go over several lines.
@@ -462,14 +482,23 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             then
               match processLhs lhs with
               | Some (idPath, nestedPath) ->
-                result := Some (PartialParser.Cobj (idPath, nestedPath, label))
+                setResult (PartialParser.Cobj (idPath, nestedPath, label))
               | None -> ())
           | _ -> ());
         Ast_iterator.default_iterator.expr iterator expr
     in
-    let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
-    let iterator = {Ast_iterator.default_iterator with expr} in
-    iterator.structure iterator structure |> ignore;
+    let {Res_driver.parsetree = str} = parser ~filename:currentFile in
+    let iterator =
+      {
+        Ast_iterator.default_iterator with
+        expr;
+        signature;
+        signature_item;
+        structure;
+        structure_item;
+      }
+    in
+    iterator.structure iterator str |> ignore;
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else None
@@ -487,16 +516,18 @@ let completion ~debug ~path ~pos ~currentFile =
         match PartialParser.positionToOffset text pos with
         | None -> []
         | Some offset -> (
-          match (jsxCompletable, PartialParser.findCompletable text offset) with
-          | None, None -> []
-          | Some completable, _ | _, Some completable -> (
+          match
+            (jsxCompletable, (PartialParser.findCompletable text offset, []))
+          with
+          | None, (None, _) -> []
+          | Some (completable, opensInScope), _
+          | _, (Some completable, opensInScope) -> (
             if debug then
               Printf.printf "Completable: %s\n"
                 (PartialParser.completableToString completable);
             let rawOpens =
-              let offsetFromLineStart = offset - snd pos in
-              (* try to avoid confusion e.g. unclosed quotes at current position *)
-              PartialParser.findOpens text offsetFromLineStart
+              opensInScope
+              |> List.map (fun id -> flattenLongIdent id @ ["place holder"])
             in
             (* Only perform expensive ast operations if there are completables *)
             match Cmt.fromPath ~path with
