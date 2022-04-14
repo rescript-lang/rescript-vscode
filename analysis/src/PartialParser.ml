@@ -38,21 +38,6 @@ let rec skipWhite text i =
     | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
     | _ -> i
 
-let findCompletable text offset =
-  let suffix i = String.sub text (i + 1) (offset - (i + 1)) in
-  let rec loop i =
-    if i < 0 then None
-    else
-      match text.[i] with
-      | '@' -> Some (Cdecorator (suffix i))
-      | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '.' | '_' -> loop (i - 1)
-      | ' ' when i = offset - 1 ->
-        (* autocomplete with no id *)
-        None
-      | _ -> if i = offset - 1 then None else None
-  in
-  if offset > String.length text || offset = 0 then None else loop (offset - 1)
-
 let offsetOfLine text line =
   let ln = String.length text in
   let rec loop i lno =
