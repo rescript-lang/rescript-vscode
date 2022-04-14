@@ -705,7 +705,7 @@ let parseModuleLongIdentTail ~lowercase p startPos ident =
       end
     | t ->
       Parser.err p (Diagnostics.uident t);
-      Location.mkloc acc (mkLoc startPos p.prevEndPos)
+      Location.mkloc (Longident.Ldot (acc, "$")) (mkLoc startPos p.prevEndPos)
   in
   loop p ident
 
