@@ -1,10 +1,3 @@
-let rec skipWhite text i =
-  if i < 0 then 0
-  else
-    match text.[i] with
-    | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
-    | _ -> i
-
 type pipe = PipeId of string list | PipeArray | PipeString
 
 type completable =
@@ -37,6 +30,13 @@ let completableToString =
       | PipeArray -> "PipeArray"
       | PipeString -> "PipeString")
     ^ ", " ^ str s ^ ")"
+
+let rec skipWhite text i =
+  if i < 0 then 0
+  else
+    match text.[i] with
+    | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
+    | _ -> i
 
 let findCompletable text offset =
   let suffix i = String.sub text (i + 1) (offset - (i + 1)) in

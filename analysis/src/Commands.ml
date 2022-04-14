@@ -96,6 +96,9 @@ let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
       | _ -> None
     else None
   in
+  let thisCaseShouldNotHappen =
+    {componentPath = []; props = []; childrenStart = None}
+  in
   let rec processProps ~lastOffset ~lastPos ~acc args =
     match args with
     | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
@@ -128,10 +131,8 @@ let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
              }
             :: acc)
           ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
-      | _ -> assert false)
-    | _ ->
-      (* should not happen *)
-      {componentPath = []; props = []; childrenStart = None}
+      | _ -> thisCaseShouldNotHappen)
+    | _ -> thisCaseShouldNotHappen
   in
   let posAfterCompName = Loc.end_ compName.loc in
   let offsetAfterCompName =
