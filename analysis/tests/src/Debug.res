@@ -6,7 +6,13 @@ let _ = List.map
 //            ^def
 
 open Js
-// ^com eqN
+module Before = {
+  open Belt
+  let _ = Id.getCmpInternal
+}
+module Inner = {
+  // ^com eqN
+  open List
+  let _ = map
+}
 // ^db-
-open List
-let _ = map
