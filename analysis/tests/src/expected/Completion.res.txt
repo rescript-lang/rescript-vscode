@@ -932,8 +932,8 @@ Completable: Cdotpath([O, ""])
   }]
 
 Complete tests/src/Completion.res 130:3
-posCursor:[131:6] posNoWhite:[131:5] Found expr:[131:1->133:0]
-Pexp_field [131:1->131:5] _:[133:0->133:0]
+posCursor:[131:6] posNoWhite:[131:5] Found expr:[131:1->136:0]
+Pexp_field [131:1->131:5] _:[136:0->136:0]
 Completable: Cdotpath([q, aa, ""])
 [{
     "label": "x",
@@ -960,4 +960,8 @@ Completable: Cdotpath([q, aa])
     "detail": "aa: aa\n\ntype bb = {aa: aa, w: int}",
     "documentation": null
   }]
+
+Complete tests/src/Completion.res 133:3
+posCursor:[134:4] posNoWhite:[134:3] Found expr:[134:1->134:4]
+[]
 
