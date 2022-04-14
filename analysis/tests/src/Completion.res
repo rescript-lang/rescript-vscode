@@ -125,3 +125,9 @@ let foo = {
 exception MyOtherException
 
 // ^com <O.
+
+type aa= {x:int, name:string}
+type bb = {aa:aa, w:int}
+let q:bb = assert false
+// ^com q.aa.
+// ^com q.aa.n

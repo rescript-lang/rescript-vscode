@@ -62,9 +62,13 @@ let flattenLongIdent ?(jsx = false) lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
     | Ldot (lid, txt) ->
-      let acc = if jsx && txt = "createElement" then acc else txt :: acc in
+      let acc =
+        if jsx && txt = "createElement" then acc
+        else if txt = "$" then "" :: acc
+        else txt :: acc
+      in
       loop acc lid
-    | _ -> acc
+    | Lapply _ -> acc
   in
   loop [] lid
 
@@ -306,6 +310,41 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite then (
           setFound ();
           match expr.pexp_desc with
+          | Pexp_ident id ->
+            if debug then
+              Printf.printf "Pexp_ident %s:%s\n"
+                (flattenLongIdent id.txt |> String.concat ".")
+                (Loc.toString id.loc);
+            if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
+              if !result = None then
+                result :=
+                  Some (PartialParser.Cdotpath (flattenLongIdent id.txt))
+          | Pexp_field (e, fieldName) -> (
+            if debug then
+              Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
+                (flattenLongIdent fieldName.txt |> String.concat ".")
+                (Loc.toString fieldName.loc);
+            let rec digLhs (lhs : Parsetree.expression) =
+              match lhs.pexp_desc with
+              | Pexp_ident id -> Some (flattenLongIdent id.txt)
+              | Pexp_field (lhs, id) -> (
+                match digLhs lhs with
+                | Some path -> Some (path @ flattenLongIdent id.txt)
+                | None -> None)
+              | _ -> None
+            in
+            if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
+              match digLhs e with
+              | Some path ->
+                if !result = None then
+                  result := Some (PartialParser.Cdotpath path)
+              | None -> ()
+            else if Loc.end_ e.pexp_loc = posBeforeCursor then
+              match digLhs e with
+              | Some path ->
+                if !result = None then
+                  result := Some (PartialParser.Cdotpath (path @ [""]))
+              | None -> ())
           | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
             when Res_parsetree_viewer.isJsxExpression expr ->
             let jsxProps = extractJsxProps ~text ~compName ~args in
@@ -326,7 +365,14 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
                 ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
             in
-            result := jsxCompletable
+            if jsxCompletable <> None then result := jsxCompletable
+            else if
+              compName.loc |> Loc.hasPos ~pos:posBeforeCursor && !result = None
+            then
+              result :=
+                Some
+                  (PartialParser.Cdotpath
+                     (flattenLongIdent ~jsx:true compName.txt))
           | Pexp_apply
               ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
                 [
@@ -363,7 +409,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               findExpApplyCompletable ~funName ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
             in
-            result := expApplyCompletable
+            if expApplyCompletable <> None then result := expApplyCompletable
           | Pexp_send (lhs, {txt; loc}) -> (
             (* e["txt"]
                If the string for txt is not closed, it could go over several lines.
