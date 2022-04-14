@@ -324,6 +324,21 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               if !result = None then
                 result :=
                   Some (PartialParser.Cdotpath (flattenLongIdent id.txt))
+          | Pexp_construct (id, eOpt) ->
+            if debug then
+              Printf.printf "Pexp_construct %s:%s %s\n"
+                (flattenLongIdent id.txt |> String.concat "\n")
+                (Loc.toString id.loc)
+                (match eOpt with
+                | None -> "None"
+                | Some e -> Loc.toString e.pexp_loc);
+            if
+              eOpt = None && (not id.loc.loc_ghost)
+              && id.loc |> Loc.hasPos ~pos:posBeforeCursor
+            then
+              if !result = None then
+                result :=
+                  Some (PartialParser.Cdotpath (flattenLongIdent id.txt))
           | Pexp_field (e, fieldName) -> (
             if debug then
               Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
