@@ -342,12 +342,6 @@ Completable: Cjsx([WithChildren], "", [])
     "detail": "string",
     "documentation": null
   }, {
-    "label": "children",
-    "kind": 4,
-    "tags": [],
-    "detail": "React.element",
-    "documentation": null
-  }, {
     "label": "key",
     "kind": 4,
     "tags": [],
