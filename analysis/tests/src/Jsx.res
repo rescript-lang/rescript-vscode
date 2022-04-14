@@ -60,3 +60,11 @@ let _ = (Ext.make, Ext.makeProps)
 //^com <M first =  ?   #a k
 
 //^com <M>
+
+module WithChildren = {
+  @react.component
+  let make = (~name as _: string, ~children) => <jsx> children </jsx>
+}
+
+let _ = <WithChildren name=""> <div/> </WithChildren>
+//^com <WithChildren 
