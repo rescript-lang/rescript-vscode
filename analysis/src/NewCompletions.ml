@@ -941,7 +941,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       | ({Completion.kind = Completion.Value typ}, _env) :: _ ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
-          | Tfield (name, _, t1, t2) ->
+          | Tfield (name, _, t1, t2) when name <> "children" ->
             let fields = t2 |> getFields in
             (name, t1) :: fields
           | Tlink te -> te |> getFields
