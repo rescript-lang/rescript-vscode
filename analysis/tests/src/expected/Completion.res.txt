@@ -963,5 +963,19 @@ Completable: Cdotpath([q, aa])
 
 Complete tests/src/Completion.res 133:3
 posCursor:[134:4] posNoWhite:[134:3] Found expr:[134:1->134:4]
-[]
+Pexp_construct Lis:[134:1->134:4] None
+Completable: Cdotpath([Lis])
+[{
+    "label": "List",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ListLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
 

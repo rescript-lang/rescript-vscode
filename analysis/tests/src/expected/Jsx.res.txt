@@ -322,5 +322,6 @@ Complete tests/src/Jsx.res 60:2
 posCursor:[61:4] posNoWhite:[61:3] Found expr:[61:2->61:4]
 JSX <M:[61:2->61:3] > _children:61:3
 posCursor:[61:4] posNoWhite:[61:3] Found expr:[61:3->62:0]
+Pexp_construct []:__ghost__[61:3->62:0] None
 []
 
