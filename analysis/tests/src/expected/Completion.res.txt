@@ -486,7 +486,7 @@ posCursor:[53:21] posNoWhite:[53:20] Found expr:[53:13->53:21]
 JSX <O,Comp:[53:13->53:19] z[53:20->53:21]=...[53:20->53:21]> _children:None
 posCursor:[53:21] posNoWhite:[53:20] Found expr:[53:20->53:21]
 Pexp_ident z:[53:20->53:21]
-Completable: Cjsx([O, Comp], z, [])
+Completable: Cjsx([O, Comp], z, [z])
 [{
     "label": "zoo",
     "kind": 4,

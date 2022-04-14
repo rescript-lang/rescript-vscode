@@ -6,7 +6,7 @@ posCursor:[4:15] posNoWhite:[4:14] Found expr:[4:2->4:15]
 JSX <div:[4:2->4:5] dangerous[4:6->4:15]=...[4:6->4:15]> _children:None
 posCursor:[4:15] posNoWhite:[4:14] Found expr:[4:6->4:15]
 Pexp_ident dangerous:[4:6->4:15]
-Completable: Cjsx([div], dangerous, [])
+Completable: Cjsx([div], dangerous, [dangerous])
 [{
     "label": "dangerouslySetInnerHTML",
     "kind": 4,

@@ -15,13 +15,18 @@ type jsxProps = {
 
 let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
     =
-  let rec loop ~seen props =
+  let allLabels =
+    List.fold_right
+      (fun prop allLabels -> prop.name :: allLabels)
+      jsxProps.props []
+  in
+  let rec loop props =
     match props with
     | prop :: rest ->
       if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
-        Some (PartialParser.Cjsx (jsxProps.componentPath, prop.name, seen))
+        Some (PartialParser.Cjsx (jsxProps.componentPath, prop.name, allLabels))
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
-      else loop ~seen:(seen @ [prop.name]) rest
+      else loop rest
     | [] ->
       let beforeChildrenStart =
         match jsxProps.childrenStart with
@@ -30,10 +35,10 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
       in
       let afterCompName = posBeforeCursor >= posAfterCompName in
       if afterCompName && beforeChildrenStart then
-        Some (PartialParser.Cjsx (jsxProps.componentPath, "", seen))
+        Some (PartialParser.Cjsx (jsxProps.componentPath, "", allLabels))
       else None
   in
-  loop ~seen:[] jsxProps.props
+  loop jsxProps.props
 
 let rec skipLineComment ~pos ~i str =
   if i < String.length str then
