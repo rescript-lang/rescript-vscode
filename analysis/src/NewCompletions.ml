@@ -936,7 +936,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
     let completions =
-      processDotPath ~pathKind:PartialParser.Value ~exact:true
+      processDotPath ~completionContext:PartialParser.Value ~exact:true
         (componentPath @ ["make"])
     in
     let labels =
@@ -996,8 +996,10 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
       @ keyLabels
-  | Cdotpath (dotpath, pathKind) ->
-    let completions = dotpath |> processDotPath ~pathKind ~exact:false in
+  | Cdotpath (dotpath, completionContext) ->
+    let completions =
+      dotpath |> processDotPath ~completionContext ~exact:false
+    in
     (* TODO(#107): figure out why we're getting duplicates. *)
     completions |> Utils.dedup
     |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
@@ -1059,7 +1061,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       match pipeIdPath with
       | x :: fieldNames -> (
         match
-          [x] |> processDotPath ~pathKind:PartialParser.Value ~exact:true
+          [x]
+          |> processDotPath ~completionContext:PartialParser.Value ~exact:true
         with
         | ({Completion.kind = Value typ}, env) :: _ -> (
           match getFields ~env ~typ fieldNames with
@@ -1111,7 +1114,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
         in
         let dotpath = modulePath @ [partialName] in
         let declareds =
-          dotpath |> processDotPath ~pathKind:PartialParser.Value ~exact:false
+          dotpath
+          |> processDotPath ~completionContext:PartialParser.Value ~exact:false
         in
         declareds
         |> List.filter (fun ({Completion.kind}, _env) ->
@@ -1170,7 +1174,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
       match
-        funPath |> processDotPath ~pathKind:PartialParser.Value ~exact:true
+        funPath
+        |> processDotPath ~completionContext:PartialParser.Value ~exact:true
       with
       | ({Completion.kind = Value typ}, _env) :: _ ->
         let rec getLabels (t : Types.type_expr) =
@@ -1220,7 +1225,9 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     in
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
-      match lhs |> processDotPath ~pathKind:PartialParser.Value ~exact:true with
+      match
+        lhs |> processDotPath ~completionContext:PartialParser.Value ~exact:true
+      with
       | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
       | _ -> (env0, [])
     in
@@ -1238,13 +1245,14 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
 let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
-  let processDotPath ~(pathKind : PartialParser.pathKind) ~exact dotpath =
+  let processDotPath ~(completionContext : PartialParser.completionContext)
+      ~exact dotpath =
     let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath in
     let filterKind (kind : Completion.kind) =
       match kind with
-      | Value _ | Constructor _ -> pathKind = Value
-      | Field _ -> pathKind = Field
-      | Type _ -> pathKind = Type
+      | Value _ | Constructor _ -> completionContext = Value
+      | Field _ -> completionContext = Field
+      | Type _ -> completionContext = Type
       | Module _ | FileModule _ ->
         (* Component only matches this case *)
         true

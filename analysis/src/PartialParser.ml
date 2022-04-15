@@ -1,11 +1,13 @@
 type pipe = PipeId of string list | PipeArray | PipeString
-type pathKind = Type | Value | Component | Field
+
+(* Completion context *)
+type completionContext = Type | Value | Component | Field
 
 type completable =
   | Cdecorator of string  (** e.g. @module *)
   | Clabel of string list * string * string list
       (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
-  | Cdotpath of string list * pathKind  (** e.g. ["M", "foo"] for M.foo *)
+  | Cdotpath of string list * completionContext  (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
   | Cobj of string list * string list * string
