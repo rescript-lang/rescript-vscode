@@ -4,3 +4,15 @@ Hover tests/src/Jsx.resi 1:4
 Hover tests/src/Jsx.resi 4:4
 {"contents": "```rescript\nint\n```"}
 
+Complete tests/src/Jsx.resi 6:3
+posCursor:[7:17] posNoWhite:[7:16] Found type:[7:10->7:17]
+Ptyp_constr React.e:[7:10->7:17]
+Completable: Cdotpath([React, e],Type)
+[{
+    "label": "element",
+    "kind": 22,
+    "tags": [],
+    "detail": "type element",
+    "documentation": null
+  }]
+
