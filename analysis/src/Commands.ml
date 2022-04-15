@@ -400,7 +400,8 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
                 (flattenLongIdent id.txt |> String.concat ".")
                 (Loc.toString id.loc);
             if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-              setResult (PartialParser.Cdotpath (flattenLongIdent id.txt))
+              setResult
+                (PartialParser.Cdotpath (flattenLongIdent id.txt, Value))
           | Pexp_construct (id, eOpt) ->
             if debug then
               Printf.printf "Pexp_construct %s:%s %s\n"
@@ -412,7 +413,9 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             if
               eOpt = None && (not id.loc.loc_ghost)
               && id.loc |> Loc.hasPos ~pos:posBeforeCursor
-            then setResult (PartialParser.Cdotpath (flattenLongIdent id.txt))
+            then
+              setResult
+                (PartialParser.Cdotpath (flattenLongIdent id.txt, Value))
           | Pexp_field (e, fieldName) -> (
             if debug then
               Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
@@ -429,11 +432,12 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             in
             if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
               match digLhs e with
-              | Some path -> setResult (PartialParser.Cdotpath path)
+              | Some path -> setResult (PartialParser.Cdotpath (path, Value))
               | None -> ()
             else if Loc.end_ e.pexp_loc = posBeforeCursor then
               match digLhs e with
-              | Some path -> setResult (PartialParser.Cdotpath (path @ [""]))
+              | Some path ->
+                setResult (PartialParser.Cdotpath (path @ [""], Value))
               | None -> ())
           | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
             when Res_parsetree_viewer.isJsxExpression expr ->
@@ -459,7 +463,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
               setResult
                 (PartialParser.Cdotpath
-                   (flattenLongIdent ~jsx:true compName.txt))
+                   (flattenLongIdent ~jsx:true compName.txt, Value))
           | Pexp_apply
               ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
                 [
@@ -534,7 +538,26 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           | _ -> ());
         Ast_iterator.default_iterator.expr iterator expr
     in
-    let {Res_driver.parsetree = str} = parser ~filename:currentFile in
+    let typ (iterator : Ast_iterator.iterator) (core_type : Parsetree.core_type)
+        =
+      if core_type.ptyp_loc |> Loc.hasPos ~pos:posNoWhite then (
+        found := true;
+        if debug then
+          Printf.printf "posCursor:[%s] posNoWhite:[%s] Found type:%s\n"
+            (Pos.toString posCursor) (Pos.toString posNoWhite)
+            (Loc.toString core_type.ptyp_loc);
+        match core_type.ptyp_desc with
+        | Ptyp_constr (id, _args) ->
+          if debug then
+            Printf.printf "Ptyp_constr %s:%s\n"
+              (flattenLongIdent id.txt |> String.concat ".")
+              (Loc.toString id.loc);
+          if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
+            (* XXX should do types separately: only show type completions, not value ones *)
+            setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Type))
+        | _ -> ());
+      Ast_iterator.default_iterator.typ iterator core_type
+    in
     let iterator =
       {
         Ast_iterator.default_iterator with
@@ -544,8 +567,11 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         signature_item;
         structure;
         structure_item;
+        typ;
       }
     in
+
+    let {Res_driver.parsetree = str} = parser ~filename:currentFile in
     iterator.structure iterator str |> ignore;
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)

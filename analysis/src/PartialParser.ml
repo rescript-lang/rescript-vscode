@@ -1,10 +1,11 @@
 type pipe = PipeId of string list | PipeArray | PipeString
+type pathKind = Type | Value
 
 type completable =
   | Cdecorator of string  (** e.g. @module *)
   | Clabel of string list * string * string list
       (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
-  | Cdotpath of string list  (** e.g. ["M", "foo"] for M.foo *)
+  | Cdotpath of string list * pathKind  (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
   | Cobj of string list * string list * string
@@ -18,7 +19,10 @@ let completableToString =
   | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
   | Clabel (sl1, s, sl2) ->
     "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-  | Cdotpath sl -> "Cdotpath(" ^ (sl |> list) ^ ")"
+  | Cdotpath (sl, k) ->
+    "Cdotpath(" ^ (sl |> list) ^ ","
+    ^ (match k with Value -> "Value" | Type -> "Type")
+    ^ ")"
   | Cjsx (sl1, s, sl2) ->
     "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
   | Cobj (sl1, sl2, s) ->
