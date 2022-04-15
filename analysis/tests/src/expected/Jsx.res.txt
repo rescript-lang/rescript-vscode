@@ -363,3 +363,15 @@ Completable: Cjsx([WithChildren], n, [n])
     "documentation": null
   }]
 
+Complete tests/src/Jsx.res 71:2
+posCursor:[72:16] posNoWhite:[72:15] Found type:[72:9->72:16]
+Ptyp_constr React.e:[72:9->72:16]
+Completable: Cdotpath([React, e],Type)
+[{
+    "label": "element",
+    "kind": 22,
+    "tags": [],
+    "detail": "type element",
+    "documentation": null
+  }]
+
