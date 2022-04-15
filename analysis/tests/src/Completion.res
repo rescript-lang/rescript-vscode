@@ -139,3 +139,6 @@ module WithChildren = {
   let make = (~children, ~name as _: string) => <jsx> children </jsx>
 }
 // ^com <WithChildren 
+
+// ^com type t = Js.n
+// ^com type t = ForAuto.

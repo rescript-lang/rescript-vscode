@@ -682,7 +682,7 @@ let parseValuePathTail p startPos ident =
       loop p (Longident.Ldot (path, ident))
     | token ->
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      Location.mknoloc path
+      Location.mkloc (Longident.Ldot (path, "$")) (mkLoc startPos p.prevEndPos)
   in
   loop p ident
 

@@ -993,7 +993,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
       @ keyLabels
-  | Cdotpath dotpath ->
+  | Cdotpath (dotpath, pathKind) ->
     let completions = dotpath |> processDotPath ~exact:false in
     (* TODO(#107): figure out why we're getting duplicates. *)
     completions |> Utils.dedup
