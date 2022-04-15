@@ -569,6 +569,12 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     iterator.structure iterator str |> ignore;
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
+  else if Filename.check_suffix path ".resi" then (
+    let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
+    let {Res_driver.parsetree = signature} = parser ~filename:currentFile in
+    iterator.signature iterator signature |> ignore;
+    if !found = false then if debug then Printf.printf "XXX Not found!\n";
+    !result)
   else None
 
 let completion ~debug ~path ~pos ~currentFile =
