@@ -456,7 +456,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             setResult
               (PartialParser.Cdotpath
-                 (flattenLongIdent ~jsx:true compName.txt, Value))
+                 (flattenLongIdent ~jsx:true compName.txt, Component))
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [

@@ -953,7 +953,7 @@ posCursor:[126:4] posNoWhite:[126:3] Found expr:[126:2->126:4]
 JSX <O,:[126:2->126:4] > _children:None
 posCursor:[126:4] posNoWhite:[126:3] Found expr:[126:2->126:4]
 Pexp_ident O..createElement:[126:2->126:4]
-Completable: Cdotpath([O, ""],Value)
+Completable: Cdotpath([O, ""],Component)
 [{
     "label": "Comp",
     "kind": 9,
