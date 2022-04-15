@@ -1244,7 +1244,7 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
       match kind with
       | Value _ | Field _ | Constructor _ -> pathKind = Value
       | Type _ -> pathKind = Type
-      | Module _ | FileModule _ -> true
+      | Module _ | FileModule _ -> true (* Component only matches this case *)
     in
     match dotpath |> List.rev with
     | last :: _ when exact ->
