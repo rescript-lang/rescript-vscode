@@ -142,3 +142,7 @@ module WithChildren = {
 
 // ^com type t = Js.n
 // ^com type t = ForAuto.
+
+type z = | Allo | Asterix | Baba
+
+// ^com let q = As

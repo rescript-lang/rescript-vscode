@@ -935,7 +935,10 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       |> List.map mkLabel)
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
-    let completions = processDotPath ~exact:true (componentPath @ ["make"]) in
+    let completions =
+      processDotPath ~pathKind:PartialParser.Value ~exact:true
+        (componentPath @ ["make"])
+    in
     let labels =
       match completions with
       | ({Completion.kind = Completion.Value typ}, _env) :: _ ->
@@ -994,7 +997,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       |> List.map mkLabel)
       @ keyLabels
   | Cdotpath (dotpath, pathKind) ->
-    let completions = dotpath |> processDotPath ~exact:false in
+    let completions = dotpath |> processDotPath ~pathKind ~exact:false in
     (* TODO(#107): figure out why we're getting duplicates. *)
     completions |> Utils.dedup
     |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
@@ -1055,7 +1058,9 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       in
       match pipeIdPath with
       | x :: fieldNames -> (
-        match [x] |> processDotPath ~exact:true with
+        match
+          [x] |> processDotPath ~pathKind:PartialParser.Value ~exact:true
+        with
         | ({Completion.kind = Value typ}, env) :: _ -> (
           match getFields ~env ~typ fieldNames with
           | None -> None
@@ -1105,7 +1110,9 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
           else modulePathMinusOpens ^ "." ^ name
         in
         let dotpath = modulePath @ [partialName] in
-        let declareds = dotpath |> processDotPath ~exact:false in
+        let declareds =
+          dotpath |> processDotPath ~pathKind:PartialParser.Value ~exact:false
+        in
         declareds
         |> List.filter (fun ({Completion.kind}, _env) ->
                match kind with Completion.Value _ -> true | _ -> false)
@@ -1162,7 +1169,9 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     |> List.map mkDecorator
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
-      match funPath |> processDotPath ~exact:true with
+      match
+        funPath |> processDotPath ~pathKind:PartialParser.Value ~exact:true
+      with
       | ({Completion.kind = Value typ}, _env) :: _ ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
@@ -1211,7 +1220,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     in
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
-      match lhs |> processDotPath ~exact:true with
+      match lhs |> processDotPath ~pathKind:PartialParser.Value ~exact:true with
       | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
       | _ -> (env0, [])
     in
@@ -1229,8 +1238,14 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
 let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
-  let processDotPath ~exact dotpath =
+  let processDotPath ~(pathKind : PartialParser.pathKind) ~exact dotpath =
     let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath in
+    let filterKind (kind : Completion.kind) =
+      match kind with
+      | Value _ | Field _ | Constructor _ -> pathKind = Value
+      | Type _ -> pathKind = Type
+      | Module _ | FileModule _ -> true
+    in
     match dotpath |> List.rev with
     | last :: _ when exact ->
       (* Heuristic to approximate scope.
@@ -1247,8 +1262,11 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
         | [] | [_] -> decls
       in
       completions
-      |> List.filter (fun ({Completion.name}, _env) -> name = last)
+      |> List.filter (fun ({Completion.name; kind}, _env) ->
+             name = last && filterKind kind)
       |> prioritize
-    | _ -> completions
+    | _ ->
+      completions
+      |> List.filter (fun ({Completion.kind}, _env) -> filterKind kind)
   in
   completable |> processCompletable ~processDotPath ~full ~package ~rawOpens

@@ -731,6 +731,26 @@ DocumentSymbol tests/src/Completion.res
         "name": "make",
         "kind": 12,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 138, "character": 2}, "end": {"line": 138, "character": 69}}}
+},
+{
+        "name": "z",
+        "kind": 26,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 0}, "end": {"line": 145, "character": 32}}}
+},
+{
+        "name": "Allo",
+        "kind": 22,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 9}, "end": {"line": 145, "character": 15}}}
+},
+{
+        "name": "Asterix",
+        "kind": 22,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 16}, "end": {"line": 145, "character": 25}}}
+},
+{
+        "name": "Baba",
+        "kind": 22,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 26}, "end": {"line": 145, "character": 32}}}
 }
 ]
 
@@ -1015,18 +1035,6 @@ posCursor:[142:14] posNoWhite:[142:13] Found type:[142:10->142:14]
 Ptyp_constr Js.n:[142:10->142:14]
 Completable: Cdotpath([Js, n],Type)
 [{
-    "label": "null",
-    "kind": 12,
-    "tags": [],
-    "detail": "null<'a>",
-    "documentation": {"kind": "markdown", "value": " The same as [empty] in {!Js.Null} will be compiled as [null]"}
-  }, {
-    "label": "nullToOption",
-    "kind": 12,
-    "tags": [],
-    "detail": "null<'a> => option<'a>",
-    "documentation": null
-  }, {
     "label": "null_undefined",
     "kind": 22,
     "tags": [],
@@ -1051,22 +1059,22 @@ posCursor:[143:18] posNoWhite:[143:17] Found type:[143:10->143:18]
 Ptyp_constr ForAuto.:[143:10->143:18]
 Completable: Cdotpath([ForAuto, ""],Type)
 [{
-    "label": "abc",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t, int) => t",
-    "documentation": null
-  }, {
-    "label": "abd",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t, int) => t",
-    "documentation": null
-  }, {
     "label": "t",
     "kind": 22,
     "tags": [],
     "detail": "type t = int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 146:3
+posCursor:[147:11] posNoWhite:[147:10] Found expr:[147:9->147:11]
+Pexp_construct As:[147:9->147:11] None
+Completable: Cdotpath([As],Value)
+[{
+    "label": "Asterix",
+    "kind": 4,
+    "tags": [],
+    "detail": "Asterix\n\ntype z =  Allo | Asterix | Baba",
     "documentation": null
   }]
 
