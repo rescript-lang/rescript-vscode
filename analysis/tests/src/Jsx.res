@@ -72,3 +72,15 @@ let _ = <WithChildren name=""> <div/> </WithChildren>
 
 //^com let c : React.e
 //^com let c : ReactDOMR
+
+module DefineSomeFields = {
+  type r = {thisField: int, thatField: string}
+  let thisValue = 10
+// ^com let foo x = x.th
+}
+
+// ^com let q = DefineSomeFields.
+
+// ^com let foo x = x.DefineSomeFields.th
+
+let _ = x => x.DefineSomeFields.thisField + DefineSomeFields.thisValue

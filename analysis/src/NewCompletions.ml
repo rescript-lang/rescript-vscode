@@ -1242,9 +1242,12 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
     let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath in
     let filterKind (kind : Completion.kind) =
       match kind with
-      | Value _ | Field _ | Constructor _ -> pathKind = Value
+      | Value _ | Constructor _ -> pathKind = Value
+      | Field _ -> pathKind = Field
       | Type _ -> pathKind = Type
-      | Module _ | FileModule _ -> true (* Component only matches this case *)
+      | Module _ | FileModule _ ->
+        (* Component only matches this case *)
+        true
     in
     match dotpath |> List.rev with
     | last :: _ when exact ->

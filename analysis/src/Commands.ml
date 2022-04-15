@@ -425,12 +425,20 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           in
           if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             match digLhs e with
-            | Some path -> setResult (PartialParser.Cdotpath (path, Value))
+            | Some path ->
+              let dotPath =
+                match fieldName.txt with
+                | Lident name -> path @ [name]
+                | _ ->
+                  (* Case x.M.field ignore the x part *)
+                  flattenLongIdent fieldName.txt
+              in
+              setResult (PartialParser.Cdotpath (dotPath, Field))
             | None -> ()
           else if Loc.end_ e.pexp_loc = posBeforeCursor then
             match digLhs e with
             | Some path ->
-              setResult (PartialParser.Cdotpath (path @ [""], Value))
+              setResult (PartialParser.Cdotpath (path @ [""], Field))
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
