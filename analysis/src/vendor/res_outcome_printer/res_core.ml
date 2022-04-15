@@ -651,8 +651,13 @@ let parseValuePath p =
     | Lident ident -> Longident.Ldot(path, ident)
     | Uident uident ->
       Parser.next p;
-      Parser.expect Dot p;
-      aux p (Ldot (path, uident))
+      if p.Parser.token = Dot then (
+        Parser.expect Dot p;
+        aux p (Ldot (path, uident))  
+      ) else (
+        Parser.err p (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
+        path
+      )
     | token ->
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
       Longident.Ldot (path, "$")
@@ -661,8 +666,13 @@ let parseValuePath p =
   | Lident ident -> Longident.Lident ident
   | Uident ident ->
     Parser.next p;
-    Parser.expect Dot p;
-    aux p (Lident ident)
+    if p.Parser.token = Dot then (
+      Parser.expect Dot p;
+      aux p (Lident ident)  
+    ) else (
+      Parser.err p (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
+      Longident.Lident ident
+    )
   | token ->
     Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
     Longident.Lident "_"

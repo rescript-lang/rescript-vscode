@@ -71,3 +71,4 @@ let _ = <WithChildren name=""> <div/> </WithChildren>
 //^com <WithChildren n
 
 //^com let c : React.e
+//^com let c : ReactDOMR
