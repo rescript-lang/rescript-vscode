@@ -375,3 +375,15 @@ Completable: Cdotpath([React, e],Type)
     "documentation": null
   }]
 
+Complete tests/src/Jsx.res 72:2
+posCursor:[73:18] posNoWhite:[73:17] Found type:[73:9->75:0]
+Ptyp_constr ReactDOMR:[73:9->75:0]
+Completable: Cdotpath([ReactDOMR],Type)
+[{
+    "label": "ReactDOMRe",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
+
