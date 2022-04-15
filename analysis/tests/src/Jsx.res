@@ -69,3 +69,5 @@ module WithChildren = {
 let _ = <WithChildren name=""> <div/> </WithChildren>
 //^com <WithChildren 
 //^com <WithChildren n
+
+//^com let c : React.e

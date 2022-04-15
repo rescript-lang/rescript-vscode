@@ -655,7 +655,7 @@ let parseValuePath p =
       aux p (Ldot (path, uident))
     | token ->
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      Longident.Lident "_"
+      Longident.Ldot (path, "$")
   in
   let ident = match p.Parser.token with
   | Lident ident -> Longident.Lident ident

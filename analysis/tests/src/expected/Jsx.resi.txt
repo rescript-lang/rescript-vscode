@@ -16,3 +16,15 @@ Completable: Cdotpath([React, e],Type)
     "documentation": null
   }]
 
+Complete tests/src/Jsx.resi 8:3
+posCursor:[9:16] posNoWhite:[9:15] Found type:[9:9->9:16]
+Ptyp_constr React.e:[9:9->9:16]
+Completable: Cdotpath([React, e],Type)
+[{
+    "label": "element",
+    "kind": 22,
+    "tags": [],
+    "detail": "type element",
+    "documentation": null
+  }]
+
