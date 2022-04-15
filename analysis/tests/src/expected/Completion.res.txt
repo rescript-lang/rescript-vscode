@@ -883,7 +883,7 @@ Completable: Cobj([no], [x, y], "")
 Complete tests/src/Completion.res 88:3
 posCursor:[89:3] posNoWhite:[89:2] Found expr:[89:1->93:3]
 Pexp_field [89:1->89:2] _:[93:0->93:3]
-Completable: Cdotpath([r, ""],Value)
+Completable: Cdotpath([r, ""],Field)
 [{
     "label": "x",
     "kind": 5,
@@ -901,7 +901,7 @@ Completable: Cdotpath([r, ""],Value)
 Complete tests/src/Completion.res 90:3
 posCursor:[91:19] posNoWhite:[91:18] Found expr:[91:1->93:3]
 Pexp_field [91:1->91:18] _:[93:0->93:3]
-Completable: Cdotpath([Obj, Rec, recordVal, ""],Value)
+Completable: Cdotpath([Obj, Rec, recordVal, ""],Field)
 [{
     "label": "xx",
     "kind": 5,
@@ -965,7 +965,7 @@ Completable: Cdotpath([O, ""],Component)
 Complete tests/src/Completion.res 130:3
 posCursor:[131:6] posNoWhite:[131:5] Found expr:[131:1->136:6]
 Pexp_field [131:1->131:5] _:[136:0->136:6]
-Completable: Cdotpath([q, aa, ""],Value)
+Completable: Cdotpath([q, aa, ""],Field)
 [{
     "label": "x",
     "kind": 5,
@@ -983,12 +983,12 @@ Completable: Cdotpath([q, aa, ""],Value)
 Complete tests/src/Completion.res 131:3
 posCursor:[132:7] posNoWhite:[132:6] Found expr:[132:1->132:7]
 Pexp_field [132:1->132:5] n:[132:6->132:7]
-Completable: Cdotpath([q, aa],Value)
+Completable: Cdotpath([q, aa, n],Field)
 [{
-    "label": "aa",
+    "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "aa: aa\n\ntype bb = {aa: aa, w: int}",
+    "detail": "name: string\n\ntype aa = {x: int, name: string}",
     "documentation": null
   }]
 

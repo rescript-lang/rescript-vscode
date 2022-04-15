@@ -1,5 +1,5 @@
 type pipe = PipeId of string list | PipeArray | PipeString
-type pathKind = Type | Value | Component
+type pathKind = Type | Value | Component | Field
 
 type completable =
   | Cdecorator of string  (** e.g. @module *)
@@ -24,7 +24,8 @@ let completableToString =
     ^ (match k with
       | Value -> "Value"
       | Type -> "Type"
-      | Component -> "Component")
+      | Component -> "Component"
+      | Field -> "Field")
     ^ ")"
   | Cjsx (sl1, s, sl2) ->
     "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
