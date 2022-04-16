@@ -464,7 +464,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             setResult
               (PartialParser.Cdotpath
-                 (flattenLongIdent ~jsx:true compName.txt, Component))
+                 (flattenLongIdent ~jsx:true compName.txt, Module))
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [
@@ -565,7 +565,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (flattenLongIdent id.txt |> String.concat ".")
           (Loc.toString id.loc);
       found := true;
-      setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Component))
+      setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Module))
     | _ -> ());
     Ast_iterator.default_iterator.module_expr iterator me
   in
@@ -578,7 +578,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (flattenLongIdent id.txt |> String.concat ".")
           (Loc.toString id.loc);
       found := true;
-      setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Component))
+      setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Module))
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
   in

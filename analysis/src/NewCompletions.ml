@@ -1245,17 +1245,24 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
 let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
-  let processDotPath ~(completionContext : PartialParser.completionContext)
-      ~exact dotpath =
+  let processDotPath ~completionContext ~exact dotpath =
     let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath in
-    let filterKind (kind : Completion.kind) =
-      match kind with
-      | Value _ | Constructor _ -> completionContext = Value
-      | Field _ -> completionContext = Field
-      | Type _ -> completionContext = Type
-      | Module _ | FileModule _ ->
-        (* Component only matches this case *)
+    let filterKind ~(completionContext : PartialParser.completionContext)
+        ~(kind : Completion.kind) =
+      match (completionContext, kind) with
+      | Module, (Module _ | FileModule _) -> true
+      | Module, _ -> false
+      | (Field | Type | Value), (Module _ | FileModule _) ->
+        (* M.field M.type M.value *)
         true
+      | Value, (Value _ | Constructor _) ->
+        (* x Red *)
+        true
+      | Value, _ -> false
+      | Field, Field _ -> true
+      | Field, _ -> false
+      | Type, Type _ -> true
+      | Type, _ -> false
     in
     match dotpath |> List.rev with
     | last :: _ when exact ->
@@ -1274,10 +1281,11 @@ let computeCompletions ~completable ~full ~pos ~rawOpens =
       in
       completions
       |> List.filter (fun ({Completion.name; kind}, _env) ->
-             name = last && filterKind kind)
+             name = last && filterKind ~completionContext ~kind)
       |> prioritize
     | _ ->
       completions
-      |> List.filter (fun ({Completion.kind}, _env) -> filterKind kind)
+      |> List.filter (fun ({Completion.kind}, _env) ->
+             filterKind ~completionContext ~kind)
   in
   completable |> processCompletable ~processDotPath ~full ~package ~rawOpens
