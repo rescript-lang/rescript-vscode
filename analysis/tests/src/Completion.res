@@ -146,3 +146,5 @@ module WithChildren = {
 type z = | Allo | Asterix | Baba
 
 // ^com let q = As
+
+// ^com module M = For

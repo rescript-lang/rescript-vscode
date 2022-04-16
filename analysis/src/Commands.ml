@@ -556,11 +556,40 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in
+  let module_expr (iterator : Ast_iterator.iterator)
+      (me : Parsetree.module_expr) =
+    (match me.pmod_desc with
+    | Pmod_ident id when id.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+      if debug then
+        Printf.printf "Pmod_ident %s:%s\n"
+          (flattenLongIdent id.txt |> String.concat ".")
+          (Loc.toString id.loc);
+      found := true;
+      setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Component))
+    | _ -> ());
+    Ast_iterator.default_iterator.module_expr iterator me
+  in
+  let module_type (iterator : Ast_iterator.iterator)
+      (mt : Parsetree.module_type) =
+    (match mt.pmty_desc with
+    | Pmty_ident id when id.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+      if debug then
+        Printf.printf "Pmty_ident %s:%s\n"
+          (flattenLongIdent id.txt |> String.concat ".")
+          (Loc.toString id.loc);
+      found := true;
+      setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Component))
+    | _ -> ());
+    Ast_iterator.default_iterator.module_type iterator mt
+  in
+
   let iterator =
     {
       Ast_iterator.default_iterator with
       attribute;
       expr;
+      module_expr;
+      module_type;
       signature;
       signature_item;
       structure;

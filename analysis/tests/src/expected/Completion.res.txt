@@ -1078,3 +1078,20 @@ Completable: Cdotpath([As],Value)
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 148:3
+Pmod_ident For:[149:12->149:15]
+Completable: Cdotpath([For],Component)
+[{
+    "label": "ForAuto",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Format",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
+
