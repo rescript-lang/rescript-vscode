@@ -160,14 +160,14 @@ module Shadow = {
   module A = {
     let shadowed = 3
   }
-
   module B = {
     let shadowed = ""
-}
+  }
 }
 
+// ^com sha
 open Shadow.A
+// ^com sha
 open Shadow.B
-// ^db+
 // ^com sha
 let _ = shadowed
