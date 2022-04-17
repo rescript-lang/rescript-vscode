@@ -863,18 +863,15 @@ let completionToItem ({Completion.name; deprecated; docstring; kind}, _env) =
 let processDotPath ~package ~opens ~allFiles ~pos ~env
     (dotpath, completionContext) =
   let completion = dotpath |> PartialParser.determineCompletion in
-  let completions =
-    match completion with
-    | Path path ->
-      path
-      |> getCompletionsPath ~package ~opens ~allFiles ~pos ~exact:false
-           ~completionContext ~env
-    | RecordAccess (valuePath, middleFields, lastField) ->
-      (valuePath, middleFields, lastField)
-      |> getCompletionsRecordAccess ~package ~opens ~pos ~exact:false
-           ~completionContext ~env
-  in
-  completions |> List.map completionToItem
+  match completion with
+  | Path path ->
+    path
+    |> getCompletionsPath ~package ~opens ~allFiles ~pos ~exact:false
+         ~completionContext ~env
+  | RecordAccess (valuePath, middleFields, lastField) ->
+    (valuePath, middleFields, lastField)
+    |> getCompletionsRecordAccess ~package ~opens ~pos ~exact:false
+         ~completionContext ~env
 
 let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     (completable : PartialParser.completable) =
@@ -893,6 +890,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
   | Cdotpath (dotpath, completionContext) ->
     processDotPath ~package ~opens ~allFiles ~pos ~env
       (dotpath, completionContext)
+    |> List.map completionToItem
   | Cobj (lhs, path, prefix) ->
     let rec getFields (texp : Types.type_expr) =
       match texp.desc with
