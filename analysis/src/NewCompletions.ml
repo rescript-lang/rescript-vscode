@@ -821,7 +821,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
         else Some {kind = "markdown"; value = docContent});
     }
 
-let processCompletable ~processDotPath ~full ~package ~rawOpens
+let processCompletable ~processCompletion ~full ~package ~rawOpens
     (completable : PartialParser.completable) =
   match completable with
   | Cjsx ([id], prefix, identsSeen) when String.lowercase_ascii id = id ->
@@ -841,8 +841,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
     let completions =
-      processDotPath ~completionContext:PartialParser.Value ~exact:true
-        (componentPath @ ["make"])
+      PartialParser.Path (componentPath @ ["make"])
+      |> processCompletion ~completionContext:PartialParser.Value ~exact:true
     in
     let labels =
       match completions with
@@ -904,7 +904,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
   | Cpath _ -> assert false
   | Cdotpath (dotpath, completionContext) ->
     let completions =
-      dotpath |> processDotPath ~completionContext ~exact:false
+      dotpath |> PartialParser.determineCompletion
+      |> processCompletion ~completionContext ~exact:false
     in
     (* TODO(#107): figure out why we're getting duplicates. *)
     completions |> Utils.dedup
@@ -967,8 +968,9 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       match pipeIdPath with
       | x :: fieldNames -> (
         match
-          [x]
-          |> processDotPath ~completionContext:PartialParser.Value ~exact:true
+          PartialParser.Path [x]
+          |> processCompletion ~completionContext:PartialParser.Value
+               ~exact:true
         with
         | ({Completion.kind = Value typ}, env) :: _ -> (
           match getFields ~env ~typ fieldNames with
@@ -1018,10 +1020,10 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
           if modulePathMinusOpens = "" then name
           else modulePathMinusOpens ^ "." ^ name
         in
-        let dotpath = modulePath @ [partialName] in
         let declareds =
-          dotpath
-          |> processDotPath ~completionContext:PartialParser.Value ~exact:false
+          PartialParser.Path (modulePath @ [partialName])
+          |> processCompletion ~completionContext:PartialParser.Value
+               ~exact:false
         in
         declareds
         |> List.filter (fun ({Completion.kind}, _env) ->
@@ -1080,8 +1082,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
       match
-        funPath
-        |> processDotPath ~completionContext:PartialParser.Value ~exact:true
+        PartialParser.Path funPath
+        |> processCompletion ~completionContext:PartialParser.Value ~exact:true
       with
       | ({Completion.kind = Value typ}, _env) :: _ ->
         let rec getLabels (t : Types.type_expr) =
@@ -1132,7 +1134,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
       match
-        lhs |> processDotPath ~completionContext:PartialParser.Value ~exact:true
+        PartialParser.Path lhs
+        |> processCompletion ~completionContext:PartialParser.Value ~exact:true
       with
       | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
       | _ -> (env0, [])
@@ -1152,8 +1155,7 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
-  let processDotPath ~completionContext ~exact dotpath =
-    let completion = PartialParser.determineCompletion dotpath in
+  let processCompletion ~completionContext ~exact completion =
     let completions =
       getCompletions ~full ~rawOpens ~allFiles ~pos ~completion
     in
@@ -1174,8 +1176,14 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
       | Type, Type _ -> true
       | Type, _ -> false
     in
-    match dotpath |> List.rev with
-    | last :: _ when exact ->
+    let lastName =
+      match completion with
+      | Path path ->
+        if path = [] then None else Some (List.nth path (List.length path - 1))
+      | RecordAccess (_, _, name) -> Some name
+    in
+    match lastName with
+    | Some lastName when exact ->
       (* Heuristic to approximate scope.
          Take the last position before pos if any, or just return the first element. *)
       let rec prioritize decls =
@@ -1191,7 +1199,7 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
       in
       completions
       |> List.filter (fun ({Completion.name; kind}, _env) ->
-             name = last && filterKind ~completionContext ~kind)
+             name = lastName && filterKind ~completionContext ~kind)
       |> prioritize
     | _ ->
       completions
@@ -1222,4 +1230,4 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     | _ -> completable
   in
 
-  completable |> processCompletable ~processDotPath ~full ~package ~rawOpens
+  completable |> processCompletable ~processCompletion ~full ~package ~rawOpens
