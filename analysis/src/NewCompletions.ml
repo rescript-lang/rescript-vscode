@@ -496,13 +496,16 @@ let resolveOpens ~env ~previous opens ~package =
     (* loop(previous) *)
     previous opens
 
-let completionForDeclareds ~pos iter stamps prefix transformContents =
+let checkName name ~prefix ~exact =
+  if exact then name = prefix else Utils.startsWith name prefix
+
+let completionForDeclareds ~pos ~iter ~stamps ~prefix ~exact transformContents =
   (* Log.log("completion for declares " ++ prefix); *)
   let res = ref [] in
   iter
     (fun _stamp (declared : _ Declared.t) ->
       if
-        Utils.startsWith declared.name.txt prefix
+        checkName declared.name.txt ~prefix ~exact
         && Utils.locationContainsFuzzy declared.scopeLoc pos
       then
         res :=
@@ -519,22 +522,23 @@ let completionForDeclareds ~pos iter stamps prefix transformContents =
   !res
 
 let completionForDeclaredModules ~pos ~env ~prefix =
-  completionForDeclareds ~pos Stamps.iterModules env.QueryEnv.file.stamps prefix
-    (fun m -> Completion.Module m)
+  completionForDeclareds ~pos ~iter:Stamps.iterModules
+    ~stamps:env.QueryEnv.file.stamps ~prefix (fun m -> Completion.Module m)
 
 let completionForDeclaredValues ~pos ~env ~prefix =
-  completionForDeclareds ~pos Stamps.iterValues env.QueryEnv.file.stamps prefix
-    (fun m -> Completion.Value m)
+  completionForDeclareds ~pos ~iter:Stamps.iterValues
+    ~stamps:env.QueryEnv.file.stamps ~prefix (fun m -> Completion.Value m)
 
 let completionForDeclaredTypes ~pos ~env ~prefix =
-  completionForDeclareds ~pos Stamps.iterTypes env.QueryEnv.file.stamps prefix
-    (fun m -> Completion.Type m)
+  completionForDeclareds ~pos ~iter:Stamps.iterTypes
+    ~stamps:env.QueryEnv.file.stamps ~prefix (fun m -> Completion.Type m)
 
-let completionForExporteds iterExported getDeclared prefix transformContents =
+let completionForExporteds iterExported getDeclared ~prefix ~exact
+    transformContents =
   let res = ref [] in
   iterExported (fun name stamp ->
       (* Log.log("checking exported: " ++ name); *)
-      if Utils.startsWith name prefix then
+      if checkName name ~prefix ~exact then
         match getDeclared stamp with
         | Some (declared : _ Declared.t) ->
           res :=
@@ -550,19 +554,22 @@ let completionForExporteds iterExported getDeclared prefix transformContents =
         | None -> ());
   !res
 
-let completionForExportedModules ~env ~prefix =
+let completionForExportedModules ~env ~prefix ~exact =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
-    (Stamps.findModule env.file.stamps) prefix (fun m -> Completion.Module m)
+    (Stamps.findModule env.file.stamps) ~prefix ~exact (fun m ->
+      Completion.Module m)
 
-let completionForExportedValues ~env ~prefix =
+let completionForExportedValues ~env ~prefix ~exact =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
-    (Stamps.findValue env.file.stamps) prefix (fun v -> Completion.Value v)
+    (Stamps.findValue env.file.stamps) ~prefix ~exact (fun v ->
+      Completion.Value v)
 
-let completionForExportedTypes ~env ~prefix =
+let completionForExportedTypes ~env ~prefix ~exact =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
-    (Stamps.findType env.file.stamps) prefix (fun t -> Completion.Type t)
+    (Stamps.findType env.file.stamps) ~prefix ~exact (fun t ->
+      Completion.Type t)
 
-let completionForConstructors ~(env : QueryEnv.t) ~prefix =
+let completionForConstructors ~(env : QueryEnv.t) ~prefix ~exact =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
@@ -570,7 +577,7 @@ let completionForConstructors ~(env : QueryEnv.t) ~prefix =
         res :=
           (constructors
           |> List.filter (fun c ->
-                 Utils.startsWith c.Constructor.cname.txt prefix)
+                 checkName c.Constructor.cname.txt ~prefix ~exact)
           |> List.map (fun c ->
                  Completion.create ~name:c.Constructor.cname.txt
                    ~kind:
@@ -580,14 +587,14 @@ let completionForConstructors ~(env : QueryEnv.t) ~prefix =
       | _ -> ());
   !res
 
-let completionForFields ~(env : QueryEnv.t) ~prefix =
+let completionForFields ~(env : QueryEnv.t) ~prefix ~exact =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
       | Some ({item = {kind = Record fields}} as t) ->
         res :=
           (fields
-          |> List.filter (fun f -> Utils.startsWith f.fname.txt prefix)
+          |> List.filter (fun f -> checkName f.fname.txt ~prefix ~exact)
           |> List.map (fun f ->
                  Completion.create ~name:f.fname.txt
                    ~kind:
@@ -638,22 +645,22 @@ let detail name (kind : Completion.kind) =
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
-let localCompletions ~pos ~(env : QueryEnv.t) ~prefix =
+let localCompletions ~pos ~(env : QueryEnv.t) ~prefix ~exact =
   Log.log "---------------- LOCAL VAL";
-  completionForDeclaredModules ~pos ~env ~prefix
-  @ completionForConstructors ~env ~prefix
-  @ completionForDeclaredValues ~pos ~env ~prefix
-  @ completionForDeclaredTypes ~pos ~env ~prefix
-  @ completionForFields ~env ~prefix
+  completionForDeclaredModules ~pos ~env ~prefix ~exact
+  @ completionForConstructors ~env ~prefix ~exact
+  @ completionForDeclaredValues ~pos ~env ~prefix ~exact
+  @ completionForDeclaredTypes ~pos ~env ~prefix ~exact
+  @ completionForFields ~env ~prefix ~exact
   |> List.map (fun r -> (r, env))
 
-let allCompletions ~(env : QueryEnv.t) ~prefix =
+let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
-  completionForExportedModules ~env ~prefix
-  @ completionForConstructors ~env ~prefix
-  @ completionForExportedValues ~env ~prefix
-  @ completionForExportedTypes ~env ~prefix
-  @ completionForFields ~env ~prefix
+  completionForExportedModules ~env ~prefix ~exact
+  @ completionForConstructors ~env ~prefix ~exact
+  @ completionForExportedValues ~env ~prefix ~exact
+  @ completionForExportedTypes ~env ~prefix ~exact
+  @ completionForFields ~env ~prefix ~exact
   |> List.map (fun r -> (r, env))
 
 (* TODO filter out things that are defined after the current position *)
@@ -693,7 +700,7 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let getCompletions ~full ~rawOpens ~allFiles ~pos
+let getCompletions ~full ~rawOpens ~allFiles ~pos ~exact
     ~(completion : PartialParser.completion) =
   Log.log
     ("Opens folkz > "
@@ -717,13 +724,13 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos
   match completion with
   | Path [] -> []
   | Path [prefix] ->
-    let locallyDefinedValues = localCompletions ~pos ~env ~prefix in
+    let locallyDefinedValues = localCompletions ~pos ~env ~prefix ~exact in
     let alreadyUsedIdentifiers = Hashtbl.create 10 in
     let valuesFromOpens =
       opens
       |> List.fold_left
            (fun results env ->
-             let completionsFromThisOpen = allCompletions ~env ~prefix in
+             let completionsFromThisOpen = allCompletions ~env ~prefix ~exact in
              List.filter
                (fun ((declared : Completion.t), _env) ->
                  if Hashtbl.mem alreadyUsedIdentifiers declared.name then
@@ -740,7 +747,7 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos
     let localModuleNames =
       allFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
-             if Utils.startsWith name prefix && not (String.contains name '-')
+             if checkName name ~prefix ~exact && not (String.contains name '-')
              then
                Some
                  ( Completion.create ~name ~kind:(Completion.FileModule name),
@@ -753,7 +760,7 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos
     match getEnvWithOpens ~pos ~env ~package ~opens path with
     | Some (env, prefix) ->
       Log.log "Got the env";
-      allCompletions ~env ~prefix
+      allCompletions ~env ~prefix ~exact
     | None -> [])
   | RecordAccess (valuePath, middleFields, lastField) -> (
     Log.log ("lastField :" ^ lastField);
@@ -789,7 +796,7 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos
           | Some (env, fields, typDecl) ->
             fields
             |> Utils.filterMap (fun field ->
-                   if Utils.startsWith field.fname.txt lastField then
+                   if checkName field.fname.txt ~prefix:lastField ~exact then
                      Some
                        ( Completion.create ~name:field.fname.txt
                            ~kind:
@@ -1151,40 +1158,36 @@ let processCompletable ~processCompletion ~full ~package ~rawOpens
       |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
       |> List.map mkLabel
 
+let filterCompletionKind ~(completionContext : PartialParser.completionContext)
+    ~(kind : Completion.kind) =
+  match (completionContext, kind) with
+  | Module, (Module _ | FileModule _) -> true
+  | Module, _ -> false
+  | (Field | Type | Value), (Module _ | FileModule _) ->
+    (* M.field M.type M.value *)
+    true
+  | Value, (Value _ | Constructor _) ->
+    (* x Red *)
+    true
+  | Value, _ -> false
+  | Field, Field _ -> true
+  | Field, _ -> false
+  | Type, Type _ -> true
+  | Type, _ -> false
+
 let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let processCompletion ~completionContext ~exact completion =
     let completions =
-      getCompletions ~full ~rawOpens ~allFiles ~pos ~completion
+      getCompletions ~full ~rawOpens ~allFiles ~pos ~completion ~exact
+      |> List.filter (fun ({Completion.kind}, _env) ->
+             filterCompletionKind ~completionContext ~kind)
     in
-    let filterKind ~(completionContext : PartialParser.completionContext)
-        ~(kind : Completion.kind) =
-      match (completionContext, kind) with
-      | Module, (Module _ | FileModule _) -> true
-      | Module, _ -> false
-      | (Field | Type | Value), (Module _ | FileModule _) ->
-        (* M.field M.type M.value *)
-        true
-      | Value, (Value _ | Constructor _) ->
-        (* x Red *)
-        true
-      | Value, _ -> false
-      | Field, Field _ -> true
-      | Field, _ -> false
-      | Type, Type _ -> true
-      | Type, _ -> false
-    in
-    let lastName =
-      match completion with
-      | Path path ->
-        if path = [] then None else Some (List.nth path (List.length path - 1))
-      | RecordAccess (_, _, name) -> Some name
-    in
-    match lastName with
-    | Some lastName when exact ->
-      (* Heuristic to approximate scope.
+    if exact then
+      (* Heuristic to approximate scope when an exact name is required and there could
+          be more than one instance of that name.
          Take the last position before pos if any, or just return the first element. *)
       let rec prioritize decls =
         match decls with
@@ -1197,14 +1200,8 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
             else prioritize ((d1, e1) :: rest)
         | [] | [_] -> decls
       in
-      completions
-      |> List.filter (fun ({Completion.name; kind}, _env) ->
-             name = lastName && filterKind ~completionContext ~kind)
-      |> prioritize
-    | _ ->
-      completions
-      |> List.filter (fun ({Completion.kind}, _env) ->
-             filterKind ~completionContext ~kind)
+      prioritize completions
+    else completions
   in
 
   let rec processContextPath (cp : PartialParser.contextPath) :
