@@ -76,9 +76,7 @@ resolvePath path:place holder
 Opens nows 2 pervasives.mli js.ml
 ---------------- LOCAL VAL
  - Completing in js.ml
- -- not capitalized
  - Completing in pervasives.mli
- -- not capitalized
 [{
     "label": "eqNullable",
     "kind": 12,

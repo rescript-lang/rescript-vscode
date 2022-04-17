@@ -683,46 +683,23 @@ let detail name (kind : Completion.kind) =
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
-let localValueCompletions ~pos ~(env : QueryEnv.t) suffix =
-  let results = [] in
+let localCompletions ~pos ~(env : QueryEnv.t) suffix =
   Log.log "---------------- LOCAL VAL";
-  let results =
-    if suffix = "" || isCapitalized suffix then
-      results
-      @ completionForDeclaredModules ~pos ~env ~suffix
-      @ completionForConstructors ~env ~suffix
-    else results
-  in
-  let results =
-    if suffix = "" || not (isCapitalized suffix) then
-      results
-      @ completionForDeclaredValues ~pos ~env ~suffix
-      @ completionForDeclaredTypes ~pos ~env ~suffix
-      @ completionForFields ~env ~suffix
-    else results
-  in
-  results |> List.map (fun r -> (r, env))
+  completionForDeclaredModules ~pos ~env ~suffix
+  @ completionForConstructors ~env ~suffix
+  @ completionForDeclaredValues ~pos ~env ~suffix
+  @ completionForDeclaredTypes ~pos ~env ~suffix
+  @ completionForFields ~env ~suffix
+  |> List.map (fun r -> (r, env))
 
-let valueCompletions ~(env : QueryEnv.t) suffix =
+let allCompletions ~(env : QueryEnv.t) suffix =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
-  let results = [] in
-  let results =
-    if suffix = "" || isCapitalized suffix then
-      results
-      @ completionForExportedModules ~env ~suffix
-      @ completionForConstructors ~env ~suffix
-    else results
-  in
-  let results =
-    if suffix = "" || not (isCapitalized suffix) then (
-      Log.log " -- not capitalized";
-      results
-      @ completionForExportedValues ~env ~suffix
-      @ completionForExportedTypes ~env ~suffix
-      @ completionForFields ~env ~suffix)
-    else results
-  in
-  results |> List.map (fun r -> (r, env))
+  completionForExportedModules ~env ~suffix
+  @ completionForConstructors ~env ~suffix
+  @ completionForExportedValues ~env ~suffix
+  @ completionForExportedTypes ~env ~suffix
+  @ completionForFields ~env ~suffix
+  |> List.map (fun r -> (r, env))
 
 let attributeCompletions ~(env : QueryEnv.t) ~suffix =
   let results = [] in
@@ -800,13 +777,13 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath =
   match dotpath with
   | [] -> []
   | [suffix] ->
-    let locallyDefinedValues = localValueCompletions ~pos ~env suffix in
+    let locallyDefinedValues = localCompletions ~pos ~env suffix in
     let alreadyUsedIdentifiers = Hashtbl.create 10 in
     let valuesFromOpens =
       opens
       |> List.fold_left
            (fun results env ->
-             let completionsFromThisOpen = valueCompletions ~env suffix in
+             let completionsFromThisOpen = allCompletions ~env suffix in
              List.filter
                (fun ((declared : Completion.t), _env) ->
                  if Hashtbl.mem alreadyUsedIdentifiers declared.name then false
@@ -837,7 +814,7 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath =
       match getEnvWithOpens ~pos ~env ~package ~opens path with
       | Some (env, suffix) ->
         Log.log "Got the env";
-        valueCompletions ~env suffix
+        allCompletions ~env suffix
       | None -> [])
     | RecordAccess (valuePath, middleFields, lastField) -> (
       Log.log ("lastField :" ^ lastField);
