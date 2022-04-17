@@ -272,7 +272,9 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   let opensInScope = ref [] in
   let setResultOpt x =
     if !result = None then
-      match x with None -> () | Some x -> result := Some (x, !opensInScope)
+      match x with
+      | None -> ()
+      | Some x -> result := Some (x, List.rev !opensInScope)
   in
   let setResult x = setResultOpt (Some x) in
   let structure (iterator : Ast_iterator.iterator)
