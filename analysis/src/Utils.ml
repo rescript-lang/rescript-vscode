@@ -68,3 +68,9 @@ let filterMap f =
 
 let dumpPath path = Str.global_replace (Str.regexp_string "\\") "/" path
 let isUncurriedInternal path = startsWith (Path.name path) "Js.Fn.arity"
+
+let isCapitalized name =
+  if name = "" then false
+  else
+    let c = name.[0] in
+    match c with 'A' .. 'Z' -> true | _ -> false
