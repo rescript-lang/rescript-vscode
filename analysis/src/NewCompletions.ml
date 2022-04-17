@@ -872,6 +872,19 @@ let processCompletion ~completionContext ~exact ~full ~rawOpens ~allFiles ~pos
     prioritize completions
   else completions
 
+let processDotPath ~full ~rawOpens ~allFiles ~pos dotpath completionContext =
+  let completions =
+    dotpath |> PartialParser.determineCompletion
+    |> processCompletion ~completionContext ~exact:false ~full ~rawOpens
+         ~allFiles ~pos
+  in
+  (* TODO(#107): figure out why we're getting duplicates. *)
+  completions |> Utils.dedup
+  |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
+         mkItem ~name
+           ~kind:(Completion.kindToInt kind)
+           ~deprecated ~detail:(detail name kind) ~docstring)
+
 let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     (completable : PartialParser.completable) =
   let processValue ~exact path =
@@ -882,17 +895,48 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
   match completable with
   | Cpath _ -> assert false
   | Cdotpath (dotpath, completionContext) ->
-    let completions =
-      dotpath |> PartialParser.determineCompletion
-      |> processCompletion ~completionContext ~exact:false ~full ~rawOpens
-           ~allFiles ~pos
+    processDotPath ~full ~rawOpens ~allFiles ~pos dotpath completionContext
+  | Cobj (lhs, path, prefix) ->
+    let rec getFields (texp : Types.type_expr) =
+      match texp.desc with
+      | Tfield (name, _, t1, t2) ->
+        let fields = t2 |> getFields in
+        (name, t1) :: fields
+      | Tlink te -> te |> getFields
+      | Tvar None -> []
+      | _ -> []
     in
-    (* TODO(#107): figure out why we're getting duplicates. *)
-    completions |> Utils.dedup
-    |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
-           mkItem ~name
-             ~kind:(Completion.kindToInt kind)
-             ~deprecated ~detail:(detail name kind) ~docstring)
+    let getObjectFields ~env (t : Types.type_expr) =
+      match t |> extractObjectType ~env ~package with
+      | Some (env, tObj) -> (env, getFields tObj)
+      | None -> (env, [])
+    in
+    let rec resolvePath ~env fields path =
+      match path with
+      | name :: restPath -> (
+        match fields |> List.find_opt (fun (n, _) -> n = name) with
+        | Some (_, fieldType) ->
+          let env, innerFields = getObjectFields ~env fieldType in
+          resolvePath ~env innerFields restPath
+        | None -> [])
+      | [] -> fields
+    in
+    let env0 = QueryEnv.fromFile full.file in
+    let env, fields =
+      match lhs |> processValue ~exact:true with
+      | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
+      | _ -> (env0, [])
+    in
+    let labels = resolvePath ~env fields path in
+    let mkLabel_ name typString =
+      mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
+    in
+    let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
+    if labels = [] then []
+    else
+      labels
+      |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
+      |> List.map mkLabel
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
@@ -1151,47 +1195,6 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
-  | Cobj (lhs, path, prefix) ->
-    let rec getFields (texp : Types.type_expr) =
-      match texp.desc with
-      | Tfield (name, _, t1, t2) ->
-        let fields = t2 |> getFields in
-        (name, t1) :: fields
-      | Tlink te -> te |> getFields
-      | Tvar None -> []
-      | _ -> []
-    in
-    let getObjectFields ~env (t : Types.type_expr) =
-      match t |> extractObjectType ~env ~package with
-      | Some (env, tObj) -> (env, getFields tObj)
-      | None -> (env, [])
-    in
-    let rec resolvePath ~env fields path =
-      match path with
-      | name :: restPath -> (
-        match fields |> List.find_opt (fun (n, _) -> n = name) with
-        | Some (_, fieldType) ->
-          let env, innerFields = getObjectFields ~env fieldType in
-          resolvePath ~env innerFields restPath
-        | None -> [])
-      | [] -> fields
-    in
-    let env0 = QueryEnv.fromFile full.file in
-    let env, fields =
-      match lhs |> processValue ~exact:true with
-      | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
-      | _ -> (env0, [])
-    in
-    let labels = resolvePath ~env fields path in
-    let mkLabel_ name typString =
-      mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
-    in
-    let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
-    if labels = [] then []
-    else
-      labels
-      |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
-      |> List.map mkLabel
 
 let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     ~rawOpens =
