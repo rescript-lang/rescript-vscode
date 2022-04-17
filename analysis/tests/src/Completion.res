@@ -148,3 +148,10 @@ type z = | Allo | Asterix | Baba
 // ^com let q = As
 
 // ^com module M = For
+
+module Private = {
+  %%private(let awr = 3)
+  let b = awr
+}
+
+// ^com Private.

@@ -707,14 +707,10 @@ let valueCompletions ~(env : QueryEnv.t) suffix =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
   let results = [] in
   let results =
-    if suffix = "" || isCapitalized suffix then (
-      (* Get rid of lowercase modules (#417) *)
-      Exported.iter env.exported Exported.Module (fun name _ ->
-          if not (isCapitalized name) then
-            Exported.removeModule env.exported name);
+    if suffix = "" || isCapitalized suffix then
       results
       @ completionForExportedModules ~env ~suffix
-      @ completionForConstructors ~env ~suffix)
+      @ completionForConstructors ~env ~suffix
     else results
   in
   let results =

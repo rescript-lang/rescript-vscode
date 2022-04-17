@@ -342,7 +342,9 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
       bindings;
     !items
   | Tstr_module
-      {mb_id; mb_attributes; mb_loc; mb_name = name; mb_expr = {mod_desc}} ->
+      {mb_id; mb_attributes; mb_loc; mb_name = name; mb_expr = {mod_desc}}
+    when not (String.length name.txt >= 6 && String.sub name.txt 0 6 = "local_")
+         (* %%private generates a dummy module called local_... *) ->
     let item = forModule env mod_desc name.txt in
     let declared =
       addItem ~item ~name ~extent:mb_loc ~stamp:(Ident.binding_time mb_id) ~env
