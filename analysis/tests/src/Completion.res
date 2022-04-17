@@ -155,3 +155,19 @@ module Private = {
 }
 
 // ^com Private.
+
+module Shadow = {
+  module A = {
+    let shadowed = 3
+  }
+
+  module B = {
+    let shadowed = ""
+}
+}
+
+open Shadow.A
+open Shadow.B
+// ^db+
+// ^com sha
+let _ = shadowed
