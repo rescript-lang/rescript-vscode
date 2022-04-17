@@ -656,22 +656,6 @@ let allCompletions ~(env : QueryEnv.t) suffix =
   @ completionForFields ~env ~suffix
   |> List.map (fun r -> (r, env))
 
-let attributeCompletions ~(env : QueryEnv.t) ~suffix =
-  let results = [] in
-  let results =
-    if suffix = "" || Utils.isCapitalized suffix then
-      results @ completionForExportedModules ~env ~suffix
-    else results
-  in
-  let results =
-    if suffix = "" || not (Utils.isCapitalized suffix) then
-      results
-      @ completionForExportedValues ~env ~suffix
-      @ completionForFields ~env ~suffix
-    else results
-  in
-  results |> List.map (fun r -> (r, env))
-
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
   (* TODO Stdlib instead of Pervasives *)
@@ -816,13 +800,6 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos
                          env )
                    else None))))
     | None -> [])
-  | QualifiedRecordAccess path -> (
-    match getEnvWithOpens ~pos ~env ~package ~opens path with
-    | None -> []
-    | Some (env, suffix) ->
-      attributeCompletions ~env ~suffix
-      @ List.concat
-          (opens |> List.map (fun env -> attributeCompletions ~env ~suffix)))
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
   let docContent =
