@@ -518,16 +518,16 @@ let completionForDeclareds ~pos iter stamps prefix transformContents =
     stamps;
   !res
 
-let completionForDeclaredModules ~pos ~env ~suffix =
-  completionForDeclareds ~pos Stamps.iterModules env.QueryEnv.file.stamps suffix
+let completionForDeclaredModules ~pos ~env ~prefix =
+  completionForDeclareds ~pos Stamps.iterModules env.QueryEnv.file.stamps prefix
     (fun m -> Completion.Module m)
 
-let completionForDeclaredValues ~pos ~env ~suffix =
-  completionForDeclareds ~pos Stamps.iterValues env.QueryEnv.file.stamps suffix
+let completionForDeclaredValues ~pos ~env ~prefix =
+  completionForDeclareds ~pos Stamps.iterValues env.QueryEnv.file.stamps prefix
     (fun m -> Completion.Value m)
 
-let completionForDeclaredTypes ~pos ~env ~suffix =
-  completionForDeclareds ~pos Stamps.iterTypes env.QueryEnv.file.stamps suffix
+let completionForDeclaredTypes ~pos ~env ~prefix =
+  completionForDeclareds ~pos Stamps.iterTypes env.QueryEnv.file.stamps prefix
     (fun m -> Completion.Type m)
 
 let completionForExporteds iterExported getDeclared prefix transformContents =
@@ -550,19 +550,19 @@ let completionForExporteds iterExported getDeclared prefix transformContents =
         | None -> ());
   !res
 
-let completionForExportedModules ~env ~suffix =
+let completionForExportedModules ~env ~prefix =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
-    (Stamps.findModule env.file.stamps) suffix (fun m -> Completion.Module m)
+    (Stamps.findModule env.file.stamps) prefix (fun m -> Completion.Module m)
 
-let completionForExportedValues ~env ~suffix =
+let completionForExportedValues ~env ~prefix =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
-    (Stamps.findValue env.file.stamps) suffix (fun v -> Completion.Value v)
+    (Stamps.findValue env.file.stamps) prefix (fun v -> Completion.Value v)
 
-let completionForExportedTypes ~env ~suffix =
+let completionForExportedTypes ~env ~prefix =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
-    (Stamps.findType env.file.stamps) suffix (fun t -> Completion.Type t)
+    (Stamps.findType env.file.stamps) prefix (fun t -> Completion.Type t)
 
-let completionForConstructors ~(env : QueryEnv.t) ~suffix =
+let completionForConstructors ~(env : QueryEnv.t) ~prefix =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
@@ -570,7 +570,7 @@ let completionForConstructors ~(env : QueryEnv.t) ~suffix =
         res :=
           (constructors
           |> List.filter (fun c ->
-                 Utils.startsWith c.Constructor.cname.txt suffix)
+                 Utils.startsWith c.Constructor.cname.txt prefix)
           |> List.map (fun c ->
                  Completion.create ~name:c.Constructor.cname.txt
                    ~kind:
@@ -580,14 +580,14 @@ let completionForConstructors ~(env : QueryEnv.t) ~suffix =
       | _ -> ());
   !res
 
-let completionForFields ~(env : QueryEnv.t) ~suffix =
+let completionForFields ~(env : QueryEnv.t) ~prefix =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
       | Some ({item = {kind = Record fields}} as t) ->
         res :=
           (fields
-          |> List.filter (fun f -> Utils.startsWith f.fname.txt suffix)
+          |> List.filter (fun f -> Utils.startsWith f.fname.txt prefix)
           |> List.map (fun f ->
                  Completion.create ~name:f.fname.txt
                    ~kind:
@@ -638,22 +638,22 @@ let detail name (kind : Completion.kind) =
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
-let localCompletions ~pos ~(env : QueryEnv.t) suffix =
+let localCompletions ~pos ~(env : QueryEnv.t) ~prefix =
   Log.log "---------------- LOCAL VAL";
-  completionForDeclaredModules ~pos ~env ~suffix
-  @ completionForConstructors ~env ~suffix
-  @ completionForDeclaredValues ~pos ~env ~suffix
-  @ completionForDeclaredTypes ~pos ~env ~suffix
-  @ completionForFields ~env ~suffix
+  completionForDeclaredModules ~pos ~env ~prefix
+  @ completionForConstructors ~env ~prefix
+  @ completionForDeclaredValues ~pos ~env ~prefix
+  @ completionForDeclaredTypes ~pos ~env ~prefix
+  @ completionForFields ~env ~prefix
   |> List.map (fun r -> (r, env))
 
-let allCompletions ~(env : QueryEnv.t) suffix =
+let allCompletions ~(env : QueryEnv.t) ~prefix =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
-  completionForExportedModules ~env ~suffix
-  @ completionForConstructors ~env ~suffix
-  @ completionForExportedValues ~env ~suffix
-  @ completionForExportedTypes ~env ~suffix
-  @ completionForFields ~env ~suffix
+  completionForExportedModules ~env ~prefix
+  @ completionForConstructors ~env ~prefix
+  @ completionForExportedValues ~env ~prefix
+  @ completionForExportedTypes ~env ~prefix
+  @ completionForFields ~env ~prefix
   |> List.map (fun r -> (r, env))
 
 (* TODO filter out things that are defined after the current position *)
@@ -716,14 +716,14 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos
   let opens = List.rev resolvedOpens in
   match completion with
   | Path [] -> []
-  | Path [suffix] ->
-    let locallyDefinedValues = localCompletions ~pos ~env suffix in
+  | Path [prefix] ->
+    let locallyDefinedValues = localCompletions ~pos ~env ~prefix in
     let alreadyUsedIdentifiers = Hashtbl.create 10 in
     let valuesFromOpens =
       opens
       |> List.fold_left
            (fun results env ->
-             let completionsFromThisOpen = allCompletions ~env suffix in
+             let completionsFromThisOpen = allCompletions ~env ~prefix in
              List.filter
                (fun ((declared : Completion.t), _env) ->
                  if Hashtbl.mem alreadyUsedIdentifiers declared.name then
@@ -740,7 +740,7 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos
     let localModuleNames =
       allFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
-             if Utils.startsWith name suffix && not (String.contains name '-')
+             if Utils.startsWith name prefix && not (String.contains name '-')
              then
                Some
                  ( Completion.create ~name ~kind:(Completion.FileModule name),
@@ -751,9 +751,9 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos
   | Path path -> (
     Log.log ("Path " ^ pathToString path);
     match getEnvWithOpens ~pos ~env ~package ~opens path with
-    | Some (env, suffix) ->
+    | Some (env, prefix) ->
       Log.log "Got the env";
-      allCompletions ~env suffix
+      allCompletions ~env ~prefix
     | None -> [])
   | RecordAccess (valuePath, middleFields, lastField) -> (
     Log.log ("lastField :" ^ lastField);
