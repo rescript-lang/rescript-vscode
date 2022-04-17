@@ -414,7 +414,7 @@ posCursor:[83:34] posNoWhite:[83:33] Found expr:[83:9->83:34]
 Pexp_apply ...[83:11->83:12] (...[83:9->83:10], ...[83:13->83:34])
 posCursor:[83:34] posNoWhite:[83:33] Found expr:[83:13->83:34]
 Pexp_field [83:13->83:14] DefineSomeFields.th:[83:15->83:34]
-Completable: Cpath Component[DefineSomeFields].th
+Completable: Cpath Module[DefineSomeFields].th
 [{
     "label": "thisField",
     "kind": 5,
