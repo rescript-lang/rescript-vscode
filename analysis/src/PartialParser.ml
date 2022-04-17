@@ -3,11 +3,18 @@ type pipe = PipeId of string list | PipeArray | PipeString
 (* Completion context *)
 type completionContext = Type | Value | Module | Field
 
+type contextPath =
+  | CPId of string list
+  | CPField of contextPath * string
+  | CPObj of contextPath * string
+
 type completable =
   | Cdecorator of string  (** e.g. @module *)
   | Clabel of string list * string * string list
       (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
-  | Cdotpath of string list * completionContext  (** e.g. ["M", "foo"] for M.foo *)
+  | Cpath of contextPath * completionContext
+  | Cdotpath of string list * completionContext
+      (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
   | Cobj of string list * string list * string
@@ -17,18 +24,27 @@ type completable =
 let completableToString =
   let str s = if s = "" then "\"\"" else s in
   let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
+  let rec contextPathToString = function
+    | CPId sl -> list sl
+    | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
+    | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
+  in
+  let completionContextToString = function
+    | Value -> "Value"
+    | Type -> "Type"
+    | Module -> "Component"
+    | Field -> "Field"
+  in
   function
+  | Cpath (cp, k) ->
+    "Cpath (" ^ contextPathToString cp ^ ", "
+    ^ completionContextToString k
+    ^ ")"
   | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
   | Clabel (sl1, s, sl2) ->
     "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
   | Cdotpath (sl, k) ->
-    "Cdotpath(" ^ (sl |> list) ^ ","
-    ^ (match k with
-      | Value -> "Value"
-      | Type -> "Type"
-      | Module -> "Component"
-      | Field -> "Field")
-    ^ ")"
+    "Cdotpath(" ^ (sl |> list) ^ "," ^ completionContextToString k ^ ")"
   | Cjsx (sl1, s, sl2) ->
     "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
   | Cobj (sl1, sl2, s) ->
