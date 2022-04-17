@@ -398,7 +398,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               (Loc.toString id.loc);
           if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
             setResult
-              (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Value))
+              (PartialParser.Cpath (CPId (flattenLongIdent id.txt, Value)))
         | Pexp_construct (id, eOpt) ->
           if debug then
             Printf.printf "Pexp_construct %s:%s %s\n"
@@ -412,7 +412,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             && id.loc |> Loc.hasPos ~pos:posBeforeCursor
           then
             setResult
-              (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Value))
+              (PartialParser.Cpath (CPId (flattenLongIdent id.txt, Value)))
         | Pexp_field (e, fieldName) -> (
           if debug then
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
@@ -421,14 +421,16 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           let rec digLhs (lhs : Parsetree.expression) =
             match lhs.pexp_desc with
             | Pexp_ident id ->
-              Some (PartialParser.CPId (flattenLongIdent id.txt))
+              Some (PartialParser.CPId (flattenLongIdent id.txt, Value))
             | Pexp_field (lhs, {txt = Lident name}) -> (
               match digLhs lhs with
               | Some contextPath ->
                 Some (PartialParser.CPField (contextPath, name))
               | None -> None)
             | Pexp_field (_, {txt = Ldot (id, name)}) ->
-              Some (PartialParser.CPField (CPId (flattenLongIdent id), name))
+              (* Case x.M.field ignore the x part *)
+              Some
+                (PartialParser.CPField (CPId (flattenLongIdent id, Module), name))
             | _ -> None
           in
           if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
@@ -437,22 +439,22 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               match digLhs e with
               | Some contextPath ->
                 let contextPath = PartialParser.CPField (contextPath, name) in
-                setResult (PartialParser.Cpath (contextPath, Field))
+                setResult (PartialParser.Cpath contextPath)
               | None -> ())
             | Ldot (id, name) ->
               (* Case x.M.field ignore the x part *)
               let contextPath =
                 PartialParser.CPField
-                  (CPId (flattenLongIdent id), if name = "$" then "" else name)
+                  ( CPId (flattenLongIdent id, Module),
+                    if name = "$" then "" else name )
               in
-              setResult (PartialParser.Cpath (contextPath, Field))
+              setResult (PartialParser.Cpath contextPath)
             | Lapply _ -> ()
           else if Loc.end_ e.pexp_loc = posBeforeCursor then
             match digLhs e with
             | Some contextPath ->
               setResult
-                (PartialParser.Cpath
-                   (PartialParser.CPField (contextPath, ""), Field))
+                (PartialParser.Cpath (PartialParser.CPField (contextPath, "")))
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
@@ -478,7 +480,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             setResult
               (PartialParser.Cpath
-                 (CPId (flattenLongIdent ~jsx:true compName.txt), Module))
+                 (CPId (flattenLongIdent ~jsx:true compName.txt, Module)))
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [
@@ -530,7 +532,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           let rec processLhs (lhs : Parsetree.expression) =
             match lhs.pexp_desc with
             | Pexp_ident id ->
-              Some (PartialParser.CPId (flattenLongIdent id.txt))
+              Some (PartialParser.CPId (flattenLongIdent id.txt, Value))
             | Pexp_send (e1, {txt}) -> (
               match processLhs e1 with
               | None -> None
@@ -548,8 +550,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           then
             match processLhs lhs with
             | Some contextPath ->
-              setResult
-                (PartialParser.Cpath (CPObj (contextPath, label), Value))
+              setResult (PartialParser.Cpath (CPObj (contextPath, label)))
             | None -> ())
         | _ -> ());
       Ast_iterator.default_iterator.expr iterator expr
@@ -568,7 +569,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             (flattenLongIdent id.txt |> String.concat ".")
             (Loc.toString id.loc);
         if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-          setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Type))
+          setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt, Type)))
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in
@@ -581,7 +582,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (flattenLongIdent id.txt |> String.concat ".")
           (Loc.toString id.loc);
       found := true;
-      setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Module))
+      setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_expr iterator me
   in
@@ -594,7 +595,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (flattenLongIdent id.txt |> String.concat ".")
           (Loc.toString id.loc);
       found := true;
-      setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Module))
+      setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
   in
