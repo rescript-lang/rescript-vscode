@@ -880,6 +880,19 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
          ~rawOpens ~allFiles ~pos
   in
   match completable with
+  | Cpath _ -> assert false
+  | Cdotpath (dotpath, completionContext) ->
+    let completions =
+      dotpath |> PartialParser.determineCompletion
+      |> processCompletion ~completionContext ~exact:false ~full ~rawOpens
+           ~allFiles ~pos
+    in
+    (* TODO(#107): figure out why we're getting duplicates. *)
+    completions |> Utils.dedup
+    |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
+           mkItem ~name
+             ~kind:(Completion.kindToInt kind)
+             ~deprecated ~detail:(detail name kind) ~docstring)
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
@@ -954,19 +967,6 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
       @ keyLabels
-  | Cpath _ -> assert false
-  | Cdotpath (dotpath, completionContext) ->
-    let completions =
-      dotpath |> PartialParser.determineCompletion
-      |> processCompletion ~completionContext ~exact:false ~full ~rawOpens
-           ~allFiles ~pos
-    in
-    (* TODO(#107): figure out why we're getting duplicates. *)
-    completions |> Utils.dedup
-    |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
-           mkItem ~name
-             ~kind:(Completion.kindToInt kind)
-             ~deprecated ~detail:(detail name kind) ~docstring)
   | Cpipe (pipe, partialName) -> (
     let arrayModulePath = ["Js"; "Array2"] in
     let listModulePath = ["Belt"; "List"] in
