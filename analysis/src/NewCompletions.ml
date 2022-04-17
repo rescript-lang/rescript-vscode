@@ -521,17 +521,19 @@ let completionForDeclareds ~pos ~iter ~stamps ~prefix ~exact transformContents =
     stamps;
   !res
 
-let completionForDeclaredModules ~pos ~env ~prefix =
+let completionForDeclaredModules ~pos ~env ~prefix ~exact =
   completionForDeclareds ~pos ~iter:Stamps.iterModules
-    ~stamps:env.QueryEnv.file.stamps ~prefix (fun m -> Completion.Module m)
+    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
+      Completion.Module m)
 
-let completionForDeclaredValues ~pos ~env ~prefix =
+let completionForDeclaredValues ~pos ~env ~prefix ~exact =
   completionForDeclareds ~pos ~iter:Stamps.iterValues
-    ~stamps:env.QueryEnv.file.stamps ~prefix (fun m -> Completion.Value m)
+    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
+      Completion.Value m)
 
-let completionForDeclaredTypes ~pos ~env ~prefix =
+let completionForDeclaredTypes ~pos ~env ~prefix ~exact =
   completionForDeclareds ~pos ~iter:Stamps.iterTypes
-    ~stamps:env.QueryEnv.file.stamps ~prefix (fun m -> Completion.Type m)
+    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m -> Completion.Type m)
 
 let completionForExporteds iterExported getDeclared ~prefix ~exact
     transformContents =
@@ -828,7 +830,49 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
         else Some {kind = "markdown"; value = docContent});
     }
 
-let processCompletable ~processCompletion ~full ~package ~rawOpens
+let filterCompletionKind ~(completionContext : PartialParser.completionContext)
+    ~(kind : Completion.kind) =
+  match (completionContext, kind) with
+  | Module, (Module _ | FileModule _) -> true
+  | Module, _ -> false
+  | (Field | Type | Value), (Module _ | FileModule _) ->
+    (* M.field M.type M.value *)
+    true
+  | Value, (Value _ | Constructor _) ->
+    (* x Red *)
+    true
+  | Value, _ -> false
+  | Field, Field _ -> true
+  | Field, _ -> false
+  | Type, Type _ -> true
+  | Type, _ -> false
+
+let processCompletion ~completionContext ~exact ~full ~rawOpens ~allFiles ~pos
+    completion =
+  let completions =
+    getCompletions ~full ~rawOpens ~allFiles ~pos ~completion ~exact
+    |> List.filter (fun ({Completion.kind}, _env) ->
+           filterCompletionKind ~completionContext ~kind)
+  in
+  if exact then
+    (* Heuristic to approximate scope when an exact name is required and there could
+        be more than one instance of that name.
+       Take the last position before pos if any, or just return the first element. *)
+    let rec prioritize decls =
+      match decls with
+      | (d1, e1) :: (d2, e2) :: rest ->
+        let pos2 = d2.Completion.extentLoc.loc_start |> Pos.ofLexing in
+        if pos2 >= pos then prioritize ((d1, e1) :: rest)
+        else
+          let pos1 = d1.extentLoc.loc_start |> Pos.ofLexing in
+          if pos1 <= pos2 then prioritize ((d2, e2) :: rest)
+          else prioritize ((d1, e1) :: rest)
+      | [] | [_] -> decls
+    in
+    prioritize completions
+  else completions
+
+let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     (completable : PartialParser.completable) =
   match completable with
   | Cjsx ([id], prefix, identsSeen) when String.lowercase_ascii id = id ->
@@ -850,6 +894,7 @@ let processCompletable ~processCompletion ~full ~package ~rawOpens
     let completions =
       PartialParser.Path (componentPath @ ["make"])
       |> processCompletion ~completionContext:PartialParser.Value ~exact:true
+           ~full ~rawOpens ~allFiles ~pos
     in
     let labels =
       match completions with
@@ -912,7 +957,8 @@ let processCompletable ~processCompletion ~full ~package ~rawOpens
   | Cdotpath (dotpath, completionContext) ->
     let completions =
       dotpath |> PartialParser.determineCompletion
-      |> processCompletion ~completionContext ~exact:false
+      |> processCompletion ~completionContext ~exact:false ~full ~rawOpens
+           ~allFiles ~pos
     in
     (* TODO(#107): figure out why we're getting duplicates. *)
     completions |> Utils.dedup
@@ -977,7 +1023,7 @@ let processCompletable ~processCompletion ~full ~package ~rawOpens
         match
           PartialParser.Path [x]
           |> processCompletion ~completionContext:PartialParser.Value
-               ~exact:true
+               ~exact:true ~full ~rawOpens ~allFiles ~pos
         with
         | ({Completion.kind = Value typ}, env) :: _ -> (
           match getFields ~env ~typ fieldNames with
@@ -1030,7 +1076,7 @@ let processCompletable ~processCompletion ~full ~package ~rawOpens
         let declareds =
           PartialParser.Path (modulePath @ [partialName])
           |> processCompletion ~completionContext:PartialParser.Value
-               ~exact:false
+               ~exact:false ~full ~rawOpens ~allFiles ~pos
         in
         declareds
         |> List.filter (fun ({Completion.kind}, _env) ->
@@ -1091,6 +1137,7 @@ let processCompletable ~processCompletion ~full ~package ~rawOpens
       match
         PartialParser.Path funPath
         |> processCompletion ~completionContext:PartialParser.Value ~exact:true
+             ~full ~rawOpens ~allFiles ~pos
       with
       | ({Completion.kind = Value typ}, _env) :: _ ->
         let rec getLabels (t : Types.type_expr) =
@@ -1143,6 +1190,7 @@ let processCompletable ~processCompletion ~full ~package ~rawOpens
       match
         PartialParser.Path lhs
         |> processCompletion ~completionContext:PartialParser.Value ~exact:true
+             ~full ~rawOpens ~allFiles ~pos
       with
       | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
       | _ -> (env0, [])
@@ -1158,51 +1206,10 @@ let processCompletable ~processCompletion ~full ~package ~rawOpens
       |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
       |> List.map mkLabel
 
-let filterCompletionKind ~(completionContext : PartialParser.completionContext)
-    ~(kind : Completion.kind) =
-  match (completionContext, kind) with
-  | Module, (Module _ | FileModule _) -> true
-  | Module, _ -> false
-  | (Field | Type | Value), (Module _ | FileModule _) ->
-    (* M.field M.type M.value *)
-    true
-  | Value, (Value _ | Constructor _) ->
-    (* x Red *)
-    true
-  | Value, _ -> false
-  | Field, Field _ -> true
-  | Field, _ -> false
-  | Type, Type _ -> true
-  | Type, _ -> false
-
 let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
-  let processCompletion ~completionContext ~exact completion =
-    let completions =
-      getCompletions ~full ~rawOpens ~allFiles ~pos ~completion ~exact
-      |> List.filter (fun ({Completion.kind}, _env) ->
-             filterCompletionKind ~completionContext ~kind)
-    in
-    if exact then
-      (* Heuristic to approximate scope when an exact name is required and there could
-          be more than one instance of that name.
-         Take the last position before pos if any, or just return the first element. *)
-      let rec prioritize decls =
-        match decls with
-        | (d1, e1) :: (d2, e2) :: rest ->
-          let pos2 = d2.Completion.extentLoc.loc_start |> Pos.ofLexing in
-          if pos2 >= pos then prioritize ((d1, e1) :: rest)
-          else
-            let pos1 = d1.extentLoc.loc_start |> Pos.ofLexing in
-            if pos1 <= pos2 then prioritize ((d2, e2) :: rest)
-            else prioritize ((d1, e1) :: rest)
-        | [] | [_] -> decls
-      in
-      prioritize completions
-    else completions
-  in
 
   let rec processContextPath (cp : PartialParser.contextPath) :
       PartialParser.completable =
@@ -1227,4 +1234,4 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     | _ -> completable
   in
 
-  completable |> processCompletable ~processCompletion ~full ~package ~rawOpens
+  completable |> processCompletable ~full ~package ~rawOpens ~allFiles ~pos
