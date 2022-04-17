@@ -738,7 +738,7 @@ let prioritize ~exact ~pos completions =
     loop completions
   else completions
 
-let getCompletions ~full ~rawOpens ~allFiles ~pos ~exact ~completionContext
+let getCompletions ~full ~opens ~allFiles ~pos ~exact ~completionContext ~env
     (completion : PartialParser.completion) =
   let postProcess completions =
     completions
@@ -746,25 +746,7 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos ~exact ~completionContext
     |> prioritize ~exact ~pos
   in
 
-  Log.log
-    ("Opens folkz > "
-    ^ string_of_int (List.length rawOpens)
-    ^ " "
-    ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let env = QueryEnv.fromFile full.file in
   let package = full.package in
-  let packageOpens = "Pervasives" :: package.opens in
-  Log.log ("Package opens " ^ String.concat " " packageOpens);
-  let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
-  Log.log
-    ("Opens nows "
-    ^ string_of_int (List.length resolvedOpens)
-    ^ " "
-    ^ String.concat " "
-        (resolvedOpens
-        |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
-  (* Last open takes priority *)
-  let opens = List.rev resolvedOpens in
   match completion with
   | Path [] -> []
   | Path [prefix] ->
@@ -873,22 +855,26 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
         else Some {kind = "markdown"; value = docContent});
     }
 
-let processDotPath ~full ~rawOpens ~allFiles ~pos (dotpath, completionContext) =
-  dotpath |> PartialParser.determineCompletion
-  |> getCompletions ~completionContext ~exact:false ~full ~rawOpens ~allFiles
-       ~pos
-  |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
-         mkItem ~name
-           ~kind:(Completion.kindToInt kind)
-           ~deprecated ~detail:(detail name kind) ~docstring)
+let completionToItem ({Completion.name; deprecated; docstring; kind}, _env) =
+  mkItem ~name
+    ~kind:(Completion.kindToInt kind)
+    ~deprecated ~detail:(detail name kind) ~docstring
 
-let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
+let processDotPath ~full ~opens ~allFiles ~pos ~env (dotpath, completionContext)
+    =
+  dotpath |> PartialParser.determineCompletion
+  |> getCompletions ~completionContext ~exact:false ~full ~opens ~allFiles ~pos
+       ~env
+  |> List.map completionToItem
+
+let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     (completable : PartialParser.completable) =
+  let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let findValue path =
     match
       PartialParser.Path path
       |> getCompletions ~completionContext:PartialParser.Value ~exact:true ~full
-           ~rawOpens ~allFiles ~pos
+           ~opens ~allFiles ~pos ~env
     with
     | ({Completion.kind = Value typ}, env) :: _ -> Some (typ, env)
     | _ -> None
@@ -896,7 +882,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
   match completable with
   | Cpath _ -> assert false
   | Cdotpath (dotpath, completionContext) ->
-    processDotPath ~full ~rawOpens ~allFiles ~pos (dotpath, completionContext)
+    processDotPath ~full ~opens ~allFiles ~pos ~env (dotpath, completionContext)
   | Cobj (lhs, path, prefix) ->
     let rec getFields (texp : Types.type_expr) =
       match texp.desc with
@@ -1117,7 +1103,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
         let declareds =
           PartialParser.Path (modulePath @ [partialName])
           |> getCompletions ~completionContext:PartialParser.Value ~exact:false
-               ~full ~rawOpens ~allFiles ~pos
+               ~full ~opens ~allFiles ~pos ~env
         in
         declareds
         |> List.map
@@ -1197,9 +1183,8 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     |> List.map mkLabel
 
 let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
-    ~rawOpens =
+    ~rawOpens ~opens ~env =
   let package = full.package in
-  let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
 
   let rec processContextPath (cp : PartialParser.contextPath) :
       PartialParser.completable =
@@ -1224,4 +1209,4 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     | _ -> completable
   in
 
-  completable |> processCompletable ~full ~package ~rawOpens ~allFiles ~pos
+  completable |> processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
