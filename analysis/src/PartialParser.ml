@@ -4,7 +4,7 @@ type pipe = PipeId of string list | PipeArray | PipeString
 type completionContext = Type | Value | Module | Field
 
 type contextPath =
-  | CPId of string list
+  | CPId of string list * completionContext
   | CPField of contextPath * string
   | CPObj of contextPath * string
 
@@ -12,7 +12,7 @@ type completable =
   | Cdecorator of string  (** e.g. @module *)
   | Clabel of string list * string * string list
       (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
-  | Cpath of contextPath * completionContext
+  | Cpath of contextPath
   | Cdotpath of string list * completionContext
       (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string * string list
@@ -24,22 +24,20 @@ type completable =
 let completableToString =
   let str s = if s = "" then "\"\"" else s in
   let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
-  let rec contextPathToString = function
-    | CPId sl -> list sl
-    | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
-    | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
-  in
   let completionContextToString = function
     | Value -> "Value"
     | Type -> "Type"
     | Module -> "Component"
     | Field -> "Field"
   in
+  let rec contextPathToString = function
+    | CPId (sl, completionContext) ->
+      completionContextToString completionContext ^ list sl
+    | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
+    | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
+  in
   function
-  | Cpath (cp, k) ->
-    "Cpath (" ^ contextPathToString cp ^ ", "
-    ^ completionContextToString k
-    ^ ")"
+  | Cpath cp -> "Cpath " ^ contextPathToString cp
   | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
   | Clabel (sl1, s, sl2) ->
     "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
