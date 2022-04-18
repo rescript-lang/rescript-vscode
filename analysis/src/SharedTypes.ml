@@ -202,6 +202,7 @@ module Completion = struct
   type kind =
     | Module of Module.t
     | Value of Types.type_expr
+    | ObjLabel of Types.type_expr
     | Type of Type.t
     | Constructor of Constructor.t * string
     | Field of field * string
@@ -231,6 +232,7 @@ module Completion = struct
     | Module _ -> 9
     | FileModule _ -> 9
     | Constructor (_, _) -> 4
+    | ObjLabel _ -> 4
     | Field (_, _) -> 5
     | Type _ -> 22
     | Value _ -> 12

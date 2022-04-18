@@ -643,6 +643,7 @@ let detail name (kind : Completion.kind) =
   match kind with
   | Type {decl} -> decl |> Shared.declToString name
   | Value typ -> typ |> Shared.typeToString
+  | ObjLabel typ -> typ |> Shared.typeToString
   | Module _ -> "module"
   | FileModule _ -> "file module"
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
@@ -814,6 +815,7 @@ let completionToItem {Completion.name; deprecated; docstring; kind} =
 
 let completionsGetTypeEnv = function
   | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
+  | {Completion.kind = ObjLabel typ; env} :: _ -> Some (typ, env)
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
@@ -852,7 +854,34 @@ let rec getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env ~exact
                else None)
       | None -> [])
     | None -> [])
-  | _ -> assert false
+  | CPObj (cp, label) -> (
+    match
+      cp
+      |> getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env
+           ~exact:true
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, env) -> (
+      match typ |> extractObjectType ~env ~package with
+      | Some (env, tObj) ->
+        let rec getFields (texp : Types.type_expr) =
+          match texp.desc with
+          | Tfield (name, _, t1, t2) ->
+            let fields = t2 |> getFields in
+            (name, t1) :: fields
+          | Tlink te -> te |> getFields
+          | Tvar None -> []
+          | _ -> []
+        in
+        tObj |> getFields
+        |> Utils.filterMap (fun (field, typ) ->
+               if checkName field ~prefix:label ~exact then
+                 Some
+                   (Completion.create ~name:field ~env
+                      ~kind:(Completion.ObjLabel typ))
+               else None)
+      | None -> [])
+    | None -> [])
 
 let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     (completable : PartialParser.completable) =
@@ -1170,28 +1199,4 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
 let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     ~rawOpens ~opens ~env =
   let package = full.package in
-
-  let rec processContextPath (completable : PartialParser.completable) :
-      PartialParser.completable =
-    match completable with
-    | Cpath (CPId _) -> completable
-    | Cpath (CPField (cp, name)) -> (
-      match processContextPath (Cpath cp) with
-      | Cpath cp -> Cpath (CPField (cp, name))
-      | _ -> assert false)
-    | Cpath (CPObj (cp, objLabel)) -> (
-      match processContextPath (Cpath cp) with
-      | Cpath (CPId (path, _)) -> Cobj (path, [], objLabel)
-      | Cobj (path, objPath, label) -> Cobj (path, objPath @ [label], objLabel)
-      | _ -> assert false)
-    | _ -> completable
-  in
-
-  let completable =
-    match completable with
-    | Cobj _ -> assert false
-    | Cpath _ -> processContextPath completable
-    | _ -> completable
-  in
-
   completable |> processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
