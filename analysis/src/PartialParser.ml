@@ -1,5 +1,3 @@
-type pipe = PipeId of string list | PipeArray | PipeString
-
 (* Completion context *)
 type completionContext = Type | Value | Module | Field
 
@@ -18,7 +16,6 @@ type completable =
   | Cpath of contextPath
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
-  | Cpipe of pipe * string  (** E.g. ("x", "foo") for "x->foo" *)
 
 let completableToString =
   let str s = if s = "" then "\"\"" else s in
@@ -45,13 +42,6 @@ let completableToString =
     "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
   | Cjsx (sl1, s, sl2) ->
     "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-  | Cpipe (pipe, s) ->
-    "Cpipe("
-    ^ (match pipe with
-      | PipeId sl -> sl |> list
-      | PipeArray -> "PipeArray"
-      | PipeString -> "PipeString")
-    ^ ", " ^ str s ^ ")"
 
 let rec skipWhite text i =
   if i < 0 then 0
