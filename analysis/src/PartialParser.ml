@@ -27,7 +27,7 @@ let completableToString =
   let completionContextToString = function
     | Value -> "Value"
     | Type -> "Type"
-    | Module -> "Module"
+    | Module -> "Component"
     | Field -> "Field"
   in
   let rec contextPathToString = function

@@ -993,7 +993,7 @@ posCursor:[126:4] posNoWhite:[126:3] Found expr:[126:2->126:4]
 JSX <O,:[126:2->126:4] > _children:None
 posCursor:[126:4] posNoWhite:[126:3] Found expr:[126:2->126:4]
 Pexp_ident O..createElement:[126:2->126:4]
-Completable: Cpath Module[O, ""]
+Completable: Cpath Component[O, ""]
 [{
     "label": "Comp",
     "kind": 9,
@@ -1120,7 +1120,7 @@ Completable: Cpath Value[As]
 
 Complete tests/src/Completion.res 148:3
 Pmod_ident For:[149:12->149:15]
-Completable: Cpath Module[For]
+Completable: Cpath Component[For]
 [{
     "label": "ForAuto",
     "kind": 9,
