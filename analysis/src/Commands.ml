@@ -520,7 +520,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             ((l, c + 1), (l, c + 1 + String.length label))
           in
           if debug then
-            Printf.printf "XXX Pexp_send %s%s e:%s\n" label
+            Printf.printf "Pexp_send %s%s e:%s\n" label
               (Range.toString labelRange)
               (Loc.toString lhs.pexp_loc);
           if
