@@ -738,13 +738,15 @@ let prioritize ~exact ~pos completions =
     loop completions
   else completions
 
-let postProcess ~pos ~exact ~completionContext completions =
-  completions
-  |> List.filter (filterCompletionKind ~completionContext)
-  |> prioritize ~exact ~pos
-
-let getCompletions ~package ~opens ~allFiles ~pos ~exact ~completionContext ~env
+let getCompletions ~full ~opens ~allFiles ~pos ~exact ~completionContext ~env
     (completion : PartialParser.completion) =
+  let postProcess completions =
+    completions
+    |> List.filter (filterCompletionKind ~completionContext)
+    |> prioritize ~exact ~pos
+  in
+
+  let package = full.package in
   match completion with
   | Path [] -> []
   | Path [prefix] ->
@@ -778,15 +780,13 @@ let getCompletions ~package ~opens ~allFiles ~pos ~exact ~completionContext ~env
                    env )
              else None)
     in
-    locallyDefinedValues @ valuesFromOpens @ localModuleNames
-    |> postProcess ~pos ~exact ~completionContext
+    locallyDefinedValues @ valuesFromOpens @ localModuleNames |> postProcess
   | Path path -> (
     Log.log ("Path " ^ pathToString path);
     match getEnvWithOpens ~pos ~env ~package ~opens path with
     | Some (env, prefix) ->
       Log.log "Got the env";
-      allCompletions ~env ~prefix ~exact
-      |> postProcess ~pos ~exact ~completionContext
+      allCompletions ~env ~prefix ~exact |> postProcess
     | None -> [])
   | RecordAccess (valuePath, middleFields, lastField) -> (
     Log.log ("lastField :" ^ lastField);
@@ -832,7 +832,7 @@ let getCompletions ~package ~opens ~allFiles ~pos ~exact ~completionContext ~env
                                   |> Shared.declToString typDecl.name.txt )),
                          env )
                    else None)
-            |> postProcess ~pos ~exact ~completionContext)))
+            |> postProcess)))
     | None -> [])
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
@@ -860,11 +860,11 @@ let completionToItem ({Completion.name; deprecated; docstring; kind}, _env) =
     ~kind:(Completion.kindToInt kind)
     ~deprecated ~detail:(detail name kind) ~docstring
 
-let processDotPath ~package ~opens ~allFiles ~pos ~env
-    (dotpath, completionContext) =
+let processDotPath ~full ~opens ~allFiles ~pos ~env (dotpath, completionContext)
+    =
   dotpath |> PartialParser.determineCompletion
-  |> getCompletions ~completionContext ~exact:false ~package ~opens ~allFiles
-       ~pos ~env
+  |> getCompletions ~completionContext ~exact:false ~full ~opens ~allFiles ~pos
+       ~env
   |> List.map completionToItem
 
 let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
@@ -873,8 +873,8 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
   let findValue path =
     match
       PartialParser.Path path
-      |> getCompletions ~completionContext:PartialParser.Value ~exact:true
-           ~package ~opens ~allFiles ~pos ~env
+      |> getCompletions ~completionContext:PartialParser.Value ~exact:true ~full
+           ~opens ~allFiles ~pos ~env
     with
     | ({Completion.kind = Value typ}, env) :: _ -> Some (typ, env)
     | _ -> None
@@ -882,8 +882,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
   match completable with
   | Cpath _ -> assert false
   | Cdotpath (dotpath, completionContext) ->
-    processDotPath ~package ~opens ~allFiles ~pos ~env
-      (dotpath, completionContext)
+    processDotPath ~full ~opens ~allFiles ~pos ~env (dotpath, completionContext)
   | Cobj (lhs, path, prefix) ->
     let rec getFields (texp : Types.type_expr) =
       match texp.desc with
@@ -1104,7 +1103,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
         let declareds =
           PartialParser.Path (modulePath @ [partialName])
           |> getCompletions ~completionContext:PartialParser.Value ~exact:false
-               ~package ~opens ~allFiles ~pos ~env
+               ~full ~opens ~allFiles ~pos ~env
         in
         declareds
         |> List.map
