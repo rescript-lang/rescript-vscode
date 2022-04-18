@@ -766,31 +766,6 @@ DocumentSymbol tests/src/Completion.res
         "name": "b",
         "kind": 13,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 153, "character": 2}, "end": {"line": 153, "character": 13}}}
-},
-{
-        "name": "Shadow",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 158, "character": 7}, "end": {"line": 166, "character": 1}}}
-},
-{
-        "name": "A",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 159, "character": 9}, "end": {"line": 161, "character": 3}}}
-},
-{
-        "name": "shadowed",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 160, "character": 4}, "end": {"line": 160, "character": 20}}}
-},
-{
-        "name": "B",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 163, "character": 9}, "end": {"line": 165, "character": 1}}}
-},
-{
-        "name": "shadowed",
-        "kind": 15,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 164, "character": 4}, "end": {"line": 164, "character": 21}}}
 }
 ]
 
@@ -1136,43 +1111,14 @@ Completable: Cdotpath([For],Component)
   }]
 
 Complete tests/src/Completion.res 155:3
-posCursor:[156:9] posNoWhite:[156:8] Found expr:[156:1->158:6]
-Pexp_ident Private.:[156:1->158:6]
+posCursor:[156:9] posNoWhite:[156:8] Found expr:[156:1->158:0]
+Pexp_ident Private.:[156:1->158:0]
 Completable: Cdotpath([Private, ""],Value)
 [{
     "label": "b",
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
-  }]
-
-
-Complete tests/src/Completion.res 170:3
-posCursor:[171:4] posNoWhite:[171:3] Found expr:[171:1->171:4]
-Pexp_ident sha:[171:1->171:4]
-Completable: Cdotpath([sha],Value)
-Ident!! Belt.List
-Opens folkz > 2 Shadow.A.place holder ... Shadow.B.place holder
-Package opens Pervasives
-Package opens Pervasives
-fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/pervasives.cmti res:tests/node_modules/rescript/lib/ocaml/pervasives.mli
-resolving open Shadow.A.place holder
-resolvePath path:Shadow.A.place holder
-Was local
-resolving open Shadow.B.place holder
-resolvePath path:Shadow.B.place holder
-Was local
-Opens nows 3 pervasives.mli Completion.res Completion.res
----------------- LOCAL VAL
- - Completing in Completion.res
- - Completing in Completion.res
- - Completing in pervasives.mli
-[{
-    "label": "shadowed",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
     "documentation": null
   }]
 

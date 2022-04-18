@@ -786,9 +786,7 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath =
              let completionsFromThisOpen = allCompletions ~env suffix in
              List.filter
                (fun ((declared : Completion.t), _env) ->
-                 if Hashtbl.mem alreadyUsedIdentifiers declared.name then
-                   (* shadowing from opens *)
-                   false
+                 if Hashtbl.mem alreadyUsedIdentifiers declared.name then false
                  else (
                    Hashtbl.add alreadyUsedIdentifiers declared.name true;
                    true))
