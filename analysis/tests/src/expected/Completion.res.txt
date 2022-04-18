@@ -770,7 +770,7 @@ DocumentSymbol tests/src/Completion.res
 {
         "name": "Shadow",
         "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 158, "character": 7}, "end": {"line": 165, "character": 1}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 158, "character": 7}, "end": {"line": 166, "character": 1}}}
 },
 {
         "name": "A",
@@ -785,12 +785,12 @@ DocumentSymbol tests/src/Completion.res
 {
         "name": "B",
         "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 162, "character": 9}, "end": {"line": 164, "character": 3}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 163, "character": 9}, "end": {"line": 165, "character": 1}}}
 },
 {
         "name": "shadowed",
         "kind": 15,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 163, "character": 4}, "end": {"line": 163, "character": 21}}}
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 164, "character": 4}, "end": {"line": 164, "character": 21}}}
 }
 ]
 
@@ -1147,34 +1147,27 @@ Completable: Cdotpath([Private, ""],Value)
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 166:3
-posCursor:[167:4] posNoWhite:[167:3] Found expr:[167:1->167:4]
-Pexp_ident sha:[167:1->167:4]
-Completable: Cdotpath([sha],Value)
-[{
-    "label": "shadowed",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
-
-Complete tests/src/Completion.res 168:3
-posCursor:[169:4] posNoWhite:[169:3] Found expr:[169:1->169:4]
-Pexp_ident sha:[169:1->169:4]
-Completable: Cdotpath([sha],Value)
-[{
-    "label": "shadowed",
-    "kind": 12,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }]
 
 Complete tests/src/Completion.res 170:3
 posCursor:[171:4] posNoWhite:[171:3] Found expr:[171:1->171:4]
 Pexp_ident sha:[171:1->171:4]
 Completable: Cdotpath([sha],Value)
+Ident!! Belt.List
+Opens folkz > 2 Shadow.A.place holder ... Shadow.B.place holder
+Package opens Pervasives
+Package opens Pervasives
+fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/pervasives.cmti res:tests/node_modules/rescript/lib/ocaml/pervasives.mli
+resolving open Shadow.A.place holder
+resolvePath path:Shadow.A.place holder
+Was local
+resolving open Shadow.B.place holder
+resolvePath path:Shadow.B.place holder
+Was local
+Opens nows 3 pervasives.mli Completion.res Completion.res
+---------------- LOCAL VAL
+ - Completing in Completion.res
+ - Completing in Completion.res
+ - Completing in pervasives.mli
 [{
     "label": "shadowed",
     "kind": 12,
