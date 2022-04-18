@@ -171,3 +171,17 @@ open Shadow.A
 open Shadow.B
 // ^com sha
 let _ = shadowed
+
+module FAR = {
+  type forAutoRecord = {forAuto: ForAuto.t, something: option<int>}
+  let forAutoRecord: forAutoRecord = assert false
+}
+
+module FAO = {
+  let forAutoObject = {"forAutoLabel": FAR.forAutoRecord, "age": 32}
+}
+
+// ^com FAO.forAutoObject["
+// ^com FAO.forAutoObject["forAutoLabel"].
+// ^com FAO.forAutoObject["forAutoLabel"].forAuto->
+// ^com FAO.forAutoObject["forAutoLabel"].forAuto->ForAuto.a

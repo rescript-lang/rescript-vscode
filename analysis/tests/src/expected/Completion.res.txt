@@ -791,6 +791,41 @@ DocumentSymbol tests/src/Completion.res
         "name": "shadowed",
         "kind": 15,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 163, "character": 4}, "end": {"line": 163, "character": 21}}}
+},
+{
+        "name": "FAR",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 174, "character": 7}, "end": {"line": 177, "character": 1}}}
+},
+{
+        "name": "forAutoRecord",
+        "kind": 26,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 175, "character": 2}, "end": {"line": 175, "character": 67}}}
+},
+{
+        "name": "forAuto",
+        "kind": 7,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 175, "character": 24}, "end": {"line": 175, "character": 42}}}
+},
+{
+        "name": "something",
+        "kind": 7,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 175, "character": 44}, "end": {"line": 175, "character": 66}}}
+},
+{
+        "name": "forAutoRecord",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 176, "character": 2}, "end": {"line": 176, "character": 49}}}
+},
+{
+        "name": "FAO",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 179, "character": 7}, "end": {"line": 181, "character": 1}}}
+},
+{
+        "name": "forAutoObject",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 180, "character": 2}, "end": {"line": 180, "character": 68}}}
 }
 ]
 
@@ -1180,6 +1215,78 @@ Completable: Cpath Value[sha]
     "kind": 12,
     "tags": [],
     "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 182:3
+posCursor:[183:20] posNoWhite:[183:19] Found expr:[183:1->184:27]
+XXX Pexp_send [183:20->183:20] e:[183:1->183:18]
+Completable: Cpath Value[FAO, forAutoObject][""]
+[{
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "forAutoLabel",
+    "kind": 4,
+    "tags": [],
+    "detail": "FAR.forAutoRecord",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 183:3
+posCursor:[184:35] posNoWhite:[184:34] Found expr:[184:1->188:0]
+Pexp_field [184:1->184:34] _:[188:0->188:0]
+Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
+[{
+    "label": "forAuto",
+    "kind": 5,
+    "tags": [],
+    "detail": "forAuto: ForAuto.t\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
+    "documentation": null
+  }, {
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: option<int>\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 184:3
+posCursor:[185:44] posNoWhite:[185:43] Found expr:[185:1->0:-1]
+Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
+[{
+    "label": "ForAuto.abc",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }, {
+    "label": "ForAuto.abd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 185:3
+posCursor:[186:53] posNoWhite:[186:52] Found expr:[186:1->186:53]
+posCursor:[186:53] posNoWhite:[186:52] Found expr:[186:44->186:53]
+Pexp_ident ForAuto.a:[186:44->186:53]
+Completable: Cpath Value[ForAuto, a]
+[{
+    "label": "abc",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }, {
+    "label": "abd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
     "documentation": null
   }]
 
