@@ -8,18 +8,11 @@ type contextPath =
   | CPField of contextPath * string
   | CPObj of contextPath * string
 
-type completion =
-  | RecordAccess of SharedTypes.path * SharedTypes.path * string (* e.g. A.B.var .f1.f2 .f3 *)
-  | Path of SharedTypes.path
-(* e.g. A.B.var or A.B *)
-
 type completable =
   | Cdecorator of string  (** e.g. @module *)
   | Clabel of string list * string * string list
       (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
   | Cpath of contextPath
-  | Cdotpath of string list * completionContext
-      (** e.g. ["M", "foo"] for M.foo *)
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
   | Cobj of string list * string list * string
@@ -46,8 +39,6 @@ let completableToString =
   | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
   | Clabel (sl1, s, sl2) ->
     "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-  | Cdotpath (sl, k) ->
-    "Cdotpath(" ^ (sl |> list) ^ "," ^ completionContextToString k ^ ")"
   | Cjsx (sl1, s, sl2) ->
     "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
   | Cobj (sl1, sl2, s) ->
@@ -59,29 +50,6 @@ let completableToString =
       | PipeArray -> "PipeArray"
       | PipeString -> "PipeString")
     ^ ", " ^ str s ^ ")"
-
-let determineCompletion (dotpath : SharedTypes.path) =
-  let rec loop dotpath =
-    match dotpath with
-    | [] -> assert false
-    | [one] -> Path [one]
-    | [one; two] ->
-      if Utils.isCapitalized one then Path [one; two]
-      else RecordAccess ([one], [], two)
-    | one :: rest -> (
-      if Utils.isCapitalized one then
-        match loop rest with
-        | Path path -> Path (one :: path)
-        | RecordAccess (valuePath, middleFields, lastField) ->
-          RecordAccess (one :: valuePath, middleFields, lastField)
-      else
-        match loop rest with
-        | Path path -> Path path
-        | RecordAccess ([name], middleFields, lastField) ->
-          RecordAccess ([one], name :: middleFields, lastField)
-        | x -> x)
-  in
-  loop dotpath
 
 let rec skipWhite text i =
   if i < 0 then 0

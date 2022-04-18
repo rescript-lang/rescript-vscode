@@ -787,50 +787,6 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
       |> postProcess ~pos ~exact ~completionContext
     | None -> [])
 
-let getCompletionsForRecordAccess ~package ~opens ~pos ~exact ~env
-    (valuePath, middleFields, lastField) =
-  Log.log ("lastField :" ^ lastField);
-  Log.log ("-------------- Looking for " ^ (valuePath |> pathToString));
-  match getEnvWithOpens ~pos ~env ~package ~opens valuePath with
-  | Some (env, name) -> (
-    match ProcessCmt.findInScope pos name Stamps.iterValues env.file.stamps with
-    | None -> []
-    | Some declared -> (
-      Log.log ("Found it! " ^ declared.name.txt);
-      match declared.item |> extractRecordType ~env ~package with
-      | None -> []
-      | Some (env, fields, typDecl) -> (
-        match
-          middleFields
-          |> List.fold_left
-               (fun current name ->
-                 match current with
-                 | None -> None
-                 | Some (env, fields, _) -> (
-                   match
-                     fields |> List.find_opt (fun f -> f.fname.txt = name)
-                   with
-                   | None -> None
-                   | Some field ->
-                     Log.log ("Found field " ^ name);
-                     field.typ |> extractRecordType ~env ~package))
-               (Some (env, fields, typDecl))
-        with
-        | None -> []
-        | Some (env, fields, typDecl) ->
-          fields
-          |> Utils.filterMap (fun field ->
-                 if checkName field.fname.txt ~prefix:lastField ~exact then
-                   Some
-                     (Completion.create ~name:field.fname.txt ~env
-                        ~kind:
-                          (Completion.Field
-                             ( field,
-                               typDecl.item.decl
-                               |> Shared.declToString typDecl.name.txt )))
-                 else None))))
-  | None -> []
-
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
   let docContent =
     (match deprecated with None -> "" | Some s -> "Deprecated: " ^ s ^ "\n\n")
@@ -855,18 +811,6 @@ let completionToItem {Completion.name; deprecated; docstring; kind} =
   mkItem ~name
     ~kind:(Completion.kindToInt kind)
     ~deprecated ~detail:(detail name kind) ~docstring
-
-let processDotPath ~package ~opens ~allFiles ~pos ~env
-    (dotpath, completionContext) =
-  let completion = dotpath |> PartialParser.determineCompletion in
-  match completion with
-  | Path path ->
-    path
-    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact:false
-         ~completionContext ~env
-  | RecordAccess (valuePath, middleFields, lastField) ->
-    (valuePath, middleFields, lastField)
-    |> getCompletionsForRecordAccess ~package ~opens ~pos ~exact:false ~env
 
 let completionsGetTypeEnv = function
   | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
@@ -924,10 +868,6 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     contextPath
     |> getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env
          ~exact:false
-    |> List.map completionToItem
-  | Cdotpath (dotpath, completionContext) ->
-    processDotPath ~package ~opens ~allFiles ~pos ~env
-      (dotpath, completionContext)
     |> List.map completionToItem
   | Cobj (lhs, path, prefix) ->
     let rec getFields (texp : Types.type_expr) =
@@ -1237,12 +1177,11 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     | Cpath (CPId _) -> completable
     | Cpath (CPField (cp, name)) -> (
       match processContextPath (Cpath cp) with
-      | Cdotpath (path, _) -> Cdotpath (path @ [name], Field)
       | Cpath cp -> Cpath (CPField (cp, name))
       | _ -> assert false)
     | Cpath (CPObj (cp, objLabel)) -> (
       match processContextPath (Cpath cp) with
-      | Cdotpath (path, _) | Cpath (CPId (path, _)) -> Cobj (path, [], objLabel)
+      | Cpath (CPId (path, _)) -> Cobj (path, [], objLabel)
       | Cobj (path, objPath, label) -> Cobj (path, objPath @ [label], objLabel)
       | _ -> assert false)
     | _ -> completable
@@ -1251,7 +1190,6 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
   let completable =
     match completable with
     | Cobj _ -> assert false
-    | Cdotpath _ -> assert false
     | Cpath _ -> processContextPath completable
     | _ -> completable
   in
