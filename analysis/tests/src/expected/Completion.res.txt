@@ -380,7 +380,7 @@ Complete tests/src/Completion.res 21:2
 posCursor:[22:11] posNoWhite:[22:10] Found expr:[22:1->22:11]
 posCursor:[22:11] posNoWhite:[22:10] Found expr:[22:10->22:11]
 Pexp_ident m:[22:10->22:11]
-Completable: Cpipe(PipeArray, m)
+Completable: Cpath array->m
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -399,7 +399,7 @@ Complete tests/src/Completion.res 23:2
 posCursor:[24:11] posNoWhite:[24:10] Found expr:[24:1->24:11]
 posCursor:[24:11] posNoWhite:[24:10] Found expr:[24:8->24:11]
 Pexp_ident toU:[24:8->24:11]
-Completable: Cpipe(PipeString, toU)
+Completable: Cpath string->toU
 [{
     "label": "Js.String2.toUpperCase",
     "kind": 12,
@@ -412,7 +412,7 @@ Complete tests/src/Completion.res 27:2
 posCursor:[28:6] posNoWhite:[28:5] Found expr:[28:1->28:6]
 posCursor:[28:6] posNoWhite:[28:5] Found expr:[28:5->28:6]
 Pexp_ident e:[28:5->28:6]
-Completable: Cpipe([op], e)
+Completable: Cpath Value[op]->e
 [{
     "label": "Belt.Option.eqU",
     "kind": 12,
@@ -433,7 +433,7 @@ Pexp_apply ...[41:9->41:10] (...[37:1->41:8], ...[42:2->46:3])
 posCursor:[37:5] posNoWhite:[37:4] Found expr:[37:1->41:8]
 posCursor:[37:5] posNoWhite:[37:4] Found expr:[37:3->37:5]
 Pexp_ident |.:[37:3->37:5]
-Completable: Cpipe([fa], "")
+Completable: Cpath Value[fa]->
 [{
     "label": "ForAuto.abc",
     "kind": 12,

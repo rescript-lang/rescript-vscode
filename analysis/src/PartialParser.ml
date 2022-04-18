@@ -4,9 +4,12 @@ type pipe = PipeId of string list | PipeArray | PipeString
 type completionContext = Type | Value | Module | Field
 
 type contextPath =
+  | CPString
+  | CPArray
   | CPId of string list * completionContext
   | CPField of contextPath * string
   | CPObj of contextPath * string
+  | CPPipe of contextPath * string
 
 type completable =
   | Cdecorator of string  (** e.g. @module *)
@@ -27,10 +30,13 @@ let completableToString =
     | Field -> "Field"
   in
   let rec contextPathToString = function
+    | CPString -> "string"
+    | CPArray -> "array"
     | CPId (sl, completionContext) ->
       completionContextToString completionContext ^ list sl
     | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
     | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
+    | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
   in
   function
   | Cpath cp -> "Cpath " ^ contextPathToString cp

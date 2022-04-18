@@ -819,9 +819,23 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
-let rec getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env ~exact
-    (contextPath : PartialParser.contextPath) =
+let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+    ~env ~exact (contextPath : PartialParser.contextPath) =
   match contextPath with
+  | CPString ->
+    [
+      Completion.create ~name:"string" ~env
+        ~kind:
+          (Completion.Value
+             (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
+    ]
+  | CPArray ->
+    [
+      Completion.create ~name:"array" ~env
+        ~kind:
+          (Completion.Value
+             (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
+    ]
   | CPId (path, completionContext) ->
     path
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
@@ -834,8 +848,8 @@ let rec getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env ~exact
   | CPField (cp, fieldName) -> (
     match
       cp
-      |> getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env
-           ~exact:true
+      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+           ~env ~exact:true
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
@@ -857,8 +871,8 @@ let rec getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env ~exact
   | CPObj (cp, label) -> (
     match
       cp
-      |> getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env
-           ~exact:true
+      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+           ~env ~exact:true
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
@@ -882,6 +896,97 @@ let rec getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env ~exact
                else None)
       | None -> [])
     | None -> [])
+  | CPPipe (cp, funNamePrefix) -> (
+    match
+      cp
+      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+           ~env ~exact:true
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, _envNotUsed) -> (
+      let arrayModulePath = ["Js"; "Array2"] in
+      let listModulePath = ["Belt"; "List"] in
+      let optionModulePath = ["Belt"; "Option"] in
+      let stringModulePath = ["Js"; "String2"] in
+      let getModulePath path =
+        let rec loop (path : Path.t) =
+          match path with
+          | Pident id -> [Ident.name id]
+          | Pdot (p, s, _) -> s :: loop p
+          | Papply _ -> []
+        in
+        match path with
+        | Path.Pident id when Ident.name id = "array" -> arrayModulePath
+        | Path.Pident id when Ident.name id = "list" -> listModulePath
+        | Path.Pident id when Ident.name id = "option" -> optionModulePath
+        | Path.Pident id when Ident.name id = "string" -> stringModulePath
+        | _ -> ( match loop path with _ :: rest -> List.rev rest | [] -> [])
+      in
+      let getConstr typ =
+        match typ.Types.desc with
+        | Tconstr (path, _, _)
+        | Tlink {desc = Tconstr (path, _, _)}
+        | Tpoly ({desc = Tconstr (path, _, _)}, []) ->
+          Some path
+        | _ -> None
+      in
+      let fromType typ =
+        match getConstr typ with
+        | None -> None
+        | Some path -> Some (getModulePath path)
+      in
+      let lhsPath = fromType typ in
+      let removePackageOpens modulePath =
+        match modulePath with
+        | toplevel :: rest when package.opens |> List.mem toplevel -> rest
+        | _ -> modulePath
+      in
+      let rec removeRawOpen rawOpen modulePath =
+        match (rawOpen, modulePath) with
+        | [_], _ -> Some modulePath
+        | s :: inner, first :: restPath when s = first ->
+          removeRawOpen inner restPath
+        | _ -> None
+      in
+      let rec removeRawOpens rawOpens modulePath =
+        match rawOpens with
+        | rawOpen :: restOpens ->
+          let newModulePath =
+            match removeRawOpen rawOpen modulePath with
+            | None -> modulePath
+            | Some newModulePath -> newModulePath
+          in
+          removeRawOpens restOpens newModulePath
+        | [] -> modulePath
+      in
+      match lhsPath with
+      | Some modulePath -> (
+        match modulePath with
+        | _ :: _ ->
+          let modulePathMinusOpens =
+            modulePath |> removePackageOpens |> removeRawOpens rawOpens
+            |> String.concat "."
+          in
+          let completionName name =
+            if modulePathMinusOpens = "" then name
+            else modulePathMinusOpens ^ "." ^ name
+          in
+          let completions =
+            modulePath @ [funNamePrefix]
+            |> getCompletionsForPath ~completionContext:PartialParser.Value
+                 ~exact:false ~package ~opens ~allFiles ~pos ~env
+          in
+          completions
+          |> List.map (fun (completion : Completion.t) ->
+                 {
+                   completion with
+                   name = completionName completion.name;
+                   env
+                   (* Restore original env for the completion after x->foo()... *);
+                 })
+        | [] -> [])
+      | None -> [])
+    | None -> [])
 
 let processCompletable ~package ~rawOpens ~opens ~env ~pos
     (completable : PartialParser.completable) =
@@ -895,8 +1000,8 @@ let processCompletable ~package ~rawOpens ~opens ~env ~pos
   match completable with
   | Cpath contextPath ->
     contextPath
-    |> getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env
-         ~exact:false
+    |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+         ~env ~exact:false
     |> List.map completionToItem
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel_ name typString =
@@ -1074,16 +1179,15 @@ let processCompletable ~package ~rawOpens ~opens ~env ~pos
           if modulePathMinusOpens = "" then name
           else modulePathMinusOpens ^ "." ^ name
         in
-        let declareds =
+        let completions =
           modulePath @ [partialName]
           |> getCompletionsForPath ~completionContext:PartialParser.Value
                ~exact:false ~package ~opens ~allFiles ~pos ~env
         in
-        declareds
-        |> List.map (fun {Completion.name; deprecated; docstring; kind} ->
-               mkItem ~name:(completionName name)
-                 ~kind:(Completion.kindToInt kind)
-                 ~detail:(detail name kind) ~deprecated ~docstring)
+        completions
+        |> List.map (fun (completion : Completion.t) ->
+               completionToItem
+                 {completion with name = completionName completion.name})
       | _ -> [])
     | None -> [])
   | Cdecorator prefix ->
