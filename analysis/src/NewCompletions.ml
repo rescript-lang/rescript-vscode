@@ -499,7 +499,8 @@ let resolveOpens ~env ~previous opens ~package =
 let checkName name ~prefix ~exact =
   if exact then name = prefix else Utils.startsWith name prefix
 
-let completionForDeclareds ~pos ~iter ~stamps ~prefix ~exact transformContents =
+let completionForDeclareds ~pos ~iter ~stamps ~prefix ~exact ~env
+    transformContents =
   (* Log.log("completion for declares " ++ prefix); *)
   let res = ref [] in
   iter
@@ -510,7 +511,7 @@ let completionForDeclareds ~pos ~iter ~stamps ~prefix ~exact transformContents =
       then
         res :=
           {
-            (Completion.create ~name:declared.name.txt
+            (Completion.create ~name:declared.name.txt ~env
                ~kind:(transformContents declared.item))
             with
             extentLoc = declared.extentLoc;
@@ -522,20 +523,20 @@ let completionForDeclareds ~pos ~iter ~stamps ~prefix ~exact transformContents =
   !res
 
 let completionForDeclaredModules ~pos ~env ~prefix ~exact =
-  completionForDeclareds ~pos ~iter:Stamps.iterModules
+  completionForDeclareds ~env ~pos ~iter:Stamps.iterModules
     ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
       Completion.Module m)
 
 let completionForDeclaredValues ~pos ~env ~prefix ~exact =
-  completionForDeclareds ~pos ~iter:Stamps.iterValues
+  completionForDeclareds ~env ~pos ~iter:Stamps.iterValues
     ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
       Completion.Value m)
 
 let completionForDeclaredTypes ~pos ~env ~prefix ~exact =
-  completionForDeclareds ~pos ~iter:Stamps.iterTypes
+  completionForDeclareds ~env ~pos ~iter:Stamps.iterTypes
     ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m -> Completion.Type m)
 
-let completionForExporteds iterExported getDeclared ~prefix ~exact
+let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
     transformContents =
   let res = ref [] in
   iterExported (fun name stamp ->
@@ -545,7 +546,7 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact
         | Some (declared : _ Declared.t) ->
           res :=
             {
-              (Completion.create ~name:declared.name.txt
+              (Completion.create ~name:declared.name.txt ~env
                  ~kind:(transformContents declared.item))
               with
               extentLoc = declared.extentLoc;
@@ -558,17 +559,17 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact
 
 let completionForExportedModules ~env ~prefix ~exact =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
-    (Stamps.findModule env.file.stamps) ~prefix ~exact (fun m ->
+    (Stamps.findModule env.file.stamps) ~prefix ~exact ~env (fun m ->
       Completion.Module m)
 
 let completionForExportedValues ~env ~prefix ~exact =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
-    (Stamps.findValue env.file.stamps) ~prefix ~exact (fun v ->
+    (Stamps.findValue env.file.stamps) ~prefix ~exact ~env (fun v ->
       Completion.Value v)
 
 let completionForExportedTypes ~env ~prefix ~exact =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
-    (Stamps.findType env.file.stamps) ~prefix ~exact (fun t ->
+    (Stamps.findType env.file.stamps) ~prefix ~exact ~env (fun t ->
       Completion.Type t)
 
 let completionForConstructors ~(env : QueryEnv.t) ~prefix ~exact =
@@ -581,7 +582,7 @@ let completionForConstructors ~(env : QueryEnv.t) ~prefix ~exact =
           |> List.filter (fun c ->
                  checkName c.Constructor.cname.txt ~prefix ~exact)
           |> List.map (fun c ->
-                 Completion.create ~name:c.Constructor.cname.txt
+                 Completion.create ~name:c.Constructor.cname.txt ~env
                    ~kind:
                      (Completion.Constructor
                         (c, t.item.decl |> Shared.declToString t.name.txt))))
@@ -598,7 +599,7 @@ let completionForFields ~(env : QueryEnv.t) ~prefix ~exact =
           (fields
           |> List.filter (fun f -> checkName f.fname.txt ~prefix ~exact)
           |> List.map (fun f ->
-                 Completion.create ~name:f.fname.txt
+                 Completion.create ~name:f.fname.txt ~env
                    ~kind:
                      (Completion.Field
                         (f, t.item.decl |> Shared.declToString t.name.txt))))
@@ -654,7 +655,6 @@ let localCompletions ~pos ~(env : QueryEnv.t) ~prefix ~exact =
   @ completionForDeclaredValues ~pos ~env ~prefix ~exact
   @ completionForDeclaredTypes ~pos ~env ~prefix ~exact
   @ completionForFields ~env ~prefix ~exact
-  |> List.map (fun r -> (r, env))
 
 let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
@@ -663,7 +663,6 @@ let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   @ completionForExportedValues ~env ~prefix ~exact
   @ completionForExportedTypes ~env ~prefix ~exact
   @ completionForFields ~env ~prefix ~exact
-  |> List.map (fun r -> (r, env))
 
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
@@ -703,7 +702,7 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
   | _ -> None
 
 let filterCompletionKind ~(completionContext : PartialParser.completionContext)
-    ({Completion.kind}, _env) =
+    {Completion.kind} =
   match (completionContext, kind) with
   | Module, (Module _ | FileModule _) -> true
   | Module, _ -> false
@@ -726,13 +725,12 @@ let prioritize ~exact ~pos completions =
        Take the last position before pos if any, or just return the first element. *)
     let rec loop decls =
       match decls with
-      | (d1, e1) :: (d2, e2) :: rest ->
+      | d1 :: d2 :: rest ->
         let pos2 = d2.Completion.extentLoc.loc_start |> Pos.ofLexing in
-        if pos2 >= pos then loop ((d1, e1) :: rest)
+        if pos2 >= pos then loop (d1 :: rest)
         else
           let pos1 = d1.extentLoc.loc_start |> Pos.ofLexing in
-          if pos1 <= pos2 then loop ((d2, e2) :: rest)
-          else loop ((d1, e1) :: rest)
+          if pos1 <= pos2 then loop (d2 :: rest) else loop (d1 :: rest)
       | [] | [_] -> decls
     in
     loop completions
@@ -756,7 +754,7 @@ let getCompletionsPath ~package ~opens ~allFiles ~pos ~exact ~completionContext
            (fun results env ->
              let completionsFromThisOpen = allCompletions ~env ~prefix ~exact in
              List.filter
-               (fun ((declared : Completion.t), _env) ->
+               (fun (declared : Completion.t) ->
                  if Hashtbl.mem alreadyUsedIdentifiers declared.name then
                    (* shadowing from opens *)
                    false
@@ -774,8 +772,8 @@ let getCompletionsPath ~package ~opens ~allFiles ~pos ~exact ~completionContext
              if checkName name ~prefix ~exact && not (String.contains name '-')
              then
                Some
-                 ( Completion.create ~name ~kind:(Completion.FileModule name),
-                   env )
+                 (Completion.create ~name ~env
+                    ~kind:(Completion.FileModule name))
              else None)
     in
     locallyDefinedValues @ valuesFromOpens @ localModuleNames
@@ -824,13 +822,12 @@ let getCompletionsRecordAccess ~package ~opens ~pos ~exact ~env
           |> Utils.filterMap (fun field ->
                  if checkName field.fname.txt ~prefix:lastField ~exact then
                    Some
-                     ( Completion.create ~name:field.fname.txt
-                         ~kind:
-                           (Completion.Field
-                              ( field,
-                                typDecl.item.decl
-                                |> Shared.declToString typDecl.name.txt )),
-                       env )
+                     (Completion.create ~name:field.fname.txt ~env
+                        ~kind:
+                          (Completion.Field
+                             ( field,
+                               typDecl.item.decl
+                               |> Shared.declToString typDecl.name.txt )))
                  else None))))
   | None -> []
 
@@ -854,7 +851,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
         else Some {kind = "markdown"; value = docContent});
     }
 
-let completionToItem ({Completion.name; deprecated; docstring; kind}, _env) =
+let completionToItem {Completion.name; deprecated; docstring; kind} =
   mkItem ~name
     ~kind:(Completion.kindToInt kind)
     ~deprecated ~detail:(detail name kind) ~docstring
@@ -880,7 +877,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
       |> getCompletionsPath ~completionContext:PartialParser.Value ~exact:true
            ~package ~opens ~allFiles ~pos ~env
     with
-    | ({Completion.kind = Value typ}, env) :: _ -> Some (typ, env)
+    | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
     | _ -> None
   in
   match completable with
@@ -1117,8 +1114,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
                ~exact:false ~package ~opens ~allFiles ~pos ~env
         in
         declareds
-        |> List.map
-             (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
+        |> List.map (fun {Completion.name; deprecated; docstring; kind} ->
                mkItem ~name:(completionName name)
                  ~kind:(Completion.kindToInt kind)
                  ~detail:(detail name kind) ~deprecated ~docstring)
