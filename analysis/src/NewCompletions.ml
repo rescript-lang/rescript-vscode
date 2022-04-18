@@ -1118,6 +1118,8 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
           modulePath @ [partialName] |> processValue ~exact:false
         in
         declareds
+        |> List.filter (fun ({Completion.kind}, _env) ->
+               match kind with Completion.Value _ -> true | _ -> false)
         |> List.map
              (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
                mkItem ~name:(completionName name)
