@@ -873,38 +873,6 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
-let rec getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env ~exact
-    (contextPath : PartialParser.contextPath) =
-  match contextPath with
-  | CPId (path, completionContext) ->
-    path
-    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
-         ~completionContext ~env
-  | CPField (cp, fieldName) -> (
-    match
-      cp
-      |> getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env
-           ~exact:true
-      |> completionsGetTypeEnv
-    with
-    | Some (typ, env) -> (
-      match typ |> extractRecordType ~env ~package with
-      | Some (env, fields, typDecl) ->
-        fields
-        |> Utils.filterMap (fun field ->
-               if checkName field.fname.txt ~prefix:fieldName ~exact then
-                 Some
-                   (Completion.create ~name:field.fname.txt ~env
-                      ~kind:
-                        (Completion.Field
-                           ( field,
-                             typDecl.item.decl
-                             |> Shared.declToString typDecl.name.txt )))
-               else None)
-      | None -> [])
-    | None -> [])
-  | _ -> assert false
-
 let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     (completable : PartialParser.completable) =
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
@@ -915,11 +883,12 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     |> completionsGetTypeEnv
   in
   match completable with
-  | Cpath contextPath ->
-    contextPath
-    |> getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env
-         ~exact:false
+  | Cpath (CPId (path, completionContext)) ->
+    path
+    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact:false
+         ~completionContext ~env
     |> List.map completionToItem
+  | Cpath _ -> assert false
   | Cdotpath (dotpath, completionContext) ->
     processDotPath ~package ~opens ~allFiles ~pos ~env
       (dotpath, completionContext)
@@ -1226,28 +1195,26 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     ~rawOpens ~opens ~env =
   let package = full.package in
 
-  let rec processContextPath (completable : PartialParser.completable) :
+  let rec processContextPath (cp : PartialParser.contextPath) :
       PartialParser.completable =
-    match completable with
-    | Cpath (CPId _) -> completable
-    | Cpath (CPField (cp, name)) -> (
-      match processContextPath (Cpath cp) with
+    match cp with
+    | CPId (path, k) -> PartialParser.Cdotpath (path, k)
+    | CPField (cp, name) -> (
+      match processContextPath cp with
       | Cdotpath (path, _) -> Cdotpath (path @ [name], Field)
-      | Cpath (CPId (path, _)) -> Cdotpath (path @ [name], Field)
       | _ -> assert false)
-    | Cpath (CPObj (cp, objLabel)) -> (
-      match processContextPath (Cpath cp) with
-      | Cdotpath (path, _) | Cpath (CPId (path, _)) -> Cobj (path, [], objLabel)
+    | CPObj (cp, objLabel) -> (
+      match processContextPath cp with
+      | Cdotpath (path, _k) -> Cobj (path, [], objLabel)
       | Cobj (path, objPath, label) -> Cobj (path, objPath @ [label], objLabel)
       | _ -> assert false)
-    | _ -> completable
   in
 
   let completable =
     match completable with
     | Cobj _ -> assert false
     | Cdotpath _ -> assert false
-    | Cpath _ -> processContextPath completable
+    | Cpath contextPath -> processContextPath contextPath
     | _ -> completable
   in
 
