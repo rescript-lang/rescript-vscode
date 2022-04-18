@@ -73,6 +73,8 @@ module Exported = struct
       | Module -> t.modules_
     in
     Hashtbl.iter f tbl
+
+  let removeModule {modules_} name = Hashtbl.remove modules_ name
 end
 
 module Module = struct

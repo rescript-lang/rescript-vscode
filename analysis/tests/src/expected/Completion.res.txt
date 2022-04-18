@@ -751,21 +751,6 @@ DocumentSymbol tests/src/Completion.res
         "name": "Baba",
         "kind": 22,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 26}, "end": {"line": 145, "character": 32}}}
-},
-{
-        "name": "Private",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 151, "character": 7}, "end": {"line": 154, "character": 1}}}
-},
-{
-        "name": "awr",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 152, "character": 12}, "end": {"line": 152, "character": 23}}}
-},
-{
-        "name": "b",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 153, "character": 2}, "end": {"line": 153, "character": 13}}}
 }
 ]
 
@@ -1107,18 +1092,6 @@ Completable: Cdotpath([For],Component)
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
-  }]
-
-Complete tests/src/Completion.res 155:3
-posCursor:[156:9] posNoWhite:[156:8] Found expr:[156:1->158:0]
-Pexp_ident Private.:[156:1->158:0]
-Completable: Cdotpath([Private, ""],Value)
-[{
-    "label": "b",
-    "kind": 12,
-    "tags": [],
-    "detail": "int",
     "documentation": null
   }]
 

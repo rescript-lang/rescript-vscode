@@ -91,7 +91,7 @@ let command ~path =
     | Pstr_module mb -> processModuleBinding mb
     | Pstr_recmodule mbs -> mbs |> List.iter processModuleBinding
     | Pstr_exception ec -> processExtensionConstructor ec
-    | _ -> ());
+    | _ -> Ast_iterator.default_iterator.structure_item iterator item);
     Ast_iterator.default_iterator.structure_item iterator item
   in
   let signature_item (iterator : Ast_iterator.iterator)
