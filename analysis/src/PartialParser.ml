@@ -15,8 +15,6 @@ type completable =
   | Cpath of contextPath
   | Cjsx of string list * string * string list
       (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
-  | Cobj of string list * string list * string
-      (** e.g. (["M", "foo"], ["a", "b"], "bar") for M.foo["a"]["b"]["bar" *)
   | Cpipe of pipe * string  (** E.g. ("x", "foo") for "x->foo" *)
 
 let completableToString =
@@ -41,8 +39,6 @@ let completableToString =
     "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
   | Cjsx (sl1, s, sl2) ->
     "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-  | Cobj (sl1, sl2, s) ->
-    "Cobj(" ^ (sl1 |> list) ^ ", " ^ (sl2 |> list) ^ ", " ^ str s ^ ")"
   | Cpipe (pipe, s) ->
     "Cpipe("
     ^ (match pipe with

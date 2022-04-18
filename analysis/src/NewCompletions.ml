@@ -883,7 +883,7 @@ let rec getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env ~exact
       | None -> [])
     | None -> [])
 
-let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
+let processCompletable ~package ~rawOpens ~opens ~env ~pos
     (completable : PartialParser.completable) =
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let findTypeOfValue path =
@@ -898,47 +898,6 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     |> getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env
          ~exact:false
     |> List.map completionToItem
-  | Cobj (lhs, path, prefix) ->
-    let rec getFields (texp : Types.type_expr) =
-      match texp.desc with
-      | Tfield (name, _, t1, t2) ->
-        let fields = t2 |> getFields in
-        (name, t1) :: fields
-      | Tlink te -> te |> getFields
-      | Tvar None -> []
-      | _ -> []
-    in
-    let getObjectFields ~env (t : Types.type_expr) =
-      match t |> extractObjectType ~env ~package with
-      | Some (env, tObj) -> (env, getFields tObj)
-      | None -> (env, [])
-    in
-    let rec resolvePath ~env fields path =
-      match path with
-      | name :: restPath -> (
-        match fields |> List.find_opt (fun (n, _) -> n = name) with
-        | Some (_, fieldType) ->
-          let env, innerFields = getObjectFields ~env fieldType in
-          resolvePath ~env innerFields restPath
-        | None -> [])
-      | [] -> fields
-    in
-    let env0 = QueryEnv.fromFile full.file in
-    let env, fields =
-      match lhs |> findTypeOfValue with
-      | Some (typ, env) -> getObjectFields ~env typ
-      | None -> (env0, [])
-    in
-    let labels = resolvePath ~env fields path in
-    let mkLabel_ name typString =
-      mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
-    in
-    let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
-    if labels = [] then []
-    else
-      labels
-      |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
-      |> List.map mkLabel
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
@@ -1196,7 +1155,6 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
 
-let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
+let computeCompletions ~(completable : PartialParser.completable) ~package ~pos
     ~rawOpens ~opens ~env =
-  let package = full.package in
-  completable |> processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
+  completable |> processCompletable ~package ~rawOpens ~opens ~env ~pos

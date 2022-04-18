@@ -674,8 +674,10 @@ let completion ~debug ~path ~pos ~currentFile =
           | None -> []
           | Some full ->
             let env = QueryEnv.fromFile full.file in
-            let opens = getOpens ~rawOpens ~package:full.package ~env in
-            NewCompletions.computeCompletions ~completable ~full ~pos ~rawOpens ~opens ~env)
+            let package = full.package in
+            let opens = getOpens ~rawOpens ~package ~env in
+            NewCompletions.computeCompletions ~completable ~package ~pos
+              ~rawOpens ~opens ~env)
       in
       completionItems
   in
