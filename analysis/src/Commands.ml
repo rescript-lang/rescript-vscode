@@ -508,6 +508,11 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
              Only take the first like to represent the label *)
           let txtLines = txt |> String.split_on_char '\n' in
           let label = List.hd txtLines in
+          let label =
+            if label <> "" && label.[String.length label - 1] = '\r' then
+              String.sub label 0 (String.length label - 1)
+            else label
+          in
           let labelRange =
             let l, c = Loc.start loc in
             ((l, c + 1), (l, c + 1 + String.length label))
