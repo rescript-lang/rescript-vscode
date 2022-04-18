@@ -631,25 +631,6 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     !result)
   else None
 
-let getOpens ~rawOpens ~package ~env =
-  Log.log
-    ("Opens folkz > "
-    ^ string_of_int (List.length rawOpens)
-    ^ " "
-    ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let packageOpens = "Pervasives" :: package.opens in
-  Log.log ("Package opens " ^ String.concat " " packageOpens);
-  let resolvedOpens = NewCompletions.resolveRawOpens ~env ~rawOpens ~package in
-  Log.log
-    ("Opens nows "
-    ^ string_of_int (List.length resolvedOpens)
-    ^ " "
-    ^ String.concat " "
-        (resolvedOpens
-        |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
-  (* Last open takes priority *)
-  List.rev resolvedOpens
-
 let completion ~debug ~path ~pos ~currentFile =
   let result =
     let textOpt = Files.readFile currentFile in
@@ -673,9 +654,7 @@ let completion ~debug ~path ~pos ~currentFile =
           match Cmt.fromPath ~path with
           | None -> []
           | Some full ->
-            let env = QueryEnv.fromFile full.file in
-            let opens = getOpens ~rawOpens ~package:full.package ~env in
-            NewCompletions.computeCompletions ~completable ~full ~pos ~rawOpens ~opens ~env)
+            NewCompletions.computeCompletions ~completable ~full ~pos ~rawOpens)
       in
       completionItems
   in
