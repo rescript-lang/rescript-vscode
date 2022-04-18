@@ -887,10 +887,10 @@ let processDotPath ~full ~rawOpens ~allFiles ~pos dotpath completionContext =
 
 let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     (completable : PartialParser.completable) =
-  let processValue path =
+  let processValue ~exact path =
     PartialParser.Path path
-    |> processCompletion ~completionContext:PartialParser.Value ~exact:true
-         ~full ~rawOpens ~allFiles ~pos
+    |> processCompletion ~completionContext:PartialParser.Value ~exact ~full
+         ~rawOpens ~allFiles ~pos
   in
   match completable with
   | Cpath _ -> assert false
@@ -923,7 +923,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     in
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
-      match lhs |> processValue with
+      match lhs |> processValue ~exact:true with
       | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
       | _ -> (env0, [])
     in
@@ -953,7 +953,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
       |> List.map mkLabel)
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
-    let completions = componentPath @ ["make"] |> processValue in
+    let completions = componentPath @ ["make"] |> processValue ~exact:true in
     let labels =
       match completions with
       | ({Completion.kind = Completion.Value typ}, _env) :: _ ->
@@ -1065,7 +1065,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
       in
       match pipeIdPath with
       | x :: fieldNames -> (
-        match [x] |> processValue with
+        match [x] |> processValue ~exact:true with
         | ({Completion.kind = Value typ}, env) :: _ -> (
           match getFields ~env ~typ fieldNames with
           | None -> None
@@ -1115,9 +1115,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
           else modulePathMinusOpens ^ "." ^ name
         in
         let declareds =
-          PartialParser.Path (modulePath @ [partialName])
-          |> processCompletion ~completionContext:PartialParser.Value
-               ~exact:false ~full ~rawOpens ~allFiles ~pos
+          modulePath @ [partialName] |> processValue ~exact:false
         in
         declareds
         |> List.map
@@ -1173,7 +1171,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     |> List.map mkDecorator
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
-      match funPath |> processValue with
+      match funPath |> processValue ~exact:true with
       | ({Completion.kind = Value typ}, _env) :: _ ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
