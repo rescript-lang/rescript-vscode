@@ -887,14 +887,10 @@ let processDotPath ~full ~rawOpens ~allFiles ~pos dotpath completionContext =
 
 let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     (completable : PartialParser.completable) =
-  let findValue path =
-    match
-      PartialParser.Path path
-      |> processCompletion ~completionContext:PartialParser.Value ~exact:true
-           ~full ~rawOpens ~allFiles ~pos
-    with
-    | ({Completion.kind = Value typ}, env) :: _ -> Some (typ, env)
-    | _ -> None
+  let processValue path =
+    PartialParser.Path path
+    |> processCompletion ~completionContext:PartialParser.Value ~exact:true
+         ~full ~rawOpens ~allFiles ~pos
   in
   match completable with
   | Cpath _ -> assert false
@@ -927,9 +923,9 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     in
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
-      match lhs |> findValue with
-      | Some (typ, env) -> getObjectFields ~env typ
-      | None -> (env0, [])
+      match lhs |> processValue with
+      | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
+      | _ -> (env0, [])
     in
     let labels = resolvePath ~env fields path in
     let mkLabel_ name typString =
@@ -957,9 +953,10 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
       |> List.map mkLabel)
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
+    let completions = componentPath @ ["make"] |> processValue in
     let labels =
-      match componentPath @ ["make"] |> findValue with
-      | Some (typ, _env) ->
+      match completions with
+      | ({Completion.kind = Completion.Value typ}, _env) :: _ ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
           | Tfield (name, _, t1, t2) ->
@@ -998,7 +995,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
           | _ -> []
         in
         typ |> getLabels
-      | None -> []
+      | _ -> []
     in
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
@@ -1068,12 +1065,12 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
       in
       match pipeIdPath with
       | x :: fieldNames -> (
-        match [x] |> findValue with
-        | Some (typ, env) -> (
+        match [x] |> processValue with
+        | ({Completion.kind = Value typ}, env) :: _ -> (
           match getFields ~env ~typ fieldNames with
           | None -> None
           | Some (typ1, _env1) -> fromType typ1)
-        | None -> None)
+        | _ -> None)
       | [] -> None
     in
     let lhsPath =
@@ -1176,8 +1173,8 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
     |> List.map mkDecorator
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
-      match funPath |> findValue with
-      | Some (typ, _env) ->
+      match funPath |> processValue with
+      | ({Completion.kind = Value typ}, _env) :: _ ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
           | Tlink t1 | Tsubst t1 -> getLabels t1
@@ -1187,7 +1184,7 @@ let processCompletable ~full ~package ~rawOpens ~allFiles ~pos
           | _ -> []
         in
         typ |> getLabels
-      | None -> []
+      | _ -> []
     in
     let mkLabel (name, typ) =
       mkItem ~name ~kind:4 ~deprecated:None
