@@ -741,8 +741,8 @@ let postProcess ~pos ~exact ~completionContext completions =
   |> List.filter (filterCompletionKind ~completionContext)
   |> prioritize ~exact ~pos
 
-let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
-    ~completionContext ~env path =
+let getCompletionsPath ~package ~opens ~allFiles ~pos ~exact ~completionContext
+    ~env path =
   match path with
   | [] -> []
   | [prefix] ->
@@ -787,7 +787,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
       |> postProcess ~pos ~exact ~completionContext
     | None -> [])
 
-let getCompletionsForRecordAccess ~package ~opens ~pos ~exact ~env
+let getCompletionsRecordAccess ~package ~opens ~pos ~exact ~env
     (valuePath, middleFields, lastField) =
   Log.log ("lastField :" ^ lastField);
   Log.log ("-------------- Looking for " ^ (valuePath |> pathToString));
@@ -862,30 +862,28 @@ let processDotPath ~package ~opens ~allFiles ~pos ~env
   match completion with
   | Path path ->
     path
-    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact:false
+    |> getCompletionsPath ~package ~opens ~allFiles ~pos ~exact:false
          ~completionContext ~env
   | RecordAccess (valuePath, middleFields, lastField) ->
     (valuePath, middleFields, lastField)
-    |> getCompletionsForRecordAccess ~package ~opens ~pos ~exact:false ~env
-
-let completionsGetTypeEnv = function
-  | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
-  | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
-  | _ -> None
+    |> getCompletionsRecordAccess ~package ~opens ~pos ~exact:false ~env
 
 let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     (completable : PartialParser.completable) =
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
-  let findTypeOfValue path =
-    path
-    |> getCompletionsForPath ~completionContext:PartialParser.Value ~exact:true
-         ~package ~opens ~allFiles ~pos ~env
-    |> completionsGetTypeEnv
+  let findValue path =
+    match
+      path
+      |> getCompletionsPath ~completionContext:PartialParser.Value ~exact:true
+           ~package ~opens ~allFiles ~pos ~env
+    with
+    | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
+    | _ -> None
   in
   match completable with
   | Cpath (CPId (path, completionContext)) ->
     path
-    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact:false
+    |> getCompletionsPath ~package ~opens ~allFiles ~pos ~exact:false
          ~completionContext ~env
     |> List.map completionToItem
   | Cpath _ -> assert false
@@ -920,7 +918,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     in
     let env0 = QueryEnv.fromFile full.file in
     let env, fields =
-      match lhs |> findTypeOfValue with
+      match lhs |> findValue with
       | Some (typ, env) -> getObjectFields ~env typ
       | None -> (env0, [])
     in
@@ -951,7 +949,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
     let labels =
-      match componentPath @ ["make"] |> findTypeOfValue with
+      match componentPath @ ["make"] |> findValue with
       | Some (typ, _env) ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
@@ -1061,7 +1059,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
       in
       match pipeIdPath with
       | x :: fieldNames -> (
-        match [x] |> findTypeOfValue with
+        match [x] |> findValue with
         | Some (typ, env) -> (
           match getFields ~env ~typ fieldNames with
           | None -> None
@@ -1112,7 +1110,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
         in
         let declareds =
           modulePath @ [partialName]
-          |> getCompletionsForPath ~completionContext:PartialParser.Value
+          |> getCompletionsPath ~completionContext:PartialParser.Value
                ~exact:false ~package ~opens ~allFiles ~pos ~env
         in
         declareds
@@ -1168,7 +1166,7 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     |> List.map mkDecorator
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
-      match funPath |> findTypeOfValue with
+      match funPath |> findValue with
       | Some (typ, _env) ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
