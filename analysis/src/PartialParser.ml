@@ -8,12 +8,6 @@ type contextPath =
   | CPField of contextPath * string
   | CPObj of contextPath * string
 
-type completion =
-  | QualifiedRecordAccess of SharedTypes.path (* e.g. _.A.B.field where _ indicates a path ending in a lowercase id *)
-  | RecordAccess of SharedTypes.path * SharedTypes.path * string (* e.g. A.B.var .f1.f2 .f3 *)
-  | Path of SharedTypes.path
-(* e.g. A.B.var or A.B *)
-
 type completable =
   | Cdecorator of string  (** e.g. @module *)
   | Clabel of string list * string * string list
@@ -60,39 +54,6 @@ let completableToString =
       | PipeArray -> "PipeArray"
       | PipeString -> "PipeString")
     ^ ", " ^ str s ^ ")"
-
-let determineCompletion (dotpath : SharedTypes.path) =
-  let rec loop dotpath =
-    match dotpath with
-    | [] -> assert false
-    | [one] -> Path [one]
-    | [one; two] ->
-      if Utils.isCapitalized one then Path [one; two]
-      else RecordAccess ([one], [], two)
-    | one :: rest -> (
-      if Utils.isCapitalized one then
-        match loop rest with
-        | Path path -> Path (one :: path)
-        | RecordAccess (valuePath, middleFields, lastField) ->
-          RecordAccess (one :: valuePath, middleFields, lastField)
-        | QualifiedRecordAccess _ as completion ->
-          (* A. _.B.field  -> _.B.field *)
-          completion
-      else
-        match loop rest with
-        | Path path ->
-          (* x. B.field -> _.B.field *)
-          QualifiedRecordAccess path
-        | RecordAccess ([name], middleFields, lastField) ->
-          RecordAccess ([one], name :: middleFields, lastField)
-        | RecordAccess (valuePath, middleFields, lastField) ->
-          (* x.A.B.v.f1.f2.f3 --> .A.B.v.f1.f2.f3 *)
-          QualifiedRecordAccess (valuePath @ middleFields @ [lastField])
-        | QualifiedRecordAccess _ as completion ->
-          (* x. _.A.f -> _.A.f *)
-          completion)
-  in
-  loop dotpath
 
 let rec skipWhite text i =
   if i < 0 then 0

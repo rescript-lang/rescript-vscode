@@ -597,6 +597,51 @@ let completionForFields ~(env : QueryEnv.t) ~suffix =
       | _ -> ());
   !res
 
+let isCapitalized name =
+  if name = "" then false
+  else
+    let c = name.[0] in
+    match c with 'A' .. 'Z' -> true | _ -> false
+
+type completion =
+  | QualifiedRecordAccess of path (* e.g. _.A.B.field where _ indicates a path ending in a lowercase id *)
+  | RecordAccess of path * path * string (* e.g. A.B.var .f1.f2 .f3 *)
+  | Path of path
+(* e.g. A.B.var or A.B *)
+
+let determineCompletion (dotpath : path) =
+  let rec loop dotpath =
+    match dotpath with
+    | [] -> assert false
+    | [one] -> Path [one]
+    | [one; two] ->
+      if isCapitalized one then Path [one; two]
+      else RecordAccess ([one], [], two)
+    | one :: rest -> (
+      if isCapitalized one then
+        match loop rest with
+        | Path path -> Path (one :: path)
+        | RecordAccess (valuePath, middleFields, lastField) ->
+          RecordAccess (one :: valuePath, middleFields, lastField)
+        | QualifiedRecordAccess _ as completion ->
+          (* A. _.B.field  -> _.B.field *)
+          completion
+      else
+        match loop rest with
+        | Path path ->
+          (* x. B.field -> _.B.field *)
+          QualifiedRecordAccess path
+        | RecordAccess ([name], middleFields, lastField) ->
+          RecordAccess ([one], name :: middleFields, lastField)
+        | RecordAccess (valuePath, middleFields, lastField) ->
+          (* x.A.B.v.f1.f2.f3 --> .A.B.v.f1.f2.f3 *)
+          QualifiedRecordAccess (valuePath @ middleFields @ [lastField])
+        | QualifiedRecordAccess _ as completion ->
+          (* x. _.A.f -> _.A.f *)
+          completion)
+  in
+  loop dotpath
+
 (* Note: This is a hack. It will be wrong some times if you have a local thing
    that overrides an open.
 
@@ -659,12 +704,12 @@ let allCompletions ~(env : QueryEnv.t) suffix =
 let attributeCompletions ~(env : QueryEnv.t) ~suffix =
   let results = [] in
   let results =
-    if suffix = "" || Utils.isCapitalized suffix then
+    if suffix = "" || isCapitalized suffix then
       results @ completionForExportedModules ~env ~suffix
     else results
   in
   let results =
-    if suffix = "" || not (Utils.isCapitalized suffix) then
+    if suffix = "" || not (isCapitalized suffix) then
       results
       @ completionForExportedValues ~env ~suffix
       @ completionForFields ~env ~suffix
@@ -709,8 +754,7 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let getCompletions ~full ~rawOpens ~allFiles ~pos
-    ~(completion : PartialParser.completion) =
+let getCompletions ~full ~rawOpens ~allFiles ~pos ~completion =
   Log.log
     ("Opens folkz > "
     ^ string_of_int (List.length rawOpens)
@@ -1176,10 +1220,8 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let processDotPath ~completionContext ~exact dotpath =
-    let completion = PartialParser.determineCompletion dotpath in
-    let completions =
-      getCompletions ~full ~rawOpens ~allFiles ~pos ~completion
-    in
+    let completion = determineCompletion dotpath in
+    let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~completion in
     let filterKind ~(completionContext : PartialParser.completionContext)
         ~(kind : Completion.kind) =
       match (completionContext, kind) with
