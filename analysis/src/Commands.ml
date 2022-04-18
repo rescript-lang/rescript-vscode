@@ -254,6 +254,24 @@ let extractExpApplyArgs ~text ~(funName : Longident.t Location.loc) ~args =
   in
   args |> processArgs ~lastOffset ~lastPos ~acc:[]
 
+let rec exporToContextPath (e : Parsetree.expression) =
+  match e.pexp_desc with
+  | Pexp_constant (Pconst_string _) -> Some PartialParser.CPString
+  | Pexp_array _ -> Some PartialParser.CPArray
+  | Pexp_ident {txt} -> Some (PartialParser.CPId (flattenLongIdent txt, Value))
+  | Pexp_field (e1, {txt = Lident name}) -> (
+    match exporToContextPath e1 with
+    | Some contextPath -> Some (CPField (contextPath, name))
+    | _ -> None)
+  | Pexp_field (_, {txt = Ldot (lid, name)}) ->
+    (* Case x.M.field ignore the x part *)
+    Some (PartialParser.CPField (CPId (flattenLongIdent lid, Module), name))
+  | Pexp_send (e1, {txt}) -> (
+    match exporToContextPath e1 with
+    | None -> None
+    | Some contexPath -> Some (CPObj (contexPath, txt)))
+  | _ -> None
+
 let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   let offset =
     match PartialParser.positionToOffset text posCursor with
@@ -358,29 +376,12 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (Loc.toString expr.pexp_loc)
     in
     let setPipeResult ~(lhs : Parsetree.expression) ~id =
-      let rec findPipe (e : Parsetree.expression) =
-        match e.pexp_desc with
-        | Pexp_constant (Pconst_string _) -> Some PartialParser.CPString
-        | Pexp_array _ -> Some PartialParser.CPArray
-        | Pexp_ident {txt} ->
-          Some (PartialParser.CPId (flattenLongIdent txt, Value))
-        | Pexp_field (e1, {txt = Lident name}) -> (
-          match findPipe e1 with
-          | Some contextPath -> Some (CPField (contextPath, name))
-          | _ -> None)
-        | Pexp_field (_, {txt = Ldot (lid, name)}) ->
-          (* Case x.M.field ignore the x part *)
-          Some
-            (PartialParser.CPField (CPId (flattenLongIdent lid, Module), name))
-        | _ -> None
-      in
-      match findPipe lhs with
+      match exporToContextPath lhs with
       | Some pipe ->
         setResult (PartialParser.Cpath (CPPipe (pipe, id)));
         true
       | None -> false
     in
-
     match expr.pexp_desc with
     | Pexp_apply
         ( {pexp_desc = Pexp_ident {txt = Lident "|."; loc = opLoc}},
@@ -423,25 +424,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
               (flattenLongIdent fieldName.txt |> String.concat ".")
               (Loc.toString fieldName.loc);
-          let rec digLhs (lhs : Parsetree.expression) =
-            match lhs.pexp_desc with
-            | Pexp_ident id ->
-              Some (PartialParser.CPId (flattenLongIdent id.txt, Value))
-            | Pexp_field (lhs, {txt = Lident name}) -> (
-              match digLhs lhs with
-              | Some contextPath ->
-                Some (PartialParser.CPField (contextPath, name))
-              | None -> None)
-            | Pexp_field (_, {txt = Ldot (id, name)}) ->
-              (* Case x.M.field ignore the x part *)
-              Some
-                (PartialParser.CPField (CPId (flattenLongIdent id, Module), name))
-            | _ -> None
-          in
           if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             match fieldName.txt with
             | Lident name -> (
-              match digLhs e with
+              match exporToContextPath e with
               | Some contextPath ->
                 let contextPath = PartialParser.CPField (contextPath, name) in
                 setResult (PartialParser.Cpath contextPath)
@@ -456,7 +442,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               setResult (PartialParser.Cpath contextPath)
             | Lapply _ -> ()
           else if Loc.end_ e.pexp_loc = posBeforeCursor then
-            match digLhs e with
+            match exporToContextPath e with
             | Some contextPath ->
               setResult
                 (PartialParser.Cpath (PartialParser.CPField (contextPath, "")))
@@ -533,18 +519,6 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             let l, c = Loc.start loc in
             ((l, c + 1), (l, c + 1 + String.length label))
           in
-
-          let rec processLhs (lhs : Parsetree.expression) =
-            match lhs.pexp_desc with
-            | Pexp_ident id ->
-              Some (PartialParser.CPId (flattenLongIdent id.txt, Value))
-            | Pexp_send (e1, {txt}) -> (
-              match processLhs e1 with
-              | None -> None
-              | Some contexPath -> Some (CPObj (contexPath, txt)))
-            | _ -> None
-          in
-
           if debug then
             Printf.printf "XXX Pexp_send %s%s e:%s\n" label
               (Range.toString labelRange)
@@ -553,7 +527,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             labelRange |> Range.hasPos ~pos:posBeforeCursor
             || (label = "" && posCursor = fst labelRange)
           then
-            match processLhs lhs with
+            match exporToContextPath lhs with
             | Some contextPath ->
               setResult (PartialParser.Cpath (CPObj (contextPath, label)))
             | None -> ())
