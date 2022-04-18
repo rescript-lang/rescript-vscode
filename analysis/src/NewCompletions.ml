@@ -971,7 +971,6 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
       @ keyLabels
-  | Cpath _ -> assert false
   | Cdotpath (dotpath, completionContext) ->
     let completions =
       dotpath |> processDotPath ~completionContext ~exact:false
@@ -1218,8 +1217,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
       |> List.map mkLabel
 
-let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
-    ~rawOpens =
+let computeCompletions ~completable ~full ~pos ~rawOpens =
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let processDotPath ~completionContext ~exact dotpath =
@@ -1265,28 +1263,4 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
       |> List.filter (fun ({Completion.kind}, _env) ->
              filterKind ~completionContext ~kind)
   in
-
-  let rec processContextPath (cp : PartialParser.contextPath) k :
-      PartialParser.completable =
-    match cp with
-    | CPId path -> PartialParser.Cdotpath (path, k)
-    | CPField (cp, name) -> (
-      match processContextPath cp k with
-      | Cdotpath (path, k) -> Cdotpath (path @ [name], k)
-      | _ -> assert false)
-    | CPObj (cp, objLabel) -> (
-      match processContextPath cp k with
-      | Cdotpath (path, _k) -> Cobj (path, [], objLabel)
-      | Cobj (path, objPath, label) -> Cobj (path, objPath @ [label], objLabel)
-      | _ -> assert false)
-  in
-
-  let completable =
-    match completable with
-    | Cobj _ -> assert false
-    | Cdotpath _ -> assert false
-    | Cpath (contextPath, k) -> processContextPath contextPath k
-    | _ -> completable
-  in
-
   completable |> processCompletable ~processDotPath ~full ~package ~rawOpens

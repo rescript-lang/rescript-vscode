@@ -1,7 +1,7 @@
 Complete tests/src/Completion.res 0:2
 posCursor:[1:9] posNoWhite:[1:8] Found expr:[1:1->1:9]
 Pexp_ident MyList.m:[1:1->1:9]
-Completable: Cpath ([MyList, m], Value)
+Completable: Cdotpath([MyList, m],Value)
 [{
     "label": "mapReverse",
     "kind": 12,
@@ -73,7 +73,7 @@ Completable: Cpath ([MyList, m], Value)
 Complete tests/src/Completion.res 1:2
 posCursor:[2:7] posNoWhite:[2:6] Found expr:[2:1->6:6]
 Pexp_ident Array.:[2:1->6:6]
-Completable: Cpath ([Array, ""], Value)
+Completable: Cdotpath([Array, ""],Value)
 [{
     "label": "Floatarray",
     "kind": 9,
@@ -295,7 +295,7 @@ Completable: Cpath ([Array, ""], Value)
 Complete tests/src/Completion.res 2:2
 posCursor:[3:8] posNoWhite:[3:7] Found expr:[3:1->3:8]
 Pexp_ident Array.m:[3:1->3:8]
-Completable: Cpath ([Array, m], Value)
+Completable: Cdotpath([Array, m],Value)
 [{
     "label": "mapi",
     "kind": 12,
@@ -349,7 +349,7 @@ Completable: Cpath ([Array, m], Value)
 Complete tests/src/Completion.res 12:2
 posCursor:[13:15] posNoWhite:[13:14] Found expr:[13:10->13:15]
 Pexp_ident Dep.c:[13:10->13:15]
-Completable: Cpath ([Dep, c], Value)
+Completable: Cdotpath([Dep, c],Value)
 [{
     "label": "customDouble",
     "kind": 12,
@@ -452,7 +452,7 @@ Complete tests/src/Completion.res 38:2
 posCursor:[39:19] posNoWhite:[39:18] Found expr:[39:1->39:19]
 posCursor:[39:19] posNoWhite:[39:18] Found expr:[39:10->39:19]
 Pexp_ident Js.Dict.u:[39:10->39:19]
-Completable: Cpath ([Js, Dict, u], Value)
+Completable: Cdotpath([Js, Dict, u],Value)
 [{
     "label": "unsafeGet",
     "kind": 12,
@@ -472,7 +472,7 @@ posCursor:[51:28] posNoWhite:[51:27] Found expr:[51:13->51:28]
 JSX <O,Comp:[51:13->51:19] second[51:20->51:26]=...[51:27->51:28]> _children:None
 posCursor:[51:28] posNoWhite:[51:27] Found expr:[51:27->51:28]
 Pexp_ident z:[51:27->51:28]
-Completable: Cpath ([z], Value)
+Completable: Cdotpath([z],Value)
 [{
     "label": "zzz",
     "kind": 12,
@@ -863,7 +863,7 @@ Completable: Clabel([Lib, foo], "", [age, name])
 Complete tests/src/Completion.res 72:2
 posCursor:[73:11] posNoWhite:[73:10] Found expr:[73:1->75:18]
 XXX Pexp_send a[73:10->73:11] e:[73:1->73:8]
-Completable: Cpath ([someObj]["a"], Value)
+Completable: Cobj([someObj], [], a)
 [{
     "label": "age",
     "kind": 4,
@@ -875,7 +875,7 @@ Completable: Cpath ([someObj]["a"], Value)
 Complete tests/src/Completion.res 76:2
 posCursor:[77:22] posNoWhite:[77:21] Found expr:[77:1->80:10]
 XXX Pexp_send [77:22->77:22] e:[77:1->77:20]
-Completable: Cpath ([nestedObj]["x"]["y"][""], Value)
+Completable: Cobj([nestedObj], [x, y], "")
 [{
     "label": "age",
     "kind": 4,
@@ -893,7 +893,7 @@ Completable: Cpath ([nestedObj]["x"]["y"][""], Value)
 Complete tests/src/Completion.res 79:2
 posCursor:[80:5] posNoWhite:[80:4] Found expr:[80:1->82:20]
 XXX Pexp_send a[80:4->80:5] e:[80:1->80:2]
-Completable: Cpath ([o]["a"], Value)
+Completable: Cobj([o], [], a)
 [{
     "label": "age",
     "kind": 4,
@@ -905,7 +905,7 @@ Completable: Cpath ([o]["a"], Value)
 Complete tests/src/Completion.res 83:2
 posCursor:[84:15] posNoWhite:[84:14] Found expr:[84:1->101:20]
 XXX Pexp_send [84:15->84:15] e:[84:1->84:13]
-Completable: Cpath ([no]["x"]["y"][""], Value)
+Completable: Cobj([no], [x, y], "")
 [{
     "label": "name",
     "kind": 4,
@@ -923,7 +923,7 @@ Completable: Cpath ([no]["x"]["y"][""], Value)
 Complete tests/src/Completion.res 88:3
 posCursor:[89:3] posNoWhite:[89:2] Found expr:[89:1->93:3]
 Pexp_field [89:1->89:2] _:[93:0->93:3]
-Completable: Cpath ([r]."", Field)
+Completable: Cdotpath([r, ""],Field)
 [{
     "label": "x",
     "kind": 5,
@@ -941,7 +941,7 @@ Completable: Cpath ([r]."", Field)
 Complete tests/src/Completion.res 90:3
 posCursor:[91:19] posNoWhite:[91:18] Found expr:[91:1->93:3]
 Pexp_field [91:1->91:18] _:[93:0->93:3]
-Completable: Cpath ([Obj, Rec, recordVal]."", Field)
+Completable: Cdotpath([Obj, Rec, recordVal, ""],Field)
 [{
     "label": "xx",
     "kind": 5,
@@ -961,7 +961,7 @@ posCursor:[97:3] posNoWhite:[97:2] Found expr:[96:11->99:1]
 posCursor:[97:3] posNoWhite:[97:2] Found expr:[97:1->98:5]
 posCursor:[97:3] posNoWhite:[97:2] Found expr:[97:1->97:3]
 Pexp_ident my:[97:1->97:3]
-Completable: Cpath ([my], Value)
+Completable: Cdotpath([my],Value)
 [{
     "label": "myAmazingFunction",
     "kind": 12,
@@ -973,7 +973,7 @@ Completable: Cpath ([my], Value)
 Complete tests/src/Completion.res 100:3
 posCursor:[101:13] posNoWhite:[101:12] Found expr:[101:1->120:32]
 XXX Pexp_send [101:13->101:13] e:[101:1->101:11]
-Completable: Cpath ([Obj, object][""], Value)
+Completable: Cobj([Obj, object], [], "")
 [{
     "label": "name",
     "kind": 4,
@@ -993,7 +993,7 @@ posCursor:[126:4] posNoWhite:[126:3] Found expr:[126:2->126:4]
 JSX <O,:[126:2->126:4] > _children:None
 posCursor:[126:4] posNoWhite:[126:3] Found expr:[126:2->126:4]
 Pexp_ident O..createElement:[126:2->126:4]
-Completable: Cpath ([O, ""], Component)
+Completable: Cdotpath([O, ""],Component)
 [{
     "label": "Comp",
     "kind": 9,
@@ -1005,7 +1005,7 @@ Completable: Cpath ([O, ""], Component)
 Complete tests/src/Completion.res 130:3
 posCursor:[131:6] posNoWhite:[131:5] Found expr:[131:1->136:6]
 Pexp_field [131:1->131:5] _:[136:0->136:6]
-Completable: Cpath ([q].aa."", Field)
+Completable: Cdotpath([q, aa, ""],Field)
 [{
     "label": "x",
     "kind": 5,
@@ -1023,7 +1023,7 @@ Completable: Cpath ([q].aa."", Field)
 Complete tests/src/Completion.res 131:3
 posCursor:[132:7] posNoWhite:[132:6] Found expr:[132:1->132:7]
 Pexp_field [132:1->132:5] n:[132:6->132:7]
-Completable: Cpath ([q].aa.n, Field)
+Completable: Cdotpath([q, aa, n],Field)
 [{
     "label": "name",
     "kind": 5,
@@ -1035,7 +1035,7 @@ Completable: Cpath ([q].aa.n, Field)
 Complete tests/src/Completion.res 133:3
 posCursor:[134:4] posNoWhite:[134:3] Found expr:[134:1->134:4]
 Pexp_construct Lis:[134:1->134:4] None
-Completable: Cpath ([Lis], Value)
+Completable: Cdotpath([Lis],Value)
 [{
     "label": "List",
     "kind": 9,
@@ -1073,7 +1073,7 @@ Completable: Cjsx([WithChildren], "", [])
 Complete tests/src/Completion.res 141:3
 posCursor:[142:14] posNoWhite:[142:13] Found type:[142:10->142:14]
 Ptyp_constr Js.n:[142:10->142:14]
-Completable: Cpath ([Js, n], Type)
+Completable: Cdotpath([Js, n],Type)
 [{
     "label": "null_undefined",
     "kind": 22,
@@ -1097,7 +1097,7 @@ Completable: Cpath ([Js, n], Type)
 Complete tests/src/Completion.res 142:3
 posCursor:[143:18] posNoWhite:[143:17] Found type:[143:10->143:18]
 Ptyp_constr ForAuto.:[143:10->143:18]
-Completable: Cpath ([ForAuto, ""], Type)
+Completable: Cdotpath([ForAuto, ""],Type)
 [{
     "label": "t",
     "kind": 22,
@@ -1109,7 +1109,7 @@ Completable: Cpath ([ForAuto, ""], Type)
 Complete tests/src/Completion.res 146:3
 posCursor:[147:11] posNoWhite:[147:10] Found expr:[147:9->147:11]
 Pexp_construct As:[147:9->147:11] None
-Completable: Cpath ([As], Value)
+Completable: Cdotpath([As],Value)
 [{
     "label": "Asterix",
     "kind": 4,
@@ -1120,7 +1120,7 @@ Completable: Cpath ([As], Value)
 
 Complete tests/src/Completion.res 148:3
 Pmod_ident For:[149:12->149:15]
-Completable: Cpath ([For], Component)
+Completable: Cdotpath([For],Component)
 [{
     "label": "ForAuto",
     "kind": 9,
@@ -1138,7 +1138,7 @@ Completable: Cpath ([For], Component)
 Complete tests/src/Completion.res 155:3
 posCursor:[156:9] posNoWhite:[156:8] Found expr:[156:1->158:6]
 Pexp_ident Private.:[156:1->158:6]
-Completable: Cpath ([Private, ""], Value)
+Completable: Cdotpath([Private, ""],Value)
 [{
     "label": "b",
     "kind": 12,
@@ -1150,7 +1150,7 @@ Completable: Cpath ([Private, ""], Value)
 Complete tests/src/Completion.res 166:3
 posCursor:[167:4] posNoWhite:[167:3] Found expr:[167:1->167:4]
 Pexp_ident sha:[167:1->167:4]
-Completable: Cpath ([sha], Value)
+Completable: Cdotpath([sha],Value)
 [{
     "label": "shadowed",
     "kind": 12,
@@ -1162,7 +1162,7 @@ Completable: Cpath ([sha], Value)
 Complete tests/src/Completion.res 168:3
 posCursor:[169:4] posNoWhite:[169:3] Found expr:[169:1->169:4]
 Pexp_ident sha:[169:1->169:4]
-Completable: Cpath ([sha], Value)
+Completable: Cdotpath([sha],Value)
 [{
     "label": "shadowed",
     "kind": 12,
@@ -1174,7 +1174,7 @@ Completable: Cpath ([sha], Value)
 Complete tests/src/Completion.res 170:3
 posCursor:[171:4] posNoWhite:[171:3] Found expr:[171:1->171:4]
 Pexp_ident sha:[171:1->171:4]
-Completable: Cpath ([sha], Value)
+Completable: Cdotpath([sha],Value)
 [{
     "label": "shadowed",
     "kind": 12,

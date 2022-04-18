@@ -62,7 +62,7 @@ resolvePath path:map
 Complete tests/src/Debug.res 12:5
 posCursor:[13:4] posNoWhite:[13:3] Found expr:[13:1->13:4]
 Pexp_ident eqN:[13:1->13:4]
-Completable: Cpath ([eqN], Value)
+Completable: Cdotpath([eqN],Value)
 Opens folkz > 1 Js.place holder
 Package opens Pervasives
 Package opens Pervasives

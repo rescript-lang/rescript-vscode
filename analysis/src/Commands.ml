@@ -397,8 +397,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               (flattenLongIdent id.txt |> String.concat ".")
               (Loc.toString id.loc);
           if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            setResult
-              (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Value))
+            setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Value))
         | Pexp_construct (id, eOpt) ->
           if debug then
             Printf.printf "Pexp_construct %s:%s %s\n"
@@ -411,8 +410,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             eOpt = None && (not id.loc.loc_ghost)
             && id.loc |> Loc.hasPos ~pos:posBeforeCursor
           then
-            setResult
-              (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Value))
+            setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Value))
         | Pexp_field (e, fieldName) -> (
           if debug then
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
@@ -420,35 +418,29 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               (Loc.toString fieldName.loc);
           let rec digLhs (lhs : Parsetree.expression) =
             match lhs.pexp_desc with
-            | Pexp_ident id ->
-              Some (PartialParser.CPId (flattenLongIdent id.txt))
-            | Pexp_field (lhs, {txt = Lident name}) -> (
+            | Pexp_ident id -> Some (flattenLongIdent id.txt)
+            | Pexp_field (lhs, id) -> (
               match digLhs lhs with
-              | Some contextPath ->
-                Some (PartialParser.CPField (contextPath, name))
+              | Some path -> Some (path @ flattenLongIdent id.txt)
               | None -> None)
-            | Pexp_field (_, {txt = Ldot (id, name)}) ->
-              Some (PartialParser.CPField (CPId (flattenLongIdent id), name))
             | _ -> None
           in
           if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             match digLhs e with
-            | Some contextPath ->
-              let contextPath =
+            | Some path ->
+              let dotPath =
                 match fieldName.txt with
-                | Lident name -> PartialParser.CPField (contextPath, name)
+                | Lident name -> path @ [name]
                 | _ ->
                   (* Case x.M.field ignore the x part *)
-                  PartialParser.CPId (flattenLongIdent fieldName.txt)
+                  flattenLongIdent fieldName.txt
               in
-              setResult (PartialParser.Cpath (contextPath, Field))
+              setResult (PartialParser.Cdotpath (dotPath, Field))
             | None -> ()
           else if Loc.end_ e.pexp_loc = posBeforeCursor then
             match digLhs e with
-            | Some contextPath ->
-              setResult
-                (PartialParser.Cpath
-                   (PartialParser.CPField (contextPath, ""), Field))
+            | Some path ->
+              setResult (PartialParser.Cdotpath (path @ [""], Field))
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
@@ -473,8 +465,8 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             setResult
-              (PartialParser.Cpath
-                 (CPId (flattenLongIdent ~jsx:true compName.txt), Module))
+              (PartialParser.Cdotpath
+                 (flattenLongIdent ~jsx:true compName.txt, Module))
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [
@@ -525,12 +517,11 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
 
           let rec processLhs (lhs : Parsetree.expression) =
             match lhs.pexp_desc with
-            | Pexp_ident id ->
-              Some (PartialParser.CPId (flattenLongIdent id.txt))
+            | Pexp_ident id -> Some (flattenLongIdent id.txt, [])
             | Pexp_send (e1, {txt}) -> (
               match processLhs e1 with
               | None -> None
-              | Some contexPath -> Some (CPObj (contexPath, txt)))
+              | Some (idPath, nestedPath) -> Some (idPath, nestedPath @ [txt]))
             | _ -> None
           in
 
@@ -543,9 +534,8 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             || (label = "" && posCursor = fst labelRange)
           then
             match processLhs lhs with
-            | Some contextPath ->
-              setResult
-                (PartialParser.Cpath (CPObj (contextPath, label), Value))
+            | Some (idPath, nestedPath) ->
+              setResult (PartialParser.Cobj (idPath, nestedPath, label))
             | None -> ())
         | _ -> ());
       Ast_iterator.default_iterator.expr iterator expr
@@ -564,7 +554,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             (flattenLongIdent id.txt |> String.concat ".")
             (Loc.toString id.loc);
         if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-          setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Type))
+          setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Type))
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in
@@ -577,7 +567,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (flattenLongIdent id.txt |> String.concat ".")
           (Loc.toString id.loc);
       found := true;
-      setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Module))
+      setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Module))
     | _ -> ());
     Ast_iterator.default_iterator.module_expr iterator me
   in
@@ -590,7 +580,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (flattenLongIdent id.txt |> String.concat ".")
           (Loc.toString id.loc);
       found := true;
-      setResult (PartialParser.Cpath (CPId (flattenLongIdent id.txt), Module))
+      setResult (PartialParser.Cdotpath (flattenLongIdent id.txt, Module))
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
   in
