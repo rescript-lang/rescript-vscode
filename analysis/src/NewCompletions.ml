@@ -754,7 +754,7 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let getCompletions ~full ~rawOpens ~allFiles ~pos ~completion =
+let getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath =
   Log.log
     ("Opens folkz > "
     ^ string_of_int (List.length rawOpens)
@@ -774,9 +774,9 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos ~completion =
         |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
   (* Last open takes priority *)
   let opens = List.rev resolvedOpens in
-  match completion with
-  | Path [] -> []
-  | Path [suffix] ->
+  match dotpath with
+  | [] -> []
+  | [suffix] ->
     let locallyDefinedValues = localCompletions ~pos ~env suffix in
     let alreadyUsedIdentifiers = Hashtbl.create 10 in
     let valuesFromOpens =
@@ -808,65 +808,68 @@ let getCompletions ~full ~rawOpens ~allFiles ~pos ~completion =
              else None)
     in
     locallyDefinedValues @ valuesFromOpens @ localModuleNames
-  | Path path -> (
-    Log.log ("Path " ^ pathToString path);
-    match getEnvWithOpens ~pos ~env ~package ~opens path with
-    | Some (env, suffix) ->
-      Log.log "Got the env";
-      allCompletions ~env suffix
-    | None -> [])
-  | RecordAccess (valuePath, middleFields, lastField) -> (
-    Log.log ("lastField :" ^ lastField);
-    Log.log ("-------------- Looking for " ^ (valuePath |> pathToString));
-    match getEnvWithOpens ~pos ~env ~package ~opens valuePath with
-    | Some (env, name) -> (
-      match
-        ProcessCmt.findInScope pos name Stamps.iterValues env.file.stamps
-      with
-      | None -> []
-      | Some declared -> (
-        Log.log ("Found it! " ^ declared.name.txt);
-        match declared.item |> extractRecordType ~env ~package with
+  | _ -> (
+    Log.log ("Completing for " ^ String.concat "<.>" dotpath);
+    match determineCompletion dotpath with
+    | Path path -> (
+      Log.log ("Path " ^ pathToString path);
+      match getEnvWithOpens ~pos ~env ~package ~opens path with
+      | Some (env, suffix) ->
+        Log.log "Got the env";
+        allCompletions ~env suffix
+      | None -> [])
+    | RecordAccess (valuePath, middleFields, lastField) -> (
+      Log.log ("lastField :" ^ lastField);
+      Log.log ("-------------- Looking for " ^ (valuePath |> pathToString));
+      match getEnvWithOpens ~pos ~env ~package ~opens valuePath with
+      | Some (env, name) -> (
+        match
+          ProcessCmt.findInScope pos name Stamps.iterValues env.file.stamps
+        with
         | None -> []
-        | Some (env, fields, typDecl) -> (
-          match
-            middleFields
-            |> List.fold_left
-                 (fun current name ->
-                   match current with
-                   | None -> None
-                   | Some (env, fields, _) -> (
-                     match
-                       fields |> List.find_opt (fun f -> f.fname.txt = name)
-                     with
-                     | None -> None
-                     | Some attr ->
-                       Log.log ("Found attr " ^ name);
-                       attr.typ |> extractRecordType ~env ~package))
-                 (Some (env, fields, typDecl))
-          with
+        | Some declared -> (
+          Log.log ("Found it! " ^ declared.name.txt);
+          match declared.item |> extractRecordType ~env ~package with
           | None -> []
-          | Some (env, fields, typDecl) ->
-            fields
-            |> Utils.filterMap (fun field ->
-                   if Utils.startsWith field.fname.txt lastField then
-                     Some
-                       ( Completion.create ~name:field.fname.txt
-                           ~kind:
-                             (Completion.Field
-                                ( field,
-                                  typDecl.item.decl
-                                  |> Shared.declToString typDecl.name.txt )),
-                         env )
-                   else None))))
-    | None -> [])
-  | QualifiedRecordAccess path -> (
-    match getEnvWithOpens ~pos ~env ~package ~opens path with
-    | None -> []
-    | Some (env, suffix) ->
-      attributeCompletions ~env ~suffix
-      @ List.concat
-          (opens |> List.map (fun env -> attributeCompletions ~env ~suffix)))
+          | Some (env, fields, typDecl) -> (
+            match
+              middleFields
+              |> List.fold_left
+                   (fun current name ->
+                     match current with
+                     | None -> None
+                     | Some (env, fields, _) -> (
+                       match
+                         fields |> List.find_opt (fun f -> f.fname.txt = name)
+                       with
+                       | None -> None
+                       | Some attr ->
+                         Log.log ("Found attr " ^ name);
+                         attr.typ |> extractRecordType ~env ~package))
+                   (Some (env, fields, typDecl))
+            with
+            | None -> []
+            | Some (env, fields, typDecl) ->
+              fields
+              |> Utils.filterMap (fun field ->
+                     if Utils.startsWith field.fname.txt lastField then
+                       Some
+                         ( Completion.create ~name:field.fname.txt
+                             ~kind:
+                               (Completion.Field
+                                  ( field,
+                                    typDecl.item.decl
+                                    |> Shared.declToString typDecl.name.txt )),
+                           env )
+                     else None))))
+      | None -> [])
+    | QualifiedRecordAccess path -> (
+      match getEnvWithOpens ~pos ~env ~package ~opens path with
+      | None -> []
+      | Some (env, suffix) ->
+        attributeCompletions ~env ~suffix
+        @ List.concat
+            (opens |> List.map (fun env -> attributeCompletions ~env ~suffix))))
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
   let docContent =
@@ -1220,8 +1223,7 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
   let package = full.package in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let processDotPath ~completionContext ~exact dotpath =
-    let completion = determineCompletion dotpath in
-    let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~completion in
+    let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath in
     let filterKind ~(completionContext : PartialParser.completionContext)
         ~(kind : Completion.kind) =
       match (completionContext, kind) with
