@@ -42,6 +42,15 @@ let rec find fn items =
   | one :: rest -> (
     match fn one with None -> find fn rest | Some x -> Some x)
 
+let dedup items =
+  let m = Hashtbl.create (List.length items) in
+  items
+  |> List.filter (fun a ->
+         if Hashtbl.mem m a then false
+         else (
+           Hashtbl.add m a ();
+           true))
+
 (**
   Check if pos is within the location, but be fuzzy about when the location ends.
   If it's within 5 lines, go with it.

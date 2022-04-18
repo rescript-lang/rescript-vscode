@@ -873,9 +873,13 @@ let processCompletion ~completionContext ~exact ~full ~rawOpens ~allFiles ~pos
   else completions
 
 let processDotPath ~full ~rawOpens ~allFiles ~pos dotpath completionContext =
-  dotpath |> PartialParser.determineCompletion
-  |> processCompletion ~completionContext ~exact:false ~full ~rawOpens ~allFiles
-       ~pos
+  let completions =
+    dotpath |> PartialParser.determineCompletion
+    |> processCompletion ~completionContext ~exact:false ~full ~rawOpens
+         ~allFiles ~pos
+  in
+  (* TODO(#107): figure out why we're getting duplicates. *)
+  completions |> Utils.dedup
   |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
          mkItem ~name
            ~kind:(Completion.kindToInt kind)
