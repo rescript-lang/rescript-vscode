@@ -366,7 +366,7 @@ Completable: Cjsx([WithChildren], n, [n])
 Complete tests/src/Jsx.res 71:2
 posCursor:[72:16] posNoWhite:[72:15] Found type:[72:9->72:16]
 Ptyp_constr React.e:[72:9->72:16]
-Completable: Cpath Type[React, e]
+Completable: Cpath ([React, e], Type)
 [{
     "label": "element",
     "kind": 22,
@@ -378,7 +378,7 @@ Completable: Cpath Type[React, e]
 Complete tests/src/Jsx.res 72:2
 posCursor:[73:18] posNoWhite:[73:17] Found type:[73:9->75:6]
 Ptyp_constr ReactDOMR:[73:9->75:6]
-Completable: Cpath Type[ReactDOMR]
+Completable: Cpath ([ReactDOMR], Type)
 [{
     "label": "ReactDOMRe",
     "kind": 9,
@@ -392,7 +392,7 @@ posCursor:[78:17] posNoWhite:[78:16] Found expr:[78:9->78:17]
 Pexp_apply ...[78:11->78:12] (...[78:9->78:10], ...[78:13->78:17])
 posCursor:[78:17] posNoWhite:[78:16] Found expr:[78:13->78:17]
 Pexp_field [78:13->78:14] th:[78:15->78:17]
-Completable: Cpath Value[x].th
+Completable: Cpath ([x].th, Field)
 []
 
 Complete tests/src/Jsx.res 80:3
@@ -400,7 +400,7 @@ posCursor:[81:26] posNoWhite:[81:25] Found expr:[81:9->85:3]
 Pexp_ident DefineSomeFields.:[81:9->85:3]
 posCursor:[81:26] posNoWhite:[81:25] Found expr:[0:-1->85:70]
 Pexp_apply ...[85:6->85:7] (...[85:8->85:70])
-Completable: Cpath Value[DefineSomeFields, ""]
+Completable: Cpath ([DefineSomeFields, ""], Value)
 [{
     "label": "thisValue",
     "kind": 12,
@@ -414,7 +414,7 @@ posCursor:[83:34] posNoWhite:[83:33] Found expr:[83:9->83:34]
 Pexp_apply ...[83:11->83:12] (...[83:9->83:10], ...[83:13->83:34])
 posCursor:[83:34] posNoWhite:[83:33] Found expr:[83:13->83:34]
 Pexp_field [83:13->83:14] DefineSomeFields.th:[83:15->83:34]
-Completable: Cpath Component[DefineSomeFields].th
+Completable: Cpath ([DefineSomeFields].th, Field)
 [{
     "label": "thisField",
     "kind": 5,

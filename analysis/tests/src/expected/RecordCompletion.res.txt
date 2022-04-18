@@ -39,7 +39,7 @@ Completable: Cpipe([t2, n2, n], m)
 Complete tests/src/RecordCompletion.res 16:3
 posCursor:[17:5] posNoWhite:[17:4] Found expr:[17:1->19:0]
 Pexp_field [17:1->17:2] R.:[17:3->19:0]
-Completable: Cpath Component[R].""
+Completable: Cpath ([R]."", Field)
 [{
     "label": "name",
     "kind": 5,

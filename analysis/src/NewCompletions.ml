@@ -1266,16 +1266,16 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
              filterKind ~completionContext ~kind)
   in
 
-  let rec processContextPath (cp : PartialParser.contextPath) :
+  let rec processContextPath (cp : PartialParser.contextPath) k :
       PartialParser.completable =
     match cp with
-    | CPId (path, k) -> PartialParser.Cdotpath (path, k)
+    | CPId path -> PartialParser.Cdotpath (path, k)
     | CPField (cp, name) -> (
-      match processContextPath cp with
-      | Cdotpath (path, _) -> Cdotpath (path @ [name], Field)
+      match processContextPath cp k with
+      | Cdotpath (path, k) -> Cdotpath (path @ [name], k)
       | _ -> assert false)
     | CPObj (cp, objLabel) -> (
-      match processContextPath cp with
+      match processContextPath cp k with
       | Cdotpath (path, _k) -> Cobj (path, [], objLabel)
       | Cobj (path, objPath, label) -> Cobj (path, objPath @ [label], objLabel)
       | _ -> assert false)
@@ -1285,7 +1285,7 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     match completable with
     | Cobj _ -> assert false
     | Cdotpath _ -> assert false
-    | Cpath contextPath -> processContextPath contextPath
+    | Cpath (contextPath, k) -> processContextPath contextPath k
     | _ -> completable
   in
 

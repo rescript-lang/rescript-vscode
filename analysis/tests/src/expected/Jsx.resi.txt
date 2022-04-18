@@ -7,7 +7,7 @@ Hover tests/src/Jsx.resi 4:4
 Complete tests/src/Jsx.resi 6:3
 posCursor:[7:17] posNoWhite:[7:16] Found type:[7:10->7:17]
 Ptyp_constr React.e:[7:10->7:17]
-Completable: Cpath Type[React, e]
+Completable: Cpath ([React, e], Type)
 [{
     "label": "element",
     "kind": 22,
@@ -19,7 +19,7 @@ Completable: Cpath Type[React, e]
 Complete tests/src/Jsx.resi 8:3
 posCursor:[9:16] posNoWhite:[9:15] Found type:[9:9->9:16]
 Ptyp_constr React.e:[9:9->9:16]
-Completable: Cpath Type[React, e]
+Completable: Cpath ([React, e], Type)
 [{
     "label": "element",
     "kind": 22,

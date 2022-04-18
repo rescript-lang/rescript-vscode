@@ -96,6 +96,6 @@ TypeDefinition tests/src/Cross.res 37:37
 Complete tests/src/Cross.res 39:2
 posCursor:[40:26] posNoWhite:[40:25] Found expr:[40:1->40:26]
 Pexp_ident DefinitionWithInterface.a:[40:1->40:26]
-Completable: Cpath Value[DefinitionWithInterface, a]
+Completable: Cpath ([DefinitionWithInterface, a], Value)
 []
 
