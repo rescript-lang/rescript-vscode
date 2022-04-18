@@ -9,6 +9,7 @@ type contextPath =
   | CPObj of contextPath * string
 
 type completion =
+  | QualifiedRecordAccess of SharedTypes.path (* e.g. _.A.B.field where _ indicates a path ending in a lowercase id *)
   | RecordAccess of SharedTypes.path * SharedTypes.path * string (* e.g. A.B.var .f1.f2 .f3 *)
   | Path of SharedTypes.path
 (* e.g. A.B.var or A.B *)
@@ -74,12 +75,22 @@ let determineCompletion (dotpath : SharedTypes.path) =
         | Path path -> Path (one :: path)
         | RecordAccess (valuePath, middleFields, lastField) ->
           RecordAccess (one :: valuePath, middleFields, lastField)
+        | QualifiedRecordAccess _ as completion ->
+          (* A. _.B.field  -> _.B.field *)
+          completion
       else
         match loop rest with
-        | Path path -> Path path
+        | Path path ->
+          (* x. B.field -> _.B.field *)
+          QualifiedRecordAccess path
         | RecordAccess ([name], middleFields, lastField) ->
           RecordAccess ([one], name :: middleFields, lastField)
-        | x -> x)
+        | RecordAccess (valuePath, middleFields, lastField) ->
+          (* x.A.B.v.f1.f2.f3 --> .A.B.v.f1.f2.f3 *)
+          QualifiedRecordAccess (valuePath @ middleFields @ [lastField])
+        | QualifiedRecordAccess _ as completion ->
+          (* x. _.A.f -> _.A.f *)
+          completion)
   in
   loop dotpath
 
