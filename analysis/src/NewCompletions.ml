@@ -789,8 +789,8 @@ let getCompletionsPath ~package ~opens ~allFiles ~pos ~exact ~completionContext
       |> postProcess ~pos ~exact ~completionContext
     | None -> [])
 
-let getCompletionsRecordAccess ~package ~opens ~pos ~exact ~env
-    (valuePath, middleFields, lastField) =
+let getCompletionsRecordAccess ~package ~opens ~pos ~exact ~completionContext
+    ~env (valuePath, middleFields, lastField) =
   Log.log ("lastField :" ^ lastField);
   Log.log ("-------------- Looking for " ^ (valuePath |> pathToString));
   match getEnvWithOpens ~pos ~env ~package ~opens valuePath with
@@ -813,9 +813,9 @@ let getCompletionsRecordAccess ~package ~opens ~pos ~exact ~env
                      fields |> List.find_opt (fun f -> f.fname.txt = name)
                    with
                    | None -> None
-                   | Some field ->
-                     Log.log ("Found field " ^ name);
-                     field.typ |> extractRecordType ~env ~package))
+                   | Some attr ->
+                     Log.log ("Found attr " ^ name);
+                     attr.typ |> extractRecordType ~env ~package))
                (Some (env, fields, typDecl))
         with
         | None -> []
@@ -831,7 +831,8 @@ let getCompletionsRecordAccess ~package ~opens ~pos ~exact ~env
                                 typDecl.item.decl
                                 |> Shared.declToString typDecl.name.txt )),
                        env )
-                 else None))))
+                 else None)
+          |> postProcess ~pos ~exact ~completionContext)))
   | None -> []
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
@@ -869,7 +870,8 @@ let processDotPath ~package ~opens ~allFiles ~pos ~env
          ~completionContext ~env
   | RecordAccess (valuePath, middleFields, lastField) ->
     (valuePath, middleFields, lastField)
-    |> getCompletionsRecordAccess ~package ~opens ~pos ~exact:false ~env
+    |> getCompletionsRecordAccess ~package ~opens ~pos ~exact:false
+         ~completionContext ~env
 
 let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     (completable : PartialParser.completable) =
@@ -884,11 +886,6 @@ let processCompletable ~full ~package ~rawOpens ~opens ~env ~pos
     | _ -> None
   in
   match completable with
-  | Cpath (CPId (path, completionContext)) ->
-    path
-    |> getCompletionsPath ~package ~opens ~allFiles ~pos ~exact:false
-         ~completionContext ~env
-    |> List.map completionToItem
   | Cpath _ -> assert false
   | Cdotpath (dotpath, completionContext) ->
     processDotPath ~package ~opens ~allFiles ~pos ~env
