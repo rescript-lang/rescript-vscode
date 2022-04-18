@@ -63,7 +63,7 @@ let definition ~path ~line ~col =
       | None -> None
       | Some locItem -> (
         match References.definitionForLocItem ~full locItem with
-        | None -> None
+        | None ->  None
         | Some (uri, loc) ->
           let isInterface = file.uri |> Uri2.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
