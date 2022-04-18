@@ -897,7 +897,7 @@ Completable: Clabel([Lib, foo], "", [age, name])
 
 Complete tests/src/Completion.res 72:2
 posCursor:[73:11] posNoWhite:[73:10] Found expr:[73:1->75:18]
-XXX Pexp_send a[73:10->73:11] e:[73:1->73:8]
+Pexp_send a[73:10->73:11] e:[73:1->73:8]
 Completable: Cpath Value[someObj]["a"]
 [{
     "label": "age",
@@ -909,7 +909,7 @@ Completable: Cpath Value[someObj]["a"]
 
 Complete tests/src/Completion.res 76:2
 posCursor:[77:22] posNoWhite:[77:21] Found expr:[77:1->80:10]
-XXX Pexp_send [77:22->77:22] e:[77:1->77:20]
+Pexp_send [77:22->77:22] e:[77:1->77:20]
 Completable: Cpath Value[nestedObj]["x"]["y"][""]
 [{
     "label": "age",
@@ -927,7 +927,7 @@ Completable: Cpath Value[nestedObj]["x"]["y"][""]
 
 Complete tests/src/Completion.res 79:2
 posCursor:[80:5] posNoWhite:[80:4] Found expr:[80:1->82:20]
-XXX Pexp_send a[80:4->80:5] e:[80:1->80:2]
+Pexp_send a[80:4->80:5] e:[80:1->80:2]
 Completable: Cpath Value[o]["a"]
 [{
     "label": "age",
@@ -939,7 +939,7 @@ Completable: Cpath Value[o]["a"]
 
 Complete tests/src/Completion.res 83:2
 posCursor:[84:15] posNoWhite:[84:14] Found expr:[84:1->101:20]
-XXX Pexp_send [84:15->84:15] e:[84:1->84:13]
+Pexp_send [84:15->84:15] e:[84:1->84:13]
 Completable: Cpath Value[no]["x"]["y"][""]
 [{
     "label": "name",
@@ -1007,7 +1007,7 @@ Completable: Cpath Value[my]
 
 Complete tests/src/Completion.res 100:3
 posCursor:[101:13] posNoWhite:[101:12] Found expr:[101:1->120:32]
-XXX Pexp_send [101:13->101:13] e:[101:1->101:11]
+Pexp_send [101:13->101:13] e:[101:1->101:11]
 Completable: Cpath Value[Obj, object][""]
 [{
     "label": "name",
@@ -1220,7 +1220,7 @@ Completable: Cpath Value[sha]
 
 Complete tests/src/Completion.res 182:3
 posCursor:[183:20] posNoWhite:[183:19] Found expr:[183:1->184:27]
-XXX Pexp_send [183:20->183:20] e:[183:1->183:18]
+Pexp_send [183:20->183:20] e:[183:1->183:18]
 Completable: Cpath Value[FAO, forAutoObject][""]
 [{
     "label": "age",
