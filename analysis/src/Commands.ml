@@ -432,21 +432,17 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             | _ -> None
           in
           if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            match fieldName.txt with
-            | Lident name -> (
-              match digLhs e with
-              | Some contextPath ->
-                let contextPath = PartialParser.CPField (contextPath, name) in
-                setResult (PartialParser.Cpath (contextPath, Field))
-              | None -> ())
-            | Ldot (id, name) ->
-              (* Case x.M.field ignore the x part *)
+            match digLhs e with
+            | Some contextPath ->
               let contextPath =
-                PartialParser.CPField
-                  (CPId (flattenLongIdent id), if name = "$" then "" else name)
+                match fieldName.txt with
+                | Lident name -> PartialParser.CPField (contextPath, name)
+                | _ ->
+                  (* Case x.M.field ignore the x part *)
+                  PartialParser.CPId (flattenLongIdent fieldName.txt)
               in
               setResult (PartialParser.Cpath (contextPath, Field))
-            | Lapply _ -> ()
+            | None -> ()
           else if Loc.end_ e.pexp_loc = posBeforeCursor then
             match digLhs e with
             | Some contextPath ->
