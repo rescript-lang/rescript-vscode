@@ -92,36 +92,6 @@ module Module = struct
   and t = Ident of Path.t | Structure of structure | Constraint of t * t
 end
 
-module Completion = struct
-  type kind =
-    | Module of Module.t
-    | Value of Types.type_expr
-    | Type of Type.t
-    | Constructor of Constructor.t * string
-    | Field of field * string
-    | FileModule of string
-
-  type t = {
-    name : string;
-    extentLoc : Location.t;
-    deprecated : string option;
-    docstring : string list;
-    kind : kind;
-  }
-
-  let create ~name ~kind =
-    {name; extentLoc = Location.none; deprecated = None; docstring = []; kind}
-
-  let kindToInt kind =
-    match kind with
-    | Module _ -> 9
-    | FileModule _ -> 9
-    | Constructor (_, _) -> 4
-    | Field (_, _) -> 5
-    | Type _ -> 22
-    | Value _ -> 12
-end
-
 module Declared = struct
   type 'item t = {
     name : string Location.loc;
@@ -205,10 +175,6 @@ end = struct
       stamps
 end
 
-module Env = struct
-  type t = {stamps : Stamps.t; modulePath : modulePath; scope : Location.t}
-end
-
 module File = struct
   type t = {
     uri : Uri2.t;
@@ -230,6 +196,48 @@ module QueryEnv = struct
   type t = {file : File.t; exported : Exported.t}
 
   let fromFile file = {file; exported = file.structure.exported}
+end
+
+module Completion = struct
+  type kind =
+    | Module of Module.t
+    | Value of Types.type_expr
+    | Type of Type.t
+    | Constructor of Constructor.t * string
+    | Field of field * string
+    | FileModule of string
+
+  type t = {
+    name : string;
+    extentLoc : Location.t;
+    env : QueryEnv.t;
+    deprecated : string option;
+    docstring : string list;
+    kind : kind;
+  }
+
+  let create ~name ~kind ~env =
+    {
+      name;
+      extentLoc = Location.none;
+      env;
+      deprecated = None;
+      docstring = [];
+      kind;
+    }
+
+  let kindToInt kind =
+    match kind with
+    | Module _ -> 9
+    | FileModule _ -> 9
+    | Constructor (_, _) -> 4
+    | Field (_, _) -> 5
+    | Type _ -> 22
+    | Value _ -> 12
+end
+
+module Env = struct
+  type t = {stamps : Stamps.t; modulePath : modulePath; scope : Location.t}
 end
 
 type filePath = string
