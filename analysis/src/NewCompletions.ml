@@ -880,6 +880,11 @@ let rec getCompletionsForContextPath ~package ~opens ~allFiles ~pos ~env ~exact
     path
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
          ~completionContext ~env
+  | CPField (CPId (path, Module), fieldName) ->
+    (* M.field *)
+    path @ [fieldName]
+    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
+         ~completionContext:Field ~env
   | CPField (cp, fieldName) -> (
     match
       cp
@@ -1233,7 +1238,7 @@ let computeCompletions ~(completable : PartialParser.completable) ~full ~pos
     | Cpath (CPField (cp, name)) -> (
       match processContextPath (Cpath cp) with
       | Cdotpath (path, _) -> Cdotpath (path @ [name], Field)
-      | Cpath (CPId (path, _)) -> Cdotpath (path @ [name], Field)
+      | Cpath cp -> Cpath (CPField (cp, name))
       | _ -> assert false)
     | Cpath (CPObj (cp, objLabel)) -> (
       match processContextPath (Cpath cp) with
