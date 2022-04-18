@@ -360,18 +360,23 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     let setPipeResult ~(lhs : Parsetree.expression) ~id =
       let rec findPipe (e : Parsetree.expression) =
         match e.pexp_desc with
-        | Pexp_constant (Pconst_string _) -> Some PartialParser.PipeString
-        | Pexp_array _ -> Some PartialParser.PipeArray
-        | Pexp_ident {txt} -> Some (PartialParser.PipeId (flattenLongIdent txt))
-        | Pexp_field (e1, {txt}) -> (
+        | Pexp_constant (Pconst_string _) -> Some PartialParser.CPString
+        | Pexp_array _ -> Some PartialParser.CPArray
+        | Pexp_ident {txt} ->
+          Some (PartialParser.CPId (flattenLongIdent txt, Value))
+        | Pexp_field (e1, {txt = Lident name}) -> (
           match findPipe e1 with
-          | Some (PipeId path) -> Some (PipeId (path @ flattenLongIdent txt))
+          | Some contextPath -> Some (CPField (contextPath, name))
           | _ -> None)
+        | Pexp_field (_, {txt = Ldot (lid, name)}) ->
+          (* Case x.M.field ignore the x part *)
+          Some
+            (PartialParser.CPField (CPId (flattenLongIdent lid, Module), name))
         | _ -> None
       in
       match findPipe lhs with
       | Some pipe ->
-        setResult (PartialParser.Cpipe (pipe, id));
+        setResult (PartialParser.Cpath (CPPipe (pipe, id)));
         true
       | None -> false
     in

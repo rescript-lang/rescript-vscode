@@ -1,6 +1,6 @@
 Complete tests/src/CompletePrioritize1.res 4:2
 posCursor:[5:4] posNoWhite:[5:3] Found expr:[5:1->0:-1]
-Completable: Cpipe([a], "")
+Completable: Cpath Value[a]->
 [{
     "label": "Test.add",
     "kind": 12,
