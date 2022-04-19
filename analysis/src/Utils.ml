@@ -59,3 +59,18 @@ let filterMap f =
 
 let dumpPath path = Str.global_replace (Str.regexp_string "\\") "/" path
 let isUncurriedInternal path = startsWith (Path.name path) "Js.Fn.arity"
+
+let flattenLongIdent ?(jsx = false) lid =
+  let rec loop acc lid =
+    match lid with
+    | Longident.Lident txt -> txt :: acc
+    | Ldot (lid, txt) ->
+      let acc =
+        if jsx && txt = "createElement" then acc
+        else if txt = "$" then "" :: acc
+        else txt :: acc
+      in
+      loop acc lid
+    | Lapply _ -> acc
+  in
+  loop [] lid
