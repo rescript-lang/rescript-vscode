@@ -675,7 +675,7 @@ let resolveRawOpens ~env ~rawOpens ~package =
       ~previous:
         (List.map QueryEnv.fromFile
            (packageOpens |> Utils.filterMap (ProcessCmt.fileForModule ~package)))
-      rawOpens ~package
+      (List.rev rawOpens) ~package
   in
   opens
 
@@ -950,13 +950,11 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       in
       let rec removeRawOpens rawOpens modulePath =
         match rawOpens with
-        | rawOpen :: restOpens ->
-          let newModulePath =
-            match removeRawOpen rawOpen modulePath with
-            | None -> modulePath
-            | Some newModulePath -> newModulePath
-          in
-          removeRawOpens restOpens newModulePath
+        | rawOpen :: restOpens -> (
+          let newModulePath = removeRawOpens restOpens modulePath in
+          match removeRawOpen rawOpen newModulePath with
+          | None -> newModulePath
+          | Some mp -> mp)
         | [] -> modulePath
       in
       match lhsPath with
