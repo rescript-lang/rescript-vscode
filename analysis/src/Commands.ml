@@ -271,6 +271,11 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     (line, max 0 col - offset + offsetNoWhite)
   in
   let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
+  let charBeforeCursor, charAtCursor =
+    match PartialParser.positionToOffset text posCursor with
+    | Some offset when offset > 0 -> (Some text.[offset - 1], Some text.[offset])
+    | _ -> (None, None)
+  in
 
   let found = ref false in
   let result = ref None in
@@ -467,9 +472,32 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             Printf.printf "Pexp_ident %s:%s\n"
               (Utils.flattenLongIdent id.txt |> String.concat ".")
               (Loc.toString id.loc);
+          let idBreaksUp =
+            charBeforeCursor = Some '.'
+            &&
+            match charAtCursor with
+            | Some (' ' | '\t' | '\n' | '\r') -> true
+            | _ -> false
+          in
           if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            setResult
-              (PartialParser.Cpath (CPId (Utils.flattenLongIdent id.txt, Value)))
+            let path_ = id.txt |> Utils.flattenLongIdent in
+            let path =
+              if idBreaksUp then (
+                (* Sometimes "Foo. " is followed by "bar" and the parser's
+                   behaviour is to parse as "Foo.bar".
+                   This gets back the intended path "Foo." *)
+                let path =
+                  match path_ |> List.rev with
+                  | _last :: pathRev -> List.rev ("" :: pathRev)
+                  | path -> path
+                in
+                if debug then
+                  Printf.printf "Id breaks up. New path:%s\n"
+                    (path |> String.concat ".");
+                path)
+              else path_
+            in
+            setResult (PartialParser.Cpath (CPId (path, Value)))
         | Pexp_construct (id, eOpt) ->
           if debug then
             Printf.printf "Pexp_construct %s:%s %s\n"
