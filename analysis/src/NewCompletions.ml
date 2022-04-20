@@ -522,17 +522,17 @@ let completionForDeclareds ~pos ~iter ~stamps ~prefix ~exact ~env
     stamps;
   !res
 
-let completionForDeclaredModules ~pos ~env ~prefix ~exact =
+let localCompletionsForModules ~pos ~env ~prefix ~exact =
   completionForDeclareds ~env ~pos ~iter:Stamps.iterModules
     ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
       Completion.Module m)
 
-let completionForDeclaredValues ~pos ~env ~prefix ~exact =
+let localCompletionsForValues ~pos ~env ~prefix ~exact =
   completionForDeclareds ~env ~pos ~iter:Stamps.iterValues
     ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
       Completion.Value m)
 
-let completionForDeclaredTypes ~pos ~env ~prefix ~exact =
+let localCompletionsForTypes ~pos ~env ~prefix ~exact =
   completionForDeclareds ~env ~pos ~iter:Stamps.iterTypes
     ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m -> Completion.Type m)
 
@@ -572,7 +572,7 @@ let completionForExportedTypes ~env ~prefix ~exact =
     (Stamps.findType env.file.stamps) ~prefix ~exact ~env (fun t ->
       Completion.Type t)
 
-let completionForConstructors ~(env : QueryEnv.t) ~prefix ~exact =
+let localCompletionsForConstructors ~(env : QueryEnv.t) ~prefix ~exact =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
@@ -652,7 +652,7 @@ let detail name (kind : Completion.kind) =
 let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
   completionForExportedModules ~env ~prefix ~exact
-  @ completionForConstructors ~env ~prefix ~exact
+  @ localCompletionsForConstructors ~env ~prefix ~exact
   @ completionForExportedValues ~env ~prefix ~exact
   @ completionForExportedTypes ~env ~prefix ~exact
   @ completionForFields ~env ~prefix ~exact
@@ -661,10 +661,10 @@ let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     =
   Log.log "---------------- LOCAL VAL";
   let completions =
-    completionForDeclaredModules ~pos ~env ~prefix ~exact
-    @ completionForConstructors ~env ~prefix ~exact
-    @ completionForDeclaredValues ~pos ~env ~prefix ~exact
-    @ completionForDeclaredTypes ~pos ~env ~prefix ~exact
+    localCompletionsForModules ~pos ~env ~prefix ~exact
+    @ localCompletionsForConstructors ~env ~prefix ~exact
+    @ localCompletionsForValues ~pos ~env ~prefix ~exact
+    @ localCompletionsForTypes ~pos ~env ~prefix ~exact
     @ completionForFields ~env ~prefix ~exact
   in
   let namesUsed = Hashtbl.create 10 in
