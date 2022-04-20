@@ -649,14 +649,6 @@ let detail name (kind : Completion.kind) =
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
-let localCompletions ~pos ~(env : QueryEnv.t) ~prefix ~exact =
-  Log.log "---------------- LOCAL VAL";
-  completionForDeclaredModules ~pos ~env ~prefix ~exact
-  @ completionForConstructors ~env ~prefix ~exact
-  @ completionForDeclaredValues ~pos ~env ~prefix ~exact
-  @ completionForDeclaredTypes ~pos ~env ~prefix ~exact
-  @ completionForFields ~env ~prefix ~exact
-
 let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
   completionForExportedModules ~env ~prefix ~exact
@@ -664,6 +656,36 @@ let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   @ completionForExportedValues ~env ~prefix ~exact
   @ completionForExportedTypes ~env ~prefix ~exact
   @ completionForFields ~env ~prefix ~exact
+
+let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
+    =
+  Log.log "---------------- LOCAL VAL";
+  let completions =
+    completionForDeclaredModules ~pos ~env ~prefix ~exact
+    @ completionForConstructors ~env ~prefix ~exact
+    @ completionForDeclaredValues ~pos ~env ~prefix ~exact
+    @ completionForDeclaredTypes ~pos ~env ~prefix ~exact
+    @ completionForFields ~env ~prefix ~exact
+  in
+  let namesUsed = Hashtbl.create 10 in
+  let valuesFromOpens =
+    opens
+    |> List.fold_left
+         (fun results env ->
+           let completionsFromThisOpen = allCompletions ~env ~prefix ~exact in
+           List.filter
+             (fun (declared : Completion.t) ->
+               if Hashtbl.mem namesUsed declared.name then
+                 (* shadowing from opens *)
+                 false
+               else (
+                 Hashtbl.add namesUsed declared.name true;
+                 true))
+             completionsFromThisOpen
+           @ results)
+         []
+  in
+  completions @ valuesFromOpens
 
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
@@ -747,37 +769,24 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
   match path with
   | [] -> []
   | [prefix] ->
-    let locallyDefinedValues = localCompletions ~pos ~env ~prefix ~exact in
-    let alreadyUsedIdentifiers = Hashtbl.create 10 in
-    let valuesFromOpens =
-      opens
-      |> List.fold_left
-           (fun results env ->
-             let completionsFromThisOpen = allCompletions ~env ~prefix ~exact in
-             List.filter
-               (fun (declared : Completion.t) ->
-                 if Hashtbl.mem alreadyUsedIdentifiers declared.name then
-                   (* shadowing from opens *)
-                   false
-                 else (
-                   Hashtbl.add alreadyUsedIdentifiers declared.name true;
-                   true))
-               completionsFromThisOpen
-             @ results)
-           []
+    let localCompletionsPlusOpens =
+      findLocalCompletionsPlusOpens ~pos ~env ~prefix ~exact ~opens
     in
-    (* TODO complete the namespaced name too *)
-    let localModuleNames =
+    let fileModules =
       allFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
-             if checkName name ~prefix ~exact && not (String.contains name '-')
+             if
+               checkName name ~prefix ~exact
+               && not
+                    (* TODO complete the namespaced name too *)
+                    (String.contains name '-')
              then
                Some
                  (Completion.create ~name ~env
                     ~kind:(Completion.FileModule name))
              else None)
     in
-    locallyDefinedValues @ valuesFromOpens @ localModuleNames
+    localCompletionsPlusOpens @ fileModules
     |> postProcess ~pos ~exact ~completionContext
   | _ -> (
     Log.log ("Path " ^ pathToString path);
@@ -986,8 +995,29 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       | None -> [])
     | None -> [])
 
-let processCompletable ~package ~rawOpens ~opens ~env ~pos
+let getOpens ~rawOpens ~package ~env =
+  Log.log
+    ("Opens folkz > "
+    ^ string_of_int (List.length rawOpens)
+    ^ " "
+    ^ String.concat " ... " (rawOpens |> List.map pathToString));
+  let packageOpens = "Pervasives" :: package.opens in
+  Log.log ("Package opens " ^ String.concat " " packageOpens);
+  let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
+  Log.log
+    ("Opens nows "
+    ^ string_of_int (List.length resolvedOpens)
+    ^ " "
+    ^ String.concat " "
+        (resolvedOpens
+        |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
+  (* Last open takes priority *)
+  List.rev resolvedOpens
+
+let processCompletable ~package ~scope ~env ~pos
     (completable : PartialParser.completable) =
+  let rawOpens = Scope.getRawOpens scope in
+  let opens = getOpens ~rawOpens ~package ~env in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let findTypeOfValue path =
     path
@@ -1144,5 +1174,5 @@ let processCompletable ~package ~rawOpens ~opens ~env ~pos
     |> List.map mkLabel
 
 let computeCompletions ~(completable : PartialParser.completable) ~package ~pos
-    ~rawOpens ~opens ~env =
-  completable |> processCompletable ~package ~rawOpens ~opens ~env ~pos
+    ~scope ~env =
+  completable |> processCompletable ~package ~scope ~env ~pos
