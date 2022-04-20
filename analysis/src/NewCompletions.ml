@@ -596,7 +596,7 @@ let completionsForConstructors ~(env : QueryEnv.t) ~prefix ~exact =
       | _ -> ());
   !res
 
-let completionForFields ~(env : QueryEnv.t) ~prefix ~exact =
+let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
@@ -655,7 +655,7 @@ let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   @ completionsForConstructors ~env ~prefix ~exact
   @ completionForExportedValues ~env ~prefix ~exact
   @ completionForExportedTypes ~env ~prefix ~exact
-  @ completionForFields ~env ~prefix ~exact
+  @ completionForExportedFields ~env ~prefix ~exact
 
 let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ~(completionContext : PartialParser.completionContext) =
