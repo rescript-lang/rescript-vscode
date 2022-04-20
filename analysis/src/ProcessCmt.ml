@@ -1237,48 +1237,6 @@ let rec resolvePath ~env ~path ~package =
       | Some file ->
         resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package))
 
-let locationIsBefore {Location.loc_start} pos = Pos.ofLexing loc_start <= pos
-
-let findInScope pos name iter stamps =
-  (* Log.log("Find " ++ name ++ " with " ++ string_of_int(Hashtbl.length(stamps)) ++ " stamps"); *)
-  let res = ref None in
-  iter
-    (fun _stamp (declared : _ Declared.t) ->
-      if declared.name.txt = name then
-        (* Log.log("a stamp " ++ Utils.showLocation(declared.scopeLoc) ++ " " ++ string_of_int(l) ++ "," ++ string_of_int(c)); *)
-        if locationIsBefore declared.scopeLoc pos then
-          match !res with
-          | None -> res := Some declared
-          | Some current ->
-            if
-              current.name.loc.loc_start.pos_cnum
-              < declared.name.loc.loc_start.pos_cnum
-            then res := Some declared)
-    stamps;
-  !res
-
-let resolveFromStamps ~(env : QueryEnv.t) ~path ~package ~pos =
-  match path with
-  | [] -> None
-  | [name] -> Some (env, name)
-  | name :: inner -> (
-    (* Log.log("Finding from stamps " ++ name); *)
-    match findInScope pos name Stamps.iterModules env.file.stamps with
-    | None -> None
-    | Some declared -> (
-      (* Log.log("found it"); *)
-      match findInModule ~env declared.item inner with
-      | None -> None
-      | Some res -> (
-        match res with
-        | `Local (env, name) -> Some (env, name)
-        | `Global (moduleName, fullPath) -> (
-          match fileForModule ~package moduleName with
-          | None -> None
-          | Some file ->
-            resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package)))
-    )
-
 let resolveModuleFromCompilerPath ~env ~package path =
   match fromCompilerPath ~env path with
   | `Global (moduleName, path) -> (
