@@ -350,6 +350,7 @@ Completable: Cpath Value[x].th
 Complete tests/src/Jsx.res 80:3
 posCursor:[81:26] posNoWhite:[81:25] Found expr:[81:9->85:3]
 Pexp_ident DefineSomeFields.:[81:9->85:3]
+Id breaks up. New path:DefineSomeFields.
 posCursor:[81:26] posNoWhite:[81:25] Found expr:[0:-1->85:70]
 Pexp_apply ...[85:6->85:7] (...[85:8->85:70])
 Completable: Cpath Value[DefineSomeFields, ""]
@@ -395,11 +396,18 @@ Completable: Cpath Value[Outer, Inner, h]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 101:5
-posCursor:[102:15] posNoWhite:[102:14] Found expr:[101:3->103:9]
-JSX <div:[101:3->101:6] x[102:1->102:2]=...[102:3->103:8]> _children:None
-posCursor:[102:15] posNoWhite:[102:14] Found expr:[102:3->103:8]
-Pexp_ident Outer.Inner.name:[102:3->103:8]
-Completable: Cpath Value[Outer, Inner, name]
-[]
+Complete tests/src/Jsx.res 102:5
+posCursor:[103:15] posNoWhite:[103:14] Found expr:[102:3->104:9]
+JSX <div:[102:3->102:6] x[103:1->103:2]=...[103:3->104:8]> _children:None
+posCursor:[103:15] posNoWhite:[103:14] Found expr:[103:3->104:8]
+Pexp_ident Outer.Inner.name:[103:3->104:8]
+Id breaks up. New path:Outer.Inner.
+Completable: Cpath Value[Outer, Inner, ""]
+[{
+    "label": "hello",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
 
