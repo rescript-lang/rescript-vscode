@@ -281,14 +281,33 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   in
   let setResult x = setResultOpt (Some x) in
   let scopeValueDescription (vd : Parsetree.value_description) =
-    scope := !scope |> Scope.addValue vd.pval_name.txt vd.pval_loc
+    scope := !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_loc
   in
   let scopeValueBinding (vb : Parsetree.value_binding) =
     match vb.pvb_pat.ppat_desc with
     | Ppat_var {txt; loc}
     | Ppat_constraint ({ppat_desc = Ppat_var {txt; loc}}, _) ->
-      scope := !scope |> Scope.addValue txt loc
+      scope := !scope |> Scope.addValue ~name:txt ~loc
     | _ -> ()
+  in
+  let scopeTypeKind (tk : Parsetree.type_kind) =
+    match tk with
+    | Ptype_variant constrDecls ->
+      constrDecls
+      |> List.iter (fun (cd : Parsetree.constructor_declaration) ->
+             scope :=
+               !scope
+               |> Scope.addConstructor ~name:cd.pcd_name.txt ~loc:cd.pcd_loc)
+    | Ptype_record labelDecls ->
+      labelDecls
+      |> List.iter (fun (ld : Parsetree.label_declaration) ->
+             scope :=
+               !scope |> Scope.addField ~name:ld.pld_name.txt ~loc:ld.pld_loc)
+    | _ -> ()
+  in
+  let scopeTypeDeclaration (td : Parsetree.type_declaration) =
+    scope := !scope |> Scope.addType ~name:td.ptype_name.txt ~loc:td.ptype_loc;
+    scopeTypeKind td.ptype_kind
   in
 
   let structure (iterator : Ast_iterator.iterator)
@@ -301,12 +320,18 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       (item : Parsetree.structure_item) =
     let processed = ref false in
     (match item.pstr_desc with
-    | Pstr_open {popen_lid} -> scope := !scope |> Scope.addModule popen_lid.txt
+    | Pstr_open {popen_lid} ->
+      scope := !scope |> Scope.addOpen ~lid:popen_lid.txt
     | Pstr_primitive vd -> scopeValueDescription vd
     | Pstr_value (recFlag, bindings) ->
       if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
+      processed := true
+    | Pstr_type (recFlag, decls) ->
+      if recFlag = Recursive then decls |> List.iter scopeTypeDeclaration;
+      decls |> List.iter (fun td -> iterator.type_declaration iterator td);
+      if recFlag = Nonrecursive then decls |> List.iter scopeTypeDeclaration;
       processed := true
     | _ -> ());
     if not !processed then
@@ -320,11 +345,19 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   in
   let signature_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.signature_item) =
+    let processed = ref false in
     (match item.psig_desc with
-    | Psig_open {popen_lid} -> scope := !scope |> Scope.addModule popen_lid.txt
+    | Psig_open {popen_lid} ->
+      scope := !scope |> Scope.addOpen ~lid:popen_lid.txt
     | Psig_value vd -> scopeValueDescription vd
+    | Psig_type (recFlag, decls) ->
+      if recFlag = Recursive then decls |> List.iter scopeTypeDeclaration;
+      decls |> List.iter (fun td -> iterator.type_declaration iterator td);
+      if recFlag = Nonrecursive then decls |> List.iter scopeTypeDeclaration;
+      processed := true
     | _ -> ());
-    Ast_iterator.default_iterator.signature_item iterator item
+    if not !processed then
+      Ast_iterator.default_iterator.signature_item iterator item
   in
   let attribute (iterator : Ast_iterator.iterator)
       ((id, payload) : Parsetree.attribute) =
