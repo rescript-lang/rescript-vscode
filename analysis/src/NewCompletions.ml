@@ -583,25 +583,30 @@ let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
 
 let locationIsBefore {Location.loc_start} pos = Pos.ofLexing loc_start <= pos
 
-let findModuleInScope ~pos ~moduleName ~stamps =
-  let res = ref None in
-  Stamps.iterModules
-    (fun _stamp (declared : _ Declared.t) ->
-      if declared.name.txt = moduleName then
-        if locationIsBefore declared.scopeLoc pos then
-          match !res with
-          | None -> res := Some declared
-          | Some current ->
-            if
-              current.name.loc.loc_start.pos_cnum
-              < declared.name.loc.loc_start.pos_cnum
-            then res := Some declared)
-    stamps;
-  !res
+let findModuleInScope ~env ~moduleName ~scope =
+  let modulesTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterModules (fun _ declared ->
+         Hashtbl.replace modulesTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let result = ref None in
+  let processModule name loc =
+    if name = moduleName && !result = None then
+      match Hashtbl.find_opt modulesTable (name, Loc.start loc) with
+      | Some declared -> result := Some declared
+      | None ->
+        Log.log
+          (Printf.sprintf "Module Not Found %s loc:%s\n" name (Loc.toString loc))
+  in
+  scope |> Scope.iterModulesBeforeFirstOpen processModule;
+  scope |> Scope.iterModulesAfterFirstOpen processModule;
+  !result
 
-let resolvePathFromStamps ~(env : QueryEnv.t) ~package ~pos ~moduleName ~path =
+let resolvePathFromStamps ~(env : QueryEnv.t) ~package ~scope ~moduleName ~path
+    =
   (* Log.log("Finding from stamps " ++ name); *)
-  match findModuleInScope ~pos ~moduleName ~stamps:env.file.stamps with
+  match findModuleInScope ~env ~moduleName ~scope with
   | None -> None
   | Some declared -> (
     (* Log.log("found it"); *)
@@ -638,9 +643,10 @@ let resolveFileModule ~moduleName ~package =
     let env = QueryEnv.fromFile file in
     Some env
 
-let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
-    ~moduleName (path : string list) =
-  match resolvePathFromStamps ~env ~pos ~moduleName ~path ~package with
+let getEnvWithOpens ~scope ~(env : QueryEnv.t) ~package
+    ~(opens : QueryEnv.t list) ~moduleName (path : string list) =
+  (* TODO: handle interleaving of opens and local modules correctly *)
+  match resolvePathFromStamps ~env ~scope ~moduleName ~path ~package with
   | Some x -> Some x
   | None -> (
     match resolveModuleWithOpens ~opens ~package ~moduleName with
@@ -843,6 +849,7 @@ let findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope =
 
 let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ~scope ~(completionContext : PartialParser.completionContext) =
+  (* TODO: handle arbitrary interleaving of opens and local bindings correctly *)
   Log.log
     ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
    ^ Pos.toString pos);
@@ -919,7 +926,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     localCompletionsWithOpens @ fileModules
   | moduleName :: path -> (
     Log.log ("Path " ^ pathToString path);
-    match getEnvWithOpens ~pos ~env ~package ~opens ~moduleName path with
+    match getEnvWithOpens ~scope ~env ~package ~opens ~moduleName path with
     | Some (env, prefix) ->
       Log.log "Got the env";
       let namesUsed = Hashtbl.create 10 in
