@@ -217,7 +217,6 @@ module Completion = struct
 
   type t = {
     name : string;
-    extentLoc : Location.t;
     env : QueryEnv.t;
     deprecated : string option;
     docstring : string list;
@@ -225,14 +224,7 @@ module Completion = struct
   }
 
   let create ~name ~kind ~env =
-    {
-      name;
-      extentLoc = Location.none;
-      env;
-      deprecated = None;
-      docstring = [];
-      kind;
-    }
+    {name; env; deprecated = None; docstring = []; kind}
 
   let kindToInt kind =
     match kind with
