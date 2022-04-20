@@ -19,23 +19,5 @@ Completable: Cpath Value[ax]
     "tags": [],
     "detail": "Test.t",
     "documentation": null
-  }, {
-    "label": "ax",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
-    "label": "ax",
-    "kind": 12,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }, {
-    "label": "ax",
-    "kind": 12,
-    "tags": [],
-    "detail": "t",
-    "documentation": null
   }]
 
