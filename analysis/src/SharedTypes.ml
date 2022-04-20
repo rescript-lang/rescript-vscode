@@ -12,6 +12,7 @@ module Constructor = struct
     cname : string Location.loc;
     args : (Types.type_expr * Location.t) list;
     res : Types.type_expr option;
+    typeDecl : string * Types.type_declaration;
   }
 end
 
@@ -117,6 +118,7 @@ module Stamps : sig
   val findType : t -> int -> Type.t Declared.t option
   val findValue : t -> int -> Types.type_expr Declared.t option
   val init : unit -> t
+  val iterConstructors : (int -> Constructor.t Declared.t -> unit) -> t -> unit
   val iterModules : (int -> Module.t Declared.t -> unit) -> t -> unit
   val iterTypes : (int -> Type.t Declared.t -> unit) -> t -> unit
   val iterValues : (int -> Types.type_expr Declared.t -> unit) -> t -> unit
@@ -172,6 +174,11 @@ end = struct
   let iterValues f stamps =
     Hashtbl.iter
       (fun stamp d -> match d with KValue d -> f stamp d | _ -> ())
+      stamps
+
+  let iterConstructors f stamps =
+    Hashtbl.iter
+      (fun stamp d -> match d with KConstructor d -> f stamp d | _ -> ())
       stamps
 end
 

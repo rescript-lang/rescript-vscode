@@ -55,6 +55,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         ({type_loc; type_kind; type_manifest; type_attributes} as decl),
         recStatus ) ->
     let declared =
+      let name = Location.mknoloc (Ident.name ident) in
       addItem ~extent:type_loc
         ~item:
           {
@@ -89,6 +90,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
                                (* TODO(406): constructor record args support *)
                                | Cstr_record _ -> []);
                              res = cd_res;
+                             typeDecl = (name, decl);
                            }
                          in
                          let declared =
@@ -117,8 +119,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
                            typ = ld_type;
                          })));
           }
-        ~name:(Location.mknoloc (Ident.name ident))
-        ~stamp:(Ident.binding_time ident) ~env type_attributes
+        ~name ~stamp:(Ident.binding_time ident) ~env type_attributes
         (Exported.add exported Exported.Type)
         Stamps.addType
     in
@@ -187,23 +188,49 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
             | Ttype_variant constructors ->
               Variant
                 (constructors
-                |> List.map (fun {cd_id; cd_name = cname; cd_args; cd_res} ->
-                       let stamp = Ident.binding_time cd_id in
+                |> List.map
+                     (fun
                        {
-                         Constructor.stamp;
-                         cname;
-                         args =
-                           (match cd_args with
-                           | Cstr_tuple args ->
-                             args
-                             |> List.map (fun t -> (t.ctyp_type, t.ctyp_loc))
-                           (* TODO(406) *)
-                           | Cstr_record _ -> []);
-                         res =
-                           (match cd_res with
-                           | None -> None
-                           | Some t -> Some t.ctyp_type);
-                       }))
+                         cd_id;
+                         cd_name = cname;
+                         cd_args;
+                         cd_res;
+                         cd_attributes;
+                         cd_loc;
+                       }
+                     ->
+                       let stamp = Ident.binding_time cd_id in
+                       let item =
+                         {
+                           Constructor.stamp;
+                           cname;
+                           args =
+                             (match cd_args with
+                             | Cstr_tuple args ->
+                               args
+                               |> List.map (fun t -> (t.ctyp_type, t.ctyp_loc))
+                             (* TODO(406) *)
+                             | Cstr_record _ -> []);
+                           res =
+                             (match cd_res with
+                             | None -> None
+                             | Some t -> Some t.ctyp_type);
+                           typeDecl = (name.txt, typ_type);
+                         }
+                       in
+                       let declared =
+                         ProcessAttributes.newDeclared ~item ~extent:cd_loc
+                           ~scope:
+                             {
+                               Location.loc_start = typ_loc.Location.loc_end;
+                               loc_end = env.scope.loc_end;
+                               loc_ghost = false;
+                             }
+                           ~name:cname ~stamp ~modulePath:env.modulePath true
+                           cd_attributes
+                       in
+                       Stamps.addConstructor env.stamps stamp declared;
+                       item))
             | Ttype_record fields ->
               Record
                 (fields
