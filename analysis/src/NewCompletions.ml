@@ -583,13 +583,11 @@ let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
 
 let locationIsBefore {Location.loc_start} pos = Pos.ofLexing loc_start <= pos
 
-let findModuleInScope pos name iter stamps =
-  (* Log.log("Find " ++ name ++ " with " ++ string_of_int(Hashtbl.length(stamps)) ++ " stamps"); *)
+let findModuleInScope ~pos ~moduleName ~stamps =
   let res = ref None in
-  iter
+  Stamps.iterModules
     (fun _stamp (declared : _ Declared.t) ->
-      if declared.name.txt = name then
-        (* Log.log("a stamp " ++ Utils.showLocation(declared.scopeLoc) ++ " " ++ string_of_int(l) ++ "," ++ string_of_int(c)); *)
+      if declared.name.txt = moduleName then
         if locationIsBefore declared.scopeLoc pos then
           match !res with
           | None -> res := Some declared
@@ -601,53 +599,56 @@ let findModuleInScope pos name iter stamps =
     stamps;
   !res
 
-let resolveFromStamps ~(env : QueryEnv.t) ~path ~package ~pos =
-  match path with
-  | [] -> None
-  | [name] -> Some (env, name)
-  | name :: inner -> (
-    (* Log.log("Finding from stamps " ++ name); *)
-    match findModuleInScope pos name Stamps.iterModules env.file.stamps with
+let resolvePathFromStamps ~(env : QueryEnv.t) ~package ~pos ~moduleName ~path =
+  (* Log.log("Finding from stamps " ++ name); *)
+  match findModuleInScope ~pos ~moduleName ~stamps:env.file.stamps with
+  | None -> None
+  | Some declared -> (
+    (* Log.log("found it"); *)
+    match ProcessCmt.findInModule ~env declared.item path with
     | None -> None
-    | Some declared -> (
-      (* Log.log("found it"); *)
-      match ProcessCmt.findInModule ~env declared.item inner with
-      | None -> None
-      | Some res -> (
-        match res with
-        | `Local (env, name) -> Some (env, name)
-        | `Global (moduleName, fullPath) -> (
-          match ProcessCmt.fileForModule ~package moduleName with
-          | None -> None
-          | Some file ->
-            ProcessCmt.resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath
-              ~package))))
+    | Some res -> (
+      match res with
+      | `Local (env, name) -> Some (env, name)
+      | `Global (moduleName, fullPath) -> (
+        match ProcessCmt.fileForModule ~package moduleName with
+        | None -> None
+        | Some file ->
+          ProcessCmt.resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath
+            ~package)))
+
+let resolveModuleWithOpens ~opens ~package ~moduleName =
+  let rec loop opens =
+    match opens with
+    | (env : QueryEnv.t) :: rest -> (
+      Log.log ("Looking for env in " ^ Uri2.toString env.file.uri);
+      match ProcessCmt.resolvePath ~env ~package ~path:[moduleName; ""] with
+      | Some (env, _) -> Some env
+      | None -> loop rest)
+    | [] -> None
+  in
+  loop opens
+
+let resolveFileModule ~moduleName ~package =
+  Log.log ("Getting module " ^ moduleName);
+  match ProcessCmt.fileForModule ~package moduleName with
+  | None -> None
+  | Some file ->
+    Log.log "got it";
+    let env = QueryEnv.fromFile file in
+    Some env
 
 let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
-    (path : string list) =
-  match resolveFromStamps ~env ~path ~package ~pos with
+    ~moduleName (path : string list) =
+  match resolvePathFromStamps ~env ~pos ~moduleName ~path ~package with
   | Some x -> Some x
-  | None ->
-    let rec loop opens =
-      match opens with
-      | (env : QueryEnv.t) :: rest -> (
-        Log.log ("Looking for env in " ^ Uri2.toString env.file.uri);
-        match ProcessCmt.resolvePath ~env ~package ~path with
-        | Some x -> Some x
-        | None -> loop rest)
-      | [] -> (
-        match path with
-        | [] | [_] -> None
-        | top :: path -> (
-          Log.log ("Getting module " ^ top);
-          match ProcessCmt.fileForModule ~package top with
-          | None -> None
-          | Some file ->
-            Log.log "got it";
-            let env = QueryEnv.fromFile file in
-            ProcessCmt.resolvePath ~env ~package ~path))
-    in
-    loop opens
+  | None -> (
+    match resolveModuleWithOpens ~opens ~package ~moduleName with
+    | Some env -> ProcessCmt.resolvePath ~env ~package ~path
+    | None -> (
+      match resolveFileModule ~moduleName ~package with
+      | None -> None
+      | Some env -> ProcessCmt.resolvePath ~env ~package ~path))
 
 let detail name (kind : Completion.kind) =
   match kind with
@@ -916,9 +917,9 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
              else None)
     in
     localCompletionsWithOpens @ fileModules
-  | _ -> (
+  | moduleName :: path -> (
     Log.log ("Path " ^ pathToString path);
-    match getEnvWithOpens ~pos ~env ~package ~opens path with
+    match getEnvWithOpens ~pos ~env ~package ~opens ~moduleName path with
     | Some (env, prefix) ->
       Log.log "Got the env";
       let namesUsed = Hashtbl.create 10 in
