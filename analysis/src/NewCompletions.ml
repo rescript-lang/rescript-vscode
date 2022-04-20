@@ -618,13 +618,21 @@ let detail name (kind : Completion.kind) =
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
-let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
+let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
+    ~(completionContext : PartialParser.completionContext) =
   Log.log ("findAllCompletions uri:" ^ Uri2.toString env.file.uri);
-  completionForExportedModules ~env ~prefix ~exact ~namesUsed
-  @ completionsForConstructors ~env ~prefix ~exact ~namesUsed
-  @ completionForExportedValues ~env ~prefix ~exact ~namesUsed
-  @ completionForExportedTypes ~env ~prefix ~exact ~namesUsed
-  @ completionForExportedFields ~env ~prefix ~exact ~namesUsed
+  match completionContext with
+  | Value ->
+    completionForExportedValues ~env ~prefix ~exact ~namesUsed
+    @ completionsForConstructors ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
+  | Type ->
+    completionForExportedTypes ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
+  | Module -> completionForExportedModules ~env ~prefix ~exact ~namesUsed
+  | Field ->
+    completionForExportedModules ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedFields ~env ~prefix ~exact ~namesUsed
 
 let completionsForDeclareds ~pos ~iter ~stamps ~prefix ~exact ~env
     transformContents =
@@ -728,6 +736,7 @@ let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
          (fun results env ->
            let completionsFromThisOpen =
              findAllCompletions ~env ~prefix ~exact ~namesUsed
+               ~completionContext:Value
            in
            completionsFromThisOpen @ results)
          []
@@ -856,7 +865,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     | Some (env, prefix) ->
       Log.log "Got the env";
       let namesUsed = Hashtbl.create 10 in
-      findAllCompletions ~env ~prefix ~exact ~namesUsed
+      findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
       |> postProcess ~pos ~exact ~completionContext
     | None -> [])
 
