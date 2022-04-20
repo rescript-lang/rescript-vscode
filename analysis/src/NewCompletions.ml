@@ -690,7 +690,10 @@ let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
               docstring = declared.docstring;
             }
             :: !resultRev)
-      | None -> Printf.printf "XXX NotFound %s loc:%s\n" name (Loc.toString loc)
+      | None ->
+        Log.log
+          (Printf.sprintf "Completion Value Not Found %s loc:%s\n" name
+             (Loc.toString loc))
   in
   let processConstructor name loc =
     if checkName name ~prefix ~exact then
@@ -712,7 +715,10 @@ let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
               docstring = declared.docstring;
             }
             :: !resultRev)
-      | None -> Printf.printf "XXX NotFound %s loc:%s\n" name (Loc.toString loc)
+      | None ->
+        Log.log
+          (Printf.sprintf "Completion Constructor Not Found %s loc:%s\n" name
+             (Loc.toString loc))
   in
   scope |> Scope.iterValuesBeforeFirstOpen processValue;
   scope |> Scope.iterConstructorsBeforeFirstOpen processConstructor;
