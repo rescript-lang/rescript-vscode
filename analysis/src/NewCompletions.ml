@@ -499,49 +499,6 @@ let resolveOpens ~env ~previous opens ~package =
 let checkName name ~prefix ~exact =
   if exact then name = prefix else Utils.startsWith name prefix
 
-let completionForDeclareds ~pos ~iter ~stamps ~prefix ~exact ~env
-    transformContents =
-  (* Log.log("completion for declares " ++ prefix); *)
-  let res = ref [] in
-  iter
-    (fun _stamp (declared : _ Declared.t) ->
-      if
-        checkName declared.name.txt ~prefix ~exact
-        && Utils.locationContainsFuzzy declared.scopeLoc pos
-      then
-        res :=
-          {
-            (Completion.create ~name:declared.name.txt ~env
-               ~kind:(transformContents declared.item))
-            with
-            extentLoc = declared.extentLoc;
-            deprecated = declared.deprecated;
-            docstring = declared.docstring;
-          }
-          :: !res)
-    stamps;
-  !res
-
-let localCompletionsForModules ~pos ~env ~prefix ~exact =
-  completionForDeclareds ~env ~pos ~iter:Stamps.iterModules
-    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
-      Completion.Module m)
-
-let localCompletionsForValues ~pos ~env ~prefix ~exact =
-  completionForDeclareds ~env ~pos ~iter:Stamps.iterValues
-    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
-      Completion.Value m)
-
-let localCompletionsForTypes ~pos ~env ~prefix ~exact =
-  completionForDeclareds ~env ~pos ~iter:Stamps.iterTypes
-    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m -> Completion.Type m)
-
-let localCompletionsForConstructors ~pos ~env ~prefix ~exact =
-  completionForDeclareds ~env ~pos ~iter:Stamps.iterConstructors
-    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun c ->
-      Completion.Constructor
-        (c, snd c.typeDecl |> Shared.declToString (fst c.typeDecl)))
-
 let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
     transformContents =
   let res = ref [] in
@@ -657,37 +614,83 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   @ completionForExportedTypes ~env ~prefix ~exact
   @ completionForExportedFields ~env ~prefix ~exact
 
+let completionsForDeclareds ~pos ~iter ~stamps ~prefix ~exact ~env
+    transformContents =
+  (* Log.log("completion for declares " ++ prefix); *)
+  let res = ref [] in
+  iter
+    (fun _stamp (declared : _ Declared.t) ->
+      if
+        checkName declared.name.txt ~prefix ~exact
+        && Utils.locationContainsFuzzy declared.scopeLoc pos
+      then
+        res :=
+          {
+            (Completion.create ~name:declared.name.txt ~env
+               ~kind:(transformContents declared.item))
+            with
+            extentLoc = declared.extentLoc;
+            deprecated = declared.deprecated;
+            docstring = declared.docstring;
+          }
+          :: !res)
+    stamps;
+  !res
+
+let localCompletionsForModules ~pos ~env ~prefix ~exact =
+  completionsForDeclareds ~env ~pos ~iter:Stamps.iterModules
+    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
+      Completion.Module m)
+
+let localCompletionsForValues ~pos ~env ~prefix ~exact =
+  completionsForDeclareds ~env ~pos ~iter:Stamps.iterValues
+    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
+      Completion.Value m)
+
+let localCompletionsForTypes ~pos ~env ~prefix ~exact =
+  completionsForDeclareds ~env ~pos ~iter:Stamps.iterTypes
+    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m -> Completion.Type m)
+
+let localCompletionsForConstructors ~pos ~env ~prefix ~exact =
+  completionsForDeclareds ~env ~pos ~iter:Stamps.iterConstructors
+    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun c ->
+      Completion.Constructor
+        (c, snd c.typeDecl |> Shared.declToString (fst c.typeDecl)))
+
+let findLocalCompletionsForValues ~pos ~env ~prefix ~exact ~opens ~scope =
+  let completions =
+    localCompletionsForValues ~pos ~env ~prefix ~exact
+    @ localCompletionsForConstructors ~pos ~env ~prefix ~exact
+  in
+  let namesUsed = Hashtbl.create 10 in
+  let valuesFromOpens =
+    opens
+    |> List.fold_left
+         (fun results env ->
+           let completionsFromThisOpen =
+             findAllCompletions ~env ~prefix ~exact
+           in
+           List.filter
+             (fun (completion : Completion.t) ->
+               if Hashtbl.mem namesUsed completion.name then
+                 (* shadowing from opens *)
+                 false
+               else (
+                 Hashtbl.add namesUsed completion.name true;
+                 true))
+             completionsFromThisOpen
+           @ results)
+         []
+  in
+  completions @ valuesFromOpens
+
 let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
-    ~(completionContext : PartialParser.completionContext) =
+    ~scope ~(completionContext : PartialParser.completionContext) =
   Log.log
     ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
    ^ Pos.toString pos);
   if completionContext = Value then
-    let completions =
-      localCompletionsForValues ~pos ~env ~prefix ~exact
-      @ localCompletionsForConstructors ~pos ~env ~prefix ~exact
-    in
-    let namesUsed = Hashtbl.create 10 in
-    let valuesFromOpens =
-      opens
-      |> List.fold_left
-           (fun results env ->
-             let completionsFromThisOpen =
-               findAllCompletions ~env ~prefix ~exact
-             in
-             List.filter
-               (fun (declared : Completion.t) ->
-                 if Hashtbl.mem namesUsed declared.name then
-                   (* shadowing from opens *)
-                   false
-                 else (
-                   Hashtbl.add namesUsed declared.name true;
-                   true))
-               completionsFromThisOpen
-             @ results)
-           []
-    in
-    completions @ valuesFromOpens
+    findLocalCompletionsForValues ~pos ~env ~prefix ~exact ~opens ~scope
   else
     localCompletionsForModules ~pos ~env ~prefix ~exact
     @ localCompletionsForTypes ~pos ~env ~prefix ~exact
@@ -769,13 +772,13 @@ let postProcess ~pos ~exact ~completionContext completions =
   |> List.filter (filterCompletionKind ~completionContext)
   |> prioritize ~exact ~pos
 
-let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
+let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
   match path with
   | [] -> []
   | [prefix] ->
     let localCompletionsPlusOpens =
-      findLocalCompletionsWithOpens ~pos ~env ~prefix ~exact ~opens
+      findLocalCompletionsWithOpens ~pos ~env ~prefix ~exact ~opens ~scope
         ~completionContext
     in
     let fileModules =
@@ -835,7 +838,7 @@ let completionsGetTypeEnv = function
   | _ -> None
 
 let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-    ~env ~exact (contextPath : PartialParser.contextPath) =
+    ~env ~exact ~scope (contextPath : PartialParser.contextPath) =
   match contextPath with
   | CPString ->
     [
@@ -854,17 +857,17 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
   | CPId (path, completionContext) ->
     path
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
-         ~completionContext ~env
+         ~completionContext ~env ~scope
   | CPField (CPId (path, Module), fieldName) ->
     (* M.field *)
     path @ [fieldName]
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
-         ~completionContext:Field ~env
+         ~completionContext:Field ~env ~scope
   | CPField (cp, fieldName) -> (
     match
       cp
       |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-           ~env ~exact:true
+           ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
@@ -887,7 +890,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
     match
       cp
       |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-           ~env ~exact:true
+           ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
@@ -915,7 +918,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
     match
       cp
       |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-           ~env ~exact:true
+           ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
     | Some (typ, _envNotUsed) -> (
@@ -987,7 +990,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
           let completions =
             modulePath @ [funNamePrefix]
             |> getCompletionsForPath ~completionContext:PartialParser.Value
-                 ~exact:false ~package ~opens ~allFiles ~pos ~env
+                 ~exact:false ~package ~opens ~allFiles ~pos ~env ~scope
           in
           completions
           |> List.map (fun (completion : Completion.t) ->
@@ -1028,14 +1031,14 @@ let processCompletable ~package ~scope ~env ~pos
   let findTypeOfValue path =
     path
     |> getCompletionsForPath ~completionContext:PartialParser.Value ~exact:true
-         ~package ~opens ~allFiles ~pos ~env
+         ~package ~opens ~allFiles ~pos ~env ~scope
     |> completionsGetTypeEnv
   in
   match completable with
   | Cpath contextPath ->
     contextPath
     |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-         ~env ~exact:false
+         ~env ~exact:false ~scope
     |> List.map completionToItem
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel_ name typString =
