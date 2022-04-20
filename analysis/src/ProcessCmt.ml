@@ -25,14 +25,8 @@ let addItem ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t) ~item
     attributes addExported addStamp =
   let isExported = addExported name.txt stamp in
   let declared =
-    ProcessAttributes.newDeclared ~item
-      ~scope:
-        {
-          Location.loc_start = extent.Location.loc_end;
-          loc_end = env.scope.loc_end;
-          loc_ghost = false;
-        }
-      ~extent ~name ~stamp ~modulePath:env.modulePath isExported attributes
+    ProcessAttributes.newDeclared ~item ~extent ~name ~stamp
+      ~modulePath:env.modulePath isExported attributes
   in
   addStamp env.stamps stamp declared;
   declared
@@ -95,12 +89,6 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
                          in
                          let declared =
                            ProcessAttributes.newDeclared ~item ~extent:cd_loc
-                             ~scope:
-                               {
-                                 Location.loc_start = type_loc.Location.loc_end;
-                                 loc_end = env.scope.loc_end;
-                                 loc_ghost = false;
-                               }
                              ~name:(Location.mknoloc name)
                              ~stamp (* TODO maybe this needs another child *)
                              ~modulePath:env.modulePath true cd_attributes
@@ -220,12 +208,6 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                        in
                        let declared =
                          ProcessAttributes.newDeclared ~item ~extent:cd_loc
-                           ~scope:
-                             {
-                               Location.loc_start = typ_loc.Location.loc_end;
-                               loc_end = env.scope.loc_end;
-                               loc_ghost = false;
-                             }
                            ~name:cname ~stamp ~modulePath:env.modulePath true
                            cd_attributes
                        in
@@ -447,11 +429,7 @@ and forModule env mod_desc moduleName =
   | Tmod_ident (path, _lident) -> Ident path
   | Tmod_structure structure ->
     let env =
-      {
-        env with
-        scope = impItemsExtent structure.str_items;
-        modulePath = ExportedModule (moduleName, env.modulePath);
-      }
+      {env with modulePath = ExportedModule (moduleName, env.modulePath)}
     in
     let contents = forStructure ~env structure.str_items in
     Structure contents
@@ -465,12 +443,6 @@ and forModule env mod_desc moduleName =
         let stamp = Ident.binding_time ident in
         let declared =
           ProcessAttributes.newDeclared ~item:kind ~name:argName
-            ~scope:
-              {
-                Location.loc_start = t.mty_loc.loc_end;
-                loc_end = env.scope.loc_end;
-                loc_ghost = false;
-              }
             ~extent:t.Typedtree.mty_loc ~stamp ~modulePath:NotVisible false []
         in
         Stamps.addModule env.stamps stamp declared));
@@ -522,24 +494,8 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    let extent = impItemsExtent items in
-    let extent =
-      {
-        extent with
-        loc_end =
-          {
-            extent.loc_end with
-            pos_lnum = extent.loc_end.pos_lnum + 1000000;
-            pos_cnum = extent.loc_end.pos_cnum + 100000000;
-          };
-      }
-    in
     let env =
-      {
-        Env.scope = extent;
-        stamps = Stamps.init ();
-        modulePath = File (uri, moduleName);
-      }
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forStructure ~env items in
     {File.uri; moduleName = cmt_modname; stamps = env.stamps; structure}
@@ -554,31 +510,19 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
       |> List.concat
     in
     let env =
-      {
-        Env.scope = sigItemsExtent items;
-        stamps = Stamps.init ();
-        modulePath = File (uri, moduleName);
-      }
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forSignature ~env items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Implementation structure ->
     let env =
-      {
-        Env.scope = impItemsExtent structure.str_items;
-        stamps = Stamps.init ();
-        modulePath = File (uri, moduleName);
-      }
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forStructure ~env structure.str_items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Interface signature ->
     let env =
-      {
-        Env.scope = sigItemsExtent signature.sig_items;
-        stamps = Stamps.init ();
-        modulePath = File (uri, moduleName);
-      }
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forSignature ~env signature.sig_items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
@@ -884,10 +828,6 @@ struct
       addLocItem extra nameLoc (Typed (name, constructorType, locType))
     | _ -> ()
 
-  let currentScopeExtent () =
-    if !Collector.scopeExtent = [] then Location.none
-    else List.hd !Collector.scopeExtent
-
   let addScopeExtent loc =
     Collector.scopeExtent := loc :: !Collector.scopeExtent
 
@@ -972,12 +912,6 @@ struct
       if Stamps.findValue Collector.file.stamps stamp = None then (
         let declared =
           ProcessAttributes.newDeclared ~name ~stamp ~extent:val_loc
-            ~scope:
-              {
-                loc_ghost = true;
-                loc_start = val_loc.loc_end;
-                loc_end = (currentScopeExtent ()).loc_end;
-              }
             ~modulePath:NotVisible ~item:val_desc.ctyp_type false val_attributes
         in
         Stamps.addValue Collector.file.stamps stamp declared;
@@ -996,15 +930,8 @@ struct
     let addForPattern stamp name =
       if Stamps.findValue Collector.file.stamps stamp = None then (
         let declared =
-          ProcessAttributes.newDeclared ~name ~stamp
-            ~scope:
-              {
-                loc_ghost = true;
-                loc_start = pat_loc.loc_end;
-                loc_end = (currentScopeExtent ()).loc_end;
-              }
-            ~modulePath:NotVisible ~extent:pat_loc ~item:pat_type false
-            pat_attributes
+          ProcessAttributes.newDeclared ~name ~stamp ~modulePath:NotVisible
+            ~extent:pat_loc ~item:pat_type false pat_attributes
         in
         Stamps.addValue Collector.file.stamps stamp declared;
         addReference stamp name.loc;

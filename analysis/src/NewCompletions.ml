@@ -581,8 +581,6 @@ let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
       | _ -> ());
   !res
 
-let locationIsBefore {Location.loc_start} pos = Pos.ofLexing loc_start <= pos
-
 let findModuleInScope ~env ~moduleName ~scope =
   let modulesTable = Hashtbl.create 10 in
   env.QueryEnv.file.stamps
