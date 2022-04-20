@@ -855,7 +855,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
   match path with
   | [] -> []
   | [prefix] ->
-    let localCompletionsPlusOpens =
+    let localCompletionsWithOpens =
       findLocalCompletionsWithOpens ~pos ~env ~prefix ~exact ~opens ~scope
         ~completionContext
     in
@@ -873,7 +873,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
                     ~kind:(Completion.FileModule name))
              else None)
     in
-    localCompletionsPlusOpens @ fileModules
+    localCompletionsWithOpens @ fileModules
   | _ -> (
     Log.log ("Path " ^ pathToString path);
     match getEnvWithOpens ~pos ~env ~package ~opens path with
