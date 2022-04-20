@@ -97,7 +97,6 @@ module Declared = struct
   type 'item t = {
     name : string Location.loc;
     extentLoc : Location.t;
-    scopeLoc : Location.t;
     stamp : int;
     modulePath : modulePath;
     isExported : bool;
@@ -238,7 +237,7 @@ module Completion = struct
 end
 
 module Env = struct
-  type t = {stamps : Stamps.t; modulePath : modulePath; scope : Location.t}
+  type t = {stamps : Stamps.t; modulePath : modulePath}
 end
 
 type filePath = string
