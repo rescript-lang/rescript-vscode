@@ -672,19 +672,19 @@ let rec resolvePathInner ~(env : QueryEnv.t) ~path =
     | Some stamp -> (
       match Stamps.findModule env.file.stamps stamp with
       | None -> None
-      | Some {item = kind} -> findInModule ~env kind subPath))
+      | Some {item} -> findInModule ~env item subPath))
 
-and findInModule ~env kind path =
-  match kind with
+and findInModule ~env module_ path =
+  match module_ with
   | Structure {exported} -> resolvePathInner ~env:{env with exported} ~path
-  | Constraint (_, moduleTypeKind) -> findInModule ~env moduleTypeKind path
+  | Constraint (_, module1) -> findInModule ~env module1 path
   | Ident modulePath -> (
     let stamp, moduleName, fullPath = joinPaths modulePath path in
     if stamp = 0 then Some (`Global (moduleName, fullPath))
     else
       match Stamps.findModule env.file.stamps stamp with
       | None -> None
-      | Some {item = kind} -> findInModule ~env kind fullPath)
+      | Some {item} -> findInModule ~env item fullPath)
 
 let fromCompilerPath ~(env : QueryEnv.t) path =
   match makePath path with
