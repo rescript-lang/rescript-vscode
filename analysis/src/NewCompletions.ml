@@ -514,7 +514,6 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
               (Completion.create ~name:declared.name.txt ~env
                  ~kind:(transformContents declared.item))
               with
-              extentLoc = declared.extentLoc;
               deprecated = declared.deprecated;
               docstring = declared.docstring;
             }
@@ -649,7 +648,6 @@ let completionsForDeclareds ~pos ~iter ~stamps ~prefix ~exact ~env
             (Completion.create ~name:declared.name.txt ~env
                ~kind:(transformContents declared.item))
             with
-            extentLoc = declared.extentLoc;
             deprecated = declared.deprecated;
             docstring = declared.docstring;
           }
@@ -693,7 +691,6 @@ let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
               (Completion.create ~name:declared.name.txt ~env
                  ~kind:(Value declared.item))
               with
-              extentLoc = declared.extentLoc;
               deprecated = declared.deprecated;
               docstring = declared.docstring;
             }
@@ -718,7 +715,6 @@ let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
                         snd declared.item.typeDecl
                         |> Shared.declToString (fst declared.item.typeDecl) )))
               with
-              extentLoc = declared.extentLoc;
               deprecated = declared.deprecated;
               docstring = declared.docstring;
             }
