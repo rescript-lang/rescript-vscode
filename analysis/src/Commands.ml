@@ -281,7 +281,8 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   in
   let setResult x = setResultOpt (Some x) in
   let scopeValueDescription (vd : Parsetree.value_description) =
-    scope := !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_loc
+    scope :=
+      !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_name.loc
   in
   let scopeValueBinding (vb : Parsetree.value_binding) =
     match vb.pvb_pat.ppat_desc with
@@ -306,8 +307,17 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     | _ -> ()
   in
   let scopeTypeDeclaration (td : Parsetree.type_declaration) =
-    scope := !scope |> Scope.addType ~name:td.ptype_name.txt ~loc:td.ptype_loc;
+    scope :=
+      !scope |> Scope.addType ~name:td.ptype_name.txt ~loc:td.ptype_name.loc;
     scopeTypeKind td.ptype_kind
+  in
+  let scopeModuleBinding (mb : Parsetree.module_binding) =
+    scope :=
+      !scope |> Scope.addModule ~name:mb.pmb_name.txt ~loc:mb.pmb_name.loc
+  in
+  let scopeModuleDeclaration (md : Parsetree.module_declaration) =
+    scope :=
+      !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
 
   let structure (iterator : Ast_iterator.iterator)
@@ -333,6 +343,14 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       decls |> List.iter (fun td -> iterator.type_declaration iterator td);
       if recFlag = Nonrecursive then decls |> List.iter scopeTypeDeclaration;
       processed := true
+    | Pstr_module mb ->
+      iterator.module_binding iterator mb;
+      scopeModuleBinding mb;
+      processed := true
+    | Pstr_recmodule mbs ->
+      mbs |> List.iter scopeModuleBinding;
+      mbs |> List.iter (fun b -> iterator.module_binding iterator b);
+      processed := true
     | _ -> ());
     if not !processed then
       Ast_iterator.default_iterator.structure_item iterator item
@@ -354,6 +372,14 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       if recFlag = Recursive then decls |> List.iter scopeTypeDeclaration;
       decls |> List.iter (fun td -> iterator.type_declaration iterator td);
       if recFlag = Nonrecursive then decls |> List.iter scopeTypeDeclaration;
+      processed := true
+    | Psig_module md ->
+      iterator.module_declaration iterator md;
+      scopeModuleDeclaration md;
+      processed := true
+    | Psig_recmodule mds ->
+      mds |> List.iter scopeModuleDeclaration;
+      mds |> List.iter (fun d -> iterator.module_declaration iterator d);
       processed := true
     | _ -> ());
     if not !processed then
@@ -581,8 +607,16 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
           if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
           iterator.expr iterator e;
-          processed := true;
-          scope := oldScope
+          scope := oldScope;
+          processed := true
+        | Pexp_letmodule (name, modExpr, modBody) ->
+          let oldScope = !scope in
+          iterator.location iterator name.loc;
+          iterator.module_expr iterator modExpr;
+          scope := !scope |> Scope.addModule ~name:name.txt ~loc:name.loc;
+          iterator.expr iterator modBody;
+          scope := oldScope;
+          processed := true
         | _ -> ());
       if not !processed then Ast_iterator.default_iterator.expr iterator expr
   in

@@ -741,17 +741,108 @@ let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
   scope |> Scope.iterConstructorsAfterFirstOpen processConstructor;
   List.rev_append !resultRev valuesFromOpens
 
+let findLocalCompletionsForTypes ~env ~prefix ~exact ~opens ~scope =
+  let typesTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterTypes (fun _ declared ->
+         Hashtbl.replace typesTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let namesUsed = Hashtbl.create 10 in
+  let resultRev = ref [] in
+  let processType name loc =
+    if checkName name ~prefix ~exact then
+      match Hashtbl.find_opt typesTable (name, Loc.start loc) with
+      | Some declared ->
+        if not (Hashtbl.mem namesUsed name) then (
+          Hashtbl.add namesUsed name ();
+          resultRev :=
+            {
+              (Completion.create ~name:declared.name.txt ~env
+                 ~kind:(Type declared.item))
+              with
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !resultRev)
+      | None ->
+        Log.log
+          (Printf.sprintf "Completion Type Not Found %s loc:%s\n" name
+             (Loc.toString loc))
+  in
+  scope |> Scope.iterTypesBeforeFirstOpen processType;
+  let valuesFromOpens =
+    opens
+    |> List.fold_left
+         (fun results env ->
+           let completionsFromThisOpen =
+             findAllCompletions ~env ~prefix ~exact ~namesUsed
+               ~completionContext:Value
+           in
+           completionsFromThisOpen @ results)
+         []
+  in
+  scope |> Scope.iterTypesAfterFirstOpen processType;
+  List.rev_append !resultRev valuesFromOpens
+
+let findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope =
+  let modulesTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterModules (fun _ declared ->
+         Hashtbl.replace modulesTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let namesUsed = Hashtbl.create 10 in
+  let resultRev = ref [] in
+  let processModule name loc =
+    if checkName name ~prefix ~exact then
+      match Hashtbl.find_opt modulesTable (name, Loc.start loc) with
+      | Some declared ->
+        if not (Hashtbl.mem namesUsed name) then (
+          Hashtbl.add namesUsed name ();
+          resultRev :=
+            {
+              (Completion.create ~name:declared.name.txt ~env
+                 ~kind:(Module declared.item))
+              with
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !resultRev)
+      | None ->
+        Log.log
+          (Printf.sprintf "Completion Module Not Found %s loc:%s\n" name
+             (Loc.toString loc))
+  in
+  scope |> Scope.iterModulesBeforeFirstOpen processModule;
+  let valuesFromOpens =
+    opens
+    |> List.fold_left
+         (fun results env ->
+           let completionsFromThisOpen =
+             findAllCompletions ~env ~prefix ~exact ~namesUsed
+               ~completionContext:Value
+           in
+           completionsFromThisOpen @ results)
+         []
+  in
+  scope |> Scope.iterModulesAfterFirstOpen processModule;
+  List.rev_append !resultRev valuesFromOpens
+
 let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ~scope ~(completionContext : PartialParser.completionContext) =
   Log.log
     ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
    ^ Pos.toString pos);
-  if completionContext = Value then
+  match completionContext with
+  | Value ->
     findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
       ~scope
-  else
-    localCompletionsForModules ~pos ~env ~prefix ~exact
-    @ localCompletionsForTypes ~pos ~env ~prefix ~exact
+  | Type -> findLocalCompletionsForTypes ~env ~prefix ~exact ~opens ~scope
+  | Module -> findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope
+  | Field ->
+    (* There's no local completion for fields *)
+    []
 
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
