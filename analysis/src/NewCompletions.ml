@@ -794,26 +794,6 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let prioritize ~exact ~pos completions =
-  if exact then
-    (* Heuristic to approximate scope when an exact name is required and there could
-        be more than one instance of that name.
-       Take the last position before pos if any, or just return the first element. *)
-    let rec loop decls =
-      match decls with
-      | d1 :: d2 :: rest ->
-        let pos2 = d2.Completion.extentLoc.loc_start |> Pos.ofLexing in
-        if pos2 >= pos then loop (d1 :: rest)
-        else
-          let pos1 = d1.extentLoc.loc_start |> Pos.ofLexing in
-          if pos1 <= pos2 then loop (d2 :: rest) else loop (d1 :: rest)
-      | [] | [_] -> decls
-    in
-    loop completions
-  else completions
-
-let postProcess ~pos ~exact completions = completions |> prioritize ~exact ~pos
-
 let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
   match path with
@@ -837,7 +817,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
                     ~kind:(Completion.FileModule name))
              else None)
     in
-    localCompletionsPlusOpens @ fileModules |> postProcess ~pos ~exact
+    localCompletionsPlusOpens @ fileModules
   | _ -> (
     Log.log ("Path " ^ pathToString path);
     match getEnvWithOpens ~pos ~env ~package ~opens path with
@@ -845,7 +825,6 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
       Log.log "Got the env";
       let namesUsed = Hashtbl.create 10 in
       findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
-      |> postProcess ~pos ~exact
     | None -> [])
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
