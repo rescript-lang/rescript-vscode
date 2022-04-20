@@ -633,37 +633,6 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     completionForExportedModules ~env ~prefix ~exact ~namesUsed
     @ completionForExportedFields ~env ~prefix ~exact ~namesUsed
 
-let completionsForDeclareds ~pos ~iter ~stamps ~prefix ~exact ~env
-    transformContents =
-  (* Log.log("completion for declares " ++ prefix); *)
-  let res = ref [] in
-  iter
-    (fun _stamp (declared : _ Declared.t) ->
-      if
-        checkName declared.name.txt ~prefix ~exact
-        && Utils.locationContainsFuzzy declared.scopeLoc pos
-      then
-        res :=
-          {
-            (Completion.create ~name:declared.name.txt ~env
-               ~kind:(transformContents declared.item))
-            with
-            deprecated = declared.deprecated;
-            docstring = declared.docstring;
-          }
-          :: !res)
-    stamps;
-  !res
-
-let localCompletionsForModules ~pos ~env ~prefix ~exact =
-  completionsForDeclareds ~env ~pos ~iter:Stamps.iterModules
-    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
-      Completion.Module m)
-
-let localCompletionsForTypes ~pos ~env ~prefix ~exact =
-  completionsForDeclareds ~env ~pos ~iter:Stamps.iterTypes
-    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m -> Completion.Type m)
-
 let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
     ~scope =
   let valueTable = Hashtbl.create 10 in

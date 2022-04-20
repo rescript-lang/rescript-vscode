@@ -42,13 +42,6 @@ let rec find fn items =
   | one :: rest -> (
     match fn one with None -> find fn rest | Some x -> Some x)
 
-(**
-  Check if pos is within the location, but be fuzzy about when the location ends.
-  If it's within 5 lines, go with it.
-*)
-let locationContainsFuzzy loc (l, c) =
-  Loc.start loc <= (l, c) && Loc.end_ loc >= (l - 5, c)
-
 let filterMap f =
   let rec aux accu = function
     | [] -> List.rev accu
