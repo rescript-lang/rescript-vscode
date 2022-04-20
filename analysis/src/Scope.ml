@@ -24,5 +24,53 @@ let addOpen ~lid x = Open (Utils.flattenLongIdent lid @ ["place holder"]) :: x
 let addValue ~name ~loc x = Value (name, loc) :: x
 let addType ~name ~loc x = Type (name, loc) :: x
 
+let iterValuesBeforeFirstOpen f x =
+  let rec loop items =
+    match items with
+    | Value (s, loc) :: rest ->
+      f s loc;
+      loop rest
+    | Open _ :: _ -> ()
+    | _ :: rest -> loop rest
+    | [] -> ()
+  in
+  loop x
+
+let iterConstructorsBeforeFirstOpen f x =
+  let rec loop items =
+    match items with
+    | Constructor (s, loc) :: rest ->
+      f s loc;
+      loop rest
+    | Open _ :: _ -> ()
+    | _ :: rest -> loop rest
+    | [] -> ()
+  in
+  loop x
+
+let iterValuesAfterFirstOpen f x =
+  let rec loop foundOpen items =
+    match items with
+    | Value (s, loc) :: rest ->
+      if foundOpen then f s loc;
+      loop foundOpen rest
+    | Open _ :: rest -> loop true rest
+    | _ :: rest -> loop foundOpen rest
+    | [] -> ()
+  in
+  loop false x
+
+let iterConstructorsAfterFirstOpen f x =
+  let rec loop foundOpen items =
+    match items with
+    | Constructor (s, loc) :: rest ->
+      if foundOpen then f s loc;
+      loop foundOpen rest
+    | Open _ :: rest -> loop true rest
+    | _ :: rest -> loop foundOpen rest
+    | [] -> ()
+  in
+  loop false x
+
 let getRawOpens x =
   x |> Utils.filterMap (function Open path -> Some path | _ -> None)

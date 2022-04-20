@@ -1186,13 +1186,7 @@ Complete tests/src/Completion.res 166:3
 posCursor:[167:4] posNoWhite:[167:3] Found expr:[167:1->167:4]
 Pexp_ident sha:[167:1->167:4]
 Completable: Cpath Value[sha]
-[{
-    "label": "shadowed",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+[]
 
 Complete tests/src/Completion.res 168:3
 posCursor:[169:4] posNoWhite:[169:3] Found expr:[169:1->169:4]

@@ -654,27 +654,68 @@ let localCompletionsForModules ~pos ~env ~prefix ~exact =
     ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
       Completion.Module m)
 
-let localCompletionsForValues ~pos ~env ~prefix ~exact =
-  completionsForDeclareds ~env ~pos ~iter:Stamps.iterValues
-    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m ->
-      Completion.Value m)
-
 let localCompletionsForTypes ~pos ~env ~prefix ~exact =
   completionsForDeclareds ~env ~pos ~iter:Stamps.iterTypes
     ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun m -> Completion.Type m)
 
-let localCompletionsForConstructors ~pos ~env ~prefix ~exact =
-  completionsForDeclareds ~env ~pos ~iter:Stamps.iterConstructors
-    ~stamps:env.QueryEnv.file.stamps ~prefix ~exact (fun c ->
-      Completion.Constructor
-        (c, snd c.typeDecl |> Shared.declToString (fst c.typeDecl)))
-
-let findLocalCompletionsForValues ~pos ~env ~prefix ~exact ~opens ~scope =
-  let completions =
-    localCompletionsForValues ~pos ~env ~prefix ~exact
-    @ localCompletionsForConstructors ~pos ~env ~prefix ~exact
-  in
+let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
+    ~scope =
+  let valueTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterValues (fun _ declared ->
+         Hashtbl.replace valueTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let constructorTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterConstructors (fun _ declared ->
+         Hashtbl.replace constructorTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
   let namesUsed = Hashtbl.create 10 in
+  let resultRev = ref [] in
+  let processValue name loc =
+    if checkName name ~prefix ~exact then
+      match Hashtbl.find_opt valueTable (name, Loc.start loc) with
+      | Some declared ->
+        if not (Hashtbl.mem namesUsed name) then (
+          Hashtbl.add namesUsed name ();
+          resultRev :=
+            {
+              (Completion.create ~name:declared.name.txt ~env
+                 ~kind:(Value declared.item))
+              with
+              extentLoc = declared.extentLoc;
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !resultRev)
+      | None -> Printf.printf "XXX NotFound %s loc:%s\n" name (Loc.toString loc)
+  in
+  let processConstructor name loc =
+    if checkName name ~prefix ~exact then
+      match Hashtbl.find_opt constructorTable (name, Loc.start loc) with
+      | Some declared ->
+        if not (Hashtbl.mem namesUsed name) then (
+          Hashtbl.add namesUsed name ();
+          resultRev :=
+            {
+              (Completion.create ~name:declared.name.txt ~env
+                 ~kind:
+                   (Constructor
+                      ( declared.item,
+                        snd declared.item.typeDecl
+                        |> Shared.declToString (fst declared.item.typeDecl) )))
+              with
+              extentLoc = declared.extentLoc;
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !resultRev)
+      | None -> Printf.printf "XXX NotFound %s loc:%s\n" name (Loc.toString loc)
+  in
+  scope |> Scope.iterValuesBeforeFirstOpen processValue;
+  scope |> Scope.iterConstructorsBeforeFirstOpen processConstructor;
   let valuesFromOpens =
     opens
     |> List.fold_left
@@ -685,7 +726,9 @@ let findLocalCompletionsForValues ~pos ~env ~prefix ~exact ~opens ~scope =
            completionsFromThisOpen @ results)
          []
   in
-  completions @ valuesFromOpens
+  scope |> Scope.iterValuesAfterFirstOpen processValue;
+  scope |> Scope.iterConstructorsAfterFirstOpen processConstructor;
+  List.rev_append !resultRev valuesFromOpens
 
 let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ~scope ~(completionContext : PartialParser.completionContext) =
@@ -693,7 +736,8 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
    ^ Pos.toString pos);
   if completionContext = Value then
-    findLocalCompletionsForValues ~pos ~env ~prefix ~exact ~opens ~scope
+    findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
+      ~scope
   else
     localCompletionsForModules ~pos ~env ~prefix ~exact
     @ localCompletionsForTypes ~pos ~env ~prefix ~exact
