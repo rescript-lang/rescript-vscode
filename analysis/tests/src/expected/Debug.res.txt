@@ -74,7 +74,7 @@ resolvePath path:Js.place holder
 fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/js.cmt res:tests/node_modules/rescript/lib/ocaml/js.ml
 resolvePath path:place holder
 Opens nows 2 pervasives.mli js.ml
-findLocalCompletionsPlusOpens uri:Debug.res pos:13:4
+findLocalCompletionsWithOpens uri:Debug.res pos:13:4
 findAllCompletions uri:js.ml
 findAllCompletions uri:pervasives.mli
 [{

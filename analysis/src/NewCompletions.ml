@@ -657,10 +657,10 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   @ completionForExportedTypes ~env ~prefix ~exact
   @ completionForExportedFields ~env ~prefix ~exact
 
-let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
+let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ~(completionContext : PartialParser.completionContext) =
   Log.log
-    ("findLocalCompletionsPlusOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
+    ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
    ^ Pos.toString pos);
   if completionContext = Value then
     let completions =
@@ -775,7 +775,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
   | [] -> []
   | [prefix] ->
     let localCompletionsPlusOpens =
-      findLocalCompletionsPlusOpens ~pos ~env ~prefix ~exact ~opens
+      findLocalCompletionsWithOpens ~pos ~env ~prefix ~exact ~opens
         ~completionContext
     in
     let fileModules =
