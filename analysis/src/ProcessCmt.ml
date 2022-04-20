@@ -1,26 +1,6 @@
 open Typedtree
 open SharedTypes
 
-let locsExtent locs =
-  let locs = locs |> List.filter (fun loc -> not loc.Location.loc_ghost) in
-  (* This filters out ghost locs, but still assumes positions are ordered.
-     Perhaps compute min/max. *)
-  match locs with
-  | [] -> Location.none
-  | first :: _ ->
-    let last = List.nth locs (List.length locs - 1) in
-    let first, last =
-      if first.loc_start.pos_cnum < last.loc_start.pos_cnum then (first, last)
-      else (last, first)
-    in
-    {loc_ghost = true; loc_start = first.loc_start; loc_end = last.loc_end}
-
-let impItemsExtent items =
-  items |> List.map (fun item -> item.Typedtree.str_loc) |> locsExtent
-
-let sigItemsExtent items =
-  items |> List.map (fun item -> item.Typedtree.sig_loc) |> locsExtent
-
 let addItem ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t) ~item
     attributes addExported addStamp =
   let isExported = addExported name.txt stamp in
@@ -649,7 +629,6 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
 module F (Collector : sig
   val extra : extra
   val file : File.t
-  val scopeExtent : Location.t list ref
 end) =
 struct
   let extra = Collector.extra
@@ -828,13 +807,6 @@ struct
       addLocItem extra nameLoc (Typed (name, constructorType, locType))
     | _ -> ()
 
-  let addScopeExtent loc =
-    Collector.scopeExtent := loc :: !Collector.scopeExtent
-
-  let popScopeExtent () =
-    if List.length !Collector.scopeExtent > 1 then
-      Collector.scopeExtent := List.tl !Collector.scopeExtent
-
   let rec lidIsComplex (lid : Longident.t) =
     match lid with
     | Lapply _ -> true
@@ -889,21 +861,6 @@ struct
       addForLongident None open_path txt loc;
       Hashtbl.replace Collector.extra.opens loc ()
     | _ -> ()
-
-  let enter_structure {str_items} =
-    if str_items <> [] then
-      let first = List.hd str_items in
-      let last = List.nth str_items (List.length str_items - 1) in
-      let extent =
-        {
-          Location.loc_ghost = true;
-          loc_start = first.str_loc.loc_start;
-          loc_end = last.str_loc.loc_end;
-        }
-      in
-      addScopeExtent extent
-
-  let leave_structure str = if str.str_items <> [] then popScopeExtent ()
 
   let enter_signature_item item =
     match item.sig_desc with
@@ -978,42 +935,14 @@ struct
       addForConstructor expression.exp_type lident constructor
     | Texp_field (inner, lident, _label_description) ->
       addForField inner.exp_type expression.exp_type lident
-    | Texp_let (_, _, _) ->
-      (* TODO this scope tracking won't work for recursive *)
-      addScopeExtent expression.exp_loc
-    | Texp_function {cases} -> (
-      match cases with
-      | [{c_lhs = {pat_desc = Tpat_var _}; c_rhs}] ->
-        addScopeExtent c_rhs.exp_loc
-      | _ -> ())
-    | _ -> ()
-
-  let leave_expression expression =
-    match expression.exp_desc with
-    | Texp_let (_isrec, _bindings, _expr) -> popScopeExtent ()
-    | Texp_function {cases} -> (
-      match cases with [_] -> popScopeExtent () | _ -> ())
     | _ -> ()
 end
 
 let extraForStructureItems ~(file : File.t)
     (items : Typedtree.structure_item list) parts =
   let extra = extraForFile ~file in
-  let extent = impItemsExtent items in
-  let extent =
-    {
-      extent with
-      loc_end =
-        {
-          extent.loc_end with
-          pos_lnum = extent.loc_end.pos_lnum + 1000000;
-          pos_cnum = extent.loc_end.pos_cnum + 100000000;
-        };
-    }
-  in
   (* TODO look through parts and extend the extent *)
   let module Iter = TypedtreeIter.MakeIterator (F (struct
-    let scopeExtent = ref [extent]
     let extra = extra
     let file = file
   end)) in
@@ -1034,21 +963,8 @@ let extraForStructureItems ~(file : File.t)
 let extraForSignatureItems ~(file : File.t)
     (items : Typedtree.signature_item list) parts =
   let extra = extraForFile ~file in
-  let extent = sigItemsExtent items in
-  let extent =
-    {
-      extent with
-      loc_end =
-        {
-          extent.loc_end with
-          pos_lnum = extent.loc_end.pos_lnum + 1000000;
-          pos_cnum = extent.loc_end.pos_cnum + 100000000;
-        };
-    }
-  in
   (* TODO look through parts and extend the extent *)
   let module Iter = TypedtreeIter.MakeIterator (F (struct
-    let scopeExtent = ref [extent]
     let extra = extra
     let file = file
   end)) in
