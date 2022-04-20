@@ -2,30 +2,12 @@ Definition tests/src/Jsx.res 5:9
 {"uri": "Jsx.res", "range": {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}}
 
 Complete tests/src/Jsx.res 7:2
-posCursor:[8:14] posNoWhite:[8:12] Found expr:[8:2->8:13]
+posCursor:[8:13] posNoWhite:[8:12] Found expr:[8:2->8:13]
 JSX <M:[8:2->8:3] second[8:4->8:10]=...[8:11->8:13]> _children:None
-posCursor:[8:14] posNoWhite:[8:12] Found expr:[8:11->8:13]
+posCursor:[8:13] posNoWhite:[8:12] Found expr:[8:11->8:13]
 Pexp_ident fi:[8:11->8:13]
-Completable: Cjsx([M], "", [second])
-[{
-    "label": "first",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
-    "label": "fun",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<string>",
-    "documentation": null
-  }, {
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+Completable: Cpath Value[fi]
+[]
 
 Complete tests/src/Jsx.res 9:2
 posCursor:[10:18] posNoWhite:[10:17] Found expr:[10:2->10:18]
@@ -48,34 +30,28 @@ Completable: Cjsx([M], f, [second, f])
   }]
 
 Complete tests/src/Jsx.res 11:2
-posCursor:[12:12] posNoWhite:[12:10] Found expr:[12:10->12:11]
+posCursor:[12:11] posNoWhite:[12:10] Found expr:[12:10->12:11]
 JSX <M:[12:10->12:11] > _children:None
-posCursor:[12:12] posNoWhite:[12:10] Found expr:[12:10->12:11]
+posCursor:[12:11] posNoWhite:[12:10] Found expr:[12:10->12:11]
 Pexp_ident M.createElement:[12:10->12:11]
-Completable: Cjsx([M], "", [])
+Completable: Cpath Module[M]
 [{
-    "label": "second",
-    "kind": 4,
+    "label": "M",
+    "kind": 9,
     "tags": [],
-    "detail": "option<string>",
+    "detail": "module",
     "documentation": null
   }, {
-    "label": "first",
-    "kind": 4,
+    "label": "Map",
+    "kind": 9,
     "tags": [],
-    "detail": "string",
+    "detail": "file module",
     "documentation": null
   }, {
-    "label": "fun",
-    "kind": 4,
+    "label": "MoreLabels",
+    "kind": 9,
     "tags": [],
-    "detail": "option<string>",
-    "documentation": null
-  }, {
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
+    "detail": "file module",
     "documentation": null
   }]
 
@@ -265,30 +241,12 @@ Completable: Cjsx([Ext], al, [al])
   }]
 
 Complete tests/src/Jsx.res 54:2
-posCursor:[55:10] posNoWhite:[55:8] Found expr:[55:2->55:9]
+posCursor:[55:9] posNoWhite:[55:8] Found expr:[55:2->55:9]
 JSX <M:[55:2->55:3] first[55:4->55:9]=...[55:4->55:9]> _children:None
-posCursor:[55:10] posNoWhite:[55:8] Found expr:[55:4->55:9]
+posCursor:[55:9] posNoWhite:[55:8] Found expr:[55:4->55:9]
 Pexp_ident first:[55:4->55:9]
-Completable: Cjsx([M], "", [first])
-[{
-    "label": "second",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<string>",
-    "documentation": null
-  }, {
-    "label": "fun",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<string>",
-    "documentation": null
-  }, {
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+Completable: Cjsx([M], first, [first])
+[]
 
 Complete tests/src/Jsx.res 56:2
 posCursor:[57:14] posNoWhite:[57:13] Found expr:[57:2->57:14]
@@ -330,22 +288,16 @@ Pexp_construct []:__ghost__[61:3->63:20] None
 []
 
 Complete tests/src/Jsx.res 68:2
-posCursor:[69:15] posNoWhite:[69:13] Found expr:[69:2->69:14]
+posCursor:[69:14] posNoWhite:[69:13] Found expr:[69:2->69:14]
 JSX <WithChildren:[69:2->69:14] > _children:None
-posCursor:[69:15] posNoWhite:[69:13] Found expr:[69:2->69:14]
+posCursor:[69:14] posNoWhite:[69:13] Found expr:[69:2->69:14]
 Pexp_ident WithChildren.createElement:[69:2->69:14]
-Completable: Cjsx([WithChildren], "", [])
+Completable: Cpath Module[WithChildren]
 [{
-    "label": "name",
-    "kind": 4,
+    "label": "WithChildren",
+    "kind": 9,
     "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
+    "detail": "module",
     "documentation": null
   }]
 
@@ -387,7 +339,7 @@ Completable: Cpath Type[ReactDOMR]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 77:3
+Complete tests/src/Jsx.res 77:5
 posCursor:[78:17] posNoWhite:[78:16] Found expr:[78:9->78:17]
 Pexp_apply ...[78:11->78:12] (...[78:9->78:10], ...[78:13->78:17])
 posCursor:[78:17] posNoWhite:[78:16] Found expr:[78:13->78:17]
@@ -428,4 +380,26 @@ Completable: Cpath Module[DefineSomeFields].th
     "detail": "thatField: string\n\ntype r = {thisField: int, thatField: string}",
     "documentation": null
   }]
+
+Complete tests/src/Jsx.res 95:5
+posCursor:[96:16] posNoWhite:[96:15] Found expr:[95:3->98:4]
+JSX <div:[95:3->95:6] x[96:1->96:2]=...[96:3->96:16] name[97:4->97:8]=...[97:9->97:11]> _children:98:2
+posCursor:[96:16] posNoWhite:[96:15] Found expr:[96:3->96:16]
+Pexp_ident Outer.Inner.h:[96:3->96:16]
+Completable: Cpath Value[Outer, Inner, h]
+[{
+    "label": "hello",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
+
+Complete tests/src/Jsx.res 101:5
+posCursor:[102:15] posNoWhite:[102:14] Found expr:[101:3->103:9]
+JSX <div:[101:3->101:6] x[102:1->102:2]=...[102:3->103:8]> _children:None
+posCursor:[102:15] posNoWhite:[102:14] Found expr:[102:3->103:8]
+Pexp_ident Outer.Inner.name:[102:3->103:8]
+Completable: Cpath Value[Outer, Inner, name]
+[]
 
