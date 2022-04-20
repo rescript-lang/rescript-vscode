@@ -649,8 +649,8 @@ let detail name (kind : Completion.kind) =
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
-let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
-  Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
+let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact =
+  Log.log ("findAllCompletions uri:" ^ Uri2.toString env.file.uri);
   completionForExportedModules ~env ~prefix ~exact
   @ completionsForConstructors ~env ~prefix ~exact
   @ completionForExportedValues ~env ~prefix ~exact
@@ -659,7 +659,9 @@ let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
 
 let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ~(completionContext : PartialParser.completionContext) =
-  Log.log "findLocalCompletionsPlusOpens";
+  Log.log
+    ("findLocalCompletionsPlusOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
+   ^ Pos.toString pos);
   if completionContext = Value then
     let completions =
       localCompletionsForValues ~pos ~env ~prefix ~exact
@@ -670,7 +672,9 @@ let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
       opens
       |> List.fold_left
            (fun results env ->
-             let completionsFromThisOpen = allCompletions ~env ~prefix ~exact in
+             let completionsFromThisOpen =
+               findAllCompletions ~env ~prefix ~exact
+             in
              List.filter
                (fun (declared : Completion.t) ->
                  if Hashtbl.mem namesUsed declared.name then
@@ -795,7 +799,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
     match getEnvWithOpens ~pos ~env ~package ~opens path with
     | Some (env, prefix) ->
       Log.log "Got the env";
-      allCompletions ~env ~prefix ~exact
+      findAllCompletions ~env ~prefix ~exact
       |> postProcess ~pos ~exact ~completionContext
     | None -> [])
 
