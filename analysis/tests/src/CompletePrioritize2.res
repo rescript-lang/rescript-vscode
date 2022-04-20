@@ -1,10 +1,12 @@
-let a = 4
-let _ = a
-let a = ""
-let _ = a
+let ax = 4
+let _ = ax
+let ax = ""
+let _ = ax
 module Test = {
   type t = {name: int}
-  let add = (a: t) => a.name + 1
+  let add = (ax: t) => ax.name + 1
 }
-let a: Test.t = {name: 4}
-//^com a->
+let ax: Test.t = {name: 4}
+//^com ax->
+
+//^com ax

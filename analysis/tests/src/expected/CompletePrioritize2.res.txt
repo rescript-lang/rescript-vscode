@@ -1,11 +1,41 @@
 Complete tests/src/CompletePrioritize2.res 8:2
-posCursor:[9:4] posNoWhite:[9:3] Found expr:[9:1->0:-1]
-Completable: Cpath Value[a]->
+posCursor:[9:5] posNoWhite:[9:4] Found expr:[9:1->0:-1]
+Completable: Cpath Value[ax]->
 [{
     "label": "Test.add",
     "kind": 12,
     "tags": [],
     "detail": "t => int",
+    "documentation": null
+  }]
+
+Complete tests/src/CompletePrioritize2.res 10:2
+posCursor:[11:3] posNoWhite:[11:2] Found expr:[11:1->11:3]
+Pexp_ident ax:[11:1->11:3]
+Completable: Cpath Value[ax]
+[{
+    "label": "ax",
+    "kind": 12,
+    "tags": [],
+    "detail": "Test.t",
+    "documentation": null
+  }, {
+    "label": "ax",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "ax",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "ax",
+    "kind": 12,
+    "tags": [],
+    "detail": "t",
     "documentation": null
   }]
 
