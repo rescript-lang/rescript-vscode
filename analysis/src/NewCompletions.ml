@@ -794,23 +794,6 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let filterCompletionKind ~(completionContext : PartialParser.completionContext)
-    {Completion.kind} =
-  match (completionContext, kind) with
-  | Module, (Module _ | FileModule _) -> true
-  | Module, _ -> false
-  | (Field | Type | Value), (Module _ | FileModule _) ->
-    (* M.field M.type M.value *)
-    true
-  | Value, (Value _ | Constructor _) ->
-    (* x Red *)
-    true
-  | Value, _ -> false
-  | Field, Field _ -> true
-  | Field, _ -> false
-  | Type, Type _ -> true
-  | Type, _ -> false
-
 let prioritize ~exact ~pos completions =
   if exact then
     (* Heuristic to approximate scope when an exact name is required and there could
@@ -829,10 +812,7 @@ let prioritize ~exact ~pos completions =
     loop completions
   else completions
 
-let postProcess ~pos ~exact ~completionContext completions =
-  completions
-  |> List.filter (filterCompletionKind ~completionContext)
-  |> prioritize ~exact ~pos
+let postProcess ~pos ~exact completions = completions |> prioritize ~exact ~pos
 
 let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
@@ -857,8 +837,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
                     ~kind:(Completion.FileModule name))
              else None)
     in
-    localCompletionsPlusOpens @ fileModules
-    |> postProcess ~pos ~exact ~completionContext
+    localCompletionsPlusOpens @ fileModules |> postProcess ~pos ~exact
   | _ -> (
     Log.log ("Path " ^ pathToString path);
     match getEnvWithOpens ~pos ~env ~package ~opens path with
@@ -866,7 +845,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
       Log.log "Got the env";
       let namesUsed = Hashtbl.create 10 in
       findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
-      |> postProcess ~pos ~exact ~completionContext
+      |> postProcess ~pos ~exact
     | None -> [])
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
