@@ -613,12 +613,6 @@ let completionForFields ~(env : QueryEnv.t) ~prefix ~exact =
       | _ -> ());
   !res
 
-(* Note: This is a hack. It will be wrong some times if you have a local thing
-   that overrides an open.
-
-   Maybe the way to fix it is to make note of what things in an open override
-   locally defined things...
-*)
 let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
     (path : string list) =
   match ProcessCmt.resolveFromStamps ~env ~path ~package ~pos with
@@ -692,9 +686,7 @@ let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     completions @ valuesFromOpens
   else
     localCompletionsForModules ~pos ~env ~prefix ~exact
-    @ completionsForConstructors ~env ~prefix ~exact
     @ localCompletionsForTypes ~pos ~env ~prefix ~exact
-    @ completionForFields ~env ~prefix ~exact
 
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
