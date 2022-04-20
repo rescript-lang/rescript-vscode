@@ -500,13 +500,15 @@ let checkName name ~prefix ~exact =
   if exact then name = prefix else Utils.startsWith name prefix
 
 let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
-    transformContents =
+    ~namesUsed transformContents =
   let res = ref [] in
   iterExported (fun name stamp ->
       (* Log.log("checking exported: " ++ name); *)
       if checkName name ~prefix ~exact then
         match getDeclared stamp with
-        | Some (declared : _ Declared.t) ->
+        | Some (declared : _ Declared.t)
+          when not (Hashtbl.mem namesUsed declared.name.txt) ->
+          Hashtbl.add namesUsed declared.name.txt ();
           res :=
             {
               (Completion.create ~name:declared.name.txt ~env
@@ -517,25 +519,25 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
               docstring = declared.docstring;
             }
             :: !res
-        | None -> ());
+        | _ -> ());
   !res
 
-let completionForExportedModules ~env ~prefix ~exact =
+let completionForExportedModules ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
-    (Stamps.findModule env.file.stamps) ~prefix ~exact ~env (fun m ->
+    (Stamps.findModule env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun m ->
       Completion.Module m)
 
-let completionForExportedValues ~env ~prefix ~exact =
+let completionForExportedValues ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
-    (Stamps.findValue env.file.stamps) ~prefix ~exact ~env (fun v ->
+    (Stamps.findValue env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun v ->
       Completion.Value v)
 
-let completionForExportedTypes ~env ~prefix ~exact =
+let completionForExportedTypes ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
-    (Stamps.findType env.file.stamps) ~prefix ~exact ~env (fun t ->
+    (Stamps.findType env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun t ->
       Completion.Type t)
 
-let completionsForConstructors ~(env : QueryEnv.t) ~prefix ~exact =
+let completionsForConstructors ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
@@ -544,16 +546,21 @@ let completionsForConstructors ~(env : QueryEnv.t) ~prefix ~exact =
           (constructors
           |> List.filter (fun c ->
                  checkName c.Constructor.cname.txt ~prefix ~exact)
-          |> List.map (fun c ->
-                 Completion.create ~name:c.Constructor.cname.txt ~env
-                   ~kind:
-                     (Completion.Constructor
-                        (c, t.item.decl |> Shared.declToString t.name.txt))))
+          |> Utils.filterMap (fun c ->
+                 let name = c.Constructor.cname.txt in
+                 if not (Hashtbl.mem namesUsed name) then
+                   let () = Hashtbl.add namesUsed name () in
+                   Some
+                     (Completion.create ~name ~env
+                        ~kind:
+                          (Completion.Constructor
+                             (c, t.item.decl |> Shared.declToString t.name.txt)))
+                 else None))
           @ !res
       | _ -> ());
   !res
 
-let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact =
+let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
@@ -561,11 +568,16 @@ let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact =
         res :=
           (fields
           |> List.filter (fun f -> checkName f.fname.txt ~prefix ~exact)
-          |> List.map (fun f ->
-                 Completion.create ~name:f.fname.txt ~env
-                   ~kind:
-                     (Completion.Field
-                        (f, t.item.decl |> Shared.declToString t.name.txt))))
+          |> Utils.filterMap (fun f ->
+                 let name = f.fname.txt in
+                 if not (Hashtbl.mem namesUsed name) then
+                   let () = Hashtbl.add namesUsed name () in
+                   Some
+                     (Completion.create ~name ~env
+                        ~kind:
+                          (Completion.Field
+                             (f, t.item.decl |> Shared.declToString t.name.txt)))
+                 else None))
           @ !res
       | _ -> ());
   !res
@@ -606,13 +618,13 @@ let detail name (kind : Completion.kind) =
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
-let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact =
+let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
   Log.log ("findAllCompletions uri:" ^ Uri2.toString env.file.uri);
-  completionForExportedModules ~env ~prefix ~exact
-  @ completionsForConstructors ~env ~prefix ~exact
-  @ completionForExportedValues ~env ~prefix ~exact
-  @ completionForExportedTypes ~env ~prefix ~exact
-  @ completionForExportedFields ~env ~prefix ~exact
+  completionForExportedModules ~env ~prefix ~exact ~namesUsed
+  @ completionsForConstructors ~env ~prefix ~exact ~namesUsed
+  @ completionForExportedValues ~env ~prefix ~exact ~namesUsed
+  @ completionForExportedTypes ~env ~prefix ~exact ~namesUsed
+  @ completionForExportedFields ~env ~prefix ~exact ~namesUsed
 
 let completionsForDeclareds ~pos ~iter ~stamps ~prefix ~exact ~env
     transformContents =
@@ -668,18 +680,9 @@ let findLocalCompletionsForValues ~pos ~env ~prefix ~exact ~opens ~scope =
     |> List.fold_left
          (fun results env ->
            let completionsFromThisOpen =
-             findAllCompletions ~env ~prefix ~exact
+             findAllCompletions ~env ~prefix ~exact ~namesUsed
            in
-           List.filter
-             (fun (completion : Completion.t) ->
-               if Hashtbl.mem namesUsed completion.name then
-                 (* shadowing from opens *)
-                 false
-               else (
-                 Hashtbl.add namesUsed completion.name true;
-                 true))
-             completionsFromThisOpen
-           @ results)
+           completionsFromThisOpen @ results)
          []
   in
   completions @ valuesFromOpens
@@ -802,7 +805,8 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     match getEnvWithOpens ~pos ~env ~package ~opens path with
     | Some (env, prefix) ->
       Log.log "Got the env";
-      findAllCompletions ~env ~prefix ~exact
+      let namesUsed = Hashtbl.create 10 in
+      findAllCompletions ~env ~prefix ~exact ~namesUsed
       |> postProcess ~pos ~exact ~completionContext
     | None -> [])
 
