@@ -271,10 +271,17 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     (line, max 0 col - offset + offsetNoWhite)
   in
   let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
-  let charBeforeCursor, charAtCursor =
+  let blankAfterCursor =
     match PartialParser.positionToOffset text posCursor with
-    | Some offset when offset > 0 -> (Some text.[offset - 1], Some text.[offset])
-    | _ -> (None, None)
+    | Some offset when offset > 0 -> (
+      let charBeforeCursor = text.[offset - 1] in
+      let charAtCursor =
+        if offset < String.length text then text.[offset] else '\n'
+      in
+      match charAtCursor with
+      | ' ' | '\t' | '\r' | '\n' -> Some charBeforeCursor
+      | _ -> None)
+    | _ -> None
   in
 
   let found = ref false in
@@ -472,17 +479,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             Printf.printf "Pexp_ident %s:%s\n"
               (Utils.flattenLongIdent id.txt |> String.concat ".")
               (Loc.toString id.loc);
-          let idBreaksUp =
-            charBeforeCursor = Some '.'
-            &&
-            match charAtCursor with
-            | Some (' ' | '\t' | '\n' | '\r') -> true
-            | _ -> false
-          in
           if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
             let path_ = id.txt |> Utils.flattenLongIdent in
             let path =
-              if idBreaksUp then (
+              if blankAfterCursor = Some '.' then (
                 (* Sometimes "Foo. " is followed by "bar" and the parser's
                    behaviour is to parse as "Foo.bar".
                    This gets back the intended path "Foo." *)
@@ -717,12 +717,16 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     in
     let {Res_driver.parsetree = str} = parser ~filename:currentFile in
     iterator.structure iterator str |> ignore;
+    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then
+      setResult (PartialParser.Cpath (CPId ([""], Value)));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else if Filename.check_suffix path ".resi" then (
     let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
     let {Res_driver.parsetree = signature} = parser ~filename:currentFile in
     iterator.signature iterator signature |> ignore;
+    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then
+      setResult (PartialParser.Cpath (CPId ([""], Type)));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else None
