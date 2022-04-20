@@ -793,7 +793,7 @@ let findLocalCompletionsForTypes ~env ~prefix ~exact ~opens ~scope =
          (fun results env ->
            let completionsFromThisOpen =
              findAllCompletions ~env ~prefix ~exact ~namesUsed
-               ~completionContext:Value
+               ~completionContext:Type
            in
            completionsFromThisOpen @ results)
          []
@@ -837,7 +837,7 @@ let findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope =
          (fun results env ->
            let completionsFromThisOpen =
              findAllCompletions ~env ~prefix ~exact ~namesUsed
-               ~completionContext:Value
+               ~completionContext:Module
            in
            completionsFromThisOpen @ results)
          []
