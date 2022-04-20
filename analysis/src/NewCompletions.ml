@@ -658,8 +658,8 @@ let allCompletions ~(env : QueryEnv.t) ~prefix ~exact =
   @ completionForFields ~env ~prefix ~exact
 
 let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
-    =
-  Log.log "---------------- LOCAL VAL";
+    ~(completionContext : PartialParser.completionContext) =
+  Log.log "findLocalCompletionsPlusOpens";
   let completions =
     localCompletionsForModules ~pos ~env ~prefix ~exact
     @ localCompletionsForConstructors ~env ~prefix ~exact
@@ -669,21 +669,23 @@ let findLocalCompletionsPlusOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
   in
   let namesUsed = Hashtbl.create 10 in
   let valuesFromOpens =
-    opens
-    |> List.fold_left
-         (fun results env ->
-           let completionsFromThisOpen = allCompletions ~env ~prefix ~exact in
-           List.filter
-             (fun (declared : Completion.t) ->
-               if Hashtbl.mem namesUsed declared.name then
-                 (* shadowing from opens *)
-                 false
-               else (
-                 Hashtbl.add namesUsed declared.name true;
-                 true))
-             completionsFromThisOpen
-           @ results)
-         []
+    if completionContext = Value then
+      opens
+      |> List.fold_left
+           (fun results env ->
+             let completionsFromThisOpen = allCompletions ~env ~prefix ~exact in
+             List.filter
+               (fun (declared : Completion.t) ->
+                 if Hashtbl.mem namesUsed declared.name then
+                   (* shadowing from opens *)
+                   false
+                 else (
+                   Hashtbl.add namesUsed declared.name true;
+                   true))
+               completionsFromThisOpen
+             @ results)
+           []
+    else []
   in
   completions @ valuesFromOpens
 
@@ -771,6 +773,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
   | [prefix] ->
     let localCompletionsPlusOpens =
       findLocalCompletionsPlusOpens ~pos ~env ~prefix ~exact ~opens
+        ~completionContext
     in
     let fileModules =
       allFiles |> FileSet.elements
