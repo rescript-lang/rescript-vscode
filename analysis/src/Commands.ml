@@ -280,6 +280,17 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       match x with None -> () | Some x -> result := Some (x, !scope)
   in
   let setResult x = setResultOpt (Some x) in
+  let scopeValueDescription (vd : Parsetree.value_description) =
+    scope := !scope |> Scope.addValue vd.pval_name.txt vd.pval_loc
+  in
+  let scopeValueBinding (vb : Parsetree.value_binding) =
+    match vb.pvb_pat.ppat_desc with
+    | Ppat_var {txt; loc}
+    | Ppat_constraint ({ppat_desc = Ppat_var {txt; loc}}, _) ->
+      scope := !scope |> Scope.addValue txt loc
+    | _ -> ()
+  in
+
   let structure (iterator : Ast_iterator.iterator)
       (structure : Parsetree.structure) =
     let oldScope = !scope in
@@ -288,10 +299,18 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   in
   let structure_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.structure_item) =
+    let processed = ref false in
     (match item.pstr_desc with
     | Pstr_open {popen_lid} -> scope := !scope |> Scope.addModule popen_lid.txt
+    | Pstr_primitive vd -> scopeValueDescription vd
+    | Pstr_value (recFlag, bindings) ->
+      if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
+      bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
+      if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
+      processed := true
     | _ -> ());
-    Ast_iterator.default_iterator.structure_item iterator item
+    if not !processed then
+      Ast_iterator.default_iterator.structure_item iterator item
   in
   let signature (iterator : Ast_iterator.iterator)
       (signature : Parsetree.signature) =
@@ -303,6 +322,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       (item : Parsetree.signature_item) =
     (match item.psig_desc with
     | Psig_open {popen_lid} -> scope := !scope |> Scope.addModule popen_lid.txt
+    | Psig_value vd -> scopeValueDescription vd
     | _ -> ());
     Ast_iterator.default_iterator.signature_item iterator item
   in
@@ -353,6 +373,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in
   let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
+    let processed = ref false in
     let setFound () =
       found := true;
       if debug then
@@ -521,8 +542,16 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             | Some contextPath ->
               setResult (PartialParser.Cpath (CPObj (contextPath, label)))
             | None -> ())
+        | Pexp_let (recFlag, bindings, e) ->
+          let oldScope = !scope in
+          if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
+          bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
+          if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
+          iterator.expr iterator e;
+          processed := true;
+          scope := oldScope
         | _ -> ());
-      Ast_iterator.default_iterator.expr iterator expr
+      if not !processed then Ast_iterator.default_iterator.expr iterator expr
   in
   let typ (iterator : Ast_iterator.iterator) (core_type : Parsetree.core_type) =
     if core_type.ptyp_loc |> Loc.hasPos ~pos:posNoWhite then (
@@ -603,25 +632,6 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     !result)
   else None
 
-let getOpens ~rawOpens ~package ~env =
-  Log.log
-    ("Opens folkz > "
-    ^ string_of_int (List.length rawOpens)
-    ^ " "
-    ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let packageOpens = "Pervasives" :: package.opens in
-  Log.log ("Package opens " ^ String.concat " " packageOpens);
-  let resolvedOpens = NewCompletions.resolveRawOpens ~env ~rawOpens ~package in
-  Log.log
-    ("Opens nows "
-    ^ string_of_int (List.length resolvedOpens)
-    ^ " "
-    ^ String.concat " "
-        (resolvedOpens
-        |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
-  (* Last open takes priority *)
-  List.rev resolvedOpens
-
 let completion ~debug ~path ~pos ~currentFile =
   let result =
     let textOpt = Files.readFile currentFile in
@@ -637,16 +647,14 @@ let completion ~debug ~path ~pos ~currentFile =
           if debug then
             Printf.printf "Completable: %s\n"
               (PartialParser.completableToString completable);
-          let rawOpens = Scope.getRawOpens scope in
           (* Only perform expensive ast operations if there are completables *)
           match Cmt.fromPath ~path with
           | None -> []
           | Some full ->
             let env = QueryEnv.fromFile full.file in
             let package = full.package in
-            let opens = getOpens ~rawOpens ~package ~env in
-            NewCompletions.computeCompletions ~completable ~package ~pos
-              ~rawOpens ~opens ~env)
+            NewCompletions.computeCompletions ~completable ~package ~pos ~scope
+              ~env)
       in
       completionItems
   in
