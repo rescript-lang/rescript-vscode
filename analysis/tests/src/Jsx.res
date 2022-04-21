@@ -98,10 +98,15 @@ let _ =
     name=""
   />
 
-
 let _ =
   <div
   // ^com x=Outer.Inner.
+    name=""  />
+
+
+let _ =
+  <div
+  // ^com x=
     name=""
   />
 
