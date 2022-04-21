@@ -25,6 +25,10 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
     | prop :: rest ->
       if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
         Some (PartialParser.Cjsx (jsxProps.componentPath, prop.name, allLabels))
+      else if
+        prop.posEnd <= posBeforeCursor
+        && posBeforeCursor < Loc.start prop.exp.pexp_loc
+      then None
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
       else loop rest
     | [] ->
@@ -99,7 +103,7 @@ let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
         ( PartialParser.positionToOffset text ePosStart,
           PartialParser.positionToOffset text ePosEnd )
       with
-      | Some offsetStart, Some offsetEnd ->
+      | Some offsetStart, Some offsetEnd when not eProp.pexp_loc.loc_ghost ->
         let label = String.sub text lastOffset (offsetStart - lastOffset) in
         let labelPos =
           match extractLabelPos ~pos:lastPos ~i:0 label with

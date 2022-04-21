@@ -396,11 +396,11 @@ Completable: Cpath Value[Outer, Inner, h]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 102:5
-posCursor:[103:15] posNoWhite:[103:14] Found expr:[102:3->104:9]
-JSX <div:[102:3->102:6] x[103:1->103:2]=...[103:3->104:8]> _children:None
-posCursor:[103:15] posNoWhite:[103:14] Found expr:[103:3->104:8]
-Pexp_ident Outer.Inner.name:[103:3->104:8]
+Complete tests/src/Jsx.res 101:5
+posCursor:[102:15] posNoWhite:[102:14] Found expr:[101:3->103:9]
+JSX <div:[101:3->101:6] x[102:1->102:2]=...[102:3->103:8]> _children:None
+posCursor:[102:15] posNoWhite:[102:14] Found expr:[102:3->103:8]
+Pexp_ident Outer.Inner.name:[102:3->103:8]
 Id breaks up. New path:Outer.Inner.
 Completable: Cpath Value[Outer, Inner, ""]
 [{
@@ -410,4 +410,9 @@ Completable: Cpath Value[Outer, Inner, ""]
     "detail": "int",
     "documentation": null
   }]
+
+Complete tests/src/Jsx.res 107:5
+posCursor:[108:3] posNoWhite:[108:2] Found expr:[107:3->109:9]
+JSX <div:[107:3->107:6] x[108:1->108:2]=...[109:4->109:8]> _children:None
+[]
 
