@@ -534,7 +534,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               let contextPath =
                 PartialParser.CPField
                   ( CPId (Utils.flattenLongIdent id, Module),
-                    if name = "$" then "" else name )
+                    if name = "_" then "" else name )
               in
               setResult (PartialParser.Cpath contextPath)
             | Lapply _ -> ()
