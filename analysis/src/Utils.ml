@@ -60,7 +60,7 @@ let flattenLongIdent ?(jsx = false) lid =
     | Ldot (lid, txt) ->
       let acc =
         if jsx && txt = "createElement" then acc
-        else if txt = "$" then "" :: acc
+        else if txt = "_" then "" :: acc
         else txt :: acc
       in
       loop acc lid

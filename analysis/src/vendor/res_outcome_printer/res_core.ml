@@ -660,7 +660,7 @@ let parseValuePath p =
       )
     | token ->
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      Longident.Ldot (path, "$")
+      Longident.Ldot (path, "_")
   in
   let ident = match p.Parser.token with
   | Lident ident -> Longident.Lident ident
@@ -692,7 +692,7 @@ let parseValuePathTail p startPos ident =
       loop p (Longident.Ldot (path, ident))
     | token ->
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      Location.mkloc (Longident.Ldot (path, "$")) (mkLoc startPos p.prevEndPos)
+      Location.mkloc (Longident.Ldot (path, "_")) (mkLoc startPos p.prevEndPos)
   in
   loop p ident
 
@@ -715,7 +715,7 @@ let parseModuleLongIdentTail ~lowercase p startPos ident =
       end
     | t ->
       Parser.err p (Diagnostics.uident t);
-      Location.mkloc (Longident.Ldot (acc, "$")) (mkLoc startPos p.prevEndPos)
+      Location.mkloc (Longident.Ldot (acc, "_")) (mkLoc startPos p.prevEndPos)
   in
   loop p ident
 
@@ -3539,9 +3539,8 @@ and parseValueOrConstructor p =
       Parser.next p;
       let loc = mkLoc startPos p.prevEndPos in
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      let lident = buildLongident ("$"::acc) in
+      let lident = buildLongident ("_"::acc) in
       Ast_helper.Exp.ident ~loc (Location.mkloc lident loc)
-      (* Recover.defaultExpr() *)
   in
   aux p []
 
