@@ -13,7 +13,7 @@ let completion ~debug ~path ~pos ~currentFile =
         | Some (completable, scope) -> (
           if debug then
             Printf.printf "Completable: %s\n"
-              (SharedTypes.completableToString completable);
+              (SharedTypes.Completable.toString completable);
           (* Only perform expensive ast operations if there are completables *)
           match Cmt.fromPath ~path with
           | None -> []

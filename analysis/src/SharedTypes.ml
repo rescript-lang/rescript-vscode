@@ -396,47 +396,49 @@ let locItemToString {loc = {Location.loc_start; loc_end}; locType} =
 (* needed for debugging *)
 let _ = locItemToString
 
-(* Completion context *)
-type completionContext = Type | Value | Module | Field
+module Completable = struct
+  (* Completion context *)
+  type completionContext = Type | Value | Module | Field
 
-type contextPath =
-  | CPString
-  | CPArray
-  | CPId of string list * completionContext
-  | CPField of contextPath * string
-  | CPObj of contextPath * string
-  | CPPipe of contextPath * string
+  type contextPath =
+    | CPString
+    | CPArray
+    | CPId of string list * completionContext
+    | CPField of contextPath * string
+    | CPObj of contextPath * string
+    | CPPipe of contextPath * string
 
-type completable =
-  | Cdecorator of string  (** e.g. @module *)
-  | Clabel of string list * string * string list
-      (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
-  | Cpath of contextPath
-  | Cjsx of string list * string * string list
-      (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
+  type t =
+    | Cdecorator of string  (** e.g. @module *)
+    | Clabel of string list * string * string list
+        (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
+    | Cpath of contextPath
+    | Cjsx of string list * string * string list
+        (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
 
-let completableToString =
-  let str s = if s = "" then "\"\"" else s in
-  let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
-  let completionContextToString = function
-    | Value -> "Value"
-    | Type -> "Type"
-    | Module -> "Module"
-    | Field -> "Field"
-  in
-  let rec contextPathToString = function
-    | CPString -> "string"
-    | CPArray -> "array"
-    | CPId (sl, completionContext) ->
-      completionContextToString completionContext ^ list sl
-    | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
-    | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
-    | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
-  in
-  function
-  | Cpath cp -> "Cpath " ^ contextPathToString cp
-  | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
-  | Clabel (sl1, s, sl2) ->
-    "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-  | Cjsx (sl1, s, sl2) ->
-    "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+  let toString =
+    let str s = if s = "" then "\"\"" else s in
+    let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
+    let completionContextToString = function
+      | Value -> "Value"
+      | Type -> "Type"
+      | Module -> "Module"
+      | Field -> "Field"
+    in
+    let rec contextPathToString = function
+      | CPString -> "string"
+      | CPArray -> "array"
+      | CPId (sl, completionContext) ->
+        completionContextToString completionContext ^ list sl
+      | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
+      | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
+      | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
+    in
+    function
+    | Cpath cp -> "Cpath " ^ contextPathToString cp
+    | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
+    | Clabel (sl1, s, sl2) ->
+      "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+    | Cjsx (sl1, s, sl2) ->
+      "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+end

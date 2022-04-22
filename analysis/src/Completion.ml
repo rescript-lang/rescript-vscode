@@ -47,7 +47,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
     match props with
     | prop :: rest ->
       if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
-        Some (Cjsx (jsxProps.componentPath, prop.name, allLabels))
+        Some (Completable.Cjsx (jsxProps.componentPath, prop.name, allLabels))
       else if
         prop.posEnd <= posBeforeCursor
         && posBeforeCursor < Loc.start prop.exp.pexp_loc
@@ -183,7 +183,7 @@ let findExpApplyCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       if
         labelled.posStart <= posBeforeCursor
         && posBeforeCursor < labelled.posEnd
-      then Some (Clabel (funPath, labelled.name, allNames))
+      then Some (Completable.Clabel (funPath, labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
       else loop rest
     | {label = None; exp} :: rest ->
@@ -266,7 +266,7 @@ let extractExpApplyArgs ~text ~(funName : Longident.t Location.loc) ~args =
 
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
-  | Pexp_constant (Pconst_string _) -> Some CPString
+  | Pexp_constant (Pconst_string _) -> Some Completable.CPString
   | Pexp_array _ -> Some CPArray
   | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
   | Pexp_field (e1, {txt = Lident name}) -> (
@@ -459,7 +459,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         if debug then
           Printf.printf "Attribute id:%s:%s label:%s\n" id.txt
             (Loc.toString id.loc) label;
-        setResult (Cdecorator label)
+        setResult (Completable.Cdecorator label)
       | _ -> ());
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in
@@ -540,13 +540,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             | Lident name -> (
               match exprToContextPath e with
               | Some contextPath ->
-                let contextPath = CPField (contextPath, name) in
+                let contextPath = Completable.CPField (contextPath, name) in
                 setResult (Cpath contextPath)
               | None -> ())
             | Ldot (id, name) ->
               (* Case x.M.field ignore the x part *)
               let contextPath =
-                CPField
+                Completable.CPField
                   ( CPId (Utils.flattenLongIdent id, Module),
                     if name = "_" then "" else name )
               in
