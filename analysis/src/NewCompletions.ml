@@ -665,7 +665,7 @@ let detail name (kind : Completion.kind) =
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
-    ~(completionContext : PartialParser.completionContext) =
+    ~(completionContext : completionContext) =
   Log.log ("findAllCompletions uri:" ^ Uri2.toString env.file.uri);
   match completionContext with
   | Value ->
@@ -846,7 +846,7 @@ let findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope =
   List.rev_append !resultRev valuesFromOpens
 
 let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
-    ~scope ~(completionContext : PartialParser.completionContext) =
+    ~scope ~(completionContext : completionContext) =
   (* TODO: handle arbitrary interleaving of opens and local bindings correctly *)
   Log.log
     ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
@@ -963,7 +963,7 @@ let completionsGetTypeEnv = function
   | _ -> None
 
 let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-    ~env ~exact ~scope (contextPath : PartialParser.contextPath) =
+    ~env ~exact ~scope (contextPath : contextPath) =
   match contextPath with
   | CPString ->
     [
@@ -1114,8 +1114,8 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
           in
           let completions =
             modulePath @ [funNamePrefix]
-            |> getCompletionsForPath ~completionContext:PartialParser.Value
-                 ~exact:false ~package ~opens ~allFiles ~pos ~env ~scope
+            |> getCompletionsForPath ~completionContext:Value ~exact:false
+                 ~package ~opens ~allFiles ~pos ~env ~scope
           in
           completions
           |> List.map (fun (completion : Completion.t) ->
@@ -1148,15 +1148,14 @@ let getOpens ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
-let processCompletable ~package ~scope ~env ~pos
-    (completable : PartialParser.completable) =
+let processCompletable ~package ~scope ~env ~pos (completable : completable) =
   let rawOpens = Scope.getRawOpens scope in
   let opens = getOpens ~rawOpens ~package ~env in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let findTypeOfValue path =
     path
-    |> getCompletionsForPath ~completionContext:PartialParser.Value ~exact:true
-         ~package ~opens ~allFiles ~pos ~env ~scope
+    |> getCompletionsForPath ~completionContext:Value ~exact:true ~package
+         ~opens ~allFiles ~pos ~env ~scope
     |> completionsGetTypeEnv
   in
   match completable with
@@ -1307,6 +1306,5 @@ let processCompletable ~package ~scope ~env ~pos
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
 
-let computeCompletions ~(completable : PartialParser.completable) ~package ~pos
-    ~scope ~env =
+let computeCompletions ~(completable : completable) ~package ~pos ~scope ~env =
   completable |> processCompletable ~package ~scope ~env ~pos
