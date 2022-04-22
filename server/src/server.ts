@@ -430,6 +430,15 @@ function semanticTokens(msg: p.RequestMessage) {
 function completion(msg: p.RequestMessage) {
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  if (extension !== c.resExt && extension !== c.resiExt) {
+    // Can be called on renamed extension after rename
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: null,
+    };
+  }
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
