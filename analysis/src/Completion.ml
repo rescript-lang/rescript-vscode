@@ -264,20 +264,20 @@ let extractExpApplyArgs ~text ~(funName : Longident.t Location.loc) ~args =
   in
   args |> processArgs ~lastOffset ~lastPos ~acc:[]
 
-let rec exporToContextPath (e : Parsetree.expression) =
+let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some CPString
   | Pexp_array _ -> Some CPArray
   | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
   | Pexp_field (e1, {txt = Lident name}) -> (
-    match exporToContextPath e1 with
+    match exprToContextPath e1 with
     | Some contextPath -> Some (CPField (contextPath, name))
     | _ -> None)
   | Pexp_field (_, {txt = Ldot (lid, name)}) ->
     (* Case x.M.field ignore the x part *)
     Some (CPField (CPId (Utils.flattenLongIdent lid, Module), name))
   | Pexp_send (e1, {txt}) -> (
-    match exporToContextPath e1 with
+    match exprToContextPath e1 with
     | None -> None
     | Some contexPath -> Some (CPObj (contexPath, txt)))
   | _ -> None
@@ -473,7 +473,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (Loc.toString expr.pexp_loc)
     in
     let setPipeResult ~(lhs : Parsetree.expression) ~id =
-      match exporToContextPath lhs with
+      match exprToContextPath lhs with
       | Some pipe ->
         setResult (Cpath (CPPipe (pipe, id)));
         true
@@ -538,7 +538,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           if fieldName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             match fieldName.txt with
             | Lident name -> (
-              match exporToContextPath e with
+              match exprToContextPath e with
               | Some contextPath ->
                 let contextPath = CPField (contextPath, name) in
                 setResult (Cpath contextPath)
@@ -553,7 +553,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               setResult (Cpath contextPath)
             | Lapply _ -> ()
           else if Loc.end_ e.pexp_loc = posBeforeCursor then
-            match exporToContextPath e with
+            match exprToContextPath e with
             | Some contextPath -> setResult (Cpath (CPField (contextPath, "")))
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
@@ -641,7 +641,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             labelRange |> Range.hasPos ~pos:posBeforeCursor
             || (label = "" && posCursor = fst labelRange)
           then
-            match exporToContextPath lhs with
+            match exprToContextPath lhs with
             | Some contextPath -> setResult (Cpath (CPObj (contextPath, label)))
             | None -> ())
         | Pexp_let (recFlag, bindings, e) ->
