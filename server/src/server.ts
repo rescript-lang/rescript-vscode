@@ -379,8 +379,16 @@ function documentSymbol(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
   let params = msg.params as p.DocumentSymbolParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let code = getOpenedFileContent(params.textDocument.uri);
   let extension = path.extname(params.textDocument.uri);
+  if (extension !== c.resExt && extension !== c.resiExt) {
+    // Can be called on renamed extension after rename
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: null,
+    };
+  }
+  let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = utils.runAnalysisCommand(
@@ -397,8 +405,16 @@ function semanticTokens(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens
   let params = msg.params as p.SemanticTokensParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let code = getOpenedFileContent(params.textDocument.uri);
   let extension = path.extname(params.textDocument.uri);
+  if (extension !== c.resExt && extension !== c.resiExt) {
+    // Can be called on renamed extension after rename
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: null,
+    };
+  }
+  let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = utils.runAnalysisCommand(
