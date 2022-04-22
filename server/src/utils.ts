@@ -106,19 +106,18 @@ export let formatCode = (filePath: string, code: string): execResult => {
 
     // Default to using the project formatter. If not, use the one we ship with
     // the analysis binary in the extension itself.
-    // if (bscNativePath != null) {
-    //   let result = childProcess.execFileSync(bscNativePath, [
-    //     "-color",
-    //     "never",
-    //     "-format",
-    //     formatTempFileFullPath,
-    //   ]);
-    //   return {
-    //     kind: "success",
-    //     result: result.toString(),
-    //   };
-    // } else
-    {
+    if (bscNativePath != null) {
+      let result = childProcess.execFileSync(bscNativePath, [
+        "-color",
+        "never",
+        "-format",
+        formatTempFileFullPath,
+      ]);
+      return {
+        kind: "success",
+        result: result.toString(),
+      };
+    } else {
       let result = runAnalysisAfterSanityCheck(
         formatTempFileFullPath,
         ["format", formatTempFileFullPath],
@@ -128,9 +127,9 @@ export let formatCode = (filePath: string, code: string): execResult => {
       // The formatter returning an empty string means it couldn't format the
       // sources, probably because of errors. In that case, we bail from
       // formatting by returning the unformatted content.
-      // if (result === "") {
-      //   result = code;
-      // }
+      if (result === "") {
+        result = code;
+      }
 
       return {
         kind: "success",
