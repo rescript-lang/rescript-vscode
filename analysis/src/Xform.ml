@@ -1,15 +1,14 @@
 (** Code transformations using the parser/printer and ast operations *)
 
 let isBracedExpr = Res_parsetree_viewer.isBracedExpr
-let posInLoc ~pos ~loc = Loc.start loc <= pos && pos < Loc.end_ loc
 
-let mkPosition (p : Lexing.position) =
-  let line, character = Pos.ofLexing p in
+let mkPosition (pos : Pos.t) =
+  let line, character = pos in
   {Protocol.line; character}
 
 let rangeOfLoc (loc : Location.t) =
-  let start = mkPosition loc.loc_start in
-  let end_ = mkPosition loc.loc_end in
+  let start = loc |> Loc.start |> mkPosition in
+  let end_ = loc |> Loc.end_ |> mkPosition in
   {Protocol.start; end_}
 
 module IfThenElse = struct
@@ -68,7 +67,7 @@ module IfThenElse = struct
               },
               e1,
               Some e2 )
-          when posInLoc ~pos ~loc:e.pexp_loc -> (
+          when Loc.hasPos ~pos e.pexp_loc -> (
           let e1, e2 = if op = "=" then (e1, e2) else (e2, e1) in
           let mkMatch ~arg ~pat =
             let cases =
@@ -144,7 +143,7 @@ module AddBracesToFn = struct
       in
       (match e.pexp_desc with
       | Pexp_fun (_, _, _, bodyExpr)
-        when posInLoc ~pos ~loc:bodyExpr.pexp_loc
+        when Loc.hasPos ~pos bodyExpr.pexp_loc
              && isBracedExpr bodyExpr = false
              && isFunction bodyExpr = false ->
         bodyExpr.pexp_attributes <- bracesAttribute :: bodyExpr.pexp_attributes;
@@ -170,7 +169,7 @@ module AddTypeAnnotation = struct
   let mkIterator ~pos ~result =
     let processPattern ?(isUnlabeledOnlyArg = false) (pat : Parsetree.pattern) =
       match pat.ppat_desc with
-      | Ppat_var {loc} when posInLoc ~pos ~loc ->
+      | Ppat_var {loc} when Loc.hasPos ~pos loc ->
         result := Some (if isUnlabeledOnlyArg then WithParens else Plain)
       | _ -> ()
     in
@@ -259,7 +258,7 @@ let parse ~filename =
   let filterComments ~loc comments =
     (* Relevant comments in the range of the expression *)
     let filter comment =
-      posInLoc ~pos:(Loc.start (Res_comment.loc comment)) ~loc
+      Loc.hasPos ~pos:(Loc.start (Res_comment.loc comment)) loc
     in
     comments |> List.filter filter
   in
