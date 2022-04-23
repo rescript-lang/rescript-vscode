@@ -123,3 +123,65 @@ let foo = {
 }
 
 exception MyOtherException
+
+// ^com <O.
+
+type aa= {x:int, name:string}
+type bb = {aa:aa, w:int}
+let q:bb = assert false
+// ^com q.aa.
+// ^com q.aa.n
+
+// ^com Lis
+
+module WithChildren = {
+  @react.component
+  let make = (~children, ~name as _: string) => <jsx> children </jsx>
+}
+// ^com <WithChildren 
+
+// ^com type t = Js.n
+// ^com type t = ForAuto.
+
+type z = | Allo | Asterix | Baba
+
+// ^com let q = As
+
+// ^com module M = For
+
+module Private = {
+  %%private(let awr = 3)
+  let b = awr
+}
+
+// ^com Private.
+
+module Shadow = {
+  module A = {
+    let shadowed = 3
+  }
+  module B = {
+    let shadowed = ""
+  }
+}
+
+// ^com sha
+open Shadow.A
+// ^com sha
+open Shadow.B
+// ^com sha
+let _ = shadowed
+
+module FAR = {
+  type forAutoRecord = {forAuto: ForAuto.t, something: option<int>}
+  let forAutoRecord: forAutoRecord = assert false
+}
+
+module FAO = {
+  let forAutoObject = {"forAutoLabel": FAR.forAutoRecord, "age": 32}
+}
+
+// ^com FAO.forAutoObject["
+// ^com FAO.forAutoObject["forAutoLabel"].
+// ^com FAO.forAutoObject["forAutoLabel"].forAuto->
+// ^com FAO.forAutoObject["forAutoLabel"].forAuto->ForAuto.a

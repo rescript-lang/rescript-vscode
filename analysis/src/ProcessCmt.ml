@@ -1,38 +1,12 @@
 open Typedtree
 open SharedTypes
 
-let locsExtent locs =
-  let locs = locs |> List.filter (fun loc -> not loc.Location.loc_ghost) in
-  (* This filters out ghost locs, but still assumes positions are ordered.
-     Perhaps compute min/max. *)
-  match locs with
-  | [] -> Location.none
-  | first :: _ ->
-    let last = List.nth locs (List.length locs - 1) in
-    let first, last =
-      if first.loc_start.pos_cnum < last.loc_start.pos_cnum then (first, last)
-      else (last, first)
-    in
-    {loc_ghost = true; loc_start = first.loc_start; loc_end = last.loc_end}
-
-let impItemsExtent items =
-  items |> List.map (fun item -> item.Typedtree.str_loc) |> locsExtent
-
-let sigItemsExtent items =
-  items |> List.map (fun item -> item.Typedtree.sig_loc) |> locsExtent
-
 let addItem ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t) ~item
     attributes addExported addStamp =
   let isExported = addExported name.txt stamp in
   let declared =
-    ProcessAttributes.newDeclared ~item
-      ~scope:
-        {
-          Location.loc_start = extent.Location.loc_end;
-          loc_end = env.scope.loc_end;
-          loc_ghost = false;
-        }
-      ~extent ~name ~stamp ~modulePath:env.modulePath isExported attributes
+    ProcessAttributes.newDeclared ~item ~extent ~name ~stamp
+      ~modulePath:env.modulePath isExported attributes
   in
   addStamp env.stamps stamp declared;
   declared
@@ -49,17 +23,13 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [
-      {
-        Module.kind = Module.Value declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module.Value declared.item; name = declared.name.txt}]
   | Sig_type
       ( ident,
         ({type_loc; type_kind; type_manifest; type_attributes} as decl),
         recStatus ) ->
     let declared =
+      let name = Location.mknoloc (Ident.name ident) in
       addItem ~extent:type_loc
         ~item:
           {
@@ -94,16 +64,11 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
                                (* TODO(406): constructor record args support *)
                                | Cstr_record _ -> []);
                              res = cd_res;
+                             typeDecl = (name, decl);
                            }
                          in
                          let declared =
                            ProcessAttributes.newDeclared ~item ~extent:cd_loc
-                             ~scope:
-                               {
-                                 Location.loc_start = type_loc.Location.loc_end;
-                                 loc_end = env.scope.loc_end;
-                                 loc_ghost = false;
-                               }
                              ~name:(Location.mknoloc name)
                              ~stamp (* TODO maybe this needs another child *)
                              ~modulePath:env.modulePath true cd_attributes
@@ -122,17 +87,11 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
                            typ = ld_type;
                          })));
           }
-        ~name:(Location.mknoloc (Ident.name ident))
-        ~stamp:(Ident.binding_time ident) ~env type_attributes
+        ~name ~stamp:(Ident.binding_time ident) ~env type_attributes
         (Exported.add exported Exported.Type)
         Stamps.addType
     in
-    [
-      {
-        Module.kind = Type (declared.item, recStatus);
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Type (declared.item, recStatus); name = declared.name.txt}]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
       addItem ~extent:md_loc
@@ -142,12 +101,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [
-      {
-        Module.kind = Module declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module declared.item; name = declared.name.txt}]
   | _ -> []
 
 and forTypeSignature env signature =
@@ -202,23 +156,43 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
             | Ttype_variant constructors ->
               Variant
                 (constructors
-                |> List.map (fun {cd_id; cd_name = cname; cd_args; cd_res} ->
-                       let stamp = Ident.binding_time cd_id in
+                |> List.map
+                     (fun
                        {
-                         Constructor.stamp;
-                         cname;
-                         args =
-                           (match cd_args with
-                           | Cstr_tuple args ->
-                             args
-                             |> List.map (fun t -> (t.ctyp_type, t.ctyp_loc))
-                           (* TODO(406) *)
-                           | Cstr_record _ -> []);
-                         res =
-                           (match cd_res with
-                           | None -> None
-                           | Some t -> Some t.ctyp_type);
-                       }))
+                         cd_id;
+                         cd_name = cname;
+                         cd_args;
+                         cd_res;
+                         cd_attributes;
+                         cd_loc;
+                       }
+                     ->
+                       let stamp = Ident.binding_time cd_id in
+                       let item =
+                         {
+                           Constructor.stamp;
+                           cname;
+                           args =
+                             (match cd_args with
+                             | Cstr_tuple args ->
+                               args
+                               |> List.map (fun t -> (t.ctyp_type, t.ctyp_loc))
+                             (* TODO(406) *)
+                             | Cstr_record _ -> []);
+                           res =
+                             (match cd_res with
+                             | None -> None
+                             | Some t -> Some t.ctyp_type);
+                           typeDecl = (name.txt, typ_type);
+                         }
+                       in
+                       let declared =
+                         ProcessAttributes.newDeclared ~item ~extent:cd_loc
+                           ~name:cname ~stamp ~modulePath:env.modulePath true
+                           cd_attributes
+                       in
+                       Stamps.addConstructor env.stamps stamp declared;
+                       item))
             | Ttype_record fields ->
               Record
                 (fields
@@ -247,12 +221,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [
-      {
-        Module.kind = Module.Value declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module.Value declared.item; name = declared.name.txt}]
   | Tsig_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -272,12 +241,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [
-      {
-        Module.kind = Module declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module declared.item; name = declared.name.txt}]
   | Tsig_recmodule modDecls ->
     modDecls
     |> List.map (fun modDecl ->
@@ -367,7 +331,9 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
       bindings;
     !items
   | Tstr_module
-      {mb_id; mb_attributes; mb_loc; mb_name = name; mb_expr = {mod_desc}} ->
+      {mb_id; mb_attributes; mb_loc; mb_name = name; mb_expr = {mod_desc}}
+    when not (String.length name.txt >= 6 && String.sub name.txt 0 6 = "local_")
+         (* %%private generates a dummy module called local_... *) ->
     let item = forModule env mod_desc name.txt in
     let declared =
       addItem ~item ~name ~extent:mb_loc ~stamp:(Ident.binding_time mb_id) ~env
@@ -375,12 +341,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [
-      {
-        Module.kind = Module declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module declared.item; name = declared.name.txt}]
   | Tstr_recmodule modDecls ->
     modDecls
     |> List.map (fun modDecl ->
@@ -406,12 +367,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [
-      {
-        Module.kind = Module modTypeItem;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Module modTypeItem; name = declared.name.txt}]
   | Tstr_include {incl_mod; incl_type} ->
     let env =
       match getModulePath incl_mod.mod_desc with
@@ -435,12 +391,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [
-      {
-        Module.kind = Value declared.item;
-        name = declared.name.txt;
-      };
-    ]
+    [{Module.kind = Value declared.item; name = declared.name.txt}]
   | Tstr_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -458,11 +409,7 @@ and forModule env mod_desc moduleName =
   | Tmod_ident (path, _lident) -> Ident path
   | Tmod_structure structure ->
     let env =
-      {
-        env with
-        scope = impItemsExtent structure.str_items;
-        modulePath = ExportedModule (moduleName, env.modulePath);
-      }
+      {env with modulePath = ExportedModule (moduleName, env.modulePath)}
     in
     let contents = forStructure ~env structure.str_items in
     Structure contents
@@ -476,12 +423,6 @@ and forModule env mod_desc moduleName =
         let stamp = Ident.binding_time ident in
         let declared =
           ProcessAttributes.newDeclared ~item:kind ~name:argName
-            ~scope:
-              {
-                Location.loc_start = t.mty_loc.loc_end;
-                loc_end = env.scope.loc_end;
-                loc_ghost = false;
-              }
             ~extent:t.Typedtree.mty_loc ~stamp ~modulePath:NotVisible false []
         in
         Stamps.addModule env.stamps stamp declared));
@@ -533,24 +474,8 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    let extent = impItemsExtent items in
-    let extent =
-      {
-        extent with
-        loc_end =
-          {
-            extent.loc_end with
-            pos_lnum = extent.loc_end.pos_lnum + 1000000;
-            pos_cnum = extent.loc_end.pos_cnum + 100000000;
-          };
-      }
-    in
     let env =
-      {
-        Env.scope = extent;
-        stamps = Stamps.init ();
-        modulePath = File (uri, moduleName);
-      }
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forStructure ~env items in
     {File.uri; moduleName = cmt_modname; stamps = env.stamps; structure}
@@ -565,31 +490,19 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
       |> List.concat
     in
     let env =
-      {
-        Env.scope = sigItemsExtent items;
-        stamps = Stamps.init ();
-        modulePath = File (uri, moduleName);
-      }
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forSignature ~env items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Implementation structure ->
     let env =
-      {
-        Env.scope = impItemsExtent structure.str_items;
-        stamps = Stamps.init ();
-        modulePath = File (uri, moduleName);
-      }
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forStructure ~env structure.str_items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Interface signature ->
     let env =
-      {
-        Env.scope = sigItemsExtent signature.sig_items;
-        stamps = Stamps.init ();
-        modulePath = File (uri, moduleName);
-      }
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forSignature ~env signature.sig_items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
@@ -683,19 +596,19 @@ let rec resolvePathInner ~(env : QueryEnv.t) ~path =
     | Some stamp -> (
       match Stamps.findModule env.file.stamps stamp with
       | None -> None
-      | Some {item = kind} -> findInModule ~env kind subPath))
+      | Some {item} -> findInModule ~env item subPath))
 
-and findInModule ~env kind path =
-  match kind with
+and findInModule ~env module_ path =
+  match module_ with
   | Structure {exported} -> resolvePathInner ~env:{env with exported} ~path
-  | Constraint (_, moduleTypeKind) -> findInModule ~env moduleTypeKind path
+  | Constraint (_, module1) -> findInModule ~env module1 path
   | Ident modulePath -> (
     let stamp, moduleName, fullPath = joinPaths modulePath path in
     if stamp = 0 then Some (`Global (moduleName, fullPath))
     else
       match Stamps.findModule env.file.stamps stamp with
       | None -> None
-      | Some {item = kind} -> findInModule ~env kind fullPath)
+      | Some {item} -> findInModule ~env item fullPath)
 
 let fromCompilerPath ~(env : QueryEnv.t) path =
   match makePath path with
@@ -716,7 +629,6 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
 module F (Collector : sig
   val extra : extra
   val file : File.t
-  val scopeExtent : Location.t list ref
 end) =
 struct
   let extra = Collector.extra
@@ -895,17 +807,6 @@ struct
       addLocItem extra nameLoc (Typed (name, constructorType, locType))
     | _ -> ()
 
-  let currentScopeExtent () =
-    if !Collector.scopeExtent = [] then Location.none
-    else List.hd !Collector.scopeExtent
-
-  let addScopeExtent loc =
-    Collector.scopeExtent := loc :: !Collector.scopeExtent
-
-  let popScopeExtent () =
-    if List.length !Collector.scopeExtent > 1 then
-      Collector.scopeExtent := List.tl !Collector.scopeExtent
-
   let rec lidIsComplex (lid : Longident.t) =
     match lid with
     | Lapply _ -> true
@@ -961,21 +862,6 @@ struct
       Hashtbl.replace Collector.extra.opens loc ()
     | _ -> ()
 
-  let enter_structure {str_items} =
-    if str_items <> [] then
-      let first = List.hd str_items in
-      let last = List.nth str_items (List.length str_items - 1) in
-      let extent =
-        {
-          Location.loc_ghost = true;
-          loc_start = first.str_loc.loc_start;
-          loc_end = last.str_loc.loc_end;
-        }
-      in
-      addScopeExtent extent
-
-  let leave_structure str = if str.str_items <> [] then popScopeExtent ()
-
   let enter_signature_item item =
     match item.sig_desc with
     | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
@@ -983,12 +869,6 @@ struct
       if Stamps.findValue Collector.file.stamps stamp = None then (
         let declared =
           ProcessAttributes.newDeclared ~name ~stamp ~extent:val_loc
-            ~scope:
-              {
-                loc_ghost = true;
-                loc_start = val_loc.loc_end;
-                loc_end = (currentScopeExtent ()).loc_end;
-              }
             ~modulePath:NotVisible ~item:val_desc.ctyp_type false val_attributes
         in
         Stamps.addValue Collector.file.stamps stamp declared;
@@ -1007,15 +887,8 @@ struct
     let addForPattern stamp name =
       if Stamps.findValue Collector.file.stamps stamp = None then (
         let declared =
-          ProcessAttributes.newDeclared ~name ~stamp
-            ~scope:
-              {
-                loc_ghost = true;
-                loc_start = pat_loc.loc_end;
-                loc_end = (currentScopeExtent ()).loc_end;
-              }
-            ~modulePath:NotVisible ~extent:pat_loc ~item:pat_type false
-            pat_attributes
+          ProcessAttributes.newDeclared ~name ~stamp ~modulePath:NotVisible
+            ~extent:pat_loc ~item:pat_type false pat_attributes
         in
         Stamps.addValue Collector.file.stamps stamp declared;
         addReference stamp name.loc;
@@ -1062,42 +935,14 @@ struct
       addForConstructor expression.exp_type lident constructor
     | Texp_field (inner, lident, _label_description) ->
       addForField inner.exp_type expression.exp_type lident
-    | Texp_let (_, _, _) ->
-      (* TODO this scope tracking won't work for recursive *)
-      addScopeExtent expression.exp_loc
-    | Texp_function {cases} -> (
-      match cases with
-      | [{c_lhs = {pat_desc = Tpat_var _}; c_rhs}] ->
-        addScopeExtent c_rhs.exp_loc
-      | _ -> ())
-    | _ -> ()
-
-  let leave_expression expression =
-    match expression.exp_desc with
-    | Texp_let (_isrec, _bindings, _expr) -> popScopeExtent ()
-    | Texp_function {cases} -> (
-      match cases with [_] -> popScopeExtent () | _ -> ())
     | _ -> ()
 end
 
 let extraForStructureItems ~(file : File.t)
     (items : Typedtree.structure_item list) parts =
   let extra = extraForFile ~file in
-  let extent = impItemsExtent items in
-  let extent =
-    {
-      extent with
-      loc_end =
-        {
-          extent.loc_end with
-          pos_lnum = extent.loc_end.pos_lnum + 1000000;
-          pos_cnum = extent.loc_end.pos_cnum + 100000000;
-        };
-    }
-  in
   (* TODO look through parts and extend the extent *)
   let module Iter = TypedtreeIter.MakeIterator (F (struct
-    let scopeExtent = ref [extent]
     let extra = extra
     let file = file
   end)) in
@@ -1118,21 +963,8 @@ let extraForStructureItems ~(file : File.t)
 let extraForSignatureItems ~(file : File.t)
     (items : Typedtree.signature_item list) parts =
   let extra = extraForFile ~file in
-  let extent = sigItemsExtent items in
-  let extent =
-    {
-      extent with
-      loc_end =
-        {
-          extent.loc_end with
-          pos_lnum = extent.loc_end.pos_lnum + 1000000;
-          pos_cnum = extent.loc_end.pos_cnum + 100000000;
-        };
-    }
-  in
   (* TODO look through parts and extend the extent *)
   let module Iter = TypedtreeIter.MakeIterator (F (struct
-    let scopeExtent = ref [extent]
     let extra = extra
     let file = file
   end)) in
@@ -1247,49 +1079,6 @@ let rec resolvePath ~env ~path ~package =
       | None -> None
       | Some file ->
         resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package))
-
-let locationIsBefore {Location.loc_start} pos =
-  Utils.tupleOfLexing loc_start <= pos
-
-let findInScope pos name iter stamps =
-  (* Log.log("Find " ++ name ++ " with " ++ string_of_int(Hashtbl.length(stamps)) ++ " stamps"); *)
-  let res = ref None in
-  iter
-    (fun _stamp (declared : _ Declared.t) ->
-      if declared.name.txt = name then
-        (* Log.log("a stamp " ++ Utils.showLocation(declared.scopeLoc) ++ " " ++ string_of_int(l) ++ "," ++ string_of_int(c)); *)
-        if locationIsBefore declared.scopeLoc pos then
-          match !res with
-          | None -> res := Some declared
-          | Some current ->
-            if
-              current.name.loc.loc_start.pos_cnum
-              < declared.name.loc.loc_start.pos_cnum
-            then res := Some declared)
-    stamps;
-  !res
-
-let resolveFromStamps ~(env : QueryEnv.t) ~path ~package ~pos =
-  match path with
-  | [] -> None
-  | [name] -> Some (env, name)
-  | name :: inner -> (
-    (* Log.log("Finding from stamps " ++ name); *)
-    match findInScope pos name Stamps.iterModules env.file.stamps with
-    | None -> None
-    | Some declared -> (
-      (* Log.log("found it"); *)
-      match findInModule ~env declared.item inner with
-      | None -> None
-      | Some res -> (
-        match res with
-        | `Local (env, name) -> Some (env, name)
-        | `Global (moduleName, fullPath) -> (
-          match fileForModule ~package moduleName with
-          | None -> None
-          | Some file ->
-            resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package)))
-    )
 
 let resolveModuleFromCompilerPath ~env ~package path =
   match fromCompilerPath ~env path with

@@ -6,11 +6,11 @@ module M = {
 let _ = <M first="abc" />
 //       ^def
 
-//^com <M second=fi 
+//^com <M second=fi
 
 //^com <M second="abc" f
 
-//^com let e = <M 
+//^com let e = <M
 
 @react.component
 let make = (~first) => React.string(first)
@@ -42,7 +42,7 @@ let y = 44
 //^com <M prop=%bs.raw("1") k
 
 let _ = <Component />
-//         ^def 
+//         ^def
 
 module Ext = {
   @react.component @module("@material-ui/core")
@@ -53,8 +53,60 @@ let _ = (Ext.make, Ext.makeProps)
 
 //^com <Ext al
 
-//^com <M first 
+//^com <M first
 
 //^com <M first=#a k
 
 //^com <M first =  ?   #a k
+
+//^com <M>
+
+module WithChildren = {
+  @react.component
+  let make = (~name as _: string, ~children) => <jsx> children </jsx>
+}
+
+let _ = <WithChildren name=""> <div /> </WithChildren>
+//^com <WithChildren
+//^com <WithChildren n
+
+//^com let c : React.e
+//^com let c : ReactDOMR
+
+module DefineSomeFields = {
+  type r = {thisField: int, thatField: string}
+  let thisValue = 10
+  // ^com let foo x = x.th
+}
+
+// ^com let q = DefineSomeFields.
+
+// ^com let foo x = x.DefineSomeFields.th
+
+let _ = x => x.DefineSomeFields.thisField + DefineSomeFields.thisValue
+
+module Outer = {
+  module Inner = {
+    let hello = 3
+  }
+}
+let _ = Outer.Inner.hello
+
+let _ =
+  <div
+  // ^com x=Outer.Inner.h
+    name=""
+  />
+
+let _ =
+  <div
+  // ^com x=Outer.Inner.
+    name=""  />
+
+
+let _ =
+  <div
+  // ^com x=
+    name=""
+  />
+

@@ -12,6 +12,7 @@ module Constructor = struct
     cname : string Location.loc;
     args : (Types.type_expr * Location.t) list;
     res : Types.type_expr option;
+    typeDecl : string * Types.type_declaration;
   }
 end
 
@@ -73,8 +74,6 @@ module Exported = struct
       | Module -> t.modules_
     in
     Hashtbl.iter f tbl
-
-  let removeModule {modules_} name = Hashtbl.remove modules_ name
 end
 
 module Module = struct
@@ -94,41 +93,10 @@ module Module = struct
   and t = Ident of Path.t | Structure of structure | Constraint of t * t
 end
 
-module Completion = struct
-  type kind =
-    | Module of Module.t
-    | Value of Types.type_expr
-    | Type of Type.t
-    | Constructor of Constructor.t * string
-    | Field of field * string
-    | FileModule of string
-
-  type t = {
-    name : string;
-    extentLoc : Location.t;
-    deprecated : string option;
-    docstring : string list;
-    kind : kind;
-  }
-
-  let create ~name ~kind =
-    {name; extentLoc = Location.none; deprecated = None; docstring = []; kind}
-
-  let kindToInt kind =
-    match kind with
-    | Module _ -> 9
-    | FileModule _ -> 9
-    | Constructor (_, _) -> 4
-    | Field (_, _) -> 5
-    | Type _ -> 22
-    | Value _ -> 12
-end
-
 module Declared = struct
   type 'item t = {
     name : string Location.loc;
     extentLoc : Location.t;
-    scopeLoc : Location.t;
     stamp : int;
     modulePath : modulePath;
     isExported : bool;
@@ -149,6 +117,7 @@ module Stamps : sig
   val findType : t -> int -> Type.t Declared.t option
   val findValue : t -> int -> Types.type_expr Declared.t option
   val init : unit -> t
+  val iterConstructors : (int -> Constructor.t Declared.t -> unit) -> t -> unit
   val iterModules : (int -> Module.t Declared.t -> unit) -> t -> unit
   val iterTypes : (int -> Type.t Declared.t -> unit) -> t -> unit
   val iterValues : (int -> Types.type_expr Declared.t -> unit) -> t -> unit
@@ -205,10 +174,11 @@ end = struct
     Hashtbl.iter
       (fun stamp d -> match d with KValue d -> f stamp d | _ -> ())
       stamps
-end
 
-module Env = struct
-  type t = {stamps : Stamps.t; modulePath : modulePath; scope : Location.t}
+  let iterConstructors f stamps =
+    Hashtbl.iter
+      (fun stamp d -> match d with KConstructor d -> f stamp d | _ -> ())
+      stamps
 end
 
 module File = struct
@@ -232,6 +202,42 @@ module QueryEnv = struct
   type t = {file : File.t; exported : Exported.t}
 
   let fromFile file = {file; exported = file.structure.exported}
+end
+
+module Completion = struct
+  type kind =
+    | Module of Module.t
+    | Value of Types.type_expr
+    | ObjLabel of Types.type_expr
+    | Type of Type.t
+    | Constructor of Constructor.t * string
+    | Field of field * string
+    | FileModule of string
+
+  type t = {
+    name : string;
+    env : QueryEnv.t;
+    deprecated : string option;
+    docstring : string list;
+    kind : kind;
+  }
+
+  let create ~name ~kind ~env =
+    {name; env; deprecated = None; docstring = []; kind}
+
+  let kindToInt kind =
+    match kind with
+    | Module _ -> 9
+    | FileModule _ -> 9
+    | Constructor (_, _) -> 4
+    | ObjLabel _ -> 4
+    | Field (_, _) -> 5
+    | Type _ -> 22
+    | Value _ -> 12
+end
+
+module Env = struct
+  type t = {stamps : Stamps.t; modulePath : modulePath}
 end
 
 type filePath = string
@@ -389,3 +395,50 @@ let locItemToString {loc = {Location.loc_start; loc_end}; locType} =
 
 (* needed for debugging *)
 let _ = locItemToString
+
+module Completable = struct
+  (* Completion context *)
+  type completionContext = Type | Value | Module | Field
+
+  type contextPath =
+    | CPString
+    | CPArray
+    | CPId of string list * completionContext
+    | CPField of contextPath * string
+    | CPObj of contextPath * string
+    | CPPipe of contextPath * string
+
+  type t =
+    | Cdecorator of string  (** e.g. @module *)
+    | Clabel of string list * string * string list
+        (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
+    | Cpath of contextPath
+    | Cjsx of string list * string * string list
+        (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
+
+  let toString =
+    let str s = if s = "" then "\"\"" else s in
+    let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
+    let completionContextToString = function
+      | Value -> "Value"
+      | Type -> "Type"
+      | Module -> "Module"
+      | Field -> "Field"
+    in
+    let rec contextPathToString = function
+      | CPString -> "string"
+      | CPArray -> "array"
+      | CPId (sl, completionContext) ->
+        completionContextToString completionContext ^ list sl
+      | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
+      | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
+      | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
+    in
+    function
+    | Cpath cp -> "Cpath " ^ contextPathToString cp
+    | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
+    | Clabel (sl1, s, sl2) ->
+      "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+    | Cjsx (sl1, s, sl2) ->
+      "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+end

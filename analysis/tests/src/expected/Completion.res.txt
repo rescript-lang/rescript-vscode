@@ -1,4 +1,7 @@
 Complete tests/src/Completion.res 0:2
+posCursor:[1:9] posNoWhite:[1:8] Found expr:[1:1->1:9]
+Pexp_ident MyList.m:[1:1->1:9]
+Completable: Cpath Value[MyList, m]
 [{
     "label": "mapReverse",
     "kind": 12,
@@ -68,13 +71,11 @@ Complete tests/src/Completion.res 0:2
   }]
 
 Complete tests/src/Completion.res 1:2
+posCursor:[2:7] posNoWhite:[2:6] Found expr:[2:1->6:6]
+Pexp_ident Array.:[2:1->6:6]
+Id breaks up. New path:Array.
+Completable: Cpath Value[Array, ""]
 [{
-    "label": "Floatarray",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null
-  }, {
     "label": "fold_left",
     "kind": 12,
     "tags": [],
@@ -284,9 +285,18 @@ Complete tests/src/Completion.res 1:2
     "tags": [],
     "detail": "(array<'a>, int, array<'a>, int, int) => unit",
     "documentation": {"kind": "markdown", "value": " [Array.blit v1 o1 v2 o2 len] copies [len] elements\n   from array [v1], starting at element number [o1], to array [v2],\n   starting at element number [o2]. It works correctly even if\n   [v1] and [v2] are the same array, and the source and\n   destination chunks overlap.\n\n   Raise [Invalid_argument \"Array.blit\"] if [o1] and [len] do not\n   designate a valid subarray of [v1], or if [o2] and [len] do not\n   designate a valid subarray of [v2]. "}
+  }, {
+    "label": "Floatarray",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
   }]
 
 Complete tests/src/Completion.res 2:2
+posCursor:[3:8] posNoWhite:[3:7] Found expr:[3:1->3:8]
+Pexp_ident Array.m:[3:1->3:8]
+Completable: Cpath Value[Array, m]
 [{
     "label": "mapi",
     "kind": 12,
@@ -338,6 +348,9 @@ Complete tests/src/Completion.res 2:2
   }]
 
 Complete tests/src/Completion.res 12:2
+posCursor:[13:15] posNoWhite:[13:14] Found expr:[13:10->13:15]
+Pexp_ident Dep.c:[13:10->13:15]
+Completable: Cpath Value[Dep, c]
 [{
     "label": "customDouble",
     "kind": 12,
@@ -347,6 +360,9 @@ Complete tests/src/Completion.res 12:2
   }]
 
 Complete tests/src/Completion.res 19:2
+posCursor:[20:18] posNoWhite:[20:17] Found expr:[20:9->20:18]
+Pexp_apply ...[20:9->20:16] ()
+Completable: Clabel([Lib, foo], "", [])
 [{
     "label": "age",
     "kind": 4,
@@ -362,6 +378,10 @@ Complete tests/src/Completion.res 19:2
   }]
 
 Complete tests/src/Completion.res 21:2
+posCursor:[22:11] posNoWhite:[22:10] Found expr:[22:1->22:11]
+posCursor:[22:11] posNoWhite:[22:10] Found expr:[22:10->22:11]
+Pexp_ident m:[22:10->22:11]
+Completable: Cpath array->m
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -377,6 +397,10 @@ Complete tests/src/Completion.res 21:2
   }]
 
 Complete tests/src/Completion.res 23:2
+posCursor:[24:11] posNoWhite:[24:10] Found expr:[24:1->24:11]
+posCursor:[24:11] posNoWhite:[24:10] Found expr:[24:8->24:11]
+Pexp_ident toU:[24:8->24:11]
+Completable: Cpath string->toU
 [{
     "label": "Js.String2.toUpperCase",
     "kind": 12,
@@ -386,6 +410,10 @@ Complete tests/src/Completion.res 23:2
   }]
 
 Complete tests/src/Completion.res 27:2
+posCursor:[28:6] posNoWhite:[28:5] Found expr:[28:1->28:6]
+posCursor:[28:6] posNoWhite:[28:5] Found expr:[28:5->28:6]
+Pexp_ident e:[28:5->28:6]
+Completable: Cpath Value[op]->e
 [{
     "label": "Belt.Option.eqU",
     "kind": 12,
@@ -401,6 +429,12 @@ Complete tests/src/Completion.res 27:2
   }]
 
 Complete tests/src/Completion.res 36:2
+posCursor:[37:5] posNoWhite:[37:4] Found expr:[37:1->46:3]
+Pexp_apply ...[41:9->41:10] (...[37:1->41:8], ...[42:2->46:3])
+posCursor:[37:5] posNoWhite:[37:4] Found expr:[37:1->41:8]
+posCursor:[37:5] posNoWhite:[37:4] Found expr:[37:3->37:5]
+Pexp_ident |.:[37:3->37:5]
+Completable: Cpath Value[fa]->
 [{
     "label": "ForAuto.abc",
     "kind": 12,
@@ -416,6 +450,10 @@ Complete tests/src/Completion.res 36:2
   }]
 
 Complete tests/src/Completion.res 38:2
+posCursor:[39:19] posNoWhite:[39:18] Found expr:[39:1->39:19]
+posCursor:[39:19] posNoWhite:[39:18] Found expr:[39:10->39:19]
+Pexp_ident Js.Dict.u:[39:10->39:19]
+Completable: Cpath Value[Js, Dict, u]
 [{
     "label": "unsafeGet",
     "kind": 12,
@@ -431,6 +469,11 @@ Complete tests/src/Completion.res 38:2
   }]
 
 Complete tests/src/Completion.res 50:2
+posCursor:[51:28] posNoWhite:[51:27] Found expr:[51:13->51:28]
+JSX <O,Comp:[51:13->51:19] second[51:20->51:26]=...[51:27->51:28]> _children:None
+posCursor:[51:28] posNoWhite:[51:27] Found expr:[51:27->51:28]
+Pexp_ident z:[51:27->51:28]
+Completable: Cpath Value[z]
 [{
     "label": "zzz",
     "kind": 12,
@@ -440,6 +483,11 @@ Complete tests/src/Completion.res 50:2
   }]
 
 Complete tests/src/Completion.res 52:2
+posCursor:[53:21] posNoWhite:[53:20] Found expr:[53:13->53:21]
+JSX <O,Comp:[53:13->53:19] z[53:20->53:21]=...[53:20->53:21]> _children:None
+posCursor:[53:21] posNoWhite:[53:20] Found expr:[53:20->53:21]
+Pexp_ident z:[53:20->53:21]
+Completable: Cjsx([O, Comp], z, [z])
 [{
     "label": "zoo",
     "kind": 4,
@@ -639,10 +687,152 @@ DocumentSymbol tests/src/Completion.res
         "name": "MyOtherException",
         "kind": 9,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 124, "character": 0}, "end": {"line": 124, "character": 26}}}
+},
+{
+        "name": "aa",
+        "kind": 26,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 128, "character": 0}, "end": {"line": 128, "character": 29}}}
+},
+{
+        "name": "x",
+        "kind": 7,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 128, "character": 10}, "end": {"line": 128, "character": 15}}}
+},
+{
+        "name": "name",
+        "kind": 7,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 128, "character": 17}, "end": {"line": 128, "character": 28}}}
+},
+{
+        "name": "bb",
+        "kind": 26,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 129, "character": 0}, "end": {"line": 129, "character": 24}}}
+},
+{
+        "name": "aa",
+        "kind": 7,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 129, "character": 11}, "end": {"line": 129, "character": 16}}}
+},
+{
+        "name": "w",
+        "kind": 7,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 129, "character": 18}, "end": {"line": 129, "character": 23}}}
+},
+{
+        "name": "q",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 130, "character": 0}, "end": {"line": 130, "character": 23}}}
+},
+{
+        "name": "WithChildren",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 136, "character": 7}, "end": {"line": 139, "character": 1}}}
+},
+{
+        "name": "make",
+        "kind": 12,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 138, "character": 2}, "end": {"line": 138, "character": 69}}}
+},
+{
+        "name": "z",
+        "kind": 26,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 0}, "end": {"line": 145, "character": 32}}}
+},
+{
+        "name": "Allo",
+        "kind": 22,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 9}, "end": {"line": 145, "character": 15}}}
+},
+{
+        "name": "Asterix",
+        "kind": 22,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 16}, "end": {"line": 145, "character": 25}}}
+},
+{
+        "name": "Baba",
+        "kind": 22,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 145, "character": 26}, "end": {"line": 145, "character": 32}}}
+},
+{
+        "name": "Private",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 151, "character": 7}, "end": {"line": 154, "character": 1}}}
+},
+{
+        "name": "awr",
+        "kind": 16,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 152, "character": 12}, "end": {"line": 152, "character": 23}}}
+},
+{
+        "name": "b",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 153, "character": 2}, "end": {"line": 153, "character": 13}}}
+},
+{
+        "name": "Shadow",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 158, "character": 7}, "end": {"line": 165, "character": 1}}}
+},
+{
+        "name": "A",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 159, "character": 9}, "end": {"line": 161, "character": 3}}}
+},
+{
+        "name": "shadowed",
+        "kind": 16,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 160, "character": 4}, "end": {"line": 160, "character": 20}}}
+},
+{
+        "name": "B",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 162, "character": 9}, "end": {"line": 164, "character": 3}}}
+},
+{
+        "name": "shadowed",
+        "kind": 15,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 163, "character": 4}, "end": {"line": 163, "character": 21}}}
+},
+{
+        "name": "FAR",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 174, "character": 7}, "end": {"line": 177, "character": 1}}}
+},
+{
+        "name": "forAutoRecord",
+        "kind": 26,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 175, "character": 2}, "end": {"line": 175, "character": 67}}}
+},
+{
+        "name": "forAuto",
+        "kind": 7,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 175, "character": 24}, "end": {"line": 175, "character": 42}}}
+},
+{
+        "name": "something",
+        "kind": 7,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 175, "character": 44}, "end": {"line": 175, "character": 66}}}
+},
+{
+        "name": "forAutoRecord",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 176, "character": 2}, "end": {"line": 176, "character": 49}}}
+},
+{
+        "name": "FAO",
+        "kind": 2,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 179, "character": 7}, "end": {"line": 181, "character": 1}}}
+},
+{
+        "name": "forAutoObject",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 180, "character": 2}, "end": {"line": 180, "character": 68}}}
 }
 ]
 
 Complete tests/src/Completion.res 56:2
+Attribute id:reac:[57:1->57:6] label:reac
+Completable: Cdecorator(reac)
 [{
     "label": "react.component",
     "kind": 4,
@@ -652,6 +842,10 @@ Complete tests/src/Completion.res 56:2
   }]
 
 Complete tests/src/Completion.res 58:2
+posCursor:[59:8] posNoWhite:[59:7] Found expr:[0:-1->69:17]
+Pexp_apply ...[67:6->67:7] (...[67:8->69:17])
+Attribute id:react.let:[59:1->67:3] label:react.
+Completable: Cdecorator(react.)
 [{
     "label": "component",
     "kind": 4,
@@ -661,6 +855,9 @@ Complete tests/src/Completion.res 58:2
   }]
 
 Complete tests/src/Completion.res 60:2
+posCursor:[61:25] posNoWhite:[61:24] Found expr:[61:9->61:25]
+Pexp_apply ...[61:9->61:16] (~name61:18->61:22=...[61:18->61:22])
+Completable: Clabel([Lib, foo], "", [name])
 [{
     "label": "age",
     "kind": 4,
@@ -670,6 +867,9 @@ Complete tests/src/Completion.res 60:2
   }]
 
 Complete tests/src/Completion.res 62:2
+posCursor:[63:24] posNoWhite:[63:23] Found expr:[63:9->63:24]
+Pexp_apply ...[63:9->63:16] (~age63:18->63:21=...[63:18->63:21])
+Completable: Clabel([Lib, foo], "", [age])
 [{
     "label": "name",
     "kind": 4,
@@ -679,6 +879,9 @@ Complete tests/src/Completion.res 62:2
   }]
 
 Complete tests/src/Completion.res 64:2
+posCursor:[65:30] posNoWhite:[65:29] Found expr:[65:9->65:30]
+Pexp_apply ...[65:9->65:16] (~age65:18->65:21=...[65:23->65:26])
+Completable: Clabel([Lib, foo], "", [age])
 [{
     "label": "name",
     "kind": 4,
@@ -688,21 +891,15 @@ Complete tests/src/Completion.res 64:2
   }]
 
 Complete tests/src/Completion.res 67:2
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }, {
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+posCursor:[68:2] posNoWhite:[68:1] Found expr:[67:8->69:17]
+Pexp_apply ...[67:8->67:15] (~age69:1->69:4=...[69:5->69:6], ~name69:9->69:13=...[69:14->69:16])
+Completable: Clabel([Lib, foo], "", [age, name])
+[]
 
 Complete tests/src/Completion.res 72:2
+posCursor:[73:11] posNoWhite:[73:10] Found expr:[73:1->75:18]
+Pexp_send a[73:10->73:11] e:[73:1->73:8]
+Completable: Cpath Value[someObj]["a"]
 [{
     "label": "age",
     "kind": 4,
@@ -712,6 +909,9 @@ Complete tests/src/Completion.res 72:2
   }]
 
 Complete tests/src/Completion.res 76:2
+posCursor:[77:22] posNoWhite:[77:21] Found expr:[77:1->80:10]
+Pexp_send [77:22->77:22] e:[77:1->77:20]
+Completable: Cpath Value[nestedObj]["x"]["y"][""]
 [{
     "label": "age",
     "kind": 4,
@@ -727,6 +927,9 @@ Complete tests/src/Completion.res 76:2
   }]
 
 Complete tests/src/Completion.res 79:2
+posCursor:[80:5] posNoWhite:[80:4] Found expr:[80:1->82:20]
+Pexp_send a[80:4->80:5] e:[80:1->80:2]
+Completable: Cpath Value[o]["a"]
 [{
     "label": "age",
     "kind": 4,
@@ -736,6 +939,9 @@ Complete tests/src/Completion.res 79:2
   }]
 
 Complete tests/src/Completion.res 83:2
+posCursor:[84:15] posNoWhite:[84:14] Found expr:[84:1->101:20]
+Pexp_send [84:15->84:15] e:[84:1->84:13]
+Completable: Cpath Value[no]["x"]["y"][""]
 [{
     "label": "name",
     "kind": 4,
@@ -751,6 +957,9 @@ Complete tests/src/Completion.res 83:2
   }]
 
 Complete tests/src/Completion.res 88:3
+posCursor:[89:3] posNoWhite:[89:2] Found expr:[89:1->93:3]
+Pexp_field [89:1->89:2] _:[93:0->93:3]
+Completable: Cpath Value[r].""
 [{
     "label": "x",
     "kind": 5,
@@ -766,6 +975,9 @@ Complete tests/src/Completion.res 88:3
   }]
 
 Complete tests/src/Completion.res 90:3
+posCursor:[91:19] posNoWhite:[91:18] Found expr:[91:1->93:3]
+Pexp_field [91:1->91:18] _:[93:0->93:3]
+Completable: Cpath Value[Obj, Rec, recordVal].""
 [{
     "label": "xx",
     "kind": 5,
@@ -781,6 +993,11 @@ Complete tests/src/Completion.res 90:3
   }]
 
 Complete tests/src/Completion.res 96:3
+posCursor:[97:3] posNoWhite:[97:2] Found expr:[96:11->99:1]
+posCursor:[97:3] posNoWhite:[97:2] Found expr:[97:1->98:5]
+posCursor:[97:3] posNoWhite:[97:2] Found expr:[97:1->97:3]
+Pexp_ident my:[97:1->97:3]
+Completable: Cpath Value[my]
 [{
     "label": "myAmazingFunction",
     "kind": 12,
@@ -790,6 +1007,9 @@ Complete tests/src/Completion.res 96:3
   }]
 
 Complete tests/src/Completion.res 100:3
+posCursor:[101:13] posNoWhite:[101:12] Found expr:[101:1->120:32]
+Pexp_send [101:13->101:13] e:[101:1->101:11]
+Completable: Cpath Value[Obj, object][""]
 [{
     "label": "name",
     "kind": 4,
@@ -801,6 +1021,269 @@ Complete tests/src/Completion.res 100:3
     "kind": 4,
     "tags": [],
     "detail": "int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 125:3
+posCursor:[126:4] posNoWhite:[126:3] Found expr:[126:2->126:4]
+JSX <O,:[126:2->126:4] > _children:None
+posCursor:[126:4] posNoWhite:[126:3] Found expr:[126:2->126:4]
+Pexp_ident O..createElement:[126:2->126:4]
+Id breaks up. New path:O..
+Completable: Cpath Module[O, ""]
+[{
+    "label": "Comp",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 130:3
+posCursor:[131:6] posNoWhite:[131:5] Found expr:[131:1->136:6]
+Pexp_field [131:1->131:5] _:[136:0->136:6]
+Completable: Cpath Value[q].aa.""
+[{
+    "label": "x",
+    "kind": 5,
+    "tags": [],
+    "detail": "x: int\n\ntype aa = {x: int, name: string}",
+    "documentation": null
+  }, {
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype aa = {x: int, name: string}",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 131:3
+posCursor:[132:7] posNoWhite:[132:6] Found expr:[132:1->132:7]
+Pexp_field [132:1->132:5] n:[132:6->132:7]
+Completable: Cpath Value[q].aa.n
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype aa = {x: int, name: string}",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 133:3
+posCursor:[134:4] posNoWhite:[134:3] Found expr:[134:1->134:4]
+Pexp_construct Lis:[134:1->134:4] None
+Completable: Cpath Value[Lis]
+[{
+    "label": "List",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ListLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 139:3
+posCursor:[140:15] posNoWhite:[140:13] Found expr:[140:2->140:14]
+JSX <WithChildren:[140:2->140:14] > _children:None
+posCursor:[140:15] posNoWhite:[140:13] Found expr:[140:2->140:14]
+Pexp_ident WithChildren.createElement:[140:2->140:14]
+Completable: Cjsx([WithChildren], "", [])
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 141:3
+posCursor:[142:14] posNoWhite:[142:13] Found type:[142:10->142:14]
+Ptyp_constr Js.n:[142:10->142:14]
+Completable: Cpath Type[Js, n]
+[{
+    "label": "null_undefined",
+    "kind": 22,
+    "tags": [],
+    "detail": "type null_undefined<'a> = nullable<'a>",
+    "documentation": null
+  }, {
+    "label": "nullable",
+    "kind": 22,
+    "tags": [],
+    "detail": "type nullable<+'a>",
+    "documentation": {"kind": "markdown", "value": " value of this type can be [undefined], [null] or ['a]\n    this type is the same as type [t] n {!Null_undefined} "}
+  }, {
+    "label": "null",
+    "kind": 22,
+    "tags": [],
+    "detail": "type null<+'a>",
+    "documentation": {"kind": "markdown", "value": " nullable, value of this type can be either [null] or ['a]\n    this type is the same as type [t] in {!Null}\n"}
+  }]
+
+Complete tests/src/Completion.res 142:3
+posCursor:[143:18] posNoWhite:[143:17] Found type:[143:10->143:18]
+Ptyp_constr ForAuto.:[143:10->143:18]
+Completable: Cpath Type[ForAuto, ""]
+[{
+    "label": "t",
+    "kind": 22,
+    "tags": [],
+    "detail": "type t = int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 146:3
+posCursor:[147:11] posNoWhite:[147:10] Found expr:[147:9->147:11]
+Pexp_construct As:[147:9->147:11] None
+Completable: Cpath Value[As]
+[{
+    "label": "Asterix",
+    "kind": 4,
+    "tags": [],
+    "detail": "Asterix\n\ntype z =  Allo | Asterix | Baba",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 148:3
+Pmod_ident For:[149:12->149:15]
+Completable: Cpath Module[For]
+[{
+    "label": "ForAuto",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Format",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 155:3
+posCursor:[156:9] posNoWhite:[156:8] Found expr:[156:1->158:6]
+Pexp_ident Private.:[156:1->158:6]
+Id breaks up. New path:Private.
+Completable: Cpath Value[Private, ""]
+[{
+    "label": "b",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 166:3
+posCursor:[167:4] posNoWhite:[167:3] Found expr:[167:1->167:4]
+Pexp_ident sha:[167:1->167:4]
+Completable: Cpath Value[sha]
+[]
+
+Complete tests/src/Completion.res 168:3
+posCursor:[169:4] posNoWhite:[169:3] Found expr:[169:1->169:4]
+Pexp_ident sha:[169:1->169:4]
+Completable: Cpath Value[sha]
+[{
+    "label": "shadowed",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 170:3
+posCursor:[171:4] posNoWhite:[171:3] Found expr:[171:1->171:4]
+Pexp_ident sha:[171:1->171:4]
+Completable: Cpath Value[sha]
+[{
+    "label": "shadowed",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 182:3
+posCursor:[183:20] posNoWhite:[183:19] Found expr:[183:1->184:27]
+Pexp_send [183:20->183:20] e:[183:1->183:18]
+Completable: Cpath Value[FAO, forAutoObject][""]
+[{
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "forAutoLabel",
+    "kind": 4,
+    "tags": [],
+    "detail": "FAR.forAutoRecord",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 183:3
+posCursor:[184:35] posNoWhite:[184:34] Found expr:[184:1->188:0]
+Pexp_field [184:1->184:34] _:[188:0->188:0]
+Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
+[{
+    "label": "forAuto",
+    "kind": 5,
+    "tags": [],
+    "detail": "forAuto: ForAuto.t\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
+    "documentation": null
+  }, {
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: option<int>\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 184:3
+posCursor:[185:44] posNoWhite:[185:43] Found expr:[185:1->0:-1]
+Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
+[{
+    "label": "ForAuto.abc",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }, {
+    "label": "ForAuto.abd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 185:3
+posCursor:[186:53] posNoWhite:[186:52] Found expr:[186:1->186:53]
+posCursor:[186:53] posNoWhite:[186:52] Found expr:[186:44->186:53]
+Pexp_ident ForAuto.a:[186:44->186:53]
+Completable: Cpath Value[ForAuto, a]
+[{
+    "label": "abc",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }, {
+    "label": "abd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
     "documentation": null
   }]
 

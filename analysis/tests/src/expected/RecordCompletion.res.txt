@@ -1,4 +1,8 @@
 Complete tests/src/RecordCompletion.res 7:3
+posCursor:[8:7] posNoWhite:[8:6] Found expr:[8:1->8:7]
+posCursor:[8:7] posNoWhite:[8:6] Found expr:[8:6->8:7]
+Pexp_ident m:[8:6->8:7]
+Completable: Cpath Value[t].n->m
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -14,6 +18,10 @@ Complete tests/src/RecordCompletion.res 7:3
   }]
 
 Complete tests/src/RecordCompletion.res 9:3
+posCursor:[10:11] posNoWhite:[10:10] Found expr:[10:1->10:11]
+posCursor:[10:11] posNoWhite:[10:10] Found expr:[10:10->10:11]
+Pexp_ident m:[10:10->10:11]
+Completable: Cpath Value[t2].n2.n->m
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -25,6 +33,18 @@ Complete tests/src/RecordCompletion.res 9:3
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "documentation": null
+  }]
+
+Complete tests/src/RecordCompletion.res 16:3
+posCursor:[17:5] posNoWhite:[17:4] Found expr:[17:1->19:0]
+Pexp_field [17:1->17:2] R.:[17:3->19:0]
+Completable: Cpath Module[R].""
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype t = {name: string}",
     "documentation": null
   }]
 

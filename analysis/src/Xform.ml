@@ -1,13 +1,10 @@
 (** Code transformations using the parser/printer and ast operations *)
 
 let isBracedExpr = Res_parsetree_viewer.isBracedExpr
-
-let posInLoc ~pos ~loc =
-  Utils.tupleOfLexing loc.Location.loc_start <= pos
-  && pos < Utils.tupleOfLexing loc.loc_end
+let posInLoc ~pos ~loc = Loc.start loc <= pos && pos < Loc.end_ loc
 
 let mkPosition (p : Lexing.position) =
-  let line, character = Utils.tupleOfLexing p in
+  let line, character = Pos.ofLexing p in
   {Protocol.line; character}
 
 let rangeOfLoc (loc : Location.t) =
@@ -262,9 +259,7 @@ let parse ~filename =
   let filterComments ~loc comments =
     (* Relevant comments in the range of the expression *)
     let filter comment =
-      posInLoc
-        ~pos:((Res_comment.loc comment).loc_start |> Utils.tupleOfLexing)
-        ~loc
+      posInLoc ~pos:(Loc.start (Res_comment.loc comment)) ~loc
     in
     comments |> List.filter filter
   in

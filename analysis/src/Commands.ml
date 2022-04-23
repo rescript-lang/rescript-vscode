@@ -1,24 +1,32 @@
-open SharedTypes
-
-let completion ~path ~line ~col ~currentFile =
-  let pos = (line, col) in
+let completion ~debug ~path ~pos ~currentFile =
   let result =
     let textOpt = Files.readFile currentFile in
-    let completionItems =
-      match NewCompletions.getCompletable ~textOpt ~pos with
-      | None -> []
-      | Some (completable, rawOpens) -> (
-        (* Only perform expensive ast operations if there are completables *)
-        match Cmt.fromPath ~path with
+    match textOpt with
+    | None | Some "" -> []
+    | Some text ->
+      let completionItems =
+        match
+          Completion.completionWithParser ~debug ~path ~posCursor:pos
+            ~currentFile ~text
+        with
         | None -> []
-        | Some full ->
-          NewCompletions.computeCompletions ~completable ~full ~pos ~rawOpens)
-    in
-    completionItems
-    |> List.map Protocol.stringifyCompletionItem
-    |> Protocol.array
+        | Some (completable, scope) -> (
+          if debug then
+            Printf.printf "Completable: %s\n"
+              (SharedTypes.Completable.toString completable);
+          (* Only perform expensive ast operations if there are completables *)
+          match Cmt.fromPath ~path with
+          | None -> []
+          | Some full ->
+            let env = SharedTypes.QueryEnv.fromFile full.file in
+            let package = full.package in
+            NewCompletions.computeCompletions ~completable ~package ~pos ~scope
+              ~env)
+      in
+      completionItems
   in
-  print_endline result
+  print_endline
+    (result |> List.map Protocol.stringifyCompletionItem |> Protocol.array)
 
 let hover ~path ~line ~col =
   let result =
@@ -295,7 +303,7 @@ let test ~path =
             let line = line + 1 in
             let col = len - mlen - 3 in
             close_out cout;
-            completion ~path ~line ~col ~currentFile;
+            completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
           | "hig" ->
             print_endline ("Highlight " ^ path);

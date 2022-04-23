@@ -496,73 +496,48 @@ let resolveOpens ~env ~previous opens ~package =
     (* loop(previous) *)
     previous opens
 
-let completionForDeclareds ~pos iter stamps prefix transformContents =
-  (* Log.log("completion for declares " ++ prefix); *)
-  let res = ref [] in
-  iter
-    (fun _stamp (declared : _ Declared.t) ->
-      if
-        Utils.startsWith declared.name.txt prefix
-        && Utils.locationContainsFuzzy declared.scopeLoc pos
-      then
-        res :=
-          {
-            (Completion.create ~name:declared.name.txt
-               ~kind:(transformContents declared.item))
-            with
-            extentLoc = declared.extentLoc;
-            deprecated = declared.deprecated;
-            docstring = declared.docstring;
-          }
-          :: !res)
-    stamps;
-  !res
+let checkName name ~prefix ~exact =
+  if exact then name = prefix else Utils.startsWith name prefix
 
-let completionForDeclaredModules ~pos ~env ~suffix =
-  completionForDeclareds ~pos Stamps.iterModules env.QueryEnv.file.stamps suffix
-    (fun m -> Completion.Module m)
-
-let completionForDeclaredValues ~pos ~env ~suffix =
-  completionForDeclareds ~pos Stamps.iterValues env.QueryEnv.file.stamps suffix
-    (fun m -> Completion.Value m)
-
-let completionForDeclaredTypes ~pos ~env ~suffix =
-  completionForDeclareds ~pos Stamps.iterTypes env.QueryEnv.file.stamps suffix
-    (fun m -> Completion.Type m)
-
-let completionForExporteds iterExported getDeclared prefix transformContents =
+let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
+    ~namesUsed transformContents =
   let res = ref [] in
   iterExported (fun name stamp ->
       (* Log.log("checking exported: " ++ name); *)
-      if Utils.startsWith name prefix then
+      if checkName name ~prefix ~exact then
         match getDeclared stamp with
-        | Some (declared : _ Declared.t) ->
+        | Some (declared : _ Declared.t)
+          when not (Hashtbl.mem namesUsed declared.name.txt) ->
+          Hashtbl.add namesUsed declared.name.txt ();
           res :=
             {
-              (Completion.create ~name:declared.name.txt
+              (Completion.create ~name:declared.name.txt ~env
                  ~kind:(transformContents declared.item))
               with
-              extentLoc = declared.extentLoc;
               deprecated = declared.deprecated;
               docstring = declared.docstring;
             }
             :: !res
-        | None -> ());
+        | _ -> ());
   !res
 
-let completionForExportedModules ~env ~suffix =
+let completionForExportedModules ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
-    (Stamps.findModule env.file.stamps) suffix (fun m -> Completion.Module m)
+    (Stamps.findModule env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun m ->
+      Completion.Module m)
 
-let completionForExportedValues ~env ~suffix =
+let completionForExportedValues ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
-    (Stamps.findValue env.file.stamps) suffix (fun v -> Completion.Value v)
+    (Stamps.findValue env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun v ->
+      Completion.Value v)
 
-let completionForExportedTypes ~env ~suffix =
+let completionForExportedTypes ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
-    (Stamps.findType env.file.stamps) suffix (fun t -> Completion.Type t)
+    (Stamps.findType env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun t ->
+      Completion.Type t)
 
-let completionForConstructors ~(env : QueryEnv.t) ~suffix =
+let completionsForExportedConstructors ~(env : QueryEnv.t) ~prefix ~exact
+    ~namesUsed =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
@@ -570,179 +545,322 @@ let completionForConstructors ~(env : QueryEnv.t) ~suffix =
         res :=
           (constructors
           |> List.filter (fun c ->
-                 Utils.startsWith c.Constructor.cname.txt suffix)
-          |> List.map (fun c ->
-                 Completion.create ~name:c.Constructor.cname.txt
-                   ~kind:
-                     (Completion.Constructor
-                        (c, t.item.decl |> Shared.declToString t.name.txt))))
+                 checkName c.Constructor.cname.txt ~prefix ~exact)
+          |> Utils.filterMap (fun c ->
+                 let name = c.Constructor.cname.txt in
+                 if not (Hashtbl.mem namesUsed name) then
+                   let () = Hashtbl.add namesUsed name () in
+                   Some
+                     (Completion.create ~name ~env
+                        ~kind:
+                          (Completion.Constructor
+                             (c, t.item.decl |> Shared.declToString t.name.txt)))
+                 else None))
           @ !res
       | _ -> ());
   !res
 
-let completionForFields ~(env : QueryEnv.t) ~suffix =
+let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
       | Some ({item = {kind = Record fields}} as t) ->
         res :=
           (fields
-          |> List.filter (fun f -> Utils.startsWith f.fname.txt suffix)
-          |> List.map (fun f ->
-                 Completion.create ~name:f.fname.txt
-                   ~kind:
-                     (Completion.Field
-                        (f, t.item.decl |> Shared.declToString t.name.txt))))
+          |> List.filter (fun f -> checkName f.fname.txt ~prefix ~exact)
+          |> Utils.filterMap (fun f ->
+                 let name = f.fname.txt in
+                 if not (Hashtbl.mem namesUsed name) then
+                   let () = Hashtbl.add namesUsed name () in
+                   Some
+                     (Completion.create ~name ~env
+                        ~kind:
+                          (Completion.Field
+                             (f, t.item.decl |> Shared.declToString t.name.txt)))
+                 else None))
           @ !res
       | _ -> ());
   !res
 
-let isCapitalized name =
-  if name = "" then false
-  else
-    let c = name.[0] in
-    match c with 'A' .. 'Z' -> true | _ -> false
-
-type completion =
-  | QualifiedRecordAccess of path (* e.g. _.A.B.field where _ indicates a path ending in a lowercase id *)
-  | RecordAccess of path * path * string (* e.g. A.B.var .f1.f2 .f3 *)
-  | Path of path
-(* e.g. A.B.var or A.B *)
-
-let determineCompletion (dotpath : path) =
-  let rec loop dotpath =
-    match dotpath with
-    | [] -> assert false
-    | [one] -> Path [one]
-    | [one; two] ->
-      if isCapitalized one then Path [one; two]
-      else RecordAccess ([one], [], two)
-    | one :: rest -> (
-      if isCapitalized one then
-        match loop rest with
-        | Path path -> Path (one :: path)
-        | RecordAccess (valuePath, middleFields, lastField) ->
-          RecordAccess (one :: valuePath, middleFields, lastField)
-        | QualifiedRecordAccess _ as completion ->
-          (* A. _.B.field  -> _.B.field *)
-          completion
-      else
-        match loop rest with
-        | Path path ->
-          (* x. B.field -> _.B.field *)
-          QualifiedRecordAccess path
-        | RecordAccess ([name], middleFields, lastField) ->
-          RecordAccess ([one], name :: middleFields, lastField)
-        | RecordAccess (valuePath, middleFields, lastField) ->
-          (* x.A.B.v.f1.f2.f3 --> .A.B.v.f1.f2.f3 *)
-          QualifiedRecordAccess (valuePath @ middleFields @ [lastField])
-        | QualifiedRecordAccess _ as completion ->
-          (* x. _.A.f -> _.A.f *)
-          completion)
+let findModuleInScope ~env ~moduleName ~scope =
+  let modulesTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterModules (fun _ declared ->
+         Hashtbl.replace modulesTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let result = ref None in
+  let processModule name loc =
+    if name = moduleName && !result = None then
+      match Hashtbl.find_opt modulesTable (name, Loc.start loc) with
+      | Some declared -> result := Some declared
+      | None ->
+        Log.log
+          (Printf.sprintf "Module Not Found %s loc:%s\n" name (Loc.toString loc))
   in
-  loop dotpath
+  scope |> Scope.iterModulesBeforeFirstOpen processModule;
+  scope |> Scope.iterModulesAfterFirstOpen processModule;
+  !result
 
-(* Note: This is a hack. It will be wrong some times if you have a local thing
-   that overrides an open.
+let resolvePathFromStamps ~(env : QueryEnv.t) ~package ~scope ~moduleName ~path
+    =
+  (* Log.log("Finding from stamps " ++ name); *)
+  match findModuleInScope ~env ~moduleName ~scope with
+  | None -> None
+  | Some declared -> (
+    (* Log.log("found it"); *)
+    match ProcessCmt.findInModule ~env declared.item path with
+    | None -> None
+    | Some res -> (
+      match res with
+      | `Local (env, name) -> Some (env, name)
+      | `Global (moduleName, fullPath) -> (
+        match ProcessCmt.fileForModule ~package moduleName with
+        | None -> None
+        | Some file ->
+          ProcessCmt.resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath
+            ~package)))
 
-   Maybe the way to fix it is to make note of what things in an open override
-   locally defined things...
-*)
-let getEnvWithOpens ~pos ~(env : QueryEnv.t) ~package ~(opens : QueryEnv.t list)
-    (path : string list) =
-  match ProcessCmt.resolveFromStamps ~env ~path ~package ~pos with
+let resolveModuleWithOpens ~opens ~package ~moduleName =
+  let rec loop opens =
+    match opens with
+    | (env : QueryEnv.t) :: rest -> (
+      Log.log ("Looking for env in " ^ Uri2.toString env.file.uri);
+      match ProcessCmt.resolvePath ~env ~package ~path:[moduleName; ""] with
+      | Some (env, _) -> Some env
+      | None -> loop rest)
+    | [] -> None
+  in
+  loop opens
+
+let resolveFileModule ~moduleName ~package =
+  Log.log ("Getting module " ^ moduleName);
+  match ProcessCmt.fileForModule ~package moduleName with
+  | None -> None
+  | Some file ->
+    Log.log "got it";
+    let env = QueryEnv.fromFile file in
+    Some env
+
+let getEnvWithOpens ~scope ~(env : QueryEnv.t) ~package
+    ~(opens : QueryEnv.t list) ~moduleName (path : string list) =
+  (* TODO: handle interleaving of opens and local modules correctly *)
+  match resolvePathFromStamps ~env ~scope ~moduleName ~path ~package with
   | Some x -> Some x
-  | None ->
-    let rec loop opens =
-      match opens with
-      | (env : QueryEnv.t) :: rest -> (
-        Log.log ("Looking for env in " ^ Uri2.toString env.file.uri);
-        match ProcessCmt.resolvePath ~env ~package ~path with
-        | Some x -> Some x
-        | None -> loop rest)
-      | [] -> (
-        match path with
-        | [] | [_] -> None
-        | top :: path -> (
-          Log.log ("Getting module " ^ top);
-          match ProcessCmt.fileForModule ~package top with
-          | None -> None
-          | Some file ->
-            Log.log "got it";
-            let env = QueryEnv.fromFile file in
-            ProcessCmt.resolvePath ~env ~package ~path))
-    in
-    loop opens
+  | None -> (
+    match resolveModuleWithOpens ~opens ~package ~moduleName with
+    | Some env -> ProcessCmt.resolvePath ~env ~package ~path
+    | None -> (
+      match resolveFileModule ~moduleName ~package with
+      | None -> None
+      | Some env -> ProcessCmt.resolvePath ~env ~package ~path))
 
 let detail name (kind : Completion.kind) =
   match kind with
   | Type {decl} -> decl |> Shared.declToString name
   | Value typ -> typ |> Shared.typeToString
+  | ObjLabel typ -> typ |> Shared.typeToString
   | Module _ -> "module"
   | FileModule _ -> "file module"
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
 
-let localValueCompletions ~pos ~(env : QueryEnv.t) suffix =
-  let results = [] in
-  Log.log "---------------- LOCAL VAL";
-  let results =
-    if suffix = "" || isCapitalized suffix then
-      results
-      @ completionForDeclaredModules ~pos ~env ~suffix
-      @ completionForConstructors ~env ~suffix
-    else results
-  in
-  let results =
-    if suffix = "" || not (isCapitalized suffix) then
-      results
-      @ completionForDeclaredValues ~pos ~env ~suffix
-      @ completionForDeclaredTypes ~pos ~env ~suffix
-      @ completionForFields ~env ~suffix
-    else results
-  in
-  results |> List.map (fun r -> (r, env))
+let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
+    ~(completionContext : Completable.completionContext) =
+  Log.log ("findAllCompletions uri:" ^ Uri2.toString env.file.uri);
+  match completionContext with
+  | Value ->
+    completionForExportedValues ~env ~prefix ~exact ~namesUsed
+    @ completionsForExportedConstructors ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
+  | Type ->
+    completionForExportedTypes ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
+  | Module -> completionForExportedModules ~env ~prefix ~exact ~namesUsed
+  | Field ->
+    completionForExportedFields ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
 
-let valueCompletions ~(env : QueryEnv.t) suffix =
-  Log.log (" - Completing in " ^ Uri2.toString env.file.uri);
-  let results = [] in
-  let results =
-    if suffix = "" || isCapitalized suffix then (
-      (* Get rid of lowercase modules (#417) *)
-      Exported.iter env.exported Exported.Module (fun name _ ->
-          if not (isCapitalized name) then
-            Exported.removeModule env.exported name);
-      results
-      @ completionForExportedModules ~env ~suffix
-      @ completionForConstructors ~env ~suffix)
-    else results
+let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
+    ~scope =
+  let valueTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterValues (fun _ declared ->
+         Hashtbl.replace valueTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let constructorTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterConstructors (fun _ declared ->
+         Hashtbl.replace constructorTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let namesUsed = Hashtbl.create 10 in
+  let resultRev = ref [] in
+  let processValue name loc =
+    if checkName name ~prefix ~exact then
+      match Hashtbl.find_opt valueTable (name, Loc.start loc) with
+      | Some declared ->
+        if not (Hashtbl.mem namesUsed name) then (
+          Hashtbl.add namesUsed name ();
+          resultRev :=
+            {
+              (Completion.create ~name:declared.name.txt ~env
+                 ~kind:(Value declared.item))
+              with
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !resultRev)
+      | None ->
+        Log.log
+          (Printf.sprintf "Completion Value Not Found %s loc:%s\n" name
+             (Loc.toString loc))
   in
-  let results =
-    if suffix = "" || not (isCapitalized suffix) then (
-      Log.log " -- not capitalized";
-      results
-      @ completionForExportedValues ~env ~suffix
-      @ completionForExportedTypes ~env ~suffix
-      @ completionForFields ~env ~suffix)
-    else results
+  let processConstructor name loc =
+    if checkName name ~prefix ~exact then
+      match Hashtbl.find_opt constructorTable (name, Loc.start loc) with
+      | Some declared ->
+        if not (Hashtbl.mem namesUsed name) then (
+          Hashtbl.add namesUsed name ();
+          resultRev :=
+            {
+              (Completion.create ~name:declared.name.txt ~env
+                 ~kind:
+                   (Constructor
+                      ( declared.item,
+                        snd declared.item.typeDecl
+                        |> Shared.declToString (fst declared.item.typeDecl) )))
+              with
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !resultRev)
+      | None ->
+        Log.log
+          (Printf.sprintf "Completion Constructor Not Found %s loc:%s\n" name
+             (Loc.toString loc))
   in
-  results |> List.map (fun r -> (r, env))
+  scope |> Scope.iterValuesBeforeFirstOpen processValue;
+  scope |> Scope.iterConstructorsBeforeFirstOpen processConstructor;
+  let valuesFromOpens =
+    opens
+    |> List.fold_left
+         (fun results env ->
+           let completionsFromThisOpen =
+             findAllCompletions ~env ~prefix ~exact ~namesUsed
+               ~completionContext:Value
+           in
+           completionsFromThisOpen @ results)
+         []
+  in
+  scope |> Scope.iterValuesAfterFirstOpen processValue;
+  scope |> Scope.iterConstructorsAfterFirstOpen processConstructor;
+  List.rev_append !resultRev valuesFromOpens
 
-let attributeCompletions ~(env : QueryEnv.t) ~suffix =
-  let results = [] in
-  let results =
-    if suffix = "" || isCapitalized suffix then
-      results @ completionForExportedModules ~env ~suffix
-    else results
+let findLocalCompletionsForTypes ~env ~prefix ~exact ~opens ~scope =
+  let typesTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterTypes (fun _ declared ->
+         Hashtbl.replace typesTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let namesUsed = Hashtbl.create 10 in
+  let resultRev = ref [] in
+  let processType name loc =
+    if checkName name ~prefix ~exact then
+      match Hashtbl.find_opt typesTable (name, Loc.start loc) with
+      | Some declared ->
+        if not (Hashtbl.mem namesUsed name) then (
+          Hashtbl.add namesUsed name ();
+          resultRev :=
+            {
+              (Completion.create ~name:declared.name.txt ~env
+                 ~kind:(Type declared.item))
+              with
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !resultRev)
+      | None ->
+        Log.log
+          (Printf.sprintf "Completion Type Not Found %s loc:%s\n" name
+             (Loc.toString loc))
   in
-  let results =
-    if suffix = "" || not (isCapitalized suffix) then
-      results
-      @ completionForExportedValues ~env ~suffix
-      @ completionForFields ~env ~suffix
-    else results
+  scope |> Scope.iterTypesBeforeFirstOpen processType;
+  let valuesFromOpens =
+    opens
+    |> List.fold_left
+         (fun results env ->
+           let completionsFromThisOpen =
+             findAllCompletions ~env ~prefix ~exact ~namesUsed
+               ~completionContext:Type
+           in
+           completionsFromThisOpen @ results)
+         []
   in
-  results |> List.map (fun r -> (r, env))
+  scope |> Scope.iterTypesAfterFirstOpen processType;
+  List.rev_append !resultRev valuesFromOpens
+
+let findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope =
+  let modulesTable = Hashtbl.create 10 in
+  env.QueryEnv.file.stamps
+  |> Stamps.iterModules (fun _ declared ->
+         Hashtbl.replace modulesTable
+           (declared.name.txt, declared.extentLoc |> Loc.start)
+           declared);
+  let namesUsed = Hashtbl.create 10 in
+  let resultRev = ref [] in
+  let processModule name loc =
+    if checkName name ~prefix ~exact then
+      match Hashtbl.find_opt modulesTable (name, Loc.start loc) with
+      | Some declared ->
+        if not (Hashtbl.mem namesUsed name) then (
+          Hashtbl.add namesUsed name ();
+          resultRev :=
+            {
+              (Completion.create ~name:declared.name.txt ~env
+                 ~kind:(Module declared.item))
+              with
+              deprecated = declared.deprecated;
+              docstring = declared.docstring;
+            }
+            :: !resultRev)
+      | None ->
+        Log.log
+          (Printf.sprintf "Completion Module Not Found %s loc:%s\n" name
+             (Loc.toString loc))
+  in
+  scope |> Scope.iterModulesBeforeFirstOpen processModule;
+  let valuesFromOpens =
+    opens
+    |> List.fold_left
+         (fun results env ->
+           let completionsFromThisOpen =
+             findAllCompletions ~env ~prefix ~exact ~namesUsed
+               ~completionContext:Module
+           in
+           completionsFromThisOpen @ results)
+         []
+  in
+  scope |> Scope.iterModulesAfterFirstOpen processModule;
+  List.rev_append !resultRev valuesFromOpens
+
+let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
+    ~scope ~(completionContext : Completable.completionContext) =
+  (* TODO: handle arbitrary interleaving of opens and local bindings correctly *)
+  Log.log
+    ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
+   ^ Pos.toString pos);
+  match completionContext with
+  | Value ->
+    findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
+      ~scope
+  | Type -> findLocalCompletionsForTypes ~env ~prefix ~exact ~opens ~scope
+  | Module -> findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope
+  | Field ->
+    (* There's no local completion for fields *)
+    []
 
 (* TODO filter out things that are defined after the current position *)
 let resolveRawOpens ~env ~rawOpens ~package =
@@ -754,7 +872,7 @@ let resolveRawOpens ~env ~rawOpens ~package =
       ~previous:
         (List.map QueryEnv.fromFile
            (packageOpens |> Utils.filterMap (ProcessCmt.fileForModule ~package)))
-      rawOpens ~package
+      (List.rev rawOpens) ~package
   in
   opens
 
@@ -781,120 +899,38 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath =
-  Log.log
-    ("Opens folkz > "
-    ^ string_of_int (List.length rawOpens)
-    ^ " "
-    ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let env = QueryEnv.fromFile full.file in
-  let package = full.package in
-  let packageOpens = "Pervasives" :: package.opens in
-  Log.log ("Package opens " ^ String.concat " " packageOpens);
-  let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
-  Log.log
-    ("Opens nows "
-    ^ string_of_int (List.length resolvedOpens)
-    ^ " "
-    ^ String.concat " "
-        (resolvedOpens
-        |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
-  (* Last open takes priority *)
-  let opens = List.rev resolvedOpens in
-  match dotpath with
+let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
+    ~completionContext ~env path =
+  match path with
   | [] -> []
-  | [suffix] ->
-    let locallyDefinedValues = localValueCompletions ~pos ~env suffix in
-    let alreadyUsedIdentifiers = Hashtbl.create 10 in
-    let valuesFromOpens =
-      opens
-      |> List.fold_left
-           (fun results env ->
-             let completionsFromThisOpen = valueCompletions ~env suffix in
-             List.filter
-               (fun ((declared : Completion.t), _env) ->
-                 if Hashtbl.mem alreadyUsedIdentifiers declared.name then false
-                 else (
-                   Hashtbl.add alreadyUsedIdentifiers declared.name true;
-                   true))
-               completionsFromThisOpen
-             @ results)
-           []
+  | [prefix] ->
+    let localCompletionsWithOpens =
+      findLocalCompletionsWithOpens ~pos ~env ~prefix ~exact ~opens ~scope
+        ~completionContext
     in
-    (* TODO complete the namespaced name too *)
-    let localModuleNames =
+    let fileModules =
       allFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
-             if Utils.startsWith name suffix && not (String.contains name '-')
+             if
+               checkName name ~prefix ~exact
+               && not
+                    (* TODO complete the namespaced name too *)
+                    (String.contains name '-')
              then
                Some
-                 ( Completion.create ~name ~kind:(Completion.FileModule name),
-                   env )
+                 (Completion.create ~name ~env
+                    ~kind:(Completion.FileModule name))
              else None)
     in
-    locallyDefinedValues @ valuesFromOpens @ localModuleNames
-  | _ -> (
-    Log.log ("Completing for " ^ String.concat "<.>" dotpath);
-    match determineCompletion dotpath with
-    | Path path -> (
-      Log.log ("Path " ^ pathToString path);
-      match getEnvWithOpens ~pos ~env ~package ~opens path with
-      | Some (env, suffix) ->
-        Log.log "Got the env";
-        valueCompletions ~env suffix
-      | None -> [])
-    | RecordAccess (valuePath, middleFields, lastField) -> (
-      Log.log ("lastField :" ^ lastField);
-      Log.log ("-------------- Looking for " ^ (valuePath |> pathToString));
-      match getEnvWithOpens ~pos ~env ~package ~opens valuePath with
-      | Some (env, name) -> (
-        match
-          ProcessCmt.findInScope pos name Stamps.iterValues env.file.stamps
-        with
-        | None -> []
-        | Some declared -> (
-          Log.log ("Found it! " ^ declared.name.txt);
-          match declared.item |> extractRecordType ~env ~package with
-          | None -> []
-          | Some (env, fields, typDecl) -> (
-            match
-              middleFields
-              |> List.fold_left
-                   (fun current name ->
-                     match current with
-                     | None -> None
-                     | Some (env, fields, _) -> (
-                       match
-                         fields |> List.find_opt (fun f -> f.fname.txt = name)
-                       with
-                       | None -> None
-                       | Some attr ->
-                         Log.log ("Found attr " ^ name);
-                         attr.typ |> extractRecordType ~env ~package))
-                   (Some (env, fields, typDecl))
-            with
-            | None -> []
-            | Some (env, fields, typDecl) ->
-              fields
-              |> Utils.filterMap (fun field ->
-                     if Utils.startsWith field.fname.txt lastField then
-                       Some
-                         ( Completion.create ~name:field.fname.txt
-                             ~kind:
-                               (Completion.Field
-                                  ( field,
-                                    typDecl.item.decl
-                                    |> Shared.declToString typDecl.name.txt )),
-                           env )
-                     else None))))
-      | None -> [])
-    | QualifiedRecordAccess path -> (
-      match getEnvWithOpens ~pos ~env ~package ~opens path with
-      | None -> []
-      | Some (env, suffix) ->
-        attributeCompletions ~env ~suffix
-        @ List.concat
-            (opens |> List.map (fun env -> attributeCompletions ~env ~suffix))))
+    localCompletionsWithOpens @ fileModules
+  | moduleName :: path -> (
+    Log.log ("Path " ^ pathToString path);
+    match getEnvWithOpens ~scope ~env ~package ~opens ~moduleName path with
+    | Some (env, prefix) ->
+      Log.log "Got the env";
+      let namesUsed = Hashtbl.create 10 in
+      findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
+    | None -> [])
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
   let docContent =
@@ -916,10 +952,220 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
         else Some {kind = "markdown"; value = docContent});
     }
 
-let processCompletable ~processDotPath ~full ~package ~rawOpens
-    (completable : PartialParser.completable) =
+let completionToItem {Completion.name; deprecated; docstring; kind} =
+  mkItem ~name
+    ~kind:(Completion.kindToInt kind)
+    ~deprecated ~detail:(detail name kind) ~docstring
+
+let completionsGetTypeEnv = function
+  | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
+  | {Completion.kind = ObjLabel typ; env} :: _ -> Some (typ, env)
+  | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
+  | _ -> None
+
+let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+    ~env ~exact ~scope (contextPath : Completable.contextPath) =
+  match contextPath with
+  | CPString ->
+    [
+      Completion.create ~name:"string" ~env
+        ~kind:
+          (Completion.Value
+             (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
+    ]
+  | CPArray ->
+    [
+      Completion.create ~name:"array" ~env
+        ~kind:
+          (Completion.Value
+             (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
+    ]
+  | CPId (path, completionContext) ->
+    path
+    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
+         ~completionContext ~env ~scope
+  | CPField (CPId (path, Module), fieldName) ->
+    (* M.field *)
+    path @ [fieldName]
+    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
+         ~completionContext:Field ~env ~scope
+  | CPField (cp, fieldName) -> (
+    match
+      cp
+      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+           ~env ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, env) -> (
+      match typ |> extractRecordType ~env ~package with
+      | Some (env, fields, typDecl) ->
+        fields
+        |> Utils.filterMap (fun field ->
+               if checkName field.fname.txt ~prefix:fieldName ~exact then
+                 Some
+                   (Completion.create ~name:field.fname.txt ~env
+                      ~kind:
+                        (Completion.Field
+                           ( field,
+                             typDecl.item.decl
+                             |> Shared.declToString typDecl.name.txt )))
+               else None)
+      | None -> [])
+    | None -> [])
+  | CPObj (cp, label) -> (
+    match
+      cp
+      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+           ~env ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, env) -> (
+      match typ |> extractObjectType ~env ~package with
+      | Some (env, tObj) ->
+        let rec getFields (texp : Types.type_expr) =
+          match texp.desc with
+          | Tfield (name, _, t1, t2) ->
+            let fields = t2 |> getFields in
+            (name, t1) :: fields
+          | Tlink te -> te |> getFields
+          | Tvar None -> []
+          | _ -> []
+        in
+        tObj |> getFields
+        |> Utils.filterMap (fun (field, typ) ->
+               if checkName field ~prefix:label ~exact then
+                 Some
+                   (Completion.create ~name:field ~env
+                      ~kind:(Completion.ObjLabel typ))
+               else None)
+      | None -> [])
+    | None -> [])
+  | CPPipe (cp, funNamePrefix) -> (
+    match
+      cp
+      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+           ~env ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, _envNotUsed) -> (
+      let arrayModulePath = ["Js"; "Array2"] in
+      let listModulePath = ["Belt"; "List"] in
+      let optionModulePath = ["Belt"; "Option"] in
+      let stringModulePath = ["Js"; "String2"] in
+      let getModulePath path =
+        let rec loop (path : Path.t) =
+          match path with
+          | Pident id -> [Ident.name id]
+          | Pdot (p, s, _) -> s :: loop p
+          | Papply _ -> []
+        in
+        match path with
+        | Path.Pident id when Ident.name id = "array" -> arrayModulePath
+        | Path.Pident id when Ident.name id = "list" -> listModulePath
+        | Path.Pident id when Ident.name id = "option" -> optionModulePath
+        | Path.Pident id when Ident.name id = "string" -> stringModulePath
+        | _ -> ( match loop path with _ :: rest -> List.rev rest | [] -> [])
+      in
+      let getConstr typ =
+        match typ.Types.desc with
+        | Tconstr (path, _, _)
+        | Tlink {desc = Tconstr (path, _, _)}
+        | Tpoly ({desc = Tconstr (path, _, _)}, []) ->
+          Some path
+        | _ -> None
+      in
+      let fromType typ =
+        match getConstr typ with
+        | None -> None
+        | Some path -> Some (getModulePath path)
+      in
+      let lhsPath = fromType typ in
+      let removePackageOpens modulePath =
+        match modulePath with
+        | toplevel :: rest when package.opens |> List.mem toplevel -> rest
+        | _ -> modulePath
+      in
+      let rec removeRawOpen rawOpen modulePath =
+        match (rawOpen, modulePath) with
+        | [_], _ -> Some modulePath
+        | s :: inner, first :: restPath when s = first ->
+          removeRawOpen inner restPath
+        | _ -> None
+      in
+      let rec removeRawOpens rawOpens modulePath =
+        match rawOpens with
+        | rawOpen :: restOpens -> (
+          let newModulePath = removeRawOpens restOpens modulePath in
+          match removeRawOpen rawOpen newModulePath with
+          | None -> newModulePath
+          | Some mp -> mp)
+        | [] -> modulePath
+      in
+      match lhsPath with
+      | Some modulePath -> (
+        match modulePath with
+        | _ :: _ ->
+          let modulePathMinusOpens =
+            modulePath |> removePackageOpens |> removeRawOpens rawOpens
+            |> String.concat "."
+          in
+          let completionName name =
+            if modulePathMinusOpens = "" then name
+            else modulePathMinusOpens ^ "." ^ name
+          in
+          let completions =
+            modulePath @ [funNamePrefix]
+            |> getCompletionsForPath ~completionContext:Value ~exact:false
+                 ~package ~opens ~allFiles ~pos ~env ~scope
+          in
+          completions
+          |> List.map (fun (completion : Completion.t) ->
+                 {
+                   completion with
+                   name = completionName completion.name;
+                   env
+                   (* Restore original env for the completion after x->foo()... *);
+                 })
+        | [] -> [])
+      | None -> [])
+    | None -> [])
+
+let getOpens ~rawOpens ~package ~env =
+  Log.log
+    ("Opens folkz > "
+    ^ string_of_int (List.length rawOpens)
+    ^ " "
+    ^ String.concat " ... " (rawOpens |> List.map pathToString));
+  let packageOpens = "Pervasives" :: package.opens in
+  Log.log ("Package opens " ^ String.concat " " packageOpens);
+  let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
+  Log.log
+    ("Opens nows "
+    ^ string_of_int (List.length resolvedOpens)
+    ^ " "
+    ^ String.concat " "
+        (resolvedOpens
+        |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
+  (* Last open takes priority *)
+  List.rev resolvedOpens
+
+let processCompletable ~package ~scope ~env ~pos (completable : Completable.t) =
+  let rawOpens = Scope.getRawOpens scope in
+  let opens = getOpens ~rawOpens ~package ~env in
+  let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
+  let findTypeOfValue path =
+    path
+    |> getCompletionsForPath ~completionContext:Value ~exact:true ~package
+         ~opens ~allFiles ~pos ~env ~scope
+    |> completionsGetTypeEnv
+  in
   match completable with
-  | Cjsx ([id], prefix, identsSeen) when String.lowercase_ascii id = id ->
+  | Cpath contextPath ->
+    contextPath
+    |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+         ~env ~exact:false ~scope
+    |> List.map completionToItem
+  | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
     in
@@ -935,15 +1181,14 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
       |> List.map mkLabel)
       @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
-    let completions = processDotPath ~exact:true (componentPath @ ["make"]) in
     let labels =
-      match completions with
-      | ({Completion.kind = Completion.Value typ}, _env) :: _ ->
+      match componentPath @ ["make"] |> findTypeOfValue with
+      | Some (typ, _env) ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
           | Tfield (name, _, t1, t2) ->
             let fields = t2 |> getFields in
-            (name, t1) :: fields
+            if name = "children" then fields else (name, t1) :: fields
           | Tlink te -> te |> getFields
           | Tvar None -> []
           | _ -> []
@@ -977,7 +1222,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
           | _ -> []
         in
         typ |> getLabels
-      | _ -> []
+      | None -> []
     in
     let mkLabel_ name typString =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
@@ -993,129 +1238,6 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
              Utils.startsWith name prefix && not (List.mem name identsSeen))
       |> List.map mkLabel)
       @ keyLabels
-  | Cdotpath dotpath ->
-    let completions = dotpath |> processDotPath ~exact:false in
-    (* TODO(#107): figure out why we're getting duplicates. *)
-    completions |> Utils.dedup
-    |> List.map (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
-           mkItem ~name
-             ~kind:(Completion.kindToInt kind)
-             ~deprecated ~detail:(detail name kind) ~docstring)
-  | Cpipe (pipe, partialName) -> (
-    let arrayModulePath = ["Js"; "Array2"] in
-    let listModulePath = ["Belt"; "List"] in
-    let optionModulePath = ["Belt"; "Option"] in
-    let stringModulePath = ["Js"; "String2"] in
-    let getModulePath path =
-      let rec loop (path : Path.t) =
-        match path with
-        | Pident id -> [Ident.name id]
-        | Pdot (p, s, _) -> s :: loop p
-        | Papply _ -> []
-      in
-      match path with
-      | Path.Pident id when Ident.name id = "array" -> arrayModulePath
-      | Path.Pident id when Ident.name id = "list" -> listModulePath
-      | Path.Pident id when Ident.name id = "option" -> optionModulePath
-      | Path.Pident id when Ident.name id = "string" -> stringModulePath
-      | _ -> ( match loop path with _ :: rest -> List.rev rest | [] -> [])
-    in
-    let getLhsPath ~pipeId ~partialName =
-      let getConstr typ =
-        match typ.Types.desc with
-        | Tconstr (path, _, _)
-        | Tlink {desc = Tconstr (path, _, _)}
-        | Tpoly ({desc = Tconstr (path, _, _)}, []) ->
-          Some path
-        | _ -> None
-      in
-      let fromType typ =
-        match getConstr typ with
-        | None -> None
-        | Some path ->
-          let modulePath = getModulePath path in
-          Some (modulePath, partialName)
-      in
-      let getField ~env ~typ fieldName =
-        match extractRecordType typ ~env ~package with
-        | Some (env1, fields, _) -> (
-          match
-            fields |> List.find_opt (fun field -> field.fname.txt = fieldName)
-          with
-          | None -> None
-          | Some field -> Some (field.typ, env1))
-        | None -> None
-      in
-      let rec getFields ~env ~typ = function
-        | [] -> Some (typ, env)
-        | fieldName :: rest -> (
-          match getField ~env ~typ fieldName with
-          | None -> None
-          | Some (typ1, env1) -> getFields ~env:env1 ~typ:typ1 rest)
-      in
-      match String.split_on_char '.' pipeId with
-      | x :: fieldNames -> (
-        match [x] |> processDotPath ~exact:true with
-        | ({Completion.kind = Value typ}, env) :: _ -> (
-          match getFields ~env ~typ fieldNames with
-          | None -> None
-          | Some (typ1, _env1) -> fromType typ1)
-        | _ -> None)
-      | [] -> None
-    in
-    let lhsPath =
-      match pipe with
-      | PipeId pipeId -> getLhsPath ~pipeId ~partialName
-      | PipeString -> Some (stringModulePath, partialName)
-      | PipeArray -> Some (arrayModulePath, partialName)
-    in
-    let removePackageOpens modulePath =
-      match modulePath with
-      | toplevel :: rest when package.opens |> List.mem toplevel -> rest
-      | _ -> modulePath
-    in
-    let rec removeRawOpen rawOpen modulePath =
-      match (rawOpen, modulePath) with
-      | [_], _ -> Some modulePath
-      | s :: inner, first :: restPath when s = first ->
-        removeRawOpen inner restPath
-      | _ -> None
-    in
-    let rec removeRawOpens rawOpens modulePath =
-      match rawOpens with
-      | rawOpen :: restOpens ->
-        let newModulePath =
-          match removeRawOpen rawOpen modulePath with
-          | None -> modulePath
-          | Some newModulePath -> newModulePath
-        in
-        removeRawOpens restOpens newModulePath
-      | [] -> modulePath
-    in
-    match lhsPath with
-    | Some (modulePath, partialName) -> (
-      match modulePath with
-      | _ :: _ ->
-        let modulePathMinusOpens =
-          modulePath |> removePackageOpens |> removeRawOpens rawOpens
-          |> String.concat "."
-        in
-        let completionName name =
-          if modulePathMinusOpens = "" then name
-          else modulePathMinusOpens ^ "." ^ name
-        in
-        let dotpath = modulePath @ [partialName] in
-        let declareds = dotpath |> processDotPath ~exact:false in
-        declareds
-        |> List.filter (fun ({Completion.kind}, _env) ->
-               match kind with Completion.Value _ -> true | _ -> false)
-        |> List.map
-             (fun ({Completion.name; deprecated; docstring; kind}, _env) ->
-               mkItem ~name:(completionName name)
-                 ~kind:(Completion.kindToInt kind)
-                 ~detail:(detail name kind) ~deprecated ~docstring)
-      | _ -> [])
-    | None -> [])
   | Cdecorator prefix ->
     let mkDecorator name =
       mkItem ~name ~kind:4 ~deprecated:None ~detail:"" ~docstring:[]
@@ -1162,8 +1284,8 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     |> List.map mkDecorator
   | Clabel (funPath, prefix, identsSeen) ->
     let labels =
-      match funPath |> processDotPath ~exact:true with
-      | ({Completion.kind = Value typ}, _env) :: _ ->
+      match funPath |> findTypeOfValue with
+      | Some (typ, _env) ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
           | Tlink t1 | Tsubst t1 -> getLabels t1
@@ -1173,7 +1295,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
           | _ -> []
         in
         typ |> getLabels
-      | _ -> []
+      | None -> []
     in
     let mkLabel (name, typ) =
       mkItem ~name ~kind:4 ~deprecated:None
@@ -1184,86 +1306,7 @@ let processCompletable ~processDotPath ~full ~package ~rawOpens
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
-  | Cobj (lhs, path, prefix) ->
-    let rec getFields (texp : Types.type_expr) =
-      match texp.desc with
-      | Tfield (name, _, t1, t2) ->
-        let fields = t2 |> getFields in
-        (name, t1) :: fields
-      | Tlink te -> te |> getFields
-      | Tvar None -> []
-      | _ -> []
-    in
-    let getObjectFields ~env (t : Types.type_expr) =
-      match t |> extractObjectType ~env ~package with
-      | Some (env, tObj) -> (env, getFields tObj)
-      | None -> (env, [])
-    in
-    let rec resolvePath ~env fields path =
-      match path with
-      | name :: restPath -> (
-        match fields |> List.find_opt (fun (n, _) -> n = name) with
-        | Some (_, fieldType) ->
-          let env, innerFields = getObjectFields ~env fieldType in
-          resolvePath ~env innerFields restPath
-        | None -> [])
-      | [] -> fields
-    in
-    let env0 = QueryEnv.fromFile full.file in
-    let env, fields =
-      match lhs |> processDotPath ~exact:true with
-      | ({Completion.kind = Value typ}, env) :: _ -> getObjectFields ~env typ
-      | _ -> (env0, [])
-    in
-    let labels = resolvePath ~env fields path in
-    let mkLabel_ name typString =
-      mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
-    in
-    let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
-    if labels = [] then []
-    else
-      labels
-      |> List.filter (fun (name, _t) -> Utils.startsWith name prefix)
-      |> List.map mkLabel
 
-let getCompletable ~textOpt ~pos =
-  match textOpt with
-  | None -> None
-  | Some text -> (
-    match PartialParser.positionToOffset text pos with
-    | None -> None
-    | Some offset -> (
-      match PartialParser.findCompletable text offset with
-      | None -> None
-      | Some completable ->
-        let offsetFromLineStart = offset - snd pos in
-        (* try to avoid confusion e.g. unclosed quotes at current position *)
-        let rawOpens = PartialParser.findOpens text offsetFromLineStart in
-        Some (completable, rawOpens)))
-
-let computeCompletions ~completable ~full ~pos ~rawOpens =
-  let package = full.package in
-  let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
-  let processDotPath ~exact dotpath =
-    let completions = getCompletions ~full ~rawOpens ~allFiles ~pos ~dotpath in
-    match dotpath |> List.rev with
-    | last :: _ when exact ->
-      (* Heuristic to approximate scope.
-         Take the last position before pos if any, or just return the first element. *)
-      let rec prioritize decls =
-        match decls with
-        | (d1, e1) :: (d2, e2) :: rest ->
-          let pos2 = d2.Completion.extentLoc.loc_start |> Utils.tupleOfLexing in
-          if pos2 >= pos then prioritize ((d1, e1) :: rest)
-          else
-            let pos1 = d1.extentLoc.loc_start |> Utils.tupleOfLexing in
-            if pos1 <= pos2 then prioritize ((d2, e2) :: rest)
-            else prioritize ((d1, e1) :: rest)
-        | [] | [_] -> decls
-      in
-      completions
-      |> List.filter (fun ({Completion.name}, _env) -> name = last)
-      |> prioritize
-    | _ -> completions
-  in
-  completable |> processCompletable ~processDotPath ~full ~package ~rawOpens
+let computeCompletions ~(completable : Completable.t) ~package ~pos ~scope ~env
+    =
+  completable |> processCompletable ~package ~scope ~env ~pos

@@ -60,4 +60,36 @@ resolvePath path:map
 [ref] Inner uri list.mli
 {"uri": "list.mli", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 7}}}
 
+Complete tests/src/Debug.res 12:5
+posCursor:[13:4] posNoWhite:[13:3] Found expr:[13:1->13:4]
+Pexp_ident eqN:[13:1->13:4]
+Completable: Cpath Value[eqN]
+Opens folkz > 1 Js.place holder
+Package opens Pervasives
+Package opens Pervasives
+fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/pervasives.cmti res:tests/node_modules/rescript/lib/ocaml/pervasives.mli
+resolving open Js.place holder
+resolvePath path:Js.place holder
+Not local
+resolvePath path:Js.place holder
+fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/js.cmt res:tests/node_modules/rescript/lib/ocaml/js.ml
+resolvePath path:place holder
+Opens nows 2 pervasives.mli js.ml
+findLocalCompletionsWithOpens uri:Debug.res pos:13:4
+findAllCompletions uri:js.ml
+findAllCompletions uri:pervasives.mli
+[{
+    "label": "eqNullable",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, nullable<'a>) => bool",
+    "documentation": null
+  }, {
+    "label": "eqNull",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, null<'a>) => bool",
+    "documentation": null
+  }]
+
 
