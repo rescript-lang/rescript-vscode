@@ -677,8 +677,8 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
   | Module -> completionForExportedModules ~env ~prefix ~exact ~namesUsed
   | Field ->
-    completionForExportedModules ~env ~prefix ~exact ~namesUsed
-    @ completionForExportedFields ~env ~prefix ~exact ~namesUsed
+    completionForExportedFields ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
 
 let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
     ~scope =
