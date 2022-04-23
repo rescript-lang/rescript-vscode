@@ -536,7 +536,8 @@ let completionForExportedTypes ~env ~prefix ~exact ~namesUsed =
     (Stamps.findType env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun t ->
       Completion.Type t)
 
-let completionsForConstructors ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
+let completionsForExportedConstructors ~(env : QueryEnv.t) ~prefix ~exact
+    ~namesUsed =
   let res = ref [] in
   Exported.iter env.exported Exported.Type (fun _name stamp ->
       match Stamps.findType env.file.stamps stamp with
@@ -670,7 +671,7 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
   match completionContext with
   | Value ->
     completionForExportedValues ~env ~prefix ~exact ~namesUsed
-    @ completionsForConstructors ~env ~prefix ~exact ~namesUsed
+    @ completionsForExportedConstructors ~env ~prefix ~exact ~namesUsed
     @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
   | Type ->
     completionForExportedTypes ~env ~prefix ~exact ~namesUsed
