@@ -167,10 +167,7 @@ let emitVariable ~id ~debug ~loc emitter =
   emitter |> emitFromLoc ~loc ~type_:Variable
 
 let emitJsxOpen ~lid ~debug ~loc emitter =
-  emitter
-  |> emitLongident
-       ~pos:(Pos.ofLexing loc.Location.loc_start)
-       ~lid ~jsx:true ~debug
+  emitter |> emitLongident ~pos:(Loc.start loc) ~lid ~jsx:true ~debug
 
 let emitJsxClose ~lid ~debug ~pos emitter =
   emitter |> emitLongident ~backwards:true ~pos ~lid ~jsx:true ~debug
@@ -181,21 +178,17 @@ let emitJsxTag ~debug ~name ~pos emitter =
 
 let emitType ~lid ~debug ~loc emitter =
   emitter
-  |> emitLongident ~lowerCaseToken:Token.Type
-       ~pos:(Pos.ofLexing loc.Location.loc_start)
-       ~lid ~debug
+  |> emitLongident ~lowerCaseToken:Token.Type ~pos:(Loc.start loc) ~lid ~debug
 
 let emitRecordLabel ~(label : Longident.t Location.loc) ~debug emitter =
   emitter
-  |> emitLongident ~lowerCaseToken:Token.Property
-       ~pos:(Pos.ofLexing label.loc.loc_start)
-       ~posEnd:(Some (Pos.ofLexing label.loc.loc_end))
+  |> emitLongident ~lowerCaseToken:Token.Property ~pos:(Loc.start label.loc)
+       ~posEnd:(Some (Loc.end_ label.loc))
        ~lid:label.txt ~debug
 
 let emitVariant ~(name : Longident.t Location.loc) ~debug emitter =
   emitter
-  |> emitLongident ~lastToken:(Some Token.EnumMember)
-       ~pos:(Pos.ofLexing name.loc.loc_start)
+  |> emitLongident ~lastToken:(Some Token.EnumMember) ~pos:(Loc.start name.loc)
        ~lid:name.txt ~debug
 
 let command ~debug ~emitter ~path =
@@ -243,9 +236,8 @@ let command ~debug ~emitter ~path =
     | Pexp_ident {txt = lid; loc} ->
       if lid <> Lident "not" then
         emitter
-        |> emitLongident
-             ~pos:(Pos.ofLexing loc.loc_start)
-             ~posEnd:(Some (Pos.ofLexing loc.loc_end))
+        |> emitLongident ~pos:(Loc.start loc)
+             ~posEnd:(Some (Loc.end_ loc))
              ~lid ~debug;
       Ast_iterator.default_iterator.expr iterator e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
@@ -261,15 +253,14 @@ let command ~debug ~emitter ~path =
       emitter (* --> <div... *)
       |> emitJsxTag ~debug ~name:"<"
            ~pos:
-             (let pos = Pos.ofLexing e.pexp_loc.loc_start in
+             (let pos = Loc.start e.pexp_loc in
               (fst pos, snd pos - 1 (* the AST skips the loc of < somehow *)));
       emitter |> emitJsxOpen ~lid:lident.txt ~debug ~loc:pexp_loc;
 
       let posOfGreatherthanAfterProps =
         let rec loop = function
-          | (Asttypes.Labelled "children", {Parsetree.pexp_loc = {loc_start}})
-            :: _ ->
-            Pos.ofLexing loc_start
+          | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
+            Loc.start pexp_loc
           | _ :: args -> loop args
           | [] -> (* should not happen *) (-1, -1)
         in
@@ -277,7 +268,7 @@ let command ~debug ~emitter ~path =
         loop args
       in
       let posOfFinalGreatherthan =
-        let pos = Pos.ofLexing e.pexp_loc.loc_end in
+        let pos = Loc.end_ e.pexp_loc in
         (fst pos, snd pos - 1)
       in
       let selfClosing =
@@ -286,10 +277,10 @@ let command ~debug ~emitter ~path =
         (* there's an off-by one somehow in the AST *)
       in
       (if not selfClosing then
-       let lineStart, colStart = Pos.ofLexing pexp_loc.loc_start in
-       let lineEnd, colEnd = Pos.ofLexing pexp_loc.loc_end in
+       let lineStart, colStart = Loc.start pexp_loc in
+       let lineEnd, colEnd = Loc.end_ pexp_loc in
        let length = if lineStart = lineEnd then colEnd - colStart else 0 in
-       let lineEndWhole, colEndWhole = Pos.ofLexing e.pexp_loc.loc_end in
+       let lineEndWhole, colEndWhole = Loc.end_ e.pexp_loc in
        if length > 0 && colEndWhole > length then (
          emitter
          |> emitJsxClose ~debug ~lid:lident.txt
@@ -329,7 +320,7 @@ let command ~debug ~emitter ~path =
       (me : Parsetree.module_expr) =
     match me.pmod_desc with
     | Pmod_ident {txt = lid; loc} ->
-      emitter |> emitLongident ~pos:(Pos.ofLexing loc.loc_start) ~lid ~debug;
+      emitter |> emitLongident ~pos:(Loc.start loc) ~lid ~debug;
       Ast_iterator.default_iterator.module_expr iterator me
     | _ -> Ast_iterator.default_iterator.module_expr iterator me
   in
@@ -337,7 +328,7 @@ let command ~debug ~emitter ~path =
       (mb : Parsetree.module_binding) =
     emitter
     |> emitLongident
-         ~pos:(Pos.ofLexing mb.pmb_name.loc.loc_start)
+         ~pos:(Loc.start mb.pmb_name.loc)
          ~lid:(Longident.Lident mb.pmb_name.txt) ~debug;
     Ast_iterator.default_iterator.module_binding iterator mb
   in
@@ -345,7 +336,7 @@ let command ~debug ~emitter ~path =
       (md : Parsetree.module_declaration) =
     emitter
     |> emitLongident
-         ~pos:(Pos.ofLexing md.pmd_name.loc.loc_start)
+         ~pos:(Loc.start md.pmd_name.loc)
          ~lid:(Longident.Lident md.pmd_name.txt) ~debug;
     Ast_iterator.default_iterator.module_declaration iterator md
   in
@@ -354,9 +345,8 @@ let command ~debug ~emitter ~path =
     match mt.pmty_desc with
     | Pmty_ident {txt = lid; loc} ->
       emitter
-      |> emitLongident ~upperCaseToken:Token.Type
-           ~pos:(Pos.ofLexing loc.loc_start)
-           ~lid ~debug;
+      |> emitLongident ~upperCaseToken:Token.Type ~pos:(Loc.start loc) ~lid
+           ~debug;
       Ast_iterator.default_iterator.module_type iterator mt
     | _ -> Ast_iterator.default_iterator.module_type iterator mt
   in
@@ -364,7 +354,7 @@ let command ~debug ~emitter ~path =
       (mtd : Parsetree.module_type_declaration) =
     emitter
     |> emitLongident ~upperCaseToken:Token.Type
-         ~pos:(Pos.ofLexing mtd.pmtd_name.loc.loc_start)
+         ~pos:(Loc.start mtd.pmtd_name.loc)
          ~lid:(Longident.Lident mtd.pmtd_name.txt) ~debug;
     Ast_iterator.default_iterator.module_type_declaration iterator mtd
   in
@@ -372,7 +362,7 @@ let command ~debug ~emitter ~path =
       (od : Parsetree.open_description) =
     emitter
     |> emitLongident
-         ~pos:(Pos.ofLexing od.popen_lid.loc.loc_start)
+         ~pos:(Loc.start od.popen_lid.loc)
          ~lid:od.popen_lid.txt ~debug;
     Ast_iterator.default_iterator.open_description iterator od
   in
