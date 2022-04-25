@@ -832,6 +832,11 @@ DocumentSymbol tests/src/Completion.res
         "name": "name",
         "kind": 15,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 235, "character": 0}, "end": {"line": 235, "character": 16}}}
+},
+{
+        "name": "notHere",
+        "kind": 15,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 239, "character": 0}, "end": {"line": 239, "character": 22}}}
 }
 ]
 
@@ -1305,4 +1310,9 @@ Completable: Cpath Value[na]
     "detail": "float",
     "documentation": null
   }]
+
+Complete tests/src/Completion.res 239:17
+posCursor:[239:17] posNoWhite:[239:14] Found expr:[239:14->239:22]
+Completable: Cnone
+[]
 
