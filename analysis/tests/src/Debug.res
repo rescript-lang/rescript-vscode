@@ -11,7 +11,8 @@ module Before = {
   let _ = Id.getCmpInternal
 }
 module Inner = {
-  // ^com eqN
+  // eqN
+  //    ^co2
   open List
   let _ = map
 }

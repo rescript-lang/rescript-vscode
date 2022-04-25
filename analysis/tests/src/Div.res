@@ -1,5 +1,5 @@
-
-let q = <div> </div>
+let q = <div />
 //        ^hov
 
-// ^com <div dangerous
+// <div dangerous
+//               ^co2

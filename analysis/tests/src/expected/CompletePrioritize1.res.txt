@@ -1,5 +1,5 @@
-Complete tests/src/CompletePrioritize1.res 4:2
-posCursor:[5:4] posNoWhite:[5:3] Found expr:[5:1->0:-1]
+Complete tests/src/CompletePrioritize1.res 5:6
+posCursor:[5:6] posNoWhite:[5:5] Found expr:[5:3->0:-1]
 Completable: Cpath Value[a]->
 [{
     "label": "Test.add",

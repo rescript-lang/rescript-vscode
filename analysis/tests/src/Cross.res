@@ -3,11 +3,9 @@ let crossRef = References.x
 
 let crossRef2 = References.x
 
-
 module Ref = References
 
 let crossRef3 = References.x
-
 
 let crossRefWithInterface = ReferencesWithInterface.x
 //                             ^ref
@@ -18,13 +16,11 @@ module RefWithInterface = ReferencesWithInterface
 
 let crossRefWithInterface3 = ReferencesWithInterface.x
 
-
 let _ = RenameWithInterface.x
 //           ^ren RenameWithInterfacePrime
 
 let _ = RenameWithInterface.x
 //                          ^ren xPrime
-
 
 let typeDef = {TypeDefinition.item: "foobar"}
 //   ^typ
@@ -38,4 +34,5 @@ type defT = DefinitionWithInterface.t
 type defT2 = DefinitionWithInterface.t
 //                                   ^typ
 
-//^com DefinitionWithInterface.a
+// DefinitionWithInterface.a
+//                          ^co2

@@ -301,6 +301,30 @@ let test ~path =
             close_out cout;
             completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
+          | "co2" ->
+            print_endline
+              ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let currentFile, cout = Filename.open_temp_file "def" "txt" in
+            lines
+            |> List.iteri (fun j l ->
+                   let lineToOutput =
+                     if
+                       j == i - 1
+                       && String.length l >= 2
+                       && String.sub l 0 2 = "//"
+                     then "  " ^ String.sub l 2 (String.length l - 2)
+                     else if
+                       j == i - 1
+                       && String.length l >= 4
+                       && String.sub l 0 4 = "  //"
+                     then "    " ^ String.sub l 4 (String.length l - 4)
+                     else l
+                   in
+                   Printf.fprintf cout "%s\n" lineToOutput);
+            close_out cout;
+            completion ~debug:true ~path ~pos:(line, col) ~currentFile;
+            Sys.remove currentFile
           | "hig" ->
             print_endline ("Highlight " ^ path);
             SemanticTokens.command ~debug:true

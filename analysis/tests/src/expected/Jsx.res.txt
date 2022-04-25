@@ -1,19 +1,19 @@
 Definition tests/src/Jsx.res 5:9
 {"uri": "Jsx.res", "range": {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}}
 
-Complete tests/src/Jsx.res 7:2
-posCursor:[8:13] posNoWhite:[8:12] Found expr:[8:2->8:13]
-JSX <M:[8:2->8:3] second[8:4->8:10]=...[8:11->8:13]> _children:None
-posCursor:[8:13] posNoWhite:[8:12] Found expr:[8:11->8:13]
-Pexp_ident fi:[8:11->8:13]
+Complete tests/src/Jsx.res 8:15
+posCursor:[8:15] posNoWhite:[8:14] Found expr:[8:4->8:15]
+JSX <M:[8:4->8:5] second[8:6->8:12]=...[8:13->8:15]> _children:None
+posCursor:[8:15] posNoWhite:[8:14] Found expr:[8:13->8:15]
+Pexp_ident fi:[8:13->8:15]
 Completable: Cpath Value[fi]
 []
 
-Complete tests/src/Jsx.res 9:2
-posCursor:[10:18] posNoWhite:[10:17] Found expr:[10:2->10:18]
-JSX <M:[10:2->10:3] second[10:4->10:10]=...[10:11->10:16] f[10:17->10:18]=...[10:17->10:18]> _children:None
-posCursor:[10:18] posNoWhite:[10:17] Found expr:[10:17->10:18]
-Pexp_ident f:[10:17->10:18]
+Complete tests/src/Jsx.res 12:20
+posCursor:[12:20] posNoWhite:[12:19] Found expr:[12:4->12:20]
+JSX <M:[12:4->12:5] second[12:6->12:12]=...[12:13->12:18] f[12:19->12:20]=...[12:19->12:20]> _children:None
+posCursor:[12:20] posNoWhite:[12:19] Found expr:[12:19->12:20]
+Pexp_ident f:[12:19->12:20]
 Completable: Cjsx([M], f, [second, f])
 [{
     "label": "first",
@@ -29,11 +29,11 @@ Completable: Cjsx([M], f, [second, f])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 11:2
-posCursor:[12:11] posNoWhite:[12:10] Found expr:[12:10->12:11]
-JSX <M:[12:10->12:11] > _children:None
-posCursor:[12:11] posNoWhite:[12:10] Found expr:[12:10->12:11]
-Pexp_ident M.createElement:[12:10->12:11]
+Complete tests/src/Jsx.res 16:13
+posCursor:[16:13] posNoWhite:[16:12] Found expr:[16:12->16:13]
+JSX <M:[16:12->16:13] > _children:None
+posCursor:[16:13] posNoWhite:[16:12] Found expr:[16:12->16:13]
+Pexp_ident M.createElement:[16:12->16:13]
 Completable: Cpath Module[M]
 [{
     "label": "M",
@@ -55,11 +55,11 @@ Completable: Cpath Module[M]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 18:2
-posCursor:[19:17] posNoWhite:[19:16] Found expr:[19:2->19:17]
-JSX <M:[19:2->19:3] prop[19:4->19:8]=...[19:10->19:14] k[19:16->19:17]=...[19:16->19:17]> _children:None
-posCursor:[19:17] posNoWhite:[19:16] Found expr:[19:16->19:17]
-Pexp_ident k:[19:16->19:17]
+Complete tests/src/Jsx.res 24:19
+posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:4->24:19]
+JSX <M:[24:4->24:5] prop[24:6->24:10]=...[24:12->24:16] k[24:18->24:19]=...[24:18->24:19]> _children:None
+posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:18->24:19]
+Pexp_ident k:[24:18->24:19]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -69,11 +69,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 20:2
-posCursor:[21:15] posNoWhite:[21:14] Found expr:[21:2->21:15]
-JSX <M:[21:2->21:3] prop[21:4->21:8]=...[21:9->21:13] k[21:14->21:15]=...[21:14->21:15]> _children:None
-posCursor:[21:15] posNoWhite:[21:14] Found expr:[21:14->21:15]
-Pexp_ident k:[21:14->21:15]
+Complete tests/src/Jsx.res 27:17
+posCursor:[27:17] posNoWhite:[27:16] Found expr:[27:4->27:17]
+JSX <M:[27:4->27:5] prop[27:6->27:10]=...[27:11->27:15] k[27:16->27:17]=...[27:16->27:17]> _children:None
+posCursor:[27:17] posNoWhite:[27:16] Found expr:[27:16->27:17]
+Pexp_ident k:[27:16->27:17]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -83,11 +83,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 22:2
-posCursor:[23:19] posNoWhite:[23:18] Found expr:[23:2->23:19]
-JSX <M:[23:2->23:3] prop[23:4->23:8]=...[23:9->23:17] k[23:18->23:19]=...[23:18->23:19]> _children:None
-posCursor:[23:19] posNoWhite:[23:18] Found expr:[23:18->23:19]
-Pexp_ident k:[23:18->23:19]
+Complete tests/src/Jsx.res 30:21
+posCursor:[30:21] posNoWhite:[30:20] Found expr:[30:4->30:21]
+JSX <M:[30:4->30:5] prop[30:6->30:10]=...[30:11->30:19] k[30:20->30:21]=...[30:20->30:21]> _children:None
+posCursor:[30:21] posNoWhite:[30:20] Found expr:[30:20->30:21]
+Pexp_ident k:[30:20->30:21]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -97,11 +97,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 24:2
-posCursor:[25:22] posNoWhite:[25:21] Found expr:[25:2->25:22]
-JSX <M:[25:2->25:3] prop[25:4->25:8]=...[25:9->25:20] k[25:21->25:22]=...[25:21->25:22]> _children:None
-posCursor:[25:22] posNoWhite:[25:21] Found expr:[25:21->25:22]
-Pexp_ident k:[25:21->25:22]
+Complete tests/src/Jsx.res 33:24
+posCursor:[33:24] posNoWhite:[33:23] Found expr:[33:4->33:24]
+JSX <M:[33:4->33:5] prop[33:6->33:10]=...[33:11->33:22] k[33:23->33:24]=...[33:23->33:24]> _children:None
+posCursor:[33:24] posNoWhite:[33:23] Found expr:[33:23->33:24]
+Pexp_ident k:[33:23->33:24]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -111,11 +111,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 26:2
-posCursor:[27:16] posNoWhite:[27:15] Found expr:[27:2->27:16]
-JSX <M:[27:2->27:3] prop[27:4->27:8]=...[27:10->27:14] k[27:15->27:16]=...[27:15->27:16]> _children:None
-posCursor:[27:16] posNoWhite:[27:15] Found expr:[27:15->27:16]
-Pexp_ident k:[27:15->27:16]
+Complete tests/src/Jsx.res 36:18
+posCursor:[36:18] posNoWhite:[36:17] Found expr:[36:4->36:18]
+JSX <M:[36:4->36:5] prop[36:6->36:10]=...[36:12->36:16] k[36:17->36:18]=...[36:17->36:18]> _children:None
+posCursor:[36:18] posNoWhite:[36:17] Found expr:[36:17->36:18]
+Pexp_ident k:[36:17->36:18]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -125,11 +125,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 28:2
-posCursor:[29:14] posNoWhite:[29:13] Found expr:[29:2->29:14]
-JSX <M:[29:2->29:3] prop[29:4->29:8]=...[29:9->29:12] k[29:13->29:14]=...[29:13->29:14]> _children:None
-posCursor:[29:14] posNoWhite:[29:13] Found expr:[29:13->29:14]
-Pexp_ident k:[29:13->29:14]
+Complete tests/src/Jsx.res 39:16
+posCursor:[39:16] posNoWhite:[39:15] Found expr:[39:4->39:16]
+JSX <M:[39:4->39:5] prop[39:6->39:10]=...[39:11->39:14] k[39:15->39:16]=...[39:15->39:16]> _children:None
+posCursor:[39:16] posNoWhite:[39:15] Found expr:[39:15->39:16]
+Pexp_ident k:[39:15->39:16]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -139,11 +139,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 30:2
-posCursor:[31:15] posNoWhite:[31:14] Found expr:[31:2->31:15]
-JSX <M:[31:2->31:3] prop[31:4->31:8]=...[31:9->31:13] k[31:14->31:15]=...[31:14->31:15]> _children:None
-posCursor:[31:15] posNoWhite:[31:14] Found expr:[31:14->31:15]
-Pexp_ident k:[31:14->31:15]
+Complete tests/src/Jsx.res 42:17
+posCursor:[42:17] posNoWhite:[42:16] Found expr:[42:4->42:17]
+JSX <M:[42:4->42:5] prop[42:6->42:10]=...[42:11->42:15] k[42:16->42:17]=...[42:16->42:17]> _children:None
+posCursor:[42:17] posNoWhite:[42:16] Found expr:[42:16->42:17]
+Pexp_ident k:[42:16->42:17]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -153,11 +153,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 32:2
-posCursor:[33:16] posNoWhite:[33:15] Found expr:[33:2->33:16]
-JSX <M:[33:2->33:3] prop[33:4->33:8]=...[33:9->33:14] k[33:15->33:16]=...[33:15->33:16]> _children:None
-posCursor:[33:16] posNoWhite:[33:15] Found expr:[33:15->33:16]
-Pexp_ident k:[33:15->33:16]
+Complete tests/src/Jsx.res 45:18
+posCursor:[45:18] posNoWhite:[45:17] Found expr:[45:4->45:18]
+JSX <M:[45:4->45:5] prop[45:6->45:10]=...[45:11->45:16] k[45:17->45:18]=...[45:17->45:18]> _children:None
+posCursor:[45:18] posNoWhite:[45:17] Found expr:[45:17->45:18]
+Pexp_ident k:[45:17->45:18]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -167,11 +167,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 34:2
-posCursor:[35:14] posNoWhite:[35:13] Found expr:[35:2->35:14]
-JSX <M:[35:2->35:3] prop[35:4->35:8]=...[35:9->35:12] k[35:13->35:14]=...[35:13->35:14]> _children:None
-posCursor:[35:14] posNoWhite:[35:13] Found expr:[35:13->35:14]
-Pexp_ident k:[35:13->35:14]
+Complete tests/src/Jsx.res 48:16
+posCursor:[48:16] posNoWhite:[48:15] Found expr:[48:4->48:16]
+JSX <M:[48:4->48:5] prop[48:6->48:10]=...[48:11->48:14] k[48:15->48:16]=...[48:15->48:16]> _children:None
+posCursor:[48:16] posNoWhite:[48:15] Found expr:[48:15->48:16]
+Pexp_ident k:[48:15->48:16]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -181,11 +181,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 36:2
-posCursor:[37:25] posNoWhite:[37:24] Found expr:[37:2->37:25]
-JSX <M:[37:2->37:3] prop[37:4->37:8]=...[37:9->37:23] k[37:24->37:25]=...[37:24->37:25]> _children:None
-posCursor:[37:25] posNoWhite:[37:24] Found expr:[37:24->37:25]
-Pexp_ident k:[37:24->37:25]
+Complete tests/src/Jsx.res 51:27
+posCursor:[51:27] posNoWhite:[51:26] Found expr:[51:4->51:27]
+JSX <M:[51:4->51:5] prop[51:6->51:10]=...[51:11->51:25] k[51:26->51:27]=...[51:26->51:27]> _children:None
+posCursor:[51:27] posNoWhite:[51:26] Found expr:[51:26->51:27]
+Pexp_ident k:[51:26->51:27]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -195,11 +195,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 38:2
-posCursor:[39:36] posNoWhite:[39:35] Found expr:[39:2->39:36]
-JSX <M:[39:2->39:3] prop[39:4->39:8]=...[39:9->39:34] k[39:35->39:36]=...[39:35->39:36]> _children:None
-posCursor:[39:36] posNoWhite:[39:35] Found expr:[39:35->39:36]
-Pexp_ident k:[39:35->39:36]
+Complete tests/src/Jsx.res 54:38
+posCursor:[54:38] posNoWhite:[54:37] Found expr:[54:4->54:38]
+JSX <M:[54:4->54:5] prop[54:6->54:10]=...[54:11->54:36] k[54:37->54:38]=...[54:37->54:38]> _children:None
+posCursor:[54:38] posNoWhite:[54:37] Found expr:[54:37->54:38]
+Pexp_ident k:[54:37->54:38]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -209,11 +209,11 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 40:2
-posCursor:[41:23] posNoWhite:[41:22] Found expr:[41:2->41:23]
-JSX <M:[41:2->41:3] prop[41:4->41:8]=...[41:9->41:21] k[41:22->41:23]=...[41:22->41:23]> _children:None
-posCursor:[41:23] posNoWhite:[41:22] Found expr:[41:22->41:23]
-Pexp_ident k:[41:22->41:23]
+Complete tests/src/Jsx.res 57:25
+posCursor:[57:25] posNoWhite:[57:24] Found expr:[57:4->57:25]
+JSX <M:[57:4->57:5] prop[57:6->57:10]=...[57:11->57:23] k[57:24->57:25]=...[57:24->57:25]> _children:None
+posCursor:[57:25] posNoWhite:[57:24] Found expr:[57:24->57:25]
+Pexp_ident k:[57:24->57:25]
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -223,14 +223,14 @@ Completable: Cjsx([M], k, [prop, k])
     "documentation": null
   }]
 
-Definition tests/src/Jsx.res 43:11
+Definition tests/src/Jsx.res 60:11
 {"uri": "Component.res", "range": {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 8}}}
 
-Complete tests/src/Jsx.res 52:2
-posCursor:[53:8] posNoWhite:[53:7] Found expr:[53:2->53:8]
-JSX <Ext:[53:2->53:5] al[53:6->53:8]=...[53:6->53:8]> _children:None
-posCursor:[53:8] posNoWhite:[53:7] Found expr:[53:6->53:8]
-Pexp_ident al:[53:6->53:8]
+Complete tests/src/Jsx.res 70:10
+posCursor:[70:10] posNoWhite:[70:9] Found expr:[70:4->70:10]
+JSX <Ext:[70:4->70:7] al[70:8->70:10]=...[70:8->70:10]> _children:None
+posCursor:[70:10] posNoWhite:[70:9] Found expr:[70:8->70:10]
+Pexp_ident al:[70:8->70:10]
 Completable: Cjsx([Ext], al, [al])
 [{
     "label": "align",
@@ -240,19 +240,19 @@ Completable: Cjsx([Ext], al, [al])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 54:2
-posCursor:[55:9] posNoWhite:[55:8] Found expr:[55:2->55:9]
-JSX <M:[55:2->55:3] first[55:4->55:9]=...[55:4->55:9]> _children:None
-posCursor:[55:9] posNoWhite:[55:8] Found expr:[55:4->55:9]
-Pexp_ident first:[55:4->55:9]
+Complete tests/src/Jsx.res 73:11
+posCursor:[73:11] posNoWhite:[73:10] Found expr:[73:4->73:11]
+JSX <M:[73:4->73:5] first[73:6->73:11]=...[73:6->73:11]> _children:None
+posCursor:[73:11] posNoWhite:[73:10] Found expr:[73:6->73:11]
+Pexp_ident first:[73:6->73:11]
 Completable: Cjsx([M], first, [first])
 []
 
-Complete tests/src/Jsx.res 56:2
-posCursor:[57:14] posNoWhite:[57:13] Found expr:[57:2->57:14]
-JSX <M:[57:2->57:3] first[57:4->57:9]=...[57:10->57:12] k[57:13->57:14]=...[57:13->57:14]> _children:None
-posCursor:[57:14] posNoWhite:[57:13] Found expr:[57:13->57:14]
-Pexp_ident k:[57:13->57:14]
+Complete tests/src/Jsx.res 76:16
+posCursor:[76:16] posNoWhite:[76:15] Found expr:[76:4->76:16]
+JSX <M:[76:4->76:5] first[76:6->76:11]=...[76:12->76:14] k[76:15->76:16]=...[76:15->76:16]> _children:None
+posCursor:[76:16] posNoWhite:[76:15] Found expr:[76:15->76:16]
+Pexp_ident k:[76:15->76:16]
 Completable: Cjsx([M], k, [first, k])
 [{
     "label": "key",
@@ -262,11 +262,11 @@ Completable: Cjsx([M], k, [first, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 58:2
-posCursor:[59:21] posNoWhite:[59:20] Found expr:[59:2->59:21]
-JSX <M:[59:2->59:3] first[59:4->59:9]=...[59:17->59:19] k[59:20->59:21]=...[59:20->59:21]> _children:None
-posCursor:[59:21] posNoWhite:[59:20] Found expr:[59:20->59:21]
-Pexp_ident k:[59:20->59:21]
+Complete tests/src/Jsx.res 79:23
+posCursor:[79:23] posNoWhite:[79:22] Found expr:[79:4->79:23]
+JSX <M:[79:4->79:5] first[79:6->79:11]=...[79:19->79:21] k[79:22->79:23]=...[79:22->79:23]> _children:None
+posCursor:[79:23] posNoWhite:[79:22] Found expr:[79:22->79:23]
+Pexp_ident k:[79:22->79:23]
 Completable: Cjsx([M], k, [first, k])
 [{
     "label": "key",
@@ -276,22 +276,22 @@ Completable: Cjsx([M], k, [first, k])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 60:2
-posCursor:[61:4] posNoWhite:[61:3] Found expr:[61:2->65:69]
-Pexp_apply ...[63:20->63:21] (...[61:2->63:19], ...[64:2->65:69])
-posCursor:[61:4] posNoWhite:[61:3] Found expr:[61:2->63:19]
-JSX <M:[61:2->61:3] > _children:61:3
-posCursor:[61:4] posNoWhite:[61:3] Found expr:[61:3->63:20]
-Pexp_construct :::[63:0->63:20] [63:0->63:20]
-posCursor:[61:4] posNoWhite:[61:3] Found expr:__ghost__[61:3->63:20]
-Pexp_construct []:__ghost__[61:3->63:20] None
+Complete tests/src/Jsx.res 82:6
+posCursor:[82:6] posNoWhite:[82:5] Found expr:[82:4->87:69]
+Pexp_apply ...[85:20->85:21] (...[82:4->85:19], ...[86:2->87:69])
+posCursor:[82:6] posNoWhite:[82:5] Found expr:[82:4->85:19]
+JSX <M:[82:4->82:5] > _children:82:5
+posCursor:[82:6] posNoWhite:[82:5] Found expr:[82:5->85:20]
+Pexp_construct :::[85:0->85:20] [85:0->85:20]
+posCursor:[82:6] posNoWhite:[82:5] Found expr:__ghost__[82:5->85:20]
+Pexp_construct []:__ghost__[82:5->85:20] None
 []
 
-Complete tests/src/Jsx.res 68:2
-posCursor:[69:14] posNoWhite:[69:13] Found expr:[69:2->69:14]
-JSX <WithChildren:[69:2->69:14] > _children:None
-posCursor:[69:14] posNoWhite:[69:13] Found expr:[69:2->69:14]
-Pexp_ident WithChildren.createElement:[69:2->69:14]
+Complete tests/src/Jsx.res 91:16
+posCursor:[91:16] posNoWhite:[91:15] Found expr:[91:4->91:16]
+JSX <WithChildren:[91:4->91:16] > _children:None
+posCursor:[91:16] posNoWhite:[91:15] Found expr:[91:4->91:16]
+Pexp_ident WithChildren.createElement:[91:4->91:16]
 Completable: Cpath Module[WithChildren]
 [{
     "label": "WithChildren",
@@ -301,11 +301,11 @@ Completable: Cpath Module[WithChildren]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 69:2
-posCursor:[70:16] posNoWhite:[70:15] Found expr:[70:2->70:16]
-JSX <WithChildren:[70:2->70:14] n[70:15->70:16]=...[70:15->70:16]> _children:None
-posCursor:[70:16] posNoWhite:[70:15] Found expr:[70:15->70:16]
-Pexp_ident n:[70:15->70:16]
+Complete tests/src/Jsx.res 93:18
+posCursor:[93:18] posNoWhite:[93:17] Found expr:[93:4->93:18]
+JSX <WithChildren:[93:4->93:16] n[93:17->93:18]=...[93:17->93:18]> _children:None
+posCursor:[93:18] posNoWhite:[93:17] Found expr:[93:17->93:18]
+Pexp_ident n:[93:17->93:18]
 Completable: Cjsx([WithChildren], n, [n])
 [{
     "label": "name",
@@ -315,9 +315,9 @@ Completable: Cjsx([WithChildren], n, [n])
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 71:2
-posCursor:[72:16] posNoWhite:[72:15] Found type:[72:9->72:16]
-Ptyp_constr React.e:[72:9->72:16]
+Complete tests/src/Jsx.res 96:18
+posCursor:[96:18] posNoWhite:[96:17] Found type:[96:11->96:18]
+Ptyp_constr React.e:[96:11->96:18]
 Completable: Cpath Type[React, e]
 [{
     "label": "element",
@@ -327,9 +327,9 @@ Completable: Cpath Type[React, e]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 72:2
-posCursor:[73:18] posNoWhite:[73:17] Found type:[73:9->75:6]
-Ptyp_constr ReactDOMR:[73:9->75:6]
+Complete tests/src/Jsx.res 98:20
+posCursor:[98:20] posNoWhite:[98:19] Found type:[98:11->101:6]
+Ptyp_constr ReactDOMR:[98:11->101:6]
 Completable: Cpath Type[ReactDOMR]
 [{
     "label": "ReactDOMRe",
@@ -339,20 +339,20 @@ Completable: Cpath Type[ReactDOMR]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 77:5
-posCursor:[78:17] posNoWhite:[78:16] Found expr:[78:9->78:17]
-Pexp_apply ...[78:11->78:12] (...[78:9->78:10], ...[78:13->78:17])
-posCursor:[78:17] posNoWhite:[78:16] Found expr:[78:13->78:17]
-Pexp_field [78:13->78:14] th:[78:15->78:17]
+Complete tests/src/Jsx.res 104:21
+posCursor:[104:21] posNoWhite:[104:20] Found expr:[104:13->104:21]
+Pexp_apply ...[104:15->104:16] (...[104:13->104:14], ...[104:17->104:21])
+posCursor:[104:21] posNoWhite:[104:20] Found expr:[104:17->104:21]
+Pexp_field [104:17->104:18] th:[104:19->104:21]
 Completable: Cpath Value[x].th
 []
 
-Complete tests/src/Jsx.res 80:3
-posCursor:[81:26] posNoWhite:[81:25] Found expr:[81:9->85:3]
-Pexp_ident DefineSomeFields.:[81:9->85:3]
+Complete tests/src/Jsx.res 108:28
+posCursor:[108:28] posNoWhite:[108:27] Found expr:[108:11->113:3]
+Pexp_ident DefineSomeFields.:[108:11->113:3]
 Id breaks up. New path:DefineSomeFields.
-posCursor:[81:26] posNoWhite:[81:25] Found expr:[0:-1->85:70]
-Pexp_apply ...[85:6->85:7] (...[85:8->85:70])
+posCursor:[108:28] posNoWhite:[108:27] Found expr:[0:-1->113:70]
+Pexp_apply ...[113:6->113:7] (...[113:8->113:70])
 Completable: Cpath Value[DefineSomeFields, ""]
 [{
     "label": "thisValue",
@@ -362,11 +362,11 @@ Completable: Cpath Value[DefineSomeFields, ""]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 82:3
-posCursor:[83:34] posNoWhite:[83:33] Found expr:[83:9->83:34]
-Pexp_apply ...[83:11->83:12] (...[83:9->83:10], ...[83:13->83:34])
-posCursor:[83:34] posNoWhite:[83:33] Found expr:[83:13->83:34]
-Pexp_field [83:13->83:14] DefineSomeFields.th:[83:15->83:34]
+Complete tests/src/Jsx.res 110:36
+posCursor:[110:36] posNoWhite:[110:35] Found expr:[110:11->110:36]
+Pexp_apply ...[110:13->110:14] (...[110:11->110:12], ...[110:15->110:36])
+posCursor:[110:36] posNoWhite:[110:35] Found expr:[110:15->110:36]
+Pexp_field [110:15->110:16] DefineSomeFields.th:[110:17->110:36]
 Completable: Cpath Module[DefineSomeFields].th
 [{
     "label": "thisField",
@@ -382,11 +382,11 @@ Completable: Cpath Module[DefineSomeFields].th
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 95:5
-posCursor:[96:16] posNoWhite:[96:15] Found expr:[95:3->98:4]
-JSX <div:[95:3->95:6] x[96:1->96:2]=...[96:3->96:16] name[97:4->97:8]=...[97:9->97:11]> _children:98:2
-posCursor:[96:16] posNoWhite:[96:15] Found expr:[96:3->96:16]
-Pexp_ident Outer.Inner.h:[96:3->96:16]
+Complete tests/src/Jsx.res 124:20
+posCursor:[124:20] posNoWhite:[124:19] Found expr:[123:3->127:4]
+JSX <div:[123:3->123:6] x[124:5->124:6]=...[124:7->124:20] name[126:4->126:8]=...[126:9->126:11]> _children:127:2
+posCursor:[124:20] posNoWhite:[124:19] Found expr:[124:7->124:20]
+Pexp_ident Outer.Inner.h:[124:7->124:20]
 Completable: Cpath Value[Outer, Inner, h]
 [{
     "label": "hello",
@@ -396,11 +396,11 @@ Completable: Cpath Value[Outer, Inner, h]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 101:5
-posCursor:[102:15] posNoWhite:[102:14] Found expr:[101:3->103:9]
-JSX <div:[101:3->101:6] x[102:1->102:2]=...[102:3->103:8]> _children:None
-posCursor:[102:15] posNoWhite:[102:14] Found expr:[102:3->103:8]
-Pexp_ident Outer.Inner.name:[102:3->103:8]
+Complete tests/src/Jsx.res 131:19
+posCursor:[131:19] posNoWhite:[131:18] Found expr:[130:3->133:9]
+JSX <div:[130:3->130:6] x[131:5->131:6]=...[131:7->133:8]> _children:None
+posCursor:[131:19] posNoWhite:[131:18] Found expr:[131:7->133:8]
+Pexp_ident Outer.Inner.name:[131:7->133:8]
 Id breaks up. New path:Outer.Inner.
 Completable: Cpath Value[Outer, Inner, ""]
 [{
@@ -411,8 +411,8 @@ Completable: Cpath Value[Outer, Inner, ""]
     "documentation": null
   }]
 
-Complete tests/src/Jsx.res 107:5
-posCursor:[108:3] posNoWhite:[108:2] Found expr:[107:3->109:9]
-JSX <div:[107:3->107:6] x[108:1->108:2]=...[109:4->109:8]> _children:None
+Complete tests/src/Jsx.res 138:7
+posCursor:[138:7] posNoWhite:[138:6] Found expr:[137:3->140:9]
+JSX <div:[137:3->137:6] x[138:5->138:6]=...[140:4->140:8]> _children:None
 []
 

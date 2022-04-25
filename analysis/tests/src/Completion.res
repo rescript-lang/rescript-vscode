@@ -1,8 +1,10 @@
 module MyList = Belt.List
-//^com MyList.m
-//^com Array.
-//^com Array.m
-
+// MyList.m
+//         ^co2
+// Array.
+//       ^co2
+// Array.m
+//        ^co2
 
 module Dep: {
   @ocaml.doc("Some doc comment") @deprecated("Use customDouble instead")
@@ -11,95 +13,120 @@ module Dep: {
   let customDouble = foo => foo * 2
 }
 
-//^com let cc = Dep.c
+// let cc = Dep.c
+//               ^co2
 
 module Lib = {
   let foo = (~age, ~name) => name ++ string_of_int(age)
   let next = (~number=0, ~year) => number + year
 }
 
-//^com let x = Lib.foo(~
+// let x = Lib.foo(~
+//                  ^co2
 
-//^com [1,2,3]->m
+// [1,2,3]->m
+//           ^co2
 
-//^com "abc"->toU
+// "abc"->toU
+//           ^co2
 
 let op = Some(3)
 
-//^com op->e
+// op->e
+//      ^co2
 
 module ForAuto = {
   type t = int
-  let abc = (x:t, _y:int) => x
-  let abd = (x:t, _y:int) => x
+  let abc = (x: t, _y: int) => x
+  let abd = (x: t, _y: int) => x
 }
 
-let fa:ForAuto.t = 34
-//^com fa->
+let fa: ForAuto.t = 34
+// fa->
+//     ^co2
 
-//^com "hello"->Js.Dict.u
+// "hello"->Js.Dict.u
+//                   ^co2
 
 module O = {
   module Comp = {
     @react.component
-    let make = (~first="", ~zoo=3, ~second) =>
-      React.string(first ++ second ++ string_of_int(zoo))
+    let make = (~first="", ~zoo=3, ~second) => React.string(first ++ second ++ string_of_int(zoo))
   }
 }
 
 let zzz = 11
 
-//^com let comp = <O.Comp second=z
+// let comp = <O.Comp second=z
+//                            ^co2
 
-//^com let comp = <O.Comp z
+// let comp = <O.Comp z
+//                     ^co2
 
 //^doc
 
-//^com @reac
+// @reac
+//      ^co2
 
-//^com @react.
+// @react.
+//        ^co2
 
-//^com let x = Lib.foo(~name, ~
+// let x = Lib.foo(~name, ~
+//                         ^co2
 
-//^com let x = Lib.foo(~age, ~
+// let x = Lib.foo(~age, ~
+//                        ^co2
 
-//^com let x = Lib.foo(~age={3+4}, ~
+// let x = Lib.foo(~age={3+4}, ~
+//                              ^co2
 
-let _ = Lib.foo(//~age,
-//^com ~
-~age=3, ~name="")
+let _ = Lib.foo(
+  //~age,
+  //~
+  // ^co2
+  ~age=3,
+  ~name="",
+)
 
 let someObj = {"name": "a", "age": 32}
 
-//^com someObj["a
+// someObj["a
+//           ^co2
 
 let nestedObj = {"x": {"y": {"name": "a", "age": 32}}}
 
-//^com nestedObj["x"]["y"]["
+// nestedObj["x"]["y"]["
+//                      ^co2
 
-let o : Obj.objT = assert false
-//^com o["a
+let o: Obj.objT = assert false
+// o["a
+//     ^co2
 
 type nestedObjT = {"x": Obj.nestedObjT}
-let no : nestedObjT = assert false
-//^com no["x"]["y"]["
+let no: nestedObjT = assert false
+// no["x"]["y"]["
+//               ^co2
 
-type r = {x:int, y:string}
+type r = {x: int, y: string}
 type rAlias = r
-let r:rAlias = assert false
-// ^com r.
+let r: rAlias = assert false
+// r.
+//   ^co2
 
-// ^com Obj.Rec.recordVal.
+// Obj.Rec.recordVal.
+//                   ^co2
 
-let myAmazingFunction = (x,y) => x+y
+let myAmazingFunction = (x, y) => x + y
 
 @react.component
 let make = () => {
-// ^com my
+  // my
+  //   ^co2
   <> </>
 }
 
-// ^com Obj.object["
+// Obj.object["
+//             ^co2
 
 let foo = {
   let x = {
@@ -117,44 +144,54 @@ let foo = {
     type z = int
     let v = 44
   }
-  exception MyException (int, string, float, array<Js.Json.t>)
+  exception MyException(int, string, float, array<Js.Json.t>)
   let _ = raise(MyException(2, "", 1.0, []))
   add((x: Inner.z), Inner.v + y)
 }
 
 exception MyOtherException
 
-// ^com <O.
+// <O.
+//    ^co2
 
-type aa= {x:int, name:string}
-type bb = {aa:aa, w:int}
-let q:bb = assert false
-// ^com q.aa.
-// ^com q.aa.n
+type aa = {x: int, name: string}
+type bb = {aa: aa, w: int}
+let q: bb = assert false
+// q.aa.
+//      ^co2
+// q.aa.n
+//       ^co2
 
-// ^com Lis
+// Lis
+//    ^co2
 
 module WithChildren = {
   @react.component
   let make = (~children, ~name as _: string) => <jsx> children </jsx>
 }
-// ^com <WithChildren 
+// <WithChildren
+//              ^co2
 
-// ^com type t = Js.n
-// ^com type t = ForAuto.
+// type t = Js.n
+//              ^co2
+// type t = ForAuto.
+//                  ^co2
 
-type z = | Allo | Asterix | Baba
+type z = Allo | Asterix | Baba
 
-// ^com let q = As
+// let q = As
+//           ^co2
 
-// ^com module M = For
+// module M = For
+//               ^co2
 
 module Private = {
   %%private(let awr = 3)
   let b = awr
 }
 
-// ^com Private.
+// Private.
+//         ^co2
 
 module Shadow = {
   module A = {
@@ -165,11 +202,14 @@ module Shadow = {
   }
 }
 
-// ^com sha
+// sha
+//    ^co2
 open Shadow.A
-// ^com sha
+// sha
+//    ^co2
 open Shadow.B
-// ^com sha
+// sha
+//    ^co2
 let _ = shadowed
 
 module FAR = {
@@ -181,7 +221,14 @@ module FAO = {
   let forAutoObject = {"forAutoLabel": FAR.forAutoRecord, "age": 32}
 }
 
-// ^com FAO.forAutoObject["
-// ^com FAO.forAutoObject["forAutoLabel"].
-// ^com FAO.forAutoObject["forAutoLabel"].forAuto->
-// ^com FAO.forAutoObject["forAutoLabel"].forAuto->ForAuto.a
+// FAO.forAutoObject["
+//                    ^co2
+
+// FAO.forAutoObject["forAutoLabel"].
+//                                   ^co2
+
+// FAO.forAutoObject["forAutoLabel"].forAuto->
+//                                            ^co2
+
+// FAO.forAutoObject["forAutoLabel"].forAuto->ForAuto.a
+//                                                     ^co2

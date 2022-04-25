@@ -1,7 +1,7 @@
-Complete tests/src/RecordCompletion.res 7:3
-posCursor:[8:7] posNoWhite:[8:6] Found expr:[8:1->8:7]
-posCursor:[8:7] posNoWhite:[8:6] Found expr:[8:6->8:7]
-Pexp_ident m:[8:6->8:7]
+Complete tests/src/RecordCompletion.res 8:9
+posCursor:[8:9] posNoWhite:[8:8] Found expr:[8:3->8:9]
+posCursor:[8:9] posNoWhite:[8:8] Found expr:[8:8->8:9]
+Pexp_ident m:[8:8->8:9]
 Completable: Cpath Value[t].n->m
 [{
     "label": "Js.Array2.mapi",
@@ -17,10 +17,10 @@ Completable: Cpath Value[t].n->m
     "documentation": null
   }]
 
-Complete tests/src/RecordCompletion.res 9:3
-posCursor:[10:11] posNoWhite:[10:10] Found expr:[10:1->10:11]
-posCursor:[10:11] posNoWhite:[10:10] Found expr:[10:10->10:11]
-Pexp_ident m:[10:10->10:11]
+Complete tests/src/RecordCompletion.res 11:13
+posCursor:[11:13] posNoWhite:[11:12] Found expr:[11:3->11:13]
+posCursor:[11:13] posNoWhite:[11:12] Found expr:[11:12->11:13]
+Pexp_ident m:[11:12->11:13]
 Completable: Cpath Value[t2].n2.n->m
 [{
     "label": "Js.Array2.mapi",
@@ -36,9 +36,9 @@ Completable: Cpath Value[t2].n2.n->m
     "documentation": null
   }]
 
-Complete tests/src/RecordCompletion.res 16:3
-posCursor:[17:5] posNoWhite:[17:4] Found expr:[17:1->19:0]
-Pexp_field [17:1->17:2] R.:[17:3->19:0]
+Complete tests/src/RecordCompletion.res 19:7
+posCursor:[19:7] posNoWhite:[19:6] Found expr:[19:3->22:0]
+Pexp_field [19:3->19:4] R.:[19:5->22:0]
 Completable: Cpath Module[R].""
 [{
     "label": "name",

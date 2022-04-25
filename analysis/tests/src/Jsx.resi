@@ -5,6 +5,8 @@ let make: (~first: string) => React.element
 let y: int
 //  ^hov
 
-// ^com type t = React.e
+// type t = React.e
+//                 ^co2
 
-// ^com let x : React.e
+// let x : React.e
+//                ^co2

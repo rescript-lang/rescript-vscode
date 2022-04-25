@@ -1,5 +1,5 @@
-Complete tests/src/CompletePrioritize2.res 8:2
-posCursor:[9:5] posNoWhite:[9:4] Found expr:[9:1->0:-1]
+Complete tests/src/CompletePrioritize2.res 9:7
+posCursor:[9:7] posNoWhite:[9:6] Found expr:[9:3->0:-1]
 Completable: Cpath Value[ax]->
 [{
     "label": "Test.add",
@@ -9,9 +9,9 @@ Completable: Cpath Value[ax]->
     "documentation": null
   }]
 
-Complete tests/src/CompletePrioritize2.res 10:2
-posCursor:[11:3] posNoWhite:[11:2] Found expr:[11:1->11:3]
-Pexp_ident ax:[11:1->11:3]
+Complete tests/src/CompletePrioritize2.res 12:5
+posCursor:[12:5] posNoWhite:[12:4] Found expr:[12:3->12:5]
+Pexp_ident ax:[12:3->12:5]
 Completable: Cpath Value[ax]
 [{
     "label": "ax",
