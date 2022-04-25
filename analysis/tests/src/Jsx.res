@@ -7,15 +7,15 @@ let _ = <M first="abc" />
 //       ^def
 
 // <M second=fi
-//             ^co2
+//             ^com
 
 
 // <M second="abc" f
-//                  ^co2
+//                  ^com
 
 
 // let e = <M
-//           ^co2
+//           ^com
 
 @react.component
 let make = (~first) => React.string(first)
@@ -23,40 +23,40 @@ let make = (~first) => React.string(first)
 let y = 44
 
 // <M prop={A(3)} k
-//                 ^co2
+//                 ^com
 
 // <M prop=A(3) k
-//               ^co2
+//               ^com
 
 // <M prop=foo(1+2) k
-//                   ^co2
+//                   ^com
 
 // <M prop=list{1,2,3} k
-//                      ^co2
+//                      ^com
 
 // <M prop=<N /> k
-//                ^co2
+//                ^com
 
 // <M prop=1.5 k
-//              ^co2
+//              ^com
 
 // <M prop=0X33 k
-//               ^co2
+//               ^com
 
 // <M prop=12e+3 k
-//                ^co2
+//                ^com
 
 // <M prop='z' k
-//              ^co2
+//              ^com
 
 // <M prop=`before${foo}` k
-//                         ^co2
+//                         ^com
 
 // <M prop=module(@foo Three: X_int) k
-//                                    ^co2
+//                                    ^com
 
 // <M prop=%bs.raw("1") k
-//                       ^co2
+//                       ^com
 
 let _ = <Component />
 //         ^def
@@ -69,19 +69,19 @@ module Ext = {
 let _ = (Ext.make, Ext.makeProps)
 
 // <Ext al
-//        ^co2
+//        ^com
 
 // <M first
-//         ^co2
+//         ^com
 
 // <M first=#a k
-//              ^co2
+//              ^com
 
 // <M first =  ?   #a k
-//                     ^co2
+//                     ^com
 
 // <M>
-//    ^co2
+//    ^com
 
 module WithChildren = {
   @react.component
@@ -90,26 +90,26 @@ module WithChildren = {
 
 let _ = <WithChildren name=""> <div /> </WithChildren>
 // <WithChildren
-//              ^co2
+//              ^com
 // <WithChildren n
-//                ^co2
+//                ^com
 
 // let c : React.e
-//                ^co2
+//                ^com
 // let c : ReactDOMR
-//                  ^co2
+//                  ^com
 
 module DefineSomeFields = {
   type r = {thisField: int, thatField: string}
   let thisValue = 10
   // let foo x = x.th
-  //                 ^co2
+  //                 ^com
 }
 
 // let q = DefineSomeFields.
-//                          ^co2
+//                          ^com
 // let foo x = x.DefineSomeFields.th
-//                                  ^co2
+//                                  ^com
 
 let _ = x => x.DefineSomeFields.thisField + DefineSomeFields.thisValue
 
@@ -123,20 +123,20 @@ let _ = Outer.Inner.hello
 let _ =
   <div
   // x=Outer.Inner.h
-  //                ^co2
+  //                ^com
     name=""
   />
 
 let _ =
   <div
   // x=Outer.Inner.
-  //               ^co2
+  //               ^com
     name=""
   />
 
 let _ =
   <div
   // x=
-  //   ^co2
+  //   ^com
     name=""
   />

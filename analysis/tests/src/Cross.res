@@ -35,4 +35,4 @@ type defT2 = DefinitionWithInterface.t
 //                                   ^typ
 
 // DefinitionWithInterface.a
-//                          ^co2
+//                          ^com

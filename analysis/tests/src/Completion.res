@@ -1,10 +1,10 @@
 module MyList = Belt.List
 // MyList.m
-//         ^co2
+//         ^com
 // Array.
-//       ^co2
+//       ^com
 // Array.m
-//        ^co2
+//        ^com
 
 module Dep: {
   @ocaml.doc("Some doc comment") @deprecated("Use customDouble instead")
@@ -14,7 +14,7 @@ module Dep: {
 }
 
 // let cc = Dep.c
-//               ^co2
+//               ^com
 
 module Lib = {
   let foo = (~age, ~name) => name ++ string_of_int(age)
@@ -22,18 +22,18 @@ module Lib = {
 }
 
 // let x = Lib.foo(~
-//                  ^co2
+//                  ^com
 
 // [1,2,3]->m
-//           ^co2
+//           ^com
 
 // "abc"->toU
-//           ^co2
+//           ^com
 
 let op = Some(3)
 
 // op->e
-//      ^co2
+//      ^com
 
 module ForAuto = {
   type t = int
@@ -43,10 +43,10 @@ module ForAuto = {
 
 let fa: ForAuto.t = 34
 // fa->
-//     ^co2
+//     ^com
 
 // "hello"->Js.Dict.u
-//                   ^co2
+//                   ^com
 
 module O = {
   module Comp = {
@@ -58,32 +58,32 @@ module O = {
 let zzz = 11
 
 // let comp = <O.Comp second=z
-//                            ^co2
+//                            ^com
 
 // let comp = <O.Comp z
-//                     ^co2
+//                     ^com
 
 //^doc
 
 // @reac
-//      ^co2
+//      ^com
 
 // @react.
-//        ^co2
+//        ^com
 
 // let x = Lib.foo(~name, ~
-//                         ^co2
+//                         ^com
 
 // let x = Lib.foo(~age, ~
-//                        ^co2
+//                        ^com
 
 // let x = Lib.foo(~age={3+4}, ~
-//                              ^co2
+//                              ^com
 
 let _ = Lib.foo(
   //~age,
   //~
-  // ^co2
+  // ^com
   ~age=3,
   ~name="",
 )
@@ -91,42 +91,42 @@ let _ = Lib.foo(
 let someObj = {"name": "a", "age": 32}
 
 // someObj["a
-//           ^co2
+//           ^com
 
 let nestedObj = {"x": {"y": {"name": "a", "age": 32}}}
 
 // nestedObj["x"]["y"]["
-//                      ^co2
+//                      ^com
 
 let o: Obj.objT = assert false
 // o["a
-//     ^co2
+//     ^com
 
 type nestedObjT = {"x": Obj.nestedObjT}
 let no: nestedObjT = assert false
 // no["x"]["y"]["
-//               ^co2
+//               ^com
 
 type r = {x: int, y: string}
 type rAlias = r
 let r: rAlias = assert false
 // r.
-//   ^co2
+//   ^com
 
 // Obj.Rec.recordVal.
-//                   ^co2
+//                   ^com
 
 let myAmazingFunction = (x, y) => x + y
 
 @react.component
 let make = () => {
   // my
-  //   ^co2
+  //   ^com
   <> </>
 }
 
 // Obj.object["
-//             ^co2
+//             ^com
 
 let foo = {
   let x = {
@@ -152,38 +152,38 @@ let foo = {
 exception MyOtherException
 
 // <O.
-//    ^co2
+//    ^com
 
 type aa = {x: int, name: string}
 type bb = {aa: aa, w: int}
 let q: bb = assert false
 // q.aa.
-//      ^co2
+//      ^com
 // q.aa.n
-//       ^co2
+//       ^com
 
 // Lis
-//    ^co2
+//    ^com
 
 module WithChildren = {
   @react.component
   let make = (~children, ~name as _: string) => <jsx> children </jsx>
 }
 // <WithChildren
-//              ^co2
+//              ^com
 
 // type t = Js.n
-//              ^co2
+//              ^com
 // type t = ForAuto.
-//                  ^co2
+//                  ^com
 
 type z = Allo | Asterix | Baba
 
 // let q = As
-//           ^co2
+//           ^com
 
 // module M = For
-//               ^co2
+//               ^com
 
 module Private = {
   %%private(let awr = 3)
@@ -191,7 +191,7 @@ module Private = {
 }
 
 // Private.
-//         ^co2
+//         ^com
 
 module Shadow = {
   module A = {
@@ -203,13 +203,13 @@ module Shadow = {
 }
 
 // sha
-//    ^co2
+//    ^com
 open Shadow.A
 // sha
-//    ^co2
+//    ^com
 open Shadow.B
 // sha
-//    ^co2
+//    ^com
 let _ = shadowed
 
 module FAR = {
@@ -222,13 +222,13 @@ module FAO = {
 }
 
 // FAO.forAutoObject["
-//                    ^co2
+//                    ^com
 
 // FAO.forAutoObject["forAutoLabel"].
-//                                   ^co2
+//                                   ^com
 
 // FAO.forAutoObject["forAutoLabel"].forAuto->
-//                                            ^co2
+//                                            ^com
 
 // FAO.forAutoObject["forAutoLabel"].forAuto->ForAuto.a
-//                                                     ^co2
+//                                                     ^com

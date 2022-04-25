@@ -293,22 +293,6 @@ let test ~path =
             lines
             |> List.iteri (fun j l ->
                    let lineToOutput =
-                     if j == i then String.sub rest 3 (len - mlen - 3) else l
-                   in
-                   Printf.fprintf cout "%s\n" lineToOutput);
-            let line = line + 1 in
-            let col = len - mlen - 3 in
-            close_out cout;
-            completion ~debug:true ~path ~pos:(line, col) ~currentFile;
-            Sys.remove currentFile
-          | "co2" ->
-            print_endline
-              ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
-             ^ string_of_int col);
-            let currentFile, cout = Filename.open_temp_file "def" "txt" in
-            lines
-            |> List.iteri (fun j l ->
-                   let lineToOutput =
                      if
                        j == i - 1
                        && String.length l >= 2

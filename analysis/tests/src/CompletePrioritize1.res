@@ -4,4 +4,4 @@ module Test = {
 }
 let a: Test.t = {name: 4}
 // a->
-//    ^co2
+//    ^com

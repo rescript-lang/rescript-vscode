@@ -8,7 +8,7 @@ module Test = {
 }
 let ax: Test.t = {name: 4}
 // ax->
-//     ^co2
+//     ^com
 
 // ax
-//   ^co2
+//   ^com

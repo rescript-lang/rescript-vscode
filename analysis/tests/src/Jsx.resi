@@ -6,7 +6,7 @@ let y: int
 //  ^hov
 
 // type t = React.e
-//                 ^co2
+//                 ^com
 
 // let x : React.e
-//                ^co2
+//                ^com

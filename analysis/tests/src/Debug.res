@@ -12,7 +12,7 @@ module Before = {
 }
 module Inner = {
   // eqN
-  //    ^co2
+  //    ^com
   open List
   let _ = map
 }
