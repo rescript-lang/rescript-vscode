@@ -827,6 +827,11 @@ DocumentSymbol tests/src/Completion.res
         "name": "forAutoObject",
         "kind": 13,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 220, "character": 2}, "end": {"line": 220, "character": 68}}}
+},
+{
+        "name": "name",
+        "kind": 15,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 235, "character": 0}, "end": {"line": 235, "character": 16}}}
 }
 ]
 
@@ -1228,8 +1233,8 @@ Completable: Cpath Value[FAO, forAutoObject][""]
   }]
 
 Complete tests/src/Completion.res 226:37
-posCursor:[226:37] posNoWhite:[226:36] Found expr:[226:3->235:0]
-Pexp_field [226:3->226:36] _:[235:0->235:0]
+posCursor:[226:37] posNoWhite:[226:36] Found expr:[226:3->235:3]
+Pexp_field [226:3->226:36] _:[235:0->235:3]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
 [{
     "label": "forAuto",
@@ -1278,6 +1283,26 @@ Completable: Cpath Value[ForAuto, a]
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 236:34
+posCursor:[236:34] posNoWhite:[236:33] Found expr:[236:18->236:36]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[236:18->236:32], ...[236:32->236:34])
+posCursor:[236:34] posNoWhite:[236:33] Found expr:[236:32->236:34]
+Pexp_ident na:[236:32->236:34]
+Completable: Cpath Value[na]
+[{
+    "label": "name",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "nan",
+    "kind": 12,
+    "tags": [],
+    "detail": "float",
     "documentation": null
   }]
 

@@ -232,3 +232,7 @@ module FAO = {
 
 // FAO.forAutoObject["forAutoLabel"].forAuto->ForAuto.a
 //                                                     ^com
+
+let name = "abc"
+// let template = `My name is ${na}`
+//                                ^com
