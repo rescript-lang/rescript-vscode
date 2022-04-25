@@ -236,3 +236,6 @@ module FAO = {
 let name = "abc"
 // let template = `My name is ${na}`
 //                                ^com
+
+let notHere = "      "
+//               ^com

@@ -494,6 +494,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite then (
         setFound ();
         match expr.pexp_desc with
+        | Pexp_constant _ -> setResult Cnone
         | Pexp_ident id ->
           if debug then
             Printf.printf "Pexp_ident %s:%s\n"
