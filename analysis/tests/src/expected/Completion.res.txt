@@ -837,6 +837,11 @@ DocumentSymbol tests/src/Completion.res
         "name": "notHere",
         "kind": 15,
         "location": {"uri": "Completion.res", "range": {"start": {"line": 239, "character": 0}, "end": {"line": 239, "character": 22}}}
+},
+{
+        "name": "someR",
+        "kind": 13,
+        "location": {"uri": "Completion.res", "range": {"start": {"line": 242, "character": 0}, "end": {"line": 242, "character": 19}}}
 }
 ]
 
@@ -1315,4 +1320,26 @@ Complete tests/src/Completion.res 239:17
 posCursor:[239:17] posNoWhite:[239:14] Found expr:[239:14->239:22]
 Completable: Cnone
 []
+
+Complete tests/src/Completion.res 245:8
+posCursor:[245:8] posNoWhite:[245:7] Found expr:[243:8->248:1]
+posCursor:[245:8] posNoWhite:[245:7] Found expr:[244:14->247:8]
+posCursor:[245:8] posNoWhite:[245:7] Found expr:[244:14->247:1]
+Pexp_apply ...[245:3->245:4] (...[244:14->244:15], ...[245:5->247:1])
+posCursor:[245:8] posNoWhite:[245:7] Found expr:[245:5->247:1]
+Pexp_field [245:5->245:7] _:[247:0->247:1]
+Completable: Cpath Value[_z].""
+[{
+    "label": "x",
+    "kind": 5,
+    "tags": [],
+    "detail": "x: int\n\ntype r = {x: int, y: string}",
+    "documentation": null
+  }, {
+    "label": "y",
+    "kind": 5,
+    "tags": [],
+    "detail": "y: string\n\ntype r = {x: int, y: string}",
+    "documentation": null
+  }]
 

@@ -239,3 +239,11 @@ let name = "abc"
 
 let notHere = "      "
 //               ^com
+
+let someR = Some(r)
+let _ = switch someR {
+| Some(_z) => 1
+// + _z.
+//      ^com
+| _ => 3
+}
