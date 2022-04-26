@@ -319,13 +319,36 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     scope :=
       !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_name.loc
   in
-  let scopeValueBinding (vb : Parsetree.value_binding) =
-    match vb.pvb_pat.ppat_desc with
-    | Ppat_var {txt; loc}
-    | Ppat_constraint ({ppat_desc = Ppat_var {txt; loc}}, _) ->
-      scope := !scope |> Scope.addValue ~name:txt ~loc
-    | _ -> ()
+  let rec scopePattern (pat : Parsetree.pattern) =
+    match pat.ppat_desc with
+    | Ppat_any -> ()
+    | Ppat_var {txt; loc} -> scope := !scope |> Scope.addValue ~name:txt ~loc
+    | Ppat_alias (p, asA) ->
+      scopePattern p;
+      scope := !scope |> Scope.addValue ~name:asA.txt ~loc:asA.loc
+    | Ppat_constant _ | Ppat_interval _ -> ()
+    | Ppat_tuple pl -> pl |> List.iter scopePattern
+    | Ppat_construct (_, None) -> ()
+    | Ppat_construct (_, Some p) -> scopePattern p
+    | Ppat_variant (_, None) -> ()
+    | Ppat_variant (_, Some p) -> scopePattern p
+    | Ppat_record (fields, _) ->
+      fields |> List.iter (fun (_, p) -> scopePattern p)
+    | Ppat_array pl -> pl |> List.iter scopePattern
+    | Ppat_or (p1, _) -> scopePattern p1
+    | Ppat_constraint (p, _) -> scopePattern p
+    | Ppat_type _ -> ()
+    | Ppat_lazy p -> scopePattern p
+    | Ppat_unpack {txt; loc} -> scope := !scope |> Scope.addValue ~name:txt ~loc
+    | Ppat_exception p -> scopePattern p
+    | Ppat_extension _ -> ()
+    | Ppat_open (_, p) -> scopePattern p
   in
+
+  let scopeValueBinding (vb : Parsetree.value_binding) =
+    scopePattern vb.pvb_pat
+  in
+
   let scopeTypeKind (tk : Parsetree.type_kind) =
     match tk with
     | Ptype_variant constrDecls ->
@@ -355,6 +378,12 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
 
+  let case (iterator : Ast_iterator.iterator) (case : Parsetree.case) =
+    let oldScope = !scope in
+    scopePattern case.pc_lhs;
+    Ast_iterator.default_iterator.case iterator case;
+    scope := oldScope
+  in
   let structure (iterator : Ast_iterator.iterator)
       (structure : Parsetree.structure) =
     let oldScope = !scope in
@@ -494,6 +523,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite then (
         setFound ();
         match expr.pexp_desc with
+        | Pexp_constant _ -> setResult Cnone
         | Pexp_ident id ->
           if debug then
             Printf.printf "Pexp_ident %s:%s\n"
@@ -712,6 +742,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     {
       Ast_iterator.default_iterator with
       attribute;
+      case;
       expr;
       module_expr;
       module_type;

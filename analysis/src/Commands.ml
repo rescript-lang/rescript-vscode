@@ -297,11 +297,19 @@ let test ~path =
             lines
             |> List.iteri (fun j l ->
                    let lineToOutput =
-                     if j == i then String.sub rest 3 (len - mlen - 3) else l
+                     if
+                       j == i - 1
+                       && String.length l >= 2
+                       && String.sub l 0 2 = "//"
+                     then "  " ^ String.sub l 2 (String.length l - 2)
+                     else if
+                       j == i - 1
+                       && String.length l >= 4
+                       && String.sub l 0 4 = "  //"
+                     then "    " ^ String.sub l 4 (String.length l - 4)
+                     else l
                    in
                    Printf.fprintf cout "%s\n" lineToOutput);
-            let line = line + 1 in
-            let col = len - mlen - 3 in
             close_out cout;
             completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile

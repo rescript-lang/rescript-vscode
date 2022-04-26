@@ -60,9 +60,9 @@ resolvePath path:map
 [ref] Inner uri list.mli
 {"uri": "list.mli", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 7}}}
 
-Complete tests/src/Debug.res 12:5
-posCursor:[13:4] posNoWhite:[13:3] Found expr:[13:1->13:4]
-Pexp_ident eqN:[13:1->13:4]
+Complete tests/src/Debug.res 13:8
+posCursor:[13:8] posNoWhite:[13:7] Found expr:[13:5->13:8]
+Pexp_ident eqN:[13:5->13:8]
 Completable: Cpath Value[eqN]
 Opens folkz > 1 Js.place holder
 Package opens Pervasives
@@ -75,7 +75,7 @@ resolvePath path:Js.place holder
 fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/js.cmt res:tests/node_modules/rescript/lib/ocaml/js.ml
 resolvePath path:place holder
 Opens nows 2 pervasives.mli js.ml
-findLocalCompletionsWithOpens uri:Debug.res pos:13:4
+findLocalCompletionsWithOpens uri:Debug.res pos:13:8
 findAllCompletions uri:js.ml
 findAllCompletions uri:pervasives.mli
 [{

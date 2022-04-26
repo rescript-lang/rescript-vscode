@@ -7,6 +7,8 @@ module Test = {
   let add = (ax: t) => ax.name + 1
 }
 let ax: Test.t = {name: 4}
-//^com ax->
+// ax->
+//     ^com
 
-//^com ax
+// ax
+//   ^com

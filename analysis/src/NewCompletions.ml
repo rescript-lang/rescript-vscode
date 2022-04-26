@@ -1160,6 +1160,7 @@ let processCompletable ~package ~scope ~env ~pos (completable : Completable.t) =
     |> completionsGetTypeEnv
   in
   match completable with
+  | Cnone -> []
   | Cpath contextPath ->
     contextPath
     |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
