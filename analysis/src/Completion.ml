@@ -89,29 +89,11 @@ let rec skipComment ~pos ~i ~depth str =
     | _ -> skipComment ~depth ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
   else None
 
-let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
-  let rec extractLabelPos ~pos ~i str =
-    if i < String.length str then
-      match str.[i] with
-      | '/' when i + 1 < String.length str && str.[i + 1] = '/' -> (
-        match skipLineComment ~pos ~i str with
-        | Some (pos, i) -> extractLabelPos ~pos ~i str
-        | None -> None)
-      | '/' when i + 1 < String.length str && str.[i + 1] = '*' -> (
-        match skipComment ~depth:0 ~pos ~i str with
-        | Some (pos, i) -> extractLabelPos ~pos ~i str
-        | None -> None)
-      | ' ' | '\r' | '\t' ->
-        extractLabelPos ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
-      | '\n' -> extractLabelPos ~pos:(fst pos + 1, 0) ~i:(i + 1) str
-      | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' -> Some pos
-      | _ -> None
-    else None
-  in
+let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   let thisCaseShouldNotHappen =
     {componentPath = []; props = []; childrenStart = None}
   in
-  let rec processProps ~lastOffset ~lastPos ~acc args =
+  let rec processProps ~acc args =
     match args with
     | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
       {
@@ -121,39 +103,26 @@ let extractJsxProps ~text ~(compName : Longident.t Location.loc) ~args =
           (if pexp_loc.loc_ghost then None else Some (Loc.start pexp_loc));
       }
     | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
-      let ePosStart, ePosEnd = Loc.range eProp.pexp_loc in
-      match
-        (positionToOffset text ePosStart, positionToOffset text ePosEnd)
-      with
-      | Some offsetStart, Some offsetEnd when not eProp.pexp_loc.loc_ghost ->
-        let label = String.sub text lastOffset (offsetStart - lastOffset) in
-        let labelPos =
-          match extractLabelPos ~pos:lastPos ~i:0 label with
-          | Some pos -> pos
-          | None -> (* Must be punned *) ePosStart
-        in
+      let namedArgLoc =
+        eProp.pexp_attributes
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+      in
+      match namedArgLoc with
+      | Some ({loc}, _) ->
         processProps
           ~acc:
             ({
                name = s;
-               posStart = labelPos;
-               posEnd = (fst labelPos, snd labelPos + String.length s);
+               posStart = Loc.start loc;
+               posEnd = Loc.end_ loc;
                exp = eProp;
              }
             :: acc)
-          ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
-      | _ -> thisCaseShouldNotHappen)
+          rest
+      | None -> processProps ~acc rest)
     | _ -> thisCaseShouldNotHappen
   in
-  let posAfterCompName = Loc.end_ compName.loc in
-  let offsetAfterCompName =
-    match positionToOffset text posAfterCompName with
-    | None -> assert false
-    | Some offset -> offset
-  in
-  args
-  |> processProps ~lastOffset:offsetAfterCompName ~lastPos:posAfterCompName
-       ~acc:[]
+  args |> processProps ~acc:[]
 
 type labelled = {
   name : string;
@@ -196,73 +165,33 @@ let findExpApplyCompletable ~(args : arg list) ~endPos ~posBeforeCursor
   in
   loop args
 
-let extractExpApplyArgs ~text ~(funName : Longident.t Location.loc) ~args =
-  let rec extractLabelPos ~pos ~i str =
-    if i < String.length str then
-      match str.[i] with
-      | '/' when i + 1 < String.length str && str.[i + 1] = '/' -> (
-        match skipLineComment ~pos ~i str with
-        | Some (pos, i) -> extractLabelPos ~pos ~i str
-        | None -> None)
-      | '/' when i + 1 < String.length str && str.[i + 1] = '*' -> (
-        match skipComment ~depth:0 ~pos ~i str with
-        | Some (pos, i) -> extractLabelPos ~pos ~i str
-        | None -> None)
-      | ' ' | '\r' | '\t' | ',' | '(' | '~' ->
-        extractLabelPos ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
-      | '\n' -> extractLabelPos ~pos:(fst pos + 1, 0) ~i:(i + 1) str
-      | 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' -> Some pos
-      | _ -> None
-    else None
-  in
-  let rec processArgs ~lastOffset ~lastPos ~acc args =
+let extractExpApplyArgs ~args =
+  let rec processArgs ~acc args =
     match args with
     | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
       :: rest -> (
-      let ePosStart, ePosEnd = Loc.range e.pexp_loc in
-      match
-        (positionToOffset text ePosStart, positionToOffset text ePosEnd)
-      with
-      | Some offsetStart, Some offsetEnd ->
-        let labelText = String.sub text lastOffset (offsetStart - lastOffset) in
-        let labelPos =
-          match extractLabelPos ~pos:lastPos ~i:0 labelText with
-          | Some pos -> pos
-          | None -> (* Must be punned *) ePosStart
-        in
+      let namedArgLoc =
+        e.pexp_attributes
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+      in
+      match namedArgLoc with
+      | Some ({loc}, _) ->
         let labelled =
           {
             name = s;
             opt = (match label with Optional _ -> true | _ -> false);
-            posStart = labelPos;
-            posEnd = (fst labelPos, snd labelPos + String.length s);
+            posStart = Loc.start loc;
+            posEnd = Loc.end_ loc;
           }
         in
-        processArgs
-          ~acc:({label = Some labelled; exp = e} :: acc)
-          ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
-      | _ -> assert false)
-    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest -> (
-      if e.pexp_loc.loc_ghost then processArgs ~acc ~lastOffset ~lastPos rest
-      else
-        let ePosEnd = Loc.end_ e.pexp_loc in
-        match positionToOffset text ePosEnd with
-        | Some offsetEnd ->
-          processArgs
-            ~acc:({label = None; exp = e} :: acc)
-            ~lastOffset:offsetEnd ~lastPos:ePosEnd rest
-        | _ ->
-          (* should not happen *)
-          assert false)
+        processArgs ~acc:({label = Some labelled; exp = e} :: acc) rest
+      | None -> processArgs ~acc rest)
+    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest ->
+      if e.pexp_loc.loc_ghost then processArgs ~acc rest
+      else processArgs ~acc:({label = None; exp = e} :: acc) rest
     | [] -> List.rev acc
   in
-  let lastPos = Loc.end_ funName.loc in
-  let lastOffset =
-    match positionToOffset text lastPos with
-    | Some offset -> offset
-    | None -> assert false
-  in
-  args |> processArgs ~lastOffset ~lastPos ~acc:[]
+  args |> processArgs ~acc:[]
 
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
@@ -588,7 +517,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
-          let jsxProps = extractJsxProps ~text ~compName ~args in
+          let jsxProps = extractJsxProps ~compName ~args in
           if debug then
             Printf.printf "JSX <%s:%s %s> _children:%s\n"
               (jsxProps.componentPath |> String.concat ",")
@@ -629,7 +558,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
           ()
         | Pexp_apply ({pexp_desc = Pexp_ident funName}, args) ->
-          let args = extractExpApplyArgs ~text ~funName ~args in
+          let args = extractExpApplyArgs ~args in
           if debug then
             Printf.printf "Pexp_apply ...%s (%s)\n" (Loc.toString funName.loc)
               (args

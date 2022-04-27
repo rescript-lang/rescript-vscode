@@ -1308,12 +1308,6 @@ Completable: Cpath Value[na]
     "tags": [],
     "detail": "string",
     "documentation": null
-  }, {
-    "label": "nan",
-    "kind": 12,
-    "tags": [],
-    "detail": "float",
-    "documentation": null
   }]
 
 Complete tests/src/Completion.res 239:17
