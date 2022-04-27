@@ -63,8 +63,6 @@ let zzz = 11
 // let comp = <O.Comp z
 //                     ^com
 
-//^doc
-
 // @reac
 //      ^com
 
