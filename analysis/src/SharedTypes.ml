@@ -225,6 +225,8 @@ module Completion = struct
   let create ~name ~kind ~env =
     {name; env; deprecated = None; docstring = []; kind}
 
+  (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
+  (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItemKind *)
   let kindToInt kind =
     match kind with
     | Module _ -> 9

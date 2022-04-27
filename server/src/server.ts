@@ -428,6 +428,7 @@ function semanticTokens(msg: p.RequestMessage) {
 }
 
 function completion(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let extension = path.extname(params.textDocument.uri);

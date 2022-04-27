@@ -862,20 +862,6 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     (* There's no local completion for fields *)
     []
 
-(* TODO filter out things that are defined after the current position *)
-let resolveRawOpens ~env ~rawOpens ~package =
-  (* TODO Stdlib instead of Pervasives *)
-  let packageOpens = "Pervasives" :: package.opens in
-  Log.log ("Package opens " ^ String.concat " " packageOpens);
-  let opens =
-    resolveOpens ~env
-      ~previous:
-        (List.map QueryEnv.fromFile
-           (packageOpens |> Utils.filterMap (ProcessCmt.fileForModule ~package)))
-      (List.rev rawOpens) ~package
-  in
-  opens
-
 let rec extractRecordType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractRecordType ~env ~package t1
@@ -1132,15 +1118,21 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
 
 let getOpens ~rawOpens ~package ~env =
   Log.log
-    ("Opens folkz > "
+    ("Raw ppens: "
     ^ string_of_int (List.length rawOpens)
     ^ " "
     ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let packageOpens = "Pervasives" :: package.opens in
+  let packageOpens = package.opens in
   Log.log ("Package opens " ^ String.concat " " packageOpens);
-  let resolvedOpens = resolveRawOpens ~env ~rawOpens ~package in
+  let resolvedOpens =
+    resolveOpens ~env
+      ~previous:
+        (List.map QueryEnv.fromFile
+           (packageOpens |> Utils.filterMap (ProcessCmt.fileForModule ~package)))
+      (List.rev rawOpens) ~package
+  in
   Log.log
-    ("Opens nows "
+    ("Resolved opens "
     ^ string_of_int (List.length resolvedOpens)
     ^ " "
     ^ String.concat " "

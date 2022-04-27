@@ -63,20 +63,16 @@ Complete tests/src/Debug.res 13:8
 posCursor:[13:8] posNoWhite:[13:7] Found expr:[13:5->13:8]
 Pexp_ident eqN:[13:5->13:8]
 Completable: Cpath Value[eqN]
-Opens folkz > 1 Js.place holder
-Package opens Pervasives
-Package opens Pervasives
-fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/pervasives.cmti res:tests/node_modules/rescript/lib/ocaml/pervasives.mli
+Raw ppens: 1 Js.place holder
+Package opens 
 resolving open Js.place holder
 resolvePath path:Js.place holder
 Not local
-resolvePath path:Js.place holder
 fileForModule Impl cmt:tests/node_modules/rescript/lib/ocaml/js.cmt res:tests/node_modules/rescript/lib/ocaml/js.ml
 resolvePath path:place holder
-Opens nows 2 pervasives.mli js.ml
+Resolved opens 1 js.ml
 findLocalCompletionsWithOpens uri:Debug.res pos:13:8
 findAllCompletions uri:js.ml
-findAllCompletions uri:pervasives.mli
 [{
     "label": "eqNullable",
     "kind": 12,
