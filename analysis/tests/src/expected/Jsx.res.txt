@@ -433,6 +433,12 @@ posCursor:[153:19] posNoWhite:[153:18] Found expr:[153:12->153:25]
 JSX <Nested,name:[153:12->153:24] > _children:None
 posCursor:[153:19] posNoWhite:[153:18] Found expr:[153:12->153:24]
 Pexp_ident Nested.name.createElement:[153:12->153:24]
-Completable: Cpath Module[Nested, name]
-[]
+Completable: Cpath Module[Nested, ""]
+[{
+    "label": "Comp",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
 
