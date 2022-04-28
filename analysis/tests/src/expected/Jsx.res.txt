@@ -357,7 +357,7 @@ Complete tests/src/Jsx.res 129:19
 posCursor:[129:19] posNoWhite:[129:18] Found expr:[128:3->131:9]
 JSX <div:[128:3->128:6] x[129:5->129:6]=...[129:7->131:8]> _children:None
 posCursor:[129:19] posNoWhite:[129:18] Found expr:[129:7->131:8]
-Pexp_ident Outer.Inner.name:[129:7->131:8]
+Pexp_ident Outer.Inner.:[129:7->131:8]
 Completable: Cpath Value[Outer, Inner, ""]
 [{
     "label": "hello",
@@ -386,7 +386,7 @@ Completable: Cpath Module[Nested, Co]
 
 Complete tests/src/Jsx.res 153:19
 posCursor:[153:19] posNoWhite:[153:18] Found expr:[153:12->153:25]
-JSX <Nested.name:[153:12->153:24] > _children:None
+JSX <Nested.:[153:12->153:24] > _children:None
 Completable: Cpath Module[Nested, ""]
 [{
     "label": "Comp",
