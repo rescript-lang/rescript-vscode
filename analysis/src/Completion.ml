@@ -481,17 +481,18 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         match expr.pexp_desc with
         | Pexp_constant _ -> setResult Cnone
         | Pexp_ident lid ->
+          let lidPath = flattenLidCheckDot lid in
           if debug then
             Printf.printf "Pexp_ident %s:%s\n"
-              (Utils.flattenLongIdent lid.txt |> String.concat ".")
+              (lidPath |> String.concat ".")
               (Loc.toString lid.loc);
           if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            let path = flattenLidCheckDot lid in
-            setResult (Cpath (CPId (path, Value)))
+            setResult (Cpath (CPId (lidPath, Value)))
         | Pexp_construct (lid, eOpt) ->
+          let lidPath = flattenLidCheckDot lid in
           if debug then
             Printf.printf "Pexp_construct %s:%s %s\n"
-              (Utils.flattenLongIdent lid.txt |> String.concat "\n")
+              (lidPath |> String.concat "\n")
               (Loc.toString lid.loc)
               (match eOpt with
               | None -> "None"
@@ -499,7 +500,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           if
             eOpt = None && (not lid.loc.loc_ghost)
             && lid.loc |> Loc.hasPos ~pos:posBeforeCursor
-          then setResult (Cpath (CPId (flattenLidCheckDot lid, Value)))
+          then setResult (Cpath (CPId (lidPath, Value)))
         | Pexp_field (e, fieldName) -> (
           if debug then
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
@@ -532,11 +533,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
           let jsxProps = extractJsxProps ~compName ~args in
+          let compNamePath = flattenLidCheckDot ~jsx:true compName in
           if debug then
             Printf.printf "JSX <%s:%s %s> _children:%s\n"
-              (jsxProps.compName.txt
-              |> Utils.flattenLongIdent ~jsx:true
-              |> String.concat ".")
+              (compNamePath |> String.concat ".")
               (Loc.toString compName.loc)
               (jsxProps.props
               |> List.map (fun {name; posStart; posEnd; exp} ->
@@ -553,8 +553,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            setResult
-              (Cpath (CPId (flattenLidCheckDot ~jsx:true compName, Module)))
+            setResult (Cpath (CPId (compNamePath, Module)))
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [
@@ -646,12 +645,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (Loc.toString core_type.ptyp_loc);
       match core_type.ptyp_desc with
       | Ptyp_constr (lid, _args) ->
+        let lidPath = flattenLidCheckDot lid in
         if debug then
           Printf.printf "Ptyp_constr %s:%s\n"
-            (Utils.flattenLongIdent lid.txt |> String.concat ".")
+            (lidPath |> String.concat ".")
             (Loc.toString lid.loc);
         if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
-          setResult (Cpath (CPId (flattenLidCheckDot lid, Type)))
+          setResult (Cpath (CPId (lidPath, Type)))
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in
@@ -659,12 +659,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       (me : Parsetree.module_expr) =
     (match me.pmod_desc with
     | Pmod_ident lid when lid.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+      let lidPath = flattenLidCheckDot lid in
       if debug then
         Printf.printf "Pmod_ident %s:%s\n"
-          (Utils.flattenLongIdent lid.txt |> String.concat ".")
+          (lidPath |> String.concat ".")
           (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (flattenLidCheckDot lid, Module)))
+      setResult (Cpath (CPId (lidPath, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_expr iterator me
   in
@@ -672,12 +673,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       (mt : Parsetree.module_type) =
     (match mt.pmty_desc with
     | Pmty_ident lid when lid.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+      let lidPath = flattenLidCheckDot lid in
       if debug then
         Printf.printf "Pmty_ident %s:%s\n"
-          (Utils.flattenLongIdent lid.txt |> String.concat ".")
+          (lidPath |> String.concat ".")
           (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (flattenLidCheckDot lid, Module)))
+      setResult (Cpath (CPId (lidPath, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
   in
