@@ -476,18 +476,18 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
             let path = flattenLidCheckDot ~lid in
             setResult (Cpath (CPId (path, Value)))
-        | Pexp_construct (id, eOpt) ->
+        | Pexp_construct (lid, eOpt) ->
           if debug then
             Printf.printf "Pexp_construct %s:%s %s\n"
-              (Utils.flattenLongIdent id.txt |> String.concat "\n")
-              (Loc.toString id.loc)
+              (Utils.flattenLongIdent lid.txt |> String.concat "\n")
+              (Loc.toString lid.loc)
               (match eOpt with
               | None -> "None"
               | Some e -> Loc.toString e.pexp_loc);
           if
-            eOpt = None && (not id.loc.loc_ghost)
-            && id.loc |> Loc.hasPos ~pos:posBeforeCursor
-          then setResult (Cpath (CPId (Utils.flattenLongIdent id.txt, Value)))
+            eOpt = None && (not lid.loc.loc_ghost)
+            && lid.loc |> Loc.hasPos ~pos:posBeforeCursor
+          then setResult (Cpath (CPId (flattenLidCheckDot ~lid, Value)))
         | Pexp_field (e, fieldName) -> (
           if debug then
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
