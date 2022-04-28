@@ -9,10 +9,8 @@ let _ = <M first="abc" />
 // <M second=fi
 //             ^com
 
-
 // <M second="abc" f
 //                  ^com
-
 
 // let e = <M
 //           ^com
