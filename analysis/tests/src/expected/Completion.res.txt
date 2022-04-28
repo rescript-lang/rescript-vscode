@@ -1007,3 +1007,20 @@ Completable: Cpath Type[SomeLocalModule, ""]
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 268:21
+Ptype_variant unary SomeLocal:[268:12->268:21]
+Completable: Cpath Value[SomeLocal]
+[{
+    "label": "SomeLocalVariantItem",
+    "kind": 4,
+    "tags": [],
+    "detail": "SomeLocalVariantItem\n\ntype someLocalVariant =  SomeLocalVariantItem",
+    "documentation": null
+  }, {
+    "label": "SomeLocalModule",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
+

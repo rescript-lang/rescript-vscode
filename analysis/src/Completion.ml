@@ -683,6 +683,20 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
   in
+  let type_kind (iterator : Ast_iterator.iterator)
+      (type_kind : Parsetree.type_kind) =
+    (match type_kind with
+    | Ptype_variant [decl] when decl.pcd_loc |> Loc.hasPos ~pos:posNoWhite ->
+      (* "type t = Pre" could signal the intent to complete variant "Prelude",
+         or the beginning of "Prefix.t" *)
+      if debug then
+        Printf.printf "Ptype_variant unary %s:%s\n" decl.pcd_name.txt
+          (Loc.toString decl.pcd_name.loc);
+      found := true;
+      setResult (Cpath (CPId ([decl.pcd_name.txt], Value)))
+    | _ -> ());
+    Ast_iterator.default_iterator.type_kind iterator type_kind
+  in
 
   let lastScopeBeforeCursor = ref (Scope.create ()) in
   let location (_iterator : Ast_iterator.iterator) (loc : Location.t) =
@@ -703,6 +717,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       structure;
       structure_item;
       typ;
+      type_kind;
     }
   in
 

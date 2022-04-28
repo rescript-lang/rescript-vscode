@@ -263,3 +263,8 @@ type record = {
   //                             ^com
   thirdProp: string,
 }
+
+type someLocalVariant = SomeLocalVariantItem
+
+// type t = SomeLocal
+//                   ^com
