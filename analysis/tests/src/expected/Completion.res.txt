@@ -1025,8 +1025,8 @@ Completable: Cpath Value[SomeLocal]
   }]
 
 Complete tests/src/Completion.res 271:20
-posCursor:[271:20] posNoWhite:[271:19] Found type:[271:11->274:0]
-Ptyp_constr SomeLocal:[271:11->274:0]
+posCursor:[271:20] posNoWhite:[271:19] Found type:[271:11->274:3]
+Ptyp_constr SomeLocal:[271:11->274:3]
 Completable: Cpath Type[SomeLocal]
 [{
     "label": "SomeLocalModule",
@@ -1035,4 +1035,12 @@ Completable: Cpath Type[SomeLocal]
     "detail": "module",
     "documentation": null
   }]
+
+Complete tests/src/Completion.res 275:15
+posCursor:[275:15] posNoWhite:[275:14] Found expr:[274:11->278:1]
+posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:5->277:3]
+posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:13->275:15]
+Pexp_ident _w:[275:13->275:15]
+Completable: Cpath Value[_w]
+[]
 

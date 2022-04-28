@@ -271,3 +271,9 @@ type someLocalVariant = SomeLocalVariantItem
 
 // let _ : SomeLocal
 //                  ^com
+
+let _foo = _world => {
+  // let _ = _w
+  //           ^com
+  3
+}

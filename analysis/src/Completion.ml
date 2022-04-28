@@ -617,6 +617,15 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             match exprToContextPath lhs with
             | Some contextPath -> setResult (Cpath (CPObj (contextPath, label)))
             | None -> ())
+        | Pexp_fun (_lbl, defaultExpOpt, pat, e) ->
+          let oldScope = !scope in
+          (match defaultExpOpt with
+          | None -> ()
+          | Some defaultExp -> iterator.expr iterator defaultExp);
+          iterator.pat iterator pat;
+          iterator.expr iterator e;
+          scope := oldScope;
+          processed := true
         | Pexp_let (recFlag, bindings, e) ->
           let oldScope = !scope in
           if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
