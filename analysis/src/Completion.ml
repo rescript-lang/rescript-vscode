@@ -667,12 +667,18 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     Ast_iterator.default_iterator.module_type iterator mt
   in
 
+  let lastScopeBeforeCursor = ref (Scope.create ()) in
+  let location (_iterator : Ast_iterator.iterator) (loc : Location.t) =
+    if Loc.end_ loc <= posCursor then lastScopeBeforeCursor := !scope
+  in
+
   let iterator =
     {
       Ast_iterator.default_iterator with
       attribute;
       case;
       expr;
+      location;
       module_expr;
       module_type;
       signature;
@@ -689,16 +695,18 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     in
     let {Res_driver.parsetree = str} = parser ~filename:currentFile in
     iterator.structure iterator str |> ignore;
-    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then
-      setResult (Cpath (CPId ([""], Value)));
+    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then (
+      scope := !lastScopeBeforeCursor;
+      setResult (Cpath (CPId ([""], Value))));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else if Filename.check_suffix path ".resi" then (
     let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
     let {Res_driver.parsetree = signature} = parser ~filename:currentFile in
     iterator.signature iterator signature |> ignore;
-    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then
-      setResult (Cpath (CPId ([""], Type)));
+    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then (
+      scope := !lastScopeBeforeCursor;
+      setResult (Cpath (CPId ([""], Type))));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else None
