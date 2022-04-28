@@ -681,170 +681,222 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     completionForExportedFields ~env ~prefix ~exact ~namesUsed
     @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
 
-let findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
-    ~scope =
-  let valueTable = Hashtbl.create 10 in
-  env.QueryEnv.file.stamps
-  |> Stamps.iterValues (fun _ declared ->
-         Hashtbl.replace valueTable
-           (declared.name.txt, declared.extentLoc |> Loc.start)
-           declared);
-  let constructorTable = Hashtbl.create 10 in
-  env.QueryEnv.file.stamps
-  |> Stamps.iterConstructors (fun _ declared ->
-         Hashtbl.replace constructorTable
-           (declared.name.txt, declared.extentLoc |> Loc.start)
-           declared);
-  let namesUsed = Hashtbl.create 10 in
-  let resultRev = ref [] in
-  let processValue name loc =
-    if checkName name ~prefix ~exact then
-      match Hashtbl.find_opt valueTable (name, Loc.start loc) with
-      | Some declared ->
-        if not (Hashtbl.mem namesUsed name) then (
-          Hashtbl.add namesUsed name ();
-          resultRev :=
-            {
-              (Completion.create ~name:declared.name.txt ~env
-                 ~kind:(Value declared.item))
-              with
-              deprecated = declared.deprecated;
-              docstring = declared.docstring;
-            }
-            :: !resultRev)
-      | None ->
-        Log.log
-          (Printf.sprintf "Completion Value Not Found %s loc:%s\n" name
-             (Loc.toString loc))
-  in
-  let processConstructor name loc =
-    if checkName name ~prefix ~exact then
-      match Hashtbl.find_opt constructorTable (name, Loc.start loc) with
-      | Some declared ->
-        if not (Hashtbl.mem namesUsed name) then (
-          Hashtbl.add namesUsed name ();
-          resultRev :=
-            {
-              (Completion.create ~name:declared.name.txt ~env
-                 ~kind:
-                   (Constructor
-                      ( declared.item,
-                        snd declared.item.typeDecl
-                        |> Shared.declToString (fst declared.item.typeDecl) )))
-              with
-              deprecated = declared.deprecated;
-              docstring = declared.docstring;
-            }
-            :: !resultRev)
-      | None ->
-        Log.log
-          (Printf.sprintf "Completion Constructor Not Found %s loc:%s\n" name
-             (Loc.toString loc))
-  in
-  scope |> Scope.iterValuesBeforeFirstOpen processValue;
-  scope |> Scope.iterConstructorsBeforeFirstOpen processConstructor;
-  let valuesFromOpens =
-    opens
-    |> List.fold_left
-         (fun results env ->
-           let completionsFromThisOpen =
-             findAllCompletions ~env ~prefix ~exact ~namesUsed
-               ~completionContext:Value
-           in
-           completionsFromThisOpen @ results)
-         []
-  in
-  scope |> Scope.iterValuesAfterFirstOpen processValue;
-  scope |> Scope.iterConstructorsAfterFirstOpen processConstructor;
-  List.rev_append !resultRev valuesFromOpens
+module LocalTables = struct
+  type 'a table = (string * (int * int), 'a Declared.t) Hashtbl.t
+  type namesUsed = (string, unit) Hashtbl.t
 
-let findLocalCompletionsForTypes ~env ~prefix ~exact ~opens ~scope =
-  let typesTable = Hashtbl.create 10 in
-  env.QueryEnv.file.stamps
-  |> Stamps.iterTypes (fun _ declared ->
-         Hashtbl.replace typesTable
-           (declared.name.txt, declared.extentLoc |> Loc.start)
-           declared);
-  let namesUsed = Hashtbl.create 10 in
-  let resultRev = ref [] in
-  let processType name loc =
-    if checkName name ~prefix ~exact then
-      match Hashtbl.find_opt typesTable (name, Loc.start loc) with
-      | Some declared ->
-        if not (Hashtbl.mem namesUsed name) then (
-          Hashtbl.add namesUsed name ();
-          resultRev :=
-            {
-              (Completion.create ~name:declared.name.txt ~env
-                 ~kind:(Type declared.item))
-              with
-              deprecated = declared.deprecated;
-              docstring = declared.docstring;
-            }
-            :: !resultRev)
-      | None ->
-        Log.log
-          (Printf.sprintf "Completion Type Not Found %s loc:%s\n" name
-             (Loc.toString loc))
-  in
-  scope |> Scope.iterTypesBeforeFirstOpen processType;
-  let valuesFromOpens =
-    opens
-    |> List.fold_left
-         (fun results env ->
-           let completionsFromThisOpen =
-             findAllCompletions ~env ~prefix ~exact ~namesUsed
-               ~completionContext:Type
-           in
-           completionsFromThisOpen @ results)
-         []
-  in
-  scope |> Scope.iterTypesAfterFirstOpen processType;
-  List.rev_append !resultRev valuesFromOpens
+  type t = {
+    namesUsed : namesUsed;
+    mutable resultRev : Completion.t list;
+    constructorTable : Constructor.t table;
+    modulesTable : Module.t table;
+    typesTable : Type.t table;
+    valueTable : Types.type_expr table;
+  }
 
-let findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope =
-  let modulesTable = Hashtbl.create 10 in
-  env.QueryEnv.file.stamps
-  |> Stamps.iterModules (fun _ declared ->
-         Hashtbl.replace modulesTable
-           (declared.name.txt, declared.extentLoc |> Loc.start)
-           declared);
-  let namesUsed = Hashtbl.create 10 in
-  let resultRev = ref [] in
-  let processModule name loc =
-    if checkName name ~prefix ~exact then
-      match Hashtbl.find_opt modulesTable (name, Loc.start loc) with
-      | Some declared ->
-        if not (Hashtbl.mem namesUsed name) then (
-          Hashtbl.add namesUsed name ();
-          resultRev :=
-            {
-              (Completion.create ~name:declared.name.txt ~env
-                 ~kind:(Module declared.item))
-              with
-              deprecated = declared.deprecated;
-              docstring = declared.docstring;
-            }
-            :: !resultRev)
-      | None ->
-        Log.log
-          (Printf.sprintf "Completion Module Not Found %s loc:%s\n" name
-             (Loc.toString loc))
-  in
-  scope |> Scope.iterModulesBeforeFirstOpen processModule;
-  let valuesFromOpens =
-    opens
-    |> List.fold_left
-         (fun results env ->
-           let completionsFromThisOpen =
-             findAllCompletions ~env ~prefix ~exact ~namesUsed
-               ~completionContext:Module
-           in
-           completionsFromThisOpen @ results)
-         []
-  in
-  scope |> Scope.iterModulesAfterFirstOpen processModule;
-  List.rev_append !resultRev valuesFromOpens
+  let create () =
+    {
+      namesUsed = Hashtbl.create 1;
+      resultRev = [];
+      constructorTable = Hashtbl.create 1;
+      modulesTable = Hashtbl.create 1;
+      typesTable = Hashtbl.create 1;
+      valueTable = Hashtbl.create 1;
+    }
+
+  let populateValues ~env localTables =
+    env.QueryEnv.file.stamps
+    |> Stamps.iterValues (fun _ declared ->
+           Hashtbl.replace localTables.valueTable
+             (declared.name.txt, declared.extentLoc |> Loc.start)
+             declared)
+
+  let populateConstructors ~env localTables =
+    env.QueryEnv.file.stamps
+    |> Stamps.iterConstructors (fun _ declared ->
+           Hashtbl.replace localTables.constructorTable
+             (declared.name.txt, declared.extentLoc |> Loc.start)
+             declared)
+
+  let populateTypes ~env localTables =
+    env.QueryEnv.file.stamps
+    |> Stamps.iterTypes (fun _ declared ->
+           Hashtbl.replace localTables.typesTable
+             (declared.name.txt, declared.extentLoc |> Loc.start)
+             declared)
+
+  let populateModules ~env localTables =
+    env.QueryEnv.file.stamps
+    |> Stamps.iterModules (fun _ declared ->
+           Hashtbl.replace localTables.modulesTable
+             (declared.name.txt, declared.extentLoc |> Loc.start)
+             declared)
+end
+
+let processLocalValue name loc ~prefix ~exact ~env
+    ~(localTables : LocalTables.t) =
+  if checkName name ~prefix ~exact then
+    match Hashtbl.find_opt localTables.valueTable (name, Loc.start loc) with
+    | Some declared ->
+      if not (Hashtbl.mem localTables.namesUsed name) then (
+        Hashtbl.add localTables.namesUsed name ();
+        localTables.resultRev <-
+          {
+            (Completion.create ~name:declared.name.txt ~env
+               ~kind:(Value declared.item))
+            with
+            deprecated = declared.deprecated;
+            docstring = declared.docstring;
+          }
+          :: localTables.resultRev)
+    | None ->
+      Log.log
+        (Printf.sprintf "Completion Value Not Found %s loc:%s\n" name
+           (Loc.toString loc))
+
+let processLocalConstructor name loc ~prefix ~exact ~env
+    ~(localTables : LocalTables.t) =
+  if checkName name ~prefix ~exact then
+    match
+      Hashtbl.find_opt localTables.constructorTable (name, Loc.start loc)
+    with
+    | Some declared ->
+      if not (Hashtbl.mem localTables.namesUsed name) then (
+        Hashtbl.add localTables.namesUsed name ();
+        localTables.resultRev <-
+          {
+            (Completion.create ~name:declared.name.txt ~env
+               ~kind:
+                 (Constructor
+                    ( declared.item,
+                      snd declared.item.typeDecl
+                      |> Shared.declToString (fst declared.item.typeDecl) )))
+            with
+            deprecated = declared.deprecated;
+            docstring = declared.docstring;
+          }
+          :: localTables.resultRev)
+    | None ->
+      Log.log
+        (Printf.sprintf "Completion Constructor Not Found %s loc:%s\n" name
+           (Loc.toString loc))
+
+let processLocalType name loc ~prefix ~exact ~env ~(localTables : LocalTables.t)
+    =
+  if checkName name ~prefix ~exact then
+    match Hashtbl.find_opt localTables.typesTable (name, Loc.start loc) with
+    | Some declared ->
+      if not (Hashtbl.mem localTables.namesUsed name) then (
+        Hashtbl.add localTables.namesUsed name ();
+        localTables.resultRev <-
+          {
+            (Completion.create ~name:declared.name.txt ~env
+               ~kind:(Type declared.item))
+            with
+            deprecated = declared.deprecated;
+            docstring = declared.docstring;
+          }
+          :: localTables.resultRev)
+    | None ->
+      Log.log
+        (Printf.sprintf "Completion Type Not Found %s loc:%s\n" name
+           (Loc.toString loc))
+
+let processLocalModule name loc ~prefix ~exact ~env
+    ~(localTables : LocalTables.t) =
+  if checkName name ~prefix ~exact then
+    match Hashtbl.find_opt localTables.modulesTable (name, Loc.start loc) with
+    | Some declared ->
+      if not (Hashtbl.mem localTables.namesUsed name) then (
+        Hashtbl.add localTables.namesUsed name ();
+        localTables.resultRev <-
+          {
+            (Completion.create ~name:declared.name.txt ~env
+               ~kind:(Module declared.item))
+            with
+            deprecated = declared.deprecated;
+            docstring = declared.docstring;
+          }
+          :: localTables.resultRev)
+    | None ->
+      Log.log
+        (Printf.sprintf "Completion Module Not Found %s loc:%s\n" name
+           (Loc.toString loc))
+
+let getValuesFromOpens ~opens ~localTables ~prefix ~exact =
+  opens
+  |> List.fold_left
+       (fun results env ->
+         let completionsFromThisOpen =
+           findAllCompletions ~env ~prefix ~exact
+             ~namesUsed:localTables.LocalTables.namesUsed
+             ~completionContext:Value
+         in
+         completionsFromThisOpen @ results)
+       []
+
+let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
+    ~env ~prefix ~exact ~opens ~scope =
+  localTables |> LocalTables.populateValues ~env;
+  localTables |> LocalTables.populateConstructors ~env;
+  localTables |> LocalTables.populateModules ~env;
+  scope
+  |> Scope.iterValuesBeforeFirstOpen
+       (processLocalValue ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterConstructorsBeforeFirstOpen
+       (processLocalConstructor ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesBeforeFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+
+  let valuesFromOpens = getValuesFromOpens ~opens ~localTables ~prefix ~exact in
+
+  scope
+  |> Scope.iterValuesAfterFirstOpen
+       (processLocalValue ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterConstructorsAfterFirstOpen
+       (processLocalConstructor ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesAfterFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+  List.rev_append localTables.resultRev valuesFromOpens
+
+let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
+    ~exact ~opens ~scope =
+  localTables |> LocalTables.populateTypes ~env;
+  localTables |> LocalTables.populateModules ~env;
+  scope
+  |> Scope.iterTypesBeforeFirstOpen
+       (processLocalType ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesBeforeFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+
+  let valuesFromOpens = getValuesFromOpens ~opens ~localTables ~prefix ~exact in
+
+  scope
+  |> Scope.iterTypesAfterFirstOpen
+       (processLocalType ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesAfterFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+  List.rev_append localTables.resultRev valuesFromOpens
+
+let findLocalCompletionsForModules ~(localTables : LocalTables.t) ~env ~prefix
+    ~exact ~opens ~scope =
+  localTables |> LocalTables.populateModules ~env;
+  scope
+  |> Scope.iterModulesBeforeFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+
+  let valuesFromOpens = getValuesFromOpens ~opens ~localTables ~prefix ~exact in
+
+  scope
+  |> Scope.iterModulesAfterFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+  List.rev_append localTables.resultRev valuesFromOpens
 
 let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ~scope ~(completionContext : Completable.completionContext) =
@@ -852,12 +904,16 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
   Log.log
     ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
    ^ Pos.toString pos);
+  let localTables = LocalTables.create () in
   match completionContext with
   | Value ->
-    findLocalCompletionsForValuesAndConstructors ~env ~prefix ~exact ~opens
+    findLocalCompletionsForValuesAndConstructors ~localTables ~env ~prefix
+      ~exact ~opens ~scope
+  | Type ->
+    findLocalCompletionsForTypes ~localTables ~env ~prefix ~exact ~opens ~scope
+  | Module ->
+    findLocalCompletionsForModules ~localTables ~env ~prefix ~exact ~opens
       ~scope
-  | Type -> findLocalCompletionsForTypes ~env ~prefix ~exact ~opens ~scope
-  | Module -> findLocalCompletionsForModules ~env ~prefix ~exact ~opens ~scope
   | Field ->
     (* There's no local completion for fields *)
     []

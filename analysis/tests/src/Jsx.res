@@ -9,10 +9,8 @@ let _ = <M first="abc" />
 // <M second=fi
 //             ^com
 
-
 // <M second="abc" f
 //                  ^com
-
 
 // let e = <M
 //           ^com
@@ -140,3 +138,18 @@ let _ =
   //   ^com
     name=""
   />
+
+module Nested = {
+  module Comp = {
+    @react.component
+    let make = (~name) => React.string(name)
+  }
+}
+
+let _ = <Nested.Comp name="" />
+
+// let _ = <Nested.Co name="" />
+//                   ^com
+
+// let _ = <Nested. name="" />
+//                 ^com

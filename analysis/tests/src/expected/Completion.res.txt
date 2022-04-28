@@ -73,7 +73,6 @@ Completable: Cpath Value[MyList, m]
 Complete tests/src/Completion.res 3:9
 posCursor:[3:9] posNoWhite:[3:8] Found expr:[3:3->8:6]
 Pexp_ident Array.:[3:3->8:6]
-Id breaks up. New path:Array.
 Completable: Cpath Value[Array, ""]
 [{
     "label": "fold_left",
@@ -379,8 +378,6 @@ Completable: Clabel([Lib, foo], "", [])
 
 Complete tests/src/Completion.res 26:13
 posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:3->26:13]
-posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:12->26:13]
-Pexp_ident m:[26:12->26:13]
 Completable: Cpath array->m
 [{
     "label": "Js.Array2.mapi",
@@ -398,8 +395,6 @@ Completable: Cpath array->m
 
 Complete tests/src/Completion.res 29:13
 posCursor:[29:13] posNoWhite:[29:12] Found expr:[29:3->29:13]
-posCursor:[29:13] posNoWhite:[29:12] Found expr:[29:10->29:13]
-Pexp_ident toU:[29:10->29:13]
 Completable: Cpath string->toU
 [{
     "label": "Js.String2.toUpperCase",
@@ -411,8 +406,6 @@ Completable: Cpath string->toU
 
 Complete tests/src/Completion.res 34:8
 posCursor:[34:8] posNoWhite:[34:7] Found expr:[34:3->34:8]
-posCursor:[34:8] posNoWhite:[34:7] Found expr:[34:7->34:8]
-Pexp_ident e:[34:7->34:8]
 Completable: Cpath Value[op]->e
 [{
     "label": "Belt.Option.eqU",
@@ -432,8 +425,6 @@ Complete tests/src/Completion.res 44:7
 posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:3->54:3]
 Pexp_apply ...[50:9->50:10] (...[44:3->50:8], ...[51:2->54:3])
 posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:3->50:8]
-posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:5->44:7]
-Pexp_ident |.:[44:5->44:7]
 Completable: Cpath Value[fa]->
 [{
     "label": "ForAuto.abc",
@@ -470,7 +461,7 @@ Completable: Cpath Value[Js, Dict, u]
 
 Complete tests/src/Completion.res 59:30
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:15->59:30]
-JSX <O,Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
+JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:29->59:30]
 Pexp_ident z:[59:29->59:30]
 Completable: Cpath Value[z]
@@ -484,9 +475,7 @@ Completable: Cpath Value[z]
 
 Complete tests/src/Completion.res 62:23
 posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:15->62:23]
-JSX <O,Comp:[62:15->62:21] z[62:22->62:23]=...[62:22->62:23]> _children:None
-posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:22->62:23]
-Pexp_ident z:[62:22->62:23]
+JSX <O.Comp:[62:15->62:21] z[62:22->62:23]=...[62:22->62:23]> _children:None
 Completable: Cjsx([O, Comp], z, [z])
 [{
     "label": "zoo",
@@ -496,357 +485,8 @@ Completable: Cjsx([O, Comp], z, [z])
     "documentation": null
   }]
 
-DocumentSymbol tests/src/Completion.res
-[
-{
-        "name": "MyList",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 0, "character": 25}}}
-},
-{
-        "name": "Dep",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 8, "character": 7}, "end": {"line": 13, "character": 1}}}
-},
-{
-        "name": "customDouble",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 12, "character": 2}, "end": {"line": 12, "character": 35}}}
-},
-{
-        "name": "Lib",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 18, "character": 7}, "end": {"line": 21, "character": 1}}}
-},
-{
-        "name": "foo",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 55}}}
-},
-{
-        "name": "next",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 20, "character": 2}, "end": {"line": 20, "character": 48}}}
-},
-{
-        "name": "op",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 32, "character": 0}, "end": {"line": 32, "character": 16}}}
-},
-{
-        "name": "ForAuto",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 37, "character": 7}, "end": {"line": 41, "character": 1}}}
-},
-{
-        "name": "t",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 38, "character": 2}, "end": {"line": 38, "character": 14}}}
-},
-{
-        "name": "abc",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 39, "character": 2}, "end": {"line": 39, "character": 32}}}
-},
-{
-        "name": "abd",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 40, "character": 2}, "end": {"line": 40, "character": 32}}}
-},
-{
-        "name": "fa",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 43, "character": 0}, "end": {"line": 43, "character": 22}}}
-},
-{
-        "name": "O",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 50, "character": 7}, "end": {"line": 55, "character": 1}}}
-},
-{
-        "name": "Comp",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 51, "character": 9}, "end": {"line": 54, "character": 3}}}
-},
-{
-        "name": "make",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 53, "character": 4}, "end": {"line": 53, "character": 98}}}
-},
-{
-        "name": "zzz",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 57, "character": 0}, "end": {"line": 57, "character": 12}}}
-},
-{
-        "name": "someObj",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 90, "character": 0}, "end": {"line": 90, "character": 38}}}
-},
-{
-        "name": "nestedObj",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 95, "character": 0}, "end": {"line": 95, "character": 54}}}
-},
-{
-        "name": "o",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 100, "character": 0}, "end": {"line": 100, "character": 30}}}
-},
-{
-        "name": "nestedObjT",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 104, "character": 0}, "end": {"line": 104, "character": 39}}}
-},
-{
-        "name": "no",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 105, "character": 0}, "end": {"line": 105, "character": 33}}}
-},
-{
-        "name": "r",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 109, "character": 0}, "end": {"line": 109, "character": 28}}}
-},
-{
-        "name": "x",
-        "kind": 7,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 109, "character": 10}, "end": {"line": 109, "character": 16}}}
-},
-{
-        "name": "y",
-        "kind": 7,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 109, "character": 18}, "end": {"line": 109, "character": 27}}}
-},
-{
-        "name": "rAlias",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 110, "character": 0}, "end": {"line": 110, "character": 15}}}
-},
-{
-        "name": "r",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 111, "character": 0}, "end": {"line": 111, "character": 28}}}
-},
-{
-        "name": "myAmazingFunction",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 118, "character": 0}, "end": {"line": 118, "character": 39}}}
-},
-{
-        "name": "make",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 121, "character": 0}, "end": {"line": 125, "character": 1}}}
-},
-{
-        "name": "foo",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 130, "character": 0}, "end": {"line": 149, "character": 1}}}
-},
-{
-        "name": "x",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 131, "character": 2}, "end": {"line": 133, "character": 3}}}
-},
-{
-        "name": "y",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 134, "character": 2}, "end": {"line": 134, "character": 11}}}
-},
-{
-        "name": "add",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 135, "character": 2}, "end": {"line": 139, "character": 5}}}
-},
-{
-        "name": "z",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 140, "character": 2}, "end": {"line": 140, "character": 22}}}
-},
-{
-        "name": "Inner",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 142, "character": 2}, "end": {"line": 145, "character": 3}}}
-},
-{
-        "name": "z",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 143, "character": 4}, "end": {"line": 143, "character": 16}}}
-},
-{
-        "name": "v",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 144, "character": 4}, "end": {"line": 144, "character": 14}}}
-},
-{
-        "name": "MyException",
-        "kind": 9,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 146, "character": 2}, "end": {"line": 146, "character": 61}}}
-},
-{
-        "name": "MyOtherException",
-        "kind": 9,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 151, "character": 0}, "end": {"line": 151, "character": 26}}}
-},
-{
-        "name": "aa",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 156, "character": 0}, "end": {"line": 156, "character": 32}}}
-},
-{
-        "name": "x",
-        "kind": 7,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 156, "character": 11}, "end": {"line": 156, "character": 17}}}
-},
-{
-        "name": "name",
-        "kind": 7,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 156, "character": 19}, "end": {"line": 156, "character": 31}}}
-},
-{
-        "name": "bb",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 157, "character": 0}, "end": {"line": 157, "character": 26}}}
-},
-{
-        "name": "aa",
-        "kind": 7,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 157, "character": 11}, "end": {"line": 157, "character": 17}}}
-},
-{
-        "name": "w",
-        "kind": 7,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 157, "character": 19}, "end": {"line": 157, "character": 25}}}
-},
-{
-        "name": "q",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 158, "character": 0}, "end": {"line": 158, "character": 24}}}
-},
-{
-        "name": "WithChildren",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 167, "character": 7}, "end": {"line": 170, "character": 1}}}
-},
-{
-        "name": "make",
-        "kind": 12,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 169, "character": 2}, "end": {"line": 169, "character": 69}}}
-},
-{
-        "name": "z",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 179, "character": 0}, "end": {"line": 179, "character": 30}}}
-},
-{
-        "name": "Allo",
-        "kind": 22,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 179, "character": 9}, "end": {"line": 179, "character": 13}}}
-},
-{
-        "name": "Asterix",
-        "kind": 22,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 179, "character": 14}, "end": {"line": 179, "character": 23}}}
-},
-{
-        "name": "Baba",
-        "kind": 22,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 179, "character": 24}, "end": {"line": 179, "character": 30}}}
-},
-{
-        "name": "Private",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 187, "character": 7}, "end": {"line": 190, "character": 1}}}
-},
-{
-        "name": "awr",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 188, "character": 12}, "end": {"line": 188, "character": 23}}}
-},
-{
-        "name": "b",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 189, "character": 2}, "end": {"line": 189, "character": 13}}}
-},
-{
-        "name": "Shadow",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 195, "character": 7}, "end": {"line": 202, "character": 1}}}
-},
-{
-        "name": "A",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 196, "character": 9}, "end": {"line": 198, "character": 3}}}
-},
-{
-        "name": "shadowed",
-        "kind": 16,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 197, "character": 4}, "end": {"line": 197, "character": 20}}}
-},
-{
-        "name": "B",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 199, "character": 9}, "end": {"line": 201, "character": 3}}}
-},
-{
-        "name": "shadowed",
-        "kind": 15,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 200, "character": 4}, "end": {"line": 200, "character": 21}}}
-},
-{
-        "name": "FAR",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 214, "character": 7}, "end": {"line": 217, "character": 1}}}
-},
-{
-        "name": "forAutoRecord",
-        "kind": 26,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 215, "character": 2}, "end": {"line": 215, "character": 67}}}
-},
-{
-        "name": "forAuto",
-        "kind": 7,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 215, "character": 24}, "end": {"line": 215, "character": 42}}}
-},
-{
-        "name": "something",
-        "kind": 7,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 215, "character": 44}, "end": {"line": 215, "character": 66}}}
-},
-{
-        "name": "forAutoRecord",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 216, "character": 2}, "end": {"line": 216, "character": 49}}}
-},
-{
-        "name": "FAO",
-        "kind": 2,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 219, "character": 7}, "end": {"line": 221, "character": 1}}}
-},
-{
-        "name": "forAutoObject",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 220, "character": 2}, "end": {"line": 220, "character": 68}}}
-},
-{
-        "name": "name",
-        "kind": 15,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 235, "character": 0}, "end": {"line": 235, "character": 16}}}
-},
-{
-        "name": "notHere",
-        "kind": 15,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 239, "character": 0}, "end": {"line": 239, "character": 22}}}
-},
-{
-        "name": "someR",
-        "kind": 13,
-        "location": {"uri": "Completion.res", "range": {"start": {"line": 242, "character": 0}, "end": {"line": 242, "character": 19}}}
-}
-]
-
-Complete tests/src/Completion.res 67:8
-Attribute id:reac:[67:3->67:8] label:reac
+Complete tests/src/Completion.res 65:8
+Attribute id:reac:[65:3->65:8] label:reac
 Completable: Cdecorator(reac)
 [{
     "label": "react.component",
@@ -856,10 +496,10 @@ Completable: Cdecorator(reac)
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 70:10
-posCursor:[70:10] posNoWhite:[70:9] Found expr:[0:-1->88:1]
-Pexp_apply ...[82:6->82:7] (...[82:8->88:1])
-Attribute id:react.let:[70:3->82:3] label:react.
+Complete tests/src/Completion.res 68:10
+posCursor:[68:10] posNoWhite:[68:9] Found expr:[0:-1->86:1]
+Pexp_apply ...[80:6->80:7] (...[80:8->86:1])
+Attribute id:react.let:[68:3->80:3] label:react.
 Completable: Cdecorator(react.)
 [{
     "label": "component",
@@ -869,9 +509,9 @@ Completable: Cdecorator(react.)
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 73:27
-posCursor:[73:27] posNoWhite:[73:26] Found expr:[73:11->73:27]
-Pexp_apply ...[73:11->73:18] (~name73:20->73:24=...[73:20->73:24])
+Complete tests/src/Completion.res 71:27
+posCursor:[71:27] posNoWhite:[71:26] Found expr:[71:11->71:27]
+Pexp_apply ...[71:11->71:18] (~name71:20->71:24=...[71:20->71:24])
 Completable: Clabel([Lib, foo], "", [name])
 [{
     "label": "age",
@@ -881,9 +521,9 @@ Completable: Clabel([Lib, foo], "", [name])
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 76:26
-posCursor:[76:26] posNoWhite:[76:25] Found expr:[76:11->76:26]
-Pexp_apply ...[76:11->76:18] (~age76:20->76:23=...[76:20->76:23])
+Complete tests/src/Completion.res 74:26
+posCursor:[74:26] posNoWhite:[74:25] Found expr:[74:11->74:26]
+Pexp_apply ...[74:11->74:18] (~age74:20->74:23=...[74:20->74:23])
 Completable: Clabel([Lib, foo], "", [age])
 [{
     "label": "name",
@@ -893,9 +533,9 @@ Completable: Clabel([Lib, foo], "", [age])
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 79:32
-posCursor:[79:32] posNoWhite:[79:31] Found expr:[79:11->79:32]
-Pexp_apply ...[79:11->79:18] (~age79:20->79:23=...[79:25->79:28])
+Complete tests/src/Completion.res 77:32
+posCursor:[77:32] posNoWhite:[77:31] Found expr:[77:11->77:32]
+Pexp_apply ...[77:11->77:18] (~age77:20->77:23=...[77:25->77:28])
 Completable: Clabel([Lib, foo], "", [age])
 [{
     "label": "name",
@@ -905,15 +545,15 @@ Completable: Clabel([Lib, foo], "", [age])
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 84:5
-posCursor:[84:5] posNoWhite:[84:4] Found expr:[82:8->88:1]
-Pexp_apply ...[82:8->82:15] (~age86:3->86:6=...[86:7->86:8], ~name87:3->87:7=...[87:8->87:10])
+Complete tests/src/Completion.res 82:5
+posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
+Pexp_apply ...[80:8->80:15] (~age84:3->84:6=...[84:7->84:8], ~name85:3->85:7=...[85:8->85:10])
 Completable: Clabel([Lib, foo], "", [age, name])
 []
 
-Complete tests/src/Completion.res 92:13
-posCursor:[92:13] posNoWhite:[92:12] Found expr:[92:3->95:18]
-Pexp_send a[92:12->92:13] e:[92:3->92:10]
+Complete tests/src/Completion.res 90:13
+posCursor:[90:13] posNoWhite:[90:12] Found expr:[90:3->93:18]
+Pexp_send a[90:12->90:13] e:[90:3->90:10]
 Completable: Cpath Value[someObj]["a"]
 [{
     "label": "age",
@@ -923,9 +563,9 @@ Completable: Cpath Value[someObj]["a"]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 97:24
-posCursor:[97:24] posNoWhite:[97:23] Found expr:[97:3->101:6]
-Pexp_send [97:24->97:24] e:[97:3->97:22]
+Complete tests/src/Completion.res 95:24
+posCursor:[95:24] posNoWhite:[95:23] Found expr:[95:3->99:6]
+Pexp_send [95:24->95:24] e:[95:3->95:22]
 Completable: Cpath Value[nestedObj]["x"]["y"][""]
 [{
     "label": "age",
@@ -941,9 +581,9 @@ Completable: Cpath Value[nestedObj]["x"]["y"][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 101:7
-posCursor:[101:7] posNoWhite:[101:6] Found expr:[101:3->104:20]
-Pexp_send a[101:6->101:7] e:[101:3->101:4]
+Complete tests/src/Completion.res 99:7
+posCursor:[99:7] posNoWhite:[99:6] Found expr:[99:3->102:20]
+Pexp_send a[99:6->99:7] e:[99:3->99:4]
 Completable: Cpath Value[o]["a"]
 [{
     "label": "age",
@@ -953,9 +593,9 @@ Completable: Cpath Value[o]["a"]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 106:17
-posCursor:[106:17] posNoWhite:[106:16] Found expr:[106:3->127:15]
-Pexp_send [106:17->106:17] e:[106:3->106:15]
+Complete tests/src/Completion.res 104:17
+posCursor:[104:17] posNoWhite:[104:16] Found expr:[104:3->125:15]
+Pexp_send [104:17->104:17] e:[104:3->104:15]
 Completable: Cpath Value[no]["x"]["y"][""]
 [{
     "label": "name",
@@ -971,9 +611,9 @@ Completable: Cpath Value[no]["x"]["y"][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 112:5
-posCursor:[112:5] posNoWhite:[112:4] Found expr:[112:3->118:3]
-Pexp_field [112:3->112:4] _:[118:0->118:3]
+Complete tests/src/Completion.res 110:5
+posCursor:[110:5] posNoWhite:[110:4] Found expr:[110:3->116:3]
+Pexp_field [110:3->110:4] _:[116:0->116:3]
 Completable: Cpath Value[r].""
 [{
     "label": "x",
@@ -989,9 +629,9 @@ Completable: Cpath Value[r].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 115:21
-posCursor:[115:21] posNoWhite:[115:20] Found expr:[115:3->118:3]
-Pexp_field [115:3->115:20] _:[118:0->118:3]
+Complete tests/src/Completion.res 113:21
+posCursor:[113:21] posNoWhite:[113:20] Found expr:[113:3->116:3]
+Pexp_field [113:3->113:20] _:[116:0->116:3]
 Completable: Cpath Value[Obj, Rec, recordVal].""
 [{
     "label": "xx",
@@ -1007,11 +647,11 @@ Completable: Cpath Value[Obj, Rec, recordVal].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 122:7
-posCursor:[122:7] posNoWhite:[122:6] Found expr:[121:11->125:1]
-posCursor:[122:7] posNoWhite:[122:6] Found expr:[122:5->124:5]
-posCursor:[122:7] posNoWhite:[122:6] Found expr:[122:5->122:7]
-Pexp_ident my:[122:5->122:7]
+Complete tests/src/Completion.res 120:7
+posCursor:[120:7] posNoWhite:[120:6] Found expr:[119:11->123:1]
+posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->122:5]
+posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->120:7]
+Pexp_ident my:[120:5->120:7]
 Completable: Cpath Value[my]
 [{
     "label": "myAmazingFunction",
@@ -1021,9 +661,9 @@ Completable: Cpath Value[my]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 127:15
-posCursor:[127:15] posNoWhite:[127:14] Found expr:[127:3->147:32]
-Pexp_send [127:15->127:15] e:[127:3->127:13]
+Complete tests/src/Completion.res 125:15
+posCursor:[125:15] posNoWhite:[125:14] Found expr:[125:3->145:32]
+Pexp_send [125:15->125:15] e:[125:3->125:13]
 Completable: Cpath Value[Obj, object][""]
 [{
     "label": "name",
@@ -1039,12 +679,9 @@ Completable: Cpath Value[Obj, object][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 153:6
-posCursor:[153:6] posNoWhite:[153:5] Found expr:[153:4->153:6]
-JSX <O,:[153:4->153:6] > _children:None
-posCursor:[153:6] posNoWhite:[153:5] Found expr:[153:4->153:6]
-Pexp_ident O..createElement:[153:4->153:6]
-Id breaks up. New path:O..
+Complete tests/src/Completion.res 151:6
+posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
+JSX <O.:[151:4->151:6] > _children:None
 Completable: Cpath Module[O, ""]
 [{
     "label": "Comp",
@@ -1054,9 +691,9 @@ Completable: Cpath Module[O, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 159:8
-posCursor:[159:8] posNoWhite:[159:7] Found expr:[159:3->167:6]
-Pexp_field [159:3->159:7] _:[167:0->167:6]
+Complete tests/src/Completion.res 157:8
+posCursor:[157:8] posNoWhite:[157:7] Found expr:[157:3->165:6]
+Pexp_field [157:3->157:7] _:[165:0->165:6]
 Completable: Cpath Value[q].aa.""
 [{
     "label": "x",
@@ -1072,9 +709,9 @@ Completable: Cpath Value[q].aa.""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 161:9
-posCursor:[161:9] posNoWhite:[161:8] Found expr:[161:3->161:9]
-Pexp_field [161:3->161:7] n:[161:8->161:9]
+Complete tests/src/Completion.res 159:9
+posCursor:[159:9] posNoWhite:[159:8] Found expr:[159:3->159:9]
+Pexp_field [159:3->159:7] n:[159:8->159:9]
 Completable: Cpath Value[q].aa.n
 [{
     "label": "name",
@@ -1084,9 +721,9 @@ Completable: Cpath Value[q].aa.n
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 164:6
-posCursor:[164:6] posNoWhite:[164:5] Found expr:[164:3->164:6]
-Pexp_construct Lis:[164:3->164:6] None
+Complete tests/src/Completion.res 162:6
+posCursor:[162:6] posNoWhite:[162:5] Found expr:[162:3->162:6]
+Pexp_construct Lis:[162:3->162:6] None
 Completable: Cpath Value[Lis]
 [{
     "label": "List",
@@ -1102,11 +739,9 @@ Completable: Cpath Value[Lis]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 171:16
-posCursor:[171:16] posNoWhite:[171:15] Found expr:[171:4->171:16]
-JSX <WithChildren:[171:4->171:16] > _children:None
-posCursor:[171:16] posNoWhite:[171:15] Found expr:[171:4->171:16]
-Pexp_ident WithChildren.createElement:[171:4->171:16]
+Complete tests/src/Completion.res 169:16
+posCursor:[169:16] posNoWhite:[169:15] Found expr:[169:4->169:16]
+JSX <WithChildren:[169:4->169:16] > _children:None
 Completable: Cpath Module[WithChildren]
 [{
     "label": "WithChildren",
@@ -1116,9 +751,9 @@ Completable: Cpath Module[WithChildren]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 174:16
-posCursor:[174:16] posNoWhite:[174:15] Found type:[174:12->174:16]
-Ptyp_constr Js.n:[174:12->174:16]
+Complete tests/src/Completion.res 172:16
+posCursor:[172:16] posNoWhite:[172:15] Found type:[172:12->172:16]
+Ptyp_constr Js.n:[172:12->172:16]
 Completable: Cpath Type[Js, n]
 [{
     "label": "null_undefined",
@@ -1140,9 +775,9 @@ Completable: Cpath Type[Js, n]
     "documentation": {"kind": "markdown", "value": " nullable, value of this type can be either [null] or ['a]\n    this type is the same as type [t] in {!Null}\n"}
   }]
 
-Complete tests/src/Completion.res 176:20
-posCursor:[176:20] posNoWhite:[176:19] Found type:[176:12->176:20]
-Ptyp_constr ForAuto.:[176:12->176:20]
+Complete tests/src/Completion.res 174:20
+posCursor:[174:20] posNoWhite:[174:19] Found type:[174:12->174:20]
+Ptyp_constr ForAuto.:[174:12->174:20]
 Completable: Cpath Type[ForAuto, ""]
 [{
     "label": "t",
@@ -1152,9 +787,9 @@ Completable: Cpath Type[ForAuto, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 181:13
-posCursor:[181:13] posNoWhite:[181:12] Found expr:[181:11->181:13]
-Pexp_construct As:[181:11->181:13] None
+Complete tests/src/Completion.res 179:13
+posCursor:[179:13] posNoWhite:[179:12] Found expr:[179:11->179:13]
+Pexp_construct As:[179:11->179:13] None
 Completable: Cpath Value[As]
 [{
     "label": "Asterix",
@@ -1164,8 +799,8 @@ Completable: Cpath Value[As]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 184:17
-Pmod_ident For:[184:14->184:17]
+Complete tests/src/Completion.res 182:17
+Pmod_ident For:[182:14->182:17]
 Completable: Cpath Module[For]
 [{
     "label": "ForAuto",
@@ -1181,10 +816,9 @@ Completable: Cpath Module[For]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 192:11
-posCursor:[192:11] posNoWhite:[192:10] Found expr:[192:3->195:6]
-Pexp_ident Private.:[192:3->195:6]
-Id breaks up. New path:Private.
+Complete tests/src/Completion.res 190:11
+posCursor:[190:11] posNoWhite:[190:10] Found expr:[190:3->193:6]
+Pexp_ident Private.:[190:3->193:6]
 Completable: Cpath Value[Private, ""]
 [{
     "label": "b",
@@ -1194,15 +828,15 @@ Completable: Cpath Value[Private, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 204:6
-posCursor:[204:6] posNoWhite:[204:5] Found expr:[204:3->204:6]
-Pexp_ident sha:[204:3->204:6]
+Complete tests/src/Completion.res 202:6
+posCursor:[202:6] posNoWhite:[202:5] Found expr:[202:3->202:6]
+Pexp_ident sha:[202:3->202:6]
 Completable: Cpath Value[sha]
 []
 
-Complete tests/src/Completion.res 207:6
-posCursor:[207:6] posNoWhite:[207:5] Found expr:[207:3->207:6]
-Pexp_ident sha:[207:3->207:6]
+Complete tests/src/Completion.res 205:6
+posCursor:[205:6] posNoWhite:[205:5] Found expr:[205:3->205:6]
+Pexp_ident sha:[205:3->205:6]
 Completable: Cpath Value[sha]
 [{
     "label": "shadowed",
@@ -1212,9 +846,9 @@ Completable: Cpath Value[sha]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 210:6
-posCursor:[210:6] posNoWhite:[210:5] Found expr:[210:3->210:6]
-Pexp_ident sha:[210:3->210:6]
+Complete tests/src/Completion.res 208:6
+posCursor:[208:6] posNoWhite:[208:5] Found expr:[208:3->208:6]
+Pexp_ident sha:[208:3->208:6]
 Completable: Cpath Value[sha]
 [{
     "label": "shadowed",
@@ -1224,9 +858,9 @@ Completable: Cpath Value[sha]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 223:22
-posCursor:[223:22] posNoWhite:[223:21] Found expr:[223:3->226:22]
-Pexp_send [223:22->223:22] e:[223:3->223:20]
+Complete tests/src/Completion.res 221:22
+posCursor:[221:22] posNoWhite:[221:21] Found expr:[221:3->224:22]
+Pexp_send [221:22->221:22] e:[221:3->221:20]
 Completable: Cpath Value[FAO, forAutoObject][""]
 [{
     "label": "age",
@@ -1242,9 +876,9 @@ Completable: Cpath Value[FAO, forAutoObject][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 226:37
-posCursor:[226:37] posNoWhite:[226:36] Found expr:[226:3->235:3]
-Pexp_field [226:3->226:36] _:[235:0->235:3]
+Complete tests/src/Completion.res 224:37
+posCursor:[224:37] posNoWhite:[224:36] Found expr:[224:3->233:3]
+Pexp_field [224:3->224:36] _:[233:0->233:3]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
 [{
     "label": "forAuto",
@@ -1260,8 +894,8 @@ Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 229:46
-posCursor:[229:46] posNoWhite:[229:45] Found expr:[229:3->0:-1]
+Complete tests/src/Completion.res 227:46
+posCursor:[227:46] posNoWhite:[227:45] Found expr:[227:3->0:-1]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
 [{
     "label": "ForAuto.abc",
@@ -1277,10 +911,10 @@ Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 232:55
-posCursor:[232:55] posNoWhite:[232:54] Found expr:[232:3->232:55]
-posCursor:[232:55] posNoWhite:[232:54] Found expr:[232:46->232:55]
-Pexp_ident ForAuto.a:[232:46->232:55]
+Complete tests/src/Completion.res 230:55
+posCursor:[230:55] posNoWhite:[230:54] Found expr:[230:3->230:55]
+posCursor:[230:55] posNoWhite:[230:54] Found expr:[230:46->230:55]
+Pexp_ident ForAuto.a:[230:46->230:55]
 Completable: Cpath Value[ForAuto, a]
 [{
     "label": "abc",
@@ -1296,11 +930,11 @@ Completable: Cpath Value[ForAuto, a]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 236:34
-posCursor:[236:34] posNoWhite:[236:33] Found expr:[236:18->236:36]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[236:18->236:32], ...[236:32->236:34])
-posCursor:[236:34] posNoWhite:[236:33] Found expr:[236:32->236:34]
-Pexp_ident na:[236:32->236:34]
+Complete tests/src/Completion.res 234:34
+posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:36]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:32], ...[234:32->234:34])
+posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:32->234:34]
+Pexp_ident na:[234:32->234:34]
 Completable: Cpath Value[na]
 [{
     "label": "name",
@@ -1310,18 +944,18 @@ Completable: Cpath Value[na]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 239:17
-posCursor:[239:17] posNoWhite:[239:14] Found expr:[239:14->239:22]
+Complete tests/src/Completion.res 237:17
+posCursor:[237:17] posNoWhite:[237:14] Found expr:[237:14->237:22]
 Completable: Cnone
 []
 
-Complete tests/src/Completion.res 245:8
-posCursor:[245:8] posNoWhite:[245:7] Found expr:[243:8->248:1]
-posCursor:[245:8] posNoWhite:[245:7] Found expr:[244:14->247:8]
-posCursor:[245:8] posNoWhite:[245:7] Found expr:[244:14->247:1]
-Pexp_apply ...[245:3->245:4] (...[244:14->244:15], ...[245:5->247:1])
-posCursor:[245:8] posNoWhite:[245:7] Found expr:[245:5->247:1]
-Pexp_field [245:5->245:7] _:[247:0->247:1]
+Complete tests/src/Completion.res 243:8
+posCursor:[243:8] posNoWhite:[243:7] Found expr:[241:8->246:1]
+posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->245:8]
+posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->245:1]
+Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->245:1])
+posCursor:[243:8] posNoWhite:[243:7] Found expr:[243:5->245:1]
+Pexp_field [243:5->243:7] _:[245:0->245:1]
 Completable: Cpath Value[_z].""
 [{
     "label": "x",
@@ -1334,6 +968,71 @@ Completable: Cpath Value[_z].""
     "kind": 5,
     "tags": [],
     "detail": "y: string\n\ntype r = {x: int, y: string}",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 254:17
+posCursor:[254:17] posNoWhite:[254:16] Found expr:[254:11->254:17]
+Pexp_construct SomeLo:[254:11->254:17] None
+Completable: Cpath Value[SomeLo]
+[{
+    "label": "SomeLocalModule",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 256:29
+posCursor:[256:29] posNoWhite:[256:28] Found type:[256:13->256:29]
+Ptyp_constr SomeLocalModule.:[256:13->256:29]
+Completable: Cpath Type[SomeLocalModule, ""]
+[{
+    "label": "zz",
+    "kind": 22,
+    "tags": [],
+    "detail": "type zz = int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 261:33
+posCursor:[261:33] posNoWhite:[261:32] Found type:[261:17->263:11]
+Ptyp_constr SomeLocalModule.:[261:17->263:11]
+Completable: Cpath Type[SomeLocalModule, ""]
+[{
+    "label": "zz",
+    "kind": 22,
+    "tags": [],
+    "detail": "type zz = int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 268:21
+Ptype_variant unary SomeLocal:[268:12->268:21]
+Completable: Cpath Value[SomeLocal]
+[{
+    "label": "SomeLocalVariantItem",
+    "kind": 4,
+    "tags": [],
+    "detail": "SomeLocalVariantItem\n\ntype someLocalVariant =  SomeLocalVariantItem",
+    "documentation": null
+  }, {
+    "label": "SomeLocalModule",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 271:20
+posCursor:[271:20] posNoWhite:[271:19] Found type:[271:11->274:0]
+Ptyp_constr SomeLocal:[271:11->274:0]
+Completable: Cpath Type[SomeLocal]
+[{
+    "label": "SomeLocalModule",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
     "documentation": null
   }]
 

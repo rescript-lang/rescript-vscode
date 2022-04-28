@@ -31,7 +31,7 @@ type prop = {
 }
 
 type jsxProps = {
-  componentPath : string list;
+  compName : Longident.t Location.loc;
   props : prop list;
   childrenStart : (int * int) option;
 }
@@ -47,7 +47,11 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
     match props with
     | prop :: rest ->
       if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
-        Some (Completable.Cjsx (jsxProps.componentPath, prop.name, allLabels))
+        Some
+          (Completable.Cjsx
+             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
+               prop.name,
+               allLabels ))
       else if
         prop.posEnd <= posBeforeCursor
         && posBeforeCursor < Loc.start prop.exp.pexp_loc
@@ -62,7 +66,11 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
       in
       let afterCompName = posBeforeCursor >= posAfterCompName in
       if afterCompName && beforeChildrenStart then
-        Some (Cjsx (jsxProps.componentPath, "", allLabels))
+        Some
+          (Cjsx
+             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
+               "",
+               allLabels ))
       else None
   in
   loop jsxProps.props
@@ -91,13 +99,17 @@ let rec skipComment ~pos ~i ~depth str =
 
 let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   let thisCaseShouldNotHappen =
-    {componentPath = []; props = []; childrenStart = None}
+    {
+      compName = Location.mknoloc (Longident.Lident "");
+      props = [];
+      childrenStart = None;
+    }
   in
   let rec processProps ~acc args =
     match args with
     | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
       {
-        componentPath = Utils.flattenLongIdent ~jsx:true compName.txt;
+        compName;
         props = List.rev acc;
         childrenStart =
           (if pexp_loc.loc_ghost then None else Some (Loc.start pexp_loc));
@@ -234,6 +246,21 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       | ' ' | '\t' | '\r' | '\n' -> Some charBeforeCursor
       | _ -> None)
     | _ -> None
+  in
+  let flattenLidCheckDot ?(jsx = true) (lid : Longident.t Location.loc) =
+    (* Flatten an identifier keeping track of whether the current cursor
+       is after a "." in the id followed by a blank character.
+       In that case, cut the path after ".". *)
+    let cutAtOffset =
+      let idStart = Loc.start lid.loc in
+      match blankAfterCursor with
+      | Some '.' ->
+        if fst posBeforeCursor = fst idStart then
+          Some (snd posBeforeCursor - snd idStart)
+        else None
+      | _ -> None
+    in
+    Utils.flattenLongIdent ~cutAtOffset ~jsx lid.txt
   in
 
   let found = ref false in
@@ -449,46 +476,31 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
          so the apply expression does not include the cursor *)
       if setPipeResult ~lhs ~id:"" then setFound ()
     | _ ->
-      if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite then (
+      if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite && !result = None then (
         setFound ();
         match expr.pexp_desc with
         | Pexp_constant _ -> setResult Cnone
-        | Pexp_ident id ->
+        | Pexp_ident lid ->
+          let lidPath = flattenLidCheckDot lid in
           if debug then
             Printf.printf "Pexp_ident %s:%s\n"
-              (Utils.flattenLongIdent id.txt |> String.concat ".")
-              (Loc.toString id.loc);
-          if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            let path_ = id.txt |> Utils.flattenLongIdent in
-            let path =
-              if blankAfterCursor = Some '.' then (
-                (* Sometimes "Foo. " is followed by "bar" and the parser's
-                   behaviour is to parse as "Foo.bar".
-                   This gets back the intended path "Foo." *)
-                let path =
-                  match path_ |> List.rev with
-                  | _last :: pathRev -> List.rev ("" :: pathRev)
-                  | path -> path
-                in
-                if debug then
-                  Printf.printf "Id breaks up. New path:%s\n"
-                    (path |> String.concat ".");
-                path)
-              else path_
-            in
-            setResult (Cpath (CPId (path, Value)))
-        | Pexp_construct (id, eOpt) ->
+              (lidPath |> String.concat ".")
+              (Loc.toString lid.loc);
+          if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
+            setResult (Cpath (CPId (lidPath, Value)))
+        | Pexp_construct (lid, eOpt) ->
+          let lidPath = flattenLidCheckDot lid in
           if debug then
             Printf.printf "Pexp_construct %s:%s %s\n"
-              (Utils.flattenLongIdent id.txt |> String.concat "\n")
-              (Loc.toString id.loc)
+              (lidPath |> String.concat "\n")
+              (Loc.toString lid.loc)
               (match eOpt with
               | None -> "None"
               | Some e -> Loc.toString e.pexp_loc);
           if
-            eOpt = None && (not id.loc.loc_ghost)
-            && id.loc |> Loc.hasPos ~pos:posBeforeCursor
-          then setResult (Cpath (CPId (Utils.flattenLongIdent id.txt, Value)))
+            eOpt = None && (not lid.loc.loc_ghost)
+            && lid.loc |> Loc.hasPos ~pos:posBeforeCursor
+          then setResult (Cpath (CPId (lidPath, Value)))
         | Pexp_field (e, fieldName) -> (
           if debug then
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
@@ -507,7 +519,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               let contextPath =
                 Completable.CPField
                   ( CPId (Utils.flattenLongIdent id, Module),
-                    if name = "_" then "" else name )
+                    if blankAfterCursor = Some '.' then
+                      (* x.M. field  --->  M. *) ""
+                    else if name = "_" then ""
+                    else name )
               in
               setResult (Cpath contextPath)
             | Lapply _ -> ()
@@ -518,9 +533,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
           let jsxProps = extractJsxProps ~compName ~args in
+          let compNamePath = flattenLidCheckDot ~jsx:true compName in
           if debug then
             Printf.printf "JSX <%s:%s %s> _children:%s\n"
-              (jsxProps.componentPath |> String.concat ",")
+              (compNamePath |> String.concat ".")
               (Loc.toString compName.loc)
               (jsxProps.props
               |> List.map (fun {name; posStart; posEnd; exp} ->
@@ -537,9 +553,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            setResult
-              (Cpath
-                 (CPId (Utils.flattenLongIdent ~jsx:true compName.txt, Module)))
+            setResult (Cpath (CPId (compNamePath, Module)))
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [
@@ -630,41 +644,63 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (Pos.toString posCursor) (Pos.toString posNoWhite)
           (Loc.toString core_type.ptyp_loc);
       match core_type.ptyp_desc with
-      | Ptyp_constr (id, _args) ->
+      | Ptyp_constr (lid, _args) ->
+        let lidPath = flattenLidCheckDot lid in
         if debug then
           Printf.printf "Ptyp_constr %s:%s\n"
-            (Utils.flattenLongIdent id.txt |> String.concat ".")
-            (Loc.toString id.loc);
-        if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-          setResult (Cpath (CPId (Utils.flattenLongIdent id.txt, Type)))
+            (lidPath |> String.concat ".")
+            (Loc.toString lid.loc);
+        if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
+          setResult (Cpath (CPId (lidPath, Type)))
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in
   let module_expr (iterator : Ast_iterator.iterator)
       (me : Parsetree.module_expr) =
     (match me.pmod_desc with
-    | Pmod_ident id when id.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+    | Pmod_ident lid when lid.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+      let lidPath = flattenLidCheckDot lid in
       if debug then
         Printf.printf "Pmod_ident %s:%s\n"
-          (Utils.flattenLongIdent id.txt |> String.concat ".")
-          (Loc.toString id.loc);
+          (lidPath |> String.concat ".")
+          (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (Utils.flattenLongIdent id.txt, Module)))
+      setResult (Cpath (CPId (lidPath, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_expr iterator me
   in
   let module_type (iterator : Ast_iterator.iterator)
       (mt : Parsetree.module_type) =
     (match mt.pmty_desc with
-    | Pmty_ident id when id.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+    | Pmty_ident lid when lid.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+      let lidPath = flattenLidCheckDot lid in
       if debug then
         Printf.printf "Pmty_ident %s:%s\n"
-          (Utils.flattenLongIdent id.txt |> String.concat ".")
-          (Loc.toString id.loc);
+          (lidPath |> String.concat ".")
+          (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (Utils.flattenLongIdent id.txt, Module)))
+      setResult (Cpath (CPId (lidPath, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
+  in
+  let type_kind (iterator : Ast_iterator.iterator)
+      (type_kind : Parsetree.type_kind) =
+    (match type_kind with
+    | Ptype_variant [decl] when decl.pcd_loc |> Loc.hasPos ~pos:posNoWhite ->
+      (* "type t = Pre" could signal the intent to complete variant "Prelude",
+         or the beginning of "Prefix.t" *)
+      if debug then
+        Printf.printf "Ptype_variant unary %s:%s\n" decl.pcd_name.txt
+          (Loc.toString decl.pcd_name.loc);
+      found := true;
+      setResult (Cpath (CPId ([decl.pcd_name.txt], Value)))
+    | _ -> ());
+    Ast_iterator.default_iterator.type_kind iterator type_kind
+  in
+
+  let lastScopeBeforeCursor = ref (Scope.create ()) in
+  let location (_iterator : Ast_iterator.iterator) (loc : Location.t) =
+    if Loc.end_ loc <= posCursor then lastScopeBeforeCursor := !scope
   in
 
   let iterator =
@@ -673,6 +709,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       attribute;
       case;
       expr;
+      location;
       module_expr;
       module_type;
       signature;
@@ -680,6 +717,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       structure;
       structure_item;
       typ;
+      type_kind;
     }
   in
 
@@ -689,16 +727,18 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     in
     let {Res_driver.parsetree = str} = parser ~filename:currentFile in
     iterator.structure iterator str |> ignore;
-    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then
-      setResult (Cpath (CPId ([""], Value)));
+    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then (
+      scope := !lastScopeBeforeCursor;
+      setResult (Cpath (CPId ([""], Value))));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else if Filename.check_suffix path ".resi" then (
     let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
     let {Res_driver.parsetree = signature} = parser ~filename:currentFile in
     iterator.signature iterator signature |> ignore;
-    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then
-      setResult (Cpath (CPId ([""], Type)));
+    if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then (
+      scope := !lastScopeBeforeCursor;
+      setResult (Cpath (CPId ([""], Type))));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else None

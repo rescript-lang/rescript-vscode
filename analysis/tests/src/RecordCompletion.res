@@ -19,3 +19,6 @@ module R = {
 let n = {R.name: ""}
 // n.R.
 //     ^com
+
+// n.R. xx
+//     ^com
