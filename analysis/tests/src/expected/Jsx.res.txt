@@ -416,7 +416,7 @@ JSX <div:[135:3->135:6] x[136:5->136:6]=...[138:4->138:8]> _children:None
 
 Complete tests/src/Jsx.res 150:21
 posCursor:[150:21] posNoWhite:[150:20] Found expr:[150:12->150:32]
-JSX <Nested,Co:[150:12->150:21] name[150:22->150:26]=...[150:27->150:29]> _children:150:30
+JSX <Nested.Co:[150:12->150:21] name[150:22->150:26]=...[150:27->150:29]> _children:150:30
 posCursor:[150:21] posNoWhite:[150:20] Found expr:[150:12->150:21]
 Pexp_ident Nested.Co.createElement:[150:12->150:21]
 Completable: Cpath Module[Nested, Co]
@@ -430,7 +430,7 @@ Completable: Cpath Module[Nested, Co]
 
 Complete tests/src/Jsx.res 153:19
 posCursor:[153:19] posNoWhite:[153:18] Found expr:[153:12->153:25]
-JSX <Nested,name:[153:12->153:24] > _children:None
+JSX <Nested.name:[153:12->153:24] > _children:None
 posCursor:[153:19] posNoWhite:[153:18] Found expr:[153:12->153:24]
 Pexp_ident Nested.name.createElement:[153:12->153:24]
 Completable: Cpath Module[Nested, ""]

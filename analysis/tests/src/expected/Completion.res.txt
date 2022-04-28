@@ -469,7 +469,7 @@ Completable: Cpath Value[Js, Dict, u]
 
 Complete tests/src/Completion.res 59:30
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:15->59:30]
-JSX <O,Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
+JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:29->59:30]
 Pexp_ident z:[59:29->59:30]
 Completable: Cpath Value[z]
@@ -483,7 +483,7 @@ Completable: Cpath Value[z]
 
 Complete tests/src/Completion.res 62:23
 posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:15->62:23]
-JSX <O,Comp:[62:15->62:21] z[62:22->62:23]=...[62:22->62:23]> _children:None
+JSX <O.Comp:[62:15->62:21] z[62:22->62:23]=...[62:22->62:23]> _children:None
 posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:22->62:23]
 Pexp_ident z:[62:22->62:23]
 Completable: Cjsx([O, Comp], z, [z])
@@ -691,7 +691,7 @@ Completable: Cpath Value[Obj, object][""]
 
 Complete tests/src/Completion.res 151:6
 posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
-JSX <O,:[151:4->151:6] > _children:None
+JSX <O.:[151:4->151:6] > _children:None
 posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
 Pexp_ident O..createElement:[151:4->151:6]
 Completable: Cpath Module[O, ""]
