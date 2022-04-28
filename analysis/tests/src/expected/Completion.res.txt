@@ -378,8 +378,6 @@ Completable: Clabel([Lib, foo], "", [])
 
 Complete tests/src/Completion.res 26:13
 posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:3->26:13]
-posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:12->26:13]
-Pexp_ident m:[26:12->26:13]
 Completable: Cpath array->m
 [{
     "label": "Js.Array2.mapi",
@@ -397,8 +395,6 @@ Completable: Cpath array->m
 
 Complete tests/src/Completion.res 29:13
 posCursor:[29:13] posNoWhite:[29:12] Found expr:[29:3->29:13]
-posCursor:[29:13] posNoWhite:[29:12] Found expr:[29:10->29:13]
-Pexp_ident toU:[29:10->29:13]
 Completable: Cpath string->toU
 [{
     "label": "Js.String2.toUpperCase",
@@ -410,8 +406,6 @@ Completable: Cpath string->toU
 
 Complete tests/src/Completion.res 34:8
 posCursor:[34:8] posNoWhite:[34:7] Found expr:[34:3->34:8]
-posCursor:[34:8] posNoWhite:[34:7] Found expr:[34:7->34:8]
-Pexp_ident e:[34:7->34:8]
 Completable: Cpath Value[op]->e
 [{
     "label": "Belt.Option.eqU",
@@ -431,8 +425,6 @@ Complete tests/src/Completion.res 44:7
 posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:3->54:3]
 Pexp_apply ...[50:9->50:10] (...[44:3->50:8], ...[51:2->54:3])
 posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:3->50:8]
-posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:5->44:7]
-Pexp_ident |.:[44:5->44:7]
 Completable: Cpath Value[fa]->
 [{
     "label": "ForAuto.abc",
@@ -484,8 +476,6 @@ Completable: Cpath Value[z]
 Complete tests/src/Completion.res 62:23
 posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:15->62:23]
 JSX <O.Comp:[62:15->62:21] z[62:22->62:23]=...[62:22->62:23]> _children:None
-posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:22->62:23]
-Pexp_ident z:[62:22->62:23]
 Completable: Cjsx([O, Comp], z, [z])
 [{
     "label": "zoo",
@@ -692,8 +682,6 @@ Completable: Cpath Value[Obj, object][""]
 Complete tests/src/Completion.res 151:6
 posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
 JSX <O.:[151:4->151:6] > _children:None
-posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
-Pexp_ident O..createElement:[151:4->151:6]
 Completable: Cpath Module[O, ""]
 [{
     "label": "Comp",
@@ -754,8 +742,6 @@ Completable: Cpath Value[Lis]
 Complete tests/src/Completion.res 169:16
 posCursor:[169:16] posNoWhite:[169:15] Found expr:[169:4->169:16]
 JSX <WithChildren:[169:4->169:16] > _children:None
-posCursor:[169:16] posNoWhite:[169:15] Found expr:[169:4->169:16]
-Pexp_ident WithChildren.createElement:[169:4->169:16]
 Completable: Cpath Module[WithChildren]
 [{
     "label": "WithChildren",
