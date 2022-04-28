@@ -268,3 +268,6 @@ type someLocalVariant = SomeLocalVariantItem
 
 // type t = SomeLocal
 //                   ^com
+
+// let _ : SomeLocal
+//                  ^com

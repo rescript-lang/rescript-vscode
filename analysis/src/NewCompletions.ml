@@ -866,6 +866,7 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
 let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
     ~exact ~opens ~scope =
   localTables |> LocalTables.populateTypes ~env;
+  localTables |> LocalTables.populateModules ~env;
   scope
   |> Scope.iterTypesBeforeFirstOpen
        (processLocalType ~prefix ~exact ~env ~localTables);
