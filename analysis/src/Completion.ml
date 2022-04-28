@@ -533,7 +533,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             Printf.printf "JSX <%s:%s %s> _children:%s\n"
               (jsxProps.compName.txt
               |> Utils.flattenLongIdent ~jsx:true
-              |> String.concat ",")
+              |> String.concat ".")
               (Loc.toString compName.loc)
               (jsxProps.props
               |> List.map (fun {name; posStart; posEnd; exp} ->
