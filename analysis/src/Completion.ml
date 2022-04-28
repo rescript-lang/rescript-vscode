@@ -655,13 +655,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   let module_type (iterator : Ast_iterator.iterator)
       (mt : Parsetree.module_type) =
     (match mt.pmty_desc with
-    | Pmty_ident id when id.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+    | Pmty_ident lid when lid.loc |> Loc.hasPos ~pos:posBeforeCursor ->
       if debug then
         Printf.printf "Pmty_ident %s:%s\n"
-          (Utils.flattenLongIdent id.txt |> String.concat ".")
-          (Loc.toString id.loc);
+          (Utils.flattenLongIdent lid.txt |> String.concat ".")
+          (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (Utils.flattenLongIdent id.txt, Module)))
+      setResult (Cpath (CPId (flattenLidCheckDot ~lid, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
   in
