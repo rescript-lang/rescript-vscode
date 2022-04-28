@@ -4,8 +4,6 @@ Hover tests/src/Div.res 0:10
 Complete tests/src/Div.res 3:17
 posCursor:[3:17] posNoWhite:[3:16] Found expr:[3:4->3:17]
 JSX <div:[3:4->3:7] dangerous[3:8->3:17]=...[3:8->3:17]> _children:None
-posCursor:[3:17] posNoWhite:[3:16] Found expr:[3:8->3:17]
-Pexp_ident dangerous:[3:8->3:17]
 Completable: Cjsx([div], dangerous, [dangerous])
 [{
     "label": "dangerouslySetInnerHTML",

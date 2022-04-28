@@ -1,7 +1,5 @@
 Complete tests/src/RecordCompletion.res 8:9
 posCursor:[8:9] posNoWhite:[8:8] Found expr:[8:3->8:9]
-posCursor:[8:9] posNoWhite:[8:8] Found expr:[8:8->8:9]
-Pexp_ident m:[8:8->8:9]
 Completable: Cpath Value[t].n->m
 [{
     "label": "Js.Array2.mapi",
@@ -19,8 +17,6 @@ Completable: Cpath Value[t].n->m
 
 Complete tests/src/RecordCompletion.res 11:13
 posCursor:[11:13] posNoWhite:[11:12] Found expr:[11:3->11:13]
-posCursor:[11:13] posNoWhite:[11:12] Found expr:[11:12->11:13]
-Pexp_ident m:[11:12->11:13]
 Completable: Cpath Value[t2].n2.n->m
 [{
     "label": "Js.Array2.mapi",

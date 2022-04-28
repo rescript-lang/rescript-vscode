@@ -476,7 +476,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
          so the apply expression does not include the cursor *)
       if setPipeResult ~lhs ~id:"" then setFound ()
     | _ ->
-      if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite then (
+      if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite && !result = None then (
         setFound ();
         match expr.pexp_desc with
         | Pexp_constant _ -> setResult Cnone
