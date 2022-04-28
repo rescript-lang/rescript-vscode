@@ -468,29 +468,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         setFound ();
         match expr.pexp_desc with
         | Pexp_constant _ -> setResult Cnone
-        | Pexp_ident id ->
+        | Pexp_ident lid ->
           if debug then
             Printf.printf "Pexp_ident %s:%s\n"
-              (Utils.flattenLongIdent id.txt |> String.concat ".")
-              (Loc.toString id.loc);
-          if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            let path_ = id.txt |> Utils.flattenLongIdent in
-            let path =
-              if blankAfterCursor = Some '.' then (
-                (* Sometimes "Foo. " is followed by "bar" and the parser's
-                   behaviour is to parse as "Foo.bar".
-                   This gets back the intended path "Foo." *)
-                let path =
-                  match path_ |> List.rev with
-                  | _last :: pathRev -> List.rev ("" :: pathRev)
-                  | path -> path
-                in
-                if debug then
-                  Printf.printf "Id breaks up. New path:%s\n"
-                    (path |> String.concat ".");
-                path)
-              else path_
-            in
+              (Utils.flattenLongIdent lid.txt |> String.concat ".")
+              (Loc.toString lid.loc);
+          if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
+            let path = flattenLidCheckDot ~lid in
             setResult (Cpath (CPId (path, Value)))
         | Pexp_construct (id, eOpt) ->
           if debug then
@@ -658,13 +642,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   let module_expr (iterator : Ast_iterator.iterator)
       (me : Parsetree.module_expr) =
     (match me.pmod_desc with
-    | Pmod_ident id when id.loc |> Loc.hasPos ~pos:posBeforeCursor ->
+    | Pmod_ident lid when lid.loc |> Loc.hasPos ~pos:posBeforeCursor ->
       if debug then
         Printf.printf "Pmod_ident %s:%s\n"
-          (Utils.flattenLongIdent id.txt |> String.concat ".")
-          (Loc.toString id.loc);
+          (Utils.flattenLongIdent lid.txt |> String.concat ".")
+          (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (Utils.flattenLongIdent id.txt, Module)))
+      setResult (Cpath (CPId (flattenLidCheckDot ~lid, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_expr iterator me
   in

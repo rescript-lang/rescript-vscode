@@ -73,7 +73,6 @@ Completable: Cpath Value[MyList, m]
 Complete tests/src/Completion.res 3:9
 posCursor:[3:9] posNoWhite:[3:8] Found expr:[3:3->8:6]
 Pexp_ident Array.:[3:3->8:6]
-Id breaks up. New path:Array.
 Completable: Cpath Value[Array, ""]
 [{
     "label": "fold_left",
@@ -695,7 +694,6 @@ posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
 JSX <O,:[151:4->151:6] > _children:None
 posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
 Pexp_ident O..createElement:[151:4->151:6]
-Id breaks up. New path:O..
 Completable: Cpath Module[O, ""]
 [{
     "label": "Comp",
@@ -835,7 +833,6 @@ Completable: Cpath Module[For]
 Complete tests/src/Completion.res 190:11
 posCursor:[190:11] posNoWhite:[190:10] Found expr:[190:3->193:6]
 Pexp_ident Private.:[190:3->193:6]
-Id breaks up. New path:Private.
 Completable: Cpath Value[Private, ""]
 [{
     "label": "b",
