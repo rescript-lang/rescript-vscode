@@ -1012,3 +1012,15 @@ Completable: Cpath Type[SomeLocalModule, ""]
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 261:33
+posCursor:[261:33] posNoWhite:[261:32] Found type:[261:17->263:11]
+Ptyp_constr SomeLocalModule.thirdProp:[261:17->263:11]
+Completable: Cpath Type[SomeLocalModule, ""]
+[{
+    "label": "zz",
+    "kind": 22,
+    "tags": [],
+    "detail": "type zz = int",
+    "documentation": null
+  }]
+
