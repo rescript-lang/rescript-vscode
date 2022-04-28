@@ -235,6 +235,21 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       | _ -> None)
     | _ -> None
   in
+  let flattenIdCheckDot (id : Longident.t Location.loc) =
+    (* Flatten an identifier keeping track of whether the current cursor
+       is after a "." in the id followed by a blank character.
+       In that case, cut the path after ".". *)
+    let cutAtOffset =
+      let idStart = Loc.start id.loc in
+      match blankAfterCursor with
+      | Some '.' ->
+        if fst posBeforeCursor = fst idStart then
+          Some (snd posBeforeCursor - snd idStart)
+        else None
+      | _ -> None
+    in
+    Utils.flattenLongIdent ~cutAtOffset id.txt
+  in
 
   let found = ref false in
   let result = ref None in
@@ -636,7 +651,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             (Utils.flattenLongIdent id.txt |> String.concat ".")
             (Loc.toString id.loc);
         if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-          setResult (Cpath (CPId (Utils.flattenLongIdent id.txt, Type)))
+          setResult (Cpath (CPId (flattenIdCheckDot id, Type)))
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in

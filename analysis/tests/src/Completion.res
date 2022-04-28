@@ -256,3 +256,10 @@ module SomeLocalModule = {
 //               ^com
 // type zz = SomeLocalModule.
 //                           ^com
+
+type record = {
+  someProp: string,
+  //  otherProp: SomeLocalModule.
+  //                             ^com
+  thirdProp: string,
+}
