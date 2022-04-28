@@ -1042,5 +1042,11 @@ posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:5->277:3]
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:13->275:15]
 Pexp_ident _w:[275:13->275:15]
 Completable: Cpath Value[_w]
-[]
+[{
+    "label": "_world",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a",
+    "documentation": null
+  }]
 
