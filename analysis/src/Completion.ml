@@ -518,7 +518,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               let contextPath =
                 Completable.CPField
                   ( CPId (Utils.flattenLongIdent id, Module),
-                    if name = "_" then "" else name )
+                    if blankAfterCursor = Some '.' then
+                      (* x.M. field  --->  M. *) ""
+                    else if name = "_" then ""
+                    else name )
               in
               setResult (Cpath contextPath)
             | Lapply _ -> ()

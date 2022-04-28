@@ -33,8 +33,20 @@ Completable: Cpath Value[t2].n2.n->m
   }]
 
 Complete tests/src/RecordCompletion.res 19:7
-posCursor:[19:7] posNoWhite:[19:6] Found expr:[19:3->22:0]
-Pexp_field [19:3->19:4] R.:[19:5->22:0]
+posCursor:[19:7] posNoWhite:[19:6] Found expr:[19:3->25:0]
+Pexp_field [19:3->19:4] R.:[19:5->25:0]
+Completable: Cpath Module[R].""
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype t = {name: string}",
+    "documentation": null
+  }]
+
+Complete tests/src/RecordCompletion.res 22:7
+posCursor:[22:7] posNoWhite:[22:6] Found expr:[22:3->22:10]
+Pexp_field [22:3->22:4] R.xx:[22:5->22:10]
 Completable: Cpath Module[R].""
 [{
     "label": "name",
