@@ -31,7 +31,7 @@ type prop = {
 }
 
 type jsxProps = {
-  componentPath : string list;
+  compName : Longident.t Location.loc;
   props : prop list;
   childrenStart : (int * int) option;
 }
@@ -47,7 +47,11 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
     match props with
     | prop :: rest ->
       if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
-        Some (Completable.Cjsx (jsxProps.componentPath, prop.name, allLabels))
+        Some
+          (Completable.Cjsx
+             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
+               prop.name,
+               allLabels ))
       else if
         prop.posEnd <= posBeforeCursor
         && posBeforeCursor < Loc.start prop.exp.pexp_loc
@@ -62,7 +66,11 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
       in
       let afterCompName = posBeforeCursor >= posAfterCompName in
       if afterCompName && beforeChildrenStart then
-        Some (Cjsx (jsxProps.componentPath, "", allLabels))
+        Some
+          (Cjsx
+             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
+               "",
+               allLabels ))
       else None
   in
   loop jsxProps.props
@@ -91,13 +99,17 @@ let rec skipComment ~pos ~i ~depth str =
 
 let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   let thisCaseShouldNotHappen =
-    {componentPath = []; props = []; childrenStart = None}
+    {
+      compName = Location.mknoloc (Longident.Lident "");
+      props = [];
+      childrenStart = None;
+    }
   in
   let rec processProps ~acc args =
     match args with
     | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
       {
-        componentPath = Utils.flattenLongIdent ~jsx:true compName.txt;
+        compName;
         props = List.rev acc;
         childrenStart =
           (if pexp_loc.loc_ghost then None else Some (Loc.start pexp_loc));
@@ -235,7 +247,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       | _ -> None)
     | _ -> None
   in
-  let flattenLidCheckDot ~(lid : Longident.t Location.loc) =
+  let flattenLidCheckDot ?(jsx = true) (lid : Longident.t Location.loc) =
     (* Flatten an identifier keeping track of whether the current cursor
        is after a "." in the id followed by a blank character.
        In that case, cut the path after ".". *)
@@ -248,7 +260,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         else None
       | _ -> None
     in
-    Utils.flattenLongIdent ~cutAtOffset lid.txt
+    Utils.flattenLongIdent ~cutAtOffset ~jsx lid.txt
   in
 
   let found = ref false in
@@ -474,7 +486,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
               (Utils.flattenLongIdent lid.txt |> String.concat ".")
               (Loc.toString lid.loc);
           if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            let path = flattenLidCheckDot ~lid in
+            let path = flattenLidCheckDot lid in
             setResult (Cpath (CPId (path, Value)))
         | Pexp_construct (lid, eOpt) ->
           if debug then
@@ -487,7 +499,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           if
             eOpt = None && (not lid.loc.loc_ghost)
             && lid.loc |> Loc.hasPos ~pos:posBeforeCursor
-          then setResult (Cpath (CPId (flattenLidCheckDot ~lid, Value)))
+          then setResult (Cpath (CPId (flattenLidCheckDot lid, Value)))
         | Pexp_field (e, fieldName) -> (
           if debug then
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
@@ -519,7 +531,9 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           let jsxProps = extractJsxProps ~compName ~args in
           if debug then
             Printf.printf "JSX <%s:%s %s> _children:%s\n"
-              (jsxProps.componentPath |> String.concat ",")
+              (jsxProps.compName.txt
+              |> Utils.flattenLongIdent ~jsx:true
+              |> String.concat ",")
               (Loc.toString compName.loc)
               (jsxProps.props
               |> List.map (fun {name; posStart; posEnd; exp} ->
@@ -537,8 +551,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
             setResult
-              (Cpath
-                 (CPId (Utils.flattenLongIdent ~jsx:true compName.txt, Module)))
+              (Cpath (CPId (flattenLidCheckDot ~jsx:true compName, Module)))
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [
@@ -635,7 +648,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             (Utils.flattenLongIdent lid.txt |> String.concat ".")
             (Loc.toString lid.loc);
         if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
-          setResult (Cpath (CPId (flattenLidCheckDot ~lid, Type)))
+          setResult (Cpath (CPId (flattenLidCheckDot lid, Type)))
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in
@@ -648,7 +661,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (Utils.flattenLongIdent lid.txt |> String.concat ".")
           (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (flattenLidCheckDot ~lid, Module)))
+      setResult (Cpath (CPId (flattenLidCheckDot lid, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_expr iterator me
   in
@@ -661,7 +674,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (Utils.flattenLongIdent lid.txt |> String.concat ".")
           (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (flattenLidCheckDot ~lid, Module)))
+      setResult (Cpath (CPId (flattenLidCheckDot lid, Module)))
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
   in
