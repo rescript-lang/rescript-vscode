@@ -622,6 +622,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           (match defaultExpOpt with
           | None -> ()
           | Some defaultExp -> iterator.expr iterator defaultExp);
+          scopePattern pat;
           iterator.pat iterator pat;
           iterator.expr iterator e;
           scope := oldScope;
