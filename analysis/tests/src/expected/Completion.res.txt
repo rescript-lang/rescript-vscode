@@ -988,3 +988,27 @@ Completable: Cpath Value[_z].""
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 254:17
+posCursor:[254:17] posNoWhite:[254:16] Found expr:[254:11->254:17]
+Pexp_construct SomeLo:[254:11->254:17] None
+Completable: Cpath Value[SomeLo]
+[{
+    "label": "SomeLocalModule",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 256:29
+posCursor:[256:29] posNoWhite:[256:28] Found type:[256:13->256:29]
+Ptyp_constr SomeLocalModule.:[256:13->256:29]
+Completable: Cpath Type[SomeLocalModule, ""]
+[{
+    "label": "zz",
+    "kind": 22,
+    "tags": [],
+    "detail": "type zz = int",
+    "documentation": null
+  }]
+

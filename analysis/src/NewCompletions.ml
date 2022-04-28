@@ -839,12 +839,16 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
     ~env ~prefix ~exact ~opens ~scope =
   localTables |> LocalTables.populateValues ~env;
   localTables |> LocalTables.populateConstructors ~env;
+  localTables |> LocalTables.populateModules ~env;
   scope
   |> Scope.iterValuesBeforeFirstOpen
        (processLocalValue ~prefix ~exact ~env ~localTables);
   scope
   |> Scope.iterConstructorsBeforeFirstOpen
        (processLocalConstructor ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesBeforeFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
 
   let valuesFromOpens = getValuesFromOpens ~opens ~localTables ~prefix ~exact in
 
@@ -854,6 +858,9 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
   scope
   |> Scope.iterConstructorsAfterFirstOpen
        (processLocalConstructor ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesAfterFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
   List.rev_append localTables.resultRev valuesFromOpens
 
 let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
@@ -862,12 +869,18 @@ let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
   scope
   |> Scope.iterTypesBeforeFirstOpen
        (processLocalType ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesBeforeFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
 
   let valuesFromOpens = getValuesFromOpens ~opens ~localTables ~prefix ~exact in
 
   scope
   |> Scope.iterTypesAfterFirstOpen
        (processLocalType ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesAfterFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
   List.rev_append localTables.resultRev valuesFromOpens
 
 let findLocalCompletionsForModules ~(localTables : LocalTables.t) ~env ~prefix

@@ -245,3 +245,14 @@ let _ = switch someR {
 //      ^com
 | _ => 3
 }
+
+module SomeLocalModule = {
+  let aa = 10
+  let bb = 20
+  type zz = int
+}
+
+// let _ = SomeLo
+//               ^com
+// type zz = SomeLocalModule.
+//                           ^com
