@@ -350,7 +350,6 @@ Completable: Cpath Value[x].th
 Complete tests/src/Jsx.res 108:28
 posCursor:[108:28] posNoWhite:[108:27] Found expr:[108:11->113:3]
 Pexp_ident DefineSomeFields.:[108:11->113:3]
-Id breaks up. New path:DefineSomeFields.
 posCursor:[108:28] posNoWhite:[108:27] Found expr:[0:-1->113:70]
 Pexp_apply ...[113:6->113:7] (...[113:8->113:70])
 Completable: Cpath Value[DefineSomeFields, ""]
@@ -401,7 +400,6 @@ posCursor:[131:19] posNoWhite:[131:18] Found expr:[130:3->133:9]
 JSX <div:[130:3->130:6] x[131:5->131:6]=...[131:7->133:8]> _children:None
 posCursor:[131:19] posNoWhite:[131:18] Found expr:[131:7->133:8]
 Pexp_ident Outer.Inner.name:[131:7->133:8]
-Id breaks up. New path:Outer.Inner.
 Completable: Cpath Value[Outer, Inner, ""]
 [{
     "label": "hello",
