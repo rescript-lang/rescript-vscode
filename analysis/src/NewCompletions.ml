@@ -1076,7 +1076,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
           | Tfield (name, _, t1, t2) ->
             let fields = t2 |> getFields in
             (name, t1) :: fields
-          | Tlink te -> te |> getFields
+          | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFields
           | Tvar None -> []
           | _ -> []
         in
@@ -1119,6 +1119,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         match typ.Types.desc with
         | Tconstr (path, _, _)
         | Tlink {desc = Tconstr (path, _, _)}
+        | Tsubst {desc = Tconstr (path, _, _)}
         | Tpoly ({desc = Tconstr (path, _, _)}, []) ->
           Some path
         | _ -> None
@@ -1204,7 +1205,8 @@ let getOpens ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
-let processCompletable ~package ~scope ~env ~pos (completable : Completable.t) =
+let processCompletable ~debug ~package ~scope ~env ~pos
+    (completable : Completable.t) =
   let rawOpens = Scope.getRawOpens scope in
   let opens = getOpens ~rawOpens ~package ~env in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
@@ -1245,13 +1247,13 @@ let processCompletable ~package ~scope ~env ~pos (completable : Completable.t) =
           | Tfield (name, _, t1, t2) ->
             let fields = t2 |> getFields in
             if name = "children" then fields else (name, t1) :: fields
-          | Tlink te -> te |> getFields
+          | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFields
           | Tvar None -> []
           | _ -> []
         in
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
-          | Tlink t1 | Tsubst t1 -> getLabels t1
+          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
           | Tarrow
               ( Nolabel,
                 {
@@ -1347,9 +1349,12 @@ let processCompletable ~package ~scope ~env ~pos (completable : Completable.t) =
         |> completionsGetTypeEnv
       with
       | Some (typ, _env) ->
+        if debug then
+          Printf.printf "Found type for function %s\n"
+            (typ |> Shared.typeToString);
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
-          | Tlink t1 | Tsubst t1 -> getLabels t1
+          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
           | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
             (l, tArg) :: getLabels tRet
           | Tarrow (Nolabel, _, tRet, _) -> getLabels tRet
@@ -1367,7 +1372,3 @@ let processCompletable ~package ~scope ~env ~pos (completable : Completable.t) =
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel
-
-let computeCompletions ~(completable : Completable.t) ~package ~pos ~scope ~env
-    =
-  completable |> processCompletable ~package ~scope ~env ~pos

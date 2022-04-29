@@ -362,6 +362,7 @@ Complete tests/src/Completion.res 23:20
 posCursor:[23:20] posNoWhite:[23:19] Found expr:[23:11->23:20]
 Pexp_apply ...[23:11->23:18] ()
 Completable: CnamedArg(Value[Lib, foo], "", [])
+Found type for function (~age: int, ~name: string) => string
 [{
     "label": "age",
     "kind": 4,
@@ -513,6 +514,7 @@ Complete tests/src/Completion.res 71:27
 posCursor:[71:27] posNoWhite:[71:26] Found expr:[71:11->71:27]
 Pexp_apply ...[71:11->71:18] (~name71:20->71:24=...[71:20->71:24])
 Completable: CnamedArg(Value[Lib, foo], "", [name])
+Found type for function (~age: int, ~name: string) => string
 [{
     "label": "age",
     "kind": 4,
@@ -525,6 +527,7 @@ Complete tests/src/Completion.res 74:26
 posCursor:[74:26] posNoWhite:[74:25] Found expr:[74:11->74:26]
 Pexp_apply ...[74:11->74:18] (~age74:20->74:23=...[74:20->74:23])
 Completable: CnamedArg(Value[Lib, foo], "", [age])
+Found type for function (~age: int, ~name: string) => string
 [{
     "label": "name",
     "kind": 4,
@@ -537,6 +540,7 @@ Complete tests/src/Completion.res 77:32
 posCursor:[77:32] posNoWhite:[77:31] Found expr:[77:11->77:32]
 Pexp_apply ...[77:11->77:18] (~age77:20->77:23=...[77:25->77:28])
 Completable: CnamedArg(Value[Lib, foo], "", [age])
+Found type for function (~age: int, ~name: string) => string
 [{
     "label": "name",
     "kind": 4,
@@ -549,6 +553,7 @@ Complete tests/src/Completion.res 82:5
 posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
 Pexp_apply ...[80:8->80:15] (~age84:3->84:6=...[84:7->84:8], ~name85:3->85:7=...[85:8->85:10])
 Completable: CnamedArg(Value[Lib, foo], "", [age, name])
+Found type for function (~age: int, ~name: string) => string
 []
 
 Complete tests/src/Completion.res 90:13
@@ -1065,6 +1070,19 @@ Completable: Cpath Type[s]
     "kind": 22,
     "tags": [],
     "detail": "type someLocalVariant =  SomeLocalVariantItem",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 291:30
+posCursor:[291:30] posNoWhite:[291:29] Found expr:[291:11->291:32]
+Pexp_apply ...[291:11->291:28] ()
+Completable: CnamedArg(Value[funRecord].someFun, "", [])
+Found type for function (~name: string) => unit
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
     "documentation": null
   }]
 
