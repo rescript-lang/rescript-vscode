@@ -75,28 +75,6 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
   in
   loop jsxProps.props
 
-let rec skipLineComment ~pos ~i str =
-  if i < String.length str then
-    match str.[i] with
-    | '\n' -> Some ((fst pos + 1, 0), i + 1)
-    | _ -> skipLineComment ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
-  else None
-
-let rec skipComment ~pos ~i ~depth str =
-  if i < String.length str then
-    match str.[i] with
-    | '\n' -> skipComment ~depth ~pos:(fst pos + 1, 0) ~i:(i + 1) str
-    | '/' when i + 1 < String.length str && str.[i + 1] = '*' ->
-      skipComment ~depth:(depth + 1) ~pos:(fst pos, snd pos + 2) ~i:(i + 2) str
-    | '*' when i + 1 < String.length str && str.[i + 1] = '/' ->
-      if depth > 1 then
-        skipComment ~depth:(depth - 1)
-          ~pos:(fst pos, snd pos + 2)
-          ~i:(i + 2) str
-      else Some ((fst pos, snd pos + 2), i + 2)
-    | _ -> skipComment ~depth ~pos:(fst pos, snd pos + 1) ~i:(i + 1) str
-  else None
-
 let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   let thisCaseShouldNotHappen =
     {
@@ -147,9 +125,7 @@ type label = labelled option
 type arg = {label : label; exp : Parsetree.expression}
 
 let findExpApplyCompletable ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(funName : Longident.t Location.loc) =
-  let funPath = Utils.flattenLongIdent funName.txt in
-  let posAfterFunName = Loc.end_ funName.loc in
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
   let allNames =
     List.fold_right
       (fun arg allLabels ->
@@ -164,15 +140,15 @@ let findExpApplyCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       if
         labelled.posStart <= posBeforeCursor
         && posBeforeCursor < labelled.posEnd
-      then Some (Completable.Clabel (funPath, labelled.name, allNames))
+      then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
       else loop rest
     | {label = None; exp} :: rest ->
       if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
       else loop rest
     | [] ->
-      if posAfterFunName <= posBeforeCursor && posBeforeCursor < endPos then
-        Some (Clabel (funPath, "", allNames))
+      if posAfterFunExpr <= posBeforeCursor && posBeforeCursor < endPos then
+        Some (CnamedArg (contextPath, "", allNames))
       else None
   in
   loop args
@@ -571,10 +547,11 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           setPipeResult ~lhs ~id:"" |> ignore
         | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
           ()
-        | Pexp_apply ({pexp_desc = Pexp_ident funName}, args) ->
+        | Pexp_apply (funExpr, args) ->
           let args = extractExpApplyArgs ~args in
           if debug then
-            Printf.printf "Pexp_apply ...%s (%s)\n" (Loc.toString funName.loc)
+            Printf.printf "Pexp_apply ...%s (%s)\n"
+              (Loc.toString funExpr.pexp_loc)
               (args
               |> List.map (fun {label; exp} ->
                      Printf.sprintf "%s...%s"
@@ -587,9 +564,14 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
                        (Loc.toString exp.pexp_loc))
               |> String.concat ", ");
           let expApplyCompletable =
-            findExpApplyCompletable ~funName ~args
-              ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
+            match exprToContextPath funExpr with
+            | Some contextPath ->
+              findExpApplyCompletable ~contextPath ~args
+                ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
+                ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
+            | None -> None
           in
+
           setResultOpt expApplyCompletable
         | Pexp_send (lhs, {txt; loc}) -> (
           (* e["txt"]

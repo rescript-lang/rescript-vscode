@@ -20,8 +20,9 @@ let completion ~debug ~path ~pos ~currentFile =
           | Some full ->
             let env = SharedTypes.QueryEnv.fromFile full.file in
             let package = full.package in
-            NewCompletions.computeCompletions ~completable ~package ~pos ~scope
-              ~env)
+            completable
+            |> NewCompletions.processCompletable ~debug ~package ~pos ~scope
+                 ~env)
       in
       completionItems
   in
