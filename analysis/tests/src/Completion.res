@@ -281,3 +281,13 @@ let _foo = _world => {
 type someType = {hello: string}
 // type t = SomeType(s)
 //                    ^com
+
+type funRecord = {
+  someFun: (~name: string) => unit,
+  stuff: string,
+}
+
+let funRecord: funRecord = assert false
+
+// let _ = funRecord.someFun(~ )
+//                            ^com
