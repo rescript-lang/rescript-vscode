@@ -454,15 +454,6 @@ let applyUncurried: codeActionExtractor = ({
 // payloads. No records, tuples etc yet. We can add those when the compiler
 // outputs them in proper ReScript.
 let transformMatchPattern = (matchPattern: string): string | null => {
-  if (
-    // Parens means tuples or more complicated payloads. Bail.
-    matchPattern.includes("(") ||
-    // Braces means records. Bail.
-    matchPattern.includes("{")
-  ) {
-    return null;
-  }
-
   let text = matchPattern.replace(/`/g, "#");
 
   let payloadRegexp = / /g;
@@ -533,31 +524,29 @@ let simpleAddMissingCases: codeActionExtractor = ({
       .join("")
       .trim();
 
-    // Remove leading and ending parens
-    allCasesAsOneLine = allCasesAsOneLine.slice(
-      1,
-      allCasesAsOneLine.length - 1
-    );
+    // We only handle the simplest possible cases until the compiler actually
+    // outputs ReScript. This means bailing on anything that's not a
+    // variant/polyvariant, with one payload (or no payloads at all).
+    let openParensCount = allCasesAsOneLine.split("(").length - 1;
 
-    // Any parens left means this is a more complex match. Bail.
-    if (allCasesAsOneLine.includes("(")) {
+    if (openParensCount > 1 || allCasesAsOneLine.includes("{")) {
       return false;
     }
 
-    let hasMultipleCases = allCasesAsOneLine.includes("|");
-    if (hasMultipleCases) {
-      cases.push(
-        ...(allCasesAsOneLine
-          .split("|")
-          .map(transformMatchPattern)
-          .filter(Boolean) as string[])
+    // Remove surrounding braces if they exist
+    if (allCasesAsOneLine[0] === "(") {
+      allCasesAsOneLine = allCasesAsOneLine.slice(
+        1,
+        allCasesAsOneLine.length - 1
       );
-    } else {
-      let transformed = transformMatchPattern(allCasesAsOneLine);
-      if (transformed != null) {
-        cases.push(transformed);
-      }
     }
+
+    cases.push(
+      ...(allCasesAsOneLine
+        .split("|")
+        .map(transformMatchPattern)
+        .filter(Boolean) as string[])
+    );
 
     if (cases.length === 0) {
       return false;
