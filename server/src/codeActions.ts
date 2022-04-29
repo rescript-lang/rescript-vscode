@@ -1,7 +1,6 @@
 // This file holds code actions derived from diagnostics. There are more code
 // actions available in the extension, but they are derived via the analysis
 // OCaml binary.
-import { match } from "assert";
 import * as p from "vscode-languageserver-protocol";
 
 export type filesCodeActions = {
