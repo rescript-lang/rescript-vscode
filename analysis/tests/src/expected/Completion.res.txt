@@ -361,7 +361,7 @@ Completable: Cpath Value[Dep, c]
 Complete tests/src/Completion.res 23:20
 posCursor:[23:20] posNoWhite:[23:19] Found expr:[23:11->23:20]
 Pexp_apply ...[23:11->23:18] ()
-Completable: Clabel(Value[Lib, foo], "", [])
+Completable: CnamedArg(Value[Lib, foo], "", [])
 [{
     "label": "age",
     "kind": 4,
@@ -512,7 +512,7 @@ Completable: Cdecorator(react.)
 Complete tests/src/Completion.res 71:27
 posCursor:[71:27] posNoWhite:[71:26] Found expr:[71:11->71:27]
 Pexp_apply ...[71:11->71:18] (~name71:20->71:24=...[71:20->71:24])
-Completable: Clabel(Value[Lib, foo], "", [name])
+Completable: CnamedArg(Value[Lib, foo], "", [name])
 [{
     "label": "age",
     "kind": 4,
@@ -524,7 +524,7 @@ Completable: Clabel(Value[Lib, foo], "", [name])
 Complete tests/src/Completion.res 74:26
 posCursor:[74:26] posNoWhite:[74:25] Found expr:[74:11->74:26]
 Pexp_apply ...[74:11->74:18] (~age74:20->74:23=...[74:20->74:23])
-Completable: Clabel(Value[Lib, foo], "", [age])
+Completable: CnamedArg(Value[Lib, foo], "", [age])
 [{
     "label": "name",
     "kind": 4,
@@ -536,7 +536,7 @@ Completable: Clabel(Value[Lib, foo], "", [age])
 Complete tests/src/Completion.res 77:32
 posCursor:[77:32] posNoWhite:[77:31] Found expr:[77:11->77:32]
 Pexp_apply ...[77:11->77:18] (~age77:20->77:23=...[77:25->77:28])
-Completable: Clabel(Value[Lib, foo], "", [age])
+Completable: CnamedArg(Value[Lib, foo], "", [age])
 [{
     "label": "name",
     "kind": 4,
@@ -548,7 +548,7 @@ Completable: Clabel(Value[Lib, foo], "", [age])
 Complete tests/src/Completion.res 82:5
 posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
 Pexp_apply ...[80:8->80:15] (~age84:3->84:6=...[84:7->84:8], ~name85:3->85:7=...[85:8->85:10])
-Completable: Clabel(Value[Lib, foo], "", [age, name])
+Completable: CnamedArg(Value[Lib, foo], "", [age, name])
 []
 
 Complete tests/src/Completion.res 90:13

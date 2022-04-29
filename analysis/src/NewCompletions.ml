@@ -1338,7 +1338,7 @@ let processCompletable ~package ~scope ~env ~pos (completable : Completable.t) =
            in
            dec2)
     |> List.map mkDecorator
-  | Clabel (cp, prefix, identsSeen) ->
+  | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
         cp
