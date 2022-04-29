@@ -696,7 +696,9 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   let type_kind (iterator : Ast_iterator.iterator)
       (type_kind : Parsetree.type_kind) =
     (match type_kind with
-    | Ptype_variant [decl] when decl.pcd_loc |> Loc.hasPos ~pos:posNoWhite ->
+    | Ptype_variant [decl]
+      when decl.pcd_name.loc |> Loc.hasPos ~pos:posNoWhite
+           && decl.pcd_args = Pcstr_tuple [] ->
       (* "type t = Pre" could signal the intent to complete variant "Prelude",
          or the beginning of "Prefix.t" *)
       if debug then
