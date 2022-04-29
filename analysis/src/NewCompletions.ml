@@ -722,7 +722,7 @@ module LocalTables = struct
     env.QueryEnv.file.stamps
     |> Stamps.iterTypes (fun _ declared ->
            Hashtbl.replace localTables.typesTable
-             (declared.name.txt, declared.extentLoc |> Loc.start)
+             (declared.name.txt, declared.name.loc |> Loc.start)
              declared)
 
   let populateModules ~env localTables =

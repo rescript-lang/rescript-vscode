@@ -277,3 +277,7 @@ let _foo = _world => {
   //           ^com
   3
 }
+
+type someType = {hello: string}
+// type t = SomeType(so)
+//                     ^com

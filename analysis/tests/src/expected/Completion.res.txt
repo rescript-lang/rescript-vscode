@@ -1050,3 +1050,21 @@ Completable: Cpath Value[_w]
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 281:23
+posCursor:[281:23] posNoWhite:[281:22] Found type:[281:21->281:23]
+Ptyp_constr so:[281:21->281:23]
+Completable: Cpath Type[so]
+[{
+    "label": "someType",
+    "kind": 22,
+    "tags": [],
+    "detail": "type someType = {hello: string}",
+    "documentation": null
+  }, {
+    "label": "someLocalVariant",
+    "kind": 22,
+    "tags": [],
+    "detail": "type someLocalVariant =  SomeLocalVariantItem",
+    "documentation": null
+  }]
+
