@@ -412,8 +412,8 @@ module Completable = struct
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
-    | Clabel of string list * string * string list
-        (** e.g. (["M", "foo"], "label", ["l1", "l2"]) for M.foo(...~l1...~l2...~label...) *)
+    | Clabel of contextPath * string * string list
+        (** e.g. (..., "label", ["l1", "l2"]) for ...(...~l1...~l2...~label...) *)
     | Cnone  (** e.g. don't complete inside strings *)
     | Cpath of contextPath
     | Cjsx of string list * string * string list
@@ -440,8 +440,10 @@ module Completable = struct
     function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
-    | Clabel (sl1, s, sl2) ->
-      "Clabel(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+    | Clabel (cp, s, sl2) ->
+      "Clabel("
+      ^ (cp |> contextPathToString)
+      ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"

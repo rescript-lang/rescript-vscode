@@ -1338,9 +1338,14 @@ let processCompletable ~package ~scope ~env ~pos (completable : Completable.t) =
            in
            dec2)
     |> List.map mkDecorator
-  | Clabel (funPath, prefix, identsSeen) ->
+  | Clabel (cp, prefix, identsSeen) ->
     let labels =
-      match funPath |> findTypeOfValue with
+      match
+        cp
+        |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:true ~scope
+        |> completionsGetTypeEnv
+      with
       | Some (typ, _env) ->
         let rec getLabels (t : Types.type_expr) =
           match t.desc with
