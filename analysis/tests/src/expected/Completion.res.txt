@@ -1050,10 +1050,10 @@ Completable: Cpath Value[_w]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 281:23
-posCursor:[281:23] posNoWhite:[281:22] Found type:[281:21->281:23]
-Ptyp_constr so:[281:21->281:23]
-Completable: Cpath Type[so]
+Complete tests/src/Completion.res 281:22
+posCursor:[281:22] posNoWhite:[281:21] Found type:[281:21->281:22]
+Ptyp_constr s:[281:21->281:22]
+Completable: Cpath Type[s]
 [{
     "label": "someType",
     "kind": 22,

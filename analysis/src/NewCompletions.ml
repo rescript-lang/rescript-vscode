@@ -823,14 +823,13 @@ let processLocalModule name loc ~prefix ~exact ~env
         (Printf.sprintf "Completion Module Not Found %s loc:%s\n" name
            (Loc.toString loc))
 
-let getValuesFromOpens ~opens ~localTables ~prefix ~exact =
+let getItemsFromOpens ~opens ~localTables ~prefix ~exact ~completionContext =
   opens
   |> List.fold_left
        (fun results env ->
          let completionsFromThisOpen =
            findAllCompletions ~env ~prefix ~exact
-             ~namesUsed:localTables.LocalTables.namesUsed
-             ~completionContext:Value
+             ~namesUsed:localTables.LocalTables.namesUsed ~completionContext
          in
          completionsFromThisOpen @ results)
        []
@@ -850,7 +849,10 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
   |> Scope.iterModulesBeforeFirstOpen
        (processLocalModule ~prefix ~exact ~env ~localTables);
 
-  let valuesFromOpens = getValuesFromOpens ~opens ~localTables ~prefix ~exact in
+  let valuesFromOpens =
+    getItemsFromOpens ~opens ~localTables ~prefix ~exact
+      ~completionContext:Value
+  in
 
   scope
   |> Scope.iterValuesAfterFirstOpen
@@ -874,7 +876,9 @@ let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
   |> Scope.iterModulesBeforeFirstOpen
        (processLocalModule ~prefix ~exact ~env ~localTables);
 
-  let valuesFromOpens = getValuesFromOpens ~opens ~localTables ~prefix ~exact in
+  let valuesFromOpens =
+    getItemsFromOpens ~opens ~localTables ~prefix ~exact ~completionContext:Type
+  in
 
   scope
   |> Scope.iterTypesAfterFirstOpen
@@ -891,7 +895,10 @@ let findLocalCompletionsForModules ~(localTables : LocalTables.t) ~env ~prefix
   |> Scope.iterModulesBeforeFirstOpen
        (processLocalModule ~prefix ~exact ~env ~localTables);
 
-  let valuesFromOpens = getValuesFromOpens ~opens ~localTables ~prefix ~exact in
+  let valuesFromOpens =
+    getItemsFromOpens ~opens ~localTables ~prefix ~exact
+      ~completionContext:Module
+  in
 
   scope
   |> Scope.iterModulesAfterFirstOpen

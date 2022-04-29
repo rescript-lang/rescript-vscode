@@ -279,5 +279,5 @@ let _foo = _world => {
 }
 
 type someType = {hello: string}
-// type t = SomeType(so)
-//                     ^com
+// type t = SomeType(s)
+//                    ^com
