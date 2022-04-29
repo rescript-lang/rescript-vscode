@@ -412,7 +412,7 @@ module Completable = struct
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
-    | Clabel of contextPath * string * string list
+    | CnamedArg of contextPath * string * string list
         (** e.g. (..., "label", ["l1", "l2"]) for ...(...~l1...~l2...~label...) *)
     | Cnone  (** e.g. don't complete inside strings *)
     | Cpath of contextPath
@@ -440,8 +440,8 @@ module Completable = struct
     function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
-    | Clabel (cp, s, sl2) ->
-      "Clabel("
+    | CnamedArg (cp, s, sl2) ->
+      "CnamedArg("
       ^ (cp |> contextPathToString)
       ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
     | Cnone -> "Cnone"

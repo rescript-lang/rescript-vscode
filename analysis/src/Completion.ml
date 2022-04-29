@@ -166,7 +166,7 @@ let findExpApplyCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         && posBeforeCursor < labelled.posEnd
       then
         Some
-          (Completable.Clabel
+          (Completable.CnamedArg
              (Completable.CPId (funPath, Value), labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
       else loop rest
@@ -175,7 +175,7 @@ let findExpApplyCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       else loop rest
     | [] ->
       if posAfterFunName <= posBeforeCursor && posBeforeCursor < endPos then
-        Some (Clabel (Completable.CPId (funPath, Value), "", allNames))
+        Some (CnamedArg (Completable.CPId (funPath, Value), "", allNames))
       else None
   in
   loop args
