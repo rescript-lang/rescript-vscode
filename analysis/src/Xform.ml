@@ -99,11 +99,20 @@ module IfThenElse = struct
 
     {Ast_iterator.default_iterator with expr}
 
-  let xform ~pos structure =
+  let xform ~pos ~codeActions ~printExpr ~path structure =
     let changed = ref None in
     let iterator = mkIterator ~pos ~changed in
     iterator.structure iterator structure;
-    !changed
+    match !changed with
+    | None -> ()
+    | Some newExpr ->
+      let range = rangeOfLoc newExpr.pexp_loc in
+      let newText = printExpr ~range newExpr in
+      let codeAction =
+        CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
+          ~uri:path ~newText ~range
+      in
+      codeActions := codeAction :: !codeActions
 end
 
 module AddBracesToFn = struct
@@ -154,11 +163,20 @@ module AddBracesToFn = struct
 
     {Ast_iterator.default_iterator with expr; structure_item}
 
-  let xform ~pos structure =
+  let xform ~pos ~codeActions ~path ~printStructureItem structure =
     let changed = ref None in
     let iterator = mkIterator ~pos ~changed in
     iterator.structure iterator structure;
-    !changed
+    match !changed with
+    | None -> ()
+    | Some newStructureItem ->
+      let range = rangeOfLoc newStructureItem.pstr_loc in
+      let newText = printStructureItem ~range newStructureItem in
+      let codeAction =
+        CodeActions.make ~title:"Add braces to function" ~kind:RefactorRewrite
+          ~uri:path ~newText ~range
+      in
+      codeActions := codeAction :: !codeActions
 end
 
 module AddTypeAnnotation = struct
@@ -205,17 +223,17 @@ module AddTypeAnnotation = struct
     in
     {Ast_iterator.default_iterator with structure_item}
 
-  let getAction ~path ~pos ~full ~structure =
+  let xform ~path ~pos ~full ~structure ~codeActions =
     let line, col = pos in
 
     let result = ref None in
     let iterator = mkIterator ~pos ~result in
     iterator.structure iterator structure;
     match !result with
-    | None -> None
+    | None -> ()
     | Some annotation -> (
       match References.getLocItem ~full ~line ~col with
-      | None -> None
+      | None -> ()
       | Some locItem -> (
         match locItem.locType with
         | Typed (name, typ, _) ->
@@ -232,8 +250,8 @@ module AddTypeAnnotation = struct
             CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
               ~uri:path ~newText ~range
           in
-          Some codeAction
-        | _ -> None))
+          codeActions := codeAction :: !codeActions
+        | _ -> ()))
 end
 
 let indent n text =
@@ -280,37 +298,15 @@ let parse ~filename =
   (structure, printExpr, printStructureItem)
 
 let extractCodeActions ~path ~pos ~currentFile =
-  let codeActions = ref [] in
-  if Filename.check_suffix currentFile ".res" then (
+  let fullOpt = Cmt.fromPath ~path in
+  match fullOpt with
+  | Some full when Filename.check_suffix currentFile ".res" ->
     let structure, printExpr, printStructureItem =
       parse ~filename:currentFile
     in
-    let fullOpt = Cmt.fromPath ~path in
-    (match fullOpt with
-    | None -> ()
-    | Some full -> (
-      match AddTypeAnnotation.getAction ~path ~pos ~full ~structure with
-      | None -> ()
-      | Some action -> codeActions := action :: !codeActions));
-    (match IfThenElse.xform ~pos structure with
-    | None -> ()
-    | Some newExpr ->
-      let range = rangeOfLoc newExpr.pexp_loc in
-      let newText = printExpr ~range newExpr in
-      let codeAction =
-        CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
-          ~uri:path ~newText ~range
-      in
-      codeActions := codeAction :: !codeActions);
-
-    match AddBracesToFn.xform ~pos structure with
-    | None -> ()
-    | Some newStructureItem ->
-      let range = rangeOfLoc newStructureItem.pstr_loc in
-      let newText = printStructureItem ~range newStructureItem in
-      let codeAction =
-        CodeActions.make ~title:"Add braces to function" ~kind:RefactorRewrite
-          ~uri:path ~newText ~range
-      in
-      codeActions := codeAction :: !codeActions);
-  !codeActions
+    let codeActions = ref [] in
+    AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions;
+    IfThenElse.xform ~pos ~codeActions ~printExpr ~path structure;
+    AddBracesToFn.xform ~pos ~codeActions ~path ~printStructureItem structure;
+    !codeActions
+  | _ -> []
