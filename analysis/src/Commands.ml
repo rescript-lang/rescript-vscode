@@ -63,6 +63,10 @@ let hover ~path ~line ~col =
   in
   print_endline result
 
+let codeAction ~path ~line ~col ~currentFile =
+  Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile
+  |> CodeActions.stringifyCodeActions |> print_endline
+
 let definition ~path ~line ~col =
   let locationOpt =
     match Cmt.fromPath ~path with
@@ -325,6 +329,26 @@ let test ~path =
               dir ++ parent_dir_name ++ "lib" ++ "bs" ++ "src" ++ name
             in
             Printf.printf "%s" (CreateInterface.command ~path ~cmiFile)
+          | "xfm" ->
+            print_endline
+              ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let codeActions =
+              Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile:path
+            in
+            codeActions
+            |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
+                   Printf.printf "Hit: %s\n" title;
+                   documentChanges
+                   |> List.iter (fun {Protocol.edits} ->
+                          edits
+                          |> List.iter (fun {Protocol.range; newText} ->
+                                 let indent =
+                                   String.make range.start.character ' '
+                                 in
+                                 Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
+                                   (Protocol.stringifyRange range)
+                                   indent indent newText)))
           | _ -> ());
           print_newline ())
     in

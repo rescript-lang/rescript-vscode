@@ -12,6 +12,7 @@ import {
   DidCloseTextDocumentNotification,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
+import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
@@ -35,6 +36,9 @@ let projectsFiles: Map<
   }
 > = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
+
+// This keeps track of code actions extracted from diagnostics.
+let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: m.Message) => void = (_) => {};
@@ -65,8 +69,13 @@ let sendUpdatedDiagnostics = () => {
       path.join(projectRootPath, c.compilerLogPartialPath),
       { encoding: "utf-8" }
     );
-    let { done, result: filesAndErrors } =
-      utils.parseCompilerLogOutput(content);
+    let {
+      done,
+      result: filesAndErrors,
+      codeActions,
+    } = utils.parseCompilerLogOutput(content);
+
+    codeActionsFromDiagnostics = codeActions;
 
     // diff
     Object.keys(filesAndErrors).forEach((file) => {
@@ -458,6 +467,53 @@ function completion(msg: p.RequestMessage) {
   return response;
 }
 
+function codeAction(msg: p.RequestMessage): p.ResponseMessage {
+  let params = msg.params as p.CodeActionParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir(extension);
+
+  // Check local code actions coming from the diagnostics.
+  let localResults: v.CodeAction[] = [];
+  codeActionsFromDiagnostics[params.textDocument.uri]?.forEach(
+    ({ range, codeAction }) => {
+      if (utils.rangeContainsRange(range, params.range)) {
+        localResults.push(codeAction);
+      }
+    }
+  );
+
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
+  let response = utils.runAnalysisCommand(
+    filePath,
+    [
+      "codeAction",
+      filePath,
+      params.range.start.line,
+      params.range.start.character,
+      tmpname,
+    ],
+    msg
+  );
+  fs.unlink(tmpname, () => null);
+
+  let { result } = response;
+
+  // We must send `null` when there are no results, empty array isn't enough.
+  let codeActions =
+    result != null && Array.isArray(result)
+      ? [...localResults, ...result]
+      : localResults;
+
+  let res: v.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: codeActions.length > 0 ? codeActions : null,
+  };
+  return res;
+}
+
 function format(msg: p.RequestMessage): Array<m.Message> {
   // technically, a formatting failure should reply with the error. Sadly
   // the LSP alert box for these error replies sucks (e.g. doesn't actually
@@ -750,6 +806,7 @@ function onMessage(msg: m.Message) {
           definitionProvider: true,
           typeDefinitionProvider: true,
           referencesProvider: true,
+          codeActionProvider: true,
           renameProvider: { prepareProvider: true },
           documentSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
@@ -831,6 +888,8 @@ function onMessage(msg: m.Message) {
       send(completion(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
       send(semanticTokens(msg));
+    } else if (msg.method === p.CodeActionRequest.method) {
+      send(codeAction(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       let responses = format(msg);
       responses.forEach((response) => send(response));

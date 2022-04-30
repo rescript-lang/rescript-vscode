@@ -80,6 +80,9 @@ let main () =
   | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
   | [_; "hover"; path; line; col] ->
     Commands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
+  | [_; "codeAction"; path; line; col; currentFile] ->
+    Commands.codeAction ~path ~line:(int_of_string line)
+      ~col:(int_of_string col) ~currentFile
   | [_; "references"; path; line; col] ->
     Commands.references ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
