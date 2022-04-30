@@ -492,19 +492,13 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
       filePath,
       params.range.start.line,
       params.range.start.character,
-      tmpname
+      tmpname,
     ],
     msg
   );
   fs.unlink(tmpname, () => null);
 
-
   let { result } = response;
-
-  let res: v.ResponseMessage = {
-    jsonrpc: c.jsonrpcVersion,
-    id: msg.id,
-  };
 
   // We must send `null` when there are no results, empty array isn't enough.
   let codeActions =
@@ -512,7 +506,11 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
       ? [...localResults, ...result]
       : localResults;
 
-  res.result = codeActions.length > 0 ? codeActions : null;
+  let res: v.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: codeActions.length > 0 ? codeActions : null,
+  };
   return res;
 }
 
