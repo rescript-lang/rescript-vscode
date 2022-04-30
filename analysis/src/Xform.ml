@@ -279,29 +279,6 @@ let parse ~filename =
   in
   (structure, printExpr, printStructureItem)
 
-let diff ~filename ~newContents =
-  match Files.readFile ~filename with
-  | None -> assert false
-  | Some oldContents ->
-    let rec findFirstLineDifferent n old new_ =
-      match (old, new_) with
-      | old1 :: oldRest, new1 :: newRest ->
-        if old1 = new1 then findFirstLineDifferent (n + 1) oldRest newRest
-        else (n, old, new_)
-      | _ -> (n, old, new_)
-    in
-    let oldLines = String.split_on_char '\n' oldContents in
-    let newLines = String.split_on_char '\n' newContents in
-    let firstLineDifferent, old, new_ =
-      findFirstLineDifferent 0 oldLines newLines
-    in
-    let firstLineR, _oldR, newR =
-      findFirstLineDifferent 0 (List.rev old) (List.rev new_)
-    in
-    let lastLineEqual = firstLineDifferent + List.length old - firstLineR in
-    let newLines = List.rev newR in
-    (firstLineDifferent, lastLineEqual, newLines)
-
 let extractCodeActions ~path ~pos ~currentFile =
   let codeActions = ref [] in
   if Filename.check_suffix currentFile ".res" then (
