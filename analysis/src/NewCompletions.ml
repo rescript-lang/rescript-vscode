@@ -752,7 +752,15 @@ let processLocalValue name loc ~prefix ~exact ~env
     | None ->
       Log.log
         (Printf.sprintf "Completion Value Not Found %s loc:%s\n" name
-           (Loc.toString loc))
+           (Loc.toString loc));
+      localTables.resultRev <-
+        Completion.create ~name ~env
+          ~kind:
+            (Value
+               (Ctype.newconstr
+                  (Path.Pident (Ident.create "Type Not Known"))
+                  []))
+        :: localTables.resultRev
 
 let processLocalConstructor name loc ~prefix ~exact ~env
     ~(localTables : LocalTables.t) =
