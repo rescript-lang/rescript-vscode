@@ -405,6 +405,7 @@ module Completable = struct
   type contextPath =
     | CPString
     | CPArray
+    | CPApply of contextPath * unit
     | CPId of string list * completionContext
     | CPField of contextPath * string
     | CPObj of contextPath * string
@@ -430,6 +431,7 @@ module Completable = struct
     in
     let rec contextPathToString = function
       | CPString -> "string"
+      | CPApply (cp, ()) -> contextPathToString cp ^ "()"
       | CPArray -> "array"
       | CPId (sl, completionContext) ->
         completionContextToString completionContext ^ list sl

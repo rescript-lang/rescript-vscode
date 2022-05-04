@@ -292,6 +292,11 @@ let funRecord: funRecord = assert false
 // let _ = funRecord.someFun(~ )
 //                            ^com
 
+let retAA = () => {x: 3, name: ""}
+
+// retAA().
+//         ^com
+
 let _ =
   <div
     onClick={_ => {
