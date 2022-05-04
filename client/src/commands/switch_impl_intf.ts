@@ -1,16 +1,7 @@
 import * as fs from "fs";
 import { LanguageClient, RequestType } from "vscode-languageclient/node";
 import { window } from "vscode";
-
-interface CreateInterfaceRequestParams {
-  uri: string;
-}
-
-let createInterfaceRequest = new RequestType<
-  CreateInterfaceRequestParams,
-  string,
-  void
->("rescript-vscode.create_interface");
+import { createInterfaceRequest } from "./create_interface"
 
 export const switchImplIntf = async (client: LanguageClient) => {
   if (!client) {
