@@ -1261,14 +1261,33 @@ Found type for function (~opt1: int=?, ~a: int, ~b: int, unit, unit, ~c: int) =>
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 323:26
-posCursor:[323:26] posNoWhite:[323:25] Found expr:[320:3->328:8]
-JSX <div:[320:3->320:6] onClick[321:4->321:11]=...[321:13->0:-1]> _children:None
-posCursor:[323:26] posNoWhite:[323:25] Found expr:[321:13->325:6]
-posCursor:[323:26] posNoWhite:[323:25] Found expr:[322:6->325:5]
-posCursor:[323:26] posNoWhite:[323:25] Found expr:[323:16->325:5]
-posCursor:[323:26] posNoWhite:[323:25] Found type:[323:23->325:5]
-Ptyp_constr Res:[323:23->325:5]
+Complete tests/src/Completion.res 323:17
+posCursor:[323:17] posNoWhite:[323:16] Found expr:[323:3->323:17]
+Pexp_apply ...[323:3->323:15] ()
+Completable: CnamedArg(Value[withCallback], "", [])
+Found type for function (~b: int) => callback
+[{
+    "label": "b",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "a",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 330:26
+posCursor:[330:26] posNoWhite:[330:25] Found expr:[327:3->335:8]
+JSX <div:[327:3->327:6] onClick[328:4->328:11]=...[328:13->0:-1]> _children:None
+posCursor:[330:26] posNoWhite:[330:25] Found expr:[328:13->332:6]
+posCursor:[330:26] posNoWhite:[330:25] Found expr:[329:6->332:5]
+posCursor:[330:26] posNoWhite:[330:25] Found expr:[330:16->332:5]
+posCursor:[330:26] posNoWhite:[330:25] Found type:[330:23->332:5]
+Ptyp_constr Res:[330:23->332:5]
 Completable: Cpath Type[Res]
 [{
     "label": "RescriptReactErrorBoundary",
