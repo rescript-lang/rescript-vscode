@@ -60,6 +60,17 @@
 			{
 				"command": "rescript-vscode.stop_dead_code_analysis",
 				"title": "ReScript: Stop dead code analysis."
+			},
+			{
+				"command": "rescript-vscode.switch-impl-intf",
+				"title": "ReScript: Switch implementation/interface"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "rescript-vscode.switch-impl-intf",
+				"key": "Alt+O",
+				"when": "editorLangId == rescript"
 			}
 		],
 		"menus": {
