@@ -948,11 +948,14 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let rec extractFunctionType (t : Types.type_expr) =
-  match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractFunctionType t1
-  | Tarrow (label, tArg, tRet, _) -> Some (label, tArg, tRet)
-  | _ -> None
+let extractFunctionType typ =
+  let rec loop acc (t : Types.type_expr) =
+    match t.desc with
+    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop acc t1
+    | Tarrow (label, tArg, tRet, _) -> loop ((label, tArg) :: acc) tRet
+    | _ -> (List.rev acc, t)
+  in
+  loop [] typ
 
 let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
@@ -1039,7 +1042,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
     path
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
          ~completionContext ~env ~scope
-  | CPApply (cp, ()) -> (
+  | CPApply (cp, labels) -> (
     match
       cp
       |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
@@ -1047,11 +1050,38 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
+      let rec reconstructFunctionType args tRet =
+        match args with
+        | [] -> tRet
+        | (label, tArg) :: rest ->
+          let restType = reconstructFunctionType rest tRet in
+          {typ with desc = Tarrow (label, tArg, restType, Cok)}
+      in
+      let rec processApply args labels =
+        match (args, labels) with
+        | _, [] -> args
+        | _, label :: (_ :: _ as nextLabels) ->
+          (* compute the application of the first label, then the next ones *)
+          let args = processApply args [label] in
+          processApply args nextLabels
+        | (Asttypes.Nolabel, _) :: nextArgs, [Asttypes.Nolabel] -> nextArgs
+        | ((Labelled _, _) as arg) :: nextArgs, [Nolabel] ->
+          arg :: processApply nextArgs labels
+        | (Optional _, _) :: nextArgs, [Nolabel] -> processApply nextArgs labels
+        | ( (((Labelled s1 | Optional s1), _) as arg) :: nextArgs,
+            [(Labelled s2 | Optional s2)] ) ->
+          if s1 = s2 then nextArgs else arg :: processApply nextArgs labels
+        | ((Nolabel, _) as arg) :: nextArgs, [(Labelled _ | Optional _)] ->
+          arg :: processApply nextArgs labels
+        | [], [(Nolabel | Labelled _ | Optional _)] ->
+          (* should not happen, but just ignore extra arguments *) []
+      in
       match extractFunctionType typ with
-      | Some (Nolabel, _tArg, tRet) ->
-        [Completion.create ~name:"dummy" ~env ~kind:(Completion.Value tRet)]
-      | Some ((Labelled _ | Optional _), _, _) -> assert false
-      | None -> [])
+      | args, tRet when args <> [] ->
+        let args = processApply args labels in
+        let retType = reconstructFunctionType args tRet in
+        [Completion.create ~name:"dummy" ~env ~kind:(Completion.Value retType)]
+      | _ -> [])
     | None -> [])
   | CPField (CPId (path, Module), fieldName) ->
     (* M.field *)

@@ -205,10 +205,10 @@ let rec exprToContextPath (e : Parsetree.expression) =
     match exprToContextPath e1 with
     | None -> None
     | Some contexPath -> Some (CPObj (contexPath, txt)))
-  | Pexp_apply (e1, [(Nolabel, _)]) -> (
+  | Pexp_apply (e1, args) -> (
     match exprToContextPath e1 with
     | None -> None
-    | Some contexPath -> Some (CPApply (contexPath, ())))
+    | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
   | _ -> None
 
 let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
