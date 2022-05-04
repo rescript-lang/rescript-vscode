@@ -948,14 +948,19 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let extractFunctionType typ =
-  let rec loop acc (t : Types.type_expr) =
+let extractFunctionType ~env ~package typ =
+  let rec loop ~env acc (t : Types.type_expr) =
     match t.desc with
-    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop acc t1
-    | Tarrow (label, tArg, tRet, _) -> loop ((label, tArg) :: acc) tRet
+    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop ~env acc t1
+    | Tarrow (label, tArg, tRet, _) -> loop ~env ((label, tArg) :: acc) tRet
+    | Tconstr (path, _, _) -> (
+      match References.digConstructor ~env ~package path with
+      | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+        loop ~env acc t1
+      | _ -> (List.rev acc, t))
     | _ -> (List.rev acc, t)
   in
-  loop [] typ
+  loop ~env [] typ
 
 let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
@@ -1076,7 +1081,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         | [], [(Nolabel | Labelled _ | Optional _)] ->
           (* should not happen, but just ignore extra arguments *) []
       in
-      match extractFunctionType typ with
+      match extractFunctionType ~env ~package typ with
       | args, tRet when args <> [] ->
         let args = processApply args labels in
         let retType = reconstructFunctionType args tRet in

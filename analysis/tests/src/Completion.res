@@ -324,6 +324,12 @@ let withCallback: (~b: int) => callback = (~b, ~a) => a + b
 // withCallback(~
 //               ^com
 
+// withCallback(~a)(~
+//                   ^com
+
+// withCallback(~b)(~
+//                   ^com
+
 let _ =
   <div
     onClick={_ => {
