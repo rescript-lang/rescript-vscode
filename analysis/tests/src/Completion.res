@@ -317,6 +317,13 @@ let ff = (~opt1=0, ~a, ~b, (), ~opt2=0, (), ~c) => a + b + c + opt1 + opt2
 // ff(~opt2=1)(~
 //              ^com
 
+type callback = (~a: int) => int
+
+let withCallback: (~b: int) => callback = (~b, ~a) => a + b
+
+// withCallback(~
+//               ^com
+
 let _ =
   <div
     onClick={_ => {

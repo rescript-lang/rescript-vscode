@@ -1402,15 +1402,20 @@ let processCompletable ~debug ~package ~scope ~env ~pos
         if debug then
           Printf.printf "Found type for function %s\n"
             (typ |> Shared.typeToString);
-        let rec getLabels (t : Types.type_expr) =
+        let rec getLabels ~env (t : Types.type_expr) =
           match t.desc with
-          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
+          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels ~env t1
           | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
-            (l, tArg) :: getLabels tRet
-          | Tarrow (Nolabel, _, tRet, _) -> getLabels tRet
+            (l, tArg) :: getLabels ~env tRet
+          | Tarrow (Nolabel, _, tRet, _) -> getLabels ~env tRet
+          | Tconstr (path, _, _) -> (
+            match References.digConstructor ~env ~package path with
+            | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+              getLabels ~env t1
+            | _ -> [])
           | _ -> []
         in
-        typ |> getLabels
+        typ |> getLabels ~env
       | None -> []
     in
     let mkLabel (name, typ) =
