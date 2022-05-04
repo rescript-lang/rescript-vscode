@@ -948,6 +948,12 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
+let rec extractFunctionType (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractFunctionType t1
+  | Tarrow (label, tArg, tRet, _) -> Some (label, tArg, tRet)
+  | _ -> None
+
 let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
   match path with
@@ -1033,6 +1039,20 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
     path
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
          ~completionContext ~env ~scope
+  | CPApply (cp, ()) -> (
+    match
+      cp
+      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+           ~env ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, env) -> (
+      match extractFunctionType typ with
+      | Some (Nolabel, _tArg, tRet) ->
+        [Completion.create ~name:"dummy" ~env ~kind:(Completion.Value tRet)]
+      | Some ((Labelled _ | Optional _), _, _) -> assert false
+      | None -> [])
+    | None -> [])
   | CPField (CPId (path, Module), fieldName) ->
     (* M.field *)
     path @ [fieldName]
