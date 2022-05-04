@@ -405,7 +405,7 @@ module Completable = struct
   type contextPath =
     | CPString
     | CPArray
-    | CPApply of contextPath * unit
+    | CPApply of contextPath * Asttypes.arg_label list
     | CPId of string list * completionContext
     | CPField of contextPath * string
     | CPObj of contextPath * string
@@ -431,7 +431,15 @@ module Completable = struct
     in
     let rec contextPathToString = function
       | CPString -> "string"
-      | CPApply (cp, ()) -> contextPathToString cp ^ "()"
+      | CPApply (cp, labels) ->
+        contextPathToString cp ^ "("
+        ^ (labels
+          |> List.map (function
+               | Asttypes.Nolabel -> "Nolabel"
+               | Labelled s -> "~" ^ s
+               | Optional s -> "?" ^ s)
+          |> String.concat ", ")
+        ^ ")"
       | CPArray -> "array"
       | CPId (sl, completionContext) ->
         completionContextToString completionContext ^ list sl

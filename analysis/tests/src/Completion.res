@@ -297,6 +297,26 @@ let retAA = () => {x: 3, name: ""}
 // retAA().
 //         ^com
 
+let ff = (~opt1=0, ~a, ~b, (), ~opt2=0, (), ~c) => a + b + c + opt1 + opt2
+
+// ff(~c=1)(~
+//           ^com
+
+// ff(~c=1)()(~
+//             ^com
+
+// ff(~c=1, ())(~
+//               ^com
+
+// ff(~c=1, (), ())(~
+//                   ^com
+
+// ff(~c=1, (), ~b=1)(~
+//                     ^com
+
+// ff(~opt2=1)(~
+//              ^com
+
 let _ =
   <div
     onClick={_ => {

@@ -1089,7 +1089,7 @@ Found type for function (~name: string) => unit
 Complete tests/src/Completion.res 296:11
 posCursor:[296:11] posNoWhite:[296:10] Found expr:[296:3->299:3]
 Pexp_field [296:3->296:10] _:[299:0->299:3]
-Completable: Cpath Value[retAA]().""
+Completable: Cpath Value[retAA](Nolabel).""
 [{
     "label": "x",
     "kind": 5,
@@ -1104,14 +1104,171 @@ Completable: Cpath Value[retAA]().""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 303:26
-posCursor:[303:26] posNoWhite:[303:25] Found expr:[300:3->308:8]
-JSX <div:[300:3->300:6] onClick[301:4->301:11]=...[301:13->0:-1]> _children:None
-posCursor:[303:26] posNoWhite:[303:25] Found expr:[301:13->305:6]
-posCursor:[303:26] posNoWhite:[303:25] Found expr:[302:6->305:5]
-posCursor:[303:26] posNoWhite:[303:25] Found expr:[303:16->305:5]
-posCursor:[303:26] posNoWhite:[303:25] Found type:[303:23->305:5]
-Ptyp_constr Res:[303:23->305:5]
+Complete tests/src/Completion.res 301:13
+posCursor:[301:13] posNoWhite:[301:12] Found expr:[301:3->301:13]
+Pexp_apply ...[301:3->301:11] ()
+Completable: CnamedArg(Value[ff](~c), "", [])
+Found type for function (
+  ~opt1: int=?,
+  ~a: int,
+  ~b: int,
+  unit,
+  ~opt2: int=?,
+  unit,
+) => int
+[{
+    "label": "opt1",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null
+  }, {
+    "label": "a",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "b",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "opt2",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 304:15
+posCursor:[304:15] posNoWhite:[304:14] Found expr:[304:3->304:15]
+Pexp_apply ...[304:3->304:13] ()
+Completable: CnamedArg(Value[ff](~c)(Nolabel), "", [])
+Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
+[{
+    "label": "a",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "b",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "opt2",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 307:17
+posCursor:[307:17] posNoWhite:[307:16] Found expr:[307:3->307:17]
+Pexp_apply ...[307:3->307:15] ()
+Completable: CnamedArg(Value[ff](~c, Nolabel), "", [])
+Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
+[{
+    "label": "a",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "b",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "opt2",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 310:21
+posCursor:[310:21] posNoWhite:[310:20] Found expr:[310:3->310:21]
+Pexp_apply ...[310:3->310:19] ()
+Completable: CnamedArg(Value[ff](~c, Nolabel, Nolabel), "", [])
+Found type for function (~a: int, ~b: int) => int
+[{
+    "label": "a",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "b",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 313:23
+posCursor:[313:23] posNoWhite:[313:22] Found expr:[313:3->313:23]
+Pexp_apply ...[313:3->313:21] ()
+Completable: CnamedArg(Value[ff](~c, Nolabel, ~b), "", [])
+Found type for function (~a: int, ~opt2: int=?, unit) => int
+[{
+    "label": "a",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "opt2",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 316:16
+posCursor:[316:16] posNoWhite:[316:15] Found expr:[316:3->316:16]
+Pexp_apply ...[316:3->316:14] ()
+Completable: CnamedArg(Value[ff](~opt2), "", [])
+Found type for function (~opt1: int=?, ~a: int, ~b: int, unit, unit, ~c: int) => int
+[{
+    "label": "opt1",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null
+  }, {
+    "label": "a",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "b",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "c",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 323:26
+posCursor:[323:26] posNoWhite:[323:25] Found expr:[320:3->328:8]
+JSX <div:[320:3->320:6] onClick[321:4->321:11]=...[321:13->0:-1]> _children:None
+posCursor:[323:26] posNoWhite:[323:25] Found expr:[321:13->325:6]
+posCursor:[323:26] posNoWhite:[323:25] Found expr:[322:6->325:5]
+posCursor:[323:26] posNoWhite:[323:25] Found expr:[323:16->325:5]
+posCursor:[323:26] posNoWhite:[323:25] Found type:[323:23->325:5]
+Ptyp_constr Res:[323:23->325:5]
 Completable: Cpath Type[Res]
 [{
     "label": "RescriptReactErrorBoundary",
