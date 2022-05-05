@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { LanguageClient, RequestType } from "vscode-languageclient/node";
 import { window } from "vscode";
-import { createInterfaceRequest } from "./create_interface"
+import { createInterfaceRequest } from "./create_interface";
 
 export const switchImplIntf = async (client: LanguageClient) => {
   if (!client) {
@@ -17,7 +17,7 @@ export const switchImplIntf = async (client: LanguageClient) => {
   const isIntf = editor.document.uri.path.endsWith(".resi");
 
   if (isIntf) {
-		// *.res
+    // *.res
     const newUri = editor.document.uri.with({
       path: editor.document.uri.path.slice(0, -1),
     });
@@ -26,13 +26,21 @@ export const switchImplIntf = async (client: LanguageClient) => {
   }
 
   if (!fs.existsSync(editor.document.uri.fsPath + "i")) {
-		// if interface doesn't exist, create it.
+    // if interface doesn't exist, ask the user before creating.
+    const selection = await window.showInformationMessage(
+      "Do you want to create an interface *.resi?",
+      ...["No", "Yes"]
+    );
+
+    if (selection === "No") return;
+
+    // create interface
     await client.sendRequest(createInterfaceRequest, {
       uri: editor.document.uri.toString(),
     });
   }
 
-	// *.resi
+  // *.resi
   const newUri = editor.document.uri.with({
     path: editor.document.uri.path + "i",
   });
