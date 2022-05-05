@@ -340,3 +340,6 @@ let _ =
     name="abc">
     {React.string(name)}
   </div>
+
+//let _ = switch Some(3) { | Some(thisIsNotSaved) -> this
+//                                                       ^com

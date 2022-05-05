@@ -1329,3 +1329,16 @@ Completable: Cpath Type[Res]
     "documentation": null
   }]
 
+Complete tests/src/Completion.res 343:57
+posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->343:57]
+posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->343:57]
+Pexp_ident this:[343:53->343:57]
+Completable: Cpath Value[this]
+[{
+    "label": "thisIsNotSaved",
+    "kind": 12,
+    "tags": [],
+    "detail": "\\\"Type Not Known\"",
+    "documentation": null
+  }]
+
