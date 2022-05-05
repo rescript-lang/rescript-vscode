@@ -295,20 +295,24 @@ let test ~path =
               ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             let currentFile, cout = Filename.open_temp_file "def" "txt" in
+            let removeLineComment l =
+              let len = String.length l in
+              let rec loop i =
+                if i + 2 <= len && l.[i] = '/' && l.[i + 1] = '/' then
+                  Some (i + 2)
+                else if i + 2 < len && l.[i] = ' ' then loop (i + 1)
+                else None
+              in
+              match loop 0 with
+              | None -> l
+              | Some indexAfterComment ->
+                String.make indexAfterComment ' '
+                ^ String.sub l indexAfterComment (len - indexAfterComment)
+            in
             lines
             |> List.iteri (fun j l ->
                    let lineToOutput =
-                     if
-                       j == i - 1
-                       && String.length l >= 2
-                       && String.sub l 0 2 = "//"
-                     then "  " ^ String.sub l 2 (String.length l - 2)
-                     else if
-                       j == i - 1
-                       && String.length l >= 4
-                       && String.sub l 0 4 = "  //"
-                     then "    " ^ String.sub l 4 (String.length l - 4)
-                     else l
+                     if j == i - 1 then removeLineComment l else l
                    in
                    Printf.fprintf cout "%s\n" lineToOutput);
             close_out cout;

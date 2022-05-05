@@ -291,3 +291,14 @@ let funRecord: funRecord = assert false
 
 // let _ = funRecord.someFun(~ )
 //                            ^com
+
+let _ =
+  <div
+    onClick={_ => {
+      ()
+      //        let _: Res
+      //                  ^com
+    }}
+    name="abc">
+    {React.string(name)}
+  </div>

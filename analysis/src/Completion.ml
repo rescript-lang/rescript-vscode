@@ -47,6 +47,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
     match props with
     | prop :: rest ->
       if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
+        (* Cursor on the prop name *)
         Some
           (Completable.Cjsx
              ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
@@ -55,8 +56,15 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
       else if
         prop.posEnd <= posBeforeCursor
         && posBeforeCursor < Loc.start prop.exp.pexp_loc
-      then None
-      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
+      then (* Cursor between the prop name and expr assigned *)
+        None
+      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+        (* Cursor on expr assigned *)
+        None
+      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
+        (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
+           To be on the safe side, don't do label completion. *)
+        None
       else loop rest
     | [] ->
       let beforeChildrenStart =
