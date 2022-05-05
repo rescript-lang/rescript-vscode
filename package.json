@@ -33,7 +33,7 @@
 				"scopes": {
 					"jsx-lowercase": ["entity.name.tag"],
 					"jsx-tag": ["punctuation.definition.tag"],
-					"support-type": ["support.type"]
+					"support-type-primitive": ["support.type.primitive"]
 				}
 			}
 		],

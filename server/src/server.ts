@@ -815,7 +815,7 @@ function onMessage(msg: m.Message) {
               tokenTypes: [
                 "operator",
                 "variable",
-                "support-type",
+                "support-type-primitive",
                 "jsx-tag",
                 "class",
                 "enumMember",
