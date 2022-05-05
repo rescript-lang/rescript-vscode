@@ -17,7 +17,6 @@ Our highlighting works well with most popular VSCode themes, such as:
 - Monokai Dimmed
 - Tomorrow Night Blue
 - [One Dark Pro](https://marketplace.visualstudio.com/items?itemName=zhuangtongfa.Material-theme)
-- [Mariana Pro](https://marketplace.visualstudio.com/items?itemName=rickynormandeau.mariana-pro)
 
 The only 2 themes we don't (and can't) support, due to their lack of coloring, are:
 
