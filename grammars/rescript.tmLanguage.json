@@ -38,7 +38,7 @@
       "match": "\\b(false|true)\\b"
     },
     "RE_KEYWORD": {
-      "name": "keyword",
+      "name": "storage.type",
       "match": "\\b(include|let|module|of|open|type)\\b"
     },
     "commentLine": {
