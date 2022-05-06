@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { LanguageClient, RequestType } from "vscode-languageclient/node";
+import { LanguageClient } from "vscode-languageclient/node";
 import { window } from "vscode";
 import { createInterfaceRequest } from "./create_interface";
 
