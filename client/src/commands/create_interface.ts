@@ -6,7 +6,7 @@ interface CreateInterfaceRequestParams {
   uri: string;
 }
 
-let createInterfaceRequest = new RequestType<
+export const createInterfaceRequest = new RequestType<
   CreateInterfaceRequestParams,
   string,
   void

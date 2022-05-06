@@ -190,6 +190,10 @@ export function activate(context: ExtensionContext) {
     deadCodeAnalysisRunningStatusBarItem.hide();
   });
 
+  commands.registerCommand("rescript-vscode.switch-impl-intf", () => {
+    customCommands.switchImplIntf(client);
+  });
+
   // This sets up a listener that, if we're in dead code analysis mode, triggers
   // dead code analysis as the LS server reports that ReScript compilation has
   // finished. This is needed because dead code analysis must wait until
