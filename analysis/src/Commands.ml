@@ -36,6 +36,9 @@ let hover ~path ~line ~col ~currentFile ~debug =
     | Some ({file} as full) -> (
       match References.getLocItem ~full ~line ~col with
       | None -> (
+        if debug then
+          Printf.printf
+            "Nothing at that position. Now trying to use completion.\n";
         let completions =
           getCompletions ~debug ~path ~pos:(line, col) ~currentFile
             ~forHover:true
