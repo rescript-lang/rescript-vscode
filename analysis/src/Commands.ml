@@ -6,7 +6,7 @@ let completion ~debug ~path ~pos ~currentFile ~forHover =
     | Some text ->
       let completions =
         match
-          Completion.completionWithParser ~debug ~path ~posCursor:pos
+          CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
             ~currentFile ~text
         with
         | None -> []
@@ -21,10 +21,10 @@ let completion ~debug ~path ~pos ~currentFile ~forHover =
             let env = SharedTypes.QueryEnv.fromFile full.file in
             let package = full.package in
             completable
-            |> NewCompletions.processCompletable ~debug ~package ~pos ~scope
+            |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope
                  ~env ~forHover)
       in
-      completions |> List.map NewCompletions.completionToItem
+      completions |> List.map CompletionBackEnd.completionToItem
   in
   print_endline
     (result |> List.map Protocol.stringifyCompletionItem |> Protocol.array)
