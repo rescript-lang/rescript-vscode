@@ -40,7 +40,7 @@ export const switchImplIntf = async (client: LanguageClient) => {
       ...["No", "Yes"]
     );
 
-    if (selection === "No") return;
+    if (selection !== "Yes") return;
 
     // create interface
     await client.sendRequest(createInterfaceRequest, {
