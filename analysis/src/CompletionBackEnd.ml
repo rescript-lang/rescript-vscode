@@ -1328,7 +1328,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
   | Cpath contextPath ->
     contextPath
     |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-         ~env ~exact:false ~scope
+         ~env ~exact:forHover ~scope
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel (name, typString) =
       Completion.create ~name ~kind:(Label typString) ~env
@@ -1338,7 +1338,8 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     in
     (domLabels
     |> List.filter (fun (name, _t) ->
-           Utils.startsWith name prefix && not (List.mem name identsSeen))
+           Utils.startsWith name prefix
+           && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel)
     @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->

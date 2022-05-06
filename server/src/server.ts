@@ -271,11 +271,30 @@ if (process.argv.includes("--stdio")) {
 function hover(msg: p.RequestMessage) {
   let params = msg.params as p.HoverParams;
   let filePath = fileURLToPath(params.textDocument.uri);
+  let extension = path.extname(params.textDocument.uri);
+  if (extension !== c.resExt && extension !== c.resiExt) {
+    // Can be called on renamed extension after rename
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: null,
+    };
+  }
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir();
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = utils.runAnalysisCommand(
     filePath,
-    ["hover", filePath, params.position.line, params.position.character],
+    [
+      "hover",
+      filePath,
+      params.position.line,
+      params.position.character,
+      tmpname,
+    ],
     msg
   );
+  fs.unlink(tmpname, () => null);
   return response;
 }
 

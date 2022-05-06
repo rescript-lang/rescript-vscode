@@ -1307,8 +1307,9 @@ Found type for function (~a: int) => int
   }]
 
 Complete tests/src/Completion.res 336:26
-posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->341:8]
-JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->0:-1]> _children:None
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->346:23]
+JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->346:23]> _children:None
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[335:6->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[336:16->338:5]
@@ -1330,7 +1331,8 @@ Completable: Cpath Type[Res]
   }]
 
 Complete tests/src/Completion.res 343:57
-posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->343:57]
+posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->346:23]
+posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->346:23]
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->343:57]
 Pexp_ident this:[343:53->343:57]
 Completable: Cpath Value[this]
@@ -1341,4 +1343,10 @@ Completable: Cpath Value[this]
     "detail": "\\\"Type Not Known\"",
     "documentation": null
   }]
+
+Hover tests/src/Completion.res 346:14
+posCursor:[346:14] posNoWhite:[346:13] Found expr:[346:9->346:23]
+JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346:21
+Completable: Cjsx([div], name, [name])
+{"contents": "```rescript\nstring\n```"}
 

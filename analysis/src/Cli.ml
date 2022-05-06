@@ -70,7 +70,7 @@ let main () =
   | [_; "completion"; path; line; col; currentFile] ->
     Commands.completion ~debug:false ~path
       ~pos:(int_of_string line, int_of_string col)
-      ~currentFile ~forHover:false
+      ~currentFile
   | [_; "definition"; path; line; col] ->
     Commands.definition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
@@ -78,8 +78,9 @@ let main () =
     Commands.typeDefinition ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
   | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
-  | [_; "hover"; path; line; col] ->
+  | [_; "hover"; path; line; col; currentFile] ->
     Commands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
+      ~currentFile ~debug:false
   | [_; "codeAction"; path; line; col; currentFile] ->
     Commands.codeAction ~path ~line:(int_of_string line)
       ~col:(int_of_string col) ~currentFile

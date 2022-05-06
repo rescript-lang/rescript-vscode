@@ -343,3 +343,6 @@ let _ =
 
 //let _ = switch Some(3) { | Some(thisIsNotSaved) -> this
 //                                                       ^com
+
+let _ = <div name="" />
+//            ^hov
