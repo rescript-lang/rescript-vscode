@@ -1345,6 +1345,7 @@ Completable: Cpath Value[this]
   }]
 
 Hover tests/src/Completion.res 346:14
+Nothing at that position. Now trying to use completion.
 posCursor:[346:14] posNoWhite:[346:13] Found expr:[346:9->346:23]
 JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346:21
 Completable: Cjsx([div], name, [name])
