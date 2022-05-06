@@ -3,7 +3,7 @@ open SharedTypes
 let domLabels =
   let bool = "bool" in
   let float = "float" in
-  let int = "int" in 
+  let int = "int" in
   let string = "string" in
   [
     ("ariaDetails", string);
@@ -703,6 +703,7 @@ let detail name (kind : Completion.kind) =
   | Type {decl} -> decl |> Shared.declToString name
   | Value typ -> typ |> Shared.typeToString
   | ObjLabel typ -> typ |> Shared.typeToString
+  | Label typString -> typString
   | Module _ -> "module"
   | FileModule _ -> "file module"
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
@@ -1311,7 +1312,7 @@ let getOpens ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
-let processCompletable ~debug ~package ~scope ~env ~pos
+let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let rawOpens = Scope.getRawOpens scope in
   let opens = getOpens ~rawOpens ~package ~env in
@@ -1330,20 +1331,18 @@ let processCompletable ~debug ~package ~scope ~env ~pos
          ~env ~exact:false ~scope
     |> List.map completionToItem
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
-    let mkLabel_ name typString =
-      mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
+    let mkLabel (name, typString) =
+      Completion.create ~name ~kind:(Label typString) ~env
     in
-    let mkLabel (name, typ) = mkLabel_ name typ in
     let keyLabels =
-      if Utils.startsWith "key" prefix then [mkLabel_ "key" "string"] else []
+      if Utils.startsWith "key" prefix then [mkLabel ("key", "string")] else []
     in
-    if domLabels = [] then []
-    else
-      (domLabels
-      |> List.filter (fun (name, _t) ->
-             Utils.startsWith name prefix && not (List.mem name identsSeen))
-      |> List.map mkLabel)
-      @ keyLabels
+    (domLabels
+    |> List.filter (fun (name, _t) ->
+           Utils.startsWith name prefix && not (List.mem name identsSeen))
+    |> List.map mkLabel)
+    @ keyLabels
+    |> List.map completionToItem
   | Cjsx (componentPath, prefix, identsSeen) ->
     let labels =
       match componentPath @ ["make"] |> findTypeOfValue with
@@ -1389,7 +1388,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos
       | None -> []
     in
     let mkLabel_ name typString =
-      mkItem ~name ~kind:4 ~deprecated:None ~detail:typString ~docstring:[]
+      Completion.create ~name ~kind:(Label typString) ~env
     in
     let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
     let keyLabels =
@@ -1399,13 +1398,13 @@ let processCompletable ~debug ~package ~scope ~env ~pos
     else
       (labels
       |> List.filter (fun (name, _t) ->
-             Utils.startsWith name prefix && not (List.mem name identsSeen))
+             Utils.startsWith name prefix
+             && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
+      |> List.map completionToItem
   | Cdecorator prefix ->
-    let mkDecorator name =
-      mkItem ~name ~kind:4 ~deprecated:None ~detail:"" ~docstring:[]
-    in
+    let mkDecorator name = Completion.create ~name ~kind:(Label "") ~env in
     [
       "as";
       "deriving";
@@ -1445,7 +1444,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos
              else decorator
            in
            dec2)
-    |> List.map mkDecorator
+    |> List.map mkDecorator |> List.map completionToItem
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
@@ -1475,11 +1474,9 @@ let processCompletable ~debug ~package ~scope ~env ~pos
       | None -> []
     in
     let mkLabel (name, typ) =
-      mkItem ~name ~kind:4 ~deprecated:None
-        ~detail:(typ |> Shared.typeToString)
-        ~docstring:[]
+      Completion.create ~name ~kind:(Label (typ |> Shared.typeToString)) ~env
     in
     labels
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix && not (List.mem name identsSeen))
-    |> List.map mkLabel
+    |> List.map mkLabel |> List.map completionToItem
