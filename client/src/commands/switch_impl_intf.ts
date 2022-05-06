@@ -15,6 +15,14 @@ export const switchImplIntf = async (client: LanguageClient) => {
   }
 
   const isIntf = editor.document.uri.path.endsWith(".resi");
+  const isImpl = editor.document.uri.path.endsWith(".res");
+
+  if (!(isIntf || isImpl)) {
+    await window.showInformationMessage(
+      "This command only can run on *.res or *resi files."
+    );
+    return;
+  }
 
   if (isIntf) {
     // *.res
