@@ -4,7 +4,7 @@ let completion ~debug ~path ~pos ~currentFile ~forHover =
     match textOpt with
     | None | Some "" -> []
     | Some text ->
-      let completionItems =
+      let completions =
         match
           Completion.completionWithParser ~debug ~path ~posCursor:pos
             ~currentFile ~text
@@ -24,7 +24,7 @@ let completion ~debug ~path ~pos ~currentFile ~forHover =
             |> NewCompletions.processCompletable ~debug ~package ~pos ~scope
                  ~env ~forHover)
       in
-      completionItems
+      completions |> List.map NewCompletions.completionToItem
   in
   print_endline
     (result |> List.map Protocol.stringifyCompletionItem |> Protocol.array)

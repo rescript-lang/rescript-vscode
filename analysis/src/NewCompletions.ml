@@ -1329,7 +1329,6 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     contextPath
     |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
          ~env ~exact:false ~scope
-    |> List.map completionToItem
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel (name, typString) =
       Completion.create ~name ~kind:(Label typString) ~env
@@ -1342,7 +1341,6 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
            Utils.startsWith name prefix && not (List.mem name identsSeen))
     |> List.map mkLabel)
     @ keyLabels
-    |> List.map completionToItem
   | Cjsx (componentPath, prefix, identsSeen) ->
     let labels =
       match componentPath @ ["make"] |> findTypeOfValue with
@@ -1402,7 +1400,6 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
-      |> List.map completionToItem
   | Cdecorator prefix ->
     let mkDecorator name = Completion.create ~name ~kind:(Label "") ~env in
     [
@@ -1444,7 +1441,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
              else decorator
            in
            dec2)
-    |> List.map mkDecorator |> List.map completionToItem
+    |> List.map mkDecorator
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
@@ -1479,4 +1476,4 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     labels
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix && not (List.mem name identsSeen))
-    |> List.map mkLabel |> List.map completionToItem
+    |> List.map mkLabel
