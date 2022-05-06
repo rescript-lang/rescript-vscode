@@ -1,41 +1,49 @@
-let completion ~debug ~path ~pos ~currentFile ~forHover =
-  let result =
-    let textOpt = Files.readFile currentFile in
-    match textOpt with
-    | None | Some "" -> []
-    | Some text ->
-      let completions =
-        match
-          CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
-            ~currentFile ~text
-        with
-        | None -> []
-        | Some (completable, scope) -> (
-          if debug then
-            Printf.printf "Completable: %s\n"
-              (SharedTypes.Completable.toString completable);
-          (* Only perform expensive ast operations if there are completables *)
-          match Cmt.fromPath ~path with
-          | None -> []
-          | Some full ->
-            let env = SharedTypes.QueryEnv.fromFile full.file in
-            let package = full.package in
-            completable
-            |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope
-                 ~env ~forHover)
-      in
-      completions |> List.map CompletionBackEnd.completionToItem
-  in
-  print_endline
-    (result |> List.map Protocol.stringifyCompletionItem |> Protocol.array)
+let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
+  let textOpt = Files.readFile currentFile in
+  match textOpt with
+  | None | Some "" -> []
+  | Some text -> (
+    match
+      CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
+        ~currentFile ~text
+    with
+    | None -> []
+    | Some (completable, scope) -> (
+      if debug then
+        Printf.printf "Completable: %s\n"
+          (SharedTypes.Completable.toString completable);
+      (* Only perform expensive ast operations if there are completables *)
+      match Cmt.fromPath ~path with
+      | None -> []
+      | Some full ->
+        let env = SharedTypes.QueryEnv.fromFile full.file in
+        let package = full.package in
+        completable
+        |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope ~env
+             ~forHover))
 
-let hover ~path ~line ~col =
+let completion ~debug ~path ~pos ~currentFile =
+  print_endline
+    (getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
+    |> List.map CompletionBackEnd.completionToItem
+    |> List.map Protocol.stringifyCompletionItem
+    |> Protocol.array)
+
+let hover ~path ~line ~col ~currentFile ~debug =
   let result =
     match Cmt.fromPath ~path with
     | None -> Protocol.null
     | Some ({file} as full) -> (
       match References.getLocItem ~full ~line ~col with
-      | None -> Protocol.null
+      | None -> (
+        let completions =
+          getCompletions ~debug ~path ~pos:(line, col) ~currentFile
+            ~forHover:true
+        in
+        match completions with
+        | {kind = Label typString} :: _ ->
+          Protocol.stringifyHover {contents = Hover.codeBlock typString}
+        | _ -> Protocol.null)
       | Some locItem -> (
         let isModule =
           match locItem.locType with
@@ -273,7 +281,7 @@ let test ~path =
             print_endline
               ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            hover ~path ~line ~col
+            hover ~path ~line ~col ~currentFile:path ~debug:true
           | "ref" ->
             print_endline
               ("References " ^ path ^ " " ^ string_of_int line ^ ":"
@@ -316,8 +324,7 @@ let test ~path =
                    in
                    Printf.fprintf cout "%s\n" lineToOutput);
             close_out cout;
-            completion ~debug:true ~path ~pos:(line, col) ~currentFile
-              ~forHover:false;
+            completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
           | "hig" ->
             print_endline ("Highlight " ^ path);

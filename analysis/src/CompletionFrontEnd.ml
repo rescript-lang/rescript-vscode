@@ -211,7 +211,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
     | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
   | _ -> None
 
-let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
+let completionWithParser ~debug ~path ~posCursor ~currentFile ~text  =
   let offset =
     match positionToOffset text posCursor with
     | Some offset -> offset
