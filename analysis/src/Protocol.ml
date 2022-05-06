@@ -10,7 +10,7 @@ type completionItem = {
   documentation : markupContent option;
 }
 
-type hover = {contents : string}
+type hover = string
 type location = {uri : string; range : range}
 type documentSymbolItem = {name : string; kind : int; location : location}
 type renameFile = {oldUri : string; newUri : string}
@@ -65,8 +65,7 @@ let stringifyCompletionItem c =
     | None -> null
     | Some doc -> stringifyMarkupContent doc)
 
-let stringifyHover h =
-  Printf.sprintf {|{"contents": "%s"}|} (Json.escape h.contents)
+let stringifyHover s = Printf.sprintf {|{"contents": "%s"}|} (Json.escape s)
 
 let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
