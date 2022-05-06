@@ -1,4 +1,4 @@
-let completion ~debug ~path ~pos ~currentFile =
+let completion ~debug ~path ~pos ~currentFile ~forHover =
   let result =
     let textOpt = Files.readFile currentFile in
     match textOpt with
@@ -22,7 +22,7 @@ let completion ~debug ~path ~pos ~currentFile =
             let package = full.package in
             completable
             |> NewCompletions.processCompletable ~debug ~package ~pos ~scope
-                 ~env)
+                 ~env ~forHover)
       in
       completionItems
   in
@@ -316,7 +316,8 @@ let test ~path =
                    in
                    Printf.fprintf cout "%s\n" lineToOutput);
             close_out cout;
-            completion ~debug:true ~path ~pos:(line, col) ~currentFile;
+            completion ~debug:true ~path ~pos:(line, col) ~currentFile
+              ~forHover:false;
             Sys.remove currentFile
           | "hig" ->
             print_endline ("Highlight " ^ path);
