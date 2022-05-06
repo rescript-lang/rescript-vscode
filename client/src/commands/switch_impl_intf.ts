@@ -19,7 +19,7 @@ export const switchImplIntf = async (client: LanguageClient) => {
 
   if (!(isIntf || isImpl)) {
     await window.showInformationMessage(
-      "This command only can run on *.res or *resi files."
+      "This command only can run on *.res or *.resi files."
     );
     return;
   }
