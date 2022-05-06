@@ -45,8 +45,12 @@ let hover ~path ~line ~col ~currentFile ~debug =
         in
         match completions with
         | {kind = Label typString} :: _ ->
-          Protocol.stringifyHover {contents = Hover.codeBlock typString}
-        | _ -> Protocol.null)
+          Protocol.stringifyHover (Hover.codeBlock typString)
+        | _ -> (
+          match CompletionBackEnd.completionsGetTypeEnv completions with
+          | Some (typ, _env) ->
+            Protocol.stringifyHover (Hover.codeBlock (Shared.typeToString typ))
+          | None -> Protocol.null))
       | Some locItem -> (
         let isModule =
           match locItem.locType with
@@ -70,7 +74,7 @@ let hover ~path ~line ~col ~currentFile ~debug =
           let hoverText = Hover.newHover ~full locItem in
           match hoverText with
           | None -> Protocol.null
-          | Some s -> Protocol.stringifyHover {contents = s}))
+          | Some s -> Protocol.stringifyHover s))
   in
   print_endline result
 
@@ -259,6 +263,30 @@ let test ~path =
   | Some text ->
     let lines = text |> String.split_on_char '\n' in
     let processLine i line =
+      let createCurrentFile () =
+        let currentFile, cout = Filename.open_temp_file "def" "txt" in
+        let removeLineComment l =
+          let len = String.length l in
+          let rec loop i =
+            if i + 2 <= len && l.[i] = '/' && l.[i + 1] = '/' then Some (i + 2)
+            else if i + 2 < len && l.[i] = ' ' then loop (i + 1)
+            else None
+          in
+          match loop 0 with
+          | None -> l
+          | Some indexAfterComment ->
+            String.make indexAfterComment ' '
+            ^ String.sub l indexAfterComment (len - indexAfterComment)
+        in
+        lines
+        |> List.iteri (fun j l ->
+               let lineToOutput =
+                 if j == i - 1 then removeLineComment l else l
+               in
+               Printf.fprintf cout "%s\n" lineToOutput);
+        close_out cout;
+        currentFile
+      in
       if Str.string_match (Str.regexp "^ *//[ ]*\\^") line 0 then
         let matched = Str.matched_string line in
         let len = line |> String.length in
@@ -284,7 +312,9 @@ let test ~path =
             print_endline
               ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            hover ~path ~line ~col ~currentFile:path ~debug:true
+            let currentFile = createCurrentFile () in
+            hover ~path ~line ~col ~currentFile ~debug:true;
+            Sys.remove currentFile
           | "ref" ->
             print_endline
               ("References " ^ path ^ " " ^ string_of_int line ^ ":"
@@ -305,28 +335,7 @@ let test ~path =
             print_endline
               ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            let currentFile, cout = Filename.open_temp_file "def" "txt" in
-            let removeLineComment l =
-              let len = String.length l in
-              let rec loop i =
-                if i + 2 <= len && l.[i] = '/' && l.[i + 1] = '/' then
-                  Some (i + 2)
-                else if i + 2 < len && l.[i] = ' ' then loop (i + 1)
-                else None
-              in
-              match loop 0 with
-              | None -> l
-              | Some indexAfterComment ->
-                String.make indexAfterComment ' '
-                ^ String.sub l indexAfterComment (len - indexAfterComment)
-            in
-            lines
-            |> List.iteri (fun j l ->
-                   let lineToOutput =
-                     if j == i - 1 then removeLineComment l else l
-                   in
-                   Printf.fprintf cout "%s\n" lineToOutput);
-            close_out cout;
+            let currentFile = createCurrentFile () in
             completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
           | "hig" ->

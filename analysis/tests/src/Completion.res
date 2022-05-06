@@ -346,3 +346,6 @@ let _ =
 
 let _ = <div name="" />
 //            ^hov
+
+// let _ = FAO.forAutoObject["age"]
+//               ^hov
