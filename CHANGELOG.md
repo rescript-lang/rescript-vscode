@@ -11,6 +11,7 @@
 - Extend the command to create an interface file, to support components and ReScript decorators used in bindings.
 - Enable formatting files without needing the file to be in an actual ReScript project.
 - New feature: Show Outline which was previously disabled.
+- Add command to quickly switch between implementation and interface file.
 
 ## 1.2.1
 
