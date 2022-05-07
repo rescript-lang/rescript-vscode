@@ -1476,5 +1476,6 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     in
     labels
     |> List.filter (fun (name, _t) ->
-           Utils.startsWith name prefix && not (List.mem name identsSeen))
+           Utils.startsWith name prefix
+           && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel

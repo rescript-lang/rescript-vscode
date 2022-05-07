@@ -349,3 +349,6 @@ let _ = <div name="" />
 
 // let _ = FAO.forAutoObject["age"]
 //               ^hov
+
+// let _ = ff(~opt1=3)
+//               ^hov
