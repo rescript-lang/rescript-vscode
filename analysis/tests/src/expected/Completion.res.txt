@@ -1360,3 +1360,19 @@ Pexp_ident FAO.forAutoObject:[349:11->349:28]
 Completable: Cpath Value[FAO, forAutoObject]
 {"contents": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}
 
+Hover tests/src/Completion.res 352:17
+Nothing at that position. Now trying to use completion.
+posCursor:[352:17] posNoWhite:[352:16] Found expr:[352:11->352:22]
+Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
+Completable: CnamedArg(Value[ff], opt1, [opt1])
+Found type for function (
+  ~opt1: int=?,
+  ~a: int,
+  ~b: int,
+  unit,
+  ~opt2: int=?,
+  unit,
+  ~c: int,
+) => int
+{"contents": "```rescript\noption<int>\n```"}
+
