@@ -352,3 +352,6 @@ let _ = <div name="" />
 
 // let _ = ff(~opt1=3)
 //               ^hov
+
+// (let _ = ff(~opt1=3))
+//                     ^com

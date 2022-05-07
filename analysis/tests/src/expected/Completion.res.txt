@@ -1376,3 +1376,8 @@ Found type for function (
 ) => int
 {"contents": "```rescript\noption<int>\n```"}
 
+Complete tests/src/Completion.res 355:23
+posCursor:[355:23] posNoWhite:[355:22] Found expr:[0:-1->355:23]
+posCursor:[355:23] posNoWhite:[355:22] Found expr:[355:12->355:23]
+[]
+

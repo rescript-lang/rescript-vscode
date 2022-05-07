@@ -132,7 +132,7 @@ type labelled = {
 type label = labelled option
 type arg = {label : label; exp : Parsetree.expression}
 
-let findExpApplyCompletable ~(args : arg list) ~endPos ~posBeforeCursor
+let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
   let allNames =
     List.fold_right
@@ -211,7 +211,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
     | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
   | _ -> None
 
-let completionWithParser ~debug ~path ~posCursor ~currentFile ~text  =
+let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   let offset =
     match positionToOffset text posCursor with
     | Some offset -> offset
@@ -223,7 +223,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text  =
     (line, max 0 col - offset + offsetNoWhite)
   in
   let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
-  let blankAfterCursor =
+  let charBeforeCursor, blankAfterCursor =
     match positionToOffset text posCursor with
     | Some offset when offset > 0 -> (
       let charBeforeCursor = text.[offset - 1] in
@@ -231,9 +231,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text  =
         if offset < String.length text then text.[offset] else '\n'
       in
       match charAtCursor with
-      | ' ' | '\t' | '\r' | '\n' -> Some charBeforeCursor
-      | _ -> None)
-    | _ -> None
+      | ' ' | '\t' | '\r' | '\n' ->
+        (Some charBeforeCursor, Some charBeforeCursor)
+      | _ -> (Some charBeforeCursor, None))
+    | _ -> (None, None)
   in
   let flattenLidCheckDot ?(jsx = true) (lid : Longident.t Location.loc) =
     (* Flatten an identifier keeping track of whether the current cursor
@@ -559,7 +560,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text  =
           setPipeResult ~lhs ~id:"" |> ignore
         | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
           ()
-        | Pexp_apply (funExpr, args) ->
+        | Pexp_apply (funExpr, args)
+          when not
+          (* Normally named arg completion fires when the cursor is right after the expression.
+             E.g in foo(~<---there
+             But it should not fire in foo(~a)<---there *)
+                 (Loc.end_ expr.pexp_loc = posCursor
+                 && charBeforeCursor = Some ')') ->
           let args = extractExpApplyArgs ~args in
           if debug then
             Printf.printf "Pexp_apply ...%s (%s)\n"
@@ -578,7 +585,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text  =
           let expApplyCompletable =
             match exprToContextPath funExpr with
             | Some contextPath ->
-              findExpApplyCompletable ~contextPath ~args
+              findNamedArgCompletable ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
             | None -> None
