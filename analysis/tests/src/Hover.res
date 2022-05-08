@@ -99,12 +99,13 @@ let withAs = (~xx as yyy) => yyy + 1
 
 module AA = {
   type cond<'a> = [< #str(string)] as 'a
-  type t<'a> = {b: cond<'a>}
-  let fun = b => {b: b}
+  let fun = (b: cond<_>) => true ? b : b
 }
 
-let typeOk = AA.fun
-//    ^hov
+let funAlias = AA.fun
+
+let typeOk = funAlias
+//              ^hov
 
 let typeDuplicate = AA.fun
-//                      ^hov
+//                       ^hov
