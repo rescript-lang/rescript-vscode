@@ -1,4 +1,3 @@
-open Typedtree
 open SharedTypes
 
 let addItem ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t) ~item
@@ -123,12 +122,12 @@ and forTypeModule env moduleType =
 
 let getModuleTypePath mod_desc =
   match mod_desc with
-  | Tmty_ident (path, _) | Tmty_alias (path, _) -> Some path
+  | Typedtree.Tmty_ident (path, _) | Tmty_alias (path, _) -> Some path
   | Tmty_signature _ | Tmty_functor _ | Tmty_with _ | Tmty_typeof _ -> None
 
 let forTypeDeclaration ~env ~(exported : Exported.t)
     {
-      typ_id;
+      Typedtree.typ_id;
       typ_loc;
       typ_name = name;
       typ_attributes;
@@ -147,9 +146,10 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
             | Ttype_abstract -> (
               match typ_manifest with
               | Some {ctyp_desc = Ttyp_constr (path, _lident, args)} ->
-                Abstract (Some (path, args |> List.map (fun t -> t.ctyp_type)))
+                Abstract
+                  (Some (path, args |> List.map (fun t -> t.Typedtree.ctyp_type)))
               | Some {ctyp_desc = Ttyp_tuple items} ->
-                Tuple (items |> List.map (fun t -> t.ctyp_type))
+                Tuple (items |> List.map (fun t -> t.Typedtree.ctyp_type))
               (* TODO dig *)
               | _ -> Abstract None)
             | Ttype_open -> Open
@@ -159,7 +159,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                 |> List.map
                      (fun
                        {
-                         cd_id;
+                         Typedtree.cd_id;
                          cd_name = cname;
                          cd_args;
                          cd_res;
@@ -176,7 +176,8 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                              (match cd_args with
                              | Cstr_tuple args ->
                                args
-                               |> List.map (fun t -> (t.ctyp_type, t.ctyp_loc))
+                               |> List.map (fun t ->
+                                      (t.Typedtree.ctyp_type, t.ctyp_loc))
                              (* TODO(406) *)
                              | Cstr_record _ -> []);
                            res =
@@ -197,7 +198,9 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
               Record
                 (fields
                 |> List.map
-                     (fun {ld_id; ld_name = fname; ld_type = {ctyp_type}} ->
+                     (fun
+                       {Typedtree.ld_id; ld_name = fname; ld_type = {ctyp_type}}
+                     ->
                        let fstamp = Ident.binding_time ld_id in
                        {stamp = fstamp; fname; typ = ctyp_type})));
         }
@@ -281,7 +284,7 @@ let forSignature ~env sigItems =
   in
   {Module.docstring; exported; items}
 
-let forTreeModuleType ~env {mty_desc} =
+let forTreeModuleType ~env {Typedtree.mty_desc} =
   match mty_desc with
   | Tmty_ident _ -> None
   | Tmty_signature {sig_items} ->
@@ -291,7 +294,7 @@ let forTreeModuleType ~env {mty_desc} =
 
 let rec getModulePath mod_desc =
   match mod_desc with
-  | Tmod_ident (path, _lident) -> Some path
+  | Typedtree.Tmod_ident (path, _lident) -> Some path
   | Tmod_structure _ -> None
   | Tmod_functor (_ident, _argName, _maybeType, _resultExpr) -> None
   | Tmod_apply (functor_, _arg, _coercion) -> getModulePath functor_.mod_desc
@@ -300,11 +303,11 @@ let rec getModulePath mod_desc =
     getModulePath expr.mod_desc
 
 let rec forStructureItem ~env ~(exported : Exported.t) item =
-  match item.str_desc with
+  match item.Typedtree.str_desc with
   | Tstr_value (_isRec, bindings) ->
     let items = ref [] in
     let rec handlePattern attributes pat =
-      match pat.pat_desc with
+      match pat.Typedtree.pat_desc with
       | Tpat_var (ident, name)
       | Tpat_alias (_, ident, name) (* let x : t = ... *) ->
         let item = pat.pat_type in
@@ -327,7 +330,8 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
       | Tpat_variant (_, None, _) | Tpat_any | Tpat_constant _ -> ()
     in
     List.iter
-      (fun {vb_pat; vb_attributes} -> handlePattern vb_attributes vb_pat)
+      (fun {Typedtree.vb_pat; vb_attributes} ->
+        handlePattern vb_attributes vb_pat)
       bindings;
     !items
   | Tstr_module
@@ -819,7 +823,7 @@ let rec addForLongident ~env ~extra top (path : Path.t) (txt : Longident.t) loc
 
 let rec handle_module_expr ~env ~extra expr =
   match expr with
-  | Tmod_constraint (expr, _, _, _) ->
+  | Typedtree.Tmod_constraint (expr, _, _, _) ->
     handle_module_expr ~env ~extra expr.mod_desc
   | Tmod_ident (path, {txt; loc}) ->
     if not (lidIsComplex txt) then
@@ -833,7 +837,7 @@ let rec handle_module_expr ~env ~extra expr =
   | _ -> ()
 
 let structure_item ~env ~extra (iter : Tast_iterator.iterator) item =
-  (match item.str_desc with
+  (match item.Typedtree.str_desc with
   | Tstr_include {incl_mod = expr} ->
     handle_module_expr ~env ~extra expr.mod_desc
   | Tstr_module {mb_expr} -> handle_module_expr ~env ~extra mb_expr.mod_desc
@@ -846,7 +850,7 @@ let structure_item ~env ~extra (iter : Tast_iterator.iterator) item =
 
 let signature_item ~(file : File.t) ~extra (iter : Tast_iterator.iterator) item
     =
-  (match item.sig_desc with
+  (match item.Typedtree.sig_desc with
   | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
     let stamp = Ident.binding_time val_id in
     if Stamps.findValue file.stamps stamp = None then (
@@ -903,7 +907,8 @@ let expr ~env ~(extra : extra) (iter : Tast_iterator.iterator)
   (expression.exp_extra
    |> List.iter (fun (e, eloc, _) ->
           match e with
-          | Texp_open (_, _path, _ident, _) -> Hashtbl.add extra.opens eloc ()
+          | Typedtree.Texp_open (_, _path, _ident, _) ->
+            Hashtbl.add extra.opens eloc ()
           | _ -> ());
    match expression.exp_desc with
    | Texp_ident (path, {txt; loc}, _) ->
@@ -915,7 +920,7 @@ let expr ~env ~(extra : extra) (iter : Tast_iterator.iterator)
        (fields |> Array.to_list
        |> Utils.filterMap (fun (desc, item) ->
               match item with
-              | Overridden (loc, _) -> Some (loc, desc, ())
+              | Typedtree.Overridden (loc, _) -> Some (loc, desc, ())
               | _ -> None))
    | Texp_constant constant ->
      addLocItem extra expression.exp_loc (Constant constant)
