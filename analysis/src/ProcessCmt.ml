@@ -850,8 +850,6 @@ struct
       handle_module_expr arg.mod_desc
     | _ -> ()
 
-  include TypedtreeIter.DefaultIteratorArgument
-
   let enter_structure_item item =
     match item.str_desc with
     | Tstr_include {incl_mod = expr} -> handle_module_expr expr.mod_desc
@@ -936,49 +934,84 @@ struct
     | Texp_field (inner, lident, _label_description) ->
       addForField inner.exp_type expression.exp_type lident
     | _ -> ()
+
+  let structure_item (iter : Tast_iterator.iterator) item =
+    enter_structure_item item;
+    Tast_iterator.default_iterator.structure_item iter item
+
+  let signature_item (iter : Tast_iterator.iterator) item =
+    enter_signature_item item;
+    Tast_iterator.default_iterator.signature_item iter item
+
+  let typ (iter : Tast_iterator.iterator) item =
+    enter_core_type item;
+    Tast_iterator.default_iterator.typ iter item
+
+  let pat (iter : Tast_iterator.iterator) item =
+    enter_pattern item;
+    Tast_iterator.default_iterator.pat iter item
+
+  let expr (iter : Tast_iterator.iterator) item =
+    enter_expression item;
+    Tast_iterator.default_iterator.expr iter item
+
+  let iterator =
+    {
+      Tast_iterator.default_iterator with
+      expr;
+      pat;
+      signature_item;
+      structure_item;
+      typ;
+    }
 end
 
 let extraForStructureItems ~(file : File.t)
     (items : Typedtree.structure_item list) parts =
   let extra = extraForFile ~file in
   (* TODO look through parts and extend the extent *)
-  let module Iter = TypedtreeIter.MakeIterator (F (struct
+  let module FM = F (struct
     let extra = extra
     let file = file
-  end)) in
-  List.iter Iter.iter_structure_item items;
+  end) in
+  let iterator = FM.iterator in
+  items |> List.iter (iterator.structure_item iterator);
+
   (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
   parts
   |> Array.iter (fun part ->
          match part with
-         | Cmt_format.Partial_signature str -> Iter.iter_signature str
-         | Partial_signature_item str -> Iter.iter_signature_item str
-         | Partial_expression expression -> Iter.iter_expression expression
-         | Partial_pattern pattern -> Iter.iter_pattern pattern
+         | Cmt_format.Partial_signature str -> iterator.signature iterator str
+         | Partial_signature_item str -> iterator.signature_item iterator str
+         | Partial_expression expression -> iterator.expr iterator expression
+         | Partial_pattern pattern -> iterator.pat iterator pattern
          | Partial_class_expr () -> ()
-         | Partial_module_type module_type -> Iter.iter_module_type module_type
+         | Partial_module_type module_type ->
+           iterator.module_type iterator module_type
          | Partial_structure _ | Partial_structure_item _ -> ());
   extra
 
 let extraForSignatureItems ~(file : File.t)
     (items : Typedtree.signature_item list) parts =
   let extra = extraForFile ~file in
-  (* TODO look through parts and extend the extent *)
-  let module Iter = TypedtreeIter.MakeIterator (F (struct
+
+  let module FM = F (struct
     let extra = extra
     let file = file
-  end)) in
-  List.iter Iter.iter_signature_item items;
+  end) in
+  let iterator = FM.iterator in
+  items |> List.iter (iterator.signature_item iterator);
   (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
   parts
   |> Array.iter (fun part ->
          match part with
-         | Cmt_format.Partial_signature str -> Iter.iter_signature str
-         | Partial_signature_item str -> Iter.iter_signature_item str
-         | Partial_expression expression -> Iter.iter_expression expression
-         | Partial_pattern pattern -> Iter.iter_pattern pattern
+         | Cmt_format.Partial_signature str -> iterator.signature iterator str
+         | Partial_signature_item str -> iterator.signature_item iterator str
+         | Partial_expression expression -> iterator.expr iterator expression
+         | Partial_pattern pattern -> iterator.pat iterator pattern
          | Partial_class_expr () -> ()
-         | Partial_module_type module_type -> Iter.iter_module_type module_type
+         | Partial_module_type module_type ->
+           iterator.module_type iterator module_type
          | Partial_structure _ | Partial_structure_item _ -> ());
   extra
 
@@ -1152,3 +1185,5 @@ let exportedForTip ~(env : QueryEnv.t) name (tip : Tip.t) =
   | Field _ | Constructor _ | Type ->
     Exported.find env.exported Exported.Type name
   | Module -> Exported.find env.exported Exported.Module name
+
+module ZZZ = Tast_iterator
