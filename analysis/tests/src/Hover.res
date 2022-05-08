@@ -31,7 +31,7 @@ module HoverInsideModuleWithComponent = {
 }
 
 @ocaml.doc("Doc comment for functionWithTypeAnnotation")
-let functionWithTypeAnnotation : unit => int = () => 1
+let functionWithTypeAnnotation: unit => int = () => 1
 //  ^hov
 
 @react.component
@@ -39,7 +39,7 @@ let make = (~name) => React.string(name)
 //           ^hov
 
 @react.component
-let make2 = (~name:string) => React.string(name)
+let make2 = (~name: string) => React.string(name)
 //           ^hov
 
 let num = 34
@@ -59,7 +59,6 @@ module JsLogger: Logger = {
 module JJ = JsLogger
 //            ^def
 
-
 module IdDefinedTwice = {
   //     ^hov
   let _x = 10
@@ -67,7 +66,9 @@ module IdDefinedTwice = {
   let _x = 10
 }
 
-module A = {let x=13}
+module A = {
+  let x = 13
+}
 
 module B = A
 //     ^hov
