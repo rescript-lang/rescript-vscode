@@ -626,13 +626,7 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
     | Some (`Local (env, name)) -> `Exported (env, name)
     | Some (`Global (moduleName, fullPath)) -> `Global (moduleName, fullPath))
 
-module F (Collector : sig
-  val extra : extra
-  val file : File.t
-end) =
-struct
-  let extra = Collector.extra
-
+let getIterator (extra : extra) (file : File.t) =
   let addReference stamp loc =
     Hashtbl.replace extra.internalReferences stamp
       (loc
@@ -640,6 +634,7 @@ struct
       (if Hashtbl.mem extra.internalReferences stamp then
        Hashtbl.find extra.internalReferences stamp
       else []))
+  in
 
   let addExternalReference moduleName path tip loc =
     (* TODO need to follow the path, and be able to load the files to follow module references... *)
@@ -649,6 +644,7 @@ struct
       (if Hashtbl.mem extra.externalReferences moduleName then
        Hashtbl.find extra.externalReferences moduleName
       else []))
+  in
 
   let addFileReference moduleName loc =
     let newLocs =
@@ -657,8 +653,9 @@ struct
       | None -> LocationSet.singleton loc
     in
     Hashtbl.replace extra.fileReferences moduleName newLocs
+  in
 
-  let env = QueryEnv.fromFile Collector.file
+  let env = QueryEnv.fromFile file in
 
   let addForPath path lident loc typ tip =
     let identName = Longident.last lident in
@@ -685,6 +682,7 @@ struct
       | `GlobalMod _ -> NotFound
     in
     addLocItem extra loc (Typed (identName, typ, locType))
+  in
 
   let addForPathParent path loc =
     let locType =
@@ -707,6 +705,7 @@ struct
         | None -> LModule NotFound)
     in
     addLocItem extra loc locType
+  in
 
   let getTypeAtPath ~env path =
     match fromCompilerPath ~env path with
@@ -726,12 +725,14 @@ struct
       match declaredType with
       | Some declaredType -> `Local declaredType
       | None -> `Not_found)
+  in
 
   let handleConstructor txt =
     match txt with
     | Longident.Lident name -> name
     | Ldot (_left, name) -> name
     | Lapply (_, _) -> assert false
+  in
 
   let addForField recordType fieldType {Asttypes.txt; loc} =
     match (Shared.dig recordType).desc with
@@ -754,6 +755,7 @@ struct
       in
       addLocItem extra nameLoc (Typed (name, fieldType, locType))
     | _ -> ()
+  in
 
   let addForRecord recordType items =
     match (Shared.dig recordType).desc with
@@ -781,6 +783,7 @@ struct
              in
              addLocItem extra nameLoc (Typed (name, lbl_res, locType)))
     | _ -> ()
+  in
 
   let addForConstructor constructorType {Asttypes.txt; loc} {Types.cstr_name} =
     match (Shared.dig constructorType).desc with
@@ -806,12 +809,14 @@ struct
       in
       addLocItem extra nameLoc (Typed (name, constructorType, locType))
     | _ -> ()
+  in
 
   let rec lidIsComplex (lid : Longident.t) =
     match lid with
     | Lapply _ -> true
     | Ldot (lid, _) -> lidIsComplex lid
     | _ -> false
+  in
 
   let rec addForLongident top (path : Path.t) (txt : Longident.t) loc =
     if (not loc.Location.loc_ghost) && not (lidIsComplex txt) then (
@@ -835,6 +840,7 @@ struct
             (Utils.chopLocationEnd loc (String.length name + 1))
         | Pident _, Lident _ -> ()
         | _ -> ())
+  in
 
   let rec handle_module_expr expr =
     match expr with
@@ -849,6 +855,7 @@ struct
       handle_module_expr obj.mod_desc;
       handle_module_expr arg.mod_desc
     | _ -> ()
+  in
 
   let enter_structure_item item =
     match item.str_desc with
@@ -857,38 +864,41 @@ struct
     | Tstr_open {open_path; open_txt = {txt; loc}} ->
       (* Log.log("Have an open here"); *)
       addForLongident None open_path txt loc;
-      Hashtbl.replace Collector.extra.opens loc ()
+      Hashtbl.replace extra.opens loc ()
     | _ -> ()
+  in
 
   let enter_signature_item item =
     match item.sig_desc with
     | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
       let stamp = Ident.binding_time val_id in
-      if Stamps.findValue Collector.file.stamps stamp = None then (
+      if Stamps.findValue file.stamps stamp = None then (
         let declared =
           ProcessAttributes.newDeclared ~name ~stamp ~extent:val_loc
             ~modulePath:NotVisible ~item:val_desc.ctyp_type false val_attributes
         in
-        Stamps.addValue Collector.file.stamps stamp declared;
+        Stamps.addValue file.stamps stamp declared;
         addReference stamp name.loc;
         addLocItem extra name.loc
           (Typed (name.txt, val_desc.ctyp_type, Definition (stamp, Value))))
     | _ -> ()
+  in
 
   let enter_core_type {ctyp_type; ctyp_desc} =
     match ctyp_desc with
     | Ttyp_constr (path, {txt; loc}, _args) ->
       addForLongident (Some (ctyp_type, Type)) path txt loc
     | _ -> ()
+  in
 
   let enter_pattern {pat_desc; pat_loc; pat_type; pat_attributes} =
     let addForPattern stamp name =
-      if Stamps.findValue Collector.file.stamps stamp = None then (
+      if Stamps.findValue file.stamps stamp = None then (
         let declared =
           ProcessAttributes.newDeclared ~name ~stamp ~modulePath:NotVisible
             ~extent:pat_loc ~item:pat_type false pat_attributes
         in
-        Stamps.addValue Collector.file.stamps stamp declared;
+        Stamps.addValue file.stamps stamp declared;
         addReference stamp name.loc;
         addLocItem extra name.loc
           (Typed (name.txt, pat_type, Definition (stamp, Value))))
@@ -906,6 +916,7 @@ struct
       let stamp = Ident.binding_time ident in
       addForPattern stamp name
     | _ -> ()
+  in
 
   let enter_expression expression =
     expression.exp_extra
@@ -934,47 +945,46 @@ struct
     | Texp_field (inner, lident, _label_description) ->
       addForField inner.exp_type expression.exp_type lident
     | _ -> ()
+  in
 
   let structure_item (iter : Tast_iterator.iterator) item =
     enter_structure_item item;
     Tast_iterator.default_iterator.structure_item iter item
+  in
 
   let signature_item (iter : Tast_iterator.iterator) item =
     enter_signature_item item;
     Tast_iterator.default_iterator.signature_item iter item
+  in
 
   let typ (iter : Tast_iterator.iterator) item =
     enter_core_type item;
     Tast_iterator.default_iterator.typ iter item
+  in
 
   let pat (iter : Tast_iterator.iterator) item =
     enter_pattern item;
     Tast_iterator.default_iterator.pat iter item
+  in
 
   let expr (iter : Tast_iterator.iterator) item =
     enter_expression item;
     Tast_iterator.default_iterator.expr iter item
+  in
 
-  let iterator =
-    {
-      Tast_iterator.default_iterator with
-      expr;
-      pat;
-      signature_item;
-      structure_item;
-      typ;
-    }
-end
+  {
+    Tast_iterator.default_iterator with
+    expr;
+    pat;
+    signature_item;
+    structure_item;
+    typ;
+  }
 
 let extraForStructureItems ~(file : File.t)
     (items : Typedtree.structure_item list) parts =
   let extra = extraForFile ~file in
-  (* TODO look through parts and extend the extent *)
-  let module FM = F (struct
-    let extra = extra
-    let file = file
-  end) in
-  let iterator = FM.iterator in
+  let iterator = getIterator extra file in
   items |> List.iter (iterator.structure_item iterator);
 
   (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
@@ -994,12 +1004,7 @@ let extraForStructureItems ~(file : File.t)
 let extraForSignatureItems ~(file : File.t)
     (items : Typedtree.signature_item list) parts =
   let extra = extraForFile ~file in
-
-  let module FM = F (struct
-    let extra = extra
-    let file = file
-  end) in
-  let iterator = FM.iterator in
+  let iterator = getIterator extra file in
   items |> List.iter (iterator.signature_item iterator);
   (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
   parts
