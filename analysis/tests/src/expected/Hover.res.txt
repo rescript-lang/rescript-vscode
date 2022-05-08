@@ -58,9 +58,9 @@ Hover tests/src/Hover.res 93:25
 Hover tests/src/Hover.res 96:21
 {"contents": "```rescript\nint\n```"}
 
-Hover tests/src/Hover.res 105:6
-{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.t<[< #str(string)]>\n```"}
+Hover tests/src/Hover.res 106:16
+{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
 
-Hover tests/src/Hover.res 108:24
-{"contents": "```rescript\nAA.cond<\n  [< #str(string) & (string) & (string)],\n> => AA.t<[< #str(string) & (string) & (string)]>\n```"}
+Hover tests/src/Hover.res 109:25
+{"contents": "```rescript\nAA.cond<\n  [< #str(string) & (string) & (string) & (string)],\n> => AA.cond<\n  [< #str(string) & (string) & (string) & (string)],\n>\n```"}
 
