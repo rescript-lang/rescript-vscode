@@ -916,8 +916,8 @@ struct
            | Texp_open (_, _path, _ident, _) -> Hashtbl.add extra.opens eloc ()
            | _ -> ());
     match expression.exp_desc with
-    | Texp_ident (path, {txt; loc}, {val_type}) ->
-      addForLongident (Some (val_type, Value)) path txt loc
+    | Texp_ident (path, {txt; loc}, _) ->
+      addForLongident (Some (expression.exp_type, Value)) path txt loc
     | Texp_record {fields} ->
       addForRecord expression.exp_type
         (fields |> Array.to_list

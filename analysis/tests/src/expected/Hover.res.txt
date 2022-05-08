@@ -47,10 +47,10 @@ Hover tests/src/Hover.res 75:7
 {"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
 
 Hover tests/src/Hover.res 85:10
-{"contents": "```rescript\n{\"children\": React.element} => React.element\n```"}
+{"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
 
 Hover tests/src/Hover.res 88:10
-{"contents": "```rescript\n{\"children\": React.element} => React.element\n```"}
+{"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
 
 Hover tests/src/Hover.res 93:25
 {"contents": "```rescript\nfloat\n```"}
@@ -62,5 +62,5 @@ Hover tests/src/Hover.res 106:16
 {"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
 
 Hover tests/src/Hover.res 109:25
-{"contents": "```rescript\nAA.cond<\n  [< #str(string) & (string) & (string) & (string)],\n> => AA.cond<\n  [< #str(string) & (string) & (string) & (string)],\n>\n```"}
+{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
 
