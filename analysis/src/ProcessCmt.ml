@@ -981,10 +981,8 @@ let getIterator (extra : extra) (file : File.t) =
     typ;
   }
 
-let extraForStructureItems ~(file : File.t)
+let extraForStructureItems ~(iterator : Tast_iterator.iterator)
     (items : Typedtree.structure_item list) parts =
-  let extra = extraForFile ~file in
-  let iterator = getIterator extra file in
   items |> List.iter (iterator.structure_item iterator);
 
   (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
@@ -998,13 +996,10 @@ let extraForStructureItems ~(file : File.t)
          | Partial_class_expr () -> ()
          | Partial_module_type module_type ->
            iterator.module_type iterator module_type
-         | Partial_structure _ | Partial_structure_item _ -> ());
-  extra
+         | Partial_structure _ | Partial_structure_item _ -> ())
 
-let extraForSignatureItems ~(file : File.t)
+let extraForSignatureItems ~(iterator : Tast_iterator.iterator)
     (items : Typedtree.signature_item list) parts =
-  let extra = extraForFile ~file in
-  let iterator = getIterator extra file in
   items |> List.iter (iterator.signature_item iterator);
   (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
   parts
@@ -1017,13 +1012,12 @@ let extraForSignatureItems ~(file : File.t)
          | Partial_class_expr () -> ()
          | Partial_module_type module_type ->
            iterator.module_type iterator module_type
-         | Partial_structure _ | Partial_structure_item _ -> ());
-  extra
+         | Partial_structure _ | Partial_structure_item _ -> ())
 
-let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
+let extraForCmt ~iterator ({cmt_annots} : Cmt_format.cmt_infos) =
   match cmt_annots with
   | Implementation structure ->
-    extraForStructureItems ~file structure.str_items [||]
+    extraForStructureItems ~iterator structure.str_items [||]
   | Partial_implementation parts ->
     let items =
       parts |> Array.to_list
@@ -1035,8 +1029,9 @@ let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    extraForStructureItems ~file items parts
-  | Interface signature -> extraForSignatureItems ~file signature.sig_items [||]
+    extraForStructureItems ~iterator items parts
+  | Interface signature ->
+    extraForSignatureItems ~iterator signature.sig_items [||]
   | Partial_interface parts ->
     let items =
       parts |> Array.to_list
@@ -1047,15 +1042,17 @@ let extraForCmt ~file ({cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    extraForSignatureItems ~file items parts
-  | _ -> extraForStructureItems ~file [] [||]
+    extraForSignatureItems ~iterator items parts
+  | _ -> extraForStructureItems ~iterator [] [||]
 
 let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
   | None -> None
   | Some infos ->
     let file = forCmt ~moduleName ~uri infos in
-    let extra = extraForCmt ~file infos in
+    let extra = extraForFile ~file in
+    let iterator = getIterator extra file in
+    extraForCmt ~iterator infos;
     Some {file; extra; package}
 
 open SharedTypes
