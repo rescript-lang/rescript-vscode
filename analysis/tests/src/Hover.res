@@ -96,3 +96,15 @@ let _get = r => r.f +. r.i
 
 let withAs = (~xx as yyy) => yyy + 1
 //                   ^hov
+
+module AA = {
+  type cond<'a> = [< #str(string)] as 'a
+  type t<'a> = {b: cond<'a>}
+  let fun = b => {b: b}
+}
+
+let typeOk = AA.fun
+//    ^hov
+
+let typeDuplicate = AA.fun
+//                      ^hov
