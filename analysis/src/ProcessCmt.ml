@@ -691,165 +691,156 @@ let addForPathParent ~env ~extra path loc =
   in
   addLocItem extra loc locType
 
-let getIterator ~env ~(extra : extra) ~(file : File.t) =
-  let getTypeAtPath ~env path =
-    match fromCompilerPath ~env path with
-    | `GlobalMod _ -> `Not_found
-    | `Global (moduleName, path) -> `Global (moduleName, path)
-    | `Not_found -> `Not_found
-    | `Exported (env, name) -> (
-      match Exported.find env.exported Exported.Type name with
-      | None -> `Not_found
-      | Some stamp -> (
-        let declaredType = Stamps.findType env.file.stamps stamp in
-        match declaredType with
-        | Some declaredType -> `Local declaredType
-        | None -> `Not_found))
-    | `Stamp stamp -> (
+let getTypeAtPath ~env path =
+  match fromCompilerPath ~env path with
+  | `GlobalMod _ -> `Not_found
+  | `Global (moduleName, path) -> `Global (moduleName, path)
+  | `Not_found -> `Not_found
+  | `Exported (env, name) -> (
+    match Exported.find env.exported Exported.Type name with
+    | None -> `Not_found
+    | Some stamp -> (
       let declaredType = Stamps.findType env.file.stamps stamp in
       match declaredType with
       | Some declaredType -> `Local declaredType
-      | None -> `Not_found)
-  in
+      | None -> `Not_found))
+  | `Stamp stamp -> (
+    let declaredType = Stamps.findType env.file.stamps stamp in
+    match declaredType with
+    | Some declaredType -> `Local declaredType
+    | None -> `Not_found)
 
-  let handleConstructor txt =
-    match txt with
-    | Longident.Lident name -> name
-    | Ldot (_left, name) -> name
-    | Lapply (_, _) -> assert false
-  in
+let handleConstructor txt =
+  match txt with
+  | Longident.Lident name -> name
+  | Ldot (_left, name) -> name
+  | Lapply (_, _) -> assert false
 
-  let addForField recordType fieldType {Asttypes.txt; loc} =
-    match (Shared.dig recordType).desc with
-    | Tconstr (path, _args, _memo) ->
-      let t = getTypeAtPath ~env path in
-      let name = handleConstructor txt in
-      let nameLoc = Utils.endOfLocation loc (String.length name) in
-      let locType =
-        match t with
-        | `Local {stamp; item = {kind = Record fields}} -> (
-          match fields |> List.find_opt (fun f -> f.fname.txt = name) with
-          | Some {stamp = astamp} ->
-            addReference ~extra astamp nameLoc;
-            LocalReference (stamp, Field name)
-          | None -> NotFound)
-        | `Global (moduleName, path) ->
-          addExternalReference ~extra moduleName path (Field name) nameLoc;
-          GlobalReference (moduleName, path, Field name)
-        | _ -> NotFound
-      in
-      addLocItem extra nameLoc (Typed (name, fieldType, locType))
-    | _ -> ()
-  in
+let addForField ~env ~extra recordType fieldType {Asttypes.txt; loc} =
+  match (Shared.dig recordType).desc with
+  | Tconstr (path, _args, _memo) ->
+    let t = getTypeAtPath ~env path in
+    let name = handleConstructor txt in
+    let nameLoc = Utils.endOfLocation loc (String.length name) in
+    let locType =
+      match t with
+      | `Local {stamp; item = {kind = Record fields}} -> (
+        match fields |> List.find_opt (fun f -> f.fname.txt = name) with
+        | Some {stamp = astamp} ->
+          addReference ~extra astamp nameLoc;
+          LocalReference (stamp, Field name)
+        | None -> NotFound)
+      | `Global (moduleName, path) ->
+        addExternalReference ~extra moduleName path (Field name) nameLoc;
+        GlobalReference (moduleName, path, Field name)
+      | _ -> NotFound
+    in
+    addLocItem extra nameLoc (Typed (name, fieldType, locType))
+  | _ -> ()
 
-  let addForRecord recordType items =
-    match (Shared.dig recordType).desc with
-    | Tconstr (path, _args, _memo) ->
-      let t = getTypeAtPath ~env path in
-      items
-      |> List.iter (fun ({Asttypes.txt; loc}, {Types.lbl_res}, _) ->
-             (* let name = Longident.last(txt); *)
-             let name = handleConstructor txt in
-             let nameLoc = Utils.endOfLocation loc (String.length name) in
-             let locType =
-               match t with
-               | `Local {stamp; item = {kind = Record fields}} -> (
-                 match
-                   fields |> List.find_opt (fun f -> f.fname.txt = name)
-                 with
-                 | Some {stamp = astamp} ->
-                   addReference ~extra astamp nameLoc;
-                   LocalReference (stamp, Field name)
-                 | None -> NotFound)
-               | `Global (moduleName, path) ->
-                 addExternalReference ~extra moduleName path (Field name)
-                   nameLoc;
-                 GlobalReference (moduleName, path, Field name)
-               | _ -> NotFound
-             in
-             addLocItem extra nameLoc (Typed (name, lbl_res, locType)))
-    | _ -> ()
-  in
+let addForRecord ~env ~extra recordType items =
+  match (Shared.dig recordType).desc with
+  | Tconstr (path, _args, _memo) ->
+    let t = getTypeAtPath ~env path in
+    items
+    |> List.iter (fun ({Asttypes.txt; loc}, {Types.lbl_res}, _) ->
+           (* let name = Longident.last(txt); *)
+           let name = handleConstructor txt in
+           let nameLoc = Utils.endOfLocation loc (String.length name) in
+           let locType =
+             match t with
+             | `Local {stamp; item = {kind = Record fields}} -> (
+               match fields |> List.find_opt (fun f -> f.fname.txt = name) with
+               | Some {stamp = astamp} ->
+                 addReference ~extra astamp nameLoc;
+                 LocalReference (stamp, Field name)
+               | None -> NotFound)
+             | `Global (moduleName, path) ->
+               addExternalReference ~extra moduleName path (Field name) nameLoc;
+               GlobalReference (moduleName, path, Field name)
+             | _ -> NotFound
+           in
+           addLocItem extra nameLoc (Typed (name, lbl_res, locType)))
+  | _ -> ()
 
-  let addForConstructor constructorType {Asttypes.txt; loc} {Types.cstr_name} =
-    match (Shared.dig constructorType).desc with
-    | Tconstr (path, _args, _memo) ->
-      let name = handleConstructor txt in
-      let nameLoc = Utils.endOfLocation loc (String.length name) in
-      let t = getTypeAtPath ~env path in
-      let locType =
-        match t with
-        | `Local {stamp; item = {kind = Variant constructors}} -> (
-          match
-            constructors
-            |> List.find_opt (fun c -> c.Constructor.cname.txt = cstr_name)
-          with
-          | Some {stamp = cstamp} ->
-            addReference ~extra cstamp nameLoc;
-            LocalReference (stamp, Constructor name)
-          | None -> NotFound)
-        | `Global (moduleName, path) ->
-          addExternalReference ~extra moduleName path (Constructor name) nameLoc;
-          GlobalReference (moduleName, path, Constructor name)
-        | _ -> NotFound
-      in
-      addLocItem extra nameLoc (Typed (name, constructorType, locType))
-    | _ -> ()
-  in
+let addForConstructor ~env ~extra constructorType {Asttypes.txt; loc}
+    {Types.cstr_name} =
+  match (Shared.dig constructorType).desc with
+  | Tconstr (path, _args, _memo) ->
+    let name = handleConstructor txt in
+    let nameLoc = Utils.endOfLocation loc (String.length name) in
+    let t = getTypeAtPath ~env path in
+    let locType =
+      match t with
+      | `Local {stamp; item = {kind = Variant constructors}} -> (
+        match
+          constructors
+          |> List.find_opt (fun c -> c.Constructor.cname.txt = cstr_name)
+        with
+        | Some {stamp = cstamp} ->
+          addReference ~extra cstamp nameLoc;
+          LocalReference (stamp, Constructor name)
+        | None -> NotFound)
+      | `Global (moduleName, path) ->
+        addExternalReference ~extra moduleName path (Constructor name) nameLoc;
+        GlobalReference (moduleName, path, Constructor name)
+      | _ -> NotFound
+    in
+    addLocItem extra nameLoc (Typed (name, constructorType, locType))
+  | _ -> ()
 
-  let rec lidIsComplex (lid : Longident.t) =
-    match lid with
-    | Lapply _ -> true
-    | Ldot (lid, _) -> lidIsComplex lid
-    | _ -> false
-  in
+let rec lidIsComplex (lid : Longident.t) =
+  match lid with
+  | Lapply _ -> true
+  | Ldot (lid, _) -> lidIsComplex lid
+  | _ -> false
 
-  let rec addForLongident top (path : Path.t) (txt : Longident.t) loc =
-    if (not loc.Location.loc_ghost) && not (lidIsComplex txt) then (
-      let idLength =
-        String.length (String.concat "." (Longident.flatten txt))
-      in
-      let reportedLength = loc.loc_end.pos_cnum - loc.loc_start.pos_cnum in
-      let isPpx = idLength <> reportedLength in
-      if isPpx then
-        match top with
-        | Some (t, tip) -> addForPath ~env ~extra path txt loc t tip
-        | None -> addForPathParent ~env ~extra path loc
-      else
-        let l = Utils.endOfLocation loc (String.length (Longident.last txt)) in
-        (match top with
-        | Some (t, tip) -> addForPath ~env ~extra path txt l t tip
-        | None -> addForPathParent ~env ~extra path l);
-        match (path, txt) with
-        | Pdot (pinner, _pname, _), Ldot (inner, name) ->
-          addForLongident None pinner inner
-            (Utils.chopLocationEnd loc (String.length name + 1))
-        | Pident _, Lident _ -> ()
-        | _ -> ())
-  in
+let rec addForLongident ~env ~extra top (path : Path.t) (txt : Longident.t) loc
+    =
+  if (not loc.Location.loc_ghost) && not (lidIsComplex txt) then (
+    let idLength = String.length (String.concat "." (Longident.flatten txt)) in
+    let reportedLength = loc.loc_end.pos_cnum - loc.loc_start.pos_cnum in
+    let isPpx = idLength <> reportedLength in
+    if isPpx then
+      match top with
+      | Some (t, tip) -> addForPath ~env ~extra path txt loc t tip
+      | None -> addForPathParent ~env ~extra path loc
+    else
+      let l = Utils.endOfLocation loc (String.length (Longident.last txt)) in
+      (match top with
+      | Some (t, tip) -> addForPath ~env ~extra path txt l t tip
+      | None -> addForPathParent ~env ~extra path l);
+      match (path, txt) with
+      | Pdot (pinner, _pname, _), Ldot (inner, name) ->
+        addForLongident ~env ~extra None pinner inner
+          (Utils.chopLocationEnd loc (String.length name + 1))
+      | Pident _, Lident _ -> ()
+      | _ -> ())
 
-  let rec handle_module_expr expr =
-    match expr with
-    | Tmod_constraint (expr, _, _, _) -> handle_module_expr expr.mod_desc
-    | Tmod_ident (path, {txt; loc}) ->
-      if not (lidIsComplex txt) then
-        Log.log ("Ident!! " ^ String.concat "." (Longident.flatten txt));
-      addForLongident None path txt loc
-    | Tmod_functor (_ident, _argName, _maybeType, resultExpr) ->
-      handle_module_expr resultExpr.mod_desc
-    | Tmod_apply (obj, arg, _) ->
-      handle_module_expr obj.mod_desc;
-      handle_module_expr arg.mod_desc
-    | _ -> ()
-  in
+let rec handle_module_expr ~env ~extra expr =
+  match expr with
+  | Tmod_constraint (expr, _, _, _) ->
+    handle_module_expr ~env ~extra expr.mod_desc
+  | Tmod_ident (path, {txt; loc}) ->
+    if not (lidIsComplex txt) then
+      Log.log ("Ident!! " ^ String.concat "." (Longident.flatten txt));
+    addForLongident ~env ~extra None path txt loc
+  | Tmod_functor (_ident, _argName, _maybeType, resultExpr) ->
+    handle_module_expr ~env ~extra resultExpr.mod_desc
+  | Tmod_apply (obj, arg, _) ->
+    handle_module_expr ~env ~extra obj.mod_desc;
+    handle_module_expr ~env ~extra arg.mod_desc
+  | _ -> ()
 
+let getIterator ~env ~(extra : extra) ~(file : File.t) =
   let enter_structure_item item =
     match item.str_desc with
-    | Tstr_include {incl_mod = expr} -> handle_module_expr expr.mod_desc
-    | Tstr_module {mb_expr} -> handle_module_expr mb_expr.mod_desc
+    | Tstr_include {incl_mod = expr} ->
+      handle_module_expr ~env ~extra expr.mod_desc
+    | Tstr_module {mb_expr} -> handle_module_expr ~env ~extra mb_expr.mod_desc
     | Tstr_open {open_path; open_txt = {txt; loc}} ->
       (* Log.log("Have an open here"); *)
-      addForLongident None open_path txt loc;
+      addForLongident ~env ~extra None open_path txt loc;
       Hashtbl.replace extra.opens loc ()
     | _ -> ()
   in
@@ -873,7 +864,7 @@ let getIterator ~env ~(extra : extra) ~(file : File.t) =
   let enter_core_type {ctyp_type; ctyp_desc} =
     match ctyp_desc with
     | Ttyp_constr (path, {txt; loc}, _args) ->
-      addForLongident (Some (ctyp_type, Type)) path txt loc
+      addForLongident ~env ~extra (Some (ctyp_type, Type)) path txt loc
     | _ -> ()
   in
 
@@ -891,9 +882,9 @@ let getIterator ~env ~(extra : extra) ~(file : File.t) =
     in
     (* Log.log("Entering pattern " ++ Utils.showLocation(pat_loc)); *)
     match pat_desc with
-    | Tpat_record (items, _) -> addForRecord pat_type items
+    | Tpat_record (items, _) -> addForRecord ~env ~extra pat_type items
     | Tpat_construct (lident, constructor, _) ->
-      addForConstructor pat_type lident constructor
+      addForConstructor ~env ~extra pat_type lident constructor
     | Tpat_alias (_inner, ident, name) ->
       let stamp = Ident.binding_time ident in
       addForPattern stamp name
@@ -912,9 +903,11 @@ let getIterator ~env ~(extra : extra) ~(file : File.t) =
            | _ -> ());
     match expression.exp_desc with
     | Texp_ident (path, {txt; loc}, _) ->
-      addForLongident (Some (expression.exp_type, Value)) path txt loc
+      addForLongident ~env ~extra
+        (Some (expression.exp_type, Value))
+        path txt loc
     | Texp_record {fields} ->
-      addForRecord expression.exp_type
+      addForRecord ~env ~extra expression.exp_type
         (fields |> Array.to_list
         |> Utils.filterMap (fun (desc, item) ->
                match item with
@@ -927,9 +920,9 @@ let getIterator ~env ~(extra : extra) ~(file : File.t) =
       when loc.loc_end.pos_cnum - loc.loc_start.pos_cnum <> 2 ->
       ()
     | Texp_construct (lident, constructor, _args) ->
-      addForConstructor expression.exp_type lident constructor
+      addForConstructor ~env ~extra expression.exp_type lident constructor
     | Texp_field (inner, lident, _label_description) ->
-      addForField inner.exp_type expression.exp_type lident
+      addForField ~env ~extra inner.exp_type expression.exp_type lident
     | _ -> ()
   in
 
