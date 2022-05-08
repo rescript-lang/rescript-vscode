@@ -1005,8 +1005,6 @@ let fullForCmt ~moduleName ~package ~uri cmt =
     extraForCmt ~iterator infos;
     Some {file; extra; package}
 
-open SharedTypes
-
 let newFileForCmt ~moduleName cmtCache changed ~cmt ~uri =
   match fileForCmt ~moduleName ~uri cmt with
   | None -> None
@@ -1137,5 +1135,3 @@ let exportedForTip ~(env : QueryEnv.t) name (tip : Tip.t) =
   | Field _ | Constructor _ | Type ->
     Exported.find env.exported Exported.Type name
   | Module -> Exported.find env.exported Exported.Module name
-
-module ZZZ = Tast_iterator
