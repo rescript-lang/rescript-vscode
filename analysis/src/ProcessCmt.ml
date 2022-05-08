@@ -626,78 +626,72 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
     | Some (`Local (env, name)) -> `Exported (env, name)
     | Some (`Global (moduleName, fullPath)) -> `Global (moduleName, fullPath))
 
-let getIterator (extra : extra) (file : File.t) =
-  let addExternalReference moduleName path tip loc =
-    (* TODO need to follow the path, and be able to load the files to follow module references... *)
-    Hashtbl.replace extra.externalReferences moduleName
-      ((path, tip, loc)
-      ::
-      (if Hashtbl.mem extra.externalReferences moduleName then
-       Hashtbl.find extra.externalReferences moduleName
-      else []))
+let addExternalReference ~extra moduleName path tip loc =
+  (* TODO need to follow the path, and be able to load the files to follow module references... *)
+  Hashtbl.replace extra.externalReferences moduleName
+    ((path, tip, loc)
+    ::
+    (if Hashtbl.mem extra.externalReferences moduleName then
+     Hashtbl.find extra.externalReferences moduleName
+    else []))
+
+let addFileReference ~extra moduleName loc =
+  let newLocs =
+    match Hashtbl.find_opt extra.fileReferences moduleName with
+    | Some oldLocs -> LocationSet.add loc oldLocs
+    | None -> LocationSet.singleton loc
   in
+  Hashtbl.replace extra.fileReferences moduleName newLocs
 
-  let addFileReference moduleName loc =
-    let newLocs =
-      match Hashtbl.find_opt extra.fileReferences moduleName with
-      | Some oldLocs -> LocationSet.add loc oldLocs
-      | None -> LocationSet.singleton loc
-    in
-    Hashtbl.replace extra.fileReferences moduleName newLocs
-  in
-
-  let env = QueryEnv.fromFile file in
-
-  let addForPath path lident loc typ tip =
-    let identName = Longident.last lident in
-    let identLoc = Utils.endOfLocation loc (String.length identName) in
-    let locType =
-      match fromCompilerPath ~env path with
-      | `Stamp stamp ->
+let addForPath ~env ~extra path lident loc typ tip =
+  let identName = Longident.last lident in
+  let identLoc = Utils.endOfLocation loc (String.length identName) in
+  let locType =
+    match fromCompilerPath ~env path with
+    | `Stamp stamp ->
+      addReference ~extra stamp identLoc;
+      LocalReference (stamp, tip)
+    | `Not_found -> NotFound
+    | `Global (moduleName, path) ->
+      addExternalReference ~extra moduleName path tip identLoc;
+      GlobalReference (moduleName, path, tip)
+    | `Exported (env, name) -> (
+      match
+        match tip with
+        | Type -> Exported.find env.exported Exported.Type name
+        | _ -> Exported.find env.exported Exported.Value name
+      with
+      | Some stamp ->
         addReference ~extra stamp identLoc;
         LocalReference (stamp, tip)
-      | `Not_found -> NotFound
-      | `Global (moduleName, path) ->
-        addExternalReference moduleName path tip identLoc;
-        GlobalReference (moduleName, path, tip)
-      | `Exported (env, name) -> (
-        match
-          match tip with
-          | Type -> Exported.find env.exported Exported.Type name
-          | _ -> Exported.find env.exported Exported.Value name
-        with
-        | Some stamp ->
-          addReference ~extra stamp identLoc;
-          LocalReference (stamp, tip)
-        | None -> NotFound)
-      | `GlobalMod _ -> NotFound
-    in
-    addLocItem extra loc (Typed (identName, typ, locType))
+      | None -> NotFound)
+    | `GlobalMod _ -> NotFound
   in
+  addLocItem extra loc (Typed (identName, typ, locType))
 
-  let addForPathParent path loc =
-    let locType =
-      match fromCompilerPath ~env path with
-      | `GlobalMod moduleName ->
-        addFileReference moduleName loc;
-        TopLevelModule moduleName
-      | `Stamp stamp ->
+let addForPathParent ~env ~extra path loc =
+  let locType =
+    match fromCompilerPath ~env path with
+    | `GlobalMod moduleName ->
+      addFileReference ~extra moduleName loc;
+      TopLevelModule moduleName
+    | `Stamp stamp ->
+      addReference ~extra stamp loc;
+      LModule (LocalReference (stamp, Module))
+    | `Not_found -> LModule NotFound
+    | `Global (moduleName, path) ->
+      addExternalReference ~extra moduleName path Module loc;
+      LModule (GlobalReference (moduleName, path, Module))
+    | `Exported (env, name) -> (
+      match Exported.find env.exported Exported.Module name with
+      | Some stamp ->
         addReference ~extra stamp loc;
         LModule (LocalReference (stamp, Module))
-      | `Not_found -> LModule NotFound
-      | `Global (moduleName, path) ->
-        addExternalReference moduleName path Module loc;
-        LModule (GlobalReference (moduleName, path, Module))
-      | `Exported (env, name) -> (
-        match Exported.find env.exported Exported.Module name with
-        | Some stamp ->
-          addReference ~extra stamp loc;
-          LModule (LocalReference (stamp, Module))
-        | None -> LModule NotFound)
-    in
-    addLocItem extra loc locType
+      | None -> LModule NotFound)
   in
+  addLocItem extra loc locType
 
+let getIterator ~env ~(extra : extra) ~(file : File.t) =
   let getTypeAtPath ~env path =
     match fromCompilerPath ~env path with
     | `GlobalMod _ -> `Not_found
@@ -740,7 +734,7 @@ let getIterator (extra : extra) (file : File.t) =
             LocalReference (stamp, Field name)
           | None -> NotFound)
         | `Global (moduleName, path) ->
-          addExternalReference moduleName path (Field name) nameLoc;
+          addExternalReference ~extra moduleName path (Field name) nameLoc;
           GlobalReference (moduleName, path, Field name)
         | _ -> NotFound
       in
@@ -768,7 +762,8 @@ let getIterator (extra : extra) (file : File.t) =
                    LocalReference (stamp, Field name)
                  | None -> NotFound)
                | `Global (moduleName, path) ->
-                 addExternalReference moduleName path (Field name) nameLoc;
+                 addExternalReference ~extra moduleName path (Field name)
+                   nameLoc;
                  GlobalReference (moduleName, path, Field name)
                | _ -> NotFound
              in
@@ -794,7 +789,7 @@ let getIterator (extra : extra) (file : File.t) =
             LocalReference (stamp, Constructor name)
           | None -> NotFound)
         | `Global (moduleName, path) ->
-          addExternalReference moduleName path (Constructor name) nameLoc;
+          addExternalReference ~extra moduleName path (Constructor name) nameLoc;
           GlobalReference (moduleName, path, Constructor name)
         | _ -> NotFound
       in
@@ -818,13 +813,13 @@ let getIterator (extra : extra) (file : File.t) =
       let isPpx = idLength <> reportedLength in
       if isPpx then
         match top with
-        | Some (t, tip) -> addForPath path txt loc t tip
-        | None -> addForPathParent path loc
+        | Some (t, tip) -> addForPath ~env ~extra path txt loc t tip
+        | None -> addForPathParent ~env ~extra path loc
       else
         let l = Utils.endOfLocation loc (String.length (Longident.last txt)) in
         (match top with
-        | Some (t, tip) -> addForPath path txt l t tip
-        | None -> addForPathParent path l);
+        | Some (t, tip) -> addForPath ~env ~extra path txt l t tip
+        | None -> addForPathParent ~env ~extra path l);
         match (path, txt) with
         | Pdot (pinner, _pname, _), Ldot (inner, name) ->
           addForLongident None pinner inner
@@ -1042,7 +1037,8 @@ let fullForCmt ~moduleName ~package ~uri cmt =
   | Some infos ->
     let file = forCmt ~moduleName ~uri infos in
     let extra = extraForFile ~file in
-    let iterator = getIterator extra file in
+    let env = QueryEnv.fromFile file in
+    let iterator = getIterator ~env ~extra ~file in
     extraForCmt ~iterator infos;
     Some {file; extra; package}
 
