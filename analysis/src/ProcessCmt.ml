@@ -833,8 +833,8 @@ let rec handle_module_expr ~env ~extra expr =
   | _ -> ()
 
 let getIterator ~env ~(extra : extra) ~(file : File.t) =
-  let enter_structure_item item =
-    match item.str_desc with
+  let structure_item (iter : Tast_iterator.iterator) item =
+    (match item.str_desc with
     | Tstr_include {incl_mod = expr} ->
       handle_module_expr ~env ~extra expr.mod_desc
     | Tstr_module {mb_expr} -> handle_module_expr ~env ~extra mb_expr.mod_desc
@@ -842,11 +842,12 @@ let getIterator ~env ~(extra : extra) ~(file : File.t) =
       (* Log.log("Have an open here"); *)
       addForLongident ~env ~extra None open_path txt loc;
       Hashtbl.replace extra.opens loc ()
-    | _ -> ()
+    | _ -> ());
+    Tast_iterator.default_iterator.structure_item iter item
   in
 
-  let enter_signature_item item =
-    match item.sig_desc with
+  let signature_item (iter : Tast_iterator.iterator) item =
+    (match item.sig_desc with
     | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
       let stamp = Ident.binding_time val_id in
       if Stamps.findValue file.stamps stamp = None then (
@@ -858,33 +859,36 @@ let getIterator ~env ~(extra : extra) ~(file : File.t) =
         addReference ~extra stamp name.loc;
         addLocItem extra name.loc
           (Typed (name.txt, val_desc.ctyp_type, Definition (stamp, Value))))
-    | _ -> ()
+    | _ -> ());
+    Tast_iterator.default_iterator.signature_item iter item
   in
 
-  let enter_core_type {ctyp_type; ctyp_desc} =
-    match ctyp_desc with
+  let typ (iter : Tast_iterator.iterator) (item : Typedtree.core_type) =
+    (match item.ctyp_desc with
     | Ttyp_constr (path, {txt; loc}, _args) ->
-      addForLongident ~env ~extra (Some (ctyp_type, Type)) path txt loc
-    | _ -> ()
+      addForLongident ~env ~extra (Some (item.ctyp_type, Type)) path txt loc
+    | _ -> ());
+    Tast_iterator.default_iterator.typ iter item
   in
 
-  let enter_pattern {pat_desc; pat_loc; pat_type; pat_attributes} =
+  let pat (iter : Tast_iterator.iterator) (pattern : Typedtree.pattern) =
     let addForPattern stamp name =
       if Stamps.findValue file.stamps stamp = None then (
         let declared =
           ProcessAttributes.newDeclared ~name ~stamp ~modulePath:NotVisible
-            ~extent:pat_loc ~item:pat_type false pat_attributes
+            ~extent:pattern.pat_loc ~item:pattern.pat_type false
+            pattern.pat_attributes
         in
         Stamps.addValue file.stamps stamp declared;
         addReference ~extra stamp name.loc;
         addLocItem extra name.loc
-          (Typed (name.txt, pat_type, Definition (stamp, Value))))
+          (Typed (name.txt, pattern.pat_type, Definition (stamp, Value))))
     in
     (* Log.log("Entering pattern " ++ Utils.showLocation(pat_loc)); *)
-    match pat_desc with
-    | Tpat_record (items, _) -> addForRecord ~env ~extra pat_type items
+    (match pattern.pat_desc with
+    | Tpat_record (items, _) -> addForRecord ~env ~extra pattern.pat_type items
     | Tpat_construct (lident, constructor, _) ->
-      addForConstructor ~env ~extra pat_type lident constructor
+      addForConstructor ~env ~extra pattern.pat_type lident constructor
     | Tpat_alias (_inner, ident, name) ->
       let stamp = Ident.binding_time ident in
       addForPattern stamp name
@@ -892,63 +896,40 @@ let getIterator ~env ~(extra : extra) ~(file : File.t) =
       (* Log.log("Pattern " ++ name.txt); *)
       let stamp = Ident.binding_time ident in
       addForPattern stamp name
-    | _ -> ()
+    | _ -> ());
+    Tast_iterator.default_iterator.pat iter pattern
   in
 
-  let enter_expression expression =
-    expression.exp_extra
-    |> List.iter (fun (e, eloc, _) ->
-           match e with
-           | Texp_open (_, _path, _ident, _) -> Hashtbl.add extra.opens eloc ()
-           | _ -> ());
-    match expression.exp_desc with
-    | Texp_ident (path, {txt; loc}, _) ->
-      addForLongident ~env ~extra
-        (Some (expression.exp_type, Value))
-        path txt loc
-    | Texp_record {fields} ->
-      addForRecord ~env ~extra expression.exp_type
-        (fields |> Array.to_list
-        |> Utils.filterMap (fun (desc, item) ->
-               match item with
-               | Overridden (loc, _) -> Some (loc, desc, ())
-               | _ -> None))
-    | Texp_constant constant ->
-      addLocItem extra expression.exp_loc (Constant constant)
-    (* Skip unit and list literals *)
-    | Texp_construct ({txt = Lident ("()" | "::"); loc}, _, _args)
-      when loc.loc_end.pos_cnum - loc.loc_start.pos_cnum <> 2 ->
-      ()
-    | Texp_construct (lident, constructor, _args) ->
-      addForConstructor ~env ~extra expression.exp_type lident constructor
-    | Texp_field (inner, lident, _label_description) ->
-      addForField ~env ~extra inner.exp_type expression.exp_type lident
-    | _ -> ()
-  in
-
-  let structure_item (iter : Tast_iterator.iterator) item =
-    enter_structure_item item;
-    Tast_iterator.default_iterator.structure_item iter item
-  in
-
-  let signature_item (iter : Tast_iterator.iterator) item =
-    enter_signature_item item;
-    Tast_iterator.default_iterator.signature_item iter item
-  in
-
-  let typ (iter : Tast_iterator.iterator) item =
-    enter_core_type item;
-    Tast_iterator.default_iterator.typ iter item
-  in
-
-  let pat (iter : Tast_iterator.iterator) item =
-    enter_pattern item;
-    Tast_iterator.default_iterator.pat iter item
-  in
-
-  let expr (iter : Tast_iterator.iterator) item =
-    enter_expression item;
-    Tast_iterator.default_iterator.expr iter item
+  let expr (iter : Tast_iterator.iterator) (expression : Typedtree.expression) =
+    (expression.exp_extra
+     |> List.iter (fun (e, eloc, _) ->
+            match e with
+            | Texp_open (_, _path, _ident, _) -> Hashtbl.add extra.opens eloc ()
+            | _ -> ());
+     match expression.exp_desc with
+     | Texp_ident (path, {txt; loc}, _) ->
+       addForLongident ~env ~extra
+         (Some (expression.exp_type, Value))
+         path txt loc
+     | Texp_record {fields} ->
+       addForRecord ~env ~extra expression.exp_type
+         (fields |> Array.to_list
+         |> Utils.filterMap (fun (desc, item) ->
+                match item with
+                | Overridden (loc, _) -> Some (loc, desc, ())
+                | _ -> None))
+     | Texp_constant constant ->
+       addLocItem extra expression.exp_loc (Constant constant)
+     (* Skip unit and list literals *)
+     | Texp_construct ({txt = Lident ("()" | "::"); loc}, _, _args)
+       when loc.loc_end.pos_cnum - loc.loc_start.pos_cnum <> 2 ->
+       ()
+     | Texp_construct (lident, constructor, _args) ->
+       addForConstructor ~env ~extra expression.exp_type lident constructor
+     | Texp_field (inner, lident, _label_description) ->
+       addForField ~env ~extra inner.exp_type expression.exp_type lident
+     | _ -> ());
+    Tast_iterator.default_iterator.expr iter expression
   in
 
   {
