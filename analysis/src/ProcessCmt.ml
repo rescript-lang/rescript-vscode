@@ -941,42 +941,31 @@ let getIterator ~env ~extra ~file =
   }
 
 let extraForStructureItems ~(iterator : Tast_iterator.iterator)
-    (items : Typedtree.structure_item list) parts =
-  items |> List.iter (iterator.structure_item iterator);
-
-  (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
-  parts
-  |> Array.iter (fun part ->
-         match part with
-         | Cmt_format.Partial_signature str -> iterator.signature iterator str
-         | Partial_signature_item str -> iterator.signature_item iterator str
-         | Partial_expression expression -> iterator.expr iterator expression
-         | Partial_pattern pattern -> iterator.pat iterator pattern
-         | Partial_class_expr () -> ()
-         | Partial_module_type module_type ->
-           iterator.module_type iterator module_type
-         | Partial_structure _ | Partial_structure_item _ -> ())
+    (items : Typedtree.structure_item list) =
+  items |> List.iter (iterator.structure_item iterator)
 
 let extraForSignatureItems ~(iterator : Tast_iterator.iterator)
-    (items : Typedtree.signature_item list) parts =
-  items |> List.iter (iterator.signature_item iterator);
-  (* Log.log("Parts " ++ string_of_int(Array.length(parts))); *)
-  parts
-  |> Array.iter (fun part ->
-         match part with
-         | Cmt_format.Partial_signature str -> iterator.signature iterator str
-         | Partial_signature_item str -> iterator.signature_item iterator str
-         | Partial_expression expression -> iterator.expr iterator expression
-         | Partial_pattern pattern -> iterator.pat iterator pattern
-         | Partial_class_expr () -> ()
-         | Partial_module_type module_type ->
-           iterator.module_type iterator module_type
-         | Partial_structure _ | Partial_structure_item _ -> ())
+    (items : Typedtree.signature_item list) =
+  items |> List.iter (iterator.signature_item iterator)
 
-let extraForCmt ~iterator ({cmt_annots} : Cmt_format.cmt_infos) =
+let extraForCmt ~(iterator : Tast_iterator.iterator)
+    ({cmt_annots} : Cmt_format.cmt_infos) =
+  let extraForParts parts =
+    parts
+    |> Array.iter (fun part ->
+           match part with
+           | Cmt_format.Partial_signature str -> iterator.signature iterator str
+           | Partial_signature_item str -> iterator.signature_item iterator str
+           | Partial_expression expression -> iterator.expr iterator expression
+           | Partial_pattern pattern -> iterator.pat iterator pattern
+           | Partial_class_expr () -> ()
+           | Partial_module_type module_type ->
+             iterator.module_type iterator module_type
+           | Partial_structure _ | Partial_structure_item _ -> ())
+  in
   match cmt_annots with
   | Implementation structure ->
-    extraForStructureItems ~iterator structure.str_items [||]
+    extraForStructureItems ~iterator structure.str_items
   | Partial_implementation parts ->
     let items =
       parts |> Array.to_list
@@ -988,9 +977,9 @@ let extraForCmt ~iterator ({cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    extraForStructureItems ~iterator items parts
-  | Interface signature ->
-    extraForSignatureItems ~iterator signature.sig_items [||]
+    extraForStructureItems ~iterator items;
+    extraForParts parts
+  | Interface signature -> extraForSignatureItems ~iterator signature.sig_items
   | Partial_interface parts ->
     let items =
       parts |> Array.to_list
@@ -1001,8 +990,9 @@ let extraForCmt ~iterator ({cmt_annots} : Cmt_format.cmt_infos) =
              | _ -> None)
       |> List.concat
     in
-    extraForSignatureItems ~iterator items parts
-  | _ -> extraForStructureItems ~iterator [] [||]
+    extraForSignatureItems ~iterator items;
+    extraForParts parts
+  | _ -> extraForStructureItems ~iterator []
 
 let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
