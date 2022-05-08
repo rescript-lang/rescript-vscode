@@ -517,42 +517,42 @@ let addLocItem extra loc locType =
   if not loc.Warnings.loc_ghost then
     extra.locItems <- {loc; locType} :: extra.locItems
 
+let addReference ~extra stamp loc =
+  Hashtbl.replace extra.internalReferences stamp
+    (loc
+    ::
+    (if Hashtbl.mem extra.internalReferences stamp then
+     Hashtbl.find extra.internalReferences stamp
+    else []))
+
 let extraForFile ~(file : File.t) =
   let extra = initExtra () in
-  let addReference stamp loc =
-    Hashtbl.replace extra.internalReferences stamp
-      (loc
-      ::
-      (if Hashtbl.mem extra.internalReferences stamp then
-       Hashtbl.find extra.internalReferences stamp
-      else []))
-  in
   file.stamps
   |> Stamps.iterModules (fun stamp (d : Module.t Declared.t) ->
          addLocItem extra d.name.loc (LModule (Definition (stamp, Module)));
-         addReference stamp d.name.loc);
+         addReference ~extra stamp d.name.loc);
   file.stamps
   |> Stamps.iterValues (fun stamp (d : Types.type_expr Declared.t) ->
          addLocItem extra d.name.loc
            (Typed (d.name.txt, d.item, Definition (stamp, Value)));
-         addReference stamp d.name.loc);
+         addReference ~extra stamp d.name.loc);
   file.stamps
   |> Stamps.iterTypes (fun stamp (d : Type.t Declared.t) ->
          addLocItem extra d.name.loc
            (TypeDefinition (d.name.txt, d.item.Type.decl, stamp));
-         addReference stamp d.name.loc;
+         addReference ~extra stamp d.name.loc;
          match d.item.Type.kind with
          | Record labels ->
            labels
            |> List.iter (fun {stamp; fname; typ} ->
-                  addReference stamp fname.loc;
+                  addReference ~extra stamp fname.loc;
                   addLocItem extra fname.loc
                     (Typed
                        (d.name.txt, typ, Definition (d.stamp, Field fname.txt))))
          | Variant constructors ->
            constructors
            |> List.iter (fun {Constructor.stamp; cname} ->
-                  addReference stamp cname.loc;
+                  addReference ~extra stamp cname.loc;
                   let t =
                     {
                       Types.id = 0;
@@ -627,15 +627,6 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
     | Some (`Global (moduleName, fullPath)) -> `Global (moduleName, fullPath))
 
 let getIterator (extra : extra) (file : File.t) =
-  let addReference stamp loc =
-    Hashtbl.replace extra.internalReferences stamp
-      (loc
-      ::
-      (if Hashtbl.mem extra.internalReferences stamp then
-       Hashtbl.find extra.internalReferences stamp
-      else []))
-  in
-
   let addExternalReference moduleName path tip loc =
     (* TODO need to follow the path, and be able to load the files to follow module references... *)
     Hashtbl.replace extra.externalReferences moduleName
@@ -663,7 +654,7 @@ let getIterator (extra : extra) (file : File.t) =
     let locType =
       match fromCompilerPath ~env path with
       | `Stamp stamp ->
-        addReference stamp identLoc;
+        addReference ~extra stamp identLoc;
         LocalReference (stamp, tip)
       | `Not_found -> NotFound
       | `Global (moduleName, path) ->
@@ -676,7 +667,7 @@ let getIterator (extra : extra) (file : File.t) =
           | _ -> Exported.find env.exported Exported.Value name
         with
         | Some stamp ->
-          addReference stamp identLoc;
+          addReference ~extra stamp identLoc;
           LocalReference (stamp, tip)
         | None -> NotFound)
       | `GlobalMod _ -> NotFound
@@ -691,7 +682,7 @@ let getIterator (extra : extra) (file : File.t) =
         addFileReference moduleName loc;
         TopLevelModule moduleName
       | `Stamp stamp ->
-        addReference stamp loc;
+        addReference ~extra stamp loc;
         LModule (LocalReference (stamp, Module))
       | `Not_found -> LModule NotFound
       | `Global (moduleName, path) ->
@@ -700,7 +691,7 @@ let getIterator (extra : extra) (file : File.t) =
       | `Exported (env, name) -> (
         match Exported.find env.exported Exported.Module name with
         | Some stamp ->
-          addReference stamp loc;
+          addReference ~extra stamp loc;
           LModule (LocalReference (stamp, Module))
         | None -> LModule NotFound)
     in
@@ -745,7 +736,7 @@ let getIterator (extra : extra) (file : File.t) =
         | `Local {stamp; item = {kind = Record fields}} -> (
           match fields |> List.find_opt (fun f -> f.fname.txt = name) with
           | Some {stamp = astamp} ->
-            addReference astamp nameLoc;
+            addReference ~extra astamp nameLoc;
             LocalReference (stamp, Field name)
           | None -> NotFound)
         | `Global (moduleName, path) ->
@@ -773,7 +764,7 @@ let getIterator (extra : extra) (file : File.t) =
                    fields |> List.find_opt (fun f -> f.fname.txt = name)
                  with
                  | Some {stamp = astamp} ->
-                   addReference astamp nameLoc;
+                   addReference ~extra astamp nameLoc;
                    LocalReference (stamp, Field name)
                  | None -> NotFound)
                | `Global (moduleName, path) ->
@@ -799,7 +790,7 @@ let getIterator (extra : extra) (file : File.t) =
             |> List.find_opt (fun c -> c.Constructor.cname.txt = cstr_name)
           with
           | Some {stamp = cstamp} ->
-            addReference cstamp nameLoc;
+            addReference ~extra cstamp nameLoc;
             LocalReference (stamp, Constructor name)
           | None -> NotFound)
         | `Global (moduleName, path) ->
@@ -878,7 +869,7 @@ let getIterator (extra : extra) (file : File.t) =
             ~modulePath:NotVisible ~item:val_desc.ctyp_type false val_attributes
         in
         Stamps.addValue file.stamps stamp declared;
-        addReference stamp name.loc;
+        addReference ~extra stamp name.loc;
         addLocItem extra name.loc
           (Typed (name.txt, val_desc.ctyp_type, Definition (stamp, Value))))
     | _ -> ()
@@ -899,7 +890,7 @@ let getIterator (extra : extra) (file : File.t) =
             ~extent:pat_loc ~item:pat_type false pat_attributes
         in
         Stamps.addValue file.stamps stamp declared;
-        addReference stamp name.loc;
+        addReference ~extra stamp name.loc;
         addLocItem extra name.loc
           (Typed (name.txt, pat_type, Definition (stamp, Value))))
     in
