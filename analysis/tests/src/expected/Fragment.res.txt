@@ -1,5 +1,5 @@
 Hover tests/src/Fragment.res 6:19
-{"contents": "```rescript\n{\"children\": 'children} => 'children\n```"}
+{"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
 
 Hover tests/src/Fragment.res 9:56
 null
