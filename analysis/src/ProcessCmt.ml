@@ -468,6 +468,9 @@ and forStructure ~env strItems =
 
 let fileForCmtInfos ~moduleName ~uri
     ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
+  let env =
+    {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
+  in
   match cmt_annots with
   | Partial_implementation parts ->
     let items =
@@ -478,9 +481,6 @@ let fileForCmtInfos ~moduleName ~uri
              | Partial_structure_item str -> Some [str]
              | _ -> None)
       |> List.concat
-    in
-    let env =
-      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
     in
     let structure = forStructure ~env items in
     {File.uri; moduleName = cmt_modname; stamps = env.stamps; structure}
@@ -494,21 +494,12 @@ let fileForCmtInfos ~moduleName ~uri
              | _ -> None)
       |> List.concat
     in
-    let env =
-      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
-    in
     let structure = forSignature ~env items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Implementation structure ->
-    let env =
-      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
-    in
     let structure = forStructure ~env structure.str_items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | Interface signature ->
-    let env =
-      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
-    in
     let structure = forSignature ~env signature.sig_items in
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | _ -> File.create moduleName uri
@@ -526,13 +517,11 @@ let fileForCmt ~moduleName ~cmt ~uri =
 
 let fileForModule moduleName ~package =
   match Hashtbl.find_opt package.pathsForModule moduleName with
-  | Some paths -> (
+  | Some paths ->
     let uri = getUri paths in
     let cmt = getCmtPath ~uri paths in
     Log.log ("fileForModule " ^ showPaths paths);
-    match fileForCmt ~cmt ~moduleName ~uri with
-    | None -> None
-    | Some docs -> Some docs)
+    fileForCmt ~cmt ~moduleName ~uri
   | None ->
     Log.log ("No path for module " ^ moduleName);
     None
