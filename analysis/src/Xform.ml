@@ -298,8 +298,7 @@ let parse ~filename =
   (structure, printExpr, printStructureItem)
 
 let extractCodeActions ~path ~pos ~currentFile =
-  let fullOpt = Cmt.fromPath ~path in
-  match fullOpt with
+  match Cmt.fullFromPath ~path with
   | Some full when Filename.check_suffix currentFile ".res" ->
     let structure, printExpr, printStructureItem =
       parse ~filename:currentFile

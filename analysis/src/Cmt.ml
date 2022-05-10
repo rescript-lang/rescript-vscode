@@ -1,6 +1,6 @@
 open SharedTypes
 
-let fromUri ~uri =
+let fullFromUri ~uri =
   let path = Uri2.toPath uri in
   match Packages.getPackage ~uri with
   | None -> None
@@ -16,16 +16,16 @@ let fromUri ~uri =
       prerr_endline ("can't find module " ^ moduleName);
       None)
 
-let fromModule ~package modname =
-  if Hashtbl.mem package.pathsForModule modname then
-    let paths = Hashtbl.find package.pathsForModule modname in
+let fullFromModule ~package ~moduleName =
+  if Hashtbl.mem package.pathsForModule moduleName then
+    let paths = Hashtbl.find package.pathsForModule moduleName in
     let uri = getUri paths in
-    fromUri ~uri
+    fullFromUri ~uri
   else None
 
-let fromPath ~path =
+let fullFromPath ~path =
   let uri = Uri2.fromPath path in
-  fromUri ~uri
+  fullFromUri ~uri
 
 let resolveModuleFromCompilerPath ~env ~package path =
   match ProcessCmt.fromCompilerPath ~env path with

@@ -13,11 +13,10 @@ let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
         Printf.printf "Completable: %s\n"
           (SharedTypes.Completable.toString completable);
       (* Only perform expensive ast operations if there are completables *)
-      match Cmt.fromPath ~path with
+      match Cmt.fullFromPath ~path with
       | None -> []
-      | Some full ->
-        let env = SharedTypes.QueryEnv.fromFile full.file in
-        let package = full.package in
+      | Some {file; package} ->
+        let env = SharedTypes.QueryEnv.fromFile file in
         completable
         |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope ~env
              ~forHover))
@@ -31,9 +30,9 @@ let completion ~debug ~path ~pos ~currentFile =
 
 let hover ~path ~line ~col ~currentFile ~debug =
   let result =
-    match Cmt.fromPath ~path with
+    match Cmt.fullFromPath ~path with
     | None -> Protocol.null
-    | Some ({file} as full) -> (
+    | Some full -> (
       match References.getLocItem ~full ~line ~col with
       | None -> (
         if debug then
@@ -62,7 +61,7 @@ let hover ~path ~line ~col ~currentFile ~debug =
           match uriLocOpt with
           | None -> false
           | Some (_, loc) ->
-            let isInterface = file.uri |> Uri2.isInterface in
+            let isInterface = full.file.uri |> Uri2.isInterface in
             let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
               (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
             in
@@ -84,16 +83,16 @@ let codeAction ~path ~line ~col ~currentFile =
 
 let definition ~path ~line ~col =
   let locationOpt =
-    match Cmt.fromPath ~path with
+    match Cmt.fullFromPath ~path with
     | None -> None
-    | Some ({file} as full) -> (
+    | Some full -> (
       match References.getLocItem ~full ~line ~col with
       | None -> None
       | Some locItem -> (
         match References.definitionForLocItem ~full locItem with
         | None -> None
         | Some (uri, loc) ->
-          let isInterface = file.uri |> Uri2.isInterface in
+          let isInterface = full.file.uri |> Uri2.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
             (* range is zero *)
             pos_lnum = 1 && pos_cnum - pos_bol = 0
@@ -122,7 +121,7 @@ let definition ~path ~line ~col =
 
 let typeDefinition ~path ~line ~col =
   let maybeLocation =
-    match Cmt.fromPath ~path with
+    match Cmt.fullFromPath ~path with
     | None -> None
     | Some full -> (
       match References.getLocItem ~full ~line ~col with
@@ -142,7 +141,7 @@ let typeDefinition ~path ~line ~col =
 
 let references ~path ~line ~col =
   let allLocs =
-    match Cmt.fromPath ~path with
+    match Cmt.fullFromPath ~path with
     | None -> []
     | Some full -> (
       match References.getLocItem ~full ~line ~col with
@@ -168,7 +167,7 @@ let references ~path ~line ~col =
 
 let rename ~path ~line ~col ~newName =
   let result =
-    match Cmt.fromPath ~path with
+    match Cmt.fullFromPath ~path with
     | None -> Protocol.null
     | Some full -> (
       match References.getLocItem ~full ~line ~col with

@@ -199,7 +199,7 @@ let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
       maybeLog
         ("alternateDeclared for " ^ file.moduleName ^ " has both resi and res");
       let alternateUri = if Uri2.isInterface file.uri then res else resi in
-      match Cmt.fromUri ~uri:(Uri2.fromPath alternateUri) with
+      match Cmt.fullFromUri ~uri:(Uri2.fromPath alternateUri) with
       | None -> None
       | Some {file; extra} -> (
         match
@@ -473,11 +473,11 @@ let forLocalStamp ~full:{file; extra; package} stamp (tip : Tip.t) =
               let externals =
                 package.projectFiles |> FileSet.elements
                 |> List.filter (fun name -> name <> file.moduleName)
-                |> List.map (fun name ->
-                       match ProcessCmt.fileForModule ~package name with
+                |> List.map (fun moduleName ->
+                       match ProcessCmt.fileForModule ~package moduleName with
                        | None -> []
                        | Some file -> (
-                         match Cmt.fromModule ~package name with
+                         match Cmt.fullFromModule ~package ~moduleName with
                          | None -> []
                          | Some {extra} -> (
                            match
@@ -514,7 +514,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       |> Utils.filterMap (fun name ->
              match ProcessCmt.fileForModule ~package name with
              | None -> None
-             | Some file -> Cmt.fromUri ~uri:file.uri)
+             | Some file -> Cmt.fullFromUri ~uri:file.uri)
       |> List.map (fun full ->
              match Hashtbl.find_opt full.extra.fileReferences moduleName with
              | None -> []
@@ -555,7 +555,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
         match exportedForTip ~env name tip with
         | None -> []
         | Some stamp -> (
-          match Cmt.fromUri ~uri:env.file.uri with
+          match Cmt.fullFromUri ~uri:env.file.uri with
           | None -> []
           | Some full ->
             maybeLog
