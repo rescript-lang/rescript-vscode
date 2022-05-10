@@ -466,52 +466,6 @@ and forStructure ~env strItems =
   in
   {docstring; exported; items}
 
-let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
-  match cmt_annots with
-  | Partial_implementation parts ->
-    let items =
-      parts |> Array.to_list
-      |> Utils.filterMap (fun p ->
-             match (p : Cmt_format.binary_part) with
-             | Partial_structure str -> Some str.str_items
-             | Partial_structure_item str -> Some [str]
-             | _ -> None)
-      |> List.concat
-    in
-    let env =
-      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
-    in
-    let structure = forStructure ~env items in
-    {File.uri; moduleName = cmt_modname; stamps = env.stamps; structure}
-  | Partial_interface parts ->
-    let items =
-      parts |> Array.to_list
-      |> Utils.filterMap (fun (p : Cmt_format.binary_part) ->
-             match p with
-             | Partial_signature str -> Some str.sig_items
-             | Partial_signature_item str -> Some [str]
-             | _ -> None)
-      |> List.concat
-    in
-    let env =
-      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
-    in
-    let structure = forSignature ~env items in
-    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
-  | Implementation structure ->
-    let env =
-      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
-    in
-    let structure = forStructure ~env structure.str_items in
-    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
-  | Interface signature ->
-    let env =
-      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
-    in
-    let structure = forSignature ~env signature.sig_items in
-    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
-  | _ -> File.create moduleName uri
-
 let addLocItem extra loc locType =
   if not loc.Warnings.loc_ghost then
     extra.locItems <- {loc; locType} :: extra.locItems
@@ -668,28 +622,76 @@ let extraForCmt ~(iterator : Tast_iterator.iterator)
     extraForParts parts
   | _ -> extraForStructureItems ~iterator []
 
-let fileForModule modname ~package =
-  let getFile ~moduleName ~cmt ~uri =
-    if Hashtbl.mem state.cmtCache cmt then Hashtbl.find_opt state.cmtCache cmt
-    else
-      match Shared.tryReadCmt cmt with
-      | None -> None
-      | Some infos ->
-        let file = forCmt ~moduleName ~uri infos in
-        Hashtbl.replace state.cmtCache cmt file;
-        Some file
-  in
-  if Hashtbl.mem package.pathsForModule modname then (
-    let paths = Hashtbl.find package.pathsForModule modname in
+let fileForCmtInfos ~moduleName ~uri
+    ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
+  match cmt_annots with
+  | Partial_implementation parts ->
+    let items =
+      parts |> Array.to_list
+      |> Utils.filterMap (fun p ->
+             match (p : Cmt_format.binary_part) with
+             | Partial_structure str -> Some str.str_items
+             | Partial_structure_item str -> Some [str]
+             | _ -> None)
+      |> List.concat
+    in
+    let env =
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
+    in
+    let structure = forStructure ~env items in
+    {File.uri; moduleName = cmt_modname; stamps = env.stamps; structure}
+  | Partial_interface parts ->
+    let items =
+      parts |> Array.to_list
+      |> Utils.filterMap (fun (p : Cmt_format.binary_part) ->
+             match p with
+             | Partial_signature str -> Some str.sig_items
+             | Partial_signature_item str -> Some [str]
+             | _ -> None)
+      |> List.concat
+    in
+    let env =
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
+    in
+    let structure = forSignature ~env items in
+    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
+  | Implementation structure ->
+    let env =
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
+    in
+    let structure = forStructure ~env structure.str_items in
+    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
+  | Interface signature ->
+    let env =
+      {Env.stamps = Stamps.init (); modulePath = File (uri, moduleName)}
+    in
+    let structure = forSignature ~env signature.sig_items in
+    {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
+  | _ -> File.create moduleName uri
+
+let fileForCmt ~moduleName ~cmt ~uri =
+  match Hashtbl.find_opt state.cmtCache cmt with
+  | Some file -> Some file
+  | None -> (
+    match Shared.tryReadCmt cmt with
+    | None -> None
+    | Some infos ->
+      let file = fileForCmtInfos ~moduleName ~uri infos in
+      Hashtbl.replace state.cmtCache cmt file;
+      Some file)
+
+let fileForModule moduleName ~package =
+  match Hashtbl.find_opt package.pathsForModule moduleName with
+  | Some paths -> (
     let uri = getUri paths in
     let cmt = getCmtPath ~uri paths in
     Log.log ("fileForModule " ^ showPaths paths);
-    match getFile ~moduleName:modname ~cmt ~uri with
+    match fileForCmt ~cmt ~moduleName ~uri with
     | None -> None
     | Some docs -> Some docs)
-  else (
-    Log.log ("No path for module " ^ modname);
-    None)
+  | None ->
+    Log.log ("No path for module " ^ moduleName);
+    None
 
 let rec resolvePathInner ~(env : QueryEnv.t) ~path =
   match path with
@@ -1037,7 +1039,7 @@ let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
   | None -> None
   | Some infos ->
-    let file = forCmt ~moduleName ~uri infos in
+    let file = fileForCmtInfos ~moduleName ~uri infos in
     let extra = extraForFile ~file in
     let env = QueryEnv.fromFile file in
     let iterator = getIterator ~env ~extra ~file in
