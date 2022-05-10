@@ -590,6 +590,131 @@ let rec makePath modulePath =
   | Papply (fnPath, _argPath) -> makePath fnPath
   | Pdot (inner, name, _) -> `Path (joinPaths inner [name])
 
+let addExternalReference ~extra moduleName path tip loc =
+  (* TODO need to follow the path, and be able to load the files to follow module references... *)
+  Hashtbl.replace extra.externalReferences moduleName
+    ((path, tip, loc)
+    ::
+    (if Hashtbl.mem extra.externalReferences moduleName then
+     Hashtbl.find extra.externalReferences moduleName
+    else []))
+
+let addFileReference ~extra moduleName loc =
+  let newLocs =
+    match Hashtbl.find_opt extra.fileReferences moduleName with
+    | Some oldLocs -> LocationSet.add loc oldLocs
+    | None -> LocationSet.singleton loc
+  in
+  Hashtbl.replace extra.fileReferences moduleName newLocs
+
+let handleConstructor txt =
+  match txt with
+  | Longident.Lident name -> name
+  | Ldot (_left, name) -> name
+  | Lapply (_, _) -> assert false
+
+let rec lidIsComplex (lid : Longident.t) =
+  match lid with
+  | Lapply _ -> true
+  | Ldot (lid, _) -> lidIsComplex lid
+  | _ -> false
+
+let extraForStructureItems ~(iterator : Tast_iterator.iterator)
+    (items : Typedtree.structure_item list) =
+  items |> List.iter (iterator.structure_item iterator)
+
+let extraForSignatureItems ~(iterator : Tast_iterator.iterator)
+    (items : Typedtree.signature_item list) =
+  items |> List.iter (iterator.signature_item iterator)
+
+let extraForCmt ~(iterator : Tast_iterator.iterator)
+    ({cmt_annots} : Cmt_format.cmt_infos) =
+  let extraForParts parts =
+    parts
+    |> Array.iter (fun part ->
+           match part with
+           | Cmt_format.Partial_signature str -> iterator.signature iterator str
+           | Partial_signature_item str -> iterator.signature_item iterator str
+           | Partial_expression expression -> iterator.expr iterator expression
+           | Partial_pattern pattern -> iterator.pat iterator pattern
+           | Partial_class_expr () -> ()
+           | Partial_module_type module_type ->
+             iterator.module_type iterator module_type
+           | Partial_structure _ | Partial_structure_item _ -> ())
+  in
+  match cmt_annots with
+  | Implementation structure ->
+    extraForStructureItems ~iterator structure.str_items
+  | Partial_implementation parts ->
+    let items =
+      parts |> Array.to_list
+      |> Utils.filterMap (fun (p : Cmt_format.binary_part) ->
+             match p with
+             | Partial_structure str -> Some str.str_items
+             | Partial_structure_item str -> Some [str]
+             (* | Partial_expression(exp) => Some([ str]) *)
+             | _ -> None)
+      |> List.concat
+    in
+    extraForStructureItems ~iterator items;
+    extraForParts parts
+  | Interface signature -> extraForSignatureItems ~iterator signature.sig_items
+  | Partial_interface parts ->
+    let items =
+      parts |> Array.to_list
+      |> Utils.filterMap (fun (p : Cmt_format.binary_part) ->
+             match p with
+             | Partial_signature s -> Some s.sig_items
+             | Partial_signature_item str -> Some [str]
+             | _ -> None)
+      |> List.concat
+    in
+    extraForSignatureItems ~iterator items;
+    extraForParts parts
+  | _ -> extraForStructureItems ~iterator []
+
+let newFileForCmt ~moduleName cmtCache changed ~cmt ~uri =
+  match fileForCmt ~moduleName ~uri cmt with
+  | None -> None
+  | Some file ->
+    Hashtbl.replace cmtCache cmt (changed, file);
+    Some file
+
+let fileForCmt ~moduleName ~cmt ~uri state =
+  if Hashtbl.mem state.cmtCache cmt then
+    let mtime, docs = Hashtbl.find state.cmtCache cmt in
+    (* TODO: I should really throttle this mtime checking to like every 50 ms or so *)
+    match Files.getMtime cmt with
+    | None ->
+      Log.log
+        ("\226\154\160\239\184\143 cannot get docs for nonexistant cmt " ^ cmt);
+      None
+    | Some changed ->
+      if changed > mtime then
+        newFileForCmt ~moduleName state.cmtCache changed ~cmt ~uri
+      else Some docs
+  else
+    match Files.getMtime cmt with
+    | None ->
+      Log.log
+        ("\226\154\160\239\184\143 cannot get docs for nonexistant cmt " ^ cmt);
+      None
+    | Some changed -> newFileForCmt ~moduleName state.cmtCache changed ~cmt ~uri
+
+let fileForModule modname ~package =
+  if Hashtbl.mem package.pathsForModule modname then (
+    let paths = Hashtbl.find package.pathsForModule modname in
+    (* TODO: do better *)
+    let uri = getUri paths in
+    let cmt = getCmtPath ~uri paths in
+    Log.log ("fileForModule " ^ showPaths paths);
+    match fileForCmt ~moduleName:modname ~cmt ~uri state with
+    | None -> None
+    | Some docs -> Some docs)
+  else (
+    Log.log ("No path for module " ^ modname);
+    None)
+
 let rec resolvePathInner ~(env : QueryEnv.t) ~path =
   match path with
   | [] -> None
@@ -614,6 +739,22 @@ and findInModule ~env module_ path =
       | None -> None
       | Some {item} -> findInModule ~env item fullPath)
 
+let rec resolvePath ~env ~path ~package =
+  Log.log ("resolvePath path:" ^ pathToString path);
+  match resolvePathInner ~env ~path with
+  | None -> None
+  | Some result -> (
+    match result with
+    | `Local (env, name) -> Some (env, name)
+    | `Global (moduleName, fullPath) -> (
+      Log.log
+        ("resolvePath Global path:" ^ pathToString fullPath ^ " module:"
+       ^ moduleName);
+      match fileForModule ~package moduleName with
+      | None -> None
+      | Some file ->
+        resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package))
+
 let fromCompilerPath ~(env : QueryEnv.t) path =
   match makePath path with
   | `Stamp stamp -> `Stamp stamp
@@ -629,23 +770,6 @@ let fromCompilerPath ~(env : QueryEnv.t) path =
     | None -> `Not_found
     | Some (`Local (env, name)) -> `Exported (env, name)
     | Some (`Global (moduleName, fullPath)) -> `Global (moduleName, fullPath))
-
-let addExternalReference ~extra moduleName path tip loc =
-  (* TODO need to follow the path, and be able to load the files to follow module references... *)
-  Hashtbl.replace extra.externalReferences moduleName
-    ((path, tip, loc)
-    ::
-    (if Hashtbl.mem extra.externalReferences moduleName then
-     Hashtbl.find extra.externalReferences moduleName
-    else []))
-
-let addFileReference ~extra moduleName loc =
-  let newLocs =
-    match Hashtbl.find_opt extra.fileReferences moduleName with
-    | Some oldLocs -> LocationSet.add loc oldLocs
-    | None -> LocationSet.singleton loc
-  in
-  Hashtbl.replace extra.fileReferences moduleName newLocs
 
 let addForPath ~env ~extra path lident loc typ tip =
   let identName = Longident.last lident in
@@ -713,12 +837,6 @@ let getTypeAtPath ~env path =
     match declaredType with
     | Some declaredType -> `Local declaredType
     | None -> `Not_found)
-
-let handleConstructor txt =
-  match txt with
-  | Longident.Lident name -> name
-  | Ldot (_left, name) -> name
-  | Lapply (_, _) -> assert false
 
 let addForField ~env ~extra recordType fieldType {Asttypes.txt; loc} =
   match (Shared.dig recordType).desc with
@@ -792,12 +910,6 @@ let addForConstructor ~env ~extra constructorType {Asttypes.txt; loc}
     in
     addLocItem extra nameLoc (Typed (name, constructorType, locType))
   | _ -> ()
-
-let rec lidIsComplex (lid : Longident.t) =
-  match lid with
-  | Lapply _ -> true
-  | Ldot (lid, _) -> lidIsComplex lid
-  | _ -> false
 
 let rec addForLongident ~env ~extra top (path : Path.t) (txt : Longident.t) loc
     =
@@ -945,60 +1057,6 @@ let getIterator ~env ~extra ~file =
     typ = typ ~env ~extra;
   }
 
-let extraForStructureItems ~(iterator : Tast_iterator.iterator)
-    (items : Typedtree.structure_item list) =
-  items |> List.iter (iterator.structure_item iterator)
-
-let extraForSignatureItems ~(iterator : Tast_iterator.iterator)
-    (items : Typedtree.signature_item list) =
-  items |> List.iter (iterator.signature_item iterator)
-
-let extraForCmt ~(iterator : Tast_iterator.iterator)
-    ({cmt_annots} : Cmt_format.cmt_infos) =
-  let extraForParts parts =
-    parts
-    |> Array.iter (fun part ->
-           match part with
-           | Cmt_format.Partial_signature str -> iterator.signature iterator str
-           | Partial_signature_item str -> iterator.signature_item iterator str
-           | Partial_expression expression -> iterator.expr iterator expression
-           | Partial_pattern pattern -> iterator.pat iterator pattern
-           | Partial_class_expr () -> ()
-           | Partial_module_type module_type ->
-             iterator.module_type iterator module_type
-           | Partial_structure _ | Partial_structure_item _ -> ())
-  in
-  match cmt_annots with
-  | Implementation structure ->
-    extraForStructureItems ~iterator structure.str_items
-  | Partial_implementation parts ->
-    let items =
-      parts |> Array.to_list
-      |> Utils.filterMap (fun (p : Cmt_format.binary_part) ->
-             match p with
-             | Partial_structure str -> Some str.str_items
-             | Partial_structure_item str -> Some [str]
-             (* | Partial_expression(exp) => Some([ str]) *)
-             | _ -> None)
-      |> List.concat
-    in
-    extraForStructureItems ~iterator items;
-    extraForParts parts
-  | Interface signature -> extraForSignatureItems ~iterator signature.sig_items
-  | Partial_interface parts ->
-    let items =
-      parts |> Array.to_list
-      |> Utils.filterMap (fun (p : Cmt_format.binary_part) ->
-             match p with
-             | Partial_signature s -> Some s.sig_items
-             | Partial_signature_item str -> Some [str]
-             | _ -> None)
-      |> List.concat
-    in
-    extraForSignatureItems ~iterator items;
-    extraForParts parts
-  | _ -> extraForStructureItems ~iterator []
-
 let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
   | None -> None
@@ -1009,134 +1067,3 @@ let fullForCmt ~moduleName ~package ~uri cmt =
     let iterator = getIterator ~env ~extra ~file in
     extraForCmt ~iterator infos;
     Some {file; extra; package}
-
-let newFileForCmt ~moduleName cmtCache changed ~cmt ~uri =
-  match fileForCmt ~moduleName ~uri cmt with
-  | None -> None
-  | Some file ->
-    Hashtbl.replace cmtCache cmt (changed, file);
-    Some file
-
-let fileForCmt ~moduleName ~cmt ~uri state =
-  if Hashtbl.mem state.cmtCache cmt then
-    let mtime, docs = Hashtbl.find state.cmtCache cmt in
-    (* TODO: I should really throttle this mtime checking to like every 50 ms or so *)
-    match Files.getMtime cmt with
-    | None ->
-      Log.log
-        ("\226\154\160\239\184\143 cannot get docs for nonexistant cmt " ^ cmt);
-      None
-    | Some changed ->
-      if changed > mtime then
-        newFileForCmt ~moduleName state.cmtCache changed ~cmt ~uri
-      else Some docs
-  else
-    match Files.getMtime cmt with
-    | None ->
-      Log.log
-        ("\226\154\160\239\184\143 cannot get docs for nonexistant cmt " ^ cmt);
-      None
-    | Some changed -> newFileForCmt ~moduleName state.cmtCache changed ~cmt ~uri
-
-let fileForModule modname ~package =
-  if Hashtbl.mem package.pathsForModule modname then (
-    let paths = Hashtbl.find package.pathsForModule modname in
-    (* TODO: do better *)
-    let uri = getUri paths in
-    let cmt = getCmtPath ~uri paths in
-    Log.log ("fileForModule " ^ showPaths paths);
-    match fileForCmt ~moduleName:modname ~cmt ~uri state with
-    | None -> None
-    | Some docs -> Some docs)
-  else (
-    Log.log ("No path for module " ^ modname);
-    None)
-
-let rec resolvePath ~env ~path ~package =
-  Log.log ("resolvePath path:" ^ pathToString path);
-  match resolvePathInner ~env ~path with
-  | None -> None
-  | Some result -> (
-    match result with
-    | `Local (env, name) -> Some (env, name)
-    | `Global (moduleName, fullPath) -> (
-      Log.log
-        ("resolvePath Global path:" ^ pathToString fullPath ^ " module:"
-       ^ moduleName);
-      match fileForModule ~package moduleName with
-      | None -> None
-      | Some file ->
-        resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package))
-
-let resolveModuleFromCompilerPath ~env ~package path =
-  match fromCompilerPath ~env path with
-  | `Global (moduleName, path) -> (
-    match fileForModule ~package moduleName with
-    | None -> None
-    | Some file -> (
-      let env = QueryEnv.fromFile file in
-      match resolvePath ~env ~package ~path with
-      | None -> None
-      | Some (env, name) -> (
-        match Exported.find env.exported Exported.Module name with
-        | None -> None
-        | Some stamp -> (
-          match Stamps.findModule env.file.stamps stamp with
-          | None -> None
-          | Some declared -> Some (env, Some declared)))))
-  | `Stamp stamp -> (
-    match Stamps.findModule env.file.stamps stamp with
-    | None -> None
-    | Some declared -> Some (env, Some declared))
-  | `GlobalMod moduleName -> (
-    match fileForModule ~package moduleName with
-    | None -> None
-    | Some file ->
-      let env = QueryEnv.fromFile file in
-      Some (env, None))
-  | `Not_found -> None
-  | `Exported (env, name) -> (
-    match Exported.find env.exported Exported.Module name with
-    | None -> None
-    | Some stamp -> (
-      match Stamps.findModule env.file.stamps stamp with
-      | None -> None
-      | Some declared -> Some (env, Some declared)))
-
-let resolveFromCompilerPath ~env ~package path =
-  match fromCompilerPath ~env path with
-  | `Global (moduleName, path) -> (
-    let res =
-      match fileForModule ~package moduleName with
-      | None -> None
-      | Some file ->
-        let env = QueryEnv.fromFile file in
-        resolvePath ~env ~package ~path
-    in
-    match res with
-    | None -> `Not_found
-    | Some (env, name) -> `Exported (env, name))
-  | `Stamp stamp -> `Stamp stamp
-  | `GlobalMod _ -> `Not_found
-  | `Not_found -> `Not_found
-  | `Exported (env, name) -> `Exported (env, name)
-
-let rec getSourceUri ~(env : QueryEnv.t) ~package path =
-  match path with
-  | File (uri, _moduleName) -> uri
-  | NotVisible -> env.file.uri
-  | IncludedModule (path, inner) -> (
-    Log.log "INCLUDED MODULE";
-    match resolveModuleFromCompilerPath ~env ~package path with
-    | None ->
-      Log.log "NOT FOUND";
-      getSourceUri ~env ~package inner
-    | Some (env, _declared) -> env.file.uri)
-  | ExportedModule (_, inner) -> getSourceUri ~env ~package inner
-
-let exportedForTip ~(env : QueryEnv.t) name (tip : Tip.t) =
-  match tip with
-  | Value -> Exported.find env.exported Exported.Value name
-  | Field _ | Constructor _ | Type ->
-    Exported.find env.exported Exported.Type name
-  | Module -> Exported.find env.exported Exported.Module name

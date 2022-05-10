@@ -63,7 +63,7 @@ let newHover ~full:{file; package} locItem =
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
-        match ProcessCmt.exportedForTip ~env name tip with
+        match References.exportedForTip ~env name tip with
         | None -> None
         | Some stamp -> (
           match Stamps.findModule file.stamps stamp with

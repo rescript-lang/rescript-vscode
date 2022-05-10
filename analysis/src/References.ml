@@ -120,6 +120,13 @@ let getConstructor (file : File.t) stamp name =
       | Some const -> Some const)
     | _ -> None)
 
+let exportedForTip ~(env : QueryEnv.t) name (tip : Tip.t) =
+  match tip with
+  | Value -> Exported.find env.exported Exported.Value name
+  | Field _ | Constructor _ | Type ->
+    Exported.find env.exported Exported.Type name
+  | Module -> Exported.find env.exported Exported.Module name
+
 let definedForLoc ~file ~package locKind =
   let inner ~file stamp (tip : Tip.t) =
     match tip with
@@ -153,7 +160,7 @@ let definedForLoc ~file ~package locKind =
         Log.log ("Cannot resolve path " ^ pathToString path);
         None
       | Some (env, name) -> (
-        match ProcessCmt.exportedForTip ~env name tip with
+        match exportedForTip ~env name tip with
         | None ->
           Log.log
             ("Exported not found for tip " ^ name ^ " > " ^ Tip.toString tip);
@@ -300,7 +307,7 @@ let definition ~file ~package stamp (tip : Tip.t) =
       in
       let loc = validateLoc declaredImpl.name.loc declaredImpl.extentLoc in
       let env = QueryEnv.fromFile fileImpl in
-      let uri = ProcessCmt.getSourceUri ~env ~package declaredImpl.modulePath in
+      let uri = Cmt.getSourceUri ~env ~package declaredImpl.modulePath in
       maybeLog ("Inner uri " ^ Uri2.toString uri);
       Some (uri, loc))
 
@@ -351,7 +358,7 @@ let definitionForLocItem ~full:{file; package} locItem =
       | None -> None
       | Some (env, name) -> (
         maybeLog ("resolved path:" ^ name);
-        match ProcessCmt.exportedForTip ~env name tip with
+        match exportedForTip ~env name tip with
         | None -> None
         | Some stamp ->
           (* oooh wht do I do if the stamp is inside a pseudo-file? *)
@@ -359,7 +366,7 @@ let definitionForLocItem ~full:{file; package} locItem =
           definition ~file:env.file ~package stamp tip)))
 
 let digConstructor ~env ~package path =
-  match ProcessCmt.resolveFromCompilerPath ~env ~package path with
+  match Cmt.resolveFromCompilerPath ~env ~package path with
   | `Not_found -> None
   | `Stamp stamp -> (
     match Stamps.findType env.file.stamps stamp with
@@ -545,7 +552,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       match ProcessCmt.resolvePath ~env ~path ~package with
       | None -> []
       | Some (env, name) -> (
-        match ProcessCmt.exportedForTip ~env name tip with
+        match exportedForTip ~env name tip with
         | None -> []
         | Some stamp -> (
           match Cmt.fromUri ~uri:env.file.uri with
