@@ -1,7 +1,7 @@
 open SharedTypes
 
-let addItem ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t) ~item
-    attributes addExported addStamp =
+let addDeclared ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t)
+    ~item attributes addExported addStamp =
   let isExported = addExported name.txt stamp in
   let declared =
     ProcessAttributes.newDeclared ~item ~extent ~name ~stamp
@@ -16,7 +16,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
   | Sig_value (ident, {val_type; val_attributes; val_loc = loc}) ->
     let item = val_type in
     let declared =
-      addItem
+      addDeclared
         ~name:(Location.mknoloc (Ident.name ident))
         ~extent:loc ~stamp:(Ident.binding_time ident) ~env ~item val_attributes
         (Exported.add exported Exported.Value)
@@ -29,7 +29,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
         recStatus ) ->
     let declared =
       let name = Location.mknoloc (Ident.name ident) in
-      addItem ~extent:type_loc
+      addDeclared ~extent:type_loc
         ~item:
           {
             Type.decl;
@@ -93,7 +93,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
     [{Module.kind = Type (declared.item, recStatus); name = declared.name.txt}]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let declared =
-      addItem ~extent:md_loc
+      addDeclared ~extent:md_loc
         ~item:(forTypeModule env md_type)
         ~name:(Location.mknoloc (Ident.name ident))
         ~stamp:(Ident.binding_time ident) ~env md_attributes
@@ -137,7 +137,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
     } ~recStatus =
   let stamp = Ident.binding_time typ_id in
   let declared =
-    addItem ~extent:typ_loc
+    addDeclared ~extent:typ_loc
       ~item:
         {
           Type.decl = typ_type;
@@ -218,7 +218,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
   match item.sig_desc with
   | Tsig_value {val_id; val_loc; val_name = name; val_desc; val_attributes} ->
     let declared =
-      addItem ~name
+      addDeclared ~name
         ~stamp:(Ident.binding_time val_id)
         ~extent:val_loc ~item:val_desc.ctyp_type ~env val_attributes
         (Exported.add exported Exported.Value)
@@ -239,8 +239,8 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
       {md_id; md_attributes; md_loc; md_name = name; md_type = {mty_type}} ->
     let item = forTypeModule env mty_type in
     let declared =
-      addItem ~item ~name ~extent:md_loc ~stamp:(Ident.binding_time md_id) ~env
-        md_attributes
+      addDeclared ~item ~name ~extent:md_loc ~stamp:(Ident.binding_time md_id)
+        ~env md_attributes
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
@@ -312,7 +312,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
       | Tpat_alias (_, ident, name) (* let x : t = ... *) ->
         let item = pat.pat_type in
         let declared =
-          addItem ~name ~stamp:(Ident.binding_time ident) ~env
+          addDeclared ~name ~stamp:(Ident.binding_time ident) ~env
             ~extent:pat.pat_loc ~item attributes
             (Exported.add exported Exported.Value)
             Stamps.addValue
@@ -340,8 +340,8 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
          (* %%private generates a dummy module called local_... *) ->
     let item = forModule env mod_desc name.txt in
     let declared =
-      addItem ~item ~name ~extent:mb_loc ~stamp:(Ident.binding_time mb_id) ~env
-        mb_attributes
+      addDeclared ~item ~name ~extent:mb_loc ~stamp:(Ident.binding_time mb_id)
+        ~env mb_attributes
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
@@ -365,7 +365,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
     in
     let modTypeItem = forTypeModule env modType in
     let declared =
-      addItem ~item:modTypeItem ~name ~extent:mtd_loc
+      addDeclared ~item:modTypeItem ~name ~extent:mtd_loc
         ~stamp:(Ident.binding_time mtd_id)
         ~env mtd_attributes
         (Exported.add exported Exported.Module)
@@ -389,7 +389,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
       {val_id; val_name = name; val_loc; val_attributes; val_val = {val_type}}
     ->
     let declared =
-      addItem ~extent:val_loc ~item:val_type ~name
+      addDeclared ~extent:val_loc ~item:val_type ~name
         ~stamp:(Ident.binding_time val_id)
         ~env val_attributes
         (Exported.add exported Exported.Value)
