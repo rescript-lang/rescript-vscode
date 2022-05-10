@@ -155,7 +155,7 @@ let definedForLoc ~file ~package locKind =
       None
     | Some file -> (
       let env = QueryEnv.fromFile file in
-      match ProcessCmt.resolvePath ~env ~path ~package with
+      match ResolvePath.resolvePath ~env ~path ~package with
       | None ->
         Log.log ("Cannot resolve path " ^ pathToString path);
         None
@@ -222,7 +222,7 @@ let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
       {declared with item = moduleTypeItem}
   | Ident path -> (
     let env = QueryEnv.fromFile file in
-    match ProcessCmt.fromCompilerPath ~env path with
+    match ResolvePath.fromCompilerPath ~env path with
     | `Not_found -> None
     | `Exported (env, name) -> (
       match Exported.find env.exported Exported.Module name with
@@ -236,7 +236,7 @@ let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
       | None -> None
       | Some file -> (
         let env = QueryEnv.fromFile file in
-        match ProcessCmt.resolvePath ~env ~package ~path with
+        match ResolvePath.resolvePath ~env ~package ~path with
         | None -> None
         | Some (env, name) -> (
           match Exported.find env.exported Exported.Module name with
@@ -307,7 +307,9 @@ let definition ~file ~package stamp (tip : Tip.t) =
       in
       let loc = validateLoc declaredImpl.name.loc declaredImpl.extentLoc in
       let env = QueryEnv.fromFile fileImpl in
-      let uri = Cmt.getSourceUri ~env ~package declaredImpl.modulePath in
+      let uri =
+        ResolvePath.getSourceUri ~env ~package declaredImpl.modulePath
+      in
       maybeLog ("Inner uri " ^ Uri2.toString uri);
       Some (uri, loc))
 
@@ -354,7 +356,7 @@ let definitionForLocItem ~full:{file; package} locItem =
     | None -> None
     | Some file -> (
       let env = QueryEnv.fromFile file in
-      match ProcessCmt.resolvePath ~env ~path ~package with
+      match ResolvePath.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
         maybeLog ("resolved path:" ^ name);
@@ -366,7 +368,7 @@ let definitionForLocItem ~full:{file; package} locItem =
           definition ~file:env.file ~package stamp tip)))
 
 let digConstructor ~env ~package path =
-  match Cmt.resolveFromCompilerPath ~env ~package path with
+  match ResolvePath.resolveFromCompilerPath ~env ~package path with
   | `Not_found -> None
   | `Stamp stamp -> (
     match Stamps.findType env.file.stamps stamp with
@@ -549,7 +551,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
     | None -> []
     | Some file -> (
       let env = QueryEnv.fromFile file in
-      match ProcessCmt.resolvePath ~env ~path ~package with
+      match ResolvePath.resolvePath ~env ~path ~package with
       | None -> []
       | Some (env, name) -> (
         match exportedForTip ~env name tip with

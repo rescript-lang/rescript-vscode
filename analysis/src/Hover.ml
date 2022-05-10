@@ -60,7 +60,7 @@ let newHover ~full:{file; package} locItem =
     | None -> None
     | Some file -> (
       let env = QueryEnv.fromFile file in
-      match ProcessCmt.resolvePath ~env ~path ~package with
+      match ResolvePath.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
         match References.exportedForTip ~env name tip with

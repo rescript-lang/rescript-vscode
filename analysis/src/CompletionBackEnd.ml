@@ -516,7 +516,7 @@ let resolveOpens ~env ~previous opens ~package =
               previous (* TODO: warn? *)
             | Some file -> (
               match
-                ProcessCmt.resolvePath ~env:(QueryEnv.fromFile file) ~package
+                ResolvePath.resolvePath ~env:(QueryEnv.fromFile file) ~package
                   ~path
               with
               | None ->
@@ -524,12 +524,12 @@ let resolveOpens ~env ~previous opens ~package =
                 previous
               | Some (env, _placeholder) -> previous @ [env])))
         | env :: rest -> (
-          match ProcessCmt.resolvePath ~env ~package ~path with
+          match ResolvePath.resolvePath ~env ~package ~path with
           | None -> loop rest
           | Some (env, _placeholder) -> previous @ [env])
       in
       Log.log ("resolving open " ^ pathToString path);
-      match ProcessCmt.resolvePath ~env ~package ~path with
+      match ResolvePath.resolvePath ~env ~package ~path with
       | None ->
         Log.log "Not local";
         loop previous
@@ -652,7 +652,7 @@ let resolvePathFromStamps ~(env : QueryEnv.t) ~package ~scope ~moduleName ~path
   | None -> None
   | Some declared -> (
     (* Log.log("found it"); *)
-    match ProcessCmt.findInModule ~env declared.item path with
+    match ResolvePath.findInModule ~env declared.item path with
     | None -> None
     | Some res -> (
       match res with
@@ -661,7 +661,7 @@ let resolvePathFromStamps ~(env : QueryEnv.t) ~package ~scope ~moduleName ~path
         match ProcessCmt.fileForModule ~package moduleName with
         | None -> None
         | Some file ->
-          ProcessCmt.resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath
+          ResolvePath.resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath
             ~package)))
 
 let resolveModuleWithOpens ~opens ~package ~moduleName =
@@ -669,7 +669,7 @@ let resolveModuleWithOpens ~opens ~package ~moduleName =
     match opens with
     | (env : QueryEnv.t) :: rest -> (
       Log.log ("Looking for env in " ^ Uri2.toString env.file.uri);
-      match ProcessCmt.resolvePath ~env ~package ~path:[moduleName; ""] with
+      match ResolvePath.resolvePath ~env ~package ~path:[moduleName; ""] with
       | Some (env, _) -> Some env
       | None -> loop rest)
     | [] -> None
@@ -692,11 +692,11 @@ let getEnvWithOpens ~scope ~(env : QueryEnv.t) ~package
   | Some x -> Some x
   | None -> (
     match resolveModuleWithOpens ~opens ~package ~moduleName with
-    | Some env -> ProcessCmt.resolvePath ~env ~package ~path
+    | Some env -> ResolvePath.resolvePath ~env ~package ~path
     | None -> (
       match resolveFileModule ~moduleName ~package with
       | None -> None
-      | Some env -> ProcessCmt.resolvePath ~env ~package ~path))
+      | Some env -> ResolvePath.resolvePath ~env ~package ~path))
 
 let detail name (kind : Completion.kind) =
   match kind with
