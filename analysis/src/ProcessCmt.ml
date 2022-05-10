@@ -512,10 +512,17 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | _ -> File.create moduleName uri
 
-let fileForCmt ~moduleName ~uri cmt =
-  match Shared.tryReadCmt cmt with
-  | None -> None
-  | Some infos -> Some (forCmt ~moduleName ~uri infos)
+let fileForCmt ~moduleName ~cmt ~uri =
+  if Hashtbl.mem state.cmtCache cmt then
+    let file = Hashtbl.find state.cmtCache cmt in
+    Some file
+  else
+    match Shared.tryReadCmt cmt with
+    | None -> None
+    | Some infos ->
+      let file = forCmt ~moduleName ~uri infos in
+      Hashtbl.replace state.cmtCache cmt file;
+      Some file
 
 let addLocItem extra loc locType =
   if not loc.Warnings.loc_ghost then
@@ -673,34 +680,6 @@ let extraForCmt ~(iterator : Tast_iterator.iterator)
     extraForParts parts
   | _ -> extraForStructureItems ~iterator []
 
-let newFileForCmt ~moduleName cmtCache changed ~cmt ~uri =
-  match fileForCmt ~moduleName ~uri cmt with
-  | None -> None
-  | Some file ->
-    Hashtbl.replace cmtCache cmt (changed, file);
-    Some file
-
-let fileForCmt ~moduleName ~cmt ~uri state =
-  if Hashtbl.mem state.cmtCache cmt then
-    let mtime, docs = Hashtbl.find state.cmtCache cmt in
-    (* TODO: I should really throttle this mtime checking to like every 50 ms or so *)
-    match Files.getMtime cmt with
-    | None ->
-      Log.log
-        ("\226\154\160\239\184\143 cannot get docs for nonexistant cmt " ^ cmt);
-      None
-    | Some changed ->
-      if changed > mtime then
-        newFileForCmt ~moduleName state.cmtCache changed ~cmt ~uri
-      else Some docs
-  else
-    match Files.getMtime cmt with
-    | None ->
-      Log.log
-        ("\226\154\160\239\184\143 cannot get docs for nonexistant cmt " ^ cmt);
-      None
-    | Some changed -> newFileForCmt ~moduleName state.cmtCache changed ~cmt ~uri
-
 let fileForModule modname ~package =
   if Hashtbl.mem package.pathsForModule modname then (
     let paths = Hashtbl.find package.pathsForModule modname in
@@ -708,7 +687,7 @@ let fileForModule modname ~package =
     let uri = getUri paths in
     let cmt = getCmtPath ~uri paths in
     Log.log ("fileForModule " ^ showPaths paths);
-    match fileForCmt ~moduleName:modname ~cmt ~uri state with
+    match fileForCmt ~moduleName:modname ~cmt ~uri with
     | None -> None
     | Some docs -> Some docs)
   else (

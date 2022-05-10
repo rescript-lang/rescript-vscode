@@ -365,7 +365,7 @@ let initExtra () =
 type state = {
   packagesByRoot : (string, package) Hashtbl.t;
   rootForUri : (Uri2.t, string) Hashtbl.t;
-  cmtCache : (filePath, float * File.t) Hashtbl.t;
+  cmtCache : (filePath, File.t) Hashtbl.t;
 }
 
 (* There's only one state, so it can as well be global *)
