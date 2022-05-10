@@ -512,18 +512,6 @@ let forCmt ~moduleName ~uri ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
     {uri; moduleName = cmt_modname; stamps = env.stamps; structure}
   | _ -> File.create moduleName uri
 
-let fileForCmt ~moduleName ~cmt ~uri =
-  if Hashtbl.mem state.cmtCache cmt then
-    let file = Hashtbl.find state.cmtCache cmt in
-    Some file
-  else
-    match Shared.tryReadCmt cmt with
-    | None -> None
-    | Some infos ->
-      let file = forCmt ~moduleName ~uri infos in
-      Hashtbl.replace state.cmtCache cmt file;
-      Some file
-
 let addLocItem extra loc locType =
   if not loc.Warnings.loc_ghost then
     extra.locItems <- {loc; locType} :: extra.locItems
@@ -681,13 +669,22 @@ let extraForCmt ~(iterator : Tast_iterator.iterator)
   | _ -> extraForStructureItems ~iterator []
 
 let fileForModule modname ~package =
+  let getFile ~moduleName ~cmt ~uri =
+    if Hashtbl.mem state.cmtCache cmt then Hashtbl.find_opt state.cmtCache cmt
+    else
+      match Shared.tryReadCmt cmt with
+      | None -> None
+      | Some infos ->
+        let file = forCmt ~moduleName ~uri infos in
+        Hashtbl.replace state.cmtCache cmt file;
+        Some file
+  in
   if Hashtbl.mem package.pathsForModule modname then (
     let paths = Hashtbl.find package.pathsForModule modname in
-    (* TODO: do better *)
     let uri = getUri paths in
     let cmt = getCmtPath ~uri paths in
     Log.log ("fileForModule " ^ showPaths paths);
-    match fileForCmt ~moduleName:modname ~cmt ~uri with
+    match getFile ~moduleName:modname ~cmt ~uri with
     | None -> None
     | Some docs -> Some docs)
   else (
