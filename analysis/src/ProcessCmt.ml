@@ -1025,23 +1025,26 @@ let expr ~env ~(extra : extra) (iter : Tast_iterator.iterator)
    | _ -> ());
   Tast_iterator.default_iterator.expr iter expression
 
-let getIterator ~env ~extra ~file =
-  {
-    Tast_iterator.default_iterator with
-    expr = expr ~env ~extra;
-    pat = pat ~env ~extra ~file;
-    signature_item = signature_item ~file ~extra;
-    structure_item = structure_item ~env ~extra;
-    typ = typ ~env ~extra;
-  }
+let getExtra ~file ~infos =
+  let extra = extraForFile ~file in
+  let env = QueryEnv.fromFile file in
+  let iterator =
+    {
+      Tast_iterator.default_iterator with
+      expr = expr ~env ~extra;
+      pat = pat ~env ~extra ~file;
+      signature_item = signature_item ~file ~extra;
+      structure_item = structure_item ~env ~extra;
+      typ = typ ~env ~extra;
+    }
+  in
+  extraForCmt ~iterator infos;
+  extra
 
 let fullForCmt ~moduleName ~package ~uri cmt =
   match Shared.tryReadCmt cmt with
   | None -> None
   | Some infos ->
     let file = fileForCmtInfos ~moduleName ~uri infos in
-    let extra = extraForFile ~file in
-    let env = QueryEnv.fromFile file in
-    let iterator = getIterator ~env ~extra ~file in
-    extraForCmt ~iterator infos;
+    let extra = getExtra ~file ~infos in
     Some {file; extra; package}
