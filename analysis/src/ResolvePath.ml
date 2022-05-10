@@ -1,19 +1,38 @@
 open SharedTypes
 
+type resolution =
+  | Exported of QueryEnv.t * filePath
+  | Global of filePath * filePath list
+  | GlobalMod of filePath
+  | NotFound
+  | Stamp of int
+
 let rec joinPaths modulePath path =
   match modulePath with
   | Path.Pident ident -> (ident.stamp, ident.name, path)
   | Papply (fnPath, _argPath) -> joinPaths fnPath path
   | Pdot (inner, name, _) -> joinPaths inner (name :: path)
 
-let rec makePath modulePath =
+let rec makePath ~(env : QueryEnv.t) modulePath =
   match modulePath with
-  | Path.Pident ident when ident.stamp == 0 -> `GlobalMod ident.name
-  | Pident ident -> `Stamp ident.stamp
-  | Papply (fnPath, _argPath) -> makePath fnPath
-  | Pdot (inner, name, _) -> `Path (joinPaths inner [name])
+  | Path.Pident ident when ident.stamp == 0 -> GlobalMod ident.name
+  | Pident ident -> Stamp ident.stamp
+  | Papply (fnPath, _argPath) -> makePath ~env fnPath
+  | Pdot (inner, name, _) -> (
+    match joinPaths inner [name] with
+    | 0, moduleName, path -> Global (moduleName, path)
+    | stamp, _moduleName, path -> (
+      let res =
+        match Stamps.findModule env.file.stamps stamp with
+        | None -> None
+        | Some {item = kind} -> findInModule ~env kind path
+      in
+      match res with
+      | None -> NotFound
+      | Some (`Local (env, name)) -> Exported (env, name)
+      | Some (`Global (moduleName, fullPath)) -> Global (moduleName, fullPath)))
 
-let rec resolvePathInner ~(env : QueryEnv.t) ~path =
+and resolvePathInner ~(env : QueryEnv.t) ~path =
   match path with
   | [] -> None
   | [name] -> Some (`Local (env, name))
@@ -25,7 +44,7 @@ let rec resolvePathInner ~(env : QueryEnv.t) ~path =
       | None -> None
       | Some {item} -> findInModule ~env item subPath))
 
-and findInModule ~env module_ path =
+and findInModule ~(env : QueryEnv.t) module_ path =
   match module_ with
   | Structure {exported} -> resolvePathInner ~env:{env with exported} ~path
   | Constraint (_, module1) -> findInModule ~env module1 path
@@ -53,25 +72,17 @@ let rec resolvePath ~env ~path ~package =
       | Some file ->
         resolvePath ~env:(QueryEnv.fromFile file) ~path:fullPath ~package))
 
-let fromCompilerPath ~(env : QueryEnv.t) path =
-  match makePath path with
-  | `Stamp stamp -> `Stamp stamp
-  | `Path (0, moduleName, path) -> `Global (moduleName, path)
-  | `GlobalMod name -> `GlobalMod name
-  | `Path (stamp, _moduleName, path) -> (
-    let res =
-      match Stamps.findModule env.file.stamps stamp with
-      | None -> None
-      | Some {item = kind} -> findInModule ~env kind path
-    in
-    match res with
-    | None -> `Not_found
-    | Some (`Local (env, name)) -> `Exported (env, name)
-    | Some (`Global (moduleName, fullPath)) -> `Global (moduleName, fullPath))
+let fromCompilerPath ~(env : QueryEnv.t) path : resolution =
+  match makePath ~env path with
+  | Stamp stamp -> Stamp stamp
+  | GlobalMod name -> GlobalMod name
+  | NotFound -> NotFound
+  | Exported (env, name) -> Exported (env, name)
+  | Global (moduleName, fullPath) -> Global (moduleName, fullPath)
 
 let resolveModuleFromCompilerPath ~env ~package path =
   match fromCompilerPath ~env path with
-  | `Global (moduleName, path) -> (
+  | Global (moduleName, path) -> (
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file -> (
@@ -85,18 +96,18 @@ let resolveModuleFromCompilerPath ~env ~package path =
           match Stamps.findModule env.file.stamps stamp with
           | None -> None
           | Some declared -> Some (env, Some declared)))))
-  | `Stamp stamp -> (
+  | Stamp stamp -> (
     match Stamps.findModule env.file.stamps stamp with
     | None -> None
     | Some declared -> Some (env, Some declared))
-  | `GlobalMod moduleName -> (
+  | GlobalMod moduleName -> (
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
     | Some file ->
       let env = QueryEnv.fromFile file in
       Some (env, None))
-  | `Not_found -> None
-  | `Exported (env, name) -> (
+  | NotFound -> None
+  | Exported (env, name) -> (
     match Exported.find env.exported Exported.Module name with
     | None -> None
     | Some stamp -> (
@@ -106,7 +117,7 @@ let resolveModuleFromCompilerPath ~env ~package path =
 
 let resolveFromCompilerPath ~env ~package path =
   match fromCompilerPath ~env path with
-  | `Global (moduleName, path) -> (
+  | Global (moduleName, path) -> (
     let res =
       match ProcessCmt.fileForModule ~package moduleName with
       | None -> None
@@ -114,13 +125,11 @@ let resolveFromCompilerPath ~env ~package path =
         let env = QueryEnv.fromFile file in
         resolvePath ~env ~package ~path
     in
-    match res with
-    | None -> `Not_found
-    | Some (env, name) -> `Exported (env, name))
-  | `Stamp stamp -> `Stamp stamp
-  | `GlobalMod _ -> `Not_found
-  | `Not_found -> `Not_found
-  | `Exported (env, name) -> `Exported (env, name)
+    match res with None -> NotFound | Some (env, name) -> Exported (env, name))
+  | Stamp stamp -> Stamp stamp
+  | GlobalMod _ -> NotFound
+  | NotFound -> NotFound
+  | Exported (env, name) -> Exported (env, name)
 
 let rec getSourceUri ~(env : QueryEnv.t) ~package path =
   match path with

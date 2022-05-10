@@ -41,9 +41,6 @@ let relpath base path =
 let maybeStat path =
   try Some (Unix.stat path) with Unix.Unix_error (Unix.ENOENT, _, _) -> None
 
-let getMtime path =
-  match maybeStat path with Some {Unix.st_mtime} -> Some st_mtime | _ -> None
-
 let readFile ~filename =
   try
     (* windows can't use open_in *)

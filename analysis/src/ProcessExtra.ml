@@ -60,19 +60,6 @@ let extraForFile ~(file : File.t) =
          | _ -> ());
   extra
 
-let rec joinPaths modulePath path =
-  match modulePath with
-  | Path.Pident ident -> (ident.stamp, ident.name, path)
-  | Papply (fnPath, _argPath) -> joinPaths fnPath path
-  | Pdot (inner, name, _) -> joinPaths inner (name :: path)
-
-let rec makePath modulePath =
-  match modulePath with
-  | Path.Pident ident when ident.stamp == 0 -> `GlobalMod ident.name
-  | Pident ident -> `Stamp ident.stamp
-  | Papply (fnPath, _argPath) -> makePath fnPath
-  | Pdot (inner, name, _) -> `Path (joinPaths inner [name])
-
 let addExternalReference ~extra moduleName path tip loc =
   (* TODO need to follow the path, and be able to load the files to follow module references... *)
   Hashtbl.replace extra.externalReferences moduleName
@@ -161,14 +148,14 @@ let addForPath ~env ~extra path lident loc typ tip =
   let identLoc = Utils.endOfLocation loc (String.length identName) in
   let locType =
     match ResolvePath.fromCompilerPath ~env path with
-    | `Stamp stamp ->
+    | Stamp stamp ->
       addReference ~extra stamp identLoc;
       LocalReference (stamp, tip)
-    | `Not_found -> NotFound
-    | `Global (moduleName, path) ->
+    | NotFound -> NotFound
+    | Global (moduleName, path) ->
       addExternalReference ~extra moduleName path tip identLoc;
       GlobalReference (moduleName, path, tip)
-    | `Exported (env, name) -> (
+    | Exported (env, name) -> (
       match
         match tip with
         | Type -> Exported.find env.exported Exported.Type name
@@ -178,24 +165,24 @@ let addForPath ~env ~extra path lident loc typ tip =
         addReference ~extra stamp identLoc;
         LocalReference (stamp, tip)
       | None -> NotFound)
-    | `GlobalMod _ -> NotFound
+    | GlobalMod _ -> NotFound
   in
   addLocItem extra loc (Typed (identName, typ, locType))
 
 let addForPathParent ~env ~extra path loc =
   let locType =
     match ResolvePath.fromCompilerPath ~env path with
-    | `GlobalMod moduleName ->
+    | GlobalMod moduleName ->
       addFileReference ~extra moduleName loc;
       TopLevelModule moduleName
-    | `Stamp stamp ->
+    | Stamp stamp ->
       addReference ~extra stamp loc;
       LModule (LocalReference (stamp, Module))
-    | `Not_found -> LModule NotFound
-    | `Global (moduleName, path) ->
+    | NotFound -> LModule NotFound
+    | Global (moduleName, path) ->
       addExternalReference ~extra moduleName path Module loc;
       LModule (GlobalReference (moduleName, path, Module))
-    | `Exported (env, name) -> (
+    | Exported (env, name) -> (
       match Exported.find env.exported Exported.Module name with
       | Some stamp ->
         addReference ~extra stamp loc;
@@ -206,10 +193,10 @@ let addForPathParent ~env ~extra path loc =
 
 let getTypeAtPath ~env path =
   match ResolvePath.fromCompilerPath ~env path with
-  | `GlobalMod _ -> `Not_found
-  | `Global (moduleName, path) -> `Global (moduleName, path)
-  | `Not_found -> `Not_found
-  | `Exported (env, name) -> (
+  | GlobalMod _ -> `Not_found
+  | Global (moduleName, path) -> `Global (moduleName, path)
+  | NotFound -> `Not_found
+  | Exported (env, name) -> (
     match Exported.find env.exported Exported.Type name with
     | None -> `Not_found
     | Some stamp -> (
@@ -217,7 +204,7 @@ let getTypeAtPath ~env path =
       match declaredType with
       | Some declaredType -> `Local declaredType
       | None -> `Not_found))
-  | `Stamp stamp -> (
+  | Stamp stamp -> (
     let declaredType = Stamps.findType env.file.stamps stamp in
     match declaredType with
     | Some declaredType -> `Local declaredType

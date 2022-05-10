@@ -223,15 +223,15 @@ let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
   | Ident path -> (
     let env = QueryEnv.fromFile file in
     match ResolvePath.fromCompilerPath ~env path with
-    | `Not_found -> None
-    | `Exported (env, name) -> (
+    | NotFound -> None
+    | Exported (env, name) -> (
       match Exported.find env.exported Exported.Module name with
       | None -> None
       | Some stamp -> (
         match Stamps.findModule env.file.stamps stamp with
         | None -> None
         | Some md -> Some (env.file, Some md)))
-    | `Global (moduleName, path) -> (
+    | Global (moduleName, path) -> (
       match ProcessCmt.fileForModule ~package moduleName with
       | None -> None
       | Some file -> (
@@ -245,18 +245,17 @@ let rec resolveModuleReference ?(pathsSeen = []) ~file ~package
             match Stamps.findModule env.file.stamps stamp with
             | None -> None
             | Some md -> Some (env.file, Some md)))))
-    | `Stamp stamp -> (
+    | Stamp stamp -> (
       match Stamps.findModule file.stamps stamp with
       | None -> None
       | Some ({item = Ident path} as md) when not (List.mem path pathsSeen) ->
         (* avoid possible infinite loops *)
         resolveModuleReference ~file ~package ~pathsSeen:(path :: pathsSeen) md
       | Some md -> Some (file, Some md))
-    | `GlobalMod name -> (
+    | GlobalMod name -> (
       match ProcessCmt.fileForModule ~package name with
       | None -> None
-      | Some file -> Some (file, None))
-    | _ -> None)
+      | Some file -> Some (file, None)))
 
 let validateLoc (loc : Location.t) (backup : Location.t) =
   if loc.loc_start.pos_cnum = -1 then
@@ -369,12 +368,12 @@ let definitionForLocItem ~full:{file; package} locItem =
 
 let digConstructor ~env ~package path =
   match ResolvePath.resolveFromCompilerPath ~env ~package path with
-  | `Not_found -> None
-  | `Stamp stamp -> (
+  | NotFound -> None
+  | Stamp stamp -> (
     match Stamps.findType env.file.stamps stamp with
     | None -> None
     | Some t -> Some (env, t))
-  | `Exported (env, name) -> (
+  | Exported (env, name) -> (
     match Exported.find env.exported Exported.Type name with
     | None -> None
     | Some stamp -> (
