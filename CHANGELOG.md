@@ -1,5 +1,7 @@
 ## master
 
+## 1.3.0
+
 - Fix issue where using paths of the form `./something` would show multiple copies of the same file in vscode.
 - When hovering on a field access, show the instantiated type of the field.
 - Support autocomplete for objects from another module `M.x[...`.
@@ -12,6 +14,7 @@
 - Enable formatting files without needing the file to be in an actual ReScript project.
 - New feature: Show Outline which was previously disabled.
 - Add command to quickly switch between implementation and interface file.
+- Support hover on JSX props and labelled arguments.
 
 ## 1.2.1
 
