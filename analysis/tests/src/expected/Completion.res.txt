@@ -1391,18 +1391,3 @@ posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 XXX Ppat_construct T:[362:7->362:8]
 []
 
-Complete tests/src/Completion.res 367:30
-posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:11->376:3]
-posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:16->376:3]
-posCursor:[367:30] posNoWhite:[367:29] Found pattern:[367:29->367:30]
-XXX Ppat_construct T:[367:29->367:30]
-[]
-
-Complete tests/src/Completion.res 372:8
-posCursor:[372:8] posNoWhite:[372:7] Found expr:[370:8->376:3]
-posCursor:[372:8] posNoWhite:[372:7] Found expr:[371:2->376:3]
-posCursor:[372:8] posNoWhite:[372:7] Found pattern:[372:7->374:5]
-posCursor:[372:8] posNoWhite:[372:7] Found pattern:[372:7->372:8]
-XXX Ppat_construct T:[372:7->372:8]
-[]
-
