@@ -364,3 +364,14 @@ let _ = x =>
   //    ^com
   | _ => 4
   }
+
+module AndThatOther = {
+  type v = And | ThatOther
+}
+
+let _ = x =>
+  switch x {
+  // | AndThatOther.T
+  //                 ^com
+  | _ => 4
+  }
