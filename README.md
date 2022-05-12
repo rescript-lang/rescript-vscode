@@ -94,11 +94,14 @@ You can configure VSCode to collapse the JavaScript files ReScript generates und
 Open your VSCode settings and type `editor.filenesting`. Enable the feature and scroll down to patterns.
 
 The example has two patterns added:
-[insert screenshot]
 
-This nests implementations under interfaces if they're present and nests all generated files under the main ReScript file. Adapt and tweak to your liking. A screenshot of the result:
+![Shows configuration of file nesting patterns in VSCode.](https://user-images.githubusercontent.com/1457626/168123605-43ef53cf-f371-4f38-b488-d3cd081879de.png)
 
-[insert screenshot]
+This nests implementations under interfaces if they're present and nests all generated files under the main ReScript file. Adapt and tweak to your liking. 
+
+A screenshot of the result:
+
+![Shows the end result in VSCode, with ReScript related files nested under eachother appropriately.](https://user-images.githubusercontent.com/1457626/168123647-400e2f09-31e3-45a2-b74b-190c7c207446.png)
 
 ## Use with Other Editors
 
