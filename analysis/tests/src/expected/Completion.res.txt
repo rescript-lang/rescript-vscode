@@ -956,8 +956,6 @@ Completable: Cnone
 
 Complete tests/src/Completion.res 243:8
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[241:8->246:1]
-XXX Pexp_match with 1 cases not handled
-XXX first case pattern:[242:2->242:10] expression:[242:14->245:8]
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->245:8]
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->245:1]
 Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->245:1])
@@ -1336,8 +1334,6 @@ Completable: Cpath Type[Res]
 
 Complete tests/src/Completion.res 343:57
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->346:23]
-XXX Pexp_match with 1 cases not handled
-XXX first case pattern:[343:29->343:49] expression:[343:53->346:23]
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->346:23]
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->343:57]
 Pexp_ident this:[343:53->343:57]
@@ -1390,8 +1386,6 @@ posCursor:[355:23] posNoWhite:[355:22] Found expr:[355:12->355:23]
 Complete tests/src/Completion.res 362:8
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
-XXX Pexp_match with 1 cases not handled
-XXX first case pattern:[362:7->364:5] expression:[364:9->364:10]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 XXX Ppat_construct T:[362:7->362:8]
@@ -1400,8 +1394,6 @@ XXX Ppat_construct T:[362:7->362:8]
 Complete tests/src/Completion.res 367:30
 posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:11->376:3]
 posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:16->376:3]
-XXX Pexp_match with 1 cases not handled
-XXX first case pattern:[367:29->367:30] expression:[370:0->376:3]
 posCursor:[367:30] posNoWhite:[367:29] Found pattern:[367:29->367:30]
 XXX Ppat_construct T:[367:29->367:30]
 []
@@ -1409,8 +1401,6 @@ XXX Ppat_construct T:[367:29->367:30]
 Complete tests/src/Completion.res 372:8
 posCursor:[372:8] posNoWhite:[372:7] Found expr:[370:8->376:3]
 posCursor:[372:8] posNoWhite:[372:7] Found expr:[371:2->376:3]
-XXX Pexp_match with 2 cases not handled
-XXX first case pattern:[372:7->374:5] expression:[374:18->374:19]
 posCursor:[372:8] posNoWhite:[372:7] Found pattern:[372:7->374:5]
 posCursor:[372:8] posNoWhite:[372:7] Found pattern:[372:7->372:8]
 XXX Ppat_construct T:[372:7->372:8]
