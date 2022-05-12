@@ -57,7 +57,7 @@ Creates an interface file (`.resi`) for the current `.res` file, automatically f
 
 #### `> Open the compiled JS file for this implementation file.`
 
-Opens the compiled JS file for the current `.res` file.
+Opens the compiled JS file for the current ReScript file.
 
 #### `> ReScript: Switch implementation/interface`
 
