@@ -49,6 +49,22 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
   - `try`, `for`, etc.
 - Folding, and [custom folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) through `//#region` and `//#endregion`.
 
+### Commands
+
+#### `> ReScript: Create an interface file for this implementation file.`
+
+Creates an interface file (`.resi`) for the current `.res` file, automatically filling in all types and values in the current file.
+
+#### `> Open the compiled JS file for this implementation file.`
+
+Opens the compiled JS file for the current ReScript file.
+
+#### `> ReScript: Switch implementation/interface`
+
+Switches between the implementation and interface file. If you're in a `.res` file, the command will open the corresponding `.resi` file (if it exists), and if you're in a `.resi` file the command will open the corresponding `.res` file.
+
+> This can also be triggered with the keybinding `Alt+O`.
+
 ### Experimental Features
 
 #### Dead Code Analysis mode
@@ -68,6 +84,24 @@ When done, stop the dead code analysis mode by clicking the `Stop Dead Code Anal
 ##### Caveats
 
 Currently does not work for full monorepo dead code analysis (although it should work for each monorepo package individually).
+
+## Configuration
+
+### Hide generated files
+
+You can configure VSCode to collapse the JavaScript files ReScript generates under its source ReScript file. This will "hide" the generated files in the VSCode file explorer, but still leaving them accessible by expanding the source ReScript file they belong to.
+
+Open your VSCode settings and type `editor.filenesting`. Enable the feature and scroll down to patterns.
+
+The example has two patterns added:
+
+![Shows configuration of file nesting patterns in VSCode.](https://user-images.githubusercontent.com/1457626/168123605-43ef53cf-f371-4f38-b488-d3cd081879de.png)
+
+This nests implementations under interfaces if they're present and nests all generated files under the main ReScript file. Adapt and tweak to your liking. 
+
+A screenshot of the result:
+
+![Shows the end result in VSCode, with ReScript related files nested under eachother appropriately.](https://user-images.githubusercontent.com/1457626/168123647-400e2f09-31e3-45a2-b74b-190c7c207446.png)
 
 ## Use with Other Editors
 
