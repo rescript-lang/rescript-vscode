@@ -683,6 +683,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         Printf.printf "posCursor:[%s] posNoWhite:[%s] Found pattern:%s\n"
           (Pos.toString posCursor) (Pos.toString posNoWhite)
           (Loc.toString pat.ppat_loc);
+      (match pat.ppat_desc with
+      | Ppat_construct (lid, _) ->
+        if debug then
+          Printf.printf "XXX Ppat_construct %s:%s\n"
+            (flattenLidCheckDot lid |> String.concat ".")
+            (Loc.toString lid.loc)
+      | _ -> ());
       Ast_iterator.default_iterator.pat iterator pat)
   in
   let module_expr (iterator : Ast_iterator.iterator)

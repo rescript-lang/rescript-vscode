@@ -1394,6 +1394,7 @@ XXX Pexp_match with 1 cases not handled
 XXX first case pattern:[362:7->364:5] expression:[364:9->364:10]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
+XXX Ppat_construct T:[362:7->362:8]
 []
 
 Complete tests/src/Completion.res 367:30
@@ -1402,6 +1403,7 @@ posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:16->376:3]
 XXX Pexp_match with 1 cases not handled
 XXX first case pattern:[367:29->367:30] expression:[370:0->376:3]
 posCursor:[367:30] posNoWhite:[367:29] Found pattern:[367:29->367:30]
+XXX Ppat_construct T:[367:29->367:30]
 []
 
 Complete tests/src/Completion.res 372:8
@@ -1411,5 +1413,6 @@ XXX Pexp_match with 2 cases not handled
 XXX first case pattern:[372:7->374:5] expression:[374:18->374:19]
 posCursor:[372:8] posNoWhite:[372:7] Found pattern:[372:7->374:5]
 posCursor:[372:8] posNoWhite:[372:7] Found pattern:[372:7->372:8]
+XXX Ppat_construct T:[372:7->372:8]
 []
 
