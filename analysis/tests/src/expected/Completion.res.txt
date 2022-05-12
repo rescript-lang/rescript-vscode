@@ -1381,3 +1381,8 @@ posCursor:[355:23] posNoWhite:[355:22] Found expr:[0:-1->355:23]
 posCursor:[355:23] posNoWhite:[355:22] Found expr:[355:12->355:23]
 []
 
+Complete tests/src/Completion.res 362:8
+posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
+posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
+[]
+

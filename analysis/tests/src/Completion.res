@@ -355,3 +355,12 @@ let _ = <div name="" />
 
 // (let _ = ff(~opt1=3))
 //                     ^com
+
+type v = This | That
+
+let _ = x =>
+  switch x {
+  // | T
+  //    ^com
+  | _ => 4
+  }
