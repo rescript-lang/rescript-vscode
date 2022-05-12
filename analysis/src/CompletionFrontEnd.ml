@@ -130,6 +130,7 @@ type labelled = {
 }
 
 type label = labelled option
+
 type arg = {label : label; exp : Parsetree.expression}
 
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
@@ -561,10 +562,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
         | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
           ()
         | Pexp_apply (funExpr, args)
-          when not
-          (* Normally named arg completion fires when the cursor is right after the expression.
-             E.g in foo(~<---there
-             But it should not fire in foo(~a)<---there *)
+          when (* Normally named arg completion fires when the cursor is right after the expression.
+                  E.g in foo(~<---there
+                  But it should not fire in foo(~a)<---there *)
+               not
                  (Loc.end_ expr.pexp_loc = posCursor
                  && charBeforeCursor = Some ')') ->
           let args = extractExpApplyArgs ~args in
@@ -644,6 +645,10 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           iterator.expr iterator modBody;
           scope := oldScope;
           processed := true
+        | Pexp_match (_, cases) ->
+          Printf.printf "XXX Pexp_match with %d cases not handled\n"
+            (List.length cases);
+          ()
         | _ -> ());
       if not !processed then Ast_iterator.default_iterator.expr iterator expr
   in
