@@ -678,7 +678,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       | Ppat_construct (lid, _) ->
         let lidPath = flattenLidCheckDot lid in
         if debug then
-          Printf.printf "XXX Ppat_construct %s:%s\n"
+          Printf.printf "Ppat_construct %s:%s\n"
             (lidPath |> String.concat ".")
             (Loc.toString lid.loc);
         setResult (Cpath (CPId (lidPath, Value)))

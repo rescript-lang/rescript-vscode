@@ -1388,7 +1388,7 @@ posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
-XXX Ppat_construct T:[362:7->362:8]
+Ppat_construct T:[362:7->362:8]
 Completable: Cpath Value[T]
 [{
     "label": "That",
@@ -1421,7 +1421,7 @@ posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found expr:[372:2->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
-XXX Ppat_construct AndThatOther.T:[373:7->373:21]
+Ppat_construct AndThatOther.T:[373:7->373:21]
 Completable: Cpath Value[AndThatOther, T]
 [{
     "label": "ThatOther",
