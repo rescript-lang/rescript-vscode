@@ -676,6 +676,15 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in
+  let pat (iterator : Ast_iterator.iterator) (pat : Parsetree.pattern) =
+    if pat.ppat_loc |> Loc.hasPos ~pos:posNoWhite then (
+      found := true;
+      if debug then
+        Printf.printf "posCursor:[%s] posNoWhite:[%s] Found pattern:%s\n"
+          (Pos.toString posCursor) (Pos.toString posNoWhite)
+          (Loc.toString pat.ppat_loc);
+      Ast_iterator.default_iterator.pat iterator pat)
+  in
   let module_expr (iterator : Ast_iterator.iterator)
       (me : Parsetree.module_expr) =
     (match me.pmod_desc with
@@ -735,6 +744,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
       location;
       module_expr;
       module_type;
+      pat;
       signature;
       signature_item;
       structure;
