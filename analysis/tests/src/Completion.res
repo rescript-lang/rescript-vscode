@@ -364,14 +364,3 @@ let _ = x =>
   //    ^com
   | _ => 4
   }
-
-// let _ = x => switch x { | T
-//                            ^com
-
-let _ = x =>
-  switch x {
-  // | T
-  //    ^com
-  | _ if false => 4
-  | _ => 4
-  }
