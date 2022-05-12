@@ -645,10 +645,15 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           iterator.expr iterator modBody;
           scope := oldScope;
           processed := true
-        | Pexp_match (_, cases) ->
+        | Pexp_match (_, cases) -> (
           Printf.printf "XXX Pexp_match with %d cases not handled\n"
             (List.length cases);
-          ()
+          match cases with
+          | {pc_lhs; pc_rhs} :: _ ->
+            Printf.printf "XXX first case pattern:%s expression:%s\n"
+              (Loc.toString pc_lhs.ppat_loc)
+              (Loc.toString pc_rhs.pexp_loc)
+          | _ -> ())
         | _ -> ());
       if not !processed then Ast_iterator.default_iterator.expr iterator expr
   in
