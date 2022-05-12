@@ -1389,3 +1389,9 @@ posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 XXX Pexp_match with 1 cases not handled
 []
 
+Complete tests/src/Completion.res 367:30
+posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:11->367:30]
+posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:16->367:30]
+XXX Pexp_match with 1 cases not handled
+[]
+
