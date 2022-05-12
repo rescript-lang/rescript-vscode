@@ -276,6 +276,7 @@ Completable: Cjsx([WithChildren], n, [n])
   }]
 
 Complete tests/src/Jsx.res 94:18
+posCursor:[94:18] posNoWhite:[94:17] Found pattern:[94:7->94:18]
 posCursor:[94:18] posNoWhite:[94:17] Found type:[94:11->94:18]
 Ptyp_constr React.e:[94:11->94:18]
 Completable: Cpath Type[React, e]
@@ -288,6 +289,7 @@ Completable: Cpath Type[React, e]
   }]
 
 Complete tests/src/Jsx.res 96:20
+posCursor:[96:20] posNoWhite:[96:19] Found pattern:[96:7->99:6]
 posCursor:[96:20] posNoWhite:[96:19] Found type:[96:11->99:6]
 Ptyp_constr ReactDOMR:[96:11->99:6]
 Completable: Cpath Type[ReactDOMR]

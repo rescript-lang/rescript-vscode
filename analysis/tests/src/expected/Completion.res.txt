@@ -1032,6 +1032,7 @@ Completable: Cpath Value[SomeLocal]
   }]
 
 Complete tests/src/Completion.res 271:20
+posCursor:[271:20] posNoWhite:[271:19] Found pattern:[271:7->274:3]
 posCursor:[271:20] posNoWhite:[271:19] Found type:[271:11->274:3]
 Ptyp_constr SomeLocal:[271:11->274:3]
 Completable: Cpath Type[SomeLocal]
@@ -1315,6 +1316,7 @@ posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[335:6->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[336:16->338:5]
+posCursor:[336:26] posNoWhite:[336:25] Found pattern:[336:20->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found type:[336:23->338:5]
 Ptyp_constr Res:[336:23->338:5]
 Completable: Cpath Type[Res]
@@ -1390,6 +1392,8 @@ posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 XXX Pexp_match with 1 cases not handled
 XXX first case pattern:[362:7->364:5] expression:[364:9->364:10]
+posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
+posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 []
 
 Complete tests/src/Completion.res 367:30
@@ -1397,6 +1401,7 @@ posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:11->376:3]
 posCursor:[367:30] posNoWhite:[367:29] Found expr:[367:16->376:3]
 XXX Pexp_match with 1 cases not handled
 XXX first case pattern:[367:29->367:30] expression:[370:0->376:3]
+posCursor:[367:30] posNoWhite:[367:29] Found pattern:[367:29->367:30]
 []
 
 Complete tests/src/Completion.res 372:8
@@ -1404,5 +1409,7 @@ posCursor:[372:8] posNoWhite:[372:7] Found expr:[370:8->376:3]
 posCursor:[372:8] posNoWhite:[372:7] Found expr:[371:2->376:3]
 XXX Pexp_match with 2 cases not handled
 XXX first case pattern:[372:7->374:5] expression:[374:18->374:19]
+posCursor:[372:8] posNoWhite:[372:7] Found pattern:[372:7->374:5]
+posCursor:[372:8] posNoWhite:[372:7] Found pattern:[372:7->372:8]
 []
 
