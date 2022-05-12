@@ -1391,3 +1391,11 @@ posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 XXX Ppat_construct T:[362:7->362:8]
 []
 
+Complete tests/src/Completion.res 373:21
+posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
+posCursor:[373:21] posNoWhite:[373:20] Found expr:[372:2->376:3]
+posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
+posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
+XXX Ppat_construct AndThatOther.T:[373:7->373:21]
+[]
+
