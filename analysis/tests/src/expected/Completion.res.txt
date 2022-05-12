@@ -71,8 +71,8 @@ Completable: Cpath Value[MyList, m]
   }]
 
 Complete tests/src/Completion.res 3:9
-posCursor:[3:9] posNoWhite:[3:8] Found expr:[3:3->8:6]
-Pexp_ident Array.:[3:3->8:6]
+posCursor:[3:9] posNoWhite:[3:8] Found expr:[3:3->3:9]
+Pexp_ident Array.:[3:3->3:9]
 Completable: Cpath Value[Array, ""]
 [{
     "label": "fold_left",
@@ -617,8 +617,8 @@ Completable: Cpath Value[no]["x"]["y"][""]
   }]
 
 Complete tests/src/Completion.res 110:5
-posCursor:[110:5] posNoWhite:[110:4] Found expr:[110:3->116:3]
-Pexp_field [110:3->110:4] _:[116:0->116:3]
+posCursor:[110:5] posNoWhite:[110:4] Found expr:[110:3->110:5]
+Pexp_field [110:3->110:4] _:[116:0->110:5]
 Completable: Cpath Value[r].""
 [{
     "label": "x",
@@ -635,8 +635,8 @@ Completable: Cpath Value[r].""
   }]
 
 Complete tests/src/Completion.res 113:21
-posCursor:[113:21] posNoWhite:[113:20] Found expr:[113:3->116:3]
-Pexp_field [113:3->113:20] _:[116:0->116:3]
+posCursor:[113:21] posNoWhite:[113:20] Found expr:[113:3->113:21]
+Pexp_field [113:3->113:20] _:[116:0->113:21]
 Completable: Cpath Value[Obj, Rec, recordVal].""
 [{
     "label": "xx",
@@ -697,8 +697,8 @@ Completable: Cpath Module[O, ""]
   }]
 
 Complete tests/src/Completion.res 157:8
-posCursor:[157:8] posNoWhite:[157:7] Found expr:[157:3->165:6]
-Pexp_field [157:3->157:7] _:[165:0->165:6]
+posCursor:[157:8] posNoWhite:[157:7] Found expr:[157:3->157:8]
+Pexp_field [157:3->157:7] _:[165:0->157:8]
 Completable: Cpath Value[q].aa.""
 [{
     "label": "x",
@@ -822,8 +822,8 @@ Completable: Cpath Module[For]
   }]
 
 Complete tests/src/Completion.res 190:11
-posCursor:[190:11] posNoWhite:[190:10] Found expr:[190:3->193:6]
-Pexp_ident Private.:[190:3->193:6]
+posCursor:[190:11] posNoWhite:[190:10] Found expr:[190:3->190:11]
+Pexp_ident Private.:[190:3->190:11]
 Completable: Cpath Value[Private, ""]
 [{
     "label": "b",
@@ -882,8 +882,8 @@ Completable: Cpath Value[FAO, forAutoObject][""]
   }]
 
 Complete tests/src/Completion.res 224:37
-posCursor:[224:37] posNoWhite:[224:36] Found expr:[224:3->233:3]
-Pexp_field [224:3->224:36] _:[233:0->233:3]
+posCursor:[224:37] posNoWhite:[224:36] Found expr:[224:3->224:37]
+Pexp_field [224:3->224:36] _:[233:0->224:37]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
 [{
     "label": "forAuto",
@@ -956,11 +956,10 @@ Completable: Cnone
 
 Complete tests/src/Completion.res 243:8
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[241:8->246:1]
-posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->245:8]
-posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->245:1]
-Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->245:1])
-posCursor:[243:8] posNoWhite:[243:7] Found expr:[243:5->245:1]
-Pexp_field [243:5->243:7] _:[245:0->245:1]
+posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->243:8]
+Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->243:8])
+posCursor:[243:8] posNoWhite:[243:7] Found expr:[243:5->243:8]
+Pexp_field [243:5->243:7] _:[245:0->243:8]
 Completable: Cpath Value[_z].""
 [{
     "label": "x",
@@ -1088,8 +1087,8 @@ Found type for function (~name: string) => unit
   }]
 
 Complete tests/src/Completion.res 296:11
-posCursor:[296:11] posNoWhite:[296:10] Found expr:[296:3->299:3]
-Pexp_field [296:3->296:10] _:[299:0->299:3]
+posCursor:[296:11] posNoWhite:[296:10] Found expr:[296:3->296:11]
+Pexp_field [296:3->296:10] _:[299:0->296:11]
 Completable: Cpath Value[retAA](Nolabel).""
 [{
     "label": "x",
@@ -1428,6 +1427,64 @@ Completable: Cpath Value[AndThatOther, T]
     "kind": 4,
     "tags": [],
     "detail": "ThatOther\n\ntype v =  And | ThatOther",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 378:24
+posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:26]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:16], ...[378:16->378:24])
+posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:16->378:24]
+Pexp_ident ForAuto.:[378:16->378:24]
+Completable: Cpath Value[ForAuto, ""]
+[{
+    "label": "abc",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }, {
+    "label": "abd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 381:38
+posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:41]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:19], ...[381:19->381:39])
+posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:19->381:39]
+Pexp_send [381:38->381:38] e:[381:19->381:36]
+Completable: Cpath Value[FAO, forAutoObject][""]
+[{
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "forAutoLabel",
+    "kind": 4,
+    "tags": [],
+    "detail": "FAR.forAutoRecord",
+    "documentation": null
+  }]
+
+Complete tests/src/Completion.res 384:24
+posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:26]
+Pexp_field [384:14->384:23] _:[384:24->384:24]
+Completable: Cpath Value[funRecord].""
+[{
+    "label": "someFun",
+    "kind": 5,
+    "tags": [],
+    "detail": "someFun: (~name: string) => unit\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
+    "documentation": null
+  }, {
+    "label": "stuff",
+    "kind": 5,
+    "tags": [],
+    "detail": "stuff: string\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
     "documentation": null
   }]
 

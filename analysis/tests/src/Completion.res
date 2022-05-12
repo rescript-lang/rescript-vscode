@@ -375,3 +375,12 @@ let _ = x =>
   //                 ^com
   | _ => 4
   }
+
+// let _  = ` ${ForAuto.}`
+//                      ^com
+
+// let _  = `abc ${FAO.forAutoObject[""}`
+//                                    ^com
+
+// let _ = `${funRecord.}`
+//                      ^com

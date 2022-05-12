@@ -583,7 +583,8 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
                          ^ if opt then "?" else "")
                        (Loc.toString exp.pexp_loc))
               |> String.concat ", ");
-          let expApplyCompletable =
+
+          let namedArgCompletable =
             match exprToContextPath funExpr with
             | Some contextPath ->
               findNamedArgCompletable ~contextPath ~args
@@ -592,7 +593,7 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
             | None -> None
           in
 
-          setResultOpt expApplyCompletable
+          setResultOpt namedArgCompletable
         | Pexp_send (lhs, {txt; loc}) -> (
           (* e["txt"]
              If the string for txt is not closed, it could go over several lines.

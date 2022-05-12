@@ -680,6 +680,16 @@ let parseValuePath p =
   Parser.next p;
   Location.mkloc ident (mkLoc startPos p.prevEndPos)
 
+let parseValuePathAfterDot p =
+  let startPos = p.Parser.startPos in
+  match p.Parser.token with
+  | Lident _
+  | Uident _ ->
+    parseValuePath p
+  | token ->
+    Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
+    Location.mkloc (Longident.Lident "_") (mkLoc startPos p.prevEndPos)
+
 let parseValuePathTail p startPos ident =
   let rec loop p path =
     match p.Parser.token with
@@ -1999,7 +2009,7 @@ and parsePrimaryExpr ~operand ?(noCall=false) p =
     match p.Parser.token with
     | Dot ->
       Parser.next p;
-      let lident = parseValuePath p in
+      let lident = parseValuePathAfterDot p in
       begin match p.Parser.token with
       | Equal when noCall = false ->
         Parser.leaveBreadcrumb p Grammar.ExprSetField;
@@ -3536,11 +3546,16 @@ and parseValueOrConstructor p =
       let lident = buildLongident (ident::acc) in
       Ast_helper.Exp.ident ~loc (Location.mkloc lident loc)
     | token ->
-      Parser.next p;
-      let loc = mkLoc startPos p.prevEndPos in
-      Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      let lident = buildLongident ("_"::acc) in
-      Ast_helper.Exp.ident ~loc (Location.mkloc lident loc)
+      if acc = [] then (
+        Parser.next p;
+        Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
+        Recover.defaultExpr()
+      ) else (
+        let loc = mkLoc startPos p.prevEndPos in
+        Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
+        let lident = buildLongident ("_"::acc) in
+        Ast_helper.Exp.ident ~loc (Location.mkloc lident loc)
+      )
   in
   aux p []
 
