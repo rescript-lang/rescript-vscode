@@ -271,15 +271,6 @@ if (process.argv.includes("--stdio")) {
 function hover(msg: p.RequestMessage) {
   let params = msg.params as p.HoverParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let extension = path.extname(params.textDocument.uri);
-  if (extension !== c.resExt && extension !== c.resiExt) {
-    // Can be called on renamed extension after rename
-    return {
-      jsonrpc: c.jsonrpcVersion,
-      id: msg.id,
-      result: null,
-    };
-  }
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
@@ -408,14 +399,6 @@ function documentSymbol(msg: p.RequestMessage) {
   let params = msg.params as p.DocumentSymbolParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let extension = path.extname(params.textDocument.uri);
-  if (extension !== c.resExt && extension !== c.resiExt) {
-    // Can be called on renamed extension after rename
-    return {
-      jsonrpc: c.jsonrpcVersion,
-      id: msg.id,
-      result: null,
-    };
-  }
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
@@ -434,14 +417,6 @@ function semanticTokens(msg: p.RequestMessage) {
   let params = msg.params as p.SemanticTokensParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let extension = path.extname(params.textDocument.uri);
-  if (extension !== c.resExt && extension !== c.resiExt) {
-    // Can be called on renamed extension after rename
-    return {
-      jsonrpc: c.jsonrpcVersion,
-      id: msg.id,
-      result: null,
-    };
-  }
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
@@ -460,14 +435,6 @@ function completion(msg: p.RequestMessage) {
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let extension = path.extname(params.textDocument.uri);
-  if (extension !== c.resExt && extension !== c.resiExt) {
-    // Can be called on renamed extension after rename
-    return {
-      jsonrpc: c.jsonrpcVersion,
-      id: msg.id,
-      result: null,
-    };
-  }
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
@@ -777,9 +744,7 @@ function onMessage(msg: m.Message) {
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
-      if (extName === c.resExt || extName === c.resiExt) {
-        openedFile(params.textDocument.uri, params.textDocument.text);
-      }
+      openedFile(params.textDocument.uri, params.textDocument.text);
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
