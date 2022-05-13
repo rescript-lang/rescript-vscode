@@ -384,3 +384,10 @@ let _ = x =>
 
 // let _ = `${funRecord.}`
 //                      ^com
+
+let _ = _ => {
+  open Js
+  //  []->ma
+  //        ^com
+  ()
+}
