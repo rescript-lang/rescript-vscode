@@ -646,6 +646,13 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
           iterator.expr iterator modBody;
           scope := oldScope;
           processed := true
+        | Pexp_open (_, lid, e) ->
+          let oldScope = !scope in
+          iterator.location iterator lid.loc;
+          scope := !scope |> Scope.addOpen ~lid:lid.txt;
+          iterator.expr iterator e;
+          scope := oldScope;
+          processed := true
         | _ -> ());
       if not !processed then Ast_iterator.default_iterator.expr iterator expr
   in
