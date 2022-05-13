@@ -1495,13 +1495,13 @@ posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->391:4]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->389:12]
 Completable: Cpath array->ma
 [{
-    "label": "Js.Array2.mapi",
+    "label": "Array2.mapi",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
     "documentation": null
   }, {
-    "label": "Js.Array2.map",
+    "label": "Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
