@@ -1,4 +1,8 @@
 ## master
+- Fix issue with autocompletion for constructors in switch statements.
+- Fix issue with autocompletion inside template expressions.
+- Fix handling of local opens.
+- Fix extension crash when renaming a file.
 
 ## 1.3.0
 
