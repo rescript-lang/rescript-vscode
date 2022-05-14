@@ -63,6 +63,10 @@
 				"title": "ReScript: Stop dead code analysis."
 			},
 			{
+				"command": "rescript-vscode.restartLanguageServer",
+				"title": "ReScript: Restart Language Server"
+			},
+			{
 				"command": "rescript-vscode.switch-impl-intf",
 				"title": "ReScript: Switch implementation/interface",
 				"icon": {

@@ -194,6 +194,18 @@ export function activate(context: ExtensionContext) {
     customCommands.switchImplIntf(client);
   });
 
+  commands.registerCommand("rescript-vscode.restartLanguageServer", () => {
+    client.stop().then(() => {
+      client = new LanguageClient(
+        "ReScriptLSP",
+        "ReScript Language Server",
+        serverOptions,
+        clientOptions
+      );
+      client.start();
+    });
+  });
+
   // This sets up a listener that, if we're in dead code analysis mode, triggers
   // dead code analysis as the LS server reports that ReScript compilation has
   // finished. This is needed because dead code analysis must wait until
