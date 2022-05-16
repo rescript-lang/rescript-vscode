@@ -1438,10 +1438,30 @@ Alternatively, use the `@@deprecated` decorator to add a deprecation warning to 
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#expression-deprecated-decorator).|};
         ] );
-      ("genType", [""]);
-      ("genType.as", [""]);
-      ("genType.import", [""]);
-      ("genType.opaque", [""]);
+      ( "genType",
+        [
+          {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
+      
+[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#gentype-decorator).|};
+        ] );
+      ( "genType.as",
+        [
+          {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
+    
+[Read more and see examples in the documentation](https://rescript-lang.org/docs/gentype/latest/usage).|};
+        ] );
+      ( "genType.import",
+        [
+          {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
+    
+[Read more and see examples in the documentation](https://rescript-lang.org/docs/gentype/latest/usage).|};
+        ] );
+      ( "genType.opaque",
+        [
+          {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
+    
+[Read more and see examples in the documentation](https://rescript-lang.org/docs/gentype/latest/usage).|};
+        ] );
       ( "get",
         [
           {|The `@get` decorator is used to bind to a property of an object.
