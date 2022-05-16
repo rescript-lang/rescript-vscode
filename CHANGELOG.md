@@ -1,8 +1,10 @@
 ## master
+
 - Fix issue with autocompletion for constructors in switch statements.
 - Fix issue with autocompletion inside template expressions.
 - Fix handling of local opens.
 - Fix extension crash when renaming a file.
+- Add hover information with links to documentation for decorators.
 
 ## 1.3.0
 
