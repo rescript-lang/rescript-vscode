@@ -727,6 +727,7 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
 
 module LocalTables = struct
   type 'a table = (string * (int * int), 'a Declared.t) Hashtbl.t
+
   type namesUsed = (string, unit) Hashtbl.t
 
   type t = {
@@ -1402,38 +1403,42 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
       |> List.map mkLabel)
       @ keyLabels
   | Cdecorator prefix ->
-    let mkDecorator name = Completion.create ~name ~kind:(Label "") ~env in
+    let mkDecorator (name, doc) =
+      Completion.create ~name ~kind:(Label doc) ~env
+    in
     [
-      "as";
-      "deriving";
-      "genType";
-      "genType.as";
-      "genType.import";
-      "genType.opaque";
-      "get";
-      "get_index";
-      "inline";
-      "int";
-      "meth";
-      "module";
-      "new";
-      "obj";
-      "react.component";
-      "return";
-      "scope";
-      "send";
-      "set";
-      "set_index";
-      "string";
-      "this";
-      "unboxed";
-      "uncurry";
-      "unwrap";
-      "val";
-      "variadic";
+      ("as", "");
+      ("dead", "...docs for dead...");
+      ("deriving", "");
+      ("genType", "");
+      ("genType.as", "");
+      ("genType.import", "");
+      ("genType.opaque", "");
+      ("get", "");
+      ("get_index", "");
+      ("inline", "");
+      ("int", "");
+      ("live", "...docs for live...");
+      ("meth", "");
+      ("module", "");
+      ("new", "");
+      ("obj", "");
+      ("react.component", "");
+      ("return", "");
+      ("scope", "");
+      ("send", "");
+      ("set", "");
+      ("set_index", "");
+      ("string", "");
+      ("this", "");
+      ("unboxed", "");
+      ("uncurry", "");
+      ("unwrap", "");
+      ("val", "");
+      ("variadic", "");
     ]
-    |> List.filter (fun decorator -> Utils.startsWith decorator prefix)
-    |> List.map (fun decorator ->
+    |> List.filter (fun (decorator, _) -> Utils.startsWith decorator prefix)
+    |> List.map (fun (decorator, doc) ->
            let parts = String.split_on_char '.' prefix in
            let len = String.length prefix in
            let dec2 =
@@ -1441,7 +1446,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
                String.sub decorator len (String.length decorator - len)
              else decorator
            in
-           dec2)
+           (dec2, doc))
     |> List.map mkDecorator
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =

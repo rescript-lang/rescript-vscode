@@ -109,3 +109,6 @@ let typeOk = funAlias
 
 let typeDuplicate = AA.fnnxx
 //                       ^hov
+
+@live let dd = 34
+// ^hov

@@ -64,3 +64,9 @@ Hover tests/src/Hover.res 106:16
 Hover tests/src/Hover.res 109:25
 {"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
 
+Hover tests/src/Hover.res 112:3
+Nothing at that position. Now trying to use completion.
+Attribute id:live:[112:0->112:5] label:live
+Completable: Cdecorator(live)
+{"contents": "```rescript\n...docs for live...\n```"}
+
