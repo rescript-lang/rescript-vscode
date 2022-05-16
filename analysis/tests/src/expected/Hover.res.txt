@@ -68,5 +68,5 @@ Hover tests/src/Hover.res 112:3
 Nothing at that position. Now trying to use completion.
 Attribute id:live:[112:0->112:5] label:live
 Completable: Cdecorator(live)
-{"contents": "```rescript\n...docs for live...\n```"}
+{"contents": "...docs for live..."}
 

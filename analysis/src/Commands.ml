@@ -43,8 +43,12 @@ let hover ~path ~line ~col ~currentFile ~debug =
             ~forHover:true
         in
         match completions with
-        | {kind = Label typString} :: _ ->
-          Protocol.stringifyHover (Hover.codeBlock typString)
+        | {kind = Label typString; docstring} :: _ ->
+          let parts =
+            (if typString = "" then [] else [Hover.codeBlock typString])
+            @ docstring
+          in
+          Protocol.stringifyHover (String.concat "\n\n" parts)
         | _ -> (
           match CompletionBackEnd.completionsGetTypeEnv completions with
           | Some (typ, _env) ->

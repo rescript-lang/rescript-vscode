@@ -1403,39 +1403,39 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
       |> List.map mkLabel)
       @ keyLabels
   | Cdecorator prefix ->
-    let mkDecorator (name, doc) =
-      Completion.create ~name ~kind:(Label doc) ~env
+    let mkDecorator (name, docstring) =
+      {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
     in
     [
-      ("as", "");
-      ("dead", "...docs for dead...");
-      ("deriving", "");
-      ("genType", "");
-      ("genType.as", "");
-      ("genType.import", "");
-      ("genType.opaque", "");
-      ("get", "");
-      ("get_index", "");
-      ("inline", "");
-      ("int", "");
-      ("live", "...docs for live...");
-      ("meth", "");
-      ("module", "");
-      ("new", "");
-      ("obj", "");
-      ("react.component", "");
-      ("return", "");
-      ("scope", "");
-      ("send", "");
-      ("set", "");
-      ("set_index", "");
-      ("string", "");
-      ("this", "");
-      ("unboxed", "");
-      ("uncurry", "");
-      ("unwrap", "");
-      ("val", "");
-      ("variadic", "");
+      ("as", []);
+      ("dead", ["...docs for dead..."]);
+      ("deriving", []);
+      ("genType", []);
+      ("genType.as", []);
+      ("genType.import", []);
+      ("genType.opaque", []);
+      ("get", []);
+      ("get_index", []);
+      ("inline", []);
+      ("int", []);
+      ("live", ["...docs for live..."]);
+      ("meth", []);
+      ("module", []);
+      ("new", []);
+      ("obj", []);
+      ("react.component", []);
+      ("return", []);
+      ("scope", []);
+      ("send", []);
+      ("set", []);
+      ("set_index", []);
+      ("string", []);
+      ("this", []);
+      ("unboxed", []);
+      ("uncurry", []);
+      ("unwrap", []);
+      ("val", []);
+      ("variadic", []);
     ]
     |> List.filter (fun (decorator, _) -> Utils.startsWith decorator prefix)
     |> List.map (fun (decorator, doc) ->
