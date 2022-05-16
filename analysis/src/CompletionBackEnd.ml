@@ -1422,7 +1422,9 @@ It is also possible to map a ReScript record to a JavaScript array by passing in
 
 `@dead` suppresses reporting on the value/type, but can also be used to force the analysis to consider a value as dead. Typically used to acknowledge cases of dead code you are not planning to address right now, but can be searched easily later.
 
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#dead-decorator).|};
+[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#dead-decorator).
+
+> Hint: Did you know you can run an interactive dead code analysis in your project by running the command `> ReScript: Start dead code analysis.`? Try it!|};
         ] );
       ( "deriving",
         [
@@ -1492,7 +1494,9 @@ Alternatively, use the `@@deprecated` decorator to add a deprecation warning to 
 
 `@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.
 
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).|};
+[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).
+
+Hint: Did you know you can run an interactive dead code analysis in your project by running the command `> ReScript: Start dead code analysis.`? Try it!|};
         ] );
       ( "meth",
         [
