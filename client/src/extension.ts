@@ -194,7 +194,7 @@ export function activate(context: ExtensionContext) {
     customCommands.switchImplIntf(client);
   });
 
-  commands.registerCommand("rescript-vscode.restartLanguageServer", () => {
+  commands.registerCommand("rescript-vscode.restart_language_server", () => {
     client.stop().then(() => {
       client = new LanguageClient(
         "ReScriptLSP",

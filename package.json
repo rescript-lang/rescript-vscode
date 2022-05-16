@@ -63,7 +63,7 @@
 				"title": "ReScript: Stop dead code analysis."
 			},
 			{
-				"command": "rescript-vscode.restartLanguageServer",
+				"command": "rescript-vscode.restart_language_server",
 				"title": "ReScript: Restart Language Server"
 			},
 			{
