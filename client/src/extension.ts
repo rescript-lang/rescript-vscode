@@ -98,13 +98,17 @@ export function activate(context: ExtensionContext) {
     },
   };
 
+  function createLanguageClient() {
+    return new LanguageClient(
+      "ReScriptLSP",
+      "ReScript Language Server",
+      serverOptions,
+      clientOptions
+    );
+  }
+
   // Create the language client and start the client.
-  client = new LanguageClient(
-    "ReScriptLSP",
-    "ReScript Language Server",
-    serverOptions,
-    clientOptions
-  );
+  client = createLanguageClient();
 
   // Create a custom diagnostics collection, for cases where we want to report
   // diagnostics programatically from inside of the extension. The reason this
@@ -196,12 +200,7 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand("rescript-vscode.restart_language_server", () => {
     client.stop().then(() => {
-      client = new LanguageClient(
-        "ReScriptLSP",
-        "ReScript Language Server",
-        serverOptions,
-        clientOptions
-      );
+      client = createLanguageClient();
       client.start();
     });
   });
