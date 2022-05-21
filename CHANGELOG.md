@@ -3,6 +3,7 @@
 - Fix issue with autocompletion inside template expressions.
 - Fix handling of local opens.
 - Fix extension crash when renaming a file.
+- Add command: ReScript: Restart Language Server
 
 ## 1.3.0
 
