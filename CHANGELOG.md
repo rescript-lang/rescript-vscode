@@ -5,6 +5,7 @@
 - Fix handling of local opens.
 - Fix extension crash when renaming a file.
 - Add hover information with links to documentation for decorators.
+- Add command: ReScript: Restart Language Server
 
 ## 1.3.0
 

@@ -69,6 +69,40 @@ let client: LanguageClient;
 // });
 
 export function activate(context: ExtensionContext) {
+  function attachDeadCodeAnalysis(client: LanguageClient) {
+    // This sets up a listener that, if we're in dead code analysis mode, triggers
+    // dead code analysis as the LS server reports that ReScript compilation has
+    // finished. This is needed because dead code analysis must wait until
+    // compilation has finished, and the most reliable source for that is the LS
+    // server, that already keeps track of when the compiler finishes in order to
+    // other provide fresh diagnostics.
+    client.onReady().then(() => {
+      context.subscriptions.push(
+        client.onNotification("rescript/compilationFinished", () => {
+          if (inDeadCodeAnalysisState.active === true) {
+            customCommands.deadCodeAnalysisWithReanalyze(
+              inDeadCodeAnalysisState.activatedFromDirectory,
+              diagnosticsCollection,
+              diagnosticsResultCodeActions
+            );
+          }
+        })
+      );
+    });
+  }
+
+  /** creates a language client and attaches deadcodeanalysis */
+  function createLanguageClient() {
+    const client = new LanguageClient(
+      "ReScriptLSP",
+      "ReScript Language Server",
+      serverOptions,
+      clientOptions
+    );
+    attachDeadCodeAnalysis(client);
+    return client;
+  }
+
   // The server is implemented in node
   let serverModule = context.asAbsolutePath(
     path.join("server", "out", "server.js")
@@ -99,12 +133,7 @@ export function activate(context: ExtensionContext) {
   };
 
   // Create the language client and start the client.
-  client = new LanguageClient(
-    "ReScriptLSP",
-    "ReScript Language Server",
-    serverOptions,
-    clientOptions
-  );
+  client = createLanguageClient();
 
   // Create a custom diagnostics collection, for cases where we want to report
   // diagnostics programatically from inside of the extension. The reason this
@@ -194,24 +223,11 @@ export function activate(context: ExtensionContext) {
     customCommands.switchImplIntf(client);
   });
 
-  // This sets up a listener that, if we're in dead code analysis mode, triggers
-  // dead code analysis as the LS server reports that ReScript compilation has
-  // finished. This is needed because dead code analysis must wait until
-  // compilation has finished, and the most reliable source for that is the LS
-  // server, that already keeps track of when the compiler finishes in order to
-  // other provide fresh diagnostics.
-  client.onReady().then(() => {
-    context.subscriptions.push(
-      client.onNotification("rescript/compilationFinished", () => {
-        if (inDeadCodeAnalysisState.active === true) {
-          customCommands.deadCodeAnalysisWithReanalyze(
-            inDeadCodeAnalysisState.activatedFromDirectory,
-            diagnosticsCollection,
-            diagnosticsResultCodeActions
-          );
-        }
-      })
-    );
+  commands.registerCommand("rescript-vscode.restart_language_server", () => {
+    client.stop().then(() => {
+      client = createLanguageClient();
+      context.subscriptions.push(client.start());
+    });
   });
 
   // Start the client. This will also launch the server
