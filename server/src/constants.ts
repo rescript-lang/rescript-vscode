@@ -1,5 +1,8 @@
 import * as path from "path";
 
+let archString = process.arch == "arm64" ? "-arm64" : "";
+let platformArchString = process.platform + archString;
+
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
 export let jsonrpcVersion = "2.0";
@@ -25,7 +28,7 @@ export let analysisDevPath = path.join(
 export let analysisProdPath = path.join(
   path.dirname(__dirname),
   "analysis_binaries",
-  process.platform,
+  platformArchString,
   "rescript-editor-analysis.exe"
 );
 
