@@ -561,6 +561,13 @@ export let parseCompilerLogOutput = (
         tag: undefined,
         content: [],
       });
+    } else if (line.startsWith("  Warning genType")) {
+      parsedDiagnostics.push({
+        code: undefined,
+        severity: t.DiagnosticSeverity.Error,
+        tag: undefined,
+        content: [line],
+      });
     } else if (line.startsWith("#Start(")) {
       // do nothing for now
     } else if (line.startsWith("#Done(")) {

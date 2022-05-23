@@ -6,6 +6,7 @@
 - Fix extension crash when renaming a file.
 - Add hover information with links to documentation for decorators.
 - Add command: ReScript: Restart Language Server
+- Fix issue where the server would crash on genType's errors.
 
 ## 1.3.0
 
