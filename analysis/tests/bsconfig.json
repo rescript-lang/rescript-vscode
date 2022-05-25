@@ -1,5 +1,8 @@
 {
   "name": "test",
+  "reanalyze": {
+    "analysis": ["dce"]
+  },
   "sources": [
     {
       "dir": "src",
