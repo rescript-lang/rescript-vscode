@@ -162,7 +162,7 @@ let dceTextToDiagnostics = (
       // leverage that to make looking up the code actions for each cursor
       // position very cheap.
       if (lineNumToReplace != null && lineContentToReplace != null) {
-        let actualLineToReplaceStr = lineNumToReplace.split("<-- line ").pop();
+        let [_, actualLineToReplaceStr] = lineNumToReplace.split("<-- line ");
 
         if (actualLineToReplaceStr != null) {
           let codeAction = new CodeAction(`Suppress dead code warning`);
@@ -213,7 +213,7 @@ export const runDeadCodeAnalysisWithReanalyze = (
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
-  let p = cp.spawn("npx", ["reanalyze", "-dce"], {
+  let p = cp.spawn("npx", ["reanalyze", "-config"], {
     cwd,
   });
 
