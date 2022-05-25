@@ -89,7 +89,9 @@ let dceTextToDiagnostics = (
   // +use is never used
   // <-- line 2
   // @dead("+use") let use = (initialState: 'a, handleEvent: ('a, 'b) => 'a) => {
+
   dceText.split("\n\n").forEach((chunk) => {
+    let lines = chunk.split("\n").filter((line) => line != "");
     let [
       _title,
       fileInfo,
@@ -99,7 +101,7 @@ let dceTextToDiagnostics = (
       // line that reanalyze might suggest.
       lineNumToReplace,
       lineContentToReplace,
-    ] = chunk.split("\n");
+    ] = lines;
 
     let processedFileInfo = extractFileInfo(fileInfo);
 
