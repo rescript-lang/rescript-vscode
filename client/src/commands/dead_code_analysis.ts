@@ -213,7 +213,7 @@ export const runDeadCodeAnalysisWithReanalyze = (
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
-  let p = cp.spawn("npx", ["reanalyze", "-config"], {
+  let p = cp.spawn("npx", ["reanalyze@2.21.0", "-config"], {
     cwd,
   });
 
