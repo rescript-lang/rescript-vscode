@@ -1,5 +1,8 @@
 {
-  "scripts": {},
+  "scripts": {
+    "build": "rescript",
+    "clean": "rescript clean -with-deps"
+  },
   "dependencies": {
     "rescript": "9.1.2"
   },

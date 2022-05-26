@@ -599,7 +599,7 @@ Completable: Cpath Value[o]["a"]
   }]
 
 Complete tests/src/Completion.res 104:17
-posCursor:[104:17] posNoWhite:[104:16] Found expr:[104:3->125:15]
+posCursor:[104:17] posNoWhite:[104:16] Found expr:[104:3->125:18]
 Pexp_send [104:17->104:17] e:[104:3->104:15]
 Completable: Cpath Value[no]["x"]["y"][""]
 [{
@@ -634,10 +634,10 @@ Completable: Cpath Value[r].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 113:21
-posCursor:[113:21] posNoWhite:[113:20] Found expr:[113:3->113:21]
-Pexp_field [113:3->113:20] _:[116:0->113:21]
-Completable: Cpath Value[Obj, Rec, recordVal].""
+Complete tests/src/Completion.res 113:24
+posCursor:[113:24] posNoWhite:[113:23] Found expr:[113:3->113:24]
+Pexp_field [113:3->113:23] _:[116:0->113:24]
+Completable: Cpath Value[Object, Rec, recordVal].""
 [{
     "label": "xx",
     "kind": 5,
@@ -666,10 +666,10 @@ Completable: Cpath Value[my]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 125:15
-posCursor:[125:15] posNoWhite:[125:14] Found expr:[125:3->145:32]
-Pexp_send [125:15->125:15] e:[125:3->125:13]
-Completable: Cpath Value[Obj, object][""]
+Complete tests/src/Completion.res 125:18
+posCursor:[125:18] posNoWhite:[125:17] Found expr:[125:3->145:32]
+Pexp_send [125:18->125:18] e:[125:3->125:16]
+Completable: Cpath Value[Object, object][""]
 [{
     "label": "name",
     "kind": 4,

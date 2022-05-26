@@ -96,11 +96,11 @@ let nestedObj = {"x": {"y": {"name": "a", "age": 32}}}
 // nestedObj["x"]["y"]["
 //                      ^com
 
-let o: Obj.objT = assert false
+let o: Object.objT = assert false
 // o["a
 //     ^com
 
-type nestedObjT = {"x": Obj.nestedObjT}
+type nestedObjT = {"x": Object.nestedObjT}
 let no: nestedObjT = assert false
 // no["x"]["y"]["
 //               ^com
@@ -111,8 +111,8 @@ let r: rAlias = assert false
 // r.
 //   ^com
 
-// Obj.Rec.recordVal.
-//                   ^com
+// Object.Rec.recordVal.
+//                      ^com
 
 let myAmazingFunction = (x, y) => x + y
 
@@ -123,8 +123,8 @@ let make = () => {
   <> </>
 }
 
-// Obj.object["
-//             ^com
+// Object.object["
+//                ^com
 
 let foo = {
   let x = {
