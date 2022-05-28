@@ -49,3 +49,5 @@ export let startBuildAction = "Start Build";
 // bsconfig defaults according configuration schema (https://rescript-lang.org/docs/manual/latest/build-configuration-schema)
 export let bsconfigModuleDefault = "commonjs";
 export let bsconfigSuffixDefault = ".js";
+
+export let configurationRequestId = "rescript_configuration_request";

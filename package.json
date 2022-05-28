@@ -121,22 +121,11 @@
 			"type": "object",
 			"title": "ReScript",
 			"properties": {
-				"languageServerExample.maxNumberOfProblems": {
-					"scope": "resource",
-					"type": "number",
-					"default": 100,
-					"description": "Controls the maximum number of problems produced by the server."
-				},
-				"languageServerExample.trace.server": {
-					"scope": "window",
-					"type": "string",
-					"enum": [
-						"off",
-						"messages",
-						"verbose"
-					],
-					"default": "off",
-					"description": "Traces the communication between VS Code and the language server."
+				"rescript.settings.askToStartBuild": {
+					"scope": "language-overridable",
+					"type": "boolean",
+					"default": 	true,
+					"description": "Whether you want the extension to prompt for autostarting a ReScript build if a project is opened with no build running."
 				}
 			}
 		},
