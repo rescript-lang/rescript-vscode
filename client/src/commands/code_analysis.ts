@@ -19,122 +19,41 @@ export type DiagnosticsResultCodeActionsMap = Map<
   { range: Range; codeAction: CodeAction }[]
 >;
 
-let fileInfoRegex = /File "(.+)", line (\d+), characters ([\d-]+)/g;
-
-let extractFileInfo = (
-  fileInfo: string
-): {
-  filePath: string;
-  line: string;
-  characters: string;
-} | null => {
-  let m;
-
-  let filePath: string | null = null;
-  let line: string | null = null;
-  let characters: string | null = null;
-
-  while ((m = fileInfoRegex.exec(fileInfo)) !== null) {
-    if (m.index === fileInfoRegex.lastIndex) {
-      fileInfoRegex.lastIndex++;
+let resultsToDiagnostics = (
+  results: [
+    {
+      name: string;
+      kind: string;
+      file: string;
+      range: [number, number, number, number];
+      message: string;
+      annotate?: { line: number; character: number; text: string };
     }
-
-    m.forEach((match: string, groupIndex: number) => {
-      switch (groupIndex) {
-        case 1: {
-          filePath = match;
-          break;
-        }
-        case 2: {
-          line = match;
-          break;
-        }
-        case 3: {
-          characters = match;
-          break;
-        }
-      }
-    });
-  }
-
-  if (filePath != null && line != null && characters != null) {
-    return {
-      filePath,
-      line,
-      characters,
-    };
-  }
-
-  return null;
-};
-
-let dceTextToDiagnostics = (
-  dceText: string,
+  ],
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
 ): {
   diagnosticsMap: Map<string, Diagnostic[]>;
 } => {
   let diagnosticsMap: Map<string, Diagnostic[]> = new Map();
 
-  // Each section with a single issue found is seprated by two line breaks in
-  // the reanalyze output. The section contains information about the issue
-  // itself, what line/char and in what file it was found, as well as a
-  // suggestion for what you can replace the line containing the issue with to
-  // suppress the issue reported.
-  //
-  // Here's an example of how a section typically looks:
-  //
-  // Warning Dead Value
-  // File "/Users/zth/git/rescript-intro/src/Machine.res", line 2, characters 0-205
-  // +use is never used
-  // <-- line 2
-  // @dead("+use") let use = (initialState: 'a, handleEvent: ('a, 'b) => 'a) => {
-
-  dceText.split("\n\n").forEach((chunk) => {
-    let lines = chunk.split("\n").filter((line) => line != "");
-    let [
-      _title,
-      fileInfo,
-      text,
-
-      // These, if they exist, will power code actions for inserting the "fixed"
-      // line that reanalyze might suggest.
-      lineNumToReplace,
-      lineContentToReplace,
-    ] = lines;
-
-    let processedFileInfo = extractFileInfo(fileInfo);
-
-    if (processedFileInfo != null) {
-      let [startCharacter, endCharacter] =
-        processedFileInfo.characters.split("-");
-
-      let parsedLine = parseInt(processedFileInfo.line, 10);
-
-      let startPos = new Position(
-        // reanalyze reports lines as index 1 based, while VSCode wants them
-        // index 0 based. reanalyze reports diagnostics for an entire file on
-        // line 0 (and chars 0-0). So, we need to ensure that we don't give
-        // VSCode a negative line index, or it'll be sad.
-        Math.max(0, parsedLine - 1),
-        Math.max(0, parseInt(startCharacter, 10))
-      );
-
-      let endPos = new Position(
-        Math.max(0, parsedLine - 1),
-        Math.max(0, parseInt(endCharacter, 10))
-      );
+  results.forEach((item) => {
+    {
+      let startPos: Position, endPos: Position;
+      let [startLine, startCharacter, endLine, endCharacter] = item.range;
 
       // Detect if this diagnostic is for the entire file. If so, reanalyze will
-      // say that the issue is on line 0 and chars 0-0. This code below ensures
+      // say that the issue is on line -1. This code below ensures
       // that the full file is highlighted, if that's the case.
-      if (parsedLine === 0 && processedFileInfo.characters === "0-0") {
+      if (startLine < 0 || endLine < 0) {
         startPos = new Position(0, 0);
         endPos = new Position(99999, 0);
+      } else {
+        startPos = new Position(startLine, startCharacter);
+        endPos = new Position(endLine, endCharacter);
       }
 
       let issueLocationRange = new Range(startPos, endPos);
-      let diagnosticText = text.trim();
+      let diagnosticText = item.message.trim();
 
       let diagnostic = new Diagnostic(
         issueLocationRange,
@@ -146,14 +65,14 @@ let dceTextToDiagnostics = (
       // optional arguments. This will ensure that everything but reduntant
       // optional arguments is highlighted as unecessary/unused code in the
       // editor.
-      if (!diagnosticText.toLowerCase().startsWith("optional argument")) {
+      if (!item.message.toLowerCase().startsWith("optional argument")) {
         diagnostic.tags = [DiagnosticTag.Unnecessary];
       }
 
-      if (diagnosticsMap.has(processedFileInfo.filePath)) {
-        diagnosticsMap.get(processedFileInfo.filePath).push(diagnostic);
+      if (diagnosticsMap.has(item.file)) {
+        diagnosticsMap.get(item.file).push(diagnostic);
       } else {
-        diagnosticsMap.set(processedFileInfo.filePath, [diagnostic]);
+        diagnosticsMap.set(item.file, [diagnostic]);
       }
 
       // If reanalyze suggests a fix, we'll set that up as a refactor code
@@ -161,37 +80,38 @@ let dceTextToDiagnostics = (
       // reported if wanted. We also save the range of the issue, so we can
       // leverage that to make looking up the code actions for each cursor
       // position very cheap.
-      if (lineNumToReplace != null && lineContentToReplace != null) {
-        let [_, actualLineToReplaceStr] = lineNumToReplace.split("<-- line ");
-
-        if (actualLineToReplaceStr != null) {
+      if (item.annotate != null) {
+        {
           let codeAction = new CodeAction(`Suppress dead code warning`);
           codeAction.kind = CodeActionKind.RefactorRewrite;
 
           let codeActionEdit = new WorkspaceEdit();
 
+          let { line, character, text } = item.annotate;
+
           // In the future, it would be cool to have an additional code action
           // here for automatically removing whatever the thing that's dead is.
           codeActionEdit.replace(
-            Uri.parse(processedFileInfo.filePath),
+            Uri.parse(item.file),
             // Make sure the full line is replaced
+
             new Range(
-              new Position(issueLocationRange.start.line, 0),
-              new Position(issueLocationRange.start.line, 999999)
+              new Position(line, character),
+              new Position(line, character)
             ),
             // reanalyze seems to add two extra spaces at the start of the line
             // content to replace.
-            lineContentToReplace.slice(2)
+            text
           );
 
           codeAction.edit = codeActionEdit;
 
-          if (diagnosticsResultCodeActions.has(processedFileInfo.filePath)) {
+          if (diagnosticsResultCodeActions.has(item.file)) {
             diagnosticsResultCodeActions
-              .get(processedFileInfo.filePath)
+              .get(item.file)
               .push({ range: issueLocationRange, codeAction });
           } else {
-            diagnosticsResultCodeActions.set(processedFileInfo.filePath, [
+            diagnosticsResultCodeActions.set(item.file, [
               { range: issueLocationRange, codeAction },
             ]);
           }
@@ -213,7 +133,7 @@ export const runCodeAnalysisWithReanalyze = (
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
-  let p = cp.spawn("npx", ["reanalyze@2.21.1"], {
+  let p = cp.spawn("npx", ["reanalyze@2.22.0", "-json"], {
     cwd,
   });
 
@@ -246,8 +166,15 @@ export const runCodeAnalysisWithReanalyze = (
 
   p.on("close", () => {
     diagnosticsResultCodeActions.clear();
-    let { diagnosticsMap } = dceTextToDiagnostics(
-      data,
+    try {
+      var json = JSON.parse(data);
+    } catch (e) {
+      window.showErrorMessage(
+        `Something went wrong parsing the json output of reanalyze: '${e}'`
+      );
+    }
+    let { diagnosticsMap } = resultsToDiagnostics(
+      json,
       diagnosticsResultCodeActions
     );
 
