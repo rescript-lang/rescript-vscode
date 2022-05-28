@@ -10,6 +10,7 @@ import {
   DidOpenTextDocumentNotification,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
+  DidChangeConfigurationNotification,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -19,6 +20,14 @@ import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
+
+interface extensionConfiguration {
+  askToStartBuild: boolean;
+}
+let extensionConfiguration: extensionConfiguration = {
+  askToStartBuild: true,
+};
+let pullConfigurationInterval: NodeJS.Timeout | null = null;
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -183,7 +192,11 @@ let openedFile = (fileUri: string, fileContent: string) => {
     // check if .bsb.lock is still there. If not, start a bsb -w ourselves
     // because otherwise the diagnostics info we'll display might be stale
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
-    if (firstOpenFileOfProject && !fs.existsSync(bsbLockPath)) {
+    if (
+      extensionConfiguration.askToStartBuild === true &&
+      firstOpenFileOfProject &&
+      !fs.existsSync(bsbLockPath)
+    ) {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
@@ -267,6 +280,8 @@ if (process.argv.includes("--stdio")) {
   send = (msg: m.Message) => process.send!(msg);
   process.on("message", onMessage);
 }
+
+askForAllCurrentConfiguration();
 
 function hover(msg: p.RequestMessage) {
   let params = msg.params as p.HoverParams;
@@ -412,6 +427,24 @@ function documentSymbol(msg: p.RequestMessage) {
   return response;
 }
 
+function askForAllCurrentConfiguration() {
+  // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_configuration
+  let params: p.ConfigurationParams = {
+    items: [
+      {
+        section: "rescript.settings",
+      },
+    ],
+  };
+  let req: p.RequestMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: c.configurationRequestId,
+    method: p.ConfigurationRequest.type.method,
+    params,
+  };
+  send(req);
+}
+
 function semanticTokens(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens
   let params = msg.params as p.SemanticTokensParams;
@@ -434,7 +467,6 @@ function completion(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let extension = path.extname(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
@@ -743,7 +775,6 @@ function onMessage(msg: m.Message) {
       }
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
-      let extName = path.extname(params.textDocument.uri);
       openedFile(params.textDocument.uri, params.textDocument.text);
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
@@ -763,6 +794,9 @@ function onMessage(msg: m.Message) {
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
       let params = msg.params as p.DidCloseTextDocumentParams;
       closedFile(params.textDocument.uri);
+    } else if (msg.method === DidChangeConfigurationNotification.type.method) {
+      // Can't seem to get this notification to trigger, but if it does this will be here and ensure we're synced up at the server.
+      askForAllCurrentConfiguration();
     }
   } else if (m.isRequestMessage(msg)) {
     // request message, aka client sent request and waits for our mandatory reply
@@ -820,6 +854,15 @@ function onMessage(msg: m.Message) {
         result: result,
       };
       initialized = true;
+
+      // Periodically pull configuration from the client.
+      pullConfigurationInterval = setInterval(() => {
+        askForAllCurrentConfiguration();
+      }, 10_000);
+
+      // Pull config right away as we've initied.
+      askForAllCurrentConfiguration();
+
       send(response);
     } else if (msg.method === "initialized") {
       // sent from client after initialize. Nothing to do for now
@@ -846,6 +889,10 @@ function onMessage(msg: m.Message) {
         // TODO: recheck logic around init/shutdown...
         stopWatchingCompilerLog();
         // TODO: delete bsb watchers
+
+        if (pullConfigurationInterval != null) {
+          clearInterval(pullConfigurationInterval);
+        }
 
         let response: m.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
@@ -893,11 +940,19 @@ function onMessage(msg: m.Message) {
       send(response);
     }
   } else if (m.isResponseMessage(msg)) {
-    // response message. Currently the client should have only sent a response
-    // for asking us to start the build (see window/showMessageRequest in this
-    // file)
-
-    if (
+    if (msg.id === c.configurationRequestId) {
+      if (msg.result != null) {
+        // This is a response from a request to get updated configuration. Note
+        // that it seems to return the configuration in a way that lets the
+        // current workspace settings override the user settings. This is good
+        // as we get started, but _might_ be problematic further down the line
+        // if we want to support having several projects open at the same time
+        // without their settings overriding eachother. Not a problem now though
+        // as we'll likely only have "global" settings starting out.
+        let [configuration] = msg.result as [extensionConfiguration];
+        extensionConfiguration = configuration;
+      }
+    } else if (
       msg.result != null &&
       // @ts-ignore
       msg.result.title != null &&
