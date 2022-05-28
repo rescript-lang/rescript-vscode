@@ -727,6 +727,7 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
 
 module LocalTables = struct
   type 'a table = (string * (int * int), 'a Declared.t) Hashtbl.t
+
   type namesUsed = (string, unit) Hashtbl.t
 
   type t = {
@@ -1424,7 +1425,7 @@ It is also possible to map a ReScript record to a JavaScript array by passing in
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#dead-decorator).
 
-> Hint: Did you know you can run an interactive dead code analysis in your project by running the command `> ReScript: Start dead code analysis.`? Try it!|};
+> Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
         ] );
       ( "deriving",
         [
@@ -1440,6 +1441,19 @@ Alternatively, use the `@@deprecated` decorator to add a deprecation warning to 
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#expression-deprecated-decorator).|};
         ] );
+
+        ( "doesNotRaise",
+        [
+          {|The `@doesNotRaise` decorator is for reanalyze, a static analysis tool for ReScript that can perform exception analysis.
+
+`@doesNotRaise` is uses to override the analysis and state that an expression does not raise any exceptions,
+even though the analysis reports otherwise. This can happen for example in the case of array access where
+the analysis does not perform range checks but takes a conservative stance that any access
+could potentially raise.
+[Read more and see examples in the documentation](https://github.com/rescript-association/reanalyze/blob/master/EXCEPTION.md).
+> Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
+        ] );
+
       ( "genType",
         [
           {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
@@ -1496,7 +1510,7 @@ Alternatively, use the `@@deprecated` decorator to add a deprecation warning to 
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).
 
-Hint: Did you know you can run an interactive dead code analysis in your project by running the command `> ReScript: Start dead code analysis.`? Try it!|};
+Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
         ] );
       ( "meth",
         [
@@ -1522,6 +1536,16 @@ The `@new` decorator is used whenever you need to bind to a JavaScript class con
           {|The `@obj` decorator is used to create functions that return JavaScript objects with properties that match the function's parameter labels.
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#obj-decorator).|};
+        ] );
+      ( "raises",
+        [
+          {|The `@raises` decorator is for reanalyze, a static analysis tool for ReScript that can perform exception analysis.
+
+`@raises` acknowledges that a function can raise exceptions that are not caught, and suppresses
+a warning in that case. Callers of the functions are then subjected to the same rule.
+Example `@raises(Exn)` or `@raises([E1, E2, E3])` for multiple exceptions.
+[Read more and see examples in the documentation](https://github.com/rescript-association/reanalyze/blob/master/EXCEPTION.md).
+> Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
         ] );
       ( "react.component",
         [
