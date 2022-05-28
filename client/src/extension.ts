@@ -16,7 +16,7 @@ import {
 } from "vscode-languageclient/node";
 
 import * as customCommands from "./commands";
-import { DiagnosticsResultCodeActionsMap } from "./commands/dead_code_analysis";
+import { DiagnosticsResultCodeActionsMap } from "./commands/code_analysis";
 
 let client: LanguageClient;
 
@@ -69,19 +69,19 @@ let client: LanguageClient;
 // });
 
 export function activate(context: ExtensionContext) {
-  function attachDeadCodeAnalysis(client: LanguageClient) {
-    // This sets up a listener that, if we're in dead code analysis mode, triggers
-    // dead code analysis as the LS server reports that ReScript compilation has
-    // finished. This is needed because dead code analysis must wait until
+  function attachCodeAnalysis(client: LanguageClient) {
+    // This sets up a listener that, if we're in code analysis mode, triggers
+    // code analysis as the LS server reports that ReScript compilation has
+    // finished. This is needed because code analysis must wait until
     // compilation has finished, and the most reliable source for that is the LS
     // server, that already keeps track of when the compiler finishes in order to
     // other provide fresh diagnostics.
     client.onReady().then(() => {
       context.subscriptions.push(
         client.onNotification("rescript/compilationFinished", () => {
-          if (inDeadCodeAnalysisState.active === true) {
-            customCommands.deadCodeAnalysisWithReanalyze(
-              inDeadCodeAnalysisState.activatedFromDirectory,
+          if (inCodeAnalysisState.active === true) {
+            customCommands.codeAnalysisWithReanalyze(
+              inCodeAnalysisState.activatedFromDirectory,
               diagnosticsCollection,
               diagnosticsResultCodeActions
             );
@@ -91,7 +91,7 @@ export function activate(context: ExtensionContext) {
     });
   }
 
-  /** creates a language client and attaches deadcodeanalysis */
+  /** creates a language client and attaches code analysis */
   function createLanguageClient() {
     const client = new LanguageClient(
       "ReScriptLSP",
@@ -99,7 +99,7 @@ export function activate(context: ExtensionContext) {
       serverOptions,
       clientOptions
     );
-    attachDeadCodeAnalysis(client);
+    attachCodeAnalysis(client);
     return client;
   }
 
@@ -142,20 +142,20 @@ export function activate(context: ExtensionContext) {
   // coming from the ReScript compiler.
   let diagnosticsCollection = languages.createDiagnosticCollection("rescript");
 
-  // This map will hold code actions produced by the dead code analysis, in a
+  // This map will hold code actions produced by the code analysis, in a
   // format that's cheap to look up.
   let diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap = new Map();
-  let deadCodeAnalysisRunningStatusBarItem = window.createStatusBarItem(
+  let codeAnalysisRunningStatusBarItem = window.createStatusBarItem(
     StatusBarAlignment.Right
   );
 
-  let inDeadCodeAnalysisState: {
+  let inCodeAnalysisState: {
     active: boolean;
     activatedFromDirectory: string | null;
   } = { active: false, activatedFromDirectory: null };
 
   // This code actions provider yields the code actions potentially extracted
-  // from the dead code analysis to the editor.
+  // from the code analysis to the editor.
   languages.registerCodeActionsProvider("rescript", {
     async provideCodeActions(document, rangeOrSelection) {
       let availableActions =
@@ -179,44 +179,44 @@ export function activate(context: ExtensionContext) {
     customCommands.openCompiled(client);
   });
 
-  // Starts the dead code analysis mode.
-  commands.registerCommand("rescript-vscode.start_dead_code_analysis", () => {
+  // Starts the code analysis mode.
+  commands.registerCommand("rescript-vscode.start_code_analysis", () => {
     // Save the directory this first ran from, and re-use that when continuously
     // running the analysis. This is so that the target of the analysis does not
     // change on subsequent runs, if there are multiple ReScript projects open
     // in the editor.
     let currentDocument = window.activeTextEditor.document;
 
-    inDeadCodeAnalysisState.active = true;
+    inCodeAnalysisState.active = true;
 
     // Pointing reanalyze to the dir of the current file path is fine, because
     // reanalyze will walk upwards looking for a bsconfig.json in order to find
     // the correct project root.
-    inDeadCodeAnalysisState.activatedFromDirectory = path.dirname(
+    inCodeAnalysisState.activatedFromDirectory = path.dirname(
       currentDocument.uri.fsPath
     );
 
-    deadCodeAnalysisRunningStatusBarItem.command =
-      "rescript-vscode.stop_dead_code_analysis";
-    deadCodeAnalysisRunningStatusBarItem.show();
-    deadCodeAnalysisRunningStatusBarItem.text =
-      "$(debug-stop) Stop Dead Code Analysis mode";
+    codeAnalysisRunningStatusBarItem.command =
+      "rescript-vscode.stop_code_analysis";
+    codeAnalysisRunningStatusBarItem.show();
+    codeAnalysisRunningStatusBarItem.text =
+      "$(debug-stop) Stop Code Analyzer";
 
-    customCommands.deadCodeAnalysisWithReanalyze(
-      inDeadCodeAnalysisState.activatedFromDirectory,
+    customCommands.codeAnalysisWithReanalyze(
+      inCodeAnalysisState.activatedFromDirectory,
       diagnosticsCollection,
       diagnosticsResultCodeActions
     );
   });
 
-  commands.registerCommand("rescript-vscode.stop_dead_code_analysis", () => {
-    inDeadCodeAnalysisState.active = false;
-    inDeadCodeAnalysisState.activatedFromDirectory = null;
+  commands.registerCommand("rescript-vscode.stop_code_analysis", () => {
+    inCodeAnalysisState.active = false;
+    inCodeAnalysisState.activatedFromDirectory = null;
 
     diagnosticsCollection.clear();
     diagnosticsResultCodeActions.clear();
 
-    deadCodeAnalysisRunningStatusBarItem.hide();
+    codeAnalysisRunningStatusBarItem.hide();
   });
 
   commands.registerCommand("rescript-vscode.switch-impl-intf", () => {

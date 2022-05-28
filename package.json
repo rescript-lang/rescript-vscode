@@ -55,12 +55,12 @@
 				"icon": "$(output)"
 			},
 			{
-				"command": "rescript-vscode.start_dead_code_analysis",
-				"title": "ReScript: Start dead code analysis."
+				"command": "rescript-vscode.start_code_analysis",
+				"title": "ReScript: Start Code Analyzer."
 			},
 			{
-				"command": "rescript-vscode.stop_dead_code_analysis",
-				"title": "ReScript: Stop dead code analysis."
+				"command": "rescript-vscode.stop_code_analysis",
+				"title": "ReScript: Stop Code Analyzer."
 			},
 			{
 				"command": "rescript-vscode.restart_language_server",

@@ -67,17 +67,17 @@ Switches between the implementation and interface file. If you're in a `.res` fi
 
 ### Experimental Features
 
-#### Dead Code Analysis mode
+#### Code Analysis mode
 
-Runs dead code analysis via [reanalyze](https://github.com/rescript-association/reanalyze).
+Runs code analysis via [reanalyze](https://github.com/rescript-association/reanalyze).
 
 ##### Usage
 
-Open the command palette and run `> ReScript: Start dead code analysis.`. This will start dead code analysis in the ReScript project of the file you run the command from.
+Open the command palette and run `> ReScript: Start Code Analyzer.`. This will start code analysis in the ReScript project of the file you run the command from.
 
 Dead code is highlighted in the editor, and code actions for suppressing dead code warnings are available in most cases.
 
-When done, stop the dead code analysis mode by clicking the `Stop Dead Code Analysis mode` button in the editor status bar. This will clear all reported dead code warnings.
+When done, stop the code analysis mode by clicking the `Stop Code Analyzer` button in the editor status bar. This will clear all reported analysis warnings.
 
 **Note:** This mode uses `npx reanalyze` to run the analysis binary. For reproducible results, install `reanalyze` with `npm install reanalyze --save-dev`.
 

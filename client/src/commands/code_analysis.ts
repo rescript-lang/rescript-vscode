@@ -205,7 +205,7 @@ let dceTextToDiagnostics = (
   };
 };
 
-export const runDeadCodeAnalysisWithReanalyze = (
+export const runCodeAnalysisWithReanalyze = (
   targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
