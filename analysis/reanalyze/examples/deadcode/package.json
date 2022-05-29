@@ -2,14 +2,6 @@
   "name": "deadcode",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "start": "rescript build -w",
-    "build": "rescript build",
-    "clean": "rescript clean -with-deps",
-    "dce": "dune exec -- reanalyze -config -debug -ci -exclude-paths src/noalloc,src/exception -live-names globallyLive1 -live-names globallyLive2,globallyLive3 >src/deadcode.txt",
-    "exception": "dune exec reanalyze -- -exception -ci -suppress src -unsuppress src/exception >src/exception.txt",
-    "analyze": "npm run dce && npm run exception"
-  },
   "devDependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.8.6",

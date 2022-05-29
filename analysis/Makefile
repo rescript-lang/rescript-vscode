@@ -17,14 +17,15 @@ test: build-native tests/node_modules/.bin/rescript
 	./test.sh
 
 test-reanalyze: build-native
-	@cd reanalyze && node scripts/run_integration_tests.js
+	make -C reanalyze test
 
-test-all: test test-reanalyze
+test-all: test-reanalyze test
 
 clean: tests/node_modules/.bin/rescript
 	rm -f rescript-editor-analysis.exe
 	@cd tests && node_modules/.bin/rescript clean
 	dune clean
+	make -C reanalyze clean
 
 .DEFAULT_GOAL := build-native
 
