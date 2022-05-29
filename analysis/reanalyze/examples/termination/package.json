@@ -11,8 +11,5 @@
   "devDependencies": {
     "gentype": "^4.4.0",
     "rescript": "^9.1.4"
-  },
-  "dependencies": {
-    "reanalyze": "file:../.."
   }
 }

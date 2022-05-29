@@ -105,8 +105,6 @@ module Ext_buffer: {
 
 let () = Js.log(DeadRT.Root("xzz"))
 
-module LazyDynamicallyLoadedComponent = %lazyLoadComponent(DynamicallyLoadedComponent)
-
 module type LocalDynamicallyLoadedComponent2 = module type of DynamicallyLoadedComponent
 
 module LazyDynamicallyLoadedComponent2 = {
@@ -124,17 +122,7 @@ module LazyDynamicallyLoadedComponent2 = {
     )
 }
 
-let cmp = <LazyDynamicallyLoadedComponent s="hello" />
-
-let cmp2 = () => <LazyDynamicallyLoadedComponent2 s="hello" />
-
-let () = Js.log(cmp)
-
 module Chat = {}
-
-module ComponentSwitch = unpack(
-  %requireCond((#gk, "chat", {"false": DynamicallyLoadedComponent, "true": ExportWithRename}))
-)
 
 let zzz = {
   let a1 = 1
@@ -148,8 +136,6 @@ let second = 1L
 let minute = Int64.mul(60L, second)
 
 let deadRef = ref(12)
-
-let makeSwitch = ComponentSwitch.make
 
 @react.component
 let make = (~s) => React.string(s)
@@ -186,4 +172,4 @@ let funWithInnerVars = () => {
   x + y
 }
 
-type rc = {a:int}
+type rc = {a: int}
