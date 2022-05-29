@@ -22,7 +22,7 @@ jobs:
             build: eval $(opam env) && cd analysis && make test-all
             artifact-folder: linux
           - os: windows-latest
-            build: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test"
+            build: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test-all"
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
