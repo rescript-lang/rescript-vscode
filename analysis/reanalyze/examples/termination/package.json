@@ -9,7 +9,6 @@
     "analyze": "dune exe -- reanalyze.exe -config -ci -debug >src/termination.txt"
   },
   "devDependencies": {
-    "gentype": "^4.4.0",
     "rescript": "^9.1.4"
   }
 }
