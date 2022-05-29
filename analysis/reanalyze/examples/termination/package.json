@@ -6,7 +6,7 @@
     "start": "rescript build -w",
     "build": "rescript build",
     "clean": "rescript clean -with-deps",
-    "analyze": "dune exec reanalyze.exe -- -config -ci -debug >src/termination.txt"
+    "analyze": "dune exec reanalyze -- -config -ci -debug >src/termination.txt"
   },
   "devDependencies": {
     "rescript": "^9.1.4"
