@@ -124,7 +124,7 @@
 				"rescript.settings.askToStartBuild": {
 					"scope": "language-overridable",
 					"type": "boolean",
-					"default": 	true,
+					"default": true,
 					"description": "Whether you want the extension to prompt for autostarting a ReScript build if a project is opened with no build running."
 				}
 			}
