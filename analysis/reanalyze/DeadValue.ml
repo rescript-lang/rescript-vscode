@@ -40,9 +40,7 @@ let collectValueBinding super self (vb : Typedtree.value_binding) =
       let currentModulePath = ModulePath.getCurrent () in
       let path = currentModulePath.path @ [!Common.currentModuleName] in
       let isFirstClassModule =
-        match Compat.get_desc vb.vb_expr.exp_type with
-        | Tpackage _ -> true
-        | _ -> false
+        match vb.vb_expr.exp_type.desc with Tpackage _ -> true | _ -> false
       in
       (if (not exists) && not isFirstClassModule then
        (* This is never toplevel currently *)
@@ -214,8 +212,7 @@ let rec collectExpr super self (e : Typedtree.expression) =
   With this annotation we declare a new type for each branch to allow the
   function to be typed.
   *)
-let collectPattern :
-    type k. _ -> _ -> k Compat.generalPattern -> k Compat.generalPattern =
+let collectPattern : _ -> _ -> Typedtree.pattern -> Typedtree.pattern =
  fun super self pat ->
   let posFrom = pat.Typedtree.pat_loc.loc_start in
   (match pat.pat_desc with
@@ -230,26 +227,22 @@ let collectPattern :
 let rec getSignature (moduleType : Types.module_type) =
   match moduleType with
   | Mty_signature signature -> signature
-  | Mty_functor _ -> (
-    match moduleType |> Compat.getMtyFunctorModuleType with
-    | Some (_, mt) -> getSignature mt
-    | _ -> [])
+  | Mty_functor (_, _mtParam, mt) -> getSignature mt
   | _ -> []
 
 let rec processSignatureItem ~doTypes ~doValues ~moduleLoc ~path
     (si : Types.signature_item) =
   match si with
-  | Sig_type _ when doTypes ->
-    let id, t = si |> Compat.getSigType in
+  | Sig_type (id, t, _) when doTypes ->
     if !Config.analyzeTypes then
       DeadType.addDeclaration ~typeId:id ~typeKind:t.type_kind
-  | Sig_value _ when doValues ->
-    let id, loc, kind, valType = si |> Compat.getSigValue in
+  | Sig_value (id, {Types.val_loc = loc; val_kind = kind; val_type})
+    when doValues ->
     if not loc.Location.loc_ghost then
       let isPrimitive = match kind with Val_prim _ -> true | _ -> false in
       if (not isPrimitive) || !Config.analyzeExternals then
         let optionalArgs =
-          valType |> DeadOptionalArgs.fromTypeExpr |> OptionalArgs.fromList
+          val_type |> DeadOptionalArgs.fromTypeExpr |> OptionalArgs.fromList
         in
 
         (* if Ident.name id = "someValue" then
@@ -258,16 +251,14 @@ let rec processSignatureItem ~doTypes ~doValues ~moduleLoc ~path
         |> Name.create ~isInterface:false
         |> addValueDeclaration ~loc ~moduleLoc ~optionalArgs ~path
              ~sideEffects:false
-  | Sig_module _ | Sig_modtype _ -> (
-    match si |> Compat.getSigModuleModtype with
-    | Some (id, moduleType, moduleLoc) ->
-      let collect = match si with Sig_modtype _ -> false | _ -> true in
-      if collect then
-        getSignature moduleType
-        |> List.iter
-             (processSignatureItem ~doTypes ~doValues ~moduleLoc
-                ~path:((id |> Ident.name |> Name.create) :: path))
-    | None -> ())
+  | Sig_module (id, {Types.md_type = moduleType; md_loc = moduleLoc}, _)
+  | Sig_modtype (id, {Types.mtd_type = Some moduleType; mtd_loc = moduleLoc}) ->
+    let collect = match si with Sig_modtype _ -> false | _ -> true in
+    if collect then
+      getSignature moduleType
+      |> List.iter
+           (processSignatureItem ~doTypes ~doValues ~moduleLoc
+              ~path:((id |> Ident.name |> Name.create) :: path))
   | _ -> ()
 
 (* Traverse the AST *)
@@ -287,8 +278,7 @@ let traverseStructure ~doTypes ~doExternals =
         {
           oldModulePath with
           loc = mb_loc;
-          path =
-            (mb_id |> Compat.moduleIdName |> Name.create) :: oldModulePath.path;
+          path = (mb_id |> Ident.name |> Name.create) :: oldModulePath.path;
         };
       if hasInterface then
         match mb_expr.mod_type with
@@ -337,15 +327,12 @@ let traverseStructure ~doTypes ~doExternals =
                 ~doValues:false (* TODO: also values? *)
                 ~moduleLoc:incl_mod.mod_loc ~path:currentPath)
       | _ -> ())
-    | Tstr_exception _ -> (
-      match structureItem.str_desc |> Compat.tstrExceptionGet with
-      | Some (id, loc) ->
-        let path =
-          (ModulePath.getCurrent ()).path @ [!Common.currentModuleName]
-        in
-        let name = id |> Ident.name |> Name.create in
-        name |> DeadException.add ~path ~loc ~strLoc:structureItem.str_loc
-      | None -> ())
+    | Tstr_exception {ext_id = id; ext_loc = loc} ->
+      let path =
+        (ModulePath.getCurrent ()).path @ [!Common.currentModuleName]
+      in
+      let name = id |> Ident.name |> Name.create in
+      name |> DeadException.add ~path ~loc ~strLoc:structureItem.str_loc
     | _ -> ());
     let result = super.structure_item self structureItem in
     ModulePath.setCurrent oldModulePath;

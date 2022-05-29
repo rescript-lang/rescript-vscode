@@ -681,8 +681,6 @@ module Compile = struct
     isProgressFunction : Path.t -> bool;
   }
 
-  module Ident = Compat.Ident
-
   let rec expression ~ctx (expr : Typedtree.expression) =
     let {currentFunctionName; functionTable; isProgressFunction} = ctx in
     let loc = expr.exp_loc in
@@ -857,10 +855,13 @@ module Compile = struct
         c +++ ConstrOption Rnone
       | _ -> c)
     | Texp_function {cases} -> cases |> List.map (case ~ctx) |> Command.nondet
-    | Texp_match _ when not (expr.exp_desc |> Compat.texpMatchHasExceptions)
-      -> (
+    | Texp_match (e, casesOk, casesExn, partial)
+      when not
+             (casesExn
+             |> List.map (fun (case : Typedtree.case) -> case.c_lhs.pat_desc)
+             != []) -> (
       (* No exceptions *)
-      let e, cases, _ = expr.exp_desc |> Compat.getTexpMatch in
+      let cases = casesOk @ casesExn in
       let cE = e |> expression ~ctx in
       let cCases = cases |> List.map (case ~ctx) in
       let fail () =
@@ -870,11 +871,9 @@ module Compile = struct
       match (cE, cases) with
       | ( Call (FunctionCall functionCall, loc),
           [{c_lhs = pattern1}; {c_lhs = pattern2}] ) -> (
-        match
-          ( pattern1 |> Compat.unboxPatCstrName,
-            pattern2 |> Compat.unboxPatCstrName )
-        with
-        | Some (("Some" | "None") as name1), Some ("Some" | "None") ->
+        match (pattern1.pat_desc, pattern2.pat_desc) with
+        | ( Tpat_construct (_, {cstr_name = ("Some" | "None") as name1}, _),
+            Tpat_construct (_, {cstr_name = "Some" | "None"}, _) ) ->
           let casesArr = Array.of_list cCases in
           let some, none =
             try
@@ -970,7 +969,7 @@ module Compile = struct
     let open Command in
     unorderedSequence commands +++ command
 
-  and case : type k. ctx:ctx -> k Compat.typedtreeCase -> _ =
+  and case : ctx:ctx -> Typedtree.case -> _ =
    fun ~ctx {c_guard; c_rhs} ->
     match c_guard with
     | None -> c_rhs |> expression ~ctx
@@ -1230,7 +1229,7 @@ let progressFunctionsFromAttributes attributes =
       | Some (IdentPayload lid) -> [lidToString lid]
       | Some (TuplePayload l) ->
         l
-        |> Compat.filter_map (function
+        |> List.filter_map (function
              | Annotation.IdentPayload lid -> Some (lidToString lid)
              | _ -> None)
       | _ -> [])

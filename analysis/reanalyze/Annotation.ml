@@ -20,8 +20,8 @@ let tagIsOneOfTheGenTypeAnnotations s =
 let rec getAttributePayload checkText (attributes : Typedtree.attributes) =
   let rec fromExpr (expr : Parsetree.expression) =
     match expr with
-    | {pexp_desc = Pexp_constant (Pconst_string _ as cs)} ->
-      Some (StringPayload (cs |> Compat.getStringValue))
+    | {pexp_desc = Pexp_constant (Pconst_string (s, _))} ->
+      Some (StringPayload s)
     | {pexp_desc = Pexp_constant (Pconst_integer (n, _))} -> Some (IntPayload n)
     | {pexp_desc = Pexp_constant (Pconst_float (s, _))} -> Some (FloatPayload s)
     | {
@@ -50,8 +50,7 @@ let rec getAttributePayload checkText (attributes : Typedtree.attributes) =
   in
   match attributes with
   | [] -> None
-  | a :: tl ->
-    let txt, payload = a |> Compat.getPayload in
+  | ({Asttypes.txt}, payload) :: tl ->
     if checkText txt then
       match payload with
       | PStr [] -> Some UnrecognizedPayload

@@ -30,21 +30,21 @@ let addFunctionReference ~(locFrom : Location.t) ~(locTo : Location.t) =
       functionReferences := (posFrom, posTo) :: !functionReferences)
 
 let rec hasOptionalArgs (texpr : Types.type_expr) =
-  match Compat.get_desc texpr with
+  match texpr.desc with
   | _ when not (active ()) -> false
   | Tarrow (Optional _, _tFrom, _tTo, _) -> true
   | Tarrow (_, _tFrom, tTo, _) -> hasOptionalArgs tTo
   | Tlink t -> hasOptionalArgs t
-  | Tsubst _ -> hasOptionalArgs (Compat.getTSubst (Compat.get_desc texpr))
+  | Tsubst t -> hasOptionalArgs t
   | _ -> false
 
 let rec fromTypeExpr (texpr : Types.type_expr) =
-  match Compat.get_desc texpr with
+  match texpr.desc with
   | _ when not (active ()) -> []
   | Tarrow (Optional s, _tFrom, tTo, _) -> s :: fromTypeExpr tTo
   | Tarrow (_, _tFrom, tTo, _) -> fromTypeExpr tTo
   | Tlink t -> fromTypeExpr t
-  | Tsubst _ -> fromTypeExpr (Compat.getTSubst (Compat.get_desc texpr))
+  | Tsubst t -> fromTypeExpr t
   | _ -> []
 
 let addReferences ~(locFrom : Location.t) ~(locTo : Location.t) ~path

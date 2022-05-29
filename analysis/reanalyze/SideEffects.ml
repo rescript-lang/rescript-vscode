@@ -40,8 +40,8 @@ let rec exprNoSideEffects (expr : Typedtree.expression) =
     fields |> Array.for_all fieldNoSideEffects
     && extended_expression |> exprOptNoSideEffects
   | Texp_assert _ -> false
-  | Texp_match _ ->
-    let e, cases, partial = expr.exp_desc |> Compat.getTexpMatch in
+  | Texp_match (e, casesOk, casesExn, partial) ->
+    let cases = casesOk @ casesExn in
     partial = Total && e |> exprNoSideEffects
     && cases |> List.for_all caseNoSideEffects
   | Texp_letmodule _ -> false
@@ -80,7 +80,7 @@ and fieldNoSideEffects ((_ld, rld) : _ * Typedtree.record_label_definition) =
   | Kept _typeExpr -> true
   | Overridden (_lid, e) -> e |> exprNoSideEffects
 
-and caseNoSideEffects : type k. k Compat.typedtreeCase -> _ =
+and caseNoSideEffects : Typedtree.case -> _ =
  fun {c_guard; c_rhs} ->
   c_guard |> exprOptNoSideEffects && c_rhs |> exprNoSideEffects
 
