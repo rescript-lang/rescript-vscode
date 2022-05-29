@@ -4,15 +4,6 @@
     "suppress": ["src/ToSuppress.res"],
     "unsuppress": []
   },
-  "gentypeconfig": {
-    "language": "typescript",
-    "module": "es6",
-    "importPath": "relative",
-    "debug": {
-      "all": false
-    },
-    "exportInterfaces": false
-  },
   "name": "sample-typescript-app",
   "bsc-flags": ["-bs-super-errors -w a"],
   "reason": { "react-jsx": 3 },
@@ -27,6 +18,5 @@
     "module": "es6",
     "in-source": true
   },
-  "suffix": ".bs.js",
-  "refmt": 3
+  "suffix": ".bs.js"
 }
