@@ -1,4 +1,4 @@
-(* Copyright (C) 2015-2016 Bloomberg Finance L.P.
+(* Copyright (C) 2015-2017 Bloomberg Finance L.P.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,16 +22,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
-type error
+type loc = Lexing.position
+type json_str = string
 
-val report_error : Format.formatter -> error -> unit 
+type json_flo  = string
 
-exception Error of Lexing.position * Lexing.position * error
+module StringMap = Map.Make(String)
 
-val parse_json_from_string : string -> Ext_json_types.t 
+type json_array = t array
 
-val parse_json_from_chan :
-  string ->  in_channel -> Ext_json_types.t 
+and json_map = t StringMap.t
 
-val parse_json_from_file  : string -> Ext_json_types.t
-
+and t = 
+  | True of loc 
+  | False of loc 
+  | Null of loc 
+  | Flo of json_flo
+  | Str of json_str
+  | Arr  of json_array
+  | Obj of json_map
+   

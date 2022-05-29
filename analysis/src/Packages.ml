@@ -19,71 +19,75 @@ let newBsPackage ~rootPath =
     Log.log ("Unable to read " ^ bsconfig);
     None
   | Some raw -> (
-    let config = Json.parse raw in
     let libBs = BuildSystem.getLibBs rootPath in
-    match FindFiles.findDependencyFiles rootPath config with
-    | None -> None
-    | Some (dependencyDirectories, dependenciesFilesAndPaths) -> (
-      match libBs with
+    match Json.parse raw with
+    | Some config -> (
+      match FindFiles.findDependencyFiles rootPath config with
       | None -> None
-      | Some libBs ->
-        Some
-          (let namespace = FindFiles.getNamespace config in
-           let sourceDirectories =
-             FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
-               config
-           in
-           let projectFilesAndPaths =
-             FindFiles.findProjectFiles ~namespace ~path:rootPath
-               ~sourceDirectories ~libBs
-           in
-           projectFilesAndPaths
-           |> List.iter (fun (_name, paths) -> Log.log (showPaths paths));
-           let pathsForModule =
-             makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths
-           in
-           let opens_from_namespace =
-             match namespace with
-             | None -> []
-             | Some namespace ->
-               let cmt = Filename.concat libBs namespace ^ ".cmt" in
-               Log.log ("############ Namespaced as " ^ namespace ^ " at " ^ cmt);
-               Hashtbl.add pathsForModule namespace (Namespace {cmt});
-               [FindFiles.nameSpaceToName namespace]
-           in
-           Log.log
-             ("Dependency dirs: "
-             ^ String.concat " "
-                 (dependencyDirectories |> List.map Utils.dumpPath));
-           let opens_from_bsc_flags =
-             match Json.get "bsc-flags" config |?> Json.array with
-             | Some l ->
-               List.fold_left
-                 (fun opens item ->
-                   match item |> Json.string with
-                   | None -> opens
-                   | Some s -> (
-                     let parts = String.split_on_char ' ' s in
-                     match parts with
-                     | "-open" :: name :: _ -> name :: opens
-                     | _ -> opens))
-                 [] l
-             | None -> []
-           in
-           let opens =
-             List.rev_append opens_from_bsc_flags opens_from_namespace
-           in
-           Log.log ("Opens from bsconfig: " ^ (opens |> String.concat " "));
-           {
-             rootPath;
-             projectFiles =
-               projectFilesAndPaths |> List.map fst |> FileSet.of_list;
-             dependenciesFiles =
-               dependenciesFilesAndPaths |> List.map fst |> FileSet.of_list;
-             pathsForModule;
-             opens;
-             namespace;
-           })))
+      | Some (dependencyDirectories, dependenciesFilesAndPaths) -> (
+        match libBs with
+        | None -> None
+        | Some libBs ->
+          Some
+            (let namespace = FindFiles.getNamespace config in
+             let sourceDirectories =
+               FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
+                 config
+             in
+             let projectFilesAndPaths =
+               FindFiles.findProjectFiles ~namespace ~path:rootPath
+                 ~sourceDirectories ~libBs
+             in
+             projectFilesAndPaths
+             |> List.iter (fun (_name, paths) -> Log.log (showPaths paths));
+             let pathsForModule =
+               makePathsForModule ~projectFilesAndPaths
+                 ~dependenciesFilesAndPaths
+             in
+             let opens_from_namespace =
+               match namespace with
+               | None -> []
+               | Some namespace ->
+                 let cmt = Filename.concat libBs namespace ^ ".cmt" in
+                 Log.log
+                   ("############ Namespaced as " ^ namespace ^ " at " ^ cmt);
+                 Hashtbl.add pathsForModule namespace (Namespace {cmt});
+                 [FindFiles.nameSpaceToName namespace]
+             in
+             Log.log
+               ("Dependency dirs: "
+               ^ String.concat " "
+                   (dependencyDirectories |> List.map Utils.dumpPath));
+             let opens_from_bsc_flags =
+               match Json.get "bsc-flags" config |?> Json.array with
+               | Some l ->
+                 List.fold_left
+                   (fun opens item ->
+                     match item |> Json.string with
+                     | None -> opens
+                     | Some s -> (
+                       let parts = String.split_on_char ' ' s in
+                       match parts with
+                       | "-open" :: name :: _ -> name :: opens
+                       | _ -> opens))
+                   [] l
+               | None -> []
+             in
+             let opens =
+               List.rev_append opens_from_bsc_flags opens_from_namespace
+             in
+             Log.log ("Opens from bsconfig: " ^ (opens |> String.concat " "));
+             {
+               rootPath;
+               projectFiles =
+                 projectFilesAndPaths |> List.map fst |> FileSet.of_list;
+               dependenciesFiles =
+                 dependenciesFilesAndPaths |> List.map fst |> FileSet.of_list;
+               pathsForModule;
+               opens;
+               namespace;
+             })))
+    | None -> None)
 
 let findRoot ~uri packagesByRoot =
   let path = Uri2.toPath uri in

@@ -1,4 +1,5 @@
- 
+module StringMap = Map.Make(String)
+
 type error =
   | Illegal_character of char
   | Unterminated_string
@@ -81,6 +82,7 @@ type token =
   
 let error  (lexbuf : Lexing.lexbuf) e = 
   raise (Error (lexbuf.lex_start_p, lexbuf.lex_curr_p, e))
+[@@raises Error]
 
 
 let lexeme_len (x : Lexing.lexbuf) =
@@ -303,6 +305,7 @@ let __ocaml_lex_tables = {
 
 let rec lex_json buf lexbuf =
     __ocaml_lex_lex_json_rec buf lexbuf 0
+[@@raises Error]
 and __ocaml_lex_lex_json_rec buf lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -370,9 +373,11 @@ let
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; 
       __ocaml_lex_lex_json_rec buf lexbuf __ocaml_lex_state
+[@@raises Error]
 
 and comment buf lexbuf =
     __ocaml_lex_comment_rec buf lexbuf 40
+[@@raises Error]
 and __ocaml_lex_comment_rec buf lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -386,9 +391,11 @@ and __ocaml_lex_comment_rec buf lexbuf __ocaml_lex_state =
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; 
       __ocaml_lex_comment_rec buf lexbuf __ocaml_lex_state
+[@@raises Error]
 
 and scan_string buf start lexbuf =
     __ocaml_lex_scan_string_rec buf start lexbuf 45
+[@@raises Error]
 and __ocaml_lex_scan_string_rec buf start lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -433,10 +440,11 @@ and
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos (lexbuf.Lexing.lex_start_pos + 4) in
       (
         let v = dec_code c1 c2 c3 in
-        if v > 255 then
-          error lexbuf (Illegal_escape s) ;
-        Buffer.add_char buf (Char.chr v);
-
+        begin
+          try Buffer.add_char buf (Char.chr v) with
+          | _ ->
+            error lexbuf (Illegal_escape s)
+        end;
         scan_string buf start lexbuf
       )
 
@@ -449,7 +457,11 @@ and
 = Lexing.sub_lexeme_char lexbuf (lexbuf.Lexing.lex_start_pos + 3) in
       (
         let v = hex_code c1 c2 in
-        Buffer.add_char buf (Char.chr v);
+        begin
+          try Buffer.add_char buf (Char.chr v) with
+          | _ ->
+            error lexbuf (Illegal_escape (Char.escaped c2))
+        end;
 
         scan_string buf start lexbuf
       )
@@ -489,7 +501,7 @@ let
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; 
       __ocaml_lex_scan_string_rec buf start lexbuf __ocaml_lex_state
-
+[@@raises Error]
 ;;
 
  
@@ -509,6 +521,7 @@ let parse_json lexbuf =
     | Some x -> 
       look_ahead := None ;
       x 
+  [@@raises Error]
   in
   let push e = look_ahead := Some e in 
   let rec json (lexbuf : Lexing.lexbuf) : Ext_json_types.t = 
@@ -516,10 +529,10 @@ let parse_json lexbuf =
     | True -> True lexbuf.lex_start_p
     | False -> False lexbuf.lex_start_p
     | Null -> Null lexbuf.lex_start_p
-    | Number s ->  Flo {flo = s; loc = lexbuf.lex_start_p}  
-    | String s -> Str { str = s; loc =    lexbuf.lex_start_p}
+    | Number s ->  Flo s  
+    | String s -> Str s
     | Lbracket -> parse_array  lexbuf.lex_start_p lexbuf.lex_curr_p [] lexbuf
-    | Lbrace -> parse_map lexbuf.lex_start_p String_map.empty lexbuf
+    | Lbrace -> parse_map lexbuf.lex_start_p StringMap.empty lexbuf
     |  _ -> error lexbuf Unexpected_token
 (* Note if we remove [trailing_comma] support 
     we should report errors (actually more work), for example 
@@ -539,12 +552,13 @@ let parse_json lexbuf =
 
     ]}   
  *)
+  [@@raises Error]
+
   and parse_array   loc_start loc_finish acc lexbuf 
     : Ext_json_types.t =
     match token () with 
     | Rbracket ->
-        Arr {loc_start ; content = Ext_array.reverse_of_list acc ; 
-              loc_end = lexbuf.lex_curr_p }
+        Arr (Array.of_list (acc |> List.rev))
     | x -> 
       push x ;
       let new_one = json lexbuf in 
@@ -552,50 +566,46 @@ let parse_json lexbuf =
       | Comma -> 
           parse_array  loc_start loc_finish (new_one :: acc) lexbuf 
       | Rbracket 
-        -> Arr {content = (Ext_array.reverse_of_list (new_one::acc));
-                     loc_start ; 
-                     loc_end = lexbuf.lex_curr_p }
+        -> Arr (Array.of_list (new_one::acc |> List.rev))
       | _ -> 
         error lexbuf Expect_comma_or_rbracket
       end
+  [@@raises Error]
+
   and parse_map loc_start  acc lexbuf : Ext_json_types.t = 
     match token () with 
     | Rbrace -> 
-        Obj { map = acc ; loc = loc_start}
+        Obj acc
     | String key -> 
       begin match token () with 
       | Colon ->
         let value = json lexbuf in
         begin match token () with 
-        | Rbrace -> Obj {map = String_map.add key value acc ; loc = loc_start}
+        | Rbrace -> Obj (StringMap.add key value acc)
         | Comma -> 
-          parse_map loc_start  (String_map.add key value acc) lexbuf 
+          parse_map loc_start  (StringMap.add key value acc) lexbuf 
         | _ -> error lexbuf Expect_comma_or_rbrace
         end
       | _ -> error lexbuf Expect_colon
       end
     | _ -> error lexbuf Expect_string_or_rbrace
+  [@@raises Error]
+
   in 
   let v = json lexbuf in 
   match token () with 
   | Eof -> v 
   | _ -> error lexbuf Expect_eof
-
-let parse_json_from_string s = 
-  parse_json (Lexing.from_string s )
-
-let parse_json_from_chan fname in_chan = 
-  let lexbuf = 
-    Ext_position.lexbuf_from_channel_with_fname
-    in_chan fname in 
-  parse_json lexbuf 
+[@@raises Error]
 
 let parse_json_from_file s = 
   let in_chan = open_in s in 
-  let lexbuf = 
-    Ext_position.lexbuf_from_channel_with_fname
-    in_chan s in 
-  match parse_json lexbuf with 
-  | exception e -> close_in in_chan ; raise e
-  | v  -> close_in in_chan;  v
-
+  match
+    let lexbuf = 
+      Ext_position.lexbuf_from_channel_with_fname
+      in_chan s
+    in 
+    parse_json lexbuf
+  with 
+  | exception (Error _ | Invalid_argument _ | Sys_error _) -> close_in_noerr in_chan ; None
+  | v  -> close_in_noerr in_chan;  Some(v)
