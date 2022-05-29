@@ -30,8 +30,10 @@ module Color = struct
     | Bold -> "1"
     | Dim -> "2"
 
+  let getStringTag s = match s with Format.String_tag s -> s | _ -> ""
+
   let style_of_tag s =
-    match s |> Compat.getStringTag with
+    match s |> getStringTag with
     | "error" -> [Bold; FG Red]
     | "warning" -> [Bold; FG Magenta]
     | "info" -> [Bold; FG Yellow]

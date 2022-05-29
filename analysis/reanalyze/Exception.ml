@@ -232,8 +232,8 @@ let traverseAst () =
     |> List.fold_left
          (fun acc desc ->
            match desc with
-           | Typedtree.Tpat_construct _ ->
-             Exceptions.add (Exn.fromLid (Compat.unboxPatCstrTxt desc)) acc
+           | Typedtree.Tpat_construct ({txt}, _, _) ->
+             Exceptions.add (Exn.fromLid txt) acc
            | _ -> acc)
          Exceptions.empty
   in
@@ -319,9 +319,12 @@ let traverseAst () =
           {Event.exceptions; loc; kind = Raises} :: !currentEvents
       else e |> iterExpr self;
       args |> List.iter (fun (_, eOpt) -> eOpt |> iterExprOpt self)
-    | Texp_match _ ->
-      let e, cases, partial = Compat.getTexpMatch expr.exp_desc in
-      let exceptionPatterns = expr.exp_desc |> Compat.texpMatchGetExceptions in
+    | Texp_match (e, casesOk, casesExn, partial) ->
+      let cases = casesOk @ casesExn in
+      let exceptionPatterns =
+        casesExn
+        |> List.map (fun (case : Typedtree.case) -> case.c_lhs.pat_desc)
+      in
       let exceptions = exceptionPatterns |> exceptionsOfPatterns in
       if exceptionPatterns <> [] then (
         let oldEvents = !currentEvents in
@@ -412,8 +415,7 @@ let traverseAst () =
         {
           oldModulePath with
           loc = mb_loc;
-          path =
-            (mb_id |> Compat.moduleIdName |> Name.create) :: oldModulePath.path;
+          path = (mb_id |> Ident.name |> Name.create) :: oldModulePath.path;
         }
     | _ -> ());
     let result = super.structure_item self structureItem in
@@ -421,7 +423,7 @@ let traverseAst () =
     (match structureItem.str_desc with
     | Tstr_module {mb_id; mb_expr = {mod_desc = Tmod_ident (path_, _lid)}} ->
       ModulePath.addAlias
-        ~name:(mb_id |> Compat.moduleIdName |> Name.create)
+        ~name:(mb_id |> Ident.name |> Name.create)
         ~path:(path_ |> Common.Path.fromPathT)
     | _ -> ());
     result
@@ -460,10 +462,9 @@ let traverseAst () =
     in
     match vb.vb_pat.pat_desc with
     | Tpat_any when isToplevel && not vb.vb_loc.loc_ghost -> processBinding "_"
-    | Tpat_construct _
+    | Tpat_construct ({txt}, _, _)
       when isToplevel && (not vb.vb_loc.loc_ghost)
-           && Compat.unboxPatCstrTxt vb.vb_pat.pat_desc = Longident.Lident "()"
-      ->
+           && txt = Longident.Lident "()" ->
       processBinding "()"
     | Tpat_var (id, {loc = {loc_ghost}})
       when (isFunction || isToplevel) && (not loc_ghost)
