@@ -1,0 +1,18 @@
+{
+  "name": "termination",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "rescript build -w",
+    "build": "rescript build",
+    "clean": "rescript clean -with-deps",
+    "analyze": "npx reanalyze.exe -config -ci -debug >src/termination.txt"
+  },
+  "devDependencies": {
+    "gentype": "^4.4.0",
+    "rescript": "^9.1.4"
+  },
+  "dependencies": {
+    "reanalyze": "file:../.."
+  }
+}

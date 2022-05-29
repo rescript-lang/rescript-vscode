@@ -1,0 +1,126 @@
+
+  Exception Analysis
+  File "Exn.res", line 1, characters 4-10
+  raises might raise Not_found (Exn.res:1:19) and is not annotated with @raises(Not_found)
+
+  Exception Analysis
+  File "Exn.res", line 19, characters 4-28
+  callsRaiseWithAnnotation might raise Not_found (Exn.res:19:31) and is not annotated with @raises(Not_found)
+
+  Exception Analysis
+  File "Exn.res", line 22, characters 4-42
+  callsRaiseWithAnnotationAndIsAnnotated might raise Not_found (Exn.res:22:45) and is not annotated with @raises(Not_found)
+
+  Exception Analysis
+  File "Exn.res", line 22, characters 4-42
+  callsRaiseWithAnnotationAndIsAnnotated might raise Not_found (Exn.res:22:45) and is annotated with redundant @raises(A)
+
+  Exception Analysis
+  File "Exn.res", line 24, characters 4-5
+  z might raise Failure (Exn.res:24:8) and is not annotated with @raises(Failure)
+
+  Exception Analysis
+  File "Exn.res", line 26, characters 4-19
+  incompleteMatch might raise Match_failure (Exn.res:27:2) and is not annotated with @raises(Match_failure)
+
+  Exception Analysis
+  File "Exn.res", line 34, characters 4-13
+  twoRaises might raise [A (Exn.res:36:4), B (Exn.res:39:4)] and is not annotated with @raises([A, B])
+
+  Exception Analysis
+  File "Exn.res", line 43, characters 4-14
+  sequencing might raise A (Exn.res:44:2) and is not annotated with @raises(A)
+
+  Exception Analysis
+  File "Exn.res", line 50, characters 4-14
+  wrongCatch might raise B (Exn.res:51:6) and is not annotated with @raises(B)
+
+  Exception Analysis
+  File "Exn.res", line 56, characters 4-15
+  wrongCatch2 might raise [C (Exn.res:57:24), Match_failure (Exn.res:57:2)] and is not annotated with @raises([C, Match_failure])
+
+  Exception Analysis
+  File "Exn.res", line 64, characters 4-19
+  raise2Annotate3 might raise [A (Exn.res:66:4), B (Exn.res:69:4)] and is annotated with redundant @raises(C)
+
+  Exception Analysis
+  File "Exn.res", line 75, characters 4-24
+  parse_json_from_file might raise [Error (Exn.res:80:4), Sys_error (Exn.res:79:4 Exn.res:82:4)] and is not annotated with @raises([Error, Sys_error])
+
+  Exception Analysis
+  File "Exn.res", line 87, characters 4-11
+  reRaise might raise B (Exn.res:89:19) and is not annotated with @raises(B)
+
+  Exception Analysis
+  File "Exn.res", line 98, characters 4-22
+  raiseInInternalLet might raise A (Exn.res:99:14) and is not annotated with @raises(A)
+
+  Exception Analysis
+  File "Exn.res", line 103, characters 4-16
+  indirectCall might raise Not_found (Exn.res:103:31) and is not annotated with @raises(Not_found)
+
+  Exception Analysis
+  File "Exn.res", line 151, characters 4-16
+  severalCases might raise Failure (Exn.res:153:13 Exn.res:154:13 Exn.res:155:15) and is not annotated with @raises(Failure)
+
+  Exception Analysis
+  File "Exn.res", line 162, characters 31-56
+  String.uncapitalize_ascii does not raise and is annotated with redundant @doesNotRaise
+
+  Exception Analysis
+  File "Exn.res", line 164, characters 31-63
+  String.uncapitalize_ascii does not raise and is annotated with redundant @doesNotRaise
+
+  Exception Analysis
+  File "Exn.res", line 166, characters 46-71
+  String.uncapitalize_ascii does not raise and is annotated with redundant @doesNotRaise
+
+  Exception Analysis
+  File "Exn.res", line 166, characters 46-79
+  expression does not raise and is annotated with redundant @doesNotRaise
+
+  Exception Analysis
+  File "Exn.res", line 172, characters 50-55
+  expression does not raise and is annotated with redundant @doesNotRaise
+
+  Exception Analysis
+  File "Exn.res", line 170, characters 24-56
+  String.uncapitalize_ascii does not raise and is annotated with redundant @doesNotRaise
+
+  Exception Analysis
+  File "Exn.res", line 179, characters 4-23
+  redundantAnnotation raises nothing and is annotated with redundant @raises(Invalid_argument)
+
+  Exception Analysis
+  File "Exn.res", line 181, characters 4-6
+  _x might raise A (Exn.res:181:9) and is not annotated with @raises(A)
+
+  Exception Analysis
+  File "Exn.res", line 183, characters 4-5
+  _ might raise A (Exn.res:183:8) and is not annotated with @raises(A)
+
+  Exception Analysis
+  File "Exn.res", line 185, characters 4-6
+  () might raise A (Exn.res:185:9) and is not annotated with @raises(A)
+
+  Exception Analysis
+  File "Exn.res", line 187, characters 0-16
+  Toplevel expression might raise Not_found (Exn.res:187:0) and is not annotated with @raises(Not_found)
+
+  Exception Analysis
+  File "Exn.res", line 189, characters 0-19
+  Toplevel expression might raise exit (Exn.res:189:7) and is not annotated with @raises(exit)
+
+  Exception Analysis
+  File "Exn.res", line 199, characters 44-46
+  expression does not raise and is annotated with redundant @doesNotRaise
+
+  Exception Analysis
+  File "Exn.res", line 199, characters 4-21
+  onResultPipeWrong might raise Assert_failure (Exn.res:199:48) and is not annotated with @raises(Assert_failure)
+
+  Exception Analysis
+  File "ExnA.res", line 1, characters 4-7
+  bar might raise Not_found (ExnA.res:1:16) and is not annotated with @raises(Not_found)
+  
+  Analysis reported 31 issues (Exception Analysis:31)
