@@ -27,7 +27,12 @@ let resultsToDiagnostics = (
       file: string;
       range: [number, number, number, number];
       message: string;
-      annotate?: { line: number; character: number; text: string };
+      annotate?: {
+        line: number;
+        character: number;
+        text: string;
+        action: string;
+      };
     }
   ],
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
@@ -79,12 +84,11 @@ let resultsToDiagnostics = (
       // position very cheap.
       if (item.annotate != null) {
         {
-          let codeAction = new CodeAction(`Suppress dead code warning`);
+          let { line, character, text, action } = item.annotate;
+          let codeAction = new CodeAction(action);
           codeAction.kind = CodeActionKind.RefactorRewrite;
 
           let codeActionEdit = new WorkspaceEdit();
-
-          let { line, character, text } = item.annotate;
 
           // In the future, it would be cool to have an additional code action
           // here for automatically removing whatever the thing that's dead is.
