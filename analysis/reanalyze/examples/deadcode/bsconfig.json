@@ -1,7 +1,7 @@
 {
   "reanalyze": {
     "analysis": ["dce"],
-    "suppress": ["src/ToSuppress.res"],
+    "suppress": [],
     "unsuppress": []
   },
   "name": "sample-typescript-app",

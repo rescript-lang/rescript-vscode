@@ -1,10 +1,12 @@
 output="expected/deadcode.txt"
 if [ "$RUNNER_OS" == "Windows" ]; then
   exclude_dirs="src\exception"
+  suppress="src\ToSuppress.res"
 else
   exclude_dirs="src/exception"
+  suppress="src/ToSuppress.res"
 fi
-dune exec -- reanalyze -config -debug -ci -exclude-paths $exclude_dirs -live-names globallyLive1 -live-names globallyLive2,globallyLive3 > $output
+dune exec -- reanalyze -config -debug -ci -exclude-paths $exclude_dirs -live-names globallyLive1 -live-names globallyLive2,globallyLive3 -suppress $suppress > $output
 # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
 if [ "$RUNNER_OS" == "Windows" ]; then
   perl -pi -e 's/\r\n/\n/g' -- $output
