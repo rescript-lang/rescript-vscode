@@ -1,0 +1,5 @@
+(library
+ (name compilerlibs406)
+ (libraries)
+ (flags "-w" "+26+27+32+33+39")
+ (modules_without_implementation asttypes outcometree parsetree))
