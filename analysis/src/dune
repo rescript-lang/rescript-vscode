@@ -1,15 +1,11 @@
-(copy_files# vendor/*.{ml,mli})
-
-(copy_files# vendor/compiler-libs-406/*.{ml,mli})
-
-(copy_files# vendor/res_outcome_printer/*.{ml,mli})
-
 (executable
  (public_name rescript-editor-analysis.exe)
  (modes byte exe)
  ; The main module that will become the binary.
  (name Cli)
- (flags "-w" "+26+27+32+33+39")
+ (flags
+  (-w "+26+27+32+33+39")
+  (-open Compilerlibs406)
+  (-open Outcomeprinter))
  ; Depends on:
- (libraries unix str)
- (modules_without_implementation asttypes outcometree parsetree))
+ (libraries unix str compilerlibs406 outcomeprinter))
