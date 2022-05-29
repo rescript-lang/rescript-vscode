@@ -1,0 +1,4 @@
+(library
+ (name jsonlib)
+ (flags -w "-9")
+ (libraries))

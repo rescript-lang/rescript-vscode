@@ -118,7 +118,7 @@ let escape text =
   let buf = Buffer.create ln in
   let rec loop i =
     if i < ln then (
-      ( match text.[i] with
+      (match text.[i] with
       | '\012' -> Buffer.add_string buf "\\f"
       | '\\' -> Buffer.add_string buf "\\\\"
       | '"' -> Buffer.add_string buf "\\\""
@@ -126,8 +126,8 @@ let escape text =
       | '\b' -> Buffer.add_string buf "\\b"
       | '\r' -> Buffer.add_string buf "\\r"
       | '\t' -> Buffer.add_string buf "\\t"
-      | c -> Buffer.add_char buf c );
-      loop (i + 1) )
+      | c -> Buffer.add_char buf c);
+      loop (i + 1))
   in
   loop 0;
   Buffer.contents buf
@@ -146,12 +146,12 @@ let rec stringify t =
   | Number num -> string_of_number num
   | Array items -> "[" ^ String.concat ", " (List.map stringify items) ^ "]"
   | Object items ->
-      "{"
-      ^ String.concat ", "
-          (List.map
-             (fun (k, v) -> "\"" ^ String.escaped k ^ "\": " ^ stringify v)
-             items)
-      ^ "}"
+    "{"
+    ^ String.concat ", "
+        (List.map
+           (fun (k, v) -> "\"" ^ String.escaped k ^ "\": " ^ stringify v)
+           items)
+    ^ "}"
   | True -> "true"
   | False -> "false"
   | Null -> "null"
@@ -168,28 +168,28 @@ let rec stringifyPretty ?(indent = 0) t =
   | String value -> "\"" ^ escape value ^ "\""
   | Number num -> string_of_number num
   | Array [] -> "[]"
-  | Array [ (String _ as contents) ] -> "[" ^ stringifyPretty contents ^ "]"
+  | Array [(String _ as contents)] -> "[" ^ stringifyPretty contents ^ "]"
   | Array items ->
-      "[\n" ^ white indent
-      ^ String.concat
-          (",\n" ^ white indent)
-          (List.map (stringifyPretty ~indent:(indent + 2)) items)
-      ^ "\n"
-      ^ white (indent - 2)
-      ^ "]"
+    "[\n" ^ white indent
+    ^ String.concat
+        (",\n" ^ white indent)
+        (List.map (stringifyPretty ~indent:(indent + 2)) items)
+    ^ "\n"
+    ^ white (indent - 2)
+    ^ "]"
   | Object [] -> "{}"
   | Object items ->
-      "{\n" ^ white indent
-      ^ String.concat
-          (",\n" ^ white indent)
-          (List.map
-             (fun (k, v) ->
-               "\"" ^ String.escaped k ^ "\": "
-               ^ stringifyPretty ~indent:(indent + 2) v)
-             items)
-      ^ "\n"
-      ^ white (indent - 2)
-      ^ "}"
+    "{\n" ^ white indent
+    ^ String.concat
+        (",\n" ^ white indent)
+        (List.map
+           (fun (k, v) ->
+             "\"" ^ String.escaped k ^ "\": "
+             ^ stringifyPretty ~indent:(indent + 2) v)
+           items)
+    ^ "\n"
+    ^ white (indent - 2)
+    ^ "}"
   | True -> "true"
   | False -> "false"
   | Null -> "null"
@@ -244,16 +244,16 @@ module Parser = struct
   let rec skipWhite text pos =
     if
       pos < String.length text
-      && ( text.[pos] = ' '
+      && (text.[pos] = ' '
          || text.[pos] = '\t'
          || text.[pos] = '\n'
-         || text.[pos] = '\r' )
+         || text.[pos] = '\r')
     then skipWhite text (pos + 1)
     else pos
 
   (* from https://stackoverflow.com/a/42431362 *)
   let utf8encode s =
-    let prefs = [| 0; 192; 224 |] in
+    let prefs = [|0; 192; 224|] in
     let s1 n = String.make 1 (Char.chr n) in
     let rec ienc k sofar resid =
       let bct = if k = 0 then 7 else 6 - k in
@@ -270,30 +270,28 @@ module Parser = struct
       match i >= ln with
       | true -> fail text i "Unterminated string"
       | false -> (
-          match text.[i] with
-          | '"' -> i + 1
-          | '\\' -> (
-              match i + 1 >= ln with
-              | true -> fail text i "Unterminated string"
-              | false -> (
-                  match text.[i + 1] with
-                  | '/' ->
-                      Buffer.add_char buffer '/';
-                      loop (i + 2)
-                  | 'f' ->
-                      Buffer.add_char buffer '\012';
-                      loop (i + 2)
-                  | 'u' when i + 6 < ln ->
-                      Buffer.add_string buffer
-                        (utf8encode (String.sub text (i + 2) 4));
-                      loop (i + 7)
-                  | _ ->
-                      Buffer.add_string buffer
-                        (Scanf.unescaped (String.sub text i 2));
-                      loop (i + 2) ) )
-          | c ->
-              Buffer.add_char buffer c;
-              loop (i + 1) )
+        match text.[i] with
+        | '"' -> i + 1
+        | '\\' -> (
+          match i + 1 >= ln with
+          | true -> fail text i "Unterminated string"
+          | false -> (
+            match text.[i + 1] with
+            | '/' ->
+              Buffer.add_char buffer '/';
+              loop (i + 2)
+            | 'f' ->
+              Buffer.add_char buffer '\012';
+              loop (i + 2)
+            | 'u' when i + 6 < ln ->
+              Buffer.add_string buffer (utf8encode (String.sub text (i + 2) 4));
+              loop (i + 7)
+            | _ ->
+              Buffer.add_string buffer (Scanf.unescaped (String.sub text i 2));
+              loop (i + 2)))
+        | c ->
+          Buffer.add_char buffer c;
+          loop (i + 1))
     in
     let final = loop pos in
     (Buffer.contents buffer, final)
@@ -366,18 +364,18 @@ module Parser = struct
       | '[' -> parseArray text (pos + 1)
       | '{' -> parseObject text (pos + 1)
       | 'n' ->
-          if String.sub text pos 4 = "null" then (Null, pos + 4)
-          else fail text pos "unexpected character"
+        if String.sub text pos 4 = "null" then (Null, pos + 4)
+        else fail text pos "unexpected character"
       | 't' ->
-          if String.sub text pos 4 = "true" then (True, pos + 4)
-          else fail text pos "unexpected character"
+        if String.sub text pos 4 = "true" then (True, pos + 4)
+        else fail text pos "unexpected character"
       | 'f' ->
-          if String.sub text pos 5 = "false" then (False, pos + 5)
-          else fail text pos "unexpected character"
+        if String.sub text pos 5 = "false" then (False, pos + 5)
+        else fail text pos "unexpected character"
       | '\n' | '\t' | ' ' | '\r' -> parse text (skipWhite text pos)
       | '"' ->
-          let s, pos = parseString text (pos + 1) in
-          (String s, pos)
+        let s, pos = parseString text (pos + 1) in
+        (String s, pos)
       | '-' | '0' .. '9' -> parseNegativeNumber text pos
       | _ -> fail text pos "unexpected character"
 
@@ -387,12 +385,12 @@ module Parser = struct
     let pos = skip text pos in
     match text.[pos] with
     | ',' ->
-        let pos = skip text (pos + 1) in
-        if text.[pos] = ']' then ([ value ], pos + 1)
-        else
-          let rest, pos = parseArrayValue text pos in
-          (value :: rest, pos)
-    | ']' -> ([ value ], pos + 1)
+      let pos = skip text (pos + 1) in
+      if text.[pos] = ']' then ([value], pos + 1)
+      else
+        let rest, pos = parseArrayValue text pos in
+        (value :: rest, pos)
+    | ']' -> ([value], pos + 1)
     | _ -> fail text pos "unexpected character"
 
   and parseArray text pos =
@@ -400,8 +398,8 @@ module Parser = struct
     match text.[pos] with
     | ']' -> (Array [], pos + 1)
     | _ ->
-        let items, pos = parseArrayValue text pos in
-        (Array items, pos)
+      let items, pos = parseArrayValue text pos in
+      (Array items, pos)
 
   and parseObjectValue text pos =
     let pos = skip text pos in
@@ -414,15 +412,15 @@ module Parser = struct
       let pos = skip text pos in
       match text.[pos] with
       | ',' ->
-          let pos = skip text (pos + 1) in
-          if text.[pos] = '}' then ([ (key, value) ], pos + 1)
-          else
-            let rest, pos = parseObjectValue text pos in
-            ((key, value) :: rest, pos)
-      | '}' -> ([ (key, value) ], pos + 1)
-      | _ ->
+        let pos = skip text (pos + 1) in
+        if text.[pos] = '}' then ([(key, value)], pos + 1)
+        else
           let rest, pos = parseObjectValue text pos in
           ((key, value) :: rest, pos)
+      | '}' -> ([(key, value)], pos + 1)
+      | _ ->
+        let rest, pos = parseObjectValue text pos in
+        ((key, value) :: rest, pos)
 
   and parseObject text pos =
     let pos = skip text pos in
@@ -435,13 +433,16 @@ end
 
 (** Turns some text into a json object. throws on failure *)
 let parse text =
-  let item, pos = Parser.parse text 0 in
-  let pos = Parser.skip text pos in
-  if pos < String.length text then
-    failwith
-      ( "Extra data after parse finished: "
-      ^ String.sub text pos (String.length text - pos) )
-  else item
+  try
+    let item, pos = Parser.parse text 0 in
+    let pos = Parser.skip text pos in
+    if pos < String.length text then
+      (* failwith
+         ("Extra data after parse finished: "
+         ^ String.sub text pos (String.length text - pos)) *)
+      None
+    else Some item
+  with Invalid_argument _ | Failure _ -> None
 
 (* Accessor helpers *)
 let bind v fn = match v with None -> None | Some v -> fn v
@@ -449,14 +450,14 @@ let bind v fn = match v with None -> None | Some v -> fn v
 (** If `t` is an object, get the value associated with the given string key *)
 let get key t =
   match t with
-  | Object items -> ( try Some (List.assoc key items) with Not_found -> None )
+  | Object items -> ( try Some (List.assoc key items) with Not_found -> None)
   | _ -> None
 
 (** If `t` is an array, get the value associated with the given index *)
 let nth n t =
   match t with
   | Array items ->
-      if n < List.length items then Some (List.nth items n) else None
+    if n < List.length items then Some (List.nth items n) else None
   | _ -> None
 
 let string t = match t with String s -> Some s | _ -> None
@@ -475,7 +476,7 @@ let rec parsePath keyList t =
   match keyList with
   | [] -> Some t
   | head :: rest -> (
-      match get head t with None -> None | Some value -> parsePath rest value )
+    match get head t with None -> None | Some value -> parsePath rest value)
 
 (** Get a deeply nested value from an object `t`.
  * ```

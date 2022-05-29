@@ -7,7 +7,7 @@ build-native:
 
 dce:
 	dune build
-	../../reanalyze/_build/install/default/bin/reanalyze.exe -dce-cmt _build -suppress vendor,src/Json.ml
+	../../reanalyze/_build/install/default/bin/reanalyze.exe -dce-cmt _build -suppress vendor
 
 tests/node_modules/.bin/rescript:
 	@cd tests && npm install

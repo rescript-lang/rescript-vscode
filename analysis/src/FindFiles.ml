@@ -209,26 +209,28 @@ let findDependencyFiles base config =
              let innerPath = path /+ "bsconfig.json" in
              match Files.readFile innerPath with
              | Some text -> (
-               let inner = Json.parse text in
-               let namespace = getNamespace inner in
-               let sourceDirectories =
-                 getSourceDirectories ~includeDev:false ~baseDir:path inner
-               in
-               match BuildSystem.getLibBs path with
-               | None -> None
-               | Some libBs ->
-                 let compiledDirectories =
-                   sourceDirectories |> List.map (Filename.concat libBs)
+               match Json.parse text with
+               | Some inner -> (
+                 let namespace = getNamespace inner in
+                 let sourceDirectories =
+                   getSourceDirectories ~includeDev:false ~baseDir:path inner
                  in
-                 let compiledDirectories =
-                   match namespace with
-                   | None -> compiledDirectories
-                   | Some _ -> libBs :: compiledDirectories
-                 in
-                 let projectFiles =
-                   findProjectFiles ~namespace ~path ~sourceDirectories ~libBs
-                 in
-                 Some (compiledDirectories, projectFiles))
+                 match BuildSystem.getLibBs path with
+                 | None -> None
+                 | Some libBs ->
+                   let compiledDirectories =
+                     sourceDirectories |> List.map (Filename.concat libBs)
+                   in
+                   let compiledDirectories =
+                     match namespace with
+                     | None -> compiledDirectories
+                     | Some _ -> libBs :: compiledDirectories
+                   in
+                   let projectFiles =
+                     findProjectFiles ~namespace ~path ~sourceDirectories ~libBs
+                   in
+                   Some (compiledDirectories, projectFiles))
+               | None -> None)
              | None -> None
            in
            match result with
