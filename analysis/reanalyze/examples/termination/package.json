@@ -6,7 +6,7 @@
     "start": "rescript build -w",
     "build": "rescript build",
     "clean": "rescript clean -with-deps",
-    "analyze": "npx reanalyze.exe -config -ci -debug >src/termination.txt"
+    "analyze": "../../../_build/default/reanalyze/Reanalyze.exe -config -ci -debug >src/termination.txt"
   },
   "devDependencies": {
     "gentype": "^4.4.0",
