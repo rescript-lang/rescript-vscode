@@ -6,7 +6,7 @@
     "start": "rescript build -w",
     "build": "rescript build",
     "clean": "rescript clean -with-deps",
-    "dce": "npx reanalyze.exe -config -debug -ci -exclude-paths src/noalloc,src/exception -live-names globallyLive1 -live-names globallyLive2,globallyLive3 >src/deadcode.txt",
+    "dce": "../../../_build/default/reanalyze/Reanalyze.exe -config -debug -ci -exclude-paths src/noalloc,src/exception -live-names globallyLive1 -live-names globallyLive2,globallyLive3 >src/deadcode.txt",
     "exception": "npx reanalyze.exe -exception -ci -suppress src -unsuppress src/exception >src/exception.txt",
     "noalloc": "npx reanalyze.exe -ci -noalloc >src/noalloc.txt",
     "analyze": "npm run dce && npm run exception && npm run noalloc"
@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@glennsl/bs-json": "^5.0.4",
-    "@rescript/react": "^0.10.3",
-    "reanalyze": "file:../.."
+    "@rescript/react": "^0.10.3"
   }
 }

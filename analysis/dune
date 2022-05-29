@@ -1,1 +1,1 @@
-(dirs :standard \ examples tests)
+(dirs src reanalyze vendor)
