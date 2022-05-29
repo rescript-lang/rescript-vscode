@@ -61,12 +61,9 @@ let resultsToDiagnostics = (
         DiagnosticSeverity.Warning
       );
 
-      // Everything reanalyze reports is about dead code, except for redundant
-      // optional arguments. This will ensure that everything but reduntant
-      // optional arguments is highlighted as unecessary/unused code in the
-      // editor.
-      if (!item.message.toLowerCase().startsWith("optional argument")) {
-        diagnostic.tags = [DiagnosticTag.Unnecessary];
+      // Don't show reports about optional arguments.
+      if (item.name.toLowerCase().includes("unused argument")) {
+        return;
       }
 
       if (diagnosticsMap.has(item.file)) {
