@@ -12,14 +12,14 @@ dce:
 tests/node_modules/.bin/rescript:
 	@cd tests && npm install
 
-test: build-native tests/node_modules/.bin/rescript
+test-analysis-binary: build-native tests/node_modules/.bin/rescript
 	@cd tests && node_modules/.bin/rescript
 	./test.sh
 
 test-reanalyze: build-native
 	make -C reanalyze test
 
-test-all: test-reanalyze test
+test: test-analysis-binary test-reanalyze
 
 clean: tests/node_modules/.bin/rescript
 	rm -f rescript-editor-analysis.exe
