@@ -17,7 +17,7 @@ test: build-native tests/node_modules/.bin/rescript
 	./test.sh
 
 test-reanalyze: build-native
-	node reanalyze/scripts/run_integration_tests.js
+	@cd reanalyze && node scripts/run_integration_tests.js
 
 test-all: test test-reanalyze
 
