@@ -1,10 +1,1 @@
-(executable
- (name Reanalyze)
- (public_name reanalyze.exe)
- (modes byte exe)
- (flags
-  (-w "-9")
-  (-open Compilerlibs406)
-  (-open Jsonlib)
-  (-open Ext))
- (libraries compilerlibs406 jsonlib ext str unix))
+(dirs src)
