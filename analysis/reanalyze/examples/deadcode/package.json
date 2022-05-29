@@ -7,7 +7,7 @@
     "build": "rescript build",
     "clean": "rescript clean -with-deps",
     "dce": "dune exe -- reanalyze.exe -config -debug -ci -exclude-paths src/noalloc,src/exception -live-names globallyLive1 -live-names globallyLive2,globallyLive3 >src/deadcode.txt",
-    "exception": "dune exe -- reanalyze.exe -exception -ci -suppress src -unsuppress src/exception >src/exception.txt",
+    "exception": "dune exe reanalyze.exe -- -exception -ci -suppress src -unsuppress src/exception >src/exception.txt",
     "analyze": "npm run dce && npm run exception"
   },
   "devDependencies": {
