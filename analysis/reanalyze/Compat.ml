@@ -12,8 +12,6 @@ let filter_map f =
 let getStringValue const =
   match const with Parsetree.Pconst_string (s, _) -> s | _ -> assert false
 
-let getConstString const =
-  match const with Asttypes.Const_string (s, _) -> s | _ -> assert false
 
 type 'a typedtreeCase = Typedtree.case
 
