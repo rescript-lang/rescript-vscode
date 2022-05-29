@@ -1,12 +1,22 @@
 output="expected/deadcode.txt"
-dune exec -- reanalyze -config -debug -ci -exclude-paths src/noalloc,src/exception -live-names globallyLive1 -live-names globallyLive2,globallyLive3 > $output
+if [ "$RUNNER_OS" == "Windows" ]; then
+  exclude_dirs="src\exception"
+else
+  exclude_dirs="src/exception"
+fi
+dune exec -- reanalyze -config -debug -ci -exclude-paths $exclude_dirs -live-names globallyLive1 -live-names globallyLive2,globallyLive3 > $output
 # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
 if [ "$RUNNER_OS" == "Windows" ]; then
   perl -pi -e 's/\r\n/\n/g' -- $output
 fi
 
 output="expected/exception.txt"
-dune exec reanalyze -- -exception -ci -suppress src -unsuppress src/exception > $output
+if [ "$RUNNER_OS" == "Windows" ]; then
+  unsuppress_dirs="src\exception"
+else
+  unsuppress_dirs="src/exception"
+fi
+dune exec reanalyze -- -exception -ci -suppress src -unsuppress $unsuppress_dirs > $output
 # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
 if [ "$RUNNER_OS" == "Windows" ]; then
   perl -pi -e 's/\r\n/\n/g' -- $output
