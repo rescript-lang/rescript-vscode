@@ -11,6 +11,7 @@ import {
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidChangeConfigurationNotification,
+  InitializeParams,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -280,8 +281,6 @@ if (process.argv.includes("--stdio")) {
   send = (msg: m.Message) => process.send!(msg);
   process.on("message", onMessage);
 }
-
-askForAllCurrentConfiguration();
 
 function hover(msg: p.RequestMessage) {
   let params = msg.params as p.HoverParams;
@@ -860,8 +859,14 @@ function onMessage(msg: m.Message) {
         askForAllCurrentConfiguration();
       }, 10_000);
 
-      // Pull config right away as we've initied.
-      askForAllCurrentConfiguration();
+      // Save initial configuration, if present
+      let initParams = msg.params as InitializeParams;
+      let initialConfiguration = initParams.initializationOptions
+        ?.extensionConfiguration as extensionConfiguration | undefined;
+
+      if (initialConfiguration != null) {
+        extensionConfiguration = initialConfiguration;
+      }
 
       send(response);
     } else if (msg.method === "initialized") {

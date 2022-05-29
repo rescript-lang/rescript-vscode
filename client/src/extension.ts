@@ -130,6 +130,12 @@ export function activate(context: ExtensionContext) {
       // Notify the server about file changes to '.clientrc files contained in the workspace
       fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
     },
+    // We'll send the initial configuration in here, but this might be
+    // problematic because every consumer of the LS will need to mimic this.
+    // We'll leave it like this for now, but might be worth revisiting later on.
+    initializationOptions: {
+      extensionConfiguration: workspace.getConfiguration("rescript.settings"),
+    },
   };
 
   // Create the language client and start the client.
@@ -199,8 +205,7 @@ export function activate(context: ExtensionContext) {
     codeAnalysisRunningStatusBarItem.command =
       "rescript-vscode.stop_code_analysis";
     codeAnalysisRunningStatusBarItem.show();
-    codeAnalysisRunningStatusBarItem.text =
-      "$(debug-stop) Stop Code Analyzer";
+    codeAnalysisRunningStatusBarItem.text = "$(debug-stop) Stop Code Analyzer";
 
     customCommands.codeAnalysisWithReanalyze(
       inCodeAnalysisState.activatedFromDirectory,
