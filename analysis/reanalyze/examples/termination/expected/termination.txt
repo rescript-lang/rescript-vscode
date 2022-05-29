@@ -1,3 +1,4 @@
+Entering directory '/Users/cristianocalcagno/GitHub/rescript-vscode/analysis'
   Scanning TestCyberTruck.cmt Source:TestCyberTruck.res
 
   Function Table

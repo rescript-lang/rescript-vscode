@@ -1,3 +1,4 @@
+Entering directory '/Users/cristianocalcagno/GitHub/rescript-vscode/analysis'
 
   Exception Analysis
   File "Exn.res", line 1, characters 5-11
