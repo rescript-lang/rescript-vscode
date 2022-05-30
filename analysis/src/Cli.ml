@@ -84,6 +84,13 @@ let main () =
   | [_; "codeAction"; path; line; col; currentFile] ->
     Commands.codeAction ~path ~line:(int_of_string line)
       ~col:(int_of_string col) ~currentFile
+  | _ :: "reanalyze" :: _ ->
+    let len = Array.length Sys.argv in
+    for i = 1 to len - 2 do
+      Sys.argv.(i) <- Sys.argv.(i + 1)
+    done;
+    Sys.argv.(len - 1) <- "";
+    Reanalyze.cli ()
   | [_; "references"; path; line; col] ->
     Commands.references ~path ~line:(int_of_string line)
       ~col:(int_of_string col)
