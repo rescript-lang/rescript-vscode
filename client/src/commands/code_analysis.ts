@@ -136,6 +136,8 @@ let analysisDevPath = path.join(
 
 let analysisProdPath = path.join(
   path.dirname(__dirname),
+  "..",
+  "..",
   "server",
   "analysis_binaries",
   process.platform,
