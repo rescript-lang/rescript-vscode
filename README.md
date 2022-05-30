@@ -87,6 +87,12 @@ Currently does not work for full monorepo dead code analysis (although it should
 
 ## Configuration
 
+You'll find all ReScript specific settings under the scope `rescript.settings`. Open your VSCode settings and type `rescript.settings` to see them.
+
+### Autostarting ReScript builds
+
+If there's no ReScript build running already in the opened project, the extension will prompt you and ask if you want to start a build automatically. You can turn off this automatic prompt via the setting `rescript.settings.askToStartBuild`.
+
 ### Hide generated files
 
 You can configure VSCode to collapse the JavaScript files ReScript generates under its source ReScript file. This will "hide" the generated files in the VSCode file explorer, but still leaving them accessible by expanding the source ReScript file they belong to.
@@ -97,7 +103,7 @@ The example has two patterns added:
 
 ![Shows configuration of file nesting patterns in VSCode.](https://user-images.githubusercontent.com/1457626/168123605-43ef53cf-f371-4f38-b488-d3cd081879de.png)
 
-This nests implementations under interfaces if they're present and nests all generated files under the main ReScript file. Adapt and tweak to your liking. 
+This nests implementations under interfaces if they're present and nests all generated files under the main ReScript file. Adapt and tweak to your liking.
 
 A screenshot of the result:
 
