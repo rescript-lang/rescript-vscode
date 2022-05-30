@@ -133,14 +133,16 @@ let analysisDevPath = path.join(
   "analysis",
   "rescript-editor-analysis.exe"
 );
+
 let analysisProdPath = path.join(
   path.dirname(__dirname),
+  "server",
   "analysis_binaries",
   process.platform,
   "rescript-editor-analysis.exe"
 );
 
-let getBinaryPath = () : string | null => {
+let getBinaryPath = (): string | null => {
   if (fs.existsSync(analysisDevPath)) {
     return analysisDevPath;
   } else if (fs.existsSync(analysisProdPath)) {
@@ -160,11 +162,11 @@ export const runCodeAnalysisWithReanalyze = (
 
   let binaryPath = getBinaryPath();
   if (binaryPath === null) {
-    window.showErrorMessage("Binary executable not found.", analysisDevPath);
+    window.showErrorMessage("Binary executable not found.", analysisProdPath);
     return;
   }
 
-  let p = cp.spawn(analysisDevPath, ["reanalyze", "-json"], {
+  let p = cp.spawn(binaryPath, ["reanalyze", "-json"], {
     cwd,
   });
 
