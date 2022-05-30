@@ -1,4 +1,5 @@
 import * as cp from "child_process";
+import * as fs from "fs";
 import * as path from "path";
 import {
   window,
@@ -11,7 +12,6 @@ import {
   CodeAction,
   CodeActionKind,
   WorkspaceEdit,
-  DiagnosticTag,
 } from "vscode";
 
 export type DiagnosticsResultCodeActionsMap = Map<
@@ -126,6 +126,30 @@ let resultsToDiagnostics = (
   };
 };
 
+let analysisDevPath = path.join(
+  path.dirname(__dirname),
+  "..",
+  "..",
+  "analysis",
+  "rescript-editor-analysis.exe"
+);
+let analysisProdPath = path.join(
+  path.dirname(__dirname),
+  "analysis_binaries",
+  process.platform,
+  "rescript-editor-analysis.exe"
+);
+
+let getBinaryPath = () : string | null => {
+  if (fs.existsSync(analysisDevPath)) {
+    return analysisDevPath;
+  } else if (fs.existsSync(analysisProdPath)) {
+    return analysisProdPath;
+  } else {
+    return null;
+  }
+};
+
 export const runCodeAnalysisWithReanalyze = (
   targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
@@ -134,7 +158,13 @@ export const runCodeAnalysisWithReanalyze = (
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
-  let p = cp.spawn("npx", ["reanalyze@2.22.0", "-json"], {
+  let binaryPath = getBinaryPath();
+  if (binaryPath === null) {
+    window.showErrorMessage("Binary executable not found.", analysisDevPath);
+    return;
+  }
+
+  let p = cp.spawn(analysisDevPath, ["reanalyze", "-json"], {
     cwd,
   });
 
@@ -167,6 +197,7 @@ export const runCodeAnalysisWithReanalyze = (
 
   p.on("close", () => {
     diagnosticsResultCodeActions.clear();
+
     try {
       var json = JSON.parse(data);
     } catch (e) {
