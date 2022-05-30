@@ -97,7 +97,7 @@ export function activate(context: ExtensionContext) {
       "ReScriptLSP",
       "ReScript Language Server",
       serverOptions,
-      clientOptions
+      createClientOptions()
     );
     attachCodeAnalysis(client);
     return client;
@@ -122,21 +122,20 @@ export function activate(context: ExtensionContext) {
     },
   };
 
-  // Options to control the language client
-  let clientOptions: LanguageClientOptions = {
-    // Register the server for plain text documents
-    documentSelector: [{ scheme: "file", language: "rescript" }],
-    synchronize: {
-      // Notify the server about file changes to '.clientrc files contained in the workspace
-      fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
-    },
-    // We'll send the initial configuration in here, but this might be
-    // problematic because every consumer of the LS will need to mimic this.
-    // We'll leave it like this for now, but might be worth revisiting later on.
-    initializationOptions: {
-      extensionConfiguration: workspace.getConfiguration("rescript.settings"),
-    },
-  };
+  function createClientOptions() {
+    // Options to control the language client
+    let clientOptions: LanguageClientOptions = {
+      documentSelector: [{ scheme: "file", language: "rescript" }],
+      // We'll send the initial configuration in here, but this might be
+      // problematic because every consumer of the LS will need to mimic this.
+      // We'll leave it like this for now, but might be worth revisiting later on.
+      initializationOptions: {
+        extensionConfiguration: workspace.getConfiguration("rescript.settings"),
+      },
+    };
+
+    return clientOptions;
+  }
 
   // Create the language client and start the client.
   client = createLanguageClient();
