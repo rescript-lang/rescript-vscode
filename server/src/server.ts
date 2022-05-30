@@ -28,7 +28,7 @@ interface extensionConfiguration {
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
 };
-let pullConfigurationInterval: NodeJS.Timeout | null = null;
+let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -855,9 +855,9 @@ function onMessage(msg: m.Message) {
       initialized = true;
 
       // Periodically pull configuration from the client.
-      pullConfigurationInterval = setInterval(() => {
+      pullConfigurationPeriodically = setInterval(() => {
         askForAllCurrentConfiguration();
-      }, 10_000);
+      }, c.pullConfigurationInterval);
 
       // Save initial configuration, if present
       let initParams = msg.params as InitializeParams;
@@ -895,8 +895,8 @@ function onMessage(msg: m.Message) {
         stopWatchingCompilerLog();
         // TODO: delete bsb watchers
 
-        if (pullConfigurationInterval != null) {
-          clearInterval(pullConfigurationInterval);
+        if (pullConfigurationPeriodically != null) {
+          clearInterval(pullConfigurationPeriodically);
         }
 
         let response: m.ResponseMessage = {
