@@ -579,6 +579,19 @@ export let parseCompilerLogOutput = (
     ) {
       // OCaml warning: skip
       i++;
+    } else if (
+      line.startsWith("File ") &&
+      i + 1 < lines.length &&
+      lines[i + 1].startsWith("Error: Syntax error")
+    ) {
+      // OCaml Syntax Error
+      parsedDiagnostics.push({
+        code: undefined,
+        severity: t.DiagnosticSeverity.Error,
+        tag: undefined,
+        content: [lines[i], lines[i+1]],
+      });
+      i++;
     } else if (/^  +([0-9]+| +|\.) (│|┆)/.test(line)) {
       //         ^^ indent
       //           ^^^^^^^^^^^^^^^ gutter

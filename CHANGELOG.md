@@ -8,6 +8,7 @@
 - Add command: ReScript: Restart Language Server
 - Fix issue where the server would crash on genType's errors.
 - Extend integration with reanalyze for code analysis. Support both `dce` and `exception` analysis which can be configured to e.g. both run by adding `{"reanalyze": {"analysis": ["dce", "exception"]} }` in `bsconfig.json`.
+- Fix issue where the server would crash if the project contains an OCaml file with a syntax error.
 
 ## 1.3.0
 
