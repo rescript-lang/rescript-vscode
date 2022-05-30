@@ -3,7 +3,7 @@ SHELL = /bin/bash
 build-native:
 	rm -f rescript-editor-analysis.exe
 	dune build
-	cp _build/install/default/bin/rescript-editor-analysis.exe rescript-editor-analysis.exe
+	cp _build/install/default/bin/rescript-editor-analysis rescript-editor-analysis.exe
 
 dce: build-native
 	opam exec reanalyze.exe -- -dce-cmt _build -suppress vendor

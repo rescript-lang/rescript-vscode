@@ -210,6 +210,3 @@ let cli () =
   let cmtRoot = !cmtRootRef in
   runAnalysis ~cmtRoot ~ppf
   [@@raises exit]
-;;
-
-cli () [@@raises exit]

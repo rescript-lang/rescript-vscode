@@ -1,7 +1,5 @@
-(executable
- (name Reanalyze)
- (public_name reanalyze)
- (modes byte exe)
+(library
+ (name reanalyze)
  (flags
   (-w "-9")
   (-open Compilerlibs406)
