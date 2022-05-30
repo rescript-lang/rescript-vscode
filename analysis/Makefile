@@ -5,9 +5,8 @@ build-native:
 	dune build
 	cp _build/install/default/bin/rescript-editor-analysis.exe rescript-editor-analysis.exe
 
-dce:
-	dune build
-	../../reanalyze/_build/install/default/bin/reanalyze.exe -dce-cmt _build -suppress vendor
+dce: build-native
+	opam exec reanalyze.exe -- -dce-cmt _build -suppress vendor
 
 tests/node_modules/.bin/rescript:
 	@cd tests && npm install
