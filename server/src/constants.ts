@@ -51,3 +51,4 @@ export let bsconfigModuleDefault = "commonjs";
 export let bsconfigSuffixDefault = ".js";
 
 export let configurationRequestId = "rescript_configuration_request";
+export let pullConfigurationInterval = 10_000;
