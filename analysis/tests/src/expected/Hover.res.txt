@@ -79,3 +79,6 @@ Hover tests/src/Hover.res 121:4
 Hover tests/src/Hover.res 124:4
 {"contents": "```rescript\n(. unit, unit) => int\n```"}
 
+Hover tests/src/Hover.res 127:5
+{"contents": "```rescript\n(.) => unit => int\n```"}
+
