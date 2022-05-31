@@ -122,5 +122,5 @@ let arity0a = (. ()) => {
 let arity0b = (. (), . ()) => 3
 //  ^hov
 
-let arity0c = (. (), . ()) => [3]
+let arity0c = (. (), ()) => 3
 //  ^hov
