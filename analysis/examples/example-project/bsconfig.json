@@ -8,5 +8,7 @@
   "bs-dependencies": ["reason-react"],
   "reason": { "react-jsx": 3 },
   "namespace": "my-namespace",
-  "refmt": 3
+  "reanalyze": {
+    "analysis": ["dce", "exception"]
+  }
 }
