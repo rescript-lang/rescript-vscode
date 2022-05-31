@@ -44,6 +44,12 @@ Completable: Cpath Module[M]
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "MapLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "MoreLabels",
     "kind": 9,
     "tags": [],

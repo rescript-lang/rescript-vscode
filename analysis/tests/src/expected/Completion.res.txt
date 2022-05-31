@@ -813,12 +813,6 @@ Completable: Cpath Module[For]
     "tags": [],
     "detail": "module",
     "documentation": null
-  }, {
-    "label": "Format",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
   }]
 
 Complete src/Completion.res 190:11
