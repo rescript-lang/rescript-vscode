@@ -800,7 +800,7 @@ Completable: Cpath Value[As]
     "label": "Asterix",
     "kind": 4,
     "tags": [],
-    "detail": "Asterix\n\ntype z =  Allo | Asterix | Baba",
+    "detail": "Asterix\n\ntype z = Allo | Asterix | Baba",
     "documentation": null
   }]
 
@@ -1018,7 +1018,7 @@ Completable: Cpath Value[SomeLocal]
     "label": "SomeLocalVariantItem",
     "kind": 4,
     "tags": [],
-    "detail": "SomeLocalVariantItem\n\ntype someLocalVariant =  SomeLocalVariantItem",
+    "detail": "SomeLocalVariantItem\n\ntype someLocalVariant = SomeLocalVariantItem",
     "documentation": null
   }, {
     "label": "SomeLocalModule",
@@ -1069,7 +1069,7 @@ Completable: Cpath Type[s]
     "label": "someLocalVariant",
     "kind": 22,
     "tags": [],
-    "detail": "type someLocalVariant =  SomeLocalVariantItem",
+    "detail": "type someLocalVariant = SomeLocalVariantItem",
     "documentation": null
   }]
 
@@ -1393,13 +1393,13 @@ Completable: Cpath Value[T]
     "label": "That",
     "kind": 4,
     "tags": [],
-    "detail": "That\n\ntype v =  This | That",
+    "detail": "That\n\ntype v = This | That",
     "documentation": null
   }, {
     "label": "This",
     "kind": 4,
     "tags": [],
-    "detail": "This\n\ntype v =  This | That",
+    "detail": "This\n\ntype v = This | That",
     "documentation": null
   }, {
     "label": "TableclothMap",
@@ -1426,7 +1426,7 @@ Completable: Cpath Value[AndThatOther, T]
     "label": "ThatOther",
     "kind": 4,
     "tags": [],
-    "detail": "ThatOther\n\ntype v =  And | ThatOther",
+    "detail": "ThatOther\n\ntype v = And | ThatOther",
     "documentation": null
   }]
 
