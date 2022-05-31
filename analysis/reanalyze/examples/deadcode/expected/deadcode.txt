@@ -235,9 +235,6 @@
   addValueReference DeadTest.res:141:32 --> DeadTest.res:141:12
   addValueReference DeadTest.res:141:19 --> React.res:7:0
   addValueReference DeadTest.res:143:16 --> DeadTest.res:141:4
-  addValueReference DeadTest.res:149:30 --> DeadTest.res:149:22
-  addTypeReference DeadTest.res:149:21 --> trace.mli:3:11
-  addValueReference DeadTest.res:149:0 --> trace.mli:5:0
   addVariantCaseDeclaration A DeadTest.res:158:11 path:+DeadTest.WithInclude.t
   addVariantCaseDeclaration A DeadTest.res:161:13 path:+DeadTest.WithInclude.T.t
   addVariantCaseDeclaration A DeadTest.res:161:13 path:+DeadTest.WithInclude.t
@@ -1842,18 +1839,6 @@
   addValueReference VariantsWithPayload.res:93:4 --> VariantsWithPayload.res:93:23
   addVariantCaseDeclaration R VariantsWithPayload.res:96:22 path:+VariantsWithPayload.variant1Object
   addValueReference VariantsWithPayload.res:99:4 --> VariantsWithPayload.res:99:26
-  Scanning trace.cmt Source:trace.ml
-  addValueDeclaration +infok trace.ml:5:4 path:+trace
-  addRecordLabelDeclaration pf trace.ml:3:11 path:+trace.pf
-  addValueReference trace.ml:5:4 --> trace.ml:5:30
-  addValueReference trace.mli:5:0 --> trace.ml:5:4
-  Scanning trace.cmti Source:trace.mli
-  addRecordLabelDeclaration pf trace.mli:3:11 path:trace.pf
-  extendTypeDependencies trace.ml:3:11 --> trace.mli:3:11
-  extendTypeDependencies trace.mli:3:11 --> trace.ml:3:11
-  addValueDeclaration +infok trace.mli:5:0 path:trace
-  addTypeReference trace.ml:3:11 --> trace.mli:3:11
-  addTypeReference trace.mli:3:11 --> trace.ml:3:11
   addValueReference TestDeadExn.res:1:7 --> DeadExn.res:1:0
   
 File References
@@ -1871,7 +1856,7 @@ File References
   DeadMl.ml -->> 
   DeadRT.res -->> 
   DeadRT.resi -->> 
-  DeadTest.res -->> React.res, BootloaderResource.res, DeadValueTest.resi, DynamicallyLoadedComponent.res, ImmutableArray.resi, JSResource.res, trace.mli
+  DeadTest.res -->> React.res, BootloaderResource.res, DeadValueTest.resi, DynamicallyLoadedComponent.res, ImmutableArray.resi, JSResource.res
   DeadTestBlacklist.res -->> 
   DeadTestWithInterface.res -->> 
   DeadTypeTest.res -->> 
@@ -1939,8 +1924,6 @@ File References
   UseImportJsValue.res -->> ImportJsValue.res
   Variants.res -->> 
   VariantsWithPayload.res -->> 
-  trace.ml -->> 
-  trace.mli -->> trace.ml
   Dead VariantCase +AutoAnnotate.annotatedVariant.R4: 0 references () [0]
   Dead VariantCase +AutoAnnotate.annotatedVariant.R2: 0 references () [0]
   Dead RecordLabel +AutoAnnotate.r4.r4: 0 references () [0]
@@ -2549,8 +2532,6 @@ File References
   optional argument x of function +bar is never used
   Live Value OptArg.+bar: 1 references (TestOptArg.res:1:7) [0]
   Dead Value OptArg.+foo: 0 references () [0]
-  Live Value trace.+infok: 1 references (DeadTest.res:149:0) [0]
-  Live RecordLabel trace.pf.pf: 1 references (DeadTest.res:149:21) [0]
   Dead Value +DeadValueTest.+tail: 0 references () [0]
   Dead Value +DeadValueTest.+subList: 0 references () [0]
   Dead Value +DeadValueTest.+valueOnlyInImplementation: 0 references () [0]
@@ -2666,8 +2647,6 @@ File References
   File "OptArg.res", line 1, characters 1-49
   optional argument z of function +foo is never used
   Live Value +OptArg.+foo: 1 references (OptArg.res:5:7) [0]
-  Live Value +trace.+infok: 1 references (trace.mli:5:0) [0]
-  Live RecordLabel +trace.pf.pf: 1 references (trace.mli:3:11) [0]
 
   Warning Dead Module
   File "AutoAnnotate.res", line 0, characters 1-1
