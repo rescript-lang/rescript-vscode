@@ -73,13 +73,10 @@ let raise2Annotate3 = (x, y) => {
 exception Error(string, string, int)
 
 let parse_json_from_file = s => {
-  let in_chan = open_in(s)
   switch 34 {
   | exception Error(p1, p2, e) =>
-    close_in(in_chan)
     raise(Error(p1, p2, e))
   | v =>
-    close_in(in_chan)
     v
   }
 }
