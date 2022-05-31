@@ -233,20 +233,18 @@ let printPolyVarIdent txt =
        )
      | Otyp_alias (typ, aliasTxt) ->
        Doc.concat [
-         Doc.lparen;
          printOutTypeDoc typ;
          Doc.text " as '";
-         Doc.text aliasTxt;
-         Doc.rparen
+         Doc.text aliasTxt
        ]
      | Otyp_constr (
         Oide_dot (Oide_dot (Oide_ident "Js", "Fn") , "arity0"), (* Js.Fn.arity0 *)
-        [Otyp_constr (Oide_ident ident, [])] (* int or unit or string *)
+        [typ] 
        ) ->
-        (* Js.Fn.arity0<int> -> (.) => int*)
+        (* Js.Fn.arity0<t> -> (.) => t *)
         Doc.concat [
-          Doc.text "(. ()) => ";
-          Doc.text ident;
+          Doc.text "(.) => ";
+          printOutTypeDoc typ;
         ]
      | Otyp_constr (
         Oide_dot (Oide_dot (Oide_ident "Js", "Fn") , ident), (* Js.Fn.arity2 *)
@@ -352,7 +350,7 @@ let printPolyVarIdent txt =
         let i = ref 0 in
         let package = Doc.join ~sep:Doc.line ((List.map2 [@doesNotRaise]) (fun lbl typ ->
           Doc.concat [
-            Doc.text (if i.contents > 0 then "and type " else "with type ");
+            Doc.text (if i.contents > 0 then "and " else "with ");
             Doc.text lbl;
             Doc.text " = ";
             printOutTypeDoc typ;
