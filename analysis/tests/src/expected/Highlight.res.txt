@@ -1,4 +1,4 @@
-Highlight tests/src/Highlight.res
+Highlight src/Highlight.res
 structure items:38 diagnostics:0 
 Lident: M 0:7 Class
 Lident: C 1:9 Class

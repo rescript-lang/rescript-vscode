@@ -1,7 +1,7 @@
-Hover tests/src/Fragment.res 6:19
+Hover src/Fragment.res 6:19
 {"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
 
-Hover tests/src/Fragment.res 9:56
+Hover src/Fragment.res 9:56
 Nothing at that position. Now trying to use completion.
 posCursor:[9:56] posNoWhite:[9:55] Found expr:[9:10->9:67]
 Pexp_construct :::[9:13->9:67] [9:13->9:67]

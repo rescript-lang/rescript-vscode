@@ -8,21 +8,17 @@ build-native:
 dce: build-native
 	opam exec reanalyze.exe -- -dce-cmt _build -suppress vendor
 
-tests/node_modules/.bin/rescript:
-	@cd tests && npm install
-
-test-analysis-binary: build-native tests/node_modules/.bin/rescript
-	@cd tests && node_modules/.bin/rescript
-	./test.sh
+test-analysis-binary: build-native
+	make -C tests test
 
 test-reanalyze: build-native
 	make -C reanalyze test
 
 test: test-analysis-binary test-reanalyze
 
-clean: tests/node_modules/.bin/rescript
+clean:
 	rm -f rescript-editor-analysis.exe
-	@cd tests && node_modules/.bin/rescript clean
+	make -C tests test
 	dune clean
 	make -C reanalyze clean
 

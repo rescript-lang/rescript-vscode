@@ -1,4 +1,4 @@
-Rename tests/src/Rename.res 0:4 y
+Rename src/Rename.res 0:4 y
 [
 {
   "textDocument": {
@@ -18,7 +18,7 @@ Rename tests/src/Rename.res 0:4 y
   }
 ]
 
-Rename tests/src/Rename.res 9:19 yy
+Rename src/Rename.res 9:19 yy
 [
 {
   "textDocument": {

@@ -1,4 +1,4 @@
-References tests/src/ReferencesWithInterface.res 0:4
+References src/ReferencesWithInterface.res 0:4
 [
 {"uri": "Cross.res", "range": {"start": {"line": 9, "character": 52}, "end": {"line": 9, "character": 53}}},
 {"uri": "Cross.res", "range": {"start": {"line": 12, "character": 53}, "end": {"line": 12, "character": 54}}},
