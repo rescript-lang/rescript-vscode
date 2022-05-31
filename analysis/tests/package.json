@@ -4,7 +4,7 @@
     "clean": "rescript clean -with-deps"
   },
   "dependencies": {
-    "rescript": "9.1.2"
+    "rescript": "github:rescript-lang/rescript-compiler"
   },
   "private": true,
   "devDependencies": {
