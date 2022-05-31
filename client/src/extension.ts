@@ -229,6 +229,15 @@ export function activate(context: ExtensionContext) {
 
   // Start the client. This will also launch the server
   context.subscriptions.push(client.start());
+
+  // Autostart code analysis if wanted
+  if (
+    workspace
+      .getConfiguration("rescript.settings")
+      .get<boolean>("autoRunCodeAnalysis")
+  ) {
+    commands.executeCommand("rescript-vscode.start_code_analysis");
+  }
 }
 
 export function deactivate(): Thenable<void> | undefined {
