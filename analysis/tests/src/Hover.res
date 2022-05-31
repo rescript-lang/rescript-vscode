@@ -112,3 +112,15 @@ let typeDuplicate = AA.fnnxx
 
 @live let dd = 34
 // ^hov
+
+let arity0a = (. ()) => {
+  // ^hov
+  let f = () => 3
+  f
+}
+
+let arity0b = (. ()) => {
+  // ^hov
+  let f = (. ()) => 3
+  f
+}

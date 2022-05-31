@@ -70,3 +70,9 @@ Attribute id:live:[112:0->112:5] label:live
 Completable: Cdecorator(live)
 {"contents": "The `@live` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.\n\n`@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).\n\nHint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!"}
 
+Hover tests/src/Hover.res 115:5
+{"contents": "```rescript\n(. unit) => int\n```"}
+
+Hover tests/src/Hover.res 121:5
+{"contents": "```rescript\nJs.Fn.arity0<(. ()) => int>\n```"}
+
