@@ -1,4 +1,4 @@
-Complete tests/src/Completion.res 1:11
+Complete src/Completion.res 1:11
 posCursor:[1:11] posNoWhite:[1:10] Found expr:[1:3->1:11]
 Pexp_ident MyList.m:[1:3->1:11]
 Completable: Cpath Value[MyList, m]
@@ -70,7 +70,7 @@ Completable: Cpath Value[MyList, m]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 3:9
+Complete src/Completion.res 3:9
 posCursor:[3:9] posNoWhite:[3:8] Found expr:[3:3->3:9]
 Pexp_ident Array.:[3:3->3:9]
 Completable: Cpath Value[Array, ""]
@@ -292,7 +292,7 @@ Completable: Cpath Value[Array, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 5:10
+Complete src/Completion.res 5:10
 posCursor:[5:10] posNoWhite:[5:9] Found expr:[5:3->5:10]
 Pexp_ident Array.m:[5:3->5:10]
 Completable: Cpath Value[Array, m]
@@ -346,7 +346,7 @@ Completable: Cpath Value[Array, m]
     "documentation": {"kind": "markdown", "value": " [mem a l] is true if and only if [a] is equal\n   to an element of [l].\n   @since 4.03.0 "}
   }]
 
-Complete tests/src/Completion.res 15:17
+Complete src/Completion.res 15:17
 posCursor:[15:17] posNoWhite:[15:16] Found expr:[15:12->15:17]
 Pexp_ident Dep.c:[15:12->15:17]
 Completable: Cpath Value[Dep, c]
@@ -358,7 +358,7 @@ Completable: Cpath Value[Dep, c]
     "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment"}
   }]
 
-Complete tests/src/Completion.res 23:20
+Complete src/Completion.res 23:20
 posCursor:[23:20] posNoWhite:[23:19] Found expr:[23:11->23:20]
 Pexp_apply ...[23:11->23:18] ()
 Completable: CnamedArg(Value[Lib, foo], "", [])
@@ -377,7 +377,7 @@ Found type for function (~age: int, ~name: string) => string
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 26:13
+Complete src/Completion.res 26:13
 posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:3->26:13]
 Completable: Cpath array->m
 [{
@@ -394,7 +394,7 @@ Completable: Cpath array->m
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 29:13
+Complete src/Completion.res 29:13
 posCursor:[29:13] posNoWhite:[29:12] Found expr:[29:3->29:13]
 Completable: Cpath string->toU
 [{
@@ -405,7 +405,7 @@ Completable: Cpath string->toU
     "documentation": {"kind": "markdown", "value": "\n  `toUpperCase str` converts `str` to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German `ß` capitalizes to two `S`es in a row.\n\n  ```\n  toUpperCase \"abc\" = \"ABC\";;\n  toUpperCase {js|Straße|js} = {js|STRASSE|js};;\n  toLowerCase {js|πς|js} = {js|ΠΣ|js};;\n  ```\n"}
   }]
 
-Complete tests/src/Completion.res 34:8
+Complete src/Completion.res 34:8
 posCursor:[34:8] posNoWhite:[34:7] Found expr:[34:3->34:8]
 Completable: Cpath Value[op]->e
 [{
@@ -422,7 +422,7 @@ Completable: Cpath Value[op]->e
     "documentation": {"kind": "markdown", "value": "\n   `eq optValue1 optvalue2 predicate`\n\n   Evaluates two optional values for equality with respect to a predicate function.\n\n   If both `optValue1` and `optValue2` are `None`, returns `true`.\n\n   If one of the arguments is `Some value` and the other is `None`, returns `false`\n\n   If arguments are `Some value1` and `Some value2`, returns the result of `predicate value1 value2`;\n   the `predicate` function must return a `bool`\n\n   ```\n   let clockEqual = (fun a b -> a mod 12 = b mod 12);;\n   eq (Some 3) (Some 15) clockEqual = true;;\n   eq (Some 3) None clockEqual = false;;\n   eq None (Some 3) clockEqual = false;;\n   eq None None clockEqual = true;;\n   ```\n"}
   }]
 
-Complete tests/src/Completion.res 44:7
+Complete src/Completion.res 44:7
 posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:3->54:3]
 Pexp_apply ...[50:9->50:10] (...[44:3->50:8], ...[51:2->54:3])
 posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:3->50:8]
@@ -441,7 +441,7 @@ Completable: Cpath Value[fa]->
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 47:21
+Complete src/Completion.res 47:21
 posCursor:[47:21] posNoWhite:[47:20] Found expr:[47:3->47:21]
 posCursor:[47:21] posNoWhite:[47:20] Found expr:[47:12->47:21]
 Pexp_ident Js.Dict.u:[47:12->47:21]
@@ -460,7 +460,7 @@ Completable: Cpath Value[Js, Dict, u]
     "documentation": {"kind": "markdown", "value": " Experimental internal function "}
   }]
 
-Complete tests/src/Completion.res 59:30
+Complete src/Completion.res 59:30
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:15->59:30]
 JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:29->59:30]
@@ -474,7 +474,7 @@ Completable: Cpath Value[z]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 62:23
+Complete src/Completion.res 62:23
 posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:15->62:23]
 JSX <O.Comp:[62:15->62:21] z[62:22->62:23]=...[62:22->62:23]> _children:None
 Completable: Cjsx([O, Comp], z, [z])
@@ -486,7 +486,7 @@ Completable: Cjsx([O, Comp], z, [z])
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 65:8
+Complete src/Completion.res 65:8
 Attribute id:reac:[65:3->65:8] label:reac
 Completable: Cdecorator(reac)
 [{
@@ -497,7 +497,7 @@ Completable: Cdecorator(reac)
     "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."}
   }]
 
-Complete tests/src/Completion.res 68:10
+Complete src/Completion.res 68:10
 posCursor:[68:10] posNoWhite:[68:9] Found expr:[0:-1->86:1]
 Pexp_apply ...[80:6->80:7] (...[80:8->86:1])
 Attribute id:react.let:[68:3->80:3] label:react.
@@ -510,7 +510,7 @@ Completable: Cdecorator(react.)
     "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."}
   }]
 
-Complete tests/src/Completion.res 71:27
+Complete src/Completion.res 71:27
 posCursor:[71:27] posNoWhite:[71:26] Found expr:[71:11->71:27]
 Pexp_apply ...[71:11->71:18] (~name71:20->71:24=...[71:20->71:24])
 Completable: CnamedArg(Value[Lib, foo], "", [name])
@@ -523,7 +523,7 @@ Found type for function (~age: int, ~name: string) => string
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 74:26
+Complete src/Completion.res 74:26
 posCursor:[74:26] posNoWhite:[74:25] Found expr:[74:11->74:26]
 Pexp_apply ...[74:11->74:18] (~age74:20->74:23=...[74:20->74:23])
 Completable: CnamedArg(Value[Lib, foo], "", [age])
@@ -536,7 +536,7 @@ Found type for function (~age: int, ~name: string) => string
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 77:32
+Complete src/Completion.res 77:32
 posCursor:[77:32] posNoWhite:[77:31] Found expr:[77:11->77:32]
 Pexp_apply ...[77:11->77:18] (~age77:20->77:23=...[77:25->77:28])
 Completable: CnamedArg(Value[Lib, foo], "", [age])
@@ -549,14 +549,14 @@ Found type for function (~age: int, ~name: string) => string
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 82:5
+Complete src/Completion.res 82:5
 posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
 Pexp_apply ...[80:8->80:15] (~age84:3->84:6=...[84:7->84:8], ~name85:3->85:7=...[85:8->85:10])
 Completable: CnamedArg(Value[Lib, foo], "", [age, name])
 Found type for function (~age: int, ~name: string) => string
 []
 
-Complete tests/src/Completion.res 90:13
+Complete src/Completion.res 90:13
 posCursor:[90:13] posNoWhite:[90:12] Found expr:[90:3->93:18]
 Pexp_send a[90:12->90:13] e:[90:3->90:10]
 Completable: Cpath Value[someObj]["a"]
@@ -568,7 +568,7 @@ Completable: Cpath Value[someObj]["a"]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 95:24
+Complete src/Completion.res 95:24
 posCursor:[95:24] posNoWhite:[95:23] Found expr:[95:3->99:6]
 Pexp_send [95:24->95:24] e:[95:3->95:22]
 Completable: Cpath Value[nestedObj]["x"]["y"][""]
@@ -586,7 +586,7 @@ Completable: Cpath Value[nestedObj]["x"]["y"][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 99:7
+Complete src/Completion.res 99:7
 posCursor:[99:7] posNoWhite:[99:6] Found expr:[99:3->102:20]
 Pexp_send a[99:6->99:7] e:[99:3->99:4]
 Completable: Cpath Value[o]["a"]
@@ -598,7 +598,7 @@ Completable: Cpath Value[o]["a"]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 104:17
+Complete src/Completion.res 104:17
 posCursor:[104:17] posNoWhite:[104:16] Found expr:[104:3->125:18]
 Pexp_send [104:17->104:17] e:[104:3->104:15]
 Completable: Cpath Value[no]["x"]["y"][""]
@@ -616,7 +616,7 @@ Completable: Cpath Value[no]["x"]["y"][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 110:5
+Complete src/Completion.res 110:5
 posCursor:[110:5] posNoWhite:[110:4] Found expr:[110:3->110:5]
 Pexp_field [110:3->110:4] _:[116:0->110:5]
 Completable: Cpath Value[r].""
@@ -634,7 +634,7 @@ Completable: Cpath Value[r].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 113:24
+Complete src/Completion.res 113:24
 posCursor:[113:24] posNoWhite:[113:23] Found expr:[113:3->113:24]
 Pexp_field [113:3->113:23] _:[116:0->113:24]
 Completable: Cpath Value[Object, Rec, recordVal].""
@@ -652,7 +652,7 @@ Completable: Cpath Value[Object, Rec, recordVal].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 120:7
+Complete src/Completion.res 120:7
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[119:11->123:1]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->122:5]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->120:7]
@@ -666,7 +666,7 @@ Completable: Cpath Value[my]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 125:18
+Complete src/Completion.res 125:18
 posCursor:[125:18] posNoWhite:[125:17] Found expr:[125:3->145:32]
 Pexp_send [125:18->125:18] e:[125:3->125:16]
 Completable: Cpath Value[Object, object][""]
@@ -684,7 +684,7 @@ Completable: Cpath Value[Object, object][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 151:6
+Complete src/Completion.res 151:6
 posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
 JSX <O.:[151:4->151:6] > _children:None
 Completable: Cpath Module[O, ""]
@@ -696,7 +696,7 @@ Completable: Cpath Module[O, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 157:8
+Complete src/Completion.res 157:8
 posCursor:[157:8] posNoWhite:[157:7] Found expr:[157:3->157:8]
 Pexp_field [157:3->157:7] _:[165:0->157:8]
 Completable: Cpath Value[q].aa.""
@@ -714,7 +714,7 @@ Completable: Cpath Value[q].aa.""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 159:9
+Complete src/Completion.res 159:9
 posCursor:[159:9] posNoWhite:[159:8] Found expr:[159:3->159:9]
 Pexp_field [159:3->159:7] n:[159:8->159:9]
 Completable: Cpath Value[q].aa.n
@@ -726,7 +726,7 @@ Completable: Cpath Value[q].aa.n
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 162:6
+Complete src/Completion.res 162:6
 posCursor:[162:6] posNoWhite:[162:5] Found expr:[162:3->162:6]
 Pexp_construct Lis:[162:3->162:6] None
 Completable: Cpath Value[Lis]
@@ -744,7 +744,7 @@ Completable: Cpath Value[Lis]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 169:16
+Complete src/Completion.res 169:16
 posCursor:[169:16] posNoWhite:[169:15] Found expr:[169:4->169:16]
 JSX <WithChildren:[169:4->169:16] > _children:None
 Completable: Cpath Module[WithChildren]
@@ -756,7 +756,7 @@ Completable: Cpath Module[WithChildren]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 172:16
+Complete src/Completion.res 172:16
 posCursor:[172:16] posNoWhite:[172:15] Found type:[172:12->172:16]
 Ptyp_constr Js.n:[172:12->172:16]
 Completable: Cpath Type[Js, n]
@@ -780,7 +780,7 @@ Completable: Cpath Type[Js, n]
     "documentation": {"kind": "markdown", "value": " nullable, value of this type can be either [null] or ['a]\n    this type is the same as type [t] in {!Null}\n"}
   }]
 
-Complete tests/src/Completion.res 174:20
+Complete src/Completion.res 174:20
 posCursor:[174:20] posNoWhite:[174:19] Found type:[174:12->174:20]
 Ptyp_constr ForAuto.:[174:12->174:20]
 Completable: Cpath Type[ForAuto, ""]
@@ -792,7 +792,7 @@ Completable: Cpath Type[ForAuto, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 179:13
+Complete src/Completion.res 179:13
 posCursor:[179:13] posNoWhite:[179:12] Found expr:[179:11->179:13]
 Pexp_construct As:[179:11->179:13] None
 Completable: Cpath Value[As]
@@ -804,7 +804,7 @@ Completable: Cpath Value[As]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 182:17
+Complete src/Completion.res 182:17
 Pmod_ident For:[182:14->182:17]
 Completable: Cpath Module[For]
 [{
@@ -821,7 +821,7 @@ Completable: Cpath Module[For]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 190:11
+Complete src/Completion.res 190:11
 posCursor:[190:11] posNoWhite:[190:10] Found expr:[190:3->190:11]
 Pexp_ident Private.:[190:3->190:11]
 Completable: Cpath Value[Private, ""]
@@ -833,13 +833,13 @@ Completable: Cpath Value[Private, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 202:6
+Complete src/Completion.res 202:6
 posCursor:[202:6] posNoWhite:[202:5] Found expr:[202:3->202:6]
 Pexp_ident sha:[202:3->202:6]
 Completable: Cpath Value[sha]
 []
 
-Complete tests/src/Completion.res 205:6
+Complete src/Completion.res 205:6
 posCursor:[205:6] posNoWhite:[205:5] Found expr:[205:3->205:6]
 Pexp_ident sha:[205:3->205:6]
 Completable: Cpath Value[sha]
@@ -851,7 +851,7 @@ Completable: Cpath Value[sha]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 208:6
+Complete src/Completion.res 208:6
 posCursor:[208:6] posNoWhite:[208:5] Found expr:[208:3->208:6]
 Pexp_ident sha:[208:3->208:6]
 Completable: Cpath Value[sha]
@@ -863,7 +863,7 @@ Completable: Cpath Value[sha]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 221:22
+Complete src/Completion.res 221:22
 posCursor:[221:22] posNoWhite:[221:21] Found expr:[221:3->224:22]
 Pexp_send [221:22->221:22] e:[221:3->221:20]
 Completable: Cpath Value[FAO, forAutoObject][""]
@@ -881,7 +881,7 @@ Completable: Cpath Value[FAO, forAutoObject][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 224:37
+Complete src/Completion.res 224:37
 posCursor:[224:37] posNoWhite:[224:36] Found expr:[224:3->224:37]
 Pexp_field [224:3->224:36] _:[233:0->224:37]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
@@ -899,7 +899,7 @@ Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 227:46
+Complete src/Completion.res 227:46
 posCursor:[227:46] posNoWhite:[227:45] Found expr:[227:3->0:-1]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
 [{
@@ -916,7 +916,7 @@ Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 230:55
+Complete src/Completion.res 230:55
 posCursor:[230:55] posNoWhite:[230:54] Found expr:[230:3->230:55]
 posCursor:[230:55] posNoWhite:[230:54] Found expr:[230:46->230:55]
 Pexp_ident ForAuto.a:[230:46->230:55]
@@ -935,7 +935,7 @@ Completable: Cpath Value[ForAuto, a]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 234:34
+Complete src/Completion.res 234:34
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:36]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:32], ...[234:32->234:34])
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:32->234:34]
@@ -949,12 +949,12 @@ Completable: Cpath Value[na]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 237:17
+Complete src/Completion.res 237:17
 posCursor:[237:17] posNoWhite:[237:14] Found expr:[237:14->237:22]
 Completable: Cnone
 []
 
-Complete tests/src/Completion.res 243:8
+Complete src/Completion.res 243:8
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[241:8->246:1]
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->243:8]
 Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->243:8])
@@ -975,7 +975,7 @@ Completable: Cpath Value[_z].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 254:17
+Complete src/Completion.res 254:17
 posCursor:[254:17] posNoWhite:[254:16] Found expr:[254:11->254:17]
 Pexp_construct SomeLo:[254:11->254:17] None
 Completable: Cpath Value[SomeLo]
@@ -987,7 +987,7 @@ Completable: Cpath Value[SomeLo]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 256:29
+Complete src/Completion.res 256:29
 posCursor:[256:29] posNoWhite:[256:28] Found type:[256:13->256:29]
 Ptyp_constr SomeLocalModule.:[256:13->256:29]
 Completable: Cpath Type[SomeLocalModule, ""]
@@ -999,7 +999,7 @@ Completable: Cpath Type[SomeLocalModule, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 261:33
+Complete src/Completion.res 261:33
 posCursor:[261:33] posNoWhite:[261:32] Found type:[261:17->263:11]
 Ptyp_constr SomeLocalModule.:[261:17->263:11]
 Completable: Cpath Type[SomeLocalModule, ""]
@@ -1011,7 +1011,7 @@ Completable: Cpath Type[SomeLocalModule, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 268:21
+Complete src/Completion.res 268:21
 Ptype_variant unary SomeLocal:[268:12->268:21]
 Completable: Cpath Value[SomeLocal]
 [{
@@ -1028,7 +1028,7 @@ Completable: Cpath Value[SomeLocal]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 271:20
+Complete src/Completion.res 271:20
 posCursor:[271:20] posNoWhite:[271:19] Found pattern:[271:7->274:3]
 posCursor:[271:20] posNoWhite:[271:19] Found type:[271:11->274:3]
 Ptyp_constr SomeLocal:[271:11->274:3]
@@ -1041,7 +1041,7 @@ Completable: Cpath Type[SomeLocal]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 275:15
+Complete src/Completion.res 275:15
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[274:11->278:1]
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:5->277:3]
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:13->275:15]
@@ -1055,7 +1055,7 @@ Completable: Cpath Value[_w]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 281:22
+Complete src/Completion.res 281:22
 posCursor:[281:22] posNoWhite:[281:21] Found type:[281:21->281:22]
 Ptyp_constr s:[281:21->281:22]
 Completable: Cpath Type[s]
@@ -1073,7 +1073,7 @@ Completable: Cpath Type[s]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 291:30
+Complete src/Completion.res 291:30
 posCursor:[291:30] posNoWhite:[291:29] Found expr:[291:11->291:32]
 Pexp_apply ...[291:11->291:28] ()
 Completable: CnamedArg(Value[funRecord].someFun, "", [])
@@ -1086,7 +1086,7 @@ Found type for function (~name: string) => unit
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 296:11
+Complete src/Completion.res 296:11
 posCursor:[296:11] posNoWhite:[296:10] Found expr:[296:3->296:11]
 Pexp_field [296:3->296:10] _:[299:0->296:11]
 Completable: Cpath Value[retAA](Nolabel).""
@@ -1104,7 +1104,7 @@ Completable: Cpath Value[retAA](Nolabel).""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 301:13
+Complete src/Completion.res 301:13
 posCursor:[301:13] posNoWhite:[301:12] Found expr:[301:3->301:13]
 Pexp_apply ...[301:3->301:11] ()
 Completable: CnamedArg(Value[ff](~c), "", [])
@@ -1142,7 +1142,7 @@ Found type for function (
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 304:15
+Complete src/Completion.res 304:15
 posCursor:[304:15] posNoWhite:[304:14] Found expr:[304:3->304:15]
 Pexp_apply ...[304:3->304:13] ()
 Completable: CnamedArg(Value[ff](~c)(Nolabel), "", [])
@@ -1167,7 +1167,7 @@ Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 307:17
+Complete src/Completion.res 307:17
 posCursor:[307:17] posNoWhite:[307:16] Found expr:[307:3->307:17]
 Pexp_apply ...[307:3->307:15] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel), "", [])
@@ -1192,7 +1192,7 @@ Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 310:21
+Complete src/Completion.res 310:21
 posCursor:[310:21] posNoWhite:[310:20] Found expr:[310:3->310:21]
 Pexp_apply ...[310:3->310:19] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel, Nolabel), "", [])
@@ -1211,7 +1211,7 @@ Found type for function (~a: int, ~b: int) => int
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 313:23
+Complete src/Completion.res 313:23
 posCursor:[313:23] posNoWhite:[313:22] Found expr:[313:3->313:23]
 Pexp_apply ...[313:3->313:21] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel, ~b), "", [])
@@ -1230,7 +1230,7 @@ Found type for function (~a: int, ~opt2: int=?, unit) => int
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 316:16
+Complete src/Completion.res 316:16
 posCursor:[316:16] posNoWhite:[316:15] Found expr:[316:3->316:16]
 Pexp_apply ...[316:3->316:14] ()
 Completable: CnamedArg(Value[ff](~opt2), "", [])
@@ -1261,7 +1261,7 @@ Found type for function (~opt1: int=?, ~a: int, ~b: int, unit, unit, ~c: int) =>
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 323:17
+Complete src/Completion.res 323:17
 posCursor:[323:17] posNoWhite:[323:16] Found expr:[323:3->323:17]
 Pexp_apply ...[323:3->323:15] ()
 Completable: CnamedArg(Value[withCallback], "", [])
@@ -1280,7 +1280,7 @@ Found type for function (~b: int) => callback
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 326:21
+Complete src/Completion.res 326:21
 posCursor:[326:21] posNoWhite:[326:20] Found expr:[326:3->326:21]
 Pexp_apply ...[326:3->326:19] ()
 Completable: CnamedArg(Value[withCallback](~a), "", [])
@@ -1293,7 +1293,7 @@ Found type for function (~b: int) => int
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 329:21
+Complete src/Completion.res 329:21
 posCursor:[329:21] posNoWhite:[329:20] Found expr:[329:3->329:21]
 Pexp_apply ...[329:3->329:19] ()
 Completable: CnamedArg(Value[withCallback](~b), "", [])
@@ -1306,7 +1306,7 @@ Found type for function (~a: int) => int
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 336:26
+Complete src/Completion.res 336:26
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->346:23]
 JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->346:23]> _children:None
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
@@ -1331,7 +1331,7 @@ Completable: Cpath Type[Res]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 343:57
+Complete src/Completion.res 343:57
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->346:23]
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->346:23]
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->343:57]
@@ -1345,14 +1345,14 @@ Completable: Cpath Value[this]
     "documentation": null
   }]
 
-Hover tests/src/Completion.res 346:14
+Hover src/Completion.res 346:14
 Nothing at that position. Now trying to use completion.
 posCursor:[346:14] posNoWhite:[346:13] Found expr:[346:9->346:23]
 JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346:21
 Completable: Cjsx([div], name, [name])
 {"contents": "```rescript\nstring\n```"}
 
-Hover tests/src/Completion.res 349:17
+Hover src/Completion.res 349:17
 Nothing at that position. Now trying to use completion.
 posCursor:[349:17] posNoWhite:[349:16] Found expr:[349:11->349:35]
 Pexp_send age[349:30->349:33] e:[349:11->349:28]
@@ -1361,7 +1361,7 @@ Pexp_ident FAO.forAutoObject:[349:11->349:28]
 Completable: Cpath Value[FAO, forAutoObject]
 {"contents": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}
 
-Hover tests/src/Completion.res 352:17
+Hover src/Completion.res 352:17
 Nothing at that position. Now trying to use completion.
 posCursor:[352:17] posNoWhite:[352:16] Found expr:[352:11->352:22]
 Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
@@ -1377,12 +1377,12 @@ Found type for function (
 ) => int
 {"contents": "```rescript\noption<int>\n```"}
 
-Complete tests/src/Completion.res 355:23
+Complete src/Completion.res 355:23
 posCursor:[355:23] posNoWhite:[355:22] Found expr:[0:-1->355:23]
 posCursor:[355:23] posNoWhite:[355:22] Found expr:[355:12->355:23]
 []
 
-Complete tests/src/Completion.res 362:8
+Complete src/Completion.res 362:8
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
@@ -1415,7 +1415,7 @@ Completable: Cpath Value[T]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 373:21
+Complete src/Completion.res 373:21
 posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found expr:[372:2->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
@@ -1430,7 +1430,7 @@ Completable: Cpath Value[AndThatOther, T]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 378:24
+Complete src/Completion.res 378:24
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:26]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:16], ...[378:16->378:24])
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:16->378:24]
@@ -1450,7 +1450,7 @@ Completable: Cpath Value[ForAuto, ""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 381:38
+Complete src/Completion.res 381:38
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:41]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:19], ...[381:19->381:39])
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:19->381:39]
@@ -1470,7 +1470,7 @@ Completable: Cpath Value[FAO, forAutoObject][""]
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 384:24
+Complete src/Completion.res 384:24
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:26]
 Pexp_field [384:14->384:23] _:[384:24->384:24]
 Completable: Cpath Value[funRecord].""
@@ -1488,7 +1488,7 @@ Completable: Cpath Value[funRecord].""
     "documentation": null
   }]
 
-Complete tests/src/Completion.res 389:12
+Complete src/Completion.res 389:12
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[387:8->392:1]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[388:2->391:4]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->391:4]

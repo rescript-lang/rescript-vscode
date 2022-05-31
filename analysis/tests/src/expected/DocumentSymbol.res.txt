@@ -1,4 +1,4 @@
-DocumentSymbol tests/src/DocumentSymbol.res
+DocumentSymbol src/DocumentSymbol.res
 [
 {
         "name": "MyList",

@@ -1,4 +1,4 @@
-Create Interface tests/src/CreateInterface.res
+Create Interface src/CreateInterface.res
 type r = {name: string, age: int}
 let add: (~x: int, ~y: int) => int
 @react.component

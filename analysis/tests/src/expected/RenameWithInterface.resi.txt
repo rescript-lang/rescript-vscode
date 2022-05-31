@@ -1,4 +1,4 @@
-Rename tests/src/RenameWithInterface.resi 0:4 y
+Rename src/RenameWithInterface.resi 0:4 y
 [
 {
   "textDocument": {
