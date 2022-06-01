@@ -65,13 +65,21 @@ Switches between the implementation and interface file. If you're in a `.res` fi
 
 > This can also be triggered with the keybinding `Alt+O`.
 
-### Experimental Features
+### Code Analyzer
 
-#### Code Analysis mode
+The Code Analyzer is an a mode in the extension that runs additional code analysis in your project. The analysis helps you find dead code at a granular level, find unhandled exceptions, and more.
 
-Runs code analysis via [reanalyze](https://github.com/rescript-association/reanalyze) which is embedded in this plugin.
+> The Code Analyzer uses [reanalyze](https://github.com/rescript-association/reanalyze), which is embedded in the extension, so you don't need to install anything extra to run it.
 
-##### Usage
+#### Configuring the Code Analyzer
+
+You'll need to configure what code analysis you want to run, and what (if any) directories you want to ignore. Configuration is done via adding `reanalyze` in `bsconfig.json`. You'll get autocomplete for what configuration options are valid. You can also read [all about configuring `reanalyze` here](https://github.com/rescript-association/reanalyze#configuration-via-bsconfigjson).
+
+##### Autostarting the Code Analyzer
+
+The Code Analyzer needs to be started manually by default. However, you can configure the extension to start the Code Analyzer automatically via the setting `rescript.settings.autoRunCodeAnalysis`.
+
+#### Usage
 
 Open the command palette and run `> ReScript: Start Code Analyzer.`. This will start code analysis in the ReScript project of the file you run the command from.
 
@@ -79,7 +87,7 @@ Dead code is highlighted in the editor, and code actions for suppressing dead co
 
 When done, stop the code analysis mode by clicking the `Stop Code Analyzer` button in the editor status bar. This will clear all reported analysis warnings.
 
-##### Caveats
+#### Caveats
 
 Currently does not work for full monorepo dead code analysis (although it should work for each monorepo package individually).
 
