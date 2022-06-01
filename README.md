@@ -67,7 +67,7 @@ Switches between the implementation and interface file. If you're in a `.res` fi
 
 ### Code Analyzer
 
-The Code Analyzer is an a mode in the extension that runs additional code analysis in your project. The analysis helps you find dead code at a granular level, find unhandled exceptions, and more.
+The Code Analyzer is a mode in the extension that runs additional code analysis in your project. The analysis helps you find dead code at a granular level, find unhandled exceptions, and more.
 
 > The Code Analyzer uses [reanalyze](https://github.com/rescript-association/reanalyze), which is embedded in the extension, so you don't need to install anything extra to run it.
 
