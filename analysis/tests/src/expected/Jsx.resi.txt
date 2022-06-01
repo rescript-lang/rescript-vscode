@@ -1,4 +1,5 @@
 Hover src/Jsx.resi 1:4
+getLocItem #1: heuristic for makeProps in interface files
 {"contents": "```rescript\n(~first: string, ~key: string=?, unit) => {\"first\": string}\n```"}
 
 Hover src/Jsx.resi 4:4

@@ -1,4 +1,6 @@
 Definition src/Jsx.res 5:9
+getLocItem #4: heuristic for </Comp> within fragments: take make as makeProps does not work
+the type is not great but jump to definition works
 {"uri": "Jsx.res", "range": {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}}
 
 Complete src/Jsx.res 8:15
@@ -196,6 +198,8 @@ Completable: Cjsx([M], k, [prop, k])
   }]
 
 Definition src/Jsx.res 58:11
+getLocItem #4: heuristic for </Comp> within fragments: take make as makeProps does not work
+the type is not great but jump to definition works
 {"uri": "Component.res", "range": {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 8}}}
 
 Complete src/Jsx.res 68:10

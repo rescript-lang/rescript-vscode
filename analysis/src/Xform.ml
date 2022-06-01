@@ -223,16 +223,14 @@ module AddTypeAnnotation = struct
     in
     {Ast_iterator.default_iterator with structure_item}
 
-  let xform ~path ~pos ~full ~structure ~codeActions =
-    let line, col = pos in
-
+  let xform ~path ~pos ~full ~structure ~codeActions ~debug =
     let result = ref None in
     let iterator = mkIterator ~pos ~result in
     iterator.structure iterator structure;
     match !result with
     | None -> ()
     | Some annotation -> (
-      match References.getLocItem ~full ~line ~col with
+      match References.getLocItem ~full ~pos ~debug with
       | None -> ()
       | Some locItem -> (
         match locItem.locType with
@@ -297,14 +295,14 @@ let parse ~filename =
   in
   (structure, printExpr, printStructureItem)
 
-let extractCodeActions ~path ~pos ~currentFile =
+let extractCodeActions ~path ~pos ~currentFile ~debug =
   match Cmt.fullFromPath ~path with
   | Some full when Filename.check_suffix currentFile ".res" ->
     let structure, printExpr, printStructureItem =
       parse ~filename:currentFile
     in
     let codeActions = ref [] in
-    AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions;
+    AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions ~debug;
     IfThenElse.xform ~pos ~codeActions ~printExpr ~path structure;
     AddBracesToFn.xform ~pos ~codeActions ~path ~printStructureItem structure;
     !codeActions

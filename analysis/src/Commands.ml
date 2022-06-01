@@ -28,19 +28,18 @@ let completion ~debug ~path ~pos ~currentFile =
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
 
-let hover ~path ~line ~col ~currentFile ~debug =
+let hover ~path ~pos ~currentFile ~debug =
   let result =
     match Cmt.fullFromPath ~path with
     | None -> Protocol.null
     | Some full -> (
-      match References.getLocItem ~full ~line ~col with
+      match References.getLocItem ~full ~pos ~debug with
       | None -> (
         if debug then
           Printf.printf
             "Nothing at that position. Now trying to use completion.\n";
         let completions =
-          getCompletions ~debug ~path ~pos:(line, col) ~currentFile
-            ~forHover:true
+          getCompletions ~debug ~path ~pos ~currentFile ~forHover:true
         in
         match completions with
         | {kind = Label typString; docstring} :: _ ->
@@ -81,16 +80,16 @@ let hover ~path ~line ~col ~currentFile ~debug =
   in
   print_endline result
 
-let codeAction ~path ~line ~col ~currentFile =
-  Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile
+let codeAction ~path ~pos ~currentFile ~debug =
+  Xform.extractCodeActions ~path ~pos ~currentFile ~debug
   |> CodeActions.stringifyCodeActions |> print_endline
 
-let definition ~path ~line ~col =
+let definition ~path ~pos ~debug =
   let locationOpt =
     match Cmt.fullFromPath ~path with
     | None -> None
     | Some full -> (
-      match References.getLocItem ~full ~line ~col with
+      match References.getLocItem ~full ~pos ~debug with
       | None -> None
       | Some locItem -> (
         match References.definitionForLocItem ~full locItem with
@@ -123,12 +122,12 @@ let definition ~path ~line ~col =
     | None -> Protocol.null
     | Some location -> location |> Protocol.stringifyLocation)
 
-let typeDefinition ~path ~line ~col =
+let typeDefinition ~path ~pos ~debug =
   let maybeLocation =
     match Cmt.fullFromPath ~path with
     | None -> None
     | Some full -> (
-      match References.getLocItem ~full ~line ~col with
+      match References.getLocItem ~full ~pos ~debug with
       | None -> None
       | Some locItem -> (
         match References.typeDefinitionForLocItem ~full locItem with
@@ -143,12 +142,12 @@ let typeDefinition ~path ~line ~col =
     | None -> Protocol.null
     | Some location -> location |> Protocol.stringifyLocation)
 
-let references ~path ~line ~col =
+let references ~path ~pos ~debug =
   let allLocs =
     match Cmt.fullFromPath ~path with
     | None -> []
     | Some full -> (
-      match References.getLocItem ~full ~line ~col with
+      match References.getLocItem ~full ~pos ~debug with
       | None -> []
       | Some locItem ->
         let allReferences = References.allReferencesForLocItem ~full locItem in
@@ -169,12 +168,12 @@ let references ~path ~line ~col =
     (if allLocs = [] then Protocol.null
     else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
 
-let rename ~path ~line ~col ~newName =
+let rename ~path ~pos ~newName ~debug =
   let result =
     match Cmt.fullFromPath ~path with
     | None -> Protocol.null
     | Some full -> (
-      match References.getLocItem ~full ~line ~col with
+      match References.getLocItem ~full ~pos ~debug with
       | None -> Protocol.null
       | Some locItem ->
         let allReferences = References.allReferencesForLocItem ~full locItem in
@@ -305,24 +304,24 @@ let test ~path =
             print_endline
               ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            definition ~path ~line ~col
+            definition ~path ~pos:(line, col) ~debug:true
           | "typ" ->
             print_endline
               ("TypeDefinition " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            typeDefinition ~path ~line ~col
+            typeDefinition ~path ~pos:(line, col) ~debug:true
           | "hov" ->
             print_endline
               ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             let currentFile = createCurrentFile () in
-            hover ~path ~line ~col ~currentFile ~debug:true;
+            hover ~path ~pos:(line, col) ~currentFile ~debug:true;
             Sys.remove currentFile
           | "ref" ->
             print_endline
               ("References " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
-            references ~path ~line ~col
+            references ~path ~pos:(line, col) ~debug:true
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
             DocumentSymbol.command ~path
@@ -333,7 +332,7 @@ let test ~path =
                 ("Rename " ^ path ^ " " ^ string_of_int line ^ ":"
                ^ string_of_int col ^ " " ^ newName)
             in
-            rename ~path ~line ~col ~newName
+            rename ~path ~pos:(line, col) ~newName ~debug:true
           | "com" ->
             print_endline
               ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
@@ -362,6 +361,7 @@ let test ~path =
              ^ string_of_int col);
             let codeActions =
               Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile:path
+                ~debug:true
             in
             codeActions
             |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
