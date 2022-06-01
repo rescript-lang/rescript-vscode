@@ -72,18 +72,22 @@ let main () =
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile
   | [_; "definition"; path; line; col] ->
-    Commands.definition ~path ~line:(int_of_string line)
-      ~col:(int_of_string col)
+    Commands.definition ~path
+      ~pos:(int_of_string line, int_of_string col)
+      ~debug:false
   | [_; "typeDefinition"; path; line; col] ->
-    Commands.typeDefinition ~path ~line:(int_of_string line)
-      ~col:(int_of_string col)
+    Commands.typeDefinition ~path
+      ~pos:(int_of_string line, int_of_string col)
+      ~debug:false
   | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
   | [_; "hover"; path; line; col; currentFile] ->
-    Commands.hover ~path ~line:(int_of_string line) ~col:(int_of_string col)
+    Commands.hover ~path
+      ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false
   | [_; "codeAction"; path; line; col; currentFile] ->
-    Commands.codeAction ~path ~line:(int_of_string line)
-      ~col:(int_of_string col) ~currentFile
+    Commands.codeAction ~path
+      ~pos:(int_of_string line, int_of_string col)
+      ~currentFile ~debug:false
   | _ :: "reanalyze" :: _ ->
     let len = Array.length Sys.argv in
     for i = 1 to len - 2 do
@@ -92,11 +96,13 @@ let main () =
     Sys.argv.(len - 1) <- "";
     Reanalyze.cli ()
   | [_; "references"; path; line; col] ->
-    Commands.references ~path ~line:(int_of_string line)
-      ~col:(int_of_string col)
+    Commands.references ~path
+      ~pos:(int_of_string line, int_of_string col)
+      ~debug:false
   | [_; "rename"; path; line; col; newName] ->
-    Commands.rename ~path ~line:(int_of_string line) ~col:(int_of_string col)
-      ~newName
+    Commands.rename ~path
+      ~pos:(int_of_string line, int_of_string col)
+      ~newName ~debug:false
   | [_; "semanticTokens"; currentFile] ->
     SemanticTokens.semanticTokens ~currentFile
   | [_; "createInterface"; path; cmiFile] ->

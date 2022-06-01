@@ -1,7 +1,10 @@
 Hover src/Fragment.res 6:19
+getLocItem #4: heuristic for </Comp> within fragments: take make as makeProps does not work
+the type is not great but jump to definition works
 {"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
 
 Hover src/Fragment.res 9:56
+getLocItem #2: heuristic for </Comp> within a fragment
 Nothing at that position. Now trying to use completion.
 posCursor:[9:56] posNoWhite:[9:55] Found expr:[9:10->9:67]
 Pexp_construct :::[9:13->9:67] [9:13->9:67]

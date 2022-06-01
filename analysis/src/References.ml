@@ -1,6 +1,7 @@
 open SharedTypes
 
 let debugReferences = ref true
+
 let maybeLog m = if !debugReferences then Log.log ("[ref] " ^ m)
 
 let checkPos (line, char)
@@ -16,10 +17,11 @@ let checkPos (line, char)
 let locItemsForPos ~extra pos =
   extra.locItems |> List.filter (fun {loc; locType = _} -> checkPos pos loc)
 
-let lineColToCmtLoc ~line ~col = (line + 1, col)
+let lineColToCmtLoc ~pos:(line, col) = (line + 1, col)
 
-let getLocItem ~full ~line ~col =
-  let pos = lineColToCmtLoc ~line ~col in
+let getLocItem ~full ~pos ~debug =
+  let log n msg = if debug then Printf.printf "getLocItem #%d: %s\n" n msg in
+  let pos = lineColToCmtLoc ~pos in
   let locItems = locItemsForPos ~extra:full.extra pos in
   if !Log.verbose then
     print_endline
@@ -28,30 +30,33 @@ let getLocItem ~full ~line ~col =
   match locItems with
   | _ :: _ :: _ :: ({locType = Typed ("makeProps", _, _)} as li) :: _
     when full.file.uri |> Uri2.isInterface ->
-    (* heuristic for makeProps in interface files *)
+    log 1 "heuristic for makeProps in interface files";
     Some li
   | [
    {locType = Typed ("fragment", _, _)};
    {locType = Typed ("createElement", _, _)};
   ] ->
-    (* heuristic for </Comp> within a fragment *)
+    log 2 "heuristic for </Comp> within a fragment";
     None
   | [
    {locType = Constant _};
    ({locType = Typed ("createDOMElementVariadic", _, _)} as li2);
   ] ->
-    (* heuristic for <div> *)
+    log 3 "heuristic for <div>";
     Some li2
   | {locType = Typed ("makeProps", _, _)}
     :: ({locType = Typed ("make", _, _)} as li2) :: _ ->
-    (* heuristic for </Comp> within fragments: take make as makeProps does not work
-       the type is not greatl but jump to definition works *)
+    log 4
+      "heuristic for </Comp> within fragments: take make as makeProps does not \
+       work\n\
+       the type is not great but jump to definition works";
     Some li2
   | [({locType = Typed (_, _, LocalReference _)} as li1); li3]
     when li1.loc = li3.loc ->
-    (* JSX and compiler combined:
-       ~x becomes Props#x
-       heuristic for: [Props, x], give loc of `x` *)
+    log 5
+      "heuristic for JSX and compiler combined:\n\
+       ~x becomes Props#x\n\
+       heuristic for: [Props, x], give loc of `x`";
     Some li3
   | [
    ({locType = Typed (_, _, LocalReference _)} as li1);
@@ -61,28 +66,33 @@ let getLocItem ~full ~line ~col =
   ]
   (* For older compiler 9.0 or earlier *)
     when li1.loc = li2.loc && li2.loc = li3.loc ->
-    (* JSX and compiler combined:
-       ~x becomes Js_OO.unsafe_downgrade(Props)#x
-       heuristic for: [Props, unsafe_downgrade, x], give loc of `x` *)
+    log 6
+      "heuristic for JSX and compiler combined:\n\
+       ~x becomes Js_OO.unsafe_downgrade(Props)#x\n\
+       heuristic for: [Props, unsafe_downgrade, x], give loc of `x`";
     Some li3
   | [
    {locType = Typed (_, _, LocalReference (_, Value))};
    ({locType = Typed (_, _, Definition (_, Value))} as li2);
   ] ->
-    (* JSX on type-annotated labeled (~arg:t):
-       (~arg:t) becomes Props#arg
-       Props has the location range of arg:t
-       arg has the location range of arg
-       heuristic for: [Props, arg], give loc of `arg` *)
+    log 7
+      "heuristic for JSX on type-annotated labeled (~arg:t):\n\
+       (~arg:t) becomes Props#arg\n\
+       Props has the location range of arg:t\n\
+       arg has the location range of arg\n\
+       heuristic for: [Props, arg], give loc of `arg`";
     Some li2
   | [li1; li2; li3] when li1.loc = li2.loc && li2.loc = li3.loc ->
-    (* JSX with at most one child
-       heuristic for: [makeProps, make, createElement], give the loc of `make` *)
+    log 8
+      "heuristic for JSX with at most one child\n\
+       heuristic for: [makeProps, make, createElement], give the loc of `make` ";
     Some li2
   | [li1; li2; li3; li4]
     when li1.loc = li2.loc && li2.loc = li3.loc && li3.loc = li4.loc ->
-    (* JSX variadic, e.g. <C> {x} {y} </C>
-       heuristic for: [makeProps  , React.null, make, createElementVariadic], give the loc of `make` *)
+    log 9
+      "heuristic for JSX variadic, e.g. <C> {x} {y} </C>\n\
+       heuristic for: [makeProps  , React.null, make, createElementVariadic], \
+       give the loc of `make`";
     Some li3
   | {locType = Typed (_, {desc = Tconstr (path, _, _)}, _)} :: li :: _
     when Utils.isUncurriedInternal path ->
