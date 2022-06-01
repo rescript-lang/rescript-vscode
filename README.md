@@ -81,7 +81,7 @@ The Code Analyzer needs to be started manually by default. However, you can conf
 
 #### Usage
 
-Open the command palette and run `> ReScript: Start Code Analyzer.`. This will start code analysis in the ReScript project of the file you run the command from.
+Open the command palette and run `> ReScript: Start Code Analyzer`. This will start code analysis in the ReScript project of the file you run the command from.
 
 Dead code is highlighted in the editor, and code actions for suppressing dead code warnings are available in most cases.
 
