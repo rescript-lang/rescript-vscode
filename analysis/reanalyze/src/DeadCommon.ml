@@ -429,8 +429,7 @@ module ProcessDeadAnnotations = struct
     |> ignore
 end
 
-let annotateAtEnd ~pos =
-  match posLanguage pos with Re | Res -> false | Ml -> true
+let annotateAtEnd ~pos = match posLanguage pos with Res -> false | Ml -> true
 
 let getPosAnnotation decl =
   match annotateAtEnd ~pos:decl.pos with
@@ -502,9 +501,6 @@ module WriteDeadAnnotations = struct
         match language with
         | Res ->
           "@" ^ deadAnnotation ^ "(\"" ^ (path |> Path.withoutHead) ^ "\") "
-        | Re ->
-          "[" ^ "@" ^ deadAnnotation ^ " \"" ^ (path |> Path.withoutHead)
-          ^ "\"] "
         | Ml ->
           " " ^ "["
           ^ (match declKind |> DeclKind.isType with

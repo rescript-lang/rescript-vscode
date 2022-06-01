@@ -1,15 +1,11 @@
-type language = Ml | Re | Res
+type language = Ml | Res
 
 let posLanguage (pos : Lexing.position) =
   if
-    Filename.check_suffix pos.pos_fname ".re"
-    || Filename.check_suffix pos.pos_fname ".rei"
-  then Re
-  else if
-    Filename.check_suffix pos.pos_fname ".ml"
-    || Filename.check_suffix pos.pos_fname ".mli"
-  then Ml
-  else Res
+    Filename.check_suffix pos.pos_fname ".res"
+    || Filename.check_suffix pos.pos_fname ".resi"
+  then Res
+  else Ml
 
 module Color = struct
   let color_enabled = lazy (Unix.isatty Unix.stdout)
