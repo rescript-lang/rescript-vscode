@@ -66,7 +66,7 @@ let getLocItem ~full ~pos ~debug =
   ]
   (* For older compiler 9.0 or earlier *)
     when li1.loc = li2.loc && li2.loc = li3.loc ->
-    (* Not currently testable *)
+    (* Not currently testable on 9.1.4 *)
     log 6
       "heuristic for JSX and compiler combined:\n\
        ~x becomes Js_OO.unsafe_downgrade(Props)#x\n\
@@ -84,7 +84,7 @@ let getLocItem ~full ~pos ~debug =
        heuristic for: [Props, arg], give loc of `arg`";
     Some li2
   | [li1; li2; li3] when li1.loc = li2.loc && li2.loc = li3.loc ->
-    (* Not currently testable *)
+    (* Not currently testable on 9.1.4 *)
     log 8
       "heuristic for JSX with at most one child\n\
        heuristic for: [makeProps, make, createElement], give the loc of `make` ";
