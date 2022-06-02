@@ -23,6 +23,7 @@ Hover src/Hover.res 37:13
 getLocItem #5: heuristic for JSX and compiler combined:
 ~x becomes Props#x
 heuristic for: [Props, x], give loc of `x`
+n1:Props n2:name
 {"contents": "```rescript\nstring\n```"}
 
 Hover src/Hover.res 41:13
@@ -31,6 +32,7 @@ getLocItem #7: heuristic for JSX on type-annotated labeled (~arg:t):
 Props has the location range of arg:t
 arg has the location range of arg
 heuristic for: [Props, arg], give loc of `arg`
+n1:Props n2:name
 {"contents": "```rescript\nstring\n```"}
 
 Hover src/Hover.res 44:10
@@ -56,12 +58,14 @@ Hover src/Hover.res 75:7
 
 Hover src/Hover.res 85:10
 getLocItem #9: heuristic for JSX variadic, e.g. <C> {x} {y} </C>
-heuristic for: [makeProps  , React.null, make, createElementVariadic], give the loc of `make`
+heuristic for: [React.null, makeProps, make, createElementVariadic], give the loc of `make`
+n1:null n2:makeProps n3:make n4:createElementVariadic
 {"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
 
 Hover src/Hover.res 88:10
 getLocItem #9: heuristic for JSX variadic, e.g. <C> {x} {y} </C>
-heuristic for: [makeProps  , React.null, make, createElementVariadic], give the loc of `make`
+heuristic for: [React.null, makeProps, make, createElementVariadic], give the loc of `make`
+n1:null n2:makeProps n3:make n4:createElementVariadic
 {"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
 
 Hover src/Hover.res 93:25

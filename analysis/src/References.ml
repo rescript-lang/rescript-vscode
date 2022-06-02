@@ -27,11 +27,16 @@ let getLocItem ~full ~pos ~debug =
     print_endline
       ("locItems:\n  "
       ^ (locItems |> List.map locItemToString |> String.concat "\n  "));
+  let nameOf li =
+    match li.locType with Typed (n, _, _) -> n | _ -> "NotFound"
+  in
   match locItems with
-  | _ :: _ :: _ :: ({locType = Typed ("makeProps", _, _)} as li) :: _
+  | li1 :: li2 :: li3 :: ({locType = Typed ("makeProps", _, _)} as li4) :: _
     when full.file.uri |> Uri2.isInterface ->
     log 1 "heuristic for makeProps in interface files";
-    Some li
+    if debug then
+      Printf.printf "n1:%s n2:%s n3:%s\n" (nameOf li1) (nameOf li2) (nameOf li3);
+    Some li4
   | [
    {locType = Typed ("fragment", _, _)};
    {locType = Typed ("createElement", _, _)};
@@ -51,13 +56,17 @@ let getLocItem ~full ~pos ~debug =
        work\n\
        the type is not great but jump to definition works";
     Some li2
-  | [({locType = Typed (_, _, LocalReference _)} as li1); li3]
-    when li1.loc = li3.loc ->
+  | [
+   ({locType = Typed (_, _, LocalReference _)} as li1);
+   ({locType = Typed (_, _, _)} as li2);
+  ]
+    when li1.loc = li2.loc ->
     log 5
       "heuristic for JSX and compiler combined:\n\
        ~x becomes Props#x\n\
        heuristic for: [Props, x], give loc of `x`";
-    Some li3
+    if debug then Printf.printf "n1:%s n2:%s\n" (nameOf li1) (nameOf li2);
+    Some li2
   | [
    ({locType = Typed (_, _, LocalReference _)} as li1);
    ({locType = Typed (_, _, GlobalReference ("Js_OO", ["unsafe_downgrade"], _))}
@@ -73,7 +82,7 @@ let getLocItem ~full ~pos ~debug =
        heuristic for: [Props, unsafe_downgrade, x], give loc of `x`";
     Some li3
   | [
-   {locType = Typed (_, _, LocalReference (_, Value))};
+   ({locType = Typed (_, _, LocalReference (_, Value))} as li1);
    ({locType = Typed (_, _, Definition (_, Value))} as li2);
   ] ->
     log 7
@@ -82,6 +91,7 @@ let getLocItem ~full ~pos ~debug =
        Props has the location range of arg:t\n\
        arg has the location range of arg\n\
        heuristic for: [Props, arg], give loc of `arg`";
+    if debug then Printf.printf "n1:%s n2:%s\n" (nameOf li1) (nameOf li2);
     Some li2
   | [li1; li2; li3] when li1.loc = li2.loc && li2.loc = li3.loc ->
     (* Not currently testable on 9.1.4 *)
@@ -93,8 +103,11 @@ let getLocItem ~full ~pos ~debug =
     when li1.loc = li2.loc && li2.loc = li3.loc && li3.loc = li4.loc ->
     log 9
       "heuristic for JSX variadic, e.g. <C> {x} {y} </C>\n\
-       heuristic for: [makeProps  , React.null, make, createElementVariadic], \
+       heuristic for: [React.null, makeProps, make, createElementVariadic], \
        give the loc of `make`";
+    if debug then
+      Printf.printf "n1:%s n2:%s n3:%s n4:%s\n" (nameOf li1) (nameOf li2)
+        (nameOf li3) (nameOf li4);
     Some li3
   | {locType = Typed (_, {desc = Tconstr (path, _, _)}, _)} :: li :: _
     when Utils.isUncurriedInternal path ->
