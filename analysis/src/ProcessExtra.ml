@@ -395,7 +395,7 @@ let expr ~env ~(extra : extra) (iter : Tast_iterator.iterator)
             Hashtbl.add extra.opens eloc ()
           | _ -> ());
    match expression.exp_desc with
-   | Texp_ident (path, {txt; loc}, _) ->
+   | Texp_ident (path, {txt; loc}, _) when not (JsxHacks.pathIsFragment path) ->
      addForLongident ~env ~extra
        (Some (expression.exp_type, Value))
        path txt loc
