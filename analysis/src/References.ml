@@ -38,10 +38,13 @@ let getLocItem ~full ~pos ~debug =
       Printf.printf "n1:%s n2:%s n3:%s\n" (nameOf li1) (nameOf li2) (nameOf li3);
     Some li4
   | [
-   {locType = Typed ("fragment", _, _)};
+   ({locType = Typed ("fragment", t1, _)} as li1);
    {locType = Typed ("createElement", _, _)};
   ] ->
     log 2 "heuristic for </Comp> within a fragment";
+    if debug then
+      Printf.printf "\nZZZ %s %s\n\n" (locItemToString li1)
+        (Shared.typeToString t1);
     None
   | [
    {locType = Constant _};

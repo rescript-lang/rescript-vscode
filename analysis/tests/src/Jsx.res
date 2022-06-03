@@ -153,3 +153,20 @@ let _ = <Nested.Comp name="" />
 
 // let _ = <Nested. name="" />
 //                 ^com
+
+module Comp = {
+  @react.component
+  let make = (~age) => React.int(age)
+
+  let dd = make
+}
+
+let _ = {
+  <> <Comp age=34 /> </>
+  //        ^hov
+}
+
+let _ = {
+  <> {<> <Comp age=34 /> </>} </>
+  //            ^hov
+}

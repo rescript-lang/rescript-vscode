@@ -387,13 +387,11 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         incl_type []
     in
     topLevel
-  | Tstr_primitive
-      {val_id; val_name = name; val_loc; val_attributes; val_val = {val_type}}
-    ->
+  | Tstr_primitive vd when JsxHacks.primitiveIsFragment vd = false ->
     let declared =
-      addDeclared ~extent:val_loc ~item:val_type ~name
-        ~stamp:(Ident.binding_time val_id)
-        ~env val_attributes
+      addDeclared ~extent:vd.val_loc ~item:vd.val_val.val_type ~name:vd.val_name
+        ~stamp:(Ident.binding_time vd.val_id)
+        ~env vd.val_attributes
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
