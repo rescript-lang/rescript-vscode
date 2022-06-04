@@ -136,14 +136,14 @@ module Stats = struct
 
   let logHygieneParametric ~functionName ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:"Error Hygiene" (fun ppf () ->
+    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf
           "@{<error>%s@} cannot be analyzed directly as it is parametric"
           functionName)
 
   let logHygieneOnlyCallDirectly ~path ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:"Error Hygiene" (fun ppf () ->
+    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf
           "@{<error>%s@} can only be called directly, or passed as labeled \
            argument"
@@ -151,19 +151,19 @@ module Stats = struct
 
   let logHygieneMustHaveNamedArgument ~label ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:"Error Hygiene" (fun ppf () ->
+    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf "Call must have named argument @{<error>%s@}" label)
 
   let logHygieneNamedArgValue ~label ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:"Error Hygiene" (fun ppf () ->
+    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf
           "Named argument @{<error>%s@} must be passed a recursive function"
           label)
 
   let logHygieneNoNestedLetRec ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:"Error Hygiene" (fun ppf () ->
+    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf "Nested multiple let rec not supported yet")
 end
 
