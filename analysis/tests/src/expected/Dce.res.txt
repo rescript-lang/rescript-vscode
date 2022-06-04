@@ -1,10 +1,6 @@
 DCE src/Dce.res
-test
-src/Dce.res
-
-  Warning Dead Module
-  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Auto.res", line 0, characters 1-1
-  +Auto is a dead module as all its items are dead.
+File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Auto.res", line 0, characters 1-1
++Auto is a dead module as all its items are dead.
 
   Warning Dead Value
   File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Auto.res", line 3, characters 1-17
@@ -1271,6 +1267,5 @@ src/Dce.res
   +bar is never used
   <-- line 57
   @dead("+bar") let bar = () => {
-  
-  Analysis reported 233 issues (Warning Dead Exception:1, Warning Dead Module:43, Warning Dead Type:41, Warning Dead Value:132, Warning Dead Value With Side Effects:16)
+kinds of issues:5
 

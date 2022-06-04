@@ -1,7 +1,6 @@
 let command () =
-  Reanalyze.cli ();
   Reanalyze.RunConfig.dce ();
-  let shouldRun = false in
+  let shouldRun = true in
   if shouldRun then (
     Reanalyze.runAnalysis ~cmtRoot:None;
     let issues = Reanalyze.Log_.Stats.getSortedIssues () in
