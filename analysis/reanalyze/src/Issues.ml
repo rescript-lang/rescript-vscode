@@ -1,3 +1,5 @@
+let errorHygiene = "Error Hygiene"
+
 let errorNotImplemented = "Error Not Implemented"
 
 let errorTermination = "Error Termination"
