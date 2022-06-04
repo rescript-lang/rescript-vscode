@@ -1839,6 +1839,7 @@
   addValueReference VariantsWithPayload.res:93:4 --> VariantsWithPayload.res:93:23
   addVariantCaseDeclaration R VariantsWithPayload.res:96:22 path:+VariantsWithPayload.variant1Object
   addValueReference VariantsWithPayload.res:99:4 --> VariantsWithPayload.res:99:26
+  addValueReference TestDeadExn.res:1:7 --> DeadExn.res:1:0
   
 File References
 
@@ -1900,7 +1901,7 @@ File References
   RepeatedLabel.res -->> 
   RequireCond.res -->> 
   Shadow.res -->> 
-  TestDeadExn.res -->> 
+  TestDeadExn.res -->> DeadExn.res
   TestEmitInnerModules.res -->> 
   TestFirstClassModules.res -->> 
   TestImmutableArray.res -->> ImmutableArray.resi
@@ -1936,11 +1937,6 @@ File References
   Live Value +CreateErrorHandler1.Error1.+notification: 1 references (ErrorHandler.resi:3:2) [0]
   Live Value +CreateErrorHandler2.Error2.+notification: 1 references (ErrorHandler.resi:3:2) [0]
   Live Value +DeadCodeImplementation.M.+x: 1 references (DeadCodeInterface.res:2:2) [0]
-  Live Value +DeadExn.+eInside: 1 references (DeadExn.res:12:7) [0]
-  Dead Value +DeadExn.+eToplevel: 0 references () [0]
-  Dead Exception +DeadExn.DeadE: 0 references () [0]
-  Live Exception +DeadExn.Inside.Einside: 1 references (DeadExn.res:10:14) [0]
-  Live Exception +DeadExn.Etoplevel: 1 references (DeadExn.res:8:16) [0]
   Live Value +DeadMl.+bar: 0 references () [0]
   Live Value +DeadMl.+foo: 0 references () [0]
   Live Value +DeadMl.WithSignature.+live11: 0 references () [1]
@@ -2282,9 +2278,9 @@ File References
   Live Value +TestOptArg.+notSuppressesOptArgs: 1 references (TestOptArg.res:11:8) [0]
   Live Value +TestOptArg.+bar: 1 references (TestOptArg.res:7:7) [0]
 
-  Warning Unused Argument
+  Warning Redundant Optional Argument
   File "TestOptArg.res", line 3, characters 1-29
-  optional argument x of function +foo is never used
+  optional argument x of function +foo is always supplied (1 calls)
   Live Value +TestOptArg.+foo: 1 references (TestOptArg.res:5:4) [0]
   Live Value +TestPromise.+convert: 0 references () [0]
   Dead RecordLabel +TestPromise.toPayload.result: 0 references () [0]
@@ -2364,9 +2360,9 @@ File References
   Live Value +Unison.+toString: 3 references (Unison.res:37:0, Unison.res:38:0, Unison.res:39:0) [0]
   Live Value +Unison.+fits: 1 references (Unison.res:26:8) [0]
 
-  Warning Unused Argument
+  Warning Redundant Optional Argument
   File "Unison.res", line 17, characters 1-61
-  optional argument break of function +group is never used
+  optional argument break of function +group is always supplied (2 calls)
   Live Value +Unison.+group: 2 references (Unison.res:38:25, Unison.res:39:25) [0]
   Live VariantCase +Unison.stack.Cons: 2 references (Unison.res:38:20, Unison.res:39:20) [0]
   Live VariantCase +Unison.stack.Empty: 3 references (Unison.res:37:20, Unison.res:38:53, Unison.res:39:52) [0]
@@ -2419,6 +2415,11 @@ File References
   Live Value +VariantsWithPayload.+testWithPayload: 0 references () [0]
   Live RecordLabel +VariantsWithPayload.payload.y: 2 references (VariantsWithPayload.res:26:74, VariantsWithPayload.res:44:72) [0]
   Live RecordLabel +VariantsWithPayload.payload.x: 2 references (VariantsWithPayload.res:26:57, VariantsWithPayload.res:44:55) [0]
+  Live Value +DeadExn.+eInside: 1 references (DeadExn.res:12:7) [0]
+  Dead Value +DeadExn.+eToplevel: 0 references () [0]
+  Dead Exception +DeadExn.DeadE: 0 references () [0]
+  Live Exception +DeadExn.Inside.Einside: 1 references (DeadExn.res:10:14) [0]
+  Live Exception +DeadExn.Etoplevel: 1 references (DeadExn.res:8:16) [0]
   Live RecordLabel +DeadTypeTest.record.z: 0 references () [0]
   Live RecordLabel +DeadTypeTest.record.y: 0 references () [0]
   Live RecordLabel +DeadTypeTest.record.x: 0 references () [0]
@@ -2529,10 +2530,6 @@ File References
   Warning Unused Argument
   File "OptArg.resi", line 2, characters 1-51
   optional argument x of function +bar is never used
-
-  Warning Unused Argument
-  File "OptArg.resi", line 2, characters 1-51
-  optional argument z of function +bar is never used
   Live Value OptArg.+bar: 1 references (TestOptArg.res:1:7) [0]
   Dead Value OptArg.+foo: 0 references () [0]
   Dead Value +DeadValueTest.+tail: 0 references () [0]
@@ -2603,44 +2600,20 @@ File References
   Dead Value +ImmutableArray.+toArray: 0 references () [0]
   Live Value +ImmutableArray.+fromArray: 1 references (ImmutableArray.resi:9:0) [0]
 
-  Warning Unused Argument
+  Warning Redundant Optional Argument
   File "OptArg.res", line 26, characters 1-71
-  optional argument a of function +wrapfourArgs is never used
-
-  Warning Unused Argument
-  File "OptArg.res", line 26, characters 1-71
-  optional argument b of function +wrapfourArgs is never used
-
-  Warning Unused Argument
-  File "OptArg.res", line 26, characters 1-71
-  optional argument c of function +wrapfourArgs is never used
+  optional argument c of function +wrapfourArgs is always supplied (2 calls)
   Live Value +OptArg.+wrapfourArgs: 2 references (OptArg.res:28:7, OptArg.res:29:7) [0]
-
-  Warning Unused Argument
-  File "OptArg.res", line 24, characters 1-64
-  optional argument a of function +fourArgs is never used
-
-  Warning Unused Argument
-  File "OptArg.res", line 24, characters 1-64
-  optional argument b of function +fourArgs is never used
-
-  Warning Unused Argument
-  File "OptArg.res", line 24, characters 1-64
-  optional argument c of function +fourArgs is never used
 
   Warning Unused Argument
   File "OptArg.res", line 24, characters 1-64
   optional argument d of function +fourArgs is never used
   Live Value +OptArg.+fourArgs: 1 references (OptArg.res:26:4) [0]
 
-  Warning Unused Argument
+  Warning Redundant Optional Argument
   File "OptArg.res", line 20, characters 1-52
-  optional argument a of function +wrapOneArg is never used
+  optional argument a of function +wrapOneArg is always supplied (1 calls)
   Live Value +OptArg.+wrapOneArg: 1 references (OptArg.res:22:7) [0]
-
-  Warning Unused Argument
-  File "OptArg.res", line 18, characters 1-36
-  optional argument a of function +oneArg is never used
   Live Value +OptArg.+oneArg: 1 references (OptArg.res:20:4) [0]
 
   Warning Unused Argument
@@ -2654,29 +2627,17 @@ File References
 
   Warning Unused Argument
   File "OptArg.res", line 9, characters 1-55
-  optional argument a of function +threeArgs is never used
-
-  Warning Unused Argument
-  File "OptArg.res", line 9, characters 1-55
   optional argument b of function +threeArgs is never used
 
-  Warning Unused Argument
+  Warning Redundant Optional Argument
   File "OptArg.res", line 9, characters 1-55
-  optional argument c of function +threeArgs is never used
+  optional argument a of function +threeArgs is always supplied (2 calls)
   Live Value +OptArg.+threeArgs: 2 references (OptArg.res:11:7, OptArg.res:12:7) [0]
 
   Warning Unused Argument
   File "OptArg.res", line 3, characters 1-39
   optional argument x of function +bar is never used
-
-  Warning Unused Argument
-  File "OptArg.res", line 3, characters 1-39
-  optional argument z of function +bar is never used
   Live Value +OptArg.+bar: 2 references (OptArg.res:7:7, OptArg.resi:2:0) [0]
-
-  Warning Unused Argument
-  File "OptArg.res", line 1, characters 1-49
-  optional argument x of function +foo is never used
 
   Warning Unused Argument
   File "OptArg.res", line 1, characters 1-49
@@ -4534,6 +4495,5 @@ File References
   variant1Object.R is a variant case which is never constructed
   <-- line 96
   type variant1Object = | @dead("variant1Object.R") R(payload)
-  addValueReference TestDeadExn.res:1:7 --> DeadExn.res:1:0
   
-  Analysis reported 343 issues (Warning Dead Exception:2, Warning Dead Module:25, Warning Dead Type:89, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Unused Argument:26)
+  Analysis reported 333 issues (Warning Dead Exception:2, Warning Dead Module:25, Warning Dead Type:89, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)
