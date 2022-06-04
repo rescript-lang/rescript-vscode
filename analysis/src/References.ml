@@ -110,12 +110,16 @@ let getLocItem ~full ~pos ~debug =
   | _ -> None
 
 let declaredForTip ~(stamps : Stamps.t) stamp (tip : Tip.t) =
-  let open Infix in
   match tip with
-  | Value -> Stamps.findValue stamps stamp |?>> fun x -> {x with item = ()}
+  | Value ->
+    Stamps.findValue stamps stamp
+    |> Option.map (fun x -> {x with Declared.item = ()})
   | Field _ | Constructor _ | Type ->
-    Stamps.findType stamps stamp |?>> fun x -> {x with item = ()}
-  | Module -> Stamps.findModule stamps stamp |?>> fun x -> {x with item = ()}
+    Stamps.findType stamps stamp
+    |> Option.map (fun x -> {x with Declared.item = ()})
+  | Module ->
+    Stamps.findModule stamps stamp
+    |> Option.map (fun x -> {x with Declared.item = ()})
 
 let getField (file : File.t) stamp name =
   match Stamps.findType file.stamps stamp with
