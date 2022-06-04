@@ -94,15 +94,14 @@ let nameSpaceToName n =
 
 let getNamespace config =
   let ns = Json.get "namespace" config in
-  let open Infix in
   let isNamespaced =
-    ns |?> Json.bool |? (ns |?> Json.string |?> (fun _ -> Some true) |? false)
+    Json.bool |> Option.bind ns |> Option.value ~default:false
   in
+  let either x y = if x = None then y else x in
   if isNamespaced then
-    ns |?> Json.string
-    |?? (Json.get "name" config |?> Json.string)
-    |! "name is required if namespace is true" |> nameSpaceToName
-    |> fun s -> Some s
+    let fromString = Json.string |> Option.bind ns in
+    let fromName = Json.string |> Option.bind (Json.get "name" config) in
+    either fromString fromName
   else None
 
 let collectFiles directory =
