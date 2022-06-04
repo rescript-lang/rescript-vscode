@@ -32,7 +32,7 @@ let getLocItem ~full ~pos ~debug =
   in
   match locItems with
   | li1 :: li2 :: li3 :: ({locType = Typed ("makeProps", _, _)} as li4) :: _
-    when full.file.uri |> Uri2.isInterface ->
+    when full.file.uri |> Uri.isInterface ->
     log 1 "heuristic for makeProps in interface files";
     if debug then
       Printf.printf "n1:%s n2:%s n3:%s\n" (nameOf li1) (nameOf li2) (nameOf li3);
@@ -157,7 +157,7 @@ let definedForLoc ~file ~package locKind =
     | _ -> (
       maybeLog
         ("Trying for declared " ^ Tip.toString tip ^ " " ^ string_of_int stamp
-       ^ " in file " ^ Uri2.toString file.uri);
+       ^ " in file " ^ Uri.toString file.uri);
       match declaredForTip ~stamps:file.stamps stamp tip with
       | None -> None
       | Some declared -> Some (declared.docstring, `Declared))
@@ -217,8 +217,8 @@ let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
     | IntfAndImpl {resi; res} -> (
       maybeLog
         ("alternateDeclared for " ^ file.moduleName ^ " has both resi and res");
-      let alternateUri = if Uri2.isInterface file.uri then res else resi in
-      match Cmt.fullFromUri ~uri:(Uri2.fromPath alternateUri) with
+      let alternateUri = if Uri.isInterface file.uri then res else resi in
+      match Cmt.fullFromUri ~uri:(Uri.fromPath alternateUri) with
       | None -> None
       | Some {file; extra} -> (
         match
@@ -296,7 +296,7 @@ let resolveModuleDefinition ~(file : File.t) ~package stamp =
     | Some (file, declared) ->
       let loc =
         match declared with
-        | None -> Uri2.toTopLevelLoc file.uri
+        | None -> Uri.toTopLevelLoc file.uri
         | Some declared -> validateLoc declared.name.loc declared.extentLoc
       in
       Some (file.uri, loc))
@@ -318,7 +318,7 @@ let definition ~file ~package stamp (tip : Tip.t) =
     | Some declared ->
       let fileImpl, declaredImpl =
         match alternateDeclared ~package ~file declared tip with
-        | Some (fileImpl, _extra, declaredImpl) when Uri2.isInterface file.uri
+        | Some (fileImpl, _extra, declaredImpl) when Uri.isInterface file.uri
           ->
           (fileImpl, declaredImpl)
         | _ -> (file, declared)
@@ -328,7 +328,7 @@ let definition ~file ~package stamp (tip : Tip.t) =
       let uri =
         ResolvePath.getSourceUri ~env ~package declaredImpl.modulePath
       in
-      maybeLog ("Inner uri " ^ Uri2.toString uri);
+      maybeLog ("Inner uri " ^ Uri.toString uri);
       Some (uri, loc))
 
 let definitionForLocItem ~full:{file; package} locItem =
@@ -360,7 +360,7 @@ let definitionForLocItem ~full:{file; package} locItem =
     | None -> None
     | Some paths ->
       let uri = getUri paths in
-      Some (uri, Uri2.toTopLevelLoc uri))
+      Some (uri, Uri.toTopLevelLoc uri))
   | LModule (LocalReference (stamp, tip))
   | Typed (_, _, LocalReference (stamp, tip)) ->
     maybeLog ("Local defn " ^ Tip.toString tip);
@@ -437,7 +437,7 @@ let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath [tipName]
 
 type references = {
-  uri : Uri2.t;
+  uri : Uri.t;
   locOpt : Location.t option; (* None: reference to a toplevel module *)
 }
 
@@ -542,7 +542,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
                locs |> LocationSet.elements
                |> List.map (fun loc ->
                       {
-                        uri = Uri2.fromPath loc.Location.loc_start.pos_fname;
+                        uri = Uri.fromPath loc.Location.loc_start.pos_fname;
                         locOpt = Some loc;
                       }))
       |> List.flatten
@@ -551,7 +551,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       match Hashtbl.find_opt package.pathsForModule moduleName with
       | None -> []
       | Some paths ->
-        let moduleSrcToRef src = {uri = Uri2.fromPath src; locOpt = None} in
+        let moduleSrcToRef src = {uri = Uri.fromPath src; locOpt = None} in
         getSrc paths |> List.map moduleSrcToRef
     in
     List.append targetModuleReferences otherModulesReferences
@@ -560,7 +560,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
   | Typed (_, _, (LocalReference (stamp, tip) | Definition (stamp, tip)))
   | LModule (LocalReference (stamp, tip) | Definition (stamp, tip)) ->
     maybeLog
-      ("Finding references for " ^ Uri2.toString file.uri ^ " and stamp "
+      ("Finding references for " ^ Uri.toString file.uri ^ " and stamp "
      ^ string_of_int stamp ^ " and tip " ^ Tip.toString tip);
     forLocalStamp ~full stamp tip
   | LModule (GlobalReference (moduleName, path, tip))
@@ -579,7 +579,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
           | None -> []
           | Some full ->
             maybeLog
-              ("Finding references for (global) " ^ Uri2.toString env.file.uri
+              ("Finding references for (global) " ^ Uri.toString env.file.uri
              ^ " and stamp " ^ string_of_int stamp ^ " and tip "
              ^ Tip.toString tip);
             forLocalStamp ~full stamp tip))))

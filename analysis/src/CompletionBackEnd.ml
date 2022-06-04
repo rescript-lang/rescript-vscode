@@ -668,7 +668,7 @@ let resolveModuleWithOpens ~opens ~package ~moduleName =
   let rec loop opens =
     match opens with
     | (env : QueryEnv.t) :: rest -> (
-      Log.log ("Looking for env in " ^ Uri2.toString env.file.uri);
+      Log.log ("Looking for env in " ^ Uri.toString env.file.uri);
       match ResolvePath.resolvePath ~env ~package ~path:[moduleName; ""] with
       | Some (env, _) -> Some env
       | None -> loop rest)
@@ -711,7 +711,7 @@ let detail name (kind : Completion.kind) =
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
-  Log.log ("findAllCompletions uri:" ^ Uri2.toString env.file.uri);
+  Log.log ("findAllCompletions uri:" ^ Uri.toString env.file.uri);
   match completionContext with
   | Value ->
     completionForExportedValues ~env ~prefix ~exact ~namesUsed
@@ -962,7 +962,7 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     ~scope ~(completionContext : Completable.completionContext) =
   (* TODO: handle arbitrary interleaving of opens and local bindings correctly *)
   Log.log
-    ("findLocalCompletionsWithOpens uri:" ^ Uri2.toString env.file.uri ^ " pos:"
+    ("findLocalCompletionsWithOpens uri:" ^ Uri.toString env.file.uri ^ " pos:"
    ^ Pos.toString pos);
   let localTables = LocalTables.create () in
   match completionContext with
@@ -1309,7 +1309,7 @@ let getOpens ~rawOpens ~package ~env =
     ^ " "
     ^ String.concat " "
         (resolvedOpens
-        |> List.map (fun (e : QueryEnv.t) -> Uri2.toString e.file.uri)));
+        |> List.map (fun (e : QueryEnv.t) -> Uri.toString e.file.uri)));
   (* Last open takes priority *)
   List.rev resolvedOpens
 

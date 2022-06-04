@@ -142,7 +142,7 @@ let command ~path =
                name;
                location =
                  {
-                   uri = Uri2.toString (Uri2.fromPath path);
+                   uri = Uri.toString (Uri.fromPath path);
                    range = Utils.cmtLocToRange loc;
                  };
                kind = kindNumber kind;

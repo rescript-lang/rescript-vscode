@@ -90,7 +90,7 @@ let newBsPackage ~rootPath =
     | None -> None)
 
 let findRoot ~uri packagesByRoot =
-  let path = Uri2.toPath uri in
+  let path = Uri.toPath uri in
   let rec loop path =
     if path = "/" then None
     else if Hashtbl.mem packagesByRoot path then Some (`Root path)

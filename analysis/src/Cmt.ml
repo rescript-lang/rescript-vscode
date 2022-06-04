@@ -9,7 +9,7 @@ let fullForCmt ~moduleName ~package ~uri cmt =
     Some {file; extra; package}
 
 let fullFromUri ~uri =
-  let path = Uri2.toPath uri in
+  let path = Uri.toPath uri in
   match Packages.getPackage ~uri with
   | None -> None
   | Some package -> (
@@ -32,5 +32,5 @@ let fullFromModule ~package ~moduleName =
   else None
 
 let fullFromPath ~path =
-  let uri = Uri2.fromPath path in
+  let uri = Uri.fromPath path in
   fullFromUri ~uri

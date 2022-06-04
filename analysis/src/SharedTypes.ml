@@ -1,5 +1,5 @@
 type modulePath =
-  | File of Uri2.t * string
+  | File of Uri.t * string
   | NotVisible
   | IncludedModule of Path.t * modulePath
   | ExportedModule of string * modulePath
@@ -183,7 +183,7 @@ end
 
 module File = struct
   type t = {
-    uri : Uri2.t;
+    uri : Uri.t;
     stamps : Stamps.t;
     moduleName : string;
     structure : Module.structure;
@@ -275,16 +275,16 @@ let getSrc p =
 
 let getUri p =
   match p with
-  | Impl {res} -> Uri2.fromPath res
-  | Namespace {cmt} -> Uri2.fromPath cmt
-  | IntfAndImpl {resi} -> Uri2.fromPath resi
+  | Impl {res} -> Uri.fromPath res
+  | Namespace {cmt} -> Uri.fromPath cmt
+  | IntfAndImpl {resi} -> Uri.fromPath resi
 
 let getCmtPath ~uri p =
   match p with
   | Impl {cmt} -> cmt
   | Namespace {cmt} -> cmt
   | IntfAndImpl {cmti; cmt} ->
-    let interface = Utils.endsWith (Uri2.toPath uri) "i" in
+    let interface = Utils.endsWith (Uri.toPath uri) "i" in
     if interface then cmti else cmt
 
 module Tip = struct
@@ -364,7 +364,7 @@ let initExtra () =
 
 type state = {
   packagesByRoot : (string, package) Hashtbl.t;
-  rootForUri : (Uri2.t, string) Hashtbl.t;
+  rootForUri : (Uri.t, string) Hashtbl.t;
   cmtCache : (filePath, File.t) Hashtbl.t;
 }
 

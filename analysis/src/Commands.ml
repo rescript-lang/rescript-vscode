@@ -64,7 +64,7 @@ let hover ~path ~pos ~currentFile ~debug =
           match uriLocOpt with
           | None -> false
           | Some (_, loc) ->
-            let isInterface = full.file.uri |> Uri2.isInterface in
+            let isInterface = full.file.uri |> Uri.isInterface in
             let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
               (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
             in
@@ -95,7 +95,7 @@ let definition ~path ~pos ~debug =
         match References.definitionForLocItem ~full locItem with
         | None -> None
         | Some (uri, loc) ->
-          let isInterface = full.file.uri |> Uri2.isInterface in
+          let isInterface = full.file.uri |> Uri.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
             (* range is zero *)
             pos_lnum = 1 && pos_cnum - pos_bol = 0
@@ -113,7 +113,7 @@ let definition ~path ~pos ~debug =
           else
             Some
               {
-                Protocol.uri = Uri2.toString uri;
+                Protocol.uri = Uri.toString uri;
                 range = Utils.cmtLocToRange loc;
               }))
   in
@@ -134,7 +134,7 @@ let typeDefinition ~path ~pos ~debug =
         | None -> None
         | Some (uri, loc) ->
           Some
-            {Protocol.uri = Uri2.toString uri; range = Utils.cmtLocToRange loc})
+            {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc})
       )
   in
   print_endline
@@ -157,10 +157,10 @@ let references ~path ~pos ~debug =
                let loc =
                  match locOpt with
                  | Some loc -> loc
-                 | None -> Uri2.toTopLevelLoc uri2
+                 | None -> Uri.toTopLevelLoc uri2
                in
                Protocol.stringifyLocation
-                 {uri = Uri2.toString uri2; range = Utils.cmtLocToRange loc}
+                 {uri = Uri.toString uri2; range = Utils.cmtLocToRange loc}
                :: acc)
              [])
   in
@@ -191,23 +191,23 @@ let rename ~path ~pos ~newName ~debug =
         let fileRenames =
           referencesToToplevelModules
           |> List.map (fun uri ->
-                 let path = Uri2.toPath uri in
+                 let path = Uri.toPath uri in
                  let dir = Filename.dirname path in
                  let newPath =
                    Filename.concat dir (newName ^ Filename.extension path)
                  in
-                 let newUri = Uri2.fromPath newPath in
+                 let newUri = Uri.fromPath newPath in
                  Protocol.
                    {
-                     oldUri = uri |> Uri2.toString;
-                     newUri = newUri |> Uri2.toString;
+                     oldUri = uri |> Uri.toString;
+                     newUri = newUri |> Uri.toString;
                    })
         in
         let textDocumentEdits =
           let module StringMap = Misc.StringMap in
           let textEditsByUri =
             referencesToItems
-            |> List.map (fun (uri, loc) -> (Uri2.toString uri, loc))
+            |> List.map (fun (uri, loc) -> (Uri.toString uri, loc))
             |> List.fold_left
                  (fun acc (uri, loc) ->
                    let textEdit =
@@ -259,7 +259,7 @@ let format ~path =
   else ""
 
 let test ~path =
-  Uri2.stripPath := true;
+  Uri.stripPath := true;
   match Files.readFile path with
   | None -> assert false
   | Some text ->
