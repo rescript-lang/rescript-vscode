@@ -141,12 +141,9 @@ end
 
 type kind = Warning | Error
 
-let first = ref true
-
 let logKind ~count ~kind ~(loc : Location.t) ~issue ~notClosed body =
   if Suppress.filter loc.loc_start then (
     let open Format in
-    first := false;
     if count then Stats.count issue;
     if !Common.Cli.json then (
       let file = Json.escape loc.loc_start.pos_fname in
