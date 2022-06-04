@@ -6,13 +6,13 @@ let finish () = Format.fprintf Format.std_formatter "\n]@."
 
 let emitClose () = Format.fprintf Format.std_formatter "\n}"
 
-let emitItem ~issue ~kind ~file ~range ~message =
+let emitItem ~name ~kind ~file ~range ~message =
   let open Format in
   items := !items + 1;
   let ppf = std_formatter in
   let startLine, startCharacter, endLine, endCharacter = range in
   fprintf ppf "%s{\n" (if !items = 1 then "\n" else ",\n");
-  fprintf ppf "  \"name\": \"%s\",\n" issue;
+  fprintf ppf "  \"name\": \"%s\",\n" name;
   fprintf ppf "  \"kind\": \"%s\",\n" kind;
   fprintf ppf "  \"file\": \"%s\",\n" file;
   fprintf ppf "  \"range\": [%d,%d,%d,%d],\n" startLine startCharacter endLine

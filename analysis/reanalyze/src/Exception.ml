@@ -142,7 +142,7 @@ module Event = struct
            | {kind = Call {callee}} :: _ -> callee |> Common.Path.toString
            | _ -> "expression"
          in
-         Log_.warning ~loc ~issue:Issues.exceptionAnalysis (fun ppf () ->
+         Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
              Format.fprintf ppf
                "@{<info>%s@} does not raise and is annotated with redundant \
                 @doesNotRaise"
@@ -193,7 +193,7 @@ module Checks = struct
       let missingTxt =
         Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
       in
-      Log_.warning ~loc ~issue:Issues.exceptionAnalysis ~notClosed:true
+      Log_.warning ~loc ~name:Issues.exceptionAnalysis ~notClosed:true
         (fun ppf () ->
           Format.fprintf ppf
             "@{<info>%s@} might raise %s and is not annotated with @raises(%s)"
@@ -204,7 +204,7 @@ module Checks = struct
           ~text:(Format.asprintf "@raises(%s)\\n" missingTxt);
         EmitJson.emitClose ()));
     if not (Exceptions.isEmpty redundantAnnotations) then
-      Log_.warning ~loc ~issue:Issues.exceptionAnalysis (fun ppf () ->
+      Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
           let raisesDescription ppf () =
             if raiseSet |> Exceptions.isEmpty then
               Format.fprintf ppf "raises nothing"
@@ -283,7 +283,7 @@ let traverseAst () =
       in
       let calleeName = callee |> Common.Path.toString in
       if calleeName |> isRaise then
-        Log_.warning ~loc ~issue:Issues.exceptionAnalysis (fun ppf () ->
+        Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
             Format.fprintf ppf
               "@{<info>%s@} can be analyzed only if called direclty" calleeName);
       currentEvents :=
