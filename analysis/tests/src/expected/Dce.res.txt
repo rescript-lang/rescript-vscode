@@ -1,0 +1,1382 @@
+DCE src/Dce.res
+test
+src/Dce.res
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Auto.res", line 0, characters 1-1
+  +Auto is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Auto.res", line 3, characters 1-17
+  +m is never used
+  <-- line 3
+  @dead("+m") let m = List.map
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CompletePrioritize1.res", line 1, characters 8-76
+  +CompletePrioritize1.Test is a dead module as all its items are dead.
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CompletePrioritize1.res", line 2, characters 13-22
+  Test.t.name is a record label never used to read a value
+  <-- line 2
+    type t = {@dead("Test.t.name") name: int}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CompletePrioritize1.res", line 3, characters 3-35
+  Test.+add is never used
+  <-- line 3
+    @dead("Test.+add") let add = (a: float) => a +. 1.0
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CompletePrioritize1.res", line 0, characters 1-1
+  +CompletePrioritize1 is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CompletePrioritize1.res", line 5, characters 1-26
+  +a is never used
+  <-- line 5
+  @dead("+a") let a: Test.t = {name: 4}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CompletePrioritize2.res", line 7, characters 3-35
+  Test.+add is never used
+  <-- line 7
+    @dead("Test.+add") let add = (ax: t) => ax.name + 1
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CompletePrioritize2.res", line 9, characters 1-27
+  +ax is never used
+  <-- line 9
+  @dead("+ax") let ax: Test.t = {name: 4}
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 9, characters 8-162
+  +Completion.Dep is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 10, characters 3-104
+  Dep.+customDouble is never used
+  <-- line 10
+    @dead("Dep.+customDouble") @ocaml.doc("Some doc comment") @deprecated("Use customDouble instead")
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 13, characters 3-36
+  Dep.+customDouble is never used
+  <-- line 13
+    @dead("Dep.+customDouble") let customDouble = foo => foo * 2
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 21, characters 3-49
+  Lib.+next is never used
+  <-- line 21
+    @dead("Lib.+next") let next = (~number=0, ~year) => number + year
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 33, characters 1-17
+  +op is never used
+  <-- line 33
+  @dead("+op") let op = Some(3)
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 38, characters 8-102
+  +Completion.ForAuto is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 40, characters 3-33
+  ForAuto.+abc is never used
+  <-- line 40
+    @dead("ForAuto.+abc") let abc = (x: t, _y: int) => x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 41, characters 3-33
+  ForAuto.+abd is never used
+  <-- line 41
+    @dead("ForAuto.+abd") let abd = (x: t, _y: int) => x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 44, characters 1-23
+  +fa is never used
+  <-- line 44
+  @dead("+fa") let fa: ForAuto.t = 34
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 52, characters 10-142
+  +Completion.O.Comp is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 54, characters 5-99
+  O.Comp.+make is never used
+  <-- line 54
+      @dead("O.Comp.+make") let make = (~first="", ~zoo=3, ~second) => React.string(first ++ second ++ string_of_int(zoo))
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 58, characters 1-13
+  +zzz is never used
+  <-- line 58
+  @dead("+zzz") let zzz = 11
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 89, characters 1-39
+  +someObj is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 94, characters 1-55
+  +nestedObj is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 99, characters 1-34
+  +o is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 104, characters 1-34
+  +no is never used and could have side effects
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 108, characters 11-17
+  r.x is a record label never used to read a value
+  <-- line 108
+  type r = {@dead("r.x") x: int, y: string}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 108, characters 19-28
+  r.y is a record label never used to read a value
+  <-- line 108
+  type r = {@dead("r.x") x: int, @dead("r.y") y: string}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 117, characters 1-40
+  +myAmazingFunction is never used
+  <-- line 117
+  @dead("+myAmazingFunction") let myAmazingFunction = (x, y) => x + y
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 120, characters 1-50
+  +make is never used
+  <-- line 120
+  @dead("+make") let make = () => {
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 129, characters 1-352
+  +foo is never used and could have side effects
+
+  Warning Dead Exception
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 150, characters 1-27
+  MyOtherException is never raised or passed as value
+  <-- line 150
+  @dead("MyOtherException") exception MyOtherException
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 155, characters 12-18
+  aa.x is a record label never used to read a value
+  <-- line 155
+  type aa = {@dead("aa.x") x: int, name: string}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 155, characters 20-32
+  aa.name is a record label never used to read a value
+  <-- line 155
+  type aa = {@dead("aa.x") x: int, @dead("aa.name") name: string}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 156, characters 12-18
+  bb.aa is a record label never used to read a value
+  <-- line 156
+  type bb = {@dead("bb.aa") aa: aa, w: int}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 156, characters 20-26
+  bb.w is a record label never used to read a value
+  <-- line 156
+  type bb = {@dead("bb.aa") aa: aa, @dead("bb.w") w: int}
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 157, characters 1-25
+  +q is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 166, characters 8-115
+  +Completion.WithChildren is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 168, characters 3-70
+  WithChildren.+make is never used
+  <-- line 168
+    @dead("WithChildren.+make") let make = (~children, ~name as _: string) => <jsx> children </jsx>
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 178, characters 10-14
+  z.Allo is a variant case which is never constructed
+  <-- line 178
+  type z = | @dead("z.Allo") Allo | Asterix | Baba
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 178, characters 17-24
+  z.Asterix is a variant case which is never constructed
+  <-- line 178
+  type z = | @dead("z.Allo") Allo | @dead("z.Asterix") Asterix | Baba
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 178, characters 27-31
+  z.Baba is a variant case which is never constructed
+  <-- line 178
+  type z = | @dead("z.Allo") Allo | @dead("z.Asterix") Asterix | @dead("z.Baba") Baba
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 187, characters 13-24
+  +Completion.Private.local_1 is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 187, characters 13-24
+  Private.local_1.+awr is never used
+  <-- line 187
+    %%private(@dead("Private.local_1.+awr") let awr = 3)
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 186, characters 8-60
+  +Completion.Private is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 188, characters 3-14
+  Private.+b is never used
+  <-- line 188
+    @dead("Private.+b") let b = awr
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 195, characters 10-40
+  +Completion.Shadow.A is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 196, characters 5-21
+  Shadow.A.+shadowed is never used
+  <-- line 196
+      @dead("Shadow.A.+shadowed") let shadowed = 3
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 214, characters 25-43
+  FAR.forAutoRecord.forAuto is a record label never used to read a value
+  <-- line 214
+    type forAutoRecord = {@dead("FAR.forAutoRecord.forAuto") forAuto: ForAuto.t, something: option<int>}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 214, characters 45-67
+  FAR.forAutoRecord.something is a record label never used to read a value
+  <-- line 214
+    type forAutoRecord = {@dead("FAR.forAutoRecord.forAuto") forAuto: ForAuto.t, @dead("FAR.forAutoRecord.something") something: option<int>}
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 218, characters 8-86
+  +Completion.FAO is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 219, characters 3-69
+  FAO.+forAutoObject is never used and could have side effects
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 238, characters 1-23
+  +notHere is never used
+  <-- line 238
+  @dead("+notHere") let notHere = "      "
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 249, characters 8-73
+  +Completion.SomeLocalModule is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 250, characters 3-14
+  SomeLocalModule.+aa is never used
+  <-- line 250
+    @dead("SomeLocalModule.+aa") let aa = 10
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 251, characters 3-14
+  SomeLocalModule.+bb is never used
+  <-- line 251
+    @dead("SomeLocalModule.+bb") let bb = 20
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 261, characters 3-19
+  record.someProp is a record label never used to read a value
+  <-- line 261
+    @dead("record.someProp") someProp: string,
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 264, characters 3-20
+  record.thirdProp is a record label never used to read a value
+  <-- line 264
+    @dead("record.thirdProp") thirdProp: string,
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 267, characters 25-45
+  someLocalVariant.SomeLocalVariantItem is a variant case which is never constructed
+  <-- line 267
+  type someLocalVariant = | @dead("someLocalVariant.SomeLocalVariantItem") SomeLocalVariantItem
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 275, characters 1-65
+  +_foo is never used
+  <-- line 275
+  @dead("+_foo") let _foo = _world => {
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 281, characters 18-31
+  someType.hello is a record label never used to read a value
+  <-- line 281
+  type someType = {@dead("someType.hello") hello: string}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 286, characters 3-35
+  funRecord.someFun is a record label never used to read a value
+  <-- line 286
+    @dead("funRecord.someFun") someFun: (~name: string) => unit,
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 287, characters 3-16
+  funRecord.stuff is a record label never used to read a value
+  <-- line 287
+    @dead("funRecord.stuff") stuff: string,
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 290, characters 1-40
+  +funRecord is never used and could have side effects
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 295, characters 1-35
+  +retAA is never used
+  <-- line 295
+  @dead("+retAA") let retAA = () => {x: 3, name: ""}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 300, characters 1-75
+  +ff is never used
+  <-- line 300
+  @dead("+ff") let ff = (~opt1=0, ~a, ~b, (), ~opt2=0, (), ~c) => a + b + c + opt1 + opt2
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 322, characters 1-60
+  +withCallback is never used
+  <-- line 322
+  @dead("+withCallback") let withCallback: (~b: int) => callback = (~b, ~a) => a + b
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 359, characters 10-14
+  v.This is a variant case which is never constructed
+  <-- line 359
+  type v = | @dead("v.This") This | That
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 359, characters 17-21
+  v.That is a variant case which is never constructed
+  <-- line 359
+  type v = | @dead("v.This") This | @dead("v.That") That
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 368, characters 8-53
+  +Completion.AndThatOther is a dead module as all its items are dead.
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 369, characters 12-15
+  AndThatOther.v.And is a variant case which is never constructed
+  <-- line 369
+    type v = | @dead("AndThatOther.v.And") And | ThatOther
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 369, characters 18-27
+  AndThatOther.v.ThatOther is a variant case which is never constructed
+  <-- line 369
+    type v = | @dead("AndThatOther.v.And") And | @dead("AndThatOther.v.ThatOther") ThatOther
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 0, characters 1-1
+  +CreateInterface is a dead module as all its items are dead.
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 3, characters 11-23
+  r.name is a record label never used to read a value
+  <-- line 3
+  type r = {@dead("r.name") name: string, age: int}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 3, characters 25-33
+  r.age is a record label never used to read a value
+  <-- line 3
+  type r = {@dead("r.name") name: string, @dead("r.age") age: int}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 5, characters 1-28
+  +add is never used
+  <-- line 5
+  @dead("+add") let add = (~x, ~y) => x + y
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 8, characters 1-41
+  +make is never used
+  <-- line 8
+  @dead("+make") let make = (~name) => React.string(name)
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 11, characters 1-55
+  +otherComponentName is never used
+  <-- line 11
+  @dead("+otherComponentName") let otherComponentName = (~name) => React.string(name)
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 50, characters 8-76
+  +CreateInterface.Functor is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 52, characters 3-30
+  Functor.+make is never used
+  <-- line 52
+    @dead("Functor.+make") let make = () => React.null
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 119, characters 3-30
+  Memo.+make is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Cross.res", line 0, characters 1-1
+  +Cross is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Cross.res", line 1, characters 1-28
+  +crossRef is never used
+  <-- line 1
+  @dead("+crossRef") let crossRef = References.x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Cross.res", line 4, characters 1-29
+  +crossRef2 is never used
+  <-- line 4
+  @dead("+crossRef2") let crossRef2 = References.x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Cross.res", line 8, characters 1-29
+  +crossRef3 is never used
+  <-- line 8
+  @dead("+crossRef3") let crossRef3 = References.x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Cross.res", line 10, characters 1-54
+  +crossRefWithInterface is never used
+  <-- line 10
+  @dead("+crossRefWithInterface") let crossRefWithInterface = ReferencesWithInterface.x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Cross.res", line 13, characters 1-55
+  +crossRefWithInterface2 is never used
+  <-- line 13
+  @dead("+crossRefWithInterface2") let crossRefWithInterface2 = ReferencesWithInterface.x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Cross.res", line 17, characters 1-55
+  +crossRefWithInterface3 is never used
+  <-- line 17
+  @dead("+crossRefWithInterface3") let crossRefWithInterface3 = ReferencesWithInterface.x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Cross.res", line 25, characters 1-46
+  +typeDef is never used
+  <-- line 25
+  @dead("+typeDef") let typeDef = {TypeDefinition.item: "foobar"}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Definition.res", line 1, characters 1-12
+  +xx is never used
+  <-- line 1
+  @dead("+xx") let xx = 10
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Definition.res", line 3, characters 1-11
+  +y is never used
+  <-- line 3
+  @dead("+y") let y = xx
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Definition.res", line 6, characters 8-57
+  +Definition.Inner is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Definition.res", line 8, characters 3-18
+  Inner.+vInner is never used
+  <-- line 8
+    @dead("Inner.+vInner") let vInner = 34
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Definition.res", line 15, characters 1-18
+  +m1 is never used
+  <-- line 15
+  @dead("+m1") let m1 = List.map
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Definition.res", line 19, characters 1-18
+  +m2 is never used
+  <-- line 19
+  @dead("+m2") let m2 = List.map
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Div.res", line 0, characters 1-1
+  +Div is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Div.res", line 1, characters 1-16
+  +q is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 3, characters 8-162
+  +DocumentSymbol.Dep is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 4, characters 3-104
+  Dep.+customDouble is never used
+  <-- line 4
+    @dead("Dep.+customDouble") @ocaml.doc("Some doc comment") @deprecated("Use customDouble instead")
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 7, characters 3-36
+  Dep.+customDouble is never used
+  <-- line 7
+    @dead("Dep.+customDouble") let customDouble = foo => foo * 2
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 10, characters 8-122
+  +DocumentSymbol.Lib is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 11, characters 3-56
+  Lib.+foo is never used
+  <-- line 11
+    @dead("Lib.+foo") let foo = (~age, ~name) => name ++ string_of_int(age)
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 12, characters 3-49
+  Lib.+next is never used
+  <-- line 12
+    @dead("Lib.+next") let next = (~number=0, ~year) => number + year
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 0, characters 1-1
+  +DocumentSymbol is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 15, characters 1-17
+  +op is never used
+  <-- line 15
+  @dead("+op") let op = Some(3)
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 17, characters 8-102
+  +DocumentSymbol.ForAuto is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 19, characters 3-33
+  ForAuto.+abc is never used
+  <-- line 19
+    @dead("ForAuto.+abc") let abc = (x: t, _y: int) => x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 20, characters 3-33
+  ForAuto.+abd is never used
+  <-- line 20
+    @dead("ForAuto.+abd") let abd = (x: t, _y: int) => x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 23, characters 1-23
+  +fa is never used
+  <-- line 23
+  @dead("+fa") let fa: ForAuto.t = 34
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 26, characters 10-142
+  +DocumentSymbol.O.Comp is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 28, characters 5-99
+  O.Comp.+make is never used
+  <-- line 28
+      @dead("O.Comp.+make") let make = (~first="", ~zoo=3, ~second) => React.string(first ++ second ++ string_of_int(zoo))
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/DocumentSymbol.res", line 32, characters 1-13
+  +zzz is never used
+  <-- line 32
+  @dead("+zzz") let zzz = 11
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Fragment.res", line 0, characters 1-1
+  +Fragment is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Fragment.res", line 7, characters 1-71
+  +z1 is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Fragment.res", line 10, characters 1-71
+  +z2 is never used and could have side effects
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 5, characters 1-23
+  +_c is never used
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 7, characters 1-18
+  +_mc is never used
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 9, characters 1-17
+  +_d is never used
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 11, characters 1-144
+  +_d2 is never used
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 61, characters 5-27
+  T.someRecord.someOtherField is a record label never used to read a value
+  <-- line 61
+      @dead("T.someRecord.someOtherField") someOtherField: string,
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 62, characters 5-29
+  T.someRecord.theParam is a record label never used to read a value
+  <-- line 62
+      @dead("T.someRecord.theParam") theParam: 'typeParameter,
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 65, characters 23-24
+  T.someEnum.B is a variant case which is never constructed
+  <-- line 65
+    type someEnum = A | @dead("T.someEnum.B") B | C
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 65, characters 27-28
+  T.someEnum.C is a variant case which is never constructed
+  <-- line 65
+    type someEnum = A | @dead("T.someEnum.B") B | @dead("T.someEnum.C") C
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 68, characters 1-29
+  +foo is never used
+  <-- line 68
+  @dead("+foo") let foo = x => x.T.someField
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 92, characters 1-29
+  +_toEquals is never used
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 111, characters 1-23
+  +enumInModule is never used
+  <-- line 111
+  @dead("+enumInModule") let enumInModule = T.A
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 1, characters 1-18
+  +abc is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 13, characters 8-122
+  +Hover.Dep is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 14, characters 3-64
+  Dep.+customDouble is never used
+  <-- line 14
+    @dead("Dep.+customDouble") @ocaml.doc("Some doc comment")
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 17, characters 3-36
+  Dep.+customDouble is never used
+  <-- line 17
+    @dead("Dep.+customDouble") let customDouble = foo => foo * 2
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 23, characters 1-24
+  +cd is never used
+  <-- line 23
+  @dead("+cd") let cd = D.customDouble
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 26, characters 8-147
+  +Hover.HoverInsideModuleWithComponent is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 27, characters 3-12
+  HoverInsideModuleWithComponent.+x is never used
+  <-- line 27
+    @dead("HoverInsideModuleWithComponent.+x") let x = 2 // check that hover on x works
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 30, characters 3-30
+  HoverInsideModuleWithComponent.+make is never used
+  <-- line 30
+    @dead("HoverInsideModuleWithComponent.+make") let make = () => React.null
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 34, characters 1-54
+  +functionWithTypeAnnotation is never used
+  <-- line 34
+  @dead("+functionWithTypeAnnotation") let functionWithTypeAnnotation: unit => int = () => 1
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 38, characters 1-41
+  +make is never used
+  <-- line 38
+  @dead("+make") let make = (~name) => React.string(name)
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 42, characters 1-50
+  +make2 is never used
+  <-- line 42
+  @dead("+make2") let make2 = (~name: string) => React.string(name)
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 45, characters 1-13
+  +num is never used
+  <-- line 45
+  @dead("+num") let num = 34
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 56, characters 3-19
+  JsLogger.+_oneMore is never used
+  <-- line 56
+    @dead("JsLogger.+_oneMore") let _oneMore = 3
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 62, characters 8-83
+  +Hover.IdDefinedTwice is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 64, characters 3-14
+  IdDefinedTwice.+_x is never used
+  <-- line 64
+    @dead("IdDefinedTwice.+_x") let _x = 10
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 65, characters 3-13
+  IdDefinedTwice.+y is never used
+  <-- line 65
+    @dead("IdDefinedTwice.+y") let y = 20
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 66, characters 3-14
+  IdDefinedTwice.+_x is never used
+  <-- line 66
+    @dead("IdDefinedTwice.+_x") let _x = 10
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 69, characters 8-28
+  +Hover.A is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 70, characters 3-13
+  A.+x is never used
+  <-- line 70
+    @dead("A.+x") let x = 13
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 94, characters 1-27
+  +_get is never used
+  <-- line 94
+  @dead("+_get") let _get = r => r.f +. r.i
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 97, characters 1-37
+  +withAs is never used
+  <-- line 97
+  @dead("+withAs") let withAs = (~xx as yyy) => yyy + 1
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 100, characters 8-100
+  +Hover.AA is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 102, characters 3-43
+  AA.+fnnxx is never used
+  <-- line 102
+    @dead("AA.+fnnxx") let fnnxx = (b: cond<_>) => true ? b : b
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 105, characters 1-24
+  +funAlias is never used
+  <-- line 105
+  @dead("+funAlias") let funAlias = AA.fnnxx
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 107, characters 1-22
+  +typeOk is never used
+  <-- line 107
+  @dead("+typeOk") let typeOk = funAlias
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 110, characters 1-29
+  +typeDuplicate is never used
+  <-- line 110
+  @dead("+typeDuplicate") let typeDuplicate = AA.fnnxx
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 116, characters 1-59
+  +arity0a is never used
+  <-- line 116
+  @dead("+arity0a") let arity0a = (. ()) => {
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 122, characters 1-32
+  +arity0b is never used
+  <-- line 122
+  @dead("+arity0b") let arity0b = (. (), . ()) => 3
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 125, characters 1-30
+  +arity0c is never used
+  <-- line 125
+  @dead("+arity0c") let arity0c = (. (), ()) => 3
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 128, characters 1-60
+  +arity0d is never used
+  <-- line 128
+  @dead("+arity0d") let arity0d = (. ()) => {
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Jsx.res", line 0, characters 1-1
+  +Jsx is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Jsx.res", line 19, characters 1-43
+  +make is never used
+  <-- line 19
+  @dead("+make") let make = (~first) => React.string(first)
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Jsx.res", line 21, characters 1-11
+  +y is never used
+  <-- line 21
+  @dead("+y") let y = 44
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Jsx.res", line 101, characters 29-46
+  DefineSomeFields.r.thatField is a record label never used to read a value
+  <-- line 101
+    type r = {thisField: int, @dead("DefineSomeFields.r.thatField") thatField: string}
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Jsx.resi", line 0, characters 1-1
+  Jsx is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Jsx.resi", line 1, characters 1-61
+  +make is never used
+  <-- line 1
+  @dead("+make") @react.component
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Jsx.resi", line 5, characters 1-11
+  +y is never used
+  <-- line 5
+  @dead("+y") let y: int
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/LongIdentTest.res", line 0, characters 1-1
+  +LongIdentTest is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/LongIdentTest.res", line 3, characters 1-17
+  +zz is never used
+  <-- line 3
+  @dead("+zz") let zz = Map.add
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 5, characters 8-97
+  +Object.Rec is a dead module as all its items are dead.
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 6, characters 19-26
+  Rec.recordt.xx is a record label never used to read a value
+  <-- line 6
+    type recordt = {@dead("Rec.recordt.xx") xx: int, ss: string}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 6, characters 28-38
+  Rec.recordt.ss is a record label never used to read a value
+  <-- line 6
+    type recordt = {@dead("Rec.recordt.xx") xx: int, @dead("Rec.recordt.ss") ss: string}
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 8, characters 3-40
+  Rec.+recordVal is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 0, characters 1-1
+  +Object is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 11, characters 1-45
+  +object is never used and could have side effects
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 4, characters 8-11
+  A.+xxx is never used
+  <-- line 4
+    let (@dead("A.+xxx") xxx, yyy) = makeX()
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 4, characters 13-16
+  A.+yyy is never used
+  <-- line 4
+    let (@dead("A.+xxx") xxx, @dead("A.+yyy") yyy) = makeX()
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 10, characters 8-12
+  A.+name is never used
+  <-- line 10
+    let {@dead("A.+name") name, age} = makeT()
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 10, characters 14-17
+  A.+age is never used
+  <-- line 10
+    let {@dead("A.+name") name, @dead("A.+age") age} = makeT()
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 12, characters 8-9
+  A.+a is never used
+  <-- line 12
+    let (@dead("A.+a") a | a, b) = makeX()
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 12, characters 15-16
+  A.+b is never used
+  <-- line 12
+    let (@dead("A.+a") a | a, @dead("A.+b") b) = makeX()
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 14, characters 18-31
+  A.arr.A is a variant case which is never constructed
+  <-- line 14
+    type rec arr = | @dead("A.arr.A") A(array<arr>)
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 16, characters 10-12
+  A.+v1 is never used
+  <-- line 16
+    let A([@dead("A.+v1") v1, _, _]) | _ as v1 = assert false
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 18, characters 12-17
+  A.+lazyy is never used
+  <-- line 18
+    let lazy @dead("A.+lazyy") lazyy = lazy 3
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 0, characters 1-1
+  +Patterns is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 21, characters 1-14
+  +y is never used
+  <-- line 21
+  @dead("+y") let y = A.xxx
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 24, characters 1-14
+  +z is never used
+  <-- line 24
+  @dead("+z") let z = A.yyy
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 26, characters 1-16
+  +n1 is never used
+  <-- line 26
+  @dead("+n1") let n1 = A.name
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 29, characters 1-13
+  +n2 is never used
+  <-- line 29
+  @dead("+n2") let n2 = A.a
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 32, characters 1-14
+  +n3 is never used
+  <-- line 32
+  @dead("+n3") let n3 = A.v1
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Patterns.res", line 35, characters 1-17
+  +n4 is never used
+  <-- line 35
+  @dead("+n4") let n4 = A.lazyy
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/RecordCompletion.res", line 0, characters 1-1
+  +RecordCompletion is a dead module as all its items are dead.
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/RecordCompletion.res", line 1, characters 11-27
+  t.n is a record label never used to read a value
+  <-- line 1
+  type t = {@dead("t.n") n: array<string>}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/RecordCompletion.res", line 3, characters 1-16
+  +t is never used
+  <-- line 3
+  @dead("+t") let t = {n: []}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/RecordCompletion.res", line 5, characters 12-17
+  t2.n2 is a record label never used to read a value
+  <-- line 5
+  type t2 = {@dead("t2.n2") n2: t}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/RecordCompletion.res", line 7, characters 1-17
+  +t2 is never used
+  <-- line 7
+  @dead("+t2") let t2 = {n2: t}
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/RecordCompletion.res", line 15, characters 8-41
+  +RecordCompletion.R is a dead module as all its items are dead.
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/RecordCompletion.res", line 16, characters 13-25
+  R.t.name is a record label never used to read a value
+  <-- line 16
+    type t = {@dead("R.t.name") name: string}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/RecordCompletion.res", line 19, characters 1-21
+  +n is never used
+  <-- line 19
+  @dead("+n") let n = {R.name: ""}
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/References.res", line 0, characters 1-1
+  +References is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/References.res", line 1, characters 1-11
+  +x is never used
+  <-- line 1
+  @dead("+x") let x = 12
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/References.res", line 4, characters 1-10
+  +a is never used
+  <-- line 4
+  @dead("+a") let a = x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/References.res", line 6, characters 1-10
+  +b is never used
+  <-- line 6
+  @dead("+b") let b = a
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/References.res", line 8, characters 1-10
+  +c is never used
+  <-- line 8
+  @dead("+c") let c = x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/References.res", line 10, characters 1-26
+  +foo is never used
+  <-- line 10
+  @dead("+foo") let foo = (~xx) => xx + 1
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/ReferencesWithInterface.res", line 0, characters 1-1
+  +ReferencesWithInterface is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/ReferencesWithInterface.res", line 1, characters 1-10
+  +x is never used
+  <-- line 1
+  @dead("+x") let x = 2
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/ReferencesWithInterface.resi", line 0, characters 1-1
+  ReferencesWithInterface is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/ReferencesWithInterface.resi", line 1, characters 1-11
+  +x is never used
+  <-- line 1
+  @dead("+x") let x: int
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Rename.res", line 0, characters 1-1
+  +Rename is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Rename.res", line 1, characters 1-11
+  +x is never used
+  <-- line 1
+  @dead("+x") let x = 12
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Rename.res", line 4, characters 1-10
+  +a is never used
+  <-- line 4
+  @dead("+a") let a = x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Rename.res", line 6, characters 1-10
+  +b is never used
+  <-- line 6
+  @dead("+b") let b = a
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Rename.res", line 8, characters 1-10
+  +c is never used
+  <-- line 8
+  @dead("+c") let c = x
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Rename.res", line 10, characters 1-26
+  +foo is never used
+  <-- line 10
+  @dead("+foo") let foo = (~xx) => xx + 1
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TableclothMap.ml", line 0, characters 1-1
+  +TableclothMap is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TableclothMap.ml", line 1, characters 1-12
+  +add is never used
+  <-- line 1
+  let add = 3 [@@dead "+add"] 
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TableclothMap.mli", line 0, characters 1-1
+  TableclothMap is a dead module as all its items are dead.
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TableclothMap.mli", line 1, characters 1-14
+  +add is never used
+  <-- line 1
+  val add : int [@@dead "+add"] 
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TypeDefinition.res", line 1, characters 22-25
+  variant.Bar is a variant case which is never constructed
+  <-- line 1
+  type variant = Foo | @dead("variant.Bar") Bar
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TypeDefinition.res", line 6, characters 1-12
+  +x is never used
+  <-- line 6
+  @dead("+x") let x = Foo
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TypeDefinition.res", line 9, characters 1-22
+  +y is never used
+  <-- line 9
+  @dead("+y") let y = {item: "foo"}
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TypeDefinition.res", line 14, characters 1-30
+  +obj is never used and could have side effects
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TypeDefinition.res", line 17, characters 1-20
+  +f is never used
+  <-- line 17
+  @dead("+f") let f = r => r.item
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TypeDefinition.res", line 20, characters 1-78
+  +g is never used
+  <-- line 20
+  @dead("+g") let g = v =>
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 1, characters 21-27
+  kind.Second is a variant case which is never constructed
+  <-- line 1
+  type kind = First | @dead("kind.Second") Second | Third
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 1, characters 30-35
+  kind.Third is a variant case which is never constructed
+  <-- line 1
+  type kind = First | @dead("kind.Second") Second | @dead("kind.Third") Third
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 2, characters 11-23
+  r.name is a record label never used to read a value
+  <-- line 2
+  type r = {@dead("r.name") name: string, age: int}
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 2, characters 25-33
+  r.age is a record label never used to read a value
+  <-- line 2
+  type r = {@dead("r.name") name: string, @dead("r.age") age: int}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 17, characters 1-19
+  +name is never used
+  <-- line 17
+  @dead("+name") let name = "hello"
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 20, characters 1-24
+  +annotated is never used
+  <-- line 20
+  @dead("+annotated") let annotated: int = 34
+
+  Warning Dead Type
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 24, characters 21-30
+  T.r.x is a record label never used to read a value
+  <-- line 24
+    type r = {a: int, @dead("T.r.x") x: string}
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 27, characters 1-101
+  +foo is never used
+  <-- line 27
+  @dead("+foo") let foo = x =>
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 35, characters 1-38
+  +withAs is never used
+  <-- line 35
+  @dead("+withAs") let withAs = (~x as name) => name + 1
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 39, characters 1-41
+  +make is never used
+  <-- line 39
+  @dead("+make") let make = (~name) => React.string(name)
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 49, characters 1-26
+  +noBraces is never used
+  <-- line 49
+  @dead("+noBraces") let noBraces = () => name
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 52, characters 1-110
+  +nested is never used
+  <-- line 52
+  @dead("+nested") let nested = () => {
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Xform.res", line 57, characters 1-162
+  +bar is never used
+  <-- line 57
+  @dead("+bar") let bar = () => {
+  
+  Analysis reported 233 issues (Warning Dead Exception:1, Warning Dead Module:43, Warning Dead Type:41, Warning Dead Value:132, Warning Dead Value With Side Effects:16)
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 89, characters 1-39
+  +someObj is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 94, characters 1-55
+  +nestedObj is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 99, characters 1-34
+  +o is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 104, characters 1-34
+  +no is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 129, characters 1-352
+  +foo is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 157, characters 1-25
+  +q is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 218, characters 8-86
+  +Completion.FAO is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 219, characters 3-69
+  FAO.+forAutoObject is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Completion.res", line 290, characters 1-40
+  +funRecord is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/CreateInterface.res", line 119, characters 3-30
+  Memo.+make is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Div.res", line 0, characters 1-1
+  +Div is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Div.res", line 1, characters 1-16
+  +q is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Fragment.res", line 0, characters 1-1
+  +Fragment is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Fragment.res", line 7, characters 1-71
+  +z1 is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Fragment.res", line 10, characters 1-71
+  +z2 is never used and could have side effects
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 5, characters 1-23
+  +_c is never used
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 7, characters 1-18
+  +_mc is never used
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 9, characters 1-17
+  +_d is never used
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 11, characters 1-144
+  +_d2 is never used
+
+  Warning Dead Value
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Highlight.res", line 92, characters 1-29
+  +_toEquals is never used
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Hover.res", line 1, characters 1-18
+  +abc is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 5, characters 8-97
+  +Object.Rec is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 8, characters 3-40
+  Rec.+recordVal is never used and could have side effects
+
+  Warning Dead Module
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 0, characters 1-1
+  +Object is a dead module as all its items are dead.
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/Object.res", line 11, characters 1-45
+  +object is never used and could have side effects
+
+  Warning Dead Value With Side Effects
+  File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TypeDefinition.res", line 14, characters 1-30
+  +obj is never used and could have side effects
+  
+  Analysis reported 26 issues (Warning Dead Module:5, Warning Dead Value:5, Warning Dead Value With Side Effects:16)
+
