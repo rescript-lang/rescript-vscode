@@ -402,9 +402,9 @@ Completable: Cpath Module[Nested, ""]
     "documentation": null
   }]
 
-Hover src/Jsx.res 164:12
+Hover src/Jsx.res 162:12
 {"contents": "```rescript\n(\n  string,\n  ~props: ReactDOMRe.props=?,\n  array<React.element>,\n) => React.element\n```"}
 
-Hover src/Jsx.res 169:16
+Hover src/Jsx.res 167:16
 {"contents": "```rescript\n(\n  string,\n  ~props: ReactDOMRe.props=?,\n  array<React.element>,\n) => React.element\n```"}
 

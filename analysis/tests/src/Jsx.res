@@ -157,8 +157,6 @@ let _ = <Nested.Comp name="" />
 module Comp = {
   @react.component
   let make = (~age) => React.int(age)
-
-  let dd = make
 }
 
 let _ = {
