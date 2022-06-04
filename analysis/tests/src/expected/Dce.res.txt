@@ -1377,6 +1377,5 @@ src/Dce.res
   Warning Dead Value With Side Effects
   File "/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/tests/src/TypeDefinition.res", line 14, characters 1-30
   +obj is never used and could have side effects
-  
-  Analysis reported 26 issues (Warning Dead Module:5, Warning Dead Value:5, Warning Dead Value With Side Effects:16)
+kinds of issues:3
 

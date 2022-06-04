@@ -108,50 +108,46 @@ let item x =
 module Stats = struct
   let counters = Hashtbl.create 1
 
-  let active = ref true
-
   let count name =
-    if !active then
-      match Hashtbl.find_opt counters (name : string) with
-      | None -> Hashtbl.add counters name (ref 1)
-      | Some cnt -> incr cnt
+    match Hashtbl.find_opt counters (name : string) with
+    | None -> Hashtbl.add counters name (ref 1)
+    | Some cnt -> incr cnt
 
   let clear () = Hashtbl.clear counters
 
-  let report () =
-    if !active then
-      let issues, nIssues =
-        Hashtbl.fold
-          (fun name cnt (issues, nIssues) ->
-            ((name, cnt) :: issues, nIssues + !cnt))
-          counters ([], 0)
-      in
-      let sortedIssues =
-        issues |> List.sort (fun (n1, _) (n2, _) -> String.compare n1 n2)
-      in
+  let getSortedIssues () =
+    let issues, nIssues =
+      Hashtbl.fold
+        (fun name cnt (issues, nIssues) ->
+          ((name, cnt) :: issues, nIssues + !cnt))
+        counters ([], 0)
+    in
+    (issues |> List.sort (fun (n1, _) (n2, _) -> String.compare n1 n2), nIssues)
 
-      if not !Common.Cli.json then (
-        if sortedIssues <> [] then item "@.";
-        item "Analysis reported %d issues%s@." nIssues
-          (match sortedIssues with
-          | [] -> ""
-          | _ :: _ ->
-            " ("
-            ^ (sortedIssues
-              |> List.map (fun (name, cnt) -> name ^ ":" ^ string_of_int !cnt)
-              |> String.concat ", ")
-            ^ ")"))
+  let report () =
+    let sortedIssues, nIssues = getSortedIssues () in
+    if not !Common.Cli.json then (
+      if sortedIssues <> [] then item "@.";
+      item "Analysis reported %d issues%s@." nIssues
+        (match sortedIssues with
+        | [] -> ""
+        | _ :: _ ->
+          " ("
+          ^ (sortedIssues
+            |> List.map (fun (name, cnt) -> name ^ ":" ^ string_of_int !cnt)
+            |> String.concat ", ")
+          ^ ")"))
 end
 
 type kind = Warning | Error
 
 let first = ref true
 
-let logKind ~count ~kind ~(loc : Location.t) ~name ~notClosed body =
+let logKind ~count ~kind ~(loc : Location.t) ~issue ~notClosed body =
   if Suppress.filter loc.loc_start then (
     let open Format in
     first := false;
-    if count then Stats.count name;
+    if count then Stats.count issue;
     if !Common.Cli.json then (
       let file = Json.escape loc.loc_start.pos_fname in
       let startLine = loc.loc_start.pos_lnum - 1 in
@@ -159,7 +155,7 @@ let logKind ~count ~kind ~(loc : Location.t) ~name ~notClosed body =
       let endLine = loc.loc_end.pos_lnum - 1 in
       let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
       let message = Json.escape (asprintf "%a" body ()) in
-      EmitJson.emitItem ~name
+      EmitJson.emitItem ~issue
         ~kind:(match kind with Warning -> "warning" | Error -> "error")
         ~file
         ~range:(startLine, startCharacter, endLine, endCharacter)
@@ -169,11 +165,11 @@ let logKind ~count ~kind ~(loc : Location.t) ~name ~notClosed body =
       let color =
         match kind with Warning -> Color.info | Error -> Color.error
       in
-      fprintf std_formatter "@[<v 2>@,%a@,%a@,%a@]@." color name Loc.print loc
+      fprintf std_formatter "@[<v 2>@,%a@,%a@,%a@]@." color issue Loc.print loc
         body ())
 
-let warning ?(count = true) ?(notClosed = false) ~loc ~name body =
-  body |> logKind ~kind:Warning ~count ~loc ~name ~notClosed
+let warning ?(count = true) ?(notClosed = false) ~loc ~issue body =
+  body |> logKind ~kind:Warning ~count ~loc ~issue ~notClosed
 
-let error ~loc ~name body =
-  body |> logKind ~kind:Error ~count:true ~loc ~name ~notClosed:false
+let error ~loc ~issue body =
+  body |> logKind ~kind:Error ~count:true ~loc ~issue ~notClosed:false

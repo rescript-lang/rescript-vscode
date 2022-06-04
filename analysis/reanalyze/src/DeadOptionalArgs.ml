@@ -90,7 +90,7 @@ let check decl =
     optionalArgs
     |> OptionalArgs.iterUnused (fun s ->
            Log_.warning ~loc:(decl |> declGetLoc)
-             ~name:"Warning Unused Argument" (fun ppf () ->
+             ~issue:Issues.warningUnusedArgument (fun ppf () ->
                Format.fprintf ppf
                  "optional argument @{<info>%s@} of function @{<info>%s@} is \
                   never used"
@@ -99,7 +99,7 @@ let check decl =
     optionalArgs
     |> OptionalArgs.iterAlwaysUsed (fun s nCalls ->
            Log_.warning ~loc:(decl |> declGetLoc)
-             ~name:"Warning Redundant Optional Argument" (fun ppf () ->
+             ~issue:Issues.warningRedundantOptionalArgument (fun ppf () ->
                Format.fprintf ppf
                  "optional argument @{<info>%s@} of function @{<info>%s@} is \
                   always supplied (%d calls)"

@@ -311,7 +311,7 @@ let test ~path =
             Sys.remove currentFile
           | "dce" ->
             print_endline ("DCE " ^ path);
-            DceCommand.command ~path
+            DceCommand.command ()
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
             DocumentSymbol.command ~path
