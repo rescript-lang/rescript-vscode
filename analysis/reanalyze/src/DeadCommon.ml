@@ -263,7 +263,7 @@ let iterFilesFromRootsToLeaves iterFun =
                     {Location.none with loc_start = pos; loc_end = pos}
                   in
                   if Config.warnOnCircularDependencies then
-                    Log_.warning ~loc ~issue:Issues.warningDeadAnalysisCycle
+                    Log_.warning ~loc ~name:Issues.warningDeadAnalysisCycle
                       (fun ppf () ->
                         Format.fprintf ppf
                           "Results for %s could be inaccurate because of \
@@ -480,9 +480,9 @@ let addValueDeclaration ?(isToplevel = true) ~(loc : Location.t) ~moduleLoc
        ~declKind:(Value {isToplevel; optionalArgs; sideEffects})
        ~loc ~moduleLoc ~path
 
-let emitWarning ?(onDeadDecl = fun () -> ()) ~decl ~message issue =
+let emitWarning ?(onDeadDecl = fun () -> ()) ~decl ~message name =
   let loc = decl |> declGetLoc in
-  Log_.warning ~loc ~notClosed:true ~issue (fun ppf () ->
+  Log_.warning ~loc ~notClosed:true ~name (fun ppf () ->
       Format.fprintf ppf "@{<info>%s@} %s"
         (decl.path |> Path.withoutHead)
         message);

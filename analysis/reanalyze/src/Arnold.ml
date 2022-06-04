@@ -120,7 +120,7 @@ module Stats = struct
     incr nCacheChecks;
     if hit then incr nCacheHits;
     if !Common.Cli.debug then
-      Log_.warning ~count:false ~loc ~issue:Issues.terminationAnalysis
+      Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
         (fun ppf () ->
           Format.fprintf ppf "Cache %s for @{<info>%s@}"
             (match hit with true -> "hit" | false -> "miss")
@@ -128,7 +128,7 @@ module Stats = struct
 
   let logResult ~functionCall ~loc ~resString =
     if !Common.Cli.debug then
-      Log_.warning ~count:false ~loc ~issue:Issues.terminationAnalysis
+      Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
         (fun ppf () ->
           Format.fprintf ppf "@{<info>%s@} returns %s"
             (FunctionCall.toString functionCall)
@@ -136,14 +136,14 @@ module Stats = struct
 
   let logHygieneParametric ~functionName ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
+    Log_.error ~loc ~name:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf
           "@{<error>%s@} cannot be analyzed directly as it is parametric"
           functionName)
 
   let logHygieneOnlyCallDirectly ~path ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
+    Log_.error ~loc ~name:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf
           "@{<error>%s@} can only be called directly, or passed as labeled \
            argument"
@@ -151,19 +151,19 @@ module Stats = struct
 
   let logHygieneMustHaveNamedArgument ~label ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
+    Log_.error ~loc ~name:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf "Call must have named argument @{<error>%s@}" label)
 
   let logHygieneNamedArgValue ~label ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
+    Log_.error ~loc ~name:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf
           "Named argument @{<error>%s@} must be passed a recursive function"
           label)
 
   let logHygieneNoNestedLetRec ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~issue:Issues.errorHygiene (fun ppf () ->
+    Log_.error ~loc ~name:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf "Nested multiple let rec not supported yet")
 end
 
@@ -576,7 +576,7 @@ module ExtendFunctionTable = struct
             then (
               functionTable |> FunctionTable.addFunction ~functionName;
               if !Common.Cli.debug then
-                Log_.warning ~count:false ~loc ~issue:Issues.terminationAnalysis
+                Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
                   (fun ppf () ->
                     Format.fprintf ppf
                       "Extend Function Table with @{<info>%s@} (%a) as it \
@@ -595,7 +595,7 @@ module ExtendFunctionTable = struct
                  |> FunctionTable.addLabelToKind ~functionName ~label;
                  if !Common.Cli.debug then
                    Log_.warning ~count:false ~loc
-                     ~issue:Issues.terminationAnalysis (fun ppf () ->
+                     ~name:Issues.terminationAnalysis (fun ppf () ->
                        Format.fprintf ppf
                          "@{<info>%s@} is parametric ~@{<info>%s@}=@{<info>%s@}"
                          functionName label (Path.name path))
@@ -656,7 +656,7 @@ module CheckExpressionWellFormed = struct
                        |> FunctionTable.addLabelToKind ~functionName ~label;
                        if !Common.Cli.debug then
                          Log_.warning ~count:false ~loc:body.exp_loc
-                           ~issue:Issues.terminationAnalysis (fun ppf () ->
+                           ~name:Issues.terminationAnalysis (fun ppf () ->
                              Format.fprintf ppf
                                "Extend Function Table with @{<info>%s@} as \
                                 parametric ~@{<info>%s@}=@{<info>%s@}"
@@ -687,7 +687,7 @@ module Compile = struct
     let {currentFunctionName; functionTable; isProgressFunction} = ctx in
     let loc = expr.exp_loc in
     let notImplemented case =
-      Log_.error ~loc ~issue:Issues.errorNotImplemented (fun ppf () ->
+      Log_.error ~loc ~name:Issues.errorNotImplemented (fun ppf () ->
           Format.fprintf ppf case)
     in
     match expr.exp_desc with
@@ -818,7 +818,7 @@ module Compile = struct
         newFunctionName;
       newFunctionDefinition.body <- Some (vb_expr |> expression ~ctx:newCtx);
       if !Common.Cli.debug then
-        Log_.warning ~count:false ~loc:pat_loc ~issue:Issues.terminationAnalysis
+        Log_.warning ~count:false ~loc:pat_loc ~name:Issues.terminationAnalysis
           (fun ppf () ->
             Format.fprintf ppf "Adding recursive definition @{<info>%s@}"
               newFunctionName);
@@ -1003,7 +1003,7 @@ module CallStack = struct
     Hashtbl.remove t.tbl functionCall
 
   let print ppf (t : t) =
-    Format.fprintf ppf "@[<v 2>CallStack:";
+    Format.fprintf ppf "  CallStack:";
     let frames =
       Hashtbl.fold
         (fun functionCall {frameNumber; pos} frames ->
@@ -1013,10 +1013,9 @@ module CallStack = struct
     in
     frames
     |> List.iter (fun ((functionCall : FunctionCall.t), i, pos) ->
-           Format.fprintf ppf "@,@{<dim>%d@} %s (%a)" i
+           Format.fprintf ppf "\n    @{<dim>%d@} %s (%a)" i
              (FunctionCall.toString functionCall)
-             printPos pos);
-    Format.fprintf ppf "@]"
+             printPos pos)
 end
 
 module Eval = struct
@@ -1038,7 +1037,7 @@ module Eval = struct
       ~state =
     if callStack |> CallStack.hasFunctionCall ~functionCall then (
       if state.State.progress = NoProgress then (
-        Log_.error ~loc ~issue:Issues.errorTermination (fun ppf () ->
+        Log_.error ~loc ~name:Issues.errorTermination (fun ppf () ->
             Format.fprintf ppf "Possible infinite loop when calling ";
             (match functionCallToInstantiate = functionCall with
             | true ->

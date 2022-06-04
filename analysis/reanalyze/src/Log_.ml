@@ -141,32 +141,40 @@ end
 
 type kind = Warning | Error
 
-let logKind ~count ~kind ~(loc : Location.t) ~issue ~notClosed body =
-  if Suppress.filter loc.loc_start then (
+type issue = {name : string; kind : kind; loc : Location.t; message : string}
+
+let logIssue ~count ~issue ~notClosed =
+  let open Format in
+  let loc = issue.loc in
+  if count then Stats.count issue.name;
+  if !Common.Cli.json then (
+    let file = Json.escape loc.loc_start.pos_fname in
+    let startLine = loc.loc_start.pos_lnum - 1 in
+    let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
+    let endLine = loc.loc_end.pos_lnum - 1 in
+    let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
+    let message = Json.escape issue.message in
+    EmitJson.emitItem ~name:issue.name
+      ~kind:(match issue.kind with Warning -> "warning" | Error -> "error")
+      ~file
+      ~range:(startLine, startCharacter, endLine, endCharacter)
+      ~message;
+    if notClosed = false then EmitJson.emitClose ())
+  else
+    let color =
+      match issue.kind with Warning -> Color.info | Error -> Color.error
+    in
+    fprintf std_formatter "@[<v 2>@,%a@,%a@,%s@]@." color issue.name Loc.print
+      issue.loc issue.message
+
+let logKind ~count ~kind ~(loc : Location.t) ~name ~notClosed body =
+  if Suppress.filter loc.loc_start then
     let open Format in
-    if count then Stats.count issue;
-    if !Common.Cli.json then (
-      let file = Json.escape loc.loc_start.pos_fname in
-      let startLine = loc.loc_start.pos_lnum - 1 in
-      let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
-      let endLine = loc.loc_end.pos_lnum - 1 in
-      let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
-      let message = Json.escape (asprintf "%a" body ()) in
-      EmitJson.emitItem ~issue
-        ~kind:(match kind with Warning -> "warning" | Error -> "error")
-        ~file
-        ~range:(startLine, startCharacter, endLine, endCharacter)
-        ~message;
-      if notClosed = false then EmitJson.emitClose ())
-    else
-      let color =
-        match kind with Warning -> Color.info | Error -> Color.error
-      in
-      fprintf std_formatter "@[<v 2>@,%a@,%a@,%a@]@." color issue Loc.print loc
-        body ())
+    let issue = {name; kind; loc; message = asprintf "%a" body ()} in
+    logIssue ~count ~issue ~notClosed
 
-let warning ?(count = true) ?(notClosed = false) ~loc ~issue body =
-  body |> logKind ~kind:Warning ~count ~loc ~issue ~notClosed
+let warning ?(count = true) ?(notClosed = false) ~loc ~name body =
+  body |> logKind ~kind:Warning ~count ~loc ~name ~notClosed
 
-let error ~loc ~issue body =
-  body |> logKind ~kind:Error ~count:true ~loc ~issue ~notClosed:false
+let error ~loc ~name body =
+  body |> logKind ~kind:Error ~count:true ~loc ~name ~notClosed:false
