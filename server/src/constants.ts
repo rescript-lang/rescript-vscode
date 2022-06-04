@@ -1,7 +1,10 @@
 import * as path from "path";
 
+// On Linux ONLY, select a different binary when on arm64
 let archString = process.arch == "arm64" ? "-arm64" : "";
-let platformArchString = process.platform + archString;
+let platformArchString = process.platform == "linux" ?
+  process.platform + archString :
+  process.platform;
 
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
