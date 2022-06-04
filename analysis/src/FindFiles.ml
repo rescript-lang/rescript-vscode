@@ -191,12 +191,12 @@ let findDependencyFiles base config =
   let open Infix in
   let deps =
     config |> Json.get "bs-dependencies" |?> Json.array |? []
-    |> optMap Json.string
+    |>  List.filter_map Json.string
   in
   let devDeps =
     config
     |> Json.get "bs-dev-dependencies"
-    |?> Json.array |? [] |> optMap Json.string
+    |?> Json.array |? [] |>  List.filter_map Json.string
   in
   let deps = deps @ devDeps in
   Log.log ("Dependencies: " ^ String.concat " " deps);

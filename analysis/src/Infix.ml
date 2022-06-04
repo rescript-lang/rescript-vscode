@@ -1,15 +1,3 @@
-(**
- * This combines a filter and a map.
- * You provide a function that turns an element into an optional of another element,
- * and you get a list of all of the present results.
- *)
-let optMap : ('a -> 'b option) -> 'a list -> 'b list =
- fun fn items ->
-  List.fold_left
-    (fun result item ->
-      match fn item with None -> result | Some res -> res :: result)
-    [] items
-
 let ( |! ) o d = match o with None -> failwith d | Some v -> v
 
 let ( |? ) o d = match o with None -> d | Some v -> v
