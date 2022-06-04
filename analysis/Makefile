@@ -18,7 +18,6 @@ test: test-analysis-binary test-reanalyze
 
 clean:
 	rm -f rescript-editor-analysis.exe
-	make -C tests test
 	dune clean
 	make -C reanalyze clean
 
