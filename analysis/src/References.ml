@@ -196,21 +196,20 @@ let definedForLoc ~file ~package locKind =
 
 let declaredForExportedTip ~(stamps : Stamps.t) ~(exported : Exported.t) name
     (tip : Tip.t) =
-  let open Infix in
   let bind f x = Option.bind x f in
   match tip with
   | Value ->
     Exported.find exported Exported.Value name
     |> bind (fun stamp -> Stamps.findValue stamps stamp)
-    |?>> fun x -> {x with item = ()}
+    |> Option.map (fun x -> {x with Declared.item = ()})
   | Field _ | Constructor _ | Type ->
     Exported.find exported Exported.Type name
     |> bind (fun stamp -> Stamps.findType stamps stamp)
-    |?>> fun x -> {x with item = ()}
+    |> Option.map (fun x -> {x with Declared.item = ()})
   | Module ->
     Exported.find exported Exported.Module name
     |> bind (fun stamp -> Stamps.findModule stamps stamp)
-    |?>> fun x -> {x with item = ()}
+    |> Option.map (fun x -> {x with Declared.item = ()})
 
 (** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
 let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
@@ -446,11 +445,12 @@ type references = {
 
 let forLocalStamp ~full:{file; extra; package} stamp (tip : Tip.t) =
   let env = QueryEnv.fromFile file in
-  let open Infix in
   match
     match tip with
-    | Constructor name -> getConstructor file stamp name |?>> fun x -> x.stamp
-    | Field name -> getField file stamp name |?>> fun x -> x.stamp
+    | Constructor name ->
+      getConstructor file stamp name
+      |> Option.map (fun x -> x.Constructor.stamp)
+    | Field name -> getField file stamp name |> Option.map (fun x -> x.stamp)
     | _ -> Some stamp
   with
   | None -> []
@@ -471,8 +471,10 @@ let forLocalStamp ~full:{file; extra; package} stamp (tip : Tip.t) =
                 match
                   match tip with
                   | Constructor name ->
-                    getConstructor file stamp name |?>> fun x -> x.stamp
-                  | Field name -> getField file stamp name |?>> fun x -> x.stamp
+                    getConstructor file stamp name
+                    |> Option.map (fun x -> x.Constructor.stamp)
+                  | Field name ->
+                    getField file stamp name |> Option.map (fun x -> x.stamp)
                   | _ -> Some stamp
                 with
                 | None -> []
