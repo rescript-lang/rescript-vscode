@@ -85,10 +85,9 @@ let runAnalysis ~cmtRoot =
   let ppf = Format.std_formatter in
   processCmtFiles ~cmtRoot;
   if runConfig.dce then (
-    DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check ppf;
-    DeadCommon.WriteDeadAnnotations.write ();
     DeadException.forceDelayedItems ();
     DeadOptionalArgs.forceDelayedItems ();
+    DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check ppf;
     DeadCommon.WriteDeadAnnotations.write ());
   if runConfig.exception_ then Exception.reportResults ~ppf;
   if runConfig.termination then Arnold.reportResults ~ppf
