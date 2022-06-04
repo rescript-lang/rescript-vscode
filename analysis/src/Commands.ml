@@ -309,6 +309,9 @@ let test ~path =
             let currentFile = createCurrentFile () in
             completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
+          | "dce" ->
+            print_endline ("DCE " ^ path);
+            DceCommand.command ~path
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
             DocumentSymbol.command ~path
