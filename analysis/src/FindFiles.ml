@@ -190,9 +190,9 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
     (moduleName, Namespace {cmt}) :: result
 
 let findDependencyFiles base config =
-  let open Infix in
   let deps =
-    config |> Json.get "bs-dependencies" |> bind Json.array |? []
+    config |> Json.get "bs-dependencies" |> bind Json.array
+    |> Option.value ~default:[]
     |> List.filter_map Json.string
   in
   let devDeps =
