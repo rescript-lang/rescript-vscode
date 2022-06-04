@@ -197,16 +197,20 @@ let definedForLoc ~file ~package locKind =
 let declaredForExportedTip ~(stamps : Stamps.t) ~(exported : Exported.t) name
     (tip : Tip.t) =
   let open Infix in
+  let bind f x = Option.bind x f in
   match tip with
   | Value ->
-    Exported.find exported Exported.Value name |?> fun stamp ->
-    Stamps.findValue stamps stamp |?>> fun x -> {x with item = ()}
+    Exported.find exported Exported.Value name
+    |> bind (fun stamp -> Stamps.findValue stamps stamp)
+    |?>> fun x -> {x with item = ()}
   | Field _ | Constructor _ | Type ->
-    Exported.find exported Exported.Type name |?> fun stamp ->
-    Stamps.findType stamps stamp |?>> fun x -> {x with item = ()}
+    Exported.find exported Exported.Type name
+    |> bind (fun stamp -> Stamps.findType stamps stamp)
+    |?>> fun x -> {x with item = ()}
   | Module ->
-    Exported.find exported Exported.Module name |?> fun stamp ->
-    Stamps.findModule stamps stamp |?>> fun x -> {x with item = ()}
+    Exported.find exported Exported.Module name
+    |> bind (fun stamp -> Stamps.findModule stamps stamp)
+    |?>> fun x -> {x with item = ()}
 
 (** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
 let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
@@ -318,8 +322,7 @@ let definition ~file ~package stamp (tip : Tip.t) =
     | Some declared ->
       let fileImpl, declaredImpl =
         match alternateDeclared ~package ~file declared tip with
-        | Some (fileImpl, _extra, declaredImpl) when Uri.isInterface file.uri
-          ->
+        | Some (fileImpl, _extra, declaredImpl) when Uri.isInterface file.uri ->
           (fileImpl, declaredImpl)
         | _ -> (file, declared)
       in

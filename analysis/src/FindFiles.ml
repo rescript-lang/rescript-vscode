@@ -192,14 +192,14 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
 let findDependencyFiles base config =
   let open Infix in
   let deps =
-    config |> Json.get "bs-dependencies" |?> Json.array |? []
+    config |> Json.get "bs-dependencies" |> bind Json.array |? []
     |> List.filter_map Json.string
   in
   let devDeps =
     config
     |> Json.get "bs-dev-dependencies"
     |> bind Json.array
-    |> Option.map (fun l -> l |> List.filter_map Json.string)
+    |> Option.map (List.filter_map Json.string)
     |> Option.value ~default:[]
   in
   let deps = deps @ devDeps in
@@ -208,34 +208,37 @@ let findDependencyFiles base config =
     deps
     |> List.map (fun name ->
            let result =
-             ModuleResolution.resolveNodeModulePath ~startPath:base name
-             |?> fun path ->
-             let innerPath = path /+ "bsconfig.json" in
-             match Files.readFile innerPath with
-             | Some text -> (
-               match Json.parse text with
-               | Some inner -> (
-                 let namespace = getNamespace inner in
-                 let sourceDirectories =
-                   getSourceDirectories ~includeDev:false ~baseDir:path inner
-                 in
-                 match BuildSystem.getLibBs path with
-                 | None -> None
-                 | Some libBs ->
-                   let compiledDirectories =
-                     sourceDirectories |> List.map (Filename.concat libBs)
-                   in
-                   let compiledDirectories =
-                     match namespace with
-                     | None -> compiledDirectories
-                     | Some _ -> libBs :: compiledDirectories
-                   in
-                   let projectFiles =
-                     findProjectFiles ~namespace ~path ~sourceDirectories ~libBs
-                   in
-                   Some (compiledDirectories, projectFiles))
-               | None -> None)
-             | None -> None
+             Json.bind
+               (ModuleResolution.resolveNodeModulePath ~startPath:base name)
+               (fun path ->
+                 let innerPath = path /+ "bsconfig.json" in
+                 match Files.readFile innerPath with
+                 | Some text -> (
+                   match Json.parse text with
+                   | Some inner -> (
+                     let namespace = getNamespace inner in
+                     let sourceDirectories =
+                       getSourceDirectories ~includeDev:false ~baseDir:path
+                         inner
+                     in
+                     match BuildSystem.getLibBs path with
+                     | None -> None
+                     | Some libBs ->
+                       let compiledDirectories =
+                         sourceDirectories |> List.map (Filename.concat libBs)
+                       in
+                       let compiledDirectories =
+                         match namespace with
+                         | None -> compiledDirectories
+                         | Some _ -> libBs :: compiledDirectories
+                       in
+                       let projectFiles =
+                         findProjectFiles ~namespace ~path ~sourceDirectories
+                           ~libBs
+                       in
+                       Some (compiledDirectories, projectFiles))
+                   | None -> None)
+                 | None -> None)
            in
            match result with
            | Some (files, directories) -> (files, directories)

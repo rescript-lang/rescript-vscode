@@ -1,4 +1,3 @@
-open Infix
 open SharedTypes
 
 (* Creates the `pathsForModule` hashtbl, which maps a `moduleName` to it's `paths` (the ml/re, mli/rei, cmt, and cmti files) *)
@@ -59,7 +58,8 @@ let newBsPackage ~rootPath =
                ^ String.concat " "
                    (dependencyDirectories |> List.map Utils.dumpPath));
              let opens_from_bsc_flags =
-               match Json.get "bsc-flags" config |?> Json.array with
+               let bind f x = Option.bind x f in
+               match Json.get "bsc-flags" config |> bind Json.array with
                | Some l ->
                  List.fold_left
                    (fun opens item ->
