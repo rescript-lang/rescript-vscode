@@ -21,6 +21,10 @@ clean:
 	dune clean
 	make -C reanalyze clean
 
+clean-deep:
+	make clean
+	make -C reanalyze clean-deep
+
 .DEFAULT_GOAL := build-native
 
-.PHONY: clean build-native dce test
+.PHONY: build-native dce clean clean-deep test

@@ -12,6 +12,9 @@ test: build node_modules/.bin/rescript
 clean: node_modules/.bin/rescript
 	node_modules/.bin/rescript clean -with-deps
 
+clean-deep:
+	rm -r node_modules lib
+
 .DEFAULT_GOAL := build
 
-.PHONY: build clean test
+.PHONY: build clean clean-deep test

@@ -8,6 +8,10 @@ clean:
 	make -C examples/deadcode clean
 	make -C examples/termination clean
 
+clean-deep:
+	make -C examples/deadcode clean-deep
+	make -C examples/termination clean-deep
+
 .DEFAULT_GOAL := test
 
-.PHONY: clean test
+.PHONY: clean clean-deep test
