@@ -2,6 +2,8 @@ let ifDebug debug name fn v = if debug then Log.log (name ^ ": " ^ fn v)
 
 let ( /+ ) = Filename.concat
 
+let bind f x = Option.bind x f
+
 (* Returns a list of paths, relative to the provided `base` *)
 let getSourceDirectories ~includeDev ~baseDir config =
   let rec handleItem current item =
@@ -11,15 +13,13 @@ let getSourceDirectories ~includeDev ~baseDir config =
     | Json.String text -> [current /+ text]
     | Json.Object _ -> (
       let dir =
-        Json.string
-        |> Option.bind (item |> Json.get "dir")
+        item |> Json.get "dir" |> bind Json.string
         |> Option.value ~default:"Must specify directory"
       in
       let typ =
         if includeDev then "lib"
         else
-          Json.string
-          |> Option.bind (item |> Json.get "type")
+          item |> Json.get "type" |> bind Json.string
           |> Option.value ~default:"lib"
       in
 
@@ -93,14 +93,12 @@ let nameSpaceToName n =
   |> String.concat ""
 
 let getNamespace config =
-  let ns = Json.get "namespace" config in
-  let isNamespaced =
-    Json.bool |> Option.bind ns |> Option.value ~default:false
-  in
+  let ns = config |> Json.get "namespace" in
+  let isNamespaced = ns |> bind Json.bool |> Option.value ~default:false in
   let either x y = if x = None then y else x in
   if isNamespaced then
-    let fromString = Json.string |> Option.bind ns in
-    let fromName = Json.string |> Option.bind (Json.get "name" config) in
+    let fromString = ns |> bind Json.string in
+    let fromName = config |> Json.get "name" |> bind Json.string in
     either fromString fromName
   else None
 
@@ -200,8 +198,9 @@ let findDependencyFiles base config =
   let devDeps =
     config
     |> Json.get "bs-dev-dependencies"
-    |?> Json.array |? []
-    |> List.filter_map Json.string
+    |> bind Json.array
+    |> Option.map (fun l -> l |> List.filter_map Json.string)
+    |> Option.value ~default:[]
   in
   let deps = deps @ devDeps in
   Log.log ("Dependencies: " ^ String.concat " " deps);
