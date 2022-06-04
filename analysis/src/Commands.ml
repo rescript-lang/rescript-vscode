@@ -112,10 +112,8 @@ let definition ~path ~pos ~debug =
           if skipLoc then None
           else
             Some
-              {
-                Protocol.uri = Uri.toString uri;
-                range = Utils.cmtLocToRange loc;
-              }))
+              {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}
+        ))
   in
   print_endline
     (match locationOpt with
@@ -134,8 +132,7 @@ let typeDefinition ~path ~pos ~debug =
         | None -> None
         | Some (uri, loc) ->
           Some
-            {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc})
-      )
+            {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}))
   in
   print_endline
     (match maybeLocation with
@@ -305,34 +302,6 @@ let test ~path =
               ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             definition ~path ~pos:(line, col) ~debug:true
-          | "typ" ->
-            print_endline
-              ("TypeDefinition " ^ path ^ " " ^ string_of_int line ^ ":"
-             ^ string_of_int col);
-            typeDefinition ~path ~pos:(line, col) ~debug:true
-          | "hov" ->
-            print_endline
-              ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
-             ^ string_of_int col);
-            let currentFile = createCurrentFile () in
-            hover ~path ~pos:(line, col) ~currentFile ~debug:true;
-            Sys.remove currentFile
-          | "ref" ->
-            print_endline
-              ("References " ^ path ^ " " ^ string_of_int line ^ ":"
-             ^ string_of_int col);
-            references ~path ~pos:(line, col) ~debug:true
-          | "doc" ->
-            print_endline ("DocumentSymbol " ^ path);
-            DocumentSymbol.command ~path
-          | "ren" ->
-            let newName = String.sub rest 4 (len - mlen - 4) in
-            let () =
-              print_endline
-                ("Rename " ^ path ^ " " ^ string_of_int line ^ ":"
-               ^ string_of_int col ^ " " ^ newName)
-            in
-            rename ~path ~pos:(line, col) ~newName ~debug:true
           | "com" ->
             print_endline
               ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
@@ -340,11 +309,21 @@ let test ~path =
             let currentFile = createCurrentFile () in
             completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
+          | "doc" ->
+            print_endline ("DocumentSymbol " ^ path);
+            DocumentSymbol.command ~path
           | "hig" ->
             print_endline ("Highlight " ^ path);
             SemanticTokens.command ~debug:true
               ~emitter:(SemanticTokens.Token.createEmitter ())
               ~path
+          | "hov" ->
+            print_endline
+              ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            hover ~path ~pos:(line, col) ~currentFile ~debug:true;
+            Sys.remove currentFile
           | "int" ->
             print_endline ("Create Interface " ^ path);
             let cmiFile =
@@ -355,6 +334,24 @@ let test ~path =
               dir ++ parent_dir_name ++ "lib" ++ "bs" ++ "src" ++ name
             in
             Printf.printf "%s" (CreateInterface.command ~path ~cmiFile)
+          | "ref" ->
+            print_endline
+              ("References " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            references ~path ~pos:(line, col) ~debug:true
+          | "ren" ->
+            let newName = String.sub rest 4 (len - mlen - 4) in
+            let () =
+              print_endline
+                ("Rename " ^ path ^ " " ^ string_of_int line ^ ":"
+               ^ string_of_int col ^ " " ^ newName)
+            in
+            rename ~path ~pos:(line, col) ~newName ~debug:true
+          | "typ" ->
+            print_endline
+              ("TypeDefinition " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            typeDefinition ~path ~pos:(line, col) ~debug:true
           | "xfm" ->
             print_endline
               ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
