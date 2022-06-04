@@ -263,7 +263,7 @@ let iterFilesFromRootsToLeaves iterFun =
                     {Location.none with loc_start = pos; loc_end = pos}
                   in
                   if Config.warnOnCircularDependencies then
-                    Log_.warning ~loc ~name:"Warning Dead Analysis Cycle"
+                    Log_.warning ~loc ~issue:Issues.warningDeadAnalysisCycle
                       (fun ppf () ->
                         Format.fprintf ppf
                           "Results for %s could be inaccurate because of \
@@ -480,9 +480,9 @@ let addValueDeclaration ?(isToplevel = true) ~(loc : Location.t) ~moduleLoc
        ~declKind:(Value {isToplevel; optionalArgs; sideEffects})
        ~loc ~moduleLoc ~path
 
-let emitWarning ?(onDeadDecl = fun () -> ()) ~decl ~message name =
+let emitWarning ?(onDeadDecl = fun () -> ()) ~decl ~message issue =
   let loc = decl |> declGetLoc in
-  Log_.warning ~loc ~notClosed:true ~name (fun ppf () ->
+  Log_.warning ~loc ~notClosed:true ~issue (fun ppf () ->
       Format.fprintf ppf "@{<info>%s@} %s"
         (decl.path |> Path.withoutHead)
         message);
@@ -708,7 +708,7 @@ module Decl = struct
       let name, message =
         match decl.declKind with
         | Exception ->
-          ("Warning Dead Exception", "is never raised or passed as value")
+          (Issues.warningDeadException, "is never raised or passed as value")
         | Value {sideEffects} -> (
           let noSideEffectsOrUnderscore =
             (not sideEffects)
@@ -717,11 +717,9 @@ module Decl = struct
             | hd :: _ -> hd |> Name.startsWithUnderscore
             | [] -> false
           in
-          ( ("Warning Dead Value"
-            ^
-            match not noSideEffectsOrUnderscore with
-            | true -> " With Side Effects"
-            | false -> ""),
+          ( (match not noSideEffectsOrUnderscore with
+            | true -> Issues.warningDeadValueWithSideEffects
+            | false -> Issues.warningDeadValue),
             match decl.path with
             | name :: _ when name |> Name.isUnderscore ->
               "has no side effects and can be removed"
@@ -732,9 +730,11 @@ module Decl = struct
               | true -> " and could have side effects"
               | false -> "") ))
         | RecordLabel ->
-          ("Warning Dead Type", "is a record label never used to read a value")
+          ( Issues.warningDeadType,
+            "is a record label never used to read a value" )
         | VariantCase ->
-          ("Warning Dead Type", "is a variant case which is never constructed")
+          ( Issues.warningDeadType,
+            "is a variant case which is never constructed" )
       in
       let shouldEmitWarning =
         (not insideReportedValue)
@@ -837,7 +837,7 @@ let rec resolveRecursiveRefs ~checkOptionalArg ~deadDeclarations ~level
         checkOptionalArg decl;
         if decl.pos |> ProcessDeadAnnotations.isAnnotatedDead then
           emitWarning ~decl ~message:" is annotated @dead but is live"
-            "Warning Incorrect Annotation"
+            Issues.warningIncorrectAnnotation
         else
           decl.path
           |> DeadModules.markLive

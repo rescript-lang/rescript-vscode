@@ -3,8 +3,10 @@ SHELL = /bin/bash
 node_modules/.bin/rescript:
 	npm install
 
-test: node_modules/.bin/rescript
+build: node_modules/.bin/rescript
 	node_modules/.bin/rescript
+
+test: build
 	./test.sh
 
 clean: node_modules/.bin/rescript

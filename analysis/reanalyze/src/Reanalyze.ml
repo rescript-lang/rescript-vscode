@@ -81,18 +81,22 @@ let processCmtFiles ~cmtRoot =
                   let cmtFilePath = Filename.concat libBsSourceDir cmtFile in
                   cmtFilePath |> loadCmtFile))
 
-let runAnalysis ~cmtRoot ~ppf =
-  Log_.Color.setup ();
-  if !Common.Cli.json then EmitJson.start ();
-
+let runAnalysis ~cmtRoot =
+  let ppf = Format.std_formatter in
   processCmtFiles ~cmtRoot;
   if runConfig.dce then (
+    DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check ppf;
+    DeadCommon.WriteDeadAnnotations.write ();
     DeadException.forceDelayedItems ();
     DeadOptionalArgs.forceDelayedItems ();
-    DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check ppf;
     DeadCommon.WriteDeadAnnotations.write ());
   if runConfig.exception_ then Exception.reportResults ~ppf;
-  if runConfig.termination then Arnold.reportResults ~ppf;
+  if runConfig.termination then Arnold.reportResults ~ppf
+
+let runAnalysisAndReport ~cmtRoot ~ppf =
+  Log_.Color.setup ();
+  if !Common.Cli.json then EmitJson.start ();
+  runAnalysis ~cmtRoot;
   Log_.Stats.report ();
   Log_.Stats.clear ();
   if !Common.Cli.json then EmitJson.finish ()
@@ -208,7 +212,8 @@ let cli () =
   Arg.parse speclist print_endline usage;
   if !analysisKindSet = false then setConfig ();
   let cmtRoot = !cmtRootRef in
-  runAnalysis ~cmtRoot ~ppf
+  runAnalysisAndReport ~cmtRoot ~ppf
   [@@raises exit]
 
 module RunConfig = RunConfig
+module Log_ = Log_
