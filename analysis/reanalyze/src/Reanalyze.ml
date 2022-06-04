@@ -82,20 +82,20 @@ let processCmtFiles ~cmtRoot =
                   cmtFilePath |> loadCmtFile))
 
 let runAnalysis ~cmtRoot =
-  let ppf = Format.std_formatter in
   processCmtFiles ~cmtRoot;
   if runConfig.dce then (
     DeadException.forceDelayedItems ();
-    DeadOptionalArgs.forceDelayedItems ();
-    DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check ppf;
-    DeadCommon.WriteDeadAnnotations.write ());
-  if runConfig.exception_ then Exception.reportResults ~ppf;
-  if runConfig.termination then Arnold.reportResults ~ppf
+    DeadOptionalArgs.forceDelayedItems ())
 
 let runAnalysisAndReport ~cmtRoot ~ppf =
   Log_.Color.setup ();
   if !Common.Cli.json then EmitJson.start ();
   runAnalysis ~cmtRoot;
+  if runConfig.dce then (
+    DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check ppf;
+    DeadCommon.WriteDeadAnnotations.write ());
+  if runConfig.exception_ then Exception.reportResults ~ppf;
+  if runConfig.termination then Arnold.reportResults ~ppf;
   Log_.Stats.report ();
   Log_.Stats.clear ();
   if !Common.Cli.json then EmitJson.finish ()
