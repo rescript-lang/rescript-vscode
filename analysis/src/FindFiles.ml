@@ -4,7 +4,6 @@ let ( /+ ) = Filename.concat
 
 (* Returns a list of paths, relative to the provided `base` *)
 let getSourceDirectories ~includeDev ~baseDir config =
-  let open Infix in
   let rec handleItem current item =
     match item with
     | Json.Array contents ->
@@ -12,12 +11,18 @@ let getSourceDirectories ~includeDev ~baseDir config =
     | Json.String text -> [current /+ text]
     | Json.Object _ -> (
       let dir =
-        Json.get "dir" item |?> Json.string |? "Must specify directory"
+        Json.string
+        |> Option.bind (item |> Json.get "dir")
+        |> Option.value ~default:"Must specify directory"
       in
       let typ =
         if includeDev then "lib"
-        else item |> Json.get "type" |?> Json.string |? "lib"
+        else
+          Json.string
+          |> Option.bind (item |> Json.get "type")
+          |> Option.value ~default:"lib"
       in
+
       if typ = "dev" then []
       else
         match item |> Json.get "subdirs" with
@@ -191,12 +196,13 @@ let findDependencyFiles base config =
   let open Infix in
   let deps =
     config |> Json.get "bs-dependencies" |?> Json.array |? []
-    |>  List.filter_map Json.string
+    |> List.filter_map Json.string
   in
   let devDeps =
     config
     |> Json.get "bs-dev-dependencies"
-    |?> Json.array |? [] |>  List.filter_map Json.string
+    |?> Json.array |? []
+    |> List.filter_map Json.string
   in
   let deps = deps @ devDeps in
   Log.log ("Dependencies: " ^ String.concat " " deps);
