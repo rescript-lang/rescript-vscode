@@ -217,16 +217,18 @@ type missingRaiseInfo = {
   raiseSet : ExnSet.t;
 }
 
-type additionalInfo =
-  | NoAdditionalText
-  | LineInfo of (decl * line) option
-  | MissingRaiseInfo
+type additionalInfo = NoAdditionalText | LineInfo | MissingRaiseInfo
 
 type kind = Warning | Error
 
 type description =
   | ExceptionAnalysis of missingRaiseInfo
-  | DeadWarning of {path : string; message : string}
+  | DeadWarning of {
+      path : string;
+      message : string;
+      shouldWriteAnnotation : bool;
+      lineInfo : (decl * line) option;
+    }
   | Todo of string
 
 type issue = {

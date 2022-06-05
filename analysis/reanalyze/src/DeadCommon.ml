@@ -400,9 +400,12 @@ let emitWarning ~decl ~message name =
   let shouldWriteAnnotation =
     (not (isToplevelValueWithSideEffects decl)) && Suppress.filter decl.pos
   in
-  let additionalInfo =
+  let lineInfo =
     if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
-    else NoAdditionalText
+    else None
+  in
+  let additionalInfo =
+    if shouldWriteAnnotation then LineInfo else NoAdditionalText
   in
   decl.path
   |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
@@ -410,7 +413,13 @@ let emitWarning ~decl ~message name =
   Log_.warning
     ~getAdditionalText:(fun () -> additionalInfo)
     ~loc ~name
-    (DeadWarning {path = decl.path |> Path.withoutHead; message})
+    (DeadWarning
+       {
+         path = Path.withoutHead decl.path;
+         message;
+         lineInfo;
+         shouldWriteAnnotation;
+       })
 
 module Decl = struct
   let isValue decl =
