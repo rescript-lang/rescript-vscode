@@ -110,7 +110,7 @@ let logIssue ~(issue : Common.issue) =
     let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
     let endLine = loc.loc_end.pos_lnum - 1 in
     let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
-    let message = Json.escape issue.message in
+    let message = Json.escape (Common.descriptionToString issue.description) in
     Format.asprintf "%a%s%s"
       (fun ppf () ->
         EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
@@ -127,7 +127,7 @@ let logIssue ~(issue : Common.issue) =
       match issue.kind with Warning -> Color.info | Error -> Color.error
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
-      issue.message
+      (Common.descriptionToString issue.description)
       (logAdditionalInfo issue.additionalInfo)
 
 module Stats = struct
@@ -176,11 +176,10 @@ module Stats = struct
 end
 
 let logKind ~count ~getAdditionalText:getAdditionalInfo ~kind
-    ~(loc : Location.t) ~name body =
+    ~(loc : Location.t) ~name description =
   if Suppress.filter loc.loc_start then
-    let message = Format.asprintf "%a" body () in
     let additionalInfo = getAdditionalInfo () in
-    let issue : Common.issue = {name; kind; loc; message; additionalInfo} in
+    let issue : Common.issue = {name; kind; loc; description; additionalInfo} in
     if count then Stats.addIssue issue
 
 let warning ?(count = true)

@@ -31,7 +31,8 @@ let checkModuleDead ~fileName:pos_fname moduleName =
           {Location.loc_start = pos; loc_end = pos; loc_ghost = false}
         else loc
       in
-      Log_.warning ~loc ~name:Issues.warningDeadModule (fun ppf () ->
-          Format.fprintf ppf "@{<info>%s@} %s" moduleName
-            "is a dead module as all its items are dead.")
+      Log_.warning ~loc ~name:Issues.warningDeadModule
+        (Common.Todo
+           (Format.asprintf "@{<info>%s@} %s" moduleName
+              "is a dead module as all its items are dead."))
     | _ -> ()
