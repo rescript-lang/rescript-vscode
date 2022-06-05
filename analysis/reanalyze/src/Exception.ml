@@ -194,8 +194,7 @@ module Checks = struct
      Log_.warning ~loc ~name:Issues.exceptionAnalysis
        ~getAdditionalText:(fun () ->
          Log_.missingRaiseInfoToAdditionalInfo missingRaiseInfo)
-       (Common.ExceptionAnalysis
-          (Log_.missingRaiseInfoToMessage missingRaiseInfo)));
+       (Common.ExceptionAnalysis missingRaiseInfo));
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc ~name:Issues.exceptionAnalysis
         (Common.Todo
