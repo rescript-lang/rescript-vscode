@@ -119,8 +119,8 @@ let rec collectExpr super self (e : Typedtree.expression) =
          which is called from its own location as many things are generated on the same location. *)
       if !Common.Cli.debug then
         Log_.item "addDummyReference %s --> %s@."
-          (Location.none.loc_start |> posToString)
-          (locTo.loc_start |> posToString);
+          (Location.none.loc_start |> Common.posToString)
+          (locTo.loc_start |> Common.posToString);
       ValueReferences.add locTo.loc_start Location.none.loc_start)
     else addValueReference ~addFileReference:true ~locFrom ~locTo
   | Texp_apply

@@ -43,8 +43,6 @@ let fileIsImplementationOf s1 s2 =
 
 let liveAnnotation = "live"
 
-let posToString = posToString
-
 module PosHash = struct
   include Hashtbl.Make (struct
     type t = Lexing.position

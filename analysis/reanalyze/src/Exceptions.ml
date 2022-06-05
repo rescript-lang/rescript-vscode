@@ -1,5 +1,4 @@
 open Common
-module ExnSet = Set.Make (Exn)
 
 type t = ExnSet.t
 

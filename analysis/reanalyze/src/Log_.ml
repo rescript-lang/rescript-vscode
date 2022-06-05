@@ -103,10 +103,10 @@ type issue = {
   kind : kind;
   loc : Location.t;
   message : string;
-  additionalText : Common.additionalText;
+  additionalInfo : Common.additionalInfo;
 }
 
-let logAdditionalText = function
+let logAdditionalInfo = function
   | Common.NoAdditionalText -> ""
   | LineInfo lineInfo -> WriteDeadAnnotations.lineInfoToString lineInfo
   | MissingRaiseInfo s -> s
@@ -130,7 +130,7 @@ let logIssue ~issue =
           ~range:(startLine, startCharacter, endLine, endCharacter)
           ~message)
       ()
-      (logAdditionalText issue.additionalText)
+      (logAdditionalInfo issue.additionalInfo)
       (if !Common.Cli.json then EmitJson.emitClose () else "")
   else
     let color =
@@ -138,7 +138,7 @@ let logIssue ~issue =
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
       issue.message
-      (logAdditionalText issue.additionalText)
+      (logAdditionalInfo issue.additionalInfo)
 
 module Stats = struct
   let issues = ref []
@@ -185,11 +185,12 @@ module Stats = struct
           ^ ")"))
 end
 
-let logKind ~count ~getAdditionalText ~kind ~(loc : Location.t) ~name body =
+let logKind ~count ~getAdditionalText:getAdditionalInfo ~kind
+    ~(loc : Location.t) ~name body =
   if Suppress.filter loc.loc_start then
     let message = Format.asprintf "%a" body () in
-    let additionalText = getAdditionalText () in
-    let issue = {name; kind; loc; message; additionalText} in
+    let additionalInfo = getAdditionalInfo () in
+    let issue = {name; kind; loc; message; additionalInfo} in
     if count then Stats.addIssue issue
 
 let warning ?(count = true)

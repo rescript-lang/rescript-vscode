@@ -207,7 +207,15 @@ type decl = {
 
 type line = {mutable declarations : decl list; original : string}
 
-type additionalText =
+module ExnSet = Set.Make (Exn)
+
+type missingRaiseInfo = {
+  exnTable : (Exn.t, LocSet.t) Hashtbl.t;
+  missingAnnotations : ExnSet.t;
+  locFull : Location.t;
+}
+
+type additionalInfo =
   | NoAdditionalText
   | LineInfo of (decl * line) option
   | MissingRaiseInfo of string

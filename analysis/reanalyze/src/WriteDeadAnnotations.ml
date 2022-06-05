@@ -133,7 +133,7 @@ let lineInfoToString = function
   | None -> getNoLineInfo ()
   | Some (decl, line) -> getLineInformation ~decl ~line
 
-let onDeadDecl decl : additionalText =
+let onDeadDecl decl : additionalInfo =
   let fileName = decl.pos.pos_fname in
   if Sys.file_exists fileName then (
     if fileName <> !currentFile then (
