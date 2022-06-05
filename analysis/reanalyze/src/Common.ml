@@ -214,24 +214,26 @@ type missingRaiseInfo = {
   exnTable : (Exn.t, LocSet.t) Hashtbl.t;
   locFull : Location.t;
   missingAnnotations : ExnSet.t;
+  name : string;
   raiseSet : ExnSet.t;
 }
 
 type kind = Warning | Error
 
 type description =
-  | Circular of string
-  | ExceptionAnalysis of string
+  | Circular of {name : string; message : string}
+  | ExceptionAnalysis of {name : string; message : string}
   | ExceptionAnalysisMissing of missingRaiseInfo
-  | DeadModule of string
-  | DeadOptional of string
+  | DeadModule of {name : string; message : string}
+  | DeadOptional of {name : string; message : string}
   | DeadWarning of {
+      name : string;
       path : string;
       message : string;
       shouldWriteAnnotation : bool;
       lineInfo : (decl * line) option;
     }
-  | Termination of string
+  | Termination of {name : string; message : string}
 
 type issue = {
   name : string;
