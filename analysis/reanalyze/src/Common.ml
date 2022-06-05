@@ -222,10 +222,14 @@ type additionalInfo =
 
 type kind = Warning | Error
 
+type description = ExceptionAnalysis of string | Todo of string
+
 type issue = {
   name : string;
   kind : kind;
   loc : Location.t;
-  message : string;
+  description : description;
   additionalInfo : additionalInfo;
 }
+
+let descriptionToString = function ExceptionAnalysis s -> s | Todo s -> s

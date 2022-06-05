@@ -180,11 +180,11 @@ let iterFilesFromRootsToLeaves iterFun =
                   in
                   if Config.warnOnCircularDependencies then
                     Log_.warning ~loc ~name:Issues.warningDeadAnalysisCycle
-                      (fun ppf () ->
-                        Format.fprintf ppf
-                          "Results for %s could be inaccurate because of \
-                           circular references"
-                          fileName);
+                      (Todo
+                         (Format.asprintf
+                            "Results for %s could be inaccurate because of \
+                             circular references"
+                            fileName));
                   iterFun fileName))
 
 (** Keep track of the location of values annotated @genType or @dead *)
@@ -408,10 +408,10 @@ let emitWarning ~decl ~message name =
       if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
       else NoAdditionalText)
     ~loc ~name
-    (fun ppf () ->
-      Format.fprintf ppf "@{<info>%s@} %s"
-        (decl.path |> Path.withoutHead)
-        message)
+    (Todo
+       (Format.asprintf "@{<info>%s@} %s"
+          (decl.path |> Path.withoutHead)
+          message))
 
 module Decl = struct
   let isValue decl =
