@@ -172,7 +172,7 @@ module Checks = struct
     loc : Location.t;
     locFull : Location.t;
     moduleName : string;
-    name : string;
+    exnName : string;
     exceptions : Exceptions.t;
   }
 
@@ -180,38 +180,22 @@ module Checks = struct
 
   let checks = (ref [] : t ref)
 
-  let add ~events ~exceptions ~loc ?(locFull = loc) ~moduleName name =
-    checks := {events; exceptions; loc; locFull; moduleName; name} :: !checks
+  let add ~events ~exceptions ~loc ?(locFull = loc) ~moduleName exnName =
+    checks := {events; exceptions; loc; locFull; moduleName; exnName} :: !checks
 
-  let emitMissingRaiseInfo {Common.exnTable; missingAnnotations; locFull} =
-    let missingTxt =
-      Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
-    in
-    if !Common.Cli.json then
-      Common.MissingRaiseInfo
-        (EmitJson.emitAnnotate ~action:"Add @raises annotation"
-           ~pos:(EmitJson.locToPos locFull)
-           ~text:(Format.asprintf "@raises(%s)\\n" missingTxt))
-    else NoAdditionalText
-
-  let doCheck {events; exceptions; loc; locFull; moduleName; name} =
+  let doCheck {events; exceptions; loc; locFull; moduleName; exnName} =
     let raiseSet, exnTable = events |> Event.combine ~moduleName in
     let missingAnnotations = Exceptions.diff raiseSet exceptions in
     let redundantAnnotations = Exceptions.diff exceptions raiseSet in
     (if not (Exceptions.isEmpty missingAnnotations) then
-     let missingRaiseInfo = {Common.exnTable; missingAnnotations; locFull} in
-     let raisesTxt =
-       Format.asprintf "%a" (Exceptions.pp ~exnTable:(Some exnTable)) raiseSet
-     in
-     let missingTxt =
-       Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
+     let missingRaiseInfo : Common.missingRaiseInfo =
+       {exnName; exnTable; raiseSet; missingAnnotations; locFull}
      in
      Log_.warning ~loc ~name:Issues.exceptionAnalysis
-       ~getAdditionalText:(fun () -> emitMissingRaiseInfo missingRaiseInfo)
+       ~getAdditionalText:(fun () ->
+         Log_.missingRaiseInfoToAdditionalInfo missingRaiseInfo)
        (Common.ExceptionAnalysis
-          (Format.asprintf
-             "@{<info>%s@} might raise %s and is not annotated with @raises(%s)"
-             name raisesTxt missingTxt)));
+          (Log_.missingRaiseInfoToMessage missingRaiseInfo)));
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc ~name:Issues.exceptionAnalysis
         (Common.Todo
@@ -224,8 +208,8 @@ module Checks = struct
                   raiseSet
             in
             Format.asprintf
-              "@{<info>%s@} %a and is annotated with redundant @raises(%a)" name
-              raisesDescription ()
+              "@{<info>%s@} %a and is annotated with redundant @raises(%a)"
+              exnName raisesDescription ()
               (Exceptions.pp ~exnTable:None)
               redundantAnnotations))
 

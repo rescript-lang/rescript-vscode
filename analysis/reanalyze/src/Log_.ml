@@ -101,6 +101,34 @@ let logAdditionalInfo = function
   | LineInfo lineInfo -> WriteDeadAnnotations.lineInfoToString lineInfo
   | MissingRaiseInfo s -> s
 
+let missingRaiseInfoToAdditionalInfo
+    {Common.exnTable; missingAnnotations; locFull} =
+  let missingTxt =
+    Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
+  in
+  if !Common.Cli.json then
+    Common.MissingRaiseInfo
+      (EmitJson.emitAnnotate ~action:"Add @raises annotation"
+         ~pos:(EmitJson.locToPos locFull)
+         ~text:(Format.asprintf "@raises(%s)\\n" missingTxt))
+  else NoAdditionalText
+
+let missingRaiseInfoToMessage 
+    {Common.exnTable; exnName; missingAnnotations; raiseSet} =
+  let raisesTxt =
+    Format.asprintf "%a" (Exceptions.pp ~exnTable:(Some exnTable)) raiseSet
+  in
+  let missingTxt =
+    Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
+  in
+  Format.asprintf
+    "@{<info>%s@} might raise %s and is not annotated with @raises(%s)" exnName
+    raisesTxt missingTxt
+
+let descriptionToString = function
+  | Common.ExceptionAnalysis s -> s
+  | Todo s -> s
+
 let logIssue ~(issue : Common.issue) =
   let open Format in
   let loc = issue.loc in
@@ -110,7 +138,7 @@ let logIssue ~(issue : Common.issue) =
     let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
     let endLine = loc.loc_end.pos_lnum - 1 in
     let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
-    let message = Json.escape (Common.descriptionToString issue.description) in
+    let message = Json.escape (descriptionToString issue.description) in
     Format.asprintf "%a%s%s"
       (fun ppf () ->
         EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
@@ -127,7 +155,7 @@ let logIssue ~(issue : Common.issue) =
       match issue.kind with Warning -> Color.info | Error -> Color.error
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
-      (Common.descriptionToString issue.description)
+      (descriptionToString issue.description)
       (logAdditionalInfo issue.additionalInfo)
 
 module Stats = struct
