@@ -220,13 +220,18 @@ type missingRaiseInfo = {
 type kind = Warning | Error
 
 type description =
-  | ExceptionAnalysis of missingRaiseInfo
+  | Circular of string
+  | ExceptionAnalysis of string
+  | ExceptionAnalysisMissing of missingRaiseInfo
+  | DeadModule of string
+  | DeadOptional of string
   | DeadWarning of {
       path : string;
       message : string;
       shouldWriteAnnotation : bool;
       lineInfo : (decl * line) option;
     }
+  | Termination of string
   | Todo of string
 
 type issue = {

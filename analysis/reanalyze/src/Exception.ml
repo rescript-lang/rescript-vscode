@@ -143,7 +143,7 @@ module Event = struct
            | _ -> "expression"
          in
          Log_.warning ~loc ~name:Issues.exceptionAnalysis
-           (Common.Todo
+           (Common.ExceptionAnalysis
               (Format.asprintf
                  "@{<info>%s@} does not raise and is annotated with redundant \
                   @doesNotRaise"
@@ -189,13 +189,13 @@ module Checks = struct
     let redundantAnnotations = Exceptions.diff exceptions raiseSet in
     (if not (Exceptions.isEmpty missingAnnotations) then
      let description =
-       Common.ExceptionAnalysis
+       Common.ExceptionAnalysisMissing
          {exnName; exnTable; raiseSet; missingAnnotations; locFull}
      in
      Log_.warning ~loc ~name:Issues.exceptionAnalysis description);
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc ~name:Issues.exceptionAnalysis
-        (Common.Todo
+        (Common.ExceptionAnalysis
            (let raisesDescription ppf () =
               if raiseSet |> Exceptions.isEmpty then
                 Format.fprintf ppf "raises nothing"
@@ -275,7 +275,7 @@ let traverseAst () =
       let calleeName = callee |> Common.Path.toString in
       if calleeName |> isRaise then
         Log_.warning ~loc ~name:Issues.exceptionAnalysis
-          (Common.Todo
+          (Common.ExceptionAnalysis
              (Format.asprintf
                 "@{<info>%s@} can be analyzed only if called direclty"
                 calleeName));

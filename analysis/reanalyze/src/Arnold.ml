@@ -121,7 +121,7 @@ module Stats = struct
     if hit then incr nCacheHits;
     if !Common.Cli.debug then
       Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
-        (Todo
+        (Termination
            (Format.asprintf "Cache %s for @{<info>%s@}"
               (match hit with true -> "hit" | false -> "miss")
               (FunctionCall.toString functionCall)))
@@ -129,7 +129,7 @@ module Stats = struct
   let logResult ~functionCall ~loc ~resString =
     if !Common.Cli.debug then
       Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
-        (Todo
+        (Termination
            (Format.asprintf "@{<info>%s@} returns %s"
               (FunctionCall.toString functionCall)
               resString))
@@ -137,7 +137,7 @@ module Stats = struct
   let logHygieneParametric ~functionName ~loc =
     incr nHygieneErrors;
     Log_.error ~loc ~name:Issues.errorHygiene
-      (Todo
+      (Termination
          (Format.asprintf
             "@{<error>%s@} cannot be analyzed directly as it is parametric"
             functionName))
@@ -145,7 +145,7 @@ module Stats = struct
   let logHygieneOnlyCallDirectly ~path ~loc =
     incr nHygieneErrors;
     Log_.error ~loc ~name:Issues.errorHygiene
-      (Todo
+      (Termination
          (Format.asprintf
             "@{<error>%s@} can only be called directly, or passed as labeled \
              argument"
@@ -154,13 +154,13 @@ module Stats = struct
   let logHygieneMustHaveNamedArgument ~label ~loc =
     incr nHygieneErrors;
     Log_.error ~loc ~name:Issues.errorHygiene
-      (Todo
+      (Termination
          (Format.asprintf "Call must have named argument @{<error>%s@}" label))
 
   let logHygieneNamedArgValue ~label ~loc =
     incr nHygieneErrors;
     Log_.error ~loc ~name:Issues.errorHygiene
-      (Todo
+      (Termination
          (Format.asprintf
             "Named argument @{<error>%s@} must be passed a recursive function"
             label))
@@ -168,7 +168,7 @@ module Stats = struct
   let logHygieneNoNestedLetRec ~loc =
     incr nHygieneErrors;
     Log_.error ~loc ~name:Issues.errorHygiene
-      (Todo (Format.asprintf "Nested multiple let rec not supported yet"))
+      (Termination (Format.asprintf "Nested multiple let rec not supported yet"))
 end
 
 module Progress = struct
@@ -581,7 +581,7 @@ module ExtendFunctionTable = struct
               functionTable |> FunctionTable.addFunction ~functionName;
               if !Common.Cli.debug then
                 Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
-                  (Todo
+                  (Termination
                      (Format.asprintf
                         "Extend Function Table with @{<info>%s@} (%a) as it \
                          calls a progress function"
@@ -600,7 +600,7 @@ module ExtendFunctionTable = struct
                  if !Common.Cli.debug then
                    Log_.warning ~count:false ~loc
                      ~name:Issues.terminationAnalysis
-                     (Todo
+                     (Termination
                         (Format.asprintf
                            "@{<info>%s@} is parametric \
                             ~@{<info>%s@}=@{<info>%s@}"
@@ -663,7 +663,7 @@ module CheckExpressionWellFormed = struct
                        if !Common.Cli.debug then
                          Log_.warning ~count:false ~loc:body.exp_loc
                            ~name:Issues.terminationAnalysis
-                           (Todo
+                           (Termination
                               (Format.asprintf
                                  "Extend Function Table with @{<info>%s@} as \
                                   parametric ~@{<info>%s@}=@{<info>%s@}"
@@ -695,7 +695,7 @@ module Compile = struct
     let loc = expr.exp_loc in
     let notImplemented case =
       Log_.error ~loc ~name:Issues.errorNotImplemented
-        (Todo (Format.asprintf case))
+        (Termination (Format.asprintf case))
     in
 
     match expr.exp_desc with
@@ -827,7 +827,7 @@ module Compile = struct
       newFunctionDefinition.body <- Some (vb_expr |> expression ~ctx:newCtx);
       if !Common.Cli.debug then
         Log_.warning ~count:false ~loc:pat_loc ~name:Issues.terminationAnalysis
-          (Todo
+          (Termination
              (Format.asprintf "Adding recursive definition @{<info>%s@}"
                 newFunctionName));
       inExpr |> expression ~ctx
@@ -1046,7 +1046,7 @@ module Eval = struct
     if callStack |> CallStack.hasFunctionCall ~functionCall then (
       if state.State.progress = NoProgress then (
         Log_.error ~loc ~name:Issues.errorTermination
-          (Todo
+          (Termination
              (Format.asprintf "%a"
                 (fun ppf () ->
                   Format.fprintf ppf "Possible infinite loop when calling ";

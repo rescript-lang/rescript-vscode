@@ -180,7 +180,7 @@ let iterFilesFromRootsToLeaves iterFun =
                   in
                   if Config.warnOnCircularDependencies then
                     Log_.warning ~loc ~name:Issues.warningDeadAnalysisCycle
-                      (Todo
+                      (Circular
                          (Format.asprintf
                             "Results for %s could be inaccurate because of \
                              circular references"

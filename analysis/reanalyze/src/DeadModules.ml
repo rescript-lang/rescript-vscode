@@ -32,7 +32,7 @@ let checkModuleDead ~fileName:pos_fname moduleName =
         else loc
       in
       Log_.warning ~loc ~name:Issues.warningDeadModule
-        (Common.Todo
+        (Common.DeadModule
            (Format.asprintf "@{<info>%s@} %s" moduleName
               "is a dead module as all its items are dead."))
     | _ -> ()
