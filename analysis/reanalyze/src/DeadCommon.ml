@@ -480,16 +480,6 @@ let addValueDeclaration ?(isToplevel = true) ~(loc : Location.t) ~moduleLoc
        ~declKind:(Value {isToplevel; optionalArgs; sideEffects})
        ~loc ~moduleLoc ~path
 
-let emitWarning ?(onDeadDecl = fun () -> "") ~decl ~message name =
-  let loc = decl |> declGetLoc in
-  Log_.warning ~loc ~notClosed:true ~name (fun ppf () ->
-      Format.fprintf ppf "@{<info>%s@} %s"
-        (decl.path |> Path.withoutHead)
-        message);
-  let additionalText = onDeadDecl () in
-  Format.fprintf Format.std_formatter "%s" additionalText;
-  if !Cli.json then EmitJson.emitClose () |> print_string
-
 module WriteDeadAnnotations = struct
   type line = {mutable declarations : decl list; original : string}
 
@@ -583,7 +573,7 @@ module WriteDeadAnnotations = struct
              if n < lastLine - 1 then output_char channel '\n');
       close_out_noerr channel)
 
-  let onDeadDecl ~ppf decl =
+  let onDeadDecl decl =
     let fileName = decl.pos.pos_fname in
     if Sys.file_exists fileName then (
       if fileName <> !currentFile then (
@@ -618,6 +608,30 @@ module WriteDeadAnnotations = struct
 
   let write () = writeFile !currentFile !currentFileLines
 end
+
+let emitWarning ~decl ~message name =
+  let loc = decl |> declGetLoc in
+  Log_.warning ~loc ~notClosed:true ~name (fun ppf () ->
+      Format.fprintf ppf "@{<info>%s@} %s"
+        (decl.path |> Path.withoutHead)
+        message);
+  let additionalText =
+    let isToplevelValueWithSideEffects decl =
+      match decl.declKind with
+      | Value {isToplevel; sideEffects} -> isToplevel && sideEffects
+      | _ -> false
+    in
+    let shouldWriteAnnotation =
+      (not (isToplevelValueWithSideEffects decl)) && Suppress.filter decl.pos
+    in
+    decl.path
+    |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
+    |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
+    if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
+    else ""
+  in
+  Format.fprintf Format.std_formatter "%s" additionalText;
+  if !Cli.json then EmitJson.emitClose () |> print_string
 
 module Decl = struct
   let isValue decl =
@@ -745,19 +759,10 @@ module Decl = struct
         | _ -> true
       in
       if shouldEmitWarning then (
-        let shouldWriteAnnotation =
-          (not (isToplevelValueWithSideEffects decl))
-          && Suppress.filter decl.pos
-        in
         decl.path
         |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
         |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
-        emitWarning ~decl ~message
-          ~onDeadDecl:(fun () ->
-            if shouldWriteAnnotation then
-              decl |> WriteDeadAnnotations.onDeadDecl ~ppf
-            else "")
-          name)
+        emitWarning ~decl ~message name)
 end
 
 let declIsDead ~refs decl =
