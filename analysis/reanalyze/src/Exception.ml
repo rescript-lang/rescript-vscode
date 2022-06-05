@@ -199,8 +199,7 @@ module Checks = struct
            Some
              (EmitJson.emitAnnotate ~action:"Add @raises annotation"
                 ~pos:(EmitJson.locToPos locFull)
-                ~text:(Format.asprintf "@raises(%s)\\n" missingTxt)
-             ^ EmitJson.emitClose ())
+                ~text:(Format.asprintf "@raises(%s)\\n" missingTxt))
          else None)
        (fun ppf () ->
          Format.fprintf ppf

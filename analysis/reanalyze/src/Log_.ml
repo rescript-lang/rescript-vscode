@@ -135,7 +135,7 @@ let logIssue ~issue =
           ~message)
       ()
       (match issue.additionalText with
-      | Some s -> s
+      | Some s -> s ^ EmitJson.emitClose ()
       | None -> EmitJson.emitClose ())
   else
     let color =
