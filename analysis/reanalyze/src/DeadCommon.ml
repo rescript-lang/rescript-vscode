@@ -179,12 +179,16 @@ let iterFilesFromRootsToLeaves iterFun =
                     {Location.none with loc_start = pos; loc_end = pos}
                   in
                   if Config.warnOnCircularDependencies then
-                    Log_.warning ~loc ~name:Issues.warningDeadAnalysisCycle
+                    Log_.warning ~loc
                       (Circular
-                         (Format.asprintf
-                            "Results for %s could be inaccurate because of \
-                             circular references"
-                            fileName));
+                         {
+                           name = Issues.warningDeadAnalysisCycle;
+                           message =
+                             Format.asprintf
+                               "Results for %s could be inaccurate because of \
+                                circular references"
+                               fileName;
+                         });
                   iterFun fileName))
 
 (** Keep track of the location of values annotated @genType or @dead *)
@@ -407,9 +411,10 @@ let emitWarning ~decl ~message name =
   decl.path
   |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
   |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
-  Log_.warning ~loc ~name
+  Log_.warning ~loc
     (DeadWarning
        {
+         name;
          path = Path.withoutHead decl.path;
          message;
          lineInfo;

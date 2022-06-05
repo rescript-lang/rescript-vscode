@@ -90,22 +90,28 @@ let check decl =
     optionalArgs
     |> OptionalArgs.iterUnused (fun s ->
            Log_.warning ~loc:(decl |> declGetLoc)
-             ~name:Issues.warningUnusedArgument
              (DeadOptional
-                (Format.asprintf
-                   "optional argument @{<info>%s@} of function @{<info>%s@} is \
-                    never used"
-                   s
-                   (decl.path |> Path.withoutHead))));
+                {
+                  name = Issues.warningUnusedArgument;
+                  message =
+                    Format.asprintf
+                      "optional argument @{<info>%s@} of function @{<info>%s@} \
+                       is never used"
+                      s
+                      (decl.path |> Path.withoutHead);
+                }));
     optionalArgs
     |> OptionalArgs.iterAlwaysUsed (fun s nCalls ->
            Log_.warning ~loc:(decl |> declGetLoc)
-             ~name:Issues.warningRedundantOptionalArgument
              (DeadOptional
-                (Format.asprintf
-                   "optional argument @{<info>%s@} of function @{<info>%s@} is \
-                    always supplied (%d calls)"
-                   s
-                   (decl.path |> Path.withoutHead)
-                   nCalls)))
+                {
+                  name = Issues.warningRedundantOptionalArgument;
+                  message =
+                    Format.asprintf
+                      "optional argument @{<info>%s@} of function @{<info>%s@} \
+                       is always supplied (%d calls)"
+                      s
+                      (decl.path |> Path.withoutHead)
+                      nCalls;
+                }))
   | _ -> ()

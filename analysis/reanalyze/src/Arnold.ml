@@ -120,55 +120,84 @@ module Stats = struct
     incr nCacheChecks;
     if hit then incr nCacheHits;
     if !Common.Cli.debug then
-      Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
+      Log_.warning ~count:false ~loc
         (Termination
-           (Format.asprintf "Cache %s for @{<info>%s@}"
-              (match hit with true -> "hit" | false -> "miss")
-              (FunctionCall.toString functionCall)))
+           {
+             name = Issues.terminationAnalysis;
+             message =
+               Format.asprintf "Cache %s for @{<info>%s@}"
+                 (match hit with true -> "hit" | false -> "miss")
+                 (FunctionCall.toString functionCall);
+           })
 
   let logResult ~functionCall ~loc ~resString =
     if !Common.Cli.debug then
-      Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
+      Log_.warning ~count:false ~loc
         (Termination
-           (Format.asprintf "@{<info>%s@} returns %s"
-              (FunctionCall.toString functionCall)
-              resString))
+           {
+             name = Issues.terminationAnalysis;
+             message =
+               Format.asprintf "@{<info>%s@} returns %s"
+                 (FunctionCall.toString functionCall)
+                 resString;
+           })
 
   let logHygieneParametric ~functionName ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~name:Issues.errorHygiene
+    Log_.error ~loc
       (Termination
-         (Format.asprintf
-            "@{<error>%s@} cannot be analyzed directly as it is parametric"
-            functionName))
+         {
+           name = Issues.errorHygiene;
+           message =
+             Format.asprintf
+               "@{<error>%s@} cannot be analyzed directly as it is parametric"
+               functionName;
+         })
 
   let logHygieneOnlyCallDirectly ~path ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~name:Issues.errorHygiene
+    Log_.error ~loc
       (Termination
-         (Format.asprintf
-            "@{<error>%s@} can only be called directly, or passed as labeled \
-             argument"
-            (Path.name path)))
+         {
+           name = Issues.errorHygiene;
+           message =
+             Format.asprintf
+               "@{<error>%s@} can only be called directly, or passed as \
+                labeled argument"
+               (Path.name path);
+         })
 
   let logHygieneMustHaveNamedArgument ~label ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~name:Issues.errorHygiene
+    Log_.error ~loc
       (Termination
-         (Format.asprintf "Call must have named argument @{<error>%s@}" label))
+         {
+           name = Issues.errorHygiene;
+           message =
+             Format.asprintf "Call must have named argument @{<error>%s@}" label;
+         })
 
   let logHygieneNamedArgValue ~label ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~name:Issues.errorHygiene
+    Log_.error ~loc
       (Termination
-         (Format.asprintf
-            "Named argument @{<error>%s@} must be passed a recursive function"
-            label))
+         {
+           name = Issues.errorHygiene;
+           message =
+             Format.asprintf
+               "Named argument @{<error>%s@} must be passed a recursive \
+                function"
+               label;
+         })
 
   let logHygieneNoNestedLetRec ~loc =
     incr nHygieneErrors;
-    Log_.error ~loc ~name:Issues.errorHygiene
-      (Termination (Format.asprintf "Nested multiple let rec not supported yet"))
+    Log_.error ~loc
+      (Termination
+         {
+           name = Issues.errorHygiene;
+           message = Format.asprintf "Nested multiple let rec not supported yet";
+         })
 end
 
 module Progress = struct
@@ -580,12 +609,16 @@ module ExtendFunctionTable = struct
             then (
               functionTable |> FunctionTable.addFunction ~functionName;
               if !Common.Cli.debug then
-                Log_.warning ~count:false ~loc ~name:Issues.terminationAnalysis
+                Log_.warning ~count:false ~loc
                   (Termination
-                     (Format.asprintf
-                        "Extend Function Table with @{<info>%s@} (%a) as it \
-                         calls a progress function"
-                        functionName printPos id_pos))))
+                     {
+                       name = Issues.terminationAnalysis;
+                       message =
+                         Format.asprintf
+                           "Extend Function Table with @{<info>%s@} (%a) as it \
+                            calls a progress function"
+                           functionName printPos id_pos;
+                     })))
       | Texp_apply ({exp_desc = Texp_ident (callee, _, _)}, args)
         when callee |> FunctionTable.isInFunctionInTable ~functionTable ->
         let functionName = Path.name callee in
@@ -599,12 +632,15 @@ module ExtendFunctionTable = struct
                  |> FunctionTable.addLabelToKind ~functionName ~label;
                  if !Common.Cli.debug then
                    Log_.warning ~count:false ~loc
-                     ~name:Issues.terminationAnalysis
                      (Termination
-                        (Format.asprintf
-                           "@{<info>%s@} is parametric \
-                            ~@{<info>%s@}=@{<info>%s@}"
-                           functionName label (Path.name path)))
+                        {
+                          name = Issues.terminationAnalysis;
+                          message =
+                            Format.asprintf
+                              "@{<info>%s@} is parametric \
+                               ~@{<info>%s@}=@{<info>%s@}"
+                              functionName label (Path.name path);
+                        })
                | _ -> ())
       | _ -> ());
       super.expr self e
@@ -662,12 +698,15 @@ module CheckExpressionWellFormed = struct
                        |> FunctionTable.addLabelToKind ~functionName ~label;
                        if !Common.Cli.debug then
                          Log_.warning ~count:false ~loc:body.exp_loc
-                           ~name:Issues.terminationAnalysis
                            (Termination
-                              (Format.asprintf
-                                 "Extend Function Table with @{<info>%s@} as \
-                                  parametric ~@{<info>%s@}=@{<info>%s@}"
-                                 functionName label (Path.name path)))
+                              {
+                                name = Issues.terminationAnalysis;
+                                message =
+                                  Format.asprintf
+                                    "Extend Function Table with @{<info>%s@} \
+                                     as parametric ~@{<info>%s@}=@{<info>%s@}"
+                                    functionName label (Path.name path);
+                              })
                      | _ -> checkIdent ~path ~loc)
                  | Optional _ | Nolabel -> checkIdent ~path ~loc)
                | _ -> ());
@@ -694,8 +733,9 @@ module Compile = struct
     let {currentFunctionName; functionTable; isProgressFunction} = ctx in
     let loc = expr.exp_loc in
     let notImplemented case =
-      Log_.error ~loc ~name:Issues.errorNotImplemented
-        (Termination (Format.asprintf case))
+      Log_.error ~loc
+        (Termination
+           {name = Issues.errorNotImplemented; message = Format.asprintf case})
     in
 
     match expr.exp_desc with
@@ -826,10 +866,14 @@ module Compile = struct
         newFunctionName;
       newFunctionDefinition.body <- Some (vb_expr |> expression ~ctx:newCtx);
       if !Common.Cli.debug then
-        Log_.warning ~count:false ~loc:pat_loc ~name:Issues.terminationAnalysis
+        Log_.warning ~count:false ~loc:pat_loc
           (Termination
-             (Format.asprintf "Adding recursive definition @{<info>%s@}"
-                newFunctionName));
+             {
+               name = Issues.terminationAnalysis;
+               message =
+                 Format.asprintf "Adding recursive definition @{<info>%s@}"
+                   newFunctionName;
+             });
       inExpr |> expression ~ctx
     | Texp_let (recFlag, valueBindings, inExpr) ->
       if recFlag = Recursive then Stats.logHygieneNoNestedLetRec ~loc;
@@ -1045,21 +1089,25 @@ module Eval = struct
       ~state =
     if callStack |> CallStack.hasFunctionCall ~functionCall then (
       if state.State.progress = NoProgress then (
-        Log_.error ~loc ~name:Issues.errorTermination
+        Log_.error ~loc
           (Termination
-             (Format.asprintf "%a"
-                (fun ppf () ->
-                  Format.fprintf ppf "Possible infinite loop when calling ";
-                  (match functionCallToInstantiate = functionCall with
-                  | true ->
-                    Format.fprintf ppf "@{<error>%s@}"
-                      (functionCallToInstantiate |> FunctionCall.toString)
-                  | false ->
-                    Format.fprintf ppf "@{<error>%s@} which is @{<error>%s@}"
-                      (functionCallToInstantiate |> FunctionCall.toString)
-                      (functionCall |> FunctionCall.toString));
-                  Format.fprintf ppf "@,%a" CallStack.print callStack)
-                ()));
+             {
+               name = Issues.errorTermination;
+               message =
+                 Format.asprintf "%a"
+                   (fun ppf () ->
+                     Format.fprintf ppf "Possible infinite loop when calling ";
+                     (match functionCallToInstantiate = functionCall with
+                     | true ->
+                       Format.fprintf ppf "@{<error>%s@}"
+                         (functionCallToInstantiate |> FunctionCall.toString)
+                     | false ->
+                       Format.fprintf ppf "@{<error>%s@} which is @{<error>%s@}"
+                         (functionCallToInstantiate |> FunctionCall.toString)
+                         (functionCall |> FunctionCall.toString));
+                     Format.fprintf ppf "@,%a" CallStack.print callStack)
+                   ();
+             });
         Stats.logLoop ());
       true)
     else false

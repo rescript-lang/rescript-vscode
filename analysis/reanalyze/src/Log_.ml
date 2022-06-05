@@ -129,17 +129,27 @@ let missingRaiseInfoToMessage {exnTable; exnName; missingAnnotations; raiseSet}
     "@{<info>%s@} might raise %s and is not annotated with @raises(%s)" exnName
     raisesTxt missingTxt
 
-let descriptionToString (description : description) =
+let descriptionToMessage (description : description) =
   match description with
-  | Circular s -> s
-  | DeadModule s -> s
-  | DeadOptional s -> s
+  | Circular {message} -> message
+  | DeadModule {message} -> message
+  | DeadOptional {message} -> message
   | DeadWarning {path; message} ->
     Format.asprintf "@{<info>%s@} %s" path message
-  | ExceptionAnalysis s -> s
+  | ExceptionAnalysis {message} -> message
   | ExceptionAnalysisMissing missingRaiseInfo ->
     missingRaiseInfoToMessage missingRaiseInfo
-  | Termination s -> s
+  | Termination {message} -> message
+
+let descriptionToName (description : description) =
+  match description with
+  | Circular {name} -> name
+  | DeadModule {name} -> name
+  | DeadOptional {name} -> name
+  | DeadWarning {name} -> name
+  | ExceptionAnalysis {name} -> name
+  | ExceptionAnalysisMissing {name} -> name
+  | Termination {name} -> name
 
 let logIssue ~(issue : issue) =
   let open Format in
@@ -150,7 +160,7 @@ let logIssue ~(issue : issue) =
     let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
     let endLine = loc.loc_end.pos_lnum - 1 in
     let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
-    let message = Json.escape (descriptionToString issue.description) in
+    let message = Json.escape (descriptionToMessage issue.description) in
     Format.asprintf "%a%s%s"
       (fun ppf () ->
         EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
@@ -167,7 +177,7 @@ let logIssue ~(issue : issue) =
       match issue.kind with Warning -> Color.info | Error -> Color.error
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
-      (descriptionToString issue.description)
+      (descriptionToMessage issue.description)
       (logAdditionalInfo ~description:issue.description)
 
 module Stats = struct
@@ -215,12 +225,13 @@ module Stats = struct
           ^ ")"))
 end
 
-let logKind ~count ~kind ~(loc : Location.t) ~name description =
+let logKind ~count ~kind ~(loc : Location.t) description =
+  let name = descriptionToName description in
   if Suppress.filter loc.loc_start then
     let issue : issue = {name; kind; loc; description} in
     if count then Stats.addIssue issue
 
-let warning ?(count = true) ~loc ~name body =
-  body |> logKind ~kind:Warning ~count ~loc ~name
+let warning ?(count = true) ~loc description =
+  description |> logKind ~kind:Warning ~count ~loc
 
-let error ~loc ~name body = body |> logKind ~kind:Error ~count:true ~loc ~name
+let error ~loc description = description |> logKind ~kind:Error ~count:true ~loc
