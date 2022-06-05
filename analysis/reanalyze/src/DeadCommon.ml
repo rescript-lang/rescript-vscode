@@ -573,38 +573,47 @@ module WriteDeadAnnotations = struct
              if n < lastLine - 1 then output_char channel '\n');
       close_out_noerr channel)
 
+  let getLineInformation ~decl ~line =
+    if !Cli.json then
+      let posAnnotation = decl |> getPosAnnotation in
+      let offset = decl.posAdjustment |> offsetOfPosAdjustment in
+      EmitJson.emitAnnotate
+        ~pos:
+          ( posAnnotation.pos_lnum - 1,
+            posAnnotation.pos_cnum - posAnnotation.pos_bol + offset )
+        ~text:
+          (if decl.posAdjustment = FirstVariant then
+           (* avoid syntax error *)
+           "| @dead "
+          else "@dead ")
+        ~action:"Suppress dead code warning"
+    else
+      Format.asprintf "@.  <-- line %d@.  %s" decl.pos.pos_lnum
+        (line |> lineToString)
+
+  let getNoLineInfo () = if !Cli.json then "" else "\n  <-- Can't find line"
+
+  let lineInfoToString = function
+    | None -> getNoLineInfo ()
+    | Some (decl, line) -> getLineInformation ~decl ~line
+
   let onDeadDecl decl =
     let fileName = decl.pos.pos_fname in
-    if Sys.file_exists fileName then (
-      if fileName <> !currentFile then (
-        writeFile !currentFile !currentFileLines;
-        currentFile := fileName;
-        currentFileLines := readFile fileName);
-      let indexInLines = (decl |> getPosAnnotation).pos_lnum - 1 in
-      match !currentFileLines.(indexInLines) with
-      | line ->
-        line.declarations <- decl :: line.declarations;
-        if !Cli.json then
-          let posAnnotation = decl |> getPosAnnotation in
-          let offset = decl.posAdjustment |> offsetOfPosAdjustment in
-          EmitJson.emitAnnotate
-            ~pos:
-              ( posAnnotation.pos_lnum - 1,
-                posAnnotation.pos_cnum - posAnnotation.pos_bol + offset )
-            ~text:
-              (if decl.posAdjustment = FirstVariant then
-               (* avoid syntax error *)
-               "| @dead "
-              else "@dead ")
-            ~action:"Suppress dead code warning"
-        else
-          Format.asprintf "@.  <-- line %d@.  %s" decl.pos.pos_lnum
-            (line |> lineToString)
-      | exception Invalid_argument _ ->
-        if !Cli.json then ""
-        else Format.asprintf "@.  <-- Can't find line %d" decl.pos.pos_lnum)
-    else if !Cli.json then ""
-    else Format.asprintf "@.  <-- Can't find file"
+    let lineInfo =
+      if Sys.file_exists fileName then (
+        if fileName <> !currentFile then (
+          writeFile !currentFile !currentFileLines;
+          currentFile := fileName;
+          currentFileLines := readFile fileName);
+        let indexInLines = (decl |> getPosAnnotation).pos_lnum - 1 in
+        match !currentFileLines.(indexInLines) with
+        | line ->
+          line.declarations <- decl :: line.declarations;
+          Some (decl, line)
+        | exception Invalid_argument _ -> None)
+      else None
+    in
+    lineInfoToString lineInfo
 
   let write () = writeFile !currentFile !currentFileLines
 end
