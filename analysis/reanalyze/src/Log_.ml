@@ -107,7 +107,13 @@ let item x =
 
 type kind = Warning | Error
 
-type issue = {name : string; kind : kind; loc : Location.t; message : string}
+type issue = {
+  name : string;
+  kind : kind;
+  loc : Location.t;
+  message : string;
+  additionalText : string option;
+}
 
 let logIssue ~issue =
   let open Format in
@@ -119,7 +125,7 @@ let logIssue ~issue =
     let endLine = loc.loc_end.pos_lnum - 1 in
     let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
     let message = Json.escape issue.message in
-    Format.asprintf "%a"
+    Format.asprintf "%a%s"
       (fun ppf () ->
         EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
           ~kind:
@@ -128,12 +134,16 @@ let logIssue ~issue =
           ~range:(startLine, startCharacter, endLine, endCharacter)
           ~message)
       ()
+      (match issue.additionalText with
+      | Some s -> s
+      | None -> EmitJson.emitClose ())
   else
     let color =
       match issue.kind with Warning -> Color.info | Error -> Color.error
     in
-    asprintf "@.  %a@.  %a@.  %s@." color issue.name Loc.print issue.loc
+    asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
       issue.message
+      (match issue.additionalText with Some s -> s | None -> "")
 
 module Stats = struct
   let issues = ref []
@@ -182,16 +192,17 @@ end
 
 let logKind ~count ~getAdditionalText ~kind ~(loc : Location.t) ~name body =
   if Suppress.filter loc.loc_start then
-    let message = Format.asprintf "%a" body () ^ getAdditionalText () in
-    let issue = {name; kind; loc; message} in
+    let message = Format.asprintf "%a" body () in
+    let additionalText = getAdditionalText () in
+    let issue = {name; kind; loc; message; additionalText} in
     if count then Stats.addIssue issue
 
-let warning ?(count = true) ?(getAdditionalText = fun () -> "") ~loc ~name body
-    =
+let warning ?(count = true) ?(getAdditionalText = fun () -> None) ~loc ~name
+    body =
   body |> logKind ~getAdditionalText ~kind:Warning ~count ~loc ~name
 
 let error ~loc ~name body =
   body
   |> logKind
-       ~getAdditionalText:(fun () -> "")
+       ~getAdditionalText:(fun () -> None)
        ~kind:Error ~count:true ~loc ~name

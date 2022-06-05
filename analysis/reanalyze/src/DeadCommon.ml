@@ -629,8 +629,11 @@ let emitWarning ~decl ~message name =
         if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
         else ""
       in
-      Format.asprintf "%s" additionalText
-      ^ if !Cli.json then EmitJson.emitClose () else "")
+      let additionalText =
+        if !Cli.json then additionalText ^ EmitJson.emitClose ()
+        else additionalText
+      in
+      Some additionalText)
     ~loc ~name
     (fun ppf () ->
       Format.fprintf ppf "@{<info>%s@} %s"

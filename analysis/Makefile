@@ -6,7 +6,7 @@ build-analysis-binary:
 	cp _build/install/default/bin/rescript-editor-analysis rescript-editor-analysis.exe
 
 build-tests:
-	make -C tests§ build
+	make -C tests build
 
 build-reanalyze:
 	make -C reanalyze build
