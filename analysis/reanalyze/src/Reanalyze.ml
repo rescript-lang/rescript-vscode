@@ -93,7 +93,7 @@ let runAnalysisAndReport ~cmtRoot ~ppf =
   runAnalysis ~cmtRoot;
   if runConfig.dce then (
     DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check ppf;
-    DeadCommon.WriteDeadAnnotations.write ());
+    WriteDeadAnnotations.write ());
   if runConfig.exception_ then Exception.reportResults ~ppf;
   if runConfig.termination then Arnold.reportResults ~ppf;
   Log_.Stats.report ();

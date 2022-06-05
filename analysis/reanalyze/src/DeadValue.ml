@@ -28,7 +28,7 @@ let collectValueBinding super self (vb : Typedtree.value_binding) =
       let name = Ident.name id |> Name.create ~isInterface:false in
       let optionalArgs =
         vb.vb_expr.exp_type |> DeadOptionalArgs.fromTypeExpr
-        |> OptionalArgs.fromList
+        |> Common.OptionalArgs.fromList
       in
       let exists =
         match PosHash.find_opt decls loc_start with
@@ -57,7 +57,7 @@ let collectValueBinding super self (vb : Typedtree.value_binding) =
         let declKind =
           match decl.declKind with
           | Value vk ->
-            DeclKind.Value
+            Common.DeclKind.Value
               {vk with sideEffects = SideEffects.checkExpr vb.vb_expr}
           | dk -> dk
         in
@@ -242,7 +242,8 @@ let rec processSignatureItem ~doTypes ~doValues ~moduleLoc ~path
       let isPrimitive = match kind with Val_prim _ -> true | _ -> false in
       if (not isPrimitive) || !Config.analyzeExternals then
         let optionalArgs =
-          val_type |> DeadOptionalArgs.fromTypeExpr |> OptionalArgs.fromList
+          val_type |> DeadOptionalArgs.fromTypeExpr
+          |> Common.OptionalArgs.fromList
         in
 
         (* if Ident.name id = "someValue" then

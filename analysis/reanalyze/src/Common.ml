@@ -128,3 +128,86 @@ module Path = struct
     | typeName :: rest -> (typeName |> Name.toInterface) :: rest
     | [] -> path
 end
+
+module OptionalArgs = struct
+  type t = {
+    mutable count : int;
+    mutable unused : StringSet.t;
+    mutable alwaysUsed : StringSet.t;
+  }
+
+  let empty =
+    {unused = StringSet.empty; alwaysUsed = StringSet.empty; count = 0}
+
+  let fromList l =
+    {unused = StringSet.of_list l; alwaysUsed = StringSet.empty; count = 0}
+
+  let isEmpty x = StringSet.is_empty x.unused
+
+  let call ~argNames ~argNamesMaybe x =
+    let nameSet = argNames |> StringSet.of_list in
+    let nameSetMaybe = argNamesMaybe |> StringSet.of_list in
+    let nameSetAlways = StringSet.diff nameSet nameSetMaybe in
+    if x.count = 0 then x.alwaysUsed <- nameSetAlways
+    else x.alwaysUsed <- StringSet.inter nameSetAlways x.alwaysUsed;
+    argNames
+    |> List.iter (fun name -> x.unused <- StringSet.remove name x.unused);
+    x.count <- x.count + 1
+
+  let combine x y =
+    let unused = StringSet.inter x.unused y.unused in
+    x.unused <- unused;
+    y.unused <- unused;
+    let alwaysUsed = StringSet.inter x.alwaysUsed y.alwaysUsed in
+    x.alwaysUsed <- alwaysUsed;
+    y.alwaysUsed <- alwaysUsed
+
+  let iterUnused f x = StringSet.iter f x.unused
+
+  let iterAlwaysUsed f x = StringSet.iter (fun s -> f s x.count) x.alwaysUsed
+end
+
+module DeclKind = struct
+  type t =
+    | Exception
+    | RecordLabel
+    | VariantCase
+    | Value of {
+        isToplevel : bool;
+        mutable optionalArgs : OptionalArgs.t;
+        sideEffects : bool;
+      }
+
+  let isType dk =
+    match dk with
+    | RecordLabel | VariantCase -> true
+    | Exception | Value _ -> false
+
+  let toString dk =
+    match dk with
+    | Exception -> "Exception"
+    | RecordLabel -> "RecordLabel"
+    | VariantCase -> "VariantCase"
+    | Value _ -> "Value"
+end
+
+type posAdjustment = FirstVariant | OtherVariant | Nothing
+
+type decl = {
+  declKind : DeclKind.t;
+  moduleLoc : Location.t;
+  posAdjustment : posAdjustment;
+  path : Path.t;
+  pos : Lexing.position;
+  posEnd : Lexing.position;
+  posStart : Lexing.position;
+  mutable resolved : bool;
+  mutable report : bool;
+}
+
+type line = {mutable declarations : decl list; original : string}
+
+type additionalText =
+  | NoAdditionalText
+  | LineInfo of (decl * line) option
+  | MissingRaiseInfo of string
