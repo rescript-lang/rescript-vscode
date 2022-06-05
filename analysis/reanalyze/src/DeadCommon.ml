@@ -404,15 +404,10 @@ let emitWarning ~decl ~message name =
     if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
     else None
   in
-  let additionalInfo =
-    if shouldWriteAnnotation then LineInfo else NoAdditionalText
-  in
   decl.path
   |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
   |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
-  Log_.warning
-    ~getAdditionalText:(fun () -> additionalInfo)
-    ~loc ~name
+  Log_.warning ~loc ~name
     (DeadWarning
        {
          path = Path.withoutHead decl.path;

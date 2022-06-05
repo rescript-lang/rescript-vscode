@@ -106,20 +106,14 @@ let missingRaiseInfoToText {Common.exnTable; missingAnnotations; locFull} =
       ~text:(Format.asprintf "@raises(%s)\\n" missingTxt)
   else ""
 
-let logAdditionalInfo ~(description : Common.description) = function
-  | Common.NoAdditionalText -> ""
-  | LineInfo -> (
-    match description with
-    | DeadWarning {lineInfo; shouldWriteAnnotation} ->
-      if shouldWriteAnnotation then
-        WriteDeadAnnotations.lineInfoToString lineInfo
-      else ""
-    | _ -> assert false)
-  | MissingRaiseInfo -> (
-    match description with
-    | ExceptionAnalysis missingRaiseInfo ->
-      missingRaiseInfoToText missingRaiseInfo
-    | _ -> assert false)
+let logAdditionalInfo ~(description : Common.description) =
+  match description with
+  | DeadWarning {lineInfo; shouldWriteAnnotation} ->
+    if shouldWriteAnnotation then WriteDeadAnnotations.lineInfoToString lineInfo
+    else ""
+  | ExceptionAnalysis missingRaiseInfo ->
+    missingRaiseInfoToText missingRaiseInfo
+  | _ -> ""
 
 let missingRaiseInfoToMessage
     {Common.exnTable; exnName; missingAnnotations; raiseSet} =
@@ -159,7 +153,7 @@ let logIssue ~(issue : Common.issue) =
           ~range:(startLine, startCharacter, endLine, endCharacter)
           ~message)
       ()
-      (logAdditionalInfo ~description:issue.description issue.additionalInfo)
+      (logAdditionalInfo ~description:issue.description)
       (if !Common.Cli.json then EmitJson.emitClose () else "")
   else
     let color =
@@ -167,7 +161,7 @@ let logIssue ~(issue : Common.issue) =
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
       (descriptionToString issue.description)
-      (logAdditionalInfo ~description:issue.description issue.additionalInfo)
+      (logAdditionalInfo ~description:issue.description)
 
 module Stats = struct
   let issues = ref []
@@ -214,19 +208,12 @@ module Stats = struct
           ^ ")"))
 end
 
-let logKind ~count ~getAdditionalText:getAdditionalInfo ~kind
-    ~(loc : Location.t) ~name description =
+let logKind ~count ~kind ~(loc : Location.t) ~name description =
   if Suppress.filter loc.loc_start then
-    let additionalInfo = getAdditionalInfo () in
-    let issue : Common.issue = {name; kind; loc; description; additionalInfo} in
+    let issue : Common.issue = {name; kind; loc; description} in
     if count then Stats.addIssue issue
 
-let warning ?(count = true)
-    ?(getAdditionalText = fun () -> Common.NoAdditionalText) ~loc ~name body =
-  body |> logKind ~getAdditionalText ~kind:Warning ~count ~loc ~name
+let warning ?(count = true) ~loc ~name body =
+  body |> logKind ~kind:Warning ~count ~loc ~name
 
-let error ~loc ~name body =
-  body
-  |> logKind
-       ~getAdditionalText:(fun () -> Common.NoAdditionalText)
-       ~kind:Error ~count:true ~loc ~name
+let error ~loc ~name body = body |> logKind ~kind:Error ~count:true ~loc ~name
