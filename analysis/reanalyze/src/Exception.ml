@@ -192,8 +192,7 @@ module Checks = struct
        {exnName; exnTable; raiseSet; missingAnnotations; locFull}
      in
      Log_.warning ~loc ~name:Issues.exceptionAnalysis
-       ~getAdditionalText:(fun () ->
-         Log_.missingRaiseInfoToAdditionalInfo missingRaiseInfo)
+       ~getAdditionalText:(fun () -> MissingRaiseInfo)
        (Common.ExceptionAnalysis missingRaiseInfo));
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc ~name:Issues.exceptionAnalysis
