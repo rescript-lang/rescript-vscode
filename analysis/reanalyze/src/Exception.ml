@@ -146,7 +146,8 @@ module Event = struct
              Format.fprintf ppf
                "@{<info>%s@} does not raise and is annotated with redundant \
                 @doesNotRaise"
-               name));
+               name)
+         |> Log_.printIssue);
         loop exnSet rest
       | ({kind = Catches nestedEvents; exceptions} as ev) :: rest ->
         if !Common.Cli.debug then Log_.item "%a@." print ev;
@@ -193,11 +194,11 @@ module Checks = struct
       let missingTxt =
         Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
       in
-      Log_.warning ~loc ~name:Issues.exceptionAnalysis ~notClosed:true
-        (fun ppf () ->
+      Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
           Format.fprintf ppf
             "@{<info>%s@} might raise %s and is not annotated with @raises(%s)"
-            name raisesTxt missingTxt);
+            name raisesTxt missingTxt)
+      |> Log_.printIssue ~notClosed:true;
       if !Common.Cli.json then (
         EmitJson.emitAnnotate ~action:"Add @raises annotation"
           ~pos:(EmitJson.locToPos locFull)
@@ -219,6 +220,7 @@ module Checks = struct
             raisesDescription ()
             (Exceptions.pp ~exnTable:None)
             redundantAnnotations)
+      |> Log_.printIssue
 
   let doChecks () = !checks |> List.rev |> List.iter doCheck
 end
@@ -286,7 +288,8 @@ let traverseAst () =
       if calleeName |> isRaise then
         Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
             Format.fprintf ppf
-              "@{<info>%s@} can be analyzed only if called direclty" calleeName);
+              "@{<info>%s@} can be analyzed only if called direclty" calleeName)
+        |> Log_.printIssue;
       currentEvents :=
         {
           Event.exceptions = Exceptions.empty;

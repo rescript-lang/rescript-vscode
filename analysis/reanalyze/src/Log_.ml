@@ -143,10 +143,9 @@ type kind = Warning | Error
 
 type issue = {name : string; kind : kind; loc : Location.t; message : string}
 
-let logIssue ~count ~issue ~notClosed =
+let logIssue ~issue ~notClosed =
   let open Format in
   let loc = issue.loc in
-  if count then Stats.count issue.name;
   if !Common.Cli.json then
     let file = Json.escape loc.loc_start.pos_fname in
     let startLine = loc.loc_start.pos_lnum - 1 in
@@ -173,15 +172,20 @@ let logIssue ~count ~issue ~notClosed =
     asprintf "@.  %a@.  %a@.  %s@." color issue.name Loc.print issue.loc
       issue.message
 
-let logKind ~count ~kind ~(loc : Location.t) ~name ~notClosed body =
-  if Suppress.filter loc.loc_start then
-    let open Format in
-    let issue = {name; kind; loc; message = asprintf "%a" body ()} in
-    let text = logIssue ~count ~issue ~notClosed in
+let logKind ~count ~kind ~(loc : Location.t) ~name body =
+  if Suppress.filter loc.loc_start then (
+    if count then Stats.count name;
+    Some {name; kind; loc; message = Format.asprintf "%a" body ()})
+  else None
+
+let warning ?(count = true) ~loc ~name body =
+  body |> logKind ~kind:Warning ~count ~loc ~name
+
+let error ~loc ~name body = body |> logKind ~kind:Error ~count:true ~loc ~name
+
+let printIssue ?(notClosed=false) issue =
+  match issue with
+  | None -> ()
+  | Some issue ->
+    let text = logIssue ~issue ~notClosed in
     Format.fprintf Format.std_formatter "%s" text
-
-let warning ?(count = true) ?(notClosed = false) ~loc ~name body =
-  body |> logKind ~kind:Warning ~count ~loc ~name ~notClosed
-
-let error ~loc ~name body =
-  body |> logKind ~kind:Error ~count:true ~loc ~name ~notClosed:false

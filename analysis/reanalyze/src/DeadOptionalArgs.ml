@@ -95,7 +95,8 @@ let check decl =
                  "optional argument @{<info>%s@} of function @{<info>%s@} is \
                   never used"
                  s
-                 (decl.path |> Path.withoutHead)));
+                 (decl.path |> Path.withoutHead))
+           |> Log_.printIssue);
     optionalArgs
     |> OptionalArgs.iterAlwaysUsed (fun s nCalls ->
            Log_.warning ~loc:(decl |> declGetLoc)
@@ -105,5 +106,6 @@ let check decl =
                   always supplied (%d calls)"
                  s
                  (decl.path |> Path.withoutHead)
-                 nCalls))
+                 nCalls)
+           |> Log_.printIssue)
   | _ -> ()
