@@ -182,11 +182,23 @@ module Checks = struct
   let add ~events ~exceptions ~loc ?(locFull = loc) ~moduleName name =
     checks := {events; exceptions; loc; locFull; moduleName; name} :: !checks
 
+  let emitMissingRaiseInfo {Common.exnTable; missingAnnotations; locFull} =
+    let missingTxt =
+      Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
+    in
+    if !Common.Cli.json then
+      Common.MissingRaiseInfo
+        (EmitJson.emitAnnotate ~action:"Add @raises annotation"
+           ~pos:(EmitJson.locToPos locFull)
+           ~text:(Format.asprintf "@raises(%s)\\n" missingTxt))
+    else NoAdditionalText
+
   let doCheck {events; exceptions; loc; locFull; moduleName; name} =
     let raiseSet, exnTable = events |> Event.combine ~moduleName in
     let missingAnnotations = Exceptions.diff raiseSet exceptions in
     let redundantAnnotations = Exceptions.diff exceptions raiseSet in
     (if not (Exceptions.isEmpty missingAnnotations) then
+     let missingRaiseInfo = {Common.exnTable; missingAnnotations; locFull} in
      let raisesTxt =
        Format.asprintf "%a" (Exceptions.pp ~exnTable:(Some exnTable)) raiseSet
      in
@@ -194,13 +206,7 @@ module Checks = struct
        Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
      in
      Log_.warning ~loc ~name:Issues.exceptionAnalysis
-       ~getAdditionalText:(fun () ->
-         if !Common.Cli.json then
-           MissingRaiseInfo
-             (EmitJson.emitAnnotate ~action:"Add @raises annotation"
-                ~pos:(EmitJson.locToPos locFull)
-                ~text:(Format.asprintf "@raises(%s)\\n" missingTxt))
-         else NoAdditionalText)
+       ~getAdditionalText:(fun () -> emitMissingRaiseInfo missingRaiseInfo)
        (fun ppf () ->
          Format.fprintf ppf
            "@{<info>%s@} might raise %s and is not annotated with @raises(%s)"
