@@ -268,7 +268,8 @@ let iterFilesFromRootsToLeaves iterFun =
                         Format.fprintf ppf
                           "Results for %s could be inaccurate because of \
                            circular references"
-                          fileName);
+                          fileName)
+                    |> Log_.printIssue;
                   iterFun fileName))
 
 (** Keep track of the location of values annotated @genType or @dead *)
@@ -611,10 +612,11 @@ end
 
 let emitWarning ~decl ~message name =
   let loc = decl |> declGetLoc in
-  Log_.warning ~loc ~notClosed:true ~name (fun ppf () ->
+  Log_.warning ~loc ~name (fun ppf () ->
       Format.fprintf ppf "@{<info>%s@} %s"
         (decl.path |> Path.withoutHead)
-        message);
+        message)
+  |> Log_.printIssue ~notClosed:true;
   let additionalText =
     let isToplevelValueWithSideEffects decl =
       match decl.declKind with
