@@ -217,8 +217,6 @@ type missingRaiseInfo = {
   raiseSet : ExnSet.t;
 }
 
-type additionalInfo = NoAdditionalText | LineInfo | MissingRaiseInfo
-
 type kind = Warning | Error
 
 type description =
@@ -236,5 +234,4 @@ type issue = {
   kind : kind;
   loc : Location.t;
   description : description;
-  additionalInfo : additionalInfo;
 }
