@@ -109,7 +109,7 @@ let addDeclaration ~(typeId : Ident.t) ~(typeKind : Types.type_kind) =
       (fun i {Types.cd_id; cd_loc} ->
         let posAdjustment =
           (* In Res the variant loc can include the | and spaces after it *)
-          if Log_.posLanguage cd_loc.loc_start = Res then
+          if WriteDeadAnnotations.posLanguage cd_loc.loc_start = Res then
             if i = 0 then FirstVariant else OtherVariant
           else Nothing
         in

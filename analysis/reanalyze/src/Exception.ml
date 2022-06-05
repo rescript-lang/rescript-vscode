@@ -196,11 +196,11 @@ module Checks = struct
      Log_.warning ~loc ~name:Issues.exceptionAnalysis
        ~getAdditionalText:(fun () ->
          if !Common.Cli.json then
-           Some
+           MissingRaiseInfo
              (EmitJson.emitAnnotate ~action:"Add @raises annotation"
                 ~pos:(EmitJson.locToPos locFull)
                 ~text:(Format.asprintf "@raises(%s)\\n" missingTxt))
-         else None)
+         else NoAdditionalText)
        (fun ppf () ->
          Format.fprintf ppf
            "@{<info>%s@} might raise %s and is not annotated with @raises(%s)"

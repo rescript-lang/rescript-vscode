@@ -41,13 +41,9 @@ let fileIsImplementationOf s1 s2 =
   let n1 = String.length s1 and n2 = String.length s2 in
   n2 = n1 + 1 && checkSub s1 s2 (n1 - 1)
 
-let deadAnnotation = "dead"
-
 let liveAnnotation = "live"
 
 let posToString = posToString
-
-let posLanguage = Log_.posLanguage
 
 module PosHash = struct
   include Hashtbl.Make (struct
@@ -66,86 +62,6 @@ module PosHash = struct
     let set = findSet h k in
     replace h k (PosSet.add v set)
 end
-
-module OptionalArgs = struct
-  type t = {
-    mutable count : int;
-    mutable unused : StringSet.t;
-    mutable alwaysUsed : StringSet.t;
-  }
-
-  let empty =
-    {unused = StringSet.empty; alwaysUsed = StringSet.empty; count = 0}
-
-  let fromList l =
-    {unused = StringSet.of_list l; alwaysUsed = StringSet.empty; count = 0}
-
-  let isEmpty x = StringSet.is_empty x.unused
-
-  let call ~argNames ~argNamesMaybe x =
-    let nameSet = argNames |> StringSet.of_list in
-    let nameSetMaybe = argNamesMaybe |> StringSet.of_list in
-    let nameSetAlways = StringSet.diff nameSet nameSetMaybe in
-    if x.count = 0 then x.alwaysUsed <- nameSetAlways
-    else x.alwaysUsed <- StringSet.inter nameSetAlways x.alwaysUsed;
-    argNames
-    |> List.iter (fun name -> x.unused <- StringSet.remove name x.unused);
-    x.count <- x.count + 1
-
-  let combine x y =
-    let unused = StringSet.inter x.unused y.unused in
-    x.unused <- unused;
-    y.unused <- unused;
-    let alwaysUsed = StringSet.inter x.alwaysUsed y.alwaysUsed in
-    x.alwaysUsed <- alwaysUsed;
-    y.alwaysUsed <- alwaysUsed
-
-  let iterUnused f x = StringSet.iter f x.unused
-
-  let iterAlwaysUsed f x = StringSet.iter (fun s -> f s x.count) x.alwaysUsed
-end
-
-module DeclKind = struct
-  type t =
-    | Exception
-    | RecordLabel
-    | VariantCase
-    | Value of {
-        isToplevel : bool;
-        mutable optionalArgs : OptionalArgs.t;
-        sideEffects : bool;
-      }
-
-  let isType dk =
-    match dk with
-    | RecordLabel | VariantCase -> true
-    | Exception | Value _ -> false
-
-  let toString dk =
-    match dk with
-    | Exception -> "Exception"
-    | RecordLabel -> "RecordLabel"
-    | VariantCase -> "VariantCase"
-    | Value _ -> "Value"
-end
-
-type posAdjustment = FirstVariant | OtherVariant | Nothing
-
-type decl = {
-  declKind : DeclKind.t;
-  moduleLoc : Location.t;
-  posAdjustment : posAdjustment;
-  path : Path.t;
-  pos : Lexing.position;
-  posEnd : Lexing.position;
-  posStart : Lexing.position;
-  mutable resolved : bool;
-  mutable report : bool;
-}
-
-let offsetOfPosAdjustment = function
-  | FirstVariant | Nothing -> 0
-  | OtherVariant -> 2
 
 type decls = decl PosHash.t
 (** all exported declarations *)
@@ -172,7 +88,9 @@ end
 
 let declGetLoc decl =
   let loc_start =
-    let offset = offsetOfPosAdjustment decl.posAdjustment in
+    let offset =
+      WriteDeadAnnotations.offsetOfPosAdjustment decl.posAdjustment
+    in
     let cnumWithOffset = decl.posStart.pos_cnum + offset in
     if cnumWithOffset < decl.posEnd.pos_cnum then
       {decl.posStart with pos_cnum = cnumWithOffset}
@@ -307,7 +225,8 @@ module ProcessDeadAnnotations = struct
       doGenType
       && getPayloadFun Annotation.tagIsOneOfTheGenTypeAnnotations <> None
     then pos |> annotateGenType;
-    if getPayload deadAnnotation <> None then pos |> annotateDead;
+    if getPayload WriteDeadAnnotations.deadAnnotation <> None then
+      pos |> annotateDead;
     let nameIsInLiveNamesOrPaths () =
       !Cli.liveNames |> List.mem name
       ||
@@ -429,13 +348,6 @@ module ProcessDeadAnnotations = struct
     |> ignore
 end
 
-let annotateAtEnd ~pos = match posLanguage pos with Res -> false | Ml -> true
-
-let getPosAnnotation decl =
-  match annotateAtEnd ~pos:decl.pos with
-  | true -> decl.posEnd
-  | false -> decl.posStart
-
 let addDeclaration_ ?posEnd ?posStart ~declKind ~path ~(loc : Location.t)
     ?(posAdjustment = Nothing) ~moduleLoc (name : Name.t) =
   let pos = loc.loc_start in
@@ -480,144 +392,6 @@ let addValueDeclaration ?(isToplevel = true) ~(loc : Location.t) ~moduleLoc
        ~declKind:(Value {isToplevel; optionalArgs; sideEffects})
        ~loc ~moduleLoc ~path
 
-module WriteDeadAnnotations = struct
-  type line = {mutable declarations : decl list; original : string}
-
-  let rec lineToString_ {original; declarations} =
-    match declarations with
-    | [] -> original
-    | ({declKind; path; pos} as decl) :: nextDeclarations ->
-      let language = posLanguage pos in
-      let annotationStr =
-        match language with
-        | Res ->
-          "@" ^ deadAnnotation ^ "(\"" ^ (path |> Path.withoutHead) ^ "\") "
-        | Ml ->
-          " " ^ "["
-          ^ (match declKind |> DeclKind.isType with
-            | true -> "@"
-            | false -> "@@")
-          ^ deadAnnotation ^ " \"" ^ (path |> Path.withoutHead) ^ "\"] "
-      in
-      let posAnnotation = decl |> getPosAnnotation in
-      let col = posAnnotation.pos_cnum - posAnnotation.pos_bol in
-      let originalLen = String.length original in
-      {
-        original =
-          (if String.length original >= col && col > 0 then
-           let original1, original2 =
-             try
-               ( String.sub original 0 col,
-                 String.sub original col (originalLen - col) )
-             with Invalid_argument _ -> (original, "")
-           in
-           if language = Res && declKind = VariantCase then
-             if
-               String.length original2 >= 2
-               && (String.sub [@doesNotRaise]) original2 0 2 = "| "
-             then
-               original1 ^ "| " ^ annotationStr
-               ^ (String.sub [@doesNotRaise]) original2 2
-                   (String.length original2 - 2)
-             else if
-               String.length original2 >= 1
-               && (String.sub [@doesNotRaise]) original2 0 1 = "|"
-             then
-               original1 ^ "|" ^ annotationStr
-               ^ (String.sub [@doesNotRaise]) original2 1
-                   (String.length original2 - 1)
-             else original1 ^ "| " ^ annotationStr ^ original2
-           else original1 ^ annotationStr ^ original2
-          else
-            match language = Ml with
-            | true -> original ^ annotationStr
-            | false -> annotationStr ^ original);
-        declarations = nextDeclarations;
-      }
-      |> lineToString_
-
-  let lineToString {original; declarations} =
-    let declarations =
-      declarations
-      |> List.sort (fun decl1 decl2 ->
-             (getPosAnnotation decl2).pos_cnum
-             - (getPosAnnotation decl1).pos_cnum)
-    in
-    lineToString_ {original; declarations}
-
-  let currentFile = ref ""
-
-  let currentFileLines = (ref [||] : line array ref)
-
-  let readFile fileName =
-    let channel = open_in fileName in
-    let lines = ref [] in
-    let rec loop () =
-      let line = {original = input_line channel; declarations = []} in
-      lines := line :: !lines;
-      loop ()
-      [@@raises End_of_file]
-    in
-    try loop ()
-    with End_of_file ->
-      close_in_noerr channel;
-      !lines |> List.rev |> Array.of_list
-
-  let writeFile fileName lines =
-    if fileName <> "" && !Cli.write then (
-      let channel = open_out fileName in
-      let lastLine = Array.length lines in
-      lines
-      |> Array.iteri (fun n line ->
-             output_string channel (line |> lineToString);
-             if n < lastLine - 1 then output_char channel '\n');
-      close_out_noerr channel)
-
-  let getLineInformation ~decl ~line =
-    if !Cli.json then
-      let posAnnotation = decl |> getPosAnnotation in
-      let offset = decl.posAdjustment |> offsetOfPosAdjustment in
-      EmitJson.emitAnnotate
-        ~pos:
-          ( posAnnotation.pos_lnum - 1,
-            posAnnotation.pos_cnum - posAnnotation.pos_bol + offset )
-        ~text:
-          (if decl.posAdjustment = FirstVariant then
-           (* avoid syntax error *)
-           "| @dead "
-          else "@dead ")
-        ~action:"Suppress dead code warning"
-    else
-      Format.asprintf "@.  <-- line %d@.  %s" decl.pos.pos_lnum
-        (line |> lineToString)
-
-  let getNoLineInfo () = if !Cli.json then "" else "\n  <-- Can't find line"
-
-  let lineInfoToString = function
-    | None -> getNoLineInfo ()
-    | Some (decl, line) -> getLineInformation ~decl ~line
-
-  let onDeadDecl decl =
-    let fileName = decl.pos.pos_fname in
-    let lineInfo =
-      if Sys.file_exists fileName then (
-        if fileName <> !currentFile then (
-          writeFile !currentFile !currentFileLines;
-          currentFile := fileName;
-          currentFileLines := readFile fileName);
-        let indexInLines = (decl |> getPosAnnotation).pos_lnum - 1 in
-        match !currentFileLines.(indexInLines) with
-        | line ->
-          line.declarations <- decl :: line.declarations;
-          Some (decl, line)
-        | exception Invalid_argument _ -> None)
-      else None
-    in
-    lineInfoToString lineInfo
-
-  let write () = writeFile !currentFile !currentFileLines
-end
-
 let emitWarning ~decl ~message name =
   let loc = decl |> declGetLoc in
   Log_.warning
@@ -633,9 +407,8 @@ let emitWarning ~decl ~message name =
       decl.path
       |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
       |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
-      if shouldWriteAnnotation then
-        Some (decl |> WriteDeadAnnotations.onDeadDecl)
-      else None)
+      if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
+      else NoAdditionalText)
     ~loc ~name
     (fun ppf () ->
       Format.fprintf ppf "@{<info>%s@} %s"

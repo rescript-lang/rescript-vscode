@@ -1,12 +1,3 @@
-type language = Ml | Res
-
-let posLanguage (pos : Lexing.position) =
-  if
-    Filename.check_suffix pos.pos_fname ".res"
-    || Filename.check_suffix pos.pos_fname ".resi"
-  then Res
-  else Ml
-
 module Color = struct
   let color_enabled = lazy (Unix.isatty Unix.stdout)
 
@@ -112,8 +103,13 @@ type issue = {
   kind : kind;
   loc : Location.t;
   message : string;
-  additionalText : string option;
+  additionalText : Common.additionalText;
 }
+
+let logAdditionalText = function
+  | Common.NoAdditionalText -> ""
+  | LineInfo lineInfo -> WriteDeadAnnotations.lineInfoToString lineInfo
+  | MissingRaiseInfo s -> s
 
 let logIssue ~issue =
   let open Format in
@@ -125,7 +121,7 @@ let logIssue ~issue =
     let endLine = loc.loc_end.pos_lnum - 1 in
     let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
     let message = Json.escape issue.message in
-    Format.asprintf "%a%s"
+    Format.asprintf "%a%s%s"
       (fun ppf () ->
         EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
           ~kind:
@@ -134,16 +130,15 @@ let logIssue ~issue =
           ~range:(startLine, startCharacter, endLine, endCharacter)
           ~message)
       ()
-      (match issue.additionalText with
-      | Some s -> s ^ EmitJson.emitClose ()
-      | None -> EmitJson.emitClose ())
+      (logAdditionalText issue.additionalText)
+      (if !Common.Cli.json then EmitJson.emitClose () else "")
   else
     let color =
       match issue.kind with Warning -> Color.info | Error -> Color.error
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
       issue.message
-      (match issue.additionalText with Some s -> s | None -> "")
+      (logAdditionalText issue.additionalText)
 
 module Stats = struct
   let issues = ref []
@@ -197,12 +192,12 @@ let logKind ~count ~getAdditionalText ~kind ~(loc : Location.t) ~name body =
     let issue = {name; kind; loc; message; additionalText} in
     if count then Stats.addIssue issue
 
-let warning ?(count = true) ?(getAdditionalText = fun () -> None) ~loc ~name
-    body =
+let warning ?(count = true)
+    ?(getAdditionalText = fun () -> Common.NoAdditionalText) ~loc ~name body =
   body |> logKind ~getAdditionalText ~kind:Warning ~count ~loc ~name
 
 let error ~loc ~name body =
   body
   |> logKind
-       ~getAdditionalText:(fun () -> None)
+       ~getAdditionalText:(fun () -> Common.NoAdditionalText)
        ~kind:Error ~count:true ~loc ~name

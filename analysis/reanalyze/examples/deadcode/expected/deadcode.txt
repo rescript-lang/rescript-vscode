@@ -2752,7 +2752,7 @@ File References
   File "DeadMl.ml", line 17, characters 19-26
   thisIsDead.DeadA is a variant case which is never constructed
   <-- line 17
-  type thisIsDead = | DeadA [@dead "thisIsDead.DeadA"]  | DeadB
+  type thisIsDead = | DeadA [@dead "thisIsDead.DeadA"]  | DeadB [@dead "thisIsDead.DeadB"] 
 
   Warning Dead Type
   File "DeadMl.ml", line 17, characters 27-34
@@ -2768,13 +2768,13 @@ File References
   File "DeadMl.ml", line 26, characters 7-27
   Bs_version.+version is never used
   <-- line 26
-    sig val version : string [@@dead "Bs_version.+version"]  val header : string val package_name : string end 
+    sig val version : string [@@dead "Bs_version.+version"]  val header : string [@@dead "Bs_version.+header"]  val package_name : string [@@dead "Bs_version.+package_name"]  end 
 
   Warning Dead Value
   File "DeadMl.ml", line 26, characters 28-47
   Bs_version.+header is never used
   <-- line 26
-    sig val version : string [@@dead "Bs_version.+version"]  val header : string [@@dead "Bs_version.+header"]  val package_name : string end 
+    sig val version : string [@@dead "Bs_version.+version"]  val header : string [@@dead "Bs_version.+header"]  val package_name : string [@@dead "Bs_version.+package_name"]  end 
 
   Warning Dead Value
   File "DeadMl.ml", line 26, characters 48-73
@@ -4136,13 +4136,13 @@ File References
   File "Newsyntax.res", line 10, characters 16-17
   variant.A is a variant case which is never constructed
   <-- line 10
-  type variant = | @dead("variant.A") A | B(int)|C
+  type variant = | @dead("variant.A") A | @dead("variant.B") B(int)|@dead("variant.C") C
 
   Warning Dead Type
   File "Newsyntax.res", line 10, characters 20-26
   variant.B is a variant case which is never constructed
   <-- line 10
-  type variant = | @dead("variant.A") A | @dead("variant.B") B(int)|C
+  type variant = | @dead("variant.A") A | @dead("variant.B") B(int)|@dead("variant.C") C
 
   Warning Dead Type
   File "Newsyntax.res", line 10, characters 26-28
@@ -4154,7 +4154,7 @@ File References
   File "Newsyntax.res", line 12, characters 17-23
   record2.xx is a record label never used to read a value
   <-- line 12
-  type record2 = {@dead("record2.xx") xx:int,yy:int}
+  type record2 = {@dead("record2.xx") xx:int,@dead("record2.yy") yy:int}
 
   Warning Dead Type
   File "Newsyntax.res", line 12, characters 24-30
