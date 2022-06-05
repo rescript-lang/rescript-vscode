@@ -108,7 +108,13 @@ let missingRaiseInfoToText {Common.exnTable; missingAnnotations; locFull} =
 
 let logAdditionalInfo ~(description : Common.description) = function
   | Common.NoAdditionalText -> ""
-  | LineInfo lineInfo -> WriteDeadAnnotations.lineInfoToString lineInfo
+  | LineInfo -> (
+    match description with
+    | DeadWarning {lineInfo; shouldWriteAnnotation} ->
+      if shouldWriteAnnotation then
+        WriteDeadAnnotations.lineInfoToString lineInfo
+      else ""
+    | _ -> assert false)
   | MissingRaiseInfo -> (
     match description with
     | ExceptionAnalysis missingRaiseInfo ->

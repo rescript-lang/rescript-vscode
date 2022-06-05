@@ -188,12 +188,13 @@ module Checks = struct
     let missingAnnotations = Exceptions.diff raiseSet exceptions in
     let redundantAnnotations = Exceptions.diff exceptions raiseSet in
     (if not (Exceptions.isEmpty missingAnnotations) then
-     let missingRaiseInfo : Common.missingRaiseInfo =
-       {exnName; exnTable; raiseSet; missingAnnotations; locFull}
+     let description =
+       Common.ExceptionAnalysis
+         {exnName; exnTable; raiseSet; missingAnnotations; locFull}
      in
      Log_.warning ~loc ~name:Issues.exceptionAnalysis
        ~getAdditionalText:(fun () -> MissingRaiseInfo)
-       (Common.ExceptionAnalysis missingRaiseInfo));
+       description);
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc ~name:Issues.exceptionAnalysis
         (Common.Todo

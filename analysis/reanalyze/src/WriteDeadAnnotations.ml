@@ -133,7 +133,7 @@ let lineInfoToString = function
   | None -> getNoLineInfo ()
   | Some (decl, line) -> getLineInformation ~decl ~line
 
-let onDeadDecl decl : additionalInfo =
+let onDeadDecl decl =
   let fileName = decl.pos.pos_fname in
   if Sys.file_exists fileName then (
     if fileName <> !currentFile then (
@@ -144,8 +144,8 @@ let onDeadDecl decl : additionalInfo =
     match !currentFileLines.(indexInLines) with
     | line ->
       line.declarations <- decl :: line.declarations;
-      LineInfo (Some (decl, line))
-    | exception Invalid_argument _ -> LineInfo None)
-  else LineInfo None
+      Some (decl, line)
+    | exception Invalid_argument _ -> None)
+  else None
 
 let write () = writeFile !currentFile !currentFileLines
