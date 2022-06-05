@@ -96,22 +96,12 @@ let item x =
   Format.fprintf Format.std_formatter "  ";
   Format.fprintf Format.std_formatter x
 
-type kind = Warning | Error
-
-type issue = {
-  name : string;
-  kind : kind;
-  loc : Location.t;
-  message : string;
-  additionalInfo : Common.additionalInfo;
-}
-
 let logAdditionalInfo = function
   | Common.NoAdditionalText -> ""
   | LineInfo lineInfo -> WriteDeadAnnotations.lineInfoToString lineInfo
   | MissingRaiseInfo s -> s
 
-let logIssue ~issue =
+let logIssue ~(issue : Common.issue) =
   let open Format in
   let loc = issue.loc in
   if !Common.Cli.json then
@@ -143,14 +133,14 @@ let logIssue ~issue =
 module Stats = struct
   let issues = ref []
 
-  let addIssue (issue : issue) = issues := issue :: !issues
+  let addIssue (issue : Common.issue) = issues := issue :: !issues
 
   let clear () = issues := []
 
   let getSortedIssues () =
     let counters2 = Hashtbl.create 1 in
     !issues
-    |> List.iter (fun (issue : issue) ->
+    |> List.iter (fun (issue : Common.issue) ->
            let counter =
              match Hashtbl.find_opt counters2 issue.name with
              | Some counter -> counter
@@ -190,7 +180,7 @@ let logKind ~count ~getAdditionalText:getAdditionalInfo ~kind
   if Suppress.filter loc.loc_start then
     let message = Format.asprintf "%a" body () in
     let additionalInfo = getAdditionalInfo () in
-    let issue = {name; kind; loc; message; additionalInfo} in
+    let issue : Common.issue = {name; kind; loc; message; additionalInfo} in
     if count then Stats.addIssue issue
 
 let warning ?(count = true)

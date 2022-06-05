@@ -219,3 +219,13 @@ type additionalInfo =
   | NoAdditionalText
   | LineInfo of (decl * line) option
   | MissingRaiseInfo of string
+
+type kind = Warning | Error
+
+type issue = {
+  name : string;
+  kind : kind;
+  loc : Location.t;
+  message : string;
+  additionalInfo : additionalInfo;
+}
