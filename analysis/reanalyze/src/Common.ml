@@ -210,9 +210,11 @@ type line = {mutable declarations : decl list; original : string}
 module ExnSet = Set.Make (Exn)
 
 type missingRaiseInfo = {
+  exnName : string;
   exnTable : (Exn.t, LocSet.t) Hashtbl.t;
-  missingAnnotations : ExnSet.t;
   locFull : Location.t;
+  missingAnnotations : ExnSet.t;
+  raiseSet : ExnSet.t;
 }
 
 type additionalInfo =
@@ -231,5 +233,3 @@ type issue = {
   description : description;
   additionalInfo : additionalInfo;
 }
-
-let descriptionToString = function ExceptionAnalysis s -> s | Todo s -> s
