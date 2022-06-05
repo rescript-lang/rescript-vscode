@@ -91,7 +91,7 @@ let check decl =
     |> OptionalArgs.iterUnused (fun s ->
            Log_.warning ~loc:(decl |> declGetLoc)
              ~name:Issues.warningUnusedArgument
-             (Todo
+             (DeadOptional
                 (Format.asprintf
                    "optional argument @{<info>%s@} of function @{<info>%s@} is \
                     never used"
@@ -101,7 +101,7 @@ let check decl =
     |> OptionalArgs.iterAlwaysUsed (fun s nCalls ->
            Log_.warning ~loc:(decl |> declGetLoc)
              ~name:Issues.warningRedundantOptionalArgument
-             (Todo
+             (DeadOptional
                 (Format.asprintf
                    "optional argument @{<info>%s@} of function @{<info>%s@} is \
                     always supplied (%d calls)"

@@ -1,3 +1,5 @@
+open Common
+
 module Color = struct
   let color_enabled = lazy (Unix.isatty Unix.stdout)
 
@@ -75,7 +77,7 @@ module Loc = struct
         pos_fname =
           (let open Filename in
           match is_implicit pos.pos_fname with
-          | _ when !Common.Cli.ci -> basename pos.pos_fname
+          | _ when !Cli.ci -> basename pos.pos_fname
           | true -> concat (Sys.getcwd ()) pos.pos_fname
           | false -> pos.pos_fname);
       }
@@ -96,27 +98,27 @@ let item x =
   Format.fprintf Format.std_formatter "  ";
   Format.fprintf Format.std_formatter x
 
-let missingRaiseInfoToText {Common.exnTable; missingAnnotations; locFull} =
+let missingRaiseInfoToText {exnTable; missingAnnotations; locFull} =
   let missingTxt =
     Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
   in
-  if !Common.Cli.json then
+  if !Cli.json then
     EmitJson.emitAnnotate ~action:"Add @raises annotation"
       ~pos:(EmitJson.locToPos locFull)
       ~text:(Format.asprintf "@raises(%s)\\n" missingTxt)
   else ""
 
-let logAdditionalInfo ~(description : Common.description) =
+let logAdditionalInfo ~(description : description) =
   match description with
   | DeadWarning {lineInfo; shouldWriteAnnotation} ->
     if shouldWriteAnnotation then WriteDeadAnnotations.lineInfoToString lineInfo
     else ""
-  | ExceptionAnalysis missingRaiseInfo ->
+  | ExceptionAnalysisMissing missingRaiseInfo ->
     missingRaiseInfoToText missingRaiseInfo
   | _ -> ""
 
-let missingRaiseInfoToMessage
-    {Common.exnTable; exnName; missingAnnotations; raiseSet} =
+let missingRaiseInfoToMessage {exnTable; exnName; missingAnnotations; raiseSet}
+    =
   let raisesTxt =
     Format.asprintf "%a" (Exceptions.pp ~exnTable:(Some exnTable)) raiseSet
   in
@@ -127,17 +129,23 @@ let missingRaiseInfoToMessage
     "@{<info>%s@} might raise %s and is not annotated with @raises(%s)" exnName
     raisesTxt missingTxt
 
-let descriptionToString = function
-  | Common.ExceptionAnalysis missingRaiseInfo ->
-    missingRaiseInfoToMessage missingRaiseInfo
+let descriptionToString (description : description) =
+  match description with
+  | Circular s -> s
+  | DeadModule s -> s
+  | DeadOptional s -> s
   | DeadWarning {path; message} ->
     Format.asprintf "@{<info>%s@} %s" path message
+  | ExceptionAnalysis s -> s
+  | ExceptionAnalysisMissing missingRaiseInfo ->
+    missingRaiseInfoToMessage missingRaiseInfo
+  | Termination s -> s
   | Todo s -> s
 
-let logIssue ~(issue : Common.issue) =
+let logIssue ~(issue : issue) =
   let open Format in
   let loc = issue.loc in
-  if !Common.Cli.json then
+  if !Cli.json then
     let file = Json.escape loc.loc_start.pos_fname in
     let startLine = loc.loc_start.pos_lnum - 1 in
     let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
@@ -154,7 +162,7 @@ let logIssue ~(issue : Common.issue) =
           ~message)
       ()
       (logAdditionalInfo ~description:issue.description)
-      (if !Common.Cli.json then EmitJson.emitClose () else "")
+      (if !Cli.json then EmitJson.emitClose () else "")
   else
     let color =
       match issue.kind with Warning -> Color.info | Error -> Color.error
@@ -166,14 +174,14 @@ let logIssue ~(issue : Common.issue) =
 module Stats = struct
   let issues = ref []
 
-  let addIssue (issue : Common.issue) = issues := issue :: !issues
+  let addIssue (issue : issue) = issues := issue :: !issues
 
   let clear () = issues := []
 
   let getSortedIssues () =
     let counters2 = Hashtbl.create 1 in
     !issues
-    |> List.iter (fun (issue : Common.issue) ->
+    |> List.iter (fun (issue : issue) ->
            let counter =
              match Hashtbl.find_opt counters2 issue.name with
              | Some counter -> counter
@@ -195,7 +203,7 @@ module Stats = struct
     !issues |> List.rev
     |> List.iter (fun issue -> logIssue ~issue |> print_string);
     let sortedIssues, nIssues = getSortedIssues () in
-    if not !Common.Cli.json then (
+    if not !Cli.json then (
       if sortedIssues <> [] then item "@.";
       item "Analysis reported %d issues%s@." nIssues
         (match sortedIssues with
@@ -210,7 +218,7 @@ end
 
 let logKind ~count ~kind ~(loc : Location.t) ~name description =
   if Suppress.filter loc.loc_start then
-    let issue : Common.issue = {name; kind; loc; description} in
+    let issue : issue = {name; kind; loc; description} in
     if count then Stats.addIssue issue
 
 let warning ?(count = true) ~loc ~name body =
