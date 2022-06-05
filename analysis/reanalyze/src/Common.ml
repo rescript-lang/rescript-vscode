@@ -232,7 +232,6 @@ type description =
       lineInfo : (decl * line) option;
     }
   | Termination of string
-  | Todo of string
 
 type issue = {
   name : string;
