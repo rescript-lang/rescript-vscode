@@ -105,22 +105,35 @@ let item x =
   Format.fprintf Format.std_formatter "  ";
   Format.fprintf Format.std_formatter x
 
+type kind = Warning | Error
+
+type issue = {name : string; kind : kind; loc : Location.t; message : string}
+
 module Stats = struct
-  let counters = Hashtbl.create 1
+  let issues = ref []
 
-  let count name =
-    match Hashtbl.find_opt counters (name : string) with
-    | None -> Hashtbl.add counters name (ref 1)
-    | Some cnt -> incr cnt
+  let addIssue (issue : issue) = issues := issue :: !issues
 
-  let clear () = Hashtbl.clear counters
+  let clear () = issues := []
 
   let getSortedIssues () =
+    let counters2 = Hashtbl.create 1 in
+    !issues
+    |> List.iter (fun (issue : issue) ->
+           let counter =
+             match Hashtbl.find_opt counters2 issue.name with
+             | Some counter -> counter
+             | None ->
+               let counter = ref 0 in
+               Hashtbl.add counters2 issue.name counter;
+               counter
+           in
+           incr counter);
     let issues, nIssues =
       Hashtbl.fold
         (fun name cnt (issues, nIssues) ->
           ((name, cnt) :: issues, nIssues + !cnt))
-        counters ([], 0)
+        counters2 ([], 0)
     in
     (issues |> List.sort (fun (n1, _) (n2, _) -> String.compare n1 n2), nIssues)
 
@@ -138,10 +151,6 @@ module Stats = struct
             |> String.concat ", ")
           ^ ")"))
 end
-
-type kind = Warning | Error
-
-type issue = {name : string; kind : kind; loc : Location.t; message : string}
 
 let logIssue ~issue ~notClosed =
   let open Format in
@@ -174,8 +183,9 @@ let logIssue ~issue ~notClosed =
 
 let logKind ~count ~kind ~(loc : Location.t) ~name body =
   if Suppress.filter loc.loc_start then (
-    if count then Stats.count name;
-    Some {name; kind; loc; message = Format.asprintf "%a" body ()})
+    let issue = {name; kind; loc; message = Format.asprintf "%a" body ()} in
+    if count then Stats.addIssue issue;
+    Some issue)
   else None
 
 let warning ?(count = true) ~loc ~name body =
@@ -183,7 +193,7 @@ let warning ?(count = true) ~loc ~name body =
 
 let error ~loc ~name body = body |> logKind ~kind:Error ~count:true ~loc ~name
 
-let printIssue ?(notClosed=false) issue =
+let printIssue ?(notClosed = false) issue =
   match issue with
   | None -> ()
   | Some issue ->
