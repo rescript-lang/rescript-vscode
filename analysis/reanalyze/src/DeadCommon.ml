@@ -613,23 +613,20 @@ let emitWarning ~decl ~message name =
   let loc = decl |> declGetLoc in
   Log_.warning
     ~getAdditionalText:(fun () ->
-      let additionalText =
-        let isToplevelValueWithSideEffects decl =
-          match decl.declKind with
-          | Value {isToplevel; sideEffects} -> isToplevel && sideEffects
-          | _ -> false
-        in
-        let shouldWriteAnnotation =
-          (not (isToplevelValueWithSideEffects decl))
-          && Suppress.filter decl.pos
-        in
-        decl.path
-        |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
-        |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
-        if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
-        else ""
+      let isToplevelValueWithSideEffects decl =
+        match decl.declKind with
+        | Value {isToplevel; sideEffects} -> isToplevel && sideEffects
+        | _ -> false
       in
-      Some additionalText)
+      let shouldWriteAnnotation =
+        (not (isToplevelValueWithSideEffects decl)) && Suppress.filter decl.pos
+      in
+      decl.path
+      |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
+      |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
+      if shouldWriteAnnotation then
+        Some (decl |> WriteDeadAnnotations.onDeadDecl)
+      else None)
     ~loc ~name
     (fun ppf () ->
       Format.fprintf ppf "@{<info>%s@} %s"
