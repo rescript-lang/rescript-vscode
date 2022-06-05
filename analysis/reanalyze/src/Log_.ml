@@ -96,22 +96,24 @@ let item x =
   Format.fprintf Format.std_formatter "  ";
   Format.fprintf Format.std_formatter x
 
-let logAdditionalInfo = function
-  | Common.NoAdditionalText -> ""
-  | LineInfo lineInfo -> WriteDeadAnnotations.lineInfoToString lineInfo
-  | MissingRaiseInfo s -> s
-
-let missingRaiseInfoToAdditionalInfo
-    {Common.exnTable; missingAnnotations; locFull} =
+let missingRaiseInfoToText {Common.exnTable; missingAnnotations; locFull} =
   let missingTxt =
     Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
   in
   if !Common.Cli.json then
-    Common.MissingRaiseInfo
-      (EmitJson.emitAnnotate ~action:"Add @raises annotation"
-         ~pos:(EmitJson.locToPos locFull)
-         ~text:(Format.asprintf "@raises(%s)\\n" missingTxt))
-  else NoAdditionalText
+    EmitJson.emitAnnotate ~action:"Add @raises annotation"
+      ~pos:(EmitJson.locToPos locFull)
+      ~text:(Format.asprintf "@raises(%s)\\n" missingTxt)
+  else ""
+
+let logAdditionalInfo ~(description : Common.description) = function
+  | Common.NoAdditionalText -> ""
+  | LineInfo lineInfo -> WriteDeadAnnotations.lineInfoToString lineInfo
+  | MissingRaiseInfo -> (
+    match description with
+    | ExceptionAnalysis missingRaiseInfo ->
+      missingRaiseInfoToText missingRaiseInfo
+    | _ -> assert false)
 
 let missingRaiseInfoToMessage
     {Common.exnTable; exnName; missingAnnotations; raiseSet} =
@@ -149,7 +151,7 @@ let logIssue ~(issue : Common.issue) =
           ~range:(startLine, startCharacter, endLine, endCharacter)
           ~message)
       ()
-      (logAdditionalInfo issue.additionalInfo)
+      (logAdditionalInfo ~description:issue.description issue.additionalInfo)
       (if !Common.Cli.json then EmitJson.emitClose () else "")
   else
     let color =
@@ -157,7 +159,7 @@ let logIssue ~(issue : Common.issue) =
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
       (descriptionToString issue.description)
-      (logAdditionalInfo issue.additionalInfo)
+      (logAdditionalInfo ~description:issue.description issue.additionalInfo)
 
 module Stats = struct
   let issues = ref []

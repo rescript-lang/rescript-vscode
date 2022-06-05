@@ -220,7 +220,7 @@ type missingRaiseInfo = {
 type additionalInfo =
   | NoAdditionalText
   | LineInfo of (decl * line) option
-  | MissingRaiseInfo of string
+  | MissingRaiseInfo
 
 type kind = Warning | Error
 
