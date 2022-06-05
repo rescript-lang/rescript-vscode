@@ -201,7 +201,8 @@ module Checks = struct
       if !Common.Cli.json then (
         EmitJson.emitAnnotate ~action:"Add @raises annotation"
           ~pos:(EmitJson.locToPos locFull)
-          ~text:(Format.asprintf "@raises(%s)\\n" missingTxt);
+          ~text:(Format.asprintf "@raises(%s)\\n" missingTxt)
+        |> Format.fprintf Format.std_formatter "%s";
         EmitJson.emitClose ()));
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
