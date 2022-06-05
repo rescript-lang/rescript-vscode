@@ -202,8 +202,8 @@ module Checks = struct
         EmitJson.emitAnnotate ~action:"Add @raises annotation"
           ~pos:(EmitJson.locToPos locFull)
           ~text:(Format.asprintf "@raises(%s)\\n" missingTxt)
-        |> Format.fprintf Format.std_formatter "%s";
-        EmitJson.emitClose ()));
+        |> print_string;
+        EmitJson.emitClose () |> print_string));
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
           let raisesDescription ppf () =

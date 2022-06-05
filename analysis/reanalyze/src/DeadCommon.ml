@@ -488,7 +488,7 @@ let emitWarning ?(onDeadDecl = fun () -> "") ~decl ~message name =
         message);
   let additionalText = onDeadDecl () in
   Format.fprintf Format.std_formatter "%s" additionalText;
-  if !Cli.json then EmitJson.emitClose ()
+  if !Cli.json then EmitJson.emitClose () |> print_string
 
 module WriteDeadAnnotations = struct
   type line = {mutable declarations : decl list; original : string}

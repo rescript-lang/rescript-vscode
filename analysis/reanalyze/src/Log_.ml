@@ -147,31 +147,38 @@ let logIssue ~count ~issue ~notClosed =
   let open Format in
   let loc = issue.loc in
   if count then Stats.count issue.name;
-  if !Common.Cli.json then (
+  if !Common.Cli.json then
     let file = Json.escape loc.loc_start.pos_fname in
     let startLine = loc.loc_start.pos_lnum - 1 in
     let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
     let endLine = loc.loc_end.pos_lnum - 1 in
     let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
     let message = Json.escape issue.message in
-    EmitJson.emitItem ~name:issue.name
-      ~kind:(match issue.kind with Warning -> "warning" | Error -> "error")
-      ~file
-      ~range:(startLine, startCharacter, endLine, endCharacter)
-      ~message;
-    if notClosed = false then EmitJson.emitClose ())
+    let itemText =
+      Format.asprintf "%a"
+        (fun ppf () ->
+          EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
+            ~kind:
+              (match issue.kind with Warning -> "warning" | Error -> "error")
+            ~file
+            ~range:(startLine, startCharacter, endLine, endCharacter)
+            ~message)
+        ()
+    in
+    if notClosed then itemText else itemText ^ EmitJson.emitClose ()
   else
     let color =
       match issue.kind with Warning -> Color.info | Error -> Color.error
     in
-    fprintf std_formatter "@.  %a@.  %a@.  %s@." color issue.name Loc.print
-      issue.loc issue.message
+    asprintf "@.  %a@.  %a@.  %s@." color issue.name Loc.print issue.loc
+      issue.message
 
 let logKind ~count ~kind ~(loc : Location.t) ~name ~notClosed body =
   if Suppress.filter loc.loc_start then
     let open Format in
     let issue = {name; kind; loc; message = asprintf "%a" body ()} in
-    logIssue ~count ~issue ~notClosed
+    let text = logIssue ~count ~issue ~notClosed in
+    Format.fprintf Format.std_formatter "%s" text
 
 let warning ?(count = true) ?(notClosed = false) ~loc ~name body =
   body |> logKind ~kind:Warning ~count ~loc ~name ~notClosed
