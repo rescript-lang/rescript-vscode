@@ -34,5 +34,4 @@ let checkModuleDead ~fileName:pos_fname moduleName =
       Log_.warning ~loc ~name:Issues.warningDeadModule (fun ppf () ->
           Format.fprintf ppf "@{<info>%s@} %s" moduleName
             "is a dead module as all its items are dead.")
-      |> Log_.printIssue
     | _ -> ()

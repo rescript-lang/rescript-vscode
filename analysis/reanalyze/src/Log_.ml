@@ -109,6 +109,32 @@ type kind = Warning | Error
 
 type issue = {name : string; kind : kind; loc : Location.t; message : string}
 
+let logIssue ~issue =
+  let open Format in
+  let loc = issue.loc in
+  if !Common.Cli.json then
+    let file = Json.escape loc.loc_start.pos_fname in
+    let startLine = loc.loc_start.pos_lnum - 1 in
+    let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
+    let endLine = loc.loc_end.pos_lnum - 1 in
+    let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
+    let message = Json.escape issue.message in
+    Format.asprintf "%a"
+      (fun ppf () ->
+        EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
+          ~kind:
+            (match issue.kind with Warning -> "warning" | Error -> "error")
+          ~file
+          ~range:(startLine, startCharacter, endLine, endCharacter)
+          ~message)
+      ()
+  else
+    let color =
+      match issue.kind with Warning -> Color.info | Error -> Color.error
+    in
+    asprintf "@.  %a@.  %a@.  %s@." color issue.name Loc.print issue.loc
+      issue.message
+
 module Stats = struct
   let issues = ref []
 
@@ -138,6 +164,8 @@ module Stats = struct
     (issues |> List.sort (fun (n1, _) (n2, _) -> String.compare n1 n2), nIssues)
 
   let report () =
+    !issues |> List.rev
+    |> List.iter (fun issue -> logIssue ~issue |> print_string);
     let sortedIssues, nIssues = getSortedIssues () in
     if not !Common.Cli.json then (
       if sortedIssues <> [] then item "@.";
@@ -152,50 +180,18 @@ module Stats = struct
           ^ ")"))
 end
 
-let logIssue ~issue ~notClosed =
-  let open Format in
-  let loc = issue.loc in
-  if !Common.Cli.json then
-    let file = Json.escape loc.loc_start.pos_fname in
-    let startLine = loc.loc_start.pos_lnum - 1 in
-    let startCharacter = loc.loc_start.pos_cnum - loc.loc_start.pos_bol in
-    let endLine = loc.loc_end.pos_lnum - 1 in
-    let endCharacter = loc.loc_end.pos_cnum - loc.loc_start.pos_bol in
-    let message = Json.escape issue.message in
-    let itemText =
-      Format.asprintf "%a"
-        (fun ppf () ->
-          EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
-            ~kind:
-              (match issue.kind with Warning -> "warning" | Error -> "error")
-            ~file
-            ~range:(startLine, startCharacter, endLine, endCharacter)
-            ~message)
-        ()
-    in
-    if notClosed then itemText else itemText ^ EmitJson.emitClose ()
-  else
-    let color =
-      match issue.kind with Warning -> Color.info | Error -> Color.error
-    in
-    asprintf "@.  %a@.  %a@.  %s@." color issue.name Loc.print issue.loc
-      issue.message
+let logKind ~count ~getAdditionalText ~kind ~(loc : Location.t) ~name body =
+  if Suppress.filter loc.loc_start then
+    let message = Format.asprintf "%a" body () ^ getAdditionalText () in
+    let issue = {name; kind; loc; message} in
+    if count then Stats.addIssue issue
 
-let logKind ~count ~kind ~(loc : Location.t) ~name body =
-  if Suppress.filter loc.loc_start then (
-    let issue = {name; kind; loc; message = Format.asprintf "%a" body ()} in
-    if count then Stats.addIssue issue;
-    Some issue)
-  else None
+let warning ?(count = true) ?(getAdditionalText = fun () -> "") ~loc ~name body
+    =
+  body |> logKind ~getAdditionalText ~kind:Warning ~count ~loc ~name
 
-let warning ?(count = true) ~loc ~name body =
-  body |> logKind ~kind:Warning ~count ~loc ~name
-
-let error ~loc ~name body = body |> logKind ~kind:Error ~count:true ~loc ~name
-
-let printIssue ?(notClosed = false) issue =
-  match issue with
-  | None -> ()
-  | Some issue ->
-    let text = logIssue ~issue ~notClosed in
-    Format.fprintf Format.std_formatter "%s" text
+let error ~loc ~name body =
+  body
+  |> logKind
+       ~getAdditionalText:(fun () -> "")
+       ~kind:Error ~count:true ~loc ~name

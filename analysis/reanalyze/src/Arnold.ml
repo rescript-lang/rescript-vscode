@@ -125,7 +125,6 @@ module Stats = struct
           Format.fprintf ppf "Cache %s for @{<info>%s@}"
             (match hit with true -> "hit" | false -> "miss")
             (FunctionCall.toString functionCall))
-      |> Log_.printIssue
 
   let logResult ~functionCall ~loc ~resString =
     if !Common.Cli.debug then
@@ -134,7 +133,6 @@ module Stats = struct
           Format.fprintf ppf "@{<info>%s@} returns %s"
             (FunctionCall.toString functionCall)
             resString)
-      |> Log_.printIssue
 
   let logHygieneParametric ~functionName ~loc =
     incr nHygieneErrors;
@@ -142,7 +140,6 @@ module Stats = struct
         Format.fprintf ppf
           "@{<error>%s@} cannot be analyzed directly as it is parametric"
           functionName)
-    |> Log_.printIssue
 
   let logHygieneOnlyCallDirectly ~path ~loc =
     incr nHygieneErrors;
@@ -151,13 +148,11 @@ module Stats = struct
           "@{<error>%s@} can only be called directly, or passed as labeled \
            argument"
           (Path.name path))
-    |> Log_.printIssue
 
   let logHygieneMustHaveNamedArgument ~label ~loc =
     incr nHygieneErrors;
     Log_.error ~loc ~name:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf "Call must have named argument @{<error>%s@}" label)
-    |> Log_.printIssue
 
   let logHygieneNamedArgValue ~label ~loc =
     incr nHygieneErrors;
@@ -165,13 +160,11 @@ module Stats = struct
         Format.fprintf ppf
           "Named argument @{<error>%s@} must be passed a recursive function"
           label)
-    |> Log_.printIssue
 
   let logHygieneNoNestedLetRec ~loc =
     incr nHygieneErrors;
     Log_.error ~loc ~name:Issues.errorHygiene (fun ppf () ->
         Format.fprintf ppf "Nested multiple let rec not supported yet")
-    |> Log_.printIssue
 end
 
 module Progress = struct
@@ -588,8 +581,7 @@ module ExtendFunctionTable = struct
                     Format.fprintf ppf
                       "Extend Function Table with @{<info>%s@} (%a) as it \
                        calls a progress function"
-                      functionName printPos id_pos)
-                |> Log_.printIssue))
+                      functionName printPos id_pos)))
       | Texp_apply ({exp_desc = Texp_ident (callee, _, _)}, args)
         when callee |> FunctionTable.isInFunctionInTable ~functionTable ->
         let functionName = Path.name callee in
@@ -607,7 +599,6 @@ module ExtendFunctionTable = struct
                        Format.fprintf ppf
                          "@{<info>%s@} is parametric ~@{<info>%s@}=@{<info>%s@}"
                          functionName label (Path.name path))
-                   |> Log_.printIssue
                | _ -> ())
       | _ -> ());
       super.expr self e
@@ -670,7 +661,6 @@ module CheckExpressionWellFormed = struct
                                "Extend Function Table with @{<info>%s@} as \
                                 parametric ~@{<info>%s@}=@{<info>%s@}"
                                functionName label (Path.name path))
-                         |> Log_.printIssue
                      | _ -> checkIdent ~path ~loc)
                  | Optional _ | Nolabel -> checkIdent ~path ~loc)
                | _ -> ());
@@ -699,8 +689,8 @@ module Compile = struct
     let notImplemented case =
       Log_.error ~loc ~name:Issues.errorNotImplemented (fun ppf () ->
           Format.fprintf ppf case)
-      |> Log_.printIssue
     in
+
     match expr.exp_desc with
     | Texp_ident _ -> Command.nothing
     | Texp_apply
@@ -832,8 +822,7 @@ module Compile = struct
         Log_.warning ~count:false ~loc:pat_loc ~name:Issues.terminationAnalysis
           (fun ppf () ->
             Format.fprintf ppf "Adding recursive definition @{<info>%s@}"
-              newFunctionName)
-        |> Log_.printIssue;
+              newFunctionName);
       inExpr |> expression ~ctx
     | Texp_let (recFlag, valueBindings, inExpr) ->
       if recFlag = Recursive then Stats.logHygieneNoNestedLetRec ~loc;
@@ -1059,8 +1048,7 @@ module Eval = struct
               Format.fprintf ppf "@{<error>%s@} which is @{<error>%s@}"
                 (functionCallToInstantiate |> FunctionCall.toString)
                 (functionCall |> FunctionCall.toString));
-            Format.fprintf ppf "@,%a" CallStack.print callStack)
-        |> Log_.printIssue;
+            Format.fprintf ppf "@,%a" CallStack.print callStack);
         Stats.logLoop ());
       true)
     else false

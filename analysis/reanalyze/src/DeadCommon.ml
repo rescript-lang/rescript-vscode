@@ -268,8 +268,7 @@ let iterFilesFromRootsToLeaves iterFun =
                         Format.fprintf ppf
                           "Results for %s could be inaccurate because of \
                            circular references"
-                          fileName)
-                    |> Log_.printIssue;
+                          fileName);
                   iterFun fileName))
 
 (** Keep track of the location of values annotated @genType or @dead *)
@@ -599,41 +598,44 @@ module WriteDeadAnnotations = struct
               else "@dead ")
             ~action:"Suppress dead code warning"
         else
-          Format.asprintf "  <-- line %d@.  %s@." decl.pos.pos_lnum
+          Format.asprintf "@.  <-- line %d@.  %s" decl.pos.pos_lnum
             (line |> lineToString)
       | exception Invalid_argument _ ->
         if !Cli.json then ""
-        else Format.asprintf "  <-- Can't find line %d@." decl.pos.pos_lnum)
+        else Format.asprintf "@.  <-- Can't find line %d" decl.pos.pos_lnum)
     else if !Cli.json then ""
-    else Format.asprintf "  <-- Can't find file@."
+    else Format.asprintf "@.  <-- Can't find file"
 
   let write () = writeFile !currentFile !currentFileLines
 end
 
 let emitWarning ~decl ~message name =
   let loc = decl |> declGetLoc in
-  Log_.warning ~loc ~name (fun ppf () ->
+  Log_.warning
+    ~getAdditionalText:(fun () ->
+      let additionalText =
+        let isToplevelValueWithSideEffects decl =
+          match decl.declKind with
+          | Value {isToplevel; sideEffects} -> isToplevel && sideEffects
+          | _ -> false
+        in
+        let shouldWriteAnnotation =
+          (not (isToplevelValueWithSideEffects decl))
+          && Suppress.filter decl.pos
+        in
+        decl.path
+        |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
+        |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
+        if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
+        else ""
+      in
+      Format.asprintf "%s" additionalText
+      ^ if !Cli.json then EmitJson.emitClose () else "")
+    ~loc ~name
+    (fun ppf () ->
       Format.fprintf ppf "@{<info>%s@} %s"
         (decl.path |> Path.withoutHead)
         message)
-  |> Log_.printIssue ~notClosed:true;
-  let additionalText =
-    let isToplevelValueWithSideEffects decl =
-      match decl.declKind with
-      | Value {isToplevel; sideEffects} -> isToplevel && sideEffects
-      | _ -> false
-    in
-    let shouldWriteAnnotation =
-      (not (isToplevelValueWithSideEffects decl)) && Suppress.filter decl.pos
-    in
-    decl.path
-    |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
-    |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
-    if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
-    else ""
-  in
-  Format.fprintf Format.std_formatter "%s" additionalText;
-  if !Cli.json then EmitJson.emitClose () |> print_string
 
 module Decl = struct
   let isValue decl =
