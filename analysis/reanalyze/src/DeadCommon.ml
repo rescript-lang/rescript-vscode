@@ -392,21 +392,23 @@ let addValueDeclaration ?(isToplevel = true) ~(loc : Location.t) ~moduleLoc
 
 let emitWarning ~decl ~message name =
   let loc = decl |> declGetLoc in
+  let isToplevelValueWithSideEffects decl =
+    match decl.declKind with
+    | Value {isToplevel; sideEffects} -> isToplevel && sideEffects
+    | _ -> false
+  in
+  let shouldWriteAnnotation =
+    (not (isToplevelValueWithSideEffects decl)) && Suppress.filter decl.pos
+  in
+  let additionalInfo =
+    if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
+    else NoAdditionalText
+  in
+  decl.path
+  |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
+  |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
   Log_.warning
-    ~getAdditionalText:(fun () ->
-      let isToplevelValueWithSideEffects decl =
-        match decl.declKind with
-        | Value {isToplevel; sideEffects} -> isToplevel && sideEffects
-        | _ -> false
-      in
-      let shouldWriteAnnotation =
-        (not (isToplevelValueWithSideEffects decl)) && Suppress.filter decl.pos
-      in
-      decl.path
-      |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
-      |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
-      if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
-      else NoAdditionalText)
+    ~getAdditionalText:(fun () -> additionalInfo)
     ~loc ~name
     (Todo
        (Format.asprintf "@{<info>%s@} %s"
