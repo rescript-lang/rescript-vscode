@@ -146,8 +146,7 @@ module Event = struct
              Format.fprintf ppf
                "@{<info>%s@} does not raise and is annotated with redundant \
                 @doesNotRaise"
-               name)
-         |> Log_.printIssue);
+               name));
         loop exnSet rest
       | ({kind = Catches nestedEvents; exceptions} as ev) :: rest ->
         if !Common.Cli.debug then Log_.item "%a@." print ev;
@@ -187,24 +186,25 @@ module Checks = struct
     let raiseSet, exnTable = events |> Event.combine ~moduleName in
     let missingAnnotations = Exceptions.diff raiseSet exceptions in
     let redundantAnnotations = Exceptions.diff exceptions raiseSet in
-    if not (Exceptions.isEmpty missingAnnotations) then (
-      let raisesTxt =
-        Format.asprintf "%a" (Exceptions.pp ~exnTable:(Some exnTable)) raiseSet
-      in
-      let missingTxt =
-        Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
-      in
-      Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
-          Format.fprintf ppf
-            "@{<info>%s@} might raise %s and is not annotated with @raises(%s)"
-            name raisesTxt missingTxt)
-      |> Log_.printIssue ~notClosed:true;
-      if !Common.Cli.json then (
-        EmitJson.emitAnnotate ~action:"Add @raises annotation"
-          ~pos:(EmitJson.locToPos locFull)
-          ~text:(Format.asprintf "@raises(%s)\\n" missingTxt)
-        |> print_string;
-        EmitJson.emitClose () |> print_string));
+    (if not (Exceptions.isEmpty missingAnnotations) then
+     let raisesTxt =
+       Format.asprintf "%a" (Exceptions.pp ~exnTable:(Some exnTable)) raiseSet
+     in
+     let missingTxt =
+       Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
+     in
+     Log_.warning ~loc ~name:Issues.exceptionAnalysis
+       ~getAdditionalText:(fun () ->
+         if !Common.Cli.json then
+           EmitJson.emitAnnotate ~action:"Add @raises annotation"
+             ~pos:(EmitJson.locToPos locFull)
+             ~text:(Format.asprintf "@raises(%s)\\n" missingTxt)
+           ^ EmitJson.emitClose ()
+         else "")
+       (fun ppf () ->
+         Format.fprintf ppf
+           "@{<info>%s@} might raise %s and is not annotated with @raises(%s)"
+           name raisesTxt missingTxt));
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
           let raisesDescription ppf () =
@@ -220,7 +220,6 @@ module Checks = struct
             raisesDescription ()
             (Exceptions.pp ~exnTable:None)
             redundantAnnotations)
-      |> Log_.printIssue
 
   let doChecks () = !checks |> List.rev |> List.iter doCheck
 end
@@ -288,8 +287,7 @@ let traverseAst () =
       if calleeName |> isRaise then
         Log_.warning ~loc ~name:Issues.exceptionAnalysis (fun ppf () ->
             Format.fprintf ppf
-              "@{<info>%s@} can be analyzed only if called direclty" calleeName)
-        |> Log_.printIssue;
+              "@{<info>%s@} can be analyzed only if called direclty" calleeName);
       currentEvents :=
         {
           Event.exceptions = Exceptions.empty;

@@ -2263,24 +2263,8 @@ File References
   Live Value +TestModuleAliases.+testInner1Expanded: 0 references () [0]
   Live Value +TestModuleAliases.+testInner1: 0 references () [0]
   Live Value +TestOptArg.+liveSuppressesOptArgs: 1 references (TestOptArg.res:16:8) [0]
-
-  Warning Unused Argument
-  File "TestOptArg.res", line 9, characters 1-66
-  optional argument x of function +notSuppressesOptArgs is never used
-
-  Warning Unused Argument
-  File "TestOptArg.res", line 9, characters 1-66
-  optional argument y of function +notSuppressesOptArgs is never used
-
-  Warning Unused Argument
-  File "TestOptArg.res", line 9, characters 1-66
-  optional argument z of function +notSuppressesOptArgs is never used
   Live Value +TestOptArg.+notSuppressesOptArgs: 1 references (TestOptArg.res:11:8) [0]
   Live Value +TestOptArg.+bar: 1 references (TestOptArg.res:7:7) [0]
-
-  Warning Redundant Optional Argument
-  File "TestOptArg.res", line 3, characters 1-29
-  optional argument x of function +foo is always supplied (1 calls)
   Live Value +TestOptArg.+foo: 1 references (TestOptArg.res:5:4) [0]
   Live Value +TestPromise.+convert: 0 references () [0]
   Dead RecordLabel +TestPromise.toPayload.result: 0 references () [0]
@@ -2359,10 +2343,6 @@ File References
   Live Value +Uncurried.+uncurried0: 0 references () [0]
   Live Value +Unison.+toString: 3 references (Unison.res:37:0, Unison.res:38:0, Unison.res:39:0) [0]
   Live Value +Unison.+fits: 1 references (Unison.res:26:8) [0]
-
-  Warning Redundant Optional Argument
-  File "Unison.res", line 17, characters 1-61
-  optional argument break of function +group is always supplied (2 calls)
   Live Value +Unison.+group: 2 references (Unison.res:38:25, Unison.res:39:25) [0]
   Live VariantCase +Unison.stack.Cons: 2 references (Unison.res:38:20, Unison.res:39:20) [0]
   Live VariantCase +Unison.stack.Empty: 3 references (Unison.res:37:20, Unison.res:38:53, Unison.res:39:52) [0]
@@ -2526,10 +2506,6 @@ File References
   Dead RecordLabel +ImportJsValue.point.x: 0 references () [0]
   Live Value +ImportJsValue.+round: 1 references (ImportJsValue.res:27:4) [0]
   Live Value +NestedModulesInSignature.Universe.+theAnswer: 1 references (NestedModulesInSignature.resi:2:2) [0]
-
-  Warning Unused Argument
-  File "OptArg.resi", line 2, characters 1-51
-  optional argument x of function +bar is never used
   Live Value OptArg.+bar: 1 references (TestOptArg.res:1:7) [0]
   Dead Value OptArg.+foo: 0 references () [0]
   Dead Value +DeadValueTest.+tail: 0 references () [0]
@@ -2599,22 +2575,50 @@ File References
   Dead Value +ImmutableArray.+length: 0 references () [0]
   Dead Value +ImmutableArray.+toArray: 0 references () [0]
   Live Value +ImmutableArray.+fromArray: 1 references (ImmutableArray.resi:9:0) [0]
+  Live Value +OptArg.+wrapfourArgs: 2 references (OptArg.res:28:7, OptArg.res:29:7) [0]
+  Live Value +OptArg.+fourArgs: 1 references (OptArg.res:26:4) [0]
+  Live Value +OptArg.+wrapOneArg: 1 references (OptArg.res:22:7) [0]
+  Live Value +OptArg.+oneArg: 1 references (OptArg.res:20:4) [0]
+  Live Value +OptArg.+twoArgs: 1 references (OptArg.res:16:12) [0]
+  Live Value +OptArg.+threeArgs: 2 references (OptArg.res:11:7, OptArg.res:12:7) [0]
+  Live Value +OptArg.+bar: 2 references (OptArg.res:7:7, OptArg.resi:2:0) [0]
+  Live Value +OptArg.+foo: 1 references (OptArg.res:5:7) [0]
+
+  Warning Unused Argument
+  File "TestOptArg.res", line 9, characters 1-66
+  optional argument x of function +notSuppressesOptArgs is never used
+
+  Warning Unused Argument
+  File "TestOptArg.res", line 9, characters 1-66
+  optional argument y of function +notSuppressesOptArgs is never used
+
+  Warning Unused Argument
+  File "TestOptArg.res", line 9, characters 1-66
+  optional argument z of function +notSuppressesOptArgs is never used
+
+  Warning Redundant Optional Argument
+  File "TestOptArg.res", line 3, characters 1-29
+  optional argument x of function +foo is always supplied (1 calls)
+
+  Warning Redundant Optional Argument
+  File "Unison.res", line 17, characters 1-61
+  optional argument break of function +group is always supplied (2 calls)
+
+  Warning Unused Argument
+  File "OptArg.resi", line 2, characters 1-51
+  optional argument x of function +bar is never used
 
   Warning Redundant Optional Argument
   File "OptArg.res", line 26, characters 1-71
   optional argument c of function +wrapfourArgs is always supplied (2 calls)
-  Live Value +OptArg.+wrapfourArgs: 2 references (OptArg.res:28:7, OptArg.res:29:7) [0]
 
   Warning Unused Argument
   File "OptArg.res", line 24, characters 1-64
   optional argument d of function +fourArgs is never used
-  Live Value +OptArg.+fourArgs: 1 references (OptArg.res:26:4) [0]
 
   Warning Redundant Optional Argument
   File "OptArg.res", line 20, characters 1-52
   optional argument a of function +wrapOneArg is always supplied (1 calls)
-  Live Value +OptArg.+wrapOneArg: 1 references (OptArg.res:22:7) [0]
-  Live Value +OptArg.+oneArg: 1 references (OptArg.res:20:4) [0]
 
   Warning Unused Argument
   File "OptArg.res", line 14, characters 1-43
@@ -2623,7 +2627,6 @@ File References
   Warning Unused Argument
   File "OptArg.res", line 14, characters 1-43
   optional argument b of function +twoArgs is never used
-  Live Value +OptArg.+twoArgs: 1 references (OptArg.res:16:12) [0]
 
   Warning Unused Argument
   File "OptArg.res", line 9, characters 1-55
@@ -2632,12 +2635,10 @@ File References
   Warning Redundant Optional Argument
   File "OptArg.res", line 9, characters 1-55
   optional argument a of function +threeArgs is always supplied (2 calls)
-  Live Value +OptArg.+threeArgs: 2 references (OptArg.res:11:7, OptArg.res:12:7) [0]
 
   Warning Unused Argument
   File "OptArg.res", line 3, characters 1-39
   optional argument x of function +bar is never used
-  Live Value +OptArg.+bar: 2 references (OptArg.res:7:7, OptArg.resi:2:0) [0]
 
   Warning Unused Argument
   File "OptArg.res", line 1, characters 1-49
@@ -2646,7 +2647,6 @@ File References
   Warning Unused Argument
   File "OptArg.res", line 1, characters 1-49
   optional argument z of function +foo is never used
-  Live Value +OptArg.+foo: 1 references (OptArg.res:5:7) [0]
 
   Warning Dead Module
   File "AutoAnnotate.res", line 0, characters 1-1
