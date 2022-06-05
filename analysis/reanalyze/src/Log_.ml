@@ -164,7 +164,7 @@ let logIssue ~count ~issue ~notClosed =
     let color =
       match issue.kind with Warning -> Color.info | Error -> Color.error
     in
-    fprintf std_formatter "@[<v 2>@,%a@,%a@,%s@]@." color issue.name Loc.print
+    fprintf std_formatter "@.  %a@.  %a@.  %s@." color issue.name Loc.print
       issue.loc issue.message
 
 let logKind ~count ~kind ~(loc : Location.t) ~name ~notClosed body =

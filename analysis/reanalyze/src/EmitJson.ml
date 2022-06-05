@@ -24,7 +24,7 @@ let locToPos (loc : Location.t) =
 
 let emitAnnotate ~pos ~text ~action =
   let line, character = pos in
-  Format.fprintf Format.std_formatter
+  Format.asprintf
     ",\n\
     \  \"annotate\": { \"line\": %d, \"character\": %d, \"text\": \"%s\", \
      \"action\": \"%s\"}"

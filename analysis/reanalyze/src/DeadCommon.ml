@@ -480,13 +480,14 @@ let addValueDeclaration ?(isToplevel = true) ~(loc : Location.t) ~moduleLoc
        ~declKind:(Value {isToplevel; optionalArgs; sideEffects})
        ~loc ~moduleLoc ~path
 
-let emitWarning ?(onDeadDecl = fun () -> ()) ~decl ~message name =
+let emitWarning ?(onDeadDecl = fun () -> "") ~decl ~message name =
   let loc = decl |> declGetLoc in
   Log_.warning ~loc ~notClosed:true ~name (fun ppf () ->
       Format.fprintf ppf "@{<info>%s@} %s"
         (decl.path |> Path.withoutHead)
         message);
-  onDeadDecl ();
+  let additionalText = onDeadDecl () in
+  Format.fprintf Format.std_formatter "%s" additionalText;
   if !Cli.json then EmitJson.emitClose ()
 
 module WriteDeadAnnotations = struct
@@ -607,13 +608,13 @@ module WriteDeadAnnotations = struct
               else "@dead ")
             ~action:"Suppress dead code warning"
         else
-          Format.fprintf ppf "  <-- line %d@.  %s@." decl.pos.pos_lnum
+          Format.asprintf "  <-- line %d@.  %s@." decl.pos.pos_lnum
             (line |> lineToString)
       | exception Invalid_argument _ ->
-        if !Cli.json then ()
-        else Format.fprintf ppf "  <-- Can't find line %d@." decl.pos.pos_lnum)
-    else if !Cli.json then ()
-    else Format.fprintf ppf "  <-- Can't find file@."
+        if !Cli.json then ""
+        else Format.asprintf "  <-- Can't find line %d@." decl.pos.pos_lnum)
+    else if !Cli.json then ""
+    else Format.asprintf "  <-- Can't find file@."
 
   let write () = writeFile !currentFile !currentFileLines
 end
@@ -754,7 +755,8 @@ module Decl = struct
         emitWarning ~decl ~message
           ~onDeadDecl:(fun () ->
             if shouldWriteAnnotation then
-              decl |> WriteDeadAnnotations.onDeadDecl ~ppf)
+              decl |> WriteDeadAnnotations.onDeadDecl ~ppf
+            else "")
           name)
 end
 
