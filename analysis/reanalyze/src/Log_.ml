@@ -140,7 +140,6 @@ let descriptionToString (description : description) =
   | ExceptionAnalysisMissing missingRaiseInfo ->
     missingRaiseInfoToMessage missingRaiseInfo
   | Termination s -> s
-  | Todo s -> s
 
 let logIssue ~(issue : issue) =
   let open Format in
