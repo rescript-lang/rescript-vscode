@@ -130,6 +130,8 @@ let missingRaiseInfoToMessage
 let descriptionToString = function
   | Common.ExceptionAnalysis missingRaiseInfo ->
     missingRaiseInfoToMessage missingRaiseInfo
+  | DeadWarning {path; message} ->
+    Format.asprintf "@{<info>%s@} %s" path message
   | Todo s -> s
 
 let logIssue ~(issue : Common.issue) =

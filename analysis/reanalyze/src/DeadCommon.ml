@@ -410,10 +410,7 @@ let emitWarning ~decl ~message name =
   Log_.warning
     ~getAdditionalText:(fun () -> additionalInfo)
     ~loc ~name
-    (Todo
-       (Format.asprintf "@{<info>%s@} %s"
-          (decl.path |> Path.withoutHead)
-          message))
+    (DeadWarning {path = decl.path |> Path.withoutHead; message})
 
 module Decl = struct
   let isValue decl =
