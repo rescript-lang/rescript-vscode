@@ -113,7 +113,7 @@ let missingRaiseInfoToAdditionalInfo
          ~text:(Format.asprintf "@raises(%s)\\n" missingTxt))
   else NoAdditionalText
 
-let missingRaiseInfoToMessage 
+let missingRaiseInfoToMessage
     {Common.exnTable; exnName; missingAnnotations; raiseSet} =
   let raisesTxt =
     Format.asprintf "%a" (Exceptions.pp ~exnTable:(Some exnTable)) raiseSet
@@ -126,7 +126,8 @@ let missingRaiseInfoToMessage
     raisesTxt missingTxt
 
 let descriptionToString = function
-  | Common.ExceptionAnalysis s -> s
+  | Common.ExceptionAnalysis missingRaiseInfo ->
+    missingRaiseInfoToMessage missingRaiseInfo
   | Todo s -> s
 
 let logIssue ~(issue : Common.issue) =

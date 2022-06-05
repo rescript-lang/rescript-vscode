@@ -224,7 +224,7 @@ type additionalInfo =
 
 type kind = Warning | Error
 
-type description = ExceptionAnalysis of string | Todo of string
+type description = ExceptionAnalysis of missingRaiseInfo | Todo of string
 
 type issue = {
   name : string;
