@@ -148,7 +148,7 @@ let descriptionToName (description : description) =
   | DeadOptional {name} -> name
   | DeadWarning {name} -> name
   | ExceptionAnalysis {name} -> name
-  | ExceptionAnalysisMissing {name} -> name
+  | ExceptionAnalysisMissing _ -> Issues.exceptionAnalysis
   | Termination {name} -> name
 
 let logIssue ~(issue : issue) =
