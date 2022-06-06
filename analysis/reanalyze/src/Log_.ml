@@ -143,7 +143,7 @@ let descriptionToMessage (description : description) =
 
 let descriptionToName (description : description) =
   match description with
-  | Circular {name} -> name
+  | Circular _ -> Issues.warningDeadAnalysisCycle
   | DeadModule _ -> Issues.warningDeadModule
   | DeadOptional {name} -> name
   | DeadWarning {name} -> name
