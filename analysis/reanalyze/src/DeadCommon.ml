@@ -400,13 +400,14 @@ let emitWarning ~decl ~message deadWarning =
     | Value {isToplevel; sideEffects} -> isToplevel && sideEffects
     | _ -> false
   in
-  let shouldWriteAnnotation =
+  let shouldWriteLineAnnotation =
     (not (isToplevelValueWithSideEffects decl))
     && Suppress.filter decl.pos
     && deadWarning <> IncorrectDeadAnnotation
   in
-  let lineInfo =
-    if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl
+  let lineAnnotation =
+    if shouldWriteLineAnnotation then
+      WriteDeadAnnotations.addLineAnnotation ~decl
     else None
   in
   decl.path
@@ -418,8 +419,8 @@ let emitWarning ~decl ~message deadWarning =
          deadWarning;
          path = Path.withoutHead decl.path;
          message;
-         lineInfo;
-         shouldWriteAnnotation;
+         lineAnnotation;
+         shouldWriteLineAnnotation;
        })
 
 module Decl = struct
