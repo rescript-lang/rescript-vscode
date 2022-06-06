@@ -236,7 +236,7 @@ type deadWarning =
   | WarningDeadType
   | WarningDeadValue
   | WarningDeadValueWithSideEffects
-  | WarningIncorrectAnnotation
+  | IncorrectDeadAnnotation
 
 type description =
   | Circular of {message : string}
