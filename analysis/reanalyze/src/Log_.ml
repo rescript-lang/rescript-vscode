@@ -98,7 +98,7 @@ let item x =
   Format.fprintf Format.std_formatter "  ";
   Format.fprintf Format.std_formatter x
 
-let missingRaiseInfoToText {exnTable; missingAnnotations; locFull} =
+let missingRaiseInfoToText {missingAnnotations; locFull} =
   let missingTxt =
     Format.asprintf "%a" (Exceptions.pp ~exnTable:None) missingAnnotations
   in
@@ -179,7 +179,7 @@ let logIssue ~(issue : issue) =
     let message = Json.escape (descriptionToMessage issue.description) in
     Format.asprintf "%a%s%s"
       (fun ppf () ->
-        EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
+        EmitJson.emitItem ~ppf ~name:issue.name
           ~kind:
             (match issue.severity with
             | Warning -> "warning"
