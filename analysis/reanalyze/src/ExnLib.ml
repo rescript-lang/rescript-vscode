@@ -1,4 +1,4 @@
-let raisesLibTable =
+let raisesLibTable : (Name.t, Exceptions.t) Hashtbl.t =
   let table = Hashtbl.create 15 in
   let open Exn in
   let array =
@@ -253,8 +253,10 @@ let raisesLibTable =
   |> List.iter (fun (name, group) ->
          group
          |> List.iter (fun (s, e) ->
-                Hashtbl.add table (name ^ "." ^ s) (e |> Exceptions.fromList)));
+                Hashtbl.add table
+                  (name ^ "." ^ s |> Name.create)
+                  (e |> Exceptions.fromList)));
   table
 
 let find (path : Common.Path.t) =
-  Hashtbl.find_opt raisesLibTable (path |> Common.Path.toString)
+  Hashtbl.find_opt raisesLibTable (path |> Common.Path.toName)

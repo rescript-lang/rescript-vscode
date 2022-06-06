@@ -4,16 +4,16 @@ module LocSet = Common.LocSet
 
 module Values = struct
   let valueBindingsTable =
-    (Hashtbl.create 15 : (string, (string, Exceptions.t) Hashtbl.t) Hashtbl.t)
+    (Hashtbl.create 15 : (string, (Name.t, Exceptions.t) Hashtbl.t) Hashtbl.t)
 
   let currentFileTable = ref (Hashtbl.create 1)
 
   let add ~name exceptions =
     let path = (name |> Name.create) :: (ModulePath.getCurrent ()).path in
-    Hashtbl.replace !currentFileTable (path |> Common.Path.toString) exceptions
+    Hashtbl.replace !currentFileTable (path |> Common.Path.toName) exceptions
 
   let getFromModule ~moduleName ~modulePath (path_ : Common.Path.t) =
-    let name = path_ @ modulePath |> Common.Path.toString in
+    let name = path_ @ modulePath |> Common.Path.toName in
     match
       Hashtbl.find_opt valueBindingsTable (String.capitalize_ascii moduleName)
     with
@@ -139,8 +139,8 @@ module Event = struct
         (if Exceptions.isEmpty nestedExceptions (* catch-all *) then
          let name =
            match nestedEvents with
-           | {kind = Call {callee}} :: _ -> callee |> Common.Path.toString
-           | _ -> "expression"
+           | {kind = Call {callee}} :: _ -> callee |> Common.Path.toName
+           | _ -> "expression" |> Name.create
          in
          Log_.warning ~loc
            (Common.ExceptionAnalysis
@@ -150,7 +150,7 @@ module Event = struct
                   Format.asprintf
                     "@{<info>%s@} does not raise and is annotated with \
                      redundant @doesNotRaise"
-                    name;
+                    (name |> Name.toString);
               }));
         loop exnSet rest
       | ({kind = Catches nestedEvents; exceptions} as ev) :: rest ->
@@ -287,8 +287,8 @@ let traverseAst () =
       let callee =
         callee_ |> Common.Path.fromPathT |> ModulePath.resolveAlias
       in
-      let calleeName = callee |> Common.Path.toString in
-      if calleeName |> isRaise then
+      let calleeName = callee |> Common.Path.toName in
+      if calleeName |> Name.toString |> isRaise then
         Log_.warning ~loc
           (Common.ExceptionAnalysis
              {
@@ -296,7 +296,7 @@ let traverseAst () =
                message =
                  Format.asprintf
                    "@{<info>%s@} can be analyzed only if called direclty"
-                   calleeName;
+                   (calleeName |> Name.toString);
              });
       currentEvents :=
         {
