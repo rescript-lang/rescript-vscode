@@ -36,7 +36,8 @@ let checkModuleDead ~fileName:pos_fname moduleName =
            {
              name = Issues.warningDeadModule;
              message =
-               Format.asprintf "@{<info>%s@} %s" (Name.toString moduleName)
+               Format.asprintf "@{<info>%s@} %s"
+                 (moduleName |> Name.toInterface |> Name.toString)
                  "is a dead module as all its items are dead.";
            })
     | _ -> ()

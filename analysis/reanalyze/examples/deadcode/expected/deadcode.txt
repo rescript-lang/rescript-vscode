@@ -2650,7 +2650,7 @@ File References
 
   Warning Dead Module
   File "AutoAnnotate.res", line 0, characters 1-1
-  +AutoAnnotate is a dead module as all its items are dead.
+  AutoAnnotate is a dead module as all its items are dead.
 
   Warning Dead Type
   File "AutoAnnotate.res", line 1, characters 16-22
@@ -2696,7 +2696,7 @@ File References
 
   Warning Dead Module
   File "BucklescriptAnnotations.res", line 0, characters 1-1
-  +BucklescriptAnnotations is a dead module as all its items are dead.
+  BucklescriptAnnotations is a dead module as all its items are dead.
 
   Warning Dead Value
   File "BucklescriptAnnotations.res", line 25, characters 1-71
@@ -2718,7 +2718,7 @@ File References
 
   Warning Dead Module
   File "DeadMl.ml", line 1, characters 1-121
-  +DeadMl.QQ is a dead module as all its items are dead.
+  DeadMl.QQ is a dead module as all its items are dead.
 
   Warning Dead Value
   File "DeadMl.ml", line 3, characters 5-94
@@ -2728,7 +2728,7 @@ File References
 
   Warning Dead Module
   File "DeadMl.ml", line 8, characters 1-104
-  +DeadMl.AA is a dead module as all its items are dead.
+  DeadMl.AA is a dead module as all its items are dead.
 
   Warning Dead Value
   File "DeadMl.ml", line 9, characters 3-41
@@ -2762,7 +2762,7 @@ File References
 
   Warning Dead Module
   File "DeadMl.ml", line 25, characters 1-257
-  +DeadMl.Bs_version is a dead module as all its items are dead.
+  DeadMl.Bs_version is a dead module as all its items are dead.
 
   Warning Dead Value
   File "DeadMl.ml", line 26, characters 7-27
@@ -2904,7 +2904,7 @@ File References
 
   Warning Dead Module
   File "DeadTest.res", line 27, characters 8-98
-  +DeadTest.M is a dead module as all its items are dead.
+  DeadTest.M is a dead module as all its items are dead.
 
   Warning Dead Value
   File "DeadTest.res", line 31, characters 3-35
@@ -2974,7 +2974,7 @@ File References
 
   Warning Dead Module
   File "DeadTest.res", line 110, characters 8-414
-  +DeadTest.LazyDynamicallyLoadedComponent2 is a dead module as all its items are dead.
+  DeadTest.LazyDynamicallyLoadedComponent2 is a dead module as all its items are dead.
 
   Warning Dead Value With Side Effects
   File "DeadTest.res", line 111, characters 3-143
@@ -3034,7 +3034,7 @@ File References
 
   Warning Dead Module
   File "DeadTestBlacklist.res", line 0, characters 1-1
-  +DeadTestBlacklist is a dead module as all its items are dead.
+  DeadTestBlacklist is a dead module as all its items are dead.
 
   Warning Dead Value
   File "DeadTestBlacklist.res", line 1, characters 1-11
@@ -3044,7 +3044,7 @@ File References
 
   Warning Dead Module
   File "DeadTestWithInterface.res", line 1, characters 8-55
-  +DeadTestWithInterface.Ext_buffer is a dead module as all its items are dead.
+  DeadTestWithInterface.Ext_buffer is a dead module as all its items are dead.
 
   Warning Dead Value
   File "DeadTestWithInterface.res", line 2, characters 3-13
@@ -3126,7 +3126,7 @@ File References
 
   Warning Dead Module
   File "ErrorHandler.res", line 0, characters 1-1
-  +ErrorHandler is a dead module as all its items are dead.
+  ErrorHandler is a dead module as all its items are dead.
 
   Warning Dead Value
   File "ErrorHandler.res", line 12, characters 1-11
@@ -3146,7 +3146,7 @@ File References
 
   Warning Dead Module
   File "EverythingLiveHere.res", line 0, characters 1-1
-  +EverythingLiveHere is a dead module as all its items are dead.
+  EverythingLiveHere is a dead module as all its items are dead.
 
   Warning Dead Value
   File "EverythingLiveHere.res", line 1, characters 1-10
@@ -3168,7 +3168,7 @@ File References
 
   Warning Dead Module
   File "FirstClassModulesInterface.res", line 0, characters 1-1
-  +FirstClassModulesInterface is a dead module as all its items are dead.
+  FirstClassModulesInterface is a dead module as all its items are dead.
 
   Warning Dead Type
   File "FirstClassModulesInterface.res", line 2, characters 3-9
@@ -3974,7 +3974,7 @@ File References
 
   Warning Dead Module
   File "ModuleAliases.res", line 2, characters 10-57
-  +ModuleAliases.Outer.Inner is a dead module as all its items are dead.
+  ModuleAliases.Outer.Inner is a dead module as all its items are dead.
 
   Warning Dead Type
   File "ModuleAliases.res", line 3, characters 20-33
@@ -3984,7 +3984,7 @@ File References
 
   Warning Dead Module
   File "ModuleAliases.res", line 10, characters 12-62
-  +ModuleAliases.Outer2.Inner2.InnerNested is a dead module as all its items are dead.
+  ModuleAliases.Outer2.Inner2.InnerNested is a dead module as all its items are dead.
 
   Warning Dead Type
   File "ModuleAliases.res", line 11, characters 17-28
@@ -3994,7 +3994,7 @@ File References
 
   Warning Dead Module
   File "ModuleAliases2.res", line 0, characters 1-1
-  +ModuleAliases2 is a dead module as all its items are dead.
+  ModuleAliases2 is a dead module as all its items are dead.
 
   Warning Dead Type
   File "ModuleAliases2.res", line 3, characters 3-9
@@ -4010,7 +4010,7 @@ File References
 
   Warning Dead Module
   File "ModuleAliases2.res", line 7, characters 8-131
-  +ModuleAliases2.Outer is a dead module as all its items are dead.
+  ModuleAliases2.Outer is a dead module as all its items are dead.
 
   Warning Dead Type
   File "ModuleAliases2.res", line 9, characters 17-30
@@ -4020,7 +4020,7 @@ File References
 
   Warning Dead Module
   File "ModuleAliases2.res", line 11, characters 10-69
-  +ModuleAliases2.Outer.Inner is a dead module as all its items are dead.
+  ModuleAliases2.Outer.Inner is a dead module as all its items are dead.
 
   Warning Dead Type
   File "ModuleAliases2.res", line 13, characters 19-32
@@ -4036,7 +4036,7 @@ File References
 
   Warning Dead Module
   File "ModuleExceptionBug.res", line 1, characters 8-53
-  +ModuleExceptionBug.Dep is a dead module as all its items are dead.
+  ModuleExceptionBug.Dep is a dead module as all its items are dead.
 
   Warning Dead Value
   File "ModuleExceptionBug.res", line 2, characters 3-36
@@ -4106,7 +4106,7 @@ File References
 
   Warning Dead Module
   File "Newsyntax.res", line 0, characters 1-1
-  +Newsyntax is a dead module as all its items are dead.
+  Newsyntax is a dead module as all its items are dead.
 
   Warning Dead Value
   File "Newsyntax.res", line 1, characters 1-11
@@ -4290,7 +4290,7 @@ File References
 
   Warning Dead Module
   File "TransitiveType2.res", line 0, characters 1-1
-  +TransitiveType2 is a dead module as all its items are dead.
+  TransitiveType2 is a dead module as all its items are dead.
 
   Warning Dead Value
   File "TransitiveType2.res", line 7, characters 1-29
@@ -4312,7 +4312,7 @@ File References
 
   Warning Dead Module
   File "TypeParams1.res", line 0, characters 1-1
-  +TypeParams1 is a dead module as all its items are dead.
+  TypeParams1 is a dead module as all its items are dead.
 
   Warning Dead Value
   File "TypeParams1.res", line 4, characters 1-25
@@ -4322,7 +4322,7 @@ File References
 
   Warning Dead Module
   File "TypeParams2.res", line 0, characters 1-1
-  +TypeParams2 is a dead module as all its items are dead.
+  TypeParams2 is a dead module as all its items are dead.
 
   Warning Dead Type
   File "TypeParams2.res", line 2, characters 14-21
@@ -4386,7 +4386,7 @@ File References
 
   Warning Dead Module
   File "Types.res", line 161, characters 8-80
-  +Types.ObjectId is a dead module as all its items are dead.
+  Types.ObjectId is a dead module as all its items are dead.
 
   Warning Dead Value
   File "Types.res", line 166, characters 3-12
