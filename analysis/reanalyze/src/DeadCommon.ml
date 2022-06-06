@@ -629,7 +629,7 @@ let rec resolveRecursiveRefs ~checkOptionalArg ~deadDeclarations ~level
         checkOptionalArg decl;
         if decl.pos |> ProcessDeadAnnotations.isAnnotatedDead then
           emitWarning ~decl ~message:" is annotated @dead but is live"
-            WarningIncorrectAnnotation
+            IncorrectDeadAnnotation
         else
           decl.path
           |> DeadModules.markLive

@@ -171,6 +171,7 @@
   addValueDeclaration +globallyLive2 DeadTest.res:153:6 path:+DeadTest.GloobLive
   addValueDeclaration +globallyLive3 DeadTest.res:154:6 path:+DeadTest.GloobLive
   addValueDeclaration +funWithInnerVars DeadTest.res:169:4 path:+DeadTest
+  addValueDeclaration +deadIncorrect DeadTest.res:178:4 path:+DeadTest
   addValueReference DeadTest.res:1:15 --> ImmutableArray.resi:9:0
   addValueReference DeadTest.res:8:7 --> DeadTest.res:7:4
   addValueReference DeadTest.res:11:7 --> DeadTest.res:10:4
@@ -246,6 +247,8 @@
   addValueReference DeadTest.res:169:4 --> DeadTest.res:170:6
   addValueReference DeadTest.res:169:4 --> DeadTest.res:171:6
   addRecordLabelDeclaration a DeadTest.res:175:11 path:+DeadTest.rc
+  addValueDeclaration +_ DeadTest.res:180:0 path:+DeadTest
+  addValueReference DeadTest.res:180:8 --> DeadTest.res:178:4
   addValueReference DeadTest.res:28:2 --> DeadTest.res:31:6
   addValueReference DeadTest.res:36:2 --> DeadTest.res:39:6
   addValueReference DeadTest.res:60:2 --> DeadTest.res:64:6
@@ -1982,6 +1985,8 @@ File References
   Live VariantCase DeadRT.moduleAccessPath.Root: 1 references (DeadTest.res:106:16) [1]
   Live VariantCase +DeadRT.moduleAccessPath.Root: 1 references (DeadRT.resi:2:2) [0]
   Live VariantCase DeadRT.moduleAccessPath.Kaboom: 1 references (DeadRT.res:3:2) [0]
+  Dead Value +DeadTest.+_: 0 references () [0]
+  Live Value +DeadTest.+deadIncorrect: 1 references (DeadTest.res:180:8) [0]
   Dead RecordLabel +DeadTest.rc.a: 0 references () [0]
   Dead Value +DeadTest.+funWithInnerVars: 0 references () [1]
   Dead Value +DeadTest.+y: 0 references () [0]
@@ -2583,6 +2588,16 @@ File References
   Live Value +OptArg.+threeArgs: 2 references (OptArg.res:11:7, OptArg.res:12:7) [0]
   Live Value +OptArg.+bar: 2 references (OptArg.res:7:7, OptArg.resi:2:0) [0]
   Live Value +OptArg.+foo: 1 references (OptArg.res:5:7) [0]
+
+  Warning Dead Module
+  File "DeadTest.res", line 0, characters 1-1
+  DeadTest is a dead module as all its items are dead.
+
+  Incorrect Dead Annotation
+  File "DeadTest.res", line 178, characters 1-23
+  deadIncorrect  is annotated @dead but is live
+  <-- line 178
+  @dead("deadIncorrect") let deadIncorrect = 34
 
   Warning Unused Argument
   File "TestOptArg.res", line 9, characters 1-66
@@ -4496,4 +4511,4 @@ File References
   <-- line 96
   type variant1Object = | @dead("variant1Object.R") R(payload)
   
-  Analysis reported 333 issues (Warning Dead Exception:2, Warning Dead Module:25, Warning Dead Type:89, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)
+  Analysis reported 335 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:26, Warning Dead Type:89, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)

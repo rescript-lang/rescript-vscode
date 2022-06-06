@@ -6,6 +6,8 @@ let errorTermination = "Error Termination"
 
 let exceptionAnalysis = "Exception Analysis"
 
+let incorrectDeadAnnotation = "Incorrect Dead Annotation"
+
 let terminationAnalysisInternal = "Termination Analysis Internal"
 
 let warningDeadAnalysisCycle = "Warning Dead Analysis Cycle"
@@ -19,8 +21,6 @@ let warningDeadType = "Warning Dead Type"
 let warningDeadValue = "Warning Dead Value"
 
 let warningDeadValueWithSideEffects = "Warning Dead Value With Side Effects"
-
-let warningIncorrectAnnotation = "Warning Incorrect Annotation"
 
 let warningRedundantOptionalArgument = "Warning Redundant Optional Argument"
 

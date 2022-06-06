@@ -151,18 +151,12 @@ let descriptionToName (description : description) =
     Issues.warningRedundantOptionalArgument
   | DeadWarning {deadWarning = WarningDeadException} ->
     Issues.warningDeadException
-  (*
-       |
-       |
-       |
-       | WarningIncorrectAnnotation
-  *)
   | DeadWarning {deadWarning = WarningDeadType} -> Issues.warningDeadType
   | DeadWarning {deadWarning = WarningDeadValue} -> Issues.warningDeadValue
   | DeadWarning {deadWarning = WarningDeadValueWithSideEffects} ->
     Issues.warningDeadValueWithSideEffects
-  | DeadWarning {deadWarning = WarningIncorrectAnnotation} ->
-    Issues.warningIncorrectAnnotation
+  | DeadWarning {deadWarning = IncorrectDeadAnnotation} ->
+    Issues.incorrectDeadAnnotation
   | ExceptionAnalysis _ -> Issues.exceptionAnalysis
   | ExceptionAnalysisMissing _ -> Issues.exceptionAnalysis
   | Termination {termination = ErrorHygiene} -> Issues.errorHygiene

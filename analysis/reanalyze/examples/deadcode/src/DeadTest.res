@@ -173,3 +173,7 @@ let funWithInnerVars = () => {
 }
 
 type rc = {a: int}
+
+@dead let deadIncorrect = 34
+
+let _ = deadIncorrect

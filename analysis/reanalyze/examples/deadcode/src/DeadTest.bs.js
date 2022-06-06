@@ -171,6 +171,8 @@ var theSideEffectIsLogging;
 
 var stringLengthNoSideEffects = 5;
 
+var deadIncorrect = 34;
+
 export {
   fortytwo ,
   fortyTwoButExported ,
@@ -205,6 +207,7 @@ export {
   GloobLive ,
   WithInclude ,
   funWithInnerVars ,
+  deadIncorrect ,
   
 }
 /*  Not a pure module */
