@@ -225,7 +225,7 @@ type kind = Warning | Error
 
 type description =
   | Circular of {message : string}
-  | ExceptionAnalysis of {name : string; message : string}
+  | ExceptionAnalysis of {message : string}
   | ExceptionAnalysisMissing of missingRaiseInfo
   | DeadModule of {message : string}
   | DeadOptional of {name : string; message : string}

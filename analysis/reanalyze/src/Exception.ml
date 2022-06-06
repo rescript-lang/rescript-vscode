@@ -145,7 +145,6 @@ module Event = struct
          Log_.warning ~loc
            (Common.ExceptionAnalysis
               {
-                name = Issues.exceptionAnalysis;
                 message =
                   Format.asprintf
                     "@{<info>%s@} does not raise and is annotated with \
@@ -194,20 +193,13 @@ module Checks = struct
     (if not (Exceptions.isEmpty missingAnnotations) then
      let description =
        Common.ExceptionAnalysisMissing
-         {
-           exnName;
-           exnTable;
-           raiseSet;
-           missingAnnotations;
-           locFull;
-         }
+         {exnName; exnTable; raiseSet; missingAnnotations; locFull}
      in
      Log_.warning ~loc description);
     if not (Exceptions.isEmpty redundantAnnotations) then
       Log_.warning ~loc
         (Common.ExceptionAnalysis
            {
-             name = Issues.exceptionAnalysis;
              message =
                (let raisesDescription ppf () =
                   if raiseSet |> Exceptions.isEmpty then
@@ -291,7 +283,6 @@ let traverseAst () =
         Log_.warning ~loc
           (Common.ExceptionAnalysis
              {
-               name = Issues.exceptionAnalysis;
                message =
                  Format.asprintf
                    "@{<info>%s@} can be analyzed only if called direclty"
