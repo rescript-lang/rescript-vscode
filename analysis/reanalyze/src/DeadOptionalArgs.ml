@@ -92,7 +92,7 @@ let check decl =
            Log_.warning ~loc:(decl |> declGetLoc)
              (DeadOptional
                 {
-                  name = Issues.warningUnusedArgument;
+                  deadOptional = WarningUnusedArgument;
                   message =
                     Format.asprintf
                       "optional argument @{<info>%s@} of function @{<info>%s@} \
@@ -105,7 +105,7 @@ let check decl =
            Log_.warning ~loc:(decl |> declGetLoc)
              (DeadOptional
                 {
-                  name = Issues.warningRedundantOptionalArgument;
+                  deadOptional = WarningRedundantOptionalArgument;
                   message =
                     Format.asprintf
                       "optional argument @{<info>%s@} of function @{<info>%s@} \
