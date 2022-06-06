@@ -147,7 +147,7 @@ let descriptionToName (description : description) =
   | DeadModule _ -> Issues.warningDeadModule
   | DeadOptional {name} -> name
   | DeadWarning {name} -> name
-  | ExceptionAnalysis {name} -> name
+  | ExceptionAnalysis _ -> Issues.exceptionAnalysis
   | ExceptionAnalysisMissing _ -> Issues.exceptionAnalysis
   | Termination {name} -> name
 
