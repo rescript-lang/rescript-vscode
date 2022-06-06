@@ -2589,10 +2589,6 @@ File References
   Live Value +OptArg.+bar: 2 references (OptArg.res:7:7, OptArg.resi:2:0) [0]
   Live Value +OptArg.+foo: 1 references (OptArg.res:5:7) [0]
 
-  Warning Dead Module
-  File "DeadTest.res", line 0, characters 1-1
-  DeadTest is a dead module as all its items are dead.
-
   Incorrect Dead Annotation
   File "DeadTest.res", line 178, characters 1-23
   deadIncorrect  is annotated @dead but is live
@@ -4511,4 +4507,4 @@ File References
   <-- line 96
   type variant1Object = | @dead("variant1Object.R") R(payload)
   
-  Analysis reported 335 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:26, Warning Dead Type:89, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)
+  Analysis reported 334 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:25, Warning Dead Type:89, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)

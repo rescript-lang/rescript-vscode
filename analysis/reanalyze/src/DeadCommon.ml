@@ -627,14 +627,13 @@ let rec resolveRecursiveRefs ~checkOptionalArg ~deadDeclarations ~level
           decl.pos |> ProcessDeadAnnotations.annotateDead)
       else (
         checkOptionalArg decl;
+        decl.path
+        |> DeadModules.markLive
+             ~isType:(decl.declKind |> DeclKind.isType)
+             ~loc:decl.moduleLoc;
         if decl.pos |> ProcessDeadAnnotations.isAnnotatedDead then
           emitWarning ~decl ~message:" is annotated @dead but is live"
-            IncorrectDeadAnnotation
-        else
-          decl.path
-          |> DeadModules.markLive
-               ~isType:(decl.declKind |> DeclKind.isType)
-               ~loc:decl.moduleLoc);
+            IncorrectDeadAnnotation);
       if !Cli.debug then
         let refsString =
           newRefs |> PosSet.elements |> List.map posToString
