@@ -401,7 +401,9 @@ let emitWarning ~decl ~message deadWarning =
     | _ -> false
   in
   let shouldWriteAnnotation =
-    (not (isToplevelValueWithSideEffects decl)) && Suppress.filter decl.pos
+    (not (isToplevelValueWithSideEffects decl))
+    && Suppress.filter decl.pos
+    && deadWarning <> IncorrectDeadAnnotation
   in
   let lineInfo =
     if shouldWriteAnnotation then decl |> WriteDeadAnnotations.onDeadDecl

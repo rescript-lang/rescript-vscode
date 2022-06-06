@@ -2592,8 +2592,6 @@ File References
   Incorrect Dead Annotation
   File "DeadTest.res", line 178, characters 1-23
   deadIncorrect  is annotated @dead but is live
-  <-- line 178
-  @dead("deadIncorrect") let deadIncorrect = 34
 
   Warning Unused Argument
   File "TestOptArg.res", line 9, characters 1-66
