@@ -145,7 +145,10 @@ let descriptionToName (description : description) =
   match description with
   | Circular _ -> Issues.warningDeadAnalysisCycle
   | DeadModule _ -> Issues.warningDeadModule
-  | DeadOptional {name} -> name
+  | DeadOptional {deadOptional = WarningUnusedArgument} ->
+    Issues.warningUnusedArgument
+  | DeadOptional {deadOptional = WarningRedundantOptionalArgument} ->
+    Issues.warningRedundantOptionalArgument
   | DeadWarning {name} -> name
   | ExceptionAnalysis _ -> Issues.exceptionAnalysis
   | ExceptionAnalysisMissing _ -> Issues.exceptionAnalysis

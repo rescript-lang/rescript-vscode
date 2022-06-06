@@ -223,12 +223,14 @@ type missingRaiseInfo = {
 
 type kind = Warning | Error
 
+type deadOptional = WarningUnusedArgument | WarningRedundantOptionalArgument
+
 type description =
   | Circular of {message : string}
   | ExceptionAnalysis of {message : string}
   | ExceptionAnalysisMissing of missingRaiseInfo
   | DeadModule of {message : string}
-  | DeadOptional of {name : string; message : string}
+  | DeadOptional of {deadOptional : deadOptional; message : string}
   | DeadWarning of {
       name : string;
       path : string;
