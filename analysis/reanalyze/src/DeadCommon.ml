@@ -182,7 +182,6 @@ let iterFilesFromRootsToLeaves iterFun =
                     Log_.warning ~loc
                       (Circular
                          {
-                           name = Issues.warningDeadAnalysisCycle;
                            message =
                              Format.asprintf
                                "Results for %s could be inaccurate because of \

@@ -225,7 +225,7 @@ type missingRaiseInfo = {
 type kind = Warning | Error
 
 type description =
-  | Circular of {name : string; message : string}
+  | Circular of {message : string}
   | ExceptionAnalysis of {name : string; message : string}
   | ExceptionAnalysisMissing of missingRaiseInfo
   | DeadModule of {message : string}
