@@ -149,7 +149,20 @@ let descriptionToName (description : description) =
     Issues.warningUnusedArgument
   | DeadOptional {deadOptional = WarningRedundantOptionalArgument} ->
     Issues.warningRedundantOptionalArgument
-  | DeadWarning {name} -> name
+  | DeadWarning {deadWarning = WarningDeadException} ->
+    Issues.warningDeadException
+  (*
+       |
+       |
+       |
+       | WarningIncorrectAnnotation
+  *)
+  | DeadWarning {deadWarning = WarningDeadType} -> Issues.warningDeadType
+  | DeadWarning {deadWarning = WarningDeadValue} -> Issues.warningDeadValue
+  | DeadWarning {deadWarning = WarningDeadValueWithSideEffects} ->
+    Issues.warningDeadValueWithSideEffects
+  | DeadWarning {deadWarning = WarningIncorrectAnnotation} ->
+    Issues.warningIncorrectAnnotation
   | ExceptionAnalysis _ -> Issues.exceptionAnalysis
   | ExceptionAnalysisMissing _ -> Issues.exceptionAnalysis
   | Termination {termination = ErrorHygiene} -> Issues.errorHygiene

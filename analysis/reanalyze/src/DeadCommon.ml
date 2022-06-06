@@ -393,7 +393,7 @@ let addValueDeclaration ?(isToplevel = true) ~(loc : Location.t) ~moduleLoc
        ~declKind:(Value {isToplevel; optionalArgs; sideEffects})
        ~loc ~moduleLoc ~path
 
-let emitWarning ~decl ~message name =
+let emitWarning ~decl ~message deadWarning =
   let loc = decl |> declGetLoc in
   let isToplevelValueWithSideEffects decl =
     match decl.declKind with
@@ -413,7 +413,7 @@ let emitWarning ~decl ~message name =
   Log_.warning ~loc
     (DeadWarning
        {
-         name;
+         deadWarning;
          path = Path.withoutHead decl.path;
          message;
          lineInfo;
@@ -510,7 +510,7 @@ module Decl = struct
       let name, message =
         match decl.declKind with
         | Exception ->
-          (Issues.warningDeadException, "is never raised or passed as value")
+          (WarningDeadException, "is never raised or passed as value")
         | Value {sideEffects} -> (
           let noSideEffectsOrUnderscore =
             (not sideEffects)
@@ -520,8 +520,8 @@ module Decl = struct
             | [] -> false
           in
           ( (match not noSideEffectsOrUnderscore with
-            | true -> Issues.warningDeadValueWithSideEffects
-            | false -> Issues.warningDeadValue),
+            | true -> WarningDeadValueWithSideEffects
+            | false -> WarningDeadValue),
             match decl.path with
             | name :: _ when name |> Name.isUnderscore ->
               "has no side effects and can be removed"
@@ -532,11 +532,9 @@ module Decl = struct
               | true -> " and could have side effects"
               | false -> "") ))
         | RecordLabel ->
-          ( Issues.warningDeadType,
-            "is a record label never used to read a value" )
+          (WarningDeadType, "is a record label never used to read a value")
         | VariantCase ->
-          ( Issues.warningDeadType,
-            "is a variant case which is never constructed" )
+          (WarningDeadType, "is a variant case which is never constructed")
       in
       let shouldEmitWarning =
         (not insideReportedValue)
@@ -631,7 +629,7 @@ let rec resolveRecursiveRefs ~checkOptionalArg ~deadDeclarations ~level
         checkOptionalArg decl;
         if decl.pos |> ProcessDeadAnnotations.isAnnotatedDead then
           emitWarning ~decl ~message:" is annotated @dead but is live"
-            Issues.warningIncorrectAnnotation
+            WarningIncorrectAnnotation
         else
           decl.path
           |> DeadModules.markLive
