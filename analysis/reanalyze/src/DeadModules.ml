@@ -34,7 +34,6 @@ let checkModuleDead ~fileName:pos_fname moduleName =
       Log_.warning ~loc
         (Common.DeadModule
            {
-             name = Issues.warningDeadModule;
              message =
                Format.asprintf "@{<info>%s@} %s"
                  (moduleName |> Name.toInterface |> Name.toString)
