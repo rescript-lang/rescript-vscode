@@ -85,17 +85,16 @@ let runAnalysis ~cmtRoot =
   processCmtFiles ~cmtRoot;
   if runConfig.dce then (
     DeadException.forceDelayedItems ();
-    DeadOptionalArgs.forceDelayedItems ())
+    DeadOptionalArgs.forceDelayedItems ();
+    DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check;
+    WriteDeadAnnotations.write ());
+  if runConfig.exception_ then Exception.Checks.doChecks ();
+  if runConfig.termination && !Common.Cli.debug then Arnold.reportStats ()
 
-let runAnalysisAndReport ~cmtRoot ~ppf =
+let runAnalysisAndReport ~cmtRoot =
   Log_.Color.setup ();
   if !Common.Cli.json then EmitJson.start ();
   runAnalysis ~cmtRoot;
-  if runConfig.dce then (
-    DeadCommon.reportDead ~checkOptionalArg:DeadOptionalArgs.check ppf;
-    WriteDeadAnnotations.write ());
-  if runConfig.exception_ then Exception.reportResults ~ppf;
-  if runConfig.termination then Arnold.reportResults ~ppf;
   Log_.Stats.report ();
   Log_.Stats.clear ();
   if !Common.Cli.json then EmitJson.finish ()
@@ -207,11 +206,10 @@ let cli () =
         "Write @dead annotations directly in the source files" );
     ]
   in
-  let ppf = Format.std_formatter in
   Arg.parse speclist print_endline usage;
   if !analysisKindSet = false then setConfig ();
   let cmtRoot = !cmtRootRef in
-  runAnalysisAndReport ~cmtRoot ~ppf
+  runAnalysisAndReport ~cmtRoot
   [@@raises exit]
 
 module RunConfig = RunConfig

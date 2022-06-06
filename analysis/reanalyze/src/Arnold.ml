@@ -1418,4 +1418,4 @@ let processCmt (cmt_infos : Cmt_format.cmt_infos) =
   | Implementation structure -> processStructure structure
   | _ -> ()
 
-let reportResults ~ppf = if !Common.Cli.debug then Stats.dump ~ppf
+let reportStats () = Stats.dump ~ppf:Format.std_formatter
