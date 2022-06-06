@@ -92,7 +92,9 @@ module Path = struct
     path |> List.rev_map Name.toString |> String.concat "."
 
   let withoutHead path =
-    match path |> List.rev_map Name.toString with
+    match
+      path |> List.rev_map (fun n -> n |> Name.toInterface |> Name.toString)
+    with
     | _ :: tl -> tl |> String.concat "."
     | [] -> ""
 
