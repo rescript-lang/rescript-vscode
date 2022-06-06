@@ -488,5 +488,3 @@ let processCmt (cmt_infos : Cmt_format.cmt_infos) =
     Values.newCmt ();
     structure |> processStructure
   | _ -> ()
-
-let reportResults ~ppf:_ = Checks.doChecks ()

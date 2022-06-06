@@ -507,7 +507,7 @@ module Decl = struct
         then Current.maxValuePosEnd := decl.posEnd;
     insideReportedValue
 
-  let report ~ppf decl =
+  let report decl =
     let insideReportedValue = decl |> isInsideReportedValue in
     if decl.report then
       let name, message =
@@ -650,7 +650,7 @@ let rec resolveRecursiveRefs ~checkOptionalArg ~deadDeclarations ~level
           refsString level);
     isDead
 
-let reportDead ~checkOptionalArg ppf =
+let reportDead ~checkOptionalArg =
   let iterDeclInOrder ~deadDeclarations ~orderedFiles decl =
     let refs =
       match decl |> Decl.isValue with
@@ -692,4 +692,4 @@ let reportDead ~checkOptionalArg ppf =
   let sortedDeadDeclarations =
     !deadDeclarations |> List.fast_sort Decl.compareForReporting
   in
-  sortedDeadDeclarations |> List.iter (Decl.report ~ppf)
+  sortedDeadDeclarations |> List.iter Decl.report

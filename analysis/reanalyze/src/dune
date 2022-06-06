@@ -1,7 +1,7 @@
 (library
  (name reanalyze)
  (flags
-  (-w "-9")
+  (-w "+6+26+27+32+33+39")
   (-open Compilerlibs406)
   (-open Jsonlib)
   (-open Ext))
