@@ -88,8 +88,10 @@ end
 module Path = struct
   type t = Name.t list
 
-  let toString (path : t) =
-    path |> List.rev_map Name.toString |> String.concat "."
+  let toName (path : t) =
+    path |> List.rev_map Name.toString |> String.concat "." |> Name.create
+
+  let toString path = path |> toName |> Name.toString
 
   let withoutHead path =
     match
@@ -121,9 +123,9 @@ module Path = struct
 
   let toModuleName ~isType path =
     match path with
-    | _ :: tl when not isType -> tl |> toString
-    | _ :: _ :: tl when isType -> tl |> toString
-    | _ -> ""
+    | _ :: tl when not isType -> tl |> toName
+    | _ :: _ :: tl when isType -> tl |> toName
+    | _ -> "" |> Name.create
 
   let typeToInterface path =
     match path with
