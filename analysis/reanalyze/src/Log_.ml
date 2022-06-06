@@ -144,7 +144,7 @@ let descriptionToMessage (description : description) =
 let descriptionToName (description : description) =
   match description with
   | Circular {name} -> name
-  | DeadModule {name} -> name
+  | DeadModule _ -> Issues.warningDeadModule
   | DeadOptional {name} -> name
   | DeadWarning {name} -> name
   | ExceptionAnalysis {name} -> name

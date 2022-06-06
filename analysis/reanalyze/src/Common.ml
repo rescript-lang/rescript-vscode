@@ -228,7 +228,7 @@ type description =
   | Circular of {name : string; message : string}
   | ExceptionAnalysis of {name : string; message : string}
   | ExceptionAnalysisMissing of missingRaiseInfo
-  | DeadModule of {name : string; message : string}
+  | DeadModule of {message : string}
   | DeadOptional of {name : string; message : string}
   | DeadWarning of {
       name : string;
