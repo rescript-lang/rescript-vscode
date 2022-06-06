@@ -195,7 +195,6 @@ module Checks = struct
      let description =
        Common.ExceptionAnalysisMissing
          {
-           name = Issues.exceptionAnalysis;
            exnName;
            exnTable;
            raiseSet;

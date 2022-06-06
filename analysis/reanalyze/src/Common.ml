@@ -218,7 +218,6 @@ type missingRaiseInfo = {
   exnTable : (Exn.t, LocSet.t) Hashtbl.t;
   locFull : Location.t;
   missingAnnotations : ExnSet.t;
-  name : string;
   raiseSet : ExnSet.t;
 }
 
