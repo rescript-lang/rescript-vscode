@@ -238,6 +238,8 @@ type deadWarning =
   | WarningDeadValueWithSideEffects
   | IncorrectDeadAnnotation
 
+type lineAnnotation = (decl * line) option
+
 type description =
   | Circular of {message : string}
   | ExceptionAnalysis of {message : string}
@@ -248,8 +250,8 @@ type description =
       deadWarning : deadWarning;
       path : string;
       message : string;
-      shouldWriteAnnotation : bool;
-      lineInfo : (decl * line) option;
+      shouldWriteLineAnnotation : bool;
+      lineAnnotation : lineAnnotation;
     }
   | Termination of {termination : termination; message : string}
 

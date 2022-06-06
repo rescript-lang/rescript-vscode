@@ -109,7 +109,7 @@ let offsetOfPosAdjustment = function
   | FirstVariant | Nothing -> 0
   | OtherVariant -> 2
 
-let getLineInformation ~decl ~line =
+let getLineAnnotation ~decl ~line =
   if !Cli.json then
     let posAnnotation = decl |> getPosAnnotation in
     let offset = decl.posAdjustment |> offsetOfPosAdjustment in
@@ -127,13 +127,13 @@ let getLineInformation ~decl ~line =
     Format.asprintf "@.  <-- line %d@.  %s" decl.pos.pos_lnum
       (line |> lineToString)
 
-let getNoLineInfo () = if !Cli.json then "" else "\n  <-- Can't find line"
+let cantFindLine () = if !Cli.json then "" else "\n  <-- Can't find line"
 
-let lineInfoToString = function
-  | None -> getNoLineInfo ()
-  | Some (decl, line) -> getLineInformation ~decl ~line
+let lineAnnotationToString = function
+  | None -> cantFindLine ()
+  | Some (decl, line) -> getLineAnnotation ~decl ~line
 
-let onDeadDecl decl =
+let addLineAnnotation ~decl : lineAnnotation =
   let fileName = decl.pos.pos_fname in
   if Sys.file_exists fileName then (
     if fileName <> !currentFile then (

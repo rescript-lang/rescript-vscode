@@ -110,8 +110,9 @@ let missingRaiseInfoToText {exnTable; missingAnnotations; locFull} =
 
 let logAdditionalInfo ~(description : description) =
   match description with
-  | DeadWarning {lineInfo; shouldWriteAnnotation} ->
-    if shouldWriteAnnotation then WriteDeadAnnotations.lineInfoToString lineInfo
+  | DeadWarning {lineAnnotation; shouldWriteLineAnnotation} ->
+    if shouldWriteLineAnnotation then
+      WriteDeadAnnotations.lineAnnotationToString lineAnnotation
     else ""
   | ExceptionAnalysisMissing missingRaiseInfo ->
     missingRaiseInfoToText missingRaiseInfo
