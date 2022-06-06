@@ -123,7 +123,7 @@ module Stats = struct
       Log_.warning ~count:false ~loc
         (Termination
            {
-             name = Issues.terminationAnalysis;
+             termination = TerminationAnalysisInternal;
              message =
                Format.asprintf "Cache %s for @{<info>%s@}"
                  (match hit with true -> "hit" | false -> "miss")
@@ -135,7 +135,7 @@ module Stats = struct
       Log_.warning ~count:false ~loc
         (Termination
            {
-             name = Issues.terminationAnalysis;
+             termination = TerminationAnalysisInternal;
              message =
                Format.asprintf "@{<info>%s@} returns %s"
                  (FunctionCall.toString functionCall)
@@ -147,7 +147,7 @@ module Stats = struct
     Log_.error ~loc
       (Termination
          {
-           name = Issues.errorHygiene;
+           termination = ErrorHygiene;
            message =
              Format.asprintf
                "@{<error>%s@} cannot be analyzed directly as it is parametric"
@@ -159,7 +159,7 @@ module Stats = struct
     Log_.error ~loc
       (Termination
          {
-           name = Issues.errorHygiene;
+           termination = ErrorHygiene;
            message =
              Format.asprintf
                "@{<error>%s@} can only be called directly, or passed as \
@@ -172,7 +172,7 @@ module Stats = struct
     Log_.error ~loc
       (Termination
          {
-           name = Issues.errorHygiene;
+           termination = ErrorHygiene;
            message =
              Format.asprintf "Call must have named argument @{<error>%s@}" label;
          })
@@ -182,7 +182,7 @@ module Stats = struct
     Log_.error ~loc
       (Termination
          {
-           name = Issues.errorHygiene;
+           termination = ErrorHygiene;
            message =
              Format.asprintf
                "Named argument @{<error>%s@} must be passed a recursive \
@@ -195,7 +195,7 @@ module Stats = struct
     Log_.error ~loc
       (Termination
          {
-           name = Issues.errorHygiene;
+           termination = ErrorHygiene;
            message = Format.asprintf "Nested multiple let rec not supported yet";
          })
 end
@@ -612,7 +612,7 @@ module ExtendFunctionTable = struct
                 Log_.warning ~count:false ~loc
                   (Termination
                      {
-                       name = Issues.terminationAnalysis;
+                       termination = TerminationAnalysisInternal;
                        message =
                          Format.asprintf
                            "Extend Function Table with @{<info>%s@} (%a) as it \
@@ -634,7 +634,7 @@ module ExtendFunctionTable = struct
                    Log_.warning ~count:false ~loc
                      (Termination
                         {
-                          name = Issues.terminationAnalysis;
+                          termination = TerminationAnalysisInternal;
                           message =
                             Format.asprintf
                               "@{<info>%s@} is parametric \
@@ -700,7 +700,7 @@ module CheckExpressionWellFormed = struct
                          Log_.warning ~count:false ~loc:body.exp_loc
                            (Termination
                               {
-                                name = Issues.terminationAnalysis;
+                                termination = TerminationAnalysisInternal;
                                 message =
                                   Format.asprintf
                                     "Extend Function Table with @{<info>%s@} \
@@ -735,7 +735,7 @@ module Compile = struct
     let notImplemented case =
       Log_.error ~loc
         (Termination
-           {name = Issues.errorNotImplemented; message = Format.asprintf case})
+           {termination = ErrorNotImplemented; message = Format.asprintf case})
     in
 
     match expr.exp_desc with
@@ -869,7 +869,7 @@ module Compile = struct
         Log_.warning ~count:false ~loc:pat_loc
           (Termination
              {
-               name = Issues.terminationAnalysis;
+               termination = TerminationAnalysisInternal;
                message =
                  Format.asprintf "Adding recursive definition @{<info>%s@}"
                    newFunctionName;
@@ -1092,7 +1092,7 @@ module Eval = struct
         Log_.error ~loc
           (Termination
              {
-               name = Issues.errorTermination;
+               termination = ErrorTermination;
                message =
                  Format.asprintf "%a"
                    (fun ppf () ->

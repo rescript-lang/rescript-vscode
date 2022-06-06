@@ -225,6 +225,12 @@ type kind = Warning | Error
 
 type deadOptional = WarningUnusedArgument | WarningRedundantOptionalArgument
 
+type termination =
+  | ErrorHygiene
+  | ErrorNotImplemented
+  | ErrorTermination
+  | TerminationAnalysisInternal
+
 type description =
   | Circular of {message : string}
   | ExceptionAnalysis of {message : string}
@@ -238,7 +244,7 @@ type description =
       shouldWriteAnnotation : bool;
       lineInfo : (decl * line) option;
     }
-  | Termination of {name : string; message : string}
+  | Termination of {termination : termination; message : string}
 
 type issue = {
   name : string;

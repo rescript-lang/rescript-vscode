@@ -6,7 +6,7 @@ let errorTermination = "Error Termination"
 
 let exceptionAnalysis = "Exception Analysis"
 
-let terminationAnalysis = "Termination Analysis"
+let terminationAnalysisInternal = "Termination Analysis Internal"
 
 let warningDeadAnalysisCycle = "Warning Dead Analysis Cycle"
 
