@@ -4,7 +4,7 @@
  ; The main module that will become the binary.
  (name Cli)
  (flags
-  (-w "+26+27+32+33+39")
+  (-w "+6+26+27+32+33+39")
   (-open Compilerlibs406)
   (-open Jsonlib)
   (-open Outcomeprinter))

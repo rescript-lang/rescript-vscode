@@ -41,7 +41,7 @@ let relpath base path =
 let maybeStat path =
   try Some (Unix.stat path) with Unix.Unix_error (Unix.ENOENT, _, _) -> None
 
-let readFile ~filename =
+let readFile filename =
   try
     (* windows can't use open_in *)
     let chan = open_in_bin filename in
@@ -51,6 +51,7 @@ let readFile ~filename =
   with _ -> None
 
 let exists path = match maybeStat path with None -> false | Some _ -> true
+
 let ifExists path = if exists path then Some path else None
 
 let readDirectory dir =
