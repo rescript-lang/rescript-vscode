@@ -23,4 +23,4 @@ let toInterface s =
 
 let toImplementation s = match isInterface s with true -> "+" ^ s | false -> s
 
-let toString s = s
+let toString (s:t) = s
