@@ -231,6 +231,13 @@ type termination =
   | ErrorTermination
   | TerminationAnalysisInternal
 
+type deadWarning =
+  | WarningDeadException
+  | WarningDeadType
+  | WarningDeadValue
+  | WarningDeadValueWithSideEffects
+  | WarningIncorrectAnnotation
+
 type description =
   | Circular of {message : string}
   | ExceptionAnalysis of {message : string}
@@ -238,7 +245,7 @@ type description =
   | DeadModule of {message : string}
   | DeadOptional of {deadOptional : deadOptional; message : string}
   | DeadWarning of {
-      name : string;
+      deadWarning : deadWarning;
       path : string;
       message : string;
       shouldWriteAnnotation : bool;
