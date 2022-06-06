@@ -186,7 +186,9 @@ let logIssue ~(issue : issue) =
       (fun ppf () ->
         EmitJson.emitItem ~ppf:Format.std_formatter ~name:issue.name
           ~kind:
-            (match issue.kind with Warning -> "warning" | Error -> "error")
+            (match issue.severity with
+            | Warning -> "warning"
+            | Error -> "error")
           ~file
           ~range:(startLine, startCharacter, endLine, endCharacter)
           ~message)
@@ -195,7 +197,7 @@ let logIssue ~(issue : issue) =
       (if !Cli.json then EmitJson.emitClose () else "")
   else
     let color =
-      match issue.kind with Warning -> Color.info | Error -> Color.error
+      match issue.severity with Warning -> Color.info | Error -> Color.error
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
       (descriptionToMessage issue.description)
@@ -246,13 +248,13 @@ module Stats = struct
           ^ ")"))
 end
 
-let logKind ~count ~kind ~(loc : Location.t) description =
+let logIssue ~forStats ~severity ~(loc : Location.t) description =
   let name = descriptionToName description in
   if Suppress.filter loc.loc_start then
-    let issue : issue = {name; kind; loc; description} in
-    if count then Stats.addIssue issue
+    if forStats then Stats.addIssue {name; severity; loc; description}
 
-let warning ?(count = true) ~loc description =
-  description |> logKind ~kind:Warning ~count ~loc
+let warning ?(forStats = true) ~loc description =
+  description |> logIssue ~severity:Warning ~forStats ~loc
 
-let error ~loc description = description |> logKind ~kind:Error ~count:true ~loc
+let error ~loc description =
+  description |> logIssue ~severity:Error ~forStats:true ~loc

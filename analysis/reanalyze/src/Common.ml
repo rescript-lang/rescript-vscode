@@ -221,7 +221,7 @@ type missingRaiseInfo = {
   raiseSet : ExnSet.t;
 }
 
-type kind = Warning | Error
+type severity = Warning | Error
 
 type deadOptional = WarningUnusedArgument | WarningRedundantOptionalArgument
 
@@ -255,7 +255,7 @@ type description =
 
 type issue = {
   name : string;
-  kind : kind;
+  severity : severity;
   loc : Location.t;
   description : description;
 }
