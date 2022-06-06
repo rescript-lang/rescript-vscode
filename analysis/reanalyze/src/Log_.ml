@@ -152,7 +152,12 @@ let descriptionToName (description : description) =
   | DeadWarning {name} -> name
   | ExceptionAnalysis _ -> Issues.exceptionAnalysis
   | ExceptionAnalysisMissing _ -> Issues.exceptionAnalysis
-  | Termination {name} -> name
+  | Termination {termination = ErrorHygiene} -> Issues.errorHygiene
+  | Termination {termination = ErrorNotImplemented} ->
+    Issues.errorNotImplemented
+  | Termination {termination = ErrorTermination} -> Issues.errorTermination
+  | Termination {termination = TerminationAnalysisInternal} ->
+    Issues.terminationAnalysisInternal
 
 let logIssue ~(issue : issue) =
   let open Format in
