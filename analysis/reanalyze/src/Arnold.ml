@@ -909,7 +909,7 @@ module Compile = struct
         c +++ ConstrOption Rnone
       | _ -> c)
     | Texp_function {cases} -> cases |> List.map (case ~ctx) |> Command.nondet
-    | Texp_match (e, casesOk, casesExn, partial)
+    | Texp_match (e, casesOk, casesExn, _partial)
       when not
              (casesExn
              |> List.map (fun (case : Typedtree.case) -> case.c_lhs.pat_desc)
