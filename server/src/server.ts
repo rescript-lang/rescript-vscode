@@ -954,8 +954,12 @@ function onMessage(msg: m.Message) {
         // if we want to support having several projects open at the same time
         // without their settings overriding eachother. Not a problem now though
         // as we'll likely only have "global" settings starting out.
-        let [configuration] = msg.result as [extensionConfiguration];
-        extensionConfiguration = configuration;
+        let [configuration] = msg.result as [
+          extensionConfiguration | null | undefined
+        ];
+        if (configuration != null) {
+          extensionConfiguration = configuration;
+        }
       }
     } else if (
       msg.result != null &&
