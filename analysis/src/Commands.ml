@@ -28,6 +28,12 @@ let completion ~debug ~path ~pos ~currentFile =
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
 
+let inlayhint ~path ~pos ~debug =
+  let result = match Hint.inlay ~path ~debug with
+  | [] -> Protocol.null
+  | hints -> "[\n" ^ String.concat ",\n" hints ^ "\n]" in
+  print_endline result
+
 let hover ~path ~pos ~currentFile ~debug =
   let result =
     match Cmt.fullFromPath ~path with

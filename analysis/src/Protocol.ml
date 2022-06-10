@@ -1,6 +1,7 @@
 type position = {line : int; character : int}
 type range = {start : position; end_ : position}
 type markupContent = {kind : string; value : string}
+type inlayHint = {position : position; label : string; kind : int; tooltip: markupContent; paddingLeft: bool; paddingRight: bool}
 
 type completionItem = {
   label : string;
@@ -123,3 +124,16 @@ let stringifyCodeAction ca =
   Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title
     (codeActionKindToString ca.codeActionKind)
     (ca.edit |> stringifyCodeActionEdit)
+
+let stringifyHint hint =
+  Printf.sprintf
+    {|{
+    "position": %s,
+    "label": "%s",
+    "tooltip": %s,
+    "kind": %i,
+    "paddingLeft": %b,
+    "paddingRight": %b
+}|}
+    (stringifyPosition hint.position)
+    hint.label (stringifyMarkupContent hint.tooltip) hint.kind hint.paddingLeft hint.paddingRight
