@@ -306,8 +306,6 @@ function hover(msg: p.RequestMessage) {
 function inlayHint(msg: p.RequestMessage) {
   const params = msg.params as p.InlayHintParams;
   const filePath = fileURLToPath(params.textDocument.uri);
-
-  console.log(params);
   
   const response = utils.runAnalysisCommand(
     filePath,
