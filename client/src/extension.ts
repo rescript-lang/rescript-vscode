@@ -5,7 +5,6 @@ import * as vscode from "vscode";
 import * as customCommands from "./commands";
 import { DiagnosticsResultCodeActionsMap } from "./commands/code_analysis";
 import { createClient } from "./client";
-import { lstat } from 'fs';
 
 let client: lc.LanguageClient | undefined;
 
@@ -122,8 +121,6 @@ async function initCommonContext(ctx: vscode.ExtensionContext, client: lc.Langua
         .map(({ codeAction }) => codeAction);
     },
   })
-
-
 
   if (vscode.workspace.getConfiguration("rescript.settings").get<boolean>("autoRunCodeAnalysis")) {
     vscode.commands.executeCommand("rescript-vscode.start_code_analysis")
