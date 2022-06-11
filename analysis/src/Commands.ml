@@ -29,7 +29,7 @@ let completion ~debug ~path ~pos ~currentFile =
     |> Protocol.array)
 
 let inlayhint ~path ~pos ~debug =
-  let result = match Hint.inlay ~path ~debug with
+  let result = match Hint.inlay ~path ~pos ~debug with
   | [] -> Protocol.null
   | hints -> "[\n" ^ String.concat ",\n" hints ^ "\n]" in
   print_endline result
