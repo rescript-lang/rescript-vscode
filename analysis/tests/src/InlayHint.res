@@ -38,3 +38,6 @@ let functionWithTypeAnnotation: unit => int = () => 1
 @react.component
 let make = (~name) => React.string(name)
 
+let tuple = ("ReScript", "lol")
+
+let (lang, _) = tuple
