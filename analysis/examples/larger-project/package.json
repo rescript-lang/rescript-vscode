@@ -2,6 +2,11 @@
   "name": "large-project",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "rescript build -w",
+    "build": "rescript build",
+    "clean": "rescript clean -with-deps"
+  },
   "devDependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.8.6",

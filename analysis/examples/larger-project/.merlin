@@ -1,12 +1,12 @@
 ####{BSB GENERATED: NO EDIT
-FLG -ppx '/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/reanalyze/examples/deadcode/node_modules/rescript/darwin/bsc.exe -as-ppx -bs-jsx 3'
-S /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/reanalyze/examples/deadcode/node_modules/rescript/lib/ocaml
-B /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/reanalyze/examples/deadcode/node_modules/rescript/lib/ocaml
+FLG -ppx '/Users/cristianocalcagno/GitHub/rescript-vscode/analysis/examples/larger-project/node_modules/rescript/darwin/bsc.exe -as-ppx -bs-jsx 3'
+S /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/examples/larger-project/node_modules/rescript/lib/ocaml
+B /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/examples/larger-project/node_modules/rescript/lib/ocaml
 FLG -w +a-4-9-20-40-41-42-50-61-102
-S /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/reanalyze/examples/deadcode/node_modules/@rescript/react/lib/ocaml
-B /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/reanalyze/examples/deadcode/node_modules/@rescript/react/lib/ocaml
-S /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/reanalyze/examples/deadcode/node_modules/@glennsl/bs-json/lib/ocaml
-B /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/reanalyze/examples/deadcode/node_modules/@glennsl/bs-json/lib/ocaml
+S /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/examples/larger-project/node_modules/@rescript/react/lib/ocaml
+B /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/examples/larger-project/node_modules/@rescript/react/lib/ocaml
+S /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/examples/larger-project/node_modules/@glennsl/bs-json/lib/ocaml
+B /Users/cristianocalcagno/GitHub/rescript-vscode/analysis/examples/larger-project/node_modules/@glennsl/bs-json/lib/ocaml
 S src
 B lib/bs/src
 S src/exception
