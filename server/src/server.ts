@@ -1,8 +1,7 @@
 import process from "process";
 import * as p from "vscode-languageserver-protocol";
-import * as m from "vscode-jsonrpc/lib/messages";
 import * as v from "vscode-languageserver";
-import * as rpc from "vscode-jsonrpc";
+import * as rpc from "vscode-jsonrpc/node";
 import * as path from "path";
 import fs from "fs";
 // TODO: check DidChangeWatchedFilesNotification.
@@ -51,7 +50,7 @@ let projectsFiles: Map<
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: m.Message) => void = (_) => {};
+let send: (msg: p.Message) => void = (_) => {};
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -93,7 +92,7 @@ let sendUpdatedDiagnostics = () => {
         uri: file,
         diagnostics: filesAndErrors[file],
       };
-      let notification: m.NotificationMessage = {
+      let notification: p.NotificationMessage = {
         jsonrpc: c.jsonrpcVersion,
         method: "textDocument/publishDiagnostics",
         params: params,
@@ -111,7 +110,7 @@ let sendUpdatedDiagnostics = () => {
             uri: file,
             diagnostics: [],
           };
-          let notification: m.NotificationMessage = {
+          let notification: p.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
             method: "textDocument/publishDiagnostics",
             params: params,
@@ -131,7 +130,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
         uri: file,
         diagnostics: [],
       };
-      let notification: m.NotificationMessage = {
+      let notification: p.NotificationMessage = {
         jsonrpc: c.jsonrpcVersion,
         method: "textDocument/publishDiagnostics",
         params: params,
@@ -143,7 +142,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
   }
 };
 let sendCompilationFinishedMessage = () => {
-  let notification: m.NotificationMessage = {
+  let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
     method: "rescript/compilationFinished",
   };
@@ -211,7 +210,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
           message: `Start a build for this project to get the freshest data?`,
           actions: [payload],
         };
-        let request: m.RequestMessage = {
+        let request: p.RequestMessage = {
           jsonrpc: c.jsonrpcVersion,
           id: serverSentRequestIdCounter++,
           method: "window/showMessageRequest",
@@ -274,11 +273,11 @@ if (process.argv.includes("--stdio")) {
   let writer = new rpc.StreamMessageWriter(process.stdout);
   let reader = new rpc.StreamMessageReader(process.stdin);
   // proper `this` scope for writer
-  send = (msg: m.Message) => writer.write(msg);
+  send = (msg: p.Message) => writer.write(msg);
   reader.listen(onMessage);
 } else {
   // proper `this` scope for process
-  send = (msg: m.Message) => process.send!(msg);
+  send = (msg: p.Message) => process.send!(msg);
   process.on("message", onMessage);
 }
 
@@ -340,7 +339,7 @@ function references(msg: p.RequestMessage) {
     filePath,
     params.position
   );
-  let response: m.ResponseMessage = {
+  let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
     result,
@@ -349,7 +348,7 @@ function references(msg: p.RequestMessage) {
   return response;
 }
 
-function prepareRename(msg: p.RequestMessage): m.ResponseMessage {
+function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -400,7 +399,7 @@ function rename(msg: p.RequestMessage) {
   if (documentChanges !== null) {
     result = { documentChanges };
   }
-  let response: m.ResponseMessage = {
+  let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
     result,
@@ -531,7 +530,7 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
   return res;
 }
 
-function format(msg: p.RequestMessage): Array<m.Message> {
+function format(msg: p.RequestMessage): Array<p.Message> {
   // technically, a formatting failure should reply with the error. Sadly
   // the LSP alert box for these error replies sucks (e.g. doesn't actually
   // display the message). In order to signal the client to display a proper
@@ -539,7 +538,7 @@ function format(msg: p.RequestMessage): Array<m.Message> {
   // back a fake success message (because each request mandates a
   // response), then right away send a server notification to display a
   // nicer alert. Ugh.
-  let fakeSuccessResponse: m.ResponseMessage = {
+  let fakeSuccessResponse: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
     result: [],
@@ -552,7 +551,7 @@ function format(msg: p.RequestMessage): Array<m.Message> {
       type: p.MessageType.Error,
       message: `Not a ${c.resExt} or ${c.resiExt} file. Cannot format it.`,
     };
-    let response: m.NotificationMessage = {
+    let response: p.NotificationMessage = {
       jsonrpc: c.jsonrpcVersion,
       method: "window/showMessage",
       params: params,
@@ -573,7 +572,7 @@ function format(msg: p.RequestMessage): Array<m.Message> {
           newText: formattedResult.result,
         },
       ];
-      let response: m.ResponseMessage = {
+      let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         result: result,
@@ -589,7 +588,7 @@ function format(msg: p.RequestMessage): Array<m.Message> {
   }
 }
 
-function createInterface(msg: p.RequestMessage): m.Message {
+function createInterface(msg: p.RequestMessage): p.Message {
   let params = msg.params as CreateInterfaceRequestParams;
   let extension = path.extname(params.uri);
   let filePath = fileURLToPath(params.uri);
@@ -601,7 +600,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
       message: `Cannot locate project directory to generate the interface file.`,
     };
 
-    let response: m.NotificationMessage = {
+    let response: p.NotificationMessage = {
       jsonrpc: c.jsonrpcVersion,
       method: "window/showMessage",
       params: params,
@@ -616,7 +615,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
       message: `Not a ${c.resExt} file. Cannot create an interface for it.`,
     };
 
-    let response: m.NotificationMessage = {
+    let response: p.NotificationMessage = {
       jsonrpc: c.jsonrpcVersion,
       method: "window/showMessage",
       params: params,
@@ -636,7 +635,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
       message: `Error reading bsconfig file.`,
     };
 
-    let response: m.NotificationMessage = {
+    let response: p.NotificationMessage = {
       jsonrpc: c.jsonrpcVersion,
       method: "window/showMessage",
       params,
@@ -662,7 +661,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
       message: `No compiled interface file found. Please compile your project first.`,
     };
 
-    let response: m.NotificationMessage = {
+    let response: p.NotificationMessage = {
       jsonrpc: c.jsonrpcVersion,
       method: "window/showMessage",
       params,
@@ -681,18 +680,18 @@ function createInterface(msg: p.RequestMessage): m.Message {
   try {
     let resiPath = utils.replaceFileExtension(filePath, c.resiExt);
     fs.writeFileSync(resiPath, result, { encoding: "utf-8" });
-    let response: m.ResponseMessage = {
+    let response: p.ResponseMessage = {
       jsonrpc: c.jsonrpcVersion,
       id: msg.id,
       result: "Interface successfully created.",
     };
     return response;
   } catch (e) {
-    let response: m.ResponseMessage = {
+    let response: p.ResponseMessage = {
       jsonrpc: c.jsonrpcVersion,
       id: msg.id,
       error: {
-        code: m.ErrorCodes.InternalError,
+        code: p.ErrorCodes.InternalError,
         message: "Unable to create interface file.",
       },
     };
@@ -700,7 +699,7 @@ function createInterface(msg: p.RequestMessage): m.Message {
   }
 }
 
-function openCompiledFile(msg: p.RequestMessage): m.Message {
+function openCompiledFile(msg: p.RequestMessage): p.Message {
   let params = msg.params as OpenCompiledFileParams;
   let filePath = fileURLToPath(params.uri);
   let projDir = utils.findProjectRootOfFile(filePath);
@@ -711,7 +710,7 @@ function openCompiledFile(msg: p.RequestMessage): m.Message {
       message: `Cannot locate project directory.`,
     };
 
-    let response: m.NotificationMessage = {
+    let response: p.NotificationMessage = {
       jsonrpc: c.jsonrpcVersion,
       method: "window/showMessage",
       params: params,
@@ -736,7 +735,7 @@ function openCompiledFile(msg: p.RequestMessage): m.Message {
       message,
     };
 
-    let response: m.NotificationMessage = {
+    let response: p.NotificationMessage = {
       jsonrpc: c.jsonrpcVersion,
       method: "window/showMessage",
       params,
@@ -749,7 +748,7 @@ function openCompiledFile(msg: p.RequestMessage): m.Message {
     uri: compiledFilePath.result,
   };
 
-  let response: m.ResponseMessage = {
+  let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
     result,
@@ -758,8 +757,8 @@ function openCompiledFile(msg: p.RequestMessage): m.Message {
   return response;
 }
 
-function onMessage(msg: m.Message) {
-  if (m.isNotificationMessage(msg)) {
+function onMessage(msg: p.Message) {
+  if (p.Message.isNotification(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
     if (!initialized && msg.method !== "exit") {
       // From spec: "Notifications should be dropped, except for the exit notification. This will allow the exit of a server without an initialize request"
@@ -797,14 +796,14 @@ function onMessage(msg: m.Message) {
       // Can't seem to get this notification to trigger, but if it does this will be here and ensure we're synced up at the server.
       askForAllCurrentConfiguration();
     }
-  } else if (m.isRequestMessage(msg)) {
+  } else if (p.Message.isRequest(msg)) {
     // request message, aka client sent request and waits for our mandatory reply
     if (!initialized && msg.method !== "initialize") {
-      let response: m.ResponseMessage = {
+      let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         error: {
-          code: m.ErrorCodes.ServerNotInitialized,
+          code: p.ErrorCodes.ServerNotInitialized,
           message: "Server not initialized.",
         },
       };
@@ -847,7 +846,7 @@ function onMessage(msg: m.Message) {
           },
         },
       };
-      let response: m.ResponseMessage = {
+      let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         result: result,
@@ -871,7 +870,7 @@ function onMessage(msg: m.Message) {
       send(response);
     } else if (msg.method === "initialized") {
       // sent from client after initialize. Nothing to do for now
-      let response: m.ResponseMessage = {
+      let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         result: null,
@@ -880,11 +879,11 @@ function onMessage(msg: m.Message) {
     } else if (msg.method === "shutdown") {
       // https://microsoft.github.io/language-server-protocol/specification#shutdown
       if (shutdownRequestAlreadyReceived) {
-        let response: m.ResponseMessage = {
+        let response: p.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
           id: msg.id,
           error: {
-            code: m.ErrorCodes.InvalidRequest,
+            code: p.ErrorCodes.InvalidRequest,
             message: `Language server already received the shutdown request`,
           },
         };
@@ -899,7 +898,7 @@ function onMessage(msg: m.Message) {
           clearInterval(pullConfigurationPeriodically);
         }
 
-        let response: m.ResponseMessage = {
+        let response: p.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
           id: msg.id,
           result: null,
@@ -934,17 +933,17 @@ function onMessage(msg: m.Message) {
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
     } else {
-      let response: m.ResponseMessage = {
+      let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
         id: msg.id,
         error: {
-          code: m.ErrorCodes.InvalidRequest,
+          code: p.ErrorCodes.InvalidRequest,
           message: "Unrecognized editor request.",
         },
       };
       send(response);
     }
-  } else if (m.isResponseMessage(msg)) {
+  } else if (p.Message.isResponse(msg)) {
     if (msg.id === c.configurationRequestId) {
       if (msg.result != null) {
         // This is a response from a request to get updated configuration. Note
