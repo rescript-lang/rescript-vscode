@@ -10,11 +10,17 @@ type completionItem = {
   documentation : markupContent option;
 }
 
-type hover = string
 type location = {uri : string; range : range}
 type documentSymbolItem = {name : string; kind : int; location : location}
 type renameFile = {oldUri : string; newUri : string}
 type textEdit = {range : range; newText : string}
+
+type diagnosticSeverity = Error | Warning | Information | Hint
+type diagnostic = {
+  range : range;
+  message : string;
+  severity : diagnosticSeverity;
+}
 
 type optionalVersionedTextDocumentIdentifier = {
   version : int option;
@@ -89,7 +95,7 @@ let stringifyRenameFile {oldUri; newUri} =
 }|}
     (Json.escape oldUri) (Json.escape newUri)
 
-let stringifyTextEdit te =
+let stringifyTextEdit (te : textEdit) =
   Printf.sprintf {|{
   "range": %s,
   "newText": "%s"
@@ -123,3 +129,16 @@ let stringifyCodeAction ca =
   Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title
     (codeActionKindToString ca.codeActionKind)
     (ca.edit |> stringifyCodeActionEdit)
+
+let stringifyDiagnostic d =
+  Printf.sprintf {|{
+  "range: %s,
+  "message": "%s",
+  "severity": %d,
+}|}
+    (stringifyRange d.range) (Json.escape d.message)
+    (match d.severity with
+    | Error -> 1
+    | Warning -> 2
+    | Information -> 3
+    | Hint -> 4)

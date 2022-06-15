@@ -257,6 +257,12 @@ let format ~path =
         signature
   else ""
 
+let diagnosticSyntax ~path =
+  print_endline
+    (match Diagnostics.document_syntax ~path with
+    | [] -> Protocol.null
+    | d -> "[\n" ^ String.concat ",\n" d ^ "\n]")
+
 let test ~path =
   Uri.stripPath := true;
   match Files.readFile path with
