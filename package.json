@@ -165,6 +165,6 @@
 	"devDependencies": {
 		"@types/node": "^14.14.41",
 		"@types/vscode": "1.55.0",
-		"typescript": "^4.2.4"
+		"typescript": "^4.7.3"
 	}
 }
