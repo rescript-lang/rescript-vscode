@@ -3,4 +3,3 @@
 
 @genType
 type t
-

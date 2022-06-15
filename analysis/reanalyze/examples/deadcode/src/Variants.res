@@ -116,4 +116,3 @@ let restResult2 = (x: result2<int, string>) => x
 
 @genType
 let restResult3 = (x: result3<int, string>) => x
-

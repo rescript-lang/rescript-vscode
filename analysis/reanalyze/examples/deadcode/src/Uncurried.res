@@ -54,4 +54,3 @@ let sumLblCurried = (s: string, ~n) => {
   Js.log3(s, "sumLblCurried 1st arg", n)
   (~m) => Js.log4("sumLblCurried 2nd arg", m, "result", n + m)
 }
-

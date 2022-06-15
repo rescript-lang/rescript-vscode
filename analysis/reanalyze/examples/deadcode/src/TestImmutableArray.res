@@ -18,4 +18,3 @@ let testBeltArraySet = arr => {
   open Belt
   arr[3] = 4
 }
-

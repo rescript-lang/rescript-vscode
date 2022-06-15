@@ -10,4 +10,3 @@ module M = {
 
   let test = () => "a"
 }
-

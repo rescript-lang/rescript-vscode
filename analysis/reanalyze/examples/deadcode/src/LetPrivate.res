@@ -5,4 +5,3 @@
 
 @genType
 let y = x
-

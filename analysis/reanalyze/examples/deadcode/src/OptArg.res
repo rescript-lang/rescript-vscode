@@ -27,4 +27,3 @@ let wrapfourArgs = (~a=?, ~b=?, ~c=?, n) => fourArgs(~a?, ~b?, ~c?, n)
 
 Js.log(wrapfourArgs(~a=3, ~c=44, 44))
 Js.log(wrapfourArgs(~b=4, ~c=44, 44))
-

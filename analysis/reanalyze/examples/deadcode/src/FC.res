@@ -9,4 +9,3 @@ let foo = (~impl: module(ReplacebleComponent)) => {
 }
 
 Js.log(foo)
-

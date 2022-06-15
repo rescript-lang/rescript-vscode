@@ -26,4 +26,3 @@ let bar = (x: someMethods) => {
   let f = x["twoArgs"]
   f(. 3, "a")
 }
-

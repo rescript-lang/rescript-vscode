@@ -15,4 +15,3 @@ type r2 = B({g: string})
 
 @genType
 let r2Test = (x: r2) => x
-

@@ -1,3 +1,2 @@
 @gentype
 type t = int
-

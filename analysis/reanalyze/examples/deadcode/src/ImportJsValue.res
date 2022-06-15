@@ -82,4 +82,3 @@ type myNum
 
 @genType.import("./MyMath")
 type polyType<'a>
-

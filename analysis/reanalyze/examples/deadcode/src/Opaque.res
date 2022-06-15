@@ -9,4 +9,3 @@ type pair = (opaqueFromRecords, opaqueFromRecords)
 
 @genType
 let testConvertNestedRecordFromOtherFile = (x: Records.business) => x
-

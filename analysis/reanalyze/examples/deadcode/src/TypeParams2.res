@@ -8,4 +8,3 @@ type items = TypeParams1.ocaml_array<item>
 type items2 = array<item>
 
 let exportSomething = 10
-

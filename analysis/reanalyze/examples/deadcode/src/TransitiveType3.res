@@ -6,4 +6,3 @@ type t3 = {
 
 @genType
 let convertT3 = (x: t3) => x
-

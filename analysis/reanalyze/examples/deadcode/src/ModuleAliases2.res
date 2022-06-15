@@ -19,4 +19,3 @@ module OuterAlias = Outer
 module InnerAlias = OuterAlias.Inner
 
 let q = 42
-

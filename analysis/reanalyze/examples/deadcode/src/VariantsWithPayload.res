@@ -97,4 +97,3 @@ type variant1Object = R(payload)
 
 @genType
 let testVariant1Object = (x: variant1Object) => x
-

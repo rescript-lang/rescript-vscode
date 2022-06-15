@@ -26,4 +26,3 @@ let testInner = (x: Outer2Alias.OuterInnerAlias.innerT) => x
 
 @genType
 let testInner2 = (x: Outer2Alias.Inner2.OuterInnerAlias2.innerT) => x
-
