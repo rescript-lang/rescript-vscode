@@ -47,3 +47,4 @@ let marry = (first, second): couple => (first, second)
 
 @genType
 let changeSecondAge = ((first, second): couple): couple => (first, {...second, age: second.age + 1})
+

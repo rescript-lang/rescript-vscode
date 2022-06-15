@@ -146,3 +146,4 @@ let testMyRecBsAs = (x: myRecBsAs) => x.type_
 
 @genType
 let testMyRecBsAs2 = (x: myRecBsAs) => x
+

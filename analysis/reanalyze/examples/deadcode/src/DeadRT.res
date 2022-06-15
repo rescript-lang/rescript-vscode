@@ -9,3 +9,4 @@ let rec emitModuleAccessPath = moduleAccessPath =>
   }
 
 let () = Js.log(Kaboom)
+

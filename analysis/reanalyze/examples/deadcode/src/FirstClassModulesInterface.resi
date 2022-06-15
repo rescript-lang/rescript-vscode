@@ -13,3 +13,4 @@ module type MT = {
 
 @genType
 type firstClassModule = module(MT)
+

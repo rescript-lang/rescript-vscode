@@ -1,2 +1,3 @@
 @gentype
 type t = int
+

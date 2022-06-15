@@ -7,6 +7,6 @@ type record = {
   yyy: int,
 }
 
-type variant = A | B(int) | C
+type variant = A | B(int)|C
 
-type record2 = {xx: int, yy: int}
+type record2 = {xx:int,yy:int}

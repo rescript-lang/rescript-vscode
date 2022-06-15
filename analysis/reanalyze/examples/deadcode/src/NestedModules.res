@@ -49,3 +49,4 @@ module Universe = {
   @genType
   let someString = "some exported string"
 }
+

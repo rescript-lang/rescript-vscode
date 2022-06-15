@@ -13,3 +13,4 @@ type r4 = {r4: int}
 type annotatedVariant =
   | R2(r2, r3)
   | R4(r4)
+

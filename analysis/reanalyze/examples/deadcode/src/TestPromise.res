@@ -12,3 +12,4 @@ type toPayload = {result: string}
 
 @genType
 let convert = Js.Promise.then_(({s}) => Js.Promise.resolve({result: s}))
+

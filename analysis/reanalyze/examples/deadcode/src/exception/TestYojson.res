@@ -7,7 +7,7 @@ let bar = (str, json) =>
     json |> member(str)
   } {
   | j => j
-  | exception Yojson.Basic.Util.Type_error("a", d) if d == json => json
+  | exception Yojson.Basic.Util.Type_error("a", d) when d == json => json
   }
 
 @raises(Yojson.Basic.Util.Type_error)

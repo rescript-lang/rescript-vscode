@@ -10,3 +10,4 @@ module Make = (Error: Error) => {
 // This is ignored as there's an interface file
 @genType
 let x = 42
+

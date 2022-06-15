@@ -8,3 +8,4 @@ type deadType =
   | OnlyInInterface
   | InBoth
   | InNeither
+

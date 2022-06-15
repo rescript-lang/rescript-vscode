@@ -65,3 +65,4 @@ let unitArgWithConversion = () => A
 
 @genType
 let unitArgWithConversionU = (. ()) => A
+

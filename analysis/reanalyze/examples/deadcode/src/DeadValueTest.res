@@ -3,7 +3,6 @@ let valueDead = 2
 
 let valueOnlyInImplementation = 3
 
-@raises(Failure)
 let rec subList = (b, e, l) =>
   switch l {
   | list{} => failwith("subList")
@@ -19,3 +18,4 @@ let rec subList = (b, e, l) =>
       list{h, ...tail}
     }
   }
+

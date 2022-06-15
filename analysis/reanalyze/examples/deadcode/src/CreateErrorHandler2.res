@@ -4,3 +4,4 @@ module Error2 = {
 }
 
 module MyErrorHandler = ErrorHandler.Make(Error2) /* MyErrorHandler.notify(42) */
+

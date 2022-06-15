@@ -39,3 +39,4 @@ let testInner2 = (x: inner2) => x
 
 @genType
 let testInner2Expanded = (x: OtherFile.Outer.Inner.inner) => x
+

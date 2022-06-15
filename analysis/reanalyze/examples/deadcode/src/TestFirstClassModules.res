@@ -28,3 +28,4 @@ let convertFirstClassModuleWithTypeEquations = (
   type o i,
   x: module(MT with type Inner.inner = i and type outer = o),
 ) => x
+

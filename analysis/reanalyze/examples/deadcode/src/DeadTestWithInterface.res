@@ -3,3 +3,4 @@ module Ext_buffer: {
 } = {
   let x = 42
 }
+

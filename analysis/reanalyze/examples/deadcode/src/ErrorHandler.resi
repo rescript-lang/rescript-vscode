@@ -8,3 +8,4 @@ module Make: (Error: Error) =>
 }
 
 let x: int
+

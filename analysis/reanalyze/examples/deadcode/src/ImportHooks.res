@@ -19,3 +19,4 @@ external make: (
 
 @genType.import("./hookExample")
 external foo: (~person: person) => string = "foo"
+

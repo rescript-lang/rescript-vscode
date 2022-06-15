@@ -18,7 +18,7 @@ let group = (~break=IfNeed, doc) => {break: break, doc: doc}
 
 let rec fits = (w, stack) =>
   switch stack {
-  | _ if w < 0 => false
+  | _ when w < 0 => false
   | Empty => true
   | Cons({doc}, stack) => fits(w - String.length(doc), stack)
   }
@@ -37,3 +37,4 @@ let rec toString = (~width, stack) =>
 toString(~width=80, Empty)
 toString(~width=80, Cons(group(~break=Never, "abc"), Empty))
 toString(~width=80, Cons(group(~break=Always, "d"), Empty))
+

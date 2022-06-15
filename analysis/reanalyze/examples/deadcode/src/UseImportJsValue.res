@@ -3,3 +3,4 @@ let useGetProp = (x: ImportJsValue.AbsoluteValue.t) => x->ImportJsValue.Absolute
 
 @genType
 let useTypeImportedInOtherModule = (x: ImportJsValue.stringFunction) => x
+

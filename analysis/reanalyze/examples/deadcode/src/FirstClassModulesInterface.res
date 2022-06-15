@@ -10,3 +10,4 @@ module type MT = {
 }
 
 type firstClassModule = module(MT)
+

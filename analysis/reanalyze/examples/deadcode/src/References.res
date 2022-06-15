@@ -45,3 +45,4 @@ let destroysRefIdentity = (x: ref<requiresConversion>) => x
 // Using abstract references preserves the identity.
 @genType
 let preserveRefIdentity = (x: R.t<requiresConversion>) => x
+
