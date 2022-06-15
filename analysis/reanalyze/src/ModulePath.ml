@@ -5,9 +5,7 @@ module NameMap = Map.Make (Name)
 type t = {aliases : Path.t NameMap.t; loc : Location.t; path : Path.t}
 
 let initial = ({aliases = NameMap.empty; loc = Location.none; path = []} : t)
-
 let current = (ref initial : t ref)
-
 let init () = current := initial
 
 let normalizePath ~aliases path =
@@ -33,7 +31,5 @@ let addAlias ~name ~path =
   current := {!current with aliases = NameMap.add name pathNormalized aliases}
 
 let resolveAlias path = path |> normalizePath ~aliases:!current.aliases
-
 let getCurrent () = !current
-
 let setCurrent p = current := p

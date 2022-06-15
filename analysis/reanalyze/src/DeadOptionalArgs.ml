@@ -10,7 +10,6 @@ type item = {
 }
 
 let delayedItems = (ref [] : item list ref)
-
 let functionReferences = (ref [] : (Lexing.position * Lexing.position) list ref)
 
 let addFunctionReference ~(locFrom : Location.t) ~(locTo : Location.t) =

@@ -9,9 +9,7 @@ type attributePayload =
   | UnrecognizedPayload
 
 let tagIsGenType s = s = "genType" || s = "gentype"
-
 let tagIsGenTypeImport s = s = "genType.import" || s = "gentype.import"
-
 let tagIsGenTypeOpaque s = s = "genType.opaque" || s = "gentype.opaque"
 
 let tagIsOneOfTheGenTypeAnnotations s =

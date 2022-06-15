@@ -25,7 +25,5 @@ let all () =
   runConfig.termination <- true
 
 let dce () = runConfig.dce <- true
-
 let exception_ () = runConfig.exception_ <- true
-
 let termination () = runConfig.termination <- true

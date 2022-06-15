@@ -1,9 +1,6 @@
 let items = ref 0
-
 let start () = Format.fprintf Format.std_formatter "["
-
 let finish () = Format.fprintf Format.std_formatter "\n]@."
-
 let emitClose () = "\n}"
 
 let emitItem ~ppf ~name ~kind ~file ~range ~message =

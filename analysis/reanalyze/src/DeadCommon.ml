@@ -11,21 +11,15 @@ end)
 module Config = struct
   (* Turn on type analysis *)
   let analyzeTypes = ref true
-
   let analyzeExternals = ref false
-
   let reportUnderscore = false
-
   let reportTypesDeadOnlyInInterface = false
-
   let recursiveDebug = false
-
   let warnOnCircularDependencies = false
 end
 
 module Current = struct
   let bindings = ref PosSet.empty
-
   let lastBinding = ref Location.none
 
   (** max end position of a value reported dead *)
@@ -71,7 +65,6 @@ module ValueReferences = struct
   let table = (PosHash.create 256 : PosSet.t PosHash.t)
 
   let add posTo posFrom = PosHash.addSet table posTo posFrom
-
   let find pos = PosHash.findSet table pos
 end
 
@@ -80,7 +73,6 @@ module TypeReferences = struct
   let table = (PosHash.create 256 : PosSet.t PosHash.t)
 
   let add posTo posFrom = PosHash.addSet table posTo posFrom
-
   let find pos = PosHash.findSet table pos
 end
 
@@ -195,7 +187,6 @@ module ProcessDeadAnnotations = struct
   type annotatedAs = GenType | Dead | Live
 
   let positionsAnnotated = PosHash.create 1
-
   let isAnnotatedDead pos = PosHash.find_opt positionsAnnotated pos = Some Dead
 
   let isAnnotatedGenTypeOrLive pos =

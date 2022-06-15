@@ -108,10 +108,10 @@ let printSignature ~extractor ~signature =
   let rec processSignature ~indent (signature : Types.signature) : unit =
     match signature with
     | Sig_value
-        ( makePropsId
-        (* makeProps *),
+        ( makePropsId (* makeProps *),
           {val_loc = makePropsLoc; val_type = makePropsType} )
-      :: Sig_value (makeId (* make *), makeValueDesc) :: rest
+      :: Sig_value (makeId (* make *), makeValueDesc)
+      :: rest
       when Ident.name makePropsId = Ident.name makeId ^ "Props"
            && ((* from implementation *) makePropsLoc.loc_ghost
               || (* from interface *) makePropsLoc = makeValueDesc.val_loc)
