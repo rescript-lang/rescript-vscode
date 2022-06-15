@@ -1,9 +1,6 @@
 let currentSrc = ref ""
-
 let currentModule = ref ""
-
 let currentModuleName = ref ("" |> Name.create)
-
 let runConfig = RunConfig.runConfig
 
 (* Location printer: `filename:line: ' *)
@@ -16,16 +13,13 @@ let posToString (pos : Lexing.position) =
 
 module Cli = struct
   let debug = ref false
-
   let ci = ref false
 
   (** The command was a -cmt variant (e.g. -exception-cmt) *)
   let cmtCommand = ref false
 
   let experimental = ref false
-
   let json = ref false
-
   let write = ref false
 
   (* names to be considered live values *)
@@ -54,7 +48,6 @@ module FileHash = struct
     type t = string
 
     let hash (x : t) = Hashtbl.hash x
-
     let equal (x : t) y = x = y
   end)
 end
@@ -167,7 +160,6 @@ module OptionalArgs = struct
     y.alwaysUsed <- alwaysUsed
 
   let iterUnused f x = StringSet.iter f x.unused
-
   let iterAlwaysUsed f x = StringSet.iter (fun s -> f s x.count) x.alwaysUsed
 end
 
@@ -222,7 +214,6 @@ type missingRaiseInfo = {
 }
 
 type severity = Warning | Error
-
 type deadOptional = WarningUnusedArgument | WarningRedundantOptionalArgument
 
 type termination =

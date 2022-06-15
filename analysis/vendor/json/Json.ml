@@ -461,15 +461,10 @@ let nth n t =
   | _ -> None
 
 let string t = match t with String s -> Some s | _ -> None
-
 let number t = match t with Number s -> Some s | _ -> None
-
 let array t = match t with Array s -> Some s | _ -> None
-
 let obj t = match t with Object s -> Some s | _ -> None
-
 let bool t = match t with True -> Some true | False -> Some false | _ -> None
-
 let null t = match t with Null -> Some () | _ -> None
 
 let rec parsePath keyList t =

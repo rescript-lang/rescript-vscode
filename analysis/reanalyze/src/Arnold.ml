@@ -14,11 +14,9 @@ end
 
 module FunctionArgs = struct
   type arg = {label : string; functionName : FunctionName.t}
-
   type t = arg list
 
   let empty = []
-
   let argToString {label; functionName} = label ^ ":" ^ functionName
 
   let toString functionArgs =
@@ -82,17 +80,11 @@ module FunctionCallSet = Set.Make (FunctionCall)
 
 module Stats = struct
   let nCacheChecks = ref 0
-
   let nCacheHits = ref 0
-
   let nFiles = ref 0
-
   let nFunctions = ref 0
-
   let nHygieneErrors = ref 0
-
   let nInfiniteLoops = ref 0
-
   let nRecursiveBlocks = ref 0
 
   let print ppf () =
@@ -107,7 +99,6 @@ module Stats = struct
     Format.fprintf ppf "@]"
 
   let dump ~ppf = Format.fprintf ppf "%a@." print ()
-
   let newFile () = incr nFiles
 
   let newRecursiveFunctions ~numFunctions =
@@ -246,7 +237,6 @@ module Trace = struct
     | _ -> Tseq [t1; t2]
 
   let some = Toption Rsome
-
   let none = Toption Rnone
 
   let retOptionToString r =
@@ -273,21 +263,15 @@ module Values : sig
   type t
 
   val getNone : t -> Progress.t option
-
   val getSome : t -> Progress.t option
-
   val nd : t -> t -> t
-
   val none : progress:Progress.t -> t
-
   val some : progress:Progress.t -> t
-
   val toString : t -> string
 end = struct
   type t = {none : Progress.t option; some : Progress.t option}
 
   let getNone {none} = none
-
   let getSome {some} = some
 
   let toString x =
@@ -299,7 +283,6 @@ end = struct
     |> String.concat ", "
 
   let none ~progress = {none = Some progress; some = None}
-
   let some ~progress = {none = None; some = Some progress}
 
   let nd (v1 : t) (v2 : t) : t =
@@ -384,7 +367,6 @@ end
 
 module Command = struct
   type progress = Progress.t
-
   type retOption = Trace.retOption
 
   type t =
@@ -450,7 +432,6 @@ end
 
 module Kind = struct
   type t = entry list
-
   and entry = {label : string; k : t}
 
   let empty = ([] : t)
@@ -502,7 +483,6 @@ module FunctionTable = struct
     Format.fprintf ppf "@]"
 
   let dump tbl = Format.fprintf Format.std_formatter "%a@." print tbl
-
   let initialFunctionDefinition () = {kind = Kind.empty; body = None}
 
   let getFunctionDefinition ~functionName (tbl : t) =
@@ -1034,7 +1014,6 @@ end
 
 module CallStack = struct
   type frame = {frameNumber : int; pos : Lexing.position}
-
   type t = {tbl : (FunctionCall.t, frame) Hashtbl.t; mutable size : int}
 
   let create () = {tbl = Hashtbl.create 1; size = 0}
@@ -1072,7 +1051,6 @@ end
 
 module Eval = struct
   type progress = Progress.t
-
   type cache = (FunctionCall.t, State.t) Hashtbl.t
 
   let createCache () : cache = Hashtbl.create 1

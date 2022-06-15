@@ -22,28 +22,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
-
 type t = Lexing.position = {
-    pos_fname : string ; [@dead]
-    pos_lnum : int ;
-    pos_bol : int ;
-    pos_cnum : int
+  pos_fname : string; [@dead]
+  pos_lnum : int;
+  pos_bol : int;
+  pos_cnum : int;
 }
 
 let print fmt (pos : t) =
-  Format.fprintf fmt "(line %d, column %d)" pos.pos_lnum (pos.pos_cnum - pos.pos_bol)
+  Format.fprintf fmt "(line %d, column %d)" pos.pos_lnum
+    (pos.pos_cnum - pos.pos_bol)
 
-
-
-let lexbuf_from_channel_with_fname ic fname = 
-  let x = Lexing.from_function (fun buf n -> input ic buf 0 n) in 
-  let pos : t = {
-    pos_fname = fname ; 
-    pos_lnum = 1; 
-    pos_bol = 0;
-    pos_cnum = 0 (* copied from zero_pos*)
-  } in 
+let lexbuf_from_channel_with_fname ic fname =
+  let x = Lexing.from_function (fun buf n -> input ic buf 0 n) in
+  let pos : t =
+    {
+      pos_fname = fname;
+      pos_lnum = 1;
+      pos_bol = 0;
+      pos_cnum = 0 (* copied from zero_pos*);
+    }
+  in
   x.lex_start_p <- pos;
-  x.lex_curr_p <- pos ; 
+  x.lex_curr_p <- pos;
   x
-[@@raises Invalid_argument]
+  [@@raises Invalid_argument]

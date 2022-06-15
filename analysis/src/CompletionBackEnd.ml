@@ -727,7 +727,6 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
 
 module LocalTables = struct
   type 'a table = (string * (int * int), 'a Declared.t) Hashtbl.t
-
   type namesUsed = (string, unit) Hashtbl.t
 
   type t = {
@@ -1441,8 +1440,7 @@ Alternatively, use the `@@deprecated` decorator to add a deprecation warning to 
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#expression-deprecated-decorator).|};
         ] );
-
-        ( "doesNotRaise",
+      ( "doesNotRaise",
         [
           {|The `@doesNotRaise` decorator is for reanalyze, a static analysis tool for ReScript that can perform exception analysis.
 
@@ -1453,7 +1451,6 @@ could potentially raise.
 [Read more and see examples in the documentation](https://github.com/rescript-association/reanalyze/blob/master/EXCEPTION.md).
 > Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
         ] );
-
       ( "genType",
         [
           {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.

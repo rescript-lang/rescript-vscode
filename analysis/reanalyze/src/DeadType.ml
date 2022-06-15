@@ -7,9 +7,7 @@ module TypeLabels = struct
   (* map from type path (for record/variant label) to its location *)
 
   let table = (Hashtbl.create 256 : (Path.t, Location.t) Hashtbl.t)
-
   let add path loc = Hashtbl.replace table path loc
-
   let find path = Hashtbl.find_opt table path
 end
 
@@ -21,9 +19,7 @@ let addTypeReference ~posFrom ~posTo =
 
 module TypeDependencies = struct
   let delayedItems = ref []
-
   let add loc1 loc2 = delayedItems := (loc1, loc2) :: !delayedItems
-
   let clear () = delayedItems := []
 
   let processTypeDependency

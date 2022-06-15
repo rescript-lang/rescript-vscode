@@ -51,7 +51,6 @@ let readFile filename =
   with _ -> None
 
 let exists path = match maybeStat path with None -> false | Some _ -> true
-
 let ifExists path = if exists path then Some path else None
 
 let readDirectory dir =
