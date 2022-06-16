@@ -42,7 +42,11 @@ let processCmtFiles ~cmtRoot =
   | Some root ->
     Cli.cmtCommand := true;
     let rec walkSubDirs dir =
-      let absDir = match dir = "" with true -> root | false -> root +++ dir in
+      let absDir =
+        match dir = "" with
+        | true -> root
+        | false -> root +++ dir
+      in
       let skipDir =
         let base = Filename.basename dir in
         base = "node_modules" || base = "_esy"

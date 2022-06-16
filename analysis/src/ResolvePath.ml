@@ -125,7 +125,9 @@ let resolveFromCompilerPath ~env ~package path =
         let env = QueryEnv.fromFile file in
         resolvePath ~env ~package ~path
     in
-    match res with None -> NotFound | Some (env, name) -> Exported (env, name))
+    match res with
+    | None -> NotFound
+    | Some (env, name) -> Exported (env, name))
   | Stamp stamp -> Stamp stamp
   | GlobalMod _ -> NotFound
   | NotFound -> NotFound

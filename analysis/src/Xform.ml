@@ -43,7 +43,9 @@ module IfThenElse = struct
       | Some patList -> Some (mkPat (Ppat_tuple patList)))
     | Pexp_record (items, None) -> (
       let itemToPat (x, e) =
-        match expToPat e with None -> None | Some p -> Some (x, p)
+        match expToPat e with
+        | None -> None
+        | Some p -> Some (x, p)
       in
       match listToPat ~itemToPat items with
       | None -> None
@@ -196,7 +198,10 @@ module AddTypeAnnotation = struct
       | Pexp_fun (argLabel, _, pat, e) ->
         let isUnlabeledOnlyArg =
           argNum = 1 && argLabel = Nolabel
-          && match e.pexp_desc with Pexp_fun _ -> false | _ -> true
+          &&
+          match e.pexp_desc with
+          | Pexp_fun _ -> false
+          | _ -> true
         in
         processPattern ~isUnlabeledOnlyArg pat;
         processFunction ~argNum:(argNum + 1) e

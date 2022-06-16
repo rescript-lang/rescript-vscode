@@ -10,7 +10,10 @@ let posLanguage (pos : Lexing.position) =
   else Ml
 
 let deadAnnotation = "dead"
-let annotateAtEnd ~pos = match posLanguage pos with Res -> false | Ml -> true
+let annotateAtEnd ~pos =
+  match posLanguage pos with
+  | Res -> false
+  | Ml -> true
 
 let getPosAnnotation decl =
   match annotateAtEnd ~pos:decl.pos with
@@ -28,7 +31,9 @@ let rec lineToString_ {original; declarations} =
         "@" ^ deadAnnotation ^ "(\"" ^ (path |> Path.withoutHead) ^ "\") "
       | Ml ->
         " " ^ "["
-        ^ (match declKind |> DeclKind.isType with true -> "@" | false -> "@@")
+        ^ (match declKind |> DeclKind.isType with
+          | true -> "@"
+          | false -> "@@")
         ^ deadAnnotation ^ " \"" ^ (path |> Path.withoutHead) ^ "\"] "
     in
     let posAnnotation = decl |> getPosAnnotation in

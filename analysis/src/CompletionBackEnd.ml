@@ -497,7 +497,10 @@ let showConstructor {Constructor.cname = {txt}; args; res} =
         |> List.map (fun (typ, _) -> typ |> Shared.typeToString)
         |> String.concat ", ")
       ^ ")")
-  ^ match res with None -> "" | Some typ -> "\n" ^ (typ |> Shared.typeToString)
+  ^
+  match res with
+  | None -> ""
+  | Some typ -> "\n" ^ (typ |> Shared.typeToString)
 
 (* TODO: local opens *)
 let resolveOpens ~env ~previous opens ~package =
@@ -730,12 +733,12 @@ module LocalTables = struct
   type namesUsed = (string, unit) Hashtbl.t
 
   type t = {
-    namesUsed : namesUsed;
-    mutable resultRev : Completion.t list;
-    constructorTable : Constructor.t table;
-    modulesTable : Module.t table;
-    typesTable : Type.t table;
-    valueTable : Types.type_expr table;
+    namesUsed: namesUsed;
+    mutable resultRev: Completion.t list;
+    constructorTable: Constructor.t table;
+    modulesTable: Module.t table;
+    typesTable: Type.t table;
+    valueTable: Types.type_expr table;
   }
 
   let create () =
@@ -1049,12 +1052,18 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
   let docContent =
-    (match deprecated with None -> "" | Some s -> "Deprecated: " ^ s ^ "\n\n")
+    (match deprecated with
+    | None -> ""
+    | Some s -> "Deprecated: " ^ s ^ "\n\n")
     ^
-    match docstring with [] -> "" | _ :: _ -> docstring |> String.concat "\n"
+    match docstring with
+    | [] -> ""
+    | _ :: _ -> docstring |> String.concat "\n"
   in
   let tags =
-    match deprecated with None -> [] | Some _ -> [1 (* deprecated *)]
+    match deprecated with
+    | None -> []
+    | Some _ -> [1 (* deprecated *)]
   in
   Protocol.
     {
@@ -1220,7 +1229,10 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         | Path.Pident id when Ident.name id = "list" -> listModulePath
         | Path.Pident id when Ident.name id = "option" -> optionModulePath
         | Path.Pident id when Ident.name id = "string" -> stringModulePath
-        | _ -> ( match loop path with _ :: rest -> List.rev rest | [] -> [])
+        | _ -> (
+          match loop path with
+          | _ :: rest -> List.rev rest
+          | [] -> [])
       in
       let getConstr typ =
         match typ.Types.desc with

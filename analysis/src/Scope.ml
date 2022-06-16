@@ -125,4 +125,7 @@ let iterModulesAfterFirstOpen f x =
   loop false x
 
 let getRawOpens x =
-  x |> Utils.filterMap (function Open path -> Some path | _ -> None)
+  x
+  |> Utils.filterMap (function
+       | Open path -> Some path
+       | _ -> None)

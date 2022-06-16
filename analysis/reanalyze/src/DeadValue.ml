@@ -40,7 +40,9 @@ let collectValueBinding super self (vb : Typedtree.value_binding) =
       let currentModulePath = ModulePath.getCurrent () in
       let path = currentModulePath.path @ [!Common.currentModuleName] in
       let isFirstClassModule =
-        match vb.vb_expr.exp_type.desc with Tpackage _ -> true | _ -> false
+        match vb.vb_expr.exp_type.desc with
+        | Tpackage _ -> true
+        | _ -> false
       in
       (if (not exists) && not isFirstClassModule then
        (* This is never toplevel currently *)
@@ -239,7 +241,11 @@ let rec processSignatureItem ~doTypes ~doValues ~moduleLoc ~path
   | Sig_value (id, {Types.val_loc = loc; val_kind = kind; val_type})
     when doValues ->
     if not loc.Location.loc_ghost then
-      let isPrimitive = match kind with Val_prim _ -> true | _ -> false in
+      let isPrimitive =
+        match kind with
+        | Val_prim _ -> true
+        | _ -> false
+      in
       if (not isPrimitive) || !Config.analyzeExternals then
         let optionalArgs =
           val_type |> DeadOptionalArgs.fromTypeExpr
@@ -254,7 +260,11 @@ let rec processSignatureItem ~doTypes ~doValues ~moduleLoc ~path
              ~sideEffects:false
   | Sig_module (id, {Types.md_type = moduleType; md_loc = moduleLoc}, _)
   | Sig_modtype (id, {Types.mtd_type = Some moduleType; mtd_loc = moduleLoc}) ->
-    let collect = match si with Sig_modtype _ -> false | _ -> true in
+    let collect =
+      match si with
+      | Sig_modtype _ -> false
+      | _ -> true
+    in
     if collect then
       getSignature moduleType
       |> List.iter
@@ -273,7 +283,9 @@ let traverseStructure ~doTypes ~doExternals =
     (match structureItem.str_desc with
     | Tstr_module {mb_expr; mb_id; mb_loc} -> (
       let hasInterface =
-        match mb_expr.mod_desc with Tmod_constraint _ -> true | _ -> false
+        match mb_expr.mod_desc with
+        | Tmod_constraint _ -> true
+        | _ -> false
       in
       ModulePath.setCurrent
         {

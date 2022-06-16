@@ -295,7 +295,9 @@ let parse_json lexbuf =
   in
 
   let v = json lexbuf in
-  match token () with Eof -> v | _ -> error lexbuf Expect_eof
+  match token () with
+  | Eof -> v
+  | _ -> error lexbuf Expect_eof
   [@@raises Error]
 
 let parse_json_from_file s =
