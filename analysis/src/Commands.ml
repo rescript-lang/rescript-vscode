@@ -261,7 +261,7 @@ let diagnosticSyntax ~path =
   print_endline
     (match Diagnostics.document_syntax ~path with
     | [] -> Protocol.null
-    | d -> "[\n" ^ String.concat ",\n" d ^ "\n]")
+    | d -> Protocol.array d)
 
 let test ~path =
   Uri.stripPath := true;
@@ -384,6 +384,7 @@ let test ~path =
                                  Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
+          | "dia" -> diagnosticSyntax ~path
           | _ -> ());
           print_newline ())
     in

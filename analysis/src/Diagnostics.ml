@@ -7,7 +7,7 @@ let document_syntax ~path =
   | [] -> []
   | diagnostics ->
     diagnostics
-    |> List.map (fun diagnostic ->
+    |> List.rev_map (fun diagnostic ->
            let _, startline, startcol =
              Location.get_pos_info (Res_diagnostics.getStartPos diagnostic)
            in
@@ -24,4 +24,3 @@ let document_syntax ~path =
                message = Res_diagnostics.explain diagnostic;
                severity = Error;
              })
-    |> List.rev
