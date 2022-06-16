@@ -163,7 +163,9 @@ let compilerLogsWatcher = chokidar
   .on("all", (_e, changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
-    sendInlayHintsRefresh();
+    if (extensionConfiguration.inlayHints === true) {
+      sendInlayHintsRefresh();
+    }
   });
 let stopWatchingCompilerLog = () => {
   // TODO: cleanup of compilerLogs?
@@ -835,6 +837,15 @@ function onMessage(msg: p.Message) {
       };
       send(response);
     } else if (msg.method === "initialize") {
+      // Save initial configuration, if present
+      let initParams = msg.params as InitializeParams;
+      let initialConfiguration = initParams.initializationOptions
+        ?.extensionConfiguration as extensionConfiguration | undefined;
+
+      if (initialConfiguration != null) {
+        extensionConfiguration = initialConfiguration;
+      }
+
       // send the list of features we support
       let result: p.InitializeResult = {
         // This tells the client: "hey, we support the following operations".
@@ -870,7 +881,7 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
-          inlayHintProvider: true,
+          inlayHintProvider: extensionConfiguration.inlayHints,
         },
       };
       let response: p.ResponseMessage = {
@@ -884,15 +895,6 @@ function onMessage(msg: p.Message) {
       pullConfigurationPeriodically = setInterval(() => {
         askForAllCurrentConfiguration();
       }, c.pullConfigurationInterval);
-
-      // Save initial configuration, if present
-      let initParams = msg.params as InitializeParams;
-      let initialConfiguration = initParams.initializationOptions
-        ?.extensionConfiguration as extensionConfiguration | undefined;
-
-      if (initialConfiguration != null) {
-        extensionConfiguration = initialConfiguration;
-      }
 
       send(response);
     } else if (msg.method === "initialized") {
