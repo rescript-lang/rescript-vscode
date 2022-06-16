@@ -163,6 +163,7 @@ let compilerLogsWatcher = chokidar
   .on("all", (_e, changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
+    sendInlayHintsRefresh();
   });
 let stopWatchingCompilerLog = () => {
   // TODO: cleanup of compilerLogs?
@@ -304,6 +305,27 @@ function hover(msg: p.RequestMessage) {
   );
   fs.unlink(tmpname, () => null);
   return response;
+}
+
+function inlayHint(msg: p.RequestMessage) {
+  const params = msg.params as p.InlayHintParams;
+  const filePath = fileURLToPath(params.textDocument.uri);
+
+  const response = utils.runAnalysisCommand(
+    filePath,
+    ["inlayHint", filePath, params.range.start.line, params.range.end.line],
+    msg
+  );
+  return response;
+}
+
+function sendInlayHintsRefresh() {
+  let request: p.RequestMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: p.InlayHintRefreshRequest.method,
+    id: serverSentRequestIdCounter++,
+  };
+  send(request);
 }
 
 function definition(msg: p.RequestMessage) {
@@ -848,6 +870,7 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
+          inlayHintProvider: true,
         },
       };
       let response: p.ResponseMessage = {
@@ -936,6 +959,8 @@ function onMessage(msg: p.Message) {
       send(createInterface(msg));
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
+    } else if (msg.method === p.InlayHintRequest.method) {
+      send(inlayHint(msg));
     } else {
       let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
