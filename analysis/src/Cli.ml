@@ -10,6 +10,7 @@ API examples:
   ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
   ./rescript-editor-analysis.exe references src/MyFile.res 10 2
   ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
+  ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
 
 Dev-time examples:
   ./rescript-editor-analysis.exe dump src/MyFile.res src/MyFile2.res
@@ -59,6 +60,10 @@ Options:
   format: print to stdout the formatted version of the provided file
 
     ./rescript-editor-analysis.exe format src/MyFile.res
+
+  diagnosticSyntax: print to stdout diagnostic for syntax
+
+    ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
 
   test: run tests specified by special comments in file src/MyFile.res
 
