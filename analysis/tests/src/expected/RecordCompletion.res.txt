@@ -33,8 +33,8 @@ Completable: Cpath Value[t2].n2.n->m
   }]
 
 Complete src/RecordCompletion.res 19:7
-posCursor:[19:7] posNoWhite:[19:6] Found expr:[19:3->25:0]
-Pexp_field [19:3->19:4] R.:[19:5->25:0]
+posCursor:[19:7] posNoWhite:[19:6] Found expr:[19:3->19:7]
+Pexp_field [19:3->19:4] R.:[19:5->19:7]
 Completable: Cpath Module[R].""
 [{
     "label": "name",

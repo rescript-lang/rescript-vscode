@@ -49,6 +49,7 @@ let endRegion p =
 * in the parser's state. Every comment contains the end position of its
 * previous token to facilite comment interleaving *)
 let rec next ?prevEndPos p =
+ if p.token = Eof then assert false;
  let prevEndPos = match prevEndPos with Some pos -> pos | None -> p.endPos in
  let (startPos, endPos, token) = Scanner.scan p.scanner in
  match token with
@@ -64,6 +65,9 @@ let rec next ?prevEndPos p =
    p.prevEndPos <- prevEndPos;
    p.startPos <- startPos;
    p.endPos <- endPos
+
+let nextUnsafe p =
+  if p.token <> Eof then next p
 
 let nextTemplateLiteralToken p =
   let (startPos, endPos, token) = Scanner.scanTemplateLiteralToken p.scanner in
@@ -82,7 +86,7 @@ let make ?(mode=ParseForTypeChecker) src filename =
   let parserState = {
     mode;
     scanner;
-    token = Token.Eof;
+    token = Token.Semicolon;
     startPos = Lexing.dummy_pos;
     prevEndPos = Lexing.dummy_pos;
     endPos = Lexing.dummy_pos;
