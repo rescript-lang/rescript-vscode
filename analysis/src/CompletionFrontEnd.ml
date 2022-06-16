@@ -130,7 +130,6 @@ type labelled = {
 }
 
 type label = labelled option
-
 type arg = {label : label; exp : Parsetree.expression}
 
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor

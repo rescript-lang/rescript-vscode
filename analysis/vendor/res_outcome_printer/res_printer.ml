@@ -459,19 +459,38 @@ let printPolyVarIdent txt =
         Doc.text txt;
         Doc.text"\""
       ]
-    | NormalIdent -> Doc.text txt
+    | NormalIdent -> match txt with
+      | "" -> Doc.concat [
+        Doc.text "\"";
+        Doc.text txt;
+        Doc.text"\""
+      ]
+      | _ -> Doc.text txt
 
 
-let printLident l = match l with
+let printLident l =
+  let flatLidOpt lid =
+    let rec flat accu = function
+      | Longident.Lident s -> Some (s :: accu)
+      | Ldot (lid, s) -> flat (s :: accu) lid
+      | Lapply (_, _) -> None
+    in
+    flat [] lid
+  in
+  match l with
   | Longident.Lident txt -> printIdentLike txt
   | Longident.Ldot (path, txt) ->
-    let txts = Longident.flatten path in
-    Doc.concat [
-      Doc.join ~sep:Doc.dot (List.map Doc.text txts);
-      Doc.dot;
-      printIdentLike txt;
-    ]
-  | _ -> Doc.text("printLident: Longident.Lapply is not supported")
+    let doc = match flatLidOpt path with
+      | Some txts ->
+        Doc.concat [
+          Doc.join ~sep:Doc.dot (List.map Doc.text txts);
+          Doc.dot;
+          printIdentLike txt;
+        ]
+      | None -> Doc.text("printLident: Longident.Lapply is not supported")
+    in
+    doc
+  | Lapply (_, _) -> Doc.text("printLident: Longident.Lapply is not supported")
 
 let printLongidentLocation l cmtTbl =
   let doc = printLongident l.Location.txt in
@@ -495,7 +514,7 @@ let printStringContents txt =
   let lines = String.split_on_char '\n' txt in
   Doc.join ~sep:Doc.literalLine (List.map Doc.text lines)
 
-let printConstant c = match c with
+let printConstant ?(templateLiteral=false) c = match c with
   | Parsetree.Pconst_integer (s, suffix) ->
     begin match suffix with
     | Some c -> Doc.text (s ^ (Char.escaped c))
@@ -508,14 +527,35 @@ let printConstant c = match c with
       Doc.text "\"";
     ]
   | Pconst_string (txt, Some prefix) ->
-    Doc.concat [
-      if prefix = "js" then Doc.nil else Doc.text prefix;
-      Doc.text "`";
-      printStringContents txt;
-      Doc.text "`";
-    ]
+    if prefix = "INTERNAL_RES_CHAR_CONTENTS" then
+      Doc.concat [Doc.text "'"; Doc.text txt; Doc.text "'"]
+    else
+      let (lquote, rquote) =
+        if templateLiteral then ("`", "`") else ("\"", "\"")
+      in
+      Doc.concat [
+        if prefix = "js" then Doc.nil else Doc.text prefix;
+        Doc.text lquote;
+        printStringContents txt;
+        Doc.text rquote;
+      ]
   | Pconst_float (s, _) -> Doc.text s
-  | Pconst_char c -> Doc.text ("'" ^ (Char.escaped c) ^ "'")
+  | Pconst_char c ->
+    let str = match c with
+    | '\'' -> "\\'"
+    | '\\' -> "\\\\"
+    | '\n' -> "\\n"
+    | '\t' -> "\\t"
+    | '\r' -> "\\r"
+    | '\b' -> "\\b"
+    | ' ' .. '~' as c ->
+      let s = (Bytes.create [@doesNotRaise]) 1 in
+      Bytes.unsafe_set s 0 c;
+      Bytes.unsafe_to_string s
+    | c ->
+      Res_utf8.encodeCodePoint (Obj.magic c)
+    in
+    Doc.text ("'" ^ str ^ "'")
 
 let rec printStructure (s : Parsetree.structure) t =
   match s with
@@ -760,7 +800,7 @@ and printModType modType cmtTbl =
                     {lbl.Asttypes.loc with loc_end = modType.Parsetree.pmty_loc.loc_end}
                   in
                   let attrs = printAttributes attrs cmtTbl in
-                  let lblDoc = if lbl.Location.txt = "_" then Doc.nil
+                  let lblDoc = if lbl.Location.txt = "_" || lbl.txt = "*" then Doc.nil
                     else
                       let doc = Doc.text lbl.txt in
                       printComments doc cmtTbl lbl.loc
@@ -2079,7 +2119,9 @@ and printPattern (p : Parsetree.pattern) cmtTbl =
   let patternWithoutAttributes = match p.ppat_desc with
   | Ppat_any -> Doc.text "_"
   | Ppat_var var -> printIdentLike var.txt
-  | Ppat_constant c -> printConstant c
+  | Ppat_constant c ->
+    let templateLiteral = ParsetreeViewer.hasTemplateLiteralAttr p.ppat_attributes in
+    printConstant ~templateLiteral c
   | Ppat_tuple patterns ->
     Doc.group(
       Doc.concat([
@@ -2522,7 +2564,8 @@ and printIfChain pexp_attributes ifs elseExpr cmtTbl =
 
 and printExpression (e : Parsetree.expression) cmtTbl =
   let printedExpression = match e.pexp_desc with
-  | Parsetree.Pexp_constant c -> printConstant c
+  | Parsetree.Pexp_constant c ->
+    printConstant ~templateLiteral:(ParsetreeViewer.isTemplateLiteral e) c
   | Pexp_construct _ when ParsetreeViewer.hasJsxAttribute e.pexp_attributes ->
     printJsxFragment e cmtTbl
   | Pexp_construct ({txt = Longident.Lident "()"}, _) -> Doc.text "()"
@@ -2777,6 +2820,10 @@ and printExpression (e : Parsetree.expression) cmtTbl =
     let forceBreak =
       e.pexp_loc.loc_start.pos_lnum < e.pexp_loc.loc_end.pos_lnum
     in
+    let punningAllowed = match spreadExpr, rows with
+    | (None, [_]) -> false (* disallow punning for single-element records *)
+    | _ -> true
+    in
     Doc.breakableGroup ~forceBreak (
       Doc.concat([
         Doc.lbrace;
@@ -2785,7 +2832,7 @@ and printExpression (e : Parsetree.expression) cmtTbl =
             Doc.softLine;
             spread;
             Doc.join ~sep:(Doc.concat [Doc.text ","; Doc.line])
-              (List.map (fun row -> printRecordRow row cmtTbl) rows)
+              (List.map (fun row -> printRecordRow row cmtTbl punningAllowed) rows)
           ]
         );
         Doc.trailingComma;
@@ -3445,7 +3492,7 @@ and printBinaryExpression (expr : Parsetree.expression) cmtTbl =
             let leftPrinted = flatten ~isLhs:true left operator in
             let rightPrinted =
               let (_, rightAttrs) =
-                ParsetreeViewer.partitionPrinteableAttributes right.pexp_attributes
+                ParsetreeViewer.partitionPrintableAttributes right.pexp_attributes
               in
               let doc =
                 printExpressionWithComments
@@ -3457,10 +3504,13 @@ and printBinaryExpression (expr : Parsetree.expression) cmtTbl =
               else
                 doc
               in
-              let printeableAttrs =
-                ParsetreeViewer.filterPrinteableAttributes right.pexp_attributes
+              let printableAttrs =
+                ParsetreeViewer.filterPrintableAttributes right.pexp_attributes
               in
-              Doc.concat [printAttributes printeableAttrs cmtTbl; doc]
+              let doc = Doc.concat [printAttributes printableAttrs cmtTbl; doc] in
+              match printableAttrs with
+              | [] -> doc
+              | _ -> addParens doc
             in
             let doc = Doc.concat [
               leftPrinted;
@@ -4397,12 +4447,7 @@ and printCases (cases: Parsetree.case list) cmtTbl =
         Doc.concat [
           Doc.line;
           printList
-            ~getLoc:(fun n -> {n.Parsetree.pc_lhs.ppat_loc with
-              loc_end =
-                match ParsetreeViewer.processBracesAttr n.Parsetree.pc_rhs with
-                | (None, _) -> n.pc_rhs.pexp_loc.loc_end
-                | (Some ({loc}, _), _) -> loc.Location.loc_end
-            })
+            ~getLoc:(fun n -> {n.Parsetree.pc_lhs.ppat_loc with loc_end = n.pc_rhs.pexp_loc.loc_end})
             ~print:printCase
             ~nodes:cases
             cmtTbl
@@ -4788,17 +4833,28 @@ and printDirectionFlag flag = match flag with
   | Asttypes.Downto -> Doc.text " downto "
   | Asttypes.Upto -> Doc.text " to "
 
-and printRecordRow (lbl, expr) cmtTbl =
+and printRecordRow (lbl, expr) cmtTbl punningAllowed =
   let cmtLoc = {lbl.loc with loc_end = expr.pexp_loc.loc_end} in
-  let doc = Doc.group (Doc.concat [
-    printLidentPath lbl cmtTbl;
-    Doc.text ": ";
-    (let doc = printExpressionWithComments expr cmtTbl in
-    match Parens.expr expr with
-    | Parens.Parenthesized -> addParens doc
-    | Braced braces -> printBraces doc expr braces
-    | Nothing -> doc);
-  ]) in
+  let doc = Doc.group (
+    match expr.pexp_desc with
+    | Pexp_ident({txt = Lident key; loc = keyLoc}) when (
+      punningAllowed &&
+      Longident.last lbl.txt = key &&
+      lbl.loc.loc_start.pos_cnum == keyLoc.loc_start.pos_cnum
+    ) ->
+      (* print punned field *)
+      printLidentPath lbl cmtTbl;
+    | _ ->
+      Doc.concat [
+      printLidentPath lbl cmtTbl;
+      Doc.text ": ";
+      (let doc = printExpressionWithComments expr cmtTbl in
+      match Parens.expr expr with
+      | Parens.Parenthesized -> addParens doc
+      | Braced braces -> printBraces doc expr braces
+      | Nothing -> doc);
+    ]
+  ) in
   printComments doc cmtTbl cmtLoc
 
 and printBsObjectRow (lbl, expr) cmtTbl =

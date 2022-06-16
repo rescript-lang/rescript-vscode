@@ -1,7 +1,6 @@
 open SharedTypes
 
 let debugReferences = ref true
-
 let maybeLog m = if !debugReferences then Log.log ("[ref] " ^ m)
 
 let checkPos (line, char)
@@ -44,7 +43,8 @@ let getLocItem ~full ~pos ~debug =
     log 3 "heuristic for <div>";
     Some li2
   | {locType = Typed ("makeProps", _, _)}
-    :: ({locType = Typed ("make", _, _)} as li2) :: _ ->
+    :: ({locType = Typed ("make", _, _)} as li2)
+    :: _ ->
     log 4
       "heuristic for </Comp> within fragments: take make as makeProps does not \
        work\n\

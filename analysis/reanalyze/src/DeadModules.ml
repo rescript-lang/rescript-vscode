@@ -1,5 +1,4 @@
 let active () = true
-
 let table = Hashtbl.create 1
 
 let markDead ~isType ~loc path =

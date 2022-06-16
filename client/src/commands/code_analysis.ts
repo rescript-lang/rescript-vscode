@@ -19,22 +19,22 @@ export type DiagnosticsResultCodeActionsMap = Map<
   { range: Range; codeAction: CodeAction }[]
 >;
 
+export type DiagnosticsResultFormat = Array<{
+  name: string;
+  kind: string;
+  file: string;
+  range: [number, number, number, number];
+  message: string;
+  annotate?: {
+    line: number;
+    character: number;
+    text: string;
+    action: string;
+  };
+}>;
+
 let resultsToDiagnostics = (
-  results: [
-    {
-      name: string;
-      kind: string;
-      file: string;
-      range: [number, number, number, number];
-      message: string;
-      annotate?: {
-        line: number;
-        character: number;
-        text: string;
-        action: string;
-      };
-    }
-  ],
+  results: DiagnosticsResultFormat,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
 ): {
   diagnosticsMap: Map<string, Diagnostic[]>;
@@ -202,13 +202,22 @@ export const runCodeAnalysisWithReanalyze = (
   p.on("close", () => {
     diagnosticsResultCodeActions.clear();
 
+    let json: DiagnosticsResultFormat | null = null;
+
     try {
-      var json = JSON.parse(data);
+      json = JSON.parse(data);
     } catch (e) {
       window.showErrorMessage(
         `Something went wrong parsing the json output of reanalyze: '${e}'`
       );
     }
+
+    if (json == null) {
+      // If reanalyze failed for some reason we'll clear the diagnostics.
+      diagnosticsCollection.clear();
+      return;
+    }
+
     let { diagnosticsMap } = resultsToDiagnostics(
       json,
       diagnosticsResultCodeActions

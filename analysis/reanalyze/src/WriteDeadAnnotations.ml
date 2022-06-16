@@ -10,7 +10,6 @@ let posLanguage (pos : Lexing.position) =
   else Ml
 
 let deadAnnotation = "dead"
-
 let annotateAtEnd ~pos = match posLanguage pos with Res -> false | Ml -> true
 
 let getPosAnnotation decl =
@@ -78,7 +77,6 @@ let lineToString {original; declarations} =
   lineToString_ {original; declarations}
 
 let currentFile = ref ""
-
 let currentFileLines = (ref [||] : line array ref)
 
 let readFile fileName =

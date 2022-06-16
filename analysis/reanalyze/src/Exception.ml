@@ -66,7 +66,8 @@ module Event = struct
   type kind =
     | Catches of t list (* with | E => ... *)
     | Call of {callee : Common.Path.t; modulePath : Common.Path.t} (* foo() *)
-    | DoesNotRaise of t list (* DoesNotRaise(events) where events come from an expression *)
+    | DoesNotRaise of
+        t list (* DoesNotRaise(events) where events come from an expression *)
     | Raises  (** raise E *)
 
   and t = {exceptions : Exceptions.t; kind : kind; loc : Location.t}

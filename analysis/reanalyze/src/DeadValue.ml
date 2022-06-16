@@ -137,7 +137,7 @@ let rec collectExpr super self (e : Typedtree.expression) =
          ~locTo ~path
   | Texp_let
       ( (* generated for functions with optional args *)
-      Nonrecursive,
+        Nonrecursive,
         [
           {
             vb_pat = {pat_desc = Tpat_var (idArg, _)};
