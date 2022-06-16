@@ -937,6 +937,8 @@ Completable: Cpath Value[ForAuto, a]
 
 Complete src/Completion.res 234:34
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:36]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:34], ...[234:34->234:36])
+posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:34]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:32], ...[234:32->234:34])
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:32->234:34]
 Pexp_ident na:[234:32->234:34]
@@ -1432,6 +1434,8 @@ Completable: Cpath Value[AndThatOther, T]
 
 Complete src/Completion.res 378:24
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:26]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:24], ...[378:24->378:26])
+posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:24]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:16], ...[378:16->378:24])
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:16->378:24]
 Pexp_ident ForAuto.:[378:16->378:24]
@@ -1452,6 +1456,8 @@ Completable: Cpath Value[ForAuto, ""]
 
 Complete src/Completion.res 381:38
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:41]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:39], ...[381:39->381:41])
+posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:39]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:19], ...[381:19->381:39])
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:19->381:39]
 Pexp_send [381:38->381:38] e:[381:19->381:36]
@@ -1472,6 +1478,10 @@ Completable: Cpath Value[FAO, forAutoObject][""]
 
 Complete src/Completion.res 384:24
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:26]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:24], ...[384:24->384:26])
+posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:24]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:14], ...[384:14->384:24])
+posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:14->384:24]
 Pexp_field [384:14->384:23] _:[384:24->384:24]
 Completable: Cpath Value[funRecord].""
 [{

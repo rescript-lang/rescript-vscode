@@ -58,6 +58,7 @@ type t =
   | JsFfiImport
   | Pattern
   | AttributePayload
+  | TagNames
 
 let toString = function
   | OpenDescription -> "an open description"
@@ -118,6 +119,7 @@ let toString = function
   | Pattern -> "pattern"
   | ExprFor -> "a for expression"
   | AttributePayload -> "an attribute payload"
+  | TagNames -> "tag names"
 
 let isSignatureItemStart = function
   | Token.At
@@ -134,7 +136,7 @@ let isSignatureItemStart = function
   | _ -> false
 
 let isAtomicPatternStart = function
-  | Token.Int _ | String _ | Character _ | Backtick
+  | Token.Int _ | String _ | Codepoint _ | Backtick
   | Lparen | Lbracket | Lbrace
   | Underscore
   | Lident _ | Uident _ | List
@@ -144,7 +146,7 @@ let isAtomicPatternStart = function
 
 let isAtomicExprStart = function
   | Token.True | False
-  | Int _ | String _ | Float _ | Character _
+  | Int _ | String _ | Float _ | Codepoint _
   | Backtick
   | Uident _ | Lident _ | Hash
   | Lparen
@@ -165,7 +167,7 @@ let isAtomicTypExprStart = function
 
 let isExprStart = function
   | Token.True | False
-  | Int _ | String _ | Float _ | Character _ | Backtick
+  | Int _ | String _ | Float _ | Codepoint _ | Backtick
   | Underscore (* _ => doThings() *)
   | Uident _ | Lident _ | Hash
   | Lparen | List | Module | Lbracket | Lbrace
@@ -194,7 +196,7 @@ let isStructureItemStart = function
   | _ -> false
 
 let isPatternStart = function
-  | Token.Int _ | Float _ | String _ | Character _ | Backtick | True | False | Minus | Plus
+  | Token.Int _ | Float _ | String _ | Codepoint _ | Backtick | True | False | Minus | Plus
   | Lparen | Lbracket | Lbrace | List
   | Underscore
   | Lident _ | Uident _ | Hash
@@ -301,7 +303,7 @@ let isJsxChildStart = isAtomicExprStart
 
 let isBlockExprStart = function
   | Token.At | Hash | Percent | Minus | MinusDot | Plus | PlusDot | Bang
-  | True | False | Float _ | Int _ | String _ | Character _ | Lident _ | Uident _
+  | True | False | Float _ | Int _ | String _ | Codepoint _ | Lident _ | Uident _
   | Lparen | List | Lbracket | Lbrace | Forwardslash | Assert
   | Lazy | If | For | While | Switch | Open | Module | Exception | Let
   | LessThan | Backtick | Try | Underscore -> true
@@ -336,6 +338,7 @@ let isListElement grammar token =
   | JsxAttribute -> isJsxAttributeStart token
   | JsFfiImport -> isJsFfiImportStart token
   | AttributePayload -> token = Lparen
+  | TagNames -> token = Hash
   | _ -> false
 
 let isListTerminator grammar token =
@@ -361,6 +364,7 @@ let isListTerminator grammar token =
   | PackageConstraint, token when token <> And -> true
   | ConstructorDeclaration, token when token <> Bar -> true
   | AttributePayload, Rparen -> true
+  | TagNames, Rbracket -> true
 
   | _ -> false
 
