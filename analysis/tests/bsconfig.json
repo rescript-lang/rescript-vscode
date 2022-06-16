@@ -9,7 +9,6 @@
       "subdirs": true
     }
   ],
-  "ignored-dirs": ["src/not_compiled"],
   "bsc-flags": ["-w -33-44"],
   "bs-dependencies": ["@rescript/react"],
   "reason": { "react-jsx": 3 }

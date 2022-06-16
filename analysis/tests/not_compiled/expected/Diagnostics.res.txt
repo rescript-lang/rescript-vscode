@@ -11,3 +11,4 @@
   "message": "consecutive statements on a line must be separated by ';' or a newline",
   "severity": 1,
 }]
+
