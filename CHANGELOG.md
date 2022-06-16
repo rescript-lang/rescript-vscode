@@ -11,6 +11,7 @@
 - Fix issue where the server would crash if the project contains an OCaml file with a syntax error.
 - Add configuration option for suppressing the "Do you want to start a build?" prompt.
 - Add configuration option for autostarting the Code Analyzer.
+- Sync with latest parser/printer.
 
 ## 1.3.0
 
