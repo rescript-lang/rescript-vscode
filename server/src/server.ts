@@ -23,9 +23,13 @@ import { WorkspaceEdit } from "vscode-languageserver";
 
 interface extensionConfiguration {
   askToStartBuild: boolean;
+  autoRunCodeAnalysis: boolean;
+  inlayHints: boolean;
 }
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
+  autoRunCodeAnalysis: false,
+  inlayHints: false,
 };
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 

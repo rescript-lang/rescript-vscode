@@ -131,6 +131,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Automatically start ReScript's code analysis."
+				},
+				"rescript.settings.inlayHints": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable (experimental) inlay hints."
 				}
 			}
 		},
