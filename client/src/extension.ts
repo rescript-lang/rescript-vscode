@@ -114,21 +114,23 @@ export function activate(context: ExtensionContext) {
     // compilation has finished, and the most reliable source for that is the LS
     // server, that already keeps track of when the compiler finishes in order to
     // other provide fresh diagnostics.
-    client.onDidChangeState(({ newState }) => {
-      if (newState === State.Running) {
-        context.subscriptions.push(
-          client.onNotification("rescript/compilationFinished", () => {
-            if (inCodeAnalysisState.active === true) {
-              customCommands.codeAnalysisWithReanalyze(
-                inCodeAnalysisState.activatedFromDirectory,
-                diagnosticsCollection,
-                diagnosticsResultCodeActions
-              );
-            }
-          })
-        );
-      }
-    });
+    context.subscriptions.push(
+      client.onDidChangeState(({ newState }) => {
+        if (newState === State.Running) {
+          context.subscriptions.push(
+            client.onNotification("rescript/compilationFinished", () => {
+              if (inCodeAnalysisState.active === true) {
+                customCommands.codeAnalysisWithReanalyze(
+                  inCodeAnalysisState.activatedFromDirectory,
+                  diagnosticsCollection,
+                  diagnosticsResultCodeActions
+                );
+              }
+            })
+          );
+        }
+      })
+    );
 
     return client;
   }
