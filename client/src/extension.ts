@@ -12,6 +12,7 @@ import {
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
+  State,
   TransportKind,
 } from "vscode-languageclient/node";
 
@@ -113,19 +114,23 @@ export function activate(context: ExtensionContext) {
     // compilation has finished, and the most reliable source for that is the LS
     // server, that already keeps track of when the compiler finishes in order to
     // other provide fresh diagnostics.
-    client.onReady().then(() => {
-      context.subscriptions.push(
-        client.onNotification("rescript/compilationFinished", () => {
-          if (inCodeAnalysisState.active === true) {
-            customCommands.codeAnalysisWithReanalyze(
-              inCodeAnalysisState.activatedFromDirectory,
-              diagnosticsCollection,
-              diagnosticsResultCodeActions
-            );
-          }
-        })
-      );
-    });
+    context.subscriptions.push(
+      client.onDidChangeState(({ newState }) => {
+        if (newState === State.Running) {
+          context.subscriptions.push(
+            client.onNotification("rescript/compilationFinished", () => {
+              if (inCodeAnalysisState.active === true) {
+                customCommands.codeAnalysisWithReanalyze(
+                  inCodeAnalysisState.activatedFromDirectory,
+                  diagnosticsCollection,
+                  diagnosticsResultCodeActions
+                );
+              }
+            })
+          );
+        }
+      })
+    );
 
     return client;
   }
@@ -223,12 +228,12 @@ export function activate(context: ExtensionContext) {
   commands.registerCommand("rescript-vscode.restart_language_server", () => {
     client.stop().then(() => {
       client = createLanguageClient();
-      context.subscriptions.push(client.start());
+      client.start();
     });
   });
 
   // Start the client. This will also launch the server
-  context.subscriptions.push(client.start());
+  client.start();
 
   // Autostart code analysis if wanted
   if (
