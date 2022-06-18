@@ -135,6 +135,7 @@ let stringifyDiagnostic d =
   "range": %s,
   "message": "%s",
   "severity": %d,
+  "source": "ReScript"
 }|}
     (stringifyRange d.range) (Json.escape d.message)
     (match d.severity with
