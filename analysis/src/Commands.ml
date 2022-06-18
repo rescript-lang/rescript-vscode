@@ -260,7 +260,7 @@ let format ~path =
 let diagnosticSyntax ~path =
   print_endline
     (match Diagnostics.document_syntax ~path with
-    | [] -> Protocol.null
+    | [] -> "[]"
     | d -> Protocol.array d)
 
 let test ~path =

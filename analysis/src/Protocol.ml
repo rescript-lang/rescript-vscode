@@ -132,7 +132,7 @@ let stringifyCodeAction ca =
 
 let stringifyDiagnostic d =
   Printf.sprintf {|{
-  "range: %s,
+  "range": %s,
   "message": "%s",
   "severity": %d,
 }|}
