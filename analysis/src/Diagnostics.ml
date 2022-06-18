@@ -18,8 +18,8 @@ let document_syntax ~path =
              {
                range =
                  {
-                   start = {line = startline; character = startcol};
-                   end_ = {line = endline; character = endcol};
+                   start = {line = startline - 1; character = startcol};
+                   end_ = {line = endline - 1; character = endcol};
                  };
                message = Res_diagnostics.explain diagnostic;
                severity = Error;
