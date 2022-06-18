@@ -50,7 +50,7 @@ let projectsFiles: Map<
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: p.Message) => void = (_) => {};
+let send: (msg: p.Message) => void = (_) => { };
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -588,6 +588,33 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   }
 }
 
+const updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
+  const filePath = fileURLToPath(fileUri);
+  const tmpname = utils.createFileInTempDir();
+  fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
+
+  const items: p.Diagnostic[] | [] = utils.runAnalysisAfterSanityCheck(
+    filePath,
+    [
+      "diagnosticSyntax",
+      tmpname
+    ],
+  );
+
+  const notification: p.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "textDocument/publishDiagnostics",
+    params: {
+      uri: fileUri,
+      diagnostics: items ?? []
+    }
+  }
+
+  fs.unlink(tmpname, () => null);
+
+  send(notification)
+}
+
 function createInterface(msg: p.RequestMessage): p.Message {
   let params = msg.params as CreateInterfaceRequestParams;
   let extension = path.extname(params.uri);
@@ -774,6 +801,7 @@ function onMessage(msg: p.Message) {
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       openedFile(params.textDocument.uri, params.textDocument.text);
+      updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
@@ -787,6 +815,7 @@ function onMessage(msg: p.Message) {
             params.textDocument.uri,
             changes[changes.length - 1].text
           );
+          updateDiagnosticSyntax(params.textDocument.uri, changes[changes.length - 1].text);
         }
       }
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
