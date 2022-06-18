@@ -21,17 +21,11 @@ let itemToString item =
   [@@live]
 
 let create () : t = []
-
 let addConstructor ~name ~loc x = Constructor (name, loc) :: x
-
 let addField ~name ~loc x = Field (name, loc) :: x
-
 let addModule ~name ~loc x = Module (name, loc) :: x
-
 let addOpen ~lid x = Open (Utils.flattenLongIdent lid @ ["place holder"]) :: x
-
 let addValue ~name ~loc x = Value (name, loc) :: x
-
 let addType ~name ~loc x = Type (name, loc) :: x
 
 let iterValuesBeforeFirstOpen f x =
@@ -131,4 +125,7 @@ let iterModulesAfterFirstOpen f x =
   loop false x
 
 let getRawOpens x =
-  x |> Utils.filterMap (function Open path -> Some path | _ -> None)
+  x
+  |> Utils.filterMap (function
+       | Open path -> Some path
+       | _ -> None)

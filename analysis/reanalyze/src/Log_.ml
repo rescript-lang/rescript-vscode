@@ -2,13 +2,10 @@ open Common
 
 module Color = struct
   let color_enabled = lazy (Unix.isatty Unix.stdout)
-
   let forceColor = ref false
-
   let get_color_enabled () = !forceColor || Lazy.force color_enabled
 
   type color = Red | Yellow | Magenta | Cyan
-
   type style = FG of color | Bold | Dim
 
   let code_of_style = function
@@ -19,7 +16,10 @@ module Color = struct
     | Bold -> "1"
     | Dim -> "2"
 
-  let getStringTag s = match s with Format.String_tag s -> s | _ -> ""
+  let getStringTag s =
+    match s with
+    | Format.String_tag s -> s
+    | _ -> ""
 
   let style_of_tag s =
     match s |> getStringTag with
@@ -58,7 +58,6 @@ module Color = struct
     Location.print_loc Format.str_formatter Location.none
 
   let error ppf s = Format.fprintf ppf "@{<error>%s@}" s
-
   let info ppf s = Format.fprintf ppf "@{<info>%s@}" s
 end
 
@@ -192,7 +191,9 @@ let logIssue ~(issue : issue) =
       (if !Cli.json then EmitJson.emitClose () else "")
   else
     let color =
-      match issue.severity with Warning -> Color.info | Error -> Color.error
+      match issue.severity with
+      | Warning -> Color.info
+      | Error -> Color.error
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
       (descriptionToMessage issue.description)
@@ -200,9 +201,7 @@ let logIssue ~(issue : issue) =
 
 module Stats = struct
   let issues = ref []
-
   let addIssue (issue : issue) = issues := issue :: !issues
-
   let clear () = issues := []
 
   let getSortedIssues () =

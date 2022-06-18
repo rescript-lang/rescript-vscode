@@ -1,4 +1,4 @@
-type t = {path : string; uri : string}
+type t = {path: string; uri: string}
 
 let stripPath = ref false (* for use in tests *)
 
@@ -12,9 +12,7 @@ let pathToUri path =
              "/" ^ String.lowercase_ascii name ^ "%3A"))
 
 let fromPath path = {path; uri = pathToUri path}
-
 let isInterface {path} = Filename.check_suffix path "i"
-
 let toPath {path} = path
 
 let toTopLevelLoc {path} =

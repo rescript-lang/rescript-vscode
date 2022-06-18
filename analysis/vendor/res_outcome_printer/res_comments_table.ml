@@ -1682,22 +1682,13 @@ and walkExprArgument (_argLabel, expr) t comments =
         recordRows
         t
         comments
-    | Ppat_or (pattern1, pattern2) ->
-      let (beforePattern1, insidePattern1, afterPattern1) =
-        partitionByLoc comments pattern1.ppat_loc
-      in
-      attach t.leading pattern1.ppat_loc beforePattern1;
-      walkPattern pattern1 t insidePattern1;
-      let (afterPattern1, rest) =
-        partitionAdjacentTrailing pattern1.ppat_loc afterPattern1
-      in
-      attach t.trailing pattern1.ppat_loc afterPattern1;
-      let (beforePattern2, insidePattern2, afterPattern2) =
-        partitionByLoc rest pattern2.ppat_loc
-      in
-      attach t.leading pattern2.ppat_loc beforePattern2;
-      walkPattern pattern2 t insidePattern2;
-      attach t.trailing pattern2.ppat_loc afterPattern2
+    | Ppat_or _->
+      walkList
+        ~getLoc: (fun pattern -> pattern.Parsetree.ppat_loc)
+        ~walkNode: (fun pattern -> walkPattern pattern)
+        (Res_parsetree_viewer.collectOrPatternChain pat)
+        t
+        comments
     | Ppat_constraint (pattern, typ) ->
       let (beforePattern, insidePattern, afterPattern) =
         partitionByLoc comments pattern.ppat_loc

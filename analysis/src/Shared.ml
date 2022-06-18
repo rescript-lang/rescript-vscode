@@ -39,7 +39,9 @@ let rec dig typ =
 
 let digConstructor expr =
   let expr = dig expr in
-  match expr.desc with Tconstr (path, _args, _memo) -> Some path | _ -> None
+  match expr.desc with
+  | Tconstr (path, _args, _memo) -> Some path
+  | _ -> None
 
 let declToString ?(recStatus = Types.Trec_not) name t =
   PrintType.printDecl ~recStatus name t

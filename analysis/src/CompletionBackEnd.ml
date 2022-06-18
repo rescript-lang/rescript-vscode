@@ -497,7 +497,10 @@ let showConstructor {Constructor.cname = {txt}; args; res} =
         |> List.map (fun (typ, _) -> typ |> Shared.typeToString)
         |> String.concat ", ")
       ^ ")")
-  ^ match res with None -> "" | Some typ -> "\n" ^ (typ |> Shared.typeToString)
+  ^
+  match res with
+  | None -> ""
+  | Some typ -> "\n" ^ (typ |> Shared.typeToString)
 
 (* TODO: local opens *)
 let resolveOpens ~env ~previous opens ~package =
@@ -727,16 +730,15 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
 
 module LocalTables = struct
   type 'a table = (string * (int * int), 'a Declared.t) Hashtbl.t
-
   type namesUsed = (string, unit) Hashtbl.t
 
   type t = {
-    namesUsed : namesUsed;
-    mutable resultRev : Completion.t list;
-    constructorTable : Constructor.t table;
-    modulesTable : Module.t table;
-    typesTable : Type.t table;
-    valueTable : Types.type_expr table;
+    namesUsed: namesUsed;
+    mutable resultRev: Completion.t list;
+    constructorTable: Constructor.t table;
+    modulesTable: Module.t table;
+    typesTable: Type.t table;
+    valueTable: Types.type_expr table;
   }
 
   let create () =
@@ -1050,12 +1052,18 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
   let docContent =
-    (match deprecated with None -> "" | Some s -> "Deprecated: " ^ s ^ "\n\n")
+    (match deprecated with
+    | None -> ""
+    | Some s -> "Deprecated: " ^ s ^ "\n\n")
     ^
-    match docstring with [] -> "" | _ :: _ -> docstring |> String.concat "\n"
+    match docstring with
+    | [] -> ""
+    | _ :: _ -> docstring |> String.concat "\n"
   in
   let tags =
-    match deprecated with None -> [] | Some _ -> [1 (* deprecated *)]
+    match deprecated with
+    | None -> []
+    | Some _ -> [1 (* deprecated *)]
   in
   Protocol.
     {
@@ -1221,7 +1229,10 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         | Path.Pident id when Ident.name id = "list" -> listModulePath
         | Path.Pident id when Ident.name id = "option" -> optionModulePath
         | Path.Pident id when Ident.name id = "string" -> stringModulePath
-        | _ -> ( match loop path with _ :: rest -> List.rev rest | [] -> [])
+        | _ -> (
+          match loop path with
+          | _ :: rest -> List.rev rest
+          | [] -> [])
       in
       let getConstr typ =
         match typ.Types.desc with
@@ -1441,8 +1452,7 @@ Alternatively, use the `@@deprecated` decorator to add a deprecation warning to 
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#expression-deprecated-decorator).|};
         ] );
-
-        ( "doesNotRaise",
+      ( "doesNotRaise",
         [
           {|The `@doesNotRaise` decorator is for reanalyze, a static analysis tool for ReScript that can perform exception analysis.
 
@@ -1453,7 +1463,6 @@ could potentially raise.
 [Read more and see examples in the documentation](https://github.com/rescript-association/reanalyze/blob/master/EXCEPTION.md).
 > Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
         ] );
-
       ( "genType",
         [
           {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.

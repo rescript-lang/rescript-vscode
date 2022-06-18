@@ -34,7 +34,9 @@ let relpath base path =
       loop (split Filename.dir_sep base) (split Filename.dir_sep path)
     in
     String.concat Filename.dir_sep
-      ((match base with [] -> ["."] | _ -> List.map (fun _ -> "..") base)
+      ((match base with
+       | [] -> ["."]
+       | _ -> List.map (fun _ -> "..") base)
       @ path)
     |> removeExtraDots
 
@@ -50,8 +52,10 @@ let readFile filename =
     Some content
   with _ -> None
 
-let exists path = match maybeStat path with None -> false | Some _ -> true
-
+let exists path =
+  match maybeStat path with
+  | None -> false
+  | Some _ -> true
 let ifExists path = if exists path then Some path else None
 
 let readDirectory dir =

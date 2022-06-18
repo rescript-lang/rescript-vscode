@@ -1,13 +1,13 @@
-type position = {line : int; character : int}
-type range = {start : position; end_ : position}
-type markupContent = {kind : string; value : string}
+type position = {line: int; character: int}
+type range = {start: position; end_: position}
+type markupContent = {kind: string; value: string}
 
 type completionItem = {
-  label : string;
-  kind : int;
-  tags : int list;
-  detail : string;
-  documentation : markupContent option;
+  label: string;
+  kind: int;
+  tags: int list;
+  detail: string;
+  documentation: markupContent option;
 }
 
 type location = {uri : string; range : range}
@@ -23,22 +23,22 @@ type diagnostic = {
 }
 
 type optionalVersionedTextDocumentIdentifier = {
-  version : int option;
-  uri : string;
+  version: int option;
+  uri: string;
 }
 
 type textDocumentEdit = {
-  textDocument : optionalVersionedTextDocumentIdentifier;
-  edits : textEdit list;
+  textDocument: optionalVersionedTextDocumentIdentifier;
+  edits: textEdit list;
 }
 
-type codeActionEdit = {documentChanges : textDocumentEdit list}
+type codeActionEdit = {documentChanges: textDocumentEdit list}
 type codeActionKind = RefactorRewrite
 
 type codeAction = {
-  title : string;
-  codeActionKind : codeActionKind;
-  edit : codeActionEdit;
+  title: string;
+  codeActionKind: codeActionKind;
+  edit: codeActionEdit;
 }
 
 let null = "null"
@@ -107,7 +107,9 @@ let stringifyoptionalVersionedTextDocumentIdentifier td =
   "version": %s,
   "uri": "%s"
   }|}
-    (match td.version with None -> null | Some v -> string_of_int v)
+    (match td.version with
+    | None -> null
+    | Some v -> string_of_int v)
     (Json.escape td.uri)
 
 let stringifyTextDocumentEdit tde =
@@ -119,7 +121,8 @@ let stringifyTextDocumentEdit tde =
     (tde.edits |> List.map stringifyTextEdit |> array)
 
 let codeActionKindToString kind =
-  match kind with RefactorRewrite -> "refactor.rewrite"
+  match kind with
+  | RefactorRewrite -> "refactor.rewrite"
 
 let stringifyCodeActionEdit cae =
   Printf.sprintf {|{"documentChanges": %s}|}

@@ -1,7 +1,5 @@
 let ifDebug debug name fn v = if debug then Log.log (name ^ ": " ^ fn v)
-
 let ( /+ ) = Filename.concat
-
 let bind f x = Option.bind x f
 
 (* Returns a list of paths, relative to the provided `base` *)
@@ -63,7 +61,10 @@ let compiledNameSpace name =
 
 let compiledBaseName ~namespace name =
   Filename.chop_extension name
-  ^ match namespace with None -> "" | Some n -> "-" ^ compiledNameSpace n
+  ^
+  match namespace with
+  | None -> ""
+  | Some n -> "-" ^ compiledNameSpace n
 
 let getName x =
   Filename.basename x |> Filename.chop_extension |> String.capitalize_ascii

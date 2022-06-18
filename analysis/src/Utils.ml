@@ -40,13 +40,17 @@ let rec find fn items =
   match items with
   | [] -> None
   | one :: rest -> (
-    match fn one with None -> find fn rest | Some x -> Some x)
+    match fn one with
+    | None -> find fn rest
+    | Some x -> Some x)
 
 let filterMap f =
   let rec aux accu = function
     | [] -> List.rev accu
     | x :: l -> (
-      match f x with None -> aux accu l | Some v -> aux (v :: accu) l)
+      match f x with
+      | None -> aux accu l
+      | Some v -> aux (v :: accu) l)
   in
   aux []
 

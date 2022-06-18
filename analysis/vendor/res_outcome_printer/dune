@@ -1,7 +1,6 @@
 (library
  (name outcomeprinter)
  (flags
-  (-w "+26+27+32+33+39")
-  (-w -deprecated)
+  (-w "+26+27+32+33+39" -w -d)
   (-open Compilerlibs406))
  (libraries compilerlibs406))

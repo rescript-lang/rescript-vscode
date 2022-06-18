@@ -16,6 +16,9 @@ build: build-analysis-binary build-reanalyze build-tests
 dce: build-analysis-binary
 	opam exec reanalyze.exe -- -dce-cmt _build -suppress vendor
 
+format:
+	dune build @fmt --auto-promote
+
 test-analysis-binary: build-analysis-binary
 	make -C tests test
 
@@ -35,4 +38,4 @@ clean-deep:
 
 .DEFAULT_GOAL := build
 
-.PHONY: build-analysis-binary build-reanalyze build-tests dce clean clean-deep test
+.PHONY: build-analysis-binary build-reanalyze build-tests dce clean clean-deep format test

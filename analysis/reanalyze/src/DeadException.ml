@@ -1,10 +1,9 @@
 open DeadCommon
 open Common
 
-type item = {exceptionPath : Path.t; locFrom : Location.t}
+type item = {exceptionPath: Path.t; locFrom: Location.t}
 
 let delayedItems = ref []
-
 let declarations = Hashtbl.create 1
 
 let add ~path ~loc ~(strLoc : Location.t) name =

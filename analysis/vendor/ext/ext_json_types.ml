@@ -24,21 +24,18 @@
 
 type loc = Lexing.position
 type json_str = string
+type json_flo = string
 
-type json_flo  = string
-
-module StringMap = Map.Make(String)
+module StringMap = Map.Make (String)
 
 type json_array = t array
-
 and json_map = t StringMap.t
 
-and t = 
-  | True of loc 
-  | False of loc 
-  | Null of loc 
+and t =
+  | True of loc
+  | False of loc
+  | Null of loc
   | Flo of json_flo
   | Str of json_str
-  | Arr  of json_array
+  | Arr of json_array
   | Obj of json_map
-   

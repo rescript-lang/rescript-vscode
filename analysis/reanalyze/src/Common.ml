@@ -1,9 +1,6 @@
 let currentSrc = ref ""
-
 let currentModule = ref ""
-
 let currentModuleName = ref ("" |> Name.create)
-
 let runConfig = RunConfig.runConfig
 
 (* Location printer: `filename:line: ' *)
@@ -16,16 +13,13 @@ let posToString (pos : Lexing.position) =
 
 module Cli = struct
   let debug = ref false
-
   let ci = ref false
 
   (** The command was a -cmt variant (e.g. -exception-cmt) *)
   let cmtCommand = ref false
 
   let experimental = ref false
-
   let json = ref false
-
   let write = ref false
 
   (* names to be considered live values *)
@@ -54,7 +48,6 @@ module FileHash = struct
     type t = string
 
     let hash (x : t) = Hashtbl.hash x
-
     let equal (x : t) y = x = y
   end)
 end
@@ -135,9 +128,9 @@ end
 
 module OptionalArgs = struct
   type t = {
-    mutable count : int;
-    mutable unused : StringSet.t;
-    mutable alwaysUsed : StringSet.t;
+    mutable count: int;
+    mutable unused: StringSet.t;
+    mutable alwaysUsed: StringSet.t;
   }
 
   let empty =
@@ -167,7 +160,6 @@ module OptionalArgs = struct
     y.alwaysUsed <- alwaysUsed
 
   let iterUnused f x = StringSet.iter f x.unused
-
   let iterAlwaysUsed f x = StringSet.iter (fun s -> f s x.count) x.alwaysUsed
 end
 
@@ -177,9 +169,9 @@ module DeclKind = struct
     | RecordLabel
     | VariantCase
     | Value of {
-        isToplevel : bool;
-        mutable optionalArgs : OptionalArgs.t;
-        sideEffects : bool;
+        isToplevel: bool;
+        mutable optionalArgs: OptionalArgs.t;
+        sideEffects: bool;
       }
 
   let isType dk =
@@ -198,31 +190,30 @@ end
 type posAdjustment = FirstVariant | OtherVariant | Nothing
 
 type decl = {
-  declKind : DeclKind.t;
-  moduleLoc : Location.t;
-  posAdjustment : posAdjustment;
-  path : Path.t;
-  pos : Lexing.position;
-  posEnd : Lexing.position;
-  posStart : Lexing.position;
-  mutable resolved : bool;
-  mutable report : bool;
+  declKind: DeclKind.t;
+  moduleLoc: Location.t;
+  posAdjustment: posAdjustment;
+  path: Path.t;
+  pos: Lexing.position;
+  posEnd: Lexing.position;
+  posStart: Lexing.position;
+  mutable resolved: bool;
+  mutable report: bool;
 }
 
-type line = {mutable declarations : decl list; original : string}
+type line = {mutable declarations: decl list; original: string}
 
 module ExnSet = Set.Make (Exn)
 
 type missingRaiseInfo = {
-  exnName : string;
-  exnTable : (Exn.t, LocSet.t) Hashtbl.t;
-  locFull : Location.t;
-  missingAnnotations : ExnSet.t;
-  raiseSet : ExnSet.t;
+  exnName: string;
+  exnTable: (Exn.t, LocSet.t) Hashtbl.t;
+  locFull: Location.t;
+  missingAnnotations: ExnSet.t;
+  raiseSet: ExnSet.t;
 }
 
 type severity = Warning | Error
-
 type deadOptional = WarningUnusedArgument | WarningRedundantOptionalArgument
 
 type termination =
@@ -241,23 +232,23 @@ type deadWarning =
 type lineAnnotation = (decl * line) option
 
 type description =
-  | Circular of {message : string}
-  | ExceptionAnalysis of {message : string}
+  | Circular of {message: string}
+  | ExceptionAnalysis of {message: string}
   | ExceptionAnalysisMissing of missingRaiseInfo
-  | DeadModule of {message : string}
-  | DeadOptional of {deadOptional : deadOptional; message : string}
+  | DeadModule of {message: string}
+  | DeadOptional of {deadOptional: deadOptional; message: string}
   | DeadWarning of {
-      deadWarning : deadWarning;
-      path : string;
-      message : string;
-      shouldWriteLineAnnotation : bool;
-      lineAnnotation : lineAnnotation;
+      deadWarning: deadWarning;
+      path: string;
+      message: string;
+      shouldWriteLineAnnotation: bool;
+      lineAnnotation: lineAnnotation;
     }
-  | Termination of {termination : termination; message : string}
+  | Termination of {termination: termination; message: string}
 
 type issue = {
-  name : string;
-  severity : severity;
-  loc : Location.t;
-  description : description;
+  name: string;
+  severity: severity;
+  loc: Location.t;
+  description: description;
 }

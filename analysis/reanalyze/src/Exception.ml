@@ -65,11 +65,12 @@ end
 module Event = struct
   type kind =
     | Catches of t list (* with | E => ... *)
-    | Call of {callee : Common.Path.t; modulePath : Common.Path.t} (* foo() *)
-    | DoesNotRaise of t list (* DoesNotRaise(events) where events come from an expression *)
+    | Call of {callee: Common.Path.t; modulePath: Common.Path.t} (* foo() *)
+    | DoesNotRaise of
+        t list (* DoesNotRaise(events) where events come from an expression *)
     | Raises  (** raise E *)
 
-  and t = {exceptions : Exceptions.t; kind : kind; loc : Location.t}
+  and t = {exceptions: Exceptions.t; kind: kind; loc: Location.t}
 
   let rec print ppf event =
     match event with
@@ -171,12 +172,12 @@ end
 
 module Checks = struct
   type check = {
-    events : Event.t list;
-    loc : Location.t;
-    locFull : Location.t;
-    moduleName : string;
-    exnName : string;
-    exceptions : Exceptions.t;
+    events: Event.t list;
+    loc: Location.t;
+    locFull: Location.t;
+    moduleName: string;
+    exnName: string;
+    exceptions: Exceptions.t;
   }
 
   type t = check list
@@ -236,7 +237,9 @@ let traverseAst () =
   in
   let iterExpr self e = self.Tast_mapper.expr self e |> ignore in
   let iterExprOpt self eo =
-    match eo with None -> () | Some e -> e |> iterExpr self
+    match eo with
+    | None -> ()
+    | Some e -> e |> iterExpr self
   in
   let iterPat self p = self.Tast_mapper.pat self p |> ignore in
   let iterCases self cases =
@@ -434,7 +437,9 @@ let traverseAst () =
     let oldId = !currentId in
     let oldEvents = !currentEvents in
     let isFunction =
-      match vb.vb_expr.exp_desc with Texp_function _ -> true | _ -> false
+      match vb.vb_expr.exp_desc with
+      | Texp_function _ -> true
+      | _ -> false
     in
     let isToplevel = !currentId = "" in
     let processBinding name =

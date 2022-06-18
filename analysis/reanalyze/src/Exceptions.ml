@@ -3,19 +3,12 @@ open Common
 type t = ExnSet.t
 
 let add = ExnSet.add
-
 let diff = ExnSet.diff
-
 let empty = ExnSet.empty
-
 let fromList = ExnSet.of_list
-
 let toList = ExnSet.elements
-
 let isEmpty = ExnSet.is_empty
-
 let iter = ExnSet.iter
-
 let union = ExnSet.union
 
 let pp ~exnTable ppf exceptions =

@@ -1,11 +1,11 @@
 type t = {
-  mutable bsbProjectRoot : string;
-  mutable dce : bool;
-  mutable exception_ : bool;
-  mutable projectRoot : string;
-  mutable suppress : string list;
-  mutable termination : bool;
-  mutable unsuppress : string list;
+  mutable bsbProjectRoot: string;
+  mutable dce: bool;
+  mutable exception_: bool;
+  mutable projectRoot: string;
+  mutable suppress: string list;
+  mutable termination: bool;
+  mutable unsuppress: string list;
 }
 
 let runConfig =
@@ -25,7 +25,5 @@ let all () =
   runConfig.termination <- true
 
 let dce () = runConfig.dce <- true
-
 let exception_ () = runConfig.exception_ <- true
-
 let termination () = runConfig.termination <- true

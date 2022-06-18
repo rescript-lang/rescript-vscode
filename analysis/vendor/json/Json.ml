@@ -65,7 +65,10 @@ module Infix = struct
    * let x: int = None |! "This will throw";
    * ```
    *)
-  let ( |! ) o d = match o with None -> failwith d | Some v -> v
+  let ( |! ) o d =
+    match o with
+    | None -> failwith d
+    | Some v -> v
 
   (** The "upwrap with default" operator
    * ```
@@ -75,7 +78,10 @@ module Infix = struct
    * Js.log2(x, y);
    * ```
    *)
-  let ( |? ) o d = match o with None -> d | Some v -> v
+  let ( |? ) o d =
+    match o with
+    | None -> d
+    | Some v -> v
 
   (** The "transform contents into new optional" operator
    * ```
@@ -85,7 +91,10 @@ module Infix = struct
    * let y: option(int) = None |?> maybeInc;
    * ```
    *)
-  let ( |?> ) o fn = match o with None -> None | Some v -> fn v
+  let ( |?> ) o fn =
+    match o with
+    | None -> None
+    | Some v -> fn v
 
   (** The "transform contents into new value & then re-wrap" operator
    * ```
@@ -96,7 +105,10 @@ module Infix = struct
    * Js.log2(x, y);
    * ```
    *)
-  let ( |?>> ) o fn = match o with None -> None | Some v -> Some (fn v)
+  let ( |?>> ) o fn =
+    match o with
+    | None -> None
+    | Some v -> Some (fn v)
 
   (** "handle the value if present, otherwise here's the default"
    *
@@ -110,7 +122,10 @@ module Infix = struct
    * Js.log2(x, y);
    * ```
    *)
-  let fold o d f = match o with None -> d | Some v -> f v
+  let fold o d f =
+    match o with
+    | None -> d
+    | Some v -> f v
 end
 
 let escape text =
@@ -194,7 +209,10 @@ let rec stringifyPretty ?(indent = 0) t =
   | False -> "false"
   | Null -> "null"
 
-let unwrap message t = match t with Some v -> v | None -> failwith message
+let unwrap message t =
+  match t with
+  | Some v -> v
+  | None -> failwith message
 
 module Parser = struct
   let split_by ?(keep_empty = false) is_delim str =
@@ -218,7 +236,9 @@ module Parser = struct
     let lines = split_by (fun c -> c = '\n') pre in
     let count = List.length lines in
     let last =
-      match count > 0 with true -> List.nth lines (count - 1) | false -> ""
+      match count > 0 with
+      | true -> List.nth lines (count - 1)
+      | false -> ""
     in
     let col = String.length last + 1 in
     let line = List.length lines in
@@ -300,7 +320,10 @@ module Parser = struct
     let len = String.length text in
     let rec loop i =
       if i >= len then i
-      else match text.[i] with '0' .. '9' -> loop (i + 1) | _ -> i
+      else
+        match text.[i] with
+        | '0' .. '9' -> loop (i + 1)
+        | _ -> i
     in
     loop (pos + 1)
 
@@ -316,7 +339,9 @@ module Parser = struct
     let ln = String.length text in
     if pos < ln - 1 && (text.[pos] = 'E' || text.[pos] = 'e') then
       let pos =
-        match text.[pos + 1] with '-' | '+' -> pos + 2 | _ -> pos + 1
+        match text.[pos + 1] with
+        | '-' | '+' -> pos + 2
+        | _ -> pos + 1
       in
       parseDigits text pos
     else pos
@@ -445,7 +470,10 @@ let parse text =
   with Invalid_argument _ | Failure _ -> None
 
 (* Accessor helpers *)
-let bind v fn = match v with None -> None | Some v -> fn v
+let bind v fn =
+  match v with
+  | None -> None
+  | Some v -> fn v
 
 (** If `t` is an object, get the value associated with the given string key *)
 let get key t =
@@ -460,23 +488,39 @@ let nth n t =
     if n < List.length items then Some (List.nth items n) else None
   | _ -> None
 
-let string t = match t with String s -> Some s | _ -> None
-
-let number t = match t with Number s -> Some s | _ -> None
-
-let array t = match t with Array s -> Some s | _ -> None
-
-let obj t = match t with Object s -> Some s | _ -> None
-
-let bool t = match t with True -> Some true | False -> Some false | _ -> None
-
-let null t = match t with Null -> Some () | _ -> None
+let string t =
+  match t with
+  | String s -> Some s
+  | _ -> None
+let number t =
+  match t with
+  | Number s -> Some s
+  | _ -> None
+let array t =
+  match t with
+  | Array s -> Some s
+  | _ -> None
+let obj t =
+  match t with
+  | Object s -> Some s
+  | _ -> None
+let bool t =
+  match t with
+  | True -> Some true
+  | False -> Some false
+  | _ -> None
+let null t =
+  match t with
+  | Null -> Some ()
+  | _ -> None
 
 let rec parsePath keyList t =
   match keyList with
   | [] -> Some t
   | head :: rest -> (
-    match get head t with None -> None | Some value -> parsePath rest value)
+    match get head t with
+    | None -> None
+    | Some value -> parsePath rest value)
 
 (** Get a deeply nested value from an object `t`.
  * ```
