@@ -23,7 +23,9 @@ let offsetOfLine text line =
 let positionToOffset text (line, character) =
   match offsetOfLine text line with
   | None -> None
-  | Some bol -> Some (bol + character)
+  | Some bol ->
+    if bol + character <= String.length text then Some (bol + character)
+    else None
 
 type prop = {
   name: string;
@@ -216,12 +218,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
     | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
   | _ -> None
 
-let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
-  let offset =
-    match positionToOffset text posCursor with
-    | Some offset -> offset
-    | None -> assert false
-  in
+let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = skipWhite text (offset - 1) in
   let posNoWhite =
     let line, col = posCursor in
@@ -789,3 +786,9 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else None
+
+let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
+  match positionToOffset text posCursor with
+  | Some offset ->
+    completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text
+  | None -> None
