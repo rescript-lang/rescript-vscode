@@ -1,20 +1,5 @@
 open SharedTypes
 
-type kind =
-  | Module
-  | Property
-  | Constructor
-  | Function
-  | Variable
-  | Constant
-  | String
-  | Number
-  | EnumMember
-  | TypeParameter
-
-let typeHintKindToNumber = function Variable -> 1 | _ -> 2
-let getPaddingFromKind = function Variable -> 4 | _ -> 0
-
 let parseTypeReturn (t : Types.type_expr) =
   let typeString = Shared.typeToString t in
   match Str.split (Str.regexp "=>") typeString with
@@ -47,22 +32,12 @@ let locItemToTypeHint ~full:{file; package} locItem =
 (* TODO: filter for range of lines*)
 let inlay ~path ~pos ~debug =
   let symbols = ref [] in
-  let rec exprKind (exp : Parsetree.expression) =
-    match exp.pexp_desc with
-    | Pexp_fun _ -> Function
-    | Pexp_function _ -> Function
-    | Pexp_constraint (e, _) -> exprKind e
-    | Pexp_constant (Pconst_string _) -> String
-    | Pexp_constant (Pconst_float _ | Pconst_integer _) -> Number
-    | Pexp_constant _ -> Constant
-    | _ -> Variable
-  in
   (* TODO: Handle with tuples let-bindings *)
   let value_binding (iterator : Ast_iterator.iterator)
       (vb : Parsetree.value_binding) =
     (match vb.pvb_pat.ppat_desc with
     | Ppat_var {txt} | Ppat_constraint ({ppat_desc = Ppat_var {txt}}, _) ->
-      symbols := (txt, vb.pvb_loc, exprKind vb.pvb_expr) :: !symbols
+      symbols := vb.pvb_pat.ppat_loc :: !symbols
     | _ -> ());
     Ast_iterator.default_iterator.value_binding iterator vb
   in
@@ -78,37 +53,37 @@ let inlay ~path ~pos ~debug =
     let {Res_driver.parsetree = signature} = parser ~filename:path in
     iterator.signature iterator signature |> ignore);
   !symbols
-  |> List.rev_map (fun (name, loc, kind) ->
-         let range = Utils.cmtLocToRange loc in
-         (* TODO: find the ending or starting position of a let bindings *)
-         let rangeEndCharacter =
-          getPaddingFromKind kind + range.start.character + String.length name
-         in
-         let hintKind = typeHintKindToNumber kind in
-         let position : Protocol.position =
-           {line = range.start.line; character = rangeEndCharacter}
-         in
+  |> List.rev_map (fun locOfName ->
+         let range = Utils.cmtLocToRange locOfName in
          match Cmt.fullFromPath ~path with
-         | None -> None
          | Some full -> (
            match
              References.getLocItem ~full
-               ~pos:(position.line, position.character)
+               ~pos:(range.start.line, range.start.character + 1)
                ~debug
            with
-           | None -> None
-           | Some s -> (
-             match locItemToTypeHint ~full s with
-             | Some typeHint -> Some (typeHint, hintKind, position)
-             | None -> None)))
+           | Some locItem ->
+             let position : Protocol.position =
+               {line = range.start.line; character = range.end_.character}
+             in
+             let typeHint =
+               match locItemToTypeHint locItem ~full with
+               | Some hint -> hint
+               | None -> "Unknown type"
+             in
+             let result =
+               Protocol.stringifyHint
+                 {
+                   kind = 1;
+                   position;
+                   tooltip =
+                     {kind = "markdown"; value = Hover.codeBlock typeHint};
+                   paddingLeft = false;
+                   paddingRight = false;
+                   label = ": " ^ typeHint;
+                 }
+             in
+             Some result
+           | None -> None)
+         | None -> None)
   |> List.filter_map (fun x -> x)
-  |> List.map (fun (typeHint, kind, position) ->
-         Protocol.stringifyHint
-           {
-             kind;
-             position;
-             tooltip = {kind = "markdown"; value = Hover.codeBlock typeHint};
-             paddingLeft = false;
-             paddingRight = false;
-             label = ": " ^ typeHint;
-           })
