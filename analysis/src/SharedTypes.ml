@@ -4,15 +4,15 @@ type modulePath =
   | IncludedModule of Path.t * modulePath
   | ExportedModule of string * modulePath
 
-type field = {stamp : int; fname : string Location.loc; typ : Types.type_expr}
+type field = {stamp: int; fname: string Location.loc; typ: Types.type_expr}
 
 module Constructor = struct
   type t = {
-    stamp : int;
-    cname : string Location.loc;
-    args : (Types.type_expr * Location.t) list;
-    res : Types.type_expr option;
-    typeDecl : string * Types.type_declaration;
+    stamp: int;
+    cname: string Location.loc;
+    args: (Types.type_expr * Location.t) list;
+    res: Types.type_expr option;
+    typeDecl: string * Types.type_declaration;
   }
 end
 
@@ -24,16 +24,16 @@ module Type = struct
     | Record of field list
     | Variant of Constructor.t list
 
-  type t = {kind : kind; decl : Types.type_declaration}
+  type t = {kind: kind; decl: Types.type_declaration}
 end
 
 module Exported = struct
   type namedStampMap = (string, int) Hashtbl.t
 
   type t = {
-    types_ : namedStampMap;
-    values_ : namedStampMap;
-    modules_ : namedStampMap;
+    types_: namedStampMap;
+    values_: namedStampMap;
+    modules_: namedStampMap;
   }
 
   type kind = Type | Value | Module
@@ -82,12 +82,12 @@ module Module = struct
     | Type of Type.t * Types.rec_status
     | Module of t
 
-  and item = {kind : kind; name : string}
+  and item = {kind: kind; name: string}
 
   and structure = {
-    docstring : string list;
-    exported : Exported.t;
-    items : item list;
+    docstring: string list;
+    exported: Exported.t;
+    items: item list;
   }
 
   and t = Ident of Path.t | Structure of structure | Constraint of t * t
@@ -95,14 +95,14 @@ end
 
 module Declared = struct
   type 'item t = {
-    name : string Location.loc;
-    extentLoc : Location.t;
-    stamp : int;
-    modulePath : modulePath;
-    isExported : bool;
-    deprecated : string option;
-    docstring : string list;
-    item : 'item;
+    name: string Location.loc;
+    extentLoc: Location.t;
+    stamp: int;
+    modulePath: modulePath;
+    isExported: bool;
+    deprecated: string option;
+    docstring: string list;
+    item: 'item;
   }
 end
 
@@ -162,31 +162,43 @@ end = struct
 
   let iterModules f stamps =
     Hashtbl.iter
-      (fun stamp d -> match d with KModule d -> f stamp d | _ -> ())
+      (fun stamp d ->
+        match d with
+        | KModule d -> f stamp d
+        | _ -> ())
       stamps
 
   let iterTypes f stamps =
     Hashtbl.iter
-      (fun stamp d -> match d with KType d -> f stamp d | _ -> ())
+      (fun stamp d ->
+        match d with
+        | KType d -> f stamp d
+        | _ -> ())
       stamps
 
   let iterValues f stamps =
     Hashtbl.iter
-      (fun stamp d -> match d with KValue d -> f stamp d | _ -> ())
+      (fun stamp d ->
+        match d with
+        | KValue d -> f stamp d
+        | _ -> ())
       stamps
 
   let iterConstructors f stamps =
     Hashtbl.iter
-      (fun stamp d -> match d with KConstructor d -> f stamp d | _ -> ())
+      (fun stamp d ->
+        match d with
+        | KConstructor d -> f stamp d
+        | _ -> ())
       stamps
 end
 
 module File = struct
   type t = {
-    uri : Uri.t;
-    stamps : Stamps.t;
-    moduleName : string;
-    structure : Module.structure;
+    uri: Uri.t;
+    stamps: Stamps.t;
+    moduleName: string;
+    structure: Module.structure;
   }
 
   let create moduleName uri =
@@ -199,7 +211,7 @@ module File = struct
 end
 
 module QueryEnv = struct
-  type t = {file : File.t; exported : Exported.t}
+  type t = {file: File.t; exported: Exported.t}
 
   let fromFile file = {file; exported = file.structure.exported}
 end
@@ -216,11 +228,11 @@ module Completion = struct
     | FileModule of string
 
   type t = {
-    name : string;
-    env : QueryEnv.t;
-    deprecated : string option;
-    docstring : string list;
-    kind : kind;
+    name: string;
+    env: QueryEnv.t;
+    deprecated: string option;
+    docstring: string list;
+    kind: kind;
   }
 
   let create ~name ~kind ~env =
@@ -241,19 +253,19 @@ module Completion = struct
 end
 
 module Env = struct
-  type t = {stamps : Stamps.t; modulePath : modulePath}
+  type t = {stamps: Stamps.t; modulePath: modulePath}
 end
 
 type filePath = string
 
 type paths =
-  | Impl of {cmt : filePath; res : filePath}
-  | Namespace of {cmt : filePath}
+  | Impl of {cmt: filePath; res: filePath}
+  | Namespace of {cmt: filePath}
   | IntfAndImpl of {
-      cmti : filePath;
-      resi : filePath;
-      cmt : filePath;
-      res : filePath;
+      cmti: filePath;
+      resi: filePath;
+      cmt: filePath;
+      res: filePath;
     }
 
 let showPaths paths =
@@ -316,7 +328,7 @@ type locType =
   | TopLevelModule of string
   | TypeDefinition of string * Types.type_declaration * int
 
-type locItem = {loc : Location.t; locType : locType}
+type locItem = {loc: Location.t; locType: locType}
 
 module LocationSet = Set.Make (struct
   include Location
@@ -327,15 +339,15 @@ module LocationSet = Set.Make (struct
 end)
 
 type extra = {
-  internalReferences : (int, Location.t list) Hashtbl.t;
-  externalReferences :
+  internalReferences: (int, Location.t list) Hashtbl.t;
+  externalReferences:
     (string, (string list * Tip.t * Location.t) list) Hashtbl.t;
-  fileReferences : (string, LocationSet.t) Hashtbl.t;
-  mutable locItems : locItem list;
+  fileReferences: (string, LocationSet.t) Hashtbl.t;
+  mutable locItems: locItem list;
   (* This is the "open location", like the location...
      or maybe the >> location of the open ident maybe *)
   (* OPTIMIZE: using a stack to come up with this would cut the computation time of this considerably. *)
-  opens : (Location.t, unit) Hashtbl.t;
+  opens: (Location.t, unit) Hashtbl.t;
 }
 
 type file = string
@@ -343,15 +355,15 @@ type file = string
 module FileSet = Set.Make (String)
 
 type package = {
-  rootPath : filePath;
-  projectFiles : FileSet.t;
-  dependenciesFiles : FileSet.t;
-  pathsForModule : (file, paths) Hashtbl.t;
-  namespace : string option;
-  opens : string list;
+  rootPath: filePath;
+  projectFiles: FileSet.t;
+  dependenciesFiles: FileSet.t;
+  pathsForModule: (file, paths) Hashtbl.t;
+  namespace: string option;
+  opens: string list;
 }
 
-type full = {extra : extra; file : File.t; package : package}
+type full = {extra: extra; file: File.t; package: package}
 
 let initExtra () =
   {
@@ -363,9 +375,9 @@ let initExtra () =
   }
 
 type state = {
-  packagesByRoot : (string, package) Hashtbl.t;
-  rootForUri : (Uri.t, string) Hashtbl.t;
-  cmtCache : (filePath, File.t) Hashtbl.t;
+  packagesByRoot: (string, package) Hashtbl.t;
+  rootForUri: (Uri.t, string) Hashtbl.t;
+  cmtCache: (filePath, File.t) Hashtbl.t;
 }
 
 (* There's only one state, so it can as well be global *)

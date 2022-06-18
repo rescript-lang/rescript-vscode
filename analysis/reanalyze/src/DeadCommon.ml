@@ -344,10 +344,14 @@ let addDeclaration_ ?posEnd ?posStart ~declKind ~path ~(loc : Location.t)
     ?(posAdjustment = Nothing) ~moduleLoc (name : Name.t) =
   let pos = loc.loc_start in
   let posStart =
-    match posStart with Some posStart -> posStart | None -> pos
+    match posStart with
+    | Some posStart -> posStart
+    | None -> pos
   in
   let posEnd =
-    match posEnd with Some posEnd -> posEnd | None -> loc.loc_end
+    match posEnd with
+    | Some posEnd -> posEnd
+    | None -> loc.loc_end
   in
   (* a .cmi file can contain locations from other files.
      For instance:
@@ -416,7 +420,9 @@ let emitWarning ~decl ~message deadWarning =
 
 module Decl = struct
   let isValue decl =
-    match decl.declKind with Value _ (* | Exception *) -> true | _ -> false
+    match decl.declKind with
+    | Value _ (* | Exception *) -> true
+    | _ -> false
 
   let isToplevelValueWithSideEffects decl =
     match decl.declKind with
@@ -634,7 +640,9 @@ let rec resolveRecursiveRefs ~checkOptionalArg ~deadDeclarations ~level
           |> String.concat ", "
         in
         Log_.item "%s %s %s: %d references (%s) [%d]@."
-          (match isDead with true -> "Dead" | false -> "Live")
+          (match isDead with
+          | true -> "Dead"
+          | false -> "Live")
           (decl.declKind |> DeclKind.toString)
           (decl.path |> Path.toString)
           (newRefs |> PosSet.cardinal)

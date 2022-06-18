@@ -43,6 +43,8 @@ let newDeclared ~item ~extent ~name ~stamp ~modulePath isExported attributes =
     modulePath;
     deprecated = findDeprecatedAttribute attributes;
     docstring =
-      (match findDocAttribute attributes with None -> [] | Some d -> [d]);
+      (match findDocAttribute attributes with
+      | None -> []
+      | Some d -> [d]);
     item;
   }

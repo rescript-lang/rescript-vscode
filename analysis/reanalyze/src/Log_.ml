@@ -16,7 +16,10 @@ module Color = struct
     | Bold -> "1"
     | Dim -> "2"
 
-  let getStringTag s = match s with Format.String_tag s -> s | _ -> ""
+  let getStringTag s =
+    match s with
+    | Format.String_tag s -> s
+    | _ -> ""
 
   let style_of_tag s =
     match s |> getStringTag with
@@ -188,7 +191,9 @@ let logIssue ~(issue : issue) =
       (if !Cli.json then EmitJson.emitClose () else "")
   else
     let color =
-      match issue.severity with Warning -> Color.info | Error -> Color.error
+      match issue.severity with
+      | Warning -> Color.info
+      | Error -> Color.error
     in
     asprintf "@.  %a@.  %a@.  %s%s@." color issue.name Loc.print issue.loc
       (descriptionToMessage issue.description)

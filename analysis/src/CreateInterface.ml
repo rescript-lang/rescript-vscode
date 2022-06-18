@@ -137,7 +137,9 @@ let printSignature ~extractor ~signature =
       processSignature ~indent rest
     | Sig_module (id, modDecl, recStatus) :: rest ->
       let colonOrEquals =
-        match modDecl.md_type with Mty_alias _ -> " = " | _ -> ": "
+        match modDecl.md_type with
+        | Mty_alias _ -> " = "
+        | _ -> ": "
       in
       Buffer.add_string buf
         (indent

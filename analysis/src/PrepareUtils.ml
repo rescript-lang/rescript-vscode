@@ -24,7 +24,10 @@ let cleanOffStars doc =
   let rec loop lines =
     match lines with
     | [] -> None
-    | [one] -> ( match String.trim one with "" -> None | _ -> findStars one)
+    | [one] -> (
+      match String.trim one with
+      | "" -> None
+      | _ -> findStars one)
     | one :: rest -> (
       match String.trim one with
       | "" -> loop rest

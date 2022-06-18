@@ -73,7 +73,9 @@ let rec exprNoSideEffects (expr : Typedtree.expression) =
   | _ -> (* on ocaml 4.08: Texp_letop | Texp_open *) true
 
 and exprOptNoSideEffects eo =
-  match eo with None -> true | Some e -> e |> exprNoSideEffects
+  match eo with
+  | None -> true
+  | Some e -> e |> exprNoSideEffects
 
 and fieldNoSideEffects ((_ld, rld) : _ * Typedtree.record_label_definition) =
   match rld with

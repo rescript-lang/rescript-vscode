@@ -4,36 +4,36 @@ type markupContent = {kind : string; value : string}
 type inlayHint = {position : position; label : string; kind : int; tooltip: markupContent; paddingLeft: bool; paddingRight: bool}
 
 type completionItem = {
-  label : string;
-  kind : int;
-  tags : int list;
-  detail : string;
-  documentation : markupContent option;
+  label: string;
+  kind: int;
+  tags: int list;
+  detail: string;
+  documentation: markupContent option;
 }
 
 type hover = string
-type location = {uri : string; range : range}
-type documentSymbolItem = {name : string; kind : int; location : location}
-type renameFile = {oldUri : string; newUri : string}
-type textEdit = {range : range; newText : string}
+type location = {uri: string; range: range}
+type documentSymbolItem = {name: string; kind: int; location: location}
+type renameFile = {oldUri: string; newUri: string}
+type textEdit = {range: range; newText: string}
 
 type optionalVersionedTextDocumentIdentifier = {
-  version : int option;
-  uri : string;
+  version: int option;
+  uri: string;
 }
 
 type textDocumentEdit = {
-  textDocument : optionalVersionedTextDocumentIdentifier;
-  edits : textEdit list;
+  textDocument: optionalVersionedTextDocumentIdentifier;
+  edits: textEdit list;
 }
 
-type codeActionEdit = {documentChanges : textDocumentEdit list}
+type codeActionEdit = {documentChanges: textDocumentEdit list}
 type codeActionKind = RefactorRewrite
 
 type codeAction = {
-  title : string;
-  codeActionKind : codeActionKind;
-  edit : codeActionEdit;
+  title: string;
+  codeActionKind: codeActionKind;
+  edit: codeActionEdit;
 }
 
 let null = "null"
@@ -102,7 +102,9 @@ let stringifyoptionalVersionedTextDocumentIdentifier td =
   "version": %s,
   "uri": "%s"
   }|}
-    (match td.version with None -> null | Some v -> string_of_int v)
+    (match td.version with
+    | None -> null
+    | Some v -> string_of_int v)
     (Json.escape td.uri)
 
 let stringifyTextDocumentEdit tde =
@@ -114,7 +116,8 @@ let stringifyTextDocumentEdit tde =
     (tde.edits |> List.map stringifyTextEdit |> array)
 
 let codeActionKindToString kind =
-  match kind with RefactorRewrite -> "refactor.rewrite"
+  match kind with
+  | RefactorRewrite -> "refactor.rewrite"
 
 let stringifyCodeActionEdit cae =
   Printf.sprintf {|{"documentChanges": %s}|}

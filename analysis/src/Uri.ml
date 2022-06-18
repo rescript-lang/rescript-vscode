@@ -1,4 +1,4 @@
-type t = {path : string; uri : string}
+type t = {path: string; uri: string}
 
 let stripPath = ref false (* for use in tests *)
 

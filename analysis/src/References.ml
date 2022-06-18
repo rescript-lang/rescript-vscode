@@ -27,7 +27,9 @@ let getLocItem ~full ~pos ~debug =
       ("locItems:\n  "
       ^ (locItems |> List.map locItemToString |> String.concat "\n  "));
   let nameOf li =
-    match li.locType with Typed (n, _, _) -> n | _ -> "NotFound"
+    match li.locType with
+    | Typed (n, _, _) -> n
+    | _ -> "NotFound"
   in
   match locItems with
   | li1 :: li2 :: li3 :: ({locType = Typed ("makeProps", _, _)} as li4) :: _
@@ -443,8 +445,8 @@ let pathFromVisibility visibilityPath tipName =
   pathFromVisibility visibilityPath [tipName]
 
 type references = {
-  uri : Uri.t;
-  locOpt : Location.t option; (* None: reference to a toplevel module *)
+  uri: Uri.t;
+  locOpt: Location.t option; (* None: reference to a toplevel module *)
 }
 
 let forLocalStamp ~full:{file; extra; package} stamp (tip : Tip.t) =

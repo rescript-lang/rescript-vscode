@@ -4,9 +4,9 @@ open Common
 let active () = true
 
 type item = {
-  posTo : Lexing.position;
-  argNames : string list;
-  argNamesMaybe : string list;
+  posTo: Lexing.position;
+  argNames: string list;
+  argNamesMaybe: string list;
 }
 
 let delayedItems = (ref [] : item list ref)

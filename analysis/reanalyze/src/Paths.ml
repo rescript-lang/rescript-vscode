@@ -38,7 +38,9 @@ module Config = struct
       let names =
         elements
         |> List.filter_map (fun (x : Json.t) ->
-               match x with String s -> Some s | _ -> None)
+               match x with
+               | String s -> Some s
+               | _ -> None)
       in
       runConfig.suppress <- names @ runConfig.suppress
     | _ -> ()
@@ -49,7 +51,9 @@ module Config = struct
       let names =
         elements
         |> List.filter_map (fun (x : Json.t) ->
-               match x with String s -> Some s | _ -> None)
+               match x with
+               | String s -> Some s
+               | _ -> None)
       in
       runConfig.unsuppress <- names @ runConfig.unsuppress
     | _ -> ()
@@ -115,7 +119,9 @@ let readDirsFromConfig ~configSources =
   let root = runConfig.projectRoot in
   let rec processDir ~subdirs dir =
     let absDir =
-      match dir = "" with true -> root | false -> Filename.concat root dir
+      match dir = "" with
+      | true -> root
+      | false -> Filename.concat root dir
     in
     if Sys.file_exists absDir && Sys.is_directory absDir then (
       dirs := dir :: !dirs;

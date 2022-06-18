@@ -1,5 +1,7 @@
 let namespacedName namespace name =
-  match namespace with None -> name | Some namespace -> name ^ "-" ^ namespace
+  match namespace with
+  | None -> name
+  | Some namespace -> name ^ "-" ^ namespace
 
 let ( /+ ) = Filename.concat
 

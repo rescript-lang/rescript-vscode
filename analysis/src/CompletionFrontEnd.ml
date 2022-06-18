@@ -16,24 +16,28 @@ let offsetOfLine text line =
       | '\n' -> if lno = line - 1 then Some (i + 1) else loop (i + 1) (lno + 1)
       | _ -> loop (i + 1) lno
   in
-  match line with 0 -> Some 0 | _ -> loop 0 0
+  match line with
+  | 0 -> Some 0
+  | _ -> loop 0 0
 
 let positionToOffset text (line, character) =
   match offsetOfLine text line with
   | None -> None
-  | Some bol -> Some (bol + character)
+  | Some bol ->
+    if bol + character <= String.length text then Some (bol + character)
+    else None
 
 type prop = {
-  name : string;
-  posStart : int * int;
-  posEnd : int * int;
-  exp : Parsetree.expression;
+  name: string;
+  posStart: int * int;
+  posEnd: int * int;
+  exp: Parsetree.expression;
 }
 
 type jsxProps = {
-  compName : Longident.t Location.loc;
-  props : prop list;
-  childrenStart : (int * int) option;
+  compName: Longident.t Location.loc;
+  props: prop list;
+  childrenStart: (int * int) option;
 }
 
 let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
@@ -123,14 +127,14 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   args |> processProps ~acc:[]
 
 type labelled = {
-  name : string;
-  opt : bool;
-  posStart : int * int;
-  posEnd : int * int;
+  name: string;
+  opt: bool;
+  posStart: int * int;
+  posEnd: int * int;
 }
 
 type label = labelled option
-type arg = {label : label; exp : Parsetree.expression}
+type arg = {label: label; exp: Parsetree.expression}
 
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
@@ -175,7 +179,10 @@ let extractExpApplyArgs ~args =
         let labelled =
           {
             name = s;
-            opt = (match label with Optional _ -> true | _ -> false);
+            opt =
+              (match label with
+              | Optional _ -> true
+              | _ -> false);
             posStart = Loc.start loc;
             posEnd = Loc.end_ loc;
           }
@@ -211,12 +218,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
     | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
   | _ -> None
 
-let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
-  let offset =
-    match positionToOffset text posCursor with
-    | Some offset -> offset
-    | None -> assert false
-  in
+let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = skipWhite text (offset - 1) in
   let posNoWhite =
     let line, col = posCursor in
@@ -257,7 +259,9 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   let scope = ref (Scope.create ()) in
   let setResultOpt x =
     if !result = None then
-      match x with None -> () | Some x -> result := Some (x, !scope)
+      match x with
+      | None -> ()
+      | Some x -> result := Some (x, !scope)
   in
   let setResult x = setResultOpt (Some x) in
   let scopeValueDescription (vd : Parsetree.value_description) =
@@ -782,3 +786,9 @@ let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else None
+
+let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
+  match positionToOffset text posCursor with
+  | Some offset ->
+    completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text
+  | None -> None

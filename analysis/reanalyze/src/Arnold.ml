@@ -13,7 +13,7 @@ module FunctionName = struct
 end
 
 module FunctionArgs = struct
-  type arg = {label : string; functionName : FunctionName.t}
+  type arg = {label: string; functionName: FunctionName.t}
   type t = arg list
 
   let empty = []
@@ -45,7 +45,7 @@ module FunctionArgs = struct
 end
 
 module FunctionCall = struct
-  type t = {functionName : FunctionName.t; functionArgs : FunctionArgs.t}
+  type t = {functionName: FunctionName.t; functionArgs: FunctionArgs.t}
 
   let substituteName ~sub name =
     match sub |> FunctionArgs.find ~label:name with
@@ -117,7 +117,9 @@ module Stats = struct
              termination = TerminationAnalysisInternal;
              message =
                Format.asprintf "Cache %s for @{<info>%s@}"
-                 (match hit with true -> "hit" | false -> "miss")
+                 (match hit with
+                 | true -> "hit"
+                 | false -> "miss")
                  (FunctionCall.toString functionCall);
            })
 
@@ -195,7 +197,9 @@ module Progress = struct
   type t = Progress | NoProgress
 
   let toString progress =
-    match progress = Progress with true -> "Progress" | false -> "NoProgress"
+    match progress = Progress with
+    | true -> "Progress"
+    | false -> "NoProgress"
 end
 
 module Call = struct
@@ -240,7 +244,9 @@ module Trace = struct
   let none = Toption Rnone
 
   let retOptionToString r =
-    match r = Rsome with true -> "Some" | false -> "None"
+    match r = Rsome with
+    | true -> "Some"
+    | false -> "None"
 
   let rec toString trace =
     match trace with
@@ -269,7 +275,7 @@ module Values : sig
   val some : progress:Progress.t -> t
   val toString : t -> string
 end = struct
-  type t = {none : Progress.t option; some : Progress.t option}
+  type t = {none: Progress.t option; some: Progress.t option}
 
   let getNone {none} = none
   let getSome {some} = some
@@ -279,7 +285,9 @@ end = struct
      | None -> []
      | Some p -> ["some: " ^ Progress.toString p])
     @
-    match x.none with None -> [] | Some p -> ["none: " ^ Progress.toString p])
+    match x.none with
+    | None -> []
+    | Some p -> ["none: " ^ Progress.toString p])
     |> String.concat ", "
 
   let none ~progress = {none = Some progress; some = None}
@@ -301,7 +309,7 @@ end = struct
 end
 
 module State = struct
-  type t = {progress : Progress.t; trace : Trace.t; valuesOpt : Values.t option}
+  type t = {progress: Progress.t; trace: Trace.t; valuesOpt: Values.t option}
 
   let toString {progress; trace; valuesOpt} =
     let progressStr =
@@ -340,9 +348,13 @@ module State = struct
     let valuesOpt =
       match (s1.valuesOpt, s2.valuesOpt) with
       | None, valuesOpt -> (
-        match s1.progress = Progress with true -> valuesOpt | false -> None)
+        match s1.progress = Progress with
+        | true -> valuesOpt
+        | false -> None)
       | valuesOpt, None -> (
-        match s2.progress = Progress with true -> valuesOpt | false -> None)
+        match s2.progress = Progress with
+        | true -> valuesOpt
+        | false -> None)
       | Some values1, Some values2 -> Some (Values.nd values1 values2)
     in
     {progress; trace; valuesOpt}
@@ -376,10 +388,10 @@ module Command = struct
     | Nothing
     | Sequence of t list
     | SwitchOption of {
-        functionCall : FunctionCall.t;
-        loc : Location.t;
-        some : t;
-        none : t;
+        functionCall: FunctionCall.t;
+        loc: Location.t;
+        some: t;
+        none: t;
       }
     | UnorderedSequence of t list
 
@@ -418,7 +430,9 @@ module Command = struct
       | Sequence cs1 :: cs2 -> loop acc (cs1 @ cs2)
       | c :: cs -> loop (c :: acc) cs
     in
-    match loop [] commands with [c] -> c | cs -> Sequence cs
+    match loop [] commands with
+    | [c] -> c
+    | cs -> Sequence cs
 
   let ( +++ ) c1 c2 = sequence [c1; c2]
 
@@ -432,7 +446,7 @@ end
 
 module Kind = struct
   type t = entry list
-  and entry = {label : string; k : t}
+  and entry = {label: string; k: t}
 
   let empty = ([] : t)
 
@@ -440,7 +454,9 @@ module Kind = struct
     k |> List.exists (fun entry -> entry.label = label)
 
   let rec entryToString {label; k} =
-    match k = [] with true -> label | false -> label ^ ":" ^ (k |> toString)
+    match k = [] with
+    | true -> label
+    | false -> label ^ ":" ^ (k |> toString)
 
   and toString (kind : t) =
     match kind = [] with
@@ -456,8 +472,8 @@ end
 
 module FunctionTable = struct
   type functionDefinition = {
-    mutable body : Command.t option;
-    mutable kind : Kind.t;
+    mutable body: Command.t option;
+    mutable kind: Kind.t;
   }
 
   type t = (FunctionName.t, functionDefinition) Hashtbl.t
@@ -528,7 +544,9 @@ module FindFunctionsCalled = struct
 
   let findCallees (expression : Typedtree.expression) =
     let isFunction =
-      match expression.exp_desc with Texp_function _ -> true | _ -> false
+      match expression.exp_desc with
+      | Texp_function _ -> true
+      | _ -> false
     in
     let callees = ref StringSet.empty in
     let traverseExpr = traverseExpr ~callees in
@@ -703,10 +721,10 @@ end
 
 module Compile = struct
   type ctx = {
-    currentFunctionName : FunctionName.t;
-    functionTable : FunctionTable.t;
-    innerRecursiveFunctions : (FunctionName.t, FunctionName.t) Hashtbl.t;
-    isProgressFunction : Path.t -> bool;
+    currentFunctionName: FunctionName.t;
+    functionTable: FunctionTable.t;
+    innerRecursiveFunctions: (FunctionName.t, FunctionName.t) Hashtbl.t;
+    isProgressFunction: Path.t -> bool;
   }
 
   let rec expression ~ctx (expr : Typedtree.expression) =
@@ -765,7 +783,9 @@ module Compile = struct
                    | _ -> false)
           in
           let argOpt =
-            match argOpt with Some (_, Some e) -> Some e | _ -> None
+            match argOpt with
+            | Some (_, Some e) -> Some e
+            | _ -> None
           in
           let functionArg () =
             match
@@ -993,7 +1013,9 @@ module Compile = struct
       assert false
 
   and expressionOpt ~ctx eOpt =
-    match eOpt with None -> Command.nothing | Some e -> e |> expression ~ctx
+    match eOpt with
+    | None -> Command.nothing
+    | Some e -> e |> expression ~ctx
 
   and evalArgs ~args ~ctx command =
     (* Don't assume any evaluation order on the arguments *)
@@ -1013,8 +1035,8 @@ module Compile = struct
 end
 
 module CallStack = struct
-  type frame = {frameNumber : int; pos : Lexing.position}
-  type t = {tbl : (FunctionCall.t, frame) Hashtbl.t; mutable size : int}
+  type frame = {frameNumber: int; pos: Lexing.position}
+  type t = {tbl: (FunctionCall.t, frame) Hashtbl.t; mutable size: int}
 
   let create () = {tbl = Hashtbl.create 1; size = 0}
 

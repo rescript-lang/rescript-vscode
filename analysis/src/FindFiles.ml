@@ -61,7 +61,10 @@ let compiledNameSpace name =
 
 let compiledBaseName ~namespace name =
   Filename.chop_extension name
-  ^ match namespace with None -> "" | Some n -> "-" ^ compiledNameSpace n
+  ^
+  match namespace with
+  | None -> ""
+  | Some n -> "-" ^ compiledNameSpace n
 
 let getName x =
   Filename.basename x |> Filename.chop_extension |> String.capitalize_ascii

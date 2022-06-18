@@ -54,9 +54,9 @@ module Token = struct
   type token = int * int * int * tokenType
 
   type emitter = {
-    mutable tokens : token list;
-    mutable lastLine : int;
-    mutable lastChar : int;
+    mutable tokens: token list;
+    mutable lastLine: int;
+    mutable lastChar: int;
   }
 
   let createEmitter () = {tokens = []; lastLine = 0; lastChar = 0}
