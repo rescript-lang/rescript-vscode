@@ -1,32 +1,64 @@
 open SharedTypes
 
-let parseTypeReturn (t : Types.type_expr) =
-  let typeString = Shared.typeToString t in
-  match Str.split (Str.regexp "=>") typeString with
-  | x :: xs -> List.fold_left (fun _ y -> y) x xs |> String.trim
-  | _ -> typeString
-
 let locItemToTypeHint ~full:{file; package} locItem =
   match locItem.locType with
   | Constant t ->
-    Some
-      (match t with
-      | Const_int _ -> "int"
-      | Const_char _ -> "char"
-      | Const_string _ -> "string"
-      | Const_float _ -> "float"
-      | Const_int32 _ -> "int32"
-      | Const_int64 _ -> "int64"
-      | Const_nativeint _ -> "int")
+    let typehint = (match t with
+    | Const_int _ -> "int"
+    | Const_char _ -> "char"
+    | Const_string _ -> "string"
+    | Const_float _ -> "float"
+    | Const_int32 _ -> "int32"
+    | Const_int64 _ -> "int64"
+    | Const_nativeint _ -> "int") in
+    Some(typehint, typehint)
   | Typed (_, t, locKind) ->
+    let fromType ~docstring typ =
+      (* TODO: get only type return *)
+      let typeString = typ 
+      |> Shared.typeToString 
+      |> Str.split (Str.regexp "\n")
+      |> List.filter(fun c -> c <> "\n") 
+      |> String.concat "" in
+
+      let extraTypeInfo =
+        let env = QueryEnv.fromFile file in
+        match typ |> Shared.digConstructor with
+        | None -> None
+        | Some path -> (
+          match References.digConstructor ~env ~package path with
+          | None -> None
+          | Some (_env, {docstring; name = {txt}; item = {decl}}) ->
+            if Utils.isUncurriedInternal path then None
+            else Some (decl |> Shared.declToString txt, docstring))
+      in
+      let typeString, docstring =
+        match extraTypeInfo with
+        | None -> (typeString, [typeString])
+        | Some (extra, extraDocstring) ->
+          (typeString, extra :: extraDocstring)
+      in
+      (typeString, String.concat "" docstring)
+    in
     Some
       (match References.definedForLoc ~file ~package locKind with
-      | None -> parseTypeReturn t
-      | Some (_, res) -> (
+      | None -> t |> fromType ~docstring:[]
+      | Some (docstring, res) -> (
         match res with
-        | `Declared -> parseTypeReturn t
-        | `Constructor _ -> parseTypeReturn t
-        | `Field -> parseTypeReturn t))
+        | `Declared -> t |> fromType ~docstring:[]
+        | `Constructor {cname = {txt}; args} -> 
+            let typeString, docstring = t |> fromType ~docstring in
+            let argsString =
+              match args with
+              | [] -> ""
+              | _ ->
+                args
+                |> List.map (fun (t, _) -> Shared.typeToString t)
+                |> String.concat ", " |> Printf.sprintf "(%s)"
+            in
+            (typeString, Hover.codeBlock (txt ^ argsString ^ docstring))
+        | `Field -> t |> fromType ~docstring)
+        )
   | _ -> None
 
 (* TODO: filter for range of lines*)
@@ -56,34 +88,32 @@ let inlay ~path ~pos ~debug =
   |> List.rev_map (fun locOfName ->
          let range = Utils.cmtLocToRange locOfName in
          match Cmt.fullFromPath ~path with
+         | None -> None
          | Some full -> (
            match
              References.getLocItem ~full
                ~pos:(range.start.line, range.start.character + 1)
                ~debug
            with
+           | None -> None
            | Some locItem ->
              let position : Protocol.position =
                {line = range.start.line; character = range.end_.character}
              in
-             let typeHint =
-               match locItemToTypeHint locItem ~full with
-               | Some hint -> hint
-               | None -> "Unknown type"
-             in
-             let result =
-               Protocol.stringifyHint
-                 {
-                   kind = 1;
-                   position;
-                   tooltip =
-                     {kind = "markdown"; value = Hover.codeBlock typeHint};
-                   paddingLeft = false;
-                   paddingRight = false;
-                   label = ": " ^ typeHint;
-                 }
-             in
-             Some result
-           | None -> None)
-         | None -> None)
+            match locItemToTypeHint locItem ~full with
+            | Some (label, tooltip) -> 
+              let result =
+                Protocol.stringifyHint
+                  {
+                    kind = 1;
+                    position;
+                    tooltip =
+                      {kind = "markdown"; value = Hover.codeBlock tooltip};
+                    paddingLeft = false;
+                    paddingRight = false;
+                    label = ": " ^ label;
+                  }
+              in
+              Some(result)
+           | None -> None))
   |> List.filter_map (fun x -> x)
