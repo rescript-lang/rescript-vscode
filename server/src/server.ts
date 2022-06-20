@@ -42,6 +42,11 @@ let projectsFiles: Map<
     openFiles: Set<string>;
     filesWithDiagnostics: Set<string>;
     bsbWatcherByEditor: null | ChildProcess;
+
+    // This keeps track of whether we've prompted the user to start a build
+    // automatically, if there's no build currently running for the project. We
+    // only want to prompt the user about this once, or it becomes
+    // annoying.
     hasPromptedToStartBuild: boolean;
   }
 > = new Map();
