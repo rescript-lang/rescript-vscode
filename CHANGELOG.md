@@ -12,6 +12,7 @@
 - Add configuration option for suppressing the "Do you want to start a build?" prompt.
 - Add configuration option for autostarting the Code Analyzer.
 - Sync with latest parser/printer.
+- Support paths to rescript executables in arm64 architectures.
 
 ## 1.3.0
 
