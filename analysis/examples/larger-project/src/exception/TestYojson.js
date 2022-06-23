@@ -17,7 +17,7 @@ function bar(str, json) {
     var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
     if (exn.RE_EXN_ID === Yojson.Basic.Util.Type_error) {
       if (exn._1 === "a") {
-        if (Caml_obj.caml_equal(exn._2, json)) {
+        if (Caml_obj.equal(exn._2, json)) {
           return json;
         }
         throw exn;
@@ -41,6 +41,5 @@ export {
   bar ,
   toString ,
   toInt ,
-  
 }
 /* No side effect */

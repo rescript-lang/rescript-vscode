@@ -145,9 +145,9 @@ function Make_map(T) {
   };
   var print = function (f, ppf, s) {
     var elts = function (ppf, s) {
-      return Curry._2(iter, (function (id, v) {
-                    return Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
-                  }), s);
+      Curry._2(iter, (function (id, v) {
+              Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
+            }), s);
     };
     return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
@@ -262,15 +262,15 @@ function Make_set(T) {
   var output = function (oc, s) {
     Curry._1(Printf.fprintf(oc), " ( ");
     Curry._2(iter, (function (v) {
-            return Curry._3(Printf.fprintf(oc), "%a ", T.output, v);
+            Curry._3(Printf.fprintf(oc), "%a ", T.output, v);
           }), s);
     return Curry._1(Printf.fprintf(oc), ")");
   };
   var print = function (ppf, s) {
     var elts = function (ppf, s) {
-      return Curry._2(iter, (function (e) {
-                    return Curry._3(Format.fprintf(ppf), "@ %a", T.print, e);
-                  }), s);
+      Curry._2(iter, (function (e) {
+              Curry._3(Format.fprintf(ppf), "@ %a", T.print, e);
+            }), s);
     };
     return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
@@ -440,9 +440,9 @@ function Make_tbl(T) {
   };
   var print = function (f, ppf, s) {
     var elts = function (ppf, s) {
-      return Curry._2(iter, (function (id, v) {
-                    return Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
-                  }), s);
+      Curry._2(iter, (function (id, v) {
+              Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
+            }), s);
     };
     return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
@@ -581,7 +581,7 @@ function Make_tbl(T) {
   var of_list$1 = function (elts) {
     var t = Curry._1(create, 42);
     List.iter((function (param) {
-            return Curry._3(add, t, param[0], param[1]);
+            Curry._3(add, t, param[0], param[1]);
           }), elts);
     return t;
   };
@@ -591,7 +591,7 @@ function Make_tbl(T) {
   var of_map = function (m) {
     var t = Curry._1(create, Curry._1(cardinal, m));
     Curry._2(iter, (function (k, v) {
-            return Curry._3(add, t, k, v);
+            Curry._3(add, t, k, v);
           }), m);
     return t;
   };
@@ -651,15 +651,15 @@ function Make(T) {
   var output = function (oc, s) {
     Curry._1(Printf.fprintf(oc), " ( ");
     Curry._2(iter, (function (v) {
-            return Curry._3(Printf.fprintf(oc), "%a ", T.output, v);
+            Curry._3(Printf.fprintf(oc), "%a ", T.output, v);
           }), s);
     return Curry._1(Printf.fprintf(oc), ")");
   };
   var print = function (ppf, s) {
     var elts = function (ppf, s) {
-      return Curry._2(iter, (function (e) {
-                    return Curry._3(Format.fprintf(ppf), "@ %a", T.print, e);
-                  }), s);
+      Curry._2(iter, (function (e) {
+              Curry._3(Format.fprintf(ppf), "@ %a", T.print, e);
+            }), s);
     };
     return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
@@ -847,9 +847,9 @@ function Make(T) {
   };
   var print$1 = function (f, ppf, s) {
     var elts = function (ppf, s) {
-      return Curry._2(iter$1, (function (id, v) {
-                    return Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
-                  }), s);
+      Curry._2(iter$1, (function (id, v) {
+              Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
+            }), s);
     };
     return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
@@ -1079,9 +1079,9 @@ function Make(T) {
   };
   var print$2 = function (f, ppf, s) {
     var elts = function (ppf, s) {
-      return Curry._2(iter$2, (function (id, v) {
-                    return Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
-                  }), s);
+      Curry._2(iter$2, (function (id, v) {
+              Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
+            }), s);
     };
     return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
@@ -1220,7 +1220,7 @@ function Make(T) {
   var of_list$3 = function (elts) {
     var t = Curry._1(create, 42);
     List.iter((function (param) {
-            return Curry._3(add$2, t, param[0], param[1]);
+            Curry._3(add$2, t, param[0], param[1]);
           }), elts);
     return t;
   };
@@ -1230,7 +1230,7 @@ function Make(T) {
   var of_map = function (m) {
     var t = Curry._1(create, Curry._1(cardinal, m));
     Curry._2(iter$2, (function (k, v) {
-            return Curry._3(add$2, t, k, v);
+            Curry._3(add$2, t, k, v);
           }), m);
     return t;
   };
@@ -1307,6 +1307,5 @@ export {
   Make_set ,
   Make_tbl ,
   Make ,
-  
 }
 /* Misc Not a pure module */

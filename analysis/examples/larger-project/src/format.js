@@ -24,6 +24,5 @@ export {
   formatter_of_buffer ,
   pp_print_flush ,
   pp_print_as ,
-  
 }
 /* std_formatter Not a pure module */

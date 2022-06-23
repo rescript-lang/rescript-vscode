@@ -9,6 +9,5 @@ function make(prim0, prim1, prim2) {
 
 export {
   make ,
-  
 }
 /* ./ImportMyBanner.gen Not a pure module */

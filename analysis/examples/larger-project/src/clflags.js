@@ -598,7 +598,6 @@ function set_dumped_pass(s, enabled) {
         tl: passes_without_s
       }) : passes_without_s;
   dumped_passes_list.contents = dumped_passes;
-  
 }
 
 function parse_color_setting(x) {
@@ -633,35 +632,34 @@ var arg_names = {
 function reset_arguments(param) {
   arg_spec.contents = /* [] */0;
   arg_names.contents = Misc.StringMap.empty;
-  
 }
 
 function add_arguments(loc, args) {
-  return List.iter((function (x) {
-                var arg_name = x[0];
-                try {
-                  var loc2 = Curry._2(Misc.StringMap.find, arg_name, arg_names.contents);
-                  Curry._1(Printf.eprintf("Warning: plugin argument %s is already defined:\n"), arg_name);
-                  Curry._1(Printf.eprintf("   First definition: %s\n"), loc2);
-                  return Curry._1(Printf.eprintf("   New definition: %s\n"), loc);
-                }
-                catch (raw_exn){
-                  var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
-                  if (exn.RE_EXN_ID === "Not_found") {
-                    arg_spec.contents = Pervasives.$at(arg_spec.contents, {
-                          hd: x,
-                          tl: /* [] */0
-                        });
-                    arg_names.contents = Curry._3(Misc.StringMap.add, arg_name, loc, arg_names.contents);
-                    return ;
-                  }
-                  throw exn;
-                }
-              }), args);
+  List.iter((function (x) {
+          var arg_name = x[0];
+          try {
+            var loc2 = Curry._2(Misc.StringMap.find, arg_name, arg_names.contents);
+            Curry._1(Printf.eprintf("Warning: plugin argument %s is already defined:\n"), arg_name);
+            Curry._1(Printf.eprintf("   First definition: %s\n"), loc2);
+            return Curry._1(Printf.eprintf("   New definition: %s\n"), loc);
+          }
+          catch (raw_exn){
+            var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
+            if (exn.RE_EXN_ID === "Not_found") {
+              arg_spec.contents = Pervasives.$at(arg_spec.contents, {
+                    hd: x,
+                    tl: /* [] */0
+                  });
+              arg_names.contents = Curry._3(Misc.StringMap.add, arg_name, loc, arg_names.contents);
+              return ;
+            }
+            throw exn;
+          }
+        }), args);
 }
 
 function print_arguments(usage) {
-  return Arg.usage(arg_spec.contents, usage);
+  Arg.usage(arg_spec.contents, usage);
 }
 
 function parse_arguments(f, msg) {
@@ -868,6 +866,5 @@ export {
   add_arguments ,
   print_arguments ,
   parse_arguments ,
-  
 }
 /* pic_code Not a pure module */

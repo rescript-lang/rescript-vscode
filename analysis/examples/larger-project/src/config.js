@@ -13,13 +13,13 @@ var standard_library_default = "/usr/local/lib/ocaml";
 var standard_library;
 
 try {
-  standard_library = Caml_sys.caml_sys_getenv("OCAMLLIB");
+  standard_library = Caml_sys.sys_getenv("OCAMLLIB");
 }
 catch (raw_exn){
   var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
   if (exn.RE_EXN_ID === "Not_found") {
     try {
-      standard_library = Caml_sys.caml_sys_getenv("CAMLLIB");
+      standard_library = Caml_sys.sys_getenv("CAMLLIB");
     }
     catch (raw_exn$1){
       var exn$1 = Caml_js_exceptions.internalToOCamlException(raw_exn$1);
@@ -50,13 +50,13 @@ var ocamlopt_cppflags = "-D_FILE_OFFSET_BITS=64 -D_REENTRANT";
 
 var bytecomp_c_libraries = "-lpthread                  ";
 
-var bytecomp_c_compiler = "gcc -O2 -fno-strict-aliasing -fwrapv  -D_FILE_OFFSET_BITS=64 -D_REENTRANT";
+var bytecomp_c_compiler = c_compiler + (" " + (ocamlc_cflags + (" " + ocamlc_cppflags)));
 
-var native_c_compiler = "gcc -O2 -fno-strict-aliasing -fwrapv -D_FILE_OFFSET_BITS=64 -D_REENTRANT";
+var native_c_compiler = c_compiler + (" " + (ocamlopt_cflags + (" " + ocamlopt_cppflags)));
 
 var native_c_libraries = "";
 
-var native_pack_linker = "ld -r -arch x86_64 -o ";
+var native_pack_linker = "ld -r -arch x86_64 -o\ ";
 
 var ranlib = "ranlib";
 
@@ -66,7 +66,7 @@ var match;
 
 if (Sys.os_type === "Win32") {
   try {
-    var flexlink = Caml_sys.caml_sys_getenv("OCAML_FLEXLINK");
+    var flexlink = Caml_sys.sys_getenv("OCAML_FLEXLINK");
     var f = function (i) {
       var c = Caml_string.get(flexlink, i);
       if (c === /* '/' */47) {
@@ -357,6 +357,5 @@ export {
   systhread_supported ,
   flexdll_dirs ,
   print_config ,
-  
 }
 /* standard_library Not a pure module */

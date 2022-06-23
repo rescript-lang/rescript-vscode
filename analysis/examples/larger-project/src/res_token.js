@@ -437,6 +437,5 @@ export {
   lookupKeyword ,
   isKeywordTxt ,
   $$catch ,
-  
 }
 /* Res_comment Not a pure module */

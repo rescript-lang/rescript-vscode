@@ -6,7 +6,7 @@ import * as Caml_bytes from "rescript/lib/es6/caml_bytes.js";
 
 function create(n) {
   var n$1 = n < 1 ? 1 : n;
-  var s = Caml_bytes.caml_create_bytes(n$1);
+  var s = Caml_bytes.create(n$1);
   return {
           buffer: s,
           position: 0,
@@ -27,11 +27,10 @@ function resize_internal(b, more) {
   if (new_len > Sys.max_string_length && (b.position + more | 0) <= Sys.max_string_length) {
     new_len = Sys.max_string_length;
   }
-  var new_buffer = Caml_bytes.caml_create_bytes(new_len);
+  var new_buffer = Caml_bytes.create(new_len);
   Bytes.blit(b.buffer, 0, new_buffer, 0, b.position);
   b.buffer = new_buffer;
   b.length = new_len;
-  
 }
 
 function add_char(b, c) {
@@ -41,7 +40,6 @@ function add_char(b, c) {
   }
   b.buffer[pos] = c;
   b.position = pos + 1 | 0;
-  
 }
 
 function add_string(b, s) {
@@ -52,7 +50,6 @@ function add_string(b, s) {
   }
   Bytes.blit_string(s, 0, b.buffer, b.position, len);
   b.position = new_position;
-  
 }
 
 function flush_newline(b) {
@@ -61,7 +58,7 @@ function flush_newline(b) {
     position = position - 1 | 0;
   };
   b.position = position;
-  return add_char(b, /* '\n' */10);
+  add_char(b, /* '\n' */10);
 }
 
 export {
@@ -71,6 +68,5 @@ export {
   add_char ,
   add_string ,
   flush_newline ,
-  
 }
 /* No side effect */

@@ -57,10 +57,9 @@ function try_finally(work, cleanup) {
 }
 
 function set_refs(l) {
-  return List.iter((function (param) {
-                param._0.contents = param._1;
-                
-              }), l);
+  List.iter((function (param) {
+          param._0.contents = param._1;
+        }), l);
 }
 
 function protect_refs(refs, f) {
@@ -433,7 +432,7 @@ function find_in_path(path, name) {
       var x = _x;
       if (x) {
         var fullname = Filename.concat(x.hd, name);
-        if (Caml_external_polyfill.resolve("caml_sys_file_exists")(fullname)) {
+        if (Caml_sys.sys_file_exists(fullname)) {
           return fullname;
         }
         _x = x.tl;
@@ -445,7 +444,7 @@ function find_in_path(path, name) {
           };
     };
   }
-  if (Caml_external_polyfill.resolve("caml_sys_file_exists")(name)) {
+  if (Caml_sys.sys_file_exists(name)) {
     return name;
   }
   throw {
@@ -475,7 +474,7 @@ function find_in_path_rel(path, name) {
     var x = _x;
     if (x) {
       var fullname = simplify(Filename.concat(x.hd, name));
-      if (Caml_external_polyfill.resolve("caml_sys_file_exists")(fullname)) {
+      if (Caml_sys.sys_file_exists(fullname)) {
         return fullname;
       }
       _x = x.tl;
@@ -497,10 +496,10 @@ function find_in_path_uncap(path, name) {
       var dir = x.hd;
       var fullname = Filename.concat(dir, name);
       var ufullname = Filename.concat(dir, uname);
-      if (Caml_external_polyfill.resolve("caml_sys_file_exists")(ufullname)) {
+      if (Caml_sys.sys_file_exists(ufullname)) {
         return ufullname;
       }
-      if (Caml_external_polyfill.resolve("caml_sys_file_exists")(fullname)) {
+      if (Caml_sys.sys_file_exists(fullname)) {
         return fullname;
       }
       _x = x.tl;
@@ -515,8 +514,8 @@ function find_in_path_uncap(path, name) {
 
 function remove_file(filename) {
   try {
-    if (Caml_external_polyfill.resolve("caml_sys_file_exists")(filename)) {
-      return Caml_external_polyfill.resolve("caml_sys_remove")(filename);
+    if (Caml_sys.sys_file_exists(filename)) {
+      return Caml_external_polyfill.resolve("sys_remove")(filename);
     } else {
       return ;
     }
@@ -541,13 +540,13 @@ function expand_directory(alt, s) {
 function create_hashtable(size, init) {
   var tbl = Hashtbl.create(undefined, size);
   List.iter((function (param) {
-          return Hashtbl.add(tbl, param[0], param[1]);
+          Hashtbl.add(tbl, param[0], param[1]);
         }), init);
   return tbl;
 }
 
 function copy_file(ic, oc) {
-  var buff = Caml_bytes.caml_create_bytes(4096);
+  var buff = Caml_bytes.create(4096);
   var _param;
   while(true) {
     var n = Curry._3(P.input(ic), buff, 0, 4096);
@@ -561,7 +560,7 @@ function copy_file(ic, oc) {
 }
 
 function copy_file_chunk(ic, oc, len) {
-  var buff = Caml_bytes.caml_create_bytes(4096);
+  var buff = Caml_bytes.create(4096);
   var _n = len;
   while(true) {
     var n = _n;
@@ -583,7 +582,7 @@ function copy_file_chunk(ic, oc, len) {
 
 function string_of_file(ic) {
   var b = $$Buffer.create(65536);
-  var buff = Caml_bytes.caml_create_bytes(4096);
+  var buff = Caml_bytes.create(4096);
   var _param;
   while(true) {
     var n = Curry._3(P.input(ic), buff, 0, 4096);
@@ -615,7 +614,7 @@ function output_to_file_via_temporary(modeOpt, filename, fn) {
   }
   P.close_out(oc);
   try {
-    Caml_external_polyfill.resolve("caml_sys_rename")(temp_filename, filename);
+    Caml_external_polyfill.resolve("sys_rename")(temp_filename, filename);
     return res;
   }
   catch (exn$1){
@@ -675,23 +674,25 @@ function cvt_int_aux(str, neg, of_string) {
 function $$int(s) {
   return cvt_int_aux(s, (function (prim) {
                 return -prim | 0;
-              }), Caml_format.caml_int_of_string);
+              }), Caml_format.int_of_string);
 }
 
 function int32(s) {
   return cvt_int_aux(s, (function (prim) {
                 return -prim | 0;
-              }), Caml_format.caml_int32_of_string);
+              }), Caml_format.int_of_string);
 }
 
 function int64(s) {
-  return cvt_int_aux(s, Caml_int64.neg, Caml_format.caml_int64_of_string);
+  return cvt_int_aux(s, Caml_int64.neg, Caml_format.int64_of_string);
 }
 
 function nativeint(s) {
   return cvt_int_aux(s, (function (prim) {
-                return -prim | 0;
-              }), Caml_format.caml_nativeint_of_string);
+                return Caml_external_polyfill.resolve("%nativeint_neg")(prim);
+              }), (function (prim) {
+                return caml_nativeint_of_string(prim);
+              }));
 }
 
 var Int_literal_converter = {
@@ -869,9 +870,9 @@ function create(str_size) {
   var tbl_size = Caml_int32.div(str_size, Sys.max_string_length) + 1 | 0;
   var tbl = Caml_array.make(tbl_size, Bytes.empty);
   for(var i = 0 ,i_finish = tbl_size - 2 | 0; i <= i_finish; ++i){
-    Caml_array.set(tbl, i, Caml_bytes.caml_create_bytes(Sys.max_string_length));
+    Caml_array.set(tbl, i, Caml_bytes.create(Sys.max_string_length));
   }
-  Caml_array.set(tbl, tbl_size - 1 | 0, Caml_bytes.caml_create_bytes(Caml_int32.mod_(str_size, Sys.max_string_length)));
+  Caml_array.set(tbl, tbl_size - 1 | 0, Caml_bytes.create(Caml_int32.mod_(str_size, Sys.max_string_length)));
   return tbl;
 }
 
@@ -885,34 +886,31 @@ function get(tbl, ind) {
 }
 
 function set(tbl, ind, c) {
-  return Caml_bytes.set(Caml_array.get(tbl, Caml_int32.div(ind, Sys.max_string_length)), Caml_int32.mod_(ind, Sys.max_string_length), c);
+  Caml_bytes.set(Caml_array.get(tbl, Caml_int32.div(ind, Sys.max_string_length)), Caml_int32.mod_(ind, Sys.max_string_length), c);
 }
 
 function blit(src, srcoff, dst, dstoff, len) {
   for(var i = 0; i < len; ++i){
     set(dst, dstoff + i | 0, get(src, srcoff + i | 0));
   }
-  
 }
 
 function output(oc, tbl, pos, len) {
   for(var i = pos ,i_finish = pos + len | 0; i < i_finish; ++i){
     Curry._1(P.output_char(oc), get(tbl, i));
   }
-  
 }
 
 function unsafe_blit_to_bytes(src, srcoff, dst, dstoff, len) {
   for(var i = 0; i < len; ++i){
     dst[dstoff + i | 0] = get(src, srcoff + i | 0);
   }
-  
 }
 
 function input_bytes(ic, len) {
   var tbl = create(len);
   $$Array.iter((function (str) {
-          return Curry._3(P.really_input(ic), str, 0, str.length);
+          Curry._3(P.really_input(ic), str, 0, str.length);
         }), tbl);
   return tbl;
 }
@@ -931,7 +929,7 @@ var LongString = {
 function edit_distance(a, b, cutoff) {
   var la = a.length;
   var lb = b.length;
-  var cutoff$1 = Caml.caml_int_min(la > lb ? la : lb, cutoff);
+  var cutoff$1 = Caml.int_min(la > lb ? la : lb, cutoff);
   if (Pervasives.abs(la - lb | 0) > cutoff$1) {
     return ;
   }
@@ -944,10 +942,10 @@ function edit_distance(a, b, cutoff) {
     Caml_array.set(Caml_array.get(m, 0), j, j);
   }
   for(var i$1 = 1; i$1 <= la; ++i$1){
-    for(var j$1 = Caml.caml_int_max(1, (i$1 - cutoff$1 | 0) - 1 | 0) ,j_finish = Caml.caml_int_min(lb, (i$1 + cutoff$1 | 0) + 1 | 0); j$1 <= j_finish; ++j$1){
+    for(var j$1 = Caml.int_max(1, (i$1 - cutoff$1 | 0) - 1 | 0) ,j_finish = Caml.int_min(lb, (i$1 + cutoff$1 | 0) + 1 | 0); j$1 <= j_finish; ++j$1){
       var cost = Caml_string.get(a, i$1 - 1 | 0) === Caml_string.get(b, j$1 - 1 | 0) ? 0 : 1;
-      var best = Caml.caml_int_min(1 + Caml.caml_int_min(Caml_array.get(Caml_array.get(m, i$1 - 1 | 0), j$1), Caml_array.get(Caml_array.get(m, i$1), j$1 - 1 | 0)) | 0, Caml_array.get(Caml_array.get(m, i$1 - 1 | 0), j$1 - 1 | 0) + cost | 0);
-      var best$1 = i$1 > 1 && j$1 > 1 && Caml_string.get(a, i$1 - 1 | 0) === Caml_string.get(b, j$1 - 2 | 0) && Caml_string.get(a, i$1 - 2 | 0) === Caml_string.get(b, j$1 - 1 | 0) ? Caml.caml_int_min(best, Caml_array.get(Caml_array.get(m, i$1 - 2 | 0), j$1 - 2 | 0) + cost | 0) : best;
+      var best = Caml.int_min(1 + Caml.int_min(Caml_array.get(Caml_array.get(m, i$1 - 1 | 0), j$1), Caml_array.get(Caml_array.get(m, i$1), j$1 - 1 | 0)) | 0, Caml_array.get(Caml_array.get(m, i$1 - 1 | 0), j$1 - 1 | 0) + cost | 0);
+      var best$1 = i$1 > 1 && j$1 > 1 && Caml_string.get(a, i$1 - 1 | 0) === Caml_string.get(b, j$1 - 2 | 0) && Caml_string.get(a, i$1 - 2 | 0) === Caml_string.get(b, j$1 - 1 | 0) ? Caml.int_min(best, Caml_array.get(Caml_array.get(m, i$1 - 2 | 0), j$1 - 2 | 0) + cost | 0) : best;
       Caml_array.set(Caml_array.get(m, i$1), j$1, best$1);
     }
   }
@@ -1005,7 +1003,7 @@ function did_you_mean(ppf, get_choices) {
   }
   var match = split_last(choices);
   var rest = match[0];
-  return Curry._4(Format.fprintf(ppf), "@\nHint: Did you mean %s%s%s?@?", $$String.concat(", ", rest), rest === /* [] */0 ? "" : " or ", match[1]);
+  Curry._4(Format.fprintf(ppf), "@\nHint: Did you mean %s%s%s?@?", $$String.concat(", ", rest), rest === /* [] */0 ? "" : " or ", match[1]);
 }
 
 function cut_at(s, c) {
@@ -1016,13 +1014,13 @@ function cut_at(s, c) {
         ];
 }
 
-var compare$1 = Caml_obj.caml_compare;
+var compare$1 = Caml_obj.compare;
 
 var StringSet = $$Set.Make({
       compare: compare$1
     });
 
-var compare$2 = Caml_obj.caml_compare;
+var compare$2 = Caml_obj.compare;
 
 var StringMap = $$Map.Make({
       compare: compare$2
@@ -1068,7 +1066,7 @@ function ansi_of_style_l(l) {
   var s = l ? (
       l.tl ? $$String.concat(";", List.map(code_of_style, l)) : code_of_style(l.hd)
     ) : "0";
-  return "\x11[" + (s + "m");
+  return "\x1b[" + (s + "m");
 }
 
 var default_styles = {
@@ -1108,7 +1106,6 @@ function get_styles(param) {
 
 function set_styles(s) {
   cur_styles.contents = s;
-  
 }
 
 function style_of_tag(s) {
@@ -1185,7 +1182,7 @@ function set_color_tag_handling(ppf) {
 function should_enable_color(param) {
   var term;
   try {
-    term = Caml_sys.caml_sys_getenv("TERM");
+    term = Caml_sys.sys_getenv("TERM");
   }
   catch (raw_exn){
     var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
@@ -1196,7 +1193,7 @@ function should_enable_color(param) {
     }
   }
   if (term !== "dumb" && term !== "") {
-    return Caml_external_polyfill.resolve("caml_sys_isatty")(P.stderr);
+    return caml_sys_isatty(P.stderr);
   } else {
     return false;
   }
@@ -1276,7 +1273,7 @@ function normalise_eol(s) {
 
 function delete_eol_spaces(src) {
   var len_src = src.length;
-  var dst = Caml_bytes.caml_create_bytes(len_src);
+  var dst = Caml_bytes.create(len_src);
   var loop = function (_i_src, _i_dst) {
     while(true) {
       var i_dst = _i_dst;
@@ -1356,7 +1353,7 @@ function fold_hooks(list, hook_info, ast) {
                         Error: new Error()
                       };
                 }
-              }), ast, List.sort(Caml_obj.caml_compare, list));
+              }), ast, List.sort(Caml_obj.compare, list));
 }
 
 function MakeHooks(M) {
@@ -1371,7 +1368,6 @@ function MakeHooks(M) {
       ],
       tl: hooks.contents
     };
-    
   };
   var apply_hooks = function (sourcefile, intf) {
     return fold_hooks(hooks.contents, sourcefile, intf);
@@ -1445,6 +1441,5 @@ export {
   raise_direct_hook_exn ,
   fold_hooks ,
   MakeHooks ,
-  
 }
 /* StringSet Not a pure module */

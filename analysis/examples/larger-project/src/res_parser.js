@@ -24,7 +24,6 @@ function err(startPos, endPos, p, error) {
     tl: p.diagnostics
   };
   region.contents = /* Silent */1;
-  
 }
 
 function beginRegion(p) {
@@ -34,7 +33,6 @@ function beginRegion(p) {
     },
     tl: p.regions
   };
-  
 }
 
 function endRegion(p) {
@@ -97,7 +95,6 @@ function nextTemplateLiteralToken(p) {
   p.prevEndPos = p.endPos;
   p.startPos = match[0];
   p.endPos = match[1];
-  
 }
 
 function checkProgress(prevEndPos, result, p) {
@@ -135,7 +132,6 @@ function make(modeOpt, src, filename) {
         hd: diagnostic,
         tl: parserState.diagnostics
       };
-      
     });
   next(undefined, parserState);
   return parserState;
@@ -151,7 +147,6 @@ function leaveBreadcrumb(p, circumstance) {
     hd: crumb,
     tl: p.breadcrumbs
   };
-  
 }
 
 function eatBreadcrumb(p) {
@@ -164,7 +159,7 @@ function eatBreadcrumb(p) {
 }
 
 function optional(p, token) {
-  if (Caml_obj.caml_equal(p.token, token)) {
+  if (Caml_obj.equal(p.token, token)) {
     next(undefined, p);
     return true;
   } else {
@@ -173,11 +168,11 @@ function optional(p, token) {
 }
 
 function expect(grammar, token, p) {
-  if (Caml_obj.caml_equal(p.token, token)) {
+  if (Caml_obj.equal(p.token, token)) {
     return next(undefined, p);
   }
   var error = Res_diagnostics.expected(grammar, p.prevEndPos, token);
-  return err(p.prevEndPos, undefined, p, error);
+  err(p.prevEndPos, undefined, p, error);
 }
 
 function lookahead(p, callback) {
@@ -245,6 +240,5 @@ export {
   optional ,
   expect ,
   lookahead ,
-  
 }
 /* Res_comment Not a pure module */

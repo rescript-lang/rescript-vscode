@@ -1153,6 +1153,5 @@ export {
   isListElement ,
   isListTerminator ,
   isPartOfList ,
-  
 }
 /* Res_token Not a pure module */

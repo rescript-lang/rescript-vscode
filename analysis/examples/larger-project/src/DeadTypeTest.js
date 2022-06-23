@@ -5,6 +5,5 @@ var a = /* A */0;
 
 export {
   a ,
-  
 }
 /* No side effect */

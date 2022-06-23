@@ -16,7 +16,6 @@ function setDiamondMode(scanner) {
     hd: /* Diamond */1,
     tl: scanner.mode
   };
-  
 }
 
 function setJsxMode(scanner) {
@@ -24,7 +23,6 @@ function setJsxMode(scanner) {
     hd: /* Jsx */0,
     tl: scanner.mode
   };
-  
 }
 
 function popMode(scanner, mode) {
@@ -92,7 +90,6 @@ function _printDebug(startPos, endPos, scanner, token) {
   P.print_char(/* '-' */45);
   Pervasives.print_int(endPos.pos_cnum);
   console.log("");
-  
 }
 
 function next(scanner) {
@@ -106,28 +103,27 @@ function next(scanner) {
   }
   if (nextOffset < scanner.src.length) {
     scanner.offset = nextOffset;
-    scanner.ch = scanner.src.charCodeAt(scanner.offset);
+    scanner.ch = scanner.src.codePointAt(scanner.offset);
   } else {
     scanner.offset = scanner.src.length;
     scanner.ch = -1;
   }
-  
 }
 
 function next2(scanner) {
   next(scanner);
-  return next(scanner);
+  next(scanner);
 }
 
 function next3(scanner) {
   next(scanner);
   next(scanner);
-  return next(scanner);
+  next(scanner);
 }
 
 function peek(scanner) {
   if ((scanner.offset + 1 | 0) < scanner.src.length) {
-    return scanner.src.charCodeAt(scanner.offset + 1 | 0);
+    return scanner.src.codePointAt(scanner.offset + 1 | 0);
   } else {
     return -1;
   }
@@ -135,7 +131,7 @@ function peek(scanner) {
 
 function peek2(scanner) {
   if ((scanner.offset + 2 | 0) < scanner.src.length) {
-    return scanner.src.charCodeAt(scanner.offset + 2 | 0);
+    return scanner.src.codePointAt(scanner.offset + 2 | 0);
   } else {
     return -1;
   }
@@ -148,7 +144,7 @@ function make(filename, src) {
           err: (function (param, param$1, param$2) {
               
             }),
-          ch: src === "" ? -1 : src.charCodeAt(0),
+          ch: src === "" ? -1 : src.codePointAt(0),
           offset: 0,
           lineOffset: 0,
           lnum: 1,
@@ -470,7 +466,7 @@ function scanStringEscapeSequence(startPos, scanner) {
       return ;
     }
     var pos = position(scanner);
-    return Curry._3(scanner.err, startPos, pos, Res_diagnostics.message("escape sequence is invalid unicode code point"));
+    Curry._3(scanner.err, startPos, pos, Res_diagnostics.message("escape sequence is invalid unicode code point"));
   };
   var match = scanner.ch;
   if (match >= 48) {
@@ -804,7 +800,7 @@ function scanTemplateLiteralToken(scanner) {
               Curry._3(scanner.err, startPos, endPos, Res_diagnostics.unclosedTemplate);
               return {
                       TAG: /* TemplateTail */7,
-                      _0: $$String.sub(scanner.src, startOff, Caml.caml_int_max((scanner.offset - 1 | 0) - startOff | 0, 0))
+                      _0: $$String.sub(scanner.src, startOff, Caml.int_max((scanner.offset - 1 | 0) - startOff | 0, 0))
                     };
             }
             next(scanner);
@@ -1390,8 +1386,8 @@ function isBinaryOp(src, startCnum, endCnum) {
           Error: new Error()
         };
   }
-  var leftOk = isWhitespace(src.charCodeAt(startCnum - 1 | 0));
-  var rightOk = endCnum >= src.length || isWhitespace(src.charCodeAt(endCnum));
+  var leftOk = isWhitespace(src.codePointAt(startCnum - 1 | 0));
+  var rightOk = endCnum >= src.length || isWhitespace(src.codePointAt(endCnum));
   if (leftOk) {
     return rightOk;
   } else {
@@ -1497,6 +1493,5 @@ export {
   reconsiderLessThan ,
   isBinaryOp ,
   tryAdvanceQuotedString ,
-  
 }
 /* P Not a pure module */

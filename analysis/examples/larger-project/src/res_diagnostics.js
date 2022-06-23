@@ -263,7 +263,7 @@ function explain(t) {
           if (currentToken._0 !== 94) {
             return "Not sure what to do with this character.";
           } else {
-            return "Not sure what to do with this character.\n  If you're trying to dereference a mutable value, use `myValue.contents` instead.\n  To concatenate strings, use `\"a\" ++ \"b\"` instead.";
+            return "Not sure what to do with this character.\n" + ("  If you're trying to dereference a mutable value, use `myValue.contents` instead.\n" + "  To concatenate strings, use `\"a\" ++ \"b\"` instead.");
           }
       
     }
@@ -383,6 +383,5 @@ export {
   unclosedTemplate ,
   unknownUchar ,
   message ,
-  
 }
 /* Format Not a pure module */

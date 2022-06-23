@@ -119,17 +119,25 @@ var Recover = {
   shouldAbortListParse: shouldAbortListParse
 };
 
-var listPatternSpread = "List pattern matches only supports one `...` spread, at the end.\nExplanation: a list spread at the tail is efficient, but a spread in the middle would create new list[s]; out of performance concern, our pattern matching currently guarantees to never create new intermediate data.";
+var listPatternSpread = "List pattern matches only supports one `...` spread, at the end.\n\
+Explanation: a list spread at the tail is efficient, but a spread in the middle would create new list[s]; out of performance concern, our pattern matching currently guarantees to never create new intermediate data.";
 
-var recordPatternSpread = "Record's `...` spread is not supported in pattern matches.\nExplanation: you can't collect a subset of a record's field into its own record, since a record needs an explicit declaration and that subset wouldn't have one.\nSolution: you need to pull out each field you want explicitly.";
+var recordPatternSpread = "Record's `...` spread is not supported in pattern matches.\n\
+Explanation: you can't collect a subset of a record's field into its own record, since a record needs an explicit declaration and that subset wouldn't have one.\n\
+Solution: you need to pull out each field you want explicitly.";
 
-var arrayPatternSpread = "Array's `...` spread is not supported in pattern matches.\nExplanation: such spread would create a subarray; out of performance concern, our pattern matching currently guarantees to never create new intermediate data.\nSolution: if it's to validate the first few elements, use a `when` clause + Array size check + `get` checks on the current pattern. If it's to obtain a subarray, use `Array.sub` or `Belt.Array.slice`.";
+var arrayPatternSpread = "Array's `...` spread is not supported in pattern matches.\n\
+Explanation: such spread would create a subarray; out of performance concern, our pattern matching currently guarantees to never create new intermediate data.\n\
+Solution: if it's to validate the first few elements, use a `when` clause + Array size check + `get` checks on the current pattern. If it's to obtain a subarray, use `Array.sub` or `Belt.Array.slice`.";
 
 var arrayExprSpread = "Arrays can't use the `...` spread currently. Please use `concat` or other Array helpers.";
 
-var recordExprSpread = "Records can only have one `...` spread, at the beginning.\nExplanation: since records have a known, fixed shape, a spread like `{a, ...b}` wouldn't make sense, as `b` would override every field of `a` anyway.";
+var recordExprSpread = "Records can only have one `...` spread, at the beginning.\n\
+Explanation: since records have a known, fixed shape, a spread like `{a, ...b}` wouldn't make sense, as `b` would override every field of `a` anyway.";
 
-var listExprSpread = "Lists can only have one `...` spread, and at the end.\nExplanation: lists are singly-linked list, where a node contains a value and points to the next node. `list[a, ...bc]` efficiently creates a new item and links `bc` as its next nodes. `[...bc, a]` would be expensive, as it'd need to traverse `bc` and prepend each item to `a` one by one. We therefore disallow such syntax sugar.\nSolution: directly use `concat`.";
+var listExprSpread = "Lists can only have one `...` spread, and at the end.\n\
+Explanation: lists are singly-linked list, where a node contains a value and points to the next node. `list[a, ...bc]` efficiently creates a new item and links `bc` as its next nodes. `[...bc, a]` would be expensive, as it'd need to traverse `bc` and prepend each item to `a` one by one. We therefore disallow such syntax sugar.\n\
+Solution: directly use `concat`.";
 
 var variantIdent = "A polymorphic variant (e.g. #id) must start with an alphabetical letter or be a number (e.g. #742)";
 
@@ -1038,7 +1046,7 @@ function parseStringLiteral(s) {
       if (i === len) {
         return state > 6 || state < 2;
       }
-      var c = s.charCodeAt(i);
+      var c = s.codePointAt(i);
       switch (state) {
         case /* Start */0 :
             if (c !== 92) {
@@ -1175,8 +1183,8 @@ function parseStringLiteral(s) {
             break;
         case /* HexEscape */2 :
             if (d === 1) {
-              var c0 = s.charCodeAt(i - 1 | 0);
-              var c1 = s.charCodeAt(i);
+              var c0 = s.codePointAt(i - 1 | 0);
+              var c1 = s.codePointAt(i);
               var c$1 = (hexValue(c0) << 4) + hexValue(c1) | 0;
               if (c$1 < 0 || c$1 > 255) {
                 return false;
@@ -1193,9 +1201,9 @@ function parseStringLiteral(s) {
             continue ;
         case /* DecimalEscape */3 :
             if (d === 2) {
-              var c0$1 = s.charCodeAt(i - 2 | 0);
-              var c1$1 = s.charCodeAt(i - 1 | 0);
-              var c2 = s.charCodeAt(i);
+              var c0$1 = s.codePointAt(i - 2 | 0);
+              var c1$1 = s.codePointAt(i - 1 | 0);
+              var c2 = s.codePointAt(i);
               var c$2 = (Math.imul(100, c0$1 - 48 | 0) + Math.imul(10, c1$1 - 48 | 0) | 0) + (c2 - 48 | 0) | 0;
               if (c$2 < 0 || c$2 > 255) {
                 return false;
@@ -1212,9 +1220,9 @@ function parseStringLiteral(s) {
             continue ;
         case /* OctalEscape */4 :
             if (d === 2) {
-              var c0$2 = s.charCodeAt(i - 2 | 0);
-              var c1$2 = s.charCodeAt(i - 1 | 0);
-              var c2$1 = s.charCodeAt(i);
+              var c0$2 = s.codePointAt(i - 2 | 0);
+              var c1$2 = s.codePointAt(i - 1 | 0);
+              var c2$1 = s.codePointAt(i);
               var c$3 = (((c0$2 - 48 | 0) << 6) + ((c1$2 - 48 | 0) << 3) | 0) + (c2$1 - 48 | 0) | 0;
               if (c$3 < 0 || c$3 > 255) {
                 return false;
@@ -1231,10 +1239,10 @@ function parseStringLiteral(s) {
             continue ;
         case /* UnicodeEscape */5 :
             if (d === 3) {
-              var c0$3 = s.charCodeAt(i - 3 | 0);
-              var c1$3 = s.charCodeAt(i - 2 | 0);
-              var c2$2 = s.charCodeAt(i - 1 | 0);
-              var c3 = s.charCodeAt(i);
+              var c0$3 = s.codePointAt(i - 3 | 0);
+              var c1$3 = s.codePointAt(i - 2 | 0);
+              var c2$2 = s.codePointAt(i - 1 | 0);
+              var c3 = s.codePointAt(i);
               var c$4 = (((hexValue(c0$3) << 12) + (hexValue(c1$3) << 8) | 0) + (hexValue(c2$2) << 4) | 0) + hexValue(c3) | 0;
               if (!Res_utf8.isValidCodePoint(c$4)) {
                 return false;
@@ -1259,7 +1267,7 @@ function parseStringLiteral(s) {
                 var x = 0;
                 for(var remaining = d; remaining >= 1; --remaining){
                   var ix = i - remaining | 0;
-                  x = (x << 4) + hexValue(s.charCodeAt(ix)) | 0;
+                  x = (x << 4) + hexValue(s.codePointAt(ix)) | 0;
                 }
                 var c$5 = x;
                 if (!Res_utf8.isValidCodePoint(c$5)) {
@@ -1857,7 +1865,7 @@ function verifyJsxOpeningClosingName(p, nameExpr) {
           TAG: /* Lident */0,
           _0: ""
         });
-    return Caml_obj.caml_equal(opening, closing);
+    return Caml_obj.equal(opening, closing);
   }
   throw {
         RE_EXN_ID: "Assert_failure",
@@ -1906,7 +1914,7 @@ function parseTemplateStringLiteral(s) {
       if (i >= len) {
         return ;
       }
-      var c = s.charCodeAt(i);
+      var c = s.codePointAt(i);
       if (c !== 92) {
         $$Buffer.add_char(b, c);
         _i = i + 1 | 0;
@@ -1915,7 +1923,7 @@ function parseTemplateStringLiteral(s) {
       if ((i + 1 | 0) >= len) {
         return $$Buffer.add_char(b, c);
       }
-      var nextChar = s.charCodeAt(i + 1 | 0);
+      var nextChar = s.codePointAt(i + 1 | 0);
       var exit = 0;
       if (nextChar >= 36) {
         exit = nextChar > 95 || nextChar < 37 ? (
@@ -2089,7 +2097,7 @@ function parseCommaDelimitedRegion(p, grammar, closing, f) {
           };
           continue ;
         }
-        if (Caml_obj.caml_equal(token, closing) || token === /* Eof */26) {
+        if (Caml_obj.equal(token, closing) || token === /* Eof */26) {
           return List.rev({
                       hd: node$1,
                       tl: nodes
@@ -2103,7 +2111,7 @@ function parseCommaDelimitedRegion(p, grammar, closing, f) {
           };
           continue ;
         }
-        if (!(p.token === /* Eof */26 || Caml_obj.caml_equal(p.token, closing) || shouldAbortListParse(p))) {
+        if (!(p.token === /* Eof */26 || Caml_obj.equal(p.token, closing) || shouldAbortListParse(p))) {
           Res_parser.expect(undefined, /* Comma */25, p);
         }
         if (p.token === /* Semicolon */8) {
@@ -2115,7 +2123,7 @@ function parseCommaDelimitedRegion(p, grammar, closing, f) {
         };
         continue ;
       }
-      if (p.token === /* Eof */26 || Caml_obj.caml_equal(p.token, closing) || shouldAbortListParse(p)) {
+      if (p.token === /* Eof */26 || Caml_obj.equal(p.token, closing) || shouldAbortListParse(p)) {
         return List.rev(nodes);
       }
       Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(p.token, p.breadcrumbs));
@@ -2145,7 +2153,7 @@ function parseCommaDelimitedReversedList(p, grammar, closing, f) {
           };
           continue ;
         }
-        if (Caml_obj.caml_equal(token, closing) || token === /* Eof */26) {
+        if (Caml_obj.equal(token, closing) || token === /* Eof */26) {
           return {
                   hd: node$1,
                   tl: nodes
@@ -2159,7 +2167,7 @@ function parseCommaDelimitedReversedList(p, grammar, closing, f) {
           };
           continue ;
         }
-        if (!(p.token === /* Eof */26 || Caml_obj.caml_equal(p.token, closing) || shouldAbortListParse(p))) {
+        if (!(p.token === /* Eof */26 || Caml_obj.equal(p.token, closing) || shouldAbortListParse(p))) {
           Res_parser.expect(undefined, /* Comma */25, p);
         }
         if (p.token === /* Semicolon */8) {
@@ -2171,7 +2179,7 @@ function parseCommaDelimitedReversedList(p, grammar, closing, f) {
         };
         continue ;
       }
-      if (p.token === /* Eof */26 || Caml_obj.caml_equal(p.token, closing) || shouldAbortListParse(p)) {
+      if (p.token === /* Eof */26 || Caml_obj.equal(p.token, closing) || shouldAbortListParse(p)) {
         return nodes;
       }
       Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(p.token, p.breadcrumbs));
@@ -2197,7 +2205,7 @@ function parseDelimitedRegion(p, grammar, closing, f) {
         };
         continue ;
       }
-      if (p.token === /* Eof */26 || Caml_obj.caml_equal(p.token, closing) || shouldAbortListParse(p)) {
+      if (p.token === /* Eof */26 || Caml_obj.equal(p.token, closing) || shouldAbortListParse(p)) {
         return List.rev(nodes);
       }
       Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(p.token, p.breadcrumbs));
@@ -2503,169 +2511,6 @@ function parsePattern(aliasOpt, or_Opt, p) {
   }
 }
 
-function parseAttribute(p) {
-  var match = p.token;
-  if (match !== 75) {
-    return ;
-  }
-  var startPos = p.startPos;
-  Res_parser.next(undefined, p);
-  var attrId = parseAttributeId(startPos, p);
-  var payload = parsePayload(p);
-  return [
-          attrId,
-          payload
-        ];
-}
-
-function parseModuleType(es6ArrowOpt, with_Opt, p) {
-  var es6Arrow = es6ArrowOpt !== undefined ? es6ArrowOpt : true;
-  var with_ = with_Opt !== undefined ? with_Opt : true;
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var modty;
-  if (es6Arrow && isEs6ArrowFunctor(p)) {
-    modty = parseFunctorModuleType(p);
-  } else {
-    var modty$1 = parseAtomicModuleType(p);
-    var match = p.token;
-    if (match === 57 && es6Arrow === true) {
-      Res_parser.next(undefined, p);
-      var rhs = parseModuleType(undefined, false, p);
-      var str = $$Location.mknoloc("_");
-      var loc_loc_start = modty$1.pmty_loc.loc_start;
-      var loc_loc_end = p.prevEndPos;
-      var loc = {
-        loc_start: loc_loc_start,
-        loc_end: loc_loc_end,
-        loc_ghost: false
-      };
-      modty = Ast_helper.Mty.functor_(loc, undefined, str, modty$1, rhs);
-    } else {
-      modty = modty$1;
-    }
-  }
-  var moduleType_pmty_desc = modty.pmty_desc;
-  var moduleType_pmty_loc = modty.pmty_loc;
-  var moduleType_pmty_attributes = List.concat({
-        hd: modty.pmty_attributes,
-        tl: {
-          hd: attrs,
-          tl: /* [] */0
-        }
-      });
-  var moduleType = {
-    pmty_desc: moduleType_pmty_desc,
-    pmty_loc: moduleType_pmty_loc,
-    pmty_attributes: moduleType_pmty_attributes
-  };
-  if (with_) {
-    return parseWithConstraints(moduleType, p);
-  } else {
-    return moduleType;
-  }
-}
-
-function parseModuleBindings(attrs, startPos, p) {
-  var first = parseModuleBinding(attrs, startPos, p);
-  var _acc = {
-    hd: first,
-    tl: /* [] */0
-  };
-  while(true) {
-    var acc = _acc;
-    var startPos$1 = p.startPos;
-    var attrs$1 = parseAttributesAndBinding(p);
-    var match = p.token;
-    if (match !== 10) {
-      return List.rev(acc);
-    }
-    Res_parser.next(undefined, p);
-    Res_parser.optional(p, /* Module */65);
-    var modBinding = parseModuleBinding(attrs$1, startPos$1, p);
-    _acc = {
-      hd: modBinding,
-      tl: acc
-    };
-    continue ;
-  };
-}
-
-function parseModuleBinding(attrs, startPos, p) {
-  var ident = p.token;
-  var name;
-  var exit = 0;
-  if (typeof ident === "number" || ident.TAG !== /* Uident */5) {
-    exit = 1;
-  } else {
-    var startPos$1 = p.startPos;
-    Res_parser.next(undefined, p);
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: startPos$1,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    name = $$Location.mkloc(ident._0, loc);
-  }
-  if (exit === 1) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
-    name = $$Location.mknoloc("_");
-  }
-  var body = parseModuleBindingBody(p);
-  var loc_loc_end$1 = p.prevEndPos;
-  var loc$1 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$1,
-    loc_ghost: false
-  };
-  return Ast_helper.Mb.mk(loc$1, attrs, undefined, undefined, name, body);
-}
-
-function parseConstrainedPattern(p) {
-  var pat = parsePattern(undefined, undefined, p);
-  var match = p.token;
-  if (match !== 24) {
-    return pat;
-  }
-  Res_parser.next(undefined, p);
-  var typ = parseTypExpr(undefined, undefined, undefined, p);
-  var loc_loc_start = pat.ppat_loc.loc_start;
-  var loc_loc_end = typ.ptyp_loc.loc_end;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Pat.constraint_(loc, undefined, pat, typ);
-}
-
-function parseLidentList(p) {
-  var _ls = /* [] */0;
-  while(true) {
-    var ls = _ls;
-    var lident = p.token;
-    if (typeof lident === "number") {
-      return List.rev(ls);
-    }
-    if (lident.TAG !== /* Lident */4) {
-      return List.rev(ls);
-    }
-    var loc_loc_start = p.startPos;
-    var loc_loc_end = p.endPos;
-    var loc = {
-      loc_start: loc_loc_start,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    Res_parser.next(undefined, p);
-    _ls = {
-      hd: $$Location.mkloc(lident._0, loc),
-      tl: ls
-    };
-    continue ;
-  };
-}
-
 function parseTypExpr(attrs, es6ArrowOpt, aliasOpt, p) {
   var es6Arrow = es6ArrowOpt !== undefined ? es6ArrowOpt : true;
   var alias = aliasOpt !== undefined ? aliasOpt : true;
@@ -2683,157 +2528,6 @@ function parseTypExpr(attrs, es6ArrowOpt, aliasOpt, p) {
   } else {
     return typ;
   }
-}
-
-function parseConstrainedOrCoercedExpr(p) {
-  var expr = parseExpr(undefined, p);
-  var match = p.token;
-  if (typeof match !== "number") {
-    return expr;
-  }
-  if (match !== 24) {
-    if (match !== 40) {
-      return expr;
-    } else {
-      return parseCoercedExpr(expr, p);
-    }
-  }
-  Res_parser.next(undefined, p);
-  var typ = parseTypExpr(undefined, undefined, undefined, p);
-  var loc_loc_start = expr.pexp_loc.loc_start;
-  var loc_loc_end = typ.ptyp_loc.loc_end;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  var expr$1 = Ast_helper.Exp.constraint_(loc, undefined, expr, typ);
-  var match$1 = p.token;
-  if (match$1 === 40) {
-    return parseCoercedExpr(expr$1, p);
-  } else {
-    return expr$1;
-  }
-}
-
-function parseNonSpreadPattern(msg, p) {
-  var match = p.token;
-  if (match === 6) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.message(msg));
-    Res_parser.next(undefined, p);
-  }
-  var token = p.token;
-  if (!Res_grammar.isPatternStart(token)) {
-    return ;
-  }
-  var pat = parsePattern(undefined, undefined, p);
-  var match$1 = p.token;
-  if (match$1 !== 24) {
-    return pat;
-  }
-  Res_parser.next(undefined, p);
-  var typ = parseTypExpr(undefined, undefined, undefined, p);
-  var loc_loc_start = pat.ppat_loc.loc_start;
-  var loc_loc_end = typ.ptyp_loc.loc_end;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Pat.constraint_(loc, undefined, pat, typ);
-}
-
-function parseTypeAlias(p, typ) {
-  var match = p.token;
-  if (match !== 3) {
-    return typ;
-  }
-  Res_parser.next(undefined, p);
-  Res_parser.expect(undefined, /* SingleQuote */13, p);
-  var match$1 = parseLident(p);
-  return Ast_helper.Typ.alias({
-              loc_start: typ.ptyp_loc.loc_start,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, undefined, typ, match$1[0]);
-}
-
-function parseFieldDeclarationRegion(p) {
-  var startPos = p.startPos;
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var mut = Res_parser.optional(p, /* Mutable */62) ? /* Mutable */1 : /* Immutable */0;
-  var match = p.token;
-  if (typeof match === "number") {
-    return ;
-  }
-  if (match.TAG !== /* Lident */4) {
-    return ;
-  }
-  var match$1 = parseLident(p);
-  var name = $$Location.mkloc(match$1[0], match$1[1]);
-  var match$2 = p.token;
-  var typ = match$2 === 24 ? (Res_parser.next(undefined, p), parsePolyTypeExpr(p)) : Ast_helper.Typ.constr(name.loc, undefined, {
-          txt: {
-            TAG: /* Lident */0,
-            _0: name.txt
-          },
-          loc: name.loc
-        }, /* [] */0);
-  var loc_loc_end = typ.ptyp_loc.loc_end;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Type.field(loc, attrs, undefined, mut, name, typ);
-}
-
-function parseFieldDeclaration(p) {
-  var startPos = p.startPos;
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var mut = Res_parser.optional(p, /* Mutable */62) ? /* Mutable */1 : /* Immutable */0;
-  var match = parseLident(p);
-  var name = $$Location.mkloc(match[0], match[1]);
-  var match$1 = p.token;
-  var typ = match$1 === 24 ? (Res_parser.next(undefined, p), parsePolyTypeExpr(p)) : Ast_helper.Typ.constr(name.loc, undefined, {
-          txt: {
-            TAG: /* Lident */0,
-            _0: name.txt
-          },
-          loc: name.loc
-        }, /* [] */0);
-  var loc_loc_end = typ.ptyp_loc.loc_end;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Type.field(loc, attrs, undefined, mut, name, typ);
-}
-
-function parseArrowTypeRest(es6Arrow, startPos, typ, p) {
-  var token = p.token;
-  if (typeof token !== "number") {
-    return typ;
-  }
-  if (!(token === 58 || token === 57)) {
-    return typ;
-  }
-  if (es6Arrow !== true) {
-    return typ;
-  }
-  if (token === /* MinusGreater */58) {
-    Res_parser.expect(undefined, /* EqualGreater */57, p);
-  }
-  Res_parser.next(undefined, p);
-  var returnType = parseTypExpr(undefined, undefined, false, p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Typ.arrow(loc, undefined, /* Nolabel */0, typ, returnType);
 }
 
 function parseStringFieldDeclaration(p) {
@@ -2894,309 +2588,6 @@ function parseStringFieldDeclaration(p) {
   }
 }
 
-function parseTagSpec(p) {
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var match = p.token;
-  if (match === 44) {
-    return parsePolymorphicVariantTypeSpecHash(attrs, false, p);
-  }
-  var typ = parseTypExpr(attrs, undefined, undefined, p);
-  return {
-          TAG: /* Rinherit */1,
-          _0: typ
-        };
-}
-
-function parseTagSpecFulls(p) {
-  var match = p.token;
-  if (typeof match !== "number") {
-    return /* [] */0;
-  }
-  if (!(match > 41 || match < 21)) {
-    return /* [] */0;
-  }
-  if (match !== 17) {
-    return /* [] */0;
-  }
-  Res_parser.next(undefined, p);
-  var rowField = parseTagSpecFull(p);
-  return {
-          hd: rowField,
-          tl: parseTagSpecFulls(p)
-        };
-}
-
-function parseTagSpecFull(p) {
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var match = p.token;
-  if (match === 44) {
-    return parsePolymorphicVariantTypeSpecHash(attrs, true, p);
-  }
-  var typ = parseTypExpr(attrs, undefined, undefined, p);
-  return {
-          TAG: /* Rinherit */1,
-          _0: typ
-        };
-}
-
-function parseTagSpecFirst(p) {
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var match = p.token;
-  if (typeof match === "number") {
-    if (match !== 17) {
-      if (match === 44) {
-        return {
-                hd: parsePolymorphicVariantTypeSpecHash(attrs, false, p),
-                tl: /* [] */0
-              };
-      }
-      
-    } else {
-      Res_parser.next(undefined, p);
-      return {
-              hd: parseTagSpec(p),
-              tl: /* [] */0
-            };
-    }
-  }
-  var typ = parseTypExpr(attrs, undefined, undefined, p);
-  var match$1 = p.token;
-  if (match$1 === 21) {
-    return {
-            hd: {
-              TAG: /* Rinherit */1,
-              _0: typ
-            },
-            tl: /* [] */0
-          };
-  } else {
-    Res_parser.expect(undefined, /* Bar */17, p);
-    return {
-            hd: {
-              TAG: /* Rinherit */1,
-              _0: typ
-            },
-            tl: {
-              hd: parseTagSpec(p),
-              tl: /* [] */0
-            }
-          };
-  }
-}
-
-function parseTagSpecs(p) {
-  var match = p.token;
-  if (match !== 17) {
-    return /* [] */0;
-  }
-  Res_parser.next(undefined, p);
-  var rowField = parseTagSpec(p);
-  return {
-          hd: rowField,
-          tl: parseTagSpecs(p)
-        };
-}
-
-function parseTagNames(p) {
-  if (p.token === /* GreaterThan */41) {
-    Res_parser.next(undefined, p);
-    return parseRegion(p, /* TagNames */57, parseTagName);
-  } else {
-    return /* [] */0;
-  }
-}
-
-function parseRecordRow(p) {
-  var match = p.token;
-  if (match === 6) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.message(recordExprSpread));
-    Res_parser.next(undefined, p);
-  }
-  var match$1 = p.token;
-  if (typeof match$1 === "number") {
-    return ;
-  }
-  switch (match$1.TAG | 0) {
-    case /* Lident */4 :
-    case /* Uident */5 :
-        break;
-    default:
-      return ;
-  }
-  var startToken = p.token;
-  var field = parseValuePath(p);
-  var match$2 = p.token;
-  if (match$2 === 24) {
-    Res_parser.next(undefined, p);
-    var fieldExpr = parseExpr(undefined, p);
-    return [
-            field,
-            fieldExpr
-          ];
-  }
-  var value = Ast_helper.Exp.ident(field.loc, undefined, field);
-  var value$1;
-  value$1 = typeof startToken === "number" || startToken.TAG !== /* Uident */5 ? value : removeModuleNameFromPunnedFieldValue(value);
-  return [
-          field,
-          value$1
-        ];
-}
-
-function parsePolyTypeExpr(p) {
-  var startPos = p.startPos;
-  var match = p.token;
-  if (match !== 13) {
-    return parseTypExpr(undefined, undefined, undefined, p);
-  }
-  var vars = parseTypeVarList(p);
-  if (vars) {
-    var _v1 = vars.hd;
-    if (vars.tl) {
-      Res_parser.expect(undefined, /* Dot */4, p);
-      var typ = parseTypExpr(undefined, undefined, undefined, p);
-      var loc_loc_end = p.prevEndPos;
-      var loc = {
-        loc_start: startPos,
-        loc_end: loc_loc_end,
-        loc_ghost: false
-      };
-      return Ast_helper.Typ.poly(loc, undefined, vars, typ);
-    }
-    var match$1 = p.token;
-    if (typeof match$1 === "number") {
-      if (match$1 !== 4) {
-        if (match$1 === 57) {
-          Res_parser.next(undefined, p);
-          var typ$1 = Ast_helper.Typ.$$var(_v1.loc, undefined, _v1.txt);
-          var returnType = parseTypExpr(undefined, undefined, false, p);
-          var loc_loc_start = typ$1.ptyp_loc.loc_start;
-          var loc_loc_end$1 = p.prevEndPos;
-          var loc$1 = {
-            loc_start: loc_loc_start,
-            loc_end: loc_loc_end$1,
-            loc_ghost: false
-          };
-          return Ast_helper.Typ.arrow(loc$1, undefined, /* Nolabel */0, typ$1, returnType);
-        }
-        
-      } else {
-        Res_parser.next(undefined, p);
-        var typ$2 = parseTypExpr(undefined, undefined, undefined, p);
-        var loc_loc_end$2 = p.prevEndPos;
-        var loc$2 = {
-          loc_start: startPos,
-          loc_end: loc_loc_end$2,
-          loc_ghost: false
-        };
-        return Ast_helper.Typ.poly(loc$2, undefined, vars, typ$2);
-      }
-    }
-    return Ast_helper.Typ.$$var(_v1.loc, undefined, _v1.txt);
-  }
-  throw {
-        RE_EXN_ID: "Assert_failure",
-        _1: [
-          "res_core.res",
-          4299,
-          11
-        ],
-        Error: new Error()
-      };
-}
-
-function overParseConstrainedOrCoercedOrArrowExpression(p, expr) {
-  var match = p.token;
-  if (typeof match !== "number") {
-    return expr;
-  }
-  if (match !== 24) {
-    if (match !== 40) {
-      return expr;
-    } else {
-      return parseCoercedExpr(expr, p);
-    }
-  }
-  Res_parser.next(undefined, p);
-  var typ = parseTypExpr(undefined, false, undefined, p);
-  var match$1 = p.token;
-  if (match$1 === 57) {
-    Res_parser.next(undefined, p);
-    var body = parseExpr(undefined, p);
-    var longident = expr.pexp_desc;
-    var pat;
-    var exit = 0;
-    if (typeof longident === "number" || longident.TAG !== /* Pexp_ident */0) {
-      exit = 1;
-    } else {
-      var longident$1 = longident._0;
-      pat = Ast_helper.Pat.$$var(expr.pexp_loc, undefined, $$Location.mkloc($$String.concat(".", Longident.flatten(longident$1.txt)), longident$1.loc));
-    }
-    if (exit === 1) {
-      pat = Ast_helper.Pat.$$var(expr.pexp_loc, undefined, $$Location.mkloc("pattern", expr.pexp_loc));
-    }
-    var arrow1 = Ast_helper.Exp.fun_({
-          loc_start: expr.pexp_loc.loc_start,
-          loc_end: body.pexp_loc.loc_end,
-          loc_ghost: false
-        }, undefined, /* Nolabel */0, undefined, pat, Ast_helper.Exp.constraint_(undefined, undefined, body, typ));
-    var arrow2 = Ast_helper.Exp.fun_({
-          loc_start: expr.pexp_loc.loc_start,
-          loc_end: body.pexp_loc.loc_end,
-          loc_ghost: false
-        }, undefined, /* Nolabel */0, undefined, Ast_helper.Pat.constraint_(undefined, undefined, pat, typ), body);
-    var msg = Res_doc.toString(80, Res_doc.breakableGroup(true, Res_doc.concat({
-                  hd: Res_doc.text("Did you mean to annotate the parameter type or the return type?"),
-                  tl: {
-                    hd: Res_doc.indent(Res_doc.concat({
-                              hd: Res_doc.line,
-                              tl: {
-                                hd: Res_doc.text("1) "),
-                                tl: {
-                                  hd: Res_printer.printExpression(arrow1, Res_comments_table.empty),
-                                  tl: {
-                                    hd: Res_doc.line,
-                                    tl: {
-                                      hd: Res_doc.text("2) "),
-                                      tl: {
-                                        hd: Res_printer.printExpression(arrow2, Res_comments_table.empty),
-                                        tl: /* [] */0
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            })),
-                    tl: /* [] */0
-                  }
-                })));
-    Res_parser.err(expr.pexp_loc.loc_start, body.pexp_loc.loc_end, p, Res_diagnostics.message(msg));
-    return arrow1;
-  }
-  var loc_loc_start = expr.pexp_loc.loc_start;
-  var loc_loc_end = typ.ptyp_loc.loc_end;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  var expr$1 = Ast_helper.Exp.constraint_(loc, undefined, expr, typ);
-  Res_parser.err(expr$1.pexp_loc.loc_start, typ.ptyp_loc.loc_end, p, Res_diagnostics.message(Res_doc.toString(80, Res_doc.breakableGroup(true, Res_doc.concat({
-                        hd: Res_doc.text("Expressions with type constraints need to be wrapped in parens:"),
-                        tl: {
-                          hd: Res_doc.indent(Res_doc.concat({
-                                    hd: Res_doc.line,
-                                    tl: {
-                                      hd: Res_printer.addParens(Res_printer.printExpression(expr$1, Res_comments_table.empty)),
-                                      tl: /* [] */0
-                                    }
-                                  })),
-                          tl: /* [] */0
-                        }
-                      })))));
-  return expr$1;
-}
-
 function parseExpr(contextOpt, p) {
   var context = contextOpt !== undefined ? contextOpt : /* OrdinaryExpr */0;
   var expr = parseOperandExpr(context, p);
@@ -3204,656 +2595,27 @@ function parseExpr(contextOpt, p) {
   return parseTernaryExpr(expr$1, p);
 }
 
-function parsePayload(p) {
-  var match = p.token;
-  if (match !== 18) {
-    return {
-            TAG: /* PStr */0,
-            _0: /* [] */0
-          };
-  }
-  if (p.startPos.pos_cnum !== p.prevEndPos.pos_cnum) {
-    return {
-            TAG: /* PStr */0,
-            _0: /* [] */0
-          };
-  }
-  Res_parser.leaveBreadcrumb(p, /* AttributePayload */56);
-  Res_parser.next(undefined, p);
-  var match$1 = p.token;
-  if (typeof match$1 === "number") {
-    if (match$1 !== 24) {
-      if (match$1 === 49) {
-        Res_parser.next(undefined, p);
-        var pattern = parsePattern(undefined, undefined, p);
-        var match$2 = p.token;
-        var expr;
-        var exit = 0;
-        if (typeof match$2 === "number" && !(match$2 !== 50 && match$2 !== 56)) {
-          exit = 2;
-        } else {
-          expr = undefined;
-        }
-        if (exit === 2) {
-          Res_parser.next(undefined, p);
-          expr = parseExpr(undefined, p);
-        }
-        Res_parser.expect(undefined, /* Rparen */19, p);
-        Res_parser.eatBreadcrumb(p);
-        return {
-                TAG: /* PPat */3,
-                _0: pattern,
-                _1: expr
-              };
-      }
-      
-    } else {
-      Res_parser.next(undefined, p);
-      var payload = Res_grammar.isSignatureItemStart(p.token) ? ({
-            TAG: /* PSig */1,
-            _0: parseDelimitedRegion(p, /* Signature */46, /* Rparen */19, parseSignatureItemRegion)
-          }) : ({
-            TAG: /* PTyp */2,
-            _0: parseTypExpr(undefined, undefined, undefined, p)
-          });
-      Res_parser.expect(undefined, /* Rparen */19, p);
-      Res_parser.eatBreadcrumb(p);
-      return payload;
-    }
-  }
-  var items = parseDelimitedRegion(p, /* Structure */48, /* Rparen */19, parseStructureItemRegion);
+function parseConstructorArgs(p) {
+  var lparen = p.startPos;
+  Res_parser.expect(undefined, /* Lparen */18, p);
+  var args = parseCommaDelimitedRegion(p, /* ExprList */12, /* Rparen */19, parseConstrainedExprRegion);
   Res_parser.expect(undefined, /* Rparen */19, p);
-  Res_parser.eatBreadcrumb(p);
-  return {
-          TAG: /* PStr */0,
-          _0: items
-        };
-}
-
-function parseAttributeId(startPos, p) {
-  var loop = function (p, _acc) {
-    while(true) {
-      var acc = _acc;
-      var token = p.token;
-      var exit = 0;
-      if (typeof token === "number") {
-        exit = 2;
-      } else {
-        switch (token.TAG | 0) {
-          case /* Lident */4 :
-          case /* Uident */5 :
-              exit = 1;
-              break;
-          default:
-            exit = 2;
-        }
-      }
-      switch (exit) {
-        case 1 :
-            Res_parser.next(undefined, p);
-            var id = acc + token._0;
-            var match = p.token;
-            if (match !== 4) {
-              return id;
-            }
-            Res_parser.next(undefined, p);
-            _acc = id + ".";
-            continue ;
-        case 2 :
-            if (Res_token.isKeyword(token)) {
-              Res_parser.next(undefined, p);
-              var id$1 = acc + Res_token.toString(token);
-              var match$1 = p.token;
-              if (match$1 !== 4) {
-                return id$1;
-              }
-              Res_parser.next(undefined, p);
-              _acc = id$1 + ".";
-              continue ;
-            }
-            Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-            return acc;
-        
-      }
-    };
-  };
-  var id = loop(p, "");
-  var endPos = p.prevEndPos;
-  return $$Location.mkloc(id, {
-              loc_start: startPos,
-              loc_end: endPos,
-              loc_ghost: false
-            });
-}
-
-function parseConstrDeclArgs(p) {
-  var match = p.token;
-  var constrArgs;
-  if (match === 18) {
-    Res_parser.next(undefined, p);
-    var match$1 = p.token;
-    if (match$1 === 22) {
-      var lbrace = p.startPos;
-      Res_parser.next(undefined, p);
-      var startPos = p.startPos;
-      var match$2 = p.token;
-      var exit = 0;
-      if (typeof match$2 === "number") {
-        if (match$2 >= 6) {
-          if (match$2 >= 7) {
-            exit = 1;
-          } else {
-            var dotdotdotStart = p.startPos;
-            var dotdotdotEnd = p.endPos;
-            Res_parser.next(undefined, p);
-            var typ = parseTypExpr(undefined, undefined, undefined, p);
-            var match$3 = p.token;
-            if (match$3 === 23) {
-              Res_parser.err(dotdotdotStart, dotdotdotEnd, p, Res_diagnostics.message(sameTypeSpread));
-              Res_parser.next(undefined, p);
-            } else {
-              Res_parser.expect(undefined, /* Comma */25, p);
-            }
-            var match$4 = p.token;
-            if (typeof match$4 !== "number" && match$4.TAG === /* Lident */4) {
-              Res_parser.err(dotdotdotStart, dotdotdotEnd, p, Res_diagnostics.message(spreadInRecordDeclaration));
-            }
-            var fields_0 = {
-              TAG: /* Oinherit */1,
-              _0: typ
-            };
-            var fields_1 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
-            var fields = {
-              hd: fields_0,
-              tl: fields_1
-            };
-            Res_parser.expect(undefined, /* Rbrace */23, p);
-            var loc_loc_end = p.prevEndPos;
-            var loc = {
-              loc_start: startPos,
-              loc_end: loc_loc_end,
-              loc_ghost: false
-            };
-            var typ$1 = parseTypeAlias(p, Ast_helper.Typ.object_(loc, undefined, fields, /* Closed */0));
-            var typ$2 = parseArrowTypeRest(true, startPos, typ$1, p);
-            Res_parser.optional(p, /* Comma */25);
-            var moreArgs = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
-            Res_parser.expect(undefined, /* Rparen */19, p);
-            constrArgs = {
-              TAG: /* Pcstr_tuple */0,
-              _0: {
-                hd: typ$2,
-                tl: moreArgs
-              }
-            };
-          }
-        } else if (match$2 >= 4) {
-          var match$5 = p.token;
-          var closedFlag = typeof match$5 === "number" ? (
-              match$5 !== 4 ? (
-                  match$5 !== 5 ? /* Closed */0 : (Res_parser.next(undefined, p), /* Open */1)
-                ) : (Res_parser.next(undefined, p), /* Closed */0)
-            ) : /* Closed */0;
-          var fields$1 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
-          Res_parser.expect(undefined, /* Rbrace */23, p);
-          var loc_loc_end$1 = p.prevEndPos;
-          var loc$1 = {
-            loc_start: startPos,
-            loc_end: loc_loc_end$1,
-            loc_ghost: false
-          };
-          var typ$3 = Ast_helper.Typ.object_(loc$1, /* [] */0, fields$1, closedFlag);
-          Res_parser.optional(p, /* Comma */25);
-          var moreArgs$1 = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
-          Res_parser.expect(undefined, /* Rparen */19, p);
-          constrArgs = {
-            TAG: /* Pcstr_tuple */0,
-            _0: {
-              hd: typ$3,
-              tl: moreArgs$1
-            }
-          };
-        } else {
-          exit = 1;
-        }
-      } else {
-        exit = 1;
-      }
-      if (exit === 1) {
-        var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-        var match$6 = p.token;
-        var exit$1 = 0;
-        if (typeof match$6 === "number" || match$6.TAG !== /* String */3) {
-          exit$1 = 2;
-        } else {
-          var fields$2;
-          if (attrs) {
-            Res_parser.leaveBreadcrumb(p, /* StringFieldDeclarations */37);
-            var field = parseStringFieldDeclaration(p);
-            var field$1;
-            if (field !== undefined) {
-              field$1 = field;
-            } else {
-              throw {
-                    RE_EXN_ID: "Assert_failure",
-                    _1: [
-                      "res_core.res",
-                      5016,
-                      24
-                    ],
-                    Error: new Error()
-                  };
-            }
-            var match$7 = p.token;
-            if (typeof match$7 === "number") {
-              if (match$7 >= 24) {
-                if (match$7 >= 27) {
-                  Res_parser.expect(undefined, /* Comma */25, p);
-                } else {
-                  switch (match$7) {
-                    case /* Colon */24 :
-                        Res_parser.expect(undefined, /* Comma */25, p);
-                        break;
-                    case /* Comma */25 :
-                        Res_parser.next(undefined, p);
-                        break;
-                    case /* Eof */26 :
-                        break;
-                    
-                  }
-                }
-              } else if (match$7 >= 23) {
-                
-              } else {
-                Res_parser.expect(undefined, /* Comma */25, p);
-              }
-            } else {
-              Res_parser.expect(undefined, /* Comma */25, p);
-            }
-            Res_parser.eatBreadcrumb(p);
-            var first;
-            first = field$1.TAG === /* Otag */0 ? ({
-                  TAG: /* Otag */0,
-                  _0: field$1._0,
-                  _1: attrs,
-                  _2: field$1._2
-                }) : ({
-                  TAG: /* Oinherit */1,
-                  _0: field$1._0
-                });
-            fields$2 = {
-              hd: first,
-              tl: parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration)
-            };
-          } else {
-            fields$2 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
-          }
-          Res_parser.expect(undefined, /* Rbrace */23, p);
-          var loc_loc_end$2 = p.prevEndPos;
-          var loc$2 = {
-            loc_start: startPos,
-            loc_end: loc_loc_end$2,
-            loc_ghost: false
-          };
-          var typ$4 = parseTypeAlias(p, Ast_helper.Typ.object_(loc$2, /* [] */0, fields$2, /* Closed */0));
-          var typ$5 = parseArrowTypeRest(true, startPos, typ$4, p);
-          Res_parser.optional(p, /* Comma */25);
-          var moreArgs$2 = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
-          Res_parser.expect(undefined, /* Rparen */19, p);
-          constrArgs = {
-            TAG: /* Pcstr_tuple */0,
-            _0: {
-              hd: typ$5,
-              tl: moreArgs$2
-            }
-          };
-        }
-        if (exit$1 === 2) {
-          var fields$3;
-          if (attrs) {
-            var field$2 = parseFieldDeclaration(p);
-            Res_parser.expect(undefined, /* Comma */25, p);
-            var first_pld_name = field$2.pld_name;
-            var first_pld_mutable = field$2.pld_mutable;
-            var first_pld_type = field$2.pld_type;
-            var first_pld_loc = field$2.pld_loc;
-            var first$1 = {
-              pld_name: first_pld_name,
-              pld_mutable: first_pld_mutable,
-              pld_type: first_pld_type,
-              pld_loc: first_pld_loc,
-              pld_attributes: attrs
-            };
-            fields$3 = {
-              hd: first$1,
-              tl: parseCommaDelimitedRegion(p, /* FieldDeclarations */38, /* Rbrace */23, parseFieldDeclarationRegion)
-            };
-          } else {
-            fields$3 = parseCommaDelimitedRegion(p, /* FieldDeclarations */38, /* Rbrace */23, parseFieldDeclarationRegion);
-          }
-          if (fields$3) {
-            
-          } else {
-            Res_parser.err(lbrace, undefined, p, Res_diagnostics.message("An inline record declaration needs at least one field"));
-          }
-          Res_parser.expect(undefined, /* Rbrace */23, p);
-          Res_parser.optional(p, /* Comma */25);
-          Res_parser.expect(undefined, /* Rparen */19, p);
-          constrArgs = {
-            TAG: /* Pcstr_record */1,
-            _0: fields$3
-          };
-        }
-        
-      }
-      
-    } else {
-      var args = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
-      Res_parser.expect(undefined, /* Rparen */19, p);
-      constrArgs = {
-        TAG: /* Pcstr_tuple */0,
-        _0: args
-      };
-    }
-  } else {
-    constrArgs = {
-      TAG: /* Pcstr_tuple */0,
-      _0: /* [] */0
-    };
+  if (args) {
+    return args;
   }
-  var match$8 = p.token;
-  var res = match$8 === 24 ? (Res_parser.next(undefined, p), parseTypExpr(undefined, undefined, undefined, p)) : undefined;
-  return [
-          constrArgs,
-          res
-        ];
-}
-
-function parsePackageConstraint(p) {
-  var match = p.token;
-  if (match !== 10) {
-    return ;
-  }
-  Res_parser.next(undefined, p);
-  Res_parser.expect(undefined, /* Typ */60, p);
-  var typeConstr = parseValuePath(p);
-  Res_parser.expect(undefined, /* Equal */14, p);
-  var typ = parseTypExpr(undefined, undefined, undefined, p);
-  return [
-          typeConstr,
-          typ
-        ];
-}
-
-function parseConstrDef(parseAttrs, p) {
-  var attrs = parseAttrs ? parseRegion(p, /* Attribute */50, parseAttribute) : /* [] */0;
-  var name = p.token;
-  var name$1;
-  var exit = 0;
-  if (typeof name === "number" || name.TAG !== /* Uident */5) {
-    exit = 1;
-  } else {
-    var loc_loc_start = p.startPos;
-    var loc_loc_end = p.endPos;
-    var loc = {
-      loc_start: loc_loc_start,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    Res_parser.next(undefined, p);
-    name$1 = $$Location.mkloc(name._0, loc);
-  }
-  if (exit === 1) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(name));
-    name$1 = $$Location.mknoloc("_");
-  }
-  var match = p.token;
-  var kind;
-  if (typeof match === "number") {
-    switch (match) {
-      case /* Equal */14 :
-          Res_parser.next(undefined, p);
-          var longident = parseModuleLongIdent(false, p);
-          kind = {
-            TAG: /* Pext_rebind */1,
-            _0: longident
-          };
-          break;
-      case /* Lparen */18 :
-          var match$1 = parseConstrDeclArgs(p);
-          kind = {
-            TAG: /* Pext_decl */0,
-            _0: match$1[0],
-            _1: match$1[1]
-          };
-          break;
-      case /* EqualEqual */15 :
-      case /* EqualEqualEqual */16 :
-      case /* Bar */17 :
-      case /* Rparen */19 :
-      case /* Lbracket */20 :
-      case /* Rbracket */21 :
-      case /* Lbrace */22 :
-      case /* Rbrace */23 :
-          kind = {
-            TAG: /* Pext_decl */0,
-            _0: {
-              TAG: /* Pcstr_tuple */0,
-              _0: /* [] */0
-            },
-            _1: undefined
-          };
-          break;
-      case /* Colon */24 :
-          Res_parser.next(undefined, p);
-          var typ = parseTypExpr(undefined, undefined, undefined, p);
-          kind = {
-            TAG: /* Pext_decl */0,
-            _0: {
-              TAG: /* Pcstr_tuple */0,
-              _0: /* [] */0
-            },
-            _1: typ
-          };
-          break;
-      default:
-        kind = {
-          TAG: /* Pext_decl */0,
-          _0: {
-            TAG: /* Pcstr_tuple */0,
-            _0: /* [] */0
-          },
-          _1: undefined
-        };
-    }
-  } else {
-    kind = {
-      TAG: /* Pext_decl */0,
-      _0: {
-        TAG: /* Pcstr_tuple */0,
-        _0: /* [] */0
-      },
-      _1: undefined
-    };
-  }
-  return [
-          attrs,
-          name$1,
-          kind
-        ];
-}
-
-function parseTypeVarList(p) {
-  var _vars = /* [] */0;
-  while(true) {
-    var vars = _vars;
-    var match = p.token;
-    if (match !== 13) {
-      return List.rev(vars);
-    }
-    Res_parser.next(undefined, p);
-    var match$1 = parseLident(p);
-    var $$var = $$Location.mkloc(match$1[0], match$1[1]);
-    _vars = {
-      hd: $$var,
-      tl: vars
-    };
-    continue ;
-  };
-}
-
-function parseModuleExpr(p) {
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var modExpr = isEs6ArrowFunctor(p) ? parseFunctorModuleExpr(p) : parsePrimaryModExpr(p);
-  return {
-          pmod_desc: modExpr.pmod_desc,
-          pmod_loc: modExpr.pmod_loc,
-          pmod_attributes: List.concat({
-                hd: modExpr.pmod_attributes,
-                tl: {
-                  hd: attrs,
-                  tl: /* [] */0
-                }
-              })
-        };
-}
-
-function parseTypeConstructorDeclaration(startPos, p) {
-  Res_parser.leaveBreadcrumb(p, /* ConstructorDeclaration */35);
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var uident = p.token;
-  if (typeof uident !== "number" && uident.TAG === /* Uident */5) {
-    var uidentLoc_loc_start = p.startPos;
-    var uidentLoc_loc_end = p.endPos;
-    var uidentLoc = {
-      loc_start: uidentLoc_loc_start,
-      loc_end: uidentLoc_loc_end,
-      loc_ghost: false
-    };
-    Res_parser.next(undefined, p);
-    var match = parseConstrDeclArgs(p);
-    Res_parser.eatBreadcrumb(p);
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: startPos,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    return Ast_helper.Type.constructor(loc, attrs, undefined, match[0], match[1], $$Location.mkloc(uident._0, uidentLoc));
-  }
-  Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(uident));
-  return Ast_helper.Type.constructor(undefined, undefined, undefined, undefined, undefined, $$Location.mknoloc("_"));
-}
-
-function parseConstrainedPatternRegion(p) {
-  var token = p.token;
-  if (Res_grammar.isPatternStart(token)) {
-    return parseConstrainedPattern(p);
-  }
-  
-}
-
-function parseExprBlock(first, p) {
-  Res_parser.leaveBreadcrumb(p, /* ExprBlock */10);
-  var item = first !== undefined ? first : parseExprBlockItem(p);
-  parseNewlineOrSemicolonExprBlock(p);
-  var blockExpr;
-  if (Res_grammar.isBlockExprStart(p.token)) {
-    var next = parseExprBlockItem(p);
-    var init = item.pexp_loc;
-    var loc_loc_start = init.loc_start;
-    var loc_loc_end = next.pexp_loc.loc_end;
-    var loc_loc_ghost = init.loc_ghost;
-    var loc = {
-      loc_start: loc_loc_start,
-      loc_end: loc_loc_end,
-      loc_ghost: loc_loc_ghost
-    };
-    blockExpr = Ast_helper.Exp.sequence(loc, undefined, item, next);
-  } else {
-    blockExpr = item;
-  }
-  Res_parser.eatBreadcrumb(p);
-  return overParseConstrainedOrCoercedOrArrowExpression(p, blockExpr);
-}
-
-function parsePatternRegion(p) {
-  var token = p.token;
-  if (token === 6) {
-    Res_parser.next(undefined, p);
-    return [
-            true,
-            parseConstrainedPattern(p)
-          ];
-  } else if (Res_grammar.isPatternStart(token)) {
-    return [
-            false,
-            parseConstrainedPattern(p)
-          ];
-  } else {
-    return ;
-  }
-}
-
-function parseSpreadExprRegion(p) {
-  var token = p.token;
-  if (token !== 6) {
-    if (Res_grammar.isExprStart(token)) {
-      return [
-              false,
-              parseConstrainedOrCoercedExpr(p)
-            ];
-    } else {
-      return ;
-    }
-  }
-  Res_parser.next(undefined, p);
-  var expr = parseConstrainedOrCoercedExpr(p);
-  return [
-          true,
-          expr
-        ];
-}
-
-function parsePackageType(startPos, attrs, p) {
-  var modTypePath = parseModuleLongIdent(true, p);
-  var match = p.token;
-  if (typeof match !== "number" && match.TAG === /* Lident */4 && match._0 === "with") {
-    Res_parser.next(undefined, p);
-    var constraints = parsePackageConstraints(p);
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: startPos,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    return Ast_helper.Typ.$$package(loc, attrs, modTypePath, constraints);
-  }
-  var loc_loc_end$1 = p.prevEndPos;
-  var loc$1 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$1,
-    loc_ghost: false
-  };
-  return Ast_helper.Typ.$$package(loc$1, attrs, modTypePath, /* [] */0);
-}
-
-function parseConstrainedModExpr(p) {
-  var modExpr = parseModuleExpr(p);
-  var match = p.token;
-  if (match !== 24) {
-    return modExpr;
-  }
-  Res_parser.next(undefined, p);
-  var modType = parseModuleType(undefined, undefined, p);
-  var loc_loc_start = modExpr.pmod_loc.loc_start;
-  var loc_loc_end = modType.pmty_loc.loc_end;
+  var loc_loc_end = p.prevEndPos;
   var loc = {
-    loc_start: loc_loc_start,
+    loc_start: lparen,
     loc_end: loc_loc_end,
     loc_ghost: false
   };
-  return Ast_helper.Mod.constraint_(loc, undefined, modExpr, modType);
+  return {
+          hd: Ast_helper.Exp.construct(loc, undefined, $$Location.mkloc({
+                    TAG: /* Lident */0,
+                    _0: "()"
+                  }, loc), undefined),
+          tl: /* [] */0
+        };
 }
 
 function parsePolymorphicVariantTypeArgs(p) {
@@ -3892,705 +2654,28 @@ function parsePolymorphicVariantTypeArgs(p) {
   return Ast_helper.Typ.tuple(loc, /* [] */0, args);
 }
 
-function parsePolymorphicVariantTypeSpecHash(attrs, full, p) {
-  var startPos = p.startPos;
-  var match = parseHashIdent(startPos, p);
-  var loop = function (p) {
-    var match = p.token;
-    if (match !== 69) {
-      return /* [] */0;
-    }
-    if (!full) {
-      return /* [] */0;
-    }
-    Res_parser.next(undefined, p);
-    var rowField = parsePolymorphicVariantTypeArgs(p);
-    return {
-            hd: rowField,
-            tl: loop(p)
-          };
-  };
-  var match$1 = p.token;
-  var match$2 = typeof match$1 === "number" ? (
-      match$1 !== 18 ? (
-          match$1 !== 69 || !full ? [
-              /* [] */0,
-              true
-            ] : (Res_parser.next(undefined, p), [
-                {
-                  hd: parsePolymorphicVariantTypeArgs(p),
-                  tl: /* [] */0
-                },
-                true
-              ])
-        ) : [
-          {
-            hd: parsePolymorphicVariantTypeArgs(p),
-            tl: /* [] */0
-          },
-          false
-        ]
-    ) : [
-      /* [] */0,
-      true
-    ];
-  var tuples = Pervasives.$at(match$2[0], loop(p));
-  return {
-          TAG: /* Rtag */0,
-          _0: $$Location.mkloc(match[0], match[1]),
-          _1: attrs,
-          _2: match$2[1],
-          _3: tuples
-        };
-}
-
-function parseTypExprRegion(p) {
-  if (Res_grammar.isTypExprStart(p.token)) {
-    return parseTypExpr(undefined, undefined, undefined, p);
-  }
-  
-}
-
-function parseModuleBindingBody(p) {
-  var match = p.token;
-  var returnModType = match === 24 ? (Res_parser.next(undefined, p), parseModuleType(undefined, undefined, p)) : undefined;
-  Res_parser.expect(undefined, /* Equal */14, p);
-  var modExpr = parseModuleExpr(p);
-  if (returnModType !== undefined) {
-    return Ast_helper.Mod.constraint_({
-                loc_start: returnModType.pmty_loc.loc_start,
-                loc_end: modExpr.pmod_loc.loc_end,
-                loc_ghost: false
-              }, undefined, modExpr, returnModType);
-  } else {
-    return modExpr;
-  }
-}
-
-function parsePrimaryExpr(operand, noCallOpt, p) {
-  var noCall = noCallOpt !== undefined ? noCallOpt : false;
-  var startPos = operand.pexp_loc.loc_start;
-  var _expr = operand;
-  while(true) {
-    var expr = _expr;
-    var match = p.token;
-    if (typeof match !== "number") {
-      return expr;
-    }
-    if (match !== 4) {
-      if (match >= 21) {
-        if (match !== 80) {
-          return expr;
-        }
-        if (!(noCall === false && p.prevEndPos.pos_lnum === p.startPos.pos_lnum)) {
-          return expr;
-        }
-        var match$1 = expr.pexp_desc;
-        if (typeof match$1 !== "number" && match$1.TAG === /* Pexp_ident */0) {
-          var ident = match$1._0.txt;
-          switch (ident.TAG | 0) {
-            case /* Lident */0 :
-                return parseTemplateExpr(ident._0, p);
-            case /* Ldot */1 :
-            case /* Lapply */2 :
-                break;
-            
-          }
-        }
-        Res_parser.err(expr.pexp_loc.loc_start, expr.pexp_loc.loc_end, p, Res_diagnostics.message("Tagged template literals are currently restricted to names like: json`null`."));
-        return parseTemplateExpr(undefined, p);
-      }
-      if (match < 18) {
-        return expr;
-      }
-      switch (match) {
-        case /* Lparen */18 :
-            if (!(noCall === false && p.prevEndPos.pos_lnum === p.startPos.pos_lnum)) {
-              return expr;
-            }
-            _expr = parseCallExpr(p, expr);
-            continue ;
-        case /* Rparen */19 :
-            return expr;
-        case /* Lbracket */20 :
-            if (noCall === false && p.prevEndPos.pos_lnum === p.startPos.pos_lnum) {
-              return parseBracketAccess(p, expr, startPos);
-            } else {
-              return expr;
-            }
-        
-      }
-    } else {
-      Res_parser.next(undefined, p);
-      var lident = parseValuePathAfterDot(p);
-      var match$2 = p.token;
-      if (match$2 === 14 && noCall === false) {
-        Res_parser.leaveBreadcrumb(p, /* ExprSetField */9);
-        Res_parser.next(undefined, p);
-        var targetExpr = parseExpr(undefined, p);
-        var loc_loc_end = p.prevEndPos;
-        var loc = {
-          loc_start: startPos,
-          loc_end: loc_loc_end,
-          loc_ghost: false
-        };
-        var setfield = Ast_helper.Exp.setfield(loc, undefined, expr, lident, targetExpr);
-        Res_parser.eatBreadcrumb(p);
-        return setfield;
-      }
-      var endPos = p.prevEndPos;
-      var loc$1 = {
-        loc_start: startPos,
-        loc_end: endPos,
-        loc_ghost: false
-      };
-      _expr = Ast_helper.Exp.field(loc$1, undefined, expr, lident);
-      continue ;
-    }
-  };
-}
-
-function parseExceptionDef(attrs, p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Exception */27, p);
-  var match = parseConstrDef(false, p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Te.constructor(loc, attrs, undefined, undefined, match[1], match[2]);
-}
-
-function parseNewlineOrSemicolonExprBlock(p) {
-  var token = p.token;
-  if (token === 8) {
-    return Res_parser.next(undefined, p);
-  } else if (Res_grammar.isBlockExprStart(token) && p.prevEndPos.pos_lnum >= p.startPos.pos_lnum) {
-    return Res_parser.err(p.prevEndPos, p.endPos, p, Res_diagnostics.message("consecutive expressions on a line must be separated by ';' or a newline"));
-  } else {
-    return ;
-  }
-}
-
-function parseLetBindings(attrs, p) {
-  var startPos = p.startPos;
-  Res_parser.optional(p, /* Let */9);
-  var recFlag = Res_parser.optional(p, /* Rec */11) ? /* Recursive */1 : /* Nonrecursive */0;
-  var first = parseLetBindingBody(startPos, attrs, p);
-  var loop = function (p, _bindings) {
-    while(true) {
-      var bindings = _bindings;
-      var startPos = p.startPos;
-      var attrs = parseAttributesAndBinding(p);
-      var match = p.token;
-      if (match !== 10) {
-        return List.rev(bindings);
-      }
-      Res_parser.next(undefined, p);
-      var match$1 = p.token;
-      var attrs$1;
-      if (typeof match$1 === "number" && match$1 >= 84) {
-        var exportLoc_loc_start = p.startPos;
-        var exportLoc_loc_end = p.endPos;
-        var exportLoc = {
-          loc_start: exportLoc_loc_start,
-          loc_end: exportLoc_loc_end,
-          loc_ghost: false
-        };
-        Res_parser.next(undefined, p);
-        var genTypeAttr_0 = $$Location.mkloc("genType", exportLoc);
-        var genTypeAttr_1 = {
-          TAG: /* PStr */0,
-          _0: /* [] */0
-        };
-        var genTypeAttr = [
-          genTypeAttr_0,
-          genTypeAttr_1
-        ];
-        attrs$1 = {
-          hd: genTypeAttr,
-          tl: attrs
-        };
-      } else {
-        attrs$1 = attrs;
-      }
-      Res_parser.optional(p, /* Let */9);
-      var letBinding = parseLetBindingBody(startPos, attrs$1, p);
-      _bindings = {
-        hd: letBinding,
-        tl: bindings
-      };
-      continue ;
-    };
-  };
-  return [
-          recFlag,
-          loop(p, {
-                hd: first,
-                tl: /* [] */0
-              })
-        ];
-}
-
-function parseTernaryExpr(leftOperand, p) {
-  var match = p.token;
-  if (match !== 49) {
-    return leftOperand;
-  }
-  Res_parser.leaveBreadcrumb(p, /* Ternary */2);
-  Res_parser.next(undefined, p);
-  var trueBranch = parseExpr(/* TernaryTrueBranchExpr */1, p);
-  Res_parser.expect(undefined, /* Colon */24, p);
-  var falseBranch = parseExpr(undefined, p);
-  Res_parser.eatBreadcrumb(p);
-  var init = leftOperand.pexp_loc;
-  var loc_loc_start = leftOperand.pexp_loc.loc_start;
-  var loc_loc_end = falseBranch.pexp_loc.loc_end;
-  var loc_loc_ghost = init.loc_ghost;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: loc_loc_ghost
-  };
-  return Ast_helper.Exp.ifthenelse(loc, {
-              hd: ternaryAttr,
-              tl: /* [] */0
-            }, leftOperand, trueBranch, falseBranch);
-}
-
-function parseFirstClassModuleExpr(startPos, p) {
-  Res_parser.expect(undefined, /* Lparen */18, p);
-  var modExpr = parseModuleExpr(p);
-  var modEndLoc = p.prevEndPos;
-  var match = p.token;
-  if (match === 24) {
-    var colonStart = p.startPos;
-    Res_parser.next(undefined, p);
-    var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-    var packageType = parsePackageType(colonStart, attrs, p);
-    Res_parser.expect(undefined, /* Rparen */19, p);
-    var loc = {
-      loc_start: startPos,
-      loc_end: modEndLoc,
-      loc_ghost: false
-    };
-    var firstClassModule = Ast_helper.Exp.pack(loc, undefined, modExpr);
-    var loc_loc_end = p.prevEndPos;
-    var loc$1 = {
-      loc_start: startPos,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    return Ast_helper.Exp.constraint_(loc$1, undefined, firstClassModule, packageType);
-  }
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  var loc_loc_end$1 = p.prevEndPos;
-  var loc$2 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$1,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.pack(loc$2, undefined, modExpr);
-}
-
-function parseBinaryExpr(contextOpt, a, p, prec) {
-  var context = contextOpt !== undefined ? contextOpt : /* OrdinaryExpr */0;
-  var a$1 = a !== undefined ? a : parseOperandExpr(context, p);
-  var _a = a$1;
-  while(true) {
-    var a$2 = _a;
-    var token = p.token;
-    var tokenPrec;
-    var exit = 0;
-    if (typeof token === "number") {
-      if (token >= 36) {
-        if (token !== 42) {
-          tokenPrec = Res_token.precedence(token);
-        } else {
-          exit = 1;
-        }
-      } else if (token >= 34) {
-        exit = 1;
-      } else {
-        tokenPrec = Res_token.precedence(token);
-      }
-    } else {
-      tokenPrec = Res_token.precedence(token);
-    }
-    if (exit === 1) {
-      tokenPrec = !Res_scanner.isBinaryOp(p.scanner.src, p.startPos.pos_cnum, p.endPos.pos_cnum) && p.startPos.pos_lnum > p.prevEndPos.pos_lnum ? -1 : Res_token.precedence(token);
-    }
-    if (tokenPrec < prec) {
-      return a$2;
-    }
-    Res_parser.leaveBreadcrumb(p, /* ExprBinaryAfterOp */{
-          _0: token
-        });
-    var startPos = p.startPos;
-    Res_parser.next(undefined, p);
-    var endPos = p.prevEndPos;
-    var b = parseBinaryExpr(context, undefined, p, tokenPrec + 1 | 0);
-    var loc_loc_start = a$2.pexp_loc.loc_start;
-    var loc_loc_end = b.pexp_loc.loc_end;
+function parseExprBlock(first, p) {
+  Res_parser.leaveBreadcrumb(p, /* ExprBlock */10);
+  var item = first !== undefined ? first : parseExprBlockItem(p);
+  parseNewlineOrSemicolonExprBlock(p);
+  var blockExpr;
+  if (Res_grammar.isBlockExprStart(p.token)) {
+    var next = parseExprBlockItem(p);
+    var init = item.pexp_loc;
+    var loc_loc_start = init.loc_start;
+    var loc_loc_end = next.pexp_loc.loc_end;
+    var loc_loc_ghost = init.loc_ghost;
     var loc = {
       loc_start: loc_loc_start,
       loc_end: loc_loc_end,
-      loc_ghost: false
+      loc_ghost: loc_loc_ghost
     };
-    var expr = Ast_helper.Exp.apply(loc, undefined, makeInfixOperator(p, token, startPos, endPos), {
-          hd: [
-            /* Nolabel */0,
-            a$2
-          ],
-          tl: {
-            hd: [
-              /* Nolabel */0,
-              b
-            ],
-            tl: /* [] */0
-          }
-        });
-    Res_parser.eatBreadcrumb(p);
-    _a = expr;
-    continue ;
-  };
-}
-
-function parseOperandExpr(context, p) {
-  var startPos = p.startPos;
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var match = p.token;
-  var expr;
-  var exit = 0;
-  if (typeof match === "number") {
-    if (match >= 56) {
-      if (match !== 82) {
-        exit = 1;
-      } else {
-        expr = parseTryExpression(p);
-      }
-    } else if (match >= 46) {
-      switch (match) {
-        case /* Assert */46 :
-            Res_parser.next(undefined, p);
-            var expr$1 = parseUnaryExpr(p);
-            var loc_loc_end = p.prevEndPos;
-            var loc = {
-              loc_start: startPos,
-              loc_end: loc_loc_end,
-              loc_ghost: false
-            };
-            expr = Ast_helper.Exp.assert_(loc, undefined, expr$1);
-            break;
-        case /* Lazy */47 :
-            Res_parser.next(undefined, p);
-            var expr$2 = parseUnaryExpr(p);
-            var loc_loc_end$1 = p.prevEndPos;
-            var loc$1 = {
-              loc_start: startPos,
-              loc_end: loc_loc_end$1,
-              loc_ghost: false
-            };
-            expr = Ast_helper.Exp.lazy_(loc$1, undefined, expr$2);
-            break;
-        case /* If */50 :
-            expr = parseIfOrIfLetExpression(p);
-            break;
-        case /* For */52 :
-            expr = parseForExpression(p);
-            break;
-        case /* Tilde */48 :
-        case /* Question */49 :
-        case /* Else */51 :
-        case /* In */53 :
-            exit = 1;
-            break;
-        case /* While */54 :
-            expr = parseWhileExpression(p);
-            break;
-        case /* Switch */55 :
-            expr = parseSwitchExpression(p);
-            break;
-        
-      }
-    } else {
-      exit = 1;
-    }
+    blockExpr = Ast_helper.Exp.sequence(loc, undefined, item, next);
   } else {
-    exit = 1;
+    blockExpr = item;
   }
-  if (exit === 1) {
-    expr = context !== /* WhenExpr */2 && isEs6ArrowExpression(context === /* TernaryTrueBranchExpr */1, p) ? parseEs6ArrowExpression(context, undefined, p) : parseUnaryExpr(p);
-  }
-  return {
-          pexp_desc: expr.pexp_desc,
-          pexp_loc: expr.pexp_loc,
-          pexp_attributes: List.concat({
-                hd: expr.pexp_attributes,
-                tl: {
-                  hd: attrs,
-                  tl: /* [] */0
-                }
-              })
-        };
-}
-
-function parseStandaloneAttribute(p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* AtAt */76, p);
-  var attrId = parseAttributeId(startPos, p);
-  var payload = parsePayload(p);
-  return [
-          attrId,
-          payload
-        ];
-}
-
-function parseJsExport(attrs, p) {
-  var exportStart = p.startPos;
-  Res_parser.expect(undefined, /* Export */84, p);
-  var exportLoc_loc_end = p.prevEndPos;
-  var exportLoc = {
-    loc_start: exportStart,
-    loc_end: exportLoc_loc_end,
-    loc_ghost: false
-  };
-  var genTypeAttr_0 = $$Location.mkloc("genType", exportLoc);
-  var genTypeAttr_1 = {
-    TAG: /* PStr */0,
-    _0: /* [] */0
-  };
-  var genTypeAttr = [
-    genTypeAttr_0,
-    genTypeAttr_1
-  ];
-  var attrs$1 = {
-    hd: genTypeAttr,
-    tl: attrs
-  };
-  var match = p.token;
-  if (match === 60) {
-    var ext = parseTypeDefinitionOrExtension(attrs$1, p);
-    if (ext.TAG === /* TypeDef */0) {
-      return Ast_helper.Str.type_(undefined, ext.recFlag, ext.types);
-    } else {
-      return Ast_helper.Str.type_extension(undefined, ext._0);
-    }
-  }
-  var match$1 = parseLetBindings(attrs$1, p);
-  return Ast_helper.Str.value(undefined, match$1[0], match$1[1]);
-}
-
-function parseModuleOrModuleTypeImplOrPackExpr(attrs, p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Module */65, p);
-  var match = p.token;
-  if (typeof match !== "number") {
-    return parseMaybeRecModuleBinding(attrs, startPos, p);
-  }
-  if (match !== 18) {
-    if (match !== 60) {
-      return parseMaybeRecModuleBinding(attrs, startPos, p);
-    } else {
-      return parseModuleTypeImpl(attrs, startPos, p);
-    }
-  }
-  var expr = parseFirstClassModuleExpr(startPos, p);
-  var a = parsePrimaryExpr(expr, undefined, p);
-  var expr$1 = parseBinaryExpr(undefined, a, p, 1);
-  var expr$2 = parseTernaryExpr(expr$1, p);
-  return Ast_helper.Str.$$eval(undefined, attrs, expr$2);
-}
-
-function parseExternalDef(attrs, startPos, p) {
-  Res_parser.leaveBreadcrumb(p, /* External */21);
-  Res_parser.expect(undefined, /* External */59, p);
-  var match = parseLident(p);
-  var name = $$Location.mkloc(match[0], match[1]);
-  Res_parser.expect(/* TypeExpression */20, /* Colon */24, p);
-  var typExpr = parseTypExpr(undefined, undefined, undefined, p);
-  var equalStart = p.startPos;
-  var equalEnd = p.endPos;
-  Res_parser.expect(undefined, /* Equal */14, p);
-  var s = p.token;
-  var prim;
-  var exit = 0;
-  if (typeof s === "number" || s.TAG !== /* String */3) {
-    exit = 1;
-  } else {
-    Res_parser.next(undefined, p);
-    prim = {
-      hd: s._0,
-      tl: /* [] */0
-    };
-  }
-  if (exit === 1) {
-    Res_parser.err(equalStart, equalEnd, p, Res_diagnostics.message("An external requires the name of the JS value you're referring to, like \"" + (name.txt + "\".")));
-    prim = /* [] */0;
-  }
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  var vb = Ast_helper.Val.mk(loc, attrs, undefined, prim, name, typExpr);
   Res_parser.eatBreadcrumb(p);
-  return vb;
-}
-
-function parseNewlineOrSemicolonStructure(p) {
-  var token = p.token;
-  if (token === 8) {
-    return Res_parser.next(undefined, p);
-  } else if (Res_grammar.isStructureItemStart(token) && p.prevEndPos.pos_lnum >= p.startPos.pos_lnum) {
-    return Res_parser.err(p.prevEndPos, p.endPos, p, Res_diagnostics.message("consecutive statements on a line must be separated by ';' or a newline"));
-  } else {
-    return ;
-  }
-}
-
-function parseTypeDefinitionOrExtension(attrs, p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Typ */60, p);
-  var match = p.token;
-  var recFlag;
-  if (typeof match === "number") {
-    if (match === /* Rec */11) {
-      Res_parser.next(undefined, p);
-      recFlag = /* Recursive */1;
-    } else {
-      recFlag = /* Nonrecursive */0;
-    }
-  } else if (match.TAG === /* Lident */4 && match._0 === "nonrec") {
-    Res_parser.next(undefined, p);
-    recFlag = /* Nonrecursive */0;
-  } else {
-    recFlag = /* Nonrecursive */0;
-  }
-  var name = parseValuePath(p);
-  var params = parseTypeParams(name, p);
-  var match$1 = p.token;
-  if (match$1 === 39) {
-    return {
-            TAG: /* TypeExt */1,
-            _0: parseTypeExtension(params, attrs, name, p)
-          };
-  }
-  var longident = name.txt;
-  var exit = 0;
-  switch (longident.TAG | 0) {
-    case /* Lident */0 :
-        break;
-    case /* Ldot */1 :
-    case /* Lapply */2 :
-        exit = 1;
-        break;
-    
-  }
-  if (exit === 1) {
-    Res_parser.err(name.loc.loc_start, name.loc.loc_end, p, Res_diagnostics.message(typeDeclarationNameLongident(longident)));
-  }
-  var typeDefs = parseTypeDefinitions(attrs, name, params, startPos, p);
-  return {
-          TAG: /* TypeDef */0,
-          recFlag: recFlag,
-          types: typeDefs
-        };
-}
-
-function parseExtension(moduleLanguageOpt, p) {
-  var moduleLanguage = moduleLanguageOpt !== undefined ? moduleLanguageOpt : false;
-  var startPos = p.startPos;
-  if (moduleLanguage) {
-    Res_parser.expect(undefined, /* PercentPercent */78, p);
-  } else {
-    Res_parser.expect(undefined, /* Percent */77, p);
-  }
-  var attrId = parseAttributeId(startPos, p);
-  var payload = parsePayload(p);
-  return [
-          attrId,
-          payload
-        ];
-}
-
-function parseIncludeStatement(attrs, p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Include */64, p);
-  var modExpr = parseModuleExpr(p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Incl.mk(loc, attrs, undefined, modExpr);
-}
-
-function parseJsImport(startPos, attrs, p) {
-  Res_parser.expect(undefined, /* Import */83, p);
-  var match = p.token;
-  var importSpec;
-  var exit = 0;
-  if (typeof match === "number") {
-    if (match === /* At */75) {
-      exit = 1;
-    } else {
-      importSpec = {
-        TAG: /* Spec */1,
-        _0: parseJsFfiDeclarations(p)
-      };
-    }
-  } else if (match.TAG === /* Lident */4) {
-    exit = 1;
-  } else {
-    importSpec = {
-      TAG: /* Spec */1,
-      _0: parseJsFfiDeclarations(p)
-    };
-  }
-  if (exit === 1) {
-    var decl = parseJsFfiDeclaration(p);
-    var decl$1;
-    if (decl !== undefined) {
-      decl$1 = decl;
-    } else {
-      throw {
-            RE_EXN_ID: "Assert_failure",
-            _1: [
-              "res_core.res",
-              6159,
-              14
-            ],
-            Error: new Error()
-          };
-    }
-    importSpec = {
-      TAG: /* Default */0,
-      _0: decl$1
-    };
-  }
-  var scope = parseJsFfiScope(p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Res_js_ffi.importDescr(attrs, scope, importSpec, loc);
-}
-
-function parseRecordPatternField(p) {
-  var label = parseValuePath(p);
-  var match = p.token;
-  var pattern = match === 24 ? (Res_parser.next(undefined, p), parsePattern(undefined, undefined, p)) : Ast_helper.Pat.$$var(label.loc, undefined, $$Location.mkloc(Longident.last(label.txt), label.loc));
-  return [
-          label,
-          pattern
-        ];
+  return overParseConstrainedOrCoercedOrArrowExpression(p, blockExpr);
 }
 
 function parseTypeParam(p) {
@@ -4658,1164 +2743,80 @@ function parseTypeParam(p) {
         ];
 }
 
-function parseTypeConstructorArgs(constrName, p) {
-  var opening = p.token;
-  var openingStartPos = p.startPos;
-  if (typeof opening !== "number") {
-    return /* [] */0;
-  }
-  if (opening !== 18 && opening !== 42) {
-    return /* [] */0;
-  }
-  Res_scanner.setDiamondMode(p.scanner);
-  Res_parser.next(undefined, p);
-  var typeArgs = parseCommaDelimitedRegion(p, /* TypExprList */39, /* GreaterThan */41, parseTypeConstructorArgRegion);
-  var match = p.token;
-  if (match === 19 && opening === /* Lparen */18) {
-    var typ = Ast_helper.Typ.constr(undefined, undefined, constrName, typeArgs);
-    var msg = Res_doc.toString(80, Res_doc.breakableGroup(true, Res_doc.concat({
-                  hd: Res_doc.text("Type parameters require angle brackets:"),
-                  tl: {
-                    hd: Res_doc.indent(Res_doc.concat({
-                              hd: Res_doc.line,
-                              tl: {
-                                hd: Res_printer.printTypExpr(typ, Res_comments_table.empty),
-                                tl: /* [] */0
-                              }
-                            })),
-                    tl: /* [] */0
-                  }
-                })));
-    Res_parser.err(openingStartPos, undefined, p, Res_diagnostics.message(msg));
-    Res_parser.next(undefined, p);
-  } else {
-    Res_parser.expect(undefined, /* GreaterThan */41, p);
-  }
-  Res_scanner.popMode(p.scanner, /* Diamond */1);
-  return typeArgs;
-}
-
-function parseTypeRepresentation(p) {
-  Res_parser.leaveBreadcrumb(p, /* TypeRepresentation */33);
-  var privateFlag = Res_parser.optional(p, /* Private */61) ? /* Private */0 : /* Public */1;
-  var token = p.token;
-  var kind;
-  var exit = 0;
-  if (typeof token === "number") {
-    switch (token) {
-      case /* DotDot */5 :
-          Res_parser.next(undefined, p);
-          kind = /* Ptype_open */1;
-          break;
-      case /* Bar */17 :
-          kind = {
-            TAG: /* Ptype_variant */0,
-            _0: parseTypeConstructorDeclarations(undefined, p)
-          };
-          break;
-      case /* Lbrace */22 :
-          kind = {
-            TAG: /* Ptype_record */1,
-            _0: parseRecordDeclaration(p)
-          };
-          break;
-      default:
-        exit = 1;
-    }
-  } else if (token.TAG === /* Uident */5) {
-    kind = {
-      TAG: /* Ptype_variant */0,
-      _0: parseTypeConstructorDeclarations(undefined, p)
-    };
-  } else {
-    exit = 1;
-  }
-  if (exit === 1) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-    kind = {
-      TAG: /* Ptype_variant */0,
-      _0: /* [] */0
-    };
-  }
-  Res_parser.eatBreadcrumb(p);
-  return [
-          privateFlag,
-          kind
-        ];
-}
-
-function parseTypeConstructorDeclarations(first, p) {
-  var firstConstrDecl;
-  if (first !== undefined) {
-    firstConstrDecl = first;
-  } else {
-    var startPos = p.startPos;
-    Res_parser.optional(p, /* Bar */17);
-    firstConstrDecl = parseTypeConstructorDeclaration(startPos, p);
-  }
-  return {
-          hd: firstConstrDecl,
-          tl: parseRegion(p, /* ConstructorDeclaration */35, parseTypeConstructorDeclarationWithBar)
-        };
-}
-
-function parseParameterList(p) {
-  var parameters = parseCommaDelimitedRegion(p, /* ParameterList */36, /* Rparen */19, parseParameter);
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  return parameters;
-}
-
-function parseTypeConstraint(p) {
+function parseModuleTypeOf(p) {
   var startPos = p.startPos;
-  var match = p.token;
-  if (match !== 63) {
-    return ;
-  }
-  Res_parser.next(undefined, p);
-  Res_parser.expect(undefined, /* SingleQuote */13, p);
-  var ident = p.token;
-  if (typeof ident !== "number" && ident.TAG === /* Lident */4) {
-    var identLoc_loc_end = p.endPos;
-    var identLoc = {
-      loc_start: startPos,
-      loc_end: identLoc_loc_end,
-      loc_ghost: false
-    };
-    Res_parser.next(undefined, p);
-    Res_parser.expect(undefined, /* Equal */14, p);
-    var typ = parseTypExpr(undefined, undefined, undefined, p);
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: startPos,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    return [
-            Ast_helper.Typ.$$var(identLoc, undefined, ident._0),
-            typ,
-            loc
-          ];
-  }
-  Res_parser.err(undefined, undefined, p, Res_diagnostics.lident(ident));
-  var loc_loc_end$1 = p.prevEndPos;
-  var loc$1 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$1,
-    loc_ghost: false
-  };
-  return [
-          Ast_helper.Typ.any(undefined, undefined, undefined),
-          parseTypExpr(undefined, undefined, undefined, p),
-          loc$1
-        ];
+  Res_parser.expect(undefined, /* Module */65, p);
+  Res_parser.expect(undefined, /* Typ */60, p);
+  Res_parser.expect(undefined, /* Of */66, p);
+  var moduleExpr = parseModuleExpr(p);
+  return Ast_helper.Mty.typeof_({
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, undefined, moduleExpr);
 }
 
-function parseAttributesAndBinding(p) {
-  var err = p.scanner.err;
-  var ch = p.scanner.ch;
-  var offset = p.scanner.offset;
-  var lineOffset = p.scanner.lineOffset;
-  var lnum = p.scanner.lnum;
-  var mode = p.scanner.mode;
-  var token = p.token;
-  var startPos = p.startPos;
-  var endPos = p.endPos;
-  var prevEndPos = p.prevEndPos;
-  var breadcrumbs = p.breadcrumbs;
-  var errors = p.errors;
-  var diagnostics = p.diagnostics;
-  var comments = p.comments;
-  var match = p.token;
-  if (match !== 75) {
-    return /* [] */0;
-  }
+function parseModuleType(es6ArrowOpt, with_Opt, p) {
+  var es6Arrow = es6ArrowOpt !== undefined ? es6ArrowOpt : true;
+  var with_ = with_Opt !== undefined ? with_Opt : true;
   var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var match$1 = p.token;
-  if (match$1 === 10) {
-    return attrs;
+  var modty;
+  if (es6Arrow && isEs6ArrowFunctor(p)) {
+    modty = parseFunctorModuleType(p);
   } else {
-    p.scanner.err = err;
-    p.scanner.ch = ch;
-    p.scanner.offset = offset;
-    p.scanner.lineOffset = lineOffset;
-    p.scanner.lnum = lnum;
-    p.scanner.mode = mode;
-    p.token = token;
-    p.startPos = startPos;
-    p.endPos = endPos;
-    p.prevEndPos = prevEndPos;
-    p.breadcrumbs = breadcrumbs;
-    p.errors = errors;
-    p.diagnostics = diagnostics;
-    p.comments = comments;
-    return /* [] */0;
-  }
-}
-
-function parseTypeDef(attrs, startPos, p) {
-  Res_parser.leaveBreadcrumb(p, /* TypeDef */28);
-  Res_parser.leaveBreadcrumb(p, /* TypeConstrName */29);
-  var match = parseLident(p);
-  var loc = match[1];
-  var name = match[0];
-  var typeConstrName = $$Location.mkloc(name, loc);
-  Res_parser.eatBreadcrumb(p);
-  var constrName = $$Location.mkloc({
-        TAG: /* Lident */0,
-        _0: name
-      }, loc);
-  var params = parseTypeParams(constrName, p);
-  var match$1 = parseTypeEquationAndRepresentation(p);
-  var cstrs = parseRegion(p, /* TypeConstraint */51, parseTypeConstraint);
-  var loc_loc_end = p.prevEndPos;
-  var loc$1 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  var typeDef = Ast_helper.Type.mk(loc$1, attrs, undefined, undefined, params, cstrs, match$1[2], match$1[1], match$1[0], typeConstrName);
-  Res_parser.eatBreadcrumb(p);
-  return typeDef;
-}
-
-function parseTypeEquationAndRepresentation(p) {
-  var token = p.token;
-  var exit = 0;
-  if (typeof token !== "number") {
-    return [
-            undefined,
-            /* Public */1,
-            /* Ptype_abstract */0
-          ];
-  }
-  if (token !== 14) {
-    if (token !== 17) {
-      return [
-              undefined,
-              /* Public */1,
-              /* Ptype_abstract */0
-            ];
-    }
-    exit = 1;
-  } else {
-    exit = 1;
-  }
-  if (exit === 1) {
-    if (token === /* Bar */17) {
-      Res_parser.expect(undefined, /* Equal */14, p);
-    }
-    Res_parser.next(undefined, p);
+    var modty$1 = parseAtomicModuleType(p);
     var match = p.token;
-    var exit$1 = 0;
-    if (typeof match === "number") {
-      switch (match) {
-        case /* DotDot */5 :
-        case /* Bar */17 :
-            exit$1 = 3;
-            break;
-        case /* Lbrace */22 :
-            return parseRecordOrObjectDecl(p);
-        case /* Private */61 :
-            return parsePrivateEqOrRepr(p);
-        default:
-          exit$1 = 2;
-      }
-    } else {
-      if (match.TAG === /* Uident */5) {
-        return parseTypeEquationOrConstrDecl(p);
-      }
-      exit$1 = 2;
-    }
-    switch (exit$1) {
-      case 2 :
-          var manifest = parseTypExpr(undefined, undefined, undefined, p);
-          var match$1 = p.token;
-          if (match$1 !== 14) {
-            return [
-                    manifest,
-                    /* Public */1,
-                    /* Ptype_abstract */0
-                  ];
-          }
-          Res_parser.next(undefined, p);
-          var match$2 = parseTypeRepresentation(p);
-          return [
-                  manifest,
-                  match$2[0],
-                  match$2[1]
-                ];
-      case 3 :
-          var match$3 = parseTypeRepresentation(p);
-          return [
-                  undefined,
-                  match$3[0],
-                  match$3[1]
-                ];
-      
-    }
-  }
-  
-}
-
-function parseIfLetExpr(startPos, p) {
-  var pattern = parsePattern(undefined, undefined, p);
-  Res_parser.expect(undefined, /* Equal */14, p);
-  var conditionExpr = parseIfCondition(p);
-  var thenExpr = parseThenBranch(p);
-  var match = p.token;
-  var elseExpr;
-  Res_parser.endRegion(p);
-  if (match === 51) {
-    Res_parser.leaveBreadcrumb(p, /* ElseBranch */19);
-    Res_parser.next(undefined, p);
-    Res_parser.beginRegion(p);
-    var match$1 = p.token;
-    var elseExpr$1 = match$1 === 50 ? parseIfOrIfLetExpression(p) : parseElseBranch(p);
-    Res_parser.eatBreadcrumb(p);
-    Res_parser.endRegion(p);
-    elseExpr = elseExpr$1;
-  } else {
-    var startPos$1 = p.startPos;
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: startPos$1,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    elseExpr = Ast_helper.Exp.construct(loc, undefined, $$Location.mkloc({
-              TAG: /* Lident */0,
-              _0: "()"
-            }, loc), undefined);
-  }
-  var loc_loc_end$1 = p.prevEndPos;
-  var loc$1 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$1,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.match_(loc$1, {
-              hd: ifLetAttr,
-              tl: {
-                hd: suppressFragileMatchWarningAttr,
-                tl: /* [] */0
-              }
-            }, conditionExpr, {
-              hd: Ast_helper.Exp.$$case(pattern, undefined, thenExpr),
-              tl: {
-                hd: Ast_helper.Exp.$$case(Ast_helper.Pat.any(undefined, undefined, undefined), undefined, elseExpr),
-                tl: /* [] */0
-              }
-            });
-}
-
-function parseIfExpr(startPos, p) {
-  var conditionExpr = parseIfCondition(p);
-  var thenExpr = parseThenBranch(p);
-  var match = p.token;
-  var elseExpr;
-  Res_parser.endRegion(p);
-  if (match === 51) {
-    Res_parser.leaveBreadcrumb(p, /* ElseBranch */19);
-    Res_parser.next(undefined, p);
-    Res_parser.beginRegion(p);
-    var match$1 = p.token;
-    var elseExpr$1 = match$1 === 50 ? parseIfOrIfLetExpression(p) : parseElseBranch(p);
-    Res_parser.eatBreadcrumb(p);
-    Res_parser.endRegion(p);
-    elseExpr = elseExpr$1;
-  } else {
-    elseExpr = undefined;
-  }
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.ifthenelse(loc, undefined, conditionExpr, thenExpr, elseExpr);
-}
-
-function parseRecordOrObjectDecl(p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var match = p.token;
-  var exit = 0;
-  if (typeof match === "number") {
-    if (match >= 6) {
-      if (match >= 7) {
-        exit = 1;
-      } else {
-        var dotdotdotStart = p.startPos;
-        var dotdotdotEnd = p.endPos;
-        Res_parser.next(undefined, p);
-        var typ = parseTypExpr(undefined, undefined, undefined, p);
-        var match$1 = p.token;
-        if (match$1 === 23) {
-          Res_parser.err(dotdotdotStart, dotdotdotEnd, p, Res_diagnostics.message(sameTypeSpread));
-          Res_parser.next(undefined, p);
-        } else {
-          Res_parser.expect(undefined, /* Comma */25, p);
-        }
-        var match$2 = p.token;
-        if (typeof match$2 !== "number" && match$2.TAG === /* Lident */4) {
-          Res_parser.err(dotdotdotStart, dotdotdotEnd, p, Res_diagnostics.message(spreadInRecordDeclaration));
-        }
-        var fields_0 = {
-          TAG: /* Oinherit */1,
-          _0: typ
-        };
-        var fields_1 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
-        var fields = {
-          hd: fields_0,
-          tl: fields_1
-        };
-        Res_parser.expect(undefined, /* Rbrace */23, p);
-        var loc_loc_end = p.prevEndPos;
-        var loc = {
-          loc_start: startPos,
-          loc_end: loc_loc_end,
-          loc_ghost: false
-        };
-        var typ$1 = parseTypeAlias(p, Ast_helper.Typ.object_(loc, undefined, fields, /* Closed */0));
-        var typ$2 = parseArrowTypeRest(true, startPos, typ$1, p);
-        return [
-                typ$2,
-                /* Public */1,
-                /* Ptype_abstract */0
-              ];
-      }
-    } else {
-      if (match >= 4) {
-        var match$3 = p.token;
-        var closedFlag = typeof match$3 === "number" ? (
-            match$3 !== 4 ? (
-                match$3 !== 5 ? /* Closed */0 : (Res_parser.next(undefined, p), /* Open */1)
-              ) : (Res_parser.next(undefined, p), /* Closed */0)
-          ) : /* Closed */0;
-        var fields$1 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
-        Res_parser.expect(undefined, /* Rbrace */23, p);
-        var loc_loc_end$1 = p.prevEndPos;
-        var loc$1 = {
-          loc_start: startPos,
-          loc_end: loc_loc_end$1,
-          loc_ghost: false
-        };
-        var typ$3 = parseTypeAlias(p, Ast_helper.Typ.object_(loc$1, /* [] */0, fields$1, closedFlag));
-        var typ$4 = parseArrowTypeRest(true, startPos, typ$3, p);
-        return [
-                typ$4,
-                /* Public */1,
-                /* Ptype_abstract */0
-              ];
-      }
-      exit = 1;
-    }
-  } else {
-    exit = 1;
-  }
-  if (exit === 1) {
-    var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-    var match$4 = p.token;
-    var exit$1 = 0;
-    if (typeof match$4 === "number") {
-      exit$1 = 2;
-    } else {
-      if (match$4.TAG === /* String */3) {
-        var fields$2;
-        if (attrs) {
-          Res_parser.leaveBreadcrumb(p, /* StringFieldDeclarations */37);
-          var field = parseStringFieldDeclaration(p);
-          var field$1;
-          if (field !== undefined) {
-            field$1 = field;
-          } else {
-            throw {
-                  RE_EXN_ID: "Assert_failure",
-                  _1: [
-                    "res_core.res",
-                    5486,
-                    20
-                  ],
-                  Error: new Error()
-                };
-          }
-          var match$5 = p.token;
-          if (typeof match$5 === "number") {
-            if (match$5 >= 24) {
-              if (match$5 >= 27) {
-                Res_parser.expect(undefined, /* Comma */25, p);
-              } else {
-                switch (match$5) {
-                  case /* Colon */24 :
-                      Res_parser.expect(undefined, /* Comma */25, p);
-                      break;
-                  case /* Comma */25 :
-                      Res_parser.next(undefined, p);
-                      break;
-                  case /* Eof */26 :
-                      break;
-                  
-                }
-              }
-            } else if (match$5 >= 23) {
-              
-            } else {
-              Res_parser.expect(undefined, /* Comma */25, p);
-            }
-          } else {
-            Res_parser.expect(undefined, /* Comma */25, p);
-          }
-          Res_parser.eatBreadcrumb(p);
-          var first;
-          first = field$1.TAG === /* Otag */0 ? ({
-                TAG: /* Otag */0,
-                _0: field$1._0,
-                _1: attrs,
-                _2: field$1._2
-              }) : ({
-                TAG: /* Oinherit */1,
-                _0: field$1._0
-              });
-          fields$2 = {
-            hd: first,
-            tl: parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration)
-          };
-        } else {
-          fields$2 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
-        }
-        Res_parser.expect(undefined, /* Rbrace */23, p);
-        var loc_loc_end$2 = p.prevEndPos;
-        var loc$2 = {
-          loc_start: startPos,
-          loc_end: loc_loc_end$2,
-          loc_ghost: false
-        };
-        var typ$5 = parseTypeAlias(p, Ast_helper.Typ.object_(loc$2, /* [] */0, fields$2, /* Closed */0));
-        var typ$6 = parseArrowTypeRest(true, startPos, typ$5, p);
-        return [
-                typ$6,
-                /* Public */1,
-                /* Ptype_abstract */0
-              ];
-      }
-      exit$1 = 2;
-    }
-    if (exit$1 === 2) {
-      Res_parser.leaveBreadcrumb(p, /* RecordDecl */34);
-      var fields$3;
-      if (attrs) {
-        var field$2 = parseFieldDeclaration(p);
-        Res_parser.optional(p, /* Comma */25);
-        var init = field$2.pld_loc;
-        var first_pld_name = field$2.pld_name;
-        var first_pld_mutable = field$2.pld_mutable;
-        var first_pld_type = field$2.pld_type;
-        var first_pld_loc = {
-          loc_start: attrs.hd[0].loc.loc_start,
-          loc_end: init.loc_end,
-          loc_ghost: init.loc_ghost
-        };
-        var first$1 = {
-          pld_name: first_pld_name,
-          pld_mutable: first_pld_mutable,
-          pld_type: first_pld_type,
-          pld_loc: first_pld_loc,
-          pld_attributes: attrs
-        };
-        fields$3 = {
-          hd: first$1,
-          tl: parseCommaDelimitedRegion(p, /* FieldDeclarations */38, /* Rbrace */23, parseFieldDeclarationRegion)
-        };
-      } else {
-        fields$3 = parseCommaDelimitedRegion(p, /* FieldDeclarations */38, /* Rbrace */23, parseFieldDeclarationRegion);
-      }
-      if (fields$3) {
-        
-      } else {
-        Res_parser.err(startPos, undefined, p, Res_diagnostics.message("A record needs at least one field"));
-      }
-      Res_parser.expect(undefined, /* Rbrace */23, p);
-      Res_parser.eatBreadcrumb(p);
-      return [
-              undefined,
-              /* Public */1,
-              {
-                TAG: /* Ptype_record */1,
-                _0: fields$3
-              }
-            ];
-    }
-    
-  }
-  
-}
-
-function parseTypeEquationOrConstrDecl(p) {
-  var uidentStartPos = p.startPos;
-  var uident = p.token;
-  if (typeof uident !== "number" && uident.TAG === /* Uident */5) {
-    var uident$1 = uident._0;
-    Res_parser.next(undefined, p);
-    var match = p.token;
-    if (match === 4) {
+    if (match === 57 && es6Arrow === true) {
       Res_parser.next(undefined, p);
-      var typeConstr = parseValuePathTail(p, uidentStartPos, {
-            TAG: /* Lident */0,
-            _0: uident$1
-          });
+      var rhs = parseModuleType(undefined, false, p);
+      var str = $$Location.mknoloc("_");
+      var loc_loc_start = modty$1.pmty_loc.loc_start;
       var loc_loc_end = p.prevEndPos;
       var loc = {
-        loc_start: uidentStartPos,
+        loc_start: loc_loc_start,
         loc_end: loc_loc_end,
         loc_ghost: false
       };
-      var typ = parseTypeAlias(p, Ast_helper.Typ.constr(loc, undefined, typeConstr, parseTypeConstructorArgs(typeConstr, p)));
-      var match$1 = p.token;
-      if (typeof match$1 !== "number") {
-        return [
-                typ,
-                /* Public */1,
-                /* Ptype_abstract */0
-              ];
-      }
-      if (match$1 !== 14) {
-        if (match$1 !== 57) {
-          return [
-                  typ,
-                  /* Public */1,
-                  /* Ptype_abstract */0
-                ];
-        }
-        Res_parser.next(undefined, p);
-        var returnType = parseTypExpr(undefined, undefined, false, p);
-        var loc_loc_end$1 = p.prevEndPos;
-        var loc$1 = {
-          loc_start: uidentStartPos,
-          loc_end: loc_loc_end$1,
-          loc_ghost: false
-        };
-        var arrowType = Ast_helper.Typ.arrow(loc$1, undefined, /* Nolabel */0, typ, returnType);
-        var typ$1 = parseTypeAlias(p, arrowType);
-        return [
-                typ$1,
-                /* Public */1,
-                /* Ptype_abstract */0
-              ];
-      }
-      Res_parser.next(undefined, p);
-      var match$2 = parseTypeRepresentation(p);
-      return [
-              typ,
-              match$2[0],
-              match$2[1]
-            ];
-    }
-    var uidentEndPos = p.prevEndPos;
-    var match$3 = parseConstrDeclArgs(p);
-    var uidentLoc = {
-      loc_start: uidentStartPos,
-      loc_end: uidentEndPos,
-      loc_ghost: false
-    };
-    var first = Ast_helper.Type.constructor({
-          loc_start: uidentStartPos,
-          loc_end: p.prevEndPos,
-          loc_ghost: false
-        }, undefined, undefined, match$3[0], match$3[1], $$Location.mkloc(uident$1, uidentLoc));
-    return [
-            undefined,
-            /* Public */1,
-            {
-              TAG: /* Ptype_variant */0,
-              _0: parseTypeConstructorDeclarations(first, p)
-            }
-          ];
-  }
-  Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(uident));
-  return [
-          undefined,
-          /* Public */1,
-          /* Ptype_abstract */0
-        ];
-}
-
-function parseJsFfiDeclaration(p) {
-  var startPos = p.startPos;
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var match = p.token;
-  if (typeof match === "number") {
-    return ;
-  }
-  if (match.TAG !== /* Lident */4) {
-    return ;
-  }
-  var match$1 = parseLident(p);
-  var ident = match$1[0];
-  var match$2 = p.token;
-  var alias = match$2 === 3 ? (Res_parser.next(undefined, p), parseLident(p)[0]) : ident;
-  Res_parser.expect(undefined, /* Colon */24, p);
-  var typ = parseTypExpr(undefined, undefined, undefined, p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Res_js_ffi.decl(attrs, loc, ident, alias, typ);
-}
-
-function parseWithConstraint(p) {
-  var token = p.token;
-  if (typeof token === "number") {
-    if (token !== 60) {
-      if (token === 65) {
-        Res_parser.next(undefined, p);
-        var modulePath = parseModuleLongIdent(false, p);
-        var token$1 = p.token;
-        var exit = 0;
-        if (typeof token$1 === "number") {
-          if (token$1 !== 14) {
-            if (token$1 !== 74) {
-              exit = 2;
-            } else {
-              Res_parser.next(undefined, p);
-              var lident = parseModuleLongIdent(false, p);
-              return {
-                      TAG: /* Pwith_modsubst */3,
-                      _0: modulePath,
-                      _1: lident
-                    };
-            }
-          } else {
-            Res_parser.next(undefined, p);
-            var lident$1 = parseModuleLongIdent(false, p);
-            return {
-                    TAG: /* Pwith_module */1,
-                    _0: modulePath,
-                    _1: lident$1
-                  };
-          }
-        } else {
-          exit = 2;
-        }
-        if (exit === 2) {
-          Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token$1, p.breadcrumbs));
-          var lident$2 = parseModuleLongIdent(false, p);
-          return {
-                  TAG: /* Pwith_modsubst */3,
-                  _0: modulePath,
-                  _1: lident$2
-                };
-        }
-        
-      }
-      
+      modty = Ast_helper.Mty.functor_(loc, undefined, str, modty$1, rhs);
     } else {
-      Res_parser.next(undefined, p);
-      var typeConstr = parseValuePath(p);
-      var params = parseTypeParams(typeConstr, p);
-      var token$2 = p.token;
-      var exit$1 = 0;
-      if (typeof token$2 === "number") {
-        if (token$2 !== 14) {
-          if (token$2 !== 74) {
-            exit$1 = 2;
-          } else {
-            Res_parser.next(undefined, p);
-            var typExpr = parseTypExpr(undefined, undefined, undefined, p);
-            return {
-                    TAG: /* Pwith_typesubst */2,
-                    _0: typeConstr,
-                    _1: Ast_helper.Type.mk(typeConstr.loc, undefined, undefined, undefined, params, undefined, undefined, undefined, typExpr, $$Location.mkloc(Longident.last(typeConstr.txt), typeConstr.loc))
-                  };
-          }
-        } else {
-          Res_parser.next(undefined, p);
-          var typExpr$1 = parseTypExpr(undefined, undefined, undefined, p);
-          var typeConstraints = parseRegion(p, /* TypeConstraint */51, parseTypeConstraint);
-          return {
-                  TAG: /* Pwith_type */0,
-                  _0: typeConstr,
-                  _1: Ast_helper.Type.mk(typeConstr.loc, undefined, undefined, undefined, params, typeConstraints, undefined, undefined, typExpr$1, $$Location.mkloc(Longident.last(typeConstr.txt), typeConstr.loc))
-                };
-        }
-      } else {
-        exit$1 = 2;
-      }
-      if (exit$1 === 2) {
-        Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token$2, p.breadcrumbs));
-        var typExpr$2 = parseTypExpr(undefined, undefined, undefined, p);
-        var typeConstraints$1 = parseRegion(p, /* TypeConstraint */51, parseTypeConstraint);
-        return {
-                TAG: /* Pwith_type */0,
-                _0: typeConstr,
-                _1: Ast_helper.Type.mk(typeConstr.loc, undefined, undefined, undefined, params, typeConstraints$1, undefined, undefined, typExpr$2, $$Location.mkloc(Longident.last(typeConstr.txt), typeConstr.loc))
-              };
-      }
-      
+      modty = modty$1;
     }
   }
-  Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-  return {
-          TAG: /* Pwith_type */0,
-          _0: $$Location.mknoloc({
-                TAG: /* Lident */0,
-                _0: ""
-              }),
-          _1: Ast_helper.Type.mk(undefined, undefined, undefined, undefined, /* [] */0, /* [] */0, undefined, undefined, defaultType(undefined), $$Location.mknoloc(""))
-        };
-}
-
-function parseTypeParameter(p) {
-  if (!(p.token === /* Tilde */48 || p.token === /* Dot */4 || Res_grammar.isTypExprStart(p.token))) {
-    return ;
-  }
-  var startPos = p.startPos;
-  var uncurried = Res_parser.optional(p, /* Dot */4);
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var match = p.token;
-  if (typeof match === "number") {
-    if (match === /* Tilde */48) {
-      Res_parser.next(undefined, p);
-      var match$1 = parseLident(p);
-      var name = match$1[0];
-      var lblLocAttr_0 = $$Location.mkloc("ns.namedArgLoc", match$1[1]);
-      var lblLocAttr_1 = {
-        TAG: /* PStr */0,
-        _0: /* [] */0
-      };
-      var lblLocAttr = [
-        lblLocAttr_0,
-        lblLocAttr_1
-      ];
-      Res_parser.expect(/* TypeExpression */20, /* Colon */24, p);
-      var typ = parseTypExpr(undefined, undefined, undefined, p);
-      var typ_ptyp_desc = typ.ptyp_desc;
-      var typ_ptyp_loc = typ.ptyp_loc;
-      var typ_ptyp_attributes = {
-        hd: lblLocAttr,
-        tl: typ.ptyp_attributes
-      };
-      var typ$1 = {
-        ptyp_desc: typ_ptyp_desc,
-        ptyp_loc: typ_ptyp_loc,
-        ptyp_attributes: typ_ptyp_attributes
-      };
-      var match$2 = p.token;
-      if (match$2 === 14) {
-        Res_parser.next(undefined, p);
-        Res_parser.expect(undefined, /* Question */49, p);
-        return [
-                uncurried,
-                attrs,
-                {
-                  TAG: /* Optional */1,
-                  _0: name
-                },
-                typ$1,
-                startPos
-              ];
-      } else {
-        return [
-                uncurried,
-                attrs,
-                {
-                  TAG: /* Labelled */0,
-                  _0: name
-                },
-                typ$1,
-                startPos
-              ];
-      }
-    }
-    
-  } else if (match.TAG === /* Lident */4) {
-    var match$3 = parseLident(p);
-    var loc = match$3[1];
-    var name$1 = match$3[0];
-    var match$4 = p.token;
-    if (match$4 === 24) {
-      var error = Res_diagnostics.message(missingTildeLabeledParameter(name$1));
-      Res_parser.err(loc.loc_start, loc.loc_end, p, error);
-      Res_parser.next(undefined, p);
-      var typ$2 = parseTypExpr(undefined, undefined, undefined, p);
-      var match$5 = p.token;
-      if (match$5 === 14) {
-        Res_parser.next(undefined, p);
-        Res_parser.expect(undefined, /* Question */49, p);
-        return [
-                uncurried,
-                attrs,
-                {
-                  TAG: /* Optional */1,
-                  _0: name$1
-                },
-                typ$2,
-                startPos
-              ];
-      } else {
-        return [
-                uncurried,
-                attrs,
-                {
-                  TAG: /* Labelled */0,
-                  _0: name$1
-                },
-                typ$2,
-                startPos
-              ];
-      }
-    }
-    var constr = $$Location.mkloc({
-          TAG: /* Lident */0,
-          _0: name$1
-        }, loc);
-    var args = parseTypeConstructorArgs(constr, p);
-    var typ$3 = Ast_helper.Typ.constr({
-          loc_start: startPos,
-          loc_end: p.prevEndPos,
-          loc_ghost: false
-        }, attrs, constr, args);
-    var typ$4 = parseArrowTypeRest(true, startPos, typ$3, p);
-    var typ$5 = parseTypeAlias(p, typ$4);
-    return [
-            uncurried,
-            /* [] */0,
-            /* Nolabel */0,
-            typ$5,
-            startPos
-          ];
-  }
-  var typ$6 = parseTypExpr(undefined, undefined, undefined, p);
-  var typWithAttributes_ptyp_desc = typ$6.ptyp_desc;
-  var typWithAttributes_ptyp_loc = typ$6.ptyp_loc;
-  var typWithAttributes_ptyp_attributes = List.concat({
-        hd: attrs,
+  var moduleType_pmty_desc = modty.pmty_desc;
+  var moduleType_pmty_loc = modty.pmty_loc;
+  var moduleType_pmty_attributes = List.concat({
+        hd: modty.pmty_attributes,
         tl: {
-          hd: typ$6.ptyp_attributes,
+          hd: attrs,
           tl: /* [] */0
         }
       });
-  var typWithAttributes = {
-    ptyp_desc: typWithAttributes_ptyp_desc,
-    ptyp_loc: typWithAttributes_ptyp_loc,
-    ptyp_attributes: typWithAttributes_ptyp_attributes
+  var moduleType = {
+    pmty_desc: moduleType_pmty_desc,
+    pmty_loc: moduleType_pmty_loc,
+    pmty_attributes: moduleType_pmty_attributes
   };
-  return [
-          uncurried,
-          /* [] */0,
-          /* Nolabel */0,
-          typWithAttributes,
-          startPos
-        ];
+  if (with_) {
+    return parseWithConstraints(moduleType, p);
+  } else {
+    return moduleType;
+  }
 }
 
-function parseRecordDeclaration(p) {
-  Res_parser.leaveBreadcrumb(p, /* RecordDecl */34);
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var rows = parseCommaDelimitedRegion(p, /* RecordDecl */34, /* Rbrace */23, parseFieldDeclarationRegion);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  Res_parser.eatBreadcrumb(p);
-  return rows;
-}
-
-function parseStructureItemRegion(p) {
+function parseExtension(moduleLanguageOpt, p) {
+  var moduleLanguage = moduleLanguageOpt !== undefined ? moduleLanguageOpt : false;
   var startPos = p.startPos;
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var token = p.token;
-  if (typeof token === "number") {
-    if (token >= 10) {
-      if (token !== 27) {
-        if (token >= 59) {
-          switch (token) {
-            case /* External */59 :
-                var externalDef = parseExternalDef(attrs, startPos, p);
-                parseNewlineOrSemicolonStructure(p);
-                var loc_loc_end = p.prevEndPos;
-                var loc = {
-                  loc_start: startPos,
-                  loc_end: loc_loc_end,
-                  loc_ghost: false
-                };
-                return Ast_helper.Str.primitive(loc, externalDef);
-            case /* Typ */60 :
-                Res_parser.beginRegion(p);
-                var ext = parseTypeDefinitionOrExtension(attrs, p);
-                if (ext.TAG === /* TypeDef */0) {
-                  parseNewlineOrSemicolonStructure(p);
-                  var loc_loc_end$1 = p.prevEndPos;
-                  var loc$1 = {
-                    loc_start: startPos,
-                    loc_end: loc_loc_end$1,
-                    loc_ghost: false
-                  };
-                  Res_parser.endRegion(p);
-                  return Ast_helper.Str.type_(loc$1, ext.recFlag, ext.types);
-                }
-                parseNewlineOrSemicolonStructure(p);
-                var loc_loc_end$2 = p.prevEndPos;
-                var loc$2 = {
-                  loc_start: startPos,
-                  loc_end: loc_loc_end$2,
-                  loc_ghost: false
-                };
-                Res_parser.endRegion(p);
-                return Ast_helper.Str.type_extension(loc$2, ext._0);
-            case /* Include */64 :
-                var includeStatement = parseIncludeStatement(attrs, p);
-                parseNewlineOrSemicolonStructure(p);
-                var loc_loc_end$3 = p.prevEndPos;
-                var loc$3 = {
-                  loc_start: startPos,
-                  loc_end: loc_loc_end$3,
-                  loc_ghost: false
-                };
-                return Ast_helper.Str.include_(loc$3, includeStatement);
-            case /* Module */65 :
-                Res_parser.beginRegion(p);
-                var structureItem = parseModuleOrModuleTypeImplOrPackExpr(attrs, p);
-                parseNewlineOrSemicolonStructure(p);
-                var loc_loc_end$4 = p.prevEndPos;
-                var loc$4 = {
-                  loc_start: startPos,
-                  loc_end: loc_loc_end$4,
-                  loc_ghost: false
-                };
-                Res_parser.endRegion(p);
-                return {
-                        pstr_desc: structureItem.pstr_desc,
-                        pstr_loc: loc$4
-                      };
-            case /* AtAt */76 :
-                var attr = parseStandaloneAttribute(p);
-                parseNewlineOrSemicolonStructure(p);
-                var loc_loc_end$5 = p.prevEndPos;
-                var loc$5 = {
-                  loc_start: startPos,
-                  loc_end: loc_loc_end$5,
-                  loc_ghost: false
-                };
-                return Ast_helper.Str.attribute(loc$5, attr);
-            case /* PercentPercent */78 :
-                var extension = parseExtension(true, p);
-                parseNewlineOrSemicolonStructure(p);
-                var loc_loc_end$6 = p.prevEndPos;
-                var loc$6 = {
-                  loc_start: startPos,
-                  loc_end: loc_loc_end$6,
-                  loc_ghost: false
-                };
-                return Ast_helper.Str.extension(loc$6, attrs, extension);
-            case /* Private */61 :
-            case /* Mutable */62 :
-            case /* Constraint */63 :
-            case /* Of */66 :
-            case /* Land */67 :
-            case /* Lor */68 :
-            case /* Band */69 :
-            case /* BangEqual */70 :
-            case /* BangEqualEqual */71 :
-            case /* LessEqual */72 :
-            case /* GreaterEqual */73 :
-            case /* ColonEqual */74 :
-            case /* At */75 :
-            case /* Percent */77 :
-            case /* List */79 :
-            case /* Backtick */80 :
-            case /* BarGreater */81 :
-            case /* Try */82 :
-                break;
-            case /* Import */83 :
-                var importDescr = parseJsImport(startPos, attrs, p);
-                parseNewlineOrSemicolonStructure(p);
-                var loc_loc_end$7 = p.prevEndPos;
-                var loc$7 = {
-                  loc_start: startPos,
-                  loc_end: loc_loc_end$7,
-                  loc_ghost: false
-                };
-                var structureItem$1 = Res_js_ffi.toParsetree(importDescr);
-                return {
-                        pstr_desc: structureItem$1.pstr_desc,
-                        pstr_loc: loc$7
-                      };
-            case /* Export */84 :
-                var structureItem$2 = parseJsExport(attrs, p);
-                parseNewlineOrSemicolonStructure(p);
-                var loc_loc_end$8 = p.prevEndPos;
-                var loc$8 = {
-                  loc_start: startPos,
-                  loc_end: loc_loc_end$8,
-                  loc_ghost: false
-                };
-                return {
-                        pstr_desc: structureItem$2.pstr_desc,
-                        pstr_loc: loc$8
-                      };
-            
-          }
-        }
-        
-      } else {
-        var exceptionDef = parseExceptionDef(attrs, p);
-        parseNewlineOrSemicolonStructure(p);
-        var loc_loc_end$9 = p.prevEndPos;
-        var loc$9 = {
-          loc_start: startPos,
-          loc_end: loc_loc_end$9,
-          loc_ghost: false
-        };
-        return Ast_helper.Str.exception_(loc$9, exceptionDef);
-      }
-    } else if (token !== 0) {
-      if (token >= 9) {
-        var match = parseLetBindings(attrs, p);
-        parseNewlineOrSemicolonStructure(p);
-        var loc_loc_end$10 = p.prevEndPos;
-        var loc$10 = {
-          loc_start: startPos,
-          loc_end: loc_loc_end$10,
-          loc_ghost: false
-        };
-        return Ast_helper.Str.value(loc$10, match[0], match[1]);
-      }
-      
-    } else {
-      var openDescription = parseOpenDescription(attrs, p);
-      parseNewlineOrSemicolonStructure(p);
-      var loc_loc_end$11 = p.prevEndPos;
-      var loc$11 = {
-        loc_start: startPos,
-        loc_end: loc_loc_end$11,
-        loc_ghost: false
-      };
-      return Ast_helper.Str.open_(loc$11, openDescription);
-    }
+  if (moduleLanguage) {
+    Res_parser.expect(undefined, /* PercentPercent */78, p);
+  } else {
+    Res_parser.expect(undefined, /* Percent */77, p);
   }
-  if (Res_grammar.isExprStart(token)) {
-    var prevEndPos = p.endPos;
-    var exp = parseExpr(undefined, p);
-    parseNewlineOrSemicolonStructure(p);
-    var loc_loc_end$12 = p.prevEndPos;
-    var loc$12 = {
-      loc_start: startPos,
-      loc_end: loc_loc_end$12,
-      loc_ghost: false
-    };
-    return Res_parser.checkProgress(prevEndPos, Ast_helper.Str.$$eval(loc$12, attrs, exp), p);
-  }
-  if (!attrs) {
-    return ;
-  }
-  var attr$1 = attrs.hd;
-  var attrLoc = attr$1[0].loc;
-  Res_parser.err(attrLoc.loc_start, attrLoc.loc_end, p, Res_diagnostics.message(attributeWithoutNode(attr$1)));
-  var expr = parseExpr(undefined, p);
-  return Ast_helper.Str.$$eval({
-              loc_start: p.startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, attrs, expr);
+  var attrId = parseAttributeId(startPos, p);
+  var payload = parsePayload(p);
+  return [
+          attrId,
+          payload
+        ];
 }
 
 function parseSignatureItemRegion(p) {
@@ -6037,347 +3038,442 @@ function parseSignatureItemRegion(p) {
   };
 }
 
-function parseNonSpreadExp(msg, p) {
-  var match = p.token;
-  if (match === 6) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.message(msg));
-    Res_parser.next(undefined, p);
+function parsePatternMatching(p) {
+  var cases = parseDelimitedRegion(p, /* PatternMatching */22, /* Rbrace */23, parsePatternMatchCase);
+  if (cases) {
+    
+  } else {
+    Res_parser.err(p.prevEndPos, undefined, p, Res_diagnostics.message("Pattern matching needs at least one case"));
   }
-  var token = p.token;
-  if (!Res_grammar.isExprStart(token)) {
-    return ;
-  }
-  var expr = parseExpr(undefined, p);
-  var match$1 = p.token;
-  if (match$1 !== 24) {
-    return expr;
-  }
-  Res_parser.next(undefined, p);
-  var typ = parseTypExpr(undefined, undefined, undefined, p);
-  var loc_loc_start = expr.pexp_loc.loc_start;
-  var loc_loc_end = typ.ptyp_loc.loc_end;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.constraint_(loc, undefined, expr, typ);
+  return cases;
 }
 
-function parseTypeParameters(p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Lparen */18, p);
+function parsePatternMatchCase(p) {
+  Res_parser.beginRegion(p);
+  Res_parser.leaveBreadcrumb(p, /* PatternMatchCase */23);
   var match = p.token;
-  if (match === 19) {
+  if (match === 17) {
     Res_parser.next(undefined, p);
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: startPos,
-      loc_end: loc_loc_end,
-      loc_ghost: false
+    Res_parser.leaveBreadcrumb(p, /* Pattern */55);
+    var lhs = parsePattern(undefined, undefined, p);
+    Res_parser.eatBreadcrumb(p);
+    var guard = parsePatternGuard(p);
+    var match$1 = p.token;
+    if (match$1 === 57) {
+      Res_parser.next(undefined, p);
+    } else {
+      recoverEqualGreater(p);
+    }
+    var rhs = parseExprBlock(undefined, p);
+    Res_parser.endRegion(p);
+    Res_parser.eatBreadcrumb(p);
+    return Ast_helper.Exp.$$case(lhs, guard, rhs);
+  }
+  Res_parser.endRegion(p);
+  Res_parser.eatBreadcrumb(p);
+}
+
+function parseAttributeId(startPos, p) {
+  var loop = function (p, _acc) {
+    while(true) {
+      var acc = _acc;
+      var token = p.token;
+      var exit = 0;
+      if (typeof token === "number") {
+        exit = 2;
+      } else {
+        switch (token.TAG | 0) {
+          case /* Lident */4 :
+          case /* Uident */5 :
+              exit = 1;
+              break;
+          default:
+            exit = 2;
+        }
+      }
+      switch (exit) {
+        case 1 :
+            Res_parser.next(undefined, p);
+            var id = acc + token._0;
+            var match = p.token;
+            if (match !== 4) {
+              return id;
+            }
+            Res_parser.next(undefined, p);
+            _acc = id + ".";
+            continue ;
+        case 2 :
+            if (Res_token.isKeyword(token)) {
+              Res_parser.next(undefined, p);
+              var id$1 = acc + Res_token.toString(token);
+              var match$1 = p.token;
+              if (match$1 !== 4) {
+                return id$1;
+              }
+              Res_parser.next(undefined, p);
+              _acc = id$1 + ".";
+              continue ;
+            }
+            Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
+            return acc;
+        
+      }
     };
-    var unitConstr = $$Location.mkloc({
-          TAG: /* Lident */0,
-          _0: "unit"
-        }, loc);
-    var typ = Ast_helper.Typ.constr(undefined, undefined, unitConstr, /* [] */0);
+  };
+  var id = loop(p, "");
+  var endPos = p.prevEndPos;
+  return $$Location.mkloc(id, {
+              loc_start: startPos,
+              loc_end: endPos,
+              loc_ghost: false
+            });
+}
+
+function parsePayload(p) {
+  var match = p.token;
+  if (match !== 18) {
     return {
-            hd: [
-              false,
-              /* [] */0,
-              /* Nolabel */0,
-              typ,
-              startPos
-            ],
-            tl: /* [] */0
+            TAG: /* PStr */0,
+            _0: /* [] */0
           };
   }
-  var params = parseCommaDelimitedRegion(p, /* TypeParameters */42, /* Rparen */19, parseTypeParameter);
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  return params;
-}
-
-function parsePatternGuard(p) {
-  var match = p.token;
-  if (typeof match !== "number") {
-    return ;
+  if (p.startPos.pos_cnum !== p.prevEndPos.pos_cnum) {
+    return {
+            TAG: /* PStr */0,
+            _0: /* [] */0
+          };
   }
-  if (match !== 50 && match !== 56) {
-    return ;
-  }
+  Res_parser.leaveBreadcrumb(p, /* AttributePayload */56);
   Res_parser.next(undefined, p);
-  return parseExpr(/* WhenExpr */2, p);
-}
-
-function parseRecModuleDeclaration(attrs, startPos, p) {
-  var modName = p.token;
-  var name;
-  var exit = 0;
-  if (typeof modName === "number" || modName.TAG !== /* Uident */5) {
-    exit = 1;
-  } else {
-    var loc_loc_start = p.startPos;
-    var loc_loc_end = p.endPos;
-    var loc = {
-      loc_start: loc_loc_start,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    Res_parser.next(undefined, p);
-    name = $$Location.mkloc(modName._0, loc);
+  var match$1 = p.token;
+  if (typeof match$1 === "number") {
+    if (match$1 !== 24) {
+      if (match$1 === 49) {
+        Res_parser.next(undefined, p);
+        var pattern = parsePattern(undefined, undefined, p);
+        var match$2 = p.token;
+        var expr;
+        var exit = 0;
+        if (typeof match$2 === "number" && !(match$2 !== 50 && match$2 !== 56)) {
+          exit = 2;
+        } else {
+          expr = undefined;
+        }
+        if (exit === 2) {
+          Res_parser.next(undefined, p);
+          expr = parseExpr(undefined, p);
+        }
+        Res_parser.expect(undefined, /* Rparen */19, p);
+        Res_parser.eatBreadcrumb(p);
+        return {
+                TAG: /* PPat */3,
+                _0: pattern,
+                _1: expr
+              };
+      }
+      
+    } else {
+      Res_parser.next(undefined, p);
+      var payload = Res_grammar.isSignatureItemStart(p.token) ? ({
+            TAG: /* PSig */1,
+            _0: parseDelimitedRegion(p, /* Signature */46, /* Rparen */19, parseSignatureItemRegion)
+          }) : ({
+            TAG: /* PTyp */2,
+            _0: parseTypExpr(undefined, undefined, undefined, p)
+          });
+      Res_parser.expect(undefined, /* Rparen */19, p);
+      Res_parser.eatBreadcrumb(p);
+      return payload;
+    }
   }
-  if (exit === 1) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(modName));
-    name = $$Location.mknoloc("_");
-  }
-  Res_parser.expect(undefined, /* Colon */24, p);
-  var modType = parseModuleType(undefined, undefined, p);
-  return Ast_helper.Md.mk({
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, attrs, undefined, undefined, name, modType);
-}
-
-function parseEs6ArrowExpression(context, parameters, p) {
-  var startPos = p.startPos;
-  Res_parser.leaveBreadcrumb(p, /* Es6ArrowExpr */3);
-  var parameters$1 = parameters !== undefined ? parameters : parseParameters(p);
-  var match = p.token;
-  var returnType = match === 24 ? (Res_parser.next(undefined, p), parseTypExpr(undefined, false, undefined, p)) : undefined;
-  Res_parser.expect(undefined, /* EqualGreater */57, p);
-  var expr = parseExpr(context, p);
-  var body = returnType !== undefined ? Ast_helper.Exp.constraint_({
-          loc_start: expr.pexp_loc.loc_start,
-          loc_end: returnType.ptyp_loc.loc_end,
-          loc_ghost: false
-        }, undefined, expr, returnType) : expr;
+  var items = parseDelimitedRegion(p, /* Structure */48, /* Rparen */19, parseStructureItemRegion);
+  Res_parser.expect(undefined, /* Rparen */19, p);
   Res_parser.eatBreadcrumb(p);
-  var endPos = p.prevEndPos;
-  var arrowExpr = List.fold_right((function (parameter, expr) {
-          if (parameter.TAG === /* TermParameter */0) {
-            var attrs = parameter.attrs;
-            var attrs$1 = parameter.uncurried ? ({
-                  hd: uncurryAttr,
-                  tl: attrs
-                }) : attrs;
-            return Ast_helper.Exp.fun_({
-                        loc_start: parameter.pos,
-                        loc_end: endPos,
-                        loc_ghost: false
-                      }, attrs$1, parameter.label, parameter.expr, parameter.pat, expr);
-          }
-          var attrs$2 = parameter.attrs;
-          var attrs$3 = parameter.uncurried ? ({
-                hd: uncurryAttr,
-                tl: attrs$2
-              }) : attrs$2;
-          return makeNewtypes(attrs$3, {
-                      loc_start: parameter.pos,
-                      loc_end: endPos,
-                      loc_ghost: false
-                    }, parameter.locs, expr);
-        }), parameters$1, body);
-  var init = arrowExpr.pexp_loc;
   return {
-          pexp_desc: arrowExpr.pexp_desc,
-          pexp_loc: {
-            loc_start: startPos,
-            loc_end: init.loc_end,
-            loc_ghost: init.loc_ghost
-          },
-          pexp_attributes: arrowExpr.pexp_attributes
+          TAG: /* PStr */0,
+          _0: items
         };
 }
 
-function parseRecordExprWithStringKeys(startPos, firstRow, p) {
-  var rows_1 = parseCommaDelimitedRegion(p, /* RecordRowsStringKey */44, /* Rbrace */23, parseRecordRowWithStringKey);
-  var rows = {
-    hd: firstRow,
-    tl: rows_1
-  };
-  var loc_loc_end = p.endPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  var recordStrExpr = Ast_helper.Str.$$eval(loc, undefined, Ast_helper.Exp.record(loc, undefined, rows, undefined));
-  return Ast_helper.Exp.extension(loc, undefined, [
-              $$Location.mkloc("obj", loc),
-              {
-                TAG: /* PStr */0,
-                _0: {
-                  hd: recordStrExpr,
-                  tl: /* [] */0
-                }
-              }
-            ]);
-}
-
-function parseRecordExpr(startPos, spreadOpt, rows, p) {
-  var spread = spreadOpt !== undefined ? Caml_option.valFromOption(spreadOpt) : undefined;
-  var exprs = parseCommaDelimitedRegion(p, /* RecordRows */43, /* Rbrace */23, parseRecordRow);
-  var rows$1 = List.concat({
-        hd: rows,
-        tl: {
-          hd: exprs,
-          tl: /* [] */0
-        }
-      });
-  if (rows$1) {
-    
-  } else {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.message("Record spread needs at least one field that's updated"));
-  }
-  var loc_loc_end = p.endPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.record(loc, undefined, rows$1, spread);
-}
-
-function parseValueOrConstructor(p) {
+function parseStructureItemRegion(p) {
   var startPos = p.startPos;
-  var _acc = /* [] */0;
-  while(true) {
-    var acc = _acc;
-    var ident = p.token;
-    if (typeof ident !== "number") {
-      switch (ident.TAG | 0) {
-        case /* Lident */4 :
-            Res_parser.next(undefined, p);
-            var loc_loc_end = p.prevEndPos;
-            var loc = {
-              loc_start: startPos,
-              loc_end: loc_loc_end,
-              loc_ghost: false
-            };
-            var lident = buildLongident({
-                  hd: ident._0,
-                  tl: acc
-                });
-            return Ast_helper.Exp.ident(loc, undefined, $$Location.mkloc(lident, loc));
-        case /* Uident */5 :
-            var ident$1 = ident._0;
-            var endPosLident = p.endPos;
-            Res_parser.next(undefined, p);
-            var match = p.token;
-            var exit = 0;
-            if (typeof match === "number") {
-              if (match !== 4) {
-                if (match !== 18) {
-                  exit = 2;
-                } else {
-                  if (p.prevEndPos.pos_lnum === p.startPos.pos_lnum) {
-                    var lparen = p.startPos;
-                    var args = parseConstructorArgs(p);
-                    var rparen = p.prevEndPos;
-                    var lident$1 = buildLongident({
-                          hd: ident$1,
-                          tl: acc
-                        });
-                    var tail;
-                    var exit$1 = 0;
-                    if (args) {
-                      var arg = args.hd;
-                      var tmp = arg.pexp_desc;
-                      if (typeof tmp === "number") {
-                        if (args.tl) {
-                          exit$1 = 3;
-                        } else {
-                          tail = arg;
-                        }
-                      } else if (tmp.TAG === /* Pexp_tuple */8) {
-                        if (args.tl) {
-                          exit$1 = 3;
-                        } else {
-                          var loc$1 = {
-                            loc_start: lparen,
-                            loc_end: rparen,
-                            loc_ghost: false
-                          };
-                          tail = p.mode === /* ParseForTypeChecker */0 ? arg : Ast_helper.Exp.tuple(loc$1, undefined, args);
-                        }
-                      } else if (args.tl) {
-                        exit$1 = 3;
-                      } else {
-                        tail = arg;
-                      }
-                    } else {
-                      tail = undefined;
-                    }
-                    if (exit$1 === 3) {
-                      var loc$2 = {
-                        loc_start: lparen,
-                        loc_end: rparen,
-                        loc_ghost: false
-                      };
-                      tail = Ast_helper.Exp.tuple(loc$2, undefined, args);
-                    }
-                    var loc_loc_end$1 = p.prevEndPos;
-                    var loc$3 = {
-                      loc_start: startPos,
-                      loc_end: loc_loc_end$1,
-                      loc_ghost: false
-                    };
-                    var identLoc = {
-                      loc_start: startPos,
-                      loc_end: endPosLident,
-                      loc_ghost: false
-                    };
-                    return Ast_helper.Exp.construct(loc$3, undefined, $$Location.mkloc(lident$1, identLoc), tail);
-                  }
-                  exit = 2;
-                }
-              } else {
-                Res_parser.next(undefined, p);
-                _acc = {
-                  hd: ident$1,
-                  tl: acc
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var token = p.token;
+  if (typeof token === "number") {
+    if (token >= 10) {
+      if (token !== 27) {
+        if (token >= 59) {
+          switch (token) {
+            case /* External */59 :
+                var externalDef = parseExternalDef(attrs, startPos, p);
+                parseNewlineOrSemicolonStructure(p);
+                var loc_loc_end = p.prevEndPos;
+                var loc = {
+                  loc_start: startPos,
+                  loc_end: loc_loc_end,
+                  loc_ghost: false
                 };
-                continue ;
-              }
-            } else {
-              exit = 2;
-            }
-            if (exit === 2) {
-              var loc_loc_end$2 = p.prevEndPos;
-              var loc$4 = {
-                loc_start: startPos,
-                loc_end: loc_loc_end$2,
-                loc_ghost: false
-              };
-              var lident$2 = buildLongident({
-                    hd: ident$1,
-                    tl: acc
-                  });
-              return Ast_helper.Exp.construct(loc$4, undefined, $$Location.mkloc(lident$2, loc$4), undefined);
-            }
-            break;
-        default:
-          
+                return Ast_helper.Str.primitive(loc, externalDef);
+            case /* Typ */60 :
+                Res_parser.beginRegion(p);
+                var ext = parseTypeDefinitionOrExtension(attrs, p);
+                if (ext.TAG === /* TypeDef */0) {
+                  parseNewlineOrSemicolonStructure(p);
+                  var loc_loc_end$1 = p.prevEndPos;
+                  var loc$1 = {
+                    loc_start: startPos,
+                    loc_end: loc_loc_end$1,
+                    loc_ghost: false
+                  };
+                  Res_parser.endRegion(p);
+                  return Ast_helper.Str.type_(loc$1, ext.recFlag, ext.types);
+                }
+                parseNewlineOrSemicolonStructure(p);
+                var loc_loc_end$2 = p.prevEndPos;
+                var loc$2 = {
+                  loc_start: startPos,
+                  loc_end: loc_loc_end$2,
+                  loc_ghost: false
+                };
+                Res_parser.endRegion(p);
+                return Ast_helper.Str.type_extension(loc$2, ext._0);
+            case /* Include */64 :
+                var includeStatement = parseIncludeStatement(attrs, p);
+                parseNewlineOrSemicolonStructure(p);
+                var loc_loc_end$3 = p.prevEndPos;
+                var loc$3 = {
+                  loc_start: startPos,
+                  loc_end: loc_loc_end$3,
+                  loc_ghost: false
+                };
+                return Ast_helper.Str.include_(loc$3, includeStatement);
+            case /* Module */65 :
+                Res_parser.beginRegion(p);
+                var structureItem = parseModuleOrModuleTypeImplOrPackExpr(attrs, p);
+                parseNewlineOrSemicolonStructure(p);
+                var loc_loc_end$4 = p.prevEndPos;
+                var loc$4 = {
+                  loc_start: startPos,
+                  loc_end: loc_loc_end$4,
+                  loc_ghost: false
+                };
+                Res_parser.endRegion(p);
+                return {
+                        pstr_desc: structureItem.pstr_desc,
+                        pstr_loc: loc$4
+                      };
+            case /* AtAt */76 :
+                var attr = parseStandaloneAttribute(p);
+                parseNewlineOrSemicolonStructure(p);
+                var loc_loc_end$5 = p.prevEndPos;
+                var loc$5 = {
+                  loc_start: startPos,
+                  loc_end: loc_loc_end$5,
+                  loc_ghost: false
+                };
+                return Ast_helper.Str.attribute(loc$5, attr);
+            case /* PercentPercent */78 :
+                var extension = parseExtension(true, p);
+                parseNewlineOrSemicolonStructure(p);
+                var loc_loc_end$6 = p.prevEndPos;
+                var loc$6 = {
+                  loc_start: startPos,
+                  loc_end: loc_loc_end$6,
+                  loc_ghost: false
+                };
+                return Ast_helper.Str.extension(loc$6, attrs, extension);
+            case /* Private */61 :
+            case /* Mutable */62 :
+            case /* Constraint */63 :
+            case /* Of */66 :
+            case /* Land */67 :
+            case /* Lor */68 :
+            case /* Band */69 :
+            case /* BangEqual */70 :
+            case /* BangEqualEqual */71 :
+            case /* LessEqual */72 :
+            case /* GreaterEqual */73 :
+            case /* ColonEqual */74 :
+            case /* At */75 :
+            case /* Percent */77 :
+            case /* List */79 :
+            case /* Backtick */80 :
+            case /* BarGreater */81 :
+            case /* Try */82 :
+                break;
+            case /* Import */83 :
+                var importDescr = parseJsImport(startPos, attrs, p);
+                parseNewlineOrSemicolonStructure(p);
+                var loc_loc_end$7 = p.prevEndPos;
+                var loc$7 = {
+                  loc_start: startPos,
+                  loc_end: loc_loc_end$7,
+                  loc_ghost: false
+                };
+                var structureItem$1 = Res_js_ffi.toParsetree(importDescr);
+                return {
+                        pstr_desc: structureItem$1.pstr_desc,
+                        pstr_loc: loc$7
+                      };
+            case /* Export */84 :
+                var structureItem$2 = parseJsExport(attrs, p);
+                parseNewlineOrSemicolonStructure(p);
+                var loc_loc_end$8 = p.prevEndPos;
+                var loc$8 = {
+                  loc_start: startPos,
+                  loc_end: loc_loc_end$8,
+                  loc_ghost: false
+                };
+                return {
+                        pstr_desc: structureItem$2.pstr_desc,
+                        pstr_loc: loc$8
+                      };
+            
+          }
+        }
+        
+      } else {
+        var exceptionDef = parseExceptionDef(attrs, p);
+        parseNewlineOrSemicolonStructure(p);
+        var loc_loc_end$9 = p.prevEndPos;
+        var loc$9 = {
+          loc_start: startPos,
+          loc_end: loc_loc_end$9,
+          loc_ghost: false
+        };
+        return Ast_helper.Str.exception_(loc$9, exceptionDef);
       }
+    } else if (token !== 0) {
+      if (token >= 9) {
+        var match = parseLetBindings(attrs, p);
+        parseNewlineOrSemicolonStructure(p);
+        var loc_loc_end$10 = p.prevEndPos;
+        var loc$10 = {
+          loc_start: startPos,
+          loc_end: loc_loc_end$10,
+          loc_ghost: false
+        };
+        return Ast_helper.Str.value(loc$10, match[0], match[1]);
+      }
+      
+    } else {
+      var openDescription = parseOpenDescription(attrs, p);
+      parseNewlineOrSemicolonStructure(p);
+      var loc_loc_end$11 = p.prevEndPos;
+      var loc$11 = {
+        loc_start: startPos,
+        loc_end: loc_loc_end$11,
+        loc_ghost: false
+      };
+      return Ast_helper.Str.open_(loc$11, openDescription);
     }
-    if (acc === /* [] */0) {
-      Res_parser.next(undefined, p);
-      Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(ident, p.breadcrumbs));
-      return defaultExpr(undefined);
-    }
-    var loc_loc_end$3 = p.prevEndPos;
-    var loc$5 = {
+  }
+  if (Res_grammar.isExprStart(token)) {
+    var prevEndPos = p.endPos;
+    var exp = parseExpr(undefined, p);
+    parseNewlineOrSemicolonStructure(p);
+    var loc_loc_end$12 = p.prevEndPos;
+    var loc$12 = {
       loc_start: startPos,
-      loc_end: loc_loc_end$3,
+      loc_end: loc_loc_end$12,
       loc_ghost: false
     };
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(ident, p.breadcrumbs));
-    var lident$3 = buildLongident({
-          hd: "_",
-          tl: acc
-        });
-    return Ast_helper.Exp.ident(loc$5, undefined, $$Location.mkloc(lident$3, loc$5));
+    return Res_parser.checkProgress(prevEndPos, Ast_helper.Str.$$eval(loc$12, attrs, exp), p);
+  }
+  if (!attrs) {
+    return ;
+  }
+  var attr$1 = attrs.hd;
+  var attrLoc = attr$1[0].loc;
+  Res_parser.err(attrLoc.loc_start, attrLoc.loc_end, p, Res_diagnostics.message(attributeWithoutNode(attr$1)));
+  var expr = parseExpr(undefined, p);
+  return Ast_helper.Str.$$eval({
+              loc_start: p.startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, attrs, expr);
+}
+
+function parsePrimaryExpr(operand, noCallOpt, p) {
+  var noCall = noCallOpt !== undefined ? noCallOpt : false;
+  var startPos = operand.pexp_loc.loc_start;
+  var _expr = operand;
+  while(true) {
+    var expr = _expr;
+    var match = p.token;
+    if (typeof match !== "number") {
+      return expr;
+    }
+    if (match !== 4) {
+      if (match >= 21) {
+        if (match !== 80) {
+          return expr;
+        }
+        if (!(noCall === false && p.prevEndPos.pos_lnum === p.startPos.pos_lnum)) {
+          return expr;
+        }
+        var match$1 = expr.pexp_desc;
+        if (typeof match$1 !== "number" && match$1.TAG === /* Pexp_ident */0) {
+          var ident = match$1._0.txt;
+          switch (ident.TAG | 0) {
+            case /* Lident */0 :
+                return parseTemplateExpr(ident._0, p);
+            case /* Ldot */1 :
+            case /* Lapply */2 :
+                break;
+            
+          }
+        }
+        Res_parser.err(expr.pexp_loc.loc_start, expr.pexp_loc.loc_end, p, Res_diagnostics.message("Tagged template literals are currently restricted to names like: json`null`."));
+        return parseTemplateExpr(undefined, p);
+      }
+      if (match < 18) {
+        return expr;
+      }
+      switch (match) {
+        case /* Lparen */18 :
+            if (!(noCall === false && p.prevEndPos.pos_lnum === p.startPos.pos_lnum)) {
+              return expr;
+            }
+            _expr = parseCallExpr(p, expr);
+            continue ;
+        case /* Rparen */19 :
+            return expr;
+        case /* Lbracket */20 :
+            if (noCall === false && p.prevEndPos.pos_lnum === p.startPos.pos_lnum) {
+              return parseBracketAccess(p, expr, startPos);
+            } else {
+              return expr;
+            }
+        
+      }
+    } else {
+      Res_parser.next(undefined, p);
+      var lident = parseValuePathAfterDot(p);
+      var match$2 = p.token;
+      if (match$2 === 14 && noCall === false) {
+        Res_parser.leaveBreadcrumb(p, /* ExprSetField */9);
+        Res_parser.next(undefined, p);
+        var targetExpr = parseExpr(undefined, p);
+        var loc_loc_end = p.prevEndPos;
+        var loc = {
+          loc_start: startPos,
+          loc_end: loc_loc_end,
+          loc_ghost: false
+        };
+        var setfield = Ast_helper.Exp.setfield(loc, undefined, expr, lident, targetExpr);
+        Res_parser.eatBreadcrumb(p);
+        return setfield;
+      }
+      var endPos = p.prevEndPos;
+      var loc$1 = {
+        loc_start: startPos,
+        loc_end: endPos,
+        loc_ghost: false
+      };
+      _expr = Ast_helper.Exp.field(loc$1, undefined, expr, lident);
+      continue ;
+    }
   };
 }
 
@@ -6522,68 +3618,110 @@ function parseAtomicExpr(p) {
   return expr;
 }
 
-function parseRecordPatternItem(p) {
-  var match = p.token;
-  if (typeof match === "number") {
-    switch (match) {
-      case /* DotDotDot */6 :
-          Res_parser.next(undefined, p);
-          return [
-                  true,
-                  /* PatField */{
-                    _0: parseRecordPatternField(p)
-                  }
-                ];
-      case /* Underscore */12 :
-          Res_parser.next(undefined, p);
-          return [
-                  false,
-                  /* PatUnderscore */0
-                ];
-      default:
-        return ;
-    }
-  } else {
-    switch (match.TAG | 0) {
-      case /* Lident */4 :
-      case /* Uident */5 :
-          return [
-                  false,
-                  /* PatField */{
-                    _0: parseRecordPatternField(p)
-                  }
-                ];
-      default:
-        return ;
-    }
+function parseTypeConstructorArgs(constrName, p) {
+  var opening = p.token;
+  var openingStartPos = p.startPos;
+  if (typeof opening !== "number") {
+    return /* [] */0;
   }
+  if (opening !== 18 && opening !== 42) {
+    return /* [] */0;
+  }
+  Res_scanner.setDiamondMode(p.scanner);
+  Res_parser.next(undefined, p);
+  var typeArgs = parseCommaDelimitedRegion(p, /* TypExprList */39, /* GreaterThan */41, parseTypeConstructorArgRegion);
+  var match = p.token;
+  if (match === 19 && opening === /* Lparen */18) {
+    var typ = Ast_helper.Typ.constr(undefined, undefined, constrName, typeArgs);
+    var msg = Res_doc.toString(80, Res_doc.breakableGroup(true, Res_doc.concat({
+                  hd: Res_doc.text("Type parameters require angle brackets:"),
+                  tl: {
+                    hd: Res_doc.indent(Res_doc.concat({
+                              hd: Res_doc.line,
+                              tl: {
+                                hd: Res_printer.printTypExpr(typ, Res_comments_table.empty),
+                                tl: /* [] */0
+                              }
+                            })),
+                    tl: /* [] */0
+                  }
+                })));
+    Res_parser.err(openingStartPos, undefined, p, Res_diagnostics.message(msg));
+    Res_parser.next(undefined, p);
+  } else {
+    Res_parser.expect(undefined, /* GreaterThan */41, p);
+  }
+  Res_scanner.popMode(p.scanner, /* Diamond */1);
+  return typeArgs;
 }
 
-function parsePackageConstraints(p) {
-  Res_parser.expect(undefined, /* Typ */60, p);
-  var typeConstr = parseValuePath(p);
-  Res_parser.expect(undefined, /* Equal */14, p);
-  var typ = parseTypExpr(undefined, undefined, undefined, p);
-  var first = [
-    typeConstr,
-    typ
-  ];
-  var rest = parseRegion(p, /* PackageConstraint */32, parsePackageConstraint);
-  return {
-          hd: first,
-          tl: rest
-        };
+function parseTypeAlias(p, typ) {
+  var match = p.token;
+  if (match !== 3) {
+    return typ;
+  }
+  Res_parser.next(undefined, p);
+  Res_parser.expect(undefined, /* SingleQuote */13, p);
+  var match$1 = parseLident(p);
+  return Ast_helper.Typ.alias({
+              loc_start: typ.ptyp_loc.loc_start,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, undefined, typ, match$1[0]);
 }
 
-function parseConstrainedExprRegion(p) {
+function parseArrowTypeRest(es6Arrow, startPos, typ, p) {
   var token = p.token;
-  if (!Res_grammar.isExprStart(token)) {
+  if (typeof token !== "number") {
+    return typ;
+  }
+  if (!(token === 58 || token === 57)) {
+    return typ;
+  }
+  if (es6Arrow !== true) {
+    return typ;
+  }
+  if (token === /* MinusGreater */58) {
+    Res_parser.expect(undefined, /* EqualGreater */57, p);
+  }
+  Res_parser.next(undefined, p);
+  var returnType = parseTypExpr(undefined, undefined, false, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Typ.arrow(loc, undefined, /* Nolabel */0, typ, returnType);
+}
+
+function parseAttribute(p) {
+  var match = p.token;
+  if (match !== 75) {
     return ;
   }
+  var startPos = p.startPos;
+  Res_parser.next(undefined, p);
+  var attrId = parseAttributeId(startPos, p);
+  var payload = parsePayload(p);
+  return [
+          attrId,
+          payload
+        ];
+}
+
+function parseConstrainedOrCoercedExpr(p) {
   var expr = parseExpr(undefined, p);
   var match = p.token;
-  if (match !== 24) {
+  if (typeof match !== "number") {
     return expr;
+  }
+  if (match !== 24) {
+    if (match !== 40) {
+      return expr;
+    } else {
+      return parseCoercedExpr(expr, p);
+    }
   }
   Res_parser.next(undefined, p);
   var typ = parseTypExpr(undefined, undefined, undefined, p);
@@ -6594,461 +3732,202 @@ function parseConstrainedExprRegion(p) {
     loc_end: loc_loc_end,
     loc_ghost: false
   };
-  return Ast_helper.Exp.constraint_(loc, undefined, expr, typ);
+  var expr$1 = Ast_helper.Exp.constraint_(loc, undefined, expr, typ);
+  var match$1 = p.token;
+  if (match$1 === 40) {
+    return parseCoercedExpr(expr$1, p);
+  } else {
+    return expr$1;
+  }
 }
 
-function parseTagName(p) {
+function parseTagSpecs(p) {
   var match = p.token;
-  if (match !== 44) {
-    return ;
-  }
-  var match$1 = parseHashIdent(p.startPos, p);
-  return match$1[0];
-}
-
-function parseFunctorModuleType(p) {
-  var startPos = p.startPos;
-  var args = parseFunctorArgs(p);
-  Res_parser.expect(undefined, /* EqualGreater */57, p);
-  var rhs = parseModuleType(undefined, undefined, p);
-  var endPos = p.prevEndPos;
-  var modType = List.fold_right((function (param, acc) {
-          return Ast_helper.Mty.functor_({
-                      loc_start: param[3],
-                      loc_end: endPos,
-                      loc_ghost: false
-                    }, param[0], param[1], param[2], acc);
-        }), args, rhs);
-  return {
-          pmty_desc: modType.pmty_desc,
-          pmty_loc: {
-            loc_start: startPos,
-            loc_end: endPos,
-            loc_ghost: false
-          },
-          pmty_attributes: modType.pmty_attributes
-        };
-}
-
-function parseWithConstraints(moduleType, p) {
-  var match = p.token;
-  if (typeof match === "number") {
-    return moduleType;
-  }
-  if (match.TAG !== /* Lident */4) {
-    return moduleType;
-  }
-  if (match._0 !== "with") {
-    return moduleType;
+  if (match !== 17) {
+    return /* [] */0;
   }
   Res_parser.next(undefined, p);
-  var first = parseWithConstraint(p);
-  var loop = function (p, _acc) {
-    while(true) {
-      var acc = _acc;
-      var match = p.token;
-      if (match !== 10) {
-        return List.rev(acc);
-      }
-      Res_parser.next(undefined, p);
-      _acc = {
-        hd: parseWithConstraint(p),
-        tl: acc
-      };
-      continue ;
-    };
-  };
-  var constraints = loop(p, {
-        hd: first,
-        tl: /* [] */0
-      });
-  var loc_loc_start = moduleType.pmty_loc.loc_start;
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Mty.with_(loc, undefined, moduleType, constraints);
-}
-
-function parseAtomicModuleType(p) {
-  var startPos = p.startPos;
-  var token = p.token;
-  var moduleType;
-  var exit = 0;
-  if (typeof token === "number") {
-    switch (token) {
-      case /* Lparen */18 :
-          Res_parser.next(undefined, p);
-          var mty = parseModuleType(undefined, undefined, p);
-          Res_parser.expect(undefined, /* Rparen */19, p);
-          moduleType = {
-            pmty_desc: mty.pmty_desc,
-            pmty_loc: {
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            },
-            pmty_attributes: mty.pmty_attributes
-          };
-          break;
-      case /* Lbrace */22 :
-          Res_parser.next(undefined, p);
-          var spec = parseDelimitedRegion(p, /* Signature */46, /* Rbrace */23, parseSignatureItemRegion);
-          Res_parser.expect(undefined, /* Rbrace */23, p);
-          var loc_loc_end = p.prevEndPos;
-          var loc = {
-            loc_start: startPos,
-            loc_end: loc_loc_end,
-            loc_ghost: false
-          };
-          moduleType = Ast_helper.Mty.signature(loc, undefined, spec);
-          break;
-      case /* Module */65 :
-          moduleType = parseModuleTypeOf(p);
-          break;
-      case /* Percent */77 :
-          var extension = parseExtension(undefined, p);
-          var loc_loc_end$1 = p.prevEndPos;
-          var loc$1 = {
-            loc_start: startPos,
-            loc_end: loc_loc_end$1,
-            loc_ghost: false
-          };
-          moduleType = Ast_helper.Mty.extension(loc$1, undefined, extension);
-          break;
-      default:
-        exit = 1;
-    }
-  } else {
-    switch (token.TAG | 0) {
-      case /* Lident */4 :
-      case /* Uident */5 :
-          exit = 2;
-          break;
-      default:
-        exit = 1;
-    }
-  }
-  switch (exit) {
-    case 1 :
-        Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-        moduleType = defaultModuleType(undefined);
-        break;
-    case 2 :
-        var moduleLongIdent = parseModuleLongIdent(true, p);
-        moduleType = Ast_helper.Mty.ident(moduleLongIdent.loc, undefined, moduleLongIdent);
-        break;
-    
-  }
-  var moduleTypeLoc_loc_end = p.prevEndPos;
-  var moduleTypeLoc = {
-    loc_start: startPos,
-    loc_end: moduleTypeLoc_loc_end,
-    loc_ghost: false
-  };
+  var rowField = parseTagSpec(p);
   return {
-          pmty_desc: moduleType.pmty_desc,
-          pmty_loc: moduleTypeLoc,
-          pmty_attributes: moduleType.pmty_attributes
+          hd: rowField,
+          tl: parseTagSpecs(p)
         };
 }
 
-function parseFunctorArgs(p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Lparen */18, p);
-  var args = parseCommaDelimitedRegion(p, /* FunctorArgs */40, /* Rparen */19, parseFunctorArg);
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  if (args) {
-    return args;
-  } else {
-    return {
-            hd: [
-              /* [] */0,
-              $$Location.mkloc("*", {
-                    loc_start: startPos,
-                    loc_end: p.prevEndPos,
-                    loc_ghost: false
-                  }),
-              undefined,
-              startPos
-            ],
-            tl: /* [] */0
-          };
+function parseTagSpec(p) {
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var match = p.token;
+  if (match === 44) {
+    return parsePolymorphicVariantTypeSpecHash(attrs, false, p);
   }
+  var typ = parseTypExpr(attrs, undefined, undefined, p);
+  return {
+          TAG: /* Rinherit */1,
+          _0: typ
+        };
 }
 
-function parseFunctorArg(p) {
-  var startPos = p.startPos;
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var ident = p.token;
-  if (typeof ident === "number") {
-    switch (ident) {
-      case /* Underscore */12 :
-          Res_parser.next(undefined, p);
-          var argName = $$Location.mkloc("_", {
-                loc_start: startPos,
-                loc_end: p.prevEndPos,
-                loc_ghost: false
-              });
-          Res_parser.expect(undefined, /* Colon */24, p);
-          var moduleType = parseModuleType(undefined, undefined, p);
-          return [
-                  attrs,
-                  argName,
-                  moduleType,
-                  startPos
-                ];
-      case /* Lparen */18 :
-          Res_parser.next(undefined, p);
-          Res_parser.expect(undefined, /* Rparen */19, p);
-          var argName$1 = $$Location.mkloc("*", {
-                loc_start: startPos,
-                loc_end: p.prevEndPos,
-                loc_ghost: false
-              });
-          return [
-                  attrs,
-                  argName$1,
-                  undefined,
-                  startPos
-                ];
-      default:
-        return ;
-    }
+function parseTypeConstructorDeclarations(first, p) {
+  var firstConstrDecl;
+  if (first !== undefined) {
+    firstConstrDecl = first;
   } else {
-    if (ident.TAG !== /* Uident */5) {
-      return ;
-    }
-    var ident$1 = ident._0;
+    var startPos = p.startPos;
+    Res_parser.optional(p, /* Bar */17);
+    firstConstrDecl = parseTypeConstructorDeclaration(startPos, p);
+  }
+  return {
+          hd: firstConstrDecl,
+          tl: parseRegion(p, /* ConstructorDeclaration */35, parseTypeConstructorDeclarationWithBar)
+        };
+}
+
+function parseRecordDeclaration(p) {
+  Res_parser.leaveBreadcrumb(p, /* RecordDecl */34);
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var rows = parseCommaDelimitedRegion(p, /* RecordDecl */34, /* Rbrace */23, parseFieldDeclarationRegion);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  Res_parser.eatBreadcrumb(p);
+  return rows;
+}
+
+function parseBracketAccess(p, expr, startPos) {
+  Res_parser.leaveBreadcrumb(p, /* ExprArrayAccess */13);
+  var lbracket = p.startPos;
+  Res_parser.next(undefined, p);
+  var stringStart = p.startPos;
+  var s = p.token;
+  if (typeof s !== "number" && s.TAG === /* String */3) {
+    var s$1 = s._0;
+    var s$2 = p.mode === /* ParseForTypeChecker */0 ? parseStringLiteral(s$1) : s$1;
     Res_parser.next(undefined, p);
-    var uidentEndPos = p.prevEndPos;
-    var match = p.token;
-    if (typeof match === "number") {
-      if (match !== 4) {
-        if (match === 24) {
-          Res_parser.next(undefined, p);
-          var moduleType$1 = parseModuleType(undefined, undefined, p);
-          var loc = {
-            loc_start: startPos,
-            loc_end: uidentEndPos,
-            loc_ghost: false
-          };
-          var argName$2 = $$Location.mkloc(ident$1, loc);
-          return [
-                  attrs,
-                  argName$2,
-                  moduleType$1,
-                  startPos
-                ];
-        }
-        
-      } else {
-        Res_parser.next(undefined, p);
-        var moduleLongIdent = parseModuleLongIdentTail(false, p, startPos, {
-              TAG: /* Lident */0,
-              _0: ident$1
-            });
-        var moduleType$2 = Ast_helper.Mty.ident(moduleLongIdent.loc, undefined, moduleLongIdent);
-        var argName$3 = $$Location.mknoloc("_");
-        return [
-                attrs,
-                argName$3,
-                moduleType$2,
-                startPos
-              ];
-      }
-    }
-    var loc$1 = {
-      loc_start: startPos,
-      loc_end: uidentEndPos,
+    var stringEnd = p.prevEndPos;
+    Res_parser.expect(undefined, /* Rbracket */21, p);
+    Res_parser.eatBreadcrumb(p);
+    var rbracket = p.prevEndPos;
+    var identLoc = {
+      loc_start: stringStart,
+      loc_end: stringEnd,
       loc_ghost: false
     };
-    var modIdent = $$Location.mkloc({
-          TAG: /* Lident */0,
-          _0: ident$1
-        }, loc$1);
-    var moduleType$3 = Ast_helper.Mty.ident(loc$1, undefined, modIdent);
-    var argName$4 = $$Location.mknoloc("_");
-    return [
-            attrs,
-            argName$4,
-            moduleType$3,
-            startPos
-          ];
-  }
-}
-
-function parsePrivateEqOrRepr(p) {
-  Res_parser.expect(undefined, /* Private */61, p);
-  var t = p.token;
-  var exit = 0;
-  if (typeof t === "number") {
-    switch (t) {
-      case /* DotDot */5 :
-      case /* Bar */17 :
-          exit = 2;
-          break;
-      case /* Lbrace */22 :
-          var match = parseRecordOrObjectDecl(p);
-          return [
-                  match[0],
-                  /* Private */0,
-                  match[2]
-                ];
-      default:
-        exit = 1;
-    }
-  } else {
-    if (t.TAG === /* Uident */5) {
-      var match$1 = parseTypeEquationOrConstrDecl(p);
-      return [
-              match$1[0],
-              /* Private */0,
-              match$1[2]
-            ];
-    }
-    exit = 1;
-  }
-  switch (exit) {
-    case 1 :
-        if (Res_grammar.isTypExprStart(t)) {
-          return [
-                  parseTypExpr(undefined, undefined, undefined, p),
-                  /* Private */0,
-                  /* Ptype_abstract */0
-                ];
-        }
-        var match$2 = parseTypeRepresentation(p);
-        return [
-                undefined,
-                /* Private */0,
-                match$2[1]
-              ];
-    case 2 :
-        var match$3 = parseTypeRepresentation(p);
-        return [
-                undefined,
-                /* Private */0,
-                match$3[1]
-              ];
-    
-  }
-}
-
-function parseAtomicModuleExpr(p) {
-  var startPos = p.startPos;
-  var _ident = p.token;
-  if (typeof _ident === "number") {
-    switch (_ident) {
-      case /* Lparen */18 :
-          Res_parser.next(undefined, p);
-          var match = p.token;
-          var modExpr = match === 19 ? Ast_helper.Mod.structure({
-                  loc_start: startPos,
-                  loc_end: p.prevEndPos,
-                  loc_ghost: false
-                }, undefined, /* [] */0) : parseConstrainedModExpr(p);
-          Res_parser.expect(undefined, /* Rparen */19, p);
-          return modExpr;
-      case /* Lbrace */22 :
-          Res_parser.next(undefined, p);
-          var structure = Ast_helper.Mod.structure(undefined, undefined, parseDelimitedRegion(p, /* Structure */48, /* Rbrace */23, parseStructureItemRegion));
-          Res_parser.expect(undefined, /* Rbrace */23, p);
-          var endPos = p.prevEndPos;
-          return {
-                  pmod_desc: structure.pmod_desc,
-                  pmod_loc: {
-                    loc_start: startPos,
-                    loc_end: endPos,
-                    loc_ghost: false
-                  },
-                  pmod_attributes: structure.pmod_attributes
-                };
-      case /* Percent */77 :
-          var extension = parseExtension(undefined, p);
-          var loc_loc_end = p.prevEndPos;
-          var loc = {
-            loc_start: startPos,
-            loc_end: loc_loc_end,
-            loc_ghost: false
-          };
-          return Ast_helper.Mod.extension(loc, undefined, extension);
-      default:
-        
-    }
-  } else {
-    switch (_ident.TAG | 0) {
-      case /* Lident */4 :
-          if (_ident._0 === "unpack") {
-            Res_parser.next(undefined, p);
-            Res_parser.expect(undefined, /* Lparen */18, p);
-            var expr = parseExpr(undefined, p);
-            var match$1 = p.token;
-            if (match$1 === 24) {
-              var colonStart = p.startPos;
-              Res_parser.next(undefined, p);
-              var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-              var packageType = parsePackageType(colonStart, attrs, p);
-              Res_parser.expect(undefined, /* Rparen */19, p);
-              var loc_loc_end$1 = p.prevEndPos;
-              var loc$1 = {
-                loc_start: startPos,
-                loc_end: loc_loc_end$1,
-                loc_ghost: false
-              };
-              var constraintExpr = Ast_helper.Exp.constraint_(loc$1, undefined, expr, packageType);
-              return Ast_helper.Mod.unpack(loc$1, undefined, constraintExpr);
-            }
-            Res_parser.expect(undefined, /* Rparen */19, p);
-            var loc_loc_end$2 = p.prevEndPos;
-            var loc$2 = {
-              loc_start: startPos,
-              loc_end: loc_loc_end$2,
-              loc_ghost: false
-            };
-            return Ast_helper.Mod.unpack(loc$2, undefined, expr);
-          }
-          break;
-      case /* Uident */5 :
-          var longident = parseModuleLongIdent(false, p);
-          return Ast_helper.Mod.ident(longident.loc, undefined, longident);
-      default:
-        
-    }
-  }
-  Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(_ident, p.breadcrumbs));
-  return defaultModuleExpr(undefined);
-}
-
-function parseModuleApplication(p, modExpr) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Lparen */18, p);
-  var args = parseCommaDelimitedRegion(p, /* ModExprList */41, /* Rparen */19, parseConstrainedModExprRegion);
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  var args$1;
-  if (args) {
-    args$1 = args;
-  } else {
-    var loc_loc_end = p.prevEndPos;
     var loc = {
+      loc_start: startPos,
+      loc_end: rbracket,
+      loc_ghost: false
+    };
+    var e = Ast_helper.Exp.send(loc, undefined, expr, $$Location.mkloc(s$2, identLoc));
+    var e$1 = parsePrimaryExpr(e, undefined, p);
+    var equalStart = p.startPos;
+    var match = p.token;
+    if (match !== 14) {
+      return e$1;
+    }
+    Res_parser.next(undefined, p);
+    var equalEnd = p.prevEndPos;
+    var rhsExpr = parseExpr(undefined, p);
+    var loc_loc_end = rhsExpr.pexp_loc.loc_end;
+    var loc$1 = {
       loc_start: startPos,
       loc_end: loc_loc_end,
       loc_ghost: false
     };
-    args$1 = {
-      hd: Ast_helper.Mod.structure(loc, undefined, /* [] */0),
-      tl: /* [] */0
+    var operatorLoc = {
+      loc_start: equalStart,
+      loc_end: equalEnd,
+      loc_ghost: false
     };
+    return Ast_helper.Exp.apply(loc$1, undefined, Ast_helper.Exp.ident(operatorLoc, undefined, $$Location.mkloc({
+                        TAG: /* Lident */0,
+                        _0: "#="
+                      }, operatorLoc)), {
+                hd: [
+                  /* Nolabel */0,
+                  e$1
+                ],
+                tl: {
+                  hd: [
+                    /* Nolabel */0,
+                    rhsExpr
+                  ],
+                  tl: /* [] */0
+                }
+              });
   }
-  return List.fold_left((function (modExpr, arg) {
-                return Ast_helper.Mod.apply({
-                            loc_start: modExpr.pmod_loc.loc_start,
-                            loc_end: arg.pmod_loc.loc_end,
-                            loc_ghost: false
-                          }, undefined, modExpr, arg);
-              }), modExpr, args$1);
+  var accessExpr = parseConstrainedOrCoercedExpr(p);
+  Res_parser.expect(undefined, /* Rbracket */21, p);
+  Res_parser.eatBreadcrumb(p);
+  var rbracket$1 = p.prevEndPos;
+  var arrayLoc = {
+    loc_start: lbracket,
+    loc_end: rbracket$1,
+    loc_ghost: false
+  };
+  var match$1 = p.token;
+  if (match$1 === 14) {
+    Res_parser.leaveBreadcrumb(p, /* ExprArrayMutation */14);
+    Res_parser.next(undefined, p);
+    var rhsExpr$1 = parseExpr(undefined, p);
+    var arraySet = $$Location.mkloc({
+          TAG: /* Ldot */1,
+          _0: {
+            TAG: /* Lident */0,
+            _0: "Array"
+          },
+          _1: "set"
+        }, arrayLoc);
+    var endPos = p.prevEndPos;
+    var arraySet$1 = Ast_helper.Exp.apply({
+          loc_start: startPos,
+          loc_end: endPos,
+          loc_ghost: false
+        }, undefined, Ast_helper.Exp.ident(arrayLoc, undefined, arraySet), {
+          hd: [
+            /* Nolabel */0,
+            expr
+          ],
+          tl: {
+            hd: [
+              /* Nolabel */0,
+              accessExpr
+            ],
+            tl: {
+              hd: [
+                /* Nolabel */0,
+                rhsExpr$1
+              ],
+              tl: /* [] */0
+            }
+          }
+        });
+    Res_parser.eatBreadcrumb(p);
+    return arraySet$1;
+  }
+  var endPos$1 = p.prevEndPos;
+  var e$2 = Ast_helper.Exp.apply({
+        loc_start: startPos,
+        loc_end: endPos$1,
+        loc_ghost: false
+      }, undefined, Ast_helper.Exp.ident(arrayLoc, undefined, $$Location.mkloc({
+                TAG: /* Ldot */1,
+                _0: {
+                  TAG: /* Lident */0,
+                  _0: "Array"
+                },
+                _1: "get"
+              }, arrayLoc)), {
+        hd: [
+          /* Nolabel */0,
+          expr
+        ],
+        tl: {
+          hd: [
+            /* Nolabel */0,
+            accessExpr
+          ],
+          tl: /* [] */0
+        }
+      });
+  return parsePrimaryExpr(e$2, undefined, p);
 }
 
 function parseTemplateExpr(prefixOpt, p) {
@@ -7399,315 +4278,6 @@ function parseCallExpr(p, funExpr) {
   return apply;
 }
 
-function parseBracketAccess(p, expr, startPos) {
-  Res_parser.leaveBreadcrumb(p, /* ExprArrayAccess */13);
-  var lbracket = p.startPos;
-  Res_parser.next(undefined, p);
-  var stringStart = p.startPos;
-  var s = p.token;
-  if (typeof s !== "number" && s.TAG === /* String */3) {
-    var s$1 = s._0;
-    var s$2 = p.mode === /* ParseForTypeChecker */0 ? parseStringLiteral(s$1) : s$1;
-    Res_parser.next(undefined, p);
-    var stringEnd = p.prevEndPos;
-    Res_parser.expect(undefined, /* Rbracket */21, p);
-    Res_parser.eatBreadcrumb(p);
-    var rbracket = p.prevEndPos;
-    var identLoc = {
-      loc_start: stringStart,
-      loc_end: stringEnd,
-      loc_ghost: false
-    };
-    var loc = {
-      loc_start: startPos,
-      loc_end: rbracket,
-      loc_ghost: false
-    };
-    var e = Ast_helper.Exp.send(loc, undefined, expr, $$Location.mkloc(s$2, identLoc));
-    var e$1 = parsePrimaryExpr(e, undefined, p);
-    var equalStart = p.startPos;
-    var match = p.token;
-    if (match !== 14) {
-      return e$1;
-    }
-    Res_parser.next(undefined, p);
-    var equalEnd = p.prevEndPos;
-    var rhsExpr = parseExpr(undefined, p);
-    var loc_loc_end = rhsExpr.pexp_loc.loc_end;
-    var loc$1 = {
-      loc_start: startPos,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    var operatorLoc = {
-      loc_start: equalStart,
-      loc_end: equalEnd,
-      loc_ghost: false
-    };
-    return Ast_helper.Exp.apply(loc$1, undefined, Ast_helper.Exp.ident(operatorLoc, undefined, $$Location.mkloc({
-                        TAG: /* Lident */0,
-                        _0: "#="
-                      }, operatorLoc)), {
-                hd: [
-                  /* Nolabel */0,
-                  e$1
-                ],
-                tl: {
-                  hd: [
-                    /* Nolabel */0,
-                    rhsExpr
-                  ],
-                  tl: /* [] */0
-                }
-              });
-  }
-  var accessExpr = parseConstrainedOrCoercedExpr(p);
-  Res_parser.expect(undefined, /* Rbracket */21, p);
-  Res_parser.eatBreadcrumb(p);
-  var rbracket$1 = p.prevEndPos;
-  var arrayLoc = {
-    loc_start: lbracket,
-    loc_end: rbracket$1,
-    loc_ghost: false
-  };
-  var match$1 = p.token;
-  if (match$1 === 14) {
-    Res_parser.leaveBreadcrumb(p, /* ExprArrayMutation */14);
-    Res_parser.next(undefined, p);
-    var rhsExpr$1 = parseExpr(undefined, p);
-    var arraySet = $$Location.mkloc({
-          TAG: /* Ldot */1,
-          _0: {
-            TAG: /* Lident */0,
-            _0: "Array"
-          },
-          _1: "set"
-        }, arrayLoc);
-    var endPos = p.prevEndPos;
-    var arraySet$1 = Ast_helper.Exp.apply({
-          loc_start: startPos,
-          loc_end: endPos,
-          loc_ghost: false
-        }, undefined, Ast_helper.Exp.ident(arrayLoc, undefined, arraySet), {
-          hd: [
-            /* Nolabel */0,
-            expr
-          ],
-          tl: {
-            hd: [
-              /* Nolabel */0,
-              accessExpr
-            ],
-            tl: {
-              hd: [
-                /* Nolabel */0,
-                rhsExpr$1
-              ],
-              tl: /* [] */0
-            }
-          }
-        });
-    Res_parser.eatBreadcrumb(p);
-    return arraySet$1;
-  }
-  var endPos$1 = p.prevEndPos;
-  var e$2 = Ast_helper.Exp.apply({
-        loc_start: startPos,
-        loc_end: endPos$1,
-        loc_ghost: false
-      }, undefined, Ast_helper.Exp.ident(arrayLoc, undefined, $$Location.mkloc({
-                TAG: /* Ldot */1,
-                _0: {
-                  TAG: /* Lident */0,
-                  _0: "Array"
-                },
-                _1: "get"
-              }, arrayLoc)), {
-        hd: [
-          /* Nolabel */0,
-          expr
-        ],
-        tl: {
-          hd: [
-            /* Nolabel */0,
-            accessExpr
-          ],
-          tl: /* [] */0
-        }
-      });
-  return parsePrimaryExpr(e$2, undefined, p);
-}
-
-function parseRecordOrObjectType(attrs, p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var match = p.token;
-  var closedFlag = typeof match === "number" ? (
-      match !== 4 ? (
-          match !== 5 ? /* Closed */0 : (Res_parser.next(undefined, p), /* Open */1)
-        ) : (Res_parser.next(undefined, p), /* Closed */0)
-    ) : /* Closed */0;
-  var match$1 = p.token;
-  if (typeof match$1 !== "number" && match$1.TAG === /* Lident */4) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.message(forbiddenInlineRecordDeclaration));
-  }
-  var startFirstField = p.startPos;
-  var fields = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
-  if (fields) {
-    var match$2 = fields.hd;
-    if (match$2.TAG !== /* Otag */0) {
-      if (fields.tl) {
-        
-      } else {
-        Res_parser.err(startFirstField, match$2._0.ptyp_loc.loc_end, p, Res_diagnostics.message(sameTypeSpread));
-      }
-    }
-    
-  }
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Typ.object_(loc, attrs, fields, closedFlag);
-}
-
-function parseAtomicTypExpr(attrs, p) {
-  Res_parser.leaveBreadcrumb(p, /* AtomicTypExpr */52);
-  var startPos = p.startPos;
-  var token = p.token;
-  var typ;
-  var exit = 0;
-  if (typeof token === "number") {
-    switch (token) {
-      case /* Underscore */12 :
-          var endPos = p.endPos;
-          Res_parser.next(undefined, p);
-          typ = Ast_helper.Typ.any({
-                loc_start: startPos,
-                loc_end: endPos,
-                loc_ghost: false
-              }, attrs, undefined);
-          break;
-      case /* SingleQuote */13 :
-          Res_parser.next(undefined, p);
-          var match = parseIdent(typeVar, p.startPos, p);
-          typ = Ast_helper.Typ.$$var(match[1], attrs, match[0]);
-          break;
-      case /* Lparen */18 :
-          Res_parser.next(undefined, p);
-          var match$1 = p.token;
-          if (match$1 === 19) {
-            Res_parser.next(undefined, p);
-            var loc_loc_end = p.prevEndPos;
-            var loc = {
-              loc_start: startPos,
-              loc_end: loc_loc_end,
-              loc_ghost: false
-            };
-            var unitConstr = $$Location.mkloc({
-                  TAG: /* Lident */0,
-                  _0: "unit"
-                }, loc);
-            typ = Ast_helper.Typ.constr(undefined, attrs, unitConstr, /* [] */0);
-          } else {
-            var t = parseTypExpr(undefined, undefined, undefined, p);
-            var match$2 = p.token;
-            if (match$2 === 25) {
-              Res_parser.next(undefined, p);
-              typ = parseTupleType(attrs, t, startPos, p);
-            } else {
-              Res_parser.expect(undefined, /* Rparen */19, p);
-              typ = {
-                ptyp_desc: t.ptyp_desc,
-                ptyp_loc: {
-                  loc_start: startPos,
-                  loc_end: p.prevEndPos,
-                  loc_ghost: false
-                },
-                ptyp_attributes: List.concat({
-                      hd: attrs,
-                      tl: {
-                        hd: t.ptyp_attributes,
-                        tl: /* [] */0
-                      }
-                    })
-              };
-            }
-          }
-          break;
-      case /* Lbracket */20 :
-          typ = parsePolymorphicVariantType(attrs, p);
-          break;
-      case /* Lbrace */22 :
-          typ = parseRecordOrObjectType(attrs, p);
-          break;
-      case /* Module */65 :
-          Res_parser.next(undefined, p);
-          Res_parser.expect(undefined, /* Lparen */18, p);
-          var packageType = parsePackageType(startPos, attrs, p);
-          Res_parser.expect(undefined, /* Rparen */19, p);
-          typ = {
-            ptyp_desc: packageType.ptyp_desc,
-            ptyp_loc: {
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            },
-            ptyp_attributes: packageType.ptyp_attributes
-          };
-          break;
-      case /* Percent */77 :
-          var extension = parseExtension(undefined, p);
-          var loc_loc_end$1 = p.prevEndPos;
-          var loc$1 = {
-            loc_start: startPos,
-            loc_end: loc_loc_end$1,
-            loc_ghost: false
-          };
-          typ = Ast_helper.Typ.extension(loc$1, attrs, extension);
-          break;
-      default:
-        exit = 1;
-    }
-  } else {
-    switch (token.TAG | 0) {
-      case /* Lident */4 :
-      case /* Uident */5 :
-          exit = 2;
-          break;
-      default:
-        exit = 1;
-    }
-  }
-  switch (exit) {
-    case 1 :
-        Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-        var match$3 = skipTokensAndMaybeRetry(p, Res_grammar.isAtomicTypExprStart);
-        if (match$3 !== undefined) {
-          typ = parseAtomicTypExpr(attrs, p);
-        } else {
-          Res_parser.err(p.prevEndPos, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-          typ = defaultType(undefined);
-        }
-        break;
-    case 2 :
-        var constr = parseValuePath(p);
-        var args = parseTypeConstructorArgs(constr, p);
-        typ = Ast_helper.Typ.constr({
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, attrs, constr, args);
-        break;
-    
-  }
-  Res_parser.eatBreadcrumb(p);
-  return typ;
-}
-
 function skipTokensAndMaybeRetry(p, isStartOfGrammar) {
   if (Res_token.isKeyword(p.token) && p.prevEndPos.pos_lnum === p.startPos.pos_lnum) {
     Res_parser.next(undefined, p);
@@ -7738,1242 +4308,32 @@ function skipTokensAndMaybeRetry(p, isStartOfGrammar) {
   
 }
 
-function parsePolymorphicVariantType(attrs, p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Lbracket */20, p);
-  var match = p.token;
-  if (typeof match === "number") {
-    if (match !== 41) {
-      if (match === 42) {
-        Res_parser.next(undefined, p);
-        Res_parser.optional(p, /* Bar */17);
-        var rowField = parseTagSpecFull(p);
-        var rowFields = parseTagSpecFulls(p);
-        var tagNames = parseTagNames(p);
-        var loc_loc_end = p.prevEndPos;
-        var loc = {
-          loc_start: startPos,
-          loc_end: loc_loc_end,
-          loc_ghost: false
-        };
-        var variant = Ast_helper.Typ.variant(loc, attrs, {
-              hd: rowField,
-              tl: rowFields
-            }, /* Closed */0, tagNames);
-        Res_parser.expect(undefined, /* Rbracket */21, p);
-        return variant;
-      }
-      
-    } else {
-      Res_parser.next(undefined, p);
-      var match$1 = p.token;
-      var rowFields$1;
-      var exit = 0;
-      if (typeof match$1 === "number") {
-        if (match$1 !== 17) {
-          if (match$1 !== 21) {
-            exit = 2;
-          } else {
-            rowFields$1 = /* [] */0;
-          }
-        } else {
-          rowFields$1 = parseTagSpecs(p);
-        }
-      } else {
-        exit = 2;
-      }
-      if (exit === 2) {
-        var rowField$1 = parseTagSpec(p);
-        rowFields$1 = {
-          hd: rowField$1,
-          tl: parseTagSpecs(p)
-        };
-      }
-      var loc_loc_end$1 = p.prevEndPos;
-      var loc$1 = {
-        loc_start: startPos,
-        loc_end: loc_loc_end$1,
-        loc_ghost: false
-      };
-      var variant$1 = Ast_helper.Typ.variant(loc$1, attrs, rowFields$1, /* Open */1, undefined);
-      Res_parser.expect(undefined, /* Rbracket */21, p);
-      return variant$1;
-    }
-  }
-  var rowFields1 = parseTagSpecFirst(p);
-  var rowFields2 = parseTagSpecs(p);
-  var loc_loc_end$2 = p.prevEndPos;
-  var loc$2 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$2,
-    loc_ghost: false
-  };
-  var variant$2 = Ast_helper.Typ.variant(loc$2, attrs, Pervasives.$at(rowFields1, rowFields2), /* Closed */0, undefined);
-  Res_parser.expect(undefined, /* Rbracket */21, p);
-  return variant$2;
-}
-
-function parseTupleType(attrs, first, startPos, p) {
-  var typexprs_1 = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
-  var typexprs = {
-    hd: first,
-    tl: typexprs_1
-  };
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  if (typexprs_1) {
-    
-  } else {
-    Res_parser.err(startPos, p.prevEndPos, p, Res_diagnostics.message(tupleSingleElement));
-  }
-  var tupleLoc_loc_end = p.prevEndPos;
-  var tupleLoc = {
-    loc_start: startPos,
-    loc_end: tupleLoc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Typ.tuple(tupleLoc, attrs, typexprs);
-}
-
-function parseTypeParams(parent, p) {
-  var opening = p.token;
-  if (typeof opening !== "number") {
-    return /* [] */0;
-  }
-  if (opening !== 18 && opening !== 42) {
-    return /* [] */0;
-  }
-  if (p.startPos.pos_lnum !== p.prevEndPos.pos_lnum) {
-    return /* [] */0;
-  }
-  Res_scanner.setDiamondMode(p.scanner);
-  var openingStartPos = p.startPos;
-  Res_parser.leaveBreadcrumb(p, /* TypeParams */30);
-  Res_parser.next(undefined, p);
-  var params = parseCommaDelimitedRegion(p, /* TypeParams */30, /* GreaterThan */41, parseTypeParam);
-  var match = p.token;
-  if (match === 19 && opening === /* Lparen */18) {
-    var msg = Res_doc.toString(80, Res_doc.breakableGroup(true, Res_doc.concat({
-                  hd: Res_doc.text("Type parameters require angle brackets:"),
-                  tl: {
-                    hd: Res_doc.indent(Res_doc.concat({
-                              hd: Res_doc.line,
-                              tl: {
-                                hd: Res_doc.concat({
-                                      hd: Res_printer.printLongident(parent.txt),
-                                      tl: {
-                                        hd: Res_printer.printTypeParams(params, Res_comments_table.empty),
-                                        tl: /* [] */0
-                                      }
-                                    }),
-                                tl: /* [] */0
-                              }
-                            })),
-                    tl: /* [] */0
-                  }
-                })));
-    Res_parser.err(openingStartPos, undefined, p, Res_diagnostics.message(msg));
-    Res_parser.next(undefined, p);
-  } else {
-    Res_parser.expect(undefined, /* GreaterThan */41, p);
-  }
-  Res_scanner.popMode(p.scanner, /* Diamond */1);
-  Res_parser.eatBreadcrumb(p);
-  return params;
-}
-
-function parseConstructorArgs(p) {
-  var lparen = p.startPos;
-  Res_parser.expect(undefined, /* Lparen */18, p);
-  var args = parseCommaDelimitedRegion(p, /* ExprList */12, /* Rparen */19, parseConstrainedExprRegion);
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  if (args) {
-    return args;
-  }
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: lparen,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return {
-          hd: Ast_helper.Exp.construct(loc, undefined, $$Location.mkloc({
-                    TAG: /* Lident */0,
-                    _0: "()"
-                  }, loc), undefined),
-          tl: /* [] */0
-        };
-}
-
-function parseParameters(p) {
-  var startPos = p.startPos;
-  var ident = p.token;
-  if (typeof ident === "number") {
-    switch (ident) {
-      case /* Underscore */12 :
-          Res_parser.next(undefined, p);
-          var loc_loc_end = p.prevEndPos;
-          var loc = {
-            loc_start: startPos,
-            loc_end: loc_loc_end,
-            loc_ghost: false
-          };
-          return {
-                  hd: {
-                    TAG: /* TermParameter */0,
-                    uncurried: false,
-                    attrs: /* [] */0,
-                    label: /* Nolabel */0,
-                    expr: undefined,
-                    pat: Ast_helper.Pat.any(loc, undefined, undefined),
-                    pos: startPos
-                  },
-                  tl: /* [] */0
-                };
-      case /* Lparen */18 :
-          Res_parser.next(undefined, p);
-          var match = p.token;
-          if (typeof match !== "number") {
-            return parseParameterList(p);
-          }
-          if (match !== 4) {
-            if (match !== 19) {
-              return parseParameterList(p);
-            }
-            Res_parser.next(undefined, p);
-            var loc_loc_end$1 = p.prevEndPos;
-            var loc$1 = {
-              loc_start: startPos,
-              loc_end: loc_loc_end$1,
-              loc_ghost: false
-            };
-            var unitPattern = Ast_helper.Pat.construct(loc$1, undefined, $$Location.mkloc({
-                      TAG: /* Lident */0,
-                      _0: "()"
-                    }, loc$1), undefined);
-            return {
-                    hd: {
-                      TAG: /* TermParameter */0,
-                      uncurried: false,
-                      attrs: /* [] */0,
-                      label: /* Nolabel */0,
-                      expr: undefined,
-                      pat: unitPattern,
-                      pos: startPos
-                    },
-                    tl: /* [] */0
-                  };
-          }
-          Res_parser.next(undefined, p);
-          var match$1 = p.token;
-          if (match$1 === 19) {
-            Res_parser.next(undefined, p);
-            var loc_loc_end$2 = p.prevEndPos;
-            var loc$2 = {
-              loc_start: startPos,
-              loc_end: loc_loc_end$2,
-              loc_ghost: false
-            };
-            var unitPattern$1 = Ast_helper.Pat.construct(loc$2, undefined, $$Location.mkloc({
-                      TAG: /* Lident */0,
-                      _0: "()"
-                    }, loc$2), undefined);
-            return {
-                    hd: {
-                      TAG: /* TermParameter */0,
-                      uncurried: true,
-                      attrs: /* [] */0,
-                      label: /* Nolabel */0,
-                      expr: undefined,
-                      pat: unitPattern$1,
-                      pos: startPos
-                    },
-                    tl: /* [] */0
-                  };
-          }
-          var parameters = parseParameterList(p);
-          if (!parameters) {
-            return parameters;
-          }
-          var match$2 = parameters.hd;
-          if (match$2.TAG === /* TermParameter */0) {
-            return {
-                    hd: {
-                      TAG: /* TermParameter */0,
-                      uncurried: true,
-                      attrs: match$2.attrs,
-                      label: match$2.label,
-                      expr: match$2.expr,
-                      pat: match$2.pat,
-                      pos: match$2.pos
-                    },
-                    tl: parameters.tl
-                  };
-          } else {
-            return parameters;
-          }
-      default:
-        
-    }
-  } else if (ident.TAG === /* Lident */4) {
-    Res_parser.next(undefined, p);
-    var loc_loc_end$3 = p.prevEndPos;
-    var loc$3 = {
-      loc_start: startPos,
-      loc_end: loc_loc_end$3,
-      loc_ghost: false
-    };
-    return {
-            hd: {
-              TAG: /* TermParameter */0,
-              uncurried: false,
-              attrs: /* [] */0,
-              label: /* Nolabel */0,
-              expr: undefined,
-              pat: Ast_helper.Pat.$$var(loc$3, undefined, $$Location.mkloc(ident._0, loc$3)),
-              pos: startPos
-            },
-            tl: /* [] */0
-          };
-  }
-  Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(ident, p.breadcrumbs));
-  return /* [] */0;
-}
-
-function parseSignLetDesc(attrs, p) {
-  var startPos = p.startPos;
-  Res_parser.optional(p, /* Let */9);
-  var match = parseLident(p);
-  var name = $$Location.mkloc(match[0], match[1]);
-  Res_parser.expect(undefined, /* Colon */24, p);
-  var typExpr = parsePolyTypeExpr(p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Val.mk(loc, attrs, undefined, undefined, name, typExpr);
-}
-
-function parseCoercedExpr(expr, p) {
-  Res_parser.expect(undefined, /* ColonGreaterThan */40, p);
-  var typ = parseTypExpr(undefined, undefined, undefined, p);
-  var loc_loc_start = expr.pexp_loc.loc_start;
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.coerce(loc, undefined, expr, undefined, typ);
-}
-
-function parseMaybeRecModuleBinding(attrs, startPos, p) {
-  var match = p.token;
-  if (match === 11) {
-    Res_parser.next(undefined, p);
-    return Ast_helper.Str.rec_module(undefined, parseModuleBindings(attrs, startPos, p));
-  } else {
-    return Ast_helper.Str.module_(undefined, parseModuleBinding(attrs, p.startPos, p));
-  }
-}
-
-function parseModuleTypeImpl(attrs, startPos, p) {
-  Res_parser.expect(undefined, /* Typ */60, p);
-  var nameStart = p.startPos;
-  var ident = p.token;
-  var name;
-  var exit = 0;
-  if (typeof ident === "number") {
-    exit = 2;
-  } else {
-    switch (ident.TAG | 0) {
-      case /* Lident */4 :
-      case /* Uident */5 :
-          exit = 1;
-          break;
-      default:
-        exit = 2;
-    }
-  }
-  switch (exit) {
-    case 1 :
-        Res_parser.next(undefined, p);
-        var loc_loc_end = p.prevEndPos;
-        var loc = {
-          loc_start: nameStart,
-          loc_end: loc_loc_end,
-          loc_ghost: false
-        };
-        name = $$Location.mkloc(ident._0, loc);
-        break;
-    case 2 :
-        Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
-        name = $$Location.mknoloc("_");
-        break;
-    
-  }
-  Res_parser.expect(undefined, /* Equal */14, p);
-  var moduleType = parseModuleType(undefined, undefined, p);
-  var moduleTypeDeclaration = Ast_helper.Mtd.mk({
-        loc_start: nameStart,
-        loc_end: p.prevEndPos,
-        loc_ghost: false
-      }, attrs, undefined, undefined, moduleType, name);
-  var loc_loc_end$1 = p.prevEndPos;
-  var loc$1 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$1,
-    loc_ghost: false
-  };
-  return Ast_helper.Str.modtype(loc$1, moduleTypeDeclaration);
-}
-
-function parseIfCondition(p) {
-  Res_parser.leaveBreadcrumb(p, /* IfCondition */17);
-  var conditionExpr = parseExpr(/* WhenExpr */2, p);
-  Res_parser.eatBreadcrumb(p);
-  return conditionExpr;
-}
-
-function parseIfOrIfLetExpression(p) {
-  Res_parser.beginRegion(p);
-  Res_parser.leaveBreadcrumb(p, /* ExprIf */15);
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* If */50, p);
-  var match = p.token;
-  var expr;
-  if (match === 9) {
-    Res_parser.next(undefined, p);
-    var ifLetExpr = parseIfLetExpr(startPos, p);
-    Res_parser.err(ifLetExpr.pexp_loc.loc_start, ifLetExpr.pexp_loc.loc_end, p, Res_diagnostics.message(experimentalIfLet(ifLetExpr)));
-    expr = ifLetExpr;
-  } else {
-    expr = parseIfExpr(startPos, p);
-  }
-  Res_parser.eatBreadcrumb(p);
-  return expr;
-}
-
-function parseElseBranch(p) {
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var blockExpr = parseExprBlock(undefined, p);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  return blockExpr;
-}
-
-function parseThenBranch(p) {
-  Res_parser.leaveBreadcrumb(p, /* IfBranch */18);
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var thenExpr = parseExprBlock(undefined, p);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  Res_parser.eatBreadcrumb(p);
-  return thenExpr;
-}
-
-function parseRecordRowWithStringKey(p) {
-  var s = p.token;
-  if (typeof s === "number") {
-    return ;
-  }
-  if (s.TAG !== /* String */3) {
-    return ;
-  }
-  var loc_loc_start = p.startPos;
-  var loc_loc_end = p.endPos;
-  var loc = {
-    loc_start: loc_loc_start,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  Res_parser.next(undefined, p);
-  var field = $$Location.mkloc({
-        TAG: /* Lident */0,
-        _0: s._0
-      }, loc);
+function parseConstrainedPattern(p) {
+  var pat = parsePattern(undefined, undefined, p);
   var match = p.token;
   if (match !== 24) {
-    return [
-            field,
-            Ast_helper.Exp.ident(field.loc, undefined, field)
-          ];
+    return pat;
   }
   Res_parser.next(undefined, p);
-  var fieldExpr = parseExpr(undefined, p);
-  return [
-          field,
-          fieldExpr
-        ];
+  var typ = parseTypExpr(undefined, undefined, undefined, p);
+  var loc_loc_start = pat.ppat_loc.loc_start;
+  var loc_loc_end = typ.ptyp_loc.loc_end;
+  var loc = {
+    loc_start: loc_loc_start,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Pat.constraint_(loc, undefined, pat, typ);
 }
 
-function parseModuleTypeOf(p) {
+function parseModulePattern(attrs, p) {
   var startPos = p.startPos;
   Res_parser.expect(undefined, /* Module */65, p);
-  Res_parser.expect(undefined, /* Typ */60, p);
-  Res_parser.expect(undefined, /* Of */66, p);
-  var moduleExpr = parseModuleExpr(p);
-  return Ast_helper.Mty.typeof_({
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, undefined, moduleExpr);
-}
-
-function parseParameter(p) {
-  if (!(p.token === /* Typ */60 || p.token === /* Tilde */48 || p.token === /* Dot */4 || Res_grammar.isPatternStart(p.token))) {
-    return ;
-  }
-  var startPos = p.startPos;
-  var uncurried = Res_parser.optional(p, /* Dot */4);
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  if (p.token === /* Typ */60) {
-    Res_parser.next(undefined, p);
-    var lidents = parseLidentList(p);
-    return {
-            TAG: /* TypeParameter */1,
-            uncurried: uncurried,
-            attrs: attrs,
-            locs: lidents,
-            pos: startPos
-          };
-  }
-  var match = p.token;
-  var match$1;
-  if (match === 48) {
-    Res_parser.next(undefined, p);
-    var match$2 = parseLident(p);
-    var lblName = match$2[0];
-    var propLocAttr_0 = $$Location.mkloc("ns.namedArgLoc", match$2[1]);
-    var propLocAttr_1 = {
-      TAG: /* PStr */0,
-      _0: /* [] */0
-    };
-    var propLocAttr = [
-      propLocAttr_0,
-      propLocAttr_1
-    ];
-    var t = p.token;
-    var exit = 0;
-    if (typeof t === "number" && t < 26) {
-      switch (t) {
-        case /* As */3 :
-            Res_parser.next(undefined, p);
-            var pat = parseConstrainedPattern(p);
-            var pat_ppat_desc = pat.ppat_desc;
-            var pat_ppat_loc = pat.ppat_loc;
-            var pat_ppat_attributes = {
-              hd: propLocAttr,
-              tl: pat.ppat_attributes
-            };
-            var pat$1 = {
-              ppat_desc: pat_ppat_desc,
-              ppat_loc: pat_ppat_loc,
-              ppat_attributes: pat_ppat_attributes
-            };
-            match$1 = [
-              attrs,
-              {
-                TAG: /* Labelled */0,
-                _0: lblName
-              },
-              pat$1
-            ];
-            break;
-        case /* Open */0 :
-        case /* True */1 :
-        case /* False */2 :
-        case /* Dot */4 :
-        case /* DotDot */5 :
-        case /* DotDotDot */6 :
-        case /* Bang */7 :
-        case /* Semicolon */8 :
-        case /* Let */9 :
-        case /* And */10 :
-        case /* Rec */11 :
-        case /* Underscore */12 :
-        case /* SingleQuote */13 :
-        case /* EqualEqual */15 :
-        case /* EqualEqualEqual */16 :
-        case /* Bar */17 :
-        case /* Lparen */18 :
-        case /* Lbracket */20 :
-        case /* Rbracket */21 :
-        case /* Lbrace */22 :
-        case /* Rbrace */23 :
-            exit = 1;
-            break;
-        case /* Colon */24 :
-            var lblEnd = p.prevEndPos;
-            Res_parser.next(undefined, p);
-            var typ = parseTypExpr(undefined, undefined, undefined, p);
-            var loc = {
-              loc_start: startPos,
-              loc_end: lblEnd,
-              loc_ghost: false
-            };
-            var pat$2 = Ast_helper.Pat.$$var(loc, undefined, $$Location.mkloc(lblName, loc));
-            var loc_loc_end = p.prevEndPos;
-            var loc$1 = {
-              loc_start: startPos,
-              loc_end: loc_loc_end,
-              loc_ghost: false
-            };
-            var pat$3 = Ast_helper.Pat.constraint_(loc$1, {
-                  hd: propLocAttr,
-                  tl: /* [] */0
-                }, pat$2, typ);
-            match$1 = [
-              attrs,
-              {
-                TAG: /* Labelled */0,
-                _0: lblName
-              },
-              pat$3
-            ];
-            break;
-        case /* Equal */14 :
-        case /* Rparen */19 :
-        case /* Comma */25 :
-            exit = 2;
-            break;
-        
-      }
-    } else {
-      exit = 1;
-    }
-    switch (exit) {
-      case 1 :
-          Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(t, p.breadcrumbs));
-          var loc_loc_end$1 = p.prevEndPos;
-          var loc$2 = {
-            loc_start: startPos,
-            loc_end: loc_loc_end$1,
-            loc_ghost: false
-          };
-          match$1 = [
-            attrs,
-            {
-              TAG: /* Labelled */0,
-              _0: lblName
-            },
-            Ast_helper.Pat.$$var(loc$2, undefined, $$Location.mkloc(lblName, loc$2))
-          ];
-          break;
-      case 2 :
-          var loc_loc_end$2 = p.prevEndPos;
-          var loc$3 = {
-            loc_start: startPos,
-            loc_end: loc_loc_end$2,
-            loc_ghost: false
-          };
-          match$1 = [
-            attrs,
-            {
-              TAG: /* Labelled */0,
-              _0: lblName
-            },
-            Ast_helper.Pat.$$var(loc$3, {
-                  hd: propLocAttr,
-                  tl: /* [] */0
-                }, $$Location.mkloc(lblName, loc$3))
-          ];
-          break;
-      
-    }
-  } else {
-    var pattern = parseConstrainedPattern(p);
-    var attrs$1 = List.concat({
-          hd: attrs,
-          tl: {
-            hd: pattern.ppat_attributes,
-            tl: /* [] */0
-          }
-        });
-    match$1 = [
-      /* [] */0,
-      /* Nolabel */0,
-      {
-        ppat_desc: pattern.ppat_desc,
-        ppat_loc: pattern.ppat_loc,
-        ppat_attributes: attrs$1
-      }
-    ];
-  }
-  var pat$4 = match$1[2];
-  var lbl = match$1[1];
-  var attrs$2 = match$1[0];
-  var match$3 = p.token;
-  if (match$3 !== 14) {
-    return {
-            TAG: /* TermParameter */0,
-            uncurried: uncurried,
-            attrs: attrs$2,
-            label: lbl,
-            expr: undefined,
-            pat: pat$4,
-            pos: startPos
-          };
-  }
-  Res_parser.next(undefined, p);
-  var lbl$1;
-  if (typeof lbl === "number") {
-    var $$var = pat$4.ppat_desc;
-    var lblName$1;
-    lblName$1 = typeof $$var === "number" || $$var.TAG !== /* Ppat_var */0 ? "" : $$var._0.txt;
-    Res_parser.err(startPos, p.prevEndPos, p, Res_diagnostics.message(missingTildeLabeledParameter(lblName$1)));
-    lbl$1 = {
-      TAG: /* Optional */1,
-      _0: lblName$1
-    };
-  } else {
-    lbl$1 = lbl.TAG === /* Labelled */0 ? ({
-          TAG: /* Optional */1,
-          _0: lbl._0
-        }) : lbl;
-  }
-  var match$4 = p.token;
-  if (match$4 === 49) {
-    Res_parser.next(undefined, p);
-    return {
-            TAG: /* TermParameter */0,
-            uncurried: uncurried,
-            attrs: attrs$2,
-            label: lbl$1,
-            expr: undefined,
-            pat: pat$4,
-            pos: startPos
-          };
-  }
-  var expr = parseConstrainedOrCoercedExpr(p);
-  return {
-          TAG: /* TermParameter */0,
-          uncurried: uncurried,
-          attrs: attrs$2,
-          label: lbl$1,
-          expr: expr,
-          pat: pat$4,
-          pos: startPos
-        };
-}
-
-function parseExprBlockItem(p) {
-  var startPos = p.startPos;
-  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
-  var match = p.token;
-  if (typeof match === "number") {
-    if (match >= 27) {
-      if (match !== 65) {
-        if (match < 28) {
-          var extensionConstructor = parseExceptionDef(attrs, p);
-          parseNewlineOrSemicolonExprBlock(p);
-          var blockExpr = parseExprBlock(undefined, p);
-          var loc_loc_end = p.prevEndPos;
-          var loc = {
-            loc_start: startPos,
-            loc_end: loc_loc_end,
-            loc_ghost: false
-          };
-          return Ast_helper.Exp.letexception(loc, undefined, extensionConstructor, blockExpr);
-        }
-        
-      } else {
-        Res_parser.next(undefined, p);
-        var match$1 = p.token;
-        if (match$1 === 18) {
-          var expr = parseFirstClassModuleExpr(startPos, p);
-          var a = parsePrimaryExpr(expr, undefined, p);
-          var expr$1 = parseBinaryExpr(undefined, a, p, 1);
-          return parseTernaryExpr(expr$1, p);
-        }
-        var ident = p.token;
-        var name;
-        var exit = 0;
-        if (typeof ident === "number" || ident.TAG !== /* Uident */5) {
-          exit = 2;
-        } else {
-          var loc_loc_start = p.startPos;
-          var loc_loc_end$1 = p.endPos;
-          var loc$1 = {
-            loc_start: loc_loc_start,
-            loc_end: loc_loc_end$1,
-            loc_ghost: false
-          };
-          Res_parser.next(undefined, p);
-          name = $$Location.mkloc(ident._0, loc$1);
-        }
-        if (exit === 2) {
-          Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
-          name = $$Location.mknoloc("_");
-        }
-        var body = parseModuleBindingBody(p);
-        parseNewlineOrSemicolonExprBlock(p);
-        var expr$2 = parseExprBlock(undefined, p);
-        var loc_loc_end$2 = p.prevEndPos;
-        var loc$2 = {
-          loc_start: startPos,
-          loc_end: loc_loc_end$2,
-          loc_ghost: false
-        };
-        return Ast_helper.Exp.letmodule(loc$2, undefined, name, body, expr$2);
-      }
-    } else if (match !== 9) {
-      if (match === 0) {
-        var od = parseOpenDescription(attrs, p);
-        parseNewlineOrSemicolonExprBlock(p);
-        var blockExpr$1 = parseExprBlock(undefined, p);
-        var loc_loc_end$3 = p.prevEndPos;
-        var loc$3 = {
-          loc_start: startPos,
-          loc_end: loc_loc_end$3,
-          loc_ghost: false
-        };
-        return Ast_helper.Exp.open_(loc$3, undefined, od.popen_override, od.popen_lid, blockExpr$1);
-      }
-      
-    } else {
-      var match$2 = parseLetBindings(attrs, p);
-      parseNewlineOrSemicolonExprBlock(p);
-      var next;
-      if (Res_grammar.isBlockExprStart(p.token)) {
-        next = parseExprBlock(undefined, p);
-      } else {
-        var loc_loc_start$1 = p.startPos;
-        var loc_loc_end$4 = p.endPos;
-        var loc$4 = {
-          loc_start: loc_loc_start$1,
-          loc_end: loc_loc_end$4,
-          loc_ghost: false
-        };
-        next = Ast_helper.Exp.construct(loc$4, undefined, $$Location.mkloc({
-                  TAG: /* Lident */0,
-                  _0: "()"
-                }, loc$4), undefined);
-      }
-      var loc_loc_end$5 = p.prevEndPos;
-      var loc$5 = {
-        loc_start: startPos,
-        loc_end: loc_loc_end$5,
-        loc_ghost: false
-      };
-      return Ast_helper.Exp.let_(loc$5, undefined, match$2[0], match$2[1], next);
-    }
-  }
-  var expr$3 = parseExpr(undefined, p);
-  var e1_pexp_desc = expr$3.pexp_desc;
-  var e1_pexp_loc = expr$3.pexp_loc;
-  var e1_pexp_attributes = List.concat({
-        hd: attrs,
-        tl: {
-          hd: expr$3.pexp_attributes,
-          tl: /* [] */0
-        }
-      });
-  var e1 = {
-    pexp_desc: e1_pexp_desc,
-    pexp_loc: e1_pexp_loc,
-    pexp_attributes: e1_pexp_attributes
-  };
-  parseNewlineOrSemicolonExprBlock(p);
-  if (!Res_grammar.isBlockExprStart(p.token)) {
-    return e1;
-  }
-  var e2 = parseExprBlock(undefined, p);
-  var init = e1_pexp_loc;
-  var loc_loc_start$2 = init.loc_start;
-  var loc_loc_end$6 = e2.pexp_loc.loc_end;
-  var loc_loc_ghost = init.loc_ghost;
-  var loc$6 = {
-    loc_start: loc_loc_start$2,
-    loc_end: loc_loc_end$6,
-    loc_ghost: loc_loc_ghost
-  };
-  return Ast_helper.Exp.sequence(loc$6, undefined, e1, e2);
-}
-
-function parseJsxName(p) {
-  var ident = p.token;
-  var longident;
-  var exit = 0;
-  if (typeof ident === "number") {
-    exit = 1;
-  } else {
-    switch (ident.TAG | 0) {
-      case /* Lident */4 :
-          var identStart = p.startPos;
-          var identEnd = p.endPos;
-          Res_parser.next(undefined, p);
-          var loc = {
-            loc_start: identStart,
-            loc_end: identEnd,
-            loc_ghost: false
-          };
-          longident = $$Location.mkloc({
-                TAG: /* Lident */0,
-                _0: ident._0
-              }, loc);
-          break;
-      case /* Uident */5 :
-          var longident$1 = parseModuleLongIdent(true, p);
-          longident = $$Location.mkloc({
-                TAG: /* Ldot */1,
-                _0: longident$1.txt,
-                _1: "createElement"
-              }, longident$1.loc);
-          break;
-      default:
-        exit = 1;
-    }
-  }
-  if (exit === 1) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.message("A jsx name must be a lowercase or uppercase name, like: div in <div /> or Navbar in <Navbar />"));
-    longident = $$Location.mknoloc({
-          TAG: /* Lident */0,
-          _0: "_"
-        });
-  }
-  return Ast_helper.Exp.ident(longident.loc, undefined, longident);
-}
-
-function parseJsxOpeningOrSelfClosingElement(startPos, p) {
-  var jsxStartPos = p.startPos;
-  var name = parseJsxName(p);
-  var jsxProps = parseRegion(p, /* JsxAttribute */5, parseJsxProp);
-  var token = p.token;
-  var children;
-  var exit = 0;
-  if (typeof token === "number") {
-    if (token !== 29) {
-      if (token !== 41) {
-        exit = 1;
-      } else {
-        var childrenStartPos = p.startPos;
-        Res_scanner.setJsxMode(p.scanner);
-        Res_parser.next(undefined, p);
-        var match = parseJsxChildren(p);
-        var children$1 = match[1];
-        var spread = match[0];
-        var childrenEndPos = p.startPos;
-        var token$1 = p.token;
-        var exit$1 = 0;
-        if (typeof token$1 === "number") {
-          if (token$1 !== 42) {
-            if (token$1 !== 43) {
-              exit$1 = 2;
-            } else {
-              Res_parser.next(undefined, p);
-            }
-          } else {
-            Res_parser.next(undefined, p);
-            Res_parser.expect(undefined, /* Forwardslash */29, p);
-          }
-        } else {
-          exit$1 = 2;
-        }
-        if (exit$1 === 2) {
-          if (Res_grammar.isStructureItemStart(token$1)) {
-            
-          } else {
-            Res_parser.expect(undefined, /* LessThanSlash */43, p);
-          }
-        }
-        var token$2 = p.token;
-        var exit$2 = 0;
-        var exit$3 = 0;
-        if (typeof token$2 === "number") {
-          exit$2 = 2;
-        } else {
-          switch (token$2.TAG | 0) {
-            case /* Lident */4 :
-            case /* Uident */5 :
-                exit$3 = 3;
-                break;
-            default:
-              exit$2 = 2;
-          }
-        }
-        if (exit$3 === 3) {
-          if (verifyJsxOpeningClosingName(p, name)) {
-            Res_parser.expect(undefined, /* GreaterThan */41, p);
-            var loc = {
-              loc_start: childrenStartPos,
-              loc_end: childrenEndPos,
-              loc_ghost: false
-            };
-            children = spread && children$1 ? children$1.hd : makeListExpression(loc, children$1, undefined);
-          } else {
-            exit$2 = 2;
-          }
-        }
-        if (exit$2 === 2) {
-          if (Res_grammar.isStructureItemStart(token$2)) {
-            var closing = "</" + (string_of_pexp_ident(name) + ">");
-            var msg = Res_diagnostics.message("Missing " + closing);
-            Res_parser.err(startPos, p.prevEndPos, p, msg);
-          } else {
-            var opening = "</" + (string_of_pexp_ident(name) + ">");
-            var msg$1 = "Closing jsx name should be the same as the opening name. Did you mean " + (opening + " ?");
-            Res_parser.err(startPos, p.prevEndPos, p, Res_diagnostics.message(msg$1));
-            Res_parser.expect(undefined, /* GreaterThan */41, p);
-          }
-          var loc$1 = {
-            loc_start: childrenStartPos,
-            loc_end: childrenEndPos,
-            loc_ghost: false
-          };
-          children = spread && children$1 ? children$1.hd : makeListExpression(loc$1, children$1, undefined);
-        }
-        
-      }
-    } else {
-      var childrenStartPos$1 = p.startPos;
-      Res_parser.next(undefined, p);
-      var childrenEndPos$1 = p.startPos;
-      Res_parser.expect(undefined, /* GreaterThan */41, p);
-      var loc$2 = {
-        loc_start: childrenStartPos$1,
-        loc_end: childrenEndPos$1,
-        loc_ghost: false
-      };
-      children = makeListExpression(loc$2, /* [] */0, undefined);
-    }
-  } else {
-    exit = 1;
-  }
-  if (exit === 1) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-    children = makeListExpression($$Location.none, /* [] */0, undefined);
-  }
-  var jsxEndPos = p.prevEndPos;
-  var loc$3 = {
-    loc_start: jsxStartPos,
-    loc_end: jsxEndPos,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.apply(loc$3, undefined, name, List.concat({
-                  hd: jsxProps,
-                  tl: {
-                    hd: {
-                      hd: [
-                        {
-                          TAG: /* Labelled */0,
-                          _0: "children"
-                        },
-                        children
-                      ],
-                      tl: {
-                        hd: [
-                          /* Nolabel */0,
-                          Ast_helper.Exp.construct(undefined, undefined, $$Location.mknoloc({
-                                    TAG: /* Lident */0,
-                                    _0: "()"
-                                  }), undefined)
-                        ],
-                        tl: /* [] */0
-                      }
-                    },
-                    tl: /* [] */0
-                  }
-                }));
-}
-
-function parseJsxFragment(p) {
-  var childrenStartPos = p.startPos;
-  Res_scanner.setJsxMode(p.scanner);
-  Res_parser.expect(undefined, /* GreaterThan */41, p);
-  var match = parseJsxChildren(p);
-  var childrenEndPos = p.startPos;
-  Res_parser.expect(undefined, /* LessThanSlash */43, p);
-  Res_parser.expect(undefined, /* GreaterThan */41, p);
-  var loc = {
-    loc_start: childrenStartPos,
-    loc_end: childrenEndPos,
-    loc_ghost: false
-  };
-  return makeListExpression(loc, match[1], undefined);
-}
-
-function parseTypeConstructorDeclarationWithBar(p) {
-  var match = p.token;
-  if (match !== 17) {
-    return ;
-  }
-  var startPos = p.startPos;
-  Res_parser.next(undefined, p);
-  return parseTypeConstructorDeclaration(startPos, p);
-}
-
-function parsePatternMatching(p) {
-  var cases = parseDelimitedRegion(p, /* PatternMatching */22, /* Rbrace */23, parsePatternMatchCase);
-  if (cases) {
-    
-  } else {
-    Res_parser.err(p.prevEndPos, undefined, p, Res_diagnostics.message("Pattern matching needs at least one case"));
-  }
-  return cases;
-}
-
-function parseJsxProp(p) {
-  var match = p.token;
-  if (typeof match === "number") {
-    if (match !== /* Question */49) {
-      return ;
-    }
-    
-  } else if (match.TAG !== /* Lident */4) {
-    return ;
-  }
-  var optional = Res_parser.optional(p, /* Question */49);
-  var match$1 = parseLident(p);
-  var loc = match$1[1];
-  var name = match$1[0];
-  var propLocAttr_0 = $$Location.mkloc("ns.namedArgLoc", loc);
-  var propLocAttr_1 = {
-    TAG: /* PStr */0,
-    _0: /* [] */0
-  };
-  var propLocAttr = [
-    propLocAttr_0,
-    propLocAttr_1
-  ];
-  if (optional) {
-    return [
-            {
-              TAG: /* Optional */1,
-              _0: name
-            },
-            Ast_helper.Exp.ident(loc, {
-                  hd: propLocAttr,
-                  tl: /* [] */0
-                }, $$Location.mkloc({
-                      TAG: /* Lident */0,
-                      _0: name
-                    }, loc))
-          ];
-  }
-  var match$2 = p.token;
-  if (match$2 === 14) {
-    Res_parser.next(undefined, p);
-    var optional$1 = Res_parser.optional(p, /* Question */49);
-    var e = parsePrimaryExpr(parseAtomicExpr(p), undefined, p);
-    var attrExpr_pexp_desc = e.pexp_desc;
-    var attrExpr_pexp_loc = e.pexp_loc;
-    var attrExpr_pexp_attributes = {
-      hd: propLocAttr,
-      tl: e.pexp_attributes
-    };
-    var attrExpr = {
-      pexp_desc: attrExpr_pexp_desc,
-      pexp_loc: attrExpr_pexp_loc,
-      pexp_attributes: attrExpr_pexp_attributes
-    };
-    var label = optional$1 ? ({
-          TAG: /* Optional */1,
-          _0: name
-        }) : ({
-          TAG: /* Labelled */0,
-          _0: name
-        });
-    return [
-            label,
-            attrExpr
-          ];
-  }
-  var attrExpr$1 = Ast_helper.Exp.ident(loc, {
-        hd: propLocAttr,
-        tl: /* [] */0
-      }, $$Location.mkloc({
-            TAG: /* Lident */0,
-            _0: name
-          }, loc));
-  var label$1 = optional ? ({
-        TAG: /* Optional */1,
-        _0: name
-      }) : ({
-        TAG: /* Labelled */0,
-        _0: name
-      });
-  return [
-          label$1,
-          attrExpr$1
-        ];
-}
-
-function parseTypeConstructorArgRegion(p) {
-  while(true) {
-    if (Res_grammar.isTypExprStart(p.token)) {
-      return parseTypExpr(undefined, undefined, undefined, p);
-    }
-    if (p.token !== /* LessThan */42) {
-      return ;
-    }
-    Res_parser.next(undefined, p);
-    continue ;
-  };
-}
-
-function parseModuleTypeDeclaration(attrs, startPos, p) {
-  Res_parser.expect(undefined, /* Typ */60, p);
-  var ident = p.token;
-  var moduleName;
-  var exit = 0;
-  if (typeof ident === "number") {
-    exit = 2;
-  } else {
-    switch (ident.TAG | 0) {
-      case /* Lident */4 :
-      case /* Uident */5 :
-          exit = 1;
-          break;
-      default:
-        exit = 2;
-    }
-  }
-  switch (exit) {
-    case 1 :
-        var loc_loc_start = p.startPos;
-        var loc_loc_end = p.endPos;
-        var loc = {
-          loc_start: loc_loc_start,
-          loc_end: loc_loc_end,
-          loc_ghost: false
-        };
-        Res_parser.next(undefined, p);
-        moduleName = $$Location.mkloc(ident._0, loc);
-        break;
-    case 2 :
-        Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
-        moduleName = $$Location.mknoloc("_");
-        break;
-    
-  }
-  var match = p.token;
-  var typ = match === 14 ? (Res_parser.next(undefined, p), parseModuleType(undefined, undefined, p)) : undefined;
-  var moduleDecl = Ast_helper.Mtd.mk(undefined, attrs, undefined, undefined, typ, moduleName);
-  return Ast_helper.Sig.modtype({
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, moduleDecl);
-}
-
-function parseNewlineOrSemicolonSignature(p) {
-  var token = p.token;
-  if (token === 8) {
-    return Res_parser.next(undefined, p);
-  } else if (Res_grammar.isSignatureItemStart(token) && p.prevEndPos.pos_lnum >= p.startPos.pos_lnum) {
-    return Res_parser.err(p.prevEndPos, p.endPos, p, Res_diagnostics.message("consecutive specifications on a line must be separated by ';' or a newline"));
-  } else {
-    return ;
-  }
-}
-
-function parseModuleDeclarationOrAlias(attrs, p) {
-  var startPos = p.startPos;
-  var ident = p.token;
-  var moduleName;
-  var exit = 0;
-  if (typeof ident === "number" || ident.TAG !== /* Uident */5) {
-    exit = 1;
+  Res_parser.expect(undefined, /* Lparen */18, p);
+  var uident = p.token;
+  var uident$1;
+  if (typeof uident === "number" || uident.TAG !== /* Uident */5) {
+    uident$1 = $$Location.mknoloc("_");
   } else {
     var loc_loc_start = p.startPos;
     var loc_loc_end = p.endPos;
@@ -8983,199 +4343,309 @@ function parseModuleDeclarationOrAlias(attrs, p) {
       loc_ghost: false
     };
     Res_parser.next(undefined, p);
-    moduleName = $$Location.mkloc(ident._0, loc);
+    uident$1 = $$Location.mkloc(uident._0, loc);
   }
-  if (exit === 1) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
-    moduleName = $$Location.mknoloc("_");
-  }
-  var token = p.token;
-  var body;
-  var exit$1 = 0;
-  if (typeof token === "number") {
-    if (token !== 14) {
-      if (token !== 24) {
-        exit$1 = 1;
-      } else {
-        Res_parser.next(undefined, p);
-        body = parseModuleType(undefined, undefined, p);
-      }
-    } else {
-      Res_parser.next(undefined, p);
-      var lident = parseModuleLongIdent(false, p);
-      body = Ast_helper.Mty.alias(undefined, undefined, lident);
-    }
-  } else {
-    exit$1 = 1;
-  }
-  if (exit$1 === 1) {
-    Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-    body = defaultModuleType(undefined);
-  }
-  var loc_loc_end$1 = p.prevEndPos;
-  var loc$1 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$1,
-    loc_ghost: false
-  };
-  return Ast_helper.Md.mk(loc$1, attrs, undefined, undefined, moduleName, body);
-}
-
-function parseSignJsExport(attrs, p) {
-  var exportStart = p.startPos;
-  Res_parser.expect(undefined, /* Export */84, p);
-  var exportLoc_loc_end = p.prevEndPos;
-  var exportLoc = {
-    loc_start: exportStart,
-    loc_end: exportLoc_loc_end,
-    loc_ghost: false
-  };
-  var genTypeAttr_0 = $$Location.mkloc("genType", exportLoc);
-  var genTypeAttr_1 = {
-    TAG: /* PStr */0,
-    _0: /* [] */0
-  };
-  var genTypeAttr = [
-    genTypeAttr_0,
-    genTypeAttr_1
-  ];
-  var attrs$1 = {
-    hd: genTypeAttr,
-    tl: attrs
-  };
   var match = p.token;
-  if (match === 60) {
-    var ext = parseTypeDefinitionOrExtension(attrs$1, p);
-    if (ext.TAG === /* TypeDef */0) {
-      var loc_loc_end = p.prevEndPos;
-      var loc = {
-        loc_start: exportStart,
-        loc_end: loc_loc_end,
-        loc_ghost: false
-      };
-      return Ast_helper.Sig.type_(loc, ext.recFlag, ext.types);
-    }
+  if (match === 24) {
+    var colonStart = p.startPos;
+    Res_parser.next(undefined, p);
+    var packageTypAttrs = parseRegion(p, /* Attribute */50, parseAttribute);
+    var packageType = parsePackageType(colonStart, packageTypAttrs, p);
+    Res_parser.expect(undefined, /* Rparen */19, p);
     var loc_loc_end$1 = p.prevEndPos;
     var loc$1 = {
-      loc_start: exportStart,
+      loc_start: startPos,
       loc_end: loc_loc_end$1,
       loc_ghost: false
     };
-    return Ast_helper.Sig.type_extension(loc$1, ext._0);
+    var unpack = Ast_helper.Pat.unpack(uident$1.loc, undefined, uident$1);
+    return Ast_helper.Pat.constraint_(loc$1, attrs, unpack, packageType);
   }
-  var valueDesc = parseSignLetDesc(attrs$1, p);
+  Res_parser.expect(undefined, /* Rparen */19, p);
   var loc_loc_end$2 = p.prevEndPos;
   var loc$2 = {
-    loc_start: exportStart,
+    loc_start: startPos,
     loc_end: loc_loc_end$2,
     loc_ghost: false
   };
-  return Ast_helper.Sig.value(loc$2, valueDesc);
+  return Ast_helper.Pat.unpack(loc$2, attrs, uident$1);
 }
 
-function parseRecModuleSpec(attrs, startPos, p) {
-  Res_parser.expect(undefined, /* Rec */11, p);
-  var first = parseRecModuleDeclaration(attrs, startPos, p);
-  var _spec = {
+function parseTuplePattern(attrs, first, startPos, p) {
+  var patterns_1 = parseCommaDelimitedRegion(p, /* PatternList */25, /* Rparen */19, parseConstrainedPatternRegion);
+  var patterns = {
     hd: first,
-    tl: /* [] */0
+    tl: patterns_1
   };
-  while(true) {
-    var spec = _spec;
-    var startPos$1 = p.startPos;
-    var attrs$1 = parseAttributesAndBinding(p);
-    var match = p.token;
-    if (match !== 10) {
-      return List.rev(spec);
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  if (patterns_1) {
+    
+  } else {
+    Res_parser.err(startPos, p.prevEndPos, p, Res_diagnostics.message(tupleSingleElement));
+  }
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Pat.tuple(loc, attrs, patterns);
+}
+
+function parseAliasPattern(attrs, pattern, p) {
+  var match = p.token;
+  if (match !== 3) {
+    return pattern;
+  }
+  Res_parser.next(undefined, p);
+  var match$1 = parseLident(p);
+  var name = $$Location.mkloc(match$1[0], match$1[1]);
+  var init = pattern.ppat_loc;
+  return Ast_helper.Pat.alias({
+              loc_start: init.loc_start,
+              loc_end: p.prevEndPos,
+              loc_ghost: init.loc_ghost
+            }, attrs, pattern, name);
+}
+
+function parseVariantPatternArgs(p, ident, startPos, attrs) {
+  var lparen = p.startPos;
+  Res_parser.expect(undefined, /* Lparen */18, p);
+  var patterns = parseCommaDelimitedRegion(p, /* PatternList */25, /* Rparen */19, parseConstrainedPatternRegion);
+  var args;
+  var exit = 0;
+  if (patterns) {
+    var pat = patterns.hd;
+    var tmp = pat.ppat_desc;
+    if (typeof tmp === "number") {
+      if (patterns.tl) {
+        exit = 1;
+      } else {
+        args = pat;
+      }
+    } else if (tmp.TAG === /* Ppat_tuple */4) {
+      if (patterns.tl) {
+        exit = 1;
+      } else {
+        args = p.mode === /* ParseForTypeChecker */0 ? pat : Ast_helper.Pat.tuple({
+                loc_start: lparen,
+                loc_end: p.endPos,
+                loc_ghost: false
+              }, undefined, patterns);
+      }
+    } else if (patterns.tl) {
+      exit = 1;
+    } else {
+      args = pat;
     }
-    Res_parser.expect(undefined, /* And */10, p);
-    var decl = parseRecModuleDeclaration(attrs$1, startPos$1, p);
-    _spec = {
-      hd: decl,
-      tl: spec
+  } else {
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: lparen,
+      loc_end: loc_loc_end,
+      loc_ghost: false
     };
+    args = Ast_helper.Pat.construct(loc, undefined, $$Location.mkloc({
+              TAG: /* Lident */0,
+              _0: "()"
+            }, loc), undefined);
+  }
+  if (exit === 1) {
+    args = Ast_helper.Pat.tuple({
+          loc_start: lparen,
+          loc_end: p.endPos,
+          loc_ghost: false
+        }, undefined, patterns);
+  }
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  return Ast_helper.Pat.variant({
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, attrs, ident, args);
+}
+
+function parseConstructorPatternArgs(p, constr, startPos, attrs) {
+  var lparen = p.startPos;
+  Res_parser.expect(undefined, /* Lparen */18, p);
+  var args = parseCommaDelimitedRegion(p, /* PatternList */25, /* Rparen */19, parseConstrainedPatternRegion);
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  var args$1;
+  var exit = 0;
+  if (args) {
+    var pat = args.hd;
+    var tmp = pat.ppat_desc;
+    if (typeof tmp === "number") {
+      if (args.tl) {
+        exit = 1;
+      } else {
+        args$1 = pat;
+      }
+    } else if (tmp.TAG === /* Ppat_tuple */4) {
+      if (args.tl) {
+        exit = 1;
+      } else {
+        args$1 = p.mode === /* ParseForTypeChecker */0 ? pat : Ast_helper.Pat.tuple({
+                loc_start: lparen,
+                loc_end: p.endPos,
+                loc_ghost: false
+              }, undefined, args);
+      }
+    } else if (args.tl) {
+      exit = 1;
+    } else {
+      args$1 = pat;
+    }
+  } else {
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: lparen,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    args$1 = Ast_helper.Pat.construct(loc, undefined, $$Location.mkloc({
+              TAG: /* Lident */0,
+              _0: "()"
+            }, loc), undefined);
+  }
+  if (exit === 1) {
+    args$1 = Ast_helper.Pat.tuple({
+          loc_start: lparen,
+          loc_end: p.endPos,
+          loc_ghost: false
+        }, undefined, args);
+  }
+  return Ast_helper.Pat.construct({
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, attrs, constr, args$1);
+}
+
+function parseListPattern(startPos, attrs, p) {
+  var listPatterns = parseCommaDelimitedReversedList(p, /* PatternOcamlList */26, /* Rbrace */23, parsePatternRegion);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  var filterSpread = function (param) {
+    var pattern = param[1];
+    if (param[0]) {
+      Res_parser.err(pattern.ppat_loc.loc_start, undefined, p, Res_diagnostics.message(listPatternSpread));
+      return pattern;
+    } else {
+      return pattern;
+    }
+  };
+  if (listPatterns) {
+    var match = listPatterns.hd;
+    if (match[0]) {
+      var patterns = List.rev(List.map(filterSpread, listPatterns.tl));
+      var pat = makeListPattern(loc, patterns, match[1]);
+      return {
+              ppat_desc: pat.ppat_desc,
+              ppat_loc: loc,
+              ppat_attributes: attrs
+            };
+    }
+    
+  }
+  var patterns$1 = List.rev(List.map(filterSpread, listPatterns));
+  var pat$1 = makeListPattern(loc, patterns$1, undefined);
+  return {
+          ppat_desc: pat$1.ppat_desc,
+          ppat_loc: loc,
+          ppat_attributes: attrs
+        };
+}
+
+function parseOrPattern(pattern1, p) {
+  var _pattern1 = pattern1;
+  while(true) {
+    var pattern1$1 = _pattern1;
+    var match = p.token;
+    if (match !== 17) {
+      return pattern1$1;
+    }
+    Res_parser.next(undefined, p);
+    var pattern2 = parsePattern(undefined, false, p);
+    var init = pattern1$1.ppat_loc;
+    var loc_loc_start = init.loc_start;
+    var loc_loc_end = pattern2.ppat_loc.loc_end;
+    var loc_loc_ghost = init.loc_ghost;
+    var loc = {
+      loc_start: loc_loc_start,
+      loc_end: loc_loc_end,
+      loc_ghost: loc_loc_ghost
+    };
+    _pattern1 = Ast_helper.Pat.or_(loc, undefined, pattern1$1, pattern2);
     continue ;
   };
 }
 
-function parseEs6ArrowType(attrs, p) {
+function parseArrayPattern(attrs, p) {
   var startPos = p.startPos;
-  var match = p.token;
-  if (match === 48) {
-    Res_parser.next(undefined, p);
-    var match$1 = parseLident(p);
-    var name = match$1[0];
-    var lblLocAttr_0 = $$Location.mkloc("ns.namedArgLoc", match$1[1]);
-    var lblLocAttr_1 = {
-      TAG: /* PStr */0,
-      _0: /* [] */0
-    };
-    var lblLocAttr = [
-      lblLocAttr_0,
-      lblLocAttr_1
+  Res_parser.expect(undefined, /* Lbracket */20, p);
+  var patterns = parseCommaDelimitedRegion(p, /* PatternList */25, /* Rbracket */21, (function (param) {
+          return parseNonSpreadPattern(arrayPatternSpread, param);
+        }));
+  Res_parser.expect(undefined, /* Rbracket */21, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Pat.array(loc, attrs, patterns);
+}
+
+function parseRecordPattern(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var rawFields = parseCommaDelimitedReversedList(p, /* PatternRecord */27, /* Rbrace */23, parseRecordPatternItem);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  var match = rawFields && !rawFields.hd[1] ? [
+      rawFields.tl,
+      /* Open */1
+    ] : [
+      rawFields,
+      /* Closed */0
     ];
-    Res_parser.expect(/* TypeExpression */20, /* Colon */24, p);
-    var typ = parseTypExpr(undefined, false, false, p);
-    var typ_ptyp_desc = typ.ptyp_desc;
-    var typ_ptyp_loc = typ.ptyp_loc;
-    var typ_ptyp_attributes = {
-      hd: lblLocAttr,
-      tl: typ.ptyp_attributes
-    };
-    var typ$1 = {
-      ptyp_desc: typ_ptyp_desc,
-      ptyp_loc: typ_ptyp_loc,
-      ptyp_attributes: typ_ptyp_attributes
-    };
-    var match$2 = p.token;
-    var arg = match$2 === 14 ? (Res_parser.next(undefined, p), Res_parser.expect(undefined, /* Question */49, p), {
-          TAG: /* Optional */1,
-          _0: name
-        }) : ({
-          TAG: /* Labelled */0,
-          _0: name
-        });
-    Res_parser.expect(undefined, /* EqualGreater */57, p);
-    var returnType = parseTypExpr(undefined, undefined, false, p);
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: startPos,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    return Ast_helper.Typ.arrow(loc, attrs, arg, typ$1, returnType);
-  }
-  var parameters = parseTypeParameters(p);
-  Res_parser.expect(undefined, /* EqualGreater */57, p);
-  var returnType$1 = parseTypExpr(undefined, undefined, false, p);
-  var endPos = p.prevEndPos;
-  var typ$2 = List.fold_right((function (param, t) {
-          var attrs = param[1];
-          var attrs$1 = param[0] ? ({
-                hd: uncurryAttr,
-                tl: attrs
-              }) : attrs;
-          return Ast_helper.Typ.arrow({
-                      loc_start: param[4],
-                      loc_end: endPos,
-                      loc_ghost: false
-                    }, attrs$1, param[2], param[3], t);
-        }), parameters, returnType$1);
-  return {
-          ptyp_desc: typ$2.ptyp_desc,
-          ptyp_loc: {
-            loc_start: startPos,
-            loc_end: p.prevEndPos,
-            loc_ghost: false
-          },
-          ptyp_attributes: List.concat({
-                hd: typ$2.ptyp_attributes,
-                tl: {
-                  hd: attrs,
-                  tl: /* [] */0
-                }
-              })
-        };
+  var match$1 = List.fold_left((function (param, curr) {
+          var field = curr[1];
+          var flag = param[1];
+          var fields = param[0];
+          if (!field) {
+            return [
+                    fields,
+                    flag
+                  ];
+          }
+          var field$1 = field._0;
+          if (curr[0]) {
+            Res_parser.err(field$1[1].ppat_loc.loc_start, undefined, p, Res_diagnostics.message(recordPatternSpread));
+          }
+          return [
+                  {
+                    hd: field$1,
+                    tl: fields
+                  },
+                  flag
+                ];
+        }), [
+        /* [] */0,
+        match[1]
+      ], match[0]);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Pat.record(loc, attrs, match$1[0], match$1[1]);
 }
 
 function parseJsxChildren(p) {
@@ -9239,13 +4709,6 @@ function parseJsxChildren(p) {
   }
 }
 
-function parseConstrainedModExprRegion(p) {
-  if (Res_grammar.isModExprStart(p.token)) {
-    return parseConstrainedModExpr(p);
-  }
-  
-}
-
 function parsePolyVariantExpr(p) {
   var startPos = p.startPos;
   var match = parseHashIdent(startPos, p);
@@ -9305,33 +4768,146 @@ function parsePolyVariantExpr(p) {
   return Ast_helper.Exp.variant(loc$1, undefined, ident, undefined);
 }
 
-function parseJsx(p) {
-  Res_parser.leaveBreadcrumb(p, /* Jsx */4);
+function parseValueOrConstructor(p) {
   var startPos = p.startPos;
-  Res_parser.expect(undefined, /* LessThan */42, p);
-  var match = p.token;
-  var jsxExpr;
-  if (typeof match === "number") {
-    jsxExpr = match === /* GreaterThan */41 ? parseJsxFragment(p) : parseJsxName(p);
-  } else {
-    switch (match.TAG | 0) {
-      case /* Lident */4 :
-      case /* Uident */5 :
-          jsxExpr = parseJsxOpeningOrSelfClosingElement(startPos, p);
-          break;
-      default:
-        jsxExpr = parseJsxName(p);
+  var _acc = /* [] */0;
+  while(true) {
+    var acc = _acc;
+    var ident = p.token;
+    if (typeof ident !== "number") {
+      switch (ident.TAG | 0) {
+        case /* Lident */4 :
+            Res_parser.next(undefined, p);
+            var loc_loc_end = p.prevEndPos;
+            var loc = {
+              loc_start: startPos,
+              loc_end: loc_loc_end,
+              loc_ghost: false
+            };
+            var lident = buildLongident({
+                  hd: ident._0,
+                  tl: acc
+                });
+            return Ast_helper.Exp.ident(loc, undefined, $$Location.mkloc(lident, loc));
+        case /* Uident */5 :
+            var ident$1 = ident._0;
+            var endPosLident = p.endPos;
+            Res_parser.next(undefined, p);
+            var match = p.token;
+            var exit = 0;
+            if (typeof match === "number") {
+              if (match !== 4) {
+                if (match !== 18) {
+                  exit = 2;
+                } else {
+                  if (p.prevEndPos.pos_lnum === p.startPos.pos_lnum) {
+                    var lparen = p.startPos;
+                    var args = parseConstructorArgs(p);
+                    var rparen = p.prevEndPos;
+                    var lident$1 = buildLongident({
+                          hd: ident$1,
+                          tl: acc
+                        });
+                    var tail;
+                    var exit$1 = 0;
+                    if (args) {
+                      var arg = args.hd;
+                      var tmp = arg.pexp_desc;
+                      if (typeof tmp === "number") {
+                        if (args.tl) {
+                          exit$1 = 3;
+                        } else {
+                          tail = arg;
+                        }
+                      } else if (tmp.TAG === /* Pexp_tuple */8) {
+                        if (args.tl) {
+                          exit$1 = 3;
+                        } else {
+                          var loc$1 = {
+                            loc_start: lparen,
+                            loc_end: rparen,
+                            loc_ghost: false
+                          };
+                          tail = p.mode === /* ParseForTypeChecker */0 ? arg : Ast_helper.Exp.tuple(loc$1, undefined, args);
+                        }
+                      } else if (args.tl) {
+                        exit$1 = 3;
+                      } else {
+                        tail = arg;
+                      }
+                    } else {
+                      tail = undefined;
+                    }
+                    if (exit$1 === 3) {
+                      var loc$2 = {
+                        loc_start: lparen,
+                        loc_end: rparen,
+                        loc_ghost: false
+                      };
+                      tail = Ast_helper.Exp.tuple(loc$2, undefined, args);
+                    }
+                    var loc_loc_end$1 = p.prevEndPos;
+                    var loc$3 = {
+                      loc_start: startPos,
+                      loc_end: loc_loc_end$1,
+                      loc_ghost: false
+                    };
+                    var identLoc = {
+                      loc_start: startPos,
+                      loc_end: endPosLident,
+                      loc_ghost: false
+                    };
+                    return Ast_helper.Exp.construct(loc$3, undefined, $$Location.mkloc(lident$1, identLoc), tail);
+                  }
+                  exit = 2;
+                }
+              } else {
+                Res_parser.next(undefined, p);
+                _acc = {
+                  hd: ident$1,
+                  tl: acc
+                };
+                continue ;
+              }
+            } else {
+              exit = 2;
+            }
+            if (exit === 2) {
+              var loc_loc_end$2 = p.prevEndPos;
+              var loc$4 = {
+                loc_start: startPos,
+                loc_end: loc_loc_end$2,
+                loc_ghost: false
+              };
+              var lident$2 = buildLongident({
+                    hd: ident$1,
+                    tl: acc
+                  });
+              return Ast_helper.Exp.construct(loc$4, undefined, $$Location.mkloc(lident$2, loc$4), undefined);
+            }
+            break;
+        default:
+          
+      }
     }
-  }
-  Res_parser.eatBreadcrumb(p);
-  return {
-          pexp_desc: jsxExpr.pexp_desc,
-          pexp_loc: jsxExpr.pexp_loc,
-          pexp_attributes: {
-            hd: jsxAttr,
-            tl: /* [] */0
-          }
-        };
+    if (acc === /* [] */0) {
+      Res_parser.next(undefined, p);
+      Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(ident, p.breadcrumbs));
+      return defaultExpr(undefined);
+    }
+    var loc_loc_end$3 = p.prevEndPos;
+    var loc$5 = {
+      loc_start: startPos,
+      loc_end: loc_loc_end$3,
+      loc_ghost: false
+    };
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(ident, p.breadcrumbs));
+    var lident$3 = buildLongident({
+          hd: "_",
+          tl: acc
+        });
+    return Ast_helper.Exp.ident(loc$5, undefined, $$Location.mkloc(lident$3, loc$5));
+  };
 }
 
 function parseListExpr(startPos, p) {
@@ -9360,20 +4936,6 @@ function parseListExpr(startPos, p) {
               return param[1];
             }), listExprs));
   return makeListExpression(loc, exprs$1, undefined);
-}
-
-function parseArrayExp(p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Lbracket */20, p);
-  var exprs = parseCommaDelimitedRegion(p, /* ExprList */12, /* Rbracket */21, (function (param) {
-          return parseNonSpreadExp(arrayExprSpread, param);
-        }));
-  Res_parser.expect(undefined, /* Rbracket */21, p);
-  return Ast_helper.Exp.array({
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, undefined, exprs);
 }
 
 function parseTupleExpr(first, startPos, p) {
@@ -9925,213 +5487,894 @@ function parseBracedOrRecordExpr(p) {
   }
 }
 
-function parsePatternMatchCase(p) {
-  Res_parser.beginRegion(p);
-  Res_parser.leaveBreadcrumb(p, /* PatternMatchCase */23);
+function parseJsx(p) {
+  Res_parser.leaveBreadcrumb(p, /* Jsx */4);
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* LessThan */42, p);
   var match = p.token;
-  if (match === 17) {
-    Res_parser.next(undefined, p);
-    Res_parser.leaveBreadcrumb(p, /* Pattern */55);
-    var lhs = parsePattern(undefined, undefined, p);
-    Res_parser.eatBreadcrumb(p);
-    var guard = parsePatternGuard(p);
-    var match$1 = p.token;
-    if (match$1 === 57) {
-      Res_parser.next(undefined, p);
-    } else {
-      recoverEqualGreater(p);
+  var jsxExpr;
+  if (typeof match === "number") {
+    jsxExpr = match === /* GreaterThan */41 ? parseJsxFragment(p) : parseJsxName(p);
+  } else {
+    switch (match.TAG | 0) {
+      case /* Lident */4 :
+      case /* Uident */5 :
+          jsxExpr = parseJsxOpeningOrSelfClosingElement(startPos, p);
+          break;
+      default:
+        jsxExpr = parseJsxName(p);
     }
-    var rhs = parseExprBlock(undefined, p);
-    Res_parser.endRegion(p);
-    Res_parser.eatBreadcrumb(p);
-    return Ast_helper.Exp.$$case(lhs, guard, rhs);
   }
-  Res_parser.endRegion(p);
   Res_parser.eatBreadcrumb(p);
-  
+  return {
+          pexp_desc: jsxExpr.pexp_desc,
+          pexp_loc: jsxExpr.pexp_loc,
+          pexp_attributes: {
+            hd: jsxAttr,
+            tl: /* [] */0
+          }
+        };
 }
 
-function parseAliasPattern(attrs, pattern, p) {
+function parseArrayExp(p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Lbracket */20, p);
+  var exprs = parseCommaDelimitedRegion(p, /* ExprList */12, /* Rbracket */21, (function (param) {
+          return parseNonSpreadExp(arrayExprSpread, param);
+        }));
+  Res_parser.expect(undefined, /* Rbracket */21, p);
+  return Ast_helper.Exp.array({
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, undefined, exprs);
+}
+
+function parseFirstClassModuleExpr(startPos, p) {
+  Res_parser.expect(undefined, /* Lparen */18, p);
+  var modExpr = parseModuleExpr(p);
+  var modEndLoc = p.prevEndPos;
   var match = p.token;
-  if (match !== 3) {
-    return pattern;
+  if (match === 24) {
+    var colonStart = p.startPos;
+    Res_parser.next(undefined, p);
+    var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+    var packageType = parsePackageType(colonStart, attrs, p);
+    Res_parser.expect(undefined, /* Rparen */19, p);
+    var loc = {
+      loc_start: startPos,
+      loc_end: modEndLoc,
+      loc_ghost: false
+    };
+    var firstClassModule = Ast_helper.Exp.pack(loc, undefined, modExpr);
+    var loc_loc_end = p.prevEndPos;
+    var loc$1 = {
+      loc_start: startPos,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    return Ast_helper.Exp.constraint_(loc$1, undefined, firstClassModule, packageType);
+  }
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  var loc_loc_end$1 = p.prevEndPos;
+  var loc$2 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end$1,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.pack(loc$2, undefined, modExpr);
+}
+
+function parseExprBlockItem(p) {
+  var startPos = p.startPos;
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var match = p.token;
+  if (typeof match === "number") {
+    if (match >= 27) {
+      if (match !== 65) {
+        if (match < 28) {
+          var extensionConstructor = parseExceptionDef(attrs, p);
+          parseNewlineOrSemicolonExprBlock(p);
+          var blockExpr = parseExprBlock(undefined, p);
+          var loc_loc_end = p.prevEndPos;
+          var loc = {
+            loc_start: startPos,
+            loc_end: loc_loc_end,
+            loc_ghost: false
+          };
+          return Ast_helper.Exp.letexception(loc, undefined, extensionConstructor, blockExpr);
+        }
+        
+      } else {
+        Res_parser.next(undefined, p);
+        var match$1 = p.token;
+        if (match$1 === 18) {
+          var expr = parseFirstClassModuleExpr(startPos, p);
+          var a = parsePrimaryExpr(expr, undefined, p);
+          var expr$1 = parseBinaryExpr(undefined, a, p, 1);
+          return parseTernaryExpr(expr$1, p);
+        }
+        var ident = p.token;
+        var name;
+        var exit = 0;
+        if (typeof ident === "number" || ident.TAG !== /* Uident */5) {
+          exit = 2;
+        } else {
+          var loc_loc_start = p.startPos;
+          var loc_loc_end$1 = p.endPos;
+          var loc$1 = {
+            loc_start: loc_loc_start,
+            loc_end: loc_loc_end$1,
+            loc_ghost: false
+          };
+          Res_parser.next(undefined, p);
+          name = $$Location.mkloc(ident._0, loc$1);
+        }
+        if (exit === 2) {
+          Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
+          name = $$Location.mknoloc("_");
+        }
+        var body = parseModuleBindingBody(p);
+        parseNewlineOrSemicolonExprBlock(p);
+        var expr$2 = parseExprBlock(undefined, p);
+        var loc_loc_end$2 = p.prevEndPos;
+        var loc$2 = {
+          loc_start: startPos,
+          loc_end: loc_loc_end$2,
+          loc_ghost: false
+        };
+        return Ast_helper.Exp.letmodule(loc$2, undefined, name, body, expr$2);
+      }
+    } else if (match !== 9) {
+      if (match === 0) {
+        var od = parseOpenDescription(attrs, p);
+        parseNewlineOrSemicolonExprBlock(p);
+        var blockExpr$1 = parseExprBlock(undefined, p);
+        var loc_loc_end$3 = p.prevEndPos;
+        var loc$3 = {
+          loc_start: startPos,
+          loc_end: loc_loc_end$3,
+          loc_ghost: false
+        };
+        return Ast_helper.Exp.open_(loc$3, undefined, od.popen_override, od.popen_lid, blockExpr$1);
+      }
+      
+    } else {
+      var match$2 = parseLetBindings(attrs, p);
+      parseNewlineOrSemicolonExprBlock(p);
+      var next;
+      if (Res_grammar.isBlockExprStart(p.token)) {
+        next = parseExprBlock(undefined, p);
+      } else {
+        var loc_loc_start$1 = p.startPos;
+        var loc_loc_end$4 = p.endPos;
+        var loc$4 = {
+          loc_start: loc_loc_start$1,
+          loc_end: loc_loc_end$4,
+          loc_ghost: false
+        };
+        next = Ast_helper.Exp.construct(loc$4, undefined, $$Location.mkloc({
+                  TAG: /* Lident */0,
+                  _0: "()"
+                }, loc$4), undefined);
+      }
+      var loc_loc_end$5 = p.prevEndPos;
+      var loc$5 = {
+        loc_start: startPos,
+        loc_end: loc_loc_end$5,
+        loc_ghost: false
+      };
+      return Ast_helper.Exp.let_(loc$5, undefined, match$2[0], match$2[1], next);
+    }
+  }
+  var expr$3 = parseExpr(undefined, p);
+  var e1_pexp_desc = expr$3.pexp_desc;
+  var e1_pexp_loc = expr$3.pexp_loc;
+  var e1_pexp_attributes = List.concat({
+        hd: attrs,
+        tl: {
+          hd: expr$3.pexp_attributes,
+          tl: /* [] */0
+        }
+      });
+  var e1 = {
+    pexp_desc: e1_pexp_desc,
+    pexp_loc: e1_pexp_loc,
+    pexp_attributes: e1_pexp_attributes
+  };
+  parseNewlineOrSemicolonExprBlock(p);
+  if (!Res_grammar.isBlockExprStart(p.token)) {
+    return e1;
+  }
+  var e2 = parseExprBlock(undefined, p);
+  var init = e1_pexp_loc;
+  var loc_loc_start$2 = init.loc_start;
+  var loc_loc_end$6 = e2.pexp_loc.loc_end;
+  var loc_loc_ghost = init.loc_ghost;
+  var loc$6 = {
+    loc_start: loc_loc_start$2,
+    loc_end: loc_loc_end$6,
+    loc_ghost: loc_loc_ghost
+  };
+  return Ast_helper.Exp.sequence(loc$6, undefined, e1, e2);
+}
+
+function overParseConstrainedOrCoercedOrArrowExpression(p, expr) {
+  var match = p.token;
+  if (typeof match !== "number") {
+    return expr;
+  }
+  if (match !== 24) {
+    if (match !== 40) {
+      return expr;
+    } else {
+      return parseCoercedExpr(expr, p);
+    }
   }
   Res_parser.next(undefined, p);
-  var match$1 = parseLident(p);
-  var name = $$Location.mkloc(match$1[0], match$1[1]);
-  var init = pattern.ppat_loc;
-  return Ast_helper.Pat.alias({
-              loc_start: init.loc_start,
-              loc_end: p.prevEndPos,
-              loc_ghost: init.loc_ghost
-            }, attrs, pattern, name);
-}
-
-function parseTuplePattern(attrs, first, startPos, p) {
-  var patterns_1 = parseCommaDelimitedRegion(p, /* PatternList */25, /* Rparen */19, parseConstrainedPatternRegion);
-  var patterns = {
-    hd: first,
-    tl: patterns_1
-  };
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  if (patterns_1) {
-    
-  } else {
-    Res_parser.err(startPos, p.prevEndPos, p, Res_diagnostics.message(tupleSingleElement));
+  var typ = parseTypExpr(undefined, false, undefined, p);
+  var match$1 = p.token;
+  if (match$1 === 57) {
+    Res_parser.next(undefined, p);
+    var body = parseExpr(undefined, p);
+    var longident = expr.pexp_desc;
+    var pat;
+    var exit = 0;
+    if (typeof longident === "number" || longident.TAG !== /* Pexp_ident */0) {
+      exit = 1;
+    } else {
+      var longident$1 = longident._0;
+      pat = Ast_helper.Pat.$$var(expr.pexp_loc, undefined, $$Location.mkloc($$String.concat(".", Longident.flatten(longident$1.txt)), longident$1.loc));
+    }
+    if (exit === 1) {
+      pat = Ast_helper.Pat.$$var(expr.pexp_loc, undefined, $$Location.mkloc("pattern", expr.pexp_loc));
+    }
+    var arrow1 = Ast_helper.Exp.fun_({
+          loc_start: expr.pexp_loc.loc_start,
+          loc_end: body.pexp_loc.loc_end,
+          loc_ghost: false
+        }, undefined, /* Nolabel */0, undefined, pat, Ast_helper.Exp.constraint_(undefined, undefined, body, typ));
+    var arrow2 = Ast_helper.Exp.fun_({
+          loc_start: expr.pexp_loc.loc_start,
+          loc_end: body.pexp_loc.loc_end,
+          loc_ghost: false
+        }, undefined, /* Nolabel */0, undefined, Ast_helper.Pat.constraint_(undefined, undefined, pat, typ), body);
+    var msg = Res_doc.toString(80, Res_doc.breakableGroup(true, Res_doc.concat({
+                  hd: Res_doc.text("Did you mean to annotate the parameter type or the return type?"),
+                  tl: {
+                    hd: Res_doc.indent(Res_doc.concat({
+                              hd: Res_doc.line,
+                              tl: {
+                                hd: Res_doc.text("1) "),
+                                tl: {
+                                  hd: Res_printer.printExpression(arrow1, Res_comments_table.empty),
+                                  tl: {
+                                    hd: Res_doc.line,
+                                    tl: {
+                                      hd: Res_doc.text("2) "),
+                                      tl: {
+                                        hd: Res_printer.printExpression(arrow2, Res_comments_table.empty),
+                                        tl: /* [] */0
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            })),
+                    tl: /* [] */0
+                  }
+                })));
+    Res_parser.err(expr.pexp_loc.loc_start, body.pexp_loc.loc_end, p, Res_diagnostics.message(msg));
+    return arrow1;
   }
-  var loc_loc_end = p.prevEndPos;
+  var loc_loc_start = expr.pexp_loc.loc_start;
+  var loc_loc_end = typ.ptyp_loc.loc_end;
   var loc = {
-    loc_start: startPos,
+    loc_start: loc_loc_start,
     loc_end: loc_loc_end,
     loc_ghost: false
   };
-  return Ast_helper.Pat.tuple(loc, attrs, patterns);
+  var expr$1 = Ast_helper.Exp.constraint_(loc, undefined, expr, typ);
+  Res_parser.err(expr$1.pexp_loc.loc_start, typ.ptyp_loc.loc_end, p, Res_diagnostics.message(Res_doc.toString(80, Res_doc.breakableGroup(true, Res_doc.concat({
+                        hd: Res_doc.text("Expressions with type constraints need to be wrapped in parens:"),
+                        tl: {
+                          hd: Res_doc.indent(Res_doc.concat({
+                                    hd: Res_doc.line,
+                                    tl: {
+                                      hd: Res_printer.addParens(Res_printer.printExpression(expr$1, Res_comments_table.empty)),
+                                      tl: /* [] */0
+                                    }
+                                  })),
+                          tl: /* [] */0
+                        }
+                      })))));
+  return expr$1;
 }
 
-function parseForRest(hasOpeningParen, pattern, startPos, p) {
-  Res_parser.expect(undefined, /* In */53, p);
-  var e1 = parseExpr(undefined, p);
+function parseNewlineOrSemicolonExprBlock(p) {
   var token = p.token;
-  var direction;
-  var exit = 0;
-  if (typeof token === "number" || token.TAG !== /* Lident */4) {
-    exit = 1;
+  if (token === 8) {
+    return Res_parser.next(undefined, p);
+  } else if (Res_grammar.isBlockExprStart(token) && p.prevEndPos.pos_lnum >= p.startPos.pos_lnum) {
+    return Res_parser.err(p.prevEndPos, p.endPos, p, Res_diagnostics.message("consecutive expressions on a line must be separated by ';' or a newline"));
   } else {
-    switch (token._0) {
-      case "downto" :
-          direction = /* Downto */1;
+    return ;
+  }
+}
+
+function parseConstrainedModExpr(p) {
+  var modExpr = parseModuleExpr(p);
+  var match = p.token;
+  if (match !== 24) {
+    return modExpr;
+  }
+  Res_parser.next(undefined, p);
+  var modType = parseModuleType(undefined, undefined, p);
+  var loc_loc_start = modExpr.pmod_loc.loc_start;
+  var loc_loc_end = modType.pmty_loc.loc_end;
+  var loc = {
+    loc_start: loc_loc_start,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Mod.constraint_(loc, undefined, modExpr, modType);
+}
+
+function parsePolyTypeExpr(p) {
+  var startPos = p.startPos;
+  var match = p.token;
+  if (match !== 13) {
+    return parseTypExpr(undefined, undefined, undefined, p);
+  }
+  var vars = parseTypeVarList(p);
+  if (vars) {
+    var _v1 = vars.hd;
+    if (vars.tl) {
+      Res_parser.expect(undefined, /* Dot */4, p);
+      var typ = parseTypExpr(undefined, undefined, undefined, p);
+      var loc_loc_end = p.prevEndPos;
+      var loc = {
+        loc_start: startPos,
+        loc_end: loc_loc_end,
+        loc_ghost: false
+      };
+      return Ast_helper.Typ.poly(loc, undefined, vars, typ);
+    }
+    var match$1 = p.token;
+    if (typeof match$1 === "number") {
+      if (match$1 !== 4) {
+        if (match$1 === 57) {
+          Res_parser.next(undefined, p);
+          var typ$1 = Ast_helper.Typ.$$var(_v1.loc, undefined, _v1.txt);
+          var returnType = parseTypExpr(undefined, undefined, false, p);
+          var loc_loc_start = typ$1.ptyp_loc.loc_start;
+          var loc_loc_end$1 = p.prevEndPos;
+          var loc$1 = {
+            loc_start: loc_loc_start,
+            loc_end: loc_loc_end$1,
+            loc_ghost: false
+          };
+          return Ast_helper.Typ.arrow(loc$1, undefined, /* Nolabel */0, typ$1, returnType);
+        }
+        
+      } else {
+        Res_parser.next(undefined, p);
+        var typ$2 = parseTypExpr(undefined, undefined, undefined, p);
+        var loc_loc_end$2 = p.prevEndPos;
+        var loc$2 = {
+          loc_start: startPos,
+          loc_end: loc_loc_end$2,
+          loc_ghost: false
+        };
+        return Ast_helper.Typ.poly(loc$2, undefined, vars, typ$2);
+      }
+    }
+    return Ast_helper.Typ.$$var(_v1.loc, undefined, _v1.txt);
+  }
+  throw {
+        RE_EXN_ID: "Assert_failure",
+        _1: [
+          "res_core.res",
+          4299,
+          11
+        ],
+        Error: new Error()
+      };
+}
+
+function parsePatternRegion(p) {
+  var token = p.token;
+  if (token === 6) {
+    Res_parser.next(undefined, p);
+    return [
+            true,
+            parseConstrainedPattern(p)
+          ];
+  } else if (Res_grammar.isPatternStart(token)) {
+    return [
+            false,
+            parseConstrainedPattern(p)
+          ];
+  } else {
+    return ;
+  }
+}
+
+function parseConstrainedPatternRegion(p) {
+  var token = p.token;
+  if (Res_grammar.isPatternStart(token)) {
+    return parseConstrainedPattern(p);
+  }
+  
+}
+
+function parsePrivateEqOrRepr(p) {
+  Res_parser.expect(undefined, /* Private */61, p);
+  var t = p.token;
+  var exit = 0;
+  if (typeof t === "number") {
+    switch (t) {
+      case /* DotDot */5 :
+      case /* Bar */17 :
+          exit = 2;
           break;
-      case "to" :
-          direction = /* Upto */0;
+      case /* Lbrace */22 :
+          var match = parseRecordOrObjectDecl(p);
+          return [
+                  match[0],
+                  /* Private */0,
+                  match[2]
+                ];
+      default:
+        exit = 1;
+    }
+  } else {
+    if (t.TAG === /* Uident */5) {
+      var match$1 = parseTypeEquationOrConstrDecl(p);
+      return [
+              match$1[0],
+              /* Private */0,
+              match$1[2]
+            ];
+    }
+    exit = 1;
+  }
+  switch (exit) {
+    case 1 :
+        if (Res_grammar.isTypExprStart(t)) {
+          return [
+                  parseTypExpr(undefined, undefined, undefined, p),
+                  /* Private */0,
+                  /* Ptype_abstract */0
+                ];
+        }
+        var match$2 = parseTypeRepresentation(p);
+        return [
+                undefined,
+                /* Private */0,
+                match$2[1]
+              ];
+    case 2 :
+        var match$3 = parseTypeRepresentation(p);
+        return [
+                undefined,
+                /* Private */0,
+                match$3[1]
+              ];
+    
+  }
+}
+
+function parseRecordOrObjectDecl(p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var match = p.token;
+  var exit = 0;
+  if (typeof match === "number") {
+    if (match >= 6) {
+      if (match >= 7) {
+        exit = 1;
+      } else {
+        var dotdotdotStart = p.startPos;
+        var dotdotdotEnd = p.endPos;
+        Res_parser.next(undefined, p);
+        var typ = parseTypExpr(undefined, undefined, undefined, p);
+        var match$1 = p.token;
+        if (match$1 === 23) {
+          Res_parser.err(dotdotdotStart, dotdotdotEnd, p, Res_diagnostics.message(sameTypeSpread));
+          Res_parser.next(undefined, p);
+        } else {
+          Res_parser.expect(undefined, /* Comma */25, p);
+        }
+        var match$2 = p.token;
+        if (typeof match$2 !== "number" && match$2.TAG === /* Lident */4) {
+          Res_parser.err(dotdotdotStart, dotdotdotEnd, p, Res_diagnostics.message(spreadInRecordDeclaration));
+        }
+        var fields_0 = {
+          TAG: /* Oinherit */1,
+          _0: typ
+        };
+        var fields_1 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
+        var fields = {
+          hd: fields_0,
+          tl: fields_1
+        };
+        Res_parser.expect(undefined, /* Rbrace */23, p);
+        var loc_loc_end = p.prevEndPos;
+        var loc = {
+          loc_start: startPos,
+          loc_end: loc_loc_end,
+          loc_ghost: false
+        };
+        var typ$1 = parseTypeAlias(p, Ast_helper.Typ.object_(loc, undefined, fields, /* Closed */0));
+        var typ$2 = parseArrowTypeRest(true, startPos, typ$1, p);
+        return [
+                typ$2,
+                /* Public */1,
+                /* Ptype_abstract */0
+              ];
+      }
+    } else {
+      if (match >= 4) {
+        var match$3 = p.token;
+        var closedFlag = typeof match$3 === "number" ? (
+            match$3 !== 4 ? (
+                match$3 !== 5 ? /* Closed */0 : (Res_parser.next(undefined, p), /* Open */1)
+              ) : (Res_parser.next(undefined, p), /* Closed */0)
+          ) : /* Closed */0;
+        var fields$1 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
+        Res_parser.expect(undefined, /* Rbrace */23, p);
+        var loc_loc_end$1 = p.prevEndPos;
+        var loc$1 = {
+          loc_start: startPos,
+          loc_end: loc_loc_end$1,
+          loc_ghost: false
+        };
+        var typ$3 = parseTypeAlias(p, Ast_helper.Typ.object_(loc$1, /* [] */0, fields$1, closedFlag));
+        var typ$4 = parseArrowTypeRest(true, startPos, typ$3, p);
+        return [
+                typ$4,
+                /* Public */1,
+                /* Ptype_abstract */0
+              ];
+      }
+      exit = 1;
+    }
+  } else {
+    exit = 1;
+  }
+  if (exit === 1) {
+    var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+    var match$4 = p.token;
+    var exit$1 = 0;
+    if (typeof match$4 === "number") {
+      exit$1 = 2;
+    } else {
+      if (match$4.TAG === /* String */3) {
+        var fields$2;
+        if (attrs) {
+          Res_parser.leaveBreadcrumb(p, /* StringFieldDeclarations */37);
+          var field = parseStringFieldDeclaration(p);
+          var field$1;
+          if (field !== undefined) {
+            field$1 = field;
+          } else {
+            throw {
+                  RE_EXN_ID: "Assert_failure",
+                  _1: [
+                    "res_core.res",
+                    5486,
+                    20
+                  ],
+                  Error: new Error()
+                };
+          }
+          var match$5 = p.token;
+          if (typeof match$5 === "number") {
+            if (match$5 >= 24) {
+              if (match$5 >= 27) {
+                Res_parser.expect(undefined, /* Comma */25, p);
+              } else {
+                switch (match$5) {
+                  case /* Colon */24 :
+                      Res_parser.expect(undefined, /* Comma */25, p);
+                      break;
+                  case /* Comma */25 :
+                      Res_parser.next(undefined, p);
+                      break;
+                  case /* Eof */26 :
+                      break;
+                  
+                }
+              }
+            } else if (match$5 >= 23) {
+              
+            } else {
+              Res_parser.expect(undefined, /* Comma */25, p);
+            }
+          } else {
+            Res_parser.expect(undefined, /* Comma */25, p);
+          }
+          Res_parser.eatBreadcrumb(p);
+          var first;
+          first = field$1.TAG === /* Otag */0 ? ({
+                TAG: /* Otag */0,
+                _0: field$1._0,
+                _1: attrs,
+                _2: field$1._2
+              }) : ({
+                TAG: /* Oinherit */1,
+                _0: field$1._0
+              });
+          fields$2 = {
+            hd: first,
+            tl: parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration)
+          };
+        } else {
+          fields$2 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
+        }
+        Res_parser.expect(undefined, /* Rbrace */23, p);
+        var loc_loc_end$2 = p.prevEndPos;
+        var loc$2 = {
+          loc_start: startPos,
+          loc_end: loc_loc_end$2,
+          loc_ghost: false
+        };
+        var typ$5 = parseTypeAlias(p, Ast_helper.Typ.object_(loc$2, /* [] */0, fields$2, /* Closed */0));
+        var typ$6 = parseArrowTypeRest(true, startPos, typ$5, p);
+        return [
+                typ$6,
+                /* Public */1,
+                /* Ptype_abstract */0
+              ];
+      }
+      exit$1 = 2;
+    }
+    if (exit$1 === 2) {
+      Res_parser.leaveBreadcrumb(p, /* RecordDecl */34);
+      var fields$3;
+      if (attrs) {
+        var field$2 = parseFieldDeclaration(p);
+        Res_parser.optional(p, /* Comma */25);
+        var init = field$2.pld_loc;
+        var first_pld_name = field$2.pld_name;
+        var first_pld_mutable = field$2.pld_mutable;
+        var first_pld_type = field$2.pld_type;
+        var first_pld_loc = {
+          loc_start: attrs.hd[0].loc.loc_start,
+          loc_end: init.loc_end,
+          loc_ghost: init.loc_ghost
+        };
+        var first$1 = {
+          pld_name: first_pld_name,
+          pld_mutable: first_pld_mutable,
+          pld_type: first_pld_type,
+          pld_loc: first_pld_loc,
+          pld_attributes: attrs
+        };
+        fields$3 = {
+          hd: first$1,
+          tl: parseCommaDelimitedRegion(p, /* FieldDeclarations */38, /* Rbrace */23, parseFieldDeclarationRegion)
+        };
+      } else {
+        fields$3 = parseCommaDelimitedRegion(p, /* FieldDeclarations */38, /* Rbrace */23, parseFieldDeclarationRegion);
+      }
+      if (fields$3) {
+        
+      } else {
+        Res_parser.err(startPos, undefined, p, Res_diagnostics.message("A record needs at least one field"));
+      }
+      Res_parser.expect(undefined, /* Rbrace */23, p);
+      Res_parser.eatBreadcrumb(p);
+      return [
+              undefined,
+              /* Public */1,
+              {
+                TAG: /* Ptype_record */1,
+                _0: fields$3
+              }
+            ];
+    }
+    
+  }
+  
+}
+
+function parseTypeEquationOrConstrDecl(p) {
+  var uidentStartPos = p.startPos;
+  var uident = p.token;
+  if (typeof uident !== "number" && uident.TAG === /* Uident */5) {
+    var uident$1 = uident._0;
+    Res_parser.next(undefined, p);
+    var match = p.token;
+    if (match === 4) {
+      Res_parser.next(undefined, p);
+      var typeConstr = parseValuePathTail(p, uidentStartPos, {
+            TAG: /* Lident */0,
+            _0: uident$1
+          });
+      var loc_loc_end = p.prevEndPos;
+      var loc = {
+        loc_start: uidentStartPos,
+        loc_end: loc_loc_end,
+        loc_ghost: false
+      };
+      var typ = parseTypeAlias(p, Ast_helper.Typ.constr(loc, undefined, typeConstr, parseTypeConstructorArgs(typeConstr, p)));
+      var match$1 = p.token;
+      if (typeof match$1 !== "number") {
+        return [
+                typ,
+                /* Public */1,
+                /* Ptype_abstract */0
+              ];
+      }
+      if (match$1 !== 14) {
+        if (match$1 !== 57) {
+          return [
+                  typ,
+                  /* Public */1,
+                  /* Ptype_abstract */0
+                ];
+        }
+        Res_parser.next(undefined, p);
+        var returnType = parseTypExpr(undefined, undefined, false, p);
+        var loc_loc_end$1 = p.prevEndPos;
+        var loc$1 = {
+          loc_start: uidentStartPos,
+          loc_end: loc_loc_end$1,
+          loc_ghost: false
+        };
+        var arrowType = Ast_helper.Typ.arrow(loc$1, undefined, /* Nolabel */0, typ, returnType);
+        var typ$1 = parseTypeAlias(p, arrowType);
+        return [
+                typ$1,
+                /* Public */1,
+                /* Ptype_abstract */0
+              ];
+      }
+      Res_parser.next(undefined, p);
+      var match$2 = parseTypeRepresentation(p);
+      return [
+              typ,
+              match$2[0],
+              match$2[1]
+            ];
+    }
+    var uidentEndPos = p.prevEndPos;
+    var match$3 = parseConstrDeclArgs(p);
+    var uidentLoc = {
+      loc_start: uidentStartPos,
+      loc_end: uidentEndPos,
+      loc_ghost: false
+    };
+    var first = Ast_helper.Type.constructor({
+          loc_start: uidentStartPos,
+          loc_end: p.prevEndPos,
+          loc_ghost: false
+        }, undefined, undefined, match$3[0], match$3[1], $$Location.mkloc(uident$1, uidentLoc));
+    return [
+            undefined,
+            /* Public */1,
+            {
+              TAG: /* Ptype_variant */0,
+              _0: parseTypeConstructorDeclarations(first, p)
+            }
+          ];
+  }
+  Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(uident));
+  return [
+          undefined,
+          /* Public */1,
+          /* Ptype_abstract */0
+        ];
+}
+
+function parseTypeRepresentation(p) {
+  Res_parser.leaveBreadcrumb(p, /* TypeRepresentation */33);
+  var privateFlag = Res_parser.optional(p, /* Private */61) ? /* Private */0 : /* Public */1;
+  var token = p.token;
+  var kind;
+  var exit = 0;
+  if (typeof token === "number") {
+    switch (token) {
+      case /* DotDot */5 :
+          Res_parser.next(undefined, p);
+          kind = /* Ptype_open */1;
+          break;
+      case /* Bar */17 :
+          kind = {
+            TAG: /* Ptype_variant */0,
+            _0: parseTypeConstructorDeclarations(undefined, p)
+          };
+          break;
+      case /* Lbrace */22 :
+          kind = {
+            TAG: /* Ptype_record */1,
+            _0: parseRecordDeclaration(p)
+          };
           break;
       default:
         exit = 1;
     }
+  } else if (token.TAG === /* Uident */5) {
+    kind = {
+      TAG: /* Ptype_variant */0,
+      _0: parseTypeConstructorDeclarations(undefined, p)
+    };
+  } else {
+    exit = 1;
   }
   if (exit === 1) {
     Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
-    direction = /* Upto */0;
+    kind = {
+      TAG: /* Ptype_variant */0,
+      _0: /* [] */0
+    };
+  }
+  Res_parser.eatBreadcrumb(p);
+  return [
+          privateFlag,
+          kind
+        ];
+}
+
+function parseTypeConstructorDeclarationWithBar(p) {
+  var match = p.token;
+  if (match !== 17) {
+    return ;
+  }
+  var startPos = p.startPos;
+  Res_parser.next(undefined, p);
+  return parseTypeConstructorDeclaration(startPos, p);
+}
+
+function parseTypeConstructorDeclaration(startPos, p) {
+  Res_parser.leaveBreadcrumb(p, /* ConstructorDeclaration */35);
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var uident = p.token;
+  if (typeof uident !== "number" && uident.TAG === /* Uident */5) {
+    var uidentLoc_loc_start = p.startPos;
+    var uidentLoc_loc_end = p.endPos;
+    var uidentLoc = {
+      loc_start: uidentLoc_loc_start,
+      loc_end: uidentLoc_loc_end,
+      loc_ghost: false
+    };
+    Res_parser.next(undefined, p);
+    var match = parseConstrDeclArgs(p);
+    Res_parser.eatBreadcrumb(p);
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: startPos,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    return Ast_helper.Type.constructor(loc, attrs, undefined, match[0], match[1], $$Location.mkloc(uident._0, uidentLoc));
+  }
+  Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(uident));
+  return Ast_helper.Type.constructor(undefined, undefined, undefined, undefined, undefined, $$Location.mknoloc("_"));
+}
+
+function parseConstrainedExprRegion(p) {
+  var token = p.token;
+  if (!Res_grammar.isExprStart(token)) {
+    return ;
+  }
+  var expr = parseExpr(undefined, p);
+  var match = p.token;
+  if (match !== 24) {
+    return expr;
   }
   Res_parser.next(undefined, p);
-  var e2 = parseExpr(/* WhenExpr */2, p);
-  if (hasOpeningParen) {
-    Res_parser.expect(undefined, /* Rparen */19, p);
-  }
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var bodyExpr = parseExprBlock(undefined, p);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  var loc_loc_end = p.prevEndPos;
+  var typ = parseTypExpr(undefined, undefined, undefined, p);
+  var loc_loc_start = expr.pexp_loc.loc_start;
+  var loc_loc_end = typ.ptyp_loc.loc_end;
   var loc = {
-    loc_start: startPos,
+    loc_start: loc_loc_start,
     loc_end: loc_loc_end,
     loc_ghost: false
   };
-  return Ast_helper.Exp.for_(loc, undefined, pattern, e1, e2, direction, bodyExpr);
-}
-
-function parseTypeDefinitions(attrs, name, params, startPos, p) {
-  var match = parseTypeEquationAndRepresentation(p);
-  var cstrs = parseRegion(p, /* TypeConstraint */51, parseTypeConstraint);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  var typeDef = Ast_helper.Type.mk(loc, attrs, undefined, undefined, params, cstrs, match[2], match[1], match[0], {
-        txt: lidentOfPath(name.txt),
-        loc: name.loc
-      });
-  var _defs = {
-    hd: typeDef,
-    tl: /* [] */0
-  };
-  while(true) {
-    var defs = _defs;
-    var startPos$1 = p.startPos;
-    var attrs$1 = parseAttributesAndBinding(p);
-    var match$1 = p.token;
-    if (match$1 !== 10) {
-      return List.rev(defs);
-    }
-    Res_parser.next(undefined, p);
-    var match$2 = p.token;
-    var attrs$2;
-    if (typeof match$2 === "number" && match$2 >= 84) {
-      var exportLoc_loc_start = p.startPos;
-      var exportLoc_loc_end = p.endPos;
-      var exportLoc = {
-        loc_start: exportLoc_loc_start,
-        loc_end: exportLoc_loc_end,
-        loc_ghost: false
-      };
-      Res_parser.next(undefined, p);
-      var genTypeAttr_0 = $$Location.mkloc("genType", exportLoc);
-      var genTypeAttr_1 = {
-        TAG: /* PStr */0,
-        _0: /* [] */0
-      };
-      var genTypeAttr = [
-        genTypeAttr_0,
-        genTypeAttr_1
-      ];
-      attrs$2 = {
-        hd: genTypeAttr,
-        tl: attrs$1
-      };
-    } else {
-      attrs$2 = attrs$1;
-    }
-    var typeDef$1 = parseTypeDef(attrs$2, startPos$1, p);
-    _defs = {
-      hd: typeDef$1,
-      tl: defs
-    };
-    continue ;
-  };
-}
-
-function parseTypeExtension(params, attrs, name, p) {
-  Res_parser.expect(undefined, /* PlusEqual */39, p);
-  var priv = Res_parser.optional(p, /* Private */61) ? /* Private */0 : /* Public */1;
-  var constrStart = p.startPos;
-  Res_parser.optional(p, /* Bar */17);
-  var match = p.token;
-  var match$1 = match === 17 ? (Res_parser.next(undefined, p), parseConstrDef(true, p)) : parseConstrDef(true, p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: constrStart,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  var first = Ast_helper.Te.constructor(loc, match$1[0], undefined, undefined, match$1[1], match$1[2]);
-  var loop = function (p, _cs) {
-    while(true) {
-      var cs = _cs;
-      var match = p.token;
-      if (match !== 17) {
-        return List.rev(cs);
-      }
-      var startPos = p.startPos;
-      Res_parser.next(undefined, p);
-      var match$1 = parseConstrDef(true, p);
-      var extConstr = Ast_helper.Te.constructor({
-            loc_start: startPos,
-            loc_end: p.prevEndPos,
-            loc_ghost: false
-          }, match$1[0], undefined, undefined, match$1[1], match$1[2]);
-      _cs = {
-        hd: extConstr,
-        tl: cs
-      };
-      continue ;
-    };
-  };
-  var constructors = loop(p, {
-        hd: first,
-        tl: /* [] */0
-      });
-  return Ast_helper.Te.mk(attrs, undefined, params, priv, name, constructors);
+  return Ast_helper.Exp.constraint_(loc, undefined, expr, typ);
 }
 
 function parseArgument2(p, uncurried) {
@@ -10312,6 +6555,1425 @@ function parseArgument2(p, uncurried) {
         ];
 }
 
+function parseFunctorArgs(p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Lparen */18, p);
+  var args = parseCommaDelimitedRegion(p, /* FunctorArgs */40, /* Rparen */19, parseFunctorArg);
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  if (args) {
+    return args;
+  } else {
+    return {
+            hd: [
+              /* [] */0,
+              $$Location.mkloc("*", {
+                    loc_start: startPos,
+                    loc_end: p.prevEndPos,
+                    loc_ghost: false
+                  }),
+              undefined,
+              startPos
+            ],
+            tl: /* [] */0
+          };
+  }
+}
+
+function parseTypExprRegion(p) {
+  if (Res_grammar.isTypExprStart(p.token)) {
+    return parseTypExpr(undefined, undefined, undefined, p);
+  }
+  
+}
+
+function parseLetBindings(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.optional(p, /* Let */9);
+  var recFlag = Res_parser.optional(p, /* Rec */11) ? /* Recursive */1 : /* Nonrecursive */0;
+  var first = parseLetBindingBody(startPos, attrs, p);
+  var loop = function (p, _bindings) {
+    while(true) {
+      var bindings = _bindings;
+      var startPos = p.startPos;
+      var attrs = parseAttributesAndBinding(p);
+      var match = p.token;
+      if (match !== 10) {
+        return List.rev(bindings);
+      }
+      Res_parser.next(undefined, p);
+      var match$1 = p.token;
+      var attrs$1;
+      if (typeof match$1 === "number" && match$1 >= 84) {
+        var exportLoc_loc_start = p.startPos;
+        var exportLoc_loc_end = p.endPos;
+        var exportLoc = {
+          loc_start: exportLoc_loc_start,
+          loc_end: exportLoc_loc_end,
+          loc_ghost: false
+        };
+        Res_parser.next(undefined, p);
+        var genTypeAttr_0 = $$Location.mkloc("genType", exportLoc);
+        var genTypeAttr_1 = {
+          TAG: /* PStr */0,
+          _0: /* [] */0
+        };
+        var genTypeAttr = [
+          genTypeAttr_0,
+          genTypeAttr_1
+        ];
+        attrs$1 = {
+          hd: genTypeAttr,
+          tl: attrs
+        };
+      } else {
+        attrs$1 = attrs;
+      }
+      Res_parser.optional(p, /* Let */9);
+      var letBinding = parseLetBindingBody(startPos, attrs$1, p);
+      _bindings = {
+        hd: letBinding,
+        tl: bindings
+      };
+      continue ;
+    };
+  };
+  return [
+          recFlag,
+          loop(p, {
+                hd: first,
+                tl: /* [] */0
+              })
+        ];
+}
+
+function parseTypeDefinitionOrExtension(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Typ */60, p);
+  var match = p.token;
+  var recFlag;
+  if (typeof match === "number") {
+    if (match === /* Rec */11) {
+      Res_parser.next(undefined, p);
+      recFlag = /* Recursive */1;
+    } else {
+      recFlag = /* Nonrecursive */0;
+    }
+  } else if (match.TAG === /* Lident */4 && match._0 === "nonrec") {
+    Res_parser.next(undefined, p);
+    recFlag = /* Nonrecursive */0;
+  } else {
+    recFlag = /* Nonrecursive */0;
+  }
+  var name = parseValuePath(p);
+  var params = parseTypeParams(name, p);
+  var match$1 = p.token;
+  if (match$1 === 39) {
+    return {
+            TAG: /* TypeExt */1,
+            _0: parseTypeExtension(params, attrs, name, p)
+          };
+  }
+  var longident = name.txt;
+  var exit = 0;
+  switch (longident.TAG | 0) {
+    case /* Lident */0 :
+        break;
+    case /* Ldot */1 :
+    case /* Lapply */2 :
+        exit = 1;
+        break;
+    
+  }
+  if (exit === 1) {
+    Res_parser.err(name.loc.loc_start, name.loc.loc_end, p, Res_diagnostics.message(typeDeclarationNameLongident(longident)));
+  }
+  var typeDefs = parseTypeDefinitions(attrs, name, params, startPos, p);
+  return {
+          TAG: /* TypeDef */0,
+          recFlag: recFlag,
+          types: typeDefs
+        };
+}
+
+function parseJsxProp(p) {
+  var match = p.token;
+  if (typeof match === "number") {
+    if (match !== /* Question */49) {
+      return ;
+    }
+    
+  } else if (match.TAG !== /* Lident */4) {
+    return ;
+  }
+  var optional = Res_parser.optional(p, /* Question */49);
+  var match$1 = parseLident(p);
+  var loc = match$1[1];
+  var name = match$1[0];
+  var propLocAttr_0 = $$Location.mkloc("ns.namedArgLoc", loc);
+  var propLocAttr_1 = {
+    TAG: /* PStr */0,
+    _0: /* [] */0
+  };
+  var propLocAttr = [
+    propLocAttr_0,
+    propLocAttr_1
+  ];
+  if (optional) {
+    return [
+            {
+              TAG: /* Optional */1,
+              _0: name
+            },
+            Ast_helper.Exp.ident(loc, {
+                  hd: propLocAttr,
+                  tl: /* [] */0
+                }, $$Location.mkloc({
+                      TAG: /* Lident */0,
+                      _0: name
+                    }, loc))
+          ];
+  }
+  var match$2 = p.token;
+  if (match$2 === 14) {
+    Res_parser.next(undefined, p);
+    var optional$1 = Res_parser.optional(p, /* Question */49);
+    var e = parsePrimaryExpr(parseAtomicExpr(p), undefined, p);
+    var attrExpr_pexp_desc = e.pexp_desc;
+    var attrExpr_pexp_loc = e.pexp_loc;
+    var attrExpr_pexp_attributes = {
+      hd: propLocAttr,
+      tl: e.pexp_attributes
+    };
+    var attrExpr = {
+      pexp_desc: attrExpr_pexp_desc,
+      pexp_loc: attrExpr_pexp_loc,
+      pexp_attributes: attrExpr_pexp_attributes
+    };
+    var label = optional$1 ? ({
+          TAG: /* Optional */1,
+          _0: name
+        }) : ({
+          TAG: /* Labelled */0,
+          _0: name
+        });
+    return [
+            label,
+            attrExpr
+          ];
+  }
+  var attrExpr$1 = Ast_helper.Exp.ident(loc, {
+        hd: propLocAttr,
+        tl: /* [] */0
+      }, $$Location.mkloc({
+            TAG: /* Lident */0,
+            _0: name
+          }, loc));
+  var label$1 = optional ? ({
+        TAG: /* Optional */1,
+        _0: name
+      }) : ({
+        TAG: /* Labelled */0,
+        _0: name
+      });
+  return [
+          label$1,
+          attrExpr$1
+        ];
+}
+
+function parseJsxName(p) {
+  var ident = p.token;
+  var longident;
+  var exit = 0;
+  if (typeof ident === "number") {
+    exit = 1;
+  } else {
+    switch (ident.TAG | 0) {
+      case /* Lident */4 :
+          var identStart = p.startPos;
+          var identEnd = p.endPos;
+          Res_parser.next(undefined, p);
+          var loc = {
+            loc_start: identStart,
+            loc_end: identEnd,
+            loc_ghost: false
+          };
+          longident = $$Location.mkloc({
+                TAG: /* Lident */0,
+                _0: ident._0
+              }, loc);
+          break;
+      case /* Uident */5 :
+          var longident$1 = parseModuleLongIdent(true, p);
+          longident = $$Location.mkloc({
+                TAG: /* Ldot */1,
+                _0: longident$1.txt,
+                _1: "createElement"
+              }, longident$1.loc);
+          break;
+      default:
+        exit = 1;
+    }
+  }
+  if (exit === 1) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.message("A jsx name must be a lowercase or uppercase name, like: div in <div /> or Navbar in <Navbar />"));
+    longident = $$Location.mknoloc({
+          TAG: /* Lident */0,
+          _0: "_"
+        });
+  }
+  return Ast_helper.Exp.ident(longident.loc, undefined, longident);
+}
+
+function parseModuleBinding(attrs, startPos, p) {
+  var ident = p.token;
+  var name;
+  var exit = 0;
+  if (typeof ident === "number" || ident.TAG !== /* Uident */5) {
+    exit = 1;
+  } else {
+    var startPos$1 = p.startPos;
+    Res_parser.next(undefined, p);
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: startPos$1,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    name = $$Location.mkloc(ident._0, loc);
+  }
+  if (exit === 1) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
+    name = $$Location.mknoloc("_");
+  }
+  var body = parseModuleBindingBody(p);
+  var loc_loc_end$1 = p.prevEndPos;
+  var loc$1 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end$1,
+    loc_ghost: false
+  };
+  return Ast_helper.Mb.mk(loc$1, attrs, undefined, undefined, name, body);
+}
+
+function parseModuleBindings(attrs, startPos, p) {
+  var first = parseModuleBinding(attrs, startPos, p);
+  var _acc = {
+    hd: first,
+    tl: /* [] */0
+  };
+  while(true) {
+    var acc = _acc;
+    var startPos$1 = p.startPos;
+    var attrs$1 = parseAttributesAndBinding(p);
+    var match = p.token;
+    if (match !== 10) {
+      return List.rev(acc);
+    }
+    Res_parser.next(undefined, p);
+    Res_parser.optional(p, /* Module */65);
+    var modBinding = parseModuleBinding(attrs$1, startPos$1, p);
+    _acc = {
+      hd: modBinding,
+      tl: acc
+    };
+    continue ;
+  };
+}
+
+function parseModuleExpr(p) {
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var modExpr = isEs6ArrowFunctor(p) ? parseFunctorModuleExpr(p) : parsePrimaryModExpr(p);
+  return {
+          pmod_desc: modExpr.pmod_desc,
+          pmod_loc: modExpr.pmod_loc,
+          pmod_attributes: List.concat({
+                hd: modExpr.pmod_attributes,
+                tl: {
+                  hd: attrs,
+                  tl: /* [] */0
+                }
+              })
+        };
+}
+
+function parsePackageType(startPos, attrs, p) {
+  var modTypePath = parseModuleLongIdent(true, p);
+  var match = p.token;
+  if (typeof match !== "number" && match.TAG === /* Lident */4 && match._0 === "with") {
+    Res_parser.next(undefined, p);
+    var constraints = parsePackageConstraints(p);
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: startPos,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    return Ast_helper.Typ.$$package(loc, attrs, modTypePath, constraints);
+  }
+  var loc_loc_end$1 = p.prevEndPos;
+  var loc$1 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end$1,
+    loc_ghost: false
+  };
+  return Ast_helper.Typ.$$package(loc$1, attrs, modTypePath, /* [] */0);
+}
+
+function parseParameterList(p) {
+  var parameters = parseCommaDelimitedRegion(p, /* ParameterList */36, /* Rparen */19, parseParameter);
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  return parameters;
+}
+
+function parseRecordPatternItem(p) {
+  var match = p.token;
+  if (typeof match === "number") {
+    switch (match) {
+      case /* DotDotDot */6 :
+          Res_parser.next(undefined, p);
+          return [
+                  true,
+                  /* PatField */{
+                    _0: parseRecordPatternField(p)
+                  }
+                ];
+      case /* Underscore */12 :
+          Res_parser.next(undefined, p);
+          return [
+                  false,
+                  /* PatUnderscore */0
+                ];
+      default:
+        return ;
+    }
+  } else {
+    switch (match.TAG | 0) {
+      case /* Lident */4 :
+      case /* Uident */5 :
+          return [
+                  false,
+                  /* PatField */{
+                    _0: parseRecordPatternField(p)
+                  }
+                ];
+      default:
+        return ;
+    }
+  }
+}
+
+function parsePolymorphicVariantType(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Lbracket */20, p);
+  var match = p.token;
+  if (typeof match === "number") {
+    if (match !== 41) {
+      if (match === 42) {
+        Res_parser.next(undefined, p);
+        Res_parser.optional(p, /* Bar */17);
+        var rowField = parseTagSpecFull(p);
+        var rowFields = parseTagSpecFulls(p);
+        var tagNames = parseTagNames(p);
+        var loc_loc_end = p.prevEndPos;
+        var loc = {
+          loc_start: startPos,
+          loc_end: loc_loc_end,
+          loc_ghost: false
+        };
+        var variant = Ast_helper.Typ.variant(loc, attrs, {
+              hd: rowField,
+              tl: rowFields
+            }, /* Closed */0, tagNames);
+        Res_parser.expect(undefined, /* Rbracket */21, p);
+        return variant;
+      }
+      
+    } else {
+      Res_parser.next(undefined, p);
+      var match$1 = p.token;
+      var rowFields$1;
+      var exit = 0;
+      if (typeof match$1 === "number") {
+        if (match$1 !== 17) {
+          if (match$1 !== 21) {
+            exit = 2;
+          } else {
+            rowFields$1 = /* [] */0;
+          }
+        } else {
+          rowFields$1 = parseTagSpecs(p);
+        }
+      } else {
+        exit = 2;
+      }
+      if (exit === 2) {
+        var rowField$1 = parseTagSpec(p);
+        rowFields$1 = {
+          hd: rowField$1,
+          tl: parseTagSpecs(p)
+        };
+      }
+      var loc_loc_end$1 = p.prevEndPos;
+      var loc$1 = {
+        loc_start: startPos,
+        loc_end: loc_loc_end$1,
+        loc_ghost: false
+      };
+      var variant$1 = Ast_helper.Typ.variant(loc$1, attrs, rowFields$1, /* Open */1, undefined);
+      Res_parser.expect(undefined, /* Rbracket */21, p);
+      return variant$1;
+    }
+  }
+  var rowFields1 = parseTagSpecFirst(p);
+  var rowFields2 = parseTagSpecs(p);
+  var loc_loc_end$2 = p.prevEndPos;
+  var loc$2 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end$2,
+    loc_ghost: false
+  };
+  var variant$2 = Ast_helper.Typ.variant(loc$2, attrs, Pervasives.$at(rowFields1, rowFields2), /* Closed */0, undefined);
+  Res_parser.expect(undefined, /* Rbracket */21, p);
+  return variant$2;
+}
+
+function parseTupleType(attrs, first, startPos, p) {
+  var typexprs_1 = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
+  var typexprs = {
+    hd: first,
+    tl: typexprs_1
+  };
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  if (typexprs_1) {
+    
+  } else {
+    Res_parser.err(startPos, p.prevEndPos, p, Res_diagnostics.message(tupleSingleElement));
+  }
+  var tupleLoc_loc_end = p.prevEndPos;
+  var tupleLoc = {
+    loc_start: startPos,
+    loc_end: tupleLoc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Typ.tuple(tupleLoc, attrs, typexprs);
+}
+
+function parseRecordOrObjectType(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var match = p.token;
+  var closedFlag = typeof match === "number" ? (
+      match !== 4 ? (
+          match !== 5 ? /* Closed */0 : (Res_parser.next(undefined, p), /* Open */1)
+        ) : (Res_parser.next(undefined, p), /* Closed */0)
+    ) : /* Closed */0;
+  var match$1 = p.token;
+  if (typeof match$1 !== "number" && match$1.TAG === /* Lident */4) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.message(forbiddenInlineRecordDeclaration));
+  }
+  var startFirstField = p.startPos;
+  var fields = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
+  if (fields) {
+    var match$2 = fields.hd;
+    if (match$2.TAG !== /* Otag */0) {
+      if (fields.tl) {
+        
+      } else {
+        Res_parser.err(startFirstField, match$2._0.ptyp_loc.loc_end, p, Res_diagnostics.message(sameTypeSpread));
+      }
+    }
+    
+  }
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Typ.object_(loc, attrs, fields, closedFlag);
+}
+
+function parseAtomicTypExpr(attrs, p) {
+  Res_parser.leaveBreadcrumb(p, /* AtomicTypExpr */52);
+  var startPos = p.startPos;
+  var token = p.token;
+  var typ;
+  var exit = 0;
+  if (typeof token === "number") {
+    switch (token) {
+      case /* Underscore */12 :
+          var endPos = p.endPos;
+          Res_parser.next(undefined, p);
+          typ = Ast_helper.Typ.any({
+                loc_start: startPos,
+                loc_end: endPos,
+                loc_ghost: false
+              }, attrs, undefined);
+          break;
+      case /* SingleQuote */13 :
+          Res_parser.next(undefined, p);
+          var match = parseIdent(typeVar, p.startPos, p);
+          typ = Ast_helper.Typ.$$var(match[1], attrs, match[0]);
+          break;
+      case /* Lparen */18 :
+          Res_parser.next(undefined, p);
+          var match$1 = p.token;
+          if (match$1 === 19) {
+            Res_parser.next(undefined, p);
+            var loc_loc_end = p.prevEndPos;
+            var loc = {
+              loc_start: startPos,
+              loc_end: loc_loc_end,
+              loc_ghost: false
+            };
+            var unitConstr = $$Location.mkloc({
+                  TAG: /* Lident */0,
+                  _0: "unit"
+                }, loc);
+            typ = Ast_helper.Typ.constr(undefined, attrs, unitConstr, /* [] */0);
+          } else {
+            var t = parseTypExpr(undefined, undefined, undefined, p);
+            var match$2 = p.token;
+            if (match$2 === 25) {
+              Res_parser.next(undefined, p);
+              typ = parseTupleType(attrs, t, startPos, p);
+            } else {
+              Res_parser.expect(undefined, /* Rparen */19, p);
+              typ = {
+                ptyp_desc: t.ptyp_desc,
+                ptyp_loc: {
+                  loc_start: startPos,
+                  loc_end: p.prevEndPos,
+                  loc_ghost: false
+                },
+                ptyp_attributes: List.concat({
+                      hd: attrs,
+                      tl: {
+                        hd: t.ptyp_attributes,
+                        tl: /* [] */0
+                      }
+                    })
+              };
+            }
+          }
+          break;
+      case /* Lbracket */20 :
+          typ = parsePolymorphicVariantType(attrs, p);
+          break;
+      case /* Lbrace */22 :
+          typ = parseRecordOrObjectType(attrs, p);
+          break;
+      case /* Module */65 :
+          Res_parser.next(undefined, p);
+          Res_parser.expect(undefined, /* Lparen */18, p);
+          var packageType = parsePackageType(startPos, attrs, p);
+          Res_parser.expect(undefined, /* Rparen */19, p);
+          typ = {
+            ptyp_desc: packageType.ptyp_desc,
+            ptyp_loc: {
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            },
+            ptyp_attributes: packageType.ptyp_attributes
+          };
+          break;
+      case /* Percent */77 :
+          var extension = parseExtension(undefined, p);
+          var loc_loc_end$1 = p.prevEndPos;
+          var loc$1 = {
+            loc_start: startPos,
+            loc_end: loc_loc_end$1,
+            loc_ghost: false
+          };
+          typ = Ast_helper.Typ.extension(loc$1, attrs, extension);
+          break;
+      default:
+        exit = 1;
+    }
+  } else {
+    switch (token.TAG | 0) {
+      case /* Lident */4 :
+      case /* Uident */5 :
+          exit = 2;
+          break;
+      default:
+        exit = 1;
+    }
+  }
+  switch (exit) {
+    case 1 :
+        Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
+        var match$3 = skipTokensAndMaybeRetry(p, Res_grammar.isAtomicTypExprStart);
+        if (match$3 !== undefined) {
+          typ = parseAtomicTypExpr(attrs, p);
+        } else {
+          Res_parser.err(p.prevEndPos, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
+          typ = defaultType(undefined);
+        }
+        break;
+    case 2 :
+        var constr = parseValuePath(p);
+        var args = parseTypeConstructorArgs(constr, p);
+        typ = Ast_helper.Typ.constr({
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, attrs, constr, args);
+        break;
+    
+  }
+  Res_parser.eatBreadcrumb(p);
+  return typ;
+}
+
+function parseTypeVarList(p) {
+  var _vars = /* [] */0;
+  while(true) {
+    var vars = _vars;
+    var match = p.token;
+    if (match !== 13) {
+      return List.rev(vars);
+    }
+    Res_parser.next(undefined, p);
+    var match$1 = parseLident(p);
+    var $$var = $$Location.mkloc(match$1[0], match$1[1]);
+    _vars = {
+      hd: $$var,
+      tl: vars
+    };
+    continue ;
+  };
+}
+
+function parseBinaryExpr(contextOpt, a, p, prec) {
+  var context = contextOpt !== undefined ? contextOpt : /* OrdinaryExpr */0;
+  var a$1 = a !== undefined ? a : parseOperandExpr(context, p);
+  var _a = a$1;
+  while(true) {
+    var a$2 = _a;
+    var token = p.token;
+    var tokenPrec;
+    var exit = 0;
+    if (typeof token === "number") {
+      if (token >= 36) {
+        if (token !== 42) {
+          tokenPrec = Res_token.precedence(token);
+        } else {
+          exit = 1;
+        }
+      } else if (token >= 34) {
+        exit = 1;
+      } else {
+        tokenPrec = Res_token.precedence(token);
+      }
+    } else {
+      tokenPrec = Res_token.precedence(token);
+    }
+    if (exit === 1) {
+      tokenPrec = !Res_scanner.isBinaryOp(p.scanner.src, p.startPos.pos_cnum, p.endPos.pos_cnum) && p.startPos.pos_lnum > p.prevEndPos.pos_lnum ? -1 : Res_token.precedence(token);
+    }
+    if (tokenPrec < prec) {
+      return a$2;
+    }
+    Res_parser.leaveBreadcrumb(p, /* ExprBinaryAfterOp */{
+          _0: token
+        });
+    var startPos = p.startPos;
+    Res_parser.next(undefined, p);
+    var endPos = p.prevEndPos;
+    var b = parseBinaryExpr(context, undefined, p, tokenPrec + 1 | 0);
+    var loc_loc_start = a$2.pexp_loc.loc_start;
+    var loc_loc_end = b.pexp_loc.loc_end;
+    var loc = {
+      loc_start: loc_loc_start,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    var expr = Ast_helper.Exp.apply(loc, undefined, makeInfixOperator(p, token, startPos, endPos), {
+          hd: [
+            /* Nolabel */0,
+            a$2
+          ],
+          tl: {
+            hd: [
+              /* Nolabel */0,
+              b
+            ],
+            tl: /* [] */0
+          }
+        });
+    Res_parser.eatBreadcrumb(p);
+    _a = expr;
+    continue ;
+  };
+}
+
+function parseOperandExpr(context, p) {
+  var startPos = p.startPos;
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var match = p.token;
+  var expr;
+  var exit = 0;
+  if (typeof match === "number") {
+    if (match >= 56) {
+      if (match !== 82) {
+        exit = 1;
+      } else {
+        expr = parseTryExpression(p);
+      }
+    } else if (match >= 46) {
+      switch (match) {
+        case /* Assert */46 :
+            Res_parser.next(undefined, p);
+            var expr$1 = parseUnaryExpr(p);
+            var loc_loc_end = p.prevEndPos;
+            var loc = {
+              loc_start: startPos,
+              loc_end: loc_loc_end,
+              loc_ghost: false
+            };
+            expr = Ast_helper.Exp.assert_(loc, undefined, expr$1);
+            break;
+        case /* Lazy */47 :
+            Res_parser.next(undefined, p);
+            var expr$2 = parseUnaryExpr(p);
+            var loc_loc_end$1 = p.prevEndPos;
+            var loc$1 = {
+              loc_start: startPos,
+              loc_end: loc_loc_end$1,
+              loc_ghost: false
+            };
+            expr = Ast_helper.Exp.lazy_(loc$1, undefined, expr$2);
+            break;
+        case /* If */50 :
+            expr = parseIfOrIfLetExpression(p);
+            break;
+        case /* For */52 :
+            expr = parseForExpression(p);
+            break;
+        case /* Tilde */48 :
+        case /* Question */49 :
+        case /* Else */51 :
+        case /* In */53 :
+            exit = 1;
+            break;
+        case /* While */54 :
+            expr = parseWhileExpression(p);
+            break;
+        case /* Switch */55 :
+            expr = parseSwitchExpression(p);
+            break;
+        
+      }
+    } else {
+      exit = 1;
+    }
+  } else {
+    exit = 1;
+  }
+  if (exit === 1) {
+    expr = context !== /* WhenExpr */2 && isEs6ArrowExpression(context === /* TernaryTrueBranchExpr */1, p) ? parseEs6ArrowExpression(context, undefined, p) : parseUnaryExpr(p);
+  }
+  return {
+          pexp_desc: expr.pexp_desc,
+          pexp_loc: expr.pexp_loc,
+          pexp_attributes: List.concat({
+                hd: expr.pexp_attributes,
+                tl: {
+                  hd: attrs,
+                  tl: /* [] */0
+                }
+              })
+        };
+}
+
+function parseParameters(p) {
+  var startPos = p.startPos;
+  var ident = p.token;
+  if (typeof ident === "number") {
+    switch (ident) {
+      case /* Underscore */12 :
+          Res_parser.next(undefined, p);
+          var loc_loc_end = p.prevEndPos;
+          var loc = {
+            loc_start: startPos,
+            loc_end: loc_loc_end,
+            loc_ghost: false
+          };
+          return {
+                  hd: {
+                    TAG: /* TermParameter */0,
+                    uncurried: false,
+                    attrs: /* [] */0,
+                    label: /* Nolabel */0,
+                    expr: undefined,
+                    pat: Ast_helper.Pat.any(loc, undefined, undefined),
+                    pos: startPos
+                  },
+                  tl: /* [] */0
+                };
+      case /* Lparen */18 :
+          Res_parser.next(undefined, p);
+          var match = p.token;
+          if (typeof match !== "number") {
+            return parseParameterList(p);
+          }
+          if (match !== 4) {
+            if (match !== 19) {
+              return parseParameterList(p);
+            }
+            Res_parser.next(undefined, p);
+            var loc_loc_end$1 = p.prevEndPos;
+            var loc$1 = {
+              loc_start: startPos,
+              loc_end: loc_loc_end$1,
+              loc_ghost: false
+            };
+            var unitPattern = Ast_helper.Pat.construct(loc$1, undefined, $$Location.mkloc({
+                      TAG: /* Lident */0,
+                      _0: "()"
+                    }, loc$1), undefined);
+            return {
+                    hd: {
+                      TAG: /* TermParameter */0,
+                      uncurried: false,
+                      attrs: /* [] */0,
+                      label: /* Nolabel */0,
+                      expr: undefined,
+                      pat: unitPattern,
+                      pos: startPos
+                    },
+                    tl: /* [] */0
+                  };
+          }
+          Res_parser.next(undefined, p);
+          var match$1 = p.token;
+          if (match$1 === 19) {
+            Res_parser.next(undefined, p);
+            var loc_loc_end$2 = p.prevEndPos;
+            var loc$2 = {
+              loc_start: startPos,
+              loc_end: loc_loc_end$2,
+              loc_ghost: false
+            };
+            var unitPattern$1 = Ast_helper.Pat.construct(loc$2, undefined, $$Location.mkloc({
+                      TAG: /* Lident */0,
+                      _0: "()"
+                    }, loc$2), undefined);
+            return {
+                    hd: {
+                      TAG: /* TermParameter */0,
+                      uncurried: true,
+                      attrs: /* [] */0,
+                      label: /* Nolabel */0,
+                      expr: undefined,
+                      pat: unitPattern$1,
+                      pos: startPos
+                    },
+                    tl: /* [] */0
+                  };
+          }
+          var parameters = parseParameterList(p);
+          if (!parameters) {
+            return parameters;
+          }
+          var match$2 = parameters.hd;
+          if (match$2.TAG === /* TermParameter */0) {
+            return {
+                    hd: {
+                      TAG: /* TermParameter */0,
+                      uncurried: true,
+                      attrs: match$2.attrs,
+                      label: match$2.label,
+                      expr: match$2.expr,
+                      pat: match$2.pat,
+                      pos: match$2.pos
+                    },
+                    tl: parameters.tl
+                  };
+          } else {
+            return parameters;
+          }
+      default:
+        
+    }
+  } else if (ident.TAG === /* Lident */4) {
+    Res_parser.next(undefined, p);
+    var loc_loc_end$3 = p.prevEndPos;
+    var loc$3 = {
+      loc_start: startPos,
+      loc_end: loc_loc_end$3,
+      loc_ghost: false
+    };
+    return {
+            hd: {
+              TAG: /* TermParameter */0,
+              uncurried: false,
+              attrs: /* [] */0,
+              label: /* Nolabel */0,
+              expr: undefined,
+              pat: Ast_helper.Pat.$$var(loc$3, undefined, $$Location.mkloc(ident._0, loc$3)),
+              pos: startPos
+            },
+            tl: /* [] */0
+          };
+  }
+  Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(ident, p.breadcrumbs));
+  return /* [] */0;
+}
+
+function parseTernaryExpr(leftOperand, p) {
+  var match = p.token;
+  if (match !== 49) {
+    return leftOperand;
+  }
+  Res_parser.leaveBreadcrumb(p, /* Ternary */2);
+  Res_parser.next(undefined, p);
+  var trueBranch = parseExpr(/* TernaryTrueBranchExpr */1, p);
+  Res_parser.expect(undefined, /* Colon */24, p);
+  var falseBranch = parseExpr(undefined, p);
+  Res_parser.eatBreadcrumb(p);
+  var init = leftOperand.pexp_loc;
+  var loc_loc_start = leftOperand.pexp_loc.loc_start;
+  var loc_loc_end = falseBranch.pexp_loc.loc_end;
+  var loc_loc_ghost = init.loc_ghost;
+  var loc = {
+    loc_start: loc_loc_start,
+    loc_end: loc_loc_end,
+    loc_ghost: loc_loc_ghost
+  };
+  return Ast_helper.Exp.ifthenelse(loc, {
+              hd: ternaryAttr,
+              tl: /* [] */0
+            }, leftOperand, trueBranch, falseBranch);
+}
+
+function parseMaybeRecModuleBinding(attrs, startPos, p) {
+  var match = p.token;
+  if (match === 11) {
+    Res_parser.next(undefined, p);
+    return Ast_helper.Str.rec_module(undefined, parseModuleBindings(attrs, startPos, p));
+  } else {
+    return Ast_helper.Str.module_(undefined, parseModuleBinding(attrs, p.startPos, p));
+  }
+}
+
+function parseModuleTypeImpl(attrs, startPos, p) {
+  Res_parser.expect(undefined, /* Typ */60, p);
+  var nameStart = p.startPos;
+  var ident = p.token;
+  var name;
+  var exit = 0;
+  if (typeof ident === "number") {
+    exit = 2;
+  } else {
+    switch (ident.TAG | 0) {
+      case /* Lident */4 :
+      case /* Uident */5 :
+          exit = 1;
+          break;
+      default:
+        exit = 2;
+    }
+  }
+  switch (exit) {
+    case 1 :
+        Res_parser.next(undefined, p);
+        var loc_loc_end = p.prevEndPos;
+        var loc = {
+          loc_start: nameStart,
+          loc_end: loc_loc_end,
+          loc_ghost: false
+        };
+        name = $$Location.mkloc(ident._0, loc);
+        break;
+    case 2 :
+        Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
+        name = $$Location.mknoloc("_");
+        break;
+    
+  }
+  Res_parser.expect(undefined, /* Equal */14, p);
+  var moduleType = parseModuleType(undefined, undefined, p);
+  var moduleTypeDeclaration = Ast_helper.Mtd.mk({
+        loc_start: nameStart,
+        loc_end: p.prevEndPos,
+        loc_ghost: false
+      }, attrs, undefined, undefined, moduleType, name);
+  var loc_loc_end$1 = p.prevEndPos;
+  var loc$1 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end$1,
+    loc_ghost: false
+  };
+  return Ast_helper.Str.modtype(loc$1, moduleTypeDeclaration);
+}
+
+function parseCoercedExpr(expr, p) {
+  Res_parser.expect(undefined, /* ColonGreaterThan */40, p);
+  var typ = parseTypExpr(undefined, undefined, undefined, p);
+  var loc_loc_start = expr.pexp_loc.loc_start;
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: loc_loc_start,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.coerce(loc, undefined, expr, undefined, typ);
+}
+
+function parseForRest(hasOpeningParen, pattern, startPos, p) {
+  Res_parser.expect(undefined, /* In */53, p);
+  var e1 = parseExpr(undefined, p);
+  var token = p.token;
+  var direction;
+  var exit = 0;
+  if (typeof token === "number" || token.TAG !== /* Lident */4) {
+    exit = 1;
+  } else {
+    switch (token._0) {
+      case "downto" :
+          direction = /* Downto */1;
+          break;
+      case "to" :
+          direction = /* Upto */0;
+          break;
+      default:
+        exit = 1;
+    }
+  }
+  if (exit === 1) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
+    direction = /* Upto */0;
+  }
+  Res_parser.next(undefined, p);
+  var e2 = parseExpr(/* WhenExpr */2, p);
+  if (hasOpeningParen) {
+    Res_parser.expect(undefined, /* Rparen */19, p);
+  }
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var bodyExpr = parseExprBlock(undefined, p);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.for_(loc, undefined, pattern, e1, e2, direction, bodyExpr);
+}
+
+function parsePackageConstraint(p) {
+  var match = p.token;
+  if (match !== 10) {
+    return ;
+  }
+  Res_parser.next(undefined, p);
+  Res_parser.expect(undefined, /* Typ */60, p);
+  var typeConstr = parseValuePath(p);
+  Res_parser.expect(undefined, /* Equal */14, p);
+  var typ = parseTypExpr(undefined, undefined, undefined, p);
+  return [
+          typeConstr,
+          typ
+        ];
+}
+
+function parseRecModuleDeclaration(attrs, startPos, p) {
+  var modName = p.token;
+  var name;
+  var exit = 0;
+  if (typeof modName === "number" || modName.TAG !== /* Uident */5) {
+    exit = 1;
+  } else {
+    var loc_loc_start = p.startPos;
+    var loc_loc_end = p.endPos;
+    var loc = {
+      loc_start: loc_loc_start,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    Res_parser.next(undefined, p);
+    name = $$Location.mkloc(modName._0, loc);
+  }
+  if (exit === 1) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(modName));
+    name = $$Location.mknoloc("_");
+  }
+  Res_parser.expect(undefined, /* Colon */24, p);
+  var modType = parseModuleType(undefined, undefined, p);
+  return Ast_helper.Md.mk({
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, attrs, undefined, undefined, name, modType);
+}
+
+function parseAttributesAndBinding(p) {
+  var err = p.scanner.err;
+  var ch = p.scanner.ch;
+  var offset = p.scanner.offset;
+  var lineOffset = p.scanner.lineOffset;
+  var lnum = p.scanner.lnum;
+  var mode = p.scanner.mode;
+  var token = p.token;
+  var startPos = p.startPos;
+  var endPos = p.endPos;
+  var prevEndPos = p.prevEndPos;
+  var breadcrumbs = p.breadcrumbs;
+  var errors = p.errors;
+  var diagnostics = p.diagnostics;
+  var comments = p.comments;
+  var match = p.token;
+  if (match !== 75) {
+    return /* [] */0;
+  }
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var match$1 = p.token;
+  if (match$1 === 10) {
+    return attrs;
+  } else {
+    p.scanner.err = err;
+    p.scanner.ch = ch;
+    p.scanner.offset = offset;
+    p.scanner.lineOffset = lineOffset;
+    p.scanner.lnum = lnum;
+    p.scanner.mode = mode;
+    p.token = token;
+    p.startPos = startPos;
+    p.endPos = endPos;
+    p.prevEndPos = prevEndPos;
+    p.breadcrumbs = breadcrumbs;
+    p.errors = errors;
+    p.diagnostics = diagnostics;
+    p.comments = comments;
+    return /* [] */0;
+  }
+}
+
+function parsePolymorphicVariantTypeSpecHash(attrs, full, p) {
+  var startPos = p.startPos;
+  var match = parseHashIdent(startPos, p);
+  var loop = function (p) {
+    var match = p.token;
+    if (match !== 69) {
+      return /* [] */0;
+    }
+    if (!full) {
+      return /* [] */0;
+    }
+    Res_parser.next(undefined, p);
+    var rowField = parsePolymorphicVariantTypeArgs(p);
+    return {
+            hd: rowField,
+            tl: loop(p)
+          };
+  };
+  var match$1 = p.token;
+  var match$2 = typeof match$1 === "number" ? (
+      match$1 !== 18 ? (
+          match$1 !== 69 || !full ? [
+              /* [] */0,
+              true
+            ] : (Res_parser.next(undefined, p), [
+                {
+                  hd: parsePolymorphicVariantTypeArgs(p),
+                  tl: /* [] */0
+                },
+                true
+              ])
+        ) : [
+          {
+            hd: parsePolymorphicVariantTypeArgs(p),
+            tl: /* [] */0
+          },
+          false
+        ]
+    ) : [
+      /* [] */0,
+      true
+    ];
+  var tuples = Pervasives.$at(match$2[0], loop(p));
+  return {
+          TAG: /* Rtag */0,
+          _0: $$Location.mkloc(match[0], match[1]),
+          _1: attrs,
+          _2: match$2[1],
+          _3: tuples
+        };
+}
+
+function parseTypeParams(parent, p) {
+  var opening = p.token;
+  if (typeof opening !== "number") {
+    return /* [] */0;
+  }
+  if (opening !== 18 && opening !== 42) {
+    return /* [] */0;
+  }
+  if (p.startPos.pos_lnum !== p.prevEndPos.pos_lnum) {
+    return /* [] */0;
+  }
+  Res_scanner.setDiamondMode(p.scanner);
+  var openingStartPos = p.startPos;
+  Res_parser.leaveBreadcrumb(p, /* TypeParams */30);
+  Res_parser.next(undefined, p);
+  var params = parseCommaDelimitedRegion(p, /* TypeParams */30, /* GreaterThan */41, parseTypeParam);
+  var match = p.token;
+  if (match === 19 && opening === /* Lparen */18) {
+    var msg = Res_doc.toString(80, Res_doc.breakableGroup(true, Res_doc.concat({
+                  hd: Res_doc.text("Type parameters require angle brackets:"),
+                  tl: {
+                    hd: Res_doc.indent(Res_doc.concat({
+                              hd: Res_doc.line,
+                              tl: {
+                                hd: Res_doc.concat({
+                                      hd: Res_printer.printLongident(parent.txt),
+                                      tl: {
+                                        hd: Res_printer.printTypeParams(params, Res_comments_table.empty),
+                                        tl: /* [] */0
+                                      }
+                                    }),
+                                tl: /* [] */0
+                              }
+                            })),
+                    tl: /* [] */0
+                  }
+                })));
+    Res_parser.err(openingStartPos, undefined, p, Res_diagnostics.message(msg));
+    Res_parser.next(undefined, p);
+  } else {
+    Res_parser.expect(undefined, /* GreaterThan */41, p);
+  }
+  Res_scanner.popMode(p.scanner, /* Diamond */1);
+  Res_parser.eatBreadcrumb(p);
+  return params;
+}
+
+function parseTypeDefinitions(attrs, name, params, startPos, p) {
+  var match = parseTypeEquationAndRepresentation(p);
+  var cstrs = parseRegion(p, /* TypeConstraint */51, parseTypeConstraint);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  var typeDef = Ast_helper.Type.mk(loc, attrs, undefined, undefined, params, cstrs, match[2], match[1], match[0], {
+        txt: lidentOfPath(name.txt),
+        loc: name.loc
+      });
+  var _defs = {
+    hd: typeDef,
+    tl: /* [] */0
+  };
+  while(true) {
+    var defs = _defs;
+    var startPos$1 = p.startPos;
+    var attrs$1 = parseAttributesAndBinding(p);
+    var match$1 = p.token;
+    if (match$1 !== 10) {
+      return List.rev(defs);
+    }
+    Res_parser.next(undefined, p);
+    var match$2 = p.token;
+    var attrs$2;
+    if (typeof match$2 === "number" && match$2 >= 84) {
+      var exportLoc_loc_start = p.startPos;
+      var exportLoc_loc_end = p.endPos;
+      var exportLoc = {
+        loc_start: exportLoc_loc_start,
+        loc_end: exportLoc_loc_end,
+        loc_ghost: false
+      };
+      Res_parser.next(undefined, p);
+      var genTypeAttr_0 = $$Location.mkloc("genType", exportLoc);
+      var genTypeAttr_1 = {
+        TAG: /* PStr */0,
+        _0: /* [] */0
+      };
+      var genTypeAttr = [
+        genTypeAttr_0,
+        genTypeAttr_1
+      ];
+      attrs$2 = {
+        hd: genTypeAttr,
+        tl: attrs$1
+      };
+    } else {
+      attrs$2 = attrs$1;
+    }
+    var typeDef$1 = parseTypeDef(attrs$2, startPos$1, p);
+    _defs = {
+      hd: typeDef$1,
+      tl: defs
+    };
+    continue ;
+  };
+}
+
+function parseTypeExtension(params, attrs, name, p) {
+  Res_parser.expect(undefined, /* PlusEqual */39, p);
+  var priv = Res_parser.optional(p, /* Private */61) ? /* Private */0 : /* Public */1;
+  var constrStart = p.startPos;
+  Res_parser.optional(p, /* Bar */17);
+  var match = p.token;
+  var match$1 = match === 17 ? (Res_parser.next(undefined, p), parseConstrDef(true, p)) : parseConstrDef(true, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: constrStart,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  var first = Ast_helper.Te.constructor(loc, match$1[0], undefined, undefined, match$1[1], match$1[2]);
+  var loop = function (p, _cs) {
+    while(true) {
+      var cs = _cs;
+      var match = p.token;
+      if (match !== 17) {
+        return List.rev(cs);
+      }
+      var startPos = p.startPos;
+      Res_parser.next(undefined, p);
+      var match$1 = parseConstrDef(true, p);
+      var extConstr = Ast_helper.Te.constructor({
+            loc_start: startPos,
+            loc_end: p.prevEndPos,
+            loc_ghost: false
+          }, match$1[0], undefined, undefined, match$1[1], match$1[2]);
+      _cs = {
+        hd: extConstr,
+        tl: cs
+      };
+      continue ;
+    };
+  };
+  var constructors = loop(p, {
+        hd: first,
+        tl: /* [] */0
+      });
+  return Ast_helper.Te.mk(attrs, undefined, params, priv, name, constructors);
+}
+
+function parseModuleBindingBody(p) {
+  var match = p.token;
+  var returnModType = match === 24 ? (Res_parser.next(undefined, p), parseModuleType(undefined, undefined, p)) : undefined;
+  Res_parser.expect(undefined, /* Equal */14, p);
+  var modExpr = parseModuleExpr(p);
+  if (returnModType !== undefined) {
+    return Ast_helper.Mod.constraint_({
+                loc_start: returnModType.pmty_loc.loc_start,
+                loc_end: modExpr.pmod_loc.loc_end,
+                loc_ghost: false
+              }, undefined, modExpr, returnModType);
+  } else {
+    return modExpr;
+  }
+}
+
 function parseLetBindingBody(startPos, attrs, p) {
   Res_parser.beginRegion(p);
   Res_parser.leaveBreadcrumb(p, /* LetBinding */24);
@@ -10382,88 +8044,176 @@ function parseLetBindingBody(startPos, attrs, p) {
   return vb;
 }
 
-function parseArgument(p) {
-  if (!(p.token === /* Tilde */48 || p.token === /* Dot */4 || p.token === /* Underscore */12 || Res_grammar.isExprStart(p.token))) {
-    return ;
-  }
-  var match = p.token;
-  if (match !== 4) {
-    return parseArgument2(p, false);
-  }
-  Res_parser.next(undefined, p);
-  var match$1 = p.token;
-  if (match$1 !== 19) {
-    return parseArgument2(p, true);
-  }
-  var unitExpr = Ast_helper.Exp.construct(undefined, undefined, $$Location.mknoloc({
-            TAG: /* Lident */0,
-            _0: "()"
-          }), undefined);
-  return [
-          true,
-          /* Nolabel */0,
-          unitExpr
-        ];
-}
-
-function parsePrimaryModExpr(p) {
-  var startPos = p.startPos;
-  var modExpr = parseAtomicModuleExpr(p);
-  var loop = function (p, _modExpr) {
-    while(true) {
-      var modExpr = _modExpr;
-      var match = p.token;
-      if (match !== 18) {
-        return modExpr;
-      }
-      if (p.prevEndPos.pos_lnum !== p.startPos.pos_lnum) {
-        return modExpr;
-      }
-      _modExpr = parseModuleApplication(p, modExpr);
-      continue ;
+function parseLidentList(p) {
+  var _ls = /* [] */0;
+  while(true) {
+    var ls = _ls;
+    var lident = p.token;
+    if (typeof lident === "number") {
+      return List.rev(ls);
+    }
+    if (lident.TAG !== /* Lident */4) {
+      return List.rev(ls);
+    }
+    var loc_loc_start = p.startPos;
+    var loc_loc_end = p.endPos;
+    var loc = {
+      loc_start: loc_loc_start,
+      loc_end: loc_loc_end,
+      loc_ghost: false
     };
+    Res_parser.next(undefined, p);
+    _ls = {
+      hd: $$Location.mkloc(lident._0, loc),
+      tl: ls
+    };
+    continue ;
   };
-  var modExpr$1 = loop(p, modExpr);
-  return {
-          pmod_desc: modExpr$1.pmod_desc,
-          pmod_loc: {
-            loc_start: startPos,
-            loc_end: p.prevEndPos,
-            loc_ghost: false
-          },
-          pmod_attributes: modExpr$1.pmod_attributes
-        };
 }
 
-function parseFunctorModuleExpr(p) {
-  var startPos = p.startPos;
-  var args = parseFunctorArgs(p);
+function parseIfLetExpr(startPos, p) {
+  var pattern = parsePattern(undefined, undefined, p);
+  Res_parser.expect(undefined, /* Equal */14, p);
+  var conditionExpr = parseIfCondition(p);
+  var thenExpr = parseThenBranch(p);
   var match = p.token;
-  var returnType = match === 24 ? (Res_parser.next(undefined, p), parseModuleType(false, undefined, p)) : undefined;
-  Res_parser.expect(undefined, /* EqualGreater */57, p);
-  var modExpr = parseModuleExpr(p);
-  var rhsModuleExpr = returnType !== undefined ? Ast_helper.Mod.constraint_({
-          loc_start: modExpr.pmod_loc.loc_start,
-          loc_end: returnType.pmty_loc.loc_end,
-          loc_ghost: false
-        }, undefined, modExpr, returnType) : modExpr;
-  var endPos = p.prevEndPos;
-  var modExpr$1 = List.fold_right((function (param, acc) {
-          return Ast_helper.Mod.functor_({
-                      loc_start: param[3],
-                      loc_end: endPos,
-                      loc_ghost: false
-                    }, param[0], param[1], param[2], acc);
-        }), args, rhsModuleExpr);
-  return {
-          pmod_desc: modExpr$1.pmod_desc,
-          pmod_loc: {
-            loc_start: startPos,
-            loc_end: endPos,
-            loc_ghost: false
-          },
-          pmod_attributes: modExpr$1.pmod_attributes
-        };
+  var elseExpr;
+  Res_parser.endRegion(p);
+  if (match === 51) {
+    Res_parser.leaveBreadcrumb(p, /* ElseBranch */19);
+    Res_parser.next(undefined, p);
+    Res_parser.beginRegion(p);
+    var match$1 = p.token;
+    var elseExpr$1 = match$1 === 50 ? parseIfOrIfLetExpression(p) : parseElseBranch(p);
+    Res_parser.eatBreadcrumb(p);
+    Res_parser.endRegion(p);
+    elseExpr = elseExpr$1;
+  } else {
+    var startPos$1 = p.startPos;
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: startPos$1,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    elseExpr = Ast_helper.Exp.construct(loc, undefined, $$Location.mkloc({
+              TAG: /* Lident */0,
+              _0: "()"
+            }, loc), undefined);
+  }
+  var loc_loc_end$1 = p.prevEndPos;
+  var loc$1 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end$1,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.match_(loc$1, {
+              hd: ifLetAttr,
+              tl: {
+                hd: suppressFragileMatchWarningAttr,
+                tl: /* [] */0
+              }
+            }, conditionExpr, {
+              hd: Ast_helper.Exp.$$case(pattern, undefined, thenExpr),
+              tl: {
+                hd: Ast_helper.Exp.$$case(Ast_helper.Pat.any(undefined, undefined, undefined), undefined, elseExpr),
+                tl: /* [] */0
+              }
+            });
+}
+
+function parseIfExpr(startPos, p) {
+  var conditionExpr = parseIfCondition(p);
+  var thenExpr = parseThenBranch(p);
+  var match = p.token;
+  var elseExpr;
+  Res_parser.endRegion(p);
+  if (match === 51) {
+    Res_parser.leaveBreadcrumb(p, /* ElseBranch */19);
+    Res_parser.next(undefined, p);
+    Res_parser.beginRegion(p);
+    var match$1 = p.token;
+    var elseExpr$1 = match$1 === 50 ? parseIfOrIfLetExpression(p) : parseElseBranch(p);
+    Res_parser.eatBreadcrumb(p);
+    Res_parser.endRegion(p);
+    elseExpr = elseExpr$1;
+  } else {
+    elseExpr = undefined;
+  }
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.ifthenelse(loc, undefined, conditionExpr, thenExpr, elseExpr);
+}
+
+function parseSignLetDesc(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.optional(p, /* Let */9);
+  var match = parseLident(p);
+  var name = $$Location.mkloc(match[0], match[1]);
+  Res_parser.expect(undefined, /* Colon */24, p);
+  var typExpr = parsePolyTypeExpr(p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Val.mk(loc, attrs, undefined, undefined, name, typExpr);
+}
+
+function parseSwitchExpression(p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Switch */55, p);
+  var switchExpr = parseExpr(/* WhenExpr */2, p);
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var cases = parsePatternMatching(p);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.match_(loc, undefined, switchExpr, cases);
+}
+
+function parseIfOrIfLetExpression(p) {
+  Res_parser.beginRegion(p);
+  Res_parser.leaveBreadcrumb(p, /* ExprIf */15);
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* If */50, p);
+  var match = p.token;
+  var expr;
+  if (match === 9) {
+    Res_parser.next(undefined, p);
+    var ifLetExpr = parseIfLetExpr(startPos, p);
+    Res_parser.err(ifLetExpr.pexp_loc.loc_start, ifLetExpr.pexp_loc.loc_end, p, Res_diagnostics.message(experimentalIfLet(ifLetExpr)));
+    expr = ifLetExpr;
+  } else {
+    expr = parseIfExpr(startPos, p);
+  }
+  Res_parser.eatBreadcrumb(p);
+  return expr;
+}
+
+function parseWhileExpression(p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* While */54, p);
+  var expr1 = parseExpr(/* WhenExpr */2, p);
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var expr2 = parseExprBlock(undefined, p);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.while_(loc, undefined, expr1, expr2);
 }
 
 function parseUnaryExpr(p) {
@@ -10490,55 +8240,6 @@ function parseUnaryExpr(p) {
         return unaryExpr;
     
   }
-}
-
-function parseSwitchExpression(p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Switch */55, p);
-  var switchExpr = parseExpr(/* WhenExpr */2, p);
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var cases = parsePatternMatching(p);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.match_(loc, undefined, switchExpr, cases);
-}
-
-function parseTryExpression(p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Try */82, p);
-  var expr = parseExpr(/* WhenExpr */2, p);
-  Res_parser.expect(undefined, Res_token.$$catch, p);
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var cases = parsePatternMatching(p);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.try_(loc, undefined, expr, cases);
-}
-
-function parseWhileExpression(p) {
-  var startPos = p.startPos;
-  Res_parser.expect(undefined, /* While */54, p);
-  var expr1 = parseExpr(/* WhenExpr */2, p);
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var expr2 = parseExprBlock(undefined, p);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  var loc_loc_end = p.prevEndPos;
-  var loc = {
-    loc_start: startPos,
-    loc_end: loc_loc_end,
-    loc_ghost: false
-  };
-  return Ast_helper.Exp.while_(loc, undefined, expr1, expr2);
 }
 
 function parseForExpression(p) {
@@ -10591,117 +8292,1225 @@ function parseForExpression(p) {
   return forExpr;
 }
 
-function parseConstructorPatternArgs(p, constr, startPos, attrs) {
-  var lparen = p.startPos;
-  Res_parser.expect(undefined, /* Lparen */18, p);
-  var args = parseCommaDelimitedRegion(p, /* PatternList */25, /* Rparen */19, parseConstrainedPatternRegion);
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  var args$1;
-  var exit = 0;
-  if (args) {
-    var pat = args.hd;
-    var tmp = pat.ppat_desc;
-    if (typeof tmp === "number") {
-      if (args.tl) {
-        exit = 1;
-      } else {
-        args$1 = pat;
-      }
-    } else if (tmp.TAG === /* Ppat_tuple */4) {
-      if (args.tl) {
-        exit = 1;
-      } else {
-        args$1 = p.mode === /* ParseForTypeChecker */0 ? pat : Ast_helper.Pat.tuple({
-                loc_start: lparen,
-                loc_end: p.endPos,
-                loc_ghost: false
-              }, undefined, args);
-      }
-    } else if (args.tl) {
-      exit = 1;
-    } else {
-      args$1 = pat;
-    }
-  } else {
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: lparen,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    args$1 = Ast_helper.Pat.construct(loc, undefined, $$Location.mkloc({
-              TAG: /* Lident */0,
-              _0: "()"
-            }, loc), undefined);
-  }
-  if (exit === 1) {
-    args$1 = Ast_helper.Pat.tuple({
-          loc_start: lparen,
-          loc_end: p.endPos,
-          loc_ghost: false
-        }, undefined, args);
-  }
-  return Ast_helper.Pat.construct({
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, attrs, constr, args$1);
-}
-
-function parseRecordPattern(attrs, p) {
+function parseTryExpression(p) {
   var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Try */82, p);
+  var expr = parseExpr(/* WhenExpr */2, p);
+  Res_parser.expect(undefined, Res_token.$$catch, p);
   Res_parser.expect(undefined, /* Lbrace */22, p);
-  var rawFields = parseCommaDelimitedReversedList(p, /* PatternRecord */27, /* Rbrace */23, parseRecordPatternItem);
+  var cases = parsePatternMatching(p);
   Res_parser.expect(undefined, /* Rbrace */23, p);
-  var match = rawFields && !rawFields.hd[1] ? [
-      rawFields.tl,
-      /* Open */1
-    ] : [
-      rawFields,
-      /* Closed */0
-    ];
-  var match$1 = List.fold_left((function (param, curr) {
-          var field = curr[1];
-          var flag = param[1];
-          var fields = param[0];
-          if (!field) {
-            return [
-                    fields,
-                    flag
-                  ];
-          }
-          var field$1 = field._0;
-          if (curr[0]) {
-            Res_parser.err(field$1[1].ppat_loc.loc_start, undefined, p, Res_diagnostics.message(recordPatternSpread));
-          }
-          return [
-                  {
-                    hd: field$1,
-                    tl: fields
-                  },
-                  flag
-                ];
-        }), [
-        /* [] */0,
-        match[1]
-      ], match[0]);
   var loc_loc_end = p.prevEndPos;
   var loc = {
     loc_start: startPos,
     loc_end: loc_loc_end,
     loc_ghost: false
   };
-  return Ast_helper.Pat.record(loc, attrs, match$1[0], match$1[1]);
+  return Ast_helper.Exp.try_(loc, undefined, expr, cases);
 }
 
-function parseModulePattern(attrs, p) {
+function parseEs6ArrowExpression(context, parameters, p) {
   var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Module */65, p);
+  Res_parser.leaveBreadcrumb(p, /* Es6ArrowExpr */3);
+  var parameters$1 = parameters !== undefined ? parameters : parseParameters(p);
+  var match = p.token;
+  var returnType = match === 24 ? (Res_parser.next(undefined, p), parseTypExpr(undefined, false, undefined, p)) : undefined;
+  Res_parser.expect(undefined, /* EqualGreater */57, p);
+  var expr = parseExpr(context, p);
+  var body = returnType !== undefined ? Ast_helper.Exp.constraint_({
+          loc_start: expr.pexp_loc.loc_start,
+          loc_end: returnType.ptyp_loc.loc_end,
+          loc_ghost: false
+        }, undefined, expr, returnType) : expr;
+  Res_parser.eatBreadcrumb(p);
+  var endPos = p.prevEndPos;
+  var arrowExpr = List.fold_right((function (parameter, expr) {
+          if (parameter.TAG === /* TermParameter */0) {
+            var attrs = parameter.attrs;
+            var attrs$1 = parameter.uncurried ? ({
+                  hd: uncurryAttr,
+                  tl: attrs
+                }) : attrs;
+            return Ast_helper.Exp.fun_({
+                        loc_start: parameter.pos,
+                        loc_end: endPos,
+                        loc_ghost: false
+                      }, attrs$1, parameter.label, parameter.expr, parameter.pat, expr);
+          }
+          var attrs$2 = parameter.attrs;
+          var attrs$3 = parameter.uncurried ? ({
+                hd: uncurryAttr,
+                tl: attrs$2
+              }) : attrs$2;
+          return makeNewtypes(attrs$3, {
+                      loc_start: parameter.pos,
+                      loc_end: endPos,
+                      loc_ghost: false
+                    }, parameter.locs, expr);
+        }), parameters$1, body);
+  var init = arrowExpr.pexp_loc;
+  return {
+          pexp_desc: arrowExpr.pexp_desc,
+          pexp_loc: {
+            loc_start: startPos,
+            loc_end: init.loc_end,
+            loc_ghost: init.loc_ghost
+          },
+          pexp_attributes: arrowExpr.pexp_attributes
+        };
+}
+
+function parseSpreadExprRegion(p) {
+  var token = p.token;
+  if (token !== 6) {
+    if (Res_grammar.isExprStart(token)) {
+      return [
+              false,
+              parseConstrainedOrCoercedExpr(p)
+            ];
+    } else {
+      return ;
+    }
+  }
+  Res_parser.next(undefined, p);
+  var expr = parseConstrainedOrCoercedExpr(p);
+  return [
+          true,
+          expr
+        ];
+}
+
+function parseFunctorModuleType(p) {
+  var startPos = p.startPos;
+  var args = parseFunctorArgs(p);
+  Res_parser.expect(undefined, /* EqualGreater */57, p);
+  var rhs = parseModuleType(undefined, undefined, p);
+  var endPos = p.prevEndPos;
+  var modType = List.fold_right((function (param, acc) {
+          return Ast_helper.Mty.functor_({
+                      loc_start: param[3],
+                      loc_end: endPos,
+                      loc_ghost: false
+                    }, param[0], param[1], param[2], acc);
+        }), args, rhs);
+  return {
+          pmty_desc: modType.pmty_desc,
+          pmty_loc: {
+            loc_start: startPos,
+            loc_end: endPos,
+            loc_ghost: false
+          },
+          pmty_attributes: modType.pmty_attributes
+        };
+}
+
+function parseAtomicModuleType(p) {
+  var startPos = p.startPos;
+  var token = p.token;
+  var moduleType;
+  var exit = 0;
+  if (typeof token === "number") {
+    switch (token) {
+      case /* Lparen */18 :
+          Res_parser.next(undefined, p);
+          var mty = parseModuleType(undefined, undefined, p);
+          Res_parser.expect(undefined, /* Rparen */19, p);
+          moduleType = {
+            pmty_desc: mty.pmty_desc,
+            pmty_loc: {
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            },
+            pmty_attributes: mty.pmty_attributes
+          };
+          break;
+      case /* Lbrace */22 :
+          Res_parser.next(undefined, p);
+          var spec = parseDelimitedRegion(p, /* Signature */46, /* Rbrace */23, parseSignatureItemRegion);
+          Res_parser.expect(undefined, /* Rbrace */23, p);
+          var loc_loc_end = p.prevEndPos;
+          var loc = {
+            loc_start: startPos,
+            loc_end: loc_loc_end,
+            loc_ghost: false
+          };
+          moduleType = Ast_helper.Mty.signature(loc, undefined, spec);
+          break;
+      case /* Module */65 :
+          moduleType = parseModuleTypeOf(p);
+          break;
+      case /* Percent */77 :
+          var extension = parseExtension(undefined, p);
+          var loc_loc_end$1 = p.prevEndPos;
+          var loc$1 = {
+            loc_start: startPos,
+            loc_end: loc_loc_end$1,
+            loc_ghost: false
+          };
+          moduleType = Ast_helper.Mty.extension(loc$1, undefined, extension);
+          break;
+      default:
+        exit = 1;
+    }
+  } else {
+    switch (token.TAG | 0) {
+      case /* Lident */4 :
+      case /* Uident */5 :
+          exit = 2;
+          break;
+      default:
+        exit = 1;
+    }
+  }
+  switch (exit) {
+    case 1 :
+        Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
+        moduleType = defaultModuleType(undefined);
+        break;
+    case 2 :
+        var moduleLongIdent = parseModuleLongIdent(true, p);
+        moduleType = Ast_helper.Mty.ident(moduleLongIdent.loc, undefined, moduleLongIdent);
+        break;
+    
+  }
+  var moduleTypeLoc_loc_end = p.prevEndPos;
+  var moduleTypeLoc = {
+    loc_start: startPos,
+    loc_end: moduleTypeLoc_loc_end,
+    loc_ghost: false
+  };
+  return {
+          pmty_desc: moduleType.pmty_desc,
+          pmty_loc: moduleTypeLoc,
+          pmty_attributes: moduleType.pmty_attributes
+        };
+}
+
+function parseWithConstraints(moduleType, p) {
+  var match = p.token;
+  if (typeof match === "number") {
+    return moduleType;
+  }
+  if (match.TAG !== /* Lident */4) {
+    return moduleType;
+  }
+  if (match._0 !== "with") {
+    return moduleType;
+  }
+  Res_parser.next(undefined, p);
+  var first = parseWithConstraint(p);
+  var loop = function (p, _acc) {
+    while(true) {
+      var acc = _acc;
+      var match = p.token;
+      if (match !== 10) {
+        return List.rev(acc);
+      }
+      Res_parser.next(undefined, p);
+      _acc = {
+        hd: parseWithConstraint(p),
+        tl: acc
+      };
+      continue ;
+    };
+  };
+  var constraints = loop(p, {
+        hd: first,
+        tl: /* [] */0
+      });
+  var loc_loc_start = moduleType.pmty_loc.loc_start;
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: loc_loc_start,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Mty.with_(loc, undefined, moduleType, constraints);
+}
+
+function parseRecordExprWithStringKeys(startPos, firstRow, p) {
+  var rows_1 = parseCommaDelimitedRegion(p, /* RecordRowsStringKey */44, /* Rbrace */23, parseRecordRowWithStringKey);
+  var rows = {
+    hd: firstRow,
+    tl: rows_1
+  };
+  var loc_loc_end = p.endPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  var recordStrExpr = Ast_helper.Str.$$eval(loc, undefined, Ast_helper.Exp.record(loc, undefined, rows, undefined));
+  return Ast_helper.Exp.extension(loc, undefined, [
+              $$Location.mkloc("obj", loc),
+              {
+                TAG: /* PStr */0,
+                _0: {
+                  hd: recordStrExpr,
+                  tl: /* [] */0
+                }
+              }
+            ]);
+}
+
+function parseRecordExpr(startPos, spreadOpt, rows, p) {
+  var spread = spreadOpt !== undefined ? Caml_option.valFromOption(spreadOpt) : undefined;
+  var exprs = parseCommaDelimitedRegion(p, /* RecordRows */43, /* Rbrace */23, parseRecordRow);
+  var rows$1 = List.concat({
+        hd: rows,
+        tl: {
+          hd: exprs,
+          tl: /* [] */0
+        }
+      });
+  if (rows$1) {
+    
+  } else {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.message("Record spread needs at least one field that's updated"));
+  }
+  var loc_loc_end = p.endPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.record(loc, undefined, rows$1, spread);
+}
+
+function parseRecordRowWithStringKey(p) {
+  var s = p.token;
+  if (typeof s === "number") {
+    return ;
+  }
+  if (s.TAG !== /* String */3) {
+    return ;
+  }
+  var loc_loc_start = p.startPos;
+  var loc_loc_end = p.endPos;
+  var loc = {
+    loc_start: loc_loc_start,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  Res_parser.next(undefined, p);
+  var field = $$Location.mkloc({
+        TAG: /* Lident */0,
+        _0: s._0
+      }, loc);
+  var match = p.token;
+  if (match !== 24) {
+    return [
+            field,
+            Ast_helper.Exp.ident(field.loc, undefined, field)
+          ];
+  }
+  Res_parser.next(undefined, p);
+  var fieldExpr = parseExpr(undefined, p);
+  return [
+          field,
+          fieldExpr
+        ];
+}
+
+function parseFieldDeclaration(p) {
+  var startPos = p.startPos;
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var mut = Res_parser.optional(p, /* Mutable */62) ? /* Mutable */1 : /* Immutable */0;
+  var match = parseLident(p);
+  var name = $$Location.mkloc(match[0], match[1]);
+  var match$1 = p.token;
+  var typ = match$1 === 24 ? (Res_parser.next(undefined, p), parsePolyTypeExpr(p)) : Ast_helper.Typ.constr(name.loc, undefined, {
+          txt: {
+            TAG: /* Lident */0,
+            _0: name.txt
+          },
+          loc: name.loc
+        }, /* [] */0);
+  var loc_loc_end = typ.ptyp_loc.loc_end;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Type.field(loc, attrs, undefined, mut, name, typ);
+}
+
+function parseFieldDeclarationRegion(p) {
+  var startPos = p.startPos;
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var mut = Res_parser.optional(p, /* Mutable */62) ? /* Mutable */1 : /* Immutable */0;
+  var match = p.token;
+  if (typeof match === "number") {
+    return ;
+  }
+  if (match.TAG !== /* Lident */4) {
+    return ;
+  }
+  var match$1 = parseLident(p);
+  var name = $$Location.mkloc(match$1[0], match$1[1]);
+  var match$2 = p.token;
+  var typ = match$2 === 24 ? (Res_parser.next(undefined, p), parsePolyTypeExpr(p)) : Ast_helper.Typ.constr(name.loc, undefined, {
+          txt: {
+            TAG: /* Lident */0,
+            _0: name.txt
+          },
+          loc: name.loc
+        }, /* [] */0);
+  var loc_loc_end = typ.ptyp_loc.loc_end;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Type.field(loc, attrs, undefined, mut, name, typ);
+}
+
+function parseFunctorArg(p) {
+  var startPos = p.startPos;
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var ident = p.token;
+  if (typeof ident === "number") {
+    switch (ident) {
+      case /* Underscore */12 :
+          Res_parser.next(undefined, p);
+          var argName = $$Location.mkloc("_", {
+                loc_start: startPos,
+                loc_end: p.prevEndPos,
+                loc_ghost: false
+              });
+          Res_parser.expect(undefined, /* Colon */24, p);
+          var moduleType = parseModuleType(undefined, undefined, p);
+          return [
+                  attrs,
+                  argName,
+                  moduleType,
+                  startPos
+                ];
+      case /* Lparen */18 :
+          Res_parser.next(undefined, p);
+          Res_parser.expect(undefined, /* Rparen */19, p);
+          var argName$1 = $$Location.mkloc("*", {
+                loc_start: startPos,
+                loc_end: p.prevEndPos,
+                loc_ghost: false
+              });
+          return [
+                  attrs,
+                  argName$1,
+                  undefined,
+                  startPos
+                ];
+      default:
+        return ;
+    }
+  } else {
+    if (ident.TAG !== /* Uident */5) {
+      return ;
+    }
+    var ident$1 = ident._0;
+    Res_parser.next(undefined, p);
+    var uidentEndPos = p.prevEndPos;
+    var match = p.token;
+    if (typeof match === "number") {
+      if (match !== 4) {
+        if (match === 24) {
+          Res_parser.next(undefined, p);
+          var moduleType$1 = parseModuleType(undefined, undefined, p);
+          var loc = {
+            loc_start: startPos,
+            loc_end: uidentEndPos,
+            loc_ghost: false
+          };
+          var argName$2 = $$Location.mkloc(ident$1, loc);
+          return [
+                  attrs,
+                  argName$2,
+                  moduleType$1,
+                  startPos
+                ];
+        }
+        
+      } else {
+        Res_parser.next(undefined, p);
+        var moduleLongIdent = parseModuleLongIdentTail(false, p, startPos, {
+              TAG: /* Lident */0,
+              _0: ident$1
+            });
+        var moduleType$2 = Ast_helper.Mty.ident(moduleLongIdent.loc, undefined, moduleLongIdent);
+        var argName$3 = $$Location.mknoloc("_");
+        return [
+                attrs,
+                argName$3,
+                moduleType$2,
+                startPos
+              ];
+      }
+    }
+    var loc$1 = {
+      loc_start: startPos,
+      loc_end: uidentEndPos,
+      loc_ghost: false
+    };
+    var modIdent = $$Location.mkloc({
+          TAG: /* Lident */0,
+          _0: ident$1
+        }, loc$1);
+    var moduleType$3 = Ast_helper.Mty.ident(loc$1, undefined, modIdent);
+    var argName$4 = $$Location.mknoloc("_");
+    return [
+            attrs,
+            argName$4,
+            moduleType$3,
+            startPos
+          ];
+  }
+}
+
+function parsePatternGuard(p) {
+  var match = p.token;
+  if (typeof match !== "number") {
+    return ;
+  }
+  if (match !== 50 && match !== 56) {
+    return ;
+  }
+  Res_parser.next(undefined, p);
+  return parseExpr(/* WhenExpr */2, p);
+}
+
+function parseEs6ArrowType(attrs, p) {
+  var startPos = p.startPos;
+  var match = p.token;
+  if (match === 48) {
+    Res_parser.next(undefined, p);
+    var match$1 = parseLident(p);
+    var name = match$1[0];
+    var lblLocAttr_0 = $$Location.mkloc("ns.namedArgLoc", match$1[1]);
+    var lblLocAttr_1 = {
+      TAG: /* PStr */0,
+      _0: /* [] */0
+    };
+    var lblLocAttr = [
+      lblLocAttr_0,
+      lblLocAttr_1
+    ];
+    Res_parser.expect(/* TypeExpression */20, /* Colon */24, p);
+    var typ = parseTypExpr(undefined, false, false, p);
+    var typ_ptyp_desc = typ.ptyp_desc;
+    var typ_ptyp_loc = typ.ptyp_loc;
+    var typ_ptyp_attributes = {
+      hd: lblLocAttr,
+      tl: typ.ptyp_attributes
+    };
+    var typ$1 = {
+      ptyp_desc: typ_ptyp_desc,
+      ptyp_loc: typ_ptyp_loc,
+      ptyp_attributes: typ_ptyp_attributes
+    };
+    var match$2 = p.token;
+    var arg = match$2 === 14 ? (Res_parser.next(undefined, p), Res_parser.expect(undefined, /* Question */49, p), {
+          TAG: /* Optional */1,
+          _0: name
+        }) : ({
+          TAG: /* Labelled */0,
+          _0: name
+        });
+    Res_parser.expect(undefined, /* EqualGreater */57, p);
+    var returnType = parseTypExpr(undefined, undefined, false, p);
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: startPos,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    return Ast_helper.Typ.arrow(loc, attrs, arg, typ$1, returnType);
+  }
+  var parameters = parseTypeParameters(p);
+  Res_parser.expect(undefined, /* EqualGreater */57, p);
+  var returnType$1 = parseTypExpr(undefined, undefined, false, p);
+  var endPos = p.prevEndPos;
+  var typ$2 = List.fold_right((function (param, t) {
+          var attrs = param[1];
+          var attrs$1 = param[0] ? ({
+                hd: uncurryAttr,
+                tl: attrs
+              }) : attrs;
+          return Ast_helper.Typ.arrow({
+                      loc_start: param[4],
+                      loc_end: endPos,
+                      loc_ghost: false
+                    }, attrs$1, param[2], param[3], t);
+        }), parameters, returnType$1);
+  return {
+          ptyp_desc: typ$2.ptyp_desc,
+          ptyp_loc: {
+            loc_start: startPos,
+            loc_end: p.prevEndPos,
+            loc_ghost: false
+          },
+          ptyp_attributes: List.concat({
+                hd: typ$2.ptyp_attributes,
+                tl: {
+                  hd: attrs,
+                  tl: /* [] */0
+                }
+              })
+        };
+}
+
+function parseNonSpreadExp(msg, p) {
+  var match = p.token;
+  if (match === 6) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.message(msg));
+    Res_parser.next(undefined, p);
+  }
+  var token = p.token;
+  if (!Res_grammar.isExprStart(token)) {
+    return ;
+  }
+  var expr = parseExpr(undefined, p);
+  var match$1 = p.token;
+  if (match$1 !== 24) {
+    return expr;
+  }
+  Res_parser.next(undefined, p);
+  var typ = parseTypExpr(undefined, undefined, undefined, p);
+  var loc_loc_start = expr.pexp_loc.loc_start;
+  var loc_loc_end = typ.ptyp_loc.loc_end;
+  var loc = {
+    loc_start: loc_loc_start,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.constraint_(loc, undefined, expr, typ);
+}
+
+function parseRecordRow(p) {
+  var match = p.token;
+  if (match === 6) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.message(recordExprSpread));
+    Res_parser.next(undefined, p);
+  }
+  var match$1 = p.token;
+  if (typeof match$1 === "number") {
+    return ;
+  }
+  switch (match$1.TAG | 0) {
+    case /* Lident */4 :
+    case /* Uident */5 :
+        break;
+    default:
+      return ;
+  }
+  var startToken = p.token;
+  var field = parseValuePath(p);
+  var match$2 = p.token;
+  if (match$2 === 24) {
+    Res_parser.next(undefined, p);
+    var fieldExpr = parseExpr(undefined, p);
+    return [
+            field,
+            fieldExpr
+          ];
+  }
+  var value = Ast_helper.Exp.ident(field.loc, undefined, field);
+  var value$1;
+  value$1 = typeof startToken === "number" || startToken.TAG !== /* Uident */5 ? value : removeModuleNameFromPunnedFieldValue(value);
+  return [
+          field,
+          value$1
+        ];
+}
+
+function parseTypeConstructorArgRegion(p) {
+  while(true) {
+    if (Res_grammar.isTypExprStart(p.token)) {
+      return parseTypExpr(undefined, undefined, undefined, p);
+    }
+    if (p.token !== /* LessThan */42) {
+      return ;
+    }
+    Res_parser.next(undefined, p);
+    continue ;
+  };
+}
+
+function parseRecordPatternField(p) {
+  var label = parseValuePath(p);
+  var match = p.token;
+  var pattern = match === 24 ? (Res_parser.next(undefined, p), parsePattern(undefined, undefined, p)) : Ast_helper.Pat.$$var(label.loc, undefined, $$Location.mkloc(Longident.last(label.txt), label.loc));
+  return [
+          label,
+          pattern
+        ];
+}
+
+function parseConstrDeclArgs(p) {
+  var match = p.token;
+  var constrArgs;
+  if (match === 18) {
+    Res_parser.next(undefined, p);
+    var match$1 = p.token;
+    if (match$1 === 22) {
+      var lbrace = p.startPos;
+      Res_parser.next(undefined, p);
+      var startPos = p.startPos;
+      var match$2 = p.token;
+      var exit = 0;
+      if (typeof match$2 === "number") {
+        if (match$2 >= 6) {
+          if (match$2 >= 7) {
+            exit = 1;
+          } else {
+            var dotdotdotStart = p.startPos;
+            var dotdotdotEnd = p.endPos;
+            Res_parser.next(undefined, p);
+            var typ = parseTypExpr(undefined, undefined, undefined, p);
+            var match$3 = p.token;
+            if (match$3 === 23) {
+              Res_parser.err(dotdotdotStart, dotdotdotEnd, p, Res_diagnostics.message(sameTypeSpread));
+              Res_parser.next(undefined, p);
+            } else {
+              Res_parser.expect(undefined, /* Comma */25, p);
+            }
+            var match$4 = p.token;
+            if (typeof match$4 !== "number" && match$4.TAG === /* Lident */4) {
+              Res_parser.err(dotdotdotStart, dotdotdotEnd, p, Res_diagnostics.message(spreadInRecordDeclaration));
+            }
+            var fields_0 = {
+              TAG: /* Oinherit */1,
+              _0: typ
+            };
+            var fields_1 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
+            var fields = {
+              hd: fields_0,
+              tl: fields_1
+            };
+            Res_parser.expect(undefined, /* Rbrace */23, p);
+            var loc_loc_end = p.prevEndPos;
+            var loc = {
+              loc_start: startPos,
+              loc_end: loc_loc_end,
+              loc_ghost: false
+            };
+            var typ$1 = parseTypeAlias(p, Ast_helper.Typ.object_(loc, undefined, fields, /* Closed */0));
+            var typ$2 = parseArrowTypeRest(true, startPos, typ$1, p);
+            Res_parser.optional(p, /* Comma */25);
+            var moreArgs = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
+            Res_parser.expect(undefined, /* Rparen */19, p);
+            constrArgs = {
+              TAG: /* Pcstr_tuple */0,
+              _0: {
+                hd: typ$2,
+                tl: moreArgs
+              }
+            };
+          }
+        } else if (match$2 >= 4) {
+          var match$5 = p.token;
+          var closedFlag = typeof match$5 === "number" ? (
+              match$5 !== 4 ? (
+                  match$5 !== 5 ? /* Closed */0 : (Res_parser.next(undefined, p), /* Open */1)
+                ) : (Res_parser.next(undefined, p), /* Closed */0)
+            ) : /* Closed */0;
+          var fields$1 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
+          Res_parser.expect(undefined, /* Rbrace */23, p);
+          var loc_loc_end$1 = p.prevEndPos;
+          var loc$1 = {
+            loc_start: startPos,
+            loc_end: loc_loc_end$1,
+            loc_ghost: false
+          };
+          var typ$3 = Ast_helper.Typ.object_(loc$1, /* [] */0, fields$1, closedFlag);
+          Res_parser.optional(p, /* Comma */25);
+          var moreArgs$1 = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
+          Res_parser.expect(undefined, /* Rparen */19, p);
+          constrArgs = {
+            TAG: /* Pcstr_tuple */0,
+            _0: {
+              hd: typ$3,
+              tl: moreArgs$1
+            }
+          };
+        } else {
+          exit = 1;
+        }
+      } else {
+        exit = 1;
+      }
+      if (exit === 1) {
+        var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+        var match$6 = p.token;
+        var exit$1 = 0;
+        if (typeof match$6 === "number" || match$6.TAG !== /* String */3) {
+          exit$1 = 2;
+        } else {
+          var fields$2;
+          if (attrs) {
+            Res_parser.leaveBreadcrumb(p, /* StringFieldDeclarations */37);
+            var field = parseStringFieldDeclaration(p);
+            var field$1;
+            if (field !== undefined) {
+              field$1 = field;
+            } else {
+              throw {
+                    RE_EXN_ID: "Assert_failure",
+                    _1: [
+                      "res_core.res",
+                      5016,
+                      24
+                    ],
+                    Error: new Error()
+                  };
+            }
+            var match$7 = p.token;
+            if (typeof match$7 === "number") {
+              if (match$7 >= 24) {
+                if (match$7 >= 27) {
+                  Res_parser.expect(undefined, /* Comma */25, p);
+                } else {
+                  switch (match$7) {
+                    case /* Colon */24 :
+                        Res_parser.expect(undefined, /* Comma */25, p);
+                        break;
+                    case /* Comma */25 :
+                        Res_parser.next(undefined, p);
+                        break;
+                    case /* Eof */26 :
+                        break;
+                    
+                  }
+                }
+              } else if (match$7 >= 23) {
+                
+              } else {
+                Res_parser.expect(undefined, /* Comma */25, p);
+              }
+            } else {
+              Res_parser.expect(undefined, /* Comma */25, p);
+            }
+            Res_parser.eatBreadcrumb(p);
+            var first;
+            first = field$1.TAG === /* Otag */0 ? ({
+                  TAG: /* Otag */0,
+                  _0: field$1._0,
+                  _1: attrs,
+                  _2: field$1._2
+                }) : ({
+                  TAG: /* Oinherit */1,
+                  _0: field$1._0
+                });
+            fields$2 = {
+              hd: first,
+              tl: parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration)
+            };
+          } else {
+            fields$2 = parseCommaDelimitedRegion(p, /* StringFieldDeclarations */37, /* Rbrace */23, parseStringFieldDeclaration);
+          }
+          Res_parser.expect(undefined, /* Rbrace */23, p);
+          var loc_loc_end$2 = p.prevEndPos;
+          var loc$2 = {
+            loc_start: startPos,
+            loc_end: loc_loc_end$2,
+            loc_ghost: false
+          };
+          var typ$4 = parseTypeAlias(p, Ast_helper.Typ.object_(loc$2, /* [] */0, fields$2, /* Closed */0));
+          var typ$5 = parseArrowTypeRest(true, startPos, typ$4, p);
+          Res_parser.optional(p, /* Comma */25);
+          var moreArgs$2 = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
+          Res_parser.expect(undefined, /* Rparen */19, p);
+          constrArgs = {
+            TAG: /* Pcstr_tuple */0,
+            _0: {
+              hd: typ$5,
+              tl: moreArgs$2
+            }
+          };
+        }
+        if (exit$1 === 2) {
+          var fields$3;
+          if (attrs) {
+            var field$2 = parseFieldDeclaration(p);
+            Res_parser.expect(undefined, /* Comma */25, p);
+            var first_pld_name = field$2.pld_name;
+            var first_pld_mutable = field$2.pld_mutable;
+            var first_pld_type = field$2.pld_type;
+            var first_pld_loc = field$2.pld_loc;
+            var first$1 = {
+              pld_name: first_pld_name,
+              pld_mutable: first_pld_mutable,
+              pld_type: first_pld_type,
+              pld_loc: first_pld_loc,
+              pld_attributes: attrs
+            };
+            fields$3 = {
+              hd: first$1,
+              tl: parseCommaDelimitedRegion(p, /* FieldDeclarations */38, /* Rbrace */23, parseFieldDeclarationRegion)
+            };
+          } else {
+            fields$3 = parseCommaDelimitedRegion(p, /* FieldDeclarations */38, /* Rbrace */23, parseFieldDeclarationRegion);
+          }
+          if (fields$3) {
+            
+          } else {
+            Res_parser.err(lbrace, undefined, p, Res_diagnostics.message("An inline record declaration needs at least one field"));
+          }
+          Res_parser.expect(undefined, /* Rbrace */23, p);
+          Res_parser.optional(p, /* Comma */25);
+          Res_parser.expect(undefined, /* Rparen */19, p);
+          constrArgs = {
+            TAG: /* Pcstr_record */1,
+            _0: fields$3
+          };
+        }
+        
+      }
+      
+    } else {
+      var args = parseCommaDelimitedRegion(p, /* TypExprList */39, /* Rparen */19, parseTypExprRegion);
+      Res_parser.expect(undefined, /* Rparen */19, p);
+      constrArgs = {
+        TAG: /* Pcstr_tuple */0,
+        _0: args
+      };
+    }
+  } else {
+    constrArgs = {
+      TAG: /* Pcstr_tuple */0,
+      _0: /* [] */0
+    };
+  }
+  var match$8 = p.token;
+  var res = match$8 === 24 ? (Res_parser.next(undefined, p), parseTypExpr(undefined, undefined, undefined, p)) : undefined;
+  return [
+          constrArgs,
+          res
+        ];
+}
+
+function parseTypeParameters(p) {
+  var startPos = p.startPos;
   Res_parser.expect(undefined, /* Lparen */18, p);
-  var uident = p.token;
-  var uident$1;
-  if (typeof uident === "number" || uident.TAG !== /* Uident */5) {
-    uident$1 = $$Location.mknoloc("_");
+  var match = p.token;
+  if (match === 19) {
+    Res_parser.next(undefined, p);
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: startPos,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    var unitConstr = $$Location.mkloc({
+          TAG: /* Lident */0,
+          _0: "unit"
+        }, loc);
+    var typ = Ast_helper.Typ.constr(undefined, undefined, unitConstr, /* [] */0);
+    return {
+            hd: [
+              false,
+              /* [] */0,
+              /* Nolabel */0,
+              typ,
+              startPos
+            ],
+            tl: /* [] */0
+          };
+  }
+  var params = parseCommaDelimitedRegion(p, /* TypeParameters */42, /* Rparen */19, parseTypeParameter);
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  return params;
+}
+
+function parseJsxOpeningOrSelfClosingElement(startPos, p) {
+  var jsxStartPos = p.startPos;
+  var name = parseJsxName(p);
+  var jsxProps = parseRegion(p, /* JsxAttribute */5, parseJsxProp);
+  var token = p.token;
+  var children;
+  var exit = 0;
+  if (typeof token === "number") {
+    if (token !== 29) {
+      if (token !== 41) {
+        exit = 1;
+      } else {
+        var childrenStartPos = p.startPos;
+        Res_scanner.setJsxMode(p.scanner);
+        Res_parser.next(undefined, p);
+        var match = parseJsxChildren(p);
+        var children$1 = match[1];
+        var spread = match[0];
+        var childrenEndPos = p.startPos;
+        var token$1 = p.token;
+        var exit$1 = 0;
+        if (typeof token$1 === "number") {
+          if (token$1 !== 42) {
+            if (token$1 !== 43) {
+              exit$1 = 2;
+            } else {
+              Res_parser.next(undefined, p);
+            }
+          } else {
+            Res_parser.next(undefined, p);
+            Res_parser.expect(undefined, /* Forwardslash */29, p);
+          }
+        } else {
+          exit$1 = 2;
+        }
+        if (exit$1 === 2) {
+          if (Res_grammar.isStructureItemStart(token$1)) {
+            
+          } else {
+            Res_parser.expect(undefined, /* LessThanSlash */43, p);
+          }
+        }
+        var token$2 = p.token;
+        var exit$2 = 0;
+        var exit$3 = 0;
+        if (typeof token$2 === "number") {
+          exit$2 = 2;
+        } else {
+          switch (token$2.TAG | 0) {
+            case /* Lident */4 :
+            case /* Uident */5 :
+                exit$3 = 3;
+                break;
+            default:
+              exit$2 = 2;
+          }
+        }
+        if (exit$3 === 3) {
+          if (verifyJsxOpeningClosingName(p, name)) {
+            Res_parser.expect(undefined, /* GreaterThan */41, p);
+            var loc = {
+              loc_start: childrenStartPos,
+              loc_end: childrenEndPos,
+              loc_ghost: false
+            };
+            children = spread && children$1 ? children$1.hd : makeListExpression(loc, children$1, undefined);
+          } else {
+            exit$2 = 2;
+          }
+        }
+        if (exit$2 === 2) {
+          if (Res_grammar.isStructureItemStart(token$2)) {
+            var closing = "</" + (string_of_pexp_ident(name) + ">");
+            var msg = Res_diagnostics.message("Missing " + closing);
+            Res_parser.err(startPos, p.prevEndPos, p, msg);
+          } else {
+            var opening = "</" + (string_of_pexp_ident(name) + ">");
+            var msg$1 = "Closing jsx name should be the same as the opening name. Did you mean " + (opening + " ?");
+            Res_parser.err(startPos, p.prevEndPos, p, Res_diagnostics.message(msg$1));
+            Res_parser.expect(undefined, /* GreaterThan */41, p);
+          }
+          var loc$1 = {
+            loc_start: childrenStartPos,
+            loc_end: childrenEndPos,
+            loc_ghost: false
+          };
+          children = spread && children$1 ? children$1.hd : makeListExpression(loc$1, children$1, undefined);
+        }
+        
+      }
+    } else {
+      var childrenStartPos$1 = p.startPos;
+      Res_parser.next(undefined, p);
+      var childrenEndPos$1 = p.startPos;
+      Res_parser.expect(undefined, /* GreaterThan */41, p);
+      var loc$2 = {
+        loc_start: childrenStartPos$1,
+        loc_end: childrenEndPos$1,
+        loc_ghost: false
+      };
+      children = makeListExpression(loc$2, /* [] */0, undefined);
+    }
+  } else {
+    exit = 1;
+  }
+  if (exit === 1) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
+    children = makeListExpression($$Location.none, /* [] */0, undefined);
+  }
+  var jsxEndPos = p.prevEndPos;
+  var loc$3 = {
+    loc_start: jsxStartPos,
+    loc_end: jsxEndPos,
+    loc_ghost: false
+  };
+  return Ast_helper.Exp.apply(loc$3, undefined, name, List.concat({
+                  hd: jsxProps,
+                  tl: {
+                    hd: {
+                      hd: [
+                        {
+                          TAG: /* Labelled */0,
+                          _0: "children"
+                        },
+                        children
+                      ],
+                      tl: {
+                        hd: [
+                          /* Nolabel */0,
+                          Ast_helper.Exp.construct(undefined, undefined, $$Location.mknoloc({
+                                    TAG: /* Lident */0,
+                                    _0: "()"
+                                  }), undefined)
+                        ],
+                        tl: /* [] */0
+                      }
+                    },
+                    tl: /* [] */0
+                  }
+                }));
+}
+
+function parseJsxFragment(p) {
+  var childrenStartPos = p.startPos;
+  Res_scanner.setJsxMode(p.scanner);
+  Res_parser.expect(undefined, /* GreaterThan */41, p);
+  var match = parseJsxChildren(p);
+  var childrenEndPos = p.startPos;
+  Res_parser.expect(undefined, /* LessThanSlash */43, p);
+  Res_parser.expect(undefined, /* GreaterThan */41, p);
+  var loc = {
+    loc_start: childrenStartPos,
+    loc_end: childrenEndPos,
+    loc_ghost: false
+  };
+  return makeListExpression(loc, match[1], undefined);
+}
+
+function parseTypeConstraint(p) {
+  var startPos = p.startPos;
+  var match = p.token;
+  if (match !== 63) {
+    return ;
+  }
+  Res_parser.next(undefined, p);
+  Res_parser.expect(undefined, /* SingleQuote */13, p);
+  var ident = p.token;
+  if (typeof ident !== "number" && ident.TAG === /* Lident */4) {
+    var identLoc_loc_end = p.endPos;
+    var identLoc = {
+      loc_start: startPos,
+      loc_end: identLoc_loc_end,
+      loc_ghost: false
+    };
+    Res_parser.next(undefined, p);
+    Res_parser.expect(undefined, /* Equal */14, p);
+    var typ = parseTypExpr(undefined, undefined, undefined, p);
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: startPos,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    return [
+            Ast_helper.Typ.$$var(identLoc, undefined, ident._0),
+            typ,
+            loc
+          ];
+  }
+  Res_parser.err(undefined, undefined, p, Res_diagnostics.lident(ident));
+  var loc_loc_end$1 = p.prevEndPos;
+  var loc$1 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end$1,
+    loc_ghost: false
+  };
+  return [
+          Ast_helper.Typ.any(undefined, undefined, undefined),
+          parseTypExpr(undefined, undefined, undefined, p),
+          loc$1
+        ];
+}
+
+function parseTypeEquationAndRepresentation(p) {
+  var token = p.token;
+  var exit = 0;
+  if (typeof token !== "number") {
+    return [
+            undefined,
+            /* Public */1,
+            /* Ptype_abstract */0
+          ];
+  }
+  if (token !== 14) {
+    if (token !== 17) {
+      return [
+              undefined,
+              /* Public */1,
+              /* Ptype_abstract */0
+            ];
+    }
+    exit = 1;
+  } else {
+    exit = 1;
+  }
+  if (exit === 1) {
+    if (token === /* Bar */17) {
+      Res_parser.expect(undefined, /* Equal */14, p);
+    }
+    Res_parser.next(undefined, p);
+    var match = p.token;
+    var exit$1 = 0;
+    if (typeof match === "number") {
+      switch (match) {
+        case /* DotDot */5 :
+        case /* Bar */17 :
+            exit$1 = 3;
+            break;
+        case /* Lbrace */22 :
+            return parseRecordOrObjectDecl(p);
+        case /* Private */61 :
+            return parsePrivateEqOrRepr(p);
+        default:
+          exit$1 = 2;
+      }
+    } else {
+      if (match.TAG === /* Uident */5) {
+        return parseTypeEquationOrConstrDecl(p);
+      }
+      exit$1 = 2;
+    }
+    switch (exit$1) {
+      case 2 :
+          var manifest = parseTypExpr(undefined, undefined, undefined, p);
+          var match$1 = p.token;
+          if (match$1 !== 14) {
+            return [
+                    manifest,
+                    /* Public */1,
+                    /* Ptype_abstract */0
+                  ];
+          }
+          Res_parser.next(undefined, p);
+          var match$2 = parseTypeRepresentation(p);
+          return [
+                  manifest,
+                  match$2[0],
+                  match$2[1]
+                ];
+      case 3 :
+          var match$3 = parseTypeRepresentation(p);
+          return [
+                  undefined,
+                  match$3[0],
+                  match$3[1]
+                ];
+      
+    }
+  }
+  
+}
+
+function parseConstrDef(parseAttrs, p) {
+  var attrs = parseAttrs ? parseRegion(p, /* Attribute */50, parseAttribute) : /* [] */0;
+  var name = p.token;
+  var name$1;
+  var exit = 0;
+  if (typeof name === "number" || name.TAG !== /* Uident */5) {
+    exit = 1;
   } else {
     var loc_loc_start = p.startPos;
     var loc_loc_end = p.endPos;
@@ -10711,176 +9520,707 @@ function parseModulePattern(attrs, p) {
       loc_ghost: false
     };
     Res_parser.next(undefined, p);
-    uident$1 = $$Location.mkloc(uident._0, loc);
+    name$1 = $$Location.mkloc(name._0, loc);
+  }
+  if (exit === 1) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(name));
+    name$1 = $$Location.mknoloc("_");
   }
   var match = p.token;
-  if (match === 24) {
-    var colonStart = p.startPos;
-    Res_parser.next(undefined, p);
-    var packageTypAttrs = parseRegion(p, /* Attribute */50, parseAttribute);
-    var packageType = parsePackageType(colonStart, packageTypAttrs, p);
-    Res_parser.expect(undefined, /* Rparen */19, p);
-    var loc_loc_end$1 = p.prevEndPos;
-    var loc$1 = {
-      loc_start: startPos,
-      loc_end: loc_loc_end$1,
-      loc_ghost: false
+  var kind;
+  if (typeof match === "number") {
+    switch (match) {
+      case /* Equal */14 :
+          Res_parser.next(undefined, p);
+          var longident = parseModuleLongIdent(false, p);
+          kind = {
+            TAG: /* Pext_rebind */1,
+            _0: longident
+          };
+          break;
+      case /* Lparen */18 :
+          var match$1 = parseConstrDeclArgs(p);
+          kind = {
+            TAG: /* Pext_decl */0,
+            _0: match$1[0],
+            _1: match$1[1]
+          };
+          break;
+      case /* EqualEqual */15 :
+      case /* EqualEqualEqual */16 :
+      case /* Bar */17 :
+      case /* Rparen */19 :
+      case /* Lbracket */20 :
+      case /* Rbracket */21 :
+      case /* Lbrace */22 :
+      case /* Rbrace */23 :
+          kind = {
+            TAG: /* Pext_decl */0,
+            _0: {
+              TAG: /* Pcstr_tuple */0,
+              _0: /* [] */0
+            },
+            _1: undefined
+          };
+          break;
+      case /* Colon */24 :
+          Res_parser.next(undefined, p);
+          var typ = parseTypExpr(undefined, undefined, undefined, p);
+          kind = {
+            TAG: /* Pext_decl */0,
+            _0: {
+              TAG: /* Pcstr_tuple */0,
+              _0: /* [] */0
+            },
+            _1: typ
+          };
+          break;
+      default:
+        kind = {
+          TAG: /* Pext_decl */0,
+          _0: {
+            TAG: /* Pcstr_tuple */0,
+            _0: /* [] */0
+          },
+          _1: undefined
+        };
+    }
+  } else {
+    kind = {
+      TAG: /* Pext_decl */0,
+      _0: {
+        TAG: /* Pcstr_tuple */0,
+        _0: /* [] */0
+      },
+      _1: undefined
     };
-    var unpack = Ast_helper.Pat.unpack(uident$1.loc, undefined, uident$1);
-    return Ast_helper.Pat.constraint_(loc$1, attrs, unpack, packageType);
   }
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  var loc_loc_end$2 = p.prevEndPos;
-  var loc$2 = {
-    loc_start: startPos,
-    loc_end: loc_loc_end$2,
-    loc_ghost: false
-  };
-  return Ast_helper.Pat.unpack(loc$2, attrs, uident$1);
+  return [
+          attrs,
+          name$1,
+          kind
+        ];
 }
 
-function parseListPattern(startPos, attrs, p) {
-  var listPatterns = parseCommaDelimitedReversedList(p, /* PatternOcamlList */26, /* Rbrace */23, parsePatternRegion);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
+function parseTagName(p) {
+  var match = p.token;
+  if (match !== 44) {
+    return ;
+  }
+  var match$1 = parseHashIdent(p.startPos, p);
+  return match$1[0];
+}
+
+function parseWithConstraint(p) {
+  var token = p.token;
+  if (typeof token === "number") {
+    if (token !== 60) {
+      if (token === 65) {
+        Res_parser.next(undefined, p);
+        var modulePath = parseModuleLongIdent(false, p);
+        var token$1 = p.token;
+        var exit = 0;
+        if (typeof token$1 === "number") {
+          if (token$1 !== 14) {
+            if (token$1 !== 74) {
+              exit = 2;
+            } else {
+              Res_parser.next(undefined, p);
+              var lident = parseModuleLongIdent(false, p);
+              return {
+                      TAG: /* Pwith_modsubst */3,
+                      _0: modulePath,
+                      _1: lident
+                    };
+            }
+          } else {
+            Res_parser.next(undefined, p);
+            var lident$1 = parseModuleLongIdent(false, p);
+            return {
+                    TAG: /* Pwith_module */1,
+                    _0: modulePath,
+                    _1: lident$1
+                  };
+          }
+        } else {
+          exit = 2;
+        }
+        if (exit === 2) {
+          Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token$1, p.breadcrumbs));
+          var lident$2 = parseModuleLongIdent(false, p);
+          return {
+                  TAG: /* Pwith_modsubst */3,
+                  _0: modulePath,
+                  _1: lident$2
+                };
+        }
+        
+      }
+      
+    } else {
+      Res_parser.next(undefined, p);
+      var typeConstr = parseValuePath(p);
+      var params = parseTypeParams(typeConstr, p);
+      var token$2 = p.token;
+      var exit$1 = 0;
+      if (typeof token$2 === "number") {
+        if (token$2 !== 14) {
+          if (token$2 !== 74) {
+            exit$1 = 2;
+          } else {
+            Res_parser.next(undefined, p);
+            var typExpr = parseTypExpr(undefined, undefined, undefined, p);
+            return {
+                    TAG: /* Pwith_typesubst */2,
+                    _0: typeConstr,
+                    _1: Ast_helper.Type.mk(typeConstr.loc, undefined, undefined, undefined, params, undefined, undefined, undefined, typExpr, $$Location.mkloc(Longident.last(typeConstr.txt), typeConstr.loc))
+                  };
+          }
+        } else {
+          Res_parser.next(undefined, p);
+          var typExpr$1 = parseTypExpr(undefined, undefined, undefined, p);
+          var typeConstraints = parseRegion(p, /* TypeConstraint */51, parseTypeConstraint);
+          return {
+                  TAG: /* Pwith_type */0,
+                  _0: typeConstr,
+                  _1: Ast_helper.Type.mk(typeConstr.loc, undefined, undefined, undefined, params, typeConstraints, undefined, undefined, typExpr$1, $$Location.mkloc(Longident.last(typeConstr.txt), typeConstr.loc))
+                };
+        }
+      } else {
+        exit$1 = 2;
+      }
+      if (exit$1 === 2) {
+        Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token$2, p.breadcrumbs));
+        var typExpr$2 = parseTypExpr(undefined, undefined, undefined, p);
+        var typeConstraints$1 = parseRegion(p, /* TypeConstraint */51, parseTypeConstraint);
+        return {
+                TAG: /* Pwith_type */0,
+                _0: typeConstr,
+                _1: Ast_helper.Type.mk(typeConstr.loc, undefined, undefined, undefined, params, typeConstraints$1, undefined, undefined, typExpr$2, $$Location.mkloc(Longident.last(typeConstr.txt), typeConstr.loc))
+              };
+      }
+      
+    }
+  }
+  Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
+  return {
+          TAG: /* Pwith_type */0,
+          _0: $$Location.mknoloc({
+                TAG: /* Lident */0,
+                _0: ""
+              }),
+          _1: Ast_helper.Type.mk(undefined, undefined, undefined, undefined, /* [] */0, /* [] */0, undefined, undefined, defaultType(undefined), $$Location.mknoloc(""))
+        };
+}
+
+function parseConstrainedModExprRegion(p) {
+  if (Res_grammar.isModExprStart(p.token)) {
+    return parseConstrainedModExpr(p);
+  }
+  
+}
+
+function parseExceptionDef(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Exception */27, p);
+  var match = parseConstrDef(false, p);
   var loc_loc_end = p.prevEndPos;
   var loc = {
     loc_start: startPos,
     loc_end: loc_loc_end,
     loc_ghost: false
   };
-  var filterSpread = function (param) {
-    var pattern = param[1];
-    if (param[0]) {
-      Res_parser.err(pattern.ppat_loc.loc_start, undefined, p, Res_diagnostics.message(listPatternSpread));
-      return pattern;
-    } else {
-      return pattern;
-    }
+  return Ast_helper.Te.constructor(loc, attrs, undefined, undefined, match[1], match[2]);
+}
+
+function parseRecModuleSpec(attrs, startPos, p) {
+  Res_parser.expect(undefined, /* Rec */11, p);
+  var first = parseRecModuleDeclaration(attrs, startPos, p);
+  var _spec = {
+    hd: first,
+    tl: /* [] */0
   };
-  if (listPatterns) {
-    var match = listPatterns.hd;
-    if (match[0]) {
-      var patterns = List.rev(List.map(filterSpread, listPatterns.tl));
-      var pat = makeListPattern(loc, patterns, match[1]);
-      return {
-              ppat_desc: pat.ppat_desc,
-              ppat_loc: loc,
-              ppat_attributes: attrs
-            };
-    }
-    
-  }
-  var patterns$1 = List.rev(List.map(filterSpread, listPatterns));
-  var pat$1 = makeListPattern(loc, patterns$1, undefined);
-  return {
-          ppat_desc: pat$1.ppat_desc,
-          ppat_loc: loc,
-          ppat_attributes: attrs
-        };
-}
-
-function parseVariantPatternArgs(p, ident, startPos, attrs) {
-  var lparen = p.startPos;
-  Res_parser.expect(undefined, /* Lparen */18, p);
-  var patterns = parseCommaDelimitedRegion(p, /* PatternList */25, /* Rparen */19, parseConstrainedPatternRegion);
-  var args;
-  var exit = 0;
-  if (patterns) {
-    var pat = patterns.hd;
-    var tmp = pat.ppat_desc;
-    if (typeof tmp === "number") {
-      if (patterns.tl) {
-        exit = 1;
-      } else {
-        args = pat;
-      }
-    } else if (tmp.TAG === /* Ppat_tuple */4) {
-      if (patterns.tl) {
-        exit = 1;
-      } else {
-        args = p.mode === /* ParseForTypeChecker */0 ? pat : Ast_helper.Pat.tuple({
-                loc_start: lparen,
-                loc_end: p.endPos,
-                loc_ghost: false
-              }, undefined, patterns);
-      }
-    } else if (patterns.tl) {
-      exit = 1;
-    } else {
-      args = pat;
-    }
-  } else {
-    var loc_loc_end = p.prevEndPos;
-    var loc = {
-      loc_start: lparen,
-      loc_end: loc_loc_end,
-      loc_ghost: false
-    };
-    args = Ast_helper.Pat.construct(loc, undefined, $$Location.mkloc({
-              TAG: /* Lident */0,
-              _0: "()"
-            }, loc), undefined);
-  }
-  if (exit === 1) {
-    args = Ast_helper.Pat.tuple({
-          loc_start: lparen,
-          loc_end: p.endPos,
-          loc_ghost: false
-        }, undefined, patterns);
-  }
-  Res_parser.expect(undefined, /* Rparen */19, p);
-  return Ast_helper.Pat.variant({
-              loc_start: startPos,
-              loc_end: p.prevEndPos,
-              loc_ghost: false
-            }, attrs, ident, args);
-}
-
-function parseOrPattern(pattern1, p) {
-  var _pattern1 = pattern1;
   while(true) {
-    var pattern1$1 = _pattern1;
+    var spec = _spec;
+    var startPos$1 = p.startPos;
+    var attrs$1 = parseAttributesAndBinding(p);
     var match = p.token;
-    if (match !== 17) {
-      return pattern1$1;
+    if (match !== 10) {
+      return List.rev(spec);
     }
-    Res_parser.next(undefined, p);
-    var pattern2 = parsePattern(undefined, false, p);
-    var init = pattern1$1.ppat_loc;
-    var loc_loc_start = init.loc_start;
-    var loc_loc_end = pattern2.ppat_loc.loc_end;
-    var loc_loc_ghost = init.loc_ghost;
-    var loc = {
-      loc_start: loc_loc_start,
-      loc_end: loc_loc_end,
-      loc_ghost: loc_loc_ghost
+    Res_parser.expect(undefined, /* And */10, p);
+    var decl = parseRecModuleDeclaration(attrs$1, startPos$1, p);
+    _spec = {
+      hd: decl,
+      tl: spec
     };
-    _pattern1 = Ast_helper.Pat.or_(loc, undefined, pattern1$1, pattern2);
     continue ;
   };
 }
 
-function parseArrayPattern(attrs, p) {
+function parseStandaloneAttribute(p) {
   var startPos = p.startPos;
-  Res_parser.expect(undefined, /* Lbracket */20, p);
-  var patterns = parseCommaDelimitedRegion(p, /* PatternList */25, /* Rbracket */21, (function (param) {
-          return parseNonSpreadPattern(arrayPatternSpread, param);
-        }));
-  Res_parser.expect(undefined, /* Rbracket */21, p);
+  Res_parser.expect(undefined, /* AtAt */76, p);
+  var attrId = parseAttributeId(startPos, p);
+  var payload = parsePayload(p);
+  return [
+          attrId,
+          payload
+        ];
+}
+
+function parseExternalDef(attrs, startPos, p) {
+  Res_parser.leaveBreadcrumb(p, /* External */21);
+  Res_parser.expect(undefined, /* External */59, p);
+  var match = parseLident(p);
+  var name = $$Location.mkloc(match[0], match[1]);
+  Res_parser.expect(/* TypeExpression */20, /* Colon */24, p);
+  var typExpr = parseTypExpr(undefined, undefined, undefined, p);
+  var equalStart = p.startPos;
+  var equalEnd = p.endPos;
+  Res_parser.expect(undefined, /* Equal */14, p);
+  var s = p.token;
+  var prim;
+  var exit = 0;
+  if (typeof s === "number" || s.TAG !== /* String */3) {
+    exit = 1;
+  } else {
+    Res_parser.next(undefined, p);
+    prim = {
+      hd: s._0,
+      tl: /* [] */0
+    };
+  }
+  if (exit === 1) {
+    Res_parser.err(equalStart, equalEnd, p, Res_diagnostics.message("An external requires the name of the JS value you're referring to, like \"" + (name.txt + "\".")));
+    prim = /* [] */0;
+  }
   var loc_loc_end = p.prevEndPos;
   var loc = {
     loc_start: startPos,
     loc_end: loc_loc_end,
     loc_ghost: false
   };
-  return Ast_helper.Pat.array(loc, attrs, patterns);
+  var vb = Ast_helper.Val.mk(loc, attrs, undefined, prim, name, typExpr);
+  Res_parser.eatBreadcrumb(p);
+  return vb;
 }
 
-function parseJsFfiDeclarations(p) {
-  Res_parser.expect(undefined, /* Lbrace */22, p);
-  var decls = parseCommaDelimitedRegion(p, /* JsFfiImport */54, /* Rbrace */23, parseJsFfiDeclaration);
-  Res_parser.expect(undefined, /* Rbrace */23, p);
-  return decls;
+function parseModuleTypeDeclaration(attrs, startPos, p) {
+  Res_parser.expect(undefined, /* Typ */60, p);
+  var ident = p.token;
+  var moduleName;
+  var exit = 0;
+  if (typeof ident === "number") {
+    exit = 2;
+  } else {
+    switch (ident.TAG | 0) {
+      case /* Lident */4 :
+      case /* Uident */5 :
+          exit = 1;
+          break;
+      default:
+        exit = 2;
+    }
+  }
+  switch (exit) {
+    case 1 :
+        var loc_loc_start = p.startPos;
+        var loc_loc_end = p.endPos;
+        var loc = {
+          loc_start: loc_loc_start,
+          loc_end: loc_loc_end,
+          loc_ghost: false
+        };
+        Res_parser.next(undefined, p);
+        moduleName = $$Location.mkloc(ident._0, loc);
+        break;
+    case 2 :
+        Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
+        moduleName = $$Location.mknoloc("_");
+        break;
+    
+  }
+  var match = p.token;
+  var typ = match === 14 ? (Res_parser.next(undefined, p), parseModuleType(undefined, undefined, p)) : undefined;
+  var moduleDecl = Ast_helper.Mtd.mk(undefined, attrs, undefined, undefined, typ, moduleName);
+  return Ast_helper.Sig.modtype({
+              loc_start: startPos,
+              loc_end: p.prevEndPos,
+              loc_ghost: false
+            }, moduleDecl);
+}
+
+function parseModuleDeclarationOrAlias(attrs, p) {
+  var startPos = p.startPos;
+  var ident = p.token;
+  var moduleName;
+  var exit = 0;
+  if (typeof ident === "number" || ident.TAG !== /* Uident */5) {
+    exit = 1;
+  } else {
+    var loc_loc_start = p.startPos;
+    var loc_loc_end = p.endPos;
+    var loc = {
+      loc_start: loc_loc_start,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    Res_parser.next(undefined, p);
+    moduleName = $$Location.mkloc(ident._0, loc);
+  }
+  if (exit === 1) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.uident(ident));
+    moduleName = $$Location.mknoloc("_");
+  }
+  var token = p.token;
+  var body;
+  var exit$1 = 0;
+  if (typeof token === "number") {
+    if (token !== 14) {
+      if (token !== 24) {
+        exit$1 = 1;
+      } else {
+        Res_parser.next(undefined, p);
+        body = parseModuleType(undefined, undefined, p);
+      }
+    } else {
+      Res_parser.next(undefined, p);
+      var lident = parseModuleLongIdent(false, p);
+      body = Ast_helper.Mty.alias(undefined, undefined, lident);
+    }
+  } else {
+    exit$1 = 1;
+  }
+  if (exit$1 === 1) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(token, p.breadcrumbs));
+    body = defaultModuleType(undefined);
+  }
+  var loc_loc_end$1 = p.prevEndPos;
+  var loc$1 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end$1,
+    loc_ghost: false
+  };
+  return Ast_helper.Md.mk(loc$1, attrs, undefined, undefined, moduleName, body);
+}
+
+function parseSignJsExport(attrs, p) {
+  var exportStart = p.startPos;
+  Res_parser.expect(undefined, /* Export */84, p);
+  var exportLoc_loc_end = p.prevEndPos;
+  var exportLoc = {
+    loc_start: exportStart,
+    loc_end: exportLoc_loc_end,
+    loc_ghost: false
+  };
+  var genTypeAttr_0 = $$Location.mkloc("genType", exportLoc);
+  var genTypeAttr_1 = {
+    TAG: /* PStr */0,
+    _0: /* [] */0
+  };
+  var genTypeAttr = [
+    genTypeAttr_0,
+    genTypeAttr_1
+  ];
+  var attrs$1 = {
+    hd: genTypeAttr,
+    tl: attrs
+  };
+  var match = p.token;
+  if (match === 60) {
+    var ext = parseTypeDefinitionOrExtension(attrs$1, p);
+    if (ext.TAG === /* TypeDef */0) {
+      var loc_loc_end = p.prevEndPos;
+      var loc = {
+        loc_start: exportStart,
+        loc_end: loc_loc_end,
+        loc_ghost: false
+      };
+      return Ast_helper.Sig.type_(loc, ext.recFlag, ext.types);
+    }
+    var loc_loc_end$1 = p.prevEndPos;
+    var loc$1 = {
+      loc_start: exportStart,
+      loc_end: loc_loc_end$1,
+      loc_ghost: false
+    };
+    return Ast_helper.Sig.type_extension(loc$1, ext._0);
+  }
+  var valueDesc = parseSignLetDesc(attrs$1, p);
+  var loc_loc_end$2 = p.prevEndPos;
+  var loc$2 = {
+    loc_start: exportStart,
+    loc_end: loc_loc_end$2,
+    loc_ghost: false
+  };
+  return Ast_helper.Sig.value(loc$2, valueDesc);
+}
+
+function parseNewlineOrSemicolonSignature(p) {
+  var token = p.token;
+  if (token === 8) {
+    return Res_parser.next(undefined, p);
+  } else if (Res_grammar.isSignatureItemStart(token) && p.prevEndPos.pos_lnum >= p.startPos.pos_lnum) {
+    return Res_parser.err(p.prevEndPos, p.endPos, p, Res_diagnostics.message("consecutive specifications on a line must be separated by ';' or a newline"));
+  } else {
+    return ;
+  }
+}
+
+function parseTagSpecFirst(p) {
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var match = p.token;
+  if (typeof match === "number") {
+    if (match !== 17) {
+      if (match === 44) {
+        return {
+                hd: parsePolymorphicVariantTypeSpecHash(attrs, false, p),
+                tl: /* [] */0
+              };
+      }
+      
+    } else {
+      Res_parser.next(undefined, p);
+      return {
+              hd: parseTagSpec(p),
+              tl: /* [] */0
+            };
+    }
+  }
+  var typ = parseTypExpr(attrs, undefined, undefined, p);
+  var match$1 = p.token;
+  if (match$1 === 21) {
+    return {
+            hd: {
+              TAG: /* Rinherit */1,
+              _0: typ
+            },
+            tl: /* [] */0
+          };
+  } else {
+    Res_parser.expect(undefined, /* Bar */17, p);
+    return {
+            hd: {
+              TAG: /* Rinherit */1,
+              _0: typ
+            },
+            tl: {
+              hd: parseTagSpec(p),
+              tl: /* [] */0
+            }
+          };
+  }
+}
+
+function parseTagNames(p) {
+  if (p.token === /* GreaterThan */41) {
+    Res_parser.next(undefined, p);
+    return parseRegion(p, /* TagNames */57, parseTagName);
+  } else {
+    return /* [] */0;
+  }
+}
+
+function parseTagSpecFull(p) {
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var match = p.token;
+  if (match === 44) {
+    return parsePolymorphicVariantTypeSpecHash(attrs, true, p);
+  }
+  var typ = parseTypExpr(attrs, undefined, undefined, p);
+  return {
+          TAG: /* Rinherit */1,
+          _0: typ
+        };
+}
+
+function parseTagSpecFulls(p) {
+  var match = p.token;
+  if (typeof match !== "number") {
+    return /* [] */0;
+  }
+  if (!(match > 41 || match < 21)) {
+    return /* [] */0;
+  }
+  if (match !== 17) {
+    return /* [] */0;
+  }
+  Res_parser.next(undefined, p);
+  var rowField = parseTagSpecFull(p);
+  return {
+          hd: rowField,
+          tl: parseTagSpecFulls(p)
+        };
+}
+
+function parseTypeParameter(p) {
+  if (!(p.token === /* Tilde */48 || p.token === /* Dot */4 || Res_grammar.isTypExprStart(p.token))) {
+    return ;
+  }
+  var startPos = p.startPos;
+  var uncurried = Res_parser.optional(p, /* Dot */4);
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var match = p.token;
+  if (typeof match === "number") {
+    if (match === /* Tilde */48) {
+      Res_parser.next(undefined, p);
+      var match$1 = parseLident(p);
+      var name = match$1[0];
+      var lblLocAttr_0 = $$Location.mkloc("ns.namedArgLoc", match$1[1]);
+      var lblLocAttr_1 = {
+        TAG: /* PStr */0,
+        _0: /* [] */0
+      };
+      var lblLocAttr = [
+        lblLocAttr_0,
+        lblLocAttr_1
+      ];
+      Res_parser.expect(/* TypeExpression */20, /* Colon */24, p);
+      var typ = parseTypExpr(undefined, undefined, undefined, p);
+      var typ_ptyp_desc = typ.ptyp_desc;
+      var typ_ptyp_loc = typ.ptyp_loc;
+      var typ_ptyp_attributes = {
+        hd: lblLocAttr,
+        tl: typ.ptyp_attributes
+      };
+      var typ$1 = {
+        ptyp_desc: typ_ptyp_desc,
+        ptyp_loc: typ_ptyp_loc,
+        ptyp_attributes: typ_ptyp_attributes
+      };
+      var match$2 = p.token;
+      if (match$2 === 14) {
+        Res_parser.next(undefined, p);
+        Res_parser.expect(undefined, /* Question */49, p);
+        return [
+                uncurried,
+                attrs,
+                {
+                  TAG: /* Optional */1,
+                  _0: name
+                },
+                typ$1,
+                startPos
+              ];
+      } else {
+        return [
+                uncurried,
+                attrs,
+                {
+                  TAG: /* Labelled */0,
+                  _0: name
+                },
+                typ$1,
+                startPos
+              ];
+      }
+    }
+    
+  } else if (match.TAG === /* Lident */4) {
+    var match$3 = parseLident(p);
+    var loc = match$3[1];
+    var name$1 = match$3[0];
+    var match$4 = p.token;
+    if (match$4 === 24) {
+      var error = Res_diagnostics.message(missingTildeLabeledParameter(name$1));
+      Res_parser.err(loc.loc_start, loc.loc_end, p, error);
+      Res_parser.next(undefined, p);
+      var typ$2 = parseTypExpr(undefined, undefined, undefined, p);
+      var match$5 = p.token;
+      if (match$5 === 14) {
+        Res_parser.next(undefined, p);
+        Res_parser.expect(undefined, /* Question */49, p);
+        return [
+                uncurried,
+                attrs,
+                {
+                  TAG: /* Optional */1,
+                  _0: name$1
+                },
+                typ$2,
+                startPos
+              ];
+      } else {
+        return [
+                uncurried,
+                attrs,
+                {
+                  TAG: /* Labelled */0,
+                  _0: name$1
+                },
+                typ$2,
+                startPos
+              ];
+      }
+    }
+    var constr = $$Location.mkloc({
+          TAG: /* Lident */0,
+          _0: name$1
+        }, loc);
+    var args = parseTypeConstructorArgs(constr, p);
+    var typ$3 = Ast_helper.Typ.constr({
+          loc_start: startPos,
+          loc_end: p.prevEndPos,
+          loc_ghost: false
+        }, attrs, constr, args);
+    var typ$4 = parseArrowTypeRest(true, startPos, typ$3, p);
+    var typ$5 = parseTypeAlias(p, typ$4);
+    return [
+            uncurried,
+            /* [] */0,
+            /* Nolabel */0,
+            typ$5,
+            startPos
+          ];
+  }
+  var typ$6 = parseTypExpr(undefined, undefined, undefined, p);
+  var typWithAttributes_ptyp_desc = typ$6.ptyp_desc;
+  var typWithAttributes_ptyp_loc = typ$6.ptyp_loc;
+  var typWithAttributes_ptyp_attributes = List.concat({
+        hd: attrs,
+        tl: {
+          hd: typ$6.ptyp_attributes,
+          tl: /* [] */0
+        }
+      });
+  var typWithAttributes = {
+    ptyp_desc: typWithAttributes_ptyp_desc,
+    ptyp_loc: typWithAttributes_ptyp_loc,
+    ptyp_attributes: typWithAttributes_ptyp_attributes
+  };
+  return [
+          uncurried,
+          /* [] */0,
+          /* Nolabel */0,
+          typWithAttributes,
+          startPos
+        ];
+}
+
+function parseJsFfiDeclaration(p) {
+  var startPos = p.startPos;
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  var match = p.token;
+  if (typeof match === "number") {
+    return ;
+  }
+  if (match.TAG !== /* Lident */4) {
+    return ;
+  }
+  var match$1 = parseLident(p);
+  var ident = match$1[0];
+  var match$2 = p.token;
+  var alias = match$2 === 3 ? (Res_parser.next(undefined, p), parseLident(p)[0]) : ident;
+  Res_parser.expect(undefined, /* Colon */24, p);
+  var typ = parseTypExpr(undefined, undefined, undefined, p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Res_js_ffi.decl(attrs, loc, ident, alias, typ);
 }
 
 function parseJsFfiScope(p) {
@@ -10917,6 +10257,673 @@ function parseJsFfiScope(p) {
           TAG: /* Scope */1,
           _0: value
         };
+}
+
+function parseJsFfiDeclarations(p) {
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var decls = parseCommaDelimitedRegion(p, /* JsFfiImport */54, /* Rbrace */23, parseJsFfiDeclaration);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  return decls;
+}
+
+function parseElseBranch(p) {
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var blockExpr = parseExprBlock(undefined, p);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  return blockExpr;
+}
+
+function parseIfCondition(p) {
+  Res_parser.leaveBreadcrumb(p, /* IfCondition */17);
+  var conditionExpr = parseExpr(/* WhenExpr */2, p);
+  Res_parser.eatBreadcrumb(p);
+  return conditionExpr;
+}
+
+function parseThenBranch(p) {
+  Res_parser.leaveBreadcrumb(p, /* IfBranch */18);
+  Res_parser.expect(undefined, /* Lbrace */22, p);
+  var thenExpr = parseExprBlock(undefined, p);
+  Res_parser.expect(undefined, /* Rbrace */23, p);
+  Res_parser.eatBreadcrumb(p);
+  return thenExpr;
+}
+
+function parseTypeDef(attrs, startPos, p) {
+  Res_parser.leaveBreadcrumb(p, /* TypeDef */28);
+  Res_parser.leaveBreadcrumb(p, /* TypeConstrName */29);
+  var match = parseLident(p);
+  var loc = match[1];
+  var name = match[0];
+  var typeConstrName = $$Location.mkloc(name, loc);
+  Res_parser.eatBreadcrumb(p);
+  var constrName = $$Location.mkloc({
+        TAG: /* Lident */0,
+        _0: name
+      }, loc);
+  var params = parseTypeParams(constrName, p);
+  var match$1 = parseTypeEquationAndRepresentation(p);
+  var cstrs = parseRegion(p, /* TypeConstraint */51, parseTypeConstraint);
+  var loc_loc_end = p.prevEndPos;
+  var loc$1 = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  var typeDef = Ast_helper.Type.mk(loc$1, attrs, undefined, undefined, params, cstrs, match$1[2], match$1[1], match$1[0], typeConstrName);
+  Res_parser.eatBreadcrumb(p);
+  return typeDef;
+}
+
+function parseArgument(p) {
+  if (!(p.token === /* Tilde */48 || p.token === /* Dot */4 || p.token === /* Underscore */12 || Res_grammar.isExprStart(p.token))) {
+    return ;
+  }
+  var match = p.token;
+  if (match !== 4) {
+    return parseArgument2(p, false);
+  }
+  Res_parser.next(undefined, p);
+  var match$1 = p.token;
+  if (match$1 !== 19) {
+    return parseArgument2(p, true);
+  }
+  var unitExpr = Ast_helper.Exp.construct(undefined, undefined, $$Location.mknoloc({
+            TAG: /* Lident */0,
+            _0: "()"
+          }), undefined);
+  return [
+          true,
+          /* Nolabel */0,
+          unitExpr
+        ];
+}
+
+function parseModuleApplication(p, modExpr) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Lparen */18, p);
+  var args = parseCommaDelimitedRegion(p, /* ModExprList */41, /* Rparen */19, parseConstrainedModExprRegion);
+  Res_parser.expect(undefined, /* Rparen */19, p);
+  var args$1;
+  if (args) {
+    args$1 = args;
+  } else {
+    var loc_loc_end = p.prevEndPos;
+    var loc = {
+      loc_start: startPos,
+      loc_end: loc_loc_end,
+      loc_ghost: false
+    };
+    args$1 = {
+      hd: Ast_helper.Mod.structure(loc, undefined, /* [] */0),
+      tl: /* [] */0
+    };
+  }
+  return List.fold_left((function (modExpr, arg) {
+                return Ast_helper.Mod.apply({
+                            loc_start: modExpr.pmod_loc.loc_start,
+                            loc_end: arg.pmod_loc.loc_end,
+                            loc_ghost: false
+                          }, undefined, modExpr, arg);
+              }), modExpr, args$1);
+}
+
+function parseAtomicModuleExpr(p) {
+  var startPos = p.startPos;
+  var _ident = p.token;
+  if (typeof _ident === "number") {
+    switch (_ident) {
+      case /* Lparen */18 :
+          Res_parser.next(undefined, p);
+          var match = p.token;
+          var modExpr = match === 19 ? Ast_helper.Mod.structure({
+                  loc_start: startPos,
+                  loc_end: p.prevEndPos,
+                  loc_ghost: false
+                }, undefined, /* [] */0) : parseConstrainedModExpr(p);
+          Res_parser.expect(undefined, /* Rparen */19, p);
+          return modExpr;
+      case /* Lbrace */22 :
+          Res_parser.next(undefined, p);
+          var structure = Ast_helper.Mod.structure(undefined, undefined, parseDelimitedRegion(p, /* Structure */48, /* Rbrace */23, parseStructureItemRegion));
+          Res_parser.expect(undefined, /* Rbrace */23, p);
+          var endPos = p.prevEndPos;
+          return {
+                  pmod_desc: structure.pmod_desc,
+                  pmod_loc: {
+                    loc_start: startPos,
+                    loc_end: endPos,
+                    loc_ghost: false
+                  },
+                  pmod_attributes: structure.pmod_attributes
+                };
+      case /* Percent */77 :
+          var extension = parseExtension(undefined, p);
+          var loc_loc_end = p.prevEndPos;
+          var loc = {
+            loc_start: startPos,
+            loc_end: loc_loc_end,
+            loc_ghost: false
+          };
+          return Ast_helper.Mod.extension(loc, undefined, extension);
+      default:
+        
+    }
+  } else {
+    switch (_ident.TAG | 0) {
+      case /* Lident */4 :
+          if (_ident._0 === "unpack") {
+            Res_parser.next(undefined, p);
+            Res_parser.expect(undefined, /* Lparen */18, p);
+            var expr = parseExpr(undefined, p);
+            var match$1 = p.token;
+            if (match$1 === 24) {
+              var colonStart = p.startPos;
+              Res_parser.next(undefined, p);
+              var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+              var packageType = parsePackageType(colonStart, attrs, p);
+              Res_parser.expect(undefined, /* Rparen */19, p);
+              var loc_loc_end$1 = p.prevEndPos;
+              var loc$1 = {
+                loc_start: startPos,
+                loc_end: loc_loc_end$1,
+                loc_ghost: false
+              };
+              var constraintExpr = Ast_helper.Exp.constraint_(loc$1, undefined, expr, packageType);
+              return Ast_helper.Mod.unpack(loc$1, undefined, constraintExpr);
+            }
+            Res_parser.expect(undefined, /* Rparen */19, p);
+            var loc_loc_end$2 = p.prevEndPos;
+            var loc$2 = {
+              loc_start: startPos,
+              loc_end: loc_loc_end$2,
+              loc_ghost: false
+            };
+            return Ast_helper.Mod.unpack(loc$2, undefined, expr);
+          }
+          break;
+      case /* Uident */5 :
+          var longident = parseModuleLongIdent(false, p);
+          return Ast_helper.Mod.ident(longident.loc, undefined, longident);
+      default:
+        
+    }
+  }
+  Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(_ident, p.breadcrumbs));
+  return defaultModuleExpr(undefined);
+}
+
+function parseJsExport(attrs, p) {
+  var exportStart = p.startPos;
+  Res_parser.expect(undefined, /* Export */84, p);
+  var exportLoc_loc_end = p.prevEndPos;
+  var exportLoc = {
+    loc_start: exportStart,
+    loc_end: exportLoc_loc_end,
+    loc_ghost: false
+  };
+  var genTypeAttr_0 = $$Location.mkloc("genType", exportLoc);
+  var genTypeAttr_1 = {
+    TAG: /* PStr */0,
+    _0: /* [] */0
+  };
+  var genTypeAttr = [
+    genTypeAttr_0,
+    genTypeAttr_1
+  ];
+  var attrs$1 = {
+    hd: genTypeAttr,
+    tl: attrs
+  };
+  var match = p.token;
+  if (match === 60) {
+    var ext = parseTypeDefinitionOrExtension(attrs$1, p);
+    if (ext.TAG === /* TypeDef */0) {
+      return Ast_helper.Str.type_(undefined, ext.recFlag, ext.types);
+    } else {
+      return Ast_helper.Str.type_extension(undefined, ext._0);
+    }
+  }
+  var match$1 = parseLetBindings(attrs$1, p);
+  return Ast_helper.Str.value(undefined, match$1[0], match$1[1]);
+}
+
+function parseIncludeStatement(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Include */64, p);
+  var modExpr = parseModuleExpr(p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Incl.mk(loc, attrs, undefined, modExpr);
+}
+
+function parseNewlineOrSemicolonStructure(p) {
+  var token = p.token;
+  if (token === 8) {
+    return Res_parser.next(undefined, p);
+  } else if (Res_grammar.isStructureItemStart(token) && p.prevEndPos.pos_lnum >= p.startPos.pos_lnum) {
+    return Res_parser.err(p.prevEndPos, p.endPos, p, Res_diagnostics.message("consecutive statements on a line must be separated by ';' or a newline"));
+  } else {
+    return ;
+  }
+}
+
+function parseModuleOrModuleTypeImplOrPackExpr(attrs, p) {
+  var startPos = p.startPos;
+  Res_parser.expect(undefined, /* Module */65, p);
+  var match = p.token;
+  if (typeof match !== "number") {
+    return parseMaybeRecModuleBinding(attrs, startPos, p);
+  }
+  if (match !== 18) {
+    if (match !== 60) {
+      return parseMaybeRecModuleBinding(attrs, startPos, p);
+    } else {
+      return parseModuleTypeImpl(attrs, startPos, p);
+    }
+  }
+  var expr = parseFirstClassModuleExpr(startPos, p);
+  var a = parsePrimaryExpr(expr, undefined, p);
+  var expr$1 = parseBinaryExpr(undefined, a, p, 1);
+  var expr$2 = parseTernaryExpr(expr$1, p);
+  return Ast_helper.Str.$$eval(undefined, attrs, expr$2);
+}
+
+function parseJsImport(startPos, attrs, p) {
+  Res_parser.expect(undefined, /* Import */83, p);
+  var match = p.token;
+  var importSpec;
+  var exit = 0;
+  if (typeof match === "number") {
+    if (match === /* At */75) {
+      exit = 1;
+    } else {
+      importSpec = {
+        TAG: /* Spec */1,
+        _0: parseJsFfiDeclarations(p)
+      };
+    }
+  } else if (match.TAG === /* Lident */4) {
+    exit = 1;
+  } else {
+    importSpec = {
+      TAG: /* Spec */1,
+      _0: parseJsFfiDeclarations(p)
+    };
+  }
+  if (exit === 1) {
+    var decl = parseJsFfiDeclaration(p);
+    var decl$1;
+    if (decl !== undefined) {
+      decl$1 = decl;
+    } else {
+      throw {
+            RE_EXN_ID: "Assert_failure",
+            _1: [
+              "res_core.res",
+              6159,
+              14
+            ],
+            Error: new Error()
+          };
+    }
+    importSpec = {
+      TAG: /* Default */0,
+      _0: decl$1
+    };
+  }
+  var scope = parseJsFfiScope(p);
+  var loc_loc_end = p.prevEndPos;
+  var loc = {
+    loc_start: startPos,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Res_js_ffi.importDescr(attrs, scope, importSpec, loc);
+}
+
+function parsePackageConstraints(p) {
+  Res_parser.expect(undefined, /* Typ */60, p);
+  var typeConstr = parseValuePath(p);
+  Res_parser.expect(undefined, /* Equal */14, p);
+  var typ = parseTypExpr(undefined, undefined, undefined, p);
+  var first = [
+    typeConstr,
+    typ
+  ];
+  var rest = parseRegion(p, /* PackageConstraint */32, parsePackageConstraint);
+  return {
+          hd: first,
+          tl: rest
+        };
+}
+
+function parseFunctorModuleExpr(p) {
+  var startPos = p.startPos;
+  var args = parseFunctorArgs(p);
+  var match = p.token;
+  var returnType = match === 24 ? (Res_parser.next(undefined, p), parseModuleType(false, undefined, p)) : undefined;
+  Res_parser.expect(undefined, /* EqualGreater */57, p);
+  var modExpr = parseModuleExpr(p);
+  var rhsModuleExpr = returnType !== undefined ? Ast_helper.Mod.constraint_({
+          loc_start: modExpr.pmod_loc.loc_start,
+          loc_end: returnType.pmty_loc.loc_end,
+          loc_ghost: false
+        }, undefined, modExpr, returnType) : modExpr;
+  var endPos = p.prevEndPos;
+  var modExpr$1 = List.fold_right((function (param, acc) {
+          return Ast_helper.Mod.functor_({
+                      loc_start: param[3],
+                      loc_end: endPos,
+                      loc_ghost: false
+                    }, param[0], param[1], param[2], acc);
+        }), args, rhsModuleExpr);
+  return {
+          pmod_desc: modExpr$1.pmod_desc,
+          pmod_loc: {
+            loc_start: startPos,
+            loc_end: endPos,
+            loc_ghost: false
+          },
+          pmod_attributes: modExpr$1.pmod_attributes
+        };
+}
+
+function parsePrimaryModExpr(p) {
+  var startPos = p.startPos;
+  var modExpr = parseAtomicModuleExpr(p);
+  var loop = function (p, _modExpr) {
+    while(true) {
+      var modExpr = _modExpr;
+      var match = p.token;
+      if (match !== 18) {
+        return modExpr;
+      }
+      if (p.prevEndPos.pos_lnum !== p.startPos.pos_lnum) {
+        return modExpr;
+      }
+      _modExpr = parseModuleApplication(p, modExpr);
+      continue ;
+    };
+  };
+  var modExpr$1 = loop(p, modExpr);
+  return {
+          pmod_desc: modExpr$1.pmod_desc,
+          pmod_loc: {
+            loc_start: startPos,
+            loc_end: p.prevEndPos,
+            loc_ghost: false
+          },
+          pmod_attributes: modExpr$1.pmod_attributes
+        };
+}
+
+function parseParameter(p) {
+  if (!(p.token === /* Typ */60 || p.token === /* Tilde */48 || p.token === /* Dot */4 || Res_grammar.isPatternStart(p.token))) {
+    return ;
+  }
+  var startPos = p.startPos;
+  var uncurried = Res_parser.optional(p, /* Dot */4);
+  var attrs = parseRegion(p, /* Attribute */50, parseAttribute);
+  if (p.token === /* Typ */60) {
+    Res_parser.next(undefined, p);
+    var lidents = parseLidentList(p);
+    return {
+            TAG: /* TypeParameter */1,
+            uncurried: uncurried,
+            attrs: attrs,
+            locs: lidents,
+            pos: startPos
+          };
+  }
+  var match = p.token;
+  var match$1;
+  if (match === 48) {
+    Res_parser.next(undefined, p);
+    var match$2 = parseLident(p);
+    var lblName = match$2[0];
+    var propLocAttr_0 = $$Location.mkloc("ns.namedArgLoc", match$2[1]);
+    var propLocAttr_1 = {
+      TAG: /* PStr */0,
+      _0: /* [] */0
+    };
+    var propLocAttr = [
+      propLocAttr_0,
+      propLocAttr_1
+    ];
+    var t = p.token;
+    var exit = 0;
+    if (typeof t === "number" && t < 26) {
+      switch (t) {
+        case /* As */3 :
+            Res_parser.next(undefined, p);
+            var pat = parseConstrainedPattern(p);
+            var pat_ppat_desc = pat.ppat_desc;
+            var pat_ppat_loc = pat.ppat_loc;
+            var pat_ppat_attributes = {
+              hd: propLocAttr,
+              tl: pat.ppat_attributes
+            };
+            var pat$1 = {
+              ppat_desc: pat_ppat_desc,
+              ppat_loc: pat_ppat_loc,
+              ppat_attributes: pat_ppat_attributes
+            };
+            match$1 = [
+              attrs,
+              {
+                TAG: /* Labelled */0,
+                _0: lblName
+              },
+              pat$1
+            ];
+            break;
+        case /* Open */0 :
+        case /* True */1 :
+        case /* False */2 :
+        case /* Dot */4 :
+        case /* DotDot */5 :
+        case /* DotDotDot */6 :
+        case /* Bang */7 :
+        case /* Semicolon */8 :
+        case /* Let */9 :
+        case /* And */10 :
+        case /* Rec */11 :
+        case /* Underscore */12 :
+        case /* SingleQuote */13 :
+        case /* EqualEqual */15 :
+        case /* EqualEqualEqual */16 :
+        case /* Bar */17 :
+        case /* Lparen */18 :
+        case /* Lbracket */20 :
+        case /* Rbracket */21 :
+        case /* Lbrace */22 :
+        case /* Rbrace */23 :
+            exit = 1;
+            break;
+        case /* Colon */24 :
+            var lblEnd = p.prevEndPos;
+            Res_parser.next(undefined, p);
+            var typ = parseTypExpr(undefined, undefined, undefined, p);
+            var loc = {
+              loc_start: startPos,
+              loc_end: lblEnd,
+              loc_ghost: false
+            };
+            var pat$2 = Ast_helper.Pat.$$var(loc, undefined, $$Location.mkloc(lblName, loc));
+            var loc_loc_end = p.prevEndPos;
+            var loc$1 = {
+              loc_start: startPos,
+              loc_end: loc_loc_end,
+              loc_ghost: false
+            };
+            var pat$3 = Ast_helper.Pat.constraint_(loc$1, {
+                  hd: propLocAttr,
+                  tl: /* [] */0
+                }, pat$2, typ);
+            match$1 = [
+              attrs,
+              {
+                TAG: /* Labelled */0,
+                _0: lblName
+              },
+              pat$3
+            ];
+            break;
+        case /* Equal */14 :
+        case /* Rparen */19 :
+        case /* Comma */25 :
+            exit = 2;
+            break;
+        
+      }
+    } else {
+      exit = 1;
+    }
+    switch (exit) {
+      case 1 :
+          Res_parser.err(undefined, undefined, p, Res_diagnostics.unexpected(t, p.breadcrumbs));
+          var loc_loc_end$1 = p.prevEndPos;
+          var loc$2 = {
+            loc_start: startPos,
+            loc_end: loc_loc_end$1,
+            loc_ghost: false
+          };
+          match$1 = [
+            attrs,
+            {
+              TAG: /* Labelled */0,
+              _0: lblName
+            },
+            Ast_helper.Pat.$$var(loc$2, undefined, $$Location.mkloc(lblName, loc$2))
+          ];
+          break;
+      case 2 :
+          var loc_loc_end$2 = p.prevEndPos;
+          var loc$3 = {
+            loc_start: startPos,
+            loc_end: loc_loc_end$2,
+            loc_ghost: false
+          };
+          match$1 = [
+            attrs,
+            {
+              TAG: /* Labelled */0,
+              _0: lblName
+            },
+            Ast_helper.Pat.$$var(loc$3, {
+                  hd: propLocAttr,
+                  tl: /* [] */0
+                }, $$Location.mkloc(lblName, loc$3))
+          ];
+          break;
+      
+    }
+  } else {
+    var pattern = parseConstrainedPattern(p);
+    var attrs$1 = List.concat({
+          hd: attrs,
+          tl: {
+            hd: pattern.ppat_attributes,
+            tl: /* [] */0
+          }
+        });
+    match$1 = [
+      /* [] */0,
+      /* Nolabel */0,
+      {
+        ppat_desc: pattern.ppat_desc,
+        ppat_loc: pattern.ppat_loc,
+        ppat_attributes: attrs$1
+      }
+    ];
+  }
+  var pat$4 = match$1[2];
+  var lbl = match$1[1];
+  var attrs$2 = match$1[0];
+  var match$3 = p.token;
+  if (match$3 !== 14) {
+    return {
+            TAG: /* TermParameter */0,
+            uncurried: uncurried,
+            attrs: attrs$2,
+            label: lbl,
+            expr: undefined,
+            pat: pat$4,
+            pos: startPos
+          };
+  }
+  Res_parser.next(undefined, p);
+  var lbl$1;
+  if (typeof lbl === "number") {
+    var $$var = pat$4.ppat_desc;
+    var lblName$1;
+    lblName$1 = typeof $$var === "number" || $$var.TAG !== /* Ppat_var */0 ? "" : $$var._0.txt;
+    Res_parser.err(startPos, p.prevEndPos, p, Res_diagnostics.message(missingTildeLabeledParameter(lblName$1)));
+    lbl$1 = {
+      TAG: /* Optional */1,
+      _0: lblName$1
+    };
+  } else {
+    lbl$1 = lbl.TAG === /* Labelled */0 ? ({
+          TAG: /* Optional */1,
+          _0: lbl._0
+        }) : lbl;
+  }
+  var match$4 = p.token;
+  if (match$4 === 49) {
+    Res_parser.next(undefined, p);
+    return {
+            TAG: /* TermParameter */0,
+            uncurried: uncurried,
+            attrs: attrs$2,
+            label: lbl$1,
+            expr: undefined,
+            pat: pat$4,
+            pos: startPos
+          };
+  }
+  var expr = parseConstrainedOrCoercedExpr(p);
+  return {
+          TAG: /* TermParameter */0,
+          uncurried: uncurried,
+          attrs: attrs$2,
+          label: lbl$1,
+          expr: expr,
+          pat: pat$4,
+          pos: startPos
+        };
+}
+
+function parseNonSpreadPattern(msg, p) {
+  var match = p.token;
+  if (match === 6) {
+    Res_parser.err(undefined, undefined, p, Res_diagnostics.message(msg));
+    Res_parser.next(undefined, p);
+  }
+  var token = p.token;
+  if (!Res_grammar.isPatternStart(token)) {
+    return ;
+  }
+  var pat = parsePattern(undefined, undefined, p);
+  var match$1 = p.token;
+  if (match$1 !== 24) {
+    return pat;
+  }
+  Res_parser.next(undefined, p);
+  var typ = parseTypExpr(undefined, undefined, undefined, p);
+  var loc_loc_start = pat.ppat_loc.loc_start;
+  var loc_loc_end = typ.ptyp_loc.loc_end;
+  var loc = {
+    loc_start: loc_loc_start,
+    loc_end: loc_loc_end,
+    loc_ghost: false
+  };
+  return Ast_helper.Pat.constraint_(loc, undefined, pat, typ);
 }
 
 function parseJsxProps(p) {
@@ -11189,6 +11196,5 @@ export {
   parseExtension ,
   parseSpecification ,
   parseImplementation ,
-  
 }
 /* id Not a pure module */

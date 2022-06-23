@@ -8,6 +8,5 @@ var Grammar;
 export {
   Token ,
   Grammar ,
-  
 }
 /* No side effect */

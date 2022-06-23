@@ -54,6 +54,5 @@ export {
   fprintf ,
   sprintf ,
   eprintf ,
-  
 }
 /* No side effect */

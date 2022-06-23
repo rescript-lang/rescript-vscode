@@ -350,7 +350,6 @@ function backup(param) {
 
 function restore(x) {
   current.contents = x;
-  
 }
 
 function is_active(x) {
@@ -391,14 +390,14 @@ function mk_lazy(f) {
 
 function parse_opt(error, active, flags, s) {
   var set = function (i) {
-    return Caml_array.set(flags, i, true);
+    Caml_array.set(flags, i, true);
   };
   var clear = function (i) {
-    return Caml_array.set(flags, i, false);
+    Caml_array.set(flags, i, false);
   };
   var set_all = function (i) {
     Caml_array.set(active, i, true);
-    return Caml_array.set(error, i, true);
+    Caml_array.set(error, i, true);
   };
   var get_num = function (_n, _i) {
     while(true) {
@@ -551,12 +550,12 @@ function parse_opt(error, active, flags, s) {
           };
     }
     var match$1 = get_range(i);
-    for(var n = match$1[1] ,n_finish = Caml.caml_int_min(match$1[2], 62); n <= n_finish; ++n){
+    for(var n = match$1[1] ,n_finish = Caml.int_min(match$1[2], 62); n <= n_finish; ++n){
       Curry._1(myset, n);
     }
-    return loop(match$1[0]);
+    loop(match$1[0]);
   };
-  return loop(0);
+  loop(0);
 }
 
 function parse_options(errflag, s) {
@@ -567,7 +566,6 @@ function parse_options(errflag, s) {
     active: active,
     error: error
   };
-  
 }
 
 var defaults_w = "+a-4-6-7-9-27-29-32..42-44-45-48-50-60";
@@ -586,7 +584,8 @@ function message(x) {
       case /* Comment_not_end */1 :
           return "this is not the end of a comment.";
       case /* Partial_application */2 :
-          return "this function application is partial,\nmaybe some arguments are missing.";
+          return "this function application is partial,\n\
+       maybe some arguments are missing.";
       case /* Statement_type */3 :
           return "this expression should have type unit.";
       case /* Unused_match */4 :
@@ -602,9 +601,11 @@ function message(x) {
       case /* Nonreturning_statement */9 :
           return "this statement never returns (or has an unsound type.)";
       case /* Useless_record_with */10 :
-          return "all the fields are explicitly listed in this record:\nthe 'with' clause is useless.";
+          return "all the fields are explicitly listed in this record:\n\
+       the 'with' clause is useless.";
       case /* All_clauses_guarded */11 :
-          return "this pattern-matching is not exhaustive.\nAll clauses in this pattern-matching are guarded.";
+          return "this pattern-matching is not exhaustive.\n\
+       All clauses in this pattern-matching are guarded.";
       case /* Wildcard_arg_to_constant_constr */12 :
           return "wildcard pattern given as argument to a constant constructor";
       case /* Eol_in_string */13 :
@@ -614,11 +615,16 @@ function message(x) {
       case /* Expect_tailcall */15 :
           return Printf.sprintf("expected tailcall");
       case /* Fragile_literal_pattern */16 :
-          return Printf.sprintf("Code should not depend on the actual values of\nthis constructor's arguments. They are only for information\nand may change in future versions. (See manual section 8.5)");
+          return Printf.sprintf("Code should not depend on the actual values of\n\
+         this constructor's arguments. They are only for information\n\
+         and may change in future versions. (See manual section 8.5)");
       case /* Unreachable_case */17 :
-          return "this match case is unreachable.\nConsider replacing it with a refutation case '<pat> -> .'";
+          return "this match case is unreachable.\n\
+       Consider replacing it with a refutation case '<pat> -> .'";
       case /* Assignment_to_non_mutable_value */18 :
-          return "A potential assignment to a non-mutable value was detected \nin this source file.  Such assignments may generate incorrect code \nwhen using Flambda.";
+          return "A potential assignment to a non-mutable value was detected \n\
+        in this source file.  Such assignments may generate incorrect code \n\
+        when using Flambda.";
       case /* Constraint_on_gadt */19 :
           return "Type constraints do not apply to GADT cases of variant types.";
       
@@ -632,7 +638,8 @@ function message(x) {
           if (s === "") {
             return "this pattern-matching is fragile.";
           } else {
-            return "this pattern-matching is fragile.\nIt will remain exhaustive when constructors are added to type " + (s + ".");
+            return "this pattern-matching is fragile.\n\
+       It will remain exhaustive when constructors are added to type " + (s + ".");
           }
       case /* Labels_omitted */2 :
           var ls = x._0;
@@ -686,7 +693,8 @@ function message(x) {
           if (s$1 === "") {
             return "this pattern-matching is not exhaustive.";
           } else {
-            return "this pattern-matching is not exhaustive.\nHere is an example of a case that is not matched:\n" + s$1;
+            return "this pattern-matching is not exhaustive.\n\
+       Here is an example of a case that is not matched:\n" + s$1;
           }
       case /* Non_closed_record_pattern */5 :
           return "the following labels are not bound in this record pattern:\n" + (x._0 + "\nEither bind these labels explicitly or add '; _' to the pattern.");
@@ -707,7 +715,7 @@ function message(x) {
                           }
                         }) + "\nThe behaviour changed in ocaml 3.10 (previous behaviour was hiding.)";
             } else {
-              return "the instance variable " + (lab$1 + " is overridden.\nThe behaviour changed in ocaml 3.10 (previous behaviour was hiding.)");
+              return "the instance variable " + (lab$1 + (" is overridden.\n" + "The behaviour changed in ocaml 3.10 (previous behaviour was hiding.)"));
             }
           }
           throw {
@@ -751,9 +759,11 @@ function message(x) {
       case /* Unused_constructor */22 :
           var s$2 = x._0;
           if (x._1) {
-            return "constructor " + (s$2 + " is never used to build values.\n(However, this constructor appears in patterns.)");
+            return "constructor " + (s$2 + " is never used to build values.\n\
+        (However, this constructor appears in patterns.)");
           } else if (x._2) {
-            return "constructor " + (s$2 + " is never used to build values.\nIts type is exported as a private type.");
+            return "constructor " + (s$2 + " is never used to build values.\n\
+        Its type is exported as a private type.");
           } else {
             return "unused constructor " + (s$2 + ".");
           }
@@ -761,9 +771,11 @@ function message(x) {
           var kind = x._1 ? "exception" : "extension constructor";
           var name = kind + (" " + x._0);
           if (x._2) {
-            return name + " is never used to build values.\n(However, this constructor appears in patterns.)";
+            return name + " is never used to build values.\n\
+           (However, this constructor appears in patterns.)";
           } else if (x._3) {
-            return name + " is never used to build values.\nIt is exported or rebound as a private extension.";
+            return name + " is never used to build values.\n\
+            It is exported or rebound as a private extension.";
           } else {
             return "unused " + name;
           }
@@ -771,10 +783,13 @@ function message(x) {
           var slist$2 = x._1;
           var ty = x._0;
           if (slist$2 && !slist$2.tl && !x._2) {
-            return slist$2.hd + (" was selected from type " + (ty + ".\nIt is not visible in the current scope, and will not \nbe selected if the type becomes unknown."));
+            return slist$2.hd + (" was selected from type " + (ty + ".\nIt is not visible in the current scope, and will not \n\
+       be selected if the type becomes unknown."));
           }
           if (x._2) {
-            return "this record of type " + (ty + (" contains fields that are \nnot visible in the current scope: " + ($$String.concat(" ", slist$2) + ".\nThey will not be selected if the type becomes unknown.")));
+            return "this record of type " + (ty + (" contains fields that are \n\
+       not visible in the current scope: " + ($$String.concat(" ", slist$2) + ".\n\
+       They will not be selected if the type becomes unknown.")));
           }
           throw {
                 RE_EXN_ID: "Assert_failure",
@@ -805,7 +820,8 @@ function message(x) {
               };
           break;
       case /* Disambiguated_name */26 :
-          return "this use of " + (x._0 + " relies on type-directed disambiguation,\nit will not compile with OCaml 4.00 or earlier.");
+          return "this use of " + (x._0 + " relies on type-directed disambiguation,\n\
+       it will not compile with OCaml 4.00 or earlier.");
       case /* Nonoptional_label */27 :
           return "the label " + (x._0 + " is not optional.");
       case /* Open_shadow_identifier */28 :
@@ -836,7 +852,8 @@ function message(x) {
       case /* Misplaced_attribute */35 :
           return Curry._1(Printf.sprintf("the %S attribute cannot appear in this context"), x._0);
       case /* Duplicated_attribute */36 :
-          return Curry._1(Printf.sprintf("the %S attribute is used more than once on this expression"), x._0);
+          return Curry._1(Printf.sprintf("the %S attribute is used more than once on this \
+          expression"), x._0);
       case /* Inlining_impossible */37 :
           return Curry._1(Printf.sprintf("Cannot inline: %s"), x._0);
       case /* Ambiguous_pattern */38 :
@@ -855,14 +872,19 @@ function message(x) {
                   Error: new Error()
                 };
           }
-          return Curry._1(Printf.sprintf("Ambiguous or-pattern variables under guard;\n%s may match different arguments. (See manual section 8.5)"), tmp);
+          return Curry._1(Printf.sprintf("Ambiguous or-pattern variables under guard;\n\
+         %s may match different arguments. (See manual section 8.5)"), tmp);
       case /* No_cmx_file */39 :
-          return Curry._1(Printf.sprintf("no cmx file was found in path for module %s, and its interface was not compiled with -opaque"), x._0);
+          return Curry._1(Printf.sprintf("no cmx file was found in path for module %s, \
+         and its interface was not compiled with -opaque"), x._0);
       case /* Unused_module */40 :
           return "unused module " + (x._0 + ".");
       case /* Unboxable_type_in_prim_decl */41 :
           var t = x._0;
-          return Curry._2(Printf.sprintf("This primitive declaration uses type %s, which is unannotated and\nunboxable. The representation of such types may change in future\nversions. You should annotate the declaration of %s with [@@boxed]\nor [@@unboxed]."), t, t);
+          return Curry._2(Printf.sprintf("This primitive declaration uses type %s, which is unannotated and\n\
+         unboxable. The representation of such types may change in future\n\
+         versions. You should annotate the declaration of %s with [@@boxed]\n\
+         or [@@unboxed]."), t, t);
       
     }
   }
@@ -915,7 +937,6 @@ var Errors = /* @__PURE__ */Caml_exceptions.create("Warnings.Errors");
 
 function reset_fatal(param) {
   nerrors.contents = 0;
-  
 }
 
 function check_fatal(param) {
@@ -947,12 +968,15 @@ var descriptions = {
       tl: {
         hd: [
           4,
-          "Fragile pattern matching: matching that will remain complete even\n    if additional constructors are added to one of the variant types\n    matched."
+          "Fragile pattern matching: matching that will remain complete even\n\
+   \    if additional constructors are added to one of the variant types\n\
+   \    matched."
         ],
         tl: {
           hd: [
             5,
-            "Partially applied function: expression whose result has function\n    type and is ignored."
+            "Partially applied function: expression whose result has function\n\
+   \    type and is ignored."
           ],
           tl: {
             hd: [
@@ -977,7 +1001,9 @@ var descriptions = {
                   tl: {
                     hd: [
                       10,
-                      "Expression on the left-hand side of a sequence that doesn't have type\n    \"unit\" (and that is not a function, see warning number 5)."
+                      "Expression on the left-hand side of a sequence that doesn't have \
+      type\n\
+   \    \"unit\" (and that is not a function, see warning number 5)."
                     ],
                     tl: {
                       hd: [
@@ -1047,7 +1073,8 @@ var descriptions = {
                                               tl: {
                                                 hd: [
                                                   24,
-                                                  "Bad module name: the source file name is not a valid OCaml module name."
+                                                  "Bad module name: the source file name is not a valid OCaml module \
+        name."
                                                 ],
                                                 tl: {
                                                   hd: [
@@ -1057,12 +1084,16 @@ var descriptions = {
                                                   tl: {
                                                     hd: [
                                                       26,
-                                                      "Suspicious unused variable: unused variable that is bound\n    with \"let\" or \"as\", and doesn't start with an underscore (\"_\")\n    character."
+                                                      "Suspicious unused variable: unused variable that is bound\n\
+   \    with \"let\" or \"as\", and doesn't start with an underscore (\"_\")\n\
+   \    character."
                                                     ],
                                                     tl: {
                                                       hd: [
                                                         27,
-                                                        "Innocuous unused variable: unused variable that is not bound with\n    \"let\" nor \"as\", and doesn't start with an underscore (\"_\")\n    character."
+                                                        "Innocuous unused variable: unused variable that is not bound with\n\
+   \    \"let\" nor \"as\", and doesn't start with an underscore (\"_\")\n\
+   \    character."
                                                       ],
                                                       tl: {
                                                         hd: [
@@ -1077,7 +1108,8 @@ var descriptions = {
                                                           tl: {
                                                             hd: [
                                                               30,
-                                                              "Two labels or constructors of the same name are defined in two\n    mutually recursive types."
+                                                              "Two labels or constructors of the same name are defined in two\n\
+   \    mutually recursive types."
                                                             ],
                                                             tl: {
                                                               hd: [
@@ -1305,7 +1337,7 @@ var descriptions = {
 
 function help_warnings(param) {
   List.iter((function (param) {
-          return Curry._2(Printf.printf("%3i %s\n"), param[0], param[1]);
+          Curry._2(Printf.printf("%3i %s\n"), param[0], param[1]);
         }), descriptions);
   console.log("  A all warnings");
   for(var i = /* 'b' */98; i <= /* 'z' */122; ++i){
@@ -1352,6 +1384,5 @@ export {
   check_fatal ,
   descriptions ,
   help_warnings ,
-  
 }
 /*  Not a pure module */

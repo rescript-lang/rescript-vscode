@@ -523,7 +523,7 @@ function isMultilineText(txt) {
     if (i >= len) {
       return false;
     }
-    var c = txt.charCodeAt(i);
+    var c = txt.codePointAt(i);
     if (c > 13 || c < 10) {
       if (c !== 92) {
         _i = i + 1 | 0;
@@ -1906,6 +1906,5 @@ export {
   isSinglePipeExpr ,
   isUnderscoreApplySugar ,
   isRewrittenUnderscoreApplySugar ,
-  
 }
 /* No side effect */

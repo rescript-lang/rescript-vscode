@@ -109,6 +109,5 @@ export {
   pp_get_formatter_tag_functions ,
   stderr ,
   print_char ,
-  
 }
 /* stderr Not a pure module */

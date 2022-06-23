@@ -10,7 +10,7 @@
   "devDependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.8.6",
-    "rescript": "^9.1.4"
+    "rescript": "file:../../../../rescript-compiler"
   },
   "dependencies": {
     "@glennsl/bs-json": "^5.0.4",

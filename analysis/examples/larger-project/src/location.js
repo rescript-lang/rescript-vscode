@@ -49,7 +49,6 @@ function init(lexbuf, fname) {
     pos_bol: 0,
     pos_cnum: 0
   };
-  
 }
 
 function symbol_rloc(param) {
@@ -97,7 +96,7 @@ var num_loc_lines = {
 };
 
 function absolute_path(s) {
-  var s$1 = Curry._1(Filename.is_relative, s) ? Filename.concat(Caml_sys.caml_sys_getcwd(undefined), s) : s;
+  var s$1 = Curry._1(Filename.is_relative, s) ? Filename.concat(Caml_sys.sys_getcwd(undefined), s) : s;
   var aux = function (_s) {
     while(true) {
       var s = _s;
@@ -135,7 +134,6 @@ function print_filename(ppf, file) {
 
 function reset(param) {
   num_loc_lines.contents = 0;
-  
 }
 
 function get_pos_info(pos) {
@@ -162,7 +160,6 @@ function print_compact(ppf, loc) {
 function echo_eof(param) {
   Pervasives.print_newline(undefined);
   num_loc_lines.contents = num_loc_lines.contents + 1 | 0;
-  
 }
 
 function mkloc(txt, loc) {
@@ -231,7 +228,6 @@ function register_error_of_exn(f) {
     hd: f,
     tl: error_of_exn.contents
   };
-  
 }
 
 function error_of_exn$1(exn) {
@@ -364,6 +360,5 @@ export {
   error_of_printer_file ,
   $$Error ,
   raise_errorf ,
-  
 }
 /* none Not a pure module */

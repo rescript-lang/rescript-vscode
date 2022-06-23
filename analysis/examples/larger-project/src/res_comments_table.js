@@ -167,7 +167,6 @@ function log(t) {
                       }
                     }
                   }))));
-  
 }
 
 function attach(tbl, loc, comments) {
@@ -944,7 +943,7 @@ function walkValueDescription(vd, t, comments) {
   var match$2 = partitionByLoc(match$1[1], vd.pval_type.ptyp_loc);
   attach(t.leading, vd.pval_type.ptyp_loc, match$2[0]);
   walkTypExpr(vd.pval_type, t, match$2[1]);
-  return attach(t.trailing, vd.pval_type.ptyp_loc, match$2[2]);
+  attach(t.trailing, vd.pval_type.ptyp_loc, match$2[2]);
 }
 
 function walkTypeExtension(te, t, comments) {
@@ -957,16 +956,16 @@ function walkTypeExtension(te, t, comments) {
   var rest$1 = typeParams ? visitListButContinueWithRemainingComments(undefined, false, (function (param) {
             return param[0].ptyp_loc;
           }), walkTypeParam, typeParams, t, rest) : rest;
-  return walkList(undefined, (function (n) {
-                return n.pext_loc;
-              }), walkExtConstr, te.ptyext_constructors, t, rest$1);
+  walkList(undefined, (function (n) {
+          return n.pext_loc;
+        }), walkExtConstr, te.ptyext_constructors, t, rest$1);
 }
 
 function walkIncludeDeclaration(inclDecl, t, comments) {
   var match = partitionByLoc(comments, inclDecl.pincl_mod.pmod_loc);
   attach(t.leading, inclDecl.pincl_mod.pmod_loc, match[0]);
   walkModExpr(inclDecl.pincl_mod, t, match[1]);
-  return attach(t.trailing, inclDecl.pincl_mod.pmod_loc, match[2]);
+  attach(t.trailing, inclDecl.pincl_mod.pmod_loc, match[2]);
 }
 
 function walkModuleTypeDeclaration(mtd, t, comments) {
@@ -982,7 +981,7 @@ function walkModuleTypeDeclaration(mtd, t, comments) {
   var match$2 = partitionByLoc(match$1[1], modType.pmty_loc);
   attach(t.leading, modType.pmty_loc, match$2[0]);
   walkModType(modType, t, match$2[1]);
-  return attach(t.trailing, modType.pmty_loc, match$2[2]);
+  attach(t.trailing, modType.pmty_loc, match$2[2]);
 }
 
 function walkModuleBinding(mb, t, comments) {
@@ -1006,7 +1005,7 @@ function walkModuleBinding(mb, t, comments) {
     attach(t.leading, mb.pmb_expr.pmod_loc, leading);
     walkModExpr(mb.pmb_expr, t, inside);
   }
-  return attach(t.trailing, mb.pmb_expr.pmod_loc, match$2[2]);
+  attach(t.trailing, mb.pmb_expr.pmod_loc, match$2[2]);
 }
 
 function walkSignature(signature, t, comments) {
@@ -1062,7 +1061,7 @@ function walkIncludeDescription(id, t, comments) {
   var match = partitionByLoc(comments, id.pincl_mod.pmty_loc);
   attach(t.leading, id.pincl_mod.pmty_loc, match[0]);
   walkModType(id.pincl_mod, t, match[1]);
-  return attach(t.trailing, id.pincl_mod.pmty_loc, match[2]);
+  attach(t.trailing, id.pincl_mod.pmty_loc, match[2]);
 }
 
 function walkModuleDeclaration(md, t, comments) {
@@ -1073,7 +1072,7 @@ function walkModuleDeclaration(md, t, comments) {
   var match$2 = partitionByLoc(match$1[1], md.pmd_type.pmty_loc);
   attach(t.leading, md.pmd_type.pmty_loc, match$2[0]);
   walkModType(md.pmd_type, t, match$2[1]);
-  return attach(t.trailing, md.pmd_type.pmty_loc, match$2[2]);
+  attach(t.trailing, md.pmd_type.pmty_loc, match$2[2]);
 }
 
 function walkList(_prevLoc, getLoc, walkNode, _l, t, _comments) {
@@ -1160,26 +1159,26 @@ function visitListButContinueWithRemainingComments(_prevLoc, newlineDelimited, g
 }
 
 function walkValueBindings(vbs, t, comments) {
-  return walkList(undefined, (function (n) {
-                return n.pvb_loc;
-              }), walkValueBinding, vbs, t, comments);
+  walkList(undefined, (function (n) {
+          return n.pvb_loc;
+        }), walkValueBinding, vbs, t, comments);
 }
 
 function walkOpenDescription(openDescription, t, comments) {
   var loc = openDescription.popen_lid.loc;
   var match = partitionLeadingTrailing(comments, loc);
   attach(t.leading, loc, match[0]);
-  return attach(t.trailing, loc, match[1]);
+  attach(t.trailing, loc, match[1]);
 }
 
 function walkTypeDeclarations(typeDeclarations, t, comments) {
-  return walkList(undefined, (function (n) {
-                return n.ptype_loc;
-              }), walkTypeDeclaration, typeDeclarations, t, comments);
+  walkList(undefined, (function (n) {
+          return n.ptype_loc;
+        }), walkTypeDeclaration, typeDeclarations, t, comments);
 }
 
 function walkTypeParam(param, t, comments) {
-  return walkTypExpr(param[0], t, comments);
+  walkTypExpr(param[0], t, comments);
 }
 
 function walkTypeDeclaration(td, t, comments) {
@@ -1216,7 +1215,7 @@ function walkTypeDeclaration(td, t, comments) {
           }), walkLabelDeclaration, labelDeclarations._0, t, rest$2);
     rest$3 = /* [] */0;
   }
-  return attach(t.trailing, td.ptype_loc, rest$3);
+  attach(t.trailing, td.ptype_loc, rest$3);
 }
 
 function walkLabelDeclarations(lds, t, comments) {
@@ -1233,7 +1232,7 @@ function walkLabelDeclaration(ld, t, comments) {
   var match$2 = partitionByLoc(match$1[1], ld.pld_type.ptyp_loc);
   attach(t.leading, ld.pld_type.ptyp_loc, match$2[0]);
   walkTypExpr(ld.pld_type, t, match$2[1]);
-  return attach(t.trailing, ld.pld_type.ptyp_loc, match$2[2]);
+  attach(t.trailing, ld.pld_type.ptyp_loc, match$2[2]);
 }
 
 function walkConstructorDeclarations(cds, t, comments) {
@@ -1260,7 +1259,7 @@ function walkConstructorDeclaration(cd, t, comments) {
   } else {
     rest$1 = rest;
   }
-  return attach(t.trailing, cd.pcd_loc, rest$1);
+  attach(t.trailing, cd.pcd_loc, rest$1);
 }
 
 function walkConstructorArguments(args, t, comments) {
@@ -2350,7 +2349,7 @@ function walkExprPararameter(param, t, comments) {
   var match$2 = partitionByLoc(rest, exprOpt.pexp_loc);
   attach(t.leading, exprOpt.pexp_loc, match$2[0]);
   walkExpr(exprOpt, t, match$2[1]);
-  return attach(t.trailing, exprOpt.pexp_loc, match$2[2]);
+  attach(t.trailing, exprOpt.pexp_loc, match$2[2]);
 }
 
 function walkExprArgument(param, t, comments) {
@@ -2374,7 +2373,7 @@ function walkExprArgument(param, t, comments) {
   var match$5 = partitionByLoc(comments, expr.pexp_loc);
   attach(t.leading, expr.pexp_loc, match$5[0]);
   walkExpr(expr, t, match$5[1]);
-  return attach(t.trailing, expr.pexp_loc, match$5[2]);
+  attach(t.trailing, expr.pexp_loc, match$5[2]);
 }
 
 function walkCase($$case, t, comments) {
@@ -2423,7 +2422,7 @@ function walkCase($$case, t, comments) {
   var match$4 = partitionByLoc(comments$1, $$case.pc_rhs.pexp_loc);
   attach(t.leading, $$case.pc_rhs.pexp_loc, match$4[0]);
   walkExpr($$case.pc_rhs, t, match$4[1]);
-  return attach(t.trailing, $$case.pc_rhs.pexp_loc, match$4[2]);
+  attach(t.trailing, $$case.pc_rhs.pexp_loc, match$4[2]);
 }
 
 function walkExprRecordRow(param, t, comments) {
@@ -2436,7 +2435,7 @@ function walkExprRecordRow(param, t, comments) {
   var match$2 = partitionByLoc(match$1[1], expr.pexp_loc);
   attach(t.leading, expr.pexp_loc, match$2[0]);
   walkExpr(expr, t, match$2[1]);
-  return attach(t.trailing, expr.pexp_loc, match$2[2]);
+  attach(t.trailing, expr.pexp_loc, match$2[2]);
 }
 
 function walkExtConstr(extConstr, t, comments) {
@@ -2444,7 +2443,7 @@ function walkExtConstr(extConstr, t, comments) {
   attach(t.leading, extConstr.pext_name.loc, match[0]);
   var match$1 = partitionAdjacentTrailing(extConstr.pext_name.loc, match[1]);
   attach(t.trailing, extConstr.pext_name.loc, match$1[0]);
-  return walkExtensionConstructorKind(extConstr.pext_kind, t, match$1[1]);
+  walkExtensionConstructorKind(extConstr.pext_kind, t, match$1[1]);
 }
 
 function walkExtensionConstructorKind(kind, t, comments) {
@@ -2462,7 +2461,7 @@ function walkExtensionConstructorKind(kind, t, comments) {
   var longident = kind._0;
   var match$1 = partitionLeadingTrailing(comments, longident.loc);
   attach(t.leading, longident.loc, match$1[0]);
-  return attach(t.trailing, longident.loc, match$1[1]);
+  attach(t.trailing, longident.loc, match$1[1]);
 }
 
 function walkModExpr(modExpr, t, comments) {
@@ -2525,7 +2524,7 @@ function walkModExpr(modExpr, t, comments) {
     case /* Pmod_constraint */4 :
         var modtype = longident._1;
         var modexpr = longident._0;
-        if (Caml_obj.caml_greaterequal(modtype.pmty_loc.loc_start, modexpr.pmod_loc.loc_end)) {
+        if (Caml_obj.greaterequal(modtype.pmty_loc.loc_start, modexpr.pmod_loc.loc_end)) {
           var match$7 = partitionByLoc(comments, modexpr.pmod_loc);
           attach(t.leading, modexpr.pmod_loc, match$7[0]);
           walkModExpr(modexpr, t, match$7[1]);
@@ -2571,7 +2570,7 @@ function walkModExprParameter(parameter, t, comments) {
   var match$2 = partitionByLoc(match$1[1], modTypeOption.pmty_loc);
   attach(t.leading, modTypeOption.pmty_loc, match$2[0]);
   walkModType(modTypeOption, t, match$2[1]);
-  return attach(t.trailing, modTypeOption.pmty_loc, match$2[2]);
+  attach(t.trailing, modTypeOption.pmty_loc, match$2[2]);
 }
 
 function walkModType(modType, t, comments) {
@@ -2629,7 +2628,7 @@ function walkModType(modType, t, comments) {
   var longident = signature._0;
   var match$4 = partitionLeadingTrailing(comments, longident.loc);
   attach(t.leading, longident.loc, match$4[0]);
-  return attach(t.trailing, longident.loc, match$4[1]);
+  attach(t.trailing, longident.loc, match$4[1]);
 }
 
 function walkModTypeParameter(param, t, comments) {
@@ -2646,7 +2645,7 @@ function walkModTypeParameter(param, t, comments) {
   var match$2 = partitionByLoc(match$1[1], modTypeOption.pmty_loc);
   attach(t.leading, modTypeOption.pmty_loc, match$2[0]);
   walkModType(modTypeOption, t, match$2[1]);
-  return attach(t.trailing, modTypeOption.pmty_loc, match$2[2]);
+  attach(t.trailing, modTypeOption.pmty_loc, match$2[2]);
 }
 
 function walkPattern(_pat, t, comments) {
@@ -2820,7 +2819,7 @@ function walkPatternRecordRow(row, t, comments) {
   var match$4 = partitionByLoc(match$3[1], pattern.ppat_loc);
   attach(t.leading, pattern.ppat_loc, match$4[0]);
   walkPattern(pattern, t, match$4[1]);
-  return attach(t.trailing, pattern.ppat_loc, match$4[2]);
+  attach(t.trailing, pattern.ppat_loc, match$4[2]);
 }
 
 function walkTypExpr(typ, t, comments) {
@@ -2868,7 +2867,7 @@ function walkTypExpr(typ, t, comments) {
               }), (function (longident, t, comments) {
                 var match = partitionLeadingTrailing(comments, longident.loc);
                 attach(t.leading, longident.loc, match[0]);
-                return attach(t.trailing, longident.loc, match[1]);
+                attach(t.trailing, longident.loc, match[1]);
               }), typexprs._0, t, comments);
         var match$5 = partitionByLoc(comments$2, typexpr$2.ptyp_loc);
         attach(t.leading, typexpr$2.ptyp_loc, match$5[0]);
@@ -2884,17 +2883,17 @@ function walkTypExpr(typ, t, comments) {
 }
 
 function walkTypObjectFields(fields, t, comments) {
-  return walkList(undefined, (function (field) {
-                if (field.TAG !== /* Otag */0) {
-                  return $$Location.none;
-                }
-                var init = field._0.loc;
-                return {
-                        loc_start: init.loc_start,
-                        loc_end: field._2.ptyp_loc.loc_end,
-                        loc_ghost: init.loc_ghost
-                      };
-              }), walkTypObjectField, fields, t, comments);
+  walkList(undefined, (function (field) {
+          if (field.TAG !== /* Otag */0) {
+            return $$Location.none;
+          }
+          var init = field._0.loc;
+          return {
+                  loc_start: init.loc_start,
+                  loc_end: field._2.ptyp_loc.loc_end,
+                  loc_ghost: init.loc_ghost
+                };
+        }), walkTypObjectField, fields, t, comments);
 }
 
 function walkTypObjectField(field, t, comments) {
@@ -2910,7 +2909,7 @@ function walkTypObjectField(field, t, comments) {
   var match$2 = partitionByLoc(match$1[1], typexpr.ptyp_loc);
   attach(t.leading, typexpr.ptyp_loc, match$2[0]);
   walkTypExpr(typexpr, t, match$2[1]);
-  return attach(t.trailing, typexpr.ptyp_loc, match$2[2]);
+  attach(t.trailing, typexpr.ptyp_loc, match$2[2]);
 }
 
 function walkTypeParameters(typeParameters, t, comments) {
@@ -2938,7 +2937,7 @@ function walkTypeParameter(param, t, comments) {
   var match = partitionByLoc(comments, typexpr.ptyp_loc);
   attach(t.leading, typexpr.ptyp_loc, match[0]);
   walkTypExpr(typexpr, t, match[1]);
-  return attach(t.trailing, typexpr.ptyp_loc, match[2]);
+  attach(t.trailing, typexpr.ptyp_loc, match[2]);
 }
 
 function walkPackageType(packageType, t, comments) {
@@ -2947,18 +2946,18 @@ function walkPackageType(packageType, t, comments) {
   attach(t.leading, longident.loc, match[0]);
   var match$1 = partitionAdjacentTrailing(longident.loc, match[1]);
   attach(t.trailing, longident.loc, match$1[0]);
-  return walkPackageConstraints(packageType[1], t, match$1[1]);
+  walkPackageConstraints(packageType[1], t, match$1[1]);
 }
 
 function walkPackageConstraints(packageConstraints, t, comments) {
-  return walkList(undefined, (function (param) {
-                var init = param[0].loc;
-                return {
-                        loc_start: init.loc_start,
-                        loc_end: param[1].ptyp_loc.loc_end,
-                        loc_ghost: init.loc_ghost
-                      };
-              }), walkPackageConstraint, packageConstraints, t, comments);
+  walkList(undefined, (function (param) {
+          var init = param[0].loc;
+          return {
+                  loc_start: init.loc_start,
+                  loc_end: param[1].ptyp_loc.loc_end,
+                  loc_ghost: init.loc_ghost
+                };
+        }), walkPackageConstraint, packageConstraints, t, comments);
 }
 
 function walkPackageConstraint(packageConstraint, t, comments) {
@@ -2971,7 +2970,7 @@ function walkPackageConstraint(packageConstraint, t, comments) {
   var match$2 = partitionByLoc(match$1[1], typexpr.ptyp_loc);
   attach(t.leading, typexpr.ptyp_loc, match$2[0]);
   walkTypExpr(typexpr, t, match$2[1]);
-  return attach(t.trailing, typexpr.ptyp_loc, match$2[2]);
+  attach(t.trailing, typexpr.ptyp_loc, match$2[2]);
 }
 
 function walkExtension(extension, t, comments) {
@@ -2980,7 +2979,7 @@ function walkExtension(extension, t, comments) {
   attach(t.leading, id.loc, match[0]);
   var match$1 = partitionAdjacentTrailing(id.loc, match[1]);
   attach(t.trailing, id.loc, match$1[0]);
-  return walkPayload(extension[1], t, match$1[1]);
+  walkPayload(extension[1], t, match$1[1]);
 }
 
 function walkAttribute(param, t, comments) {
@@ -2989,7 +2988,7 @@ function walkAttribute(param, t, comments) {
   attach(t.leading, id.loc, match[0]);
   var match$1 = partitionAdjacentTrailing(id.loc, match[1]);
   attach(t.trailing, id.loc, match$1[0]);
-  return walkPayload(param[1], t, match$1[1]);
+  walkPayload(param[1], t, match$1[1]);
 }
 
 function walkPayload(payload, t, comments) {
@@ -3072,6 +3071,5 @@ export {
   walkExtension ,
   walkAttribute ,
   walkPayload ,
-  
 }
 /* empty Not a pure module */

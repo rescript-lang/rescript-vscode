@@ -316,7 +316,7 @@ function decodeCodePoint(i, s, len) {
             1
           ];
   }
-  var first = s.charCodeAt(i);
+  var first = s.codePointAt(i);
   if (first < 128) {
     return [
             first,
@@ -338,7 +338,7 @@ function decodeCodePoint(i, s, len) {
           ];
   }
   if (cat.size === 2) {
-    var c1 = s.charCodeAt(i + 1 | 0);
+    var c1 = s.codePointAt(i + 1 | 0);
     if (c1 < cat.low || cat.high < c1) {
       return [
               65533,
@@ -354,8 +354,8 @@ function decodeCodePoint(i, s, len) {
           ];
   }
   if (cat.size === 3) {
-    var c1$1 = s.charCodeAt(i + 1 | 0);
-    var c2 = s.charCodeAt(i + 2 | 0);
+    var c1$1 = s.codePointAt(i + 1 | 0);
+    var c2 = s.codePointAt(i + 2 | 0);
     if (c1$1 < cat.low || cat.high < c1$1 || c2 < 128 || 191 < c2) {
       return [
               65533,
@@ -371,9 +371,9 @@ function decodeCodePoint(i, s, len) {
             3
           ];
   }
-  var c1$2 = s.charCodeAt(i + 1 | 0);
-  var c2$1 = s.charCodeAt(i + 2 | 0);
-  var c3 = s.charCodeAt(i + 3 | 0);
+  var c1$2 = s.codePointAt(i + 1 | 0);
+  var c2$1 = s.codePointAt(i + 2 | 0);
+  var c3 = s.codePointAt(i + 3 | 0);
   if (c1$2 < cat.low || cat.high < c1$2 || c2$1 < 128 || 191 < c2$1 || c3 < 128 || 191 < c3) {
     return [
             65533,
@@ -476,6 +476,5 @@ export {
   decodeCodePoint ,
   encodeCodePoint ,
   isValidCodePoint ,
-  
 }
 /* No side effect */

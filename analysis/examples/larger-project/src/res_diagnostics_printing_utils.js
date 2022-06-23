@@ -13,7 +13,6 @@ import * as Pervasives from "rescript/lib/es6/pervasives.js";
 import * as Caml_option from "rescript/lib/es6/caml_option.js";
 import * as Caml_string from "rescript/lib/es6/caml_string.js";
 import * as Caml_js_exceptions from "rescript/lib/es6/caml_js_exceptions.js";
-import * as Caml_external_polyfill from "rescript/lib/es6/caml_external_polyfill.js";
 
 function digits_count(n) {
   var n$1 = Pervasives.abs(n);
@@ -106,7 +105,7 @@ function break_long_line(max_width, line) {
       if (pos === line.length) {
         return accum;
       }
-      var chunk_length = Caml.caml_int_min(max_width, line.length - pos | 0);
+      var chunk_length = Caml.int_min(max_width, line.length - pos | 0);
       var chunk = $$String.sub(line, pos, chunk_length);
       _accum = {
         hd: chunk,
@@ -142,18 +141,18 @@ function filter_mapi(f, l) {
   return List.rev(loop(f, l, 0, /* [] */0));
 }
 
-var dim = "\x11[2m";
+var dim = "\x1b[2m";
 
-var err = "\x11[1;31m";
+var err = "\x1b[1;31m";
 
-var warn = "\x11[1;33m";
+var warn = "\x1b[1;33m";
 
-var reset = "\x11[0m";
+var reset = "\x1b[0m";
 
 function should_enable_color(param) {
   var term;
   try {
-    term = Caml_sys.caml_sys_getenv("TERM");
+    term = Caml_sys.sys_getenv("TERM");
   }
   catch (raw_exn){
     var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
@@ -164,7 +163,7 @@ function should_enable_color(param) {
     }
   }
   if (term !== "dumb" && term !== "") {
-    return Caml_external_polyfill.resolve("caml_sys_isatty")(P.stderr);
+    return caml_sys_isatty(P.stderr);
   } else {
     return false;
   }
@@ -259,7 +258,7 @@ function print(is_warning, src, startPos, endPos) {
             return leading_spaces;
           }
         }), 99999, lines);
-  var separator = leading_space_to_cut === 0 ? "\xe2\x94\x82" : "\xe2\x94\x86";
+  var separator = leading_space_to_cut === 0 ? "│" : "┆";
   var stripped_lines = List.map((function (param) {
           var line = param[1];
           var gutter = param[0];
@@ -335,13 +334,13 @@ function print(is_warning, src, startPos, endPos) {
     if (exit === 1) {
       switch (color) {
         case /* Dim */0 :
-            ansi = "\x11[0m\x11[2m";
+            ansi = reset + dim;
             break;
         case /* Err */1 :
-            ansi = "\x11[0m\x11[1;31m";
+            ansi = reset + err;
             break;
         case /* Warn */2 :
-            ansi = "\x11[0m\x11[1;33m";
+            ansi = reset + warn;
             break;
         case /* NoColor */3 :
             ansi = reset;
@@ -352,7 +351,6 @@ function print(is_warning, src, startPos, endPos) {
     $$Buffer.add_string(buf, ansi);
     $$Buffer.add_char(buf, ch);
     last_color.contents = color;
-    
   };
   var draw_gutter = function (color, s) {
     for(var _i = 1 ,_i_finish = (max_line_digits_count + 2 | 0) - s.length | 0; _i <= _i_finish; ++_i){
@@ -365,7 +363,7 @@ function print(is_warning, src, startPos, endPos) {
     $$String.iter((function (param) {
             return add_ch(/* Dim */0, param);
           }), separator);
-    return add_ch(/* NoColor */3, /* ' ' */32);
+    add_ch(/* NoColor */3, /* ' ' */32);
   };
   List.iter((function (param) {
           var gutter = param.gutter;
@@ -381,16 +379,16 @@ function print(is_warning, src, startPos, endPos) {
                                   var c = ii >= line.start && ii < line.end_ ? (
                                       is_warning ? /* Warn */2 : /* Err */1
                                     ) : /* NoColor */3;
-                                  return add_ch(c, ch);
+                                  add_ch(c, ch);
                                 }), line.s);
-                          return add_ch(/* NoColor */3, /* '\n' */10);
+                          add_ch(/* NoColor */3, /* '\n' */10);
                         }), param.content);
           }
           draw_gutter(/* Dim */0, ".");
           add_ch(/* Dim */0, /* '.' */46);
           add_ch(/* Dim */0, /* '.' */46);
           add_ch(/* Dim */0, /* '.' */46);
-          return add_ch(/* NoColor */3, /* '\n' */10);
+          add_ch(/* NoColor */3, /* '\n' */10);
         }), stripped_lines);
   return $$Buffer.contents(buf);
 }
@@ -464,8 +462,9 @@ function print$1(message_kind, intro, src, ppf, loc) {
 }
 
 function super_error_reporter(ppf, src, param) {
+  var partial_arg = "Syntax error!";
   return Curry._4(Format.fprintf(ppf), "@[<v>@,  %a@,  %s@,@]", (function (param, param$1) {
-                return print$1("error", "Syntax error!", src, param, param$1);
+                return print$1("error", partial_arg, src, param, param$1);
               }), param.loc, param.msg);
 }
 
@@ -479,6 +478,5 @@ var Super_location = {
 export {
   Super_code_frame ,
   Super_location ,
-  
 }
 /* P Not a pure module */

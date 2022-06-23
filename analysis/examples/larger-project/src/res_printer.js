@@ -189,7 +189,7 @@ function printMultilineCommentContent(txt) {
       var lastLine = lines.hd;
       if (lines$1) {
         var line = $$String.trim(lastLine);
-        if (line !== "" && line[0] === "*") {
+        if (line !== "" && line.codePointAt(0) === /* '*' */42) {
           var doc = Res_doc.text(" " + line);
           _acc = {
             hd: Res_doc.hardLine,
@@ -202,7 +202,7 @@ function printMultilineCommentContent(txt) {
           continue ;
         }
         var len = txt.length;
-        var trailingSpace = len > 0 && txt[len - 1 | 0] === " " ? Res_doc.space : Res_doc.nil;
+        var trailingSpace = len > 0 && txt.codePointAt(len - 1 | 0) === /* ' ' */32 ? Res_doc.space : Res_doc.nil;
         var content = Res_comment.trimSpaces(txt);
         return Res_doc.concat({
                     hd: Res_doc.text(content),
@@ -694,7 +694,7 @@ function classifyIdentContent(allowUidentOpt, txt) {
       return /* NormalIdent */1;
     }
     if (i === 0) {
-      var match = txt.charCodeAt(i);
+      var match = txt.codePointAt(i);
       if (match > 122 || match < 95) {
         if (match > 90 || match < 65) {
           return /* ExoticIdent */0;
@@ -711,7 +711,7 @@ function classifyIdentContent(allowUidentOpt, txt) {
       _i = i + 1 | 0;
       continue ;
     }
-    var match$1 = txt.charCodeAt(i);
+    var match$1 = txt.codePointAt(i);
     if (match$1 >= 65) {
       if (match$1 > 96 || match$1 < 91) {
         if (match$1 >= 123) {
@@ -765,7 +765,7 @@ function unsafe_for_all_range(s, _start, finish, p) {
     if (start > finish) {
       return true;
     }
-    if (!Curry._1(p, s.charCodeAt(start))) {
+    if (!Curry._1(p, s.codePointAt(start))) {
       return false;
     }
     _start = start + 1 | 0;
@@ -783,7 +783,7 @@ function isValidNumericPolyvarNumber(x) {
   if (len <= 0) {
     return false;
   }
-  var a = x.charCodeAt(0);
+  var a = x.codePointAt(0);
   if (a <= 57) {
     if (len > 1) {
       if (a > 48) {
@@ -9571,6 +9571,5 @@ export {
   printExtensionConstructor ,
   printImplementation ,
   printInterface ,
-  
 }
 /* Location Not a pure module */

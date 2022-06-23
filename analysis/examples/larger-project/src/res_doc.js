@@ -194,7 +194,6 @@ function propagateForcedBreaks(doc) {
     };
   };
   walk(doc);
-  
 }
 
 function willBreak(_doc) {
@@ -668,39 +667,36 @@ function debug(t) {
                       _0: "concat()"
                     };
             }
-            var l_0 = {
-              TAG: /* Text */0,
-              _0: ","
-            };
             var l_1 = {
-              hd: line,
-              tl: /* [] */0
-            };
-            var l = {
-              hd: l_0,
-              tl: l_1
-            };
-            var l_1$1 = {
               hd: join({
                     TAG: /* Concat */1,
-                    _0: _concat(/* [] */0, l)
+                    _0: _concat(/* [] */0, {
+                          hd: {
+                            TAG: /* Text */0,
+                            _0: ","
+                          },
+                          tl: {
+                            hd: line,
+                            tl: /* [] */0
+                          }
+                        })
                   }, List.map(toDoc, docs)),
               tl: /* [] */0
             };
-            var l$1 = {
+            var l = {
               hd: line,
-              tl: l_1$1
+              tl: l_1
             };
-            var l_0$1 = {
+            var l_0 = {
               TAG: /* Text */0,
               _0: "concat("
             };
-            var l_1$2 = {
+            var l_1$1 = {
               hd: {
                 TAG: /* Indent */2,
                 _0: {
                   TAG: /* Concat */1,
-                  _0: _concat(/* [] */0, l$1)
+                  _0: _concat(/* [] */0, l)
                 }
               },
               tl: {
@@ -714,24 +710,24 @@ function debug(t) {
                 }
               }
             };
-            var l$2 = {
-              hd: l_0$1,
-              tl: l_1$2
+            var l$1 = {
+              hd: l_0,
+              tl: l_1$1
             };
             return {
                     TAG: /* Group */6,
                     shouldBreak: false,
                     doc: {
                       TAG: /* Concat */1,
-                      _0: _concat(/* [] */0, l$2)
+                      _0: _concat(/* [] */0, l$1)
                     }
                   };
         case /* Indent */2 :
-            var l_0$2 = {
+            var l_0$1 = {
               TAG: /* Text */0,
               _0: "indent("
             };
-            var l_1$3 = {
+            var l_1$2 = {
               hd: softLine,
               tl: {
                 hd: toDoc(x._0),
@@ -747,13 +743,13 @@ function debug(t) {
                 }
               }
             };
-            var l$3 = {
-              hd: l_0$2,
-              tl: l_1$3
+            var l$2 = {
+              hd: l_0$1,
+              tl: l_1$2
             };
             return {
                     TAG: /* Concat */1,
-                    _0: _concat(/* [] */0, l$3)
+                    _0: _concat(/* [] */0, l$2)
                   };
         case /* IfBreaks */3 :
             var trueDoc = x.yes;
@@ -762,24 +758,21 @@ function debug(t) {
               _x = trueDoc;
               continue ;
             }
-            var l_0$3 = {
-              TAG: /* Text */0,
-              _0: ","
-            };
-            var l_1$4 = {
-              hd: line,
-              tl: /* [] */0
-            };
-            var l$4 = {
-              hd: l_0$3,
-              tl: l_1$4
-            };
-            var l_1$5 = {
+            var l_1$3 = {
               hd: toDoc(trueDoc),
               tl: {
                 hd: {
                   TAG: /* Concat */1,
-                  _0: _concat(/* [] */0, l$4)
+                  _0: _concat(/* [] */0, {
+                        hd: {
+                          TAG: /* Text */0,
+                          _0: ","
+                        },
+                        tl: {
+                          hd: line,
+                          tl: /* [] */0
+                        }
+                      })
                 },
                 tl: {
                   hd: toDoc(x.no),
@@ -787,13 +780,57 @@ function debug(t) {
                 }
               }
             };
+            var l$3 = {
+              hd: line,
+              tl: l_1$3
+            };
+            var l_0$2 = {
+              TAG: /* Text */0,
+              _0: "ifBreaks("
+            };
+            var l_1$4 = {
+              hd: {
+                TAG: /* Indent */2,
+                _0: {
+                  TAG: /* Concat */1,
+                  _0: _concat(/* [] */0, l$3)
+                }
+              },
+              tl: {
+                hd: line,
+                tl: {
+                  hd: {
+                    TAG: /* Text */0,
+                    _0: ")"
+                  },
+                  tl: /* [] */0
+                }
+              }
+            };
+            var l$4 = {
+              hd: l_0$2,
+              tl: l_1$4
+            };
+            return {
+                    TAG: /* Group */6,
+                    shouldBreak: false,
+                    doc: {
+                      TAG: /* Concat */1,
+                      _0: _concat(/* [] */0, l$4)
+                    }
+                  };
+        case /* LineSuffix */4 :
+            var l_1$5 = {
+              hd: toDoc(x._0),
+              tl: /* [] */0
+            };
             var l$5 = {
               hd: line,
               tl: l_1$5
             };
-            var l_0$4 = {
+            var l_0$3 = {
               TAG: /* Text */0,
-              _0: "ifBreaks("
+              _0: "linesuffix("
             };
             var l_1$6 = {
               hd: {
@@ -815,7 +852,7 @@ function debug(t) {
               }
             };
             var l$6 = {
-              hd: l_0$4,
+              hd: l_0$3,
               tl: l_1$6
             };
             return {
@@ -824,50 +861,6 @@ function debug(t) {
                     doc: {
                       TAG: /* Concat */1,
                       _0: _concat(/* [] */0, l$6)
-                    }
-                  };
-        case /* LineSuffix */4 :
-            var l_1$7 = {
-              hd: toDoc(x._0),
-              tl: /* [] */0
-            };
-            var l$7 = {
-              hd: line,
-              tl: l_1$7
-            };
-            var l_0$5 = {
-              TAG: /* Text */0,
-              _0: "linesuffix("
-            };
-            var l_1$8 = {
-              hd: {
-                TAG: /* Indent */2,
-                _0: {
-                  TAG: /* Concat */1,
-                  _0: _concat(/* [] */0, l$7)
-                }
-              },
-              tl: {
-                hd: line,
-                tl: {
-                  hd: {
-                    TAG: /* Text */0,
-                    _0: ")"
-                  },
-                  tl: /* [] */0
-                }
-              }
-            };
-            var l$8 = {
-              hd: l_0$5,
-              tl: l_1$8
-            };
-            return {
-                    TAG: /* Group */6,
-                    shouldBreak: false,
-                    doc: {
-                      TAG: /* Concat */1,
-                      _0: _concat(/* [] */0, l$8)
                     }
                   };
         case /* LineBreak */5 :
@@ -893,19 +886,7 @@ function debug(t) {
                   };
         case /* Group */6 :
             var shouldBreak = x.shouldBreak;
-            var l_0$6 = {
-              TAG: /* Text */0,
-              _0: ","
-            };
-            var l_1$9 = {
-              hd: line,
-              tl: /* [] */0
-            };
-            var l$9 = {
-              hd: l_0$6,
-              tl: l_1$9
-            };
-            var l_1$10 = {
+            var l_1$7 = {
               hd: {
                 TAG: /* Text */0,
                 _0: "{shouldBreak: " + (Pervasives.string_of_bool(shouldBreak) + "}")
@@ -913,7 +894,16 @@ function debug(t) {
               tl: {
                 hd: {
                   TAG: /* Concat */1,
-                  _0: _concat(/* [] */0, l$9)
+                  _0: _concat(/* [] */0, {
+                        hd: {
+                          TAG: /* Text */0,
+                          _0: ","
+                        },
+                        tl: {
+                          hd: line,
+                          tl: /* [] */0
+                        }
+                      })
                 },
                 tl: {
                   hd: toDoc(x.doc),
@@ -921,20 +911,20 @@ function debug(t) {
                 }
               }
             };
-            var l$10 = {
+            var l$7 = {
               hd: line,
-              tl: l_1$10
+              tl: l_1$7
             };
-            var l_0$7 = {
+            var l_0$4 = {
               TAG: /* Text */0,
               _0: "Group("
             };
-            var l_1$11 = {
+            var l_1$8 = {
               hd: {
                 TAG: /* Indent */2,
                 _0: {
                   TAG: /* Concat */1,
-                  _0: _concat(/* [] */0, l$10)
+                  _0: _concat(/* [] */0, l$7)
                 }
               },
               tl: {
@@ -948,52 +938,49 @@ function debug(t) {
                 }
               }
             };
-            var l$11 = {
-              hd: l_0$7,
-              tl: l_1$11
+            var l$8 = {
+              hd: l_0$4,
+              tl: l_1$8
             };
             return {
                     TAG: /* Group */6,
                     shouldBreak: false,
                     doc: {
                       TAG: /* Concat */1,
-                      _0: _concat(/* [] */0, l$11)
+                      _0: _concat(/* [] */0, l$8)
                     }
                   };
         case /* CustomLayout */7 :
-            var l_0$8 = {
-              TAG: /* Text */0,
-              _0: ","
-            };
-            var l_1$12 = {
-              hd: line,
-              tl: /* [] */0
-            };
-            var l$12 = {
-              hd: l_0$8,
-              tl: l_1$12
-            };
-            var l_1$13 = {
+            var l_1$9 = {
               hd: join({
                     TAG: /* Concat */1,
-                    _0: _concat(/* [] */0, l$12)
+                    _0: _concat(/* [] */0, {
+                          hd: {
+                            TAG: /* Text */0,
+                            _0: ","
+                          },
+                          tl: {
+                            hd: line,
+                            tl: /* [] */0
+                          }
+                        })
                   }, List.map(toDoc, x._0)),
               tl: /* [] */0
             };
-            var l$13 = {
+            var l$9 = {
               hd: line,
-              tl: l_1$13
+              tl: l_1$9
             };
-            var l_0$9 = {
+            var l_0$5 = {
               TAG: /* Text */0,
               _0: "customLayout("
             };
-            var l_1$14 = {
+            var l_1$10 = {
               hd: {
                 TAG: /* Indent */2,
                 _0: {
                   TAG: /* Concat */1,
-                  _0: _concat(/* [] */0, l$13)
+                  _0: _concat(/* [] */0, l$9)
                 }
               },
               tl: {
@@ -1007,16 +994,16 @@ function debug(t) {
                 }
               }
             };
-            var l$14 = {
-              hd: l_0$9,
-              tl: l_1$14
+            var l$10 = {
+              hd: l_0$5,
+              tl: l_1$10
             };
             return {
                     TAG: /* Group */6,
                     shouldBreak: false,
                     doc: {
                       TAG: /* Concat */1,
-                      _0: _concat(/* [] */0, l$14)
+                      _0: _concat(/* [] */0, l$10)
                     }
                   };
         
@@ -1025,7 +1012,6 @@ function debug(t) {
   };
   var doc = toDoc(t);
   console.log(toString(10, doc));
-  
 }
 
 var MiniBuffer;
@@ -1165,6 +1151,5 @@ export {
   fits ,
   toString ,
   debug ,
-  
 }
 /* No side effect */

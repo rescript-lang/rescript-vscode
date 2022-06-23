@@ -27,7 +27,6 @@ function prevTokEndPos(t) {
 
 function setPrevTokEndPos(t, pos) {
   t.prevTokEndPos = pos;
-  
 }
 
 function isSingleLineComment(t) {
@@ -75,15 +74,15 @@ function trimSpaces(s) {
   if (len === 0) {
     return s;
   }
-  if (!(s[0] === " " || s[len - 1 | 0] === " ")) {
+  if (!(s.codePointAt(0) === /* ' ' */32 || s.codePointAt(len - 1 | 0) === /* ' ' */32)) {
     return s;
   }
   var i = 0;
-  while(i < len && s[i] === " ") {
+  while(i < len && s.codePointAt(i) === /* ' ' */32) {
     i = i + 1 | 0;
   };
   var j = len - 1 | 0;
-  while(j >= i && s[j] === " ") {
+  while(j >= i && s.codePointAt(j) === /* ' ' */32) {
     j = j - 1 | 0;
   };
   if (j >= i) {
@@ -105,6 +104,5 @@ export {
   makeMultiLineComment ,
   fromOcamlComment ,
   trimSpaces ,
-  
 }
 /* Format Not a pure module */

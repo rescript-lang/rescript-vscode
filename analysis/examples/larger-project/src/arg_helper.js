@@ -66,8 +66,9 @@ function Make(S) {
   };
   var Parse_failure = /* @__PURE__ */Caml_exceptions.create("Arg_helper.Make(S).Parse_failure");
   var parse_exn = function (str, update) {
+    var partial_arg = "";
     var values = List.filter(function (param) {
-            return "" !== param;
+            return partial_arg !== param;
           })($$String.split_on_char(/* ',' */44, str));
     var parsed = List.fold_left((function (acc, value) {
             var equals;
@@ -150,7 +151,6 @@ function Make(S) {
             return add_user_override(key$1, value$3, acc);
           }), update.contents, values);
     update.contents = parsed;
-    
   };
   var parse = function (str, help_text, update) {
     try {
@@ -224,6 +224,5 @@ function Make(S) {
 export {
   fatal ,
   Make ,
-  
 }
 /* No side effect */

@@ -948,6 +948,5 @@ export {
   includeModExpr ,
   arrowReturnTypExpr ,
   patternRecordRowRhs ,
-  
 }
 /* No side effect */

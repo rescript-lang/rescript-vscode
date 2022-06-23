@@ -17,16 +17,19 @@ function prepare_error(x) {
         return Curry._1($$Location.errorf(x._2, {
                         hd: Curry._1($$Location.errorf(x._0, undefined, undefined, "This '%s' might be unmatched"), opening),
                         tl: /* [] */0
-                      }, Curry._2(Printf.sprintf("Syntax error: '%s' expected, the highlighted '%s' might be unmatched"), closing, opening), "Syntax error: '%s' expected"), closing);
+                      }, Curry._2(Printf.sprintf("Syntax error: '%s' expected, \
+                           the highlighted '%s' might be unmatched"), closing, opening), "Syntax error: '%s' expected"), closing);
     case /* Expecting */1 :
         return Curry._1($$Location.errorf(x._0, undefined, undefined, "Syntax error: %s expected."), x._1);
     case /* Not_expecting */2 :
         return Curry._1($$Location.errorf(x._0, undefined, undefined, "Syntax error: %s not expected."), x._1);
     case /* Applicative_path */3 :
-        return $$Location.errorf(x._0, undefined, undefined, "Syntax error: applicative paths of the form F(X).t are not supported when the option -no-app-func is set.");
+        return $$Location.errorf(x._0, undefined, undefined, "Syntax error: applicative paths of the form F(X).t \
+         are not supported when the option -no-app-func is set.");
     case /* Variable_in_scope */4 :
         var $$var = x._1;
-        return Curry._2($$Location.errorf(x._0, undefined, undefined, "In this scoped type, variable '%s is reserved for the local type %s."), $$var, $$var);
+        return Curry._2($$Location.errorf(x._0, undefined, undefined, "In this scoped type, variable '%s \
+         is reserved for the local type %s."), $$var, $$var);
     case /* Other */5 :
         return $$Location.errorf(x._0, undefined, undefined, "Syntax error");
     case /* Ill_formed_ast */6 :
@@ -71,6 +74,5 @@ export {
   report_error ,
   location_of_error ,
   ill_formed_ast ,
-  
 }
 /*  Not a pure module */
