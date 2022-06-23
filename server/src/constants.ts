@@ -1,5 +1,4 @@
 import * as path from "path";
-import { ProcessExecution } from "vscode";
 
 let platformDir =
   process.arch == "arm64" ? process.platform + process.arch : process.platform;
