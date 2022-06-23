@@ -5,8 +5,8 @@ import * as $$Set from "rescript/lib/es6/set.js";
 import * as List from "rescript/lib/es6/list.js";
 import * as Misc from "./misc.js";
 import * as Curry from "rescript/lib/es6/curry.js";
-import * as Format from "rescript/lib/es6/format.js";
-import * as Printf from "rescript/lib/es6/printf.js";
+import * as Format from "./format.js";
+import * as Printf from "./printf.js";
 import * as Hashtbl from "rescript/lib/es6/hashtbl.js";
 import * as Caml_option from "rescript/lib/es6/caml_option.js";
 import * as Caml_js_exceptions from "rescript/lib/es6/caml_js_exceptions.js";
@@ -21,28 +21,7 @@ function Pair(A, B) {
     }
   };
   var output = function (oc, param) {
-    return Curry._4(Printf.fprintf(oc, /* Format */{
-                    _0: {
-                      TAG: /* String_literal */11,
-                      _0: " (",
-                      _1: {
-                        TAG: /* Alpha */15,
-                        _0: {
-                          TAG: /* String_literal */11,
-                          _0: ", ",
-                          _1: {
-                            TAG: /* Alpha */15,
-                            _0: {
-                              TAG: /* Char_literal */12,
-                              _0: /* ')' */41,
-                              _1: /* End_of_format */0
-                            }
-                          }
-                        }
-                      }
-                    },
-                    _1: " (%a, %a)"
-                  }), A.output, param[0], B.output, param[1]);
+    return Curry._5(Printf.fprintf(oc), " (%a, %a)", A.output, param[0], B.output, param[1]);
   };
   var hash = function (param) {
     return Hashtbl.hash([
@@ -58,37 +37,7 @@ function Pair(A, B) {
     }
   };
   var print = function (ppf, param) {
-    return Curry._4(Format.fprintf(ppf, /* Format */{
-                    _0: {
-                      TAG: /* String_literal */11,
-                      _0: " (",
-                      _1: {
-                        TAG: /* Alpha */15,
-                        _0: {
-                          TAG: /* String_literal */11,
-                          _0: ", ",
-                          _1: {
-                            TAG: /* Formatting_lit */17,
-                            _0: {
-                              TAG: /* Break */0,
-                              _0: "@ ",
-                              _1: 1,
-                              _2: 0
-                            },
-                            _1: {
-                              TAG: /* Alpha */15,
-                              _0: {
-                                TAG: /* Char_literal */12,
-                                _0: /* ')' */41,
-                                _1: /* End_of_format */0
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    _1: " (%a, @ %a)"
-                  }), A.print, param[0], B.print, param[1]);
+    return Curry._5(Format.fprintf(ppf), " (%a, @ %a)", A.print, param[0], B.print, param[1]);
   };
   return {
           equal: equal,
@@ -131,43 +80,15 @@ function Make_map(T) {
                   var ok = eq !== undefined ? Curry._2(eq, v1, v2) : false;
                   if (ok) {
                     return Caml_option.some(v1);
-                  } else {
-                    return Misc.fatal_error(print !== undefined ? Curry._6(Format.asprintf(/* Format */{
-                                          _0: {
-                                            TAG: /* String_literal */11,
-                                            _0: "Map.disjoint_union ",
-                                            _1: {
-                                              TAG: /* Alpha */15,
-                                              _0: {
-                                                TAG: /* String_literal */11,
-                                                _0: " => ",
-                                                _1: {
-                                                  TAG: /* Alpha */15,
-                                                  _0: {
-                                                    TAG: /* String_literal */11,
-                                                    _0: " <> ",
-                                                    _1: {
-                                                      TAG: /* Alpha */15,
-                                                      _0: /* End_of_format */0
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          },
-                                          _1: "Map.disjoint_union %a => %a <> %a"
-                                        }), T.print, id, print, v1, print, v2) : Curry._2(Format.asprintf(/* Format */{
-                                          _0: {
-                                            TAG: /* String_literal */11,
-                                            _0: "Map.disjoint_union ",
-                                            _1: {
-                                              TAG: /* Alpha */15,
-                                              _0: /* End_of_format */0
-                                            }
-                                          },
-                                          _1: "Map.disjoint_union %a"
-                                        }), T.print, id));
                   }
+                  var tmp;
+                  if (print !== undefined) {
+                    var print$1 = Caml_option.valFromOption(print);
+                    tmp = Curry._6(Format.asprintf("Map.disjoint_union %a => %a <> %a"), T.print, id, print$1, v1, print$1, v2);
+                  } else {
+                    tmp = Curry._2(Format.asprintf("Map.disjoint_union %a"), T.print, id);
+                  }
+                  return Misc.fatal_error(tmp);
                 }), m1, m2);
   };
   var union_right = function (m1, m2) {
@@ -225,114 +146,10 @@ function Make_map(T) {
   var print = function (f, ppf, s) {
     var elts = function (ppf, s) {
       return Curry._2(iter, (function (id, v) {
-                    return Curry._4(Format.fprintf(ppf, /* Format */{
-                                    _0: {
-                                      TAG: /* Formatting_lit */17,
-                                      _0: {
-                                        TAG: /* Break */0,
-                                        _0: "@ ",
-                                        _1: 1,
-                                        _2: 0
-                                      },
-                                      _1: {
-                                        TAG: /* Char_literal */12,
-                                        _0: /* '(' */40,
-                                        _1: {
-                                          TAG: /* Formatting_gen */18,
-                                          _0: {
-                                            TAG: /* Open_box */1,
-                                            _0: /* Format */{
-                                              _0: /* End_of_format */0,
-                                              _1: ""
-                                            }
-                                          },
-                                          _1: {
-                                            TAG: /* Alpha */15,
-                                            _0: {
-                                              TAG: /* Formatting_lit */17,
-                                              _0: {
-                                                TAG: /* Break */0,
-                                                _0: "@ ",
-                                                _1: 1,
-                                                _2: 0
-                                              },
-                                              _1: {
-                                                TAG: /* Alpha */15,
-                                                _0: {
-                                                  TAG: /* Formatting_lit */17,
-                                                  _0: /* Close_box */0,
-                                                  _1: {
-                                                    TAG: /* Char_literal */12,
-                                                    _0: /* ')' */41,
-                                                    _1: /* End_of_format */0
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    },
-                                    _1: "@ (@[%a@ %a@])"
-                                  }), T.print, id, f, v);
+                    return Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
                   }), s);
     };
-    return Curry._2(Format.fprintf(ppf, /* Format */{
-                    _0: {
-                      TAG: /* Formatting_gen */18,
-                      _0: {
-                        TAG: /* Open_box */1,
-                        _0: /* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "<1>",
-                            _1: /* End_of_format */0
-                          },
-                          _1: "<1>"
-                        }
-                      },
-                      _1: {
-                        TAG: /* Char_literal */12,
-                        _0: /* '{' */123,
-                        _1: {
-                          TAG: /* Formatting_gen */18,
-                          _0: {
-                            TAG: /* Open_box */1,
-                            _0: /* Format */{
-                              _0: /* End_of_format */0,
-                              _1: ""
-                            }
-                          },
-                          _1: {
-                            TAG: /* Alpha */15,
-                            _0: {
-                              TAG: /* Formatting_lit */17,
-                              _0: {
-                                TAG: /* Break */0,
-                                _0: "@ ",
-                                _1: 1,
-                                _2: 0
-                              },
-                              _1: {
-                                TAG: /* Formatting_lit */17,
-                                _0: /* Close_box */0,
-                                _1: {
-                                  TAG: /* Char_literal */12,
-                                  _0: /* '}' */125,
-                                  _1: {
-                                    TAG: /* Formatting_lit */17,
-                                    _0: /* Close_box */0,
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    _1: "@[<1>{@[%a@ @]}@]"
-                  }), elts, s);
+    return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
   var T_set = $$Set.Make({
         compare: T.compare
@@ -443,122 +260,22 @@ function Make_set(T) {
   var iter = include.iter;
   var elements = include.elements;
   var output = function (oc, s) {
-    Printf.fprintf(oc, /* Format */{
-          _0: {
-            TAG: /* String_literal */11,
-            _0: " ( ",
-            _1: /* End_of_format */0
-          },
-          _1: " ( "
-        });
+    Curry._1(Printf.fprintf(oc), " ( ");
     Curry._2(iter, (function (v) {
-            return Curry._2(Printf.fprintf(oc, /* Format */{
-                            _0: {
-                              TAG: /* Alpha */15,
-                              _0: {
-                                TAG: /* Char_literal */12,
-                                _0: /* ' ' */32,
-                                _1: /* End_of_format */0
-                              }
-                            },
-                            _1: "%a "
-                          }), T.output, v);
+            return Curry._3(Printf.fprintf(oc), "%a ", T.output, v);
           }), s);
-    return Printf.fprintf(oc, /* Format */{
-                _0: {
-                  TAG: /* Char_literal */12,
-                  _0: /* ')' */41,
-                  _1: /* End_of_format */0
-                },
-                _1: ")"
-              });
+    return Curry._1(Printf.fprintf(oc), ")");
   };
   var print = function (ppf, s) {
     var elts = function (ppf, s) {
       return Curry._2(iter, (function (e) {
-                    return Curry._2(Format.fprintf(ppf, /* Format */{
-                                    _0: {
-                                      TAG: /* Formatting_lit */17,
-                                      _0: {
-                                        TAG: /* Break */0,
-                                        _0: "@ ",
-                                        _1: 1,
-                                        _2: 0
-                                      },
-                                      _1: {
-                                        TAG: /* Alpha */15,
-                                        _0: /* End_of_format */0
-                                      }
-                                    },
-                                    _1: "@ %a"
-                                  }), T.print, e);
+                    return Curry._3(Format.fprintf(ppf), "@ %a", T.print, e);
                   }), s);
     };
-    return Curry._2(Format.fprintf(ppf, /* Format */{
-                    _0: {
-                      TAG: /* Formatting_gen */18,
-                      _0: {
-                        TAG: /* Open_box */1,
-                        _0: /* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "<1>",
-                            _1: /* End_of_format */0
-                          },
-                          _1: "<1>"
-                        }
-                      },
-                      _1: {
-                        TAG: /* Char_literal */12,
-                        _0: /* '{' */123,
-                        _1: {
-                          TAG: /* Formatting_gen */18,
-                          _0: {
-                            TAG: /* Open_box */1,
-                            _0: /* Format */{
-                              _0: /* End_of_format */0,
-                              _1: ""
-                            }
-                          },
-                          _1: {
-                            TAG: /* Alpha */15,
-                            _0: {
-                              TAG: /* Formatting_lit */17,
-                              _0: {
-                                TAG: /* Break */0,
-                                _0: "@ ",
-                                _1: 1,
-                                _2: 0
-                              },
-                              _1: {
-                                TAG: /* Formatting_lit */17,
-                                _0: /* Close_box */0,
-                                _1: {
-                                  TAG: /* Char_literal */12,
-                                  _0: /* '}' */125,
-                                  _1: {
-                                    TAG: /* Formatting_lit */17,
-                                    _0: /* Close_box */0,
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    _1: "@[<1>{@[%a@ @]}@]"
-                  }), elts, s);
+    return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
   var to_string = function (s) {
-    return Curry._2(Format.asprintf(/* Format */{
-                    _0: {
-                      TAG: /* Alpha */15,
-                      _0: /* End_of_format */0
-                    },
-                    _1: "%a"
-                  }), print, s);
+    return Curry._2(Format.asprintf("%a"), print, s);
   };
   var of_list = function (l) {
     if (!l) {
@@ -658,43 +375,15 @@ function Make_tbl(T) {
                   var ok = eq !== undefined ? Curry._2(eq, v1, v2) : false;
                   if (ok) {
                     return Caml_option.some(v1);
-                  } else {
-                    return Misc.fatal_error(print !== undefined ? Curry._6(Format.asprintf(/* Format */{
-                                          _0: {
-                                            TAG: /* String_literal */11,
-                                            _0: "Map.disjoint_union ",
-                                            _1: {
-                                              TAG: /* Alpha */15,
-                                              _0: {
-                                                TAG: /* String_literal */11,
-                                                _0: " => ",
-                                                _1: {
-                                                  TAG: /* Alpha */15,
-                                                  _0: {
-                                                    TAG: /* String_literal */11,
-                                                    _0: " <> ",
-                                                    _1: {
-                                                      TAG: /* Alpha */15,
-                                                      _0: /* End_of_format */0
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          },
-                                          _1: "Map.disjoint_union %a => %a <> %a"
-                                        }), T.print, id, print, v1, print, v2) : Curry._2(Format.asprintf(/* Format */{
-                                          _0: {
-                                            TAG: /* String_literal */11,
-                                            _0: "Map.disjoint_union ",
-                                            _1: {
-                                              TAG: /* Alpha */15,
-                                              _0: /* End_of_format */0
-                                            }
-                                          },
-                                          _1: "Map.disjoint_union %a"
-                                        }), T.print, id));
                   }
+                  var tmp;
+                  if (print !== undefined) {
+                    var print$1 = Caml_option.valFromOption(print);
+                    tmp = Curry._6(Format.asprintf("Map.disjoint_union %a => %a <> %a"), T.print, id, print$1, v1, print$1, v2);
+                  } else {
+                    tmp = Curry._2(Format.asprintf("Map.disjoint_union %a"), T.print, id);
+                  }
+                  return Misc.fatal_error(tmp);
                 }), m1, m2);
   };
   var union_right = function (m1, m2) {
@@ -752,114 +441,10 @@ function Make_tbl(T) {
   var print = function (f, ppf, s) {
     var elts = function (ppf, s) {
       return Curry._2(iter, (function (id, v) {
-                    return Curry._4(Format.fprintf(ppf, /* Format */{
-                                    _0: {
-                                      TAG: /* Formatting_lit */17,
-                                      _0: {
-                                        TAG: /* Break */0,
-                                        _0: "@ ",
-                                        _1: 1,
-                                        _2: 0
-                                      },
-                                      _1: {
-                                        TAG: /* Char_literal */12,
-                                        _0: /* '(' */40,
-                                        _1: {
-                                          TAG: /* Formatting_gen */18,
-                                          _0: {
-                                            TAG: /* Open_box */1,
-                                            _0: /* Format */{
-                                              _0: /* End_of_format */0,
-                                              _1: ""
-                                            }
-                                          },
-                                          _1: {
-                                            TAG: /* Alpha */15,
-                                            _0: {
-                                              TAG: /* Formatting_lit */17,
-                                              _0: {
-                                                TAG: /* Break */0,
-                                                _0: "@ ",
-                                                _1: 1,
-                                                _2: 0
-                                              },
-                                              _1: {
-                                                TAG: /* Alpha */15,
-                                                _0: {
-                                                  TAG: /* Formatting_lit */17,
-                                                  _0: /* Close_box */0,
-                                                  _1: {
-                                                    TAG: /* Char_literal */12,
-                                                    _0: /* ')' */41,
-                                                    _1: /* End_of_format */0
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    },
-                                    _1: "@ (@[%a@ %a@])"
-                                  }), T.print, id, f, v);
+                    return Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
                   }), s);
     };
-    return Curry._2(Format.fprintf(ppf, /* Format */{
-                    _0: {
-                      TAG: /* Formatting_gen */18,
-                      _0: {
-                        TAG: /* Open_box */1,
-                        _0: /* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "<1>",
-                            _1: /* End_of_format */0
-                          },
-                          _1: "<1>"
-                        }
-                      },
-                      _1: {
-                        TAG: /* Char_literal */12,
-                        _0: /* '{' */123,
-                        _1: {
-                          TAG: /* Formatting_gen */18,
-                          _0: {
-                            TAG: /* Open_box */1,
-                            _0: /* Format */{
-                              _0: /* End_of_format */0,
-                              _1: ""
-                            }
-                          },
-                          _1: {
-                            TAG: /* Alpha */15,
-                            _0: {
-                              TAG: /* Formatting_lit */17,
-                              _0: {
-                                TAG: /* Break */0,
-                                _0: "@ ",
-                                _1: 1,
-                                _2: 0
-                              },
-                              _1: {
-                                TAG: /* Formatting_lit */17,
-                                _0: /* Close_box */0,
-                                _1: {
-                                  TAG: /* Char_literal */12,
-                                  _0: /* '}' */125,
-                                  _1: {
-                                    TAG: /* Formatting_lit */17,
-                                    _0: /* Close_box */0,
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    _1: "@[<1>{@[%a@ @]}@]"
-                  }), elts, s);
+    return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
   var T_set = $$Set.Make({
         compare: T.compare
@@ -1064,122 +649,22 @@ function Make(T) {
   var iter = include.iter;
   var elements = include.elements;
   var output = function (oc, s) {
-    Printf.fprintf(oc, /* Format */{
-          _0: {
-            TAG: /* String_literal */11,
-            _0: " ( ",
-            _1: /* End_of_format */0
-          },
-          _1: " ( "
-        });
+    Curry._1(Printf.fprintf(oc), " ( ");
     Curry._2(iter, (function (v) {
-            return Curry._2(Printf.fprintf(oc, /* Format */{
-                            _0: {
-                              TAG: /* Alpha */15,
-                              _0: {
-                                TAG: /* Char_literal */12,
-                                _0: /* ' ' */32,
-                                _1: /* End_of_format */0
-                              }
-                            },
-                            _1: "%a "
-                          }), T.output, v);
+            return Curry._3(Printf.fprintf(oc), "%a ", T.output, v);
           }), s);
-    return Printf.fprintf(oc, /* Format */{
-                _0: {
-                  TAG: /* Char_literal */12,
-                  _0: /* ')' */41,
-                  _1: /* End_of_format */0
-                },
-                _1: ")"
-              });
+    return Curry._1(Printf.fprintf(oc), ")");
   };
   var print = function (ppf, s) {
     var elts = function (ppf, s) {
       return Curry._2(iter, (function (e) {
-                    return Curry._2(Format.fprintf(ppf, /* Format */{
-                                    _0: {
-                                      TAG: /* Formatting_lit */17,
-                                      _0: {
-                                        TAG: /* Break */0,
-                                        _0: "@ ",
-                                        _1: 1,
-                                        _2: 0
-                                      },
-                                      _1: {
-                                        TAG: /* Alpha */15,
-                                        _0: /* End_of_format */0
-                                      }
-                                    },
-                                    _1: "@ %a"
-                                  }), T.print, e);
+                    return Curry._3(Format.fprintf(ppf), "@ %a", T.print, e);
                   }), s);
     };
-    return Curry._2(Format.fprintf(ppf, /* Format */{
-                    _0: {
-                      TAG: /* Formatting_gen */18,
-                      _0: {
-                        TAG: /* Open_box */1,
-                        _0: /* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "<1>",
-                            _1: /* End_of_format */0
-                          },
-                          _1: "<1>"
-                        }
-                      },
-                      _1: {
-                        TAG: /* Char_literal */12,
-                        _0: /* '{' */123,
-                        _1: {
-                          TAG: /* Formatting_gen */18,
-                          _0: {
-                            TAG: /* Open_box */1,
-                            _0: /* Format */{
-                              _0: /* End_of_format */0,
-                              _1: ""
-                            }
-                          },
-                          _1: {
-                            TAG: /* Alpha */15,
-                            _0: {
-                              TAG: /* Formatting_lit */17,
-                              _0: {
-                                TAG: /* Break */0,
-                                _0: "@ ",
-                                _1: 1,
-                                _2: 0
-                              },
-                              _1: {
-                                TAG: /* Formatting_lit */17,
-                                _0: /* Close_box */0,
-                                _1: {
-                                  TAG: /* Char_literal */12,
-                                  _0: /* '}' */125,
-                                  _1: {
-                                    TAG: /* Formatting_lit */17,
-                                    _0: /* Close_box */0,
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    _1: "@[<1>{@[%a@ @]}@]"
-                  }), elts, s);
+    return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
   var to_string = function (s) {
-    return Curry._2(Format.asprintf(/* Format */{
-                    _0: {
-                      TAG: /* Alpha */15,
-                      _0: /* End_of_format */0
-                    },
-                    _1: "%a"
-                  }), print, s);
+    return Curry._2(Format.asprintf("%a"), print, s);
   };
   var of_list = function (l) {
     if (!l) {
@@ -1297,43 +782,15 @@ function Make(T) {
                   var ok = eq !== undefined ? Curry._2(eq, v1, v2) : false;
                   if (ok) {
                     return Caml_option.some(v1);
-                  } else {
-                    return Misc.fatal_error(print !== undefined ? Curry._6(Format.asprintf(/* Format */{
-                                          _0: {
-                                            TAG: /* String_literal */11,
-                                            _0: "Map.disjoint_union ",
-                                            _1: {
-                                              TAG: /* Alpha */15,
-                                              _0: {
-                                                TAG: /* String_literal */11,
-                                                _0: " => ",
-                                                _1: {
-                                                  TAG: /* Alpha */15,
-                                                  _0: {
-                                                    TAG: /* String_literal */11,
-                                                    _0: " <> ",
-                                                    _1: {
-                                                      TAG: /* Alpha */15,
-                                                      _0: /* End_of_format */0
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          },
-                                          _1: "Map.disjoint_union %a => %a <> %a"
-                                        }), T.print, id, print, v1, print, v2) : Curry._2(Format.asprintf(/* Format */{
-                                          _0: {
-                                            TAG: /* String_literal */11,
-                                            _0: "Map.disjoint_union ",
-                                            _1: {
-                                              TAG: /* Alpha */15,
-                                              _0: /* End_of_format */0
-                                            }
-                                          },
-                                          _1: "Map.disjoint_union %a"
-                                        }), T.print, id));
                   }
+                  var tmp;
+                  if (print !== undefined) {
+                    var print$1 = Caml_option.valFromOption(print);
+                    tmp = Curry._6(Format.asprintf("Map.disjoint_union %a => %a <> %a"), T.print, id, print$1, v1, print$1, v2);
+                  } else {
+                    tmp = Curry._2(Format.asprintf("Map.disjoint_union %a"), T.print, id);
+                  }
+                  return Misc.fatal_error(tmp);
                 }), m1, m2);
   };
   var union_right = function (m1, m2) {
@@ -1391,114 +848,10 @@ function Make(T) {
   var print$1 = function (f, ppf, s) {
     var elts = function (ppf, s) {
       return Curry._2(iter$1, (function (id, v) {
-                    return Curry._4(Format.fprintf(ppf, /* Format */{
-                                    _0: {
-                                      TAG: /* Formatting_lit */17,
-                                      _0: {
-                                        TAG: /* Break */0,
-                                        _0: "@ ",
-                                        _1: 1,
-                                        _2: 0
-                                      },
-                                      _1: {
-                                        TAG: /* Char_literal */12,
-                                        _0: /* '(' */40,
-                                        _1: {
-                                          TAG: /* Formatting_gen */18,
-                                          _0: {
-                                            TAG: /* Open_box */1,
-                                            _0: /* Format */{
-                                              _0: /* End_of_format */0,
-                                              _1: ""
-                                            }
-                                          },
-                                          _1: {
-                                            TAG: /* Alpha */15,
-                                            _0: {
-                                              TAG: /* Formatting_lit */17,
-                                              _0: {
-                                                TAG: /* Break */0,
-                                                _0: "@ ",
-                                                _1: 1,
-                                                _2: 0
-                                              },
-                                              _1: {
-                                                TAG: /* Alpha */15,
-                                                _0: {
-                                                  TAG: /* Formatting_lit */17,
-                                                  _0: /* Close_box */0,
-                                                  _1: {
-                                                    TAG: /* Char_literal */12,
-                                                    _0: /* ')' */41,
-                                                    _1: /* End_of_format */0
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    },
-                                    _1: "@ (@[%a@ %a@])"
-                                  }), T.print, id, f, v);
+                    return Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
                   }), s);
     };
-    return Curry._2(Format.fprintf(ppf, /* Format */{
-                    _0: {
-                      TAG: /* Formatting_gen */18,
-                      _0: {
-                        TAG: /* Open_box */1,
-                        _0: /* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "<1>",
-                            _1: /* End_of_format */0
-                          },
-                          _1: "<1>"
-                        }
-                      },
-                      _1: {
-                        TAG: /* Char_literal */12,
-                        _0: /* '{' */123,
-                        _1: {
-                          TAG: /* Formatting_gen */18,
-                          _0: {
-                            TAG: /* Open_box */1,
-                            _0: /* Format */{
-                              _0: /* End_of_format */0,
-                              _1: ""
-                            }
-                          },
-                          _1: {
-                            TAG: /* Alpha */15,
-                            _0: {
-                              TAG: /* Formatting_lit */17,
-                              _0: {
-                                TAG: /* Break */0,
-                                _0: "@ ",
-                                _1: 1,
-                                _2: 0
-                              },
-                              _1: {
-                                TAG: /* Formatting_lit */17,
-                                _0: /* Close_box */0,
-                                _1: {
-                                  TAG: /* Char_literal */12,
-                                  _0: /* '}' */125,
-                                  _1: {
-                                    TAG: /* Formatting_lit */17,
-                                    _0: /* Close_box */0,
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    _1: "@[<1>{@[%a@ @]}@]"
-                  }), elts, s);
+    return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
   var T_set = $$Set.Make({
         compare: T.compare
@@ -1661,43 +1014,15 @@ function Make(T) {
                   var ok = eq !== undefined ? Curry._2(eq, v1, v2) : false;
                   if (ok) {
                     return Caml_option.some(v1);
-                  } else {
-                    return Misc.fatal_error(print !== undefined ? Curry._6(Format.asprintf(/* Format */{
-                                          _0: {
-                                            TAG: /* String_literal */11,
-                                            _0: "Map.disjoint_union ",
-                                            _1: {
-                                              TAG: /* Alpha */15,
-                                              _0: {
-                                                TAG: /* String_literal */11,
-                                                _0: " => ",
-                                                _1: {
-                                                  TAG: /* Alpha */15,
-                                                  _0: {
-                                                    TAG: /* String_literal */11,
-                                                    _0: " <> ",
-                                                    _1: {
-                                                      TAG: /* Alpha */15,
-                                                      _0: /* End_of_format */0
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          },
-                                          _1: "Map.disjoint_union %a => %a <> %a"
-                                        }), T.print, id, print, v1, print, v2) : Curry._2(Format.asprintf(/* Format */{
-                                          _0: {
-                                            TAG: /* String_literal */11,
-                                            _0: "Map.disjoint_union ",
-                                            _1: {
-                                              TAG: /* Alpha */15,
-                                              _0: /* End_of_format */0
-                                            }
-                                          },
-                                          _1: "Map.disjoint_union %a"
-                                        }), T.print, id));
                   }
+                  var tmp;
+                  if (print !== undefined) {
+                    var print$1 = Caml_option.valFromOption(print);
+                    tmp = Curry._6(Format.asprintf("Map.disjoint_union %a => %a <> %a"), T.print, id, print$1, v1, print$1, v2);
+                  } else {
+                    tmp = Curry._2(Format.asprintf("Map.disjoint_union %a"), T.print, id);
+                  }
+                  return Misc.fatal_error(tmp);
                 }), m1, m2);
   };
   var union_right$1 = function (m1, m2) {
@@ -1755,114 +1080,10 @@ function Make(T) {
   var print$2 = function (f, ppf, s) {
     var elts = function (ppf, s) {
       return Curry._2(iter$2, (function (id, v) {
-                    return Curry._4(Format.fprintf(ppf, /* Format */{
-                                    _0: {
-                                      TAG: /* Formatting_lit */17,
-                                      _0: {
-                                        TAG: /* Break */0,
-                                        _0: "@ ",
-                                        _1: 1,
-                                        _2: 0
-                                      },
-                                      _1: {
-                                        TAG: /* Char_literal */12,
-                                        _0: /* '(' */40,
-                                        _1: {
-                                          TAG: /* Formatting_gen */18,
-                                          _0: {
-                                            TAG: /* Open_box */1,
-                                            _0: /* Format */{
-                                              _0: /* End_of_format */0,
-                                              _1: ""
-                                            }
-                                          },
-                                          _1: {
-                                            TAG: /* Alpha */15,
-                                            _0: {
-                                              TAG: /* Formatting_lit */17,
-                                              _0: {
-                                                TAG: /* Break */0,
-                                                _0: "@ ",
-                                                _1: 1,
-                                                _2: 0
-                                              },
-                                              _1: {
-                                                TAG: /* Alpha */15,
-                                                _0: {
-                                                  TAG: /* Formatting_lit */17,
-                                                  _0: /* Close_box */0,
-                                                  _1: {
-                                                    TAG: /* Char_literal */12,
-                                                    _0: /* ')' */41,
-                                                    _1: /* End_of_format */0
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    },
-                                    _1: "@ (@[%a@ %a@])"
-                                  }), T.print, id, f, v);
+                    return Curry._5(Format.fprintf(ppf), "@ (@[%a@ %a@])", T.print, id, f, v);
                   }), s);
     };
-    return Curry._2(Format.fprintf(ppf, /* Format */{
-                    _0: {
-                      TAG: /* Formatting_gen */18,
-                      _0: {
-                        TAG: /* Open_box */1,
-                        _0: /* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "<1>",
-                            _1: /* End_of_format */0
-                          },
-                          _1: "<1>"
-                        }
-                      },
-                      _1: {
-                        TAG: /* Char_literal */12,
-                        _0: /* '{' */123,
-                        _1: {
-                          TAG: /* Formatting_gen */18,
-                          _0: {
-                            TAG: /* Open_box */1,
-                            _0: /* Format */{
-                              _0: /* End_of_format */0,
-                              _1: ""
-                            }
-                          },
-                          _1: {
-                            TAG: /* Alpha */15,
-                            _0: {
-                              TAG: /* Formatting_lit */17,
-                              _0: {
-                                TAG: /* Break */0,
-                                _0: "@ ",
-                                _1: 1,
-                                _2: 0
-                              },
-                              _1: {
-                                TAG: /* Formatting_lit */17,
-                                _0: /* Close_box */0,
-                                _1: {
-                                  TAG: /* Char_literal */12,
-                                  _0: /* '}' */125,
-                                  _1: {
-                                    TAG: /* Formatting_lit */17,
-                                    _0: /* Close_box */0,
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    _1: "@[<1>{@[%a@ @]}@]"
-                  }), elts, s);
+    return Curry._3(Format.fprintf(ppf), "@[<1>{@[%a@ @]}@]", elts, s);
   };
   var T_set$1 = $$Set.Make({
         compare: T.compare

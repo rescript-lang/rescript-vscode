@@ -15,11 +15,13 @@
 
 /* Errors */
 
+open P
+
 exception Fatal_error
 
 @raises(Fatal_error)
 let fatal_error = msg => {
-  prerr_string(">> Fatal error: ")
+  print_string(">> Fatal error: ")
   prerr_endline(msg)
   raise(Fatal_error)
 }
@@ -322,6 +324,7 @@ let find_in_path_uncap = (path, name) => {
   try_dir(path)
 }
 
+
 let remove_file = filename =>
   try if Sys.file_exists(filename) {
     Sys.remove(filename)
@@ -407,7 +410,7 @@ let string_of_file = ic => {
 
 @raises([Sys_error, genericException])
 let output_to_file_via_temporary = (~mode=list{Open_text}, filename, fn) => {
-  let (temp_filename, oc) = Filename.open_temp_file(
+  let (temp_filename, oc) = open_temp_file(
     ~mode,
     ~perms=0o666,
     ~temp_dir=Filename.dirname(filename),
@@ -860,18 +863,7 @@ module Color = {
 
   /* add color handling to formatter [ppf] */
   let set_color_tag_handling = ppf => {
-    open Format
-    let functions = pp_get_formatter_tag_functions(ppf, ())
-    let functions' = {
-      ...functions,
-      mark_open_tag: mark_open_tag(~or_else=functions.mark_open_tag),
-      mark_close_tag: mark_close_tag(~or_else=functions.mark_close_tag),
-    }
-    pp_set_mark_tags(ppf, true) /* enable tags */
-    pp_set_formatter_tag_functions(ppf, functions')
-    /* also setup margins */
-    pp_set_margin(ppf, pp_get_margin(std_formatter, ()))
-    ()
+    assert false
   }
 
   external isatty: out_channel => bool = "caml_sys_isatty"

@@ -301,7 +301,7 @@ let color: ref<option<string>> = ref(None) /* -color */
 let unboxed_types = ref(false)
 
 let arg_spec = ref(list{})
-let arg_names = ref(Misc.StringMap.empty)
+let arg_names : ref<Misc.StringMap.t<int>> = ref(Misc.StringMap.empty)
 
 let reset_arguments = () => {
   arg_spec := list{}

@@ -1,3 +1,5 @@
+open P
+
 module Diagnostics = Res_diagnostics
 module Token = Res_token
 module Comment = Res_comment
