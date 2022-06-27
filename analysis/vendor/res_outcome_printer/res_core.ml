@@ -161,6 +161,15 @@ let jsxAttr = (Location.mknoloc "JSX", Parsetree.PStr [])
 let uncurryAttr = (Location.mknoloc "bs", Parsetree.PStr [])
 let ternaryAttr = (Location.mknoloc "ns.ternary", Parsetree.PStr [])
 let ifLetAttr = (Location.mknoloc "ns.iflet", Parsetree.PStr [])
+let optionalAttr = (Location.mknoloc "ns.optional", Parsetree.PStr [])
+
+let makeExpressionOptional ~optional (e : Parsetree.expression) =
+  if optional then {e with pexp_attributes = optionalAttr :: e.pexp_attributes}
+  else e
+let makePatternOptional ~optional (p : Parsetree.pattern) =
+  if optional then {p with ppat_attributes = optionalAttr :: p.ppat_attributes}
+  else p
+
 let suppressFragileMatchWarningAttr =
   ( Location.mknoloc "warning",
     Parsetree.PStr
@@ -1032,7 +1041,11 @@ let rec parsePattern ?(alias = true) ?(or_ = true) p =
         | _ ->
           Parser.expect Rparen p;
           let loc = mkLoc startPos p.prevEndPos in
-          {pat with ppat_loc = loc}))
+          {
+            pat with
+            ppat_loc = loc;
+            ppat_attributes = attrs @ pat.Parsetree.ppat_attributes;
+          }))
     | Lbracket -> parseArrayPattern ~attrs p
     | Lbrace -> parseRecordPattern ~attrs p
     | Underscore ->
@@ -1196,6 +1209,13 @@ and parseConstrainedPatternRegion p =
   | token when Grammar.isPatternStart token -> Some (parseConstrainedPattern p)
   | _ -> None
 
+and parseOptionalLabel p =
+  match p.Parser.token with
+  | Question ->
+    Parser.next p;
+    true
+  | _ -> false
+
 (* field ::=
  *   | longident
  *   | longident : pattern
@@ -1206,26 +1226,37 @@ and parseConstrainedPatternRegion p =
  *	 | field , _
  *	 | field , _,
  *)
-and parseRecordPatternField p =
+and parseRecordPatternRowField ~attrs p =
   let label = parseValuePath p in
   let pattern =
     match p.Parser.token with
     | Colon ->
       Parser.next p;
-      parsePattern p
+      let optional = parseOptionalLabel p in
+      let pat = parsePattern p in
+      makePatternOptional ~optional pat
     | _ ->
-      Ast_helper.Pat.var ~loc:label.loc
+      Ast_helper.Pat.var ~loc:label.loc ~attrs
         (Location.mkloc (Longident.last label.txt) label.loc)
   in
   (label, pattern)
 
 (* TODO: there are better representations than PatField|Underscore ? *)
-and parseRecordPatternItem p =
+and parseRecordPatternRow p =
+  let attrs = parseAttributes p in
   match p.Parser.token with
   | DotDotDot ->
     Parser.next p;
-    Some (true, PatField (parseRecordPatternField p))
-  | Uident _ | Lident _ -> Some (false, PatField (parseRecordPatternField p))
+    Some (true, PatField (parseRecordPatternRowField ~attrs p))
+  | Uident _ | Lident _ ->
+    Some (false, PatField (parseRecordPatternRowField ~attrs p))
+  | Question -> (
+    Parser.next p;
+    match p.token with
+    | Uident _ | Lident _ ->
+      let lid, pat = parseRecordPatternRowField ~attrs p in
+      Some (false, PatField (lid, makePatternOptional ~optional:true pat))
+    | _ -> None)
   | Underscore ->
     Parser.next p;
     Some (false, PatUnderscore)
@@ -1236,7 +1267,7 @@ and parseRecordPattern ~attrs p =
   Parser.expect Lbrace p;
   let rawFields =
     parseCommaDelimitedReversedList p ~grammar:PatternRecord ~closing:Rbrace
-      ~f:parseRecordPatternItem
+      ~f:parseRecordPatternRow
   in
   Parser.expect Rbrace p;
   let fields, closedFlag =
@@ -2735,6 +2766,10 @@ and parseBracedOrRecordExpr p =
         let loc = mkLoc startPos p.prevEndPos in
         let braces = makeBracesAttr loc in
         {expr with pexp_attributes = braces :: expr.pexp_attributes}))
+  | Question ->
+    let expr = parseRecordExpr ~startPos [] p in
+    Parser.expect Rbrace p;
+    expr
   | Uident _ | Lident _ -> (
     let startToken = p.token in
     let valueOrConstructor = parseValueOrConstructor p in
@@ -2756,7 +2791,9 @@ and parseBracedOrRecordExpr p =
         expr
       | Colon -> (
         Parser.next p;
+        let optional = parseOptionalLabel p in
         let fieldExpr = parseExpr p in
+        let fieldExpr = makeExpressionOptional ~optional fieldExpr in
         match p.token with
         | Rbrace ->
           Parser.next p;
@@ -2893,7 +2930,7 @@ and parseBracedOrRecordExpr p =
     let braces = makeBracesAttr loc in
     {expr with pexp_attributes = braces :: expr.pexp_attributes}
 
-and parseRecordRowWithStringKey p =
+and parseRecordExprRowWithStringKey p =
   match p.Parser.token with
   | String s -> (
     let loc = mkLoc p.startPos p.endPos in
@@ -2907,7 +2944,8 @@ and parseRecordRowWithStringKey p =
     | _ -> Some (field, Ast_helper.Exp.ident ~loc:field.loc field))
   | _ -> None
 
-and parseRecordRow p =
+and parseRecordExprRow p =
+  let attrs = parseAttributes p in
   let () =
     match p.Parser.token with
     | Token.DotDotDot ->
@@ -2922,23 +2960,39 @@ and parseRecordRow p =
     match p.Parser.token with
     | Colon ->
       Parser.next p;
+      let optional = parseOptionalLabel p in
       let fieldExpr = parseExpr p in
+      let fieldExpr = makeExpressionOptional ~optional fieldExpr in
       Some (field, fieldExpr)
     | _ ->
-      let value = Ast_helper.Exp.ident ~loc:field.loc field in
+      let value = Ast_helper.Exp.ident ~loc:field.loc ~attrs field in
       let value =
         match startToken with
         | Uident _ -> removeModuleNameFromPunnedFieldValue value
         | _ -> value
       in
       Some (field, value))
+  | Question -> (
+    Parser.next p;
+    match p.Parser.token with
+    | Lident _ | Uident _ ->
+      let startToken = p.token in
+      let field = parseValuePath p in
+      let value = Ast_helper.Exp.ident ~loc:field.loc ~attrs field in
+      let value =
+        match startToken with
+        | Uident _ -> removeModuleNameFromPunnedFieldValue value
+        | _ -> value
+      in
+      Some (field, makeExpressionOptional ~optional:true value)
+    | _ -> None)
   | _ -> None
 
 and parseRecordExprWithStringKeys ~startPos firstRow p =
   let rows =
     firstRow
     :: parseCommaDelimitedRegion ~grammar:Grammar.RecordRowsStringKey
-         ~closing:Rbrace ~f:parseRecordRowWithStringKey p
+         ~closing:Rbrace ~f:parseRecordExprRowWithStringKey p
   in
   let loc = mkLoc startPos p.endPos in
   let recordStrExpr =
@@ -2950,7 +3004,7 @@ and parseRecordExprWithStringKeys ~startPos firstRow p =
 and parseRecordExpr ~startPos ?(spread = None) rows p =
   let exprs =
     parseCommaDelimitedRegion ~grammar:Grammar.RecordRows ~closing:Rbrace
-      ~f:parseRecordRow p
+      ~f:parseRecordExprRow p
   in
   let rows = List.concat [rows; exprs] in
   let () =
@@ -4224,15 +4278,19 @@ and parseFieldDeclarationRegion p =
   | Lident _ ->
     let lident, loc = parseLident p in
     let name = Location.mkloc lident loc in
+    let optional = parseOptionalLabel p in
     let typ =
       match p.Parser.token with
       | Colon ->
         Parser.next p;
         parsePolyTypeExpr p
       | _ ->
-        Ast_helper.Typ.constr ~loc:name.loc {name with txt = Lident name.txt} []
+        Ast_helper.Typ.constr ~loc:name.loc ~attrs
+          {name with txt = Lident name.txt}
+          []
     in
     let loc = mkLoc startPos typ.ptyp_loc.loc_end in
+    let attrs = if optional then optionalAttr :: attrs else attrs in
     Some (Ast_helper.Type.field ~attrs ~loc ~mut name typ)
   | _ -> None
 

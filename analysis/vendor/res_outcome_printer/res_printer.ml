@@ -523,6 +523,10 @@ let printConstant ?(templateLiteral = false) c =
     in
     Doc.text ("'" ^ str ^ "'")
 
+let printOptionalLabel attrs =
+  if Res_parsetree_viewer.hasOptionalAttribute attrs then Doc.text "?"
+  else Doc.nil
+
 let rec printStructure (s : Parsetree.structure) t =
   match s with
   | [] -> printCommentsInside t Location.none
@@ -1426,10 +1430,16 @@ and printLabelDeclaration (ld : Parsetree.label_declaration) cmtTbl =
     let doc = printIdentLike ld.pld_name.txt in
     printComments doc cmtTbl ld.pld_name.loc
   in
+  let optional = printOptionalLabel ld.pld_attributes in
   Doc.group
     (Doc.concat
        [
-         attrs; mutableFlag; name; Doc.text ": "; printTypExpr ld.pld_type cmtTbl;
+         attrs;
+         mutableFlag;
+         name;
+         optional;
+         Doc.text ": ";
+         printTypExpr ld.pld_type cmtTbl;
        ])
 
 and printTypExpr (typExpr : Parsetree.core_type) cmtTbl =
@@ -2342,16 +2352,24 @@ and printPatternRecordRow row cmtTbl =
   match row with
   (* punned {x}*)
   | ( ({Location.txt = Longident.Lident ident} as longident),
-      {Parsetree.ppat_desc = Ppat_var {txt; _}} )
+      {Parsetree.ppat_desc = Ppat_var {txt; _}; ppat_attributes} )
     when ident = txt ->
-    printLidentPath longident cmtTbl
+    Doc.concat
+      [
+        printOptionalLabel ppat_attributes;
+        printAttributes ppat_attributes cmtTbl;
+        printLidentPath longident cmtTbl;
+      ]
   | longident, pattern ->
     let locForComments =
       {longident.loc with loc_end = pattern.Parsetree.ppat_loc.loc_end}
     in
     let rhsDoc =
       let doc = printPattern pattern cmtTbl in
-      if Parens.patternRecordRowRhs pattern then addParens doc else doc
+      let doc =
+        if Parens.patternRecordRowRhs pattern then addParens doc else doc
+      in
+      Doc.concat [printOptionalLabel pattern.ppat_attributes; doc]
     in
     let doc =
       Doc.group
@@ -2716,7 +2734,8 @@ and printExpression (e : Parsetree.expression) cmtTbl =
                     Doc.join
                       ~sep:(Doc.concat [Doc.text ","; Doc.line])
                       (List.map
-                         (fun row -> printRecordRow row cmtTbl punningAllowed)
+                         (fun row ->
+                           printExpressionRecordRow row cmtTbl punningAllowed)
                          rows);
                   ]);
              Doc.trailingComma;
@@ -4638,7 +4657,7 @@ and printDirectionFlag flag =
   | Asttypes.Downto -> Doc.text " downto "
   | Asttypes.Upto -> Doc.text " to "
 
-and printRecordRow (lbl, expr) cmtTbl punningAllowed =
+and printExpressionRecordRow (lbl, expr) cmtTbl punningAllowed =
   let cmtLoc = {lbl.loc with loc_end = expr.pexp_loc.loc_end} in
   let doc =
     Doc.group
@@ -4646,12 +4665,18 @@ and printRecordRow (lbl, expr) cmtTbl punningAllowed =
       | Pexp_ident {txt = Lident key; loc = _keyLoc}
         when punningAllowed && Longident.last lbl.txt = key ->
         (* print punned field *)
-        printLidentPath lbl cmtTbl
+        Doc.concat
+          [
+            printAttributes expr.pexp_attributes cmtTbl;
+            printOptionalLabel expr.pexp_attributes;
+            printLidentPath lbl cmtTbl;
+          ]
       | _ ->
         Doc.concat
           [
             printLidentPath lbl cmtTbl;
             Doc.text ": ";
+            printOptionalLabel expr.pexp_attributes;
             (let doc = printExpressionWithComments expr cmtTbl in
              match Parens.expr expr with
              | Parens.Parenthesized -> addParens doc

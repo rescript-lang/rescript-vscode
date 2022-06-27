@@ -83,6 +83,7 @@ val filterFragileMatchAttributes : Parsetree.attributes -> Parsetree.attributes
 
 val isJsxExpression : Parsetree.expression -> bool
 val hasJsxAttribute : Parsetree.attributes -> bool
+val hasOptionalAttribute : Parsetree.attributes -> bool
 
 val shouldIndentBinaryExpr : Parsetree.expression -> bool
 val shouldInlineRhsBinaryExpr : Parsetree.expression -> bool
