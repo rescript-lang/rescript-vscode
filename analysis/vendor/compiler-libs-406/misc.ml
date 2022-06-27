@@ -17,8 +17,6 @@
 
 exception Fatal_error
 
-
-
 let fatal_error msg =
   prerr_string ">> Fatal error: "; prerr_endline msg; raise Fatal_error
 
@@ -272,12 +270,6 @@ let string_of_file ic =
     if n = 0 then Buffer.contents b else
       (Buffer.add_subbytes b buff 0 n; copy())
   in copy()
-
-let output_to_bin_file_directly filename fn =  
-  let oc = open_out_bin filename in 
-  match fn filename oc with 
-  | v -> close_out oc ; v 
-  | exception e -> close_out oc ; raise e
 
 let output_to_file_via_temporary ?(mode = [Open_text]) filename fn =
   let (temp_filename, oc) =
@@ -545,7 +537,6 @@ module Color = struct
     | BG of color (* background *)
     | Bold
     | Reset
-    | Dim
 
   let ansi_of_color = function
     | Black -> "0"
@@ -562,7 +553,6 @@ module Color = struct
     | BG c -> "4" ^ ansi_of_color c
     | Bold -> "1"
     | Reset -> "0"
-    | Dim -> "2"
 
   let ansi_of_style_l l =
     let s = match l with
@@ -590,40 +580,37 @@ module Color = struct
 
   (* map a tag to a style, if the tag is known.
      @raise Not_found otherwise *)
-  let style_of_stag s = match s with
-    | Format.String_tag "error" -> (!cur_styles).error
-    | Format.String_tag "warning" -> (!cur_styles).warning
-    | Format.String_tag "loc" -> (!cur_styles).loc
-    | Format.String_tag "info" -> [Bold; FG Yellow]
-    | Format.String_tag "dim" -> [Dim]
-    | Format.String_tag "filename" -> [FG Cyan]
+  let style_of_tag s = match s with
+    | "error" -> (!cur_styles).error
+    | "warning" -> (!cur_styles).warning
+    | "loc" -> (!cur_styles).loc
     | _ -> raise Not_found
 
   let color_enabled = ref true
 
   (* either prints the tag of [s] or delegates to [or_else] *)
-  let mark_open_stag ~or_else s =
+  let mark_open_tag ~or_else s =
     try
-      let style = style_of_stag s in
+      let style = style_of_tag s in
       if !color_enabled then ansi_of_style_l style else ""
     with Not_found -> or_else s
 
-  let mark_close_stag ~or_else s =
+  let mark_close_tag ~or_else s =
     try
-      let _ = style_of_stag s in
+      let _ = style_of_tag s in
       if !color_enabled then ansi_of_style_l [Reset] else ""
     with Not_found -> or_else s
 
   (* add color handling to formatter [ppf] *)
   let set_color_tag_handling ppf =
     let open Format in
-    let functions = pp_get_formatter_stag_functions ppf () in
+    let functions = pp_get_formatter_tag_functions ppf () in
     let functions' = {functions with
-      mark_open_stag=(mark_open_stag ~or_else:functions.mark_open_stag);
-      mark_close_stag=(mark_close_stag ~or_else:functions.mark_close_stag);
+      mark_open_tag=(mark_open_tag ~or_else:functions.mark_open_tag);
+      mark_close_tag=(mark_close_tag ~or_else:functions.mark_close_tag);
     } in
     pp_set_mark_tags ppf true; (* enable tags *)
-    pp_set_formatter_stag_functions ppf functions';
+    pp_set_formatter_tag_functions ppf functions';
     (* also setup margins *)
     pp_set_margin ppf (pp_get_margin std_formatter());
     ()

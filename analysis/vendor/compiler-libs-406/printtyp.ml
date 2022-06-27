@@ -574,7 +574,7 @@ let reset_and_mark_loops_list tyl =
   reset (); List.iter mark_loops tyl
 
 (* Disabled in classic mode when printing an unification error *)
-
+let print_labels = ref true
 
 let rec tree_of_typexp sch ty =
   let ty = repr ty in
@@ -595,7 +595,7 @@ let rec tree_of_typexp sch ty =
     | Tarrow(l, ty1, ty2, _) ->
         let pr_arrow l ty1 ty2 =
           let lab =
-            string_of_label l
+            if !print_labels || is_optional l then string_of_label l else ""
           in
           let t1 =
             if is_optional l then
@@ -926,7 +926,11 @@ and tree_of_constructor cd =
       (name, args, Some ret)
 
 and tree_of_label l =
-  (Ident.name l.ld_id, l.ld_mutable = Mutable, tree_of_typexp false l.ld_type)
+  let opt = l.ld_attributes |> List.exists (fun ({txt}, _) -> txt = "optional") in
+  let typ = match l.ld_type.desc with
+    | Tconstr (p, [t1], _) when Path.same p Predef.path_option -> t1
+    | _ -> l.ld_type in
+  (Ident.name l.ld_id, l.ld_mutable = Mutable, opt, tree_of_typexp false typ)
 
 let tree_of_type_declaration id decl rs =
   Osig_type (tree_of_type_decl id decl, tree_of_rec rs)
@@ -1096,7 +1100,7 @@ let rec tree_of_class_type sch params =
       Octy_signature (self_ty, List.rev csil)
   | Cty_arrow (l, ty, cty) ->
       let lab =
-         string_of_label l
+        if !print_labels || is_optional l then string_of_label l else ""
       in
       let ty =
        if is_optional l then
@@ -1468,10 +1472,10 @@ let explanation unif t3 t4 ppf =
       fprintf ppf "@,Types for method %s are incompatible" l
   | (Tnil|Tconstr _), Tfield (l, _, _, _) ->
       fprintf ppf
-        "@,@[The first object type has no field %s@]" l
+        "@,@[The first object type has no method %s@]" l
   | Tfield (l, _, _, _), (Tnil|Tconstr _) ->
       fprintf ppf
-        "@,@[The second object type has no field %s@]" l
+        "@,@[The second object type has no method %s@]" l
   | Tnil, Tconstr _ | Tconstr _, Tnil ->
       fprintf ppf
         "@,@[The %s object type has an abstract row, it cannot be closed@]"
@@ -1551,6 +1555,7 @@ let unification_error env unif tr txt1 ppf txt2 =
       let tr = filter_trace (mis = None) tr in
       let t1, t1' = may_prepare_expansion (tr = []) t1
       and t2, t2' = may_prepare_expansion (tr = []) t2 in
+      print_labels := not !Clflags.classic;
       let tr = List.map prepare_expansion tr in
       fprintf ppf
         "@[<v>\
@@ -1567,7 +1572,9 @@ let unification_error env unif tr txt1 ppf txt2 =
         warn_on_missing_def env ppf t1;
         warn_on_missing_def env ppf t2
       end;
+      print_labels := true
     with exn ->
+      print_labels := true;
       raise exn
 
 let report_unification_error ppf env ?(unif=true)
@@ -1575,85 +1582,17 @@ let report_unification_error ppf env ?(unif=true)
   wrap_printing_env env (fun () -> unification_error env unif tr txt1 ppf txt2)
 ;;
 
-let super_type_expansion ~tag t ppf t' =
-  if same_path t t' then begin
-    Format.pp_open_stag ppf tag;
-    type_expr ppf t;
-    Format.pp_close_stag ppf ();
-  end else begin
-    let t' = if proxy t == proxy t' then unalias t' else t' in
-    fprintf ppf "@[<2>";
-    Format.pp_open_stag ppf tag;
-    fprintf ppf "%a" type_expr t;
-    Format.pp_close_stag ppf ();
-    fprintf ppf "@ @{<dim>(defined as@}@ ";
-    Format.pp_open_stag ppf tag;
-    fprintf ppf "%a" type_expr t';
-    Format.pp_close_stag ppf ();
-    fprintf ppf "@{<dim>)@}";
-    fprintf ppf "@]";
-  end
-
-let super_trace ppf =
-  let rec super_trace first_report ppf = function
-    | (t1, t1') :: (t2, t2') :: rem ->
-      fprintf ppf
-        "@,@,@[<v 2>";
-      if first_report then
-        fprintf ppf "The incompatible parts:@,"
-      else begin
-        fprintf ppf "Further expanded:@,"
-      end;
-      fprintf ppf
-        "@[<hov>%a@ vs@ %a@]%a"
-        (super_type_expansion ~tag: (String_tag "error") t1) t1'
-        (super_type_expansion ~tag: (String_tag "info") t2) t2'
-        (super_trace false) rem;
-      fprintf ppf "@]"
-    | _ -> ()
-  in super_trace true ppf
-
-let super_unification_error unif tr txt1 ppf txt2 = begin
-  reset ();
-  trace_same_names tr;
-  let tr = List.map (fun (t, t') -> (t, hide_variant_name t')) tr in
-  let mis = mismatch tr in
-  match tr with
-  | [] | _ :: [] -> assert false
-  | t1 :: t2 :: tr ->
-    try
-      let tr = filter_trace (mis = None) tr in
-      let t1, t1' = may_prepare_expansion (tr = []) t1
-      and t2, t2' = may_prepare_expansion (tr = []) t2 in
-      let tr = List.map prepare_expansion tr in
-      fprintf ppf
-        "@[<v 0>\
-          @[<hov 2>%t@ %a@]@,\
-          @[<hov 2>%t@ %a@]\
-          %a\
-          %t\
-        @]"
-        txt1 (super_type_expansion ~tag:(String_tag "error") t1) t1'
-        txt2 (super_type_expansion ~tag:(String_tag "info") t2) t2'
-        super_trace tr
-        (explanation unif mis);
-    with exn ->
-      raise exn
-end
-
-let super_report_unification_error ppf env ?(unif=true)
-    tr txt1 txt2 =
-  wrap_printing_env env (fun () -> super_unification_error unif tr txt1 ppf txt2)
-;;
-
 let trace fst keep_last txt ppf tr =
+  print_labels := not !Clflags.classic;
   trace_same_names tr;
   try match tr with
     t1 :: t2 :: tr' ->
       if fst then trace fst txt ppf (t1 :: t2 :: filter_trace keep_last tr')
       else trace fst txt ppf (filter_trace keep_last tr);
+      print_labels := true
   | _ -> ()
   with exn ->
+    print_labels := true;
     raise exn
 
 let report_subtyping_error ppf env tr1 txt1 tr2 =

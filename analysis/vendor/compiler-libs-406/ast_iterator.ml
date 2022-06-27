@@ -29,6 +29,8 @@ type iterator = {
   attributes: iterator -> attribute list -> unit;
   case: iterator -> case -> unit;
   cases: iterator -> case list -> unit;
+  class_declaration: iterator -> class_declaration -> unit;
+  class_description: iterator -> class_description -> unit;
   class_expr: iterator -> class_expr -> unit;
   class_field: iterator -> class_field -> unit;
   class_signature: iterator -> class_signature -> unit;
@@ -248,7 +250,7 @@ module MT = struct
     | Psig_modtype x -> sub.module_type_declaration sub x
     | Psig_open x -> sub.open_description sub x
     | Psig_include x -> sub.include_description sub x
-    | Psig_class () -> ()
+    | Psig_class l -> List.iter (sub.class_description sub) l
     | Psig_class_type l ->
         List.iter (sub.class_type_declaration sub) l
     | Psig_extension (x, attrs) ->
@@ -291,7 +293,7 @@ module M = struct
     | Pstr_recmodule l -> List.iter (sub.module_binding sub) l
     | Pstr_modtype x -> sub.module_type_declaration sub x
     | Pstr_open x -> sub.open_description sub x
-    | Pstr_class () -> ()
+    | Pstr_class l -> List.iter (sub.class_declaration sub) l
     | Pstr_class_type l ->
         List.iter (sub.class_type_declaration sub) l
     | Pstr_include x -> sub.include_declaration sub x
@@ -443,7 +445,7 @@ module CE = struct
     sub.location sub loc;
     sub.attributes sub attrs;
     match desc with
-    | Pcf_inherit () -> ()
+    | Pcf_inherit (_o, ce, _s) -> sub.class_expr sub ce
     | Pcf_val (s, _m, k) -> iter_loc sub s; iter_kind sub k
     | Pcf_method (s, _p, k) ->
         iter_loc sub s; iter_kind sub k
@@ -479,6 +481,8 @@ let default_iterator =
     signature_item = MT.iter_signature_item;
     module_type = MT.iter;
     with_constraint = MT.iter_with_constraint;
+    class_declaration =
+      (fun this -> CE.class_infos this (this.class_expr this));
     class_expr = CE.iter;
     class_field = CE.iter_field;
     class_structure = CE.iter_structure;
@@ -486,6 +490,8 @@ let default_iterator =
     class_type_field = CT.iter_field;
     class_signature = CT.iter_signature;
     class_type_declaration =
+      (fun this -> CE.class_infos this (this.class_type this));
+    class_description =
       (fun this -> CE.class_infos this (this.class_type this));
     type_declaration = T.iter_type_declaration;
     type_kind = T.iter_type_kind;

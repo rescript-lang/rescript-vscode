@@ -267,6 +267,7 @@ module Sig:
     val modtype: ?loc:loc -> module_type_declaration -> signature_item
     val open_: ?loc:loc -> open_description -> signature_item
     val include_: ?loc:loc -> include_description -> signature_item
+    val class_: ?loc:loc -> class_description list -> signature_item
     val class_type: ?loc:loc -> class_type_declaration list -> signature_item
     val extension: ?loc:loc -> ?attrs:attrs -> extension -> signature_item
     val attribute: ?loc:loc -> attribute -> signature_item
@@ -288,6 +289,7 @@ module Str:
     val rec_module: ?loc:loc -> module_binding list -> structure_item
     val modtype: ?loc:loc -> module_type_declaration -> structure_item
     val open_: ?loc:loc -> open_description -> structure_item
+    val class_: ?loc:loc -> class_declaration list -> structure_item
     val class_type: ?loc:loc -> class_type_declaration list -> structure_item
     val include_: ?loc:loc -> include_declaration -> structure_item
     val extension: ?loc:loc -> ?attrs:attrs -> extension -> structure_item
@@ -401,6 +403,8 @@ module Cf:
       class_field
     val attr: class_field -> attribute -> class_field
 
+    val inherit_: ?loc:loc -> ?attrs:attrs -> override_flag -> class_expr ->
+      str option -> class_field
     val val_: ?loc:loc -> ?attrs:attrs -> str -> mutable_flag ->
       class_field_kind -> class_field
     val method_: ?loc:loc -> ?attrs:attrs -> str -> private_flag ->

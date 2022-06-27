@@ -233,8 +233,7 @@ and expression =
     {
      pexp_desc: expression_desc;
      pexp_loc: Location.t;
-     mutable (* Careful, the original parse tree is not mutable *)
-     pexp_attributes: attributes; (* ... [@id1] [@id2] *)
+     mutable pexp_attributes: attributes; (* ... [@id1] [@id2] *)
     }
 
 and expression_desc =
@@ -619,7 +618,7 @@ and class_field =
     }
 
 and class_field_desc =
-  | Pcf_inherit of unit
+  | Pcf_inherit of override_flag * class_expr * string loc option
         (* inherit CE
            inherit CE as x
            inherit! CE
@@ -646,7 +645,7 @@ and class_field_kind =
   | Cfk_virtual of core_type
   | Cfk_concrete of override_flag * expression
 
-
+and class_declaration = class_expr class_infos
 
 (** {1 Module language} *)
 
@@ -706,7 +705,7 @@ and signature_item_desc =
         (* open X *)
   | Psig_include of include_description
         (* include MT *)
-  | Psig_class of unit
+  | Psig_class of class_description list
         (* class c1 : ... and ... and cn : ... *)
   | Psig_class_type of class_type_declaration list
         (* class type ct1 = ... and ... and ctn = ... *)
@@ -831,8 +830,8 @@ and structure_item_desc =
         (* module type S = MT *)
   | Pstr_open of open_description
         (* open X *)
-  | Pstr_class of unit
-        (* Dummy AST node *)
+  | Pstr_class of class_declaration list
+        (* class c1 = ... and ... and cn = ... *)
   | Pstr_class_type of class_type_declaration list
         (* class type ct1 = ... and ... and ctn = ... *)
   | Pstr_include of include_declaration

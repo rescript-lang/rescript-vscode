@@ -96,6 +96,15 @@ type value_description =
 and value_kind =
     Val_reg                             (* Regular value *)
   | Val_prim of Primitive.description   (* Primitive *)
+  | Val_ivar of mutable_flag * string   (* Instance variable (mutable ?) *)
+  | Val_self of (Ident.t * type_expr) Meths.t ref *
+                (Ident.t * Asttypes.mutable_flag *
+                 Asttypes.virtual_flag * type_expr) Vars.t ref *
+                string * type_expr
+                                        (* Self *)
+  | Val_anc of (string * Ident.t) list * string
+                                        (* Ancestor *)
+  | Val_unbound                         (* Unbound variable *)
 
 (* Variance *)
 
@@ -153,7 +162,7 @@ and record_representation =
     Record_regular                      (* All fields are boxed / tagged *)
   | Record_float                        (* All fields are floats *)
   | Record_unboxed of bool    (* Unboxed single-field record, inlined or not *)
-  | Record_inlined of {tag : int; name : string; num_nonconsts : int}               (* Inlined record *)
+  | Record_inlined of int               (* Inlined record *)
   | Record_extension                    (* Inlined record under extension *)
 
 and label_declaration =

@@ -889,13 +889,13 @@ Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
     "label": "forAuto",
     "kind": 5,
     "tags": [],
-    "detail": "forAuto: ForAuto.t\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
+    "detail": "forAuto: ForAuto.t\n\ntype forAutoRecord = {forAuto: ForAuto.t, something: int}",
     "documentation": null
   }, {
     "label": "something",
     "kind": 5,
     "tags": [],
-    "detail": "something: option<int>\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
+    "detail": "something: option<int>\n\ntype forAutoRecord = {forAuto: ForAuto.t, something: int}",
     "documentation": null
   }]
 

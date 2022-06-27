@@ -43,7 +43,7 @@ module type Map = sig
     with type key = T.t
      and type 'a t = 'a Map.Make (T).t
 
-  val filter_map : (key -> 'a -> 'b option) -> 'a t -> 'b t
+  val filter_map : 'a t -> f:(key -> 'a -> 'b option) -> 'b t
   val of_list : (key * 'a) list -> 'a t
 
   val disjoint_union : ?eq:('a -> 'a -> bool) -> ?print:(Format.formatter -> 'a -> unit) -> 'a t -> 'a t -> 'a t
@@ -100,7 +100,7 @@ end
 module Make_map (T : Thing) = struct
   include Map.Make (T)
 
-  let filter_map f t  =
+  let filter_map t ~f =
     fold (fun id v map ->
         match f id v with
         | None -> map
