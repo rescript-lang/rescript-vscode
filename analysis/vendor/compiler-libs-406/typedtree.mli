@@ -217,21 +217,22 @@ and expression_desc =
       Ident.t * Parsetree.pattern * expression * expression * direction_flag *
         expression
   | Texp_send of expression * meth * expression option
-  | Texp_new of unit
-  | Texp_instvar of unit
-  | Texp_setinstvar of unit
-  | Texp_override of unit
+  | Texp_new of Path.t * Longident.t loc * Types.class_declaration
+  | Texp_instvar of Path.t * Path.t * string loc
+  | Texp_setinstvar of Path.t * Path.t * string loc * expression
+  | Texp_override of Path.t * (Path.t * string loc * expression) list
   | Texp_letmodule of Ident.t * string loc * module_expr * expression
   | Texp_letexception of extension_constructor * expression
   | Texp_assert of expression
   | Texp_lazy of expression
-  | Texp_object of unit
+  | Texp_object of class_structure * string list
   | Texp_pack of module_expr
   | Texp_unreachable
   | Texp_extension_constructor of Longident.t loc * Path.t
 
 and meth =
     Tmeth_name of string
+  | Tmeth_val of Ident.t
 
 and case =
     {
@@ -244,7 +245,60 @@ and record_label_definition =
   | Kept of Types.type_expr
   | Overridden of Longident.t loc * expression
 
+(* Value expressions for the class language *)
 
+and class_expr =
+    {
+     cl_desc: class_expr_desc;
+     cl_loc: Location.t;
+     cl_type: Types.class_type;
+     cl_env: Env.t;
+     cl_attributes: attributes;
+    }
+
+and class_expr_desc =
+    Tcl_ident of Path.t * Longident.t loc * core_type list
+  | Tcl_structure of class_structure
+  | Tcl_fun of
+      arg_label * pattern * (Ident.t * string loc * expression) list
+      * class_expr * partial
+  | Tcl_apply of class_expr * (arg_label * expression option) list
+  | Tcl_let of rec_flag * value_binding list *
+                  (Ident.t * string loc * expression) list * class_expr
+  | Tcl_constraint of
+      class_expr * class_type option * string list * string list * Concr.t
+  (* Visible instance variables, methods and concrete methods *)
+  | Tcl_open of override_flag * Path.t * Longident.t loc * Env.t * class_expr
+
+and class_structure =
+  {
+   cstr_self: pattern;
+   cstr_fields: class_field list;
+   cstr_type: Types.class_signature;
+   cstr_meths: Ident.t Meths.t;
+  }
+
+and class_field =
+   {
+    cf_desc: class_field_desc;
+    cf_loc: Location.t;
+    cf_attributes: attributes;
+  }
+
+and class_field_kind =
+  | Tcfk_virtual of core_type
+  | Tcfk_concrete of override_flag * expression
+
+and class_field_desc =
+    Tcf_inherit of
+      override_flag * class_expr * string option * (string * Ident.t) list *
+        (string * Ident.t) list
+    (* Inherited instance variables and concrete methods *)
+  | Tcf_val of string loc * mutable_flag * Ident.t * class_field_kind * bool
+  | Tcf_method of string loc * private_flag * class_field_kind
+  | Tcf_constraint of core_type * core_type
+  | Tcf_initializer of expression
+  | Tcf_attribute of attribute
 
 (* Value expressions for the module language *)
 
@@ -298,7 +352,7 @@ and structure_item_desc =
   | Tstr_recmodule of module_binding list
   | Tstr_modtype of module_type_declaration
   | Tstr_open of open_description
-  | Tstr_class of unit
+  | Tstr_class of (class_declaration * string list) list
   | Tstr_class_type of (Ident.t * string loc * class_type_declaration) list
   | Tstr_include of include_declaration
   | Tstr_attribute of attribute
@@ -323,8 +377,7 @@ and value_binding =
 and module_coercion =
     Tcoerce_none
   | Tcoerce_structure of (int * module_coercion) list *
-                         (Ident.t * int * module_coercion) list *
-                         string list (* runtime fields *)
+                         (Ident.t * int * module_coercion) list
   | Tcoerce_functor of module_coercion * module_coercion
   | Tcoerce_primitive of primitive_coercion
   | Tcoerce_alias of Path.t * module_coercion
@@ -351,7 +404,6 @@ and primitive_coercion =
     pc_type: type_expr;
     pc_env: Env.t;
     pc_loc : Location.t;
-    pc_id : Ident.t;
   }
 
 and signature = {
@@ -574,6 +626,8 @@ and class_type_field_desc =
   | Tctf_constraint of (core_type * core_type)
   | Tctf_attribute of attribute
 
+and class_declaration =
+  class_expr class_infos
 
 and class_description =
   class_type class_infos

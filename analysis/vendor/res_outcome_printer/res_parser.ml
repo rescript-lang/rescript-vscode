@@ -26,105 +26,117 @@ type t = {
 
 let err ?startPos ?endPos p error =
   match p.regions with
-  | {contents = Report} as region::_ ->
+  | ({contents = Report} as region) :: _ ->
     let d =
       Diagnostics.make
-        ~startPos:(match startPos with | Some pos -> pos | None -> p.startPos)
-        ~endPos:(match endPos with | Some pos -> pos | None -> p.endPos)
+        ~startPos:
+          (match startPos with
+          | Some pos -> pos
+          | None -> p.startPos)
+        ~endPos:
+          (match endPos with
+          | Some pos -> pos
+          | None -> p.endPos)
         error
-    in (
-      p.diagnostics <- d::p.diagnostics;
-      region := Silent
-    )
+    in
+    p.diagnostics <- d :: p.diagnostics;
+    region := Silent
   | _ -> ()
 
-let beginRegion p =
-  p.regions <- ref Report :: p.regions
+let beginRegion p = p.regions <- ref Report :: p.regions
 let endRegion p =
   match p.regions with
   | [] -> ()
-  | _::rest -> p.regions <- rest
+  | _ :: rest -> p.regions <- rest
+
+let docCommentToAttributeToken comment =
+  let txt = Comment.txt comment in
+  let loc = Comment.loc comment in
+  Token.DocComment (loc, txt)
 
 (* Advance to the next non-comment token and store any encountered comment
-* in the parser's state. Every comment contains the end position of its
-* previous token to facilite comment interleaving *)
+   * in the parser's state. Every comment contains the end position of its
+   * previous token to facilite comment interleaving *)
 let rec next ?prevEndPos p =
- if p.token = Eof then assert false;
- let prevEndPos = match prevEndPos with Some pos -> pos | None -> p.endPos in
- let (startPos, endPos, token) = Scanner.scan p.scanner in
- match token with
- | Comment c ->
-   Comment.setPrevTokEndPos c p.endPos;
-   p.comments <- c::p.comments;
-   p.prevEndPos <- p.endPos;
-   p.endPos <- endPos;
-   next ~prevEndPos p
- | _ ->
-   p.token <- token;
-   (* p.prevEndPos <- prevEndPos; *)
-   p.prevEndPos <- prevEndPos;
-   p.startPos <- startPos;
-   p.endPos <- endPos
+  if p.token = Eof then assert false;
+  let prevEndPos =
+    match prevEndPos with
+    | Some pos -> pos
+    | None -> p.endPos
+  in
+  let startPos, endPos, token = Scanner.scan p.scanner in
+  match token with
+  | Comment c ->
+    if Comment.isDocComment c then (
+      p.token <- docCommentToAttributeToken c;
+      p.prevEndPos <- prevEndPos;
+      p.startPos <- startPos;
+      p.endPos <- endPos)
+    else (
+      Comment.setPrevTokEndPos c p.endPos;
+      p.comments <- c :: p.comments;
+      p.prevEndPos <- p.endPos;
+      p.endPos <- endPos;
+      next ~prevEndPos p)
+  | _ ->
+    p.token <- token;
+    p.prevEndPos <- prevEndPos;
+    p.startPos <- startPos;
+    p.endPos <- endPos
 
-let nextUnsafe p =
-  if p.token <> Eof then next p
+let nextUnsafe p = if p.token <> Eof then next p
 
 let nextTemplateLiteralToken p =
-  let (startPos, endPos, token) = Scanner.scanTemplateLiteralToken p.scanner in
+  let startPos, endPos, token = Scanner.scanTemplateLiteralToken p.scanner in
   p.token <- token;
   p.prevEndPos <- p.endPos;
   p.startPos <- startPos;
   p.endPos <- endPos
 
 let checkProgress ~prevEndPos ~result p =
-  if p.endPos == prevEndPos
-  then None
-  else Some result
+  if p.endPos == prevEndPos then None else Some result
 
-let make ?(mode=ParseForTypeChecker) src filename =
+let make ?(mode = ParseForTypeChecker) src filename =
   let scanner = Scanner.make ~filename src in
-  let parserState = {
-    mode;
-    scanner;
-    token = Token.Semicolon;
-    startPos = Lexing.dummy_pos;
-    prevEndPos = Lexing.dummy_pos;
-    endPos = Lexing.dummy_pos;
-    breadcrumbs = [];
-    errors = [];
-    diagnostics = [];
-    comments = [];
-    regions = [ref Report];
-  } in
-  parserState.scanner.err <- (fun ~startPos ~endPos error ->
-    let diagnostic = Diagnostics.make
-      ~startPos
-      ~endPos
-      error
-    in
-    parserState.diagnostics <- diagnostic::parserState.diagnostics
-  );
+  let parserState =
+    {
+      mode;
+      scanner;
+      token = Token.Semicolon;
+      startPos = Lexing.dummy_pos;
+      prevEndPos = Lexing.dummy_pos;
+      endPos = Lexing.dummy_pos;
+      breadcrumbs = [];
+      errors = [];
+      diagnostics = [];
+      comments = [];
+      regions = [ref Report];
+    }
+  in
+  parserState.scanner.err <-
+    (fun ~startPos ~endPos error ->
+      let diagnostic = Diagnostics.make ~startPos ~endPos error in
+      parserState.diagnostics <- diagnostic :: parserState.diagnostics);
   next parserState;
   parserState
 
 let leaveBreadcrumb p circumstance =
   let crumb = (circumstance, p.startPos) in
-  p.breadcrumbs <- crumb::p.breadcrumbs
+  p.breadcrumbs <- crumb :: p.breadcrumbs
 
 let eatBreadcrumb p =
   match p.breadcrumbs with
   | [] -> ()
-  | _::crumbs -> p.breadcrumbs <- crumbs
+  | _ :: crumbs -> p.breadcrumbs <- crumbs
 
 let optional p token =
   if p.token = token then
-    let () = next p in true
-  else
-    false
+    let () = next p in
+    true
+  else false
 
 let expect ?grammar token p =
-  if p.token = token then
-    next p
+  if p.token = token then next p
   else
     let error = Diagnostics.expected ?grammar p.prevEndPos token in
     err ~startPos:p.prevEndPos p error

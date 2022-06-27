@@ -96,15 +96,6 @@ let constructor_args priv cd_args cd_res path rep =
       [ newgenconstr path type_params ],
       Some tdecl
 
-let internal_optional = "internal.optional"
-  
-let optional_shape : Parsetree.attribute =
-  {txt = internal_optional ; loc = Location.none}, Parsetree.PStr []
-
-let constructor_has_optional_shape ({cstr_attributes = attrs} : constructor_description) =
-  List.exists (fun (x,_) -> x.txt = internal_optional) attrs
-
-
 let constructor_descrs ty_path decl cstrs =
   let ty_res = newgenconstr ty_path decl.type_params in
   let num_consts = ref 0 and num_nonconsts = ref 0  and num_normal = ref 0 in
@@ -135,7 +126,7 @@ let constructor_descrs ty_path decl cstrs =
           let representation =
             if decl.type_unboxed.unboxed
             then Record_unboxed true
-            else Record_inlined {tag = idx_nonconst; name = cstr_name; num_nonconsts = !num_nonconsts}
+            else Record_inlined idx_nonconst
           in
           constructor_args decl.type_private cd_args cd_res
             (Path.Pdot (ty_path, cstr_name, Path.nopos)) representation
@@ -157,27 +148,7 @@ let constructor_descrs ty_path decl cstrs =
             cstr_inlined;
           } in
         (cd_id, cstr) :: descr_rem in
-  let result = describe_constructors 0 0 cstrs in 
-  match result with
-  | (
-    [ ({Ident.name = "None"} as a_id, ({cstr_args = []} as a_descr) )  ;
-      ({Ident.name = "Some"} as b_id, ({ cstr_args = [_]} as b_descr))
-    ] |
-    [ ({Ident.name = "Some"} as a_id, ({cstr_args = [_]} as a_descr) )  ;
-      ({Ident.name = "None"} as b_id, ({ cstr_args = []} as b_descr))
-    ]
-   )
-    ->
-      [
-        (a_id, {a_descr with
-                   cstr_attributes =
-                     optional_shape :: a_descr.cstr_attributes});
-        (b_id, {b_descr with
-                   cstr_attributes =
-                     optional_shape :: b_descr.cstr_attributes
-                  })
-      ]
-  | _ -> result        
+  describe_constructors 0 0 cstrs
 
 let extension_descr path_ext ext =
   let ty_res =
@@ -242,11 +213,11 @@ let rec find_constr tag num_const num_nonconst = function
     [] ->
       raise Constr_not_found
   | {cd_args = Cstr_tuple []; _} as c  :: rem ->
-      if Types.equal_tag tag  (Cstr_constant num_const)
+      if tag = Cstr_constant num_const
       then c
       else find_constr tag (num_const + 1) num_nonconst rem
   | c :: rem ->
-      if Types.equal_tag tag (Cstr_block num_nonconst) || tag = Cstr_unboxed
+      if tag = Cstr_block num_nonconst || tag = Cstr_unboxed
       then c
       else find_constr tag num_const (num_nonconst + 1) rem
 

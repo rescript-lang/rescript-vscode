@@ -1,5 +1,5 @@
 open Common
-module StringMap = Map.Make (String)
+module StringMap = Ext_json_types.StringMap
 
 let bsconfig = "bsconfig.json"
 

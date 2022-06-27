@@ -40,7 +40,7 @@ and binary_part =
 | Partial_structure_item of structure_item
 | Partial_expression of expression
 | Partial_pattern of pattern
-| Partial_class_expr of unit
+| Partial_class_expr of class_expr
 | Partial_signature of signature
 | Partial_signature_item of signature_item
 | Partial_module_type of module_type
@@ -82,7 +82,7 @@ let clear_part = function
       Partial_structure_item (cenv.structure_item cenv s)
   | Partial_expression e -> Partial_expression (cenv.expr cenv e)
   | Partial_pattern p -> Partial_pattern (cenv.pat cenv p)
-  | Partial_class_expr () -> assert false
+  | Partial_class_expr ce -> Partial_class_expr (cenv.class_expr cenv ce)
   | Partial_signature s -> Partial_signature (cenv.signature cenv s)
   | Partial_signature_item s ->
       Partial_signature_item (cenv.signature_item cenv s)
@@ -165,10 +165,9 @@ let record_value_dependency vd1 vd2 =
     value_deps := (vd1, vd2) :: !value_deps
 
 let save_cmt filename modname binary_annots sourcefile initial_env cmi =
-  if !Clflags.binary_annotations then begin
-    (if !Config.bs_only then Misc.output_to_bin_file_directly else 
+  if !Clflags.binary_annotations && not !Clflags.print_types then begin
     Misc.output_to_file_via_temporary
-       ~mode:[Open_binary] ) filename
+       ~mode:[Open_binary] filename
        (fun temp_file_name oc ->
          let this_crc =
            match cmi with

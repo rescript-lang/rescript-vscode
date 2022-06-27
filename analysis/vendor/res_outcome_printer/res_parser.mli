@@ -23,27 +23,25 @@ type t = {
   mutable regions: regionStatus ref list;
 }
 
-val make: ?mode:mode -> string -> string -> t
+val make : ?mode:mode -> string -> string -> t
 
-val expect: ?grammar:Grammar.t -> Token.t -> t -> unit
-val optional: t -> Token.t -> bool
-val next: ?prevEndPos:Lexing.position -> t -> unit
-val nextUnsafe: t -> unit (* Does not assert on Eof, makes no progress *)
-val nextTemplateLiteralToken: t -> unit
-val lookahead: t -> (t -> 'a) -> 'a
-val err:
+val expect : ?grammar:Grammar.t -> Token.t -> t -> unit
+val optional : t -> Token.t -> bool
+val next : ?prevEndPos:Lexing.position -> t -> unit
+val nextUnsafe : t -> unit (* Does not assert on Eof, makes no progress *)
+val nextTemplateLiteralToken : t -> unit
+val lookahead : t -> (t -> 'a) -> 'a
+val err :
   ?startPos:Lexing.position ->
   ?endPos:Lexing.position ->
-  t -> Diagnostics.category -> unit
-
-val leaveBreadcrumb: t -> Grammar.t -> unit
-val eatBreadcrumb: t -> unit
-
-val beginRegion: t -> unit
-val endRegion: t -> unit
-
-val checkProgress:
-  prevEndPos: Lexing.position ->
-  result: 'a ->
   t ->
-  'a option
+  Diagnostics.category ->
+  unit
+
+val leaveBreadcrumb : t -> Grammar.t -> unit
+val eatBreadcrumb : t -> unit
+
+val beginRegion : t -> unit
+val endRegion : t -> unit
+
+val checkProgress : prevEndPos:Lexing.position -> result:'a -> t -> 'a option
