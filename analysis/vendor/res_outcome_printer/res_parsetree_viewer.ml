@@ -169,7 +169,7 @@ let filterParsingAttrs attrs =
       | ( {
             Location.txt =
               ( "ns.ternary" | "ns.braces" | "res.template" | "bs" | "ns.iflet"
-              | "ns.namedArgLoc" );
+              | "ns.namedArgLoc" | "ns.optional" );
           },
           _ ) ->
         false
@@ -303,6 +303,12 @@ let isIfLetExpr expr =
     when hasIfLetAttribute attrs ->
     true
   | _ -> false
+
+let rec hasOptionalAttribute attrs =
+  match attrs with
+  | [] -> false
+  | ({Location.txt = "ns.optional"}, _) :: _ -> true
+  | _ :: attrs -> hasOptionalAttribute attrs
 
 let hasAttributes attrs =
   List.exists
