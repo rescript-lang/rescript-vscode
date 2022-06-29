@@ -257,6 +257,10 @@ let format ~path =
         signature
   else ""
 
+let diagnosticSyntax ~path =
+  print_endline
+    (Diagnostics.document_syntax ~path |> Protocol.array)
+
 let test ~path =
   Uri.stripPath := true;
   match Files.readFile path with
@@ -378,6 +382,7 @@ let test ~path =
                                  Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
+          | "dia" -> diagnosticSyntax ~path
           | _ -> ());
           print_newline ())
     in
