@@ -205,7 +205,7 @@ type unification_mode =
 let umode = ref Expression
 let generate_equations = ref false
 let assume_injective = ref false
-let variant_is_subtype = ref (fun _env _row _p1 -> false)
+
 let set_mode_pattern ~generate ~injective f =
   let old_unification_mode = !umode
   and old_gen = !generate_equations
@@ -251,7 +251,7 @@ let is_datatype decl=
    * cty_self must be a Tobject
    * ...
 *)
-type fields = (string * Types.field_kind * Types.type_expr) list      
+
 (**** Object field manipulation. ****)
 
 let object_fields ty =
@@ -259,8 +259,8 @@ let object_fields ty =
     Tobject (fields, _) -> fields
   | _                   -> assert false
 
-let flatten_fields (ty : Types.type_expr) : fields * _ =
-  let rec flatten (l : fields) ty =
+let flatten_fields ty =
+  let rec flatten l ty =
     let ty = repr ty in
     match ty.desc with
       Tfield(s, k, ty1, ty2) ->
@@ -275,10 +275,7 @@ let build_fields level =
   List.fold_right
     (fun (s, k, ty1) ty2 -> newty2 level (Tfield(s, k, ty1, ty2)))
 
-
-let associate_fields 
-  (fields1 : fields ) 
-  (fields2 : fields ) : _ * fields * fields =
+let associate_fields fields1 fields2 =
   let rec associate p s s' =
     function
       (l, []) ->
@@ -400,11 +397,10 @@ let rec class_type_arity =
                   (*******************************************)
                   (*  Miscellaneous operations on row types  *)
                   (*******************************************)
-type row_fields = (Asttypes.label * Types.row_field) list
-type row_pairs = (Asttypes.label * Types.row_field * Types.row_field) list
-let sort_row_fields : row_fields -> row_fields = List.sort (fun (p,_) (q,_) -> compare (p : string) q)
 
-let rec merge_rf (r1 : row_fields) (r2 : row_fields) (pairs : row_pairs) (fi1 : row_fields) (fi2 : row_fields) =
+let sort_row_fields = List.sort (fun (p,_) (q,_) -> compare p q)
+
+let rec merge_rf r1 r2 pairs fi1 fi2 =
   match fi1, fi2 with
     (l1,f1 as p1)::fi1', (l2,f2 as p2)::fi2' ->
       if l1 = l2 then merge_rf r1 r2 ((l1,f1,f2)::pairs) fi1' fi2' else
@@ -413,7 +409,7 @@ let rec merge_rf (r1 : row_fields) (r2 : row_fields) (pairs : row_pairs) (fi1 : 
   | [], _ -> (List.rev r1, List.rev_append r2 fi2, pairs)
   | _, [] -> (List.rev_append r1 fi1, List.rev r2, pairs)
 
-let merge_row_fields (fi1 : row_fields) (fi2 : row_fields) : row_fields * row_fields * row_pairs =
+let merge_row_fields fi1 fi2 =
   match fi1, fi2 with
     [], _ | _, [] -> (fi1, fi2, [])
   | [p1], _ when not (List.mem_assoc (fst p1) fi2) -> (fi1, fi2, [])
@@ -1426,7 +1422,7 @@ let expand_abbrev_gen kind find_type_expansion env ty =
             (* For gadts, remember type as non exportable *)
             (* The ambiguous level registered for ty' should be the highest *)
             if !trace_gadt_instances then begin
-              match Ext_pervasives.max_int_option lv (Env.gadt_instance_level env ty) with
+              match max lv (Env.gadt_instance_level env ty) with
                 None -> ()
               | Some lv ->
                   if level < lv then raise (Unify [(ty, newvar2 level)]);
@@ -1635,7 +1631,7 @@ let type_changed = ref false (* trace possible changes to the studied type *)
 let merge r b = if b then r := true
 
 let occur env ty0 ty =
-  let allow_recursive = (*!Clflags.recursive_types ||*) !umode = Pattern  in
+  let allow_recursive = !Clflags.recursive_types || !umode = Pattern  in
   let old = !type_changed in
   try
     while
@@ -2386,7 +2382,7 @@ and unify2 env t1 t2 =
   ignore (expand_head_unif !env t2);
   let t1' = expand_head_unif !env t1 in
   let t2' = expand_head_unif !env t2 in
-  let lv = Ext_pervasives.min_int t1'.level t2'.level in
+  let lv = min t1'.level t2'.level in
   update_level !env lv t2;
   update_level !env lv t1;
   if unify_eq t1' t2' then () else
@@ -2446,7 +2442,7 @@ and unify3 env t1 t1' t2 t2' =
     try
       begin match (d1, d2) with
         (Tarrow (l1, t1, u1, c1), Tarrow (l2, t2, u2, c2)) when l1 = l2 ||
-        (!umode = Pattern) &&
+        (!Clflags.classic || !umode = Pattern) &&
         not (is_optional l1 || is_optional l2) ->
           unify  env t1 t2; unify env  u1 u2;
           begin match commu_repr c1, commu_repr c2 with
@@ -2594,12 +2590,12 @@ and make_rowvar level use1 rest1 use2 rest2  =
   if use1 then rest1 else
   if use2 then rest2 else newvar2 ?name level
 
-and unify_fields env (ty1 : Types.type_expr) (ty2 : Types.type_expr) =          (* Optimization *)
+and unify_fields env ty1 ty2 =          (* Optimization *)
   let (fields1, rest1) = flatten_fields ty1
   and (fields2, rest2) = flatten_fields ty2 in
   let (pairs, miss1, miss2) = associate_fields fields1 fields2 in
   let l1 = (repr ty1).level and l2 = (repr ty2).level in
-  let va = make_rowvar (Ext_pervasives.min_int l1 l2) (miss2=[]) rest1 (miss1=[]) rest2 in
+  let va = make_rowvar (min l1 l2) (miss2=[]) rest1 (miss1=[]) rest2 in
   let d1 = rest1.desc and d2 = rest2.desc in
   try
     unify env (build_fields l1 miss1 va) rest2;
@@ -2634,8 +2630,7 @@ and unify_row env row1 row2 =
   let rm1 = row_more row1 and rm2 = row_more row2 in
   if unify_eq rm1 rm2 then () else
   let r1, r2, pairs = merge_row_fields row1.row_fields row2.row_fields in
-  if not !Config.bs_only && (r1 <> [] && r2 <> []) then begin
-    (* pairs are the intersection, r1 , r2 should be disjoint *)
+  if r1 <> [] && r2 <> [] then begin
     let ht = Hashtbl.create (List.length r1) in
     List.iter (fun (l,_) -> Hashtbl.add ht (hash_variant l) l) r1;
     List.iter
@@ -2648,7 +2643,7 @@ and unify_row env row1 row2 =
   let more =
     if fixed1 then rm1 else
     if fixed2 then rm2 else
-    newty2 (Ext_pervasives.min_int rm1.level rm2.level) (Tvar None) in
+    newty2 (min rm1.level rm2.level) (Tvar None) in
   let fixed = fixed1 || fixed2
   and closed = row1.row_closed || row2.row_closed in
   let keep switch =
@@ -2874,7 +2869,7 @@ let filter_arrow env t l =
       link_type t t';
       (t1, t2)
   | Tarrow(l', t1, t2, _)
-    when l = l'  ->
+    when l = l' || !Clflags.classic && l = Nolabel && not (is_optional l') ->
       (t1, t2)
   | _ ->
       raise (Unify [])
@@ -2997,7 +2992,7 @@ let rec moregen inst_nongen type_pairs env t1 t2 =
               moregen_occur env t1'.level t2;
               link_type t1' t2
           | (Tarrow (l1, t1, u1, _), Tarrow (l2, t2, u2, _)) when l1 = l2
-            ->
+            || !Clflags.classic && not (is_optional l1 || is_optional l2) ->
               moregen inst_nongen type_pairs env t1 t2;
               moregen inst_nongen type_pairs env u1 u2
           | (Ttuple tl1, Ttuple tl2) ->
@@ -3265,7 +3260,7 @@ let rec eqtype rename type_pairs subst env t1 t2 =
                 subst := (t1', t2') :: !subst
               end
           | (Tarrow (l1, t1, u1, _), Tarrow (l2, t2, u2, _)) when l1 = l2
-            ->
+            || !Clflags.classic && not (is_optional l1 || is_optional l2) ->
               eqtype rename type_pairs subst env t1 t2;
               eqtype rename type_pairs subst env u1 u2;
           | (Ttuple tl1, Ttuple tl2) ->
@@ -3305,7 +3300,7 @@ and eqtype_list rename type_pairs subst env tl1 tl2 =
     raise (Unify []);
   List.iter2 (eqtype rename type_pairs subst env) tl1 tl2
 
-and eqtype_fields rename type_pairs subst env ty1 ty2 : unit =
+and eqtype_fields rename type_pairs subst env ty1 ty2 =
   let (fields1, rest1) = flatten_fields ty1 in
   let (fields2, rest2) = flatten_fields ty2 in
   (* First check if same row => already equal *)
@@ -3948,7 +3943,7 @@ let rec subtype_rec env trace t1 t2 cstrs =
       (Tvar _, _) | (_, Tvar _) ->
         (trace, t1, t2, !univar_pairs)::cstrs
     | (Tarrow(l1, t1, u1, _), Tarrow(l2, t2, u2, _)) when l1 = l2
-       ->
+      || !Clflags.classic && not (is_optional l1 || is_optional l2) ->
         let cstrs = subtype_rec env ((t2, t1)::trace) t2 t1 cstrs in
         subtype_rec env ((u1, u2)::trace) u1 u2 cstrs
     | (Ttuple tl1, Ttuple tl2) ->
@@ -3995,11 +3990,6 @@ let rec subtype_rec env trace t1 t2 cstrs =
         with Exit ->
           (trace, t1, t2, !univar_pairs)::cstrs
         end
-    | Tvariant v, _ when 
-        !Config.bs_only &&
-        !variant_is_subtype env (row_repr v) t2 
-      -> 
-        cstrs
     | (Tpoly (u1, []), Tpoly (u2, [])) ->
         subtype_rec env trace u1 u2 cstrs
     | (Tpoly (u1, tl1), Tpoly (u2, [])) ->

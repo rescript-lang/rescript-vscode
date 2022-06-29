@@ -3,7 +3,11 @@ module Grammar = Res_grammar
 
 type problem =
   | Unexpected of Token.t [@live]
-  | Expected of {token: Token.t; pos: Lexing.position; context: Grammar.t option} [@live]
+  | Expected of {
+      token: Token.t;
+      pos: Lexing.position;
+      context: Grammar.t option;
+    } [@live]
   | Message of string [@live]
   | Uident [@live]
   | Lident [@live]

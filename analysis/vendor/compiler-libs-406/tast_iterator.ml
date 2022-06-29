@@ -79,7 +79,7 @@ let structure_item sub {str_desc; str_env; _} =
   | Tstr_module mb -> sub.module_binding sub mb
   | Tstr_recmodule list -> List.iter (sub.module_binding sub) list
   | Tstr_modtype x -> sub.module_type_declaration sub x
-  | Tstr_class () -> ()
+  | Tstr_class _ -> ()
   | Tstr_class_type list ->
     List.iter (fun (_, _, cltd) -> sub.class_type_declaration sub cltd) list
   | Tstr_include incl -> include_infos (sub.module_expr sub) incl
@@ -211,8 +211,8 @@ let expr sub {exp_extra; exp_desc; exp_env; _} =
     Option.iter (sub.expr sub) expo
   | Texp_new _ -> ()
   | Texp_instvar _ -> ()
-  | Texp_setinstvar () -> ()
-  | Texp_override () -> ()
+  | Texp_setinstvar _ -> ()
+  | Texp_override _ -> ()
   | Texp_letmodule (_, _, mexpr, exp) ->
     sub.module_expr sub mexpr;
     sub.expr sub exp
@@ -221,7 +221,7 @@ let expr sub {exp_extra; exp_desc; exp_env; _} =
     sub.expr sub exp
   | Texp_assert exp -> sub.expr sub exp
   | Texp_lazy exp -> sub.expr sub exp
-  | Texp_object () -> ()
+  | Texp_object _ -> ()
   | Texp_pack mexpr -> sub.module_expr sub mexpr
   | Texp_unreachable -> ()
   | Texp_extension_constructor _ -> ()
@@ -277,7 +277,7 @@ let module_coercion sub = function
     sub.module_coercion sub c1;
     sub.module_coercion sub c2
   | Tcoerce_alias (_, c1) -> sub.module_coercion sub c1
-  | Tcoerce_structure (l1, l2, _) ->
+  | Tcoerce_structure (l1, l2) ->
     List.iter (fun (_, c) -> sub.module_coercion sub c) l1;
     List.iter (fun (_, _, c) -> sub.module_coercion sub c) l2
   | Tcoerce_primitive {pc_env; _} -> sub.env sub pc_env

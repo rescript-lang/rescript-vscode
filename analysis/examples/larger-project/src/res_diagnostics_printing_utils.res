@@ -7,6 +7,8 @@
 
 /* ===== super_code_frame.ml */
 
+open P
+
 module Super_code_frame = {
   let digits_count = n => {
     let rec loop = (n, base, count) =>

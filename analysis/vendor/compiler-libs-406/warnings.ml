@@ -57,6 +57,7 @@ type t =
   | Wildcard_arg_to_constant_constr         (* 28 *)
   | Eol_in_string                           (* 29 *)
   | Duplicate_definitions of string * string * string * string (*30 *)
+  | Multiple_definition of string * string * string (* 31 *)
   | Unused_value_declaration of string      (* 32 *)
   | Unused_open of string                   (* 33 *)
   | Unused_type_declaration of string       (* 34 *)
@@ -76,26 +77,18 @@ type t =
   | Eliminated_optional_arguments of string list (* 48 *)
   | No_cmi_file of string * string option   (* 49 *)
   | Bad_docstring of bool                   (* 50 *)
+  | Expect_tailcall                         (* 51 *)
   | Fragile_literal_pattern                 (* 52 *)
   | Misplaced_attribute of string           (* 53 *)
   | Duplicated_attribute of string          (* 54 *)
   | Inlining_impossible of string           (* 55 *)
   | Unreachable_case                        (* 56 *)
   | Ambiguous_pattern of string list        (* 57 *)
+  | No_cmx_file of string                   (* 58 *)
   | Assignment_to_non_mutable_value         (* 59 *)
   | Unused_module of string                 (* 60 *)
   | Unboxable_type_in_prim_decl of string   (* 61 *)
   | Constraint_on_gadt                      (* 62 *)
-    
-  | Bs_unused_attribute of string           (* 101 *)
-  | Bs_polymorphic_comparison               (* 102 *)
-  | Bs_ffi_warning of string                (* 103 *)
-  | Bs_derive_warning of string             (* 104 *)
-  | Bs_fragile_external of string           (* 105 *)
-  | Bs_unimplemented_primitive of string    (* 106 *)
-  | Bs_integer_literal_overflow              (* 107 *)
-  | Bs_uninterpreted_delimiters of string   (* 108 *)
-  | Bs_toplevel_expression_unit             (* 109 *)
 ;;
 
 (* If you remove a warning, leave a hole in the numbering.  NEVER change
@@ -135,6 +128,7 @@ let number = function
   | Wildcard_arg_to_constant_constr -> 28
   | Eol_in_string -> 29
   | Duplicate_definitions _ -> 30
+  | Multiple_definition _ -> 31
   | Unused_value_declaration _ -> 32
   | Unused_open _ -> 33
   | Unused_type_declaration _ -> 34
@@ -154,36 +148,29 @@ let number = function
   | Eliminated_optional_arguments _ -> 48
   | No_cmi_file _ -> 49
   | Bad_docstring _ -> 50
+  | Expect_tailcall -> 51
   | Fragile_literal_pattern -> 52
   | Misplaced_attribute _ -> 53
   | Duplicated_attribute _ -> 54
   | Inlining_impossible _ -> 55
   | Unreachable_case -> 56
   | Ambiguous_pattern _ -> 57
+  | No_cmx_file _ -> 58
   | Assignment_to_non_mutable_value -> 59
   | Unused_module _ -> 60
   | Unboxable_type_in_prim_decl _ -> 61
   | Constraint_on_gadt -> 62
-  | Bs_unused_attribute _ -> 101
-  | Bs_polymorphic_comparison -> 102
-  | Bs_ffi_warning _ -> 103
-  | Bs_derive_warning _ -> 104
-  | Bs_fragile_external _ -> 105
-  | Bs_unimplemented_primitive _ -> 106
-  | Bs_integer_literal_overflow -> 107
-  | Bs_uninterpreted_delimiters _ -> 108
-  | Bs_toplevel_expression_unit -> 109
 ;;
 
-let last_warning_number = 109
-let letter_all = 
-  let rec loop i = if i = 0 then [] else i :: loop (i - 1) in
-  loop last_warning_number
+let last_warning_number = 62
+;;
 
 (* Must be the max number returned by the [number] function. *)
 
 let letter = function
-  | 'a' -> letter_all
+  | 'a' ->
+     let rec loop i = if i = 0 then [] else i :: loop (i - 1) in
+     loop last_warning_number
   | 'b' -> []
   | 'c' -> [1; 2]
   | 'd' -> [3]
@@ -309,13 +296,12 @@ let parse_options errflag s =
   parse_opt error active (if errflag then error else active) s;
   current := {error; active}
 
+(* If you change these, don't forget to change them in man/ocamlc.m *)
+let defaults_w = "+a-4-6-7-9-27-29-32..42-44-45-48-50-60";;
+let defaults_warn_error = "-a+31";;
 
-
-let reset () = 
-  parse_options false Bsc_warnings.defaults_w;
-  parse_options true Bsc_warnings.defaults_warn_error;;
-
-let () = reset ()
+let () = parse_options false defaults_w;;
+let () = parse_options true defaults_warn_error;;
 
 let message = function
   | Comment_start -> "this is the start of a comment."
@@ -349,12 +335,12 @@ let message = function
         ("the following methods are overridden by the class"
          :: cname  :: ":\n " :: slist)
   | Method_override [] -> assert false
-  | Partial_match "" ->
-      "You forgot to handle a possible case here, though we don't have more information on the value."
+  | Partial_match "" -> "this pattern-matching is not exhaustive."
   | Partial_match s ->
-      "You forgot to handle a possible case here, for example: \n  " ^ s
+      "this pattern-matching is not exhaustive.\n\
+       Here is an example of a case that is not matched:\n" ^ s
   | Non_closed_record_pattern s ->
-      "the following labels are not bound in this record pattern: " ^ s ^
+      "the following labels are not bound in this record pattern:\n" ^ s ^
       "\nEither bind these labels explicitly or add '; _' to the pattern."
   | Statement_type ->
       "this expression should have type unit."
@@ -373,13 +359,7 @@ let message = function
   | Implicit_public_methods l ->
       "the following private methods were made public implicitly:\n "
       ^ String.concat " " l ^ "."
-  | Unerasable_optional_argument ->
-      String.concat ""
-        ["This optional parameter in final position will, in practice, not be optional.\n";
-         "  Reorder the parameters so that at least one non-optional one is in final position or, if all parameters are optional, insert a final ().\n\n";
-         "  Explanation: If the final parameter is optional, it'd be unclear whether a function application that omits it should be considered fully applied, or partially applied. Imagine writing `let title = display(\"hello!\")`, only to realize `title` isn't your desired result, but a curried call that takes a final optional argument, e.g. `~showDate`.\n\n";
-         "  Formal rule: an optional argument is considered intentionally omitted when the 1st positional (i.e. neither labeled nor optional) argument defined after it is passed in."
-        ]
+  | Unerasable_optional_argument -> "this optional argument cannot be erased."
   | Undeclared_virtual_method m -> "the virtual method "^m^" is not declared."
   | Not_principal s -> s^" is not principal."
   | Without_principality s -> s^" without principality."
@@ -388,16 +368,10 @@ let message = function
       "this statement never returns (or has an unsound type.)"
   | Preprocessor s -> s
   | Useless_record_with ->
-     begin match !Config.syntax_kind with 
-      | `ml ->
       "all the fields are explicitly listed in this record:\n\
        the 'with' clause is useless."
-      | `reason | `rescript ->
-        "All the fields are already explicitly listed in this record. You can remove the `...` spread."
-     end   
   | Bad_module_name (modname) ->
-    "This file's name is potentially invalid. The build systems conventionally turn a file name into a module name by upper-casing the first letter. " ^ modname ^ " isn't a valid module name.\n" ^
-    "Note: some build systems might e.g. turn kebab-case into CamelCase module, which is why this isn't a hard error."
+      "bad source file name: \"" ^ modname ^ "\" is not a valid module name."
   | All_clauses_guarded ->
       "this pattern-matching is not exhaustive.\n\
        All clauses in this pattern-matching are guarded."
@@ -409,6 +383,10 @@ let message = function
   | Duplicate_definitions (kind, cname, tc1, tc2) ->
       Printf.sprintf "the %s %s is defined in both types %s and %s."
         kind cname tc1 tc2
+  | Multiple_definition(modname, file1, file2) ->
+      Printf.sprintf
+        "files %s and %s both define a module named %s"
+        file1 file2 modname
   | Unused_value_declaration v -> "unused value " ^ v ^ "."
   | Unused_open s -> "unused open " ^ s ^ "."
   | Unused_type_declaration s -> "unused type " ^ s ^ "."
@@ -488,6 +466,8 @@ let message = function
   | Bad_docstring unattached ->
       if unattached then "unattached documentation comment (ignored)"
       else "ambiguous documentation comment"
+  | Expect_tailcall ->
+      Printf.sprintf "expected tailcall"
   | Fragile_literal_pattern ->
       Printf.sprintf
         "Code should not depend on the actual values of\n\
@@ -516,6 +496,10 @@ let message = function
         "Ambiguous or-pattern variables under guard;\n\
          %s may match different arguments. (See manual section 8.5)"
         msg
+  | No_cmx_file name ->
+      Printf.sprintf
+        "no cmx file was found in path for module %s, \
+         and its interface was not compiled with -opaque" name
   | Assignment_to_non_mutable_value ->
       "A potential assignment to a non-mutable value was detected \n\
         in this source file.  Such assignments may generate incorrect code \n\
@@ -529,27 +513,6 @@ let message = function
          or [@@unboxed]." t t
   | Constraint_on_gadt ->
       "Type constraints do not apply to GADT cases of variant types."
-
-  | Bs_unused_attribute s ->
-      "Unused attribute: " ^ s ^ "\n\
-      This means such annotation is not annotated properly. \n\
-      for example, some annotations is only meaningful in externals \n"
-  | Bs_polymorphic_comparison ->
-      "Polymorphic comparison introduced (maybe unsafe)"
-  | Bs_ffi_warning s ->
-      "FFI warning: " ^ s
-  | Bs_derive_warning s ->
-      "bs.deriving warning: " ^ s 
-  | Bs_fragile_external s ->     
-    s ^ " : using an empty string as a shorthand to infer the external's name from the value's name is dangerous when refactoring, and therefore deprecated"
-  | Bs_unimplemented_primitive s -> 
-      "Unimplemented primitive used:" ^ s
-  | Bs_integer_literal_overflow -> 
-      "Integer literal exceeds the range of representable integers of type int"
-  | Bs_uninterpreted_delimiters s -> 
-      "Uninterpreted delimiters " ^ s  
-  | Bs_toplevel_expression_unit -> 
-      "Toplevel expression is expected to have unit type."    
 ;;
 
 let sub_locs = function
@@ -560,7 +523,6 @@ let sub_locs = function
       ]
   | _ -> []
 
-let has_warnings = ref false ;;  
 let nerrors = ref 0;;
 
 type reporting_information =
@@ -571,22 +533,14 @@ type reporting_information =
   }
 
 let report w =
-  match w with 
-  | Name_out_of_scope _ (* 40 *)
-  | Disambiguated_name _ (* 42 *)
-  | Unboxable_type_in_prim_decl _ (* 61 *) -> `Inactive
-  (* TODO: we could simplify the code even more *)
-  | _ -> 
   match is_active w with
   | false -> `Inactive
   | true ->
-     has_warnings := true; 
      if is_error w then incr nerrors;
      `Active { number = number w; message = message w; is_error = is_error w;
                sub_locs = sub_locs w;
              }
 ;;
-
 
 exception Errors;;
 
@@ -674,17 +628,7 @@ let descriptions =
    59, "Assignment to non-mutable value";
    60, "Unused module declaration";
    61, "Unboxable type in primitive declaration";
-   62, "Type constraint on GADT type declaration";
-    
-   101, "Unused bs attributes";
-   102, "Polymorphic comparison introduced (maybe unsafe)";
-   103, "Fragile FFI definitions" ;
-   104, "bs.deriving warning with customized message ";
-   105, "External name is inferred from val name is unsafe from refactoring when changing value name";
-   106, "Unimplemented primitive used:";
-   107, "Integer literal exceeds the range of representable integers of type int";
-   108, "Uninterpreted delimiters (for unicode)" ;
-   109, "Toplevel expression has unit type"   
+   62, "Type constraint on GADT type declaration"
   ]
 ;;
 

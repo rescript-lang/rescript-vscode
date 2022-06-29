@@ -407,8 +407,8 @@ and type_declaration i ppf x =
 and attributes i ppf l =
   let i = i + 1 in
   List.iter
-    (fun (s, arg) ->
-      line i ppf "attribute \"%s\"\n" s.txt;
+    (fun ({Location.loc; txt}, arg) ->
+      line i ppf "attribute \"%s\" %a\n" txt fmt_location loc;
       payload (i + 1) ppf arg;
     )
     l
@@ -591,7 +591,10 @@ and class_field i ppf x =
   let i = i + 1 in
   attributes i ppf x.pcf_attributes;
   match x.pcf_desc with
-  | Pcf_inherit () -> ()
+  | Pcf_inherit (ovf, ce, so) ->
+      line i ppf "Pcf_inherit %a\n" fmt_override_flag ovf;
+      class_expr (i+1) ppf ce;
+      option (i+1) string_loc ppf so;
   | Pcf_val (s, mf, k) ->
       line i ppf "Pcf_val %a\n" fmt_mutable_flag mf;
       line (i+1) ppf "%a\n" fmt_string_loc s;
@@ -696,7 +699,9 @@ and signature_item i ppf x =
       line i ppf "Psig_include\n";
       module_type i ppf incl.pincl_mod;
       attributes i ppf incl.pincl_attributes
-  | Psig_class () -> ()
+  | Psig_class (l) ->
+      line i ppf "Psig_class\n";
+      list i class_description ppf l;
   | Psig_class_type (l) ->
       line i ppf "Psig_class_type\n";
       list i class_type_declaration ppf l;
@@ -797,7 +802,9 @@ and structure_item i ppf x =
         fmt_override_flag od.popen_override
         fmt_longident_loc od.popen_lid;
       attributes i ppf od.popen_attributes
-  | Pstr_class () -> ()
+  | Pstr_class (l) ->
+      line i ppf "Pstr_class\n";
+      list i class_declaration ppf l;
   | Pstr_class_type (l) ->
       line i ppf "Pstr_class_type\n";
       list i class_type_declaration ppf l;

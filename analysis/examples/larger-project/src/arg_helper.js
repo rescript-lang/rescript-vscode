@@ -2,7 +2,7 @@
 
 import * as List from "rescript/lib/es6/list.js";
 import * as Curry from "rescript/lib/es6/curry.js";
-import * as Printf from "rescript/lib/es6/printf.js";
+import * as Printf from "./printf.js";
 import * as $$String from "rescript/lib/es6/string.js";
 import * as Printexc from "rescript/lib/es6/printexc.js";
 import * as Pervasives from "rescript/lib/es6/pervasives.js";
@@ -160,22 +160,7 @@ function Make(S) {
     catch (raw_exn){
       var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
       if (exn.RE_EXN_ID === Parse_failure) {
-        return fatal(Curry._2(Printf.sprintf(/* Format */{
-                            _0: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: ": ",
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: /* End_of_format */0
-                                }
-                              }
-                            },
-                            _1: "%s: %s"
-                          }), Printexc.to_string(exn._1), help_text));
+        return fatal(Curry._2(Printf.sprintf("%s: %s"), Printexc.to_string(exn._1), help_text));
       }
       throw exn;
     }

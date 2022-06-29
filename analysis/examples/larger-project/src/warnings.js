@@ -7,7 +7,7 @@ import * as List from "rescript/lib/es6/list.js";
 import * as Misc from "./misc.js";
 import * as $$Array from "rescript/lib/es6/array.js";
 import * as Curry from "rescript/lib/es6/curry.js";
-import * as Printf from "rescript/lib/es6/printf.js";
+import * as Printf from "./printf.js";
 import * as $$String from "rescript/lib/es6/string.js";
 import * as Caml_array from "rescript/lib/es6/caml_array.js";
 import * as Pervasives from "rescript/lib/es6/pervasives.js";
@@ -612,23 +612,9 @@ function message(x) {
       case /* Unused_rec_flag */14 :
           return "unused rec flag.";
       case /* Expect_tailcall */15 :
-          return Printf.sprintf(/* Format */{
-                      _0: {
-                        TAG: /* String_literal */11,
-                        _0: "expected tailcall",
-                        _1: /* End_of_format */0
-                      },
-                      _1: "expected tailcall"
-                    });
+          return Printf.sprintf("expected tailcall");
       case /* Fragile_literal_pattern */16 :
-          return Printf.sprintf(/* Format */{
-                      _0: {
-                        TAG: /* String_literal */11,
-                        _0: "Code should not depend on the actual values of\nthis constructor's arguments. They are only for information\nand may change in future versions. (See manual section 8.5)",
-                        _1: /* End_of_format */0
-                      },
-                      _1: "Code should not depend on the actual values of\nthis constructor's arguments. They are only for information\nand may change in future versions. (See manual section 8.5)"
-                    });
+          return Printf.sprintf("Code should not depend on the actual values of\nthis constructor's arguments. They are only for information\nand may change in future versions. (See manual section 8.5)");
       case /* Unreachable_case */17 :
           return "this match case is unreachable.\nConsider replacing it with a refutation case '<pat> -> .'";
       case /* Assignment_to_non_mutable_value */18 :
@@ -749,75 +735,9 @@ function message(x) {
       case /* Unused_var_strict */14 :
           return "unused variable " + (x._0 + ".");
       case /* Duplicate_definitions */15 :
-          return Curry._4(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "the ",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* Char_literal */12,
-                                _0: /* ' ' */32,
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: {
-                                    TAG: /* String_literal */11,
-                                    _0: " is defined in both types ",
-                                    _1: {
-                                      TAG: /* String */2,
-                                      _0: /* No_padding */0,
-                                      _1: {
-                                        TAG: /* String_literal */11,
-                                        _0: " and ",
-                                        _1: {
-                                          TAG: /* String */2,
-                                          _0: /* No_padding */0,
-                                          _1: {
-                                            TAG: /* Char_literal */12,
-                                            _0: /* '.' */46,
-                                            _1: /* End_of_format */0
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          _1: "the %s %s is defined in both types %s and %s."
-                        }), x._0, x._1, x._2, x._3);
+          return Curry._4(Printf.sprintf("the %s %s is defined in both types %s and %s."), x._0, x._1, x._2, x._3);
       case /* Multiple_definition */16 :
-          return Curry._3(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "files ",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: " and ",
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: {
-                                    TAG: /* String_literal */11,
-                                    _0: " both define a module named ",
-                                    _1: {
-                                      TAG: /* String */2,
-                                      _0: /* No_padding */0,
-                                      _1: /* End_of_format */0
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          _1: "files %s and %s both define a module named %s"
-                        }), x._1, x._2, x._0);
+          return Curry._3(Printf.sprintf("files %s and %s both define a module named %s"), x._1, x._2, x._0);
       case /* Unused_value_declaration */17 :
           return "unused value " + (x._0 + ".");
       case /* Unused_open */18 :
@@ -889,143 +809,21 @@ function message(x) {
       case /* Nonoptional_label */27 :
           return "the label " + (x._0 + " is not optional.");
       case /* Open_shadow_identifier */28 :
-          return Curry._2(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "this open statement shadows the ",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: " identifier ",
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: {
-                                    TAG: /* String_literal */11,
-                                    _0: " (which is later used)",
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          _1: "this open statement shadows the %s identifier %s (which is later used)"
-                        }), x._0, x._1);
+          return Curry._2(Printf.sprintf("this open statement shadows the %s identifier %s (which is later used)"), x._0, x._1);
       case /* Open_shadow_label_constructor */29 :
-          return Curry._2(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "this open statement shadows the ",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* Char_literal */12,
-                                _0: /* ' ' */32,
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: {
-                                    TAG: /* String_literal */11,
-                                    _0: " (which is later used)",
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          _1: "this open statement shadows the %s %s (which is later used)"
-                        }), x._0, x._1);
+          return Curry._2(Printf.sprintf("this open statement shadows the %s %s (which is later used)"), x._0, x._1);
       case /* Bad_env_variable */30 :
-          return Curry._2(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "illegal environment variable ",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: " : ",
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: /* End_of_format */0
-                                }
-                              }
-                            }
-                          },
-                          _1: "illegal environment variable %s : %s"
-                        }), x._0, x._1);
+          return Curry._2(Printf.sprintf("illegal environment variable %s : %s"), x._0, x._1);
       case /* Attribute_payload */31 :
-          return Curry._2(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "illegal payload for attribute '",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: "'.\n",
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: /* End_of_format */0
-                                }
-                              }
-                            }
-                          },
-                          _1: "illegal payload for attribute '%s'.\n%s"
-                        }), x._0, x._1);
+          return Curry._2(Printf.sprintf("illegal payload for attribute '%s'.\n%s"), x._0, x._1);
       case /* Eliminated_optional_arguments */32 :
           var sl = x._0;
-          return Curry._2(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "implicit elimination of optional argument",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* Char_literal */12,
-                                _0: /* ' ' */32,
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: /* End_of_format */0
-                                }
-                              }
-                            }
-                          },
-                          _1: "implicit elimination of optional argument%s %s"
-                        }), List.length(sl) === 1 ? "" : "s", $$String.concat(", ", sl));
+          return Curry._2(Printf.sprintf("implicit elimination of optional argument%s %s"), List.length(sl) === 1 ? "" : "s", $$String.concat(", ", sl));
       case /* No_cmi_file */33 :
           var msg = x._1;
           var name$1 = x._0;
           if (msg !== undefined) {
-            return Curry._2(Printf.sprintf(/* Format */{
-                            _0: {
-                              TAG: /* String_literal */11,
-                              _0: "no valid cmi file was found in path for module ",
-                              _1: {
-                                TAG: /* String */2,
-                                _0: /* No_padding */0,
-                                _1: {
-                                  TAG: /* String_literal */11,
-                                  _0: ". ",
-                                  _1: {
-                                    TAG: /* String */2,
-                                    _0: /* No_padding */0,
-                                    _1: /* End_of_format */0
-                                  }
-                                }
-                              }
-                            },
-                            _1: "no valid cmi file was found in path for module %s. %s"
-                          }), name$1, msg);
+            return Curry._2(Printf.sprintf("no valid cmi file was found in path for module %s. %s"), name$1, msg);
           } else {
             return "no cmi file was found in path for module " + name$1;
           }
@@ -1036,52 +834,11 @@ function message(x) {
             return "ambiguous documentation comment";
           }
       case /* Misplaced_attribute */35 :
-          return Curry._1(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "the ",
-                            _1: {
-                              TAG: /* Caml_string */3,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: " attribute cannot appear in this context",
-                                _1: /* End_of_format */0
-                              }
-                            }
-                          },
-                          _1: "the %S attribute cannot appear in this context"
-                        }), x._0);
+          return Curry._1(Printf.sprintf("the %S attribute cannot appear in this context"), x._0);
       case /* Duplicated_attribute */36 :
-          return Curry._1(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "the ",
-                            _1: {
-                              TAG: /* Caml_string */3,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: " attribute is used more than once on this expression",
-                                _1: /* End_of_format */0
-                              }
-                            }
-                          },
-                          _1: "the %S attribute is used more than once on this expression"
-                        }), x._0);
+          return Curry._1(Printf.sprintf("the %S attribute is used more than once on this expression"), x._0);
       case /* Inlining_impossible */37 :
-          return Curry._1(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "Cannot inline: ",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: /* End_of_format */0
-                            }
-                          },
-                          _1: "Cannot inline: %s"
-                        }), x._0);
+          return Curry._1(Printf.sprintf("Cannot inline: %s"), x._0);
       case /* Ambiguous_pattern */38 :
           var vars = List.sort($$String.compare, x._0);
           var tmp;
@@ -1098,83 +855,14 @@ function message(x) {
                   Error: new Error()
                 };
           }
-          return Curry._1(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "Ambiguous or-pattern variables under guard;\n",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: " may match different arguments. (See manual section 8.5)",
-                                _1: /* End_of_format */0
-                              }
-                            }
-                          },
-                          _1: "Ambiguous or-pattern variables under guard;\n%s may match different arguments. (See manual section 8.5)"
-                        }), tmp);
+          return Curry._1(Printf.sprintf("Ambiguous or-pattern variables under guard;\n%s may match different arguments. (See manual section 8.5)"), tmp);
       case /* No_cmx_file */39 :
-          return Curry._1(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "no cmx file was found in path for module ",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: ", and its interface was not compiled with -opaque",
-                                _1: /* End_of_format */0
-                              }
-                            }
-                          },
-                          _1: "no cmx file was found in path for module %s, and its interface was not compiled with -opaque"
-                        }), x._0);
+          return Curry._1(Printf.sprintf("no cmx file was found in path for module %s, and its interface was not compiled with -opaque"), x._0);
       case /* Unused_module */40 :
           return "unused module " + (x._0 + ".");
       case /* Unboxable_type_in_prim_decl */41 :
           var t = x._0;
-          return Curry._2(Printf.sprintf(/* Format */{
-                          _0: {
-                            TAG: /* String_literal */11,
-                            _0: "This primitive declaration uses type ",
-                            _1: {
-                              TAG: /* String */2,
-                              _0: /* No_padding */0,
-                              _1: {
-                                TAG: /* String_literal */11,
-                                _0: ", which is unannotated and\nunboxable. The representation of such types may change in future\nversions. You should annotate the declaration of ",
-                                _1: {
-                                  TAG: /* String */2,
-                                  _0: /* No_padding */0,
-                                  _1: {
-                                    TAG: /* String_literal */11,
-                                    _0: " with [",
-                                    _1: {
-                                      TAG: /* Formatting_lit */17,
-                                      _0: /* Escaped_at */5,
-                                      _1: {
-                                        TAG: /* String_literal */11,
-                                        _0: "boxed]\nor [",
-                                        _1: {
-                                          TAG: /* Formatting_lit */17,
-                                          _0: /* Escaped_at */5,
-                                          _1: {
-                                            TAG: /* String_literal */11,
-                                            _0: "unboxed].",
-                                            _1: /* End_of_format */0
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          _1: "This primitive declaration uses type %s, which is unannotated and\nunboxable. The representation of such types may change in future\nversions. You should annotate the declaration of %s with [@@boxed]\nor [@@unboxed]."
-                        }), t, t);
+          return Curry._2(Printf.sprintf("This primitive declaration uses type %s, which is unannotated and\nunboxable. The representation of such types may change in future\nversions. You should annotate the declaration of %s with [@@boxed]\nor [@@unboxed]."), t, t);
       
     }
   }
@@ -1617,32 +1305,7 @@ var descriptions = {
 
 function help_warnings(param) {
   List.iter((function (param) {
-          return Curry._2(Printf.printf(/* Format */{
-                          _0: {
-                            TAG: /* Int */4,
-                            _0: /* Int_i */3,
-                            _1: {
-                              TAG: /* Lit_padding */0,
-                              _0: /* Right */1,
-                              _1: 3
-                            },
-                            _2: /* No_precision */0,
-                            _3: {
-                              TAG: /* Char_literal */12,
-                              _0: /* ' ' */32,
-                              _1: {
-                                TAG: /* String */2,
-                                _0: /* No_padding */0,
-                                _1: {
-                                  TAG: /* Char_literal */12,
-                                  _0: /* '\n' */10,
-                                  _1: /* End_of_format */0
-                                }
-                              }
-                            }
-                          },
-                          _1: "%3i %s\n"
-                        }), param[0], param[1]);
+          return Curry._2(Printf.printf("%3i %s\n"), param[0], param[1]);
         }), descriptions);
   console.log("  A all warnings");
   for(var i = /* 'b' */98; i <= /* 'z' */122; ++i){
@@ -1650,57 +1313,11 @@ function help_warnings(param) {
     var l = letter(c);
     if (l) {
       if (l.tl) {
-        Curry._2(Printf.printf(/* Format */{
-                  _0: {
-                    TAG: /* String_literal */11,
-                    _0: "  ",
-                    _1: {
-                      TAG: /* Char */0,
-                      _0: {
-                        TAG: /* String_literal */11,
-                        _0: " warnings ",
-                        _1: {
-                          TAG: /* String */2,
-                          _0: /* No_padding */0,
-                          _1: {
-                            TAG: /* String_literal */11,
-                            _0: ".\n",
-                            _1: /* End_of_format */0
-                          }
-                        }
-                      }
-                    }
-                  },
-                  _1: "  %c warnings %s.\n"
-                }), Char.uppercase_ascii(c), $$String.concat(", ", List.map((function (prim) {
+        Curry._2(Printf.printf("  %c warnings %s.\n"), Char.uppercase_ascii(c), $$String.concat(", ", List.map((function (prim) {
                         return String(prim);
                       }), l)));
       } else {
-        Curry._2(Printf.printf(/* Format */{
-                  _0: {
-                    TAG: /* String_literal */11,
-                    _0: "  ",
-                    _1: {
-                      TAG: /* Char */0,
-                      _0: {
-                        TAG: /* String_literal */11,
-                        _0: " Alias for warning ",
-                        _1: {
-                          TAG: /* Int */4,
-                          _0: /* Int_i */3,
-                          _1: /* No_padding */0,
-                          _2: /* No_precision */0,
-                          _3: {
-                            TAG: /* String_literal */11,
-                            _0: ".\n",
-                            _1: /* End_of_format */0
-                          }
-                        }
-                      }
-                    }
-                  },
-                  _1: "  %c Alias for warning %i.\n"
-                }), Char.uppercase_ascii(c), l.hd);
+        Curry._2(Printf.printf("  %c Alias for warning %i.\n"), Char.uppercase_ascii(c), l.hd);
       }
     }
     

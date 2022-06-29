@@ -739,8 +739,10 @@ let acknowledge_pers_struct check modname
   List.iter
     (function
         | Rectypes ->
+            if not !Clflags.recursive_types then
               error (Need_recursive_types(ps.ps_name, !current_unit))
         | Unsafe_string ->
+            if Config.safe_string then
               error (Depend_on_unsafe_string_unit (ps.ps_name, !current_unit));
         | Deprecated _ -> ()
         | Opaque -> add_imported_opaque modname)
@@ -1165,9 +1167,6 @@ and lookup_module ~load ?loc lid env : Path.t =
         | Mty_ident (Path.Pident id) when Ident.name id = "#recmod#" ->
           (* see #5965 *)
           raise Recmodule
-        | Mty_alias (_, Path.Pident id) ->   
-          if !Config.bs_only && not !Clflags.transparent_modules && Ident.persistent id then 
-            find_pers_struct (Ident.name id) |> ignore 
         | _ -> ()
         end;
         report_deprecated ?loc p
@@ -1781,8 +1780,8 @@ and check_value_name name loc =
   (* Note: we could also check here general validity of the
      identifier, to protect against bad identifiers forged by -pp or
      -ppx preprocessors. *)
-  if name = "|." then raise (Error(Illegal_value_name(loc, name)))  
-  else if String.length name > 0 && (name.[0] = '#') then
+
+  if String.length name > 0 && (name.[0] = '#') then
     for i = 1 to String.length name - 1 do
       if name.[i] = '#' then
         raise (Error(Illegal_value_name(loc, name)))
@@ -2139,28 +2138,27 @@ let crc_of_unit name =
 (* Return the list of imported interfaces with their CRCs *)
 
 let imports () =
-  let dont_record_crc_unit = !Clflags.dont_record_crc_unit in 
-  match dont_record_crc_unit with 
-  | None -> Consistbl.extract (StringSet.elements !imported_units) crc_units
-  | Some x -> 
-    Consistbl.extract 
-      (StringSet.fold 
-      (fun m acc -> if m = x then acc else m::acc) 
-      !imported_units []) crc_units
+  Consistbl.extract (StringSet.elements !imported_units) crc_units
+
 (* Returns true if [s] is an opaque imported module  *)
 let is_imported_opaque s =
   StringSet.mem s !imported_opaque_units
 
 (* Save a signature to a file *)
 
-let save_signature_with_imports ?check_exists ~deprecated sg modname filename imports =
+let save_signature_with_imports ~deprecated sg modname filename imports =
   (*prerr_endline filename;
   List.iter (fun (name, crc) -> prerr_endline name) imports;*)
   Btype.cleanup_abbrev ();
   Subst.reset_for_saving ();
   let sg = Subst.signature (Subst.for_saving Subst.identity) sg in
   let flags =
-      (match deprecated with Some s -> [Deprecated s] | None -> [])
+    List.concat [
+      if !Clflags.recursive_types then [Cmi_format.Rectypes] else [];
+      if !Clflags.opaque then [Cmi_format.Opaque] else [];
+      (if !Clflags.unsafe_string then [Cmi_format.Unsafe_string] else []);
+      (match deprecated with Some s -> [Deprecated s] | None -> []);
+    ]
   in
   try
     let cmi = {
@@ -2170,7 +2168,9 @@ let save_signature_with_imports ?check_exists ~deprecated sg modname filename im
       cmi_flags = flags;
     } in
     let crc =
-      create_cmi ?check_exists filename cmi in
+      output_to_file_via_temporary (* see MPR#7472, MPR#4991 *)
+         ~mode: [Open_binary] filename
+         (fun temp_filename oc -> output_cmi temp_filename oc cmi) in
     (* Enter signature in persistent table so that imported_unit()
        will also return its crc *)
     let comps =
@@ -2191,8 +2191,8 @@ let save_signature_with_imports ?check_exists ~deprecated sg modname filename im
     remove_file filename;
     raise exn
 
-let save_signature ?check_exists ~deprecated sg modname filename =
-  save_signature_with_imports ?check_exists ~deprecated sg modname filename (imports())
+let save_signature ~deprecated sg modname filename =
+  save_signature_with_imports ~deprecated sg modname filename (imports())
 
 (* Folding on environments *)
 
@@ -2286,7 +2286,7 @@ and fold_cltypes f =
 
 
 (* Make the initial environment *)
-let initial_safe_string =
+let (initial_safe_string, initial_unsafe_string) =
   Predef.build_initial_env
     (add_type ~check:false)
     (add_extension ~check:false)

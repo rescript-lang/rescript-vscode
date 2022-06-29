@@ -2,7 +2,8 @@ module Comment = Res_comment
 
 type t =
   | Open
-  | True | False
+  | True
+  | False
   | Codepoint of {c: char; original: string}
   | Int of {i: string; suffix: char option}
   | Float of {f: string; suffix: char option}
@@ -10,7 +11,9 @@ type t =
   | Lident of string
   | Uident of string
   | As
-  | Dot | DotDot | DotDotDot
+  | Dot
+  | DotDot
+  | DotDotDot
   | Bang
   | Semicolon
   | Let
@@ -18,7 +21,9 @@ type t =
   | Rec
   | Underscore
   | SingleQuote
-  | Equal | EqualEqual | EqualEqualEqual
+  | Equal
+  | EqualEqual
+  | EqualEqualEqual
   | Bar
   | Lparen
   | Rparen
@@ -31,22 +36,36 @@ type t =
   | Eof
   | Exception
   | Backslash [@live]
-  | Forwardslash | ForwardslashDot
-  | Asterisk | AsteriskDot | Exponentiation
-  | Minus | MinusDot
-  | Plus | PlusDot | PlusPlus | PlusEqual
+  | Forwardslash
+  | ForwardslashDot
+  | Asterisk
+  | AsteriskDot
+  | Exponentiation
+  | Minus
+  | MinusDot
+  | Plus
+  | PlusDot
+  | PlusPlus
+  | PlusEqual
   | ColonGreaterThan
   | GreaterThan
   | LessThan
   | LessThanSlash
-  | Hash | HashEqual
+  | Hash
+  | HashEqual
   | Assert
   | Lazy
   | Tilde
   | Question
-  | If | Else | For | In | While | Switch
+  | If
+  | Else
+  | For
+  | In
+  | While
+  | Switch
   | When
-  | EqualGreater | MinusGreater
+  | EqualGreater
+  | MinusGreater
   | External
   | Typ
   | Private
@@ -55,13 +74,18 @@ type t =
   | Include
   | Module
   | Of
-  | Land | Lor
+  | Land
+  | Lor
   | Band (* Bitwise and: & *)
-  | BangEqual | BangEqualEqual
-  | LessEqual | GreaterEqual
+  | BangEqual
+  | BangEqualEqual
+  | LessEqual
+  | GreaterEqual
   | ColonEqual
-  | At | AtAt
-  | Percent | PercentPercent
+  | At
+  | AtAt
+  | Percent
+  | PercentPercent
   | Comment of Comment.t
   | List
   | TemplateTail of string
@@ -71,13 +95,15 @@ type t =
   | Try
   | Import
   | Export
+  | DocComment of Location.t * string
 
 let precedence = function
   | HashEqual | ColonEqual -> 1
   | Lor -> 2
   | Land -> 3
-  | Equal | EqualEqual | EqualEqualEqual | LessThan | GreaterThan
-  | BangEqual | BangEqualEqual | LessEqual | GreaterEqual | BarGreater -> 4
+  | Equal | EqualEqual | EqualEqualEqual | LessThan | GreaterThan | BangEqual
+  | BangEqualEqual | LessEqual | GreaterEqual | BarGreater ->
+    4
   | Plus | PlusDot | Minus | MinusDot | PlusPlus -> 5
   | Asterisk | AsteriskDot | Forwardslash | ForwardslashDot -> 6
   | Exponentiation -> 7
@@ -87,12 +113,15 @@ let precedence = function
 
 let toString = function
   | Open -> "open"
-  | True -> "true" | False -> "false"
+  | True -> "true"
+  | False -> "false"
   | Codepoint {original} -> "codepoint '" ^ original ^ "'"
   | String s -> "string \"" ^ s ^ "\""
   | Lident str -> str
   | Uident str -> str
-  | Dot -> "." | DotDot -> ".." | DotDotDot -> "..."
+  | Dot -> "."
+  | DotDot -> ".."
+  | DotDotDot -> "..."
   | Int {i} -> "int " ^ i
   | Float {f} -> "Float: " ^ f
   | Bang -> "!"
@@ -102,26 +131,39 @@ let toString = function
   | Rec -> "rec"
   | Underscore -> "_"
   | SingleQuote -> "'"
-  | Equal -> "=" | EqualEqual -> "==" | EqualEqualEqual -> "==="
+  | Equal -> "="
+  | EqualEqual -> "=="
+  | EqualEqualEqual -> "==="
   | Eof -> "eof"
   | Bar -> "|"
   | As -> "as"
-  | Lparen -> "(" | Rparen -> ")"
-  | Lbracket -> "[" | Rbracket -> "]"
-  | Lbrace -> "{" | Rbrace -> "}"
+  | Lparen -> "("
+  | Rparen -> ")"
+  | Lbracket -> "["
+  | Rbracket -> "]"
+  | Lbrace -> "{"
+  | Rbrace -> "}"
   | ColonGreaterThan -> ":>"
   | Colon -> ":"
   | Comma -> ","
-  | Minus -> "-" | MinusDot -> "-."
-  | Plus -> "+" | PlusDot -> "+." | PlusPlus -> "++" | PlusEqual -> "+="
+  | Minus -> "-"
+  | MinusDot -> "-."
+  | Plus -> "+"
+  | PlusDot -> "+."
+  | PlusPlus -> "++"
+  | PlusEqual -> "+="
   | Backslash -> "\\"
-  | Forwardslash -> "/" | ForwardslashDot -> "/."
+  | Forwardslash -> "/"
+  | ForwardslashDot -> "/."
   | Exception -> "exception"
-  | Hash -> "#" | HashEqual -> "#="
+  | Hash -> "#"
+  | HashEqual -> "#="
   | GreaterThan -> ">"
   | LessThan -> "<"
   | LessThanSlash -> "</"
-  | Asterisk -> "*" | AsteriskDot -> "*." | Exponentiation -> "**"
+  | Asterisk -> "*"
+  | AsteriskDot -> "*."
+  | Exponentiation -> "**"
   | Assert -> "assert"
   | Lazy -> "lazy"
   | Tilde -> "tilde"
@@ -133,7 +175,8 @@ let toString = function
   | While -> "while"
   | Switch -> "switch"
   | When -> "when"
-  | EqualGreater -> "=>" | MinusGreater -> "->"
+  | EqualGreater -> "=>"
+  | MinusGreater -> "->"
   | External -> "external"
   | Typ -> "type"
   | Private -> "private"
@@ -143,13 +186,18 @@ let toString = function
   | Module -> "module"
   | Of -> "of"
   | Lor -> "||"
-  | Band -> "&" | Land -> "&&"
-  | BangEqual -> "!=" | BangEqualEqual -> "!=="
-  | GreaterEqual -> ">=" | LessEqual -> "<="
+  | Band -> "&"
+  | Land -> "&&"
+  | BangEqual -> "!="
+  | BangEqualEqual -> "!=="
+  | GreaterEqual -> ">="
+  | LessEqual -> "<="
   | ColonEqual -> ":="
-  | At -> "@" | AtAt -> "@@"
-  | Percent -> "%" | PercentPercent -> "%%"
-  | Comment c -> "Comment" ^ (Comment.toString c)
+  | At -> "@"
+  | AtAt -> "@@"
+  | Percent -> "%"
+  | PercentPercent -> "%%"
+  | Comment c -> "Comment" ^ Comment.toString c
   | List -> "list{"
   | TemplatePart text -> text ^ "${"
   | TemplateTail text -> "TemplateTail(" ^ text ^ ")"
@@ -158,56 +206,60 @@ let toString = function
   | Try -> "try"
   | Import -> "import"
   | Export -> "export"
+  | DocComment (_loc, s) -> "DocComment " ^ s
 
 let keywordTable = function
-| "and" -> And
-| "as" -> As
-| "assert" -> Assert
-| "constraint" -> Constraint
-| "else" -> Else
-| "exception" -> Exception
-| "export" -> Export
-| "external" -> External
-| "false" -> False
-| "for" -> For
-| "if" -> If
-| "import" -> Import
-| "in" -> In
-| "include" -> Include
-| "lazy" -> Lazy
-| "let" -> Let
-| "list{" -> List
-| "module" -> Module
-| "mutable" -> Mutable
-| "of" -> Of
-| "open" -> Open
-| "private" -> Private
-| "rec" -> Rec
-| "switch" -> Switch
-| "true" -> True
-| "try" -> Try
-| "type" -> Typ
-| "when" -> When
-| "while" -> While
-| _ -> raise Not_found
-[@@raises Not_found]
+  | "and" -> And
+  | "as" -> As
+  | "assert" -> Assert
+  | "constraint" -> Constraint
+  | "else" -> Else
+  | "exception" -> Exception
+  | "export" -> Export
+  | "external" -> External
+  | "false" -> False
+  | "for" -> For
+  | "if" -> If
+  | "import" -> Import
+  | "in" -> In
+  | "include" -> Include
+  | "lazy" -> Lazy
+  | "let" -> Let
+  | "list{" -> List
+  | "module" -> Module
+  | "mutable" -> Mutable
+  | "of" -> Of
+  | "open" -> Open
+  | "private" -> Private
+  | "rec" -> Rec
+  | "switch" -> Switch
+  | "true" -> True
+  | "try" -> Try
+  | "type" -> Typ
+  | "when" -> When
+  | "while" -> While
+  | _ -> raise Not_found
+  [@@raises Not_found]
 
 let isKeyword = function
-  | And | As | Assert | Constraint | Else | Exception | Export
-  | External | False | For | If | Import | In | Include | Land | Lazy
-  | Let | List | Lor | Module | Mutable | Of | Open | Private | Rec
-  | Switch | True | Try | Typ | When | While -> true
+  | And | As | Assert | Constraint | Else | Exception | Export | External
+  | False | For | If | Import | In | Include | Land | Lazy | Let | List | Lor
+  | Module | Mutable | Of | Open | Private | Rec | Switch | True | Try | Typ
+  | When | While ->
+    true
   | _ -> false
 
 let lookupKeyword str =
-  try keywordTable str with
-  | Not_found ->
+  try keywordTable str
+  with Not_found -> (
     match str.[0] [@doesNotRaise] with
-    | 'A'..'Z' -> Uident str
-    | _ -> Lident str
+    | 'A' .. 'Z' -> Uident str
+    | _ -> Lident str)
 
 let isKeywordTxt str =
-  try let _ = keywordTable str in true with
-  | Not_found -> false
+  try
+    let _ = keywordTable str in
+    true
+  with Not_found -> false
 
 let catch = Lident "catch"

@@ -2,10 +2,9 @@
 
 import * as Sys from "rescript/lib/es6/sys.js";
 import * as Curry from "rescript/lib/es6/curry.js";
-import * as Printf from "rescript/lib/es6/printf.js";
+import * as Printf from "./printf.js";
 import * as $$String from "rescript/lib/es6/string.js";
 import * as Caml_sys from "rescript/lib/es6/caml_sys.js";
-import * as Pervasives from "rescript/lib/es6/pervasives.js";
 import * as Caml_string from "rescript/lib/es6/caml_string.js";
 import * as Caml_js_exceptions from "rescript/lib/es6/caml_js_exceptions.js";
 
@@ -169,72 +168,13 @@ switch (Sys.os_type) {
 
 function print_config(oc) {
   var p = function (name, valu) {
-    return Curry._2(Printf.fprintf(oc, /* Format */{
-                    _0: {
-                      TAG: /* String */2,
-                      _0: /* No_padding */0,
-                      _1: {
-                        TAG: /* String_literal */11,
-                        _0: ": ",
-                        _1: {
-                          TAG: /* String */2,
-                          _0: /* No_padding */0,
-                          _1: {
-                            TAG: /* Char_literal */12,
-                            _0: /* '\n' */10,
-                            _1: /* End_of_format */0
-                          }
-                        }
-                      }
-                    },
-                    _1: "%s: %s\n"
-                  }), name, valu);
+    return Curry._3(Printf.fprintf(oc), "%s: %s\n", name, valu);
   };
   var p_int = function (name, valu) {
-    return Curry._2(Printf.fprintf(oc, /* Format */{
-                    _0: {
-                      TAG: /* String */2,
-                      _0: /* No_padding */0,
-                      _1: {
-                        TAG: /* String_literal */11,
-                        _0: ": ",
-                        _1: {
-                          TAG: /* Int */4,
-                          _0: /* Int_d */0,
-                          _1: /* No_padding */0,
-                          _2: /* No_precision */0,
-                          _3: {
-                            TAG: /* Char_literal */12,
-                            _0: /* '\n' */10,
-                            _1: /* End_of_format */0
-                          }
-                        }
-                      }
-                    },
-                    _1: "%s: %d\n"
-                  }), name, valu);
+    return Curry._3(Printf.fprintf(oc), "%s: %d\n", name, valu);
   };
   var p_bool = function (name, valu) {
-    return Curry._2(Printf.fprintf(oc, /* Format */{
-                    _0: {
-                      TAG: /* String */2,
-                      _0: /* No_padding */0,
-                      _1: {
-                        TAG: /* String_literal */11,
-                        _0: ": ",
-                        _1: {
-                          TAG: /* Bool */9,
-                          _0: /* No_padding */0,
-                          _1: {
-                            TAG: /* Char_literal */12,
-                            _0: /* '\n' */10,
-                            _1: /* End_of_format */0
-                          }
-                        }
-                      }
-                    },
-                    _1: "%s: %B\n"
-                  }), name, valu);
+    return Curry._3(Printf.fprintf(oc), "%s: %B\n", name, valu);
   };
   p("version", Sys.ocaml_version);
   p("standard_library_default", standard_library_default);
@@ -288,8 +228,7 @@ function print_config(oc) {
   p("ast_impl_magic_number", ast_impl_magic_number);
   p("ast_intf_magic_number", ast_intf_magic_number);
   p("cmxs_magic_number", cmxs_magic_number);
-  p("cmt_magic_number", cmt_magic_number);
-  return Pervasives.flush(oc);
+  return p("cmt_magic_number", cmt_magic_number);
 }
 
 var version = Sys.ocaml_version;

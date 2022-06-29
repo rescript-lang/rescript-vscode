@@ -19,8 +19,6 @@ val init : unit -> unit
 val token: Lexing.lexbuf -> Parser.token
 val skip_hash_bang: Lexing.lexbuf -> unit
 
-type directive_type 
-
 type error =
   | Illegal_character of char
   | Illegal_escape of string
@@ -30,19 +28,14 @@ type error =
   | Keyword_as_label of string
   | Invalid_literal of string
   | Invalid_directive of string * string option
-  | Unterminated_paren_in_conditional
-  | Unterminated_if
-  | Unterminated_else 
-  | Unexpected_token_in_conditional 
-  | Expect_hash_then_in_conditional
-  | Illegal_semver of string
-  | Unexpected_directive
-  | Conditional_expr_expected_type of directive_type * directive_type                           
 ;;
 
 exception Error of error * Location.t
 
+open Format
 
+val report_error: formatter -> error -> unit
+ (* Deprecated.  Use Location.{error_of_exn, report_error}. *)
 
 val in_comment : unit -> bool;;
 val in_string : unit -> bool;;
@@ -68,17 +61,3 @@ val set_preprocessor :
   (unit -> unit) ->
   ((Lexing.lexbuf -> Parser.token) -> Lexing.lexbuf -> Parser.token) ->
   unit
-
-(** semantic version predicate *)
-val semver : Location.t ->   string -> string -> bool
-
-val filter_directive_from_lexbuf : Lexing.lexbuf -> (int * int) list
-
-val replace_directive_int : string -> int -> unit
-val replace_directive_string : string -> string -> unit
-val replace_directive_bool : string -> bool -> unit 
-val remove_directive_built_in_value : string -> unit
-
-(** @return false means failed to define *)
-val define_key_value : string -> string -> bool
-val list_variables : Format.formatter -> unit
