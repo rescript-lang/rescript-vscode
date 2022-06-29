@@ -25,6 +25,9 @@ external padLeft: (
     | #Int(int)
   ],
 ) => string = "padLeft"
+@inline
+let foo: int
+@inline let bar: string
 module RFS: {
   @module("fs")
   external readFileSync: (

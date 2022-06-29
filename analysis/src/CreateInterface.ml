@@ -162,15 +162,39 @@ let printSignature ~extractor ~signature =
           Buffer.add_string buf "\n"
       in
       processSignature ~indent rest
-    | Sig_value (_id, {val_kind = Val_prim prim; val_loc}) :: items
+    | Sig_value (id, ({val_kind = Val_prim prim; val_loc} as vd)) :: items
       when prim.prim_native_name <> "" && prim.prim_native_name.[0] = '\132' ->
-      (* Rescript primitive name, e.g. @val external ...
-         Copy the external declaration verbatim from the implementation file *)
+      (* Rescript primitive name, e.g. @val external ... *)
       let lines =
         let posStart, posEnd = Loc.range val_loc in
         extractor |> SourceFileExtractor.extract ~posStart ~posEnd
       in
-      Buffer.add_string buf ((lines |> String.concat "\n") ^ "\n");
+      let firstLine =
+        match lines with
+        | [] -> ""
+        | firstLine :: _ -> firstLine
+      in
+      let inlineAttr = "@inline" in
+      let inlineAttrLen = String.length inlineAttr in
+      let attrStartIdx = String.index firstLine '@' in
+
+      if
+        try String.sub firstLine attrStartIdx inlineAttrLen = inlineAttr
+        with _ -> false
+      then
+        (* Generate type signature for @inline declaration *)
+        let intend = String.make attrStartIdx ' ' in
+        let divider = if List.length lines > 1 then "\n" else " " in
+
+        let sigStr =
+          sigItemToString
+            (Printtyp.tree_of_value_description id {vd with val_kind = Val_reg})
+        in
+        Buffer.add_string buf (intend ^ inlineAttr ^ divider ^ sigStr ^ "\n")
+      else
+        (* Copy the external declaration verbatim from the implementation file *)
+        Buffer.add_string buf ((lines |> String.concat "\n") ^ "\n");
+
       processSignature ~indent items
     | Sig_value (id, vd) :: items ->
       let newItemStr =
