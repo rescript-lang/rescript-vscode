@@ -599,8 +599,9 @@ function format(msg: p.RequestMessage): Array<p.Message> {
 }
 
 const updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
-  const filePath = fileURLToPath(fileUri);
-  const tmpname = utils.createFileInTempDir();
+  let filePath = fileURLToPath(fileUri);
+  let extension = path.extname(filePath);
+  let tmpname = utils.createFileInTempDir(extension = extension);
   fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
 
   const items: p.Diagnostic[] | [] = utils.runAnalysisAfterSanityCheck(
