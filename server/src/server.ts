@@ -189,7 +189,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
         bsbWatcherByEditor: null,
-        hasPromptedToStartBuild: projectRootPath.includes("node_modules") ? "never" : false,
+        hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(projectRootPath) ? "never" : false,
       };
       projectsFiles.set(projectRootPath, projectRootState);
       compilerLogsWatcher.add(
