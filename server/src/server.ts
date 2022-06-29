@@ -47,7 +47,8 @@ let projectsFiles: Map<
     // automatically, if there's no build currently running for the project. We
     // only want to prompt the user about this once, or it becomes
     // annoying.
-    hasPromptedToStartBuild: boolean;
+    // The type `never` means that we won't show the prompt if the project is inside node_modules
+    hasPromptedToStartBuild: boolean | "never";
   }
 > = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
@@ -188,7 +189,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
         bsbWatcherByEditor: null,
-        hasPromptedToStartBuild: false,
+        hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(projectRootPath) ? "never" : false,
       };
       projectsFiles.set(projectRootPath, projectRootState);
       compilerLogsWatcher.add(
