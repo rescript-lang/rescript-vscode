@@ -601,7 +601,7 @@ function format(msg: p.RequestMessage): Array<p.Message> {
 const updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
   let extension = path.extname(filePath);
-  let tmpname = utils.createFileInTempDir(extension = extension);
+  let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
 
   const items: p.Diagnostic[] | [] = utils.runAnalysisAfterSanityCheck(
@@ -617,7 +617,7 @@ const updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
     method: "textDocument/publishDiagnostics",
     params: {
       uri: fileUri,
-      diagnostics: items ?? []
+      diagnostics: items
     }
   }
 

@@ -15,11 +15,10 @@ type documentSymbolItem = {name : string; kind : int; location : location}
 type renameFile = {oldUri : string; newUri : string}
 type textEdit = {range : range; newText : string}
 
-type diagnosticSeverity = Error | Warning | Information | Hint
 type diagnostic = {
   range : range;
   message : string;
-  severity : diagnosticSeverity;
+  severity : int;
 }
 
 type optionalVersionedTextDocumentIdentifier = {
@@ -133,6 +132,7 @@ let stringifyCodeAction ca =
     (codeActionKindToString ca.codeActionKind)
     (ca.edit |> stringifyCodeActionEdit)
 
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic *)
 let stringifyDiagnostic d =
   Printf.sprintf {|{
   "range": %s,
@@ -141,8 +141,4 @@ let stringifyDiagnostic d =
   "source": "ReScript"
 }|}
     (stringifyRange d.range) (Json.escape d.message)
-    (match d.severity with
-    | Error -> 1
-    | Warning -> 2
-    | Information -> 3
-    | Hint -> 4)
+    d.severity

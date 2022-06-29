@@ -259,9 +259,7 @@ let format ~path =
 
 let diagnosticSyntax ~path =
   print_endline
-    (match Diagnostics.document_syntax ~path with
-    | [] -> "[]"
-    | d -> Protocol.array d)
+    (Diagnostics.document_syntax ~path |> Protocol.array)
 
 let test ~path =
   Uri.stripPath := true;
