@@ -31,6 +31,58 @@ module SourceFileExtractor = struct
       !res)
 end
 
+module AttributesUtils : sig
+  type t
+
+  val separate : string list -> t
+
+  val contain : string -> t -> bool
+
+  val concat : string -> t -> string
+end = struct
+  type t = string list
+
+  let separate lines =
+    lines
+    |> List.fold_left
+         (fun acc line ->
+           let trimmedLine = String.trim line in
+           if trimmedLine |> String.length > 0 && String.get trimmedLine 0 = '@'
+           then (
+             let attrDecIdxSeparator = ref (-1) in
+             let i = ref 1 in
+             let lineLength = String.length line in
+
+             while !attrDecIdxSeparator = -1 do
+               if !i < lineLength then
+                 let idx = !i in
+                 let currentChar = line.[idx] in
+                 let prevChar = line.[idx - 1] in
+                 if prevChar = ' ' && currentChar <> ' ' && currentChar <> '@'
+                 then attrDecIdxSeparator := !i - 1
+                 else i := !i + 1
+               else attrDecIdxSeparator := !i
+             done;
+
+             let attr = String.sub line 0 !attrDecIdxSeparator in
+             if String.length attr = 0 then acc else attr :: acc)
+           else acc)
+         []
+    |> List.rev
+
+  let rec contain attributeForSearch attributes =
+    match attributes with
+    | [] -> false
+    | attribute :: rest ->
+      if
+        attribute |> String.trim |> String.split_on_char ' '
+        |> List.exists (fun attribute -> attribute = attributeForSearch)
+      then true
+      else contain attributeForSearch rest
+
+  let concat = String.concat
+end
+
 let printSignature ~extractor ~signature =
   let objectPropsToFun objTyp ~rhs ~makePropsType =
     let propsTbl = Hashtbl.create 1 in
@@ -169,28 +221,18 @@ let printSignature ~extractor ~signature =
         let posStart, posEnd = Loc.range val_loc in
         extractor |> SourceFileExtractor.extract ~posStart ~posEnd
       in
-      let firstLine =
-        match lines with
-        | [] -> ""
-        | firstLine :: _ -> firstLine
-      in
-      let inlineAttr = "@inline" in
-      let inlineAttrLen = String.length inlineAttr in
-      let attrStartIdx = String.index firstLine '@' in
+      let attributes = AttributesUtils.separate lines in
 
-      if
-        try String.sub firstLine attrStartIdx inlineAttrLen = inlineAttr
-        with _ -> false
-      then
+      if AttributesUtils.contain "@inline" attributes then
         (* Generate type signature for @inline declaration *)
-        let intend = String.make attrStartIdx ' ' in
         let divider = if List.length lines > 1 then "\n" else " " in
 
         let sigStr =
           sigItemToString
             (Printtyp.tree_of_value_description id {vd with val_kind = Val_reg})
         in
-        Buffer.add_string buf (intend ^ inlineAttr ^ divider ^ sigStr ^ "\n")
+        Buffer.add_string buf
+          ((attributes |> AttributesUtils.concat "\n") ^ divider ^ sigStr ^ "\n")
       else
         (* Copy the external declaration verbatim from the implementation file *)
         Buffer.add_string buf ((lines |> String.concat "\n") ^ "\n");
