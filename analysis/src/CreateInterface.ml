@@ -34,53 +34,77 @@ end
 module AttributesUtils : sig
   type t
 
-  val separate : string list -> t
+  val make : string list -> t
 
   val contain : string -> t -> bool
 
-  val concat : string -> t -> string
+  val toString : t -> string
 end = struct
-  type t = string list
+  type pos = int * int
+  type t = (pos * string) list
+  type parseState = Search | Collect of int
 
-  let separate lines =
+  let getLineIdx ((lineIdx, _), _) = lineIdx
+
+  let getAttrOffset ((_, attrOffset), _) = attrOffset
+
+  let getAttrName (_, attribute) = attribute
+
+  let makeAttr lineIdx attrOffsetStart attrOffsetEnd line =
+    ( (lineIdx, attrOffsetStart),
+      String.sub line attrOffsetStart (attrOffsetEnd - attrOffsetStart) )
+
+  let make lines =
+    let res = ref [] in
     lines
-    |> List.fold_left
-         (fun acc line ->
-           let trimmedLine = String.trim line in
-           if trimmedLine |> String.length > 0 && String.get trimmedLine 0 = '@'
-           then (
-             let attrDecIdxSeparator = ref (-1) in
-             let i = ref 1 in
-             let lineLength = String.length line in
+    |> List.iteri (fun lineIdx line ->
+           let state = ref Search in
+           for i = 0 to String.length line - 1 do
+             let ch = line.[i] in
+             match (!state, ch) with
+             | Search, '@' -> state := Collect i
+             | Collect attrOffset, ' ' ->
+               res := makeAttr lineIdx attrOffset i line :: !res;
+               state := Search
+             | Search, _ | Collect _, _ -> ()
+           done;
 
-             while !attrDecIdxSeparator = -1 do
-               if !i < lineLength then
-                 let idx = !i in
-                 let currentChar = line.[idx] in
-                 let prevChar = line.[idx - 1] in
-                 if prevChar = ' ' && currentChar <> ' ' && currentChar <> '@'
-                 then attrDecIdxSeparator := !i - 1
-                 else i := !i + 1
-               else attrDecIdxSeparator := !i
-             done;
+           match !state with
+           | Collect attrOffset ->
+             res :=
+               makeAttr lineIdx attrOffset (String.length line) line :: !res
+           | _ -> ());
+    !res |> List.rev
 
-             let attr = String.sub line 0 !attrDecIdxSeparator in
-             if String.length attr = 0 then acc else attr :: acc)
-           else acc)
-         []
-    |> List.rev
-
-  let rec contain attributeForSearch attributes =
-    match attributes with
+  let rec contain attributeForSearch t =
+    match t with
     | [] -> false
-    | attribute :: rest ->
-      if
-        attribute |> String.trim |> String.split_on_char ' '
-        |> List.exists (fun attribute -> attribute = attributeForSearch)
-      then true
+    | (_, attribute) :: rest ->
+      if attribute = attributeForSearch then true
       else contain attributeForSearch rest
 
-  let concat = String.concat
+  let toString t =
+    if List.length t = 0 then ""
+    else
+      let prevLineIdx = ref (getLineIdx (List.hd t)) in
+      let line = ref "" in
+      let lines = ref [] in
+
+      t
+      |> List.iter (fun attr ->
+             let lineIdx = getLineIdx attr in
+
+             if lineIdx <> !prevLineIdx then (
+               lines := !line :: !lines;
+               line := "";
+               prevLineIdx := lineIdx);
+
+             let attrOffset = getAttrOffset attr in
+             let attrName = getAttrName attr in
+             let indent = String.make (attrOffset - String.length !line) ' ' in
+             line := !line ^ indent ^ attrName);
+      lines := !line :: !lines;
+      !lines |> List.rev |> String.concat "\n"
 end
 
 let printSignature ~extractor ~signature =
@@ -221,7 +245,7 @@ let printSignature ~extractor ~signature =
         let posStart, posEnd = Loc.range val_loc in
         extractor |> SourceFileExtractor.extract ~posStart ~posEnd
       in
-      let attributes = AttributesUtils.separate lines in
+      let attributes = AttributesUtils.make lines in
 
       if AttributesUtils.contain "@inline" attributes then
         (* Generate type signature for @inline declaration *)
@@ -232,7 +256,7 @@ let printSignature ~extractor ~signature =
             (Printtyp.tree_of_value_description id {vd with val_kind = Val_reg})
         in
         Buffer.add_string buf
-          ((attributes |> AttributesUtils.concat "\n") ^ divider ^ sigStr ^ "\n")
+          ((attributes |> AttributesUtils.toString) ^ divider ^ sigStr ^ "\n")
       else
         (* Copy the external declaration verbatim from the implementation file *)
         Buffer.add_string buf ((lines |> String.concat "\n") ^ "\n");
