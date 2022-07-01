@@ -31,6 +31,73 @@ module SourceFileExtractor = struct
       !res)
 end
 
+module AttributesUtils : sig
+  type t
+
+  val make : string list -> t
+
+  val contains : string -> t -> bool
+
+  val toString : t -> string
+end = struct
+  type attribute = {line: int; offset: int; name: string}
+  type t = attribute list
+  type parseState = Search | Collect of int
+
+  let make lines =
+    let makeAttr lineIdx attrOffsetStart attrOffsetEnd line =
+      {
+        line = lineIdx;
+        offset = attrOffsetStart;
+        name = String.sub line attrOffsetStart (attrOffsetEnd - attrOffsetStart);
+      }
+    in
+    let res = ref [] in
+    lines
+    |> List.iteri (fun lineIdx line ->
+           let state = ref Search in
+           for i = 0 to String.length line - 1 do
+             let ch = line.[i] in
+             match (!state, ch) with
+             | Search, '@' -> state := Collect i
+             | Collect attrOffset, ' ' ->
+               res := makeAttr lineIdx attrOffset i line :: !res;
+               state := Search
+             | Search, _ | Collect _, _ -> ()
+           done;
+
+           match !state with
+           | Collect attrOffset ->
+             res :=
+               makeAttr lineIdx attrOffset (String.length line) line :: !res
+           | _ -> ());
+    !res |> List.rev
+
+  let contains attributeForSearch t =
+    t |> List.exists (fun {name} -> name = attributeForSearch)
+
+  let toString t =
+    match t with
+    | [] -> ""
+    | {line} :: _ ->
+      let prevLine = ref line in
+      let buffer = ref "" in
+      let res = ref [] in
+      t
+      |> List.iter (fun attr ->
+             let {line; offset; name} = attr in
+
+             if line <> !prevLine then (
+               res := !buffer :: !res;
+               buffer := "";
+               prevLine := line);
+
+             let indent = String.make (offset - String.length !buffer) ' ' in
+             buffer := !buffer ^ indent ^ name);
+      res := !buffer :: !res;
+      !res |> List.rev |> String.concat "\n"
+end
+
 let printSignature ~extractor ~signature =
   let objectPropsToFun objTyp ~rhs ~makePropsType =
     let propsTbl = Hashtbl.create 1 in
@@ -82,6 +149,17 @@ let printSignature ~extractor ~signature =
   let sigItemToString (item : Outcometree.out_sig_item) =
     item |> Res_outcome_printer.printOutSigItemDoc
     |> Res_doc.toString ~width:!Res_cli.ResClflags.width
+  in
+
+  let genSigStrForInlineAttr lines attributes id vd =
+    let divider = if List.length lines > 1 then "\n" else " " in
+
+    let sigStr =
+      sigItemToString
+        (Printtyp.tree_of_value_description id {vd with val_kind = Val_reg})
+    in
+
+    (attributes |> AttributesUtils.toString) ^ divider ^ sigStr ^ "\n"
   in
 
   let buf = Buffer.create 10 in
@@ -162,15 +240,22 @@ let printSignature ~extractor ~signature =
           Buffer.add_string buf "\n"
       in
       processSignature ~indent rest
-    | Sig_value (_id, {val_kind = Val_prim prim; val_loc}) :: items
+    | Sig_value (id, ({val_kind = Val_prim prim; val_loc} as vd)) :: items
       when prim.prim_native_name <> "" && prim.prim_native_name.[0] = '\132' ->
-      (* Rescript primitive name, e.g. @val external ...
-         Copy the external declaration verbatim from the implementation file *)
+      (* Rescript primitive name, e.g. @val external ... *)
       let lines =
         let posStart, posEnd = Loc.range val_loc in
         extractor |> SourceFileExtractor.extract ~posStart ~posEnd
       in
-      Buffer.add_string buf ((lines |> String.concat "\n") ^ "\n");
+      let attributes = AttributesUtils.make lines in
+
+      if AttributesUtils.contains "@inline" attributes then
+        (* Generate type signature for @inline declaration *)
+        Buffer.add_string buf (genSigStrForInlineAttr lines attributes id vd)
+      else
+        (* Copy the external declaration verbatim from the implementation file *)
+        Buffer.add_string buf ((lines |> String.concat "\n") ^ "\n");
+
       processSignature ~indent items
     | Sig_value (id, vd) :: items ->
       let newItemStr =

@@ -35,6 +35,20 @@ external padLeft: (
   ],
 ) => string = "padLeft"
 
+@inline
+let f1 = 10
+
+@inline let f2 = "some string"
+
+@genType
+@inline
+let f3 = 10
+
+@genType @inline
+let f4 = "some string"
+
+@genType @inline let f5 = 5.5
+
 module RFS = {
   @module("fs")
   external readFileSync: (
