@@ -77,15 +77,12 @@ end = struct
     t |> List.exists (fun {name} -> name = attributeForSearch)
 
   let toString t =
-    if List.length t = 0 then ""
-    else
-      let prevLine =
-        let {line} = List.hd t in
-        ref line
-      in
+    match t with
+    | [] -> ""
+    | {line} :: _ ->
+      let prevLine = ref line in
       let buffer = ref "" in
       let res = ref [] in
-
       t
       |> List.iter (fun attr ->
              let {line; offset; name} = attr in
