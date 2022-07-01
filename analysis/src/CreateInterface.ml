@@ -36,25 +36,22 @@ module AttributesUtils : sig
 
   val make : string list -> t
 
-  val contain : string -> t -> bool
+  val contains : string -> t -> bool
 
   val toString : t -> string
 end = struct
-  type pos = int * int
-  type t = (pos * string) list
+  type attribute = {line: int; offset: int; name: string}
+  type t = attribute list
   type parseState = Search | Collect of int
 
-  let getLineIdx ((lineIdx, _), _) = lineIdx
-
-  let getAttrOffset ((_, attrOffset), _) = attrOffset
-
-  let getAttrName (_, attribute) = attribute
-
-  let makeAttr lineIdx attrOffsetStart attrOffsetEnd line =
-    ( (lineIdx, attrOffsetStart),
-      String.sub line attrOffsetStart (attrOffsetEnd - attrOffsetStart) )
-
   let make lines =
+    let makeAttr lineIdx attrOffsetStart attrOffsetEnd line =
+      {
+        line = lineIdx;
+        offset = attrOffsetStart;
+        name = String.sub line attrOffsetStart (attrOffsetEnd - attrOffsetStart);
+      }
+    in
     let res = ref [] in
     lines
     |> List.iteri (fun lineIdx line ->
@@ -76,35 +73,34 @@ end = struct
            | _ -> ());
     !res |> List.rev
 
-  let rec contain attributeForSearch t =
-    match t with
-    | [] -> false
-    | (_, attribute) :: rest ->
-      if attribute = attributeForSearch then true
-      else contain attributeForSearch rest
+  let contains attributeForSearch t =
+    t
+    |> List.find_opt (fun {name} -> name = attributeForSearch)
+    |> Option.is_some
 
   let toString t =
     if List.length t = 0 then ""
     else
-      let prevLineIdx = ref (getLineIdx (List.hd t)) in
-      let line = ref "" in
-      let lines = ref [] in
+      let prevLine =
+        let {line} = List.hd t in
+        ref line
+      in
+      let buffer = ref "" in
+      let res = ref [] in
 
       t
       |> List.iter (fun attr ->
-             let lineIdx = getLineIdx attr in
+             let {line; offset; name} = attr in
 
-             if lineIdx <> !prevLineIdx then (
-               lines := !line :: !lines;
-               line := "";
-               prevLineIdx := lineIdx);
+             if line <> !prevLine then (
+               res := !buffer :: !res;
+               buffer := "";
+               prevLine := line);
 
-             let attrOffset = getAttrOffset attr in
-             let attrName = getAttrName attr in
-             let indent = String.make (attrOffset - String.length !line) ' ' in
-             line := !line ^ indent ^ attrName);
-      lines := !line :: !lines;
-      !lines |> List.rev |> String.concat "\n"
+             let indent = String.make (offset - String.length !buffer) ' ' in
+             buffer := !buffer ^ indent ^ name);
+      res := !buffer :: !res;
+      !res |> List.rev |> String.concat "\n"
 end
 
 let printSignature ~extractor ~signature =
@@ -158,6 +154,17 @@ let printSignature ~extractor ~signature =
   let sigItemToString (item : Outcometree.out_sig_item) =
     item |> Res_outcome_printer.printOutSigItemDoc
     |> Res_doc.toString ~width:!Res_cli.ResClflags.width
+  in
+
+  let genSigStrForInlineAttr lines attributes id vd =
+    let divider = if List.length lines > 1 then "\n" else " " in
+
+    let sigStr =
+      sigItemToString
+        (Printtyp.tree_of_value_description id {vd with val_kind = Val_reg})
+    in
+
+    (attributes |> AttributesUtils.toString) ^ divider ^ sigStr ^ "\n"
   in
 
   let buf = Buffer.create 10 in
@@ -247,16 +254,9 @@ let printSignature ~extractor ~signature =
       in
       let attributes = AttributesUtils.make lines in
 
-      if AttributesUtils.contain "@inline" attributes then
+      if AttributesUtils.contains "@inline" attributes then
         (* Generate type signature for @inline declaration *)
-        let divider = if List.length lines > 1 then "\n" else " " in
-
-        let sigStr =
-          sigItemToString
-            (Printtyp.tree_of_value_description id {vd with val_kind = Val_reg})
-        in
-        Buffer.add_string buf
-          ((attributes |> AttributesUtils.toString) ^ divider ^ sigStr ^ "\n")
+        Buffer.add_string buf (genSigStrForInlineAttr lines attributes id vd)
       else
         (* Copy the external declaration verbatim from the implementation file *)
         Buffer.add_string buf ((lines |> String.concat "\n") ^ "\n");
