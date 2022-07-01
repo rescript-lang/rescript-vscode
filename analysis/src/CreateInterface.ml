@@ -74,9 +74,7 @@ end = struct
     !res |> List.rev
 
   let contains attributeForSearch t =
-    t
-    |> List.find_opt (fun {name} -> name = attributeForSearch)
-    |> Option.is_some
+    t |> List.exists (fun {name} -> name = attributeForSearch)
 
   let toString t =
     if List.length t = 0 then ""
