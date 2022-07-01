@@ -13,6 +13,7 @@
 - Add configuration option for autostarting the Code Analyzer.
 - Sync with latest parser/printer.
 - Support paths to rescript executables in arm64 architectures.
+- Fix issue where `@inline` was not suported by the command to generate an interface file.
 
 ## 1.3.0
 
