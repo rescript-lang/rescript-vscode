@@ -1,13 +1,9 @@
-type t = {
-  mutable buffer : bytes;
-  mutable position : int;
-  mutable length : int;
-}
+type t = {mutable buffer: bytes; mutable position: int; mutable length: int}
 
 let create n =
- let n = if n < 1 then 1 else n in
- let s = (Bytes.create [@doesNotRaise]) n in
- {buffer = s; position = 0; length = n}
+  let n = if n < 1 then 1 else n in
+  let s = (Bytes.create [@doesNotRaise]) n in
+  {buffer = s; position = 0; length = n}
 
 let contents b = (Bytes.sub_string [@doesNotRaise]) b.buffer 0 b.position
 
@@ -15,11 +11,12 @@ let contents b = (Bytes.sub_string [@doesNotRaise]) b.buffer 0 b.position
 let resize_internal b more =
   let len = b.length in
   let new_len = ref len in
-  while b.position + more > !new_len do new_len := 2 * !new_len done;
-  if !new_len > Sys.max_string_length then begin
-    if b.position + more <= Sys.max_string_length
-    then new_len := Sys.max_string_length
-  end;
+  while b.position + more > !new_len do
+    new_len := 2 * !new_len
+  done;
+  if !new_len > Sys.max_string_length then
+    if b.position + more <= Sys.max_string_length then
+      new_len := Sys.max_string_length;
   let new_buffer = (Bytes.create [@doesNotRaise]) !new_len in
   (* PR#6148: let's keep using [blit] rather than [unsafe_blit] in
      this tricky function that is slow anyway. *)
@@ -42,9 +39,9 @@ let add_string b s =
 
 (* adds newline and trims all preceding whitespace *)
 let flush_newline b =
-  let position = ref (b.position) in
-  while (Bytes.unsafe_get b.buffer (!position - 1)) = ' ' && !position >= 0 do
-    position := !position - 1;
+  let position = ref b.position in
+  while Bytes.unsafe_get b.buffer (!position - 1) = ' ' && !position >= 0 do
+    position := !position - 1
   done;
   b.position <- !position;
   add_char b '\n'

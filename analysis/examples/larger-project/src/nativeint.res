@@ -15,6 +15,8 @@
 
 /* Module [Nativeint]: processor-native integers */
 
+type nativeint
+
 external neg: nativeint => nativeint = "%nativeint_neg"
 external add: (nativeint, nativeint) => nativeint = "%nativeint_add"
 external sub: (nativeint, nativeint) => nativeint = "%nativeint_sub"
@@ -29,10 +31,8 @@ external shift_right: (nativeint, int) => nativeint = "%nativeint_asr"
 external shift_right_logical: (nativeint, int) => nativeint = "%nativeint_lsr"
 external of_int: int => nativeint = "%nativeint_of_int"
 external to_int: nativeint => int = "%nativeint_to_int"
-@unboxed @noalloc
-external of_float: float => nativeint = "caml_nativeint_of_float" "caml_nativeint_of_float_unboxed"
-@unboxed @noalloc
-external to_float: nativeint => float = "caml_nativeint_to_float" "caml_nativeint_to_float_unboxed"
+external of_float: float => nativeint = "caml_nativeint_of_float"
+external to_float: nativeint => float = "caml_nativeint_to_float"
 external of_int32: int32 => nativeint = "%nativeint_of_int32"
 external to_int32: nativeint => int32 = "%nativeint_to_int32"
 

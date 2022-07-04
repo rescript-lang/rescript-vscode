@@ -30,12 +30,9 @@ test: test-analysis-binary test-reanalyze
 clean:
 	rm -f rescript-editor-analysis.exe
 	dune clean
+	make -C tests clean
 	make -C reanalyze clean
-
-clean-deep:
-	make clean
-	make -C reanalyze clean-deep
 
 .DEFAULT_GOAL := build
 
-.PHONY: build-analysis-binary build-reanalyze build-tests dce clean clean-deep format test
+.PHONY: build-analysis-binary build-reanalyze build-tests dce clean format test

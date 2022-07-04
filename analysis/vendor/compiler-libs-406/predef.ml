@@ -39,31 +39,13 @@ and ident_exn = ident_create "exn"
 and ident_array = ident_create "array"
 and ident_list = ident_create "list"
 and ident_option = ident_create "option"
-
+and ident_nativeint = ident_create "nativeint"
+and ident_int32 = ident_create "int32"
 and ident_int64 = ident_create "int64"
 and ident_lazy_t = ident_create "lazy_t"
 and ident_string = ident_create "string"
 and ident_extension_constructor = ident_create "extension_constructor"
 and ident_floatarray = ident_create "floatarray"
-
-type test =
-  | For_sure_yes
-  | For_sure_no 
-  | NA
-
-let type_is_builtin_path_but_option (p : Path.t) : test  =
-  match p with
-  | Pident {Ident.stamp} ->
-      if 
-        stamp >= ident_int.Ident.stamp
-        && stamp  <= ident_floatarray.Ident.stamp    
-      then    
-        if  (stamp = ident_option.Ident.stamp)
-         || (stamp = ident_unit.Ident.stamp) then 
-          For_sure_no
-        else For_sure_yes
-      else NA 
-  | _ -> NA
 
 let path_int = Pident ident_int
 and path_char = Pident ident_char
@@ -75,8 +57,8 @@ and path_exn = Pident ident_exn
 and path_array = Pident ident_array
 and path_list = Pident ident_list
 and path_option = Pident ident_option
-
-
+and path_nativeint = Pident ident_nativeint
+and path_int32 = Pident ident_int32
 and path_int64 = Pident ident_int64
 and path_lazy_t = Pident ident_lazy_t
 and path_string = Pident ident_string
@@ -93,8 +75,8 @@ and type_exn = newgenty (Tconstr(path_exn, [], ref Mnil))
 and type_array t = newgenty (Tconstr(path_array, [t], ref Mnil))
 and type_list t = newgenty (Tconstr(path_list, [t], ref Mnil))
 and type_option t = newgenty (Tconstr(path_option, [t], ref Mnil))
-
-
+and type_nativeint = newgenty (Tconstr(path_nativeint, [], ref Mnil))
+and type_int32 = newgenty (Tconstr(path_int32, [], ref Mnil))
 and type_int64 = newgenty (Tconstr(path_int64, [], ref Mnil))
 and type_lazy_t t = newgenty (Tconstr(path_lazy_t, [t], ref Mnil))
 and type_string = newgenty (Tconstr(path_string, [], ref Mnil))
@@ -236,7 +218,8 @@ let common_initial_env add_type add_extension empty_env =
   add_extension ident_undefined_recursive_module
                          [newgenty (Ttuple[type_string; type_int; type_int])] (
   add_type ident_int64 decl_abstr (
-
+  add_type ident_int32 decl_abstr (
+  add_type ident_nativeint decl_abstr (
   add_type ident_lazy_t decl_lazy_t (
   add_type ident_option decl_option (
   add_type ident_list decl_list (
@@ -246,21 +229,19 @@ let common_initial_env add_type add_extension empty_env =
   add_type ident_bool decl_bool (
   add_type ident_float decl_abstr (
   add_type ident_string decl_abstr (
+  add_type ident_char decl_abstr_imm (
   add_type ident_int decl_abstr_imm (
   add_type ident_extension_constructor decl_abstr (
   add_type ident_floatarray decl_abstr (
-    empty_env)))))))))))))))))))))))))
+    empty_env))))))))))))))))))))))))))))
 
 let build_initial_env add_type add_exception empty_env =
   let common = common_initial_env add_type add_exception empty_env in
-  let res = add_type ident_bytes decl_abstr common in 
-  let decl_type_char = 
-        {decl_abstr with 
-        type_manifest = Some type_int; 
-        type_private = Private} in 
-    add_type ident_char decl_type_char res 
-  
-  
+  let safe_string = add_type ident_bytes decl_abstr common in
+  let decl_bytes_unsafe = {decl_abstr with type_manifest = Some type_string} in
+  let unsafe_string = add_type ident_bytes decl_bytes_unsafe common in
+  (safe_string, unsafe_string)
+
 let builtin_values =
   List.map (fun id -> Ident.make_global id; (Ident.name id, id))
       [ident_match_failure; ident_out_of_memory; ident_stack_overflow;

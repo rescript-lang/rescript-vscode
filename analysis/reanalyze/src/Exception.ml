@@ -251,9 +251,7 @@ let traverseAst () =
   in
   let isRaise s =
     s = "Pervasives.raise"
-    || s = "Pervasives.raise_notracee"
-    || s = "Stdlib.raise"
-    || s = "Stdlib.raise_notracee"
+    || s = "Pervasives.raise_notrace"
   in
   let raiseArgs args =
     match args with
@@ -288,7 +286,7 @@ let traverseAst () =
              {
                message =
                  Format.asprintf
-                   "@{<info>%s@} can be analyzed only if called direclty"
+                   "@{<info>%s@} can be analyzed only if called directly"
                    (calleeName |> Name.toString);
              });
       currentEvents :=

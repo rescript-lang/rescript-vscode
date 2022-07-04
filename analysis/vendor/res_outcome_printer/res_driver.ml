@@ -6,104 +6,111 @@ type ('ast, 'diagnostics) parseResult = {
   parsetree: 'ast;
   diagnostics: 'diagnostics;
   invalid: bool;
-  comments: Res_comment.t list
+  comments: Res_comment.t list;
 }
 
-type ('diagnostics) parsingEngine = {
+type 'diagnostics parsingEngine = {
   parseImplementation:
-    forPrinter:bool -> filename:string
-    -> (Parsetree.structure, 'diagnostics) parseResult;
+    forPrinter:bool ->
+    filename:string ->
+    (Parsetree.structure, 'diagnostics) parseResult;
   parseInterface:
-    forPrinter:bool -> filename:string
-    -> (Parsetree.signature, 'diagnostics) parseResult;
-  stringOfDiagnostics: source:string -> filename:string -> 'diagnostics  -> unit
+    forPrinter:bool ->
+    filename:string ->
+    (Parsetree.signature, 'diagnostics) parseResult;
+  stringOfDiagnostics: source:string -> filename:string -> 'diagnostics -> unit;
 }
 
 type printEngine = {
   printImplementation:
-    width: int
-    -> filename: string
-    -> comments: Res_comment.t list
-    -> Parsetree.structure
-    -> unit;
+    width:int ->
+    filename:string ->
+    comments:Res_comment.t list ->
+    Parsetree.structure ->
+    unit;
   printInterface:
-    width: int
-    -> filename: string
-    -> comments: Res_comment.t list
-    -> Parsetree.signature
-    -> unit;
+    width:int ->
+    filename:string ->
+    comments:Res_comment.t list ->
+    Parsetree.signature ->
+    unit;
 }
 
 let setup ~filename ~forPrinter () =
   let src = IO.readFile ~filename in
-  let mode = if forPrinter then Res_parser.Default
-    else ParseForTypeChecker
-  in
+  let mode = if forPrinter then Res_parser.Default else ParseForTypeChecker in
   Res_parser.make ~mode src filename
 
-let parsingEngine = {
-  parseImplementation = begin fun ~forPrinter ~filename ->
-    let engine = setup ~filename ~forPrinter () in
-    let structure = Res_core.parseImplementation engine in
-    let (invalid, diagnostics) = match engine.diagnostics with
-    | [] as diagnostics -> (false, diagnostics)
-    | _ as diagnostics -> (true, diagnostics)
-    in {
-      filename = engine.scanner.filename;
-      source = engine.scanner.src;
-      parsetree = structure;
-      diagnostics;
-      invalid;
-      comments = List.rev engine.comments;
-    }
-  end;
-  parseInterface = begin fun ~forPrinter ~filename ->
-    let engine = setup ~filename ~forPrinter () in
-    let signature = Res_core.parseSpecification engine in
-    let (invalid, diagnostics) = match engine.diagnostics with
-    | [] as diagnostics -> (false, diagnostics)
-    | _ as diagnostics -> (true, diagnostics)
-    in {
-      filename = engine.scanner.filename;
-      source = engine.scanner.src;
-      parsetree = signature;
-      diagnostics;
-      invalid;
-      comments = List.rev engine.comments;
-    }
-  end;
-  stringOfDiagnostics = begin fun ~source ~filename:_ diagnostics ->
-    Res_diagnostics.printReport diagnostics source
-  end;
-}
+let parsingEngine =
+  {
+    parseImplementation =
+      (fun ~forPrinter ~filename ->
+        let engine = setup ~filename ~forPrinter () in
+        let structure = Res_core.parseImplementation engine in
+        let invalid, diagnostics =
+          match engine.diagnostics with
+          | [] as diagnostics -> (false, diagnostics)
+          | _ as diagnostics -> (true, diagnostics)
+        in
+        {
+          filename = engine.scanner.filename;
+          source = engine.scanner.src;
+          parsetree = structure;
+          diagnostics;
+          invalid;
+          comments = List.rev engine.comments;
+        });
+    parseInterface =
+      (fun ~forPrinter ~filename ->
+        let engine = setup ~filename ~forPrinter () in
+        let signature = Res_core.parseSpecification engine in
+        let invalid, diagnostics =
+          match engine.diagnostics with
+          | [] as diagnostics -> (false, diagnostics)
+          | _ as diagnostics -> (true, diagnostics)
+        in
+        {
+          filename = engine.scanner.filename;
+          source = engine.scanner.src;
+          parsetree = signature;
+          diagnostics;
+          invalid;
+          comments = List.rev engine.comments;
+        });
+    stringOfDiagnostics =
+      (fun ~source ~filename:_ diagnostics ->
+        Res_diagnostics.printReport diagnostics source);
+  }
 
-let printEngine = {
-  printImplementation = begin fun ~width ~filename:_ ~comments structure ->
-    print_string (Res_printer.printImplementation ~width structure ~comments)
-  end;
-  printInterface = begin fun ~width ~filename:_ ~comments signature ->
-    print_string (Res_printer.printInterface ~width signature ~comments)
-  end;
-}
+let printEngine =
+  {
+    printImplementation =
+      (fun ~width ~filename:_ ~comments structure ->
+        print_string
+          (Res_printer.printImplementation ~width structure ~comments));
+    printInterface =
+      (fun ~width ~filename:_ ~comments signature ->
+        print_string (Res_printer.printInterface ~width signature ~comments));
+  }
 
 let parse_implementation sourcefile =
   Location.input_name := sourcefile;
   let parseResult =
     parsingEngine.parseImplementation ~forPrinter:false ~filename:sourcefile
   in
-  if parseResult.invalid then begin
+  if parseResult.invalid then (
     Res_diagnostics.printReport parseResult.diagnostics parseResult.source;
-    exit 1
-  end;
+    exit 1);
   parseResult.parsetree
-[@@raises exit]
+  [@@raises exit]
 
 let parse_interface sourcefile =
   Location.input_name := sourcefile;
-  let parseResult = parsingEngine.parseInterface ~forPrinter:false ~filename:sourcefile in
-  if parseResult.invalid then begin
+  let parseResult =
+    parsingEngine.parseInterface ~forPrinter:false ~filename:sourcefile
+  in
+  if parseResult.invalid then (
     Res_diagnostics.printReport parseResult.diagnostics parseResult.source;
-    exit 1
-  end;
+    exit 1);
   parseResult.parsetree
-[@@raises exit]
+  [@@raises exit]

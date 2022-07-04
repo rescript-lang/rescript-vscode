@@ -19,7 +19,9 @@ type t =
   | ExprArrayMutation
   | ExprIf
   | ExprFor
-  | IfCondition | IfBranch | ElseBranch
+  | IfCondition
+  | IfBranch
+  | ElseBranch
   | TypeExpression
   | External
   | PatternMatching
@@ -28,7 +30,6 @@ type t =
   | PatternList
   | PatternOcamlList
   | PatternRecord
-
   | TypeDef
   | TypeConstrName
   | TypeParams
@@ -69,7 +70,8 @@ let toString = function
   | JsxAttribute -> "a jsx attribute"
   | ExprOperand -> "a basic expression"
   | ExprUnary -> "a unary expression"
-  | ExprBinaryAfterOp op -> "an expression after the operator \"" ^ Token.toString op  ^ "\""
+  | ExprBinaryAfterOp op ->
+    "an expression after the operator \"" ^ Token.toString op ^ "\""
   | ExprIf -> "an if expression"
   | IfCondition -> "the condition of an if expression"
   | IfBranch -> "the true-branch of an if expression"
@@ -122,86 +124,55 @@ let toString = function
   | TagNames -> "tag names"
 
 let isSignatureItemStart = function
-  | Token.At
-  | Let
-  | Typ
-  | External
-  | Exception
-  | Open
-  | Include
-  | Module
-  | AtAt
-  | Export
-  | PercentPercent -> true
+  | Token.At | Let | Typ | External | Exception | Open | Include | Module | AtAt
+  | Export | PercentPercent ->
+    true
   | _ -> false
 
 let isAtomicPatternStart = function
-  | Token.Int _ | String _ | Codepoint _ | Backtick
-  | Lparen | Lbracket | Lbrace
-  | Underscore
-  | Lident _ | Uident _ | List
-  | Exception | Lazy
-  | Percent -> true
+  | Token.Int _ | String _ | Codepoint _ | Backtick | Lparen | Lbracket | Lbrace
+  | Underscore | Lident _ | Uident _ | List | Exception | Lazy | Percent ->
+    true
   | _ -> false
 
 let isAtomicExprStart = function
-  | Token.True | False
-  | Int _ | String _ | Float _ | Codepoint _
-  | Backtick
-  | Uident _ | Lident _ | Hash
-  | Lparen
-  | List
-  | Lbracket
-  | Lbrace
-  | LessThan
-  | Module
-  | Percent -> true
+  | Token.True | False | Int _ | String _ | Float _ | Codepoint _ | Backtick
+  | Uident _ | Lident _ | Hash | Lparen | List | Lbracket | Lbrace | LessThan
+  | Module | Percent ->
+    true
   | _ -> false
 
 let isAtomicTypExprStart = function
-  | Token.SingleQuote | Underscore
-  | Lparen | Lbrace
-  | Uident _ | Lident _
-  | Percent -> true
+  | Token.SingleQuote | Underscore | Lparen | Lbrace | Uident _ | Lident _
+  | Percent ->
+    true
   | _ -> false
 
 let isExprStart = function
-  | Token.True | False
-  | Int _ | String _ | Float _ | Codepoint _ | Backtick
+  | Token.True | False | Int _ | String _ | Float _ | Codepoint _ | Backtick
   | Underscore (* _ => doThings() *)
-  | Uident _ | Lident _ | Hash
-  | Lparen | List | Module | Lbracket | Lbrace
-  | LessThan
-  | Minus | MinusDot | Plus | PlusDot | Bang
-  | Percent | At
-  | If | Switch | While | For | Assert | Lazy | Try -> true
+  | Uident _ | Lident _ | Hash | Lparen | List | Module | Lbracket | Lbrace
+  | LessThan | Minus | MinusDot | Plus | PlusDot | Bang | Percent | At | If
+  | Switch | While | For | Assert | Lazy | Try ->
+    true
   | _ -> false
 
 let isJsxAttributeStart = function
-  | Token.Lident _ | Question -> true
+  | Token.Lident _ | Question | Lbrace -> true
   | _ -> false
 
 let isStructureItemStart = function
-  | Token.Open
-  | Let
-  | Typ
-  | External | Import | Export
-  | Exception
-  | Include
-  | Module
-  | AtAt
-  | PercentPercent
-  | At -> true
+  | Token.Open | Let | Typ | External | Import | Export | Exception | Include
+  | Module | AtAt | PercentPercent | At ->
+    true
   | t when isExprStart t -> true
   | _ -> false
 
 let isPatternStart = function
-  | Token.Int _ | Float _ | String _ | Codepoint _ | Backtick | True | False | Minus | Plus
-  | Lparen | Lbracket | Lbrace | List
-  | Underscore
-  | Lident _ | Uident _ | Hash
-  | Exception | Lazy | Percent | Module
-  | At -> true
+  | Token.Int _ | Float _ | String _ | Codepoint _ | Backtick | True | False
+  | Minus | Plus | Lparen | Lbracket | Lbrace | List | Underscore | Lident _
+  | Uident _ | Hash | Exception | Lazy | Percent | Module | At ->
+    true
   | _ -> false
 
 let isParameterStart = function
@@ -216,27 +187,20 @@ let isStringFieldDeclStart = function
 
 (* TODO: overparse Uident ? *)
 let isFieldDeclStart = function
-  | Token.At | Mutable | Lident _  -> true
+  | Token.At | Mutable | Lident _ -> true
   (* recovery, TODO: this is not ideal… *)
   | Uident _ -> true
   | t when Token.isKeyword t -> true
   | _ -> false
 
 let isRecordDeclStart = function
-  | Token.At
-  | Mutable
-  | Lident _ -> true
+  | Token.At | Mutable | Lident _ -> true
   | _ -> false
 
 let isTypExprStart = function
-  | Token.At
-  | SingleQuote
-  | Underscore
-  | Lparen | Lbracket
-  | Uident _ | Lident _
-  | Module
-  | Percent
-  | Lbrace -> true
+  | Token.At | SingleQuote | Underscore | Lparen | Lbracket | Uident _
+  | Lident _ | Module | Percent | Lbrace ->
+    true
   | _ -> false
 
 let isTypeParameterStart = function
@@ -249,16 +213,11 @@ let isTypeParamStart = function
   | _ -> false
 
 let isFunctorArgStart = function
-  | Token.At | Uident _ | Underscore
-  | Percent
-  | Lbrace
-  | Lparen -> true
+  | Token.At | Uident _ | Underscore | Percent | Lbrace | Lparen -> true
   | _ -> false
 
 let isModExprStart = function
-  | Token.At | Percent
-  | Uident _ | Lbrace | Lparen
-  | Lident "unpack" -> true
+  | Token.At | Percent | Uident _ | Lbrace | Lparen | Lident "unpack" -> true
   | _ -> false
 
 let isRecordRowStart = function
@@ -302,11 +261,12 @@ let isJsFfiImportStart = function
 let isJsxChildStart = isAtomicExprStart
 
 let isBlockExprStart = function
-  | Token.At | Hash | Percent | Minus | MinusDot | Plus | PlusDot | Bang
-  | True | False | Float _ | Int _ | String _ | Codepoint _ | Lident _ | Uident _
-  | Lparen | List | Lbracket | Lbrace | Forwardslash | Assert
-  | Lazy | If | For | While | Switch | Open | Module | Exception | Let
-  | LessThan | Backtick | Try | Underscore -> true
+  | Token.At | Hash | Percent | Minus | MinusDot | Plus | PlusDot | Bang | True
+  | False | Float _ | Int _ | String _ | Codepoint _ | Lident _ | Uident _
+  | Lparen | List | Lbracket | Lbrace | Forwardslash | Assert | Lazy | If | For
+  | While | Switch | Open | Module | Exception | Let | LessThan | Backtick | Try
+  | Underscore ->
+    true
   | _ -> false
 
 let isListElement grammar token =
@@ -342,30 +302,31 @@ let isListElement grammar token =
   | _ -> false
 
 let isListTerminator grammar token =
-  match grammar, token with
+  match (grammar, token) with
   | _, Token.Eof
   | ExprList, (Rparen | Forwardslash | Rbracket)
   | ListExpr, Rparen
   | ArgumentList, Rparen
   | TypExprList, (Rparen | Forwardslash | GreaterThan | Equal)
   | ModExprList, Rparen
-  | (PatternList | PatternOcamlList | PatternRecord),
-    (Forwardslash | Rbracket | Rparen | EqualGreater (* pattern matching => *) | In (* for expressions *) | Equal (* let {x} = foo *))
+  | ( (PatternList | PatternOcamlList | PatternRecord),
+      ( Forwardslash | Rbracket | Rparen | EqualGreater (* pattern matching => *)
+      | In (* for expressions *)
+      | Equal (* let {x} = foo *) ) )
   | ExprBlock, Rbrace
   | (Structure | Signature), Rbrace
   | TypeParams, Rparen
   | ParameterList, (EqualGreater | Lbrace)
   | JsxAttribute, (Forwardslash | GreaterThan)
   | JsFfiImport, Rbrace
-  | StringFieldDeclarations, Rbrace -> true
-
+  | StringFieldDeclarations, Rbrace ->
+    true
   | Attribute, token when token <> At -> true
   | TypeConstraint, token when token <> Constraint -> true
   | PackageConstraint, token when token <> And -> true
   | ConstructorDeclaration, token when token <> Bar -> true
   | AttributePayload, Rparen -> true
   | TagNames, Rbracket -> true
-
   | _ -> false
 
 let isPartOfList grammar token =

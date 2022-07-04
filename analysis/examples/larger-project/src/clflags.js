@@ -6,7 +6,7 @@ import * as List from "rescript/lib/es6/list.js";
 import * as Misc from "./misc.js";
 import * as Curry from "rescript/lib/es6/curry.js";
 import * as Config from "./config.js";
-import * as Printf from "rescript/lib/es6/printf.js";
+import * as Printf from "./printf.js";
 import * as Filename from "rescript/lib/es6/filename.js";
 import * as Pervasives from "rescript/lib/es6/pervasives.js";
 import * as Caml_js_exceptions from "rescript/lib/es6/caml_js_exceptions.js";
@@ -641,54 +641,9 @@ function add_arguments(loc, args) {
                 var arg_name = x[0];
                 try {
                   var loc2 = Curry._2(Misc.StringMap.find, arg_name, arg_names.contents);
-                  Curry._1(Printf.eprintf(/* Format */{
-                            _0: {
-                              TAG: /* String_literal */11,
-                              _0: "Warning: plugin argument ",
-                              _1: {
-                                TAG: /* String */2,
-                                _0: /* No_padding */0,
-                                _1: {
-                                  TAG: /* String_literal */11,
-                                  _0: " is already defined:\n",
-                                  _1: /* End_of_format */0
-                                }
-                              }
-                            },
-                            _1: "Warning: plugin argument %s is already defined:\n"
-                          }), arg_name);
-                  Curry._1(Printf.eprintf(/* Format */{
-                            _0: {
-                              TAG: /* String_literal */11,
-                              _0: "   First definition: ",
-                              _1: {
-                                TAG: /* String */2,
-                                _0: /* No_padding */0,
-                                _1: {
-                                  TAG: /* Char_literal */12,
-                                  _0: /* '\n' */10,
-                                  _1: /* End_of_format */0
-                                }
-                              }
-                            },
-                            _1: "   First definition: %s\n"
-                          }), loc2);
-                  return Curry._1(Printf.eprintf(/* Format */{
-                                  _0: {
-                                    TAG: /* String_literal */11,
-                                    _0: "   New definition: ",
-                                    _1: {
-                                      TAG: /* String */2,
-                                      _0: /* No_padding */0,
-                                      _1: {
-                                        TAG: /* Char_literal */12,
-                                        _0: /* '\n' */10,
-                                        _1: /* End_of_format */0
-                                      }
-                                    }
-                                  },
-                                  _1: "   New definition: %s\n"
-                                }), loc);
+                  Curry._1(Printf.eprintf("Warning: plugin argument %s is already defined:\n"), arg_name);
+                  Curry._1(Printf.eprintf("   First definition: %s\n"), loc2);
+                  return Curry._1(Printf.eprintf("   New definition: %s\n"), loc);
                 }
                 catch (raw_exn){
                   var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
@@ -722,25 +677,11 @@ function parse_arguments(f, msg) {
   catch (raw_msg){
     var msg$1 = Caml_js_exceptions.internalToOCamlException(raw_msg);
     if (msg$1.RE_EXN_ID === Arg.Bad) {
-      Curry._1(Printf.eprintf(/* Format */{
-                _0: {
-                  TAG: /* String */2,
-                  _0: /* No_padding */0,
-                  _1: /* End_of_format */0
-                },
-                _1: "%s"
-              }), msg$1._1);
+      Curry._1(Printf.eprintf("%s"), msg$1._1);
       return Pervasives.exit(2);
     }
     if (msg$1.RE_EXN_ID === Arg.Help) {
-      Curry._1(Printf.printf(/* Format */{
-                _0: {
-                  TAG: /* String */2,
-                  _0: /* No_padding */0,
-                  _1: /* End_of_format */0
-                },
-                _1: "%s"
-              }), msg$1._1);
+      Curry._1(Printf.printf("%s"), msg$1._1);
       return Pervasives.exit(0);
     }
     throw msg$1;

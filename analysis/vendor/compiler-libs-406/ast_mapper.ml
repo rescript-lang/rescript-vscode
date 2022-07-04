@@ -30,6 +30,7 @@ type mapper = {
   attributes: mapper -> attribute list -> attribute list;
   case: mapper -> case -> case;
   cases: mapper -> case list -> case list;
+  class_declaration: mapper -> class_declaration -> class_declaration;
   class_description: mapper -> class_description -> class_description;
   class_expr: mapper -> class_expr -> class_expr;
   class_field: mapper -> class_field -> class_field;
@@ -264,7 +265,7 @@ module MT = struct
     | Psig_modtype x -> modtype ~loc (sub.module_type_declaration sub x)
     | Psig_open x -> open_ ~loc (sub.open_description sub x)
     | Psig_include x -> include_ ~loc (sub.include_description sub x)
-    | Psig_class () -> assert false
+    | Psig_class l -> class_ ~loc (List.map (sub.class_description sub) l)
     | Psig_class_type l ->
         class_type ~loc (List.map (sub.class_type_declaration sub) l)
     | Psig_extension (x, attrs) ->
@@ -310,7 +311,7 @@ module M = struct
     | Pstr_recmodule l -> rec_module ~loc (List.map (sub.module_binding sub) l)
     | Pstr_modtype x -> modtype ~loc (sub.module_type_declaration sub x)
     | Pstr_open x -> open_ ~loc (sub.open_description sub x)
-    | Pstr_class () -> {pstr_loc = loc ; pstr_desc = Pstr_class ()}
+    | Pstr_class l -> class_ ~loc (List.map (sub.class_declaration sub) l)
     | Pstr_class_type l ->
         class_type ~loc (List.map (sub.class_type_declaration sub) l)
     | Pstr_include x -> include_ ~loc (sub.include_declaration sub x)
@@ -469,8 +470,9 @@ module CE = struct
     let loc = sub.location sub loc in
     let attrs = sub.attributes sub attrs in
     match desc with
-    | Pcf_inherit () ->
-      {pcf_desc = desc; pcf_loc = loc; pcf_attributes = attrs}
+    | Pcf_inherit (o, ce, s) ->
+        inherit_ ~loc ~attrs o (sub.class_expr sub ce)
+          (map_opt (map_loc sub) s)
     | Pcf_val (s, m, k) -> val_ ~loc ~attrs (map_loc sub s) m (map_kind sub k)
     | Pcf_method (s, p, k) ->
         method_ ~loc ~attrs (map_loc sub s) p (map_kind sub k)
@@ -510,6 +512,8 @@ let default_mapper =
     signature_item = MT.map_signature_item;
     module_type = MT.map;
     with_constraint = MT.map_with_constraint;
+    class_declaration =
+      (fun this -> CE.class_infos this (this.class_expr this));
     class_expr = CE.map;
     class_field = CE.map_field;
     class_structure = CE.map_structure;
@@ -698,6 +702,10 @@ module PpxContext = struct
   let make_pair f1 f2 (x1, x2) =
     Exp.tuple [f1 x1; f2 x2]
 
+  let make_option f opt =
+    match opt with
+    | Some x -> Exp.construct (lid "Some") (Some (f x))
+    | None   -> Exp.construct (lid "None") None
 
   let get_cookies () =
     lid "cookies",
@@ -715,7 +723,10 @@ module PpxContext = struct
         lid "include_dirs", make_list make_string !Clflags.include_dirs;
         lid "load_path",    make_list make_string !Config.load_path;
         lid "open_modules", make_list make_string !Clflags.open_modules;
+        lid "for_package",  make_option make_string !Clflags.for_package;
         lid "debug",        make_bool !Clflags.debug;
+        lid "use_threads",  make_bool !Clflags.use_threads;
+        lid "use_vmthreads", make_bool !Clflags.use_vmthreads;
         get_cookies ()
       ]
     in
@@ -759,6 +770,15 @@ module PpxContext = struct
             (f1 e1, f2 e2)
         | _ -> raise_errorf "Internal error: invalid [@@@ocaml.ppx.context \
                              { %s }] pair syntax" name
+      and get_option elem = function
+        | { pexp_desc =
+              Pexp_construct ({ txt = Longident.Lident "Some" }, Some exp) } ->
+            Some (elem exp)
+        | { pexp_desc =
+              Pexp_construct ({ txt = Longident.Lident "None" }, None) } ->
+            None
+        | _ -> raise_errorf "Internal error: invalid [@@@ocaml.ppx.context \
+                             { %s }] option syntax" name
       in
       match name with
       | "tool_name" ->
@@ -769,8 +789,14 @@ module PpxContext = struct
           Config.load_path := get_list get_string payload
       | "open_modules" ->
           Clflags.open_modules := get_list get_string payload
+      | "for_package" ->
+          Clflags.for_package := get_option get_string payload
       | "debug" ->
           Clflags.debug := get_bool payload
+      | "use_threads" ->
+          Clflags.use_threads := get_bool payload
+      | "use_vmthreads" ->
+          Clflags.use_vmthreads := get_bool payload
       | "cookies" ->
           let l = get_list (get_pair get_string (fun x -> x)) payload in
           cookies :=
@@ -846,7 +872,7 @@ let apply_lazy ~source ~target mapper =
   in
 
   let rewrite transform =
-    Location.set_input_name @@ input_value ic;
+    Location.input_name := input_value ic;
     let ast = input_value ic in
     close_in ic;
     let ast = transform ast in

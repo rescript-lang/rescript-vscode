@@ -23,9 +23,12 @@ type mapper =
   {
     case: mapper -> case -> case;
     cases: mapper -> case list -> case list;
+    class_declaration: mapper -> class_declaration -> class_declaration;
     class_description: mapper -> class_description -> class_description;
-
+    class_expr: mapper -> class_expr -> class_expr;
+    class_field: mapper -> class_field -> class_field;
     class_signature: mapper -> class_signature -> class_signature;
+    class_structure: mapper -> class_structure -> class_structure;
     class_type: mapper -> class_type -> class_type;
     class_type_declaration: mapper -> class_type_declaration ->
       class_type_declaration;
@@ -93,6 +96,8 @@ let include_infos f x = {x with incl_mod = f x.incl_mod}
 let class_type_declaration sub x =
   class_infos sub (sub.class_type sub) x
 
+let class_declaration sub x =
+  class_infos sub (sub.class_expr sub) x
 
 let structure_item sub {str_desc; str_loc; str_env} =
   let str_env = sub.env sub str_env in
@@ -112,7 +117,9 @@ let structure_item sub {str_desc; str_loc; str_env} =
     | Tstr_recmodule list ->
         Tstr_recmodule (List.map (sub.module_binding sub) list)
     | Tstr_modtype x -> Tstr_modtype (sub.module_type_declaration sub x)
-    | Tstr_class () -> Tstr_class ()
+    | Tstr_class list ->
+        Tstr_class
+          (List.map (tuple2 (sub.class_declaration sub) id) list)
     | Tstr_class_type list ->
         Tstr_class_type
           (List.map (tuple3 id id (sub.class_type_declaration sub)) list)
@@ -306,9 +313,18 @@ let expr sub x =
           )
     | Texp_new _
     | Texp_instvar _ as d -> d
-    | Texp_setinstvar _
-    | Texp_override _ ->
-      assert false
+    | Texp_setinstvar (path1, path2, id, exp) ->
+        Texp_setinstvar (
+          path1,
+          path2,
+          id,
+          sub.expr sub exp
+        )
+    | Texp_override (path, list) ->
+        Texp_override (
+          path,
+          List.map (tuple3 id id (sub.expr sub)) list
+        )
     | Texp_letmodule (id, s, mexpr, exp) ->
         Texp_letmodule (
           id,
@@ -325,8 +341,8 @@ let expr sub x =
         Texp_assert (sub.expr sub exp)
     | Texp_lazy exp ->
         Texp_lazy (sub.expr sub exp)
-    | Texp_object () ->
-        Texp_object ()
+    | Texp_object (cl, sl) ->
+        Texp_object (sub.class_structure sub cl, sl)
     | Texp_pack mexpr ->
         Texp_pack (sub.module_expr sub mexpr)
     | Texp_unreachable ->
@@ -416,12 +432,12 @@ let module_coercion sub = function
       Tcoerce_functor (sub.module_coercion sub c1, sub.module_coercion sub c2)
   | Tcoerce_alias (p, c1) ->
       Tcoerce_alias (p, sub.module_coercion sub c1)
-  | Tcoerce_structure (l1, l2, runtime_fields) ->
+  | Tcoerce_structure (l1, l2) ->
       let l1' = List.map (fun (i,c) -> i, sub.module_coercion sub c) l1 in
       let l2' =
         List.map (fun (id,i,c) -> id, i, sub.module_coercion sub c) l2
       in
-      Tcoerce_structure (l1', l2', runtime_fields)
+      Tcoerce_structure (l1', l2')
   | Tcoerce_primitive pc ->
       Tcoerce_primitive {pc with pc_env = sub.env sub pc.pc_env}
 
@@ -467,6 +483,49 @@ let module_binding sub x =
   let mb_expr = sub.module_expr sub x.mb_expr in
   {x with mb_expr}
 
+let class_expr sub x =
+  let cl_env = sub.env sub x.cl_env in
+  let cl_desc =
+    match x.cl_desc with
+    | Tcl_constraint (cl, clty, vals, meths, concrs) ->
+        Tcl_constraint (
+          sub.class_expr sub cl,
+          opt (sub.class_type sub) clty,
+          vals,
+          meths,
+          concrs
+        )
+    | Tcl_structure clstr ->
+        Tcl_structure (sub.class_structure sub clstr)
+    | Tcl_fun (label, pat, priv, cl, partial) ->
+        Tcl_fun (
+          label,
+          sub.pat sub pat,
+          List.map (tuple3 id id (sub.expr sub)) priv,
+          sub.class_expr sub cl,
+          partial
+        )
+    | Tcl_apply (cl, args) ->
+        Tcl_apply (
+          sub.class_expr sub cl,
+          List.map (tuple2 id (opt (sub.expr sub))) args
+        )
+    | Tcl_let (rec_flag, value_bindings, ivars, cl) ->
+        let (rec_flag, value_bindings) =
+          sub.value_bindings sub (rec_flag, value_bindings)
+        in
+        Tcl_let (
+          rec_flag,
+          value_bindings,
+          List.map (tuple3 id id (sub.expr sub)) ivars,
+          sub.class_expr sub cl
+        )
+    | Tcl_ident (path, lid, tyl) ->
+        Tcl_ident (path, lid, List.map (sub.typ sub) tyl)
+    | Tcl_open (ovf, p, lid, env, e) ->
+        Tcl_open (ovf, p, lid, sub.env sub env, sub.class_expr sub e)
+  in
+  {x with cl_desc; cl_env}
 
 let class_type sub x =
   let cltyp_env = sub.env sub x.cltyp_env in
@@ -540,6 +599,10 @@ let typ sub x =
   in
   {x with ctyp_desc; ctyp_env}
 
+let class_structure sub x =
+  let cstr_self = sub.pat sub x.cstr_self in
+  let cstr_fields = List.map (sub.class_field sub) x.cstr_fields in
+  {x with cstr_self; cstr_fields}
 
 let row_field sub = function
   | Ttag (label, attrs, b, list) ->
@@ -551,7 +614,29 @@ let object_field sub = function
       OTtag (label, attrs, (sub.typ sub ct))
   | OTinherit ct -> OTinherit (sub.typ sub ct)
 
+let class_field_kind sub = function
+  | Tcfk_virtual ct -> Tcfk_virtual (sub.typ sub ct)
+  | Tcfk_concrete (ovf, e) -> Tcfk_concrete (ovf, sub.expr sub e)
 
+let class_field sub x =
+  let cf_desc =
+    match x.cf_desc with
+    | Tcf_inherit (ovf, cl, super, vals, meths) ->
+        Tcf_inherit (ovf, sub.class_expr sub cl, super, vals, meths)
+    | Tcf_constraint (cty, cty') ->
+        Tcf_constraint (
+          sub.typ sub cty,
+          sub.typ sub cty'
+        )
+    | Tcf_val (s, mf, id, k, b) ->
+        Tcf_val (s, mf, id, class_field_kind sub k, b)
+    | Tcf_method (s, priv, k) ->
+        Tcf_method (s, priv, class_field_kind sub k)
+    | Tcf_initializer exp ->
+        Tcf_initializer (sub.expr sub exp)
+    | Tcf_attribute _ as d -> d
+  in
+  {x with cf_desc}
 
 let value_bindings sub (rec_flag, list) =
   (rec_flag, List.map (sub.value_binding sub) list)
@@ -577,8 +662,12 @@ let default =
   {
     case;
     cases;
+    class_declaration;
     class_description;
+    class_expr;
+    class_field;
     class_signature;
+    class_structure;
     class_type;
     class_type_declaration;
     class_type_field;

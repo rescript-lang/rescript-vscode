@@ -219,5 +219,4 @@ let print_config = oc => {
   p("cmxs_magic_number", cmxs_magic_number)
   p("cmt_magic_number", cmt_magic_number)
 
-  flush(oc)
 }

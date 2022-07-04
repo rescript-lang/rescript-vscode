@@ -11,11 +11,16 @@ type completionItem = {
   documentation: markupContent option;
 }
 
-type hover = string
-type location = {uri: string; range: range}
-type documentSymbolItem = {name: string; kind: int; location: location}
-type renameFile = {oldUri: string; newUri: string}
-type textEdit = {range: range; newText: string}
+type location = {uri : string; range : range}
+type documentSymbolItem = {name : string; kind : int; location : location}
+type renameFile = {oldUri : string; newUri : string}
+type textEdit = {range : range; newText : string}
+
+type diagnostic = {
+  range : range;
+  message : string;
+  severity : int;
+}
 
 type optionalVersionedTextDocumentIdentifier = {
   version: int option;
@@ -90,7 +95,7 @@ let stringifyRenameFile {oldUri; newUri} =
 }|}
     (Json.escape oldUri) (Json.escape newUri)
 
-let stringifyTextEdit te =
+let stringifyTextEdit (te : textEdit) =
   Printf.sprintf {|{
   "range": %s,
   "newText": "%s"
@@ -128,15 +133,13 @@ let stringifyCodeAction ca =
     (codeActionKindToString ca.codeActionKind)
     (ca.edit |> stringifyCodeActionEdit)
 
-let stringifyHint hint =
-  Printf.sprintf
-    {|{
-    "position": %s,
-    "label": "%s",
-    "tooltip": %s,
-    "kind": %i,
-    "paddingLeft": %b,
-    "paddingRight": %b
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic *)
+let stringifyDiagnostic d =
+  Printf.sprintf {|{
+  "range": %s,
+  "message": "%s",
+  "severity": %d,
+  "source": "ReScript"
 }|}
-    (stringifyPosition hint.position)
-    hint.label (stringifyMarkupContent hint.tooltip) hint.kind hint.paddingLeft hint.paddingRight
+    (stringifyRange d.range) (Json.escape d.message)
+    d.severity

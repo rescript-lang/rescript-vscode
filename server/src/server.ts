@@ -46,6 +46,13 @@ let projectsFiles: Map<
     openFiles: Set<string>;
     filesWithDiagnostics: Set<string>;
     bsbWatcherByEditor: null | ChildProcess;
+
+    // This keeps track of whether we've prompted the user to start a build
+    // automatically, if there's no build currently running for the project. We
+    // only want to prompt the user about this once, or it becomes
+    // annoying.
+    // The type `never` means that we won't show the prompt if the project is inside node_modules
+    hasPromptedToStartBuild: boolean | "never";
   }
 > = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
@@ -54,7 +61,7 @@ let projectsFiles: Map<
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: p.Message) => void = (_) => {};
+let send: (msg: p.Message) => void = (_) => { };
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -183,25 +190,27 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   if (projectRootPath != null) {
-    if (!projectsFiles.has(projectRootPath)) {
-      projectsFiles.set(projectRootPath, {
+    let projectRootState = projectsFiles.get(projectRootPath);
+    if (projectRootState == null) {
+      projectRootState = {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
         bsbWatcherByEditor: null,
-      });
+        hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(projectRootPath) ? "never" : false,
+      };
+      projectsFiles.set(projectRootPath, projectRootState);
       compilerLogsWatcher.add(
         path.join(projectRootPath, c.compilerLogPartialPath)
       );
     }
     let root = projectsFiles.get(projectRootPath)!;
     root.openFiles.add(filePath);
-    let firstOpenFileOfProject = root.openFiles.size === 1;
     // check if .bsb.lock is still there. If not, start a bsb -w ourselves
     // because otherwise the diagnostics info we'll display might be stale
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
     if (
+      projectRootState.hasPromptedToStartBuild === false &&
       extensionConfiguration.askToStartBuild === true &&
-      firstOpenFileOfProject &&
       !fs.existsSync(bsbLockPath)
     ) {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
@@ -224,6 +233,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
           params: params,
         };
         send(request);
+        projectRootState.hasPromptedToStartBuild = true;
         // the client might send us back the "start build" action, which we'll
         // handle in the isResponseMessage check in the message handling way
         // below
@@ -616,6 +626,34 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   }
 }
 
+const updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
+  let filePath = fileURLToPath(fileUri);
+  let extension = path.extname(filePath);
+  let tmpname = utils.createFileInTempDir(extension);
+  fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
+
+  const items: p.Diagnostic[] | [] = utils.runAnalysisAfterSanityCheck(
+    filePath,
+    [
+      "diagnosticSyntax",
+      tmpname
+    ],
+  );
+
+  const notification: p.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "textDocument/publishDiagnostics",
+    params: {
+      uri: fileUri,
+      diagnostics: items
+    }
+  }
+
+  fs.unlink(tmpname, () => null);
+
+  send(notification)
+}
+
 function createInterface(msg: p.RequestMessage): p.Message {
   let params = msg.params as CreateInterfaceRequestParams;
   let extension = path.extname(params.uri);
@@ -802,6 +840,7 @@ function onMessage(msg: p.Message) {
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       openedFile(params.textDocument.uri, params.textDocument.text);
+      updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
@@ -815,6 +854,7 @@ function onMessage(msg: p.Message) {
             params.textDocument.uri,
             changes[changes.length - 1].text
           );
+          updateDiagnosticSyntax(params.textDocument.uri, changes[changes.length - 1].text);
         }
       }
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
