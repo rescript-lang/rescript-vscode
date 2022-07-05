@@ -516,16 +516,6 @@ function kleene(f, p) {
   }
 }
 
-function one(p) {
-  var match = p.token;
-  if (typeof match === "number" || match._0 !== 1) {
-    return ;
-  } else {
-    next(p);
-    return "1";
-  }
-}
-
 function two(p) {
   var match = p.token;
   if (typeof match === "number" || match._0 !== 2) {
@@ -533,6 +523,16 @@ function two(p) {
   } else {
     next(p);
     return "2";
+  }
+}
+
+function one(p) {
+  var match = p.token;
+  if (typeof match === "number" || match._0 !== 1) {
+    return ;
+  } else {
+    next(p);
+    return "1";
   }
 }
 
