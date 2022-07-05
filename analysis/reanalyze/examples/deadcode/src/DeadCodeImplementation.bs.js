@@ -7,6 +7,5 @@ var M = {
 
 export {
   M ,
-  
 }
 /* No side effect */

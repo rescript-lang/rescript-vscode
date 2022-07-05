@@ -55,6 +55,5 @@ console.log(wrapfourArgs(undefined, 4, 44, 44));
 export {
   foo ,
   bar ,
-  
 }
 /*  Not a pure module */

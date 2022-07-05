@@ -9,6 +9,5 @@ var testBsJson2 = Json_decode.string;
 export {
   testBsJson ,
   testBsJson2 ,
-  
 }
 /* No side effect */

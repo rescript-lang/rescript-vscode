@@ -109,6 +109,5 @@ export {
   WithSignature ,
   foo ,
   bar ,
-  
 }
 /* No side effect */

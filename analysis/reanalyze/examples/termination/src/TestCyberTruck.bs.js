@@ -24,7 +24,6 @@ function progress(param) {
         };
   }
   counter.contents = counter.contents - 1 | 0;
-  
 }
 
 var Nested = {
@@ -56,7 +55,7 @@ function alwaysProgress(_param) {
 
 function alwaysProgressWrongOrder(param) {
   alwaysProgressWrongOrder(undefined);
-  return progress(undefined);
+  progress(undefined);
 }
 
 function doNotAlias(_param) {
@@ -113,13 +112,11 @@ function doNothing(param) {
 function evalOrderIsNotLeftToRight(x) {
   evalOrderIsNotLeftToRight(x);
   progress(undefined);
-  
 }
 
 function evalOrderIsNotRightToLeft(x) {
   progress(undefined);
   evalOrderIsNotRightToLeft(x);
-  
 }
 
 function butFirstArgumentIsAlwaysEvaluated(x) {
@@ -163,7 +160,6 @@ function next(p) {
     lnum: Random.$$int(1000),
     cnum: Random.$$int(80)
   };
-  
 }
 
 function err(p, s) {
@@ -171,11 +167,10 @@ function err(p, s) {
     hd: s,
     tl: p.errors
   };
-  
 }
 
 function expect(p, token) {
-  if (Caml_obj.caml_equal(p.token, token)) {
+  if (Caml_obj.equal(p.token, token)) {
     return next(p);
   } else {
     return err(p, "expected token " + tokenToString(p.token));
@@ -309,13 +304,13 @@ function increment(n) {
 }
 
 function incrementOnClick(setState, param) {
-  return Curry._1(setState, increment);
+  Curry._1(setState, increment);
 }
 
 function counter$1(state, setState) {
   Curry._1(setState, initState);
   return div(String(state), (function (param) {
-                return Curry._1(setState, increment);
+                Curry._1(setState, increment);
               }));
 }
 
@@ -325,11 +320,10 @@ function counterCompiled(state) {
     counterCompiled(newState);
   }
   String(state);
-  
 }
 
 function onClick1(state) {
-  return counterCompiled(state + 1 | 0);
+  counterCompiled(state + 1 | 0);
 }
 
 function countRenders(state, setState) {
@@ -341,7 +335,6 @@ function countRendersCompiled(state) {
   var newState = state + 1 | 0;
   countRendersCompiled(newState);
   "I have been rendered " + (String(state) + " times");
-  
 }
 
 var UITermination = {
@@ -622,6 +615,5 @@ export {
   Riddle ,
   TerminationTypes ,
   testTry ,
-  
 }
 /* counter Not a pure module */

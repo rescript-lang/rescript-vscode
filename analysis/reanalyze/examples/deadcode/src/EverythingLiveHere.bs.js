@@ -11,6 +11,5 @@ export {
   x ,
   y ,
   z ,
-  
 }
 /* No side effect */

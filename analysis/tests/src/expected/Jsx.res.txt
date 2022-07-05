@@ -46,6 +46,12 @@ Completable: Cpath Module[M]
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "MapLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "MoreLabels",
     "kind": 9,
     "tags": [],
@@ -403,8 +409,25 @@ Completable: Cpath Module[Nested, ""]
   }]
 
 Hover src/Jsx.res 162:12
-{"contents": "```rescript\n(\n  string,\n  ~props: ReactDOMRe.props=?,\n  array<React.element>,\n) => React.element\n```"}
+Nothing at that position. Now trying to use completion.
+posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:3->162:21]
+Pexp_construct :::[162:6->162:21] [162:6->162:21]
+posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:6->162:21]
+posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:6->162:20]
+JSX <Comp:[162:6->162:10] age[162:11->162:14]=...[162:15->162:17]> _children:162:18
+Completable: Cjsx([Comp], age, [age])
+{"contents": "```rescript\nint\n```"}
 
 Hover src/Jsx.res 167:16
-{"contents": "```rescript\n(\n  string,\n  ~props: ReactDOMRe.props=?,\n  array<React.element>,\n) => React.element\n```"}
+Nothing at that position. Now trying to use completion.
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:3->167:30]
+Pexp_construct :::[167:7->167:30] [167:7->167:30]
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:7->167:30]
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:7->167:25]
+Pexp_construct :::[167:10->167:25] [167:10->167:25]
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:10->167:25]
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:10->167:24]
+JSX <Comp:[167:10->167:14] age[167:15->167:18]=...[167:19->167:21]> _children:167:22
+Completable: Cjsx([Comp], age, [age])
+{"contents": "```rescript\nint\n```"}
 
