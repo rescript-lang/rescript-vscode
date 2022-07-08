@@ -133,6 +133,19 @@ let stringifyCodeAction ca =
     (codeActionKindToString ca.codeActionKind)
     (ca.edit |> stringifyCodeActionEdit)
 
+let stringifyHint hint =
+  Printf.sprintf
+    {|{
+    "position": %s,
+    "label": "%s",
+    "tooltip": %s,
+    "kind": %i,
+    "paddingLeft": %b,
+    "paddingRight": %b
+}|}
+    (stringifyPosition hint.position)
+    (Json.escape hint.label) (stringifyMarkupContent hint.tooltip) hint.kind hint.paddingLeft hint.paddingRight
+
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic *)
 let stringifyDiagnostic d =
   Printf.sprintf {|{
