@@ -82,7 +82,9 @@ let openCompiledFileRequest = new v.RequestType<
   void
 >("rescript-vscode.open_compiled");
 
-let getDiagnosticsForFile = (fileUri: string): p.Diagnostic[] => {
+let getCurrentCompilerDiagnosticsForFile = (
+  fileUri: string
+): p.Diagnostic[] => {
   let diagnostics: p.Diagnostic[] | null = null;
 
   projectsFiles.forEach((projectFile, _projectRootPath) => {
@@ -630,7 +632,8 @@ let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   // diagnostics if there's no syntax diagostics to send. This is because
   // publishing an empty diagnostics array is equivalent to saying "clear all
   // errors".
-  let compilerDiagnosticsForFile = getDiagnosticsForFile(fileUri);
+  let compilerDiagnosticsForFile =
+    getCurrentCompilerDiagnosticsForFile(fileUri);
   let syntaxDiagnosticsForFile: p.Diagnostic[] =
     utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
 
