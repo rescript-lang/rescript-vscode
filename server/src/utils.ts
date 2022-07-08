@@ -474,7 +474,7 @@ let parseFileAndRange = (fileAndRange: string) => {
 };
 
 // main parsing logic
-type filesDiagnostics = {
+export type filesDiagnostics = {
   [key: string]: p.Diagnostic[];
 };
 type parsedCompilerLogResult = {
