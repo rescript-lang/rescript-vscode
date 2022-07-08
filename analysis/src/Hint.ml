@@ -88,9 +88,10 @@ let inlay ~path ~pos ~debug =
      pvb_expr =
        {
          pexp_desc =
-           ( Pexp_constant _ | Pexp_tuple _ | Pexp_record _ | Pexp_apply _
-           | Pexp_match _ | Pexp_construct _ | Pexp_ifthenelse _ | Pexp_array _
-           | Pexp_ident _ );
+           ( Pexp_constant _ | Pexp_tuple _ | Pexp_record _ | Pexp_variant _
+           | Pexp_apply _ | Pexp_match _ | Pexp_construct _ | Pexp_ifthenelse _
+           | Pexp_array _ | Pexp_ident _ | Pexp_try _ | Pexp_lazy _
+           | Pexp_send _ | Pexp_field _ );
        };
     } ->
       hints := (vb.pvb_pat.ppat_loc, Type) :: !hints
