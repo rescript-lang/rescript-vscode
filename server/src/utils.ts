@@ -589,7 +589,7 @@ export let parseCompilerLogOutput = (
         code: undefined,
         severity: t.DiagnosticSeverity.Error,
         tag: undefined,
-        content: [lines[i], lines[i + 1]],
+        content: [lines[i], lines[i+1]],
       });
       i++;
     } else if (/^  +([0-9]+| +|\.) (│|┆)/.test(line)) {
