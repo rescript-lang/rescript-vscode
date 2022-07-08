@@ -20,6 +20,7 @@ import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
+import { filesDiagnostics } from "./utils";
 
 interface extensionConfiguration {
   askToStartBuild: boolean;
@@ -41,6 +42,8 @@ let projectsFiles: Map<
   {
     openFiles: Set<string>;
     filesWithDiagnostics: Set<string>;
+    filesDiagnostics: filesDiagnostics;
+
     bsbWatcherByEditor: null | ChildProcess;
 
     // This keeps track of whether we've prompted the user to start a build
@@ -79,8 +82,20 @@ let openCompiledFileRequest = new v.RequestType<
   void
 >("rescript-vscode.open_compiled");
 
+let getDiagnosticsForFile = (fileUri: string): p.Diagnostic[] => {
+  let diagnostics: p.Diagnostic[] | null = null;
+
+  projectsFiles.forEach((projectFile, _projectRootPath) => {
+    if (diagnostics == null && projectFile.filesDiagnostics[fileUri] != null) {
+      diagnostics = projectFile.filesDiagnostics[fileUri].slice();
+    }
+  });
+
+  return diagnostics ?? [];
+};
 let sendUpdatedDiagnostics = () => {
-  projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
+  projectsFiles.forEach((projectFile, projectRootPath) => {
+    let { filesWithDiagnostics } = projectFile;
     let content = fs.readFileSync(
       path.join(projectRootPath, c.compilerLogPartialPath),
       { encoding: "utf-8" }
@@ -91,6 +106,7 @@ let sendUpdatedDiagnostics = () => {
       codeActions,
     } = utils.parseCompilerLogOutput(content);
 
+    projectFile.filesDiagnostics = filesAndErrors;
     codeActionsFromDiagnostics = codeActions;
 
     // diff
@@ -188,6 +204,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
       projectRootState = {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
+        filesDiagnostics: {},
         bsbWatcherByEditor: null,
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
           projectRootPath
@@ -608,17 +625,21 @@ let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
 
-  let items: p.Diagnostic[] | [] = utils.runAnalysisAfterSanityCheck(filePath, [
-    "diagnosticSyntax",
-    tmpname,
-  ]);
+  // We need to account for any existing diagnostics from the compiler for this
+  // file. If we don't we might accidentally clear the current file's compiler
+  // diagnostics if there's no syntax diagostics to send. This is because
+  // publishing an empty diagnostics array is equivalent to saying "clear all
+  // errors".
+  let compilerDiagnosticsForFile = getDiagnosticsForFile(fileUri);
+  let syntaxDiagnosticsForFile: p.Diagnostic[] =
+    utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
 
   let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
     method: "textDocument/publishDiagnostics",
     params: {
       uri: fileUri,
-      diagnostics: items,
+      diagnostics: [...syntaxDiagnosticsForFile, ...compilerDiagnosticsForFile],
     },
   };
 
