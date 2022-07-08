@@ -57,7 +57,7 @@ let projectsFiles: Map<
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: p.Message) => void = (_) => { };
+let send: (msg: p.Message) => void = (_) => {};
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -189,7 +189,11 @@ let openedFile = (fileUri: string, fileContent: string) => {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
         bsbWatcherByEditor: null,
-        hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(projectRootPath) ? "never" : false,
+        hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
+          projectRootPath
+        )
+          ? "never"
+          : false,
       };
       projectsFiles.set(projectRootPath, projectRootState);
       compilerLogsWatcher.add(
@@ -598,33 +602,30 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   }
 }
 
-const updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
+let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
   let extension = path.extname(filePath);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
 
-  const items: p.Diagnostic[] | [] = utils.runAnalysisAfterSanityCheck(
-    filePath,
-    [
-      "diagnosticSyntax",
-      tmpname
-    ],
-  );
+  let items: p.Diagnostic[] | [] = utils.runAnalysisAfterSanityCheck(filePath, [
+    "diagnosticSyntax",
+    tmpname,
+  ]);
 
-  const notification: p.NotificationMessage = {
+  let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
     method: "textDocument/publishDiagnostics",
     params: {
       uri: fileUri,
-      diagnostics: items
-    }
-  }
+      diagnostics: items,
+    },
+  };
 
   fs.unlink(tmpname, () => null);
 
-  send(notification)
-}
+  send(notification);
+};
 
 function createInterface(msg: p.RequestMessage): p.Message {
   let params = msg.params as CreateInterfaceRequestParams;
@@ -826,7 +827,10 @@ function onMessage(msg: p.Message) {
             params.textDocument.uri,
             changes[changes.length - 1].text
           );
-          updateDiagnosticSyntax(params.textDocument.uri, changes[changes.length - 1].text);
+          updateDiagnosticSyntax(
+            params.textDocument.uri,
+            changes[changes.length - 1].text
+          );
         }
       }
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
