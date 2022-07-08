@@ -1518,3 +1518,30 @@ Completable: Cpath array->ma
     "documentation": null
   }]
 
+Complete src/Completion.res 397:14
+posCursor:[397:14] posNoWhite:[397:13] Found expr:[396:14->397:20]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:16], ...[397:16->397:20])
+posCursor:[397:14] posNoWhite:[397:13] Found expr:[396:14->397:16]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:13], ...[397:13->397:16])
+posCursor:[397:14] posNoWhite:[397:13] Found expr:[397:13->397:16]
+Pexp_ident red:[397:13->397:16]
+Completable: Cpath Value[red]
+[{
+    "label": "red",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete src/Completion.res 402:22
+posCursor:[402:22] posNoWhite:[402:20] Found expr:[400:14->402:31]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[401:16->402:27], ...[402:27->402:31])
+posCursor:[402:22] posNoWhite:[402:20] Found expr:[401:16->402:27]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[401:16->402:27], ...[402:24->402:27])
+posCursor:[402:22] posNoWhite:[402:20] Found expr:[401:16->402:27]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->401:16], ...[401:16->402:24])
+posCursor:[402:22] posNoWhite:[402:20] Found expr:[401:16->402:24]
+Completable: Cnone
+[]
+
