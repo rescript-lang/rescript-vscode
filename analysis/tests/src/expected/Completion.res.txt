@@ -1536,10 +1536,10 @@ Completable: Cpath Value[red]
 
 Complete src/Completion.res 402:24
 posCursor:[402:24] posNoWhite:[402:23] Found expr:[400:14->402:31]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[401:16->402:27], ...[402:27->402:31])
-posCursor:[402:24] posNoWhite:[402:23] Found expr:[401:16->402:27]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[401:16->402:27], ...[402:24->402:27])
-posCursor:[402:24] posNoWhite:[402:23] Found expr:[401:16->402:27]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:27], ...[402:27->402:31])
+posCursor:[402:24] posNoWhite:[402:23] Found expr:[400:14->402:27]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:24], ...[402:24->402:27])
+posCursor:[402:24] posNoWhite:[402:23] Found expr:[400:14->402:24]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->401:16], ...[401:16->402:24])
 posCursor:[402:24] posNoWhite:[402:23] Found expr:[401:16->402:24]
 Completable: Cnone
