@@ -2155,7 +2155,11 @@ and parseTemplateExpr ?(prefix = "js") p =
     let op = Location.mknoloc (Longident.Lident "^") in
     Ast_helper.Exp.ident op
   in
-  let rec parseParts acc =
+  let concat (e1: Parsetree.expression) (e2: Parsetree.expression) =
+    let loc = mkLoc e1.pexp_loc.loc_start e2.pexp_loc.loc_end in
+    Ast_helper.Exp.apply ~attrs:[templateLiteralAttr] ~loc hiddenOperator
+        [(Nolabel, e1); (Nolabel, e2)] in
+  let rec parseParts (acc: Parsetree.expression) =
     let startPos = p.Parser.startPos in
     Parser.nextTemplateLiteralToken p;
     match p.token with
@@ -2166,25 +2170,18 @@ and parseTemplateExpr ?(prefix = "js") p =
         Ast_helper.Exp.constant ~attrs:[templateLiteralAttr] ~loc
           (Pconst_string (txt, Some prefix))
       in
-      Ast_helper.Exp.apply ~attrs:[templateLiteralAttr] ~loc hiddenOperator
-        [(Nolabel, acc); (Nolabel, str)]
+      concat acc str
     | TemplatePart txt ->
       Parser.next p;
       let loc = mkLoc startPos p.prevEndPos in
       let expr = parseExprBlock p in
-      let fullLoc = mkLoc startPos p.prevEndPos in
       let str =
         Ast_helper.Exp.constant ~attrs:[templateLiteralAttr] ~loc
           (Pconst_string (txt, Some prefix))
       in
       let next =
-        let a =
-          Ast_helper.Exp.apply ~attrs:[templateLiteralAttr] ~loc:fullLoc
-            hiddenOperator
-            [(Nolabel, acc); (Nolabel, str)]
-        in
-        Ast_helper.Exp.apply ~loc:fullLoc hiddenOperator
-          [(Nolabel, a); (Nolabel, expr)]
+        let a = concat acc str in
+        concat a expr
       in
       parseParts next
     | token ->
@@ -2203,15 +2200,11 @@ and parseTemplateExpr ?(prefix = "js") p =
     Parser.next p;
     let constantLoc = mkLoc startPos p.prevEndPos in
     let expr = parseExprBlock p in
-    let fullLoc = mkLoc startPos p.prevEndPos in
     let str =
       Ast_helper.Exp.constant ~attrs:[templateLiteralAttr] ~loc:constantLoc
         (Pconst_string (txt, Some prefix))
     in
-    let next =
-      Ast_helper.Exp.apply ~attrs:[templateLiteralAttr] ~loc:fullLoc
-        hiddenOperator
-        [(Nolabel, str); (Nolabel, expr)]
+    let next = concat str expr 
     in
     parseParts next
   | token ->
