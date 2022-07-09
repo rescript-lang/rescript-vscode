@@ -88,8 +88,8 @@ type t =
   | PercentPercent
   | Comment of Comment.t
   | List
-  | TemplateTail of string
-  | TemplatePart of string
+  | TemplateTail of string * Lexing.position
+  | TemplatePart of string * Lexing.position
   | Backtick
   | BarGreater
   | Try
@@ -199,8 +199,8 @@ let toString = function
   | PercentPercent -> "%%"
   | Comment c -> "Comment" ^ Comment.toString c
   | List -> "list{"
-  | TemplatePart text -> text ^ "${"
-  | TemplateTail text -> "TemplateTail(" ^ text ^ ")"
+  | TemplatePart (text, _) -> text ^ "${"
+  | TemplateTail (text, _) -> "TemplateTail(" ^ text ^ ")"
   | Backtick -> "`"
   | BarGreater -> "|>"
   | Try -> "try"

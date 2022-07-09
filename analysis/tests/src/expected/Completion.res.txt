@@ -937,9 +937,9 @@ Completable: Cpath Value[ForAuto, a]
 
 Complete src/Completion.res 234:34
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:36]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:34], ...[234:34->234:36])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:34], ...[234:34->234:35])
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:34]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:32], ...[234:32->234:34])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:30], ...[234:32->234:34])
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:32->234:34]
 Pexp_ident na:[234:32->234:34]
 Completable: Cpath Value[na]
@@ -1434,9 +1434,9 @@ Completable: Cpath Value[AndThatOther, T]
 
 Complete src/Completion.res 378:24
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:26]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:24], ...[378:24->378:26])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:24], ...[378:24->378:25])
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:24]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:16], ...[378:16->378:24])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:14], ...[378:16->378:24])
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:16->378:24]
 Pexp_ident ForAuto.:[378:16->378:24]
 Completable: Cpath Value[ForAuto, ""]
@@ -1456,9 +1456,9 @@ Completable: Cpath Value[ForAuto, ""]
 
 Complete src/Completion.res 381:38
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:41]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:39], ...[381:39->381:41])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:39], ...[381:39->381:40])
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:39]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:19], ...[381:19->381:39])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:17], ...[381:19->381:39])
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:19->381:39]
 Pexp_send [381:38->381:38] e:[381:19->381:36]
 Completable: Cpath Value[FAO, forAutoObject][""]
@@ -1478,9 +1478,9 @@ Completable: Cpath Value[FAO, forAutoObject][""]
 
 Complete src/Completion.res 384:24
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:26]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:24], ...[384:24->384:26])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:24], ...[384:24->384:25])
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:24]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:14], ...[384:14->384:24])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:12], ...[384:14->384:24])
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:14->384:24]
 Pexp_field [384:14->384:23] _:[384:24->384:24]
 Completable: Cpath Value[funRecord].""
@@ -1520,9 +1520,9 @@ Completable: Cpath array->ma
 
 Complete src/Completion.res 397:14
 posCursor:[397:14] posNoWhite:[397:13] Found expr:[396:14->397:20]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:16], ...[397:16->397:20])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:16], ...[397:16->397:19])
 posCursor:[397:14] posNoWhite:[397:13] Found expr:[396:14->397:16]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:13], ...[397:13->397:16])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:11], ...[397:13->397:16])
 posCursor:[397:14] posNoWhite:[397:13] Found expr:[397:13->397:16]
 Pexp_ident red:[397:13->397:16]
 Completable: Cpath Value[red]
@@ -1536,12 +1536,9 @@ Completable: Cpath Value[red]
 
 Complete src/Completion.res 402:24
 posCursor:[402:24] posNoWhite:[402:23] Found expr:[400:14->402:31]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:27], ...[402:27->402:31])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:27], ...[402:27->402:30])
 posCursor:[402:24] posNoWhite:[402:23] Found expr:[400:14->402:27]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:24], ...[402:24->402:27])
-posCursor:[402:24] posNoWhite:[402:23] Found expr:[400:14->402:24]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->401:16], ...[401:16->402:24])
-posCursor:[402:24] posNoWhite:[402:23] Found expr:[401:16->402:24]
-Completable: Cnone
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:22], ...[402:24->402:27])
+Completable: CnamedArg(Value[^], "", [])
 []
 
