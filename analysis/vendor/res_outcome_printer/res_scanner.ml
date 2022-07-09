@@ -546,12 +546,11 @@ let scanSingleLineComment scanner =
 
 let scanMultiLineComment scanner =
   (* assumption: we're only ever using this helper in `scan` after detecting a comment *)
-  let docComment =
-    peek2 scanner = '*'
-    && peek3 scanner <> '/'
-    (* no /**/ *) && peek3 scanner <> '*' (* no /*** *)
+  let docComment = peek2 scanner = '*' && peek3 scanner <> '/' (* no /**/ *) in
+  let standalone = docComment && peek3 scanner = '*' (* /*** *) in
+  let contentStartOff =
+    scanner.offset + if docComment then if standalone then 4 else 3 else 2
   in
-  let contentStartOff = scanner.offset + if docComment then 3 else 2 in
   let startPos = position scanner in
   let rec scan ~depth =
     (* invariant: depth > 0 right after this match. See assumption *)
@@ -573,7 +572,7 @@ let scanMultiLineComment scanner =
   let length = scanner.offset - 2 - contentStartOff in
   let length = if length < 0 (* in case of EOF *) then 0 else length in
   Token.Comment
-    (Comment.makeMultiLineComment ~docComment
+    (Comment.makeMultiLineComment ~docComment ~standalone
        ~loc:
          Location.
            {loc_start = startPos; loc_end = position scanner; loc_ghost = false}
@@ -587,7 +586,8 @@ let scanTemplateLiteralToken scanner =
 
   let startPos = position scanner in
 
-  let rec scan lastPos =
+  let rec scan () =
+    let lastPos = position scanner in
     match scanner.ch with
     | '`' ->
       next scanner;
@@ -607,19 +607,16 @@ let scanTemplateLiteralToken scanner =
         Token.TemplatePart (contents, lastPos)
       | _ ->
         next scanner;
-        let lastPos = position scanner in
-        scan lastPos)
+        scan ())
     | '\\' -> (
       match peek scanner with
       | '`' | '\\' | '$' | '\n' | '\r' ->
         (* line break *)
         next2 scanner;
-        let lastPos = position scanner in
-        scan lastPos
+        scan ()
       | _ ->
         next scanner;
-        let lastPos = position scanner in
-        scan lastPos)
+        scan ())
     | ch when ch = hackyEOFChar ->
       let endPos = position scanner in
       scanner.err ~startPos ~endPos Diagnostics.unclosedTemplate;
@@ -630,10 +627,9 @@ let scanTemplateLiteralToken scanner =
       Token.TemplateTail (contents, lastPos)
     | _ ->
       next scanner;
-      let lastPos = position scanner in
-      scan lastPos
+      scan ()
   in
-  let token = scan startPos in
+  let token = scan () in
   let endPos = position scanner in
   (startPos, endPos, token)
 

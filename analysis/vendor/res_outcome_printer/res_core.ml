@@ -5,7 +5,6 @@ module Diagnostics = Res_diagnostics
 module CommentTable = Res_comments_table
 module ResPrinter = Res_printer
 module Scanner = Res_scanner
-module JsFfi = Res_js_ffi
 module Parser = Res_parser
 
 let mkLoc startLoc endLoc =
@@ -556,6 +555,9 @@ let rec parseLident p =
     Parser.next p;
     let loc = mkLoc startPos p.prevEndPos in
     (ident, loc)
+  | Eof ->
+    Parser.err ~startPos p (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
+    ("_", mkLoc startPos p.prevEndPos)
   | _ -> (
     match recoverLident p with
     | Some () -> parseLident p
@@ -600,6 +602,9 @@ let parseHashIdent ~startPos p =
     in
     Parser.next p;
     (i, mkLoc startPos p.prevEndPos)
+  | Eof ->
+    Parser.err ~startPos p (Diagnostics.unexpected p.token p.breadcrumbs);
+    ("", mkLoc startPos p.prevEndPos)
   | _ -> parseIdent ~startPos ~msg:ErrorMessages.variantIdent p
 
 (* Ldot (Ldot (Lident "Foo", "Bar"), "baz") *)
@@ -635,11 +640,11 @@ let parseValuePath p =
           Parser.err p (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
           Longident.Lident ident)
       in
-      if p.token <> Eof then Parser.next p;
+      Parser.nextUnsafe p;
       res
     | token ->
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      Parser.next p;
+      Parser.nextUnsafe p;
       Longident.Lident "_"
   in
   Location.mkloc ident (mkLoc startPos p.prevEndPos)
@@ -720,30 +725,6 @@ let parseModuleLongIdent ~lowercase p =
   in
   (* Parser.eatBreadcrumb p; *)
   moduleIdent
-
-(* `window.location` or `Math` or `Foo.Bar` *)
-let parseIdentPath p =
-  let rec loop p acc =
-    match p.Parser.token with
-    | Uident ident | Lident ident -> (
-      Parser.next p;
-      let lident = Longident.Ldot (acc, ident) in
-      match p.Parser.token with
-      | Dot ->
-        Parser.next p;
-        loop p lident
-      | _ -> lident)
-    | _t -> acc
-  in
-  match p.Parser.token with
-  | Lident ident | Uident ident -> (
-    Parser.next p;
-    match p.Parser.token with
-    | Dot ->
-      Parser.next p;
-      loop p (Longident.Lident ident)
-    | _ -> Longident.Lident ident)
-  | _ -> Longident.Lident "_"
 
 let verifyJsxOpeningClosingName p nameExpr =
   let closing =
@@ -826,7 +807,7 @@ let parseConstant p =
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
       Pconst_string ("", None)
   in
-  Parser.next p;
+  Parser.nextUnsafe p;
   constant
 
 let parseTemplateConstant ~prefix (p : Parser.t) =
@@ -1090,6 +1071,10 @@ let rec parsePattern ?(alias = true) ?(or_ = true) p =
             in
             Parser.next p;
             (i, mkLoc startPos p.prevEndPos)
+          | Eof ->
+            Parser.err ~startPos p
+              (Diagnostics.unexpected p.token p.breadcrumbs);
+            ("", mkLoc startPos p.prevEndPos)
           | _ -> parseIdent ~msg:ErrorMessages.variantIdent ~startPos p
         in
         match p.Parser.token with
@@ -1113,6 +1098,9 @@ let rec parsePattern ?(alias = true) ?(or_ = true) p =
       let extension = parseExtension p in
       let loc = mkLoc startPos p.prevEndPos in
       Ast_helper.Pat.extension ~loc ~attrs extension
+    | Eof ->
+      Parser.err p (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
+      Recover.defaultPattern ()
     | token -> (
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
       match
@@ -1859,6 +1847,10 @@ and parseAtomicExpr p =
       Parser.err p (Diagnostics.lident token);
       Parser.next p;
       Recover.defaultExpr ()
+    | Eof ->
+      Parser.err ~startPos:p.prevEndPos p
+        (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
+      Recover.defaultExpr ()
     | token -> (
       let errPos = p.prevEndPos in
       Parser.err ~startPos:errPos p (Diagnostics.unexpected token p.breadcrumbs);
@@ -1897,7 +1889,7 @@ and parseFirstClassModuleExpr ~startPos p =
 and parseBracketAccess p expr startPos =
   Parser.leaveBreadcrumb p Grammar.ExprArrayAccess;
   let lbracket = p.startPos in
-  Parser.next p;
+  Parser.expect Lbracket p;
   let stringStart = p.startPos in
   match p.Parser.token with
   | String s -> (
@@ -2421,17 +2413,6 @@ and parseLetBindings ~attrs p =
     match p.Parser.token with
     | And ->
       Parser.next p;
-      let attrs =
-        match p.token with
-        | Export ->
-          let exportLoc = mkLoc p.startPos p.endPos in
-          Parser.next p;
-          let genTypeAttr =
-            (Location.mkloc "genType" exportLoc, Parsetree.PStr [])
-          in
-          genTypeAttr :: attrs
-        | _ -> attrs
-      in
       ignore (Parser.optional p Let);
       (* overparse for fault tolerance *)
       let letBinding = parseLetBindingBody ~startPos ~attrs p in
@@ -3242,7 +3223,10 @@ and parseForRest hasOpeningParen pattern startPos p =
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
       Asttypes.Upto
   in
-  Parser.next p;
+  if p.Parser.token = Eof then
+    Parser.err ~startPos:p.startPos p
+      (Diagnostics.unexpected p.Parser.token p.breadcrumbs)
+  else Parser.next p;
   let e2 = parseExpr ~context:WhenExpr p in
   if hasOpeningParen then Parser.expect Rparen p;
   Parser.expect Lbrace p;
@@ -3600,7 +3584,7 @@ and parseValueOrConstructor p =
       Ast_helper.Exp.ident ~loc (Location.mkloc lident loc)
     | token ->
       if acc = [] then (
-        Parser.next p;
+        Parser.nextUnsafe p;
         Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
         Recover.defaultExpr ())
       else
@@ -3801,7 +3785,11 @@ and parseAtomicTypExpr ~attrs p =
     | SingleQuote ->
       Parser.next p;
       let ident, loc =
-        parseIdent ~msg:ErrorMessages.typeVar ~startPos:p.startPos p
+        if p.Parser.token = Eof then (
+          Parser.err ~startPos:p.startPos p
+            (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
+          ("", mkLoc p.startPos p.prevEndPos))
+        else parseIdent ~msg:ErrorMessages.typeVar ~startPos:p.startPos p
       in
       Ast_helper.Typ.var ~loc ~attrs ident
     | Underscore ->
@@ -3847,6 +3835,9 @@ and parseAtomicTypExpr ~attrs p =
       let loc = mkLoc startPos p.prevEndPos in
       Ast_helper.Typ.extension ~attrs ~loc extension
     | Lbrace -> parseRecordOrObjectType ~attrs p
+    | Eof ->
+      Parser.err p (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
+      Recover.defaultType ()
     | token -> (
       Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
       match
@@ -4589,7 +4580,11 @@ and parseTypeParam p =
   | SingleQuote ->
     Parser.next p;
     let ident, loc =
-      parseIdent ~msg:ErrorMessages.typeParam ~startPos:p.startPos p
+      if p.Parser.token = Eof then (
+        Parser.err ~startPos:p.startPos p
+          (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
+        ("", mkLoc p.startPos p.prevEndPos))
+      else parseIdent ~msg:ErrorMessages.typeParam ~startPos:p.startPos p
     in
     Some (Ast_helper.Typ.var ~loc ident, variance)
   | Underscore ->
@@ -5156,17 +5151,6 @@ and parseTypeDefinitions ~attrs ~name ~params ~startPos p =
     match p.Parser.token with
     | And ->
       Parser.next p;
-      let attrs =
-        match p.token with
-        | Export ->
-          let exportLoc = mkLoc p.startPos p.endPos in
-          Parser.next p;
-          let genTypeAttr =
-            (Location.mkloc "genType" exportLoc, Parsetree.PStr [])
-          in
-          genTypeAttr :: attrs
-        | _ -> attrs
-      in
       let typeDef = parseTypeDef ~attrs ~startPos p in
       loop p (typeDef :: defs)
     | _ -> List.rev defs
@@ -5329,12 +5313,6 @@ and parseStructureItemRegion p =
     parseNewlineOrSemicolonStructure p;
     let loc = mkLoc startPos p.prevEndPos in
     Some (Ast_helper.Str.primitive ~loc externalDef)
-  | Import ->
-    let importDescr = parseJsImport ~startPos ~attrs p in
-    parseNewlineOrSemicolonStructure p;
-    let loc = mkLoc startPos p.prevEndPos in
-    let structureItem = JsFfi.toParsetree importDescr in
-    Some {structureItem with pstr_loc = loc}
   | Exception ->
     let exceptionDef = parseExceptionDef ~attrs p in
     parseNewlineOrSemicolonStructure p;
@@ -5345,11 +5323,6 @@ and parseStructureItemRegion p =
     parseNewlineOrSemicolonStructure p;
     let loc = mkLoc startPos p.prevEndPos in
     Some (Ast_helper.Str.include_ ~loc includeStatement)
-  | Export ->
-    let structureItem = parseJsExport ~attrs p in
-    parseNewlineOrSemicolonStructure p;
-    let loc = mkLoc startPos p.prevEndPos in
-    Some {structureItem with pstr_loc = loc}
   | Module ->
     Parser.beginRegion p;
     let structureItem = parseModuleOrModuleTypeImplOrPackExpr ~attrs p in
@@ -5357,6 +5330,16 @@ and parseStructureItemRegion p =
     let loc = mkLoc startPos p.prevEndPos in
     Parser.endRegion p;
     Some {structureItem with pstr_loc = loc}
+  | ModuleComment (loc, s) ->
+    Parser.next p;
+    Some
+      (Ast_helper.Str.attribute ~loc
+         ( {txt = "ns.doc"; loc},
+           PStr
+             [
+               Ast_helper.Str.eval ~loc
+                 (Ast_helper.Exp.constant ~loc (Pconst_string (s, None)));
+             ] ))
   | AtAt ->
     let attr = parseStandaloneAttribute p in
     parseNewlineOrSemicolonStructure p;
@@ -5385,103 +5368,6 @@ and parseStructureItemRegion p =
         (Ast_helper.Str.eval ~loc:(mkLoc p.startPos p.prevEndPos) ~attrs expr)
     | _ -> None)
   [@@progress Parser.next, Parser.expect]
-
-and parseJsImport ~startPos ~attrs p =
-  Parser.expect Token.Import p;
-  let importSpec =
-    match p.Parser.token with
-    | Token.Lident _ | Token.At ->
-      let decl =
-        match parseJsFfiDeclaration p with
-        | Some decl -> decl
-        | None -> assert false
-      in
-      JsFfi.Default decl
-    | _ -> JsFfi.Spec (parseJsFfiDeclarations p)
-  in
-  let scope = parseJsFfiScope p in
-  let loc = mkLoc startPos p.prevEndPos in
-  JsFfi.importDescr ~attrs ~importSpec ~scope ~loc
-
-and parseJsExport ~attrs p =
-  let exportStart = p.Parser.startPos in
-  Parser.expect Token.Export p;
-  let exportLoc = mkLoc exportStart p.prevEndPos in
-  let genTypeAttr = (Location.mkloc "genType" exportLoc, Parsetree.PStr []) in
-  let attrs = genTypeAttr :: attrs in
-  match p.Parser.token with
-  | Typ -> (
-    match parseTypeDefinitionOrExtension ~attrs p with
-    | TypeDef {recFlag; types} -> Ast_helper.Str.type_ recFlag types
-    | TypeExt ext -> Ast_helper.Str.type_extension ext)
-  (* Let *)
-  | _ ->
-    let recFlag, letBindings = parseLetBindings ~attrs p in
-    Ast_helper.Str.value recFlag letBindings
-
-and parseSignJsExport ~attrs p =
-  let exportStart = p.Parser.startPos in
-  Parser.expect Token.Export p;
-  let exportLoc = mkLoc exportStart p.prevEndPos in
-  let genTypeAttr = (Location.mkloc "genType" exportLoc, Parsetree.PStr []) in
-  let attrs = genTypeAttr :: attrs in
-  match p.Parser.token with
-  | Typ -> (
-    match parseTypeDefinitionOrExtension ~attrs p with
-    | TypeDef {recFlag; types} ->
-      let loc = mkLoc exportStart p.prevEndPos in
-      Ast_helper.Sig.type_ recFlag types ~loc
-    | TypeExt ext ->
-      let loc = mkLoc exportStart p.prevEndPos in
-      Ast_helper.Sig.type_extension ext ~loc)
-  (* Let *)
-  | _ ->
-    let valueDesc = parseSignLetDesc ~attrs p in
-    let loc = mkLoc exportStart p.prevEndPos in
-    Ast_helper.Sig.value valueDesc ~loc
-
-and parseJsFfiScope p =
-  match p.Parser.token with
-  | Token.Lident "from" -> (
-    Parser.next p;
-    match p.token with
-    | String s ->
-      Parser.next p;
-      JsFfi.Module s
-    | Uident _ | Lident _ ->
-      let value = parseIdentPath p in
-      JsFfi.Scope value
-    | _ -> JsFfi.Global)
-  | _ -> JsFfi.Global
-
-and parseJsFfiDeclarations p =
-  Parser.expect Token.Lbrace p;
-  let decls =
-    parseCommaDelimitedRegion ~grammar:Grammar.JsFfiImport ~closing:Rbrace
-      ~f:parseJsFfiDeclaration p
-  in
-  Parser.expect Rbrace p;
-  decls
-
-and parseJsFfiDeclaration p =
-  let startPos = p.Parser.startPos in
-  let attrs = parseAttributes p in
-  match p.Parser.token with
-  | Lident _ ->
-    let ident, _ = parseLident p in
-    let alias =
-      match p.token with
-      | As ->
-        Parser.next p;
-        let ident, _ = parseLident p in
-        ident
-      | _ -> ident
-    in
-    Parser.expect Token.Colon p;
-    let typ = parseTypExpr p in
-    let loc = mkLoc startPos p.prevEndPos in
-    Some (JsFfi.decl ~loc ~alias ~attrs ~name:ident ~typ)
-  | _ -> None
 
 (* include-statement ::= include module-expr *)
 and parseIncludeStatement ~attrs p =
@@ -6026,11 +5912,6 @@ and parseSignatureItemRegion p =
     parseNewlineOrSemicolonSignature p;
     let loc = mkLoc startPos p.prevEndPos in
     Some (Ast_helper.Sig.value ~loc externalDef)
-  | Export ->
-    let signatureItem = parseSignJsExport ~attrs p in
-    parseNewlineOrSemicolonSignature p;
-    let loc = mkLoc startPos p.prevEndPos in
-    Some {signatureItem with psig_loc = loc}
   | Exception ->
     let exceptionDef = parseExceptionDef ~attrs p in
     parseNewlineOrSemicolonSignature p;
@@ -6081,14 +5962,21 @@ and parseSignatureItemRegion p =
     parseNewlineOrSemicolonSignature p;
     let loc = mkLoc startPos p.prevEndPos in
     Some (Ast_helper.Sig.attribute ~loc attr)
+  | ModuleComment (loc, s) ->
+    Parser.next p;
+    Some
+      (Ast_helper.Sig.attribute ~loc
+         ( {txt = "ns.doc"; loc},
+           PStr
+             [
+               Ast_helper.Str.eval ~loc
+                 (Ast_helper.Exp.constant ~loc (Pconst_string (s, None)));
+             ] ))
   | PercentPercent ->
     let extension = parseExtension ~moduleLanguage:true p in
     parseNewlineOrSemicolonSignature p;
     let loc = mkLoc startPos p.prevEndPos in
     Some (Ast_helper.Sig.extension ~attrs ~loc extension)
-  | Import ->
-    Parser.next p;
-    parseSignatureItemRegion p
   | _ -> (
     match attrs with
     | (({Asttypes.loc = attrLoc}, _) as attr) :: _ ->
@@ -6311,6 +6199,7 @@ and parseAttributes p =
  *)
 and parseStandaloneAttribute p =
   let startPos = p.startPos in
+  (*  XX *)
   Parser.expect AtAt p;
   let attrId = parseAttributeId ~startPos p in
   let payload = parsePayload p in
