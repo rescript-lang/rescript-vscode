@@ -1,6 +1,6 @@
 let items = ref 0
 let start () = Printf.printf "["
-let finish ()= Printf.printf "\n]\n"
+let finish () = Printf.printf "\n]\n"
 let emitClose () = "\n}"
 
 let emitItem ~ppf ~name ~kind ~file ~range ~message =

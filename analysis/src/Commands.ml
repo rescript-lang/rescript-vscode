@@ -258,8 +258,7 @@ let format ~path =
   else ""
 
 let diagnosticSyntax ~path =
-  print_endline
-    (Diagnostics.document_syntax ~path |> Protocol.array)
+  print_endline (Diagnostics.document_syntax ~path |> Protocol.array)
 
 let test ~path =
   Uri.stripPath := true;
