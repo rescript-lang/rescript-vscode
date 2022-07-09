@@ -1,5 +1,5 @@
 (library
  (name compilerlibs406)
  (libraries)
- (flags -w "+26+27+32+33+39" -w "-d")
+ (flags -w "+26+27+32+33+39")
  (modules_without_implementation annot asttypes outcometree parsetree))
