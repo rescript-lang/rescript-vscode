@@ -93,8 +93,7 @@ let main () =
     Commands.codeAction ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false
-  | [_; "diagnosticSyntax"; path;] -> 
-    Commands.diagnosticSyntax ~path
+  | [_; "diagnosticSyntax"; path] -> Commands.diagnosticSyntax ~path
   | _ :: "reanalyze" :: _ ->
     let len = Array.length Sys.argv in
     for i = 1 to len - 2 do
