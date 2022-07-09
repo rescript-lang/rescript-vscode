@@ -1534,11 +1534,47 @@ Completable: Cpath Value[red]
     "documentation": null
   }]
 
-Complete src/Completion.res 402:24
-posCursor:[402:24] posNoWhite:[402:23] Found expr:[400:14->402:31]
+Complete src/Completion.res 402:25
+posCursor:[402:25] posNoWhite:[402:24] Found expr:[400:14->402:31]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:27], ...[402:27->402:30])
-posCursor:[402:24] posNoWhite:[402:23] Found expr:[400:14->402:27]
+posCursor:[402:25] posNoWhite:[402:24] Found expr:[400:14->402:27]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:22], ...[402:24->402:27])
-Completable: CnamedArg(Value[^], "", [])
-[]
+posCursor:[402:25] posNoWhite:[402:24] Found expr:[402:24->402:27]
+Pexp_ident red:[402:24->402:27]
+Completable: Cpath Value[red]
+[{
+    "label": "red",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete src/Completion.res 405:22
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->408:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:22], ...[408:0->408:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->405:22]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->405:22])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
+Pexp_ident r:[405:21->405:22]
+Completable: Cpath Value[r]
+[{
+    "label": "red",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "retAA",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => aa",
+    "documentation": null
+  }, {
+    "label": "r",
+    "kind": 12,
+    "tags": [],
+    "detail": "rAlias",
+    "documentation": null
+  }]
 
