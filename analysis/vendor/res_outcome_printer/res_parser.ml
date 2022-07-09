@@ -54,6 +54,11 @@ let docCommentToAttributeToken comment =
   let loc = Comment.loc comment in
   Token.DocComment (loc, txt)
 
+let moduleCommentToAttributeToken comment =
+  let txt = Comment.txt comment in
+  let loc = Comment.loc comment in
+  Token.ModuleComment (loc, txt)
+
 (* Advance to the next non-comment token and store any encountered comment
    * in the parser's state. Every comment contains the end position of its
    * previous token to facilite comment interleaving *)
@@ -69,6 +74,11 @@ let rec next ?prevEndPos p =
   | Comment c ->
     if Comment.isDocComment c then (
       p.token <- docCommentToAttributeToken c;
+      p.prevEndPos <- prevEndPos;
+      p.startPos <- startPos;
+      p.endPos <- endPos)
+    else if Comment.isModuleComment c then (
+      p.token <- moduleCommentToAttributeToken c;
       p.prevEndPos <- prevEndPos;
       p.startPos <- startPos;
       p.endPos <- endPos)
