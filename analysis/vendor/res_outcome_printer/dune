@@ -1,6 +1,6 @@
 (library
  (name outcomeprinter)
  (flags
-  (-w "+26+27+32+33+39" -w -d)
+  (-w "+26+27+32+33+39")
   (-open Compilerlibs406))
  (libraries compilerlibs406))
