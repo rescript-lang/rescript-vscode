@@ -24,9 +24,11 @@ import { filesDiagnostics } from "./utils";
 
 interface extensionConfiguration {
   askToStartBuild: boolean;
+  binaryPath: string | null;
 }
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
+  binaryPath: null,
 };
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 
