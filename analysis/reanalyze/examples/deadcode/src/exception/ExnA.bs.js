@@ -8,6 +8,5 @@ function bar(param) {
 
 export {
   bar ,
-  
 }
 /* No side effect */

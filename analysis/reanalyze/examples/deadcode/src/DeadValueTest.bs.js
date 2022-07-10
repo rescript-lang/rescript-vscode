@@ -8,6 +8,5 @@ var valueDead = 2;
 export {
   valueAlive ,
   valueDead ,
-  
 }
 /* No side effect */

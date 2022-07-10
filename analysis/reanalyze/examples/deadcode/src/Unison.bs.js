@@ -71,6 +71,5 @@ export {
   group ,
   fits ,
   toString ,
-  
 }
 /*  Not a pure module */

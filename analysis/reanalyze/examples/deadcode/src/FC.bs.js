@@ -9,6 +9,5 @@ console.log(foo);
 
 export {
   foo ,
-  
 }
 /*  Not a pure module */

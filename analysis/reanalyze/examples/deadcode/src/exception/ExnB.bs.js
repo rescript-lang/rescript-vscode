@@ -10,6 +10,5 @@ function foo(param) {
 
 export {
   foo ,
-  
 }
 /* No side effect */
