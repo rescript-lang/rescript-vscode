@@ -589,7 +589,7 @@ export let parseCompilerLogOutput = (
         code: undefined,
         severity: t.DiagnosticSeverity.Error,
         tag: undefined,
-        content: [lines[i], lines[i+1]],
+        content: [lines[i], lines[i + 1]],
       });
       i++;
     } else if (/^  +([0-9]+| +|\.) (│|┆)/.test(line)) {
@@ -603,9 +603,9 @@ export let parseCompilerLogOutput = (
       //   10 ┆
     } else if (line.startsWith("  ")) {
       // part of the actual diagnostics message
-        parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
-          line.slice(2)
-        );
+      parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
+        line.slice(2)
+      );
     } else if (line.trim() != "") {
       // We'll assume that everything else is also part of the diagnostics too.
       // Most of these should have been indented 2 spaces; sadly, some of them
