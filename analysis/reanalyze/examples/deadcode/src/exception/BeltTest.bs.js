@@ -36,6 +36,5 @@ export {
   mapGetExn6 ,
   mapGetExn7 ,
   mapGetExn8 ,
-  
 }
 /* No side effect */

@@ -5,6 +5,5 @@ var toSuppress = 0;
 
 export {
   toSuppress ,
-  
 }
 /* No side effect */

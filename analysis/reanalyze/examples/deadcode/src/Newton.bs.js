@@ -60,6 +60,5 @@ export {
   f ,
   fPrimed ,
   result ,
-  
 }
 /* result Not a pure module */

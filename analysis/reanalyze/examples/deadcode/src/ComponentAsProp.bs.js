@@ -14,6 +14,5 @@ var make = ComponentAsProp;
 
 export {
   make ,
-  
 }
 /* react Not a pure module */

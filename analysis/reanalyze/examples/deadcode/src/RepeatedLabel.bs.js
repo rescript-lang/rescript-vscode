@@ -12,6 +12,5 @@ console.log(userData);
 
 export {
   userData ,
-  
 }
 /*  Not a pure module */

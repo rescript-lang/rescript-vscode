@@ -46,7 +46,6 @@ var testMarshalFields = {
 
 function setMatch(x) {
   x.match = 34;
-  
 }
 
 function testInstantiateTypeParameter(x) {
@@ -104,6 +103,5 @@ export {
   i64Const ,
   optFunction ,
   ObjectId ,
-  
 }
 /* currentTime Not a pure module */
