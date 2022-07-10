@@ -84,19 +84,32 @@ let findBscBinFromConfig = (
 };
 
 // TODO: this doesn't handle file:/// scheme
-export let findNodeBuildOfProjectRoot = (
-  projectRootPath: p.DocumentUri
-): null | { buildPath: p.DocumentUri; isReScript: boolean } => {
-  let rescriptNodePath = path.join(projectRootPath, c.rescriptNodePartialPath);
-  let bsbNodePath = path.join(projectRootPath, c.bsbNodePartialPath);
-
-  if (fs.existsSync(rescriptNodePath)) {
-    return { buildPath: rescriptNodePath, isReScript: true };
-  } else if (fs.existsSync(bsbNodePath)) {
-    return { buildPath: bsbNodePath, isReScript: false };
+let findBinaryBase = ({
+  rescriptPath,
+  bsbPath,
+}: {
+  rescriptPath: p.DocumentUri;
+  bsbPath: p.DocumentUri;
+}): null | { buildPath: p.DocumentUri; isReScript: boolean } => {
+  if (fs.existsSync(rescriptPath)) {
+    return { buildPath: rescriptPath, isReScript: true };
+  } else if (fs.existsSync(bsbPath)) {
+    return { buildPath: bsbPath, isReScript: false };
   }
   return null;
 };
+
+export let findBinaryFromConfig = (pathToBinFromConfig: p.DocumentUri) =>
+  findBinaryBase({
+    rescriptPath: path.join(pathToBinFromConfig, c.rescriptBinName),
+    bsbPath: path.join(pathToBinFromConfig, c.bsbBinName),
+  });
+
+export let findNodeBuildOfProjectRoot = (projectRootPath: p.DocumentUri) =>
+  findBinaryBase({
+    rescriptPath: path.join(projectRootPath, c.rescriptNodePartialPath),
+    bsbPath: path.join(projectRootPath, c.bsbNodePartialPath),
+  });
 
 type execResult =
   | {
