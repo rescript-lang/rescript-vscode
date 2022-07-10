@@ -65,6 +65,11 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
+let findBinary = (projectRootPath: p.DocumentUri) =>
+  extensionConfiguration.binaryPath === null
+    ? utils.findNodeBuildOfProjectRoot(projectRootPath)
+    : utils.findBinaryFromConfig(extensionConfiguration.binaryPath);
+
 interface CreateInterfaceRequestParams {
   uri: string;
 }
@@ -235,7 +240,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
-      if (utils.findNodeBuildOfProjectRoot(projectRootPath) != null) {
+      if (findBinary(projectRootPath) != null) {
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
           projectRootPath: projectRootPath,
@@ -1059,7 +1064,7 @@ function onMessage(msg: p.Message) {
       // TODO: close watcher when lang-server shuts down. However, by Node's
       // default, these subprocesses are automatically killed when this
       // language-server process exits
-      let found = utils.findNodeBuildOfProjectRoot(projectRootPath);
+      let found = findBinary(projectRootPath);
       if (found != null) {
         let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
           found.buildPath,
