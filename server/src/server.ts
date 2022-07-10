@@ -262,7 +262,20 @@ let openedFile = (fileUri: string, fileContent: string) => {
         // handle in the isResponseMessage check in the message handling way
         // below
       } else {
-        // we should send something to say that we can't find bsb.exe. But right now we'll silently not do anything
+        let binaryPath =
+          extensionConfiguration.binaryPath === null
+            ? path.join(projectRootPath, "node_modules", ".bin")
+            : extensionConfiguration.binaryPath;
+
+        let request: p.NotificationMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          method: "window/showMessage",
+          params: {
+            type: p.MessageType.Error,
+            message: `Can't find ReScript binary on path ${binaryPath}`,
+          },
+        };
+        send(request);
       }
     }
 
