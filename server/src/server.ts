@@ -4,6 +4,7 @@ import * as v from "vscode-languageserver";
 import * as rpc from "vscode-jsonrpc/node";
 import * as path from "path";
 import fs from "fs";
+import os from "os";
 // TODO: check DidChangeWatchedFilesNotification.
 import {
   DidOpenTextDocumentNotification,
@@ -935,6 +936,17 @@ function onMessage(msg: p.Message) {
 
       if (initialConfiguration != null) {
         extensionConfiguration = initialConfiguration;
+        if (
+          extensionConfiguration.binaryPath !== null &&
+          extensionConfiguration.binaryPath[0] === "~"
+        ) {
+          // What should happen if the path contains the home directory symbol?
+          // This situation is handled below, but maybe it isn't the best option.
+          extensionConfiguration.binaryPath = path.join(
+            os.homedir(),
+            extensionConfiguration.binaryPath.slice(1)
+          );
+        }
       }
 
       send(response);
