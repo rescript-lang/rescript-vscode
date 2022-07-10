@@ -596,7 +596,11 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   } else {
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
-    let formattedResult = utils.formatCode(filePath, code);
+    let formattedResult = utils.formatCode(
+      extensionConfiguration.binaryPath,
+      filePath,
+      code
+    );
     if (formattedResult.kind === "success") {
       let max = code.length;
       let result: p.TextEdit[] = [

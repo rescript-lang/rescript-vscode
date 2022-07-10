@@ -32,6 +32,8 @@ export let analysisProdPath = path.join(
   "rescript-editor-analysis.exe"
 );
 
+export let bscBinName = "bsc";
+
 // can't use the native bsb/rescript since we might need the watcher -w flag, which is only in the JS wrapper
 export let rescriptNodePartialPath = path.join(
   "node_modules",

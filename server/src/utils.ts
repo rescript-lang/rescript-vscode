@@ -70,6 +70,19 @@ export let findBscNativeOfFile = (
   }
 };
 
+let findBscBinFromConfig = (
+  pathToBinFromConfig: p.DocumentUri | null
+): null | p.DocumentUri => {
+  if (pathToBinFromConfig === null) {
+    return null;
+  }
+  let bscPath = path.join(pathToBinFromConfig, c.bscBinName);
+  if (fs.existsSync(bscPath)) {
+    return bscPath;
+  }
+  return null;
+};
+
 // TODO: this doesn't handle file:/// scheme
 export let findNodeBuildOfProjectRoot = (
   projectRootPath: p.DocumentUri
@@ -94,21 +107,30 @@ type execResult =
       kind: "error";
       error: string;
     };
-export let formatCode = (filePath: string, code: string): execResult => {
+
+export let formatCode = (
+  pathToBinFromConfig: p.DocumentUri | null,
+  filePath: string,
+  code: string
+): execResult => {
   let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
   fs.writeFileSync(formatTempFileFullPath, code, {
     encoding: "utf-8",
   });
   try {
+    // Try to find the bsc bin from the binaryPath setting from the configuration.
+    let bscPath = findBscBinFromConfig(pathToBinFromConfig);
+
     // See comment on findBscNativeDirOfFile for why we need
     // to recursively search for bsc.exe upward
-    let bscNativePath = findBscNativeOfFile(filePath);
+    bscPath = bscPath == null ? findBscNativeOfFile(filePath) : bscPath;
 
-    // Default to using the project formatter. If not, use the one we ship with
-    // the analysis binary in the extension itself.
-    if (bscNativePath != null) {
-      let result = childProcess.execFileSync(bscNativePath, [
+    // Default to using the formatter from the binaryPath setting from the configuration
+    // or the project formatter.
+    // If not, use the one we ship with the analysis binary in the extension itself.
+    if (bscPath != null) {
+      let result = childProcess.execFileSync(bscPath, [
         "-color",
         "never",
         "-format",
