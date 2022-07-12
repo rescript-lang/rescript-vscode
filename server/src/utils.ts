@@ -74,13 +74,14 @@ let findBuildBinaryBase = (rescriptPath: string): string | null => {
   return null;
 };
 
-export let findBuildBinaryFromConfig = (
+export let findRescriptBinaryFromConfig = (
   pathToBinaryDirFromConfig: p.DocumentUri
 ) =>
   findBuildBinaryBase(path.join(pathToBinaryDirFromConfig, c.rescriptBinName));
 
-export let findRescriptBinaryFromProjectRoot = (projectRootPath: p.DocumentUri) =>
-  findBuildBinaryBase(path.join(projectRootPath, c.rescriptNodePartialPath));
+export let findRescriptBinaryFromProjectRoot = (
+  projectRootPath: p.DocumentUri
+) => findBuildBinaryBase(path.join(projectRootPath, c.rescriptNodePartialPath));
 
 type execResult =
   | {
