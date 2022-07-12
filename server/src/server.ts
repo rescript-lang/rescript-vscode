@@ -75,7 +75,7 @@ let findBscBinary = (filePath: p.DocumentUri) =>
     ? utils.findBscBinaryFromProjectRoot(filePath)
     : utils.findBscBinaryFromConfig(extensionConfiguration.binaryPath);
 
-let getConjecturalDirOfBuildBinary = (projectRootPath: p.DocumentUri) =>
+let getBinaryPath = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
     ? path.join(projectRootPath, c.nodeModulesBinDir)
     : extensionConfiguration.binaryPath;
@@ -277,7 +277,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
           method: "window/showMessage",
           params: {
             type: p.MessageType.Error,
-            message: `Can't find ReScript binary in the directory ${getConjecturalDirOfBuildBinary(
+            message: `Can't find ReScript binary in the directory ${getBinaryPath(
               projectRootPath
             )}`,
           },
