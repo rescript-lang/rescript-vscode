@@ -38,50 +38,32 @@ export let findProjectRootOfFile = (
   }
 };
 
-export let findBscBinaryFromProjectRoot = (
-  source: p.DocumentUri
-): null | p.DocumentUri => {
-  let dir = path.dirname(source);
-  // The rescript package's rescript command is a JS wrapper. `rescript format`
-  // also invokes another JS wrapper. _That_ JS wrapper ultimately calls the
-  // (unexposed) bsc -format anyway.
-  let bscNativeReScriptPath = path.join(dir, c.bscNativeReScriptPartialPath);
-
-  if (fs.existsSync(bscNativeReScriptPath)) {
-    return bscNativeReScriptPath;
-  } else if (dir === source) {
-    // reached the top
+export let findBinary = (
+  binaryDirPath: p.DocumentUri | null,
+  binaryName: string
+): p.DocumentUri | null => {
+  if (binaryDirPath == null) {
     return null;
+  }
+  let binaryPath: p.DocumentUri = path.join(binaryDirPath, binaryName);
+  if (fs.existsSync(binaryPath)) {
+    return binaryPath;
   } else {
-    return findBscBinaryFromProjectRoot(dir);
+    return null;
   }
 };
 
-export let findBscBinaryFromConfig = (
-  pathToBinaryDirFromConfig: p.DocumentUri
-): null | p.DocumentUri => {
-  let bscPath = path.join(pathToBinaryDirFromConfig, c.bscBinName);
-  if (fs.existsSync(bscPath)) {
-    return bscPath;
-  }
-  return null;
+export let findRescriptBinary = (
+  binaryDirPath: p.DocumentUri | string
+): p.DocumentUri | null => {
+  return findBinary(binaryDirPath, c.rescriptBinName);
 };
 
-let findBuildBinaryBase = (rescriptPath: string): string | null => {
-  if (fs.existsSync(rescriptPath)) {
-    return rescriptPath;
-  }
-  return null;
+export let findBscBinary = (
+  binaryDirPath: p.DocumentUri | string
+): p.DocumentUri | null => {
+  return findBinary(binaryDirPath, c.bscBinName);
 };
-
-export let findRescriptBinaryFromConfig = (
-  pathToBinaryDirFromConfig: p.DocumentUri
-) =>
-  findBuildBinaryBase(path.join(pathToBinaryDirFromConfig, c.rescriptBinName));
-
-export let findRescriptBinaryFromProjectRoot = (
-  projectRootPath: p.DocumentUri
-) => findBuildBinaryBase(path.join(projectRootPath, c.rescriptNodePartialPath));
 
 type execResult =
   | {
