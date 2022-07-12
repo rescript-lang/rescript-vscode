@@ -12,12 +12,6 @@ export let bscNativeReScriptPartialPath = path.join(
   platformDir,
   "bsc.exe"
 );
-export let bscNativePartialPath = path.join(
-  "node_modules",
-  "bs-platform",
-  platformDir,
-  "bsc.exe"
-);
 
 export let analysisDevPath = path.join(
   path.dirname(__dirname),

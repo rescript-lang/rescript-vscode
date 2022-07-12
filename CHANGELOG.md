@@ -14,6 +14,7 @@
 - Sync with latest parser/printer.
 - Support paths to rescript executables in arm64 architectures.
 - Fix issue where `@inline` was not suported by the command to generate an interface file.
+- `*` Drop support for `bs-patform`. Only `rescript` supported.
 
 ## 1.3.0
 
