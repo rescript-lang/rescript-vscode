@@ -67,20 +67,9 @@ export let findBscBinaryFromConfig = (
   return null;
 };
 
-// The function is to check that the build binary file exists
-// and also determine what exactly the user is using ReScript or BuckleScript.
-// TODO: this doesn't handle file:/// scheme
-let findBuildBinaryBase = ({
-  rescriptPath,
-  bsbPath,
-}: {
-  rescriptPath: p.DocumentUri;
-  bsbPath: p.DocumentUri;
-}): null | { buildPath: p.DocumentUri; isReScript: boolean } => {
+let findBuildBinaryBase = (rescriptPath: string): string | null => {
   if (fs.existsSync(rescriptPath)) {
-    return { buildPath: rescriptPath, isReScript: true };
-  } else if (fs.existsSync(bsbPath)) {
-    return { buildPath: bsbPath, isReScript: false };
+    return rescriptPath;
   }
   return null;
 };
@@ -88,16 +77,10 @@ let findBuildBinaryBase = ({
 export let findBuildBinaryFromConfig = (
   pathToBinaryDirFromConfig: p.DocumentUri
 ) =>
-  findBuildBinaryBase({
-    rescriptPath: path.join(pathToBinaryDirFromConfig, c.rescriptBinName),
-    bsbPath: path.join(pathToBinaryDirFromConfig, c.bsbBinName),
-  });
+  findBuildBinaryBase(path.join(pathToBinaryDirFromConfig, c.rescriptBinName));
 
 export let findBuildBinaryFromProjectRoot = (projectRootPath: p.DocumentUri) =>
-  findBuildBinaryBase({
-    rescriptPath: path.join(projectRootPath, c.rescriptNodePartialPath),
-    bsbPath: path.join(projectRootPath, c.bsbNodePartialPath),
-  });
+  findBuildBinaryBase(path.join(projectRootPath, c.rescriptNodePartialPath));
 
 type execResult =
   | {
@@ -338,7 +321,6 @@ export let getCompiledFilePath = (
 
 export let runBuildWatcherUsingValidBuildPath = (
   buildPath: p.DocumentUri,
-  isRescript: boolean,
   projectRootPath: p.DocumentUri
 ) => {
   let cwdEnv = {
@@ -357,17 +339,9 @@ export let runBuildWatcherUsingValidBuildPath = (
         (since the path might have spaces), which `execFile` would have done
         for you under the hood
     */
-    if (isRescript) {
-      return childProcess.exec(`"${buildPath}".cmd build -w`, cwdEnv);
-    } else {
-      return childProcess.exec(`"${buildPath}".cmd -w`, cwdEnv);
-    }
+    return childProcess.exec(`"${buildPath}".cmd build -w`, cwdEnv);
   } else {
-    if (isRescript) {
-      return childProcess.execFile(buildPath, ["build", "-w"], cwdEnv);
-    } else {
-      return childProcess.execFile(buildPath, ["-w"], cwdEnv);
-    }
+    return childProcess.execFile(buildPath, ["build", "-w"], cwdEnv);
   }
 };
 
