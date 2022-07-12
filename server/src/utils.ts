@@ -83,8 +83,10 @@ let findBscBinFromConfig = (
   return null;
 };
 
+// The function is to check that the build binary file exists
+// and also determine what exactly the user is using ReScript or BuckleScript.
 // TODO: this doesn't handle file:/// scheme
-let findBinaryBase = ({
+let findBuildBinaryBase = ({
   rescriptPath,
   bsbPath,
 }: {
@@ -99,14 +101,14 @@ let findBinaryBase = ({
   return null;
 };
 
-export let findBinaryFromConfig = (pathToBinFromConfig: p.DocumentUri) =>
-  findBinaryBase({
-    rescriptPath: path.join(pathToBinFromConfig, c.rescriptBinName),
-    bsbPath: path.join(pathToBinFromConfig, c.bsbBinName),
+export let findBuildBinaryFromConfig = (pathToBinaryDirFromConfig: p.DocumentUri) =>
+  findBuildBinaryBase({
+    rescriptPath: path.join(pathToBinaryDirFromConfig, c.rescriptBinName),
+    bsbPath: path.join(pathToBinaryDirFromConfig, c.bsbBinName),
   });
 
-export let findNodeBuildOfProjectRoot = (projectRootPath: p.DocumentUri) =>
-  findBinaryBase({
+export let findBuildBinaryFromProjectRoot = (projectRootPath: p.DocumentUri) =>
+  findBuildBinaryBase({
     rescriptPath: path.join(projectRootPath, c.rescriptNodePartialPath),
     bsbPath: path.join(projectRootPath, c.bsbNodePartialPath),
   });
