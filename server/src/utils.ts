@@ -38,16 +38,6 @@ export let findProjectRootOfFile = (
   }
 };
 
-// TODO: races here?
-// TODO: this doesn't handle file:/// scheme
-
-// We need to recursively search for bs-platform/{platform}/bsc.exe upward from
-// the project's root, because in some setups, such as yarn workspace/monorepo,
-// the node_modules/bs-platform package might be hoisted up instead of alongside
-// the project root.
-// Also, if someone's ever formatting a regular project setup's dependency
-// (which is weird but whatever), they'll at least find an upward bs-platform
-// from the dependent.
 export let findBscBinaryFromProjectRoot = (
   source: p.DocumentUri
 ): null | p.DocumentUri => {
@@ -56,12 +46,9 @@ export let findBscBinaryFromProjectRoot = (
   // also invokes another JS wrapper. _That_ JS wrapper ultimately calls the
   // (unexposed) bsc -format anyway.
   let bscNativeReScriptPath = path.join(dir, c.bscNativeReScriptPartialPath);
-  let bscNativePath = path.join(dir, c.bscNativePartialPath);
 
   if (fs.existsSync(bscNativeReScriptPath)) {
     return bscNativeReScriptPath;
-  } else if (fs.existsSync(bscNativePath)) {
-    return bscNativePath;
   } else if (dir === source) {
     // reached the top
     return null;
@@ -98,7 +85,9 @@ let findBuildBinaryBase = ({
   return null;
 };
 
-export let findBuildBinaryFromConfig = (pathToBinaryDirFromConfig: p.DocumentUri) =>
+export let findBuildBinaryFromConfig = (
+  pathToBinaryDirFromConfig: p.DocumentUri
+) =>
   findBuildBinaryBase({
     rescriptPath: path.join(pathToBinaryDirFromConfig, c.rescriptBinName),
     bsbPath: path.join(pathToBinaryDirFromConfig, c.bsbBinName),
