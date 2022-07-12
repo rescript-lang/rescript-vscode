@@ -144,7 +144,7 @@ let analysisProdPath = path.join(
   "rescript-editor-analysis.exe"
 );
 
-let getBinaryPath = (): string | null => {
+let getAnalysisBinaryPath = (): string | null => {
   if (fs.existsSync(analysisDevPath)) {
     return analysisDevPath;
   } else if (fs.existsSync(analysisProdPath)) {
@@ -162,7 +162,7 @@ export const runCodeAnalysisWithReanalyze = (
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
-  let binaryPath = getBinaryPath();
+  let binaryPath = getAnalysisBinaryPath();
   if (binaryPath === null) {
     window.showErrorMessage("Binary executable not found.", analysisProdPath);
     return;

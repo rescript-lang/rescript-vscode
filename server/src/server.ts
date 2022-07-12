@@ -65,21 +65,16 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let getBinaryPath = (projectRootPath: p.DocumentUri) =>
+let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
     ? path.join(projectRootPath, c.nodeModulesBinDir)
     : extensionConfiguration.binaryPath;
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath === null
-    ? utils.findRescriptBinaryFromProjectRoot(projectRootPath)
-    : utils.findRescriptBinaryFromConfig(extensionConfiguration.binaryPath);
+  utils.findRescriptBinary(getBinaryDirPath(projectRootPath));
 
-let findBscBinary = (filePath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath === null
-    ? utils.findBscBinaryFromProjectRoot(filePath)
-    : utils.findBscBinaryFromConfig(extensionConfiguration.binaryPath);
-
+let findBscBinary = (projectRootPath: p.DocumentUri) =>
+  utils.findBscBinary(getBinaryDirPath(projectRootPath));
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -278,7 +273,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
           method: "window/showMessage",
           params: {
             type: p.MessageType.Error,
-            message: `Can't find ReScript binary in the directory ${getBinaryPath(
+            message: `Can't find ReScript binary in the directory ${getBinaryDirPath(
               projectRootPath
             )}`,
           },
