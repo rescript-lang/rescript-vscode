@@ -54,13 +54,13 @@ export let findBinary = (
 };
 
 export let findRescriptBinary = (
-  binaryDirPath: p.DocumentUri | string
+  binaryDirPath: p.DocumentUri | null
 ): p.DocumentUri | null => {
   return findBinary(binaryDirPath, c.rescriptBinName);
 };
 
 export let findBscBinary = (
-  binaryDirPath: p.DocumentUri | string
+  binaryDirPath: p.DocumentUri | null
 ): p.DocumentUri | null => {
   return findBinary(binaryDirPath, c.bscBinName);
 };
