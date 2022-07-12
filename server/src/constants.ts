@@ -28,8 +28,6 @@ export let analysisProdPath = path.join(
 
 export let rescriptBinName = "rescript";
 
-export let bsbBinName = "bsb";
-
 export let bscBinName = "bsc";
 
 export let nodeModulesBinDir = path.join("node_modules", ".bin");
@@ -39,7 +37,6 @@ export let rescriptNodePartialPath = path.join(
   nodeModulesBinDir,
   rescriptBinName
 );
-export let bsbNodePartialPath = path.join(nodeModulesBinDir, bsbBinName);
 
 export let bsbLock = ".bsb.lock";
 export let bsconfigPartialPath = "bsconfig.json";
