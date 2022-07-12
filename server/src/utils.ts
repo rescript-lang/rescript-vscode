@@ -48,7 +48,7 @@ export let findProjectRootOfFile = (
 // Also, if someone's ever formatting a regular project setup's dependency
 // (which is weird but whatever), they'll at least find an upward bs-platform
 // from the dependent.
-export let findBscNativeOfFile = (
+export let findBscBinaryFromProjectRoot = (
   source: p.DocumentUri
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
@@ -66,17 +66,14 @@ export let findBscNativeOfFile = (
     // reached the top
     return null;
   } else {
-    return findBscNativeOfFile(dir);
+    return findBscBinaryFromProjectRoot(dir);
   }
 };
 
-let findBscBinFromConfig = (
-  pathToBinFromConfig: p.DocumentUri | null
+export let findBscBinaryFromConfig = (
+  pathToBinaryDirFromConfig: p.DocumentUri
 ): null | p.DocumentUri => {
-  if (pathToBinFromConfig === null) {
-    return null;
-  }
-  let bscPath = path.join(pathToBinFromConfig, c.bscBinName);
+  let bscPath = path.join(pathToBinaryDirFromConfig, c.bscBinName);
   if (fs.existsSync(bscPath)) {
     return bscPath;
   }
@@ -124,7 +121,7 @@ type execResult =
     };
 
 export let formatCode = (
-  pathToBinFromConfig: p.DocumentUri | null,
+  bscPath: p.DocumentUri | null,
   filePath: string,
   code: string
 ): execResult => {
@@ -134,15 +131,7 @@ export let formatCode = (
     encoding: "utf-8",
   });
   try {
-    // Try to find the bsc bin from the binaryPath setting from the configuration.
-    let bscPath = findBscBinFromConfig(pathToBinFromConfig);
-
-    // See comment on findBscNativeDirOfFile for why we need
-    // to recursively search for bsc.exe upward
-    bscPath = bscPath == null ? findBscNativeOfFile(filePath) : bscPath;
-
-    // Default to using the formatter from the binaryPath setting from the configuration
-    // or the project formatter.
+    // It will try to use the user formatting binary.
     // If not, use the one we ship with the analysis binary in the extension itself.
     if (bscPath != null) {
       let result = childProcess.execFileSync(bscPath, [
