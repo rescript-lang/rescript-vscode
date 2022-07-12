@@ -65,9 +65,14 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
+let getBinaryPath = (projectRootPath: p.DocumentUri) =>
+  extensionConfiguration.binaryPath === null
+    ? path.join(projectRootPath, c.nodeModulesBinDir)
+    : extensionConfiguration.binaryPath;
+
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
-    ? utils.findBuildBinaryFromProjectRoot(projectRootPath)
+    ? utils.findRescriptBinaryFromProjectRoot(projectRootPath)
     : utils.findBuildBinaryFromConfig(extensionConfiguration.binaryPath);
 
 let findBscBinary = (filePath: p.DocumentUri) =>
@@ -75,10 +80,6 @@ let findBscBinary = (filePath: p.DocumentUri) =>
     ? utils.findBscBinaryFromProjectRoot(filePath)
     : utils.findBscBinaryFromConfig(extensionConfiguration.binaryPath);
 
-let getBinaryPath = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath === null
-    ? path.join(projectRootPath, c.nodeModulesBinDir)
-    : extensionConfiguration.binaryPath;
 
 interface CreateInterfaceRequestParams {
   uri: string;

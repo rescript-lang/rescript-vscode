@@ -79,7 +79,7 @@ export let findBuildBinaryFromConfig = (
 ) =>
   findBuildBinaryBase(path.join(pathToBinaryDirFromConfig, c.rescriptBinName));
 
-export let findBuildBinaryFromProjectRoot = (projectRootPath: p.DocumentUri) =>
+export let findRescriptBinaryFromProjectRoot = (projectRootPath: p.DocumentUri) =>
   findBuildBinaryBase(path.join(projectRootPath, c.rescriptNodePartialPath));
 
 type execResult =
