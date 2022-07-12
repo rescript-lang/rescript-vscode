@@ -73,7 +73,7 @@ let getBinaryPath = (projectRootPath: p.DocumentUri) =>
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
     ? utils.findRescriptBinaryFromProjectRoot(projectRootPath)
-    : utils.findBuildBinaryFromConfig(extensionConfiguration.binaryPath);
+    : utils.findRescriptBinaryFromConfig(extensionConfiguration.binaryPath);
 
 let findBscBinary = (filePath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
