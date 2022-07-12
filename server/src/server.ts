@@ -70,6 +70,11 @@ let findBuildBinary = (projectRootPath: p.DocumentUri) =>
     ? utils.findBuildBinaryFromProjectRoot(projectRootPath)
     : utils.findBuildBinaryFromConfig(extensionConfiguration.binaryPath);
 
+let findBscBinary = (filePath: p.DocumentUri) =>
+  extensionConfiguration.binaryPath === null
+    ? utils.findBscBinaryFromProjectRoot(filePath)
+    : utils.findBscBinaryFromConfig(extensionConfiguration.binaryPath);
+
 interface CreateInterfaceRequestParams {
   uri: string;
 }
@@ -614,11 +619,8 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   } else {
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
-    let formattedResult = utils.formatCode(
-      extensionConfiguration.binaryPath,
-      filePath,
-      code
-    );
+    let bscBinaryPath = findBscBinary(filePath);
+    let formattedResult = utils.formatCode(bscBinaryPath, filePath, code);
     if (formattedResult.kind === "success") {
       let max = code.length;
       let result: p.TextEdit[] = [
