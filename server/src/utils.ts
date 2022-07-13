@@ -607,7 +607,7 @@ export let parseCompilerLogOutput = (
       range,
       source: "ReScript",
       // remove start and end whitespaces/newlines
-      message: diagnosticMessage.join("\n").trim(),
+      message: diagnosticMessage.filter(l => l.trim() !== "").join(". ").trim(),
     };
 
     // Check for potential code actions
