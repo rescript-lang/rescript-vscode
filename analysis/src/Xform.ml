@@ -257,6 +257,18 @@ module AddTypeAnnotation = struct
         | _ -> ()))
 end
 
+module TypeToModule = struct
+  let xform ~path ~pos ~full ~structure ~codeActions =
+    let structure_item (iterator : Ast_iterator.iterator)
+        (item : Parsetree.structure_item) =
+      match item.pstr_desc with
+      | Pstr_type (_recFlag, typeDecls) ->
+        ()
+      | _ -> ()
+    in
+    {Ast_iterator.default_iterator with structure_item}
+end
+
 let indent n text =
   let spaces = String.make n ' ' in
   let len = String.length text in
@@ -310,5 +322,6 @@ let extractCodeActions ~path ~pos ~currentFile ~debug =
     AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions ~debug;
     IfThenElse.xform ~pos ~codeActions ~printExpr ~path structure;
     AddBracesToFn.xform ~pos ~codeActions ~path ~printStructureItem structure;
+    TypeToModule.xform ~path ~pos ~full ~structure ~codeActions;
     !codeActions
   | _ -> []
