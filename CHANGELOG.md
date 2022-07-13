@@ -1,5 +1,7 @@
 ## master
 
+## 1.4.0
+
 - Fix issue with autocompletion for constructors in switch statements.
 - Fix issue with autocompletion inside template expressions.
 - Fix handling of local opens.
