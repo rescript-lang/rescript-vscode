@@ -1,0 +1,9 @@
+Complete src/TypeContextCompletion.res 10:40
+posCursor:[10:40] posNoWhite:[10:39] Found expr:[10:26->18:1]
+[]
+
+Complete src/TypeContextCompletion.res 20:37
+posCursor:[20:37] posNoWhite:[20:36] Found expr:[20:14->20:37]
+JSX <SomeComponent:[20:14->20:27] whatever[20:28->20:36]=...__ghost__[0:-1->0:-1]> _children:None
+[]
+
