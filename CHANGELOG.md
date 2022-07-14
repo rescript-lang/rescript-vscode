@@ -14,7 +14,7 @@
 
 ## v1.4.0
 
-#### :rocket: [New Feature]
+#### :rocket: New Feature
 
 - Add command: ReScript: Restart Language Server
 - Extend integration with reanalyze for code analysis. Support both `dce` and `exception` analysis which can be configured to e.g. both run by adding `{"reanalyze": {"analysis": ["dce", "exception"]} }` in `bsconfig.json`.
@@ -32,16 +32,16 @@
 - Fix issue where the server would crash if the project contains an OCaml file with a syntax error.
 - Fix issue where `@inline` was not suported by the command to generate an interface file.
 
-#### :nail_care: [Polish]
+#### :nail_care: Polish
 
 - Add hover information with links to documentation for decorators.
 - Sync with latest parser/printer.
 
-#### :house: [Internal]
+#### :house: Internal
 
 - Support paths to rescript executables in arm64 architectures.
 
-#### :boom: [Breaking Change]
+#### :boom: Breaking Change
 
 - Drop support for `bs-patform`. Only `rescript` supported.
 
