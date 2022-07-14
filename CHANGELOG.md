@@ -15,6 +15,7 @@
 ## v1.4.0
 
 #### :rocket: [New Feature]
+
 - Add command: ReScript: Restart Language Server
 - Extend integration with reanalyze for code analysis. Support both `dce` and `exception` analysis which can be configured to e.g. both run by adding `{"reanalyze": {"analysis": ["dce", "exception"]} }` in `bsconfig.json`.
 - Add configuration option for suppressing the "Do you want to start a build?" prompt.
@@ -22,6 +23,7 @@
 - Report syntax errors as you type.
 
 #### :bug: Bug Fix
+
 - Fix issue with autocompletion for constructors in switch statements.
 - Fix issue with autocompletion inside template expressions.
 - Fix handling of local opens.
@@ -31,13 +33,16 @@
 - Fix issue where `@inline` was not suported by the command to generate an interface file.
 
 #### :nail_care: [Polish]
+
 - Add hover information with links to documentation for decorators.
 - Sync with latest parser/printer.
 
 #### :house: [Internal]
+
 - Support paths to rescript executables in arm64 architectures.
 
 #### :boom: [Breaking Change]
+
 - Drop support for `bs-patform`. Only `rescript` supported.
 
 ## 1.3.0
