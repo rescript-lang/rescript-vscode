@@ -88,14 +88,13 @@ type t =
   | PercentPercent
   | Comment of Comment.t
   | List
-  | TemplateTail of string
-  | TemplatePart of string
+  | TemplateTail of string * Lexing.position
+  | TemplatePart of string * Lexing.position
   | Backtick
   | BarGreater
   | Try
-  | Import
-  | Export
   | DocComment of Location.t * string
+  | ModuleComment of Location.t * string
 
 let precedence = function
   | HashEqual | ColonEqual -> 1
@@ -199,14 +198,13 @@ let toString = function
   | PercentPercent -> "%%"
   | Comment c -> "Comment" ^ Comment.toString c
   | List -> "list{"
-  | TemplatePart text -> text ^ "${"
-  | TemplateTail text -> "TemplateTail(" ^ text ^ ")"
+  | TemplatePart (text, _) -> text ^ "${"
+  | TemplateTail (text, _) -> "TemplateTail(" ^ text ^ ")"
   | Backtick -> "`"
   | BarGreater -> "|>"
   | Try -> "try"
-  | Import -> "import"
-  | Export -> "export"
   | DocComment (_loc, s) -> "DocComment " ^ s
+  | ModuleComment (_loc, s) -> "ModuleComment " ^ s
 
 let keywordTable = function
   | "and" -> And
@@ -215,12 +213,10 @@ let keywordTable = function
   | "constraint" -> Constraint
   | "else" -> Else
   | "exception" -> Exception
-  | "export" -> Export
   | "external" -> External
   | "false" -> False
   | "for" -> For
   | "if" -> If
-  | "import" -> Import
   | "in" -> In
   | "include" -> Include
   | "lazy" -> Lazy
@@ -242,10 +238,9 @@ let keywordTable = function
   [@@raises Not_found]
 
 let isKeyword = function
-  | And | As | Assert | Constraint | Else | Exception | Export | External
-  | False | For | If | Import | In | Include | Land | Lazy | Let | List | Lor
-  | Module | Mutable | Of | Open | Private | Rec | Switch | True | Try | Typ
-  | When | While ->
+  | And | As | Assert | Constraint | Else | Exception | External | False | For
+  | If | In | Include | Land | Lazy | Let | List | Lor | Module | Mutable | Of
+  | Open | Private | Rec | Switch | True | Try | Typ | When | While ->
     true
   | _ -> false
 

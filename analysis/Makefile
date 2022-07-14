@@ -33,6 +33,9 @@ clean:
 	make -C tests clean
 	make -C reanalyze clean
 
+checkformat:
+	dune build @fmt
+
 .DEFAULT_GOAL := build
 
 .PHONY: build-analysis-binary build-reanalyze build-tests dce clean format test

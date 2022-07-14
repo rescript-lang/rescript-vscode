@@ -391,3 +391,17 @@ let _ = _ => {
   //        ^com
   ()
 }
+
+let red = "#ff0000"
+
+let header1 = `
+    color: ${red}; `
+//            ^com
+
+let header2 = `
+    color: ${red};
+    background-color: ${red}; `
+//                       ^com
+
+// let _ = `color: ${r    
+//                    ^com

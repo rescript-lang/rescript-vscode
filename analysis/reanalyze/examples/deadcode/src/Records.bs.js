@@ -165,6 +165,5 @@ export {
   testMyObj2 ,
   testMyRecBsAs ,
   testMyRecBsAs2 ,
-  
 }
 /* No side effect */

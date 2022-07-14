@@ -38,51 +38,31 @@ export let findProjectRootOfFile = (
   }
 };
 
-// TODO: races here?
-// TODO: this doesn't handle file:/// scheme
-
-// We need to recursively search for bs-platform/{platform}/bsc.exe upward from
-// the project's root, because in some setups, such as yarn workspace/monorepo,
-// the node_modules/bs-platform package might be hoisted up instead of alongside
-// the project root.
-// Also, if someone's ever formatting a regular project setup's dependency
-// (which is weird but whatever), they'll at least find an upward bs-platform
-// from the dependent.
-export let findBscNativeOfFile = (
-  source: p.DocumentUri
-): null | p.DocumentUri => {
-  let dir = path.dirname(source);
-  // The rescript package's rescript command is a JS wrapper. `rescript format`
-  // also invokes another JS wrapper. _That_ JS wrapper ultimately calls the
-  // (unexposed) bsc -format anyway.
-  let bscNativeReScriptPath = path.join(dir, c.bscNativeReScriptPartialPath);
-  let bscNativePath = path.join(dir, c.bscNativePartialPath);
-
-  if (fs.existsSync(bscNativeReScriptPath)) {
-    return bscNativeReScriptPath;
-  } else if (fs.existsSync(bscNativePath)) {
-    return bscNativePath;
-  } else if (dir === source) {
-    // reached the top
+export let findBinary = (
+  binaryDirPath: p.DocumentUri | null,
+  binaryName: string
+): p.DocumentUri | null => {
+  if (binaryDirPath == null) {
     return null;
+  }
+  let binaryPath: p.DocumentUri = path.join(binaryDirPath, binaryName);
+  if (fs.existsSync(binaryPath)) {
+    return binaryPath;
   } else {
-    return findBscNativeOfFile(dir);
+    return null;
   }
 };
 
-// TODO: this doesn't handle file:/// scheme
-export let findNodeBuildOfProjectRoot = (
-  projectRootPath: p.DocumentUri
-): null | { buildPath: p.DocumentUri; isReScript: boolean } => {
-  let rescriptNodePath = path.join(projectRootPath, c.rescriptNodePartialPath);
-  let bsbNodePath = path.join(projectRootPath, c.bsbNodePartialPath);
+export let findRescriptBinary = (
+  binaryDirPath: p.DocumentUri | null
+): p.DocumentUri | null => {
+  return findBinary(binaryDirPath, c.rescriptBinName);
+};
 
-  if (fs.existsSync(rescriptNodePath)) {
-    return { buildPath: rescriptNodePath, isReScript: true };
-  } else if (fs.existsSync(bsbNodePath)) {
-    return { buildPath: bsbNodePath, isReScript: false };
-  }
-  return null;
+export let findBscBinary = (
+  binaryDirPath: p.DocumentUri | null
+): p.DocumentUri | null => {
+  return findBinary(binaryDirPath, c.bscBinName);
 };
 
 type execResult =
@@ -94,21 +74,22 @@ type execResult =
       kind: "error";
       error: string;
     };
-export let formatCode = (filePath: string, code: string): execResult => {
+
+export let formatCode = (
+  bscPath: p.DocumentUri | null,
+  filePath: string,
+  code: string
+): execResult => {
   let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
   fs.writeFileSync(formatTempFileFullPath, code, {
     encoding: "utf-8",
   });
   try {
-    // See comment on findBscNativeDirOfFile for why we need
-    // to recursively search for bsc.exe upward
-    let bscNativePath = findBscNativeOfFile(filePath);
-
-    // Default to using the project formatter. If not, use the one we ship with
-    // the analysis binary in the extension itself.
-    if (bscNativePath != null) {
-      let result = childProcess.execFileSync(bscNativePath, [
+    // It will try to use the user formatting binary.
+    // If not, use the one we ship with the analysis binary in the extension itself.
+    if (bscPath != null) {
+      let result = childProcess.execFileSync(bscPath, [
         "-color",
         "never",
         "-format",
@@ -323,7 +304,6 @@ export let getCompiledFilePath = (
 
 export let runBuildWatcherUsingValidBuildPath = (
   buildPath: p.DocumentUri,
-  isRescript: boolean,
   projectRootPath: p.DocumentUri
 ) => {
   let cwdEnv = {
@@ -342,17 +322,9 @@ export let runBuildWatcherUsingValidBuildPath = (
         (since the path might have spaces), which `execFile` would have done
         for you under the hood
     */
-    if (isRescript) {
-      return childProcess.exec(`"${buildPath}".cmd build -w`, cwdEnv);
-    } else {
-      return childProcess.exec(`"${buildPath}".cmd -w`, cwdEnv);
-    }
+    return childProcess.exec(`"${buildPath}".cmd build -w`, cwdEnv);
   } else {
-    if (isRescript) {
-      return childProcess.execFile(buildPath, ["build", "-w"], cwdEnv);
-    } else {
-      return childProcess.execFile(buildPath, ["-w"], cwdEnv);
-    }
+    return childProcess.execFile(buildPath, ["build", "-w"], cwdEnv);
   }
 };
 
@@ -474,7 +446,7 @@ let parseFileAndRange = (fileAndRange: string) => {
 };
 
 // main parsing logic
-type filesDiagnostics = {
+export type filesDiagnostics = {
   [key: string]: p.Diagnostic[];
 };
 type parsedCompilerLogResult = {
@@ -589,7 +561,7 @@ export let parseCompilerLogOutput = (
         code: undefined,
         severity: t.DiagnosticSeverity.Error,
         tag: undefined,
-        content: [lines[i], lines[i+1]],
+        content: [lines[i], lines[i + 1]],
       });
       i++;
     } else if (/^  +([0-9]+| +|\.) (│|┆)/.test(line)) {
@@ -603,9 +575,9 @@ export let parseCompilerLogOutput = (
       //   10 ┆
     } else if (line.startsWith("  ")) {
       // part of the actual diagnostics message
-        parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
-          line.slice(2)
-        );
+      parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
+        line.slice(2)
+      );
     } else if (line.trim() != "") {
       // We'll assume that everything else is also part of the diagnostics too.
       // Most of these should have been indented 2 spaces; sadly, some of them

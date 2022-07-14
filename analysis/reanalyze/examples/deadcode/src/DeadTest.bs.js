@@ -135,6 +135,8 @@ console.log(DeadTest);
 
 console.log(123);
 
+var stringLengthNoSideEffects = "sdkdl".length;
+
 var GloobLive = {
   globallyLive1: 1,
   globallyLive2: 2,
@@ -168,8 +170,6 @@ var zzz;
 var make$1 = DeadTest;
 
 var theSideEffectIsLogging;
-
-var stringLengthNoSideEffects = 5;
 
 var deadIncorrect = 34;
 
@@ -208,6 +208,5 @@ export {
   WithInclude ,
   funWithInnerVars ,
   deadIncorrect ,
-  
 }
 /*  Not a pure module */

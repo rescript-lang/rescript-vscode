@@ -1,19 +1,49 @@
+# Changelog
+
+> **Tags:**
+>
+> - :boom: [Breaking Change]
+> - :eyeglasses: [Spec Compliance]
+> - :rocket: [New Feature]
+> - :bug: [Bug Fix]
+> - :memo: [Documentation]
+> - :house: [Internal]
+> - :nail_care: [Polish]
+
 ## master
+
+## v1.4.0
+
+#### :rocket: New Feature
+
+- Add command: ReScript: Restart Language Server
+- Extend integration with reanalyze for code analysis. Support both `dce` and `exception` analysis which can be configured to e.g. both run by adding `{"reanalyze": {"analysis": ["dce", "exception"]} }` in `bsconfig.json`.
+- Add configuration option for suppressing the "Do you want to start a build?" prompt.
+- Add configuration option for autostarting the Code Analyzer.
+- Report syntax errors as you type.
+
+#### :bug: Bug Fix
 
 - Fix issue with autocompletion for constructors in switch statements.
 - Fix issue with autocompletion inside template expressions.
 - Fix handling of local opens.
 - Fix extension crash when renaming a file.
-- Add hover information with links to documentation for decorators.
-- Add command: ReScript: Restart Language Server
 - Fix issue where the server would crash on genType's errors.
-- Extend integration with reanalyze for code analysis. Support both `dce` and `exception` analysis which can be configured to e.g. both run by adding `{"reanalyze": {"analysis": ["dce", "exception"]} }` in `bsconfig.json`.
 - Fix issue where the server would crash if the project contains an OCaml file with a syntax error.
-- Add configuration option for suppressing the "Do you want to start a build?" prompt.
-- Add configuration option for autostarting the Code Analyzer.
-- Sync with latest parser/printer.
-- Support paths to rescript executables in arm64 architectures.
 - Fix issue where `@inline` was not suported by the command to generate an interface file.
+
+#### :nail_care: Polish
+
+- Add hover information with links to documentation for decorators.
+- Sync with latest parser/printer.
+
+#### :house: Internal
+
+- Support paths to rescript executables in arm64 architectures.
+
+#### :boom: Breaking Change
+
+- Drop support for `bs-patform`. Only `rescript` supported.
 
 ## 1.3.0
 

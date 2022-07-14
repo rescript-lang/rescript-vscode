@@ -56,7 +56,6 @@ type t =
   | TypeConstraint
   | AtomicTypExpr
   | ListExpr
-  | JsFfiImport
   | Pattern
   | AttributePayload
   | TagNames
@@ -116,7 +115,6 @@ let toString = function
   | AtomicTypExpr -> "a type"
   | ListExpr -> "an ocaml list expr"
   | PackageConstraint -> "a package constraint"
-  | JsFfiImport -> "js ffi import"
   | JsxChild -> "jsx child"
   | Pattern -> "pattern"
   | ExprFor -> "a for expression"
@@ -125,7 +123,7 @@ let toString = function
 
 let isSignatureItemStart = function
   | Token.At | Let | Typ | External | Exception | Open | Include | Module | AtAt
-  | Export | PercentPercent ->
+  | PercentPercent ->
     true
   | _ -> false
 
@@ -162,8 +160,8 @@ let isJsxAttributeStart = function
   | _ -> false
 
 let isStructureItemStart = function
-  | Token.Open | Let | Typ | External | Import | Export | Exception | Include
-  | Module | AtAt | PercentPercent | At ->
+  | Token.Open | Let | Typ | External | Exception | Include | Module | AtAt
+  | PercentPercent | At ->
     true
   | t when isExprStart t -> true
   | _ -> false
@@ -254,10 +252,6 @@ let isAttributeStart = function
   | Token.At -> true
   | _ -> false
 
-let isJsFfiImportStart = function
-  | Token.Lident _ | At -> true
-  | _ -> false
-
 let isJsxChildStart = isAtomicExprStart
 
 let isBlockExprStart = function
@@ -296,7 +290,6 @@ let isListElement grammar token =
   | PackageConstraint -> token = And
   | ConstructorDeclaration -> token = Bar
   | JsxAttribute -> isJsxAttributeStart token
-  | JsFfiImport -> isJsFfiImportStart token
   | AttributePayload -> token = Lparen
   | TagNames -> token = Hash
   | _ -> false
@@ -318,7 +311,6 @@ let isListTerminator grammar token =
   | TypeParams, Rparen
   | ParameterList, (EqualGreater | Lbrace)
   | JsxAttribute, (Forwardslash | GreaterThan)
-  | JsFfiImport, Rbrace
   | StringFieldDeclarations, Rbrace ->
     true
   | Attribute, token when token <> At -> true

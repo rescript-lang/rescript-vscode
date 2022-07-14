@@ -8,6 +8,5 @@ var y = 11;
 export {
   x ,
   y ,
-  
 }
 /* No side effect */

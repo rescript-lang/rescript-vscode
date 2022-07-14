@@ -6,7 +6,7 @@ The official VSCode plugin for ReScript.
 
 ## Prerequisite
 
-You **must** have `rescript >=9.1` or `bs-platform >=8.3.3` installed locally in your project, through the usual [npm installation](https://rescript-lang.org/docs/manual/latest/installation#integrate-into-existing-js-project). Older versions are not guaranteed to work.
+You **must** have `rescript >=9.1` installed locally in your project, through the usual [npm installation](https://rescript-lang.org/docs/manual/latest/installation#integrate-into-existing-js-project). Older versions are not guaranteed to work.
 
 ## Recommendation
 

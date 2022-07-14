@@ -4,6 +4,7 @@ import * as v from "vscode-languageserver";
 import * as rpc from "vscode-jsonrpc/node";
 import * as path from "path";
 import fs from "fs";
+import os from "os";
 // TODO: check DidChangeWatchedFilesNotification.
 import {
   DidOpenTextDocumentNotification,
@@ -20,16 +21,19 @@ import { assert } from "console";
 import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
+import { filesDiagnostics } from "./utils";
 
 interface extensionConfiguration {
   askToStartBuild: boolean;
   autoRunCodeAnalysis: boolean;
   inlayHints: boolean;
+  binaryPath: string | null;
 }
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
   autoRunCodeAnalysis: false,
   inlayHints: false,
+  binaryPath: null,
 };
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 
@@ -45,6 +49,8 @@ let projectsFiles: Map<
   {
     openFiles: Set<string>;
     filesWithDiagnostics: Set<string>;
+    filesDiagnostics: filesDiagnostics;
+
     bsbWatcherByEditor: null | ChildProcess;
 
     // This keeps track of whether we've prompted the user to start a build
@@ -61,7 +67,18 @@ let projectsFiles: Map<
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: p.Message) => void = (_) => { };
+let send: (msg: p.Message) => void = (_) => {};
+
+let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
+  extensionConfiguration.binaryPath === null
+    ? path.join(projectRootPath, c.nodeModulesBinDir)
+    : extensionConfiguration.binaryPath;
+
+let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
+  utils.findRescriptBinary(getBinaryDirPath(projectRootPath));
+
+let findBscBinary = (projectRootPath: p.DocumentUri) =>
+  utils.findBscBinary(getBinaryDirPath(projectRootPath));
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -83,8 +100,22 @@ let openCompiledFileRequest = new v.RequestType<
   void
 >("rescript-vscode.open_compiled");
 
+let getCurrentCompilerDiagnosticsForFile = (
+  fileUri: string
+): p.Diagnostic[] => {
+  let diagnostics: p.Diagnostic[] | null = null;
+
+  projectsFiles.forEach((projectFile, _projectRootPath) => {
+    if (diagnostics == null && projectFile.filesDiagnostics[fileUri] != null) {
+      diagnostics = projectFile.filesDiagnostics[fileUri].slice();
+    }
+  });
+
+  return diagnostics ?? [];
+};
 let sendUpdatedDiagnostics = () => {
-  projectsFiles.forEach(({ filesWithDiagnostics }, projectRootPath) => {
+  projectsFiles.forEach((projectFile, projectRootPath) => {
+    let { filesWithDiagnostics } = projectFile;
     let content = fs.readFileSync(
       path.join(projectRootPath, c.compilerLogPartialPath),
       { encoding: "utf-8" }
@@ -95,6 +126,7 @@ let sendUpdatedDiagnostics = () => {
       codeActions,
     } = utils.parseCompilerLogOutput(content);
 
+    projectFile.filesDiagnostics = filesAndErrors;
     codeActionsFromDiagnostics = codeActions;
 
     // diff
@@ -195,8 +227,13 @@ let openedFile = (fileUri: string, fileContent: string) => {
       projectRootState = {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
+        filesDiagnostics: {},
         bsbWatcherByEditor: null,
-        hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(projectRootPath) ? "never" : false,
+        hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
+          projectRootPath
+        )
+          ? "never"
+          : false,
       };
       projectsFiles.set(projectRootPath, projectRootState);
       compilerLogsWatcher.add(
@@ -216,7 +253,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
-      if (utils.findNodeBuildOfProjectRoot(projectRootPath) != null) {
+      if (findRescriptBinary(projectRootPath) != null) {
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
           projectRootPath: projectRootPath,
@@ -238,7 +275,17 @@ let openedFile = (fileUri: string, fileContent: string) => {
         // handle in the isResponseMessage check in the message handling way
         // below
       } else {
-        // we should send something to say that we can't find bsb.exe. But right now we'll silently not do anything
+        let request: p.NotificationMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          method: "window/showMessage",
+          params: {
+            type: p.MessageType.Error,
+            message: `Can't find ReScript binary in the directory ${getBinaryDirPath(
+              projectRootPath
+            )}`,
+          },
+        };
+        send(request);
       }
     }
 
@@ -598,7 +645,8 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   } else {
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
-    let formattedResult = utils.formatCode(filePath, code);
+    let bscBinaryPath = findBscBinary(filePath);
+    let formattedResult = utils.formatCode(bscBinaryPath, filePath, code);
     if (formattedResult.kind === "success") {
       let max = code.length;
       let result: p.TextEdit[] = [
@@ -626,33 +674,35 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   }
 }
 
-const updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
+let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
   let extension = path.extname(filePath);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
 
-  const items: p.Diagnostic[] | [] = utils.runAnalysisAfterSanityCheck(
-    filePath,
-    [
-      "diagnosticSyntax",
-      tmpname
-    ],
-  );
+  // We need to account for any existing diagnostics from the compiler for this
+  // file. If we don't we might accidentally clear the current file's compiler
+  // diagnostics if there's no syntax diagostics to send. This is because
+  // publishing an empty diagnostics array is equivalent to saying "clear all
+  // errors".
+  let compilerDiagnosticsForFile =
+    getCurrentCompilerDiagnosticsForFile(fileUri);
+  let syntaxDiagnosticsForFile: p.Diagnostic[] =
+    utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
 
-  const notification: p.NotificationMessage = {
+  let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
     method: "textDocument/publishDiagnostics",
     params: {
       uri: fileUri,
-      diagnostics: items
-    }
-  }
+      diagnostics: [...syntaxDiagnosticsForFile, ...compilerDiagnosticsForFile],
+    },
+  };
 
   fs.unlink(tmpname, () => null);
 
-  send(notification)
-}
+  send(notification);
+};
 
 function createInterface(msg: p.RequestMessage): p.Message {
   let params = msg.params as CreateInterfaceRequestParams;
@@ -854,7 +904,10 @@ function onMessage(msg: p.Message) {
             params.textDocument.uri,
             changes[changes.length - 1].text
           );
-          updateDiagnosticSyntax(params.textDocument.uri, changes[changes.length - 1].text);
+          updateDiagnosticSyntax(
+            params.textDocument.uri,
+            changes[changes.length - 1].text
+          );
         }
       }
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
@@ -1044,11 +1097,10 @@ function onMessage(msg: p.Message) {
       // TODO: close watcher when lang-server shuts down. However, by Node's
       // default, these subprocesses are automatically killed when this
       // language-server process exits
-      let found = utils.findNodeBuildOfProjectRoot(projectRootPath);
-      if (found != null) {
+      let rescriptBinaryPath = findRescriptBinary(projectRootPath);
+      if (rescriptBinaryPath != null) {
         let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
-          found.buildPath,
-          found.isReScript,
+          rescriptBinaryPath,
           projectRootPath
         );
         let root = projectsFiles.get(projectRootPath)!;

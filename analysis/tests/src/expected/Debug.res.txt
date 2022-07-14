@@ -49,7 +49,7 @@ resolvePath path:map
 [ref] Got stamp 1024
 [ref] alternateDeclared for Belt_List not found
 [ref] Inner uri belt_List.mli
-{"uri": "belt_List.mli", "range": {"start": {"line": 239, "character": 4}, "end": {"line": 239, "character": 7}}}
+{"uri": "belt_List.mli", "range": {"start": {"line": 245, "character": 4}, "end": {"line": 245, "character": 7}}}
 
 Definition src/Debug.res 4:14
 locItems:

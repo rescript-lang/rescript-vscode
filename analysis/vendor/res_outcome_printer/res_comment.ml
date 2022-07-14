@@ -1,10 +1,11 @@
-type style = SingleLine | MultiLine | DocComment
+type style = SingleLine | MultiLine | DocComment | ModuleComment
 
 let styleToString s =
   match s with
   | SingleLine -> "SingleLine"
   | MultiLine -> "MultiLine"
   | DocComment -> "DocComment"
+  | ModuleComment -> "ModuleComment"
 
 type t = {
   txt: string;
@@ -23,6 +24,8 @@ let isSingleLineComment t = t.style = SingleLine
 
 let isDocComment t = t.style = DocComment
 
+let isModuleComment t = t.style = ModuleComment
+
 let toString t =
   let {Location.loc_start; loc_end} = t.loc in
   Format.sprintf "(txt: %s\nstyle: %s\nlocation: %d,%d-%d,%d)" t.txt
@@ -34,11 +37,13 @@ let toString t =
 let makeSingleLineComment ~loc txt =
   {txt; loc; style = SingleLine; prevTokEndPos = Lexing.dummy_pos}
 
-let makeMultiLineComment ~loc ~docComment txt =
+let makeMultiLineComment ~loc ~docComment ~standalone txt =
   {
     txt;
     loc;
-    style = (if docComment then DocComment else MultiLine);
+    style =
+      (if docComment then if standalone then ModuleComment else DocComment
+      else MultiLine);
     prevTokEndPos = Lexing.dummy_pos;
   }
 

@@ -11,16 +11,12 @@ type completionItem = {
   documentation: markupContent option;
 }
 
-type location = {uri : string; range : range}
-type documentSymbolItem = {name : string; kind : int; location : location}
-type renameFile = {oldUri : string; newUri : string}
-type textEdit = {range : range; newText : string}
+type location = {uri: string; range: range}
+type documentSymbolItem = {name: string; kind: int; location: location}
+type renameFile = {oldUri: string; newUri: string}
+type textEdit = {range: range; newText: string}
 
-type diagnostic = {
-  range : range;
-  message : string;
-  severity : int;
-}
+type diagnostic = {range: range; message: string; severity: int}
 
 type optionalVersionedTextDocumentIdentifier = {
   version: int option;
@@ -148,7 +144,8 @@ let stringifyHint hint =
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic *)
 let stringifyDiagnostic d =
-  Printf.sprintf {|{
+  Printf.sprintf
+    {|{
   "range": %s,
   "message": "%s",
   "severity": %d,

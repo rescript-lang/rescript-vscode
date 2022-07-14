@@ -7,67 +7,67 @@ Completable: Cpath Value[MyList, m]
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  `mapReverse xs f`\n\n  Equivalent to `reverse (map xs f)`\n\n  ```\n  mapReverse [3;4;5] (fun x -> x * x) = [25;16;9];;\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Equivalent to:\n\n  ```res\n  map(someList, f)->reverse\n  ```\n\n  ```res example\n  list{3, 4, 5}->Belt.List.mapReverse(x => x * x) /* list{25, 16, 9} */\n  ```\n"}
   }, {
     "label": "makeBy",
     "kind": 12,
     "tags": [],
     "detail": "(int, int => 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "\n  `makeBy n f`\n\n  **return** a list of length `n` with element `i` initialized with `f i`\n\n  **return** the empty list if `n` is negative\n\n  ```\n  makeBy 5 (fun i -> i) = [0;1;2;3;4];;\n  makeBy 5 (fun i -> i * i) = [0;1;4;9;16];;\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nReturn a list of length `numItems` with element `i` initialized with `f(i)`.\nReturns an empty list if `numItems` is negative.\n\n```res example\nBelt.List.makeBy(5, i => i) // list{0, 1, 2, 3, 4}\n\nBelt.List.makeBy(5, i => i * i) // list{0, 1, 4, 9, 16}\n```\n"}
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "\n  `make n v`\n\n  **return** a list of length `n` with each element filled with value `v`\n\n  **return** the empty list if `n` is negative\n\n  ```\n  make 3 1 =  [1;1;1]\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Returns a list of length `numItems` with each element filled with value `v`. Returns an empty list if `numItems` is negative.\n\n  ```res example\n  Belt.List.make(3, 1) // list{1, 1, 1}\n  ```\n"}
   }, {
     "label": "mapReverse2U",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse2](#mapReverse2). "}
   }, {
     "label": "map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  `map xs f`\n\n  **return** the list obtained by applying `f` to each element of `xs`\n\n  ```\n  map [1;2] (fun x-> x + 1) = [3;4]\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"}
   }, {
     "label": "mapWithIndexU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. int, 'a) => 'b) => t<'b>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapWithIndex](#mapWithIndex). "}
   }, {
     "label": "mapU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [map](#map). "}
   }, {
     "label": "makeByU",
     "kind": 12,
     "tags": [],
     "detail": "(int, (. int) => 'a) => t<'a>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [makeBy](#makeBy) "}
   }, {
     "label": "mapReverse2",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>",
-    "documentation": {"kind": "markdown", "value": "\n  `mapReverse2 xs ys f`\n\n  equivalent to `reverse (zipBy xs ys f)`\n\n  ```\n  mapReverse2 [1;2;3] [1;2] (+) = [4;2]\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Equivalent to: `zipBy(xs, ys, f)->reverse`\n\n  ```res example\n\n  Belt.List.mapReverse2(list{1, 2, 3}, list{1, 2}, (a, b) => a + b) // list{4, 2}\n  ```\n"}
   }, {
     "label": "mapWithIndex",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  `mapWithIndex xs f` applies `f` to each element of `xs`. Function `f` takes two arguments:\n  the index starting from 0 and the element from `xs`.\n\n  ```\n  mapWithIndex [1;2;3] (fun i x -> i + x) =\n    [0 + 1; 1 + 2; 2 + 3 ]\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Applies `f` to each element of `someList`.\n  Function `f` takes two arguments: the index starting from 0 and the element from `someList`, in that order.\n\n  ```res example\n  list{1, 2, 3}->Belt.List.mapWithIndex((index, x) => index + x) // list{1, 3, 5}\n  ```\n"}
   }, {
     "label": "mapReverseU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse](#mapReverse). "}
   }]
 
 Complete src/Completion.res 3:9
@@ -385,13 +385,13 @@ Completable: Cpath array->m
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
   }, {
     "label": "Js.Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
   }]
 
 Complete src/Completion.res 29:13
@@ -402,7 +402,7 @@ Completable: Cpath string->toU
     "kind": 12,
     "tags": [],
     "detail": "t => t",
-    "documentation": {"kind": "markdown", "value": "\n  `toUpperCase str` converts `str` to upper case using the locale-insensitive case mappings in the Unicode Character Database. Notice that the conversion can expand the number of letters in the result; for example the German `ß` capitalizes to two `S`es in a row.\n\n  ```\n  toUpperCase \"abc\" = \"ABC\";;\n  toUpperCase {js|Straße|js} = {js|STRASSE|js};;\n  toLowerCase {js|πς|js} = {js|ΠΣ|js};;\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`toUpperCase(str)` converts `str` to upper case using the locale-insensitive\ncase mappings in the Unicode Character Database. Notice that the conversion can\nexpand the number of letters in the result; for example the German ß\ncapitalizes to two Ses in a row.\n\nSee [`String.toUpperCase`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase)\non MDN.\n\n```res example\nJs.String2.toUpperCase(\"abc\") == \"ABC\"\nJs.String2.toUpperCase(`Straße`) == `STRASSE`\nJs.String2.toUpperCase(`πς`) == `ΠΣ`\n```\n"}
   }]
 
 Complete src/Completion.res 34:8
@@ -419,7 +419,7 @@ Completable: Cpath Value[op]->e
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   `eq optValue1 optvalue2 predicate`\n\n   Evaluates two optional values for equality with respect to a predicate function.\n\n   If both `optValue1` and `optValue2` are `None`, returns `true`.\n\n   If one of the arguments is `Some value` and the other is `None`, returns `false`\n\n   If arguments are `Some value1` and `Some value2`, returns the result of `predicate value1 value2`;\n   the `predicate` function must return a `bool`\n\n   ```\n   let clockEqual = (fun a b -> a mod 12 = b mod 12);;\n   eq (Some 3) (Some 15) clockEqual = true;;\n   eq (Some 3) None clockEqual = false;;\n   eq None (Some 3) clockEqual = false;;\n   eq None None clockEqual = true;;\n   ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n   Evaluates two optional values for equality with respect to a predicate\n   function. If both `optValue1` and `optValue2` are `None`, returns `true`.\n   If one of the arguments is `Some(value)` and the other is `None`, returns\n   `false`.\n\n   If arguments are `Some(value1)` and `Some(value2)`, returns the result of\n   `predicate(value1, value2)`; the predicate function must return a bool.\n\n   ```res example\n   let clockEqual = (a, b) => mod(a, 12) == mod(b, 12)\n\n   open Belt.Option\n\n   eq(Some(3), Some(15), clockEqual) /* true */\n\n   eq(Some(3), None, clockEqual) /* false */\n\n   eq(None, Some(3), clockEqual) /* false */\n\n   eq(None, None, clockEqual) /* true */\n   ```\n"}
   }]
 
 Complete src/Completion.res 44:7
@@ -451,7 +451,7 @@ Completable: Cpath Value[Js, Dict, u]
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, key) => 'a",
-    "documentation": {"kind": "markdown", "value": "\n  `unsafeGet dict key` return the value if the `key` exists,\n  otherwise an **undefined** value is returned. Must be used only\n  when the existence of a key is certain. (i.e. when having called `keys`\n  function previously.\n\n  ```\n  Array.iter (fun key -> Js.log (Js_dict.unsafeGet dic key)) (Js_dict.keys dict)\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`Js.Dict.unsafeGet(key)` returns the value if the key exists, otherwise an `undefined` value is returned. Use this only when you are sure the key exists (i.e. when having used the `keys()` function to check that the key is valid).\n\n```res example\nJs.Dict.unsafeGet(ages, \"Fred\") == 49\nJs.Dict.unsafeGet(ages, \"Paul\") // returns undefined\n```\n"}
   }, {
     "label": "unsafeDeleteKey",
     "kind": 12,
@@ -771,13 +771,13 @@ Completable: Cpath Type[Js, n]
     "kind": 22,
     "tags": [],
     "detail": "type nullable<+'a>",
-    "documentation": {"kind": "markdown", "value": " value of this type can be [undefined], [null] or ['a]\n    this type is the same as type [t] n {!Null_undefined} "}
+    "documentation": {"kind": "markdown", "value": "\n  A value of this type can be undefined, null or 'a. This type is equivalent to Js.Null_undefined.t.\n"}
   }, {
     "label": "null",
     "kind": 22,
     "tags": [],
     "detail": "type null<+'a>",
-    "documentation": {"kind": "markdown", "value": " nullable, value of this type can be either [null] or ['a]\n    this type is the same as type [t] in {!Null}\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Nullable value of this type can be either null or 'a. This type is equivalent to Js.Null.t.\n"}
   }]
 
 Complete src/Completion.res 174:20
@@ -812,12 +812,6 @@ Completable: Cpath Module[For]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
-  }, {
-    "label": "Format",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
     "documentation": null
   }]
 
@@ -937,9 +931,9 @@ Completable: Cpath Value[ForAuto, a]
 
 Complete src/Completion.res 234:34
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:36]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:34], ...[234:34->234:36])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:34], ...[234:34->234:35])
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:34]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:32], ...[234:32->234:34])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:30], ...[234:32->234:34])
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:32->234:34]
 Pexp_ident na:[234:32->234:34]
 Completable: Cpath Value[na]
@@ -1434,9 +1428,9 @@ Completable: Cpath Value[AndThatOther, T]
 
 Complete src/Completion.res 378:24
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:26]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:24], ...[378:24->378:26])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:24], ...[378:24->378:25])
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:24]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:16], ...[378:16->378:24])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:14], ...[378:16->378:24])
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:16->378:24]
 Pexp_ident ForAuto.:[378:16->378:24]
 Completable: Cpath Value[ForAuto, ""]
@@ -1456,9 +1450,9 @@ Completable: Cpath Value[ForAuto, ""]
 
 Complete src/Completion.res 381:38
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:41]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:39], ...[381:39->381:41])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:39], ...[381:39->381:40])
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:39]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:19], ...[381:19->381:39])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:17], ...[381:19->381:39])
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:19->381:39]
 Pexp_send [381:38->381:38] e:[381:19->381:36]
 Completable: Cpath Value[FAO, forAutoObject][""]
@@ -1478,9 +1472,9 @@ Completable: Cpath Value[FAO, forAutoObject][""]
 
 Complete src/Completion.res 384:24
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:26]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:24], ...[384:24->384:26])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:24], ...[384:24->384:25])
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:24]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:14], ...[384:14->384:24])
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:12], ...[384:14->384:24])
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:14->384:24]
 Pexp_field [384:14->384:23] _:[384:24->384:24]
 Completable: Cpath Value[funRecord].""
@@ -1509,12 +1503,72 @@ Completable: Cpath array->ma
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
   }, {
     "label": "Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
+  }]
+
+Complete src/Completion.res 397:14
+posCursor:[397:14] posNoWhite:[397:13] Found expr:[396:14->397:20]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:16], ...[397:16->397:19])
+posCursor:[397:14] posNoWhite:[397:13] Found expr:[396:14->397:16]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:11], ...[397:13->397:16])
+posCursor:[397:14] posNoWhite:[397:13] Found expr:[397:13->397:16]
+Pexp_ident red:[397:13->397:16]
+Completable: Cpath Value[red]
+[{
+    "label": "red",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete src/Completion.res 402:25
+posCursor:[402:25] posNoWhite:[402:24] Found expr:[400:14->402:31]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:27], ...[402:27->402:30])
+posCursor:[402:25] posNoWhite:[402:24] Found expr:[400:14->402:27]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:22], ...[402:24->402:27])
+posCursor:[402:25] posNoWhite:[402:24] Found expr:[402:24->402:27]
+Pexp_ident red:[402:24->402:27]
+Completable: Cpath Value[red]
+[{
+    "label": "red",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
+Complete src/Completion.res 405:22
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->408:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:22], ...[408:0->408:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->405:22]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->405:22])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
+Pexp_ident r:[405:21->405:22]
+Completable: Cpath Value[r]
+[{
+    "label": "red",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "retAA",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => aa",
+    "documentation": null
+  }, {
+    "label": "r",
+    "kind": 12,
+    "tags": [],
+    "detail": "rAlias",
     "documentation": null
   }]
 

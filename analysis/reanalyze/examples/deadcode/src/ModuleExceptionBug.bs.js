@@ -20,6 +20,5 @@ export {
   Dep ,
   MyOtherException ,
   ddjdj ,
-  
 }
 /*  Not a pure module */
