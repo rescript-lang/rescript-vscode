@@ -8,8 +8,8 @@ let someVariantToString = (~someVariant) =>
   | Four => "Four"
   }
 
-// let someVariantToString(~someVariant=
-//                                      ^com
+// let x = someVariantToString(~someVariant=
+//                                          ^com
 
 module SomeComponent = {
   @react.component

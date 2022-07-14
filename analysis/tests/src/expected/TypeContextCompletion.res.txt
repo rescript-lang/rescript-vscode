@@ -1,5 +1,8 @@
-Complete src/TypeContextCompletion.res 10:40
-posCursor:[10:40] posNoWhite:[10:39] Found expr:[10:26->18:1]
+Complete src/TypeContextCompletion.res 10:44
+posCursor:[10:44] posNoWhite:[10:43] Found expr:[10:11->18:1]
+Pexp_apply ...[10:11->10:30] (~someVariant10:32->10:43=...[13:0->17:3])
+Completable: CnamedArg(Value[someVariantToString], "", [someVariant])
+Found type for function (~someVariant: someVariant) => string
 []
 
 Complete src/TypeContextCompletion.res 20:37
