@@ -67,13 +67,13 @@ export let findBscBinary = (
 
 type execResult =
   | {
-      kind: "success";
-      result: string;
-    }
+    kind: "success";
+    result: string;
+  }
   | {
-      kind: "error";
-      error: string;
-    };
+    kind: "error";
+    error: string;
+  };
 
 export let formatCode = (
   bscPath: p.DocumentUri | null,
@@ -607,7 +607,9 @@ export let parseCompilerLogOutput = (
       range,
       source: "ReScript",
       // remove start and end whitespaces/newlines
-      message: diagnosticMessage.filter(l => l.trim() !== "").join(". ").trim(),
+      message: diagnosticMessage.map(l => l.trim()).filter(l => l !== "").reduce((acc, cur) => {
+        return ((cur.endsWith(".") || cur.endsWith(":")) ? (acc + cur + " ") : (acc + cur + ". "))
+      }, ""),
     };
 
     // Check for potential code actions
