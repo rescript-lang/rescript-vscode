@@ -1,12 +1,32 @@
-Complete src/TypeContextCompletion.res 10:44
-posCursor:[10:44] posNoWhite:[10:43] Found expr:[10:11->18:1]
-Pexp_apply ...[10:11->10:30] (~someVariant10:32->10:43=...[13:0->17:3])
-Completable: CnamedArg(Value[someVariantToString], "", [someVariant])
+Complete src/TypeContextCompletion.res 10:41
+posCursor:[10:41] posNoWhite:[10:40] Found expr:[10:11->24:1]
+Pexp_apply ...[10:11->10:30] (~someVaria10:32->10:41=...[10:32->10:41], ...[19:0->23:3])
+Completable: CnamedArg(Value[someVariantToString], someVaria, [someVaria])
 Found type for function (~someVariant: someVariant) => string
+[{
+    "label": "someVariant",
+    "kind": 4,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion.res 13:44
+posCursor:[13:44] posNoWhite:[13:43] Found expr:[13:11->24:1]
+Pexp_apply ...[13:11->13:30] (~someVariant13:32->13:43=...[19:0->23:3])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString])
 []
 
-Complete src/TypeContextCompletion.res 20:37
-posCursor:[20:37] posNoWhite:[20:36] Found expr:[20:14->20:37]
-JSX <SomeComponent:[20:14->20:27] whatever[20:28->20:36]=...__ghost__[0:-1->0:-1]> _children:None
+Complete src/TypeContextCompletion.res 16:45
+posCursor:[16:45] posNoWhite:[16:44] Found expr:[16:11->24:1]
+Pexp_apply ...[16:11->16:30] (~someVariant16:32->16:43=...[16:44->16:45], ...[19:0->23:3])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString])
+[]
+
+Complete src/TypeContextCompletion.res 26:37
+posCursor:[26:37] posNoWhite:[26:36] Found expr:[26:14->26:37]
+JSX <SomeComponent:[26:14->26:27] whatever[26:28->26:36]=...__ghost__[0:-1->0:-1]> _children:None
 []
 

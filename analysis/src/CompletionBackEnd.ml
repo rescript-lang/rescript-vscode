@@ -1337,6 +1337,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
   in
   match completable with
   | Cnone -> []
+  | CtypedContext _contextPath -> []
   | Cpath contextPath ->
     contextPath
     |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos

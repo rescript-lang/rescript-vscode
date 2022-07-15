@@ -433,6 +433,7 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
+    | CtypedContext of contextPath  (** WIP, just a dummy arg for now *)
 
   let toString =
     let str s = if s = "" then "\"\"" else s in
@@ -471,4 +472,5 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+    | CtypedContext cp -> "CtypedContext(" ^ (cp |> contextPathToString) ^ ")"
 end

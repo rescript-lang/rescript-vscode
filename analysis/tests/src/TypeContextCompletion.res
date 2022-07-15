@@ -8,8 +8,14 @@ let someVariantToString = (~someVariant) =>
   | Four => "Four"
   }
 
+// let x = someVariantToString(~someVaria
+//                                       ^com
+
 // let x = someVariantToString(~someVariant=
 //                                          ^com
+
+// let x = someVariantToString(~someVariant=T
+//                                           ^com
 
 module SomeComponent = {
   @react.component
