@@ -425,6 +425,12 @@ module Completable = struct
     | CPObj of contextPath * string
     | CPPipe of contextPath * string
 
+  type typedContext = NamedArg of string
+
+  let typedContextToString typedContext =
+    match typedContext with
+    | NamedArg argName -> "NamedArg(" ^ argName ^ ")"
+
   type t =
     | Cdecorator of string  (** e.g. @module *)
     | CnamedArg of contextPath * string * string list
@@ -433,7 +439,8 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
-    | CtypedContext of contextPath  (** WIP, just a dummy arg for now *)
+    | CtypedContext of contextPath * typedContext
+        (** A typed context we want to complete, like completing a labelled argument assignment  *)
 
   let toString =
     let str s = if s = "" then "\"\"" else s in
@@ -472,5 +479,10 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | CtypedContext cp -> "CtypedContext(" ^ (cp |> contextPathToString) ^ ")"
+    | CtypedContext (cp, typedContext) ->
+      "CtypedContext("
+      ^ (cp |> contextPathToString)
+      ^ ", "
+      ^ (typedContext |> typedContextToString)
+      ^ ")"
 end

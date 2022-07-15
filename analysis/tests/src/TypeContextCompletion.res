@@ -1,26 +1,26 @@
 type someVariant = One | Two | Three | Four
 
-let someVariantToString = (~someVariant) =>
-  switch someVariant {
-  | One => "One"
+let someVariantToString = (~someConfig, ~otherRandomArg) =>
+  switch someConfig {
+  | One => "One " ++ otherRandomArg
   | Two => "Two"
   | Three => "Three"
   | Four => "Four"
   }
 
-// let x = someVariantToString(~someVaria
+// let x = someVariantToString(~someConfi
 //                                       ^com
 
-// let x = someVariantToString(~someVariant=
-//                                          ^com
+// let x = someVariantToString(~someConfig=
+//                                         ^com
 
-// let x = someVariantToString(~someVariant=T
-//                                           ^com
+// let x = someVariantToString(~someConfig=T
+//                                          ^com
 
 module SomeComponent = {
   @react.component
   let make = (~whatever) => {
-    someVariantToString(~someVariant=whatever)->React.string
+    someVariantToString(~someConfig=whatever, ~otherRandomArg="123")->React.string
   }
 }
 

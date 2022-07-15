@@ -918,7 +918,9 @@ function onMessage(msg: p.Message) {
           codeActionProvider: true,
           renameProvider: { prepareProvider: true },
           documentSymbolProvider: true,
-          completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
+          completionProvider: {
+            triggerCharacters: [".", ">", "@", "~", '"', "="],
+          },
           semanticTokensProvider: {
             legend: {
               tokenTypes: [

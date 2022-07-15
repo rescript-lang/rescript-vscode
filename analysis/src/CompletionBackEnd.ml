@@ -992,6 +992,18 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
+let rec extractVariantType ~env ~package (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractVariantType ~env ~package t1
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, ({item = {kind = Variant constructors}} as typ)) ->
+      Some (env, constructors, typ)
+    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+      extractVariantType ~env ~package t1
+    | _ -> None)
+  | _ -> None
+
 let rec extractObjectType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractObjectType ~env ~package t1
@@ -1337,7 +1349,6 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
   in
   match completable with
   | Cnone -> []
-  | CtypedContext _contextPath -> []
   | Cpath contextPath ->
     contextPath
     |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
@@ -1687,3 +1698,54 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
+  | CtypedContext (cp, typedContext) -> (
+    match typedContext with
+    | NamedArg argName -> (
+      (* TODO: Should probably share this with the branch handling CnamedArg... *)
+      let labels =
+        match
+          cp
+          |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles
+               ~pos ~env ~exact:true ~scope
+          |> completionsGetTypeEnv
+        with
+        | Some (typ, _env) ->
+          let rec getLabels ~env (t : Types.type_expr) =
+            match t.desc with
+            | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels ~env t1
+            | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
+              (l, tArg) :: getLabels ~env tRet
+            | Tarrow (Nolabel, _, tRet, _) -> getLabels ~env tRet
+            | Tconstr (path, _, _) -> (
+              match References.digConstructor ~env ~package path with
+              | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+                getLabels ~env t1
+              | _ -> [])
+            | _ -> []
+          in
+          typ |> getLabels ~env
+        | None -> []
+      in
+      let targetLabel =
+        labels |> List.find_opt (fun (name, _t) -> name = argName)
+      in
+      match targetLabel with
+      | None -> []
+      | Some (_, typeExpr) -> (
+        match extractVariantType ~env ~package typeExpr with
+        | None ->
+          if debug then Printf.printf "Could not extract variant type\n";
+          []
+        | Some (_env, constructors, _typ) ->
+          if debug then
+            Printf.printf "Found variant type for NamedArg typed context %s\n"
+              (typeExpr |> Shared.typeToString);
+          constructors
+          |> List.filter (fun constructor ->
+                 (* This currently omits any constructor with a payload. Probably don't want to emit them. Maybe we can just move the cursor inside of the payload and continue from there.*)
+                 (* TODO: Account for existing prefix (e.g what the user has already started typing, if anything) *)
+                 constructor.Constructor.args |> List.length = 0)
+          |> List.map (fun constructor ->
+                 Completion.create ~name:constructor.Constructor.cname.txt
+                   ~kind:(Constructor (constructor, ""))
+                   ~env))))

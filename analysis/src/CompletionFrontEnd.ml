@@ -162,7 +162,7 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         || charBeforeCursor = Some '='
       then (
         if debug then Printf.printf "found typed context \n";
-        Some (Completable.CtypedContext contextPath))
+        Some (Completable.CtypedContext (contextPath, NamedArg labelled.name)))
       else loop rest
     | {label = None; exp} :: rest ->
       if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
