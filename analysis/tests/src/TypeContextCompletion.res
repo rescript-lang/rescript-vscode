@@ -8,6 +8,13 @@ let someVariantToString = (~someVariant) =>
   | Four => "Four"
   }
 
+module SomeComponent = {
+  @react.component
+  let make = (~whatever) => {
+    someVariantToString(~someVariant=whatever)->React.string
+  }
+}
+
 // let x = someVariantToString(~someVaria
 //                                       ^com
 
@@ -17,12 +24,8 @@ let someVariantToString = (~someVariant) =>
 // let x = someVariantToString(~someVariant=T
 //                                           ^com
 
-module SomeComponent = {
-  @react.component
-  let make = (~whatever) => {
-    someVariantToString(~someVariant=whatever)->React.string
-  }
-}
+// let x = someVariantToString(~someVariant=t
+//                                           ^com
 
 // let jsx = <SomeComponent whatever=
 //                                   ^com

@@ -1,6 +1,6 @@
-Complete src/TypeContextCompletion.res 10:41
-posCursor:[10:41] posNoWhite:[10:40] Found expr:[10:11->24:1]
-Pexp_apply ...[10:11->10:30] (~someVaria10:32->10:41=...[10:32->10:41], ...[19:0->23:3])
+Complete src/TypeContextCompletion.res 17:41
+posCursor:[17:41] posNoWhite:[17:40] Found expr:[17:11->17:41]
+Pexp_apply ...[17:11->17:30] (~someVaria17:32->17:41=...[17:32->17:41])
 Completable: CnamedArg(Value[someVariantToString], someVaria, [someVaria])
 Found type for function (~someVariant: someVariant) => string
 [{
@@ -11,22 +11,29 @@ Found type for function (~someVariant: someVariant) => string
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion.res 13:44
-posCursor:[13:44] posNoWhite:[13:43] Found expr:[13:11->24:1]
-Pexp_apply ...[13:11->13:30] (~someVariant13:32->13:43=...[19:0->23:3])
+Complete src/TypeContextCompletion.res 20:44
+posCursor:[20:44] posNoWhite:[20:43] Found expr:[20:11->20:44]
+Pexp_apply ...[20:11->20:30] (~someVariant20:32->20:43=...__ghost__[0:-1->0:-1])
+Completable: CnamedArg(Value[someVariantToString], "", [someVariant])
+Found type for function (~someVariant: someVariant) => string
+[]
+
+Complete src/TypeContextCompletion.res 23:45
+posCursor:[23:45] posNoWhite:[23:44] Found expr:[23:11->23:45]
+Pexp_apply ...[23:11->23:30] (~someVariant23:32->23:43=...[23:44->23:45])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString])
 []
 
-Complete src/TypeContextCompletion.res 16:45
-posCursor:[16:45] posNoWhite:[16:44] Found expr:[16:11->24:1]
-Pexp_apply ...[16:11->16:30] (~someVariant16:32->16:43=...[16:44->16:45], ...[19:0->23:3])
+Complete src/TypeContextCompletion.res 26:45
+posCursor:[26:45] posNoWhite:[26:44] Found expr:[26:11->26:45]
+Pexp_apply ...[26:11->26:30] (~someVariant26:32->26:43=...[26:44->26:45])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString])
 []
 
-Complete src/TypeContextCompletion.res 26:37
-posCursor:[26:37] posNoWhite:[26:36] Found expr:[26:14->26:37]
-JSX <SomeComponent:[26:14->26:27] whatever[26:28->26:36]=...__ghost__[0:-1->0:-1]> _children:None
+Complete src/TypeContextCompletion.res 29:37
+posCursor:[29:37] posNoWhite:[29:36] Found expr:[29:14->29:37]
+JSX <SomeComponent:[29:14->29:27] whatever[29:28->29:36]=...__ghost__[0:-1->0:-1]> _children:None
 []
 

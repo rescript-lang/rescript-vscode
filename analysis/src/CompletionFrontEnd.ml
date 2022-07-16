@@ -137,8 +137,7 @@ type label = labelled option
 type arg = {label: label; exp: Parsetree.expression}
 
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~charBeforeCursor
-    ~debug =
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~debug =
   let allNames =
     List.fold_right
       (fun arg allLabels ->
@@ -154,13 +153,8 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       if
         labelled.posStart <= posBeforeCursor
         && posBeforeCursor < labelled.posEnd
-        && charBeforeCursor <> Some '='
-        (* We need to account for empty assignments being parsed as regular labelled arguments without an assignment *)
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
-      else if
-        exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor
-        || charBeforeCursor = Some '='
-      then (
+      else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
         if debug then Printf.printf "found typed context \n";
         Some (Completable.CtypedContext contextPath))
       else loop rest
@@ -600,8 +594,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             match exprToContextPath funExpr with
             | Some contextPath ->
               findNamedArgCompletable ~contextPath ~args
-                ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
-                ~charBeforeCursor ~debug
+                ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor ~debug
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
             | None -> None
           in
