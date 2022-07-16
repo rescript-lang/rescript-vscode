@@ -157,6 +157,11 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
         if debug then Printf.printf "found typed context \n";
         Some (Completable.CtypedContext contextPath))
+      else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
+        (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
+           Assume this is an empty expression. *)
+        if debug then Printf.printf "found typed context \n";
+        Some (Completable.CtypedContext contextPath))
       else loop rest
     | {label = None; exp} :: rest ->
       if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None

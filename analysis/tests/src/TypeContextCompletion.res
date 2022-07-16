@@ -21,6 +21,9 @@ module SomeComponent = {
 // let x = someVariantToString(~someVariant=
 //                                          ^com
 
+// let x = someVariantToString(~someVariant=
+//                                           ^com
+
 // let x = someVariantToString(~someVariant=T
 //                                           ^com
 
