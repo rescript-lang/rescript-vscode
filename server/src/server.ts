@@ -617,7 +617,8 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   } else {
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
-    let bscBinaryPath = findBscBinary(filePath);
+    let projectRootPath = utils.findProjectRootOfFile(filePath);
+    let bscBinaryPath = projectRootPath === null ? null : findBscBinary(projectRootPath);
     let formattedResult = utils.formatCode(bscBinaryPath, filePath, code);
     if (formattedResult.kind === "success") {
       let max = code.length;
