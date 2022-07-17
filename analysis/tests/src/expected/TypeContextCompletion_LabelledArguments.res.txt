@@ -1,10 +1,10 @@
-Complete src/TypeContextCompletion_LabelledArguments.res 16:41
-posCursor:[16:41] posNoWhite:[16:40] Found expr:[16:11->16:41]
-Pexp_apply ...[16:11->16:30] (~someVaria16:32->16:41=...[16:32->16:41])
+Complete src/TypeContextCompletion_LabelledArguments.res 20:41
+posCursor:[20:41] posNoWhite:[20:40] Found expr:[20:11->20:41]
+Pexp_apply ...[20:11->20:30] (~someVaria20:32->20:41=...[20:32->20:41])
 Completable: CnamedArg(Value[someVariantToString], someVaria, [someVaria])
 Found type for function (
   ~someVariant: someVariant,
-  ~anotherThing: string,
+  ~anotherThing: TypeDefinition.variant,
   ~thirdThing: option<int>,
 ) => string
 [{
@@ -15,9 +15,9 @@ Found type for function (
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 19:44
-posCursor:[19:44] posNoWhite:[19:43] Found expr:[19:11->19:44]
-Pexp_apply ...[19:11->19:30] (~someVariant19:32->19:43=...__ghost__[0:-1->0:-1])
+Complete src/TypeContextCompletion_LabelledArguments.res 23:44
+posCursor:[23:44] posNoWhite:[23:43] Found expr:[23:11->23:44]
+Pexp_apply ...[23:11->23:30] (~someVariant23:32->23:43=...__ghost__[0:-1->0:-1])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
@@ -59,9 +59,9 @@ Found variant type for NamedArg typed context someVariant
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 22:45
-posCursor:[22:45] posNoWhite:[22:43] Found expr:[22:11->22:44]
-Pexp_apply ...[22:11->22:30] (~someVariant22:32->22:43=...__ghost__[0:-1->0:-1])
+Complete src/TypeContextCompletion_LabelledArguments.res 26:45
+posCursor:[26:45] posNoWhite:[26:43] Found expr:[26:11->26:44]
+Pexp_apply ...[26:11->26:30] (~someVariant26:32->26:43=...__ghost__[0:-1->0:-1])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
@@ -103,9 +103,9 @@ Found variant type for NamedArg typed context someVariant
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 25:45
-posCursor:[25:45] posNoWhite:[25:44] Found expr:[25:11->25:45]
-Pexp_apply ...[25:11->25:30] (~someVariant25:32->25:43=...[25:44->25:45])
+Complete src/TypeContextCompletion_LabelledArguments.res 29:45
+posCursor:[29:45] posNoWhite:[29:44] Found expr:[29:11->29:45]
+Pexp_apply ...[29:11->29:30] (~someVariant29:32->29:43=...[29:44->29:45])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
@@ -123,11 +123,31 @@ Found variant type for NamedArg typed context someVariant
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 28:45
-posCursor:[28:45] posNoWhite:[28:44] Found expr:[28:11->28:45]
-Pexp_apply ...[28:11->28:30] (~someVariant28:32->28:43=...[28:44->28:45])
+Complete src/TypeContextCompletion_LabelledArguments.res 32:45
+posCursor:[32:45] posNoWhite:[32:44] Found expr:[32:11->32:45]
+Pexp_apply ...[32:11->32:30] (~someVariant32:32->32:43=...[32:44->32:45])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
 []
+
+Complete src/TypeContextCompletion_LabelledArguments.res 35:45
+posCursor:[35:45] posNoWhite:[35:44] Found expr:[35:11->35:45]
+Pexp_apply ...[35:11->35:30] (~anotherThing35:32->35:44=...__ghost__[0:-1->0:-1])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(anotherThing))
+Found variant type for NamedArg typed context TypeDefinition.variant
+[{
+    "label": "Foo",
+    "kind": 4,
+    "tags": [],
+    "detail": "Foo\n\n",
+    "documentation": null
+  }, {
+    "label": "Bar",
+    "kind": 4,
+    "tags": [],
+    "detail": "Bar\n\n",
+    "documentation": null
+  }]
 

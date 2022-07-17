@@ -2,7 +2,11 @@ type someVariant = One | Two | Three | Four | Five(int) | Six(option<string>)
 
 let someValue = Two
 
-let someVariantToString = (~someVariant, ~anotherThing: string, ~thirdThing: option<int>) => {
+let someVariantToString = (
+  ~someVariant,
+  ~anotherThing: TypeDefinition.variant,
+  ~thirdThing: option<int>,
+) => {
   ignore(anotherThing)
   ignore(thirdThing)
   switch someVariant {
@@ -27,4 +31,7 @@ let someVariantToString = (~someVariant, ~anotherThing: string, ~thirdThing: opt
 //                                           ^com
 
 // let x = someVariantToString(~someVariant=t
+//                                           ^com
+
+// let x = someVariantToString(~anotherThing=
 //                                           ^com
