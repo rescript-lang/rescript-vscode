@@ -1,5 +1,7 @@
 type someVariant = One | Two | Three | Four | Five(int) | Six(option<string>)
 
+let someValue = Two
+
 let someVariantToString = (~someVariant) =>
   switch someVariant {
   | One => "One"
