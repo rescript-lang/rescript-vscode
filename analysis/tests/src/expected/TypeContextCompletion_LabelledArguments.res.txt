@@ -1,8 +1,12 @@
-Complete src/TypeContextCompletion_LabelledArguments.res 13:41
-posCursor:[13:41] posNoWhite:[13:40] Found expr:[13:11->13:41]
-Pexp_apply ...[13:11->13:30] (~someVaria13:32->13:41=...[13:32->13:41])
+Complete src/TypeContextCompletion_LabelledArguments.res 16:41
+posCursor:[16:41] posNoWhite:[16:40] Found expr:[16:11->16:41]
+Pexp_apply ...[16:11->16:30] (~someVaria16:32->16:41=...[16:32->16:41])
 Completable: CnamedArg(Value[someVariantToString], someVaria, [someVaria])
-Found type for function (~someVariant: someVariant) => string
+Found type for function (
+  ~someVariant: someVariant,
+  ~anotherThing: string,
+  ~thirdThing: option<int>,
+) => string
 [{
     "label": "someVariant",
     "kind": 4,
@@ -11,52 +15,8 @@ Found type for function (~someVariant: someVariant) => string
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 16:44
-posCursor:[16:44] posNoWhite:[16:43] Found expr:[16:11->16:44]
-Pexp_apply ...[16:11->16:30] (~someVariant16:32->16:43=...__ghost__[0:-1->0:-1])
-found typed context 
-Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
-Found variant type for NamedArg typed context someVariant
-[{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\n",
-    "documentation": null
-  }, {
-    "label": "Two",
-    "kind": 4,
-    "tags": [],
-    "detail": "Two\n\n",
-    "documentation": null
-  }, {
-    "label": "Three",
-    "kind": 4,
-    "tags": [],
-    "detail": "Three\n\n",
-    "documentation": null
-  }, {
-    "label": "Four",
-    "kind": 4,
-    "tags": [],
-    "detail": "Four\n\n",
-    "documentation": null
-  }, {
-    "label": "Five(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Five(int)\n\n",
-    "documentation": null
-  }, {
-    "label": "Six(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Six(option<string>)\n\n",
-    "documentation": null
-  }]
-
-Complete src/TypeContextCompletion_LabelledArguments.res 19:45
-posCursor:[19:45] posNoWhite:[19:43] Found expr:[19:11->19:44]
+Complete src/TypeContextCompletion_LabelledArguments.res 19:44
+posCursor:[19:44] posNoWhite:[19:43] Found expr:[19:11->19:44]
 Pexp_apply ...[19:11->19:30] (~someVariant19:32->19:43=...__ghost__[0:-1->0:-1])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
@@ -100,8 +60,8 @@ Found variant type for NamedArg typed context someVariant
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 22:45
-posCursor:[22:45] posNoWhite:[22:44] Found expr:[22:11->22:45]
-Pexp_apply ...[22:11->22:30] (~someVariant22:32->22:43=...[22:44->22:45])
+posCursor:[22:45] posNoWhite:[22:43] Found expr:[22:11->22:44]
+Pexp_apply ...[22:11->22:30] (~someVariant22:32->22:43=...__ghost__[0:-1->0:-1])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
@@ -146,6 +106,50 @@ Found variant type for NamedArg typed context someVariant
 Complete src/TypeContextCompletion_LabelledArguments.res 25:45
 posCursor:[25:45] posNoWhite:[25:44] Found expr:[25:11->25:45]
 Pexp_apply ...[25:11->25:30] (~someVariant25:32->25:43=...[25:44->25:45])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 28:45
+posCursor:[28:45] posNoWhite:[28:44] Found expr:[28:11->28:45]
+Pexp_apply ...[28:11->28:30] (~someVariant28:32->28:43=...[28:44->28:45])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant

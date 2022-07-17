@@ -2,7 +2,9 @@ type someVariant = One | Two | Three | Four | Five(int) | Six(option<string>)
 
 let someValue = Two
 
-let someVariantToString = (~someVariant) =>
+let someVariantToString = (~someVariant, ~anotherThing: string, ~thirdThing: option<int>) => {
+  ignore(anotherThing)
+  ignore(thirdThing)
   switch someVariant {
   | One => "One"
   | Two => "Two"
@@ -10,6 +12,7 @@ let someVariantToString = (~someVariant) =>
   | Four => "Four"
   | _ => "-"
   }
+}
 
 // let x = someVariantToString(~someVaria
 //                                       ^com
