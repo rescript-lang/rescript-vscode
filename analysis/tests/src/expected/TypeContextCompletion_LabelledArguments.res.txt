@@ -110,12 +110,6 @@ found typed context
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
 [{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\n",
-    "documentation": null
-  }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
@@ -126,24 +120,6 @@ Found variant type for NamedArg typed context someVariant
     "kind": 4,
     "tags": [],
     "detail": "Three\n\n",
-    "documentation": null
-  }, {
-    "label": "Four",
-    "kind": 4,
-    "tags": [],
-    "detail": "Four\n\n",
-    "documentation": null
-  }, {
-    "label": "Five(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Five(int)\n\n",
-    "documentation": null
-  }, {
-    "label": "Six(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Six(option<string>)\n\n",
     "documentation": null
   }]
 
@@ -153,41 +129,5 @@ Pexp_apply ...[28:11->28:30] (~someVariant28:32->28:43=...[28:44->28:45])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
-[{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\n",
-    "documentation": null
-  }, {
-    "label": "Two",
-    "kind": 4,
-    "tags": [],
-    "detail": "Two\n\n",
-    "documentation": null
-  }, {
-    "label": "Three",
-    "kind": 4,
-    "tags": [],
-    "detail": "Three\n\n",
-    "documentation": null
-  }, {
-    "label": "Four",
-    "kind": 4,
-    "tags": [],
-    "detail": "Four\n\n",
-    "documentation": null
-  }, {
-    "label": "Five(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Five(int)\n\n",
-    "documentation": null
-  }, {
-    "label": "Six(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Six(option<string>)\n\n",
-    "documentation": null
-  }]
+[]
 

@@ -1699,7 +1699,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     |> List.map mkLabel
   | CtypedContext (cp, typedContext) -> (
     match typedContext with
-    | NamedArg argName -> (
+    | NamedArg {name = argName; prefix} -> (
       (* TODO: Should probably share this with the branch handling CnamedArg... *)
       let labels =
         match
@@ -1743,12 +1743,11 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             if debug then
               Printf.printf "Found variant type for NamedArg typed context %s\n"
                 (typeExpr |> Shared.typeToString);
-            (* TODO: Account for existing prefix (e.g what the user has already started typing, if anything)?
-               According to the LS protocol the client can perform that filtering by itself in the simplest cases.
-               Investigate if doing it ourselves here would be more robust. *)
             (* TODO: Investigate completing seen identifiers _with the correct type_ here too. If completing
                variant someVariant, and there's a someVariable of type someVariant, add that to the completion list. *)
             constructors
+            |> List.filter (fun constructor ->
+                   Utils.startsWith constructor.Constructor.cname.txt prefix)
             |> List.map (fun constructor ->
                    (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
                       Eg. Some($1) as completion item. *)

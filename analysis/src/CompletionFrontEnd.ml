@@ -136,6 +136,14 @@ type labelled = {
 type label = labelled option
 type arg = {label: label; exp: Parsetree.expression}
 
+let getPrefixFromExpr exp =
+  match exp.Parsetree.pexp_desc with
+  | Pexp_ident {txt} -> txt |> Longident.last
+  | Pexp_construct ({txt}, _) -> txt |> Longident.last
+  | Pexp_variant (label, _) -> label
+  | Pexp_field (_, {txt}) -> txt |> Longident.last
+  | _ -> ""
+
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~debug =
   let allNames =
@@ -156,12 +164,20 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
         if debug then Printf.printf "found typed context \n";
-        Some (Completable.CtypedContext (contextPath, NamedArg labelled.name)))
+        Some
+          (Completable.CtypedContext
+             ( contextPath,
+               NamedArg {name = labelled.name; prefix = getPrefixFromExpr exp}
+             )))
       else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
            Assume this is an empty expression. *)
         if debug then Printf.printf "found typed context \n";
-        Some (Completable.CtypedContext (contextPath, NamedArg labelled.name)))
+        Some
+          (Completable.CtypedContext
+             ( contextPath,
+               NamedArg {name = labelled.name; prefix = getPrefixFromExpr exp}
+             )))
       else loop rest
     | {label = None; exp} :: rest ->
       if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
