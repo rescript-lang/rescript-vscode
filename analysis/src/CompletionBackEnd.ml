@@ -711,6 +711,16 @@ let detail name (kind : Completion.kind) =
   | FileModule _ -> "file module"
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
+  | PolyvariantConstructor {name; payload} -> (
+    "#" ^ name
+    ^
+    (* TODO: I get the feeling there's a more clever way to do this printing...
+       Multiple arguments (tuples) already print with parenthesis, but regular args don't. So account for that. *)
+    match payload with
+    | None -> ""
+    | Some ({desc = Types.Ttuple _} as typeExpr) ->
+      typeExpr |> Shared.typeToString
+    | Some typeExpr -> "(" ^ (typeExpr |> Shared.typeToString) ^ ")")
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
@@ -992,6 +1002,11 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
+type extractedType =
+  | Declared of QueryEnv.t * Type.t Declared.t
+  (* Polyvariants seem to be "inlined" in the type system, so we extract what we need from them here. *)
+  | Polyvariant of QueryEnv.t * SharedTypes.polyVariantConstructor list
+
 let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
@@ -999,8 +1014,23 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
       extractType ~env ~package t1
-    | Some (env, typ) -> Some (env, typ)
+    | Some (env, typ) -> Some (Declared (env, typ))
     | _ -> None)
+  | Tvariant {row_fields} ->
+    (* Polyvariants seem "inlined" into the type system, so we extract just
+       what we need for completion from that definition here. *)
+    let constructors =
+      row_fields
+      |> List.map (fun (label, field) ->
+             {
+               name = label;
+               payload =
+                 (match field with
+                 | Types.Rpresent maybeTypeExpr -> maybeTypeExpr
+                 | _ -> None);
+             })
+    in
+    Some (Polyvariant (env, constructors))
   | _ -> None
 
 let rec extractObjectType ~env ~package (t : Types.type_expr) =
@@ -1737,7 +1767,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             Printf.printf
               "Could not extract type for labelled argument completion\n";
           []
-        | Some (_env, {item}) -> (
+        | Some (Declared (_env, {item})) -> (
           match item.kind with
           | Variant constructors ->
             if debug then
@@ -1748,15 +1778,35 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             constructors
             |> List.filter (fun constructor ->
                    Utils.startsWith constructor.Constructor.cname.txt prefix)
-            |> List.map (fun constructor ->
+            |> List.map (fun (constructor : Constructor.t) ->
                    (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
                       Eg. Some($1) as completion item. *)
                    Completion.create
                      ~name:
-                       (constructor.Constructor.cname.txt
+                       (constructor.cname.txt
                        ^
                        if constructor.args |> List.length > 0 then "(_)" else ""
                        )
                      ~kind:(Constructor (constructor, ""))
                      ~env)
-          | _ -> []))))
+          | _ -> [])
+        | Some (Polyvariant (_env, constructors)) ->
+          if debug then
+            Printf.printf
+              "Found polyvariant type for NamedArg typed context: %s\n"
+              (typeExpr |> Shared.typeToString);
+          (* TODO: Investigate completing seen identifiers _with the correct type_ here too. Unsure if that's possible though
+              for polyvariants, if things aren't referred to by typename, but rather the full inlined type definition.. *)
+          constructors
+          |> List.filter (fun constructor ->
+                 Utils.startsWith constructor.name prefix)
+          |> List.map (fun constructor ->
+                 (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                    Eg. Some($1) as completion item. *)
+                 Completion.create
+                   ~name:
+                     ("#" ^ constructor.name
+                     ^
+                     if constructor.payload |> Option.is_some then "(_)" else ""
+                     )
+                   ~kind:(PolyvariantConstructor constructor) ~env))))

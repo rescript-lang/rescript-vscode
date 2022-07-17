@@ -216,6 +216,8 @@ module QueryEnv = struct
   let fromFile file = {file; exported = file.structure.exported}
 end
 
+type polyVariantConstructor = {name: string; payload: Types.type_expr option}
+
 module Completion = struct
   type kind =
     | Module of Module.t
@@ -224,6 +226,7 @@ module Completion = struct
     | Label of string
     | Type of Type.t
     | Constructor of Constructor.t * string
+    | PolyvariantConstructor of polyVariantConstructor
     | Field of field * string
     | FileModule of string
 
@@ -244,7 +247,7 @@ module Completion = struct
     match kind with
     | Module _ -> 9
     | FileModule _ -> 9
-    | Constructor (_, _) -> 4
+    | PolyvariantConstructor _ | Constructor (_, _) -> 4
     | ObjLabel _ -> 4
     | Label _ -> 4
     | Field (_, _) -> 5

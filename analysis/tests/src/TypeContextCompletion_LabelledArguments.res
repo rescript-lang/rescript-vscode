@@ -1,11 +1,13 @@
-type someVariant = One | Two | Three | Four | Five(int) | Six(option<string>)
+type someVariant = One | Two | Three | Four | Five(int) | Six(option<string>, int)
+
+type otherVariant = [#one | #two | #three | #four | #five(int) | #six(option<int>, int)]
 
 let someValue = Two
 
 let someVariantToString = (
   ~someVariant,
   ~anotherThing: TypeDefinition.variant,
-  ~thirdThing: option<int>,
+  ~thirdThing: otherVariant,
 ) => {
   ignore(anotherThing)
   ignore(thirdThing)
@@ -34,4 +36,16 @@ let someVariantToString = (
 //                                           ^com
 
 // let x = someVariantToString(~anotherThing=
+//                                           ^com
+
+// let x = someVariantToString(~thirdThing=
+//                                         ^com
+
+// let x = someVariantToString(~thirdThing=
+//                                          ^com
+
+// let x = someVariantToString(~thirdThing=#t
+//                                           ^com
+
+// let x = someVariantToString(~thirdThing=#T
 //                                           ^com

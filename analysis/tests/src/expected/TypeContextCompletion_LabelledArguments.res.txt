@@ -1,11 +1,11 @@
-Complete src/TypeContextCompletion_LabelledArguments.res 20:41
-posCursor:[20:41] posNoWhite:[20:40] Found expr:[20:11->20:41]
-Pexp_apply ...[20:11->20:30] (~someVaria20:32->20:41=...[20:32->20:41])
+Complete src/TypeContextCompletion_LabelledArguments.res 22:41
+posCursor:[22:41] posNoWhite:[22:40] Found expr:[22:11->22:41]
+Pexp_apply ...[22:11->22:30] (~someVaria22:32->22:41=...[22:32->22:41])
 Completable: CnamedArg(Value[someVariantToString], someVaria, [someVaria])
 Found type for function (
   ~someVariant: someVariant,
   ~anotherThing: TypeDefinition.variant,
-  ~thirdThing: option<int>,
+  ~thirdThing: otherVariant,
 ) => string
 [{
     "label": "someVariant",
@@ -15,9 +15,9 @@ Found type for function (
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 23:44
-posCursor:[23:44] posNoWhite:[23:43] Found expr:[23:11->23:44]
-Pexp_apply ...[23:11->23:30] (~someVariant23:32->23:43=...__ghost__[0:-1->0:-1])
+Complete src/TypeContextCompletion_LabelledArguments.res 25:44
+posCursor:[25:44] posNoWhite:[25:43] Found expr:[25:11->25:44]
+Pexp_apply ...[25:11->25:30] (~someVariant25:32->25:43=...__ghost__[0:-1->0:-1])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
@@ -55,13 +55,13 @@ Found variant type for NamedArg typed context someVariant
     "label": "Six(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Six(option<string>)\n\n",
+    "detail": "Six(option<string>, int)\n\n",
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 26:45
-posCursor:[26:45] posNoWhite:[26:43] Found expr:[26:11->26:44]
-Pexp_apply ...[26:11->26:30] (~someVariant26:32->26:43=...__ghost__[0:-1->0:-1])
+Complete src/TypeContextCompletion_LabelledArguments.res 28:45
+posCursor:[28:45] posNoWhite:[28:43] Found expr:[28:11->28:44]
+Pexp_apply ...[28:11->28:30] (~someVariant28:32->28:43=...__ghost__[0:-1->0:-1])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
@@ -99,13 +99,13 @@ Found variant type for NamedArg typed context someVariant
     "label": "Six(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Six(option<string>)\n\n",
+    "detail": "Six(option<string>, int)\n\n",
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 29:45
-posCursor:[29:45] posNoWhite:[29:44] Found expr:[29:11->29:45]
-Pexp_apply ...[29:11->29:30] (~someVariant29:32->29:43=...[29:44->29:45])
+Complete src/TypeContextCompletion_LabelledArguments.res 31:45
+posCursor:[31:45] posNoWhite:[31:44] Found expr:[31:11->31:45]
+Pexp_apply ...[31:11->31:30] (~someVariant31:32->31:43=...[31:44->31:45])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
@@ -123,17 +123,17 @@ Found variant type for NamedArg typed context someVariant
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 32:45
-posCursor:[32:45] posNoWhite:[32:44] Found expr:[32:11->32:45]
-Pexp_apply ...[32:11->32:30] (~someVariant32:32->32:43=...[32:44->32:45])
+Complete src/TypeContextCompletion_LabelledArguments.res 34:45
+posCursor:[34:45] posNoWhite:[34:44] Found expr:[34:11->34:45]
+Pexp_apply ...[34:11->34:30] (~someVariant34:32->34:43=...[34:44->34:45])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
 Found variant type for NamedArg typed context someVariant
 []
 
-Complete src/TypeContextCompletion_LabelledArguments.res 35:45
-posCursor:[35:45] posNoWhite:[35:44] Found expr:[35:11->35:45]
-Pexp_apply ...[35:11->35:30] (~anotherThing35:32->35:44=...__ghost__[0:-1->0:-1])
+Complete src/TypeContextCompletion_LabelledArguments.res 37:45
+posCursor:[37:45] posNoWhite:[37:44] Found expr:[37:11->37:45]
+Pexp_apply ...[37:11->37:30] (~anotherThing37:32->37:44=...__ghost__[0:-1->0:-1])
 found typed context 
 Completable: CtypedContext(Value[someVariantToString], NamedArg(anotherThing))
 Found variant type for NamedArg typed context TypeDefinition.variant
@@ -150,4 +150,120 @@ Found variant type for NamedArg typed context TypeDefinition.variant
     "detail": "Bar\n\n",
     "documentation": null
   }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 40:43
+posCursor:[40:43] posNoWhite:[40:42] Found expr:[40:11->40:43]
+Pexp_apply ...[40:11->40:30] (~thirdThing40:32->40:42=...__ghost__[0:-1->0:-1])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(thirdThing))
+Found polyvariant type for NamedArg typed context: otherVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": null
+  }, {
+    "label": "#six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#six(option<int>, int)",
+    "documentation": null
+  }, {
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null
+  }, {
+    "label": "#five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#five(int)",
+    "documentation": null
+  }, {
+    "label": "#four",
+    "kind": 4,
+    "tags": [],
+    "detail": "#four",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 43:44
+posCursor:[43:44] posNoWhite:[43:42] Found expr:[43:11->43:43]
+Pexp_apply ...[43:11->43:30] (~thirdThing43:32->43:42=...__ghost__[0:-1->0:-1])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(thirdThing))
+Found polyvariant type for NamedArg typed context: otherVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": null
+  }, {
+    "label": "#six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#six(option<int>, int)",
+    "documentation": null
+  }, {
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null
+  }, {
+    "label": "#five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#five(int)",
+    "documentation": null
+  }, {
+    "label": "#four",
+    "kind": 4,
+    "tags": [],
+    "detail": "#four",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 46:45
+posCursor:[46:45] posNoWhite:[46:44] Found expr:[46:11->46:45]
+Pexp_apply ...[46:11->46:30] (~thirdThing46:32->46:42=...[46:43->46:45])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(thirdThing))
+Found polyvariant type for NamedArg typed context: otherVariant
+[{
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 49:45
+posCursor:[49:45] posNoWhite:[49:44] Found expr:[49:11->49:45]
+Pexp_apply ...[49:11->49:30] (~thirdThing49:32->49:42=...[49:43->49:45])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(thirdThing))
+Found polyvariant type for NamedArg typed context: otherVariant
+[]
 
