@@ -1404,7 +1404,7 @@ Completable: Cpath Value[T]
     "detail": "file module",
     "documentation": null
   }, {
-    "label": "TypeContextCompletion",
+    "label": "TypeContextCompletion_LabelledArguments",
     "kind": 9,
     "tags": [],
     "detail": "file module",

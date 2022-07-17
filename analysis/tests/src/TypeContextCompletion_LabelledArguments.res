@@ -9,13 +9,6 @@ let someVariantToString = (~someVariant) =>
   | _ => "-"
   }
 
-module SomeComponent = {
-  @react.component
-  let make = (~whatever) => {
-    someVariantToString(~someVariant=whatever)->React.string
-  }
-}
-
 // let x = someVariantToString(~someVaria
 //                                       ^com
 
@@ -30,6 +23,3 @@ module SomeComponent = {
 
 // let x = someVariantToString(~someVariant=t
 //                                           ^com
-
-// let jsx = <SomeComponent whatever=
-//                                   ^com

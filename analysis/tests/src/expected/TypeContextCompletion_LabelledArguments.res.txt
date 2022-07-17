@@ -1,0 +1,189 @@
+Complete src/TypeContextCompletion_LabelledArguments.res 11:41
+posCursor:[11:41] posNoWhite:[11:40] Found expr:[11:11->11:41]
+Pexp_apply ...[11:11->11:30] (~someVaria11:32->11:41=...[11:32->11:41])
+Completable: CnamedArg(Value[someVariantToString], someVaria, [someVaria])
+Found type for function (~someVariant: someVariant) => string
+[{
+    "label": "someVariant",
+    "kind": 4,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 14:44
+posCursor:[14:44] posNoWhite:[14:43] Found expr:[14:11->14:44]
+Pexp_apply ...[14:11->14:30] (~someVariant14:32->14:43=...__ghost__[0:-1->0:-1])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 17:45
+posCursor:[17:45] posNoWhite:[17:43] Found expr:[17:11->17:44]
+Pexp_apply ...[17:11->17:30] (~someVariant17:32->17:43=...__ghost__[0:-1->0:-1])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 20:45
+posCursor:[20:45] posNoWhite:[20:44] Found expr:[20:11->20:45]
+Pexp_apply ...[20:11->20:30] (~someVariant20:32->20:43=...[20:44->20:45])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 23:45
+posCursor:[23:45] posNoWhite:[23:44] Found expr:[23:11->23:45]
+Pexp_apply ...[23:11->23:30] (~someVariant23:32->23:43=...[23:44->23:45])
+found typed context 
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
+
