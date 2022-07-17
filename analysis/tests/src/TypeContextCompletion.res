@@ -1,4 +1,4 @@
-type someVariant = One | Two | Three | Four
+type someVariant = One | Two | Three | Four | Five(int) | Six(option<string>)
 
 let someVariantToString = (~someVariant) =>
   switch someVariant {
@@ -6,6 +6,7 @@ let someVariantToString = (~someVariant) =>
   | Two => "Two"
   | Three => "Three"
   | Four => "Four"
+  | _ => "-"
   }
 
 module SomeComponent = {

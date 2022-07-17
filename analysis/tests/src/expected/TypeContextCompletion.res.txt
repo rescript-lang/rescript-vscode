@@ -1,6 +1,6 @@
-Complete src/TypeContextCompletion.res 17:41
-posCursor:[17:41] posNoWhite:[17:40] Found expr:[17:11->17:41]
-Pexp_apply ...[17:11->17:30] (~someVaria17:32->17:41=...[17:32->17:41])
+Complete src/TypeContextCompletion.res 18:41
+posCursor:[18:41] posNoWhite:[18:40] Found expr:[18:11->18:41]
+Pexp_apply ...[18:11->18:30] (~someVaria18:32->18:41=...[18:32->18:41])
 Completable: CnamedArg(Value[someVariantToString], someVaria, [someVaria])
 Found type for function (~someVariant: someVariant) => string
 [{
@@ -11,36 +11,184 @@ Found type for function (~someVariant: someVariant) => string
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion.res 20:44
-posCursor:[20:44] posNoWhite:[20:43] Found expr:[20:11->20:44]
-Pexp_apply ...[20:11->20:30] (~someVariant20:32->20:43=...__ghost__[0:-1->0:-1])
+Complete src/TypeContextCompletion.res 21:44
+posCursor:[21:44] posNoWhite:[21:43] Found expr:[21:11->21:44]
+Pexp_apply ...[21:11->21:30] (~someVariant21:32->21:43=...__ghost__[0:-1->0:-1])
 found typed context 
-Completable: CtypedContext(Value[someVariantToString])
-[]
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion.res 23:45
-posCursor:[23:45] posNoWhite:[23:43] Found expr:[23:11->23:44]
-Pexp_apply ...[23:11->23:30] (~someVariant23:32->23:43=...__ghost__[0:-1->0:-1])
+Complete src/TypeContextCompletion.res 24:45
+posCursor:[24:45] posNoWhite:[24:43] Found expr:[24:11->24:44]
+Pexp_apply ...[24:11->24:30] (~someVariant24:32->24:43=...__ghost__[0:-1->0:-1])
 found typed context 
-Completable: CtypedContext(Value[someVariantToString])
-[]
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion.res 26:45
-posCursor:[26:45] posNoWhite:[26:44] Found expr:[26:11->26:45]
-Pexp_apply ...[26:11->26:30] (~someVariant26:32->26:43=...[26:44->26:45])
+Complete src/TypeContextCompletion.res 27:45
+posCursor:[27:45] posNoWhite:[27:44] Found expr:[27:11->27:45]
+Pexp_apply ...[27:11->27:30] (~someVariant27:32->27:43=...[27:44->27:45])
 found typed context 
-Completable: CtypedContext(Value[someVariantToString])
-[]
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion.res 29:45
-posCursor:[29:45] posNoWhite:[29:44] Found expr:[29:11->29:45]
-Pexp_apply ...[29:11->29:30] (~someVariant29:32->29:43=...[29:44->29:45])
+Complete src/TypeContextCompletion.res 30:45
+posCursor:[30:45] posNoWhite:[30:44] Found expr:[30:11->30:45]
+Pexp_apply ...[30:11->30:30] (~someVariant30:32->30:43=...[30:44->30:45])
 found typed context 
-Completable: CtypedContext(Value[someVariantToString])
-[]
+Completable: CtypedContext(Value[someVariantToString], NamedArg(someVariant))
+Found variant type for NamedArg typed context someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>)\n\n",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion.res 32:37
-posCursor:[32:37] posNoWhite:[32:36] Found expr:[32:14->32:37]
-JSX <SomeComponent:[32:14->32:27] whatever[32:28->32:36]=...__ghost__[0:-1->0:-1]> _children:None
+Complete src/TypeContextCompletion.res 33:37
+posCursor:[33:37] posNoWhite:[33:36] Found expr:[33:14->33:37]
+JSX <SomeComponent:[33:14->33:27] whatever[33:28->33:36]=...__ghost__[0:-1->0:-1]> _children:None
 []
 
