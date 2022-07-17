@@ -992,15 +992,14 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let rec extractVariantType ~env ~package (t : Types.type_expr) =
+let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractVariantType ~env ~package t1
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
-    | Some (env, ({item = {kind = Variant constructors}} as typ)) ->
-      Some (env, constructors, typ)
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
-      extractVariantType ~env ~package t1
+      extractType ~env ~package t1
+    | Some (env, typ) -> Some (env, typ)
     | _ -> None)
   | _ -> None
 
@@ -1732,28 +1731,33 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       match targetLabel with
       | None -> []
       | Some (_, typeExpr) -> (
-        match extractVariantType ~env ~package typeExpr with
+        match extractType ~env ~package typeExpr with
         | None ->
-          if debug then Printf.printf "Could not extract variant type\n";
-          []
-        | Some (_env, constructors, _typ) ->
           if debug then
-            Printf.printf "Found variant type for NamedArg typed context %s\n"
-              (typeExpr |> Shared.typeToString);
-
-          (* TODO: Account for existing prefix (e.g what the user has already started typing, if anything)?
-                According to the LS protocol the client can perform that filtering by itself in the simplest cases.
-                Investigate if doing it ourselves here would be more robust. *)
-          (* TODO: Investigate completing seen identifiers _with the correct type_ here too. If completing
-             variant someVariant, and there's a someVariable of type someVariant, add that to the completion list. *)
-          constructors
-          |> List.map (fun constructor ->
-                 (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
-                    Eg. Some($1) as completion item. *)
-                 Completion.create
-                   ~name:
-                     (constructor.Constructor.cname.txt
-                     ^ if constructor.args |> List.length > 0 then "(_)" else ""
-                     )
-                   ~kind:(Constructor (constructor, ""))
-                   ~env))))
+            Printf.printf
+              "Could not extract type for labelled argument completion\n";
+          []
+        | Some (_env, {item}) -> (
+          match item.kind with
+          | Variant constructors ->
+            if debug then
+              Printf.printf "Found variant type for NamedArg typed context %s\n"
+                (typeExpr |> Shared.typeToString);
+            (* TODO: Account for existing prefix (e.g what the user has already started typing, if anything)?
+               According to the LS protocol the client can perform that filtering by itself in the simplest cases.
+               Investigate if doing it ourselves here would be more robust. *)
+            (* TODO: Investigate completing seen identifiers _with the correct type_ here too. If completing
+               variant someVariant, and there's a someVariable of type someVariant, add that to the completion list. *)
+            constructors
+            |> List.map (fun constructor ->
+                   (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                      Eg. Some($1) as completion item. *)
+                   Completion.create
+                     ~name:
+                       (constructor.Constructor.cname.txt
+                       ^
+                       if constructor.args |> List.length > 0 then "(_)" else ""
+                       )
+                     ~kind:(Constructor (constructor, ""))
+                     ~env)
+          | _ -> []))))
