@@ -1724,13 +1724,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | CtypedContext (cp, typedContext) -> (
+  | CtypedContext typedContext -> (
     match typedContext with
-    | NamedArg {label; prefix} -> (
+    | NamedArg {label; prefix; contextPath} -> (
       (* TODO: Should probably share this with the branch handling CnamedArg... *)
       let labels =
         match
-          cp
+          contextPath
           |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles
                ~pos ~env ~exact:true ~scope
           |> completionsGetTypeEnv

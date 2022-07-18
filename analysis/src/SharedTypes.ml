@@ -430,15 +430,45 @@ module Completable = struct
 
   type typedContext =
     | NamedArg of {
+        (* The context path where the completion was found *)
+        contextPath: contextPath;
         (* What the user has already started writing, if anything *)
         prefix: string;
         (* Name of the argument *)
         label: string;
       }
 
+  let str s = if s = "" then "\"\"" else s
+  let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
+
+  let completionContextToString = function
+    | Value -> "Value"
+    | Type -> "Type"
+    | Module -> "Module"
+    | Field -> "Field"
+
+  let rec contextPathToString = function
+    | CPString -> "string"
+    | CPApply (cp, labels) ->
+      contextPathToString cp ^ "("
+      ^ (labels
+        |> List.map (function
+             | Asttypes.Nolabel -> "Nolabel"
+             | Labelled s -> "~" ^ s
+             | Optional s -> "?" ^ s)
+        |> String.concat ", ")
+      ^ ")"
+    | CPArray -> "array"
+    | CPId (sl, completionContext) ->
+      completionContextToString completionContext ^ list sl
+    | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
+    | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
+    | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
+
   let typedContextToString typedContext =
     match typedContext with
-    | NamedArg {label} -> "NamedArg(" ^ label ^ ")"
+    | NamedArg {label; contextPath} ->
+      "NamedArg(" ^ label ^ ", " ^ (contextPath |> contextPathToString) ^ ")"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -448,37 +478,10 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
-    | CtypedContext of contextPath * typedContext
+    | CtypedContext of typedContext
         (** A typed context we want to complete, like completing a labelled argument assignment  *)
 
-  let toString =
-    let str s = if s = "" then "\"\"" else s in
-    let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
-    let completionContextToString = function
-      | Value -> "Value"
-      | Type -> "Type"
-      | Module -> "Module"
-      | Field -> "Field"
-    in
-    let rec contextPathToString = function
-      | CPString -> "string"
-      | CPApply (cp, labels) ->
-        contextPathToString cp ^ "("
-        ^ (labels
-          |> List.map (function
-               | Asttypes.Nolabel -> "Nolabel"
-               | Labelled s -> "~" ^ s
-               | Optional s -> "?" ^ s)
-          |> String.concat ", ")
-        ^ ")"
-      | CPArray -> "array"
-      | CPId (sl, completionContext) ->
-        completionContextToString completionContext ^ list sl
-      | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
-      | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
-      | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
-    in
-    function
+  let toString = function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
     | CnamedArg (cp, s, sl2) ->
@@ -488,10 +491,6 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | CtypedContext (cp, typedContext) ->
-      "CtypedContext("
-      ^ (cp |> contextPathToString)
-      ^ ", "
-      ^ (typedContext |> typedContextToString)
-      ^ ")"
+    | CtypedContext typedContext ->
+      "CtypedContext(" ^ (typedContext |> typedContextToString) ^ ")"
 end
