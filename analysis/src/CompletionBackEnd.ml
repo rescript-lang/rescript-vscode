@@ -714,8 +714,6 @@ let detail name (kind : Completion.kind) =
   | PolyvariantConstructor {name; payload} -> (
     "#" ^ name
     ^
-    (* TODO: I get the feeling there's a more clever way to do this printing...
-       Multiple arguments (tuples) already print with parenthesis, but regular args don't. So account for that. *)
     match payload with
     | None -> ""
     | Some ({desc = Types.Ttuple _} as typeExpr) ->
@@ -1004,7 +1002,6 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
 
 type extractedType =
   | Declared of QueryEnv.t * Type.t Declared.t
-  (* Polyvariants seem to be "inlined" in the type system, so we extract what we need from them here. *)
   | Polyvariant of QueryEnv.t * SharedTypes.polyVariantConstructor list
 
 let rec extractType ~env ~package (t : Types.type_expr) =
@@ -1017,7 +1014,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     | Some (env, typ) -> Some (Declared (env, typ))
     | _ -> None)
   | Tvariant {row_fields} ->
-    (* Polyvariants seem "inlined" into the type system, so we extract just
+    (* Since polyvariants are strutural, they're "inlined". So, we extract just
        what we need for completion from that definition here. *)
     let constructors =
       row_fields
@@ -1729,7 +1726,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     |> List.map mkLabel
   | CtypedContext (cp, typedContext) -> (
     match typedContext with
-    | NamedArg {name = argName; prefix} -> (
+    | NamedArg {label; prefix} -> (
       (* TODO: Should probably share this with the branch handling CnamedArg... *)
       let labels =
         match
@@ -1756,7 +1753,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         | None -> []
       in
       let targetLabel =
-        labels |> List.find_opt (fun (name, _t) -> name = argName)
+        labels |> List.find_opt (fun (name, _t) -> name = label)
       in
       match targetLabel with
       | None -> []

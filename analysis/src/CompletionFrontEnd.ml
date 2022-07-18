@@ -167,7 +167,7 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         Some
           (Completable.CtypedContext
              ( contextPath,
-               NamedArg {name = labelled.name; prefix = getPrefixFromExpr exp}
+               NamedArg {label = labelled.name; prefix = getPrefixFromExpr exp}
              )))
       else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
@@ -176,7 +176,7 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         Some
           (Completable.CtypedContext
              ( contextPath,
-               NamedArg {name = labelled.name; prefix = getPrefixFromExpr exp}
+               NamedArg {label = labelled.name; prefix = getPrefixFromExpr exp}
              )))
       else loop rest
     | {label = None; exp} :: rest ->

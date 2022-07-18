@@ -428,18 +428,17 @@ module Completable = struct
     | CPObj of contextPath * string
     | CPPipe of contextPath * string
 
-  type namedArg = {
-    (* What the user has already started writing, if anything *)
-    prefix: string;
-    (* Name of the argument *)
-    name: string;
-  }
-
-  type typedContext = NamedArg of namedArg
+  type typedContext =
+    | NamedArg of {
+        (* What the user has already started writing, if anything *)
+        prefix: string;
+        (* Name of the argument *)
+        label: string;
+      }
 
   let typedContextToString typedContext =
     match typedContext with
-    | NamedArg {name} -> "NamedArg(" ^ name ^ ")"
+    | NamedArg {label} -> "NamedArg(" ^ label ^ ")"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
