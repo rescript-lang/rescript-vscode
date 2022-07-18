@@ -1,0 +1,101 @@
+Complete src/TypeContextCompletion_Jsx.res 16:35
+posCursor:[16:35] posNoWhite:[16:34] Found expr:[16:12->16:35]
+JSX <SomeComponent:[16:12->16:25] someVaria[16:26->16:35]=...[16:26->16:35]> _children:None
+Completable: Cjsx([SomeComponent], someVaria, [someVaria])
+[{
+    "label": "someVariant",
+    "kind": 4,
+    "tags": [],
+    "detail": "'someVariant",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Jsx.res 19:38
+posCursor:[19:38] posNoWhite:[19:37] Found expr:[19:12->19:38]
+JSX <SomeComponent:[19:12->19:25] someVariant[19:26->19:37]=...__ghost__[0:-1->0:-1]> _children:None
+[]
+
+Complete src/TypeContextCompletion_Jsx.res 22:39
+posCursor:[22:39] posNoWhite:[22:37] Found expr:[22:12->22:38]
+JSX <SomeComponent:[22:12->22:25] someVariant[22:26->22:37]=...__ghost__[0:-1->0:-1]> _children:None
+[]
+
+Complete src/TypeContextCompletion_Jsx.res 25:39
+posCursor:[25:39] posNoWhite:[25:38] Found expr:[25:12->25:39]
+JSX <SomeComponent:[25:12->25:25] someVariant[25:26->25:37]=...[25:38->25:39]> _children:None
+posCursor:[25:39] posNoWhite:[25:38] Found expr:[25:38->25:39]
+Pexp_construct T:[25:38->25:39] None
+Completable: Cpath Value[T]
+[{
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\ntype someVariant =\n  | One\n  | Two\n  | Three\n  | Four\n  | Five(int)\n  | Six(option<string>, int)",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\ntype someVariant =\n  | One\n  | Two\n  | Three\n  | Four\n  | Five(int)\n  | Six(option<string>, int)",
+    "documentation": null
+  }, {
+    "label": "TableclothMap",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypeContextCompletion_Jsx",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypeContextCompletion_LabelledArguments",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypeDefinition",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Jsx.res 28:39
+posCursor:[28:39] posNoWhite:[28:38] Found expr:[28:12->28:39]
+JSX <SomeComponent:[28:12->28:25] someVariant[28:26->28:37]=...[28:38->28:39]> _children:None
+posCursor:[28:39] posNoWhite:[28:38] Found expr:[28:38->28:39]
+Pexp_ident t:[28:38->28:39]
+Completable: Cpath Value[t]
+[]
+
+Complete src/TypeContextCompletion_Jsx.res 31:39
+posCursor:[31:39] posNoWhite:[31:38] Found expr:[31:12->31:39]
+JSX <SomeComponent:[31:12->31:25] anotherThing[31:26->31:38]=...__ghost__[0:-1->0:-1]> _children:None
+[]
+
+Complete src/TypeContextCompletion_Jsx.res 34:37
+posCursor:[34:37] posNoWhite:[34:36] Found expr:[34:12->34:37]
+JSX <SomeComponent:[34:12->34:25] thirdThing[34:26->34:36]=...__ghost__[0:-1->0:-1]> _children:None
+[]
+
+Complete src/TypeContextCompletion_Jsx.res 37:38
+posCursor:[37:38] posNoWhite:[37:36] Found expr:[37:12->37:37]
+JSX <SomeComponent:[37:12->37:25] thirdThing[37:26->37:36]=...__ghost__[0:-1->0:-1]> _children:None
+[]
+
+Complete src/TypeContextCompletion_Jsx.res 40:39
+posCursor:[40:39] posNoWhite:[40:38] Found expr:[40:12->40:39]
+JSX <SomeComponent:[40:12->40:25] thirdThing[40:26->40:36]=...[40:37->40:39]> _children:None
+posCursor:[40:39] posNoWhite:[40:38] Found expr:[40:37->40:39]
+[]
+
+Complete src/TypeContextCompletion_Jsx.res 43:39
+posCursor:[43:39] posNoWhite:[43:38] Found expr:[43:12->43:39]
+JSX <SomeComponent:[43:12->43:25] thirdThing[43:26->43:36]=...[43:37->43:39]> _children:None
+posCursor:[43:39] posNoWhite:[43:38] Found expr:[43:37->43:39]
+[]
+
