@@ -6,7 +6,11 @@ let someValue = Two
 
 module SomeComponent = {
   @react.component
-  let make = (~someVariant, ~anotherThing: TypeDefinition.variant, ~thirdThing: otherVariant) => {
+  let make = (
+    ~someVariant: someVariant,
+    ~anotherThing: TypeDefinition.variant,
+    ~thirdThing: otherVariant,
+  ) => {
     ignore(someVariant)
     ignore(anotherThing)
     ignore(thirdThing)

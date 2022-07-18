@@ -27,6 +27,38 @@ let positionToOffset text (line, character) =
     if bol + character <= String.length text then Some (bol + character)
     else None
 
+let getIdentFromExpr exp =
+  match exp.Parsetree.pexp_desc with
+  | Pexp_ident {txt} -> txt
+  | Pexp_construct ({txt}, _) -> txt
+  | Pexp_variant (label, _) -> Lident label
+  | Pexp_field (_, {txt}) -> txt
+  | _ -> Lident ""
+
+let getPrefixFromExpr exp = getIdentFromExpr exp |> Longident.last
+
+let rec exprToContextPath (e : Parsetree.expression) =
+  match e.pexp_desc with
+  | Pexp_constant (Pconst_string _) -> Some Completable.CPString
+  | Pexp_array _ -> Some CPArray
+  | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
+  | Pexp_field (e1, {txt = Lident name}) -> (
+    match exprToContextPath e1 with
+    | Some contextPath -> Some (CPField (contextPath, name))
+    | _ -> None)
+  | Pexp_field (_, {txt = Ldot (lid, name)}) ->
+    (* Case x.M.field ignore the x part *)
+    Some (CPField (CPId (Utils.flattenLongIdent lid, Module), name))
+  | Pexp_send (e1, {txt}) -> (
+    match exprToContextPath e1 with
+    | None -> None
+    | Some contexPath -> Some (CPObj (contexPath, txt)))
+  | Pexp_apply (e1, args) -> (
+    match exprToContextPath e1 with
+    | None -> None
+    | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
+  | _ -> None
+
 type prop = {
   name: string;
   posStart: int * int;
@@ -40,8 +72,16 @@ type jsxProps = {
   childrenStart: (int * int) option;
 }
 
+(* Checks if an expression is elgible for typed context completion. *)
+let isElgibleForTypedContextCompletion exp =
+  match exp.Parsetree.pexp_desc with
+  | Pexp_variant _ | Pexp_field _ | Pexp_construct _
+  | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
+    true
+  | _ -> false
+
 let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
-    =
+    ~debug =
   let allLabels =
     List.fold_right
       (fun prop allLabels -> prop.name :: allLabels)
@@ -64,11 +104,35 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         None
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Cursor on expr assigned *)
-        None
+        if isElgibleForTypedContextCompletion prop.exp then (
+          if debug then Printf.printf "Found typed context\n";
+          let typedContext =
+            Completable.JsxProp
+              {
+                componentPath =
+                  Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                propName = prop.name;
+                prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
+              }
+          in
+          Some (CtypedContext typedContext))
+        else None
       else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
-           To be on the safe side, don't do label completion. *)
-        None
+             Complete for the value. *)
+        if isElgibleForTypedContextCompletion prop.exp then (
+          if debug then Printf.printf "Found typed context\n";
+          let typedContext =
+            Completable.JsxProp
+              {
+                componentPath =
+                  Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                propName = prop.name;
+                prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
+              }
+          in
+          Some (CtypedContext typedContext))
+        else None
       else loop rest
     | [] ->
       let beforeChildrenStart =
@@ -135,14 +199,6 @@ type labelled = {
 
 type label = labelled option
 type arg = {label: label; exp: Parsetree.expression}
-
-let getPrefixFromExpr exp =
-  match exp.Parsetree.pexp_desc with
-  | Pexp_ident {txt} -> txt |> Longident.last
-  | Pexp_construct ({txt}, _) -> txt |> Longident.last
-  | Pexp_variant (label, _) -> label
-  | Pexp_field (_, {txt}) -> txt |> Longident.last
-  | _ -> ""
 
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~debug =
@@ -225,28 +281,6 @@ let extractExpApplyArgs ~args =
     | [] -> List.rev acc
   in
   args |> processArgs ~acc:[]
-
-let rec exprToContextPath (e : Parsetree.expression) =
-  match e.pexp_desc with
-  | Pexp_constant (Pconst_string _) -> Some Completable.CPString
-  | Pexp_array _ -> Some CPArray
-  | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
-  | Pexp_field (e1, {txt = Lident name}) -> (
-    match exprToContextPath e1 with
-    | Some contextPath -> Some (CPField (contextPath, name))
-    | _ -> None)
-  | Pexp_field (_, {txt = Ldot (lid, name)}) ->
-    (* Case x.M.field ignore the x part *)
-    Some (CPField (CPId (Utils.flattenLongIdent lid, Module), name))
-  | Pexp_send (e1, {txt}) -> (
-    match exprToContextPath e1 with
-    | None -> None
-    | Some contexPath -> Some (CPObj (contexPath, txt)))
-  | Pexp_apply (e1, args) -> (
-    match exprToContextPath e1 with
-    | None -> None
-    | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
-  | _ -> None
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = skipWhite text (offset - 1) in
@@ -572,7 +606,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               | Some childrenPosStart -> Pos.toString childrenPosStart);
           let jsxCompletable =
             findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
-              ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
+              ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc) ~debug
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then

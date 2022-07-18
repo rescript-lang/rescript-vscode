@@ -2,7 +2,7 @@ type someVariant = One | Two | Three | Four | Five(int) | Six(option<string>, in
 
 type otherVariant = [#one | #two | #three | #four | #five(int) | #six(option<int>, int)]
 
-let someValue = Two
+let thisIsAValue = Two
 
 let someVariantToString = (
   ~someVariant,
@@ -34,6 +34,9 @@ let someVariantToString = (
 
 // let x = someVariantToString(~someVariant=t
 //                                           ^com
+
+// let x = someVariantToString(~someVariant=TypeDefinition.
+//                                                         ^com
 
 // let x = someVariantToString(~anotherThing=
 //                                           ^com

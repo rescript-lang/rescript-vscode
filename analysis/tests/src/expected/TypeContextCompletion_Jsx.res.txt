@@ -1,101 +1,264 @@
-Complete src/TypeContextCompletion_Jsx.res 16:35
-posCursor:[16:35] posNoWhite:[16:34] Found expr:[16:12->16:35]
-JSX <SomeComponent:[16:12->16:25] someVaria[16:26->16:35]=...[16:26->16:35]> _children:None
+Complete src/TypeContextCompletion_Jsx.res 20:35
+posCursor:[20:35] posNoWhite:[20:34] Found expr:[20:12->20:35]
+JSX <SomeComponent:[20:12->20:25] someVaria[20:26->20:35]=...[20:26->20:35]> _children:None
 Completable: Cjsx([SomeComponent], someVaria, [someVaria])
 [{
     "label": "someVariant",
     "kind": 4,
     "tags": [],
-    "detail": "'someVariant",
+    "detail": "someVariant",
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Jsx.res 19:38
-posCursor:[19:38] posNoWhite:[19:37] Found expr:[19:12->19:38]
-JSX <SomeComponent:[19:12->19:25] someVariant[19:26->19:37]=...__ghost__[0:-1->0:-1]> _children:None
-[]
-
-Complete src/TypeContextCompletion_Jsx.res 22:39
-posCursor:[22:39] posNoWhite:[22:37] Found expr:[22:12->22:38]
-JSX <SomeComponent:[22:12->22:25] someVariant[22:26->22:37]=...__ghost__[0:-1->0:-1]> _children:None
-[]
-
-Complete src/TypeContextCompletion_Jsx.res 25:39
-posCursor:[25:39] posNoWhite:[25:38] Found expr:[25:12->25:39]
-JSX <SomeComponent:[25:12->25:25] someVariant[25:26->25:37]=...[25:38->25:39]> _children:None
-posCursor:[25:39] posNoWhite:[25:38] Found expr:[25:38->25:39]
-Pexp_construct T:[25:38->25:39] None
-Completable: Cpath Value[T]
+Complete src/TypeContextCompletion_Jsx.res 23:38
+posCursor:[23:38] posNoWhite:[23:37] Found expr:[23:12->23:38]
+JSX <SomeComponent:[23:12->23:25] someVariant[23:26->23:37]=...__ghost__[0:-1->0:-1]> _children:None
+Found typed context
+Completable: CtypedContext(JsxProp(<SomeComponent someVariant="" />))
+Found variant type someVariant
 [{
-    "label": "Three",
+    "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "Three\n\ntype someVariant =\n  | One\n  | Two\n  | Three\n  | Four\n  | Five(int)\n  | Six(option<string>, int)",
+    "detail": "One\n\n",
     "documentation": null
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype someVariant =\n  | One\n  | Two\n  | Three\n  | Four\n  | Five(int)\n  | Six(option<string>, int)",
+    "detail": "Two\n\n",
     "documentation": null
   }, {
-    "label": "TableclothMap",
-    "kind": 9,
+    "label": "Three",
+    "kind": 4,
     "tags": [],
-    "detail": "file module",
+    "detail": "Three\n\n",
     "documentation": null
   }, {
-    "label": "TypeContextCompletion_Jsx",
-    "kind": 9,
+    "label": "Four",
+    "kind": 4,
     "tags": [],
-    "detail": "file module",
+    "detail": "Four\n\n",
     "documentation": null
   }, {
-    "label": "TypeContextCompletion_LabelledArguments",
-    "kind": 9,
+    "label": "Five(_)",
+    "kind": 4,
     "tags": [],
-    "detail": "file module",
+    "detail": "Five(int)\n\n",
     "documentation": null
   }, {
-    "label": "TypeDefinition",
-    "kind": 9,
+    "label": "Six(_)",
+    "kind": 4,
     "tags": [],
-    "detail": "file module",
+    "detail": "Six(option<string>, int)\n\n",
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Jsx.res 28:39
-posCursor:[28:39] posNoWhite:[28:38] Found expr:[28:12->28:39]
-JSX <SomeComponent:[28:12->28:25] someVariant[28:26->28:37]=...[28:38->28:39]> _children:None
-posCursor:[28:39] posNoWhite:[28:38] Found expr:[28:38->28:39]
-Pexp_ident t:[28:38->28:39]
+Complete src/TypeContextCompletion_Jsx.res 26:39
+posCursor:[26:39] posNoWhite:[26:37] Found expr:[26:12->26:38]
+JSX <SomeComponent:[26:12->26:25] someVariant[26:26->26:37]=...__ghost__[0:-1->0:-1]> _children:None
+Found typed context
+Completable: CtypedContext(JsxProp(<SomeComponent someVariant="" />))
+Found variant type someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>, int)\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Jsx.res 29:39
+posCursor:[29:39] posNoWhite:[29:38] Found expr:[29:12->29:39]
+JSX <SomeComponent:[29:12->29:25] someVariant[29:26->29:37]=...[29:38->29:39]> _children:None
+Found typed context
+Completable: CtypedContext(JsxProp(<SomeComponent someVariant=T />))
+Found variant type someVariant
+[{
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Jsx.res 32:39
+posCursor:[32:39] posNoWhite:[32:38] Found expr:[32:12->32:39]
+JSX <SomeComponent:[32:12->32:25] someVariant[32:26->32:37]=...[32:38->32:39]> _children:None
+posCursor:[32:39] posNoWhite:[32:38] Found expr:[32:38->32:39]
+Pexp_ident t:[32:38->32:39]
 Completable: Cpath Value[t]
 []
 
-Complete src/TypeContextCompletion_Jsx.res 31:39
-posCursor:[31:39] posNoWhite:[31:38] Found expr:[31:12->31:39]
-JSX <SomeComponent:[31:12->31:25] anotherThing[31:26->31:38]=...__ghost__[0:-1->0:-1]> _children:None
-[]
+Complete src/TypeContextCompletion_Jsx.res 35:39
+posCursor:[35:39] posNoWhite:[35:38] Found expr:[35:12->35:39]
+JSX <SomeComponent:[35:12->35:25] anotherThing[35:26->35:38]=...__ghost__[0:-1->0:-1]> _children:None
+Found typed context
+Completable: CtypedContext(JsxProp(<SomeComponent anotherThing="" />))
+Found variant type TypeDefinition.variant
+[{
+    "label": "Foo",
+    "kind": 4,
+    "tags": [],
+    "detail": "Foo\n\n",
+    "documentation": null
+  }, {
+    "label": "Bar",
+    "kind": 4,
+    "tags": [],
+    "detail": "Bar\n\n",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion_Jsx.res 34:37
-posCursor:[34:37] posNoWhite:[34:36] Found expr:[34:12->34:37]
-JSX <SomeComponent:[34:12->34:25] thirdThing[34:26->34:36]=...__ghost__[0:-1->0:-1]> _children:None
-[]
+Complete src/TypeContextCompletion_Jsx.res 38:37
+posCursor:[38:37] posNoWhite:[38:36] Found expr:[38:12->38:37]
+JSX <SomeComponent:[38:12->38:25] thirdThing[38:26->38:36]=...__ghost__[0:-1->0:-1]> _children:None
+Found typed context
+Completable: CtypedContext(JsxProp(<SomeComponent thirdThing="" />))
+Found polyvariant type otherVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": null
+  }, {
+    "label": "#six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#six(option<int>, int)",
+    "documentation": null
+  }, {
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null
+  }, {
+    "label": "#five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#five(int)",
+    "documentation": null
+  }, {
+    "label": "#four",
+    "kind": 4,
+    "tags": [],
+    "detail": "#four",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion_Jsx.res 37:38
-posCursor:[37:38] posNoWhite:[37:36] Found expr:[37:12->37:37]
-JSX <SomeComponent:[37:12->37:25] thirdThing[37:26->37:36]=...__ghost__[0:-1->0:-1]> _children:None
-[]
+Complete src/TypeContextCompletion_Jsx.res 41:38
+posCursor:[41:38] posNoWhite:[41:36] Found expr:[41:12->41:37]
+JSX <SomeComponent:[41:12->41:25] thirdThing[41:26->41:36]=...__ghost__[0:-1->0:-1]> _children:None
+Found typed context
+Completable: CtypedContext(JsxProp(<SomeComponent thirdThing="" />))
+Found polyvariant type otherVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": null
+  }, {
+    "label": "#six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#six(option<int>, int)",
+    "documentation": null
+  }, {
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null
+  }, {
+    "label": "#five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#five(int)",
+    "documentation": null
+  }, {
+    "label": "#four",
+    "kind": 4,
+    "tags": [],
+    "detail": "#four",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion_Jsx.res 40:39
-posCursor:[40:39] posNoWhite:[40:38] Found expr:[40:12->40:39]
-JSX <SomeComponent:[40:12->40:25] thirdThing[40:26->40:36]=...[40:37->40:39]> _children:None
-posCursor:[40:39] posNoWhite:[40:38] Found expr:[40:37->40:39]
-[]
+Complete src/TypeContextCompletion_Jsx.res 44:39
+posCursor:[44:39] posNoWhite:[44:38] Found expr:[44:12->44:39]
+JSX <SomeComponent:[44:12->44:25] thirdThing[44:26->44:36]=...[44:37->44:39]> _children:None
+Found typed context
+Completable: CtypedContext(JsxProp(<SomeComponent thirdThing=t />))
+Found polyvariant type otherVariant
+[{
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion_Jsx.res 43:39
-posCursor:[43:39] posNoWhite:[43:38] Found expr:[43:12->43:39]
-JSX <SomeComponent:[43:12->43:25] thirdThing[43:26->43:36]=...[43:37->43:39]> _children:None
-posCursor:[43:39] posNoWhite:[43:38] Found expr:[43:37->43:39]
+Complete src/TypeContextCompletion_Jsx.res 47:39
+posCursor:[47:39] posNoWhite:[47:38] Found expr:[47:12->47:39]
+JSX <SomeComponent:[47:12->47:25] thirdThing[47:26->47:36]=...[47:37->47:39]> _children:None
+Found typed context
+Completable: CtypedContext(JsxProp(<SomeComponent thirdThing=T />))
+Found polyvariant type otherVariant
 []
 
