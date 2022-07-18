@@ -429,6 +429,7 @@ module Completable = struct
     | CPPipe of contextPath * string
 
   type typedContext =
+    (* A labelled argument assignment, eg. someFunc(~someArg=<completable>) *)
     | NamedArg of {
         (* The context path where the completion was found *)
         contextPath: contextPath;
@@ -437,9 +438,19 @@ module Completable = struct
         (* Name of the argument *)
         label: string;
       }
+    (* A JSX prop assignment, eg. <SomeComponent someProp=<completable> *)
+    | JsxProp of {
+        (* Path to the target component *)
+        componentPath: string list;
+        (* The target prop name *)
+        propName: string;
+        (* What the user has already started writing, if anything *)
+        prefix: string list;
+      }
 
   let str s = if s = "" then "\"\"" else s
   let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
+  let ident l = l |> List.map str |> String.concat "."
 
   let completionContextToString = function
     | Value -> "Value"
@@ -467,8 +478,13 @@ module Completable = struct
 
   let typedContextToString typedContext =
     match typedContext with
-    | NamedArg {label; contextPath} ->
-      "NamedArg(" ^ label ^ ", " ^ (contextPath |> contextPathToString) ^ ")"
+    | NamedArg {label; contextPath; prefix} ->
+      "NamedArg(" ^ label ^ ", "
+      ^ (contextPath |> contextPathToString)
+      ^ ")=" ^ prefix
+    | JsxProp {propName; componentPath; prefix} ->
+      "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "="
+      ^ (prefix |> ident) ^ " />)"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)

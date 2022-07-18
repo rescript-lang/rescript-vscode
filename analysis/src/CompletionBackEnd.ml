@@ -1362,17 +1362,106 @@ let getOpens ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
-let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
-    (completable : Completable.t) =
-  let rawOpens = Scope.getRawOpens scope in
-  let opens = getOpens ~rawOpens ~package ~env in
-  let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
+(* Takes a context and a component path (SomeModule.SomeComponent) and extracts all labels *)
+let getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
+    componentPath =
   let findTypeOfValue path =
     path
     |> getCompletionsForPath ~completionContext:Value ~exact:true ~package
          ~opens ~allFiles ~pos ~env ~scope
     |> completionsGetTypeEnv
   in
+
+  match componentPath @ ["make"] |> findTypeOfValue with
+  | Some (typ, _env) ->
+    let rec getFields (texp : Types.type_expr) =
+      match texp.desc with
+      | Tfield (name, _, t1, t2) ->
+        let fields = t2 |> getFields in
+        if name = "children" then fields else (name, t1) :: fields
+      | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFields
+      | Tvar None -> []
+      | _ -> []
+    in
+    let rec getLabels (t : Types.type_expr) =
+      match t.desc with
+      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
+      | Tarrow
+          ( Nolabel,
+            {
+              desc =
+                ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                | Tobject (tObj, _) );
+            },
+            _,
+            _ ) ->
+        getFields tObj
+      | Tconstr
+          ( path,
+            [
+              {
+                desc =
+                  ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                  | Tobject (tObj, _) );
+              };
+              _;
+            ],
+            _ )
+        when Path.name path = "React.componentLike" ->
+        getFields tObj
+      | _ -> []
+    in
+    typ |> getLabels
+  | None -> []
+
+(* This completes a type expression. Intended to be shared logic that can extract completions from a context, as soon as that the type is identified. *)
+let completeTypeExpr ~env ~package ~debug ~prefix (typeExpr : Types.type_expr) =
+  match extractType ~env ~package typeExpr with
+  | None ->
+    if debug then Printf.printf "Could not extract type\n";
+    []
+  | Some (Declared (_env, {item})) -> (
+    match item.kind with
+    | Variant constructors ->
+      if debug then
+        Printf.printf "Found variant type %s\n" (typeExpr |> Shared.typeToString);
+      (* TODO: Investigate completing seen identifiers _with the correct type_ here too. If completing
+         variant someVariant, and there's a someVariable of type someVariant, add that to the completion list. *)
+      constructors
+      |> List.filter (fun constructor ->
+             Utils.startsWith constructor.Constructor.cname.txt prefix)
+      |> List.map (fun (constructor : Constructor.t) ->
+             (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                Eg. Some($1) as completion item. *)
+             Completion.create
+               ~name:
+                 (constructor.cname.txt
+                 ^ if constructor.args |> List.length > 0 then "(_)" else "")
+               ~kind:(Constructor (constructor, ""))
+               ~env)
+    | _ -> [])
+  | Some (Polyvariant (_env, constructors)) ->
+    if debug then
+      Printf.printf "Found polyvariant type %s\n"
+        (typeExpr |> Shared.typeToString);
+    (* TODO: Investigate completing seen identifiers _with the correct type_ here too. Unsure if that's possible though
+        for polyvariants, if things aren't referred to by typename, but rather the full inlined type definition.. *)
+    constructors
+    |> List.filter (fun constructor -> Utils.startsWith constructor.name prefix)
+    |> List.map (fun constructor ->
+           (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+              Eg. Some($1) as completion item. *)
+           Completion.create
+             ~name:
+               ("#" ^ constructor.name
+               ^ if constructor.payload |> Option.is_some then "(_)" else "")
+             ~kind:(PolyvariantConstructor constructor) ~env)
+
+let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
+    (completable : Completable.t) =
+  let rawOpens = Scope.getRawOpens scope in
+  let opens = getOpens ~rawOpens ~package ~env in
+  let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   match completable with
   | Cnone -> []
   | Cpath contextPath ->
@@ -1394,47 +1483,8 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
     let labels =
-      match componentPath @ ["make"] |> findTypeOfValue with
-      | Some (typ, _env) ->
-        let rec getFields (texp : Types.type_expr) =
-          match texp.desc with
-          | Tfield (name, _, t1, t2) ->
-            let fields = t2 |> getFields in
-            if name = "children" then fields else (name, t1) :: fields
-          | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFields
-          | Tvar None -> []
-          | _ -> []
-        in
-        let rec getLabels (t : Types.type_expr) =
-          match t.desc with
-          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
-          | Tarrow
-              ( Nolabel,
-                {
-                  desc =
-                    ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                    | Tobject (tObj, _) );
-                },
-                _,
-                _ ) ->
-            getFields tObj
-          | Tconstr
-              ( path,
-                [
-                  {
-                    desc =
-                      ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                      | Tobject (tObj, _) );
-                  };
-                  _;
-                ],
-                _ )
-            when Path.name path = "React.componentLike" ->
-            getFields tObj
-          | _ -> []
-        in
-        typ |> getLabels
-      | None -> []
+      componentPath
+      |> getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
     in
     let mkLabel_ name typString =
       Completion.create ~name ~kind:(Label typString) ~env
@@ -1757,53 +1807,21 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       in
       match targetLabel with
       | None -> []
-      | Some (_, typeExpr) -> (
-        match extractType ~env ~package typeExpr with
-        | None ->
-          if debug then
-            Printf.printf
-              "Could not extract type for labelled argument completion\n";
-          []
-        | Some (Declared (_env, {item})) -> (
-          match item.kind with
-          | Variant constructors ->
-            if debug then
-              Printf.printf "Found variant type for NamedArg typed context %s\n"
-                (typeExpr |> Shared.typeToString);
-            (* TODO: Investigate completing seen identifiers _with the correct type_ here too. If completing
-               variant someVariant, and there's a someVariable of type someVariant, add that to the completion list. *)
-            constructors
-            |> List.filter (fun constructor ->
-                   Utils.startsWith constructor.Constructor.cname.txt prefix)
-            |> List.map (fun (constructor : Constructor.t) ->
-                   (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
-                      Eg. Some($1) as completion item. *)
-                   Completion.create
-                     ~name:
-                       (constructor.cname.txt
-                       ^
-                       if constructor.args |> List.length > 0 then "(_)" else ""
-                       )
-                     ~kind:(Constructor (constructor, ""))
-                     ~env)
-          | _ -> [])
-        | Some (Polyvariant (_env, constructors)) ->
-          if debug then
-            Printf.printf
-              "Found polyvariant type for NamedArg typed context: %s\n"
-              (typeExpr |> Shared.typeToString);
-          (* TODO: Investigate completing seen identifiers _with the correct type_ here too. Unsure if that's possible though
-              for polyvariants, if things aren't referred to by typename, but rather the full inlined type definition.. *)
-          constructors
-          |> List.filter (fun constructor ->
-                 Utils.startsWith constructor.name prefix)
-          |> List.map (fun constructor ->
-                 (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
-                    Eg. Some($1) as completion item. *)
-                 Completion.create
-                   ~name:
-                     ("#" ^ constructor.name
-                     ^
-                     if constructor.payload |> Option.is_some then "(_)" else ""
-                     )
-                   ~kind:(PolyvariantConstructor constructor) ~env))))
+      | Some (_, typeExpr) ->
+        completeTypeExpr ~env ~package ~debug ~prefix typeExpr)
+    | JsxProp {componentPath; propName; prefix} -> (
+      (* TODO: Reintroduce these + potentially filter on type if possible...? *)
+      let _completionsFromContext =
+        Completable.CPId (prefix, Module)
+        |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:forHover ~scope
+      in
+      match
+        componentPath
+        |> getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
+        |> List.find_opt (fun (label, _typeExpr) -> label = propName)
+      with
+      | None -> []
+      | Some (_label, typeExpr) ->
+        completeTypeExpr ~env ~package ~debug ~prefix:(List.hd prefix) typeExpr)
+    )
