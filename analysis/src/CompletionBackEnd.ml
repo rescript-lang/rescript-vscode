@@ -1808,7 +1808,17 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       match targetLabel with
       | None -> []
       | Some (_, typeExpr) ->
-        completeTypeExpr ~env ~package ~debug ~prefix typeExpr)
+        (* TODO: Wonder if we can filter the values returned here on type...
+           Maybe that'd be confusing for the user though, if items in scope don't appear.
+           We should at a minimum be able to sort values according to type and the proximity
+           of them in the scope. *)
+        let completionsFromContext =
+          contextPath
+          |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles
+               ~pos ~env ~exact:forHover ~scope
+        in
+        completeTypeExpr ~env ~package ~debug ~prefix typeExpr
+        @ completionsFromContext)
     | JsxProp {componentPath; propName; prefix} -> (
       (* TODO: Variant constructors seem to re-appear here.
          Wondering if we can get rid of "randomly" completing constructors in scope. Or at least de-duping somehow. *)

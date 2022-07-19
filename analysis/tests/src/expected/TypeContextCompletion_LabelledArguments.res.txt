@@ -57,6 +57,12 @@ Found variant type someVariant
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
     "documentation": null
+  }, {
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 28:45
@@ -101,6 +107,12 @@ Found variant type someVariant
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
     "documentation": null
+  }, {
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 31:45
@@ -121,6 +133,12 @@ Found variant type someVariant
     "tags": [],
     "detail": "Three\n\n",
     "documentation": null
+  }, {
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 34:45
@@ -129,7 +147,13 @@ Pexp_apply ...[34:11->34:30] (~someVariant34:32->34:43=...[34:44->34:45])
 found typed context 
 Completable: CtypedContext(NamedArg(someVariant, Value[someVariantToString])=t)
 Found variant type someVariant
-[]
+[{
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
+  }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 37:59
 posCursor:[37:59] posNoWhite:[37:58] Found expr:[37:11->37:59]
@@ -137,7 +161,13 @@ Pexp_apply ...[37:11->37:30] (~someVariant37:32->37:43=...[37:44->37:59])
 found typed context 
 Completable: CtypedContext(NamedArg(someVariant, Value[someVariantToString])=_)
 Found variant type someVariant
-[]
+[{
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
+  }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 40:45
 posCursor:[40:45] posNoWhite:[40:44] Found expr:[40:11->40:45]
@@ -156,6 +186,12 @@ Found variant type TypeDefinition.variant
     "kind": 4,
     "tags": [],
     "detail": "Bar\n\n",
+    "documentation": null
+  }, {
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
     "documentation": null
   }]
 
@@ -201,6 +237,12 @@ Found polyvariant type otherVariant
     "tags": [],
     "detail": "#four",
     "documentation": null
+  }, {
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 46:44
@@ -245,6 +287,12 @@ Found polyvariant type otherVariant
     "tags": [],
     "detail": "#four",
     "documentation": null
+  }, {
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 49:45
@@ -265,6 +313,12 @@ Found polyvariant type otherVariant
     "tags": [],
     "detail": "#two",
     "documentation": null
+  }, {
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 52:45
@@ -273,5 +327,11 @@ Pexp_apply ...[52:11->52:30] (~thirdThing52:32->52:42=...[52:43->52:45])
 found typed context 
 Completable: CtypedContext(NamedArg(thirdThing, Value[someVariantToString])=T)
 Found polyvariant type otherVariant
-[]
+[{
+    "label": "someVariantToString",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
+    "documentation": null
+  }]
 
