@@ -1810,9 +1810,11 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | Some (_, typeExpr) ->
         completeTypeExpr ~env ~package ~debug ~prefix typeExpr)
     | JsxProp {componentPath; propName; prefix} -> (
-      (* TODO: Reintroduce these + potentially filter on type if possible...? *)
-      let _completionsFromContext =
-        Completable.CPId (prefix, Module)
+      (* TODO: Variant constructors seem to re-appear here.
+         Wondering if we can get rid of "randomly" completing constructors in scope. Or at least de-duping somehow. *)
+      (* These are the regular completions for context. Identifiers, modules, etc. *)
+      let completionsFromContext =
+        Completable.CPId (prefix, Value)
         |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
              ~env ~exact:forHover ~scope
       in
@@ -1823,5 +1825,5 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       with
       | None -> []
       | Some (_label, typeExpr) ->
-        completeTypeExpr ~env ~package ~debug ~prefix:(List.hd prefix) typeExpr)
-    )
+        completeTypeExpr ~env ~package ~debug ~prefix:(List.hd prefix) typeExpr
+        @ completionsFromContext))
