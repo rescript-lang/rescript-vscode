@@ -1425,8 +1425,6 @@ let completeTypeExpr ~env ~package ~debug ~prefix (typeExpr : Types.type_expr) =
     | Variant constructors ->
       if debug then
         Printf.printf "Found variant type %s\n" (typeExpr |> Shared.typeToString);
-      (* TODO: Investigate completing seen identifiers _with the correct type_ here too. If completing
-         variant someVariant, and there's a someVariable of type someVariant, add that to the completion list. *)
       constructors
       |> List.filter (fun constructor ->
              Utils.startsWith constructor.Constructor.cname.txt prefix)
@@ -1444,8 +1442,6 @@ let completeTypeExpr ~env ~package ~debug ~prefix (typeExpr : Types.type_expr) =
     if debug then
       Printf.printf "Found polyvariant type %s\n"
         (typeExpr |> Shared.typeToString);
-    (* TODO: Investigate completing seen identifiers _with the correct type_ here too. Unsure if that's possible though
-        for polyvariants, if things aren't referred to by typename, but rather the full inlined type definition.. *)
     constructors
     |> List.filter (fun constructor -> Utils.startsWith constructor.name prefix)
     |> List.map (fun constructor ->
