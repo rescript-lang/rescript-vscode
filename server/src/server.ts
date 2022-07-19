@@ -67,7 +67,7 @@ let send: (msg: p.Message) => void = (_) => {};
 
 let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
-    ? path.join(projectRootPath, c.nodeModulesBinDir)
+    ? utils.findBinaryFromProjectRoot(projectRootPath)
     : extensionConfiguration.binaryPath;
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
@@ -618,7 +618,8 @@ function format(msg: p.RequestMessage): Array<p.Message> {
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
     let projectRootPath = utils.findProjectRootOfFile(filePath);
-    let bscBinaryPath = projectRootPath === null ? null : findBscBinary(projectRootPath);
+    let bscBinaryPath =
+      projectRootPath === null ? null : findBscBinary(projectRootPath);
     let formattedResult = utils.formatCode(bscBinaryPath, filePath, code);
     if (formattedResult.kind === "success") {
       let max = code.length;
