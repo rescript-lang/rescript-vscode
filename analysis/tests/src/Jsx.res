@@ -168,3 +168,6 @@ let _ = {
   <> {<> <Comp age=34 /> </>} </>
   //            ^hov
 }
+
+// let _ = <Completion.O.Comp  />
+//                            ^com

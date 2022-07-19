@@ -431,3 +431,33 @@ JSX <Comp:[167:10->167:14] age[167:15->167:18]=...[167:19->167:21]> _children:16
 Completable: Cjsx([Comp], age, [age])
 {"contents": "```rescript\nint\n```"}
 
+Complete src/Jsx.res 171:30
+posCursor:[171:30] posNoWhite:[171:28] Found expr:[171:12->171:33]
+JSX <Completion.O.Comp:[171:12->171:29] > _children:171:31
+Completable: Cjsx([Completion, O, Comp], "", [])
+[{
+    "label": "first",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": null
+  }, {
+    "label": "second",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "zoo",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
