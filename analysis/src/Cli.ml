@@ -65,6 +65,10 @@ Options:
 
     ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
 
+  inlayHint: get all inlay Hint declared in MyFile.res
+
+    ./rescript-editor-analysis.exe inlayHint src/MyFile.res
+
   test: run tests specified by special comments in file src/MyFile.res
 
     ./rescript-editor-analysis.exe test src/src/MyFile.res
