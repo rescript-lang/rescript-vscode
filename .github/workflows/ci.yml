@@ -123,7 +123,9 @@ jobs:
 
     - name: Store short commit SHA for filename
       id: vars
-      run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      env:
+        COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      run: echo "::set-output name=sha_short::${COMMIT_SHA:0:7}"
       
     - name: Package Extension
       run: npx vsce package -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
