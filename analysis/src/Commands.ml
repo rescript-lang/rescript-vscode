@@ -388,6 +388,7 @@ let test ~path =
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
           | "dia" -> diagnosticSyntax ~path
+          | "hint" -> inlayhint ~path ~debug:true
           | _ -> ());
           print_newline ())
     in
