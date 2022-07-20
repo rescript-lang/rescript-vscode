@@ -8,36 +8,28 @@ let inlayKindToNumber = function
 let locItemToTypeHint ~full:{file; package} locItem =
   match locItem.locType with
   | Constant t ->
-    let typehint =
-      match t with
+    Some
+      (match t with
       | Const_int _ -> "int"
       | Const_char _ -> "char"
       | Const_string _ -> "string"
       | Const_float _ -> "float"
       | Const_int32 _ -> "int32"
       | Const_int64 _ -> "int64"
-      | Const_nativeint _ -> "int"
-    in
-    Some typehint
+      | Const_nativeint _ -> "int")
   | Typed (_, t, locKind) ->
-    let fromType typ kind =
-      let result =
-        typ |> Shared.typeToString
-        |> Str.global_replace (Str.regexp "[\r\n\t ]") ""
-        |> Str.global_replace (Str.regexp "=>") " => "
-      in
-      match kind with
-      | Parameter -> result
-      | _ -> result
+    let fromType typ =
+      typ |> Shared.typeToString
+      |> Str.global_replace (Str.regexp "[\r\n\t]") ""
     in
     Some
       (match References.definedForLoc ~file ~package locKind with
-      | None -> t |> fromType
+      | None -> fromType t
       | Some (_, res) -> (
         match res with
-        | `Declared -> t |> fromType
-        | `Constructor _ -> t |> fromType
-        | `Field -> t |> fromType))
+        | `Declared -> fromType t
+        | `Constructor _ -> fromType t
+        | `Field -> fromType t))
   | _ -> None
 
 let inlay ~path ~debug =
@@ -47,7 +39,7 @@ let inlay ~path ~debug =
     | Pexp_fun (_, _, pat_exp, e) -> (
       match pat_exp with
       | {ppat_desc = Ppat_var _} ->
-        hints := (pat_exp.ppat_loc, Parameter) :: !hints;
+        hints := (pat_exp.ppat_loc, Type) :: !hints;
         processFunction e
       | _ -> processFunction e)
     | _ -> ()
@@ -63,7 +55,7 @@ let inlay ~path ~debug =
            ( Pexp_constant _ | Pexp_tuple _ | Pexp_record _ | Pexp_variant _
            | Pexp_apply _ | Pexp_match _ | Pexp_construct _ | Pexp_ifthenelse _
            | Pexp_array _ | Pexp_ident _ | Pexp_try _ | Pexp_lazy _
-           | Pexp_send _ | Pexp_field _ );
+           | Pexp_send _ | Pexp_field _ | Pexp_open _ );
        };
     } ->
       hints := (vb.pvb_pat.ppat_loc, Type) :: !hints
@@ -77,7 +69,7 @@ let inlay ~path ~debug =
      pvb_expr = {pexp_desc = Pexp_fun (_, _, pat, e)};
     } ->
       (match pat with
-      | {ppat_desc = Ppat_var _} -> hints := (pat.ppat_loc, Parameter) :: !hints
+      | {ppat_desc = Ppat_var _} -> hints := (pat.ppat_loc, Type) :: !hints
       | _ -> ());
       processFunction e
     | _ -> ());
@@ -95,7 +87,7 @@ let inlay ~path ~debug =
     let {Res_driver.parsetree = signature} = parser ~filename:path in
     iterator.signature iterator signature |> ignore);
   !hints
-  |> List.filter_map (fun (locOfName, inlayKind) ->
+  |> List.filter_map (fun (locOfName, hintKind) ->
          let range = Utils.cmtLocToRange locOfName in
          match Cmt.fullFromPath ~path with
          | None -> None
@@ -115,7 +107,7 @@ let inlay ~path ~debug =
                let result =
                  Protocol.stringifyHint
                    {
-                     kind = inlayKindToNumber inlayKind;
+                     kind = inlayKindToNumber hintKind;
                      position;
                      paddingLeft = true;
                      paddingRight = false;
