@@ -12,6 +12,8 @@
 
 ## master
 
+## v1.4.2
+
 #### :bug: Bug Fix
 
 - Fix finding the ReScript bin for even more kinds of setups.
