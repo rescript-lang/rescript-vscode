@@ -12,6 +12,11 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Fix finding the ReScript bin for even more kinds of setups.
+- Document the process of finding the ReScript bin in README.
+
 ## v1.4.1
 
 #### :bug: Bug Fix
