@@ -20,7 +20,7 @@ let locItemToTypeHint ~full:{file; package} locItem =
   | Typed (_, t, locKind) ->
     let fromType typ =
       typ |> Shared.typeToString
-      |> Str.global_replace (Str.regexp "[\r\n\t]") ""
+      |> Str.global_replace (Str.regexp "[\r\n\t ]") ""
     in
     Some
       (match References.definedForLoc ~file ~package locKind with
