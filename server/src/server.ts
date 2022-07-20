@@ -67,7 +67,7 @@ let send: (msg: p.Message) => void = (_) => {};
 
 let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
-    ? utils.findBinaryFromProjectRoot(projectRootPath)
+    ? utils.findBinaryDirPathFromProjectRoot(projectRootPath)
     : extensionConfiguration.binaryPath;
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
