@@ -1,4 +1,3 @@
-inlayHint src/InlayHint.res
 [{                                      
     "position": {"line": 42, "character": 9},
     "label": ": string",
