@@ -101,7 +101,9 @@ If there's no ReScript build running already in the opened project, the extensio
 
 #### How does it find my ReScript binary?
 
-The extension will look for the existence of a `/node_modules/.bin/bsc` file and use its directory as the `binaryPath`. If it does not find it at the project root (which is where the nearest `bsconfig.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level. If it does not find it, the path can be overwritten with the setting `rescript.settings.binaryPath`.
+The extension will look for the existence of a `/node_modules/.bin/rescript` file and use its directory as the `binaryPath`. If it does not find it at the project root (which is where the nearest `bsconfig.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level.
+
+To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.binaryPath`.
 
 ### Hide generated files
 
