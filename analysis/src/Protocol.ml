@@ -1,7 +1,13 @@
-type position = {line : int; character : int}
-type range = {start : position; end_ : position}
-type markupContent = {kind : string; value : string}
-type inlayHint = {position : position; label : string; kind : int; paddingLeft: bool; paddingRight: bool}
+type position = {line: int; character: int}
+type range = {start: position; end_: position}
+type markupContent = {kind: string; value: string}
+type inlayHint = {
+  position: position;
+  label: string;
+  kind: int;
+  paddingLeft: bool;
+  paddingRight: bool;
+}
 
 type completionItem = {
   label: string;
@@ -150,5 +156,4 @@ let stringifyDiagnostic d =
   "severity": %d,
   "source": "ReScript"
 }|}
-    (stringifyRange d.range) (Json.escape d.message)
-    d.severity
+    (stringifyRange d.range) (Json.escape d.message) d.severity
