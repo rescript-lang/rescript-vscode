@@ -1,29 +1,23 @@
 [{                                      
-    "position": {"line": 42, "character": 9},
+    "position": {"line": 17, "character": 9},
     "label": ": string",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
 }, {
-    "position": {"line": 40, "character": 9},
+    "position": {"line": 15, "character": 9},
     "label": ": (string, string)",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
 }, {
-    "position": {"line": 38, "character": 17},
+    "position": {"line": 13, "character": 17},
     "label": ": string",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
 }, {
-    "position": {"line": 30, "character": 24},
-    "label": ": int",
-    "kind": 1,
-    "paddingLeft": true,
-    "paddingRight": false
-}, {
-    "position": {"line": 13, "character": 24},
+    "position": {"line": 9, "character": 24},
     "label": ": int",
     "kind": 1,
     "paddingLeft": true,
