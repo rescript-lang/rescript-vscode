@@ -25,13 +25,11 @@ import { filesDiagnostics } from "./utils";
 
 interface extensionConfiguration {
   askToStartBuild: boolean;
-  autoRunCodeAnalysis: boolean;
   inlayHints: boolean;
   binaryPath: string | null;
 }
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
-  autoRunCodeAnalysis: false,
   inlayHints: false,
   binaryPath: null,
 };
