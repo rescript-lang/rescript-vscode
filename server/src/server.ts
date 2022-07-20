@@ -65,9 +65,28 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
+let findBinaryDirPathFromProjectRoot = (
+  directory: p.DocumentUri // This must be a directory and not a file!
+): null | p.DocumentUri => {
+  let binaryDirPath = path.join(directory, c.nodeModulesBinDir);
+  let binaryPath = path.join(binaryDirPath, c.rescriptBinName);
+
+  if (fs.existsSync(binaryPath)) {
+    return binaryDirPath;
+  }
+
+  let parentDir = path.dirname(directory);
+  if (parentDir === directory) {
+    // reached the top
+    return null;
+  }
+
+  return findBinaryDirPathFromProjectRoot(parentDir);
+};
+
 let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
-    ? utils.findBinaryDirPathFromProjectRoot(projectRootPath)
+    ? findBinaryDirPathFromProjectRoot(projectRootPath)
     : extensionConfiguration.binaryPath;
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>

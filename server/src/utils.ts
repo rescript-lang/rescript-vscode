@@ -38,25 +38,6 @@ export let findProjectRootOfFile = (
   }
 };
 
-export let findBinaryDirPathFromProjectRoot = (
-  directory: p.DocumentUri // This must be a directory and not a file!
-): null | p.DocumentUri => {
-  let binaryDirPath = path.join(directory, c.nodeModulesBinDir);
-  let binaryPath = path.join(binaryDirPath, c.rescriptBinName);
-
-  if (fs.existsSync(binaryPath)) {
-    return binaryDirPath;
-  }
-
-  let parentDir = path.dirname(directory);
-  if (parentDir === directory) {
-    // reached the top
-    return null;
-  }
-
-  return findBinaryDirPathFromProjectRoot(parentDir);
-};
-
 export let findBinary = (
   binaryDirPath: p.DocumentUri | null,
   binaryName: string
