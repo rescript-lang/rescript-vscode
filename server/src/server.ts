@@ -69,9 +69,28 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
+let findBinaryDirPathFromProjectRoot = (
+  directory: p.DocumentUri // This must be a directory and not a file!
+): null | p.DocumentUri => {
+  let binaryDirPath = path.join(directory, c.nodeModulesBinDir);
+  let binaryPath = path.join(binaryDirPath, c.rescriptBinName);
+
+  if (fs.existsSync(binaryPath)) {
+    return binaryDirPath;
+  }
+
+  let parentDir = path.dirname(directory);
+  if (parentDir === directory) {
+    // reached the top
+    return null;
+  }
+
+  return findBinaryDirPathFromProjectRoot(parentDir);
+};
+
 let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath === null
-    ? path.join(projectRootPath, c.nodeModulesBinDir)
+    ? findBinaryDirPathFromProjectRoot(projectRootPath)
     : extensionConfiguration.binaryPath;
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
@@ -645,7 +664,9 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   } else {
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
-    let bscBinaryPath = findBscBinary(filePath);
+    let projectRootPath = utils.findProjectRootOfFile(filePath);
+    let bscBinaryPath =
+      projectRootPath === null ? null : findBscBinary(projectRootPath);
     let formattedResult = utils.formatCode(bscBinaryPath, filePath, code);
     if (formattedResult.kind === "success") {
       let max = code.length;

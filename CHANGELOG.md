@@ -12,6 +12,20 @@
 
 ## master
 
+## v1.4.2
+
+#### :bug: Bug Fix
+
+- Fix finding the ReScript bin for even more kinds of setups.
+- Document the process of finding the ReScript bin in README.
+
+## v1.4.1
+
+#### :bug: Bug Fix
+
+- Fix formatting not preferring the locally installed formatter (if available), which made formatting potentially different between formatting via `rescript format` and the extension.
+- Fix finding the ReScript bin in monorepos
+
 ## v1.4.0
 
 #### :rocket: New Feature

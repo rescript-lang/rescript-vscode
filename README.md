@@ -99,6 +99,12 @@ You'll find all ReScript specific settings under the scope `rescript.settings`. 
 
 If there's no ReScript build running already in the opened project, the extension will prompt you and ask if you want to start a build automatically. You can turn off this automatic prompt via the setting `rescript.settings.askToStartBuild`.
 
+#### How does it find my ReScript binary?
+
+The extension will look for the existence of a `/node_modules/.bin/rescript` file and use its directory as the `binaryPath`. If it does not find it at the project root (which is where the nearest `bsconfig.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level.
+
+To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.binaryPath`.
+
 ### Hide generated files
 
 You can configure VSCode to collapse the JavaScript files ReScript generates under its source ReScript file. This will "hide" the generated files in the VSCode file explorer, but still leaving them accessible by expanding the source ReScript file they belong to.
