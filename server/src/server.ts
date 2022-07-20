@@ -372,7 +372,7 @@ function inlayHint(msg: p.RequestMessage) {
 
   const response = utils.runAnalysisCommand(
     filePath,
-    ["inlayHint", filePath, params.range.start.line, params.range.end.line],
+    ["inlayHint", filePath],
     msg
   );
   return response;

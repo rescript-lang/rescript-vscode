@@ -89,10 +89,8 @@ let main () =
     Commands.hover ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false
-  | [_; "inlayHint"; path; line_start; line_end] ->
-    Commands.inlayhint ~path
-      ~pos:(int_of_string line_start, int_of_string line_end)
-      ~debug:false
+  | [_; "inlayHint"; path;] ->
+    Commands.inlayhint ~path ~debug:false
   | [_; "codeAction"; path; line; col; currentFile] ->
     Commands.codeAction ~path
       ~pos:(int_of_string line, int_of_string col)

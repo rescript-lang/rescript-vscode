@@ -18,66 +18,38 @@ let locItemToTypeHint ~full:{file; package} locItem =
       | Const_int64 _ -> "int64"
       | Const_nativeint _ -> "int"
     in
-    Some (typehint, typehint)
+    Some typehint
   | Typed (_, t, locKind) ->
-    let fromType ~docstring typ =
-      (* TODO: get only type return *)
-      let typeString =
+    let fromType typ kind =
+      let result =
         typ |> Shared.typeToString
-        |> Str.split (Str.regexp "\n")
-        |> List.filter (fun c -> c <> "\n")
-        |> String.concat ""
+        |> Str.global_replace (Str.regexp "[\r\n\t ]") ""
+        |> Str.global_replace (Str.regexp "=>") " => "
       in
-
-      let extraTypeInfo =
-        let env = QueryEnv.fromFile file in
-        match typ |> Shared.digConstructor with
-        | None -> None
-        | Some path -> (
-          match References.digConstructor ~env ~package path with
-          | None -> None
-          | Some (_env, {docstring; name = {txt}; item = {decl}}) ->
-            if Utils.isUncurriedInternal path then None
-            else Some (decl |> Shared.declToString txt, docstring))
-      in
-      let typeString, docstring =
-        match extraTypeInfo with
-        | None -> (typeString, [typeString])
-        | Some (extra, extraDocstring) -> (typeString, extra :: extraDocstring)
-      in
-      (typeString, String.concat "" docstring)
+      match kind with
+      | Parameter -> result
+      | _ -> result
     in
     Some
       (match References.definedForLoc ~file ~package locKind with
-      | None -> t |> fromType ~docstring:[]
-      | Some (docstring, res) -> (
+      | None -> t |> fromType
+      | Some (_, res) -> (
         match res with
-        | `Declared -> t |> fromType ~docstring:[]
-        | `Constructor {cname = {txt}; args} ->
-          let typeString, docstring = t |> fromType ~docstring in
-          let argsString =
-            match args with
-            | [] -> ""
-            | _ ->
-              args
-              |> List.map (fun (t, _) -> Shared.typeToString t)
-              |> String.concat ", " |> Printf.sprintf "(%s)"
-          in
-          (typeString, Hover.codeBlock (txt ^ argsString ^ docstring))
-        | `Field -> t |> fromType ~docstring))
+        | `Declared -> t |> fromType
+        | `Constructor _ -> t |> fromType
+        | `Field -> t |> fromType))
   | _ -> None
 
-(* TODO: filter for range of lines*)
-let inlay ~path ~pos ~debug =
+let inlay ~path ~debug =
   let hints = ref [] in
-  let rec funArgs (exp : Parsetree.expression) =
+  let rec processFunction (exp : Parsetree.expression) =
     match exp.pexp_desc with
-    | Pexp_fun (_, _, pat_exp, bodyExpr) -> (
+    | Pexp_fun (_, _, pat_exp, e) -> (
       match pat_exp with
       | {ppat_desc = Ppat_var _} ->
         hints := (pat_exp.ppat_loc, Parameter) :: !hints;
-        funArgs bodyExpr
-      | _ -> funArgs bodyExpr)
+        processFunction e
+      | _ -> processFunction e)
     | _ -> ()
   in
   let value_binding (iterator : Ast_iterator.iterator)
@@ -102,13 +74,12 @@ let inlay ~path ~pos ~debug =
         tuples
     | {
      pvb_pat = {ppat_desc = Ppat_var _};
-     pvb_expr = {pexp_desc = Pexp_fun (_, _, pat, bodyExpr)};
+     pvb_expr = {pexp_desc = Pexp_fun (_, _, pat, e)};
     } ->
-      hints := (vb.pvb_pat.ppat_loc, Type) :: !hints;
       (match pat with
       | {ppat_desc = Ppat_var _} -> hints := (pat.ppat_loc, Parameter) :: !hints
       | _ -> ());
-      funArgs bodyExpr
+      processFunction e
     | _ -> ());
     Ast_iterator.default_iterator.value_binding iterator vb
   in
@@ -140,15 +111,13 @@ let inlay ~path ~pos ~debug =
                {line = range.start.line; character = range.end_.character}
              in
              match locItemToTypeHint locItem ~full with
-             | Some (label, tooltip) ->
+             | Some label ->
                let result =
                  Protocol.stringifyHint
                    {
                      kind = inlayKindToNumber inlayKind;
                      position;
-                     tooltip =
-                       {kind = "markdown"; value = Hover.codeBlock tooltip};
-                     paddingLeft = false;
+                     paddingLeft = true;
                      paddingRight = false;
                      label = ": " ^ label;
                    }

@@ -1,7 +1,7 @@
 type position = {line : int; character : int}
 type range = {start : position; end_ : position}
 type markupContent = {kind : string; value : string}
-type inlayHint = {position : position; label : string; kind : int; tooltip: markupContent; paddingLeft: bool; paddingRight: bool}
+type inlayHint = {position : position; label : string; kind : int; paddingLeft: bool; paddingRight: bool}
 
 type completionItem = {
   label: string;
@@ -134,13 +134,12 @@ let stringifyHint hint =
     {|{
     "position": %s,
     "label": "%s",
-    "tooltip": %s,
     "kind": %i,
     "paddingLeft": %b,
     "paddingRight": %b
 }|}
     (stringifyPosition hint.position)
-    (Json.escape hint.label) (stringifyMarkupContent hint.tooltip) hint.kind hint.paddingLeft hint.paddingRight
+    (Json.escape hint.label) hint.kind hint.paddingLeft hint.paddingRight
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic *)
 let stringifyDiagnostic d =
