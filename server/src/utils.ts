@@ -39,14 +39,14 @@ export let findProjectRootOfFile = (
 };
 
 export let findBinaryFromProjectRoot = (
-  source: p.DocumentUri
+  projectRootPath: p.DocumentUri // This must be a directory and not a file!
 ): null | p.DocumentUri => {
-  let dir = path.dirname(source);
-  let bscNativeReScriptPath = path.join(dir, c.nodeModulesBinDir);
+  let dir = path.dirname(projectRootPath);
+  let bscNativeReScriptPath = path.join(projectRootPath, c.nodeModulesBinDir);
 
   if (fs.existsSync(bscNativeReScriptPath)) {
     return bscNativeReScriptPath;
-  } else if (dir === source) {
+  } else if (dir === projectRootPath) {
     // reached the top
     return null;
   } else {
