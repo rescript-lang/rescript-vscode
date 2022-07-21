@@ -1,4 +1,4 @@
-[{                                      
+{                                      
     "position": {"line": 17, "character": 9},
     "label": ": string",
     "kind": 1,
@@ -6,7 +6,7 @@
     "paddingRight": false
 }, {
     "position": {"line": 15, "character": 9},
-    "label": ": (string,string)",
+    "label": ": (string, string)",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
