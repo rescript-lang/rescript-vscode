@@ -68,7 +68,7 @@ Options:
 
   inlayHint: get all inlay Hint with max length equal a 25 declared in MyFile.res
 
-    ./rescript-editor-analysis.exe inlayHint 25 src/MyFile.res
+    ./rescript-editor-analysis.exe inlayHint src/MyFile.res 25
 
   test: run tests specified by special comments in file src/MyFile.res
 
