@@ -28,8 +28,8 @@ let completion ~debug ~path ~pos ~currentFile =
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
 
-let inlayhint ~path ~debug =
-  let result = match Hint.inlay ~path ~debug with
+let inlayhint ~path ~maxLength ~debug =
+  let result = match Hint.inlay ~path ~maxLength ~debug with
   | [] -> Protocol.null
   | hints -> hints |> Protocol.array in
   print_endline result
@@ -388,7 +388,7 @@ let test ~path =
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
           | "dia" -> diagnosticSyntax ~path
-          | "hint" -> inlayhint ~path ~debug:true
+          | "hint" -> inlayhint ~path ~maxLength:"25" ~debug:true
           | _ -> ());
           print_newline ())
     in

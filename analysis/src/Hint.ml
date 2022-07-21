@@ -32,7 +32,8 @@ let locItemToTypeHint ~full:{file; package} locItem =
         | `Field -> fromType t))
   | _ -> None
 
-let inlay ~path ~debug =
+let inlay ~path ~maxLength ~debug =
+  let maxlen = try Some(int_of_string maxLength) with Failure _ -> None in
   let hints = ref [] in
   let rec processFunction (exp : Parsetree.expression) =
     match exp.pexp_desc with
@@ -103,7 +104,7 @@ let inlay ~path ~debug =
                {line = range.start.line; character = range.end_.character}
              in
              match locItemToTypeHint locItem ~full with
-             | Some label ->
+             | Some label -> (
                let result =
                  Protocol.stringifyHint
                    {
@@ -114,5 +115,7 @@ let inlay ~path ~debug =
                      label = ": " ^ label;
                    }
                in
-               Some result
+               match maxlen with
+               | Some value -> if (String.length label) > value then None else Some(result)
+               | None -> Some(result))
              | None -> None)))

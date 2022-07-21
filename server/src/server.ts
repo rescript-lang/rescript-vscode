@@ -25,12 +25,18 @@ import { filesDiagnostics } from "./utils";
 
 interface extensionConfiguration {
   askToStartBuild: boolean;
-  inlayHints: boolean;
+  inlayHints: {
+    enable: boolean;
+    maxLength: number | null;
+  };
   binaryPath: string | null;
 }
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
-  inlayHints: false,
+  inlayHints: {
+    enable: false,
+    maxLength: 25
+  },
   binaryPath: null,
 };
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
@@ -219,7 +225,7 @@ let compilerLogsWatcher = chokidar
   .on("all", (_e, changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
-    if (extensionConfiguration.inlayHints === true) {
+    if (extensionConfiguration.inlayHints.enable === true) {
       sendInlayHintsRefresh();
     }
   });
@@ -389,7 +395,7 @@ function inlayHint(msg: p.RequestMessage) {
 
   const response = utils.runAnalysisCommand(
     filePath,
-    ["inlayHint", filePath],
+    ["inlayHint", filePath, extensionConfiguration.inlayHints.maxLength],
     msg
   );
   return response;
@@ -993,7 +999,7 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
-          inlayHintProvider: extensionConfiguration.inlayHints,
+          inlayHintProvider: extensionConfiguration.inlayHints.enable,
         },
       };
       let response: p.ResponseMessage = {
