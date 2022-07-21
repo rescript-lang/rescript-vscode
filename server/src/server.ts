@@ -85,7 +85,7 @@ let findBinaryDirPathFromProjectRoot = (
 };
 
 let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath === null
+  extensionConfiguration.binaryPath == null
     ? findBinaryDirPathFromProjectRoot(projectRootPath)
     : extensionConfiguration.binaryPath;
 
@@ -980,7 +980,7 @@ function onMessage(msg: p.Message) {
       if (initialConfiguration != null) {
         extensionConfiguration = initialConfiguration;
         if (
-          extensionConfiguration.binaryPath !== null &&
+          extensionConfiguration.binaryPath != null &&
           extensionConfiguration.binaryPath[0] === "~"
         ) {
           // What should happen if the path contains the home directory symbol?
