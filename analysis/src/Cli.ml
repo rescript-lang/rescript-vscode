@@ -11,7 +11,7 @@ API examples:
   ./rescript-editor-analysis.exe references src/MyFile.res 10 2
   ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
   ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
-  /rescript-editor-analysis.exe inlayHint src/MyFile.res 25
+  /rescript-editor-analysis.exe inlayHint src/MyFile.res 0 3 25
 
 Dev-time examples:
   ./rescript-editor-analysis.exe dump src/MyFile.res src/MyFile2.res
@@ -66,9 +66,9 @@ Options:
 
     ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
 
-  inlayHint: get all inlay Hint with max length equal a 25 declared in MyFile.res
+  inlayHint: get all inlay Hint between line 0 and 3 declared in MyFile.res. Last argument is maximum length for inlay hints
 
-    ./rescript-editor-analysis.exe inlayHint src/MyFile.res 25
+    ./rescript-editor-analysis.exe inlayHint src/MyFile.res 0 3 25
 
   test: run tests specified by special comments in file src/MyFile.res
 
