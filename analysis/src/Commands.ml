@@ -29,9 +29,7 @@ let completion ~debug ~path ~pos ~currentFile =
     |> Protocol.array)
 
 let inlayhint ~path ~maxLength ~debug =
-  let result = match Hint.inlay ~path ~maxLength ~debug with
-  | [] -> Protocol.null
-  | hints -> hints |> Protocol.array in
+  let result = Hint.inlay ~path ~maxLength ~debug |> Protocol.array in
   print_endline result
 
 let hover ~path ~pos ~currentFile ~debug =
