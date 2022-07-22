@@ -32,15 +32,21 @@ let locItemToTypeHint ~full:{file; package} locItem =
         | `Field -> fromType t))
   | _ -> None
 
-let inlay ~path ~maxLength ~debug =
-  let maxlen = try Some(int_of_string maxLength) with Failure _ -> None in
+let inlay ~path ~pos ~maxLength ~debug =
+  let maxlen = try Some (int_of_string maxLength) with Failure _ -> None in
   let hints = ref [] in
+  let start_line, end_line = pos in
+  let push loc kind =
+    let range = Utils.cmtLocToRange loc in
+    if start_line <= range.end_.line && end_line >= range.start.line then
+      hints := (range, kind) :: !hints
+  in
   let rec processFunction (exp : Parsetree.expression) =
     match exp.pexp_desc with
     | Pexp_fun (_, _, pat_exp, e) -> (
       match pat_exp with
       | {ppat_desc = Ppat_var _} ->
-        hints := (pat_exp.ppat_loc, Type) :: !hints;
+        push pat_exp.ppat_loc Type;
         processFunction e
       | _ -> processFunction e)
     | _ -> ()
@@ -59,18 +65,17 @@ let inlay ~path ~maxLength ~debug =
            | Pexp_send _ | Pexp_field _ | Pexp_open _ );
        };
     } ->
-      hints := (vb.pvb_pat.ppat_loc, Type) :: !hints
+      push vb.pvb_pat.ppat_loc Type
     | {pvb_pat = {ppat_desc = Ppat_tuple tuples}} ->
       List.iter
-        (fun (tuple : Parsetree.pattern) ->
-          hints := (tuple.ppat_loc, Type) :: !hints)
+        (fun (tuple : Parsetree.pattern) -> push tuple.ppat_loc Type)
         tuples
     | {
      pvb_pat = {ppat_desc = Ppat_var _};
      pvb_expr = {pexp_desc = Pexp_fun (_, _, pat, e)};
     } ->
       (match pat with
-      | {ppat_desc = Ppat_var _} -> hints := (pat.ppat_loc, Type) :: !hints
+      | {ppat_desc = Ppat_var _} -> push pat.ppat_loc Type
       | _ -> ());
       processFunction e
     | _ -> ());
@@ -82,14 +87,9 @@ let inlay ~path ~maxLength ~debug =
      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
    in
    let {Res_driver.parsetree = structure} = parser ~filename:path in
-   iterator.structure iterator structure |> ignore
-  else
-    let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
-    let {Res_driver.parsetree = signature} = parser ~filename:path in
-    iterator.signature iterator signature |> ignore);
+   iterator.structure iterator structure |> ignore);
   !hints
-  |> List.filter_map (fun (locOfName, hintKind) ->
-         let range = Utils.cmtLocToRange locOfName in
+  |> List.filter_map (fun ((range : Protocol.range), hintKind) ->
          match Cmt.fullFromPath ~path with
          | None -> None
          | Some full -> (
@@ -116,6 +116,7 @@ let inlay ~path ~maxLength ~debug =
                    }
                in
                match maxlen with
-               | Some value -> if (String.length label) > value then None else Some(result)
-               | None -> Some(result))
+               | Some value ->
+                 if String.length label > value then None else Some result
+               | None -> Some result)
              | None -> None)))

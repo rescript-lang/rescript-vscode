@@ -12,6 +12,7 @@ import {
   DidCloseTextDocumentNotification,
   DidChangeConfigurationNotification,
   InitializeParams,
+  InlayHintParams,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -71,7 +72,7 @@ let projectsFiles: Map<
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: p.Message) => void = (_) => {};
+let send: (msg: p.Message) => void = (_) => { };
 
 let findBinaryDirPathFromProjectRoot = (
   directory: p.DocumentUri // This must be a directory and not a file!
@@ -395,7 +396,7 @@ function inlayHint(msg: p.RequestMessage) {
 
   const response = utils.runAnalysisCommand(
     filePath,
-    ["inlayHint", filePath, extensionConfiguration.inlayHints.maxLength],
+    ["inlayHint", filePath, params.range.start.line, params.range.end.line, extensionConfiguration.inlayHints.maxLength],
     msg
   );
   return response;
@@ -1080,7 +1081,11 @@ function onMessage(msg: p.Message) {
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
     } else if (msg.method === p.InlayHintRequest.method) {
-      send(inlayHint(msg));
+      let params = msg.params as InlayHintParams;
+      let extName = path.extname(params.textDocument.uri);
+      if (extName === c.resExt) {
+        send(inlayHint(msg));
+      }
     } else {
       let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,
