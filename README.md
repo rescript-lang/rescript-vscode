@@ -180,4 +180,4 @@ Read our [Contributing Guide](CONTRIBUTING.md)
 
 ## 📄 License
 
-See the [LICENSE](LICENSE) file for details.
+See the [LICENSE](./LICENSE.txt) file for details.
