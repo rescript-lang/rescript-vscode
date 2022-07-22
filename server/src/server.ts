@@ -93,7 +93,7 @@ let findBinaryDirPathFromProjectRoot = (
 };
 
 let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath === null
+  extensionConfiguration.binaryPath == null
     ? findBinaryDirPathFromProjectRoot(projectRootPath)
     : extensionConfiguration.binaryPath;
 
@@ -1013,6 +1013,26 @@ function onMessage(msg: p.Message) {
       pullConfigurationPeriodically = setInterval(() => {
         askForAllCurrentConfiguration();
       }, c.pullConfigurationInterval);
+
+      // Save initial configuration, if present
+      let initParams = msg.params as InitializeParams;
+      let initialConfiguration = initParams.initializationOptions
+        ?.extensionConfiguration as extensionConfiguration | undefined;
+
+      if (initialConfiguration != null) {
+        extensionConfiguration = initialConfiguration;
+        if (
+          extensionConfiguration.binaryPath != null &&
+          extensionConfiguration.binaryPath[0] === "~"
+        ) {
+          // What should happen if the path contains the home directory symbol?
+          // This situation is handled below, but maybe it isn't the best option.
+          extensionConfiguration.binaryPath = path.join(
+            os.homedir(),
+            extensionConfiguration.binaryPath.slice(1)
+          );
+        }
+      }
 
       send(response);
     } else if (msg.method === "initialized") {
