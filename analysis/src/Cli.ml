@@ -66,7 +66,7 @@ Options:
 
     ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
 
-  inlayHint: get all inlay Hint between line 0 and 3 declared in MyFile.res. Last argument is maximum length for inlay hints
+  inlayHint: get all inlay Hint between line 0 and 3 declared in MyFile.res. Last argument is maximum of character length for inlay hints
 
     ./rescript-editor-analysis.exe inlayHint src/MyFile.res 0 3 25
 

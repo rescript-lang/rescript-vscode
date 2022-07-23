@@ -113,7 +113,7 @@ This allows an editor to place annotations inline with text to display type hint
 // Enable (experimental) inlay hints.
 rescript.settings.inlayHints.enable: true
 
-// Maximum length for inlay hints. Set to null to have an unlimited length.
+// Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown
 rescript.settings.inlayHints.maxLength: 25
 ```
 
