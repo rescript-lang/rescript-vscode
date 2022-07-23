@@ -1,4 +1,4 @@
-Inlay Hint tests/src/InlayHint.res 0:6  
+Inlay Hint src/InlayHint.res 0:6
 [{
     "position": {"line": 5, "character": 15},
     "label": ": int",
@@ -36,3 +36,4 @@ Inlay Hint tests/src/InlayHint.res 0:6
     "paddingLeft": true,
     "paddingRight": false
 }]
+
