@@ -1,35 +1,5 @@
-
-[{                                      
-    "position": {"line": 17, "character": 9},
-    "label": ": string",
-    "kind": 1,
-    "paddingLeft": true,
-    "paddingRight": false
-}, {
-    "position": {"line": 15, "character": 9},
-    "label": ": (string, string)",
-    "kind": 1,
-    "paddingLeft": true,
-    "paddingRight": false
-}, {
-    "position": {"line": 13, "character": 17},
-    "label": ": string",
-    "kind": 1,
-    "paddingLeft": true,
-    "paddingRight": false
-}, {
-    "position": {"line": 9, "character": 24},
-    "label": ": int",
-    "kind": 1,
-    "paddingLeft": true,
-    "paddingRight": false
-}, {
-    "position": {"line": 7, "character": 10},
-    "label": ": int",
-    "kind": 1,
-    "paddingLeft": true,
-    "paddingRight": false
-}, {
+Inlay Hint tests/src/InlayHint.res 0:6  
+[{
     "position": {"line": 5, "character": 15},
     "label": ": int",
     "kind": 1,

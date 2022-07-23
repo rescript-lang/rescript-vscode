@@ -17,4 +17,4 @@ let tuple = ("ReScript", "lol")
 
 let (lang, _) = tuple
 
-//^hint
+//^hin

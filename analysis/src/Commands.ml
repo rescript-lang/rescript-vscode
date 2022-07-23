@@ -386,7 +386,11 @@ let test ~path =
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
           | "dia" -> diagnosticSyntax ~path
-          | "hint" -> inlayhint ~path ~pos:(0, 20) ~maxLength:"25" ~debug:true
+          | "hin" -> (
+            let line_start = 0 in
+            let line_end = 6 in
+            print_endline ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":" ^ string_of_int line_end);
+            inlayhint ~path ~pos:(line_start, line_end) ~maxLength:"25" ~debug:false)
           | _ -> ());
           print_newline ())
     in
