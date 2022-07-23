@@ -14,7 +14,7 @@
 
 #### :rocket: New Feature
 
-- Inlay Hint (experimetal). `rescript.settings.inlayHints.enable: true`
+- Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`
 ## v1.4.2
 
 #### :bug: Bug Fix
