@@ -235,9 +235,9 @@ export function activate(context: ExtensionContext) {
   // Start the client. This will also launch the server
   client.start();
 
-  // Restart the language client automatically certain configuration changes.
-  // These are typically settings that affect the capabilities of the language
-  // client, and because of that requires a full restart.
+  // Restart the language client automatically when certain configuration
+  // changes. These are typically settings that affect the capabilities of the
+  // language client, and because of that requires a full restart.
   context.subscriptions.push(
     workspace.onDidChangeConfiguration(({ affectsConfiguration }) => {
       if (affectsConfiguration("rescript.settings.inlayHints")) {
