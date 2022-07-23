@@ -11,6 +11,7 @@ API examples:
   ./rescript-editor-analysis.exe references src/MyFile.res 10 2
   ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
   ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
+  /rescript-editor-analysis.exe inlayHint src/MyFile.res 0 3 25
 
 Dev-time examples:
   ./rescript-editor-analysis.exe dump src/MyFile.res src/MyFile2.res
@@ -65,6 +66,10 @@ Options:
 
     ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
 
+  inlayHint: get all inlay Hint between line 0 and 3 declared in MyFile.res. Last argument is maximum of character length for inlay hints
+
+    ./rescript-editor-analysis.exe inlayHint src/MyFile.res 0 3 25
+
   test: run tests specified by special comments in file src/MyFile.res
 
     ./rescript-editor-analysis.exe test src/src/MyFile.res
@@ -89,6 +94,10 @@ let main () =
     Commands.hover ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false
+  | [_; "inlayHint"; path; line_start; line_end; maxLength] ->
+    Commands.inlayhint ~path
+      ~pos:(int_of_string line_start, int_of_string line_end)
+      ~maxLength ~debug:false
   | [_; "codeAction"; path; line; col; currentFile] ->
     Commands.codeAction ~path
       ~pos:(int_of_string line, int_of_string col)

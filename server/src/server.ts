@@ -12,6 +12,7 @@ import {
   DidCloseTextDocumentNotification,
   DidChangeConfigurationNotification,
   InitializeParams,
+  InlayHintParams,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -25,10 +26,18 @@ import { filesDiagnostics } from "./utils";
 
 interface extensionConfiguration {
   askToStartBuild: boolean;
+  inlayHints: {
+    enable: boolean;
+    maxLength: number | null;
+  };
   binaryPath: string | null;
 }
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
+  inlayHints: {
+    enable: false,
+    maxLength: 25
+  },
   binaryPath: null,
 };
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
@@ -63,7 +72,7 @@ let projectsFiles: Map<
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: p.Message) => void = (_) => {};
+let send: (msg: p.Message) => void = (_) => { };
 
 let findBinaryDirPathFromProjectRoot = (
   directory: p.DocumentUri // This must be a directory and not a file!
@@ -217,6 +226,9 @@ let compilerLogsWatcher = chokidar
   .on("all", (_e, changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
+    if (extensionConfiguration.inlayHints.enable === true) {
+      sendInlayHintsRefresh();
+    }
   });
 let stopWatchingCompilerLog = () => {
   // TODO: cleanup of compilerLogs?
@@ -376,6 +388,27 @@ function hover(msg: p.RequestMessage) {
   );
   fs.unlink(tmpname, () => null);
   return response;
+}
+
+function inlayHint(msg: p.RequestMessage) {
+  const params = msg.params as p.InlayHintParams;
+  const filePath = fileURLToPath(params.textDocument.uri);
+
+  const response = utils.runAnalysisCommand(
+    filePath,
+    ["inlayHint", filePath, params.range.start.line, params.range.end.line, extensionConfiguration.inlayHints.maxLength],
+    msg
+  );
+  return response;
+}
+
+function sendInlayHintsRefresh() {
+  let request: p.RequestMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: p.InlayHintRefreshRequest.method,
+    id: serverSentRequestIdCounter++,
+  };
+  send(request);
 }
 
 function definition(msg: p.RequestMessage) {
@@ -923,6 +956,15 @@ function onMessage(msg: p.Message) {
       };
       send(response);
     } else if (msg.method === "initialize") {
+      // Save initial configuration, if present
+      let initParams = msg.params as InitializeParams;
+      let initialConfiguration = initParams.initializationOptions
+        ?.extensionConfiguration as extensionConfiguration | undefined;
+
+      if (initialConfiguration != null) {
+        extensionConfiguration = initialConfiguration;
+      }
+
       // send the list of features we support
       let result: p.InitializeResult = {
         // This tells the client: "hey, we support the following operations".
@@ -958,6 +1000,7 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
+          inlayHintProvider: extensionConfiguration.inlayHints.enable,
         },
       };
       let response: p.ResponseMessage = {
@@ -971,26 +1014,6 @@ function onMessage(msg: p.Message) {
       pullConfigurationPeriodically = setInterval(() => {
         askForAllCurrentConfiguration();
       }, c.pullConfigurationInterval);
-
-      // Save initial configuration, if present
-      let initParams = msg.params as InitializeParams;
-      let initialConfiguration = initParams.initializationOptions
-        ?.extensionConfiguration as extensionConfiguration | undefined;
-
-      if (initialConfiguration != null) {
-        extensionConfiguration = initialConfiguration;
-        if (
-          extensionConfiguration.binaryPath != null &&
-          extensionConfiguration.binaryPath[0] === "~"
-        ) {
-          // What should happen if the path contains the home directory symbol?
-          // This situation is handled below, but maybe it isn't the best option.
-          extensionConfiguration.binaryPath = path.join(
-            os.homedir(),
-            extensionConfiguration.binaryPath.slice(1)
-          );
-        }
-      }
 
       send(response);
     } else if (msg.method === "initialized") {
@@ -1057,6 +1080,12 @@ function onMessage(msg: p.Message) {
       send(createInterface(msg));
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
+    } else if (msg.method === p.InlayHintRequest.method) {
+      let params = msg.params as InlayHintParams;
+      let extName = path.extname(params.textDocument.uri);
+      if (extName === c.resExt) {
+        send(inlayHint(msg));
+      }
     } else {
       let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,

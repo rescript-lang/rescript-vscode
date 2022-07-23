@@ -132,6 +132,20 @@
 					"default": false,
 					"description": "Automatically start ReScript's code analysis."
 				},
+				"rescript.settings.inlayHints.enable": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable (experimental) inlay hints."
+				},
+				"rescript.settings.inlayHints.maxLength": {
+					"markdownDescription": "Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown.",
+                    "default": 25,
+                    "type": [
+                        "null",
+                        "integer"
+                    ],
+                    "minimum": 0
+				},
 				"rescript.settings.binaryPath": {
 					"type": ["string", "null"],
 					"default": null,

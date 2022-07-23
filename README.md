@@ -105,6 +105,18 @@ The extension will look for the existence of a `/node_modules/.bin/rescript` fil
 
 To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.binaryPath`.
 
+### Inlay Hints (experimental)
+
+This allows an editor to place annotations inline with text to display type hints.
+
+```jsonc
+// Enable (experimental) inlay hints.
+rescript.settings.inlayHints.enable: true
+
+// Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown
+rescript.settings.inlayHints.maxLength: 25
+```
+
 ### Hide generated files
 
 You can configure VSCode to collapse the JavaScript files ReScript generates under its source ReScript file. This will "hide" the generated files in the VSCode file explorer, but still leaving them accessible by expanding the source ReScript file they belong to.
