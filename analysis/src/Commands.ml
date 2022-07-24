@@ -395,7 +395,7 @@ let test ~path =
             let line_end = 6 in
             print_endline ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":" ^ string_of_int line_end);
             inlayhint ~path ~pos:(line_start, line_end) ~maxLength:"25" ~debug:false)
-          | "clens" ->
+          | "cle" ->
             print_endline ("Code Lens " ^ path);
             codeLens ~path ~debug:false
           | _ -> ());
