@@ -120,3 +120,57 @@ let inlay ~path ~pos ~maxLength ~debug =
                  if String.length label > value then None else Some result
                | None -> Some result)
              | None -> None)))
+
+let codeLens ~path ~debug =
+  let lenses = ref [] in
+  let push loc =
+    let range = Utils.cmtLocToRange loc in
+    lenses := range :: !lenses
+  in
+  (* Code lenses are only emitted for functions right now. So look for value bindings that are functions,
+     and use the loc of the value binding itself so we can look up the full function type for our code lens. *)
+  let value_binding (iterator : Ast_iterator.iterator)
+      (vb : Parsetree.value_binding) =
+    (match vb with
+    | {
+     pvb_pat = {ppat_desc = Ppat_var _; ppat_loc};
+     pvb_expr = {pexp_desc = Pexp_fun _};
+    } ->
+      push ppat_loc
+    | _ -> ());
+    Ast_iterator.default_iterator.value_binding iterator vb
+  in
+  let iterator = {Ast_iterator.default_iterator with value_binding} in
+  (if Filename.check_suffix path ".res" then
+   let parser =
+     Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+   in
+   let {Res_driver.parsetree = structure} = parser ~filename:path in
+   iterator.structure iterator structure |> ignore);
+  !lenses
+  |> List.filter_map (fun (range : Protocol.range) ->
+         match Cmt.fullFromPath ~path with
+         | None -> None
+         | Some full -> (
+           match
+             References.getLocItem ~full
+               ~pos:(range.start.line, range.start.character + 1)
+               ~debug
+           with
+           | Some {locType = Typed (_, typeExpr, _)} ->
+             Some
+               (Protocol.stringifyCodeLens
+                  {
+                    range;
+                    command =
+                      Some
+                        {
+                          (* Code lenses can run commands. An empty command string means we just want the editor
+                             to print the text, not link to running a command. *)
+                          command = "";
+                          (* Print the type with a huge line width, because the code lens always prints on a
+                             single line in the editor. *)
+                          title = typeExpr |> Shared.typeToString ~lineWidth:400;
+                        };
+                  })
+           | _ -> None))
