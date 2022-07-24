@@ -146,6 +146,11 @@
                     ],
                     "minimum": 0
 				},
+				"rescript.settings.codeLens.enable": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable (experimental) code lens for function definitions."
+				},
 				"rescript.settings.binaryPath": {
 					"type": ["string", "null"],
 					"default": null,
