@@ -240,7 +240,10 @@ export function activate(context: ExtensionContext) {
   // language client, and because of that requires a full restart.
   context.subscriptions.push(
     workspace.onDidChangeConfiguration(({ affectsConfiguration }) => {
-      if (affectsConfiguration("rescript.settings.inlayHints")) {
+      if (
+        affectsConfiguration("rescript.settings.inlayHints") ||
+        affectsConfiguration("rescript.settings.codeLens")
+      ) {
         commands.executeCommand("rescript-vscode.restart_language_server");
       }
     })

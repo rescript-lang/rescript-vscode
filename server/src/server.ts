@@ -31,6 +31,7 @@ interface extensionConfiguration {
     enable: boolean;
     maxLength: number | null;
   };
+  codeLens: boolean;
   binaryPath: string | null;
 }
 let extensionConfiguration: extensionConfiguration = {
@@ -39,6 +40,7 @@ let extensionConfiguration: extensionConfiguration = {
     enable: false,
     maxLength: 25
   },
+  codeLens: false,
   binaryPath: null,
 };
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
@@ -229,6 +231,9 @@ let compilerLogsWatcher = chokidar
     sendCompilationFinishedMessage();
     if (extensionConfiguration.inlayHints.enable === true) {
       sendInlayHintsRefresh();
+    }
+    if (extensionConfiguration.codeLens === true) {
+      sendCodeLensRefresh();
     }
   });
 let stopWatchingCompilerLog = () => {
@@ -422,6 +427,15 @@ function codeLens(msg: p.RequestMessage) {
     msg
   );
   return response;
+}
+
+function sendCodeLensRefresh() {
+  let request: p.RequestMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: p.CodeLensRefreshRequest.method,
+    id: serverSentRequestIdCounter++,
+  };
+  send(request);
 }
 
 function definition(msg: p.RequestMessage) {
@@ -1014,9 +1028,11 @@ function onMessage(msg: p.Message) {
             full: true,
           },
           inlayHintProvider: extensionConfiguration.inlayHints.enable,
-          codeLensProvider: {
-            workDoneProgress: false
-          },
+          codeLensProvider: extensionConfiguration.codeLens
+            ? {
+                workDoneProgress: false,
+              }
+            : undefined,
         },
       };
       let response: p.ResponseMessage = {
