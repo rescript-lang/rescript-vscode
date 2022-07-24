@@ -13,6 +13,7 @@ import {
   DidChangeConfigurationNotification,
   InitializeParams,
   InlayHintParams,
+  CodeLensParams,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -409,6 +410,18 @@ function sendInlayHintsRefresh() {
     id: serverSentRequestIdCounter++,
   };
   send(request);
+}
+
+function codeLens(msg: p.RequestMessage) {
+  const params = msg.params as p.CodeLensParams;
+  const filePath = fileURLToPath(params.textDocument.uri);
+
+  const response = utils.runAnalysisCommand(
+    filePath,
+    ["codeLens", filePath],
+    msg
+  );
+  return response;
 }
 
 function definition(msg: p.RequestMessage) {
@@ -1001,6 +1014,9 @@ function onMessage(msg: p.Message) {
             full: true,
           },
           inlayHintProvider: extensionConfiguration.inlayHints.enable,
+          codeLensProvider: {
+            workDoneProgress: false
+          },
         },
       };
       let response: p.ResponseMessage = {
@@ -1085,6 +1101,12 @@ function onMessage(msg: p.Message) {
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
         send(inlayHint(msg));
+      }
+    } else if (msg.method === p.CodeLensRequest.method) {
+      let params = msg.params as CodeLensParams;
+      let extName = path.extname(params.textDocument.uri);
+      if (extName === c.resExt) {
+        send(codeLens(msg));
       }
     } else {
       let response: p.ResponseMessage = {
