@@ -2,7 +2,7 @@
   <a href="https://marketplace.visualstudio.com/items?itemName=chenglou92.rescript-vscode">ReScript VSCode</a>
 </h1>
 
-<p align="center">The official VSCode plugin for ReScript</p>
+<p align="center">The Official VSCode plugin for ReScript</p>
 
 <p align="center">
   <a href="https://marketplace.visualstudio.com/items?itemName=chenglou92.rescript-vscode">
@@ -99,8 +99,9 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 
 | Setting                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Autostarting ReScript builds   | If there's no ReScript build running already in the opened project, the extension will prompt you and ask if you want to start a build automatically. You can turn off this automatic prompt via the setting `rescript.settings.askToStartBuild`.                                                                                                                                                                                                                                    |
+| Prompt to Start Build  | If there's no ReScript build running already in the opened project, the extension will prompt you and ask if you want to start a build automatically. You can turn off this automatic prompt via the setting `rescript.settings.askToStartBuild`.                                                                                                                                                                                                                                    |
 | ReScript Binary Path           | The extension will look for the existence of a `/node_modules/.bin/rescript` file and use its directory as the `binaryPath`. If it does not find it at the project root (which is where the nearest `bsconfig.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level. To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.binaryPath` |
+| Inlay Hints (experimental) | This allows an editor to place annotations inline with text to display type hints. Enable using `rescript.settings.inlayHints.enable: true` |
 | Autostarting the Code Analyzer | The Code Analyzer needs to be started manually by default. However, you can configure the extension to start the Code Analyzer automatically via the setting `rescript.settings.autoRunCodeAnalysis`.                                                                                                                                                                                                                                                                                |
 
 **Default settings:**
@@ -114,6 +115,12 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 
 // Path to the directory where ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project.
 "rescript.settings.binaryPath": null
+
+// Enable (experimental) inlay hints.
+"rescript.settings.inlayHints.enable": true
+
+// Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown
+"rescript.settings.inlayHints.maxLength": 25
 ```
 
 ## 🚀 Code Analyzer
