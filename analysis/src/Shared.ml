@@ -49,12 +49,12 @@ let declToString ?(recStatus = Types.Trec_not) name t =
 let cacheTypeToString = ref false
 let typeTbl = Hashtbl.create 1
 
-let typeToString (t : Types.type_expr) =
+let typeToString ?(lineWidth = 60) (t : Types.type_expr) =
   match
     if !cacheTypeToString then Hashtbl.find_opt typeTbl (t.id, t) else None
   with
   | None ->
-    let s = PrintType.printExpr t in
+    let s = PrintType.printExpr ~lineWidth t in
     Hashtbl.replace typeTbl (t.id, t) s;
     s
   | Some s -> s

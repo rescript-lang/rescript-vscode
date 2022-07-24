@@ -1,6 +1,6 @@
-let printExpr typ =
+let printExpr ?(lineWidth = 60) typ =
   Printtyp.reset_names ();
-  Res_doc.toString ~width:60
+  Res_doc.toString ~width:lineWidth
     (Res_outcome_printer.printOutTypeDoc (Printtyp.tree_of_typexp false typ))
 
 let printDecl ~recStatus name decl =
