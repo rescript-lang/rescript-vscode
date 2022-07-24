@@ -1,0 +1,16 @@
+References src/References.res 0:4
+[
+{"uri": "Cross.res", "range": {"start": {"line": 0, "character": 26}, "end": {"line": 0, "character": 27}}},
+{"uri": "Cross.res", "range": {"start": {"line": 3, "character": 27}, "end": {"line": 3, "character": 28}}},
+{"uri": "Cross.res", "range": {"start": {"line": 7, "character": 27}, "end": {"line": 7, "character": 28}}},
+{"uri": "References.res", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}},
+{"uri": "References.res", "range": {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 9}}},
+{"uri": "References.res", "range": {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 9}}}
+]
+
+References src/References.res 9:19
+[
+{"uri": "References.res", "range": {"start": {"line": 9, "character": 11}, "end": {"line": 9, "character": 14}}},
+{"uri": "References.res", "range": {"start": {"line": 9, "character": 19}, "end": {"line": 9, "character": 21}}}
+]
+

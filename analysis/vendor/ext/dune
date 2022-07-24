@@ -1,0 +1,4 @@
+(library
+ (name ext)
+ (flags -w "")
+ (libraries))

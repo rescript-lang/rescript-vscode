@@ -1,0 +1,12 @@
+(executable
+ (public_name rescript-editor-analysis)
+ (modes byte exe)
+ ; The main module that will become the binary.
+ (name Cli)
+ (flags
+  (-w "+6+26+27+32+33+39")
+  (-open Compilerlibs406)
+  (-open Jsonlib)
+  (-open Outcomeprinter))
+ ; Depends on:
+ (libraries unix str compilerlibs406 jsonlib outcomeprinter reanalyze))

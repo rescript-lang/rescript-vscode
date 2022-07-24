@@ -3,23 +3,43 @@
   "name": "ReScript",
   "scopeName": "source.rescript",
   "repository": {
-    "RE_IDENT": {
-      "match": "[a-z_][0-9a-zA-Z_]*"
-    },
-    "RE_ATTRIBUTE": {
-      "match": "[A-Za-z_][A-Za-z0-9_\\.]*"
-    },
-    "RE_MODULE_IDENT": {
-      "name": "entity.name.namespace",
-      "match": "[A-Z_][0-9a-zA-Z_]*"
-    },
-    "RE_KEYWORDS": {
+    "RE_KEYWORD_CONTROL": {
       "name": "keyword.control",
-      "match": "\\b(and|as|assert|constraint|downto|else|exception|external|false|for|if|in|include|lazy|let|module|mutable|of|open|rec|switch|to|true|try|type|when|while|with)\\b"
+      "match": "\\b(and|as|assert|await|constraint|downto|else|exception|external|for|if|in|lazy|mutable|rec|switch|to|try|when|while|with)\\b"
     },
-    "RE_LITERAL": {
-      "name": "constant.language",
-      "match": "\\b(true|false)\\b"
+    "RE_TO_DOWNTO_AS_LABELS": {
+      "patterns": [
+        {
+          "match": "(to|downto)\\s*(=)",
+          "captures": {
+            "1": {
+              "name": "variable"
+            },
+            "2": {
+              "name": "keyword.operator keyword"
+            }
+          }
+        },
+        {
+          "match": "(to|downto)\\s*(as)",
+          "captures": {
+            "1": {
+              "name": "variable"
+            },
+            "2": {
+              "name": "keyword.control"
+            }
+          }
+        }
+      ]
+    },
+    "RE_CONSTANTS_BOOL": {
+      "name": "constant.language.boolean",
+      "match": "\\b(false|true)\\b"
+    },
+    "RE_KEYWORD": {
+      "name": "storage.type",
+      "match": "\\b(include|let|module|of|open|type)\\b"
     },
     "commentLine": {
       "match": "//.*",
@@ -79,25 +99,23 @@
         }
       ]
     },
-    "storage": {
-      "patterns": [
-        {
-          "match": "\\btype\\b",
-          "name": "storage.type"
-        }
-      ]
-    },
     "keyword": {
       "patterns": [
         {
-          "include": "#RE_KEYWORDS"
+          "include": "#RE_TO_DOWNTO_AS_LABELS"
+        },
+        {
+          "include": "#RE_KEYWORD_CONTROL"
+        },
+        {
+          "include": "#RE_KEYWORD"
         }
       ]
     },
     "constant": {
       "patterns": [
         {
-          "include": "#RE_LITERAL"
+          "include": "#RE_CONSTANTS_BOOL"
         }
       ]
     },
@@ -127,7 +145,7 @@
         {
           "name": "string.template",
           "begin": "([a-z_][0-9a-zA-Z_]*)?(`)",
-          "end": "`",
+          "end": "(?<!\\\\)`",
           "beginCaptures": {
             "1": {
               "name": "variables.annotation"
@@ -147,13 +165,13 @@
               "begin": "\\$\\{",
               "beginCaptures": {
                 "0": {
-                  "name": "punctuation.section.interpolation.begin"
+                  "name": "punctuation.definition.template-expression.begin"
                 }
               },
               "end": "\\}",
               "endCaptures": {
                 "0": {
-                  "name": "punctuation.section.interpolation.end"
+                  "name": "punctuation.definition.template-expression.end"
                 }
               },
               "patterns": [
@@ -165,6 +183,9 @@
                 },
                 {
                   "include": "#punctuations"
+                },
+                {
+                  "include": "#string"
                 }
               ]
             }
@@ -188,6 +209,22 @@
         }
       ]
     },
+    "typeParameter": {
+      "patterns": [
+        {
+          "match": "'[A-Za-z][A-Za-z0-9_]*",
+          "name": "support.type"
+        }
+      ]
+    },
+    "defaultIdIsVariable": {
+      "patterns": [
+        {
+          "match": "[A-Za-z_][A-Za-z0-9_]*",
+          "name": "variable"
+        }
+      ]
+    },
     "number": {
       "patterns": [
         {
@@ -200,7 +237,7 @@
       "patterns": [
         {
           "match": "->|\\|\\||&&|\\+\\+|\\*\\*|\\+\\.|\\+|-\\.|-|\\*\\.|\\*|/\\.|/|\\.\\.\\.|\\.\\.|===|==|\\^|:=|!|>=(?! *\\?)|<=|=",
-          "name": "keyword.operator keyword"
+          "name": "keyword.operator"
         },
         {
           "match": "\\|>",
@@ -212,25 +249,41 @@
       "patterns": [
         {
           "match": "\\b[A-Z][0-9a-zA-Z_]*\\b",
-          "name": "variable.function variable.other"
+          "name": "variable.other.enummember"
         },
         {
-          "match": "(#)(\\.\\.\\.)?([a-zA-Z][0-9a-zA-Z_]*)\\b",
+          "match": "(#)\\s*([a-zA-Z][0-9a-zA-Z_]*)\\b",
           "captures": {
             "1": {
-              "name": "punctuation.definition.keyword"
+              "name": "variable.other.enummember"
             },
             "2": {
-              "name": "punctuation.definition.keyword"
+              "name": "variable.other.enummember"
+            }
+          }
+        },
+        {
+          "match": "(#)\\s*(\\.\\.\\.)\\b",
+          "captures": {
+            "1": {
+              "name": "variable.other.enummember"
             },
-            "3": {
-              "name": "variable.function variable.other"
+            "2": {
+              "name": "variable.other.enummember"
+            }
+          }
+        },
+        {
+          "match": "(#)",
+          "captures": {
+            "1": {
+              "name": "variable.other.enummember"
             }
           }
         }
       ]
     },
-    "array": {
+    "bracketAccess": {
       "patterns": [
         {
           "match": "\\[",
@@ -261,29 +314,13 @@
         }
       ]
     },
-    "objectAccess": {
-      "patterns": [
-        {
-          "match": "\\b[a-z_][0-9a-zA-Z_]*(\\[)",
-          "captures": {
-            "1": {
-              "name": "punctuation.section.brackets.begin"
-            }
-          }
-        },
-        {
-          "match": "\\]",
-          "name": "punctuation.section.brackets.end"
-        }
-      ]
-    },
     "attribute": {
       "patterns": [
         {
           "match": "(%%?|@@?)([A-Za-z_][A-Za-z0-9_\\.]*)",
           "captures": {
             "1": {
-              "name": "storage.modifier punctuation.definition.annotation"
+              "name": "punctuation.decorator"
             },
             "2": {
               "patterns": [
@@ -302,13 +339,13 @@
                       "name": "invalid.deprecated"
                     },
                     "2": {
-                      "name": "variable.annotation"
+                      "name": "entity.name.function"
                     }
                   }
                 },
                 {
                   "match": "[A-Za-z_][A-Za-z0-9_\\.]*",
-                  "name": "variable.annotation"
+                  "name": "entity.name.function"
                 }
               ]
             }
@@ -319,24 +356,39 @@
     "jsx": {
       "patterns": [
         {
-          "match": "<>|</>|/>"
+          "match": "<>|</>|</|/>",
+          "name": "punctuation.definition.tag"
         },
         {
           "match": "</([A-Z_][0-9a-zA-Z_]*)",
           "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
             "1": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             }
           }
         },
         {
-          "match": "</([a-z_][0-9a-zA-Z_]*)"
+          "match": "</([a-z_][0-9a-zA-Z_]*)",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
+            "1": {
+              "name": "variable"
+            }
+          }
         },
         {
           "match": "<([A-Z_][0-9a-zA-Z_]*)",
           "captures": {
+            "0": {
+              "name": "punctuation.definition.tag"
+            },
             "1": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             }
           }
         }
@@ -369,7 +421,7 @@
       "patterns": [
         {
           "match": "[A-Z_][0-9a-zA-Z_]*",
-          "name": "entity.name.namespace"
+          "name": "entity.name.class"
         },
         {
           "match": "(\\.)([A-Z_][0-9a-zA-Z_]*)",
@@ -378,7 +430,7 @@
               "name": "punctuation.accessor"
             },
             "2": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             }
           }
         }
@@ -390,7 +442,7 @@
           "match": "\\b([A-Z_][0-9a-zA-Z_]*)(\\.)",
           "captures": {
             "1": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             },
             "2": {
               "name": "punctuation.accessor"
@@ -414,7 +466,7 @@
               "name": "keyword"
             },
             "4": {
-              "name": "entity.name.namespace"
+              "name": "entity.name.class"
             }
           },
           "patterns": [
@@ -422,7 +474,7 @@
               "match": "\\s*:\\s*([A-Z_][0-9a-zA-Z_]*)",
               "captures": {
                 "1": {
-                  "name": "entity.name.namespace"
+                  "name": "entity.name.class"
                 }
               }
             }
@@ -448,6 +500,9 @@
       "include": "#character"
     },
     {
+      "include": "#typeParameter"
+    },
+    {
       "include": "#string"
     },
     {
@@ -460,10 +515,7 @@
       "include": "#list"
     },
     {
-      "include": "#objectAccess"
-    },
-    {
-      "include": "#array"
+      "include": "#bracketAccess"
     },
     {
       "include": "#jsx"
@@ -491,6 +543,9 @@
     },
     {
       "include": "#punctuations"
+    },
+    {
+      "include": "#defaultIdIsVariable"
     }
   ]
 }

@@ -2,7 +2,9 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "es2019",
-		"lib": ["ES2019"],
+		"lib": [
+			"ES2019"
+		],
 		"outDir": "out",
 		"rootDir": "src",
 		"sourceMap": true
@@ -11,11 +13,14 @@
 		"src"
 	],
 	"exclude": [
-		"node_modules",
-		".vscode-test"
+		"node_modules"
 	],
 	"references": [
-		{ "path": "./client" },
-		{ "path": "./server" }
+		{
+			"path": "./client"
+		},
+		{
+			"path": "./server"
+		}
 	]
 }

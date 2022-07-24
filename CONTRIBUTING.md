@@ -2,30 +2,40 @@
 
 Thanks for your interest. Below is an informal spec of how the plugin's server communicates with the actual compiler. If you're a ReScript editor plugin implementor, you should probably read this to understand the various important nuances and copy it.
 
-## Other Editors With Language-Server Support
-
-This repo happens to also contain a language-server usable by other editors. If you'd like to use this language-server with e.g. Atom, for now, you have to clone the repo and run `npm run compile`. The language server will be at `server/out/server.js`. Wire that into your editor.
-
 ## Repo Structure
 
 ```
 .
-├── client // Language Client
+├── client // Language Client. VSCode UI
 │   └── src
 │       └── extension.ts // Language Client entry point
-├── package.json // The extension manifest.
-└── server // Language Server
+├── analysis // Native binary powering hover, autocomplete, etc.
+│   ├── src
+│   └── rescript-editor-analysis.exe // Dev-time analysis binary
+├── package.json // The extension manifest
+└── server // Language Server. Usable standalone
     ├── src
     │   └── server.ts // Language Server entry point
-    ├── win32
-    ├── linux
-    └── darwin // these 3 folders contain rescript-editor-support.exe
+    └── analysis_binaries // Prod-time platform-specific analysis binaries
+        ├── darwin
+        ├── linux
+        └── win32
 ```
 
-## Run the Project
+## Install Dependencies
 
-- Run `npm install` at the root. This will also install the necessary npm modules in both the `client` and `server` folders.
-- Open VS Code to this folder.
+- Run `npm install` at the root. This will also install the npm modules for both the `client` and `server` folders.
+- `opam switch 4.12.0` (if you haven't created the switch, do it). OPAM [here](https://opam.ocaml.org). This is needed for the `analysis` folder, which is native code.
+- Optionally, you can `opam install ocamlformat` and format the `.ml` files in `analysis`.
+
+## Build & Run
+
+- `npm run compile`. You don't need this if you're developing this repo in VSCode. The compilation happens automatically in the background.
+- `cd analysis && make`.
+
+## Test
+
+- Open VS Code to the project root.
 - Switch to the Debug viewlet (command palette -> View: Show Run and Debug).
 - Select `Client + Server` from the drop down, launch it (green arrow):
 
@@ -40,8 +50,9 @@ This repo happens to also contain a language-server usable by other editors. If 
 - When you make a change, Go to the same Debug viewlet's Call Stack panel and restart the client and the server:
 
   <img width="359" alt="image" src="https://user-images.githubusercontent.com/1909539/97448639-19db0800-18ee-11eb-875a-d17cd1b141d1.png">
+- For the native analysis binary tests: `cd analysis && make test`.
 
-### Change the Grammar
+## Change the Grammar
 
 The _real_ source of truth for our grammar is at https://github.com/rescript-lang/rescript-sublime. We port that `sublime-syntax` grammar over to this weaker TextMate language grammar for VSCode and the rest. There are some subtle differences between the 2 grammars; currently we manually sync between them.
 
@@ -51,13 +62,24 @@ For more grammar inspirations, check:
 - [TypeScript's grammar](https://github.com/microsoft/TypeScript-TmLanguage/blob/a771bc4e79deeae81a01d988a273e300290d0072/TypeScript.YAML-tmLanguage)
 - [Writing a TextMate Grammar: Some Lessons Learned](https://www.apeth.com/nonblog/stories/textmatebundle.html)
 
-### Snippets
+## Snippets
 
 Snippets are also synced from https://github.com/rescript-lang/rescript-sublime. VSCode snippets docs [here](https://code.visualstudio.com/api/references/contribution-points#contributes.snippets).
 
-### Autocomplete, Jump To Definition, Type Hint, Etc.
+## Binary Invocation
 
-These are taken care of by the binary at [rescript-editor-support](https://github.com/rescript-lang/rescript-editor-support). We just invoke it in `RescriptEditorSupport.ts`.
+We call a few binaries and it's tricky to call them properly cross-platform. Here are some tips:
+
+- We try to call the binaries synchronously to avoid races.
+- Make sure you cater to calling a binary and passing e.g. a path with whitespace in it.
+- `execFile` and its sync version do the above for free.
+- `execFile` does not work on windows for batch scripts, which is what Node scripts are wrapped in. Use `exec`. See more [here](https://github.com/rescript-lang/rescript-vscode/blob/8fcc1ab428b8225c97d2c9a5b8e3a782c70d9439/server/src/utils.ts#L110).
+- Thankfully, many of our binaries are native, so we can keep using `execFile` most of the time.
+
+## General Coding Guidance
+
+- `server/` is a standalone folder that can be vendored by e.g. Vim and Sublime Text. Keep it light, don't add deps unless absolutely necessarily, and don't accidentally use a runtime dep from the top level `package.json`.
+- This codebase stayed alive by not trying to babysit long-living processes. Be fast, call a binary and shut down.
 
 ## Rough Description Of How The Plugin Works
 
@@ -145,7 +167,10 @@ In the future, we should consier showing the format errors when `.compiler.log` 
 
 Currently the release is vetted and done by @chenglou.
 
-- Bump the version properly in `package.json` and make a new commit.
-- Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
-- Use `vsce publish` to publish. Official VSCode guide [here](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Only @chenglou has the publishing rights right now.
-- Not done! Make a new manual release [here](https://github.com/rescript-lang/rescript-vscode/releases); use `vsce package` to package up a standalone `.vsix` plugin and attach it onto that new release. This is for folks who don't use the VSCode marketplace.
+1. Bump the version properly in `package.json` and `server/package.json` and their lockfiles. Commit and push the version bump.
+2. Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
+3. Let CI build your version bump commit. Download the autogenerated `.vsix` from that CI run, unzip it, and rename it to `rescript-vscode-<version-number>.vsix` (`rescript-vscode-1.3.0.vsix` for example).
+4. Go to the appropriate [VSCode Marketplace Publisher](https://marketplace.visualstudio.com/manage/publishers/chenglou92), select the three dots next to the extension name, and choose `Update`. Upload your `.vsix` there.
+5. Not done! Make a new manual release [here](https://github.com/rescript-lang/rescript-vscode/releases), and make sure you attach the generated `.vsix` onto that new release as well. This is for folks who don't use the VSCode marketplace.
+
+For beta releases, ask folks to try the `.vsix` from CI directly.

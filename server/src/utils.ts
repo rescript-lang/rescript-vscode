@@ -1,8 +1,13 @@
 import * as c from "./constants";
+import * as codeActions from "./codeActions";
 import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
 import * as path from "path";
 import * as t from "vscode-languageserver-types";
+import {
+  RequestMessage,
+  ResponseMessage,
+} from "vscode-languageserver-protocol";
 import fs from "fs";
 import * as os from "os";
 
@@ -33,65 +38,90 @@ export let findProjectRootOfFile = (
   }
 };
 
-// TODO: races here?
-// TODO: this doesn't handle file:/// scheme
-
-// We need to recursively search for bs-platform/{platform}/bsc.exe upward from
-// the project's root, because in some setups, such as yarn workspace/monorepo,
-// the node_modules/bs-platform package might be hoisted up instead of alongside
-// the project root.
-// Also, if someone's ever formatting a regular project setup's dependency
-// (which is weird but whatever), they'll at least find an upward bs-platform
-// from the dependent.
-export let findBscExeDirOfFile = (
-  source: p.DocumentUri
-): null | p.DocumentUri => {
-  let dir = path.dirname(source);
-  let bscPath = path.join(dir, c.bscExePartialPath);
-  if (fs.existsSync(bscPath)) {
-    return dir;
-  } else {
-    if (dir === source) {
-      // reached the top
-      return null;
-    } else {
-      return findBscExeDirOfFile(dir);
-    }
+export let findBinary = (
+  binaryDirPath: p.DocumentUri | null,
+  binaryName: string
+): p.DocumentUri | null => {
+  if (binaryDirPath == null) {
+    return null;
   }
+  let binaryPath: p.DocumentUri = path.join(binaryDirPath, binaryName);
+  if (fs.existsSync(binaryPath)) {
+    return binaryPath;
+  } else {
+    return null;
+  }
+};
+
+export let findRescriptBinary = (
+  binaryDirPath: p.DocumentUri | null
+): p.DocumentUri | null => {
+  return findBinary(binaryDirPath, c.rescriptBinName);
+};
+
+export let findBscBinary = (
+  binaryDirPath: p.DocumentUri | null
+): p.DocumentUri | null => {
+  return findBinary(binaryDirPath, c.bscBinName);
 };
 
 type execResult =
   | {
-    kind: "success";
-    result: string;
-  }
+      kind: "success";
+      result: string;
+    }
   | {
-    kind: "error";
-    error: string;
-  };
-export let formatUsingValidBscExePath = (
-  code: string,
-  bscExePath: p.DocumentUri,
-  isInterface: boolean
+      kind: "error";
+      error: string;
+    };
+
+export let formatCode = (
+  bscPath: p.DocumentUri | null,
+  filePath: string,
+  code: string
 ): execResult => {
-  let extension = isInterface ? c.resiExt : c.resExt;
+  let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
   fs.writeFileSync(formatTempFileFullPath, code, {
     encoding: "utf-8",
   });
   try {
-    let result = childProcess.execFileSync(
-      bscExePath,
-      ["-color", "never", "-format", formatTempFileFullPath],
-    );
-    return {
-      kind: "success",
-      result: result.toString(),
-    };
+    // It will try to use the user formatting binary.
+    // If not, use the one we ship with the analysis binary in the extension itself.
+    if (bscPath != null) {
+      let result = childProcess.execFileSync(bscPath, [
+        "-color",
+        "never",
+        "-format",
+        formatTempFileFullPath,
+      ]);
+      return {
+        kind: "success",
+        result: result.toString(),
+      };
+    } else {
+      let result = runAnalysisAfterSanityCheck(
+        formatTempFileFullPath,
+        ["format", formatTempFileFullPath],
+        false
+      );
+
+      // The formatter returning an empty string means it couldn't format the
+      // sources, probably because of errors. In that case, we bail from
+      // formatting by returning the unformatted content.
+      if (result === "") {
+        result = code;
+      }
+
+      return {
+        kind: "success",
+        result,
+      };
+    }
   } catch (e) {
     return {
       kind: "error",
-      error: e.message,
+      error: e instanceof Error ? e.message : String(e),
     };
   } finally {
     // async close is fine. We don't use this file name again
@@ -99,10 +129,186 @@ export let formatUsingValidBscExePath = (
   }
 };
 
-export let runBsbWatcherUsingValidBsbNodePath = (
-  bsbNodePath: p.DocumentUri,
+export let runAnalysisAfterSanityCheck = (
+  filePath: p.DocumentUri,
+  args: Array<any>,
+  projectRequired = false
+) => {
+  let binaryPath;
+  if (fs.existsSync(c.analysisDevPath)) {
+    binaryPath = c.analysisDevPath;
+  } else if (fs.existsSync(c.analysisProdPath)) {
+    binaryPath = c.analysisProdPath;
+  } else {
+    return null;
+  }
+
+  let projectRootPath = findProjectRootOfFile(filePath);
+  if (projectRootPath == null && projectRequired) {
+    return null;
+  }
+  let options: childProcess.ExecFileSyncOptions = {
+    cwd: projectRootPath || undefined,
+    maxBuffer: Infinity,
+  };
+  let stdout = childProcess.execFileSync(binaryPath, args, options);
+
+  return JSON.parse(stdout.toString());
+};
+
+export let runAnalysisCommand = (
+  filePath: p.DocumentUri,
+  args: Array<any>,
+  msg: RequestMessage,
+  projectRequired = true
+) => {
+  let result = runAnalysisAfterSanityCheck(filePath, args, projectRequired);
+  let response: ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result,
+  };
+  return response;
+};
+
+export let getReferencesForPosition = (
+  filePath: p.DocumentUri,
+  position: p.Position
+) =>
+  runAnalysisAfterSanityCheck(filePath, [
+    "references",
+    filePath,
+    position.line,
+    position.character,
+  ]);
+
+export let replaceFileExtension = (filePath: string, ext: string): string => {
+  let name = path.basename(filePath, path.extname(filePath));
+  return path.format({ dir: path.dirname(filePath), name, ext });
+};
+
+export const toCamelCase = (text: string): string => {
+  return text
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (s: string) => s.toUpperCase())
+    .replace(/(\s|-)+/g, "");
+};
+
+const readBsConfig = (projDir: p.DocumentUri) => {
+  try {
+    let bsconfigFile = fs.readFileSync(
+      path.join(projDir, c.bsconfigPartialPath),
+      { encoding: "utf-8" }
+    );
+
+    let result = JSON.parse(bsconfigFile);
+    return result;
+  } catch (e) {
+    return null;
+  }
+};
+
+export const getNamespaceNameFromBsConfig = (
+  projDir: p.DocumentUri
+): execResult => {
+  let bsconfig = readBsConfig(projDir);
+  let result = "";
+
+  if (!bsconfig) {
+    return {
+      kind: "error",
+      error: "Could not read bsconfig",
+    };
+  }
+
+  if (bsconfig.namespace === true) {
+    result = toCamelCase(bsconfig.name);
+  } else if (typeof bsconfig.namespace === "string") {
+    result = toCamelCase(bsconfig.namespace);
+  }
+
+  return {
+    kind: "success",
+    result,
+  };
+};
+
+let getCompiledFolderName = (moduleFormat: string): string => {
+  switch (moduleFormat) {
+    case "es6":
+      return "es6";
+    case "es6-global":
+      return "es6_global";
+    case "commonjs":
+    default:
+      return "js";
+  }
+};
+
+export let getCompiledFilePath = (
+  filePath: string,
+  projDir: string
+): execResult => {
+  let bsconfig = readBsConfig(projDir);
+
+  if (!bsconfig) {
+    return {
+      kind: "error",
+      error: "Could not read bsconfig",
+    };
+  }
+
+  let pkgSpecs = bsconfig["package-specs"];
+  let pathFragment = "";
+  let moduleFormatObj: any = {};
+
+  let module = c.bsconfigModuleDefault;
+  let suffix = c.bsconfigSuffixDefault;
+
+  if (pkgSpecs) {
+    if (pkgSpecs.module) {
+      moduleFormatObj = pkgSpecs;
+    } else if (typeof pkgSpecs === "string") {
+      module = pkgSpecs;
+    } else if (pkgSpecs[0]) {
+      if (typeof pkgSpecs[0] === "string") {
+        module = pkgSpecs[0];
+      } else {
+        moduleFormatObj = pkgSpecs[0];
+      }
+    }
+  }
+
+  if (moduleFormatObj["module"]) {
+    module = moduleFormatObj["module"];
+  }
+
+  if (!moduleFormatObj["in-source"]) {
+    pathFragment = "lib/" + getCompiledFolderName(module);
+  }
+
+  if (moduleFormatObj.suffix) {
+    suffix = moduleFormatObj.suffix;
+  } else if (bsconfig.suffix) {
+    suffix = bsconfig.suffix;
+  }
+
+  let partialFilePath = filePath.split(projDir)[1];
+  let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
+  let result = path.join(projDir, pathFragment, compiledPartialPath);
+
+  return {
+    kind: "success",
+    result,
+  };
+};
+
+export let runBuildWatcherUsingValidBuildPath = (
+  buildPath: p.DocumentUri,
   projectRootPath: p.DocumentUri
 ) => {
+  let cwdEnv = {
+    cwd: projectRootPath,
+  };
   if (process.platform === "win32") {
     /*
       - a node.js script in node_modules/.bin on windows is wrapped in a
@@ -116,13 +322,9 @@ export let runBsbWatcherUsingValidBsbNodePath = (
         (since the path might have spaces), which `execFile` would have done
         for you under the hood
     */
-    return childProcess.exec(`"${bsbNodePath}".cmd -w`, {
-      cwd: projectRootPath,
-    });
+    return childProcess.exec(`"${buildPath}".cmd build -w`, cwdEnv);
   } else {
-    return childProcess.execFile(bsbNodePath, ["-w"], {
-      cwd: projectRootPath,
-    });
+    return childProcess.execFile(buildPath, ["build", "-w"], cwdEnv);
   }
 };
 
@@ -168,8 +370,8 @@ export let runBsbWatcherUsingValidBsbNodePath = (
 */
 
 // parser helpers
-let normalizeFileForWindows = (file: string) => {
-  return process.platform === "win32" ? `file:\\\\\\${file}` : file;
+let pathToURI = (file: string) => {
+  return process.platform === "win32" ? `file:\\\\\\${file}` : `file://${file}`;
 };
 let parseFileAndRange = (fileAndRange: string) => {
   // https://github.com/rescript-lang/rescript-compiler/blob/0a3f4bb32ca81e89cefd5a912b8795878836f883/jscomp/super_errors/super_location.ml#L15-L25
@@ -193,7 +395,7 @@ let parseFileAndRange = (fileAndRange: string) => {
   if (match === null) {
     // no location! Though LSP insist that we provide at least a dummy location
     return {
-      file: normalizeFileForWindows(trimmedFileAndRange),
+      file: pathToURI(trimmedFileAndRange),
       range: {
         start: { line: 0, character: 0 },
         end: { line: 0, character: 0 },
@@ -238,18 +440,19 @@ let parseFileAndRange = (fileAndRange: string) => {
     };
   }
   return {
-    file: normalizeFileForWindows(file),
+    file: pathToURI(file),
     range,
   };
 };
 
 // main parsing logic
-type filesDiagnostics = {
+export type filesDiagnostics = {
   [key: string]: p.Diagnostic[];
 };
 type parsedCompilerLogResult = {
   done: boolean;
   result: filesDiagnostics;
+  codeActions: codeActions.filesCodeActions;
 };
 export let parseCompilerLogOutput = (
   content: string
@@ -272,6 +475,21 @@ export let parseCompilerLogOutput = (
         severity: t.DiagnosticSeverity.Error,
         tag: undefined,
         content: [],
+      });
+    } else if (line.startsWith("FAILED:")) {
+      // File with a self cycle
+      parsedDiagnostics.push({
+        code: undefined,
+        severity: t.DiagnosticSeverity.Error,
+        tag: undefined,
+        content: [line],
+      });
+    } else if (line.startsWith("Fatal error:")) {
+      parsedDiagnostics.push({
+        code: undefined,
+        severity: t.DiagnosticSeverity.Error,
+        tag: undefined,
+        content: [line],
       });
     } else if (line.startsWith("  Warning number ")) {
       let warningNumber = parseInt(line.slice("  Warning number ".length));
@@ -299,9 +517,12 @@ export let parseCompilerLogOutput = (
           tag = t.DiagnosticTag.Deprecated;
           break;
       }
+      let severity = line.includes("(configured as error)")
+        ? t.DiagnosticSeverity.Error
+        : t.DiagnosticSeverity.Warning;
       parsedDiagnostics.push({
         code: Number.isNaN(warningNumber) ? undefined : warningNumber,
-        severity: t.DiagnosticSeverity.Warning,
+        severity,
         tag: tag,
         content: [],
       });
@@ -312,8 +533,37 @@ export let parseCompilerLogOutput = (
         tag: undefined,
         content: [],
       });
+    } else if (line.startsWith("  Warning genType")) {
+      parsedDiagnostics.push({
+        code: undefined,
+        severity: t.DiagnosticSeverity.Error,
+        tag: undefined,
+        content: [line],
+      });
+    } else if (line.startsWith("#Start(")) {
+      // do nothing for now
     } else if (line.startsWith("#Done(")) {
       done = true;
+    } else if (
+      line.startsWith("File ") &&
+      i + 1 < lines.length &&
+      lines[i + 1].startsWith("Warning ")
+    ) {
+      // OCaml warning: skip
+      i++;
+    } else if (
+      line.startsWith("File ") &&
+      i + 1 < lines.length &&
+      lines[i + 1].startsWith("Error: Syntax error")
+    ) {
+      // OCaml Syntax Error
+      parsedDiagnostics.push({
+        code: undefined,
+        severity: t.DiagnosticSeverity.Error,
+        tag: undefined,
+        content: [lines[i], lines[i + 1]],
+      });
+      i++;
     } else if (/^  +([0-9]+| +|\.) (│|┆)/.test(line)) {
       //         ^^ indent
       //           ^^^^^^^^^^^^^^^ gutter
@@ -324,11 +574,24 @@ export let parseCompilerLogOutput = (
       //      │
       //   10 ┆
     } else if (line.startsWith("  ")) {
+      // part of the actual diagnostics message
+      parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
+        line.slice(2)
+      );
+    } else if (line.trim() != "") {
+      // We'll assume that everything else is also part of the diagnostics too.
+      // Most of these should have been indented 2 spaces; sadly, some of them
+      // aren't (e.g. outcome printer printing badly, and certain old ocaml type
+      // messages not printing with indent). We used to get bug reports and fix
+      // the messages, but that strategy turned out too slow. One day we should
+      // revert to not having this branch...
       parsedDiagnostics[parsedDiagnostics.length - 1].content.push(line);
     }
   }
 
   let result: filesDiagnostics = {};
+  let foundCodeActions: codeActions.filesCodeActions = {};
+
   parsedDiagnostics.forEach((parsedDiagnostic) => {
     let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
     let { file, range } = parseFileAndRange(fileAndRangeLine);
@@ -336,24 +599,59 @@ export let parseCompilerLogOutput = (
     if (result[file] == null) {
       result[file] = [];
     }
-    let cleanedUpDiagnostic =
-      diagnosticMessage
-        .map((line) => {
-          // remove the spaces in front
-          return line.slice(2);
-        })
-        .join("\n")
-        // remove start and end whitespaces/newlines
-        .trim() + "\n";
-    result[file].push({
+
+    let diagnostic: p.Diagnostic = {
       severity: parsedDiagnostic.severity,
       tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
       code: parsedDiagnostic.code,
       range,
       source: "ReScript",
-      message: cleanedUpDiagnostic,
+      // remove start and end whitespaces/newlines
+      message: diagnosticMessage.join("\n").trim(),
+    };
+
+    // Check for potential code actions
+    codeActions.findCodeActionsInDiagnosticsMessage({
+      addFoundActionsHere: foundCodeActions,
+      diagnostic,
+      diagnosticMessage,
+      file,
+      range,
     });
+
+    result[file].push(diagnostic);
   });
 
-  return { done, result };
+  return { done, result, codeActions: foundCodeActions };
+};
+
+export let rangeContainsRange = (
+  range: p.Range,
+  otherRange: p.Range
+): boolean => {
+  if (
+    otherRange.start.line < range.start.line ||
+    otherRange.end.line < range.start.line
+  ) {
+    return false;
+  }
+  if (
+    otherRange.start.line > range.end.line ||
+    otherRange.end.line > range.end.line
+  ) {
+    return false;
+  }
+  if (
+    otherRange.start.line === range.start.line &&
+    otherRange.start.character < range.start.character
+  ) {
+    return false;
+  }
+  if (
+    otherRange.end.line === range.end.line &&
+    otherRange.end.character > range.end.character
+  ) {
+    return false;
+  }
+  return true;
 };
