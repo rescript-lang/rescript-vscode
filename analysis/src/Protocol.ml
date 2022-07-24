@@ -1,6 +1,8 @@
 type position = {line: int; character: int}
 type range = {start: position; end_: position}
 type markupContent = {kind: string; value: string}
+type command = {title: string; command: string}
+type codeLens = {range: range; command: command option}
 type inlayHint = {
   position: position;
   label: string;
@@ -146,6 +148,26 @@ let stringifyHint hint =
 }|}
     (stringifyPosition hint.position)
     (Json.escape hint.label) hint.kind hint.paddingLeft hint.paddingRight
+
+let stringifyCommand (command : command) =
+  Printf.sprintf
+    {|{
+        "title": "%s",
+        "command": "%s"
+    }|}
+    (Json.escape command.title)
+    (Json.escape command.command)
+
+let stringifyCodeLens (codeLens : codeLens) =
+  Printf.sprintf
+    {|{
+        "range": %s,
+        "command": %s
+    }|}
+    (stringifyRange codeLens.range)
+    (match codeLens.command with
+    | None -> ""
+    | Some command -> stringifyCommand command)
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic *)
 let stringifyDiagnostic d =
