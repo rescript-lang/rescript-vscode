@@ -150,11 +150,7 @@ let stringifyHint hint =
     (Json.escape hint.label) hint.kind hint.paddingLeft hint.paddingRight
 
 let stringifyCommand (command : command) =
-  Printf.sprintf
-    {|{
-        "title": "%s",
-        "command": "%s"
-    }|}
+  Printf.sprintf {|{"title": "%s", "command": "%s"}|}
     (Json.escape command.title)
     (Json.escape command.command)
 
