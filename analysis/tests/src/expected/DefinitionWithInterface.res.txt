@@ -1,3 +1,0 @@
-Definition src/DefinitionWithInterface.res 0:4
-{"uri": "DefinitionWithInterface.resi", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}}
-

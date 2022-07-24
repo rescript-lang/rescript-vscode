@@ -1,0 +1,39 @@
+Inlay Hint document/src/InlayHint.res 0:6
+[{
+    "position": {"line": 5, "character": 15},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 5, "character": 12},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 3, "character": 8},
+    "label": ": char",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 2, "character": 9},
+    "label": ": float",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 1, "character": 10},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 0, "character": 10},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}]
+

@@ -11,6 +11,7 @@ import {
   DidCloseTextDocumentNotification,
   DidChangeConfigurationNotification,
   InitializeParams,
+  WorkspaceSymbol,
   InlayHintParams,
   CodeLensParams,
 } from "vscode-languageserver-protocol";
@@ -569,6 +570,20 @@ function documentSymbol(msg: p.RequestMessage) {
   return response;
 }
 
+function workspaceSymbol(msg: p.RequestMessage) {
+  // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_symbol
+  let result: p.WorkspaceSymbol[] | null = utils.runAnalysis(
+    ["workspaceSymbols", process.cwd()],
+  );
+
+  let response: p.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result
+  };
+  return response;
+}
+
 function askForAllCurrentConfiguration() {
   // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_configuration
   let params: p.ConfigurationParams = {
@@ -1016,6 +1031,7 @@ function onMessage(msg: p.Message) {
           codeActionProvider: true,
           renameProvider: { prepareProvider: true },
           documentSymbolProvider: true,
+          workspaceSymbolProvider: true,
           completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
           semanticTokensProvider: {
             legend: {
@@ -1120,6 +1136,8 @@ function onMessage(msg: p.Message) {
       send(createInterface(msg));
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
+    } else if (msg.method === p.WorkspaceSymbolRequest.method) {
+      send(workspaceSymbol(msg))
     } else if (msg.method === p.InlayHintRequest.method) {
       let params = msg.params as InlayHintParams;
       let extName = path.extname(params.textDocument.uri);
