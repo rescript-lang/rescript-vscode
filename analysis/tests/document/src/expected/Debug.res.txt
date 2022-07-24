@@ -1,0 +1,95 @@
+
+Definition document/src/Debug.res 1:20
+Dependencies: @rescript/react
+Source directories: document/node_modules/@rescript/react/src document/node_modules/@rescript/react/src/legacy
+Source files: document/node_modules/@rescript/react/src/React.res document/node_modules/@rescript/react/src/ReactDOM.res document/node_modules/@rescript/react/src/ReactDOMServer.res document/node_modules/@rescript/react/src/ReactDOMStyle.res document/node_modules/@rescript/react/src/ReactEvent.res document/node_modules/@rescript/react/src/ReactEvent.resi document/node_modules/@rescript/react/src/ReactTestUtils.res document/node_modules/@rescript/react/src/ReactTestUtils.resi document/node_modules/@rescript/react/src/RescriptReactErrorBoundary.res document/node_modules/@rescript/react/src/RescriptReactErrorBoundary.resi document/node_modules/@rescript/react/src/RescriptReactRouter.res document/node_modules/@rescript/react/src/RescriptReactRouter.resi document/node_modules/@rescript/react/src/legacy/ReactDOMRe.res document/node_modules/@rescript/react/src/legacy/ReasonReact.res
+Source directories: document/src document/src/expected
+Source files: document/src/Auto.res document/src/CompletePrioritize1.res document/src/CompletePrioritize2.res document/src/Completion.res document/src/Component.res document/src/Component.resi document/src/CreateInterface.res document/src/Cross.res document/src/Dce.res document/src/Debug.res document/src/Definition.res document/src/DefinitionWithInterface.res document/src/DefinitionWithInterface.resi document/src/Div.res document/src/DocumentSymbol.res document/src/Fragment.res document/src/Highlight.res document/src/Hover.res document/src/InlayHint.res document/src/Jsx.res document/src/Jsx.resi document/src/LongIdentTest.res document/src/Object.res document/src/Patterns.res document/src/RecModules.res document/src/RecordCompletion.res document/src/RecoveryOnProp.res document/src/References.res document/src/ReferencesWithInterface.res document/src/ReferencesWithInterface.resi document/src/Rename.res document/src/RenameWithInterface.res document/src/RenameWithInterface.resi document/src/TableclothMap.ml document/src/TableclothMap.mli document/src/TypeDefinition.res document/src/Xform.res
+Impl cmt:document/lib/bs/src/Auto.cmt res:document/src/Auto.res
+Impl cmt:document/lib/bs/src/CompletePrioritize1.cmt res:document/src/CompletePrioritize1.res
+Impl cmt:document/lib/bs/src/CompletePrioritize2.cmt res:document/src/CompletePrioritize2.res
+Impl cmt:document/lib/bs/src/Completion.cmt res:document/src/Completion.res
+IntfAndImpl cmti:document/lib/bs/src/Component.cmti resi:document/src/Component.resi cmt:document/lib/bs/src/Component.cmt res:document/src/Component.res
+Impl cmt:document/lib/bs/src/CreateInterface.cmt res:document/src/CreateInterface.res
+Impl cmt:document/lib/bs/src/Cross.cmt res:document/src/Cross.res
+Impl cmt:document/lib/bs/src/Dce.cmt res:document/src/Dce.res
+Impl cmt:document/lib/bs/src/Debug.cmt res:document/src/Debug.res
+Impl cmt:document/lib/bs/src/Definition.cmt res:document/src/Definition.res
+IntfAndImpl cmti:document/lib/bs/src/DefinitionWithInterface.cmti resi:document/src/DefinitionWithInterface.resi cmt:document/lib/bs/src/DefinitionWithInterface.cmt res:document/src/DefinitionWithInterface.res
+Impl cmt:document/lib/bs/src/Div.cmt res:document/src/Div.res
+Impl cmt:document/lib/bs/src/DocumentSymbol.cmt res:document/src/DocumentSymbol.res
+Impl cmt:document/lib/bs/src/Fragment.cmt res:document/src/Fragment.res
+Impl cmt:document/lib/bs/src/Highlight.cmt res:document/src/Highlight.res
+Impl cmt:document/lib/bs/src/Hover.cmt res:document/src/Hover.res
+Impl cmt:document/lib/bs/src/InlayHint.cmt res:document/src/InlayHint.res
+IntfAndImpl cmti:document/lib/bs/src/Jsx.cmti resi:document/src/Jsx.resi cmt:document/lib/bs/src/Jsx.cmt res:document/src/Jsx.res
+Impl cmt:document/lib/bs/src/LongIdentTest.cmt res:document/src/LongIdentTest.res
+Impl cmt:document/lib/bs/src/Object.cmt res:document/src/Object.res
+Impl cmt:document/lib/bs/src/Patterns.cmt res:document/src/Patterns.res
+Impl cmt:document/lib/bs/src/RecModules.cmt res:document/src/RecModules.res
+Impl cmt:document/lib/bs/src/RecordCompletion.cmt res:document/src/RecordCompletion.res
+Impl cmt:document/lib/bs/src/RecoveryOnProp.cmt res:document/src/RecoveryOnProp.res
+Impl cmt:document/lib/bs/src/References.cmt res:document/src/References.res
+IntfAndImpl cmti:document/lib/bs/src/ReferencesWithInterface.cmti resi:document/src/ReferencesWithInterface.resi cmt:document/lib/bs/src/ReferencesWithInterface.cmt res:document/src/ReferencesWithInterface.res
+Impl cmt:document/lib/bs/src/Rename.cmt res:document/src/Rename.res
+IntfAndImpl cmti:document/lib/bs/src/RenameWithInterface.cmti resi:document/src/RenameWithInterface.resi cmt:document/lib/bs/src/RenameWithInterface.cmt res:document/src/RenameWithInterface.res
+IntfAndImpl cmti:document/lib/bs/src/TableclothMap.cmti resi:document/src/TableclothMap.mli cmt:document/lib/bs/src/TableclothMap.cmt res:document/src/TableclothMap.ml
+Impl cmt:document/lib/bs/src/TypeDefinition.cmt res:document/src/TypeDefinition.res
+Impl cmt:document/lib/bs/src/Xform.cmt res:document/src/Xform.res
+Dependency dirs: document/node_modules/@rescript/react/lib/bs/src document/node_modules/@rescript/react/lib/bs/src/legacy
+Opens from bsconfig: 
+locItems:
+  1:18-1:21 Typed map (Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b> GlobalReference
+[ref] Typed GlobalReference moduleName:Belt path:List.map tip:Value
+fileForModule Impl cmt:document/node_modules/rescript/lib/ocaml/belt.cmt res:document/node_modules/rescript/lib/ocaml/belt.ml
+resolvePath path:List.map
+resolvePath Global path:map module:Belt_List
+fileForModule Impl cmt:document/node_modules/rescript/lib/ocaml/belt_List.cmti res:document/node_modules/rescript/lib/ocaml/belt_List.mli
+resolvePath path:map
+[ref] resolved path:map
+[ref] Got stamp 1024
+[ref] alternateDeclared for Belt_List not found
+[ref] Inner uri belt_List.mli
+{"uri": "belt_List.mli", "range": {"start": {"line": 245, "character": 4}, "end": {"line": 245, "character": 7}}}
+
+Definition document/src/Debug.res 4:14
+locItems:
+  4:13-4:16 Typed map ('a => 'b, list<'a>) => list<'b> GlobalReference
+[ref] Typed GlobalReference moduleName:List path:map tip:Value
+fileForModule Impl cmt:document/node_modules/rescript/lib/ocaml/list.cmti res:document/node_modules/rescript/lib/ocaml/list.mli
+resolvePath path:map
+[ref] resolved path:map
+[ref] Got stamp 1018
+[ref] alternateDeclared for List not found
+[ref] Inner uri list.mli
+{"uri": "list.mli", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 7}}}
+
+Complete document/src/Debug.res 13:8
+posCursor:[13:8] posNoWhite:[13:7] Found expr:[13:5->13:8]
+Pexp_ident eqN:[13:5->13:8]
+Completable: Cpath Value[eqN]
+Raw ppens: 1 Js.place holder
+Package opens 
+resolving open Js.place holder
+resolvePath path:Js.place holder
+Not local
+fileForModule Impl cmt:document/node_modules/rescript/lib/ocaml/js.cmt res:document/node_modules/rescript/lib/ocaml/js.ml
+resolvePath path:place holder
+Resolved opens 1 js.ml
+findLocalCompletionsWithOpens uri:Debug.res pos:13:8
+findAllCompletions uri:js.ml
+[{
+    "label": "eqNullable",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, nullable<'a>) => bool",
+    "documentation": null
+  }, {
+    "label": "eqNull",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, null<'a>) => bool",
+    "documentation": null
+  }]
+
+

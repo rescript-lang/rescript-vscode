@@ -2,9 +2,9 @@
 out
 node_modules
 examples/*/lib
-analysis/tests/lib
-analysis/tests/.bsb.lock
+analysis/tests/**/*/lib
+analysis/tests/*/.bsb.lock
 analysis/_build
-analysis/tests/.merlin
+analysis/tests/**/*/.merlin
 analysis/rescript-editor-analysis.exe
 

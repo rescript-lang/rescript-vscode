@@ -7,6 +7,7 @@ API examples:
   ./rescript-editor-analysis.exe definition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe typeDefinition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe documentSymbol src/Foo.res
+  ./rescript-editor-analysis.exe workspaceSymbols src/
   ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
   ./rescript-editor-analysis.exe references src/MyFile.res 10 2
   ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
@@ -37,6 +38,10 @@ Options:
   documentSymbol: get all symbols declared in MyFile.res
 
     ./rescript-editor-analysis.exe documentSymbol src/MyFile.res
+
+  workspaceSymbols: get all symbols in directory src/
+
+    ./rescript-editor-analysis.exe workspaceSymbols src/
 
   hover: get inferred type for MyFile.res at line 10 column 2:
 
@@ -89,7 +94,8 @@ let main () =
     Commands.typeDefinition ~path
       ~pos:(int_of_string line, int_of_string col)
       ~debug:false
-  | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
+  | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
+  | [_; "workspaceSymbols"; dir] -> Commands.workspaceSymbols ~dir
   | [_; "hover"; path; line; col; currentFile] ->
     Commands.hover ~path
       ~pos:(int_of_string line, int_of_string col)

@@ -14,7 +14,9 @@
 
 #### :rocket: New Feature
 
+- Add workspace Symbols
 - Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`
+
 ## v1.4.2
 
 #### :bug: Bug Fix
