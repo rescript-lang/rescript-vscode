@@ -44,6 +44,7 @@ The plugin activates on `.res` and `.resi` files. If you've already got Reason-L
 - Autocomplete.
 - Find references.
 - Rename.
+- Workspace Symbols
 - Snippets to ease a few syntaxes:
   - `external` features such as `@bs.module` and `@bs.val`
   - `try`, `for`, etc.

@@ -1,6 +1,0 @@
-Hover src/RecModules.res 18:12
-{"contents": "```rescript\nmodule C = {\n  type t\n  let createA: t => A.t\n}\n```"}
-
-Hover src/RecModules.res 20:12
-{"contents": "```rescript\nmodule A = {\n  type t\n  let child: t => B.t\n}\n```"}
-

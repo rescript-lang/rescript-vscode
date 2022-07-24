@@ -1,16 +1,15 @@
 SHELL = /bin/bash
 
-node_modules/.bin/rescript:
-	npm install
-
-build: node_modules/.bin/rescript
-	node_modules/.bin/rescript
+build:
+	make -C document build
+	make -C workspaces build
 
 test: build
 	./test.sh
 
 clean:
-	rm -r node_modules lib
+	make -C document clean
+	make -C workspaces clean
 
 .DEFAULT_GOAL := test
 
