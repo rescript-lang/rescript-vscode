@@ -119,7 +119,7 @@ rescript.settings.inlayHints.maxLength: 25
 
 ### Code Lens (experimental)
 
-This tells the editor to add code lenses to function definitions, showing its full type as an annotation above the definition.
+This tells the editor to add code lenses to function definitions, showing its full type above the definition.
 
 ```jsonc
 // Enable (experimental) code lens.
