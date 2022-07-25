@@ -5,3 +5,10 @@ Signature help src/SignatureHelp.res 9:12
             "activeParameter": null
         }
 
+Signature help src/SignatureHelp.res 12:4
+{
+            "signatures": [],
+            "activeSignature": null,
+            "activeParameter": null
+        }
+

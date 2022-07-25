@@ -9,3 +9,6 @@ let someFunc = (one: int, ~two: option<string>=?, ~three: int, ~four: someVarian
 
 // someFunc(
 //          ^she
+
+// someFunc
+//  ^she
