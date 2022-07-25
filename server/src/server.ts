@@ -4,7 +4,6 @@ import * as v from "vscode-languageserver";
 import * as rpc from "vscode-jsonrpc/node";
 import * as path from "path";
 import fs from "fs";
-import os from "os";
 // TODO: check DidChangeWatchedFilesNotification.
 import {
   DidOpenTextDocumentNotification,
@@ -41,7 +40,7 @@ let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
   inlayHints: {
     enable: false,
-    maxLength: 25
+    maxLength: 25,
   },
   codeLens: false,
   binaryPath: null,
@@ -78,7 +77,7 @@ let projectsFiles: Map<
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: p.Message) => void = (_) => { };
+let send: (msg: p.Message) => void = (_) => {};
 
 let findBinaryDirPathFromProjectRoot = (
   directory: p.DocumentUri // This must be a directory and not a file!
@@ -405,7 +404,13 @@ function inlayHint(msg: p.RequestMessage) {
 
   const response = utils.runAnalysisCommand(
     filePath,
-    ["inlayHint", filePath, params.range.start.line, params.range.end.line, extensionConfiguration.inlayHints.maxLength],
+    [
+      "inlayHint",
+      filePath,
+      params.range.start.line,
+      params.range.end.line,
+      extensionConfiguration.inlayHints.maxLength,
+    ],
     msg
   );
   return response;
