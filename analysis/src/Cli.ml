@@ -75,6 +75,10 @@ Options:
 
     ./rescript-editor-analysis.exe codeLens src/MyFile.res
 
+  signatureHelp: get signature help if available for position at line 10 column 2 in src/MyFile.res
+
+    ./rescript-editor-analysis.exe signatureHelp src/MyFile.res 10 2
+
   test: run tests specified by special comments in file src/MyFile.res
 
     ./rescript-editor-analysis.exe test src/src/MyFile.res
@@ -96,6 +100,10 @@ let main () =
       ~debug:false
   | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
   | [_; "hover"; path; line; col; currentFile] ->
+    Commands.hover ~path
+      ~pos:(int_of_string line, int_of_string col)
+      ~currentFile ~debug:false
+  | [_; "signatureHelp"; path; line; col; currentFile] ->
     Commands.hover ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false

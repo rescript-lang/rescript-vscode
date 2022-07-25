@@ -88,6 +88,11 @@ let hover ~path ~pos ~currentFile ~debug =
   in
   print_endline result
 
+let signatureHelp ~path ~pos ~currentFile ~debug =
+  print_endline
+    (Protocol.stringifySignatureHelp
+       {signatures = []; activeSignature = None; activeParameter = None})
+
 let codeAction ~path ~pos ~currentFile ~debug =
   Xform.extractCodeActions ~path ~pos ~currentFile ~debug
   |> CodeActions.stringifyCodeActions |> print_endline
@@ -340,6 +345,13 @@ let test ~path =
             let currentFile = createCurrentFile () in
             hover ~path ~pos:(line, col) ~currentFile ~debug:true;
             Sys.remove currentFile
+          | "she" ->
+            print_endline
+              ("Signature help " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            signatureHelp ~path ~pos:(line, col) ~currentFile ~debug:true;
+            Sys.remove currentFile
           | "int" ->
             print_endline ("Create Interface " ^ path);
             let cmiFile =
@@ -390,11 +402,14 @@ let test ~path =
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
           | "dia" -> diagnosticSyntax ~path
-          | "hin" -> (
+          | "hin" ->
             let line_start = 0 in
             let line_end = 6 in
-            print_endline ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":" ^ string_of_int line_end);
-            inlayhint ~path ~pos:(line_start, line_end) ~maxLength:"25" ~debug:false)
+            print_endline
+              ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":"
+             ^ string_of_int line_end);
+            inlayhint ~path ~pos:(line_start, line_end) ~maxLength:"25"
+              ~debug:false
           | "cle" ->
             print_endline ("Code Lens " ^ path);
             codeLens ~path ~debug:false
