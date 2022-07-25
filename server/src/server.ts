@@ -34,6 +34,9 @@ interface extensionConfiguration {
   codeLens: boolean;
   binaryPath: string | null;
 }
+
+// All values here are temporary, and will be overridden as the server is
+// initialized, and the current config is received from the client.
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
   inlayHints: {

@@ -1,8 +1,13 @@
 type position = {line: int; character: int}
 type range = {start: position; end_: position}
 type markupContent = {kind: string; value: string}
+
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#command *)
 type command = {title: string; command: string}
+
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeLens *)
 type codeLens = {range: range; command: command option}
+
 type inlayHint = {
   position: position;
   label: string;
