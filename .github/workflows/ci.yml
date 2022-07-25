@@ -81,10 +81,10 @@ jobs:
   package:
     needs: test
     runs-on: ubuntu-18.04
-  
+
     steps:
     - uses: actions/checkout@v2.3.4
-    
+
     - name: Use Node.js
       uses: actions/setup-node@v2.1.5
       with:
@@ -92,7 +92,7 @@ jobs:
 
     - run: npm ci
     - run: npm run compile
-    
+
     - name: Download MacOS binary
       uses: actions/download-artifact@v3.0.0
       with:
@@ -123,12 +123,55 @@ jobs:
 
     - name: Store short commit SHA for filename
       id: vars
-      run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      
+      env:
+        COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      run: echo "::set-output name=sha_short::${COMMIT_SHA:0:7}"
+
+    - name: Get current pre-release version
+      if: github.ref == 'refs/heads/master'
+      id: get_pre_release
+      run: |
+        JSON=$(npx vsce show chenglou92.rescript-vscode --json)
+        VERSION=$(echo $JSON | jq '.versions | .[0] | .["version"]')
+        echo "::set-output name=current_version::${VERSION}"
+
+    - name: Increment pre-release version
+      if: github.ref == 'refs/heads/master'
+      id: increment_pre_release
+      run: |
+        NEW_VERSION=$(echo ${{ steps.get_pre_release.outputs.current_version }})
+        node .github/workflows/bump-version.js ${NEW_VERSION}
+
     - name: Package Extension
-      run: npx vsce package -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
-      
+      if: github.ref != 'refs/heads/master'
+      run: npx vsce package  -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
+
+    - name: Package Extension
+      if: github.ref == 'refs/heads/master'
+      run: npx vsce package  -o rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
+
     - uses: actions/upload-artifact@v2
+      if: github.ref != 'refs/heads/master'
       with:
         name: rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
         path: rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
+
+    - uses: actions/upload-artifact@v2
+      if: github.ref == 'refs/heads/master'
+      with:
+        name: rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix
+        path: rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix
+
+    - name: Publish latest master to GitHub
+      if: github.ref == 'refs/heads/master'
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest-master"
+        prerelease: true
+        title: "Latest master"
+        files: rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix
+
+    - name: Publish extension as pre-release
+      if: github.ref == 'refs/heads/master'
+      run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --pre-release ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version

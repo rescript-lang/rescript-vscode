@@ -431,6 +431,12 @@ Found variant type someVariant
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "CodeLens",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "CompletePrioritize1",
     "kind": 9,
     "tags": [],
@@ -570,6 +576,12 @@ Found variant type someVariant
     "documentation": null
   }, {
     "label": "Hover",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "InlayHint",
     "kind": 9,
     "tags": [],
     "detail": "file module",
@@ -1531,6 +1543,12 @@ Found variant type someVariant
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "CodeLens",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "CompletePrioritize1",
     "kind": 9,
     "tags": [],
@@ -1670,6 +1688,12 @@ Found variant type someVariant
     "documentation": null
   }, {
     "label": "Hover",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "InlayHint",
     "kind": 9,
     "tags": [],
     "detail": "file module",
@@ -2671,6 +2695,12 @@ Found variant type TypeDefinition.variant
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "CodeLens",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "CompletePrioritize1",
     "kind": 9,
     "tags": [],
@@ -2810,6 +2840,12 @@ Found variant type TypeDefinition.variant
     "documentation": null
   }, {
     "label": "Hover",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "InlayHint",
     "kind": 9,
     "tags": [],
     "detail": "file module",
@@ -3771,6 +3807,12 @@ Found polyvariant type otherVariant
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "CodeLens",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "CompletePrioritize1",
     "kind": 9,
     "tags": [],
@@ -3910,6 +3952,12 @@ Found polyvariant type otherVariant
     "documentation": null
   }, {
     "label": "Hover",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "InlayHint",
     "kind": 9,
     "tags": [],
     "detail": "file module",
@@ -4871,6 +4919,12 @@ Found polyvariant type otherVariant
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "CodeLens",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "CompletePrioritize1",
     "kind": 9,
     "tags": [],
@@ -5010,6 +5064,12 @@ Found polyvariant type otherVariant
     "documentation": null
   }, {
     "label": "Hover",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "InlayHint",
     "kind": 9,
     "tags": [],
     "detail": "file module",

@@ -4,8 +4,9 @@ Dependencies: @rescript/react
 Source directories: ./node_modules/@rescript/react/src ./node_modules/@rescript/react/src/legacy
 Source files: ./node_modules/@rescript/react/src/React.res ./node_modules/@rescript/react/src/ReactDOM.res ./node_modules/@rescript/react/src/ReactDOMServer.res ./node_modules/@rescript/react/src/ReactDOMStyle.res ./node_modules/@rescript/react/src/ReactEvent.res ./node_modules/@rescript/react/src/ReactEvent.resi ./node_modules/@rescript/react/src/ReactTestUtils.res ./node_modules/@rescript/react/src/ReactTestUtils.resi ./node_modules/@rescript/react/src/RescriptReactErrorBoundary.res ./node_modules/@rescript/react/src/RescriptReactErrorBoundary.resi ./node_modules/@rescript/react/src/RescriptReactRouter.res ./node_modules/@rescript/react/src/RescriptReactRouter.resi ./node_modules/@rescript/react/src/legacy/ReactDOMRe.res ./node_modules/@rescript/react/src/legacy/ReasonReact.res
 Source directories: ./src ./src/expected
-Source files: ./src/Auto.res ./src/CompletePrioritize1.res ./src/CompletePrioritize2.res ./src/Completion.res ./src/Component.res ./src/Component.resi ./src/CreateInterface.res ./src/Cross.res ./src/Dce.res ./src/Debug.res ./src/Definition.res ./src/DefinitionWithInterface.res ./src/DefinitionWithInterface.resi ./src/Div.res ./src/DocumentSymbol.res ./src/Fragment.res ./src/Highlight.res ./src/Hover.res ./src/Jsx.res ./src/Jsx.resi ./src/LongIdentTest.res ./src/Object.res ./src/Patterns.res ./src/RecModules.res ./src/RecordCompletion.res ./src/RecoveryOnProp.res ./src/References.res ./src/ReferencesWithInterface.res ./src/ReferencesWithInterface.resi ./src/Rename.res ./src/RenameWithInterface.res ./src/RenameWithInterface.resi ./src/TableclothMap.ml ./src/TableclothMap.mli ./src/TypeContextCompletion_Jsx.res ./src/TypeContextCompletion_LabelledArguments.res ./src/TypeDefinition.res ./src/Xform.res
+Source files: ./src/Auto.res ./src/CodeLens.res ./src/CompletePrioritize1.res ./src/CompletePrioritize2.res ./src/Completion.res ./src/Component.res ./src/Component.resi ./src/CreateInterface.res ./src/Cross.res ./src/Dce.res ./src/Debug.res ./src/Definition.res ./src/DefinitionWithInterface.res ./src/DefinitionWithInterface.resi ./src/Div.res ./src/DocumentSymbol.res ./src/Fragment.res ./src/Highlight.res ./src/Hover.res ./src/InlayHint.res ./src/Jsx.res ./src/Jsx.resi ./src/LongIdentTest.res ./src/Object.res ./src/Patterns.res ./src/RecModules.res ./src/RecordCompletion.res ./src/RecoveryOnProp.res ./src/References.res ./src/ReferencesWithInterface.res ./src/ReferencesWithInterface.resi ./src/Rename.res ./src/RenameWithInterface.res ./src/RenameWithInterface.resi ./src/TableclothMap.ml ./src/TableclothMap.mli ./src/TypeContextCompletion_Jsx.res ./src/TypeContextCompletion_LabelledArguments.res ./src/TypeDefinition.res ./src/Xform.res
 Impl cmt:./lib/bs/src/Auto.cmt res:./src/Auto.res
+Impl cmt:./lib/bs/src/CodeLens.cmt res:./src/CodeLens.res
 Impl cmt:./lib/bs/src/CompletePrioritize1.cmt res:./src/CompletePrioritize1.res
 Impl cmt:./lib/bs/src/CompletePrioritize2.cmt res:./src/CompletePrioritize2.res
 Impl cmt:./lib/bs/src/Completion.cmt res:./src/Completion.res
@@ -21,6 +22,7 @@ Impl cmt:./lib/bs/src/DocumentSymbol.cmt res:./src/DocumentSymbol.res
 Impl cmt:./lib/bs/src/Fragment.cmt res:./src/Fragment.res
 Impl cmt:./lib/bs/src/Highlight.cmt res:./src/Highlight.res
 Impl cmt:./lib/bs/src/Hover.cmt res:./src/Hover.res
+Impl cmt:./lib/bs/src/InlayHint.cmt res:./src/InlayHint.res
 IntfAndImpl cmti:./lib/bs/src/Jsx.cmti resi:./src/Jsx.resi cmt:./lib/bs/src/Jsx.cmt res:./src/Jsx.res
 Impl cmt:./lib/bs/src/LongIdentTest.cmt res:./src/LongIdentTest.res
 Impl cmt:./lib/bs/src/Object.cmt res:./src/Object.res
