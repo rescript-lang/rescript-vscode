@@ -85,6 +85,11 @@ ext install chenglou92.rescript-vscode
 
 The plugin activates on `.res` and `.resi` files. If you've already got Reason-Language-Server installed, it's possible that the latter took precedence over this one. Make sure you're using this plugin ("ReScript syntax") rather than Reason-Language-Server ("BuckleScript syntax").
 
+### Pre-release channel
+There is a pre-release channel available. It is intended for testing new and therefore possibly unstable features. You can activate it by clicking on the "Switch to Pre-Release Version" button on the `rescript-vscode` extension page in VSCode. From this point on, pre-release versions will always have an odd version minor (1.5.x, 1.7.x, 2.1.x, etc.) while stable releases have even version minor numbers (1.4.x, 1.6.x, 2.0.0, etc.).
+
+Even if the pre-release channel seems too experimental to you, we still suggest you to give it a try and submit any issues that you run into. In the long run it will give us a better editor experience overall.
+
 ## 📦 Commands
 
 | Command                                                          | Description                                                                                                                                                                                                                                                                                           |
