@@ -148,6 +148,27 @@ Currently does not work for full monorepo dead code analysis (although it should
 
 ## 🪄 Tips & Tricks
 
+### Inlay Hints (experimental)
+
+This allows an editor to place annotations inline with text to display type hints.
+
+```jsonc
+// Enable (experimental) inlay hints.
+rescript.settings.inlayHints.enable: true
+
+// Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown
+rescript.settings.inlayHints.maxLength: 25
+```
+
+### Code Lens (experimental)
+
+This tells the editor to add code lenses to function definitions, showing its full type above the definition.
+
+```jsonc
+// Enable (experimental) code lens.
+rescript.settings.codeLens: true
+```
+
 ### Hide generated files
 
 You can configure VSCode to collapse the JavaScript files ReScript generates under its source ReScript file. This will "hide" the generated files in the VSCode file explorer, but still leaving them accessible by expanding the source ReScript file they belong to.

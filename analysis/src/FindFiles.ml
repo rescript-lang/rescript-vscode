@@ -100,7 +100,7 @@ let getNamespace config =
   if isNamespaced then
     let fromString = ns |> bind Json.string in
     let fromName = config |> Json.get "name" |> bind Json.string in
-    either fromString fromName
+    either fromString fromName |> Option.map nameSpaceToName
   else None
 
 let collectFiles directory =

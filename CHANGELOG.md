@@ -12,6 +12,12 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`. Turned off by default.
+- Code Lenses for functions (experimetal). `rescript.settings.codeLens: true`. Turned off by default.
+- Markdown code blocks tagged as `rescript` now get basic syntax highlighting.
+
 ## v1.4.2
 
 #### :bug: Bug Fix

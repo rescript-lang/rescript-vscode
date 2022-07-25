@@ -132,6 +132,25 @@
 					"default": false,
 					"description": "Automatically start ReScript's code analysis."
 				},
+				"rescript.settings.inlayHints.enable": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable (experimental) inlay hints."
+				},
+				"rescript.settings.inlayHints.maxLength": {
+					"markdownDescription": "Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown.",
+                    "default": 25,
+                    "type": [
+                        "null",
+                        "integer"
+                    ],
+                    "minimum": 0
+				},
+				"rescript.settings.codeLens.enable": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable (experimental) code lens for function definitions."
+				},
 				"rescript.settings.binaryPath": {
 					"type": ["string", "null"],
 					"default": null,
@@ -144,6 +163,16 @@
 				"language": "rescript",
 				"scopeName": "source.rescript",
 				"path": "./grammars/rescript.tmLanguage.json"
+			},
+			{
+				"scopeName": "markdown.rescript.codeblock",
+				"path": "./grammars/rescript.markdown.json",
+				"injectTo": [
+					"text.html.markdown"
+				],
+				"embeddedLanguages": {
+					"meta.embedded.block.rescript": "rescript"
+				}
 			}
 		],
 		"languages": [
@@ -170,6 +199,7 @@
 	"devDependencies": {
 		"@types/node": "^14.14.41",
 		"@types/vscode": "1.68.0",
+		"semver": "^7.3.7",
 		"typescript": "^4.7.3"
 	}
 }
