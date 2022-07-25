@@ -14,7 +14,9 @@
 
 #### :rocket: New Feature
 
-- Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`
+- Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`. Turned off by default.
+- Code Lenses for functions (experimetal). `rescript.settings.codeLens: true`. Turned off by default.
+
 ## v1.4.2
 
 #### :bug: Bug Fix

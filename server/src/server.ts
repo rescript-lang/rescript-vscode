@@ -13,6 +13,7 @@ import {
   DidChangeConfigurationNotification,
   InitializeParams,
   InlayHintParams,
+  CodeLensParams,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -30,14 +31,19 @@ interface extensionConfiguration {
     enable: boolean;
     maxLength: number | null;
   };
+  codeLens: boolean;
   binaryPath: string | null;
 }
+
+// All values here are temporary, and will be overridden as the server is
+// initialized, and the current config is received from the client.
 let extensionConfiguration: extensionConfiguration = {
   askToStartBuild: true,
   inlayHints: {
     enable: false,
     maxLength: 25
   },
+  codeLens: false,
   binaryPath: null,
 };
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
@@ -229,6 +235,9 @@ let compilerLogsWatcher = chokidar
     if (extensionConfiguration.inlayHints.enable === true) {
       sendInlayHintsRefresh();
     }
+    if (extensionConfiguration.codeLens === true) {
+      sendCodeLensRefresh();
+    }
   });
 let stopWatchingCompilerLog = () => {
   // TODO: cleanup of compilerLogs?
@@ -406,6 +415,27 @@ function sendInlayHintsRefresh() {
   let request: p.RequestMessage = {
     jsonrpc: c.jsonrpcVersion,
     method: p.InlayHintRefreshRequest.method,
+    id: serverSentRequestIdCounter++,
+  };
+  send(request);
+}
+
+function codeLens(msg: p.RequestMessage) {
+  const params = msg.params as p.CodeLensParams;
+  const filePath = fileURLToPath(params.textDocument.uri);
+
+  const response = utils.runAnalysisCommand(
+    filePath,
+    ["codeLens", filePath],
+    msg
+  );
+  return response;
+}
+
+function sendCodeLensRefresh() {
+  let request: p.RequestMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: p.CodeLensRefreshRequest.method,
     id: serverSentRequestIdCounter++,
   };
   send(request);
@@ -1001,6 +1031,11 @@ function onMessage(msg: p.Message) {
             full: true,
           },
           inlayHintProvider: extensionConfiguration.inlayHints.enable,
+          codeLensProvider: extensionConfiguration.codeLens
+            ? {
+                workDoneProgress: false,
+              }
+            : undefined,
         },
       };
       let response: p.ResponseMessage = {
@@ -1085,6 +1120,12 @@ function onMessage(msg: p.Message) {
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
         send(inlayHint(msg));
+      }
+    } else if (msg.method === p.CodeLensRequest.method) {
+      let params = msg.params as CodeLensParams;
+      let extName = path.extname(params.textDocument.uri);
+      if (extName === c.resExt) {
+        send(codeLens(msg));
       }
     } else {
       let response: p.ResponseMessage = {

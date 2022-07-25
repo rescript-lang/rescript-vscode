@@ -32,6 +32,10 @@ let inlayhint ~path ~pos ~maxLength ~debug =
   let result = Hint.inlay ~path ~pos ~maxLength ~debug |> Protocol.array in
   print_endline result
 
+let codeLens ~path ~debug =
+  let result = Hint.codeLens ~path ~debug |> Protocol.array in
+  print_endline result
+
 let hover ~path ~pos ~currentFile ~debug =
   let result =
     match Cmt.fullFromPath ~path with
@@ -391,6 +395,9 @@ let test ~path =
             let line_end = 6 in
             print_endline ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":" ^ string_of_int line_end);
             inlayhint ~path ~pos:(line_start, line_end) ~maxLength:"25" ~debug:false)
+          | "cle" ->
+            print_endline ("Code Lens " ^ path);
+            codeLens ~path ~debug:false
           | _ -> ());
           print_newline ())
     in

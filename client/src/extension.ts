@@ -240,7 +240,15 @@ export function activate(context: ExtensionContext) {
   // language client, and because of that requires a full restart.
   context.subscriptions.push(
     workspace.onDidChangeConfiguration(({ affectsConfiguration }) => {
-      if (affectsConfiguration("rescript.settings.inlayHints")) {
+      // Put any configuration that, when changed, requires a full restart of
+      // the server here. That will typically be any configuration that affects
+      // the capabilities declared by the server, since those cannot be updated
+      // on the fly, and require a full restart with new capabilities set when
+      // initializing.
+      if (
+        affectsConfiguration("rescript.settings.inlayHints") ||
+        affectsConfiguration("rescript.settings.codeLens")
+      ) {
         commands.executeCommand("rescript-vscode.restart_language_server");
       }
     })

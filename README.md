@@ -117,6 +117,15 @@ rescript.settings.inlayHints.enable: true
 rescript.settings.inlayHints.maxLength: 25
 ```
 
+### Code Lens (experimental)
+
+This tells the editor to add code lenses to function definitions, showing its full type above the definition.
+
+```jsonc
+// Enable (experimental) code lens.
+rescript.settings.codeLens: true
+```
+
 ### Hide generated files
 
 You can configure VSCode to collapse the JavaScript files ReScript generates under its source ReScript file. This will "hide" the generated files in the VSCode file explorer, but still leaving them accessible by expanding the source ReScript file they belong to.
