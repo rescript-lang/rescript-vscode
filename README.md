@@ -103,6 +103,7 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 | Prompt to Start Build  | If there's no ReScript build running already in the opened project, the extension will prompt you and ask if you want to start a build automatically. You can turn off this automatic prompt via the setting `rescript.settings.askToStartBuild`.                                                                                                                                                                                                                                    |
 | ReScript Binary Path           | The extension will look for the existence of a `/node_modules/.bin/rescript` file and use its directory as the `binaryPath`. If it does not find it at the project root (which is where the nearest `bsconfig.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level. To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.binaryPath` |
 | Inlay Hints (experimental) | This allows an editor to place annotations inline with text to display type hints. Enable using `rescript.settings.inlayHints.enable: true` |
+| Code Lens (experimental) | This tells the editor to add code lenses to function definitions, showing its full type above the definition. Enable using `rescript.settings.codeLens: true` |
 | Autostarting the Code Analyzer | The Code Analyzer needs to be started manually by default. However, you can configure the extension to start the Code Analyzer automatically via the setting `rescript.settings.autoRunCodeAnalysis`.                                                                                                                                                                                                                                                                                |
 
 **Default settings:**
@@ -122,6 +123,9 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 
 // Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown
 "rescript.settings.inlayHints.maxLength": 25
+
+// Enable (experimental) code lens for function definitions.
+"rescript.settings.codeLens": true
 ```
 
 ## 🚀 Code Analyzer
@@ -147,27 +151,6 @@ When done, stop the code analysis mode by clicking the `Stop Code Analyzer` butt
 Currently does not work for full monorepo dead code analysis (although it should work for each monorepo package individually).
 
 ## 🪄 Tips & Tricks
-
-### Inlay Hints (experimental)
-
-This allows an editor to place annotations inline with text to display type hints.
-
-```jsonc
-// Enable (experimental) inlay hints.
-rescript.settings.inlayHints.enable: true
-
-// Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown
-rescript.settings.inlayHints.maxLength: 25
-```
-
-### Code Lens (experimental)
-
-This tells the editor to add code lenses to function definitions, showing its full type above the definition.
-
-```jsonc
-// Enable (experimental) code lens.
-rescript.settings.codeLens: true
-```
 
 ### Hide generated files
 
