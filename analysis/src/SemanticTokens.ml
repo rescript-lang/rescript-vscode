@@ -395,6 +395,14 @@ let command ~debug ~emitter ~path =
     Ast_iterator.default_iterator.constructor_declaration iterator cd
   in
 
+  let structure_item (iterator : Ast_iterator.iterator)
+      (item : Parsetree.structure_item) =
+    (match item.pstr_desc with
+    | Pstr_primitive {pval_name = {txt = id; loc}} -> emitter |> emitVariable ~id ~debug ~loc;
+    | _ -> ());
+    Ast_iterator.default_iterator.structure_item iterator item
+  in
+
   let iterator =
     {
       Ast_iterator.default_iterator with
@@ -410,6 +418,7 @@ let command ~debug ~emitter ~path =
       pat;
       typ;
       type_declaration;
+      structure_item;
     }
   in
 
