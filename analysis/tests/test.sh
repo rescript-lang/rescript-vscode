@@ -17,16 +17,12 @@ for file in document/not_compiled/*.res; do
 done
 
 # Workspaces tests
-for dir in workspaces/*/; do
-  testname="$(basename $dir)"
-  output="$(dirname $dir)/$testname/expected/$testname.txt"
-  dirtest="$(dirname $dir)/$testname"
-  ../rescript-editor-analysis.exe test $dirtest &> $output
-  # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
-  if [ "$RUNNER_OS" == "Windows" ]; then
-    perl -pi -e 's/\r\n/\n/g' -- $output
-  fi
-done
+output="workspaceSymbols/expected/workspaceSymbols.txt"
+../rescript-editor-analysis.exe ../rescript-editor-analysis.exe workspaceSymbols workspaceSymbols/ &> $output
+# CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
+if [ "$RUNNER_OS" == "Windows" ]; then
+  perl -pi -e 's/\r\n/\n/g' -- $output
+fi
 
 
 warningYellow='\033[0;33m'
