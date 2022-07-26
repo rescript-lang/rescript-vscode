@@ -18,7 +18,7 @@ done
 
 # Workspaces tests
 output="workspaceSymbols/expected/workspaceSymbols.txt"
-../rescript-editor-analysis.exe ../rescript-editor-analysis.exe workspaceSymbols workspaceSymbols/ &> $output
+../rescript-editor-analysis.exe workspaceSymbols workspaceSymbols/ &> $output
 # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
 if [ "$RUNNER_OS" == "Windows" ]; then
   perl -pi -e 's/\r\n/\n/g' -- $output
@@ -29,11 +29,11 @@ warningYellow='\033[0;33m'
 successGreen='\033[0;32m'
 reset='\033[0m'
 
-diff=$(git ls-files --modified src/expected)
+diff=$(git ls-files --modified document/src/expected workspaceSymbols/expected)
 if [[ $diff = "" ]]; then
   printf "${successGreen}✅ No unstaged tests difference.${reset}\n"
 else
   printf "${warningYellow}⚠️ There are unstaged differences in tests/! Did you break a test?\n${diff}\n${reset}"
-  git --no-pager diff src/expected
+  git --no-pager diff document/src/expected workspaceSymbols/expected
   exit 1
 fi
