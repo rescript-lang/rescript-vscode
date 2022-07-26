@@ -17,7 +17,7 @@
 - Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/453
 - Code Lenses for functions (experimetal). `rescript.settings.codeLens: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/513
 - Markdown code blocks tagged as `rescript` now get basic syntax highlighting. https://github.com/rescript-lang/rescript-vscode/pull/97
-- Hover support for v10 compiler `/** doc comments */`
+- Hover support for doc comments on v10 compiler `/** this is a doc comment */`
 
 #### :bug: Bug Fix
 
