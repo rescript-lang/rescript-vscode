@@ -1,15 +1,19 @@
 SHELL = /bin/bash
 
-build:
+buildDocument:
 	make -C document build
-	make -C workspaces build
+
+buildWorkspaces:
+	make -C workspaces/workspaceSymbols build
+
+build: buildDocument buildWorkspaces
 
 test: build
 	./test.sh
 
 clean:
 	make -C document clean
-	make -C workspaces clean
+	make -C workspaces/workspaceSymbols clean
 
 .DEFAULT_GOAL := test
 
