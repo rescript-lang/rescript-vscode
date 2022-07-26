@@ -56,45 +56,51 @@ Hover src/Hover.res 72:7
 Hover src/Hover.res 75:7
 {"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
 
-Hover src/Hover.res 85:10
-getLocItem #9: heuristic for JSX variadic, e.g. <C> {x} {y} </C>
-heuristic for: [React.null, makeProps, make, createElementVariadic], give the loc of `make`
-n1:null n2:makeProps n3:make n4:createElementVariadic
-{"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
+Hover src/Hover.res 89:10
+Nothing at that position. Now trying to use completion.
+posCursor:[89:10] posNoWhite:[89:8] Found expr:[86:3->89:9]
+JSX <Comp:[86:3->86:7] > _children:86:7
+null
 
-Hover src/Hover.res 88:10
-getLocItem #9: heuristic for JSX variadic, e.g. <C> {x} {y} </C>
-heuristic for: [React.null, makeProps, make, createElementVariadic], give the loc of `make`
-n1:null n2:makeProps n3:make n4:createElementVariadic
-{"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
+Hover src/Hover.res 96:10
+Nothing at that position. Now trying to use completion.
+posCursor:[96:10] posNoWhite:[96:9] Found expr:[93:3->96:10]
+JSX <Comp1:[93:3->93:8] > _children:93:8
+null
 
-Hover src/Hover.res 93:25
+Hover src/Hover.res 101:25
 {"contents": "```rescript\nfloat\n```"}
 
-Hover src/Hover.res 96:21
+Hover src/Hover.res 104:21
 {"contents": "```rescript\nint\n```"}
 
-Hover src/Hover.res 106:16
+Hover src/Hover.res 114:16
 {"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
 
-Hover src/Hover.res 109:25
+Hover src/Hover.res 117:25
 {"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
 
-Hover src/Hover.res 112:3
+Hover src/Hover.res 120:3
 Nothing at that position. Now trying to use completion.
-Attribute id:live:[112:0->112:5] label:live
+Attribute id:live:[120:0->120:5] label:live
 Completable: Cdecorator(live)
 {"contents": "The `@live` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.\n\n`@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).\n\nHint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!"}
 
-Hover src/Hover.res 115:4
+Hover src/Hover.res 123:4
 {"contents": "```rescript\n(. ()) => unit => int\n```"}
 
-Hover src/Hover.res 121:4
+Hover src/Hover.res 129:4
 {"contents": "```rescript\n(. ()) => (. ()) => int\n```"}
 
-Hover src/Hover.res 124:4
+Hover src/Hover.res 132:4
 {"contents": "```rescript\n(. unit, unit) => int\n```"}
 
-Hover src/Hover.res 127:5
+Hover src/Hover.res 135:5
 {"contents": "```rescript\n(. ()) => unit => int\n```"}
+
+Hover src/Hover.res 142:9
+{"contents": "```rescript\nint\n```\n\ndoc comment 1"}
+
+Hover src/Hover.res 146:6
+{"contents": "```rescript\nint\n```\n\n doc comment 2 "}
 
