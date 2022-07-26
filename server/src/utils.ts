@@ -65,6 +65,17 @@ export let findBscBinary = (
   return findBinary(binaryDirPath, c.bscBinName);
 };
 
+export let executeNodeWrapperSync = (
+  buildPath: p.DocumentUri,
+  args: string[]
+) => {
+  if (process.platform === "win32") {
+    return childProcess.execSync(`"${buildPath}".cmd ${args.join(" ")}`);
+  } else {
+    return childProcess.execFileSync(buildPath, args);
+  }
+};
+
 type execResult =
   | {
       kind: "success";
@@ -89,7 +100,7 @@ export let formatCode = (
     // It will try to use the user formatting binary.
     // If not, use the one we ship with the analysis binary in the extension itself.
     if (bscPath != null) {
-      let result = childProcess.execFileSync(bscPath, [
+      let result = executeNodeWrapperSync(bscPath, [
         "-color",
         "never",
         "-format",
