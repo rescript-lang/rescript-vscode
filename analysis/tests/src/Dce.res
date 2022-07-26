@@ -1,3 +1,4 @@
+// Note: in test mode this only reports on src/dce
+
 // ^dce
 
-let x = 10
