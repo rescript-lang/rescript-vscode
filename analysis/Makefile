@@ -19,10 +19,16 @@ dce: build-analysis-binary
 format:
 	dune build @fmt --auto-promote
 
-test-analysis-binary: build-analysis-binary
+build-tests:
+	make -C tests build
+
+install-reanalyze: install-reanalyze
+	make -C reanalyze install
+
+test-analysis-binary: build-analysis-binary build-tests
 	make -C tests test
 
-test-reanalyze: build-analysis-binary
+test-reanalyze: build-analysis-binary build-reanalyze
 	make -C reanalyze test
 
 test: test-analysis-binary test-reanalyze

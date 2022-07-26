@@ -1,0 +1,101 @@
+Xform document/src/Xform.res 6:5
+Hit: Replace with switch
+{"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
+newText:
+<--here
+switch kind {
+| First =>
+  // ^xfm
+  ret("First")
+| _ => ret("Not First")
+}
+
+Xform document/src/Xform.res 13:15
+Hit: Replace with switch
+{"start": {"line": 13, "character": 0}, "end": {"line": 13, "character": 79}}
+newText:
+<--here
+switch kind {
+| #kind("First", {name: "abc", age: 3}) => ret("First")
+| _ => ret("Not First")
+}
+
+Xform document/src/Xform.res 16:5
+Hit: Add type annotation
+{"start": {"line": 16, "character": 8}, "end": {"line": 16, "character": 8}}
+newText:
+        <--here
+        : string
+
+Xform document/src/Xform.res 19:5
+
+Xform document/src/Xform.res 26:10
+Hit: Add type annotation
+{"start": {"line": 26, "character": 10}, "end": {"line": 26, "character": 11}}
+newText:
+          <--here
+          (x: option<T.r>)
+
+Xform document/src/Xform.res 30:9
+Hit: Add braces to function
+{"start": {"line": 26, "character": 0}, "end": {"line": 32, "character": 3}}
+newText:
+<--here
+let foo = x => {
+  //      ^xfm
+  switch x {
+  | None => 33
+  | Some(q) => q.T.a + 1
+  //     ^xfm
+  }
+}
+
+Xform document/src/Xform.res 34:21
+Hit: Add type annotation
+{"start": {"line": 34, "character": 24}, "end": {"line": 34, "character": 24}}
+newText:
+                        <--here
+                        : int
+
+Xform document/src/Xform.res 38:5
+
+Xform document/src/Xform.res 41:9
+Hit: Add type annotation
+{"start": {"line": 41, "character": 11}, "end": {"line": 41, "character": 11}}
+newText:
+           <--here
+           : int
+
+Xform document/src/Xform.res 48:21
+Hit: Add braces to function
+{"start": {"line": 48, "character": 0}, "end": {"line": 48, "character": 25}}
+newText:
+<--here
+let noBraces = () => {
+  name
+}
+
+Xform document/src/Xform.res 52:34
+Hit: Add braces to function
+{"start": {"line": 51, "character": 0}, "end": {"line": 54, "character": 1}}
+newText:
+<--here
+let nested = () => {
+  let _noBraces = (_x, _y, _z) => {
+    "someNewFunc"
+  }
+  //                              ^xfm
+}
+
+Xform document/src/Xform.res 62:6
+Hit: Add braces to function
+{"start": {"line": 58, "character": 4}, "end": {"line": 62, "character": 7}}
+newText:
+    <--here
+    let foo = (_x, y, _z) => {
+      switch y {
+      | #some => 3
+      | #stuff => 4
+      }
+    }
+

@@ -268,10 +268,27 @@ let format ~path =
 let diagnosticSyntax ~path =
   print_endline (Diagnostics.document_syntax ~path |> Protocol.array)
 
+let documentSymbol ~path =
+  Symbols.document ~path
+  |> List.map Protocol.stringifyDocumentSymbolItem
+  |> Protocol.array |> print_endline
+
+let workspaceSymbols ~dir =
+  print_endline
+    (match Symbols.workspace ~dir with
+    | Some symbol -> symbol
+    | None -> Protocol.null)
+
 let test ~path =
   Uri.stripPath := true;
   match Files.readFile path with
-  | None -> assert false
+  | None -> (
+    (* Test for workspaces/directory *)
+    let nameTest = Filename.basename(path) in
+    match nameTest with
+    | "workspaceSymbols" -> workspaceSymbols ~dir:path
+    | _ -> assert false
+  )
   | Some text ->
     let lines = text |> String.split_on_char '\n' in
     let processLine i line =
@@ -327,7 +344,7 @@ let test ~path =
             DceCommand.command ()
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
-            DocumentSymbol.command ~path
+            documentSymbol ~path
           | "hig" ->
             print_endline ("Highlight " ^ path);
             SemanticTokens.command ~debug:true

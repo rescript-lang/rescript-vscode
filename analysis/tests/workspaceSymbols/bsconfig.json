@@ -1,0 +1,15 @@
+{
+	"name": "test-workspace-symbol",
+	"sources": [
+	  {
+		"dir": "src",
+		"subdirs": true
+	  },
+	  {
+		"dir": "sec",
+		"subdirs": true
+	  }
+	],
+	"bsc-flags": ["-w -33-44"]
+  }
+  

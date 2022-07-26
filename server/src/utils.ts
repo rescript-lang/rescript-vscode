@@ -14,6 +14,16 @@ import * as os from "os";
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
 
+let getAnalysisBinaryPath = (): string | null => {
+  if (fs.existsSync(c.analysisDevPath)) {
+    return c.analysisDevPath;
+  } else if (fs.existsSync(c.analysisProdPath)) {
+    return c.analysisProdPath;
+  } else {
+    return null;
+  }
+};
+
 export let createFileInTempDir = (extension = "") => {
   let tempFileName = tempFilePrefix + tempFileId + extension;
   tempFileId = tempFileId + 1;
@@ -129,31 +139,32 @@ export let formatCode = (
   }
 };
 
-export let runAnalysisAfterSanityCheck = (
-  filePath: p.DocumentUri,
-  args: Array<any>,
-  projectRequired = false
-) => {
-  let binaryPath;
-  if (fs.existsSync(c.analysisDevPath)) {
-    binaryPath = c.analysisDevPath;
-  } else if (fs.existsSync(c.analysisProdPath)) {
-    binaryPath = c.analysisProdPath;
-  } else {
-    return null;
+export let runAnalysis = (args: Array<any>, cwd?: string) => {
+  let binaryPath = getAnalysisBinaryPath()
+  
+  if (binaryPath == null) {
+    return null
   }
 
-  let projectRootPath = findProjectRootOfFile(filePath);
-  if (projectRootPath == null && projectRequired) {
-    return null;
-  }
   let options: childProcess.ExecFileSyncOptions = {
-    cwd: projectRootPath || undefined,
+    cwd: cwd,
     maxBuffer: Infinity,
   };
   let stdout = childProcess.execFileSync(binaryPath, args, options);
 
   return JSON.parse(stdout.toString());
+};
+
+export let runAnalysisAfterSanityCheck = (
+  filePath: p.DocumentUri,
+  args: Array<any>,
+  projectRequired = false
+) => {
+  let projectRootPath = findProjectRootOfFile(filePath);
+  if (projectRootPath == null && projectRequired) {
+    return null;
+  }
+  return runAnalysis(args, projectRootPath == null ? undefined : projectRootPath)
 };
 
 export let runAnalysisCommand = (

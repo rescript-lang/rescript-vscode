@@ -1,16 +1,27 @@
 SHELL = /bin/bash
 
-node_modules/.bin/rescript:
-	npm install
+buildDocument:
+	make -C document build
 
-build: node_modules/.bin/rescript
-	node_modules/.bin/rescript
+buildWorkspaceSymbols:
+	make -C workspaceSymbols build
+
+build: buildDocument buildWorkspaceSymbols
 
 test: build
 	./test.sh
 
+install-document:
+	make -C document install
+
+install-workspaceSymbols:
+	make -C workspaceSymbols install
+
+install: install-document install-workspaceSymbols
+
 clean:
-	rm -r node_modules lib
+	make -C document clean
+	make -C workspaceSymbols clean
 
 .DEFAULT_GOAL := test
 
