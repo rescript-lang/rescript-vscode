@@ -42,14 +42,17 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
   <img width="235" alt="image" src="https://user-images.githubusercontent.com/1909539/97448097-7d186a80-18ed-11eb-82d6-d55b70f54811.png">
 
   If you're getting some Promise-related error alert: this is a VSCode and/or template bug.
+
   - If that newly launched VSCode test instance has no project in its explorer view, drag in a random project.
   - Kill all your node processes.
   - Redo the launch.
+
 - In the [Extension Development Host] instance of VSCode that just opened, open a `.res` file.
 - Try various features.
 - When you make a change, Go to the same Debug viewlet's Call Stack panel and restart the client and the server:
 
   <img width="359" alt="image" src="https://user-images.githubusercontent.com/1909539/97448639-19db0800-18ee-11eb-875a-d17cd1b141d1.png">
+
 - For the native analysis binary tests: `cd analysis && make test`.
 
 ## Change the Grammar
@@ -59,6 +62,7 @@ The _real_ source of truth for our grammar is at https://github.com/rescript-lan
 - Modify `grammars/rescript.tmLanguage.json`.
 
 For more grammar inspirations, check:
+
 - [TypeScript's grammar](https://github.com/microsoft/TypeScript-TmLanguage/blob/a771bc4e79deeae81a01d988a273e300290d0072/TypeScript.YAML-tmLanguage)
 - [Writing a TextMate Grammar: Some Lessons Learned](https://www.apeth.com/nonblog/stories/textmatebundle.html)
 
@@ -132,6 +136,7 @@ We currently do that; we wish we aren't.
 It's possible to open files from different projects into the same editor instance. In that case, also read _that_ file's project's `.compiler.log`.
 
 The bad alternatives are:
+
 - Not show that file's project's errors. That's wrong for several reasons (looks like the file has no error, assumes an editor window has a default project, etc.).
 - Show only that file's error. That's just weird, the errors are already read from that project's `.compiler.log`. Might as well show all of them (?).
 
@@ -149,9 +154,10 @@ Drawbacks:
 ## Format
 
 To find the location of `bsc.exe` to run the formatter:
+
 - Search in the file's directory's `node_modules/bs-platform/{platform}/bsc.exe`. If not found, recursively search upward (because [monorepos](https://github.com/rescript-lang/rescript-vscode/blob/0dbf2eb9cdb0bd6d95be1aee88b73830feecb5cc/server/src/utils.ts#L39-L45)).
-	-	Do **not** directly use `node_modules/.bin/bsc` if you can help it. That's a Nodejs wrapper. Slow startup. We don't want our formatting to be momentarily stalled because some Nodejs cache went cold.
-	- `platform` can be `darwin`, `linux`, `win32` or `freebsd`.
+  - Do **not** directly use `node_modules/.bin/bsc` if you can help it. That's a Nodejs wrapper. Slow startup. We don't want our formatting to be momentarily stalled because some Nodejs cache went cold.
+  - `platform` can be `darwin`, `linux`, `win32` or `freebsd`.
 
 ### Formatting Newline
 
@@ -163,9 +169,16 @@ The errors returned from `bsc.exe -format` should be discarded; in theory, they 
 
 In the future, we should consier showing the format errors when `.compiler.log` isn't found.
 
-## Release
+## Analysis bin
 
-Currently the release is vetted and done by @chenglou.
+Analysis bin is what we currently call the OCaml code that does deeper language related analysis, and that powers most of the language specific functionality like hovers, completion, and so on. Here's a list of PRs and other resources you can have a look at if you're interested in contributing to the analysis bin:
+
+- Implementing "code lens" for function definitions. PR + commits have a bunch of comments intended to be educational as to what's done where, and why. https://github.com/rescript-lang/rescript-vscode/pull/513
+- Cristiano fixes a bug where autocomplete wasn't working in switch branches, because the analysis did not cover that context. Contains a bunch of good comments on how the test setup works, etc. https://github.com/rescript-lang/rescript-vscode/pull/415
+
+We're happy to gather more resources over time here, including more in-depth getting started guides.
+
+## Release
 
 1. Bump the version properly in `package.json` and `server/package.json` and their lockfiles. Commit and push the version bump.
 2. Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
