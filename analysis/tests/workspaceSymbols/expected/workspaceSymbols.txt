@@ -1,80 +1,13 @@
-
-**Private CLI For rescript-vscode usage only**
-
-API examples:
-  ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 currentContent.res
-  ./rescript-editor-analysis.exe definition src/MyFile.res 9 3
-  ./rescript-editor-analysis.exe typeDefinition src/MyFile.res 9 3
-  ./rescript-editor-analysis.exe documentSymbol src/Foo.res
-  ./rescript-editor-analysis.exe workspaceSymbols src/
-  ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
-  ./rescript-editor-analysis.exe references src/MyFile.res 10 2
-  ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
-  ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
-  /rescript-editor-analysis.exe inlayHint src/MyFile.res 0 3 25
-
-Dev-time examples:
-  ./rescript-editor-analysis.exe dump src/MyFile.res src/MyFile2.res
-  ./rescript-editor-analysis.exe test src/MyFile.res
-
-Note: positions are zero-indexed (start at 0 0), following LSP.
-https://microsoft.github.io/language-server-protocol/specification#position
-
-Options:
-  completion: compute autocomplete for MyFile.res at line 0 and column 4,
-    where MyFile.res is being edited and the editor content is in file current.res.
-
-    ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 current.res
-
-  definition: get definition for item in MyFile.res at line 10 column 2:
-
-    ./rescript-editor-analysis.exe definition src/MyFile.res 10 2
-
-  typeDefinition: get type definition for item in MyFile.res at line 10 column 2:
-
-    ./rescript-editor-analysis.exe typeDefinition src/MyFile.res 10 2
-
-  documentSymbol: get all symbols declared in MyFile.res
-
-    ./rescript-editor-analysis.exe documentSymbol src/MyFile.res
-
-  workspaceSymbols: get all symbols in directory src/
-
-    ./rescript-editor-analysis.exe workspaceSymbols src/
-
-  hover: get inferred type for MyFile.res at line 10 column 2:
-
-    ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
-
-  references: get all references to item in MyFile.res at line 10 column 2:
-
-    ./rescript-editor-analysis.exe references src/MyFile.res 10 2
-
-  rename: rename all appearances of item in MyFile.res at line 10 column 2 with foo:
-
-    ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
-
-  semanticTokens: return token semantic highlighting info for MyFile.res
-
-    ./rescript-editor-analysis.exe semanticTokens src/MyFile.res
-
-  createInterface: print to stdout the interface file for src/MyFile.res
-
-    ./rescript-editor-analysis.exe createInterface src/MyFile.res lib/bs/src/MyFile.cmi
-
-  format: print to stdout the formatted version of the provided file
-
-    ./rescript-editor-analysis.exe format src/MyFile.res
-
-  diagnosticSyntax: print to stdout diagnostic for syntax
-
-    ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
-
-  inlayHint: get all inlay Hint between line 0 and 3 declared in MyFile.res. Last argument is maximum of character length for inlay hints
-
-    ./rescript-editor-analysis.exe inlayHint src/MyFile.res 0 3 25
-
-  test: run tests specified by special comments in file src/MyFile.res
-
-    ./rescript-editor-analysis.exe test src/src/MyFile.res
-
+[{
+        "name": "Inner",
+        "kind": 2,
+        "location": {"uri": "file://workspaceSymbols/src/inner/Inner.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 2, "character": 1}}}
+}, {
+        "name": "a",
+        "kind": 16,
+        "location": {"uri": "file://workspaceSymbols/src/inner/Inner.res", "range": {"start": {"line": 1, "character": 1}, "end": {"line": 1, "character": 10}}}
+}, {
+        "name": "x",
+        "kind": 16,
+        "location": {"uri": "file://workspaceSymbols/sec/SomeFile.res", "range": {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 10}}}
+}]
