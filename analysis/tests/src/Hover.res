@@ -146,3 +146,12 @@ let docComment1 = 12
 /** doc comment 2 */
 let docComment2 = 12
 //    ^hov
+
+module ModWithDocComment = {
+  /*** module level doc comment 1 */
+
+  /** doc comment for x */
+  let x = 44
+
+  /*** module level doc comment 2 */
+}
