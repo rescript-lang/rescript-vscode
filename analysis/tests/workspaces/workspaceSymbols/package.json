@@ -1,13 +1,10 @@
 {
-	"scripts": {
-		"build": "rescript",
-		"clean": "rescript clean -with-deps"
-	},
-	"private": true,
-	"devDependencies": {
-		"@rescript/react": "^0.10.3"
-	},
-	"dependencies": {
-		"rescript": "^10.0.0-beta.3"
-	}
+  "scripts": {
+    "build": "rescript",
+    "clean": "rescript clean -with-deps"
+  },
+  "private": true,
+  "dependencies": {
+    "rescript": "^10.0.0-beta.3"
+  }
 }

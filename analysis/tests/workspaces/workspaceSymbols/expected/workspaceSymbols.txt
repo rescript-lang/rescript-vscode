@@ -13,13 +13,13 @@
 }, {
         "name": "Button",
         "kind": 2,
-        "location": {"uri": "MoreSymbols.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 5, "character": 1}}}
+        "location": {"uri": "MoreSymbols.res", "range": {"start": {"line": 0, "character": 7}, "end": {"line": 4, "character": 1}}}
 }, {
         "name": "Comp",
         "kind": 2,
-        "location": {"uri": "MoreSymbols.res", "range": {"start": {"line": 1, "character": 9}, "end": {"line": 4, "character": 3}}}
+        "location": {"uri": "MoreSymbols.res", "range": {"start": {"line": 1, "character": 9}, "end": {"line": 3, "character": 3}}}
 }, {
         "name": "make",
         "kind": 12,
-        "location": {"uri": "MoreSymbols.res", "range": {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 47}}}
+        "location": {"uri": "MoreSymbols.res", "range": {"start": {"line": 2, "character": 4}, "end": {"line": 2, "character": 38}}}
 }]
