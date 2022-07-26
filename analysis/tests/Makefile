@@ -11,6 +11,14 @@ build: buildDocument buildWorkspaceSymbols
 test: build
 	./test.sh
 
+install-document:
+	make -C document install
+
+install-workspaceSymbols:
+	make -C workspaceSymbols install
+
+install: install-document install-workspaceSymbols
+
 clean:
 	make -C document clean
 	make -C workspaceSymbols clean

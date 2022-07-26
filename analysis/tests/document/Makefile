@@ -1,12 +1,14 @@
 SHELL = /bin/bash
 
-node_modules/.bin/rescript:
-	npm install
-
 build: node_modules/.bin/rescript
 	node_modules/.bin/rescript
 
-clean:
-	rm -r node_modules lib
+install: node_modules/.bin/rescript
 
-.PHONY: clean
+node_modules/.bin/rescript:
+	npm install
+
+clean:
+	rm -rf node_modules lib
+
+.PHONY: clean build
