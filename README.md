@@ -59,9 +59,7 @@ The only 2 themes we don't (and can't) support, due to their lack of coloring, a
 
 - Supports `.res`, `.resi` and `bsconfig.json`.
 - Syntax highlighting.
-- Formatting, with caveats:
-  - Currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`.
-  - Cannot be a temporary file.
+- Formatting.
 - Build diagnostics.
 - Built-in bsb watcher (optional, and exposed explicitly as a pop-up; no worries of dangling build).
 - Type hint hover.
@@ -69,7 +67,8 @@ The only 2 themes we don't (and can't) support, due to their lack of coloring, a
 - Autocomplete.
 - Find references.
 - Rename.
-- Inlay Hints
+- Inlay Hints.
+- Code lenses.
 - Snippets to ease a few syntaxes:
   - `external` features such as `@bs.module` and `@bs.val`
   - `try`, `for`, etc.
