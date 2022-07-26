@@ -324,6 +324,9 @@ let test ~path =
             Sys.remove currentFile
           | "dce" ->
             print_endline ("DCE " ^ path);
+            Reanalyze.RunConfig.runConfig.suppress <- ["src"];
+            Reanalyze.RunConfig.runConfig.unsuppress <-
+              [Filename.concat "src" "dce"];
             DceCommand.command ()
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
@@ -390,11 +393,14 @@ let test ~path =
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
           | "dia" -> diagnosticSyntax ~path
-          | "hin" -> (
+          | "hin" ->
             let line_start = 0 in
             let line_end = 6 in
-            print_endline ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":" ^ string_of_int line_end);
-            inlayhint ~path ~pos:(line_start, line_end) ~maxLength:"25" ~debug:false)
+            print_endline
+              ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":"
+             ^ string_of_int line_end);
+            inlayhint ~path ~pos:(line_start, line_end) ~maxLength:"25"
+              ~debug:false
           | "cle" ->
             print_endline ("Code Lens " ^ path);
             codeLens ~path ~debug:false
