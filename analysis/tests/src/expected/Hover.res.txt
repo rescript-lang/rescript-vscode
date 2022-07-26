@@ -99,8 +99,8 @@ Hover src/Hover.res 135:5
 {"contents": "```rescript\n(. ()) => unit => int\n```"}
 
 Hover src/Hover.res 142:9
-{"contents": "```rescript\nint\n```\n\ndoc comment 1"}
+{"contents": "```rescript\nint\n```\n\ndoc comment `1` one "}
 
-Hover src/Hover.res 146:6
-{"contents": "```rescript\nint\n```\n\n doc comment 2 "}
+Hover src/Hover.res 155:6
+{"contents": "```rescript\nint\n```\n\nDoc comment with a triple-backquote example\n\ns example\n a = 10\n\nstuff\n\n"}
 
