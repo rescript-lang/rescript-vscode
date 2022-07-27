@@ -25,8 +25,8 @@
 
 #### :nail_care: Polish
 
-- Update server on change configuration `rescript.settings`.
-- Simplifies the `initializationOptions`.
+- Don't restart server on change configuration `rescript.settings`. https://github.com/rescript-lang/rescript-vscode/pull/528
+- Simplifies the `initializationOptions`. https://github.com/rescript-lang/rescript-vscode/pull/528
 
 ## v1.4.2
 
