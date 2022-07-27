@@ -79,14 +79,16 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let findBinaryDirPathFromProjectRoot = (
-  directory: p.DocumentUri // This must be a directory and not a file!
+let findBinaryFromProjectDirRec = (
+  directory: p.DocumentUri, // This must be a directory and not a file!
+  targetDir: p.DocumentUri,
+  binaryName: p.DocumentUri
 ): null | p.DocumentUri => {
-  let binaryDirPath = path.join(directory, c.nodeModulesBinDir);
-  let binaryPath = path.join(binaryDirPath, c.rescriptBinName);
+  let binaryDirPath = path.join(directory, targetDir);
+  let binaryPath = path.join(binaryDirPath, binaryName);
 
   if (fs.existsSync(binaryPath)) {
-    return binaryDirPath;
+    return binaryPath;
   }
 
   let parentDir = path.dirname(directory);
@@ -95,19 +97,22 @@ let findBinaryDirPathFromProjectRoot = (
     return null;
   }
 
-  return findBinaryDirPathFromProjectRoot(parentDir);
+  return findBinaryFromProjectDirRec(parentDir, targetDir, binaryName);
 };
 
-let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath == null
-    ? findBinaryDirPathFromProjectRoot(projectRootPath)
-    : extensionConfiguration.binaryPath;
-
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
-  utils.findRescriptBinary(getBinaryDirPath(projectRootPath));
+  extensionConfiguration.binaryPath == null
+    ? findBinaryFromProjectDirRec(
+        projectRootPath,
+        c.nodeModulesBinDir,
+        c.rescriptBinName
+      )
+    : utils.findRescriptBinary(extensionConfiguration.binaryPath);
 
 let findBscBinary = (projectRootPath: p.DocumentUri) =>
-  utils.findBscBinary(getBinaryDirPath(projectRootPath));
+  extensionConfiguration.binaryPath == null
+    ? findBinaryFromProjectDirRec(projectRootPath, c.platformPath, c.bscExeName)
+    : utils.findBscBinary(extensionConfiguration.binaryPath);
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -312,9 +317,10 @@ let openedFile = (fileUri: string, fileContent: string) => {
           method: "window/showMessage",
           params: {
             type: p.MessageType.Error,
-            message: `Can't find ReScript binary in the directory ${getBinaryDirPath(
-              projectRootPath
-            )}`,
+            message:
+              extensionConfiguration.binaryPath == null
+                ? "Can't find ReScript binary"
+                : `Can't find ReScript binary in the directory ${extensionConfiguration.binaryPath}`,
           },
         };
         send(request);
