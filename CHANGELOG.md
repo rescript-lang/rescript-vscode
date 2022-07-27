@@ -23,6 +23,11 @@
 
 - Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
 
+#### :nail_care: Polish
+
+- Update server on change configuration `rescript.settings`.
+- Simplifies the `initializationOptions`.
+
 ## v1.4.2
 
 #### :bug: Bug Fix

@@ -96,9 +96,7 @@ export function activate(context: ExtensionContext) {
       // We'll send the initial configuration in here, but this might be
       // problematic because every consumer of the LS will need to mimic this.
       // We'll leave it like this for now, but might be worth revisiting later on.
-      initializationOptions: {
-        extensionConfiguration: workspace.getConfiguration("rescript.settings"),
-      },
+      initializationOptions: workspace.getConfiguration("rescript.settings"),
     };
 
     const client = new LanguageClient(
@@ -235,21 +233,14 @@ export function activate(context: ExtensionContext) {
   // Start the client. This will also launch the server
   client.start();
 
-  // Restart the language client automatically when certain configuration
-  // changes. These are typically settings that affect the capabilities of the
-  // language client, and because of that requires a full restart.
   context.subscriptions.push(
     workspace.onDidChangeConfiguration(({ affectsConfiguration }) => {
-      // Put any configuration that, when changed, requires a full restart of
-      // the server here. That will typically be any configuration that affects
-      // the capabilities declared by the server, since those cannot be updated
-      // on the fly, and require a full restart with new capabilities set when
-      // initializing.
       if (
-        affectsConfiguration("rescript.settings.inlayHints") ||
-        affectsConfiguration("rescript.settings.codeLens")
+        affectsConfiguration("rescript.settings")
       ) {
-        commands.executeCommand("rescript-vscode.restart_language_server");
+        client.sendNotification(
+          "workspace/didChangeConfiguration",
+          { settings: workspace.getConfiguration("rescript.settings") }).catch((err) => { window.showErrorMessage(String(err)) })
       }
     })
   );

@@ -13,6 +13,7 @@ import {
   InitializeParams,
   InlayHintParams,
   CodeLensParams,
+  DidChangeConfigurationParams,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -24,28 +25,31 @@ import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { filesDiagnostics } from "./utils";
 
-interface extensionConfiguration {
+interface initializationOptions {
   askToStartBuild: boolean;
   inlayHints: {
     enable: boolean;
     maxLength: number | null;
   };
-  codeLens: boolean;
+  codeLens: {
+    enable: boolean;
+  };
   binaryPath: string | null;
 }
 
 // All values here are temporary, and will be overridden as the server is
 // initialized, and the current config is received from the client.
-let extensionConfiguration: extensionConfiguration = {
+let initializationOptions: initializationOptions = {
   askToStartBuild: true,
   inlayHints: {
     enable: false,
     maxLength: 25,
   },
-  codeLens: false,
+  codeLens: {
+    enable: false
+  },
   binaryPath: null,
 };
-let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
 // According to the spec, there could be requests before the 'initialize' request. Link in comment tells how to handle them.
@@ -99,9 +103,9 @@ let findBinaryDirPathFromProjectRoot = (
 };
 
 let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath == null
+  initializationOptions.binaryPath == null
     ? findBinaryDirPathFromProjectRoot(projectRootPath)
-    : extensionConfiguration.binaryPath;
+    : initializationOptions.binaryPath;
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
   utils.findRescriptBinary(getBinaryDirPath(projectRootPath));
@@ -231,10 +235,10 @@ let compilerLogsWatcher = chokidar
   .on("all", (_e, changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
-    if (extensionConfiguration.inlayHints.enable === true) {
+    if (initializationOptions.inlayHints?.enable === true) {
       sendInlayHintsRefresh();
     }
-    if (extensionConfiguration.codeLens === true) {
+    if (initializationOptions.codeLens?.enable === true) {
       sendCodeLensRefresh();
     }
   });
@@ -279,7 +283,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
     if (
       projectRootState.hasPromptedToStartBuild === false &&
-      extensionConfiguration.askToStartBuild === true &&
+      initializationOptions.askToStartBuild === true &&
       !fs.existsSync(bsbLockPath)
     ) {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
@@ -399,6 +403,15 @@ function hover(msg: p.RequestMessage) {
 }
 
 function inlayHint(msg: p.RequestMessage) {
+
+  if (!initializationOptions.inlayHints?.enable) {
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: null,
+    };
+  }
+
   const params = msg.params as p.InlayHintParams;
   const filePath = fileURLToPath(params.textDocument.uri);
 
@@ -409,7 +422,7 @@ function inlayHint(msg: p.RequestMessage) {
       filePath,
       params.range.start.line,
       params.range.end.line,
-      extensionConfiguration.inlayHints.maxLength,
+      initializationOptions.inlayHints.maxLength,
     ],
     msg
   );
@@ -426,6 +439,15 @@ function sendInlayHintsRefresh() {
 }
 
 function codeLens(msg: p.RequestMessage) {
+
+  if (!initializationOptions.codeLens?.enable) {
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: null,
+    };
+  }
+
   const params = msg.params as p.CodeLensParams;
   const filePath = fileURLToPath(params.textDocument.uri);
 
@@ -567,24 +589,6 @@ function documentSymbol(msg: p.RequestMessage) {
   );
   fs.unlink(tmpname, () => null);
   return response;
-}
-
-function askForAllCurrentConfiguration() {
-  // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_configuration
-  let params: p.ConfigurationParams = {
-    items: [
-      {
-        section: "rescript.settings",
-      },
-    ],
-  };
-  let req: p.RequestMessage = {
-    jsonrpc: c.jsonrpcVersion,
-    id: c.configurationRequestId,
-    method: p.ConfigurationRequest.type.method,
-    params,
-  };
-  send(req);
 }
 
 function semanticTokens(msg: p.RequestMessage) {
@@ -975,8 +979,8 @@ function onMessage(msg: p.Message) {
       let params = msg.params as p.DidCloseTextDocumentParams;
       closedFile(params.textDocument.uri);
     } else if (msg.method === DidChangeConfigurationNotification.type.method) {
-      // Can't seem to get this notification to trigger, but if it does this will be here and ensure we're synced up at the server.
-      askForAllCurrentConfiguration();
+      let params = msg.params as DidChangeConfigurationParams
+      initializationOptions = params.settings
     }
   } else if (p.Message.isRequest(msg)) {
     // request message, aka client sent request and waits for our mandatory reply
@@ -993,11 +997,10 @@ function onMessage(msg: p.Message) {
     } else if (msg.method === "initialize") {
       // Save initial configuration, if present
       let initParams = msg.params as InitializeParams;
-      let initialConfiguration = initParams.initializationOptions
-        ?.extensionConfiguration as extensionConfiguration | undefined;
+      let initialConfiguration = initParams.initializationOptions as initializationOptions | undefined;
 
       if (initialConfiguration != null) {
-        extensionConfiguration = initialConfiguration;
+        initializationOptions = initialConfiguration;
       }
 
       // send the list of features we support
@@ -1035,12 +1038,10 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
-          inlayHintProvider: extensionConfiguration.inlayHints.enable,
-          codeLensProvider: extensionConfiguration.codeLens
-            ? {
-                workDoneProgress: false,
-              }
-            : undefined,
+          inlayHintProvider: true,
+          codeLensProvider: {
+            workDoneProgress: false
+          }
         },
       };
       let response: p.ResponseMessage = {
@@ -1049,11 +1050,6 @@ function onMessage(msg: p.Message) {
         result: result,
       };
       initialized = true;
-
-      // Periodically pull configuration from the client.
-      pullConfigurationPeriodically = setInterval(() => {
-        askForAllCurrentConfiguration();
-      }, c.pullConfigurationInterval);
 
       send(response);
     } else if (msg.method === "initialized") {
@@ -1081,10 +1077,6 @@ function onMessage(msg: p.Message) {
         // TODO: recheck logic around init/shutdown...
         stopWatchingCompilerLog();
         // TODO: delete bsb watchers
-
-        if (pullConfigurationPeriodically != null) {
-          clearInterval(pullConfigurationPeriodically);
-        }
 
         let response: p.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
@@ -1154,10 +1146,10 @@ function onMessage(msg: p.Message) {
         // without their settings overriding eachother. Not a problem now though
         // as we'll likely only have "global" settings starting out.
         let [configuration] = msg.result as [
-          extensionConfiguration | null | undefined
+          initializationOptions | null | undefined
         ];
         if (configuration != null) {
-          extensionConfiguration = configuration;
+          initializationOptions = configuration;
         }
       }
     } else if (
