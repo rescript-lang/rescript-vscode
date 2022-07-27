@@ -6,6 +6,7 @@ the type is not great but jump to definition works
 Complete src/Jsx.res 8:15
 posCursor:[8:15] posNoWhite:[8:14] Found expr:[8:4->8:15]
 JSX <M:[8:4->8:5] second[8:6->8:12]=...[8:13->8:15]> _children:None
+found typed context: jsxProp second
 posCursor:[8:15] posNoWhite:[8:14] Found expr:[8:13->8:15]
 Pexp_ident fi:[8:13->8:15]
 Completable: Cpath Value[fi]
@@ -354,6 +355,7 @@ Completable: Cpath Module[DefineSomeFields].th
 Complete src/Jsx.res 122:20
 posCursor:[122:20] posNoWhite:[122:19] Found expr:[121:3->125:4]
 JSX <div:[121:3->121:6] x[122:5->122:6]=...[122:7->122:20] name[124:4->124:8]=...[124:9->124:11]> _children:125:2
+found typed context: jsxProp x
 posCursor:[122:20] posNoWhite:[122:19] Found expr:[122:7->122:20]
 Pexp_ident Outer.Inner.h:[122:7->122:20]
 Completable: Cpath Value[Outer, Inner, h]
@@ -368,6 +370,7 @@ Completable: Cpath Value[Outer, Inner, h]
 Complete src/Jsx.res 129:19
 posCursor:[129:19] posNoWhite:[129:18] Found expr:[128:3->131:9]
 JSX <div:[128:3->128:6] x[129:5->129:6]=...[129:7->131:8]> _children:None
+found typed context: jsxProp x
 posCursor:[129:19] posNoWhite:[129:18] Found expr:[129:7->131:8]
 Pexp_ident Outer.Inner.:[129:7->131:8]
 Completable: Cpath Value[Outer, Inner, ""]

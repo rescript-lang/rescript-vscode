@@ -102,37 +102,37 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         && posBeforeCursor < Loc.start prop.exp.pexp_loc
       then (* Cursor between the prop name and expr assigned *)
         None
-      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
         (* Cursor on expr assigned *)
-        if isElgibleForTypedContextCompletion prop.exp then (
-          if debug then Printf.printf "Found typed context\n";
-          let typedContext =
-            Completable.JsxProp
-              {
-                componentPath =
-                  Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                propName = prop.name;
-                prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
-              }
-          in
-          Some (CtypedContext typedContext))
-        else None
-      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
+        if debug then
+          Printf.printf "found typed context: jsxProp %s\n" prop.name;
+        let _typedContext =
+          Completable.JsxProp
+            {
+              componentPath =
+                Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+              propName = prop.name;
+              prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
+            }
+        in
+        (* Some (CtypedContext typedContext)) *)
+        None)
+      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
              Complete for the value. *)
-        if isElgibleForTypedContextCompletion prop.exp then (
-          if debug then Printf.printf "Found typed context\n";
-          let typedContext =
-            Completable.JsxProp
-              {
-                componentPath =
-                  Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                propName = prop.name;
-                prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
-              }
-          in
-          Some (CtypedContext typedContext))
-        else None
+        if debug then
+          Printf.printf "found typed context: jsxProp %s\n" prop.name;
+        let _typedContext =
+          Completable.JsxProp
+            {
+              componentPath =
+                Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+              propName = prop.name;
+              prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
+            }
+        in
+        (* Some (CtypedContext typedContext)) *)
+        None)
       else loop rest
     | [] ->
       let beforeChildrenStart =
@@ -219,27 +219,31 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         && posBeforeCursor < labelled.posEnd
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
-        if debug then Printf.printf "found typed context \n";
-        Some
+        if debug then
+          Printf.printf "found typed context: named arg %s \n" labelled.name;
+        (*Some
           (Completable.CtypedContext
              (NamedArg
                 {
                   contextPath;
                   label = labelled.name;
                   prefix = getPrefixFromExpr exp;
-                })))
+                }))) *)
+        None)
       else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
            Assume this is an empty expression. *)
-        if debug then Printf.printf "found typed context \n";
-        Some
+        if debug then
+          Printf.printf "found typed context: named arg %s \n" labelled.name;
+        (*Some
           (Completable.CtypedContext
              (NamedArg
                 {
                   contextPath;
                   label = labelled.name;
                   prefix = getPrefixFromExpr exp;
-                })))
+                })))*)
+        None)
       else loop rest
     | {label = None; exp} :: rest ->
       if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
