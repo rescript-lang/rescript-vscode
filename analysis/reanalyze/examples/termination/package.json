@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "rescript": "^10.0.0-beta.2"
+    "rescript": "^10.0.0-beta.3"
   }
 }

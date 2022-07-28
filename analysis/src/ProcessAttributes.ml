@@ -5,7 +5,7 @@ let rec findDocAttribute attributes =
   let open Parsetree in
   match attributes with
   | [] -> None
-  | ( {Asttypes.txt = "ocaml.doc"},
+  | ( {Asttypes.txt = "ocaml.doc" | "ns.doc"},
       PStr
         [
           {

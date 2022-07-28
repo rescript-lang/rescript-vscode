@@ -1,20 +1,74 @@
+# Changelog
+
+> **Tags:**
+>
+> - :boom: [Breaking Change]
+> - :eyeglasses: [Spec Compliance]
+> - :rocket: [New Feature]
+> - :bug: [Bug Fix]
+> - :memo: [Documentation]
+> - :house: [Internal]
+> - :nail_care: [Polish]
+
 ## master
+
+#### :rocket: New Feature
+
+- Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/453
+- Code Lenses for functions (experimetal). `rescript.settings.codeLens: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/513
+- Markdown code blocks tagged as `rescript` now get basic syntax highlighting. https://github.com/rescript-lang/rescript-vscode/pull/97
+- Hover support for doc comments on v10 compiler `/** this is a doc comment */`
+
+#### :bug: Bug Fix
+
+- Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
+
+## v1.4.2
+
+#### :bug: Bug Fix
+
+- Fix finding the ReScript bin for even more kinds of setups.
+- Document the process of finding the ReScript bin in README.
+
+## v1.4.1
+
+#### :bug: Bug Fix
+
+- Fix formatting not preferring the locally installed formatter (if available), which made formatting potentially different between formatting via `rescript format` and the extension.
+- Fix finding the ReScript bin in monorepos
+
+## v1.4.0
+
+#### :rocket: New Feature
+
+- Add command: ReScript: Restart Language Server
+- Extend integration with reanalyze for code analysis. Support both `dce` and `exception` analysis which can be configured to e.g. both run by adding `{"reanalyze": {"analysis": ["dce", "exception"]} }` in `bsconfig.json`.
+- Add configuration option for suppressing the "Do you want to start a build?" prompt.
+- Add configuration option for autostarting the Code Analyzer.
+- Report syntax errors as you type.
+
+#### :bug: Bug Fix
 
 - Fix issue with autocompletion for constructors in switch statements.
 - Fix issue with autocompletion inside template expressions.
 - Fix handling of local opens.
 - Fix extension crash when renaming a file.
-- Add hover information with links to documentation for decorators.
-- Add command: ReScript: Restart Language Server
 - Fix issue where the server would crash on genType's errors.
-- Extend integration with reanalyze for code analysis. Support both `dce` and `exception` analysis which can be configured to e.g. both run by adding `{"reanalyze": {"analysis": ["dce", "exception"]} }` in `bsconfig.json`.
 - Fix issue where the server would crash if the project contains an OCaml file with a syntax error.
-- Add configuration option for suppressing the "Do you want to start a build?" prompt.
-- Add configuration option for autostarting the Code Analyzer.
-- Sync with latest parser/printer.
-- Support paths to rescript executables in arm64 architectures.
 - Fix issue where `@inline` was not suported by the command to generate an interface file.
-- `*` Drop support for `bs-patform`. Only `rescript` supported.
+
+#### :nail_care: Polish
+
+- Add hover information with links to documentation for decorators.
+- Sync with latest parser/printer.
+
+#### :house: Internal
+
+- Support paths to rescript executables in arm64 architectures.
+
+#### :boom: Breaking Change
+
+- Drop support for `bs-patform`. Only `rescript` supported.
 
 ## 1.3.0
 

@@ -28,6 +28,14 @@ let completion ~debug ~path ~pos ~currentFile =
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
 
+let inlayhint ~path ~pos ~maxLength ~debug =
+  let result = Hint.inlay ~path ~pos ~maxLength ~debug |> Protocol.array in
+  print_endline result
+
+let codeLens ~path ~debug =
+  let result = Hint.codeLens ~path ~debug |> Protocol.array in
+  print_endline result
+
 let hover ~path ~pos ~currentFile ~debug =
   let result =
     match Cmt.fullFromPath ~path with
@@ -316,6 +324,9 @@ let test ~path =
             Sys.remove currentFile
           | "dce" ->
             print_endline ("DCE " ^ path);
+            Reanalyze.RunConfig.runConfig.suppress <- ["src"];
+            Reanalyze.RunConfig.runConfig.unsuppress <-
+              [Filename.concat "src" "dce"];
             DceCommand.command ()
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
@@ -382,6 +393,17 @@ let test ~path =
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
           | "dia" -> diagnosticSyntax ~path
+          | "hin" ->
+            let line_start = 0 in
+            let line_end = 6 in
+            print_endline
+              ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":"
+             ^ string_of_int line_end);
+            inlayhint ~path ~pos:(line_start, line_end) ~maxLength:"25"
+              ~debug:false
+          | "cle" ->
+            print_endline ("Code Lens " ^ path);
+            codeLens ~path ~debug:false
           | _ -> ());
           print_newline ())
     in

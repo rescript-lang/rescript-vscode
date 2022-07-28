@@ -2,6 +2,20 @@ type position = {line: int; character: int}
 type range = {start: position; end_: position}
 type markupContent = {kind: string; value: string}
 
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#command *)
+type command = {title: string; command: string}
+
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeLens *)
+type codeLens = {range: range; command: command option}
+
+type inlayHint = {
+  position: position;
+  label: string;
+  kind: int;
+  paddingLeft: bool;
+  paddingRight: bool;
+}
+
 type completionItem = {
   label: string;
   kind: int;
@@ -127,6 +141,34 @@ let stringifyCodeAction ca =
   Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title
     (codeActionKindToString ca.codeActionKind)
     (ca.edit |> stringifyCodeActionEdit)
+
+let stringifyHint hint =
+  Printf.sprintf
+    {|{
+    "position": %s,
+    "label": "%s",
+    "kind": %i,
+    "paddingLeft": %b,
+    "paddingRight": %b
+}|}
+    (stringifyPosition hint.position)
+    (Json.escape hint.label) hint.kind hint.paddingLeft hint.paddingRight
+
+let stringifyCommand (command : command) =
+  Printf.sprintf {|{"title": "%s", "command": "%s"}|}
+    (Json.escape command.title)
+    (Json.escape command.command)
+
+let stringifyCodeLens (codeLens : codeLens) =
+  Printf.sprintf
+    {|{
+        "range": %s,
+        "command": %s
+    }|}
+    (stringifyRange codeLens.range)
+    (match codeLens.command with
+    | None -> ""
+    | Some command -> stringifyCommand command)
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic *)
 let stringifyDiagnostic d =

@@ -1,4 +1,5 @@
-// ^db+
+// turn on by adding this comment // ^db+
+
 let _ = Belt.List.map
 //                  ^def
 
