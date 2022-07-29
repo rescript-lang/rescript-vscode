@@ -10,7 +10,7 @@ val subBinaryExprOperand : string -> string -> bool
 val rhsBinaryExprOperand : string -> Parsetree.expression -> bool
 val flattenOperandRhs : string -> Parsetree.expression -> bool
 
-val lazyOrAssertExprRhs : Parsetree.expression -> kind
+val lazyOrAssertOrAwaitExprRhs : Parsetree.expression -> kind
 
 val fieldExpr : Parsetree.expression -> kind
 

@@ -45,6 +45,8 @@ let callExpr expr =
        | Pexp_try _ | Pexp_while _ | Pexp_for _ | Pexp_ifthenelse _ );
     } ->
       Parenthesized
+    | _ when ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
+      Parenthesized
     | _ -> Nothing)
 
 let structureExpr expr =
@@ -96,6 +98,8 @@ let unaryExprOperand expr =
        | Pexp_try _ | Pexp_while _ | Pexp_for _ | Pexp_ifthenelse _ );
     } ->
       Parenthesized
+    | _ when ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
+      Parenthesized
     | _ -> Nothing)
 
 let binaryExprOperand ~isLhs expr =
@@ -120,6 +124,8 @@ let binaryExprOperand ~isLhs expr =
     | expr when ParsetreeViewer.isBinaryExpression expr -> Parenthesized
     | expr when ParsetreeViewer.isTernaryExpr expr -> Parenthesized
     | {pexp_desc = Pexp_lazy _ | Pexp_assert _} when isLhs -> Parenthesized
+    | _ when ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
+      Parenthesized
     | {Parsetree.pexp_attributes = attrs} ->
       if ParsetreeViewer.hasPrintableAttributes attrs then Parenthesized
       else Nothing)
@@ -169,7 +175,7 @@ let flattenOperandRhs parentOperator rhs =
   | _ when ParsetreeViewer.isTernaryExpr rhs -> true
   | _ -> false
 
-let lazyOrAssertExprRhs expr =
+let lazyOrAssertOrAwaitExprRhs expr =
   let optBraces, _ = ParsetreeViewer.processBracesAttr expr in
   match optBraces with
   | Some ({Location.loc = bracesLoc}, _) -> Braced bracesLoc
@@ -195,6 +201,8 @@ let lazyOrAssertExprRhs expr =
        | Pexp_function _ | Pexp_constraint _ | Pexp_setfield _ | Pexp_match _
        | Pexp_try _ | Pexp_while _ | Pexp_for _ | Pexp_ifthenelse _ );
     } ->
+      Parenthesized
+    | _ when ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
       Parenthesized
     | _ -> Nothing)
 
@@ -239,6 +247,8 @@ let fieldExpr expr =
        | Pexp_match _ | Pexp_try _ | Pexp_while _ | Pexp_for _
        | Pexp_ifthenelse _ );
     } ->
+      Parenthesized
+    | _ when ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
       Parenthesized
     | _ -> Nothing)
 
@@ -302,6 +312,8 @@ let jsxPropExpr expr =
       }
         when startsWithMinus x ->
         Parenthesized
+      | _ when ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
+        Parenthesized
       | {
        Parsetree.pexp_desc =
          ( Pexp_ident _ | Pexp_constant _ | Pexp_field _ | Pexp_construct _
@@ -337,6 +349,8 @@ let jsxChildExpr expr =
        pexp_attributes = [];
       }
         when startsWithMinus x ->
+        Parenthesized
+      | _ when ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
         Parenthesized
       | {
        Parsetree.pexp_desc =

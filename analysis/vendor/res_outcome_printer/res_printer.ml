@@ -79,6 +79,8 @@ let addBraces doc =
          Doc.rbrace;
        ])
 
+let addAsync doc = Doc.concat [Doc.text "async "; doc]
+
 let getFirstLeadingComment tbl loc =
   match Hashtbl.find tbl.CommentTable.leading loc with
   | comment :: _ -> Some comment
@@ -3093,7 +3095,7 @@ and printExpression ~customLayout (e : Parsetree.expression) cmtTbl =
     | Pexp_assert expr ->
       let rhs =
         let doc = printExpressionWithComments ~customLayout expr cmtTbl in
-        match Parens.lazyOrAssertExprRhs expr with
+        match Parens.lazyOrAssertOrAwaitExprRhs expr with
         | Parens.Parenthesized -> addParens doc
         | Braced braces -> printBraces doc expr braces
         | Nothing -> doc
@@ -3102,7 +3104,7 @@ and printExpression ~customLayout (e : Parsetree.expression) cmtTbl =
     | Pexp_lazy expr ->
       let rhs =
         let doc = printExpressionWithComments ~customLayout expr cmtTbl in
-        match Parens.lazyOrAssertExprRhs expr with
+        match Parens.lazyOrAssertOrAwaitExprRhs expr with
         | Parens.Parenthesized -> addParens doc
         | Braced braces -> printBraces doc expr braces
         | Nothing -> doc
@@ -3135,8 +3137,8 @@ and printExpression ~customLayout (e : Parsetree.expression) cmtTbl =
         cmtTbl
     | Pexp_fun _ | Pexp_newtype _ ->
       let attrsOnArrow, parameters, returnExpr = ParsetreeViewer.funExpr e in
-      let uncurried, attrs =
-        ParsetreeViewer.processUncurriedAttribute attrsOnArrow
+      let ParsetreeViewer.{async; uncurried; attributes = attrs} =
+        ParsetreeViewer.processFunctionAttributes attrsOnArrow
       in
       let returnExpr, typConstraint =
         match returnExpr.pexp_desc with
@@ -3156,7 +3158,7 @@ and printExpression ~customLayout (e : Parsetree.expression) cmtTbl =
       in
       let parametersDoc =
         printExprFunParameters ~customLayout ~inCallback:NoCallback ~uncurried
-          ~hasConstraint parameters cmtTbl
+          ~async ~hasConstraint parameters cmtTbl
       in
       let returnExprDoc =
         let optBraces, _ = ParsetreeViewer.processBracesAttr returnExpr in
@@ -3278,6 +3280,28 @@ and printExpression ~customLayout (e : Parsetree.expression) cmtTbl =
     | Pexp_poly _ -> Doc.text "Pexp_poly not impemented in printer"
     | Pexp_object _ -> Doc.text "Pexp_object not impemented in printer"
   in
+  let exprWithAwait =
+    if ParsetreeViewer.hasAwaitAttribute e.pexp_attributes then
+      let rhs =
+        match
+          Parens.lazyOrAssertOrAwaitExprRhs
+            {
+              e with
+              pexp_attributes =
+                List.filter
+                  (function
+                    | {Location.txt = "res.await" | "ns.braces"}, _ -> false
+                    | _ -> true)
+                  e.pexp_attributes;
+            }
+        with
+        | Parens.Parenthesized -> addParens printedExpression
+        | Braced braces -> printBraces printedExpression e braces
+        | Nothing -> printedExpression
+      in
+      Doc.concat [Doc.text "await "; rhs]
+    else printedExpression
+  in
   let shouldPrintItsOwnAttributes =
     match e.pexp_desc with
     | Pexp_apply _ | Pexp_fun _ | Pexp_newtype _ | Pexp_setfield _
@@ -3289,17 +3313,16 @@ and printExpression ~customLayout (e : Parsetree.expression) cmtTbl =
     | _ -> false
   in
   match e.pexp_attributes with
-  | [] -> printedExpression
+  | [] -> exprWithAwait
   | attrs when not shouldPrintItsOwnAttributes ->
     Doc.group
-      (Doc.concat
-         [printAttributes ~customLayout attrs cmtTbl; printedExpression])
-  | _ -> printedExpression
+      (Doc.concat [printAttributes ~customLayout attrs cmtTbl; exprWithAwait])
+  | _ -> exprWithAwait
 
 and printPexpFun ~customLayout ~inCallback e cmtTbl =
   let attrsOnArrow, parameters, returnExpr = ParsetreeViewer.funExpr e in
-  let uncurried, attrs =
-    ParsetreeViewer.processUncurriedAttribute attrsOnArrow
+  let ParsetreeViewer.{async; uncurried; attributes = attrs} =
+    ParsetreeViewer.processFunctionAttributes attrsOnArrow
   in
   let returnExpr, typConstraint =
     match returnExpr.pexp_desc with
@@ -3313,7 +3336,7 @@ and printPexpFun ~customLayout ~inCallback e cmtTbl =
     | _ -> (returnExpr, None)
   in
   let parametersDoc =
-    printExprFunParameters ~customLayout ~inCallback ~uncurried
+    printExprFunParameters ~customLayout ~inCallback ~async ~uncurried
       ~hasConstraint:
         (match typConstraint with
         | Some _ -> true
@@ -3513,13 +3536,13 @@ and printBinaryExpression ~customLayout (expr : Parsetree.expression) cmtTbl =
           then
             let leftPrinted = flatten ~isLhs:true left operator in
             let rightPrinted =
-              let _, rightAttrs =
+              let rightPrinteableAttrs, rightInternalAttrs =
                 ParsetreeViewer.partitionPrintableAttributes
                   right.pexp_attributes
               in
               let doc =
                 printExpressionWithComments ~customLayout
-                  {right with pexp_attributes = rightAttrs}
+                  {right with pexp_attributes = rightInternalAttrs}
                   cmtTbl
               in
               let doc =
@@ -3527,14 +3550,14 @@ and printBinaryExpression ~customLayout (expr : Parsetree.expression) cmtTbl =
                   Doc.concat [Doc.lparen; doc; Doc.rparen]
                 else doc
               in
-              let printableAttrs =
-                ParsetreeViewer.filterPrintableAttributes right.pexp_attributes
-              in
               let doc =
                 Doc.concat
-                  [printAttributes ~customLayout printableAttrs cmtTbl; doc]
+                  [
+                    printAttributes ~customLayout rightPrinteableAttrs cmtTbl;
+                    doc;
+                  ]
               in
-              match printableAttrs with
+              match rightPrinteableAttrs with
               | [] -> doc
               | _ -> addParens doc
             in
@@ -3553,22 +3576,25 @@ and printBinaryExpression ~customLayout (expr : Parsetree.expression) cmtTbl =
             in
             printComments doc cmtTbl expr.pexp_loc
           else
+            let printeableAttrs, internalAttrs =
+              ParsetreeViewer.partitionPrintableAttributes expr.pexp_attributes
+            in
             let doc =
               printExpressionWithComments ~customLayout
-                {expr with pexp_attributes = []}
+                {expr with pexp_attributes = internalAttrs}
                 cmtTbl
             in
             let doc =
               if
                 Parens.subBinaryExprOperand parentOperator operator
-                || expr.pexp_attributes <> []
+                || printeableAttrs <> []
                    && (ParsetreeViewer.isBinaryExpression expr
                       || ParsetreeViewer.isTernaryExpr expr)
               then Doc.concat [Doc.lparen; doc; Doc.rparen]
               else doc
             in
             Doc.concat
-              [printAttributes ~customLayout expr.pexp_attributes cmtTbl; doc]
+              [printAttributes ~customLayout printeableAttrs cmtTbl; doc]
         | _ -> assert false
       else
         match expr.pexp_desc with
@@ -3671,11 +3697,7 @@ and printBinaryExpression ~customLayout (expr : Parsetree.expression) cmtTbl =
                 {
                   expr with
                   pexp_attributes =
-                    List.filter
-                      (fun attr ->
-                        match attr with
-                        | {Location.txt = "ns.braces"}, _ -> false
-                        | _ -> true)
+                    ParsetreeViewer.filterPrintableAttributes
                       expr.pexp_attributes;
                 }
             with
@@ -4575,8 +4597,8 @@ and printCase ~customLayout (case : Parsetree.case) cmtTbl =
   in
   Doc.group (Doc.concat [Doc.text "| "; content])
 
-and printExprFunParameters ~customLayout ~inCallback ~uncurried ~hasConstraint
-    parameters cmtTbl =
+and printExprFunParameters ~customLayout ~inCallback ~async ~uncurried
+    ~hasConstraint parameters cmtTbl =
   match parameters with
   (* let f = _ => () *)
   | [
@@ -4585,11 +4607,15 @@ and printExprFunParameters ~customLayout ~inCallback ~uncurried ~hasConstraint
        attrs = [];
        lbl = Asttypes.Nolabel;
        defaultExpr = None;
-       pat = {Parsetree.ppat_desc = Ppat_any};
+       pat = {Parsetree.ppat_desc = Ppat_any; ppat_loc};
      };
   ]
     when not uncurried ->
-    if hasConstraint then Doc.text "(_)" else Doc.text "_"
+    let any =
+      let doc = if hasConstraint then Doc.text "(_)" else Doc.text "_" in
+      printComments doc cmtTbl ppat_loc
+    in
+    if async then addAsync any else any
   (* let f = a => () *)
   | [
    ParsetreeViewer.Parameter
@@ -4603,7 +4629,8 @@ and printExprFunParameters ~customLayout ~inCallback ~uncurried ~hasConstraint
     when not uncurried ->
     let txtDoc =
       let var = printIdentLike stringLoc.txt in
-      if hasConstraint then addParens var else var
+      let var = if hasConstraint then addParens var else var in
+      if async then addAsync (Doc.concat [Doc.lparen; var; Doc.rparen]) else var
     in
     printComments txtDoc cmtTbl stringLoc.loc
   (* let f = () => () *)
@@ -4613,11 +4640,16 @@ and printExprFunParameters ~customLayout ~inCallback ~uncurried ~hasConstraint
        attrs = [];
        lbl = Asttypes.Nolabel;
        defaultExpr = None;
-       pat = {ppat_desc = Ppat_construct ({txt = Longident.Lident "()"}, None)};
+       pat =
+         {ppat_desc = Ppat_construct ({txt = Longident.Lident "()"; loc}, None)};
      };
   ]
     when not uncurried ->
-    Doc.text "()"
+    let doc =
+      let lparenRparen = Doc.text "()" in
+      if async then addAsync lparenRparen else lparenRparen
+    in
+    printComments doc cmtTbl loc
   (* let f = (~greeting, ~from as hometown, ~x=?) => () *)
   | parameters ->
     let inCallback =
@@ -4625,7 +4657,10 @@ and printExprFunParameters ~customLayout ~inCallback ~uncurried ~hasConstraint
       | FitsOnOneLine -> true
       | _ -> false
     in
-    let lparen = if uncurried then Doc.text "(. " else Doc.lparen in
+    let maybeAsyncLparen =
+      let lparen = if uncurried then Doc.text "(. " else Doc.lparen in
+      if async then addAsync lparen else lparen
+    in
     let shouldHug = ParsetreeViewer.parametersShouldHug parameters in
     let printedParamaters =
       Doc.concat
@@ -4641,7 +4676,7 @@ and printExprFunParameters ~customLayout ~inCallback ~uncurried ~hasConstraint
     Doc.group
       (Doc.concat
          [
-           lparen;
+           maybeAsyncLparen;
            (if shouldHug || inCallback then printedParamaters
            else
              Doc.concat
@@ -5401,6 +5436,7 @@ and printExtensionConstructor ~customLayout
 let printTypeParams = printTypeParams ~customLayout:0
 let printTypExpr = printTypExpr ~customLayout:0
 let printExpression = printExpression ~customLayout:0
+let printPattern = printPattern ~customLayout:0
 
 let printImplementation ~width (s : Parsetree.structure) ~comments =
   let cmtTbl = CommentTable.make () in

@@ -161,6 +161,8 @@ let uncurryAttr = (Location.mknoloc "bs", Parsetree.PStr [])
 let ternaryAttr = (Location.mknoloc "ns.ternary", Parsetree.PStr [])
 let ifLetAttr = (Location.mknoloc "ns.iflet", Parsetree.PStr [])
 let optionalAttr = (Location.mknoloc "ns.optional", Parsetree.PStr [])
+let makeAwaitAttr loc = (Location.mkloc "res.await" loc, Parsetree.PStr [])
+let makeAsyncAttr loc = (Location.mkloc "res.async" loc, Parsetree.PStr [])
 
 let makeExpressionOptional ~optional (e : Parsetree.expression) =
   if optional then {e with pexp_attributes = optionalAttr :: e.pexp_attributes}
@@ -237,6 +239,9 @@ let rec goToClosing closingToken state =
 (* Madness *)
 let isEs6ArrowExpression ~inTernary p =
   Parser.lookahead p (fun state ->
+      (match state.Parser.token with
+      | Lident "async" -> Parser.next state
+      | _ -> ());
       match state.Parser.token with
       | Lident _ | Underscore -> (
         Parser.next state;
@@ -611,19 +616,22 @@ let parseHashIdent ~startPos p =
 let parseValuePath p =
   let startPos = p.Parser.startPos in
   let rec aux p path =
-    match p.Parser.token with
-    | Lident ident -> Longident.Ldot (path, ident)
-    | Uident uident ->
-      Parser.next p;
-      if p.Parser.token = Dot then (
-        Parser.expect Dot p;
-        aux p (Ldot (path, uident)))
-      else (
-        Parser.err p (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
-        path)
-    | token ->
-      Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      Longident.Ldot (path, "_")
+    let startPos = p.Parser.startPos in
+    let token = p.token in
+
+    Parser.next p;
+    if p.Parser.token = Dot then (
+      Parser.expect Dot p;
+
+      match p.Parser.token with
+      | Lident ident -> Longident.Ldot (path, ident)
+      | Uident uident -> aux p (Ldot (path, uident))
+      | token ->
+        Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
+        Longident.Ldot (path, "_"))
+    else (
+      Parser.err p ~startPos ~endPos:p.prevEndPos (Diagnostics.lident token);
+      path)
   in
   let ident =
     match p.Parser.token with
@@ -631,15 +639,7 @@ let parseValuePath p =
       Parser.next p;
       Longident.Lident ident
     | Uident ident ->
-      Parser.next p;
-      let res =
-        if p.Parser.token = Dot then (
-          Parser.expect Dot p;
-          aux p (Lident ident))
-        else (
-          Parser.err p (Diagnostics.unexpected p.Parser.token p.breadcrumbs);
-          Longident.Lident ident)
-      in
+      let res = aux p (Lident ident) in
       Parser.nextUnsafe p;
       res
     | token ->
@@ -2031,6 +2031,16 @@ and parseOperandExpr ~context p =
       let expr = parseUnaryExpr p in
       let loc = mkLoc startPos p.prevEndPos in
       Ast_helper.Exp.assert_ ~loc expr
+    | Lident "async"
+    (* we need to be careful when we're in a ternary true branch:
+       `condition ? ternary-true-branch : false-branch`
+       Arrow expressions could be of the form: `async (): int => stuff()`
+       But if we're in a ternary, the `:` of the ternary takes precedence
+    *)
+      when isEs6ArrowExpression ~inTernary:(context = TernaryTrueBranchExpr) p
+      ->
+      parseAsyncArrowExpression p
+    | Await -> parseAwaitExpression p
     | Lazy ->
       Parser.next p;
       let expr = parseUnaryExpr p in
@@ -2744,6 +2754,21 @@ and parseBracedOrRecordExpr p =
     let expr = parseRecordExpr ~startPos [] p in
     Parser.expect Rbrace p;
     expr
+  (*
+    The branch below takes care of the "braced" expression {async}.
+    The big reason that we need all these branches is that {x} isn't a record with a punned field x, but a braced expression… There's lots of "ambiguity" between a record with a single punned field and a braced expression…
+    What is {x}?
+      1) record {x: x}
+      2) expression x which happens to wrapped in braces
+    Due to historical reasons, we always follow 2
+  *)
+  | Lident "async" when isEs6ArrowExpression ~inTernary:false p ->
+    let expr = parseAsyncArrowExpression p in
+    let expr = parseExprBlock ~first:expr p in
+    Parser.expect Rbrace p;
+    let loc = mkLoc startPos p.prevEndPos in
+    let braces = makeBracesAttr loc in
+    {expr with pexp_attributes = braces :: expr.pexp_attributes}
   | Uident _ | Lident _ -> (
     let startToken = p.token in
     let valueOrConstructor = parseValueOrConstructor p in
@@ -3098,6 +3123,28 @@ and parseExprBlock ?first p =
   in
   Parser.eatBreadcrumb p;
   overParseConstrainedOrCoercedOrArrowExpression p blockExpr
+
+and parseAsyncArrowExpression p =
+  let startPos = p.Parser.startPos in
+  Parser.expect (Lident "async") p;
+  let asyncAttr = makeAsyncAttr (mkLoc startPos p.prevEndPos) in
+  let expr = parseEs6ArrowExpression p in
+  {
+    expr with
+    pexp_attributes = asyncAttr :: expr.pexp_attributes;
+    pexp_loc = {expr.pexp_loc with loc_start = startPos};
+  }
+
+and parseAwaitExpression p =
+  let awaitLoc = mkLoc p.Parser.startPos p.endPos in
+  let awaitAttr = makeAwaitAttr awaitLoc in
+  Parser.expect Await p;
+  let expr = parseUnaryExpr p in
+  {
+    expr with
+    pexp_attributes = awaitAttr :: expr.pexp_attributes;
+    pexp_loc = {expr.pexp_loc with loc_start = awaitLoc.loc_start};
+  }
 
 and parseTryExpression p =
   let startPos = p.Parser.startPos in
