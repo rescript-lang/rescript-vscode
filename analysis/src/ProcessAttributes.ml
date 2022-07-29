@@ -14,7 +14,7 @@ let rec findDocAttribute attributes =
           };
         ] )
     :: _ ->
-    Some (PrepareUtils.cleanOffStars doc)
+    Some ( (* PrepareUtils.cleanOffStars *) doc)
   | _ :: rest -> findDocAttribute rest
 
 let rec findDeprecatedAttribute attributes =
