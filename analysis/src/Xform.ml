@@ -110,9 +110,20 @@ module IfThenElse = struct
     | Some newExpr ->
       let range = rangeOfLoc newExpr.pexp_loc in
       let newText = printExpr ~range newExpr in
+      let uri = Uri.fromPath path |> Uri.toString in
       let codeAction =
         CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
-          ~uri:path ~newText ~range
+          ~edit:
+            {
+              documentChanges =
+                [
+                  TextDocumentEdit
+                    {
+                      textDocument = {version = None; uri};
+                      edits = [{newText; range}];
+                    };
+                ];
+            }
       in
       codeActions := codeAction :: !codeActions
 end
@@ -174,9 +185,20 @@ module AddBracesToFn = struct
     | Some newStructureItem ->
       let range = rangeOfLoc newStructureItem.pstr_loc in
       let newText = printStructureItem ~range newStructureItem in
+      let uri = Uri.fromPath path |> Uri.toString in
       let codeAction =
         CodeActions.make ~title:"Add braces to function" ~kind:RefactorRewrite
-          ~uri:path ~newText ~range
+          ~edit:
+            {
+              documentChanges =
+                [
+                  TextDocumentEdit
+                    {
+                      textDocument = {version = None; uri};
+                      edits = [{newText; range}];
+                    };
+                ];
+            }
       in
       codeActions := codeAction :: !codeActions
 end
@@ -249,24 +271,131 @@ module AddTypeAnnotation = struct
               ( rangeOfLoc locItem.loc,
                 "(" ^ name ^ ": " ^ (typ |> Shared.typeToString) ^ ")" )
           in
+          let uri = Uri.fromPath path |> Uri.toString in
           let codeAction =
             CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
-              ~uri:path ~newText ~range
+              ~edit:
+                {
+                  documentChanges =
+                    [
+                      TextDocumentEdit
+                        {
+                          textDocument = {version = None; uri};
+                          edits = [{newText; range}];
+                        };
+                    ];
+                }
           in
           codeActions := codeAction :: !codeActions
         | _ -> ()))
 end
 
 module TypeToModule = struct
-  let xform ~path ~pos ~full ~structure ~codeActions =
+  (* Convert a type it into its own submodule *)
+  let mkIterator ~pos ~result ~newTypeName =
+    let changeTypeDecl (typ : Parsetree.type_declaration) ~txt =
+      match typ.ptype_manifest with
+      | None ->
+        Ast_helper.Type.mk
+          {txt; loc = typ.ptype_name.loc}
+          ~loc:typ.ptype_loc ~attrs:typ.ptype_attributes
+          ~params:typ.ptype_params ~cstrs:typ.ptype_cstrs ~kind:typ.ptype_kind
+          ~priv:typ.ptype_private
+      | Some manifest ->
+        Ast_helper.Type.mk
+          {txt; loc = typ.ptype_name.loc}
+          ~loc:typ.ptype_loc ~attrs:typ.ptype_attributes
+          ~params:typ.ptype_params ~cstrs:typ.ptype_cstrs ~kind:typ.ptype_kind
+          ~priv:typ.ptype_private ~manifest
+    in
+
     let structure_item (iterator : Ast_iterator.iterator)
-        (item : Parsetree.structure_item) =
-      match item.pstr_desc with
-      | Pstr_type (_recFlag, typeDecls) ->
-        ()
+        (si : Parsetree.structure_item) =
+      match si.pstr_desc with
+      | Pstr_type (Nonrecursive, firstypeDec :: rest)
+        when Loc.hasPos ~pos si.pstr_loc ->
+        let loc = si.pstr_loc in
+        let firsLetterOfModule =
+          String.get firstypeDec.ptype_name.txt 0
+          |> Char.uppercase_ascii |> String.make 1
+        in
+        let restName =
+          String.sub firstypeDec.ptype_name.txt 1
+            (String.length firstypeDec.ptype_name.txt - 1)
+        in
+        let modName = firsLetterOfModule ^ restName in
+        let newFistType = changeTypeDecl firstypeDec ~txt:newTypeName in
+        let restStrucTypes =
+          Ast_helper.Str.type_ ~loc Nonrecursive ([newFistType] @ rest)
+        in
+        let pmb_expr = Ast_helper.Mod.structure ~loc [restStrucTypes] in
+        let mod_expr =
+          Parsetree.Pstr_module
+            {
+              pmb_name = {txt = modName; loc};
+              pmb_expr;
+              pmb_attributes = [];
+              pmb_loc = loc;
+            }
+        in
+        result :=
+          Some
+            ( Ast_helper.Str.mk ~loc mod_expr,
+              firstypeDec.ptype_name.loc,
+              modName );
+        Ast_iterator.default_iterator.structure_item iterator si
       | _ -> ()
     in
     {Ast_iterator.default_iterator with structure_item}
+
+  let xform ~path ~pos ~codeActions ~printStructureItem structure ~debug =
+    let result = ref None in
+    let newTypeName = "t" in
+    let iterator = mkIterator ~pos ~result ~newTypeName in
+    iterator.structure iterator structure;
+    match !result with
+    | None -> ()
+    | Some (newStructureItem, locOfRef, modName) ->
+      let range = rangeOfLoc newStructureItem.pstr_loc in
+      let newText = printStructureItem ~range newStructureItem in
+      let rangeRef = rangeOfLoc locOfRef in
+      let newName = modName ^ "." ^ newTypeName in
+      let uri = Uri.fromPath path |> Uri.toString in
+      let renameReferences =
+        Rename.command ~path
+          ~pos:(rangeRef.start.line, rangeRef.start.character)
+          ~newName ~debug
+      in
+      let initialChange =
+        Protocol.TextDocumentEdit
+          {textDocument = {version = None; uri}; edits = [{newText; range}]}
+      in
+      let documentChanges =
+        match renameReferences with
+        | None -> [initialChange]
+        | Some workspaceEdit ->
+          let referencesChanged =
+            workspaceEdit.documentChanges
+            |> List.map (fun (documentChange : Protocol.documentChange) ->
+                   match documentChange with
+                   | TextDocumentEdit textEdit ->
+                     let textDocument = textEdit.textDocument in
+                     let edits =
+                       textEdit.edits
+                       |> List.filter (fun (edits : Protocol.textEdit) ->
+                              edits.range <> rangeRef)
+                     in
+                     Protocol.TextDocumentEdit {textDocument; edits}
+                   | _ -> documentChange)
+          in
+          [initialChange] @ referencesChanged
+      in
+      let codeAction =
+        CodeActions.make
+          ~title:("Convert type to module " ^ modName)
+          ~kind:RefactorRewrite ~edit:{documentChanges}
+      in
+      codeActions := codeAction :: !codeActions
 end
 
 let indent n text =
@@ -322,6 +451,7 @@ let extractCodeActions ~path ~pos ~currentFile ~debug =
     AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions ~debug;
     IfThenElse.xform ~pos ~codeActions ~printExpr ~path structure;
     AddBracesToFn.xform ~pos ~codeActions ~path ~printStructureItem structure;
-    TypeToModule.xform ~path ~pos ~full ~structure ~codeActions;
+    TypeToModule.xform ~path ~pos ~codeActions ~printStructureItem structure
+      ~debug;
     !codeActions
   | _ -> []

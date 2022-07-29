@@ -65,3 +65,8 @@ let bar = () => {
   }
   Inner.foo(1)
 }
+
+type readState = New | Unread | Read
+//^xfm
+
+type refState = readState

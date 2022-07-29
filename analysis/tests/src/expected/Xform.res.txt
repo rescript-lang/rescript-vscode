@@ -99,3 +99,16 @@ newText:
       }
     }
 
+Xform src/Xform.res 68:2
+Hit: Convert type to module ReadState
+{"start": {"line": 68, "character": 0}, "end": {"line": 68, "character": 36}}
+newText:
+<--here
+module ReadState = {
+  type t = New | Unread | Read
+}
+{"start": {"line": 71, "character": 16}, "end": {"line": 71, "character": 25}}
+newText:
+                <--here
+                ReadState.t
+

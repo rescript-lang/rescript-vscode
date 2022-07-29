@@ -41,13 +41,17 @@ type textDocumentEdit = {
   edits: textEdit list;
 }
 
-type codeActionEdit = {documentChanges: textDocumentEdit list}
+type documentChange =
+  | TextDocumentEdit of textDocumentEdit
+  | RenameFile of renameFile
+
+type workspaceEdit = {documentChanges: documentChange list}
 type codeActionKind = RefactorRewrite
 
 type codeAction = {
   title: string;
   codeActionKind: codeActionKind;
-  edit: codeActionEdit;
+  edit: workspaceEdit;
 }
 
 let null = "null"
@@ -133,14 +137,19 @@ let codeActionKindToString kind =
   match kind with
   | RefactorRewrite -> "refactor.rewrite"
 
-let stringifyCodeActionEdit cae =
+let stringifyWorkspaceEdit we =
   Printf.sprintf {|{"documentChanges": %s}|}
-    (cae.documentChanges |> List.map stringifyTextDocumentEdit |> array)
+    (we.documentChanges
+    |> List.map (fun documentChange ->
+           match documentChange with
+           | TextDocumentEdit textEdit -> textEdit |> stringifyTextDocumentEdit
+           | RenameFile renameFile -> renameFile |> stringifyRenameFile)
+    |> array)
 
 let stringifyCodeAction ca =
   Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title
     (codeActionKindToString ca.codeActionKind)
-    (ca.edit |> stringifyCodeActionEdit)
+    (ca.edit |> stringifyWorkspaceEdit)
 
 let stringifyHint hint =
   Printf.sprintf

@@ -531,7 +531,7 @@ function rename(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
   let params = msg.params as p.RenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let documentChanges: (p.RenameFile | p.TextDocumentEdit)[] | null =
+  let result: WorkspaceEdit | null =
     utils.runAnalysisAfterSanityCheck(filePath, [
       "rename",
       filePath,
@@ -539,10 +539,6 @@ function rename(msg: p.RequestMessage) {
       params.position.character,
       params.newName,
     ]);
-  let result: WorkspaceEdit | null = null;
-  if (documentChanges !== null) {
-    result = { documentChanges };
-  }
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
