@@ -139,20 +139,11 @@ let arity0d = (. ()) => {
   f
 }
 
-/**doc comment `1` one */
+/**doc comment 1*/
 let docComment1 = 12
 //       ^hov
 
-/**
-  Doc comment with a triple-backquote example
-  
-  ```res example
-    let a = 10
-    /*
-     * stuff
-     */
-  ```
-*/
+/** doc comment 2 */
 let docComment2 = 12
 //    ^hov
 
