@@ -231,7 +231,7 @@ let compilerLogsWatcher = chokidar
   .on("all", (_e, changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
-    if (extensionConfiguration.inlayHints.enable === true) {
+    if (extensionConfiguration.inlayHints?.enable === true) {
       sendInlayHintsRefresh();
     }
     if (extensionConfiguration.codeLens === true) {
@@ -1031,7 +1031,7 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
-          inlayHintProvider: extensionConfiguration.inlayHints.enable,
+          inlayHintProvider: extensionConfiguration.inlayHints?.enable,
           codeLensProvider: extensionConfiguration.codeLens
             ? {
                 workDoneProgress: false,
