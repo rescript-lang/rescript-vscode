@@ -23,6 +23,8 @@
 
 - Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
 
+- Fix issue where doc comment with nested comments inside is not shown properly on hover https://github.com/rescript-lang/rescript-vscode/pull/526
+
 ## v1.4.2
 
 #### :bug: Bug Fix
