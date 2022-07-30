@@ -330,9 +330,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | None -> if debug then Printf.printf "Typed context, unsetting\n"
       | Some x ->
         if debug then
-          Printf.printf "Typed context, found %s\n"
+          Printf.printf "found typed context: %s\n"
             (match x with
-            | Completable.JsxProp {propName} -> "jsxProp: " ^ propName
+            | Completable.JsxProp {propName} -> "jsxProp " ^ propName
             | NamedArg {label} -> "namedArg: " ^ label
             | RecordField _ -> "recordField");
         currentlyLookingForType := Some x
