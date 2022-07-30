@@ -17,3 +17,12 @@ let someVal = {
 
 // let {} = someVal
 //      ^com
+
+let getSomeVal = (~irrelevant: int) => {
+  ignore(irrelevant)
+  someVal
+}
+
+// Via function
+// let {} = getSomeVal(~irrelevant=123)
+//      ^com

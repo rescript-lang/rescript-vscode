@@ -424,12 +424,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
 
       (* Check for: let {destructuringSomething} = someIdentifier *)
       (* Ensure cursor is inside of record pattern. *)
-      (* TODO: Function calls, tuples, etc... *)
+      (* TODO: Tuples, etc... *)
       (match bindings with
       | [
        {
          pvb_pat = {ppat_desc = Ppat_record (fields, _); ppat_loc};
-         pvb_expr = {pexp_desc = Pexp_ident _} as expr;
+         pvb_expr = expr;
        };
       ]
         when ppat_loc |> Loc.hasPos ~pos:posNoWhite && !result = None -> (

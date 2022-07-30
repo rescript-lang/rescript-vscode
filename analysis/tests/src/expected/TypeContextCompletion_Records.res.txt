@@ -45,3 +45,26 @@ Completable: CtypedContext(RecordField(Value[someVal], [], ""))
     "documentation": null
   }]
 
+Complete src/TypeContextCompletion_Records.res 26:8
+posCursor:[26:8] posNoWhite:[26:7] Found pattern:[26:7->26:9]
+Completable: CtypedContext(RecordField(Value[getSomeVal](~irrelevant), [], ""))
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }]
+
