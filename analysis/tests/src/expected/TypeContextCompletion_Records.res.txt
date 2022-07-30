@@ -1,17 +1,47 @@
-Complete src/TypeContextCompletion_Records.res 12:9
-posCursor:[12:9] posNoWhite:[12:8] Found expr:[12:5->12:9]
-Pexp_ident some:[12:5->12:9]
-Completable: Cpath Value[some]
+Complete src/TypeContextCompletion_Records.res 11:15
+posCursor:[11:15] posNoWhite:[11:14] Found pattern:[11:7->11:16]
+posCursor:[11:15] posNoWhite:[11:14] Found pattern:[11:8->11:15]
+Completable: CtypedContext(RecordField(Value[someVal], [another], another))
 [{
-    "label": "someVal",
-    "kind": 12,
+    "label": "anotherThing",
+    "kind": 5,
     "tags": [],
-    "detail": "anotherRecord",
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 15:15
-posCursor:[15:15] posNoWhite:[15:14] Found pattern:[15:7->15:16]
-posCursor:[15:15] posNoWhite:[15:14] Found pattern:[15:8->15:15]
-[]
+Complete src/TypeContextCompletion_Records.res 14:23
+posCursor:[14:23] posNoWhite:[14:22] Found pattern:[14:7->14:24]
+posCursor:[14:23] posNoWhite:[14:22] Found pattern:[14:22->14:23]
+Completable: CtypedContext(RecordField(Value[someVal], [anotherThing, s], s))
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 17:8
+posCursor:[17:8] posNoWhite:[17:7] Found pattern:[17:7->17:9]
+Completable: CtypedContext(RecordField(Value[someVal], [], ""))
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }]
 

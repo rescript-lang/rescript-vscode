@@ -1832,4 +1832,35 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | None -> []
       | Some (_label, typeExpr) ->
         completeTypeExpr ~env ~package ~debug ~prefix:(List.hd prefix) typeExpr
-        @ completionsFromContext))
+        @ completionsFromContext)
+    | RecordField {contextPath; alreadySelectedFields; prefix} -> (
+      match
+        contextPath
+        |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:true ~scope
+        |> completionsGetTypeEnv
+      with
+      | Some (typ, env) -> (
+        match typ |> extractRecordType ~env ~package with
+        | Some (env, fields, typDecl) ->
+          (* Get rid of all fields already selected. *)
+          fields
+          |> List.filter (fun field ->
+                 not
+                   (alreadySelectedFields
+                   |> List.exists (fun fieldName -> fieldName = field.fname.txt)
+                   ))
+          |> Utils.filterMap (fun (field : field) ->
+                 if
+                   prefix = "" || checkName field.fname.txt ~prefix ~exact:false
+                 then
+                   Some
+                     (Completion.create ~name:field.fname.txt ~env
+                        ~kind:
+                          (Completion.Field
+                             ( field,
+                               typDecl.item.decl
+                               |> Shared.declToString typDecl.name.txt )))
+                 else None)
+        | None -> [])
+      | None -> []))

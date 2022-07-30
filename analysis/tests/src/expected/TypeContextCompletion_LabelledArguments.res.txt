@@ -18,19 +18,19 @@ Found type for function (
 Complete src/TypeContextCompletion_LabelledArguments.res 25:44
 posCursor:[25:44] posNoWhite:[25:43] Found expr:[25:11->25:44]
 Pexp_apply ...[25:11->25:30] (~someVariant25:32->25:43=...__ghost__[0:-1->0:-1])
-found typed context: named arg someVariant 
+found typed context: namedArg: someVariant
 []
 
 Complete src/TypeContextCompletion_LabelledArguments.res 28:45
 posCursor:[28:45] posNoWhite:[28:43] Found expr:[28:11->28:44]
 Pexp_apply ...[28:11->28:30] (~someVariant28:32->28:43=...__ghost__[0:-1->0:-1])
-found typed context: named arg someVariant 
+found typed context: namedArg: someVariant
 []
 
 Complete src/TypeContextCompletion_LabelledArguments.res 31:45
 posCursor:[31:45] posNoWhite:[31:44] Found expr:[31:11->31:45]
 Pexp_apply ...[31:11->31:30] (~someVariant31:32->31:43=...[31:44->31:45])
-found typed context: named arg someVariant 
+found typed context: namedArg: someVariant
 posCursor:[31:45] posNoWhite:[31:44] Found expr:[31:44->31:45]
 Pexp_construct T:[31:44->31:45] None
 Completable: Cpath Value[T]
@@ -81,7 +81,7 @@ Completable: Cpath Value[T]
 Complete src/TypeContextCompletion_LabelledArguments.res 34:45
 posCursor:[34:45] posNoWhite:[34:44] Found expr:[34:11->34:45]
 Pexp_apply ...[34:11->34:30] (~someVariant34:32->34:43=...[34:44->34:45])
-found typed context: named arg someVariant 
+found typed context: namedArg: someVariant
 posCursor:[34:45] posNoWhite:[34:44] Found expr:[34:44->34:45]
 Pexp_ident t:[34:44->34:45]
 Completable: Cpath Value[t]
@@ -96,7 +96,7 @@ Completable: Cpath Value[t]
 Complete src/TypeContextCompletion_LabelledArguments.res 37:59
 posCursor:[37:59] posNoWhite:[37:58] Found expr:[37:11->37:59]
 Pexp_apply ...[37:11->37:30] (~someVariant37:32->37:43=...[37:44->37:59])
-found typed context: named arg someVariant 
+found typed context: namedArg: someVariant
 posCursor:[37:59] posNoWhite:[37:58] Found expr:[37:44->37:59]
 Pexp_ident TypeDefinition.:[37:44->37:59]
 Completable: Cpath Value[TypeDefinition, ""]
@@ -147,32 +147,32 @@ Completable: Cpath Value[TypeDefinition, ""]
 Complete src/TypeContextCompletion_LabelledArguments.res 40:45
 posCursor:[40:45] posNoWhite:[40:44] Found expr:[40:11->40:45]
 Pexp_apply ...[40:11->40:30] (~anotherThing40:32->40:44=...__ghost__[0:-1->0:-1])
-found typed context: named arg anotherThing 
+found typed context: namedArg: anotherThing
 []
 
 Complete src/TypeContextCompletion_LabelledArguments.res 43:43
 posCursor:[43:43] posNoWhite:[43:42] Found expr:[43:11->43:43]
 Pexp_apply ...[43:11->43:30] (~thirdThing43:32->43:42=...__ghost__[0:-1->0:-1])
-found typed context: named arg thirdThing 
+found typed context: namedArg: thirdThing
 []
 
 Complete src/TypeContextCompletion_LabelledArguments.res 46:44
 posCursor:[46:44] posNoWhite:[46:42] Found expr:[46:11->46:43]
 Pexp_apply ...[46:11->46:30] (~thirdThing46:32->46:42=...__ghost__[0:-1->0:-1])
-found typed context: named arg thirdThing 
+found typed context: namedArg: thirdThing
 []
 
 Complete src/TypeContextCompletion_LabelledArguments.res 49:45
 posCursor:[49:45] posNoWhite:[49:44] Found expr:[49:11->49:45]
 Pexp_apply ...[49:11->49:30] (~thirdThing49:32->49:42=...[49:43->49:45])
-found typed context: named arg thirdThing 
+found typed context: namedArg: thirdThing
 posCursor:[49:45] posNoWhite:[49:44] Found expr:[49:43->49:45]
 []
 
 Complete src/TypeContextCompletion_LabelledArguments.res 52:45
 posCursor:[52:45] posNoWhite:[52:44] Found expr:[52:11->52:45]
 Pexp_apply ...[52:11->52:30] (~thirdThing52:32->52:42=...[52:43->52:45])
-found typed context: named arg thirdThing 
+found typed context: namedArg: thirdThing
 posCursor:[52:45] posNoWhite:[52:44] Found expr:[52:43->52:45]
 []
 

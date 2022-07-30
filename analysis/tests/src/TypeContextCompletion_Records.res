@@ -8,10 +8,12 @@ let someVal = {
   thirdThing: "test",
 }
 
-// let value: anotherRecord = {
-//   anotherThing: None,
-//   some
-//       ^com
-
+// Simple destructuring
 // let {another} = someVal
 //             ^com
+
+// let {anotherThing, s} = someVal
+//                     ^com
+
+// let {} = someVal
+//      ^com

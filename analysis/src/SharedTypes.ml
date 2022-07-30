@@ -447,6 +447,11 @@ module Completable = struct
         (* What the user has already started writing, if anything *)
         prefix: string list;
       }
+    | RecordField of {
+        contextPath: contextPath;
+        alreadySelectedFields: string list;
+        prefix: string;
+      }
 
   let str s = if s = "" then "\"\"" else s
   let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
@@ -485,6 +490,12 @@ module Completable = struct
     | JsxProp {propName; componentPath; prefix} ->
       "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "="
       ^ (prefix |> ident) ^ " />)"
+    | RecordField {contextPath; alreadySelectedFields; prefix} ->
+      "RecordField("
+      ^ (contextPath |> contextPathToString)
+      ^ ", "
+      ^ (alreadySelectedFields |> list)
+      ^ ", " ^ str prefix ^ ")"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
