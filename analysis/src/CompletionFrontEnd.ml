@@ -81,7 +81,7 @@ let isElgibleForTypedContextCompletion exp =
   | _ -> false
 
 let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
-    ~debug =
+    ~setCurrentlyLookingForTypeOpt =
   let allLabels =
     List.fold_right
       (fun prop allLabels -> prop.name :: allLabels)
@@ -104,34 +104,28 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         None
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
         (* Cursor on expr assigned *)
-        if debug then
-          Printf.printf "found typed context: jsxProp %s\n" prop.name;
-        let _typedContext =
-          Completable.JsxProp
-            {
-              componentPath =
-                Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-              propName = prop.name;
-              prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
-            }
-        in
-        (* Some (CtypedContext typedContext)) *)
+        setCurrentlyLookingForTypeOpt
+          (Some
+             (Completable.JsxProp
+                {
+                  componentPath =
+                    Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                  propName = prop.name;
+                  prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
+                }));
         None)
       else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
              Complete for the value. *)
-        if debug then
-          Printf.printf "found typed context: jsxProp %s\n" prop.name;
-        let _typedContext =
-          Completable.JsxProp
-            {
-              componentPath =
-                Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-              propName = prop.name;
-              prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
-            }
-        in
-        (* Some (CtypedContext typedContext)) *)
+        setCurrentlyLookingForTypeOpt
+          (Some
+             (Completable.JsxProp
+                {
+                  componentPath =
+                    Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                  propName = prop.name;
+                  prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
+                }));
         None)
       else loop rest
     | [] ->
@@ -201,7 +195,8 @@ type label = labelled option
 type arg = {label: label; exp: Parsetree.expression}
 
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~debug =
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr
+    ~setCurrentlyLookingForTypeOpt =
   let allNames =
     List.fold_right
       (fun arg allLabels ->
@@ -219,30 +214,26 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         && posBeforeCursor < labelled.posEnd
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
-        if debug then
-          Printf.printf "found typed context: named arg %s \n" labelled.name;
-        (*Some
-          (Completable.CtypedContext
-             (NamedArg
+        setCurrentlyLookingForTypeOpt
+          (Some
+             (Completable.NamedArg
                 {
                   contextPath;
                   label = labelled.name;
                   prefix = getPrefixFromExpr exp;
-                }))) *)
+                }));
         None)
       else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
            Assume this is an empty expression. *)
-        if debug then
-          Printf.printf "found typed context: named arg %s \n" labelled.name;
-        (*Some
-          (Completable.CtypedContext
+        setCurrentlyLookingForTypeOpt
+          (Some
              (NamedArg
                 {
                   contextPath;
                   label = labelled.name;
                   prefix = getPrefixFromExpr exp;
-                })))*)
+                }));
         None)
       else loop rest
     | {label = None; exp} :: rest ->
@@ -332,6 +323,20 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | Some x -> result := Some (x, !scope)
   in
   let setResult x = setResultOpt (Some x) in
+  let currentlyLookingForType = ref None in
+  let setCurrentlyLookingForTypeOpt x =
+    if !currentlyLookingForType = None then
+      match x with
+      | None -> if debug then Printf.printf "Typed context, unsetting\n"
+      | Some x ->
+        if debug then
+          Printf.printf "Typed context, found %s\n"
+            (match x with
+            | Completable.JsxProp {propName} -> "jsxProp: " ^ propName
+            | NamedArg {label} -> "namedArg: " ^ label
+            | RecordField _ -> "recordField");
+        currentlyLookingForType := Some x
+  in
   let scopeValueDescription (vd : Parsetree.value_description) =
     scope :=
       !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_name.loc
@@ -416,6 +421,49 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | Pstr_primitive vd -> scopeValueDescription vd
     | Pstr_value (recFlag, bindings) ->
       if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
+
+      (* Check for: let {destructuringSomething} = someIdentifier *)
+      (* Ensure cursor is inside of record pattern. *)
+      (* TODO: Function calls, tuples, etc... *)
+      (match bindings with
+      | [
+       {
+         pvb_pat = {ppat_desc = Ppat_record (fields, _); ppat_loc};
+         pvb_expr = {pexp_desc = Pexp_ident _} as expr;
+       };
+      ]
+        when ppat_loc |> Loc.hasPos ~pos:posNoWhite && !result = None -> (
+        (* The thing being typed currently, if anything *)
+        let prefix =
+          match
+            fields
+            |> List.filter_map (fun (_loc, {Parsetree.ppat_desc; ppat_loc}) ->
+                   match ppat_desc with
+                   | Ppat_var {txt}
+                     when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor ->
+                     Some txt
+                   | _ -> None)
+          with
+          | [prefix] -> prefix
+          | _ -> ""
+        in
+        (* Find all fields already selected in the pattern *)
+        let alreadySelectedFields =
+          fields
+          |> List.filter_map (fun (_loc, {Parsetree.ppat_desc}) ->
+                 match ppat_desc with
+                 | Ppat_var {txt} -> Some txt
+                 | _ -> None)
+        in
+        match exprToContextPath expr with
+        | None -> ()
+        | Some contextPath ->
+          setResultOpt
+            (Some
+               (Completable.CtypedContext
+                  (RecordField {contextPath; prefix; alreadySelectedFields}))))
+      | _ -> ());
+
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
       processed := true
@@ -610,7 +658,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               | Some childrenPosStart -> Pos.toString childrenPosStart);
           let jsxCompletable =
             findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
-              ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc) ~debug
+              ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
+              ~setCurrentlyLookingForTypeOpt
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
@@ -659,8 +708,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             match exprToContextPath funExpr with
             | Some contextPath ->
               findNamedArgCompletable ~contextPath ~args
-                ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor ~debug
+                ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
+                ~setCurrentlyLookingForTypeOpt
             | None -> None
           in
 
