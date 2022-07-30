@@ -1,0 +1,17 @@
+Complete src/TypeContextCompletion_Records.res 12:9
+posCursor:[12:9] posNoWhite:[12:8] Found expr:[12:5->12:9]
+Pexp_ident some:[12:5->12:9]
+Completable: Cpath Value[some]
+[{
+    "label": "someVal",
+    "kind": 12,
+    "tags": [],
+    "detail": "anotherRecord",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 15:15
+posCursor:[15:15] posNoWhite:[15:14] Found pattern:[15:7->15:16]
+posCursor:[15:15] posNoWhite:[15:14] Found pattern:[15:8->15:15]
+[]
+

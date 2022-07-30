@@ -60,6 +60,12 @@ Completable: Cpath Value[T]
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "TypeContextCompletion_Records",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
