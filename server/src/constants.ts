@@ -6,8 +6,13 @@ let platformDir =
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
 export let jsonrpcVersion = "2.0";
-export let platformPath = path.join("node_modules", "rescript", platformDir);
-export let bscNativeReScriptPartialPath = path.join(platformPath, "bsc.exe");
+export let platformPath = path.join("rescript", platformDir);
+export let nodeModulesPlatformPath = path.join("node_modules", platformPath);
+export let bscExeName = "bsc.exe";
+export let bscNativeReScriptPartialPath = path.join(
+  nodeModulesPlatformPath,
+  bscExeName
+);
 
 export let analysisDevPath = path.join(
   path.dirname(__dirname),
@@ -25,7 +30,6 @@ export let analysisProdPath = path.join(
 export let rescriptBinName = "rescript";
 
 export let bscBinName = "bsc";
-export let bscExeName = "bsc.exe";
 
 export let nodeModulesBinDir = path.join("node_modules", ".bin");
 

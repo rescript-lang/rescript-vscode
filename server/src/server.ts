@@ -79,13 +79,11 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let findBinaryFromProjectDirRec = (
-  directory: p.DocumentUri, // This must be a directory and not a file!
-  targetDir: p.DocumentUri,
-  binaryName: p.DocumentUri
+let findBinaryPathFromProjectRoot = (
+  directory: p.DocumentUri // This must be a directory and not a file!
 ): null | p.DocumentUri => {
-  let binaryDirPath = path.join(directory, targetDir);
-  let binaryPath = path.join(binaryDirPath, binaryName);
+  let binaryDirPath = path.join(directory, c.nodeModulesBinDir);
+  let binaryPath = path.join(binaryDirPath, c.rescriptBinName);
 
   if (fs.existsSync(binaryPath)) {
     return binaryPath;
@@ -97,22 +95,26 @@ let findBinaryFromProjectDirRec = (
     return null;
   }
 
-  return findBinaryFromProjectDirRec(parentDir, targetDir, binaryName);
+  return findBinaryPathFromProjectRoot(parentDir);
 };
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
   extensionConfiguration.binaryPath == null
-    ? findBinaryFromProjectDirRec(
-        projectRootPath,
-        c.nodeModulesBinDir,
-        c.rescriptBinName
-      )
+    ? findBinaryPathFromProjectRoot(projectRootPath)
     : utils.findRescriptBinary(extensionConfiguration.binaryPath);
 
-let findBscBinary = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath == null
-    ? findBinaryFromProjectDirRec(projectRootPath, c.platformPath, c.bscExeName)
-    : utils.findBscBinary(extensionConfiguration.binaryPath);
+let findBscBinary = (projectRootPath: p.DocumentUri) => {
+  let rescriptBinaryPath = findRescriptBinary(projectRootPath);
+  if (rescriptBinaryPath !== null) {
+    return path.join(
+      path.dirname(rescriptBinaryPath),
+      "..",
+      c.platformPath,
+      c.bscExeName
+    );
+  }
+  return null;
+};
 
 interface CreateInterfaceRequestParams {
   uri: string;
