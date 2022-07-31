@@ -79,6 +79,8 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
+// Check if the rescript binary is available at node_modules/.bin/rescript,
+// otherwise recursively check parent directories for it.
 let findBinaryPathFromProjectRoot = (
   directory: p.DocumentUri // This must be a directory and not a file!
 ): null | p.DocumentUri => {
@@ -321,7 +323,10 @@ let openedFile = (fileUri: string, fileContent: string) => {
             type: p.MessageType.Error,
             message:
               extensionConfiguration.binaryPath == null
-                ? "Can't find ReScript binary"
+                ? `Can't find ReScript binary in  ${path.join(
+                    projectRootPath,
+                    c.nodeModulesBinDir
+                  )} or parent directories. Did you install it? It's required to use "rescript" > 9.1`
                 : `Can't find ReScript binary in the directory ${extensionConfiguration.binaryPath}`,
           },
         };
