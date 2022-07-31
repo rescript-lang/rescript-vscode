@@ -428,6 +428,9 @@ module Completable = struct
     | CPObj of contextPath * string
     | CPPipe of contextPath * string
 
+  (* TODO: Can extend to tuples, objects, etc *)
+  type recordFieldContextPathItem = RField of string
+
   type typedContext =
     (* A labelled argument assignment, eg. someFunc(~someArg=<completable>) *)
     | NamedArg of {
@@ -448,14 +451,27 @@ module Completable = struct
         prefix: string list;
       }
     | RecordField of {
-        contextPath: contextPath;
+        (* This is what you'll use to lookup the type to start from when completing *)
+        typeSourceContextPath: contextPath;
+        (* This dedicated context path should be used to look up the actual type to complete.
+           It'll be populated if the type to complete is nested inside of the source record. If it's empty, you should use the source record directly. *)
+        nestedContextPath: recordFieldContextPathItem list;
+        (* These are the fields already selected, if any. Filter these away from any completion. *)
         alreadySelectedFields: string list;
+        (* This is what the user has started typing already, if anything. Filter results based on this if it's not empty. *)
         prefix: string;
       }
 
   let str s = if s = "" then "\"\"" else s
   let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
   let ident l = l |> List.map str |> String.concat "."
+
+  let recordFieldContextPathToString pathItems =
+    pathItems
+    |> List.map (fun item ->
+           match item with
+           | RField fieldName -> fieldName)
+    |> list
 
   let completionContextToString = function
     | Value -> "Value"
@@ -490,12 +506,20 @@ module Completable = struct
     | JsxProp {propName; componentPath; prefix} ->
       "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "="
       ^ (prefix |> ident) ^ " />)"
-    | RecordField {contextPath; alreadySelectedFields; prefix} ->
-      "RecordField("
-      ^ (contextPath |> contextPathToString)
-      ^ ", "
+    | RecordField
+        {
+          typeSourceContextPath;
+          nestedContextPath;
+          alreadySelectedFields;
+          prefix;
+        } ->
+      "RecordField(contextPath:"
+      ^ (typeSourceContextPath |> contextPathToString)
+      ^ ", nestedContextPath:"
+      ^ (nestedContextPath |> recordFieldContextPathToString)
+      ^ ", alreadySelectedFields:"
       ^ (alreadySelectedFields |> list)
-      ^ ", " ^ str prefix ^ ")"
+      ^ ", prefix:" ^ str prefix ^ ")"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)

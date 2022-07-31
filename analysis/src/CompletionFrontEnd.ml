@@ -277,6 +277,11 @@ let extractExpApplyArgs ~args =
   in
   args |> processArgs ~acc:[]
 
+let getSimpleFieldName txt =
+  match txt with
+  | Longident.Lident fieldName -> fieldName
+  | _ -> ""
+
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = skipWhite text (offset - 1) in
   let posNoWhite =
@@ -425,6 +430,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (* Check for: let {destructuringSomething} = someIdentifier *)
       (* Ensure cursor is inside of record pattern. *)
       (* TODO: Tuples, etc... *)
+      (* TODO: Handle let {SomeModule.recordField} = ...*)
       (match bindings with
       | [
        {
@@ -433,20 +439,41 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
        };
       ]
         when ppat_loc |> Loc.hasPos ~pos:posNoWhite && !result = None -> (
-        (* The thing being typed currently, if anything *)
-        let prefix =
-          match
+        (* The contextPath is what we'll use to look up the root record type for this completion.
+           Depending on if the destructure is nested or not, we may or may not use that directly.*)
+        let contextPath = exprToContextPath expr in
+        let prefix, nestedContextPath =
+          let prefix = ref "" in
+          let rec findNestedContextPath ~path fields =
             fields
-            |> List.filter_map (fun (_loc, {Parsetree.ppat_desc; ppat_loc}) ->
-                   match ppat_desc with
-                   | Ppat_var {txt}
-                     when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor ->
-                     Some txt
-                   | _ -> None)
-          with
-          | [prefix] -> prefix
-          | _ -> ""
+            |> List.find_map
+                 (fun ({Location.txt}, {Parsetree.ppat_loc; ppat_desc}) ->
+                   if ppat_loc |> Loc.hasPos ~pos:posBeforeCursor then
+                     match ppat_desc with
+                     | Ppat_record (fields, _) ->
+                       if List.length fields = 0 then
+                         Some
+                           ([Completable.RField (getSimpleFieldName txt)] @ path)
+                       else
+                         fields
+                         |> findNestedContextPath
+                              ~path:
+                                ([Completable.RField (getSimpleFieldName txt)]
+                                @ path)
+                     | Ppat_var {txt} ->
+                       prefix := txt;
+                       Some path
+                     | _ -> Some path
+                   else if ppat_loc |> Loc.end_ = (Location.none |> Loc.end_)
+                   then Some path
+                   else None)
+          in
+
+          match fields |> findNestedContextPath ~path:[] with
+          | None -> (!prefix, [])
+          | Some nestedContextPath -> (!prefix, nestedContextPath)
         in
+
         (* Find all fields already selected in the pattern *)
         let alreadySelectedFields =
           fields
@@ -455,13 +482,19 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                  | Ppat_var {txt} -> Some txt
                  | _ -> None)
         in
-        match exprToContextPath expr with
+        match contextPath with
         | None -> ()
         | Some contextPath ->
           setResultOpt
             (Some
                (Completable.CtypedContext
-                  (RecordField {contextPath; prefix; alreadySelectedFields}))))
+                  (RecordField
+                     {
+                       nestedContextPath = nestedContextPath |> List.rev;
+                       typeSourceContextPath = contextPath;
+                       prefix;
+                       alreadySelectedFields;
+                     }))))
       | _ -> ());
 
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);

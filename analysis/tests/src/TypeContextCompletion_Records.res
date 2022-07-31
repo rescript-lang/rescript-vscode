@@ -1,9 +1,10 @@
-type someRecord = {somethingElse: int, whatIsThis: bool}
+type anotherLevel = {level: int}
+type someRecord = {somethingElse: int, whatIsThis: bool, anotherLevel: anotherLevel}
 
 type anotherRecord = {something: someRecord, anotherThing: option<someRecord>, thirdThing: string}
 
 let someVal = {
-  something: {somethingElse: 123, whatIsThis: false},
+  something: {somethingElse: 123, whatIsThis: false, anotherLevel: {level: 123}},
   anotherThing: None,
   thirdThing: "test",
 }
@@ -26,3 +27,13 @@ let getSomeVal = (~irrelevant: int) => {
 // Via function
 // let {} = getSomeVal(~irrelevant=123)
 //      ^com
+
+// Nested destructuring
+// let {something: {}} = someVal
+//                  ^com
+
+// let {something: {whatIsThis, anotherLevel: {}}} = someVal
+//                                             ^com
+
+// let {something: {whatIsThis, anotherLevel: {l}}} = someVal
+//                                              ^com

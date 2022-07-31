@@ -1833,9 +1833,15 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | Some (_label, typeExpr) ->
         completeTypeExpr ~env ~package ~debug ~prefix:(List.hd prefix) typeExpr
         @ completionsFromContext)
-    | RecordField {contextPath; alreadySelectedFields; prefix} -> (
+    | RecordField
+        {
+          typeSourceContextPath;
+          nestedContextPath;
+          alreadySelectedFields;
+          prefix;
+        } -> (
       match
-        contextPath
+        typeSourceContextPath
         |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
              ~env ~exact:true ~scope
         |> completionsGetTypeEnv
@@ -1843,6 +1849,33 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | Some (typ, env) -> (
         match typ |> extractRecordType ~env ~package with
         | Some (env, fields, typDecl) ->
+          let rec digToTargetRecord ~nestedContextPath ~env ~targetRecord fields
+              =
+            match nestedContextPath with
+            | [] ->
+              (* Nothing left to dig, return whatever we have *)
+              targetRecord
+            | Completable.RField fieldName :: nestedContextPath ->
+              fields
+              |> List.find_map (fun (field : field) ->
+                     if field.fname.txt = fieldName then
+                       match field.typ |> extractRecordType ~env ~package with
+                       | None -> targetRecord
+                       | Some (env, fields, _typDecl) ->
+                         fields
+                         |> digToTargetRecord ~nestedContextPath ~env
+                              ~targetRecord:(Some fields)
+                     else None)
+          in
+
+          let fields =
+            match
+              fields
+              |> digToTargetRecord ~nestedContextPath ~targetRecord:None ~env
+            with
+            | None -> fields
+            | Some f -> f
+          in
           (* Get rid of all fields already selected. *)
           fields
           |> List.filter (fun field ->
