@@ -24,6 +24,7 @@
 - Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
 
 - Fix issue where doc comment with nested comments inside is not shown properly on hover https://github.com/rescript-lang/rescript-vscode/pull/526
+- Fix server crashes when open file is removed from disk with inlayHints enabled https://github.com/rescript-lang/rescript-vscode/issues/538
 
 ## v1.4.2
 
