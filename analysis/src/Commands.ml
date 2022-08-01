@@ -395,7 +395,7 @@ let test ~path =
           | "dia" -> diagnosticSyntax ~path
           | "hin" ->
             let line_start = 0 in
-            let line_end = 6 in
+            let line_end = 34 in
             print_endline
               ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":"
              ^ string_of_int line_end);

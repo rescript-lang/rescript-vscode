@@ -1,5 +1,71 @@
-Inlay Hint src/InlayHint.res 0:6
+Inlay Hint src/InlayHint.res 0:34
 [{
+    "position": {"line": 32, "character": 14},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 32, "character": 9},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 27, "character": 9},
+    "label": ": foo",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 25, "character": 19},
+    "label": ": (string, string)",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 25, "character": 15},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 25, "character": 10},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 17, "character": 9},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 15, "character": 9},
+    "label": ": (string, string)",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 13, "character": 17},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 9, "character": 24},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 7, "character": 10},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
     "position": {"line": 5, "character": 15},
     "label": ": int",
     "kind": 1,

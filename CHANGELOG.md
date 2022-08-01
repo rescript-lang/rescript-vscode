@@ -22,8 +22,8 @@
 #### :bug: Bug Fix
 
 - Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
-
 - Fix issue where doc comment with nested comments inside is not shown properly on hover https://github.com/rescript-lang/rescript-vscode/pull/526
+- Fix inlay hint for destructured record/array https://github.com/rescript-lang/rescript-vscode/issues/536
 
 ## v1.4.2
 

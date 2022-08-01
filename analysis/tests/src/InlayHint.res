@@ -17,4 +17,19 @@ let tuple = ("ReScript", "lol")
 
 let (lang, _) = tuple
 
+type foo = {
+  name: string,
+  age: int,
+}
+
+let bar = () => ({name: "ReScript", age: 2}, tuple)
+let ({name, age}, t) = bar()
+
+let alice = {
+  name: "Alice",
+  age: 42,
+};
+
+let {name, age} = alice;
+
 //^hin
