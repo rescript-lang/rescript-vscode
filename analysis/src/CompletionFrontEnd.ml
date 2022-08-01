@@ -432,13 +432,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (* TODO: Tuples, etc... *)
       (* TODO: Handle let {SomeModule.recordField} = ...*)
       (match bindings with
-      | [
-       {
-         pvb_pat = {ppat_desc = Ppat_record (fields, _); ppat_loc};
-         pvb_expr = expr;
-       };
-      ]
-        when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor && !result = None -> (
+      | [{pvb_pat = {ppat_desc = Ppat_record (fields, _)}; pvb_expr = expr}]
+        when !result = None -> (
         (* The contextPath is what we'll use to look up the root record type for this completion.
            Depending on if the destructure is nested or not, we may or may not use that directly.*)
         let contextPath = exprToContextPath expr in
@@ -472,7 +467,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                      | _ -> None)
           in
 
-          (!prefix, fields |> findNestedContextPath ~path:[])
+          ( !prefix,
+            match List.length fields with
+            | 0 ->
+              (* A record with 0 fields is still valid to complete from *)
+              Some []
+            | _ -> fields |> findNestedContextPath ~path:[] )
         in
 
         (* Find all fields already selected in the pattern *)
