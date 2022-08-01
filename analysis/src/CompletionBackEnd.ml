@@ -1855,7 +1855,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             | [] ->
               (* Nothing left to dig, return whatever we have *)
               targetRecord
-            | Completable.RField fieldName :: nestedContextPath ->
+            | Completable.RField {fieldName} :: nestedContextPath ->
               fields
               |> List.find_map (fun (field : field) ->
                      if field.fname.txt = fieldName then

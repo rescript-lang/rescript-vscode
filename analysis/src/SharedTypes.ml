@@ -429,7 +429,7 @@ module Completable = struct
     | CPPipe of contextPath * string
 
   (* TODO: Can extend to tuples, objects, etc *)
-  type recordFieldContextPathItem = RField of string
+  type recordFieldContextPathItem = RField of {fieldName: string}
 
   type typedContext =
     (* A labelled argument assignment, eg. someFunc(~someArg=<completable>) *)
@@ -470,7 +470,7 @@ module Completable = struct
     pathItems
     |> List.map (fun item ->
            match item with
-           | RField fieldName -> fieldName)
+           | RField {fieldName} -> fieldName)
     |> list
 
   let completionContextToString = function

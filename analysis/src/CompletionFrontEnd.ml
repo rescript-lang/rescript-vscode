@@ -288,6 +288,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     let line, col = posCursor in
     (line, max 0 col - offset + offsetNoWhite)
   in
+  (* Identifies the first character before the cursor that's not white space.
+     Should be used very sparingly, but can be used to drive completion triggering
+     in scenarios where the parser eats things we'd need to complete.
+     Example: let {whatever,     <cursor>}, char is ','. *)
+  let firstCharBeforeCursorNoWhite =
+    if offsetNoWhite < String.length text && offsetNoWhite >= 0 then
+      Some text.[offsetNoWhite]
+    else None
+  in
   let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
   let charBeforeCursor, blankAfterCursor =
     match positionToOffset text posCursor with
@@ -440,29 +449,49 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         let prefix, nestedContextPath =
           let prefix = ref "" in
           let rec findNestedContextPath ~path fields =
+            (* This will descend through the record, following where the cursor is located,
+               to pull out a nested context we can use to figure out what type
+               we should complete from. *)
             fields
             |> List.find_map
                  (fun ({Location.txt}, {Parsetree.ppat_loc; ppat_desc}) ->
                    if ppat_loc |> Loc.hasPos ~pos:posBeforeCursor then
+                     (* Covers when we're still inside the cursor position - continue descending
+                        and build the nested context appropriately. *)
                      match ppat_desc with
                      | Ppat_record (fields, _) ->
                        if List.length fields = 0 then
+                         (* Empty records are fine to complete from *)
                          Some
-                           ([Completable.RField (getSimpleFieldName txt)] @ path)
+                           ([
+                              Completable.RField
+                                {fieldName = getSimpleFieldName txt};
+                            ]
+                           @ path)
                        else
                          fields
                          |> findNestedContextPath
                               ~path:
-                                ([Completable.RField (getSimpleFieldName txt)]
+                                ([
+                                   Completable.RField
+                                     {fieldName = getSimpleFieldName txt};
+                                 ]
                                 @ path)
                      | Ppat_var {txt} ->
+                       (* Whenever we encounter a var, that means we've hit an identifier the user has started typing.
+                          We can then use that as the prefix hint for what to filter completions on. *)
                        prefix := txt;
                        Some path
-                     | _ -> Some path
+                     | _ ->
+                       (* This can be extended to understand more nested contexts, like tuples, etc. *)
+                       Some path
                    else if ppat_loc |> Loc.end_ = (Location.none |> Loc.end_)
-                   then Some path
+                   then
+                     (* This means that an empty location was found, which typically means that the parser has made
+                        recovery here. Complete wherever we are. *)
+                     Some path
                    else
-                     match charBeforeCursor with
+                     match firstCharBeforeCursorNoWhite with
                      | Some ',' -> Some path
                      | _ -> None)
           in
@@ -470,7 +499,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           ( !prefix,
             match List.length fields with
             | 0 ->
-              (* A record with 0 fields is still valid to complete from *)
+              (* A root record with 0 fields, `let {} = someVar`, is still valid to complete from. But it has no nested context. *)
               Some []
             | _ -> fields |> findNestedContextPath ~path:[] )
         in
