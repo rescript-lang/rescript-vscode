@@ -429,7 +429,8 @@ module Completable = struct
     | CPPipe of contextPath * string
 
   (* TODO: Can extend to tuples, objects, etc *)
-  type recordFieldContextPathItem = RField of {fieldName: string}
+  type recordFieldContextPathItem =
+    | RField of {fieldName: string; alreadySeenFields: string list}
 
   type typedContext =
     (* A labelled argument assignment, eg. someFunc(~someArg=<completable>) *)
@@ -456,8 +457,6 @@ module Completable = struct
         (* This dedicated context path should be used to look up the actual type to complete.
            It'll be populated if the type to complete is nested inside of the source record. If it's empty, you should use the source record directly. *)
         nestedContextPath: recordFieldContextPathItem list;
-        (* These are the fields already selected, if any. Filter these away from any completion. *)
-        alreadySelectedFields: string list;
         (* This is what the user has started typing already, if anything. Filter results based on this if it's not empty. *)
         prefix: string;
       }
@@ -470,7 +469,8 @@ module Completable = struct
     pathItems
     |> List.map (fun item ->
            match item with
-           | RField {fieldName} -> fieldName)
+           | RField {fieldName; alreadySeenFields} ->
+             fieldName ^ ":" ^ list alreadySeenFields)
     |> list
 
   let completionContextToString = function
@@ -506,19 +506,11 @@ module Completable = struct
     | JsxProp {propName; componentPath; prefix} ->
       "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "="
       ^ (prefix |> ident) ^ " />)"
-    | RecordField
-        {
-          typeSourceContextPath;
-          nestedContextPath;
-          alreadySelectedFields;
-          prefix;
-        } ->
+    | RecordField {typeSourceContextPath; nestedContextPath; prefix} ->
       "RecordField(contextPath:"
       ^ (typeSourceContextPath |> contextPathToString)
       ^ ", nestedContextPath:"
       ^ (nestedContextPath |> recordFieldContextPathToString)
-      ^ ", alreadySelectedFields:"
-      ^ (alreadySelectedFields |> list)
       ^ ", prefix:" ^ str prefix ^ ")"
 
   type t =

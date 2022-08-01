@@ -1833,13 +1833,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | Some (_label, typeExpr) ->
         completeTypeExpr ~env ~package ~debug ~prefix:(List.hd prefix) typeExpr
         @ completionsFromContext)
-    | RecordField
-        {
-          typeSourceContextPath;
-          nestedContextPath;
-          alreadySelectedFields;
-          prefix;
-        } -> (
+    | RecordField {typeSourceContextPath; nestedContextPath; prefix} -> (
       match
         typeSourceContextPath
         |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
@@ -1876,11 +1870,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             | None -> fields
             | Some f -> f
           in
+          (* TODO: This is broken right now, awaiting a refactor *)
+          let alreadySeenFields = [] in
           (* Get rid of all fields already selected. *)
           fields
           |> List.filter (fun field ->
                  not
-                   (alreadySelectedFields
+                   (alreadySeenFields
                    |> List.exists (fun fieldName -> fieldName = field.fname.txt)
                    ))
           |> Utils.filterMap (fun (field : field) ->

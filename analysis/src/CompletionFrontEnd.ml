@@ -277,9 +277,10 @@ let extractExpApplyArgs ~args =
   in
   args |> processArgs ~acc:[]
 
-let getSimpleFieldName txt =
+let rec getSimpleFieldName txt =
   match txt with
   | Longident.Lident fieldName -> fieldName
+  | Ldot (t, _) -> getSimpleFieldName t
   | _ -> ""
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
@@ -465,7 +466,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                          Some
                            ([
                               Completable.RField
-                                {fieldName = getSimpleFieldName txt};
+                                {
+                                  fieldName = getSimpleFieldName txt;
+                                  alreadySeenFields = [];
+                                };
                             ]
                            @ path)
                        else
@@ -474,7 +478,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                               ~path:
                                 ([
                                    Completable.RField
-                                     {fieldName = getSimpleFieldName txt};
+                                     {
+                                       fieldName = getSimpleFieldName txt;
+                                       alreadySeenFields =
+                                         fields
+                                         |> List.map (fun ({Location.txt}, _) ->
+                                                getSimpleFieldName txt);
+                                     };
                                  ]
                                 @ path)
                      | Ppat_var {txt} ->
@@ -504,15 +514,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             | _ -> fields |> findNestedContextPath ~path:[] )
         in
 
-        (* Find all fields already selected in the pattern *)
-        (* TODO: This obviously extracts from the wrong thing... *)
-        let alreadySelectedFields =
-          fields
-          |> List.filter_map (fun (_loc, {Parsetree.ppat_desc}) ->
-                 match ppat_desc with
-                 | Ppat_var {txt} -> Some txt
-                 | _ -> None)
-        in
         match (contextPath, nestedContextPath) with
         | Some contextPath, Some nestedContextPath ->
           setResultOpt
@@ -523,7 +524,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                        nestedContextPath = nestedContextPath |> List.rev;
                        typeSourceContextPath = contextPath;
                        prefix;
-                       alreadySelectedFields;
                      })))
         | _ -> ())
       | _ -> ());
