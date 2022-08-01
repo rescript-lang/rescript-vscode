@@ -37,3 +37,9 @@ let getSomeVal = (~irrelevant: int) => {
 
 // let {something: {whatIsThis, anotherLevel: {l}}} = someVal
 //                                              ^com
+
+// let {something: {whatIsThis, anotherLevel,  }} = someVal
+//                                             ^com
+
+// let {something: {whatIsThis, ,anotherLevel}} = someVal
+//                             ^com

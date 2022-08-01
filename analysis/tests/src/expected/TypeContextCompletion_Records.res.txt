@@ -81,3 +81,32 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "documentation": null
   }]
 
+Complete src/TypeContextCompletion_Records.res 40:47
+posCursor:[40:47] posNoWhite:[40:44] Found pattern:[40:7->40:49]
+posCursor:[40:47] posNoWhite:[40:44] Found pattern:[40:19->40:48]
+[]
+
+Complete src/TypeContextCompletion_Records.res 43:31
+posCursor:[43:31] posNoWhite:[43:30] Found pattern:[43:7->43:47]
+posCursor:[43:31] posNoWhite:[43:30] Found pattern:[43:19->43:46]
+Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[something], alreadySelectedFields:[], prefix:""))
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "whatIsThis",
+    "kind": 5,
+    "tags": [],
+    "detail": "whatIsThis: bool\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "anotherLevel",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherLevel: anotherLevel\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }]
+
