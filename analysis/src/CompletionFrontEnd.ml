@@ -438,7 +438,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
          pvb_expr = expr;
        };
       ]
-        when ppat_loc |> Loc.hasPos ~pos:posNoWhite && !result = None -> (
+        when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor && !result = None -> (
         (* The contextPath is what we'll use to look up the root record type for this completion.
            Depending on if the destructure is nested or not, we may or may not use that directly.*)
         let contextPath = exprToContextPath expr in
@@ -466,15 +466,17 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                      | _ -> Some path
                    else if ppat_loc |> Loc.end_ = (Location.none |> Loc.end_)
                    then Some path
-                   else None)
+                   else
+                     match charBeforeCursor with
+                     | Some ',' -> Some path
+                     | _ -> None)
           in
 
-          match fields |> findNestedContextPath ~path:[] with
-          | None -> (!prefix, [])
-          | Some nestedContextPath -> (!prefix, nestedContextPath)
+          (!prefix, fields |> findNestedContextPath ~path:[])
         in
 
         (* Find all fields already selected in the pattern *)
+        (* TODO: This obviously extracts from the wrong thing... *)
         let alreadySelectedFields =
           fields
           |> List.filter_map (fun (_loc, {Parsetree.ppat_desc}) ->
@@ -482,9 +484,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                  | Ppat_var {txt} -> Some txt
                  | _ -> None)
         in
-        match contextPath with
-        | None -> ()
-        | Some contextPath ->
+        match (contextPath, nestedContextPath) with
+        | Some contextPath, Some nestedContextPath ->
           setResultOpt
             (Some
                (Completable.CtypedContext
@@ -494,7 +495,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                        typeSourceContextPath = contextPath;
                        prefix;
                        alreadySelectedFields;
-                     }))))
+                     })))
+        | _ -> ())
       | _ -> ());
 
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);

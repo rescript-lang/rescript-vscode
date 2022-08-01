@@ -24,49 +24,11 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
 
 Complete src/TypeContextCompletion_Records.res 18:8
 posCursor:[18:8] posNoWhite:[18:7] Found pattern:[18:7->18:9]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[], alreadySelectedFields:[], prefix:""))
-[{
-    "label": "something",
-    "kind": 5,
-    "tags": [],
-    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }, {
-    "label": "anotherThing",
-    "kind": 5,
-    "tags": [],
-    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }, {
-    "label": "thirdThing",
-    "kind": 5,
-    "tags": [],
-    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }]
+[]
 
 Complete src/TypeContextCompletion_Records.res 27:8
 posCursor:[27:8] posNoWhite:[27:7] Found pattern:[27:7->27:9]
-Completable: CtypedContext(RecordField(contextPath:Value[getSomeVal](~irrelevant), nestedContextPath:[], alreadySelectedFields:[], prefix:""))
-[{
-    "label": "something",
-    "kind": 5,
-    "tags": [],
-    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }, {
-    "label": "anotherThing",
-    "kind": 5,
-    "tags": [],
-    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }, {
-    "label": "thirdThing",
-    "kind": 5,
-    "tags": [],
-    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }]
+[]
 
 Complete src/TypeContextCompletion_Records.res 31:20
 posCursor:[31:20] posNoWhite:[31:19] Found pattern:[31:7->31:22]
