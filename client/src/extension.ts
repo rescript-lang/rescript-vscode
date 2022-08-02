@@ -70,6 +70,11 @@ let client: LanguageClient;
 // });
 
 export function activate(context: ExtensionContext) {
+  let outputChannel = window.createOutputChannel(
+    "ReScript Language Server",
+    "rescript"
+  );
+
   function createLanguageClient() {
     // The server is implemented in node
     let serverModule = context.asAbsolutePath(
@@ -99,6 +104,7 @@ export function activate(context: ExtensionContext) {
       initializationOptions: {
         extensionConfiguration: workspace.getConfiguration("rescript.settings"),
       },
+      outputChannel,
     };
 
     const client = new LanguageClient(
@@ -123,7 +129,8 @@ export function activate(context: ExtensionContext) {
                 customCommands.codeAnalysisWithReanalyze(
                   inCodeAnalysisState.activatedFromDirectory,
                   diagnosticsCollection,
-                  diagnosticsResultCodeActions
+                  diagnosticsResultCodeActions,
+                  outputChannel
                 );
               }
             })
@@ -207,7 +214,8 @@ export function activate(context: ExtensionContext) {
     customCommands.codeAnalysisWithReanalyze(
       inCodeAnalysisState.activatedFromDirectory,
       diagnosticsCollection,
-      diagnosticsResultCodeActions
+      diagnosticsResultCodeActions,
+      outputChannel
     );
   });
 
