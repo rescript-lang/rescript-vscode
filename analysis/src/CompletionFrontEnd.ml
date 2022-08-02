@@ -111,7 +111,6 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
                   componentPath =
                     Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                   propName = prop.name;
-                  prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
                 }));
         None)
       else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
@@ -124,7 +123,6 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
                   componentPath =
                     Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                   propName = prop.name;
-                  prefix = getIdentFromExpr prop.exp |> Utils.flattenLongIdent;
                 }));
         None)
       else loop rest
@@ -215,25 +213,13 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
         setCurrentlyLookingForTypeOpt
-          (Some
-             (Completable.NamedArg
-                {
-                  contextPath;
-                  label = labelled.name;
-                  prefix = getPrefixFromExpr exp;
-                }));
+          (Some (Completable.NamedArg {contextPath; label = labelled.name}));
         None)
       else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
            Assume this is an empty expression. *)
         setCurrentlyLookingForTypeOpt
-          (Some
-             (NamedArg
-                {
-                  contextPath;
-                  label = labelled.name;
-                  prefix = getPrefixFromExpr exp;
-                }));
+          (Some (NamedArg {contextPath; label = labelled.name}));
         None)
       else loop rest
     | {label = None; exp} :: rest ->
@@ -349,7 +335,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             (match x with
             | Completable.JsxProp {propName} -> "jsxProp " ^ propName
             | NamedArg {label} -> "namedArg: " ^ label
-            | RecordField _ -> "recordField");
+            | CtxPath _ -> "ctxPath");
         currentlyLookingForType := Some x
   in
   let scopeValueDescription (vd : Parsetree.value_description) =
@@ -522,6 +508,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                   {
                     howToRetrieveSourceType = CtxPath contextPath;
                     patternPath = Some (nestedContextPath |> List.rev);
+                    prefix = Some prefix;
+                    alreadySeenIdents =
+                      (match nestedContextPath with
+                      | RField {alreadySeenFields} :: _rest ->
+                        Some alreadySeenFields
+                      | _ -> None);
                   }))
         | _ -> ())
       | _ -> ());

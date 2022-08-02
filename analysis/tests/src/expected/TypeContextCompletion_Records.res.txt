@@ -3,22 +3,10 @@ posCursor:[16:15] posNoWhite:[16:14] Found pattern:[16:7->16:16]
 posCursor:[16:15] posNoWhite:[16:14] Found pattern:[16:8->16:15]
 Completable: CtypedContext(Value[someVal])
 [{
-    "label": "something",
-    "kind": 5,
-    "tags": [],
-    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }, {
     "label": "anotherThing",
     "kind": 5,
     "tags": [],
     "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }, {
-    "label": "thirdThing",
-    "kind": 5,
-    "tags": [],
-    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null
   }]
 
@@ -31,18 +19,6 @@ Completable: CtypedContext(Value[someVal])
     "kind": 5,
     "tags": [],
     "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }, {
-    "label": "anotherThing",
-    "kind": 5,
-    "tags": [],
-    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }, {
-    "label": "thirdThing",
-    "kind": 5,
-    "tags": [],
-    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null
   }]
 
@@ -147,12 +123,6 @@ Completable: CtypedContext(Value[someVal])
     "tags": [],
     "detail": "level: int\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
     "documentation": null
-  }, {
-    "label": "someOtherArg",
-    "kind": 5,
-    "tags": [],
-    "detail": "someOtherArg: bool\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 44:47
@@ -165,18 +135,6 @@ Completable: CtypedContext(Value[someVal])
     "tags": [],
     "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
-  }, {
-    "label": "whatIsThis",
-    "kind": 5,
-    "tags": [],
-    "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
-    "documentation": null
-  }, {
-    "label": "anotherLevel",
-    "kind": 5,
-    "tags": [],
-    "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 47:31
@@ -188,18 +146,6 @@ Completable: CtypedContext(Value[someVal])
     "kind": 5,
     "tags": [],
     "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
-    "documentation": null
-  }, {
-    "label": "whatIsThis",
-    "kind": 5,
-    "tags": [],
-    "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
-    "documentation": null
-  }, {
-    "label": "anotherLevel",
-    "kind": 5,
-    "tags": [],
-    "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }]
 

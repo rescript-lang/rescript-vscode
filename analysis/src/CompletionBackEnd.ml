@@ -1494,8 +1494,7 @@ let completeTypeExpr ~env ~package ~debug ~prefix (typeExpr : Types.type_expr) =
 let findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope
     ~pos =
   match sourceType with
-  | Completable.HowToRetrieveSourceType.NamedArg {label; prefix; contextPath}
-    -> (
+  | Completable.NamedArg {label; contextPath} -> (
     (* TODO: Should probably share this with the branch handling CnamedArg... *)
     let labels =
       match
@@ -1527,7 +1526,7 @@ let findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope
     match targetLabel with
     | Some (_, typeExpr) -> Some typeExpr
     | _ -> None)
-  | JsxProp {componentPath; propName; prefix} -> (
+  | JsxProp {componentPath; propName} -> (
     match
       componentPath
       |> getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
@@ -1544,7 +1543,6 @@ let findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope
     with
     | Some (typ, _env) -> Some typ
     | None -> None)
-  | _ -> None
 
 let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
@@ -1863,8 +1861,8 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | CtypedContext {howToRetrieveSourceType; patternPath} -> (
-    let prefix = "" in
+  | CtypedContext
+      {howToRetrieveSourceType; patternPath; prefix; alreadySeenIdents} -> (
     let sourceType =
       findSourceType howToRetrieveSourceType ~package ~opens ~rawOpens ~allFiles
         ~env ~pos ~scope
@@ -1880,7 +1878,21 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       match typ |> findTypeInContext ~env ~nestedContextPath ~package with
       | None -> []
       | Some (CRecord {fields; decl; name}) ->
+        let prefix =
+          match prefix with
+          | None -> ""
+          | Some prefix -> prefix
+        in
+        let alreadyTypedRecordFields =
+          match alreadySeenIdents with
+          | None -> []
+          | Some recordFieldNames -> recordFieldNames
+        in
         fields
+        |> List.filter (fun (field : field) ->
+               not
+                 (alreadyTypedRecordFields
+                 |> List.exists (fun fieldName -> fieldName = field.fname.txt)))
         |> Utils.filterMap (fun (field : field) ->
                if prefix = "" || checkName field.fname.txt ~prefix ~exact:false
                then

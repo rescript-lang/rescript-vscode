@@ -432,35 +432,6 @@ module Completable = struct
   type patternPathItem =
     | RField of {fieldName: string; alreadySeenFields: string list}
 
-  type typedContext =
-    (* A labelled argument assignment, eg. someFunc(~someArg=<completable>) *)
-    | NamedArg of {
-        (* The context path where the completion was found *)
-        contextPath: contextPath;
-        (* What the user has already started writing, if anything *)
-        prefix: string;
-        (* Name of the argument *)
-        label: string;
-      }
-    (* A JSX prop assignment, eg. <SomeComponent someProp=<completable> *)
-    | JsxProp of {
-        (* Path to the target component *)
-        componentPath: string list;
-        (* The target prop name *)
-        propName: string;
-        (* What the user has already started writing, if anything *)
-        prefix: string list;
-      }
-    | RecordField of {
-        (* This is what you'll use to lookup the type to start from when completing *)
-        typeSourceContextPath: contextPath;
-        (* This dedicated context path should be used to look up the actual type to complete.
-           It'll be populated if the type to complete is nested inside of the source record. If it's empty, you should use the source record directly. *)
-        nestedContextPath: patternPathItem list;
-        (* This is what the user has started typing already, if anything. Filter results based on this if it's not empty. *)
-        prefix: string;
-      }
-
   let str s = if s = "" then "\"\"" else s
   let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
   let ident l = l |> List.map str |> String.concat "."
@@ -497,55 +468,30 @@ module Completable = struct
     | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
     | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
 
-  let typedContextToString typedContext =
-    match typedContext with
-    | NamedArg {label; contextPath; prefix} ->
-      "NamedArg(" ^ label ^ ", "
-      ^ (contextPath |> contextPathToString)
-      ^ ")=" ^ prefix
-    | JsxProp {propName; componentPath; prefix} ->
-      "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "="
-      ^ (prefix |> ident) ^ " />)"
-    | RecordField {typeSourceContextPath; nestedContextPath; prefix} ->
-      "RecordField(contextPath:"
-      ^ (typeSourceContextPath |> contextPathToString)
-      ^ ", nestedContextPath:"
-      ^ (nestedContextPath |> recordFieldContextPathToString)
-      ^ ", prefix:" ^ str prefix ^ ")"
+  (* Temporary while I figure things. Pretty sure this should be integrated into contextPath when this is all finished *)
+  type howToRetrieveSourceType =
+    | CtxPath of contextPath
+      (* A JSX prop assignment, eg. <SomeComponent someProp=<completable> *)
+    | JsxProp of {
+        (* Path to the target component *)
+        componentPath: string list;
+        (* The target prop name *)
+        propName: string;
+      }
+    | NamedArg of {
+        (* The context path where the completion was found *)
+        contextPath: contextPath;
+        (* Name of the argument *)
+        label: string;
+      }
 
-  module HowToRetrieveSourceType = struct
-    (* Temporary while I figure things. Pretty sure this should be integrated into contextPath when this is all finished *)
-    type howToRetrieveSourceType =
-      | CtxPath of contextPath
-        (* A JSX prop assignment, eg. <SomeComponent someProp=<completable> *)
-      | JsxProp of {
-          (* Path to the target component *)
-          componentPath: string list;
-          (* The target prop name *)
-          propName: string;
-          (* What the user has already started writing, if anything *)
-          prefix: string list;
-        }
-      | NamedArg of {
-          (* The context path where the completion was found *)
-          contextPath: contextPath;
-          (* What the user has already started writing, if anything *)
-          prefix: string;
-          (* Name of the argument *)
-          label: string;
-        }
-
-    let howToRetrieveSourceTypeToString howToRetrieveSourceType =
-      match howToRetrieveSourceType with
-      | CtxPath contextPath -> contextPath |> contextPathToString
-      | JsxProp {propName; componentPath; prefix} ->
-        "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "="
-        ^ (prefix |> ident) ^ " />)"
-      | NamedArg {label; contextPath; prefix} ->
-        "NamedArg(" ^ label ^ ", "
-        ^ (contextPath |> contextPathToString)
-        ^ ")=" ^ prefix
-  end
+  let howToRetrieveSourceTypeToString howToRetrieveSourceType =
+    match howToRetrieveSourceType with
+    | CtxPath contextPath -> contextPath |> contextPathToString
+    | JsxProp {propName; componentPath} ->
+      "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "=" ^ " />)"
+    | NamedArg {label; contextPath} ->
+      "NamedArg(" ^ label ^ ", " ^ (contextPath |> contextPathToString) ^ ")"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -556,9 +502,13 @@ module Completable = struct
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
     | CtypedContext of {
-        howToRetrieveSourceType:
-          HowToRetrieveSourceType.howToRetrieveSourceType;
+        howToRetrieveSourceType: howToRetrieveSourceType;
         patternPath: patternPathItem list option;
+        (* What the user has already started writing, if anything. *)
+        prefix: string option;
+        (* Record fields already written by the user, etc.
+           This is contextual of course, but putting it here in the general type to simplify things. *)
+        alreadySeenIdents: string list option;
       }
 
   let toString = function
@@ -573,7 +523,6 @@ module Completable = struct
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
     | CtypedContext {howToRetrieveSourceType} ->
       "CtypedContext("
-      ^ (howToRetrieveSourceType
-       |> HowToRetrieveSourceType.howToRetrieveSourceTypeToString)
+      ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
       ^ ")"
 end
