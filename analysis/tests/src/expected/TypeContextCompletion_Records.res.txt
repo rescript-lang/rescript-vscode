@@ -1,30 +1,7 @@
-Complete src/TypeContextCompletion_Records.res 12:15
-posCursor:[12:15] posNoWhite:[12:14] Found pattern:[12:7->12:16]
-posCursor:[12:15] posNoWhite:[12:14] Found pattern:[12:8->12:15]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[], prefix:another))
-[{
-    "label": "anotherThing",
-    "kind": 5,
-    "tags": [],
-    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }]
-
-Complete src/TypeContextCompletion_Records.res 15:23
-posCursor:[15:23] posNoWhite:[15:22] Found pattern:[15:7->15:24]
-posCursor:[15:23] posNoWhite:[15:22] Found pattern:[15:22->15:23]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[], prefix:s))
-[{
-    "label": "something",
-    "kind": 5,
-    "tags": [],
-    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
-    "documentation": null
-  }]
-
-Complete src/TypeContextCompletion_Records.res 18:8
-posCursor:[18:8] posNoWhite:[18:7] Found pattern:[18:7->18:9]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[], prefix:""))
+Complete src/TypeContextCompletion_Records.res 16:15
+posCursor:[16:15] posNoWhite:[16:14] Found pattern:[16:7->16:16]
+posCursor:[16:15] posNoWhite:[16:14] Found pattern:[16:8->16:15]
+Completable: CtypedContext(Value[someVal])
 [{
     "label": "something",
     "kind": 5,
@@ -45,9 +22,10 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 27:8
-posCursor:[27:8] posNoWhite:[27:7] Found pattern:[27:7->27:9]
-Completable: CtypedContext(RecordField(contextPath:Value[getSomeVal](~irrelevant), nestedContextPath:[], prefix:""))
+Complete src/TypeContextCompletion_Records.res 19:23
+posCursor:[19:23] posNoWhite:[19:22] Found pattern:[19:7->19:24]
+posCursor:[19:23] posNoWhite:[19:22] Found pattern:[19:22->19:23]
+Completable: CtypedContext(Value[someVal])
 [{
     "label": "something",
     "kind": 5,
@@ -68,10 +46,56 @@ Completable: CtypedContext(RecordField(contextPath:Value[getSomeVal](~irrelevant
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 31:20
-posCursor:[31:20] posNoWhite:[31:19] Found pattern:[31:7->31:22]
-posCursor:[31:20] posNoWhite:[31:19] Found pattern:[31:19->31:21]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[something:[]], prefix:""))
+Complete src/TypeContextCompletion_Records.res 22:8
+posCursor:[22:8] posNoWhite:[22:7] Found pattern:[22:7->22:9]
+Completable: CtypedContext(Value[someVal])
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 31:8
+posCursor:[31:8] posNoWhite:[31:7] Found pattern:[31:7->31:9]
+Completable: CtypedContext(Value[getSomeVal](~irrelevant))
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 35:20
+posCursor:[35:20] posNoWhite:[35:19] Found pattern:[35:7->35:22]
+posCursor:[35:20] posNoWhite:[35:19] Found pattern:[35:19->35:21]
+Completable: CtypedContext(Value[someVal])
 [{
     "label": "somethingElse",
     "kind": 5,
@@ -92,37 +116,49 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 34:47
-posCursor:[34:47] posNoWhite:[34:46] Found pattern:[34:7->34:50]
-posCursor:[34:47] posNoWhite:[34:46] Found pattern:[34:19->34:49]
-posCursor:[34:47] posNoWhite:[34:46] Found pattern:[34:46->34:48]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[something:[whatIsThis, anotherLevel], anotherLevel:[]], prefix:""))
+Complete src/TypeContextCompletion_Records.res 38:47
+posCursor:[38:47] posNoWhite:[38:46] Found pattern:[38:7->38:50]
+posCursor:[38:47] posNoWhite:[38:46] Found pattern:[38:19->38:49]
+posCursor:[38:47] posNoWhite:[38:46] Found pattern:[38:46->38:48]
+Completable: CtypedContext(Value[someVal])
 [{
     "label": "level",
     "kind": 5,
     "tags": [],
-    "detail": "level: int\n\ntype anotherLevel = {level: int}",
+    "detail": "level: int\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
+    "documentation": null
+  }, {
+    "label": "someOtherArg",
+    "kind": 5,
+    "tags": [],
+    "detail": "someOtherArg: bool\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 37:48
-posCursor:[37:48] posNoWhite:[37:47] Found pattern:[37:7->37:51]
-posCursor:[37:48] posNoWhite:[37:47] Found pattern:[37:19->37:50]
-posCursor:[37:48] posNoWhite:[37:47] Found pattern:[37:46->37:49]
-posCursor:[37:48] posNoWhite:[37:47] Found pattern:[37:47->37:48]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[something:[whatIsThis, anotherLevel], anotherLevel:[l]], prefix:l))
+Complete src/TypeContextCompletion_Records.res 41:48
+posCursor:[41:48] posNoWhite:[41:47] Found pattern:[41:7->41:51]
+posCursor:[41:48] posNoWhite:[41:47] Found pattern:[41:19->41:50]
+posCursor:[41:48] posNoWhite:[41:47] Found pattern:[41:46->41:49]
+posCursor:[41:48] posNoWhite:[41:47] Found pattern:[41:47->41:48]
+Completable: CtypedContext(Value[someVal])
 [{
     "label": "level",
     "kind": 5,
     "tags": [],
-    "detail": "level: int\n\ntype anotherLevel = {level: int}",
+    "detail": "level: int\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
+    "documentation": null
+  }, {
+    "label": "someOtherArg",
+    "kind": 5,
+    "tags": [],
+    "detail": "someOtherArg: bool\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 40:47
-posCursor:[40:47] posNoWhite:[40:44] Found pattern:[40:7->40:49]
-posCursor:[40:47] posNoWhite:[40:44] Found pattern:[40:19->40:48]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[something:[whatIsThis, anotherLevel]], prefix:""))
+Complete src/TypeContextCompletion_Records.res 44:47
+posCursor:[44:47] posNoWhite:[44:44] Found pattern:[44:7->44:49]
+posCursor:[44:47] posNoWhite:[44:44] Found pattern:[44:19->44:48]
+Completable: CtypedContext(Value[someVal])
 [{
     "label": "somethingElse",
     "kind": 5,
@@ -143,10 +179,10 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 43:31
-posCursor:[43:31] posNoWhite:[43:30] Found pattern:[43:7->43:47]
-posCursor:[43:31] posNoWhite:[43:30] Found pattern:[43:19->43:46]
-Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContextPath:[something:[whatIsThis, anotherLevel]], prefix:""))
+Complete src/TypeContextCompletion_Records.res 47:31
+posCursor:[47:31] posNoWhite:[47:30] Found pattern:[47:7->47:47]
+posCursor:[47:31] posNoWhite:[47:30] Found pattern:[47:19->47:46]
+Completable: CtypedContext(Value[someVal])
 [{
     "label": "somethingElse",
     "kind": 5,

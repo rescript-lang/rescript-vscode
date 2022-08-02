@@ -1,10 +1,14 @@
-type anotherLevel = {level: int}
+type anotherLevel = {level: int, someOtherArg: bool}
 type someRecord = {somethingElse: int, whatIsThis: bool, anotherLevel: anotherLevel}
 
 type anotherRecord = {something: someRecord, anotherThing: option<someRecord>, thirdThing: string}
 
 let someVal = {
-  something: {somethingElse: 123, whatIsThis: false, anotherLevel: {level: 123}},
+  something: {
+    somethingElse: 123,
+    whatIsThis: false,
+    anotherLevel: {level: 123, someOtherArg: true},
+  },
   anotherThing: None,
   thirdThing: "test",
 }
