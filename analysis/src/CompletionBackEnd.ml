@@ -1362,6 +1362,44 @@ let getOpens ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
+(* Temporary while I figure things out *)
+type completable =
+  | CRecord of {
+      fields: field list;
+      decl: Types.type_declaration;
+      name: string Location.loc;
+    }
+
+let typeExprToCompletable typ ~env ~package =
+  match typ |> extractType ~env ~package with
+  | Some (Declared (_, {name; item = {kind = Record fields; decl}})) ->
+    Some (CRecord {fields; decl; name})
+  | _ -> None
+
+let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
+  let rec digToType (currentType : Types.type_expr) ~env ~nestedContextPath
+      ~package =
+    (* Check the current context path item *)
+    match nestedContextPath with
+    | [] ->
+      (* If there's no context path, complete the current type *)
+      typeExprToCompletable currentType ~env ~package
+    | targetItem :: nestedContextPath -> (
+      match (targetItem, currentType |> extractType ~env ~package) with
+      | ( Completable.RField {fieldName},
+          Some (Declared (_, {item = {kind = Record fields}})) ) -> (
+        match
+          fields |> List.find_opt (fun field -> field.fname.txt = fieldName)
+        with
+        | None -> None
+        | Some targetField ->
+          if List.length nestedContextPath > 0 then
+            targetField.typ |> digToType ~env ~nestedContextPath ~package
+          else typeExprToCompletable targetField.typ ~env ~package)
+      | _ -> None)
+  in
+  typ |> digToType ~env ~nestedContextPath ~package
+
 (* Takes a context and a component path (SomeModule.SomeComponent) and extracts all labels *)
 let getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
     componentPath =
@@ -1841,44 +1879,10 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         |> completionsGetTypeEnv
       with
       | Some (typ, env) -> (
-        match typ |> extractRecordType ~env ~package with
-        | Some (env, fields, typDecl) ->
-          let rec digToTargetRecord ~nestedContextPath ~env ~targetRecord fields
-              =
-            match nestedContextPath with
-            | [] ->
-              (* Nothing left to dig, return whatever we have *)
-              targetRecord
-            | Completable.RField {fieldName} :: nestedContextPath ->
-              fields
-              |> List.find_map (fun (field : field) ->
-                     if field.fname.txt = fieldName then
-                       match field.typ |> extractRecordType ~env ~package with
-                       | None -> targetRecord
-                       | Some (env, fields, _typDecl) ->
-                         fields
-                         |> digToTargetRecord ~nestedContextPath ~env
-                              ~targetRecord:(Some fields)
-                     else None)
-          in
-
-          let fields =
-            match
-              fields
-              |> digToTargetRecord ~nestedContextPath ~targetRecord:None ~env
-            with
-            | None -> fields
-            | Some f -> f
-          in
-          (* TODO: This is broken right now, awaiting a refactor *)
-          let alreadySeenFields = [] in
-          (* Get rid of all fields already selected. *)
+        match typ |> findTypeInContext ~env ~nestedContextPath ~package with
+        | None -> []
+        | Some (CRecord {fields; decl; name}) ->
           fields
-          |> List.filter (fun field ->
-                 not
-                   (alreadySeenFields
-                   |> List.exists (fun fieldName -> fieldName = field.fname.txt)
-                   ))
           |> Utils.filterMap (fun (field : field) ->
                  if
                    prefix = "" || checkName field.fname.txt ~prefix ~exact:false
@@ -1887,9 +1891,6 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      (Completion.create ~name:field.fname.txt ~env
                         ~kind:
                           (Completion.Field
-                             ( field,
-                               typDecl.item.decl
-                               |> Shared.declToString typDecl.name.txt )))
-                 else None)
-        | None -> [])
+                             (field, decl |> Shared.declToString name.txt)))
+                 else None))
       | None -> []))

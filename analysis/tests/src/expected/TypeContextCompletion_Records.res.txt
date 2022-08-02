@@ -76,19 +76,19 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "label": "somethingElse",
     "kind": 5,
     "tags": [],
-    "detail": "somethingElse: int\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }, {
     "label": "whatIsThis",
     "kind": 5,
     "tags": [],
-    "detail": "whatIsThis: bool\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }, {
     "label": "anotherLevel",
     "kind": 5,
     "tags": [],
-    "detail": "anotherLevel: anotherLevel\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }]
 
@@ -101,7 +101,7 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "label": "level",
     "kind": 5,
     "tags": [],
-    "detail": "level: int\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "level: int\n\ntype anotherLevel = {level: int}",
     "documentation": null
   }]
 
@@ -115,7 +115,7 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "label": "level",
     "kind": 5,
     "tags": [],
-    "detail": "level: int\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "level: int\n\ntype anotherLevel = {level: int}",
     "documentation": null
   }]
 
@@ -127,19 +127,19 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "label": "somethingElse",
     "kind": 5,
     "tags": [],
-    "detail": "somethingElse: int\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }, {
     "label": "whatIsThis",
     "kind": 5,
     "tags": [],
-    "detail": "whatIsThis: bool\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }, {
     "label": "anotherLevel",
     "kind": 5,
     "tags": [],
-    "detail": "anotherLevel: anotherLevel\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }]
 
@@ -151,19 +151,19 @@ Completable: CtypedContext(RecordField(contextPath:Value[someVal], nestedContext
     "label": "somethingElse",
     "kind": 5,
     "tags": [],
-    "detail": "somethingElse: int\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }, {
     "label": "whatIsThis",
     "kind": 5,
     "tags": [],
-    "detail": "whatIsThis: bool\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }, {
     "label": "anotherLevel",
     "kind": 5,
     "tags": [],
-    "detail": "anotherLevel: anotherLevel\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }]
 
