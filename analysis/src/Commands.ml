@@ -394,8 +394,11 @@ let test ~path =
                                    indent indent newText)))
           | "dia" -> diagnosticSyntax ~path
           | "hin" ->
-            let line_start = 0 in
-            let line_end = 6 in
+            (* Get all inlay Hint between line 1 and n.
+               Don't get the first line = 0.
+            *)
+            let line_start = 1 in
+            let line_end = 34 in
             print_endline
               ("Inlay Hint " ^ path ^ " " ^ string_of_int line_start ^ ":"
              ^ string_of_int line_end);

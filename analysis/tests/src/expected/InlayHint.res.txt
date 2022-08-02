@@ -1,36 +1,102 @@
-Inlay Hint src/InlayHint.res 0:6
+Inlay Hint src/InlayHint.res 1:34
 [{
-    "position": {"line": 5, "character": 15},
+    "position": {"line": 33, "character": 14},
     "label": ": int",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
 }, {
-    "position": {"line": 5, "character": 12},
+    "position": {"line": 33, "character": 9},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 28, "character": 9},
+    "label": ": foo",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 26, "character": 19},
+    "label": ": (string, string)",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 26, "character": 15},
     "label": ": int",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
 }, {
-    "position": {"line": 3, "character": 8},
+    "position": {"line": 26, "character": 10},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 18, "character": 9},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 16, "character": 9},
+    "label": ": (string, string)",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 14, "character": 17},
+    "label": ": string",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 10, "character": 24},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 8, "character": 10},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 6, "character": 15},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 6, "character": 12},
+    "label": ": int",
+    "kind": 1,
+    "paddingLeft": true,
+    "paddingRight": false
+}, {
+    "position": {"line": 4, "character": 8},
     "label": ": char",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
 }, {
-    "position": {"line": 2, "character": 9},
+    "position": {"line": 3, "character": 9},
     "label": ": float",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
 }, {
-    "position": {"line": 1, "character": 10},
+    "position": {"line": 2, "character": 10},
     "label": ": int",
     "kind": 1,
     "paddingLeft": true,
     "paddingRight": false
 }, {
-    "position": {"line": 0, "character": 10},
+    "position": {"line": 1, "character": 10},
     "label": ": string",
     "kind": 1,
     "paddingLeft": true,
