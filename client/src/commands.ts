@@ -1,4 +1,4 @@
-import { DiagnosticCollection } from "vscode";
+import { DiagnosticCollection, OutputChannel } from "vscode";
 
 import {
   DiagnosticsResultCodeActionsMap,
@@ -12,11 +12,13 @@ export { switchImplIntf } from "./commands/switch_impl_intf";
 export const codeAnalysisWithReanalyze = (
   targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
-  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
+  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
+  outputChannel: OutputChannel
 ) => {
   runCodeAnalysisWithReanalyze(
     targetDir,
     diagnosticsCollection,
-    diagnosticsResultCodeActions
+    diagnosticsResultCodeActions,
+    outputChannel
   );
 };

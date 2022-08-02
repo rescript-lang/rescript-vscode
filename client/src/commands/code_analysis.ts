@@ -12,6 +12,7 @@ import {
   CodeAction,
   CodeActionKind,
   WorkspaceEdit,
+  OutputChannel,
 } from "vscode";
 
 export type DiagnosticsResultCodeActionsMap = Map<
@@ -157,7 +158,8 @@ let getAnalysisBinaryPath = (): string | null => {
 export const runCodeAnalysisWithReanalyze = (
   targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
-  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
+  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
+  outputChannel: OutputChannel
 ) => {
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
@@ -207,8 +209,20 @@ export const runCodeAnalysisWithReanalyze = (
     try {
       json = JSON.parse(data);
     } catch (e) {
-      window.showErrorMessage(
-        `Something went wrong parsing the json output of reanalyze: '${e}'`
+      window
+        .showErrorMessage(
+          `Something went wrong when running the code analyzer.`,
+          "See details in error log"
+        )
+        .then((_choice) => {
+          outputChannel.show();
+        });
+
+      outputChannel.appendLine("--invalid json start--");
+      outputChannel.append(data);
+      outputChannel.appendLine("--invalid json end--");
+      outputChannel.appendLine(
+        "Parsing JSON from reanalyze failed. The raw, invalid JSON is logged above this message. Please report this on the extension bug tracker: https://github.com/rescript-lang/rescript-vscode/issues"
       );
     }
 
