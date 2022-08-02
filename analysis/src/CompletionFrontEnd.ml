@@ -333,9 +333,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         if debug then
           Printf.printf "found typed context: %s\n"
             (match x with
-            | Completable.JsxProp {propName} -> "jsxProp " ^ propName
-            | NamedArg {label} -> "namedArg: " ^ label
-            | CtxPath _ -> "ctxPath");
+            | Completable.JsxProp {propName} -> "jsxProp:" ^ propName
+            | NamedArg {label} -> "namedArg:" ^ label
+            | CtxPath contextPath ->
+              "ctxPath:" ^ Completable.contextPathToString contextPath);
         currentlyLookingForType := Some x
   in
   let scopeValueDescription (vd : Parsetree.value_description) =

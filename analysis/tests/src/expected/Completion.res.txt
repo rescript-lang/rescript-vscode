@@ -463,7 +463,7 @@ Completable: Cpath Value[Js, Dict, u]
 Complete src/Completion.res 59:30
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:15->59:30]
 JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
-found typed context: jsxProp second
+found typed context: jsxProp:second
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:29->59:30]
 Pexp_ident z:[59:29->59:30]
 Completable: Cpath Value[z]
@@ -1306,7 +1306,7 @@ Found type for function (~a: int) => int
 Complete src/Completion.res 336:26
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->346:23]
 JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->346:23]> _children:None
-found typed context: jsxProp onClick
+found typed context: jsxProp:onClick
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[335:6->338:5]
