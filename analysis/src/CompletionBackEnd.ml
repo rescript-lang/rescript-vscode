@@ -1491,6 +1491,61 @@ let completeTypeExpr ~env ~package ~debug ~prefix (typeExpr : Types.type_expr) =
                ^ if constructor.payload |> Option.is_some then "(_)" else "")
              ~kind:(PolyvariantConstructor constructor) ~env)
 
+let findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope
+    ~pos =
+  match sourceType with
+  | Completable.HowToRetrieveSourceType.NamedArg {label; prefix; contextPath}
+    -> (
+    (* TODO: Should probably share this with the branch handling CnamedArg... *)
+    let labels =
+      match
+        contextPath
+        |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:true ~scope
+        |> completionsGetTypeEnv
+      with
+      | Some (typ, _env) ->
+        let rec getLabels ~env (t : Types.type_expr) =
+          match t.desc with
+          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels ~env t1
+          | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
+            (l, tArg) :: getLabels ~env tRet
+          | Tarrow (Nolabel, _, tRet, _) -> getLabels ~env tRet
+          | Tconstr (path, _, _) -> (
+            match References.digConstructor ~env ~package path with
+            | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+              getLabels ~env t1
+            | _ -> [])
+          | _ -> []
+        in
+        typ |> getLabels ~env
+      | None -> []
+    in
+    let targetLabel =
+      labels |> List.find_opt (fun (name, _t) -> name = label)
+    in
+    match targetLabel with
+    | Some (_, typeExpr) -> Some typeExpr
+    | _ -> None)
+  | JsxProp {componentPath; propName; prefix} -> (
+    match
+      componentPath
+      |> getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
+      |> List.find_opt (fun (label, _typeExpr) -> label = propName)
+    with
+    | None -> None
+    | Some (_label, typeExpr) -> Some typeExpr)
+  | CtxPath typeSourceContextPath -> (
+    match
+      typeSourceContextPath
+      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+           ~env ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, _env) -> Some typ
+    | None -> None)
+  | _ -> None
+
 let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let rawOpens = Scope.getRawOpens scope in
@@ -1808,89 +1863,30 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | CtypedContext typedContext -> (
-    match typedContext with
-    | NamedArg {label; prefix; contextPath} -> (
-      (* TODO: Should probably share this with the branch handling CnamedArg... *)
-      let labels =
-        match
-          contextPath
-          |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles
-               ~pos ~env ~exact:true ~scope
-          |> completionsGetTypeEnv
-        with
-        | Some (typ, _env) ->
-          let rec getLabels ~env (t : Types.type_expr) =
-            match t.desc with
-            | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels ~env t1
-            | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
-              (l, tArg) :: getLabels ~env tRet
-            | Tarrow (Nolabel, _, tRet, _) -> getLabels ~env tRet
-            | Tconstr (path, _, _) -> (
-              match References.digConstructor ~env ~package path with
-              | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
-                getLabels ~env t1
-              | _ -> [])
-            | _ -> []
-          in
-          typ |> getLabels ~env
-        | None -> []
-      in
-      let targetLabel =
-        labels |> List.find_opt (fun (name, _t) -> name = label)
-      in
-      match targetLabel with
+  | CtypedContext {howToRetrieveSourceType; patternPath} -> (
+    let prefix = "" in
+    let sourceType =
+      findSourceType howToRetrieveSourceType ~package ~opens ~rawOpens ~allFiles
+        ~env ~pos ~scope
+    in
+    let nestedContextPath =
+      match patternPath with
       | None -> []
-      | Some (_, typeExpr) ->
-        (* TODO: Wonder if we can filter the values returned here on type...
-           Maybe that'd be confusing for the user though, if items in scope don't appear.
-           We should at a minimum be able to sort values according to type and the proximity
-           of them in the scope. *)
-        let completionsFromContext =
-          contextPath
-          |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles
-               ~pos ~env ~exact:forHover ~scope
-        in
-        completeTypeExpr ~env ~package ~debug ~prefix typeExpr
-        @ completionsFromContext)
-    | JsxProp {componentPath; propName; prefix} -> (
-      (* TODO: Variant constructors seem to re-appear here.
-         Wondering if we can get rid of "randomly" completing constructors in scope. Or at least de-duping somehow. *)
-      (* These are the regular completions for context. Identifiers, modules, etc. *)
-      let completionsFromContext =
-        Completable.CPId (prefix, Value)
-        |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-             ~env ~exact:forHover ~scope
-      in
-      match
-        componentPath
-        |> getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
-        |> List.find_opt (fun (label, _typeExpr) -> label = propName)
-      with
+      | Some patternPath -> patternPath
+    in
+    match sourceType with
+    | None -> []
+    | Some typ -> (
+      match typ |> findTypeInContext ~env ~nestedContextPath ~package with
       | None -> []
-      | Some (_label, typeExpr) ->
-        completeTypeExpr ~env ~package ~debug ~prefix:(List.hd prefix) typeExpr
-        @ completionsFromContext)
-    | RecordField {typeSourceContextPath; nestedContextPath; prefix} -> (
-      match
-        typeSourceContextPath
-        |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-             ~env ~exact:true ~scope
-        |> completionsGetTypeEnv
-      with
-      | Some (typ, env) -> (
-        match typ |> findTypeInContext ~env ~nestedContextPath ~package with
-        | None -> []
-        | Some (CRecord {fields; decl; name}) ->
-          fields
-          |> Utils.filterMap (fun (field : field) ->
-                 if
-                   prefix = "" || checkName field.fname.txt ~prefix ~exact:false
-                 then
-                   Some
-                     (Completion.create ~name:field.fname.txt ~env
-                        ~kind:
-                          (Completion.Field
-                             (field, decl |> Shared.declToString name.txt)))
-                 else None))
-      | None -> []))
+      | Some (CRecord {fields; decl; name}) ->
+        fields
+        |> Utils.filterMap (fun (field : field) ->
+               if prefix = "" || checkName field.fname.txt ~prefix ~exact:false
+               then
+                 Some
+                   (Completion.create ~name:field.fname.txt ~env
+                      ~kind:
+                        (Completion.Field
+                           (field, decl |> Shared.declToString name.txt)))
+               else None)))

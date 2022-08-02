@@ -519,12 +519,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           setResultOpt
             (Some
                (Completable.CtypedContext
-                  (RecordField
-                     {
-                       nestedContextPath = nestedContextPath |> List.rev;
-                       typeSourceContextPath = contextPath;
-                       prefix;
-                     })))
+                  {
+                    howToRetrieveSourceType = CtxPath contextPath;
+                    patternPath = Some (nestedContextPath |> List.rev);
+                  }))
         | _ -> ())
       | _ -> ());
 

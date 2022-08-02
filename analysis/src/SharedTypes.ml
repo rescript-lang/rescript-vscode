@@ -429,7 +429,7 @@ module Completable = struct
     | CPPipe of contextPath * string
 
   (* TODO: Can extend to tuples, objects, etc *)
-  type recordFieldContextPathItem =
+  type patternPathItem =
     | RField of {fieldName: string; alreadySeenFields: string list}
 
   type typedContext =
@@ -456,7 +456,7 @@ module Completable = struct
         typeSourceContextPath: contextPath;
         (* This dedicated context path should be used to look up the actual type to complete.
            It'll be populated if the type to complete is nested inside of the source record. If it's empty, you should use the source record directly. *)
-        nestedContextPath: recordFieldContextPathItem list;
+        nestedContextPath: patternPathItem list;
         (* This is what the user has started typing already, if anything. Filter results based on this if it's not empty. *)
         prefix: string;
       }
@@ -513,6 +513,40 @@ module Completable = struct
       ^ (nestedContextPath |> recordFieldContextPathToString)
       ^ ", prefix:" ^ str prefix ^ ")"
 
+  module HowToRetrieveSourceType = struct
+    (* Temporary while I figure things. Pretty sure this should be integrated into contextPath when this is all finished *)
+    type howToRetrieveSourceType =
+      | CtxPath of contextPath
+        (* A JSX prop assignment, eg. <SomeComponent someProp=<completable> *)
+      | JsxProp of {
+          (* Path to the target component *)
+          componentPath: string list;
+          (* The target prop name *)
+          propName: string;
+          (* What the user has already started writing, if anything *)
+          prefix: string list;
+        }
+      | NamedArg of {
+          (* The context path where the completion was found *)
+          contextPath: contextPath;
+          (* What the user has already started writing, if anything *)
+          prefix: string;
+          (* Name of the argument *)
+          label: string;
+        }
+
+    let howToRetrieveSourceTypeToString howToRetrieveSourceType =
+      match howToRetrieveSourceType with
+      | CtxPath contextPath -> contextPath |> contextPathToString
+      | JsxProp {propName; componentPath; prefix} ->
+        "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "="
+        ^ (prefix |> ident) ^ " />)"
+      | NamedArg {label; contextPath; prefix} ->
+        "NamedArg(" ^ label ^ ", "
+        ^ (contextPath |> contextPathToString)
+        ^ ")=" ^ prefix
+  end
+
   type t =
     | Cdecorator of string  (** e.g. @module *)
     | CnamedArg of contextPath * string * string list
@@ -521,8 +555,11 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
-    | CtypedContext of typedContext
-        (** A typed context we want to complete, like completing a labelled argument assignment  *)
+    | CtypedContext of {
+        howToRetrieveSourceType:
+          HowToRetrieveSourceType.howToRetrieveSourceType;
+        patternPath: patternPathItem list option;
+      }
 
   let toString = function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
@@ -534,6 +571,9 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | CtypedContext typedContext ->
-      "CtypedContext(" ^ (typedContext |> typedContextToString) ^ ")"
+    | CtypedContext {howToRetrieveSourceType} ->
+      "CtypedContext("
+      ^ (howToRetrieveSourceType
+       |> HowToRetrieveSourceType.howToRetrieveSourceTypeToString)
+      ^ ")"
 end
