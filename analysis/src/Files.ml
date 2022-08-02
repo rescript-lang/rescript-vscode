@@ -96,4 +96,4 @@ let rec collect ?(checkDir = fun _ -> true) path test =
     else []
   | _ -> if test path then [path] else []
 
-let isResFile path = exists path && Filename.check_suffix path ".res"
+let isResFile path = Filename.check_suffix path ".res" && exists path
