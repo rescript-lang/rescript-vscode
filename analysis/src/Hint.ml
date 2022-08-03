@@ -89,7 +89,7 @@ let inlay ~path ~pos ~maxLength ~debug =
     Ast_iterator.default_iterator.value_binding iterator vb
   in
   let iterator = {Ast_iterator.default_iterator with value_binding} in
-  (if Files.classifyFile path = Res then
+  (if Files.classifySourceFile path = Res then
    let parser =
      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
    in
@@ -150,7 +150,7 @@ let codeLens ~path ~debug =
   let iterator = {Ast_iterator.default_iterator with value_binding} in
   (* We only print code lenses in implementation files. This is because they'd be redundant in interface files,
      where the definition itself will be the same thing as what would've been printed in the code lens. *)
-  (if Files.classifyFile path = Res then
+  (if Files.classifySourceFile path = Res then
    let parser =
      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
    in

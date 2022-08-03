@@ -98,7 +98,7 @@ let rec collect ?(checkDir = fun _ -> true) path test =
 
 type classifiedFile = Res | Resi | Other
 
-let classifyFile path =
+let classifySourceFile path =
   if Filename.check_suffix path ".res" && exists path then Res
   else if Filename.check_suffix path ".resi" && exists path then Resi
   else Other
