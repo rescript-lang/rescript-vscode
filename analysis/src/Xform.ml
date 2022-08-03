@@ -390,11 +390,13 @@ module TypeToModule = struct
                           match documentChange with
                           | TextDocumentEdit textEdit ->
                             let textDocument = textEdit.textDocument in
-                            (* Ignores first edit as it is within range of code action *)
                             let edits =
-                              match textEdit.edits with
-                              | _ :: rest -> rest
-                              | _ -> []
+                              if textEdit.textDocument.uri = uri then
+                                (* Ignores first edit as it is within range of code action *)
+                                match textEdit.edits with
+                                | _ :: rest -> rest
+                                | _ -> []
+                              else textEdit.edits
                             in
                             Protocol.TextDocumentEdit {textDocument; edits}
                           | _ -> documentChange)
