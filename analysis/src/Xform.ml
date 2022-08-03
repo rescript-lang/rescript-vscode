@@ -294,19 +294,12 @@ module TypeToModule = struct
   (* Convert type definition into its own module *)
   let mkIterator ~pos ~result ~newTypeName =
     let changeTypeDecl (typ : Parsetree.type_declaration) ~txt =
-      match typ.ptype_manifest with
-      | None ->
-        Ast_helper.Type.mk
-          {txt; loc = typ.ptype_name.loc}
-          ~loc:typ.ptype_loc ~attrs:typ.ptype_attributes
-          ~params:typ.ptype_params ~cstrs:typ.ptype_cstrs ~kind:typ.ptype_kind
-          ~priv:typ.ptype_private
-      | Some manifest ->
-        Ast_helper.Type.mk
-          {txt; loc = typ.ptype_name.loc}
-          ~loc:typ.ptype_loc ~attrs:typ.ptype_attributes
-          ~params:typ.ptype_params ~cstrs:typ.ptype_cstrs ~kind:typ.ptype_kind
-          ~priv:typ.ptype_private ~manifest
+      let manifest = typ.ptype_manifest in
+      Ast_helper.Type.mk
+        {txt; loc = typ.ptype_name.loc}
+        ~loc:typ.ptype_loc ~attrs:typ.ptype_attributes ~params:typ.ptype_params
+        ~cstrs:typ.ptype_cstrs ~kind:typ.ptype_kind ~priv:typ.ptype_private
+        ?manifest
     in
 
     let structure_item (iterator : Ast_iterator.iterator)
