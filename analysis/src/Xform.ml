@@ -384,11 +384,12 @@ module TypeToModule = struct
                           | TextDocumentEdit textEdit ->
                             let textDocument = textEdit.textDocument in
                             let edits =
-                              if textEdit.textDocument.uri = uri then
-                                (* Ignores first edit as it is within range of code action *)
-                                match textEdit.edits with
-                                | _ :: rest -> rest
-                                | _ -> []
+                              if textDocument.uri = uri then
+                                textEdit.edits
+                                |> List.filter
+                                     (fun (textEdit : Protocol.textEdit) ->
+                                       (* Ignore some text edit because it refers to the type that will be moved to its own module *)
+                                       textEdit.range <> range)
                               else textEdit.edits
                             in
                             Protocol.TextDocumentEdit {textDocument; edits}
