@@ -170,7 +170,8 @@ export const runCodeAnalysisWithReanalyze = (
     return;
   }
 
-  let p = cp.spawn(binaryPath, ["reanalyze", "-json"], {
+  let opts = ["reanalyze", "-json"];
+  let p = cp.spawn(binaryPath, opts, {
     cwd,
   });
 
@@ -218,12 +219,16 @@ export const runCodeAnalysisWithReanalyze = (
           outputChannel.show();
         });
 
-      outputChannel.appendLine("--invalid json start--");
-      outputChannel.append(data);
-      outputChannel.appendLine("--invalid json end--");
+      outputChannel.appendLine("\n\n>>>>");
       outputChannel.appendLine(
-        "Parsing JSON from reanalyze failed. The raw, invalid JSON is logged above this message. Please report this on the extension bug tracker: https://github.com/rescript-lang/rescript-vscode/issues"
+        "Parsing JSON from reanalyze failed. The raw, invalid JSON can be reproduced by following the instructions below. Please run that command and report the issue + failing JSON on the extension bug tracker: https://github.com/rescript-lang/rescript-vscode/issues"
       );
+      outputChannel.appendLine(
+        `> To reproduce, run "${binaryPath} ${opts.join(
+          " "
+        )}" in directory: "${cwd}"`
+      );
+      outputChannel.appendLine("\n");
     }
 
     if (json == null) {
