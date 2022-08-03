@@ -291,7 +291,7 @@ module AddTypeAnnotation = struct
 end
 
 module TypeToModule = struct
-  (* Convert a type it into its own submodule *)
+  (* Convert type definition into its own module *)
   let mkIterator ~pos ~result ~newTypeName =
     let changeTypeDecl (typ : Parsetree.type_declaration) ~txt =
       match typ.ptype_manifest with
@@ -338,11 +338,19 @@ module TypeToModule = struct
               pmb_loc = loc;
             }
         in
-        result :=
-          Some
-            ( Ast_helper.Str.mk ~loc mod_expr,
-              firstypeDec.ptype_name.loc,
-              modName );
+        let processTypeKind (typeDec : Parsetree.type_declaration) =
+          match typeDec.ptype_kind with
+          | Ptype_record [{pld_name = {loc; txt}}; _] -> Some (loc, txt)
+          | Ptype_variant [{pcd_name = {loc; txt}}; _] -> Some (loc, txt)
+          | _ -> None
+        in
+        let references =
+          let referencesInfo =
+            [firstypeDec] @ rest |> List.filter_map processTypeKind
+          in
+          [(firstypeDec.ptype_name.loc, newTypeName)] @ referencesInfo
+        in
+        result := Some (Ast_helper.Str.mk ~loc mod_expr, references, modName);
         Ast_iterator.default_iterator.structure_item iterator si
       | _ -> ()
     in
@@ -355,45 +363,52 @@ module TypeToModule = struct
     iterator.structure iterator structure;
     match !result with
     | None -> ()
-    | Some (newStructureItem, locOfRef, modName) ->
+    | Some (newStructureItem, references, modName) ->
       let range = rangeOfLoc newStructureItem.pstr_loc in
       let newText = printStructureItem ~range newStructureItem in
-      let rangeRef = rangeOfLoc locOfRef in
-      let newName = modName ^ "." ^ newTypeName in
       let uri = Uri.fromPath path |> Uri.toString in
-      let renameReferences =
-        Rename.command ~path
-          ~pos:(rangeRef.start.line, rangeRef.start.character)
-          ~newName ~debug
-      in
-      let initialChange =
+      let typeToModuleEdit =
         Protocol.TextDocumentEdit
           {textDocument = {version = None; uri}; edits = [{newText; range}]}
       in
-      let documentChanges =
-        match renameReferences with
-        | None -> [initialChange]
-        | Some workspaceEdit ->
-          let referencesChanged =
-            workspaceEdit.documentChanges
-            |> List.map (fun (documentChange : Protocol.documentChange) ->
-                   match documentChange with
-                   | TextDocumentEdit textEdit ->
-                     let textDocument = textEdit.textDocument in
-                     let edits =
-                       textEdit.edits
-                       |> List.filter (fun (edits : Protocol.textEdit) ->
-                              edits.range <> rangeRef)
-                     in
-                     Protocol.TextDocumentEdit {textDocument; edits}
-                   | _ -> documentChange)
-          in
-          [initialChange] @ referencesChanged
+      (* Before apply code action find all references and rename with new name *)
+      let relatedChanges =
+        references
+        |> List.filter_map (fun (loc, txt) ->
+               let range = rangeOfLoc loc in
+               let newName = modName ^ "." ^ txt in
+               match
+                 Rename.command ~path
+                   ~pos:(range.start.line, range.start.character)
+                   ~newName ~debug
+               with
+               | Some workspaceEdit ->
+                 let result =
+                   workspaceEdit.documentChanges
+                   |> List.map
+                        (fun (documentChange : Protocol.documentChange) ->
+                          match documentChange with
+                          | TextDocumentEdit textEdit ->
+                            let textDocument = textEdit.textDocument in
+                            (* Ignores first edit as it is within range of code action *)
+                            let edits =
+                              match textEdit.edits with
+                              | _ :: rest -> rest
+                              | _ -> []
+                            in
+                            Protocol.TextDocumentEdit {textDocument; edits}
+                          | _ -> documentChange)
+                 in
+                 Some result
+               | None -> None)
+        |> List.flatten
+      in
+      let edit : Protocol.workspaceEdit =
+        {documentChanges = [typeToModuleEdit] @ relatedChanges}
       in
       let codeAction =
-        CodeActions.make
-          ~title:("Convert type to module " ^ modName)
-          ~kind:RefactorRewrite ~edit:{documentChanges}
+        CodeActions.make ~title:"Move type definition into its own module"
+          ~kind:RefactorRewrite ~edit
       in
       codeActions := codeAction :: !codeActions
 end

@@ -100,7 +100,7 @@ newText:
     }
 
 Xform src/Xform.res 68:2
-Hit: Convert type to module ReadState
+Hit: Move type definition into its own module
 {"start": {"line": 68, "character": 0}, "end": {"line": 68, "character": 36}}
 newText:
 <--here
@@ -111,4 +111,60 @@ module ReadState = {
 newText:
                 <--here
                 ReadState.t
+
+Xform src/Xform.res 76:2
+Hit: Move type definition into its own module
+{"start": {"line": 73, "character": 0}, "end": {"line": 76, "character": 25}}
+newText:
+<--here
+module Account = {
+  type t =
+    | None
+    | Instagram(string)
+    | Facebook(string, int)
+}
+
+Xform src/Xform.res 82:2
+
+Xform src/Xform.res 88:2
+Hit: Move type definition into its own module
+{"start": {"line": 85, "character": 0}, "end": {"line": 88, "character": 25}}
+newText:
+<--here
+module User = {
+  type t = {
+    name: string,
+    age: int,
+  }
+  and response = Yes | No
+}
+{"start": {"line": 98, "character": 21}, "end": {"line": 98, "character": 25}}
+newText:
+                     <--here
+                     User.name
+{"start": {"line": 98, "character": 45}, "end": {"line": 98, "character": 49}}
+newText:
+                                             <--here
+                                             User.name
+{"start": {"line": 100, "character": 20}, "end": {"line": 100, "character": 23}}
+newText:
+                    <--here
+                    User.Yes
+
+Xform src/Xform.res 91:2
+Hit: Move type definition into its own module
+{"start": {"line": 91, "character": 0}, "end": {"line": 91, "character": 25}}
+newText:
+<--here
+module MyType = {
+  type t = This | That
+}
+{"start": {"line": 94, "character": 15}, "end": {"line": 94, "character": 21}}
+newText:
+               <--here
+               MyType.t
+{"start": {"line": 96, "character": 20}, "end": {"line": 96, "character": 24}}
+newText:
+                    <--here
+                    MyType.This
 
