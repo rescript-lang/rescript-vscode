@@ -431,7 +431,7 @@ let command ~debug ~emitter ~path =
     }
   in
 
-  if Files.isResFile path then (
+  if Files.classifyFile path = Res then (
     let parser =
       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
     in
