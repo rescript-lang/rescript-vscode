@@ -302,7 +302,7 @@ let parse ~filename =
 
 let extractCodeActions ~path ~pos ~currentFile ~debug =
   match Cmt.fullFromPath ~path with
-  | Some full when Files.isResFile currentFile ->
+  | Some full when Files.classifyFile currentFile = Res ->
     let structure, printExpr, printStructureItem =
       parse ~filename:currentFile
     in
