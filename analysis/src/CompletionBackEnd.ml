@@ -897,6 +897,40 @@ let getItemsFromOpens ~opens ~localTables ~prefix ~exact ~completionContext =
          completionsFromThisOpen @ results)
        []
 
+let findLocalCompletionsForTypeExpr ~(localTables : LocalTables.t) ~env ~prefix
+    ~exact ~opens ~scope typeExpr =
+  let _targetId = typeExpr.Types.id in
+  localTables |> LocalTables.populateValues ~env;
+  localTables |> LocalTables.populateModules ~env;
+  scope
+  |> Scope.iterValuesBeforeFirstOpen
+       (processLocalValue ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesBeforeFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+
+  let valuesFromOpens =
+    getItemsFromOpens ~opens ~localTables ~prefix ~exact
+      ~completionContext:Value
+  in
+
+  scope
+  |> Scope.iterValuesAfterFirstOpen
+       (processLocalValue ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesAfterFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+  List.rev_append localTables.resultRev valuesFromOpens
+(* TODO: Re-enable/make this work - filtering by type |> List.filter (fun completion ->
+       match completion.Completion.kind with
+       | Module _ -> true
+       | Value {id} when id = targetId -> true
+       | Value {id} ->
+         Printf.printf "compared %s with id %i to target %i\n" completion.name
+           id targetId;
+         false
+       | _ -> false) *)
+
 let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
     ~env ~prefix ~exact ~opens ~scope =
   localTables |> LocalTables.populateValues ~env;
@@ -987,6 +1021,14 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
   | Field ->
     (* There's no local completion for fields *)
     []
+
+let findLocalCompletionsForTypeExprL ~(env : QueryEnv.t) ~prefix ~exact ~opens
+    ~scope typeExpr =
+  (* TODO: handle arbitrary interleaving of opens and local bindings correctly *)
+  let localTables = LocalTables.create () in
+  typeExpr
+  |> findLocalCompletionsForTypeExpr ~localTables ~env ~exact ~opens ~scope
+       ~prefix
 
 let rec extractRecordType ~env ~package (t : Types.type_expr) =
   match t.desc with
@@ -1369,11 +1411,16 @@ type completable =
       decl: Types.type_declaration;
       name: string Location.loc;
     }
+  | CVariant of {constructors: Constructor.t list}
+  | CPolyVariant of {constructors: polyVariantConstructor list}
 
 let typeExprToCompletable typ ~env ~package =
   match typ |> extractType ~env ~package with
   | Some (Declared (_, {name; item = {kind = Record fields; decl}})) ->
     Some (CRecord {fields; decl; name})
+  | Some (Declared (_, {item = {kind = Variant constructors}})) ->
+    Some (CVariant {constructors})
+  | Some (Polyvariant (_, constructors)) -> Some (CPolyVariant {constructors})
   | _ -> None
 
 let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
@@ -1498,12 +1545,14 @@ let findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope
     (* TODO: Should probably share this with the branch handling CnamedArg... *)
     let labels =
       match
+        (* This just hijacks getCompletionsForContextPath and completionsGetTypeEnv because they
+           already kind of do what I need. Should break this out to its own, dedicated thing later. *)
         contextPath
         |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
              ~env ~exact:true ~scope
         |> completionsGetTypeEnv
       with
-      | Some (typ, _env) ->
+      | Some (typ, env) ->
         let rec getLabels ~env (t : Types.type_expr) =
           match t.desc with
           | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels ~env t1
@@ -1862,7 +1911,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
   | CtypedContext
-      {howToRetrieveSourceType; patternPath; prefix; alreadySeenIdents} -> (
+      {howToRetrieveSourceType; patternPath; meta = {prefix; alreadySeenIdents}}
+    -> (
+    let prefix =
+      match prefix with
+      | None -> ""
+      | Some prefix -> prefix
+    in
     let sourceType =
       findSourceType howToRetrieveSourceType ~package ~opens ~rawOpens ~allFiles
         ~env ~pos ~scope
@@ -1877,12 +1932,51 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     | Some typ -> (
       match typ |> findTypeInContext ~env ~nestedContextPath ~package with
       | None -> []
-      | Some (CRecord {fields; decl; name}) ->
-        let prefix =
-          match prefix with
-          | None -> ""
-          | Some prefix -> prefix
+      | Some (CPolyVariant {constructors}) ->
+        let constructorCompletions =
+          constructors
+          |> List.filter (fun constructor ->
+                 Utils.startsWith constructor.name prefix)
+          |> List.map (fun constructor ->
+                 (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                    Eg. Some($1) as completion item. *)
+                 Completion.create
+                   ~name:
+                     ("#" ^ constructor.name
+                     ^
+                     if constructor.payload |> Option.is_some then "(_)" else ""
+                     )
+                   ~kind:(PolyvariantConstructor constructor) ~env)
         in
+        let localCompletions =
+          typ
+          |> findLocalCompletionsForTypeExprL ~env ~prefix ~exact:false ~opens
+               ~scope
+        in
+        constructorCompletions @ localCompletions
+      | Some (CVariant {constructors}) ->
+        let constructorCompletions =
+          constructors
+          |> List.filter (fun constructor ->
+                 Utils.startsWith constructor.Constructor.cname.txt prefix)
+          |> List.map (fun (constructor : Constructor.t) ->
+                 (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                    Eg. Some($1) as completion item. *)
+                 Completion.create
+                   ~name:
+                     (constructor.cname.txt
+                     ^ if constructor.args |> List.length > 0 then "(_)" else ""
+                     )
+                   ~kind:(Constructor (constructor, ""))
+                   ~env)
+        in
+        let localCompletions =
+          typ
+          |> findLocalCompletionsForTypeExprL ~env ~prefix ~exact:false ~opens
+               ~scope
+        in
+        constructorCompletions @ localCompletions
+      | Some (CRecord {fields; decl; name}) ->
         let alreadyTypedRecordFields =
           match alreadySeenIdents with
           | None -> []

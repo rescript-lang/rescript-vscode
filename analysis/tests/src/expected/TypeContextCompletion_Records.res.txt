@@ -1,7 +1,7 @@
 Complete src/TypeContextCompletion_Records.res 16:15
 posCursor:[16:15] posNoWhite:[16:14] Found pattern:[16:7->16:16]
 posCursor:[16:15] posNoWhite:[16:14] Found pattern:[16:8->16:15]
-Completable: CtypedContext(Value[someVal])
+Completable: CtypedContext(Value[someVal])=another
 [{
     "label": "anotherThing",
     "kind": 5,
@@ -13,7 +13,7 @@ Completable: CtypedContext(Value[someVal])
 Complete src/TypeContextCompletion_Records.res 19:23
 posCursor:[19:23] posNoWhite:[19:22] Found pattern:[19:7->19:24]
 posCursor:[19:23] posNoWhite:[19:22] Found pattern:[19:22->19:23]
-Completable: CtypedContext(Value[someVal])
+Completable: CtypedContext(Value[someVal])=s
 [{
     "label": "something",
     "kind": 5,
@@ -24,7 +24,7 @@ Completable: CtypedContext(Value[someVal])
 
 Complete src/TypeContextCompletion_Records.res 22:8
 posCursor:[22:8] posNoWhite:[22:7] Found pattern:[22:7->22:9]
-Completable: CtypedContext(Value[someVal])
+Completable: CtypedContext(Value[someVal])=""
 [{
     "label": "something",
     "kind": 5,
@@ -47,7 +47,7 @@ Completable: CtypedContext(Value[someVal])
 
 Complete src/TypeContextCompletion_Records.res 31:8
 posCursor:[31:8] posNoWhite:[31:7] Found pattern:[31:7->31:9]
-Completable: CtypedContext(Value[getSomeVal](~irrelevant))
+Completable: CtypedContext(Value[getSomeVal](~irrelevant))=""
 [{
     "label": "something",
     "kind": 5,
@@ -71,7 +71,7 @@ Completable: CtypedContext(Value[getSomeVal](~irrelevant))
 Complete src/TypeContextCompletion_Records.res 35:20
 posCursor:[35:20] posNoWhite:[35:19] Found pattern:[35:7->35:22]
 posCursor:[35:20] posNoWhite:[35:19] Found pattern:[35:19->35:21]
-Completable: CtypedContext(Value[someVal])
+Completable: CtypedContext(Value[someVal])=""
 [{
     "label": "somethingElse",
     "kind": 5,
@@ -96,7 +96,7 @@ Complete src/TypeContextCompletion_Records.res 38:47
 posCursor:[38:47] posNoWhite:[38:46] Found pattern:[38:7->38:50]
 posCursor:[38:47] posNoWhite:[38:46] Found pattern:[38:19->38:49]
 posCursor:[38:47] posNoWhite:[38:46] Found pattern:[38:46->38:48]
-Completable: CtypedContext(Value[someVal])
+Completable: CtypedContext(Value[someVal])=""
 [{
     "label": "level",
     "kind": 5,
@@ -116,7 +116,7 @@ posCursor:[41:48] posNoWhite:[41:47] Found pattern:[41:7->41:51]
 posCursor:[41:48] posNoWhite:[41:47] Found pattern:[41:19->41:50]
 posCursor:[41:48] posNoWhite:[41:47] Found pattern:[41:46->41:49]
 posCursor:[41:48] posNoWhite:[41:47] Found pattern:[41:47->41:48]
-Completable: CtypedContext(Value[someVal])
+Completable: CtypedContext(Value[someVal])=l
 [{
     "label": "level",
     "kind": 5,
@@ -128,7 +128,7 @@ Completable: CtypedContext(Value[someVal])
 Complete src/TypeContextCompletion_Records.res 44:47
 posCursor:[44:47] posNoWhite:[44:44] Found pattern:[44:7->44:49]
 posCursor:[44:47] posNoWhite:[44:44] Found pattern:[44:19->44:48]
-Completable: CtypedContext(Value[someVal])
+Completable: CtypedContext(Value[someVal])=""
 [{
     "label": "somethingElse",
     "kind": 5,
@@ -140,7 +140,7 @@ Completable: CtypedContext(Value[someVal])
 Complete src/TypeContextCompletion_Records.res 47:31
 posCursor:[47:31] posNoWhite:[47:30] Found pattern:[47:7->47:47]
 posCursor:[47:31] posNoWhite:[47:30] Found pattern:[47:19->47:46]
-Completable: CtypedContext(Value[someVal])
+Completable: CtypedContext(Value[someVal])=""
 [{
     "label": "somethingElse",
     "kind": 5,

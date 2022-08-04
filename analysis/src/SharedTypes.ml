@@ -493,6 +493,14 @@ module Completable = struct
     | NamedArg {label; contextPath} ->
       "NamedArg(" ^ label ^ ", " ^ (contextPath |> contextPathToString) ^ ")"
 
+  type typedContextMeta = {
+    (* What the user has already started writing, if anything. *)
+    prefix: string option;
+    (* Record fields already written by the user, etc.
+       This is contextual of course, but putting it here in the general type to simplify things. *)
+    alreadySeenIdents: string list option;
+  }
+
   type t =
     | Cdecorator of string  (** e.g. @module *)
     | CnamedArg of contextPath * string * string list
@@ -504,11 +512,7 @@ module Completable = struct
     | CtypedContext of {
         howToRetrieveSourceType: howToRetrieveSourceType;
         patternPath: patternPathItem list option;
-        (* What the user has already started writing, if anything. *)
-        prefix: string option;
-        (* Record fields already written by the user, etc.
-           This is contextual of course, but putting it here in the general type to simplify things. *)
-        alreadySeenIdents: string list option;
+        meta: typedContextMeta;
       }
 
   let toString = function
@@ -521,8 +525,12 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | CtypedContext {howToRetrieveSourceType} ->
+    | CtypedContext {howToRetrieveSourceType; meta = {prefix}} -> (
       "CtypedContext("
       ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
-      ^ ")"
+      ^ ")="
+      ^
+      match prefix with
+      | None -> ""
+      | Some prefix -> str prefix)
 end

@@ -466,14 +466,9 @@ JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:Non
 found typed context: jsxProp:second
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:29->59:30]
 Pexp_ident z:[59:29->59:30]
-Completable: Cpath Value[z]
-[{
-    "label": "zzz",
-    "kind": 12,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }]
+Completable: CtypedContext(JsxProp(<O.Comp second= />))=z
+could not extract type
+[]
 
 Complete src/Completion.res 62:23
 posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:15->62:23]

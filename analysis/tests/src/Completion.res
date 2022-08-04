@@ -51,7 +51,7 @@ let fa: ForAuto.t = 34
 module O = {
   module Comp = {
     @react.component
-    let make = (~first="", ~zoo=3, ~second) => React.string(first ++ second ++ string_of_int(zoo))
+    let make = (~first="", ~zoo=3, ~second) => React.string(first ++ string_of_int(second) ++ string_of_int(zoo))
   }
 }
 
