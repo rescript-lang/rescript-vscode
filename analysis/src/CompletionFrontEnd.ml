@@ -35,8 +35,10 @@ let getIdentFromExpr exp =
   | Pexp_field (_, {txt}) -> txt
   | _ -> Lident ""
 
+(* This is probably wrong and we should likely use the full Longident instead for the prefix. *)
 let getPrefixFromExpr exp = getIdentFromExpr exp |> Longident.last
 
+(* Extracted for reuse. *)
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
@@ -440,6 +442,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | Pstr_value (recFlag, bindings) ->
       if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
 
+      (* This is an experiment and should most likely not live here in its final form. *)
       (* Check for: let {destructuringSomething} = someIdentifier *)
       (* Ensure cursor is inside of record pattern. *)
       (* TODO: Tuples, etc... *)
@@ -988,7 +991,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
 
     (* If nothing explicitly matched for completion, but we're still looking for a type
-       somewhere where the cursor is - complete for that. *)
+       somewhere where the cursor is - complete for that.
+       This is an experiment as is likely wrong/will trigger completion of the type
+       based value in a bunch of scenarios when it shouldn't. *)
     (match (!result, !currentlyLookingForType) with
     | None, Some lookingForType ->
       scope := !lastScopeBeforeCursor;

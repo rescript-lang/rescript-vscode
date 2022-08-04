@@ -10,7 +10,6 @@ found typed context: jsxProp:second
 posCursor:[8:15] posNoWhite:[8:14] Found expr:[8:13->8:15]
 Pexp_ident fi:[8:13->8:15]
 Completable: CtypedContext(JsxProp(<M second= />))=fi
-could not extract type
 []
 
 Complete src/Jsx.res 11:20

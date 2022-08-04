@@ -897,6 +897,10 @@ let getItemsFromOpens ~opens ~localTables ~prefix ~exact ~completionContext =
          completionsFromThisOpen @ results)
        []
 
+(* This is a dedicated function for finding local completions for a specific type expr (as in filtered to match only the type expr).
+   Filtering is commented out for now though, since the strategy I used did not work out.
+   The idea here is that _values_ can be filtered on the type, but we still need to complete for modules just like we normally do,
+   to support using values from other modules. *)
 let findLocalCompletionsForTypeExpr ~(localTables : LocalTables.t) ~env ~prefix
     ~exact ~opens ~scope typeExpr =
   let _targetId = typeExpr.Types.id in
@@ -1022,8 +1026,8 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     (* There's no local completion for fields *)
     []
 
-let findLocalCompletionsForTypeExprL ~(env : QueryEnv.t) ~prefix ~exact ~opens
-    ~scope typeExpr =
+let findLocalCompletionsForTypeExprWithOpens ~(env : QueryEnv.t) ~prefix ~exact
+    ~opens ~scope typeExpr =
   (* TODO: handle arbitrary interleaving of opens and local bindings correctly *)
   let localTables = LocalTables.create () in
   typeExpr
@@ -1042,10 +1046,12 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
+(* Had to add another type level here to cover that polyvariants are inlined into to the type system. Mostly a temporary solution. *)
 type extractedType =
   | Declared of QueryEnv.t * Type.t Declared.t
   | Polyvariant of QueryEnv.t * SharedTypes.polyVariantConstructor list
 
+(* This is a more general extraction function for pulling out the type of a type_expr. We already have other similar functions, but they are all specialized on something (variants, records, etc). *)
 let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
@@ -1404,7 +1410,7 @@ let getOpens ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
-(* Temporary while I figure things out *)
+(* Temporary while I figure things out. This should be merged with the completable we already have. *)
 type completable =
   | CRecord of {
       fields: field list;
@@ -1423,6 +1429,9 @@ let typeExprToCompletable typ ~env ~package =
   | Some (Polyvariant (_, constructors)) -> Some (CPolyVariant {constructors})
   | _ -> None
 
+(* Takes a type_expr and figures out what completable it corresponds to, if any. If the target type is nested somewhere inside of the type_expr,
+   nestedContextPath will be populated with instructions on how to reach that part. This is primarily used in patterns,
+   where the cursor can be deep into the pattern. *)
 let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
   let rec digToType (currentType : Types.type_expr) ~env ~nestedContextPath
       ~package =
@@ -1499,45 +1508,8 @@ let getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
     typ |> getLabels
   | None -> []
 
-(* This completes a type expression. Intended to be shared logic that can extract completions from a context, as soon as that the type is identified. *)
-let completeTypeExpr ~env ~package ~debug ~prefix (typeExpr : Types.type_expr) =
-  match extractType ~env ~package typeExpr with
-  | None ->
-    if debug then Printf.printf "Could not extract type\n";
-    []
-  | Some (Declared (_env, {item})) -> (
-    match item.kind with
-    | Variant constructors ->
-      if debug then
-        Printf.printf "Found variant type %s\n" (typeExpr |> Shared.typeToString);
-      constructors
-      |> List.filter (fun constructor ->
-             Utils.startsWith constructor.Constructor.cname.txt prefix)
-      |> List.map (fun (constructor : Constructor.t) ->
-             (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
-                Eg. Some($1) as completion item. *)
-             Completion.create
-               ~name:
-                 (constructor.cname.txt
-                 ^ if constructor.args |> List.length > 0 then "(_)" else "")
-               ~kind:(Constructor (constructor, ""))
-               ~env)
-    | _ -> [])
-  | Some (Polyvariant (_env, constructors)) ->
-    if debug then
-      Printf.printf "Found polyvariant type %s\n"
-        (typeExpr |> Shared.typeToString);
-    constructors
-    |> List.filter (fun constructor -> Utils.startsWith constructor.name prefix)
-    |> List.map (fun constructor ->
-           (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
-              Eg. Some($1) as completion item. *)
-           Completion.create
-             ~name:
-               ("#" ^ constructor.name
-               ^ if constructor.payload |> Option.is_some then "(_)" else "")
-             ~kind:(PolyvariantConstructor constructor) ~env)
-
+(* This pulls out the type we want to do type based completion based on, using an instruction.
+   This instruction can be "the type that the jsx prop X wants in component Y". *)
 let findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope
     ~pos =
   match sourceType with
@@ -1950,8 +1922,8 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         in
         let localCompletions =
           typ
-          |> findLocalCompletionsForTypeExprL ~env ~prefix ~exact:false ~opens
-               ~scope
+          |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix ~exact:false
+               ~opens ~scope
         in
         constructorCompletions @ localCompletions
       | Some (CVariant {constructors}) ->
@@ -1972,8 +1944,8 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         in
         let localCompletions =
           typ
-          |> findLocalCompletionsForTypeExprL ~env ~prefix ~exact:false ~opens
-               ~scope
+          |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix ~exact:false
+               ~opens ~scope
         in
         constructorCompletions @ localCompletions
       | Some (CRecord {fields; decl; name}) ->

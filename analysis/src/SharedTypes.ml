@@ -428,6 +428,7 @@ module Completable = struct
     | CPObj of contextPath * string
     | CPPipe of contextPath * string
 
+  (* How to move through a nested type context, like from a root record to the type of one of its fields, and beyond. *)
   (* TODO: Can extend to tuples, objects, etc *)
   type patternPathItem =
     | RField of {fieldName: string; alreadySeenFields: string list}
