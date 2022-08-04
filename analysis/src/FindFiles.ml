@@ -95,10 +95,12 @@ let nameSpaceToName n =
 
 let getNamespace config =
   let ns = config |> Json.get "namespace" in
-  let isNamespaced = ns |> bind Json.bool |> Option.value ~default:false in
+  let fromString = ns |> bind Json.string in
+  let isNamespaced =
+    ns |> bind Json.bool |> Option.value ~default:(fromString |> Option.is_some)
+  in
   let either x y = if x = None then y else x in
   if isNamespaced then
-    let fromString = ns |> bind Json.string in
     let fromName = config |> Json.get "name" |> bind Json.string in
     either fromString fromName |> Option.map nameSpaceToName
   else None
