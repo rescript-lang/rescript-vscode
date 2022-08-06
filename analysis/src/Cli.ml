@@ -104,7 +104,7 @@ let main () =
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false
   | [_; "signatureHelp"; path; line; col; currentFile] ->
-    Commands.hover ~path
+    Commands.signatureHelp ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false
   | [_; "inlayHint"; path; line_start; line_end; maxLength] ->

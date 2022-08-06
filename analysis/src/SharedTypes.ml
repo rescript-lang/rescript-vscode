@@ -1,3 +1,8 @@
+let str s = if s = "" then "\"\"" else s
+let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
+
+let ident i = i |> List.map str |> String.concat "."
+
 type modulePath =
   | File of Uri.t * string
   | NotVisible
@@ -435,8 +440,6 @@ module Completable = struct
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
 
   let toString =
-    let str s = if s = "" then "\"\"" else s in
-    let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
     let completionContextToString = function
       | Value -> "Value"
       | Type -> "Type"

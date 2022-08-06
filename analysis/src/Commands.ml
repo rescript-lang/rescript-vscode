@@ -89,9 +89,13 @@ let hover ~path ~pos ~currentFile ~debug =
   print_endline result
 
 let signatureHelp ~path ~pos ~currentFile ~debug =
-  print_endline
-    (Protocol.stringifySignatureHelp
-       {signatures = []; activeSignature = None; activeParameter = None})
+  let result =
+    match SignatureHelp.signatureHelp ~path ~pos ~currentFile ~debug with
+    | None ->
+      {Protocol.signatures = []; activeSignature = None; activeParameter = None}
+    | Some res -> res
+  in
+  print_endline (Protocol.stringifySignatureHelp result)
 
 let codeAction ~path ~pos ~currentFile ~debug =
   Xform.extractCodeActions ~path ~pos ~currentFile ~debug

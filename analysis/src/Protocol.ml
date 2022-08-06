@@ -17,14 +17,12 @@ type inlayHint = {
 }
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#parameterInformation *)
-type parameterInformation = {label: string; documentation: string option}
+type parameterInformation = {label: int * int}
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#signatureInformation *)
 type signatureInformation = {
   label: string;
-  documentation: string option;
-  parameters: parameterInformation list option;
-  activeParameter: int option;
+  parameters: parameterInformation list;
 }
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#signatureHelp *)
@@ -190,44 +188,29 @@ let stringifyCodeLens (codeLens : codeLens) =
 
 let stringifyParameterInformation (parameterInformation : parameterInformation)
     =
-  Printf.sprintf
-    {|{
-            "label": %s,
-            "documentation": %s
-        }|}
-    (Json.escape parameterInformation.label)
-    (match parameterInformation.documentation with
-    | None -> null
-    | Some documentation -> Json.escape documentation)
+  Printf.sprintf {|{"label": %s}|}
+    (let line, chr = parameterInformation.label in
+     "[" ^ string_of_int line ^ ", " ^ string_of_int chr ^ "]")
 
 let stringifySignatureInformation (signatureInformation : signatureInformation)
     =
   Printf.sprintf
     {|{
-            "label": %s,
-            "documentation": %s,
-            "parameters": %s,
-            "activeParameter": %s
-        }|}
+    "label": "%s",
+    "parameters": %s
+  }|}
     (Json.escape signatureInformation.label)
-    (match signatureInformation.documentation with
-    | None -> null
-    | Some documentation -> Json.escape documentation)
-    (match signatureInformation.parameters with
-    | None -> [] |> array
-    | Some parameters ->
-      parameters |> List.map stringifyParameterInformation |> array)
-    (match signatureInformation.activeParameter with
-    | None -> null
-    | Some activeParameter -> activeParameter |> string_of_int)
+    (signatureInformation.parameters
+    |> List.map stringifyParameterInformation
+    |> array)
 
 let stringifySignatureHelp (signatureHelp : signatureHelp) =
   Printf.sprintf
     {|{
-            "signatures": %s,
-            "activeSignature": %s,
-            "activeParameter": %s
-        }|}
+  "signatures": %s,
+  "activeSignature": %s,
+  "activeParameter": %s
+}|}
     (signatureHelp.signatures |> List.map stringifySignatureInformation |> array)
     (match signatureHelp.activeSignature with
     | None -> null
