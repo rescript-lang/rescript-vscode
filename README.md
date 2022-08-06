@@ -69,7 +69,8 @@ The only 2 themes we don't (and can't) support, due to their lack of coloring, a
 - Autocomplete.
 - Find references.
 - Rename.
-- Inlay Hints
+- Inlay Hints.
+- Signature help.
 - Snippets to ease a few syntaxes:
   - `external` features such as `@bs.module` and `@bs.val`
   - `try`, `for`, etc.
