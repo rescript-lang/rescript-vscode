@@ -51,6 +51,15 @@ let inlay ~path ~pos ~maxLength ~debug =
       | _ -> processFunction e)
     | _ -> ()
   in
+  let rec processPattern (pat : Parsetree.pattern) =
+    match pat.ppat_desc with
+    | Ppat_tuple pl -> pl |> List.iter processPattern
+    | Ppat_record (fields, _) ->
+      fields |> List.iter (fun (_, p) -> processPattern p)
+    | Ppat_array fields -> fields |> List.iter processPattern
+    | Ppat_var {loc} -> push loc Type
+    | _ -> ()
+  in
   let value_binding (iterator : Ast_iterator.iterator)
       (vb : Parsetree.value_binding) =
     (match vb with
@@ -66,10 +75,8 @@ let inlay ~path ~pos ~maxLength ~debug =
        };
     } ->
       push vb.pvb_pat.ppat_loc Type
-    | {pvb_pat = {ppat_desc = Ppat_tuple tuples}} ->
-      List.iter
-        (fun (tuple : Parsetree.pattern) -> push tuple.ppat_loc Type)
-        tuples
+    | {pvb_pat = {ppat_desc = Ppat_tuple _}} -> processPattern vb.pvb_pat
+    | {pvb_pat = {ppat_desc = Ppat_record _}} -> processPattern vb.pvb_pat
     | {
      pvb_pat = {ppat_desc = Ppat_var _};
      pvb_expr = {pexp_desc = Pexp_fun (_, _, pat, e)};
@@ -82,7 +89,7 @@ let inlay ~path ~pos ~maxLength ~debug =
     Ast_iterator.default_iterator.value_binding iterator vb
   in
   let iterator = {Ast_iterator.default_iterator with value_binding} in
-  (if Filename.check_suffix path ".res" then
+  (if Files.classifySourceFile path = Res then
    let parser =
      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
    in
@@ -143,7 +150,7 @@ let codeLens ~path ~debug =
   let iterator = {Ast_iterator.default_iterator with value_binding} in
   (* We only print code lenses in implementation files. This is because they'd be redundant in interface files,
      where the definition itself will be the same thing as what would've been printed in the code lens. *)
-  (if Filename.check_suffix path ".res" then
+  (if Files.classifySourceFile path = Res then
    let parser =
      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
    in

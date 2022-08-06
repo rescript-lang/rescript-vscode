@@ -83,10 +83,18 @@ module Comp = {
 
 module Comp1 = Comp
 
-let _ = <Comp> <div /> <div /> </Comp>
+let _ =
+  <Comp>
+    <div />
+    <div />
+  </Comp>
 //        ^hov
 
-let _ = <Comp1> <div /> <div /> </Comp1>
+let _ =
+  <Comp1>
+    <div />
+    <div />
+  </Comp1>
 //        ^hov
 
 type r<'a> = {i: 'a, f: float}
@@ -129,4 +137,21 @@ let arity0d = (. ()) => {
   // ^hov
   let f = () => 3
   f
+}
+
+/**doc comment 1*/
+let docComment1 = 12
+//       ^hov
+
+/** doc comment 2 */
+let docComment2 = 12
+//    ^hov
+
+module ModWithDocComment = {
+  /*** module level doc comment 1 */
+
+  /** doc comment for x */
+  let x = 44
+
+  /*** module level doc comment 2 */
 }

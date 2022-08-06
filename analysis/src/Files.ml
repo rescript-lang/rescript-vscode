@@ -95,3 +95,10 @@ let rec collect ?(checkDir = fun _ -> true) path test =
       |> List.concat
     else []
   | _ -> if test path then [path] else []
+
+type classifiedFile = Res | Resi | Other
+
+let classifySourceFile path =
+  if Filename.check_suffix path ".res" && exists path then Res
+  else if Filename.check_suffix path ".resi" && exists path then Resi
+  else Other

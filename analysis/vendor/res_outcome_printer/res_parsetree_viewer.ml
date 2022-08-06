@@ -11,7 +11,7 @@ let arrowType ct =
       process attrsBefore (arg :: acc) typ2
     | {
      ptyp_desc = Ptyp_arrow ((Nolabel as lbl), typ1, typ2);
-     ptyp_attributes = [({txt = "bs"}, _)] as attrs;
+     ptyp_attributes = [({txt = "bs" | "res.async"}, _)] as attrs;
     } ->
       let arg = (attrs, lbl, typ1) in
       process attrsBefore (arg :: acc) typ2
@@ -54,6 +54,30 @@ let processUncurriedAttribute attrs =
     | attr :: rest -> process uncurriedSpotted (attr :: acc) rest
   in
   process false [] attrs
+
+type functionAttributesInfo = {
+  async: bool;
+  uncurried: bool;
+  attributes: Parsetree.attributes;
+}
+
+let processFunctionAttributes attrs =
+  let rec process async uncurried acc attrs =
+    match attrs with
+    | [] -> {async; uncurried; attributes = List.rev acc}
+    | ({Location.txt = "bs"}, _) :: rest -> process async true acc rest
+    | ({Location.txt = "res.async"}, _) :: rest ->
+      process true uncurried acc rest
+    | attr :: rest -> process async uncurried (attr :: acc) rest
+  in
+  process false false [] attrs
+
+let hasAwaitAttribute attrs =
+  List.exists
+    (function
+      | {Location.txt = "res.await"}, _ -> true
+      | _ -> false)
+    attrs
 
 let collectListExpressions expr =
   let rec collect acc expr =
@@ -168,8 +192,9 @@ let filterParsingAttrs attrs =
       match attr with
       | ( {
             Location.txt =
-              ( "ns.ternary" | "ns.braces" | "res.template" | "bs" | "ns.iflet"
-              | "ns.namedArgLoc" | "ns.optional" );
+              ( "bs" | "ns.braces" | "ns.iflet" | "ns.namedArgLoc"
+              | "ns.optional" | "ns.ternary" | "res.async" | "res.await"
+              | "res.template" );
           },
           _ ) ->
         false
@@ -316,7 +341,8 @@ let hasAttributes attrs =
       match attr with
       | ( {
             Location.txt =
-              "bs" | "res.template" | "ns.ternary" | "ns.braces" | "ns.iflet";
+              ( "bs" | "ns.braces" | "ns.iflet" | "ns.ternary" | "res.async"
+              | "res.await" | "res.template" );
           },
           _ ) ->
         false
@@ -497,8 +523,8 @@ let isPrintableAttribute attr =
   match attr with
   | ( {
         Location.txt =
-          ( "bs" | "res.template" | "ns.ternary" | "ns.braces" | "ns.iflet"
-          | "JSX" );
+          ( "bs" | "ns.iflet" | "ns.braces" | "JSX" | "res.async" | "res.await"
+          | "res.template" | "ns.ternary" );
       },
       _ ) ->
     false

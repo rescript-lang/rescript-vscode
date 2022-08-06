@@ -398,7 +398,8 @@ let command ~debug ~emitter ~path =
   let structure_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.structure_item) =
     (match item.pstr_desc with
-    | Pstr_primitive {pval_name = {txt = id; loc}} -> emitter |> emitVariable ~id ~debug ~loc;
+    | Pstr_primitive {pval_name = {txt = id; loc}} ->
+      emitter |> emitVariable ~id ~debug ~loc
     | _ -> ());
     Ast_iterator.default_iterator.structure_item iterator item
   in
@@ -406,7 +407,8 @@ let command ~debug ~emitter ~path =
   let signature_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.signature_item) =
     (match item.psig_desc with
-    | Psig_value {pval_name = {txt = id; loc}} -> emitter |> emitVariable ~id ~debug ~loc;
+    | Psig_value {pval_name = {txt = id; loc}} ->
+      emitter |> emitVariable ~id ~debug ~loc
     | _ -> ());
     Ast_iterator.default_iterator.signature_item iterator item
   in
@@ -431,7 +433,7 @@ let command ~debug ~emitter ~path =
     }
   in
 
-  if Filename.check_suffix path ".res" then (
+  if Files.classifySourceFile path = Res then (
     let parser =
       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
     in

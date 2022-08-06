@@ -14,10 +14,17 @@
 
 #### :rocket: New Feature
 
-- Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`. Turned off by default.
-- Code Lenses for functions (experimetal). `rescript.settings.codeLens: true`. Turned off by default.
-- Markdown code blocks tagged as `rescript` now get basic syntax highlighting.
-- Signature help for function applications.
+- Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/453
+- Code Lenses for functions (experimetal). `rescript.settings.codeLens: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/513
+- Markdown code blocks tagged as `rescript` now get basic syntax highlighting. https://github.com/rescript-lang/rescript-vscode/pull/97
+- Hover support for doc comments on v10 compiler `/** this is a doc comment */`
+
+#### :bug: Bug Fix
+
+- Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
+- Fix issue where doc comment with nested comments inside is not shown properly on hover https://github.com/rescript-lang/rescript-vscode/pull/526
+- Fix server crashes when open file is removed from disk with inlayHints enabled https://github.com/rescript-lang/rescript-vscode/issues/538
+- Fix inlay hint for destructured record/array https://github.com/rescript-lang/rescript-vscode/issues/536
 
 ## v1.4.2
 

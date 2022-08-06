@@ -80,14 +80,16 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let findBinaryDirPathFromProjectRoot = (
+// Check if the rescript binary is available at node_modules/.bin/rescript,
+// otherwise recursively check parent directories for it.
+let findBinaryPathFromProjectRoot = (
   directory: p.DocumentUri // This must be a directory and not a file!
 ): null | p.DocumentUri => {
   let binaryDirPath = path.join(directory, c.nodeModulesBinDir);
   let binaryPath = path.join(binaryDirPath, c.rescriptBinName);
 
   if (fs.existsSync(binaryPath)) {
-    return binaryDirPath;
+    return binaryPath;
   }
 
   let parentDir = path.dirname(directory);
@@ -96,19 +98,26 @@ let findBinaryDirPathFromProjectRoot = (
     return null;
   }
 
-  return findBinaryDirPathFromProjectRoot(parentDir);
+  return findBinaryPathFromProjectRoot(parentDir);
 };
 
-let getBinaryDirPath = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath == null
-    ? findBinaryDirPathFromProjectRoot(projectRootPath)
-    : extensionConfiguration.binaryPath;
-
 let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
-  utils.findRescriptBinary(getBinaryDirPath(projectRootPath));
+  extensionConfiguration.binaryPath == null
+    ? findBinaryPathFromProjectRoot(projectRootPath)
+    : utils.findRescriptBinary(extensionConfiguration.binaryPath);
 
-let findBscBinary = (projectRootPath: p.DocumentUri) =>
-  utils.findBscBinary(getBinaryDirPath(projectRootPath));
+let findBscBinary = (projectRootPath: p.DocumentUri) => {
+  let rescriptBinaryPath = findRescriptBinary(projectRootPath);
+  if (rescriptBinaryPath !== null) {
+    return path.join(
+      path.dirname(rescriptBinaryPath),
+      "..",
+      c.platformPath,
+      c.bscExeName
+    );
+  }
+  return null;
+};
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -232,7 +241,7 @@ let compilerLogsWatcher = chokidar
   .on("all", (_e, changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
-    if (extensionConfiguration.inlayHints.enable === true) {
+    if (extensionConfiguration.inlayHints?.enable === true) {
       sendInlayHintsRefresh();
     }
     if (extensionConfiguration.codeLens === true) {
@@ -313,9 +322,13 @@ let openedFile = (fileUri: string, fileContent: string) => {
           method: "window/showMessage",
           params: {
             type: p.MessageType.Error,
-            message: `Can't find ReScript binary in the directory ${getBinaryDirPath(
-              projectRootPath
-            )}`,
+            message:
+              extensionConfiguration.binaryPath == null
+                ? `Can't find ReScript binary in  ${path.join(
+                    projectRootPath,
+                    c.nodeModulesBinDir
+                  )} or parent directories. Did you install it? It's required to use "rescript" > 9.1`
+                : `Can't find ReScript binary in the directory ${extensionConfiguration.binaryPath}`,
           },
         };
         send(request);
@@ -1057,7 +1070,7 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
-          inlayHintProvider: extensionConfiguration.inlayHints.enable,
+          inlayHintProvider: extensionConfiguration.inlayHints?.enable,
           codeLensProvider: extensionConfiguration.codeLens
             ? {
                 workDoneProgress: false,

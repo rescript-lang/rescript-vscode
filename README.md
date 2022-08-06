@@ -59,9 +59,7 @@ The only 2 themes we don't (and can't) support, due to their lack of coloring, a
 
 - Supports `.res`, `.resi` and `bsconfig.json`.
 - Syntax highlighting.
-- Formatting, with caveats:
-  - Currently requires the file to be part of a ReScript project, i.e. with a `bsconfig.json`.
-  - Cannot be a temporary file.
+- Formatting.
 - Build diagnostics.
 - Built-in bsb watcher (optional, and exposed explicitly as a pop-up; no worries of dangling build).
 - Type hint hover.
@@ -71,6 +69,7 @@ The only 2 themes we don't (and can't) support, due to their lack of coloring, a
 - Rename.
 - Inlay Hints.
 - Signature help.
+- Code lenses.
 - Snippets to ease a few syntaxes:
   - `external` features such as `@bs.module` and `@bs.val`
   - `try`, `for`, etc.
@@ -87,6 +86,7 @@ ext install chenglou92.rescript-vscode
 The plugin activates on `.res` and `.resi` files. If you've already got Reason-Language-Server installed, it's possible that the latter took precedence over this one. Make sure you're using this plugin ("ReScript syntax") rather than Reason-Language-Server ("BuckleScript syntax").
 
 ### Pre-release channel
+
 There is a pre-release channel available. It is intended for testing new and therefore possibly unstable features. You can activate it by clicking on the "Switch to Pre-Release Version" button on the `rescript-vscode` extension page in VSCode. From this point on, pre-release versions will always have an odd version minor (1.5.x, 1.7.x, 2.1.x, etc.) while stable releases have even version minor numbers (1.4.x, 1.6.x, 2.0.0, etc.).
 
 Even if the pre-release channel seems too experimental to you, we still suggest you to give it a try and submit any issues that you run into. In the long run it will give us a better editor experience overall.
@@ -94,7 +94,7 @@ Even if the pre-release channel seems too experimental to you, we still suggest 
 ## 📦 Commands
 
 | Command                                                          | Description                                                                                                                                                                                                                                                                                           |
-|------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ReScript: Create an interface file for this implementation file  | Creates an interface file (`.resi`) for the current `.res` file, automatically filling in all types and values in the current file.                                                                                                                                                                   |
 | ReScript: Open the compiled JS file for this implementation file | Opens the compiled JS file for the current ReScript file.                                                                                                                                                                                                                                             |
 | ReScript: Switch implementation/interface                        | Switches between the implementation and interface file. If you're in a `.res` file, the command will open the corresponding `.resi` file (if it exists), and if you're in a `.resi` file the command will open the corresponding `.res` file. This can also be triggered with the keybinding `Alt+O`. |
@@ -106,10 +106,10 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 
 | Setting                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Prompt to Start Build  | If there's no ReScript build running already in the opened project, the extension will prompt you and ask if you want to start a build automatically. You can turn off this automatic prompt via the setting `rescript.settings.askToStartBuild`.                                                                                                                                                                                                                                    |
+| Prompt to Start Build          | If there's no ReScript build running already in the opened project, the extension will prompt you and ask if you want to start a build automatically. You can turn off this automatic prompt via the setting `rescript.settings.askToStartBuild`.                                                                                                                                                                                                                                    |
 | ReScript Binary Path           | The extension will look for the existence of a `/node_modules/.bin/rescript` file and use its directory as the `binaryPath`. If it does not find it at the project root (which is where the nearest `bsconfig.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level. To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.binaryPath` |
-| Inlay Hints (experimental) | This allows an editor to place annotations inline with text to display type hints. Enable using `rescript.settings.inlayHints.enable: true` |
-| Code Lens (experimental) | This tells the editor to add code lenses to function definitions, showing its full type above the definition. Enable using `rescript.settings.codeLens: true` |
+| Inlay Hints (experimental)     | This allows an editor to place annotations inline with text to display type hints. Enable using `rescript.settings.inlayHints.enable: true`                                                                                                                                                                                                                                                                                                                                          |
+| Code Lens (experimental)       | This tells the editor to add code lenses to function definitions, showing its full type above the definition. Enable using `rescript.settings.codeLens: true`                                                                                                                                                                                                                                                                                                                        |
 | Autostarting the Code Analyzer | The Code Analyzer needs to be started manually by default. However, you can configure the extension to start the Code Analyzer automatically via the setting `rescript.settings.autoRunCodeAnalysis`.                                                                                                                                                                                                                                                                                |
 
 **Default settings:**
