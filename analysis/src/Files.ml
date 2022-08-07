@@ -102,3 +102,9 @@ let classifySourceFile path =
   if Filename.check_suffix path ".res" && exists path then Res
   else if Filename.check_suffix path ".resi" && exists path then Resi
   else Other
+
+let writeTempFile ~prefix ~suffix contents =
+  let tempFile, outChannel = Filename.open_temp_file prefix suffix in
+  Printf.fprintf outChannel "%s" contents;
+  close_out outChannel;
+  tempFile

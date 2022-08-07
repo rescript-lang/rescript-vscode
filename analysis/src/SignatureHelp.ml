@@ -1,34 +1,3 @@
-(* This returns a string for a label + type expression that is identical to what that label + type expression would look like inside of a function type.
-   Example: let someFn = (~first: int, ~second: float) => unit. Running this on the label "second" would return "~second: float". *)
-let getPrintedAsLabel label type_expr =
-  let stringified =
-    Shared.typeToString
-      (* Set up a synthetical, dummy function with a single argument (the label we're looking for) and a return value we know exactly what it will be,
-         so we can slice it off to extract the label annotation we're after. *)
-      Types.
-        {
-          level = 0;
-          id = 0;
-          desc =
-            Tarrow
-              ( label,
-                type_expr,
-                {level = 0; id = 0; desc = Tvar (Some "a")},
-                Cunknown );
-        }
-      ~lineWidth:400
-  in
-  let extracted =
-    match label with
-    (* No label means function is printed without parens. Account for that.
-       The final thing subtracted number accounts for the dummy ` => 'a` that automatically comes from printing the label as a function. *)
-    | Nolabel -> String.sub stringified 0 (String.length stringified - 6)
-    | Labelled _ | Optional _ ->
-      (* Labelled arguments are printed with parens. *)
-      String.sub stringified 1 (String.length stringified - 8)
-  in
-  extracted
-
 type cursorAtArg = Unlabelled of int | Labelled of string
 
 let signatureHelp ~path ~pos ~currentFile ~debug =
@@ -38,7 +7,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
     (match expr with
     | {
-     pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident ident} as exp), args);
+     pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
      pexp_loc;
     }
       when pexp_loc |> Loc.hasPosInclusive ~pos:posBeforeCursor ->
@@ -75,7 +44,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                  then Some (Labelled name)
                  else None)
       in
-      setFound (argAtCursor, exp, ident)
+      setFound (argAtCursor, exp)
     | _ -> ());
     Ast_iterator.default_iterator.expr iterator expr
   in
@@ -84,7 +53,8 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
   iterator.structure iterator structure |> ignore;
   match !foundFunctionApplicationExpr with
-  | Some (argAtCursor, exp, ident) -> (
+  | Some (argAtCursor, exp) -> (
+    (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
     let pos = exp.pexp_loc |> Loc.end_ in
     let completions, env, package =
       let textOpt = Files.readFile currentFile in
@@ -112,7 +82,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
               Some package )))
     in
     match (completions, env, package) with
-    | {kind = Value type_expr} :: _, Some env, Some package ->
+    | {kind = Value type_expr; name} :: _, Some env, Some package ->
       let args, _ =
         CompletionBackEnd.extractFunctionType type_expr ~env ~package
       in
@@ -123,38 +93,65 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
           | Some (Labelled name) -> "~" ^ name
           | Some (Unlabelled index) -> "unlabelled<" ^ string_of_int index ^ ">");
 
-      (* The LS protocol wants us to return a string "label" that contains what we want to put inside of the signature help hint itself.
-         It then also wants a list of arguments by character start/end offsets that denotes every paramter of the main type.
-         That list then helps us say which parameter is currently highlighted via the `activeParamter` index.
-         So, we figure those out here. *)
+      (* The LS protocol wants us to send both the full type signature (label) that the end user sees as the signature help, and all parameters in that label
+         in the form of a list of start/end character offsets. We'll leverage the parser to figure the offsets out by parsing the label, and extract the
+         offsets from the parser. *)
 
-      (* The offset belows accounts for `let <something> = ` which is what we're starting with.
-         We're prepending `let` because it looks a bit better than just having the plain type definition with no identifier. *)
-      let name = Utils.flattenLongIdent ident.txt |> SharedTypes.ident in
-      let currentOffset = ref (4 + String.length name + 4) in
-      let label =
-        "let " ^ name ^ " = " ^ Shared.typeToString type_expr ~lineWidth:400
+      (* Put together a label here that both makes sense to show to the end user in the signature help, but also can be passed to the parser. *)
+      let label = "let " ^ name ^ ": " ^ Shared.typeToString type_expr in
+      (* TODO: Refactor the parser to support reading string contents directly in addition to taking a file path.
+         For now, create a temp file, pass it to the parser, and then immediately delete it. *)
+      let fileWithTypeSignature =
+        Files.writeTempFile ~prefix:"typ_sig" ~suffix:".resi" label
       in
+      let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
+      let {Res_driver.parsetree = signature} =
+        parser ~filename:fileWithTypeSignature
+      in
+      Sys.remove fileWithTypeSignature;
 
-      (* Calculate all parameter character offsets. *)
-      let argsCount = List.length args in
       let parameters =
-        args
-        |> List.mapi (fun index (label, type_expr) ->
-               let separatorLength =
-                 (* comma + space, unless last arg *)
-                 if index = argsCount - 1 then 0 else 2
-               in
-               let stringified = getPrintedAsLabel label type_expr in
-               let offset = String.length stringified in
-               let start = !currentOffset in
-               let end_ = start + offset in
-               let parameterCharacterOffset = (start, end_) in
-               currentOffset := !currentOffset + offset + separatorLength;
-               parameterCharacterOffset)
+        match signature with
+        | [
+         {
+           Parsetree.psig_desc =
+             Psig_value {pval_type = {ptyp_desc = Ptyp_arrow _} as expr};
+         };
+        ] ->
+          let rec extractParams expr params =
+            match expr with
+            | {
+             (* Gotcha: functions with multiple arugments are modelled as a series of single argument functions. *)
+             Parsetree.ptyp_desc =
+               Ptyp_arrow (argumentLabel, argumentTypeExpr, nextFunctionExpr);
+             ptyp_loc;
+            } ->
+              let startOffset =
+                ptyp_loc |> Loc.start
+                |> CompletionFrontEnd.positionToOffset label
+                |> Option.get
+              in
+              let endOffset =
+                argumentTypeExpr.ptyp_loc |> Loc.end_
+                |> CompletionFrontEnd.positionToOffset label
+                |> Option.get
+              in
+              (* The AST locations does not account for "=?" of optional arguments, so add that to the offset here if needed. *)
+              let endOffset =
+                match argumentLabel with
+                | Asttypes.Optional _ -> endOffset + 2
+                | _ -> endOffset
+              in
+              extractParams nextFunctionExpr
+                (params @ [(startOffset, endOffset)])
+            | _ -> params
+          in
+          extractParams expr []
+        | _ -> []
       in
+
       if debug then
-        Printf.printf "extracted params: %s\n"
+        Printf.printf "extracted params: \n%s\n"
           (parameters
           |> List.map (fun (start, end_) ->
                  String.sub label start (end_ - start))

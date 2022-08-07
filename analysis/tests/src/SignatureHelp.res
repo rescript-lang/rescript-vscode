@@ -1,9 +1,9 @@
 type someVariant = One | Two | Three
 
-let someFunc = (one: int, ~two: option<string>=?, ~three: int, ~four: someVariant, ()) => {
+let someFunc = (one: int, ~two: option<string>=?, ~three: unit => unit, ~four: someVariant, ()) => {
   ignore(one)
   ignore(two)
-  ignore(three)
+  ignore(three())
   ignore(four)
 }
 

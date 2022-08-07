@@ -4,11 +4,13 @@ Pexp_apply ...[15:11->15:19] (...[57:0->15:20])
 posCursor:[15:19] posNoWhite:[15:18] Found expr:[15:11->15:19]
 Pexp_ident someFunc:[15:11->15:19]
 argAtCursor: none
-extracted params: [int, ~two: string=?, ~three: int, ~four: someVariant, unit]
+extracted params: 
+[(
+  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
-    "label": "let someFunc = (int, ~two: string=?, ~three: int, ~four: someVariant, unit) => unit",
-    "parameters": [{"label": [16, 19]}, {"label": [21, 35]}, {"label": [37, 48]}, {"label": [50, 68]}, {"label": [70, 74]}]
+    "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
   }],
   "activeSignature": 0,
   "activeParameter": -1
@@ -20,11 +22,13 @@ Pexp_apply ...[18:11->18:19] (...[18:20->18:21])
 posCursor:[18:19] posNoWhite:[18:18] Found expr:[18:11->18:19]
 Pexp_ident someFunc:[18:11->18:19]
 argAtCursor: unlabelled<0>
-extracted params: [int, ~two: string=?, ~three: int, ~four: someVariant, unit]
+extracted params: 
+[(
+  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
-    "label": "let someFunc = (int, ~two: string=?, ~three: int, ~four: someVariant, unit) => unit",
-    "parameters": [{"label": [16, 19]}, {"label": [21, 35]}, {"label": [37, 48]}, {"label": [50, 68]}, {"label": [70, 74]}]
+    "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -36,11 +40,13 @@ Pexp_apply ...[21:11->21:19] (...[21:20->21:23], ~two21:26->21:29=...[21:26->21:
 posCursor:[21:19] posNoWhite:[21:18] Found expr:[21:11->21:19]
 Pexp_ident someFunc:[21:11->21:19]
 argAtCursor: ~two
-extracted params: [int, ~two: string=?, ~three: int, ~four: someVariant, unit]
+extracted params: 
+[(
+  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
-    "label": "let someFunc = (int, ~two: string=?, ~three: int, ~four: someVariant, unit) => unit",
-    "parameters": [{"label": [16, 19]}, {"label": [21, 35]}, {"label": [37, 48]}, {"label": [50, 68]}, {"label": [70, 74]}]
+    "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -52,11 +58,13 @@ Pexp_apply ...[24:11->24:19] (...[24:20->24:23], ~two24:26->24:29=...__ghost__[0
 posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:11->24:19]
 Pexp_ident someFunc:[24:11->24:19]
 argAtCursor: ~two
-extracted params: [int, ~two: string=?, ~three: int, ~four: someVariant, unit]
+extracted params: 
+[(
+  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
-    "label": "let someFunc = (int, ~two: string=?, ~three: int, ~four: someVariant, unit) => unit",
-    "parameters": [{"label": [16, 19]}, {"label": [21, 35]}, {"label": [37, 48]}, {"label": [50, 68]}, {"label": [70, 74]}]
+    "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -68,11 +76,13 @@ Pexp_apply ...[27:11->27:19] (...[27:20->27:23], ~two27:26->27:29=...[27:30->27:
 posCursor:[27:19] posNoWhite:[27:18] Found expr:[27:11->27:19]
 Pexp_ident someFunc:[27:11->27:19]
 argAtCursor: ~two
-extracted params: [int, ~two: string=?, ~three: int, ~four: someVariant, unit]
+extracted params: 
+[(
+  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
-    "label": "let someFunc = (int, ~two: string=?, ~three: int, ~four: someVariant, unit) => unit",
-    "parameters": [{"label": [16, 19]}, {"label": [21, 35]}, {"label": [37, 48]}, {"label": [50, 68]}, {"label": [70, 74]}]
+    "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -84,11 +94,13 @@ Pexp_apply ...[30:11->30:19] (...[30:20->30:23], ~two30:26->30:29=...[30:30->30:
 posCursor:[30:19] posNoWhite:[30:18] Found expr:[30:11->30:19]
 Pexp_ident someFunc:[30:11->30:19]
 argAtCursor: ~four
-extracted params: [int, ~two: string=?, ~three: int, ~four: someVariant, unit]
+extracted params: 
+[(
+  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
-    "label": "let someFunc = (int, ~two: string=?, ~three: int, ~four: someVariant, unit) => unit",
-    "parameters": [{"label": [16, 19]}, {"label": [21, 35]}, {"label": [37, 48]}, {"label": [50, 68]}, {"label": [70, 74]}]
+    "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
   }],
   "activeSignature": 0,
   "activeParameter": 3
@@ -100,11 +112,13 @@ Pexp_apply ...[33:11->33:19] (...[33:20->33:23], ~two33:26->33:29=...[33:30->33:
 posCursor:[33:19] posNoWhite:[33:18] Found expr:[33:11->33:19]
 Pexp_ident someFunc:[33:11->33:19]
 argAtCursor: ~four
-extracted params: [int, ~two: string=?, ~three: int, ~four: someVariant, unit]
+extracted params: 
+[(
+  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
-    "label": "let someFunc = (int, ~two: string=?, ~three: int, ~four: someVariant, unit) => unit",
-    "parameters": [{"label": [16, 19]}, {"label": [21, 35]}, {"label": [37, 48]}, {"label": [50, 68]}, {"label": [70, 74]}]
+    "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
   }],
   "activeSignature": 0,
   "activeParameter": 3
@@ -116,11 +130,12 @@ Pexp_apply ...[36:11->36:20] (...[57:0->36:21])
 posCursor:[36:20] posNoWhite:[36:19] Found expr:[36:11->36:20]
 Pexp_ident otherFunc:[36:11->36:20]
 argAtCursor: none
-extracted params: [string, int, float]
+extracted params: 
+[(string, int, float]
 {
   "signatures": [{
-    "label": "let otherFunc = (string, int, float) => unit",
-    "parameters": [{"label": [17, 23]}, {"label": [25, 28]}, {"label": [30, 35]}]
+    "label": "let otherFunc: (string, int, float) => unit",
+    "parameters": [{"label": [15, 22]}, {"label": [24, 27]}, {"label": [29, 34]}]
   }],
   "activeSignature": 0,
   "activeParameter": -1
@@ -132,11 +147,12 @@ Pexp_apply ...[39:11->39:20] (...[39:21->39:26])
 posCursor:[39:20] posNoWhite:[39:19] Found expr:[39:11->39:20]
 Pexp_ident otherFunc:[39:11->39:20]
 argAtCursor: unlabelled<0>
-extracted params: [string, int, float]
+extracted params: 
+[(string, int, float]
 {
   "signatures": [{
-    "label": "let otherFunc = (string, int, float) => unit",
-    "parameters": [{"label": [17, 23]}, {"label": [25, 28]}, {"label": [30, 35]}]
+    "label": "let otherFunc: (string, int, float) => unit",
+    "parameters": [{"label": [15, 22]}, {"label": [24, 27]}, {"label": [29, 34]}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -148,11 +164,12 @@ Pexp_apply ...[42:11->42:20] (...[42:21->42:26])
 posCursor:[42:20] posNoWhite:[42:19] Found expr:[42:11->42:20]
 Pexp_ident otherFunc:[42:11->42:20]
 argAtCursor: none
-extracted params: [string, int, float]
+extracted params: 
+[(string, int, float]
 {
   "signatures": [{
-    "label": "let otherFunc = (string, int, float) => unit",
-    "parameters": [{"label": [17, 23]}, {"label": [25, 28]}, {"label": [30, 35]}]
+    "label": "let otherFunc: (string, int, float) => unit",
+    "parameters": [{"label": [15, 22]}, {"label": [24, 27]}, {"label": [29, 34]}]
   }],
   "activeSignature": 0,
   "activeParameter": -1
@@ -164,11 +181,12 @@ Pexp_apply ...[45:11->45:20] (...[45:21->45:26], ...[45:28->45:31])
 posCursor:[45:20] posNoWhite:[45:19] Found expr:[45:11->45:20]
 Pexp_ident otherFunc:[45:11->45:20]
 argAtCursor: unlabelled<1>
-extracted params: [string, int, float]
+extracted params: 
+[(string, int, float]
 {
   "signatures": [{
-    "label": "let otherFunc = (string, int, float) => unit",
-    "parameters": [{"label": [17, 23]}, {"label": [25, 28]}, {"label": [30, 35]}]
+    "label": "let otherFunc: (string, int, float) => unit",
+    "parameters": [{"label": [15, 22]}, {"label": [24, 27]}, {"label": [29, 34]}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -180,11 +198,12 @@ Pexp_apply ...[48:11->48:20] (...[48:21->48:26], ...[48:28->48:31])
 posCursor:[48:20] posNoWhite:[48:19] Found expr:[48:11->48:20]
 Pexp_ident otherFunc:[48:11->48:20]
 argAtCursor: none
-extracted params: [string, int, float]
+extracted params: 
+[(string, int, float]
 {
   "signatures": [{
-    "label": "let otherFunc = (string, int, float) => unit",
-    "parameters": [{"label": [17, 23]}, {"label": [25, 28]}, {"label": [30, 35]}]
+    "label": "let otherFunc: (string, int, float) => unit",
+    "parameters": [{"label": [15, 22]}, {"label": [24, 27]}, {"label": [29, 34]}]
   }],
   "activeSignature": 0,
   "activeParameter": -1
@@ -196,11 +215,12 @@ Pexp_apply ...[51:11->51:20] (...[51:21->51:26], ...[51:28->51:31], ...[51:33->5
 posCursor:[51:20] posNoWhite:[51:19] Found expr:[51:11->51:20]
 Pexp_ident otherFunc:[51:11->51:20]
 argAtCursor: unlabelled<2>
-extracted params: [string, int, float]
+extracted params: 
+[(string, int, float]
 {
   "signatures": [{
-    "label": "let otherFunc = (string, int, float) => unit",
-    "parameters": [{"label": [17, 23]}, {"label": [25, 28]}, {"label": [30, 35]}]
+    "label": "let otherFunc: (string, int, float) => unit",
+    "parameters": [{"label": [15, 22]}, {"label": [24, 27]}, {"label": [29, 34]}]
   }],
   "activeSignature": 0,
   "activeParameter": 2
@@ -212,11 +232,12 @@ Pexp_apply ...[54:11->54:29] (~age54:31->54:34=...[54:31->54:34])
 posCursor:[54:29] posNoWhite:[54:28] Found expr:[54:11->54:29]
 Pexp_ident Completion.Lib.foo:[54:11->54:29]
 argAtCursor: ~age
-extracted params: [~age: int, ~name: string]
+extracted params: 
+[(~age: int, ~name: string]
 {
   "signatures": [{
-    "label": "let Completion.Lib.foo = (~age: int, ~name: string) => string",
-    "parameters": [{"label": [26, 35]}, {"label": [37, 50]}]
+    "label": "let foo: (~age: int, ~name: string) => string",
+    "parameters": [{"label": [9, 19]}, {"label": [21, 34]}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
