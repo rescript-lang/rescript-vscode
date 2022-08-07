@@ -23,6 +23,7 @@ type parameterInformation = {label: int * int}
 type signatureInformation = {
   label: string;
   parameters: parameterInformation list;
+  documentation: markupContent option;
 }
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#signatureHelp *)
@@ -197,12 +198,17 @@ let stringifySignatureInformation (signatureInformation : signatureInformation)
   Printf.sprintf
     {|{
     "label": "%s",
-    "parameters": %s
+    "parameters": %s%s
   }|}
     (Json.escape signatureInformation.label)
     (signatureInformation.parameters
     |> List.map stringifyParameterInformation
     |> array)
+    (match signatureInformation.documentation with
+    | None -> ""
+    | Some docs ->
+      Printf.sprintf ",\n    \"documentation\": %s"
+        (stringifyMarkupContent docs))
 
 let stringifySignatureHelp (signatureHelp : signatureHelp) =
   Printf.sprintf

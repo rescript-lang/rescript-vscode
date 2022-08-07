@@ -82,7 +82,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
               Some package )))
     in
     match (completions, env, package) with
-    | {kind = Value type_expr; name} :: _, Some env, Some package ->
+    | {kind = Value type_expr; name; docstring} :: _, Some env, Some package ->
       let args, _ =
         CompletionBackEnd.extractFunctionType type_expr ~env ~package
       in
@@ -192,6 +192,10 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                 parameters =
                   parameters
                   |> List.map (fun params -> {Protocol.label = params});
+                documentation =
+                  (match List.nth_opt docstring 0 with
+                  | None -> None
+                  | Some docs -> Some {Protocol.kind = "markdown"; value = docs});
               };
             ];
           activeSignature = Some 0;

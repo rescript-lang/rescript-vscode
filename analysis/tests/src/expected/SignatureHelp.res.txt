@@ -1,8 +1,8 @@
-Signature help src/SignatureHelp.res 15:20
-posCursor:[15:19] posNoWhite:[15:18] Found expr:[15:11->15:20]
-Pexp_apply ...[15:11->15:19] (...[57:0->15:20])
-posCursor:[15:19] posNoWhite:[15:18] Found expr:[15:11->15:19]
-Pexp_ident someFunc:[15:11->15:19]
+Signature help src/SignatureHelp.res 16:20
+posCursor:[16:19] posNoWhite:[16:18] Found expr:[16:11->16:20]
+Pexp_apply ...[16:11->16:19] (...[58:0->16:20])
+posCursor:[16:19] posNoWhite:[16:18] Found expr:[16:11->16:19]
+Pexp_ident someFunc:[16:11->16:19]
 argAtCursor: none
 extracted params: 
 [(
@@ -10,17 +10,18 @@ extracted params:
 {
   "signatures": [{
     "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
   "activeParameter": -1
 }
 
-Signature help src/SignatureHelp.res 18:21
-posCursor:[18:19] posNoWhite:[18:18] Found expr:[18:11->18:21]
-Pexp_apply ...[18:11->18:19] (...[18:20->18:21])
-posCursor:[18:19] posNoWhite:[18:18] Found expr:[18:11->18:19]
-Pexp_ident someFunc:[18:11->18:19]
+Signature help src/SignatureHelp.res 19:21
+posCursor:[19:19] posNoWhite:[19:18] Found expr:[19:11->19:21]
+Pexp_apply ...[19:11->19:19] (...[19:20->19:21])
+posCursor:[19:19] posNoWhite:[19:18] Found expr:[19:11->19:19]
+Pexp_ident someFunc:[19:11->19:19]
 argAtCursor: unlabelled<0>
 extracted params: 
 [(
@@ -28,17 +29,18 @@ extracted params:
 {
   "signatures": [{
     "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
   "activeParameter": 0
 }
 
-Signature help src/SignatureHelp.res 21:29
-posCursor:[21:19] posNoWhite:[21:18] Found expr:[21:11->21:29]
-Pexp_apply ...[21:11->21:19] (...[21:20->21:23], ~two21:26->21:29=...[21:26->21:29])
-posCursor:[21:19] posNoWhite:[21:18] Found expr:[21:11->21:19]
-Pexp_ident someFunc:[21:11->21:19]
+Signature help src/SignatureHelp.res 22:29
+posCursor:[22:19] posNoWhite:[22:18] Found expr:[22:11->22:29]
+Pexp_apply ...[22:11->22:19] (...[22:20->22:23], ~two22:26->22:29=...[22:26->22:29])
+posCursor:[22:19] posNoWhite:[22:18] Found expr:[22:11->22:19]
+Pexp_ident someFunc:[22:11->22:19]
 argAtCursor: ~two
 extracted params: 
 [(
@@ -46,17 +48,18 @@ extracted params:
 {
   "signatures": [{
     "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
   "activeParameter": 1
 }
 
-Signature help src/SignatureHelp.res 24:31
-posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:11->24:30]
-Pexp_apply ...[24:11->24:19] (...[24:20->24:23], ~two24:26->24:29=...__ghost__[0:-1->0:-1])
-posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:11->24:19]
-Pexp_ident someFunc:[24:11->24:19]
+Signature help src/SignatureHelp.res 25:31
+posCursor:[25:19] posNoWhite:[25:18] Found expr:[25:11->25:30]
+Pexp_apply ...[25:11->25:19] (...[25:20->25:23], ~two25:26->25:29=...__ghost__[0:-1->0:-1])
+posCursor:[25:19] posNoWhite:[25:18] Found expr:[25:11->25:19]
+Pexp_ident someFunc:[25:11->25:19]
 argAtCursor: ~two
 extracted params: 
 [(
@@ -64,17 +67,18 @@ extracted params:
 {
   "signatures": [{
     "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
   "activeParameter": 1
 }
 
-Signature help src/SignatureHelp.res 27:33
-posCursor:[27:19] posNoWhite:[27:18] Found expr:[27:11->27:35]
-Pexp_apply ...[27:11->27:19] (...[27:20->27:23], ~two27:26->27:29=...[27:30->27:35])
-posCursor:[27:19] posNoWhite:[27:18] Found expr:[27:11->27:19]
-Pexp_ident someFunc:[27:11->27:19]
+Signature help src/SignatureHelp.res 28:33
+posCursor:[28:19] posNoWhite:[28:18] Found expr:[28:11->28:35]
+Pexp_apply ...[28:11->28:19] (...[28:20->28:23], ~two28:26->28:29=...[28:30->28:35])
+posCursor:[28:19] posNoWhite:[28:18] Found expr:[28:11->28:19]
+Pexp_ident someFunc:[28:11->28:19]
 argAtCursor: ~two
 extracted params: 
 [(
@@ -82,17 +86,18 @@ extracted params:
 {
   "signatures": [{
     "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
   "activeParameter": 1
 }
 
-Signature help src/SignatureHelp.res 30:38
-posCursor:[30:19] posNoWhite:[30:18] Found expr:[30:11->30:42]
-Pexp_apply ...[30:11->30:19] (...[30:20->30:23], ~two30:26->30:29=...[30:30->30:35], ~four30:38->30:42=...[30:38->30:42])
-posCursor:[30:19] posNoWhite:[30:18] Found expr:[30:11->30:19]
-Pexp_ident someFunc:[30:11->30:19]
+Signature help src/SignatureHelp.res 31:38
+posCursor:[31:19] posNoWhite:[31:18] Found expr:[31:11->31:42]
+Pexp_apply ...[31:11->31:19] (...[31:20->31:23], ~two31:26->31:29=...[31:30->31:35], ~four31:38->31:42=...[31:38->31:42])
+posCursor:[31:19] posNoWhite:[31:18] Found expr:[31:11->31:19]
+Pexp_ident someFunc:[31:11->31:19]
 argAtCursor: ~four
 extracted params: 
 [(
@@ -100,17 +105,18 @@ extracted params:
 {
   "signatures": [{
     "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
   "activeParameter": 3
 }
 
-Signature help src/SignatureHelp.res 33:42
-posCursor:[33:19] posNoWhite:[33:18] Found expr:[33:11->33:44]
-Pexp_apply ...[33:11->33:19] (...[33:20->33:23], ~two33:26->33:29=...[33:30->33:35], ~four33:38->33:42=...[33:43->33:44])
-posCursor:[33:19] posNoWhite:[33:18] Found expr:[33:11->33:19]
-Pexp_ident someFunc:[33:11->33:19]
+Signature help src/SignatureHelp.res 34:42
+posCursor:[34:19] posNoWhite:[34:18] Found expr:[34:11->34:44]
+Pexp_apply ...[34:11->34:19] (...[34:20->34:23], ~two34:26->34:29=...[34:30->34:35], ~four34:38->34:42=...[34:43->34:44])
+posCursor:[34:19] posNoWhite:[34:18] Found expr:[34:11->34:19]
+Pexp_ident someFunc:[34:11->34:19]
 argAtCursor: ~four
 extracted params: 
 [(
@@ -118,17 +124,18 @@ extracted params:
 {
   "signatures": [{
     "label": "let someFunc: (\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}]
+    "parameters": [{"label": [14, 21]}, {"label": [25, 39]}, {"label": [43, 63]}, {"label": [67, 85]}, {"label": [89, 93]}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
   "activeParameter": 3
 }
 
-Signature help src/SignatureHelp.res 36:21
-posCursor:[36:20] posNoWhite:[36:19] Found expr:[36:11->36:21]
-Pexp_apply ...[36:11->36:20] (...[57:0->36:21])
-posCursor:[36:20] posNoWhite:[36:19] Found expr:[36:11->36:20]
-Pexp_ident otherFunc:[36:11->36:20]
+Signature help src/SignatureHelp.res 37:21
+posCursor:[37:20] posNoWhite:[37:19] Found expr:[37:11->37:21]
+Pexp_apply ...[37:11->37:20] (...[58:0->37:21])
+posCursor:[37:20] posNoWhite:[37:19] Found expr:[37:11->37:20]
+Pexp_ident otherFunc:[37:11->37:20]
 argAtCursor: none
 extracted params: 
 [(string, int, float]
@@ -141,11 +148,11 @@ extracted params:
   "activeParameter": -1
 }
 
-Signature help src/SignatureHelp.res 39:24
-posCursor:[39:20] posNoWhite:[39:19] Found expr:[39:11->39:26]
-Pexp_apply ...[39:11->39:20] (...[39:21->39:26])
-posCursor:[39:20] posNoWhite:[39:19] Found expr:[39:11->39:20]
-Pexp_ident otherFunc:[39:11->39:20]
+Signature help src/SignatureHelp.res 40:24
+posCursor:[40:20] posNoWhite:[40:19] Found expr:[40:11->40:26]
+Pexp_apply ...[40:11->40:20] (...[40:21->40:26])
+posCursor:[40:20] posNoWhite:[40:19] Found expr:[40:11->40:20]
+Pexp_ident otherFunc:[40:11->40:20]
 argAtCursor: unlabelled<0>
 extracted params: 
 [(string, int, float]
@@ -158,11 +165,11 @@ extracted params:
   "activeParameter": 0
 }
 
-Signature help src/SignatureHelp.res 42:28
-posCursor:[42:20] posNoWhite:[42:19] Found expr:[42:11->42:27]
-Pexp_apply ...[42:11->42:20] (...[42:21->42:26])
-posCursor:[42:20] posNoWhite:[42:19] Found expr:[42:11->42:20]
-Pexp_ident otherFunc:[42:11->42:20]
+Signature help src/SignatureHelp.res 43:28
+posCursor:[43:20] posNoWhite:[43:19] Found expr:[43:11->43:27]
+Pexp_apply ...[43:11->43:20] (...[43:21->43:26])
+posCursor:[43:20] posNoWhite:[43:19] Found expr:[43:11->43:20]
+Pexp_ident otherFunc:[43:11->43:20]
 argAtCursor: none
 extracted params: 
 [(string, int, float]
@@ -175,11 +182,11 @@ extracted params:
   "activeParameter": -1
 }
 
-Signature help src/SignatureHelp.res 45:30
-posCursor:[45:20] posNoWhite:[45:19] Found expr:[45:11->45:31]
-Pexp_apply ...[45:11->45:20] (...[45:21->45:26], ...[45:28->45:31])
-posCursor:[45:20] posNoWhite:[45:19] Found expr:[45:11->45:20]
-Pexp_ident otherFunc:[45:11->45:20]
+Signature help src/SignatureHelp.res 46:30
+posCursor:[46:20] posNoWhite:[46:19] Found expr:[46:11->46:31]
+Pexp_apply ...[46:11->46:20] (...[46:21->46:26], ...[46:28->46:31])
+posCursor:[46:20] posNoWhite:[46:19] Found expr:[46:11->46:20]
+Pexp_ident otherFunc:[46:11->46:20]
 argAtCursor: unlabelled<1>
 extracted params: 
 [(string, int, float]
@@ -192,11 +199,11 @@ extracted params:
   "activeParameter": 1
 }
 
-Signature help src/SignatureHelp.res 48:33
-posCursor:[48:20] posNoWhite:[48:19] Found expr:[48:11->48:32]
-Pexp_apply ...[48:11->48:20] (...[48:21->48:26], ...[48:28->48:31])
-posCursor:[48:20] posNoWhite:[48:19] Found expr:[48:11->48:20]
-Pexp_ident otherFunc:[48:11->48:20]
+Signature help src/SignatureHelp.res 49:33
+posCursor:[49:20] posNoWhite:[49:19] Found expr:[49:11->49:32]
+Pexp_apply ...[49:11->49:20] (...[49:21->49:26], ...[49:28->49:31])
+posCursor:[49:20] posNoWhite:[49:19] Found expr:[49:11->49:20]
+Pexp_ident otherFunc:[49:11->49:20]
 argAtCursor: none
 extracted params: 
 [(string, int, float]
@@ -209,11 +216,11 @@ extracted params:
   "activeParameter": -1
 }
 
-Signature help src/SignatureHelp.res 51:35
-posCursor:[51:20] posNoWhite:[51:19] Found expr:[51:11->51:39]
-Pexp_apply ...[51:11->51:20] (...[51:21->51:26], ...[51:28->51:31], ...[51:33->51:38])
-posCursor:[51:20] posNoWhite:[51:19] Found expr:[51:11->51:20]
-Pexp_ident otherFunc:[51:11->51:20]
+Signature help src/SignatureHelp.res 52:35
+posCursor:[52:20] posNoWhite:[52:19] Found expr:[52:11->52:39]
+Pexp_apply ...[52:11->52:20] (...[52:21->52:26], ...[52:28->52:31], ...[52:33->52:38])
+posCursor:[52:20] posNoWhite:[52:19] Found expr:[52:11->52:20]
+Pexp_ident otherFunc:[52:11->52:20]
 argAtCursor: unlabelled<2>
 extracted params: 
 [(string, int, float]
@@ -226,11 +233,11 @@ extracted params:
   "activeParameter": 2
 }
 
-Signature help src/SignatureHelp.res 54:33
-posCursor:[54:29] posNoWhite:[54:28] Found expr:[54:11->54:34]
-Pexp_apply ...[54:11->54:29] (~age54:31->54:34=...[54:31->54:34])
-posCursor:[54:29] posNoWhite:[54:28] Found expr:[54:11->54:29]
-Pexp_ident Completion.Lib.foo:[54:11->54:29]
+Signature help src/SignatureHelp.res 55:33
+posCursor:[55:29] posNoWhite:[55:28] Found expr:[55:11->55:34]
+Pexp_apply ...[55:11->55:29] (~age55:31->55:34=...[55:31->55:34])
+posCursor:[55:29] posNoWhite:[55:28] Found expr:[55:11->55:29]
+Pexp_ident Completion.Lib.foo:[55:11->55:29]
 argAtCursor: ~age
 extracted params: 
 [(~age: int, ~name: string]

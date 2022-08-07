@@ -1,5 +1,6 @@
 type someVariant = One | Two | Three
 
+/** Does stuff. */
 let someFunc = (one: int, ~two: option<string>=?, ~three: unit => unit, ~four: someVariant, ()) => {
   ignore(one)
   ignore(two)
