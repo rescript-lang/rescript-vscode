@@ -55,3 +55,10 @@ let otherFunc = (first: string, second: int, third: float) => {
 
 // let _ = Completion.Lib.foo(~age
 //                               ^she
+
+let iAmSoSpecial = (iJustHaveOneArg: string) => {
+  ignore(iJustHaveOneArg)
+}
+
+// let _ = iAmSoSpecial(
+//                      ^she

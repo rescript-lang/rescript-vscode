@@ -44,7 +44,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                  then Some (Labelled name)
                  else None)
       in
-      setFound (argAtCursor, exp)
+      setFound (argAtCursor, exp, extractedArgs)
     | _ -> ());
     Ast_iterator.default_iterator.expr iterator expr
   in
@@ -53,7 +53,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
   iterator.structure iterator structure |> ignore;
   match !foundFunctionApplicationExpr with
-  | Some (argAtCursor, exp) -> (
+  | Some (argAtCursor, exp, extractedArgs) -> (
     (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
     let pos = exp.pexp_loc |> Loc.end_ in
     let completions, env, package =
@@ -160,7 +160,12 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       (* Figure out the active parameter *)
       let activeParameter =
         match argAtCursor with
-        | None -> None
+        | None -> (
+          (* If a function only has one, unlabelled argument, we can safely assume that's active whenever we're in the signature help for that function,
+             even if we technically didn't find anything at the cursor (which we don't for empty expressions). *)
+          match args with
+          | [(Nolabel, _)] -> Some 0
+          | _ -> None)
         | Some (Unlabelled unlabelledArgumentIndex) ->
           let index = ref 0 in
           args

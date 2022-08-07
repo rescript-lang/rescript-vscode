@@ -250,3 +250,20 @@ extracted params:
   "activeParameter": 0
 }
 
+Signature help src/SignatureHelp.res 62:24
+posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:11->62:24]
+Pexp_apply ...[62:11->62:23] (...[65:0->62:24])
+posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:11->62:23]
+Pexp_ident iAmSoSpecial:[62:11->62:23]
+argAtCursor: none
+extracted params: 
+[string]
+{
+  "signatures": [{
+    "label": "let iAmSoSpecial: string => unit",
+    "parameters": [{"label": [18, 24]}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
