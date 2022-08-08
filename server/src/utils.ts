@@ -575,7 +575,7 @@ export let parseCompilerLogOutput = (
       //   10 ┆
     } else if (line.startsWith("  ")) {
       // part of the actual diagnostics message
-      parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
+      parsedDiagnostics[parsedDiagnostics.length - 1]?.content.push(
         line.slice(2)
       );
     } else if (line.trim() != "") {
@@ -585,7 +585,7 @@ export let parseCompilerLogOutput = (
       // messages not printing with indent). We used to get bug reports and fix
       // the messages, but that strategy turned out too slow. One day we should
       // revert to not having this branch...
-      parsedDiagnostics[parsedDiagnostics.length - 1].content.push(line);
+      parsedDiagnostics[parsedDiagnostics.length - 1]?.content.push(line);
     }
   }
 
