@@ -871,7 +871,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           scope := oldScope;
           processed := true
         | Pexp_match (expr, cases) ->
-          (* Completes switch case destructuring *)
+          (* Completes switch case destructuring
+             Example: switch someIdentifier { | {completeRecordFieldsHere} => ...}*)
           let rec findCaseWithCursor cases =
             match cases with
             | case :: cases -> (
