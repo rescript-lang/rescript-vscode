@@ -47,3 +47,12 @@ let getSomeVal = (~irrelevant: int) => {
 
 // let {something: {whatIsThis, ,anotherLevel}} = someVal
 //                             ^com
+
+// switch someVal { | {thirdThing: "123", som} => () }
+//                                          ^com
+
+// switch someVal { | {thirdThing: "1234"} => () | {} => () }
+//                                                  ^com
+
+// switch someVal { | {thirdThing: "1234"} => () | {something: {whatIsThis, anotherLevel, }} => () }
+//                                                                                       ^com

@@ -149,3 +149,53 @@ Completable: CtypedContext(Value[someVal])=""
     "documentation": null
   }]
 
+Complete src/TypeContextCompletion_Records.res 50:44
+posCursor:[50:44] posNoWhite:[50:43] Found expr:[50:3->50:54]
+posCursor:[50:44] posNoWhite:[50:43] Found pattern:[50:22->50:46]
+posCursor:[50:44] posNoWhite:[50:43] Found pattern:[50:42->50:45]
+Completable: CtypedContext(Value[someVal])=som
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 53:52
+posCursor:[53:52] posNoWhite:[53:51] Found expr:[53:3->53:61]
+posCursor:[53:52] posNoWhite:[53:51] Found pattern:[53:51->53:53]
+Completable: CtypedContext(Value[someVal])=""
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 56:89
+posCursor:[56:89] posNoWhite:[56:88] Found expr:[56:3->56:100]
+posCursor:[56:89] posNoWhite:[56:88] Found pattern:[56:51->56:92]
+posCursor:[56:89] posNoWhite:[56:88] Found pattern:[56:63->56:91]
+Completable: CtypedContext(Value[someVal])=""
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null
+  }]
+

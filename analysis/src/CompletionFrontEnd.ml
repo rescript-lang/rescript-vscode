@@ -311,6 +311,101 @@ let rec getSimpleFieldName txt =
   | Ldot (t, _) -> getSimpleFieldName t
   | _ -> ""
 
+let rec findNestedContextPath ~path ~posBeforeCursor ~prefix
+    ~firstCharBeforeCursorNoWhite fields =
+  (* This will descend through the record, following where the cursor is located,
+     to pull out a nested context we can use to figure out what type
+     we should complete from. *)
+  fields
+  |> List.find_map (fun ({Location.txt}, {Parsetree.ppat_loc; ppat_desc}) ->
+         if ppat_loc |> Loc.hasPos ~pos:posBeforeCursor then
+           (* Covers when we're still inside the cursor position - continue descending
+              and build the nested context appropriately. *)
+           match ppat_desc with
+           | Ppat_record (fields, _) ->
+             if List.length fields = 0 then
+               (* Empty records are fine to complete from *)
+               Some
+                 ([
+                    Completable.RField
+                      {
+                        fieldName = getSimpleFieldName txt;
+                        alreadySeenFields = [];
+                      };
+                  ]
+                 @ path)
+             else
+               fields
+               |> findNestedContextPath ~posBeforeCursor ~prefix
+                    ~firstCharBeforeCursorNoWhite
+                    ~path:
+                      ([
+                         Completable.RField
+                           {
+                             fieldName = getSimpleFieldName txt;
+                             alreadySeenFields =
+                               fields
+                               |> List.map (fun ({Location.txt}, _) ->
+                                      getSimpleFieldName txt);
+                           };
+                       ]
+                      @ path)
+           | Ppat_var {txt} ->
+             (* Whenever we encounter a var, that means we've hit an identifier the user has started typing.
+                We can then use that as the prefix hint for what to filter completions on. *)
+             prefix := txt;
+             Some path
+           | _ ->
+             (* This can be extended to understand more nested contexts, like tuples, etc. *)
+             Some path
+         else if ppat_loc |> Loc.end_ = (Location.none |> Loc.end_) then
+           (* This means that an empty location was found, which typically means that the parser has made
+              recovery here. Complete wherever we are. *)
+           Some path
+         else
+           match firstCharBeforeCursorNoWhite with
+           | Some ',' -> Some path
+           | _ -> None)
+
+let findPrefixAndNestedContextPath fields ~posBeforeCursor
+    ~firstCharBeforeCursorNoWhite =
+  let prefix = ref "" in
+
+  ( !prefix,
+    match List.length fields with
+    | 0 ->
+      (* A root record with 0 fields, `let {} = someVar`, is still valid to complete from. But it has no nested context. *)
+      Some []
+    | _ ->
+      fields
+      |> findNestedContextPath ~path:[] ~posBeforeCursor ~prefix
+           ~firstCharBeforeCursorNoWhite )
+
+let completeRecordDestructure fields ~contextPath ~posBeforeCursor
+    ~firstCharBeforeCursorNoWhite =
+  let prefix, nestedContextPath =
+    fields
+    |> findPrefixAndNestedContextPath ~posBeforeCursor
+         ~firstCharBeforeCursorNoWhite
+  in
+  match (contextPath, nestedContextPath) with
+  | Some contextPath, Some nestedContextPath ->
+    Some
+      (Completable.CtypedContext
+         {
+           howToRetrieveSourceType = CtxPath contextPath;
+           patternPath = Some (nestedContextPath |> List.rev);
+           meta =
+             {
+               prefix = Some prefix;
+               alreadySeenIdents =
+                 (match nestedContextPath with
+                 | RField {alreadySeenFields} :: _rest -> Some alreadySeenFields
+                 | _ -> None);
+             };
+         })
+  | _ -> None
+
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = skipWhite text (offset - 1) in
   let posNoWhite =
@@ -458,98 +553,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (* TODO: Handle let {SomeModule.recordField} = ...*)
       (match bindings with
       | [{pvb_pat = {ppat_desc = Ppat_record (fields, _)}; pvb_expr = expr}]
-        when !result = None -> (
+        when !result = None ->
         (* The contextPath is what we'll use to look up the root record type for this completion.
            Depending on if the destructure is nested or not, we may or may not use that directly.*)
         let contextPath = exprToContextPath expr in
-        let prefix, nestedContextPath =
-          let prefix = ref "" in
-          let rec findNestedContextPath ~path fields =
-            (* This will descend through the record, following where the cursor is located,
-               to pull out a nested context we can use to figure out what type
-               we should complete from. *)
-            fields
-            |> List.find_map
-                 (fun ({Location.txt}, {Parsetree.ppat_loc; ppat_desc}) ->
-                   if ppat_loc |> Loc.hasPos ~pos:posBeforeCursor then
-                     (* Covers when we're still inside the cursor position - continue descending
-                        and build the nested context appropriately. *)
-                     match ppat_desc with
-                     | Ppat_record (fields, _) ->
-                       if List.length fields = 0 then
-                         (* Empty records are fine to complete from *)
-                         Some
-                           ([
-                              Completable.RField
-                                {
-                                  fieldName = getSimpleFieldName txt;
-                                  alreadySeenFields = [];
-                                };
-                            ]
-                           @ path)
-                       else
-                         fields
-                         |> findNestedContextPath
-                              ~path:
-                                ([
-                                   Completable.RField
-                                     {
-                                       fieldName = getSimpleFieldName txt;
-                                       alreadySeenFields =
-                                         fields
-                                         |> List.map (fun ({Location.txt}, _) ->
-                                                getSimpleFieldName txt);
-                                     };
-                                 ]
-                                @ path)
-                     | Ppat_var {txt} ->
-                       (* Whenever we encounter a var, that means we've hit an identifier the user has started typing.
-                          We can then use that as the prefix hint for what to filter completions on. *)
-                       prefix := txt;
-                       Some path
-                     | _ ->
-                       (* This can be extended to understand more nested contexts, like tuples, etc. *)
-                       Some path
-                   else if ppat_loc |> Loc.end_ = (Location.none |> Loc.end_)
-                   then
-                     (* This means that an empty location was found, which typically means that the parser has made
-                        recovery here. Complete wherever we are. *)
-                     Some path
-                   else
-                     match firstCharBeforeCursorNoWhite with
-                     | Some ',' -> Some path
-                     | _ -> None)
-          in
-
-          ( !prefix,
-            match List.length fields with
-            | 0 ->
-              (* A root record with 0 fields, `let {} = someVar`, is still valid to complete from. But it has no nested context. *)
-              Some []
-            | _ -> fields |> findNestedContextPath ~path:[] )
-        in
-
-        match (contextPath, nestedContextPath) with
-        | Some contextPath, Some nestedContextPath ->
-          setResultOpt
-            (Some
-               (Completable.CtypedContext
-                  {
-                    howToRetrieveSourceType = CtxPath contextPath;
-                    patternPath = Some (nestedContextPath |> List.rev);
-                    meta =
-                      {
-                        prefix = Some prefix;
-                        alreadySeenIdents =
-                          (match nestedContextPath with
-                          | RField {alreadySeenFields} :: _rest ->
-                            Some alreadySeenFields
-                          | _ -> None);
-                      };
-                  }))
-        | _ -> ())
+        setResultOpt
+          (fields
+          |> completeRecordDestructure ~contextPath ~posBeforeCursor
+               ~firstCharBeforeCursorNoWhite)
       | _ -> ());
-
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
       processed := true
@@ -858,6 +870,26 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           iterator.expr iterator e;
           scope := oldScope;
           processed := true
+        | Pexp_match (expr, cases) ->
+          (* Completes switch case destructuring *)
+          let rec findCaseWithCursor cases =
+            match cases with
+            | case :: cases -> (
+              match case with
+              | {
+               Parsetree.pc_lhs =
+                 {ppat_loc; ppat_desc = Ppat_record (fields, _)};
+              }
+                when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor ->
+                let contextPath = exprToContextPath expr in
+                setResultOpt
+                  (fields
+                  |> completeRecordDestructure ~contextPath ~posBeforeCursor
+                       ~firstCharBeforeCursorNoWhite)
+              | _ -> findCaseWithCursor cases)
+            | [] -> ()
+          in
+          findCaseWithCursor cases
         | _ -> ());
       if not !processed then Ast_iterator.default_iterator.expr iterator expr
   in
