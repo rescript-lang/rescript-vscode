@@ -35,6 +35,13 @@ let getIdentFromExpr exp =
   | Pexp_field (_, {txt}) -> txt
   | _ -> Lident ""
 
+let canDoTypedCompletionOnExpr exp =
+  match exp.Parsetree.pexp_desc with
+  | Pexp_construct _ | Pexp_variant _
+  | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
+    true
+  | _ -> false
+
 (* This is probably wrong and we should likely use the full Longident instead for the prefix. *)
 let getPrefixFromExpr exp = getIdentFromExpr exp |> Longident.last
 
@@ -75,7 +82,7 @@ type jsxProps = {
 }
 
 let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
-    ~setCurrentlyLookingForTypeOpt ~setTypedContextMeta =
+    =
   let allLabels =
     List.fold_right
       (fun prop allLabels -> prop.name :: allLabels)
@@ -96,39 +103,49 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         && posBeforeCursor < Loc.start prop.exp.pexp_loc
       then (* Cursor between the prop name and expr assigned *)
         None
-      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
+      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Cursor on expr assigned *)
-        setCurrentlyLookingForTypeOpt
-          (Some
-             (Completable.JsxProp
-                {
-                  componentPath =
-                    Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                  propName = prop.name;
-                }));
-        setTypedContextMeta
-          {
-            Completable.prefix = Some (getPrefixFromExpr prop.exp);
-            alreadySeenIdents = None;
-          };
-        None)
-      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
+        if canDoTypedCompletionOnExpr prop.exp then
+          Some
+            (Completable.CtypedContext
+               {
+                 howToRetrieveSourceType =
+                   JsxProp
+                     {
+                       componentPath =
+                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                       propName = prop.name;
+                     };
+                 patternPath = None;
+                 meta =
+                   {
+                     prefix = Some (getPrefixFromExpr prop.exp);
+                     alreadySeenIdents = None;
+                   };
+               })
+        else None
+      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
              Complete for the value. *)
-        setCurrentlyLookingForTypeOpt
-          (Some
-             (Completable.JsxProp
-                {
-                  componentPath =
-                    Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                  propName = prop.name;
-                }));
-        setTypedContextMeta
-          {
-            Completable.prefix = Some (getPrefixFromExpr prop.exp);
-            alreadySeenIdents = None;
-          };
-        None)
+        if canDoTypedCompletionOnExpr prop.exp then
+          Some
+            (Completable.CtypedContext
+               {
+                 howToRetrieveSourceType =
+                   JsxProp
+                     {
+                       componentPath =
+                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                       propName = prop.name;
+                     };
+                 patternPath = None;
+                 meta =
+                   {
+                     prefix = Some (getPrefixFromExpr prop.exp);
+                     alreadySeenIdents = None;
+                   };
+               })
+        else None
       else loop rest
     | [] ->
       let beforeChildrenStart =
@@ -197,8 +214,7 @@ type label = labelled option
 type arg = {label: label; exp: Parsetree.expression}
 
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(contextPath : Completable.contextPath) ~posAfterFunExpr
-    ~setCurrentlyLookingForTypeOpt ~setTypedContextMeta =
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
   let allNames =
     List.fold_right
       (fun arg allLabels ->
@@ -215,26 +231,38 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         labelled.posStart <= posBeforeCursor
         && posBeforeCursor < labelled.posEnd
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
-      else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
-        setCurrentlyLookingForTypeOpt
-          (Some (Completable.NamedArg {contextPath; label = labelled.name}));
-        setTypedContextMeta
-          {
-            Completable.prefix = Some (getPrefixFromExpr exp);
-            alreadySeenIdents = None;
-          };
-        None)
-      else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
+      else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+        if canDoTypedCompletionOnExpr exp then
+          Some
+            (Completable.CtypedContext
+               {
+                 howToRetrieveSourceType =
+                   Completable.NamedArg {contextPath; label = labelled.name};
+                 patternPath = None;
+                 meta =
+                   {
+                     prefix = Some (getPrefixFromExpr exp);
+                     alreadySeenIdents = None;
+                   };
+               })
+        else None
+      else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
            Assume this is an empty expression. *)
-        setCurrentlyLookingForTypeOpt
-          (Some (NamedArg {contextPath; label = labelled.name}));
-        setTypedContextMeta
-          {
-            Completable.prefix = Some (getPrefixFromExpr exp);
-            alreadySeenIdents = None;
-          };
-        None)
+        if canDoTypedCompletionOnExpr exp then
+          Some
+            (Completable.CtypedContext
+               {
+                 howToRetrieveSourceType =
+                   NamedArg {contextPath; label = labelled.name};
+                 patternPath = None;
+                 meta =
+                   {
+                     prefix = Some (getPrefixFromExpr exp);
+                     alreadySeenIdents = None;
+                   };
+               })
+        else None
       else loop rest
     | {label = None; exp} :: rest ->
       if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
@@ -338,25 +366,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | Some x -> result := Some (x, !scope)
   in
   let setResult x = setResultOpt (Some x) in
-  let typedContextMeta =
-    ref {Completable.prefix = None; alreadySeenIdents = None}
-  in
-  let setTypedContextMeta newValue = typedContextMeta := newValue in
-  let currentlyLookingForType = ref None in
-  let setCurrentlyLookingForTypeOpt x =
-    if !currentlyLookingForType = None then
-      match x with
-      | None -> if debug then Printf.printf "Typed context, unsetting\n"
-      | Some x ->
-        if debug then
-          Printf.printf "found typed context: %s\n"
-            (match x with
-            | Completable.JsxProp {propName} -> "jsxProp:" ^ propName
-            | NamedArg {label} -> "namedArg:" ^ label
-            | CtxPath contextPath ->
-              "ctxPath:" ^ Completable.contextPathToString contextPath);
-        currentlyLookingForType := Some x
-  in
   let scopeValueDescription (vd : Parsetree.value_description) =
     scope :=
       !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_name.loc
@@ -666,24 +675,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         setFound ();
         match expr.pexp_desc with
         | Pexp_constant _ -> setResult Cnone
-        | Pexp_ident lid -> (
+        | Pexp_ident lid ->
           let lidPath = flattenLidCheckDot lid in
           if debug then
             Printf.printf "Pexp_ident %s:%s\n"
               (lidPath |> String.concat ".")
               (Loc.toString lid.loc);
           if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            match !currentlyLookingForType with
-            | Some lookingForType ->
-              setResult
-                (CtypedContext
-                   {
-                     howToRetrieveSourceType = lookingForType;
-                     patternPath = None;
-                     meta = !typedContextMeta;
-                   })
-            | _ -> setResult (Cpath (CPId (lidPath, Value))))
-        | Pexp_construct (lid, eOpt) -> (
+            setResult (Cpath (CPId (lidPath, Value)))
+        | Pexp_construct (lid, eOpt) ->
           let lidPath = flattenLidCheckDot lid in
           if debug then
             Printf.printf "Pexp_construct %s:%s %s\n"
@@ -695,17 +695,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           if
             eOpt = None && (not lid.loc.loc_ghost)
             && lid.loc |> Loc.hasPos ~pos:posBeforeCursor
-          then
-            match !currentlyLookingForType with
-            | Some lookingForType ->
-              setResult
-                (CtypedContext
-                   {
-                     howToRetrieveSourceType = lookingForType;
-                     patternPath = None;
-                     meta = !typedContextMeta;
-                   })
-            | _ -> setResult (Cpath (CPId (lidPath, Value))))
+          then setResult (Cpath (CPId (lidPath, Value)))
         | Pexp_field (e, fieldName) -> (
           if debug then
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)
@@ -755,7 +745,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           let jsxCompletable =
             findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
               ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
-              ~setCurrentlyLookingForTypeOpt ~setTypedContextMeta
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
@@ -806,7 +795,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               findNamedArgCompletable ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
-                ~setCurrentlyLookingForTypeOpt ~setTypedContextMeta
             | None -> None
           in
 
@@ -989,22 +977,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       scope := !lastScopeBeforeCursor;
       setResult (Cpath (CPId ([""], Value))));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
-
-    (* If nothing explicitly matched for completion, but we're still looking for a type
-       somewhere where the cursor is - complete for that.
-       This is an experiment as is likely wrong/will trigger completion of the type
-       based value in a bunch of scenarios when it shouldn't. *)
-    (match (!result, !currentlyLookingForType) with
-    | None, Some lookingForType ->
-      scope := !lastScopeBeforeCursor;
-      setResult
-        (Completable.CtypedContext
-           {
-             howToRetrieveSourceType = lookingForType;
-             patternPath = None;
-             meta = !typedContextMeta;
-           })
-    | _ -> ());
     !result)
   else if Filename.check_suffix path ".resi" then (
     let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
