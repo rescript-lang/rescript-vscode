@@ -311,75 +311,19 @@ let rec getSimpleFieldName txt =
   | Ldot (t, _) -> getSimpleFieldName t
   | _ -> ""
 
-let rec findNestedContextPath ~path ~posBeforeCursor ~prefix
-    ~firstCharBeforeCursorNoWhite pattern =
-  match pattern.Parsetree.ppat_desc with
-  | Ppat_record (fields, _) ->
-    (* This will descend through the record, following where the cursor is located,
-       to pull out a nested context we can use to figure out what type
-       we should complete from. *)
-    fields
-    |> List.find_map
-         (fun ({Location.txt}, ({Parsetree.ppat_loc; ppat_desc} as pat)) ->
-           if ppat_loc |> Loc.hasPos ~pos:posBeforeCursor then
-             (* Covers when we're still inside the cursor position - continue descending
-                and build the nested context appropriately. *)
-             match ppat_desc with
-             | Ppat_record (fields, _) ->
-               if List.length fields = 0 then
-                 (* Empty records are fine to complete from *)
-                 Some
-                   ([
-                      Completable.RField
-                        {
-                          fieldName = getSimpleFieldName txt;
-                          alreadySeenFields = [];
-                        };
-                    ]
-                   @ path)
-               else
-                 pat
-                 |> findNestedContextPath ~posBeforeCursor ~prefix
-                      ~firstCharBeforeCursorNoWhite
-                      ~path:
-                        ([
-                           Completable.RField
-                             {
-                               fieldName = getSimpleFieldName txt;
-                               alreadySeenFields =
-                                 fields
-                                 |> List.map (fun ({Location.txt}, _) ->
-                                        getSimpleFieldName txt);
-                             };
-                         ]
-                        @ path)
-             | Ppat_var {txt} ->
-               (* Whenever we encounter a var, that means we've hit an identifier the user has started typing.
-                  We can then use that as the prefix hint for what to filter completions on. *)
-               prefix := txt;
-               Some path
-             | Ppat_construct ({txt}, None) ->
-               let name = getSimpleFieldName txt in
-               prefix := name;
-               Some ([Completable.Variant {name}] @ path)
-             | Ppat_construct ({txt}, Some pat) ->
-               let name = getSimpleFieldName txt in
-               pat
-               |> findNestedContextPath ~posBeforeCursor ~prefix
-                    ~firstCharBeforeCursorNoWhite
-                    ~path:([Completable.Variant {name}] @ path)
-             | _ ->
-               (* This can be extended to understand more nested contexts, like tuples, etc. *)
-               None
-           else if ppat_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-             (* This means that an empty location was found, which typically means that the parser has made
-                recovery here. Complete wherever we are. *)
-             Some path
-           else
-             match firstCharBeforeCursorNoWhite with
-             | Some ',' -> Some path
-             | _ -> None)
-  | _ -> None
+(* Variants can have payloads. We need to figure out which of the payloads we're in, so we can find the type at that position as we try to do completion.
+   We also need to continue descending into the pattern of the argument under the cursor to find any inner type. *)
+let findVariantPayloadItemNumWithCursor pat ~pos =
+  match pat.Parsetree.ppat_desc with
+  | Ppat_tuple patterns ->
+    let res = ref None in
+    patterns
+    |> List.iteri (fun index pat ->
+           match pat.Parsetree.ppat_loc |> CursorPosition.classifyLoc ~pos with
+           | HasCursor -> res := Some (index, pat)
+           | _ -> ());
+    !res
+  | _ -> Some (0, pat)
 
 let rec whatevs pattern ~path ~posBeforeCursor ~prefix
     ~firstCharBeforeCursorNoWhite =
@@ -391,27 +335,48 @@ let rec whatevs pattern ~path ~posBeforeCursor ~prefix
   | HasCursor -> (
     match pattern.ppat_desc with
     | Ppat_construct ({txt = Lident "()"}, None) ->
-      (* A constructor without a payload mean we've reached an end. *)
+      (* A constructor without a payload mean we've reached an end. The parser parses SomeVariant() like above. *)
       prefix := "";
       Some path
     | Ppat_construct ({txt}, None) ->
       (* A constructor without a payload mean we've reached an end. *)
       prefix := getSimpleFieldName txt;
       Some path
-    | Ppat_construct ({txt}, Some constructorPayload) ->
-      constructorPayload
-      |> whatevs
-           ~path:([Completable.Variant {name = getSimpleFieldName txt}] @ path)
-           ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix
+    | Ppat_construct ({txt}, Some constructorPayload) -> (
+      match
+        findVariantPayloadItemNumWithCursor constructorPayload
+          ~pos:posBeforeCursor
+      with
+      | None -> None
+      | Some (index, pat) ->
+        pat
+        |> whatevs
+             ~path:
+               ([
+                  Completable.Variant
+                    {name = getSimpleFieldName txt; payloadNum = Some index};
+                ]
+               @ path)
+             ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix)
     | Ppat_variant (label, None) ->
       (* A constructor without a payload mean we've reached an end. *)
       prefix := label;
       Some path
-    | Ppat_variant (label, Some constructorPayload) ->
-      constructorPayload
-      |> whatevs
-           ~path:([Completable.Variant {name = label}] @ path)
-           ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix
+    | Ppat_variant (label, Some constructorPayload) -> (
+      match
+        findVariantPayloadItemNumWithCursor constructorPayload
+          ~pos:posBeforeCursor
+      with
+      | None -> None
+      | Some (index, pat) ->
+        pat
+        |> whatevs
+             ~path:
+               ([
+                  Completable.Polyvariant {name = label; payloadNum = Some index};
+                ]
+               @ path)
+             ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix)
     | Ppat_tuple patterns -> (
       let tupleItemNum = ref 0 in
       let patternWithCursor =

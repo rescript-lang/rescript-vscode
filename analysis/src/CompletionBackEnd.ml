@@ -1078,6 +1078,14 @@ let rec extractType ~env ~package (t : Types.type_expr) =
                  (match field with
                  | Types.Rpresent maybeTypeExpr -> maybeTypeExpr
                  | _ -> None);
+               args =
+                 (* Multiple arguments are represented as a Ttuple, while a single argument is just the type expression itself. *)
+                 (match field with
+                 | Types.Rpresent (Some typeExpr) -> (
+                   match typeExpr.desc with
+                   | Ttuple args -> args
+                   | _ -> [typeExpr])
+                 | _ -> []);
              })
     in
     Some (Polyvariant (env, constructors))
@@ -1458,21 +1466,38 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
           if List.length nestedContextPath > 0 then
             targetField.typ |> digToType ~env ~nestedContextPath ~package
           else typeExprToCompletable targetField.typ ~env ~package)
-      | ( Variant {name},
+      | ( Variant {name; payloadNum},
           Some (Declared (_, {item = {kind = Variant constructors}})) ) -> (
         match
           constructors
           |> List.find_opt (fun constructor ->
                  constructor.Constructor.cname.txt = name)
         with
-        | Some _ -> Some (CVariant {constructors})
+        | Some constructor -> (
+          (* payloadNum tells us whether there's also a payload we should descend into. *)
+          match payloadNum with
+          | None -> Some (CVariant {constructors})
+          | Some argNum -> (
+            (* If we find the argument/payload requested, descend into that *)
+            match List.nth_opt constructor.args argNum with
+            | None -> None
+            | Some (argType, _) ->
+              argType |> digToType ~env ~nestedContextPath ~package))
         | None -> None)
-      | Polyvariant {name}, Some (Polyvariant (_, constructors)) -> (
+      | Polyvariant {name; payloadNum}, Some (Polyvariant (_, constructors))
+        -> (
         match
           constructors
           |> List.find_opt (fun constructor -> constructor.name = name)
         with
-        | Some _ -> Some (CPolyVariant {constructors})
+        | Some constructor -> (
+          match payloadNum with
+          | None -> Some (CPolyVariant {constructors})
+          | Some argNum -> (
+            match List.nth_opt constructor.args argNum with
+            | None -> None
+            | Some argType ->
+              argType |> digToType ~env ~nestedContextPath ~package))
         | None -> None)
       | PTuple {itemNumber}, Some (Tuple (_, exprs)) -> (
         match List.nth_opt exprs itemNumber with
@@ -1920,8 +1945,8 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | Some prefix -> prefix
     in
     let sourceType =
-      findSourceType howToRetrieveSourceType ~package ~opens ~rawOpens ~allFiles
-        ~env ~pos ~scope
+      howToRetrieveSourceType
+      |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~pos ~scope
     in
     let nestedContextPath =
       match patternPath with

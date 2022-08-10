@@ -216,7 +216,11 @@ module QueryEnv = struct
   let fromFile file = {file; exported = file.structure.exported}
 end
 
-type polyVariantConstructor = {name: string; payload: Types.type_expr option}
+type polyVariantConstructor = {
+  name: string;
+  payload: Types.type_expr option;
+  args: Types.type_expr list;
+}
 
 module Completion = struct
   type kind =
@@ -432,8 +436,8 @@ module Completable = struct
   (* TODO: Can extend to tuples, objects, etc *)
   type patternPathItem =
     | RField of {fieldName: string; alreadySeenFields: string list}
-    | Variant of {name: string}
-    | Polyvariant of {name: string}
+    | Variant of {name: string; payloadNum: int option}
+    | Polyvariant of {name: string; payloadNum: int option}
     | PTuple of {itemNumber: int}
 
   let str s = if s = "" then "\"\"" else s
@@ -444,8 +448,18 @@ module Completable = struct
     match item with
     | RField {fieldName; alreadySeenFields} ->
       "RecordField:" ^ fieldName ^ ":" ^ list alreadySeenFields
-    | Variant {name} -> "Variant:" ^ name
-    | Polyvariant {name} -> "Polyvariant:" ^ name
+    | Variant {name; payloadNum} -> (
+      "Variant:" ^ name
+      ^
+      match payloadNum with
+      | None -> ""
+      | Some payloadNum -> "(" ^ string_of_int payloadNum ^ ")")
+    | Polyvariant {name; payloadNum} -> (
+      "Polyvariant:" ^ name
+      ^
+      match payloadNum with
+      | None -> ""
+      | Some payloadNum -> "(" ^ string_of_int payloadNum ^ ")")
     | PTuple {itemNumber} -> "Tuple:" ^ string_of_int itemNumber
 
   let recordFieldContextPathToString pathItems =

@@ -58,13 +58,15 @@ let getSomeVal = (~irrelevant: int) => {
 //                                                                                       ^com
 
 type someOtherVariant = TwentyFive | SixtyTwo
-type rec someVariant = One | Two | Three(int) | Four(someOtherVariant)
+type rec someVariant =
+  One | Two | Three(int) | Four(someOtherVariant) | Five(someOtherVariant, someVariant)
 
 type someRecordWithVariant = {
   other: someRecord,
   something: someVariant,
   otherThing: option<someVariant>,
   thirdStuff: (someRecord, someVariant, option<someVariant>, int),
+  fourthStuff: (option<[#WithPayload(someVariant)]>, someVariant),
 }
 
 let someOtherValue: someRecordWithVariant = {
@@ -72,6 +74,7 @@ let someOtherValue: someRecordWithVariant = {
   something: Two,
   otherThing: None,
   thirdStuff: (someVal.something, One, None, 1),
+  fourthStuff: (None, One),
 }
 // switch someOtherValue { | {something: T} => () }
 //                                        ^com
@@ -84,3 +87,9 @@ let someOtherValue: someRecordWithVariant = {
 
 // switch someOtherValue { | {thirdStuff: (_, Four())} => () }
 //                                                 ^com
+
+// switch someOtherValue { | {thirdStuff: (_, Five(_, O))} => () }
+//                                                     ^com
+
+// switch someOtherValue { | {fourthStuff: (Some(#WithPayload(O)), _)} => () }
+//                                                             ^com
