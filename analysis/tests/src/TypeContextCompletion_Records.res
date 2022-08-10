@@ -56,3 +56,31 @@ let getSomeVal = (~irrelevant: int) => {
 
 // switch someVal { | {thirdThing: "1234"} => () | {something: {whatIsThis, anotherLevel, }} => () }
 //                                                                                       ^com
+
+type someOtherVariant = TwentyFive | SixtyTwo
+type rec someVariant = One | Two | Three(int) | Four(someOtherVariant)
+
+type someRecordWithVariant = {
+  other: someRecord,
+  something: someVariant,
+  otherThing: option<someVariant>,
+  thirdStuff: (someRecord, someVariant, option<someVariant>, int),
+}
+
+let someOtherValue: someRecordWithVariant = {
+  other: someVal.something,
+  something: Two,
+  otherThing: None,
+  thirdStuff: (someVal.something, One, None, 1),
+}
+// switch someOtherValue { | {something: T} => () }
+//                                        ^com
+
+// switch someOtherValue { | {otherThing: Some(T)} => () }
+//                                              ^com
+
+// switch someOtherValue { | {thirdStuff: (_, T)} => () }
+//                                             ^com
+
+// switch someOtherValue { | {thirdStuff: (_, Four())} => () }
+//                                                 ^com

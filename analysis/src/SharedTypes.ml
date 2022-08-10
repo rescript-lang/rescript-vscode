@@ -432,18 +432,24 @@ module Completable = struct
   (* TODO: Can extend to tuples, objects, etc *)
   type patternPathItem =
     | RField of {fieldName: string; alreadySeenFields: string list}
+    | Variant of {name: string}
+    | Polyvariant of {name: string}
+    | PTuple of {itemNumber: int}
 
   let str s = if s = "" then "\"\"" else s
   let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
   let ident l = l |> List.map str |> String.concat "."
 
+  let pathItemToString item =
+    match item with
+    | RField {fieldName; alreadySeenFields} ->
+      "RecordField:" ^ fieldName ^ ":" ^ list alreadySeenFields
+    | Variant {name} -> "Variant:" ^ name
+    | Polyvariant {name} -> "Polyvariant:" ^ name
+    | PTuple {itemNumber} -> "Tuple:" ^ string_of_int itemNumber
+
   let recordFieldContextPathToString pathItems =
-    pathItems
-    |> List.map (fun item ->
-           match item with
-           | RField {fieldName; alreadySeenFields} ->
-             fieldName ^ ":" ^ list alreadySeenFields)
-    |> list
+    pathItems |> List.map (fun item -> pathItemToString item) |> list
 
   let completionContextToString = function
     | Value -> "Value"
@@ -526,12 +532,26 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | CtypedContext {howToRetrieveSourceType; meta = {prefix}} -> (
-      "CtypedContext("
+    | CtypedContext {howToRetrieveSourceType; meta = {prefix}; patternPath} -> (
+      ("CtypedContext("
       ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
       ^ ")="
       ^
       match prefix with
       | None -> ""
       | Some prefix -> str prefix)
+      ^
+      match patternPath with
+      | None -> ""
+      | Some patternPath ->
+        " pattern: " ^ (patternPath |> recordFieldContextPathToString))
+end
+
+module CursorPosition = struct
+  type t = NoCursor | HasCursor | EmptyLoc
+
+  let classifyLoc loc ~pos =
+    if loc |> Loc.hasPos ~pos then HasCursor
+    else if loc |> Loc.end_ = (Location.none |> Loc.end_) then EmptyLoc
+    else NoCursor
 end

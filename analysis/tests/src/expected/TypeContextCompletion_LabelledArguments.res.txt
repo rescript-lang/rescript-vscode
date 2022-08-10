@@ -19,6 +19,7 @@ Complete src/TypeContextCompletion_LabelledArguments.res 25:44
 posCursor:[25:44] posNoWhite:[25:43] Found expr:[25:11->25:44]
 Pexp_apply ...[25:11->25:30] (~someVariant25:32->25:43=...__ghost__[0:-1->0:-1])
 Completable: CtypedContext(NamedArg(someVariant, Value[someVariantToString]))=""
+found variant: 
 [{
     "label": "One",
     "kind": 4,
@@ -73,6 +74,7 @@ Complete src/TypeContextCompletion_LabelledArguments.res 28:45
 posCursor:[28:45] posNoWhite:[28:43] Found expr:[28:11->28:44]
 Pexp_apply ...[28:11->28:30] (~someVariant28:32->28:43=...__ghost__[0:-1->0:-1])
 Completable: CtypedContext(NamedArg(someVariant, Value[someVariantToString]))=""
+found variant: 
 [{
     "label": "One",
     "kind": 4,
@@ -127,6 +129,7 @@ Complete src/TypeContextCompletion_LabelledArguments.res 31:45
 posCursor:[31:45] posNoWhite:[31:44] Found expr:[31:11->31:45]
 Pexp_apply ...[31:11->31:30] (~someVariant31:32->31:43=...[31:44->31:45])
 Completable: CtypedContext(NamedArg(someVariant, Value[someVariantToString]))=T
+found variant: T
 [{
     "label": "Two",
     "kind": 4,
@@ -209,6 +212,7 @@ Complete src/TypeContextCompletion_LabelledArguments.res 40:45
 posCursor:[40:45] posNoWhite:[40:44] Found expr:[40:11->40:45]
 Pexp_apply ...[40:11->40:30] (~anotherThing40:32->40:44=...__ghost__[0:-1->0:-1])
 Completable: CtypedContext(NamedArg(anotherThing, Value[someVariantToString]))=""
+found variant: 
 [{
     "label": "Foo",
     "kind": 4,

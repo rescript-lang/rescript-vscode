@@ -14,6 +14,7 @@ Complete src/TypeContextCompletion_Jsx.res 23:38
 posCursor:[23:38] posNoWhite:[23:37] Found expr:[23:12->23:38]
 JSX <SomeComponent:[23:12->23:25] someVariant[23:26->23:37]=...__ghost__[0:-1->0:-1]> _children:None
 Completable: CtypedContext(JsxProp(<SomeComponent someVariant= />))=""
+found variant: 
 [{
     "label": "One",
     "kind": 4,
@@ -68,6 +69,7 @@ Complete src/TypeContextCompletion_Jsx.res 26:39
 posCursor:[26:39] posNoWhite:[26:37] Found expr:[26:12->26:38]
 JSX <SomeComponent:[26:12->26:25] someVariant[26:26->26:37]=...__ghost__[0:-1->0:-1]> _children:None
 Completable: CtypedContext(JsxProp(<SomeComponent someVariant= />))=""
+found variant: 
 [{
     "label": "One",
     "kind": 4,
@@ -122,6 +124,7 @@ Complete src/TypeContextCompletion_Jsx.res 29:39
 posCursor:[29:39] posNoWhite:[29:38] Found expr:[29:12->29:39]
 JSX <SomeComponent:[29:12->29:25] someVariant[29:26->29:37]=...[29:38->29:39]> _children:None
 Completable: CtypedContext(JsxProp(<SomeComponent someVariant= />))=T
+found variant: T
 [{
     "label": "Two",
     "kind": 4,
@@ -148,6 +151,7 @@ Complete src/TypeContextCompletion_Jsx.res 35:39
 posCursor:[35:39] posNoWhite:[35:38] Found expr:[35:12->35:39]
 JSX <SomeComponent:[35:12->35:25] anotherThing[35:26->35:38]=...__ghost__[0:-1->0:-1]> _children:None
 Completable: CtypedContext(JsxProp(<SomeComponent anotherThing= />))=""
+found variant: 
 [{
     "label": "Foo",
     "kind": 4,

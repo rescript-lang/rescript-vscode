@@ -1050,17 +1050,22 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
 type extractedType =
   | Declared of QueryEnv.t * Type.t Declared.t
   | Polyvariant of QueryEnv.t * SharedTypes.polyVariantConstructor list
+  | Tuple of QueryEnv.t * Types.type_expr list
+  | Toption of QueryEnv.t * Types.type_expr
 
 (* This is a more general extraction function for pulling out the type of a type_expr. We already have other similar functions, but they are all specialized on something (variants, records, etc). *)
 let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
+  | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
+    (* Handle option *)
+    Some (Toption (env, payloadTypeExpr))
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
       extractType ~env ~package t1
     | Some (env, typ) -> Some (Declared (env, typ))
-    | _ -> None)
+    | None -> None)
   | Tvariant {row_fields} ->
     (* Since polyvariants are strutural, they're "inlined". So, we extract just
        what we need for completion from that definition here. *)
@@ -1076,6 +1081,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
              })
     in
     Some (Polyvariant (env, constructors))
+  | Ttuple expressions -> Some (Tuple (env, expressions))
   | _ -> None
 
 let rec extractObjectType ~env ~package (t : Types.type_expr) =
@@ -1452,6 +1458,29 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
           if List.length nestedContextPath > 0 then
             targetField.typ |> digToType ~env ~nestedContextPath ~package
           else typeExprToCompletable targetField.typ ~env ~package)
+      | ( Variant {name},
+          Some (Declared (_, {item = {kind = Variant constructors}})) ) -> (
+        match
+          constructors
+          |> List.find_opt (fun constructor ->
+                 constructor.Constructor.cname.txt = name)
+        with
+        | Some _ -> Some (CVariant {constructors})
+        | None -> None)
+      | Polyvariant {name}, Some (Polyvariant (_, constructors)) -> (
+        match
+          constructors
+          |> List.find_opt (fun constructor -> constructor.name = name)
+        with
+        | Some _ -> Some (CPolyVariant {constructors})
+        | None -> None)
+      | PTuple {itemNumber}, Some (Tuple (_, exprs)) -> (
+        match List.nth_opt exprs itemNumber with
+        | None -> None
+        | Some typeExpr ->
+          typeExpr |> digToType ~env ~nestedContextPath ~package)
+      | Variant {name = "Some"}, Some (Toption (_, typeExpr)) ->
+        typeExpr |> digToType ~env ~nestedContextPath ~package
       | _ -> None)
   in
   typ |> digToType ~env ~nestedContextPath ~package
@@ -1927,6 +1956,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         in
         constructorCompletions @ localCompletions
       | Some (CVariant {constructors}) ->
+        if debug then Printf.printf "found variant: %s\n" prefix;
         let constructorCompletions =
           constructors
           |> List.filter (fun constructor ->

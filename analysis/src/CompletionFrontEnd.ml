@@ -312,81 +312,193 @@ let rec getSimpleFieldName txt =
   | _ -> ""
 
 let rec findNestedContextPath ~path ~posBeforeCursor ~prefix
-    ~firstCharBeforeCursorNoWhite fields =
-  (* This will descend through the record, following where the cursor is located,
-     to pull out a nested context we can use to figure out what type
-     we should complete from. *)
-  fields
-  |> List.find_map (fun ({Location.txt}, {Parsetree.ppat_loc; ppat_desc}) ->
-         if ppat_loc |> Loc.hasPos ~pos:posBeforeCursor then
-           (* Covers when we're still inside the cursor position - continue descending
-              and build the nested context appropriately. *)
-           match ppat_desc with
-           | Ppat_record (fields, _) ->
-             if List.length fields = 0 then
-               (* Empty records are fine to complete from *)
-               Some
-                 ([
-                    Completable.RField
-                      {
-                        fieldName = getSimpleFieldName txt;
-                        alreadySeenFields = [];
-                      };
-                  ]
-                 @ path)
-             else
-               fields
+    ~firstCharBeforeCursorNoWhite pattern =
+  match pattern.Parsetree.ppat_desc with
+  | Ppat_record (fields, _) ->
+    (* This will descend through the record, following where the cursor is located,
+       to pull out a nested context we can use to figure out what type
+       we should complete from. *)
+    fields
+    |> List.find_map
+         (fun ({Location.txt}, ({Parsetree.ppat_loc; ppat_desc} as pat)) ->
+           if ppat_loc |> Loc.hasPos ~pos:posBeforeCursor then
+             (* Covers when we're still inside the cursor position - continue descending
+                and build the nested context appropriately. *)
+             match ppat_desc with
+             | Ppat_record (fields, _) ->
+               if List.length fields = 0 then
+                 (* Empty records are fine to complete from *)
+                 Some
+                   ([
+                      Completable.RField
+                        {
+                          fieldName = getSimpleFieldName txt;
+                          alreadySeenFields = [];
+                        };
+                    ]
+                   @ path)
+               else
+                 pat
+                 |> findNestedContextPath ~posBeforeCursor ~prefix
+                      ~firstCharBeforeCursorNoWhite
+                      ~path:
+                        ([
+                           Completable.RField
+                             {
+                               fieldName = getSimpleFieldName txt;
+                               alreadySeenFields =
+                                 fields
+                                 |> List.map (fun ({Location.txt}, _) ->
+                                        getSimpleFieldName txt);
+                             };
+                         ]
+                        @ path)
+             | Ppat_var {txt} ->
+               (* Whenever we encounter a var, that means we've hit an identifier the user has started typing.
+                  We can then use that as the prefix hint for what to filter completions on. *)
+               prefix := txt;
+               Some path
+             | Ppat_construct ({txt}, None) ->
+               let name = getSimpleFieldName txt in
+               prefix := name;
+               Some ([Completable.Variant {name}] @ path)
+             | Ppat_construct ({txt}, Some pat) ->
+               let name = getSimpleFieldName txt in
+               pat
                |> findNestedContextPath ~posBeforeCursor ~prefix
                     ~firstCharBeforeCursorNoWhite
-                    ~path:
-                      ([
-                         Completable.RField
-                           {
-                             fieldName = getSimpleFieldName txt;
-                             alreadySeenFields =
-                               fields
-                               |> List.map (fun ({Location.txt}, _) ->
-                                      getSimpleFieldName txt);
-                           };
-                       ]
-                      @ path)
-           | Ppat_var {txt} ->
-             (* Whenever we encounter a var, that means we've hit an identifier the user has started typing.
-                We can then use that as the prefix hint for what to filter completions on. *)
-             prefix := txt;
+                    ~path:([Completable.Variant {name}] @ path)
+             | _ ->
+               (* This can be extended to understand more nested contexts, like tuples, etc. *)
+               None
+           else if ppat_loc |> Loc.end_ = (Location.none |> Loc.end_) then
+             (* This means that an empty location was found, which typically means that the parser has made
+                recovery here. Complete wherever we are. *)
              Some path
-           | _ ->
-             (* This can be extended to understand more nested contexts, like tuples, etc. *)
-             Some path
-         else if ppat_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-           (* This means that an empty location was found, which typically means that the parser has made
-              recovery here. Complete wherever we are. *)
-           Some path
-         else
-           match firstCharBeforeCursorNoWhite with
-           | Some ',' -> Some path
-           | _ -> None)
+           else
+             match firstCharBeforeCursorNoWhite with
+             | Some ',' -> Some path
+             | _ -> None)
+  | _ -> None
 
-let findPrefixAndNestedContextPath fields ~posBeforeCursor
+let rec whatevs pattern ~path ~posBeforeCursor ~prefix
+    ~firstCharBeforeCursorNoWhite =
+  match
+    pattern.Parsetree.ppat_loc
+    |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+  with
+  | NoCursor | EmptyLoc -> None
+  | HasCursor -> (
+    match pattern.ppat_desc with
+    | Ppat_construct ({txt = Lident "()"}, None) ->
+      (* A constructor without a payload mean we've reached an end. *)
+      prefix := "";
+      Some path
+    | Ppat_construct ({txt}, None) ->
+      (* A constructor without a payload mean we've reached an end. *)
+      prefix := getSimpleFieldName txt;
+      Some path
+    | Ppat_construct ({txt}, Some constructorPayload) ->
+      constructorPayload
+      |> whatevs
+           ~path:([Completable.Variant {name = getSimpleFieldName txt}] @ path)
+           ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix
+    | Ppat_variant (label, None) ->
+      (* A constructor without a payload mean we've reached an end. *)
+      prefix := label;
+      Some path
+    | Ppat_variant (label, Some constructorPayload) ->
+      constructorPayload
+      |> whatevs
+           ~path:([Completable.Variant {name = label}] @ path)
+           ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix
+    | Ppat_tuple patterns -> (
+      let tupleItemNum = ref 0 in
+      let patternWithCursor =
+        patterns
+        |> List.find_map (fun pat ->
+               let currentItemNum = !tupleItemNum in
+               tupleItemNum := !tupleItemNum + 1;
+               match
+                 pat.Parsetree.ppat_loc
+                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+               with
+               | HasCursor | EmptyLoc -> Some (currentItemNum, pat)
+               | NoCursor -> None)
+      in
+      match patternWithCursor with
+      | None -> None
+      | Some (tupleItemNum, pat) ->
+        pat
+        |> whatevs ~posBeforeCursor ~prefix ~firstCharBeforeCursorNoWhite
+             ~path:([Completable.PTuple {itemNumber = tupleItemNum}] @ path))
+    | Ppat_record (fields, _) when List.length fields = 0 -> Some path
+    | Ppat_record (fields, _) -> (
+      let fieldWithCursor =
+        fields
+        |> List.find_map (fun (loc, pat) ->
+               match
+                 pat.Parsetree.ppat_loc
+                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+               with
+               | NoCursor -> None
+               | HasCursor | EmptyLoc -> Some (loc, pat))
+      in
+      match fieldWithCursor with
+      | None -> None
+      | Some (loc, pat) ->
+        let fieldName = getSimpleFieldName loc.txt in
+        pat
+        |> whatevs ~posBeforeCursor ~prefix ~firstCharBeforeCursorNoWhite
+             ~path:
+               ([
+                  Completable.RField
+                    {
+                      fieldName;
+                      alreadySeenFields =
+                        fields
+                        |> List.map (fun ({Location.txt}, _) ->
+                               getSimpleFieldName txt)
+                        |> List.filter (fun name -> name <> fieldName);
+                    };
+                ]
+               @ path))
+    | Ppat_var {txt} ->
+      prefix := txt;
+      Some path
+    | _ -> None)
+
+let findPrefixAndNestedContextPath pattern ~posBeforeCursor
     ~firstCharBeforeCursorNoWhite =
   let prefix = ref "" in
 
-  ( !prefix,
-    match List.length fields with
-    | 0 ->
+  let nestedContextPath =
+    match pattern.Parsetree.ppat_desc with
+    | Ppat_record (fields, _) when List.length fields = 0 ->
       (* A root record with 0 fields, `let {} = someVar`, is still valid to complete from. But it has no nested context. *)
       Some []
     | _ ->
-      fields
-      |> findNestedContextPath ~path:[] ~posBeforeCursor ~prefix
-           ~firstCharBeforeCursorNoWhite )
+      pattern
+      |> whatevs ~path:[] ~posBeforeCursor ~prefix ~firstCharBeforeCursorNoWhite
+  in
 
-let completeRecordDestructure fields ~contextPath ~posBeforeCursor
+  (!prefix, nestedContextPath)
+
+let completePattern pattern ~contextPath ~posBeforeCursor
     ~firstCharBeforeCursorNoWhite =
-  let prefix, nestedContextPath =
-    fields
-    |> findPrefixAndNestedContextPath ~posBeforeCursor
-         ~firstCharBeforeCursorNoWhite
+  let prefix = ref "" in
+  let nestedContextPath =
+    match pattern.Parsetree.ppat_desc with
+    | Ppat_record (fields, _) -> (
+      match List.length fields with
+      | 0 ->
+        (* A root record with 0 fields, `let {} = someVar`, is still valid to complete from. But it has no nested context. *)
+        Some []
+      | _ ->
+        pattern
+        |> whatevs ~path:[] ~posBeforeCursor ~prefix
+             ~firstCharBeforeCursorNoWhite)
+    | _ -> None
   in
   match (contextPath, nestedContextPath) with
   | Some contextPath, Some nestedContextPath ->
@@ -397,7 +509,7 @@ let completeRecordDestructure fields ~contextPath ~posBeforeCursor
            patternPath = Some (nestedContextPath |> List.rev);
            meta =
              {
-               prefix = Some prefix;
+               prefix = Some !prefix;
                alreadySeenIdents =
                  (match nestedContextPath with
                  | RField {alreadySeenFields} :: _rest -> Some alreadySeenFields
@@ -552,14 +664,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (* TODO: Tuples, etc... *)
       (* TODO: Handle let {SomeModule.recordField} = ...*)
       (match bindings with
-      | [{pvb_pat = {ppat_desc = Ppat_record (fields, _)}; pvb_expr = expr}]
-        when !result = None ->
+      | [{pvb_pat; pvb_expr = expr}] when !result = None ->
         (* The contextPath is what we'll use to look up the root record type for this completion.
            Depending on if the destructure is nested or not, we may or may not use that directly.*)
         let contextPath = exprToContextPath expr in
         setResultOpt
-          (fields
-          |> completeRecordDestructure ~contextPath ~posBeforeCursor
+          (pvb_pat
+          |> completePattern ~contextPath ~posBeforeCursor
                ~firstCharBeforeCursorNoWhite)
       | _ -> ());
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
@@ -878,14 +989,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             | case :: cases -> (
               match case with
               | {
-               Parsetree.pc_lhs =
-                 {ppat_loc; ppat_desc = Ppat_record (fields, _)};
+               Parsetree.pc_lhs = {ppat_loc; ppat_desc = Ppat_record _} as pat;
               }
                 when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor ->
                 let contextPath = exprToContextPath expr in
                 setResultOpt
-                  (fields
-                  |> completeRecordDestructure ~contextPath ~posBeforeCursor
+                  (pat
+                  |> completePattern ~contextPath ~posBeforeCursor
                        ~firstCharBeforeCursorNoWhite)
               | _ -> findCaseWithCursor cases)
             | [] -> ()
