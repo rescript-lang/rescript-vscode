@@ -358,7 +358,12 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
        found _some_ context. We check that context and the char before the cursor to figure
        out if we should complete for that path. *)
     match (path, firstCharBeforeCursorNoWhite) with
+    (* Handles: One | Two | *)
     | (Completable.Variant _ | Polyvariant _) :: _, Some '|' -> Some path
+    (* Handles: {someField: } *)
+    | RField _ :: _, Some ':' ->
+      (* TODO: This should handle when the last path item is a record field, at which point we'll also need to insert the record syntax when completing, or we yield broken syntax. *)
+      Some path
     | _ -> None)
   | HasCursor -> (
     match pattern.ppat_desc with

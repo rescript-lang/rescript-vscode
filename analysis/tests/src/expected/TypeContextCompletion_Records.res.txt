@@ -414,3 +414,21 @@ Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:third
     "documentation": null
   }]
 
+Complete src/TypeContextCompletion_Records.res 111:38
+posCursor:[111:38] posNoWhite:[111:36] Found expr:[111:3->111:47]
+posCursor:[111:38] posNoWhite:[111:36] Found pattern:[111:29->111:39]
+Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:other2] seenIdents: []
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "None\n\n",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Some(_)\n\n",
+    "documentation": null
+  }]
+

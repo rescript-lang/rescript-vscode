@@ -108,3 +108,6 @@ let someOtherValue: someRecordWithVariant = {
 
 // switch someOtherValue { | {thirdStuff: (_, Four(TwentyFive | ))} => () }
 //                                                              ^com
+
+// switch someOtherValue { | {other2: } => () }
+//                                    ^com
