@@ -940,14 +940,14 @@ let findLocalCompletionsForTypeExpr ~(localTables : LocalTables.t) ~env ~prefix
 let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
     ~env ~prefix ~exact ~opens ~scope =
   localTables |> LocalTables.populateValues ~env;
-  localTables |> LocalTables.populateConstructors ~env;
+  (*localTables |> LocalTables.populateConstructors ~env;*)
   localTables |> LocalTables.populateModules ~env;
   scope
   |> Scope.iterValuesBeforeFirstOpen
        (processLocalValue ~prefix ~exact ~env ~localTables);
-  scope
-  |> Scope.iterConstructorsBeforeFirstOpen
-       (processLocalConstructor ~prefix ~exact ~env ~localTables);
+  (*scope
+    |> Scope.iterConstructorsBeforeFirstOpen
+         (processLocalConstructor ~prefix ~exact ~env ~localTables);*)
   scope
   |> Scope.iterModulesBeforeFirstOpen
        (processLocalModule ~prefix ~exact ~env ~localTables);
@@ -960,9 +960,9 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
   scope
   |> Scope.iterValuesAfterFirstOpen
        (processLocalValue ~prefix ~exact ~env ~localTables);
-  scope
-  |> Scope.iterConstructorsAfterFirstOpen
-       (processLocalConstructor ~prefix ~exact ~env ~localTables);
+  (*scope
+    |> Scope.iterConstructorsAfterFirstOpen
+         (processLocalConstructor ~prefix ~exact ~env ~localTables);*)
   scope
   |> Scope.iterModulesAfterFirstOpen
        (processLocalModule ~prefix ~exact ~env ~localTables);
@@ -1993,13 +1993,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      ~env)
           in
           (* TODO: Patterns should not include local completions *)
-          let localCompletions =
+          let _localCompletions =
             typ
             |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
                  ~exact:false ~opens ~scope
           in
           [Completion.create ~name:"None" ~kind:OptionNone ~env]
-          @ constructorCompletions @ localCompletions
+          @ constructorCompletions
         | CPolyVariant {constructors} ->
           (* TOOD: Unify with other variant completion handler *)
           let constructorCompletions =
@@ -2018,13 +2018,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      ~kind:(PolyvariantConstructor constructor) ~env)
           in
           (* TODO: Patterns should not include local completions *)
-          let localCompletions =
+          let _localCompletions =
             typ
             |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
                  ~exact:false ~opens ~scope
           in
           [Completion.create ~name:"None" ~kind:OptionNone ~env]
-          @ constructorCompletions @ localCompletions
+          @ constructorCompletions
         | _ ->
           [
             Completion.create ~name:"None" ~kind:OptionNone ~env;
@@ -2046,12 +2046,12 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      )
                    ~kind:(PolyvariantConstructor constructor) ~env)
         in
-        let localCompletions =
+        let _localCompletions =
           typ
           |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix ~exact:false
                ~opens ~scope
         in
-        constructorCompletions @ localCompletions
+        constructorCompletions
       | Some (CVariant {constructors}) ->
         let constructorCompletions =
           constructors
@@ -2073,12 +2073,12 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                    ~kind:(Constructor (constructor, ""))
                    ~env)
         in
-        let localCompletions =
+        let _localCompletions =
           typ
           |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix ~exact:false
                ~opens ~scope
         in
-        constructorCompletions @ localCompletions
+        constructorCompletions
       | Some (CRecord {fields; decl; name}) ->
         fields
         |> List.filter (fun (field : field) ->
