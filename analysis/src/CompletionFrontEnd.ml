@@ -465,6 +465,7 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
       prefix := txt;
       Some path
     | Ppat_or (pat1, pat2) -> (
+      seenIdents := findAlreadySeenIdents pattern;
       let rec findAllOrBranches pat ~branches =
         match pat.Parsetree.ppat_desc with
         | Ppat_or (pat1, pat2) ->

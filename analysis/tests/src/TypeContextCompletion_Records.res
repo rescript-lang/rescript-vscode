@@ -81,7 +81,7 @@ let someOtherValue: someRecordWithVariant = {
   thirdStuff: (someVal.something, One, None, 1),
   fourthStuff: (None, One),
 }
-// TODO: Broken - does not filter idents
+
 // switch someOtherValue { | {something: Two | T} => () }
 //                                              ^com
 
