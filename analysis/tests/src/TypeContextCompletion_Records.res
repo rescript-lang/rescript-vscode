@@ -42,11 +42,9 @@ let getSomeVal = (~irrelevant: int) => {
 // let {something: {whatIsThis, anotherLevel: {l}}} = someVal
 //                                              ^com
 
-// TODO: Broken - does not account for ,
 // let {something: {whatIsThis, anotherLevel,  }} = someVal
 //                                             ^com
 
-// TODO: Broken - does not account for ,
 // let {something: {whatIsThis, ,anotherLevel}} = someVal
 //                             ^com
 
@@ -56,7 +54,6 @@ let getSomeVal = (~irrelevant: int) => {
 // switch someVal { | {thirdThing: "1234"} => () | {} => () }
 //                                                  ^com
 
-// TODO: Broken - does not account for ,
 // switch someVal { | {thirdThing: "1234"} => () | {something: {whatIsThis, anotherLevel, }} => () }
 //                                                                                       ^com
 

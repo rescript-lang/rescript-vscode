@@ -125,20 +125,34 @@ Completable: CtypedContext(Value[someVal])=l pattern: [RecordField:something, Re
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 45:47
-posCursor:[45:47] posNoWhite:[45:44] Found pattern:[45:7->45:49]
-posCursor:[45:47] posNoWhite:[45:44] Found pattern:[45:19->45:48]
-[]
+Complete src/TypeContextCompletion_Records.res 44:47
+posCursor:[44:47] posNoWhite:[44:44] Found pattern:[44:7->44:49]
+posCursor:[44:47] posNoWhite:[44:44] Found pattern:[44:19->44:48]
+Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something] seenIdents: [whatIsThis, anotherLevel]
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion_Records.res 49:31
-posCursor:[49:31] posNoWhite:[49:30] Found pattern:[49:7->49:47]
-posCursor:[49:31] posNoWhite:[49:30] Found pattern:[49:19->49:46]
-[]
+Complete src/TypeContextCompletion_Records.res 47:31
+posCursor:[47:31] posNoWhite:[47:30] Found pattern:[47:7->47:47]
+posCursor:[47:31] posNoWhite:[47:30] Found pattern:[47:19->47:46]
+Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something] seenIdents: [whatIsThis, anotherLevel]
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion_Records.res 52:44
-posCursor:[52:44] posNoWhite:[52:43] Found expr:[52:3->52:54]
-posCursor:[52:44] posNoWhite:[52:43] Found pattern:[52:22->52:46]
-posCursor:[52:44] posNoWhite:[52:43] Found pattern:[52:42->52:45]
+Complete src/TypeContextCompletion_Records.res 50:44
+posCursor:[50:44] posNoWhite:[50:43] Found expr:[50:3->50:54]
+posCursor:[50:44] posNoWhite:[50:43] Found pattern:[50:22->50:46]
+posCursor:[50:44] posNoWhite:[50:43] Found pattern:[50:42->50:45]
 Completable: CtypedContext(Value[someVal])=som pattern: [] seenIdents: [thirdThing]
 [{
     "label": "something",
@@ -148,9 +162,9 @@ Completable: CtypedContext(Value[someVal])=som pattern: [] seenIdents: [thirdThi
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 55:52
-posCursor:[55:52] posNoWhite:[55:51] Found expr:[55:3->55:61]
-posCursor:[55:52] posNoWhite:[55:51] Found pattern:[55:51->55:53]
+Complete src/TypeContextCompletion_Records.res 53:52
+posCursor:[53:52] posNoWhite:[53:51] Found expr:[53:3->53:61]
+posCursor:[53:52] posNoWhite:[53:51] Found pattern:[53:51->53:53]
 Completable: CtypedContext(Value[someVal])="" pattern: [] seenIdents: []
 [{
     "label": "something",
@@ -172,18 +186,25 @@ Completable: CtypedContext(Value[someVal])="" pattern: [] seenIdents: []
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 59:89
-posCursor:[59:89] posNoWhite:[59:88] Found expr:[59:3->59:100]
-posCursor:[59:89] posNoWhite:[59:88] Found pattern:[59:51->59:92]
-posCursor:[59:89] posNoWhite:[59:88] Found pattern:[59:63->59:91]
-[]
+Complete src/TypeContextCompletion_Records.res 56:89
+posCursor:[56:89] posNoWhite:[56:88] Found expr:[56:3->56:100]
+posCursor:[56:89] posNoWhite:[56:88] Found pattern:[56:51->56:92]
+posCursor:[56:89] posNoWhite:[56:88] Found pattern:[56:63->56:91]
+Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something] seenIdents: [whatIsThis, anotherLevel]
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null
+  }]
 
-Complete src/TypeContextCompletion_Records.res 84:48
-posCursor:[84:48] posNoWhite:[84:47] Found expr:[84:3->84:57]
-posCursor:[84:48] posNoWhite:[84:47] Found pattern:[84:29->84:49]
-posCursor:[84:48] posNoWhite:[84:47] Found pattern:[84:41->84:48]
-posCursor:[84:48] posNoWhite:[84:47] Found pattern:[84:47->84:48]
-Ppat_construct T:[84:47->84:48]
+Complete src/TypeContextCompletion_Records.res 81:48
+posCursor:[81:48] posNoWhite:[81:47] Found expr:[81:3->81:57]
+posCursor:[81:48] posNoWhite:[81:47] Found pattern:[81:29->81:49]
+posCursor:[81:48] posNoWhite:[81:47] Found pattern:[81:41->81:48]
+posCursor:[81:48] posNoWhite:[81:47] Found pattern:[81:47->81:48]
+Ppat_construct T:[81:47->81:48]
 Completable: CtypedContext(Value[someOtherValue])=T pattern: [RecordField:something] seenIdents: [Two, T]
 [{
     "label": "Three(_)",
@@ -193,13 +214,13 @@ Completable: CtypedContext(Value[someOtherValue])=T pattern: [RecordField:someth
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 87:48
-posCursor:[87:48] posNoWhite:[87:47] Found expr:[87:3->87:58]
-posCursor:[87:48] posNoWhite:[87:47] Found pattern:[87:29->87:50]
-posCursor:[87:48] posNoWhite:[87:47] Found pattern:[87:42->87:49]
-Ppat_construct Some:[87:42->87:46]
-posCursor:[87:48] posNoWhite:[87:47] Found pattern:[87:47->87:48]
-Ppat_construct T:[87:47->87:48]
+Complete src/TypeContextCompletion_Records.res 84:48
+posCursor:[84:48] posNoWhite:[84:47] Found expr:[84:3->84:58]
+posCursor:[84:48] posNoWhite:[84:47] Found pattern:[84:29->84:50]
+posCursor:[84:48] posNoWhite:[84:47] Found pattern:[84:42->84:49]
+Ppat_construct Some:[84:42->84:46]
+posCursor:[84:48] posNoWhite:[84:47] Found pattern:[84:47->84:48]
+Ppat_construct T:[84:47->84:48]
 Completable: CtypedContext(Value[someOtherValue])=T pattern: [RecordField:otherThing, Variant:Some(0)] seenIdents: []
 [{
     "label": "Two",
@@ -215,12 +236,12 @@ Completable: CtypedContext(Value[someOtherValue])=T pattern: [RecordField:otherT
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 90:47
-posCursor:[90:47] posNoWhite:[90:46] Found expr:[90:3->90:57]
-posCursor:[90:47] posNoWhite:[90:46] Found pattern:[90:29->90:49]
-posCursor:[90:47] posNoWhite:[90:46] Found pattern:[90:42->90:48]
-posCursor:[90:47] posNoWhite:[90:46] Found pattern:[90:46->90:47]
-Ppat_construct T:[90:46->90:47]
+Complete src/TypeContextCompletion_Records.res 87:47
+posCursor:[87:47] posNoWhite:[87:46] Found expr:[87:3->87:57]
+posCursor:[87:47] posNoWhite:[87:46] Found pattern:[87:29->87:49]
+posCursor:[87:47] posNoWhite:[87:46] Found pattern:[87:42->87:48]
+posCursor:[87:47] posNoWhite:[87:46] Found pattern:[87:46->87:47]
+Ppat_construct T:[87:46->87:47]
 Completable: CtypedContext(Value[someOtherValue])=T pattern: [RecordField:thirdStuff, Tuple:1] seenIdents: []
 [{
     "label": "Two",
@@ -236,14 +257,14 @@ Completable: CtypedContext(Value[someOtherValue])=T pattern: [RecordField:thirdS
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 93:51
-posCursor:[93:51] posNoWhite:[93:50] Found expr:[93:3->93:62]
-posCursor:[93:51] posNoWhite:[93:50] Found pattern:[93:29->93:54]
-posCursor:[93:51] posNoWhite:[93:50] Found pattern:[93:42->93:53]
-posCursor:[93:51] posNoWhite:[93:50] Found pattern:[93:46->93:52]
-Ppat_construct Four:[93:46->93:50]
-posCursor:[93:51] posNoWhite:[93:50] Found pattern:[93:50->93:52]
-Ppat_construct ():[93:50->93:52]
+Complete src/TypeContextCompletion_Records.res 90:51
+posCursor:[90:51] posNoWhite:[90:50] Found expr:[90:3->90:62]
+posCursor:[90:51] posNoWhite:[90:50] Found pattern:[90:29->90:54]
+posCursor:[90:51] posNoWhite:[90:50] Found pattern:[90:42->90:53]
+posCursor:[90:51] posNoWhite:[90:50] Found pattern:[90:46->90:52]
+Ppat_construct Four:[90:46->90:50]
+posCursor:[90:51] posNoWhite:[90:50] Found pattern:[90:50->90:52]
+Ppat_construct ():[90:50->90:52]
 Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:thirdStuff, Tuple:1, Variant:Four(0)] seenIdents: []
 [{
     "label": "TwentyFive",
@@ -277,15 +298,15 @@ Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:third
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 96:55
-posCursor:[96:55] posNoWhite:[96:54] Found expr:[96:3->96:66]
-posCursor:[96:55] posNoWhite:[96:54] Found pattern:[96:29->96:58]
-posCursor:[96:55] posNoWhite:[96:54] Found pattern:[96:42->96:57]
-posCursor:[96:55] posNoWhite:[96:54] Found pattern:[96:46->96:56]
-Ppat_construct Five:[96:46->96:50]
-posCursor:[96:55] posNoWhite:[96:54] Found pattern:[96:50->96:57]
-posCursor:[96:55] posNoWhite:[96:54] Found pattern:[96:54->96:55]
-Ppat_construct O:[96:54->96:55]
+Complete src/TypeContextCompletion_Records.res 93:55
+posCursor:[93:55] posNoWhite:[93:54] Found expr:[93:3->93:66]
+posCursor:[93:55] posNoWhite:[93:54] Found pattern:[93:29->93:58]
+posCursor:[93:55] posNoWhite:[93:54] Found pattern:[93:42->93:57]
+posCursor:[93:55] posNoWhite:[93:54] Found pattern:[93:46->93:56]
+Ppat_construct Five:[93:46->93:50]
+posCursor:[93:55] posNoWhite:[93:54] Found pattern:[93:50->93:57]
+posCursor:[93:55] posNoWhite:[93:54] Found pattern:[93:54->93:55]
+Ppat_construct O:[93:54->93:55]
 Completable: CtypedContext(Value[someOtherValue])=O pattern: [RecordField:thirdStuff, Tuple:1, Variant:Five(1)] seenIdents: []
 [{
     "label": "One",
@@ -295,15 +316,15 @@ Completable: CtypedContext(Value[someOtherValue])=O pattern: [RecordField:thirdS
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 99:63
-posCursor:[99:63] posNoWhite:[99:62] Found expr:[99:3->99:78]
-posCursor:[99:63] posNoWhite:[99:62] Found pattern:[99:29->99:70]
-posCursor:[99:63] posNoWhite:[99:62] Found pattern:[99:43->99:69]
-posCursor:[99:63] posNoWhite:[99:62] Found pattern:[99:44->99:65]
-Ppat_construct Some:[99:44->99:48]
-posCursor:[99:63] posNoWhite:[99:62] Found pattern:[99:49->99:64]
-posCursor:[99:63] posNoWhite:[99:62] Found pattern:[99:62->99:63]
-Ppat_construct O:[99:62->99:63]
+Complete src/TypeContextCompletion_Records.res 96:63
+posCursor:[96:63] posNoWhite:[96:62] Found expr:[96:3->96:78]
+posCursor:[96:63] posNoWhite:[96:62] Found pattern:[96:29->96:70]
+posCursor:[96:63] posNoWhite:[96:62] Found pattern:[96:43->96:69]
+posCursor:[96:63] posNoWhite:[96:62] Found pattern:[96:44->96:65]
+Ppat_construct Some:[96:44->96:48]
+posCursor:[96:63] posNoWhite:[96:62] Found pattern:[96:49->96:64]
+posCursor:[96:63] posNoWhite:[96:62] Found pattern:[96:62->96:63]
+Ppat_construct O:[96:62->96:63]
 Completable: CtypedContext(Value[someOtherValue])=O pattern: [RecordField:fourthStuff, Tuple:0, Variant:Some(0), Polyvariant:WithPayload(0)] seenIdents: []
 [{
     "label": "One",
@@ -313,16 +334,16 @@ Completable: CtypedContext(Value[someOtherValue])=O pattern: [RecordField:fourth
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 102:67
-posCursor:[102:67] posNoWhite:[102:66] Found expr:[102:3->102:78]
-posCursor:[102:67] posNoWhite:[102:66] Found pattern:[102:29->102:70]
-posCursor:[102:67] posNoWhite:[102:66] Found pattern:[102:42->102:69]
-posCursor:[102:67] posNoWhite:[102:66] Found pattern:[102:46->102:68]
-Ppat_construct Five:[102:46->102:50]
-posCursor:[102:67] posNoWhite:[102:66] Found pattern:[102:50->102:69]
-posCursor:[102:67] posNoWhite:[102:66] Found pattern:[102:54->102:67]
-posCursor:[102:67] posNoWhite:[102:66] Found pattern:[102:66->102:67]
-Ppat_construct T:[102:66->102:67]
+Complete src/TypeContextCompletion_Records.res 99:67
+posCursor:[99:67] posNoWhite:[99:66] Found expr:[99:3->99:78]
+posCursor:[99:67] posNoWhite:[99:66] Found pattern:[99:29->99:70]
+posCursor:[99:67] posNoWhite:[99:66] Found pattern:[99:42->99:69]
+posCursor:[99:67] posNoWhite:[99:66] Found pattern:[99:46->99:68]
+Ppat_construct Five:[99:46->99:50]
+posCursor:[99:67] posNoWhite:[99:66] Found pattern:[99:50->99:69]
+posCursor:[99:67] posNoWhite:[99:66] Found pattern:[99:54->99:67]
+posCursor:[99:67] posNoWhite:[99:66] Found pattern:[99:66->99:67]
+Ppat_construct T:[99:66->99:67]
 Completable: CtypedContext(Value[someOtherValue])=T pattern: [RecordField:thirdStuff, Tuple:1, Variant:Five(1)] seenIdents: [One, Two, T]
 [{
     "label": "Three(_)",
@@ -332,11 +353,11 @@ Completable: CtypedContext(Value[someOtherValue])=T pattern: [RecordField:thirdS
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 105:43
-posCursor:[105:43] posNoWhite:[105:42] Found expr:[105:3->105:52]
-posCursor:[105:43] posNoWhite:[105:42] Found pattern:[105:29->105:44]
-posCursor:[105:43] posNoWhite:[105:42] Found pattern:[105:42->105:43]
-Ppat_construct S:[105:42->105:43]
+Complete src/TypeContextCompletion_Records.res 102:43
+posCursor:[102:43] posNoWhite:[102:42] Found expr:[102:3->102:52]
+posCursor:[102:43] posNoWhite:[102:42] Found pattern:[102:29->102:44]
+posCursor:[102:43] posNoWhite:[102:42] Found pattern:[102:42->102:43]
+Ppat_construct S:[102:42->102:43]
 Completable: CtypedContext(Value[someOtherValue])=S pattern: [RecordField:otherThing] seenIdents: []
 [{
     "label": "None",
@@ -376,11 +397,11 @@ Completable: CtypedContext(Value[someOtherValue])=S pattern: [RecordField:otherT
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 108:39
-posCursor:[108:39] posNoWhite:[108:38] Found expr:[108:3->108:48]
-posCursor:[108:39] posNoWhite:[108:38] Found pattern:[108:29->108:40]
-posCursor:[108:39] posNoWhite:[108:38] Found pattern:[108:38->108:39]
-Ppat_construct S:[108:38->108:39]
+Complete src/TypeContextCompletion_Records.res 105:39
+posCursor:[105:39] posNoWhite:[105:38] Found expr:[105:3->105:48]
+posCursor:[105:39] posNoWhite:[105:38] Found pattern:[105:29->105:40]
+posCursor:[105:39] posNoWhite:[105:38] Found pattern:[105:38->105:39]
+Ppat_construct S:[105:38->105:39]
 Completable: CtypedContext(Value[someOtherValue])=S pattern: [RecordField:other2] seenIdents: []
 [{
     "label": "None",
@@ -396,12 +417,12 @@ Completable: CtypedContext(Value[someOtherValue])=S pattern: [RecordField:other2
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 111:64
-posCursor:[111:64] posNoWhite:[111:62] Found expr:[111:3->111:75]
-posCursor:[111:64] posNoWhite:[111:62] Found pattern:[111:29->111:67]
-posCursor:[111:64] posNoWhite:[111:62] Found pattern:[111:42->111:66]
-posCursor:[111:64] posNoWhite:[111:62] Found pattern:[111:46->111:65]
-Ppat_construct Four:[111:46->111:50]
+Complete src/TypeContextCompletion_Records.res 108:64
+posCursor:[108:64] posNoWhite:[108:62] Found expr:[108:3->108:75]
+posCursor:[108:64] posNoWhite:[108:62] Found pattern:[108:29->108:67]
+posCursor:[108:64] posNoWhite:[108:62] Found pattern:[108:42->108:66]
+posCursor:[108:64] posNoWhite:[108:62] Found pattern:[108:46->108:65]
+Ppat_construct Four:[108:46->108:50]
 Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:thirdStuff, Tuple:1, Variant:Four(0)] seenIdents: [TwentyFive]
 [{
     "label": "SixtyTwo",

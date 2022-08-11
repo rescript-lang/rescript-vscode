@@ -434,24 +434,28 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
              ~path:([Completable.PTuple {itemNumber = tupleItemNum}] @ path))
     | Ppat_record (fields, _) when List.length fields = 0 -> Some path
     | Ppat_record (fields, _) -> (
+      let seenFields =
+        fields |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
+      in
       let fieldWithCursor =
         fields
-        |> List.find_map (fun (loc, pat) ->
+        |> List.find_map (fun (loc, fieldPat) ->
                match
-                 pat.Parsetree.ppat_loc
+                 fieldPat.Parsetree.ppat_loc
                  |> CursorPosition.classifyLoc ~pos:posBeforeCursor
                with
                | NoCursor -> None
-               | HasCursor | EmptyLoc -> Some (loc, pat))
+               | HasCursor | EmptyLoc -> Some (loc, fieldPat))
       in
       match fieldWithCursor with
-      | None -> None
+      | None ->
+        if firstCharBeforeCursorNoWhite = Some ',' then (
+          seenIdents := seenFields;
+          Some path)
+        else None
       | Some (loc, pat) ->
         let fieldName = getSimpleFieldName loc.txt in
-        seenIdents :=
-          fields
-          |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
-          |> List.filter (fun name -> name <> fieldName);
+        seenIdents := seenFields |> List.filter (fun name -> name <> fieldName);
         (* let {whatever} = something <- parsed as a Ppat_var, in which case we don't want to consider this descending into a record field. *)
         let newPath =
           match pat.ppat_desc with
