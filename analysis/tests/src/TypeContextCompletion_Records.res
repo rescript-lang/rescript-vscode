@@ -42,9 +42,11 @@ let getSomeVal = (~irrelevant: int) => {
 // let {something: {whatIsThis, anotherLevel: {l}}} = someVal
 //                                              ^com
 
+// TODO: Broken - does not account for ,
 // let {something: {whatIsThis, anotherLevel,  }} = someVal
 //                                             ^com
 
+// TODO: Broken - does not account for ,
 // let {something: {whatIsThis, ,anotherLevel}} = someVal
 //                             ^com
 
@@ -54,6 +56,7 @@ let getSomeVal = (~irrelevant: int) => {
 // switch someVal { | {thirdThing: "1234"} => () | {} => () }
 //                                                  ^com
 
+// TODO: Broken - does not account for ,
 // switch someVal { | {thirdThing: "1234"} => () | {something: {whatIsThis, anotherLevel, }} => () }
 //                                                                                       ^com
 
@@ -78,6 +81,7 @@ let someOtherValue: someRecordWithVariant = {
   thirdStuff: (someVal.something, One, None, 1),
   fourthStuff: (None, One),
 }
+// TODO: Broken - does not filter idents
 // switch someOtherValue { | {something: Two | T} => () }
 //                                              ^com
 
