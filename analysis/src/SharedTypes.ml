@@ -235,6 +235,7 @@ module Completion = struct
     | FileModule of string
     | OptionNone
     | OptionSome
+    | Bool
 
   type t = {
     name: string;
@@ -258,7 +259,7 @@ module Completion = struct
     | Label _ -> 4
     | Field (_, _) -> 5
     | Type _ -> 22
-    | Value _ -> 12
+    | Value _ | Bool -> 12
 end
 
 module Env = struct

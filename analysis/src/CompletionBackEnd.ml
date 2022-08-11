@@ -713,6 +713,7 @@ let detail name (kind : Completion.kind) =
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
   | OptionNone -> "None\n\n"
   | OptionSome -> "Some(_)\n\n"
+  | Bool -> "boolean\n\n"
   | PolyvariantConstructor {name; payload} -> (
     "#" ^ name
     ^
@@ -1054,6 +1055,7 @@ type extractedType =
   | Polyvariant of QueryEnv.t * SharedTypes.polyVariantConstructor list
   | Tuple of QueryEnv.t * Types.type_expr list
   | Toption of QueryEnv.t * Types.type_expr
+  | Tbool of QueryEnv.t
 
 (* This is a more general extraction function for pulling out the type of a type_expr. We already have other similar functions, but they are all specialized on something (variants, records, etc). *)
 let rec extractType ~env ~package (t : Types.type_expr) =
@@ -1062,6 +1064,9 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
     (* Handle option. TODO: Look up how the compiler does this and copy that behavior. *)
     Some (Toption (env, payloadTypeExpr))
+  | Tconstr (Path.Pident {name = "bool"}, [], _) ->
+    (* Handle bool. TODO: Look up how the compiler does this and copy that behavior. *)
+    Some (Tbool env)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
@@ -1436,6 +1441,7 @@ type completable =
   | CVariant of {constructors: Constructor.t list}
   | CPolyVariant of {constructors: polyVariantConstructor list}
   | COptional of completable
+  | CBool
 
 let rec typeExprToCompletable typ ~env ~package =
   match typ |> extractType ~env ~package with
@@ -1444,6 +1450,7 @@ let rec typeExprToCompletable typ ~env ~package =
   | Some (Declared (_, {item = {kind = Variant constructors}})) ->
     Some (CVariant {constructors})
   | Some (Polyvariant (_, constructors)) -> Some (CPolyVariant {constructors})
+  | Some (Tbool _) -> Some CBool
   | Some (Toption (env, typ)) -> (
     match typ |> typeExprToCompletable ~env ~package with
     | None -> None
@@ -1965,6 +1972,15 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     | Some typ -> (
       match typ |> findTypeInContext ~env ~nestedContextPath ~package with
       | None -> []
+      | Some CBool ->
+        ["false"; "true"]
+        |> List.filter (fun boolEntry ->
+               Utils.startsWith boolEntry prefix
+               && not
+                    (alreadySeenIdents
+                    |> List.exists (fun seenIdent -> seenIdent = boolEntry)))
+        |> List.map (fun boolEntry ->
+               Completion.create ~name:boolEntry ~kind:Bool ~env)
       | Some (COptional completable) -> (
         match completable with
         | CVariant {constructors} ->

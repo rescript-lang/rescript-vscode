@@ -461,10 +461,13 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
       | Some (loc, pat) ->
         let fieldName = getSimpleFieldName loc.txt in
         seenIdents := seenFields |> List.filter (fun name -> name <> fieldName);
-        (* let {whatever} = something <- parsed as a Ppat_var, in which case we don't want to consider this descending into a record field. *)
+
         let newPath =
           match pat.ppat_desc with
-          | Ppat_var _ -> path
+          | Ppat_var {txt} when txt = fieldName ->
+            (* let {something} = whatever <- shorthand for let {something:something}, which is just an alias,
+               so we don't want to consider it entering the record field. *)
+            path
           | _ -> [Completable.RField {fieldName}] @ path
         in
         pat

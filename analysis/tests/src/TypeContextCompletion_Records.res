@@ -111,3 +111,13 @@ let someOtherValue: someRecordWithVariant = {
 
 // switch someOtherValue { | {other2: } => () }
 //                                    ^com
+
+// TODO: Broken
+// switch someVal { | {something: {whatIsThis: false |  } } => () }
+//                                                     ^com
+
+// switch someVal { | {something: {whatIsThis: } } => () }
+//                                            ^com
+
+// switch someVal { | {something: {whatIsThis: fa  } } => () }
+//                                               ^com
