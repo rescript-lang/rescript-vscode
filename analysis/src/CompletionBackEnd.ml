@@ -711,6 +711,8 @@ let detail name (kind : Completion.kind) =
   | FileModule _ -> "file module"
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
+  | OptionNone -> "None\n\n"
+  | OptionSome -> "Some(_)\n\n"
   | PolyvariantConstructor {name; payload} -> (
     "#" ^ name
     ^
@@ -1433,14 +1435,19 @@ type completable =
     }
   | CVariant of {constructors: Constructor.t list}
   | CPolyVariant of {constructors: polyVariantConstructor list}
+  | COptional of completable
 
-let typeExprToCompletable typ ~env ~package =
+let rec typeExprToCompletable typ ~env ~package =
   match typ |> extractType ~env ~package with
   | Some (Declared (_, {name; item = {kind = Record fields; decl}})) ->
     Some (CRecord {fields; decl; name})
   | Some (Declared (_, {item = {kind = Variant constructors}})) ->
     Some (CVariant {constructors})
   | Some (Polyvariant (_, constructors)) -> Some (CPolyVariant {constructors})
+  | Some (Toption (env, typ)) -> (
+    match typ |> typeExprToCompletable ~env ~package with
+    | None -> None
+    | Some typ -> Some (COptional typ))
   | _ -> None
 
 (* Takes a type_expr and figures out what completable it corresponds to, if any. If the target type is nested somewhere inside of the type_expr,
@@ -1958,6 +1965,71 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     | Some typ -> (
       match typ |> findTypeInContext ~env ~nestedContextPath ~package with
       | None -> []
+      | Some (COptional completable) -> (
+        match completable with
+        | CVariant {constructors} ->
+          (* TOOD: Unify with other variant completion handler *)
+          let constructorCompletions =
+            constructors
+            |> List.filter (fun constructor ->
+                   Utils.startsWith
+                     ("Some(" ^ constructor.Constructor.cname.txt ^ ")")
+                     prefix
+                   && not
+                        (alreadySeenIdents
+                        |> List.exists (fun alreadySeenConstructorName ->
+                               alreadySeenConstructorName
+                               = constructor.Constructor.cname.txt)))
+            |> List.map (fun (constructor : Constructor.t) ->
+                   (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                      Eg. Some($1) as completion item. *)
+                   Completion.create
+                     ~name:
+                       ("Some(" ^ constructor.cname.txt
+                       ^
+                       if constructor.args |> List.length > 0 then "(_))"
+                       else ")")
+                     ~kind:(Constructor (constructor, ""))
+                     ~env)
+          in
+          (* TODO: Patterns should not include local completions *)
+          let localCompletions =
+            typ
+            |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
+                 ~exact:false ~opens ~scope
+          in
+          [Completion.create ~name:"None" ~kind:OptionNone ~env]
+          @ constructorCompletions @ localCompletions
+        | CPolyVariant {constructors} ->
+          (* TOOD: Unify with other variant completion handler *)
+          let constructorCompletions =
+            constructors
+            |> List.filter (fun constructor ->
+                   Utils.startsWith ("Some(#" ^ constructor.name ^ ")") prefix)
+            |> List.map (fun constructor ->
+                   (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                      Eg. Some($1) as completion item. *)
+                   Completion.create
+                     ~name:
+                       ("Some(#" ^ constructor.name
+                       ^
+                       if constructor.payload |> Option.is_some then "(_))"
+                       else ")")
+                     ~kind:(PolyvariantConstructor constructor) ~env)
+          in
+          (* TODO: Patterns should not include local completions *)
+          let localCompletions =
+            typ
+            |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
+                 ~exact:false ~opens ~scope
+          in
+          [Completion.create ~name:"None" ~kind:OptionNone ~env]
+          @ constructorCompletions @ localCompletions
+        | _ ->
+          [
+            Completion.create ~name:"None" ~kind:OptionNone ~env;
+            Completion.create ~name:"Some(_)" ~kind:OptionSome ~env;
+          ])
       | Some (CPolyVariant {constructors}) ->
         let constructorCompletions =
           constructors
@@ -1981,7 +2053,6 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         in
         constructorCompletions @ localCompletions
       | Some (CVariant {constructors}) ->
-        if debug then Printf.printf "found variant: %s\n" prefix;
         let constructorCompletions =
           constructors
           |> List.filter (fun constructor ->

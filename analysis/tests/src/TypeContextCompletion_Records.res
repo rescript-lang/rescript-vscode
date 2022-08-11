@@ -63,6 +63,7 @@ type rec someVariant =
 
 type someRecordWithVariant = {
   other: someRecord,
+  other2: option<someRecord>,
   something: someVariant,
   otherThing: option<someVariant>,
   thirdStuff: (someRecord, someVariant, option<someVariant>, int),
@@ -71,6 +72,7 @@ type someRecordWithVariant = {
 
 let someOtherValue: someRecordWithVariant = {
   other: someVal.something,
+  other2: None,
   something: Two,
   otherThing: None,
   thirdStuff: (someVal.something, One, None, 1),
@@ -96,3 +98,9 @@ let someOtherValue: someRecordWithVariant = {
 
 // switch someOtherValue { | {thirdStuff: (_, Five(_, One | Two | T))} => () }
 //                                                                 ^com
+
+// switch someOtherValue { | {otherThing: S} => () }
+//                                         ^com
+
+// switch someOtherValue { | {other2: S} => () }
+//                                     ^com
