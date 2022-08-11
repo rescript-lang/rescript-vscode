@@ -55,18 +55,6 @@ Completable: CtypedContext(NamedArg(someVariant, Value[someVariantToString]))=""
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
     "documentation": null
-  }, {
-    "label": "someVariantToString",
-    "kind": 12,
-    "tags": [],
-    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
-    "documentation": null
-  }, {
-    "label": "thisIsAValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 28:45
@@ -108,18 +96,6 @@ Completable: CtypedContext(NamedArg(someVariant, Value[someVariantToString]))=""
     "kind": 4,
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
-    "documentation": null
-  }, {
-    "label": "someVariantToString",
-    "kind": 12,
-    "tags": [],
-    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
-    "documentation": null
-  }, {
-    "label": "thisIsAValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
     "documentation": null
   }]
 
@@ -221,18 +197,6 @@ Completable: CtypedContext(NamedArg(anotherThing, Value[someVariantToString]))="
     "tags": [],
     "detail": "Bar\n\n",
     "documentation": null
-  }, {
-    "label": "someVariantToString",
-    "kind": 12,
-    "tags": [],
-    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
-    "documentation": null
-  }, {
-    "label": "thisIsAValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 43:43
@@ -274,18 +238,6 @@ Completable: CtypedContext(NamedArg(thirdThing, Value[someVariantToString]))=""
     "kind": 4,
     "tags": [],
     "detail": "#four",
-    "documentation": null
-  }, {
-    "label": "someVariantToString",
-    "kind": 12,
-    "tags": [],
-    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
-    "documentation": null
-  }, {
-    "label": "thisIsAValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
     "documentation": null
   }]
 
@@ -329,18 +281,6 @@ Completable: CtypedContext(NamedArg(thirdThing, Value[someVariantToString]))=""
     "tags": [],
     "detail": "#four",
     "documentation": null
-  }, {
-    "label": "someVariantToString",
-    "kind": 12,
-    "tags": [],
-    "detail": "(\n  ~someVariant: someVariant,\n  ~anotherThing: TypeDefinition.variant,\n  ~thirdThing: otherVariant,\n) => string",
-    "documentation": null
-  }, {
-    "label": "thisIsAValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 49:45
@@ -358,12 +298,6 @@ Completable: CtypedContext(NamedArg(thirdThing, Value[someVariantToString]))=t
     "kind": 4,
     "tags": [],
     "detail": "#two",
-    "documentation": null
-  }, {
-    "label": "thisIsAValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
     "documentation": null
   }]
 

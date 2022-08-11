@@ -278,24 +278,6 @@ Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:third
     "tags": [],
     "detail": "SixtyTwo\n\n",
     "documentation": null
-  }, {
-    "label": "someOtherValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someRecordWithVariant",
-    "documentation": null
-  }, {
-    "label": "getSomeVal",
-    "kind": 12,
-    "tags": [],
-    "detail": "(~irrelevant: int) => anotherRecord",
-    "documentation": null
-  }, {
-    "label": "someVal",
-    "kind": 12,
-    "tags": [],
-    "detail": "anotherRecord",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 93:55
@@ -429,24 +411,6 @@ Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:third
     "kind": 4,
     "tags": [],
     "detail": "SixtyTwo\n\n",
-    "documentation": null
-  }, {
-    "label": "someOtherValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someRecordWithVariant",
-    "documentation": null
-  }, {
-    "label": "getSomeVal",
-    "kind": 12,
-    "tags": [],
-    "detail": "(~irrelevant: int) => anotherRecord",
-    "documentation": null
-  }, {
-    "label": "someVal",
-    "kind": 12,
-    "tags": [],
-    "detail": "anotherRecord",
     "documentation": null
   }]
 

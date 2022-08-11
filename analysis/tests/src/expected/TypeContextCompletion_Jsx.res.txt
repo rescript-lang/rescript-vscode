@@ -50,18 +50,6 @@ Completable: CtypedContext(JsxProp(<SomeComponent someVariant= />))=""
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
     "documentation": null
-  }, {
-    "label": "someValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null
-  }, {
-    "label": "SomeComponent",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 26:39
@@ -103,18 +91,6 @@ Completable: CtypedContext(JsxProp(<SomeComponent someVariant= />))=""
     "kind": 4,
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
-    "documentation": null
-  }, {
-    "label": "someValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null
-  }, {
-    "label": "SomeComponent",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
     "documentation": null
   }]
 
@@ -160,18 +136,6 @@ Completable: CtypedContext(JsxProp(<SomeComponent anotherThing= />))=""
     "tags": [],
     "detail": "Bar\n\n",
     "documentation": null
-  }, {
-    "label": "someValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null
-  }, {
-    "label": "SomeComponent",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 38:37
@@ -214,18 +178,6 @@ Completable: CtypedContext(JsxProp(<SomeComponent thirdThing= />))=""
     "tags": [],
     "detail": "#four",
     "documentation": null
-  }, {
-    "label": "someValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null
-  }, {
-    "label": "SomeComponent",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 41:38
@@ -267,18 +219,6 @@ Completable: CtypedContext(JsxProp(<SomeComponent thirdThing= />))=""
     "kind": 4,
     "tags": [],
     "detail": "#four",
-    "documentation": null
-  }, {
-    "label": "someValue",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null
-  }, {
-    "label": "SomeComponent",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
     "documentation": null
   }]
 

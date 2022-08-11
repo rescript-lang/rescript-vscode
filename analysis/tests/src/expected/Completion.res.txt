@@ -796,13 +796,7 @@ Complete src/Completion.res 179:13
 posCursor:[179:13] posNoWhite:[179:12] Found expr:[179:11->179:13]
 Pexp_construct As:[179:11->179:13] None
 Completable: Cpath Value[As]
-[{
-    "label": "Asterix",
-    "kind": 4,
-    "tags": [],
-    "detail": "Asterix\n\ntype z = Allo | Asterix | Baba",
-    "documentation": null
-  }]
+[]
 
 Complete src/Completion.res 182:17
 Pmod_ident For:[182:14->182:17]
@@ -1011,12 +1005,6 @@ Complete src/Completion.res 268:21
 Ptype_variant unary SomeLocal:[268:12->268:21]
 Completable: Cpath Value[SomeLocal]
 [{
-    "label": "SomeLocalVariantItem",
-    "kind": 4,
-    "tags": [],
-    "detail": "SomeLocalVariantItem\n\ntype someLocalVariant = SomeLocalVariantItem",
-    "documentation": null
-  }, {
     "label": "SomeLocalModule",
     "kind": 9,
     "tags": [],
@@ -1386,18 +1374,6 @@ posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
 Completable: Cpath Value[T]
 [{
-    "label": "That",
-    "kind": 4,
-    "tags": [],
-    "detail": "That\n\ntype v = This | That",
-    "documentation": null
-  }, {
-    "label": "This",
-    "kind": 4,
-    "tags": [],
-    "detail": "This\n\ntype v = This | That",
-    "documentation": null
-  }, {
     "label": "TableclothMap",
     "kind": 9,
     "tags": [],
