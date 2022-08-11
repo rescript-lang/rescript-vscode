@@ -351,7 +351,15 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
     pattern.Parsetree.ppat_loc
     |> CursorPosition.classifyLoc ~pos:posBeforeCursor
   with
-  | NoCursor | EmptyLoc -> None
+  | NoCursor -> None
+  | EmptyLoc -> (
+    (* An empty location means the parser likely recovered from parsing an erronous pattern.
+       If we have at least one entry in the path list already, we know that we've at least
+       found _some_ context. We check that context and the char before the cursor to figure
+       out if we should complete for that path. *)
+    match (path, firstCharBeforeCursorNoWhite) with
+    | (Completable.Variant _ | Polyvariant _) :: _, Some '|' -> Some path
+    | _ -> None)
   | HasCursor -> (
     match pattern.ppat_desc with
     | Ppat_construct ({txt = Lident "()"}, None) ->

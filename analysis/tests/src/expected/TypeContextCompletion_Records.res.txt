@@ -378,3 +378,36 @@ Completable: CtypedContext(Value[someOtherValue])=S pattern: [RecordField:other2
     "documentation": null
   }]
 
+Complete src/TypeContextCompletion_Records.res 107:64
+posCursor:[107:64] posNoWhite:[107:62] Found expr:[107:3->107:75]
+posCursor:[107:64] posNoWhite:[107:62] Found pattern:[107:29->107:67]
+posCursor:[107:64] posNoWhite:[107:62] Found pattern:[107:42->107:66]
+posCursor:[107:64] posNoWhite:[107:62] Found pattern:[107:46->107:65]
+Ppat_construct Four:[107:46->107:50]
+Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:thirdStuff, Tuple:1, Variant:Four(0)] seenIdents: [TwentyFive]
+[{
+    "label": "SixtyTwo",
+    "kind": 4,
+    "tags": [],
+    "detail": "SixtyTwo\n\n",
+    "documentation": null
+  }, {
+    "label": "someOtherValue",
+    "kind": 12,
+    "tags": [],
+    "detail": "someRecordWithVariant",
+    "documentation": null
+  }, {
+    "label": "getSomeVal",
+    "kind": 12,
+    "tags": [],
+    "detail": "(~irrelevant: int) => anotherRecord",
+    "documentation": null
+  }, {
+    "label": "someVal",
+    "kind": 12,
+    "tags": [],
+    "detail": "anotherRecord",
+    "documentation": null
+  }]
+
