@@ -76,8 +76,8 @@ let someOtherValue: someRecordWithVariant = {
   thirdStuff: (someVal.something, One, None, 1),
   fourthStuff: (None, One),
 }
-// switch someOtherValue { | {something: T} => () }
-//                                        ^com
+// switch someOtherValue { | {something: Two | T} => () }
+//                                              ^com
 
 // switch someOtherValue { | {otherThing: Some(T)} => () }
 //                                              ^com
@@ -93,3 +93,6 @@ let someOtherValue: someRecordWithVariant = {
 
 // switch someOtherValue { | {fourthStuff: (Some(#WithPayload(O)), _)} => () }
 //                                                             ^com
+
+// switch someOtherValue { | {thirdStuff: (_, Five(_, One | Two | T))} => () }
+//                                                                 ^com

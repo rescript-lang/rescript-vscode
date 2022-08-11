@@ -120,7 +120,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
                  meta =
                    {
                      prefix = Some (getPrefixFromExpr prop.exp);
-                     alreadySeenIdents = None;
+                     alreadySeenIdents = [];
                    };
                })
         else None
@@ -142,7 +142,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
                  meta =
                    {
                      prefix = Some (getPrefixFromExpr prop.exp);
-                     alreadySeenIdents = None;
+                     alreadySeenIdents = [];
                    };
                })
         else None
@@ -242,7 +242,7 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
                  meta =
                    {
                      prefix = Some (getPrefixFromExpr exp);
-                     alreadySeenIdents = None;
+                     alreadySeenIdents = [];
                    };
                })
         else None
@@ -259,7 +259,7 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
                  meta =
                    {
                      prefix = Some (getPrefixFromExpr exp);
-                     alreadySeenIdents = None;
+                     alreadySeenIdents = [];
                    };
                })
         else None
@@ -318,15 +318,35 @@ let findVariantPayloadItemNumWithCursor pat ~pos =
   | Ppat_tuple patterns ->
     let res = ref None in
     patterns
-    |> List.iteri (fun index pat ->
+    |> List.iteri (fun index tuplePat ->
            match pat.Parsetree.ppat_loc |> CursorPosition.classifyLoc ~pos with
-           | HasCursor -> res := Some (index, pat)
+           | HasCursor -> res := Some (index, tuplePat)
            | _ -> ());
     !res
   | _ -> Some (0, pat)
 
-let rec whatevs pattern ~path ~posBeforeCursor ~prefix
-    ~firstCharBeforeCursorNoWhite =
+let identFromPat pat =
+  match pat.Parsetree.ppat_desc with
+  | Ppat_var loc -> Some loc.txt
+  | Ppat_construct (loc, _) -> Some (getSimpleFieldName loc.txt)
+  | Ppat_variant (label, _) -> Some label
+  | _ -> None
+
+let findAlreadySeenIdents pat =
+  match pat.Parsetree.ppat_desc with
+  | Ppat_or (pat1, pat2) ->
+    let rec findAllOrBranches pat ~branches =
+      match pat.Parsetree.ppat_desc with
+      | Ppat_or (pat1, pat2) ->
+        pat1 |> findAllOrBranches ~branches:([pat2] @ branches)
+      | _ -> [pat] @ branches
+    in
+    let branches = pat1 |> findAllOrBranches ~branches:[pat2] in
+    branches |> List.filter_map (fun branchPat -> identFromPat branchPat)
+  | _ -> []
+
+let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
+    ~firstCharBeforeCursorNoWhite ~seenIdents =
   match
     pattern.Parsetree.ppat_loc
     |> CursorPosition.classifyLoc ~pos:posBeforeCursor
@@ -349,15 +369,19 @@ let rec whatevs pattern ~path ~posBeforeCursor ~prefix
       with
       | None -> None
       | Some (index, pat) ->
+        seenIdents := findAlreadySeenIdents pat;
         pat
-        |> whatevs
+        |> findCompletableInPattern
              ~path:
                ([
                   Completable.Variant
-                    {name = getSimpleFieldName txt; payloadNum = Some index};
+                    {
+                      constructorName = getSimpleFieldName txt;
+                      payloadNum = Some index;
+                    };
                 ]
                @ path)
-             ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix)
+             ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix ~seenIdents)
     | Ppat_variant (label, None) ->
       (* A constructor without a payload mean we've reached an end. *)
       prefix := label;
@@ -369,14 +393,15 @@ let rec whatevs pattern ~path ~posBeforeCursor ~prefix
       with
       | None -> None
       | Some (index, pat) ->
+        seenIdents := findAlreadySeenIdents pat;
         pat
-        |> whatevs
+        |> findCompletableInPattern
              ~path:
                ([
                   Completable.Polyvariant {name = label; payloadNum = Some index};
                 ]
                @ path)
-             ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix)
+             ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix ~seenIdents)
     | Ppat_tuple patterns -> (
       let tupleItemNum = ref 0 in
       let patternWithCursor =
@@ -394,8 +419,10 @@ let rec whatevs pattern ~path ~posBeforeCursor ~prefix
       match patternWithCursor with
       | None -> None
       | Some (tupleItemNum, pat) ->
+        seenIdents := [];
         pat
-        |> whatevs ~posBeforeCursor ~prefix ~firstCharBeforeCursorNoWhite
+        |> findCompletableInPattern ~posBeforeCursor ~prefix
+             ~firstCharBeforeCursorNoWhite ~seenIdents
              ~path:([Completable.PTuple {itemNumber = tupleItemNum}] @ path))
     | Ppat_record (fields, _) when List.length fields = 0 -> Some path
     | Ppat_record (fields, _) -> (
@@ -413,46 +440,49 @@ let rec whatevs pattern ~path ~posBeforeCursor ~prefix
       | None -> None
       | Some (loc, pat) ->
         let fieldName = getSimpleFieldName loc.txt in
+        seenIdents :=
+          fields
+          |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
+          |> List.filter (fun name -> name <> fieldName);
         pat
-        |> whatevs ~posBeforeCursor ~prefix ~firstCharBeforeCursorNoWhite
-             ~path:
-               ([
-                  Completable.RField
-                    {
-                      fieldName;
-                      alreadySeenFields =
-                        fields
-                        |> List.map (fun ({Location.txt}, _) ->
-                               getSimpleFieldName txt)
-                        |> List.filter (fun name -> name <> fieldName);
-                    };
-                ]
-               @ path))
+        |> findCompletableInPattern ~posBeforeCursor ~prefix
+             ~firstCharBeforeCursorNoWhite ~seenIdents
+             ~path:([Completable.RField {fieldName}] @ path))
     | Ppat_var {txt} ->
       prefix := txt;
       Some path
+    | Ppat_or (pat1, pat2) -> (
+      let rec findAllOrBranches pat ~branches =
+        match pat.Parsetree.ppat_desc with
+        | Ppat_or (pat1, pat2) ->
+          pat1 |> findAllOrBranches ~branches:([pat2] @ branches)
+        | _ -> [pat] @ branches
+      in
+      let branches = pat1 |> findAllOrBranches ~branches:[pat2] in
+      let branchAtCursor =
+        branches
+        |> List.find_opt (fun pat ->
+               match
+                 pat.Parsetree.ppat_loc
+                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+               with
+               | HasCursor -> true
+               | EmptyLoc | NoCursor -> false)
+      in
+      match branchAtCursor with
+      | None -> None
+      | Some pat ->
+        pat
+        |> findCompletableInPattern ~posBeforeCursor ~prefix
+             ~firstCharBeforeCursorNoWhite ~path ~seenIdents)
     | _ -> None)
-
-let findPrefixAndNestedContextPath pattern ~posBeforeCursor
-    ~firstCharBeforeCursorNoWhite =
-  let prefix = ref "" in
-
-  let nestedContextPath =
-    match pattern.Parsetree.ppat_desc with
-    | Ppat_record (fields, _) when List.length fields = 0 ->
-      (* A root record with 0 fields, `let {} = someVar`, is still valid to complete from. But it has no nested context. *)
-      Some []
-    | _ ->
-      pattern
-      |> whatevs ~path:[] ~posBeforeCursor ~prefix ~firstCharBeforeCursorNoWhite
-  in
-
-  (!prefix, nestedContextPath)
 
 let completePattern pattern ~contextPath ~posBeforeCursor
     ~firstCharBeforeCursorNoWhite =
   let prefix = ref "" in
+  let seenIdents = ref [] in
   let nestedContextPath =
+    (* TODO: This special casing should probably be cleaned up somehow... *)
     match pattern.Parsetree.ppat_desc with
     | Ppat_record (fields, _) -> (
       match List.length fields with
@@ -461,8 +491,8 @@ let completePattern pattern ~contextPath ~posBeforeCursor
         Some []
       | _ ->
         pattern
-        |> whatevs ~path:[] ~posBeforeCursor ~prefix
-             ~firstCharBeforeCursorNoWhite)
+        |> findCompletableInPattern ~path:[] ~posBeforeCursor ~prefix
+             ~firstCharBeforeCursorNoWhite ~seenIdents)
     | _ -> None
   in
   match (contextPath, nestedContextPath) with
@@ -472,14 +502,7 @@ let completePattern pattern ~contextPath ~posBeforeCursor
          {
            howToRetrieveSourceType = CtxPath contextPath;
            patternPath = Some (nestedContextPath |> List.rev);
-           meta =
-             {
-               prefix = Some !prefix;
-               alreadySeenIdents =
-                 (match nestedContextPath with
-                 | RField {alreadySeenFields} :: _rest -> Some alreadySeenFields
-                 | _ -> None);
-             };
+           meta = {prefix = Some !prefix; alreadySeenIdents = !seenIdents};
          })
   | _ -> None
 

@@ -435,8 +435,8 @@ module Completable = struct
   (* How to move through a nested type context, like from a root record to the type of one of its fields, and beyond. *)
   (* TODO: Can extend to tuples, objects, etc *)
   type patternPathItem =
-    | RField of {fieldName: string; alreadySeenFields: string list}
-    | Variant of {name: string; payloadNum: int option}
+    | RField of {fieldName: string}
+    | Variant of {constructorName: string; payloadNum: int option}
     | Polyvariant of {name: string; payloadNum: int option}
     | PTuple of {itemNumber: int}
 
@@ -446,10 +446,9 @@ module Completable = struct
 
   let pathItemToString item =
     match item with
-    | RField {fieldName; alreadySeenFields} ->
-      "RecordField:" ^ fieldName ^ ":" ^ list alreadySeenFields
-    | Variant {name; payloadNum} -> (
-      "Variant:" ^ name
+    | RField {fieldName} -> "RecordField:" ^ fieldName
+    | Variant {constructorName; payloadNum} -> (
+      "Variant:" ^ constructorName
       ^
       match payloadNum with
       | None -> ""
@@ -462,7 +461,7 @@ module Completable = struct
       | Some payloadNum -> "(" ^ string_of_int payloadNum ^ ")")
     | PTuple {itemNumber} -> "Tuple:" ^ string_of_int itemNumber
 
-  let recordFieldContextPathToString pathItems =
+  let patternContextPathToString pathItems =
     pathItems |> List.map (fun item -> pathItemToString item) |> list
 
   let completionContextToString = function
@@ -519,7 +518,8 @@ module Completable = struct
     prefix: string option;
     (* Record fields already written by the user, etc.
        This is contextual of course, but putting it here in the general type to simplify things. *)
-    alreadySeenIdents: string list option;
+    (* TODO: Clarify that this is only for patterns (?). If so, move it to something more obvious. *)
+    alreadySeenIdents: string list;
   }
 
   type t =
@@ -530,6 +530,7 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
+    (* TODO: Divide CtypedContext into something dedicated to patterns vs expressions *)
     | CtypedContext of {
         howToRetrieveSourceType: howToRetrieveSourceType;
         patternPath: patternPathItem list option;
@@ -546,7 +547,12 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | CtypedContext {howToRetrieveSourceType; meta = {prefix}; patternPath} -> (
+    | CtypedContext
+        {
+          howToRetrieveSourceType;
+          meta = {prefix; alreadySeenIdents};
+          patternPath;
+        } -> (
       ("CtypedContext("
       ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
       ^ ")="
@@ -558,7 +564,9 @@ module Completable = struct
       match patternPath with
       | None -> ""
       | Some patternPath ->
-        " pattern: " ^ (patternPath |> recordFieldContextPathToString))
+        " pattern: "
+        ^ (patternPath |> patternContextPathToString)
+        ^ " seenIdents: " ^ list alreadySeenIdents)
 end
 
 module CursorPosition = struct

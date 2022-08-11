@@ -1058,7 +1058,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    (* Handle option *)
+    (* Handle option. TODO: Look up how the compiler does this and copy that behavior. *)
     Some (Toption (env, payloadTypeExpr))
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
@@ -1466,12 +1466,12 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
           if List.length nestedContextPath > 0 then
             targetField.typ |> digToType ~env ~nestedContextPath ~package
           else typeExprToCompletable targetField.typ ~env ~package)
-      | ( Variant {name; payloadNum},
+      | ( Variant {constructorName; payloadNum},
           Some (Declared (_, {item = {kind = Variant constructors}})) ) -> (
         match
           constructors
           |> List.find_opt (fun constructor ->
-                 constructor.Constructor.cname.txt = name)
+                 constructor.Constructor.cname.txt = constructorName)
         with
         | Some constructor -> (
           (* payloadNum tells us whether there's also a payload we should descend into. *)
@@ -1504,7 +1504,7 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
         | None -> None
         | Some typeExpr ->
           typeExpr |> digToType ~env ~nestedContextPath ~package)
-      | Variant {name = "Some"}, Some (Toption (_, typeExpr)) ->
+      | Variant {constructorName = "Some"}, Some (Toption (_, typeExpr)) ->
         typeExpr |> digToType ~env ~nestedContextPath ~package
       | _ -> None)
   in
@@ -1985,7 +1985,12 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         let constructorCompletions =
           constructors
           |> List.filter (fun constructor ->
-                 Utils.startsWith constructor.Constructor.cname.txt prefix)
+                 Utils.startsWith constructor.Constructor.cname.txt prefix
+                 && not
+                      (alreadySeenIdents
+                      |> List.exists (fun alreadySeenConstructorName ->
+                             alreadySeenConstructorName
+                             = constructor.Constructor.cname.txt)))
           |> List.map (fun (constructor : Constructor.t) ->
                  (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
                     Eg. Some($1) as completion item. *)
@@ -2004,15 +2009,10 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         in
         constructorCompletions @ localCompletions
       | Some (CRecord {fields; decl; name}) ->
-        let alreadyTypedRecordFields =
-          match alreadySeenIdents with
-          | None -> []
-          | Some recordFieldNames -> recordFieldNames
-        in
         fields
         |> List.filter (fun (field : field) ->
                not
-                 (alreadyTypedRecordFields
+                 (alreadySeenIdents
                  |> List.exists (fun fieldName -> fieldName = field.fname.txt)))
         |> Utils.filterMap (fun (field : field) ->
                if prefix = "" || checkName field.fname.txt ~prefix ~exact:false
