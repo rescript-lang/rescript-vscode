@@ -112,7 +112,6 @@ let someOtherValue: someRecordWithVariant = {
 // switch someOtherValue { | {other2: } => () }
 //                                    ^com
 
-// TODO: Broken
 // switch someVal { | {something: {whatIsThis: false |  } } => () }
 //                                                     ^com
 
@@ -121,3 +120,27 @@ let someOtherValue: someRecordWithVariant = {
 
 // switch someVal { | {something: {whatIsThis: fa  } } => () }
 //                                               ^com
+
+let x = Some(One)
+
+// switch x { | }
+//             ^com
+
+// switch x {
+//            ^com
+
+let y = One
+
+// switch y { | }
+//             ^com
+
+// switch y { | One | Two | Three |  }
+//                                  ^com
+
+// Should not complete because the record has no braces
+// switch someVal { | {something:  } => () }
+//                               ^com
+
+// Should complete because the record has braces
+// switch someVal { | {something: {} } => () }
+//                                 ^com

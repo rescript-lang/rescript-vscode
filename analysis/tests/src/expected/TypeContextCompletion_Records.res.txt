@@ -417,7 +417,7 @@ Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:third
 Complete src/TypeContextCompletion_Records.res 111:38
 posCursor:[111:38] posNoWhite:[111:36] Found expr:[111:3->111:47]
 posCursor:[111:38] posNoWhite:[111:36] Found pattern:[111:29->111:39]
-Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:other2] seenIdents: []
+Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:other2(empty context)] seenIdents: []
 [{
     "label": "None",
     "kind": 4,
@@ -432,1062 +432,24 @@ Completable: CtypedContext(Value[someOtherValue])="" pattern: [RecordField:other
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 115:55
-posCursor:[115:55] posNoWhite:[115:53] Found expr:[115:3->115:67]
-posCursor:[115:55] posNoWhite:[115:53] Found pattern:[115:22->115:59]
-posCursor:[115:55] posNoWhite:[115:53] Found pattern:[115:34->115:59]
-Completable: Cpath Value[""]
+Complete src/TypeContextCompletion_Records.res 114:55
+posCursor:[114:55] posNoWhite:[114:53] Found expr:[114:3->114:67]
+posCursor:[114:55] posNoWhite:[114:53] Found pattern:[114:22->114:59]
+posCursor:[114:55] posNoWhite:[114:53] Found pattern:[114:34->114:59]
+Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something, RecordField:whatIsThis] seenIdents: [false]
 [{
-    "label": "someOtherValue",
+    "label": "true",
     "kind": 12,
     "tags": [],
-    "detail": "someRecordWithVariant",
-    "documentation": null
-  }, {
-    "label": "getSomeVal",
-    "kind": 12,
-    "tags": [],
-    "detail": "(~irrelevant: int) => anotherRecord",
-    "documentation": null
-  }, {
-    "label": "someVal",
-    "kind": 12,
-    "tags": [],
-    "detail": "anotherRecord",
-    "documentation": null
-  }, {
-    "label": "Arg",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Array",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ArrayLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Auto",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Array",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Float",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_HashMap",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_HashMapInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_HashMapString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_HashSet",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_HashSetInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_HashSetString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Id",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Int",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_List",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Map",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MapDict",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MapInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MapString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MutableMap",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MutableMapInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MutableMapString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MutableQueue",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MutableSet",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MutableSetInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MutableSetString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_MutableStack",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Option",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Range",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Result",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_Set",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_SetDict",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_SetInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_SetString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_SortArray",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_SortArrayInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_SortArrayString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalAVLset",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalAVLtree",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalBuckets",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalBucketsType",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalMapInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalMapString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalSetBuckets",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalSetInt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internalSetString",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Belt_internals",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Buffer",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Bytes",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "BytesLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Callback",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "CamlinternalLazy",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "CamlinternalMod",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Char",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "CodeLens",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "CompletePrioritize1",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "CompletePrioritize2",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Completion",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Complex",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Component",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "CreateInterface",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Cross",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Dce",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Debug",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Definition",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "DefinitionWithInterface",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Digest",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Div",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "DocumentSymbol",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Dom",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Dom_storage",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Dom_storage2",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Filename",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Fragment",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Genlex",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Hashtbl",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "HashtblLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Highlight",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Hover",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "InlayHint",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Int32",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Int64",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_OO",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_array",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_array2",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_bigint",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_cast",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_console",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_date",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_dict",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_exn",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_float",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_global",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_int",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_json",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_list",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_mapperRt",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_math",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_null",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_null_undefined",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_obj",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_option",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_promise",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_re",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_result",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_string",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_string2",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_typed_array",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_typed_array2",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_types",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_undefined",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Js_vector",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Jsx",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Lazy",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Lexing",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "List",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ListLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "LongIdentTest",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Map",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "MapLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "MoreLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Node",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Node_buffer",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Node_child_process",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Node_fs",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Node_module",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Node_path",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Node_process",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Obj",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Object",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Parsing",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Patterns",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Pervasives",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Printexc",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Queue",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Random",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "React",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ReactDOM",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ReactDOMRe",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ReactDOMServer",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ReactDOMStyle",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ReactEvent",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ReactTestUtils",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ReasonReact",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "RecModules",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "RecordCompletion",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "RecoveryOnProp",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "References",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "ReferencesWithInterface",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Rename",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "RenameWithInterface",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "RescriptReactErrorBoundary",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "RescriptReactRouter",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Set",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "SetLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Sort",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Stack",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "StdLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Stream",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "String",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "StringLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Sys",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TableclothMap",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TypeContextCompletion_Jsx",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TypeContextCompletion_LabelledArguments",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TypeContextCompletion_Records",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TypeDefinition",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Uchar",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Xform",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
+    "detail": "boolean\n\n",
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 118:46
-posCursor:[118:46] posNoWhite:[118:45] Found expr:[118:3->118:58]
-posCursor:[118:46] posNoWhite:[118:45] Found pattern:[118:22->118:50]
-posCursor:[118:46] posNoWhite:[118:45] Found pattern:[118:34->118:50]
-Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something, RecordField:whatIsThis] seenIdents: []
+Complete src/TypeContextCompletion_Records.res 117:46
+posCursor:[117:46] posNoWhite:[117:45] Found expr:[117:3->117:58]
+posCursor:[117:46] posNoWhite:[117:45] Found pattern:[117:22->117:50]
+posCursor:[117:46] posNoWhite:[117:45] Found pattern:[117:34->117:50]
+Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something, RecordField:whatIsThis(empty context)] seenIdents: []
 [{
     "label": "false",
     "kind": 12,
@@ -1502,17 +464,163 @@ Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something, R
     "documentation": null
   }]
 
-Complete src/TypeContextCompletion_Records.res 121:49
-posCursor:[121:49] posNoWhite:[121:48] Found expr:[121:3->121:62]
-posCursor:[121:49] posNoWhite:[121:48] Found pattern:[121:22->121:54]
-posCursor:[121:49] posNoWhite:[121:48] Found pattern:[121:34->121:52]
-posCursor:[121:49] posNoWhite:[121:48] Found pattern:[121:47->121:49]
+Complete src/TypeContextCompletion_Records.res 120:49
+posCursor:[120:49] posNoWhite:[120:48] Found expr:[120:3->120:62]
+posCursor:[120:49] posNoWhite:[120:48] Found pattern:[120:22->120:54]
+posCursor:[120:49] posNoWhite:[120:48] Found pattern:[120:34->120:52]
+posCursor:[120:49] posNoWhite:[120:48] Found pattern:[120:47->120:49]
 Completable: CtypedContext(Value[someVal])=fa pattern: [RecordField:something, RecordField:whatIsThis] seenIdents: []
 [{
     "label": "false",
     "kind": 12,
     "tags": [],
     "detail": "boolean\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 125:15
+posCursor:[125:15] posNoWhite:[125:14] Found expr:[125:3->131:11]
+Completable: CtypedContext(Value[x])=""
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "None\n\n",
+    "documentation": null
+  }, {
+    "label": "Some(One)",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Some(Two)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Some(Three(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Some(Four(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four(someOtherVariant)\n\n",
+    "documentation": null
+  }, {
+    "label": "Some(Five(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(someOtherVariant, someVariant)\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 128:14
+posCursor:[128:14] posNoWhite:[128:12] Found expr:[128:3->128:13]
+[]
+
+Complete src/TypeContextCompletion_Records.res 133:15
+posCursor:[133:15] posNoWhite:[133:14] Found expr:[133:3->133:17]
+Completable: CtypedContext(Value[y])=""
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Four(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four(someOtherVariant)\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(someOtherVariant, someVariant)\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 136:36
+posCursor:[136:36] posNoWhite:[136:34] Found expr:[136:3->136:38]
+Completable: CtypedContext(Value[y])=""
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null
+  }, {
+    "label": "Three(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null
+  }, {
+    "label": "Four(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four(someOtherVariant)\n\n",
+    "documentation": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(someOtherVariant, someVariant)\n\n",
+    "documentation": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 140:33
+posCursor:[140:33] posNoWhite:[140:32] Found expr:[140:3->140:44]
+posCursor:[140:33] posNoWhite:[140:32] Found pattern:[140:22->140:36]
+Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something(empty context)] seenIdents: []
+[]
+
+Complete src/TypeContextCompletion_Records.res 144:35
+posCursor:[144:35] posNoWhite:[144:34] Found expr:[144:3->144:46]
+posCursor:[144:35] posNoWhite:[144:34] Found pattern:[144:22->144:38]
+posCursor:[144:35] posNoWhite:[144:34] Found pattern:[144:34->144:36]
+Completable: CtypedContext(Value[someVal])="" pattern: [RecordField:something] seenIdents: []
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null
+  }, {
+    "label": "whatIsThis",
+    "kind": 5,
+    "tags": [],
+    "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null
+  }, {
+    "label": "anotherLevel",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null
   }]
 

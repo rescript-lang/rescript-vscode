@@ -1470,16 +1470,24 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
       typeExprToCompletable currentType ~env ~package
     | targetItem :: nestedContextPath -> (
       match (targetItem, currentType |> extractType ~env ~package) with
-      | ( Completable.RField {fieldName},
+      | ( Completable.RField {fieldName; emptyContext},
           Some (Declared (_, {item = {kind = Record fields}})) ) -> (
         match
           fields |> List.find_opt (fun field -> field.fname.txt = fieldName)
         with
         | None -> None
-        | Some targetField ->
+        | Some targetField -> (
           if List.length nestedContextPath > 0 then
             targetField.typ |> digToType ~env ~nestedContextPath ~package
-          else typeExprToCompletable targetField.typ ~env ~package)
+          else
+            (* emptyContext means this record field was found without braces/parens (like `{someField: }`).
+               In these cases, we can complete for variants etc, but we can't complete for tuples or record fields,
+               since they'd require preceding characters (parens for tuple, brace for record) to be valid patterns. *)
+            match
+              (emptyContext, typeExprToCompletable targetField.typ ~env ~package)
+            with
+            | true, Some (CRecord _) -> None
+            | _, completable -> completable))
       | ( Variant {constructorName; payloadNum},
           Some (Declared (_, {item = {kind = Variant constructors}})) ) -> (
         match

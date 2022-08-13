@@ -436,9 +436,8 @@ module Completable = struct
     | CPPipe of contextPath * string
 
   (* How to move through a nested type context, like from a root record to the type of one of its fields, and beyond. *)
-  (* TODO: Can extend to tuples, objects, etc *)
   type patternPathItem =
-    | RField of {fieldName: string}
+    | RField of {fieldName: string; emptyContext: bool}
     | Variant of {constructorName: string; payloadNum: int option}
     | Polyvariant of {name: string; payloadNum: int option}
     | PTuple of {itemNumber: int}
@@ -449,7 +448,9 @@ module Completable = struct
 
   let pathItemToString item =
     match item with
-    | RField {fieldName} -> "RecordField:" ^ fieldName
+    | RField {fieldName; emptyContext} ->
+      "RecordField:" ^ fieldName
+      ^ if emptyContext then "(empty context)" else ""
     | Variant {constructorName; payloadNum} -> (
       "Variant:" ^ constructorName
       ^

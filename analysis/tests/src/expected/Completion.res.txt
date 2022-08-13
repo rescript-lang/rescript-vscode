@@ -1372,38 +1372,8 @@ posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
-Completable: Cpath Value[T]
-[{
-    "label": "TableclothMap",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TypeContextCompletion_Jsx",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TypeContextCompletion_LabelledArguments",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TypeContextCompletion_Records",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "TypeDefinition",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }]
+Completable: CtypedContext(Value[x])=T pattern: [] seenIdents: [T]
+[]
 
 Complete src/Completion.res 373:21
 posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
@@ -1411,14 +1381,8 @@ posCursor:[373:21] posNoWhite:[373:20] Found expr:[372:2->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
 Ppat_construct AndThatOther.T:[373:7->373:21]
-Completable: Cpath Value[AndThatOther, T]
-[{
-    "label": "ThatOther",
-    "kind": 4,
-    "tags": [],
-    "detail": "ThatOther\n\ntype v = And | ThatOther",
-    "documentation": null
-  }]
+Completable: CtypedContext(Value[x])=AndThatOther pattern: [] seenIdents: [AndThatOther]
+[]
 
 Complete src/Completion.res 378:24
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:26]

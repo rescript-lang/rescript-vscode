@@ -358,12 +358,14 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
        found _some_ context. We check that context and the char before the cursor to figure
        out if we should complete for that path. *)
     match (path, firstCharBeforeCursorNoWhite) with
+    | Completable.RField rfield :: rest, Some ':' ->
+      (* We're setting "emptyContext" here, because this record field was found without
+         braces or parens leading, which affects what we can complete if a type is found. *)
+      Some ([Completable.RField {rfield with emptyContext = true}] @ rest)
     (* Handles: One | Two | *)
-    | (Completable.Variant _ | Polyvariant _) :: _, Some '|' -> Some path
-    (* Handles: {someField: } *)
-    | RField _ :: _, Some ':' ->
-      (* TODO: This should handle when the last path item is a record field, at which point we'll also need to insert the record syntax when completing, or we yield broken syntax. *)
-      Some path
+    | _ :: _, Some '|' ->
+      seenIdents := findAlreadySeenIdents pattern;
+      Some path (* Handles: {someField: } *)
     | _ -> None)
   | HasCursor -> (
     match pattern.ppat_desc with
@@ -468,7 +470,7 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
             (* let {something} = whatever <- shorthand for let {something:something}, which is just an alias,
                so we don't want to consider it entering the record field. *)
             path
-          | _ -> [Completable.RField {fieldName}] @ path
+          | _ -> [Completable.RField {fieldName; emptyContext = false}] @ path
         in
         pat
         |> findCompletableInPattern ~posBeforeCursor ~prefix
@@ -504,23 +506,15 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
     | _ -> None)
 
 let completePattern pattern ~contextPath ~posBeforeCursor
-    ~firstCharBeforeCursorNoWhite =
+    ~firstCharBeforeCursorNoWhite ~seenIdents =
   let prefix = ref "" in
-  let seenIdents = ref [] in
+  let seenIdents = ref seenIdents in
   let nestedContextPath =
-    (* TODO: This special casing should probably be cleaned up somehow... *)
-    match pattern.Parsetree.ppat_desc with
-    | Ppat_record (fields, _) -> (
-      match List.length fields with
-      | 0 ->
-        (* A root record with 0 fields, `let {} = someVar`, is still valid to complete from. But it has no nested context. *)
-        Some []
-      | _ ->
-        pattern
-        |> findCompletableInPattern ~path:[] ~posBeforeCursor ~prefix
-             ~firstCharBeforeCursorNoWhite ~seenIdents)
-    | _ -> None
+    pattern
+    |> findCompletableInPattern ~path:[] ~posBeforeCursor ~prefix
+         ~firstCharBeforeCursorNoWhite ~seenIdents
   in
+
   match (contextPath, nestedContextPath) with
   | Some contextPath, Some nestedContextPath ->
     Some
@@ -685,7 +679,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         setResultOpt
           (pvb_pat
           |> completePattern ~contextPath ~posBeforeCursor
-               ~firstCharBeforeCursorNoWhite)
+               ~firstCharBeforeCursorNoWhite ~seenIdents:[])
       | _ -> ());
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
@@ -998,21 +992,50 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | Pexp_match (expr, cases) ->
           (* Completes switch case destructuring
              Example: switch someIdentifier { | {completeRecordFieldsHere} => ...}*)
+          let rec findIdentsFromCases cases ~seenIdents =
+            match cases with
+            | [] -> seenIdents
+            | case :: cases ->
+              findIdentsFromCases cases
+                ~seenIdents:
+                  (findAlreadySeenIdents case.Parsetree.pc_lhs @ seenIdents)
+          in
           let rec findCaseWithCursor cases =
             match cases with
-            | case :: cases -> (
+            | case :: nextCases -> (
               match case with
-              | {
-               Parsetree.pc_lhs = {ppat_loc; ppat_desc = Ppat_record _} as pat;
-              }
+              | {Parsetree.pc_lhs = {ppat_loc} as pat}
                 when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor ->
                 let contextPath = exprToContextPath expr in
                 setResultOpt
                   (pat
                   |> completePattern ~contextPath ~posBeforeCursor
-                       ~firstCharBeforeCursorNoWhite)
-              | _ -> findCaseWithCursor cases)
-            | [] -> ()
+                       ~firstCharBeforeCursorNoWhite
+                       ~seenIdents:(findIdentsFromCases cases ~seenIdents:[]))
+              | _ -> findCaseWithCursor nextCases)
+            | [] -> (
+              (* In case there are no cases, like in `switch whatever { | `, complete for the   *)
+              match
+                expr.pexp_loc |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+              with
+              | NoCursor | EmptyLoc -> (
+                match
+                  (exprToContextPath expr, firstCharBeforeCursorNoWhite)
+                with
+                | ( Some contextPath,
+                    Some '|'
+                    (* This helps ensuring we're actually in the switch, and completing for a case *)
+                  ) ->
+                  setResultOpt
+                    (Some
+                       (Completable.CtypedContext
+                          {
+                            howToRetrieveSourceType = CtxPath contextPath;
+                            patternPath = None;
+                            meta = {prefix = Some ""; alreadySeenIdents = []};
+                          }))
+                | _ -> ())
+              | HasCursor -> ())
           in
           findCaseWithCursor cases
         | _ -> ());
