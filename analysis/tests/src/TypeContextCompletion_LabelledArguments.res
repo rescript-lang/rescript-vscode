@@ -52,3 +52,15 @@ let someVariantToString = (
 
 // let x = someVariantToString(~thirdThing=#T
 //                                           ^com
+
+type someRecord = {
+  age: int,
+  name: string,
+}
+
+let doStuff = (~doThing: someRecord => unit) => {
+  ignore(doThing({age: 123, name: "hello"}))
+}
+
+// let _ = doStuff(~doThing=({age, n}) => {()})
+//                                  ^com

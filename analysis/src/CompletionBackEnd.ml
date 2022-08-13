@@ -1586,8 +1586,8 @@ let getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
 
 (* This pulls out the type we want to do type based completion based on, using an instruction.
    This instruction can be "the type that the jsx prop X wants in component Y". *)
-let findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope
-    ~pos =
+let rec findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env
+    ~scope ~pos =
   match sourceType with
   | Completable.NamedArg {label; contextPath} -> (
     (* TODO: Should probably share this with the branch handling CnamedArg... *)
@@ -1640,6 +1640,34 @@ let findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope
     with
     | Some (typ, _env) -> Some typ
     | None -> None)
+  | FunctionArgument {howToFindFunctionType; arg} -> (
+    match
+      howToFindFunctionType
+      |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope ~pos
+    with
+    | Some typ -> (
+      let labels, _ = typ |> extractFunctionType ~env ~package in
+      match arg with
+      | Unlabelled argNum ->
+        let idx = ref 0 in
+        labels
+        |> List.find_map (fun (label, typExpr) ->
+               match label with
+               | Asttypes.Nolabel ->
+                 if argNum = !idx then Some typExpr
+                 else (
+                   idx := !idx + 1;
+                   None)
+               | _ -> None)
+      | Labelled lookingForLabel ->
+        labels
+        |> List.find_map (fun (label, typExpr) ->
+               match label with
+               | (Asttypes.Labelled labelName | Optional labelName)
+                 when labelName = lookingForLabel ->
+                 Some typExpr
+               | _ -> None))
+    | _ -> None)
 
 let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     (completable : Completable.t) =

@@ -492,6 +492,13 @@ module Completable = struct
     | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
     | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
 
+  type functionArgument = Labelled of string | Unlabelled of int
+
+  let functionArgumentToString arg =
+    match arg with
+    | Labelled name -> "~" ^ name
+    | Unlabelled argNum -> "unlabelled(" ^ string_of_int argNum ^ ")"
+
   (* Temporary while I figure things. Pretty sure this should be integrated into contextPath when this is all finished *)
   type howToRetrieveSourceType =
     | CtxPath of contextPath
@@ -508,14 +515,27 @@ module Completable = struct
         (* Name of the argument *)
         label: string;
       }
+      (* An argument to a function, like when completing in: someFunc(~someArg=({^com}) => {...})*)
+    | FunctionArgument of {
+        (* How to find the type of the function with the argument. *)
+        howToFindFunctionType: howToRetrieveSourceType;
+        (* Where the argument itself is located. *)
+        arg: functionArgument;
+      }
 
-  let howToRetrieveSourceTypeToString howToRetrieveSourceType =
+  let rec howToRetrieveSourceTypeToString howToRetrieveSourceType =
     match howToRetrieveSourceType with
     | CtxPath contextPath -> contextPath |> contextPathToString
     | JsxProp {propName; componentPath} ->
       "JsxProp(<" ^ (componentPath |> ident) ^ " " ^ propName ^ "=" ^ " />)"
     | NamedArg {label; contextPath} ->
       "NamedArg(" ^ label ^ ", " ^ (contextPath |> contextPathToString) ^ ")"
+    | FunctionArgument {howToFindFunctionType; arg} ->
+      "FunctionArgument(fnSource:"
+      ^ howToRetrieveSourceTypeToString howToFindFunctionType
+      ^ ", arg:"
+      ^ (arg |> functionArgumentToString)
+      ^ ")"
 
   type typedContextMeta = {
     (* What the user has already started writing, if anything. *)

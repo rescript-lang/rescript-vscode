@@ -42,269 +42,6 @@ let canDoTypedCompletionOnExpr exp =
     true
   | _ -> false
 
-(* This is probably wrong and we should likely use the full Longident instead for the prefix. *)
-let getPrefixFromExpr exp = getIdentFromExpr exp |> Longident.last
-
-(* Extracted for reuse. *)
-let rec exprToContextPath (e : Parsetree.expression) =
-  match e.pexp_desc with
-  | Pexp_constant (Pconst_string _) -> Some Completable.CPString
-  | Pexp_array _ -> Some CPArray
-  | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
-  | Pexp_field (e1, {txt = Lident name}) -> (
-    match exprToContextPath e1 with
-    | Some contextPath -> Some (CPField (contextPath, name))
-    | _ -> None)
-  | Pexp_field (_, {txt = Ldot (lid, name)}) ->
-    (* Case x.M.field ignore the x part *)
-    Some (CPField (CPId (Utils.flattenLongIdent lid, Module), name))
-  | Pexp_send (e1, {txt}) -> (
-    match exprToContextPath e1 with
-    | None -> None
-    | Some contexPath -> Some (CPObj (contexPath, txt)))
-  | Pexp_apply (e1, args) -> (
-    match exprToContextPath e1 with
-    | None -> None
-    | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
-  | _ -> None
-
-type prop = {
-  name: string;
-  posStart: int * int;
-  posEnd: int * int;
-  exp: Parsetree.expression;
-}
-
-type jsxProps = {
-  compName: Longident.t Location.loc;
-  props: prop list;
-  childrenStart: (int * int) option;
-}
-
-let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
-    =
-  let allLabels =
-    List.fold_right
-      (fun prop allLabels -> prop.name :: allLabels)
-      jsxProps.props []
-  in
-  let rec loop props =
-    match props with
-    | prop :: rest ->
-      if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
-        (* Cursor on the prop name *)
-        Some
-          (Completable.Cjsx
-             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
-               prop.name,
-               allLabels ))
-      else if
-        prop.posEnd <= posBeforeCursor
-        && posBeforeCursor < Loc.start prop.exp.pexp_loc
-      then (* Cursor between the prop name and expr assigned *)
-        None
-      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
-        (* Cursor on expr assigned *)
-        if canDoTypedCompletionOnExpr prop.exp then
-          Some
-            (Completable.CtypedContext
-               {
-                 howToRetrieveSourceType =
-                   JsxProp
-                     {
-                       componentPath =
-                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                       propName = prop.name;
-                     };
-                 patternPath = None;
-                 meta =
-                   {
-                     prefix = Some (getPrefixFromExpr prop.exp);
-                     alreadySeenIdents = [];
-                   };
-               })
-        else None
-      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-        (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
-             Complete for the value. *)
-        if canDoTypedCompletionOnExpr prop.exp then
-          Some
-            (Completable.CtypedContext
-               {
-                 howToRetrieveSourceType =
-                   JsxProp
-                     {
-                       componentPath =
-                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                       propName = prop.name;
-                     };
-                 patternPath = None;
-                 meta =
-                   {
-                     prefix = Some (getPrefixFromExpr prop.exp);
-                     alreadySeenIdents = [];
-                   };
-               })
-        else None
-      else loop rest
-    | [] ->
-      let beforeChildrenStart =
-        match jsxProps.childrenStart with
-        | Some childrenPos -> posBeforeCursor < childrenPos
-        | None -> posBeforeCursor <= endPos
-      in
-      let afterCompName = posBeforeCursor >= posAfterCompName in
-      if afterCompName && beforeChildrenStart then
-        Some
-          (Cjsx
-             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
-               "",
-               allLabels ))
-      else None
-  in
-  loop jsxProps.props
-
-let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
-  let thisCaseShouldNotHappen =
-    {
-      compName = Location.mknoloc (Longident.Lident "");
-      props = [];
-      childrenStart = None;
-    }
-  in
-  let rec processProps ~acc args =
-    match args with
-    | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
-      {
-        compName;
-        props = List.rev acc;
-        childrenStart =
-          (if pexp_loc.loc_ghost then None else Some (Loc.start pexp_loc));
-      }
-    | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
-      let namedArgLoc =
-        eProp.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
-      in
-      match namedArgLoc with
-      | Some ({loc}, _) ->
-        processProps
-          ~acc:
-            ({
-               name = s;
-               posStart = Loc.start loc;
-               posEnd = Loc.end_ loc;
-               exp = eProp;
-             }
-            :: acc)
-          rest
-      | None -> processProps ~acc rest)
-    | _ -> thisCaseShouldNotHappen
-  in
-  args |> processProps ~acc:[]
-
-type labelled = {
-  name: string;
-  opt: bool;
-  posStart: int * int;
-  posEnd: int * int;
-}
-
-type label = labelled option
-type arg = {label: label; exp: Parsetree.expression}
-
-let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
-  let allNames =
-    List.fold_right
-      (fun arg allLabels ->
-        match arg with
-        | {label = Some labelled} -> labelled.name :: allLabels
-        | {label = None} -> allLabels)
-      args []
-  in
-  let rec loop args =
-    match args with
-    | {label = Some labelled; exp} :: rest ->
-      (* Figure out if we're completing the labelled argument name, or assigning to the labelled argument *)
-      if
-        labelled.posStart <= posBeforeCursor
-        && posBeforeCursor < labelled.posEnd
-      then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
-      else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
-        if canDoTypedCompletionOnExpr exp then
-          Some
-            (Completable.CtypedContext
-               {
-                 howToRetrieveSourceType =
-                   Completable.NamedArg {contextPath; label = labelled.name};
-                 patternPath = None;
-                 meta =
-                   {
-                     prefix = Some (getPrefixFromExpr exp);
-                     alreadySeenIdents = [];
-                   };
-               })
-        else None
-      else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-        (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
-           Assume this is an empty expression. *)
-        if canDoTypedCompletionOnExpr exp then
-          Some
-            (Completable.CtypedContext
-               {
-                 howToRetrieveSourceType =
-                   NamedArg {contextPath; label = labelled.name};
-                 patternPath = None;
-                 meta =
-                   {
-                     prefix = Some (getPrefixFromExpr exp);
-                     alreadySeenIdents = [];
-                   };
-               })
-        else None
-      else loop rest
-    | {label = None; exp} :: rest ->
-      if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
-      else loop rest
-    | [] ->
-      if posAfterFunExpr <= posBeforeCursor && posBeforeCursor < endPos then
-        Some (CnamedArg (contextPath, "", allNames))
-      else None
-  in
-  loop args
-
-let extractExpApplyArgs ~args =
-  let rec processArgs ~acc args =
-    match args with
-    | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
-      :: rest -> (
-      let namedArgLoc =
-        e.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
-      in
-      match namedArgLoc with
-      | Some ({loc}, _) ->
-        let labelled =
-          {
-            name = s;
-            opt =
-              (match label with
-              | Optional _ -> true
-              | _ -> false);
-            posStart = Loc.start loc;
-            posEnd = Loc.end_ loc;
-          }
-        in
-        processArgs ~acc:({label = Some labelled; exp = e} :: acc) rest
-      | None -> processArgs ~acc rest)
-    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest ->
-      if e.pexp_loc.loc_ghost then processArgs ~acc rest
-      else processArgs ~acc:({label = None; exp = e} :: acc) rest
-    | [] -> List.rev acc
-  in
-  args |> processArgs ~acc:[]
-
 let rec getSimpleFieldName txt =
   match txt with
   | Longident.Lident fieldName -> fieldName
@@ -505,7 +242,7 @@ let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
              ~firstCharBeforeCursorNoWhite ~path ~seenIdents)
     | _ -> None)
 
-let completePattern pattern ~contextPath ~posBeforeCursor
+let completePattern pattern ~howToRetrieveSourceType ~posBeforeCursor
     ~firstCharBeforeCursorNoWhite ~seenIdents =
   let prefix = ref "" in
   let seenIdents = ref seenIdents in
@@ -515,16 +252,326 @@ let completePattern pattern ~contextPath ~posBeforeCursor
          ~firstCharBeforeCursorNoWhite ~seenIdents
   in
 
-  match (contextPath, nestedContextPath) with
-  | Some contextPath, Some nestedContextPath ->
+  match nestedContextPath with
+  | Some nestedContextPath ->
     Some
       (Completable.CtypedContext
          {
-           howToRetrieveSourceType = CtxPath contextPath;
+           howToRetrieveSourceType;
            patternPath = Some (nestedContextPath |> List.rev);
            meta = {prefix = Some !prefix; alreadySeenIdents = !seenIdents};
          })
   | _ -> None
+
+(* This is probably wrong and we should likely use the full Longident instead for the prefix. *)
+let getPrefixFromExpr exp = getIdentFromExpr exp |> Longident.last
+
+(* Extracted for reuse. *)
+let rec exprToContextPath (e : Parsetree.expression) =
+  match e.pexp_desc with
+  | Pexp_constant (Pconst_string _) -> Some Completable.CPString
+  | Pexp_array _ -> Some CPArray
+  | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
+  | Pexp_field (e1, {txt = Lident name}) -> (
+    match exprToContextPath e1 with
+    | Some contextPath -> Some (CPField (contextPath, name))
+    | _ -> None)
+  | Pexp_field (_, {txt = Ldot (lid, name)}) ->
+    (* Case x.M.field ignore the x part *)
+    Some (CPField (CPId (Utils.flattenLongIdent lid, Module), name))
+  | Pexp_send (e1, {txt}) -> (
+    match exprToContextPath e1 with
+    | None -> None
+    | Some contexPath -> Some (CPObj (contexPath, txt)))
+  | Pexp_apply (e1, args) -> (
+    match exprToContextPath e1 with
+    | None -> None
+    | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
+  | _ -> None
+
+type prop = {
+  name: string;
+  posStart: int * int;
+  posEnd: int * int;
+  exp: Parsetree.expression;
+}
+
+type jsxProps = {
+  compName: Longident.t Location.loc;
+  props: prop list;
+  childrenStart: (int * int) option;
+}
+
+let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
+    =
+  let allLabels =
+    List.fold_right
+      (fun prop allLabels -> prop.name :: allLabels)
+      jsxProps.props []
+  in
+  let rec loop props =
+    match props with
+    | prop :: rest ->
+      if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
+        (* Cursor on the prop name *)
+        Some
+          (Completable.Cjsx
+             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
+               prop.name,
+               allLabels ))
+      else if
+        prop.posEnd <= posBeforeCursor
+        && posBeforeCursor < Loc.start prop.exp.pexp_loc
+      then (* Cursor between the prop name and expr assigned *)
+        None
+      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+        (* Cursor on expr assigned *)
+        if canDoTypedCompletionOnExpr prop.exp then
+          Some
+            (Completable.CtypedContext
+               {
+                 howToRetrieveSourceType =
+                   JsxProp
+                     {
+                       componentPath =
+                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                       propName = prop.name;
+                     };
+                 patternPath = None;
+                 meta =
+                   {
+                     prefix = Some (getPrefixFromExpr prop.exp);
+                     alreadySeenIdents = [];
+                   };
+               })
+        else None
+      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
+        (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
+             Complete for the value. *)
+        if canDoTypedCompletionOnExpr prop.exp then
+          Some
+            (Completable.CtypedContext
+               {
+                 howToRetrieveSourceType =
+                   JsxProp
+                     {
+                       componentPath =
+                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                       propName = prop.name;
+                     };
+                 patternPath = None;
+                 meta =
+                   {
+                     prefix = Some (getPrefixFromExpr prop.exp);
+                     alreadySeenIdents = [];
+                   };
+               })
+        else None
+      else loop rest
+    | [] ->
+      let beforeChildrenStart =
+        match jsxProps.childrenStart with
+        | Some childrenPos -> posBeforeCursor < childrenPos
+        | None -> posBeforeCursor <= endPos
+      in
+      let afterCompName = posBeforeCursor >= posAfterCompName in
+      if afterCompName && beforeChildrenStart then
+        Some
+          (Cjsx
+             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
+               "",
+               allLabels ))
+      else None
+  in
+  loop jsxProps.props
+
+let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
+  let thisCaseShouldNotHappen =
+    {
+      compName = Location.mknoloc (Longident.Lident "");
+      props = [];
+      childrenStart = None;
+    }
+  in
+  let rec processProps ~acc args =
+    match args with
+    | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
+      {
+        compName;
+        props = List.rev acc;
+        childrenStart =
+          (if pexp_loc.loc_ghost then None else Some (Loc.start pexp_loc));
+      }
+    | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
+      let namedArgLoc =
+        eProp.pexp_attributes
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+      in
+      match namedArgLoc with
+      | Some ({loc}, _) ->
+        processProps
+          ~acc:
+            ({
+               name = s;
+               posStart = Loc.start loc;
+               posEnd = Loc.end_ loc;
+               exp = eProp;
+             }
+            :: acc)
+          rest
+      | None -> processProps ~acc rest)
+    | _ -> thisCaseShouldNotHappen
+  in
+  args |> processProps ~acc:[]
+
+type labelled = {
+  name: string;
+  opt: bool;
+  posStart: int * int;
+  posEnd: int * int;
+}
+
+type label = labelled option
+type arg = {label: label; exp: Parsetree.expression}
+
+let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr
+    ~firstCharBeforeCursorNoWhite =
+  let allNames =
+    List.fold_right
+      (fun arg allLabels ->
+        match arg with
+        | {label = Some labelled} -> labelled.name :: allLabels
+        | {label = None} -> allLabels)
+      args []
+  in
+  let rec loop args =
+    match args with
+    | {label = Some labelled; exp} :: rest ->
+      (* Figure out if we're completing the labelled argument name, or assigning to the labelled argument *)
+      if
+        labelled.posStart <= posBeforeCursor
+        && posBeforeCursor < labelled.posEnd
+      then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
+      else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+        (* Ok, were completing in the expression. Inspect what the expression is. *)
+        (* TODO: Apply the same thing to JSX *)
+        let howToRetrieveTheTypeForThisArg =
+          Completable.NamedArg {contextPath; label = labelled.name}
+        in
+        match exp.pexp_desc with
+        | Pexp_fun _ -> (
+          (* If this is a function expression, there might be function argument patterns we can
+             complete (like the record destructuring in `someFunc(~someArg=({}) => {...})`) *)
+          let idx = ref 0 in
+          let rec findTargetArg exp =
+            match exp.Parsetree.pexp_desc with
+            | Pexp_fun (label, _, fnArgPattern, nextFunExpr) -> (
+              let currentUnlabelledArgIdx = !idx in
+              (match label with
+              | Nolabel -> idx := !idx + 1
+              | _ -> ());
+              (* Check if the cursor is inside this args pattern. *)
+              match
+                ( fnArgPattern.ppat_loc
+                  |> CursorPosition.classifyLoc ~pos:posBeforeCursor,
+                  label )
+              with
+              | (EmptyLoc | HasCursor), Nolabel ->
+                Some
+                  (Completable.Unlabelled currentUnlabelledArgIdx, fnArgPattern)
+              | (EmptyLoc | HasCursor), (Labelled label | Optional label) ->
+                Some (Completable.Labelled label, fnArgPattern)
+              | NoCursor, _ -> findTargetArg nextFunExpr)
+            | _ -> None
+          in
+          match findTargetArg exp with
+          | None -> None
+          | Some (arg, argPattern) ->
+            let completable =
+              argPattern
+              |> completePattern
+                   ~howToRetrieveSourceType:
+                     (Completable.FunctionArgument
+                        {
+                          howToFindFunctionType = howToRetrieveTheTypeForThisArg;
+                          arg;
+                        })
+                   ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~seenIdents:[]
+            in
+            completable)
+        | _ ->
+          if canDoTypedCompletionOnExpr exp then
+            Some
+              (Completable.CtypedContext
+                 {
+                   howToRetrieveSourceType = howToRetrieveTheTypeForThisArg;
+                   patternPath = None;
+                   meta =
+                     {
+                       prefix = Some (getPrefixFromExpr exp);
+                       alreadySeenIdents = [];
+                     };
+                 })
+          else None
+      else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
+        (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
+           Assume this is an empty expression. *)
+        if canDoTypedCompletionOnExpr exp then
+          Some
+            (Completable.CtypedContext
+               {
+                 howToRetrieveSourceType =
+                   NamedArg {contextPath; label = labelled.name};
+                 patternPath = None;
+                 meta =
+                   {
+                     prefix = Some (getPrefixFromExpr exp);
+                     alreadySeenIdents = [];
+                   };
+               })
+        else None
+      else loop rest
+    | {label = None; exp} :: rest ->
+      if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
+      else loop rest
+    | [] ->
+      if posAfterFunExpr <= posBeforeCursor && posBeforeCursor < endPos then
+        Some (CnamedArg (contextPath, "", allNames))
+      else None
+  in
+  loop args
+
+let extractExpApplyArgs ~args =
+  let rec processArgs ~acc args =
+    match args with
+    | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
+      :: rest -> (
+      let namedArgLoc =
+        e.pexp_attributes
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+      in
+      match namedArgLoc with
+      | Some ({loc}, _) ->
+        let labelled =
+          {
+            name = s;
+            opt =
+              (match label with
+              | Optional _ -> true
+              | _ -> false);
+            posStart = Loc.start loc;
+            posEnd = Loc.end_ loc;
+          }
+        in
+        processArgs ~acc:({label = Some labelled; exp = e} :: acc) rest
+      | None -> processArgs ~acc rest)
+    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest ->
+      if e.pexp_loc.loc_ghost then processArgs ~acc rest
+      else processArgs ~acc:({label = None; exp = e} :: acc) rest
+    | [] -> List.rev acc
+  in
+  args |> processArgs ~acc:[]
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = skipWhite text (offset - 1) in
@@ -672,14 +719,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (* TODO: Tuples, etc... *)
       (* TODO: Handle let {SomeModule.recordField} = ...*)
       (match bindings with
-      | [{pvb_pat; pvb_expr = expr}] when !result = None ->
+      | [{pvb_pat; pvb_expr = expr}] when !result = None -> (
         (* The contextPath is what we'll use to look up the root record type for this completion.
            Depending on if the destructure is nested or not, we may or may not use that directly.*)
-        let contextPath = exprToContextPath expr in
-        setResultOpt
-          (pvb_pat
-          |> completePattern ~contextPath ~posBeforeCursor
-               ~firstCharBeforeCursorNoWhite ~seenIdents:[])
+        match exprToContextPath expr with
+        | None -> ()
+        | Some contextPath ->
+          setResultOpt
+            (pvb_pat
+            |> completePattern ~howToRetrieveSourceType:(CtxPath contextPath)
+                 ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~seenIdents:[]))
       | _ -> ());
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
@@ -925,6 +974,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             | Some contextPath ->
               findNamedArgCompletable ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
+                ~firstCharBeforeCursorNoWhite
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
             | None -> None
           in
@@ -1005,13 +1055,17 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             | case :: nextCases -> (
               match case with
               | {Parsetree.pc_lhs = {ppat_loc} as pat}
-                when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor ->
-                let contextPath = exprToContextPath expr in
-                setResultOpt
-                  (pat
-                  |> completePattern ~contextPath ~posBeforeCursor
-                       ~firstCharBeforeCursorNoWhite
-                       ~seenIdents:(findIdentsFromCases cases ~seenIdents:[]))
+                when ppat_loc |> Loc.hasPos ~pos:posBeforeCursor -> (
+                match exprToContextPath expr with
+                | None -> ()
+                | Some contextPath ->
+                  setResultOpt
+                    (pat
+                    |> completePattern
+                         ~howToRetrieveSourceType:(CtxPath contextPath)
+                         ~posBeforeCursor ~firstCharBeforeCursorNoWhite
+                         ~seenIdents:(findIdentsFromCases cases ~seenIdents:[])
+                    ))
               | _ -> findCaseWithCursor nextCases)
             | [] -> (
               (* In case there are no cases, like in `switch whatever { | `, complete for the   *)

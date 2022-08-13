@@ -307,3 +307,17 @@ Pexp_apply ...[52:11->52:30] (~thirdThing52:32->52:42=...[52:43->52:45])
 Completable: CtypedContext(NamedArg(thirdThing, Value[someVariantToString]))=T
 []
 
+Complete src/TypeContextCompletion_LabelledArguments.res 64:36
+posCursor:[64:36] posNoWhite:[64:35] Found expr:[64:11->64:47]
+Pexp_apply ...[64:11->64:18] (~doThing64:20->64:27=...[64:28->64:46])
+posCursor:[64:36] posNoWhite:[64:35] Found pattern:[64:29->64:37]
+posCursor:[64:36] posNoWhite:[64:35] Found pattern:[64:35->64:36]
+Completable: CtypedContext(FunctionArgument(fnSource:NamedArg(doThing, Value[doStuff]), arg:unlabelled(0)))=n pattern: [] seenIdents: [age]
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {age: int, name: string}",
+    "documentation": null
+  }]
+
