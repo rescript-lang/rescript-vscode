@@ -1986,7 +1986,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | CtypedContext
+  | CtypedContextPattern
       {howToRetrieveSourceType; patternPath; meta = {prefix; alreadySeenIdents}}
     -> (
     let prefix =
@@ -1998,11 +1998,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       howToRetrieveSourceType
       |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~pos ~scope
     in
-    let nestedContextPath =
-      match patternPath with
-      | None -> []
-      | Some patternPath -> patternPath
-    in
+    let nestedContextPath = patternPath in
     match sourceType with
     | None -> []
     | Some typ -> (

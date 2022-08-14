@@ -555,9 +555,9 @@ module Completable = struct
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
     (* TODO: Divide CtypedContext into something dedicated to patterns vs expressions *)
-    | CtypedContext of {
+    | CtypedContextPattern of {
         howToRetrieveSourceType: howToRetrieveSourceType;
-        patternPath: patternPathItem list option;
+        patternPath: patternPathItem list;
         meta: typedContextMeta;
       }
 
@@ -571,26 +571,22 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | CtypedContext
+    | CtypedContextPattern
         {
           howToRetrieveSourceType;
           meta = {prefix; alreadySeenIdents};
           patternPath;
-        } -> (
-      ("CtypedContext("
+        } ->
+      ("CtypedContextPattern("
       ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
       ^ ")="
       ^
       match prefix with
       | None -> ""
       | Some prefix -> str prefix)
-      ^
-      match patternPath with
-      | None -> ""
-      | Some patternPath ->
-        " pattern: "
-        ^ (patternPath |> patternContextPathToString)
-        ^ " seenIdents: " ^ list alreadySeenIdents)
+      ^ " pattern: "
+      ^ (patternPath |> patternContextPathToString)
+      ^ " seenIdents: " ^ list alreadySeenIdents
 end
 
 module CursorPosition = struct

@@ -251,14 +251,13 @@ let completePattern pattern ~howToRetrieveSourceType ~posBeforeCursor
     |> findCompletableInPattern ~path:[] ~posBeforeCursor ~prefix
          ~firstCharBeforeCursorNoWhite ~seenIdents
   in
-
   match nestedContextPath with
   | Some nestedContextPath ->
     Some
-      (Completable.CtypedContext
+      (Completable.CtypedContextPattern
          {
            howToRetrieveSourceType;
-           patternPath = Some (nestedContextPath |> List.rev);
+           patternPath = nestedContextPath |> List.rev;
            meta = {prefix = Some !prefix; alreadySeenIdents = !seenIdents};
          })
   | _ -> None
@@ -328,7 +327,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         (* Cursor on expr assigned *)
         if canDoTypedCompletionOnExpr prop.exp then
           Some
-            (Completable.CtypedContext
+            (Completable.CtypedContextPattern
                {
                  howToRetrieveSourceType =
                    JsxProp
@@ -337,7 +336,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
                          Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                        propName = prop.name;
                      };
-                 patternPath = None;
+                 patternPath = [];
                  meta =
                    {
                      prefix = Some (getPrefixFromExpr prop.exp);
@@ -350,7 +349,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
              Complete for the value. *)
         if canDoTypedCompletionOnExpr prop.exp then
           Some
-            (Completable.CtypedContext
+            (Completable.CtypedContextPattern
                {
                  howToRetrieveSourceType =
                    JsxProp
@@ -359,7 +358,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
                          Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                        propName = prop.name;
                      };
-                 patternPath = None;
+                 patternPath = [];
                  meta =
                    {
                      prefix = Some (getPrefixFromExpr prop.exp);
@@ -503,10 +502,10 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         | _ ->
           if canDoTypedCompletionOnExpr exp then
             Some
-              (Completable.CtypedContext
+              (Completable.CtypedContextPattern
                  {
                    howToRetrieveSourceType = howToRetrieveTheTypeForThisArg;
-                   patternPath = None;
+                   patternPath = [];
                    meta =
                      {
                        prefix = Some (getPrefixFromExpr exp);
@@ -519,11 +518,11 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
            Assume this is an empty expression. *)
         if canDoTypedCompletionOnExpr exp then
           Some
-            (Completable.CtypedContext
+            (Completable.CtypedContextPattern
                {
                  howToRetrieveSourceType =
                    NamedArg {contextPath; label = labelled.name};
-                 patternPath = None;
+                 patternPath = [];
                  meta =
                    {
                      prefix = Some (getPrefixFromExpr exp);
@@ -1082,10 +1081,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                   ) ->
                   setResultOpt
                     (Some
-                       (Completable.CtypedContext
+                       (Completable.CtypedContextPattern
                           {
                             howToRetrieveSourceType = CtxPath contextPath;
-                            patternPath = None;
+                            patternPath = [];
                             meta = {prefix = Some ""; alreadySeenIdents = []};
                           }))
                 | _ -> ())
