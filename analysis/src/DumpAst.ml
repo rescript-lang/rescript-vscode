@@ -213,11 +213,9 @@ and printExprItem expr ~pos ~indentation =
   | v -> Printf.sprintf "<unimplemented_pexp_desc: %s>" (Utils.identifyPexp v)
 
 let printValueBinding value ~pos ~indentation =
-  "value pattern"
-  ^ printLocDenominator value.Parsetree.pvb_loc ~pos
-  ^ ":\n"
+  "value" ^ ":\n"
   ^ addIndentation (indentation + 1)
-  ^ (value.pvb_pat |> printPattern ~pos ~indentation:(indentation + 1))
+  ^ (value.Parsetree.pvb_pat |> printPattern ~pos ~indentation:(indentation + 1))
   ^ "\n" ^ addIndentation indentation ^ "expr:\n"
   ^ printExprItem value.pvb_expr ~pos ~indentation:(indentation + 1)
 

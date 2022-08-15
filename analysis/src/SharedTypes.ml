@@ -437,7 +437,7 @@ module Completable = struct
 
   (* How to move through a nested type context, like from a root record to the type of one of its fields, and beyond. *)
   type patternPathItem =
-    | RField of {fieldName: string; emptyContext: bool}
+    | RField of {fieldName: string}
     | Variant of {constructorName: string; payloadNum: int option}
     | Polyvariant of {name: string; payloadNum: int option}
     | PTuple of {itemNumber: int}
@@ -448,9 +448,7 @@ module Completable = struct
 
   let pathItemToString item =
     match item with
-    | RField {fieldName; emptyContext} ->
-      "RecordField:" ^ fieldName
-      ^ if emptyContext then "(empty context)" else ""
+    | RField {fieldName} -> "RecordField:" ^ fieldName
     | Variant {constructorName; payloadNum} -> (
       "Variant:" ^ constructorName
       ^
@@ -491,6 +489,22 @@ module Completable = struct
     | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
     | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
     | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
+
+  type lookingToComplete = CRecordField | CVariant | CPolyvariant | CNoContext
+
+  let lookingToCompleteToString l =
+    match l with
+    | CRecordField -> "CRecordField"
+    | CVariant -> "CVariant"
+    | CPolyvariant -> "CPolyvariant"
+    | CNoContext -> "CNoContext"
+
+  type patternCompletionType = Destructure | Switch
+
+  let patternCompletionTypeToString p =
+    match p with
+    | Destructure -> "Destructure"
+    | Switch -> "Switch"
 
   type functionArgument = Labelled of string | Unlabelled of int
 
@@ -560,6 +574,13 @@ module Completable = struct
         patternPath: patternPathItem list;
         meta: typedContextMeta;
       }
+    | CtypedPattern of {
+        howToRetrieveSourceType: howToRetrieveSourceType;
+        patternPath: patternPathItem list;
+        patternType: patternCompletionType;
+        lookingToComplete: lookingToComplete;
+        meta: typedContextMeta;
+      }
 
   let toString = function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
@@ -587,6 +608,28 @@ module Completable = struct
       ^ " pattern: "
       ^ (patternPath |> patternContextPathToString)
       ^ " seenIdents: " ^ list alreadySeenIdents
+    | CtypedPattern
+        {
+          howToRetrieveSourceType;
+          meta = {prefix; alreadySeenIdents};
+          patternPath;
+          lookingToComplete;
+          patternType;
+        } ->
+      ("CtypedPattern(sourceType:"
+      ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
+      ^ ", lookingToComplete:"
+      ^ lookingToCompleteToString lookingToComplete
+      ^ ", patternType:"
+      ^ patternCompletionTypeToString patternType
+      ^ ", prefix:"
+      ^
+      match prefix with
+      | None -> ""
+      | Some prefix -> str prefix)
+      ^ ", pattern: "
+      ^ (patternPath |> patternContextPathToString)
+      ^ ", seenIdents: " ^ list alreadySeenIdents ^ ")"
 end
 
 module CursorPosition = struct

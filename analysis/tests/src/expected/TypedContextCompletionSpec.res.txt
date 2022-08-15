@@ -6,7 +6,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -26,7 +26,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -47,7 +47,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -67,7 +67,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -87,7 +87,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -107,7 +107,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -127,7 +127,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -147,7 +147,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -167,7 +167,7 @@ Source:
 
 
 Pstr_value(
-  value pattern<*>:
+  value:
     Ppat_var(x)
   expr:
     <*>Pexp_apply(
@@ -179,726 +179,1379 @@ Pstr_value(
     )
 )
 
-Dump AST src/TypedContextCompletionSpec.res 93:36
-
-Source:
-// let _ = doStuff(~doThing=({age, n}) => {()})
-//                                  ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    Ppat_any
-  expr:
-    <*>Pexp_apply(
-      expr:
-        Pexp_ident:doStuff
-      args:
-        ~doThing=
-          <*>Pexp_fun(
-            arg: Nolabel,
-            pattern: <*>Ppat_record(
-                fields:
-                  age: Ppat_var(age)
-                  <*>n: Ppat_var(<*>n)
-              ),
-            next expr:
-              Pexp_construct(())
-          )
-    )
-)
-
-Dump AST src/TypedContextCompletionSpec.res 97:15
-
-Source:
-// let {another} = someVal
-//             ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-        <*>another: Ppat_var(<*>another)
-    )
-  expr:
-    Pexp_ident:someVal
-)
-
-Dump AST src/TypedContextCompletionSpec.res 101:23
-
-Source:
-// let {anotherThing, s} = someVal
-//                     ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-        anotherThing: Ppat_var(anotherThing)
-        <*>s: Ppat_var(<*>s)
-    )
-  expr:
-    Pexp_ident:someVal
-)
-
-Dump AST src/TypedContextCompletionSpec.res 105:8
-
-Source:
-// let {} = someVal
-//      ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-
-    )
-  expr:
-    Pexp_ident:someVal
-)
-
-Dump AST src/TypedContextCompletionSpec.res 109:8
-
-Source:
-// let {} = getSomeVal(~irrelevant=123)
-//      ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-
-    )
-  expr:
-    Pexp_apply(
-      expr:
-        Pexp_ident:getSomeVal
-      args:
-        ~irrelevant=
-          Pexp_constant(Pconst_integer(123))
-    )
-)
-
-Dump AST src/TypedContextCompletionSpec.res 113:20
-
-Source:
-// let {something: {}} = someVal
-//                  ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-
-        )
-    )
-  expr:
-    Pexp_ident:someVal
-)
-
-Dump AST src/TypedContextCompletionSpec.res 117:47
-
-Source:
-// let {something: {whatIsThis, anotherLevel: {}}} = someVal
-//                                             ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-            whatIsThis: Ppat_var(whatIsThis)
-            anotherLevel: <*>Ppat_record(
-              fields:
-
-            )
-        )
-    )
-  expr:
-    Pexp_ident:someVal
-)
-
-Dump AST src/TypedContextCompletionSpec.res 121:48
-
-Source:
-// let {something: {whatIsThis, anotherLevel: {l}}} = someVal
-//                                              ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-            whatIsThis: Ppat_var(whatIsThis)
-            anotherLevel: <*>Ppat_record(
-              fields:
-                <*>l: Ppat_var(<*>l)
-            )
-        )
-    )
-  expr:
-    Pexp_ident:someVal
-)
-
-Dump AST src/TypedContextCompletionSpec.res 125:47
-
-Source:
-// let {something: {whatIsThis, anotherLevel,  }} = someVal
-//                                             ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-            whatIsThis: Ppat_var(whatIsThis)
-            anotherLevel: Ppat_var(anotherLevel)
-        )
-    )
-  expr:
-    Pexp_ident:someVal
-)
-
-Dump AST src/TypedContextCompletionSpec.res 129:31
-
-Source:
-// let {something: {whatIsThis, ,anotherLevel}} = someVal
-//                             ^ast
-
-
-Pstr_value(
-  value pattern<*>:
-    <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-            whatIsThis: Ppat_var(whatIsThis)
-            anotherLevel: Ppat_var(anotherLevel)
-        )
-    )
-  expr:
-    Pexp_ident:someVal
-)
-
-Dump AST src/TypedContextCompletionSpec.res 137:44
-
-Source:
-// switch someVal { | {thirdThing: "123", som} => () }
-//                                          ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        thirdThing: Ppat_constant(Pconst_string(123))
-        <*>som: <*>Ppat_var(<*>som)
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 141:52
-
-Source:
-// switch someVal { | {thirdThing: "1234"} => () | {} => () }
-//                                                  ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern:
-        Ppat_record(
-      fields:
-        thirdThing: Ppat_constant(Pconst_string(1234))
-    )
-      expr:
-        Pexp_construct(())
-    case 2:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 145:89
-
-Source:
-// switch someVal { | {thirdThing: "1234"} => () | {something: {whatIsThis, anotherLevel, }} => () }
-//                                                                                       ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern:
-        Ppat_record(
-      fields:
-        thirdThing: Ppat_constant(Pconst_string(1234))
-    )
-      expr:
-        Pexp_construct(())
-    case 2:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-            whatIsThis: Ppat_var(whatIsThis)
-            anotherLevel: Ppat_var(anotherLevel)
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 149:48
-
-Source:
-// switch someOtherValue { | {something: Two | T} => () }
-//                                              ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        something: Ppat_or(
-          Ppat_construct(Two),
-          Ppat_construct(<*>T)
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 152:48
-
-Source:
-// switch someOtherValue { | {otherThing: Some(T)} => () }
-//                                              ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        otherThing: <*>Ppat_construct(Some,Ppat_construct(<*>T))
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 155:47
-
-Source:
-// switch someOtherValue { | {thirdStuff: (_, T)} => () }
-//                                             ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        thirdStuff: <*>Ppat_tuple(
-            Ppat_any,
-            Ppat_construct(<*>T)
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 158:51
-
-Source:
-// switch someOtherValue { | {thirdStuff: (_, Four())} => () }
-//                                                 ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        thirdStuff: <*>Ppat_tuple(
-            Ppat_any,
-            <*>Ppat_construct(Four,<*>Ppat_construct(<*>()))
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 161:55
-
-Source:
-// switch someOtherValue { | {thirdStuff: (_, Five(_, O))} => () }
-//                                                     ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        thirdStuff: <*>Ppat_tuple(
-            Ppat_any,
-            <*>Ppat_construct(Five,<*>Ppat_tuple(
-                Ppat_any,
-                Ppat_construct(<*>O)
-            ))
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 164:63
-
-Source:
-// switch someOtherValue { | {fourthStuff: (Some(#WithPayload(O)), _)} => () }
-//                                                             ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        fourthStuff: <*>Ppat_tuple(
-            <*>Ppat_construct(Some,<*>Ppat_variant(WithPayload,Ppat_construct(<*>O))),
-            Ppat_any
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 167:67
-
-Source:
-// switch someOtherValue { | {thirdStuff: (_, Five(_, One | Two | T))} => () }
-//                                                                 ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        thirdStuff: <*>Ppat_tuple(
-            Ppat_any,
-            <*>Ppat_construct(Five,<*>Ppat_tuple(
-                Ppat_any,
-                Ppat_or(
-                  Ppat_or(
-                      Ppat_construct(One),
-                      Ppat_construct(Two)
-                    ),
-                  Ppat_construct(<*>T)
-                )
-            ))
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 170:43
-
-Source:
-// switch someOtherValue { | {otherThing: S} => () }
-//                                         ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        otherThing: Ppat_construct(<*>S)
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 173:39
-
-Source:
-// switch someOtherValue { | {other2: S} => () }
-//                                     ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        other2: Ppat_construct(<*>S)
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 176:64
-
-Source:
-// switch someOtherValue { | {thirdStuff: (_, Four(TwentyFive | ))} => () }
-//                                                              ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        thirdStuff: <*>Ppat_tuple(
-            Ppat_any,
-            <*>Ppat_construct(Four,<x>Ppat_or(
-              Ppat_construct(TwentyFive),
-              <x>Ppat_extension(%<x>rescript.patternhole)
-            ))
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 179:38
-
-Source:
-// switch someOtherValue { | {other2: } => () }
-//                                    ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someOtherValue)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        other2: <x>Ppat_extension(%<x>rescript.patternhole)
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 182:55
-
-Source:
-// switch someVal { | {something: {whatIsThis: false |  } } => () }
-//                                                     ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-            whatIsThis: <x>Ppat_or(
-              Ppat_construct(false),
-              <x>Ppat_extension(%<x>rescript.patternhole)
-            )
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 185:46
-
-Source:
-// switch someVal { | {something: {whatIsThis: } } => () }
-//                                            ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-            whatIsThis: <x>Ppat_extension(%<x>rescript.patternhole)
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 188:49
-
-Source:
-// switch someVal { | {something: {whatIsThis: fa  } } => () }
-//                                               ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-            whatIsThis: Ppat_var(<*>fa)
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 192:15
-
-Source:
-// switch x { | }
-//             ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:x)
-    case 1:
-      pattern<x>:
-        <x>Ppat_extension(%<x>rescript.patternhole)
-      expr<x>:
-        <x>Pexp_extension(%<x>rescript.exprhole)
-)
-
-Dump AST src/TypedContextCompletionSpec.res 196:14
-
-
-Dump AST src/TypedContextCompletionSpec.res 199:15
-
-Source:
-// switch y { | }
-//             ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:y)
-    case 1:
-      pattern<x>:
-        <x>Ppat_extension(%<x>rescript.patternhole)
-      expr<x>:
-        <x>Pexp_extension(%<x>rescript.exprhole)
-)
-
-Dump AST src/TypedContextCompletionSpec.res 202:36
-
-Source:
-// switch y { | One | Two | Three |  }
-//                                  ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:y)
-    case 1:
-      pattern<x>:
-        <x>Ppat_or(
-      Ppat_or(
-          Ppat_or(
-              Ppat_construct(One),
-              Ppat_construct(Two)
-            ),
-          Ppat_construct(Three)
-        ),
-      <x>Ppat_extension(%<x>rescript.patternhole)
-    )
-      expr<x>:
-        <x>Pexp_extension(%<x>rescript.exprhole)
-)
-
-Dump AST src/TypedContextCompletionSpec.res 206:33
-
-Source:
-// switch someVal { | {something:  } => () }
-//                               ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        something: <x>Ppat_extension(%<x>rescript.patternhole)
-    )
-      expr:
-        Pexp_construct(())
-)
-
-Dump AST src/TypedContextCompletionSpec.res 210:22
-
-Source:
-// switch someVal { |  => () }
-//                    ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern:
-        Ppat_construct(())
-      expr<x>:
-        <x>Pexp_extension(%<x>rescript.exprhole)
-)
-
-Dump AST src/TypedContextCompletionSpec.res 214:35
-
-Source:
-// switch someVal { | {something: {} } => () }
-//                                 ^ast
-
-
-Pstr_eval(
-  <*>Pexp_match(Pexp_ident:someVal)
-    case 1:
-      pattern<*>:
-        <*>Ppat_record(
-      fields:
-        something: <*>Ppat_record(
-          fields:
-
-        )
-    )
-      expr:
-        Pexp_construct(())
-)
+Complete src/TypedContextCompletionSpec.res 93:36
+posCursor:[93:36] posNoWhite:[93:35] Found expr:[93:11->93:47]
+Pexp_apply ...[93:11->93:18] (~doThing93:20->93:27=...[93:28->93:46])
+posCursor:[93:36] posNoWhite:[93:35] Found pattern:[93:29->93:37]
+posCursor:[93:36] posNoWhite:[93:35] Found pattern:[93:35->93:36]
+Completable: CtypedContextPattern(FunctionArgument(fnSource:NamedArg(doThing, Value[doStuff]), arg:unlabelled(0)))=n pattern: [] seenIdents: [age]
+[]
+
+Complete src/TypedContextCompletionSpec.res 97:15
+posCursor:[97:15] posNoWhite:[97:14] Found pattern:[97:7->97:16]
+posCursor:[97:15] posNoWhite:[97:14] Found pattern:[97:8->97:15]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:another, pattern: [], seenIdents: [another])
+[]
+
+Complete src/TypedContextCompletionSpec.res 101:23
+posCursor:[101:23] posNoWhite:[101:22] Found pattern:[101:7->101:24]
+posCursor:[101:23] posNoWhite:[101:22] Found pattern:[101:22->101:23]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:s, pattern: [], seenIdents: [anotherThing, s])
+[]
+
+Complete src/TypedContextCompletionSpec.res 105:8
+posCursor:[105:8] posNoWhite:[105:7] Found pattern:[105:7->105:9]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 109:8
+posCursor:[109:8] posNoWhite:[109:7] Found pattern:[109:7->109:9]
+Completable: CtypedPattern(sourceType:Value[getSomeVal](~irrelevant), lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 113:20
+posCursor:[113:20] posNoWhite:[113:19] Found pattern:[113:7->113:22]
+posCursor:[113:20] posNoWhite:[113:19] Found pattern:[113:19->113:21]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [RecordField:something], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 117:47
+posCursor:[117:47] posNoWhite:[117:46] Found pattern:[117:7->117:50]
+posCursor:[117:47] posNoWhite:[117:46] Found pattern:[117:19->117:49]
+posCursor:[117:47] posNoWhite:[117:46] Found pattern:[117:46->117:48]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [RecordField:something, RecordField:anotherLevel], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 121:48
+posCursor:[121:48] posNoWhite:[121:47] Found pattern:[121:7->121:51]
+posCursor:[121:48] posNoWhite:[121:47] Found pattern:[121:19->121:50]
+posCursor:[121:48] posNoWhite:[121:47] Found pattern:[121:46->121:49]
+posCursor:[121:48] posNoWhite:[121:47] Found pattern:[121:47->121:48]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:l, pattern: [RecordField:something, RecordField:anotherLevel], seenIdents: [l])
+[]
+
+Complete src/TypedContextCompletionSpec.res 125:47
+posCursor:[125:47] posNoWhite:[125:44] Found pattern:[125:7->125:49]
+posCursor:[125:47] posNoWhite:[125:44] Found pattern:[125:19->125:48]
+[]
+
+Complete src/TypedContextCompletionSpec.res 129:31
+posCursor:[129:31] posNoWhite:[129:30] Found pattern:[129:7->129:47]
+posCursor:[129:31] posNoWhite:[129:30] Found pattern:[129:19->129:46]
+[]
+
+Complete src/TypedContextCompletionSpec.res 137:44
+posCursor:[137:44] posNoWhite:[137:43] Found expr:[137:3->137:54]
+posCursor:[137:44] posNoWhite:[137:43] Found pattern:[137:22->137:46]
+posCursor:[137:44] posNoWhite:[137:43] Found pattern:[137:42->137:45]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:som, pattern: [], seenIdents: [thirdThing, som])
+[]
+
+Complete src/TypedContextCompletionSpec.res 141:52
+posCursor:[141:52] posNoWhite:[141:51] Found expr:[141:3->141:61]
+posCursor:[141:52] posNoWhite:[141:51] Found pattern:[141:51->141:53]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 145:89
+posCursor:[145:89] posNoWhite:[145:88] Found expr:[145:3->145:100]
+posCursor:[145:89] posNoWhite:[145:88] Found pattern:[145:51->145:92]
+posCursor:[145:89] posNoWhite:[145:88] Found pattern:[145:63->145:91]
+[]
+
+Complete src/TypedContextCompletionSpec.res 149:48
+posCursor:[149:48] posNoWhite:[149:47] Found expr:[149:3->149:57]
+posCursor:[149:48] posNoWhite:[149:47] Found pattern:[149:29->149:49]
+posCursor:[149:48] posNoWhite:[149:47] Found pattern:[149:41->149:48]
+posCursor:[149:48] posNoWhite:[149:47] Found pattern:[149:47->149:48]
+Ppat_construct T:[149:47->149:48]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [RecordField:something], seenIdents: [Two, T])
+[]
+
+Complete src/TypedContextCompletionSpec.res 152:48
+posCursor:[152:48] posNoWhite:[152:47] Found expr:[152:3->152:58]
+posCursor:[152:48] posNoWhite:[152:47] Found pattern:[152:29->152:50]
+posCursor:[152:48] posNoWhite:[152:47] Found pattern:[152:42->152:49]
+Ppat_construct Some:[152:42->152:46]
+posCursor:[152:48] posNoWhite:[152:47] Found pattern:[152:47->152:48]
+Ppat_construct T:[152:47->152:48]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [RecordField:otherThing, Variant:Some(0)], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 155:47
+posCursor:[155:47] posNoWhite:[155:46] Found expr:[155:3->155:57]
+posCursor:[155:47] posNoWhite:[155:46] Found pattern:[155:29->155:49]
+posCursor:[155:47] posNoWhite:[155:46] Found pattern:[155:42->155:48]
+posCursor:[155:47] posNoWhite:[155:46] Found pattern:[155:46->155:47]
+Ppat_construct T:[155:46->155:47]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [RecordField:thirdStuff, Tuple:1], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 158:51
+posCursor:[158:51] posNoWhite:[158:50] Found expr:[158:3->158:62]
+posCursor:[158:51] posNoWhite:[158:50] Found pattern:[158:29->158:54]
+posCursor:[158:51] posNoWhite:[158:50] Found pattern:[158:42->158:53]
+posCursor:[158:51] posNoWhite:[158:50] Found pattern:[158:46->158:52]
+Ppat_construct Four:[158:46->158:50]
+posCursor:[158:51] posNoWhite:[158:50] Found pattern:[158:50->158:52]
+Ppat_construct ():[158:50->158:52]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:(), pattern: [RecordField:thirdStuff, Tuple:1, Variant:Four(0)], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 161:55
+posCursor:[161:55] posNoWhite:[161:54] Found expr:[161:3->161:66]
+posCursor:[161:55] posNoWhite:[161:54] Found pattern:[161:29->161:58]
+posCursor:[161:55] posNoWhite:[161:54] Found pattern:[161:42->161:57]
+posCursor:[161:55] posNoWhite:[161:54] Found pattern:[161:46->161:56]
+Ppat_construct Five:[161:46->161:50]
+posCursor:[161:55] posNoWhite:[161:54] Found pattern:[161:50->161:57]
+posCursor:[161:55] posNoWhite:[161:54] Found pattern:[161:54->161:55]
+Ppat_construct O:[161:54->161:55]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:O, pattern: [RecordField:thirdStuff, Tuple:1, Variant:Five(1)], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 164:63
+posCursor:[164:63] posNoWhite:[164:62] Found expr:[164:3->164:78]
+posCursor:[164:63] posNoWhite:[164:62] Found pattern:[164:29->164:70]
+posCursor:[164:63] posNoWhite:[164:62] Found pattern:[164:43->164:69]
+posCursor:[164:63] posNoWhite:[164:62] Found pattern:[164:44->164:65]
+Ppat_construct Some:[164:44->164:48]
+posCursor:[164:63] posNoWhite:[164:62] Found pattern:[164:49->164:64]
+posCursor:[164:63] posNoWhite:[164:62] Found pattern:[164:62->164:63]
+Ppat_construct O:[164:62->164:63]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:O, pattern: [RecordField:fourthStuff, Tuple:0, Variant:Some(0), Variant:WithPayload(0)], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 167:67
+posCursor:[167:67] posNoWhite:[167:66] Found expr:[167:3->167:78]
+posCursor:[167:67] posNoWhite:[167:66] Found pattern:[167:29->167:70]
+posCursor:[167:67] posNoWhite:[167:66] Found pattern:[167:42->167:69]
+posCursor:[167:67] posNoWhite:[167:66] Found pattern:[167:46->167:68]
+Ppat_construct Five:[167:46->167:50]
+posCursor:[167:67] posNoWhite:[167:66] Found pattern:[167:50->167:69]
+posCursor:[167:67] posNoWhite:[167:66] Found pattern:[167:54->167:67]
+posCursor:[167:67] posNoWhite:[167:66] Found pattern:[167:66->167:67]
+Ppat_construct T:[167:66->167:67]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [RecordField:thirdStuff, Tuple:1, Variant:Five(1)], seenIdents: [One, Two, T])
+[]
+
+Complete src/TypedContextCompletionSpec.res 170:43
+posCursor:[170:43] posNoWhite:[170:42] Found expr:[170:3->170:52]
+posCursor:[170:43] posNoWhite:[170:42] Found pattern:[170:29->170:44]
+posCursor:[170:43] posNoWhite:[170:42] Found pattern:[170:42->170:43]
+Ppat_construct S:[170:42->170:43]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:S, pattern: [RecordField:otherThing], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 173:39
+posCursor:[173:39] posNoWhite:[173:38] Found expr:[173:3->173:48]
+posCursor:[173:39] posNoWhite:[173:38] Found pattern:[173:29->173:40]
+posCursor:[173:39] posNoWhite:[173:38] Found pattern:[173:38->173:39]
+Ppat_construct S:[173:38->173:39]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:S, pattern: [RecordField:other2], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 176:64
+posCursor:[176:64] posNoWhite:[176:62] Found expr:[176:3->176:75]
+posCursor:[176:64] posNoWhite:[176:62] Found pattern:[176:29->176:67]
+posCursor:[176:64] posNoWhite:[176:62] Found pattern:[176:42->176:66]
+posCursor:[176:64] posNoWhite:[176:62] Found pattern:[176:46->176:65]
+Ppat_construct Four:[176:46->176:50]
+Completable: Cpath Value[Four]
+[]
+
+Complete src/TypedContextCompletionSpec.res 179:38
+posCursor:[179:38] posNoWhite:[179:36] Found expr:[179:3->179:47]
+posCursor:[179:38] posNoWhite:[179:36] Found pattern:[179:29->179:39]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:other2], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 182:55
+posCursor:[182:55] posNoWhite:[182:53] Found expr:[182:3->182:67]
+posCursor:[182:55] posNoWhite:[182:53] Found pattern:[182:22->182:59]
+posCursor:[182:55] posNoWhite:[182:53] Found pattern:[182:34->182:59]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something, RecordField:whatIsThis], seenIdents: [false])
+[]
+
+Complete src/TypedContextCompletionSpec.res 185:46
+posCursor:[185:46] posNoWhite:[185:45] Found expr:[185:3->185:58]
+posCursor:[185:46] posNoWhite:[185:45] Found pattern:[185:22->185:50]
+posCursor:[185:46] posNoWhite:[185:45] Found pattern:[185:34->185:50]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something, RecordField:whatIsThis], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 188:49
+posCursor:[188:49] posNoWhite:[188:48] Found expr:[188:3->188:62]
+posCursor:[188:49] posNoWhite:[188:48] Found pattern:[188:22->188:54]
+posCursor:[188:49] posNoWhite:[188:48] Found pattern:[188:34->188:52]
+posCursor:[188:49] posNoWhite:[188:48] Found pattern:[188:47->188:49]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CVariant, patternType:Switch, prefix:fa, pattern: [RecordField:something, RecordField:whatIsThis], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 192:15
+posCursor:[192:15] posNoWhite:[192:14] Found expr:[192:3->192:17]
+Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 196:14
+posCursor:[196:14] posNoWhite:[196:12] Found expr:[196:3->196:13]
+[]
+
+Complete src/TypedContextCompletionSpec.res 199:15
+posCursor:[199:15] posNoWhite:[199:14] Found expr:[199:3->199:17]
+Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 202:36
+posCursor:[202:36] posNoWhite:[202:34] Found expr:[202:3->202:38]
+Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [One, Two, Three])
+[]
+
+Complete src/TypedContextCompletionSpec.res 206:33
+posCursor:[206:33] posNoWhite:[206:32] Found expr:[206:3->206:44]
+posCursor:[206:33] posNoWhite:[206:32] Found pattern:[206:22->206:36]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 210:22
+posCursor:[210:22] posNoWhite:[210:20] Found expr:[210:3->210:30]
+Completable: Cpath Value[""]
+[{
+    "label": "y",
+    "kind": 12,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null
+  }, {
+    "label": "x",
+    "kind": 12,
+    "tags": [],
+    "detail": "option<someVariant>",
+    "documentation": null
+  }, {
+    "label": "someOtherValue",
+    "kind": 12,
+    "tags": [],
+    "detail": "someRecordWithVariant",
+    "documentation": null
+  }, {
+    "label": "getSomeVal",
+    "kind": 12,
+    "tags": [],
+    "detail": "(~irrelevant: int) => anotherRecord",
+    "documentation": null
+  }, {
+    "label": "someVal",
+    "kind": 12,
+    "tags": [],
+    "detail": "anotherRecord",
+    "documentation": null
+  }, {
+    "label": "Arg",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Array",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ArrayLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Auto",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Array",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Float",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_HashMap",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_HashMapInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_HashMapString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_HashSet",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_HashSetInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_HashSetString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Id",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Int",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_List",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Map",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MapDict",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MapInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MapString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MutableMap",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MutableMapInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MutableMapString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MutableQueue",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MutableSet",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MutableSetInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MutableSetString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_MutableStack",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Option",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Range",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Result",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_Set",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_SetDict",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_SetInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_SetString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_SortArray",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_SortArrayInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_SortArrayString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalAVLset",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalAVLtree",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalBuckets",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalBucketsType",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalMapInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalMapString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalSetBuckets",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalSetInt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internalSetString",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Belt_internals",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Buffer",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Bytes",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "BytesLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Callback",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "CamlinternalLazy",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "CamlinternalMod",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Char",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "CodeLens",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "CompletePrioritize1",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "CompletePrioritize2",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Completion",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Complex",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Component",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "CreateInterface",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Cross",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Dce",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Debug",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Definition",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "DefinitionWithInterface",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Digest",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Div",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "DocumentSymbol",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Dom",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Dom_storage",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Dom_storage2",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Filename",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Fragment",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Genlex",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Hashtbl",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "HashtblLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Highlight",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Hover",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "InlayHint",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Int32",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Int64",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_OO",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_array",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_array2",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_bigint",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_cast",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_console",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_date",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_dict",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_exn",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_float",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_global",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_int",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_json",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_list",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_mapperRt",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_math",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_null",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_null_undefined",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_obj",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_option",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_promise",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_re",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_result",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_string",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_string2",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_typed_array",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_typed_array2",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_types",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_undefined",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Js_vector",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Jsx",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Lazy",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Lexing",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "List",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ListLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "LongIdentTest",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Map",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "MapLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "MoreLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Node",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Node_buffer",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Node_child_process",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Node_fs",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Node_module",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Node_path",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Node_process",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Obj",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Object",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Parsing",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Patterns",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Pervasives",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Printexc",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Queue",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Random",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "React",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ReactDOM",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ReactDOMRe",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ReactDOMServer",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ReactDOMStyle",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ReactEvent",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ReactTestUtils",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ReasonReact",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "RecModules",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "RecordCompletion",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "RecoveryOnProp",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "References",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "ReferencesWithInterface",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Rename",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "RenameWithInterface",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "RescriptReactErrorBoundary",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "RescriptReactRouter",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Set",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "SetLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Sort",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Stack",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "StdLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Stream",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "String",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "StringLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Sys",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TableclothMap",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypeContextCompletion_Jsx",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypeContextCompletion_LabelledArguments",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypeContextCompletion_Records",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypeDefinition",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypedContextCompletionSpec",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Uchar",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Xform",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
+
+Complete src/TypedContextCompletionSpec.res 214:23
+posCursor:[214:23] posNoWhite:[214:22] Found expr:[214:3->214:32]
+posCursor:[214:23] posNoWhite:[214:22] Found pattern:[214:22->214:24]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 218:31
+posCursor:[218:31] posNoWhite:[218:30] Found expr:[218:3->218:41]
+posCursor:[218:31] posNoWhite:[218:30] Found pattern:[218:22->218:33]
+posCursor:[218:31] posNoWhite:[218:30] Found pattern:[218:23->218:32]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:something, pattern: [], seenIdents: [something])
+[]
+
+Complete src/TypedContextCompletionSpec.res 221:35
+posCursor:[221:35] posNoWhite:[221:34] Found expr:[221:3->221:45]
+posCursor:[221:35] posNoWhite:[221:34] Found pattern:[221:22->221:37]
+posCursor:[221:35] posNoWhite:[221:34] Found pattern:[221:34->221:36]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:"", pattern: [RecordField:something], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 225:38
+posCursor:[225:38] posNoWhite:[225:37] Found expr:[225:3->225:50]
+posCursor:[225:38] posNoWhite:[225:37] Found pattern:[225:22->225:42]
+posCursor:[225:38] posNoWhite:[225:37] Found pattern:[225:34->225:42]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something, RecordField:el], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 228:41
+posCursor:[228:41] posNoWhite:[228:40] Found expr:[228:3->228:51]
+posCursor:[228:41] posNoWhite:[228:40] Found pattern:[228:29->228:43]
+posCursor:[228:41] posNoWhite:[228:40] Found pattern:[228:38->228:42]
+posCursor:[228:41] posNoWhite:[228:40] Found pattern:[228:40->228:41]
+Ppat_construct ():[228:40->228:41]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:(), pattern: [RecordField:other2, Variant:S(0)], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 231:63
+posCursor:[231:63] posNoWhite:[231:62] Found expr:[231:3->231:74]
+posCursor:[231:63] posNoWhite:[231:62] Found pattern:[231:29->231:66]
+posCursor:[231:63] posNoWhite:[231:62] Found pattern:[231:42->231:65]
+Ppat_construct Some:[231:42->231:46]
+posCursor:[231:63] posNoWhite:[231:62] Found pattern:[231:46->231:66]
+posCursor:[231:63] posNoWhite:[231:62] Found pattern:[231:50->231:64]
+posCursor:[231:63] posNoWhite:[231:62] Found pattern:[231:62->231:63]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:t, pattern: [RecordField:thirdStuff, Variant:Some(1), RecordField:something], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 234:59
+posCursor:[234:59] posNoWhite:[234:58] Found expr:[234:3->234:70]
+posCursor:[234:59] posNoWhite:[234:58] Found pattern:[234:29->234:62]
+posCursor:[234:59] posNoWhite:[234:58] Found pattern:[234:42->234:61]
+posCursor:[234:59] posNoWhite:[234:58] Found pattern:[234:46->234:60]
+posCursor:[234:59] posNoWhite:[234:58] Found pattern:[234:58->234:59]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:t, pattern: [RecordField:thirdStuff, Tuple:1, RecordField:something], seenIdents: [])
+[]
+
+Complete src/TypedContextCompletionSpec.res 238:49
+posCursor:[238:49] posNoWhite:[238:48] Found expr:[238:3->238:52]
+posCursor:[238:49] posNoWhite:[238:48] Found pattern:[238:48->238:49]
+Ppat_construct T:[238:48->238:49]
+Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [], seenIdents: [One, Two, Three, T])
+[]
+
+Complete src/TypedContextCompletionSpec.res 241:55
+posCursor:[241:55] posNoWhite:[241:53] Found expr:[241:3->241:67]
+posCursor:[241:55] posNoWhite:[241:53] Found pattern:[241:22->241:59]
+posCursor:[241:55] posNoWhite:[241:53] Found pattern:[241:34->241:59]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something, RecordField:whatIsThis], seenIdents: [false])
+[]
+
+Complete src/TypedContextCompletionSpec.res 245:49
+posCursor:[245:49] posNoWhite:[245:46] Found expr:[245:3->245:51]
+Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [One, Two, Three])
+[]
 

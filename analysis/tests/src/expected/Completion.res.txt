@@ -1372,7 +1372,7 @@ posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
-Completable: CtypedContextPattern(Value[x])=T pattern: [] seenIdents: [T]
+Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [], seenIdents: [T])
 []
 
 Complete src/Completion.res 373:21
@@ -1381,7 +1381,7 @@ posCursor:[373:21] posNoWhite:[373:20] Found expr:[372:2->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
 Ppat_construct AndThatOther.T:[373:7->373:21]
-Completable: CtypedContextPattern(Value[x])=AndThatOther pattern: [] seenIdents: [AndThatOther]
+Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CVariant, patternType:Switch, prefix:AndThatOther, pattern: [], seenIdents: [AndThatOther])
 []
 
 Complete src/Completion.res 378:24

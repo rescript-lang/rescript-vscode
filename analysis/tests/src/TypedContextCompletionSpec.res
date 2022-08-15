@@ -92,43 +92,43 @@ let y = One
 
 // Complete for destructured record field starting with n
 // let _ = doStuff(~doThing=({age, n}) => {()})
-//                                  ^ast
+//                                  ^com
 
 // Complete for record field another
 // let {another} = someVal
-//             ^ast
+//             ^com
 
 // Complete for record field s
 // let {anotherThing, s} = someVal
-//                     ^ast
+//                     ^com
 
 // Complete for record fields of someVal
 // let {} = someVal
-//      ^ast
+//      ^com
 
 // Complete for record fields of fn invocation
 // let {} = getSomeVal(~irrelevant=123)
-//      ^ast
+//      ^com
 
 // Complete for record fields on record field something
 // let {something: {}} = someVal
-//                  ^ast
+//                  ^com
 
 // Complete for record fields of type for anotherLevel
 // let {something: {whatIsThis, anotherLevel: {}}} = someVal
-//                                             ^ast
+//                                             ^com
 
 // Complete for record fields of type for anotherLevel, with prefix "l"
 // let {something: {whatIsThis, anotherLevel: {l}}} = someVal
-//                                              ^ast
+//                                              ^com
 
 // Complete for record fields of type for something, with seen idents whatIsThis, anotherLevel
 // let {something: {whatIsThis, anotherLevel,  }} = someVal
-//                                             ^ast
+//                                             ^com
 
 // Complete for record fields of type for something, with seen idents whatIsThis, anotherLevel
 // let {something: {whatIsThis, ,anotherLevel}} = someVal
-//                             ^ast
+//                             ^com
 
 // --- Record destructuring end ---
 
@@ -136,83 +136,114 @@ let y = One
 
 // Complete for record field som in root record
 // switch someVal { | {thirdThing: "123", som} => () }
-//                                          ^ast
+//                                          ^com
 
 // Complete for any record field in root record
 // switch someVal { | {thirdThing: "1234"} => () | {} => () }
-//                                                  ^ast
+//                                                  ^com
 
 // Complete for record field in type of root record->something
 // switch someVal { | {thirdThing: "1234"} => () | {something: {whatIsThis, anotherLevel, }} => () }
-//                                                                                       ^ast
+//                                                                                       ^com
 
 // Complete for variant starting with T in rfield something of root record
 // switch someOtherValue { | {something: Two | T} => () }
-//                                              ^ast
+//                                              ^com
 
 // switch someOtherValue { | {otherThing: Some(T)} => () }
-//                                              ^ast
+//                                              ^com
 
 // switch someOtherValue { | {thirdStuff: (_, T)} => () }
-//                                             ^ast
+//                                             ^com
 
 // switch someOtherValue { | {thirdStuff: (_, Four())} => () }
-//                                                 ^ast
+//                                                 ^com
 
 // switch someOtherValue { | {thirdStuff: (_, Five(_, O))} => () }
-//                                                     ^ast
+//                                                     ^com
 
 // switch someOtherValue { | {fourthStuff: (Some(#WithPayload(O)), _)} => () }
-//                                                             ^ast
+//                                                             ^com
 
 // switch someOtherValue { | {thirdStuff: (_, Five(_, One | Two | T))} => () }
-//                                                                 ^ast
+//                                                                 ^com
 
 // switch someOtherValue { | {otherThing: S} => () }
-//                                         ^ast
+//                                         ^com
 
 // switch someOtherValue { | {other2: S} => () }
-//                                     ^ast
+//                                     ^com
 
 // switch someOtherValue { | {thirdStuff: (_, Four(TwentyFive | ))} => () }
-//                                                              ^ast
+//                                                              ^com
 
 // switch someOtherValue { | {other2: } => () }
-//                                    ^ast
+//                                    ^com
 
 // switch someVal { | {something: {whatIsThis: false |  } } => () }
-//                                                     ^ast
+//                                                     ^com
 
 // switch someVal { | {something: {whatIsThis: } } => () }
-//                                            ^ast
+//                                            ^com
 
 // switch someVal { | {something: {whatIsThis: fa  } } => () }
-//                                               ^ast
+//                                               ^com
 
 // Complete for root type of x
 // switch x { | }
-//             ^ast
+//             ^com
 
 // Incomplete switch, no completion
 // switch x {
-//            ^ast
+//            ^com
 
 // switch y { | }
-//             ^ast
+//             ^com
 
 // switch y { | One | Two | Three |  }
-//                                  ^ast
+//                                  ^com
 
 // Should not complete because the record has no braces
 // switch someVal { | {something:  } => () }
-//                               ^ast
+//                               ^com
 
 // Should not complete because the record has no braces
 // switch someVal { |  => () }
-//                    ^ast
+//                    ^com
+
+// No path, looking for record field
+// switch someVal { | {} => () }
+//                     ^com
 
 // Should complete because the record has braces
-// switch someVal { | {something: {} } => () }
-//                                 ^ast
+// switch someVal { | {something} => () }
+//                             ^com
+
+// switch someVal { | {something: {}} => () }
+//                                 ^com
+
+// Should not complete because the record has no braces
+// switch someVal { | {something: {el: } } => () }
+//                                    ^com
+
+// switch someOtherValue { | {other2: #S()} => () }
+//                                       ^com
+
+// switch someOtherValue { | {thirdStuff: Some(_, {something: t})} => () }
+//                                                             ^com
+
+// switch someOtherValue { | {thirdStuff: (_, {something: t})} => () }
+//                                                         ^com
+
+// Mixing matches in branches is still picked up as seen idents
+// switch y { | One | Two => () | Three => () | T  }
+//                                               ^com
+
+// switch someVal { | {something: {whatIsThis: false |  } } => () }
+//                                                     ^com
+
+// Mixing matches in branches is still picked up as seen idents
+// switch y { | One | Two => () | Three => () |   }
+//                                               ^com
 
 // --- Pattern matching end ---
