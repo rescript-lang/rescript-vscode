@@ -1,0 +1,904 @@
+Dump AST src/TypedContextCompletionSpec.res 49:40
+
+Source:
+// let x = someVariantToString(~someVaria
+//                                      ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        <*>~someVaria=
+          <*>Pexp_ident:someVaria
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 53:43
+
+Source:
+// let x = someVariantToString(~someVariant=
+//                                         ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        <*>~someVariant=
+          <x>Pexp_extension(%<x>rescript.exprhole)
+    )
+)
+
+
+Dump AST src/TypedContextCompletionSpec.res 61:44
+
+Source:
+// let x = someVariantToString(~someVariant=T
+//                                          ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        ~someVariant=
+          <*>Pexp_construct(<*>T)
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 65:44
+
+Source:
+// let x = someVariantToString(~someVariant=t
+//                                          ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        ~someVariant=
+          <*>Pexp_ident:t
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 69:58
+
+Source:
+// let x = someVariantToString(~someVariant=TypeDefinition.
+//                                                        ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        ~someVariant=
+          <*>Pexp_ident:TypeDefinition.""
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 73:44
+
+Source:
+// let x = someVariantToString(~anotherThing=
+//                                          ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        <*>~anotherThing=
+          <x>Pexp_extension(%<x>rescript.exprhole)
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 77:42
+
+Source:
+// let x = someVariantToString(~thirdThing=
+//                                        ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        <*>~thirdThing=
+          <x>Pexp_extension(%<x>rescript.exprhole)
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 81:44
+
+Source:
+// let x = someVariantToString(~thirdThing=#t
+//                                          ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        ~thirdThing=
+          <*>Pexp_variant(t)
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 85:44
+
+Source:
+// let x = someVariantToString(~thirdThing=#T
+//                                          ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someVariantToString
+      args:
+        ~thirdThing=
+          <*>Pexp_variant(T)
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 93:36
+
+Source:
+// let _ = doStuff(~doThing=({age, n}) => {()})
+//                                  ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    Ppat_any
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:doStuff
+      args:
+        ~doThing=
+          <*>Pexp_fun(
+            arg: Nolabel,
+            pattern: <*>Ppat_record(
+                fields:
+                  age: Ppat_var(age)
+                  <*>n: Ppat_var(<*>n)
+              ),
+            next expr:
+              Pexp_construct(())
+          )
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 97:15
+
+Source:
+// let {another} = someVal
+//             ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+        <*>another: Ppat_var(<*>another)
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
+Dump AST src/TypedContextCompletionSpec.res 101:23
+
+Source:
+// let {anotherThing, s} = someVal
+//                     ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+        anotherThing: Ppat_var(anotherThing)
+        <*>s: Ppat_var(<*>s)
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
+Dump AST src/TypedContextCompletionSpec.res 105:8
+
+Source:
+// let {} = someVal
+//      ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
+Dump AST src/TypedContextCompletionSpec.res 109:8
+
+Source:
+// let {} = getSomeVal(~irrelevant=123)
+//      ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+
+    )
+  expr:
+    Pexp_apply(
+      expr:
+        Pexp_ident:getSomeVal
+      args:
+        ~irrelevant=
+          Pexp_constant(Pconst_integer(123))
+    )
+)
+
+Dump AST src/TypedContextCompletionSpec.res 113:20
+
+Source:
+// let {something: {}} = someVal
+//                  ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+
+        )
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
+Dump AST src/TypedContextCompletionSpec.res 117:47
+
+Source:
+// let {something: {whatIsThis, anotherLevel: {}}} = someVal
+//                                             ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+            whatIsThis: Ppat_var(whatIsThis)
+            anotherLevel: <*>Ppat_record(
+              fields:
+
+            )
+        )
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
+Dump AST src/TypedContextCompletionSpec.res 121:48
+
+Source:
+// let {something: {whatIsThis, anotherLevel: {l}}} = someVal
+//                                              ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+            whatIsThis: Ppat_var(whatIsThis)
+            anotherLevel: <*>Ppat_record(
+              fields:
+                <*>l: Ppat_var(<*>l)
+            )
+        )
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
+Dump AST src/TypedContextCompletionSpec.res 125:47
+
+Source:
+// let {something: {whatIsThis, anotherLevel,  }} = someVal
+//                                             ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+            whatIsThis: Ppat_var(whatIsThis)
+            anotherLevel: Ppat_var(anotherLevel)
+        )
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
+Dump AST src/TypedContextCompletionSpec.res 129:31
+
+Source:
+// let {something: {whatIsThis, ,anotherLevel}} = someVal
+//                             ^ast
+
+
+Pstr_value(
+  value pattern<*>:
+    <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+            whatIsThis: Ppat_var(whatIsThis)
+            anotherLevel: Ppat_var(anotherLevel)
+        )
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
+Dump AST src/TypedContextCompletionSpec.res 137:44
+
+Source:
+// switch someVal { | {thirdThing: "123", som} => () }
+//                                          ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        thirdThing: Ppat_constant(Pconst_string(123))
+        <*>som: <*>Ppat_var(<*>som)
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 141:52
+
+Source:
+// switch someVal { | {thirdThing: "1234"} => () | {} => () }
+//                                                  ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern:
+        Ppat_record(
+      fields:
+        thirdThing: Ppat_constant(Pconst_string(1234))
+    )
+      expr:
+        Pexp_construct(())
+    case 2:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 145:89
+
+Source:
+// switch someVal { | {thirdThing: "1234"} => () | {something: {whatIsThis, anotherLevel, }} => () }
+//                                                                                       ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern:
+        Ppat_record(
+      fields:
+        thirdThing: Ppat_constant(Pconst_string(1234))
+    )
+      expr:
+        Pexp_construct(())
+    case 2:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+            whatIsThis: Ppat_var(whatIsThis)
+            anotherLevel: Ppat_var(anotherLevel)
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 149:48
+
+Source:
+// switch someOtherValue { | {something: Two | T} => () }
+//                                              ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        something: Ppat_or(
+          Ppat_construct(Two),
+          Ppat_construct(<*>T)
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 152:48
+
+Source:
+// switch someOtherValue { | {otherThing: Some(T)} => () }
+//                                              ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        otherThing: <*>Ppat_construct(Some,Ppat_construct(<*>T))
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 155:47
+
+Source:
+// switch someOtherValue { | {thirdStuff: (_, T)} => () }
+//                                             ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        thirdStuff: <*>Ppat_tuple(
+            Ppat_any,
+            Ppat_construct(<*>T)
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 158:51
+
+Source:
+// switch someOtherValue { | {thirdStuff: (_, Four())} => () }
+//                                                 ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        thirdStuff: <*>Ppat_tuple(
+            Ppat_any,
+            <*>Ppat_construct(Four,<*>Ppat_construct(<*>()))
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 161:55
+
+Source:
+// switch someOtherValue { | {thirdStuff: (_, Five(_, O))} => () }
+//                                                     ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        thirdStuff: <*>Ppat_tuple(
+            Ppat_any,
+            <*>Ppat_construct(Five,<*>Ppat_tuple(
+                Ppat_any,
+                Ppat_construct(<*>O)
+            ))
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 164:63
+
+Source:
+// switch someOtherValue { | {fourthStuff: (Some(#WithPayload(O)), _)} => () }
+//                                                             ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        fourthStuff: <*>Ppat_tuple(
+            <*>Ppat_construct(Some,<*>Ppat_variant(WithPayload,Ppat_construct(<*>O))),
+            Ppat_any
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 167:67
+
+Source:
+// switch someOtherValue { | {thirdStuff: (_, Five(_, One | Two | T))} => () }
+//                                                                 ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        thirdStuff: <*>Ppat_tuple(
+            Ppat_any,
+            <*>Ppat_construct(Five,<*>Ppat_tuple(
+                Ppat_any,
+                Ppat_or(
+                  Ppat_or(
+                      Ppat_construct(One),
+                      Ppat_construct(Two)
+                    ),
+                  Ppat_construct(<*>T)
+                )
+            ))
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 170:43
+
+Source:
+// switch someOtherValue { | {otherThing: S} => () }
+//                                         ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        otherThing: Ppat_construct(<*>S)
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 173:39
+
+Source:
+// switch someOtherValue { | {other2: S} => () }
+//                                     ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        other2: Ppat_construct(<*>S)
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 176:64
+
+Source:
+// switch someOtherValue { | {thirdStuff: (_, Four(TwentyFive | ))} => () }
+//                                                              ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        thirdStuff: <*>Ppat_tuple(
+            Ppat_any,
+            <*>Ppat_construct(Four,<x>Ppat_or(
+              Ppat_construct(TwentyFive),
+              <x>Ppat_extension(%<x>rescript.patternhole)
+            ))
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 179:38
+
+Source:
+// switch someOtherValue { | {other2: } => () }
+//                                    ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someOtherValue)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        other2: <x>Ppat_extension(%<x>rescript.patternhole)
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 182:55
+
+Source:
+// switch someVal { | {something: {whatIsThis: false |  } } => () }
+//                                                     ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+            whatIsThis: <x>Ppat_or(
+              Ppat_construct(false),
+              <x>Ppat_extension(%<x>rescript.patternhole)
+            )
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 185:46
+
+Source:
+// switch someVal { | {something: {whatIsThis: } } => () }
+//                                            ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+            whatIsThis: <x>Ppat_extension(%<x>rescript.patternhole)
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 188:49
+
+Source:
+// switch someVal { | {something: {whatIsThis: fa  } } => () }
+//                                               ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+            whatIsThis: Ppat_var(<*>fa)
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 192:15
+
+Source:
+// switch x { | }
+//             ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:x)
+    case 1:
+      pattern<x>:
+        <x>Ppat_extension(%<x>rescript.patternhole)
+      expr<x>:
+        <x>Pexp_extension(%<x>rescript.exprhole)
+)
+
+Dump AST src/TypedContextCompletionSpec.res 196:14
+
+
+Dump AST src/TypedContextCompletionSpec.res 199:15
+
+Source:
+// switch y { | }
+//             ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:y)
+    case 1:
+      pattern<x>:
+        <x>Ppat_extension(%<x>rescript.patternhole)
+      expr<x>:
+        <x>Pexp_extension(%<x>rescript.exprhole)
+)
+
+Dump AST src/TypedContextCompletionSpec.res 202:36
+
+Source:
+// switch y { | One | Two | Three |  }
+//                                  ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:y)
+    case 1:
+      pattern<x>:
+        <x>Ppat_or(
+      Ppat_or(
+          Ppat_or(
+              Ppat_construct(One),
+              Ppat_construct(Two)
+            ),
+          Ppat_construct(Three)
+        ),
+      <x>Ppat_extension(%<x>rescript.patternhole)
+    )
+      expr<x>:
+        <x>Pexp_extension(%<x>rescript.exprhole)
+)
+
+Dump AST src/TypedContextCompletionSpec.res 206:33
+
+Source:
+// switch someVal { | {something:  } => () }
+//                               ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        something: <x>Ppat_extension(%<x>rescript.patternhole)
+    )
+      expr:
+        Pexp_construct(())
+)
+
+Dump AST src/TypedContextCompletionSpec.res 210:22
+
+Source:
+// switch someVal { |  => () }
+//                    ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern:
+        Ppat_construct(())
+      expr<x>:
+        <x>Pexp_extension(%<x>rescript.exprhole)
+)
+
+Dump AST src/TypedContextCompletionSpec.res 214:35
+
+Source:
+// switch someVal { | {something: {} } => () }
+//                                 ^ast
+
+
+Pstr_eval(
+  <*>Pexp_match(Pexp_ident:someVal)
+    case 1:
+      pattern<*>:
+        <*>Ppat_record(
+      fields:
+        something: <*>Ppat_record(
+          fields:
+
+        )
+    )
+      expr:
+        Pexp_construct(())
+)
+
