@@ -223,6 +223,11 @@ and printExprItem expr ~pos ~indentation =
     ^ "\n" ^ addIndentation indentation ^ ")"
   | Pexp_extension (({txt} as loc), _) ->
     "Pexp_extension(%" ^ (loc |> printLocDenominatorLoc ~pos) ^ txt ^ ")"
+  | Pexp_field (exp, loc) ->
+    "Pexp_field("
+    ^ (loc |> printLocDenominatorLoc ~pos)
+    ^ printExprItem exp ~pos ~indentation
+    ^ ")"
   | v -> Printf.sprintf "<unimplemented_pexp_desc: %s>" (Utils.identifyPexp v)
 
 let printValueBinding value ~pos ~indentation =
