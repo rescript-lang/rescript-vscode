@@ -182,9 +182,9 @@ Pstr_value(
 Complete src/TypedContextCompletionSpec.res 93:36
 posCursor:[93:36] posNoWhite:[93:35] Found expr:[93:11->93:47]
 Pexp_apply ...[93:11->93:18] (~doThing93:20->93:27=...[93:28->93:46])
+posCursor:[93:36] posNoWhite:[93:35] Found expr:[93:28->93:46]
 posCursor:[93:36] posNoWhite:[93:35] Found pattern:[93:29->93:37]
 posCursor:[93:36] posNoWhite:[93:35] Found pattern:[93:35->93:36]
-Completable: CtypedContextPattern(FunctionArgument(fnSource:NamedArg(doThing, Value[doStuff]), arg:unlabelled(0)))=n pattern: [] seenIdents: [age]
 []
 
 Complete src/TypedContextCompletionSpec.res 97:15

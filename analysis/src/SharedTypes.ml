@@ -579,12 +579,6 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
-    (* TODO: Divide CtypedContext into something dedicated to patterns vs expressions *)
-    | CtypedContextPattern of {
-        howToRetrieveSourceType: howToRetrieveSourceType;
-        patternPath: patternPathItem list;
-        meta: typedContextMeta;
-      }
     | CtypedPattern of {
         howToRetrieveSourceType: howToRetrieveSourceType;
         patternPath: patternPathItem list;
@@ -603,22 +597,6 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | CtypedContextPattern
-        {
-          howToRetrieveSourceType;
-          meta = {prefix; alreadySeenIdents};
-          patternPath;
-        } ->
-      ("CtypedContextPattern("
-      ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
-      ^ ")="
-      ^
-      match prefix with
-      | None -> ""
-      | Some prefix -> str prefix)
-      ^ " pattern: "
-      ^ (patternPath |> patternContextPathToString)
-      ^ " seenIdents: " ^ list alreadySeenIdents
     | CtypedPattern
         {
           howToRetrieveSourceType;

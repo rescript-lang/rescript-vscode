@@ -27,21 +27,6 @@ let positionToOffset text (line, character) =
     if bol + character <= String.length text then Some (bol + character)
     else None
 
-let getIdentFromExpr exp =
-  match exp.Parsetree.pexp_desc with
-  | Pexp_ident {txt} -> txt
-  | Pexp_construct ({txt}, _) -> txt
-  | Pexp_variant (label, _) -> Lident label
-  | Pexp_field (_, {txt}) -> txt
-  | _ -> Lident ""
-
-let canDoTypedCompletionOnExpr exp =
-  match exp.Parsetree.pexp_desc with
-  | Pexp_construct _ | Pexp_variant _
-  | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
-    true
-  | _ -> false
-
 let rec getSimpleFieldName txt =
   match txt with
   | Longident.Lident fieldName -> fieldName
@@ -95,193 +80,6 @@ let rec findAllOrBranches pat ~branches =
   | Ppat_or (pat1, pat2) ->
     pat1 |> findAllOrBranches ~branches:([pat2] @ branches)
   | _ -> [pat] @ branches
-
-let findAlreadySeenIdents pat =
-  match pat.Parsetree.ppat_desc with
-  | Ppat_or (pat1, pat2) ->
-    let rec findAllOrBranches pat ~branches =
-      match pat.Parsetree.ppat_desc with
-      | Ppat_or (pat1, pat2) ->
-        pat1 |> findAllOrBranches ~branches:([pat2] @ branches)
-      | _ -> [pat] @ branches
-    in
-    let branches = pat1 |> findAllOrBranches ~branches:[pat2] in
-    branches |> List.filter_map (fun branchPat -> identFromPat branchPat)
-  | _ -> []
-
-let rec findCompletableInPattern pattern ~path ~posBeforeCursor ~prefix
-    ~firstCharBeforeCursorNoWhite ~seenIdents =
-  match
-    pattern.Parsetree.ppat_loc
-    |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-  with
-  | NoCursor -> None
-  | EmptyLoc -> (
-    (* An empty location means the parser likely recovered from parsing an erronous pattern.
-       If we have at least one entry in the path list already, we know that we've at least
-       found _some_ context. We check that context and the char before the cursor to figure
-       out if we should complete for that path. *)
-    match (path, firstCharBeforeCursorNoWhite) with
-    (* Handles: One | Two | *)
-    | _ :: _, Some '|' ->
-      seenIdents := findAlreadySeenIdents pattern;
-      Some path (* Handles: {someField: } *)
-    | _ -> None)
-  | HasCursor -> (
-    match pattern.ppat_desc with
-    | Ppat_construct ({txt = Lident "()"}, None) ->
-      (* A constructor without a payload mean we've reached an end. The parser parses SomeVariant() like above. *)
-      prefix := "";
-      Some path
-    | Ppat_construct ({txt}, None) ->
-      (* A constructor without a payload mean we've reached an end. *)
-      prefix := getSimpleFieldName txt;
-      Some path
-    | Ppat_construct ({txt}, Some constructorPayload) -> (
-      match
-        findVariantPayloadItemNumWithCursor constructorPayload
-          ~pos:posBeforeCursor
-      with
-      | None -> None
-      | Some (index, pat) ->
-        seenIdents := findAlreadySeenIdents pat;
-        pat
-        |> findCompletableInPattern
-             ~path:
-               ([
-                  Completable.Variant
-                    {
-                      constructorName = getSimpleFieldName txt;
-                      payloadNum = Some index;
-                    };
-                ]
-               @ path)
-             ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix ~seenIdents)
-    | Ppat_variant (label, None) ->
-      (* A constructor without a payload mean we've reached an end. *)
-      prefix := label;
-      Some path
-    | Ppat_variant (label, Some constructorPayload) -> (
-      match
-        findVariantPayloadItemNumWithCursor constructorPayload
-          ~pos:posBeforeCursor
-      with
-      | None -> None
-      | Some (index, pat) ->
-        seenIdents := findAlreadySeenIdents pat;
-        pat
-        |> findCompletableInPattern
-             ~path:
-               ([
-                  Completable.Polyvariant {name = label; payloadNum = Some index};
-                ]
-               @ path)
-             ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~prefix ~seenIdents)
-    | Ppat_tuple patterns -> (
-      let tupleItemNum = ref 0 in
-      let patternWithCursor =
-        patterns
-        |> List.find_map (fun pat ->
-               let currentItemNum = !tupleItemNum in
-               tupleItemNum := !tupleItemNum + 1;
-               match
-                 pat.Parsetree.ppat_loc
-                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-               with
-               | HasCursor | EmptyLoc -> Some (currentItemNum, pat)
-               | NoCursor -> None)
-      in
-      match patternWithCursor with
-      | None -> None
-      | Some (tupleItemNum, pat) ->
-        seenIdents := [];
-        pat
-        |> findCompletableInPattern ~posBeforeCursor ~prefix
-             ~firstCharBeforeCursorNoWhite ~seenIdents
-             ~path:([Completable.PTuple {itemNumber = tupleItemNum}] @ path))
-    | Ppat_record (fields, _) when List.length fields = 0 -> Some path
-    | Ppat_record (fields, _) -> (
-      let seenFields =
-        fields |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
-      in
-      let fieldWithCursor =
-        fields
-        |> List.find_map (fun (loc, fieldPat) ->
-               match
-                 fieldPat.Parsetree.ppat_loc
-                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-               with
-               | NoCursor -> None
-               | HasCursor | EmptyLoc -> Some (loc, fieldPat))
-      in
-      match fieldWithCursor with
-      | None ->
-        if firstCharBeforeCursorNoWhite = Some ',' then (
-          seenIdents := seenFields;
-          Some path)
-        else None
-      | Some (loc, pat) ->
-        let fieldName = getSimpleFieldName loc.txt in
-        seenIdents := seenFields |> List.filter (fun name -> name <> fieldName);
-
-        let newPath =
-          match pat.ppat_desc with
-          | Ppat_var {txt} when txt = fieldName ->
-            (* let {something} = whatever <- shorthand for let {something:something}, which is just an alias,
-               so we don't want to consider it entering the record field. *)
-            path
-          | _ -> [Completable.RField {fieldName}] @ path
-        in
-        pat
-        |> findCompletableInPattern ~posBeforeCursor ~prefix
-             ~firstCharBeforeCursorNoWhite ~seenIdents ~path:newPath)
-    | Ppat_var {txt} ->
-      prefix := txt;
-      Some path
-    | Ppat_or (pat1, pat2) -> (
-      seenIdents := findAlreadySeenIdents pattern;
-
-      let branches = pat1 |> findAllOrBranches ~branches:[pat2] in
-      let branchAtCursor =
-        branches
-        |> List.find_opt (fun pat ->
-               match
-                 pat.Parsetree.ppat_loc
-                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-               with
-               | HasCursor -> true
-               | EmptyLoc | NoCursor -> false)
-      in
-      match branchAtCursor with
-      | None -> None
-      | Some pat ->
-        pat
-        |> findCompletableInPattern ~posBeforeCursor ~prefix
-             ~firstCharBeforeCursorNoWhite ~path ~seenIdents)
-    | _ -> None)
-
-let completePattern pattern ~howToRetrieveSourceType ~posBeforeCursor
-    ~firstCharBeforeCursorNoWhite ~seenIdents =
-  let prefix = ref "" in
-  let seenIdents = ref seenIdents in
-  let nestedContextPath =
-    pattern
-    |> findCompletableInPattern ~path:[] ~posBeforeCursor ~prefix
-         ~firstCharBeforeCursorNoWhite ~seenIdents
-  in
-  match nestedContextPath with
-  | Some nestedContextPath ->
-    Some
-      (Completable.CtypedContextPattern
-         {
-           howToRetrieveSourceType;
-           patternPath = nestedContextPath |> List.rev;
-           meta = {prefix = Some !prefix; alreadySeenIdents = !seenIdents};
-         })
-  | _ -> None
-
-(* This is probably wrong and we should likely use the full Longident instead for the prefix. *)
-let getPrefixFromExpr exp = getIdentFromExpr exp |> Longident.last
 
 (* Extracted for reuse. *)
 let rec exprToContextPath (e : Parsetree.expression) =
@@ -343,47 +141,13 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         None
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Cursor on expr assigned *)
-        if canDoTypedCompletionOnExpr prop.exp then
-          Some
-            (Completable.CtypedContextPattern
-               {
-                 howToRetrieveSourceType =
-                   JsxProp
-                     {
-                       componentPath =
-                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                       propName = prop.name;
-                     };
-                 patternPath = [];
-                 meta =
-                   {
-                     prefix = Some (getPrefixFromExpr prop.exp);
-                     alreadySeenIdents = [];
-                   };
-               })
-        else None
+        (* TODO: Add expr completion *)
+        None
       else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
              Complete for the value. *)
-        if canDoTypedCompletionOnExpr prop.exp then
-          Some
-            (Completable.CtypedContextPattern
-               {
-                 howToRetrieveSourceType =
-                   JsxProp
-                     {
-                       componentPath =
-                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                       propName = prop.name;
-                     };
-                 patternPath = [];
-                 meta =
-                   {
-                     prefix = Some (getPrefixFromExpr prop.exp);
-                     alreadySeenIdents = [];
-                   };
-               })
-        else None
+        (* TODO: Add expr completion *)
+        None
       else loop rest
     | [] ->
       let beforeChildrenStart =
@@ -452,8 +216,7 @@ type label = labelled option
 type arg = {label: label; exp: Parsetree.expression}
 
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(contextPath : Completable.contextPath) ~posAfterFunExpr
-    ~firstCharBeforeCursorNoWhite =
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
   let allNames =
     List.fold_right
       (fun arg allLabels ->
@@ -473,9 +236,6 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Ok, were completing in the expression. Inspect what the expression is. *)
         (* TODO: Apply the same thing to JSX *)
-        let howToRetrieveTheTypeForThisArg =
-          Completable.NamedArg {contextPath; label = labelled.name}
-        in
         match exp.pexp_desc with
         | Pexp_fun _ -> (
           (* If this is a function expression, there might be function argument patterns we can
@@ -504,50 +264,15 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
           in
           match findTargetArg exp with
           | None -> None
-          | Some (arg, argPattern) ->
-            let completable =
-              argPattern
-              |> completePattern
-                   ~howToRetrieveSourceType:
-                     (Completable.FunctionArgument
-                        {
-                          howToFindFunctionType = howToRetrieveTheTypeForThisArg;
-                          arg;
-                        })
-                   ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~seenIdents:[]
-            in
-            completable)
+          | Some (_arg, _argPattern) -> (* TODO: Add expr completion *) None)
         | _ ->
-          if canDoTypedCompletionOnExpr exp then
-            Some
-              (Completable.CtypedContextPattern
-                 {
-                   howToRetrieveSourceType = howToRetrieveTheTypeForThisArg;
-                   patternPath = [];
-                   meta =
-                     {
-                       prefix = Some (getPrefixFromExpr exp);
-                       alreadySeenIdents = [];
-                     };
-                 })
-          else None
+          (* TODO: Add expr completion *)
+          None
       else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
            Assume this is an empty expression. *)
-        if canDoTypedCompletionOnExpr exp then
-          Some
-            (Completable.CtypedContextPattern
-               {
-                 howToRetrieveSourceType =
-                   NamedArg {contextPath; label = labelled.name};
-                 patternPath = [];
-                 meta =
-                   {
-                     prefix = Some (getPrefixFromExpr exp);
-                     alreadySeenIdents = [];
-                   };
-               })
-        else None
+        (* TODO: Add expr completion *)
+        None
       else loop rest
     | {label = None; exp} :: rest ->
       if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
@@ -1042,11 +767,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
            Depending on if the destructure is nested or not, we may or may not use that directly.*)
         match exprToContextPath expr with
         | None -> ()
-        | Some contextPath when false ->
-          setResultOpt
-            (pvb_pat
-            |> completePattern ~howToRetrieveSourceType:(CtxPath contextPath)
-                 ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~seenIdents:[])
         | Some contextPath -> (
           match
             findContextInPattern pvb_pat ~firstCharBeforeCursorNoWhite
@@ -1057,7 +777,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           | Some res ->
             setResultOpt
               (Some
-                 (CtypedPattern
+                 (Completable.CtypedPattern
                     {
                       howToRetrieveSourceType = CtxPath contextPath;
                       patternPath = res.patternPath |> List.rev;
@@ -1314,7 +1034,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             | Some contextPath ->
               findNamedArgCompletable ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
-                ~firstCharBeforeCursorNoWhite
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
             | None -> None
           in

@@ -14,115 +14,59 @@ Completable: Cjsx([SomeComponent], someVaria, [someVaria])
 Complete src/TypeContextCompletion_Jsx.res 23:38
 posCursor:[23:38] posNoWhite:[23:37] Found expr:[23:12->23:38]
 JSX <SomeComponent:[23:12->23:25] someVariant[23:26->23:37]=...__ghost__[0:-1->0:-1]> _children:None
-Completable: CtypedContextPattern(JsxProp(<SomeComponent someVariant= />))="" pattern: [] seenIdents: []
-[{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Two",
-    "kind": 4,
-    "tags": [],
-    "detail": "Two\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Three",
-    "kind": 4,
-    "tags": [],
-    "detail": "Three\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Four",
-    "kind": 4,
-    "tags": [],
-    "detail": "Four\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Five(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Five(int)\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Six(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Six(option<string>, int)\n\n",
-    "documentation": null,
-    "sortText": null
-  }]
+[]
 
 Complete src/TypeContextCompletion_Jsx.res 26:39
 posCursor:[26:39] posNoWhite:[26:37] Found expr:[26:12->26:38]
 JSX <SomeComponent:[26:12->26:25] someVariant[26:26->26:37]=...__ghost__[0:-1->0:-1]> _children:None
-Completable: CtypedContextPattern(JsxProp(<SomeComponent someVariant= />))="" pattern: [] seenIdents: []
-[{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Two",
-    "kind": 4,
-    "tags": [],
-    "detail": "Two\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Three",
-    "kind": 4,
-    "tags": [],
-    "detail": "Three\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Four",
-    "kind": 4,
-    "tags": [],
-    "detail": "Four\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Five(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Five(int)\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Six(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Six(option<string>, int)\n\n",
-    "documentation": null,
-    "sortText": null
-  }]
+[]
 
 Complete src/TypeContextCompletion_Jsx.res 29:39
 posCursor:[29:39] posNoWhite:[29:38] Found expr:[29:12->29:39]
 JSX <SomeComponent:[29:12->29:25] someVariant[29:26->29:37]=...[29:38->29:39]> _children:None
-Completable: CtypedContextPattern(JsxProp(<SomeComponent someVariant= />))=T pattern: [] seenIdents: []
+posCursor:[29:39] posNoWhite:[29:38] Found expr:[29:38->29:39]
+Pexp_construct T:[29:38->29:39] None
+Completable: Cpath Value[T]
 [{
-    "label": "Two",
-    "kind": 4,
+    "label": "TableclothMap",
+    "kind": 9,
     "tags": [],
-    "detail": "Two\n\n",
+    "detail": "file module",
     "documentation": null,
     "sortText": null
   }, {
-    "label": "Three",
-    "kind": 4,
+    "label": "TypeContextCompletion_Jsx",
+    "kind": 9,
     "tags": [],
-    "detail": "Three\n\n",
+    "detail": "file module",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "TypeContextCompletion_LabelledArguments",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "TypeContextCompletion_Records",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "TypeDefinition",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "TypedContextCompletionSpec",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
     "documentation": null,
     "sortText": null
   }]
@@ -138,142 +82,27 @@ Completable: Cpath Value[t]
 Complete src/TypeContextCompletion_Jsx.res 35:39
 posCursor:[35:39] posNoWhite:[35:38] Found expr:[35:12->35:39]
 JSX <SomeComponent:[35:12->35:25] anotherThing[35:26->35:38]=...__ghost__[0:-1->0:-1]> _children:None
-Completable: CtypedContextPattern(JsxProp(<SomeComponent anotherThing= />))="" pattern: [] seenIdents: []
-[{
-    "label": "Foo",
-    "kind": 4,
-    "tags": [],
-    "detail": "Foo\n\n",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "Bar",
-    "kind": 4,
-    "tags": [],
-    "detail": "Bar\n\n",
-    "documentation": null,
-    "sortText": null
-  }]
+[]
 
 Complete src/TypeContextCompletion_Jsx.res 38:37
 posCursor:[38:37] posNoWhite:[38:36] Found expr:[38:12->38:37]
 JSX <SomeComponent:[38:12->38:25] thirdThing[38:26->38:36]=...__ghost__[0:-1->0:-1]> _children:None
-Completable: CtypedContextPattern(JsxProp(<SomeComponent thirdThing= />))="" pattern: [] seenIdents: []
-[{
-    "label": "#one",
-    "kind": 4,
-    "tags": [],
-    "detail": "#one",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#six(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "#six(option<int>, int)",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#three",
-    "kind": 4,
-    "tags": [],
-    "detail": "#three",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#two",
-    "kind": 4,
-    "tags": [],
-    "detail": "#two",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#five(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "#five(int)",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#four",
-    "kind": 4,
-    "tags": [],
-    "detail": "#four",
-    "documentation": null,
-    "sortText": null
-  }]
+[]
 
 Complete src/TypeContextCompletion_Jsx.res 41:38
 posCursor:[41:38] posNoWhite:[41:36] Found expr:[41:12->41:37]
 JSX <SomeComponent:[41:12->41:25] thirdThing[41:26->41:36]=...__ghost__[0:-1->0:-1]> _children:None
-Completable: CtypedContextPattern(JsxProp(<SomeComponent thirdThing= />))="" pattern: [] seenIdents: []
-[{
-    "label": "#one",
-    "kind": 4,
-    "tags": [],
-    "detail": "#one",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#six(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "#six(option<int>, int)",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#three",
-    "kind": 4,
-    "tags": [],
-    "detail": "#three",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#two",
-    "kind": 4,
-    "tags": [],
-    "detail": "#two",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#five(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "#five(int)",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#four",
-    "kind": 4,
-    "tags": [],
-    "detail": "#four",
-    "documentation": null,
-    "sortText": null
-  }]
+[]
 
 Complete src/TypeContextCompletion_Jsx.res 44:39
 posCursor:[44:39] posNoWhite:[44:38] Found expr:[44:12->44:39]
 JSX <SomeComponent:[44:12->44:25] thirdThing[44:26->44:36]=...[44:37->44:39]> _children:None
-Completable: CtypedContextPattern(JsxProp(<SomeComponent thirdThing= />))=t pattern: [] seenIdents: []
-[{
-    "label": "#three",
-    "kind": 4,
-    "tags": [],
-    "detail": "#three",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "#two",
-    "kind": 4,
-    "tags": [],
-    "detail": "#two",
-    "documentation": null,
-    "sortText": null
-  }]
+posCursor:[44:39] posNoWhite:[44:38] Found expr:[44:37->44:39]
+[]
 
 Complete src/TypeContextCompletion_Jsx.res 47:39
 posCursor:[47:39] posNoWhite:[47:38] Found expr:[47:12->47:39]
 JSX <SomeComponent:[47:12->47:25] thirdThing[47:26->47:36]=...[47:37->47:39]> _children:None
-Completable: CtypedContextPattern(JsxProp(<SomeComponent thirdThing= />))=T pattern: [] seenIdents: []
+posCursor:[47:39] posNoWhite:[47:38] Found expr:[47:37->47:39]
 []
 
