@@ -8,7 +8,9 @@ Completable: Cjsx([SomeComponent], someVaria, [someVaria])
     "tags": [],
     "detail": "someVariant",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 23:38
@@ -33,42 +35,54 @@ Completable: Cpath Value[T]
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypeContextCompletion_Jsx",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypeContextCompletion_LabelledArguments",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypeContextCompletion_Records",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypedContextCompletionSpec",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 32:39

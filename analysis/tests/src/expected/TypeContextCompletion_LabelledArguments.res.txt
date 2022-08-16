@@ -13,7 +13,9 @@ Found type for function (
     "tags": [],
     "detail": "someVariant",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 25:44
@@ -38,42 +40,54 @@ Completable: Cpath Value[T]
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypeContextCompletion_Jsx",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypeContextCompletion_LabelledArguments",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypeContextCompletion_Records",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "TypedContextCompletionSpec",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 34:45
@@ -88,7 +102,9 @@ Completable: Cpath Value[t]
     "tags": [],
     "detail": "someVariant",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 37:59
@@ -103,49 +119,63 @@ Completable: Cpath Value[TypeDefinition, ""]
     "tags": [],
     "detail": "variant => string",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "x",
     "kind": 12,
     "tags": [],
     "detail": "variant",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "y",
     "kind": 12,
     "tags": [],
     "detail": "record",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "obj",
     "kind": 12,
     "tags": [],
     "detail": "obj",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "f",
     "kind": 12,
     "tags": [],
     "detail": "record => string",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Foo",
     "kind": 4,
     "tags": [],
     "detail": "Foo\n\ntype variant = Foo | Bar",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Bar",
     "kind": 4,
     "tags": [],
     "detail": "Bar\n\ntype variant = Foo | Bar",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 40:45
@@ -176,10 +206,8 @@ posCursor:[52:45] posNoWhite:[52:44] Found expr:[52:43->52:45]
 []
 
 Complete src/TypeContextCompletion_LabelledArguments.res 64:36
-posCursor:[64:36] posNoWhite:[64:35] Found expr:[64:11->64:47]
-Pexp_apply ...[64:11->64:18] (~doThing64:20->64:27=...[64:28->64:46])
-posCursor:[64:36] posNoWhite:[64:35] Found expr:[64:28->64:46]
 posCursor:[64:36] posNoWhite:[64:35] Found pattern:[64:29->64:37]
 posCursor:[64:36] posNoWhite:[64:35] Found pattern:[64:35->64:36]
+Completable: CtypedPattern(sourceType:Value[doStuff](~doThing), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 

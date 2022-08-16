@@ -7,6 +7,8 @@ Completable: Cpath Value[a]->
     "tags": [],
     "detail": "float => float",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 

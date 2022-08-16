@@ -8,7 +8,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 19:23
@@ -21,7 +23,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 22:8
@@ -33,21 +37,27 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "anotherThing",
     "kind": 5,
     "tags": [],
     "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "thirdThing",
     "kind": 5,
     "tags": [],
     "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 31:8
@@ -59,21 +69,27 @@ Completable: CtypedPattern(sourceType:Value[getSomeVal](~irrelevant), lookingToC
     "tags": [],
     "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "anotherThing",
     "kind": 5,
     "tags": [],
     "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "thirdThing",
     "kind": 5,
     "tags": [],
     "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 35:20
@@ -86,21 +102,27 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "whatIsThis",
     "kind": 5,
     "tags": [],
     "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "anotherLevel",
     "kind": 5,
     "tags": [],
     "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 38:47
@@ -114,14 +136,18 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "level: int\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "someOtherArg",
     "kind": 5,
     "tags": [],
     "detail": "someOtherArg: bool\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 41:48
@@ -136,7 +162,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "level: int\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 44:47
@@ -149,7 +177,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 47:31
@@ -162,7 +192,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 50:44
@@ -176,7 +208,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 53:52
@@ -189,21 +223,27 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "anotherThing",
     "kind": 5,
     "tags": [],
     "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "thirdThing",
     "kind": 5,
     "tags": [],
     "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 56:89
@@ -217,7 +257,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 81:48
@@ -233,7 +275,9 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "tags": [],
     "detail": "Three(int)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 84:48
@@ -250,14 +294,18 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "tags": [],
     "detail": "Two\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Three(_)",
     "kind": 4,
     "tags": [],
     "detail": "Three(int)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 87:47
@@ -273,14 +321,18 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "tags": [],
     "detail": "Two\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Three(_)",
     "kind": 4,
     "tags": [],
     "detail": "Three(int)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 90:51
@@ -310,7 +362,9 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "tags": [],
     "detail": "One\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 96:63
@@ -342,7 +396,9 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "tags": [],
     "detail": "Three(int)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 102:43
@@ -357,42 +413,54 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "tags": [],
     "detail": "None\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(One)",
     "kind": 4,
     "tags": [],
     "detail": "One\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(Two)",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(Three(_))",
     "kind": 4,
     "tags": [],
     "detail": "Three(int)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(Four(_))",
     "kind": 4,
     "tags": [],
     "detail": "Four(someOtherVariant)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(Five(_))",
     "kind": 4,
     "tags": [],
     "detail": "Five(someOtherVariant, someVariant)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 105:39
@@ -407,14 +475,18 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "tags": [],
     "detail": "None\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(_)",
     "kind": 4,
     "tags": [],
     "detail": "Some(_)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 108:64
@@ -436,14 +508,18 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "tags": [],
     "detail": "None\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(_)",
     "kind": 4,
     "tags": [],
     "detail": "Some(_)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 114:55
@@ -457,7 +533,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoConte
     "tags": [],
     "detail": "boolean\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 117:46
@@ -471,14 +549,18 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoConte
     "tags": [],
     "detail": "boolean\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "true",
     "kind": 12,
     "tags": [],
     "detail": "boolean\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 120:49
@@ -493,7 +575,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CVariant
     "tags": [],
     "detail": "boolean\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 125:15
@@ -505,42 +589,54 @@ Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CNoContext, pa
     "tags": [],
     "detail": "None\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(One)",
     "kind": 4,
     "tags": [],
     "detail": "One\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(Two)",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(Three(_))",
     "kind": 4,
     "tags": [],
     "detail": "Three(int)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(Four(_))",
     "kind": 4,
     "tags": [],
     "detail": "Four(someOtherVariant)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Some(Five(_))",
     "kind": 4,
     "tags": [],
     "detail": "Five(someOtherVariant, someVariant)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 128:14
@@ -556,35 +652,45 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "tags": [],
     "detail": "One\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Three(_)",
     "kind": 4,
     "tags": [],
     "detail": "Three(int)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Four(_)",
     "kind": 4,
     "tags": [],
     "detail": "Four(someOtherVariant)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Five(_)",
     "kind": 4,
     "tags": [],
     "detail": "Five(someOtherVariant, someVariant)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 136:36
@@ -596,14 +702,18 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "tags": [],
     "detail": "Four(someOtherVariant)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Five(_)",
     "kind": 4,
     "tags": [],
     "detail": "Five(someOtherVariant, someVariant)\n\n",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 140:33
@@ -616,7 +726,9 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoConte
     "tags": [],
     "detail": "Empty record",
     "documentation": null,
-    "sortText": "a"
+    "sortText": "a",
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/TypeContextCompletion_Records.res 144:35
@@ -630,20 +742,52 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordF
     "tags": [],
     "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "whatIsThis",
     "kind": 5,
     "tags": [],
     "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "anotherLevel",
     "kind": 5,
     "tags": [],
     "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
+
+Complete src/TypeContextCompletion_Records.res 147:45
+posCursor:[147:45] posNoWhite:[147:44] Found expr:[147:3->147:58]
+posCursor:[147:45] posNoWhite:[147:44] Found pattern:[147:29->147:50]
+posCursor:[147:45] posNoWhite:[147:44] Found pattern:[147:43->147:49]
+posCursor:[147:45] posNoWhite:[147:44] Found pattern:[147:44->147:45]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:fourthStuff, Tuple:0], seenIdents: [])
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "None\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "Some(#WithPayload(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "#WithPayload(someVariant)",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 

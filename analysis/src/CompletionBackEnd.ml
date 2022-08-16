@@ -558,7 +558,8 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
           res :=
             {
               (Completion.create ~name:declared.name.txt ~env
-                 ~kind:(transformContents declared.item))
+                 ~kind:(transformContents declared.item)
+                 ())
               with
               deprecated = declared.deprecated;
               docstring = declared.docstring;
@@ -600,7 +601,8 @@ let completionsForExportedConstructors ~(env : QueryEnv.t) ~prefix ~exact
                      (Completion.create ~name ~env
                         ~kind:
                           (Completion.Constructor
-                             (c, t.item.decl |> Shared.declToString t.name.txt)))
+                             (c, t.item.decl |> Shared.declToString t.name.txt))
+                        ())
                  else None))
           @ !res
       | _ -> ());
@@ -622,7 +624,8 @@ let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
                      (Completion.create ~name ~env
                         ~kind:
                           (Completion.Field
-                             (f, t.item.decl |> Shared.declToString t.name.txt)))
+                             (f, t.item.decl |> Shared.declToString t.name.txt))
+                        ())
                  else None))
           @ !res
       | _ -> ());
@@ -801,7 +804,7 @@ let processLocalValue name loc ~prefix ~exact ~env
         localTables.resultRev <-
           {
             (Completion.create ~name:declared.name.txt ~env
-               ~kind:(Value declared.item))
+               ~kind:(Value declared.item) ())
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -818,6 +821,7 @@ let processLocalValue name loc ~prefix ~exact ~env
                (Ctype.newconstr
                   (Path.Pident (Ident.create "Type Not Known"))
                   []))
+          ()
         :: localTables.resultRev
 
 let processLocalConstructor name loc ~prefix ~exact ~env
@@ -836,7 +840,8 @@ let processLocalConstructor name loc ~prefix ~exact ~env
                  (Constructor
                     ( declared.item,
                       snd declared.item.typeDecl
-                      |> Shared.declToString (fst declared.item.typeDecl) )))
+                      |> Shared.declToString (fst declared.item.typeDecl) ))
+               ())
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -857,7 +862,7 @@ let processLocalType name loc ~prefix ~exact ~env ~(localTables : LocalTables.t)
         localTables.resultRev <-
           {
             (Completion.create ~name:declared.name.txt ~env
-               ~kind:(Type declared.item))
+               ~kind:(Type declared.item) ())
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -878,7 +883,7 @@ let processLocalModule name loc ~prefix ~exact ~env
         localTables.resultRev <-
           {
             (Completion.create ~name:declared.name.txt ~env
-               ~kind:(Module declared.item))
+               ~kind:(Module declared.item) ())
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -1145,7 +1150,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
              then
                Some
                  (Completion.create ~name ~env
-                    ~kind:(Completion.FileModule name))
+                    ~kind:(Completion.FileModule name) ())
              else None)
     in
     localCompletionsWithOpens @ fileModules
@@ -1158,7 +1163,8 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
       findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
     | None -> [])
 
-let mkItem ~name ~sortText ~kind ~detail ~deprecated ~docstring =
+let mkItem ~name ~sortText ~insertText ~insertTextFormat ~kind ~detail
+    ~deprecated ~docstring =
   let docContent =
     (match deprecated with
     | None -> ""
@@ -1183,10 +1189,21 @@ let mkItem ~name ~sortText ~kind ~detail ~deprecated ~docstring =
         (if docContent = "" then None
         else Some {kind = "markdown"; value = docContent});
       sortText;
+      insertText;
+      insertTextFormat;
     }
 
-let completionToItem {Completion.name; deprecated; docstring; kind; sortText} =
-  mkItem ~name ~sortText
+let completionToItem
+    {
+      Completion.name;
+      deprecated;
+      docstring;
+      kind;
+      sortText;
+      insertText;
+      insertTextFormat;
+    } =
+  mkItem ~name ~sortText ~insertText ~insertTextFormat
     ~kind:(Completion.kindToInt kind)
     ~deprecated ~detail:(detail name kind) ~docstring
 
@@ -1204,14 +1221,16 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       Completion.create ~name:"string" ~env
         ~kind:
           (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
+             (Ctype.newconstr (Path.Pident (Ident.create "string")) []))
+        ();
     ]
   | CPArray ->
     [
       Completion.create ~name:"array" ~env
         ~kind:
           (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
+             (Ctype.newconstr (Path.Pident (Ident.create "array")) []))
+        ();
     ]
   | CPId (path, completionContext) ->
     path
@@ -1255,7 +1274,10 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       | args, tRet when args <> [] ->
         let args = processApply args labels in
         let retType = reconstructFunctionType args tRet in
-        [Completion.create ~name:"dummy" ~env ~kind:(Completion.Value retType)]
+        [
+          Completion.create ~name:"dummy" ~env ~kind:(Completion.Value retType)
+            ();
+        ]
       | _ -> [])
     | None -> [])
   | CPField (CPId (path, Module), fieldName) ->
@@ -1282,7 +1304,8 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
                         (Completion.Field
                            ( field,
                              typDecl.item.decl
-                             |> Shared.declToString typDecl.name.txt )))
+                             |> Shared.declToString typDecl.name.txt ))
+                      ())
                else None)
       | None -> [])
     | None -> [])
@@ -1310,7 +1333,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
                if checkName field ~prefix:label ~exact then
                  Some
                    (Completion.create ~name:field ~env
-                      ~kind:(Completion.ObjLabel typ))
+                      ~kind:(Completion.ObjLabel typ) ())
                else None)
       | None -> [])
     | None -> [])
@@ -1679,7 +1702,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
          ~env ~exact:forHover ~scope
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel (name, typString) =
-      Completion.create ~name ~kind:(Label typString) ~env
+      Completion.create ~name ~kind:(Label typString) ~env ()
     in
     let keyLabels =
       if Utils.startsWith "key" prefix then [mkLabel ("key", "string")] else []
@@ -1696,7 +1719,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
       |> getLabelsForComponent ~package ~opens ~allFiles ~pos ~env ~scope
     in
     let mkLabel_ name typString =
-      Completion.create ~name ~kind:(Label typString) ~env
+      Completion.create ~name ~kind:(Label typString) ~env ()
     in
     let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
     let keyLabels =
@@ -1712,7 +1735,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
       @ keyLabels
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
-      {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
+      {(Completion.create ~name ~kind:(Label "") ~env ()) with docstring}
     in
     [
       ( "as",
@@ -1976,7 +1999,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | None -> []
     in
     let mkLabel (name, typ) =
-      Completion.create ~name ~kind:(Label (typ |> Shared.typeToString)) ~env
+      Completion.create ~name ~kind:(Label (typ |> Shared.typeToString)) ~env ()
     in
     labels
     |> List.filter (fun (name, _t) ->
@@ -1987,11 +2010,11 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       {
         howToRetrieveSourceType;
         patternPath;
-        patternType;
         lookingToComplete;
         prefix;
         alreadySeenIdents;
       } -> (
+    let prefix = if prefix = "_" then "" else prefix in
     let sourceType =
       howToRetrieveSourceType
       |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~pos ~scope
@@ -2004,18 +2027,26 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
           lookingToComplete )
       with
       | None, _ -> []
-
       | Some (CTuple {types}), _ ->
         (* Completing a tuple itself, like `{someFieldWithTuple: <com>}` *)
         [
-          Completion.createWithSortText
+          Completion.create
             ~name:
               ("("
               ^ (types |> List.map (fun _t -> "_") |> String.concat ", ")
               ^ ")")
-            ~env ~sortText:"a" ~kind:(Completion.Label "Full tuple match");
-          Completion.createWithSortText ~name:"()" ~env ~sortText:"b"
-            ~kind:(Completion.Label "Empty tuple match for single element");
+            ~insertText:
+              ("("
+              ^ (types
+                |> List.mapi (fun index _t ->
+                       Printf.sprintf "${%i:_}" (index + 1))
+                |> String.concat ", ")
+              ^ ")")
+            ~insertTextFormat:Snippet ~env ~sortText:"a"
+            ~kind:(Completion.Label "Full tuple match") ();
+          Completion.create ~name:"()" ~env ~sortText:"b" ~insertText:"($1)"
+            ~insertTextFormat:Snippet
+            ~kind:(Completion.Label "Empty tuple match for single element") ();
         ]
       | Some CBool, _ ->
         (* Completing booleans - doesn't matter what we're looking to complete, since there's only one thing to complete (the bool values themselves). *)
@@ -2026,7 +2057,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                     (alreadySeenIdents
                     |> List.exists (fun seenIdent -> seenIdent = boolEntry)))
         |> List.map (fun boolEntry ->
-               Completion.create ~name:boolEntry ~kind:Bool ~env)
+               Completion.create ~name:boolEntry ~kind:Bool ~env ())
       | Some (COptional completable), _lookingToComplete -> (
         (* TODO: Account for lookingToComplete? *)
         match completable with
@@ -2052,8 +2083,14 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                        ^
                        if constructor.args |> List.length > 0 then "(_))"
                        else ")")
+                     ~insertText:
+                       ("Some(" ^ constructor.cname.txt
+                       ^
+                       if constructor.args |> List.length > 0 then "(${1:_}))"
+                       else ")")
+                     ~insertTextFormat:Snippet
                      ~kind:(Constructor (constructor, ""))
-                     ~env)
+                     ~env ())
           in
           (* TODO: Patterns should not include local completions *)
           let _localCompletions =
@@ -2061,7 +2098,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
                  ~exact:false ~opens ~scope
           in
-          [Completion.create ~name:"None" ~kind:OptionNone ~env]
+          [Completion.create ~name:"None" ~kind:OptionNone ~env ()]
           @ constructorCompletions
         | CPolyVariant {constructors} ->
           (* TOOD: Unify with other variant completion handler *)
@@ -2078,7 +2115,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                        ^
                        if constructor.payload |> Option.is_some then "(_))"
                        else ")")
-                     ~kind:(PolyvariantConstructor constructor) ~env)
+                     ~insertTextFormat:Snippet
+                     ~insertText:
+                       ("Some(#" ^ constructor.name
+                       ^
+                       if constructor.payload |> Option.is_some then "(${1:_}))"
+                       else ")")
+                     ~kind:(PolyvariantConstructor constructor) ~env ())
           in
           (* TODO: Patterns should not include local completions *)
           let _localCompletions =
@@ -2086,12 +2129,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
                  ~exact:false ~opens ~scope
           in
-          [Completion.create ~name:"None" ~kind:OptionNone ~env]
+          [Completion.create ~name:"None" ~kind:OptionNone ~env ()]
           @ constructorCompletions
         | _ ->
           [
-            Completion.create ~name:"None" ~kind:OptionNone ~env;
-            Completion.create ~name:"Some(_)" ~kind:OptionSome ~env;
+            Completion.create ~name:"None" ~kind:OptionNone ~env ();
+            Completion.create ~name:"Some(_)" ~insertText:"Some(${1:_})"
+              ~insertTextFormat:Snippet ~kind:OptionSome ~env ();
           ])
       | Some (CPolyVariant {constructors}), _ ->
         let constructorCompletions =
@@ -2107,7 +2151,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      ^
                      if constructor.payload |> Option.is_some then "(_)" else ""
                      )
-                   ~kind:(PolyvariantConstructor constructor) ~env)
+                   ~insertText:
+                     ("#" ^ constructor.name
+                     ^
+                     if constructor.payload |> Option.is_some then "(${1:_})"
+                     else "")
+                   ~insertTextFormat:Snippet
+                   ~kind:(PolyvariantConstructor constructor) ~env ())
         in
         let _localCompletions =
           typ
@@ -2133,8 +2183,14 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      (constructor.cname.txt
                      ^ if constructor.args |> List.length > 0 then "(_)" else ""
                      )
+                   ~insertTextFormat:Snippet
+                   ~insertText:
+                     (constructor.cname.txt
+                     ^
+                     if constructor.args |> List.length > 0 then "(${1:_})"
+                     else "")
                    ~kind:(Constructor (constructor, ""))
-                   ~env)
+                   ~env ())
         in
         let _localCompletions =
           typ
@@ -2155,10 +2211,11 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                    (Completion.create ~name:field.fname.txt ~env
                       ~kind:
                         (Completion.Field
-                           (field, decl |> Shared.declToString name.txt)))
+                           (field, decl |> Shared.declToString name.txt))
+                      ())
                else None)
       | Some (CRecord _), _ ->
         [
-          Completion.createWithSortText ~name:"{}" ~env ~sortText:"a"
-            ~kind:(Completion.Label "Empty record");
+          Completion.create ~name:"{}" ~insertText:"{${1}}" ~insertTextFormat:Snippet ~env ~sortText:"a"
+            ~kind:(Completion.Label "Empty record") ();
         ]))

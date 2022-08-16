@@ -12,6 +12,8 @@ Completable: Cjsx([div], dangerous, [dangerous])
     "tags": [],
     "detail": "{\"__html\": string}",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 

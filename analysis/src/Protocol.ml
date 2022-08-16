@@ -16,12 +16,22 @@ type inlayHint = {
   paddingRight: bool;
 }
 
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#insertTextFormat *)
+type insertTextFormat = PlainText | Snippet
+
+let insertTextFormatToInt f =
+  match f with
+  | PlainText -> 1
+  | Snippet -> 2
+
 type completionItem = {
   label: string;
   kind: int;
   tags: int list;
   detail: string;
   sortText: string option;
+  insertTextFormat: insertTextFormat option;
+  insertText: string option;
   documentation: markupContent option;
 }
 
@@ -73,7 +83,9 @@ let stringifyCompletionItem c =
     "tags": %s,
     "detail": "%s",
     "documentation": %s,
-    "sortText": %s
+    "sortText": %s,
+    "insertText": %s,
+    "insertTextFormat": %s
   }|}
     (Json.escape c.label) c.kind
     (c.tags |> List.map string_of_int |> array)
@@ -84,6 +96,13 @@ let stringifyCompletionItem c =
     (match c.sortText with
     | None -> null
     | Some sortText -> Printf.sprintf "\"%s\"" (Json.escape sortText))
+    (match c.insertText with
+    | None -> null
+    | Some insertText -> Printf.sprintf "\"%s\"" (Json.escape insertText))
+    (match c.insertTextFormat with
+    | None -> null
+    | Some insertTextFormat ->
+      Printf.sprintf "%i" (insertTextFormatToInt insertTextFormat))
 
 let stringifyHover s = Printf.sprintf {|{"contents": "%s"}|} (Json.escape s)
 

@@ -70,33 +70,21 @@ resolvePath path:map
 {"uri": "list.mli", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 7}}}
 
 Complete src/Debug.res 13:8
-posCursor:[13:8] posNoWhite:[13:7] Found expr:[13:5->13:8]
-Pexp_ident eqN:[13:5->13:8]
-Completable: Cpath Value[eqN]
-Raw ppens: 1 Js.place holder
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Belt, List, map], lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+Raw ppens: 0 
 Package opens 
-resolving open Js.place holder
-resolvePath path:Js.place holder
-Not local
-fileForModule Impl cmt:./node_modules/rescript/lib/ocaml/js.cmt res:./node_modules/rescript/lib/ocaml/js.ml
-resolvePath path:place holder
-Resolved opens 1 js.ml
-findLocalCompletionsWithOpens uri:Debug.res pos:13:8
-findAllCompletions uri:js.ml
-[{
-    "label": "eqNullable",
-    "kind": 12,
-    "tags": [],
-    "detail": "('a, nullable<'a>) => bool",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "eqNull",
-    "kind": 12,
-    "tags": [],
-    "detail": "('a, null<'a>) => bool",
-    "documentation": null,
-    "sortText": null
-  }]
+Resolved opens 0 
+Path List.map
+Getting module Belt
+fileForModule Impl cmt:./node_modules/rescript/lib/ocaml/belt.cmt res:./node_modules/rescript/lib/ocaml/belt.ml
+got it
+resolvePath path:List.map
+resolvePath Global path:map module:Belt_List
+fileForModule Impl cmt:./node_modules/rescript/lib/ocaml/belt_List.cmti res:./node_modules/rescript/lib/ocaml/belt_List.mli
+resolvePath path:map
+Got the env
+findAllCompletions uri:belt_List.mli
+[]
 
 

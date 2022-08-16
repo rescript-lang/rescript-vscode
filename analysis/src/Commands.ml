@@ -21,10 +21,18 @@ let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
         |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope ~env
              ~forHover))
 
-let completion ~debug ~path ~pos ~currentFile =
+let completion ~debug ~path ~pos ~currentFile ~supportsSnippets =
   print_endline
     (getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
     |> List.map CompletionBackEnd.completionToItem
+    |> List.map (fun completionItem ->
+           if supportsSnippets then completionItem
+           else
+             {
+               completionItem with
+               Protocol.insertText = None;
+               insertTextFormat = None;
+             })
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
 

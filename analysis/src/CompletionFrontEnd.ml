@@ -333,6 +333,16 @@ let rec findTupleItemWithCursor items ~index ~pos =
 let rec findContextInPattern pattern ~pos ~patternPath ~debug
     ~seenIdentsFromParent ~firstCharBeforeCursorNoWhite =
   match pattern.Parsetree.ppat_desc with
+  | Ppat_any ->
+    (* E.g. something: _ *)
+    (* We hijack the any pattern some here, and interpret that as an "empty" completion. *)
+    Some
+      {
+        lookingToComplete = CNoContext;
+        patternPath;
+        prefix = "";
+        alreadySeenIdents = seenIdentsFromParent;
+      }
   | Ppat_extension ({txt = "rescript.patternhole"}, _) ->
     (* This is printed when the parser has made recovery.
        E.g. `| Something => () | <com>` *)

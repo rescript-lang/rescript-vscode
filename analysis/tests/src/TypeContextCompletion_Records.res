@@ -144,3 +144,6 @@ let y = One
 // Should complete because the record has braces
 // switch someVal { | {something: {} } => () }
 //                                 ^com
+
+// switch someOtherValue { | {fourthStuff: (_, _)} => () }
+//                                           ^com

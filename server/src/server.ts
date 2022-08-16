@@ -34,6 +34,12 @@ interface extensionConfiguration {
   binaryPath: string | null;
 }
 
+interface clientCapabilites {
+  completion: {
+    supportsSnippets: boolean;
+  };
+}
+
 // All values here are temporary, and will be overridden as the server is
 // initialized, and the current config is received from the client.
 let extensionConfiguration: extensionConfiguration = {
@@ -44,6 +50,11 @@ let extensionConfiguration: extensionConfiguration = {
   },
   codeLens: false,
   binaryPath: null,
+};
+let clientCapabilites: clientCapabilites = {
+  completion: {
+    supportsSnippets: false,
+  },
 };
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 
@@ -607,7 +618,7 @@ function semanticTokens(msg: p.RequestMessage) {
 
 function completion(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
-  let params = msg.params as p.ReferenceParams;
+  let params = msg.params as p.CompletionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
@@ -620,6 +631,7 @@ function completion(msg: p.RequestMessage) {
       params.position.line,
       params.position.character,
       tmpname,
+      clientCapabilites.completion.supportsSnippets ? "true" : "false",
     ],
     msg
   );
@@ -999,6 +1011,15 @@ function onMessage(msg: p.Message) {
       if (initialConfiguration != null) {
         extensionConfiguration = initialConfiguration;
       }
+
+      // Build and save config representing the client capabilities we care about.
+      clientCapabilites = {
+        completion: {
+          supportsSnippets:
+            initParams.capabilities.textDocument?.completion?.completionItem
+              ?.snippetSupport === true,
+        },
+      };
 
       // send the list of features we support
       let result: p.InitializeResult = {

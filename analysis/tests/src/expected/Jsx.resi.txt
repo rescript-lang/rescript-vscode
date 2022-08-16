@@ -16,7 +16,9 @@ Completable: Cpath Type[React, e]
     "tags": [],
     "detail": "type element",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Jsx.resi 10:18
@@ -29,6 +31,8 @@ Completable: Cpath Type[React, e]
     "tags": [],
     "detail": "type element",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 

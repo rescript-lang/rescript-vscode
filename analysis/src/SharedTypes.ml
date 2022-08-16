@@ -240,23 +240,24 @@ module Completion = struct
   type t = {
     name: string;
     sortText: string option;
+    insertText: string option;
+    insertTextFormat: Protocol.insertTextFormat option;
     env: QueryEnv.t;
     deprecated: string option;
     docstring: string list;
     kind: kind;
   }
 
-  let create ~name ~kind ~env =
-    {name; env; deprecated = None; docstring = []; kind; sortText = None}
-
-  let createWithSortText ~name ~kind ~env ~sortText =
+  let create ~name ?sortText ?insertText ?insertTextFormat ~kind ~env () =
     {
       name;
       env;
       deprecated = None;
       docstring = [];
       kind;
-      sortText = Some sortText;
+      sortText;
+      insertText;
+      insertTextFormat;
     }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)

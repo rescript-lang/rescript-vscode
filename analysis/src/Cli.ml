@@ -3,7 +3,7 @@ let help =
 **Private CLI For rescript-vscode usage only**
 
 API examples:
-  ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 currentContent.res
+  ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 currentContent.res true
   ./rescript-editor-analysis.exe definition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe typeDefinition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe documentSymbol src/Foo.res
@@ -24,8 +24,9 @@ https://microsoft.github.io/language-server-protocol/specification#position
 Options:
   completion: compute autocomplete for MyFile.res at line 0 and column 4,
     where MyFile.res is being edited and the editor content is in file current.res.
+    The final boolean indicates whether the completion should return snippets or not.
 
-    ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 current.res
+    ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 current.res true
 
   definition: get definition for item in MyFile.res at line 10 column 2:
 
@@ -82,10 +83,14 @@ Options:
 
 let main () =
   match Array.to_list Sys.argv with
-  | [_; "completion"; path; line; col; currentFile] ->
+  | [_; "completion"; path; line; col; currentFile; supportsSnippets] ->
     Commands.completion ~debug:false ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile
+      ~supportsSnippets:
+        (match supportsSnippets with
+        | "true" -> true
+        | _ -> false)
   | [_; "definition"; path; line; col] ->
     Commands.definition ~path
       ~pos:(int_of_string line, int_of_string col)

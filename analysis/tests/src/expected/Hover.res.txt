@@ -83,8 +83,8 @@ Hover src/Hover.res 109:25
 Hover src/Hover.res 112:3
 Nothing at that position. Now trying to use completion.
 Attribute id:live:[112:0->112:5] label:live
-Completable: Cdecorator(live)
-{"contents": "The `@live` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.\n\n`@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).\n\nHint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!"}
+Completable: CtypedPattern(sourceType:Value[Comp, createElement](~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+null
 
 Hover src/Hover.res 115:4
 {"contents": "```rescript\n(. ()) => unit => int\n```"}

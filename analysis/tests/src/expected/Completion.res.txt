@@ -8,77 +8,99 @@ Completable: Cpath Value[MyList, m]
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\n  Equivalent to:\n\n  ```res\n  map(someList, f)->reverse\n  ```\n\n  ```res example\n  list{3, 4, 5}->Belt.List.mapReverse(x => x * x) /* list{25, 16, 9} */\n  ```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "makeBy",
     "kind": 12,
     "tags": [],
     "detail": "(int, int => 'a) => t<'a>",
     "documentation": {"kind": "markdown", "value": "\nReturn a list of length `numItems` with element `i` initialized with `f(i)`.\nReturns an empty list if `numItems` is negative.\n\n```res example\nBelt.List.makeBy(5, i => i) // list{0, 1, 2, 3, 4}\n\nBelt.List.makeBy(5, i => i * i) // list{0, 1, 4, 9, 16}\n```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => t<'a>",
     "documentation": {"kind": "markdown", "value": "\n  Returns a list of length `numItems` with each element filled with value `v`. Returns an empty list if `numItems` is negative.\n\n  ```res example\n  Belt.List.make(3, 1) // list{1, 1, 1}\n  ```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mapReverse2U",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse2](#mapReverse2). "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mapWithIndexU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. int, 'a) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapWithIndex](#mapWithIndex). "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mapU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [map](#map). "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "makeByU",
     "kind": 12,
     "tags": [],
     "detail": "(int, (. int) => 'a) => t<'a>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [makeBy](#makeBy) "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mapReverse2",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>",
     "documentation": {"kind": "markdown", "value": "\n  Equivalent to: `zipBy(xs, ys, f)->reverse`\n\n  ```res example\n\n  Belt.List.mapReverse2(list{1, 2, 3}, list{1, 2}, (a, b) => a + b) // list{4, 2}\n  ```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mapWithIndex",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\n  Applies `f` to each element of `someList`.\n  Function `f` takes two arguments: the index starting from 0 and the element from `someList`, in that order.\n\n  ```res example\n  list{1, 2, 3}->Belt.List.mapWithIndex((index, x) => index + x) // list{1, 3, 5}\n  ```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mapReverseU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse](#mapReverse). "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 3:9
@@ -91,252 +113,324 @@ Completable: Cpath Value[Array, ""]
     "tags": [],
     "detail": "(('a, 'b) => 'a, 'a, array<'b>) => 'a",
     "documentation": {"kind": "markdown", "value": " [Array.fold_left f x a] computes\n   [f (... (f (f x a.(0)) a.(1)) ...) a.(n-1)],\n   where [n] is the length of the array [a]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "concat",
     "kind": 12,
     "tags": [],
     "detail": "list<array<'a>> => array<'a>",
     "documentation": {"kind": "markdown", "value": " Same as {!Array.append}, but concatenates a list of arrays. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mapi",
     "kind": 12,
     "tags": [],
     "detail": "((int, 'a) => 'b, array<'a>) => array<'b>",
     "documentation": {"kind": "markdown", "value": " Same as {!Array.map}, but the\n   function is applied to the index of the element as first argument,\n   and the element itself as second argument. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "exists",
     "kind": 12,
     "tags": [],
     "detail": "('a => bool, array<'a>) => bool",
     "documentation": {"kind": "markdown", "value": " [Array.exists p [|a1; ...; an|]] checks if at least one element of\n    the array satisfies the predicate [p]. That is, it returns\n    [(p a1) || (p a2) || ... || (p an)].\n    @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "for_all",
     "kind": 12,
     "tags": [],
     "detail": "('a => bool, array<'a>) => bool",
     "documentation": {"kind": "markdown", "value": " [Array.for_all p [|a1; ...; an|]] checks if all elements of the array\n   satisfy the predicate [p]. That is, it returns\n   [(p a1) && (p a2) && ... && (p an)].\n   @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "copy",
     "kind": 12,
     "tags": [],
     "detail": "array<'a> => array<'a>",
     "documentation": {"kind": "markdown", "value": " [Array.copy a] returns a copy of [a], that is, a fresh array\n   containing the same elements as [a]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "iter2",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'b) => unit, array<'a>, array<'b>) => unit",
     "documentation": {"kind": "markdown", "value": " [Array.iter2 f a b] applies function [f] to all the elements of [a]\n   and [b].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "to_list",
     "kind": 12,
     "tags": [],
     "detail": "array<'a> => list<'a>",
     "documentation": {"kind": "markdown", "value": " [Array.to_list a] returns the list of all the elements of [a]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "stable_sort",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'a) => int, array<'a>) => unit",
     "documentation": {"kind": "markdown", "value": " Same as {!Array.sort}, but the sorting algorithm is stable (i.e.\n   elements that compare equal are kept in their original order) and\n   not guaranteed to run in constant heap space.\n\n   The current implementation uses Merge Sort. It uses [n/2]\n   words of heap space, where [n] is the length of the array.\n   It is usually faster than the current implementation of {!Array.sort}.\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "iteri",
     "kind": 12,
     "tags": [],
     "detail": "((int, 'a) => unit, array<'a>) => unit",
     "documentation": {"kind": "markdown", "value": " Same as {!Array.iter}, but the\n   function is applied with the index of the element as first argument,\n   and the element itself as second argument. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "memq",
     "kind": 12,
     "tags": [],
     "detail": "('a, array<'a>) => bool",
     "documentation": {"kind": "markdown", "value": " Same as {!Array.mem}, but uses physical equality instead of structural\n   equality to compare array elements.\n   @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "map2",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'b) => 'c, array<'a>, array<'b>) => array<'c>",
     "documentation": {"kind": "markdown", "value": " [Array.map2 f a b] applies function [f] to all the elements of [a]\n   and [b], and builds an array with the results returned by [f]:\n   [[| f a.(0) b.(0); ...; f a.(Array.length a - 1) b.(Array.length b - 1)|]].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "set",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, 'a) => unit",
     "documentation": {"kind": "markdown", "value": " [Array.set a n x] modifies array [a] in place, replacing\n   element number [n] with [x].\n   You can also write [a.(n) <- x] instead of [Array.set a n x].\n\n   Raise [Invalid_argument \"index out of bounds\"]\n   if [n] is outside the range 0 to [Array.length a - 1]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => array<'a>",
     "documentation": {"kind": "markdown", "value": " [Array.make n x] returns a fresh array of length [n],\n   initialized with [x].\n   All the elements of this new array are initially\n   physically equal to [x] (in the sense of the [==] predicate).\n   Consequently, if [x] is mutable, it is shared among all elements\n   of the array, and modifying [x] through one of the array entries\n   will modify all other entries at the same time.\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the value of [x] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]."},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "make_float",
     "kind": 12,
     "tags": [],
     "detail": "int => array<float>",
     "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "fold_right",
     "kind": 12,
     "tags": [],
     "detail": "(('b, 'a) => 'a, array<'b>, 'a) => 'a",
     "documentation": {"kind": "markdown", "value": " [Array.fold_right f a x] computes\n   [f a.(0) (f a.(1) ( ... (f a.(n-1) x) ...))],\n   where [n] is the length of the array [a]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "sort",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'a) => int, array<'a>) => unit",
     "documentation": {"kind": "markdown", "value": " Sort an array in increasing order according to a comparison\n   function.  The comparison function must return 0 if its arguments\n   compare as equal, a positive integer if the first is greater,\n   and a negative integer if the first is smaller (see below for a\n   complete specification).  For example, {!Pervasives.compare} is\n   a suitable comparison function, provided there are no floating-point\n   NaN values in the data.  After calling [Array.sort], the\n   array is sorted in place in increasing order.\n   [Array.sort] is guaranteed to run in constant heap space\n   and (at most) logarithmic stack space.\n\n   The current implementation uses Heap Sort.  It runs in constant\n   stack space.\n\n   Specification of the comparison function:\n   Let [a] be the array and [cmp] the comparison function.  The following\n   must be true for all x, y, z in a :\n-   [cmp x y] > 0 if and only if [cmp y x] < 0\n-   if [cmp x y] >= 0 and [cmp y z] >= 0 then [cmp x z] >= 0\n\n   When [Array.sort] returns, [a] contains the same elements as before,\n   reordered in such a way that for all i and j valid indices of [a] :\n-   [cmp a.(i) a.(j)] >= 0 if and only if i >= j\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "length",
     "kind": 12,
     "tags": [],
     "detail": "array<'a> => int",
     "documentation": {"kind": "markdown", "value": " Return the length (number of elements) of the given array. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "sub",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, int) => array<'a>",
     "documentation": {"kind": "markdown", "value": " [Array.sub a start len] returns a fresh array of length [len],\n   containing the elements number [start] to [start + len - 1]\n   of array [a].\n\n   Raise [Invalid_argument \"Array.sub\"] if [start] and [len] do not\n   designate a valid subarray of [a]; that is, if\n   [start < 0], or [len < 0], or [start + len > Array.length a]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "of_list",
     "kind": 12,
     "tags": [],
     "detail": "list<'a> => array<'a>",
     "documentation": {"kind": "markdown", "value": " [Array.of_list l] returns a fresh array containing the elements\n   of [l]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "iter",
     "kind": 12,
     "tags": [],
     "detail": "('a => unit, array<'a>) => unit",
     "documentation": {"kind": "markdown", "value": " [Array.iter f a] applies function [f] in turn to all\n   the elements of [a].  It is equivalent to\n   [f a.(0); f a.(1); ...; f a.(Array.length a - 1); ()]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "map",
     "kind": 12,
     "tags": [],
     "detail": "('a => 'b, array<'a>) => array<'b>",
     "documentation": {"kind": "markdown", "value": " [Array.map f a] applies function [f] to all the elements of [a],\n   and builds an array with the results returned by [f]:\n   [[| f a.(0); f a.(1); ...; f a.(Array.length a - 1) |]]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "unsafe_get",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int) => 'a",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "make_matrix",
     "kind": 12,
     "tags": [],
     "detail": "(int, int, 'a) => array<array<'a>>",
     "documentation": {"kind": "markdown", "value": " [Array.make_matrix dimx dimy e] returns a two-dimensional array\n   (an array of arrays) with first dimension [dimx] and\n   second dimension [dimy]. All the elements of this new matrix\n   are initially physically equal to [e].\n   The element ([x,y]) of a matrix [m] is accessed\n   with the notation [m.(x).(y)].\n\n   Raise [Invalid_argument] if [dimx] or [dimy] is negative or\n   greater than {!Sys.max_array_length}.\n   If the value of [e] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mem",
     "kind": 12,
     "tags": [],
     "detail": "('a, array<'a>) => bool",
     "documentation": {"kind": "markdown", "value": " [mem a l] is true if and only if [a] is equal\n   to an element of [l].\n   @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "get",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int) => 'a",
     "documentation": {"kind": "markdown", "value": " [Array.get a n] returns the element number [n] of array [a].\n   The first element has number 0.\n   The last element has number [Array.length a - 1].\n   You can also write [a.(n)] instead of [Array.get a n].\n\n   Raise [Invalid_argument \"index out of bounds\"]\n   if [n] is outside the range 0 to [(Array.length a - 1)]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "append",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, array<'a>) => array<'a>",
     "documentation": {"kind": "markdown", "value": " [Array.append v1 v2] returns a fresh array containing the\n   concatenation of the arrays [v1] and [v2]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "unsafe_set",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, 'a) => unit",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "create_matrix",
     "kind": 12,
     "tags": [],
     "detail": "(int, int, 'a) => array<array<'a>>",
     "documentation": {"kind": "markdown", "value": " @deprecated [Array.create_matrix] is an alias for {!Array.make_matrix}. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "create_float",
     "kind": 12,
     "tags": [],
     "detail": "int => array<float>",
     "documentation": {"kind": "markdown", "value": " [Array.create_float n] returns a fresh float array of length [n],\n    with uninitialized data.\n    @since 4.03 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "create",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => array<'a>",
     "documentation": {"kind": "markdown", "value": " @deprecated [Array.create] is an alias for {!Array.make}. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "init",
     "kind": 12,
     "tags": [],
     "detail": "(int, int => 'a) => array<'a>",
     "documentation": {"kind": "markdown", "value": " [Array.init n f] returns a fresh array of length [n],\n   with element number [i] initialized to the result of [f i].\n   In other terms, [Array.init n f] tabulates the results of [f]\n   applied to the integers [0] to [n-1].\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the return type of [f] is [float], then the maximum\n   size is only [Sys.max_array_length / 2]."},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "fast_sort",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'a) => int, array<'a>) => unit",
     "documentation": {"kind": "markdown", "value": " Same as {!Array.sort} or {!Array.stable_sort}, whichever is faster\n    on typical input.\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "fill",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, int, 'a) => unit",
     "documentation": {"kind": "markdown", "value": " [Array.fill a ofs len x] modifies the array [a] in place,\n   storing [x] in elements number [ofs] to [ofs + len - 1].\n\n   Raise [Invalid_argument \"Array.fill\"] if [ofs] and [len] do not\n   designate a valid subarray of [a]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "blit",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, array<'a>, int, int) => unit",
     "documentation": {"kind": "markdown", "value": " [Array.blit v1 o1 v2 o2 len] copies [len] elements\n   from array [v1], starting at element number [o1], to array [v2],\n   starting at element number [o2]. It works correctly even if\n   [v1] and [v2] are the same array, and the source and\n   destination chunks overlap.\n\n   Raise [Invalid_argument \"Array.blit\"] if [o1] and [len] do not\n   designate a valid subarray of [v1], or if [o2] and [len] do not\n   designate a valid subarray of [v2]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Floatarray",
     "kind": 9,
     "tags": [],
     "detail": "module",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 5:10
@@ -349,56 +443,72 @@ Completable: Cpath Value[Array, m]
     "tags": [],
     "detail": "((int, 'a) => 'b, array<'a>) => array<'b>",
     "documentation": {"kind": "markdown", "value": " Same as {!Array.map}, but the\n   function is applied to the index of the element as first argument,\n   and the element itself as second argument. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "memq",
     "kind": 12,
     "tags": [],
     "detail": "('a, array<'a>) => bool",
     "documentation": {"kind": "markdown", "value": " Same as {!Array.mem}, but uses physical equality instead of structural\n   equality to compare array elements.\n   @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "map2",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'b) => 'c, array<'a>, array<'b>) => array<'c>",
     "documentation": {"kind": "markdown", "value": " [Array.map2 f a b] applies function [f] to all the elements of [a]\n   and [b], and builds an array with the results returned by [f]:\n   [[| f a.(0) b.(0); ...; f a.(Array.length a - 1) b.(Array.length b - 1)|]].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => array<'a>",
     "documentation": {"kind": "markdown", "value": " [Array.make n x] returns a fresh array of length [n],\n   initialized with [x].\n   All the elements of this new array are initially\n   physically equal to [x] (in the sense of the [==] predicate).\n   Consequently, if [x] is mutable, it is shared among all elements\n   of the array, and modifying [x] through one of the array entries\n   will modify all other entries at the same time.\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the value of [x] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]."},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "make_float",
     "kind": 12,
     "tags": [],
     "detail": "int => array<float>",
     "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "map",
     "kind": 12,
     "tags": [],
     "detail": "('a => 'b, array<'a>) => array<'b>",
     "documentation": {"kind": "markdown", "value": " [Array.map f a] applies function [f] to all the elements of [a],\n   and builds an array with the results returned by [f]:\n   [[| f a.(0); f a.(1); ...; f a.(Array.length a - 1) |]]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "make_matrix",
     "kind": 12,
     "tags": [],
     "detail": "(int, int, 'a) => array<array<'a>>",
     "documentation": {"kind": "markdown", "value": " [Array.make_matrix dimx dimy e] returns a two-dimensional array\n   (an array of arrays) with first dimension [dimx] and\n   second dimension [dimy]. All the elements of this new matrix\n   are initially physically equal to [e].\n   The element ([x,y]) of a matrix [m] is accessed\n   with the notation [m.(x).(y)].\n\n   Raise [Invalid_argument] if [dimx] or [dimy] is negative or\n   greater than {!Sys.max_array_length}.\n   If the value of [e] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]. "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "mem",
     "kind": 12,
     "tags": [],
     "detail": "('a, array<'a>) => bool",
     "documentation": {"kind": "markdown", "value": " [mem a l] is true if and only if [a] is equal\n   to an element of [l].\n   @since 4.03.0 "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 15:17
@@ -411,7 +521,9 @@ Completable: Cpath Value[Dep, c]
     "tags": [1],
     "detail": "int => int",
     "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 23:20
@@ -425,14 +537,18 @@ Found type for function (~age: int, ~name: string) => string
     "tags": [],
     "detail": "int",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "name",
     "kind": 4,
     "tags": [],
     "detail": "string",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 26:13
@@ -444,14 +560,18 @@ Completable: Cpath array->m
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Js.Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 29:13
@@ -463,7 +583,9 @@ Completable: Cpath string->toU
     "tags": [],
     "detail": "t => t",
     "documentation": {"kind": "markdown", "value": "\n`toUpperCase(str)` converts `str` to upper case using the locale-insensitive\ncase mappings in the Unicode Character Database. Notice that the conversion can\nexpand the number of letters in the result; for example the German ß\ncapitalizes to two Ses in a row.\n\nSee [`String.toUpperCase`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase)\non MDN.\n\n```res example\nJs.String2.toUpperCase(\"abc\") == \"ABC\"\nJs.String2.toUpperCase(`Straße`) == `STRASSE`\nJs.String2.toUpperCase(`πς`) == `ΠΣ`\n```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 34:8
@@ -475,14 +597,18 @@ Completable: Cpath Value[op]->e
     "tags": [],
     "detail": "(option<'a>, option<'b>, (. 'a, 'b) => bool) => bool",
     "documentation": {"kind": "markdown", "value": "\n   Uncurried version of `eq`\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "Belt.Option.eq",
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
     "documentation": {"kind": "markdown", "value": "\n   Evaluates two optional values for equality with respect to a predicate\n   function. If both `optValue1` and `optValue2` are `None`, returns `true`.\n   If one of the arguments is `Some(value)` and the other is `None`, returns\n   `false`.\n\n   If arguments are `Some(value1)` and `Some(value2)`, returns the result of\n   `predicate(value1, value2)`; the predicate function must return a bool.\n\n   ```res example\n   let clockEqual = (a, b) => mod(a, 12) == mod(b, 12)\n\n   open Belt.Option\n\n   eq(Some(3), Some(15), clockEqual) /* true */\n\n   eq(Some(3), None, clockEqual) /* false */\n\n   eq(None, Some(3), clockEqual) /* false */\n\n   eq(None, None, clockEqual) /* true */\n   ```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 44:7
@@ -496,14 +622,18 @@ Completable: Cpath Value[fa]->
     "tags": [],
     "detail": "(t, int) => t",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "ForAuto.abd",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 47:21
@@ -517,14 +647,18 @@ Completable: Cpath Value[Js, Dict, u]
     "tags": [],
     "detail": "(t<'a>, key) => 'a",
     "documentation": {"kind": "markdown", "value": "\n`Js.Dict.unsafeGet(key)` returns the value if the key exists, otherwise an `undefined` value is returned. Use this only when you are sure the key exists (i.e. when having used the `keys()` function to check that the key is valid).\n\n```res example\nJs.Dict.unsafeGet(ages, \"Fred\") == 49\nJs.Dict.unsafeGet(ages, \"Paul\") // returns undefined\n```\n"},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }, {
     "label": "unsafeDeleteKey",
     "kind": 12,
     "tags": [],
     "detail": "(. t<string>, string) => unit",
     "documentation": {"kind": "markdown", "value": " Experimental internal function "},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 59:30
@@ -539,7 +673,9 @@ Completable: Cpath Value[z]
     "tags": [],
     "detail": "int",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 62:23
@@ -552,20 +688,15 @@ Completable: Cjsx([O, Comp], z, [z])
     "tags": [],
     "detail": "option<int>",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 65:8
 Attribute id:reac:[65:3->65:8] label:reac
-Completable: Cdecorator(reac)
-[{
-    "label": "react.component",
-    "kind": 4,
-    "tags": [],
-    "detail": "",
-    "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."},
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 68:10
 posCursor:[68:10] posNoWhite:[68:9] Found expr:[0:-1->86:1]
@@ -578,7 +709,9 @@ Completable: Cdecorator(react.)
     "tags": [],
     "detail": "",
     "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."},
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 71:27
@@ -592,7 +725,9 @@ Found type for function (~age: int, ~name: string) => string
     "tags": [],
     "detail": "int",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 74:26
@@ -606,7 +741,9 @@ Found type for function (~age: int, ~name: string) => string
     "tags": [],
     "detail": "string",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 77:32
@@ -620,1075 +757,334 @@ Found type for function (~age: int, ~name: string) => string
     "tags": [],
     "detail": "string",
     "documentation": null,
-    "sortText": null
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
   }]
 
 Complete src/Completion.res 82:5
-posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
-Pexp_apply ...[80:8->80:15] (~age84:3->84:6=...[84:7->84:8], ~name85:3->85:7=...[85:8->85:10])
-Completable: CnamedArg(Value[Lib, foo], "", [age, name])
-Found type for function (~age: int, ~name: string) => string
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](Nolabel, ~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 
 Complete src/Completion.res 90:13
-posCursor:[90:13] posNoWhite:[90:12] Found expr:[90:3->93:18]
-Pexp_send a[90:12->90:13] e:[90:3->90:10]
-Completable: Cpath Value[someObj]["a"]
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 95:24
-posCursor:[95:24] posNoWhite:[95:23] Found expr:[95:3->99:6]
-Pexp_send [95:24->95:24] e:[95:3->95:22]
-Completable: Cpath Value[nestedObj]["x"]["y"][""]
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 99:7
-posCursor:[99:7] posNoWhite:[99:6] Found expr:[99:3->102:20]
-Pexp_send a[99:6->99:7] e:[99:3->99:4]
-Completable: Cpath Value[o]["a"]
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 104:17
-posCursor:[104:17] posNoWhite:[104:16] Found expr:[104:3->125:18]
-Pexp_send [104:17->104:17] e:[104:3->104:15]
-Completable: Cpath Value[no]["x"]["y"][""]
-[{
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 110:5
-posCursor:[110:5] posNoWhite:[110:4] Found expr:[110:3->110:5]
-Pexp_field [110:3->110:4] _:[116:0->110:5]
-Completable: Cpath Value[r].""
-[{
-    "label": "x",
-    "kind": 5,
-    "tags": [],
-    "detail": "x: int\n\ntype r = {x: int, y: string}",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "y",
-    "kind": 5,
-    "tags": [],
-    "detail": "y: string\n\ntype r = {x: int, y: string}",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 113:24
-posCursor:[113:24] posNoWhite:[113:23] Found expr:[113:3->113:24]
-Pexp_field [113:3->113:23] _:[116:0->113:24]
-Completable: Cpath Value[Object, Rec, recordVal].""
-[{
-    "label": "xx",
-    "kind": 5,
-    "tags": [],
-    "detail": "xx: int\n\ntype recordt = {xx: int, ss: string}",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "ss",
-    "kind": 5,
-    "tags": [],
-    "detail": "ss: string\n\ntype recordt = {xx: int, ss: string}",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 120:7
-posCursor:[120:7] posNoWhite:[120:6] Found expr:[119:11->123:1]
-posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->122:5]
-posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->120:7]
-Pexp_ident my:[120:5->120:7]
-Completable: Cpath Value[my]
-[{
-    "label": "myAmazingFunction",
-    "kind": 12,
-    "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 125:18
-posCursor:[125:18] posNoWhite:[125:17] Found expr:[125:3->145:32]
-Pexp_send [125:18->125:18] e:[125:3->125:16]
-Completable: Cpath Value[Object, object][""]
-[{
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 151:6
-posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
-JSX <O.:[151:4->151:6] > _children:None
-Completable: Cpath Module[O, ""]
-[{
-    "label": "Comp",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 157:8
-posCursor:[157:8] posNoWhite:[157:7] Found expr:[157:3->157:8]
-Pexp_field [157:3->157:7] _:[165:0->157:8]
-Completable: Cpath Value[q].aa.""
-[{
-    "label": "x",
-    "kind": 5,
-    "tags": [],
-    "detail": "x: int\n\ntype aa = {x: int, name: string}",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "name",
-    "kind": 5,
-    "tags": [],
-    "detail": "name: string\n\ntype aa = {x: int, name: string}",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 159:9
-posCursor:[159:9] posNoWhite:[159:8] Found expr:[159:3->159:9]
-Pexp_field [159:3->159:7] n:[159:8->159:9]
-Completable: Cpath Value[q].aa.n
-[{
-    "label": "name",
-    "kind": 5,
-    "tags": [],
-    "detail": "name: string\n\ntype aa = {x: int, name: string}",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 162:6
-posCursor:[162:6] posNoWhite:[162:5] Found expr:[162:3->162:6]
-Pexp_construct Lis:[162:3->162:6] None
-Completable: Cpath Value[Lis]
-[{
-    "label": "List",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "ListLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 169:16
-posCursor:[169:16] posNoWhite:[169:15] Found expr:[169:4->169:16]
-JSX <WithChildren:[169:4->169:16] > _children:None
-Completable: Cpath Module[WithChildren]
-[{
-    "label": "WithChildren",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 172:16
 posCursor:[172:16] posNoWhite:[172:15] Found type:[172:12->172:16]
 Ptyp_constr Js.n:[172:12->172:16]
-Completable: Cpath Type[Js, n]
-[{
-    "label": "null_undefined",
-    "kind": 22,
-    "tags": [],
-    "detail": "type null_undefined<'a> = nullable<'a>",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "nullable",
-    "kind": 22,
-    "tags": [],
-    "detail": "type nullable<+'a>",
-    "documentation": {"kind": "markdown", "value": "\n  A value of this type can be undefined, null or 'a. This type is equivalent to Js.Null_undefined.t.\n"},
-    "sortText": null
-  }, {
-    "label": "null",
-    "kind": 22,
-    "tags": [],
-    "detail": "type null<+'a>",
-    "documentation": {"kind": "markdown", "value": "\n  Nullable value of this type can be either null or 'a. This type is equivalent to Js.Null.t.\n"},
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 174:20
 posCursor:[174:20] posNoWhite:[174:19] Found type:[174:12->174:20]
 Ptyp_constr ForAuto.:[174:12->174:20]
-Completable: Cpath Type[ForAuto, ""]
-[{
-    "label": "t",
-    "kind": 22,
-    "tags": [],
-    "detail": "type t = int",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 179:13
-posCursor:[179:13] posNoWhite:[179:12] Found expr:[179:11->179:13]
-Pexp_construct As:[179:11->179:13] None
-Completable: Cpath Value[As]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 
 Complete src/Completion.res 182:17
 Pmod_ident For:[182:14->182:17]
-Completable: Cpath Module[For]
-[{
-    "label": "ForAuto",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 190:11
-posCursor:[190:11] posNoWhite:[190:10] Found expr:[190:3->190:11]
-Pexp_ident Private.:[190:3->190:11]
-Completable: Cpath Value[Private, ""]
-[{
-    "label": "b",
-    "kind": 12,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 202:6
-posCursor:[202:6] posNoWhite:[202:5] Found expr:[202:3->202:6]
-Pexp_ident sha:[202:3->202:6]
-Completable: Cpath Value[sha]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 
 Complete src/Completion.res 205:6
-posCursor:[205:6] posNoWhite:[205:5] Found expr:[205:3->205:6]
-Pexp_ident sha:[205:3->205:6]
-Completable: Cpath Value[sha]
-[{
-    "label": "shadowed",
-    "kind": 12,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 208:6
-posCursor:[208:6] posNoWhite:[208:5] Found expr:[208:3->208:6]
-Pexp_ident sha:[208:3->208:6]
-Completable: Cpath Value[sha]
-[{
-    "label": "shadowed",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 221:22
-posCursor:[221:22] posNoWhite:[221:21] Found expr:[221:3->224:22]
-Pexp_send [221:22->221:22] e:[221:3->221:20]
-Completable: Cpath Value[FAO, forAutoObject][""]
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "forAutoLabel",
-    "kind": 4,
-    "tags": [],
-    "detail": "FAR.forAutoRecord",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 224:37
-posCursor:[224:37] posNoWhite:[224:36] Found expr:[224:3->224:37]
-Pexp_field [224:3->224:36] _:[233:0->224:37]
-Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
-[{
-    "label": "forAuto",
-    "kind": 5,
-    "tags": [],
-    "detail": "forAuto: ForAuto.t\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "something",
-    "kind": 5,
-    "tags": [],
-    "detail": "something: option<int>\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 227:46
 posCursor:[227:46] posNoWhite:[227:45] Found expr:[227:3->0:-1]
-Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
-[{
-    "label": "ForAuto.abc",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t, int) => t",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "ForAuto.abd",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t, int) => t",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 230:55
-posCursor:[230:55] posNoWhite:[230:54] Found expr:[230:3->230:55]
-posCursor:[230:55] posNoWhite:[230:54] Found expr:[230:46->230:55]
-Pexp_ident ForAuto.a:[230:46->230:55]
-Completable: Cpath Value[ForAuto, a]
-[{
-    "label": "abc",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t, int) => t",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "abd",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t, int) => t",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 234:34
-posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:36]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:34], ...[234:34->234:35])
-posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:18->234:34]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:30], ...[234:32->234:34])
-posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:32->234:34]
-Pexp_ident na:[234:32->234:34]
-Completable: Cpath Value[na]
-[{
-    "label": "name",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 237:17
-posCursor:[237:17] posNoWhite:[237:14] Found expr:[237:14->237:22]
-Completable: Cnone
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 
 Complete src/Completion.res 243:8
-posCursor:[243:8] posNoWhite:[243:7] Found expr:[241:8->246:1]
-posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->243:8]
-Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->243:8])
-posCursor:[243:8] posNoWhite:[243:7] Found expr:[243:5->243:8]
-Pexp_field [243:5->243:7] _:[245:0->243:8]
-Completable: Cpath Value[_z].""
-[{
-    "label": "x",
-    "kind": 5,
-    "tags": [],
-    "detail": "x: int\n\ntype r = {x: int, y: string}",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "y",
-    "kind": 5,
-    "tags": [],
-    "detail": "y: string\n\ntype r = {x: int, y: string}",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 254:17
-posCursor:[254:17] posNoWhite:[254:16] Found expr:[254:11->254:17]
-Pexp_construct SomeLo:[254:11->254:17] None
-Completable: Cpath Value[SomeLo]
-[{
-    "label": "SomeLocalModule",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 256:29
 posCursor:[256:29] posNoWhite:[256:28] Found type:[256:13->256:29]
 Ptyp_constr SomeLocalModule.:[256:13->256:29]
-Completable: Cpath Type[SomeLocalModule, ""]
-[{
-    "label": "zz",
-    "kind": 22,
-    "tags": [],
-    "detail": "type zz = int",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 261:33
 posCursor:[261:33] posNoWhite:[261:32] Found type:[261:17->263:11]
 Ptyp_constr SomeLocalModule.:[261:17->263:11]
-Completable: Cpath Type[SomeLocalModule, ""]
-[{
-    "label": "zz",
-    "kind": 22,
-    "tags": [],
-    "detail": "type zz = int",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 268:21
 Ptype_variant unary SomeLocal:[268:12->268:21]
-Completable: Cpath Value[SomeLocal]
-[{
-    "label": "SomeLocalModule",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 271:20
 posCursor:[271:20] posNoWhite:[271:19] Found pattern:[271:7->274:3]
 posCursor:[271:20] posNoWhite:[271:19] Found type:[271:11->274:3]
 Ptyp_constr SomeLocal:[271:11->274:3]
-Completable: Cpath Type[SomeLocal]
-[{
-    "label": "SomeLocalModule",
-    "kind": 9,
-    "tags": [],
-    "detail": "module",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 275:15
-posCursor:[275:15] posNoWhite:[275:14] Found expr:[274:11->278:1]
-posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:5->277:3]
-posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:13->275:15]
-Pexp_ident _w:[275:13->275:15]
-Completable: Cpath Value[_w]
-[{
-    "label": "_world",
-    "kind": 12,
-    "tags": [],
-    "detail": "'a",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 281:22
 posCursor:[281:22] posNoWhite:[281:21] Found type:[281:21->281:22]
 Ptyp_constr s:[281:21->281:22]
-Completable: Cpath Type[s]
-[{
-    "label": "someType",
-    "kind": 22,
-    "tags": [],
-    "detail": "type someType = {hello: string}",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "someLocalVariant",
-    "kind": 22,
-    "tags": [],
-    "detail": "type someLocalVariant = SomeLocalVariantItem",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 291:30
-posCursor:[291:30] posNoWhite:[291:29] Found expr:[291:11->291:32]
-Pexp_apply ...[291:11->291:28] ()
-Completable: CnamedArg(Value[funRecord].someFun, "", [])
-Found type for function (~name: string) => unit
-[{
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 296:11
-posCursor:[296:11] posNoWhite:[296:10] Found expr:[296:3->296:11]
-Pexp_field [296:3->296:10] _:[299:0->296:11]
-Completable: Cpath Value[retAA](Nolabel).""
-[{
-    "label": "x",
-    "kind": 5,
-    "tags": [],
-    "detail": "x: int\n\ntype aa = {x: int, name: string}",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "name",
-    "kind": 5,
-    "tags": [],
-    "detail": "name: string\n\ntype aa = {x: int, name: string}",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 301:13
-posCursor:[301:13] posNoWhite:[301:12] Found expr:[301:3->301:13]
-Pexp_apply ...[301:3->301:11] ()
-Completable: CnamedArg(Value[ff](~c), "", [])
-Found type for function (
-  ~opt1: int=?,
-  ~a: int,
-  ~b: int,
-  unit,
-  ~opt2: int=?,
-  unit,
-) => int
-[{
-    "label": "opt1",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<int>",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "opt2",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<int>",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 304:15
-posCursor:[304:15] posNoWhite:[304:14] Found expr:[304:3->304:15]
-Pexp_apply ...[304:3->304:13] ()
-Completable: CnamedArg(Value[ff](~c)(Nolabel), "", [])
-Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
-[{
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "opt2",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<int>",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 307:17
-posCursor:[307:17] posNoWhite:[307:16] Found expr:[307:3->307:17]
-Pexp_apply ...[307:3->307:15] ()
-Completable: CnamedArg(Value[ff](~c, Nolabel), "", [])
-Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
-[{
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "opt2",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<int>",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 310:21
-posCursor:[310:21] posNoWhite:[310:20] Found expr:[310:3->310:21]
-Pexp_apply ...[310:3->310:19] ()
-Completable: CnamedArg(Value[ff](~c, Nolabel, Nolabel), "", [])
-Found type for function (~a: int, ~b: int) => int
-[{
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 313:23
-posCursor:[313:23] posNoWhite:[313:22] Found expr:[313:3->313:23]
-Pexp_apply ...[313:3->313:21] ()
-Completable: CnamedArg(Value[ff](~c, Nolabel, ~b), "", [])
-Found type for function (~a: int, ~opt2: int=?, unit) => int
-[{
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "opt2",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<int>",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 316:16
-posCursor:[316:16] posNoWhite:[316:15] Found expr:[316:3->316:16]
-Pexp_apply ...[316:3->316:14] ()
-Completable: CnamedArg(Value[ff](~opt2), "", [])
-Found type for function (~opt1: int=?, ~a: int, ~b: int, unit, unit, ~c: int) => int
-[{
-    "label": "opt1",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<int>",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "c",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 323:17
-posCursor:[323:17] posNoWhite:[323:16] Found expr:[323:3->323:17]
-Pexp_apply ...[323:3->323:15] ()
-Completable: CnamedArg(Value[withCallback], "", [])
-Found type for function (~b: int) => callback
-[{
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 326:21
-posCursor:[326:21] posNoWhite:[326:20] Found expr:[326:3->326:21]
-Pexp_apply ...[326:3->326:19] ()
-Completable: CnamedArg(Value[withCallback](~a), "", [])
-Found type for function (~b: int) => int
-[{
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 329:21
-posCursor:[329:21] posNoWhite:[329:20] Found expr:[329:3->329:21]
-Pexp_apply ...[329:3->329:19] ()
-Completable: CnamedArg(Value[withCallback](~b), "", [])
-Found type for function (~a: int) => int
-[{
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 336:26
-posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->346:23]
-JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->346:23]> _children:None
-posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
-posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
-posCursor:[336:26] posNoWhite:[336:25] Found expr:[335:6->338:5]
-posCursor:[336:26] posNoWhite:[336:25] Found expr:[336:16->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found pattern:[336:20->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found type:[336:23->338:5]
 Ptyp_constr Res:[336:23->338:5]
-Completable: Cpath Type[Res]
-[{
-    "label": "RescriptReactErrorBoundary",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "RescriptReactRouter",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null,
-    "sortText": null
-  }]
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 343:57
-posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->346:23]
-posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->346:23]
-posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->343:57]
-Pexp_ident this:[343:53->343:57]
-Completable: Cpath Value[this]
-[{
-    "label": "thisIsNotSaved",
-    "kind": 12,
-    "tags": [],
-    "detail": "\\\"Type Not Known\"",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Hover src/Completion.res 346:14
 Nothing at that position. Now trying to use completion.
-posCursor:[346:14] posNoWhite:[346:13] Found expr:[346:9->346:23]
-JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346:21
-Completable: Cjsx([div], name, [name])
-{"contents": "```rescript\nstring\n```"}
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+null
 
 Hover src/Completion.res 349:17
 Nothing at that position. Now trying to use completion.
-posCursor:[349:17] posNoWhite:[349:16] Found expr:[349:11->349:35]
-Pexp_send age[349:30->349:33] e:[349:11->349:28]
-posCursor:[349:17] posNoWhite:[349:16] Found expr:[349:11->349:28]
-Pexp_ident FAO.forAutoObject:[349:11->349:28]
-Completable: Cpath Value[FAO, forAutoObject]
-{"contents": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+null
 
 Hover src/Completion.res 352:17
 Nothing at that position. Now trying to use completion.
-posCursor:[352:17] posNoWhite:[352:16] Found expr:[352:11->352:22]
-Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
-Completable: CnamedArg(Value[ff], opt1, [opt1])
-Found type for function (
-  ~opt1: int=?,
-  ~a: int,
-  ~b: int,
-  unit,
-  ~opt2: int=?,
-  unit,
-  ~c: int,
-) => int
-{"contents": "```rescript\noption<int>\n```"}
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+null
 
 Complete src/Completion.res 355:23
-posCursor:[355:23] posNoWhite:[355:22] Found expr:[0:-1->355:23]
-posCursor:[355:23] posNoWhite:[355:22] Found expr:[355:12->355:23]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 
 Complete src/Completion.res 362:8
-posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
-posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
-Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [], seenIdents: [T])
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 
 Complete src/Completion.res 373:21
-posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
-posCursor:[373:21] posNoWhite:[373:20] Found expr:[372:2->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
 Ppat_construct AndThatOther.T:[373:7->373:21]
-Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CVariant, patternType:Switch, prefix:AndThatOther, pattern: [], seenIdents: [AndThatOther])
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 
 Complete src/Completion.res 378:24
-posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:26]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:24], ...[378:24->378:25])
-posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:24]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:14], ...[378:16->378:24])
-posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:16->378:24]
-Pexp_ident ForAuto.:[378:16->378:24]
-Completable: Cpath Value[ForAuto, ""]
-[{
-    "label": "abc",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t, int) => t",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "abd",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t, int) => t",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 381:38
-posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:41]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:39], ...[381:39->381:40])
-posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:39]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:17], ...[381:19->381:39])
-posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:19->381:39]
-Pexp_send [381:38->381:38] e:[381:19->381:36]
-Completable: Cpath Value[FAO, forAutoObject][""]
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "forAutoLabel",
-    "kind": 4,
-    "tags": [],
-    "detail": "FAR.forAutoRecord",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 384:24
-posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:26]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:24], ...[384:24->384:25])
-posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:24]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:12], ...[384:14->384:24])
-posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:14->384:24]
-Pexp_field [384:14->384:23] _:[384:24->384:24]
-Completable: Cpath Value[funRecord].""
-[{
-    "label": "someFun",
-    "kind": 5,
-    "tags": [],
-    "detail": "someFun: (~name: string) => unit\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "stuff",
-    "kind": 5,
-    "tags": [],
-    "detail": "stuff: string\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 389:12
-posCursor:[389:12] posNoWhite:[389:11] Found expr:[387:8->392:1]
-posCursor:[389:12] posNoWhite:[389:11] Found expr:[388:2->391:4]
-posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->391:4]
-posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->389:12]
-Completable: Cpath array->ma
-[{
-    "label": "Array2.mapi",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"},
-    "sortText": null
-  }, {
-    "label": "Array2.map",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"},
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 397:14
-posCursor:[397:14] posNoWhite:[397:13] Found expr:[396:14->397:20]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:16], ...[397:16->397:19])
-posCursor:[397:14] posNoWhite:[397:13] Found expr:[396:14->397:16]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:11], ...[397:13->397:16])
-posCursor:[397:14] posNoWhite:[397:13] Found expr:[397:13->397:16]
-Pexp_ident red:[397:13->397:16]
-Completable: Cpath Value[red]
-[{
-    "label": "red",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 402:25
-posCursor:[402:25] posNoWhite:[402:24] Found expr:[400:14->402:31]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:27], ...[402:27->402:30])
-posCursor:[402:25] posNoWhite:[402:24] Found expr:[400:14->402:27]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:22], ...[402:24->402:27])
-posCursor:[402:25] posNoWhite:[402:24] Found expr:[402:24->402:27]
-Pexp_ident red:[402:24->402:27]
-Completable: Cpath Value[red]
-[{
-    "label": "red",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->408:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:22], ...[408:0->408:0])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->405:22]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->405:22])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
-Pexp_ident r:[405:21->405:22]
-Completable: Cpath Value[r]
-[{
-    "label": "red",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "retAA",
-    "kind": 12,
-    "tags": [],
-    "detail": "unit => aa",
-    "documentation": null,
-    "sortText": null
-  }, {
-    "label": "r",
-    "kind": 12,
-    "tags": [],
-    "detail": "rAlias",
-    "documentation": null,
-    "sortText": null
-  }]
+XXX Not found!
+Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+[]
 
