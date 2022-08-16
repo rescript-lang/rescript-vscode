@@ -446,6 +446,8 @@ module Completable = struct
     | CPField of contextPath * string
     | CPObj of contextPath * string
     | CPPipe of contextPath * string
+    (* A tuple containing a bunch of context paths (which are what we really want to complete). *)
+    | CTuple of contextPath list
 
   (* How to move through a nested type context, like from a root record to the type of one of its fields, and beyond. *)
   type patternPathItem =
@@ -501,6 +503,8 @@ module Completable = struct
     | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
     | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
     | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
+    | CTuple contextPaths ->
+      contextPaths |> List.map contextPathToString |> list
 
   type lookingToComplete = CRecordField | CVariant | CPolyvariant | CNoContext
 

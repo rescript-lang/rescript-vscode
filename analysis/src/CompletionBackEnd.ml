@@ -1280,6 +1280,34 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         ]
       | _ -> [])
     | None -> [])
+  | CTuple ctxPaths ->
+    (* Turn a list of context paths into a list of type expressions. *)
+    let typeExrps =
+      ctxPaths
+      |> List.map (fun contextPath ->
+             contextPath
+             |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles
+                  ~pos ~env ~exact:true ~scope)
+      |> List.filter_map (fun completionItems ->
+             match completionItems with
+             | completionItem :: _ -> (
+               match completionItem.Completion.kind with
+               | Value typ -> Some typ
+               | _ -> None)
+             | _ -> None)
+    in
+    if List.length ctxPaths = List.length typeExrps then
+      (* We return a "dummy" completion here with a dummy made-up type.
+         This completion and type is never meant to be used for anything but looking up _other_ types,
+         which is why this is presumably OK to do. *)
+      [
+        Completion.create ~name:"dummy" ~env
+          ~kind:
+            (Completion.Value
+               Types.{level = 0; id = -1; desc = Ttuple typeExrps})
+          ();
+      ]
+    else []
   | CPField (CPId (path, Module), fieldName) ->
     (* M.field *)
     path @ [fieldName]
@@ -2216,6 +2244,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                else None)
       | Some (CRecord _), _ ->
         [
-          Completion.create ~name:"{}" ~insertText:"{${1}}" ~insertTextFormat:Snippet ~env ~sortText:"a"
+          Completion.create ~name:"{}" ~insertText:"{${1}}"
+            ~insertTextFormat:Snippet ~env ~sortText:"a"
             ~kind:(Completion.Label "Empty record") ();
         ]))
