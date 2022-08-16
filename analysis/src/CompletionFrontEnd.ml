@@ -783,11 +783,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                       patternPath = res.patternPath |> List.rev;
                       patternType = Destructure;
                       lookingToComplete = res.lookingToComplete;
-                      meta =
-                        {
-                          prefix = Some res.prefix;
-                          alreadySeenIdents = res.alreadySeenIdents;
-                        };
+                      prefix = res.prefix;
+                      alreadySeenIdents = res.alreadySeenIdents;
                     }))))
       | _ -> ());
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
@@ -1147,11 +1144,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                         patternPath = res.patternPath |> List.rev;
                         patternType = Switch;
                         lookingToComplete = res.lookingToComplete;
-                        meta =
-                          {
-                            prefix = Some res.prefix;
-                            alreadySeenIdents = res.alreadySeenIdents;
-                          };
+                        prefix = res.prefix;
+                        alreadySeenIdents = res.alreadySeenIdents;
                       }))))
         | _ -> ());
       if not !processed then Ast_iterator.default_iterator.expr iterator expr

@@ -1985,13 +1985,9 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         patternPath;
         patternType;
         lookingToComplete;
-        meta = {prefix; alreadySeenIdents};
+        prefix;
+        alreadySeenIdents;
       } -> (
-    let prefix =
-      match prefix with
-      | None -> ""
-      | Some prefix -> prefix
-    in
     let sourceType =
       howToRetrieveSourceType
       |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~pos ~scope

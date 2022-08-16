@@ -562,15 +562,6 @@ module Completable = struct
       ^ (arg |> functionArgumentToString)
       ^ ")"
 
-  type typedContextMeta = {
-    (* What the user has already started writing, if anything. *)
-    prefix: string option;
-    (* Record fields already written by the user, etc.
-       This is contextual of course, but putting it here in the general type to simplify things. *)
-    (* TODO: Clarify that this is only for patterns (?). If so, move it to something more obvious. *)
-    alreadySeenIdents: string list;
-  }
-
   type t =
     | Cdecorator of string  (** e.g. @module *)
     | CnamedArg of contextPath * string * string list
@@ -584,7 +575,11 @@ module Completable = struct
         patternPath: patternPathItem list;
         patternType: patternCompletionType;
         lookingToComplete: lookingToComplete;
-        meta: typedContextMeta;
+        (* What the user has already started writing, if anything. *)
+        prefix: string;
+        (* Record fields already written by the user, etc.
+           This is contextual of course, but putting it here in the general type to simplify things. *)
+        alreadySeenIdents: string list;
       }
 
   let toString = function
@@ -600,7 +595,8 @@ module Completable = struct
     | CtypedPattern
         {
           howToRetrieveSourceType;
-          meta = {prefix; alreadySeenIdents};
+          prefix;
+          alreadySeenIdents;
           patternPath;
           lookingToComplete;
           patternType;
@@ -611,11 +607,7 @@ module Completable = struct
       ^ lookingToCompleteToString lookingToComplete
       ^ ", patternType:"
       ^ patternCompletionTypeToString patternType
-      ^ ", prefix:"
-      ^
-      match prefix with
-      | None -> ""
-      | Some prefix -> str prefix)
+      ^ ", prefix:" ^ str prefix)
       ^ ", pattern: "
       ^ (patternPath |> patternContextPathToString)
       ^ ", seenIdents: " ^ list alreadySeenIdents ^ ")"
