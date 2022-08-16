@@ -276,8 +276,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Three(int)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Three(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 84:48
@@ -295,8 +295,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Two\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Two",
+    "insertTextFormat": 2
   }, {
     "label": "Three(_)",
     "kind": 4,
@@ -304,8 +304,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Three(int)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Three(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 87:47
@@ -322,8 +322,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Two\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Two",
+    "insertTextFormat": 2
   }, {
     "label": "Three(_)",
     "kind": 4,
@@ -331,8 +331,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Three(int)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Three(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 90:51
@@ -363,8 +363,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "One\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "One",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 96:63
@@ -397,8 +397,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Three(int)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Three(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 102:43
@@ -423,8 +423,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "One\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(One)",
+    "insertTextFormat": 2
   }, {
     "label": "Some(Two)",
     "kind": 4,
@@ -432,8 +432,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Two\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(Two)",
+    "insertTextFormat": 2
   }, {
     "label": "Some(Three(_))",
     "kind": 4,
@@ -441,8 +441,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Three(int)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(Three(${1:_}))",
+    "insertTextFormat": 2
   }, {
     "label": "Some(Four(_))",
     "kind": 4,
@@ -450,8 +450,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Four(someOtherVariant)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(Four(${1:_}))",
+    "insertTextFormat": 2
   }, {
     "label": "Some(Five(_))",
     "kind": 4,
@@ -459,8 +459,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Five(someOtherVariant, someVariant)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(Five(${1:_}))",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 105:39
@@ -485,8 +485,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Some(_)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 108:64
@@ -518,8 +518,8 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "Some(_)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 114:55
@@ -599,8 +599,8 @@ Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CNoContext, pa
     "detail": "One\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(One)",
+    "insertTextFormat": 2
   }, {
     "label": "Some(Two)",
     "kind": 4,
@@ -608,8 +608,8 @@ Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CNoContext, pa
     "detail": "Two\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(Two)",
+    "insertTextFormat": 2
   }, {
     "label": "Some(Three(_))",
     "kind": 4,
@@ -617,8 +617,8 @@ Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CNoContext, pa
     "detail": "Three(int)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(Three(${1:_}))",
+    "insertTextFormat": 2
   }, {
     "label": "Some(Four(_))",
     "kind": 4,
@@ -626,8 +626,8 @@ Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CNoContext, pa
     "detail": "Four(someOtherVariant)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(Four(${1:_}))",
+    "insertTextFormat": 2
   }, {
     "label": "Some(Five(_))",
     "kind": 4,
@@ -635,8 +635,8 @@ Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CNoContext, pa
     "detail": "Five(someOtherVariant, someVariant)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(Five(${1:_}))",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 128:14
@@ -653,8 +653,8 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "detail": "One\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "One",
+    "insertTextFormat": 2
   }, {
     "label": "Two",
     "kind": 4,
@@ -662,8 +662,8 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "detail": "Two\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Two",
+    "insertTextFormat": 2
   }, {
     "label": "Three(_)",
     "kind": 4,
@@ -671,8 +671,8 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "detail": "Three(int)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Three(${1:_})",
+    "insertTextFormat": 2
   }, {
     "label": "Four(_)",
     "kind": 4,
@@ -680,8 +680,8 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "detail": "Four(someOtherVariant)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Four(${1:_})",
+    "insertTextFormat": 2
   }, {
     "label": "Five(_)",
     "kind": 4,
@@ -689,8 +689,8 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "detail": "Five(someOtherVariant, someVariant)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Five(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 136:36
@@ -703,8 +703,8 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "detail": "Four(someOtherVariant)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Four(${1:_})",
+    "insertTextFormat": 2
   }, {
     "label": "Five(_)",
     "kind": 4,
@@ -712,8 +712,8 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "detail": "Five(someOtherVariant, someVariant)\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Five(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 140:33
@@ -727,8 +727,8 @@ Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoConte
     "detail": "Empty record",
     "documentation": null,
     "sortText": "a",
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "{${1}}",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_Records.res 144:35
@@ -787,7 +787,7 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "detail": "#WithPayload(someVariant)",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Some(#WithPayload(${1:_}))",
+    "insertTextFormat": 2
   }]
 

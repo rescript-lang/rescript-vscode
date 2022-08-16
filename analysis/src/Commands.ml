@@ -328,7 +328,8 @@ let test ~path =
               ("Complete " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             let currentFile = createCurrentFile () in
-            completion ~debug:true ~path ~pos:(line, col) ~currentFile;
+            completion ~debug:true ~path ~pos:(line, col) ~currentFile
+              ~supportsSnippets:true;
             Sys.remove currentFile
           | "dce" ->
             print_endline ("DCE " ^ path);
