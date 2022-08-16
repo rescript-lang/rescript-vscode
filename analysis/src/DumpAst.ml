@@ -29,6 +29,16 @@ let addIndentation indentation =
   in
   indent "" indentation
 
+let printAttributes attributes =
+  match List.length attributes with
+  | 0 -> ""
+  | _ ->
+    "["
+    ^ (attributes
+      |> List.map (fun ({Location.txt}, _payload) -> "@" ^ txt)
+      |> String.concat ",")
+    ^ "]"
+
 let printConstant const =
   match const with
   | Parsetree.Pconst_integer (s, _) -> "Pconst_integer(" ^ s ^ ")"
@@ -43,7 +53,8 @@ let printConstant const =
   | Pconst_float (s, _) -> "Pconst_float(" ^ s ^ ")"
 
 let printCoreType typ ~pos =
-  (typ.Parsetree.ptyp_loc |> printLocDenominator ~pos)
+  printAttributes typ.Parsetree.ptyp_attributes
+  ^ (typ.ptyp_loc |> printLocDenominator ~pos)
   ^
   match typ.ptyp_desc with
   | Ptyp_any -> "Ptyp_any"
@@ -56,7 +67,8 @@ let printCoreType typ ~pos =
   | _ -> "<unimplemented_ptyp_desc>"
 
 let rec printPattern pattern ~pos ~indentation =
-  (pattern.Parsetree.ppat_loc |> printLocDenominator ~pos)
+  printAttributes pattern.Parsetree.ppat_attributes
+  ^ (pattern.ppat_loc |> printLocDenominator ~pos)
   ^
   match pattern.Parsetree.ppat_desc with
   | Ppat_or (pat1, pat2) ->
@@ -136,7 +148,8 @@ and printCase case ~pos ~indentation ~caseNum =
 
 and printExprItem expr ~pos ~indentation =
   addIndentation indentation
-  ^ (expr.Parsetree.pexp_loc |> printLocDenominator ~pos)
+  ^ printAttributes expr.Parsetree.pexp_attributes
+  ^ (expr.pexp_loc |> printLocDenominator ~pos)
   ^
   match expr.Parsetree.pexp_desc with
   | Pexp_match (matchExpr, cases) ->
@@ -213,9 +226,10 @@ and printExprItem expr ~pos ~indentation =
   | v -> Printf.sprintf "<unimplemented_pexp_desc: %s>" (Utils.identifyPexp v)
 
 let printValueBinding value ~pos ~indentation =
-  "value" ^ ":\n"
+  printAttributes value.Parsetree.pvb_attributes
+  ^ "value" ^ ":\n"
   ^ addIndentation (indentation + 1)
-  ^ (value.Parsetree.pvb_pat |> printPattern ~pos ~indentation:(indentation + 1))
+  ^ (value.pvb_pat |> printPattern ~pos ~indentation:(indentation + 1))
   ^ "\n" ^ addIndentation indentation ^ "expr:\n"
   ^ printExprItem value.pvb_expr ~pos ~indentation:(indentation + 1)
 

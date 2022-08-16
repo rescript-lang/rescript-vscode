@@ -15,7 +15,8 @@ Completable: Cpath Type[React, e]
     "kind": 22,
     "tags": [],
     "detail": "type element",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.resi 10:18
@@ -27,6 +28,7 @@ Completable: Cpath Type[React, e]
     "kind": 22,
     "tags": [],
     "detail": "type element",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 

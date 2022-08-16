@@ -6,6 +6,7 @@ Completable: Cpath Value[a]->
     "kind": 12,
     "tags": [],
     "detail": "float => float",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 

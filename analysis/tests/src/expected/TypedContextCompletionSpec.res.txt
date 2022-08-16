@@ -14,7 +14,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         <*>~someVaria=
-          <*>Pexp_ident:someVaria
+          [@ns.namedArgLoc]<*>Pexp_ident:someVaria
     )
 )
 
@@ -34,7 +34,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         <*>~someVariant=
-          <x>Pexp_extension(%<x>rescript.exprhole)
+          [@ns.namedArgLoc]<x>Pexp_extension(%<x>rescript.exprhole)
     )
 )
 
@@ -55,7 +55,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         ~someVariant=
-          <*>Pexp_construct(<*>T)
+          [@ns.namedArgLoc]<*>Pexp_construct(<*>T)
     )
 )
 
@@ -75,7 +75,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         ~someVariant=
-          <*>Pexp_ident:t
+          [@ns.namedArgLoc]<*>Pexp_ident:t
     )
 )
 
@@ -95,7 +95,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         ~someVariant=
-          <*>Pexp_ident:TypeDefinition.""
+          [@ns.namedArgLoc]<*>Pexp_ident:TypeDefinition.""
     )
 )
 
@@ -115,7 +115,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         <*>~anotherThing=
-          <x>Pexp_extension(%<x>rescript.exprhole)
+          [@ns.namedArgLoc]<x>Pexp_extension(%<x>rescript.exprhole)
     )
 )
 
@@ -135,7 +135,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         <*>~thirdThing=
-          <x>Pexp_extension(%<x>rescript.exprhole)
+          [@ns.namedArgLoc]<x>Pexp_extension(%<x>rescript.exprhole)
     )
 )
 
@@ -155,7 +155,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         ~thirdThing=
-          <*>Pexp_variant(t)
+          [@ns.namedArgLoc]<*>Pexp_variant(t)
     )
 )
 
@@ -175,7 +175,7 @@ Pstr_value(
         Pexp_ident:someVariantToString
       args:
         ~thirdThing=
-          <*>Pexp_variant(T)
+          [@ns.namedArgLoc]<*>Pexp_variant(T)
     )
 )
 
@@ -191,36 +191,127 @@ Complete src/TypedContextCompletionSpec.res 97:15
 posCursor:[97:15] posNoWhite:[97:14] Found pattern:[97:7->97:16]
 posCursor:[97:15] posNoWhite:[97:14] Found pattern:[97:8->97:15]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:another, pattern: [], seenIdents: [another])
-[]
+[{
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 101:23
 posCursor:[101:23] posNoWhite:[101:22] Found pattern:[101:7->101:24]
 posCursor:[101:23] posNoWhite:[101:22] Found pattern:[101:22->101:23]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:s, pattern: [], seenIdents: [anotherThing, s])
-[]
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 105:8
 posCursor:[105:8] posNoWhite:[105:7] Found pattern:[105:7->105:9]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 109:8
 posCursor:[109:8] posNoWhite:[109:7] Found pattern:[109:7->109:9]
 Completable: CtypedPattern(sourceType:Value[getSomeVal](~irrelevant), lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 113:20
 posCursor:[113:20] posNoWhite:[113:19] Found pattern:[113:7->113:22]
 posCursor:[113:20] posNoWhite:[113:19] Found pattern:[113:19->113:21]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [RecordField:something], seenIdents: [])
-[]
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "whatIsThis",
+    "kind": 5,
+    "tags": [],
+    "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "anotherLevel",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 117:47
 posCursor:[117:47] posNoWhite:[117:46] Found pattern:[117:7->117:50]
 posCursor:[117:47] posNoWhite:[117:46] Found pattern:[117:19->117:49]
 posCursor:[117:47] posNoWhite:[117:46] Found pattern:[117:46->117:48]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [RecordField:something, RecordField:anotherLevel], seenIdents: [])
-[]
+[{
+    "label": "level",
+    "kind": 5,
+    "tags": [],
+    "detail": "level: int\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "someOtherArg",
+    "kind": 5,
+    "tags": [],
+    "detail": "someOtherArg: bool\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 121:48
 posCursor:[121:48] posNoWhite:[121:47] Found pattern:[121:7->121:51]
@@ -228,36 +319,95 @@ posCursor:[121:48] posNoWhite:[121:47] Found pattern:[121:19->121:50]
 posCursor:[121:48] posNoWhite:[121:47] Found pattern:[121:46->121:49]
 posCursor:[121:48] posNoWhite:[121:47] Found pattern:[121:47->121:48]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:l, pattern: [RecordField:something, RecordField:anotherLevel], seenIdents: [l])
-[]
+[{
+    "label": "level",
+    "kind": 5,
+    "tags": [],
+    "detail": "level: int\n\ntype anotherLevel = {level: int, someOtherArg: bool}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 125:47
 posCursor:[125:47] posNoWhite:[125:44] Found pattern:[125:7->125:49]
 posCursor:[125:47] posNoWhite:[125:44] Found pattern:[125:19->125:48]
-[]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [RecordField:something], seenIdents: [whatIsThis, anotherLevel])
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 129:31
 posCursor:[129:31] posNoWhite:[129:30] Found pattern:[129:7->129:47]
 posCursor:[129:31] posNoWhite:[129:30] Found pattern:[129:19->129:46]
-[]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Destructure, prefix:"", pattern: [RecordField:something], seenIdents: [whatIsThis, anotherLevel])
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 137:44
 posCursor:[137:44] posNoWhite:[137:43] Found expr:[137:3->137:54]
 posCursor:[137:44] posNoWhite:[137:43] Found pattern:[137:22->137:46]
 posCursor:[137:44] posNoWhite:[137:43] Found pattern:[137:42->137:45]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:som, pattern: [], seenIdents: [thirdThing, som])
-[]
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 141:52
 posCursor:[141:52] posNoWhite:[141:51] Found expr:[141:3->141:61]
 posCursor:[141:52] posNoWhite:[141:51] Found pattern:[141:51->141:53]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
-[]
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 145:89
 posCursor:[145:89] posNoWhite:[145:88] Found expr:[145:3->145:100]
 posCursor:[145:89] posNoWhite:[145:88] Found pattern:[145:51->145:92]
 posCursor:[145:89] posNoWhite:[145:88] Found pattern:[145:63->145:91]
-[]
+Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:"", pattern: [RecordField:something], seenIdents: [whatIsThis, anotherLevel])
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 149:48
 posCursor:[149:48] posNoWhite:[149:47] Found expr:[149:3->149:57]
@@ -266,7 +416,14 @@ posCursor:[149:48] posNoWhite:[149:47] Found pattern:[149:41->149:48]
 posCursor:[149:48] posNoWhite:[149:47] Found pattern:[149:47->149:48]
 Ppat_construct T:[149:47->149:48]
 Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [RecordField:something], seenIdents: [Two, T])
-[]
+[{
+    "label": "Three(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 152:48
 posCursor:[152:48] posNoWhite:[152:47] Found expr:[152:3->152:58]
@@ -276,7 +433,21 @@ Ppat_construct Some:[152:42->152:46]
 posCursor:[152:48] posNoWhite:[152:47] Found pattern:[152:47->152:48]
 Ppat_construct T:[152:47->152:48]
 Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [RecordField:otherThing, Variant:Some(0)], seenIdents: [])
-[]
+[{
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Three(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 155:47
 posCursor:[155:47] posNoWhite:[155:46] Found expr:[155:3->155:57]
@@ -285,7 +456,21 @@ posCursor:[155:47] posNoWhite:[155:46] Found pattern:[155:42->155:48]
 posCursor:[155:47] posNoWhite:[155:46] Found pattern:[155:46->155:47]
 Ppat_construct T:[155:46->155:47]
 Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [RecordField:thirdStuff, Tuple:1], seenIdents: [])
-[]
+[{
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Three(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 158:51
 posCursor:[158:51] posNoWhite:[158:50] Found expr:[158:3->158:62]
@@ -308,7 +493,14 @@ posCursor:[161:55] posNoWhite:[161:54] Found pattern:[161:50->161:57]
 posCursor:[161:55] posNoWhite:[161:54] Found pattern:[161:54->161:55]
 Ppat_construct O:[161:54->161:55]
 Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:O, pattern: [RecordField:thirdStuff, Tuple:1, Variant:Five(1)], seenIdents: [])
-[]
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 164:63
 posCursor:[164:63] posNoWhite:[164:62] Found expr:[164:3->164:78]
@@ -333,7 +525,14 @@ posCursor:[167:67] posNoWhite:[167:66] Found pattern:[167:54->167:67]
 posCursor:[167:67] posNoWhite:[167:66] Found pattern:[167:66->167:67]
 Ppat_construct T:[167:66->167:67]
 Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:T, pattern: [RecordField:thirdStuff, Tuple:1, Variant:Five(1)], seenIdents: [One, Two, T])
-[]
+[{
+    "label": "Three(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 170:43
 posCursor:[170:43] posNoWhite:[170:42] Found expr:[170:3->170:52]
@@ -341,7 +540,49 @@ posCursor:[170:43] posNoWhite:[170:42] Found pattern:[170:29->170:44]
 posCursor:[170:43] posNoWhite:[170:42] Found pattern:[170:42->170:43]
 Ppat_construct S:[170:42->170:43]
 Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:S, pattern: [RecordField:otherThing], seenIdents: [])
-[]
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "None\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(One)",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(Two)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(Three(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(Four(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four(someOtherVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(Five(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(someOtherVariant, someVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 173:39
 posCursor:[173:39] posNoWhite:[173:38] Found expr:[173:3->173:48]
@@ -349,7 +590,21 @@ posCursor:[173:39] posNoWhite:[173:38] Found pattern:[173:29->173:40]
 posCursor:[173:39] posNoWhite:[173:38] Found pattern:[173:38->173:39]
 Ppat_construct S:[173:38->173:39]
 Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:S, pattern: [RecordField:other2], seenIdents: [])
-[]
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "None\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Some(_)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 176:64
 posCursor:[176:64] posNoWhite:[176:62] Found expr:[176:3->176:75]
@@ -364,21 +619,56 @@ Complete src/TypedContextCompletionSpec.res 179:38
 posCursor:[179:38] posNoWhite:[179:36] Found expr:[179:3->179:47]
 posCursor:[179:38] posNoWhite:[179:36] Found pattern:[179:29->179:39]
 Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:other2], seenIdents: [])
-[]
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "None\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Some(_)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 182:55
 posCursor:[182:55] posNoWhite:[182:53] Found expr:[182:3->182:67]
 posCursor:[182:55] posNoWhite:[182:53] Found pattern:[182:22->182:59]
 posCursor:[182:55] posNoWhite:[182:53] Found pattern:[182:34->182:59]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something, RecordField:whatIsThis], seenIdents: [false])
-[]
+[{
+    "label": "true",
+    "kind": 12,
+    "tags": [],
+    "detail": "boolean\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 185:46
 posCursor:[185:46] posNoWhite:[185:45] Found expr:[185:3->185:58]
 posCursor:[185:46] posNoWhite:[185:45] Found pattern:[185:22->185:50]
 posCursor:[185:46] posNoWhite:[185:45] Found pattern:[185:34->185:50]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something, RecordField:whatIsThis], seenIdents: [])
-[]
+[{
+    "label": "false",
+    "kind": 12,
+    "tags": [],
+    "detail": "boolean\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "true",
+    "kind": 12,
+    "tags": [],
+    "detail": "boolean\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 188:49
 posCursor:[188:49] posNoWhite:[188:48] Found expr:[188:3->188:62]
@@ -386,12 +676,61 @@ posCursor:[188:49] posNoWhite:[188:48] Found pattern:[188:22->188:54]
 posCursor:[188:49] posNoWhite:[188:48] Found pattern:[188:34->188:52]
 posCursor:[188:49] posNoWhite:[188:48] Found pattern:[188:47->188:49]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CVariant, patternType:Switch, prefix:fa, pattern: [RecordField:something, RecordField:whatIsThis], seenIdents: [])
-[]
+[{
+    "label": "false",
+    "kind": 12,
+    "tags": [],
+    "detail": "boolean\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 192:15
 posCursor:[192:15] posNoWhite:[192:14] Found expr:[192:3->192:17]
 Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
-[]
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "None\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(One)",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(Two)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(Three(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(Four(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four(someOtherVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Some(Five(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(someOtherVariant, someVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 196:14
 posCursor:[196:14] posNoWhite:[196:12] Found expr:[196:3->196:13]
@@ -400,18 +739,74 @@ posCursor:[196:14] posNoWhite:[196:12] Found expr:[196:3->196:13]
 Complete src/TypedContextCompletionSpec.res 199:15
 posCursor:[199:15] posNoWhite:[199:14] Found expr:[199:3->199:17]
 Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
-[]
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Three(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int)\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Four(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four(someOtherVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(someOtherVariant, someVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 202:36
 posCursor:[202:36] posNoWhite:[202:34] Found expr:[202:3->202:38]
 Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [One, Two, Three])
-[]
+[{
+    "label": "Four(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four(someOtherVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(someOtherVariant, someVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 206:33
 posCursor:[206:33] posNoWhite:[206:32] Found expr:[206:3->206:44]
 posCursor:[206:33] posNoWhite:[206:32] Found pattern:[206:22->206:36]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something], seenIdents: [])
-[]
+[{
+    "label": "{}",
+    "kind": 4,
+    "tags": [],
+    "detail": "Empty record",
+    "documentation": null,
+    "sortText": "a"
+  }]
 
 Complete src/TypedContextCompletionSpec.res 210:22
 posCursor:[210:22] posNoWhite:[210:20] Found expr:[210:3->210:30]
@@ -421,1070 +816,1268 @@ Completable: Cpath Value[""]
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "x",
     "kind": 12,
     "tags": [],
     "detail": "option<someVariant>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "someOtherValue",
     "kind": 12,
     "tags": [],
     "detail": "someRecordWithVariant",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "getSomeVal",
     "kind": 12,
     "tags": [],
     "detail": "(~irrelevant: int) => anotherRecord",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "someVal",
     "kind": 12,
     "tags": [],
     "detail": "anotherRecord",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Arg",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Array",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ArrayLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Auto",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Array",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Float",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_HashMap",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_HashMapInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_HashMapString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_HashSet",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_HashSetInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_HashSetString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Id",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Int",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_List",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Map",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MapDict",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MapInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MapString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MutableMap",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MutableMapInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MutableMapString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MutableQueue",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MutableSet",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MutableSetInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MutableSetString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_MutableStack",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Option",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Range",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Result",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_Set",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_SetDict",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_SetInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_SetString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_SortArray",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_SortArrayInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_SortArrayString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalAVLset",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalAVLtree",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalBuckets",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalBucketsType",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalMapInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalMapString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalSetBuckets",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalSetInt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internalSetString",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Belt_internals",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Buffer",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Bytes",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "BytesLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Callback",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "CamlinternalLazy",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "CamlinternalMod",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Char",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "CodeLens",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "CompletePrioritize1",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "CompletePrioritize2",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Completion",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Complex",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Component",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "CreateInterface",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Cross",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Dce",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Debug",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Definition",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "DefinitionWithInterface",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Digest",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Div",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "DocumentSymbol",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Dom",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Dom_storage",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Dom_storage2",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Filename",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Fragment",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Genlex",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Hashtbl",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "HashtblLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Highlight",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Hover",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "InlayHint",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Int32",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Int64",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_OO",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_array",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_array2",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_bigint",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_cast",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_console",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_date",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_dict",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_exn",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_float",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_global",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_int",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_json",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_list",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_mapperRt",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_math",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_null",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_null_undefined",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_obj",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_option",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_promise",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_re",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_result",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_string",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_string2",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_typed_array",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_typed_array2",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_types",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_undefined",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Js_vector",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Jsx",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Lazy",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Lexing",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "List",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ListLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "LongIdentTest",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Map",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "MapLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "MoreLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Node",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Node_buffer",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Node_child_process",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Node_fs",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Node_module",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Node_path",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Node_process",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Obj",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Object",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Parsing",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Patterns",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Pervasives",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Printexc",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Queue",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Random",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "React",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ReactDOM",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ReactDOMRe",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ReactDOMServer",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ReactDOMStyle",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ReactEvent",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ReactTestUtils",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ReasonReact",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "RecModules",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "RecordCompletion",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "RecoveryOnProp",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "References",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ReferencesWithInterface",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Rename",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "RenameWithInterface",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "RescriptReactErrorBoundary",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "RescriptReactRouter",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Set",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "SetLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Sort",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Stack",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "StdLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Stream",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "String",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "StringLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Sys",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "TableclothMap",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "TypeContextCompletion_Jsx",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "TypeContextCompletion_LabelledArguments",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "TypeContextCompletion_Records",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "TypedContextCompletionSpec",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Uchar",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Xform",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypedContextCompletionSpec.res 214:23
 posCursor:[214:23] posNoWhite:[214:22] Found expr:[214:3->214:32]
 posCursor:[214:23] posNoWhite:[214:22] Found pattern:[214:22->214:24]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
-[]
+[{
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: someRecord\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "anotherThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherThing: option<someRecord>\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "thirdThing",
+    "kind": 5,
+    "tags": [],
+    "detail": "thirdThing: string\n\ntype anotherRecord = {\n  something: someRecord,\n  anotherThing: option<someRecord>,\n  thirdThing: string,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 218:31
 posCursor:[218:31] posNoWhite:[218:30] Found expr:[218:3->218:41]
@@ -1498,7 +2091,28 @@ posCursor:[221:35] posNoWhite:[221:34] Found expr:[221:3->221:45]
 posCursor:[221:35] posNoWhite:[221:34] Found pattern:[221:22->221:37]
 posCursor:[221:35] posNoWhite:[221:34] Found pattern:[221:34->221:36]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CRecordField, patternType:Switch, prefix:"", pattern: [RecordField:something], seenIdents: [])
-[]
+[{
+    "label": "somethingElse",
+    "kind": 5,
+    "tags": [],
+    "detail": "somethingElse: int\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "whatIsThis",
+    "kind": 5,
+    "tags": [],
+    "detail": "whatIsThis: bool\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "anotherLevel",
+    "kind": 5,
+    "tags": [],
+    "detail": "anotherLevel: anotherLevel\n\ntype someRecord = {\n  somethingElse: int,\n  whatIsThis: bool,\n  anotherLevel: anotherLevel,\n}",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 225:38
 posCursor:[225:38] posNoWhite:[225:37] Found expr:[225:3->225:50]
@@ -1548,10 +2162,31 @@ posCursor:[241:55] posNoWhite:[241:53] Found expr:[241:3->241:67]
 posCursor:[241:55] posNoWhite:[241:53] Found pattern:[241:22->241:59]
 posCursor:[241:55] posNoWhite:[241:53] Found pattern:[241:34->241:59]
 Completable: CtypedPattern(sourceType:Value[someVal], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:something, RecordField:whatIsThis], seenIdents: [false])
-[]
+[{
+    "label": "true",
+    "kind": 12,
+    "tags": [],
+    "detail": "boolean\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 
 Complete src/TypedContextCompletionSpec.res 245:49
 posCursor:[245:49] posNoWhite:[245:46] Found expr:[245:3->245:51]
 Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [One, Two, Three])
-[]
+[{
+    "label": "Four(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four(someOtherVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(someOtherVariant, someVariant)\n\n",
+    "documentation": null,
+    "sortText": null
+  }]
 

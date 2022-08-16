@@ -606,7 +606,7 @@ let rec findTupleItemWithCursor items ~index ~pos =
     else findTupleItemWithCursor rest ~index:(index + 1) ~pos
 
 let rec findContextInPattern pattern ~pos ~patternPath ~debug
-    ~seenIdentsFromParent =
+    ~seenIdentsFromParent ~firstCharBeforeCursorNoWhite =
   match pattern.Parsetree.ppat_desc with
   | Ppat_extension ({txt = "rescript.patternhole"}, _) ->
     (* This is printed when the parser has made recovery.
@@ -648,7 +648,7 @@ let rec findContextInPattern pattern ~pos ~patternPath ~debug
       | _ -> payload
     in
     findContextInPattern patternToContinueFrom ~pos ~debug
-      ~seenIdentsFromParent:[]
+      ~firstCharBeforeCursorNoWhite ~seenIdentsFromParent:[]
       ~patternPath:
         ([
            Completable.Variant
@@ -667,9 +667,11 @@ let rec findContextInPattern pattern ~pos ~patternPath ~debug
     match pat.ppat_desc with
     | Ppat_tuple _ ->
       (* Continue down here too, but let us discover the tuple in the next step. *)
-      findContextInPattern pat ~pos ~patternPath ~debug ~seenIdentsFromParent:[]
+      findContextInPattern pat ~firstCharBeforeCursorNoWhite ~pos ~patternPath
+        ~debug ~seenIdentsFromParent:[]
     | _ ->
-      findContextInPattern pat ~pos ~debug ~seenIdentsFromParent:[]
+      findContextInPattern pat ~firstCharBeforeCursorNoWhite ~pos ~debug
+        ~seenIdentsFromParent:[]
         ~patternPath:
           ([Completable.Variant {constructorName; payloadNum = Some 0}]
           @ patternPath))
@@ -748,7 +750,7 @@ let rec findContextInPattern pattern ~pos ~patternPath ~debug
         prefix = "";
         alreadySeenIdents = [];
       }
-  | Ppat_record (fields, _) ->
+  | Ppat_record (fields, _) -> (
     let seenFields =
       fields |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
     in
@@ -758,52 +760,72 @@ let rec findContextInPattern pattern ~pos ~patternPath ~debug
              CursorPosition.classifyLoc fieldPat.Parsetree.ppat_loc ~pos
              = HasCursor)
     in
-    fields
-    |> List.find_map (fun (loc, fieldPat) ->
-           match
-             CursorPosition.classifyLoc fieldPat.Parsetree.ppat_loc ~pos
-           with
-           | HasCursor -> (
-             (* handle `{something}`, which is parsed as `{something: something}` because of punning *)
-             match (loc, fieldPat.Parsetree.ppat_desc) with
-             | ( {Location.txt = Longident.Lident fieldName},
-                 Ppat_var {txt = varName} )
-               when fieldName = varName ->
-               Some
-                 {
-                   lookingToComplete = CRecordField;
-                   patternPath;
-                   prefix = varName;
-                   alreadySeenIdents = seenFields;
-                 }
-             | _ ->
-               (* We can continue down into anything else *)
-               findContextInPattern fieldPat ~pos ~debug
-                 ~seenIdentsFromParent:[]
-                 ~patternPath:
-                   ([
-                      Completable.RField {fieldName = getSimpleFieldName loc.txt};
-                    ]
-                   @ patternPath))
-           | NoCursor -> None
-           | EmptyLoc ->
-             if
-               (* We only care about empty locations if there's no field with the cursor *)
-               fieldWithCursorExists
-             then None
-             else
-               findContextInPattern fieldPat ~pos ~debug
-                 ~seenIdentsFromParent:[]
-                 ~patternPath:
-                   ([
-                      Completable.RField {fieldName = getSimpleFieldName loc.txt};
-                    ]
-                   @ patternPath))
+    let completableFromField =
+      fields
+      |> List.find_map (fun (loc, fieldPat) ->
+             match
+               CursorPosition.classifyLoc fieldPat.Parsetree.ppat_loc ~pos
+             with
+             | HasCursor -> (
+               (* handle `{something}`, which is parsed as `{something: something}` because of punning *)
+               match (loc, fieldPat.Parsetree.ppat_desc) with
+               | ( {Location.txt = Longident.Lident fieldName},
+                   Ppat_var {txt = varName} )
+                 when fieldName = varName ->
+                 Some
+                   {
+                     lookingToComplete = CRecordField;
+                     patternPath;
+                     prefix = varName;
+                     alreadySeenIdents = seenFields;
+                   }
+               | _ ->
+                 (* We can continue down into anything else *)
+                 findContextInPattern fieldPat ~pos
+                   ~firstCharBeforeCursorNoWhite ~debug ~seenIdentsFromParent:[]
+                   ~patternPath:
+                     ([
+                        Completable.RField
+                          {fieldName = getSimpleFieldName loc.txt};
+                      ]
+                     @ patternPath))
+             | NoCursor -> None
+             | EmptyLoc ->
+               if
+                 (* We only care about empty locations if there's no field with the cursor *)
+                 fieldWithCursorExists
+               then None
+               else
+                 findContextInPattern fieldPat ~pos ~debug
+                   ~firstCharBeforeCursorNoWhite ~seenIdentsFromParent:[]
+                   ~patternPath:
+                     ([
+                        Completable.RField
+                          {fieldName = getSimpleFieldName loc.txt};
+                      ]
+                     @ patternPath))
+    in
+    match
+      (completableFromField, fieldWithCursorExists, firstCharBeforeCursorNoWhite)
+    with
+    | None, false, Some ',' ->
+      (* If there's no field with the cursor, and we found no completable, and the first char before the
+         cursor is ',' we can assume that this is a pattern like `{someField, <com>}`.
+         The parser discards any unecessary commas, so we can't leverage the parser to figure out that
+         we're looking to complete for a new field. *)
+      Some
+        {
+          lookingToComplete = CRecordField;
+          patternPath;
+          prefix = "";
+          alreadySeenIdents = seenFields;
+        }
+    | completableFromField, _, _ -> completableFromField)
   | Ppat_tuple items -> (
     match findTupleItemWithCursor items ~pos ~index:0 with
     | Some (Some tuplePatternWithCursor, itemNumber) ->
       findContextInPattern tuplePatternWithCursor ~pos ~debug
-        ~seenIdentsFromParent:[]
+        ~seenIdentsFromParent:[] ~firstCharBeforeCursorNoWhite
         ~patternPath:([Completable.PTuple {itemNumber}] @ patternPath)
     | None ->
       (* TODO: No tuple item had the cursor, but we might still be able to complete
@@ -863,6 +885,7 @@ let rec findContextInPattern pattern ~pos ~patternPath ~debug
     | Some pattern ->
       pattern
       |> findContextInPattern ~pos ~patternPath ~debug
+           ~firstCharBeforeCursorNoWhite
            ~seenIdentsFromParent:identsFromBranches)
   | _v ->
     (* if debug then
@@ -1026,8 +1049,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                  ~posBeforeCursor ~firstCharBeforeCursorNoWhite ~seenIdents:[])
         | Some contextPath -> (
           match
-            findContextInPattern pvb_pat ~pos:posBeforeCursor ~patternPath:[]
-              ~seenIdentsFromParent:[] ~debug
+            findContextInPattern pvb_pat ~firstCharBeforeCursorNoWhite
+              ~pos:posBeforeCursor ~patternPath:[] ~seenIdentsFromParent:[]
+              ~debug
           with
           | None -> ()
           | Some res ->
@@ -1367,8 +1391,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                 = typ
               then
                 case.pc_lhs
-                |> findContextInPattern ~pos:posBeforeCursor ~patternPath:[]
-                     ~debug ~seenIdentsFromParent:identsFromCases
+                |> findContextInPattern ~firstCharBeforeCursorNoWhite
+                     ~pos:posBeforeCursor ~patternPath:[] ~debug
+                     ~seenIdentsFromParent:identsFromCases
               else findCaseWithCursor nextCases ~typ ~identsFromCases
             | [] -> None
           in

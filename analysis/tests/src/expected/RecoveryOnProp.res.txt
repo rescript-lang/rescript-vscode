@@ -13,12 +13,14 @@ Completable: Cpath Type[Res]
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "RescriptReactRouter",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 

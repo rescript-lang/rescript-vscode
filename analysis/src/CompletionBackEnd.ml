@@ -1157,7 +1157,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
       findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
     | None -> [])
 
-let mkItem ~name ~kind ~detail ~deprecated ~docstring =
+let mkItem ~name ~sortText ~kind ~detail ~deprecated ~docstring =
   let docContent =
     (match deprecated with
     | None -> ""
@@ -1181,10 +1181,11 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       documentation =
         (if docContent = "" then None
         else Some {kind = "markdown"; value = docContent});
+      sortText;
     }
 
-let completionToItem {Completion.name; deprecated; docstring; kind} =
-  mkItem ~name
+let completionToItem {Completion.name; deprecated; docstring; kind; sortText} =
+  mkItem ~name ~sortText
     ~kind:(Completion.kindToInt kind)
     ~deprecated ~detail:(detail name kind) ~docstring
 
@@ -1978,6 +1979,176 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
+  | CtypedPattern
+      {
+        howToRetrieveSourceType;
+        patternPath;
+        patternType;
+        lookingToComplete;
+        meta = {prefix; alreadySeenIdents};
+      } -> (
+    let prefix =
+      match prefix with
+      | None -> ""
+      | Some prefix -> prefix
+    in
+    let sourceType =
+      howToRetrieveSourceType
+      |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~pos ~scope
+    in
+    match sourceType with
+    | None -> []
+    | Some typ -> (
+      match
+        ( typ |> findTypeInContext ~env ~nestedContextPath:patternPath ~package,
+          lookingToComplete )
+      with
+      | None, _ -> []
+      | Some CBool, _ ->
+        (* Completing booleans - doesn't matter what we're looking to complete, since there's only one thing to complete (the bool values themselves). *)
+        ["false"; "true"]
+        |> List.filter (fun boolEntry ->
+               Utils.startsWith boolEntry prefix
+               && not
+                    (alreadySeenIdents
+                    |> List.exists (fun seenIdent -> seenIdent = boolEntry)))
+        |> List.map (fun boolEntry ->
+               Completion.create ~name:boolEntry ~kind:Bool ~env)
+      | Some (COptional completable), _lookingToComplete -> (
+        (* TODO: Account for lookingToComplete? *)
+        match completable with
+        | CVariant {constructors} ->
+          (* TOOD: Unify with other variant completion handler *)
+          let constructorCompletions =
+            constructors
+            |> List.filter (fun constructor ->
+                   Utils.startsWith
+                     ("Some(" ^ constructor.Constructor.cname.txt ^ ")")
+                     prefix
+                   && not
+                        (alreadySeenIdents
+                        |> List.exists (fun alreadySeenConstructorName ->
+                               alreadySeenConstructorName
+                               = constructor.Constructor.cname.txt)))
+            |> List.map (fun (constructor : Constructor.t) ->
+                   (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                      Eg. Some($1) as completion item. *)
+                   Completion.create
+                     ~name:
+                       ("Some(" ^ constructor.cname.txt
+                       ^
+                       if constructor.args |> List.length > 0 then "(_))"
+                       else ")")
+                     ~kind:(Constructor (constructor, ""))
+                     ~env)
+          in
+          (* TODO: Patterns should not include local completions *)
+          let _localCompletions =
+            typ
+            |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
+                 ~exact:false ~opens ~scope
+          in
+          [Completion.create ~name:"None" ~kind:OptionNone ~env]
+          @ constructorCompletions
+        | CPolyVariant {constructors} ->
+          (* TOOD: Unify with other variant completion handler *)
+          let constructorCompletions =
+            constructors
+            |> List.filter (fun constructor ->
+                   Utils.startsWith ("Some(#" ^ constructor.name ^ ")") prefix)
+            |> List.map (fun constructor ->
+                   (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                      Eg. Some($1) as completion item. *)
+                   Completion.create
+                     ~name:
+                       ("Some(#" ^ constructor.name
+                       ^
+                       if constructor.payload |> Option.is_some then "(_))"
+                       else ")")
+                     ~kind:(PolyvariantConstructor constructor) ~env)
+          in
+          (* TODO: Patterns should not include local completions *)
+          let _localCompletions =
+            typ
+            |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
+                 ~exact:false ~opens ~scope
+          in
+          [Completion.create ~name:"None" ~kind:OptionNone ~env]
+          @ constructorCompletions
+        | _ ->
+          [
+            Completion.create ~name:"None" ~kind:OptionNone ~env;
+            Completion.create ~name:"Some(_)" ~kind:OptionSome ~env;
+          ])
+      | Some (CPolyVariant {constructors}), _ ->
+        let constructorCompletions =
+          constructors
+          |> List.filter (fun constructor ->
+                 Utils.startsWith constructor.name prefix)
+          |> List.map (fun constructor ->
+                 (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                    Eg. Some($1) as completion item. *)
+                 Completion.create
+                   ~name:
+                     ("#" ^ constructor.name
+                     ^
+                     if constructor.payload |> Option.is_some then "(_)" else ""
+                     )
+                   ~kind:(PolyvariantConstructor constructor) ~env)
+        in
+        let _localCompletions =
+          typ
+          |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix ~exact:false
+               ~opens ~scope
+        in
+        constructorCompletions
+      | Some (CVariant {constructors}), _ ->
+        let constructorCompletions =
+          constructors
+          |> List.filter (fun constructor ->
+                 Utils.startsWith constructor.Constructor.cname.txt prefix
+                 && not
+                      (alreadySeenIdents
+                      |> List.exists (fun alreadySeenConstructorName ->
+                             alreadySeenConstructorName
+                             = constructor.Constructor.cname.txt)))
+          |> List.map (fun (constructor : Constructor.t) ->
+                 (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                    Eg. Some($1) as completion item. *)
+                 Completion.create
+                   ~name:
+                     (constructor.cname.txt
+                     ^ if constructor.args |> List.length > 0 then "(_)" else ""
+                     )
+                   ~kind:(Constructor (constructor, ""))
+                   ~env)
+        in
+        let _localCompletions =
+          typ
+          |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix ~exact:false
+               ~opens ~scope
+        in
+        constructorCompletions
+      | Some (CRecord {fields; decl; name}), CRecordField ->
+        fields
+        |> List.filter (fun (field : field) ->
+               not
+                 (alreadySeenIdents
+                 |> List.exists (fun fieldName -> fieldName = field.fname.txt)))
+        |> Utils.filterMap (fun (field : field) ->
+               if prefix = "" || checkName field.fname.txt ~prefix ~exact:false
+               then
+                 Some
+                   (Completion.create ~name:field.fname.txt ~env
+                      ~kind:
+                        (Completion.Field
+                           (field, decl |> Shared.declToString name.txt)))
+               else None)
+      | Some (CRecord _), _ ->
+        [
+          Completion.createWithSortText ~name:"{}" ~env ~sortText:"a"
+            ~kind:(Completion.Label "Empty record");
+        ]))
   | CtypedContextPattern
       {howToRetrieveSourceType; patternPath; meta = {prefix; alreadySeenIdents}}
     -> (
@@ -2134,4 +2305,3 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                         (Completion.Field
                            (field, decl |> Shared.declToString name.txt)))
                else None)))
-  | CtypedPattern _ -> []

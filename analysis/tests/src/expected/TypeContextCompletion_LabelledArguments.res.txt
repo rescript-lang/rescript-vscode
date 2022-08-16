@@ -12,7 +12,8 @@ Found type for function (
     "kind": 4,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 25:44
@@ -24,37 +25,43 @@ Completable: CtypedContextPattern(NamedArg(someVariant, Value[someVariantToStrin
     "kind": 4,
     "tags": [],
     "detail": "One\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Three",
     "kind": 4,
     "tags": [],
     "detail": "Three\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Four",
     "kind": 4,
     "tags": [],
     "detail": "Four\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Five(_)",
     "kind": 4,
     "tags": [],
     "detail": "Five(int)\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Six(_)",
     "kind": 4,
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 28:45
@@ -66,37 +73,43 @@ Completable: CtypedContextPattern(NamedArg(someVariant, Value[someVariantToStrin
     "kind": 4,
     "tags": [],
     "detail": "One\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Three",
     "kind": 4,
     "tags": [],
     "detail": "Three\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Four",
     "kind": 4,
     "tags": [],
     "detail": "Four\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Five(_)",
     "kind": 4,
     "tags": [],
     "detail": "Five(int)\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Six(_)",
     "kind": 4,
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 31:45
@@ -108,13 +121,15 @@ Completable: CtypedContextPattern(NamedArg(someVariant, Value[someVariantToStrin
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Three",
     "kind": 4,
     "tags": [],
     "detail": "Three\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 34:45
@@ -128,7 +143,8 @@ Completable: Cpath Value[t]
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 37:59
@@ -142,43 +158,50 @@ Completable: Cpath Value[TypeDefinition, ""]
     "kind": 12,
     "tags": [],
     "detail": "variant => string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "x",
     "kind": 12,
     "tags": [],
     "detail": "variant",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "y",
     "kind": 12,
     "tags": [],
     "detail": "record",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "obj",
     "kind": 12,
     "tags": [],
     "detail": "obj",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "f",
     "kind": 12,
     "tags": [],
     "detail": "record => string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Foo",
     "kind": 4,
     "tags": [],
     "detail": "Foo\n\ntype variant = Foo | Bar",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Bar",
     "kind": 4,
     "tags": [],
     "detail": "Bar\n\ntype variant = Foo | Bar",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 40:45
@@ -190,13 +213,15 @@ Completable: CtypedContextPattern(NamedArg(anotherThing, Value[someVariantToStri
     "kind": 4,
     "tags": [],
     "detail": "Foo\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Bar",
     "kind": 4,
     "tags": [],
     "detail": "Bar\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 43:43
@@ -208,37 +233,43 @@ Completable: CtypedContextPattern(NamedArg(thirdThing, Value[someVariantToString
     "kind": 4,
     "tags": [],
     "detail": "#one",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#six(_)",
     "kind": 4,
     "tags": [],
     "detail": "#six(option<int>, int)",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#three",
     "kind": 4,
     "tags": [],
     "detail": "#three",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
     "detail": "#two",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#five(_)",
     "kind": 4,
     "tags": [],
     "detail": "#five(int)",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#four",
     "kind": 4,
     "tags": [],
     "detail": "#four",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 46:44
@@ -250,37 +281,43 @@ Completable: CtypedContextPattern(NamedArg(thirdThing, Value[someVariantToString
     "kind": 4,
     "tags": [],
     "detail": "#one",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#six(_)",
     "kind": 4,
     "tags": [],
     "detail": "#six(option<int>, int)",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#three",
     "kind": 4,
     "tags": [],
     "detail": "#three",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
     "detail": "#two",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#five(_)",
     "kind": 4,
     "tags": [],
     "detail": "#five(int)",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#four",
     "kind": 4,
     "tags": [],
     "detail": "#four",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 49:45
@@ -292,13 +329,15 @@ Completable: CtypedContextPattern(NamedArg(thirdThing, Value[someVariantToString
     "kind": 4,
     "tags": [],
     "detail": "#three",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
     "detail": "#two",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 52:45
@@ -318,6 +357,7 @@ Completable: CtypedContextPattern(FunctionArgument(fnSource:NamedArg(doThing, Va
     "kind": 5,
     "tags": [],
     "detail": "name: string\n\ntype someRecord = {age: int, name: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 

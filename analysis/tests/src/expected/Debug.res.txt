@@ -88,13 +88,15 @@ findAllCompletions uri:js.ml
     "kind": 12,
     "tags": [],
     "detail": "('a, nullable<'a>) => bool",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "eqNull",
     "kind": 12,
     "tags": [],
     "detail": "('a, null<'a>) => bool",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 

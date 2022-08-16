@@ -21,6 +21,7 @@ type completionItem = {
   kind: int;
   tags: int list;
   detail: string;
+  sortText: string option;
   documentation: markupContent option;
 }
 
@@ -71,7 +72,8 @@ let stringifyCompletionItem c =
     "kind": %i,
     "tags": %s,
     "detail": "%s",
-    "documentation": %s
+    "documentation": %s,
+    "sortText": %s
   }|}
     (Json.escape c.label) c.kind
     (c.tags |> List.map string_of_int |> array)
@@ -79,6 +81,9 @@ let stringifyCompletionItem c =
     (match c.documentation with
     | None -> null
     | Some doc -> stringifyMarkupContent doc)
+    (match c.sortText with
+    | None -> null
+    | Some sortText -> Printf.sprintf "\"%s\"" (Json.escape sortText))
 
 let stringifyHover s = Printf.sprintf {|{"contents": "%s"}|} (Json.escape s)
 

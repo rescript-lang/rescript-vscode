@@ -7,7 +7,8 @@ Completable: Cjsx([SomeComponent], someVaria, [someVaria])
     "kind": 4,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 23:38
@@ -19,37 +20,43 @@ Completable: CtypedContextPattern(JsxProp(<SomeComponent someVariant= />))="" pa
     "kind": 4,
     "tags": [],
     "detail": "One\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Three",
     "kind": 4,
     "tags": [],
     "detail": "Three\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Four",
     "kind": 4,
     "tags": [],
     "detail": "Four\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Five(_)",
     "kind": 4,
     "tags": [],
     "detail": "Five(int)\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Six(_)",
     "kind": 4,
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 26:39
@@ -61,37 +68,43 @@ Completable: CtypedContextPattern(JsxProp(<SomeComponent someVariant= />))="" pa
     "kind": 4,
     "tags": [],
     "detail": "One\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Three",
     "kind": 4,
     "tags": [],
     "detail": "Three\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Four",
     "kind": 4,
     "tags": [],
     "detail": "Four\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Five(_)",
     "kind": 4,
     "tags": [],
     "detail": "Five(int)\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Six(_)",
     "kind": 4,
     "tags": [],
     "detail": "Six(option<string>, int)\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 29:39
@@ -103,13 +116,15 @@ Completable: CtypedContextPattern(JsxProp(<SomeComponent someVariant= />))=T pat
     "kind": 4,
     "tags": [],
     "detail": "Two\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Three",
     "kind": 4,
     "tags": [],
     "detail": "Three\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 32:39
@@ -129,13 +144,15 @@ Completable: CtypedContextPattern(JsxProp(<SomeComponent anotherThing= />))="" p
     "kind": 4,
     "tags": [],
     "detail": "Foo\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Bar",
     "kind": 4,
     "tags": [],
     "detail": "Bar\n\n",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 38:37
@@ -147,37 +164,43 @@ Completable: CtypedContextPattern(JsxProp(<SomeComponent thirdThing= />))="" pat
     "kind": 4,
     "tags": [],
     "detail": "#one",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#six(_)",
     "kind": 4,
     "tags": [],
     "detail": "#six(option<int>, int)",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#three",
     "kind": 4,
     "tags": [],
     "detail": "#three",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
     "detail": "#two",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#five(_)",
     "kind": 4,
     "tags": [],
     "detail": "#five(int)",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#four",
     "kind": 4,
     "tags": [],
     "detail": "#four",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 41:38
@@ -189,37 +212,43 @@ Completable: CtypedContextPattern(JsxProp(<SomeComponent thirdThing= />))="" pat
     "kind": 4,
     "tags": [],
     "detail": "#one",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#six(_)",
     "kind": 4,
     "tags": [],
     "detail": "#six(option<int>, int)",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#three",
     "kind": 4,
     "tags": [],
     "detail": "#three",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
     "detail": "#two",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#five(_)",
     "kind": 4,
     "tags": [],
     "detail": "#five(int)",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#four",
     "kind": 4,
     "tags": [],
     "detail": "#four",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 44:39
@@ -231,13 +260,15 @@ Completable: CtypedContextPattern(JsxProp(<SomeComponent thirdThing= />))=t patt
     "kind": 4,
     "tags": [],
     "detail": "#three",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
     "detail": "#two",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/TypeContextCompletion_Jsx.res 47:39

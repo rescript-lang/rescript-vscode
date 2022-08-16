@@ -20,13 +20,15 @@ Completable: Cjsx([M], f, [second, f])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "fun",
     "kind": 4,
     "tags": [],
     "detail": "option<string>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 14:13
@@ -38,25 +40,29 @@ Completable: Cpath Module[M]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "Map",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "MapLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "MoreLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 22:19
@@ -68,7 +74,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 25:17
@@ -80,7 +87,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 28:21
@@ -92,7 +100,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 31:24
@@ -104,7 +113,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 34:18
@@ -116,7 +126,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 37:16
@@ -128,7 +139,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 40:17
@@ -140,7 +152,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 43:18
@@ -152,7 +165,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 46:16
@@ -164,7 +178,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 49:27
@@ -176,7 +191,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 52:38
@@ -188,7 +204,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 55:25
@@ -200,7 +217,8 @@ Completable: Cjsx([M], k, [prop, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Definition src/Jsx.res 58:11
@@ -217,7 +235,8 @@ Completable: Cjsx([Ext], al, [al])
     "kind": 4,
     "tags": [],
     "detail": "option<string>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 71:11
@@ -235,7 +254,8 @@ Completable: Cjsx([M], k, [first, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 77:23
@@ -247,7 +267,8 @@ Completable: Cjsx([M], k, [first, k])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 80:6
@@ -270,7 +291,8 @@ Completable: Cpath Module[WithChildren]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 91:18
@@ -282,7 +304,8 @@ Completable: Cjsx([WithChildren], n, [n])
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 94:18
@@ -295,7 +318,8 @@ Completable: Cpath Type[React, e]
     "kind": 22,
     "tags": [],
     "detail": "type element",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 96:20
@@ -308,7 +332,8 @@ Completable: Cpath Type[ReactDOMR]
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 102:21
@@ -328,7 +353,8 @@ Completable: Cpath Value[DefineSomeFields, ""]
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 108:36
@@ -342,13 +368,15 @@ Completable: Cpath Module[DefineSomeFields].th
     "kind": 5,
     "tags": [],
     "detail": "thisField: int\n\ntype r = {thisField: int, thatField: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "thatField",
     "kind": 5,
     "tags": [],
     "detail": "thatField: string\n\ntype r = {thisField: int, thatField: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 122:20
@@ -362,7 +390,8 @@ Completable: Cpath Value[Outer, Inner, h]
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 129:19
@@ -376,7 +405,8 @@ Completable: Cpath Value[Outer, Inner, ""]
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 136:7
@@ -393,7 +423,8 @@ Completable: Cpath Module[Nested, Co]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Jsx.res 153:19
@@ -405,7 +436,8 @@ Completable: Cpath Module[Nested, ""]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Hover src/Jsx.res 162:12
@@ -440,24 +472,28 @@ Completable: Cjsx([Completion, O, Comp], "", [])
     "kind": 4,
     "tags": [],
     "detail": "option<string>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "second",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "zoo",
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "key",
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 

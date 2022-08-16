@@ -6,7 +6,8 @@ Completable: Cpath Value[ax]->
     "kind": 12,
     "tags": [],
     "detail": "t => int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/CompletePrioritize2.res 12:5
@@ -18,6 +19,7 @@ Completable: Cpath Value[ax]
     "kind": 12,
     "tags": [],
     "detail": "Test.t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 

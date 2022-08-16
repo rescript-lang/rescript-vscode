@@ -7,67 +7,78 @@ Completable: Cpath Value[MyList, m]
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  Equivalent to:\n\n  ```res\n  map(someList, f)->reverse\n  ```\n\n  ```res example\n  list{3, 4, 5}->Belt.List.mapReverse(x => x * x) /* list{25, 16, 9} */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Equivalent to:\n\n  ```res\n  map(someList, f)->reverse\n  ```\n\n  ```res example\n  list{3, 4, 5}->Belt.List.mapReverse(x => x * x) /* list{25, 16, 9} */\n  ```\n"},
+    "sortText": null
   }, {
     "label": "makeBy",
     "kind": 12,
     "tags": [],
     "detail": "(int, int => 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "\nReturn a list of length `numItems` with element `i` initialized with `f(i)`.\nReturns an empty list if `numItems` is negative.\n\n```res example\nBelt.List.makeBy(5, i => i) // list{0, 1, 2, 3, 4}\n\nBelt.List.makeBy(5, i => i * i) // list{0, 1, 4, 9, 16}\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nReturn a list of length `numItems` with element `i` initialized with `f(i)`.\nReturns an empty list if `numItems` is negative.\n\n```res example\nBelt.List.makeBy(5, i => i) // list{0, 1, 2, 3, 4}\n\nBelt.List.makeBy(5, i => i * i) // list{0, 1, 4, 9, 16}\n```\n"},
+    "sortText": null
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "\n  Returns a list of length `numItems` with each element filled with value `v`. Returns an empty list if `numItems` is negative.\n\n  ```res example\n  Belt.List.make(3, 1) // list{1, 1, 1}\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Returns a list of length `numItems` with each element filled with value `v`. Returns an empty list if `numItems` is negative.\n\n  ```res example\n  Belt.List.make(3, 1) // list{1, 1, 1}\n  ```\n"},
+    "sortText": null
   }, {
     "label": "mapReverse2U",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>",
-    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse2](#mapReverse2). "}
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse2](#mapReverse2). "},
+    "sortText": null
   }, {
     "label": "map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"},
+    "sortText": null
   }, {
     "label": "mapWithIndexU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. int, 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapWithIndex](#mapWithIndex). "}
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapWithIndex](#mapWithIndex). "},
+    "sortText": null
   }, {
     "label": "mapU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": " Uncurried version of [map](#map). "}
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [map](#map). "},
+    "sortText": null
   }, {
     "label": "makeByU",
     "kind": 12,
     "tags": [],
     "detail": "(int, (. int) => 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": " Uncurried version of [makeBy](#makeBy) "}
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [makeBy](#makeBy) "},
+    "sortText": null
   }, {
     "label": "mapReverse2",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>",
-    "documentation": {"kind": "markdown", "value": "\n  Equivalent to: `zipBy(xs, ys, f)->reverse`\n\n  ```res example\n\n  Belt.List.mapReverse2(list{1, 2, 3}, list{1, 2}, (a, b) => a + b) // list{4, 2}\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Equivalent to: `zipBy(xs, ys, f)->reverse`\n\n  ```res example\n\n  Belt.List.mapReverse2(list{1, 2, 3}, list{1, 2}, (a, b) => a + b) // list{4, 2}\n  ```\n"},
+    "sortText": null
   }, {
     "label": "mapWithIndex",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  Applies `f` to each element of `someList`.\n  Function `f` takes two arguments: the index starting from 0 and the element from `someList`, in that order.\n\n  ```res example\n  list{1, 2, 3}->Belt.List.mapWithIndex((index, x) => index + x) // list{1, 3, 5}\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Applies `f` to each element of `someList`.\n  Function `f` takes two arguments: the index starting from 0 and the element from `someList`, in that order.\n\n  ```res example\n  list{1, 2, 3}->Belt.List.mapWithIndex((index, x) => index + x) // list{1, 3, 5}\n  ```\n"},
+    "sortText": null
   }, {
     "label": "mapReverseU",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse](#mapReverse). "}
+    "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse](#mapReverse). "},
+    "sortText": null
   }]
 
 Complete src/Completion.res 3:9
@@ -79,217 +90,253 @@ Completable: Cpath Value[Array, ""]
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'b) => 'a, 'a, array<'b>) => 'a",
-    "documentation": {"kind": "markdown", "value": " [Array.fold_left f x a] computes\n   [f (... (f (f x a.(0)) a.(1)) ...) a.(n-1)],\n   where [n] is the length of the array [a]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.fold_left f x a] computes\n   [f (... (f (f x a.(0)) a.(1)) ...) a.(n-1)],\n   where [n] is the length of the array [a]. "},
+    "sortText": null
   }, {
     "label": "concat",
     "kind": 12,
     "tags": [],
     "detail": "list<array<'a>> => array<'a>",
-    "documentation": {"kind": "markdown", "value": " Same as {!Array.append}, but concatenates a list of arrays. "}
+    "documentation": {"kind": "markdown", "value": " Same as {!Array.append}, but concatenates a list of arrays. "},
+    "sortText": null
   }, {
     "label": "mapi",
     "kind": 12,
     "tags": [],
     "detail": "((int, 'a) => 'b, array<'a>) => array<'b>",
-    "documentation": {"kind": "markdown", "value": " Same as {!Array.map}, but the\n   function is applied to the index of the element as first argument,\n   and the element itself as second argument. "}
+    "documentation": {"kind": "markdown", "value": " Same as {!Array.map}, but the\n   function is applied to the index of the element as first argument,\n   and the element itself as second argument. "},
+    "sortText": null
   }, {
     "label": "exists",
     "kind": 12,
     "tags": [],
     "detail": "('a => bool, array<'a>) => bool",
-    "documentation": {"kind": "markdown", "value": " [Array.exists p [|a1; ...; an|]] checks if at least one element of\n    the array satisfies the predicate [p]. That is, it returns\n    [(p a1) || (p a2) || ... || (p an)].\n    @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " [Array.exists p [|a1; ...; an|]] checks if at least one element of\n    the array satisfies the predicate [p]. That is, it returns\n    [(p a1) || (p a2) || ... || (p an)].\n    @since 4.03.0 "},
+    "sortText": null
   }, {
     "label": "for_all",
     "kind": 12,
     "tags": [],
     "detail": "('a => bool, array<'a>) => bool",
-    "documentation": {"kind": "markdown", "value": " [Array.for_all p [|a1; ...; an|]] checks if all elements of the array\n   satisfy the predicate [p]. That is, it returns\n   [(p a1) && (p a2) && ... && (p an)].\n   @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " [Array.for_all p [|a1; ...; an|]] checks if all elements of the array\n   satisfy the predicate [p]. That is, it returns\n   [(p a1) && (p a2) && ... && (p an)].\n   @since 4.03.0 "},
+    "sortText": null
   }, {
     "label": "copy",
     "kind": 12,
     "tags": [],
     "detail": "array<'a> => array<'a>",
-    "documentation": {"kind": "markdown", "value": " [Array.copy a] returns a copy of [a], that is, a fresh array\n   containing the same elements as [a]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.copy a] returns a copy of [a], that is, a fresh array\n   containing the same elements as [a]. "},
+    "sortText": null
   }, {
     "label": "iter2",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'b) => unit, array<'a>, array<'b>) => unit",
-    "documentation": {"kind": "markdown", "value": " [Array.iter2 f a b] applies function [f] to all the elements of [a]\n   and [b].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " [Array.iter2 f a b] applies function [f] to all the elements of [a]\n   and [b].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "},
+    "sortText": null
   }, {
     "label": "to_list",
     "kind": 12,
     "tags": [],
     "detail": "array<'a> => list<'a>",
-    "documentation": {"kind": "markdown", "value": " [Array.to_list a] returns the list of all the elements of [a]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.to_list a] returns the list of all the elements of [a]. "},
+    "sortText": null
   }, {
     "label": "stable_sort",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'a) => int, array<'a>) => unit",
-    "documentation": {"kind": "markdown", "value": " Same as {!Array.sort}, but the sorting algorithm is stable (i.e.\n   elements that compare equal are kept in their original order) and\n   not guaranteed to run in constant heap space.\n\n   The current implementation uses Merge Sort. It uses [n/2]\n   words of heap space, where [n] is the length of the array.\n   It is usually faster than the current implementation of {!Array.sort}.\n"}
+    "documentation": {"kind": "markdown", "value": " Same as {!Array.sort}, but the sorting algorithm is stable (i.e.\n   elements that compare equal are kept in their original order) and\n   not guaranteed to run in constant heap space.\n\n   The current implementation uses Merge Sort. It uses [n/2]\n   words of heap space, where [n] is the length of the array.\n   It is usually faster than the current implementation of {!Array.sort}.\n"},
+    "sortText": null
   }, {
     "label": "iteri",
     "kind": 12,
     "tags": [],
     "detail": "((int, 'a) => unit, array<'a>) => unit",
-    "documentation": {"kind": "markdown", "value": " Same as {!Array.iter}, but the\n   function is applied with the index of the element as first argument,\n   and the element itself as second argument. "}
+    "documentation": {"kind": "markdown", "value": " Same as {!Array.iter}, but the\n   function is applied with the index of the element as first argument,\n   and the element itself as second argument. "},
+    "sortText": null
   }, {
     "label": "memq",
     "kind": 12,
     "tags": [],
     "detail": "('a, array<'a>) => bool",
-    "documentation": {"kind": "markdown", "value": " Same as {!Array.mem}, but uses physical equality instead of structural\n   equality to compare array elements.\n   @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " Same as {!Array.mem}, but uses physical equality instead of structural\n   equality to compare array elements.\n   @since 4.03.0 "},
+    "sortText": null
   }, {
     "label": "map2",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'b) => 'c, array<'a>, array<'b>) => array<'c>",
-    "documentation": {"kind": "markdown", "value": " [Array.map2 f a b] applies function [f] to all the elements of [a]\n   and [b], and builds an array with the results returned by [f]:\n   [[| f a.(0) b.(0); ...; f a.(Array.length a - 1) b.(Array.length b - 1)|]].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " [Array.map2 f a b] applies function [f] to all the elements of [a]\n   and [b], and builds an array with the results returned by [f]:\n   [[| f a.(0) b.(0); ...; f a.(Array.length a - 1) b.(Array.length b - 1)|]].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "},
+    "sortText": null
   }, {
     "label": "set",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, 'a) => unit",
-    "documentation": {"kind": "markdown", "value": " [Array.set a n x] modifies array [a] in place, replacing\n   element number [n] with [x].\n   You can also write [a.(n) <- x] instead of [Array.set a n x].\n\n   Raise [Invalid_argument \"index out of bounds\"]\n   if [n] is outside the range 0 to [Array.length a - 1]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.set a n x] modifies array [a] in place, replacing\n   element number [n] with [x].\n   You can also write [a.(n) <- x] instead of [Array.set a n x].\n\n   Raise [Invalid_argument \"index out of bounds\"]\n   if [n] is outside the range 0 to [Array.length a - 1]. "},
+    "sortText": null
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => array<'a>",
-    "documentation": {"kind": "markdown", "value": " [Array.make n x] returns a fresh array of length [n],\n   initialized with [x].\n   All the elements of this new array are initially\n   physically equal to [x] (in the sense of the [==] predicate).\n   Consequently, if [x] is mutable, it is shared among all elements\n   of the array, and modifying [x] through one of the array entries\n   will modify all other entries at the same time.\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the value of [x] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]."}
+    "documentation": {"kind": "markdown", "value": " [Array.make n x] returns a fresh array of length [n],\n   initialized with [x].\n   All the elements of this new array are initially\n   physically equal to [x] (in the sense of the [==] predicate).\n   Consequently, if [x] is mutable, it is shared among all elements\n   of the array, and modifying [x] through one of the array entries\n   will modify all other entries at the same time.\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the value of [x] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]."},
+    "sortText": null
   }, {
     "label": "make_float",
     "kind": 12,
     "tags": [],
     "detail": "int => array<float>",
-    "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
+    "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "},
+    "sortText": null
   }, {
     "label": "fold_right",
     "kind": 12,
     "tags": [],
     "detail": "(('b, 'a) => 'a, array<'b>, 'a) => 'a",
-    "documentation": {"kind": "markdown", "value": " [Array.fold_right f a x] computes\n   [f a.(0) (f a.(1) ( ... (f a.(n-1) x) ...))],\n   where [n] is the length of the array [a]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.fold_right f a x] computes\n   [f a.(0) (f a.(1) ( ... (f a.(n-1) x) ...))],\n   where [n] is the length of the array [a]. "},
+    "sortText": null
   }, {
     "label": "sort",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'a) => int, array<'a>) => unit",
-    "documentation": {"kind": "markdown", "value": " Sort an array in increasing order according to a comparison\n   function.  The comparison function must return 0 if its arguments\n   compare as equal, a positive integer if the first is greater,\n   and a negative integer if the first is smaller (see below for a\n   complete specification).  For example, {!Pervasives.compare} is\n   a suitable comparison function, provided there are no floating-point\n   NaN values in the data.  After calling [Array.sort], the\n   array is sorted in place in increasing order.\n   [Array.sort] is guaranteed to run in constant heap space\n   and (at most) logarithmic stack space.\n\n   The current implementation uses Heap Sort.  It runs in constant\n   stack space.\n\n   Specification of the comparison function:\n   Let [a] be the array and [cmp] the comparison function.  The following\n   must be true for all x, y, z in a :\n-   [cmp x y] > 0 if and only if [cmp y x] < 0\n-   if [cmp x y] >= 0 and [cmp y z] >= 0 then [cmp x z] >= 0\n\n   When [Array.sort] returns, [a] contains the same elements as before,\n   reordered in such a way that for all i and j valid indices of [a] :\n-   [cmp a.(i) a.(j)] >= 0 if and only if i >= j\n"}
+    "documentation": {"kind": "markdown", "value": " Sort an array in increasing order according to a comparison\n   function.  The comparison function must return 0 if its arguments\n   compare as equal, a positive integer if the first is greater,\n   and a negative integer if the first is smaller (see below for a\n   complete specification).  For example, {!Pervasives.compare} is\n   a suitable comparison function, provided there are no floating-point\n   NaN values in the data.  After calling [Array.sort], the\n   array is sorted in place in increasing order.\n   [Array.sort] is guaranteed to run in constant heap space\n   and (at most) logarithmic stack space.\n\n   The current implementation uses Heap Sort.  It runs in constant\n   stack space.\n\n   Specification of the comparison function:\n   Let [a] be the array and [cmp] the comparison function.  The following\n   must be true for all x, y, z in a :\n-   [cmp x y] > 0 if and only if [cmp y x] < 0\n-   if [cmp x y] >= 0 and [cmp y z] >= 0 then [cmp x z] >= 0\n\n   When [Array.sort] returns, [a] contains the same elements as before,\n   reordered in such a way that for all i and j valid indices of [a] :\n-   [cmp a.(i) a.(j)] >= 0 if and only if i >= j\n"},
+    "sortText": null
   }, {
     "label": "length",
     "kind": 12,
     "tags": [],
     "detail": "array<'a> => int",
-    "documentation": {"kind": "markdown", "value": " Return the length (number of elements) of the given array. "}
+    "documentation": {"kind": "markdown", "value": " Return the length (number of elements) of the given array. "},
+    "sortText": null
   }, {
     "label": "sub",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, int) => array<'a>",
-    "documentation": {"kind": "markdown", "value": " [Array.sub a start len] returns a fresh array of length [len],\n   containing the elements number [start] to [start + len - 1]\n   of array [a].\n\n   Raise [Invalid_argument \"Array.sub\"] if [start] and [len] do not\n   designate a valid subarray of [a]; that is, if\n   [start < 0], or [len < 0], or [start + len > Array.length a]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.sub a start len] returns a fresh array of length [len],\n   containing the elements number [start] to [start + len - 1]\n   of array [a].\n\n   Raise [Invalid_argument \"Array.sub\"] if [start] and [len] do not\n   designate a valid subarray of [a]; that is, if\n   [start < 0], or [len < 0], or [start + len > Array.length a]. "},
+    "sortText": null
   }, {
     "label": "of_list",
     "kind": 12,
     "tags": [],
     "detail": "list<'a> => array<'a>",
-    "documentation": {"kind": "markdown", "value": " [Array.of_list l] returns a fresh array containing the elements\n   of [l]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.of_list l] returns a fresh array containing the elements\n   of [l]. "},
+    "sortText": null
   }, {
     "label": "iter",
     "kind": 12,
     "tags": [],
     "detail": "('a => unit, array<'a>) => unit",
-    "documentation": {"kind": "markdown", "value": " [Array.iter f a] applies function [f] in turn to all\n   the elements of [a].  It is equivalent to\n   [f a.(0); f a.(1); ...; f a.(Array.length a - 1); ()]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.iter f a] applies function [f] in turn to all\n   the elements of [a].  It is equivalent to\n   [f a.(0); f a.(1); ...; f a.(Array.length a - 1); ()]. "},
+    "sortText": null
   }, {
     "label": "map",
     "kind": 12,
     "tags": [],
     "detail": "('a => 'b, array<'a>) => array<'b>",
-    "documentation": {"kind": "markdown", "value": " [Array.map f a] applies function [f] to all the elements of [a],\n   and builds an array with the results returned by [f]:\n   [[| f a.(0); f a.(1); ...; f a.(Array.length a - 1) |]]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.map f a] applies function [f] to all the elements of [a],\n   and builds an array with the results returned by [f]:\n   [[| f a.(0); f a.(1); ...; f a.(Array.length a - 1) |]]. "},
+    "sortText": null
   }, {
     "label": "unsafe_get",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int) => 'a",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "make_matrix",
     "kind": 12,
     "tags": [],
     "detail": "(int, int, 'a) => array<array<'a>>",
-    "documentation": {"kind": "markdown", "value": " [Array.make_matrix dimx dimy e] returns a two-dimensional array\n   (an array of arrays) with first dimension [dimx] and\n   second dimension [dimy]. All the elements of this new matrix\n   are initially physically equal to [e].\n   The element ([x,y]) of a matrix [m] is accessed\n   with the notation [m.(x).(y)].\n\n   Raise [Invalid_argument] if [dimx] or [dimy] is negative or\n   greater than {!Sys.max_array_length}.\n   If the value of [e] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.make_matrix dimx dimy e] returns a two-dimensional array\n   (an array of arrays) with first dimension [dimx] and\n   second dimension [dimy]. All the elements of this new matrix\n   are initially physically equal to [e].\n   The element ([x,y]) of a matrix [m] is accessed\n   with the notation [m.(x).(y)].\n\n   Raise [Invalid_argument] if [dimx] or [dimy] is negative or\n   greater than {!Sys.max_array_length}.\n   If the value of [e] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]. "},
+    "sortText": null
   }, {
     "label": "mem",
     "kind": 12,
     "tags": [],
     "detail": "('a, array<'a>) => bool",
-    "documentation": {"kind": "markdown", "value": " [mem a l] is true if and only if [a] is equal\n   to an element of [l].\n   @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " [mem a l] is true if and only if [a] is equal\n   to an element of [l].\n   @since 4.03.0 "},
+    "sortText": null
   }, {
     "label": "get",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int) => 'a",
-    "documentation": {"kind": "markdown", "value": " [Array.get a n] returns the element number [n] of array [a].\n   The first element has number 0.\n   The last element has number [Array.length a - 1].\n   You can also write [a.(n)] instead of [Array.get a n].\n\n   Raise [Invalid_argument \"index out of bounds\"]\n   if [n] is outside the range 0 to [(Array.length a - 1)]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.get a n] returns the element number [n] of array [a].\n   The first element has number 0.\n   The last element has number [Array.length a - 1].\n   You can also write [a.(n)] instead of [Array.get a n].\n\n   Raise [Invalid_argument \"index out of bounds\"]\n   if [n] is outside the range 0 to [(Array.length a - 1)]. "},
+    "sortText": null
   }, {
     "label": "append",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, array<'a>) => array<'a>",
-    "documentation": {"kind": "markdown", "value": " [Array.append v1 v2] returns a fresh array containing the\n   concatenation of the arrays [v1] and [v2]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.append v1 v2] returns a fresh array containing the\n   concatenation of the arrays [v1] and [v2]. "},
+    "sortText": null
   }, {
     "label": "unsafe_set",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, 'a) => unit",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "create_matrix",
     "kind": 12,
     "tags": [],
     "detail": "(int, int, 'a) => array<array<'a>>",
-    "documentation": {"kind": "markdown", "value": " @deprecated [Array.create_matrix] is an alias for {!Array.make_matrix}. "}
+    "documentation": {"kind": "markdown", "value": " @deprecated [Array.create_matrix] is an alias for {!Array.make_matrix}. "},
+    "sortText": null
   }, {
     "label": "create_float",
     "kind": 12,
     "tags": [],
     "detail": "int => array<float>",
-    "documentation": {"kind": "markdown", "value": " [Array.create_float n] returns a fresh float array of length [n],\n    with uninitialized data.\n    @since 4.03 "}
+    "documentation": {"kind": "markdown", "value": " [Array.create_float n] returns a fresh float array of length [n],\n    with uninitialized data.\n    @since 4.03 "},
+    "sortText": null
   }, {
     "label": "create",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => array<'a>",
-    "documentation": {"kind": "markdown", "value": " @deprecated [Array.create] is an alias for {!Array.make}. "}
+    "documentation": {"kind": "markdown", "value": " @deprecated [Array.create] is an alias for {!Array.make}. "},
+    "sortText": null
   }, {
     "label": "init",
     "kind": 12,
     "tags": [],
     "detail": "(int, int => 'a) => array<'a>",
-    "documentation": {"kind": "markdown", "value": " [Array.init n f] returns a fresh array of length [n],\n   with element number [i] initialized to the result of [f i].\n   In other terms, [Array.init n f] tabulates the results of [f]\n   applied to the integers [0] to [n-1].\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the return type of [f] is [float], then the maximum\n   size is only [Sys.max_array_length / 2]."}
+    "documentation": {"kind": "markdown", "value": " [Array.init n f] returns a fresh array of length [n],\n   with element number [i] initialized to the result of [f i].\n   In other terms, [Array.init n f] tabulates the results of [f]\n   applied to the integers [0] to [n-1].\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the return type of [f] is [float], then the maximum\n   size is only [Sys.max_array_length / 2]."},
+    "sortText": null
   }, {
     "label": "fast_sort",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'a) => int, array<'a>) => unit",
-    "documentation": {"kind": "markdown", "value": " Same as {!Array.sort} or {!Array.stable_sort}, whichever is faster\n    on typical input.\n"}
+    "documentation": {"kind": "markdown", "value": " Same as {!Array.sort} or {!Array.stable_sort}, whichever is faster\n    on typical input.\n"},
+    "sortText": null
   }, {
     "label": "fill",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, int, 'a) => unit",
-    "documentation": {"kind": "markdown", "value": " [Array.fill a ofs len x] modifies the array [a] in place,\n   storing [x] in elements number [ofs] to [ofs + len - 1].\n\n   Raise [Invalid_argument \"Array.fill\"] if [ofs] and [len] do not\n   designate a valid subarray of [a]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.fill a ofs len x] modifies the array [a] in place,\n   storing [x] in elements number [ofs] to [ofs + len - 1].\n\n   Raise [Invalid_argument \"Array.fill\"] if [ofs] and [len] do not\n   designate a valid subarray of [a]. "},
+    "sortText": null
   }, {
     "label": "blit",
     "kind": 12,
     "tags": [],
     "detail": "(array<'a>, int, array<'a>, int, int) => unit",
-    "documentation": {"kind": "markdown", "value": " [Array.blit v1 o1 v2 o2 len] copies [len] elements\n   from array [v1], starting at element number [o1], to array [v2],\n   starting at element number [o2]. It works correctly even if\n   [v1] and [v2] are the same array, and the source and\n   destination chunks overlap.\n\n   Raise [Invalid_argument \"Array.blit\"] if [o1] and [len] do not\n   designate a valid subarray of [v1], or if [o2] and [len] do not\n   designate a valid subarray of [v2]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.blit v1 o1 v2 o2 len] copies [len] elements\n   from array [v1], starting at element number [o1], to array [v2],\n   starting at element number [o2]. It works correctly even if\n   [v1] and [v2] are the same array, and the source and\n   destination chunks overlap.\n\n   Raise [Invalid_argument \"Array.blit\"] if [o1] and [len] do not\n   designate a valid subarray of [v1], or if [o2] and [len] do not\n   designate a valid subarray of [v2]. "},
+    "sortText": null
   }, {
     "label": "Floatarray",
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 5:10
@@ -301,49 +348,57 @@ Completable: Cpath Value[Array, m]
     "kind": 12,
     "tags": [],
     "detail": "((int, 'a) => 'b, array<'a>) => array<'b>",
-    "documentation": {"kind": "markdown", "value": " Same as {!Array.map}, but the\n   function is applied to the index of the element as first argument,\n   and the element itself as second argument. "}
+    "documentation": {"kind": "markdown", "value": " Same as {!Array.map}, but the\n   function is applied to the index of the element as first argument,\n   and the element itself as second argument. "},
+    "sortText": null
   }, {
     "label": "memq",
     "kind": 12,
     "tags": [],
     "detail": "('a, array<'a>) => bool",
-    "documentation": {"kind": "markdown", "value": " Same as {!Array.mem}, but uses physical equality instead of structural\n   equality to compare array elements.\n   @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " Same as {!Array.mem}, but uses physical equality instead of structural\n   equality to compare array elements.\n   @since 4.03.0 "},
+    "sortText": null
   }, {
     "label": "map2",
     "kind": 12,
     "tags": [],
     "detail": "(('a, 'b) => 'c, array<'a>, array<'b>) => array<'c>",
-    "documentation": {"kind": "markdown", "value": " [Array.map2 f a b] applies function [f] to all the elements of [a]\n   and [b], and builds an array with the results returned by [f]:\n   [[| f a.(0) b.(0); ...; f a.(Array.length a - 1) b.(Array.length b - 1)|]].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " [Array.map2 f a b] applies function [f] to all the elements of [a]\n   and [b], and builds an array with the results returned by [f]:\n   [[| f a.(0) b.(0); ...; f a.(Array.length a - 1) b.(Array.length b - 1)|]].\n   Raise [Invalid_argument] if the arrays are not the same size.\n   @since 4.03.0 "},
+    "sortText": null
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => array<'a>",
-    "documentation": {"kind": "markdown", "value": " [Array.make n x] returns a fresh array of length [n],\n   initialized with [x].\n   All the elements of this new array are initially\n   physically equal to [x] (in the sense of the [==] predicate).\n   Consequently, if [x] is mutable, it is shared among all elements\n   of the array, and modifying [x] through one of the array entries\n   will modify all other entries at the same time.\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the value of [x] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]."}
+    "documentation": {"kind": "markdown", "value": " [Array.make n x] returns a fresh array of length [n],\n   initialized with [x].\n   All the elements of this new array are initially\n   physically equal to [x] (in the sense of the [==] predicate).\n   Consequently, if [x] is mutable, it is shared among all elements\n   of the array, and modifying [x] through one of the array entries\n   will modify all other entries at the same time.\n\n   Raise [Invalid_argument] if [n < 0] or [n > Sys.max_array_length].\n   If the value of [x] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]."},
+    "sortText": null
   }, {
     "label": "make_float",
     "kind": 12,
     "tags": [],
     "detail": "int => array<float>",
-    "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
+    "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "},
+    "sortText": null
   }, {
     "label": "map",
     "kind": 12,
     "tags": [],
     "detail": "('a => 'b, array<'a>) => array<'b>",
-    "documentation": {"kind": "markdown", "value": " [Array.map f a] applies function [f] to all the elements of [a],\n   and builds an array with the results returned by [f]:\n   [[| f a.(0); f a.(1); ...; f a.(Array.length a - 1) |]]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.map f a] applies function [f] to all the elements of [a],\n   and builds an array with the results returned by [f]:\n   [[| f a.(0); f a.(1); ...; f a.(Array.length a - 1) |]]. "},
+    "sortText": null
   }, {
     "label": "make_matrix",
     "kind": 12,
     "tags": [],
     "detail": "(int, int, 'a) => array<array<'a>>",
-    "documentation": {"kind": "markdown", "value": " [Array.make_matrix dimx dimy e] returns a two-dimensional array\n   (an array of arrays) with first dimension [dimx] and\n   second dimension [dimy]. All the elements of this new matrix\n   are initially physically equal to [e].\n   The element ([x,y]) of a matrix [m] is accessed\n   with the notation [m.(x).(y)].\n\n   Raise [Invalid_argument] if [dimx] or [dimy] is negative or\n   greater than {!Sys.max_array_length}.\n   If the value of [e] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]. "}
+    "documentation": {"kind": "markdown", "value": " [Array.make_matrix dimx dimy e] returns a two-dimensional array\n   (an array of arrays) with first dimension [dimx] and\n   second dimension [dimy]. All the elements of this new matrix\n   are initially physically equal to [e].\n   The element ([x,y]) of a matrix [m] is accessed\n   with the notation [m.(x).(y)].\n\n   Raise [Invalid_argument] if [dimx] or [dimy] is negative or\n   greater than {!Sys.max_array_length}.\n   If the value of [e] is a floating-point number, then the maximum\n   size is only [Sys.max_array_length / 2]. "},
+    "sortText": null
   }, {
     "label": "mem",
     "kind": 12,
     "tags": [],
     "detail": "('a, array<'a>) => bool",
-    "documentation": {"kind": "markdown", "value": " [mem a l] is true if and only if [a] is equal\n   to an element of [l].\n   @since 4.03.0 "}
+    "documentation": {"kind": "markdown", "value": " [mem a l] is true if and only if [a] is equal\n   to an element of [l].\n   @since 4.03.0 "},
+    "sortText": null
   }]
 
 Complete src/Completion.res 15:17
@@ -355,7 +410,8 @@ Completable: Cpath Value[Dep, c]
     "kind": 12,
     "tags": [1],
     "detail": "int => int",
-    "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment"}
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment"},
+    "sortText": null
   }]
 
 Complete src/Completion.res 23:20
@@ -368,13 +424,15 @@ Found type for function (~age: int, ~name: string) => string
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "name",
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 26:13
@@ -385,13 +443,15 @@ Completable: Cpath array->m
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"},
+    "sortText": null
   }, {
     "label": "Js.Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"},
+    "sortText": null
   }]
 
 Complete src/Completion.res 29:13
@@ -402,7 +462,8 @@ Completable: Cpath string->toU
     "kind": 12,
     "tags": [],
     "detail": "t => t",
-    "documentation": {"kind": "markdown", "value": "\n`toUpperCase(str)` converts `str` to upper case using the locale-insensitive\ncase mappings in the Unicode Character Database. Notice that the conversion can\nexpand the number of letters in the result; for example the German ß\ncapitalizes to two Ses in a row.\n\nSee [`String.toUpperCase`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase)\non MDN.\n\n```res example\nJs.String2.toUpperCase(\"abc\") == \"ABC\"\nJs.String2.toUpperCase(`Straße`) == `STRASSE`\nJs.String2.toUpperCase(`πς`) == `ΠΣ`\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`toUpperCase(str)` converts `str` to upper case using the locale-insensitive\ncase mappings in the Unicode Character Database. Notice that the conversion can\nexpand the number of letters in the result; for example the German ß\ncapitalizes to two Ses in a row.\n\nSee [`String.toUpperCase`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase)\non MDN.\n\n```res example\nJs.String2.toUpperCase(\"abc\") == \"ABC\"\nJs.String2.toUpperCase(`Straße`) == `STRASSE`\nJs.String2.toUpperCase(`πς`) == `ΠΣ`\n```\n"},
+    "sortText": null
   }]
 
 Complete src/Completion.res 34:8
@@ -413,13 +474,15 @@ Completable: Cpath Value[op]->e
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, (. 'a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   Uncurried version of `eq`\n"}
+    "documentation": {"kind": "markdown", "value": "\n   Uncurried version of `eq`\n"},
+    "sortText": null
   }, {
     "label": "Belt.Option.eq",
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   Evaluates two optional values for equality with respect to a predicate\n   function. If both `optValue1` and `optValue2` are `None`, returns `true`.\n   If one of the arguments is `Some(value)` and the other is `None`, returns\n   `false`.\n\n   If arguments are `Some(value1)` and `Some(value2)`, returns the result of\n   `predicate(value1, value2)`; the predicate function must return a bool.\n\n   ```res example\n   let clockEqual = (a, b) => mod(a, 12) == mod(b, 12)\n\n   open Belt.Option\n\n   eq(Some(3), Some(15), clockEqual) /* true */\n\n   eq(Some(3), None, clockEqual) /* false */\n\n   eq(None, Some(3), clockEqual) /* false */\n\n   eq(None, None, clockEqual) /* true */\n   ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n   Evaluates two optional values for equality with respect to a predicate\n   function. If both `optValue1` and `optValue2` are `None`, returns `true`.\n   If one of the arguments is `Some(value)` and the other is `None`, returns\n   `false`.\n\n   If arguments are `Some(value1)` and `Some(value2)`, returns the result of\n   `predicate(value1, value2)`; the predicate function must return a bool.\n\n   ```res example\n   let clockEqual = (a, b) => mod(a, 12) == mod(b, 12)\n\n   open Belt.Option\n\n   eq(Some(3), Some(15), clockEqual) /* true */\n\n   eq(Some(3), None, clockEqual) /* false */\n\n   eq(None, Some(3), clockEqual) /* false */\n\n   eq(None, None, clockEqual) /* true */\n   ```\n"},
+    "sortText": null
   }]
 
 Complete src/Completion.res 44:7
@@ -432,13 +495,15 @@ Completable: Cpath Value[fa]->
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ForAuto.abd",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 47:21
@@ -451,13 +516,15 @@ Completable: Cpath Value[Js, Dict, u]
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, key) => 'a",
-    "documentation": {"kind": "markdown", "value": "\n`Js.Dict.unsafeGet(key)` returns the value if the key exists, otherwise an `undefined` value is returned. Use this only when you are sure the key exists (i.e. when having used the `keys()` function to check that the key is valid).\n\n```res example\nJs.Dict.unsafeGet(ages, \"Fred\") == 49\nJs.Dict.unsafeGet(ages, \"Paul\") // returns undefined\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`Js.Dict.unsafeGet(key)` returns the value if the key exists, otherwise an `undefined` value is returned. Use this only when you are sure the key exists (i.e. when having used the `keys()` function to check that the key is valid).\n\n```res example\nJs.Dict.unsafeGet(ages, \"Fred\") == 49\nJs.Dict.unsafeGet(ages, \"Paul\") // returns undefined\n```\n"},
+    "sortText": null
   }, {
     "label": "unsafeDeleteKey",
     "kind": 12,
     "tags": [],
     "detail": "(. t<string>, string) => unit",
-    "documentation": {"kind": "markdown", "value": " Experimental internal function "}
+    "documentation": {"kind": "markdown", "value": " Experimental internal function "},
+    "sortText": null
   }]
 
 Complete src/Completion.res 59:30
@@ -471,7 +538,8 @@ Completable: Cpath Value[z]
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 62:23
@@ -483,7 +551,8 @@ Completable: Cjsx([O, Comp], z, [z])
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 65:8
@@ -494,7 +563,8 @@ Completable: Cdecorator(reac)
     "kind": 4,
     "tags": [],
     "detail": "",
-    "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."}
+    "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."},
+    "sortText": null
   }]
 
 Complete src/Completion.res 68:10
@@ -507,7 +577,8 @@ Completable: Cdecorator(react.)
     "kind": 4,
     "tags": [],
     "detail": "",
-    "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."}
+    "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."},
+    "sortText": null
   }]
 
 Complete src/Completion.res 71:27
@@ -520,7 +591,8 @@ Found type for function (~age: int, ~name: string) => string
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 74:26
@@ -533,7 +605,8 @@ Found type for function (~age: int, ~name: string) => string
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 77:32
@@ -546,7 +619,8 @@ Found type for function (~age: int, ~name: string) => string
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 82:5
@@ -565,7 +639,8 @@ Completable: Cpath Value[someObj]["a"]
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 95:24
@@ -577,13 +652,15 @@ Completable: Cpath Value[nestedObj]["x"]["y"][""]
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "name",
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 99:7
@@ -595,7 +672,8 @@ Completable: Cpath Value[o]["a"]
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 104:17
@@ -607,13 +685,15 @@ Completable: Cpath Value[no]["x"]["y"][""]
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "age",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 110:5
@@ -625,13 +705,15 @@ Completable: Cpath Value[r].""
     "kind": 5,
     "tags": [],
     "detail": "x: int\n\ntype r = {x: int, y: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "y",
     "kind": 5,
     "tags": [],
     "detail": "y: string\n\ntype r = {x: int, y: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 113:24
@@ -643,13 +725,15 @@ Completable: Cpath Value[Object, Rec, recordVal].""
     "kind": 5,
     "tags": [],
     "detail": "xx: int\n\ntype recordt = {xx: int, ss: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ss",
     "kind": 5,
     "tags": [],
     "detail": "ss: string\n\ntype recordt = {xx: int, ss: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 120:7
@@ -663,7 +747,8 @@ Completable: Cpath Value[my]
     "kind": 12,
     "tags": [],
     "detail": "(int, int) => int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 125:18
@@ -675,13 +760,15 @@ Completable: Cpath Value[Object, object][""]
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "age",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 151:6
@@ -693,7 +780,8 @@ Completable: Cpath Module[O, ""]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 157:8
@@ -705,13 +793,15 @@ Completable: Cpath Value[q].aa.""
     "kind": 5,
     "tags": [],
     "detail": "x: int\n\ntype aa = {x: int, name: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "name",
     "kind": 5,
     "tags": [],
     "detail": "name: string\n\ntype aa = {x: int, name: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 159:9
@@ -723,7 +813,8 @@ Completable: Cpath Value[q].aa.n
     "kind": 5,
     "tags": [],
     "detail": "name: string\n\ntype aa = {x: int, name: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 162:6
@@ -735,13 +826,15 @@ Completable: Cpath Value[Lis]
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ListLabels",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 169:16
@@ -753,7 +846,8 @@ Completable: Cpath Module[WithChildren]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 172:16
@@ -765,19 +859,22 @@ Completable: Cpath Type[Js, n]
     "kind": 22,
     "tags": [],
     "detail": "type null_undefined<'a> = nullable<'a>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "nullable",
     "kind": 22,
     "tags": [],
     "detail": "type nullable<+'a>",
-    "documentation": {"kind": "markdown", "value": "\n  A value of this type can be undefined, null or 'a. This type is equivalent to Js.Null_undefined.t.\n"}
+    "documentation": {"kind": "markdown", "value": "\n  A value of this type can be undefined, null or 'a. This type is equivalent to Js.Null_undefined.t.\n"},
+    "sortText": null
   }, {
     "label": "null",
     "kind": 22,
     "tags": [],
     "detail": "type null<+'a>",
-    "documentation": {"kind": "markdown", "value": "\n  Nullable value of this type can be either null or 'a. This type is equivalent to Js.Null.t.\n"}
+    "documentation": {"kind": "markdown", "value": "\n  Nullable value of this type can be either null or 'a. This type is equivalent to Js.Null.t.\n"},
+    "sortText": null
   }]
 
 Complete src/Completion.res 174:20
@@ -789,7 +886,8 @@ Completable: Cpath Type[ForAuto, ""]
     "kind": 22,
     "tags": [],
     "detail": "type t = int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 179:13
@@ -806,7 +904,8 @@ Completable: Cpath Module[For]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 190:11
@@ -818,7 +917,8 @@ Completable: Cpath Value[Private, ""]
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 202:6
@@ -836,7 +936,8 @@ Completable: Cpath Value[sha]
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 208:6
@@ -848,7 +949,8 @@ Completable: Cpath Value[sha]
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 221:22
@@ -860,13 +962,15 @@ Completable: Cpath Value[FAO, forAutoObject][""]
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "forAutoLabel",
     "kind": 4,
     "tags": [],
     "detail": "FAR.forAutoRecord",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 224:37
@@ -878,13 +982,15 @@ Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
     "kind": 5,
     "tags": [],
     "detail": "forAuto: ForAuto.t\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "something",
     "kind": 5,
     "tags": [],
     "detail": "something: option<int>\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 227:46
@@ -895,13 +1001,15 @@ Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "ForAuto.abd",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 230:55
@@ -914,13 +1022,15 @@ Completable: Cpath Value[ForAuto, a]
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "abd",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 234:34
@@ -936,7 +1046,8 @@ Completable: Cpath Value[na]
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 237:17
@@ -956,13 +1067,15 @@ Completable: Cpath Value[_z].""
     "kind": 5,
     "tags": [],
     "detail": "x: int\n\ntype r = {x: int, y: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "y",
     "kind": 5,
     "tags": [],
     "detail": "y: string\n\ntype r = {x: int, y: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 254:17
@@ -974,7 +1087,8 @@ Completable: Cpath Value[SomeLo]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 256:29
@@ -986,7 +1100,8 @@ Completable: Cpath Type[SomeLocalModule, ""]
     "kind": 22,
     "tags": [],
     "detail": "type zz = int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 261:33
@@ -998,7 +1113,8 @@ Completable: Cpath Type[SomeLocalModule, ""]
     "kind": 22,
     "tags": [],
     "detail": "type zz = int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 268:21
@@ -1009,7 +1125,8 @@ Completable: Cpath Value[SomeLocal]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 271:20
@@ -1022,7 +1139,8 @@ Completable: Cpath Type[SomeLocal]
     "kind": 9,
     "tags": [],
     "detail": "module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 275:15
@@ -1036,7 +1154,8 @@ Completable: Cpath Value[_w]
     "kind": 12,
     "tags": [],
     "detail": "'a",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 281:22
@@ -1048,13 +1167,15 @@ Completable: Cpath Type[s]
     "kind": 22,
     "tags": [],
     "detail": "type someType = {hello: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "someLocalVariant",
     "kind": 22,
     "tags": [],
     "detail": "type someLocalVariant = SomeLocalVariantItem",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 291:30
@@ -1067,7 +1188,8 @@ Found type for function (~name: string) => unit
     "kind": 4,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 296:11
@@ -1079,13 +1201,15 @@ Completable: Cpath Value[retAA](Nolabel).""
     "kind": 5,
     "tags": [],
     "detail": "x: int\n\ntype aa = {x: int, name: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "name",
     "kind": 5,
     "tags": [],
     "detail": "name: string\n\ntype aa = {x: int, name: string}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 301:13
@@ -1105,25 +1229,29 @@ Found type for function (
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "a",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "b",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "opt2",
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 304:15
@@ -1136,19 +1264,22 @@ Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "b",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "opt2",
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 307:17
@@ -1161,19 +1292,22 @@ Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "b",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "opt2",
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 310:21
@@ -1186,13 +1320,15 @@ Found type for function (~a: int, ~b: int) => int
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "b",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 313:23
@@ -1205,13 +1341,15 @@ Found type for function (~a: int, ~opt2: int=?, unit) => int
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "opt2",
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 316:16
@@ -1224,25 +1362,29 @@ Found type for function (~opt1: int=?, ~a: int, ~b: int, unit, unit, ~c: int) =>
     "kind": 4,
     "tags": [],
     "detail": "option<int>",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "a",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "b",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "c",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 323:17
@@ -1255,13 +1397,15 @@ Found type for function (~b: int) => callback
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "a",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 326:21
@@ -1274,7 +1418,8 @@ Found type for function (~b: int) => int
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 329:21
@@ -1287,7 +1432,8 @@ Found type for function (~a: int) => int
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 336:26
@@ -1306,13 +1452,15 @@ Completable: Cpath Type[Res]
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "RescriptReactRouter",
     "kind": 9,
     "tags": [],
     "detail": "file module",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 343:57
@@ -1326,7 +1474,8 @@ Completable: Cpath Value[this]
     "kind": 12,
     "tags": [],
     "detail": "\\\"Type Not Known\"",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Hover src/Completion.res 346:14
@@ -1397,13 +1546,15 @@ Completable: Cpath Value[ForAuto, ""]
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "abd",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 381:38
@@ -1419,13 +1570,15 @@ Completable: Cpath Value[FAO, forAutoObject][""]
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "forAutoLabel",
     "kind": 4,
     "tags": [],
     "detail": "FAR.forAutoRecord",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 384:24
@@ -1441,13 +1594,15 @@ Completable: Cpath Value[funRecord].""
     "kind": 5,
     "tags": [],
     "detail": "someFun: (~name: string) => unit\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "stuff",
     "kind": 5,
     "tags": [],
     "detail": "stuff: string\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 389:12
@@ -1461,13 +1616,15 @@ Completable: Cpath array->ma
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"},
+    "sortText": null
   }, {
     "label": "Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"},
+    "sortText": null
   }]
 
 Complete src/Completion.res 397:14
@@ -1483,7 +1640,8 @@ Completable: Cpath Value[red]
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 402:25
@@ -1499,7 +1657,8 @@ Completable: Cpath Value[red]
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
 Complete src/Completion.res 405:22
@@ -1515,18 +1674,21 @@ Completable: Cpath Value[r]
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "retAA",
     "kind": 12,
     "tags": [],
     "detail": "unit => aa",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }, {
     "label": "r",
     "kind": 12,
     "tags": [],
     "detail": "rAlias",
-    "documentation": null
+    "documentation": null,
+    "sortText": null
   }]
 
