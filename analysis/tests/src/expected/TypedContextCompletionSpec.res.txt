@@ -2190,3 +2190,23 @@ Completable: CtypedPattern(sourceType:Value[y], lookingToComplete:CNoContext, pa
     "sortText": null
   }]
 
+Complete src/TypedContextCompletionSpec.res 248:41
+posCursor:[248:41] posNoWhite:[248:40] Found expr:[248:3->248:55]
+posCursor:[248:41] posNoWhite:[248:40] Found pattern:[248:29->248:43]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:thirdStuff], seenIdents: [])
+[{
+    "label": "(_, _, _, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Full tuple match",
+    "documentation": null,
+    "sortText": "a"
+  }, {
+    "label": "()",
+    "kind": 4,
+    "tags": [],
+    "detail": "Empty tuple match for single element",
+    "documentation": null,
+    "sortText": "b"
+  }]
+

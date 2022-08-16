@@ -1050,6 +1050,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
   | _ -> None
 
 (* Had to add another type level here to cover that polyvariants are inlined into to the type system. Mostly a temporary solution. *)
+(* TODO: This has overlap with Declared, which is confusing. *)
 type extractedType =
   | Declared of QueryEnv.t * Type.t Declared.t
   | Polyvariant of QueryEnv.t * SharedTypes.polyVariantConstructor list
@@ -1442,6 +1443,7 @@ type completable =
   | CVariant of {constructors: Constructor.t list}
   | CPolyVariant of {constructors: polyVariantConstructor list}
   | COptional of completable
+  | CTuple of {types: Types.type_expr list}
   | CBool
 
 let rec typeExprToCompletable typ ~env ~package =
@@ -1456,6 +1458,8 @@ let rec typeExprToCompletable typ ~env ~package =
     match typ |> typeExprToCompletable ~env ~package with
     | None -> None
     | Some typ -> Some (COptional typ))
+  | Some (Declared (_, {item = {kind = Abstract _}})) -> None
+  | Some (Tuple (_, types)) -> Some (CTuple {types})
   | _ -> None
 
 (* Takes a type_expr and figures out what completable it corresponds to, if any. If the target type is nested somewhere inside of the type_expr,
@@ -2000,6 +2004,19 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
           lookingToComplete )
       with
       | None, _ -> []
+
+      | Some (CTuple {types}), _ ->
+        (* Completing a tuple itself, like `{someFieldWithTuple: <com>}` *)
+        [
+          Completion.createWithSortText
+            ~name:
+              ("("
+              ^ (types |> List.map (fun _t -> "_") |> String.concat ", ")
+              ^ ")")
+            ~env ~sortText:"a" ~kind:(Completion.Label "Full tuple match");
+          Completion.createWithSortText ~name:"()" ~env ~sortText:"b"
+            ~kind:(Completion.Label "Empty tuple match for single element");
+        ]
       | Some CBool, _ ->
         (* Completing booleans - doesn't matter what we're looking to complete, since there's only one thing to complete (the bool values themselves). *)
         ["false"; "true"]

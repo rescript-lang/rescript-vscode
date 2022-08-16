@@ -246,4 +246,7 @@ let y = One
 // switch y { | One | Two => () | Three => () |   }
 //                                               ^com
 
+// switch someOtherValue { | {thirdStuff: } => () |   }
+//                                       ^com
+
 // --- Pattern matching end ---
