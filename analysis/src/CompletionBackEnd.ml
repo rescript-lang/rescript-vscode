@@ -1558,7 +1558,8 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
         -> (
         match
           constructors
-          |> List.find_opt (fun constructor -> constructor.name = name)
+          |> List.find_opt (fun (constructor : polyVariantConstructor) ->
+                 constructor.name = name)
         with
         | Some constructor -> (
           match payloadNum with
@@ -2132,9 +2133,9 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
           (* TOOD: Unify with other variant completion handler *)
           let constructorCompletions =
             constructors
-            |> List.filter (fun constructor ->
+            |> List.filter (fun (constructor : polyVariantConstructor) ->
                    Utils.startsWith ("Some(#" ^ constructor.name ^ ")") prefix)
-            |> List.map (fun constructor ->
+            |> List.map (fun (constructor : polyVariantConstructor) ->
                    (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
                       Eg. Some($1) as completion item. *)
                    Completion.create
@@ -2168,9 +2169,9 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | Some (CPolyVariant {constructors}), _ ->
         let constructorCompletions =
           constructors
-          |> List.filter (fun constructor ->
+          |> List.filter (fun (constructor : polyVariantConstructor) ->
                  Utils.startsWith constructor.name prefix)
-          |> List.map (fun constructor ->
+          |> List.map (fun (constructor : polyVariantConstructor) ->
                  (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
                     Eg. Some($1) as completion item. *)
                  Completion.create
@@ -2255,9 +2256,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~pos ~scope
     in
     match sourceType with
-    | None ->
-      Printf.printf "no source type\n";
-      []
+    | None -> []
     | Some typ -> (
       match
         ( typ
@@ -2281,7 +2280,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                 |> String.concat ", ")
               ^ ")")
             ~insertTextFormat:Snippet ~env ~sortText:"a"
-            ~kind:(Completion.Label "Full tuple match") ();
+            ~kind:(Completion.Label "Tuple") ();
         ]
       | Some CBool, _ ->
         (* Completing booleans - doesn't matter what we're looking to complete, since there's only one thing to complete (the bool values themselves). *)
@@ -2300,8 +2299,6 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      ("Some(" ^ constructor.Constructor.cname.txt ^ ")")
                      prefix)
             |> List.map (fun (constructor : Constructor.t) ->
-                   (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
-                      Eg. Some($1) as completion item. *)
                    Completion.create
                      ~name:
                        ("Some(" ^ constructor.cname.txt
@@ -2311,7 +2308,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      ~insertText:
                        ("Some(" ^ constructor.cname.txt
                        ^
-                       if constructor.args |> List.length > 0 then "(${1:_}))"
+                       if constructor.args |> List.length > 0 then "($1))"
                        else ")")
                      ~insertTextFormat:Snippet
                      ~kind:(Constructor (constructor, ""))
@@ -2329,9 +2326,9 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
           (* TOOD: Unify with other variant completion handler *)
           let constructorCompletions =
             constructors
-            |> List.filter (fun constructor ->
+            |> List.filter (fun (constructor : polyVariantConstructor) ->
                    Utils.startsWith ("Some(#" ^ constructor.name ^ ")") prefix)
-            |> List.map (fun constructor ->
+            |> List.map (fun (constructor : polyVariantConstructor) ->
                    Completion.create
                      ~name:
                        ("Some(#" ^ constructor.name
@@ -2342,7 +2339,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      ~insertText:
                        ("Some(#" ^ constructor.name
                        ^
-                       if constructor.payload |> Option.is_some then "(${1:_}))"
+                       if constructor.payload |> Option.is_some then "($1))"
                        else ")")
                      ~kind:(PolyvariantConstructor constructor) ~env ())
           in
@@ -2363,9 +2360,9 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | Some (CPolyVariant {constructors}), _ ->
         let constructorCompletions =
           constructors
-          |> List.filter (fun constructor ->
+          |> List.filter (fun (constructor : polyVariantConstructor) ->
                  Utils.startsWith constructor.name prefix)
-          |> List.map (fun constructor ->
+          |> List.map (fun (constructor : polyVariantConstructor) ->
                  Completion.create
                    ~name:
                      ("#" ^ constructor.name
@@ -2424,9 +2421,26 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                            (field, decl |> Shared.declToString name.txt))
                       ())
                else None)
-      | Some (CRecord _), _ ->
+      | Some (CRecord {fields}), _ ->
         [
-          Completion.create ~name:"{}" ~insertText:"{${1}}"
+          Completion.create
+            ~name:
+              ("{"
+              ^ (fields
+                |> List.map (fun field -> field.fname.txt)
+                |> String.concat ", ")
+              ^ "}")
+            ~insertText:
+              ("{\n"
+              ^ (fields
+                |> List.mapi (fun index field ->
+                       Printf.sprintf "  %s: ${%i:%s}" field.fname.txt
+                         (index + 1) "assert false")
+                |> String.concat ", \n")
+              ^ "\n}")
             ~insertTextFormat:Snippet ~env ~sortText:"a"
+            ~kind:(Completion.Label "Complete record props") ();
+          Completion.create ~name:"{}" ~insertText:"{$1}"
+            ~insertTextFormat:Snippet ~env ~sortText:"b"
             ~kind:(Completion.Label "Empty record") ();
         ]))

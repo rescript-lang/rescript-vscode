@@ -8,7 +8,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -27,7 +27,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -47,7 +47,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -66,7 +66,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -85,7 +85,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -104,7 +104,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -123,7 +123,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -142,7 +142,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -161,7 +161,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-    <*>Pexp_apply(
+<*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -171,9 +171,11 @@ Source:
 )
 
 Complete src/TypedContextCompletionSpec.res 93:36
+posCursor:[93:36] posNoWhite:[93:35] Found expr:[93:11->93:47]
+Pexp_apply ...[93:11->93:18] (~doThing93:20->93:27=...[93:28->93:46])
+posCursor:[93:36] posNoWhite:[93:35] Found expr:[93:28->93:46]
 posCursor:[93:36] posNoWhite:[93:35] Found pattern:[93:29->93:37]
 posCursor:[93:36] posNoWhite:[93:35] Found pattern:[93:35->93:36]
-Completable: CtypedPattern(sourceType:Value[doStuff](~doThing), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
 []
 
 Complete src/TypedContextCompletionSpec.res 97:15
@@ -2700,12 +2702,11 @@ Source:
       Ppat_var(someVar)
     )
   expr:
-    <x>Pexp_extension(%<x>rescript.exprhole)
+<x>Pexp_extension(%<x>rescript.exprhole)
 )
 
 Complete src/TypedContextCompletionSpec.res 256:30
 XXX Not found!
 Completable: CtypedExpression(sourceType:Type[Completion, r], lookingToComplete:CNoContext, prefix:"", pattern: []
-no source type
 []
 

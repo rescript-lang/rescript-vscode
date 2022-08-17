@@ -21,73 +21,145 @@ Found type for function (
 Complete src/TypeContextCompletion_LabelledArguments.res 25:44
 posCursor:[25:44] posNoWhite:[25:43] Found expr:[25:11->25:44]
 Pexp_apply ...[25:11->25:30] (~someVariant25:32->25:43=...__ghost__[0:-1->0:-1])
-[]
+Completable: CtypedExpression(sourceType:NamedArg(someVariant, Value[someVariantToString]), lookingToComplete:CNoContext, prefix:"", pattern: []
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Two",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Three",
+    "insertTextFormat": 2
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Four",
+    "insertTextFormat": 2
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Five($1)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>, int)\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Six($1)",
+    "insertTextFormat": 2
+  }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 28:45
 posCursor:[28:45] posNoWhite:[28:43] Found expr:[28:11->28:44]
 Pexp_apply ...[28:11->28:30] (~someVariant28:32->28:43=...__ghost__[0:-1->0:-1])
-[]
+Completable: CtypedExpression(sourceType:NamedArg(someVariant, Value[someVariantToString]), lookingToComplete:CNoContext, prefix:"", pattern: []
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Two",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Three",
+    "insertTextFormat": 2
+  }, {
+    "label": "Four",
+    "kind": 4,
+    "tags": [],
+    "detail": "Four\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Four",
+    "insertTextFormat": 2
+  }, {
+    "label": "Five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five(int)\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Five($1)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Six(option<string>, int)\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Six($1)",
+    "insertTextFormat": 2
+  }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 31:45
 posCursor:[31:45] posNoWhite:[31:44] Found expr:[31:11->31:45]
 Pexp_apply ...[31:11->31:30] (~someVariant31:32->31:43=...[31:44->31:45])
-posCursor:[31:45] posNoWhite:[31:44] Found expr:[31:44->31:45]
-Pexp_construct T:[31:44->31:45] None
-Completable: Cpath Value[T]
+Completable: CtypedExpression(sourceType:NamedArg(someVariant, Value[someVariantToString]), lookingToComplete:CVariant, prefix:T, pattern: []
 [{
-    "label": "TableclothMap",
-    "kind": 9,
+    "label": "Two",
+    "kind": 4,
     "tags": [],
-    "detail": "file module",
+    "detail": "Two\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Two",
+    "insertTextFormat": 2
   }, {
-    "label": "TypeContextCompletion_Jsx",
-    "kind": 9,
+    "label": "Three",
+    "kind": 4,
     "tags": [],
-    "detail": "file module",
+    "detail": "Three\n\n",
     "documentation": null,
     "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
-  }, {
-    "label": "TypeContextCompletion_LabelledArguments",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null,
-    "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
-  }, {
-    "label": "TypeContextCompletion_Records",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null,
-    "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
-  }, {
-    "label": "TypeDefinition",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null,
-    "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
-  }, {
-    "label": "TypedContextCompletionSpec",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null,
-    "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
+    "insertText": "Three",
+    "insertTextFormat": 2
   }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 34:45
@@ -181,33 +253,248 @@ Completable: Cpath Value[TypeDefinition, ""]
 Complete src/TypeContextCompletion_LabelledArguments.res 40:45
 posCursor:[40:45] posNoWhite:[40:44] Found expr:[40:11->40:45]
 Pexp_apply ...[40:11->40:30] (~anotherThing40:32->40:44=...__ghost__[0:-1->0:-1])
-[]
+Completable: CtypedExpression(sourceType:NamedArg(anotherThing, Value[someVariantToString]), lookingToComplete:CNoContext, prefix:"", pattern: []
+[{
+    "label": "Foo",
+    "kind": 4,
+    "tags": [],
+    "detail": "Foo\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Foo",
+    "insertTextFormat": 2
+  }, {
+    "label": "Bar",
+    "kind": 4,
+    "tags": [],
+    "detail": "Bar\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Bar",
+    "insertTextFormat": 2
+  }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 43:43
 posCursor:[43:43] posNoWhite:[43:42] Found expr:[43:11->43:43]
 Pexp_apply ...[43:11->43:30] (~thirdThing43:32->43:42=...__ghost__[0:-1->0:-1])
-[]
+Completable: CtypedExpression(sourceType:NamedArg(thirdThing, Value[someVariantToString]), lookingToComplete:CNoContext, prefix:"", pattern: []
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#six(option<int>, int)",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#six($1)",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#three",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#two",
+    "insertTextFormat": 2
+  }, {
+    "label": "#five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#five(int)",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#five($1)",
+    "insertTextFormat": 2
+  }, {
+    "label": "#four",
+    "kind": 4,
+    "tags": [],
+    "detail": "#four",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#four",
+    "insertTextFormat": 2
+  }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 46:44
 posCursor:[46:44] posNoWhite:[46:42] Found expr:[46:11->46:43]
 Pexp_apply ...[46:11->46:30] (~thirdThing46:32->46:42=...__ghost__[0:-1->0:-1])
-[]
+Completable: CtypedExpression(sourceType:NamedArg(thirdThing, Value[someVariantToString]), lookingToComplete:CNoContext, prefix:"", pattern: []
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#six(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#six(option<int>, int)",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#six($1)",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#three",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#two",
+    "insertTextFormat": 2
+  }, {
+    "label": "#five(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#five(int)",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#five($1)",
+    "insertTextFormat": 2
+  }, {
+    "label": "#four",
+    "kind": 4,
+    "tags": [],
+    "detail": "#four",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#four",
+    "insertTextFormat": 2
+  }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 49:45
 posCursor:[49:45] posNoWhite:[49:44] Found expr:[49:11->49:45]
 Pexp_apply ...[49:11->49:30] (~thirdThing49:32->49:42=...[49:43->49:45])
-posCursor:[49:45] posNoWhite:[49:44] Found expr:[49:43->49:45]
-[]
+Completable: CtypedExpression(sourceType:NamedArg(thirdThing, Value[someVariantToString]), lookingToComplete:CPolyvariant, prefix:t, pattern: []
+[{
+    "label": "#three",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#three",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "#two",
+    "insertTextFormat": 2
+  }]
 
 Complete src/TypeContextCompletion_LabelledArguments.res 52:45
 posCursor:[52:45] posNoWhite:[52:44] Found expr:[52:11->52:45]
 Pexp_apply ...[52:11->52:30] (~thirdThing52:32->52:42=...[52:43->52:45])
-posCursor:[52:45] posNoWhite:[52:44] Found expr:[52:43->52:45]
+Completable: CtypedExpression(sourceType:NamedArg(thirdThing, Value[someVariantToString]), lookingToComplete:CPolyvariant, prefix:T, pattern: []
 []
 
-Complete src/TypeContextCompletion_LabelledArguments.res 64:36
-posCursor:[64:36] posNoWhite:[64:35] Found pattern:[64:29->64:37]
-posCursor:[64:36] posNoWhite:[64:35] Found pattern:[64:35->64:36]
-Completable: CtypedPattern(sourceType:Value[doStuff](~doThing), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+Complete src/TypeContextCompletion_LabelledArguments.res 75:36
+posCursor:[75:36] posNoWhite:[75:35] Found expr:[75:11->75:47]
+Pexp_apply ...[75:11->75:18] (~doThing75:20->75:27=...[75:28->75:46])
+posCursor:[75:36] posNoWhite:[75:35] Found expr:[75:28->75:46]
+posCursor:[75:36] posNoWhite:[75:35] Found pattern:[75:29->75:37]
+posCursor:[75:36] posNoWhite:[75:35] Found pattern:[75:35->75:36]
 []
+
+Complete src/TypeContextCompletion_LabelledArguments.res 80:46
+posCursor:[80:46] posNoWhite:[80:45] Found expr:[80:3->80:49]
+Pexp_apply ...[80:3->80:14] (~someRecord80:16->80:26=...[80:27->80:48])
+Completable: CtypedExpression(sourceType:NamedArg(someRecord, Value[doMoreStuff]), lookingToComplete:CVariant, prefix:O, pattern: [RecordField:someTup, Tuple:1]
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }]
+
+Complete src/TypeContextCompletion_LabelledArguments.res 83:37
+posCursor:[83:37] posNoWhite:[83:36] Found expr:[83:12->83:39]
+Pexp_apply ...[83:12->83:23] (~someRecord83:25->83:35=...[83:36->83:38])
+Completable: CtypedExpression(sourceType:NamedArg(someRecord, Value[doMoreStuff]), lookingToComplete:CRecordField, prefix:"", pattern: []
+[{
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {\n  age: int,\n  name: string,\n  maybeVariant: option<someVariant>,\n  definitivelyVariant: someVariant,\n  someTup: (string, someVariant),\n}",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {\n  age: int,\n  name: string,\n  maybeVariant: option<someVariant>,\n  definitivelyVariant: someVariant,\n  someTup: (string, someVariant),\n}",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "maybeVariant",
+    "kind": 5,
+    "tags": [],
+    "detail": "maybeVariant: option<someVariant>\n\ntype someRecord = {\n  age: int,\n  name: string,\n  maybeVariant: option<someVariant>,\n  definitivelyVariant: someVariant,\n  someTup: (string, someVariant),\n}",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "definitivelyVariant",
+    "kind": 5,
+    "tags": [],
+    "detail": "definitivelyVariant: someVariant\n\ntype someRecord = {\n  age: int,\n  name: string,\n  maybeVariant: option<someVariant>,\n  definitivelyVariant: someVariant,\n  someTup: (string, someVariant),\n}",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "someTup",
+    "kind": 5,
+    "tags": [],
+    "detail": "someTup: (string, someVariant)\n\ntype someRecord = {\n  age: int,\n  name: string,\n  maybeVariant: option<someVariant>,\n  definitivelyVariant: someVariant,\n  someTup: (string, someVariant),\n}",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 

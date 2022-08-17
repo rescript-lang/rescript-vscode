@@ -653,3 +653,44 @@ module CursorPosition = struct
     else if posEnd = (Location.none |> Loc.end_) then EmptyLoc
     else NoCursor
 end
+
+type labelled = {
+  name: string;
+  opt: bool;
+  posStart: int * int;
+  posEnd: int * int;
+}
+
+type label = labelled option
+type arg = {label: label; exp: Parsetree.expression}
+
+let extractExpApplyArgs ~args =
+  let rec processArgs ~acc args =
+    match args with
+    | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
+      :: rest -> (
+      let namedArgLoc =
+        e.pexp_attributes
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+      in
+      match namedArgLoc with
+      | Some ({loc}, _) ->
+        let labelled =
+          {
+            name = s;
+            opt =
+              (match label with
+              | Optional _ -> true
+              | _ -> false);
+            posStart = Loc.start loc;
+            posEnd = Loc.end_ loc;
+          }
+        in
+        processArgs ~acc:({label = Some labelled; exp = e} :: acc) rest
+      | None -> processArgs ~acc rest)
+    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest ->
+      if e.pexp_loc.loc_ghost then processArgs ~acc rest
+      else processArgs ~acc:({label = None; exp = e} :: acc) rest
+    | [] -> List.rev acc
+  in
+  args |> processArgs ~acc:[]

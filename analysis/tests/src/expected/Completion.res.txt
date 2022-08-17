@@ -695,8 +695,17 @@ Completable: Cjsx([O, Comp], z, [z])
 
 Complete src/Completion.res 65:8
 Attribute id:reac:[65:3->65:8] label:reac
-Completable: CtypedPattern(sourceType:Value[Lib, foo](~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+Completable: Cdecorator(reac)
+[{
+    "label": "react.component",
+    "kind": 4,
+    "tags": [],
+    "detail": "",
+    "documentation": {"kind": "markdown", "value": "The `@react.component` decorator is used to annotate functions that are RescriptReact components.\n\nYou will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.\n\nNote: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator)."},
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Completion.res 68:10
 posCursor:[68:10] posNoWhite:[68:9] Found expr:[0:-1->86:1]
@@ -763,8 +772,10 @@ Found type for function (~age: int, ~name: string) => string
   }]
 
 Complete src/Completion.res 82:5
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[Lib, foo](Nolabel, ~age, ~name), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
+Pexp_apply ...[80:8->80:15] (~age84:3->84:6=...[84:7->84:8], ~name85:3->85:7=...[85:8->85:10])
+Completable: CnamedArg(Value[Lib, foo], "", [age, name])
+Found type for function (~age: int, ~name: string) => string
 []
 
 Complete src/Completion.res 90:13
@@ -1410,9 +1421,20 @@ Completable: Cpath Type[s]
   }]
 
 Complete src/Completion.res 291:30
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[funRecord].someFun(Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[291:30] posNoWhite:[291:29] Found expr:[291:11->291:32]
+Pexp_apply ...[291:11->291:28] ()
+Completable: CnamedArg(Value[funRecord].someFun, "", [])
+Found type for function (~name: string) => unit
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Completion.res 296:11
 posCursor:[296:11] posNoWhite:[296:10] Found expr:[296:3->296:11]
@@ -1707,11 +1729,35 @@ Found type for function (~a: int) => int
   }]
 
 Complete src/Completion.res 336:26
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->346:23]
+JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->346:23]> _children:None
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[335:6->338:5]
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[336:16->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found pattern:[336:20->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found type:[336:23->338:5]
 Ptyp_constr Res:[336:23->338:5]
-Completable: CtypedPattern(sourceType:Value[div](~onClick, ~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+Completable: Cpath Type[Res]
+[{
+    "label": "RescriptReactErrorBoundary",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "RescriptReactRouter",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Completion.res 343:57
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->346:23]
@@ -1732,21 +1778,35 @@ Completable: Cpath Value[this]
 
 Hover src/Completion.res 346:14
 Nothing at that position. Now trying to use completion.
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[div](~name, ~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-null
+posCursor:[346:14] posNoWhite:[346:13] Found expr:[346:9->346:23]
+JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346:21
+Completable: Cjsx([div], name, [name])
+{"contents": "```rescript\nstring\n```"}
 
 Hover src/Completion.res 349:17
 Nothing at that position. Now trying to use completion.
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[FAO, forAutoObject]["age"], lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-null
+posCursor:[349:17] posNoWhite:[349:16] Found expr:[349:11->349:35]
+Pexp_send age[349:30->349:33] e:[349:11->349:28]
+posCursor:[349:17] posNoWhite:[349:16] Found expr:[349:11->349:28]
+Pexp_ident FAO.forAutoObject:[349:11->349:28]
+Completable: Cpath Value[FAO, forAutoObject]
+{"contents": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}
 
 Hover src/Completion.res 352:17
 Nothing at that position. Now trying to use completion.
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[ff](~opt1), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-null
+posCursor:[352:17] posNoWhite:[352:16] Found expr:[352:11->352:22]
+Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
+Completable: CnamedArg(Value[ff], opt1, [opt1])
+Found type for function (
+  ~opt1: int=?,
+  ~a: int,
+  ~b: int,
+  unit,
+  ~opt2: int=?,
+  unit,
+  ~c: int,
+) => int
+{"contents": "```rescript\noption<int>\n```"}
 
 Complete src/Completion.res 355:23
 posCursor:[355:23] posNoWhite:[355:22] Found expr:[0:-1->355:23]
@@ -1772,19 +1832,88 @@ Completable: CtypedPattern(sourceType:Value[x], lookingToComplete:CVariant, patt
 []
 
 Complete src/Completion.res 378:24
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[^](Nolabel, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:26]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:24], ...[378:24->378:25])
+posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:12->378:24]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:14], ...[378:16->378:24])
+posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:16->378:24]
+Pexp_ident ForAuto.:[378:16->378:24]
+Completable: Cpath Value[ForAuto, ""]
+[{
+    "label": "abc",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "abd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Completion.res 381:38
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[^](Nolabel, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:41]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:39], ...[381:39->381:40])
+posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:12->381:39]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:17], ...[381:19->381:39])
+posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:19->381:39]
+Pexp_send [381:38->381:38] e:[381:19->381:36]
+Completable: Cpath Value[FAO, forAutoObject][""]
+[{
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "forAutoLabel",
+    "kind": 4,
+    "tags": [],
+    "detail": "FAR.forAutoRecord",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Completion.res 384:24
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[^](Nolabel, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:26]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:24], ...[384:24->384:25])
+posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:11->384:24]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:12], ...[384:14->384:24])
+posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:14->384:24]
+Pexp_field [384:14->384:23] _:[384:24->384:24]
+Completable: Cpath Value[funRecord].""
+[{
+    "label": "someFun",
+    "kind": 5,
+    "tags": [],
+    "detail": "someFun: (~name: string) => unit\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "stuff",
+    "kind": 5,
+    "tags": [],
+    "detail": "stuff: string\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Completion.res 389:12
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[387:8->392:1]
@@ -1851,7 +1980,39 @@ Completable: Cpath Value[red]
   }]
 
 Complete src/Completion.res 405:22
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[^](Nolabel, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->408:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:22], ...[408:0->408:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->405:22]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->405:22])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
+Pexp_ident r:[405:21->405:22]
+Completable: Cpath Value[r]
+[{
+    "label": "red",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "retAA",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => aa",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "r",
+    "kind": 12,
+    "tags": [],
+    "detail": "rAlias",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 

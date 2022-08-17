@@ -56,11 +56,30 @@ let someVariantToString = (
 type someRecord = {
   age: int,
   name: string,
+  maybeVariant: option<someVariant>,
+  definitivelyVariant: someVariant,
+  someTup: (string, someVariant),
 }
 
 let doStuff = (~doThing: someRecord => unit) => {
-  ignore(doThing({age: 123, name: "hello"}))
+  ignore(
+    doThing({
+      age: 123,
+      name: "hello",
+      maybeVariant: None,
+      definitivelyVariant: One,
+      someTup: ("123", One),
+    }),
+  )
 }
 
 // let _ = doStuff(~doThing=({age, n}) => {()})
 //                                  ^com
+
+let doMoreStuff = (~someRecord: someRecord): someRecord => someRecord
+
+// doMoreStuff(~someRecord={someTup: ("123", O)})
+//                                            ^com
+
+// let _  = doMoreStuff(~someRecord={})
+//                                   ^com

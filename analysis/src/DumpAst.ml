@@ -148,8 +148,7 @@ and printCase case ~pos ~indentation ~caseNum =
   ^ printExprItem case.pc_rhs ~pos ~indentation:(indentation + 2)
 
 and printExprItem expr ~pos ~indentation =
-  addIndentation indentation
-  ^ printAttributes expr.Parsetree.pexp_attributes
+  printAttributes expr.Parsetree.pexp_attributes
   ^ (expr.pexp_loc |> printLocDenominator ~pos)
   ^
   match expr.Parsetree.pexp_desc with
@@ -169,15 +168,16 @@ and printExprItem expr ~pos ~indentation =
       match labelled with
       | None -> "<unlabelled>"
       | Some labelled ->
-        printLocDenominatorPos pos
-          ~posStart:labelled.CompletionFrontEnd.posStart ~posEnd:labelled.posEnd
+        printLocDenominatorPos pos ~posStart:labelled.posStart
+          ~posEnd:labelled.posEnd
         ^ "~"
         ^ if labelled.opt then "?" else "" ^ labelled.name
     in
-    let args = CompletionFrontEnd.extractExpApplyArgs ~args in
+    let args = extractExpApplyArgs ~args in
     "Pexp_apply(\n"
     ^ addIndentation (indentation + 1)
     ^ "expr:\n"
+    ^ addIndentation (indentation + 2)
     ^ printExprItem expr ~pos ~indentation:(indentation + 2)
     ^ "\n"
     ^ addIndentation (indentation + 1)
@@ -185,8 +185,8 @@ and printExprItem expr ~pos ~indentation =
     ^ (args
       |> List.map (fun arg ->
              addIndentation (indentation + 2)
-             ^ printLabel arg.CompletionFrontEnd.label ~pos
-             ^ "=\n"
+             ^ printLabel arg.label ~pos ^ "=\n"
+             ^ addIndentation (indentation + 3)
              ^ printExprItem arg.exp ~pos ~indentation:(indentation + 3))
       |> String.concat ",\n")
     ^ "\n" ^ addIndentation indentation ^ ")"
@@ -224,11 +224,35 @@ and printExprItem expr ~pos ~indentation =
     ^ "\n" ^ addIndentation indentation ^ ")"
   | Pexp_extension (({txt} as loc), _) ->
     "Pexp_extension(%" ^ (loc |> printLocDenominatorLoc ~pos) ^ txt ^ ")"
+  | Pexp_assert expr ->
+    "Pexp_assert(" ^ printExprItem expr ~pos ~indentation ^ ")"
   | Pexp_field (exp, loc) ->
     "Pexp_field("
     ^ (loc |> printLocDenominatorLoc ~pos)
     ^ printExprItem exp ~pos ~indentation
     ^ ")"
+  | Pexp_record (fields, _) ->
+    "Pexp_record(\n"
+    ^ addIndentation (indentation + 1)
+    ^ "fields:\n"
+    ^ (fields
+      |> List.map (fun ((Location.{txt} as loc), expr) ->
+             addIndentation (indentation + 2)
+             ^ (loc |> printLocDenominatorLoc ~pos)
+             ^ (Utils.flattenLongIdent txt |> Completable.ident
+              |> Completable.str)
+             ^ ": "
+             ^ printExprItem expr ~pos ~indentation:(indentation + 2))
+      |> String.concat "\n")
+    ^ "\n" ^ addIndentation indentation ^ ")"
+  | Pexp_tuple exprs ->
+    "Pexp_tuple(\n"
+    ^ (exprs
+      |> List.map (fun expr ->
+             addIndentation (indentation + 2)
+             ^ (expr |> printExprItem ~pos ~indentation:(indentation + 2)))
+      |> String.concat ",\n")
+    ^ "\n" ^ addIndentation indentation ^ ")"
   | v -> Printf.sprintf "<unimplemented_pexp_desc: %s>" (Utils.identifyPexp v)
 
 let printValueBinding value ~pos ~indentation =
@@ -243,10 +267,7 @@ let printStructItem structItem ~pos ~source =
   match structItem.Parsetree.pstr_loc |> CursorPosition.classifyLoc ~pos with
   | HasCursor -> (
     let startOffset =
-      match
-        CompletionFrontEnd.positionToOffset source
-          (structItem.pstr_loc |> Loc.start)
-      with
+      match Pos.positionToOffset source (structItem.pstr_loc |> Loc.start) with
       | None -> 0
       | Some offset -> offset
     in
@@ -255,7 +276,7 @@ let printStructItem structItem ~pos ~source =
          Caveat: this only works for single line sources with a comment on the next line. Will need to be
          adapted if that's not the only use case.*)
       let line, _col = structItem.pstr_loc |> Loc.end_ in
-      match CompletionFrontEnd.positionToOffset source (line + 2, 0) with
+      match Pos.positionToOffset source (line + 2, 0) with
       | None -> 0
       | Some offset -> offset
     in

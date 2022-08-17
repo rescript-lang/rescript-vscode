@@ -7,26 +7,6 @@ let rec skipWhite text i =
     | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
     | _ -> i
 
-let offsetOfLine text line =
-  let ln = String.length text in
-  let rec loop i lno =
-    if i >= ln then None
-    else
-      match text.[i] with
-      | '\n' -> if lno = line - 1 then Some (i + 1) else loop (i + 1) (lno + 1)
-      | _ -> loop (i + 1) lno
-  in
-  match line with
-  | 0 -> Some 0
-  | _ -> loop 0 0
-
-let positionToOffset text (line, character) =
-  match offsetOfLine text line with
-  | None -> None
-  | Some bol ->
-    if bol + character <= String.length text then Some (bol + character)
-    else None
-
 let rec getSimpleFieldName txt =
   match txt with
   | Longident.Lident fieldName -> fieldName
@@ -108,6 +88,543 @@ let rec exprToContextPath (e : Parsetree.expression) =
       Some (CTuple exprsAsContextPaths)
     else None
   | _ -> None
+
+let rec findPatternTupleItemWithCursor items ~index ~pos =
+  match items with
+  | [] -> None
+  | item :: rest ->
+    if CursorPosition.classifyLoc item.Parsetree.ppat_loc ~pos = HasCursor then
+      Some (Some item, index)
+    else findPatternTupleItemWithCursor rest ~index:(index + 1) ~pos
+
+let rec findExprTupleItemWithCursor items ~index ~pos =
+  match items with
+  | [] -> None
+  | item :: rest ->
+    if CursorPosition.classifyLoc item.Parsetree.pexp_loc ~pos = HasCursor then
+      Some (Some item, index)
+    else findExprTupleItemWithCursor rest ~index:(index + 1) ~pos
+
+type findContextInExprRes = {
+  lookingToComplete: Completable.lookingToComplete;
+  expressionPath: Completable.patternPathItem list;
+  prefix: string;
+}
+
+let rec findContextInExpr expr ~pos ~expressionPath ~debug
+    ~firstCharBeforeCursorNoWhite =
+  match expr.Parsetree.pexp_desc with
+  (* In expressions, there's ambiguity between an empty record and an empty expression block. There's simply no way to express a record with 0 fields, like there is in patterns.
+     The heuristic below matches `{}` and interprets it as an empty record rather than an expression block with braces + unit, which is what the parser parses it as. *)
+  | Pexp_construct ({txt = Lident "()"}, None)
+    when expr.Parsetree.pexp_attributes
+         |> List.exists (fun (loc, _) -> loc.Location.txt = "ns.braces")
+         && CursorPosition.classifyLoc expr.pexp_loc ~pos = HasCursor ->
+    Some
+      {
+        lookingToComplete = CRecordField;
+        expressionPath = expressionPath |> List.rev;
+        prefix = "";
+      }
+    (* This mmeans parser recovery has been made, which typically means the expr was an empty assignment of some sort. *)
+  | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
+    Some
+      {
+        lookingToComplete = CNoContext;
+        expressionPath = expressionPath |> List.rev;
+        prefix = "";
+      }
+  (* Variants etc *)
+  | Pexp_construct ({txt}, Some payload)
+    when CursorPosition.classifyLoc payload.pexp_loc ~pos = HasCursor ->
+    (* When there's a variant with a payload, and the cursor is in the pattern. Some(S) for example. *)
+    let payloadNum =
+      match payload.pexp_desc with
+      | Pexp_tuple items ->
+        (* Find the tuple item that has the cursor, so we can add that as payload num for the variant.*)
+        findExprTupleItemWithCursor items ~index:0 ~pos
+      | _ -> Some (None, 0)
+    in
+    let exprToContinueFrom =
+      match payloadNum with
+      | Some (Some pat, _) -> pat
+      | _ -> payload
+    in
+    findContextInExpr exprToContinueFrom ~pos ~debug
+      ~firstCharBeforeCursorNoWhite
+      ~expressionPath:
+        ([
+           Completable.Variant
+             {
+               constructorName = getSimpleFieldName txt;
+               payloadNum =
+                 (match payloadNum with
+                 | Some (_, payloadNum) -> Some payloadNum
+                 | _ -> None);
+             };
+         ]
+        @ expressionPath)
+  | Pexp_variant (constructorName, Some exp)
+    when CursorPosition.classifyLoc exp.pexp_loc ~pos = HasCursor -> (
+    (* When there's a polyvariant with a payload, and the cursor is in the pattern. Some(S) for example. *)
+    match exp.pexp_desc with
+    | Pexp_tuple _ ->
+      (* Continue down here too, but let us discover the tuple in the next step. *)
+      findContextInExpr exp ~firstCharBeforeCursorNoWhite ~pos ~expressionPath
+        ~debug
+    | _ ->
+      findContextInExpr exp ~firstCharBeforeCursorNoWhite ~pos ~debug
+        ~expressionPath:
+          ([Completable.Variant {constructorName; payloadNum = Some 0}]
+          @ expressionPath))
+  | Pexp_construct ({txt}, None) -> (
+    (* Payload-less variant *)
+    match CursorPosition.classifyLoc expr.pexp_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CVariant;
+          expressionPath = expressionPath |> List.rev;
+          prefix = getSimpleFieldName txt;
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None)
+  | Pexp_variant (label, None) -> (
+    (* Payload-less polyvariant *)
+    match CursorPosition.classifyLoc expr.pexp_loc ~pos with
+    | HasCursor ->
+      Some {lookingToComplete = CPolyvariant; expressionPath; prefix = label}
+    | NoCursor -> None
+    | EmptyLoc -> None)
+  | Pexp_construct
+      ( {txt},
+        Some {pexp_loc; pexp_desc = Pexp_construct ({txt = Lident "()"}, _)} )
+    -> (
+    (* A variant like SomeVariant(). Interpret as completing the payload of the variant  *)
+    match CursorPosition.classifyLoc pexp_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CNoContext;
+          expressionPath =
+            [
+              Completable.Variant
+                {constructorName = getSimpleFieldName txt; payloadNum = Some 0};
+            ]
+            @ expressionPath
+            |> List.rev;
+          prefix = "";
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None)
+  | Pexp_variant
+      ( label,
+        Some {pexp_loc; pexp_desc = Pexp_construct ({txt = Lident "()"}, _)} )
+    -> (
+    (* A polyvariant like #SomeVariant(). Interpret as completing the payload of the variant  *)
+    match CursorPosition.classifyLoc pexp_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CNoContext;
+          expressionPath =
+            [Completable.Polyvariant {name = label; payloadNum = Some 0}]
+            @ expressionPath
+            |> List.rev;
+          prefix = "";
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None (* Records *))
+  | Pexp_record ([], _) ->
+    (* No fields mean we're in an empty record body. We can complete for that. *)
+    Some {lookingToComplete = CRecordField; expressionPath; prefix = ""}
+  | Pexp_record (fields, _) -> (
+    (* TODO: Restore for exprs *)
+    let _seenFields =
+      fields |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
+    in
+    let fieldWithCursorExists =
+      fields
+      |> List.exists (fun (_, fieldPat) ->
+             CursorPosition.classifyLoc fieldPat.Parsetree.pexp_loc ~pos
+             = HasCursor)
+    in
+    let completableFromField =
+      fields
+      |> List.find_map (fun (loc, fieldExpr) ->
+             match
+               CursorPosition.classifyLoc fieldExpr.Parsetree.pexp_loc ~pos
+             with
+             | HasCursor -> (
+               match fieldExpr.pexp_desc with
+               | Pexp_ident loc ->
+                 Some
+                   {
+                     lookingToComplete = CRecordField;
+                     expressionPath = expressionPath |> List.rev;
+                     prefix = getSimpleFieldName loc.txt;
+                   }
+               | _ ->
+                 (* We can continue down into anything else *)
+                 findContextInExpr fieldExpr ~pos ~firstCharBeforeCursorNoWhite
+                   ~debug
+                   ~expressionPath:
+                     ([
+                        Completable.RField
+                          {fieldName = getSimpleFieldName loc.Location.txt};
+                      ]
+                     @ expressionPath))
+             | NoCursor -> None
+             | EmptyLoc ->
+               if
+                 (* We only care about empty locations if there's no field with the cursor *)
+                 fieldWithCursorExists
+               then None
+               else
+                 findContextInExpr fieldExpr ~pos ~debug
+                   ~firstCharBeforeCursorNoWhite
+                   ~expressionPath:
+                     ([
+                        Completable.RField
+                          {fieldName = getSimpleFieldName loc.txt};
+                      ]
+                     @ expressionPath))
+    in
+    match
+      (completableFromField, fieldWithCursorExists, firstCharBeforeCursorNoWhite)
+    with
+    | None, false, Some ',' ->
+      (* If there's no field with the cursor, and we found no completable, and the first char before the
+         cursor is ',' we can assume that this is a pattern like `{someField, <com>}`.
+         The parser discards any unecessary commas, so we can't leverage the parser to figure out that
+         we're looking to complete for a new field. *)
+      Some
+        {
+          lookingToComplete = CRecordField;
+          expressionPath = expressionPath |> List.rev;
+          prefix = "";
+        }
+    | completableFromField, _, _ -> completableFromField)
+  | Pexp_tuple items -> (
+    match findExprTupleItemWithCursor items ~pos ~index:0 with
+    | Some (Some tupleExprWithCursor, itemNumber) ->
+      findContextInExpr tupleExprWithCursor ~pos ~debug
+        ~firstCharBeforeCursorNoWhite
+        ~expressionPath:([Completable.PTuple {itemNumber}] @ expressionPath)
+    | None ->
+      (* TODO: No tuple item had the cursor, but we might still be able to complete
+         for the next tuple item. We just need to figure out where in the pattern
+         we are. E.g. `(_, , A)` is parsed the same as `(_, A, )` or `(_, A, ,)`.
+         Figuring out exactly which tuple item we're in is problematic because of that. *)
+      None
+    | _ -> None)
+  | _v -> None
+
+type findContextInPatternRes = {
+  lookingToComplete: Completable.lookingToComplete;
+  patternPath: Completable.patternPathItem list;
+  prefix: string;
+  alreadySeenIdents: string list;
+}
+
+let rec findContextInPattern pattern ~pos ~patternPath ~debug
+    ~seenIdentsFromParent ~firstCharBeforeCursorNoWhite =
+  match pattern.Parsetree.ppat_desc with
+  | Ppat_any ->
+    (* E.g. something: _ *)
+    (* We hijack the any pattern some here, and interpret that as an "empty" completion. *)
+    Some
+      {
+        lookingToComplete = CNoContext;
+        patternPath = patternPath |> List.rev;
+        prefix = "";
+        alreadySeenIdents = seenIdentsFromParent;
+      }
+  | Ppat_extension ({txt = "rescript.patternhole"}, _) ->
+    (* This is printed when the parser has made recovery.
+       E.g. `| Something => () | <com>` *)
+    Some
+      {
+        (* We're completing vars as variants for now, since bool (which is a variant) is the only thing
+           I can think of that needs completion here. *)
+        lookingToComplete = CNoContext;
+        patternPath = patternPath |> List.rev;
+        prefix = "";
+        alreadySeenIdents = seenIdentsFromParent;
+      }
+  | Ppat_var loc when CursorPosition.classifyLoc loc.loc ~pos = HasCursor ->
+    (* E.g. something: someVar *)
+    Some
+      {
+        (* We're completing vars as variants for now, since bool (which is a variant) is the only thing
+           I can think of that needs completion here. *)
+        lookingToComplete = CVariant;
+        patternPath = patternPath |> List.rev;
+        prefix = loc.txt;
+        alreadySeenIdents = [];
+      }
+  (* Variants etc *)
+  | Ppat_construct ({txt}, Some payload)
+    when CursorPosition.classifyLoc payload.ppat_loc ~pos = HasCursor ->
+    (* When there's a variant with a payload, and the cursor is in the pattern. Some(S) for example. *)
+    let payloadNum =
+      match payload.ppat_desc with
+      | Ppat_tuple items ->
+        (* Find the tuple item that has the cursor, so we can add that as payload num for the variant.*)
+        findPatternTupleItemWithCursor items ~index:0 ~pos
+      | _ -> Some (None, 0)
+    in
+    let patternToContinueFrom =
+      match payloadNum with
+      | Some (Some pat, _) -> pat
+      | _ -> payload
+    in
+    findContextInPattern patternToContinueFrom ~pos ~debug
+      ~firstCharBeforeCursorNoWhite ~seenIdentsFromParent:[]
+      ~patternPath:
+        ([
+           Completable.Variant
+             {
+               constructorName = getSimpleFieldName txt;
+               payloadNum =
+                 (match payloadNum with
+                 | Some (_, payloadNum) -> Some payloadNum
+                 | _ -> None);
+             };
+         ]
+        @ patternPath)
+  | Ppat_variant (constructorName, Some pat)
+    when CursorPosition.classifyLoc pat.ppat_loc ~pos = HasCursor -> (
+    (* When there's a polyvariant with a payload, and the cursor is in the pattern. Some(S) for example. *)
+    match pat.ppat_desc with
+    | Ppat_tuple _ ->
+      (* Continue down here too, but let us discover the tuple in the next step. *)
+      findContextInPattern pat ~firstCharBeforeCursorNoWhite ~pos ~patternPath
+        ~debug ~seenIdentsFromParent:[]
+    | _ ->
+      findContextInPattern pat ~firstCharBeforeCursorNoWhite ~pos ~debug
+        ~seenIdentsFromParent:[]
+        ~patternPath:
+          ([Completable.Variant {constructorName; payloadNum = Some 0}]
+          @ patternPath))
+  | Ppat_construct ({txt}, None) -> (
+    (* Payload-less variant *)
+    match CursorPosition.classifyLoc pattern.ppat_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CVariant;
+          patternPath = patternPath |> List.rev;
+          prefix = getSimpleFieldName txt;
+          alreadySeenIdents = seenIdentsFromParent;
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None)
+  | Ppat_variant (label, None) -> (
+    (* Payload-less polyvariant *)
+    match CursorPosition.classifyLoc pattern.ppat_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CPolyvariant;
+          patternPath = patternPath |> List.rev;
+          prefix = label;
+          alreadySeenIdents = seenIdentsFromParent;
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None)
+  | Ppat_construct
+      ( {txt},
+        Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)} )
+    -> (
+    (* A variant like SomeVariant(). Interpret as completing the payload of the variant  *)
+    match CursorPosition.classifyLoc ppat_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CNoContext;
+          patternPath =
+            [
+              Completable.Variant
+                {constructorName = getSimpleFieldName txt; payloadNum = Some 0};
+            ]
+            @ patternPath
+            |> List.rev;
+          prefix = "";
+          alreadySeenIdents = [];
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None)
+  | Ppat_variant
+      ( label,
+        Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)} )
+    -> (
+    (* A polyvariant like #SomeVariant(). Interpret as completing the payload of the variant  *)
+    match CursorPosition.classifyLoc ppat_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CNoContext;
+          patternPath =
+            [Completable.Polyvariant {name = label; payloadNum = Some 0}]
+            @ patternPath
+            |> List.rev;
+          prefix = "";
+          alreadySeenIdents = [];
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None)
+  (* Records *)
+  | Ppat_record ([], _) ->
+    (* No fields mean we're in an empty record body. We can complete for that. *)
+    Some
+      {
+        lookingToComplete = CRecordField;
+        patternPath = patternPath |> List.rev;
+        prefix = "";
+        alreadySeenIdents = [];
+      }
+  | Ppat_record (fields, _) -> (
+    let seenFields =
+      fields |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
+    in
+    let fieldWithCursorExists =
+      fields
+      |> List.exists (fun (_, fieldPat) ->
+             CursorPosition.classifyLoc fieldPat.Parsetree.ppat_loc ~pos
+             = HasCursor)
+    in
+    let completableFromField =
+      fields
+      |> List.find_map (fun (loc, fieldPat) ->
+             match
+               CursorPosition.classifyLoc fieldPat.Parsetree.ppat_loc ~pos
+             with
+             | HasCursor -> (
+               (* handle `{something}`, which is parsed as `{something: something}` because of punning *)
+               match (loc, fieldPat.Parsetree.ppat_desc) with
+               | ( {Location.txt = Longident.Lident fieldName},
+                   Ppat_var {txt = varName} )
+                 when fieldName = varName ->
+                 Some
+                   {
+                     lookingToComplete = CRecordField;
+                     patternPath = patternPath |> List.rev;
+                     prefix = varName;
+                     alreadySeenIdents = seenFields;
+                   }
+               | _ ->
+                 (* We can continue down into anything else *)
+                 findContextInPattern fieldPat ~pos
+                   ~firstCharBeforeCursorNoWhite ~debug ~seenIdentsFromParent:[]
+                   ~patternPath:
+                     ([
+                        Completable.RField
+                          {fieldName = getSimpleFieldName loc.txt};
+                      ]
+                     @ patternPath))
+             | NoCursor -> None
+             | EmptyLoc ->
+               if
+                 (* We only care about empty locations if there's no field with the cursor *)
+                 fieldWithCursorExists
+               then None
+               else
+                 findContextInPattern fieldPat ~pos ~debug
+                   ~firstCharBeforeCursorNoWhite ~seenIdentsFromParent:[]
+                   ~patternPath:
+                     ([
+                        Completable.RField
+                          {fieldName = getSimpleFieldName loc.txt};
+                      ]
+                     @ patternPath))
+    in
+    match
+      (completableFromField, fieldWithCursorExists, firstCharBeforeCursorNoWhite)
+    with
+    | None, false, Some ',' ->
+      (* If there's no field with the cursor, and we found no completable, and the first char before the
+         cursor is ',' we can assume that this is a pattern like `{someField, <com>}`.
+         The parser discards any unecessary commas, so we can't leverage the parser to figure out that
+         we're looking to complete for a new field. *)
+      Some
+        {
+          lookingToComplete = CRecordField;
+          patternPath = patternPath |> List.rev;
+          prefix = "";
+          alreadySeenIdents = seenFields;
+        }
+    | completableFromField, _, _ -> completableFromField)
+  | Ppat_tuple items -> (
+    match findPatternTupleItemWithCursor items ~pos ~index:0 with
+    | Some (Some tuplePatternWithCursor, itemNumber) ->
+      findContextInPattern tuplePatternWithCursor ~pos ~debug
+        ~seenIdentsFromParent:[] ~firstCharBeforeCursorNoWhite
+        ~patternPath:([Completable.PTuple {itemNumber}] @ patternPath)
+    | None ->
+      (* TODO: No tuple item had the cursor, but we might still be able to complete
+         for the next tuple item. We just need to figure out where in the pattern
+         we are. E.g. `(_, , A)` is parsed the same as `(_, A, )` or `(_, A, ,)`.
+         Figuring out exactly which tuple item we're in is problematic because of that. *)
+      None
+    | _ -> None)
+  | Ppat_or (pat1, pat2) -> (
+    (* There's a few things that can happen as we're looking for or patterns.
+       a. First off, we can find an or pattern with the cursor, in which case we should try to descend into it.
+          E.g. `One | Two | Three({someField: s<com>})`
+       b. Secondly, if there's no pattern with the cursor, there might be a or pattern with parser recovery in it.
+          That means the user has written an empty or pattern, in which case we should complete for the current type.
+          E.g. `One | Two | <com>` *)
+    let branches =
+      pat1
+      |> findAllOrBranches ~branches:[pat2]
+      |> List.filter (fun pat ->
+             match pat.Parsetree.ppat_desc with
+             | Ppat_or _ -> false
+             | _ -> true)
+    in
+    let branchAtCursor =
+      branches
+      |> List.find_opt (fun pat ->
+             pat.Parsetree.ppat_loc
+             |> CursorPosition.classifyLoc ~pos
+             = HasCursor)
+    in
+    let identsFromBranches =
+      branches
+      |> List.map (fun branch -> branch |> identListFromPat)
+      |> List.flatten
+    in
+    match branchAtCursor with
+    | None -> (
+      let branchWithEmptyLoc =
+        branches
+        |> List.find_opt (fun pat ->
+               pat.Parsetree.ppat_loc
+               |> CursorPosition.classifyLoc ~pos
+               = EmptyLoc)
+      in
+      (* If we found no branch with the cursor, look for one with an empty loc
+         that's a patternhole (error recovery done by the parser). *)
+      match branchWithEmptyLoc with
+      | Some {ppat_desc = Ppat_extension ({txt = "rescript.patternhole"}, _)} ->
+        Some
+          {
+            lookingToComplete = CNoContext;
+            patternPath = patternPath |> List.rev;
+            prefix = "";
+            alreadySeenIdents = identsFromBranches;
+          }
+      | _ -> None)
+    | Some pattern ->
+      pattern
+      |> findContextInPattern ~pos ~patternPath ~debug
+           ~firstCharBeforeCursorNoWhite
+           ~seenIdentsFromParent:identsFromBranches)
+  | _v ->
+    (* if debug then
+       Printf.printf "warning: unhandled pattern %s\n" (Utils.identifyPpat v);*)
+    None
 
 type prop = {
   name: string;
@@ -210,18 +727,9 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   in
   args |> processProps ~acc:[]
 
-type labelled = {
-  name: string;
-  opt: bool;
-  posStart: int * int;
-  posEnd: int * int;
-}
-
-type label = labelled option
-type arg = {label: label; exp: Parsetree.expression}
-
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr
+    ~firstCharBeforeCursorNoWhite ~debug =
   let allNames =
     List.fold_right
       (fun arg allLabels ->
@@ -270,14 +778,34 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
           match findTargetArg exp with
           | None -> None
           | Some (_arg, _argPattern) -> (* TODO: Add expr completion *) None)
-        | _ ->
-          (* TODO: Add expr completion *)
-          None
+        | _ -> (
+          match
+            findContextInExpr exp ~debug ~pos:posBeforeCursor ~expressionPath:[]
+              ~firstCharBeforeCursorNoWhite
+          with
+          | None -> None
+          | Some res ->
+            Some
+              (CtypedExpression
+                 {
+                   prefix = res.prefix;
+                   lookingToComplete = res.lookingToComplete;
+                   expressionPath = res.expressionPath;
+                   howToRetrieveSourceType =
+                     NamedArg {label = labelled.name; contextPath};
+                 }))
       else if exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
         (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
            Assume this is an empty expression. *)
-        (* TODO: Add expr completion *)
-        None
+        Some
+          (CtypedExpression
+             {
+               prefix = "";
+               lookingToComplete = CNoContext;
+               expressionPath = [];
+               howToRetrieveSourceType =
+                 NamedArg {label = labelled.name; contextPath};
+             })
       else loop rest
     | {label = None; exp} :: rest ->
       if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
@@ -288,349 +816,6 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
       else None
   in
   loop args
-
-let extractExpApplyArgs ~args =
-  let rec processArgs ~acc args =
-    match args with
-    | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
-      :: rest -> (
-      let namedArgLoc =
-        e.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
-      in
-      match namedArgLoc with
-      | Some ({loc}, _) ->
-        let labelled =
-          {
-            name = s;
-            opt =
-              (match label with
-              | Optional _ -> true
-              | _ -> false);
-            posStart = Loc.start loc;
-            posEnd = Loc.end_ loc;
-          }
-        in
-        processArgs ~acc:({label = Some labelled; exp = e} :: acc) rest
-      | None -> processArgs ~acc rest)
-    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest ->
-      if e.pexp_loc.loc_ghost then processArgs ~acc rest
-      else processArgs ~acc:({label = None; exp = e} :: acc) rest
-    | [] -> List.rev acc
-  in
-  args |> processArgs ~acc:[]
-
-type findContextInPatternRes = {
-  lookingToComplete: Completable.lookingToComplete;
-  patternPath: Completable.patternPathItem list;
-  prefix: string;
-  alreadySeenIdents: string list;
-}
-
-let rec findTupleItemWithCursor items ~index ~pos =
-  match items with
-  | [] -> None
-  | item :: rest ->
-    if CursorPosition.classifyLoc item.Parsetree.ppat_loc ~pos = HasCursor then
-      Some (Some item, index)
-    else findTupleItemWithCursor rest ~index:(index + 1) ~pos
-
-let rec findContextInPattern pattern ~pos ~patternPath ~debug
-    ~seenIdentsFromParent ~firstCharBeforeCursorNoWhite =
-  match pattern.Parsetree.ppat_desc with
-  | Ppat_any ->
-    (* E.g. something: _ *)
-    (* We hijack the any pattern some here, and interpret that as an "empty" completion. *)
-    Some
-      {
-        lookingToComplete = CNoContext;
-        patternPath;
-        prefix = "";
-        alreadySeenIdents = seenIdentsFromParent;
-      }
-  | Ppat_extension ({txt = "rescript.patternhole"}, _) ->
-    (* This is printed when the parser has made recovery.
-       E.g. `| Something => () | <com>` *)
-    Some
-      {
-        (* We're completing vars as variants for now, since bool (which is a variant) is the only thing
-           I can think of that needs completion here. *)
-        lookingToComplete = CNoContext;
-        patternPath;
-        prefix = "";
-        alreadySeenIdents = seenIdentsFromParent;
-      }
-  | Ppat_var loc when CursorPosition.classifyLoc loc.loc ~pos = HasCursor ->
-    (* E.g. something: someVar *)
-    Some
-      {
-        (* We're completing vars as variants for now, since bool (which is a variant) is the only thing
-           I can think of that needs completion here. *)
-        lookingToComplete = CVariant;
-        patternPath;
-        prefix = loc.txt;
-        alreadySeenIdents = [];
-      }
-  (* Variants etc *)
-  | Ppat_construct ({txt}, Some payload)
-    when CursorPosition.classifyLoc payload.ppat_loc ~pos = HasCursor ->
-    (* When there's a variant with a payload, and the cursor is in the pattern. Some(S) for example. *)
-    let payloadNum =
-      match payload.ppat_desc with
-      | Ppat_tuple items ->
-        (* Find the tuple item that has the cursor, so we can add that as payload num for the variant.*)
-        findTupleItemWithCursor items ~index:0 ~pos
-      | _ -> Some (None, 0)
-    in
-    let patternToContinueFrom =
-      match payloadNum with
-      | Some (Some pat, _) -> pat
-      | _ -> payload
-    in
-    findContextInPattern patternToContinueFrom ~pos ~debug
-      ~firstCharBeforeCursorNoWhite ~seenIdentsFromParent:[]
-      ~patternPath:
-        ([
-           Completable.Variant
-             {
-               constructorName = getSimpleFieldName txt;
-               payloadNum =
-                 (match payloadNum with
-                 | Some (_, payloadNum) -> Some payloadNum
-                 | _ -> None);
-             };
-         ]
-        @ patternPath)
-  | Ppat_variant (constructorName, Some pat)
-    when CursorPosition.classifyLoc pat.ppat_loc ~pos = HasCursor -> (
-    (* When there's a polyvariant with a payload, and the cursor is in the pattern. Some(S) for example. *)
-    match pat.ppat_desc with
-    | Ppat_tuple _ ->
-      (* Continue down here too, but let us discover the tuple in the next step. *)
-      findContextInPattern pat ~firstCharBeforeCursorNoWhite ~pos ~patternPath
-        ~debug ~seenIdentsFromParent:[]
-    | _ ->
-      findContextInPattern pat ~firstCharBeforeCursorNoWhite ~pos ~debug
-        ~seenIdentsFromParent:[]
-        ~patternPath:
-          ([Completable.Variant {constructorName; payloadNum = Some 0}]
-          @ patternPath))
-  | Ppat_construct ({txt}, None) -> (
-    (* Payload-less variant *)
-    match CursorPosition.classifyLoc pattern.ppat_loc ~pos with
-    | HasCursor ->
-      Some
-        {
-          lookingToComplete = CVariant;
-          patternPath;
-          prefix = getSimpleFieldName txt;
-          alreadySeenIdents = seenIdentsFromParent;
-        }
-    | NoCursor -> None
-    | EmptyLoc -> None)
-  | Ppat_variant (label, None) -> (
-    (* Payload-less polyvariant *)
-    match CursorPosition.classifyLoc pattern.ppat_loc ~pos with
-    | HasCursor ->
-      Some
-        {
-          lookingToComplete = CPolyvariant;
-          patternPath;
-          prefix = label;
-          alreadySeenIdents = seenIdentsFromParent;
-        }
-    | NoCursor -> None
-    | EmptyLoc -> None)
-  | Ppat_construct
-      ( {txt},
-        Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)} )
-    -> (
-    (* A variant like SomeVariant(). Interpret as completing the payload of the variant  *)
-    match CursorPosition.classifyLoc ppat_loc ~pos with
-    | HasCursor ->
-      Some
-        {
-          lookingToComplete = CNoContext;
-          patternPath =
-            [
-              Completable.Variant
-                {constructorName = getSimpleFieldName txt; payloadNum = Some 0};
-            ]
-            @ patternPath;
-          prefix = "";
-          alreadySeenIdents = [];
-        }
-    | NoCursor -> None
-    | EmptyLoc -> None)
-  | Ppat_variant
-      ( label,
-        Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)} )
-    -> (
-    (* A polyvariant like #SomeVariant(). Interpret as completing the payload of the variant  *)
-    match CursorPosition.classifyLoc ppat_loc ~pos with
-    | HasCursor ->
-      Some
-        {
-          lookingToComplete = CNoContext;
-          patternPath =
-            [Completable.Polyvariant {name = label; payloadNum = Some 0}]
-            @ patternPath;
-          prefix = "";
-          alreadySeenIdents = [];
-        }
-    | NoCursor -> None
-    | EmptyLoc -> None)
-  (* Records *)
-  | Ppat_record ([], _) ->
-    (* No fields mean we're in an empty record body. We can complete for that. *)
-    Some
-      {
-        lookingToComplete = CRecordField;
-        patternPath;
-        prefix = "";
-        alreadySeenIdents = [];
-      }
-  | Ppat_record (fields, _) -> (
-    let seenFields =
-      fields |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
-    in
-    let fieldWithCursorExists =
-      fields
-      |> List.exists (fun (_, fieldPat) ->
-             CursorPosition.classifyLoc fieldPat.Parsetree.ppat_loc ~pos
-             = HasCursor)
-    in
-    let completableFromField =
-      fields
-      |> List.find_map (fun (loc, fieldPat) ->
-             match
-               CursorPosition.classifyLoc fieldPat.Parsetree.ppat_loc ~pos
-             with
-             | HasCursor -> (
-               (* handle `{something}`, which is parsed as `{something: something}` because of punning *)
-               match (loc, fieldPat.Parsetree.ppat_desc) with
-               | ( {Location.txt = Longident.Lident fieldName},
-                   Ppat_var {txt = varName} )
-                 when fieldName = varName ->
-                 Some
-                   {
-                     lookingToComplete = CRecordField;
-                     patternPath;
-                     prefix = varName;
-                     alreadySeenIdents = seenFields;
-                   }
-               | _ ->
-                 (* We can continue down into anything else *)
-                 findContextInPattern fieldPat ~pos
-                   ~firstCharBeforeCursorNoWhite ~debug ~seenIdentsFromParent:[]
-                   ~patternPath:
-                     ([
-                        Completable.RField
-                          {fieldName = getSimpleFieldName loc.txt};
-                      ]
-                     @ patternPath))
-             | NoCursor -> None
-             | EmptyLoc ->
-               if
-                 (* We only care about empty locations if there's no field with the cursor *)
-                 fieldWithCursorExists
-               then None
-               else
-                 findContextInPattern fieldPat ~pos ~debug
-                   ~firstCharBeforeCursorNoWhite ~seenIdentsFromParent:[]
-                   ~patternPath:
-                     ([
-                        Completable.RField
-                          {fieldName = getSimpleFieldName loc.txt};
-                      ]
-                     @ patternPath))
-    in
-    match
-      (completableFromField, fieldWithCursorExists, firstCharBeforeCursorNoWhite)
-    with
-    | None, false, Some ',' ->
-      (* If there's no field with the cursor, and we found no completable, and the first char before the
-         cursor is ',' we can assume that this is a pattern like `{someField, <com>}`.
-         The parser discards any unecessary commas, so we can't leverage the parser to figure out that
-         we're looking to complete for a new field. *)
-      Some
-        {
-          lookingToComplete = CRecordField;
-          patternPath;
-          prefix = "";
-          alreadySeenIdents = seenFields;
-        }
-    | completableFromField, _, _ -> completableFromField)
-  | Ppat_tuple items -> (
-    match findTupleItemWithCursor items ~pos ~index:0 with
-    | Some (Some tuplePatternWithCursor, itemNumber) ->
-      findContextInPattern tuplePatternWithCursor ~pos ~debug
-        ~seenIdentsFromParent:[] ~firstCharBeforeCursorNoWhite
-        ~patternPath:([Completable.PTuple {itemNumber}] @ patternPath)
-    | None ->
-      (* TODO: No tuple item had the cursor, but we might still be able to complete
-         for the next tuple item. We just need to figure out where in the pattern
-         we are. E.g. `(_, , A)` is parsed the same as `(_, A, )` or `(_, A, ,)`.
-         Figuring out exactly which tuple item we're in is problematic because of that. *)
-      None
-    | _ -> None)
-  | Ppat_or (pat1, pat2) -> (
-    (* There's a few things that can happen as we're looking for or patterns.
-       a. First off, we can find an or pattern with the cursor, in which case we should try to descend into it.
-          E.g. `One | Two | Three({someField: s<com>})`
-       b. Secondly, if there's no pattern with the cursor, there might be a or pattern with parser recovery in it.
-          That means the user has written an empty or pattern, in which case we should complete for the current type.
-          E.g. `One | Two | <com>` *)
-    let branches =
-      pat1
-      |> findAllOrBranches ~branches:[pat2]
-      |> List.filter (fun pat ->
-             match pat.Parsetree.ppat_desc with
-             | Ppat_or _ -> false
-             | _ -> true)
-    in
-    let branchAtCursor =
-      branches
-      |> List.find_opt (fun pat ->
-             pat.Parsetree.ppat_loc
-             |> CursorPosition.classifyLoc ~pos
-             = HasCursor)
-    in
-    let identsFromBranches =
-      branches
-      |> List.map (fun branch -> branch |> identListFromPat)
-      |> List.flatten
-    in
-    match branchAtCursor with
-    | None -> (
-      let branchWithEmptyLoc =
-        branches
-        |> List.find_opt (fun pat ->
-               pat.Parsetree.ppat_loc
-               |> CursorPosition.classifyLoc ~pos
-               = EmptyLoc)
-      in
-      (* If we found no branch with the cursor, look for one with an empty loc
-         that's a patternhole (error recovery done by the parser). *)
-      match branchWithEmptyLoc with
-      | Some {ppat_desc = Ppat_extension ({txt = "rescript.patternhole"}, _)} ->
-        Some
-          {
-            lookingToComplete = CNoContext;
-            patternPath;
-            prefix = "";
-            alreadySeenIdents = identsFromBranches;
-          }
-      | _ -> None)
-    | Some pattern ->
-      pattern
-      |> findContextInPattern ~pos ~patternPath ~debug
-           ~firstCharBeforeCursorNoWhite
-           ~seenIdentsFromParent:identsFromBranches)
-  | _v ->
-    (* if debug then
-       Printf.printf "warning: unhandled pattern %s\n" (Utils.identifyPpat v);*)
-    None
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = skipWhite text (offset - 1) in
@@ -649,7 +834,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
   let charBeforeCursor, blankAfterCursor =
-    match positionToOffset text posCursor with
+    match Pos.positionToOffset text posCursor with
     | Some offset when offset > 0 -> (
       let charBeforeCursor = text.[offset - 1] in
       let charAtCursor =
@@ -815,7 +1000,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                      prefix = "";
                    }))
          | _ -> ())
-       | [{pvb_pat; pvb_expr = expr}] -> (
+       | [{pvb_pat; pvb_expr = expr}]
+         when pvb_pat.ppat_loc
+              |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+              = HasCursor -> (
          (* Check for: let {destructuringSomething} = someIdentifier *)
          (* TODO: Handle let {SomeModule.recordField} = ...*)
 
@@ -836,7 +1024,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                   (Completable.CtypedPattern
                      {
                        howToRetrieveSourceType = CtxPath contextPath;
-                       patternPath = res.patternPath |> List.rev;
+                       patternPath = res.patternPath;
                        patternType = Destructure;
                        lookingToComplete = res.lookingToComplete;
                        prefix = res.prefix;
@@ -900,7 +1088,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     else if id.loc.loc_ghost then ()
     else if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
       let posStart, posEnd = Loc.range id.loc in
-      match (positionToOffset text posStart, positionToOffset text posEnd) with
+      match
+        (Pos.positionToOffset text posStart, Pos.positionToOffset text posEnd)
+      with
       | Some offsetStart, Some offsetEnd ->
         (* Can't trust the parser's location
            E.g. @foo. let x... gives as label @foo.let *)
@@ -1086,6 +1276,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             match exprToContextPath funExpr with
             | Some contextPath ->
               findNamedArgCompletable ~contextPath ~args
+                ~firstCharBeforeCursorNoWhite ~debug
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
             | None -> None
@@ -1197,7 +1388,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                    (CtypedPattern
                       {
                         howToRetrieveSourceType = CtxPath contextPath;
-                        patternPath = res.patternPath |> List.rev;
+                        patternPath = res.patternPath;
                         patternType = Switch;
                         lookingToComplete = res.lookingToComplete;
                         prefix = res.prefix;
@@ -1335,7 +1526,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   else None
 
 let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
-  match positionToOffset text posCursor with
+  match Pos.positionToOffset text posCursor with
   | Some offset ->
     completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text
   | None -> None

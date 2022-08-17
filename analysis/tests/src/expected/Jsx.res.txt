@@ -436,29 +436,73 @@ Completable: Cpath Module[DefineSomeFields].th
   }]
 
 Complete src/Jsx.res 122:20
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[div](~x, ~name, ~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[122:20] posNoWhite:[122:19] Found expr:[121:3->125:4]
+JSX <div:[121:3->121:6] x[122:5->122:6]=...[122:7->122:20] name[124:4->124:8]=...[124:9->124:11]> _children:125:2
+posCursor:[122:20] posNoWhite:[122:19] Found expr:[122:7->122:20]
+Pexp_ident Outer.Inner.h:[122:7->122:20]
+Completable: Cpath Value[Outer, Inner, h]
+[{
+    "label": "hello",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Jsx.res 129:19
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[div](~x, ~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[129:19] posNoWhite:[129:18] Found expr:[128:3->131:9]
+JSX <div:[128:3->128:6] x[129:5->129:6]=...[129:7->131:8]> _children:None
+posCursor:[129:19] posNoWhite:[129:18] Found expr:[129:7->131:8]
+Pexp_ident Outer.Inner.:[129:7->131:8]
+Completable: Cpath Value[Outer, Inner, ""]
+[{
+    "label": "hello",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Jsx.res 136:7
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[div](~x, ~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
+posCursor:[136:7] posNoWhite:[136:6] Found expr:[135:3->138:9]
+JSX <div:[135:3->135:6] x[136:5->136:6]=...[138:4->138:8]> _children:None
 []
 
 Complete src/Jsx.res 150:21
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[Nested, Co, createElement](~name, ~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[150:21] posNoWhite:[150:20] Found expr:[150:12->150:32]
+JSX <Nested.Co:[150:12->150:21] name[150:22->150:26]=...[150:27->150:29]> _children:150:30
+Completable: Cpath Module[Nested, Co]
+[{
+    "label": "Comp",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/Jsx.res 153:19
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[Nested, name, createElement](~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[153:19] posNoWhite:[153:18] Found expr:[153:12->153:25]
+JSX <Nested.:[153:12->153:24] > _children:None
+Completable: Cpath Module[Nested, ""]
+[{
+    "label": "Comp",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Hover src/Jsx.res 162:12
 Nothing at that position. Now trying to use completion.
@@ -484,7 +528,44 @@ Completable: Cjsx([Comp], age, [age])
 {"contents": "```rescript\nint\n```"}
 
 Complete src/Jsx.res 171:30
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[Completion, O, Comp, createElement](~children, Nolabel), lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[171:30] posNoWhite:[171:28] Found expr:[171:12->171:33]
+JSX <Completion.O.Comp:[171:12->171:29] > _children:171:31
+Completable: Cjsx([Completion, O, Comp], "", [])
+[{
+    "label": "first",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "second",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "zoo",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
