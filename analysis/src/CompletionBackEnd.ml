@@ -2250,7 +2250,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             ~kind:(Completion.Label "Empty record") ();
         ]))
   | CtypedExpression
-      {howToRetrieveSourceType; expressionPath; lookingToComplete; prefix} -> (
+      {
+        howToRetrieveSourceType;
+        expressionPath;
+        lookingToComplete;
+        prefix;
+        alreadySeenIdents;
+      } -> (
     let sourceType =
       howToRetrieveSourceType
       |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~pos ~scope
@@ -2411,6 +2417,10 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         constructorCompletions
       | Some (CRecord {fields; decl; name}), CRecordField ->
         fields
+        |> List.filter (fun (field : field) ->
+               not
+                 (alreadySeenIdents
+                 |> List.exists (fun fieldName -> fieldName = field.fname.txt)))
         |> Utils.filterMap (fun (field : field) ->
                if prefix = "" || checkName field.fname.txt ~prefix ~exact:false
                then

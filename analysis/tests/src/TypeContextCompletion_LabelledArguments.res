@@ -81,5 +81,5 @@ let doMoreStuff = (~someRecord: someRecord): someRecord => someRecord
 // doMoreStuff(~someRecord={someTup: ("123", O)})
 //                                            ^com
 
-// let _  = doMoreStuff(~someRecord={})
-//                                   ^com
+// let _  = doMoreStuff(~someRecord={age: 123, name: "123", })
+//                                                          ^com

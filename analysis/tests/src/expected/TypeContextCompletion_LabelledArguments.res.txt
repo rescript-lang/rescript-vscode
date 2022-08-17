@@ -447,29 +447,11 @@ Completable: CtypedExpression(sourceType:NamedArg(someRecord, Value[doMoreStuff]
     "insertTextFormat": 2
   }]
 
-Complete src/TypeContextCompletion_LabelledArguments.res 83:37
-posCursor:[83:37] posNoWhite:[83:36] Found expr:[83:12->83:39]
-Pexp_apply ...[83:12->83:23] (~someRecord83:25->83:35=...[83:36->83:38])
-Completable: CtypedExpression(sourceType:NamedArg(someRecord, Value[doMoreStuff]), lookingToComplete:CRecordField, prefix:"", pattern: []
+Complete src/TypeContextCompletion_LabelledArguments.res 83:60
+posCursor:[83:60] posNoWhite:[83:58] Found expr:[83:12->83:62]
+Pexp_apply ...[83:12->83:23] (~someRecord83:25->83:35=...[83:36->83:61])
+Completable: CtypedExpression(sourceType:NamedArg(someRecord, Value[doMoreStuff]), lookingToComplete:CRecordField, prefix:"", pattern: [], seenIdents: [age, name])
 [{
-    "label": "age",
-    "kind": 5,
-    "tags": [],
-    "detail": "age: int\n\ntype someRecord = {\n  age: int,\n  name: string,\n  maybeVariant: option<someVariant>,\n  definitivelyVariant: someVariant,\n  someTup: (string, someVariant),\n}",
-    "documentation": null,
-    "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
-  }, {
-    "label": "name",
-    "kind": 5,
-    "tags": [],
-    "detail": "name: string\n\ntype someRecord = {\n  age: int,\n  name: string,\n  maybeVariant: option<someVariant>,\n  definitivelyVariant: someVariant,\n  someTup: (string, someVariant),\n}",
-    "documentation": null,
-    "sortText": null,
-    "insertText": null,
-    "insertTextFormat": null
-  }, {
     "label": "maybeVariant",
     "kind": 5,
     "tags": [],

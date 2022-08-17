@@ -592,6 +592,8 @@ module Completable = struct
         lookingToComplete: lookingToComplete;
         (* What the user has already started writing, if anything. *)
         prefix: string;
+        (* This is only really relevant for constructing records/objects in expressions. *)
+        alreadySeenIdents: string list;
       }
 
   let toString = function
@@ -624,7 +626,13 @@ module Completable = struct
       ^ (patternPath |> patternContextPathToString)
       ^ ", seenIdents: " ^ list alreadySeenIdents ^ ")"
     | CtypedExpression
-        {howToRetrieveSourceType; prefix; expressionPath; lookingToComplete} ->
+        {
+          howToRetrieveSourceType;
+          prefix;
+          expressionPath;
+          lookingToComplete;
+          alreadySeenIdents;
+        } ->
       ("CtypedExpression(sourceType:"
       ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
       ^ ", lookingToComplete:"
@@ -632,6 +640,10 @@ module Completable = struct
       ^ ", prefix:" ^ str prefix)
       ^ ", pattern: "
       ^ (expressionPath |> patternContextPathToString)
+      ^
+      if List.length alreadySeenIdents > 0 then
+        ", seenIdents: " ^ list alreadySeenIdents ^ ")"
+      else ""
 end
 
 module CursorPosition = struct

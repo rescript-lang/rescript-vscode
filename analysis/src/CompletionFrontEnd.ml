@@ -109,6 +109,7 @@ type findContextInExprRes = {
   lookingToComplete: Completable.lookingToComplete;
   expressionPath: Completable.patternPathItem list;
   prefix: string;
+  alreadySeenIdents: string list;
 }
 
 let rec findContextInExpr expr ~pos ~expressionPath ~debug
@@ -125,6 +126,7 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
         lookingToComplete = CRecordField;
         expressionPath = expressionPath |> List.rev;
         prefix = "";
+        alreadySeenIdents = [];
       }
     (* This mmeans parser recovery has been made, which typically means the expr was an empty assignment of some sort. *)
   | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
@@ -133,6 +135,7 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
         lookingToComplete = CNoContext;
         expressionPath = expressionPath |> List.rev;
         prefix = "";
+        alreadySeenIdents = [];
       }
   (* Variants etc *)
   | Pexp_construct ({txt}, Some payload)
@@ -186,6 +189,7 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
           lookingToComplete = CVariant;
           expressionPath = expressionPath |> List.rev;
           prefix = getSimpleFieldName txt;
+          alreadySeenIdents = [];
         }
     | NoCursor -> None
     | EmptyLoc -> None)
@@ -193,7 +197,13 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
     (* Payload-less polyvariant *)
     match CursorPosition.classifyLoc expr.pexp_loc ~pos with
     | HasCursor ->
-      Some {lookingToComplete = CPolyvariant; expressionPath; prefix = label}
+      Some
+        {
+          lookingToComplete = CPolyvariant;
+          expressionPath;
+          prefix = label;
+          alreadySeenIdents = [];
+        }
     | NoCursor -> None
     | EmptyLoc -> None)
   | Pexp_construct
@@ -214,6 +224,7 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
             @ expressionPath
             |> List.rev;
           prefix = "";
+          alreadySeenIdents = [];
         }
     | NoCursor -> None
     | EmptyLoc -> None)
@@ -232,15 +243,11 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
             @ expressionPath
             |> List.rev;
           prefix = "";
+          alreadySeenIdents = [];
         }
-    | NoCursor -> None
-    | EmptyLoc -> None (* Records *))
-  | Pexp_record ([], _) ->
-    (* No fields mean we're in an empty record body. We can complete for that. *)
-    Some {lookingToComplete = CRecordField; expressionPath; prefix = ""}
+    | NoCursor | EmptyLoc -> None)
   | Pexp_record (fields, _) -> (
-    (* TODO: Restore for exprs *)
-    let _seenFields =
+    let seenFields =
       fields |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
     in
     let fieldWithCursorExists =
@@ -263,6 +270,7 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
                      lookingToComplete = CRecordField;
                      expressionPath = expressionPath |> List.rev;
                      prefix = getSimpleFieldName loc.txt;
+                     alreadySeenIdents = seenFields;
                    }
                | _ ->
                  (* We can continue down into anything else *)
@@ -303,6 +311,7 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
           lookingToComplete = CRecordField;
           expressionPath = expressionPath |> List.rev;
           prefix = "";
+          alreadySeenIdents = seenFields;
         }
     | completableFromField, _, _ -> completableFromField)
   | Pexp_tuple items -> (
@@ -791,6 +800,7 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
                    prefix = res.prefix;
                    lookingToComplete = res.lookingToComplete;
                    expressionPath = res.expressionPath;
+                   alreadySeenIdents = res.alreadySeenIdents;
                    howToRetrieveSourceType =
                      NamedArg {label = labelled.name; contextPath};
                  }))
@@ -803,6 +813,7 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
                prefix = "";
                lookingToComplete = CNoContext;
                expressionPath = [];
+               alreadySeenIdents = [];
                howToRetrieveSourceType =
                  NamedArg {label = labelled.name; contextPath};
              })
@@ -996,6 +1007,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                        CtxPath
                          (CPId (Utils.flattenLongIdent typIdentifier.txt, Type));
                      expressionPath = [];
+                     alreadySeenIdents = [];
                      lookingToComplete = CNoContext;
                      prefix = "";
                    }))
