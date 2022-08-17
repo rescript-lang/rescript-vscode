@@ -2248,3 +2248,185 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
             ~insertTextFormat:Snippet ~env ~sortText:"a"
             ~kind:(Completion.Label "Empty record") ();
         ]))
+  | CtypedExpression
+      {howToRetrieveSourceType; expressionPath; lookingToComplete; prefix} -> (
+    let sourceType =
+      howToRetrieveSourceType
+      |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~pos ~scope
+    in
+    match sourceType with
+    | None ->
+      Printf.printf "no source type\n";
+      []
+    | Some typ -> (
+      match
+        ( typ
+          |> findTypeInContext ~env ~nestedContextPath:expressionPath ~package,
+          lookingToComplete )
+      with
+      | None, _ -> []
+      | Some (CTuple {types}), _ ->
+        (* Completing a tuple itself, like `{someFieldWithTuple: <com>}` *)
+        [
+          Completion.create
+            ~name:
+              ("("
+              ^ (types |> List.map (fun _t -> "_") |> String.concat ", ")
+              ^ ")")
+            ~insertText:
+              ("("
+              ^ (types
+                |> List.mapi (fun index _t ->
+                       Printf.sprintf "${%i:_}" (index + 1))
+                |> String.concat ", ")
+              ^ ")")
+            ~insertTextFormat:Snippet ~env ~sortText:"a"
+            ~kind:(Completion.Label "Full tuple match") ();
+        ]
+      | Some CBool, _ ->
+        (* Completing booleans - doesn't matter what we're looking to complete, since there's only one thing to complete (the bool values themselves). *)
+        ["false"; "true"]
+        |> List.filter (fun boolEntry -> Utils.startsWith boolEntry prefix)
+        |> List.map (fun boolEntry ->
+               Completion.create ~name:boolEntry ~kind:Bool ~env ())
+      | Some (COptional completable), _lookingToComplete -> (
+        match completable with
+        | CVariant {constructors} ->
+          (* TOOD: Unify with other variant completion handler *)
+          let constructorCompletions =
+            constructors
+            |> List.filter (fun constructor ->
+                   Utils.startsWith
+                     ("Some(" ^ constructor.Constructor.cname.txt ^ ")")
+                     prefix)
+            |> List.map (fun (constructor : Constructor.t) ->
+                   (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
+                      Eg. Some($1) as completion item. *)
+                   Completion.create
+                     ~name:
+                       ("Some(" ^ constructor.cname.txt
+                       ^
+                       if constructor.args |> List.length > 0 then "(_))"
+                       else ")")
+                     ~insertText:
+                       ("Some(" ^ constructor.cname.txt
+                       ^
+                       if constructor.args |> List.length > 0 then "(${1:_}))"
+                       else ")")
+                     ~insertTextFormat:Snippet
+                     ~kind:(Constructor (constructor, ""))
+                     ~env ())
+          in
+          (* TODO: Patterns should not include local completions *)
+          let _localCompletions =
+            typ
+            |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
+                 ~exact:false ~opens ~scope
+          in
+          [Completion.create ~name:"None" ~kind:OptionNone ~env ()]
+          @ constructorCompletions
+        | CPolyVariant {constructors} ->
+          (* TOOD: Unify with other variant completion handler *)
+          let constructorCompletions =
+            constructors
+            |> List.filter (fun constructor ->
+                   Utils.startsWith ("Some(#" ^ constructor.name ^ ")") prefix)
+            |> List.map (fun constructor ->
+                   Completion.create
+                     ~name:
+                       ("Some(#" ^ constructor.name
+                       ^
+                       if constructor.payload |> Option.is_some then "(_))"
+                       else ")")
+                     ~insertTextFormat:Snippet
+                     ~insertText:
+                       ("Some(#" ^ constructor.name
+                       ^
+                       if constructor.payload |> Option.is_some then "(${1:_}))"
+                       else ")")
+                     ~kind:(PolyvariantConstructor constructor) ~env ())
+          in
+          (* TODO: Patterns should not include local completions *)
+          let _localCompletions =
+            typ
+            |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix
+                 ~exact:false ~opens ~scope
+          in
+          [Completion.create ~name:"None" ~kind:OptionNone ~env ()]
+          @ constructorCompletions
+        | _ ->
+          [
+            Completion.create ~name:"None" ~kind:OptionNone ~env ();
+            Completion.create ~name:"Some()" ~insertText:"Some($1)"
+              ~insertTextFormat:Snippet ~kind:OptionSome ~env ();
+          ])
+      | Some (CPolyVariant {constructors}), _ ->
+        let constructorCompletions =
+          constructors
+          |> List.filter (fun constructor ->
+                 Utils.startsWith constructor.name prefix)
+          |> List.map (fun constructor ->
+                 Completion.create
+                   ~name:
+                     ("#" ^ constructor.name
+                     ^
+                     if constructor.payload |> Option.is_some then "(_)" else ""
+                     )
+                   ~insertText:
+                     ("#" ^ constructor.name
+                     ^
+                     if constructor.payload |> Option.is_some then "($1)"
+                     else "")
+                   ~insertTextFormat:Snippet
+                   ~kind:(PolyvariantConstructor constructor) ~env ())
+        in
+        let _localCompletions =
+          typ
+          |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix ~exact:false
+               ~opens ~scope
+        in
+        constructorCompletions
+      | Some (CVariant {constructors}), _ ->
+        let constructorCompletions =
+          constructors
+          |> List.filter (fun constructor ->
+                 Utils.startsWith constructor.Constructor.cname.txt prefix)
+          |> List.map (fun (constructor : Constructor.t) ->
+                 Completion.create
+                   ~name:
+                     (constructor.cname.txt
+                     ^ if constructor.args |> List.length > 0 then "(_)" else ""
+                     )
+                   ~insertTextFormat:Snippet
+                   ~insertText:
+                     (constructor.cname.txt
+                     ^
+                     if constructor.args |> List.length > 0 then "($1)" else ""
+                     )
+                   ~kind:(Constructor (constructor, ""))
+                   ~env ())
+        in
+        let _localCompletions =
+          typ
+          |> findLocalCompletionsForTypeExprWithOpens ~env ~prefix ~exact:false
+               ~opens ~scope
+        in
+        constructorCompletions
+      | Some (CRecord {fields; decl; name}), CRecordField ->
+        fields
+        |> Utils.filterMap (fun (field : field) ->
+               if prefix = "" || checkName field.fname.txt ~prefix ~exact:false
+               then
+                 Some
+                   (Completion.create ~name:field.fname.txt ~env
+                      ~kind:
+                        (Completion.Field
+                           (field, decl |> Shared.declToString name.txt))
+                      ())
+               else None)
+      | Some (CRecord _), _ ->
+        [
+          Completion.create ~name:"{}" ~insertText:"{${1}}"
+            ~insertTextFormat:Snippet ~env ~sortText:"a"
+            ~kind:(Completion.Label "Empty record") ();
+        ]))

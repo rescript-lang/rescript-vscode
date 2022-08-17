@@ -772,36 +772,77 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | Pstr_value (recFlag, bindings) ->
       if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
 
-      (* This is an experiment and should most likely not live here in its final form. *)
-      (* Check for: let {destructuringSomething} = someIdentifier *)
-      (* Ensure cursor is inside of record pattern. *)
-      (* TODO: Handle let {SomeModule.recordField} = ...*)
-      (match bindings with
-      | [{pvb_pat; pvb_expr = expr}] when !result = None -> (
-        (* The contextPath is what we'll use to look up the root record type for this completion.
-           Depending on if the destructure is nested or not, we may or may not use that directly.*)
-        match exprToContextPath expr with
-        | None -> ()
-        | Some contextPath -> (
-          match
-            findContextInPattern pvb_pat ~firstCharBeforeCursorNoWhite
-              ~pos:posBeforeCursor ~patternPath:[] ~seenIdentsFromParent:[]
-              ~debug
-          with
-          | None -> ()
-          | Some res ->
-            setResultOpt
-              (Some
-                 (Completable.CtypedPattern
-                    {
-                      howToRetrieveSourceType = CtxPath contextPath;
-                      patternPath = res.patternPath |> List.rev;
-                      patternType = Destructure;
-                      lookingToComplete = res.lookingToComplete;
-                      prefix = res.prefix;
-                      alreadySeenIdents = res.alreadySeenIdents;
-                    }))))
-      | _ -> ());
+      (if
+       !result = None
+       && item.pstr_loc
+          |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+          = HasCursor
+      then
+       match bindings with
+       (* TODO: This is currently broken, as we need to support using a type_decl, which is what a type annotation gives us,
+          to look up types (currently only support type_expr). *)
+       (* E.g let expr: someType = ... *)
+       | [
+        {
+          pvb_pat =
+            {
+              ppat_loc;
+              ppat_desc =
+                Ppat_constraint
+                  (_, {ptyp_desc = Ptyp_constr (typIdentifier, [])});
+            };
+          pvb_expr = expr;
+        };
+       ] -> (
+         match expr with
+         (* E.g let expr: someType = <com>
+            Produces a "broken" source *)
+         | {
+          pexp_desc = Pexp_extension ({Location.txt = "rescript.exprhole"}, _);
+         }
+           when ppat_loc
+                |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+                = NoCursor ->
+           setResultOpt
+             (Some
+                (Completable.CtypedExpression
+                   {
+                     howToRetrieveSourceType =
+                       CtxPath
+                         (CPId (Utils.flattenLongIdent typIdentifier.txt, Type));
+                     expressionPath = [];
+                     lookingToComplete = CNoContext;
+                     prefix = "";
+                   }))
+         | _ -> ())
+       | [{pvb_pat; pvb_expr = expr}] -> (
+         (* Check for: let {destructuringSomething} = someIdentifier *)
+         (* TODO: Handle let {SomeModule.recordField} = ...*)
+
+         (* The contextPath is what we'll use to look up the root record type for this completion.
+            Depending on if the destructure is nested or not, we may or may not use that directly.*)
+         match exprToContextPath expr with
+         | None -> ()
+         | Some contextPath -> (
+           match
+             findContextInPattern pvb_pat ~firstCharBeforeCursorNoWhite
+               ~pos:posBeforeCursor ~patternPath:[] ~seenIdentsFromParent:[]
+               ~debug
+           with
+           | None -> ()
+           | Some res ->
+             setResultOpt
+               (Some
+                  (Completable.CtypedPattern
+                     {
+                       howToRetrieveSourceType = CtxPath contextPath;
+                       patternPath = res.patternPath |> List.rev;
+                       patternType = Destructure;
+                       lookingToComplete = res.lookingToComplete;
+                       prefix = res.prefix;
+                       alreadySeenIdents = res.alreadySeenIdents;
+                     }))))
+       | _ -> ());
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
       processed := true

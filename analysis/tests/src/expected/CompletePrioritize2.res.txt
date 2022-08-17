@@ -1,10 +1,29 @@
 Complete src/CompletePrioritize2.res 9:7
 posCursor:[9:7] posNoWhite:[9:6] Found expr:[9:3->0:-1]
-Completable: CtypedPattern(sourceType:Value[ax], lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+Completable: Cpath Value[ax]->
+[{
+    "label": "Test.add",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 
 Complete src/CompletePrioritize2.res 12:5
-XXX Not found!
-Completable: CtypedPattern(sourceType:Value[ax], lookingToComplete:CNoContext, patternType:Destructure, prefix:"", pattern: [], seenIdents: [])
-[]
+posCursor:[12:5] posNoWhite:[12:4] Found expr:[12:3->12:5]
+Pexp_ident ax:[12:3->12:5]
+Completable: Cpath Value[ax]
+[{
+    "label": "ax",
+    "kind": 12,
+    "tags": [],
+    "detail": "Test.t",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
 

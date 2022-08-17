@@ -64,6 +64,7 @@ let printCoreType typ ~pos =
     ^ (loc |> printLocDenominatorLoc ~pos)
     ^ (Utils.flattenLongIdent loc.txt |> Completable.ident |> Completable.str)
     ^ ")"
+  | Ptyp_variant _ -> "Ptyp_variant(<unimplemented>)"
   | _ -> "<unimplemented_ptyp_desc>"
 
 let rec printPattern pattern ~pos ~indentation =
@@ -258,10 +259,12 @@ let printStructItem structItem ~pos ~source =
       | None -> 0
       | Some offset -> offset
     in
-    print_endline
-      ("\nSource:\n// "
-      ^ String.sub source startOffset (endOffset - startOffset)
-      ^ "\n");
+
+    ("\nSource:\n// "
+    ^ String.sub source startOffset (endOffset - startOffset)
+    ^ "\n")
+    ^ printLocDenominator structItem.pstr_loc ~pos
+    ^
     match structItem.pstr_desc with
     | Pstr_eval (expr, _attributes) ->
       "Pstr_eval(\n" ^ printExprItem expr ~pos ~indentation:1 ^ "\n)"

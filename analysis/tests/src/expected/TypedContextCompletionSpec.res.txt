@@ -4,8 +4,7 @@ Source:
 // let x = someVariantToString(~someVaria
 //                                      ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -24,8 +23,7 @@ Source:
 // let x = someVariantToString(~someVariant=
 //                                         ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -45,8 +43,7 @@ Source:
 // let x = someVariantToString(~someVariant=T
 //                                          ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -65,8 +62,7 @@ Source:
 // let x = someVariantToString(~someVariant=t
 //                                          ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -85,8 +81,7 @@ Source:
 // let x = someVariantToString(~someVariant=TypeDefinition.
 //                                                        ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -105,8 +100,7 @@ Source:
 // let x = someVariantToString(~anotherThing=
 //                                          ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -125,8 +119,7 @@ Source:
 // let x = someVariantToString(~thirdThing=
 //                                        ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -145,8 +138,7 @@ Source:
 // let x = someVariantToString(~thirdThing=#t
 //                                          ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -165,8 +157,7 @@ Source:
 // let x = someVariantToString(~thirdThing=#T
 //                                          ^ast
 
-
-Pstr_value(
+<*>Pstr_value(
   value:
     Ppat_var(x)
   expr:
@@ -2695,4 +2686,26 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "insertText": "($1)",
     "insertTextFormat": 2
   }]
+
+Dump AST src/TypedContextCompletionSpec.res 253:29
+
+Source:
+// let someVar: Completion.r =
+//                           ^ast
+
+<*>Pstr_value(
+  value:
+    Ppat_constraint(
+      Ptyp_constr(Completion.r),
+      Ppat_var(someVar)
+    )
+  expr:
+    <x>Pexp_extension(%<x>rescript.exprhole)
+)
+
+Complete src/TypedContextCompletionSpec.res 256:30
+XXX Not found!
+Completable: CtypedExpression(sourceType:Type[Completion, r], lookingToComplete:CNoContext, prefix:"", pattern: []
+no source type
+[]
 

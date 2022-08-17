@@ -250,3 +250,9 @@ let y = One
 //                                       ^com
 
 // --- Pattern matching end ---
+
+// let someVar: Completion.r =
+//                           ^ast
+
+// let someVar: Completion.r =
+//                            ^com

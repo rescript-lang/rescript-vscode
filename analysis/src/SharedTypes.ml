@@ -586,6 +586,13 @@ module Completable = struct
            This is contextual of course, but putting it here in the general type to simplify things. *)
         alreadySeenIdents: string list;
       }
+    | CtypedExpression of {
+        howToRetrieveSourceType: howToRetrieveSourceType;
+        expressionPath: patternPathItem list;
+        lookingToComplete: lookingToComplete;
+        (* What the user has already started writing, if anything. *)
+        prefix: string;
+      }
 
   let toString = function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
@@ -616,6 +623,15 @@ module Completable = struct
       ^ ", pattern: "
       ^ (patternPath |> patternContextPathToString)
       ^ ", seenIdents: " ^ list alreadySeenIdents ^ ")"
+    | CtypedExpression
+        {howToRetrieveSourceType; prefix; expressionPath; lookingToComplete} ->
+      ("CtypedExpression(sourceType:"
+      ^ (howToRetrieveSourceType |> howToRetrieveSourceTypeToString)
+      ^ ", lookingToComplete:"
+      ^ lookingToCompleteToString lookingToComplete
+      ^ ", prefix:" ^ str prefix)
+      ^ ", pattern: "
+      ^ (expressionPath |> patternContextPathToString)
 end
 
 module CursorPosition = struct
