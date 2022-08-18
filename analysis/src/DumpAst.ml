@@ -145,6 +145,7 @@ and printCase case ~pos ~indentation ~caseNum =
   ^ "expr"
   ^ (case.Parsetree.pc_rhs.pexp_loc |> printLocDenominator ~pos)
   ^ ":\n"
+  ^ addIndentation (indentation + 2)
   ^ printExprItem case.pc_rhs ~pos ~indentation:(indentation + 2)
 
 and printExprItem expr ~pos ~indentation =
@@ -214,12 +215,13 @@ and printExprItem expr ~pos ~indentation =
       | Labelled name -> "Labelled(" ^ name ^ ")"
       | Optional name -> "Optional(" ^ name ^ ")")
     ^ ",\n"
-    ^ addIndentation (indentation + 1)
+    ^ addIndentation (indentation + 2)
     ^ "pattern: "
     ^ printPattern pattern ~pos ~indentation:(indentation + 2)
     ^ ",\n"
     ^ addIndentation (indentation + 1)
     ^ "next expr:\n"
+    ^ addIndentation (indentation + 2)
     ^ printExprItem nextExpr ~pos ~indentation:(indentation + 2)
     ^ "\n" ^ addIndentation indentation ^ ")"
   | Pexp_extension (({txt} as loc), _) ->
@@ -261,6 +263,7 @@ let printValueBinding value ~pos ~indentation =
   ^ addIndentation (indentation + 1)
   ^ (value.pvb_pat |> printPattern ~pos ~indentation:(indentation + 1))
   ^ "\n" ^ addIndentation indentation ^ "expr:\n"
+  ^ addIndentation (indentation + 1)
   ^ printExprItem value.pvb_expr ~pos ~indentation:(indentation + 1)
 
 let printStructItem structItem ~pos ~source =

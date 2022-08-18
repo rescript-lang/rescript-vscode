@@ -8,7 +8,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -27,7 +27,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -47,7 +47,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -66,7 +66,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -85,7 +85,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -104,7 +104,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -123,7 +123,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -142,7 +142,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -161,7 +161,7 @@ Source:
   value:
     Ppat_var(x)
   expr:
-<*>Pexp_apply(
+    <*>Pexp_apply(
       expr:
         Pexp_ident:someVariantToString
       args:
@@ -1384,6 +1384,15 @@ Completable: Cpath Value[""]
     "insertTextFormat": null
   }, {
     "label": "Belt_internals",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "BrokenParserCases",
     "kind": 9,
     "tags": [],
     "detail": "file module",
@@ -2702,7 +2711,7 @@ Source:
       Ppat_var(someVar)
     )
   expr:
-<x>Pexp_extension(%<x>rescript.exprhole)
+    <x>Pexp_extension(%<x>rescript.exprhole)
 )
 
 Complete src/TypedContextCompletionSpec.res 256:30

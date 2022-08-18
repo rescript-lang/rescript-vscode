@@ -1,0 +1,62 @@
+Dump AST src/BrokenParserCases.res 1:22
+
+Source:
+// let _ = ({someProp: , otherProp: 123}, 123)
+//                    ^ast
+
+<*>Pstr_value(
+  value:
+    Ppat_any
+  expr:
+    <*>Pexp_record(
+      fields:
+        someProp: Pexp_ident:otherProp
+    )
+)
+
+Dump AST src/BrokenParserCases.res 5:31
+
+Source:
+// let _ = someFunc({firstProp: , secondProp: 123, thirdProp: 123})
+//                             ^ast
+
+<*>Pstr_value(
+  value:
+    Ppat_any
+  expr:
+    <*>Pexp_apply(
+      expr:
+        Pexp_ident:someFunc
+      args:
+        <unlabelled>=
+          <*>Pexp_record(
+            fields:
+              firstProp: Pexp_ident:secondProp
+          ),
+        <unlabelled>=
+          Pexp_constant(Pconst_integer(123)),
+        <unlabelled>=
+          <x><unimplemented_pexp_desc: Pexp_constraint>,
+        <unlabelled>=
+          Pexp_constant(Pconst_integer(123))
+    )
+)
+
+Dump AST src/BrokenParserCases.res 9:19
+
+Source:
+// switch v { | (_, , _) => () }
+//                 ^ast
+
+<*>Pstr_eval(
+<*>Pexp_match(Pexp_ident:v)
+    case 1:
+      pattern<*>:
+        <*>Ppat_tuple(
+        Ppat_any,
+        Ppat_any
+    )
+      expr:
+        Pexp_construct(())
+)
+
