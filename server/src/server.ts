@@ -108,12 +108,28 @@ let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
 let findBscBinary = (projectRootPath: p.DocumentUri) => {
   let rescriptBinaryPath = findRescriptBinary(projectRootPath);
   if (rescriptBinaryPath !== null) {
-    return path.join(
+    let rescriptDirPath = path.join(
       path.dirname(rescriptBinaryPath),
       "..",
-      c.platformPath,
-      c.bscExeName
+      "rescript"
     );
+
+    let bscBinaryPath = path.join(rescriptDirPath, c.platformDir, c.bscExeName);
+
+    // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
+    if (
+      process.platform == "darwin" &&
+      process.arch == "arm64" &&
+      !fs.existsSync(bscBinaryPath)
+    ) {
+      bscBinaryPath = path.join(
+        rescriptDirPath,
+        process.platform,
+        c.bscExeName
+      );
+    }
+
+    return bscBinaryPath;
   }
   return null;
 };

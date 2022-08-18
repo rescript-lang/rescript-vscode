@@ -1,6 +1,6 @@
 import * as path from "path";
 
-let platformDir =
+export let platformDir =
   process.arch == "arm64" ? process.platform + process.arch : process.platform;
 
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
