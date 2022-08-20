@@ -965,87 +965,111 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | Pstr_open {popen_lid} ->
       scope := !scope |> Scope.addOpen ~lid:popen_lid.txt
     | Pstr_primitive vd -> scopeValueDescription vd
-    | Pstr_value (recFlag, bindings) ->
+    | Pstr_value (recFlag, bindings) -> (
       if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
-
-      (if
-       !result = None
-       && item.pstr_loc
-          |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-          = HasCursor
-      then
-       match bindings with
-       (* TODO: This is currently broken, as we need to support using a type_decl, which is what a type annotation gives us,
-          to look up types (currently only support type_expr). *)
-       (* E.g let expr: someType = ... *)
-       | [
-        {
-          pvb_pat =
-            {
-              ppat_loc;
-              ppat_desc =
-                Ppat_constraint
-                  (_, {ptyp_desc = Ptyp_constr (typIdentifier, [])});
-            };
-          pvb_expr = expr;
-        };
-       ] -> (
-         match expr with
-         (* E.g let expr: someType = <com>
-            Produces a "broken" source *)
-         | {
-          pexp_desc = Pexp_extension ({Location.txt = "rescript.exprhole"}, _);
-         }
-           when ppat_loc
-                |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-                = NoCursor ->
-           setResultOpt
-             (Some
-                (Completable.CtypedExpression
-                   {
-                     howToRetrieveSourceType =
-                       CtxPath
-                         (CPId (Utils.flattenLongIdent typIdentifier.txt, Type));
-                     expressionPath = [];
-                     alreadySeenIdents = [];
-                     lookingToComplete = CNoContext;
-                     prefix = "";
-                   }))
-         | _ -> ())
-       | [{pvb_pat; pvb_expr = expr}]
-         when pvb_pat.ppat_loc
-              |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-              = HasCursor -> (
-         (* Check for: let {destructuringSomething} = someIdentifier *)
-         (* TODO: Handle let {SomeModule.recordField} = ...*)
-
-         (* The contextPath is what we'll use to look up the root record type for this completion.
-            Depending on if the destructure is nested or not, we may or may not use that directly.*)
-         match exprToContextPath expr with
-         | None -> ()
-         | Some contextPath -> (
-           match
-             findContextInPattern pvb_pat ~firstCharBeforeCursorNoWhite
-               ~pos:posBeforeCursor ~patternPath:[] ~seenIdentsFromParent:[]
-               ~debug
-           with
-           | None -> ()
-           | Some res ->
-             setResultOpt
-               (Some
-                  (Completable.CtypedPattern
-                     {
-                       howToRetrieveSourceType = CtxPath contextPath;
-                       patternPath = res.patternPath;
-                       patternType = Destructure;
-                       lookingToComplete = res.lookingToComplete;
-                       prefix = res.prefix;
-                       alreadySeenIdents = res.alreadySeenIdents;
-                     }))))
-       | _ -> ());
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
-      processed := true
+      processed := true;
+
+      if
+        !result = None
+        && item.pstr_loc
+           |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+           = HasCursor
+      then
+        match bindings with
+        (* TODO: This is currently broken, as we need to support using a type_decl, which is what a type annotation gives us,
+           to look up types (currently only support type_expr). *)
+        (* E.g let expr: someType = ... *)
+        | [
+         {
+           pvb_pat =
+             {
+               ppat_loc;
+               ppat_desc =
+                 Ppat_constraint
+                   (_, {ptyp_desc = Ptyp_constr (typIdentifier, [])});
+             };
+           pvb_expr = expr;
+         };
+        ] -> (
+          match expr with
+          (* E.g let expr: someType = <com>
+             Produces a "broken" source *)
+          | {
+           pexp_desc = Pexp_extension ({Location.txt = "rescript.exprhole"}, _);
+          }
+            when ppat_loc
+                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+                 = NoCursor ->
+            setResultOpt
+              (Some
+                 (Completable.CtypedExpression
+                    {
+                      howToRetrieveSourceType =
+                        CtxPath
+                          (CPId (Utils.flattenLongIdent typIdentifier.txt, Type));
+                      expressionPath = [];
+                      alreadySeenIdents = [];
+                      lookingToComplete = CNoContext;
+                      prefix = "";
+                    }))
+          | _ -> ())
+        | [{pvb_pat = {ppat_desc = Ppat_var loc}; pvb_expr = expr}]
+          when expr.pexp_loc
+               |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+               = HasCursor -> (
+          (* E.g `let something = {someVal: 123}`
+             This handles the case when the assignment of `something` might not be complete (missing record fields for example),
+             but where even if compilation has failed the compiler might know enough about the value of `something` to use it
+              for expression based completion. *)
+          match
+            findContextInExpr expr ~firstCharBeforeCursorNoWhite
+              ~pos:posBeforeCursor ~expressionPath:[] ~debug
+          with
+          | None -> ()
+          | Some res ->
+            setResultOpt
+              (Some
+                 (Completable.CtypedExpression
+                    {
+                      howToRetrieveSourceType = CtxPath (CPId ([loc.txt], Value));
+                      expressionPath = res.expressionPath;
+                      lookingToComplete = res.lookingToComplete;
+                      prefix = res.prefix;
+                      alreadySeenIdents = res.alreadySeenIdents;
+                    })))
+        | [{pvb_pat; pvb_expr = expr}]
+          when pvb_pat.ppat_loc
+               |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+               = HasCursor -> (
+          (* Check for: let {destructuringSomething} = someIdentifier *)
+          (* TODO: Handle let {SomeModule.recordField} = ...*)
+
+          (* The contextPath is what we'll use to look up the root record type for this completion.
+             Depending on if the destructure is nested or not, we may or may not use that directly.*)
+          match exprToContextPath expr with
+          | None -> ()
+          | Some contextPath -> (
+            match
+              findContextInPattern pvb_pat ~firstCharBeforeCursorNoWhite
+                ~pos:posBeforeCursor ~patternPath:[] ~seenIdentsFromParent:[]
+                ~debug
+            with
+            | None -> ()
+            | Some res ->
+              setResultOpt
+                (Some
+                   (Completable.CtypedPattern
+                      {
+                        howToRetrieveSourceType = CtxPath contextPath;
+                        patternPath = res.patternPath;
+                        patternType = Destructure;
+                        lookingToComplete = res.lookingToComplete;
+                        prefix = res.prefix;
+                        alreadySeenIdents = res.alreadySeenIdents;
+                      }))))
+        | _ -> ())
     | Pstr_type (recFlag, decls) ->
       if recFlag = Recursive then decls |> List.iter scopeTypeDeclaration;
       decls |> List.iter (fun td -> iterator.type_declaration iterator td);
