@@ -10,3 +10,7 @@
 // switch v { | (_, , _) => () }
 //                 ^ast
 
+// Same problem here, does not recover from the missing prop, and ends up eating the rest of the record declaration while only parsing {firstProp: secondProp}
+// let {someField, , otherField, } = someVal
+//                ^ast
+

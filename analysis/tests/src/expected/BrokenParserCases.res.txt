@@ -60,3 +60,20 @@ Source:
         Pexp_construct(())
 )
 
+Dump AST src/BrokenParserCases.res 13:18
+
+Source:
+// let {someField, , otherField, } = someVal
+//                ^ast
+
+<*>Pstr_value(
+  value:
+    <*>Ppat_record(
+      fields:
+        someField: Ppat_var(someField)
+        otherField: Ppat_var(otherField)
+    )
+  expr:
+    Pexp_ident:someVal
+)
+
