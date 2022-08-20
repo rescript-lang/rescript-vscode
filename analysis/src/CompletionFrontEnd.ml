@@ -112,14 +112,16 @@ type findContextInExprRes = {
   alreadySeenIdents: string list;
 }
 
+let hasBraces attributes =
+  attributes |> List.exists (fun (loc, _) -> loc.Location.txt = "ns.braces")
+
 let rec findContextInExpr expr ~pos ~expressionPath ~debug
     ~firstCharBeforeCursorNoWhite =
   match expr.Parsetree.pexp_desc with
   (* In expressions, there's ambiguity between an empty record and an empty expression block. There's simply no way to express a record with 0 fields, like there is in patterns.
      The heuristic below matches `{}` and interprets it as an empty record rather than an expression block with braces + unit, which is what the parser parses it as. *)
   | Pexp_construct ({txt = Lident "()"}, None)
-    when expr.Parsetree.pexp_attributes
-         |> List.exists (fun (loc, _) -> loc.Location.txt = "ns.braces")
+    when hasBraces expr.Parsetree.pexp_attributes
          && CursorPosition.classifyLoc expr.pexp_loc ~pos = HasCursor ->
     Some
       {
@@ -128,7 +130,33 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
         prefix = "";
         alreadySeenIdents = [];
       }
-    (* This mmeans parser recovery has been made, which typically means the expr was an empty assignment of some sort. *)
+  (* Handles `Some({})`, with the same logic as above for handling the empty record ambiguity. *)
+  | Pexp_construct
+      ( {txt},
+        Some
+          {
+            pexp_loc;
+            pexp_attributes;
+            pexp_desc = Pexp_construct ({txt = Lident "()"}, _);
+          } )
+    when hasBraces pexp_attributes -> (
+    match CursorPosition.classifyLoc pexp_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CRecordField;
+          expressionPath =
+            [
+              Completable.Variant
+                {constructorName = getSimpleFieldName txt; payloadNum = Some 0};
+            ]
+            @ expressionPath
+            |> List.rev;
+          prefix = "";
+          alreadySeenIdents = [];
+        }
+    | NoCursor | EmptyLoc -> None)
+  (* This mmeans parser recovery has been made, which typically means the expr was an empty assignment of some sort. *)
   | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
     Some
       {
@@ -138,6 +166,45 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
         alreadySeenIdents = [];
       }
   (* Variants etc *)
+  | Pexp_construct
+      ( {txt},
+        Some {pexp_loc; pexp_desc = Pexp_construct ({txt = Lident "()"}, _)} )
+    -> (
+    (* A variant like SomeVariant(). Interpret as completing the payload of the variant  *)
+    match CursorPosition.classifyLoc pexp_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CNoContext;
+          expressionPath =
+            [
+              Completable.Variant
+                {constructorName = getSimpleFieldName txt; payloadNum = Some 0};
+            ]
+            @ expressionPath
+            |> List.rev;
+          prefix = "";
+          alreadySeenIdents = [];
+        }
+    | NoCursor | EmptyLoc -> None)
+  | Pexp_variant
+      ( label,
+        Some {pexp_loc; pexp_desc = Pexp_construct ({txt = Lident "()"}, _)} )
+    -> (
+    (* A polyvariant like #SomeVariant(). Interpret as completing the payload of the variant  *)
+    match CursorPosition.classifyLoc pexp_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CNoContext;
+          expressionPath =
+            [Completable.Polyvariant {name = label; payloadNum = Some 0}]
+            @ expressionPath
+            |> List.rev;
+          prefix = "";
+          alreadySeenIdents = [];
+        }
+    | NoCursor | EmptyLoc -> None)
   | Pexp_construct ({txt}, Some payload)
     when CursorPosition.classifyLoc payload.pexp_loc ~pos = HasCursor ->
     (* When there's a variant with a payload, and the cursor is in the pattern. Some(S) for example. *)
@@ -206,46 +273,6 @@ let rec findContextInExpr expr ~pos ~expressionPath ~debug
         }
     | NoCursor -> None
     | EmptyLoc -> None)
-  | Pexp_construct
-      ( {txt},
-        Some {pexp_loc; pexp_desc = Pexp_construct ({txt = Lident "()"}, _)} )
-    -> (
-    (* A variant like SomeVariant(). Interpret as completing the payload of the variant  *)
-    match CursorPosition.classifyLoc pexp_loc ~pos with
-    | HasCursor ->
-      Some
-        {
-          lookingToComplete = CNoContext;
-          expressionPath =
-            [
-              Completable.Variant
-                {constructorName = getSimpleFieldName txt; payloadNum = Some 0};
-            ]
-            @ expressionPath
-            |> List.rev;
-          prefix = "";
-          alreadySeenIdents = [];
-        }
-    | NoCursor -> None
-    | EmptyLoc -> None)
-  | Pexp_variant
-      ( label,
-        Some {pexp_loc; pexp_desc = Pexp_construct ({txt = Lident "()"}, _)} )
-    -> (
-    (* A polyvariant like #SomeVariant(). Interpret as completing the payload of the variant  *)
-    match CursorPosition.classifyLoc pexp_loc ~pos with
-    | HasCursor ->
-      Some
-        {
-          lookingToComplete = CNoContext;
-          expressionPath =
-            [Completable.Polyvariant {name = label; payloadNum = Some 0}]
-            @ expressionPath
-            |> List.rev;
-          prefix = "";
-          alreadySeenIdents = [];
-        }
-    | NoCursor | EmptyLoc -> None)
   | Pexp_record (fields, _) -> (
     let seenFields =
       fields |> List.map (fun ({Location.txt}, _) -> getSimpleFieldName txt)
@@ -883,6 +910,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | Some x -> result := Some (x, !scope)
   in
   let setResult x = setResultOpt (Some x) in
+  (* `setResultForced` is mostly an experiment as I figure things out *)
+  let setResultForced x = result := Some (x, !scope) in
   let scopeValueDescription (vd : Parsetree.value_description) =
     scope :=
       !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_name.loc
@@ -972,10 +1001,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       processed := true;
 
       if
-        !result = None
-        && item.pstr_loc
-           |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-           = HasCursor
+        item.pstr_loc
+        |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+        = HasCursor
       then
         match bindings with
         (* TODO: This is currently broken, as we need to support using a type_decl, which is what a type annotation gives us,
@@ -1007,16 +1035,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           with
           | None -> ()
           | Some res ->
-            setResultOpt
-              (Some
-                 (Completable.CtypedExpression
-                    {
-                      howToRetrieveSourceType = CtxPath (CPId ([loc.txt], Value));
-                      expressionPath = res.expressionPath;
-                      lookingToComplete = res.lookingToComplete;
-                      prefix = res.prefix;
-                      alreadySeenIdents = res.alreadySeenIdents;
-                    })))
+            setResultForced
+              (Completable.CtypedExpression
+                 {
+                   howToRetrieveSourceType = CtxPath (CPId ([loc.txt], Value));
+                   expressionPath = res.expressionPath;
+                   lookingToComplete = res.lookingToComplete;
+                   prefix = res.prefix;
+                   alreadySeenIdents = res.alreadySeenIdents;
+                 }))
         | [{pvb_pat; pvb_expr = expr}]
           when pvb_pat.ppat_loc
                |> CursorPosition.classifyLoc ~pos:posBeforeCursor
@@ -1036,17 +1063,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             with
             | None -> ()
             | Some res ->
-              setResultOpt
-                (Some
-                   (Completable.CtypedPattern
-                      {
-                        howToRetrieveSourceType = CtxPath contextPath;
-                        patternPath = res.patternPath;
-                        patternType = Destructure;
-                        lookingToComplete = res.lookingToComplete;
-                        prefix = res.prefix;
-                        alreadySeenIdents = res.alreadySeenIdents;
-                      }))))
+              setResultForced
+                (Completable.CtypedPattern
+                   {
+                     howToRetrieveSourceType = CtxPath contextPath;
+                     patternPath = res.patternPath;
+                     patternType = Destructure;
+                     lookingToComplete = res.lookingToComplete;
+                     prefix = res.prefix;
+                     alreadySeenIdents = res.alreadySeenIdents;
+                   })))
         | [
          {
            pvb_pat =
@@ -1068,18 +1094,17 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             when ppat_loc
                  |> CursorPosition.classifyLoc ~pos:posBeforeCursor
                  = NoCursor ->
-            setResultOpt
-              (Some
-                 (Completable.CtypedExpression
-                    {
-                      howToRetrieveSourceType =
-                        CtxPath
-                          (CPId (Utils.flattenLongIdent typIdentifier.txt, Type));
-                      expressionPath = [];
-                      alreadySeenIdents = [];
-                      lookingToComplete = CNoContext;
-                      prefix = "";
-                    }))
+            setResultForced
+              (Completable.CtypedExpression
+                 {
+                   howToRetrieveSourceType =
+                     CtxPath
+                       (CPId (Utils.flattenLongIdent typIdentifier.txt, Type));
+                   expressionPath = [];
+                   alreadySeenIdents = [];
+                   lookingToComplete = CNoContext;
+                   prefix = "";
+                 })
           | _ -> ())
         | _ -> ())
     | Pstr_type (recFlag, decls) ->

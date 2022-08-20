@@ -1089,7 +1089,7 @@ Completable: Cpath Type[ForAuto, ""]
 Complete src/Completion.res 179:13
 posCursor:[179:13] posNoWhite:[179:12] Found expr:[179:11->179:13]
 Pexp_construct As:[179:11->179:13] None
-Completable: Cpath Value[As]
+Completable: CtypedExpression(sourceType:Value[q], lookingToComplete:CVariant, prefix:As, pattern: []
 []
 
 Complete src/Completion.res 182:17
