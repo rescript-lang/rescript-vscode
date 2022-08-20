@@ -2698,24 +2698,13 @@ Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:C
     "insertTextFormat": 2
   }]
 
-Dump AST src/TypedContextCompletionSpec.res 253:29
-
-Source:
-// let someVar: Completion.r =
-//                           ^ast
-
-<*>Pstr_value(
-  value:
-    Ppat_constraint(
-      Ptyp_constr(Completion.r),
-      Ppat_var(someVar)
-    )
-  expr:
-    <x>Pexp_extension(%<x>rescript.exprhole)
-)
-
-Complete src/TypedContextCompletionSpec.res 256:30
+Complete src/TypedContextCompletionSpec.res 253:30
 XXX Not found!
 Completable: CtypedExpression(sourceType:Type[Completion, r], lookingToComplete:CNoContext, prefix:"", pattern: []
+[]
+
+Complete src/TypedContextCompletionSpec.res 256:27
+posCursor:[256:27] posNoWhite:[256:26] Found expr:[256:17->256:29]
+Completable: CtypedExpression(sourceType:Value[x], lookingToComplete:CRecordField, prefix:"", pattern: [], seenIdents: [age])
 []
 

@@ -252,7 +252,7 @@ let y = One
 // --- Pattern matching end ---
 
 // let someVar: Completion.r =
-//                           ^ast
-
-// let someVar: Completion.r =
 //                            ^com
+
+// let x: user = {age: 123, }
+//                         ^com

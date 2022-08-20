@@ -985,37 +985,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
          {
            pvb_pat =
              {
-               ppat_loc;
                ppat_desc =
-                 Ppat_constraint
-                   (_, {ptyp_desc = Ptyp_constr (typIdentifier, [])});
+                 ( Ppat_var loc
+                 (* Handles the `let someVar: someType = ...` case until we've refactored so we can do proper completion via
+                    the type annotation. *)
+                 | Ppat_constraint ({ppat_desc = Ppat_var loc}, _) );
              };
            pvb_expr = expr;
          };
-        ] -> (
-          match expr with
-          (* E.g let expr: someType = <com>
-             Produces a "broken" source *)
-          | {
-           pexp_desc = Pexp_extension ({Location.txt = "rescript.exprhole"}, _);
-          }
-            when ppat_loc
-                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-                 = NoCursor ->
-            setResultOpt
-              (Some
-                 (Completable.CtypedExpression
-                    {
-                      howToRetrieveSourceType =
-                        CtxPath
-                          (CPId (Utils.flattenLongIdent typIdentifier.txt, Type));
-                      expressionPath = [];
-                      alreadySeenIdents = [];
-                      lookingToComplete = CNoContext;
-                      prefix = "";
-                    }))
-          | _ -> ())
-        | [{pvb_pat = {ppat_desc = Ppat_var loc}; pvb_expr = expr}]
+        ]
           when expr.pexp_loc
                |> CursorPosition.classifyLoc ~pos:posBeforeCursor
                = HasCursor -> (
@@ -1069,6 +1047,40 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                         prefix = res.prefix;
                         alreadySeenIdents = res.alreadySeenIdents;
                       }))))
+        | [
+         {
+           pvb_pat =
+             {
+               ppat_loc;
+               ppat_desc =
+                 Ppat_constraint
+                   (_, {ptyp_desc = Ptyp_constr (typIdentifier, [])});
+             };
+           pvb_expr = expr;
+         };
+        ] -> (
+          match expr with
+          (* E.g let expr: someType = <com>
+             Produces a "broken" source *)
+          | {
+           pexp_desc = Pexp_extension ({Location.txt = "rescript.exprhole"}, _);
+          }
+            when ppat_loc
+                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+                 = NoCursor ->
+            setResultOpt
+              (Some
+                 (Completable.CtypedExpression
+                    {
+                      howToRetrieveSourceType =
+                        CtxPath
+                          (CPId (Utils.flattenLongIdent typIdentifier.txt, Type));
+                      expressionPath = [];
+                      alreadySeenIdents = [];
+                      lookingToComplete = CNoContext;
+                      prefix = "";
+                    }))
+          | _ -> ())
         | _ -> ())
     | Pstr_type (recFlag, decls) ->
       if recFlag = Recursive then decls |> List.iter scopeTypeDeclaration;
