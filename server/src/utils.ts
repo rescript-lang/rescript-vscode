@@ -75,11 +75,18 @@ type execResult =
       error: string;
     };
 
+type formatCodeResult =
+  | execResult
+  | {
+      kind: "blocked-using-built-in-formatter";
+    };
+
 export let formatCode = (
   bscPath: p.DocumentUri | null,
   filePath: string,
-  code: string
-): execResult => {
+  code: string,
+  allowBuiltInFormatter: boolean
+): formatCodeResult => {
   let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
   fs.writeFileSync(formatTempFileFullPath, code, {
@@ -100,6 +107,12 @@ export let formatCode = (
         result: result.toString(),
       };
     } else {
+      if (!allowBuiltInFormatter) {
+        return {
+          kind: "blocked-using-built-in-formatter",
+        };
+      }
+
       let result = runAnalysisAfterSanityCheck(
         formatTempFileFullPath,
         ["format", formatTempFileFullPath],
