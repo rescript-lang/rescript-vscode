@@ -741,10 +741,30 @@ function format(msg: p.RequestMessage): Array<p.Message> {
     let bscBinaryPath =
       projectRootPath === null ? null : findBscBinary(projectRootPath);
 
-    if (
-      bscBinaryPath == null &&
-      !extensionConfiguration.allowBuiltInFormatter
-    ) {
+    let formattedResult = utils.formatCode(
+      bscBinaryPath,
+      filePath,
+      code,
+      extensionConfiguration.allowBuiltInFormatter
+    );
+    if (formattedResult.kind === "success") {
+      let max = code.length;
+      let result: p.TextEdit[] = [
+        {
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: max, character: max },
+          },
+          newText: formattedResult.result,
+        },
+      ];
+      let response: p.ResponseMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: msg.id,
+        result: result,
+      };
+      return [response];
+    } else if (formattedResult.kind === "blocked-using-built-in-formatter") {
       // Let's only prompt the user once about this, or things might become annoying.
       if (hasPromptedAboutBuiltInFormatter) {
         return [fakeSuccessResponse];
@@ -763,26 +783,6 @@ function format(msg: p.RequestMessage): Array<p.Message> {
         params: params,
       };
       return [fakeSuccessResponse, response];
-    }
-
-    let formattedResult = utils.formatCode(bscBinaryPath, filePath, code);
-    if (formattedResult.kind === "success") {
-      let max = code.length;
-      let result: p.TextEdit[] = [
-        {
-          range: {
-            start: { line: 0, character: 0 },
-            end: { line: max, character: max },
-          },
-          newText: formattedResult.result,
-        },
-      ];
-      let response: p.ResponseMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        id: msg.id,
-        result: result,
-      };
-      return [response];
     } else {
       // let the diagnostics logic display the updated syntax errors,
       // from the build.
