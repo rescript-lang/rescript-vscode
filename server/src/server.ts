@@ -25,6 +25,7 @@ import { WorkspaceEdit } from "vscode-languageserver";
 import { filesDiagnostics } from "./utils";
 
 interface extensionConfiguration {
+  allowBuiltInFormatter: boolean;
   askToStartBuild: boolean;
   inlayHints: {
     enable: boolean;
@@ -37,6 +38,7 @@ interface extensionConfiguration {
 // All values here are temporary, and will be overridden as the server is
 // initialized, and the current config is received from the client.
 let extensionConfiguration: extensionConfiguration = {
+  allowBuiltInFormatter: false,
   askToStartBuild: true,
   inlayHints: {
     enable: false,
@@ -45,6 +47,8 @@ let extensionConfiguration: extensionConfiguration = {
   codeLens: false,
   binaryPath: null,
 };
+// Below here is some state that's not important exactly how long it lives.
+let hasPromptedAboutBuiltInFormatter = false;
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
@@ -736,6 +740,28 @@ function format(msg: p.RequestMessage): Array<p.Message> {
     let projectRootPath = utils.findProjectRootOfFile(filePath);
     let bscBinaryPath =
       projectRootPath === null ? null : findBscBinary(projectRootPath);
+
+    if (
+      bscBinaryPath == null &&
+      !extensionConfiguration.allowBuiltInFormatter &&
+      !hasPromptedAboutBuiltInFormatter
+    ) {
+      // Let's only prompt the user once about this, or things might become annoying.
+      hasPromptedAboutBuiltInFormatter = true;
+      let params: p.ShowMessageParams = {
+        type: p.MessageType.Warning,
+        message: `Formatting not applied! Could not find the ReScript compiler in the current project, and you haven't configured the extension to allow formatting using the built in formatter. To allow formatting files not strictly part of a ReScript project using the built in formatter, [please configure the extension to allow that.](command:workbench.action.openSettings?${encodeURIComponent(
+          "rescript.settings.allowBuiltInFormatter"
+        )})`,
+      };
+      let response: p.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: "window/showMessage",
+        params: params,
+      };
+      return [fakeSuccessResponse, response];
+    }
+
     let formattedResult = utils.formatCode(bscBinaryPath, filePath, code);
     if (formattedResult.kind === "success") {
       let max = code.length;
