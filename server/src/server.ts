@@ -743,15 +743,18 @@ function format(msg: p.RequestMessage): Array<p.Message> {
 
     if (
       bscBinaryPath == null &&
-      !extensionConfiguration.allowBuiltInFormatter &&
-      !hasPromptedAboutBuiltInFormatter
+      !extensionConfiguration.allowBuiltInFormatter
     ) {
       // Let's only prompt the user once about this, or things might become annoying.
+      if (hasPromptedAboutBuiltInFormatter) {
+        return [fakeSuccessResponse];
+      }
       hasPromptedAboutBuiltInFormatter = true;
+
       let params: p.ShowMessageParams = {
         type: p.MessageType.Warning,
         message: `Formatting not applied! Could not find the ReScript compiler in the current project, and you haven't configured the extension to allow formatting using the built in formatter. To allow formatting files not strictly part of a ReScript project using the built in formatter, [please configure the extension to allow that.](command:workbench.action.openSettings?${encodeURIComponent(
-          "rescript.settings.allowBuiltInFormatter"
+          JSON.stringify(["rescript.settings.allowBuiltInFormatter"])
         )})`,
       };
       let response: p.NotificationMessage = {
