@@ -156,7 +156,7 @@ module ModWithDocComment = {
   /*** module level doc comment 2 */
 }
 
-module TypeSustitutionRecords = {
+module TypeSubstitutionRecords = {
   type foo<'a> = {content: 'a, zzz: string}
   type bar = {age: int}
   type foobar = foo<bar>
