@@ -21,6 +21,7 @@
 
 #### :bug: Bug Fix
 
+- Fix issue where field autocomplete in records would not perform type instantiation https://github.com/rescript-lang/rescript-vscode/pull/561
 - Fix issue where hovering over a field in record construction would show the type without instantiating its type arguments https://github.com/rescript-lang/rescript-vscode/pull/560
 - Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
 - Fix issue where doc comment with nested comments inside is not shown properly on hover https://github.com/rescript-lang/rescript-vscode/pull/526
