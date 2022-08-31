@@ -110,3 +110,19 @@ Hover src/Hover.res 163:23
 Hover src/Hover.res 165:22
 {"contents": "```rescript\nfoobar\n```\n\n```rescript\ntype foobar = foo<bar>\n```"}
 
+
+Complete src/Hover.res 170:16
+posCursor:[170:16] posNoWhite:[170:15] Found expr:[170:5->170:16]
+Pexp_field [170:5->170:15] _:[172:0->170:16]
+Completable: Cpath Value[x1].content.""
+Ident!! Dep
+Ident!! JsLogger
+Ident!! A
+Ident!! B
+Ident!! Comp
+Raw ppens: 0 
+Package opens 
+Resolved opens 0 
+findLocalCompletionsWithOpens uri:Hover.res pos:170:16
+[]
+
