@@ -161,8 +161,6 @@ module TypeSubstitutionRecords = {
   type bar = {age: int}
   type foobar = foo<bar>
 
-  // ^db+
-
   let x1: foo<bar> = {content: {age: 42}, zzz: ""}
   //                   ^hov
   let x2: foobar = {content: {age: 42}, zzz: ""}

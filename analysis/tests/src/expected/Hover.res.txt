@@ -104,25 +104,9 @@ Hover src/Hover.res 142:9
 Hover src/Hover.res 146:6
 {"contents": "```rescript\nint\n```\n\n doc comment 2 "}
 
-
-Hover src/Hover.res 165:23
-Ident!! Dep
-Ident!! JsLogger
-Ident!! A
-Ident!! B
-Ident!! Comp
-locItems:
-  165:22-165:29 Typed content foo<bar> (LocalReference Field(content))
-[ref] Local defn Field(content)
+Hover src/Hover.res 163:23
 {"contents": "```rescript\nfoo<bar>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```"}
 
-Hover src/Hover.res 167:22
-Ident!! Dep
-Ident!! JsLogger
-Ident!! A
-Ident!! B
-Ident!! Comp
-locItems:
-  167:20-167:27 Typed content foobar NotFound
+Hover src/Hover.res 165:22
 {"contents": "```rescript\nfoobar\n```\n\n```rescript\ntype foobar = foo<bar>\n```"}
 
