@@ -112,9 +112,9 @@ Ident!! A
 Ident!! B
 Ident!! Comp
 locItems:
-  165:22-165:29 Typed content foo<'a> (LocalReference Field(content))
+  165:22-165:29 Typed content foo<bar> (LocalReference Field(content))
 [ref] Local defn Field(content)
-{"contents": "```rescript\nfoo<'a>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```"}
+{"contents": "```rescript\nfoo<bar>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```"}
 
 Hover src/Hover.res 167:22
 Ident!! Dep
@@ -123,6 +123,6 @@ Ident!! A
 Ident!! B
 Ident!! Comp
 locItems:
-  167:20-167:27 Typed content foo<'a> NotFound
-{"contents": "```rescript\nfoo<'a>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```"}
+  167:20-167:27 Typed content foobar NotFound
+{"contents": "```rescript\nfoobar\n```\n\n```rescript\ntype foobar = foo<bar>\n```"}
 
