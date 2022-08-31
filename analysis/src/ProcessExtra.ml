@@ -210,7 +210,7 @@ let getTypeAtPath ~env path =
     | Some declaredType -> `Local declaredType
     | None -> `Not_found)
 
-let addForField ~env ~extra recordType fieldType {Asttypes.txt; loc} =
+let addForField ~env ~extra ~recordType ~fieldType {Asttypes.txt; loc} =
   match (Shared.dig recordType).desc with
   | Tconstr (path, _args, _memo) ->
     let t = getTypeAtPath ~env path in
@@ -232,12 +232,12 @@ let addForField ~env ~extra recordType fieldType {Asttypes.txt; loc} =
     addLocItem extra nameLoc (Typed (name, fieldType, locType))
   | _ -> ()
 
-let addForRecord ~env ~extra recordType items =
+let addForRecord ~env ~extra ~recordType items =
   match (Shared.dig recordType).desc with
   | Tconstr (path, _args, _memo) ->
     let t = getTypeAtPath ~env path in
     items
-    |> List.iter (fun ({Asttypes.txt; loc}, {Types.lbl_res}, _) ->
+    |> List.iter (fun ({Asttypes.txt; loc}, _, _) ->
            (* let name = Longident.last(txt); *)
            let name = handleConstructor txt in
            let nameLoc = Utils.endOfLocation loc (String.length name) in
@@ -254,7 +254,7 @@ let addForRecord ~env ~extra recordType items =
                GlobalReference (moduleName, path, Field name)
              | _ -> NotFound
            in
-           addLocItem extra nameLoc (Typed (name, lbl_res, locType)))
+           addLocItem extra nameLoc (Typed (name, recordType, locType)))
   | _ -> ()
 
 let addForConstructor ~env ~extra constructorType {Asttypes.txt; loc}
@@ -373,7 +373,8 @@ let pat ~(file : File.t) ~env ~extra (iter : Tast_iterator.iterator)
   in
   (* Log.log("Entering pattern " ++ Utils.showLocation(pat_loc)); *)
   (match pattern.pat_desc with
-  | Tpat_record (items, _) -> addForRecord ~env ~extra pattern.pat_type items
+  | Tpat_record (items, _) ->
+    addForRecord ~env ~extra ~recordType:pattern.pat_type items
   | Tpat_construct (lident, constructor, _) ->
     addForConstructor ~env ~extra pattern.pat_type lident constructor
   | Tpat_alias (_inner, ident, name) ->
@@ -400,7 +401,7 @@ let expr ~env ~(extra : extra) (iter : Tast_iterator.iterator)
        (Some (expression.exp_type, Value))
        path txt loc
    | Texp_record {fields} ->
-     addForRecord ~env ~extra expression.exp_type
+     addForRecord ~env ~extra ~recordType:expression.exp_type
        (fields |> Array.to_list
        |> Utils.filterMap (fun (desc, item) ->
               match item with
@@ -415,7 +416,8 @@ let expr ~env ~(extra : extra) (iter : Tast_iterator.iterator)
    | Texp_construct (lident, constructor, _args) ->
      addForConstructor ~env ~extra expression.exp_type lident constructor
    | Texp_field (inner, lident, _label_description) ->
-     addForField ~env ~extra inner.exp_type expression.exp_type lident
+     addForField ~env ~extra ~recordType:inner.exp_type
+       ~fieldType:expression.exp_type lident
    | _ -> ());
   Tast_iterator.default_iterator.expr iter expression
 
