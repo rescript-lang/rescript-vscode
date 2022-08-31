@@ -104,3 +104,9 @@ Hover src/Hover.res 142:9
 Hover src/Hover.res 146:6
 {"contents": "```rescript\nint\n```\n\n doc comment 2 "}
 
+Hover src/Hover.res 163:23
+{"contents": "```rescript\nfoo<'a>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```"}
+
+Hover src/Hover.res 165:22
+{"contents": "```rescript\nfoo<'a>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```"}
+

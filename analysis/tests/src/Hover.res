@@ -155,3 +155,14 @@ module ModWithDocComment = {
 
   /*** module level doc comment 2 */
 }
+
+module TypeSustitutionRecords = {
+  type foo<'a> = {content: 'a, zzz: string}
+  type bar = {age: int}
+  type foobar = foo<bar>
+
+  let x1: foo<bar> = {content: {age: 42}, zzz: ""}
+  //                   ^hov
+  let x2: foobar = {content: {age: 42}, zzz: ""}
+  //                  ^hov
+}
