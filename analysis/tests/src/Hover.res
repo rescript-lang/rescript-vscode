@@ -166,8 +166,9 @@ module TypeSubstitutionRecords = {
   let x2: foobar = {content: {age: 42}, zzz: ""}
   //                  ^hov
 
-  // ^db+
-
   // x1.content.
+  //            ^com
+
+  // x2.content.
   //            ^com
 }
