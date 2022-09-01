@@ -112,7 +112,7 @@ Hover src/Hover.res 165:22
 
 Complete src/Hover.res 168:16
 posCursor:[168:16] posNoWhite:[168:15] Found expr:[168:5->168:16]
-Pexp_field [168:5->168:15] _:[173:0->168:16]
+Pexp_field [168:5->168:15] _:[174:2->168:16]
 Completable: Cpath Value[x1].content.""
 [{
     "label": "age",
@@ -124,7 +124,7 @@ Completable: Cpath Value[x1].content.""
 
 Complete src/Hover.res 171:16
 posCursor:[171:16] posNoWhite:[171:15] Found expr:[171:5->171:16]
-Pexp_field [171:5->171:15] _:[173:0->171:16]
+Pexp_field [171:5->171:15] _:[174:2->171:16]
 Completable: Cpath Value[x2].content.""
 [{
     "label": "age",
@@ -133,4 +133,16 @@ Completable: Cpath Value[x2].content.""
     "detail": "age: int\n\ntype bar = {age: int}",
     "documentation": null
   }]
+
+Complete src/Hover.res 180:16
+posCursor:[180:16] posNoWhite:[180:15] Found expr:[180:5->180:16]
+Pexp_field [180:5->180:15] _:[185:0->180:16]
+Completable: Cpath Value[y1].content.""
+[]
+
+Complete src/Hover.res 183:16
+posCursor:[183:16] posNoWhite:[183:15] Found expr:[183:5->183:16]
+Pexp_field [183:5->183:15] _:[185:0->183:16]
+Completable: Cpath Value[y2].content.""
+[]
 

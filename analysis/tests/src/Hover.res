@@ -171,4 +171,16 @@ module TypeSubstitutionRecords = {
 
   // x2.content.
   //            ^com
+
+  type foo2<'b> = foo<'b>
+  type foobar2 = foo2<bar>
+
+  let y1: foo2<bar> = {content: {age: 42}, zzz: ""}
+  let y2: foobar2 = {content: {age: 42}, zzz: ""}
+
+  // y1.content.
+  //            ^com
+
+  // y2.content.
+  //            ^com
 }
