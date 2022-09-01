@@ -1059,7 +1059,10 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
   | Tobject (tObj, _) -> Some (env, tObj)
   | Tconstr (path, typeArgs, _) -> (
     match References.digConstructor ~env ~package path with
-    | Some (env, {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}) ->
+    | Some
+        ( env,
+          {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}
+        ) ->
       let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
       extractObjectType ~env ~package t1
     | _ -> None)
@@ -1072,7 +1075,11 @@ let extractFunctionType ~env ~package typ =
     | Tarrow (label, tArg, tRet, _) -> loop ~env ((label, tArg) :: acc) tRet
     | Tconstr (path, typeArgs, _) -> (
       match References.digConstructor ~env ~package path with
-      | Some (env, {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}) ->
+      | Some
+          ( env,
+            {
+              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
+            } ) ->
         let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
         loop ~env acc t1
       | _ -> (List.rev acc, t))
@@ -1731,9 +1738,18 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
           | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
             (l, tArg) :: getLabels ~env tRet
           | Tarrow (Nolabel, _, tRet, _) -> getLabels ~env tRet
-          | Tconstr (path, _, _) -> (
+          | Tconstr (path, typeArgs, _) -> (
             match References.digConstructor ~env ~package path with
-            | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+            | Some
+                ( env,
+                  {
+                    item =
+                      {
+                        decl =
+                          {type_manifest = Some t1; type_params = typeParams};
+                      };
+                  } ) ->
+              let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
               getLabels ~env t1
             | _ -> [])
           | _ -> []
