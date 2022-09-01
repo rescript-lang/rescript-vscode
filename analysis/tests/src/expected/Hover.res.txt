@@ -110,3 +110,10 @@ Hover src/Hover.res 163:23
 Hover src/Hover.res 165:22
 {"contents": "```rescript\nfoobar\n```\n\n```rescript\ntype foobar = foo<bar>\n```"}
 
+Hover src/Hover.res 175:4
+Nothing at that position. Now trying to use completion.
+posCursor:[175:4] posNoWhite:[175:3] Found expr:[175:3->175:6]
+Pexp_ident rrr:[175:3->175:6]
+Completable: Cpath Value[rrr]
+{"contents": "```rescript\nCompletion.r\n```"}
+

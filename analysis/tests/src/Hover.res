@@ -166,3 +166,12 @@ module TypeSubstitutionRecords = {
   let x2: foobar = {content: {age: 42}, zzz: ""}
   //                  ^hov
 }
+
+let rrr: Completion.r = {
+  x: 123,
+  y: "123",
+}
+
+// This outputs `Completion.r`. I'd like it to also print `type r = {x: int, y: string}`, ie expand the type even if it's in another file.
+// rrr
+//  ^hov
