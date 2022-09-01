@@ -172,6 +172,15 @@ let rrr: Completion.r = {
   y: "123",
 }
 
+let rrr2: option<Completion.r> = Some({
+  x: 123,
+  y: "123",
+})
+
 // This outputs `Completion.r`. I'd like it to also print `type r = {x: int, y: string}`, ie expand the type even if it's in another file.
 // rrr
+//  ^hov
+
+// Same as above, expanding the option as well.
+// rrr2
 //  ^hov
