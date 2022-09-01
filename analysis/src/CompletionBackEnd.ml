@@ -1057,9 +1057,10 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractObjectType ~env ~package t1
   | Tobject (tObj, _) -> Some (env, tObj)
-  | Tconstr (path, _, _) -> (
+  | Tconstr (path, typeArgs, _) -> (
     match References.digConstructor ~env ~package path with
-    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+    | Some (env, {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}) ->
+      let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
       extractObjectType ~env ~package t1
     | _ -> None)
   | _ -> None
@@ -1069,9 +1070,10 @@ let extractFunctionType ~env ~package typ =
     match t.desc with
     | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop ~env acc t1
     | Tarrow (label, tArg, tRet, _) -> loop ~env ((label, tArg) :: acc) tRet
-    | Tconstr (path, _, _) -> (
+    | Tconstr (path, typeArgs, _) -> (
       match References.digConstructor ~env ~package path with
-      | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+      | Some (env, {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}) ->
+        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
         loop ~env acc t1
       | _ -> (List.rev acc, t))
     | _ -> (List.rev acc, t)
