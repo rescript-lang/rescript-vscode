@@ -1044,7 +1044,11 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
                {field with typ = fieldTyp})
       in
       Some (env, fields, typ)
-    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+    | Some
+        ( env,
+          {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}
+        ) ->
+      let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
       extractRecordType ~env ~package t1
     | _ -> None)
   | _ -> None
