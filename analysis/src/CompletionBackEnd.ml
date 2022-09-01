@@ -1304,17 +1304,17 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
           | _ :: rest -> List.rev rest
           | [] -> [])
       in
-      let getConstr typ =
+      let getConstrPath typ =
         match typ.Types.desc with
-        | Tconstr (path, _, _)
-        | Tlink {desc = Tconstr (path, _, _)}
-        | Tsubst {desc = Tconstr (path, _, _)}
-        | Tpoly ({desc = Tconstr (path, _, _)}, []) ->
+        | Tconstr (path, _typeArgs, _)
+        | Tlink {desc = Tconstr (path, _typeArgs, _)}
+        | Tsubst {desc = Tconstr (path, _typeArgs, _)}
+        | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
           Some path
         | _ -> None
       in
       let fromType typ =
-        match getConstr typ with
+        match getConstrPath typ with
         | None -> None
         | Some path -> Some (getModulePath path)
       in
