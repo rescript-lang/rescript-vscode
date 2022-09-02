@@ -12,6 +12,8 @@
 
 ## master
 
+## v1.6.0
+
 #### :rocket: New Feature
 
 - Inlay Hints (experimental). `rescript.settings.inlayHints.enable: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/453
