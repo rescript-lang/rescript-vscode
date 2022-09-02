@@ -14,7 +14,7 @@ let newVersion = latestPublish;
 
 // If the main release gets a major bump but did not get published yet, the package.json version
 // will be higher than the one retrieved from the marketplace, so we need to increment from the main release
-// E.g. package.json gets bumped to 1.5.0 -> 1.6.0
+// E.g. package.json gets bumped from 1.6.0 -> 2.0.0
 if (semver.major(release) - semver.major(latestPublish) === 1) {
   newVersion = semver.inc(release, "minor", semver.rel);
 }
