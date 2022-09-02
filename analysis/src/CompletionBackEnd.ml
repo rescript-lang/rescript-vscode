@@ -1527,7 +1527,7 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
     | targetItem :: nestedContextPath -> (
       match (targetItem, currentType |> extractType ~env ~package) with
       | ( Completable.RField {fieldName},
-          Some (Declared (_, {item = {kind = Record fields}})) ) -> (
+          Some (Declared (env, {item = {kind = Record fields}})) ) -> (
         match
           fields |> List.find_opt (fun field -> field.fname.txt = fieldName)
         with
@@ -1537,7 +1537,7 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
             targetField.typ |> digToType ~env ~nestedContextPath ~package
           else typeExprToCompletable targetField.typ ~env ~package)
       | ( Variant {constructorName; payloadNum},
-          Some (Declared (_, {item = {kind = Variant constructors}})) ) -> (
+          Some (Declared (env, {item = {kind = Variant constructors}})) ) -> (
         match
           constructors
           |> List.find_opt (fun constructor ->
@@ -1554,7 +1554,7 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
             | Some (argType, _) ->
               argType |> digToType ~env ~nestedContextPath ~package))
         | None -> None)
-      | Polyvariant {name; payloadNum}, Some (Polyvariant (_, constructors))
+      | Polyvariant {name; payloadNum}, Some (Polyvariant (env, constructors))
         -> (
         match
           constructors
@@ -1570,12 +1570,12 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
             | Some argType ->
               argType |> digToType ~env ~nestedContextPath ~package))
         | None -> None)
-      | PTuple {itemNumber}, Some (Tuple (_, exprs)) -> (
+      | PTuple {itemNumber}, Some (Tuple (env, exprs)) -> (
         match List.nth_opt exprs itemNumber with
         | None -> None
         | Some typeExpr ->
           typeExpr |> digToType ~env ~nestedContextPath ~package)
-      | Variant {constructorName = "Some"}, Some (Toption (_, typeExpr)) ->
+      | Variant {constructorName = "Some"}, Some (Toption (env, typeExpr)) ->
         typeExpr |> digToType ~env ~nestedContextPath ~package
       | _ -> None)
   in
@@ -1670,7 +1670,7 @@ let rec findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env
       labels |> List.find_opt (fun (name, _t) -> name = label)
     in
     match targetLabel with
-    | Some (_, typeExpr) -> Some typeExpr
+    | Some (_, typeExpr) -> Some (typeExpr, env)
     | _ -> None)
   | JsxProp {componentPath; propName} -> (
     match
@@ -1679,7 +1679,7 @@ let rec findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env
       |> List.find_opt (fun (label, _typeExpr) -> label = propName)
     with
     | None -> None
-    | Some (_label, typeExpr) -> Some typeExpr)
+    | Some (_label, typeExpr) -> Some (typeExpr, env))
   | CtxPath typeSourceContextPath -> (
     match
       typeSourceContextPath
@@ -1687,14 +1687,14 @@ let rec findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env
            ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
-    | Some (typ, _env) -> Some typ
+    | Some (typ, env) -> Some (typ, env)
     | None -> None)
   | FunctionArgument {howToFindFunctionType; arg} -> (
     match
       howToFindFunctionType
       |> findSourceType ~package ~opens ~rawOpens ~allFiles ~env ~scope ~pos
     with
-    | Some typ -> (
+    | Some (typ, env) -> (
       let labels, _ = typ |> extractFunctionType ~env ~package in
       match arg with
       | Unlabelled argNum ->
@@ -1703,7 +1703,7 @@ let rec findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env
         |> List.find_map (fun (label, typExpr) ->
                match label with
                | Asttypes.Nolabel ->
-                 if argNum = !idx then Some typExpr
+                 if argNum = !idx then Some (typExpr, env)
                  else (
                    idx := !idx + 1;
                    None)
@@ -1714,7 +1714,7 @@ let rec findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env
                match label with
                | (Asttypes.Labelled labelName | Optional labelName)
                  when labelName = lookingForLabel ->
-                 Some typExpr
+                 Some (typExpr, env)
                | _ -> None))
     | _ -> None)
 
@@ -2050,7 +2050,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     in
     match sourceType with
     | None -> []
-    | Some typ -> (
+    | Some (typ, env) -> (
       match
         ( typ |> findTypeInContext ~env ~nestedContextPath:patternPath ~package,
           lookingToComplete )
@@ -2263,7 +2263,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     in
     match sourceType with
     | None -> []
-    | Some typ -> (
+    | Some (typ, env) -> (
       match
         ( typ
           |> findTypeInContext ~env ~nestedContextPath:expressionPath ~package,
