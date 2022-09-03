@@ -16,16 +16,12 @@ jobs:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
           - os: macos-latest
-            build: eval $(opam env) && cd analysis && make test
             artifact-folder: darwin
           - os: macos-arm
-            build: eval $(opam env) && cd analysis && make test
             artifact-folder: darwinarm64
           - os: ubuntu-18.04
-            build: eval $(opam env) && cd analysis && make test
             artifact-folder: linux
           - os: windows-latest
-            build: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test"
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
@@ -65,7 +61,8 @@ jobs:
     # - run: opam install . --deps-only --with-doc --with-test
 
     - name: Build and test
-      run: ${{matrix.build}}
+      run: opam exec -- make test
+      working-directory: analysis
 
     # Also avoids artifacts upload permission loss:
     # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
