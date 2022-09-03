@@ -23,7 +23,7 @@ export let analysisDevPath = path.join(
 export let analysisProdPath = path.join(
   path.dirname(__dirname),
   "analysis_binaries",
-  process.platform,
+  platformDir,
   "rescript-editor-analysis.exe"
 );
 
