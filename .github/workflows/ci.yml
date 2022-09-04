@@ -11,7 +11,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, macos-arm, ubuntu-18.04, windows-latest]
+        # Stay on the oldest Ubuntu version that's still supported by Github Actions
+        # to avoid glibc incompatibilities as far as possible.
+        os: [macos-latest, macos-arm, ubuntu-20.04, windows-latest]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
@@ -19,7 +21,7 @@ jobs:
             artifact-folder: darwin
           - os: macos-arm
             artifact-folder: darwinarm64
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             artifact-folder: linux
           - os: windows-latest
             artifact-folder: win32
@@ -80,7 +82,7 @@ jobs:
 
   package:
     needs: test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2.3.4
@@ -112,7 +114,7 @@ jobs:
     - name: Download Linux binary
       uses: actions/download-artifact@v3.0.0
       with:
-        name: ubuntu-18.04
+        name: ubuntu-20.04
         path: ./server/analysis_binaries
     - run: tar -xvf binary.tar
       working-directory: ./server/analysis_binaries
