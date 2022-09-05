@@ -90,34 +90,32 @@ let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
     ? utils.findFilePathFromProjectRoot(projectRootPath, path.join(c.nodeModulesBinDir, c.rescriptBinName))
     : utils.findBinary(extensionConfiguration.binaryPath, c.rescriptBinName);
 
-let findBscBinary = (projectRootPath: p.DocumentUri) => {
-  let rescriptBinaryPath = findRescriptBinary(projectRootPath);
-  if (rescriptBinaryPath !== null) {
-    let rescriptDirPath = path.join(
-      path.dirname(rescriptBinaryPath),
-      "..",
-      "rescript"
-    );
-
-    let bscBinaryPath = path.join(rescriptDirPath, c.platformDir, c.bscExeName);
-
-    // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
-    if (
-      process.platform == "darwin" &&
-      process.arch == "arm64" &&
-      !fs.existsSync(bscBinaryPath)
-    ) {
-      bscBinaryPath = path.join(
-        rescriptDirPath,
-        process.platform,
-        c.bscExeName
-      );
-    }
-
-    return bscBinaryPath;
+let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
+  if (extensionConfiguration.platformPath != null) {
+    return extensionConfiguration.platformPath;
   }
-  return null;
-};
+
+  let rescriptDir = utils.findFilePathFromProjectRoot(projectRootPath, path.join("node_modules", "rescript"));
+  if (rescriptDir == null) {
+    return null;
+  }
+
+  let platformPath = path.join(rescriptDir, c.platformDir)
+
+  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
+  if (
+    process.platform == "darwin" &&
+    process.arch == "arm64" &&
+    !fs.existsSync(platformPath)
+  ) {
+    platformPath = path.join(rescriptDir, process.platform);
+  }
+
+  return platformPath;
+}
+
+let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
+  utils.findBinary(findPlatformPath(projectRootPath), c.bscExeName)
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -718,12 +716,12 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   } else {
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
+
     let projectRootPath = utils.findProjectRootOfFile(filePath);
-    let bscBinaryPath =
-      projectRootPath === null ? null : findBscBinary(projectRootPath);
+    let bscExeBinaryPath = findBscExeBinary(projectRootPath);
 
     let formattedResult = utils.formatCode(
-      bscBinaryPath,
+      bscExeBinaryPath,
       filePath,
       code,
       extensionConfiguration.allowBuiltInFormatter
