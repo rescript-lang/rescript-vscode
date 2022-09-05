@@ -1,6 +1,7 @@
 {
 	"name": "rescript-vscode",
-	"description": "The official VSCode plugin for ReScript.",
+	"displayName": "ReScript",
+	"description": "ReScript language support (official)",
 	"author": "chenglou",
 	"license": "MIT",
 	"version": "1.6.0",
