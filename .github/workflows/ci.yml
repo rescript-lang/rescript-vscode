@@ -148,7 +148,7 @@ jobs:
       id: increment_pre_release
       run: |
         JSON=$(npx vsce show chenglou92.rescript-vscode --json)
-        NEW_VERSION=$(echo $JSON | jq '.versions | .[0] | .["version"]')
+        NEW_VERSION=$(echo $JSON | jq -r '.versions | .[0] | .["version"]')
         node .github/workflows/bump-version.js ${NEW_VERSION}
 
     - name: Package Extension
