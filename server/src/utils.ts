@@ -78,12 +78,6 @@ export let findBinary = (
   }
 };
 
-export let findBscBinary = (
-  binaryDirPath: p.DocumentUri | null
-): p.DocumentUri | null => {
-  return findBinary(binaryDirPath, c.bscBinName);
-};
-
 type execResult =
   | {
       kind: "success";
