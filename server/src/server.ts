@@ -33,6 +33,7 @@ interface extensionConfiguration {
   };
   codeLens: boolean;
   binaryPath: string | null;
+  platformPath: string | null;
 }
 
 // All values here are temporary, and will be overridden as the server is
@@ -46,6 +47,7 @@ let extensionConfiguration: extensionConfiguration = {
   },
   codeLens: false,
   binaryPath: null,
+  platformPath: null,
 };
 // Below here is some state that's not important exactly how long it lives.
 let hasPromptedAboutBuiltInFormatter = false;

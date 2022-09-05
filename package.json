@@ -162,6 +162,11 @@
 					"type": ["string", "null"],
 					"default": null,
 					"description": "Path to the directory where cross-platform ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
+				},
+				"rescript.settings.platformPath": {
+					"type": ["string", "null"],
+					"default": null,
+					"description": "Path to the directory where platform-specific ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
 				}
 			}
 		},
