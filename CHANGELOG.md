@@ -23,6 +23,7 @@
 
 #### :bug: Bug Fix
 
+- Fix issue where debug output would end up in the JSON file produced by Reanalyze https://github.com/rescript-lang/rescript-vscode/pull/575
 - Fix issue where autocomplete would not perform type instantiation https://github.com/rescript-lang/rescript-vscode/pull/561
 - Fix issue where hovering over a field in record construction would show the type without instantiating its type arguments https://github.com/rescript-lang/rescript-vscode/pull/560
 - Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
