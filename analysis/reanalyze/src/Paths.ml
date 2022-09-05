@@ -181,7 +181,8 @@ let readSourceDirs ~configSources =
       else readDirs json
     | None -> ()
   else (
-    Log_.item "Warning: can't find source dirs: %s\n" sourceDirs;
-    Log_.item "Types for cross-references will not be found by genType.\n";
+    if !Cli.debug then (
+      Log_.item "Warning: can't find source dirs: %s\n" sourceDirs;
+      Log_.item "Types for cross-references will not be found.\n");
     dirs := readDirsFromConfig ~configSources);
   !dirs
