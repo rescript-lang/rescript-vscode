@@ -987,7 +987,7 @@ let instantiateType ~typeParams ~typeArgs (t : Types.type_expr) =
       match (tp, ta) with
       | t1 :: tRest1, t2 :: tRest2 ->
         if t1 = t then t2 else applySub tRest1 tRest2 t
-      | [], _ | _, [] -> assert false
+      | [], _ | _, [] -> t
     in
     let rec loop (t : Types.type_expr) =
       match t.desc with
