@@ -38,6 +38,31 @@ export let findProjectRootOfFile = (
   }
 };
 
+// Check if filePartialPath exists at directory and return the joined path,
+// otherwise recursively check parent directories for it.
+export let findFilePathFromProjectRoot = (
+  directory: p.DocumentUri | null, // This must be a directory and not a file!
+  filePartialPath: string
+): null | p.DocumentUri => {
+  if (directory == null) {
+    return null;
+  }
+
+  let filePath: p.DocumentUri = path.join(directory, filePartialPath);
+  if (fs.existsSync(filePath)) {
+    return filePath;
+  }
+
+  let parentDir: p.DocumentUri = path.dirname(directory);
+  if (parentDir === directory) {
+    // reached the top
+    return null;
+  }
+
+  return findFilePathFromProjectRoot(parentDir, filePartialPath);
+};
+
+// Check if binaryName exists inside binaryDirPath and return the joined path.
 export let findBinary = (
   binaryDirPath: p.DocumentUri | null,
   binaryName: string
@@ -51,12 +76,6 @@ export let findBinary = (
   } else {
     return null;
   }
-};
-
-export let findRescriptBinary = (
-  binaryDirPath: p.DocumentUri | null
-): p.DocumentUri | null => {
-  return findBinary(binaryDirPath, c.rescriptBinName);
 };
 
 export let findBscBinary = (

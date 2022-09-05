@@ -85,31 +85,10 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-// Check if the rescript binary is available at node_modules/.bin/rescript,
-// otherwise recursively check parent directories for it.
-let findBinaryPathFromProjectRoot = (
-  directory: p.DocumentUri // This must be a directory and not a file!
-): null | p.DocumentUri => {
-  let binaryDirPath = path.join(directory, c.nodeModulesBinDir);
-  let binaryPath = path.join(binaryDirPath, c.rescriptBinName);
-
-  if (fs.existsSync(binaryPath)) {
-    return binaryPath;
-  }
-
-  let parentDir = path.dirname(directory);
-  if (parentDir === directory) {
-    // reached the top
-    return null;
-  }
-
-  return findBinaryPathFromProjectRoot(parentDir);
-};
-
-let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
+let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
   extensionConfiguration.binaryPath == null
-    ? findBinaryPathFromProjectRoot(projectRootPath)
-    : utils.findRescriptBinary(extensionConfiguration.binaryPath);
+    ? utils.findFilePathFromProjectRoot(projectRootPath, path.join(c.nodeModulesBinDir, c.rescriptBinName))
+    : utils.findBinary(extensionConfiguration.binaryPath, c.rescriptBinName);
 
 let findBscBinary = (projectRootPath: p.DocumentUri) => {
   let rescriptBinaryPath = findRescriptBinary(projectRootPath);
