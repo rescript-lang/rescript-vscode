@@ -174,15 +174,27 @@ let getCurrentCompilerDiagnosticsForFile = (
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach((projectFile, projectRootPath) => {
     let { filesWithDiagnostics } = projectFile;
-    let content = fs.readFileSync(
-      path.join(projectRootPath, c.compilerLogPartialPath),
-      { encoding: "utf-8" }
-    );
+    let compilerLogPath = path.join(projectRootPath, c.compilerLogPartialPath);
+    let content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
     let {
       done,
       result: filesAndErrors,
       codeActions,
+      linesWithParseErrors,
     } = utils.parseCompilerLogOutput(content);
+
+    if (linesWithParseErrors.length > 0) {
+      let params: p.ShowMessageParams = {
+        type: p.MessageType.Warning,
+        message: `There are more compiler warning/errors that we could not parse. You can help us fix this by opening an [issue on the repository](https://github.com/rescript-lang/rescript-vscode/issues/new?title=Compiler%20log%20parse%20error), pasting the contents of the file [lib/bs/.compiler.log](file://${compilerLogPath}).`,
+      };
+      let message: p.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: "window/showMessage",
+        params: params,
+      };
+      send(message);
+    }
 
     projectFile.filesDiagnostics = filesAndErrors;
     codeActionsFromDiagnostics = codeActions;
