@@ -10,6 +10,12 @@ let addDeclared ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t)
   addStamp env.stamps stamp declared;
   declared
 
+let mapRecordField field =
+  let {Types.ld_id; ld_type} = field in
+  let astamp = Ident.binding_time ld_id in
+  let name = Ident.name ld_id in
+  {stamp = astamp; fname = Location.mknoloc name; typ = ld_type}
+
 let rec forTypeSignatureItem ~env ~(exported : Exported.t)
     (item : Types.signature_item) =
   match item with
@@ -75,16 +81,7 @@ let rec forTypeSignatureItem ~env ~(exported : Exported.t)
                          Stamps.addConstructor env.stamps stamp declared;
                          item))
               | Type_record (fields, _) ->
-                Record
-                  (fields
-                  |> List.map (fun {Types.ld_id; ld_type} ->
-                         let astamp = Ident.binding_time ld_id in
-                         let name = Ident.name ld_id in
-                         {
-                           stamp = astamp;
-                           fname = Location.mknoloc name;
-                           typ = ld_type;
-                         })));
+                Record (fields |> List.map mapRecordField));
           }
         ~name ~stamp:(Ident.binding_time ident) ~env type_attributes
         (Exported.add exported Exported.Type)

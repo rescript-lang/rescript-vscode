@@ -262,9 +262,13 @@ type withInlineRecords = One({first: bool, second: option<someOtherVariant>}) | 
 
 let withInlineRecords: withInlineRecords = TTwo
 
-// switch withInlineRecords { |  }
+// switch withInlineRecords { | One({})  }
+//                                   ^com
+
+// switch withInlineRecords { |   }
 //                              ^com
 
+// -- Nested optionals ---
 type locationState = {shallow: option<bool>}
 
 type location = {state: locationState}

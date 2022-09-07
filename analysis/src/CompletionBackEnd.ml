@@ -1491,6 +1491,7 @@ type completable =
       decl: Types.type_declaration;
       name: string Location.loc;
     }
+  | CInlineRecord of field list
   | CVariant of {constructors: Constructor.t list}
   | CPolyVariant of {constructors: polyVariantConstructor list}
   | COptional of completable
@@ -1511,6 +1512,20 @@ let rec typeExprToCompletable typ ~env ~package =
     | Some typ -> Some (COptional typ))
   | Some (Declared (_, {item = {kind = Abstract _}})) -> None
   | Some (Tuple (_, types)) -> Some (CTuple {types})
+  | _ -> None
+
+let findInlineRecordInConstructor constructor =
+  let _, typeDecl = constructor.Constructor.typeDecl in
+  match typeDecl.type_kind with
+  | Type_variant constructors -> (
+    match
+      constructors
+      |> List.find_opt (fun constr ->
+             constr.Types.cd_id.Ident.name == constructor.cname.txt)
+    with
+    | Some {cd_args = Cstr_record fields} ->
+      Some (fields |> List.map ProcessCmt.mapRecordField)
+    | _ -> None)
   | _ -> None
 
 (* Takes a type_expr and figures out what completable it corresponds to, if any. If the target type is nested somewhere inside of the type_expr,
@@ -1550,7 +1565,12 @@ let findTypeInContext (typ : Types.type_expr) ~env ~nestedContextPath ~package =
           | Some argNum -> (
             (* If we find the argument/payload requested, descend into that *)
             match List.nth_opt constructor.args argNum with
-            | None -> None
+            | None -> (
+              (* If we can't find the arg, it might be an inline record *)
+              match findInlineRecordInConstructor constructor with
+              | Some inlineRecordFields ->
+                Some (CInlineRecord inlineRecordFields)
+              | _ -> None)
             | Some (argType, _) ->
               argType |> digToType ~env ~nestedContextPath ~package))
         | None -> None)
@@ -1717,6 +1737,10 @@ let rec findSourceType sourceType ~package ~opens ~rawOpens ~allFiles ~env
                  Some (typExpr, env)
                | _ -> None))
     | _ -> None)
+
+let constructorHasArgs constructor =
+  constructor.Constructor.args |> List.length > 0
+  || findInlineRecordInConstructor constructor |> Option.is_some
 
 let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
@@ -2205,19 +2229,12 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                              alreadySeenConstructorName
                              = constructor.Constructor.cname.txt)))
           |> List.map (fun (constructor : Constructor.t) ->
-                 (* TODO: Can we leverage snippets here for automatically moving the cursor when there are multiple payloads?
-                    Eg. Some($1) as completion item. *)
+                 let hasArgs = constructorHasArgs constructor in
                  Completion.create
-                   ~name:
-                     (constructor.cname.txt
-                     ^ if constructor.args |> List.length > 0 then "(_)" else ""
-                     )
+                   ~name:(constructor.cname.txt ^ if hasArgs then "(_)" else "")
                    ~insertTextFormat:Snippet
                    ~insertText:
-                     (constructor.cname.txt
-                     ^
-                     if constructor.args |> List.length > 0 then "(${1:_})"
-                     else "")
+                     (constructor.cname.txt ^ if hasArgs then "(${1:_})" else "")
                    ~kind:(Constructor (constructor, ""))
                    ~env ())
         in
@@ -2243,7 +2260,23 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                            (field, decl |> Shared.declToString name.txt))
                       ())
                else None)
-      | Some (CRecord _), _ ->
+      | Some (CInlineRecord fields), CRecordField ->
+        fields
+        |> List.filter (fun (field : field) ->
+               not
+                 (alreadySeenIdents
+                 |> List.exists (fun fieldName -> fieldName = field.fname.txt)))
+        |> Utils.filterMap (fun (field : field) ->
+               if prefix = "" || checkName field.fname.txt ~prefix ~exact:false
+               then
+                 Some
+                   (Completion.create ~name:field.fname.txt ~env
+                      ~kind:
+                        (Completion.Field
+                           (field, field.typ |> Shared.typeToString))
+                      ())
+               else None)
+      | Some (CRecord _ | CInlineRecord _), _ ->
         [
           Completion.create ~name:"{}" ~insertText:"{${1}}"
             ~insertTextFormat:Snippet ~env ~sortText:"a"
@@ -2431,7 +2464,23 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                            (field, decl |> Shared.declToString name.txt))
                       ())
                else None)
-      | Some (CRecord {fields}), _ ->
+      | Some (CInlineRecord fields), CRecordField ->
+        fields
+        |> List.filter (fun (field : field) ->
+               not
+                 (alreadySeenIdents
+                 |> List.exists (fun fieldName -> fieldName = field.fname.txt)))
+        |> Utils.filterMap (fun (field : field) ->
+               if prefix = "" || checkName field.fname.txt ~prefix ~exact:false
+               then
+                 Some
+                   (Completion.create ~name:field.fname.txt ~env
+                      ~kind:
+                        (Completion.Field
+                           (field, field.typ |> Shared.typeToString))
+                      ())
+               else None)
+      | Some (CRecord {fields} | CInlineRecord fields), _ ->
         [
           Completion.create
             ~name:
