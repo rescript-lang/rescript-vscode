@@ -343,8 +343,26 @@ posCursor:[90:51] posNoWhite:[90:50] Found pattern:[90:46->90:52]
 Ppat_construct Four:[90:46->90:50]
 posCursor:[90:51] posNoWhite:[90:50] Found pattern:[90:50->90:52]
 Ppat_construct ():[90:50->90:52]
-Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:(), pattern: [RecordField:thirdStuff, Tuple:1, Variant:Four(0)], seenIdents: [])
-[]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:thirdStuff, Tuple:1, Variant:Four(0)], seenIdents: [])
+[{
+    "label": "TwentyFive",
+    "kind": 4,
+    "tags": [],
+    "detail": "TwentyFive\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "TwentyFive",
+    "insertTextFormat": 2
+  }, {
+    "label": "SixtyTwo",
+    "kind": 4,
+    "tags": [],
+    "detail": "SixtyTwo\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "SixtyTwo",
+    "insertTextFormat": 2
+  }]
 
 Complete src/TypeContextCompletion_Records.res 93:55
 posCursor:[93:55] posNoWhite:[93:54] Found expr:[93:3->93:66]

@@ -523,8 +523,26 @@ posCursor:[158:51] posNoWhite:[158:50] Found pattern:[158:46->158:52]
 Ppat_construct Four:[158:46->158:50]
 posCursor:[158:51] posNoWhite:[158:50] Found pattern:[158:50->158:52]
 Ppat_construct ():[158:50->158:52]
-Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:(), pattern: [RecordField:thirdStuff, Tuple:1, Variant:Four(0)], seenIdents: [])
-[]
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:thirdStuff, Tuple:1, Variant:Four(0)], seenIdents: [])
+[{
+    "label": "TwentyFive",
+    "kind": 4,
+    "tags": [],
+    "detail": "TwentyFive\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "TwentyFive",
+    "insertTextFormat": 2
+  }, {
+    "label": "SixtyTwo",
+    "kind": 4,
+    "tags": [],
+    "detail": "SixtyTwo\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "SixtyTwo",
+    "insertTextFormat": 2
+  }]
 
 Complete src/TypedContextCompletionSpec.res 161:55
 posCursor:[161:55] posNoWhite:[161:54] Found expr:[161:3->161:66]
@@ -2605,7 +2623,7 @@ posCursor:[228:41] posNoWhite:[228:40] Found pattern:[228:29->228:43]
 posCursor:[228:41] posNoWhite:[228:40] Found pattern:[228:38->228:42]
 posCursor:[228:41] posNoWhite:[228:40] Found pattern:[228:40->228:41]
 Ppat_construct ():[228:40->228:41]
-Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CVariant, patternType:Switch, prefix:(), pattern: [RecordField:other2, Variant:S(0)], seenIdents: [])
+Completable: CtypedPattern(sourceType:Value[someOtherValue], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:other2, Polyvariant:S(0)], seenIdents: [])
 []
 
 Complete src/TypedContextCompletionSpec.res 231:63
@@ -2707,4 +2725,88 @@ Complete src/TypedContextCompletionSpec.res 256:27
 posCursor:[256:27] posNoWhite:[256:26] Found expr:[256:17->256:29]
 Completable: CtypedExpression(sourceType:Value[x], lookingToComplete:CRecordField, prefix:"", pattern: [], seenIdents: [age])
 []
+
+Complete src/TypedContextCompletionSpec.res 264:32
+posCursor:[264:32] posNoWhite:[264:30] Found expr:[264:3->264:34]
+Completable: CtypedPattern(sourceType:Value[withInlineRecords], lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [], seenIdents: [])
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "TTwo",
+    "kind": 4,
+    "tags": [],
+    "detail": "TTwo\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "TTwo",
+    "insertTextFormat": 2
+  }, {
+    "label": "TThree",
+    "kind": 4,
+    "tags": [],
+    "detail": "TThree\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "TThree",
+    "insertTextFormat": 2
+  }]
+
+Complete src/TypedContextCompletionSpec.res 273:60
+posCursor:[273:60] posNoWhite:[273:59] Found expr:[273:19->273:85]
+posCursor:[273:60] posNoWhite:[273:59] Found pattern:[273:45->273:62]
+posCursor:[273:60] posNoWhite:[273:59] Found pattern:[273:55->273:61]
+Ppat_construct Some:[273:55->273:59]
+posCursor:[273:60] posNoWhite:[273:59] Found pattern:[273:59->273:61]
+Ppat_construct ():[273:59->273:61]
+Completable: CtypedPattern(sourceType:Value[location].state, lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:shallow, Variant:Some(0)], seenIdents: [])
+[{
+    "label": "false",
+    "kind": 12,
+    "tags": [],
+    "detail": "boolean\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "true",
+    "kind": 12,
+    "tags": [],
+    "detail": "boolean\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }]
+
+Complete src/TypedContextCompletionSpec.res 276:54
+posCursor:[276:54] posNoWhite:[276:53] Found expr:[276:19->276:79]
+posCursor:[276:54] posNoWhite:[276:53] Found pattern:[276:45->276:56]
+Completable: CtypedPattern(sourceType:Value[location].state, lookingToComplete:CNoContext, patternType:Switch, prefix:"", pattern: [RecordField:shallow], seenIdents: [])
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "None\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": null,
+    "insertTextFormat": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Some(_)\n\n",
+    "documentation": null,
+    "sortText": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
 

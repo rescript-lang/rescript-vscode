@@ -256,3 +256,23 @@ let y = One
 
 // let x: user = {age: 123, }
 //                         ^com
+
+// --- Inline records ---
+type withInlineRecords = One({first: bool, second: option<someOtherVariant>}) | TTwo | TThree
+
+let withInlineRecords: withInlineRecords = TTwo
+
+// switch withInlineRecords { |  }
+//                              ^com
+
+type locationState = {shallow: option<bool>}
+
+type location = {state: locationState}
+
+let location = {state: {shallow: None}}
+
+// let isShallow = switch location.state { | {shallow: Some()} => true | _ => false }
+//                                                          ^com
+
+// let isShallow = switch location.state { | {shallow: } => true | _ => false }
+//                                                    ^com

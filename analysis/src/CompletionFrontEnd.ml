@@ -400,6 +400,47 @@ let rec findContextInPattern pattern ~pos ~patternPath ~debug
         alreadySeenIdents = [];
       }
   (* Variants etc *)
+  | Ppat_construct
+      ( {txt},
+        Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)} )
+    -> (
+    (* A variant like SomeVariant(). Interpret as completing the payload of the variant  *)
+    match CursorPosition.classifyLoc ppat_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CNoContext;
+          patternPath =
+            [
+              Completable.Variant
+                {constructorName = getSimpleFieldName txt; payloadNum = Some 0};
+            ]
+            @ patternPath
+            |> List.rev;
+          prefix = "";
+          alreadySeenIdents = [];
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None)
+  | Ppat_variant
+      ( label,
+        Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)} )
+    -> (
+    (* A polyvariant like #SomeVariant(). Interpret as completing the payload of the variant  *)
+    match CursorPosition.classifyLoc ppat_loc ~pos with
+    | HasCursor ->
+      Some
+        {
+          lookingToComplete = CNoContext;
+          patternPath =
+            [Completable.Polyvariant {name = label; payloadNum = Some 0}]
+            @ patternPath
+            |> List.rev;
+          prefix = "";
+          alreadySeenIdents = [];
+        }
+    | NoCursor -> None
+    | EmptyLoc -> None)
   | Ppat_construct ({txt}, Some payload)
     when CursorPosition.classifyLoc payload.ppat_loc ~pos = HasCursor ->
     (* When there's a variant with a payload, and the cursor is in the pattern. Some(S) for example. *)
@@ -466,47 +507,6 @@ let rec findContextInPattern pattern ~pos ~patternPath ~debug
           patternPath = patternPath |> List.rev;
           prefix = label;
           alreadySeenIdents = seenIdentsFromParent;
-        }
-    | NoCursor -> None
-    | EmptyLoc -> None)
-  | Ppat_construct
-      ( {txt},
-        Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)} )
-    -> (
-    (* A variant like SomeVariant(). Interpret as completing the payload of the variant  *)
-    match CursorPosition.classifyLoc ppat_loc ~pos with
-    | HasCursor ->
-      Some
-        {
-          lookingToComplete = CNoContext;
-          patternPath =
-            [
-              Completable.Variant
-                {constructorName = getSimpleFieldName txt; payloadNum = Some 0};
-            ]
-            @ patternPath
-            |> List.rev;
-          prefix = "";
-          alreadySeenIdents = [];
-        }
-    | NoCursor -> None
-    | EmptyLoc -> None)
-  | Ppat_variant
-      ( label,
-        Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)} )
-    -> (
-    (* A polyvariant like #SomeVariant(). Interpret as completing the payload of the variant  *)
-    match CursorPosition.classifyLoc ppat_loc ~pos with
-    | HasCursor ->
-      Some
-        {
-          lookingToComplete = CNoContext;
-          patternPath =
-            [Completable.Polyvariant {name = label; payloadNum = Some 0}]
-            @ patternPath
-            |> List.rev;
-          prefix = "";
-          alreadySeenIdents = [];
         }
     | NoCursor -> None
     | EmptyLoc -> None)
