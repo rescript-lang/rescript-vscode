@@ -26,7 +26,7 @@ heuristic for: [Props, x], give loc of `x`
 n1:Props n2:name
 {"contents": "```rescript\nstring\n```"}
 
-Hover src/Hover.res 41:13
+Hover src/Hover.res 42:15
 getLocItem #7: heuristic for JSX on type-annotated labeled (~arg:t):
 (~arg:t) becomes Props#arg
 Props has the location range of arg:t
@@ -35,84 +35,84 @@ heuristic for: [Props, arg], give loc of `arg`
 n1:Props n2:name
 {"contents": "```rescript\nstring\n```"}
 
-Hover src/Hover.res 44:10
+Hover src/Hover.res 46:10
 {"contents": "```rescript\nint\n```"}
 
-Hover src/Hover.res 47:13
+Hover src/Hover.res 49:13
 {"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
 
-Hover src/Hover.res 52:7
+Hover src/Hover.res 54:7
 {"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
 
-Definition src/Hover.res 58:14
-{"uri": "Hover.res", "range": {"start": {"line": 47, "character": 12}, "end": {"line": 47, "character": 18}}}
+Definition src/Hover.res 60:14
+{"uri": "Hover.res", "range": {"start": {"line": 49, "character": 12}, "end": {"line": 49, "character": 18}}}
 
-Hover src/Hover.res 61:9
+Hover src/Hover.res 63:9
 {"contents": "```rescript\nmodule IdDefinedTwice = {\n  let y: int\n  let _x: int\n}\n```"}
 
-Hover src/Hover.res 72:7
+Hover src/Hover.res 74:7
 {"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
 
-Hover src/Hover.res 75:7
+Hover src/Hover.res 77:7
 {"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
 
-Hover src/Hover.res 89:10
+Hover src/Hover.res 91:10
 Nothing at that position. Now trying to use completion.
-posCursor:[89:10] posNoWhite:[89:8] Found expr:[86:3->89:9]
-JSX <Comp:[86:3->86:7] > _children:86:7
+posCursor:[91:10] posNoWhite:[91:8] Found expr:[88:3->91:9]
+JSX <Comp:[88:3->88:7] > _children:88:7
 null
 
-Hover src/Hover.res 96:10
+Hover src/Hover.res 98:10
 Nothing at that position. Now trying to use completion.
-posCursor:[96:10] posNoWhite:[96:9] Found expr:[93:3->96:10]
-JSX <Comp1:[93:3->93:8] > _children:93:8
+posCursor:[98:10] posNoWhite:[98:9] Found expr:[95:3->98:10]
+JSX <Comp1:[95:3->95:8] > _children:95:8
 null
 
-Hover src/Hover.res 101:25
+Hover src/Hover.res 103:25
 {"contents": "```rescript\nfloat\n```"}
 
-Hover src/Hover.res 104:21
+Hover src/Hover.res 106:21
 {"contents": "```rescript\nint\n```"}
 
-Hover src/Hover.res 114:16
+Hover src/Hover.res 116:16
 {"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
 
-Hover src/Hover.res 117:25
+Hover src/Hover.res 119:25
 {"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
 
-Hover src/Hover.res 120:3
+Hover src/Hover.res 122:3
 Nothing at that position. Now trying to use completion.
-Attribute id:live:[120:0->120:5] label:live
+Attribute id:live:[122:0->122:5] label:live
 Completable: Cdecorator(live)
 {"contents": "The `@live` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.\n\n`@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).\n\nHint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!"}
 
-Hover src/Hover.res 123:4
+Hover src/Hover.res 125:4
 {"contents": "```rescript\n(. ()) => unit => int\n```"}
 
-Hover src/Hover.res 129:4
+Hover src/Hover.res 131:4
 {"contents": "```rescript\n(. ()) => (. ()) => int\n```"}
 
-Hover src/Hover.res 132:4
+Hover src/Hover.res 134:4
 {"contents": "```rescript\n(. unit, unit) => int\n```"}
 
-Hover src/Hover.res 135:5
+Hover src/Hover.res 137:5
 {"contents": "```rescript\n(. ()) => unit => int\n```"}
 
-Hover src/Hover.res 142:9
+Hover src/Hover.res 144:9
 {"contents": "```rescript\nint\n```\n\ndoc comment 1"}
 
-Hover src/Hover.res 146:6
+Hover src/Hover.res 148:6
 {"contents": "```rescript\nint\n```\n\n doc comment 2 "}
 
-Hover src/Hover.res 163:23
+Hover src/Hover.res 165:23
 {"contents": "```rescript\nfoo<bar>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```"}
 
-Hover src/Hover.res 165:22
+Hover src/Hover.res 167:22
 {"contents": "```rescript\nfoobar\n```\n\n```rescript\ntype foobar = foo<bar>\n```"}
 
-Complete src/Hover.res 168:16
-posCursor:[168:16] posNoWhite:[168:15] Found expr:[168:5->168:16]
-Pexp_field [168:5->168:15] _:[174:2->168:16]
+Complete src/Hover.res 170:16
+posCursor:[170:16] posNoWhite:[170:15] Found expr:[170:5->170:16]
+Pexp_field [170:5->170:15] _:[176:2->170:16]
 Completable: Cpath Value[x1].content.""
 [{
     "label": "age",
@@ -122,9 +122,9 @@ Completable: Cpath Value[x1].content.""
     "documentation": null
   }]
 
-Complete src/Hover.res 171:16
-posCursor:[171:16] posNoWhite:[171:15] Found expr:[171:5->171:16]
-Pexp_field [171:5->171:15] _:[174:2->171:16]
+Complete src/Hover.res 173:16
+posCursor:[173:16] posNoWhite:[173:15] Found expr:[173:5->173:16]
+Pexp_field [173:5->173:15] _:[176:2->173:16]
 Completable: Cpath Value[x2].content.""
 [{
     "label": "age",
@@ -134,9 +134,9 @@ Completable: Cpath Value[x2].content.""
     "documentation": null
   }]
 
-Complete src/Hover.res 180:16
-posCursor:[180:16] posNoWhite:[180:15] Found expr:[180:5->180:16]
-Pexp_field [180:5->180:15] _:[185:0->180:16]
+Complete src/Hover.res 182:16
+posCursor:[182:16] posNoWhite:[182:15] Found expr:[182:5->182:16]
+Pexp_field [182:5->182:15] _:[187:0->182:16]
 Completable: Cpath Value[y1].content.""
 [{
     "label": "age",
@@ -146,9 +146,9 @@ Completable: Cpath Value[y1].content.""
     "documentation": null
   }]
 
-Complete src/Hover.res 183:16
-posCursor:[183:16] posNoWhite:[183:15] Found expr:[183:5->183:16]
-Pexp_field [183:5->183:15] _:[185:0->183:16]
+Complete src/Hover.res 185:16
+posCursor:[185:16] posNoWhite:[185:15] Found expr:[185:5->185:16]
+Pexp_field [185:5->185:15] _:[187:0->185:16]
 Completable: Cpath Value[y2].content.""
 [{
     "label": "age",
