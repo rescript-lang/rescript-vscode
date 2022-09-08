@@ -38,9 +38,11 @@ let functionWithTypeAnnotation: unit => int = () => 1
 let make = (~name) => React.string(name)
 //           ^hov
 
-@react.component
-let make2 = (~name: string) => React.string(name)
-//           ^hov
+module C2 = {
+  @react.component
+  let make2 = (~name: string) => React.string(name)
+  //           ^hov
+}
 
 let num = 34
 //        ^hov
