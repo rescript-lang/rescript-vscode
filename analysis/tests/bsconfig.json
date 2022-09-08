@@ -11,5 +11,5 @@
   ],
   "bsc-flags": ["-w -33-44"],
   "bs-dependencies": ["@rescript/react"],
-  "reason": { "react-jsx": 3 }
+  "jsx": { "version": 3 }
 }
