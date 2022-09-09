@@ -12,6 +12,10 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Add support for prop completion for JSX V4
+
 ## v1.6.0
 
 #### :rocket: New Feature
