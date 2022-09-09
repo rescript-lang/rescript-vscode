@@ -1427,14 +1427,37 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
   | Cjsx (componentPath, prefix, identsSeen) ->
     let labels =
       match componentPath @ ["make"] |> findTypeOfValue with
-      | Some (typ, _env) ->
-        let rec getFields (texp : Types.type_expr) =
+      | Some (typ, make_env) ->
+        let rec getFieldsV3 (texp : Types.type_expr) =
           match texp.desc with
           | Tfield (name, _, t1, t2) ->
-            let fields = t2 |> getFields in
+            let fields = t2 |> getFieldsV3 in
             if name = "children" then fields else (name, t1) :: fields
-          | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFields
+          | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFieldsV3
           | Tvar None -> []
+          | _ -> []
+        in
+        let getFieldsV4 ~path ~typeArgs =
+          match References.digConstructor ~env:make_env ~package path with
+          | Some
+              ( _env,
+                {
+                  item =
+                    {
+                      decl =
+                        {
+                          type_kind = Type_record (labelDecls, _repr);
+                          type_params = typeParams;
+                        };
+                    };
+                } ) ->
+            labelDecls
+            |> List.map (fun (ld : Types.label_declaration) ->
+                   let name = Ident.name ld.ld_id in
+                   let t =
+                     ld.ld_type |> instantiateType ~typeParams ~typeArgs
+                   in
+                   (name, t))
           | _ -> []
         in
         let rec getLabels (t : Types.type_expr) =
@@ -1449,9 +1472,14 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
                 },
                 _,
                 _ ) ->
-            getFields tObj
+            (* JSX V3 *)
+            getFieldsV3 tObj
+          | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
+            when Path.last path = "props" ->
+            (* JSX V4 *)
+            getFieldsV4 ~path ~typeArgs
           | Tconstr
-              ( path,
+              ( clPath,
                 [
                   {
                     desc =
@@ -1461,8 +1489,14 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
                   _;
                 ],
                 _ )
-            when Path.name path = "React.componentLike" ->
-            getFields tObj
+            when Path.name clPath = "React.componentLike" ->
+            (* JSX V3 external or interface *)
+            getFieldsV3 tObj
+          | Tconstr (clPath, [{desc = Tconstr (path, typeArgs, _)}; _], _)
+            when Path.name clPath = "React.componentLike"
+                 && Path.last path = "props" ->
+            (* JSX V4 external or interface *)
+            getFieldsV4 ~path ~typeArgs
           | _ -> []
         in
         typ |> getLabels
@@ -1480,6 +1514,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
       (labels
       |> List.filter (fun (name, _t) ->
              Utils.startsWith name prefix
+             && name <> "key"
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
