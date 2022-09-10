@@ -15,6 +15,7 @@
 #### :rocket: New Feature
 
 - Add support for prop completion for JSX V4 https://github.com/rescript-lang/rescript-vscode/pull/579
+- Add support for create interface file for JSX V4 https://github.com/rescript-lang/rescript-vscode/pull/580
 
 ## v1.6.0
 
