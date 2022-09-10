@@ -159,11 +159,12 @@ and type_kind =
   | Type_open
 
 and record_representation =
-    Record_regular                      (* All fields are boxed / tagged *)
-  | Record_float                        (* All fields are floats *)
-  | Record_unboxed of bool    (* Unboxed single-field record, inlined or not *)
-  | Record_inlined of int               (* Inlined record *)
-  | Record_extension                    (* Inlined record under extension *)
+  | Record_regular                        (* All fields are boxed / tagged *)
+  | Record_float_unused                   (* Was: all fields are floats. Now: unused *)
+  | Record_unboxed of bool                (* Unboxed single-field record, inlined or not *)
+  | Record_inlined of int                 (* Inlined record *)
+  | Record_extension                      (* Inlined record under extension *)
+  | Record_optional_labels of string list (* List of optional labels *)
 
 and label_declaration =
   {

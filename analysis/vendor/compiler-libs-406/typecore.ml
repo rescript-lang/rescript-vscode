@@ -780,7 +780,7 @@ module Label = NameChoice (struct
   let unbound_name_error = Typetexp.unbound_label_error
   let in_env lbl =
     match lbl.lbl_repres with
-    | Record_regular | Record_float | Record_unboxed false -> true
+    | Record_regular | Record_optional_labels _ | Record_float_unused | Record_unboxed false -> true
     | Record_unboxed true | Record_inlined _ | Record_extension -> false
 end)
 
@@ -2015,9 +2015,9 @@ struct
       | Texp_record { fields = es; extended_expression = eo;
                       representation = rep } ->
           let use = match rep with
-            | Record_float -> Use.inspect
+            | Record_float_unused -> Use.inspect
             | Record_unboxed _ -> (fun x -> x)
-            | Record_regular | Record_inlined _
+            | Record_regular | Record_optional_labels _ | Record_inlined _
             | Record_extension -> Use.guard
           in
           let field env = function

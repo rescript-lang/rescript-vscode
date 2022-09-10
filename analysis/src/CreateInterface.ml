@@ -164,7 +164,7 @@ let printSignature ~extractor ~signature =
 
   let buf = Buffer.create 10 in
 
-  let getComponentType (typ : Types.type_expr) =
+  let getComponentTypeV3 (typ : Types.type_expr) =
     let reactElement =
       Ctype.newconstr (Pdot (Pident (Ident.create "React"), "element", 0)) []
     in
@@ -183,6 +183,29 @@ let printSignature ~extractor ~signature =
     | _ -> None
   in
 
+  let getComponentTypeV4 (typ : Types.type_expr) =
+    let reactElement =
+      Ctype.newconstr (Pdot (Pident (Ident.create "React"), "element", 0)) []
+    in
+    match typ.desc with
+    | Tarrow (_, {desc = Tconstr (Path.Pident propsId, typeArgs, _)}, retType, _)
+      when Ident.name propsId = "props" ->
+      Some (typeArgs, retType)
+    | Tconstr
+        ( Pdot (Pident {name = "React"}, "component", _),
+          [{desc = Tconstr (Path.Pident propsId, typeArgs, _)}],
+          _ )
+      when Ident.name propsId = "props" ->
+      Some (typeArgs, reactElement)
+    | Tconstr
+        ( Pdot (Pident {name = "React"}, "componentLike", _),
+          [{desc = Tconstr (Path.Pident propsId, typeArgs, _)}; retType],
+          _ )
+      when Ident.name propsId = "props" ->
+      Some (typeArgs, retType)
+    | _ -> None
+  in
+
   let rec processSignature ~indent (signature : Types.signature) : unit =
     match signature with
     | Sig_value
@@ -193,19 +216,73 @@ let printSignature ~extractor ~signature =
       when Ident.name makePropsId = Ident.name makeId ^ "Props"
            && ((* from implementation *) makePropsLoc.loc_ghost
               || (* from interface *) makePropsLoc = makeValueDesc.val_loc)
-           && getComponentType makeValueDesc.val_type <> None ->
+           && getComponentTypeV3 makeValueDesc.val_type <> None ->
       (*
         {"name": string} => retType  ~~>  (~name:string) => retType
         React.component<{"name": string}>  ~~>  (~name:string) => React.element
         React.componentLike<{"name": string}, retType>  ~~>  (~name:string) => retType
       *)
       let tObj, retType =
-        match getComponentType makeValueDesc.val_type with
+        match getComponentTypeV3 makeValueDesc.val_type with
         | None -> assert false
         | Some (tObj, retType) -> (tObj, retType)
       in
       let funType = tObj |> objectPropsToFun ~rhs:retType ~makePropsType in
       let newItemStr =
+        sigItemToString
+          (Printtyp.tree_of_value_description makeId
+             {makeValueDesc with val_type = funType})
+      in
+      Buffer.add_string buf (indent ^ "@react.component\n");
+      Buffer.add_string buf (indent ^ newItemStr ^ "\n");
+      processSignature ~indent rest
+    | Sig_type
+        ( propsId,
+          {
+            type_params;
+            type_kind = Type_record (labelDecls, Record_optional_labels optLbls);
+          },
+          _ )
+      :: Sig_value (makeId (* make *), makeValueDesc)
+      :: rest
+      when Ident.name propsId = "props"
+           && getComponentTypeV4 makeValueDesc.val_type <> None
+           && optLbls |> List.mem "key" ->
+      (* PPX V4 component declaration:
+         type props = {..., key?: _}
+         let v = ...
+      *)
+      let newItemStr =
+        let typeArgs, retType =
+          match getComponentTypeV4 makeValueDesc.val_type with
+          | Some x -> x
+          | None -> assert false
+        in
+        let rec mkFunType (labelDecls : Types.label_declaration list) =
+          match labelDecls with
+          | [] -> retType
+          | labelDecl :: rest ->
+            let propType =
+              CompletionBackEnd.instantiateType ~typeParams:type_params
+                ~typeArgs labelDecl.ld_type
+            in
+            let lblName = labelDecl.ld_id |> Ident.name in
+            let lbl =
+              if List.mem lblName optLbls then Asttypes.Optional lblName
+              else Labelled lblName
+            in
+            if lblName = "key" then mkFunType rest
+            else
+              {retType with desc = Tarrow (lbl, propType, mkFunType rest, Cok)}
+        in
+        let funType =
+          if List.length labelDecls = 1 (* No props: only "key "*) then
+            let tUnit =
+              Ctype.newconstr (Path.Pident (Ident.create "unit")) []
+            in
+            {retType with desc = Tarrow (Nolabel, tUnit, retType, Cok)}
+          else mkFunType labelDecls
+        in
         sigItemToString
           (Printtyp.tree_of_value_description makeId
              {makeValueDesc with val_type = funType})
