@@ -495,7 +495,7 @@ let transl_declaration env sdecl id =
           let rep =
             if unbox then Record_unboxed false
             else if List.for_all (fun l -> is_float env l.Types.ld_type) lbls'
-            then Record_float
+            then Record_float_unused
             else Record_regular
           in
           Ttype_record lbls, Type_record(lbls', rep)
