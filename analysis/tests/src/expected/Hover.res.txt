@@ -20,19 +20,9 @@ Hover src/Hover.res 33:4
 {"contents": "```rescript\nunit => int\n```\n\nDoc comment for functionWithTypeAnnotation"}
 
 Hover src/Hover.res 37:13
-getLocItem #5: heuristic for JSX and compiler combined:
-~x becomes Props#x
-heuristic for: [Props, x], give loc of `x`
-n1:Props n2:name
 {"contents": "```rescript\nstring\n```"}
 
 Hover src/Hover.res 42:15
-getLocItem #7: heuristic for JSX on type-annotated labeled (~arg:t):
-(~arg:t) becomes Props#arg
-Props has the location range of arg:t
-arg has the location range of arg
-heuristic for: [Props, arg], give loc of `arg`
-n1:Props n2:name
 {"contents": "```rescript\nstring\n```"}
 
 Hover src/Hover.res 46:10
@@ -63,10 +53,7 @@ JSX <Comp:[88:3->88:7] > _children:88:7
 null
 
 Hover src/Hover.res 98:10
-Nothing at that position. Now trying to use completion.
-posCursor:[98:10] posNoWhite:[98:9] Found expr:[95:3->98:10]
-JSX <Comp1:[95:3->95:8] > _children:95:8
-null
+{"contents": "```rescript\nComp1.props<React.element>\n```\n\n```rescript\ntype props<'children> = {\n  key: option<string>,\n  children: 'children,\n}\n```"}
 
 Hover src/Hover.res 103:25
 {"contents": "```rescript\nfloat\n```"}

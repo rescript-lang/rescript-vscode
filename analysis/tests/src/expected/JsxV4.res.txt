@@ -1,7 +1,4 @@
 Definition src/JsxV4.res 7:9
-getLocItem #9: heuristic for JSX variadic, e.g. <C> {x} {y} </C>
-heuristic for: [React.null, makeProps, make, createElementVariadic], give the loc of `make`
-n1:() n2:makeProps n3:make n4:createElement
 {"uri": "JsxV4.res", "range": {"start": {"line": 4, "character": 6}, "end": {"line": 4, "character": 10}}}
 
 Complete src/JsxV4.res 10:20

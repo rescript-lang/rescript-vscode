@@ -1,6 +1,5 @@
 Hover src/Div.res 0:10
-getLocItem #3: heuristic for <div>
-{"contents": "```rescript\n(\n  string,\n  ~props: ReactDOMRe.domProps=?,\n  array<React.element>,\n) => React.element\n```"}
+{"contents": "```rescript\nstring\n```"}
 
 Complete src/Div.res 3:17
 posCursor:[3:17] posNoWhite:[3:16] Found expr:[3:4->3:17]
