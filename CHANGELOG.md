@@ -20,7 +20,7 @@
 
 #### :bug: Bug Fix
 
-- Fix printing of record types with optional labels. https://github.com/rescript-lang/rescript-vscode/pull/584
+- Fix printing of record types with optional fields https://github.com/rescript-lang/rescript-vscode/pull/584
 
 ## v1.6.0
 
