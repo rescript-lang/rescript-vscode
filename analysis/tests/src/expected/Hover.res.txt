@@ -75,10 +75,10 @@ Hover src/Hover.res 106:21
 {"contents": "```rescript\nint\n```"}
 
 Hover src/Hover.res 116:16
-{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
+{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n```rescript\ntype cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```"}
 
 Hover src/Hover.res 119:25
-{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```"}
+{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n```rescript\ntype cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```"}
 
 Hover src/Hover.res 122:3
 Nothing at that position. Now trying to use completion.
