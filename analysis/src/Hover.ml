@@ -98,25 +98,53 @@ let newHover ~full:{file; package} locItem =
          | Const_int64 _ -> "int64"
          | Const_nativeint _ -> "int"))
   | Typed (_, t, locKind) ->
+    let fromConstructorPath ~env path =
+      match References.digConstructor ~env ~package path with
+      | None -> None
+      | Some (_env, {name = {txt}; item = {decl}}) ->
+        if Utils.isUncurriedInternal path then None
+        else Some (decl |> Shared.declToString txt |> codeBlock)
+    in
     let fromType ~docstring typ =
       let typeString = codeBlock (typ |> Shared.typeToString) in
-      let extraTypeInfo =
+      let typeDefinitions =
+        (* Expand definitions of types mentioned in typ.
+           If typ itself is a record or variant, search its body *)
         let env = QueryEnv.fromFile file in
-        match typ |> Shared.digConstructor with
-        | None -> None
-        | Some path -> (
-          match References.digConstructor ~env ~package path with
-          | None -> None
-          | Some (_env, {docstring; name = {txt}; item = {decl}}) ->
-            if Utils.isUncurriedInternal path then None
-            else Some (decl |> Shared.declToString txt, docstring))
+        let envToSearch, typesToSearch =
+          match typ |> Shared.digConstructor with
+          | Some path -> (
+            let labelDeclarationsTypes lds =
+              lds |> List.map (fun (ld : Types.label_declaration) -> ld.ld_type)
+            in
+            match References.digConstructor ~env ~package path with
+            | None -> (env, [typ])
+            | Some (env1, {item = {decl}}) -> (
+              match decl.type_kind with
+              | Type_record (lds, _) ->
+                (env1, typ :: (lds |> labelDeclarationsTypes))
+              | Type_variant cds ->
+                ( env1,
+                  cds
+                  |> List.map (fun (cd : Types.constructor_declaration) ->
+                         let fromArgs =
+                           match cd.cd_args with
+                           | Cstr_tuple ts -> ts
+                           | Cstr_record lds -> lds |> labelDeclarationsTypes
+                         in
+                         typ
+                         ::
+                         (match cd.cd_res with
+                         | None -> fromArgs
+                         | Some t -> t :: fromArgs))
+                  |> List.flatten )
+              | _ -> (env, [typ])))
+          | None -> (env, [typ])
+        in
+        let constructors = Shared.findTypeConstructors typesToSearch in
+        constructors |> List.filter_map (fromConstructorPath ~env:envToSearch)
       in
-      let typeString, docstring =
-        match extraTypeInfo with
-        | None -> (typeString, docstring)
-        | Some (extra, extraDocstring) ->
-          (typeString ^ "\n\n" ^ codeBlock extra, extraDocstring)
-      in
+      let typeString = typeString :: typeDefinitions |> String.concat "\n\n" in
       (typeString, docstring)
     in
     let parts =
