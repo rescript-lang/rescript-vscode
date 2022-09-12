@@ -16,7 +16,11 @@
 
 - Add support for prop completion for JSX V4 https://github.com/rescript-lang/rescript-vscode/pull/579
 - Add support for create interface file for JSX V4 https://github.com/rescript-lang/rescript-vscode/pull/580
-- Expand one level of type definition on hover. Dig into record/variant body.
+- Expand one level of type definition on hover. Dig into record/variant body. https://github.com/rescript-lang/rescript-vscode/pull/584
+
+#### :bug: Bug Fix
+
+- Fix printing of record types with optional labels. https://github.com/rescript-lang/rescript-vscode/pull/584
 
 ## v1.6.0
 
