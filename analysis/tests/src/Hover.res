@@ -186,3 +186,14 @@ module TypeSubstitutionRecords = {
   // y2.content.
   //            ^com
 }
+
+module CompV4 = {
+  type props<'n, 's> = {n?: 'n, s: 's}
+  let make = props => {
+    let _ = props.n == Some (10)
+    React.string(props.s)
+  }
+}
+
+let mk = CompV4.make
+//  ^hov

@@ -158,3 +158,6 @@ Completable: Cpath Value[y2].content.""
     "documentation": null
   }]
 
+Hover src/Hover.res 197:4
+{"contents": "```rescript\nCompV4.props<int, string> => React.element\n```\n\n```rescript\ntype props<'n, 's> = {n: option<'n>, s: 's}\n```\n\n```rescript\ntype element\n```"}
+
