@@ -190,10 +190,15 @@ module TypeSubstitutionRecords = {
 module CompV4 = {
   type props<'n, 's> = {n?: 'n, s: 's}
   let make = props => {
-    let _ = props.n == Some (10)
+    let _ = props.n == Some(10)
     React.string(props.s)
   }
 }
 
 let mk = CompV4.make
 //  ^hov
+
+type useR = {x: int, y: list<option<r<float>>>}
+
+let testUseR = (v: useR) => v
+//              ^hov

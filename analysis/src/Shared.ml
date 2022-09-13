@@ -49,7 +49,9 @@ let findTypeConstructors (tel : Types.type_expr list) =
   let rec loop (te : Types.type_expr) =
     match te.desc with
     | Tlink te1 | Tsubst te1 | Tpoly (te1, _) -> loop te1
-    | Tconstr (path, _, _) -> addPath path
+    | Tconstr (path, args, _) ->
+      addPath path;
+      args |> List.iter loop
     | Tarrow (_, te1, te2, _) ->
       loop te1;
       loop te2

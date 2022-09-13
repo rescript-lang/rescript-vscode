@@ -105,7 +105,7 @@ Hover src/Hover.res 148:6
 {"contents": "```rescript\nint\n```\n\n doc comment 2 "}
 
 Hover src/Hover.res 165:23
-{"contents": "```rescript\nfoo<bar>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```"}
+{"contents": "```rescript\nfoo<bar>\n```\n\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```\n\n```rescript\ntype bar = {age: int}\n```"}
 
 Hover src/Hover.res 167:22
 {"contents": "```rescript\nfoobar\n```\n\n```rescript\ntype foobar = foo<bar>\n```"}
@@ -160,4 +160,7 @@ Completable: Cpath Value[y2].content.""
 
 Hover src/Hover.res 197:4
 {"contents": "```rescript\nCompV4.props<int, string> => React.element\n```\n\n```rescript\ntype props<'n, 's> = {?n: 'n, s: 's}\n```\n\n```rescript\ntype element\n```"}
+
+Hover src/Hover.res 202:16
+{"contents": "```rescript\nuseR\n```\n\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\n\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```"}
 
