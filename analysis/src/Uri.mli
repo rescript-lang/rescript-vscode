@@ -6,4 +6,3 @@ val stripPath : bool ref
 val toPath : t -> string
 val toString : t -> string
 val toTopLevelLoc : t -> Location.t
-val pathToUri : string -> string
