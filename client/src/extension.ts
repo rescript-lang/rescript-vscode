@@ -6,6 +6,9 @@ import {
   languages,
   window,
   StatusBarAlignment,
+  Uri,
+  Range,
+  Position,
 } from "vscode";
 
 import {
@@ -105,6 +108,9 @@ export function activate(context: ExtensionContext) {
         extensionConfiguration: workspace.getConfiguration("rescript.settings"),
       },
       outputChannel,
+      markdown: {
+        isTrusted: true,
+      },
     };
 
     const client = new LanguageClient(
@@ -188,6 +194,24 @@ export function activate(context: ExtensionContext) {
   commands.registerCommand("rescript-vscode.open_compiled", () => {
     customCommands.openCompiled(client);
   });
+
+  commands.registerCommand(
+    "rescript-vscode.go_to_location",
+    async (
+      fileUri: string,
+      startLine: number,
+      startCol: number,
+      endLine: number,
+      endCol: number
+    ) => {
+      await window.showTextDocument(Uri.parse(fileUri), {
+        selection: new Range(
+          new Position(startLine, startCol),
+          new Position(endLine, endCol)
+        ),
+      });
+    }
+  );
 
   // Starts the code analysis mode.
   commands.registerCommand("rescript-vscode.start_code_analysis", () => {

@@ -1,7 +1,7 @@
 Hover src/Fragment.res 6:19
 getLocItem #4: heuristic for </Comp> within fragments: take make as makeProps does not work
 the type is not great but jump to definition works
-{"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```"}
+{"contents": "```rescript\nReact.component<{\"children\": React.element}>\n```\n\n```rescript\ntype component<'props> = componentLike<'props, element>\n```\n\n[SomeModule](command:rescript-vscode.go_to_location?%5B%22file%3A%2F%2Fwhatever%2Ffolder%2FSomeModule.res%22%2C0%2C0%2C0%2C0%5D)"}
 
 Hover src/Fragment.res 9:56
 Nothing at that position. Now trying to use completion.
