@@ -75,10 +75,10 @@ Hover src/Hover.res 106:21
 {"contents": "```rescript\nint\n```"}
 
 Hover src/Hover.res 116:16
-{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)"}
+{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n\n---\n"}
 
 Hover src/Hover.res 119:25
-{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)"}
+{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n\n---\n"}
 
 Hover src/Hover.res 122:3
 Nothing at that position. Now trying to use completion.
@@ -105,10 +105,10 @@ Hover src/Hover.res 148:6
 {"contents": "```rescript\nint\n```\n\n doc comment 2 "}
 
 Hover src/Hover.res 165:23
-{"contents": "```rescript\nfoo<bar>\n```\n\n\n```\n \n```\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C161%2C2%5D)\n\n\n```\n \n```\n```rescript\ntype bar = {age: int}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C162%2C2%5D)"}
+{"contents": "```rescript\nfoo<bar>\n```\n\n\n```\n \n```\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C161%2C2%5D)\n\n---\n\n\n\n```\n \n```\n```rescript\ntype bar = {age: int}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C162%2C2%5D)\n\n---\n"}
 
 Hover src/Hover.res 167:22
-{"contents": "```rescript\nfoobar\n```\n\n\n```\n \n```\n```rescript\ntype foobar = foo<bar>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C163%2C2%5D)"}
+{"contents": "```rescript\nfoobar\n```\n\n\n```\n \n```\n```rescript\ntype foobar = foo<bar>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C163%2C2%5D)\n\n---\n"}
 
 Complete src/Hover.res 170:16
 posCursor:[170:16] posNoWhite:[170:15] Found expr:[170:5->170:16]
@@ -159,8 +159,8 @@ Completable: Cpath Value[y2].content.""
   }]
 
 Hover src/Hover.res 197:4
-{"contents": "```rescript\nCompV4.props<int, string> => React.element\n```\n\n\n```\n \n```\n```rescript\ntype CompV4.props<'n, 's> = {?n: 'n, s: 's}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C190%2C2%5D)\n\n\n```\n \n```\n```rescript\ntype React.element\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22React.res%22%2C0%2C0%5D)"}
+{"contents": "```rescript\nCompV4.props<int, string> => React.element\n```\n\n\n```\n \n```\n```rescript\ntype CompV4.props<'n, 's> = {?n: 'n, s: 's}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C190%2C2%5D)\n\n---\n\n\n\n```\n \n```\n```rescript\ntype React.element\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22React.res%22%2C0%2C0%5D)\n\n---\n"}
 
 Hover src/Hover.res 202:16
-{"contents": "```rescript\nuseR\n```\n\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)"}
+{"contents": "```rescript\nuseR\n```\n\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n---\n\n\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n\n---\n"}
 
