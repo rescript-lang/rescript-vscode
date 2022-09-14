@@ -63,8 +63,8 @@ let findTypeConstructors (tel : Types.type_expr list) =
   tel |> List.iter loop;
   !paths |> List.rev
 
-let declToString ?(recStatus = Types.Trec_not) name t =
-  PrintType.printDecl ~recStatus name t
+let declToString ?printNameAsIs ?(recStatus = Types.Trec_not) name t =
+  PrintType.printDecl ?printNameAsIs ~recStatus name t
 
 let cacheTypeToString = ref false
 let typeTbl = Hashtbl.create 1
@@ -78,3 +78,5 @@ let typeToString ?lineWidth (t : Types.type_expr) =
     Hashtbl.replace typeTbl (t.id, t) s;
     s
   | Some s -> s
+
+let markdownSpacing = "\n```\n \n```\n"
