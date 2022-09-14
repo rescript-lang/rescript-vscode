@@ -35,6 +35,14 @@ interface extensionConfiguration {
   binaryPath: string | null;
 }
 
+// This holds client capabilities specific to our extension, and not necessarily
+// related to the LS protocol. It's for enabling/disabling features that might
+// work in one client, like VSCode, but perhaps not in others, like vim.
+export interface extensionClientCapabilities {
+  supportsMarkdownLinks?: boolean | null;
+}
+let extensionClientCapabilities: extensionClientCapabilities = {};
+
 // All values here are temporary, and will be overridden as the server is
 // initialized, and the current config is received from the client.
 let extensionConfiguration: extensionConfiguration = {
@@ -436,6 +444,7 @@ function hover(msg: p.RequestMessage) {
       params.position.line,
       params.position.character,
       tmpname,
+      Boolean(extensionClientCapabilities.supportsMarkdownLinks),
     ],
     msg
   );
@@ -1068,6 +1077,16 @@ function onMessage(msg: p.Message) {
 
       if (initialConfiguration != null) {
         extensionConfiguration = initialConfiguration;
+      }
+
+      // These are static configuration options the client can set to enable certain
+      let extensionClientCapabilitiesFromClient = initParams
+        .initializationOptions?.extensionClientCapabilities as
+        | extensionClientCapabilities
+        | undefined;
+
+      if (extensionClientCapabilitiesFromClient != null) {
+        extensionClientCapabilities = extensionClientCapabilitiesFromClient;
       }
 
       // send the list of features we support
