@@ -22,11 +22,11 @@ let encodeURIComponent text =
   loop 0;
   Buffer.contents buf
 
-type link = {range: Protocol.range; file: string; label: string}
+type link = {startPos: Protocol.position; file: string; label: string}
 
 let linkToCommandArgs link =
-  Printf.sprintf "[\"%s\",%i,%i,%i,%i]" link.file link.range.start.character
-    link.range.start.line link.range.end_.character link.range.end_.line
+  Printf.sprintf "[\"%s\",%i,%i]" link.file link.startPos.line
+    link.startPos.character
 
 let makeGotoCommand link =
   Printf.sprintf "[%s](command:rescript-vscode.go_to_location?%s)" link.label
@@ -131,9 +131,15 @@ let newHover ~full:{file; package} locItem =
     let fromConstructorPath ~env path =
       match References.digConstructor ~env ~package path with
       | None -> None
-      | Some (_env, {name = {txt}; item = {decl}}) ->
+      | Some (env, {extentLoc; item = {decl}}) ->
         if Utils.isUncurriedInternal path then None
-        else Some (decl |> Shared.declToString txt |> codeBlock)
+        else
+          Some
+            ( decl
+              |> Shared.declToString ~printNameAsIs:true
+                   (SharedTypes.pathIdentToString path),
+              extentLoc,
+              env )
     in
     let fromType ~docstring typ =
       let typeString = codeBlock (typ |> Shared.typeToString) in
@@ -172,40 +178,40 @@ let newHover ~full:{file; package} locItem =
           | None -> (env, [typ])
         in
         let constructors = Shared.findTypeConstructors typesToSearch in
-        constructors |> List.filter_map (fromConstructorPath ~env:envToSearch)
+        constructors
+        |> List.filter_map (fun constructorPath ->
+               match
+                 constructorPath |> fromConstructorPath ~env:envToSearch
+               with
+               | None -> None
+               | Some (typString, extentLoc, env) ->
+                 let startLine, startCol = Pos.ofLexing extentLoc.loc_start in
+                 Some
+                   (Shared.markdownSpacing ^ codeBlock typString ^ "\n"
+                  ^ "Go to: "
+                   ^ makeGotoCommand
+                       {
+                         label = "Type definition";
+                         file = Uri.toString env.file.uri;
+                         startPos = {line = startLine; character = startCol};
+                       }
+                   ^ "\n\n---\n"))
       in
       let typeString = typeString :: typeDefinitions |> String.concat "\n\n" in
-      let links =
-        "\n---\nGo to: "
-        ^ ([
-             makeGotoCommand
-               {
-                 label = "SomeModule";
-                 file =
-                   "file:///Users/zth/git/rescript-vscode-official/analysis/examples/example-project/src/Json.res";
-                 range =
-                   {
-                     start = {character = 0; line = 34};
-                     end_ = {character = 0; line = 42};
-                   };
-               };
-           ]
-          |> String.concat " | ")
-      in
-      (typeString, docstring, links)
+      (typeString, docstring)
     in
     let parts =
       match References.definedForLoc ~file ~package locKind with
       | None ->
-        let typeString, docstring, links = t |> fromType ~docstring:[] in
-        List.concat [[typeString]; docstring; [links]]
+        let typeString, docstring = t |> fromType ~docstring:[] in
+        typeString :: docstring
       | Some (docstring, res) -> (
         match res with
         | `Declared ->
-          let typeString, docstring, links = t |> fromType ~docstring in
-          List.concat [[typeString]; docstring; [links]]
+          let typeString, docstring = t |> fromType ~docstring in
+          typeString :: docstring
         | `Constructor {cname = {txt}; args} ->
-          let typeString, docstring, links = t |> fromType ~docstring in
+          let typeString, docstring = t |> fromType ~docstring in
           let argsString =
             match args with
             | [] -> ""
@@ -214,10 +220,9 @@ let newHover ~full:{file; package} locItem =
               |> List.map (fun (t, _) -> Shared.typeToString t)
               |> String.concat ", " |> Printf.sprintf "(%s)"
           in
-          List.concat
-            [[typeString; codeBlock (txt ^ argsString)]; docstring; [links]]
+          typeString :: codeBlock (txt ^ argsString) :: docstring
         | `Field ->
-          let typeString, docstring, links = t |> fromType ~docstring in
-          List.concat [[typeString]; docstring; [links]])
+          let typeString, docstring = t |> fromType ~docstring in
+          typeString :: docstring)
     in
     Some (String.concat "\n\n" parts)

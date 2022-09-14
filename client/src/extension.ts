@@ -197,17 +197,11 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand(
     "rescript-vscode.go_to_location",
-    async (
-      fileUri: string,
-      startLine: number,
-      startCol: number,
-      endLine: number,
-      endCol: number
-    ) => {
+    async (fileUri: string, startLine: number, startCol: number) => {
       await window.showTextDocument(Uri.parse(fileUri), {
         selection: new Range(
           new Position(startLine, startCol),
-          new Position(endLine, endCol)
+          new Position(startLine, startCol)
         ),
       });
     }
