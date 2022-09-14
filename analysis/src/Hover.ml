@@ -66,7 +66,7 @@ let rec showModule ~docstring ~(file : File.t) ~name
   | Some {item = Ident path} ->
     Some ("Unable to resolve module reference " ^ Path.name path)
 
-let newHover ~full:{file; package} locItem =
+let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
   match locItem.locType with
   | TypeDefinition (name, decl, _stamp) ->
     let typeDef = Shared.declToString name decl in
@@ -186,16 +186,20 @@ let newHover ~full:{file; package} locItem =
                | None -> None
                | Some (typString, extentLoc, env) ->
                  let startLine, startCol = Pos.ofLexing extentLoc.loc_start in
+                 let linkToTypeDefinitionStr =
+                   if supportsMarkdownLinks then
+                     "\nGo to: "
+                     ^ makeGotoCommand
+                         {
+                           label = "Type definition";
+                           file = Uri.toString env.file.uri;
+                           startPos = {line = startLine; character = startCol};
+                         }
+                   else ""
+                 in
                  Some
-                   (Shared.markdownSpacing ^ codeBlock typString ^ "\n"
-                  ^ "Go to: "
-                   ^ makeGotoCommand
-                       {
-                         label = "Type definition";
-                         file = Uri.toString env.file.uri;
-                         startPos = {line = startLine; character = startCol};
-                       }
-                   ^ "\n\n---\n"))
+                   (Shared.markdownSpacing ^ codeBlock typString
+                  ^ linkToTypeDefinitionStr ^ "\n\n---\n"))
       in
       let typeString = typeString :: typeDefinitions |> String.concat "\n\n" in
       (typeString, docstring)

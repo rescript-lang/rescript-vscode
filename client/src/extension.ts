@@ -106,6 +106,12 @@ export function activate(context: ExtensionContext) {
       // We'll leave it like this for now, but might be worth revisiting later on.
       initializationOptions: {
         extensionConfiguration: workspace.getConfiguration("rescript.settings"),
+
+        // Keep this in sync with the `extensionClientCapabilities` type in the
+        // server.
+        extensionClientCapabilities: {
+          supportsMarkdownLinks: true,
+        },
       },
       outputChannel,
       markdown: {
