@@ -2,6 +2,11 @@ open SharedTypes
 
 let codeBlock code = Printf.sprintf "```rescript\n%s\n```" code
 
+(* Light weight, hopefully-enough-for-the-purpose fn to encode URI components.
+   Built to handle the reserved characters listed in
+   https://en.wikipedia.org/wiki/Percent-encoding. Note that this function is not
+   general purpose, rather it's currently only for URL encoding the argument list
+   passed to command links in markdown. *)
 let encodeURIComponent text =
   let ln = String.length text in
   let buf = Buffer.create ln in
@@ -9,13 +14,21 @@ let encodeURIComponent text =
     if i < ln then (
       (match text.[i] with
       | '"' -> Buffer.add_string buf "%22"
+      | '\'' -> Buffer.add_string buf "%22"
       | ':' -> Buffer.add_string buf "%3A"
+      | ';' -> Buffer.add_string buf "%3B"
       | '/' -> Buffer.add_string buf "%2F"
       | '\\' -> Buffer.add_string buf "%5C"
       | ',' -> Buffer.add_string buf "%2C"
       | '&' -> Buffer.add_string buf "%26"
       | '[' -> Buffer.add_string buf "%5B"
       | ']' -> Buffer.add_string buf "%5D"
+      | '#' -> Buffer.add_string buf "%23"
+      | '$' -> Buffer.add_string buf "%24"
+      | '+' -> Buffer.add_string buf "%2B"
+      | '=' -> Buffer.add_string buf "%3D"
+      | '?' -> Buffer.add_string buf "%3F"
+      | '@' -> Buffer.add_string buf "%40"
       | c -> Buffer.add_char buf c);
       loop (i + 1))
   in
