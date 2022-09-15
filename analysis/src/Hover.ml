@@ -29,6 +29,7 @@ let encodeURIComponent text =
       | '=' -> Buffer.add_string buf "%3D"
       | '?' -> Buffer.add_string buf "%3F"
       | '@' -> Buffer.add_string buf "%40"
+      | '%' -> Buffer.add_string buf "%25"
       | c -> Buffer.add_char buf c);
       loop (i + 1))
   in
