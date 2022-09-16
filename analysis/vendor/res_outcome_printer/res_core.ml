@@ -2691,13 +2691,9 @@ and parseBracedOrRecordExpr p =
   Parser.expect Lbrace p;
   match p.Parser.token with
   | Rbrace ->
-    Parser.err p (Diagnostics.unexpected Rbrace p.breadcrumbs);
     Parser.next p;
     let loc = mkLoc startPos p.prevEndPos in
-    let braces = makeBracesAttr loc in
-    Ast_helper.Exp.construct ~attrs:[braces] ~loc
-      (Location.mkloc (Longident.Lident "()") loc)
-      None
+    Ast_helper.Exp.record ~loc [] None
   | DotDotDot ->
     (* beginning of record spread, parse record *)
     Parser.next p;
@@ -4286,6 +4282,7 @@ and parseFieldDeclaration p =
     match p.token with
     | _ -> parseLident p
   in
+  let optional = parseOptionalLabel p in
   let name = Location.mkloc lident loc in
   let typ =
     match p.Parser.token with
@@ -4296,7 +4293,7 @@ and parseFieldDeclaration p =
       Ast_helper.Typ.constr ~loc:name.loc {name with txt = Lident name.txt} []
   in
   let loc = mkLoc startPos typ.ptyp_loc.loc_end in
-  Ast_helper.Type.field ~attrs ~loc ~mut name typ
+  (optional, Ast_helper.Type.field ~attrs ~loc ~mut name typ)
 
 and parseFieldDeclarationRegion p =
   let startPos = p.Parser.startPos in
@@ -4488,7 +4485,10 @@ and parseConstrDeclArgs p =
                   ~closing:Rbrace ~f:parseFieldDeclarationRegion p
               | attrs ->
                 let first =
-                  let field = parseFieldDeclaration p in
+                  let optional, field = parseFieldDeclaration p in
+                  let attrs =
+                    if optional then optionalAttr :: attrs else attrs
+                  in
                   Parser.expect Comma p;
                   {field with Parsetree.pld_attributes = attrs}
                 in
@@ -4885,13 +4885,15 @@ and parseRecordOrObjectDecl p =
     | _ ->
       Parser.leaveBreadcrumb p Grammar.RecordDecl;
       let fields =
+        (* XXX *)
         match attrs with
         | [] ->
           parseCommaDelimitedRegion ~grammar:Grammar.FieldDeclarations
             ~closing:Rbrace ~f:parseFieldDeclarationRegion p
         | attr :: _ as attrs ->
           let first =
-            let field = parseFieldDeclaration p in
+            let optional, field = parseFieldDeclaration p in
+            let attrs = if optional then optionalAttr :: attrs else attrs in
             Parser.optional p Comma |> ignore;
             {
               field with
@@ -4906,13 +4908,6 @@ and parseRecordOrObjectDecl p =
           first
           :: parseCommaDelimitedRegion ~grammar:Grammar.FieldDeclarations
                ~closing:Rbrace ~f:parseFieldDeclarationRegion p
-      in
-      let () =
-        match fields with
-        | [] ->
-          Parser.err ~startPos p
-            (Diagnostics.message "A record needs at least one field")
-        | _ -> ()
       in
       Parser.expect Rbrace p;
       Parser.eatBreadcrumb p;
