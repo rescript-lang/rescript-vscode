@@ -7,26 +7,6 @@ let rec skipWhite text i =
     | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
     | _ -> i
 
-let offsetOfLine text line =
-  let ln = String.length text in
-  let rec loop i lno =
-    if i >= ln then None
-    else
-      match text.[i] with
-      | '\n' -> if lno = line - 1 then Some (i + 1) else loop (i + 1) (lno + 1)
-      | _ -> loop (i + 1) lno
-  in
-  match line with
-  | 0 -> Some 0
-  | _ -> loop 0 0
-
-let positionToOffset text (line, character) =
-  match offsetOfLine text line with
-  | None -> None
-  | Some bol ->
-    if bol + character <= String.length text then Some (bol + character)
-    else None
-
 type prop = {
   name: string;
   posStart: int * int;
@@ -226,7 +206,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
   let charBeforeCursor, blankAfterCursor =
-    match positionToOffset text posCursor with
+    match Pos.positionToOffset text posCursor with
     | Some offset when offset > 0 -> (
       let charBeforeCursor = text.[offset - 1] in
       let charAtCursor =
@@ -405,7 +385,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     else if id.loc.loc_ghost then ()
     else if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
       let posStart, posEnd = Loc.range id.loc in
-      match (positionToOffset text posStart, positionToOffset text posEnd) with
+      match
+        (Pos.positionToOffset text posStart, Pos.positionToOffset text posEnd)
+      with
       | Some offsetStart, Some offsetEnd ->
         (* Can't trust the parser's location
            E.g. @foo. let x... gives as label @foo.let *)
@@ -788,7 +770,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   else None
 
 let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
-  match positionToOffset text posCursor with
+  match Pos.positionToOffset text posCursor with
   | Some offset ->
     completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text
   | None -> None
