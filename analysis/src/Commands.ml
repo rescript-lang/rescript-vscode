@@ -424,6 +424,13 @@ let test ~path =
           | "cle" ->
             print_endline ("Code Lens " ^ path);
             codeLens ~path ~debug:false
+          | "ast" ->
+            print_endline
+              ("Dump AST " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            DumpAst.dump ~pos:(line, col) ~currentFile;
+            Sys.remove currentFile
           | _ -> ());
           print_newline ())
     in
