@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [ master ]
+    tags: "*.*.*"
   pull_request:
     branches: [ master ]
 
@@ -11,18 +12,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-18.04, windows-latest]
+        # Stay on the oldest Ubuntu version that's still supported by Github Actions
+        # to avoid glibc incompatibilities as far as possible.
+        os: [macos-latest, macos-arm, ubuntu-20.04, windows-latest]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
           - os: macos-latest
-            build: eval $(opam env) && cd analysis && make test
             artifact-folder: darwin
-          - os: ubuntu-18.04
-            build: eval $(opam env) && cd analysis && make test
+          - os: macos-arm
+            artifact-folder: darwinarm64
+          - os: ubuntu-20.04
             artifact-folder: linux
           - os: windows-latest
-            build: "cd analysis && & $env:CYGWIN_ROOT\\bin\\ocaml-env exec -- make test"
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
@@ -45,12 +47,12 @@ jobs:
     - name: Use OCaml
       uses: ocaml/setup-ocaml@v2
       with:
-        ocaml-compiler: 4.12.x
+        ocaml-compiler: 4.14.x
 
     - name: Use Node.js
-      uses: actions/setup-node@v2.1.5
+      uses: actions/setup-node@v3
       with:
-        node-version: 14.4.0
+        node-version: 16
 
     - run: npm ci
     - run: opam install dune
@@ -62,7 +64,8 @@ jobs:
     # - run: opam install . --deps-only --with-doc --with-test
 
     - name: Build and test
-      run: ${{matrix.build}}
+      run: opam exec -- make test
+      working-directory: analysis
 
     # Also avoids artifacts upload permission loss:
     # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
@@ -80,7 +83,7 @@ jobs:
 
   package:
     needs: test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2.3.4
@@ -101,10 +104,18 @@ jobs:
     - run: tar -xvf binary.tar
       working-directory: ./server/analysis_binaries
 
+    - name: Download MacOS ARM binary
+      uses: actions/download-artifact@v3.0.0
+      with:
+        name: macos-arm
+        path: ./server/analysis_binaries
+    - run: tar -xvf binary.tar
+      working-directory: ./server/analysis_binaries
+
     - name: Download Linux binary
       uses: actions/download-artifact@v3.0.0
       with:
-        name: ubuntu-18.04
+        name: ubuntu-20.04
         path: ./server/analysis_binaries
     - run: tar -xvf binary.tar
       working-directory: ./server/analysis_binaries
@@ -127,28 +138,30 @@ jobs:
         COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       run: echo "::set-output name=sha_short::${COMMIT_SHA:0:7}"
 
-    - name: Get current pre-release version
-      if: github.ref == 'refs/heads/master'
-      id: get_pre_release
-      run: |
-        JSON=$(npx vsce show chenglou92.rescript-vscode --json)
-        VERSION=$(echo $JSON | jq '.versions | .[0] | .["version"]')
-        echo "::set-output name=current_version::${VERSION}"
+    - name: Store tag name
+      id: tag_name
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
 
     - name: Increment pre-release version
       if: github.ref == 'refs/heads/master'
       id: increment_pre_release
       run: |
-        NEW_VERSION=$(echo ${{ steps.get_pre_release.outputs.current_version }})
+        JSON=$(npx vsce show chenglou92.rescript-vscode --json)
+        NEW_VERSION=$(echo $JSON | jq -r '.versions | .[0] | .["version"]')
         node .github/workflows/bump-version.js ${NEW_VERSION}
 
     - name: Package Extension
       if: github.ref != 'refs/heads/master'
-      run: npx vsce package  -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
+      run: npx vsce package -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
 
-    - name: Package Extension
+    - name: Package Extension pre-release version
       if: github.ref == 'refs/heads/master'
-      run: npx vsce package  -o rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
+      run: npx vsce package -o rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
+
+    - name: Package Extension release version
+      if: startsWith(github.ref, 'refs/tags/')
+      run: npx vsce package -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
 
     - uses: actions/upload-artifact@v2
       if: github.ref != 'refs/heads/master'
@@ -161,6 +174,12 @@ jobs:
       with:
         name: rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix
         path: rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix
+    
+    - uses: actions/upload-artifact@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        name: rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix
+        path: rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix
 
     - name: Publish latest master to GitHub
       if: github.ref == 'refs/heads/master'
@@ -172,6 +191,19 @@ jobs:
         title: "Latest master"
         files: rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix
 
+    - name: Publish release version to GitHub
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        title: ${{ steps.tag_name.outputs.tag }}
+        files: rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix
+
     - name: Publish extension as pre-release
       if: github.ref == 'refs/heads/master'
       run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --pre-release ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
+
+    - name: Publish extension as release
+      if: startsWith(github.ref, 'refs/tags/')
+      run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} ${{ steps.tag_name.outputs.tag }} --no-git-tag-version

@@ -14,13 +14,29 @@
 
 #### :rocket: New Feature
 
-- Inlay Hints (experimetal). `rescript.settings.inlayHints.enable: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/453
-- Code Lenses for functions (experimetal). `rescript.settings.codeLens: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/513
+- Add support for prop completion for JSX V4 https://github.com/rescript-lang/rescript-vscode/pull/579
+- Add support for create interface file for JSX V4 https://github.com/rescript-lang/rescript-vscode/pull/580
+- Expand one level of type definition on hover. Dig into record/variant body. https://github.com/rescript-lang/rescript-vscode/pull/584
+- Add clickable links to type definitions in hovers. https://github.com/rescript-lang/rescript-vscode/pull/585
+
+#### :bug: Bug Fix
+
+- Fix printing of record types with optional fields https://github.com/rescript-lang/rescript-vscode/pull/584
+
+## v1.6.0
+
+#### :rocket: New Feature
+
+- Inlay Hints (experimental). `rescript.settings.inlayHints.enable: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/453
+- Code Lenses for functions (experimental). `rescript.settings.codeLens: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/513
 - Markdown code blocks tagged as `rescript` now get basic syntax highlighting. https://github.com/rescript-lang/rescript-vscode/pull/97
 - Hover support for doc comments on v10 compiler `/** this is a doc comment */`
 
 #### :bug: Bug Fix
 
+- Fix issue where debug output would end up in the JSON file produced by Reanalyze https://github.com/rescript-lang/rescript-vscode/pull/575
+- Fix issue where autocomplete would not perform type instantiation https://github.com/rescript-lang/rescript-vscode/pull/561
+- Fix issue where hovering over a field in record construction would show the type without instantiating its type arguments https://github.com/rescript-lang/rescript-vscode/pull/560
 - Fix Incorrect semantic highlighting of `external` declarations https://github.com/rescript-lang/rescript-vscode/pull/517
 - Fix issue where doc comment with nested comments inside is not shown properly on hover https://github.com/rescript-lang/rescript-vscode/pull/526
 - Fix server crashes when open file is removed from disk with inlayHints enabled https://github.com/rescript-lang/rescript-vscode/issues/538

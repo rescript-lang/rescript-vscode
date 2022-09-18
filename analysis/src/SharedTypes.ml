@@ -320,6 +320,13 @@ type path = string list
 
 let pathToString (path : path) = path |> String.concat "."
 
+let rec pathIdentToString (p : Path.t) =
+  match p with
+  | Pident {name} -> name
+  | Pdot (nextPath, id, _) ->
+    Printf.sprintf "%s.%s" (pathIdentToString nextPath) id
+  | Papply _ -> ""
+
 type locKind =
   | LocalReference of int * Tip.t
   | GlobalReference of string * string list * Tip.t

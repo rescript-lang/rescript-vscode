@@ -38,9 +38,11 @@ let functionWithTypeAnnotation: unit => int = () => 1
 let make = (~name) => React.string(name)
 //           ^hov
 
-@react.component
-let make2 = (~name: string) => React.string(name)
-//           ^hov
+module C2 = {
+  @react.component
+  let make2 = (~name: string) => React.string(name)
+  //           ^hov
+}
 
 let num = 34
 //        ^hov
@@ -155,3 +157,48 @@ module ModWithDocComment = {
 
   /*** module level doc comment 2 */
 }
+
+module TypeSubstitutionRecords = {
+  type foo<'a> = {content: 'a, zzz: string}
+  type bar = {age: int}
+  type foobar = foo<bar>
+
+  let x1: foo<bar> = {content: {age: 42}, zzz: ""}
+  //                   ^hov
+  let x2: foobar = {content: {age: 42}, zzz: ""}
+  //                  ^hov
+
+  // x1.content.
+  //            ^com
+
+  // x2.content.
+  //            ^com
+
+  type foo2<'b> = foo<'b>
+  type foobar2 = foo2<bar>
+
+  let y1: foo2<bar> = {content: {age: 42}, zzz: ""}
+  let y2: foobar2 = {content: {age: 42}, zzz: ""}
+
+  // y1.content.
+  //            ^com
+
+  // y2.content.
+  //            ^com
+}
+
+module CompV4 = {
+  type props<'n, 's> = {n?: 'n, s: 's}
+  let make = props => {
+    let _ = props.n == Some(10)
+    React.string(props.s)
+  }
+}
+
+let mk = CompV4.make
+//  ^hov
+
+type useR = {x: int, y: list<option<r<float>>>}
+
+let testUseR = (v: useR) => v
+//              ^hov

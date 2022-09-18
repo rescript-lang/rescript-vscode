@@ -1,6 +1,6 @@
 import * as path from "path";
 
-let platformDir =
+export let platformDir =
   process.arch == "arm64" ? process.platform + process.arch : process.platform;
 
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
@@ -23,7 +23,7 @@ export let analysisDevPath = path.join(
 export let analysisProdPath = path.join(
   path.dirname(__dirname),
   "analysis_binaries",
-  process.platform,
+  platformDir,
   "rescript-editor-analysis.exe"
 );
 

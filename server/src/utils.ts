@@ -75,11 +75,18 @@ type execResult =
       error: string;
     };
 
+type formatCodeResult =
+  | execResult
+  | {
+      kind: "blocked-using-built-in-formatter";
+    };
+
 export let formatCode = (
   bscPath: p.DocumentUri | null,
   filePath: string,
-  code: string
-): execResult => {
+  code: string,
+  allowBuiltInFormatter: boolean
+): formatCodeResult => {
   let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
   fs.writeFileSync(formatTempFileFullPath, code, {
@@ -100,6 +107,12 @@ export let formatCode = (
         result: result.toString(),
       };
     } else {
+      if (!allowBuiltInFormatter) {
+        return {
+          kind: "blocked-using-built-in-formatter",
+        };
+      }
+
       let result = runAnalysisAfterSanityCheck(
         formatTempFileFullPath,
         ["format", formatTempFileFullPath],
@@ -453,6 +466,7 @@ type parsedCompilerLogResult = {
   done: boolean;
   result: filesDiagnostics;
   codeActions: codeActions.filesCodeActions;
+  linesWithParseErrors: string[];
 };
 export let parseCompilerLogOutput = (
   content: string
@@ -464,6 +478,7 @@ export let parseCompilerLogOutput = (
     content: string[];
   };
   let parsedDiagnostics: parsedDiagnostic[] = [];
+  let linesWithParseErrors: string[] = [];
   let lines = content.split(os.EOL);
   let done = false;
 
@@ -575,9 +590,13 @@ export let parseCompilerLogOutput = (
       //   10 ┆
     } else if (line.startsWith("  ")) {
       // part of the actual diagnostics message
-      parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
-        line.slice(2)
-      );
+      if (parsedDiagnostics[parsedDiagnostics.length - 1] == null) {
+        linesWithParseErrors.push(line);
+      } else {
+        parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
+          line.slice(2)
+        );
+      }
     } else if (line.trim() != "") {
       // We'll assume that everything else is also part of the diagnostics too.
       // Most of these should have been indented 2 spaces; sadly, some of them
@@ -585,7 +604,11 @@ export let parseCompilerLogOutput = (
       // messages not printing with indent). We used to get bug reports and fix
       // the messages, but that strategy turned out too slow. One day we should
       // revert to not having this branch...
-      parsedDiagnostics[parsedDiagnostics.length - 1].content.push(line);
+      if (parsedDiagnostics[parsedDiagnostics.length - 1] == null) {
+        linesWithParseErrors.push(line);
+      } else {
+        parsedDiagnostics[parsedDiagnostics.length - 1].content.push(line);
+      }
     }
   }
 
@@ -622,7 +645,12 @@ export let parseCompilerLogOutput = (
     result[file].push(diagnostic);
   });
 
-  return { done, result, codeActions: foundCodeActions };
+  return {
+    done,
+    result,
+    codeActions: foundCodeActions,
+    linesWithParseErrors,
+  };
 };
 
 export let rangeContainsRange = (

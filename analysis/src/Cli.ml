@@ -7,7 +7,7 @@ API examples:
   ./rescript-editor-analysis.exe definition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe typeDefinition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe documentSymbol src/Foo.res
-  ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
+  ./rescript-editor-analysis.exe hover src/MyFile.res 10 2 true
   ./rescript-editor-analysis.exe references src/MyFile.res 10 2
   ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
   ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
@@ -39,9 +39,9 @@ Options:
 
     ./rescript-editor-analysis.exe documentSymbol src/MyFile.res
 
-  hover: get inferred type for MyFile.res at line 10 column 2:
+  hover: get inferred type for MyFile.res at line 10 column 2 (supporting markdown links):
 
-    ./rescript-editor-analysis.exe hover src/MyFile.res 10 2
+    ./rescript-editor-analysis.exe hover src/MyFile.res 10 2 true
 
   references: get all references to item in MyFile.res at line 10 column 2:
 
@@ -99,10 +99,14 @@ let main () =
       ~pos:(int_of_string line, int_of_string col)
       ~debug:false
   | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
-  | [_; "hover"; path; line; col; currentFile] ->
+  | [_; "hover"; path; line; col; currentFile; supportsMarkdownLinks] ->
     Commands.hover ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false
+      ~supportsMarkdownLinks:
+        (match supportsMarkdownLinks with
+        | "true" -> true
+        | _ -> false)
   | [_; "signatureHelp"; path; line; col; currentFile] ->
     Commands.signatureHelp ~path
       ~pos:(int_of_string line, int_of_string col)

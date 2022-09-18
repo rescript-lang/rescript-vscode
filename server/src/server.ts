@@ -26,6 +26,7 @@ import { WorkspaceEdit } from "vscode-languageserver";
 import { filesDiagnostics } from "./utils";
 
 interface extensionConfiguration {
+  allowBuiltInFormatter: boolean;
   askToStartBuild: boolean;
   inlayHints: {
     enable: boolean;
@@ -35,9 +36,18 @@ interface extensionConfiguration {
   binaryPath: string | null;
 }
 
+// This holds client capabilities specific to our extension, and not necessarily
+// related to the LS protocol. It's for enabling/disabling features that might
+// work in one client, like VSCode, but perhaps not in others, like vim.
+export interface extensionClientCapabilities {
+  supportsMarkdownLinks?: boolean | null;
+}
+let extensionClientCapabilities: extensionClientCapabilities = {};
+
 // All values here are temporary, and will be overridden as the server is
 // initialized, and the current config is received from the client.
 let extensionConfiguration: extensionConfiguration = {
+  allowBuiltInFormatter: false,
   askToStartBuild: true,
   inlayHints: {
     enable: false,
@@ -46,6 +56,8 @@ let extensionConfiguration: extensionConfiguration = {
   codeLens: false,
   binaryPath: null,
 };
+// Below here is some state that's not important exactly how long it lives.
+let hasPromptedAboutBuiltInFormatter = false;
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
@@ -109,12 +121,28 @@ let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
 let findBscBinary = (projectRootPath: p.DocumentUri) => {
   let rescriptBinaryPath = findRescriptBinary(projectRootPath);
   if (rescriptBinaryPath !== null) {
-    return path.join(
+    let rescriptDirPath = path.join(
       path.dirname(rescriptBinaryPath),
       "..",
-      c.platformPath,
-      c.bscExeName
+      "rescript"
     );
+
+    let bscBinaryPath = path.join(rescriptDirPath, c.platformDir, c.bscExeName);
+
+    // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
+    if (
+      process.platform == "darwin" &&
+      process.arch == "arm64" &&
+      !fs.existsSync(bscBinaryPath)
+    ) {
+      bscBinaryPath = path.join(
+        rescriptDirPath,
+        process.platform,
+        c.bscExeName
+      );
+    }
+
+    return bscBinaryPath;
   }
   return null;
 };
@@ -155,15 +183,27 @@ let getCurrentCompilerDiagnosticsForFile = (
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach((projectFile, projectRootPath) => {
     let { filesWithDiagnostics } = projectFile;
-    let content = fs.readFileSync(
-      path.join(projectRootPath, c.compilerLogPartialPath),
-      { encoding: "utf-8" }
-    );
+    let compilerLogPath = path.join(projectRootPath, c.compilerLogPartialPath);
+    let content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
     let {
       done,
       result: filesAndErrors,
       codeActions,
+      linesWithParseErrors,
     } = utils.parseCompilerLogOutput(content);
+
+    if (linesWithParseErrors.length > 0) {
+      let params: p.ShowMessageParams = {
+        type: p.MessageType.Warning,
+        message: `There are more compiler warning/errors that we could not parse. You can help us fix this by opening an [issue on the repository](https://github.com/rescript-lang/rescript-vscode/issues/new?title=Compiler%20log%20parse%20error), pasting the contents of the file [lib/bs/.compiler.log](file://${compilerLogPath}).`,
+      };
+      let message: p.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: "window/showMessage",
+        params: params,
+      };
+      send(message);
+    }
 
     projectFile.filesDiagnostics = filesAndErrors;
     codeActionsFromDiagnostics = codeActions;
@@ -405,6 +445,7 @@ function hover(msg: p.RequestMessage) {
       params.position.line,
       params.position.character,
       tmpname,
+      Boolean(extensionClientCapabilities.supportsMarkdownLinks),
     ],
     msg
   );
@@ -742,7 +783,13 @@ function format(msg: p.RequestMessage): Array<p.Message> {
     let projectRootPath = utils.findProjectRootOfFile(filePath);
     let bscBinaryPath =
       projectRootPath === null ? null : findBscBinary(projectRootPath);
-    let formattedResult = utils.formatCode(bscBinaryPath, filePath, code);
+
+    let formattedResult = utils.formatCode(
+      bscBinaryPath,
+      filePath,
+      code,
+      extensionConfiguration.allowBuiltInFormatter
+    );
     if (formattedResult.kind === "success") {
       let max = code.length;
       let result: p.TextEdit[] = [
@@ -760,6 +807,25 @@ function format(msg: p.RequestMessage): Array<p.Message> {
         result: result,
       };
       return [response];
+    } else if (formattedResult.kind === "blocked-using-built-in-formatter") {
+      // Let's only prompt the user once about this, or things might become annoying.
+      if (hasPromptedAboutBuiltInFormatter) {
+        return [fakeSuccessResponse];
+      }
+      hasPromptedAboutBuiltInFormatter = true;
+
+      let params: p.ShowMessageParams = {
+        type: p.MessageType.Warning,
+        message: `Formatting not applied! Could not find the ReScript compiler in the current project, and you haven't configured the extension to allow formatting using the built in formatter. To allow formatting files not strictly part of a ReScript project using the built in formatter, [please configure the extension to allow that.](command:workbench.action.openSettings?${encodeURIComponent(
+          JSON.stringify(["rescript.settings.allowBuiltInFormatter"])
+        )})`,
+      };
+      let response: p.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: "window/showMessage",
+        params: params,
+      };
+      return [fakeSuccessResponse, response];
     } else {
       // let the diagnostics logic display the updated syntax errors,
       // from the build.
@@ -1033,6 +1099,16 @@ function onMessage(msg: p.Message) {
 
       if (initialConfiguration != null) {
         extensionConfiguration = initialConfiguration;
+      }
+
+      // These are static configuration options the client can set to enable certain
+      let extensionClientCapabilitiesFromClient = initParams
+        .initializationOptions?.extensionClientCapabilities as
+        | extensionClientCapabilities
+        | undefined;
+
+      if (extensionClientCapabilitiesFromClient != null) {
+        extensionClientCapabilities = extensionClientCapabilitiesFromClient;
       }
 
       // send the list of features we support

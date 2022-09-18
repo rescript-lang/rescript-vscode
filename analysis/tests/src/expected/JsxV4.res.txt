@@ -1,0 +1,18 @@
+Definition src/JsxV4.res 7:9
+getLocItem #9: heuristic for JSX variadic, e.g. <C> {x} {y} </C>
+heuristic for: [React.null, makeProps, make, createElementVariadic], give the loc of `make`
+n1:() n2:makeProps n3:make n4:createElement
+{"uri": "JsxV4.res", "range": {"start": {"line": 4, "character": 6}, "end": {"line": 4, "character": 10}}}
+
+Complete src/JsxV4.res 10:20
+posCursor:[10:20] posNoWhite:[10:19] Found expr:[10:4->10:20]
+JSX <M4:[10:4->10:6] first[10:7->10:12]=...[10:13->10:18] f[10:19->10:20]=...[10:19->10:20]> _children:None
+Completable: Cjsx([M4], f, [first, f])
+[{
+    "label": "fun",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": null
+  }]
+

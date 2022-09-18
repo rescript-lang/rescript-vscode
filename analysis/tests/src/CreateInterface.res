@@ -7,8 +7,10 @@ let add = (~x, ~y) => x + y
 @react.component
 let make = (~name) => React.string(name)
 
-@react.component
-let otherComponentName = (~name) => React.string(name)
+module Other = {
+  @react.component
+  let otherComponentName = (~name) => React.string(name)
+}
 
 module Mod = {
   @react.component
@@ -40,8 +42,7 @@ let f1 = 10
 
 @inline let f2 = "some string"
 
-@genType
-@inline
+@genType @inline
 let f3 = 10
 
 @genType @inline
@@ -95,32 +96,42 @@ module type OptT = {
   @react.component
   let withOpt1: (~x: int=?, ~y: int) => int
 
-  @react.component
-  let withOpt2: (~x: int=?, ~y: int) => int
+  module type Opt2 = {
+    @react.component
+    let withOpt2: (~x: int=?, ~y: int) => int
+  }
 
-  @react.component
-  let withOpt3: (~x: option<int>, ~y: int) => int
+  module type Opt3 = {
+    @react.component
+    let withOpt3: (~x: option<int>, ~y: int) => int
+  }
 }
 
 module Opt = {
   @react.component
   let withOpt1 = (~x=3, ~y) => x + y
 
-  @react.component
-  let withOpt2 = (~x=?, ~y) =>
-    switch x {
-    | None => 0
-    | Some(x) => x
-    } +
-    y
+  module Opt2 = {
+    @react.component
+    let withOpt2 = (~x: option<int>=?, ~y: int) =>
+      switch x {
+      | None => 0
+      | Some(x) => x
+      } +
+      y
+  }
+  module type Opt2 = module type of Opt2
 
-  @react.component
-  let withOpt3 = (~x, ~y) =>
-    switch x {
-    | None => 0
-    | Some(x) => x
-    } +
-    y
+  module Opt3 = {
+    @react.component
+    let withOpt3 = (~x: option<int>, ~y: int) =>
+      switch x {
+      | None => 0
+      | Some(x) => x
+      } +
+      y
+  }
+  module type Opt3 = module type of Opt3
 }
 
 module Opt2: OptT = Opt
