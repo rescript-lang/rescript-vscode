@@ -23,9 +23,6 @@ let otherFunc = (first: string, second: int, third: float) => {
 // let _ = someFunc(123, ~two
 //                           ^she
 
-// let _ = someFunc(123, ~two=
-//                             ^she
-
 // let _ = someFunc(123, ~two="123"
 //                               ^she
 
@@ -40,15 +37,6 @@ let otherFunc = (first: string, second: int, third: float) => {
 
 // let _ = otherFunc("123"
 //                      ^she
-
-// let _ = otherFunc("123",
-//                          ^she
-
-// let _ = otherFunc("123", 123
-//                            ^she
-
-// let _ = otherFunc("123", 123,
-//                               ^she
 
 // let _ = otherFunc("123", 123, 123.0)
 //                                 ^she

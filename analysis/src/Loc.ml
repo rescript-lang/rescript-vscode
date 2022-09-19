@@ -8,5 +8,3 @@ let toString (loc : t) =
   (if loc.loc_ghost then "__ghost__" else "") ^ (loc |> range |> Range.toString)
 
 let hasPos ~pos loc = start loc <= pos && pos < end_ loc
-
-let hasPosInclusive ~pos loc = start loc <= pos && pos <= end_ loc

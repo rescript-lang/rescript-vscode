@@ -6,11 +6,14 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   let setFound r = foundFunctionApplicationExpr := Some r in
   let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
     (match expr with
+    (* Look for applying idents, like someIdent(...) *)
     | {
      pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
      pexp_loc;
     }
-      when pexp_loc |> Loc.hasPosInclusive ~pos:posBeforeCursor ->
+      when pexp_loc
+           |> SharedTypes.CursorPosition.classifyLoc ~pos:posBeforeCursor
+           == HasCursor ->
       (* TODO: Move extractExpApplyArgs to a shared module that doesn't look like it's only for completion. *)
       let extractedArgs = CompletionFrontEnd.extractExpApplyArgs ~args in
       let argAtCursor =
@@ -22,27 +25,32 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                  let currentUnlabelledArgCount = !unlabelledArgCount in
                  unlabelledArgCount := currentUnlabelledArgCount + 1;
                  (* An argument without a label is just the expression, so we can use that. *)
-                 if arg.exp.pexp_loc |> Loc.hasPosInclusive ~pos:posBeforeCursor
-                 then Some (Unlabelled currentUnlabelledArgCount)
+                 if arg.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+                   Some (Unlabelled currentUnlabelledArgCount)
                  else None
-               | Some {name; posStart; posEnd} ->
+               | Some {name; posStart; posEnd} -> (
                  (* Check for the label identifier itself having the cursor *)
-                 let cursorIsWithinLabelIdPos =
-                   posStart <= pos && pos <= posEnd
-                 in
-                 (* Check for the expr assigned to the label having the cursor *)
-                 let cursorIsWithinArgExprPos =
-                   arg.exp.pexp_loc |> Loc.hasPosInclusive ~pos:posBeforeCursor
-                 in
-                 (* This most likely means that parsing failed and recovered. Happens for empty assignments for example. *)
-                 let argExprIsParserRecovery =
-                   arg.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_)
-                 in
-                 if
-                   cursorIsWithinLabelIdPos || cursorIsWithinArgExprPos
-                   || argExprIsParserRecovery
-                 then Some (Labelled name)
-                 else None)
+                 match
+                   pos
+                   |> SharedTypes.CursorPosition.classifyPositions ~posStart
+                        ~posEnd
+                 with
+                 | HasCursor -> Some (Labelled name)
+                 | NoCursor | EmptyLoc -> (
+                   (* If we're not in the label, check the exp. Either the exp
+                      exists and has the cursor. Or the exp is a parser recovery
+                      node, in which case we assume that the parser recovery
+                      indicates that the cursor was here. *)
+                   match
+                     ( arg.exp.pexp_desc,
+                       arg.exp.pexp_loc
+                       |> SharedTypes.CursorPosition.classifyLoc
+                            ~pos:posBeforeCursor )
+                   with
+                   | Pexp_extension ({txt = "rescript.exprhole"}, _), _
+                   | _, HasCursor ->
+                     Some (Labelled name)
+                   | _ -> None)))
       in
       setFound (argAtCursor, exp, extractedArgs)
     | _ -> ());
@@ -53,7 +61,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
   iterator.structure iterator structure |> ignore;
   match !foundFunctionApplicationExpr with
-  | Some (argAtCursor, exp, extractedArgs) -> (
+  | Some (argAtCursor, exp, _extractedArgs) -> (
     (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
     let pos = exp.pexp_loc |> Loc.end_ in
     let completions, env, package =
@@ -127,14 +135,12 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
              ptyp_loc;
             } ->
               let startOffset =
-                ptyp_loc |> Loc.start
-                |> CompletionFrontEnd.positionToOffset label
+                ptyp_loc |> Loc.start |> Pos.positionToOffset label
                 |> Option.get
               in
               let endOffset =
                 argumentTypeExpr.ptyp_loc |> Loc.end_
-                |> CompletionFrontEnd.positionToOffset label
-                |> Option.get
+                |> Pos.positionToOffset label |> Option.get
               in
               (* The AST locations does not account for "=?" of optional arguments, so add that to the offset here if needed. *)
               let endOffset =
