@@ -1,3 +1,4 @@
+open SharedTypes
 type cursorAtArg = Unlabelled of int | Labelled of string
 
 let signatureHelp ~path ~pos ~currentFile ~debug =
@@ -12,15 +13,14 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
      pexp_loc;
     }
       when pexp_loc
-           |> SharedTypes.CursorPosition.classifyLoc ~pos:posBeforeCursor
+           |> CursorPosition.classifyLoc ~pos:posBeforeCursor
            == HasCursor ->
-      (* TODO: Move extractExpApplyArgs to a shared module that doesn't look like it's only for completion. *)
-      let extractedArgs = CompletionFrontEnd.extractExpApplyArgs ~args in
+      let extractedArgs = extractExpApplyArgs ~args in
       let argAtCursor =
         let unlabelledArgCount = ref 0 in
         extractedArgs
         |> List.find_map (fun arg ->
-               match arg.CompletionFrontEnd.label with
+               match arg.label with
                | None ->
                  let currentUnlabelledArgCount = !unlabelledArgCount in
                  unlabelledArgCount := currentUnlabelledArgCount + 1;
@@ -31,9 +31,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                | Some {name; posStart; posEnd} -> (
                  (* Check for the label identifier itself having the cursor *)
                  match
-                   pos
-                   |> SharedTypes.CursorPosition.classifyPositions ~posStart
-                        ~posEnd
+                   pos |> CursorPosition.classifyPositions ~posStart ~posEnd
                  with
                  | HasCursor -> Some (Labelled name)
                  | NoCursor | EmptyLoc -> (
@@ -44,8 +42,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                    match
                      ( arg.exp.pexp_desc,
                        arg.exp.pexp_loc
-                       |> SharedTypes.CursorPosition.classifyLoc
-                            ~pos:posBeforeCursor )
+                       |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
                    with
                    | Pexp_extension ({txt = "rescript.exprhole"}, _), _
                    | _, HasCursor ->
@@ -82,7 +79,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
           match Cmt.fullFromPath ~path with
           | None -> ([], None, None)
           | Some {file; package} ->
-            let env = SharedTypes.QueryEnv.fromFile file in
+            let env = QueryEnv.fromFile file in
             ( completable
               |> CompletionBackEnd.processCompletable ~debug ~package ~pos
                    ~scope ~env ~forHover:true,
@@ -161,7 +158,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
           (parameters
           |> List.map (fun (start, end_) ->
                  String.sub label start (end_ - start))
-          |> SharedTypes.list);
+          |> list);
 
       (* Figure out the active parameter *)
       let activeParameter =
