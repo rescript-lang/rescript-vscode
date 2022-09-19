@@ -163,7 +163,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     let line, col = posCursor in
     (line, max 0 col - offset + offsetNoWhite)
   in
-  let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
+  let posBeforeCursor = Pos.posBeforeCursor posCursor in
   let charBeforeCursor, blankAfterCursor =
     match Pos.positionToOffset text posCursor with
     | Some offset when offset > 0 -> (

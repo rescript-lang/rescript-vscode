@@ -2,7 +2,7 @@ open SharedTypes
 type cursorAtArg = Unlabelled of int | Labelled of string
 
 let signatureHelp ~path ~pos ~currentFile ~debug =
-  let posBeforeCursor = (fst pos, max 0 (snd pos - 1)) in
+  let posBeforeCursor = Pos.posBeforeCursor pos in
   let foundFunctionApplicationExpr = ref None in
   let setFound r = foundFunctionApplicationExpr := Some r in
   let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
