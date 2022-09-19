@@ -1,6 +1,106 @@
 open SharedTypes
 type cursorAtArg = Unlabelled of int | Labelled of string
 
+let findFunctionType ~currentFile ~debug ~path ~pos =
+  let completions, env, package =
+    let textOpt = Files.readFile currentFile in
+    match textOpt with
+    | None | Some "" -> ([], None, None)
+    | Some text -> (
+      (* Leverage the completion functionality to pull out the type of the identifier doing the function application.
+         This lets us leverage all of the smart work done in completions to find the correct type in many cases even
+         for files not saved yet. *)
+      match
+        CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
+          ~currentFile ~text
+      with
+      | None -> ([], None, None)
+      | Some (completable, scope) -> (
+        match Cmt.fullFromPath ~path with
+        | None -> ([], None, None)
+        | Some {file; package} ->
+          let env = QueryEnv.fromFile file in
+          ( completable
+            |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope
+                 ~env ~forHover:true,
+            Some env,
+            Some package )))
+  in
+  match (completions, env, package) with
+  | {kind = Value type_expr; name; docstring} :: _, Some env, Some package ->
+    let args, _ =
+      CompletionBackEnd.extractFunctionType type_expr ~env ~package
+    in
+    Some (args, name, docstring, type_expr)
+  | _ -> None
+
+(* Extracts all parameters from a parsed function signature *)
+let extractParameters ~signature ~label =
+  match signature with
+  | [
+   {
+     Parsetree.psig_desc =
+       Psig_value {pval_type = {ptyp_desc = Ptyp_arrow _} as expr};
+   };
+  ] ->
+    let rec extractParams expr params =
+      match expr with
+      | {
+       (* Gotcha: functions with multiple arugments are modelled as a series of single argument functions. *)
+       Parsetree.ptyp_desc =
+         Ptyp_arrow (argumentLabel, argumentTypeExpr, nextFunctionExpr);
+       ptyp_loc;
+      } ->
+        let startOffset =
+          ptyp_loc |> Loc.start |> Pos.positionToOffset label |> Option.get
+        in
+        let endOffset =
+          argumentTypeExpr.ptyp_loc |> Loc.end_ |> Pos.positionToOffset label
+          |> Option.get
+        in
+        (* The AST locations does not account for "=?" of optional arguments, so add that to the offset here if needed. *)
+        let endOffset =
+          match argumentLabel with
+          | Asttypes.Optional _ -> endOffset + 2
+          | _ -> endOffset
+        in
+        extractParams nextFunctionExpr (params @ [(startOffset, endOffset)])
+      | _ -> params
+    in
+    extractParams expr []
+  | _ -> []
+
+(* Finds what parameter is active, if any *)
+let findActiveParameter ~argAtCursor ~args =
+  match argAtCursor with
+  | None -> (
+    (* If a function only has one, unlabelled argument, we can safely assume that's active whenever we're in the signature help for that function,
+       even if we technically didn't find anything at the cursor (which we don't for empty expressions). *)
+    match args with
+    | [(Asttypes.Nolabel, _)] -> Some 0
+    | _ -> None)
+  | Some (Unlabelled unlabelledArgumentIndex) ->
+    let index = ref 0 in
+    args
+    |> List.find_map (fun (label, _) ->
+           match label with
+           | Asttypes.Nolabel when !index = unlabelledArgumentIndex ->
+             Some !index
+           | _ ->
+             index := !index + 1;
+             None)
+  | Some (Labelled name) ->
+    let index = ref 0 in
+    args
+    |> List.find_map (fun (label, _) ->
+           match label with
+           | (Asttypes.Labelled labelName | Optional labelName)
+             when labelName = name ->
+             Some !index
+           | _ ->
+             index := !index + 1;
+             None)
+
 let signatureHelp ~path ~pos ~currentFile ~debug =
   let posBeforeCursor = Pos.posBeforeCursor pos in
   let foundFunctionApplicationExpr = ref None in
@@ -61,36 +161,8 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   | Some (argAtCursor, exp, _extractedArgs) -> (
     (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
     let pos = exp.pexp_loc |> Loc.end_ in
-    let completions, env, package =
-      let textOpt = Files.readFile currentFile in
-      match textOpt with
-      | None | Some "" -> ([], None, None)
-      | Some text -> (
-        (* Leverage the completion functionality to pull out the type of the identifier doing the function application.
-           This lets us leverage all of the smart work done in completions to find the correct type in many cases even
-           for files not saved yet. *)
-        (* TODO: This should probably eventually be factored out to its own thing, like "find type for pos", that feels less like abusing completions. *)
-        match
-          CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
-            ~currentFile ~text
-        with
-        | None -> ([], None, None)
-        | Some (completable, scope) -> (
-          match Cmt.fullFromPath ~path with
-          | None -> ([], None, None)
-          | Some {file; package} ->
-            let env = QueryEnv.fromFile file in
-            ( completable
-              |> CompletionBackEnd.processCompletable ~debug ~package ~pos
-                   ~scope ~env ~forHover:true,
-              Some env,
-              Some package )))
-    in
-    match (completions, env, package) with
-    | {kind = Value type_expr; name; docstring} :: _, Some env, Some package ->
-      let args, _ =
-        CompletionBackEnd.extractFunctionType type_expr ~env ~package
-      in
+    match findFunctionType ~currentFile ~debug ~path ~pos with
+    | Some (args, name, docstring, type_expr) ->
       if debug then
         Printf.printf "argAtCursor: %s\n"
           (match argAtCursor with
@@ -104,51 +176,12 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
 
       (* Put together a label here that both makes sense to show to the end user in the signature help, but also can be passed to the parser. *)
       let label = "let " ^ name ^ ": " ^ Shared.typeToString type_expr in
-      (* TODO: Refactor the parser to support reading string contents directly in addition to taking a file path.
-         For now, create a temp file, pass it to the parser, and then immediately delete it. *)
       let {Res_driver.parsetree = signature} =
         Res_driver.parseInterfaceFromSource ~forPrinter:false
           ~displayFilename:"<missing-file>" ~source:label
       in
 
-      let parameters =
-        match signature with
-        | [
-         {
-           Parsetree.psig_desc =
-             Psig_value {pval_type = {ptyp_desc = Ptyp_arrow _} as expr};
-         };
-        ] ->
-          let rec extractParams expr params =
-            match expr with
-            | {
-             (* Gotcha: functions with multiple arugments are modelled as a series of single argument functions. *)
-             Parsetree.ptyp_desc =
-               Ptyp_arrow (argumentLabel, argumentTypeExpr, nextFunctionExpr);
-             ptyp_loc;
-            } ->
-              let startOffset =
-                ptyp_loc |> Loc.start |> Pos.positionToOffset label
-                |> Option.get
-              in
-              let endOffset =
-                argumentTypeExpr.ptyp_loc |> Loc.end_
-                |> Pos.positionToOffset label |> Option.get
-              in
-              (* The AST locations does not account for "=?" of optional arguments, so add that to the offset here if needed. *)
-              let endOffset =
-                match argumentLabel with
-                | Asttypes.Optional _ -> endOffset + 2
-                | _ -> endOffset
-              in
-              extractParams nextFunctionExpr
-                (params @ [(startOffset, endOffset)])
-            | _ -> params
-          in
-          extractParams expr []
-        | _ -> []
-      in
-
+      let parameters = extractParameters ~signature ~label in
       if debug then
         Printf.printf "extracted params: \n%s\n"
           (parameters
@@ -157,36 +190,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
           |> list);
 
       (* Figure out the active parameter *)
-      let activeParameter =
-        match argAtCursor with
-        | None -> (
-          (* If a function only has one, unlabelled argument, we can safely assume that's active whenever we're in the signature help for that function,
-             even if we technically didn't find anything at the cursor (which we don't for empty expressions). *)
-          match args with
-          | [(Nolabel, _)] -> Some 0
-          | _ -> None)
-        | Some (Unlabelled unlabelledArgumentIndex) ->
-          let index = ref 0 in
-          args
-          |> List.find_map (fun (label, _) ->
-                 match label with
-                 | Asttypes.Nolabel when !index = unlabelledArgumentIndex ->
-                   Some !index
-                 | _ ->
-                   index := !index + 1;
-                   None)
-        | Some (Labelled name) ->
-          let index = ref 0 in
-          args
-          |> List.find_map (fun (label, _) ->
-                 match label with
-                 | (Asttypes.Labelled labelName | Optional labelName)
-                   when labelName = name ->
-                   Some !index
-                 | _ ->
-                   index := !index + 1;
-                   None)
-      in
+      let activeParameter = findActiveParameter ~argAtCursor ~args in
       Some
         {
           Protocol.signatures =
