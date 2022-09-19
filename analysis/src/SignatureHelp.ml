@@ -106,14 +106,10 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       let label = "let " ^ name ^ ": " ^ Shared.typeToString type_expr in
       (* TODO: Refactor the parser to support reading string contents directly in addition to taking a file path.
          For now, create a temp file, pass it to the parser, and then immediately delete it. *)
-      let fileWithTypeSignature =
-        Files.writeTempFile ~prefix:"typ_sig" ~suffix:".resi" label
-      in
-      let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
       let {Res_driver.parsetree = signature} =
-        parser ~filename:fileWithTypeSignature
+        Res_driver.parseInterfaceFromSource ~forPrinter:false
+          ~displayFilename:"<missing-file>" ~source:label
       in
-      Sys.remove fileWithTypeSignature;
 
       let parameters =
         match signature with

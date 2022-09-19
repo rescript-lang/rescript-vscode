@@ -19,6 +19,18 @@ type 'diagnostics parsingEngine = {
   stringOfDiagnostics: source:string -> filename:string -> 'diagnostics -> unit;
 }
 
+val parseImplementationFromSource :
+  forPrinter:bool ->
+  displayFilename:string ->
+  source:string ->
+  (Parsetree.structure, Res_diagnostics.t list) parseResult
+
+val parseInterfaceFromSource :
+  forPrinter:bool ->
+  displayFilename:string ->
+  source:string ->
+  (Parsetree.signature, Res_diagnostics.t list) parseResult
+
 type printEngine = {
   printImplementation:
     width:int ->
