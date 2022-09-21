@@ -164,3 +164,10 @@ Hover src/Hover.res 197:4
 Hover src/Hover.res 202:16
 {"contents": "```rescript\nuseR\n```\n\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n---\n\n\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n\n---\n"}
 
+Hover src/Hover.res 210:13
+Nothing at that position. Now trying to use completion.
+posCursor:[210:13] posNoWhite:[210:12] Found expr:[210:11->210:14]
+Pexp_ident usr:[210:11->210:14]
+Completable: Cpath Value[usr]
+{"contents": "```rescript\nuseR\n```"}
+
