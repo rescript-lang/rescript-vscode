@@ -17,7 +17,7 @@ type inlayHint = {
 }
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#parameterInformation *)
-type parameterInformation = {label: int * int}
+type parameterInformation = {label: int * int; documentation: markupContent}
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#signatureInformation *)
 type signatureInformation = {
@@ -189,9 +189,10 @@ let stringifyCodeLens (codeLens : codeLens) =
 
 let stringifyParameterInformation (parameterInformation : parameterInformation)
     =
-  Printf.sprintf {|{"label": %s}|}
+  Printf.sprintf {|{"label": %s, "documentation": %s}|}
     (let line, chr = parameterInformation.label in
      "[" ^ string_of_int line ^ ", " ^ string_of_int chr ^ "]")
+    (stringifyMarkupContent parameterInformation.documentation)
 
 let stringifySignatureInformation (signatureInformation : signatureInformation)
     =

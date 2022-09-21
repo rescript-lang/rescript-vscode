@@ -2,10 +2,10 @@ open SharedTypes
 type cursorAtArg = Unlabelled of int | Labelled of string
 
 let findFunctionType ~currentFile ~debug ~path ~pos =
-  let completions, env, package =
+  let completables =
     let textOpt = Files.readFile currentFile in
     match textOpt with
-    | None | Some "" -> ([], None, None)
+    | None | Some "" -> None
     | Some text -> (
       (* Leverage the completion functionality to pull out the type of the identifier doing the function application.
          This lets us leverage all of the smart work done in completions to find the correct type in many cases even
@@ -14,24 +14,26 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
         CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
           ~currentFile ~text
       with
-      | None -> ([], None, None)
+      | None -> None
       | Some (completable, scope) -> (
         match Cmt.fullFromPath ~path with
-        | None -> ([], None, None)
+        | None -> None
         | Some {file; package} ->
           let env = QueryEnv.fromFile file in
-          ( completable
-            |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope
-                 ~env ~forHover:true,
-            Some env,
-            Some package )))
+          Some
+            ( completable
+              |> CompletionBackEnd.processCompletable ~debug ~package ~pos
+                   ~scope ~env ~forHover:true,
+              env,
+              package,
+              file )))
   in
-  match (completions, env, package) with
-  | {kind = Value type_expr; name; docstring} :: _, Some env, Some package ->
+  match completables with
+  | Some ({kind = Value type_expr; name; docstring} :: _, env, package, file) ->
     let args, _ =
       CompletionBackEnd.extractFunctionType type_expr ~env ~package
     in
-    Some (args, name, docstring, type_expr)
+    Some (args, name, docstring, type_expr, package, env, file)
   | _ -> None
 
 (* Extracts all parameters from a parsed function signature *)
@@ -64,7 +66,8 @@ let extractParameters ~signature ~label =
           | Asttypes.Optional _ -> endOffset + 2
           | _ -> endOffset
         in
-        extractParams nextFunctionExpr (params @ [(startOffset, endOffset)])
+        extractParams nextFunctionExpr
+          (params @ [(argumentLabel, startOffset, endOffset)])
       | _ -> params
     in
     extractParams expr []
@@ -101,8 +104,55 @@ let findActiveParameter ~argAtCursor ~args =
              index := !index + 1;
              None)
 
+let shouldPrintMainTypeStr typ ~env ~package =
+  match typ |> Shared.digConstructor with
+  | Some path -> (
+    match References.digConstructor ~env ~package path with
+    | Some (_, {item = {kind = Record _}}) -> false
+    | _ -> true)
+  | _ -> false
+
+(* Produces the doc string shown below the signature help for each parameter. *)
+let docsForLabel typeExpr ~file ~package ~supportsMarkdownLinks =
+  let env = QueryEnv.fromFile file in
+  let types = Hover.findRelevantTypesFromType ~file ~package typeExpr in
+  let typeString =
+    if shouldPrintMainTypeStr typeExpr ~env ~package then
+      Markdown.codeBlock (typeExpr |> Shared.typeToString)
+    else ""
+  in
+  let typeNames = types |> List.map (fun {Hover.name} -> name) in
+  let typeDefinitions =
+    types
+    |> List.map (fun {Hover.decl; name; env; loc; path} ->
+           let linkToTypeDefinitionStr =
+             if supportsMarkdownLinks then
+               Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
+             else ""
+           in
+           (* Since printing the whole name via its path can get quite long, and
+              we're short on space for the signature help, we'll only print the
+              fully "qualified" type name if we must (ie if several types we're
+              displaying have the same name). *)
+           let multipleTypesHaveThisName =
+             typeNames
+             |> List.filter (fun typeName -> typeName = name)
+             |> List.length > 1
+           in
+           let typeName =
+             if multipleTypesHaveThisName then
+               path |> SharedTypes.pathIdentToString
+             else name
+           in
+           Markdown.codeBlock
+             (Shared.declToString ~printNameAsIs:true typeName decl)
+           ^ linkToTypeDefinitionStr)
+  in
+  typeString :: typeDefinitions |> String.concat "\n"
+
 let signatureHelp ~path ~pos ~currentFile ~debug =
   let posBeforeCursor = Pos.posBeforeCursor pos in
+  let supportsMarkdownLinks = true in
   let foundFunctionApplicationExpr = ref None in
   let setFound r = foundFunctionApplicationExpr := Some r in
   let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
@@ -162,7 +212,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
     (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
     let pos = exp.pexp_loc |> Loc.end_ in
     match findFunctionType ~currentFile ~debug ~path ~pos with
-    | Some (args, name, docstring, type_expr) ->
+    | Some (args, name, docstring, type_expr, package, _env, file) ->
       if debug then
         Printf.printf "argAtCursor: %s\n"
           (match argAtCursor with
@@ -185,7 +235,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       if debug then
         Printf.printf "extracted params: \n%s\n"
           (parameters
-          |> List.map (fun (start, end_) ->
+          |> List.map (fun (_, start, end_) ->
                  String.sub label start (end_ - start))
           |> list);
 
@@ -199,7 +249,25 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                 label;
                 parameters =
                   parameters
-                  |> List.map (fun params -> {Protocol.label = params});
+                  |> List.map (fun (argLabel, start, end_) ->
+                         {
+                           Protocol.label = (start, end_);
+                           documentation =
+                             (match
+                                args
+                                |> List.find_opt (fun (lbl, _) ->
+                                       lbl = argLabel)
+                              with
+                             | None ->
+                               {Protocol.kind = "markdown"; value = "Nope"}
+                             | Some (_, labelTypExpr) ->
+                               {
+                                 Protocol.kind = "markdown";
+                                 value =
+                                   docsForLabel ~supportsMarkdownLinks ~file
+                                     ~package labelTypExpr;
+                               });
+                         });
                 documentation =
                   (match List.nth_opt docstring 0 with
                   | None -> None

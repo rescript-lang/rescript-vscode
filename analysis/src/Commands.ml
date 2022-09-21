@@ -52,14 +52,15 @@ let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
         match completions with
         | {kind = Label typString; docstring} :: _ ->
           let parts =
-            (if typString = "" then [] else [Hover.codeBlock typString])
+            (if typString = "" then [] else [Markdown.codeBlock typString])
             @ docstring
           in
           Protocol.stringifyHover (String.concat "\n\n" parts)
         | _ -> (
           match CompletionBackEnd.completionsGetTypeEnv completions with
           | Some (typ, _env) ->
-            Protocol.stringifyHover (Hover.codeBlock (Shared.typeToString typ))
+            Protocol.stringifyHover
+              (Markdown.codeBlock (Shared.typeToString typ))
           | None -> Protocol.null))
       | Some locItem -> (
         let isModule =
