@@ -46,22 +46,12 @@ let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
         if debug then
           Printf.printf
             "Nothing at that position. Now trying to use completion.\n";
-        let completions =
-          getCompletions ~debug ~path ~pos ~currentFile ~forHover:true
-        in
-        match completions with
-        | {kind = Label typString; docstring} :: _ ->
-          let parts =
-            (if typString = "" then [] else [Markdown.codeBlock typString])
-            @ docstring
-          in
-          Protocol.stringifyHover (String.concat "\n\n" parts)
-        | _ -> (
-          match CompletionBackEnd.completionsGetTypeEnv completions with
-          | Some (typ, _env) ->
-            Protocol.stringifyHover
-              (Markdown.codeBlock (Shared.typeToString typ))
-          | None -> Protocol.null))
+        match
+          Hover.getHoverViaCompletions ~debug ~path ~pos ~currentFile
+            ~forHover:true ~supportsMarkdownLinks
+        with
+        | None -> Protocol.null
+        | Some hover -> hover)
       | Some locItem -> (
         let isModule =
           match locItem.locType with
