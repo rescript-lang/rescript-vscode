@@ -87,6 +87,72 @@ let findRelevantTypesFromType ~file ~package typ =
   let constructors = Shared.findTypeConstructors typesToSearch in
   constructors |> List.filter_map (fromConstructorPath ~env:envToSearch)
 
+(* Produces a hover with relevant types expanded in the main type being hovered. *)
+let hoverWithExpandedTypes ~docstring ~file ~package ~supportsMarkdownLinks typ
+    =
+  let typeString = Markdown.codeBlock (typ |> Shared.typeToString) in
+  let types = findRelevantTypesFromType typ ~file ~package in
+  let typeDefinitions =
+    types
+    |> List.map (fun {decl; env; loc; path} ->
+           let linkToTypeDefinitionStr =
+             if supportsMarkdownLinks then
+               Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
+             else ""
+           in
+           "\n" ^ Markdown.spacing
+           ^ Markdown.codeBlock
+               (decl
+               |> Shared.declToString ~printNameAsIs:true
+                    (SharedTypes.pathIdentToString path))
+           ^ linkToTypeDefinitionStr ^ "\n" ^ Markdown.divider)
+  in
+  (typeString :: typeDefinitions |> String.concat "\n", docstring)
+
+(* Leverages autocomplete functionality to produce a hover for a position. This
+   makes it (most often) work with unsaved content. *)
+let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
+    ~supportsMarkdownLinks =
+  let textOpt = Files.readFile currentFile in
+  match textOpt with
+  | None | Some "" -> None
+  | Some text -> (
+    match
+      CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
+        ~currentFile ~text
+    with
+    | None -> None
+    | Some (completable, scope) -> (
+      if debug then
+        Printf.printf "Completable: %s\n"
+          (SharedTypes.Completable.toString completable);
+      (* Only perform expensive ast operations if there are completables *)
+      match Cmt.fullFromPath ~path with
+      | None -> None
+      | Some {file; package} -> (
+        let env = SharedTypes.QueryEnv.fromFile file in
+        let completions =
+          completable
+          |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope
+               ~env ~forHover
+        in
+        match completions with
+        | {kind = Label typString; docstring} :: _ ->
+          let parts =
+            (if typString = "" then [] else [Markdown.codeBlock typString])
+            @ docstring
+          in
+          Some (Protocol.stringifyHover (String.concat "\n\n" parts))
+        | _ -> (
+          match CompletionBackEnd.completionsGetTypeEnv completions with
+          | Some (typ, _env) ->
+            let typeString, _docstring =
+              hoverWithExpandedTypes ~docstring:"" ~file ~package
+                ~supportsMarkdownLinks typ
+            in
+            Some (Protocol.stringifyHover typeString)
+          | None -> None))))
+
 let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
   match locItem.locType with
   | TypeDefinition (name, decl, _stamp) ->
@@ -150,24 +216,8 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
          | Const_nativeint _ -> "int"))
   | Typed (_, t, locKind) ->
     let fromType ~docstring typ =
-      let typeString = Markdown.codeBlock (typ |> Shared.typeToString) in
-      let types = findRelevantTypesFromType typ ~file ~package in
-      let typeDefinitions =
-        types
-        |> List.map (fun {decl; env; loc; path} ->
-               let linkToTypeDefinitionStr =
-                 if supportsMarkdownLinks then
-                   Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
-                 else ""
-               in
-               "\n" ^ Markdown.spacing
-               ^ Markdown.codeBlock
-                   (decl
-                   |> Shared.declToString ~printNameAsIs:true
-                        (SharedTypes.pathIdentToString path))
-               ^ linkToTypeDefinitionStr ^ "\n" ^ Markdown.divider)
-      in
-      (typeString :: typeDefinitions |> String.concat "\n", docstring)
+      hoverWithExpandedTypes ~docstring ~file ~package ~supportsMarkdownLinks
+        typ
     in
     let parts =
       match References.definedForLoc ~file ~package locKind with
