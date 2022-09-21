@@ -78,5 +78,3 @@ let typeToString ?lineWidth (t : Types.type_expr) =
     Hashtbl.replace typeTbl (t.id, t) s;
     s
   | Some s -> s
-
-let markdownSpacing = "\n```\n \n```\n"
