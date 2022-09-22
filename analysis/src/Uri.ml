@@ -23,7 +23,6 @@ let toTopLevelLoc {path} =
 
 let toString {uri} = if !stripPath then Filename.basename uri else uri
 
-
 (* Light weight, hopefully-enough-for-the-purpose fn to encode URI components.
    Built to handle the reserved characters listed in
    https://en.wikipedia.org/wiki/Percent-encoding. Note that this function is not

@@ -106,16 +106,6 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   in
   args |> processProps ~acc:[]
 
-type labelled = {
-  name: string;
-  opt: bool;
-  posStart: int * int;
-  posEnd: int * int;
-}
-
-type label = labelled option
-type arg = {label: label; exp: Parsetree.expression}
-
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
   let allNames =
@@ -145,37 +135,6 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
   in
   loop args
 
-let extractExpApplyArgs ~args =
-  let rec processArgs ~acc args =
-    match args with
-    | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
-      :: rest -> (
-      let namedArgLoc =
-        e.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
-      in
-      match namedArgLoc with
-      | Some ({loc}, _) ->
-        let labelled =
-          {
-            name = s;
-            opt =
-              (match label with
-              | Optional _ -> true
-              | _ -> false);
-            posStart = Loc.start loc;
-            posEnd = Loc.end_ loc;
-          }
-        in
-        processArgs ~acc:({label = Some labelled; exp = e} :: acc) rest
-      | None -> processArgs ~acc rest)
-    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest ->
-      if e.pexp_loc.loc_ghost then processArgs ~acc rest
-      else processArgs ~acc:({label = None; exp = e} :: acc) rest
-    | [] -> List.rev acc
-  in
-  args |> processArgs ~acc:[]
-
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
@@ -204,7 +163,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     let line, col = posCursor in
     (line, max 0 col - offset + offsetNoWhite)
   in
-  let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
+  let posBeforeCursor = Pos.posBeforeCursor posCursor in
   let charBeforeCursor, blankAfterCursor =
     match Pos.positionToOffset text posCursor with
     | Some offset when offset > 0 -> (
