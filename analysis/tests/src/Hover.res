@@ -202,3 +202,11 @@ type useR = {x: int, y: list<option<r<float>>>}
 
 let testUseR = (v: useR) => v
 //              ^hov
+
+let usr: useR = {
+  x: 123,
+  y: list{},
+}
+
+// let f = usr
+//           ^hov
