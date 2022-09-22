@@ -221,7 +221,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
           | Some (Unlabelled index) -> "unlabelled<" ^ string_of_int index ^ ">");
 
       (* The LS protocol wants us to send both the full type signature (label) that the end user sees as the signature help, and all parameters in that label
-         in the form of a list of start/end character offsets. We'll leverage the parser to figure the offsets out by parsing the label, and extract the
+         in the form of a list of start/end character offsets. We leverage the parser to figure the offsets out by parsing the label, and extract the
          offsets from the parser. *)
 
       (* Put together a label here that both makes sense to show to the end user in the signature help, but also can be passed to the parser. *)
