@@ -13,6 +13,7 @@ import {
   InitializeParams,
   InlayHintParams,
   CodeLensParams,
+  SignatureHelpParams,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -33,6 +34,9 @@ interface extensionConfiguration {
   };
   codeLens: boolean;
   binaryPath: string | null;
+  signatureHelp: {
+    enable: boolean;
+  };
 }
 
 // This holds client capabilities specific to our extension, and not necessarily
@@ -54,6 +58,9 @@ let extensionConfiguration: extensionConfiguration = {
   },
   codeLens: false,
   binaryPath: null,
+  signatureHelp: {
+    enable: false,
+  },
 };
 // Below here is some state that's not important exactly how long it lives.
 let hasPromptedAboutBuiltInFormatter = false;
@@ -498,6 +505,27 @@ function sendCodeLensRefresh() {
     id: serverSentRequestIdCounter++,
   };
   send(request);
+}
+
+function signatureHelp(msg: p.RequestMessage) {
+  let params = msg.params as p.SignatureHelpParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir();
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
+  let response = utils.runAnalysisCommand(
+    filePath,
+    [
+      "signatureHelp",
+      filePath,
+      params.position.line,
+      params.position.character,
+      tmpname,
+    ],
+    msg
+  );
+  fs.unlink(tmpname, () => null);
+  return response;
 }
 
 function definition(msg: p.RequestMessage) {
@@ -1130,6 +1158,12 @@ function onMessage(msg: p.Message) {
                 workDoneProgress: false,
               }
             : undefined,
+          signatureHelpProvider: extensionConfiguration.signatureHelp?.enable
+            ? {
+                triggerCharacters: ["("],
+                retriggerCharacters: ["=", ","],
+              }
+            : undefined,
         },
       };
       let response: p.ResponseMessage = {
@@ -1220,6 +1254,12 @@ function onMessage(msg: p.Message) {
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
         send(codeLens(msg));
+      }
+    } else if (msg.method === p.SignatureHelpRequest.method) {
+      let params = msg.params as SignatureHelpParams;
+      let extName = path.extname(params.textDocument.uri);
+      if (extName === c.resExt) {
+        send(signatureHelp(msg));
       }
     } else {
       let response: p.ResponseMessage = {

@@ -272,14 +272,6 @@ export function activate(context: ExtensionContext) {
   // language client, and because of that requires a full restart.
   context.subscriptions.push(
     workspace.onDidChangeConfiguration(({ affectsConfiguration }) => {
-      // Send a general message that configuration has updated. Clients
-      // interested can then pull the new configuration as they see fit.
-      client
-        .sendNotification("workspace/didChangeConfiguration")
-        .catch((err) => {
-          window.showErrorMessage(String(err));
-        });
-
       // Put any configuration that, when changed, requires a full restart of
       // the server here. That will typically be any configuration that affects
       // the capabilities declared by the server, since those cannot be updated
@@ -287,9 +279,18 @@ export function activate(context: ExtensionContext) {
       // initializing.
       if (
         affectsConfiguration("rescript.settings.inlayHints") ||
-        affectsConfiguration("rescript.settings.codeLens")
+        affectsConfiguration("rescript.settings.codeLens") ||
+        affectsConfiguration("rescript.settings.signatureHelp")
       ) {
         commands.executeCommand("rescript-vscode.restart_language_server");
+      } else {
+        // Send a general message that configuration has updated. Clients
+        // interested can then pull the new configuration as they see fit.
+        client
+          .sendNotification("workspace/didChangeConfiguration")
+          .catch((err) => {
+            window.showErrorMessage(String(err));
+          });
       }
     })
   );

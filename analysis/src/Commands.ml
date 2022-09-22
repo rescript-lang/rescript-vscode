@@ -79,6 +79,15 @@ let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
   in
   print_endline result
 
+let signatureHelp ~path ~pos ~currentFile ~debug =
+  let result =
+    match SignatureHelp.signatureHelp ~path ~pos ~currentFile ~debug with
+    | None ->
+      {Protocol.signatures = []; activeSignature = None; activeParameter = None}
+    | Some res -> res
+  in
+  print_endline (Protocol.stringifySignatureHelp result)
+
 let codeAction ~path ~pos ~currentFile ~debug =
   Xform.extractCodeActions ~path ~pos ~currentFile ~debug
   |> CodeActions.stringifyCodeActions |> print_endline
@@ -334,6 +343,13 @@ let test ~path =
             let currentFile = createCurrentFile () in
             hover ~supportsMarkdownLinks:true ~path ~pos:(line, col)
               ~currentFile ~debug:true;
+            Sys.remove currentFile
+          | "she" ->
+            print_endline
+              ("Signature help " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            signatureHelp ~path ~pos:(line, col) ~currentFile ~debug:true;
             Sys.remove currentFile
           | "int" ->
             print_endline ("Create Interface " ^ path);

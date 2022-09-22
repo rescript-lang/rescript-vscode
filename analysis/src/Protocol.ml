@@ -16,6 +16,23 @@ type inlayHint = {
   paddingRight: bool;
 }
 
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#parameterInformation *)
+type parameterInformation = {label: int * int; documentation: markupContent}
+
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#signatureInformation *)
+type signatureInformation = {
+  label: string;
+  parameters: parameterInformation list;
+  documentation: markupContent option;
+}
+
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#signatureHelp *)
+type signatureHelp = {
+  signatures: signatureInformation list;
+  activeSignature: int option;
+  activeParameter: int option;
+}
+
 type completionItem = {
   label: string;
   kind: int;
@@ -169,6 +186,45 @@ let stringifyCodeLens (codeLens : codeLens) =
     (match codeLens.command with
     | None -> ""
     | Some command -> stringifyCommand command)
+
+let stringifyParameterInformation (parameterInformation : parameterInformation)
+    =
+  Printf.sprintf {|{"label": %s, "documentation": %s}|}
+    (let line, chr = parameterInformation.label in
+     "[" ^ string_of_int line ^ ", " ^ string_of_int chr ^ "]")
+    (stringifyMarkupContent parameterInformation.documentation)
+
+let stringifySignatureInformation (signatureInformation : signatureInformation)
+    =
+  Printf.sprintf
+    {|{
+    "label": "%s",
+    "parameters": %s%s
+  }|}
+    (Json.escape signatureInformation.label)
+    (signatureInformation.parameters
+    |> List.map stringifyParameterInformation
+    |> array)
+    (match signatureInformation.documentation with
+    | None -> ""
+    | Some docs ->
+      Printf.sprintf ",\n    \"documentation\": %s"
+        (stringifyMarkupContent docs))
+
+let stringifySignatureHelp (signatureHelp : signatureHelp) =
+  Printf.sprintf
+    {|{
+  "signatures": %s,
+  "activeSignature": %s,
+  "activeParameter": %s
+}|}
+    (signatureHelp.signatures |> List.map stringifySignatureInformation |> array)
+    (match signatureHelp.activeSignature with
+    | None -> null
+    | Some activeSignature -> activeSignature |> string_of_int)
+    (match signatureHelp.activeParameter with
+    | None -> null
+    | Some activeParameter -> activeParameter |> string_of_int)
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic *)
 let stringifyDiagnostic d =
