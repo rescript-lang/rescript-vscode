@@ -34,6 +34,9 @@ interface extensionConfiguration {
   };
   codeLens: boolean;
   binaryPath: string | null;
+  signatureHelp: {
+    enable: boolean;
+  };
 }
 
 // This holds client capabilities specific to our extension, and not necessarily
@@ -55,6 +58,9 @@ let extensionConfiguration: extensionConfiguration = {
   },
   codeLens: false,
   binaryPath: null,
+  signatureHelp: {
+    enable: false,
+  },
 };
 // Below here is some state that's not important exactly how long it lives.
 let hasPromptedAboutBuiltInFormatter = false;
@@ -1152,10 +1158,12 @@ function onMessage(msg: p.Message) {
                 workDoneProgress: false,
               }
             : undefined,
-          signatureHelpProvider: {
-            triggerCharacters: ["("],
-            retriggerCharacters: ["=", ","],
-          },
+          signatureHelpProvider: extensionConfiguration.signatureHelp?.enable
+            ? {
+                triggerCharacters: ["("],
+                retriggerCharacters: ["=", ","],
+              }
+            : undefined,
         },
       };
       let response: p.ResponseMessage = {
