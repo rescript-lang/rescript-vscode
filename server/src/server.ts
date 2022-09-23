@@ -34,6 +34,7 @@ interface extensionConfiguration {
   };
   codeLens: boolean;
   binaryPath: string | null;
+  platformPath: string | null;
   signatureHelp: {
     enable: boolean;
   };
@@ -58,6 +59,7 @@ let extensionConfiguration: extensionConfiguration = {
   },
   codeLens: false,
   binaryPath: null,
+  platformPath: null,
   signatureHelp: {
     enable: false,
   },
@@ -98,60 +100,37 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-// Check if the rescript binary is available at node_modules/.bin/rescript,
-// otherwise recursively check parent directories for it.
-let findBinaryPathFromProjectRoot = (
-  directory: p.DocumentUri // This must be a directory and not a file!
-): null | p.DocumentUri => {
-  let binaryDirPath = path.join(directory, c.nodeModulesBinDir);
-  let binaryPath = path.join(binaryDirPath, c.rescriptBinName);
+let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
+  extensionConfiguration.binaryPath == null
+    ? utils.findFilePathFromProjectRoot(projectRootPath, path.join(c.nodeModulesBinDir, c.rescriptBinName))
+    : utils.findBinary(extensionConfiguration.binaryPath, c.rescriptBinName);
 
-  if (fs.existsSync(binaryPath)) {
-    return binaryPath;
+let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
+  if (extensionConfiguration.platformPath != null) {
+    return extensionConfiguration.platformPath;
   }
 
-  let parentDir = path.dirname(directory);
-  if (parentDir === directory) {
-    // reached the top
+  let rescriptDir = utils.findFilePathFromProjectRoot(projectRootPath, path.join("node_modules", "rescript"));
+  if (rescriptDir == null) {
     return null;
   }
 
-  return findBinaryPathFromProjectRoot(parentDir);
-};
+  let platformPath = path.join(rescriptDir, c.platformDir)
 
-let findRescriptBinary = (projectRootPath: p.DocumentUri) =>
-  extensionConfiguration.binaryPath == null
-    ? findBinaryPathFromProjectRoot(projectRootPath)
-    : utils.findRescriptBinary(extensionConfiguration.binaryPath);
-
-let findBscBinary = (projectRootPath: p.DocumentUri) => {
-  let rescriptBinaryPath = findRescriptBinary(projectRootPath);
-  if (rescriptBinaryPath !== null) {
-    let rescriptDirPath = path.join(
-      path.dirname(rescriptBinaryPath),
-      "..",
-      "rescript"
-    );
-
-    let bscBinaryPath = path.join(rescriptDirPath, c.platformDir, c.bscExeName);
-
-    // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
-    if (
-      process.platform == "darwin" &&
-      process.arch == "arm64" &&
-      !fs.existsSync(bscBinaryPath)
-    ) {
-      bscBinaryPath = path.join(
-        rescriptDirPath,
-        process.platform,
-        c.bscExeName
-      );
-    }
-
-    return bscBinaryPath;
+  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
+  if (
+    process.platform == "darwin" &&
+    process.arch == "arm64" &&
+    !fs.existsSync(platformPath)
+  ) {
+    platformPath = path.join(rescriptDir, process.platform);
   }
-  return null;
-};
+
+  return platformPath;
+}
+
+let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
+  utils.findBinary(findPlatformPath(projectRootPath), c.bscExeName)
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -786,12 +765,12 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   } else {
     // code will always be defined here, even though technically it can be undefined
     let code = getOpenedFileContent(params.textDocument.uri);
+
     let projectRootPath = utils.findProjectRootOfFile(filePath);
-    let bscBinaryPath =
-      projectRootPath === null ? null : findBscBinary(projectRootPath);
+    let bscExeBinaryPath = findBscExeBinary(projectRootPath);
 
     let formattedResult = utils.formatCode(
-      bscBinaryPath,
+      bscExeBinaryPath,
       filePath,
       code,
       extensionConfiguration.allowBuiltInFormatter
