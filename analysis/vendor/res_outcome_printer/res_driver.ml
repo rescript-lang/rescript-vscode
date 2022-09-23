@@ -41,6 +41,10 @@ let setup ~filename ~forPrinter () =
   let mode = if forPrinter then Res_parser.Default else ParseForTypeChecker in
   Res_parser.make ~mode src filename
 
+let setupFromSource ~displayFilename ~source ~forPrinter () =
+  let mode = if forPrinter then Res_parser.Default else ParseForTypeChecker in
+  Res_parser.make ~mode source displayFilename
+
 let parsingEngine =
   {
     parseImplementation =
@@ -80,6 +84,40 @@ let parsingEngine =
     stringOfDiagnostics =
       (fun ~source ~filename:_ diagnostics ->
         Res_diagnostics.printReport diagnostics source);
+  }
+
+let parseImplementationFromSource ~forPrinter ~displayFilename ~source =
+  let engine = setupFromSource ~displayFilename ~source ~forPrinter () in
+  let structure = Res_core.parseImplementation engine in
+  let invalid, diagnostics =
+    match engine.diagnostics with
+    | [] as diagnostics -> (false, diagnostics)
+    | _ as diagnostics -> (true, diagnostics)
+  in
+  {
+    filename = engine.scanner.filename;
+    source = engine.scanner.src;
+    parsetree = structure;
+    diagnostics;
+    invalid;
+    comments = List.rev engine.comments;
+  }
+
+let parseInterfaceFromSource ~forPrinter ~displayFilename ~source =
+  let engine = setupFromSource ~displayFilename ~source ~forPrinter () in
+  let signature = Res_core.parseSpecification engine in
+  let invalid, diagnostics =
+    match engine.diagnostics with
+    | [] as diagnostics -> (false, diagnostics)
+    | _ as diagnostics -> (true, diagnostics)
+  in
+  {
+    filename = engine.scanner.filename;
+    source = engine.scanner.src;
+    parsetree = signature;
+    diagnostics;
+    invalid;
+    comments = List.rev engine.comments;
   }
 
 let printEngine =

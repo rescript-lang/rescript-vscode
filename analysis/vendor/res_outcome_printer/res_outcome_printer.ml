@@ -526,9 +526,9 @@ and printRecordDeclRowDoc (name, mut, opt, arg) =
   Doc.group
     (Doc.concat
        [
-         (if opt then Doc.text "?" else Doc.nil);
          (if mut then Doc.text "mutable " else Doc.nil);
          printIdentLike ~allowUident:false name;
+         (if opt then Doc.text "?" else Doc.nil);
          Doc.text ": ";
          printOutTypeDoc arg;
        ])
@@ -563,7 +563,8 @@ let printTypeParameterDoc (typ, (co, cn)) =
       (if typ = "_" then Doc.text "_" else Doc.text ("'" ^ typ));
     ]
 
-let rec printOutSigItemDoc (outSigItem : Outcometree.out_sig_item) =
+let rec printOutSigItemDoc ?(printNameAsIs = false)
+    (outSigItem : Outcometree.out_sig_item) =
   match outSigItem with
   | Osig_class _ | Osig_class_type _ -> Doc.nil
   | Osig_ellipsis -> Doc.dotdotdot
@@ -728,7 +729,8 @@ let rec printOutSigItemDoc (outSigItem : Outcometree.out_sig_item) =
                 [
                   attrs;
                   kw;
-                  printIdentLike ~allowUident:false outTypeDecl.otype_name;
+                  (if printNameAsIs then Doc.text outTypeDecl.otype_name
+                  else printIdentLike ~allowUident:false outTypeDecl.otype_name);
                   typeParams;
                   kind;
                 ]);
@@ -823,7 +825,7 @@ and printOutSignatureDoc (signature : Outcometree.out_sig_item list) =
       let doc = printOutTypeExtensionDoc te in
       loop items (doc :: acc)
     | item :: items ->
-      let doc = printOutSigItemDoc item in
+      let doc = printOutSigItemDoc ~printNameAsIs:false item in
       loop items (doc :: acc)
   in
   match loop signature [] with

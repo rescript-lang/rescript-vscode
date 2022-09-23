@@ -6,6 +6,9 @@ import {
   languages,
   window,
   StatusBarAlignment,
+  Uri,
+  Range,
+  Position,
 } from "vscode";
 
 import {
@@ -103,8 +106,17 @@ export function activate(context: ExtensionContext) {
       // We'll leave it like this for now, but might be worth revisiting later on.
       initializationOptions: {
         extensionConfiguration: workspace.getConfiguration("rescript.settings"),
+
+        // Keep this in sync with the `extensionClientCapabilities` type in the
+        // server.
+        extensionClientCapabilities: {
+          supportsMarkdownLinks: true,
+        },
       },
       outputChannel,
+      markdown: {
+        isTrusted: true,
+      },
     };
 
     const client = new LanguageClient(
@@ -189,6 +201,18 @@ export function activate(context: ExtensionContext) {
     customCommands.openCompiled(client);
   });
 
+  commands.registerCommand(
+    "rescript-vscode.go_to_location",
+    async (fileUri: string, startLine: number, startCol: number) => {
+      await window.showTextDocument(Uri.parse(fileUri), {
+        selection: new Range(
+          new Position(startLine, startCol),
+          new Position(startLine, startCol)
+        ),
+      });
+    }
+  );
+
   // Starts the code analysis mode.
   commands.registerCommand("rescript-vscode.start_code_analysis", () => {
     // Save the directory this first ran from, and re-use that when continuously
@@ -248,14 +272,6 @@ export function activate(context: ExtensionContext) {
   // language client, and because of that requires a full restart.
   context.subscriptions.push(
     workspace.onDidChangeConfiguration(({ affectsConfiguration }) => {
-      // Send a general message that configuration has updated. Clients
-      // interested can then pull the new configuration as they see fit.
-      client
-        .sendNotification("workspace/didChangeConfiguration")
-        .catch((err) => {
-          window.showErrorMessage(String(err));
-        });
-
       // Put any configuration that, when changed, requires a full restart of
       // the server here. That will typically be any configuration that affects
       // the capabilities declared by the server, since those cannot be updated
@@ -263,9 +279,18 @@ export function activate(context: ExtensionContext) {
       // initializing.
       if (
         affectsConfiguration("rescript.settings.inlayHints") ||
-        affectsConfiguration("rescript.settings.codeLens")
+        affectsConfiguration("rescript.settings.codeLens") ||
+        affectsConfiguration("rescript.settings.signatureHelp")
       ) {
         commands.executeCommand("rescript-vscode.restart_language_server");
+      } else {
+        // Send a general message that configuration has updated. Clients
+        // interested can then pull the new configuration as they see fit.
+        client
+          .sendNotification("workspace/didChangeConfiguration")
+          .catch((err) => {
+            window.showErrorMessage(String(err));
+          });
       }
     })
   );

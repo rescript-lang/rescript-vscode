@@ -7,26 +7,6 @@ let rec skipWhite text i =
     | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
     | _ -> i
 
-let offsetOfLine text line =
-  let ln = String.length text in
-  let rec loop i lno =
-    if i >= ln then None
-    else
-      match text.[i] with
-      | '\n' -> if lno = line - 1 then Some (i + 1) else loop (i + 1) (lno + 1)
-      | _ -> loop (i + 1) lno
-  in
-  match line with
-  | 0 -> Some 0
-  | _ -> loop 0 0
-
-let positionToOffset text (line, character) =
-  match offsetOfLine text line with
-  | None -> None
-  | Some bol ->
-    if bol + character <= String.length text then Some (bol + character)
-    else None
-
 type prop = {
   name: string;
   posStart: int * int;
@@ -126,16 +106,6 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   in
   args |> processProps ~acc:[]
 
-type labelled = {
-  name: string;
-  opt: bool;
-  posStart: int * int;
-  posEnd: int * int;
-}
-
-type label = labelled option
-type arg = {label: label; exp: Parsetree.expression}
-
 let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
   let allNames =
@@ -165,37 +135,6 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
   in
   loop args
 
-let extractExpApplyArgs ~args =
-  let rec processArgs ~acc args =
-    match args with
-    | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
-      :: rest -> (
-      let namedArgLoc =
-        e.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
-      in
-      match namedArgLoc with
-      | Some ({loc}, _) ->
-        let labelled =
-          {
-            name = s;
-            opt =
-              (match label with
-              | Optional _ -> true
-              | _ -> false);
-            posStart = Loc.start loc;
-            posEnd = Loc.end_ loc;
-          }
-        in
-        processArgs ~acc:({label = Some labelled; exp = e} :: acc) rest
-      | None -> processArgs ~acc rest)
-    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest ->
-      if e.pexp_loc.loc_ghost then processArgs ~acc rest
-      else processArgs ~acc:({label = None; exp = e} :: acc) rest
-    | [] -> List.rev acc
-  in
-  args |> processArgs ~acc:[]
-
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
@@ -224,9 +163,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     let line, col = posCursor in
     (line, max 0 col - offset + offsetNoWhite)
   in
-  let posBeforeCursor = (fst posCursor, max 0 (snd posCursor - 1)) in
+  let posBeforeCursor = Pos.posBeforeCursor posCursor in
   let charBeforeCursor, blankAfterCursor =
-    match positionToOffset text posCursor with
+    match Pos.positionToOffset text posCursor with
     | Some offset when offset > 0 -> (
       let charBeforeCursor = text.[offset - 1] in
       let charAtCursor =
@@ -405,7 +344,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     else if id.loc.loc_ghost then ()
     else if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
       let posStart, posEnd = Loc.range id.loc in
-      match (positionToOffset text posStart, positionToOffset text posEnd) with
+      match
+        (Pos.positionToOffset text posStart, Pos.positionToOffset text posEnd)
+      with
       | Some offsetStart, Some offsetEnd ->
         (* Can't trust the parser's location
            E.g. @foo. let x... gives as label @foo.let *)
@@ -788,7 +729,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   else None
 
 let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
-  match positionToOffset text posCursor with
+  match Pos.positionToOffset text posCursor with
   | Some offset ->
     completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text
   | None -> None

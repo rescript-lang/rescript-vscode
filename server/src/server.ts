@@ -13,6 +13,7 @@ import {
   InitializeParams,
   InlayHintParams,
   CodeLensParams,
+  SignatureHelpParams,
 } from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
@@ -34,7 +35,18 @@ interface extensionConfiguration {
   codeLens: boolean;
   binaryPath: string | null;
   platformPath: string | null;
+  signatureHelp: {
+    enable: boolean;
+  };
 }
+
+// This holds client capabilities specific to our extension, and not necessarily
+// related to the LS protocol. It's for enabling/disabling features that might
+// work in one client, like VSCode, but perhaps not in others, like vim.
+export interface extensionClientCapabilities {
+  supportsMarkdownLinks?: boolean | null;
+}
+let extensionClientCapabilities: extensionClientCapabilities = {};
 
 // All values here are temporary, and will be overridden as the server is
 // initialized, and the current config is received from the client.
@@ -48,6 +60,9 @@ let extensionConfiguration: extensionConfiguration = {
   codeLens: false,
   binaryPath: null,
   platformPath: null,
+  signatureHelp: {
+    enable: false,
+  },
 };
 // Below here is some state that's not important exactly how long it lives.
 let hasPromptedAboutBuiltInFormatter = false;
@@ -153,15 +168,27 @@ let getCurrentCompilerDiagnosticsForFile = (
 let sendUpdatedDiagnostics = () => {
   projectsFiles.forEach((projectFile, projectRootPath) => {
     let { filesWithDiagnostics } = projectFile;
-    let content = fs.readFileSync(
-      path.join(projectRootPath, c.compilerLogPartialPath),
-      { encoding: "utf-8" }
-    );
+    let compilerLogPath = path.join(projectRootPath, c.compilerLogPartialPath);
+    let content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
     let {
       done,
       result: filesAndErrors,
       codeActions,
+      linesWithParseErrors,
     } = utils.parseCompilerLogOutput(content);
+
+    if (linesWithParseErrors.length > 0) {
+      let params: p.ShowMessageParams = {
+        type: p.MessageType.Warning,
+        message: `There are more compiler warning/errors that we could not parse. You can help us fix this by opening an [issue on the repository](https://github.com/rescript-lang/rescript-vscode/issues/new?title=Compiler%20log%20parse%20error), pasting the contents of the file [lib/bs/.compiler.log](file://${compilerLogPath}).`,
+      };
+      let message: p.NotificationMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        method: "window/showMessage",
+        params: params,
+      };
+      send(message);
+    }
 
     projectFile.filesDiagnostics = filesAndErrors;
     codeActionsFromDiagnostics = codeActions;
@@ -403,6 +430,7 @@ function hover(msg: p.RequestMessage) {
       params.position.line,
       params.position.character,
       tmpname,
+      Boolean(extensionClientCapabilities.supportsMarkdownLinks),
     ],
     msg
   );
@@ -456,6 +484,27 @@ function sendCodeLensRefresh() {
     id: serverSentRequestIdCounter++,
   };
   send(request);
+}
+
+function signatureHelp(msg: p.RequestMessage) {
+  let params = msg.params as p.SignatureHelpParams;
+  let filePath = fileURLToPath(params.textDocument.uri);
+  let code = getOpenedFileContent(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir();
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
+  let response = utils.runAnalysisCommand(
+    filePath,
+    [
+      "signatureHelp",
+      filePath,
+      params.position.line,
+      params.position.character,
+      tmpname,
+    ],
+    msg
+  );
+  fs.unlink(tmpname, () => null);
+  return response;
 }
 
 function definition(msg: p.RequestMessage) {
@@ -1037,6 +1086,16 @@ function onMessage(msg: p.Message) {
         extensionConfiguration = initialConfiguration;
       }
 
+      // These are static configuration options the client can set to enable certain
+      let extensionClientCapabilitiesFromClient = initParams
+        .initializationOptions?.extensionClientCapabilities as
+        | extensionClientCapabilities
+        | undefined;
+
+      if (extensionClientCapabilitiesFromClient != null) {
+        extensionClientCapabilities = extensionClientCapabilitiesFromClient;
+      }
+
       // send the list of features we support
       let result: p.InitializeResult = {
         // This tells the client: "hey, we support the following operations".
@@ -1076,6 +1135,12 @@ function onMessage(msg: p.Message) {
           codeLensProvider: extensionConfiguration.codeLens
             ? {
                 workDoneProgress: false,
+              }
+            : undefined,
+          signatureHelpProvider: extensionConfiguration.signatureHelp?.enable
+            ? {
+                triggerCharacters: ["("],
+                retriggerCharacters: ["=", ","],
               }
             : undefined,
         },
@@ -1168,6 +1233,12 @@ function onMessage(msg: p.Message) {
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
         send(codeLens(msg));
+      }
+    } else if (msg.method === p.SignatureHelpRequest.method) {
+      let params = msg.params as SignatureHelpParams;
+      let extName = path.extname(params.textDocument.uri);
+      if (extName === c.resExt) {
+        send(signatureHelp(msg));
       }
     } else {
       let response: p.ResponseMessage = {

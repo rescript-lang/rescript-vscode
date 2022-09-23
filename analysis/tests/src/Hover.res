@@ -38,9 +38,11 @@ let functionWithTypeAnnotation: unit => int = () => 1
 let make = (~name) => React.string(name)
 //           ^hov
 
-@react.component
-let make2 = (~name: string) => React.string(name)
-//           ^hov
+module C2 = {
+  @react.component
+  let make2 = (~name: string) => React.string(name)
+  //           ^hov
+}
 
 let num = 34
 //        ^hov
@@ -184,3 +186,27 @@ module TypeSubstitutionRecords = {
   // y2.content.
   //            ^com
 }
+
+module CompV4 = {
+  type props<'n, 's> = {n?: 'n, s: 's}
+  let make = props => {
+    let _ = props.n == Some(10)
+    React.string(props.s)
+  }
+}
+
+let mk = CompV4.make
+//  ^hov
+
+type useR = {x: int, y: list<option<r<float>>>}
+
+let testUseR = (v: useR) => v
+//              ^hov
+
+let usr: useR = {
+  x: 123,
+  y: list{},
+}
+
+// let f = usr
+//           ^hov

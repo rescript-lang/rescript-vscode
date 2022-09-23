@@ -36,7 +36,7 @@ let codeLens ~path ~debug =
   let result = Hint.codeLens ~path ~debug |> Protocol.array in
   print_endline result
 
-let hover ~path ~pos ~currentFile ~debug =
+let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
   let result =
     match Cmt.fullFromPath ~path with
     | None -> Protocol.null
@@ -46,21 +46,12 @@ let hover ~path ~pos ~currentFile ~debug =
         if debug then
           Printf.printf
             "Nothing at that position. Now trying to use completion.\n";
-        let completions =
-          getCompletions ~debug ~path ~pos ~currentFile ~forHover:true
-        in
-        match completions with
-        | {kind = Label typString; docstring} :: _ ->
-          let parts =
-            (if typString = "" then [] else [Hover.codeBlock typString])
-            @ docstring
-          in
-          Protocol.stringifyHover (String.concat "\n\n" parts)
-        | _ -> (
-          match CompletionBackEnd.completionsGetTypeEnv completions with
-          | Some (typ, _env) ->
-            Protocol.stringifyHover (Hover.codeBlock (Shared.typeToString typ))
-          | None -> Protocol.null))
+        match
+          Hover.getHoverViaCompletions ~debug ~path ~pos ~currentFile
+            ~forHover:true ~supportsMarkdownLinks
+        with
+        | None -> Protocol.null
+        | Some hover -> hover)
       | Some locItem -> (
         let isModule =
           match locItem.locType with
@@ -81,12 +72,21 @@ let hover ~path ~pos ~currentFile ~debug =
         in
         if skipZero then Protocol.null
         else
-          let hoverText = Hover.newHover ~full locItem in
+          let hoverText = Hover.newHover ~supportsMarkdownLinks ~full locItem in
           match hoverText with
           | None -> Protocol.null
           | Some s -> Protocol.stringifyHover s))
   in
   print_endline result
+
+let signatureHelp ~path ~pos ~currentFile ~debug =
+  let result =
+    match SignatureHelp.signatureHelp ~path ~pos ~currentFile ~debug with
+    | None ->
+      {Protocol.signatures = []; activeSignature = None; activeParameter = None}
+    | Some res -> res
+  in
+  print_endline (Protocol.stringifySignatureHelp result)
 
 let codeAction ~path ~pos ~currentFile ~debug =
   Xform.extractCodeActions ~path ~pos ~currentFile ~debug
@@ -341,7 +341,15 @@ let test ~path =
               ("Hover " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             let currentFile = createCurrentFile () in
-            hover ~path ~pos:(line, col) ~currentFile ~debug:true;
+            hover ~supportsMarkdownLinks:true ~path ~pos:(line, col)
+              ~currentFile ~debug:true;
+            Sys.remove currentFile
+          | "she" ->
+            print_endline
+              ("Signature help " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            signatureHelp ~path ~pos:(line, col) ~currentFile ~debug:true;
             Sys.remove currentFile
           | "int" ->
             print_endline ("Create Interface " ^ path);
@@ -407,6 +415,13 @@ let test ~path =
           | "cle" ->
             print_endline ("Code Lens " ^ path);
             codeLens ~path ~debug:false
+          | "ast" ->
+            print_endline
+              ("Dump AST " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            DumpAst.dump ~pos:(line, col) ~currentFile;
+            Sys.remove currentFile
           | _ -> ());
           print_newline ())
     in

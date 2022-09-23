@@ -29,22 +29,42 @@ let tryReadCmi cmi =
       None
     | x -> Some x
 
-(** TODO move to the Process_ stuff *)
-let rec dig typ =
-  match typ.Types.desc with
-  | Types.Tlink inner -> dig inner
-  | Types.Tsubst inner -> dig inner
-  | Types.Tpoly (inner, _) -> dig inner
-  | _ -> typ
+let rec dig (te : Types.type_expr) =
+  match te.desc with
+  | Tlink inner -> dig inner
+  | Tsubst inner -> dig inner
+  | Tpoly (inner, _) -> dig inner
+  | _ -> te
 
-let digConstructor expr =
-  let expr = dig expr in
-  match expr.desc with
+let digConstructor te =
+  match (dig te).desc with
   | Tconstr (path, _args, _memo) -> Some path
   | _ -> None
 
-let declToString ?(recStatus = Types.Trec_not) name t =
-  PrintType.printDecl ~recStatus name t
+let findTypeConstructors (tel : Types.type_expr list) =
+  let paths = ref [] in
+  let addPath path =
+    if not (List.exists (Path.same path) !paths) then paths := path :: !paths
+  in
+  let rec loop (te : Types.type_expr) =
+    match te.desc with
+    | Tlink te1 | Tsubst te1 | Tpoly (te1, _) -> loop te1
+    | Tconstr (path, args, _) ->
+      addPath path;
+      args |> List.iter loop
+    | Tarrow (_, te1, te2, _) ->
+      loop te1;
+      loop te2
+    | Ttuple tel -> tel |> List.iter loop
+    | Tnil | Tvar _ | Tobject _ | Tfield _ | Tvariant _ | Tunivar _ | Tpackage _
+      ->
+      ()
+  in
+  tel |> List.iter loop;
+  !paths |> List.rev
+
+let declToString ?printNameAsIs ?(recStatus = Types.Trec_not) name t =
+  PrintType.printDecl ?printNameAsIs ~recStatus name t
 
 let cacheTypeToString = ref false
 let typeTbl = Hashtbl.create 1

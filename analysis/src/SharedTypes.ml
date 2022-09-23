@@ -1,3 +1,7 @@
+let str s = if s = "" then "\"\"" else s
+let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
+let ident l = l |> List.map str |> String.concat "."
+
 type modulePath =
   | File of Uri.t * string
   | NotVisible
@@ -315,6 +319,13 @@ type path = string list
 
 let pathToString (path : path) = path |> String.concat "."
 
+let rec pathIdentToString (p : Path.t) =
+  match p with
+  | Pident {name} -> name
+  | Pdot (nextPath, id, _) ->
+    Printf.sprintf "%s.%s" (pathIdentToString nextPath) id
+  | Papply _ -> ""
+
 type locKind =
   | LocalReference of int * Tip.t
   | GlobalReference of string * string list * Tip.t
@@ -435,8 +446,6 @@ module Completable = struct
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
 
   let toString =
-    let str s = if s = "" then "\"\"" else s in
-    let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]" in
     let completionContextToString = function
       | Value -> "Value"
       | Type -> "Type"
@@ -472,3 +481,64 @@ module Completable = struct
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
 end
+
+module CursorPosition = struct
+  type t = NoCursor | HasCursor | EmptyLoc
+
+  let classifyLoc loc ~pos =
+    if loc |> Loc.hasPos ~pos then HasCursor
+    else if loc |> Loc.end_ = (Location.none |> Loc.end_) then EmptyLoc
+    else NoCursor
+
+  let classifyLocationLoc (loc : 'a Location.loc) ~pos =
+    if Loc.start loc.Location.loc <= pos && pos <= Loc.end_ loc.loc then
+      HasCursor
+    else if loc.loc |> Loc.end_ = (Location.none |> Loc.end_) then EmptyLoc
+    else NoCursor
+
+  let classifyPositions pos ~posStart ~posEnd =
+    if posStart <= pos && pos <= posEnd then HasCursor
+    else if posEnd = (Location.none |> Loc.end_) then EmptyLoc
+    else NoCursor
+end
+
+type labelled = {
+  name: string;
+  opt: bool;
+  posStart: int * int;
+  posEnd: int * int;
+}
+
+type label = labelled option
+type arg = {label: label; exp: Parsetree.expression}
+
+let extractExpApplyArgs ~args =
+  let rec processArgs ~acc args =
+    match args with
+    | (((Asttypes.Labelled s | Optional s) as label), (e : Parsetree.expression))
+      :: rest -> (
+      let namedArgLoc =
+        e.pexp_attributes
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+      in
+      match namedArgLoc with
+      | Some ({loc}, _) ->
+        let labelled =
+          {
+            name = s;
+            opt =
+              (match label with
+              | Optional _ -> true
+              | _ -> false);
+            posStart = Loc.start loc;
+            posEnd = Loc.end_ loc;
+          }
+        in
+        processArgs ~acc:({label = Some labelled; exp = e} :: acc) rest
+      | None -> processArgs ~acc rest)
+    | (Asttypes.Nolabel, (e : Parsetree.expression)) :: rest ->
+      if e.pexp_loc.loc_ghost then processArgs ~acc rest
+      else processArgs ~acc:({label = None; exp = e} :: acc) rest
+    | [] -> List.rev acc
+  in
+  args |> processArgs ~acc:[]
