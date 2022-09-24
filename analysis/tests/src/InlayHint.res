@@ -24,7 +24,7 @@ type foo = {
 }
 
 let bar = () => ({name: "ReScript", age: 2}, tuple)
-let ({name, age}, t) = bar()
+let ({name:_, age:_}, t) = bar()
 
 let alice = {
   name: "Alice",
