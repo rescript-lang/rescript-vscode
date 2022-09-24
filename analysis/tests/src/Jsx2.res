@@ -168,3 +168,7 @@ let _ = {
   <> {<> <Comp age=34 /> </>} </>
   //            ^hov
 }
+
+module type ExtT = module type of Ext
+
+let _ = module(Ext: ExtT)
