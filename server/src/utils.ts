@@ -219,7 +219,7 @@ export const toCamelCase = (text: string): string => {
     .replace(/(\s|-)+/g, "");
 };
 
-const readBsConfig = (projDir: p.DocumentUri) => {
+const readBsConfig = (projDir: p.DocumentUri): any | null => {
   try {
     let bsconfigFile = fs.readFileSync(
       path.join(projDir, c.bsconfigPartialPath),
@@ -270,19 +270,7 @@ let getCompiledFolderName = (moduleFormat: string): string => {
   }
 };
 
-export let getCompiledFilePath = (
-  filePath: string,
-  projDir: string
-): execResult => {
-  let bsconfig = readBsConfig(projDir);
-
-  if (!bsconfig) {
-    return {
-      kind: "error",
-      error: "Could not read bsconfig",
-    };
-  }
-
+let getSuffixAndPathFragmentFromBsconfig = (bsconfig: any) => {
   let pkgSpecs = bsconfig["package-specs"];
   let pathFragment = "";
   let moduleFormatObj: any = {};
@@ -318,9 +306,52 @@ export let getCompiledFilePath = (
     suffix = bsconfig.suffix;
   }
 
+  return [suffix, pathFragment];
+};
+
+export let getCompiledFilePath = (
+  filePath: string,
+  projDir: string
+): execResult => {
+  let bsconfig = readBsConfig(projDir);
+  let error: execResult = {
+    kind: "error",
+    error: "Could not read bsconfig",
+  };
+
+  if (!bsconfig) {
+    return error;
+  }
+
+  let [suffix, pathFragment] = getSuffixAndPathFragmentFromBsconfig(bsconfig);
   let partialFilePath = filePath.split(projDir)[1];
   let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
   let result = path.join(projDir, pathFragment, compiledPartialPath);
+
+  // If the file is not found, lookup a possible root bsconfig that may contain
+  // info about the possible location of the file.
+  if (!fs.existsSync(result)) {
+    let rootBsConfigPath = findFilePathFromProjectRoot(
+      path.join("..", projDir),
+      c.bsconfigPartialPath
+    );
+
+    if (!rootBsConfigPath) {
+      return error;
+    }
+
+    let rootBsconfig = readBsConfig(path.dirname(rootBsConfigPath));
+
+    if (!rootBsconfig) {
+      return error;
+    }
+
+    let [rootSuffix, rootPathFragment] =
+      getSuffixAndPathFragmentFromBsconfig(rootBsconfig);
+
+    let compiledPartialPath = replaceFileExtension(partialFilePath, rootSuffix);
+    result = path.join(projDir, rootPathFragment, compiledPartialPath);
+  }
 
   return {
     kind: "success",
