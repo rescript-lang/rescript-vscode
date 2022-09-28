@@ -6,7 +6,7 @@
   },
   "name": "sample-typescript-app",
   "bsc-flags": ["-bs-super-errors -w a"],
-  "reason": { "react-jsx": 3 },
+  "jsx": { "version": 3 },
   "bs-dependencies": ["@rescript/react", "@glennsl/bs-json"],
   "sources": [
     {
