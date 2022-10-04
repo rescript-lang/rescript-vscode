@@ -12,6 +12,8 @@
 
 ## master
 
+## v1.7.0
+
 #### :rocket: New Feature
 
 - Add support for prop completion for JSX V4 https://github.com/rescript-lang/rescript-vscode/pull/579
