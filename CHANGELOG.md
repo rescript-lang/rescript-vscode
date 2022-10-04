@@ -12,7 +12,7 @@
 
 ## master
 
-## v1.7.0
+## v1.8.0
 
 #### :rocket: New Feature
 
