@@ -11,6 +11,8 @@ import {
 import fs from "fs";
 import * as os from "os";
 
+import { BuildSchema } from "./buildSchema";
+
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
 
@@ -219,14 +221,14 @@ export const toCamelCase = (text: string): string => {
     .replace(/(\s|-)+/g, "");
 };
 
-const readBsConfig = (projDir: p.DocumentUri): any | null => {
+const readBsConfig = (projDir: p.DocumentUri): BuildSchema | null => {
   try {
     let bsconfigFile = fs.readFileSync(
       path.join(projDir, c.bsconfigPartialPath),
       { encoding: "utf-8" }
     );
 
-    let result = JSON.parse(bsconfigFile);
+    let result: BuildSchema = JSON.parse(bsconfigFile);
     return result;
   } catch (e) {
     return null;
