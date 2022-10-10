@@ -11,7 +11,7 @@ import {
 import fs from "fs";
 import * as os from "os";
 
-import { BuildSchema } from "./buildSchema";
+import { BuildSchema, ModuleFormat, ModuleFormatObject } from "./buildSchema";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -260,7 +260,7 @@ export const getNamespaceNameFromBsConfig = (
   };
 };
 
-let getCompiledFolderName = (moduleFormat: string): string => {
+let getCompiledFolderName = (moduleFormat: ModuleFormat): string => {
   switch (moduleFormat) {
     case "es6":
       return "es6";
@@ -272,20 +272,23 @@ let getCompiledFolderName = (moduleFormat: string): string => {
   }
 };
 
-let getSuffixAndPathFragmentFromBsconfig = (bsconfig: any) => {
+let getSuffixAndPathFragmentFromBsconfig = (bsconfig: BuildSchema) => {
   let pkgSpecs = bsconfig["package-specs"];
   let pathFragment = "";
-  let moduleFormatObj: any = {};
-
   let module = c.bsconfigModuleDefault;
+  let moduleFormatObj: ModuleFormatObject = { module: module };
   let suffix = c.bsconfigSuffixDefault;
 
   if (pkgSpecs) {
-    if (pkgSpecs.module) {
+    if (
+      !Array.isArray(pkgSpecs) &&
+      typeof pkgSpecs !== "string" &&
+      pkgSpecs.module
+    ) {
       moduleFormatObj = pkgSpecs;
     } else if (typeof pkgSpecs === "string") {
       module = pkgSpecs;
-    } else if (pkgSpecs[0]) {
+    } else if (Array.isArray(pkgSpecs) && pkgSpecs[0]) {
       if (typeof pkgSpecs[0] === "string") {
         module = pkgSpecs[0];
       } else {
