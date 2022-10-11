@@ -225,8 +225,8 @@ export let getCompiledFilePath = (
     kind: "error",
     error: "Could not read bsconfig",
   };
-
-  let compiledPath = lookup.getFilenameFromBsconfig(projDir, filePath);
+  let partialFilePath = filePath.split(projDir)[1];
+  let compiledPath = lookup.getFilenameFromBsconfig(projDir, partialFilePath);
 
   if (!compiledPath) {
     return error;
@@ -237,7 +237,10 @@ export let getCompiledFilePath = (
   // If the file is not found, lookup a possible root bsconfig that may contain
   // info about the possible location of the file.
   if (!fs.existsSync(result)) {
-    let compiledPath = lookup.getFilenameFromRootBsconfig(projDir, filePath);
+    let compiledPath = lookup.getFilenameFromRootBsconfig(
+      projDir,
+      partialFilePath
+    );
 
     if (!compiledPath) {
       return error;

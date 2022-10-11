@@ -106,11 +106,9 @@ export const getSuffixAndPathFragmentFromBsconfig = (bsconfig: BuildSchema) => {
 
 export const getFilenameFromBsconfig = (
   projDir: string,
-  filePath: string
+  partialFilePath: string
 ): string | null => {
   let bsconfig = readBsConfig(projDir);
-
-  let partialFilePath = filePath.split(projDir)[1];
 
   if (!bsconfig) {
     return null;
