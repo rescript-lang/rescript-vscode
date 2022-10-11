@@ -272,6 +272,8 @@ let getCompiledFolderName = (moduleFormat: ModuleFormat): string => {
   }
 };
 
+// Collect data from bsconfig to be able to find out the correct path of
+// the compiled JS artifacts.
 let getSuffixAndPathFragmentFromBsconfig = (bsconfig: BuildSchema) => {
   let pkgSpecs = bsconfig["package-specs"];
   let pathFragment = "";
