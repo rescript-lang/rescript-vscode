@@ -1,4 +1,5 @@
 import * as path from "path";
+import { ModuleFormat } from "./buildSchema";
 
 export let platformDir =
   process.arch == "arm64" ? process.platform + process.arch : process.platform;
@@ -49,7 +50,7 @@ export let cmiExt = ".cmi";
 export let startBuildAction = "Start Build";
 
 // bsconfig defaults according configuration schema (https://rescript-lang.org/docs/manual/latest/build-configuration-schema)
-export let bsconfigModuleDefault = "commonjs";
+export let bsconfigModuleDefault = ModuleFormat.Commonjs;
 export let bsconfigSuffixDefault = ".js";
 
 export let configurationRequestId = "rescript_configuration_request";
