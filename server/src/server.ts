@@ -15,6 +15,7 @@ import {
   CodeLensParams,
   SignatureHelpParams,
 } from "vscode-languageserver-protocol";
+import * as lookup from "./lookup";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
@@ -102,7 +103,10 @@ let send: (msg: p.Message) => void = (_) => {};
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
   extensionConfiguration.binaryPath == null
-    ? utils.findFilePathFromProjectRoot(projectRootPath, path.join(c.nodeModulesBinDir, c.rescriptBinName))
+    ? lookup.findFilePathFromProjectRoot(
+        projectRootPath,
+        path.join(c.nodeModulesBinDir, c.rescriptBinName)
+      )
     : utils.findBinary(extensionConfiguration.binaryPath, c.rescriptBinName);
 
 let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
@@ -110,12 +114,15 @@ let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
     return extensionConfiguration.platformPath;
   }
 
-  let rescriptDir = utils.findFilePathFromProjectRoot(projectRootPath, path.join("node_modules", "rescript"));
+  let rescriptDir = lookup.findFilePathFromProjectRoot(
+    projectRootPath,
+    path.join("node_modules", "rescript")
+  );
   if (rescriptDir == null) {
     return null;
   }
 
-  let platformPath = path.join(rescriptDir, c.platformDir)
+  let platformPath = path.join(rescriptDir, c.platformDir);
 
   // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
   if (
@@ -127,10 +134,10 @@ let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
   }
 
   return platformPath;
-}
+};
 
 let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
-  utils.findBinary(findPlatformPath(projectRootPath), c.bscExeName)
+  utils.findBinary(findPlatformPath(projectRootPath), c.bscExeName);
 
 interface CreateInterfaceRequestParams {
   uri: string;
@@ -941,7 +948,7 @@ function createInterface(msg: p.RequestMessage): p.Message {
   let result = typeof response.result === "string" ? response.result : "";
 
   try {
-    let resiPath = utils.replaceFileExtension(filePath, c.resiExt);
+    let resiPath = lookup.replaceFileExtension(filePath, c.resiExt);
     fs.writeFileSync(resiPath, result, { encoding: "utf-8" });
     let response: p.ResponseMessage = {
       jsonrpc: c.jsonrpcVersion,

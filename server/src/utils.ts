@@ -1,5 +1,3 @@
-import * as c from "./constants";
-import * as codeActions from "./codeActions";
 import * as childProcess from "child_process";
 import * as p from "vscode-languageserver-protocol";
 import * as path from "path";
@@ -11,7 +9,9 @@ import {
 import fs from "fs";
 import * as os from "os";
 
-import { BuildSchema, ModuleFormat, ModuleFormatObject } from "./buildSchema";
+import * as codeActions from "./codeActions";
+import * as c from "./constants";
+import * as lookup from "./lookup";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -38,30 +38,6 @@ export let findProjectRootOfFile = (
       return findProjectRootOfFile(dir);
     }
   }
-};
-
-// Check if filePartialPath exists at directory and return the joined path,
-// otherwise recursively check parent directories for it.
-export let findFilePathFromProjectRoot = (
-  directory: p.DocumentUri | null, // This must be a directory and not a file!
-  filePartialPath: string
-): null | p.DocumentUri => {
-  if (directory == null) {
-    return null;
-  }
-
-  let filePath: p.DocumentUri = path.join(directory, filePartialPath);
-  if (fs.existsSync(filePath)) {
-    return filePath;
-  }
-
-  let parentDir: p.DocumentUri = path.dirname(directory);
-  if (parentDir === directory) {
-    // reached the top
-    return null;
-  }
-
-  return findFilePathFromProjectRoot(parentDir, filePartialPath);
 };
 
 // Check if binaryName exists inside binaryDirPath and return the joined path.
@@ -210,35 +186,16 @@ export let getReferencesForPosition = (
     position.character,
   ]);
 
-export let replaceFileExtension = (filePath: string, ext: string): string => {
-  let name = path.basename(filePath, path.extname(filePath));
-  return path.format({ dir: path.dirname(filePath), name, ext });
-};
-
 export const toCamelCase = (text: string): string => {
   return text
     .replace(/(?:^\w|[A-Z]|\b\w)/g, (s: string) => s.toUpperCase())
     .replace(/(\s|-)+/g, "");
 };
 
-const readBsConfig = (projDir: p.DocumentUri): BuildSchema | null => {
-  try {
-    let bsconfigFile = fs.readFileSync(
-      path.join(projDir, c.bsconfigPartialPath),
-      { encoding: "utf-8" }
-    );
-
-    let result: BuildSchema = JSON.parse(bsconfigFile);
-    return result;
-  } catch (e) {
-    return null;
-  }
-};
-
 export const getNamespaceNameFromBsConfig = (
   projDir: p.DocumentUri
 ): execResult => {
-  let bsconfig = readBsConfig(projDir);
+  let bsconfig = lookup.readBsConfig(projDir);
   let result = "";
 
   if (!bsconfig) {
@@ -260,104 +217,33 @@ export const getNamespaceNameFromBsConfig = (
   };
 };
 
-let getCompiledFolderName = (moduleFormat: ModuleFormat): string => {
-  switch (moduleFormat) {
-    case "es6":
-      return "es6";
-    case "es6-global":
-      return "es6_global";
-    case "commonjs":
-    default:
-      return "js";
-  }
-};
-
-// Collect data from bsconfig to be able to find out the correct path of
-// the compiled JS artifacts.
-let getSuffixAndPathFragmentFromBsconfig = (bsconfig: BuildSchema) => {
-  let pkgSpecs = bsconfig["package-specs"];
-  let pathFragment = "";
-  let module = c.bsconfigModuleDefault;
-  let moduleFormatObj: ModuleFormatObject = { module: module };
-  let suffix = c.bsconfigSuffixDefault;
-
-  if (pkgSpecs) {
-    if (
-      !Array.isArray(pkgSpecs) &&
-      typeof pkgSpecs !== "string" &&
-      pkgSpecs.module
-    ) {
-      moduleFormatObj = pkgSpecs;
-    } else if (typeof pkgSpecs === "string") {
-      module = pkgSpecs;
-    } else if (Array.isArray(pkgSpecs) && pkgSpecs[0]) {
-      if (typeof pkgSpecs[0] === "string") {
-        module = pkgSpecs[0];
-      } else {
-        moduleFormatObj = pkgSpecs[0];
-      }
-    }
-  }
-
-  if (moduleFormatObj["module"]) {
-    module = moduleFormatObj["module"];
-  }
-
-  if (!moduleFormatObj["in-source"]) {
-    pathFragment = "lib/" + getCompiledFolderName(module);
-  }
-
-  if (moduleFormatObj.suffix) {
-    suffix = moduleFormatObj.suffix;
-  } else if (bsconfig.suffix) {
-    suffix = bsconfig.suffix;
-  }
-
-  return [suffix, pathFragment];
-};
-
 export let getCompiledFilePath = (
   filePath: string,
   projDir: string
 ): execResult => {
-  let bsconfig = readBsConfig(projDir);
   let error: execResult = {
     kind: "error",
     error: "Could not read bsconfig",
   };
 
-  if (!bsconfig) {
+  let compiledPath = lookup.getFilenameFromBsconfig(projDir, filePath);
+
+  if (!compiledPath) {
     return error;
   }
 
-  let [suffix, pathFragment] = getSuffixAndPathFragmentFromBsconfig(bsconfig);
-  let partialFilePath = filePath.split(projDir)[1];
-  let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
-  let result = path.join(projDir, pathFragment, compiledPartialPath);
+  let result = compiledPath;
 
   // If the file is not found, lookup a possible root bsconfig that may contain
   // info about the possible location of the file.
   if (!fs.existsSync(result)) {
-    let rootBsConfigPath = findFilePathFromProjectRoot(
-      path.join("..", projDir),
-      c.bsconfigPartialPath
-    );
+    let compiledPath = lookup.getFilenameFromRootBsconfig(projDir, filePath);
 
-    if (!rootBsConfigPath) {
+    if (!compiledPath) {
       return error;
     }
 
-    let rootBsconfig = readBsConfig(path.dirname(rootBsConfigPath));
-
-    if (!rootBsconfig) {
-      return error;
-    }
-
-    let [rootSuffix, rootPathFragment] =
-      getSuffixAndPathFragmentFromBsconfig(rootBsconfig);
-
-    let compiledPartialPath = replaceFileExtension(partialFilePath, rootSuffix);
-    result = path.join(projDir, rootPathFragment, compiledPartialPath);
+    result = compiledPath;
   }
 
   return {
