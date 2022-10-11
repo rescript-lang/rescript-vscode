@@ -36,13 +36,13 @@ jobs:
         git config --global core.autocrlf false
         git config --global core.eol lf
 
-    - uses: actions/checkout@v2.3.4
+    - uses: actions/checkout@v3
 
     - name: Cache OCaml's opam
-      uses: actions/cache@v2.1.5
+      uses: actions/cache@v3
       with:
         path: ~/.opam
-        key: ${{matrix.os}}-rescript-vscode-v3
+        key: ${{matrix.os}}-rescript-vscode-v4
 
     - name: Use OCaml
       uses: ocaml/setup-ocaml@v2
@@ -76,7 +76,7 @@ jobs:
         mv rescript-editor-analysis.exe ${{matrix.artifact-folder}}
         tar -cvf binary.tar ${{matrix.artifact-folder}}
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ${{matrix.os}}
         path: analysis/binary.tar
@@ -86,18 +86,18 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v2.3.4
+    - uses: actions/checkout@v3
 
     - name: Use Node.js
-      uses: actions/setup-node@v2.1.5
+      uses: actions/setup-node@v3
       with:
-        node-version: 14.4.0
+        node-version: 16
 
     - run: npm ci
     - run: npm run compile
 
     - name: Download MacOS binary
-      uses: actions/download-artifact@v3.0.0
+      uses: actions/download-artifact@v3
       with:
         name: macos-latest
         path: ./server/analysis_binaries
@@ -105,7 +105,7 @@ jobs:
       working-directory: ./server/analysis_binaries
 
     - name: Download MacOS ARM binary
-      uses: actions/download-artifact@v3.0.0
+      uses: actions/download-artifact@v3
       with:
         name: macos-arm
         path: ./server/analysis_binaries
@@ -113,7 +113,7 @@ jobs:
       working-directory: ./server/analysis_binaries
 
     - name: Download Linux binary
-      uses: actions/download-artifact@v3.0.0
+      uses: actions/download-artifact@v3
       with:
         name: ubuntu-20.04
         path: ./server/analysis_binaries
@@ -121,7 +121,7 @@ jobs:
       working-directory: ./server/analysis_binaries
 
     - name: Download Windows binary
-      uses: actions/download-artifact@v3.0.0
+      uses: actions/download-artifact@v3
       with:
         name: windows-latest
         path: ./server/analysis_binaries
@@ -163,19 +163,19 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       run: npx vsce package -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       if: github.ref != 'refs/heads/master'
       with:
         name: rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
         path: rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       if: github.ref == 'refs/heads/master'
       with:
         name: rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix
         path: rescript-vscode-${{ steps.increment_pre_release.outputs.new_version }}.vsix
     
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       if: startsWith(github.ref, 'refs/tags/')
       with:
         name: rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix
