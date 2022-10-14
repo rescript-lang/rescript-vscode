@@ -1104,6 +1104,7 @@
   Scanning JsxV4.cmt Source:JsxV4.res
   addValueDeclaration +make JsxV4.res:4:23 path:+JsxV4.C
   addValueReference JsxV4.res:4:36 --> React.res:3:0
+  addValueReference JsxV4.res:7:9 --> JsxV4.res:4:23
   Scanning LetPrivate.cmt Source:LetPrivate.res
   addValueDeclaration +y LetPrivate.res:7:4 path:+LetPrivate
   addValueDeclaration +x LetPrivate.res:3:6 path:+LetPrivate.local_1
@@ -2125,7 +2126,7 @@ File References
   Dead Value +ImportMyBanner.+make: 0 references () [0]
   Live Value +ImportMyBanner.+make: 0 references () [0]
   Dead RecordLabel +ImportMyBanner.message.text: 0 references () [0]
-  Dead Value +JsxV4.C.+make: 0 references () [0]
+  Live Value +JsxV4.C.+make: 1 references (JsxV4.res:7:9) [0]
   Live Value +LetPrivate.+y: 0 references () [0]
   Live Value +LetPrivate.local_1.+x: 1 references (LetPrivate.res:7:4) [0]
   Live Value +ModuleAliases.+testInner2: 0 references () [0]
@@ -3987,16 +3988,6 @@ File References
   @dead("make") let make = make
 
   Warning Dead Module
-  File "JsxV4.res", line 3, characters 8-62
-  JsxV4.C is a dead module as all its items are dead.
-
-  Warning Dead Value
-  File "JsxV4.res", line 4, characters 20-47
-  C.make is never used
-  <-- line 4
-    @react.component @dead("C.make") let make = () => React.null
-
-  Warning Dead Module
   File "ModuleAliases.res", line 2, characters 10-57
   ModuleAliases.Outer.Inner is a dead module as all its items are dead.
 
@@ -4520,4 +4511,4 @@ File References
   <-- line 96
   type variant1Object = | @dead("variant1Object.R") R(payload)
   
-  Analysis reported 336 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:26, Warning Dead Type:89, Warning Dead Value:200, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)
+  Analysis reported 334 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:25, Warning Dead Type:89, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)
