@@ -14,7 +14,7 @@ Completable: Cpath Type[React, e]
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element",
+    "detail": "type element = Jsx.element",
     "documentation": null
   }]
 
@@ -26,7 +26,7 @@ Completable: Cpath Type[React, e]
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element",
+    "detail": "type element = Jsx.element",
     "documentation": null
   }]
 
