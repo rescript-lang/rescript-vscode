@@ -406,9 +406,10 @@ let emitWarning ~decl ~message deadWarning =
       WriteDeadAnnotations.addLineAnnotation ~decl
     else None
   in
-  decl.path
-  |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
-  |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
+  if Config.reportTransitive then
+    decl.path
+    |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
+    |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
   Log_.warning ~loc
     (DeadWarning
        {
@@ -555,9 +556,10 @@ module Decl = struct
         && (Config.reportTransitive || not (hasRefBelow ()))
       in
       if shouldEmitWarning then (
-        decl.path
-        |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
-        |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
+        if Config.reportTransitive then
+          decl.path
+          |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
+          |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
         emitWarning ~decl ~message name)
 end
 
