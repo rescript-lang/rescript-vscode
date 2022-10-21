@@ -14,7 +14,8 @@
 
 #### :rocket: New Feature
 
-- Add configuration parameter `"transitive"` under `"reanalyze"`. If set to false, analysis does not report transitively dead items. So removing the item directly reported can be done in isolation https://github.com/rescript-lang/rescript-vscode/pull/601
+- Add configuration parameter `"transitive"` under `"reanalyze"` is `bsconfig.json`. If set to `false`, the analysis does not report transitively dead items. So removing the reported item individually can be done in isolation. This is a more fine-grained process for guiding the user to remove dead code one item at a time. https://github.com/rescript-lang/rescript-vscode/pull/601
+This feature comes from a conversation with @jfmengels on how https://github.com/jfmengels/elm-review is designed.
 
 #### :bug: Bug Fix
 
