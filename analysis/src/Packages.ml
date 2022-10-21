@@ -68,7 +68,9 @@ let newBsPackage ~rootPath =
                      | Some s -> (
                        let parts = String.split_on_char ' ' s in
                        match parts with
-                       | "-open" :: name :: _ -> name :: opens
+                       | "-open" :: name :: _ ->
+                         let names = name |> String.split_on_char '.' in
+                         names @ opens
                        | _ -> opens))
                    [] l
                | None -> []

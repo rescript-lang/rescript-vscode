@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Fix issue where module paths in `-open` `bsc-flags` such as "-open ReScriptJs.Js" were not recognized https://github.com/rescript-lang/rescript-vscode/issues/607
+
 ## v1.8.1
 
 #### :rocket: New Feature
