@@ -13,7 +13,6 @@ module Config = struct
   let analyzeTypes = ref true
   let analyzeExternals = ref false
   let reportUnderscore = false
-  let reportTransitive = false
   let reportTypesDeadOnlyInInterface = false
   let recursiveDebug = false
   let warnOnCircularDependencies = false
@@ -406,10 +405,9 @@ let emitWarning ~decl ~message deadWarning =
       WriteDeadAnnotations.addLineAnnotation ~decl
     else None
   in
-  if Config.reportTransitive then
-    decl.path
-    |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
-    |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
+  decl.path
+  |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
+  |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
   Log_.warning ~loc
     (DeadWarning
        {
@@ -553,13 +551,12 @@ module Decl = struct
         && (match decl.path with
            | name :: _ when name |> Name.isUnderscore -> Config.reportUnderscore
            | _ -> true)
-        && (Config.reportTransitive || not (hasRefBelow ()))
+        && (runConfig.transitive || not (hasRefBelow ()))
       in
       if shouldEmitWarning then (
-        if Config.reportTransitive then
-          decl.path
-          |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
-          |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
+        decl.path
+        |> Path.toModuleName ~isType:(decl.declKind |> DeclKind.isType)
+        |> DeadModules.checkModuleDead ~fileName:decl.pos.pos_fname;
         emitWarning ~decl ~message name)
 end
 

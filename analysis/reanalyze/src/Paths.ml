@@ -73,6 +73,12 @@ module Config = struct
       (* if no "analysis" specified, default to dce *)
       RunConfig.dce ()
 
+  let readTransitive conf =
+    match Json.get "transitive" conf with
+    | Some True -> RunConfig.transitive true
+    | Some False -> RunConfig.transitive false
+    | _ -> ()
+
   (* Read the config from bsconfig.json and apply it to runConfig and suppress and unsuppress *)
   let processBsconfig () =
     Lazy.force setReScriptProjectRoot;
@@ -87,7 +93,8 @@ module Config = struct
         | Some conf ->
           readSuppress conf;
           readUnsuppress conf;
-          readAnalysis conf
+          readAnalysis conf;
+          readTransitive conf
         | None ->
           (* if no "analysis" specified, default to dce *)
           RunConfig.dce ()))

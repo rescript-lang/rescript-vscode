@@ -12,6 +12,10 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Add configuration parameter `"transitive"` under `"reanalyze"`. If set to false, analysis does not report transitively dead items. So removing the item directly reported can be done in isolation https://github.com/rescript-lang/rescript-vscode/pull/601
+
 #### :bug: Bug Fix
 
 - Fix issue where module paths in `-open` in `bsc-flags` such as "-open ReScriptJs.Js" were not recognized https://github.com/rescript-lang/rescript-vscode/issues/607

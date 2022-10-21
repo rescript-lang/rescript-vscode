@@ -1,4 +1,4 @@
-let active () = true
+let active () = RunConfig.runConfig.transitive
 let table = Hashtbl.create 1
 
 let markDead ~isType ~loc path =
