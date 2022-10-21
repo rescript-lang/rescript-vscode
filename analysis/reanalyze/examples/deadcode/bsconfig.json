@@ -3,7 +3,7 @@
     "analysis": ["dce"],
     "suppress": [],
     "unsuppress": [],
-    "transitive": false
+    "transitive": true
   },
   "name": "sample-typescript-app",
   "bsc-flags": ["-bs-super-errors -w a"],
