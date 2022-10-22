@@ -5,6 +5,7 @@ type t = {
   mutable projectRoot: string;
   mutable suppress: string list;
   mutable termination: bool;
+  mutable transitive: bool;
   mutable unsuppress: string list;
 }
 
@@ -16,6 +17,7 @@ let runConfig =
     projectRoot = "";
     suppress = [];
     termination = false;
+    transitive = true;
     unsuppress = [];
   }
 
@@ -27,3 +29,5 @@ let all () =
 let dce () = runConfig.dce <- true
 let exception_ () = runConfig.exception_ <- true
 let termination () = runConfig.termination <- true
+
+let transitive b = runConfig.transitive <- b

@@ -197,7 +197,7 @@ type decl = {
   pos: Lexing.position;
   posEnd: Lexing.position;
   posStart: Lexing.position;
-  mutable resolved: bool;
+  mutable resolvedDead: bool option;
   mutable report: bool;
 }
 

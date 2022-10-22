@@ -375,7 +375,7 @@ let addDeclaration_ ?posEnd ?posStart ~declKind ~path ~(loc : Location.t)
         pos;
         posEnd;
         posStart;
-        resolved = false;
+        resolvedDead = None;
         report = true;
       }
     in
@@ -536,12 +536,22 @@ module Decl = struct
         | VariantCase ->
           (WarningDeadType, "is a variant case which is never constructed")
       in
+      let hasRefBelow () =
+        let refs = ValueReferences.find decl.pos in
+        let refIsBelow (pos : Lexing.position) =
+          decl.pos.pos_fname <> pos.pos_fname
+          || decl.pos.pos_cnum < pos.pos_cnum
+             && (* not a function defined inside a function, e.g. not a callback *)
+             decl.posEnd.pos_cnum < pos.pos_cnum
+        in
+        refs |> PosSet.exists refIsBelow
+      in
       let shouldEmitWarning =
         (not insideReportedValue)
-        &&
-        match decl.path with
-        | name :: _ when name |> Name.isUnderscore -> Config.reportUnderscore
-        | _ -> true
+        && (match decl.path with
+           | name :: _ when name |> Name.isUnderscore -> Config.reportUnderscore
+           | _ -> true)
+        && (runConfig.transitive || not (hasRefBelow ()))
       in
       if shouldEmitWarning then (
         decl.path
@@ -563,7 +573,7 @@ let doReportDead pos = not (ProcessDeadAnnotations.isAnnotatedGenTypeOrDead pos)
 let rec resolveRecursiveRefs ~checkOptionalArg ~deadDeclarations ~level
     ~orderedFiles ~refs ~refsBeingResolved decl : bool =
   match decl.pos with
-  | _ when decl.resolved ->
+  | _ when decl.resolvedDead <> None ->
     if Config.recursiveDebug then
       Log_.item "recursiveDebug %s [%d] already resolved@."
         (decl.path |> Path.toString)
@@ -609,13 +619,13 @@ let rec resolveRecursiveRefs ~checkOptionalArg ~deadDeclarations ~level
                         ~level:(level + 1) ~orderedFiles ~refs:xRefs
                         ~refsBeingResolved
                  in
-                 if not xDecl.resolved then allDepsResolved := false;
+                 if xDecl.resolvedDead = None then allDepsResolved := false;
                  not xDeclIsDead)
     in
     let isDead = decl |> declIsDead ~refs:newRefs in
     let isResolved = (not isDead) || !allDepsResolved || level = 0 in
     if isResolved then (
-      decl.resolved <- true;
+      decl.resolvedDead <- Some isDead;
       if isDead then (
         decl.path
         |> DeadModules.markDead
@@ -691,4 +701,5 @@ let reportDead ~checkOptionalArg =
   let sortedDeadDeclarations =
     !deadDeclarations |> List.fast_sort Decl.compareForReporting
   in
+  (* XXX *)
   sortedDeadDeclarations |> List.iter Decl.report

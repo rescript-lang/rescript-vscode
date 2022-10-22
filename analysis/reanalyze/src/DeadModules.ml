@@ -1,4 +1,7 @@
-let active () = true
+let active () =
+  (* When transitive reporting is off, the only dead modules would be empty modules *)
+  RunConfig.runConfig.transitive
+
 let table = Hashtbl.create 1
 
 let markDead ~isType ~loc path =
