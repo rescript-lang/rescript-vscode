@@ -17,7 +17,7 @@ let runConfig =
     projectRoot = "";
     suppress = [];
     termination = false;
-    transitive = true;
+    transitive = false;
     unsuppress = [];
   }
 
