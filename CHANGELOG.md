@@ -12,6 +12,8 @@
 
 ## master
 
+## v1.8.2
+
 #### :rocket: New Feature
 
 - Add configuration parameter `"transitive"` under `"reanalyze"` is `bsconfig.json` and make reportst non-transitive by default. If set to `false`, the analysis does not report transitively dead items. So removing the reported item individually can be done in isolation. This is a more fine-grained process for guiding the user to remove dead code one item at a time. https://github.com/rescript-lang/rescript-vscode/pull/601 https://github.com/rescript-lang/rescript-vscode/pull/610
