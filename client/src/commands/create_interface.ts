@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as p from "vscode-languageserver-protocol";
 import { LanguageClient, RequestType } from "vscode-languageclient/node";
 import { window } from "vscode";
 
@@ -7,10 +8,10 @@ interface CreateInterfaceRequestParams {
 }
 
 export const createInterfaceRequest = new RequestType<
-  CreateInterfaceRequestParams,
-  string,
+  p.TextDocumentIdentifier,
+  p.TextDocumentIdentifier,
   void
->("rescript-vscode.create_interface");
+>("textDocument/createInterface");
 
 export const createInterface = (client: LanguageClient) => {
   if (!client) {

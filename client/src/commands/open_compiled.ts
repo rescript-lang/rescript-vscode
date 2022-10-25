@@ -1,20 +1,13 @@
 import * as fs from "fs";
+import * as p from "vscode-languageserver-protocol";
 import { window, Uri, ViewColumn } from "vscode";
 import { LanguageClient, RequestType } from "vscode-languageclient/node";
 
-interface OpenCompiledFileRequestParams {
-  uri: string;
-}
-
-interface OpenCompiledFileResponseParams {
-  uri: string;
-}
-
 let openCompiledFileRequest = new RequestType<
-  OpenCompiledFileRequestParams,
-  OpenCompiledFileResponseParams,
+  p.TextDocumentIdentifier,
+  p.TextDocumentIdentifier,
   void
->("rescript-vscode.open_compiled");
+>("textDocument/openCompiled");
 
 export const openCompiled = (client: LanguageClient) => {
   if (!client) {
@@ -36,7 +29,7 @@ export const openCompiled = (client: LanguageClient) => {
       uri: editor.document.uri.toString(),
     })
     .then((response) => {
-      const document = Uri.file(response.uri);
+      const document = Uri.parse(response.uri);
 
       return window.showTextDocument(document, {
         viewColumn: ViewColumn.Beside,

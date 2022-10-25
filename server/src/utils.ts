@@ -323,7 +323,7 @@ export let runBuildWatcherUsingValidBuildPath = (
 */
 
 // parser helpers
-let pathToURI = (file: string) => {
+export let pathToURI = (file: string) => {
   return process.platform === "win32" ? `file:\\\\\\${file}` : `file://${file}`;
 };
 let parseFileAndRange = (fileAndRange: string) => {
