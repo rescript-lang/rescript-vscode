@@ -3,10 +3,6 @@ import * as p from "vscode-languageserver-protocol";
 import { LanguageClient, RequestType } from "vscode-languageclient/node";
 import { window } from "vscode";
 
-interface CreateInterfaceRequestParams {
-  uri: string;
-}
-
 export const createInterfaceRequest = new RequestType<
   p.TextDocumentIdentifier,
   p.TextDocumentIdentifier,
