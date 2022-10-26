@@ -1283,10 +1283,10 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       |> completionsGetTypeEnv
     with
     | Some (typ, _envNotUsed) -> (
-      let arrayModulePath = ["Js"; "Array2"] in
-      let listModulePath = ["Belt"; "List"] in
-      let optionModulePath = ["Belt"; "Option"] in
-      let stringModulePath = ["Js"; "String2"] in
+      let {arrayModulePath; listModulePath; optionModulePath; stringModulePath}
+          =
+        package.builtInCompletionModules
+      in
       let getModulePath path =
         let rec loop (path : Path.t) =
           match path with

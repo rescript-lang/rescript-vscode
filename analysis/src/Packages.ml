@@ -88,6 +88,25 @@ let newBsPackage ~rootPath =
                pathsForModule;
                opens;
                namespace;
+               builtInCompletionModules =
+                 (if
+                  opens
+                  |> List.find_opt (fun opn -> opn = "ReScriptJs")
+                  |> Option.is_some
+                 then
+                  {
+                    arrayModulePath = ["Array"];
+                    listModulePath = ["List"];
+                    optionModulePath = ["Option"];
+                    stringModulePath = ["String"];
+                  }
+                 else
+                   {
+                     arrayModulePath = ["Js"; "Array2"];
+                     listModulePath = ["Belt"; "List"];
+                     optionModulePath = ["Belt"; "Option"];
+                     stringModulePath = ["Js"; "String2"];
+                   });
              })))
     | None -> None)
 

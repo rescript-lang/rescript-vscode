@@ -365,6 +365,13 @@ type file = string
 
 module FileSet = Set.Make (String)
 
+type builtInCompletionModules = {
+  arrayModulePath: string list;
+  listModulePath: string list;
+  optionModulePath: string list;
+  stringModulePath: string list;
+}
+
 type package = {
   rootPath: filePath;
   projectFiles: FileSet.t;
@@ -372,6 +379,7 @@ type package = {
   pathsForModule: (file, paths) Hashtbl.t;
   namespace: string option;
   opens: string list;
+  builtInCompletionModules: builtInCompletionModules;
 }
 
 type full = {extra: extra; file: File.t; package: package}
