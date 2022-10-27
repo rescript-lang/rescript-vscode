@@ -367,9 +367,11 @@ module FileSet = Set.Make (String)
 
 type builtInCompletionModules = {
   arrayModulePath: string list;
-  listModulePath: string list;
   optionModulePath: string list;
   stringModulePath: string list;
+  intModulePath: string list;
+  floatModulePath: string list;
+  promiseModulePath: string list;
 }
 
 type package = {

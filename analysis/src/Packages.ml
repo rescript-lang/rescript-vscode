@@ -96,16 +96,20 @@ let newBsPackage ~rootPath =
                  then
                   {
                     arrayModulePath = ["Array"];
-                    listModulePath = ["List"];
                     optionModulePath = ["Option"];
                     stringModulePath = ["String"];
+                    intModulePath = ["Int"];
+                    floatModulePath = ["Float"];
+                    promiseModulePath = ["Promise"];
                   }
                  else
                    {
                      arrayModulePath = ["Js"; "Array2"];
-                     listModulePath = ["Belt"; "List"];
                      optionModulePath = ["Belt"; "Option"];
                      stringModulePath = ["Js"; "String2"];
+                     intModulePath = ["Belt"; "Int"];
+                     floatModulePath = ["Belt"; "Float"];
+                     promiseModulePath = ["Js"; "Promise"];
                    });
              })))
     | None -> None)

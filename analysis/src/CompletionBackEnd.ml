@@ -1283,8 +1283,14 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       |> completionsGetTypeEnv
     with
     | Some (typ, _envNotUsed) -> (
-      let {arrayModulePath; listModulePath; optionModulePath; stringModulePath}
-          =
+      let {
+        arrayModulePath;
+        optionModulePath;
+        stringModulePath;
+        intModulePath;
+        floatModulePath;
+        promiseModulePath;
+      } =
         package.builtInCompletionModules
       in
       let getModulePath path =
@@ -1296,9 +1302,15 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         in
         match path with
         | Path.Pident id when Ident.name id = "array" -> arrayModulePath
-        | Path.Pident id when Ident.name id = "list" -> listModulePath
         | Path.Pident id when Ident.name id = "option" -> optionModulePath
         | Path.Pident id when Ident.name id = "string" -> stringModulePath
+        | Path.Pident id when Ident.name id = "int" -> intModulePath
+        | Path.Pident id when Ident.name id = "float" -> floatModulePath
+        | Path.Pident id when Ident.name id = "promise" -> promiseModulePath
+        | Path.Pident id when Ident.name id = "list" -> ["Belt"; "List"]
+        | Path.Pident id when Ident.name id = "lazy_t" -> ["Lazy"]
+        | Path.Pident id when Ident.name id = "result" -> ["Belt"; "Result"]
+        | Path.Pident id when Ident.name id = "char" -> ["Char"]
         | _ -> (
           match loop path with
           | _ :: rest -> List.rev rest
