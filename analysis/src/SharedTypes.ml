@@ -367,7 +367,7 @@ type package = {
   dependenciesFiles: FileSet.t;
   pathsForModule: (file, paths) Hashtbl.t;
   namespace: string option;
-  opens: string list;
+  opens: path list;
 }
 
 type full = {extra: extra; file: File.t; package: package}
