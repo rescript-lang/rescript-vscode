@@ -95,7 +95,7 @@ let newBsPackage ~rootPath =
                namespace;
                builtInCompletionModules =
                  (if
-                  opens
+                  opens_from_bsc_flags
                   |> List.find_opt (fun opn ->
                          match opn with
                          | ["ReScriptStdLib"] -> true
