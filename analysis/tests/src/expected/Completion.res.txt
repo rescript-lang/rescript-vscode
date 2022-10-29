@@ -837,6 +837,8 @@ Complete src/Completion.res 205:6
 posCursor:[205:6] posNoWhite:[205:5] Found expr:[205:3->205:6]
 Pexp_ident sha:[205:3->205:6]
 Completable: Cpath Value[sha]
+Raw opens: 1 Shadow.A.place holder
+Resolved opens 1 Completion.res
 [{
     "label": "shadowed",
     "kind": 12,
@@ -849,6 +851,8 @@ Complete src/Completion.res 208:6
 posCursor:[208:6] posNoWhite:[208:5] Found expr:[208:3->208:6]
 Pexp_ident sha:[208:3->208:6]
 Completable: Cpath Value[sha]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "shadowed",
     "kind": 12,
@@ -861,6 +865,8 @@ Complete src/Completion.res 221:22
 posCursor:[221:22] posNoWhite:[221:21] Found expr:[221:3->224:22]
 Pexp_send [221:22->221:22] e:[221:3->221:20]
 Completable: Cpath Value[FAO, forAutoObject][""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "age",
     "kind": 4,
@@ -879,6 +885,8 @@ Complete src/Completion.res 224:37
 posCursor:[224:37] posNoWhite:[224:36] Found expr:[224:3->224:37]
 Pexp_field [224:3->224:36] _:[233:0->224:37]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "forAuto",
     "kind": 5,
@@ -896,6 +904,8 @@ Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
 Complete src/Completion.res 227:46
 posCursor:[227:46] posNoWhite:[227:45] Found expr:[227:3->0:-1]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "ForAuto.abc",
     "kind": 12,
@@ -915,6 +925,8 @@ posCursor:[230:55] posNoWhite:[230:54] Found expr:[230:3->230:55]
 posCursor:[230:55] posNoWhite:[230:54] Found expr:[230:46->230:55]
 Pexp_ident ForAuto.a:[230:46->230:55]
 Completable: Cpath Value[ForAuto, a]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "abc",
     "kind": 12,
@@ -937,6 +949,8 @@ Pexp_apply ...__ghost__[0:-1->0:-1] (...[234:18->234:30], ...[234:32->234:34])
 posCursor:[234:34] posNoWhite:[234:33] Found expr:[234:32->234:34]
 Pexp_ident na:[234:32->234:34]
 Completable: Cpath Value[na]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "name",
     "kind": 12,
@@ -948,6 +962,8 @@ Completable: Cpath Value[na]
 Complete src/Completion.res 237:17
 posCursor:[237:17] posNoWhite:[237:14] Found expr:[237:14->237:22]
 Completable: Cnone
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 []
 
 Complete src/Completion.res 243:8
@@ -957,6 +973,8 @@ Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->243:8])
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[243:5->243:8]
 Pexp_field [243:5->243:7] _:[245:0->243:8]
 Completable: Cpath Value[_z].""
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "x",
     "kind": 5,
@@ -975,6 +993,8 @@ Complete src/Completion.res 254:17
 posCursor:[254:17] posNoWhite:[254:16] Found expr:[254:11->254:17]
 Pexp_construct SomeLo:[254:11->254:17] None
 Completable: Cpath Value[SomeLo]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "SomeLocalModule",
     "kind": 9,
@@ -987,6 +1007,8 @@ Complete src/Completion.res 256:29
 posCursor:[256:29] posNoWhite:[256:28] Found type:[256:13->256:29]
 Ptyp_constr SomeLocalModule.:[256:13->256:29]
 Completable: Cpath Type[SomeLocalModule, ""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "zz",
     "kind": 22,
@@ -999,6 +1021,8 @@ Complete src/Completion.res 261:33
 posCursor:[261:33] posNoWhite:[261:32] Found type:[261:17->263:11]
 Ptyp_constr SomeLocalModule.:[261:17->263:11]
 Completable: Cpath Type[SomeLocalModule, ""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "zz",
     "kind": 22,
@@ -1010,6 +1034,8 @@ Completable: Cpath Type[SomeLocalModule, ""]
 Complete src/Completion.res 268:21
 Ptype_variant unary SomeLocal:[268:12->268:21]
 Completable: Cpath Value[SomeLocal]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "SomeLocalVariantItem",
     "kind": 4,
@@ -1029,6 +1055,8 @@ posCursor:[271:20] posNoWhite:[271:19] Found pattern:[271:7->274:3]
 posCursor:[271:20] posNoWhite:[271:19] Found type:[271:11->274:3]
 Ptyp_constr SomeLocal:[271:11->274:3]
 Completable: Cpath Type[SomeLocal]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "SomeLocalModule",
     "kind": 9,
@@ -1043,6 +1071,8 @@ posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:5->277:3]
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:13->275:15]
 Pexp_ident _w:[275:13->275:15]
 Completable: Cpath Value[_w]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "_world",
     "kind": 12,
@@ -1055,6 +1085,8 @@ Complete src/Completion.res 281:22
 posCursor:[281:22] posNoWhite:[281:21] Found type:[281:21->281:22]
 Ptyp_constr s:[281:21->281:22]
 Completable: Cpath Type[s]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "someType",
     "kind": 22,
@@ -1073,6 +1105,8 @@ Complete src/Completion.res 291:30
 posCursor:[291:30] posNoWhite:[291:29] Found expr:[291:11->291:32]
 Pexp_apply ...[291:11->291:28] ()
 Completable: CnamedArg(Value[funRecord].someFun, "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~name: string) => unit
 [{
     "label": "name",
@@ -1086,6 +1120,8 @@ Complete src/Completion.res 296:11
 posCursor:[296:11] posNoWhite:[296:10] Found expr:[296:3->296:11]
 Pexp_field [296:3->296:10] _:[299:0->296:11]
 Completable: Cpath Value[retAA](Nolabel).""
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "x",
     "kind": 5,
@@ -1104,6 +1140,8 @@ Complete src/Completion.res 301:13
 posCursor:[301:13] posNoWhite:[301:12] Found expr:[301:3->301:13]
 Pexp_apply ...[301:3->301:11] ()
 Completable: CnamedArg(Value[ff](~c), "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (
   ~opt1: int=?,
   ~a: int,
@@ -1142,6 +1180,8 @@ Complete src/Completion.res 304:15
 posCursor:[304:15] posNoWhite:[304:14] Found expr:[304:3->304:15]
 Pexp_apply ...[304:3->304:13] ()
 Completable: CnamedArg(Value[ff](~c)(Nolabel), "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
 [{
     "label": "a",
@@ -1167,6 +1207,8 @@ Complete src/Completion.res 307:17
 posCursor:[307:17] posNoWhite:[307:16] Found expr:[307:3->307:17]
 Pexp_apply ...[307:3->307:15] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel), "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
 [{
     "label": "a",
@@ -1192,6 +1234,8 @@ Complete src/Completion.res 310:21
 posCursor:[310:21] posNoWhite:[310:20] Found expr:[310:3->310:21]
 Pexp_apply ...[310:3->310:19] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel, Nolabel), "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~a: int, ~b: int) => int
 [{
     "label": "a",
@@ -1211,6 +1255,8 @@ Complete src/Completion.res 313:23
 posCursor:[313:23] posNoWhite:[313:22] Found expr:[313:3->313:23]
 Pexp_apply ...[313:3->313:21] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel, ~b), "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~a: int, ~opt2: int=?, unit) => int
 [{
     "label": "a",
@@ -1230,6 +1276,8 @@ Complete src/Completion.res 316:16
 posCursor:[316:16] posNoWhite:[316:15] Found expr:[316:3->316:16]
 Pexp_apply ...[316:3->316:14] ()
 Completable: CnamedArg(Value[ff](~opt2), "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~opt1: int=?, ~a: int, ~b: int, unit, unit, ~c: int) => int
 [{
     "label": "opt1",
@@ -1261,6 +1309,8 @@ Complete src/Completion.res 323:17
 posCursor:[323:17] posNoWhite:[323:16] Found expr:[323:3->323:17]
 Pexp_apply ...[323:3->323:15] ()
 Completable: CnamedArg(Value[withCallback], "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~b: int) => callback
 [{
     "label": "b",
@@ -1280,6 +1330,8 @@ Complete src/Completion.res 326:21
 posCursor:[326:21] posNoWhite:[326:20] Found expr:[326:3->326:21]
 Pexp_apply ...[326:3->326:19] ()
 Completable: CnamedArg(Value[withCallback](~a), "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~b: int) => int
 [{
     "label": "b",
@@ -1293,6 +1345,8 @@ Complete src/Completion.res 329:21
 posCursor:[329:21] posNoWhite:[329:20] Found expr:[329:3->329:21]
 Pexp_apply ...[329:3->329:19] ()
 Completable: CnamedArg(Value[withCallback](~b), "", [])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (~a: int) => int
 [{
     "label": "a",
@@ -1313,6 +1367,8 @@ posCursor:[336:26] posNoWhite:[336:25] Found pattern:[336:20->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found type:[336:23->338:5]
 Ptyp_constr Res:[336:23->338:5]
 Completable: Cpath Type[Res]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "RescriptReactErrorBoundary",
     "kind": 9,
@@ -1333,6 +1389,8 @@ posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->346:23]
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->343:57]
 Pexp_ident this:[343:53->343:57]
 Completable: Cpath Value[this]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "thisIsNotSaved",
     "kind": 12,
@@ -1346,6 +1404,8 @@ Nothing at that position. Now trying to use completion.
 posCursor:[346:14] posNoWhite:[346:13] Found expr:[346:9->346:23]
 JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346:21
 Completable: Cjsx([div], name, [name])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 {"contents": "```rescript\nstring\n```"}
 
 Hover src/Completion.res 349:17
@@ -1355,6 +1415,8 @@ Pexp_send age[349:30->349:33] e:[349:11->349:28]
 posCursor:[349:17] posNoWhite:[349:16] Found expr:[349:11->349:28]
 Pexp_ident FAO.forAutoObject:[349:11->349:28]
 Completable: Cpath Value[FAO, forAutoObject]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 {"contents": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}
 
 Hover src/Completion.res 352:17
@@ -1362,6 +1424,8 @@ Nothing at that position. Now trying to use completion.
 posCursor:[352:17] posNoWhite:[352:16] Found expr:[352:11->352:22]
 Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
 Completable: CnamedArg(Value[ff], opt1, [opt1])
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Found type for function (
   ~opt1: int=?,
   ~a: int,
@@ -1385,6 +1449,8 @@ posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
 Completable: Cpath Value[T]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "That",
     "kind": 4,
@@ -1418,6 +1484,8 @@ posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
 Ppat_construct AndThatOther.T:[373:7->373:21]
 Completable: Cpath Value[AndThatOther, T]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "ThatOther",
     "kind": 4,
@@ -1434,6 +1502,8 @@ Pexp_apply ...__ghost__[0:-1->0:-1] (...[378:12->378:14], ...[378:16->378:24])
 posCursor:[378:24] posNoWhite:[378:23] Found expr:[378:16->378:24]
 Pexp_ident ForAuto.:[378:16->378:24]
 Completable: Cpath Value[ForAuto, ""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "abc",
     "kind": 12,
@@ -1456,6 +1526,8 @@ Pexp_apply ...__ghost__[0:-1->0:-1] (...[381:12->381:17], ...[381:19->381:39])
 posCursor:[381:38] posNoWhite:[381:37] Found expr:[381:19->381:39]
 Pexp_send [381:38->381:38] e:[381:19->381:36]
 Completable: Cpath Value[FAO, forAutoObject][""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "age",
     "kind": 4,
@@ -1478,6 +1550,8 @@ Pexp_apply ...__ghost__[0:-1->0:-1] (...[384:11->384:12], ...[384:14->384:24])
 posCursor:[384:24] posNoWhite:[384:23] Found expr:[384:14->384:24]
 Pexp_field [384:14->384:23] _:[384:24->384:24]
 Completable: Cpath Value[funRecord].""
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "someFun",
     "kind": 5,
@@ -1498,6 +1572,8 @@ posCursor:[389:12] posNoWhite:[389:11] Found expr:[388:2->391:4]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->391:4]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->389:12]
 Completable: Cpath array->ma
+Raw opens: 3 Js.place holder ... Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 3 Completion.res Completion.res js.ml
 [{
     "label": "Array2.mapi",
     "kind": 12,
@@ -1520,6 +1596,8 @@ Pexp_apply ...__ghost__[0:-1->0:-1] (...[396:14->397:11], ...[397:13->397:16])
 posCursor:[397:14] posNoWhite:[397:13] Found expr:[397:13->397:16]
 Pexp_ident red:[397:13->397:16]
 Completable: Cpath Value[red]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "red",
     "kind": 12,
@@ -1536,6 +1614,8 @@ Pexp_apply ...__ghost__[0:-1->0:-1] (...[400:14->402:22], ...[402:24->402:27])
 posCursor:[402:25] posNoWhite:[402:24] Found expr:[402:24->402:27]
 Pexp_ident red:[402:24->402:27]
 Completable: Cpath Value[red]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "red",
     "kind": 12,
@@ -1552,6 +1632,8 @@ Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->405:22])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
 Pexp_ident r:[405:21->405:22]
 Completable: Cpath Value[r]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 [{
     "label": "red",
     "kind": 12,
