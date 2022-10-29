@@ -355,10 +355,6 @@ type extra = {
     (string, (string list * Tip.t * Location.t) list) Hashtbl.t;
   fileReferences: (string, LocationSet.t) Hashtbl.t;
   mutable locItems: locItem list;
-  (* This is the "open location", like the location...
-     or maybe the >> location of the open ident maybe *)
-  (* OPTIMIZE: using a stack to come up with this would cut the computation time of this considerably. *)
-  opens: (Location.t, unit) Hashtbl.t;
 }
 
 type file = string
@@ -380,8 +376,8 @@ type package = {
   dependenciesFiles: FileSet.t;
   pathsForModule: (file, paths) Hashtbl.t;
   namespace: string option;
-  opens: string list;
   builtInCompletionModules: builtInCompletionModules;
+  opens: path list;
 }
 
 type full = {extra: extra; file: File.t; package: package}
@@ -392,7 +388,6 @@ let initExtra () =
     externalReferences = Hashtbl.create 10;
     fileReferences = Hashtbl.create 10;
     locItems = [];
-    opens = Hashtbl.create 10;
   }
 
 type state = {

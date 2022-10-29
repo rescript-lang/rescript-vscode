@@ -51,7 +51,8 @@ let newBsPackage ~rootPath =
                  Log.log
                    ("############ Namespaced as " ^ namespace ^ " at " ^ cmt);
                  Hashtbl.add pathsForModule namespace (Namespace {cmt});
-                 [FindFiles.nameSpaceToName namespace]
+                 let path = [FindFiles.nameSpaceToName namespace] in
+                 [path]
              in
              Log.log
                ("Dependency dirs: "
@@ -69,16 +70,20 @@ let newBsPackage ~rootPath =
                        let parts = String.split_on_char ' ' s in
                        match parts with
                        | "-open" :: name :: _ ->
-                         let names = name |> String.split_on_char '.' in
-                         names @ opens
+                         let path = name |> String.split_on_char '.' in
+                         path :: opens
                        | _ -> opens))
                    [] l
                | None -> []
              in
              let opens =
-               List.rev_append opens_from_bsc_flags opens_from_namespace
+               opens_from_namespace
+               |> List.rev_append opens_from_bsc_flags
+               |> List.map (fun path -> path @ ["place holder"])
              in
-             Log.log ("Opens from bsconfig: " ^ (opens |> String.concat " "));
+             Log.log
+               ("Opens from bsconfig: "
+               ^ (opens |> List.map pathToString |> String.concat " "));
              {
                rootPath;
                projectFiles =
@@ -91,7 +96,10 @@ let newBsPackage ~rootPath =
                builtInCompletionModules =
                  (if
                   opens
-                  |> List.find_opt (fun opn -> opn = "ReScriptStdLib")
+                  |> List.find_opt (fun opn ->
+                         match opn with
+                         | ["ReScriptStdLib"] -> true
+                         | _ -> false)
                   |> Option.is_some
                  then
                   {
