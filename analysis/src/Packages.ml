@@ -91,7 +91,7 @@ let newBsPackage ~rootPath =
                builtInCompletionModules =
                  (if
                   opens
-                  |> List.find_opt (fun opn -> opn = "ReScriptJs")
+                  |> List.find_opt (fun opn -> opn = "ReScriptStdLib")
                   |> Option.is_some
                  then
                   {
