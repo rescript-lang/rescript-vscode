@@ -93,6 +93,32 @@ let newBsPackage ~rootPath =
                pathsForModule;
                opens;
                namespace;
+               builtInCompletionModules =
+                 (if
+                  opens_from_bsc_flags
+                  |> List.find_opt (fun opn ->
+                         match opn with
+                         | ["ReScriptStdLib"] -> true
+                         | _ -> false)
+                  |> Option.is_some
+                 then
+                  {
+                    arrayModulePath = ["Array"];
+                    optionModulePath = ["Option"];
+                    stringModulePath = ["String"];
+                    intModulePath = ["Int"];
+                    floatModulePath = ["Float"];
+                    promiseModulePath = ["Promise"];
+                  }
+                 else
+                   {
+                     arrayModulePath = ["Js"; "Array2"];
+                     optionModulePath = ["Belt"; "Option"];
+                     stringModulePath = ["Js"; "String2"];
+                     intModulePath = ["Belt"; "Int"];
+                     floatModulePath = ["Belt"; "Float"];
+                     promiseModulePath = ["Js"; "Promise"];
+                   });
              })))
     | None -> None)
 
