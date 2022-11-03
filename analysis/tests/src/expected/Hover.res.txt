@@ -175,5 +175,5 @@ Hover src/Hover.res 230:20
 {"contents": "```rescript\nint\n```\n\n More Stuff "}
 
 Hover src/Hover.res 233:17
-{"contents": "```rescript\nint\n```"}
+{"contents": "```rescript\nint\n```\n\n More Stuff "}
 
