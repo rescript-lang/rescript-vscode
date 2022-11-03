@@ -18,6 +18,8 @@
 
 - Fix issue where doc comment is not shown on hover in case of shadowed identifier (in particular for JSX V4 components which shadow `make`) https://github.com/rescript-lang/rescript-vscode/issues/621
 
+- Adapt command to create interface files to latest JSX V4 (no key prop, possibly empty record) https://github.com/rescript-lang/rescript-vscode/issues/617
+
 ## v1.8.2
 
 #### :rocket: New Feature

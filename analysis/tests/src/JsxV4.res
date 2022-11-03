@@ -14,3 +14,9 @@ let _ = <M4 first="abc" />
 
 let _ = <M4 first="abc" />
 //       ^hov
+
+
+module MM = {
+  @react.component
+  let make = () => React.null
+}
