@@ -25,8 +25,8 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         Stamps.addValue
     in
     let declared =
-      (* When an id is shadowed, a module constraing without the doc comment is created.
-         Here the existing doc comment is restored. *)
+      (* When an id is shadowed, a module constraint without the doc comment is created.
+         Here the existing doc comment is restored. See https://github.com/rescript-lang/rescript-vscode/issues/621 *)
       match oldDeclared with
       | Some oldDeclared when declared.docstring = [] ->
         let newDeclared = {declared with docstring = oldDeclared.docstring} in
