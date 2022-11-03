@@ -240,16 +240,19 @@ let printSignature ~extractor ~signature =
         ( propsId,
           {
             type_params;
-            type_kind = Type_record (labelDecls, Record_optional_labels optLbls);
+            type_kind = Type_record (labelDecls, recordRepresentation);
           },
           _ )
       :: Sig_value (makeId (* make *), makeValueDesc)
       :: rest
       when Ident.name propsId = "props"
            && getComponentTypeV4 makeValueDesc.val_type <> None
-           && optLbls |> List.mem "key" ->
+           &&
+           match recordRepresentation with
+           | Record_optional_labels _ -> true
+           | _ -> labelDecls = [] (* empty record *) ->
       (* PPX V4 component declaration:
-         type props = {..., key?: _}
+         type props = {...}
          let v = ...
       *)
       let newItemStr =
@@ -268,15 +271,18 @@ let printSignature ~extractor ~signature =
             in
             let lblName = labelDecl.ld_id |> Ident.name in
             let lbl =
+              let optLbls =
+                match recordRepresentation with
+                | Record_optional_labels optLbls -> optLbls
+                | _ -> []
+              in
               if List.mem lblName optLbls then Asttypes.Optional lblName
               else Labelled lblName
             in
-            if lblName = "key" then mkFunType rest
-            else
-              {retType with desc = Tarrow (lbl, propType, mkFunType rest, Cok)}
+            {retType with desc = Tarrow (lbl, propType, mkFunType rest, Cok)}
         in
         let funType =
-          if List.length labelDecls = 1 (* No props: only "key "*) then
+          if List.length labelDecls = 0 (* No props *) then
             let tUnit =
               Ctype.newconstr (Path.Pident (Ident.create "unit")) []
             in
