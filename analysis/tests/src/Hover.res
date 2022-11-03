@@ -210,3 +210,26 @@ let usr: useR = {
 
 // let f = usr
 //           ^hov
+
+
+module NotShadowed = {
+  /** Stuff */
+  let xx_ = 10
+
+  /** More Stuff */
+  let xx = xx_
+}
+
+module Shadowed = {
+  /** Stuff */
+  let xx = 10
+
+  /** More Stuff */
+  let xx = xx
+}
+
+let _ = NotShadowed.xx
+//                  ^hov
+
+let _ = Shadowed.xx
+//               ^hov
