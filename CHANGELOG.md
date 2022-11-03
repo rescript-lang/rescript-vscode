@@ -16,6 +16,8 @@
 
 - Fix issue where `-open Some.Path` in `"bsc-flags"` would sometimes be treated differently from `open Some.Path` locally in a file https://github.com/rescript-lang/rescript-vscode/pull/616
 
+- Fix issue where doc comment is not shown on hover in case of shadowed identifier (in particular for JSX V4 components which shadow `make`) https://github.com/rescript-lang/rescript-vscode/issues/621
+
 ## v1.8.2
 
 #### :rocket: New Feature
