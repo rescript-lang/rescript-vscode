@@ -155,6 +155,43 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   let supportsMarkdownLinks = true in
   let foundFunctionApplicationExpr = ref None in
   let setFound r = foundFunctionApplicationExpr := Some r in
+  let searchForArgWithCursor ~args ~exp =
+    let extractedArgs = extractExpApplyArgs ~args in
+    let argAtCursor =
+      let unlabelledArgCount = ref 0 in
+      extractedArgs
+      |> List.find_map (fun arg ->
+             match arg.label with
+             | None ->
+               let currentUnlabelledArgCount = !unlabelledArgCount in
+               unlabelledArgCount := currentUnlabelledArgCount + 1;
+               (* An argument without a label is just the expression, so we can use that. *)
+               if arg.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+                 Some (Unlabelled currentUnlabelledArgCount)
+               else None
+             | Some {name; posStart; posEnd} -> (
+               (* Check for the label identifier itself having the cursor *)
+               match
+                 pos |> CursorPosition.classifyPositions ~posStart ~posEnd
+               with
+               | HasCursor -> Some (Labelled name)
+               | NoCursor | EmptyLoc -> (
+                 (* If we're not in the label, check the exp. Either the exp
+                    exists and has the cursor. Or the exp is a parser recovery
+                    node, in which case we assume that the parser recovery
+                    indicates that the cursor was here. *)
+                 match
+                   ( arg.exp.pexp_desc,
+                     arg.exp.pexp_loc
+                     |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
+                 with
+                 | Pexp_extension ({txt = "rescript.exprhole"}, _), _
+                 | _, HasCursor ->
+                   Some (Labelled name)
+                 | _ -> None)))
+    in
+    setFound (argAtCursor, exp, extractedArgs)
+  in
   let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
     (match expr with
     (* Look for applying idents, like someIdent(...) *)
@@ -165,41 +202,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       when pexp_loc
            |> CursorPosition.classifyLoc ~pos:posBeforeCursor
            == HasCursor ->
-      let extractedArgs = extractExpApplyArgs ~args in
-      let argAtCursor =
-        let unlabelledArgCount = ref 0 in
-        extractedArgs
-        |> List.find_map (fun arg ->
-               match arg.label with
-               | None ->
-                 let currentUnlabelledArgCount = !unlabelledArgCount in
-                 unlabelledArgCount := currentUnlabelledArgCount + 1;
-                 (* An argument without a label is just the expression, so we can use that. *)
-                 if arg.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
-                   Some (Unlabelled currentUnlabelledArgCount)
-                 else None
-               | Some {name; posStart; posEnd} -> (
-                 (* Check for the label identifier itself having the cursor *)
-                 match
-                   pos |> CursorPosition.classifyPositions ~posStart ~posEnd
-                 with
-                 | HasCursor -> Some (Labelled name)
-                 | NoCursor | EmptyLoc -> (
-                   (* If we're not in the label, check the exp. Either the exp
-                      exists and has the cursor. Or the exp is a parser recovery
-                      node, in which case we assume that the parser recovery
-                      indicates that the cursor was here. *)
-                   match
-                     ( arg.exp.pexp_desc,
-                       arg.exp.pexp_loc
-                       |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
-                   with
-                   | Pexp_extension ({txt = "rescript.exprhole"}, _), _
-                   | _, HasCursor ->
-                     Some (Labelled name)
-                   | _ -> None)))
-      in
-      setFound (argAtCursor, exp, extractedArgs)
+      searchForArgWithCursor ~args ~exp
     | _ -> ());
     Ast_iterator.default_iterator.expr iterator expr
   in
