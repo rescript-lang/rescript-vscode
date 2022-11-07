@@ -154,11 +154,14 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   let posBeforeCursor = Pos.posBeforeCursor pos in
   let supportsMarkdownLinks = true in
   let foundFunctionApplicationExpr = ref None in
-  let setFound r = foundFunctionApplicationExpr := Some r in
-  let searchForArgWithCursor ~args ~exp =
+  let setFound r =
+    if !foundFunctionApplicationExpr = None then
+      foundFunctionApplicationExpr := Some r
+  in
+  let searchForArgWithCursor ~isPipeExpr ~args ~exp =
     let extractedArgs = extractExpApplyArgs ~args in
     let argAtCursor =
-      let unlabelledArgCount = ref 0 in
+      let unlabelledArgCount = ref (if isPipeExpr then 1 else 0) in
       extractedArgs
       |> List.find_map (fun arg ->
              match arg.label with
@@ -194,6 +197,25 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   in
   let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
     (match expr with
+    (* Handle pipes, like someVar->someFunc(... *)
+    | {
+     pexp_desc =
+       Pexp_apply
+         ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+           [
+             _;
+             ( _,
+               {
+                 pexp_desc =
+                   Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
+                 pexp_loc;
+               } );
+           ] );
+    }
+      when pexp_loc
+           |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+           == HasCursor ->
+      searchForArgWithCursor ~isPipeExpr:true ~args ~exp
     (* Look for applying idents, like someIdent(...) *)
     | {
      pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
@@ -202,7 +224,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       when pexp_loc
            |> CursorPosition.classifyLoc ~pos:posBeforeCursor
            == HasCursor ->
-      searchForArgWithCursor ~args ~exp
+      searchForArgWithCursor ~isPipeExpr:false ~args ~exp
     | _ -> ());
     Ast_iterator.default_iterator.expr iterator expr
   in

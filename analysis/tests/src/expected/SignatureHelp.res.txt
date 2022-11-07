@@ -203,7 +203,7 @@ posCursor:[53:29] posNoWhite:[53:28] Found expr:[53:20->53:31]
 Pexp_apply ...[53:20->53:29] (...[53:30->53:31])
 posCursor:[53:29] posNoWhite:[53:28] Found expr:[53:20->53:29]
 Pexp_ident otherFunc:[53:20->53:29]
-argAtCursor: unlabelled<0>
+argAtCursor: unlabelled<1>
 extracted params: 
 [(string, int, float]
 {
@@ -212,6 +212,6 @@ extracted params:
     "parameters": [{"label": [15, 22], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [24, 27], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [29, 34], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
-  "activeParameter": 0
+  "activeParameter": 1
 }
 
