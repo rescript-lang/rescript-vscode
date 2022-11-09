@@ -39,10 +39,10 @@ Hover src/Hover.res 46:10
 {"contents": "```rescript\nint\n```"}
 
 Hover src/Hover.res 49:13
-{"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
+{"contents": "```rescript\nmodule type Logger = {\n  let log: string => unit\n}\n```"}
 
 Hover src/Hover.res 54:7
-{"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
+{"contents": "```rescript\nmodule type Logger = {\n  let log: string => unit\n}\n```"}
 
 Definition src/Hover.res 60:14
 {"uri": "Hover.res", "range": {"start": {"line": 49, "character": 12}, "end": {"line": 49, "character": 18}}}
