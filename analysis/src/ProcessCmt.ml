@@ -10,17 +10,29 @@ let addDeclared ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t)
   addStamp env.stamps stamp declared;
   declared
 
-let rec forTypeSignatureItem ~env ~(exported : Exported.t)
+let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
     (item : Types.signature_item) =
   match item with
   | Sig_value (ident, {val_type; val_attributes; val_loc = loc}) ->
     let item = val_type in
+    let stamp = Ident.binding_time ident in
+    let oldDeclared = Stamps.findValue env.stamps stamp in
     let declared =
       addDeclared
         ~name:(Location.mknoloc (Ident.name ident))
-        ~extent:loc ~stamp:(Ident.binding_time ident) ~env ~item val_attributes
+        ~extent:loc ~stamp ~env ~item val_attributes
         (Exported.add exported Exported.Value)
         Stamps.addValue
+    in
+    let declared =
+      (* When an id is shadowed, a module constraint without the doc comment is created.
+         Here the existing doc comment is restored. See https://github.com/rescript-lang/rescript-vscode/issues/621 *)
+      match oldDeclared with
+      | Some oldDeclared when declared.docstring = [] ->
+        let newDeclared = {declared with docstring = oldDeclared.docstring} in
+        Stamps.addValue env.stamps stamp newDeclared;
+        newDeclared
+      | _ -> declared
     in
     [{Module.kind = Module.Value declared.item; name = declared.name.txt}]
   | Sig_type

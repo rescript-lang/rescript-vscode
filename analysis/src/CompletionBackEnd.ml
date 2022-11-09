@@ -503,7 +503,7 @@ let showConstructor {Constructor.cname = {txt}; args; res} =
   | Some typ -> "\n" ^ (typ |> Shared.typeToString)
 
 (* TODO: local opens *)
-let resolveOpens ~env ~previous opens ~package =
+let resolveOpens ~env opens ~package =
   List.fold_left
     (fun previous path ->
       (* Finding an open, first trying to find it in previoulsly resolved opens *)
@@ -540,7 +540,7 @@ let resolveOpens ~env ~previous opens ~package =
         Log.log "Was local";
         previous @ [env])
     (* loop(previous) *)
-    previous opens
+    [] opens
 
 let checkName name ~prefix ~exact =
   if exact then name = prefix else Utils.startsWith name prefix
@@ -1283,10 +1283,16 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       |> completionsGetTypeEnv
     with
     | Some (typ, _envNotUsed) -> (
-      let arrayModulePath = ["Js"; "Array2"] in
-      let listModulePath = ["Belt"; "List"] in
-      let optionModulePath = ["Belt"; "Option"] in
-      let stringModulePath = ["Js"; "String2"] in
+      let {
+        arrayModulePath;
+        optionModulePath;
+        stringModulePath;
+        intModulePath;
+        floatModulePath;
+        promiseModulePath;
+      } =
+        package.builtInCompletionModules
+      in
       let getModulePath path =
         let rec loop (path : Path.t) =
           match path with
@@ -1296,9 +1302,15 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         in
         match path with
         | Path.Pident id when Ident.name id = "array" -> arrayModulePath
-        | Path.Pident id when Ident.name id = "list" -> listModulePath
         | Path.Pident id when Ident.name id = "option" -> optionModulePath
         | Path.Pident id when Ident.name id = "string" -> stringModulePath
+        | Path.Pident id when Ident.name id = "int" -> intModulePath
+        | Path.Pident id when Ident.name id = "float" -> floatModulePath
+        | Path.Pident id when Ident.name id = "promise" -> promiseModulePath
+        | Path.Pident id when Ident.name id = "list" -> ["Belt"; "List"]
+        | Path.Pident id when Ident.name id = "lazy_t" -> ["Lazy"]
+        | Path.Pident id when Ident.name id = "result" -> ["Belt"; "Result"]
+        | Path.Pident id when Ident.name id = "char" -> ["Char"]
         | _ -> (
           match loop path with
           | _ :: rest -> List.rev rest
@@ -1319,11 +1331,6 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         | Some path -> Some (getModulePath path)
       in
       let lhsPath = fromType typ in
-      let removePackageOpens modulePath =
-        match modulePath with
-        | toplevel :: rest when package.opens |> List.mem toplevel -> rest
-        | _ -> modulePath
-      in
       let rec removeRawOpen rawOpen modulePath =
         match (rawOpen, modulePath) with
         | [_], _ -> Some modulePath
@@ -1345,8 +1352,9 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         match modulePath with
         | _ :: _ ->
           let modulePathMinusOpens =
-            modulePath |> removePackageOpens |> removeRawOpens rawOpens
-            |> String.concat "."
+            modulePath
+            |> removeRawOpens package.opens
+            |> removeRawOpens rawOpens |> String.concat "."
           in
           let completionName name =
             if modulePathMinusOpens = "" then name
@@ -1369,35 +1377,36 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       | None -> [])
     | None -> [])
 
-let getOpens ~rawOpens ~package ~env =
-  Log.log
-    ("Raw ppens: "
-    ^ string_of_int (List.length rawOpens)
-    ^ " "
-    ^ String.concat " ... " (rawOpens |> List.map pathToString));
+let getOpens ~debug ~rawOpens ~package ~env =
+  if debug && rawOpens <> [] then
+    Printf.printf "%s\n"
+      ("Raw opens: "
+      ^ string_of_int (List.length rawOpens)
+      ^ " "
+      ^ String.concat " ... " (rawOpens |> List.map pathToString));
   let packageOpens = package.opens in
-  Log.log ("Package opens " ^ String.concat " " packageOpens);
+  if debug && packageOpens <> [] then
+    Printf.printf "%s\n"
+      ("Package opens "
+      ^ String.concat " " (packageOpens |> List.map pathToString));
   let resolvedOpens =
-    resolveOpens ~env
-      ~previous:
-        (List.map QueryEnv.fromFile
-           (packageOpens |> Utils.filterMap (ProcessCmt.fileForModule ~package)))
-      (List.rev rawOpens) ~package
+    resolveOpens ~env (List.rev (packageOpens @ rawOpens)) ~package
   in
-  Log.log
-    ("Resolved opens "
-    ^ string_of_int (List.length resolvedOpens)
-    ^ " "
-    ^ String.concat " "
-        (resolvedOpens
-        |> List.map (fun (e : QueryEnv.t) -> Uri.toString e.file.uri)));
+  if debug && resolvedOpens <> [] then
+    Printf.printf "%s\n"
+      ("Resolved opens "
+      ^ string_of_int (List.length resolvedOpens)
+      ^ " "
+      ^ String.concat " "
+          (resolvedOpens
+          |> List.map (fun (e : QueryEnv.t) -> Uri.toString e.file.uri)));
   (* Last open takes priority *)
   List.rev resolvedOpens
 
 let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let rawOpens = Scope.getRawOpens scope in
-  let opens = getOpens ~rawOpens ~package ~env in
+  let opens = getOpens ~debug ~rawOpens ~package ~env in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let findTypeOfValue path =
     path

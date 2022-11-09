@@ -327,8 +327,7 @@ let structure_item ~env ~extra (iter : Tast_iterator.iterator) item =
   | Tstr_module {mb_expr} -> handle_module_expr ~env ~extra mb_expr.mod_desc
   | Tstr_open {open_path; open_txt = {txt; loc}} ->
     (* Log.log("Have an open here"); *)
-    addForLongident ~env ~extra None open_path txt loc;
-    Hashtbl.replace extra.opens loc ()
+    addForLongident ~env ~extra None open_path txt loc
   | _ -> ());
   Tast_iterator.default_iterator.structure_item iter item
 
@@ -389,36 +388,28 @@ let pat ~(file : File.t) ~env ~extra (iter : Tast_iterator.iterator)
 
 let expr ~env ~(extra : extra) (iter : Tast_iterator.iterator)
     (expression : Typedtree.expression) =
-  (expression.exp_extra
-   |> List.iter (fun (e, eloc, _) ->
-          match e with
-          | Typedtree.Texp_open (_, _path, _ident, _) ->
-            Hashtbl.add extra.opens eloc ()
-          | _ -> ());
-   match expression.exp_desc with
-   | Texp_ident (path, {txt; loc}, _) when not (JsxHacks.pathIsFragment path) ->
-     addForLongident ~env ~extra
-       (Some (expression.exp_type, Value))
-       path txt loc
-   | Texp_record {fields} ->
-     addForRecord ~env ~extra ~recordType:expression.exp_type
-       (fields |> Array.to_list
-       |> Utils.filterMap (fun (desc, item) ->
-              match item with
-              | Typedtree.Overridden (loc, _) -> Some (loc, desc, ())
-              | _ -> None))
-   | Texp_constant constant ->
-     addLocItem extra expression.exp_loc (Constant constant)
-   (* Skip unit and list literals *)
-   | Texp_construct ({txt = Lident ("()" | "::"); loc}, _, _args)
-     when loc.loc_end.pos_cnum - loc.loc_start.pos_cnum <> 2 ->
-     ()
-   | Texp_construct (lident, constructor, _args) ->
-     addForConstructor ~env ~extra expression.exp_type lident constructor
-   | Texp_field (inner, lident, _label_description) ->
-     addForField ~env ~extra ~recordType:inner.exp_type
-       ~fieldType:expression.exp_type lident
-   | _ -> ());
+  (match expression.exp_desc with
+  | Texp_ident (path, {txt; loc}, _) when not (JsxHacks.pathIsFragment path) ->
+    addForLongident ~env ~extra (Some (expression.exp_type, Value)) path txt loc
+  | Texp_record {fields} ->
+    addForRecord ~env ~extra ~recordType:expression.exp_type
+      (fields |> Array.to_list
+      |> Utils.filterMap (fun (desc, item) ->
+             match item with
+             | Typedtree.Overridden (loc, _) -> Some (loc, desc, ())
+             | _ -> None))
+  | Texp_constant constant ->
+    addLocItem extra expression.exp_loc (Constant constant)
+  (* Skip unit and list literals *)
+  | Texp_construct ({txt = Lident ("()" | "::"); loc}, _, _args)
+    when loc.loc_end.pos_cnum - loc.loc_start.pos_cnum <> 2 ->
+    ()
+  | Texp_construct (lident, constructor, _args) ->
+    addForConstructor ~env ~extra expression.exp_type lident constructor
+  | Texp_field (inner, lident, _label_description) ->
+    addForField ~env ~extra ~recordType:inner.exp_type
+      ~fieldType:expression.exp_type lident
+  | _ -> ());
   Tast_iterator.default_iterator.expr iter expression
 
 let getExtra ~file ~infos =
