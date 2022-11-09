@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Rename custom LSP methods names. https://github.com/rescript-lang/rescript-vscode/pull/611
+
 ## v1.8.2
 
 #### :rocket: New Feature
