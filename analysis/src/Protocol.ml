@@ -42,7 +42,12 @@ type completionItem = {
 }
 
 type location = {uri: string; range: range}
-type documentSymbolItem = {name: string; kind: int; location: location}
+type documentSymbolItem = {
+  name: string;
+  kind: int;
+  range: range;
+  selectionRange: range;
+}
 type renameFile = {oldUri: string; newUri: string}
 type textEdit = {range: range; newText: string}
 
@@ -103,15 +108,16 @@ let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
     (stringifyRange h.range)
 
-let stringifyDocumentSymbolItem i =
+let stringifyDocumentSymbolItem (i : documentSymbolItem) =
+  let range = stringifyRange i.range in
   Printf.sprintf
     {|{
         "name": "%s",
         "kind": %i,
-        "location": %s
+        "range": %s,
+        "selectionRange": %s
 }|}
-    (Json.escape i.name) i.kind
-    (stringifyLocation i.location)
+    (Json.escape i.name) i.kind range range
 
 let stringifyRenameFile {oldUri; newUri} =
   Printf.sprintf {|{
