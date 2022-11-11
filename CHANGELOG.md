@@ -22,6 +22,8 @@
 
 - Fix issue where pipes were not taken into account in the signature help, resulting in the highlighted argument in signature help always being off by one for unlabelled arguments in piped expressions https://github.com/rescript-lang/rescript-vscode/issues/618
 
+- Fix file location in Document Symbols response. https://github.com/rescript-lang/rescript-vscode/issues/629
+
 ## v1.8.2
 
 #### :rocket: New Feature
