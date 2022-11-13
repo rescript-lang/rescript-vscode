@@ -137,16 +137,9 @@ let command ~path =
   let result =
     !symbols
     |> List.rev_map (fun (name, loc, kind) ->
+           let range = Utils.cmtLocToRange loc in
            Protocol.stringifyDocumentSymbolItem
-             {
-               name;
-               location =
-                 {
-                   uri = Uri.toString (Uri.fromPath path);
-                   range = Utils.cmtLocToRange loc;
-                 };
-               kind = kindNumber kind;
-             })
+             {name; range; selectionRange = range; kind = kindNumber kind})
     |> String.concat ",\n"
   in
   print_endline ("[\n" ^ result ^ "\n]")

@@ -368,6 +368,8 @@ type builtInCompletionModules = {
   intModulePath: string list;
   floatModulePath: string list;
   promiseModulePath: string list;
+  listModulePath: string list;
+  resultModulePath: string list;
 }
 
 type package = {

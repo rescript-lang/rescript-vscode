@@ -1290,6 +1290,8 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         intModulePath;
         floatModulePath;
         promiseModulePath;
+        listModulePath;
+        resultModulePath;
       } =
         package.builtInCompletionModules
       in
@@ -1307,9 +1309,9 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         | Path.Pident id when Ident.name id = "int" -> intModulePath
         | Path.Pident id when Ident.name id = "float" -> floatModulePath
         | Path.Pident id when Ident.name id = "promise" -> promiseModulePath
-        | Path.Pident id when Ident.name id = "list" -> ["Belt"; "List"]
+        | Path.Pident id when Ident.name id = "list" -> listModulePath
+        | Path.Pident id when Ident.name id = "result" -> resultModulePath
         | Path.Pident id when Ident.name id = "lazy_t" -> ["Lazy"]
-        | Path.Pident id when Ident.name id = "result" -> ["Belt"; "Result"]
         | Path.Pident id when Ident.name id = "char" -> ["Char"]
         | _ -> (
           match loop path with
