@@ -6,7 +6,7 @@ type modulePath =
   | File of Uri.t * string
   | NotVisible
   | IncludedModule of Path.t * modulePath
-  | ExportedModule of string * modulePath * bool
+  | ExportedModule of {name: string; modulePath: modulePath; isType: bool}
 
 type field = {stamp: int; fname: string Location.loc; typ: Types.type_expr}
 

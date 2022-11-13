@@ -375,7 +375,12 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         mtd_loc;
       } ->
     let env =
-      {env with modulePath = ExportedModule (name.txt, env.modulePath, true)}
+      {
+        env with
+        modulePath =
+          ExportedModule
+            {name = name.txt; modulePath = env.modulePath; isType = true};
+      }
     in
     let modTypeItem = forTypeModule env modType in
     let declared =
@@ -425,7 +430,12 @@ and forModule env mod_desc moduleName =
   | Tmod_ident (path, _lident) -> Ident path
   | Tmod_structure structure ->
     let env =
-      {env with modulePath = ExportedModule (moduleName, env.modulePath, false)}
+      {
+        env with
+        modulePath =
+          ExportedModule
+            {name = moduleName; modulePath = env.modulePath; isType = false};
+      }
     in
     let contents = forStructure ~env structure.str_items in
     Structure contents
@@ -447,14 +457,24 @@ and forModule env mod_desc moduleName =
     forModule env functor_.mod_desc moduleName
   | Tmod_unpack (_expr, moduleType) ->
     let env =
-      {env with modulePath = ExportedModule (moduleName, env.modulePath, false)}
+      {
+        env with
+        modulePath =
+          ExportedModule
+            {name = moduleName; modulePath = env.modulePath; isType = false};
+      }
     in
     forTypeModule env moduleType
   | Tmod_constraint (expr, typ, _constraint, _coercion) ->
     (* TODO do this better I think *)
     let modKind = forModule env expr.mod_desc moduleName in
     let env =
-      {env with modulePath = ExportedModule (moduleName, env.modulePath, false)}
+      {
+        env with
+        modulePath =
+          ExportedModule
+            {name = moduleName; modulePath = env.modulePath; isType = false};
+      }
     in
     let modTypeKind = forTypeModule env typ in
     Constraint (modKind, modTypeKind)

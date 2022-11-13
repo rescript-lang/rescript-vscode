@@ -29,12 +29,12 @@ let rec showModule ~docstring ~(file : File.t) ~name
   match declared with
   | None -> showModuleTopLevel ~docstring ~name file.structure.items
   | Some {item = Structure {items}; modulePath} ->
-    let newName =
+    let name =
       match modulePath with
-      | ExportedModule (_, _, isModType) when isModType = true -> "type " ^ name
+      | ExportedModule {isType} when isType = true -> "type " ^ name
       | _ -> name
     in
-    showModuleTopLevel ~docstring ~name:newName items
+    showModuleTopLevel ~docstring ~name items
   | Some ({item = Constraint (_moduleItem, moduleTypeItem)} as declared) ->
     (* show the interface *)
     showModule ~docstring ~file ~name

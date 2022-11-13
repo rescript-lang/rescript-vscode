@@ -144,4 +144,4 @@ let rec getSourceUri ~(env : QueryEnv.t) ~package path =
       Log.log "NOT FOUND";
       getSourceUri ~env ~package inner
     | Some (env, _declared) -> env.file.uri)
-  | ExportedModule (_, inner, _) -> getSourceUri ~env ~package inner
+  | ExportedModule {modulePath = inner} -> getSourceUri ~env ~package inner
