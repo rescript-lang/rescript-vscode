@@ -98,7 +98,7 @@ let newBsPackage ~rootPath =
                   opens_from_bsc_flags
                   |> List.find_opt (fun opn ->
                          match opn with
-                         | ["ReScriptStdLib"] -> true
+                         | ["RescriptStdlib"] -> true
                          | _ -> false)
                   |> Option.is_some
                  then
@@ -109,6 +109,8 @@ let newBsPackage ~rootPath =
                     intModulePath = ["Int"];
                     floatModulePath = ["Float"];
                     promiseModulePath = ["Promise"];
+                    listModulePath = ["List"];
+                    resultModulePath = ["Result"];
                   }
                  else
                    {
@@ -118,6 +120,8 @@ let newBsPackage ~rootPath =
                      intModulePath = ["Belt"; "Int"];
                      floatModulePath = ["Belt"; "Float"];
                      promiseModulePath = ["Js"; "Promise"];
+                     listModulePath = ["Belt"; "List"];
+                     resultModulePath = ["Belt"; "Result"];
                    });
              })))
     | None -> None)
