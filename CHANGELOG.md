@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Rename custom LSP methods names. https://github.com/rescript-lang/rescript-vscode/pull/611
+
 #### :bug: Bug Fix
 
 - Fix issue where `-open Some.Path` in `"bsc-flags"` would sometimes be treated differently from `open Some.Path` locally in a file https://github.com/rescript-lang/rescript-vscode/pull/616
