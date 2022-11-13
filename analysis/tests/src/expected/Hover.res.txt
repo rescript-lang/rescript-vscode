@@ -1,30 +1,30 @@
 Hover src/Hover.res 0:4
-{"contents": "```rescript\nint\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 3:5
-{"contents": "```rescript\ntype t = (int, float)\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\ntype t = (int, float)\n```"}}
 
 Hover src/Hover.res 6:7
-{"contents": "```rescript\nmodule Id = {\n  type x = int\n}\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule Id = {\n  type x = int\n}\n```"}}
 
 Hover src/Hover.res 19:11
-{"contents": "\nThis module is commented\n```rescript\nmodule Dep = {\n  let customDouble: int => int\n}\n```"}
+{"contents": {"kind": "markdown", "value": "\nThis module is commented\n```rescript\nmodule Dep = {\n  let customDouble: int => int\n}\n```"}}
 
 Hover src/Hover.res 22:11
-{"contents": "```rescript\nint => int\n```\n\nSome doc comment"}
+{"contents": {"kind": "markdown", "value": "```rescript\nint => int\n```\n\nSome doc comment"}}
 
 Hover src/Hover.res 26:6
-{"contents": "```rescript\nint\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 33:4
-{"contents": "```rescript\nunit => int\n```\n\nDoc comment for functionWithTypeAnnotation"}
+{"contents": {"kind": "markdown", "value": "```rescript\nunit => int\n```\n\nDoc comment for functionWithTypeAnnotation"}}
 
 Hover src/Hover.res 37:13
 getLocItem #5: heuristic for JSX and compiler combined:
 ~x becomes Props#x
 heuristic for: [Props, x], give loc of `x`
 n1:Props n2:name
-{"contents": "```rescript\nstring\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nstring\n```"}}
 
 Hover src/Hover.res 42:15
 getLocItem #7: heuristic for JSX on type-annotated labeled (~arg:t):
@@ -33,28 +33,28 @@ Props has the location range of arg:t
 arg has the location range of arg
 heuristic for: [Props, arg], give loc of `arg`
 n1:Props n2:name
-{"contents": "```rescript\nstring\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nstring\n```"}}
 
 Hover src/Hover.res 46:10
-{"contents": "```rescript\nint\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 49:13
-{"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}}
 
 Hover src/Hover.res 54:7
-{"contents": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}}
 
 Definition src/Hover.res 60:14
 {"uri": "Hover.res", "range": {"start": {"line": 49, "character": 12}, "end": {"line": 49, "character": 18}}}
 
 Hover src/Hover.res 63:9
-{"contents": "```rescript\nmodule IdDefinedTwice = {\n  let y: int\n  let _x: int\n}\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule IdDefinedTwice = {\n  let y: int\n  let _x: int\n}\n```"}}
 
 Hover src/Hover.res 74:7
-{"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule A = {\n  let x: int\n}\n```"}}
 
 Hover src/Hover.res 77:7
-{"contents": "```rescript\nmodule A = {\n  let x: int\n}\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule A = {\n  let x: int\n}\n```"}}
 
 Hover src/Hover.res 91:10
 Nothing at that position. Now trying to use completion.
@@ -69,46 +69,46 @@ JSX <Comp1:[95:3->95:8] > _children:95:8
 null
 
 Hover src/Hover.res 103:25
-{"contents": "```rescript\nfloat\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nfloat\n```"}}
 
 Hover src/Hover.res 106:21
-{"contents": "```rescript\nint\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 116:16
-{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n\n---\n"}
+{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
 
 Hover src/Hover.res 119:25
-{"contents": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n\n---\n"}
+{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
 
 Hover src/Hover.res 122:3
 Nothing at that position. Now trying to use completion.
 Attribute id:live:[122:0->122:5] label:live
 Completable: Cdecorator(live)
-{"contents": "The `@live` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.\n\n`@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).\n\nHint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!"}
+{"contents": {"kind": "markdown", "value": "The `@live` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.\n\n`@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).\n\nHint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!"}}
 
 Hover src/Hover.res 125:4
-{"contents": "```rescript\n(. ()) => unit => int\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\n(. ()) => unit => int\n```"}}
 
 Hover src/Hover.res 131:4
-{"contents": "```rescript\n(. ()) => (. ()) => int\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\n(. ()) => (. ()) => int\n```"}}
 
 Hover src/Hover.res 134:4
-{"contents": "```rescript\n(. unit, unit) => int\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\n(. unit, unit) => int\n```"}}
 
 Hover src/Hover.res 137:5
-{"contents": "```rescript\n(. ()) => unit => int\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\n(. ()) => unit => int\n```"}}
 
 Hover src/Hover.res 144:9
-{"contents": "```rescript\nint\n```\n\ndoc comment 1"}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\ndoc comment 1"}}
 
 Hover src/Hover.res 148:6
-{"contents": "```rescript\nint\n```\n\n doc comment 2 "}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n doc comment 2 "}}
 
 Hover src/Hover.res 165:23
-{"contents": "```rescript\nfoo<bar>\n```\n\n\n```\n \n```\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C161%2C2%5D)\n\n---\n\n\n\n```\n \n```\n```rescript\ntype bar = {age: int}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C162%2C2%5D)\n\n---\n"}
+{"contents": {"kind": "markdown", "value": "```rescript\nfoo<bar>\n```\n\n---\n\n```\n \n```\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C161%2C2%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype bar = {age: int}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C162%2C2%5D)\n"}}
 
 Hover src/Hover.res 167:22
-{"contents": "```rescript\nfoobar\n```\n\n\n```\n \n```\n```rescript\ntype foobar = foo<bar>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C163%2C2%5D)\n\n---\n"}
+{"contents": {"kind": "markdown", "value": "```rescript\nfoobar\n```\n\n---\n\n```\n \n```\n```rescript\ntype foobar = foo<bar>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C163%2C2%5D)\n"}}
 
 Complete src/Hover.res 170:16
 posCursor:[170:16] posNoWhite:[170:15] Found expr:[170:5->170:16]
@@ -159,15 +159,15 @@ Completable: Cpath Value[y2].content.""
   }]
 
 Hover src/Hover.res 197:4
-{"contents": "```rescript\nCompV4.props<int, string> => React.element\n```\n\n\n```\n \n```\n```rescript\ntype CompV4.props<'n, 's> = {n?: 'n, s: 's}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C190%2C2%5D)\n\n---\n\n\n\n```\n \n```\n```rescript\ntype React.element = Jsx.element\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22React.res%22%2C0%2C0%5D)\n\n---\n"}
+{"contents": {"kind": "markdown", "value": "```rescript\nCompV4.props<int, string> => React.element\n```\n\n---\n\n```\n \n```\n```rescript\ntype CompV4.props<'n, 's> = {n?: 'n, s: 's}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C190%2C2%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype React.element = Jsx.element\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22React.res%22%2C0%2C0%5D)\n"}}
 
 Hover src/Hover.res 202:16
-{"contents": "```rescript\nuseR\n```\n\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n---\n\n\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n\n---\n"}
+{"contents": {"kind": "markdown", "value": "```rescript\nuseR\n```\n\n---\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n"}}
 
 Hover src/Hover.res 210:13
 Nothing at that position. Now trying to use completion.
 posCursor:[210:13] posNoWhite:[210:12] Found expr:[210:11->210:14]
 Pexp_ident usr:[210:11->210:14]
 Completable: Cpath Value[usr]
-{"contents": "```rescript\nuseR\n```\n\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n---\n\n\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n\n---\n"}
+{"contents": {"kind": "markdown", "value": "```rescript\nuseR\n```\n\n---\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n"}}
 

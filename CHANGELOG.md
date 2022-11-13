@@ -12,6 +12,9 @@
 
 ## master
 
+#### :nail_care: Polish
+- Remove spacing between type definition in clients that do not support markdown links. https://github.com/rescript-lang/rescript-vscode/pull/619
+
 #### :bug: Bug Fix
 
 - Fix issue where `-open Some.Path` in `"bsc-flags"` would sometimes be treated differently from `open Some.Path` locally in a file https://github.com/rescript-lang/rescript-vscode/pull/616
