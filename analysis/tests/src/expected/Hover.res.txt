@@ -39,10 +39,10 @@ Hover src/Hover.res 46:10
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 49:13
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule type Logger = {\n  let log: string => unit\n}\n```"}}
 
 Hover src/Hover.res 54:7
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule Logger = {\n  let log: string => unit\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule type Logger = {\n  let log: string => unit\n}\n```"}}
 
 Definition src/Hover.res 60:14
 {"uri": "Hover.res", "range": {"start": {"line": 49, "character": 12}, "end": {"line": 49, "character": 18}}}
@@ -172,8 +172,8 @@ Completable: Cpath Value[usr]
 {"contents": {"kind": "markdown", "value": "```rescript\nuseR\n```\n\n---\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n"}}
 
 Hover src/Hover.res 230:20
-{"contents": "```rescript\nint\n```\n\n More Stuff "}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n More Stuff "}}
 
 Hover src/Hover.res 233:17
-{"contents": "```rescript\nint\n```\n\n More Stuff "}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n More Stuff "}}
 
