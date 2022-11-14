@@ -430,7 +430,7 @@ let isVisible (declared : _ Declared.t) =
     | File _ -> true
     | NotVisible -> false
     | IncludedModule (_, inner) -> loop inner
-    | ExportedModule (_, inner) -> loop inner
+    | ExportedModule {modulePath = inner} -> loop inner
   in
   loop declared.modulePath
 
@@ -438,7 +438,8 @@ let rec pathFromVisibility visibilityPath current =
   match visibilityPath with
   | File _ -> Some current
   | IncludedModule (_, inner) -> pathFromVisibility inner current
-  | ExportedModule (name, inner) -> pathFromVisibility inner (name :: current)
+  | ExportedModule {name; modulePath = inner} ->
+    pathFromVisibility inner (name :: current)
   | NotVisible -> None
 
 let pathFromVisibility visibilityPath tipName =
