@@ -171,3 +171,9 @@ Pexp_ident usr:[210:11->210:14]
 Completable: Cpath Value[usr]
 {"contents": {"kind": "markdown", "value": "```rescript\nuseR\n```\n\n---\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n"}}
 
+Hover src/Hover.res 230:20
+{"contents": "```rescript\nint\n```\n\n More Stuff "}
+
+Hover src/Hover.res 233:17
+{"contents": "```rescript\nint\n```\n\n More Stuff "}
+

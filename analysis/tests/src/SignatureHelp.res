@@ -50,3 +50,6 @@ let iAmSoSpecial = (iJustHaveOneArg: string) => {
 
 // let _ = iAmSoSpecial(
 //                      ^she
+
+// let _ = "hello"->otherFunc(1
+//                             ^she

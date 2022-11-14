@@ -6,7 +6,7 @@ type modulePath =
   | File of Uri.t * string
   | NotVisible
   | IncludedModule of Path.t * modulePath
-  | ExportedModule of string * modulePath
+  | ExportedModule of {name: string; modulePath: modulePath; isType: bool}
 
 type field = {stamp: int; fname: string Location.loc; typ: Types.type_expr}
 
@@ -361,12 +361,24 @@ type file = string
 
 module FileSet = Set.Make (String)
 
+type builtInCompletionModules = {
+  arrayModulePath: string list;
+  optionModulePath: string list;
+  stringModulePath: string list;
+  intModulePath: string list;
+  floatModulePath: string list;
+  promiseModulePath: string list;
+  listModulePath: string list;
+  resultModulePath: string list;
+}
+
 type package = {
   rootPath: filePath;
   projectFiles: FileSet.t;
   dependenciesFiles: FileSet.t;
   pathsForModule: (file, paths) Hashtbl.t;
   namespace: string option;
+  builtInCompletionModules: builtInCompletionModules;
   opens: path list;
 }
 

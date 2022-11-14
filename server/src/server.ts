@@ -139,25 +139,17 @@ let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
 let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
   utils.findBinary(findPlatformPath(projectRootPath), c.bscExeName);
 
-interface CreateInterfaceRequestParams {
-  uri: string;
-}
-
 let createInterfaceRequest = new v.RequestType<
-  CreateInterfaceRequestParams,
-  string,
+  p.TextDocumentIdentifier,
+  p.TextDocumentIdentifier,
   void
->("rescript-vscode.create_interface");
-
-interface OpenCompiledFileParams {
-  uri: string;
-}
+>("textDocument/createInterface");
 
 let openCompiledFileRequest = new v.RequestType<
-  OpenCompiledFileParams,
-  OpenCompiledFileParams,
+  p.TextDocumentIdentifier,
+  p.TextDocumentIdentifier,
   void
->("rescript-vscode.open_compiled");
+>("textDocument/openCompiled");
 
 let getCurrentCompilerDiagnosticsForFile = (
   fileUri: string
@@ -859,7 +851,7 @@ let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
 };
 
 function createInterface(msg: p.RequestMessage): p.Message {
-  let params = msg.params as CreateInterfaceRequestParams;
+  let params = msg.params as p.TextDocumentIdentifier;
   let extension = path.extname(params.uri);
   let filePath = fileURLToPath(params.uri);
   let projDir = utils.findProjectRootOfFile(filePath);
@@ -953,7 +945,9 @@ function createInterface(msg: p.RequestMessage): p.Message {
     let response: p.ResponseMessage = {
       jsonrpc: c.jsonrpcVersion,
       id: msg.id,
-      result: "Interface successfully created.",
+      result: {
+        uri: utils.pathToURI(resiPath)
+      },
     };
     return response;
   } catch (e) {
@@ -970,7 +964,7 @@ function createInterface(msg: p.RequestMessage): p.Message {
 }
 
 function openCompiledFile(msg: p.RequestMessage): p.Message {
-  let params = msg.params as OpenCompiledFileParams;
+  let params = msg.params as p.TextDocumentIdentifier;
   let filePath = fileURLToPath(params.uri);
   let projDir = utils.findProjectRootOfFile(filePath);
 
@@ -1014,14 +1008,12 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
     return response;
   }
 
-  let result: OpenCompiledFileParams = {
-    uri: compiledFilePath.result,
-  };
-
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
-    result,
+    result: {
+      uri: utils.pathToURI(compiledFilePath.result),
+    }
   };
 
   return response;

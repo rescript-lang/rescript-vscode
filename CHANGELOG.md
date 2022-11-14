@@ -13,11 +13,23 @@
 ## master
 
 #### :nail_care: Polish
+
 - Remove spacing between type definition in clients that do not support markdown links. https://github.com/rescript-lang/rescript-vscode/pull/619
+- Rename custom LSP methods names. https://github.com/rescript-lang/rescript-vscode/pull/611
 
 #### :bug: Bug Fix
 
 - Fix issue where `-open Some.Path` in `"bsc-flags"` would sometimes be treated differently from `open Some.Path` locally in a file https://github.com/rescript-lang/rescript-vscode/pull/616
+
+- Fix issue where doc comment is not shown on hover in case of shadowed identifier (in particular for JSX V4 components which shadow `make`) https://github.com/rescript-lang/rescript-vscode/issues/621
+
+- Adapt command to create interface files to latest JSX V4 (no key prop, possibly empty record) https://github.com/rescript-lang/rescript-vscode/issues/617
+
+- Fix issue where pipes were not taken into account in the signature help, resulting in the highlighted argument in signature help always being off by one for unlabelled arguments in piped expressions https://github.com/rescript-lang/rescript-vscode/issues/626
+
+- Fix incorrect type hint for module type. https://github.com/rescript-lang/rescript-vscode/pull/626
+
+- Fix file location in Document Symbols response. https://github.com/rescript-lang/rescript-vscode/issues/629
 
 ## v1.8.2
 

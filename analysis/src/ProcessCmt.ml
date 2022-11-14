@@ -10,17 +10,29 @@ let addDeclared ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t)
   addStamp env.stamps stamp declared;
   declared
 
-let rec forTypeSignatureItem ~env ~(exported : Exported.t)
+let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
     (item : Types.signature_item) =
   match item with
   | Sig_value (ident, {val_type; val_attributes; val_loc = loc}) ->
     let item = val_type in
+    let stamp = Ident.binding_time ident in
+    let oldDeclared = Stamps.findValue env.stamps stamp in
     let declared =
       addDeclared
         ~name:(Location.mknoloc (Ident.name ident))
-        ~extent:loc ~stamp:(Ident.binding_time ident) ~env ~item val_attributes
+        ~extent:loc ~stamp ~env ~item val_attributes
         (Exported.add exported Exported.Value)
         Stamps.addValue
+    in
+    let declared =
+      (* When an id is shadowed, a module constraint without the doc comment is created.
+         Here the existing doc comment is restored. See https://github.com/rescript-lang/rescript-vscode/issues/621 *)
+      match oldDeclared with
+      | Some oldDeclared when declared.docstring = [] ->
+        let newDeclared = {declared with docstring = oldDeclared.docstring} in
+        Stamps.addValue env.stamps stamp newDeclared;
+        newDeclared
+      | _ -> declared
     in
     [{Module.kind = Module.Value declared.item; name = declared.name.txt}]
   | Sig_type
@@ -363,7 +375,12 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         mtd_loc;
       } ->
     let env =
-      {env with modulePath = ExportedModule (name.txt, env.modulePath)}
+      {
+        env with
+        modulePath =
+          ExportedModule
+            {name = name.txt; modulePath = env.modulePath; isType = true};
+      }
     in
     let modTypeItem = forTypeModule env modType in
     let declared =
@@ -413,7 +430,12 @@ and forModule env mod_desc moduleName =
   | Tmod_ident (path, _lident) -> Ident path
   | Tmod_structure structure ->
     let env =
-      {env with modulePath = ExportedModule (moduleName, env.modulePath)}
+      {
+        env with
+        modulePath =
+          ExportedModule
+            {name = moduleName; modulePath = env.modulePath; isType = false};
+      }
     in
     let contents = forStructure ~env structure.str_items in
     Structure contents
@@ -435,14 +457,24 @@ and forModule env mod_desc moduleName =
     forModule env functor_.mod_desc moduleName
   | Tmod_unpack (_expr, moduleType) ->
     let env =
-      {env with modulePath = ExportedModule (moduleName, env.modulePath)}
+      {
+        env with
+        modulePath =
+          ExportedModule
+            {name = moduleName; modulePath = env.modulePath; isType = false};
+      }
     in
     forTypeModule env moduleType
   | Tmod_constraint (expr, typ, _constraint, _coercion) ->
     (* TODO do this better I think *)
     let modKind = forModule env expr.mod_desc moduleName in
     let env =
-      {env with modulePath = ExportedModule (moduleName, env.modulePath)}
+      {
+        env with
+        modulePath =
+          ExportedModule
+            {name = moduleName; modulePath = env.modulePath; isType = false};
+      }
     in
     let modTypeKind = forTypeModule env typ in
     Constraint (modKind, modTypeKind)
