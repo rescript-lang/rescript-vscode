@@ -29,11 +29,19 @@ let completion ~debug ~path ~pos ~currentFile =
     |> Protocol.array)
 
 let inlayhint ~path ~pos ~maxLength ~debug =
-  let result = Hint.inlay ~path ~pos ~maxLength ~debug |> Protocol.array in
+  let result =
+    match Hint.inlay ~path ~pos ~maxLength ~debug with
+    | Some hints -> hints |> Protocol.array
+    | None -> Protocol.null
+  in
   print_endline result
 
 let codeLens ~path ~debug =
-  let result = Hint.codeLens ~path ~debug |> Protocol.array in
+  let result =
+    match Hint.codeLens ~path ~debug with
+    | Some lens -> lens |> Protocol.array
+    | None -> Protocol.null
+  in
   print_endline result
 
 let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
