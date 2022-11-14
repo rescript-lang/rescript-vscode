@@ -106,12 +106,12 @@ let hoverWithExpandedTypes ~docstring ~file ~package ~supportsMarkdownLinks typ
                Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
              else ""
            in
-           "\n" ^ Markdown.spacing
+           Markdown.divider ^ (if supportsMarkdownLinks then Markdown.spacing else "")
            ^ Markdown.codeBlock
                (decl
                |> Shared.declToString ~printNameAsIs:true
                     (SharedTypes.pathIdentToString path))
-           ^ linkToTypeDefinitionStr ^ "\n" ^ Markdown.divider)
+           ^ linkToTypeDefinitionStr ^ "\n")
   in
   (typeString :: typeDefinitions |> String.concat "\n", docstring)
 

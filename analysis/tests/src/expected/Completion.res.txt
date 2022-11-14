@@ -1406,7 +1406,7 @@ JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346
 Completable: Cjsx([div], name, [name])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
-{"contents": "```rescript\nstring\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\nstring\n```"}}
 
 Hover src/Completion.res 349:17
 Nothing at that position. Now trying to use completion.
@@ -1417,7 +1417,7 @@ Pexp_ident FAO.forAutoObject:[349:11->349:28]
 Completable: Cpath Value[FAO, forAutoObject]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
-{"contents": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}}
 
 Hover src/Completion.res 352:17
 Nothing at that position. Now trying to use completion.
@@ -1435,7 +1435,7 @@ Found type for function (
   unit,
   ~c: int,
 ) => int
-{"contents": "```rescript\noption<int>\n```"}
+{"contents": {"kind": "markdown", "value": "```rescript\noption<int>\n```"}}
 
 Complete src/Completion.res 355:23
 posCursor:[355:23] posNoWhite:[355:22] Found expr:[0:-1->355:23]

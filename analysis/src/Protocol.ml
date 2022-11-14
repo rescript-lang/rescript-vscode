@@ -102,7 +102,7 @@ let stringifyCompletionItem c =
     | None -> null
     | Some doc -> stringifyMarkupContent doc)
 
-let stringifyHover s = Printf.sprintf {|{"contents": "%s"}|} (Json.escape s)
+let stringifyHover value = Printf.sprintf {|{"contents": %s}|} (stringifyMarkupContent {kind = "markdown"; value})
 
 let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)

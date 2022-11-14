@@ -14,6 +14,7 @@
 
 #### :nail_care: Polish
 
+- Remove spacing between type definition in clients that do not support markdown links. https://github.com/rescript-lang/rescript-vscode/pull/619
 - Rename custom LSP methods names. https://github.com/rescript-lang/rescript-vscode/pull/611
 
 #### :bug: Bug Fix
