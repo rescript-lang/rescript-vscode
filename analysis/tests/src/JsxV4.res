@@ -15,8 +15,14 @@ let _ = <M4 first="abc" />
 let _ = <M4 first="abc" />
 //       ^hov
 
-
 module MM = {
   @react.component
   let make = () => React.null
 }
+
+module Other = {
+  @react.component
+  let make = (~name) => React.string(name)
+}
+
+// ^int
