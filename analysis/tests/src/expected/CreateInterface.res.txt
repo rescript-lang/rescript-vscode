@@ -1,19 +1,19 @@
 Create Interface src/CreateInterface.res
 type r = {name: string, age: int}
 let add: (~x: int, ~y: int) => int
-@react.component
-let make: (~name: string) => React.element
+type props<'name> = {name: 'name}
+let make: props<string> => React.element
 module Other: {
-  @react.component
-  let otherComponentName: (~name: string) => React.element
+  type props<'name> = {name: 'name}
+  let otherComponentName: props<string> => React.element
 }
 module Mod: {
-  @react.component
-  let make: (~name: string) => React.element
+  type props<'name> = {name: 'name}
+  let make: props<string> => React.element
 }
 module type ModTyp = {
-  @react.component
-  let make: (~name: string) => React.element
+  type props<'name> = {name: 'name}
+  let make: React.componentLike<props<string>, React.element>
 }
 @module("path") external dirname: string => string = "dirname"
 @module("path") @variadic
@@ -55,15 +55,15 @@ module type FT = {
   module Functor: (
     X: {
       let a: int
-      @react.component
-      let make: (~name: string) => React.element
+      type props<'name> = {name: 'name}
+      let make: React.componentLike<props<string>, React.element>
       let b: int
     },
     Y: ModTyp,
   ) =>
   {
-    @react.component
-    let make: (~name: string) => React.element
+    type props<'name> = {name: 'name}
+    let make: React.componentLike<props<string>, React.element>
   }
 }
 module NormaList = List
@@ -79,8 +79,8 @@ module type OptT = {
     let withOpt2: (~x: int=?, ~y: int) => int
   }
   module type Opt3 = {
-    @react.component
-    let withOpt3: (~x: option<int>, ~y: int) => int
+    type props<'x, 'y> = {x: 'x, y: 'y}
+    let withOpt3: React.componentLike<props<option<int>, int>, int>
   }
 }
 module Opt: {
@@ -95,18 +95,18 @@ module Opt: {
     let withOpt2: (~x: int=?, ~y: int) => int
   }
   module Opt3: {
-    @react.component
-    let withOpt3: (~x: option<int>, ~y: int) => int
+    type props<'x, 'y> = {x: 'x, y: 'y}
+    let withOpt3: props<option<int>, int> => int
   }
   module type Opt3 = {
-    @react.component
-    let withOpt3: (~x: option<int>, ~y: int) => int
+    type props<'x, 'y> = {x: 'x, y: 'y}
+    let withOpt3: props<option<int>, int> => int
   }
 }
 module Opt2: OptT
 module Opt3 = Opt
 module Memo: {
-  @react.component
-  let make: (~name: string) => React.element
+  type props<'name> = {name: 'name}
+  let make: React.component<props<string>>
 }
 
