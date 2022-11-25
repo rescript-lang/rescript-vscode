@@ -31,6 +31,8 @@
 
 - Fix file location in Document Symbols response. https://github.com/rescript-lang/rescript-vscode/issues/629
 
+- Fix issue where create interface file would not work with certain JSX V4 components https://github.com/rescript-lang/rescript-vscode/issues/617
+
 ## v1.8.2
 
 #### :rocket: New Feature
