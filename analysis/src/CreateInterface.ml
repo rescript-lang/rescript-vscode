@@ -246,11 +246,7 @@ let printSignature ~extractor ~signature =
       :: Sig_value (makeId (* make *), makeValueDesc)
       :: rest
       when Ident.name propsId = "props"
-           && getComponentTypeV4 makeValueDesc.val_type <> None
-           &&
-           match recordRepresentation with
-           | Record_optional_labels _ -> true
-           | _ -> labelDecls = [] (* empty record *) ->
+           && getComponentTypeV4 makeValueDesc.val_type <> None ->
       (* PPX V4 component declaration:
          type props = {...}
          let v = ...

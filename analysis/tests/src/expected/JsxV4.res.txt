@@ -26,7 +26,7 @@ module MM: {
   let make: unit => React.element
 }
 module Other: {
-  type props<'name> = {name: 'name}
-  let make: props<string> => React.element
+  @react.component
+  let make: (~name: string) => React.element
 }
 
