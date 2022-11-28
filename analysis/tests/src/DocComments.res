@@ -44,3 +44,7 @@ let docCommentNoNested1 = 12
 */
 let docCommentNoNested2 = 12
 //    ^hov
+
+@res.doc("New doc comment format")
+let newDoc = 10
+//   ^hov

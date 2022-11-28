@@ -10,3 +10,6 @@ Hover src/DocComments.res 33:9
 Hover src/DocComments.res 44:6
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n\n  Doc comment with a triple-backquote example\n  \n  ```res example\n    let a = 10\n    let b = 20\n  ```\n"}}
 
+Hover src/DocComments.res 48:5
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\nNew doc comment format"}}
+
