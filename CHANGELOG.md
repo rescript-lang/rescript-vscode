@@ -67,6 +67,7 @@
 - Code Lenses for functions (experimental). `rescript.settings.codeLens: true`. Turned off by default. https://github.com/rescript-lang/rescript-vscode/pull/513
 - Markdown code blocks tagged as `rescript` now get basic syntax highlighting. https://github.com/rescript-lang/rescript-vscode/pull/97
 - Hover support for doc comments on v10 compiler `/** this is a doc comment */`
+- Code action to convert type to module. https://github.com/rescript-lang/rescript-vscode/issues/430
 
 #### :bug: Bug Fix
 

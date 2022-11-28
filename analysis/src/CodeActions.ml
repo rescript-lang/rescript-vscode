@@ -5,13 +5,4 @@ let stringifyCodeActions codeActions =
   Printf.sprintf {|%s|}
     (codeActions |> List.map Protocol.stringifyCodeAction |> Protocol.array)
 
-let make ~title ~kind ~uri ~newText ~range =
-  {
-    Protocol.title;
-    codeActionKind = kind;
-    edit =
-      {
-        documentChanges =
-          [{textDocument = {version = None; uri}; edits = [{newText; range}]}];
-      };
-  }
+let make ~title ~kind ~edit = {Protocol.title; codeActionKind = kind; edit}

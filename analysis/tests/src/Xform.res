@@ -65,3 +65,42 @@ let bar = () => {
   }
   Inner.foo(1)
 }
+
+type readState = New | Unread | Read
+//^xfm
+
+type refState = readState
+
+type account =
+  | None
+  | Instagram(string)
+  | Facebook(string, int)
+//^xfm
+
+type person = {
+  "age": int,
+  "name": string
+}
+//^xfm
+
+type user = {
+  name: string,
+  age: int,
+} and response = Yes | No
+//^xfm
+
+type myType = This | That
+//^xfm
+
+let fun1 = (x: myType) => x
+
+let fun2 = b => b ? This : That
+
+let fun3 = b => b ? {name: "Lhs", age: 2} : {name: "Rhs", age: 3}
+
+let fun4 = b => b ? Yes : No
+
+let me: person = {
+  "age": 5,
+  "name": "Big ReScript"
+}
