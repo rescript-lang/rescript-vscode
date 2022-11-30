@@ -133,7 +133,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
         Printf.printf "Completable: %s\n"
           (SharedTypes.Completable.toString completable);
       (* Only perform expensive ast operations if there are completables *)
-      match Cmt.fullFromPath ~path with
+      match Cmt.loadFullCmtFromPath ~path with
       | None -> None
       | Some {file; package} -> (
         let env = SharedTypes.QueryEnv.fromFile file in
