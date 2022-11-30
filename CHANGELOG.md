@@ -16,7 +16,8 @@
 
 - Remove spacing between type definition in clients that do not support markdown links. https://github.com/rescript-lang/rescript-vscode/pull/619
 - Rename custom LSP methods names. https://github.com/rescript-lang/rescript-vscode/pull/611
-- Better performace for Inlay Hints and Codelens.
+- Better performance for Inlay Hints and Codelens.
+- Accept both `@ns.doc` and the new `@res.doc` for the internal representation of doc comments. And both `@ns.optional` and `@res.optional` for the optional fields. https://github.com/rescript-lang/rescript-vscode/pull/642
 
 #### :bug: Bug Fix
 
@@ -31,6 +32,8 @@
 - Fix incorrect type hint for module type. https://github.com/rescript-lang/rescript-vscode/pull/626
 
 - Fix file location in Document Symbols response. https://github.com/rescript-lang/rescript-vscode/issues/629
+
+- Fix issue where create interface file would not work with certain JSX V4 components https://github.com/rescript-lang/rescript-vscode/issues/617
 
 ## v1.8.2
 
