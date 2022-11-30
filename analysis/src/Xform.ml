@@ -301,7 +301,7 @@ let parse ~filename =
   (structure, printExpr, printStructureItem)
 
 let extractCodeActions ~path ~pos ~currentFile ~debug =
-  match Cmt.fullFromPath ~path with
+  match Cmt.loadFullCmtFromPath ~path with
   | Some full when Files.classifySourceFile currentFile = Res ->
     let structure, printExpr, printStructureItem =
       parse ~filename:currentFile

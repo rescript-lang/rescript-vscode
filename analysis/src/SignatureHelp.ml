@@ -16,7 +16,7 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
       with
       | None -> None
       | Some (completable, scope) -> (
-        match Cmt.fullFromPath ~path with
+        match Cmt.loadFullCmtFromPath ~path with
         | None -> None
         | Some {file; package} ->
           let env = QueryEnv.fromFile file in

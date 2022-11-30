@@ -77,7 +77,7 @@ let inlay ~path ~pos ~maxLength ~debug =
    in
    let {Res_driver.parsetree = structure} = parser ~filename:path in
    iterator.structure iterator structure |> ignore);
-  match Cmt.fullFromPath ~path with
+  match Cmt.loadFullCmtFromPath ~path with
   | None -> None
   | Some full ->
     let result =
@@ -141,7 +141,7 @@ let codeLens ~path ~debug =
    in
    let {Res_driver.parsetree = structure} = parser ~filename:path in
    iterator.structure iterator structure |> ignore);
-  match Cmt.fullFromPath ~path with
+  match Cmt.loadFullCmtFromPath ~path with
   | None -> None
   | Some full ->
     let result =

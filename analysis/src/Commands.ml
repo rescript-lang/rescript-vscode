@@ -13,7 +13,7 @@ let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
         Printf.printf "Completable: %s\n"
           (SharedTypes.Completable.toString completable);
       (* Only perform expensive ast operations if there are completables *)
-      match Cmt.fullFromPath ~path with
+      match Cmt.loadFullCmtFromPath ~path with
       | None -> []
       | Some {file; package} ->
         let env = SharedTypes.QueryEnv.fromFile file in
@@ -46,7 +46,7 @@ let codeLens ~path ~debug =
 
 let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
   let result =
-    match Cmt.fullFromPath ~path with
+    match Cmt.loadFullCmtFromPath ~path with
     | None -> Protocol.null
     | Some full -> (
       match References.getLocItem ~full ~pos ~debug with
@@ -102,7 +102,7 @@ let codeAction ~path ~pos ~currentFile ~debug =
 
 let definition ~path ~pos ~debug =
   let locationOpt =
-    match Cmt.fullFromPath ~path with
+    match Cmt.loadFullCmtFromPath ~path with
     | None -> None
     | Some full -> (
       match References.getLocItem ~full ~pos ~debug with
@@ -138,7 +138,7 @@ let definition ~path ~pos ~debug =
 
 let typeDefinition ~path ~pos ~debug =
   let maybeLocation =
-    match Cmt.fullFromPath ~path with
+    match Cmt.loadFullCmtFromPath ~path with
     | None -> None
     | Some full -> (
       match References.getLocItem ~full ~pos ~debug with
@@ -157,7 +157,7 @@ let typeDefinition ~path ~pos ~debug =
 
 let references ~path ~pos ~debug =
   let allLocs =
-    match Cmt.fullFromPath ~path with
+    match Cmt.loadFullCmtFromPath ~path with
     | None -> []
     | Some full -> (
       match References.getLocItem ~full ~pos ~debug with
@@ -183,7 +183,7 @@ let references ~path ~pos ~debug =
 
 let rename ~path ~pos ~newName ~debug =
   let result =
-    match Cmt.fullFromPath ~path with
+    match Cmt.loadFullCmtFromPath ~path with
     | None -> Protocol.null
     | Some full -> (
       match References.getLocItem ~full ~pos ~debug with

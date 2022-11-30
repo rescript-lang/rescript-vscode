@@ -31,6 +31,6 @@ let fullFromModule ~package ~moduleName =
     fullFromUri ~uri
   else None
 
-let fullFromPath ~path =
+let loadFullCmtFromPath ~path =
   let uri = Uri.fromPath path in
   fullFromUri ~uri
