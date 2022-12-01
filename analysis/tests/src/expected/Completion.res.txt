@@ -1625,10 +1625,11 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->408:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:22], ...[408:0->408:0])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->405:22]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->405:22])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->417:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->415:1], ...[417:0->417:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->415:1]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->415:1])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->415:1]
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
 Pexp_ident r:[405:21->405:22]
 Completable: Cpath Value[r]
@@ -1651,6 +1652,53 @@ Resolved opens 2 Completion.res Completion.res
     "kind": 12,
     "tags": [],
     "detail": "rAlias",
+    "documentation": null
+  }]
+
+Complete src/Completion.res 409:21
+posCursor:[409:21] posNoWhite:[409:20] Found expr:[408:14->415:1]
+posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->414:17]
+posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->411:42]
+posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->411:5]
+Pexp_ident SomeLocalModule.:[409:5->411:5]
+Completable: Cpath Value[SomeLocalModule, ""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "bb",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "aa",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
+
+Complete src/Completion.res 412:21
+posCursor:[412:21] posNoWhite:[412:20] Found expr:[408:14->415:1]
+posCursor:[412:21] posNoWhite:[412:20] Found expr:[411:2->414:17]
+posCursor:[412:21] posNoWhite:[412:20] Found expr:[412:5->414:17]
+Pexp_apply ...[412:5->414:8] (...[414:9->414:16])
+posCursor:[412:21] posNoWhite:[412:20] Found expr:[412:5->414:8]
+Pexp_ident SomeLocalModule.:[412:5->414:8]
+Completable: Cpath Value[SomeLocalModule, ""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "bb",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "aa",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
     "documentation": null
   }]
 
