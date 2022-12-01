@@ -407,10 +407,10 @@ let header2 = `
 //                    ^com
 
 let onClick = evt => {
-  // ReactEvent.
-  //            ^com
+  // SomeLocalModule.
+  //                 ^com
   evt->ReactEvent.Synthetic.preventDefault
-  // ReactEvent.
-  //            ^com
+  // SomeLocalModule.
+  //                 ^com
   Js.log("Hello")
 }
