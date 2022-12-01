@@ -58,15 +58,20 @@ let dumpPath path = Str.global_replace (Str.regexp_string "\\") "/" path
 let isUncurriedInternal path = startsWith (Path.name path) "Js.Fn.arity"
 
 let flattenLongIdent ?(jsx = false) ?(cutAtOffset = None) lid =
+  let extendPath s path =
+    match path with
+    | "" :: _ -> path
+    | _ -> s :: path
+  in
   let rec loop lid =
     match lid with
     | Longident.Lident txt -> ([txt], String.length txt)
     | Ldot (lid, txt) ->
       let path, offset = loop lid in
-      if Some offset = cutAtOffset then ("" :: path, offset + 1)
+      if Some offset = cutAtOffset then (extendPath "" path, offset + 1)
       else if jsx && txt = "createElement" then (path, offset)
-      else if txt = "_" then ("" :: path, offset + 1)
-      else (txt :: path, offset + 1 + String.length txt)
+      else if txt = "_" then (extendPath "" path, offset + 1)
+      else (extendPath txt path, offset + 1 + String.length txt)
     | Lapply _ -> ([], 0)
   in
   let path, _ = loop lid in

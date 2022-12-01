@@ -1774,9 +1774,111 @@ posCursor:[412:16] posNoWhite:[412:15] Found expr:[411:2->414:17]
 posCursor:[412:16] posNoWhite:[412:15] Found expr:[412:5->414:17]
 Pexp_apply ...[412:5->414:8] (...[414:9->414:16])
 posCursor:[412:16] posNoWhite:[412:15] Found expr:[412:5->414:8]
-Pexp_ident ReactEvent..log:[412:5->414:8]
-Completable: Cpath Value[ReactEvent, "", log]
+Pexp_ident ReactEvent.:[412:5->414:8]
+Completable: Cpath Value[ReactEvent, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
-[]
+[{
+    "label": "toSyntheticEvent",
+    "kind": 12,
+    "tags": [],
+    "detail": "synthetic<'a> => Synthetic.t",
+    "documentation": null
+  }, {
+    "label": "Touch",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Synthetic",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Pointer",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Animation",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Image",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Clipboard",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Keyboard",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Selection",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Media",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Transition",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Composition",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Mouse",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Focus",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "UI",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Wheel",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Form",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
 
