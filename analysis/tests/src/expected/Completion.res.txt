@@ -1625,10 +1625,11 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->408:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:22], ...[408:0->408:0])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->405:22]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->405:22])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->417:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->415:1], ...[417:0->417:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->415:1]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->415:1])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->415:1]
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
 Pexp_ident r:[405:21->405:22]
 Completable: Cpath Value[r]
@@ -1653,4 +1654,129 @@ Resolved opens 2 Completion.res Completion.res
     "detail": "rAlias",
     "documentation": null
   }]
+
+Complete src/Completion.res 409:16
+posCursor:[409:16] posNoWhite:[409:15] Found expr:[408:14->415:1]
+posCursor:[409:16] posNoWhite:[409:15] Found expr:[409:5->414:17]
+posCursor:[409:16] posNoWhite:[409:15] Found expr:[409:5->411:42]
+posCursor:[409:16] posNoWhite:[409:15] Found expr:[409:5->411:5]
+Pexp_ident ReactEvent.:[409:5->411:5]
+Completable: Cpath Value[ReactEvent, ""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "toSyntheticEvent",
+    "kind": 12,
+    "tags": [],
+    "detail": "synthetic<'a> => Synthetic.t",
+    "documentation": null
+  }, {
+    "label": "Touch",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Synthetic",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Pointer",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Animation",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Image",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Clipboard",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Keyboard",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Selection",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Media",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Transition",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Composition",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Mouse",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Focus",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "UI",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Wheel",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }, {
+    "label": "Form",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
+  }]
+
+Complete src/Completion.res 412:16
+posCursor:[412:16] posNoWhite:[412:15] Found expr:[408:14->415:1]
+posCursor:[412:16] posNoWhite:[412:15] Found expr:[411:2->414:17]
+posCursor:[412:16] posNoWhite:[412:15] Found expr:[412:5->414:17]
+Pexp_apply ...[412:5->414:8] (...[414:9->414:16])
+posCursor:[412:16] posNoWhite:[412:15] Found expr:[412:5->414:8]
+Pexp_ident ReactEvent..log:[412:5->414:8]
+Completable: Cpath Value[ReactEvent, "", log]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[]
 

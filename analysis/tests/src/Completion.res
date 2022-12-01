@@ -405,3 +405,12 @@ let header2 = `
 
 // let _ = `color: ${r    
 //                    ^com
+
+let onClick = evt => {
+  // ReactEvent.
+  //            ^com
+  evt->ReactEvent.Synthetic.preventDefault
+  // ReactEvent.
+  //            ^com
+  Js.log("Hello")
+}
