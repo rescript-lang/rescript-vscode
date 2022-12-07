@@ -41,6 +41,8 @@
 
 - Fix issue with references to elements defined in an interface file https://github.com/rescript-lang/rescript-vscode/pull/646
 
+- Fix issue with references to elements defined in an interface file https://github.com/rescript-lang/rescript-vscode/issues/645
+
 ## v1.8.2
 
 #### :rocket: New Feature
