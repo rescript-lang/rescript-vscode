@@ -295,6 +295,12 @@ let getUri p =
   | Namespace {cmt} -> Uri.fromPath cmt
   | IntfAndImpl {resi} -> Uri.fromPath resi
 
+let getUris p =
+  match p with
+  | Impl {res} -> [Uri.fromPath res]
+  | Namespace {cmt} -> [Uri.fromPath cmt]
+  | IntfAndImpl {res; resi} -> [Uri.fromPath res; Uri.fromPath resi]
+
 let getCmtPath ~uri p =
   match p with
   | Impl {cmt} -> cmt

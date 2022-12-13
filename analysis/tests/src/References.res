@@ -20,4 +20,6 @@ let bb = M.aa
 let cc = bb
 let dd = M.aa
 //          ^ref
+
 let _ = <ComponentInner/>
+//             ^ref
