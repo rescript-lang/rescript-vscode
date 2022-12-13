@@ -1100,6 +1100,14 @@
   addValueDeclaration +make ImportMyBanner.res:12:4 path:+ImportMyBanner
   addRecordLabelDeclaration text ImportMyBanner.res:5:16 path:+ImportMyBanner.message
   addValueReference ImportMyBanner.res:12:4 --> ImportMyBanner.res:7:0
+  Scanning InnerModuleTypes.cmt Source:InnerModuleTypes.res
+  addVariantCaseDeclaration Foo InnerModuleTypes.res:2:11 path:+InnerModuleTypes.I.t
+  Scanning InnerModuleTypes.cmti Source:InnerModuleTypes.resi
+  addVariantCaseDeclaration Foo InnerModuleTypes.resi:2:11 path:InnerModuleTypes.I.t
+  extendTypeDependencies InnerModuleTypes.res:2:11 --> InnerModuleTypes.resi:2:11
+  extendTypeDependencies InnerModuleTypes.resi:2:11 --> InnerModuleTypes.res:2:11
+  addTypeReference InnerModuleTypes.res:2:11 --> InnerModuleTypes.resi:2:11
+  addTypeReference InnerModuleTypes.resi:2:11 --> InnerModuleTypes.res:2:11
   Scanning JSResource.cmt Source:JSResource.res
   Scanning JsxV4.cmt Source:JsxV4.res
   addValueDeclaration +make JsxV4.res:4:23 path:+JsxV4.C
@@ -1496,6 +1504,9 @@
   addValueReference TestImport.res:13:4 --> TestImport.res:1:0
   addRecordLabelDeclaration text TestImport.res:22:16 path:+TestImport.message
   addValueReference TestImport.res:27:4 --> TestImport.res:24:0
+  Scanning TestInnedModuleTypes.cmt Source:TestInnedModuleTypes.res
+  addValueDeclaration +_ TestInnedModuleTypes.res:1:0 path:+TestInnedModuleTypes
+  addTypeReference TestInnedModuleTypes.res:1:8 --> InnerModuleTypes.resi:2:11
   Scanning TestModuleAliases.cmt Source:TestModuleAliases.res
   addValueDeclaration +testInner1 TestModuleAliases.res:32:4 path:+TestModuleAliases
   addValueDeclaration +testInner1Expanded TestModuleAliases.res:35:4 path:+TestModuleAliases
@@ -1890,6 +1901,8 @@ File References
   ImportIndex.res -->> 
   ImportJsValue.res -->> 
   ImportMyBanner.res -->> 
+  InnerModuleTypes.res -->> 
+  InnerModuleTypes.resi -->> 
   JSResource.res -->> 
   JsxV4.res -->> React.res
   LetPrivate.res -->> 
@@ -1914,6 +1927,7 @@ File References
   TestFirstClassModules.res -->> 
   TestImmutableArray.res -->> ImmutableArray.resi
   TestImport.res -->> 
+  TestInnedModuleTypes.res -->> 
   TestModuleAliases.res -->> 
   TestOptArg.res -->> OptArg.resi
   TestPromise.res -->> 
@@ -2126,6 +2140,8 @@ File References
   Dead Value +ImportMyBanner.+make: 0 references () [0]
   Live Value +ImportMyBanner.+make: 0 references () [0]
   Dead RecordLabel +ImportMyBanner.message.text: 0 references () [0]
+  Live VariantCase InnerModuleTypes.I.t.Foo: 1 references (TestInnedModuleTypes.res:1:8) [1]
+  Live VariantCase +InnerModuleTypes.I.t.Foo: 1 references (InnerModuleTypes.resi:2:11) [0]
   Live Value +JsxV4.C.+make: 1 references (JsxV4.res:7:9) [0]
   Live Value +LetPrivate.+y: 0 references () [0]
   Live Value +LetPrivate.local_1.+x: 1 references (LetPrivate.res:7:4) [0]
@@ -2269,6 +2285,7 @@ File References
   Dead Value +TestImport.+innerStuffContents: 0 references () [0]
   Live Value +TestImport.+innerStuffContentsAsEmptyObject: 0 references () [0]
   Live Value +TestImport.+innerStuffContents: 0 references () [0]
+  Dead Value +TestInnedModuleTypes.+_: 0 references () [0]
   Live Value +TestModuleAliases.+testInner2Expanded: 0 references () [0]
   Live Value +TestModuleAliases.+testInner2: 0 references () [0]
   Live Value +TestModuleAliases.+testInner1Expanded: 0 references () [0]
