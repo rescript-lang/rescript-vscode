@@ -19,7 +19,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
     let oldDeclared = Stamps.findValue env.stamps stamp in
     let declared =
       addDeclared
-        ~name:(Location.mknoloc (Ident.name ident))
+        ~name:(Location.mkloc (Ident.name ident) loc)
         ~extent:loc ~stamp ~env ~item val_attributes
         (Exported.add exported Exported.Value)
         Stamps.addValue
@@ -107,7 +107,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
     let declared =
       addDeclared ~extent:md_loc
         ~item:(forTypeModule env md_type)
-        ~name:(Location.mknoloc (Ident.name ident))
+        ~name:(Location.mkloc (Ident.name ident) md_loc)
         ~stamp:(Ident.binding_time ident) ~env md_attributes
         (Exported.add exported Exported.Module)
         Stamps.addModule

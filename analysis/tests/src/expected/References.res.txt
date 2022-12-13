@@ -16,6 +16,7 @@ References src/References.res 9:19
 
 References src/References.res 20:12
 [
+{"uri": "References.res", "range": {"start": {"line": 13, "character": 2}, "end": {"line": 13, "character": 13}}},
 {"uri": "References.res", "range": {"start": {"line": 18, "character": 11}, "end": {"line": 18, "character": 13}}},
 {"uri": "References.res", "range": {"start": {"line": 20, "character": 11}, "end": {"line": 20, "character": 13}}}
 ]
