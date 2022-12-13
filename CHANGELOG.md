@@ -43,7 +43,6 @@
 
 - Fix issue with references to elements defined in an interface file https://github.com/rescript-lang/rescript-vscode/pull/646
 
->>>>>>> master
 ## v1.8.2
 
 #### :rocket: New Feature
