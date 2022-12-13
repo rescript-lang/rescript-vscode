@@ -14,6 +14,8 @@ Hover src/Hover.res 22:11
 {"contents": {"kind": "markdown", "value": "```rescript\nint => int\n```\n\nSome doc comment"}}
 
 Hover src/Hover.res 26:6
+getLocItem #8: heuristic for JSX with at most one child
+heuristic for: [makeProps, make, createElement], give the loc of `make` 
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 33:4

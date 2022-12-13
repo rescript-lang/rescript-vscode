@@ -39,7 +39,7 @@
 
 - Fix issue where code analysis would not track types in inner modules across implementations and interfaces https://github.com/rescript-association/reanalyze/issues/186
 
-- Fix issue with references to elements defined in an interface file https://github.com/rescript-lang/rescript-vscode/issues/645
+- Fix issue with references to elements defined in an interface file https://github.com/rescript-lang/rescript-vscode/pull/646
 
 ## v1.8.2
 
