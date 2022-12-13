@@ -172,11 +172,9 @@ let references ~path ~pos ~debug =
                  | Some loc -> loc
                  | None -> Uri.toTopLevelLoc uri2
                in
-               if loc.loc_ghost then acc
-               else
-                 Protocol.stringifyLocation
-                   {uri = Uri.toString uri2; range = Utils.cmtLocToRange loc}
-                 :: acc)
+               Protocol.stringifyLocation
+                 {uri = Uri.toString uri2; range = Utils.cmtLocToRange loc}
+               :: acc)
              [])
   in
   print_endline

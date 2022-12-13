@@ -24,12 +24,12 @@ let fullFromUri ~uri =
       prerr_endline ("can't find module " ^ moduleName);
       None)
 
-let fullFromModule ~package ~moduleName =
+let fullsFromModule ~package ~moduleName =
   if Hashtbl.mem package.pathsForModule moduleName then
     let paths = Hashtbl.find package.pathsForModule moduleName in
-    let uri = getUri paths in
-    fullFromUri ~uri
-  else None
+    let uris = getUris paths in
+    uris |> List.filter_map (fun uri -> fullFromUri ~uri)
+  else []
 
 let loadFullCmtFromPath ~path =
   let uri = Uri.fromPath path in

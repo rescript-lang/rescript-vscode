@@ -506,28 +506,24 @@ let forLocalStamp ~full:{file; extra; package} stamp (tip : Tip.t) =
                 package.projectFiles |> FileSet.elements
                 |> List.filter (fun name -> name <> file.moduleName)
                 |> List.map (fun moduleName ->
-                       match ProcessCmt.fileForModule ~package moduleName with
-                       | None -> []
-                       | Some file -> (
-                         match Cmt.fullFromModule ~package ~moduleName with
-                         | None -> []
-                         | Some {extra} -> (
-                           match
-                             Hashtbl.find_opt extra.externalReferences
-                               thisModuleName
-                           with
-                           | None -> []
-                           | Some refs ->
-                             let locs =
-                               refs
-                               |> Utils.filterMap (fun (p, t, locs) ->
-                                      if p = path && t = tip then Some locs
-                                      else None)
-                             in
-                             locs
-                             |> List.map (fun loc ->
-                                    {uri = file.uri; locOpt = Some loc}))))
-                |> List.concat
+                       Cmt.fullsFromModule ~package ~moduleName
+                       |> List.map (fun {file; extra} ->
+                              match
+                                Hashtbl.find_opt extra.externalReferences
+                                  thisModuleName
+                              with
+                              | None -> []
+                              | Some refs ->
+                                let locs =
+                                  refs
+                                  |> Utils.filterMap (fun (p, t, locs) ->
+                                         if p = path && t = tip then Some locs
+                                         else None)
+                                in
+                                locs
+                                |> List.map (fun loc ->
+                                       {uri = file.uri; locOpt = Some loc})))
+                |> List.concat |> List.concat
               in
               alternativeReferences @ externals)
           else (
