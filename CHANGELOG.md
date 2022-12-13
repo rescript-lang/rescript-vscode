@@ -37,6 +37,8 @@
 
 - Fix issue with completing `foo. x` where `x` should not be part of the completion https://github.com/rescript-lang/rescript-vscode/pull/644
 
+- Fix issue where code analysis would not track types in inner modules across implementations and interfaces https://github.com/rescript-association/reanalyze/issues/186
+
 ## v1.8.2
 
 #### :rocket: New Feature

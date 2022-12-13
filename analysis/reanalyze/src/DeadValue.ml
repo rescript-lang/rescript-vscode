@@ -234,7 +234,8 @@ let rec getSignature (moduleType : Types.module_type) =
 
 let rec processSignatureItem ~doTypes ~doValues ~moduleLoc ~path
     (si : Types.signature_item) =
-  match si with
+  let oldModulePath = ModulePath.getCurrent () in
+  (match si with
   | Sig_type (id, t, _) when doTypes ->
     if !Config.analyzeTypes then
       DeadType.addDeclaration ~typeId:id ~typeKind:t.type_kind
@@ -260,6 +261,12 @@ let rec processSignatureItem ~doTypes ~doValues ~moduleLoc ~path
              ~sideEffects:false
   | Sig_module (id, {Types.md_type = moduleType; md_loc = moduleLoc}, _)
   | Sig_modtype (id, {Types.mtd_type = Some moduleType; mtd_loc = moduleLoc}) ->
+    ModulePath.setCurrent
+      {
+        oldModulePath with
+        loc = moduleLoc;
+        path = (id |> Ident.name |> Name.create) :: oldModulePath.path;
+      };
     let collect =
       match si with
       | Sig_modtype _ -> false
@@ -270,7 +277,8 @@ let rec processSignatureItem ~doTypes ~doValues ~moduleLoc ~path
       |> List.iter
            (processSignatureItem ~doTypes ~doValues ~moduleLoc
               ~path:((id |> Ident.name |> Name.create) :: path))
-  | _ -> ()
+  | _ -> ());
+  ModulePath.setCurrent oldModulePath
 
 (* Traverse the AST *)
 let traverseStructure ~doTypes ~doExternals =
