@@ -2,11 +2,27 @@ let str s = if s = "" then "\"\"" else s
 let list l = "[" ^ (l |> List.map str |> String.concat ", ") ^ "]"
 let ident l = l |> List.map str |> String.concat "."
 
-type modulePath =
-  | File of Uri.t * string
-  | NotVisible
-  | IncludedModule of Path.t * modulePath
-  | ExportedModule of {name: string; modulePath: modulePath; isType: bool}
+type path = string list
+
+let pathToString (path : path) = path |> String.concat "."
+
+module ModulePath = struct
+  type t =
+    | File of Uri.t * string
+    | NotVisible
+    | IncludedModule of Path.t * t
+    | ExportedModule of {name: string; modulePath: t; isType: bool}
+
+  let toPath modulePath tipName : path =
+    let rec loop modulePath current =
+      match modulePath with
+      | File _ -> current
+      | IncludedModule (_, inner) -> loop inner current
+      | ExportedModule {name; modulePath = inner} -> loop inner (name :: current)
+      | NotVisible -> current
+    in
+    loop modulePath [tipName]
+end
 
 type field = {stamp: int; fname: string Location.loc; typ: Types.type_expr}
 
@@ -102,7 +118,7 @@ module Declared = struct
     name: string Location.loc;
     extentLoc: Location.t;
     stamp: int;
-    modulePath: modulePath;
+    modulePath: ModulePath.t;
     isExported: bool;
     deprecated: string option;
     docstring: string list;
@@ -257,7 +273,7 @@ module Completion = struct
 end
 
 module Env = struct
-  type t = {stamps: Stamps.t; modulePath: modulePath}
+  type t = {stamps: Stamps.t; modulePath: ModulePath.t}
 end
 
 type filePath = string
@@ -320,10 +336,6 @@ module Tip = struct
     | Constructor a -> "Constructor(" ^ a ^ ")"
     | Module -> "Module"
 end
-
-type path = string list
-
-let pathToString (path : path) = path |> String.concat "."
 
 let rec pathIdentToString (p : Path.t) =
   match p with

@@ -133,7 +133,7 @@ let resolveFromCompilerPath ~env ~package path =
   | NotFound -> NotFound
   | Exported (env, name) -> Exported (env, name)
 
-let rec getSourceUri ~(env : QueryEnv.t) ~package path =
+let rec getSourceUri ~(env : QueryEnv.t) ~package (path : ModulePath.t) =
   match path with
   | File (uri, _moduleName) -> uri
   | NotVisible -> env.file.uri

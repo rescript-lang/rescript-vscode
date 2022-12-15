@@ -100,5 +100,5 @@ Completable: Cpath Value[DefinitionWithInterface, a]
 []
 
 Definition src/Cross.res 39:39
-{"uri": "DefinitionWithInterface.res", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}}
+{"uri": "DefinitionWithInterface.res", "range": {"start": {"line": 9, "character": 6}, "end": {"line": 9, "character": 7}}}
 

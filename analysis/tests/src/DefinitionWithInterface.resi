@@ -5,4 +5,5 @@ type t
 
 module Inner: {
   let y: int
+  //  ^def
 }

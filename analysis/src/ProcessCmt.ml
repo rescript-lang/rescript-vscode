@@ -249,7 +249,17 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
            decl |> forTypeDeclaration ~env ~exported ~recStatus)
   | Tsig_module
       {md_id; md_attributes; md_loc; md_name = name; md_type = {mty_type}} ->
-    let item = forTypeModule env mty_type in
+    let item =
+      let env =
+        {
+          env with
+          modulePath =
+            ExportedModule
+              {name = name.txt; modulePath = env.modulePath; isType = false};
+        }
+      in
+      forTypeModule env mty_type
+    in
     let declared =
       addDeclared ~item ~name ~extent:md_loc ~stamp:(Ident.binding_time md_id)
         ~env md_attributes
