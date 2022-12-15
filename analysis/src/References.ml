@@ -145,7 +145,7 @@ let getConstructor (file : File.t) stamp name =
       | Some const -> Some const)
     | _ -> None)
 
-let exportedForTip ~(env : QueryEnv.t) name (tip : Tip.t) =
+let exportedForTip ~(env : QueryEnv.t) ~name (tip : Tip.t) =
   match tip with
   | Value -> Exported.find env.exported Exported.Value name
   | Field _ | Constructor _ | Type ->
@@ -185,7 +185,7 @@ let definedForLoc ~file ~package locKind =
         Log.log ("Cannot resolve path " ^ pathToString path);
         None
       | Some (env, name) -> (
-        match exportedForTip ~env name tip with
+        match exportedForTip ~env ~name tip with
         | None ->
           Log.log
             ("Exported not found for tip " ^ name ^ " > " ^ Tip.toString tip);
@@ -200,23 +200,6 @@ let definedForLoc ~file ~package locKind =
             maybeLog "Yes!! got it";
             Some res))))
 
-let declaredForExportedTip ~(stamps : Stamps.t) ~(exported : Exported.t) name
-    (tip : Tip.t) =
-  let bind f x = Option.bind x f in
-  match tip with
-  | Value ->
-    Exported.find exported Exported.Value name
-    |> bind (fun stamp -> Stamps.findValue stamps stamp)
-    |> Option.map (fun x -> {x with Declared.item = ()})
-  | Field _ | Constructor _ | Type ->
-    Exported.find exported Exported.Type name
-    |> bind (fun stamp -> Stamps.findType stamps stamp)
-    |> Option.map (fun x -> {x with Declared.item = ()})
-  | Module ->
-    Exported.find exported Exported.Module name
-    |> bind (fun stamp -> Stamps.findModule stamps stamp)
-    |> Option.map (fun x -> {x with Declared.item = ()})
-
 (** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
 let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
   match Hashtbl.find_opt package.pathsForModule file.moduleName with
@@ -230,10 +213,18 @@ let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
       match Cmt.fullFromUri ~uri:(Uri.fromPath alternateUri) with
       | None -> None
       | Some {file; extra} -> (
-        match
-          declaredForExportedTip ~stamps:file.stamps
-            ~exported:file.structure.exported declared.name.txt tip
-        with
+        let env = QueryEnv.fromFile file in
+        let path = ModulePath.toPath declared.modulePath declared.name.txt in
+        maybeLog ("find declared for path " ^ pathToString path);
+        let declaredOpt =
+          match ResolvePath.resolvePath ~env ~path ~package with
+          | None -> None
+          | Some (env, name) -> (
+            match exportedForTip ~env ~name tip with
+            | None -> None
+            | Some stamp -> declaredForTip ~stamps:file.stamps stamp tip)
+        in
+        match declaredOpt with
         | None -> None
         | Some declared -> Some (file, extra, declared)))
     | _ ->
@@ -386,7 +377,7 @@ let definitionForLocItem ~full:{file; package} locItem =
       | None -> None
       | Some (env, name) -> (
         maybeLog ("resolved path:" ^ name);
-        match exportedForTip ~env name tip with
+        match exportedForTip ~env ~name tip with
         | None -> None
         | Some stamp ->
           (* oooh wht do I do if the stamp is inside a pseudo-file? *)
@@ -425,7 +416,7 @@ let typeDefinitionForLocItem ~full:{file; package} locItem =
 let isVisible (declared : _ Declared.t) =
   declared.isExported
   &&
-  let rec loop v =
+  let rec loop (v : ModulePath.t) =
     match v with
     | File _ -> true
     | NotVisible -> false
@@ -433,17 +424,6 @@ let isVisible (declared : _ Declared.t) =
     | ExportedModule {modulePath = inner} -> loop inner
   in
   loop declared.modulePath
-
-let rec pathFromVisibility visibilityPath current =
-  match visibilityPath with
-  | File _ -> Some current
-  | IncludedModule (_, inner) -> pathFromVisibility inner current
-  | ExportedModule {name; modulePath = inner} ->
-    pathFromVisibility inner (name :: current)
-  | NotVisible -> None
-
-let pathFromVisibility visibilityPath tipName =
-  pathFromVisibility visibilityPath [tipName]
 
 type references = {
   uri: Uri.t;
@@ -497,35 +477,35 @@ let forLocalStamp ~full:{file; extra; package} stamp (tip : Tip.t) =
               (* if this file has a corresponding interface or implementation file
                  also find the references in that file *)
             in
-            match pathFromVisibility declared.modulePath declared.name.txt with
-            | None -> []
-            | Some path ->
-              maybeLog ("Now checking path " ^ pathToString path);
-              let thisModuleName = file.moduleName in
-              let externals =
-                package.projectFiles |> FileSet.elements
-                |> List.filter (fun name -> name <> file.moduleName)
-                |> List.map (fun moduleName ->
-                       Cmt.fullsFromModule ~package ~moduleName
-                       |> List.map (fun {file; extra} ->
-                              match
-                                Hashtbl.find_opt extra.externalReferences
-                                  thisModuleName
-                              with
-                              | None -> []
-                              | Some refs ->
-                                let locs =
-                                  refs
-                                  |> Utils.filterMap (fun (p, t, locs) ->
-                                         if p = path && t = tip then Some locs
-                                         else None)
-                                in
-                                locs
-                                |> List.map (fun loc ->
-                                       {uri = file.uri; locOpt = Some loc})))
-                |> List.concat |> List.concat
-              in
-              alternativeReferences @ externals)
+            let path =
+              ModulePath.toPath declared.modulePath declared.name.txt
+            in
+            maybeLog ("Now checking path " ^ pathToString path);
+            let thisModuleName = file.moduleName in
+            let externals =
+              package.projectFiles |> FileSet.elements
+              |> List.filter (fun name -> name <> file.moduleName)
+              |> List.map (fun moduleName ->
+                     Cmt.fullsFromModule ~package ~moduleName
+                     |> List.map (fun {file; extra} ->
+                            match
+                              Hashtbl.find_opt extra.externalReferences
+                                thisModuleName
+                            with
+                            | None -> []
+                            | Some refs ->
+                              let locs =
+                                refs
+                                |> Utils.filterMap (fun (p, t, locs) ->
+                                       if p = path && t = tip then Some locs
+                                       else None)
+                              in
+                              locs
+                              |> List.map (fun loc ->
+                                     {uri = file.uri; locOpt = Some loc})))
+              |> List.concat |> List.concat
+            in
+            alternativeReferences @ externals)
           else (
             maybeLog "Not visible";
             [])
@@ -580,7 +560,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       match ResolvePath.resolvePath ~env ~path ~package with
       | None -> []
       | Some (env, name) -> (
-        match exportedForTip ~env name tip with
+        match exportedForTip ~env ~name tip with
         | None -> []
         | Some stamp -> (
           match Cmt.fullFromUri ~uri:env.file.uri with

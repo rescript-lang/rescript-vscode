@@ -8,4 +8,5 @@ let _ = aabbcc
 
 module Inner = {
   let y = 100
+  //  ^def
 }

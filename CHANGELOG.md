@@ -43,6 +43,8 @@
 
 - Fix issue with references from implementation files which also happen to have interface files https://github.com/rescript-lang/rescript-vscode/issues/645
 
+- Fix issue where jump to definition would go to the wrong place when there are aliased identifiers in submodules https://github.com/rescript-lang/rescript-vscode/pull/653
+
 ## v1.8.2
 
 #### :rocket: New Feature

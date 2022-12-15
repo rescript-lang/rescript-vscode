@@ -106,7 +106,8 @@ let hoverWithExpandedTypes ~docstring ~file ~package ~supportsMarkdownLinks typ
                Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
              else ""
            in
-           Markdown.divider ^ (if supportsMarkdownLinks then Markdown.spacing else "")
+           Markdown.divider
+           ^ (if supportsMarkdownLinks then Markdown.spacing else "")
            ^ Markdown.codeBlock
                (decl
                |> Shared.declToString ~printNameAsIs:true
@@ -186,7 +187,7 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
       match ResolvePath.resolvePath ~env ~path ~package with
       | None -> None
       | Some (env, name) -> (
-        match References.exportedForTip ~env name tip with
+        match References.exportedForTip ~env ~name tip with
         | None -> None
         | Some stamp -> (
           match Stamps.findModule file.stamps stamp with
