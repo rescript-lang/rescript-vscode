@@ -5,3 +5,7 @@ type t = int
 
 let aabbcc = 3
 let _ = aabbcc
+
+module Inner = {
+  let y = 100
+}

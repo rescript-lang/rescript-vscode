@@ -36,3 +36,6 @@ type defT2 = DefinitionWithInterface.t
 
 // DefinitionWithInterface.a
 //                          ^com
+
+let yy = DefinitionWithInterface.Inner.y
+//                                     ^def
