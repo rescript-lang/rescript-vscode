@@ -274,6 +274,13 @@ end
 
 module Env = struct
   type t = {stamps: Stamps.t; modulePath: ModulePath.t}
+  let addExportedModule ~name ~isType env =
+    {
+      env with
+      modulePath = ExportedModule {name; modulePath = env.modulePath; isType};
+    }
+  let addModule ~name env = env |> addExportedModule ~name ~isType:false
+  let addModuleType ~name env = env |> addExportedModule ~name ~isType:true
 end
 
 type filePath = string
