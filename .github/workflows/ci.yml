@@ -14,18 +14,18 @@ jobs:
       matrix:
         # Stay on the oldest Ubuntu version that's still supported by Github Actions
         # to avoid glibc incompatibilities as far as possible.
-        os: [macos-latest, macos-arm, ubuntu-20.04, windows-latest]
+        os: [ubuntu-20.04]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
-          - os: macos-latest
-            artifact-folder: darwin
-          - os: macos-arm
-            artifact-folder: darwinarm64
+          # - os: macos-latest
+          #   artifact-folder: darwin
+          # - os: macos-arm
+          #   artifact-folder: darwinarm64
           - os: ubuntu-20.04
             artifact-folder: linux
-          - os: windows-latest
-            artifact-folder: win32
+          # - os: windows-latest
+          #   artifact-folder: win32
 
     runs-on: ${{matrix.os}}
 
@@ -209,5 +209,5 @@ jobs:
       run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
 
     - name: Publish server to npm
-      run: npm pack
+      run: npm publish --dry-run
       working-directory: ./server
