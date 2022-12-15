@@ -16,7 +16,7 @@ import {
   LanguageClientOptions,
   ServerOptions,
   State,
-  TransportKind,
+  Executable,
 } from "vscode-languageclient/node";
 
 import * as customCommands from "./commands";
@@ -80,22 +80,20 @@ export function activate(context: ExtensionContext) {
 
   function createLanguageClient() {
     // The server is implemented in node
-    let serverModule = context.asAbsolutePath(
-      path.join("server", "out", "server.js")
+    let serverPath = context.asAbsolutePath(
+      path.join("server", "out", "cli.js")
     );
     // The debug options for the server
     // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-    let debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] };
+    // let debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] };
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
+    let run: Executable = { command: serverPath };
+
     let serverOptions: ServerOptions = {
-      run: { module: serverModule, transport: TransportKind.ipc },
-      debug: {
-        module: serverModule,
-        transport: TransportKind.ipc,
-        options: debugOptions,
-      },
+      run,
+      debug: run,
     };
 
     // Options to control the language client

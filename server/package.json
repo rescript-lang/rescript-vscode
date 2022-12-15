@@ -4,6 +4,10 @@
 	"version": "1.8.2",
 	"author": "chenglou",
 	"license": "MIT",
+	"main": "./out/cli.js",
+	"bin": {
+		"rescriptlsp": "./out/cli.js"
+	},
 	"engines": {
 		"node": "*"
 	},
