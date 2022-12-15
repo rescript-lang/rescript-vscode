@@ -249,17 +249,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
            decl |> forTypeDeclaration ~env ~exported ~recStatus)
   | Tsig_module
       {md_id; md_attributes; md_loc; md_name = name; md_type = {mty_type}} ->
-    let item =
-      let env =
-        {
-          env with
-          modulePath =
-            ExportedModule
-              {name = name.txt; modulePath = env.modulePath; isType = false};
-        }
-      in
-      forTypeModule env mty_type
-    in
+    let item = forTypeModule (env |> Env.addModule ~name:name.txt) mty_type in
     let declared =
       addDeclared ~item ~name ~extent:md_loc ~stamp:(Ident.binding_time md_id)
         ~env md_attributes
@@ -384,14 +374,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         mtd_type = Some {mty_type = modType};
         mtd_loc;
       } ->
-    let env =
-      {
-        env with
-        modulePath =
-          ExportedModule
-            {name = name.txt; modulePath = env.modulePath; isType = true};
-      }
-    in
+    let env = env |> Env.addModuleType ~name:name.txt in
     let modTypeItem = forTypeModule env modType in
     let declared =
       addDeclared ~item:modTypeItem ~name ~extent:mtd_loc
@@ -439,14 +422,7 @@ and forModule env mod_desc moduleName =
   match mod_desc with
   | Tmod_ident (path, _lident) -> Ident path
   | Tmod_structure structure ->
-    let env =
-      {
-        env with
-        modulePath =
-          ExportedModule
-            {name = moduleName; modulePath = env.modulePath; isType = false};
-      }
-    in
+    let env = env |> Env.addModule ~name:moduleName in
     let contents = forStructure ~env structure.str_items in
     Structure contents
   | Tmod_functor (ident, argName, maybeType, resultExpr) ->
@@ -466,26 +442,12 @@ and forModule env mod_desc moduleName =
   | Tmod_apply (functor_, _arg, _coercion) ->
     forModule env functor_.mod_desc moduleName
   | Tmod_unpack (_expr, moduleType) ->
-    let env =
-      {
-        env with
-        modulePath =
-          ExportedModule
-            {name = moduleName; modulePath = env.modulePath; isType = false};
-      }
-    in
+    let env = env |> Env.addModule ~name:moduleName in
     forTypeModule env moduleType
   | Tmod_constraint (expr, typ, _constraint, _coercion) ->
     (* TODO do this better I think *)
     let modKind = forModule env expr.mod_desc moduleName in
-    let env =
-      {
-        env with
-        modulePath =
-          ExportedModule
-            {name = moduleName; modulePath = env.modulePath; isType = false};
-      }
-    in
+    let env = env |> Env.addModule ~name:moduleName in
     let modTypeKind = forTypeModule env typ in
     Constraint (modKind, modTypeKind)
 
