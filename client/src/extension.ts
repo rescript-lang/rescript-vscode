@@ -17,6 +17,7 @@ import {
   ServerOptions,
   State,
   Executable,
+  TransportKind
 } from "vscode-languageclient/node";
 
 import * as customCommands from "./commands";
@@ -89,11 +90,14 @@ export function activate(context: ExtensionContext) {
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
-    let run: Executable = { command: serverPath };
-
     let serverOptions: ServerOptions = {
-      run,
-      debug: run,
+      // run,
+      run: { command: serverPath },
+      debug: {
+        command: serverPath,
+        transport: TransportKind.ipc,
+        // options: debugOptions,
+      },
     };
 
     // Options to control the language client

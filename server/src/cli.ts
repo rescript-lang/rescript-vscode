@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from "fs";
-import server from "./server";
+// import server from "./server";
 
 const args = process.argv.slice(2)
 
@@ -10,15 +10,18 @@ Usage: rescriptlsp [options?]
 
 Options:
 
+--stdio         Use stdio
 -v, --version   Print version
 -h, --help      Print help`;
 
 (() => {
   if (args.length === 0) {
-    return server();
+    // return server();
   }
 
   switch (args[0]) {
+    case '--stdio':
+      // return server(true);
     case '--version':
     case '-v':
       console.log(JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' })).version);
