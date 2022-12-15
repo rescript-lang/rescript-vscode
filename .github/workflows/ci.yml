@@ -96,21 +96,21 @@ jobs:
     - run: npm ci
     - run: npm run compile
 
-    - name: Download MacOS binary
-      uses: actions/download-artifact@v3
-      with:
-        name: macos-latest
-        path: ./server/analysis_binaries
-    - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+    # - name: Download MacOS binary
+    #   uses: actions/download-artifact@v3
+    #   with:
+    #     name: macos-latest
+    #     path: ./server/analysis_binaries
+    # - run: tar -xvf binary.tar
+    #   working-directory: ./server/analysis_binaries
 
-    - name: Download MacOS ARM binary
-      uses: actions/download-artifact@v3
-      with:
-        name: macos-arm
-        path: ./server/analysis_binaries
-    - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+    # - name: Download MacOS ARM binary
+    #   uses: actions/download-artifact@v3
+    #   with:
+    #     name: macos-arm
+    #     path: ./server/analysis_binaries
+    # - run: tar -xvf binary.tar
+    #   working-directory: ./server/analysis_binaries
 
     - name: Download Linux binary
       uses: actions/download-artifact@v3
@@ -120,13 +120,13 @@ jobs:
     - run: tar -xvf binary.tar
       working-directory: ./server/analysis_binaries
 
-    - name: Download Windows binary
-      uses: actions/download-artifact@v3
-      with:
-        name: windows-latest
-        path: ./server/analysis_binaries
-    - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+    # - name: Download Windows binary
+    #   uses: actions/download-artifact@v3
+    #   with:
+    #     name: windows-latest
+    #     path: ./server/analysis_binaries
+    # - run: tar -xvf binary.tar
+    #   working-directory: ./server/analysis_binaries
 
     - name: Cleanup tar file
       run: rm binary.tar
