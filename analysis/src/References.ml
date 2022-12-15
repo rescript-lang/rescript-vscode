@@ -145,12 +145,23 @@ let getConstructor (file : File.t) stamp name =
       | Some const -> Some const)
     | _ -> None)
 
-let exportedForTip ~(env : QueryEnv.t) ~name (tip : Tip.t) =
-  match tip with
-  | Value -> Exported.find env.exported Exported.Value name
-  | Field _ | Constructor _ | Type ->
-    Exported.find env.exported Exported.Type name
-  | Module -> Exported.find env.exported Exported.Module name
+let exportedForTip ~env ~path ~package ~(tip : Tip.t) =
+  match ResolvePath.resolvePath ~env ~path ~package with
+  | None ->
+    Log.log ("Cannot resolve path " ^ pathToString path);
+    None
+  | Some (env, name) -> (
+    let kind =
+      match tip with
+      | Value -> Exported.Value
+      | Field _ | Constructor _ | Type -> Exported.Type
+      | Module -> Exported.Module
+    in
+    match Exported.find env.exported kind name with
+    | None ->
+      Log.log ("Exported not found for tip " ^ name ^ " > " ^ Tip.toString tip);
+      None
+    | Some stamp -> Some (env, name, stamp))
 
 let definedForLoc ~file ~package locKind =
   let inner ~file stamp (tip : Tip.t) =
@@ -180,25 +191,17 @@ let definedForLoc ~file ~package locKind =
       None
     | Some file -> (
       let env = QueryEnv.fromFile file in
-      match ResolvePath.resolvePath ~env ~path ~package with
-      | None ->
-        Log.log ("Cannot resolve path " ^ pathToString path);
-        None
-      | Some (env, name) -> (
-        match exportedForTip ~env ~name tip with
+      match exportedForTip ~env ~path ~package ~tip with
+      | None -> None
+      | Some (env, name, stamp) -> (
+        maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
+        match inner ~file:env.file stamp tip with
         | None ->
-          Log.log
-            ("Exported not found for tip " ^ name ^ " > " ^ Tip.toString tip);
+          Log.log "could not get defined";
           None
-        | Some stamp -> (
-          maybeLog ("Getting for " ^ string_of_int stamp ^ " in " ^ name);
-          match inner ~file:env.file stamp tip with
-          | None ->
-            Log.log "could not get defined";
-            None
-          | Some res ->
-            maybeLog "Yes!! got it";
-            Some res))))
+        | Some res ->
+          maybeLog "Yes!! got it";
+          Some res)))
 
 (** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
 let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
@@ -217,12 +220,10 @@ let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
         let path = ModulePath.toPath declared.modulePath declared.name.txt in
         maybeLog ("find declared for path " ^ pathToString path);
         let declaredOpt =
-          match ResolvePath.resolvePath ~env ~path ~package with
+          match exportedForTip ~env ~path ~package ~tip with
           | None -> None
-          | Some (env, name) -> (
-            match exportedForTip ~env ~name tip with
-            | None -> None
-            | Some stamp -> declaredForTip ~stamps:file.stamps stamp tip)
+          | Some (_env, _name, stamp) ->
+            declaredForTip ~stamps:file.stamps stamp tip
         in
         match declaredOpt with
         | None -> None
@@ -373,16 +374,12 @@ let definitionForLocItem ~full:{file; package} locItem =
     | None -> None
     | Some file -> (
       let env = QueryEnv.fromFile file in
-      match ResolvePath.resolvePath ~env ~path ~package with
+      match exportedForTip ~env ~path ~package ~tip with
       | None -> None
-      | Some (env, name) -> (
-        maybeLog ("resolved path:" ^ name);
-        match exportedForTip ~env ~name tip with
-        | None -> None
-        | Some stamp ->
-          (* oooh wht do I do if the stamp is inside a pseudo-file? *)
-          maybeLog ("Got stamp " ^ string_of_int stamp);
-          definition ~file:env.file ~package stamp tip)))
+      | Some (env, _name, stamp) ->
+        (* oooh wht do I do if the stamp is inside a pseudo-file? *)
+        maybeLog ("Got stamp " ^ string_of_int stamp);
+        definition ~file:env.file ~package stamp tip))
 
 let digConstructor ~env ~package path =
   match ResolvePath.resolveFromCompilerPath ~env ~package path with
@@ -557,17 +554,14 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
     | None -> []
     | Some file -> (
       let env = QueryEnv.fromFile file in
-      match ResolvePath.resolvePath ~env ~path ~package with
+      match exportedForTip ~env ~path ~package ~tip with
       | None -> []
-      | Some (env, name) -> (
-        match exportedForTip ~env ~name tip with
+      | Some (env, _name, stamp) -> (
+        match Cmt.fullFromUri ~uri:env.file.uri with
         | None -> []
-        | Some stamp -> (
-          match Cmt.fullFromUri ~uri:env.file.uri with
-          | None -> []
-          | Some full ->
-            maybeLog
-              ("Finding references for (global) " ^ Uri.toString env.file.uri
-             ^ " and stamp " ^ string_of_int stamp ^ " and tip "
-             ^ Tip.toString tip);
-            forLocalStamp ~full stamp tip))))
+        | Some full ->
+          maybeLog
+            ("Finding references for (global) " ^ Uri.toString env.file.uri
+           ^ " and stamp " ^ string_of_int stamp ^ " and tip "
+           ^ Tip.toString tip);
+          forLocalStamp ~full stamp tip)))

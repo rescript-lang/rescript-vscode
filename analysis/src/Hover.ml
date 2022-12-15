@@ -184,24 +184,21 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
     | None -> None
     | Some file -> (
       let env = QueryEnv.fromFile file in
-      match ResolvePath.resolvePath ~env ~path ~package with
+      match References.exportedForTip ~env ~path ~package ~tip with
       | None -> None
-      | Some (env, name) -> (
-        match References.exportedForTip ~env ~name tip with
+      | Some (_env, _name, stamp) -> (
+        match Stamps.findModule file.stamps stamp with
         | None -> None
-        | Some stamp -> (
-          match Stamps.findModule file.stamps stamp with
+        | Some md -> (
+          match References.resolveModuleReference ~file ~package md with
           | None -> None
-          | Some md -> (
-            match References.resolveModuleReference ~file ~package md with
-            | None -> None
-            | Some (file, declared) ->
-              let name, docstring =
-                match declared with
-                | Some d -> (d.name.txt, d.docstring)
-                | None -> (file.moduleName, file.structure.docstring)
-              in
-              showModule ~docstring ~name ~file declared)))))
+          | Some (file, declared) ->
+            let name, docstring =
+              match declared with
+              | Some d -> (d.name.txt, d.docstring)
+              | None -> (file.moduleName, file.structure.docstring)
+            in
+            showModule ~docstring ~name ~file declared))))
   | LModule NotFound -> None
   | TopLevelModule name -> (
     match ProcessCmt.fileForModule ~package name with
