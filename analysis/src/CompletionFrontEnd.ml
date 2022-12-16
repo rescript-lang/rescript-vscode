@@ -157,6 +157,46 @@ let rec exprToContextPath (e : Parsetree.expression) =
     | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
   | _ -> None
 
+let completePipeChain ~(lhs : Parsetree.expression) =
+  (* Complete the end of pipe chains by reconstructing the pipe chain as a single pipe,
+     so it can be completed.
+     Example:
+      someArray->Js.Array2.filter(v => v > 10)->Js.Array2.map(v => v + 2)->
+        will complete as:
+      Js.Array2.map(someArray->Js.Array2.filter(v => v > 10), v => v + 2)->
+  *)
+  match lhs.pexp_desc with
+  (* When the left side of the pipe we're completing is a function application.
+     Example: someArray->Js.Array2.map(v => v + 2)-> *)
+  | Pexp_apply
+      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+        [
+          (_, lhs);
+          (_, {pexp_desc = Pexp_apply (d, args); pexp_loc; pexp_attributes});
+        ] ) ->
+    exprToContextPath
+      {
+        pexp_desc = Pexp_apply (d, (Nolabel, lhs) :: args);
+        pexp_loc;
+        pexp_attributes;
+      }
+    (* When the left side of the pipe we're completing is an identifier application.
+       Example: someArray->filterAllTheGoodStuff-> *)
+  | Pexp_apply
+      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+        [(_, lhs); (_, {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes})]
+      ) ->
+    exprToContextPath
+      {
+        pexp_desc =
+          Pexp_apply
+            ( {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes},
+              [(Nolabel, lhs)] );
+        pexp_loc;
+        pexp_attributes;
+      }
+  | _ -> None
+
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = skipWhite text (offset - 1) in
   let posNoWhite =
@@ -392,11 +432,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (Loc.toString expr.pexp_loc)
     in
     let setPipeResult ~(lhs : Parsetree.expression) ~id =
-      match exprToContextPath lhs with
+      match completePipeChain ~lhs with
+      | None -> (
+        match exprToContextPath lhs with
+        | Some pipe ->
+          setResult (Cpath (CPPipe (pipe, id)));
+          true
+        | None -> false)
       | Some pipe ->
         setResult (Cpath (CPPipe (pipe, id)));
         true
-      | None -> false
     in
     match expr.pexp_desc with
     | Pexp_apply
