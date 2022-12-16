@@ -171,13 +171,13 @@ let command ~path =
         if n <> 0 then n
         else compare s1.range.end_.character s2.range.end_.character
   in
-  let rec addSymbolToChildren children symbol =
+  let rec addSymbolToChildren ~symbol children =
     match children with
     | [] -> [symbol]
     | last :: rest ->
       if isInside symbol last then
         let newLast =
-          {last with children = addSymbolToChildren last.children symbol}
+          {last with children = last.children |> addSymbolToChildren ~symbol}
         in
         newLast :: rest
       else symbol :: children
@@ -186,8 +186,9 @@ let command ~path =
     match sortedSymbols with
     | [] -> children
     | firstSymbol :: rest ->
-      let newChildren = addSymbolToChildren children firstSymbol in
-      addSortedSymbolsToChildren ~sortedSymbols:rest newChildren
+      children
+      |> addSymbolToChildren ~symbol:firstSymbol
+      |> addSortedSymbolsToChildren ~sortedSymbols:rest
   in
   let sortedSymbols = !symbols |> List.sort compareSymbol in
   let symbolsWithChildren = [] |> addSortedSymbolsToChildren ~sortedSymbols in
