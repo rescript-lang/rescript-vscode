@@ -46,7 +46,7 @@ type documentSymbolItem = {
   name: string;
   kind: int;
   range: range;
-  selectionRange: range;
+  children: documentSymbolItem list;
 }
 type renameFile = {oldUri: string; newUri: string}
 type textEdit = {range: range; newText: string}
@@ -102,22 +102,39 @@ let stringifyCompletionItem c =
     | None -> null
     | Some doc -> stringifyMarkupContent doc)
 
-let stringifyHover value = Printf.sprintf {|{"contents": %s}|} (stringifyMarkupContent {kind = "markdown"; value})
+let stringifyHover value =
+  Printf.sprintf {|{"contents": %s}|}
+    (stringifyMarkupContent {kind = "markdown"; value})
 
 let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
     (stringifyRange h.range)
 
-let stringifyDocumentSymbolItem (i : documentSymbolItem) =
+let rec stringifyDocumentSymbolItem (i : documentSymbolItem) =
   let range = stringifyRange i.range in
+  let children =
+    if i.children = [] then ""
+    else
+      Printf.sprintf {|,
+  "children": [%s]|}
+        (i.children
+        |> List.rev_map stringifyDocumentSymbolItem
+        |> String.concat ", ")
+  in
   Printf.sprintf
     {|{
-        "name": "%s",
-        "kind": %i,
-        "range": %s,
-        "selectionRange": %s
+  "name": "%s",
+  "kind": %i,
+  "range": %s,
+  "selectionRange": %s%s
 }|}
-    (Json.escape i.name) i.kind range range
+    (Json.escape i.name) i.kind range range children
+
+let stringifyDocumentSymbolItems items =
+  let result =
+    items |> List.rev_map stringifyDocumentSymbolItem |> String.concat ",\n"
+  in
+  "[\n" ^ result ^ "\n]"
 
 let stringifyRenameFile {oldUri; newUri} =
   Printf.sprintf {|{
