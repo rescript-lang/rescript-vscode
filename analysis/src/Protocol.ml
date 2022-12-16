@@ -110,31 +110,40 @@ let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
     (stringifyRange h.range)
 
-let rec stringifyDocumentSymbolItem (i : documentSymbolItem) =
-  let range = stringifyRange i.range in
-  let children =
-    if i.children = [] then ""
-    else
-      Printf.sprintf {|,
-  "children": [%s]|}
-        (i.children
-        |> List.rev_map stringifyDocumentSymbolItem
-        |> String.concat ", ")
-  in
-  Printf.sprintf
-    {|{
-  "name": "%s",
-  "kind": %i,
-  "range": %s,
-  "selectionRange": %s%s
-}|}
-    (Json.escape i.name) i.kind range range children
-
 let stringifyDocumentSymbolItems items =
-  let result =
-    items |> List.rev_map stringifyDocumentSymbolItem |> String.concat ",\n"
+  let buf = Buffer.create 10 in
+  let rec emitOne indent isLast (i : documentSymbolItem) =
+    let open_ = Printf.sprintf "%s{\n" indent in
+    let close = Printf.sprintf "\n%s}" indent in
+    let indent = indent ^ "  " in
+    let range = stringifyRange i.range in
+    Buffer.add_string buf open_;
+    Buffer.add_string buf
+      (Printf.sprintf "%s\"name\": \"%s\",\n" indent (Json.escape i.name));
+    Buffer.add_string buf (Printf.sprintf "%s\"kind\": %i,\n" indent i.kind);
+    Buffer.add_string buf (Printf.sprintf "%s\"range\": %s,\n" indent range);
+    Buffer.add_string buf
+      (Printf.sprintf "%s\"selectionRange\": %s" indent range);
+    if i.children <> [] then (
+      Buffer.add_string buf (Printf.sprintf ",\n%s\"children\": [\n" indent);
+      emitBody indent (List.rev i.children);
+      Buffer.add_string buf "]");
+    Buffer.add_string buf close;
+    if isLast then Buffer.add_string buf ",\n"
+  and emitBody indent items =
+    match items with
+    | [] -> ()
+    | item :: rest ->
+      emitOne indent (rest <> []) item;
+      emitBody indent rest
+  and emitMany indent items =
+    Buffer.add_string buf "[\n";
+    emitBody indent items;
+    Buffer.add_string buf "\n]"
   in
-  "[\n" ^ result ^ "\n]"
+  let indent = "" in
+  emitMany indent (List.rev items);
+  Buffer.contents buf
 
 let stringifyRenameFile {oldUri; newUri} =
   Printf.sprintf {|{

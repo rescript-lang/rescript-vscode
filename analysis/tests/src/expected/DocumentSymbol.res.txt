@@ -11,29 +11,32 @@ DocumentSymbol src/DocumentSymbol.res
   "kind": 2,
   "range": {"start": {"line": 2, "character": 7}, "end": {"line": 7, "character": 1}},
   "selectionRange": {"start": {"line": 2, "character": 7}, "end": {"line": 7, "character": 1}},
-  "children": [{
-  "name": "customDouble",
-  "kind": 12,
-  "range": {"start": {"line": 6, "character": 2}, "end": {"line": 6, "character": 35}},
-  "selectionRange": {"start": {"line": 6, "character": 2}, "end": {"line": 6, "character": 35}}
-}]
+  "children": [
+  {
+    "name": "customDouble",
+    "kind": 12,
+    "range": {"start": {"line": 6, "character": 2}, "end": {"line": 6, "character": 35}},
+    "selectionRange": {"start": {"line": 6, "character": 2}, "end": {"line": 6, "character": 35}}
+  }]
 },
 {
   "name": "Lib",
   "kind": 2,
   "range": {"start": {"line": 9, "character": 7}, "end": {"line": 12, "character": 1}},
   "selectionRange": {"start": {"line": 9, "character": 7}, "end": {"line": 12, "character": 1}},
-  "children": [{
-  "name": "foo",
-  "kind": 12,
-  "range": {"start": {"line": 10, "character": 2}, "end": {"line": 10, "character": 55}},
-  "selectionRange": {"start": {"line": 10, "character": 2}, "end": {"line": 10, "character": 55}}
-}, {
-  "name": "next",
-  "kind": 12,
-  "range": {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 48}},
-  "selectionRange": {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 48}}
-}]
+  "children": [
+  {
+    "name": "foo",
+    "kind": 12,
+    "range": {"start": {"line": 10, "character": 2}, "end": {"line": 10, "character": 55}},
+    "selectionRange": {"start": {"line": 10, "character": 2}, "end": {"line": 10, "character": 55}}
+  },
+  {
+    "name": "next",
+    "kind": 12,
+    "range": {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 48}},
+    "selectionRange": {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 48}}
+  }]
 },
 {
   "name": "op",
@@ -46,22 +49,25 @@ DocumentSymbol src/DocumentSymbol.res
   "kind": 2,
   "range": {"start": {"line": 16, "character": 7}, "end": {"line": 20, "character": 1}},
   "selectionRange": {"start": {"line": 16, "character": 7}, "end": {"line": 20, "character": 1}},
-  "children": [{
-  "name": "t",
-  "kind": 26,
-  "range": {"start": {"line": 17, "character": 2}, "end": {"line": 17, "character": 14}},
-  "selectionRange": {"start": {"line": 17, "character": 2}, "end": {"line": 17, "character": 14}}
-}, {
-  "name": "abc",
-  "kind": 12,
-  "range": {"start": {"line": 18, "character": 2}, "end": {"line": 18, "character": 32}},
-  "selectionRange": {"start": {"line": 18, "character": 2}, "end": {"line": 18, "character": 32}}
-}, {
-  "name": "abd",
-  "kind": 12,
-  "range": {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 32}},
-  "selectionRange": {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 32}}
-}]
+  "children": [
+  {
+    "name": "t",
+    "kind": 26,
+    "range": {"start": {"line": 17, "character": 2}, "end": {"line": 17, "character": 14}},
+    "selectionRange": {"start": {"line": 17, "character": 2}, "end": {"line": 17, "character": 14}}
+  },
+  {
+    "name": "abc",
+    "kind": 12,
+    "range": {"start": {"line": 18, "character": 2}, "end": {"line": 18, "character": 32}},
+    "selectionRange": {"start": {"line": 18, "character": 2}, "end": {"line": 18, "character": 32}}
+  },
+  {
+    "name": "abd",
+    "kind": 12,
+    "range": {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 32}},
+    "selectionRange": {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 32}}
+  }]
 },
 {
   "name": "fa",
@@ -74,18 +80,20 @@ DocumentSymbol src/DocumentSymbol.res
   "kind": 2,
   "range": {"start": {"line": 24, "character": 7}, "end": {"line": 29, "character": 1}},
   "selectionRange": {"start": {"line": 24, "character": 7}, "end": {"line": 29, "character": 1}},
-  "children": [{
-  "name": "Comp",
-  "kind": 2,
-  "range": {"start": {"line": 25, "character": 9}, "end": {"line": 28, "character": 3}},
-  "selectionRange": {"start": {"line": 25, "character": 9}, "end": {"line": 28, "character": 3}},
-  "children": [{
-  "name": "make",
-  "kind": 12,
-  "range": {"start": {"line": 27, "character": 4}, "end": {"line": 27, "character": 98}},
-  "selectionRange": {"start": {"line": 27, "character": 4}, "end": {"line": 27, "character": 98}}
-}]
-}]
+  "children": [
+  {
+    "name": "Comp",
+    "kind": 2,
+    "range": {"start": {"line": 25, "character": 9}, "end": {"line": 28, "character": 3}},
+    "selectionRange": {"start": {"line": 25, "character": 9}, "end": {"line": 28, "character": 3}},
+    "children": [
+    {
+      "name": "make",
+      "kind": 12,
+      "range": {"start": {"line": 27, "character": 4}, "end": {"line": 27, "character": 98}},
+      "selectionRange": {"start": {"line": 27, "character": 4}, "end": {"line": 27, "character": 98}}
+    }]
+  }]
 },
 {
   "name": "zzz",
