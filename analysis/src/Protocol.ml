@@ -112,37 +112,43 @@ let stringifyLocation (h : location) =
 
 let stringifyDocumentSymbolItems items =
   let buf = Buffer.create 10 in
-  let rec emitOne indent isLast (i : documentSymbolItem) =
-    let open_ = Printf.sprintf "%s{\n" indent in
-    let close = Printf.sprintf "\n%s}" indent in
+  let stringifyName name = Printf.sprintf "\"%s\"" (Json.escape name) in
+  let stringifyKind kind = string_of_int kind in
+  let emitStr = Buffer.add_string buf in
+  let emitSep () = emitStr ",\n" in
+  let rec emitItem ~indent item =
+    let openBrace = Printf.sprintf "%s{\n" indent in
+    let closeBrace = Printf.sprintf "\n%s}" indent in
     let indent = indent ^ "  " in
-    let range = stringifyRange i.range in
-    Buffer.add_string buf open_;
-    Buffer.add_string buf
-      (Printf.sprintf "%s\"name\": \"%s\",\n" indent (Json.escape i.name));
-    Buffer.add_string buf (Printf.sprintf "%s\"kind\": %i,\n" indent i.kind);
-    Buffer.add_string buf (Printf.sprintf "%s\"range\": %s,\n" indent range);
-    Buffer.add_string buf
-      (Printf.sprintf "%s\"selectionRange\": %s" indent range);
-    if i.children <> [] then (
-      Buffer.add_string buf (Printf.sprintf ",\n%s\"children\": [\n" indent);
-      emitBody indent (List.rev i.children);
-      Buffer.add_string buf "]");
-    Buffer.add_string buf close;
-    if isLast then Buffer.add_string buf ",\n"
-  and emitBody indent items =
+    let emitField name s =
+      emitStr (Printf.sprintf "%s\"%s\": %s" indent name s)
+    in
+    emitStr openBrace;
+    emitField "name" (stringifyName item.name);
+    emitSep ();
+    emitField "kind" (stringifyKind item.kind);
+    emitSep ();
+    emitField "range" (stringifyRange item.range);
+    emitSep ();
+    emitField "selectionRange" (stringifyRange item.range);
+    if item.children <> [] then (
+      emitSep ();
+      emitField "children" "[\n";
+      emitBody ~indent (List.rev item.children);
+      emitStr "]");
+    emitStr closeBrace
+  and emitBody ~indent items =
     match items with
     | [] -> ()
     | item :: rest ->
-      emitOne indent (rest <> []) item;
-      emitBody indent rest
-  and emitMany indent items =
-    Buffer.add_string buf "[\n";
-    emitBody indent items;
-    Buffer.add_string buf "\n]"
+      emitItem ~indent item;
+      if rest <> [] then emitSep ();
+      emitBody ~indent rest
   in
   let indent = "" in
-  emitMany indent (List.rev items);
+  emitStr "[\n";
+  emitBody ~indent (List.rev items);
+  emitStr "\n]";
   Buffer.contents buf
 
 let stringifyRenameFile {oldUri; newUri} =
