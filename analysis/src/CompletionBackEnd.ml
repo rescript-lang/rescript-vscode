@@ -562,6 +562,7 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
               with
               deprecated = declared.deprecated;
               docstring = declared.docstring;
+              modulePath = ModulePath.toPathWithoutTip declared.modulePath;
             }
             :: !res
         | _ -> ());
@@ -1152,9 +1153,12 @@ let completionToItem {Completion.name; deprecated; docstring; kind} =
     ~deprecated ~detail:(detail name kind) ~docstring
 
 let completionsGetTypeEnv = function
-  | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
-  | {Completion.kind = ObjLabel typ; env} :: _ -> Some (typ, env)
-  | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
+  | {Completion.kind = Value typ; env; modulePath} :: _ ->
+    Some (typ, env, modulePath)
+  | {Completion.kind = ObjLabel typ; env; modulePath} :: _ ->
+    Some (typ, env, modulePath)
+  | {Completion.kind = Field ({typ}, _); env; modulePath} :: _ ->
+    Some (typ, env, modulePath)
   | _ -> None
 
 let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
@@ -1185,7 +1189,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
            ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
-    | Some (typ, env) -> (
+    | Some (typ, env, modulePath) -> (
       let rec reconstructFunctionType args tRet =
         match args with
         | [] -> tRet
@@ -1216,7 +1220,10 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       | args, tRet when args <> [] ->
         let args = processApply args labels in
         let retType = reconstructFunctionType args tRet in
-        [Completion.create ~name:"dummy" ~env ~kind:(Completion.Value retType)]
+        [
+          Completion.createWithModulePath ~name:"dummy" ~env
+            ~kind:(Completion.Value retType) ~modulePath;
+        ]
       | _ -> [])
     | None -> [])
   | CPField (CPId (path, Module), fieldName) ->
@@ -1231,19 +1238,20 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
            ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
-    | Some (typ, env) -> (
+    | Some (typ, env, modulePath) -> (
       match typ |> extractRecordType ~env ~package with
       | Some (env, fields, typDecl) ->
         fields
         |> Utils.filterMap (fun field ->
                if checkName field.fname.txt ~prefix:fieldName ~exact then
                  Some
-                   (Completion.create ~name:field.fname.txt ~env
+                   (Completion.createWithModulePath ~name:field.fname.txt ~env
                       ~kind:
                         (Completion.Field
                            ( field,
                              typDecl.item.decl
-                             |> Shared.declToString typDecl.name.txt )))
+                             |> Shared.declToString typDecl.name.txt ))
+                      ~modulePath)
                else None)
       | None -> [])
     | None -> [])
@@ -1254,7 +1262,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
            ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
-    | Some (typ, env) -> (
+    | Some (typ, env, modulePath) -> (
       match typ |> extractObjectType ~env ~package with
       | Some (env, tObj) ->
         let rec getFields (texp : Types.type_expr) =
@@ -1270,8 +1278,8 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         |> Utils.filterMap (fun (field, typ) ->
                if checkName field ~prefix:label ~exact then
                  Some
-                   (Completion.create ~name:field ~env
-                      ~kind:(Completion.ObjLabel typ))
+                   (Completion.createWithModulePath ~name:field ~env
+                      ~kind:(Completion.ObjLabel typ) ~modulePath)
                else None)
       | None -> [])
     | None -> [])
@@ -1282,7 +1290,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
            ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
-    | Some (typ, _envNotUsed) -> (
+    | Some (typ, env, completionItemModulePath) -> (
       let {
         arrayModulePath;
         optionModulePath;
@@ -1375,7 +1383,20 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
                    env
                    (* Restore original env for the completion after x->foo()... *);
                  })
-        | [] -> [])
+        | [] ->
+          let completions =
+            completionItemModulePath @ [funNamePrefix]
+            |> getCompletionsForPath ~completionContext:Value ~exact:false
+                 ~package ~opens ~allFiles ~pos ~env ~scope
+          in
+          completions
+          |> List.map (fun (completion : Completion.t) ->
+                 {
+                   completion with
+                   name = completion.name;
+                   env
+                   (* Restore original env for the completion after x->foo()... *);
+                 }))
       | None -> [])
     | None -> [])
 
@@ -1438,7 +1459,7 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
   | Cjsx (componentPath, prefix, identsSeen) ->
     let labels =
       match componentPath @ ["make"] |> findTypeOfValue with
-      | Some (typ, make_env) ->
+      | Some (typ, make_env, _) ->
         let rec getFieldsV3 (texp : Types.type_expr) =
           match texp.desc with
           | Tfield (name, _, t1, t2) ->
@@ -1774,7 +1795,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
              ~env ~exact:true ~scope
         |> completionsGetTypeEnv
       with
-      | Some (typ, _env) ->
+      | Some (typ, _env, _) ->
         if debug then
           Printf.printf "Found type for function %s\n"
             (typ |> Shared.typeToString);
