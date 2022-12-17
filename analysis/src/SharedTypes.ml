@@ -23,10 +23,10 @@ module ModulePath = struct
     in
     loop modulePath [tipName]
 
-  let toPathWithoutTip modulePath : path =
+  let toFullPath modulePath : path =
     let rec loop modulePath current =
       match modulePath with
-      | File _ -> current
+      | File (_, fileModule) -> fileModule :: current
       | IncludedModule (_, inner) -> loop inner current
       | ExportedModule {name; modulePath = inner} -> loop inner (name :: current)
       | NotVisible -> current

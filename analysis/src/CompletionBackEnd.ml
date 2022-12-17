@@ -562,9 +562,7 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
               with
               deprecated = declared.deprecated;
               docstring = declared.docstring;
-              modulePath =
-                [env.file.moduleName]
-                @ ModulePath.toPathWithoutTip declared.modulePath;
+              modulePath = ModulePath.toFullPath declared.modulePath;
             }
             :: !res
         | _ -> ());
@@ -1292,7 +1290,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
            ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
-    | Some (typ, _envFromCompletion, completionItemModulePath) -> (
+    | Some (typ, _envFromCompletionItem, completionItemModulePath) -> (
       let {
         arrayModulePath;
         optionModulePath;
