@@ -46,7 +46,7 @@ type documentSymbolItem = {
   name: string;
   kind: int;
   range: range;
-  selectionRange: range;
+  children: documentSymbolItem list;
 }
 type renameFile = {oldUri: string; newUri: string}
 type textEdit = {range: range; newText: string}
@@ -102,22 +102,54 @@ let stringifyCompletionItem c =
     | None -> null
     | Some doc -> stringifyMarkupContent doc)
 
-let stringifyHover value = Printf.sprintf {|{"contents": %s}|} (stringifyMarkupContent {kind = "markdown"; value})
+let stringifyHover value =
+  Printf.sprintf {|{"contents": %s}|}
+    (stringifyMarkupContent {kind = "markdown"; value})
 
 let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
     (stringifyRange h.range)
 
-let stringifyDocumentSymbolItem (i : documentSymbolItem) =
-  let range = stringifyRange i.range in
-  Printf.sprintf
-    {|{
-        "name": "%s",
-        "kind": %i,
-        "range": %s,
-        "selectionRange": %s
-}|}
-    (Json.escape i.name) i.kind range range
+let stringifyDocumentSymbolItems items =
+  let buf = Buffer.create 10 in
+  let stringifyName name = Printf.sprintf "\"%s\"" (Json.escape name) in
+  let stringifyKind kind = string_of_int kind in
+  let emitStr = Buffer.add_string buf in
+  let emitSep () = emitStr ",\n" in
+  let rec emitItem ~indent item =
+    let openBrace = Printf.sprintf "%s{\n" indent in
+    let closeBrace = Printf.sprintf "\n%s}" indent in
+    let indent = indent ^ "  " in
+    let emitField name s =
+      emitStr (Printf.sprintf "%s\"%s\": %s" indent name s)
+    in
+    emitStr openBrace;
+    emitField "name" (stringifyName item.name);
+    emitSep ();
+    emitField "kind" (stringifyKind item.kind);
+    emitSep ();
+    emitField "range" (stringifyRange item.range);
+    emitSep ();
+    emitField "selectionRange" (stringifyRange item.range);
+    if item.children <> [] then (
+      emitSep ();
+      emitField "children" "[\n";
+      emitBody ~indent (List.rev item.children);
+      emitStr "]");
+    emitStr closeBrace
+  and emitBody ~indent items =
+    match items with
+    | [] -> ()
+    | item :: rest ->
+      emitItem ~indent item;
+      if rest <> [] then emitSep ();
+      emitBody ~indent rest
+  in
+  let indent = "" in
+  emitStr "[\n";
+  emitBody ~indent (List.rev items);
+  emitStr "\n]";
+  Buffer.contents buf
 
 let stringifyRenameFile {oldUri; newUri} =
   Printf.sprintf {|{

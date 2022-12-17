@@ -45,6 +45,8 @@
 
 - Fix issue where jump to definition would go to the wrong place when there are aliased identifiers in submodules https://github.com/rescript-lang/rescript-vscode/pull/653
 
+- Fix issue where document symbols were not shown nested https://github.com/rescript-lang/rescript-vscode/pull/655
+
 ## v1.8.2
 
 #### :rocket: New Feature
