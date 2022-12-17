@@ -48,25 +48,25 @@ Complete src/CompletionPipeChain.res 33:38
 posCursor:[33:38] posNoWhite:[33:37] Found expr:[33:11->0:-1]
 Completable: Cpath Value[Integer, increment](Nolabel, Nolabel)->
 [{
-    "label": "toInt",
+    "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
     "detail": "t => int",
     "documentation": null
   }, {
-    "label": "increment",
+    "label": "Integer.increment",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
     "documentation": null
   }, {
-    "label": "decrement",
+    "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
     "detail": "(t, int => int) => t",
     "documentation": null
   }, {
-    "label": "make",
+    "label": "Integer.make",
     "kind": 12,
     "tags": [],
     "detail": "int => t",
@@ -77,25 +77,25 @@ Complete src/CompletionPipeChain.res 36:38
 posCursor:[36:38] posNoWhite:[36:37] Found expr:[36:11->0:-1]
 Completable: Cpath Value[Integer, increment](Nolabel, Nolabel)->
 [{
-    "label": "toInt",
+    "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
     "detail": "t => int",
     "documentation": null
   }, {
-    "label": "increment",
+    "label": "Integer.increment",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
     "documentation": null
   }, {
-    "label": "decrement",
+    "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
     "detail": "(t, int => int) => t",
     "documentation": null
   }, {
-    "label": "make",
+    "label": "Integer.make",
     "kind": 12,
     "tags": [],
     "detail": "int => t",
@@ -106,25 +106,25 @@ Complete src/CompletionPipeChain.res 39:47
 posCursor:[39:47] posNoWhite:[39:46] Found expr:[39:11->0:-1]
 Completable: Cpath Value[Integer, decrement](Nolabel, Nolabel)->
 [{
-    "label": "toInt",
+    "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
     "detail": "t => int",
     "documentation": null
   }, {
-    "label": "increment",
+    "label": "Integer.increment",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
     "documentation": null
   }, {
-    "label": "decrement",
+    "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
     "detail": "(t, int => int) => t",
     "documentation": null
   }, {
-    "label": "make",
+    "label": "Integer.make",
     "kind": 12,
     "tags": [],
     "detail": "int => t",
@@ -135,25 +135,25 @@ Complete src/CompletionPipeChain.res 42:69
 posCursor:[42:69] posNoWhite:[42:68] Found expr:[42:11->0:-1]
 Completable: Cpath Value[Integer, decrement](Nolabel, Nolabel)->
 [{
-    "label": "toInt",
+    "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
     "detail": "t => int",
     "documentation": null
   }, {
-    "label": "increment",
+    "label": "Integer.increment",
     "kind": 12,
     "tags": [],
     "detail": "(t, int) => t",
     "documentation": null
   }, {
-    "label": "decrement",
+    "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
     "detail": "(t, int => int) => t",
     "documentation": null
   }, {
-    "label": "make",
+    "label": "Integer.make",
     "kind": 12,
     "tags": [],
     "detail": "int => t",
@@ -164,13 +164,13 @@ Complete src/CompletionPipeChain.res 45:62
 posCursor:[45:62] posNoWhite:[45:61] Found expr:[45:11->0:-1]
 Completable: Cpath Value[SuperFloat, fromInteger](Nolabel)->
 [{
-    "label": "fromInteger",
+    "label": "SuperFloat.fromInteger",
     "kind": 12,
     "tags": [],
     "detail": "Integer.t => t",
     "documentation": null
   }, {
-    "label": "toInteger",
+    "label": "SuperFloat.toInteger",
     "kind": 12,
     "tags": [],
     "detail": "t => Integer.t",
@@ -181,7 +181,7 @@ Complete src/CompletionPipeChain.res 48:63
 posCursor:[48:63] posNoWhite:[48:62] Found expr:[48:11->48:63]
 Completable: Cpath Value[SuperFloat, fromInteger](Nolabel)->t
 [{
-    "label": "toInteger",
+    "label": "SuperFloat.toInteger",
     "kind": 12,
     "tags": [],
     "detail": "t => Integer.t",
@@ -192,19 +192,19 @@ Complete src/CompletionPipeChain.res 51:82
 posCursor:[51:82] posNoWhite:[51:81] Found expr:[51:11->0:-1]
 Completable: Cpath Value[CompletionSupport, Test, make](Nolabel)->
 [{
-    "label": "add",
+    "label": "CompletionSupport.Test.add",
     "kind": 12,
     "tags": [],
     "detail": "t => int",
     "documentation": null
   }, {
-    "label": "addSelf",
+    "label": "CompletionSupport.Test.addSelf",
     "kind": 12,
     "tags": [],
     "detail": "t => t",
     "documentation": null
   }, {
-    "label": "make",
+    "label": "CompletionSupport.Test.make",
     "kind": 12,
     "tags": [],
     "detail": "int => t",
@@ -215,19 +215,19 @@ Complete src/CompletionPipeChain.res 54:78
 posCursor:[54:78] posNoWhite:[54:77] Found expr:[54:11->0:-1]
 Completable: Cpath Value[CompletionSupport, Test, addSelf](Nolabel, Nolabel)->
 [{
-    "label": "add",
+    "label": "CompletionSupport.Test.add",
     "kind": 12,
     "tags": [],
     "detail": "t => int",
     "documentation": null
   }, {
-    "label": "addSelf",
+    "label": "CompletionSupport.Test.addSelf",
     "kind": 12,
     "tags": [],
     "detail": "t => t",
     "documentation": null
   }, {
-    "label": "make",
+    "label": "CompletionSupport.Test.make",
     "kind": 12,
     "tags": [],
     "detail": "int => t",

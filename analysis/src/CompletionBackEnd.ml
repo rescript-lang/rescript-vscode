@@ -1292,7 +1292,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
            ~env ~exact:true ~scope
       |> completionsGetTypeEnv
     with
-    | Some (typ, env, completionItemModulePath) -> (
+    | Some (typ, _envFromCompletion, completionItemModulePath) -> (
       let {
         arrayModulePath;
         optionModulePath;
@@ -1386,6 +1386,24 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
                    (* Restore original env for the completion after x->foo()... *);
                  })
         | [] ->
+          (* Module paths coming directly from a completion item is prefixed with
+             file module name it was found in. We pluck that off here if the env
+              we're in is the same as the completion item was found in. This ensures
+             that a correct qualified path can be produced. *)
+          let modulePath =
+            match completionItemModulePath with
+            | topModule :: rest when topModule = env.file.moduleName -> rest
+            | modulePath -> modulePath
+          in
+          let modulePathMinusOpens =
+            modulePath
+            |> removeRawOpens package.opens
+            |> removeRawOpens rawOpens |> String.concat "."
+          in
+          let completionName name =
+            if modulePathMinusOpens = "" then name
+            else modulePathMinusOpens ^ "." ^ name
+          in
           let completions =
             completionItemModulePath @ [funNamePrefix]
             |> getCompletionsForPath ~completionContext:Value ~exact:false
@@ -1395,7 +1413,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
           |> List.map (fun (completion : Completion.t) ->
                  {
                    completion with
-                   name = completion.name;
+                   name = completionName completion.name;
                    env
                    (* Restore original env for the completion after x->foo()... *);
                  }))
