@@ -48,3 +48,9 @@ let f = int->Integer.increment(2)
 
 // let _ = int->Integer.increment(2)->SuperFloat.fromInteger->t
 //                                                             ^com
+
+// let _ = int->Integer.increment(2)->Integer.toInt->CompletionSupport.Test.make->
+//                                                                                ^com
+
+// let _ = CompletionSupport.Test.make(1)->CompletionSupport.Test.addSelf(2)->
+//                                                                            ^com
