@@ -38,13 +38,13 @@ let f = int->Integer.increment(2)
 //                                    ^com
 
 // let _ = int->Integer.decrement(t => t - 1)->
-//
+//                                             ^com
 
 // let _ = int->Integer.increment(2)->Integer.decrement(t => t - 1)->
-//
+//                                                                   ^com
 
 // let _ = int->Integer.increment(2)->SuperFloat.fromInteger->
-//
+//                                                            ^com
 
-// let _ = int->Integer.incremebt(2)->SuperFloat.fromInteger->t
-//                                                             
+// let _ = int->Integer.increment(2)->SuperFloat.fromInteger->t
+//                                                             ^com
