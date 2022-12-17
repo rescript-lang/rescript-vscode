@@ -22,6 +22,16 @@ module ModulePath = struct
       | NotVisible -> current
     in
     loop modulePath [tipName]
+
+  let toPathWithoutTip modulePath : path =
+    let rec loop modulePath current =
+      match modulePath with
+      | File _ -> current
+      | IncludedModule (_, inner) -> loop inner current
+      | ExportedModule {name; modulePath = inner} -> loop inner (name :: current)
+      | NotVisible -> current
+    in
+    loop modulePath []
 end
 
 type field = {stamp: int; fname: string Location.loc; typ: Types.type_expr}
@@ -253,10 +263,14 @@ module Completion = struct
     deprecated: string option;
     docstring: string list;
     kind: kind;
+    modulePath: string list;
   }
 
   let create ~name ~kind ~env =
-    {name; env; deprecated = None; docstring = []; kind}
+    {name; env; deprecated = None; docstring = []; kind; modulePath = []}
+
+  let createWithModulePath ~name ~kind ~env ~modulePath =
+    {name; env; deprecated = None; docstring = []; kind; modulePath}
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
   (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItemKind *)
