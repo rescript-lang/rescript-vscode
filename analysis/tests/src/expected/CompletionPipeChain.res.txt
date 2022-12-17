@@ -188,3 +188,49 @@ Completable: Cpath Value[SuperFloat, fromInteger](Nolabel)->t
     "documentation": null
   }]
 
+Complete src/CompletionPipeChain.res 51:82
+posCursor:[51:82] posNoWhite:[51:81] Found expr:[51:11->0:-1]
+Completable: Cpath Value[CompletionSupport, Test, make](Nolabel)->
+[{
+    "label": "add",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": null
+  }, {
+    "label": "addSelf",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": null
+  }, {
+    "label": "make",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null
+  }]
+
+Complete src/CompletionPipeChain.res 54:78
+posCursor:[54:78] posNoWhite:[54:77] Found expr:[54:11->0:-1]
+Completable: Cpath Value[CompletionSupport, Test, addSelf](Nolabel, Nolabel)->
+[{
+    "label": "add",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": null
+  }, {
+    "label": "addSelf",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": null
+  }, {
+    "label": "make",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null
+  }]
+

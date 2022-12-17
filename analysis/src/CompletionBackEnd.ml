@@ -562,7 +562,9 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
               with
               deprecated = declared.deprecated;
               docstring = declared.docstring;
-              modulePath = ModulePath.toPathWithoutTip declared.modulePath;
+              modulePath =
+                [env.file.moduleName]
+                @ ModulePath.toPathWithoutTip declared.modulePath;
             }
             :: !res
         | _ -> ());
