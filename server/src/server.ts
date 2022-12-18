@@ -539,16 +539,13 @@ function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
+  let response = utils.runAnalysisCommand(filePath, [
+    "references",
     filePath,
-    params.position
-  );
-  let response: p.ResponseMessage = {
-    jsonrpc: c.jsonrpcVersion,
-    id: msg.id,
-    result,
-    // error: code and message set in case an exception happens during the definition request.
-  };
+    params.position.line,
+    params.position.character,
+  ], msg, false);
+
   return response;
 }
 
@@ -556,19 +553,14 @@ function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-
-  let result = utils.runAnalysisAfterSanityCheck(filePath, [
+  let response = utils.runAnalysisCommand(filePath, [
     "prepareRename",
     filePath,
     params.position.line,
     params.position.character,
-  ]);
+  ], msg, false);
 
-  return {
-    jsonrpc: c.jsonrpcVersion,
-    id: msg.id,
-    result,
-  };
+  return response
 }
 
 function rename(msg: p.RequestMessage) {
