@@ -30,8 +30,8 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 
 This is needed for the `analysis` folder, which is native code.
 
-```
-# If you haven't created the switch, do it). OPAM(https://opam.ocaml.org)
+```sh
+# If you haven't created the switch, do it. OPAM(https://opam.ocaml.org)
 opam switch 4.14.0 # can also create local switch with opam switch create . 4.14.0
 
 # Install dev dependencies from OPAM
