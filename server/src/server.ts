@@ -556,30 +556,14 @@ function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let locations: null | p.Location[] = utils.getReferencesForPosition(
+
+  let result = utils.runAnalysisAfterSanityCheck(filePath, [
+    "prepareRename",
     filePath,
-    params.position
-  );
-  let result: p.Range | null = null;
-  if (locations !== null) {
-    locations.forEach((loc) => {
-      if (
-        path.normalize(fileURLToPath(loc.uri)) ===
-        path.normalize(fileURLToPath(params.textDocument.uri))
-      ) {
-        let { start, end } = loc.range;
-        let pos = params.position;
-        if (
-          start.character <= pos.character &&
-          start.line <= pos.line &&
-          end.character >= pos.character &&
-          end.line >= pos.line
-        ) {
-          result = loc.range;
-        }
-      }
-    });
-  }
+    params.position.line,
+    params.position.character,
+  ]);
+
   return {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
