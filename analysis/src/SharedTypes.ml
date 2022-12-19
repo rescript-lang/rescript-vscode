@@ -263,11 +263,11 @@ module Completion = struct
     deprecated: string option;
     docstring: string list;
     kind: kind;
-    modulePath: string list;
+    modulePath: ModulePath.t;
   }
 
   let create ~name ~kind ~env =
-    {name; env; deprecated = None; docstring = []; kind; modulePath = []}
+    {name; env; deprecated = None; docstring = []; kind; modulePath = NotVisible}
 
   let createWithModulePath ~name ~kind ~env ~modulePath =
     {name; env; deprecated = None; docstring = []; kind; modulePath}
