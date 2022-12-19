@@ -562,7 +562,7 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
               with
               deprecated = declared.deprecated;
               docstring = declared.docstring;
-              modulePath = ModulePath.toFullPath declared.modulePath;
+              modulePath = declared.modulePath;
             }
             :: !res
         | _ -> ());
@@ -1358,20 +1358,20 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
         | [] -> modulePath
       in
       match lhsPath with
-      | Some modulePath -> (
-        match modulePath with
+      | Some lhsPath -> (
+        match lhsPath with
         | _ :: _ ->
-          let modulePathMinusOpens =
-            modulePath
+          let lhsPathMinusOpens =
+            lhsPath
             |> removeRawOpens package.opens
             |> removeRawOpens rawOpens |> String.concat "."
           in
           let completionName name =
-            if modulePathMinusOpens = "" then name
-            else modulePathMinusOpens ^ "." ^ name
+            if lhsPathMinusOpens = "" then name
+            else lhsPathMinusOpens ^ "." ^ name
           in
           let completions =
-            modulePath @ [funNamePrefix]
+            lhsPath @ [funNamePrefix]
             |> getCompletionsForPath ~completionContext:Value ~exact:false
                  ~package ~opens ~allFiles ~pos ~env ~scope
           in
@@ -1388,22 +1388,22 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
              file module name it was found in. We pluck that off here if the env
               we're in is the same as the completion item was found in. This ensures
              that a correct qualified path can be produced. *)
-          let modulePath =
-            match completionItemModulePath with
+          let completionPath =
+            match ModulePath.toFullPath completionItemModulePath with
             | topModule :: rest when topModule = env.file.moduleName -> rest
             | modulePath -> modulePath
           in
-          let modulePathMinusOpens =
-            modulePath
+          let completionPathMinusOpens =
+            completionPath
             |> removeRawOpens package.opens
             |> removeRawOpens rawOpens |> String.concat "."
           in
           let completionName name =
-            if modulePathMinusOpens = "" then name
-            else modulePathMinusOpens ^ "." ^ name
+            if completionPathMinusOpens = "" then name
+            else completionPathMinusOpens ^ "." ^ name
           in
           let completions =
-            completionItemModulePath @ [funNamePrefix]
+            completionPath @ [funNamePrefix]
             |> getCompletionsForPath ~completionContext:Value ~exact:false
                  ~package ~opens ~allFiles ~pos ~env ~scope
           in
