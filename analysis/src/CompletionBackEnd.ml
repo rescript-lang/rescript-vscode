@@ -1303,30 +1303,28 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       } =
         package.builtInCompletionModules
       in
-      let getModulePath path =
-        let rec loop (path : Path.t) =
-          match path with
-          | Pident id -> [Ident.name id]
-          | Pdot (p, s, _) -> s :: loop p
-          | Papply _ -> []
-        in
+      let getBuiltinTypePath path =
         match path with
-        | Path.Pident id when Ident.name id = "array" -> arrayModulePath
-        | Path.Pident id when Ident.name id = "option" -> optionModulePath
-        | Path.Pident id when Ident.name id = "string" -> stringModulePath
-        | Path.Pident id when Ident.name id = "int" -> intModulePath
-        | Path.Pident id when Ident.name id = "float" -> floatModulePath
-        | Path.Pident id when Ident.name id = "promise" -> promiseModulePath
-        | Path.Pident id when Ident.name id = "list" -> listModulePath
-        | Path.Pident id when Ident.name id = "result" -> resultModulePath
-        | Path.Pident id when Ident.name id = "lazy_t" -> ["Lazy"]
-        | Path.Pident id when Ident.name id = "char" -> ["Char"]
-        | _ -> (
-          match loop path with
-          | _ :: rest -> List.rev rest
-          | [] -> [])
+        | Path.Pident id when Ident.name id = "array" -> Some arrayModulePath
+        | Path.Pident id when Ident.name id = "option" -> Some optionModulePath
+        | Path.Pident id when Ident.name id = "string" -> Some stringModulePath
+        | Path.Pident id when Ident.name id = "int" -> Some intModulePath
+        | Path.Pident id when Ident.name id = "float" -> Some floatModulePath
+        | Path.Pident id when Ident.name id = "promise" ->
+          Some promiseModulePath
+        | Path.Pident id when Ident.name id = "list" -> Some listModulePath
+        | Path.Pident id when Ident.name id = "result" -> Some resultModulePath
+        | Path.Pident id when Ident.name id = "lazy_t" -> Some ["Lazy"]
+        | Path.Pident id when Ident.name id = "char" -> Some ["Char"]
+        | _ -> None
       in
-      let getConstrPath typ =
+      let rec expandPath (path : Path.t) =
+        match path with
+        | Pident id -> [Ident.name id]
+        | Pdot (p, s, _) -> s :: expandPath p
+        | Papply _ -> []
+      in
+      let getTypePath typ =
         match typ.Types.desc with
         | Tconstr (path, _typeArgs, _)
         | Tlink {desc = Tconstr (path, _typeArgs, _)}
@@ -1335,12 +1333,6 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
           Some path
         | _ -> None
       in
-      let fromType typ =
-        match getConstrPath typ with
-        | None -> None
-        | Some path -> Some (getModulePath path)
-      in
-      let lhsPath = fromType typ in
       let rec removeRawOpen rawOpen modulePath =
         match (rawOpen, modulePath) with
         | [_], _ -> Some modulePath
@@ -1357,64 +1349,52 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
           | Some mp -> mp)
         | [] -> modulePath
       in
-      match lhsPath with
-      | Some lhsPath -> (
-        match lhsPath with
-        | _ :: _ ->
-          let lhsPathMinusOpens =
-            lhsPath
-            |> removeRawOpens package.opens
-            |> removeRawOpens rawOpens |> String.concat "."
-          in
-          let completionName name =
-            if lhsPathMinusOpens = "" then name
-            else lhsPathMinusOpens ^ "." ^ name
-          in
-          let completions =
-            lhsPath @ [funNamePrefix]
-            |> getCompletionsForPath ~completionContext:Value ~exact:false
-                 ~package ~opens ~allFiles ~pos ~env ~scope
-          in
-          completions
-          |> List.map (fun (completion : Completion.t) ->
-                 {
-                   completion with
-                   name = completionName completion.name;
-                   env
-                   (* Restore original env for the completion after x->foo()... *);
-                 })
-        | [] ->
-          (* Module paths coming directly from a completion item is prefixed with
-             file module name it was found in. We pluck that off here if the env
-              we're in is the same as the completion item was found in. This ensures
-             that a correct qualified path can be produced. *)
-          let completionPath =
-            match ModulePath.toFullPath completionItemModulePath with
-            | topModule :: rest when topModule = env.file.moduleName -> rest
-            | modulePath -> modulePath
-          in
-          let completionPathMinusOpens =
-            completionPath
-            |> removeRawOpens package.opens
-            |> removeRawOpens rawOpens |> String.concat "."
-          in
-          let completionName name =
-            if completionPathMinusOpens = "" then name
-            else completionPathMinusOpens ^ "." ^ name
-          in
-          let completions =
-            completionPath @ [funNamePrefix]
-            |> getCompletionsForPath ~completionContext:Value ~exact:false
-                 ~package ~opens ~allFiles ~pos ~env ~scope
-          in
-          completions
-          |> List.map (fun (completion : Completion.t) ->
-                 {
-                   completion with
-                   name = completionName completion.name;
-                   env
-                   (* Restore original env for the completion after x->foo()... *);
-                 }))
+      let completionPath =
+        match getTypePath typ with
+        | Some typePath -> (
+          match getBuiltinTypePath typePath with
+          | Some path -> Some path
+          | None -> (
+            match expandPath typePath with
+            | _ :: rest when rest <> [] ->
+              (* Assume a non-empty type path is coming from the compiler and
+                 can be used as-is. *)
+              Some (List.rev rest)
+            | _ -> (
+              (* Module paths coming directly from a completion item is prefixed with
+                 file module name it was found in. We pluck that off here if the env
+                  we're in is the same as the completion item was found in. This ensures
+                 that a correct qualified path can be produced. *)
+              match ModulePath.toFullPath completionItemModulePath with
+              | topModule :: rest when topModule = env.file.moduleName ->
+                Some rest
+              | path -> Some path)))
+        | None -> None
+      in
+      match completionPath with
+      | Some completionPath ->
+        let completionPathMinusOpens =
+          completionPath
+          |> removeRawOpens package.opens
+          |> removeRawOpens rawOpens |> String.concat "."
+        in
+        let completionName name =
+          if completionPathMinusOpens = "" then name
+          else completionPathMinusOpens ^ "." ^ name
+        in
+        let completions =
+          completionPath @ [funNamePrefix]
+          |> getCompletionsForPath ~completionContext:Value ~exact:false
+               ~package ~opens ~allFiles ~pos ~env ~scope
+        in
+        completions
+        |> List.map (fun (completion : Completion.t) ->
+               {
+                 completion with
+                 name = completionName completion.name;
+                 env
+                 (* Restore original env for the completion after x->foo()... *);
+               })
       | None -> [])
     | None -> [])
 
