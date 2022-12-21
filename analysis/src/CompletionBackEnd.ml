@@ -1157,6 +1157,17 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
+let findTypeAtLoc loc ~(env : QueryEnv.t) ~package ~debug =
+  match Cmt.loadFullCmtFromPath ~path:(env.file.uri |> Uri.toPath) with
+  | None -> None
+  | Some full -> (
+    match References.getLocItem ~full ~pos:(loc |> Loc.end_) ~debug with
+    | Some {locType = Typed (_, typExpr, _)} -> (
+      match extractFunctionType ~env ~package typExpr with
+      | args, tRet when args <> [] -> Some tRet
+      | _ -> None)
+    | _ -> None)
+
 let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
     ~env ~exact ~scope (contextPath : Completable.contextPath) =
   match contextPath with
@@ -1275,7 +1286,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
                else None)
       | None -> [])
     | None -> [])
-  | CPPipe {contextPath = cp; id = funNamePrefix} -> (
+  | CPPipe {contextPath = cp; id = funNamePrefix; lhsLoc} -> (
     match
       cp
       |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
@@ -1283,6 +1294,18 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       |> completionsGetTypeEnv
     with
     | Some (typ, envFromCompletionItem) -> (
+      (* If the type we're completing on is a type parameter, we won't be able to do
+         completion unless we know what that type parameter is compiled as. This
+         attempts to look up the compiled type for that type parameter by looking
+         for compiled information at the loc of that expression. *)
+      let typ =
+        match typ with
+        | {Types.desc = Tvar _} -> (
+          match findTypeAtLoc lhsLoc ~env ~package ~debug:false with
+          | None -> typ
+          | Some typFromLoc -> typFromLoc)
+        | _ -> typ
+      in
       let {
         arrayModulePath;
         optionModulePath;
