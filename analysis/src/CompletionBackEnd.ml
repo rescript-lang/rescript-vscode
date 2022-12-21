@@ -1354,13 +1354,15 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
               Some (List.rev rest)
             | _ ->
               (* Get the path from the comletion environment *)
-              let pathFromEnv =
-                let path = envFromCompletionItem.path in
-                if env.file.moduleName = envFromCompletionItem.file.moduleName
-                then path
-                else envFromCompletionItem.file.moduleName :: path
-              in
-              Some pathFromEnv))
+              let path = envFromCompletionItem.path in
+              if path = [] then None
+              else
+                let pathFromEnv =
+                  if env.file.moduleName = envFromCompletionItem.file.moduleName
+                  then path
+                  else envFromCompletionItem.file.moduleName :: path
+                in
+                Some pathFromEnv))
         | None -> None
       in
       match completionPath with
