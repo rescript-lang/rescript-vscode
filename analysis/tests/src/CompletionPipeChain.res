@@ -54,3 +54,7 @@ let f = int->Integer.increment(2)
 
 // let _ = CompletionSupport.Test.make(1)->CompletionSupport.Test.addSelf(2)->
 //                                                                            ^com
+
+let _ = [123]->Js.Array2.forEach(v => Js.log(v))
+// ->
+//   ^com
