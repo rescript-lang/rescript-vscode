@@ -1157,7 +1157,7 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
-let findTypeAtLoc loc ~(env : QueryEnv.t) ~package ~debug =
+let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~package ~debug =
   match Cmt.loadFullCmtFromPath ~path:(env.file.uri |> Uri.toPath) with
   | None -> None
   | Some full -> (
@@ -1301,7 +1301,9 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
       let typ =
         match typ with
         | {Types.desc = Tvar _} -> (
-          match findTypeAtLoc lhsLoc ~env ~package ~debug:false with
+          match
+            findReturnTypeOfFunctionAtLoc lhsLoc ~env ~package ~debug:false
+          with
           | None -> typ
           | Some typFromLoc -> typFromLoc)
         | _ -> typ
