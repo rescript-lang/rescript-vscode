@@ -5,13 +5,6 @@
 <p align="center">The Official VSCode plugin for ReScript</p>
 
 <p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=chenglou92.rescript-vscode">
-    <img src="https://vsmarketplacebadge.apphb.com/version/chenglou92.rescript-vscode.svg"/>
-    <img src="https://vsmarketplacebadge.apphb.com/installs/chenglou92.rescript-vscode.svg"/>
-  </a>
-</p>
-
-<p align="center">
   <img src="https://user-images.githubusercontent.com/1909539/101266821-790b1400-3707-11eb-8e9f-fb7e36e660e6.gif"/>
 </p>
 
