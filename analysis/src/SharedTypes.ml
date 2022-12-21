@@ -479,7 +479,7 @@ module Completable = struct
     | CPId of string list * completionContext
     | CPField of contextPath * string
     | CPObj of contextPath * string
-    | CPPipe of {contextPath: contextPath; id: string}
+    | CPPipe of {contextPath: contextPath; id: string; lhsLoc: Warnings.loc}
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
