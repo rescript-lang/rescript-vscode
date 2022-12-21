@@ -22,16 +22,6 @@ module ModulePath = struct
       | NotVisible -> current
     in
     loop modulePath [tipName]
-
-  let toFullPath modulePath : path =
-    let rec loop modulePath current =
-      match modulePath with
-      | File (_, fileModule) -> fileModule :: current
-      | IncludedModule (_, inner) -> loop inner current
-      | ExportedModule {name; modulePath = inner} -> loop inner (name :: current)
-      | NotVisible -> current
-    in
-    loop modulePath []
 end
 
 type field = {stamp: int; fname: string Location.loc; typ: Types.type_expr}
@@ -115,6 +105,7 @@ module Module = struct
   and item = {kind: kind; name: string}
 
   and structure = {
+    name: string;
     docstring: string list;
     exported: Exported.t;
     items: item list;
@@ -236,14 +227,26 @@ module File = struct
       uri;
       stamps = Stamps.init ();
       moduleName;
-      structure = {docstring = []; exported = Exported.init (); items = []};
+      structure =
+        {
+          name = moduleName;
+          docstring = [];
+          exported = Exported.init ();
+          items = [];
+        };
     }
 end
 
-module QueryEnv = struct
-  type t = {file: File.t; exported: Exported.t}
+module QueryEnv : sig
+  type t = private {file: File.t; exported: Exported.t; path: path}
+  val fromFile : File.t -> t
+  val enterStructure : t -> Module.structure -> t
+end = struct
+  type t = {file: File.t; exported: Exported.t; path: path}
 
-  let fromFile file = {file; exported = file.structure.exported}
+  let fromFile file = {file; exported = file.structure.exported; path = []}
+  let enterStructure env (structure : Module.structure) =
+    {env with exported = structure.exported; path = structure.name :: env.path}
 end
 
 module Completion = struct
@@ -263,14 +266,10 @@ module Completion = struct
     deprecated: string option;
     docstring: string list;
     kind: kind;
-    modulePath: ModulePath.t;
   }
 
   let create ~name ~kind ~env =
-    {name; env; deprecated = None; docstring = []; kind; modulePath = NotVisible}
-
-  let createWithModulePath ~name ~kind ~env ~modulePath =
-    {name; env; deprecated = None; docstring = []; kind; modulePath}
+    {name; env; deprecated = None; docstring = []; kind}
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
   (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItemKind *)

@@ -46,7 +46,8 @@ and resolvePathInner ~(env : QueryEnv.t) ~path =
 
 and findInModule ~(env : QueryEnv.t) module_ path =
   match module_ with
-  | Structure {exported} -> resolvePathInner ~env:{env with exported} ~path
+  | Structure structure ->
+    resolvePathInner ~env:(QueryEnv.enterStructure env structure) ~path
   | Constraint (_, module1) -> findInModule ~env module1 path
   | Ident modulePath -> (
     let stamp, moduleName, fullPath = joinPaths modulePath path in

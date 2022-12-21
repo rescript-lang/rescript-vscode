@@ -152,7 +152,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
           Some (Protocol.stringifyHover (String.concat "\n\n" parts))
         | _ -> (
           match CompletionBackEnd.completionsGetTypeEnv completions with
-          | Some (typ, _env, _) ->
+          | Some (typ, _env) ->
             let typeString, _docstring =
               hoverWithExpandedTypes ~docstring:"" ~file ~package
                 ~supportsMarkdownLinks typ
