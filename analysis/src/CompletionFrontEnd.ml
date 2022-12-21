@@ -180,6 +180,7 @@ let completePipeChain ~(lhs : Parsetree.expression) =
         pexp_loc;
         pexp_attributes;
       }
+    |> Option.map (fun ctxPath -> (ctxPath, d.pexp_loc))
     (* When the left side of the pipe we're completing is an identifier application.
        Example: someArray->filterAllTheGoodStuff-> *)
   | Pexp_apply
@@ -195,6 +196,7 @@ let completePipeChain ~(lhs : Parsetree.expression) =
         pexp_loc;
         pexp_attributes;
       }
+    |> Option.map (fun ctxPath -> (ctxPath, pexp_loc))
   | _ -> None
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
@@ -436,11 +438,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | None -> (
         match exprToContextPath lhs with
         | Some pipe ->
-          setResult (Cpath (CPPipe {contextPath = pipe; id}));
+          setResult
+            (Cpath (CPPipe {contextPath = pipe; id; lhsLoc = lhs.pexp_loc}));
           true
         | None -> false)
-      | Some pipe ->
-        setResult (Cpath (CPPipe {contextPath = pipe; id}));
+      | Some (pipe, lhsLoc) ->
+        setResult (Cpath (CPPipe {contextPath = pipe; id; lhsLoc}));
         true
     in
     match expr.pexp_desc with
