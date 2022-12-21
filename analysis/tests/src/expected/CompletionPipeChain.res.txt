@@ -239,3 +239,8 @@ posCursor:[58:5] posNoWhite:[58:4] Found expr:[57:8->0:-1]
 Completable: Cpath Value[Js, Array2, forEach](Nolabel, Nolabel)->
 []
 
+Complete src/CompletionPipeChain.res 62:5
+posCursor:[62:5] posNoWhite:[62:4] Found expr:[61:8->0:-1]
+Completable: Cpath Value[Belt, Array, reduce](Nolabel, Nolabel, Nolabel)->
+[]
+
