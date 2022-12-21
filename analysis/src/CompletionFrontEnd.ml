@@ -436,11 +436,11 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | None -> (
         match exprToContextPath lhs with
         | Some pipe ->
-          setResult (Cpath (CPPipe (pipe, id)));
+          setResult (Cpath (CPPipe {contextPath = pipe; id}));
           true
         | None -> false)
       | Some pipe ->
-        setResult (Cpath (CPPipe (pipe, id)));
+        setResult (Cpath (CPPipe {contextPath = pipe; id}));
         true
     in
     match expr.pexp_desc with

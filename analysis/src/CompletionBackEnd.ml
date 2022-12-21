@@ -1275,7 +1275,7 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
                else None)
       | None -> [])
     | None -> [])
-  | CPPipe (cp, funNamePrefix) -> (
+  | CPPipe {contextPath = cp; id = funNamePrefix} -> (
     match
       cp
       |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
