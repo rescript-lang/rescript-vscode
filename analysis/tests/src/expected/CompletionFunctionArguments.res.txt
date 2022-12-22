@@ -1,0 +1,15 @@
+Complete src/CompletionFunctionArguments.res 8:24
+posCursor:[8:24] posNoWhite:[8:23] Found expr:[8:11->8:25]
+Pexp_apply ...[8:11->8:17] (~isOn8:19->8:23=...__ghost__[0:-1->0:-1])
+Completable: CnamedArg(Value[someFn], "", [isOn])
+Found type for function (~isOn: bool) => string
+[]
+
+Complete src/CompletionFunctionArguments.res 11:25
+posCursor:[11:25] posNoWhite:[11:24] Found expr:[11:11->11:26]
+Pexp_apply ...[11:11->11:17] (~isOn11:19->11:23=...[11:24->11:25])
+posCursor:[11:25] posNoWhite:[11:24] Found expr:[11:24->11:25]
+Pexp_ident t:[11:24->11:25]
+Completable: Cpath Value[t]
+[]
+
