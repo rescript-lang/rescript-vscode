@@ -106,7 +106,17 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   in
   args |> processProps ~acc:[]
 
-let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
+let extractCompletableArgValueInfo exp =
+  match exp.Parsetree.pexp_desc with
+  | Pexp_ident {txt} -> Some (Utils.flattenLongIdent txt |> List.hd)
+  | _ -> None
+
+let isExprHole exp =
+  match exp.Parsetree.pexp_desc with
+  | Pexp_extension ({txt = "rescript.exprhole"}, _) -> true
+  | _ -> false
+
+let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
   let allNames =
     List.fold_right
@@ -116,6 +126,7 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         | {label = None} -> allLabels)
       args []
   in
+  let unlabelledCount = ref 0 in
   let rec loop args =
     match args with
     | {label = Some labelled; exp} :: rest ->
@@ -123,11 +134,47 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
         labelled.posStart <= posBeforeCursor
         && posBeforeCursor < labelled.posEnd
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
-      else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
+      else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+        (* Completing in the assignment of labelled argument *)
+        match extractCompletableArgValueInfo exp with
+        | None -> None
+        | Some prefix ->
+          Some
+            (Cargument
+               {contextPath; argumentLabel = Labelled labelled.name; prefix})
+      else if isExprHole exp then
+        Some
+          (Cargument
+             {contextPath; argumentLabel = Labelled labelled.name; prefix = ""})
       else loop rest
     | {label = None; exp} :: rest ->
-      if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then None
-      else loop rest
+      (* TODO: Better guard for this... This is so completion does not trigger
+         inside of template string calls, which are regular calls *)
+      if Res_parsetree_viewer.isTemplateLiteral exp then None
+      else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+        (* Completing in an unlabelled argument *)
+        match extractCompletableArgValueInfo exp with
+        | None -> None
+        | Some prefix ->
+          Some
+            (Cargument
+               {
+                 contextPath;
+                 argumentLabel =
+                   Unlabelled {argumentPosition = !unlabelledCount};
+                 prefix;
+               })
+      else if isExprHole exp then
+        Some
+          (Cargument
+             {
+               contextPath;
+               argumentLabel = Unlabelled {argumentPosition = !unlabelledCount};
+               prefix = "";
+             })
+      else (
+        unlabelledCount := !unlabelledCount + 1;
+        loop rest)
     | [] ->
       if posAfterFunExpr <= posBeforeCursor && posBeforeCursor < endPos then
         Some (CnamedArg (contextPath, "", allNames))
@@ -578,16 +625,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                        (Loc.toString exp.pexp_loc))
               |> String.concat ", ");
 
-          let namedArgCompletable =
+          let argCompletable =
             match exprToContextPath funExpr with
             | Some contextPath ->
-              findNamedArgCompletable ~contextPath ~args
+              findArgCompletables ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
             | None -> None
           in
 
-          setResultOpt namedArgCompletable
+          setResultOpt argCompletable
         | Pexp_send (lhs, {txt; loc}) -> (
           (* e["txt"]
              If the string for txt is not closed, it could go over several lines.

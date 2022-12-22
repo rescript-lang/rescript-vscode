@@ -11,3 +11,18 @@ let someFn = (~isOn) => {
 
 // let _ = someFn(~isOn=t)
 //                       ^com
+
+let _ = someFn(
+  ~isOn={
+    // switch someFn(~isOn=)
+    //                     ^com
+    true
+  },
+)
+
+let someOtherFn = (includeName, age) => {
+  "Hello" ++ (includeName ? " Some Name" : "") ++ ", you are age " ++ Belt.Int.toString(age)
+}
+
+// let _ = someOtherFn(t)
+//                      ^com
