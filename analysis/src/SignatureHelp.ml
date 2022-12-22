@@ -18,12 +18,13 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
       | Some (completable, scope) -> (
         match Cmt.loadFullCmtFromPath ~path with
         | None -> None
-        | Some {file; package} ->
+        | Some full ->
+          let {file; package} = full in
           let env = QueryEnv.fromFile file in
           Some
             ( completable
-              |> CompletionBackEnd.processCompletable ~debug ~package ~pos
-                   ~scope ~env ~forHover:true,
+              |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope
+                   ~env ~forHover:true,
               env,
               package,
               file )))
