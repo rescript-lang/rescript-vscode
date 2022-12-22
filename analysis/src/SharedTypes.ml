@@ -238,15 +238,45 @@ module File = struct
 end
 
 module QueryEnv : sig
-  type t = private {file: File.t; exported: Exported.t; path: path}
+  type t = private {
+    file: File.t;
+    exported: Exported.t;
+    pathRev: path;
+    parent: t option;
+  }
   val fromFile : File.t -> t
   val enterStructure : t -> Module.structure -> t
-end = struct
-  type t = {file: File.t; exported: Exported.t; path: path}
 
-  let fromFile file = {file; exported = file.structure.exported; path = []}
+  (* Express a path starting from the module represented by the env.
+     E.g. the env is at A.B.C and the path is D.
+     The result is A.B.C.D if D is inside C.
+     Or A.B.D or A.D or D if it's in one of its parents. *)
+  val pathFromEnv : t -> path -> path
+end = struct
+  type t = {file: File.t; exported: Exported.t; pathRev: path; parent: t option}
+
+  let fromFile (file : File.t) =
+    {file; exported = file.structure.exported; pathRev = []; parent = None}
+
+  (* Prune a path and find a parent environment that contains the module name *)
+  let rec prunePath pathRev env name =
+    if Exported.find env.exported Module name <> None then pathRev
+    else
+      match (pathRev, env.parent) with
+      | _ :: rest, Some env -> prunePath rest env name
+      | _ -> []
+
+  let pathFromEnv env path =
+    match path with
+    | [] -> env.pathRev |> List.rev
+    | name :: _ ->
+      let prunedPathRev = prunePath env.pathRev env name in
+      List.rev_append prunedPathRev path
+
   let enterStructure env (structure : Module.structure) =
-    {env with exported = structure.exported; path = structure.name :: env.path}
+    let name = structure.name in
+    let pathRev = name :: prunePath env.pathRev env name in
+    {env with exported = structure.exported; pathRev; parent = Some env}
 end
 
 module Completion = struct

@@ -1371,21 +1371,21 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           | Some path -> Some path
           | None -> (
             match expandPath typePath with
-            | _ :: rest when rest <> [] ->
-              (* Assume a non-empty type path is coming from the compiler and
-                 can be used as-is. *)
-              Some (List.rev rest)
-            | _ ->
-              (* Get the path from the comletion environment *)
-              let path = envFromCompletionItem.path in
-              if path = [] then None
+            | _ :: pathRev ->
+              (* type path is relative to the completion environment
+                 express it from the root of the file *)
+              let pathFromEnv_ =
+                QueryEnv.pathFromEnv envFromCompletionItem (List.rev pathRev)
+              in
+              if pathFromEnv_ = [] then None
               else
                 let pathFromEnv =
                   if env.file.moduleName = envFromCompletionItem.file.moduleName
-                  then path
-                  else envFromCompletionItem.file.moduleName :: path
+                  then pathFromEnv_
+                  else envFromCompletionItem.file.moduleName :: pathFromEnv_
                 in
-                Some pathFromEnv))
+                Some pathFromEnv
+            | _ -> None))
         | None -> None
       in
       match completionPath with
