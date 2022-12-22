@@ -1183,6 +1183,13 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "int")) []));
     ]
+  | CPFloat ->
+    [
+      Completion.create ~name:"float" ~env
+        ~kind:
+          (Completion.Value
+             (Ctype.newconstr (Path.Pident (Ident.create "float")) []));
+    ]
   | CPArray ->
     [
       Completion.create ~name:"array" ~env

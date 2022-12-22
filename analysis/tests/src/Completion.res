@@ -417,3 +417,6 @@ let onClick = evt => {
 
 // let _ = 123->t
 //               ^com
+
+// let _ = 123.0->t
+//                 ^com

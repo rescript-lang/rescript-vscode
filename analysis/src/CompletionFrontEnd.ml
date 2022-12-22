@@ -139,6 +139,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
   | Pexp_constant (Pconst_integer _) -> Some CPInt
+  | Pexp_constant (Pconst_float _) -> Some CPFloat
   | Pexp_array _ -> Some CPArray
   | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
   | Pexp_field (e1, {txt = Lident name}) -> (

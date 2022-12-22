@@ -1625,8 +1625,8 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->420:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->415:1], ...[420:0->420:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->415:1], ...[423:0->423:0])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->415:1]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->415:1])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->415:1]
@@ -1719,5 +1719,24 @@ Resolved opens 2 Completion.res Completion.res
     "tags": [],
     "detail": "int => float",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+  }]
+
+Complete src/Completion.res 420:19
+posCursor:[420:19] posNoWhite:[420:18] Found expr:[420:11->420:19]
+Completable: Cpath float->t
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "Belt.Float.toInt",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => int",
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n```res example\nJs.log(Belt.Float.toInt(1.0) === 1) /* true */\n```\n"}
+  }, {
+    "label": "Belt.Float.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Float.toString(1.0) === \"1.0\") /* true */\n  ```\n"}
   }]
 
