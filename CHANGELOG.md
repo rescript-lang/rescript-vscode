@@ -20,6 +20,7 @@
 - Accept both `@ns.doc` and the new `@res.doc` for the internal representation of doc comments. And both `@ns.optional` and `@res.optional` for the optional fields. https://github.com/rescript-lang/rescript-vscode/pull/642
 - Make pipe completion work more reliably after function calls. https://github.com/rescript-lang/rescript-vscode/pull/656
 - Make pipe completion work in pipe chains, not just on the first pipe. https://github.com/rescript-lang/rescript-vscode/pull/656
+- Make pipe completion work reliably when the path resolution needs to traverse submodules https://github.com/rescript-lang/rescript-vscode/pull/663
 
 #### :bug: Bug Fix
 
