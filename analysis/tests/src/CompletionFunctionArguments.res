@@ -24,5 +24,5 @@ let someOtherFn = (includeName, age) => {
   "Hello" ++ (includeName ? " Some Name" : "") ++ ", you are age " ++ Belt.Int.toString(age)
 }
 
-// let _ = someOtherFn(t)
+// let _ = someOtherFn(f)
 //                      ^com

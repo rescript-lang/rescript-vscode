@@ -1531,6 +1531,27 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     Some (Polyvariant (env, constructors))
   | Ttuple expressions -> Some (Tuple (env, expressions))
   | _ -> None
+
+let completeTypedValue t ~env ~full ~prefix =
+  match t |> extractType ~env ~package:full.package with
+  | Some (Tbool env) ->
+    let items =
+      [
+        Completion.create ~name:"true"
+          ~kind:(Label (t |> Shared.typeToString))
+          ~env;
+        Completion.create ~name:"false"
+          ~kind:(Label (t |> Shared.typeToString))
+          ~env;
+      ]
+    in
+    if prefix = "" then items
+    else
+      items
+      |> List.filter (fun (item : Completion.t) ->
+             Utils.startsWith item.name prefix)
+  | _ -> []
+
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let package = full.package in
@@ -1893,7 +1914,23 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            in
            (dec2, doc))
     |> List.map mkDecorator
-  | Cargument _ -> []
+  | Cargument {contextPath; argumentLabel; prefix} -> (
+    let labels =
+      match
+        contextPath
+        |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:true ~scope
+        |> completionsGetTypeEnv
+      with
+      | Some (typ, _env) -> typ |> getArgs ~full ~env
+      | None -> []
+    in
+    let targetLabel =
+      labels |> List.find_opt (fun (label, _) -> label = argumentLabel)
+    in
+    match targetLabel with
+    | None -> []
+    | Some (_, typ) -> typ |> completeTypedValue ~env ~full ~prefix)
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
@@ -1906,6 +1943,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         if debug then
           Printf.printf "Found type for function %s\n"
             (typ |> Shared.typeToString);
+
         typ |> getArgs ~full ~env
         |> List.filter_map (fun arg ->
                match arg with
