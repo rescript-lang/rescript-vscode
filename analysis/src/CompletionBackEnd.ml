@@ -1483,6 +1483,54 @@ let getArgs ~env (t : Types.type_expr) ~full =
   in
   t |> getArgsLoop ~env ~full ~currentArgumentPosition:0
 
+type extractedType =
+  | Declared of QueryEnv.t * Type.t Declared.t
+  | Polyvariant of QueryEnv.t * SharedTypes.polyVariantConstructor list
+  | Tuple of QueryEnv.t * Types.type_expr list
+  | Toption of QueryEnv.t * Types.type_expr
+  | Tbool of QueryEnv.t
+
+(* This is a more general extraction function for pulling out the type of a type_expr. We already have other similar functions, but they are all specialized on something (variants, records, etc). *)
+let rec extractType ~env ~package (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
+  | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
+    (* Handle option. TODO: Look up how the compiler does this and copy that behavior. *)
+    Some (Toption (env, payloadTypeExpr))
+  | Tconstr (Path.Pident {name = "bool"}, [], _) ->
+    (* Handle bool. TODO: Look up how the compiler does this and copy that behavior. *)
+    Some (Tbool env)
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+      extractType ~env ~package t1
+    | Some (env, typ) -> Some (Declared (env, typ))
+    | None -> None)
+  | Tvariant {row_fields} ->
+    (* Since polyvariants are strutural, they're "inlined". So, we extract just
+       what we need for completion from that definition here. *)
+    let constructors =
+      row_fields
+      |> List.map (fun (label, field) ->
+             {
+               name = label;
+               payload =
+                 (match field with
+                 | Types.Rpresent maybeTypeExpr -> maybeTypeExpr
+                 | _ -> None);
+               args =
+                 (* Multiple arguments are represented as a Ttuple, while a single argument is just the type expression itself. *)
+                 (match field with
+                 | Types.Rpresent (Some typeExpr) -> (
+                   match typeExpr.desc with
+                   | Ttuple args -> args
+                   | _ -> [typeExpr])
+                 | _ -> []);
+             })
+    in
+    Some (Polyvariant (env, constructors))
+  | Ttuple expressions -> Some (Tuple (env, expressions))
+  | _ -> None
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let package = full.package in
