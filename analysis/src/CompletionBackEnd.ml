@@ -1176,6 +1176,13 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
     ]
+  | CPInt ->
+    [
+      Completion.create ~name:"int" ~env
+        ~kind:
+          (Completion.Value
+             (Ctype.newconstr (Path.Pident (Ident.create "int")) []));
+    ]
   | CPArray ->
     [
       Completion.create ~name:"array" ~env
