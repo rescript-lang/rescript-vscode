@@ -60,5 +60,5 @@ let _ = [123]->Js.Array2.forEach(v => Js.log(v))
 //   ^com
 
 let _ = [123]->Belt.Array.reduce(0, (acc, curr) => acc + curr)
-// ->
-//   ^com
+// ->t
+//    ^com
