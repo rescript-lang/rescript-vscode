@@ -479,7 +479,12 @@ module Completable = struct
     | CPId of string list * completionContext
     | CPField of contextPath * string
     | CPObj of contextPath * string
-    | CPPipe of contextPath * string
+    | CPPipe of {
+        contextPath: contextPath;
+        id: string;
+        lhsLoc: Location.t;
+            (** The loc item for the left hand side of the pipe. *)
+      }
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -513,7 +518,7 @@ module Completable = struct
         completionContextToString completionContext ^ list sl
       | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
       | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
-      | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
+      | CPPipe {contextPath; id} -> contextPathToString contextPath ^ "->" ^ id
     in
     function
     | Cpath cp -> "Cpath " ^ contextPathToString cp

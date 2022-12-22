@@ -1157,8 +1157,17 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
-let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-    ~env ~exact ~scope (contextPath : Completable.contextPath) =
+let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
+  match References.getLocItem ~full ~pos:(loc |> Loc.end_) ~debug with
+  | Some {locType = Typed (_, typExpr, _)} -> (
+    match extractFunctionType ~env ~package:full.package typExpr with
+    | args, tRet when args <> [] -> Some tRet
+    | _ -> None)
+  | _ -> None
+
+let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+    ~exact ~scope (contextPath : Completable.contextPath) =
+  let package = full.package in
   match contextPath with
   | CPString ->
     [
@@ -1181,8 +1190,8 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
   | CPApply (cp, labels) -> (
     match
       cp
-      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-           ~env ~exact:true ~scope
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
@@ -1227,8 +1236,8 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
   | CPField (cp, fieldName) -> (
     match
       cp
-      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-           ~env ~exact:true ~scope
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
@@ -1250,8 +1259,8 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
   | CPObj (cp, label) -> (
     match
       cp
-      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-           ~env ~exact:true ~scope
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
@@ -1275,14 +1284,28 @@ let rec getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
                else None)
       | None -> [])
     | None -> [])
-  | CPPipe (cp, funNamePrefix) -> (
+  | CPPipe {contextPath = cp; id = funNamePrefix; lhsLoc} -> (
     match
       cp
-      |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-           ~env ~exact:true ~scope
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
       |> completionsGetTypeEnv
     with
     | Some (typ, envFromCompletionItem) -> (
+      (* If the type we're completing on is a type parameter, we won't be able to do
+         completion unless we know what that type parameter is compiled as. This
+         attempts to look up the compiled type for that type parameter by looking
+         for compiled information at the loc of that expression. *)
+      let typ =
+        match typ with
+        | {Types.desc = Tvar _} -> (
+          match
+            findReturnTypeOfFunctionAtLoc lhsLoc ~env ~full ~debug:false
+          with
+          | None -> typ
+          | Some typFromLoc -> typFromLoc)
+        | _ -> typ
+      in
       let {
         arrayModulePath;
         optionModulePath;
@@ -1418,8 +1441,9 @@ let getOpens ~debug ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
-let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
+let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
+  let package = full.package in
   let rawOpens = Scope.getRawOpens scope in
   let opens = getOpens ~debug ~rawOpens ~package ~env in
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
@@ -1433,8 +1457,8 @@ let processCompletable ~debug ~package ~scope ~env ~pos ~forHover
   | Cnone -> []
   | Cpath contextPath ->
     contextPath
-    |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
-         ~env ~exact:forHover ~scope
+    |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+         ~exact:forHover ~scope
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     let mkLabel (name, typString) =
       Completion.create ~name ~kind:(Label typString) ~env
@@ -1783,7 +1807,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     let labels =
       match
         cp
-        |> getCompletionsForContextPath ~package ~opens ~rawOpens ~allFiles ~pos
+        |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
              ~env ~exact:true ~scope
         |> completionsGetTypeEnv
       with

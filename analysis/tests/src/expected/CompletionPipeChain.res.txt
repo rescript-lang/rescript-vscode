@@ -239,3 +239,20 @@ posCursor:[58:5] posNoWhite:[58:4] Found expr:[57:8->0:-1]
 Completable: Cpath Value[Js, Array2, forEach](Nolabel, Nolabel)->
 []
 
+Complete src/CompletionPipeChain.res 62:6
+posCursor:[62:6] posNoWhite:[62:5] Found expr:[61:8->62:6]
+Completable: Cpath Value[Belt, Array, reduce](Nolabel, Nolabel, Nolabel)->t
+[{
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.toFloat",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => float",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+  }]
+
