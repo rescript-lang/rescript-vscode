@@ -502,6 +502,10 @@ module Completable = struct
   (* Completion context *)
   type completionContext = Type | Value | Module | Field
 
+  type argumentLabel =
+    | Unlabelled of {argumentPosition: int}
+    | Labelled of string
+
   type contextPath =
     | CPString
     | CPArray
@@ -526,6 +530,11 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
+    | Cargument of {
+        contextPath: contextPath;
+        argumentLabel: argumentLabel;
+        prefix: string;
+      }
 
   let toString =
     let completionContextToString = function
@@ -564,6 +573,14 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+    | Cargument {contextPath; argumentLabel; prefix} ->
+      contextPathToString contextPath
+      ^ "("
+      ^ (match argumentLabel with
+        | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition
+        | Labelled name -> "~" ^ name)
+      ^ (if prefix <> "" then "=" ^ prefix else "")
+      ^ ")"
 end
 
 module CursorPosition = struct
