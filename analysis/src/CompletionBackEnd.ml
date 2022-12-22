@@ -1455,6 +1455,34 @@ let getOpens ~debug ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
+let getArgs ~env (t : Types.type_expr) ~full =
+  let rec getArgsLoop ~env (t : Types.type_expr) ~full ~currentArgumentPosition
+      =
+    match t.desc with
+    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+      getArgsLoop ~full ~env ~currentArgumentPosition t1
+    | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
+      (SharedTypes.Completable.Labelled l, tArg)
+      :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
+    | Tarrow (Nolabel, tArg, tRet, _) ->
+      (Unlabelled {argumentPosition = currentArgumentPosition}, tArg)
+      :: getArgsLoop ~full ~env
+           ~currentArgumentPosition:(currentArgumentPosition + 1)
+           tRet
+    | Tconstr (path, typeArgs, _) -> (
+      match References.digConstructor ~env ~package:full.package path with
+      | Some
+          ( env,
+            {
+              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
+            } ) ->
+        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
+        getArgsLoop ~full ~env ~currentArgumentPosition t1
+      | _ -> [])
+    | _ -> []
+  in
+  t |> getArgsLoop ~env ~full ~currentArgumentPosition:0
+
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let package = full.package in
@@ -1830,29 +1858,11 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         if debug then
           Printf.printf "Found type for function %s\n"
             (typ |> Shared.typeToString);
-        let rec getLabels ~env (t : Types.type_expr) =
-          match t.desc with
-          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels ~env t1
-          | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
-            (l, tArg) :: getLabels ~env tRet
-          | Tarrow (Nolabel, _, tRet, _) -> getLabels ~env tRet
-          | Tconstr (path, typeArgs, _) -> (
-            match References.digConstructor ~env ~package path with
-            | Some
-                ( env,
-                  {
-                    item =
-                      {
-                        decl =
-                          {type_manifest = Some t1; type_params = typeParams};
-                      };
-                  } ) ->
-              let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
-              getLabels ~env t1
-            | _ -> [])
-          | _ -> []
-        in
-        typ |> getLabels ~env
+        typ |> getArgs ~full ~env
+        |> List.filter_map (fun arg ->
+               match arg with
+               | SharedTypes.Completable.Labelled name, a -> Some (name, a)
+               | _ -> None)
       | None -> []
     in
     let mkLabel (name, typ) =
