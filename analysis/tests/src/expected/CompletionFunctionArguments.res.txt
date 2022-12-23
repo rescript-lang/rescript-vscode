@@ -97,10 +97,10 @@ Completable: Value[someFnTakingVariant](~config)
     "detail": "Two\n\n",
     "documentation": null
   }, {
-    "label": "Three",
+    "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int)\n\n",
+    "detail": "Three(int, string)\n\n",
     "documentation": null
   }]
 

@@ -30,7 +30,7 @@ let someOtherFn = (includeName, age) => {
 // let _ = someOtherFn(f)
 //                      ^com
 
-type someVariant = One | Two | Three(int)
+type someVariant = One | Two | Three(int, string)
 
 let someFnTakingVariant = (
   configOpt: option<someVariant>,

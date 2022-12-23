@@ -1539,7 +1539,17 @@ let rec completeTypedValue t ~env ~full ~prefix ~expandOption =
              then None
              else
                Some
-                 (Completion.create ~name:constructor.cname.txt
+                 (Completion.create
+                    ~name:
+                      (constructor.cname.txt
+                      ^
+                      if constructor.args |> List.length > 0 then
+                        "("
+                        ^ (constructor.args
+                          |> List.map (fun _ -> "_")
+                          |> String.concat ", ")
+                        ^ ")"
+                      else "")
                     ~kind:(Constructor (constructor, "" (* TODO *)))
                     ~env))
     in
