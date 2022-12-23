@@ -1542,6 +1542,22 @@ let completeTypedValue t ~env ~full ~prefix =
                     ~env))
     in
     items
+  | Some (Toption (env, t)) ->
+    let items =
+      [
+        Completion.create ~name:"None"
+          ~kind:(Label (t |> Shared.typeToString))
+          ~env;
+        Completion.create ~name:"Some(_)"
+          ~kind:(Label (t |> Shared.typeToString))
+          ~env;
+      ]
+    in
+    if prefix = "" then items
+    else
+      items
+      |> List.filter (fun (item : Completion.t) ->
+             Utils.startsWith item.name prefix)
   | _ -> []
 
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover

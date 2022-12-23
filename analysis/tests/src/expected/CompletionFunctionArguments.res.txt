@@ -32,7 +32,19 @@ Complete src/CompletionFunctionArguments.res 14:25
 posCursor:[14:25] posNoWhite:[14:24] Found expr:[14:11->14:26]
 Pexp_apply ...[14:11->14:17] (~isOff14:19->14:24=...__ghost__[0:-1->0:-1])
 Completable: Value[someFn](~isOff)
-[]
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
 
 Complete src/CompletionFunctionArguments.res 19:27
 posCursor:[19:27] posNoWhite:[19:26] Found expr:[17:8->23:1]
@@ -108,7 +120,13 @@ Complete src/CompletionFunctionArguments.res 50:32
 posCursor:[50:32] posNoWhite:[50:31] Found expr:[50:11->50:33]
 Pexp_apply ...[50:11->50:30] (...[50:31->50:32])
 Completable: Value[someFnTakingVariant]($0=S)
-[]
+[{
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null
+  }]
 
 Complete src/CompletionFunctionArguments.res 53:43
 posCursor:[53:43] posNoWhite:[53:42] Found expr:[53:11->53:44]
