@@ -1487,6 +1487,7 @@ type extractedType =
   | Tuple of QueryEnv.t * Types.type_expr list
   | Toption of QueryEnv.t * Types.type_expr
   | Tbool of QueryEnv.t
+  | Tvariant of {env: QueryEnv.t; constructors: Constructor.t list}
 
 (* This is a more general extraction function for pulling out the type of a type_expr. We already have other similar functions, but they are all specialized on something (variants, records, etc). *)
 let rec extractType ~env ~package (t : Types.type_expr) =
@@ -1498,6 +1499,13 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Tconstr (Path.Pident {name = "bool"}, [], _) ->
     (* Handle bool. TODO: Look up how the compiler does this and copy that behavior. *)
     Some (Tbool env)
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+      extractType ~env ~package t1
+    | Some (env, {item = {kind = Type.Variant constructors}}) ->
+      Some (Tvariant {env; constructors})
+    | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions))
   | _ -> None
 
@@ -1519,6 +1527,21 @@ let completeTypedValue t ~env ~full ~prefix =
       items
       |> List.filter (fun (item : Completion.t) ->
              Utils.startsWith item.name prefix)
+  | Some (Tvariant {env; constructors}) ->
+    let items =
+      constructors
+      |> List.filter_map (fun (constructor : Constructor.t) ->
+             if
+               prefix <> ""
+               && not (Utils.startsWith constructor.cname.txt prefix)
+             then None
+             else
+               Some
+                 (Completion.create ~name:constructor.cname.txt
+                    ~kind:(Constructor (constructor, "" (* TODO *)))
+                    ~env))
+    in
+    items
   | _ -> []
 
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
