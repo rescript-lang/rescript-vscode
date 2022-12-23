@@ -1,5 +1,5 @@
-let someFn = (~isOn) => {
-  if isOn {
+let someFn = (~isOn, ~isOff=false, ()) => {
+  if isOn && !isOff {
     "on"
   } else {
     "off"
@@ -10,6 +10,9 @@ let someFn = (~isOn) => {
 //                      ^com
 
 // let _ = someFn(~isOn=t)
+//                       ^com
+
+// let _ = someFn(~isOff=)
 //                       ^com
 
 let _ = someFn(
@@ -29,8 +32,14 @@ let someOtherFn = (includeName, age) => {
 
 type someVariant = One | Two | Three(int)
 
-let someFnTakingVariant = (~config: someVariant) => {
+let someFnTakingVariant = (
+  configOpt: option<someVariant>,
+  ~configOpt2=One,
+  ~config: someVariant,
+) => {
   ignore(config)
+  ignore(configOpt)
+  ignore(configOpt2)
 }
 
 // let _ = someFnTakingVariant(~config=)
@@ -38,3 +47,12 @@ let someFnTakingVariant = (~config: someVariant) => {
 
 // let _ = someFnTakingVariant(~config=O)
 //                                      ^com
+
+// let _ = someFnTakingVariant(S)
+//                              ^com
+
+// let _ = someFnTakingVariant(~configOpt=O)
+//                                         ^com
+
+// let _ = someFnTakingVariant(~configOpt2=O)
+//                                          ^com
