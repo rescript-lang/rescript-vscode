@@ -51,8 +51,5 @@ let someFnTakingVariant = (
 // let _ = someFnTakingVariant(S)
 //                              ^com
 
-// let _ = someFnTakingVariant(~configOpt=O)
-//                                         ^com
-
 // let _ = someFnTakingVariant(~configOpt2=O)
 //                                          ^com
