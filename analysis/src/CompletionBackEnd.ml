@@ -1509,8 +1509,10 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Ttuple expressions -> Some (Tuple (env, expressions))
   | _ -> None
 
-let completeTypedValue t ~env ~full ~prefix =
+let rec completeTypedValue t ~env ~full ~prefix ~expandOption =
   match t |> extractType ~env ~package:full.package with
+  | Some (Toption (env, typ)) when expandOption ->
+    typ |> completeTypedValue ~env ~full ~prefix ~expandOption:false
   | Some (Tbool env) ->
     let items =
       [
@@ -1938,7 +1940,10 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     in
     match targetLabel with
     | None -> []
-    | Some (_, typ) -> typ |> completeTypedValue ~env ~full ~prefix)
+    | Some (Labelled _, typ) ->
+      typ |> completeTypedValue ~env ~full ~prefix ~expandOption:true
+    | Some (Unlabelled _, typ) ->
+      typ |> completeTypedValue ~env ~full ~prefix ~expandOption:false)
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
