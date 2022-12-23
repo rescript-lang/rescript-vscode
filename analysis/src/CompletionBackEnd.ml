@@ -1509,68 +1509,80 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Ttuple expressions -> Some (Tuple (env, expressions))
   | _ -> None
 
-let rec completeTypedValue t ~env ~full ~prefix ~expandOption =
-  match t |> extractType ~env ~package:full.package with
-  | Some (Toption (env, typ)) when expandOption ->
-    typ |> completeTypedValue ~env ~full ~prefix ~expandOption:false
-  | Some (Tbool env) ->
+let completeTypedValue ~env ~full ~prefix ~expandOption =
+  let namesUsed = Hashtbl.create 10 in
+  let rec completeTypedValueInner t ~env ~full ~prefix ~expandOption =
     let items =
-      [
-        Completion.create ~name:"true"
-          ~kind:(Label (t |> Shared.typeToString))
-          ~env;
-        Completion.create ~name:"false"
-          ~kind:(Label (t |> Shared.typeToString))
-          ~env;
-      ]
+      match t |> extractType ~env ~package:full.package with
+      | Some (Toption (env, typ)) when expandOption ->
+        typ |> completeTypedValueInner ~env ~full ~prefix ~expandOption:false
+      | Some (Tbool env) ->
+        let items =
+          [
+            Completion.create ~name:"true"
+              ~kind:(Label (t |> Shared.typeToString))
+              ~env;
+            Completion.create ~name:"false"
+              ~kind:(Label (t |> Shared.typeToString))
+              ~env;
+          ]
+        in
+        if prefix = "" then items
+        else
+          items
+          |> List.filter (fun (item : Completion.t) ->
+                 Utils.startsWith item.name prefix)
+      | Some (Tvariant {env; constructors}) ->
+        let items =
+          constructors
+          |> List.filter_map (fun (constructor : Constructor.t) ->
+                 if
+                   prefix <> ""
+                   && not (Utils.startsWith constructor.cname.txt prefix)
+                 then None
+                 else
+                   Some
+                     (Completion.create
+                        ~name:
+                          (constructor.cname.txt
+                          ^
+                          if constructor.args |> List.length > 0 then
+                            "("
+                            ^ (constructor.args
+                              |> List.map (fun _ -> "_")
+                              |> String.concat ", ")
+                            ^ ")"
+                          else "")
+                        ~kind:(Constructor (constructor, "" (* TODO *)))
+                        ~env))
+        in
+        items
+      | Some (Toption (env, t)) ->
+        let items =
+          [
+            Completion.create ~name:"None"
+              ~kind:(Label (t |> Shared.typeToString))
+              ~env;
+            Completion.create ~name:"Some(_)"
+              ~kind:(Label (t |> Shared.typeToString))
+              ~env;
+          ]
+        in
+        if prefix = "" then items
+        else
+          items
+          |> List.filter (fun (item : Completion.t) ->
+                 Utils.startsWith item.name prefix)
+      | _ -> []
     in
+    (* Include all values and modules in completion if there's a prefix, not otherwise *)
     if prefix = "" then items
     else
       items
-      |> List.filter (fun (item : Completion.t) ->
-             Utils.startsWith item.name prefix)
-  | Some (Tvariant {env; constructors}) ->
-    let items =
-      constructors
-      |> List.filter_map (fun (constructor : Constructor.t) ->
-             if
-               prefix <> ""
-               && not (Utils.startsWith constructor.cname.txt prefix)
-             then None
-             else
-               Some
-                 (Completion.create
-                    ~name:
-                      (constructor.cname.txt
-                      ^
-                      if constructor.args |> List.length > 0 then
-                        "("
-                        ^ (constructor.args
-                          |> List.map (fun _ -> "_")
-                          |> String.concat ", ")
-                        ^ ")"
-                      else "")
-                    ~kind:(Constructor (constructor, "" (* TODO *)))
-                    ~env))
-    in
-    items
-  | Some (Toption (env, t)) ->
-    let items =
-      [
-        Completion.create ~name:"None"
-          ~kind:(Label (t |> Shared.typeToString))
-          ~env;
-        Completion.create ~name:"Some(_)"
-          ~kind:(Label (t |> Shared.typeToString))
-          ~env;
-      ]
-    in
-    if prefix = "" then items
-    else
-      items
-      |> List.filter (fun (item : Completion.t) ->
-             Utils.startsWith item.name prefix)
-  | _ -> []
+      @ completionForExportedValues ~env ~prefix ~exact:false ~namesUsed
+      @ completionForExportedModules ~env ~prefix ~exact:false ~namesUsed
+  in
+  completeTypedValueInner ~env ~full ~prefix ~expandOption
 
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =

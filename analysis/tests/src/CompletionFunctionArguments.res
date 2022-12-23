@@ -6,6 +6,8 @@ let someFn = (~isOn, ~isOff=false, ()) => {
   }
 }
 
+let tLocalVar = false
+
 // let _ = someFn(~isOn=)
 //                      ^com
 
@@ -29,6 +31,8 @@ let someOtherFn = (includeName, age) => {
 
 // let _ = someOtherFn(f)
 //                      ^com
+
+module OIncludeMeInCompletions = {}
 
 type someVariant = One | Two | Three(int, string)
 
