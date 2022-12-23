@@ -140,3 +140,16 @@ Completable: Value[someFnTakingVariant](~configOpt2=O)
     "documentation": null
   }]
 
+Complete src/CompletionFunctionArguments.res 57:25
+posCursor:[57:25] posNoWhite:[57:24] Found expr:[57:11->57:30]
+Pexp_apply ...[57:11->57:17] (~isOff57:19->57:24=...[57:27->57:29])
+Completable: CnamedArg(Value[someFn], "", [isOff])
+Found type for function (~isOn: bool, ~isOff: bool=?, unit) => string
+[{
+    "label": "isOn",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
