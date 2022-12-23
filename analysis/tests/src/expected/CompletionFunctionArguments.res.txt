@@ -128,15 +128,9 @@ Completable: Value[someFnTakingVariant]($0=S)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 53:43
-posCursor:[53:43] posNoWhite:[53:42] Found expr:[53:11->53:44]
-Pexp_apply ...[53:11->53:30] (~configOpt53:32->53:41=...[53:42->53:43])
-Completable: Value[someFnTakingVariant](~configOpt=O)
-[]
-
-Complete src/CompletionFunctionArguments.res 56:44
-posCursor:[56:44] posNoWhite:[56:43] Found expr:[56:11->56:45]
-Pexp_apply ...[56:11->56:30] (~configOpt256:32->56:42=...[56:43->56:44])
+Complete src/CompletionFunctionArguments.res 53:44
+posCursor:[53:44] posNoWhite:[53:43] Found expr:[53:11->53:45]
+Pexp_apply ...[53:11->53:30] (~configOpt253:32->53:42=...[53:43->53:44])
 Completable: Value[someFnTakingVariant](~configOpt2=O)
 [{
     "label": "One",
