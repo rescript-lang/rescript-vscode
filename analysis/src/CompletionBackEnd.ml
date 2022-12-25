@@ -1487,7 +1487,12 @@ type extractedType =
   | Tuple of QueryEnv.t * Types.type_expr list
   | Toption of QueryEnv.t * Types.type_expr
   | Tbool of QueryEnv.t
-  | Tvariant of {env: QueryEnv.t; constructors: Constructor.t list}
+  | Tvariant of {
+      env: QueryEnv.t;
+      constructors: Constructor.t list;
+      variantDecl: Types.type_declaration;
+      variantName: string;
+    }
 
 (* This is a more general extraction function for pulling out the type of a type_expr. We already have other similar functions, but they are all specialized on something (variants, records, etc). *)
 let rec extractType ~env ~package (t : Types.type_expr) =
@@ -1503,8 +1508,10 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
       extractType ~env ~package t1
-    | Some (env, {item = {kind = Type.Variant constructors}}) ->
-      Some (Tvariant {env; constructors})
+    | Some (env, {name; item = {decl; kind = Type.Variant constructors}}) ->
+      Some
+        (Tvariant
+           {env; constructors; variantName = name.txt; variantDecl = decl})
     | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions))
   | _ -> None
@@ -1532,7 +1539,7 @@ let completeTypedValue ~env ~full ~prefix ~expandOption =
           items
           |> List.filter (fun (item : Completion.t) ->
                  Utils.startsWith item.name prefix)
-      | Some (Tvariant {env; constructors}) ->
+      | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
         let items =
           constructors
           |> List.filter_map (fun (constructor : Constructor.t) ->
@@ -1553,7 +1560,10 @@ let completeTypedValue ~env ~full ~prefix ~expandOption =
                               |> String.concat ", ")
                             ^ ")"
                           else "")
-                        ~kind:(Constructor (constructor, "" (* TODO *)))
+                        ~kind:
+                          (Constructor
+                             ( constructor,
+                               variantDecl |> Shared.declToString variantName ))
                         ~env))
         in
         items
