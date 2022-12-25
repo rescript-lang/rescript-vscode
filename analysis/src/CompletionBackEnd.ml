@@ -1942,10 +1942,10 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            in
            (dec2, doc))
     |> List.map mkDecorator
-  | Cargument {contextPath; argumentLabel; prefix} -> (
+  | Cargument {functionContextPath; argumentLabel; prefix} -> (
     let labels =
       match
-        contextPath
+        functionContextPath
         |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
              ~env ~exact:true ~scope
         |> completionsGetTypeEnv

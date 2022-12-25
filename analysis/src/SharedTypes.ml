@@ -531,10 +531,11 @@ module Completable = struct
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
     | Cargument of {
-        contextPath: contextPath;
+        functionContextPath: contextPath;
         argumentLabel: argumentLabel;
         prefix: string;
       }
+        (** e.g. someFunction(~someBoolArg=<com>), complete for the value of `someBoolArg` (true or false). *)
 
   (** An extracted type from a type expr *)
   type extractedType =
@@ -585,8 +586,8 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | Cargument {contextPath; argumentLabel; prefix} ->
-      contextPathToString contextPath
+    | Cargument {functionContextPath; argumentLabel; prefix} ->
+      contextPathToString functionContextPath
       ^ "("
       ^ (match argumentLabel with
         | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition
