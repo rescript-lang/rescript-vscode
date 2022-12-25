@@ -138,6 +138,8 @@ let findNamedArgCompletable ~(args : arg list) ~endPos ~posBeforeCursor
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
+  | Pexp_constant (Pconst_integer _) -> Some CPInt
+  | Pexp_constant (Pconst_float _) -> Some CPFloat
   | Pexp_array _ -> Some CPArray
   | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
   | Pexp_field (e1, {txt = Lident name}) -> (
@@ -155,6 +157,48 @@ let rec exprToContextPath (e : Parsetree.expression) =
     match exprToContextPath e1 with
     | None -> None
     | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
+  | _ -> None
+
+let completePipeChain ~(lhs : Parsetree.expression) =
+  (* Complete the end of pipe chains by reconstructing the pipe chain as a single pipe,
+     so it can be completed.
+     Example:
+      someArray->Js.Array2.filter(v => v > 10)->Js.Array2.map(v => v + 2)->
+        will complete as:
+      Js.Array2.map(someArray->Js.Array2.filter(v => v > 10), v => v + 2)->
+  *)
+  match lhs.pexp_desc with
+  (* When the left side of the pipe we're completing is a function application.
+     Example: someArray->Js.Array2.map(v => v + 2)-> *)
+  | Pexp_apply
+      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+        [
+          (_, lhs);
+          (_, {pexp_desc = Pexp_apply (d, args); pexp_loc; pexp_attributes});
+        ] ) ->
+    exprToContextPath
+      {
+        pexp_desc = Pexp_apply (d, (Nolabel, lhs) :: args);
+        pexp_loc;
+        pexp_attributes;
+      }
+    |> Option.map (fun ctxPath -> (ctxPath, d.pexp_loc))
+    (* When the left side of the pipe we're completing is an identifier application.
+       Example: someArray->filterAllTheGoodStuff-> *)
+  | Pexp_apply
+      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+        [(_, lhs); (_, {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes})]
+      ) ->
+    exprToContextPath
+      {
+        pexp_desc =
+          Pexp_apply
+            ( {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes},
+              [(Nolabel, lhs)] );
+        pexp_loc;
+        pexp_attributes;
+      }
+    |> Option.map (fun ctxPath -> (ctxPath, pexp_loc))
   | _ -> None
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
@@ -392,11 +436,17 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (Loc.toString expr.pexp_loc)
     in
     let setPipeResult ~(lhs : Parsetree.expression) ~id =
-      match exprToContextPath lhs with
-      | Some pipe ->
-        setResult (Cpath (CPPipe (pipe, id)));
+      match completePipeChain ~lhs with
+      | None -> (
+        match exprToContextPath lhs with
+        | Some pipe ->
+          setResult
+            (Cpath (CPPipe {contextPath = pipe; id; lhsLoc = lhs.pexp_loc}));
+          true
+        | None -> false)
+      | Some (pipe, lhsLoc) ->
+        setResult (Cpath (CPPipe {contextPath = pipe; id; lhsLoc}));
         true
-      | None -> false
     in
     match expr.pexp_desc with
     | Pexp_apply

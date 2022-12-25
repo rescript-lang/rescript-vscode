@@ -105,6 +105,7 @@ module Module = struct
   and item = {kind: kind; name: string}
 
   and structure = {
+    name: string;
     docstring: string list;
     exported: Exported.t;
     items: item list;
@@ -226,14 +227,56 @@ module File = struct
       uri;
       stamps = Stamps.init ();
       moduleName;
-      structure = {docstring = []; exported = Exported.init (); items = []};
+      structure =
+        {
+          name = moduleName;
+          docstring = [];
+          exported = Exported.init ();
+          items = [];
+        };
     }
 end
 
-module QueryEnv = struct
-  type t = {file: File.t; exported: Exported.t}
+module QueryEnv : sig
+  type t = private {
+    file: File.t;
+    exported: Exported.t;
+    pathRev: path;
+    parent: t option;
+  }
+  val fromFile : File.t -> t
+  val enterStructure : t -> Module.structure -> t
 
-  let fromFile file = {file; exported = file.structure.exported}
+  (* Express a path starting from the module represented by the env.
+     E.g. the env is at A.B.C and the path is D.
+     The result is A.B.C.D if D is inside C.
+     Or A.B.D or A.D or D if it's in one of its parents. *)
+  val pathFromEnv : t -> path -> path
+end = struct
+  type t = {file: File.t; exported: Exported.t; pathRev: path; parent: t option}
+
+  let fromFile (file : File.t) =
+    {file; exported = file.structure.exported; pathRev = []; parent = None}
+
+  (* Prune a path and find a parent environment that contains the module name *)
+  let rec prunePath pathRev env name =
+    if Exported.find env.exported Module name <> None then pathRev
+    else
+      match (pathRev, env.parent) with
+      | _ :: rest, Some env -> prunePath rest env name
+      | _ -> []
+
+  let pathFromEnv env path =
+    match path with
+    | [] -> env.pathRev |> List.rev
+    | name :: _ ->
+      let prunedPathRev = prunePath env.pathRev env name in
+      List.rev_append prunedPathRev path
+
+  let enterStructure env (structure : Module.structure) =
+    let name = structure.name in
+    let pathRev = name :: prunePath env.pathRev env name in
+    {env with exported = structure.exported; pathRev; parent = Some env}
 end
 
 module Completion = struct
@@ -462,11 +505,18 @@ module Completable = struct
   type contextPath =
     | CPString
     | CPArray
+    | CPInt
+    | CPFloat
     | CPApply of contextPath * Asttypes.arg_label list
     | CPId of string list * completionContext
     | CPField of contextPath * string
     | CPObj of contextPath * string
-    | CPPipe of contextPath * string
+    | CPPipe of {
+        contextPath: contextPath;
+        id: string;
+        lhsLoc: Location.t;
+            (** The loc item for the left hand side of the pipe. *)
+      }
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -486,6 +536,8 @@ module Completable = struct
     in
     let rec contextPathToString = function
       | CPString -> "string"
+      | CPInt -> "int"
+      | CPFloat -> "float"
       | CPApply (cp, labels) ->
         contextPathToString cp ^ "("
         ^ (labels
@@ -500,7 +552,7 @@ module Completable = struct
         completionContextToString completionContext ^ list sl
       | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
       | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
-      | CPPipe (cp, s) -> contextPathToString cp ^ "->" ^ s
+      | CPPipe {contextPath; id} -> contextPathToString contextPath ^ "->" ^ id
     in
     function
     | Cpath cp -> "Cpath " ^ contextPathToString cp

@@ -136,12 +136,13 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
       (* Only perform expensive ast operations if there are completables *)
       match Cmt.loadFullCmtFromPath ~path with
       | None -> None
-      | Some {file; package} -> (
+      | Some full -> (
+        let {file; package} = full in
         let env = SharedTypes.QueryEnv.fromFile file in
         let completions =
           completable
-          |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope
-               ~env ~forHover
+          |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
+               ~forHover
         in
         match completions with
         | {kind = Label typString; docstring} :: _ ->

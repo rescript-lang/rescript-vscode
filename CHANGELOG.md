@@ -16,8 +16,14 @@
 
 - Remove spacing between type definition in clients that do not support markdown links. https://github.com/rescript-lang/rescript-vscode/pull/619
 - Rename custom LSP methods names. https://github.com/rescript-lang/rescript-vscode/pull/611
-- Better performance for Inlay Hints and Codelens.
+- Better performance for Inlay Hints and Codelens. https://github.com/rescript-lang/rescript-vscode/pull/634
 - Accept both `@ns.doc` and the new `@res.doc` for the internal representation of doc comments. And both `@ns.optional` and `@res.optional` for the optional fields. https://github.com/rescript-lang/rescript-vscode/pull/642
+- Migrate `prepareRename` to analysis. https://github.com/rescript-lang/rescript-vscode/pull/657
+- Make pipe completion work more reliably after function calls. https://github.com/rescript-lang/rescript-vscode/pull/656
+- Make pipe completion work in pipe chains, not just on the first pipe. https://github.com/rescript-lang/rescript-vscode/pull/656
+- Make pipe completion work reliably when the path resolution needs to traverse submodules https://github.com/rescript-lang/rescript-vscode/pull/663
+- Make pipe completion work (after saving/compiling) when the return type of a function call is unknown until compilation https://github.com/rescript-lang/rescript-vscode/pull/662
+- Add pipe completion for `int` and `float` constants https://github.com/rescript-lang/rescript-vscode/pull/664
 - Migrate `prepareRename` to analysis. https://github.com/rescript-lang/rescript-vscode/pull/657
 
 #### :bug: Bug Fix

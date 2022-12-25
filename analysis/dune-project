@@ -1,5 +1,15 @@
 (lang dune 2.0)
 
+(generate_opam_files true)
+
+(authors "Cristiano Calcagno")
+
+(maintainers "Cristiano Calcagno")
+
+(homepage "https://github.com/rescript-lang/rescript-vscode")
+
+(bug_reports "https://github.com/rescript-lang/rescript-vscode/issues")
+
 (package
  (name rescript-vscode)
  (synopsis "ReScript vscode support")

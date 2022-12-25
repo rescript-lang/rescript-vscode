@@ -403,7 +403,7 @@ let header2 = `
     background-color: ${red}; `
 //                       ^com
 
-// let _ = `color: ${r    
+// let _ = `color: ${r
 //                    ^com
 
 let onClick = evt => {
@@ -414,3 +414,9 @@ let onClick = evt => {
   //                 ^com
   Js.log("Hello")
 }
+
+// let _ = 123->t
+//               ^com
+
+// let _ = 123.0->t
+//                 ^com
