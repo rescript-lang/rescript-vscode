@@ -587,7 +587,8 @@ module Completable = struct
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
     | Cargument {functionContextPath; argumentLabel; prefix} ->
-      contextPathToString functionContextPath
+      "Cargument "
+      ^ contextPathToString functionContextPath
       ^ "("
       ^ (match argumentLabel with
         | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition
