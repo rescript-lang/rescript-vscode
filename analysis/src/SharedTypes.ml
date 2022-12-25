@@ -536,6 +536,18 @@ module Completable = struct
         prefix: string;
       }
 
+  (** An extracted type from a type expr *)
+  type extractedType =
+    | Tuple of QueryEnv.t * Types.type_expr list
+    | Toption of QueryEnv.t * Types.type_expr
+    | Tbool of QueryEnv.t
+    | Tvariant of {
+        env: QueryEnv.t;
+        constructors: Constructor.t list;
+        variantDecl: Types.type_declaration;
+        variantName: string;
+      }
+
   let toString =
     let completionContextToString = function
       | Value -> "Value"
