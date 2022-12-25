@@ -94,19 +94,19 @@ Completable: Value[someFnTakingVariant](~config)
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\n",
+    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\n",
+    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null
   }, {
     "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int, string)\n\n",
+    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null
   }]
 
@@ -118,7 +118,7 @@ Completable: Value[someFnTakingVariant](~config=O)
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\n",
+    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null
   }, {
     "label": "OIncludeMeInCompletions",
@@ -148,7 +148,7 @@ Completable: Value[someFnTakingVariant](~configOpt2=O)
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\n",
+    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null
   }, {
     "label": "OIncludeMeInCompletions",
