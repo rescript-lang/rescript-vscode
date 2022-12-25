@@ -108,8 +108,8 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
 
 let extractCompletableArgValueInfo exp =
   match exp.Parsetree.pexp_desc with
-  | Pexp_ident {txt} -> Some (Utils.flattenLongIdent txt |> List.hd)
-  | Pexp_construct ({txt}, _) -> Some (Utils.flattenLongIdent txt |> List.hd)
+  | Pexp_ident {txt = Lident txt} -> Some txt
+  | Pexp_construct ({txt = Lident txt}, _) -> Some txt
   | _ -> None
 
 let isExprHole exp =
