@@ -1499,11 +1499,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    (* Handle option. TODO: Look up how the compiler does this and copy that behavior. *)
     Some (Toption (env, payloadTypeExpr))
-  | Tconstr (Path.Pident {name = "bool"}, [], _) ->
-    (* Handle bool. TODO: Look up how the compiler does this and copy that behavior. *)
-    Some (Tbool env)
+  | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
