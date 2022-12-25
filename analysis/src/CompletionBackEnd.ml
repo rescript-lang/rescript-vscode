@@ -1483,23 +1483,12 @@ let getArgs ~env (t : Types.type_expr) ~full =
   in
   t |> getArgsLoop ~env ~full ~currentArgumentPosition:0
 
-type extractedType =
-  | Tuple of QueryEnv.t * Types.type_expr list
-  | Toption of QueryEnv.t * Types.type_expr
-  | Tbool of QueryEnv.t
-  | Tvariant of {
-      env: QueryEnv.t;
-      constructors: Constructor.t list;
-      variantDecl: Types.type_declaration;
-      variantName: string;
-    }
-
-(* This is a more general extraction function for pulling out the type of a type_expr. We already have other similar functions, but they are all specialized on something (variants, records, etc). *)
+(** Pulls out a type we can complete from a type expr. *)
 let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    Some (Toption (env, payloadTypeExpr))
+    Some (Completable.Toption (env, payloadTypeExpr))
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
