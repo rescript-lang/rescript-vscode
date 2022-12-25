@@ -142,11 +142,19 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
         | Some prefix ->
           Some
             (Cargument
-               {contextPath; argumentLabel = Labelled labelled.name; prefix})
+               {
+                 functionContextPath = contextPath;
+                 argumentLabel = Labelled labelled.name;
+                 prefix;
+               })
       else if isExprHole exp then
         Some
           (Cargument
-             {contextPath; argumentLabel = Labelled labelled.name; prefix = ""})
+             {
+               functionContextPath = contextPath;
+               argumentLabel = Labelled labelled.name;
+               prefix = "";
+             })
       else loop rest
     | {label = None; exp} :: rest ->
       if Res_parsetree_viewer.isTemplateLiteral exp then None
@@ -158,7 +166,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
           Some
             (Cargument
                {
-                 contextPath;
+                 functionContextPath = contextPath;
                  argumentLabel =
                    Unlabelled {argumentPosition = !unlabelledCount};
                  prefix;
@@ -167,7 +175,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
         Some
           (Cargument
              {
-               contextPath;
+               functionContextPath = contextPath;
                argumentLabel = Unlabelled {argumentPosition = !unlabelledCount};
                prefix = "";
              })
