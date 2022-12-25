@@ -74,9 +74,9 @@ Completable: Value[someFn](~isOn)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 31:24
-posCursor:[31:24] posNoWhite:[31:23] Found expr:[31:11->31:25]
-Pexp_apply ...[31:11->31:22] (...[31:23->31:24])
+Complete src/CompletionFunctionArguments.res 34:24
+posCursor:[34:24] posNoWhite:[34:23] Found expr:[34:11->34:25]
+Pexp_apply ...[34:11->34:22] (...[34:23->34:24])
 Completable: Value[someOtherFn]($0=f)
 [{
     "label": "false",
@@ -86,9 +86,9 @@ Completable: Value[someOtherFn]($0=f)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 48:39
-posCursor:[48:39] posNoWhite:[48:38] Found expr:[48:11->48:40]
-Pexp_apply ...[48:11->48:30] (~config48:32->48:38=...__ghost__[0:-1->0:-1])
+Complete src/CompletionFunctionArguments.res 51:39
+posCursor:[51:39] posNoWhite:[51:38] Found expr:[51:11->51:40]
+Pexp_apply ...[51:11->51:30] (~config51:32->51:38=...__ghost__[0:-1->0:-1])
 Completable: Value[someFnTakingVariant](~config)
 [{
     "label": "One",
@@ -110,9 +110,9 @@ Completable: Value[someFnTakingVariant](~config)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 51:40
-posCursor:[51:40] posNoWhite:[51:39] Found expr:[51:11->51:41]
-Pexp_apply ...[51:11->51:30] (~config51:32->51:38=...[51:39->51:40])
+Complete src/CompletionFunctionArguments.res 54:40
+posCursor:[54:40] posNoWhite:[54:39] Found expr:[54:11->54:41]
+Pexp_apply ...[54:11->54:30] (~config54:32->54:38=...[54:39->54:40])
 Completable: Value[someFnTakingVariant](~config=O)
 [{
     "label": "One",
@@ -128,9 +128,9 @@ Completable: Value[someFnTakingVariant](~config=O)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 54:32
-posCursor:[54:32] posNoWhite:[54:31] Found expr:[54:11->54:33]
-Pexp_apply ...[54:11->54:30] (...[54:31->54:32])
+Complete src/CompletionFunctionArguments.res 57:32
+posCursor:[57:32] posNoWhite:[57:31] Found expr:[57:11->57:33]
+Pexp_apply ...[57:11->57:30] (...[57:31->57:32])
 Completable: Value[someFnTakingVariant]($0=S)
 [{
     "label": "Some(_)",
@@ -140,9 +140,9 @@ Completable: Value[someFnTakingVariant]($0=S)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 57:44
-posCursor:[57:44] posNoWhite:[57:43] Found expr:[57:11->57:45]
-Pexp_apply ...[57:11->57:30] (~configOpt257:32->57:42=...[57:43->57:44])
+Complete src/CompletionFunctionArguments.res 60:44
+posCursor:[60:44] posNoWhite:[60:43] Found expr:[60:11->60:45]
+Pexp_apply ...[60:11->60:30] (~configOpt260:32->60:42=...[60:43->60:44])
 Completable: Value[someFnTakingVariant](~configOpt2=O)
 [{
     "label": "One",
@@ -158,9 +158,23 @@ Completable: Value[someFnTakingVariant](~configOpt2=O)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 61:25
-posCursor:[61:25] posNoWhite:[61:24] Found expr:[61:11->61:30]
-Pexp_apply ...[61:11->61:17] (~isOff61:19->61:24=...[61:27->61:29])
+Complete src/CompletionFunctionArguments.res 65:23
+posCursor:[65:23] posNoWhite:[65:22] Found expr:[65:11->65:24]
+Pexp_apply ...[65:11->65:22] (...[65:23->65:24])
+Completable: CnamedArg(Value[someOtherFn], "", [])
+Found type for function (bool, int, bool) => string
+[]
+
+Complete src/CompletionFunctionArguments.res 67:28
+posCursor:[67:28] posNoWhite:[67:27] Found expr:[67:11->67:30]
+Pexp_apply ...[67:11->67:22] (...[67:23->67:24], ...[67:26->67:27])
+Completable: CnamedArg(Value[someOtherFn], "", [])
+Found type for function (bool, int, bool) => string
+[]
+
+Complete src/CompletionFunctionArguments.res 72:25
+posCursor:[72:25] posNoWhite:[72:24] Found expr:[72:11->72:30]
+Pexp_apply ...[72:11->72:17] (~isOff72:19->72:24=...[72:27->72:29])
 Completable: CnamedArg(Value[someFn], "", [isOff])
 Found type for function (~isOn: bool, ~isOff: bool=?, unit) => string
 [{

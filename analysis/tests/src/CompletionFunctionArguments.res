@@ -25,8 +25,11 @@ let _ = someFn(
   },
 )
 
-let someOtherFn = (includeName, age) => {
-  "Hello" ++ (includeName ? " Some Name" : "") ++ ", you are age " ++ Belt.Int.toString(age)
+let someOtherFn = (includeName, age, includeAge) => {
+  "Hello" ++
+  (includeName ? " Some Name" : "") ++
+  ", you are age " ++
+  Belt.Int.toString(includeAge ? age : 0)
 }
 
 // let _ = someOtherFn(f)
@@ -58,6 +61,14 @@ let someFnTakingVariant = (
 // let _ = someFnTakingVariant(~configOpt2=O)
 //                                          ^com
 
+// --- UNIMPLEMENTED CASES ---
+// The following two cases does not complete to a values because of ambiguity - should it complete for a value, or for a named argument? We don't know whether the function has args or not when deciding, since we're just in the AST at that point. Can potentially be fixed in the future.
+// let _ = someOtherFn()
+//                     ^com
+// let _ = someOtherFn(1, 2, )
+//                          ^com
+
+// --- BROKEN PARSER CASES ---
 // This below demonstrates an issue when what you're completing is the _last_ labelled argument, and there's a unit application after it. The parser wrongly merges the unit argument as the expression of the labelled argument assignment, where is should really let the trailing unit argument be, and set a %rescript.exprhole as the expression of the assignment, just like it normally does.
 // let _ = someFn(~isOff=, ())
 //                       ^com
