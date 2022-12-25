@@ -149,8 +149,6 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
              {contextPath; argumentLabel = Labelled labelled.name; prefix = ""})
       else loop rest
     | {label = None; exp} :: rest ->
-      (* TODO: Better guard for this... This is so completion does not trigger
-         inside of template string calls, which are regular calls *)
       if Res_parsetree_viewer.isTemplateLiteral exp then None
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Completing in an unlabelled argument *)

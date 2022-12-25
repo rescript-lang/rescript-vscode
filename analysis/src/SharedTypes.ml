@@ -498,12 +498,6 @@ let locItemToString {loc = {Location.loc_start; loc_end}; locType} =
 (* needed for debugging *)
 let _ = locItemToString
 
-type polyVariantConstructor = {
-  name: string;
-  payload: Types.type_expr option;
-  args: Types.type_expr list;
-}
-
 module Completable = struct
   (* Completion context *)
   type completionContext = Type | Value | Module | Field
