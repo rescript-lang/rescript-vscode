@@ -24,7 +24,6 @@
 - Make pipe completion work reliably when the path resolution needs to traverse submodules https://github.com/rescript-lang/rescript-vscode/pull/663
 - Make pipe completion work (after saving/compiling) when the return type of a function call is unknown until compilation https://github.com/rescript-lang/rescript-vscode/pull/662
 - Add pipe completion for `int` and `float` constants https://github.com/rescript-lang/rescript-vscode/pull/664
-- Migrate `prepareRename` to analysis. https://github.com/rescript-lang/rescript-vscode/pull/657
 
 #### :bug: Bug Fix
 
