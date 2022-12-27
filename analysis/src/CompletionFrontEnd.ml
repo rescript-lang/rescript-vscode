@@ -120,7 +120,7 @@ let isExprHole exp =
 
 let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~charBeforeCursor
-    =
+    ~isPipedExpr =
   let fnHasCursor =
     posAfterFunExpr <= posBeforeCursor && posBeforeCursor < endPos
   in
@@ -132,7 +132,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
         | {label = None} -> allLabels)
       args []
   in
-  let unlabelledCount = ref 0 in
+  let unlabelledCount = ref (if isPipedExpr then 1 else 0) in
   let rec loop args =
     match args with
     | {label = Some labelled; exp} :: rest ->
@@ -635,15 +635,36 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           when Loc.end_ opLoc = posCursor ->
           (* Case foo-> *)
           setPipeResult ~lhs ~id:"" |> ignore
-        | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
-          ()
-        | Pexp_apply (funExpr, args)
+        | Pexp_apply
+            ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+              [_; (_, {pexp_desc = Pexp_apply (funExpr, args)})] )
           when (* Normally named arg completion fires when the cursor is right after the expression.
                   E.g in foo(~<---there
                   But it should not fire in foo(~a)<---there *)
                not
                  (Loc.end_ expr.pexp_loc = posCursor
                  && charBeforeCursor = Some ')') ->
+          (* Complete fn argument values and named args when the fn call is piped. E.g. someVar->someFn(<com>). *)
+          let args = extractExpApplyArgs ~args in
+          let argCompletable =
+            match exprToContextPath funExpr with
+            | Some contextPath ->
+              findArgCompletables ~contextPath ~args
+                ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
+                ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
+                ~charBeforeCursor ~isPipedExpr:true
+            | None -> None
+          in
+
+          setResultOpt argCompletable
+        | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
+          (* Ignore any other pipe. *)
+          ()
+        | Pexp_apply (funExpr, args)
+          when not
+                 (Loc.end_ expr.pexp_loc = posCursor
+                 && charBeforeCursor = Some ')') ->
+          (* Complete fn argument values and named args when the fn call is _not_ piped. E.g. someFn(<com>). *)
           let args = extractExpApplyArgs ~args in
           if debug then
             Printf.printf "Pexp_apply ...%s (%s)\n"
@@ -666,7 +687,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               findArgCompletables ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
-                ~charBeforeCursor
+                ~charBeforeCursor ~isPipedExpr:false
             | None -> None
           in
 
