@@ -1502,7 +1502,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Ttuple expressions -> Some (Tuple (env, expressions))
   | _ -> None
 
-let completeTypedValue ~env ~full ~prefix ~expandOption =
+let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+    ~expandOption =
   let namesUsed = Hashtbl.create 10 in
   let rec completeTypedValueInner t ~env ~full ~prefix ~expandOption =
     let items =
@@ -1575,8 +1576,10 @@ let completeTypedValue ~env ~full ~prefix ~expandOption =
     if prefix = "" then items
     else
       items
-      @ completionForExportedValues ~env ~prefix ~exact:false ~namesUsed
-      @ completionForExportedModules ~env ~prefix ~exact:false ~namesUsed
+      @ completionForExportedValues ~env:envWhereCompletionStarted ~prefix
+          ~exact:false ~namesUsed
+      @ completionForExportedModules ~env:envWhereCompletionStarted ~prefix
+          ~exact:false ~namesUsed
   in
   completeTypedValueInner ~env ~full ~prefix ~expandOption
 
@@ -1943,6 +1946,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            (dec2, doc))
     |> List.map mkDecorator
   | Cargument {functionContextPath; argumentLabel; prefix} -> (
+    let envWhereCompletionStarted = env in
     let labels =
       match
         functionContextPath
@@ -1959,9 +1963,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     match targetLabel with
     | None -> []
     | Some (Labelled _, typ) ->
-      typ |> completeTypedValue ~env ~full ~prefix ~expandOption:true
+      typ
+      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+           ~expandOption:true
     | Some (Unlabelled _, typ) ->
-      typ |> completeTypedValue ~env ~full ~prefix ~expandOption:false)
+      typ
+      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+           ~expandOption:false)
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
