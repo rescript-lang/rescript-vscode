@@ -158,30 +158,45 @@ Completable: Cargument Value[someFnTakingVariant](~configOpt2=O)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 65:23
-posCursor:[65:23] posNoWhite:[65:22] Found expr:[65:11->65:24]
-Pexp_apply ...[65:11->65:22] (...[65:23->65:24])
-Completable: CnamedArg(Value[someOtherFn], "", [])
-Found type for function (bool, int, bool) => string
-[]
-
-Complete src/CompletionFunctionArguments.res 67:28
-posCursor:[67:28] posNoWhite:[67:27] Found expr:[67:11->67:30]
-Pexp_apply ...[67:11->67:22] (...[67:23->67:24], ...[67:26->67:27])
-Completable: CnamedArg(Value[someOtherFn], "", [])
-Found type for function (bool, int, bool) => string
-[]
-
-Complete src/CompletionFunctionArguments.res 72:25
-posCursor:[72:25] posNoWhite:[72:24] Found expr:[72:11->72:30]
-Pexp_apply ...[72:11->72:17] (~isOff72:19->72:24=...[72:27->72:29])
-Completable: CnamedArg(Value[someFn], "", [isOff])
-Found type for function (~isOn: bool, ~isOff: bool=?, unit) => string
+Complete src/CompletionFunctionArguments.res 63:23
+posCursor:[63:23] posNoWhite:[63:22] Found expr:[63:11->63:24]
+Pexp_apply ...[63:11->63:22] (...[63:23->63:24])
+Completable: Cargument Value[someOtherFn]($0)
 [{
-    "label": "isOn",
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
     "kind": 4,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }]
+
+Complete src/CompletionFunctionArguments.res 66:28
+posCursor:[66:28] posNoWhite:[66:27] Found expr:[66:11->66:30]
+Pexp_apply ...[66:11->66:22] (...[66:23->66:24], ...[66:26->66:27])
+Completable: Cargument Value[someOtherFn]($2)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionFunctionArguments.res 71:25
+posCursor:[71:25] posNoWhite:[71:24] Found expr:[71:11->71:30]
+Pexp_apply ...[71:11->71:17] (~isOff71:19->71:24=...[71:27->71:29])
+Completable: Cargument Value[someFn]($0)
+[]
 
