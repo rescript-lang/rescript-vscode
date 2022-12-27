@@ -194,9 +194,26 @@ Completable: Cargument Value[someOtherFn]($2)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 71:25
-posCursor:[71:25] posNoWhite:[71:24] Found expr:[71:11->71:30]
-Pexp_apply ...[71:11->71:17] (~isOff71:19->71:24=...[71:27->71:29])
+Complete src/CompletionFunctionArguments.res 69:30
+posCursor:[69:30] posNoWhite:[69:29] Found expr:[69:11->69:31]
+Completable: Cargument Value[someOtherFn]($2=t)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "tLocalVar",
+    "kind": 12,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionFunctionArguments.res 74:25
+posCursor:[74:25] posNoWhite:[74:24] Found expr:[74:11->74:30]
+Pexp_apply ...[74:11->74:17] (~isOff74:19->74:24=...[74:27->74:29])
 Completable: Cargument Value[someFn]($0)
 []
 
