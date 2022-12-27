@@ -109,6 +109,7 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
 let extractCompletableArgValueInfo exp =
   match exp.Parsetree.pexp_desc with
   | Pexp_ident {txt = Lident txt} -> Some txt
+  | Pexp_construct ({txt = Lident "()"}, _) -> Some ""
   | Pexp_construct ({txt = Lident txt}, _) -> Some txt
   | _ -> None
 
@@ -118,7 +119,11 @@ let isExprHole exp =
   | _ -> false
 
 let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(contextPath : Completable.contextPath) ~posAfterFunExpr =
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~charBeforeCursor
+    =
+  let fnHasCursor =
+    posAfterFunExpr <= posBeforeCursor && posBeforeCursor < endPos
+  in
   let allNames =
     List.fold_right
       (fun arg allLabels ->
@@ -183,11 +188,34 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
         unlabelledCount := !unlabelledCount + 1;
         loop rest)
     | [] ->
-      if posAfterFunExpr <= posBeforeCursor && posBeforeCursor < endPos then
-        Some (CnamedArg (contextPath, "", allNames))
+      if fnHasCursor then
+        match charBeforeCursor with
+        | Some '~' -> Some (Completable.CnamedArg (contextPath, "", allNames))
+        | _ ->
+          Some
+            (Cargument
+               {
+                 functionContextPath = contextPath;
+                 argumentLabel =
+                   Unlabelled {argumentPosition = !unlabelledCount};
+                 prefix = "";
+               })
       else None
   in
-  loop args
+  match args with
+  (* Special handling for empty fn calls, e.g. `let _ = someFn(<com>)` *)
+  | [
+   {label = None; exp = {pexp_desc = Pexp_construct ({txt = Lident "()"}, _)}};
+  ]
+    when fnHasCursor ->
+    Some
+      (Completable.Cargument
+         {
+           functionContextPath = contextPath;
+           argumentLabel = Unlabelled {argumentPosition = 0};
+           prefix = "";
+         })
+  | _ -> loop args
 
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
@@ -638,6 +666,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               findArgCompletables ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
+                ~charBeforeCursor
             | None -> None
           in
 

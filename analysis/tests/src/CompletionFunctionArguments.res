@@ -61,10 +61,9 @@ let someFnTakingVariant = (
 // let _ = someFnTakingVariant(~configOpt2=O)
 //                                          ^com
 
-// --- UNIMPLEMENTED CASES ---
-// The following two cases does not complete to a values because of ambiguity - should it complete for a value, or for a named argument? We don't know whether the function has args or not when deciding, since we're just in the AST at that point. Can potentially be fixed in the future.
 // let _ = someOtherFn()
 //                     ^com
+
 // let _ = someOtherFn(1, 2, )
 //                          ^com
 
