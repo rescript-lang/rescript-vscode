@@ -505,6 +505,7 @@ module Completable = struct
   type argumentLabel =
     | Unlabelled of {argumentPosition: int}
     | Labelled of string
+    | Optional of string
 
   type contextPath =
     | CPString
@@ -592,7 +593,8 @@ module Completable = struct
       ^ "("
       ^ (match argumentLabel with
         | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition
-        | Labelled name -> "~" ^ name)
+        | Labelled name -> "~" ^ name
+        | Optional name -> "~" ^ name ^ "=?")
       ^ (if prefix <> "" then "=" ^ prefix else "")
       ^ ")"
 end
