@@ -211,9 +211,3 @@ Completable: Cargument Value[someOtherFn]($2=t)
     "documentation": null
   }]
 
-Complete src/CompletionFunctionArguments.res 74:25
-posCursor:[74:25] posNoWhite:[74:24] Found expr:[74:11->74:30]
-Pexp_apply ...[74:11->74:17] (~isOff74:19->74:24=...[74:27->74:29])
-Completable: Cargument Value[someFn]($0)
-[]
-
