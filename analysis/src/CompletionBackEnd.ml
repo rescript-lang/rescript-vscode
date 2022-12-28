@@ -1461,9 +1461,11 @@ let getArgs ~env (t : Types.type_expr) ~full =
     match t.desc with
     | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
       getArgsLoop ~full ~env ~currentArgumentPosition t1
-    | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
+    | Tarrow (Labelled l, tArg, tRet, _) ->
       (SharedTypes.Completable.Labelled l, tArg)
       :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
+    | Tarrow (Optional l, tArg, tRet, _) ->
+      (Optional l, tArg) :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
     | Tarrow (Nolabel, tArg, tRet, _) ->
       (Unlabelled {argumentPosition = currentArgumentPosition}, tArg)
       :: getArgsLoop ~full ~env
@@ -1945,15 +1947,22 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | None -> []
     in
     let targetLabel =
-      labels |> List.find_opt (fun (label, _) -> label = argumentLabel)
+      labels
+      |> List.find_opt (fun (label, _) ->
+             match argumentLabel with
+             | Unlabelled _ -> label = argumentLabel
+             | Labelled name | Optional name -> (
+               match label with
+               | (Labelled n | Optional n) when name = n -> true
+               | _ -> false))
     in
     match targetLabel with
     | None -> []
-    | Some (Labelled _, typ) ->
+    | Some (Optional _, typ) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
            ~expandOption:true
-    | Some (Unlabelled _, typ) ->
+    | Some ((Unlabelled _ | Labelled _), typ) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
            ~expandOption:false)
@@ -1974,6 +1983,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         |> List.filter_map (fun arg ->
                match arg with
                | SharedTypes.Completable.Labelled name, a -> Some (name, a)
+               | Optional name, a -> Some (name, a)
                | _ -> None)
       | None -> []
     in
