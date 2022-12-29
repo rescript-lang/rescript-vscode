@@ -33,11 +33,22 @@ type signatureHelp = {
   activeParameter: int option;
 }
 
+(* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#insertTextFormat *)
+type insertTextFormat = PlainText | Snippet
+
+let insertTextFormatToInt f =
+  match f with
+  | PlainText -> 1
+  | Snippet -> 2
+
 type completionItem = {
   label: string;
   kind: int;
   tags: int list;
   detail: string;
+  sortText: string option;
+  insertTextFormat: insertTextFormat option;
+  insertText: string option;
   documentation: markupContent option;
 }
 
@@ -86,21 +97,45 @@ let stringifyRange r =
 let stringifyMarkupContent (m : markupContent) =
   Printf.sprintf {|{"kind": "%s", "value": "%s"}|} m.kind (Json.escape m.value)
 
+(** None values are not emitted in the output. *)
+let stringifyObject properties =
+  {|{
+|}
+  ^ (properties
+    |> List.filter_map (fun (key, value) ->
+           match value with
+           | None -> None
+           | Some v -> Some (Printf.sprintf {|    "%s": %s|} key v))
+    |> String.concat ",\n")
+  ^ "\n  }"
+
+let wrapInQuotes s = "\"" ^ s ^ "\""
+
+let optWrapInQuotes s =
+  match s with
+  | None -> None
+  | Some s -> Some (wrapInQuotes s)
+
 let stringifyCompletionItem c =
-  Printf.sprintf
-    {|{
-    "label": "%s",
-    "kind": %i,
-    "tags": %s,
-    "detail": "%s",
-    "documentation": %s
-  }|}
-    (Json.escape c.label) c.kind
-    (c.tags |> List.map string_of_int |> array)
-    (Json.escape c.detail)
-    (match c.documentation with
-    | None -> null
-    | Some doc -> stringifyMarkupContent doc)
+  stringifyObject
+    [
+      ("label", Some (wrapInQuotes (Json.escape c.label)));
+      ("kind", Some (string_of_int c.kind));
+      ("tags", Some (c.tags |> List.map string_of_int |> array));
+      ("detail", Some (wrapInQuotes (Json.escape c.detail)));
+      ( "documentation",
+        Some
+          (match c.documentation with
+          | None -> null
+          | Some doc -> stringifyMarkupContent doc) );
+      ("sortText", optWrapInQuotes c.sortText);
+      ("insertText", optWrapInQuotes c.insertText);
+      ( "insertTextFormat",
+        match c.insertTextFormat with
+        | None -> None
+        | Some insertTextFormat ->
+          Some (Printf.sprintf "%i" (insertTextFormatToInt insertTextFormat)) );
+    ]
 
 let stringifyHover value =
   Printf.sprintf {|{"contents": %s}|}

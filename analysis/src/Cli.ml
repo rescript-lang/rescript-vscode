@@ -3,7 +3,7 @@ let help =
 **Private CLI For rescript-vscode usage only**
 
 API examples:
-  ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 currentContent.res
+  ./rescript-editor-analysis.exe completion src/MyFile.res 0 4 currentContent.res true
   ./rescript-editor-analysis.exe definition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe typeDefinition src/MyFile.res 9 3
   ./rescript-editor-analysis.exe documentSymbol src/Foo.res
@@ -86,7 +86,11 @@ Options:
 
 let main () =
   match Array.to_list Sys.argv with
-  | [_; "completion"; path; line; col; currentFile] ->
+  | [_; "completion"; path; line; col; currentFile; supportsSnippets] ->
+    (Cfg.supportsSnippets :=
+       match supportsSnippets with
+       | "true" -> true
+       | _ -> false);
     Commands.completion ~debug:false ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile
@@ -143,7 +147,9 @@ let main () =
       (Json.escape (CreateInterface.command ~path ~cmiFile))
   | [_; "format"; path] ->
     Printf.printf "\"%s\"" (Json.escape (Commands.format ~path))
-  | [_; "test"; path] -> Commands.test ~path
+  | [_; "test"; path] ->
+    Cfg.supportsSnippets := true;
+    Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
   | _ ->
     prerr_endline help;

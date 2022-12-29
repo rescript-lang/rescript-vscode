@@ -292,6 +292,9 @@ module Completion = struct
 
   type t = {
     name: string;
+    sortText: string option;
+    insertText: string option;
+    insertTextFormat: Protocol.insertTextFormat option;
     env: QueryEnv.t;
     deprecated: string option;
     docstring: string list;
@@ -299,7 +302,28 @@ module Completion = struct
   }
 
   let create ~name ~kind ~env =
-    {name; env; deprecated = None; docstring = []; kind}
+    {
+      name;
+      env;
+      deprecated = None;
+      docstring = [];
+      kind;
+      sortText = None;
+      insertText = None;
+      insertTextFormat = None;
+    }
+
+  let createWithSnippet ~name ?insertText ~kind ~env ?sortText () =
+    {
+      name;
+      env;
+      deprecated = None;
+      docstring = [];
+      kind;
+      sortText;
+      insertText;
+      insertTextFormat = Some Protocol.Snippet;
+    }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
   (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItemKind *)
