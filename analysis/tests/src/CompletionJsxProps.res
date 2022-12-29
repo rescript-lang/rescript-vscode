@@ -7,3 +7,9 @@
 // let _ = <CompletionSupport.TestComponent test=T
 //                                                ^com
 
+// let _ = <CompletionSupport.TestComponent polyArg=
+//                                                  ^com
+
+// let _ = <CompletionSupport.TestComponent polyArg=#t
+//                                                    ^com
+

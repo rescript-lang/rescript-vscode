@@ -9,9 +9,14 @@ type testVariant = One | Two | Three(int)
 
 module TestComponent = {
   @react.component
-  let make = (~on: bool, ~test: testVariant) => {
+  let make = (
+    ~on: bool,
+    ~test: testVariant,
+    ~polyArg: option<[#one | #two | #two2 | #three(int, bool)]>=?,
+  ) => {
     ignore(on)
     ignore(test)
+    ignore(polyArg)
     React.null
   }
 }

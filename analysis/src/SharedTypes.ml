@@ -279,6 +279,12 @@ end = struct
     {env with exported = structure.exported; pathRev; parent = Some env}
 end
 
+type polyVariantConstructor = {
+  name: string;
+  payload: Types.type_expr option;
+  args: Types.type_expr list;
+}
+
 module Completion = struct
   type kind =
     | Module of Module.t
@@ -287,6 +293,7 @@ module Completion = struct
     | Label of string
     | Type of Type.t
     | Constructor of Constructor.t * string
+    | PolyvariantConstructor of polyVariantConstructor * string
     | Field of field * string
     | FileModule of string
 
@@ -331,7 +338,7 @@ module Completion = struct
     match kind with
     | Module _ -> 9
     | FileModule _ -> 9
-    | Constructor (_, _) -> 4
+    | Constructor (_, _) | PolyvariantConstructor (_, _) -> 4
     | ObjLabel _ -> 4
     | Label _ -> 4
     | Field (_, _) -> 5
@@ -577,6 +584,11 @@ module Completable = struct
         constructors: Constructor.t list;
         variantDecl: Types.type_declaration;
         variantName: string;
+      }
+    | Tpolyvariant of {
+        env: QueryEnv.t;
+        constructors: polyVariantConstructor list;
+        typeExpr: Types.type_expr;
       }
 
   let toString =
