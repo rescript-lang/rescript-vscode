@@ -9,8 +9,9 @@ let rec skipWhite text i =
 
 let extractCompletableArgValueInfo exp =
   match exp.Parsetree.pexp_desc with
-  | Pexp_ident {txt = Lident prefix} -> Some prefix
-  | Pexp_construct ({txt = Lident prefix}, _) -> Some prefix
+  | Pexp_ident {txt = Lident txt} -> Some txt
+  | Pexp_construct ({txt = Lident "()"}, _) -> Some ""
+  | Pexp_construct ({txt = Lident txt}, _) -> Some txt
   | _ -> None
 
 let isExprHole exp =
@@ -133,18 +134,6 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
     | _ -> thisCaseShouldNotHappen
   in
   args |> processProps ~acc:[]
-
-let extractCompletableArgValueInfo exp =
-  match exp.Parsetree.pexp_desc with
-  | Pexp_ident {txt = Lident txt} -> Some txt
-  | Pexp_construct ({txt = Lident "()"}, _) -> Some ""
-  | Pexp_construct ({txt = Lident txt}, _) -> Some txt
-  | _ -> None
-
-let isExprHole exp =
-  match exp.Parsetree.pexp_desc with
-  | Pexp_extension ({txt = "rescript.exprhole"}, _) -> true
-  | _ -> false
 
 let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~charBeforeCursor
