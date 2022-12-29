@@ -95,19 +95,25 @@ Completable: Cargument Value[someFnTakingVariant](~config)
     "kind": 4,
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null
+    "documentation": null,
+    "insertText": "Two",
+    "insertTextFormat": 2
   }, {
     "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
     "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/CompletionFunctionArguments.res 54:40
@@ -119,7 +125,9 @@ Completable: Cargument Value[someFnTakingVariant](~config=O)
     "kind": 4,
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
   }, {
     "label": "OIncludeMeInCompletions",
     "kind": 9,
@@ -151,7 +159,9 @@ Completable: Cargument Value[someFnTakingVariant](~configOpt2=O)
     "kind": 4,
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
   }, {
     "label": "OIncludeMeInCompletions",
     "kind": 9,
