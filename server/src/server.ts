@@ -947,7 +947,7 @@ function createInterface(msg: p.RequestMessage): p.Message {
       jsonrpc: c.jsonrpcVersion,
       id: msg.id,
       result: {
-        uri: utils.pathToURI(resiPath),
+        uri: utils.pathToURI(resiPath)
       },
     };
     return response;
@@ -1014,7 +1014,7 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
     id: msg.id,
     result: {
       uri: utils.pathToURI(compiledFilePath.result),
-    },
+    }
   };
 
   return response;
@@ -1112,9 +1112,7 @@ function onMessage(msg: p.Message) {
           codeActionProvider: true,
           renameProvider: { prepareProvider: true },
           documentSymbolProvider: true,
-          completionProvider: {
-            triggerCharacters: [".", ">", "@", "~", '"', "="],
-          },
+          completionProvider: { triggerCharacters: [".", ">", "@", "~", '"', "="] },
           semanticTokensProvider: {
             legend: {
               tokenTypes: [
