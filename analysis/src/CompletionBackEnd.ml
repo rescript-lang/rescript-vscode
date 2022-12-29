@@ -711,13 +711,17 @@ let detail name (kind : Completion.kind) =
   | FileModule _ -> "file module"
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
-  | PolyvariantConstructor ({name; payload}, s) ->
+  | PolyvariantConstructor ({name; args}, s) ->
     "#" ^ name
-    ^ (match payload with
-      | None -> ""
-      | Some ({desc = Types.Ttuple _} as typeExpr) ->
-        typeExpr |> Shared.typeToString
-      | Some typeExpr -> "(" ^ (typeExpr |> Shared.typeToString) ^ ")")
+    ^ (match args with
+      | [] -> ""
+      | [typeExpr] -> typeExpr |> Shared.typeToString
+      | typeExprs ->
+        "("
+        ^ (typeExprs
+          |> List.map (fun typeExpr -> typeExpr |> Shared.typeToString)
+          |> String.concat ", ")
+        ^ ")")
     ^ "\n\n" ^ s
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
@@ -1533,10 +1537,6 @@ let rec extractType ~env ~package (t : Types.type_expr) =
       |> List.map (fun (label, field) ->
              {
                name = label;
-               payload =
-                 (match field with
-                 | Types.Rpresent maybeTypeExpr -> maybeTypeExpr
-                 | _ -> None);
                args =
                  (* Multiple arguments are represented as a Ttuple, while a single argument is just the type expression itself. *)
                  (match field with

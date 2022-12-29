@@ -279,11 +279,7 @@ end = struct
     {env with exported = structure.exported; pathRev; parent = Some env}
 end
 
-type polyVariantConstructor = {
-  name: string;
-  payload: Types.type_expr option;
-  args: Types.type_expr list;
-}
+type polyVariantConstructor = {name: string; args: Types.type_expr list}
 
 module Completion = struct
   type kind =
