@@ -711,6 +711,14 @@ let detail name (kind : Completion.kind) =
   | FileModule _ -> "file module"
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
+  | PolyvariantConstructor ({name; payload}, s) ->
+    "#" ^ name
+    ^ (match payload with
+      | None -> ""
+      | Some ({desc = Types.Ttuple _} as typeExpr) ->
+        typeExpr |> Shared.typeToString
+      | Some typeExpr -> "(" ^ (typeExpr |> Shared.typeToString) ^ ")")
+    ^ "\n\n" ^ s
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
@@ -1519,6 +1527,27 @@ let rec extractType ~env ~package (t : Types.type_expr) =
            {env; constructors; variantName = name.txt; variantDecl = decl})
     | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions, t))
+  | Tvariant {row_fields} ->
+    let constructors =
+      row_fields
+      |> List.map (fun (label, field) ->
+             {
+               name = label;
+               payload =
+                 (match field with
+                 | Types.Rpresent maybeTypeExpr -> maybeTypeExpr
+                 | _ -> None);
+               args =
+                 (* Multiple arguments are represented as a Ttuple, while a single argument is just the type expression itself. *)
+                 (match field with
+                 | Types.Rpresent (Some typeExpr) -> (
+                   match typeExpr.desc with
+                   | Ttuple args -> args
+                   | _ -> [typeExpr])
+                 | _ -> []);
+             })
+    in
+    Some (Tpolyvariant {env; constructors; typeExpr = t})
   | _ -> None
 
 let filterItems items ~prefix =
@@ -1573,6 +1602,26 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
                    (Constructor
                       ( constructor,
                         variantDecl |> Shared.declToString variantName ))
+                 ~env ())
+        |> filterItems ~prefix
+      | Some (Tpolyvariant {env; constructors; typeExpr}) ->
+        constructors
+        |> List.map (fun (constructor : polyVariantConstructor) ->
+               Completion.createWithSnippet
+                 ~name:
+                   ("#" ^ constructor.name
+                   ^ printConstructorArgs
+                       (List.length constructor.args)
+                       ~asSnippet:false)
+                 ~insertText:
+                   ((if Utils.startsWith prefix "#" then "" else "#")
+                   ^ constructor.name
+                   ^ printConstructorArgs
+                       (List.length constructor.args)
+                       ~asSnippet:true)
+                 ~kind:
+                   (PolyvariantConstructor
+                      (constructor, typeExpr |> Shared.typeToString))
                  ~env ())
         |> filterItems ~prefix
       | Some (Toption (env, t)) ->

@@ -11,7 +11,8 @@ let extractCompletableArgValueInfo exp =
   match exp.Parsetree.pexp_desc with
   | Pexp_ident {txt = Lident txt} -> Some txt
   | Pexp_construct ({txt = Lident "()"}, _) -> Some ""
-  | Pexp_construct ({txt = Lident txt}, _) -> Some txt
+  | Pexp_construct ({txt = Lident txt}, None) -> Some txt
+  | Pexp_variant (label, None) -> Some ("#" ^ label)
   | _ -> None
 
 let isExprHole exp =
