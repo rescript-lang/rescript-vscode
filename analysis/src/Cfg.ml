@@ -1,0 +1,1 @@
+let supportsSnippets = ref false

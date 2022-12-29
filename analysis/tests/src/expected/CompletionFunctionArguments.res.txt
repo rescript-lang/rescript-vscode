@@ -137,7 +137,9 @@ Completable: Cargument Value[someFnTakingVariant]($0=S)
     "kind": 4,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
   }]
 
 Complete src/CompletionFunctionArguments.res 60:44

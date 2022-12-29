@@ -1144,12 +1144,29 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       documentation =
         (if docContent = "" then None
         else Some {kind = "markdown"; value = docContent});
+      sortText = None;
+      insertText = None;
+      insertTextFormat = None;
     }
 
-let completionToItem {Completion.name; deprecated; docstring; kind} =
-  mkItem ~name
-    ~kind:(Completion.kindToInt kind)
-    ~deprecated ~detail:(detail name kind) ~docstring
+let completionToItem
+    {
+      Completion.name;
+      deprecated;
+      docstring;
+      kind;
+      sortText;
+      insertText;
+      insertTextFormat;
+    } =
+  let item =
+    mkItem ~name
+      ~kind:(Completion.kindToInt kind)
+      ~deprecated ~detail:(detail name kind) ~docstring
+  in
+  if !Cfg.supportsSnippets then
+    {item with sortText; insertText; insertTextFormat}
+  else item
 
 let completionsGetTypeEnv = function
   | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
@@ -1554,9 +1571,9 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
           Completion.create ~name:"None"
             ~kind:(Label (t |> Shared.typeToString))
             ~env;
-          Completion.create ~name:"Some(_)"
+          Completion.createWithSnippet ~name:"Some(_)"
             ~kind:(Label (t |> Shared.typeToString))
-            ~env;
+            ~env ~insertText:"Some(${1:_})" ();
         ]
         |> filterItems ~prefix
       | _ -> []
