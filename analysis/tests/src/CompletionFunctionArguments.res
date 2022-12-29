@@ -69,3 +69,10 @@ let someFnTakingVariant = (
 
 // let _ = 1->someOtherFn(1, t)
 //                            ^com
+
+let fnTakingTuple = (arg: (int, int, float)) => {
+  ignore(arg)
+}
+
+// let _ = fnTakingTuple()
+//                       ^com
