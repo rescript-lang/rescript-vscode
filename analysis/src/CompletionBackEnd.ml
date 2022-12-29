@@ -1528,6 +1528,15 @@ let filterItems items ~prefix =
     |> List.filter (fun (item : Completion.t) ->
            Utils.startsWith item.name prefix)
 
+let printConstructorArgs argsLen ~asSnippet =
+  let args = ref [] in
+  for argNum = 1 to argsLen do
+    args :=
+      !args @ [(if asSnippet then Printf.sprintf "${%i:_}" argNum else "_")]
+  done;
+  if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
+  else ""
+
 let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
     ~expandOption =
   let namesUsed = Hashtbl.create 10 in
@@ -1549,22 +1558,22 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
       | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
         constructors
         |> List.map (fun (constructor : Constructor.t) ->
-               Completion.create
+               Completion.createWithSnippet
                  ~name:
                    (constructor.cname.txt
-                   ^
-                   if constructor.args |> List.length > 0 then
-                     "("
-                     ^ (constructor.args
-                       |> List.map (fun _ -> "_")
-                       |> String.concat ", ")
-                     ^ ")"
-                   else "")
+                   ^ printConstructorArgs
+                       (List.length constructor.args)
+                       ~asSnippet:false)
+                 ~insertText:
+                   (constructor.cname.txt
+                   ^ printConstructorArgs
+                       (List.length constructor.args)
+                       ~asSnippet:true)
                  ~kind:
                    (Constructor
                       ( constructor,
                         variantDecl |> Shared.declToString variantName ))
-                 ~env)
+                 ~env ())
         |> filterItems ~prefix
       | Some (Toption (env, t)) ->
         [
