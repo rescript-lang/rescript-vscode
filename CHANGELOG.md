@@ -14,6 +14,10 @@
 
 ## v1.10.0
 
+#### :rocket: New Feature
+
+- Add autocomplete for function argument values (booleans, variants and options. More values coming), both labelled and unlabelled. https://github.com/rescript-lang/rescript-vscode/pull/665
+
 #### :nail_care: Polish
 
 - Remove spacing between type definition in clients that do not support markdown links. https://github.com/rescript-lang/rescript-vscode/pull/619
