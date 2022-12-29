@@ -7,6 +7,17 @@ let rec skipWhite text i =
     | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
     | _ -> i
 
+let extractCompletableArgValueInfo exp =
+  match exp.Parsetree.pexp_desc with
+  | Pexp_ident {txt = Lident prefix} -> Some prefix
+  | Pexp_construct ({txt = Lident prefix}, _) -> Some prefix
+  | _ -> None
+
+let isExprHole exp =
+  match exp.Parsetree.pexp_desc with
+  | Pexp_extension ({txt = "rescript.exprhole"}, _) -> true
+  | _ -> false
+
 type prop = {
   name: string;
   posStart: int * int;
@@ -44,11 +55,28 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         None
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Cursor on expr assigned *)
-        None
+        match extractCompletableArgValueInfo prop.exp with
+        | Some prefix ->
+          Some
+            (CjsxPropValue
+               {
+                 pathToComponent =
+                   Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                 prefix;
+                 propName = prop.name;
+               })
+        | _ -> None
       else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-        (* Expr assigned presumably is "rescript.exprhole" after parser recovery.
-           To be on the safe side, don't do label completion. *)
-        None
+        if isExprHole prop.exp then
+          Some
+            (CjsxPropValue
+               {
+                 pathToComponent =
+                   Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                 prefix = "";
+                 propName = prop.name;
+               })
+        else None
       else loop rest
     | [] ->
       let beforeChildrenStart =
