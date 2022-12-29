@@ -1572,6 +1572,81 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
   in
   completeTypedValueInner ~env ~full ~prefix ~expandOption
 
+let getJsxLabels ~componentPath ~findTypeOfValue ~package =
+  match componentPath @ ["make"] |> findTypeOfValue with
+  | Some (typ, make_env) ->
+    let rec getFieldsV3 (texp : Types.type_expr) =
+      match texp.desc with
+      | Tfield (name, _, t1, t2) ->
+        let fields = t2 |> getFieldsV3 in
+        if name = "children" then fields else (name, t1, make_env) :: fields
+      | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFieldsV3
+      | Tvar None -> []
+      | _ -> []
+    in
+    let getFieldsV4 ~path ~typeArgs =
+      match References.digConstructor ~env:make_env ~package path with
+      | Some
+          ( env,
+            {
+              item =
+                {
+                  decl =
+                    {
+                      type_kind = Type_record (labelDecls, _repr);
+                      type_params = typeParams;
+                    };
+                };
+            } ) ->
+        labelDecls
+        |> List.map (fun (ld : Types.label_declaration) ->
+               let name = Ident.name ld.ld_id in
+               let t = ld.ld_type |> instantiateType ~typeParams ~typeArgs in
+               (name, t, env))
+      | _ -> []
+    in
+    let rec getLabels (t : Types.type_expr) =
+      match t.desc with
+      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
+      | Tarrow
+          ( Nolabel,
+            {
+              desc =
+                ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                | Tobject (tObj, _) );
+            },
+            _,
+            _ ) ->
+        (* JSX V3 *)
+        getFieldsV3 tObj
+      | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
+        when Path.last path = "props" ->
+        (* JSX V4 *)
+        getFieldsV4 ~path ~typeArgs
+      | Tconstr
+          ( clPath,
+            [
+              {
+                desc =
+                  ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                  | Tobject (tObj, _) );
+              };
+              _;
+            ],
+            _ )
+        when Path.name clPath = "React.componentLike" ->
+        (* JSX V3 external or interface *)
+        getFieldsV3 tObj
+      | Tconstr (clPath, [{desc = Tconstr (path, typeArgs, _)}; _], _)
+        when Path.name clPath = "React.componentLike"
+             && Path.last path = "props" ->
+        (* JSX V4 external or interface *)
+        getFieldsV4 ~path ~typeArgs
+      | _ -> []
+    in
+    typ |> getLabels
+  | None -> []
+
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let package = full.package in
@@ -1591,6 +1666,7 @@ let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
          ~exact:forHover ~scope
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
+    (* Lowercase JSX tag means builtin *)
     let mkLabel (name, typString) =
       Completion.create ~name ~kind:(Label typString) ~env
     in
@@ -1604,99 +1680,37 @@ let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     |> List.map mkLabel)
     @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
-    let labels =
-      match componentPath @ ["make"] |> findTypeOfValue with
-      | Some (typ, make_env) ->
-        let rec getFieldsV3 (texp : Types.type_expr) =
-          match texp.desc with
-          | Tfield (name, _, t1, t2) ->
-            let fields = t2 |> getFieldsV3 in
-            if name = "children" then fields else (name, t1) :: fields
-          | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFieldsV3
-          | Tvar None -> []
-          | _ -> []
-        in
-        let getFieldsV4 ~path ~typeArgs =
-          match References.digConstructor ~env:make_env ~package path with
-          | Some
-              ( _env,
-                {
-                  item =
-                    {
-                      decl =
-                        {
-                          type_kind = Type_record (labelDecls, _repr);
-                          type_params = typeParams;
-                        };
-                    };
-                } ) ->
-            labelDecls
-            |> List.map (fun (ld : Types.label_declaration) ->
-                   let name = Ident.name ld.ld_id in
-                   let t =
-                     ld.ld_type |> instantiateType ~typeParams ~typeArgs
-                   in
-                   (name, t))
-          | _ -> []
-        in
-        let rec getLabels (t : Types.type_expr) =
-          match t.desc with
-          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
-          | Tarrow
-              ( Nolabel,
-                {
-                  desc =
-                    ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                    | Tobject (tObj, _) );
-                },
-                _,
-                _ ) ->
-            (* JSX V3 *)
-            getFieldsV3 tObj
-          | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
-            when Path.last path = "props" ->
-            (* JSX V4 *)
-            getFieldsV4 ~path ~typeArgs
-          | Tconstr
-              ( clPath,
-                [
-                  {
-                    desc =
-                      ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                      | Tobject (tObj, _) );
-                  };
-                  _;
-                ],
-                _ )
-            when Path.name clPath = "React.componentLike" ->
-            (* JSX V3 external or interface *)
-            getFieldsV3 tObj
-          | Tconstr (clPath, [{desc = Tconstr (path, typeArgs, _)}; _], _)
-            when Path.name clPath = "React.componentLike"
-                 && Path.last path = "props" ->
-            (* JSX V4 external or interface *)
-            getFieldsV4 ~path ~typeArgs
-          | _ -> []
-        in
-        typ |> getLabels
-      | None -> []
-    in
+    let labels = getJsxLabels ~componentPath ~findTypeOfValue ~package in
     let mkLabel_ name typString =
       Completion.create ~name ~kind:(Label typString) ~env
     in
-    let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
+    let mkLabel (name, typ, _env) =
+      mkLabel_ name (typ |> Shared.typeToString)
+    in
     let keyLabels =
       if Utils.startsWith "key" prefix then [mkLabel_ "key" "string"] else []
     in
     if labels = [] then []
     else
       (labels
-      |> List.filter (fun (name, _t) ->
+      |> List.filter (fun (name, _t, _env) ->
              Utils.startsWith name prefix
              && name <> "key"
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
+  | CjsxPropValue {pathToComponent; prefix; propName} -> (
+    let targetLabel =
+      getJsxLabels ~componentPath:pathToComponent ~findTypeOfValue ~package
+      |> List.find_opt (fun (label, _, _) -> label = propName)
+    in
+    let envWhereCompletionStarted = env in
+    match targetLabel with
+    | None -> []
+    | Some (_, typ, env) ->
+      typ
+      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+           ~expandOption:true)
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
       {(Completion.create ~name ~kind:(Label "") ~env) with docstring}

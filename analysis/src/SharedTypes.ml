@@ -537,6 +537,11 @@ module Completable = struct
         prefix: string;
       }
         (** e.g. someFunction(~someBoolArg=<com>), complete for the value of `someBoolArg` (true or false). *)
+    | CjsxPropValue of {
+        pathToComponent: string list;
+        propName: string;
+        prefix: string;
+      }
 
   (** An extracted type from a type expr *)
   type extractedType =
@@ -597,6 +602,9 @@ module Completable = struct
         | Optional name -> "~" ^ name ^ "=?")
       ^ (if prefix <> "" then "=" ^ prefix else "")
       ^ ")"
+    | CjsxPropValue {prefix; pathToComponent; propName} ->
+      "CjsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName ^ "="
+      ^ prefix
 end
 
 module CursorPosition = struct
