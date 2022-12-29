@@ -1518,7 +1518,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
         (Tvariant
            {env; constructors; variantName = name.txt; variantDecl = decl})
     | _ -> None)
-  | Ttuple expressions -> Some (Tuple (env, expressions))
+  | Ttuple expressions -> Some (Tuple (env, expressions, t))
   | _ -> None
 
 let filterItems items ~prefix =
@@ -1585,6 +1585,14 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
             ~env ~insertText:"Some(${1:_})" ();
         ]
         |> filterItems ~prefix
+      | Some (Tuple (env, exprs, typ)) ->
+        let numExprs = List.length exprs in
+        [
+          Completion.createWithSnippet
+            ~name:(printConstructorArgs numExprs ~asSnippet:false)
+            ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
+            ~kind:(Value typ) ~env ();
+        ]
       | _ -> []
     in
     (* Include all values and modules in completion if there's a prefix, not otherwise *)

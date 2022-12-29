@@ -569,7 +569,7 @@ module Completable = struct
 
   (** An extracted type from a type expr *)
   type extractedType =
-    | Tuple of QueryEnv.t * Types.type_expr list
+    | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
     | Toption of QueryEnv.t * Types.type_expr
     | Tbool of QueryEnv.t
     | Tvariant of {

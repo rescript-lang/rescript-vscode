@@ -84,6 +84,12 @@ Completable: Cargument Value[someOtherFn]($0=f)
     "tags": [],
     "detail": "bool",
     "documentation": null
+  }, {
+    "label": "fnTakingTuple",
+    "kind": 12,
+    "tags": [],
+    "detail": "((int, int, float)) => unit",
+    "documentation": null
   }]
 
 Complete src/CompletionFunctionArguments.res 51:39
@@ -221,5 +227,19 @@ Completable: Cargument Value[someOtherFn]($2=t)
     "tags": [],
     "detail": "bool",
     "documentation": null
+  }]
+
+Complete src/CompletionFunctionArguments.res 76:25
+posCursor:[76:25] posNoWhite:[76:24] Found expr:[76:11->76:26]
+Pexp_apply ...[76:11->76:24] (...[76:25->76:26])
+Completable: Cargument Value[fnTakingTuple]($0)
+[{
+    "label": "(_, _, _)",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int, float)",
+    "documentation": null,
+    "insertText": "(${1:_}, ${2:_}, ${3:_})",
+    "insertTextFormat": 2
   }]
 
