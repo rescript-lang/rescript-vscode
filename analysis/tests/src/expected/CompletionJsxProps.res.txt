@@ -37,12 +37,16 @@ Completable: CjsxPropValue [CompletionSupport, TestComponent] test=T
     "kind": 4,
     "tags": [],
     "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null
+    "documentation": null,
+    "insertText": "Two",
+    "insertTextFormat": 2
   }, {
     "label": "Three(_)",
     "kind": 4,
     "tags": [],
     "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null
+    "documentation": null,
+    "insertText": "Three(${1:_})",
+    "insertTextFormat": 2
   }]
 
