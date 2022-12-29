@@ -17,6 +17,7 @@
 #### :rocket: New Feature
 
 - Add autocomplete for function argument values (booleans, variants and options. More values coming), both labelled and unlabelled. https://github.com/rescript-lang/rescript-vscode/pull/665
+- Add autocomplete for JSX prop values. https://github.com/rescript-lang/rescript-vscode/pull/667
 
 #### :nail_care: Polish
 
