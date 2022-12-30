@@ -413,7 +413,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let setLookingForPat ctxPath =
     lookingForPat :=
       Some (Completable.Cpattern {typ = ctxPath; prefix = ""; nested = None});
-    Printf.printf "looking for: %s \n" (Completable.toString (Cpath ctxPath))
+    if debug then
+      Printf.printf "looking for: %s \n" (Completable.toString (Cpath ctxPath))
   in
   let appendNestedPat patternPat =
     match !lookingForPat with
@@ -436,7 +437,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | _ -> ()
   in
 
-  let rec typedCompletionExpr (exp : Parsetree.expression) =
+  let typedCompletionExpr (exp : Parsetree.expression) =
     if
       exp.pexp_loc
       |> CursorPosition.classifyLoc ~pos:posBeforeCursor
@@ -470,7 +471,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | _ -> ()
   in
 
-  let rec typedCompletionPat (pat : Parsetree.pattern) =
+  let typedCompletionPat (pat : Parsetree.pattern) =
     if
       pat.ppat_loc
       |> CursorPosition.classifyLoc ~pos:posBeforeCursor
@@ -495,6 +496,35 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           appendNestedPat (Completable.PTupleItem {itemNum = patCount})
         | _, Some patHoleCount ->
           appendNestedPat (Completable.PTupleItem {itemNum = patHoleCount})
+        | _ -> ())
+      | Ppat_record ([], _) -> commitFoundPat ~prefix:"" ()
+      | Ppat_record (fields, _) -> (
+        let fieldWithCursor = ref None in
+        let fieldWithPatHole = ref None in
+        fields
+        |> List.filter (fun (_, f) ->
+               (* Ensure we only include fields with patterns we can continue into. *)
+               match f.Parsetree.ppat_desc with
+               | Ppat_tuple _ | Ppat_construct _ | Ppat_variant _
+               | Ppat_record _ ->
+                 true
+               | _ -> false)
+        |> List.iter (fun (fname, f) ->
+               match
+                 ( fname.Location.txt,
+                   f.Parsetree.ppat_loc
+                   |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
+               with
+               | Longident.Lident fname, HasCursor ->
+                 fieldWithCursor := Some fname
+               | Lident fname, EmptyLoc when isPatternHole f ->
+                 fieldWithPatHole := Some fname
+               | _ -> ());
+        match (!fieldWithCursor, !fieldWithPatHole) with
+        | Some fname, _ ->
+          appendNestedPat (Completable.PRecordField {fieldName = fname})
+        | None, Some fname ->
+          appendNestedPat (Completable.PRecordField {fieldName = fname})
         | _ -> ())
       | _ -> ()
   in

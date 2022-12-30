@@ -550,11 +550,14 @@ module Completable = struct
             (** The loc item for the left hand side of the pipe. *)
       }
 
-  type patternPath = PTupleItem of {itemNum: int}
+  type patternPath =
+    | PTupleItem of {itemNum: int}
+    | PRecordField of {fieldName: string}
 
   let patternPathToString p =
     match p with
     | PTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
+    | PRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -595,6 +598,11 @@ module Completable = struct
     | Tpolyvariant of {
         env: QueryEnv.t;
         constructors: polyVariantConstructor list;
+        typeExpr: Types.type_expr;
+      }
+    | Trecord of {
+        env: QueryEnv.t;
+        fields: field list;
         typeExpr: Types.type_expr;
       }
 

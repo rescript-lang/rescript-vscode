@@ -20,7 +20,37 @@ let _ = switch v {
 let x = true
 
 // switch x { |
-//              ^com
+//             ^com
 
 // switch x { | t
 //               ^com
+
+type nestedRecord = {nested: bool}
+
+type rec someRecord = {
+  first: int,
+  second: (bool, option<someRecord>),
+  optThird: option<[#first | #second(someRecord)]>,
+  nest: nestedRecord,
+}
+
+let f: someRecord = {
+  first: 123,
+  second: (true, None),
+  optThird: None,
+  nest: {nested: true},
+}
+
+let z = (f, true)
+
+// switch f { | {}}
+//               ^com
+
+// switch f { | {fi}}
+//                 ^com
+
+// switch z { | ({o}, _)}
+//                 ^com
+
+// switch f { | {nest: {}}}
+//                      ^com
