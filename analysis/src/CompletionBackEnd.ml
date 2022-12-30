@@ -1528,6 +1528,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
       Some
         (Tvariant
            {env; constructors; variantName = name.txt; variantDecl = decl})
+    | Some (env, {item = {kind = Record fields}}) ->
+      Some (Trecord {env; fields; typeExpr = t})
     | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions, t))
   | Tvariant {row_fields} ->
@@ -1566,7 +1568,7 @@ let printConstructorArgs argsLen ~asSnippet =
   else ""
 
 let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-    ~expandOption =
+    ~expandOption ~includeLocalValues =
   let namesUsed = Hashtbl.create 10 in
   let rec completeTypedValueInner t ~env ~full ~prefix ~expandOption =
     let items =
@@ -1641,10 +1643,17 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
             ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
             ~kind:(Value typ) ~env ();
         ]
+      | Some (Trecord {env; fields; typeExpr}) ->
+        fields
+        |> List.map (fun (field : field) ->
+               Completion.create ~name:field.fname.txt
+                 ~kind:(Field (field, typeExpr |> Shared.typeToString))
+                 ~env)
+        |> filterItems ~prefix
       | _ -> []
     in
     (* Include all values and modules in completion if there's a prefix, not otherwise *)
-    if prefix = "" then items
+    if prefix = "" || includeLocalValues = false then items
     else
       items
       @ completionForExportedValues ~env:envWhereCompletionStarted ~prefix
@@ -1738,6 +1747,13 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       match List.nth_opt tupleItems itemNum with
       | None -> None
       | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested)
+    | Completable.PRecordField {fieldName}, Some (Trecord {env; fields}) -> (
+      match
+        fields
+        |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
+      with
+      | None -> None
+      | Some {typ} -> typ |> resolveNestedPattern ~env ~package ~nested)
     | _ -> None)
 
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
@@ -1803,7 +1819,7 @@ let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     | Some (_, typ, env) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:true)
+           ~expandOption:true ~includeLocalValues:true)
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
       {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
@@ -2068,11 +2084,11 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     | Some (Optional _, typ) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:true
+           ~expandOption:true ~includeLocalValues:true
     | Some ((Unlabelled _ | Labelled _), typ) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:false)
+           ~expandOption:false ~includeLocalValues:true)
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
@@ -2113,7 +2129,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     | Some (typ, env) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:false
+           ~expandOption:false ~includeLocalValues:false
     | None -> [])
   | Cpattern {typ; prefix; nested = Some nested} -> (
     let envWhereCompletionStarted = env in
@@ -2129,5 +2145,5 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | Some (typ, env) ->
         typ
         |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-             ~expandOption:false)
+             ~expandOption:false ~includeLocalValues:false)
     | None -> [])

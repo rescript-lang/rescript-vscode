@@ -44,9 +44,22 @@ Completable: Cpattern Value[v]=f->tuple($2), tuple($0)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 21:16
-posCursor:[21:16] posNoWhite:[21:14] Found expr:[21:3->21:15]
-[]
+Complete src/CompletionPattern.res 21:15
+XXX Not found!
+Completable: Cpattern Value[x]
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
 
 Complete src/CompletionPattern.res 24:17
 looking for: Cpath Value[x] 
@@ -58,6 +71,80 @@ Completable: Cpattern Value[x]=t
     "kind": 4,
     "tags": [],
     "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 45:17
+looking for: Cpath Value[f] 
+posCursor:[45:17] posNoWhite:[45:16] Found expr:[45:3->45:19]
+posCursor:[45:17] posNoWhite:[45:16] Found pattern:[45:16->45:18]
+Completable: Cpattern Value[f]
+[{
+    "label": "first",
+    "kind": 5,
+    "tags": [],
+    "detail": "first: int\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "second",
+    "kind": 5,
+    "tags": [],
+    "detail": "second: (bool, option<someRecord>)\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "optThird",
+    "kind": 5,
+    "tags": [],
+    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nest",
+    "kind": 5,
+    "tags": [],
+    "detail": "nest: nestedRecord\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 48:19
+looking for: Cpath Value[f] 
+posCursor:[48:19] posNoWhite:[48:18] Found expr:[48:3->48:21]
+posCursor:[48:19] posNoWhite:[48:18] Found pattern:[48:16->48:20]
+posCursor:[48:19] posNoWhite:[48:18] Found pattern:[48:17->48:19]
+Completable: Cpattern Value[f]=fi
+[{
+    "label": "first",
+    "kind": 5,
+    "tags": [],
+    "detail": "first: int\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 51:19
+looking for: Cpath Value[z] 
+posCursor:[51:19] posNoWhite:[51:18] Found expr:[51:3->51:25]
+posCursor:[51:19] posNoWhite:[51:18] Found pattern:[51:16->51:24]
+posCursor:[51:19] posNoWhite:[51:18] Found pattern:[51:17->51:20]
+posCursor:[51:19] posNoWhite:[51:18] Found pattern:[51:18->51:19]
+Completable: Cpattern Value[z]=o->tuple($0)
+[{
+    "label": "optThird",
+    "kind": 5,
+    "tags": [],
+    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 54:24
+looking for: Cpath Value[f] 
+posCursor:[54:24] posNoWhite:[54:23] Found expr:[54:3->54:27]
+posCursor:[54:24] posNoWhite:[54:23] Found pattern:[54:16->54:26]
+posCursor:[54:24] posNoWhite:[54:23] Found pattern:[54:23->54:25]
+Completable: Cpattern Value[f]->recordField(nest)
+[{
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: bool\n\nnestedRecord",
     "documentation": null
   }]
 
