@@ -13,6 +13,11 @@ let isExprHole exp =
   | Pexp_extension ({txt = "rescript.exprhole"}, _) -> true
   | _ -> false
 
+let isPatternHole pat =
+  match pat.Parsetree.ppat_desc with
+  | Ppat_extension ({txt = "rescript.patternhole"}, _) -> true
+  | _ -> false
+
 type prop = {
   name: string;
   posStart: int * int;
@@ -403,6 +408,96 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
 
+  let lookingForPat = ref None in
+
+  let setLookingForPat ctxPath =
+    lookingForPat :=
+      Some (Completable.Cpattern {typ = ctxPath; prefix = ""; nested = None});
+    Printf.printf "looking for: %s \n" (Completable.toString (Cpath ctxPath))
+  in
+  let appendNestedPat patternPat =
+    match !lookingForPat with
+    | Some (Completable.Cpattern ({nested = None} as p)) ->
+      lookingForPat := Some (Cpattern {p with nested = Some [patternPat]})
+    | Some (Completable.Cpattern ({nested = Some nested} as p)) ->
+      lookingForPat :=
+        Some (Cpattern {p with nested = Some (nested @ [patternPat])})
+    | _ -> ()
+  in
+  let commitFoundPat ?prefix () =
+    match !lookingForPat with
+    | Some (Completable.Cpattern p as cpattern) ->
+      let cpattern =
+        match prefix with
+        | None -> cpattern
+        | Some prefix -> Cpattern {p with prefix}
+      in
+      setResult cpattern
+    | _ -> ()
+  in
+
+  let rec typedCompletionExpr (exp : Parsetree.expression) =
+    if
+      exp.pexp_loc
+      |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+      = HasCursor
+    then
+      match exp.pexp_desc with
+      | Pexp_match (_exp, []) ->
+        (* No cases means there's no `|` yet in the switch *) ()
+      | Pexp_match
+          ( exp,
+            [
+              {
+                pc_lhs =
+                  {
+                    ppat_desc =
+                      Ppat_extension ({txt = "rescript.patternhole"}, _);
+                  };
+              };
+            ] ) -> (
+        (* A single case that's a pattern hole typically means `switch x { | }`. Complete as the pattern itself with nothing nested. *)
+        match exprToContextPath exp with
+        | None -> ()
+        | Some ctxPath ->
+          setResult
+            (Completable.Cpattern {typ = ctxPath; nested = None; prefix = ""}))
+      | Pexp_match (exp, _cases) -> (
+        (* If there's more than one case, or the case isn't a pattern hole, set that we're looking for this path currently. *)
+        match exp |> exprToContextPath with
+        | None -> ()
+        | Some ctxPath -> setLookingForPat ctxPath)
+      | _ -> ()
+  in
+
+  let rec typedCompletionPat (pat : Parsetree.pattern) =
+    if
+      pat.ppat_loc
+      |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+      = HasCursor
+    then
+      match pat.ppat_desc with
+      | Ppat_var {txt} -> commitFoundPat ~prefix:txt ()
+      | Ppat_tuple patterns -> (
+        let patCount = ref (-1) in
+        let patCountWithPatHole = ref None in
+        patterns
+        |> List.iteri (fun index p ->
+               match
+                 p.Parsetree.ppat_loc
+                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+               with
+               | HasCursor -> patCount := index
+               | EmptyLoc -> patCountWithPatHole := Some index
+               | _ -> ());
+        match (!patCount, !patCountWithPatHole) with
+        | patCount, _ when patCount > -1 ->
+          appendNestedPat (Completable.PTupleItem {itemNum = patCount})
+        | _, Some patHoleCount ->
+          appendNestedPat (Completable.PTupleItem {itemNum = patHoleCount})
+        | _ -> ())
+      | _ -> ()
+  in
   let case (iterator : Ast_iterator.iterator) (case : Parsetree.case) =
     let oldScope = !scope in
     scopePattern case.pc_lhs;
@@ -541,6 +636,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         setResult (Cpath (CPPipe {contextPath = pipe; id; lhsLoc}));
         true
     in
+    typedCompletionExpr expr;
     match expr.pexp_desc with
     | Pexp_apply
         ( {pexp_desc = Pexp_ident {txt = Lident "|."; loc = opLoc}},
@@ -800,7 +896,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             (Loc.toString lid.loc);
         setResult (Cpath (CPId (lidPath, Value)))
       | _ -> ());
-      Ast_iterator.default_iterator.pat iterator pat)
+      let oldLookingForPat = !lookingForPat in
+      typedCompletionPat pat;
+      Ast_iterator.default_iterator.pat iterator pat;
+      lookingForPat := oldLookingForPat)
   in
   let module_expr (iterator : Ast_iterator.iterator)
       (me : Parsetree.module_expr) =

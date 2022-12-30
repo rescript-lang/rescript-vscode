@@ -1,0 +1,48 @@
+Complete src/CompletionPattern.res 2:13
+posCursor:[2:13] posNoWhite:[2:12] Found expr:[2:3->2:13]
+[]
+
+Complete src/CompletionPattern.res 5:15
+XXX Not found!
+Completable: Cpattern Value[v]
+[{
+    "label": "(_, _)",
+    "kind": 12,
+    "tags": [],
+    "detail": "(bool, option<bool>)",
+    "documentation": null,
+    "insertText": "(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionPattern.res 8:18
+looking for: Cpath Value[v] 
+posCursor:[8:18] posNoWhite:[8:17] Found expr:[8:3->8:24]
+posCursor:[8:18] posNoWhite:[8:17] Found pattern:[8:16->8:22]
+posCursor:[8:18] posNoWhite:[8:17] Found pattern:[8:17->8:18]
+Completable: Cpattern Value[v]=t->tuple($0)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 13:16
+posCursor:[13:16] posNoWhite:[13:14] Found expr:[13:3->13:15]
+[]
+
+Complete src/CompletionPattern.res 16:17
+looking for: Cpath Value[x] 
+posCursor:[16:17] posNoWhite:[16:16] Found expr:[16:3->16:17]
+posCursor:[16:17] posNoWhite:[16:16] Found pattern:[16:16->16:17]
+Completable: Cpattern Value[x]=t
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
