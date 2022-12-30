@@ -1,4 +1,9 @@
-let v = (true, Some(false))
+let v = (true, Some(false), (true, true))
+
+let _ = switch v {
+| (true, _, _) => 1
+| _ => 2
+}
 
 // switch v {
 //           ^com
@@ -8,6 +13,9 @@ let v = (true, Some(false))
 
 // switch v { | (t, _) }
 //                ^com
+
+// switch v { | (_, _, (f, _)) }
+//                       ^com
 
 let x = true
 
