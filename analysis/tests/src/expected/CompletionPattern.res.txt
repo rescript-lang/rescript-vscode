@@ -1,25 +1,25 @@
-Complete src/CompletionPattern.res 2:13
-posCursor:[2:13] posNoWhite:[2:12] Found expr:[2:3->2:13]
+Complete src/CompletionPattern.res 7:13
+posCursor:[7:13] posNoWhite:[7:12] Found expr:[7:3->7:13]
 []
 
-Complete src/CompletionPattern.res 5:15
+Complete src/CompletionPattern.res 10:15
 XXX Not found!
 Completable: Cpattern Value[v]
 [{
-    "label": "(_, _)",
+    "label": "(_, _, _)",
     "kind": 12,
     "tags": [],
-    "detail": "(bool, option<bool>)",
+    "detail": "(bool, option<bool>, (bool, bool))",
     "documentation": null,
-    "insertText": "(${1:_}, ${2:_})",
+    "insertText": "(${1:_}, ${2:_}, ${3:_})",
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionPattern.res 8:18
+Complete src/CompletionPattern.res 13:18
 looking for: Cpath Value[v] 
-posCursor:[8:18] posNoWhite:[8:17] Found expr:[8:3->8:24]
-posCursor:[8:18] posNoWhite:[8:17] Found pattern:[8:16->8:22]
-posCursor:[8:18] posNoWhite:[8:17] Found pattern:[8:17->8:18]
+posCursor:[13:18] posNoWhite:[13:17] Found expr:[13:3->13:24]
+posCursor:[13:18] posNoWhite:[13:17] Found pattern:[13:16->13:22]
+posCursor:[13:18] posNoWhite:[13:17] Found pattern:[13:17->13:18]
 Completable: Cpattern Value[v]=t->tuple($0)
 [{
     "label": "true",
@@ -29,14 +29,29 @@ Completable: Cpattern Value[v]=t->tuple($0)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 13:16
-posCursor:[13:16] posNoWhite:[13:14] Found expr:[13:3->13:15]
+Complete src/CompletionPattern.res 16:25
+looking for: Cpath Value[v] 
+posCursor:[16:25] posNoWhite:[16:24] Found expr:[16:3->16:32]
+posCursor:[16:25] posNoWhite:[16:24] Found pattern:[16:16->16:30]
+posCursor:[16:25] posNoWhite:[16:24] Found pattern:[16:23->16:29]
+posCursor:[16:25] posNoWhite:[16:24] Found pattern:[16:24->16:25]
+Completable: Cpattern Value[v]=f->tuple($2), tuple($0)
+[{
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 21:16
+posCursor:[21:16] posNoWhite:[21:14] Found expr:[21:3->21:15]
 []
 
-Complete src/CompletionPattern.res 16:17
+Complete src/CompletionPattern.res 24:17
 looking for: Cpath Value[x] 
-posCursor:[16:17] posNoWhite:[16:16] Found expr:[16:3->16:17]
-posCursor:[16:17] posNoWhite:[16:16] Found pattern:[16:16->16:17]
+posCursor:[24:17] posNoWhite:[24:16] Found expr:[24:3->24:17]
+posCursor:[24:17] posNoWhite:[24:16] Found pattern:[24:16->24:17]
 Completable: Cpattern Value[x]=t
 [{
     "label": "true",
