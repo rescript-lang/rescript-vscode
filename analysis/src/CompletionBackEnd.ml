@@ -715,7 +715,6 @@ let detail name (kind : Completion.kind) =
     "#" ^ name
     ^ (match args with
       | [] -> ""
-      | [typeExpr] -> typeExpr |> Shared.typeToString
       | typeExprs ->
         "("
         ^ (typeExprs
