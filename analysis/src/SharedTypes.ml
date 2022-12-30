@@ -550,6 +550,12 @@ module Completable = struct
             (** The loc item for the left hand side of the pipe. *)
       }
 
+  type patternPath = PTupleItem of {itemNum: int}
+
+  let patternPathToString p =
+    match p with
+    | PTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
+
   type t =
     | Cdecorator of string  (** e.g. @module *)
     | CnamedArg of contextPath * string * string list
@@ -567,6 +573,11 @@ module Completable = struct
     | CjsxPropValue of {
         pathToComponent: string list;
         propName: string;
+        prefix: string;
+      }
+    | Cpattern of {
+        typ: contextPath;
+        nested: patternPath list option;
         prefix: string;
       }
 
@@ -614,6 +625,7 @@ module Completable = struct
       | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
       | CPPipe {contextPath; id} -> contextPathToString contextPath ^ "->" ^ id
     in
+
     function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
@@ -637,6 +649,17 @@ module Completable = struct
     | CjsxPropValue {prefix; pathToComponent; propName} ->
       "CjsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName ^ "="
       ^ prefix
+    | Cpattern {typ; nested; prefix} -> (
+      "Cpattern " ^ contextPathToString typ
+      ^ (if prefix = "" then "" else "=" ^ prefix)
+      ^
+      match nested with
+      | None -> ""
+      | Some patternPaths ->
+        "->"
+        ^ (patternPaths
+          |> List.map (fun patternPath -> patternPathToString patternPath)
+          |> String.concat ", "))
 end
 
 module CursorPosition = struct

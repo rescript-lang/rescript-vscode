@@ -1729,6 +1729,17 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
     typ |> getLabels
   | None -> []
 
+let rec resolveNestedPattern typ ~env ~package ~nested =
+  match nested with
+  | [] -> Some (typ, env)
+  | patternPath :: nested -> (
+    match (patternPath, typ |> extractType ~env ~package) with
+    | Completable.PTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
+      match List.nth_opt tupleItems itemNum with
+      | None -> None
+      | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested)
+    | _ -> None)
+
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let package = full.package in
@@ -2091,3 +2102,32 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
+  | Cpattern {typ; prefix; nested = None} -> (
+    let envWhereCompletionStarted = env in
+    match
+      typ
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, env) ->
+      typ
+      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+           ~expandOption:false
+    | None -> [])
+  | Cpattern {typ; prefix; nested = Some nested} -> (
+    let envWhereCompletionStarted = env in
+    match
+      typ
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, env) -> (
+      match typ |> resolveNestedPattern ~env ~package:full.package ~nested with
+      | None -> []
+      | Some (typ, env) ->
+        typ
+        |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+             ~expandOption:false)
+    | None -> [])
