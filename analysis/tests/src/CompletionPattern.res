@@ -43,6 +43,9 @@ let f: someRecord = {
 
 let z = (f, true)
 
+// switch f { | }
+//             ^com
+
 // switch f { | {}}
 //               ^com
 
@@ -51,6 +54,9 @@ let z = (f, true)
 
 // switch z { | ({o}, _)}
 //                 ^com
+
+// switch f { | {nest: }}
+//                    ^com
 
 // switch f { | {nest: {}}}
 //                      ^com

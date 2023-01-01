@@ -550,14 +550,19 @@ module Completable = struct
             (** The loc item for the left hand side of the pipe. *)
       }
 
+  (** Additional context for a pattern completion where needed. *)
+  type patternContext = RecordField
+
   type patternPath =
     | PTupleItem of {itemNum: int}
-    | PRecordField of {fieldName: string}
+    | PFollowRecordField of {fieldName: string}
+    | PRecordBody of {seenFields: string list}
 
   let patternPathToString p =
     match p with
     | PTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
-    | PRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
+    | PFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
+    | PRecordBody _ -> "recordBody"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)

@@ -1570,7 +1570,7 @@ let printConstructorArgs argsLen ~asSnippet =
   else ""
 
 let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-    ~expandOption ~includeLocalValues =
+    ~expandOption ~includeLocalValues ~completionContext =
   let namesUsed = Hashtbl.create 10 in
   let rec completeTypedValueInner t ~env ~full ~prefix ~expandOption =
     let items =
@@ -1645,13 +1645,21 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
             ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
             ~kind:(Value typ) ~env ();
         ]
-      | Some (Trecord {env; fields; typeExpr}) ->
-        fields
-        |> List.map (fun (field : field) ->
-               Completion.create ~name:field.fname.txt
-                 ~kind:(Field (field, typeExpr |> Shared.typeToString))
-                 ~env)
-        |> filterItems ~prefix
+      | Some (Trecord {env; fields; typeExpr}) -> (
+        match completionContext with
+        | Some Completable.RecordField ->
+          fields
+          |> List.map (fun (field : field) ->
+                 Completion.create ~name:field.fname.txt
+                   ~kind:(Field (field, typeExpr |> Shared.typeToString))
+                   ~env)
+          |> filterItems ~prefix
+        | None ->
+          [
+            Completion.createWithSnippet ~name:"{}"
+              ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
+              ~sortText:"a" ~kind:(Value typeExpr) ~env ();
+          ])
       | _ -> []
     in
     (* Include all values and modules in completion if there's a prefix, not otherwise *)
@@ -1742,20 +1750,22 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
 
 let rec resolveNestedPattern typ ~env ~package ~nested =
   match nested with
-  | [] -> Some (typ, env)
+  | [] -> Some (typ, env, None)
   | patternPath :: nested -> (
     match (patternPath, typ |> extractType ~env ~package) with
     | Completable.PTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
       match List.nth_opt tupleItems itemNum with
       | None -> None
       | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested)
-    | Completable.PRecordField {fieldName}, Some (Trecord {env; fields}) -> (
+    | PFollowRecordField {fieldName}, Some (Trecord {env; fields}) -> (
       match
         fields
         |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
       with
       | None -> None
       | Some {typ} -> typ |> resolveNestedPattern ~env ~package ~nested)
+    | PRecordBody _, Some (Trecord {env; typeExpr}) ->
+      Some (typeExpr, env, Some Completable.RecordField)
     | _ -> None)
 
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
@@ -1821,7 +1831,7 @@ let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     | Some (_, typ, env) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:true ~includeLocalValues:true)
+           ~expandOption:true ~includeLocalValues:true ~completionContext:None)
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
       {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
@@ -2086,11 +2096,11 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     | Some (Optional _, typ) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:true ~includeLocalValues:true
+           ~expandOption:true ~includeLocalValues:true ~completionContext:None
     | Some ((Unlabelled _ | Labelled _), typ) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:false ~includeLocalValues:true)
+           ~expandOption:false ~includeLocalValues:true ~completionContext:None)
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
@@ -2131,7 +2141,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     | Some (typ, env) ->
       typ
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:false ~includeLocalValues:false
+           ~expandOption:false ~includeLocalValues:false ~completionContext:None
     | None -> [])
   | Cpattern {typ; prefix; nested = Some nested} -> (
     let envWhereCompletionStarted = env in
@@ -2144,8 +2154,8 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     | Some (typ, env) -> (
       match typ |> resolveNestedPattern ~env ~package:full.package ~nested with
       | None -> []
-      | Some (typ, env) ->
+      | Some (typ, env, completionContext) ->
         typ
         |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-             ~expandOption:false ~includeLocalValues:false)
+             ~expandOption:false ~includeLocalValues:false ~completionContext)
     | None -> [])
