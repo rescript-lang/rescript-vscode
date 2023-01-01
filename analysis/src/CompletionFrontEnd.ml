@@ -435,7 +435,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     match !lookingForPat with
     | Some (Completable.Cpattern ({nested = None} as p)) ->
       lookingForPat := Some (Cpattern {p with nested = Some [patternPat]})
-    | Some (Completable.Cpattern ({nested = Some nested} as p)) ->
+    | Some (Cpattern ({nested = Some nested} as p)) ->
       lookingForPat :=
         Some (Cpattern {p with nested = Some (nested @ [patternPat])})
     | _ -> ()
@@ -451,7 +451,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       setResult cpattern
     | _ -> ()
   in
-
+  (* Identifies expressions where we can do typed pattern or expr completion. *)
   let typedCompletionExpr (exp : Parsetree.expression) =
     if
       exp.pexp_loc
@@ -485,7 +485,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | Some ctxPath -> setLookingForPat ctxPath)
       | _ -> unsetLookingForPat
   in
-
+  (* Tracks the path through a pattern for where the cursor is. *)
   let typedCompletionPat (pat : Parsetree.pattern) =
     if
       pat.ppat_loc
@@ -495,7 +495,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       match pat.ppat_desc with
       | Ppat_var {txt} -> commitFoundPat ~prefix:txt ()
       | Ppat_tuple patterns -> (
-        let patCount = ref (-1) in
+        let patCount = ref None in
         let patCountWithPatHole = ref None in
         patterns
         |> List.iteri (fun index p ->
@@ -503,13 +503,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                  p.Parsetree.ppat_loc
                  |> CursorPosition.classifyLoc ~pos:posBeforeCursor
                with
-               | HasCursor -> patCount := index
+               | HasCursor -> patCount := Some index
                | EmptyLoc -> patCountWithPatHole := Some index
                | _ -> ());
         match (!patCount, !patCountWithPatHole) with
-        | patCount, _ when patCount > -1 ->
+        | Some patCount, _ ->
           appendNestedPat (Completable.PTupleItem {itemNum = patCount})
-        | _, Some patHoleCount ->
+        | None, Some patHoleCount ->
           appendNestedPat (Completable.PTupleItem {itemNum = patHoleCount})
         | _ -> ())
       | Ppat_record ([], _) ->

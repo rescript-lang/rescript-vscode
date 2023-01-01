@@ -1644,6 +1644,9 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
             ~kind:(Value typ) ~env ();
         ]
       | Some (Trecord {env; fields; typeExpr}) -> (
+        (* As we're completing for a record, we'll need a hint (completionContext)
+           here to figure out whether we should complete for a record field, or
+           the record body itself. *)
         match completionContext with
         | Some (Completable.RecordField {seenFields}) ->
           fields
@@ -1748,6 +1751,7 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
     typ |> getLabels
   | None -> []
 
+(** This moves through a pattern via a set of instructions, trying to resolve the type at the end of the pattern. *)
 let rec resolveNestedPattern typ ~env ~package ~nested =
   match nested with
   | [] -> Some (typ, env, None)
