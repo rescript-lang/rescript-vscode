@@ -557,12 +557,16 @@ module Completable = struct
     | PTupleItem of {itemNum: int}
     | PFollowRecordField of {fieldName: string}
     | PRecordBody of {seenFields: string list}
+    | PVariantPayload of {constructorName: string; payloadNum: int}
 
   let patternPathToString p =
     match p with
     | PTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
     | PFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
     | PRecordBody _ -> "recordBody"
+    | PVariantPayload {constructorName; payloadNum} ->
+      "variantPayload::" ^ constructorName ^ "($" ^ string_of_int payloadNum
+      ^ ")"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
