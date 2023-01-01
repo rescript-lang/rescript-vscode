@@ -504,18 +504,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | _, Some patHoleCount ->
           appendNestedPat (Completable.PTupleItem {itemNum = patHoleCount})
         | _ -> ())
-      | Ppat_record ([], _) -> commitFoundPat ~prefix:"" ()
+      | Ppat_record ([], _) ->
+        appendNestedPat (Completable.PRecordBody {seenFields = []});
+        commitFoundPat ~prefix:"" ()
       | Ppat_record (fields, _) -> (
+        (* TODO: Identify seen fields. *)
         let fieldWithCursor = ref None in
         let fieldWithPatHole = ref None in
         fields
-        |> List.filter (fun (_, f) ->
-               (* Ensure we only include fields with patterns we can continue into. *)
-               match f.Parsetree.ppat_desc with
-               | Ppat_tuple _ | Ppat_construct _ | Ppat_variant _
-               | Ppat_record _ ->
-                 true
-               | _ -> false)
         |> List.iter (fun (fname, f) ->
                match
                  ( fname.Location.txt,
@@ -523,15 +519,25 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                    |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
                with
                | Longident.Lident fname, HasCursor ->
-                 fieldWithCursor := Some fname
-               | Lident fname, EmptyLoc when isPatternHole f ->
-                 fieldWithPatHole := Some fname
+                 fieldWithCursor := Some (fname, f)
+               | Lident fname, _ when isPatternHole f ->
+                 fieldWithPatHole := Some (fname, f)
                | _ -> ());
         match (!fieldWithCursor, !fieldWithPatHole) with
-        | Some fname, _ ->
-          appendNestedPat (Completable.PRecordField {fieldName = fname})
-        | None, Some fname ->
-          appendNestedPat (Completable.PRecordField {fieldName = fname})
+        | Some (fname, f), _ | None, Some (fname, f) -> (
+          match f.ppat_desc with
+          | Ppat_record _ | Ppat_construct _ | Ppat_variant _ | Ppat_tuple _ ->
+            (* These are things we can continue into in the pattern. *)
+            appendNestedPat (Completable.PFollowRecordField {fieldName = fname})
+          | Ppat_extension ({txt = "rescript.patternhole"}, _) ->
+            (* A pattern hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
+            appendNestedPat (Completable.PFollowRecordField {fieldName = fname});
+            commitFoundPat ~prefix:"" ()
+          | Ppat_var {txt} ->
+            (* A var means `{s}` or similar. Complete for fields. *)
+            appendNestedPat (Completable.PRecordBody {seenFields = []});
+            commitFoundPat ~prefix:txt ()
+          | _ -> ())
         | _ -> ())
       | _ -> ()
   in
