@@ -510,6 +510,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | Ppat_construct ({txt = Lident prefix}, None) ->
         commitFoundPat ~prefix ()
       | Ppat_variant (prefix, None) -> commitFoundPat ~prefix:("#" ^ prefix) ()
+      | Ppat_array arrayPatterns ->
+        appendNestedPat Completable.PArray;
+        if List.length arrayPatterns = 0 then commitFoundPat ~prefix:"" ()
       | Ppat_tuple patterns -> (
         match patterns |> findPatTupleItemWithCursor ~pos:posBeforeCursor with
         | Some itemNum -> appendNestedPat (Completable.PTupleItem {itemNum})

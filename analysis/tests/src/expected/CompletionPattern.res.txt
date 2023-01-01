@@ -390,3 +390,36 @@ Completable: Cpattern Value[b]->polyvariantPayload::three($0), recordBody
     "documentation": null
   }]
 
+Complete src/CompletionPattern.res 111:15
+XXX Not found!
+Completable: Cpattern Value[c]
+[{
+    "label": "[]",
+    "kind": 12,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "sortText": "a",
+    "insertText": "[$0]",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionPattern.res 114:17
+looking for: Cpath Value[c] 
+posCursor:[114:17] posNoWhite:[114:16] Found expr:[114:3->114:20]
+posCursor:[114:17] posNoWhite:[114:16] Found pattern:[114:16->114:18]
+Completable: Cpattern Value[c]->array
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
