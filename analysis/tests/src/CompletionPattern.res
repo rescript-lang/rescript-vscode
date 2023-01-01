@@ -49,6 +49,9 @@ let z = (f, true)
 // switch f { | {}}
 //               ^com
 
+// switch f { | {first,  , second }}
+//                      ^com
+
 // switch f { | {fi}}
 //                 ^com
 

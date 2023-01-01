@@ -305,6 +305,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     let line, col = posCursor in
     (line, max 0 col - offset + offsetNoWhite)
   in
+  (* Identifies the first character before the cursor that's not white space.
+     Should be used very sparingly, but can be used to drive completion triggering
+     in scenarios where the parser eats things we'd need to complete.
+     Example: let {whatever,     <cursor>}, char is ','. *)
+  let firstCharBeforeCursorNoWhite =
+    if offsetNoWhite < String.length text && offsetNoWhite >= 0 then
+      Some text.[offsetNoWhite]
+    else None
+  in
   let posBeforeCursor = Pos.posBeforeCursor posCursor in
   let charBeforeCursor, blankAfterCursor =
     match Pos.positionToOffset text posCursor with
@@ -498,10 +507,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           appendNestedPat (Completable.PTupleItem {itemNum = patHoleCount})
         | _ -> ())
       | Ppat_record ([], _) ->
+        (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
         appendNestedPat (Completable.PRecordBody {seenFields = []});
         commitFoundPat ~prefix:"" ()
       | Ppat_record (fields, _) -> (
-        (* TODO: Identify seen fields. *)
         let fieldWithCursor = ref None in
         let fieldWithPatHole = ref None in
         fields
@@ -516,6 +525,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                | Lident fname, _ when isPatternHole f ->
                  fieldWithPatHole := Some (fname, f)
                | _ -> ());
+        let seenFields =
+          fields
+          |> List.filter_map (fun (fieldName, _f) ->
+                 match fieldName with
+                 | {Location.txt = Longident.Lident fieldName} -> Some fieldName
+                 | _ -> None)
+        in
         match (!fieldWithCursor, !fieldWithPatHole) with
         | Some (fname, f), _ | None, Some (fname, f) -> (
           match f.ppat_desc with
@@ -528,10 +544,19 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             commitFoundPat ~prefix:"" ()
           | Ppat_var {txt} ->
             (* A var means `{s}` or similar. Complete for fields. *)
-            appendNestedPat (Completable.PRecordBody {seenFields = []});
+            appendNestedPat (Completable.PRecordBody {seenFields});
             commitFoundPat ~prefix:txt ()
           | _ -> ())
-        | _ -> ())
+        | None, None -> (
+          (* Figure out if we're completing for a new field.
+             If the cursor is inside of the record body, but no field has the cursor,
+             and there's no pattern hole. Check the first char to the left of the cursor,
+             ignoring white space. If that's a comma, we assume you're completing for a new field. *)
+          match firstCharBeforeCursorNoWhite with
+          | Some ',' ->
+            appendNestedPat (Completable.PRecordBody {seenFields});
+            commitFoundPat ~prefix:"" ()
+          | _ -> ()))
       | _ -> ()
   in
   let case (iterator : Ast_iterator.iterator) (case : Parsetree.case) =
