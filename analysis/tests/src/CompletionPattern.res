@@ -63,3 +63,12 @@ let z = (f, true)
 
 // switch f { | {nest: {}}}
 //                      ^com
+
+let _ = switch f {
+| {first: 123, nest} =>
+  ()
+  // switch nest { | {}}
+  //                  ^com
+  nest.nested
+| _ => false
+}
