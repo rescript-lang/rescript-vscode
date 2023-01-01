@@ -416,15 +416,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     scope :=
       !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
-
   let lookingForPat = ref None in
-
   let setLookingForPat ctxPath =
     lookingForPat :=
       Some (Completable.Cpattern {typ = ctxPath; prefix = ""; nested = None});
     if debug then
       Printf.printf "looking for: %s \n" (Completable.toString (Cpath ctxPath))
   in
+  let unsetLookingForPat = lookingForPat := None in
   let appendNestedPat patternPat =
     match !lookingForPat with
     | Some (Completable.Cpattern ({nested = None} as p)) ->
@@ -477,7 +476,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         match exp |> exprToContextPath with
         | None -> ()
         | Some ctxPath -> setLookingForPat ctxPath)
-      | _ -> ()
+      | _ -> unsetLookingForPat
   in
 
   let typedCompletionPat (pat : Parsetree.pattern) =

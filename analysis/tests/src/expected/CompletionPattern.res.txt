@@ -169,7 +169,7 @@ Completable: Cpattern Value[z]=o->tuple($0), recordBody
 
 Complete src/CompletionPattern.res 60:22
 looking for: Cpath Value[f] 
-posCursor:[60:22] posNoWhite:[60:21] Found expr:[60:3->60:25]
+posCursor:[60:22] posNoWhite:[60:21] Found expr:[60:3->73:1]
 posCursor:[60:22] posNoWhite:[60:21] Found pattern:[60:16->60:25]
 Completable: Cpattern Value[f]->recordField(nest)
 [{
@@ -189,6 +189,23 @@ posCursor:[63:24] posNoWhite:[63:23] Found expr:[63:3->63:27]
 posCursor:[63:24] posNoWhite:[63:23] Found pattern:[63:16->63:26]
 posCursor:[63:24] posNoWhite:[63:23] Found pattern:[63:23->63:25]
 Completable: Cpattern Value[f]->recordField(nest), recordBody
+[{
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: bool\n\nnestedRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 69:22
+looking for: Cpath Value[f] 
+posCursor:[69:22] posNoWhite:[69:21] Found expr:[66:8->73:1]
+posCursor:[69:22] posNoWhite:[69:21] Found expr:[68:2->71:13]
+posCursor:[69:22] posNoWhite:[69:21] Found expr:[69:5->71:13]
+looking for: Cpath Value[nest] 
+posCursor:[69:22] posNoWhite:[69:21] Found expr:[69:5->69:24]
+posCursor:[69:22] posNoWhite:[69:21] Found pattern:[69:21->69:23]
+Completable: Cpattern Value[nest]->recordBody
 [{
     "label": "nested",
     "kind": 5,
