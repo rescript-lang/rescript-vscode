@@ -75,3 +75,6 @@ let _ = switch f {
 
 // let {} = f
 //      ^com
+
+// let {nest: {n}}} = f
+//              ^com
