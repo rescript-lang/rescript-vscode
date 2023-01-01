@@ -257,6 +257,12 @@ let rec exprToContextPath (e : Parsetree.expression) =
     | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
   | _ -> None
 
+let rec getUnqualifiedName txt =
+  match txt with
+  | Longident.Lident fieldName -> fieldName
+  | Ldot (t, _) -> getUnqualifiedName t
+  | _ -> ""
+
 let completePipeChain ~(lhs : Parsetree.expression) =
   (* Complete the end of pipe chains by reconstructing the pipe chain as a single pipe,
      so it can be completed.
@@ -297,6 +303,20 @@ let completePipeChain ~(lhs : Parsetree.expression) =
         pexp_attributes;
       }
     |> Option.map (fun ctxPath -> (ctxPath, pexp_loc))
+  | _ -> None
+
+let findPatTupleItemWithCursor patterns ~pos =
+  let patCount = ref None in
+  let patCountWithPatHole = ref None in
+  patterns
+  |> List.iteri (fun index p ->
+         match p.Parsetree.ppat_loc |> CursorPosition.classifyLoc ~pos with
+         | HasCursor -> patCount := Some index
+         | EmptyLoc -> patCountWithPatHole := Some index
+         | _ -> ());
+  match (!patCount, !patCountWithPatHole) with
+  | Some patCount, _ -> Some patCount
+  | None, Some patHoleCount -> Some patHoleCount
   | _ -> None
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
@@ -487,23 +507,11 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     then
       match pat.ppat_desc with
       | Ppat_var {txt} -> commitFoundPat ~prefix:txt ()
+      | Ppat_construct ({txt = Lident prefix}, None) ->
+        commitFoundPat ~prefix ()
       | Ppat_tuple patterns -> (
-        let patCount = ref None in
-        let patCountWithPatHole = ref None in
-        patterns
-        |> List.iteri (fun index p ->
-               match
-                 p.Parsetree.ppat_loc
-                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-               with
-               | HasCursor -> patCount := Some index
-               | EmptyLoc -> patCountWithPatHole := Some index
-               | _ -> ());
-        match (!patCount, !patCountWithPatHole) with
-        | Some patCount, _ ->
-          appendNestedPat (Completable.PTupleItem {itemNum = patCount})
-        | None, Some patHoleCount ->
-          appendNestedPat (Completable.PTupleItem {itemNum = patHoleCount})
+        match patterns |> findPatTupleItemWithCursor ~pos:posBeforeCursor with
+        | Some itemNum -> appendNestedPat (Completable.PTupleItem {itemNum})
         | _ -> ())
       | Ppat_record ([], _) ->
         (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
@@ -556,6 +564,46 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             appendNestedPat (Completable.PRecordBody {seenFields});
             commitFoundPat ~prefix:"" ()
           | _ -> ()))
+      | Ppat_construct
+          ( {txt},
+            Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
+          )
+        when ppat_loc
+             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+             = HasCursor ->
+        (* Empty payload *)
+        appendNestedPat
+          (Completable.PVariantPayload
+             {constructorName = getUnqualifiedName txt; payloadNum = 0});
+        commitFoundPat ~prefix:"" ()
+      | Ppat_construct
+          ( {txt},
+            Some
+              {
+                ppat_loc;
+                ppat_desc =
+                  Ppat_var _ | Ppat_record _ | Ppat_construct _ | Ppat_variant _;
+              } )
+        when ppat_loc
+             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+             = HasCursor ->
+        (* Single payload *)
+        appendNestedPat
+          (Completable.PVariantPayload
+             {constructorName = getUnqualifiedName txt; payloadNum = 0})
+      | Ppat_construct
+          ({txt}, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
+        when ppat_loc
+             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+             = HasCursor -> (
+        (* Multiple payloads with cursor in item *)
+        (* TODO: New item with comma *)
+        match tupleItems |> findPatTupleItemWithCursor ~pos:posBeforeCursor with
+        | None -> ()
+        | Some payloadNum ->
+          appendNestedPat
+            (Completable.PVariantPayload
+               {constructorName = getUnqualifiedName txt; payloadNum}))
       | _ -> ()
   in
   let case (iterator : Ast_iterator.iterator) (case : Parsetree.case) =
@@ -951,12 +999,19 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let pat (iterator : Ast_iterator.iterator) (pat : Parsetree.pattern) =
     if pat.ppat_loc |> Loc.hasPos ~pos:posNoWhite then (
       found := true;
+      let oldLookingForPat = !lookingForPat in
+      typedCompletionPat pat;
       if debug then
         Printf.printf "posCursor:[%s] posNoWhite:[%s] Found pattern:%s\n"
           (Pos.toString posCursor) (Pos.toString posNoWhite)
           (Loc.toString pat.ppat_loc);
-      (match pat.ppat_desc with
-      | Ppat_construct (lid, _) ->
+      (* TODO:
+          This change breaks old behavior of completing constructors in scope.
+          Either be fine with it, fix it somehow, or incorporate completing
+          constructors in scope when regular completion for variants can't
+          be done. *)
+      (match (!lookingForPat, pat.ppat_desc) with
+      | None, Ppat_construct (lid, _) ->
         let lidPath = flattenLidCheckDot lid in
         if debug then
           Printf.printf "Ppat_construct %s:%s\n"
@@ -964,8 +1019,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             (Loc.toString lid.loc);
         setResult (Cpath (CPId (lidPath, Value)))
       | _ -> ());
-      let oldLookingForPat = !lookingForPat in
-      typedCompletionPat pat;
       Ast_iterator.default_iterator.pat iterator pat;
       lookingForPat := oldLookingForPat)
   in

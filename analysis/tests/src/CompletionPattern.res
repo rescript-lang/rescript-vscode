@@ -78,3 +78,17 @@ let _ = switch f {
 
 // let {nest: {n}}} = f
 //              ^com
+
+type someVariant = One | Two(bool) | Three(someRecord, bool)
+
+let z = Two(true)
+ignore(z)
+
+// switch z { | Two()}
+//                  ^com
+
+// switch z { | Two(t)}
+//                   ^com
+
+// switch z { | Three({})}
+//                     ^com
