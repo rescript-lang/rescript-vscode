@@ -92,3 +92,16 @@ ignore(z)
 
 // switch z { | Three({})}
 //                     ^com
+
+type somePolyVariant = [#one | #two(bool) | #three(someRecord, bool)]
+let b: somePolyVariant = #two(true)
+ignore(b)
+
+// switch b { | #two()}
+//                   ^com
+
+// switch b { | #two(t)}
+//                    ^com
+
+// switch b { | #three({})}
+//                      ^com

@@ -558,6 +558,7 @@ module Completable = struct
     | PFollowRecordField of {fieldName: string}
     | PRecordBody of {seenFields: string list}
     | PVariantPayload of {constructorName: string; payloadNum: int}
+    | PPolyvariantPayload of {constructorName: string; payloadNum: int}
 
   let patternPathToString p =
     match p with
@@ -566,6 +567,9 @@ module Completable = struct
     | PRecordBody _ -> "recordBody"
     | PVariantPayload {constructorName; payloadNum} ->
       "variantPayload::" ^ constructorName ^ "($" ^ string_of_int payloadNum
+      ^ ")"
+    | PPolyvariantPayload {constructorName; payloadNum} ->
+      "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int payloadNum
       ^ ")"
 
   type t =
