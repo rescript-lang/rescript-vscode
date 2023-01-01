@@ -579,12 +579,20 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let structure_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.structure_item) =
+    unsetLookingForPat;
     let processed = ref false in
     (match item.pstr_desc with
     | Pstr_open {popen_lid} ->
       scope := !scope |> Scope.addOpen ~lid:popen_lid.txt
     | Pstr_primitive vd -> scopeValueDescription vd
     | Pstr_value (recFlag, bindings) ->
+      (* Identify relevant destructures for completion, like `let {<com>} = someVar` or `let (true, false) = someFn()`. *)
+      (match bindings with
+      | [{pvb_pat = {ppat_desc = Ppat_record _ | Ppat_tuple _}; pvb_expr}] -> (
+        match exprToContextPath pvb_expr with
+        | None -> ()
+        | Some ctxPath -> setLookingForPat ctxPath)
+      | _ -> ());
       if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
