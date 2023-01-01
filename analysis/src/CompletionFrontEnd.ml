@@ -509,6 +509,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | Ppat_var {txt} -> commitFoundPat ~prefix:txt ()
       | Ppat_construct ({txt = Lident prefix}, None) ->
         commitFoundPat ~prefix ()
+      | Ppat_variant (prefix, None) -> commitFoundPat ~prefix:("#" ^ prefix) ()
       | Ppat_tuple patterns -> (
         match patterns |> findPatTupleItemWithCursor ~pos:posBeforeCursor with
         | Some itemNum -> appendNestedPat (Completable.PTupleItem {itemNum})
@@ -604,6 +605,45 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           appendNestedPat
             (Completable.PVariantPayload
                {constructorName = getUnqualifiedName txt; payloadNum}))
+      | Ppat_variant
+          ( txt,
+            Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
+          )
+        when ppat_loc
+             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+             = HasCursor ->
+        (* Empty payload *)
+        appendNestedPat
+          (Completable.PPolyvariantPayload
+             {constructorName = txt; payloadNum = 0});
+        commitFoundPat ~prefix:"" ()
+      | Ppat_variant
+          ( txt,
+            Some
+              {
+                ppat_loc;
+                ppat_desc =
+                  Ppat_var _ | Ppat_record _ | Ppat_construct _ | Ppat_variant _;
+              } )
+        when ppat_loc
+             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+             = HasCursor ->
+        (* Single payload *)
+        appendNestedPat
+          (Completable.PPolyvariantPayload
+             {constructorName = txt; payloadNum = 0})
+      | Ppat_variant (txt, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
+        when ppat_loc
+             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+             = HasCursor -> (
+        (* Multiple payloads with cursor in item *)
+        (* TODO: New item with comma *)
+        match tupleItems |> findPatTupleItemWithCursor ~pos:posBeforeCursor with
+        | None -> ()
+        | Some payloadNum ->
+          appendNestedPat
+            (Completable.PPolyvariantPayload {constructorName = txt; payloadNum})
+        )
       | _ -> ()
   in
   let case (iterator : Ast_iterator.iterator) (case : Parsetree.case) =

@@ -324,3 +324,69 @@ Completable: Cpattern Value[z]->variantPayload::Three($0), recordBody
     "documentation": null
   }]
 
+Complete src/CompletionPattern.res 99:21
+looking for: Cpath Value[b] 
+posCursor:[99:21] posNoWhite:[99:20] Found expr:[99:3->99:23]
+posCursor:[99:21] posNoWhite:[99:20] Found pattern:[99:16->99:22]
+posCursor:[99:21] posNoWhite:[99:20] Found pattern:[99:20->99:21]
+Completable: Cpattern Value[b]->polyvariantPayload::two($0)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 102:22
+looking for: Cpath Value[b] 
+posCursor:[102:22] posNoWhite:[102:21] Found expr:[102:3->102:24]
+posCursor:[102:22] posNoWhite:[102:21] Found pattern:[102:16->102:23]
+posCursor:[102:22] posNoWhite:[102:21] Found pattern:[102:21->102:22]
+Completable: Cpattern Value[b]=t->polyvariantPayload::two($0)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 105:24
+looking for: Cpath Value[b] 
+posCursor:[105:24] posNoWhite:[105:23] Found expr:[105:3->105:27]
+posCursor:[105:24] posNoWhite:[105:23] Found pattern:[105:16->105:26]
+posCursor:[105:24] posNoWhite:[105:23] Found pattern:[105:23->105:25]
+Completable: Cpattern Value[b]->polyvariantPayload::three($0), recordBody
+[{
+    "label": "first",
+    "kind": 5,
+    "tags": [],
+    "detail": "first: int\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "second",
+    "kind": 5,
+    "tags": [],
+    "detail": "second: (bool, option<someRecord>)\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "optThird",
+    "kind": 5,
+    "tags": [],
+    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nest",
+    "kind": 5,
+    "tags": [],
+    "detail": "nest: nestedRecord\n\nsomeRecord",
+    "documentation": null
+  }]
+

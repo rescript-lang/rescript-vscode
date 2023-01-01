@@ -1784,6 +1784,18 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
         match List.nth_opt constructor.args payloadNum with
         | None -> None
         | Some (typ, _) -> typ |> resolveNestedPattern ~env ~package ~nested))
+    | ( PPolyvariantPayload {constructorName; payloadNum},
+        Some (Tpolyvariant {env; constructors}) ) -> (
+      match
+        constructors
+        |> List.find_opt (fun (c : polyVariantConstructor) ->
+               c.name = constructorName)
+      with
+      | None -> None
+      | Some constructor -> (
+        match List.nth_opt constructor.args payloadNum with
+        | None -> None
+        | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested))
     | _ -> None)
 
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
