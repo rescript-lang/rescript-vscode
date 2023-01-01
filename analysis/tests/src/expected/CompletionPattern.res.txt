@@ -214,3 +214,33 @@ Completable: Cpattern Value[nest]->recordBody
     "documentation": null
   }]
 
+Complete src/CompletionPattern.res 75:8
+looking for: Cpath Value[f] 
+posCursor:[75:8] posNoWhite:[75:7] Found pattern:[75:7->75:9]
+Completable: Cpattern Value[f]->recordBody
+[{
+    "label": "first",
+    "kind": 5,
+    "tags": [],
+    "detail": "first: int\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "second",
+    "kind": 5,
+    "tags": [],
+    "detail": "second: (bool, option<someRecord>)\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "optThird",
+    "kind": 5,
+    "tags": [],
+    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nest",
+    "kind": 5,
+    "tags": [],
+    "detail": "nest: nestedRecord\n\nsomeRecord",
+    "documentation": null
+  }]
+

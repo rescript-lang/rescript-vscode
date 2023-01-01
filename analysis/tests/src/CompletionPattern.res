@@ -72,3 +72,6 @@ let _ = switch f {
   nest.nested
 | _ => false
 }
+
+// let {} = f
+//      ^com
