@@ -430,7 +430,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     if debug then
       Printf.printf "looking for: %s \n" (Completable.toString (Cpath ctxPath))
   in
-  let unsetLookingForPat = lookingForPat := None in
+  let unsetLookingForPat () = lookingForPat := None in
   let appendNestedPat patternPat =
     match !lookingForPat with
     | Some (Completable.Cpattern ({nested = None} as p)) ->
@@ -483,7 +483,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         match exp |> exprToContextPath with
         | None -> ()
         | Some ctxPath -> setLookingForPat ctxPath)
-      | _ -> unsetLookingForPat
+      | _ -> unsetLookingForPat ()
   in
   (* Tracks the path through a pattern for where the cursor is. *)
   let typedCompletionPat (pat : Parsetree.pattern) =
@@ -579,7 +579,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let structure_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.structure_item) =
-    unsetLookingForPat;
+    unsetLookingForPat ();
     let processed = ref false in
     (match item.pstr_desc with
     | Pstr_open {popen_lid} ->
