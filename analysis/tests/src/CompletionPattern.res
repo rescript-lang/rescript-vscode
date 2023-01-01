@@ -105,3 +105,12 @@ ignore(b)
 
 // switch b { | #three({})}
 //                      ^com
+
+let c: array<bool> = []
+ignore(c)
+
+// switch c { | }
+//             ^com
+
+// switch c { | [] }
+//               ^com

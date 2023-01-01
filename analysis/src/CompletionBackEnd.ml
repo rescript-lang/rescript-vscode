@@ -1519,6 +1519,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
     Some (Completable.Toption (env, payloadTypeExpr))
+  | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
+    Some (Tarray (env, payloadTypeExpr))
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
@@ -1663,6 +1665,12 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
               ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
               ~sortText:"a" ~kind:(Value typeExpr) ~env ();
           ])
+      | Some (Tarray (env, typeExpr)) ->
+        [
+          Completion.createWithSnippet ~name:"[]"
+            ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
+            ~sortText:"a" ~kind:(Value typeExpr) ~env ();
+        ]
       | _ -> []
     in
     (* Include all values and modules in completion if there's a prefix, not otherwise *)
@@ -1794,6 +1802,8 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
         match List.nth_opt constructor.args payloadNum with
         | None -> None
         | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested))
+    | PArray, Some (Tarray (env, typ)) ->
+      typ |> resolveNestedPattern ~env ~package ~nested
     | _ -> None)
 
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover

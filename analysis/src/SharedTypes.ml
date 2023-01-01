@@ -559,6 +559,7 @@ module Completable = struct
     | PRecordBody of {seenFields: string list}
     | PVariantPayload of {constructorName: string; payloadNum: int}
     | PPolyvariantPayload of {constructorName: string; payloadNum: int}
+    | PArray
 
   let patternPathToString p =
     match p with
@@ -571,6 +572,7 @@ module Completable = struct
     | PPolyvariantPayload {constructorName; payloadNum} ->
       "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int payloadNum
       ^ ")"
+    | PArray -> "array"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -602,6 +604,7 @@ module Completable = struct
     | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
     | Toption of QueryEnv.t * Types.type_expr
     | Tbool of QueryEnv.t
+    | Tarray of QueryEnv.t * Types.type_expr
     | Tvariant of {
         env: QueryEnv.t;
         constructors: Constructor.t list;
