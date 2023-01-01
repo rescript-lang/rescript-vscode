@@ -551,7 +551,7 @@ module Completable = struct
       }
 
   (** Additional context for a pattern completion where needed. *)
-  type patternContext = RecordField
+  type patternContext = RecordField of {seenFields: string list}
 
   type patternPath =
     | PTupleItem of {itemNum: int}

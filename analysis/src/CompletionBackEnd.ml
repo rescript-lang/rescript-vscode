@@ -1645,8 +1645,10 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
         ]
       | Some (Trecord {env; fields; typeExpr}) -> (
         match completionContext with
-        | Some Completable.RecordField ->
+        | Some (Completable.RecordField {seenFields}) ->
           fields
+          |> List.filter (fun (field : field) ->
+                 List.mem field.fname.txt seenFields = false)
           |> List.map (fun (field : field) ->
                  Completion.create ~name:field.fname.txt
                    ~kind:(Field (field, typeExpr |> Shared.typeToString))
@@ -1762,8 +1764,8 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       with
       | None -> None
       | Some {typ} -> typ |> resolveNestedPattern ~env ~package ~nested)
-    | PRecordBody _, Some (Trecord {env; typeExpr}) ->
-      Some (typeExpr, env, Some Completable.RecordField)
+    | PRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
+      Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
     | _ -> None)
 
 let processCompletable ~debug ~full ~scope ~env ~pos ~forHover

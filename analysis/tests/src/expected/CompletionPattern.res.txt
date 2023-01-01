@@ -119,11 +119,30 @@ Completable: Cpattern Value[f]->recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 51:19
+Complete src/CompletionPattern.res 51:24
 looking for: Cpath Value[f] 
-posCursor:[51:19] posNoWhite:[51:18] Found expr:[51:3->51:21]
-posCursor:[51:19] posNoWhite:[51:18] Found pattern:[51:16->51:20]
-posCursor:[51:19] posNoWhite:[51:18] Found pattern:[51:17->51:19]
+posCursor:[51:24] posNoWhite:[51:22] Found expr:[51:3->51:36]
+posCursor:[51:24] posNoWhite:[51:22] Found pattern:[51:16->51:35]
+Completable: Cpattern Value[f]->recordBody
+[{
+    "label": "optThird",
+    "kind": 5,
+    "tags": [],
+    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nest",
+    "kind": 5,
+    "tags": [],
+    "detail": "nest: nestedRecord\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 54:19
+looking for: Cpath Value[f] 
+posCursor:[54:19] posNoWhite:[54:18] Found expr:[54:3->54:21]
+posCursor:[54:19] posNoWhite:[54:18] Found pattern:[54:16->54:20]
+posCursor:[54:19] posNoWhite:[54:18] Found pattern:[54:17->54:19]
 Completable: Cpattern Value[f]=fi->recordBody
 [{
     "label": "first",
@@ -133,12 +152,12 @@ Completable: Cpattern Value[f]=fi->recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 54:19
+Complete src/CompletionPattern.res 57:19
 looking for: Cpath Value[z] 
-posCursor:[54:19] posNoWhite:[54:18] Found expr:[54:3->54:25]
-posCursor:[54:19] posNoWhite:[54:18] Found pattern:[54:16->54:24]
-posCursor:[54:19] posNoWhite:[54:18] Found pattern:[54:17->54:20]
-posCursor:[54:19] posNoWhite:[54:18] Found pattern:[54:18->54:19]
+posCursor:[57:19] posNoWhite:[57:18] Found expr:[57:3->57:25]
+posCursor:[57:19] posNoWhite:[57:18] Found pattern:[57:16->57:24]
+posCursor:[57:19] posNoWhite:[57:18] Found pattern:[57:17->57:20]
+posCursor:[57:19] posNoWhite:[57:18] Found pattern:[57:18->57:19]
 Completable: Cpattern Value[z]=o->tuple($0), recordBody
 [{
     "label": "optThird",
@@ -148,10 +167,10 @@ Completable: Cpattern Value[z]=o->tuple($0), recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 57:22
+Complete src/CompletionPattern.res 60:22
 looking for: Cpath Value[f] 
-posCursor:[57:22] posNoWhite:[57:21] Found expr:[57:3->57:25]
-posCursor:[57:22] posNoWhite:[57:21] Found pattern:[57:16->57:25]
+posCursor:[60:22] posNoWhite:[60:21] Found expr:[60:3->60:25]
+posCursor:[60:22] posNoWhite:[60:21] Found pattern:[60:16->60:25]
 Completable: Cpattern Value[f]->recordField(nest)
 [{
     "label": "{}",
@@ -164,11 +183,11 @@ Completable: Cpattern Value[f]->recordField(nest)
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionPattern.res 60:24
+Complete src/CompletionPattern.res 63:24
 looking for: Cpath Value[f] 
-posCursor:[60:24] posNoWhite:[60:23] Found expr:[60:3->60:27]
-posCursor:[60:24] posNoWhite:[60:23] Found pattern:[60:16->60:26]
-posCursor:[60:24] posNoWhite:[60:23] Found pattern:[60:23->60:25]
+posCursor:[63:24] posNoWhite:[63:23] Found expr:[63:3->63:27]
+posCursor:[63:24] posNoWhite:[63:23] Found pattern:[63:16->63:26]
+posCursor:[63:24] posNoWhite:[63:23] Found pattern:[63:23->63:25]
 Completable: Cpattern Value[f]->recordField(nest), recordBody
 [{
     "label": "nested",
