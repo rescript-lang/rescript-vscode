@@ -1778,8 +1778,8 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       | Some {typ} -> typ |> resolveNestedPattern ~env ~package ~nested)
     | PRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
       Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
-    | ( PVariantPayload {constructorName; payloadNum},
-        Some (Tvariant {env; constructors}) ) -> (
+    | PVariantPayload {constructorName}, Some (Tvariant {env; constructors})
+      -> (
       match
         constructors
         |> List.find_opt (fun (c : Constructor.t) ->
@@ -1787,10 +1787,15 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       with
       | None -> None
       | Some constructor -> (
+        let payloadNum, nested =
+          match nested with
+          | PTupleItem {itemNum} :: nested -> (itemNum, nested)
+          | _ -> (0, nested)
+        in
         match List.nth_opt constructor.args payloadNum with
         | None -> None
         | Some (typ, _) -> typ |> resolveNestedPattern ~env ~package ~nested))
-    | ( PPolyvariantPayload {constructorName; payloadNum},
+    | ( PPolyvariantPayload {constructorName},
         Some (Tpolyvariant {env; constructors}) ) -> (
       match
         constructors
@@ -1799,6 +1804,11 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       with
       | None -> None
       | Some constructor -> (
+        let payloadNum, nested =
+          match nested with
+          | PTupleItem {itemNum} :: nested -> (itemNum, nested)
+          | _ -> (0, nested)
+        in
         match List.nth_opt constructor.args payloadNum with
         | None -> None
         | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested))

@@ -557,8 +557,8 @@ module Completable = struct
     | PTupleItem of {itemNum: int}
     | PFollowRecordField of {fieldName: string}
     | PRecordBody of {seenFields: string list}
-    | PVariantPayload of {constructorName: string; payloadNum: int}
-    | PPolyvariantPayload of {constructorName: string; payloadNum: int}
+    | PVariantPayload of {constructorName: string}
+    | PPolyvariantPayload of {constructorName: string}
     | PArray
 
   let patternPathToString p =
@@ -566,12 +566,10 @@ module Completable = struct
     | PTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
     | PFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
     | PRecordBody _ -> "recordBody"
-    | PVariantPayload {constructorName; payloadNum} ->
-      "variantPayload::" ^ constructorName ^ "($" ^ string_of_int payloadNum
-      ^ ")"
-    | PPolyvariantPayload {constructorName; payloadNum} ->
-      "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int payloadNum
-      ^ ")"
+    | PVariantPayload {constructorName} ->
+      "variantPayload(" ^ constructorName ^ ")"
+    | PPolyvariantPayload {constructorName} ->
+      "polyvariantPayload(" ^ constructorName ^ ")"
     | PArray -> "array"
 
   type t =
