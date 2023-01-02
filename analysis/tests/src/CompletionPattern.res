@@ -93,6 +93,9 @@ ignore(z)
 // switch z { | Three({})}
 //                     ^com
 
+// switch z { | Three({}, t)}
+//                         ^com
+
 type somePolyVariant = [#one | #two(bool) | #three(someRecord, bool)]
 let b: somePolyVariant = #two(true)
 ignore(b)
@@ -105,6 +108,9 @@ ignore(b)
 
 // switch b { | #three({})}
 //                      ^com
+
+// switch b { | #three({}, t)}
+//                          ^com
 
 let c: array<bool> = []
 ignore(c)
