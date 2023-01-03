@@ -159,3 +159,14 @@ let v: multiPayloadPolyVariant = #test(1, true, Some(false), [])
 
 // switch v { | #test(1, true, None, )}
 //                                  ^com
+
+let s = (true, Some(true), [false])
+
+// switch s { | () }
+//               ^com
+
+// switch s { | (true, ) }
+//                     ^com
+
+// switch s { | (true, , []) }
+//                    ^com

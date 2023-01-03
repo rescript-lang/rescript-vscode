@@ -629,3 +629,64 @@ Completable: Cpattern Value[v]->polyvariantPayload::test($3)
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionPattern.res 164:17
+looking for: Cpath Value[s] 
+posCursor:[164:17] posNoWhite:[164:16] Found expr:[164:3->164:20]
+posCursor:[164:17] posNoWhite:[164:16] Found pattern:[164:16->164:18]
+Completable: Cpattern Value[s]->tuple($0)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 167:23
+looking for: Cpath Value[s] 
+posCursor:[167:23] posNoWhite:[167:21] Found expr:[167:3->167:26]
+posCursor:[167:23] posNoWhite:[167:21] Found pattern:[167:16->167:24]
+Completable: Cpattern Value[s]->tuple($1)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionPattern.res 170:22
+looking for: Cpath Value[s] 
+posCursor:[170:22] posNoWhite:[170:21] Found expr:[170:3->170:30]
+posCursor:[170:22] posNoWhite:[170:21] Found pattern:[170:16->170:28]
+Completable: Cpattern Value[s]->tuple($1)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
+
