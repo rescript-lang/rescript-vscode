@@ -2173,7 +2173,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | Cpattern {typ; prefix; nested = None} -> (
+  | Cpattern {typ; prefix; nested = []} -> (
     let envWhereCompletionStarted = env in
     match
       typ
@@ -2186,7 +2186,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
            ~expandOption:false ~includeLocalValues:false ~completionContext:None
     | None -> [])
-  | Cpattern {typ; prefix; nested = Some nested} -> (
+  | Cpattern {typ; prefix; nested} -> (
     let envWhereCompletionStarted = env in
     match
       typ

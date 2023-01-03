@@ -634,11 +634,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let completePattern (pat : Parsetree.pattern) =
     match (pat |> traversePattern ~patternPath:[], !lookingForPat) with
-    | Some (prefix, []), Some (Completable.Cpattern p) ->
-      setResult (Completable.Cpattern {p with prefix; nested = None})
-    | Some (prefix, nestedPattern), Some (Cpattern p) ->
+    | Some (prefix, nestedPattern), Some ctxPath ->
       setResult
-        (Cpattern {p with prefix; nested = Some (List.rev nestedPattern)})
+        (Completable.Cpattern
+           {typ = ctxPath; prefix; nested = List.rev nestedPattern})
     | _ -> ()
   in
   let scopeValueBinding (vb : Parsetree.value_binding) =
@@ -674,8 +673,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
   let setLookingForPat ctxPath =
-    lookingForPat :=
-      Some (Completable.Cpattern {typ = ctxPath; prefix = ""; nested = None});
+    lookingForPat := Some ctxPath;
     if debug then
       Printf.printf "looking for: %s \n" (Completable.toString (Cpath ctxPath))
   in
@@ -706,7 +704,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | None -> ()
         | Some ctxPath ->
           setResult
-            (Completable.Cpattern {typ = ctxPath; nested = None; prefix = ""}))
+            (Completable.Cpattern {typ = ctxPath; nested = []; prefix = ""}))
       | Pexp_match (exp, _cases) -> (
         (* If there's more than one case, or the case isn't a pattern hole, set that we're looking for this path currently. *)
         match exp |> exprToContextPath with
