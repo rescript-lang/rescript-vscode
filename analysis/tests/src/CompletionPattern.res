@@ -42,6 +42,7 @@ let f: someRecord = {
 }
 
 let z = (f, true)
+ignore(z)
 
 // switch f { | }
 //             ^com

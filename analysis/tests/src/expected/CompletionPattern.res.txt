@@ -74,7 +74,7 @@ Completable: Cpattern Value[x]=t
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 45:15
+Complete src/CompletionPattern.res 46:15
 XXX Not found!
 Completable: Cpattern Value[f]
 [{
@@ -88,10 +88,10 @@ Completable: Cpattern Value[f]
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionPattern.res 48:17
+Complete src/CompletionPattern.res 49:17
 looking for: Cpath Value[f] 
-posCursor:[48:17] posNoWhite:[48:16] Found expr:[48:3->48:19]
-posCursor:[48:17] posNoWhite:[48:16] Found pattern:[48:16->48:18]
+posCursor:[49:17] posNoWhite:[49:16] Found expr:[49:3->49:19]
+posCursor:[49:17] posNoWhite:[49:16] Found pattern:[49:16->49:18]
 Completable: Cpattern Value[f]->recordBody
 [{
     "label": "first",
@@ -119,10 +119,10 @@ Completable: Cpattern Value[f]->recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 51:24
+Complete src/CompletionPattern.res 52:24
 looking for: Cpath Value[f] 
-posCursor:[51:24] posNoWhite:[51:22] Found expr:[51:3->51:36]
-posCursor:[51:24] posNoWhite:[51:22] Found pattern:[51:16->51:35]
+posCursor:[52:24] posNoWhite:[52:22] Found expr:[52:3->52:36]
+posCursor:[52:24] posNoWhite:[52:22] Found pattern:[52:16->52:35]
 Completable: Cpattern Value[f]->recordBody
 [{
     "label": "optThird",
@@ -138,11 +138,11 @@ Completable: Cpattern Value[f]->recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 54:19
+Complete src/CompletionPattern.res 55:19
 looking for: Cpath Value[f] 
-posCursor:[54:19] posNoWhite:[54:18] Found expr:[54:3->54:21]
-posCursor:[54:19] posNoWhite:[54:18] Found pattern:[54:16->54:20]
-posCursor:[54:19] posNoWhite:[54:18] Found pattern:[54:17->54:19]
+posCursor:[55:19] posNoWhite:[55:18] Found expr:[55:3->55:21]
+posCursor:[55:19] posNoWhite:[55:18] Found pattern:[55:16->55:20]
+posCursor:[55:19] posNoWhite:[55:18] Found pattern:[55:17->55:19]
 Completable: Cpattern Value[f]=fi->recordBody
 [{
     "label": "first",
@@ -152,12 +152,12 @@ Completable: Cpattern Value[f]=fi->recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 57:19
+Complete src/CompletionPattern.res 58:19
 looking for: Cpath Value[z] 
-posCursor:[57:19] posNoWhite:[57:18] Found expr:[57:3->57:25]
-posCursor:[57:19] posNoWhite:[57:18] Found pattern:[57:16->57:24]
-posCursor:[57:19] posNoWhite:[57:18] Found pattern:[57:17->57:20]
-posCursor:[57:19] posNoWhite:[57:18] Found pattern:[57:18->57:19]
+posCursor:[58:19] posNoWhite:[58:18] Found expr:[58:3->58:25]
+posCursor:[58:19] posNoWhite:[58:18] Found pattern:[58:16->58:24]
+posCursor:[58:19] posNoWhite:[58:18] Found pattern:[58:17->58:20]
+posCursor:[58:19] posNoWhite:[58:18] Found pattern:[58:18->58:19]
 Completable: Cpattern Value[z]=o->tuple($0), recordBody
 [{
     "label": "optThird",
@@ -167,10 +167,10 @@ Completable: Cpattern Value[z]=o->tuple($0), recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 60:22
+Complete src/CompletionPattern.res 61:22
 looking for: Cpath Value[f] 
-posCursor:[60:22] posNoWhite:[60:21] Found expr:[60:3->73:1]
-posCursor:[60:22] posNoWhite:[60:21] Found pattern:[60:16->60:25]
+posCursor:[61:22] posNoWhite:[61:21] Found expr:[61:3->74:1]
+posCursor:[61:22] posNoWhite:[61:21] Found pattern:[61:16->61:25]
 Completable: Cpattern Value[f]->recordField(nest)
 [{
     "label": "{}",
@@ -183,11 +183,11 @@ Completable: Cpattern Value[f]->recordField(nest)
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionPattern.res 63:24
+Complete src/CompletionPattern.res 64:24
 looking for: Cpath Value[f] 
-posCursor:[63:24] posNoWhite:[63:23] Found expr:[63:3->63:27]
-posCursor:[63:24] posNoWhite:[63:23] Found pattern:[63:16->63:26]
-posCursor:[63:24] posNoWhite:[63:23] Found pattern:[63:23->63:25]
+posCursor:[64:24] posNoWhite:[64:23] Found expr:[64:3->64:27]
+posCursor:[64:24] posNoWhite:[64:23] Found pattern:[64:16->64:26]
+posCursor:[64:24] posNoWhite:[64:23] Found pattern:[64:23->64:25]
 Completable: Cpattern Value[f]->recordField(nest), recordBody
 [{
     "label": "nested",
@@ -197,14 +197,14 @@ Completable: Cpattern Value[f]->recordField(nest), recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 69:22
+Complete src/CompletionPattern.res 70:22
 looking for: Cpath Value[f] 
-posCursor:[69:22] posNoWhite:[69:21] Found expr:[66:8->73:1]
-posCursor:[69:22] posNoWhite:[69:21] Found expr:[68:2->71:13]
-posCursor:[69:22] posNoWhite:[69:21] Found expr:[69:5->71:13]
+posCursor:[70:22] posNoWhite:[70:21] Found expr:[67:8->74:1]
+posCursor:[70:22] posNoWhite:[70:21] Found expr:[69:2->72:13]
+posCursor:[70:22] posNoWhite:[70:21] Found expr:[70:5->72:13]
 looking for: Cpath Value[nest] 
-posCursor:[69:22] posNoWhite:[69:21] Found expr:[69:5->69:24]
-posCursor:[69:22] posNoWhite:[69:21] Found pattern:[69:21->69:23]
+posCursor:[70:22] posNoWhite:[70:21] Found expr:[70:5->70:24]
+posCursor:[70:22] posNoWhite:[70:21] Found pattern:[70:21->70:23]
 Completable: Cpattern Value[nest]->recordBody
 [{
     "label": "nested",
@@ -214,9 +214,9 @@ Completable: Cpattern Value[nest]->recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 75:8
+Complete src/CompletionPattern.res 76:8
 looking for: Cpath Value[f] 
-posCursor:[75:8] posNoWhite:[75:7] Found pattern:[75:7->75:9]
+posCursor:[76:8] posNoWhite:[76:7] Found pattern:[76:7->76:9]
 Completable: Cpattern Value[f]->recordBody
 [{
     "label": "first",
@@ -244,11 +244,11 @@ Completable: Cpattern Value[f]->recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 78:16
+Complete src/CompletionPattern.res 79:16
 looking for: Cpath Value[f] 
-posCursor:[78:16] posNoWhite:[78:15] Found pattern:[78:7->78:18]
-posCursor:[78:16] posNoWhite:[78:15] Found pattern:[78:14->78:17]
-posCursor:[78:16] posNoWhite:[78:15] Found pattern:[78:15->78:16]
+posCursor:[79:16] posNoWhite:[79:15] Found pattern:[79:7->79:18]
+posCursor:[79:16] posNoWhite:[79:15] Found pattern:[79:14->79:17]
+posCursor:[79:16] posNoWhite:[79:15] Found pattern:[79:15->79:16]
 Completable: Cpattern Value[f]=n->recordField(nest), recordBody
 [{
     "label": "nested",
@@ -258,11 +258,11 @@ Completable: Cpattern Value[f]=n->recordField(nest), recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 86:20
+Complete src/CompletionPattern.res 87:20
 looking for: Cpath Value[z] 
-posCursor:[86:20] posNoWhite:[86:19] Found expr:[86:3->86:22]
-posCursor:[86:20] posNoWhite:[86:19] Found pattern:[86:16->86:21]
-posCursor:[86:20] posNoWhite:[86:19] Found pattern:[86:19->86:21]
+posCursor:[87:20] posNoWhite:[87:19] Found expr:[87:3->87:22]
+posCursor:[87:20] posNoWhite:[87:19] Found pattern:[87:16->87:21]
+posCursor:[87:20] posNoWhite:[87:19] Found pattern:[87:19->87:21]
 Completable: Cpattern Value[z]->variantPayload::Two($0)
 [{
     "label": "true",
@@ -278,11 +278,11 @@ Completable: Cpattern Value[z]->variantPayload::Two($0)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 89:21
+Complete src/CompletionPattern.res 90:21
 looking for: Cpath Value[z] 
-posCursor:[89:21] posNoWhite:[89:20] Found expr:[89:3->89:23]
-posCursor:[89:21] posNoWhite:[89:20] Found pattern:[89:16->89:22]
-posCursor:[89:21] posNoWhite:[89:20] Found pattern:[89:20->89:21]
+posCursor:[90:21] posNoWhite:[90:20] Found expr:[90:3->90:23]
+posCursor:[90:21] posNoWhite:[90:20] Found pattern:[90:16->90:22]
+posCursor:[90:21] posNoWhite:[90:20] Found pattern:[90:20->90:21]
 Completable: Cpattern Value[z]=t->variantPayload::Two($0)
 [{
     "label": "true",
@@ -292,11 +292,11 @@ Completable: Cpattern Value[z]=t->variantPayload::Two($0)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 92:23
+Complete src/CompletionPattern.res 93:23
 looking for: Cpath Value[z] 
-posCursor:[92:23] posNoWhite:[92:22] Found expr:[92:3->92:26]
-posCursor:[92:23] posNoWhite:[92:22] Found pattern:[92:16->92:25]
-posCursor:[92:23] posNoWhite:[92:22] Found pattern:[92:22->92:24]
+posCursor:[93:23] posNoWhite:[93:22] Found expr:[93:3->93:26]
+posCursor:[93:23] posNoWhite:[93:22] Found pattern:[93:16->93:25]
+posCursor:[93:23] posNoWhite:[93:22] Found pattern:[93:22->93:24]
 Completable: Cpattern Value[z]->variantPayload::Three($0), recordBody
 [{
     "label": "first",
@@ -324,12 +324,12 @@ Completable: Cpattern Value[z]->variantPayload::Three($0), recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 95:27
+Complete src/CompletionPattern.res 96:27
 looking for: Cpath Value[z] 
-posCursor:[95:27] posNoWhite:[95:26] Found expr:[95:3->95:29]
-posCursor:[95:27] posNoWhite:[95:26] Found pattern:[95:16->95:28]
-posCursor:[95:27] posNoWhite:[95:26] Found pattern:[95:21->95:29]
-posCursor:[95:27] posNoWhite:[95:26] Found pattern:[95:26->95:27]
+posCursor:[96:27] posNoWhite:[96:26] Found expr:[96:3->96:29]
+posCursor:[96:27] posNoWhite:[96:26] Found pattern:[96:16->96:28]
+posCursor:[96:27] posNoWhite:[96:26] Found pattern:[96:21->96:29]
+posCursor:[96:27] posNoWhite:[96:26] Found pattern:[96:26->96:27]
 Completable: Cpattern Value[z]=t->variantPayload::Three($1)
 [{
     "label": "true",
@@ -339,11 +339,11 @@ Completable: Cpattern Value[z]=t->variantPayload::Three($1)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 102:21
+Complete src/CompletionPattern.res 103:21
 looking for: Cpath Value[b] 
-posCursor:[102:21] posNoWhite:[102:20] Found expr:[102:3->102:23]
-posCursor:[102:21] posNoWhite:[102:20] Found pattern:[102:16->102:22]
-posCursor:[102:21] posNoWhite:[102:20] Found pattern:[102:20->102:21]
+posCursor:[103:21] posNoWhite:[103:20] Found expr:[103:3->103:23]
+posCursor:[103:21] posNoWhite:[103:20] Found pattern:[103:16->103:22]
+posCursor:[103:21] posNoWhite:[103:20] Found pattern:[103:20->103:21]
 Completable: Cpattern Value[b]->polyvariantPayload::two($0)
 [{
     "label": "true",
@@ -359,11 +359,11 @@ Completable: Cpattern Value[b]->polyvariantPayload::two($0)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 105:22
+Complete src/CompletionPattern.res 106:22
 looking for: Cpath Value[b] 
-posCursor:[105:22] posNoWhite:[105:21] Found expr:[105:3->105:24]
-posCursor:[105:22] posNoWhite:[105:21] Found pattern:[105:16->105:23]
-posCursor:[105:22] posNoWhite:[105:21] Found pattern:[105:21->105:22]
+posCursor:[106:22] posNoWhite:[106:21] Found expr:[106:3->106:24]
+posCursor:[106:22] posNoWhite:[106:21] Found pattern:[106:16->106:23]
+posCursor:[106:22] posNoWhite:[106:21] Found pattern:[106:21->106:22]
 Completable: Cpattern Value[b]=t->polyvariantPayload::two($0)
 [{
     "label": "true",
@@ -373,11 +373,11 @@ Completable: Cpattern Value[b]=t->polyvariantPayload::two($0)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 108:24
+Complete src/CompletionPattern.res 109:24
 looking for: Cpath Value[b] 
-posCursor:[108:24] posNoWhite:[108:23] Found expr:[108:3->108:27]
-posCursor:[108:24] posNoWhite:[108:23] Found pattern:[108:16->108:26]
-posCursor:[108:24] posNoWhite:[108:23] Found pattern:[108:23->108:25]
+posCursor:[109:24] posNoWhite:[109:23] Found expr:[109:3->109:27]
+posCursor:[109:24] posNoWhite:[109:23] Found pattern:[109:16->109:26]
+posCursor:[109:24] posNoWhite:[109:23] Found pattern:[109:23->109:25]
 Completable: Cpattern Value[b]->polyvariantPayload::three($0), recordBody
 [{
     "label": "first",
@@ -405,12 +405,12 @@ Completable: Cpattern Value[b]->polyvariantPayload::three($0), recordBody
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 111:28
+Complete src/CompletionPattern.res 112:28
 looking for: Cpath Value[b] 
-posCursor:[111:28] posNoWhite:[111:27] Found expr:[111:3->111:30]
-posCursor:[111:28] posNoWhite:[111:27] Found pattern:[111:16->111:29]
-posCursor:[111:28] posNoWhite:[111:27] Found pattern:[111:22->111:29]
-posCursor:[111:28] posNoWhite:[111:27] Found pattern:[111:27->111:28]
+posCursor:[112:28] posNoWhite:[112:27] Found expr:[112:3->112:30]
+posCursor:[112:28] posNoWhite:[112:27] Found pattern:[112:16->112:29]
+posCursor:[112:28] posNoWhite:[112:27] Found pattern:[112:22->112:29]
+posCursor:[112:28] posNoWhite:[112:27] Found pattern:[112:27->112:28]
 Completable: Cpattern Value[b]=t->polyvariantPayload::three($1)
 [{
     "label": "true",
@@ -420,7 +420,7 @@ Completable: Cpattern Value[b]=t->polyvariantPayload::three($1)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 117:15
+Complete src/CompletionPattern.res 118:15
 XXX Not found!
 Completable: Cpattern Value[c]
 [{
@@ -434,10 +434,10 @@ Completable: Cpattern Value[c]
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionPattern.res 120:17
+Complete src/CompletionPattern.res 121:17
 looking for: Cpath Value[c] 
-posCursor:[120:17] posNoWhite:[120:16] Found expr:[120:3->120:20]
-posCursor:[120:17] posNoWhite:[120:16] Found pattern:[120:16->120:18]
+posCursor:[121:17] posNoWhite:[121:16] Found expr:[121:3->121:20]
+posCursor:[121:17] posNoWhite:[121:16] Found pattern:[121:16->121:18]
 Completable: Cpattern Value[c]->array
 [{
     "label": "true",
