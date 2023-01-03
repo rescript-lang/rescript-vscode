@@ -965,7 +965,6 @@ Resolved opens 2 Completion.res Completion.res
 []
 
 Complete src/Completion.res 243:8
-looking for: Cpath Value[someR] 
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[241:8->246:1]
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->243:8]
 Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->243:8])

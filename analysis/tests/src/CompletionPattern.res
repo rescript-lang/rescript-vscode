@@ -170,3 +170,9 @@ let s = (true, Some(true), [false])
 
 // switch s { | (true, , []) }
 //                    ^com
+
+// switch s { | (true, []) => () |  }
+//                                 ^com
+
+// switch s { | (true, []) => () | (true, , [])  }
+//                                       ^com

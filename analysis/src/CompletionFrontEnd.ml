@@ -712,13 +712,35 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | Some ctxPath ->
           setResult
             (Completable.Cpattern {typ = ctxPath; nested = []; prefix = ""}))
-      | Pexp_match (exp, _cases) -> (
-        (* If there's more than one case, or the case isn't a pattern hole, set that we're looking for this path currently. *)
+      | Pexp_match (exp, cases) -> (
+        (* If there's more than one case, or the case isn't a pattern hole, figure out if we're completing another
+           broken parser case (`switch x { | true => () | <com> }` for example). *)
         match exp |> exprToContextPath with
         | None -> ()
-        | Some ctxPath -> setLookingForPat ctxPath)
+        | Some ctxPath -> (
+          let caseWithCursor =
+            cases
+            |> List.find_opt (fun case ->
+                   case.Parsetree.pc_lhs.ppat_loc
+                   |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+                   = HasCursor)
+          in
+          let caseWithPatHole =
+            cases
+            |> List.find_opt (fun case -> isPatternHole case.Parsetree.pc_lhs)
+          in
+          match (caseWithPatHole, caseWithCursor) with
+          | _, Some _ ->
+            (* Always continue if there's a case with the cursor *)
+            setLookingForPat ctxPath
+          | Some _, None ->
+            (* If there's no case with the cursor, but a broken parser case, complete for the top level. *)
+            setResult
+              (Completable.Cpattern {typ = ctxPath; nested = []; prefix = ""})
+          | None, None -> ()))
       | _ -> unsetLookingForPat ()
   in
+
   let case (iterator : Ast_iterator.iterator) (case : Parsetree.case) =
     let oldScope = !scope in
     scopePattern case.pc_lhs;
