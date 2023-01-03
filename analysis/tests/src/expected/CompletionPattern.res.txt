@@ -453,3 +453,23 @@ Completable: Cpattern Value[c]->array
     "documentation": null
   }]
 
+Complete src/CompletionPattern.res 127:21
+looking for: Cpath Value[o] 
+posCursor:[127:21] posNoWhite:[127:20] Found expr:[127:3->127:24]
+posCursor:[127:21] posNoWhite:[127:20] Found pattern:[127:16->127:22]
+posCursor:[127:21] posNoWhite:[127:20] Found pattern:[127:20->127:22]
+Completable: Cpattern Value[o]->variantPayload::Some($0)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+

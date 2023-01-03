@@ -1780,8 +1780,11 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       | Some {typ} -> typ |> resolveNestedPattern ~env ~package ~nested)
     | PRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
       Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
-    | PVariantPayload {constructorName; itemNum}, Some (Tvariant {env; constructors})
-      -> (
+    | ( PVariantPayload {constructorName = "Some"; itemNum = 0},
+        Some (Toption (env, typ)) ) ->
+      typ |> resolveNestedPattern ~env ~package ~nested
+    | ( PVariantPayload {constructorName; itemNum},
+        Some (Tvariant {env; constructors}) ) -> (
       match
         constructors
         |> List.find_opt (fun (c : Constructor.t) ->
