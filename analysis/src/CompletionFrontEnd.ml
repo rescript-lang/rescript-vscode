@@ -316,20 +316,6 @@ let completePipeChain ~(lhs : Parsetree.expression) =
     |> Option.map (fun ctxPath -> (ctxPath, pexp_loc))
   | _ -> None
 
-let findPatTupleItemWithCursor patterns ~pos =
-  let patCount = ref None in
-  let patCountWithPatHole = ref None in
-  patterns
-  |> List.iteri (fun index p ->
-         match p.Parsetree.ppat_loc |> CursorPosition.classifyLoc ~pos with
-         | HasCursor -> patCount := Some index
-         | EmptyLoc -> patCountWithPatHole := Some index
-         | _ -> ());
-  match (!patCount, !patCountWithPatHole) with
-  | Some patCount, _ -> Some patCount
-  | None, Some patHoleCount -> Some patHoleCount
-  | _ -> None
-
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let offsetNoWhite = Utils.skipWhite text (offset - 1) in
   let posNoWhite =
