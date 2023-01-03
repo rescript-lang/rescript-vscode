@@ -121,3 +121,9 @@ ignore(c)
 
 // switch c { | [] }
 //               ^com
+
+let o = Some(true)
+ignore(o)
+
+// switch o { | Some() }
+//                   ^com
