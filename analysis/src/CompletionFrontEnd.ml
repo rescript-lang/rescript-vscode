@@ -711,26 +711,28 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         match exp |> exprToContextPath with
         | None -> ()
         | Some ctxPath -> (
-          let caseWithCursor =
+          let hasCaseWithCursor =
             cases
             |> List.find_opt (fun case ->
                    case.Parsetree.pc_lhs.ppat_loc
                    |> CursorPosition.classifyLoc ~pos:posBeforeCursor
                    = HasCursor)
+            |> Option.is_some
           in
-          let caseWithPatHole =
+          let hasCaseWithPatHole =
             cases
             |> List.find_opt (fun case -> isPatternHole case.Parsetree.pc_lhs)
+            |> Option.is_some
           in
-          match (caseWithPatHole, caseWithCursor) with
-          | _, Some _ ->
+          match (hasCaseWithPatHole, hasCaseWithCursor) with
+          | _, true ->
             (* Always continue if there's a case with the cursor *)
             setLookingForPat ctxPath
-          | Some _, None ->
+          | true, false ->
             (* If there's no case with the cursor, but a broken parser case, complete for the top level. *)
             setResult
               (Completable.Cpattern {typ = ctxPath; nested = []; prefix = ""})
-          | None, None -> ()))
+          | false, false -> ()))
       | _ -> unsetLookingForPat ()
   in
 
