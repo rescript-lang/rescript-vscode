@@ -592,11 +592,7 @@ module Completable = struct
         propName: string;
         prefix: string;
       }
-    | Cpattern of {
-        typ: contextPath;
-        nested: patternPath list option;
-        prefix: string;
-      }
+    | Cpattern of {typ: contextPath; nested: patternPath list; prefix: string}
 
   (** An extracted type from a type expr *)
   type extractedType =
@@ -677,8 +673,8 @@ module Completable = struct
       ^ (if prefix = "" then "" else "=" ^ prefix)
       ^
       match nested with
-      | None -> ""
-      | Some patternPaths ->
+      | [] -> ""
+      | patternPaths ->
         "->"
         ^ (patternPaths
           |> List.map (fun patternPath -> patternPathToString patternPath)
