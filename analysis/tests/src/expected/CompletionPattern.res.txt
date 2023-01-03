@@ -723,3 +723,32 @@ Completable: Cpattern Value[s]->tuple($1)
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionPattern.res 179:21
+XXX Not found!
+Completable: Cpattern Value[z]
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+

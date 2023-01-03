@@ -699,6 +699,10 @@ module CursorPosition = struct
     if posStart <= pos && pos <= posEnd then HasCursor
     else if posEnd = (Location.none |> Loc.end_) then EmptyLoc
     else NoCursor
+
+  let locHasCursor loc ~pos = loc |> classifyLoc ~pos = HasCursor
+
+  let locIsEmpty loc ~pos = loc |> classifyLoc ~pos = EmptyLoc
 end
 
 type labelled = {
