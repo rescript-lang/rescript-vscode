@@ -404,6 +404,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
 
   let lookingForPat = ref None in
 
+  let locHasCursor = CursorPosition.locHasCursor ~pos:posBeforeCursor in
+  let locIsEmpty = CursorPosition.locIsEmpty ~pos:posBeforeCursor in
+
   let rec traverseTupleItems tupleItems ~nextPatternPath ~resultFromFoundItemNum
       =
     let itemNum = ref (-1) in
@@ -425,219 +428,200 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       if !posNum > -1 then Some ("", resultFromFoundItemNum !posNum) else None
     | v, _ -> v
   and traversePattern (pat : Parsetree.pattern) ~patternPath =
-    if
-      pat.ppat_loc
-      |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-      = HasCursor
-    then
-      match pat.ppat_desc with
-      | Ppat_any | Ppat_constant _ | Ppat_interval _ -> None
-      | Ppat_lazy p
-      | Ppat_constraint (p, _)
-      | Ppat_alias (p, _)
-      | Ppat_exception p
-      | Ppat_open (_, p) ->
-        p |> traversePattern ~patternPath
-      | Ppat_or (p1, p2) ->
+    let someIfHasCursor v =
+      if locHasCursor pat.Parsetree.ppat_loc then Some v else None
+    in
+    match pat.ppat_desc with
+    | Ppat_any | Ppat_constant _ | Ppat_interval _ -> None
+    | Ppat_lazy p
+    | Ppat_constraint (p, _)
+    | Ppat_alias (p, _)
+    | Ppat_exception p
+    | Ppat_open (_, p) ->
+      p |> traversePattern ~patternPath
+    | Ppat_or (p1, p2) -> (
+      let orPatWithItem =
         [p1; p2] |> List.find_map (fun p -> p |> traversePattern ~patternPath)
-      | Ppat_var {txt} -> Some (txt, patternPath)
-      | Ppat_construct ({txt = Lident "()"}, None) ->
-        (* switch s { | (<com>) }*)
-        Some ("", patternPath @ [Completable.PTupleItem {itemNum = 0}])
-      | Ppat_construct ({txt = Lident prefix}, None) ->
-        Some (prefix, patternPath)
-      | Ppat_variant (prefix, None) -> Some ("#" ^ prefix, patternPath)
-      | Ppat_array arrayPatterns ->
-        let nextPatternPath = [Completable.PArray] @ patternPath in
-        if List.length arrayPatterns = 0 then Some ("", nextPatternPath)
-        else
-          arrayPatterns
-          |> List.find_map (fun pat ->
-                 pat |> traversePattern ~patternPath:nextPatternPath)
-      | Ppat_tuple tupleItems ->
-        tupleItems
-        |> traverseTupleItems
-             ~nextPatternPath:(fun itemNum ->
-               [Completable.PTupleItem {itemNum}] @ patternPath)
-             ~resultFromFoundItemNum:(fun itemNum ->
-               [Completable.PTupleItem {itemNum = itemNum + 1}] @ patternPath)
-      | Ppat_record ([], _) ->
-        (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
-        Some ("", [Completable.PRecordBody {seenFields = []}] @ patternPath)
-      | Ppat_record (fields, _) -> (
-        let fieldWithCursor = ref None in
-        let fieldWithPatHole = ref None in
+      in
+      match orPatWithItem with
+      | None when isPatternHole p1 || isPatternHole p2 -> Some ("", patternPath)
+      | v -> v)
+    | Ppat_var {txt} -> someIfHasCursor (txt, patternPath)
+    | Ppat_construct ({txt = Lident "()"}, None) ->
+      (* switch s { | (<com>) }*)
+      someIfHasCursor ("", patternPath @ [Completable.PTupleItem {itemNum = 0}])
+    | Ppat_construct ({txt = Lident prefix}, None) ->
+      someIfHasCursor (prefix, patternPath)
+    | Ppat_variant (prefix, None) -> someIfHasCursor ("#" ^ prefix, patternPath)
+    | Ppat_array arrayPatterns ->
+      let nextPatternPath = [Completable.PArray] @ patternPath in
+      if List.length arrayPatterns = 0 && locHasCursor pat.ppat_loc then
+        Some ("", nextPatternPath)
+      else
+        arrayPatterns
+        |> List.find_map (fun pat ->
+               pat |> traversePattern ~patternPath:nextPatternPath)
+    | Ppat_tuple tupleItems when locHasCursor pat.ppat_loc ->
+      tupleItems
+      |> traverseTupleItems
+           ~nextPatternPath:(fun itemNum ->
+             [Completable.PTupleItem {itemNum}] @ patternPath)
+           ~resultFromFoundItemNum:(fun itemNum ->
+             [Completable.PTupleItem {itemNum = itemNum + 1}] @ patternPath)
+    | Ppat_record ([], _) ->
+      (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
+      someIfHasCursor
+        ("", [Completable.PRecordBody {seenFields = []}] @ patternPath)
+    | Ppat_record (fields, _) -> (
+      let fieldWithCursor = ref None in
+      let fieldWithPatHole = ref None in
+      fields
+      |> List.iter (fun (fname, f) ->
+             match
+               ( fname.Location.txt,
+                 f.Parsetree.ppat_loc
+                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
+             with
+             | Longident.Lident fname, HasCursor ->
+               fieldWithCursor := Some (fname, f)
+             | Lident fname, _ when isPatternHole f ->
+               fieldWithPatHole := Some (fname, f)
+             | _ -> ());
+      let seenFields =
         fields
-        |> List.iter (fun (fname, f) ->
-               match
-                 ( fname.Location.txt,
-                   f.Parsetree.ppat_loc
-                   |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
-               with
-               | Longident.Lident fname, HasCursor ->
-                 fieldWithCursor := Some (fname, f)
-               | Lident fname, _ when isPatternHole f ->
-                 fieldWithPatHole := Some (fname, f)
-               | _ -> ());
-        let seenFields =
-          fields
-          |> List.filter_map (fun (fieldName, _f) ->
-                 match fieldName with
-                 | {Location.txt = Longident.Lident fieldName} -> Some fieldName
-                 | _ -> None)
-        in
-        match (!fieldWithCursor, !fieldWithPatHole) with
-        | Some (fname, f), _ | None, Some (fname, f) -> (
-          match f.ppat_desc with
-          | Ppat_record _ | Ppat_construct _ | Ppat_variant _ | Ppat_tuple _ ->
-            (* These are things we can continue into in the pattern. *)
-            f
-            |> traversePattern
-                 ~patternPath:
-                   ([Completable.PFollowRecordField {fieldName = fname}]
-                   @ patternPath)
-          | Ppat_extension ({txt = "rescript.patternhole"}, _) ->
-            (* A pattern hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
-            Some
-              ( "",
-                [Completable.PFollowRecordField {fieldName = fname}]
-                @ patternPath )
-          | Ppat_var {txt} ->
-            (* A var means `{s}` or similar. Complete for fields. *)
-            Some (txt, [Completable.PRecordBody {seenFields}] @ patternPath)
-          | _ -> None)
-        | None, None -> (
-          (* Figure out if we're completing for a new field.
-             If the cursor is inside of the record body, but no field has the cursor,
-             and there's no pattern hole. Check the first char to the left of the cursor,
-             ignoring white space. If that's a comma, we assume you're completing for a new field. *)
-          match firstCharBeforeCursorNoWhite with
-          | Some ',' ->
-            Some ("", [Completable.PRecordBody {seenFields}] @ patternPath)
-          | _ -> None))
-      | Ppat_construct
-          ( {txt},
-            Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
-          )
-        when ppat_loc
-             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor ->
-        (* Empty payload with cursor, like: Test(<com>) *)
-        Some
-          ( "",
-            [
-              Completable.PVariantPayload
-                {constructorName = getUnqualifiedName txt; itemNum = 0};
-            ]
-            @ patternPath )
-      | Ppat_construct ({txt}, Some pat)
-        when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
-             && firstCharBeforeCursorNoWhite = Some ','
-             && isPatternTuple pat = false ->
-        (* Empty payload with trailing ',', like: Test(true, <com>) *)
-        Some
-          ( "",
-            [
-              Completable.PVariantPayload
-                {constructorName = getUnqualifiedName txt; itemNum = 1};
-            ]
-            @ patternPath )
-      | Ppat_construct ({txt}, Some pat)
-        when pat.ppat_loc
-             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor
-             && isPatternTuple pat = false ->
-        (* Single payload *)
-        pat
-        |> traversePattern
-             ~patternPath:
-               ([
-                  Completable.PVariantPayload
-                    {constructorName = getUnqualifiedName txt; itemNum = 0};
-                ]
-               @ patternPath)
-      | Ppat_construct
-          ({txt}, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
-        when ppat_loc
-             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor ->
-        tupleItems
-        |> traverseTupleItems
-             ~nextPatternPath:(fun itemNum ->
-               [
-                 Completable.PVariantPayload
-                   {constructorName = getUnqualifiedName txt; itemNum};
-               ]
-               @ patternPath)
-             ~resultFromFoundItemNum:(fun itemNum ->
-               [
-                 Completable.PVariantPayload
-                   {
-                     constructorName = getUnqualifiedName txt;
-                     itemNum = itemNum + 1;
-                   };
-               ]
-               @ patternPath)
-      | Ppat_variant
-          ( txt,
-            Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
-          )
-        when ppat_loc
-             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor ->
-        (* Empty payload with cursor, like: #test(<com>) *)
-        Some
-          ( "",
-            [
-              Completable.PPolyvariantPayload
-                {constructorName = txt; itemNum = 0};
-            ]
-            @ patternPath )
-      | Ppat_variant (txt, Some pat)
-        when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
-             && firstCharBeforeCursorNoWhite = Some ','
-             && isPatternTuple pat = false ->
-        (* Empty payload with trailing ',', like: #test(true, <com>) *)
-        Some
-          ( "",
-            [
-              Completable.PPolyvariantPayload
-                {constructorName = txt; itemNum = 1};
-            ]
-            @ patternPath )
-      | Ppat_variant (txt, Some pat)
-        when pat.ppat_loc
-             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor
-             && isPatternTuple pat = false ->
-        (* Single payload *)
-        pat
-        |> traversePattern
-             ~patternPath:
-               ([
-                  Completable.PPolyvariantPayload
-                    {constructorName = txt; itemNum = 0};
-                ]
-               @ patternPath)
-      | Ppat_variant (txt, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
-        when ppat_loc
-             |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor ->
-        tupleItems
-        |> traverseTupleItems
-             ~nextPatternPath:(fun itemNum ->
-               [
-                 Completable.PPolyvariantPayload {constructorName = txt; itemNum};
-               ]
-               @ patternPath)
-             ~resultFromFoundItemNum:(fun itemNum ->
-               [
-                 Completable.PPolyvariantPayload
-                   {constructorName = txt; itemNum = itemNum + 1};
-               ]
-               @ patternPath)
-      | _ -> None
-    else None
+        |> List.filter_map (fun (fieldName, _f) ->
+               match fieldName with
+               | {Location.txt = Longident.Lident fieldName} -> Some fieldName
+               | _ -> None)
+      in
+      match (!fieldWithCursor, !fieldWithPatHole) with
+      | Some (fname, f), _ | None, Some (fname, f) -> (
+        match f.ppat_desc with
+        | Ppat_extension ({txt = "rescript.patternhole"}, _) ->
+          (* A pattern hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
+          someIfHasCursor
+            ( "",
+              [Completable.PFollowRecordField {fieldName = fname}] @ patternPath
+            )
+        | Ppat_var {txt} ->
+          (* A var means `{s}` or similar. Complete for fields. *)
+          someIfHasCursor
+            (txt, [Completable.PRecordBody {seenFields}] @ patternPath)
+        | _ ->
+          f
+          |> traversePattern
+               ~patternPath:
+                 ([Completable.PFollowRecordField {fieldName = fname}]
+                 @ patternPath))
+      | None, None -> (
+        (* Figure out if we're completing for a new field.
+           If the cursor is inside of the record body, but no field has the cursor,
+           and there's no pattern hole. Check the first char to the left of the cursor,
+           ignoring white space. If that's a comma, we assume you're completing for a new field. *)
+        match firstCharBeforeCursorNoWhite with
+        | Some ',' ->
+          someIfHasCursor
+            ("", [Completable.PRecordBody {seenFields}] @ patternPath)
+        | _ -> None))
+    | Ppat_construct
+        ( {txt},
+          Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
+        )
+      when locHasCursor ppat_loc ->
+      (* Empty payload with cursor, like: Test(<com>) *)
+      Some
+        ( "",
+          [
+            Completable.PVariantPayload
+              {constructorName = getUnqualifiedName txt; itemNum = 0};
+          ]
+          @ patternPath )
+    | Ppat_construct ({txt}, Some pat)
+      when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
+           && firstCharBeforeCursorNoWhite = Some ','
+           && isPatternTuple pat = false ->
+      (* Empty payload with trailing ',', like: Test(true, <com>) *)
+      Some
+        ( "",
+          [
+            Completable.PVariantPayload
+              {constructorName = getUnqualifiedName txt; itemNum = 1};
+          ]
+          @ patternPath )
+    | Ppat_construct ({txt}, Some pat)
+      when locHasCursor pat.ppat_loc && isPatternTuple pat = false ->
+      (* Single payload *)
+      pat
+      |> traversePattern
+           ~patternPath:
+             ([
+                Completable.PVariantPayload
+                  {constructorName = getUnqualifiedName txt; itemNum = 0};
+              ]
+             @ patternPath)
+    | Ppat_construct ({txt}, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
+      when locHasCursor ppat_loc ->
+      tupleItems
+      |> traverseTupleItems
+           ~nextPatternPath:(fun itemNum ->
+             [
+               Completable.PVariantPayload
+                 {constructorName = getUnqualifiedName txt; itemNum};
+             ]
+             @ patternPath)
+           ~resultFromFoundItemNum:(fun itemNum ->
+             [
+               Completable.PVariantPayload
+                 {
+                   constructorName = getUnqualifiedName txt;
+                   itemNum = itemNum + 1;
+                 };
+             ]
+             @ patternPath)
+    | Ppat_variant
+        ( txt,
+          Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
+        )
+      when locHasCursor ppat_loc ->
+      (* Empty payload with cursor, like: #test(<com>) *)
+      Some
+        ( "",
+          [Completable.PPolyvariantPayload {constructorName = txt; itemNum = 0}]
+          @ patternPath )
+    | Ppat_variant (txt, Some pat)
+      when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
+           && firstCharBeforeCursorNoWhite = Some ','
+           && isPatternTuple pat = false ->
+      (* Empty payload with trailing ',', like: #test(true, <com>) *)
+      Some
+        ( "",
+          [Completable.PPolyvariantPayload {constructorName = txt; itemNum = 1}]
+          @ patternPath )
+    | Ppat_variant (txt, Some pat)
+      when locHasCursor pat.ppat_loc && isPatternTuple pat = false ->
+      (* Single payload *)
+      pat
+      |> traversePattern
+           ~patternPath:
+             ([
+                Completable.PPolyvariantPayload
+                  {constructorName = txt; itemNum = 0};
+              ]
+             @ patternPath)
+    | Ppat_variant (txt, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
+      when locHasCursor ppat_loc ->
+      tupleItems
+      |> traverseTupleItems
+           ~nextPatternPath:(fun itemNum ->
+             [Completable.PPolyvariantPayload {constructorName = txt; itemNum}]
+             @ patternPath)
+           ~resultFromFoundItemNum:(fun itemNum ->
+             [
+               Completable.PPolyvariantPayload
+                 {constructorName = txt; itemNum = itemNum + 1};
+             ]
+             @ patternPath)
+    | _ -> None
   in
   let completePattern (pat : Parsetree.pattern) =
     match (pat |> traversePattern ~patternPath:[], !lookingForPat) with
@@ -721,17 +705,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           let hasCaseWithCursor =
             cases
             |> List.find_opt (fun case ->
-                   case.Parsetree.pc_lhs.ppat_loc
-                   |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-                   = HasCursor)
+                   locHasCursor case.Parsetree.pc_lhs.ppat_loc)
             |> Option.is_some
           in
-          let hasCaseWithPatHole =
+          let hasCaseWithEmptyLoc =
             cases
-            |> List.find_opt (fun case -> isPatternHole case.Parsetree.pc_lhs)
+            |> List.find_opt (fun case ->
+                   locIsEmpty case.Parsetree.pc_lhs.ppat_loc)
             |> Option.is_some
           in
-          match (hasCaseWithPatHole, hasCaseWithCursor) with
+          match (hasCaseWithEmptyLoc, hasCaseWithCursor) with
           | _, true ->
             (* Always continue if there's a case with the cursor *)
             setLookingForPat ctxPath
