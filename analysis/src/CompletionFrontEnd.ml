@@ -25,6 +25,11 @@ let isPatternHole pat =
   | Ppat_extension ({txt = "rescript.patternhole"}, _) -> true
   | _ -> false
 
+let isPatternTuple pat =
+  match pat.Parsetree.ppat_desc with
+  | Ppat_tuple _ -> true
+  | _ -> false
+
 type prop = {
   name: string;
   posStart: int * int;
@@ -239,6 +244,12 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
            prefix = "";
          })
   | _ -> loop args
+
+let lastLocIndexBeforePos locs ~pos =
+  let posNum = ref (-1) in
+  locs
+  |> List.iteri (fun index loc -> if pos >= Loc.start loc then posNum := index);
+  if !posNum > -1 then Some !posNum else None
 
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
@@ -511,7 +522,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         when ppat_loc
              |> CursorPosition.classifyLoc ~pos:posBeforeCursor
              = HasCursor ->
-        (* Empty payload *)
+        (* Empty payload with cursor, like: Test(<com>) *)
         Some
           ( "",
             [
@@ -519,18 +530,23 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                 {constructorName = getUnqualifiedName txt; itemNum = 0};
             ]
             @ patternPath )
-      | Ppat_construct
-          ( {txt},
-            Some
-              ({
-                 ppat_loc;
-                 ppat_desc =
-                   ( Ppat_var _ | Ppat_record _ | Ppat_construct _
-                   | Ppat_variant _ );
-               } as pat) )
-        when ppat_loc
+      | Ppat_construct ({txt}, Some pat)
+        when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
+             && firstCharBeforeCursorNoWhite = Some ','
+             && isPatternTuple pat = false ->
+        (* Empty payload with trailing ',', like: Test(true, <com>) *)
+        Some
+          ( "",
+            [
+              Completable.PVariantPayload
+                {constructorName = getUnqualifiedName txt; itemNum = 1};
+            ]
+            @ patternPath )
+      | Ppat_construct ({txt}, Some pat)
+        when pat.ppat_loc
              |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor ->
+             = HasCursor
+             && isPatternTuple pat = false ->
         (* Single payload *)
         pat
         |> traversePattern
@@ -544,24 +560,43 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           ({txt}, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
         when ppat_loc
              |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor ->
-        (* Multiple payloads with cursor in item *)
-        (* TODO: New item with comma *)
+             = HasCursor -> (
         let itemNum = ref (-1) in
-        tupleItems
-        |> List.find_map (fun pat ->
-               itemNum := !itemNum + 1;
-               pat
-               |> traversePattern
-                    ~patternPath:
-                      ([
-                         Completable.PVariantPayload
-                           {
-                             constructorName = getUnqualifiedName txt;
-                             itemNum = !itemNum;
-                           };
-                       ]
-                      @ patternPath))
+        let itemWithCursor =
+          tupleItems
+          |> List.find_map (fun pat ->
+                 itemNum := !itemNum + 1;
+                 pat
+                 |> traversePattern
+                      ~patternPath:
+                        ([
+                           Completable.PVariantPayload
+                             {
+                               constructorName = getUnqualifiedName txt;
+                               itemNum = !itemNum;
+                             };
+                         ]
+                        @ patternPath))
+        in
+        match (itemWithCursor, firstCharBeforeCursorNoWhite) with
+        | None, Some ',' -> (
+          (* No tuple item has the cursor, but there's a comma before the cursor.
+             Figure out what arg we're trying to complete. Example: Test(true, <com>, None) *)
+          let locs = tupleItems |> List.map (fun p -> p.Parsetree.ppat_loc) in
+          match locs |> lastLocIndexBeforePos ~pos:posBeforeCursor with
+          | None -> None
+          | Some itemNum ->
+            Some
+              ( "",
+                [
+                  Completable.PVariantPayload
+                    {
+                      constructorName = getUnqualifiedName txt;
+                      itemNum = itemNum + 1;
+                    };
+                ]
+                @ patternPath ))
+        | v, _ -> v)
       | Ppat_variant
           ( txt,
             Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
@@ -569,7 +604,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         when ppat_loc
              |> CursorPosition.classifyLoc ~pos:posBeforeCursor
              = HasCursor ->
-        (* Empty payload *)
+        (* Empty payload with cursor, like: #test(<com>) *)
         Some
           ( "",
             [
@@ -577,18 +612,23 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                 {constructorName = txt; itemNum = 0};
             ]
             @ patternPath )
-      | Ppat_variant
-          ( txt,
-            Some
-              ({
-                 ppat_loc;
-                 ppat_desc =
-                   ( Ppat_var _ | Ppat_record _ | Ppat_construct _
-                   | Ppat_variant _ );
-               } as pat) )
-        when ppat_loc
+      | Ppat_variant (txt, Some pat)
+        when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
+             && firstCharBeforeCursorNoWhite = Some ','
+             && isPatternTuple pat = false ->
+        (* Empty payload with trailing ',', like: #test(true, <com>) *)
+        Some
+          ( "",
+            [
+              Completable.PPolyvariantPayload
+                {constructorName = txt; itemNum = 1};
+            ]
+            @ patternPath )
+      | Ppat_variant (txt, Some pat)
+        when pat.ppat_loc
              |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor ->
+             = HasCursor
+             && isPatternTuple pat = false ->
         (* Single payload *)
         pat
         |> traversePattern
@@ -601,21 +641,37 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | Ppat_variant (txt, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
         when ppat_loc
              |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-             = HasCursor ->
-        (* Multiple payloads with cursor in item *)
-        (* TODO: New item with comma *)
+             = HasCursor -> (
         let itemNum = ref (-1) in
-        tupleItems
-        |> List.find_map (fun pat ->
-               itemNum := !itemNum + 1;
-               pat
-               |> traversePattern
-                    ~patternPath:
-                      ([
-                         Completable.PPolyvariantPayload
-                           {constructorName = txt; itemNum = !itemNum};
-                       ]
-                      @ patternPath))
+        let itemWithCursor =
+          tupleItems
+          |> List.find_map (fun pat ->
+                 itemNum := !itemNum + 1;
+                 pat
+                 |> traversePattern
+                      ~patternPath:
+                        ([
+                           Completable.PPolyvariantPayload
+                             {constructorName = txt; itemNum = !itemNum};
+                         ]
+                        @ patternPath))
+        in
+        match (itemWithCursor, firstCharBeforeCursorNoWhite) with
+        | None, Some ',' -> (
+          (* No tuple item has the cursor, but there's a comma before the cursor.
+             Figure out what arg we're trying to complete. Example: #test(true, <com>, None) *)
+          let locs = tupleItems |> List.map (fun p -> p.Parsetree.ppat_loc) in
+          match locs |> lastLocIndexBeforePos ~pos:posBeforeCursor with
+          | None -> None
+          | Some itemNum ->
+            Some
+              ( "",
+                [
+                  Completable.PPolyvariantPayload
+                    {constructorName = txt; itemNum = itemNum + 1};
+                ]
+                @ patternPath ))
+        | v, _ -> v)
       | _ -> None
     else None
   in

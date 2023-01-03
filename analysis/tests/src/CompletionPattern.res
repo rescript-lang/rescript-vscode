@@ -127,3 +127,35 @@ ignore(o)
 
 // switch o { | Some() }
 //                   ^com
+
+type multiPayloadVariant = Test(int, bool, option<bool>, array<bool>)
+
+let p = Test(1, true, Some(false), [])
+
+// switch p { | Test(1, )}
+//                     ^com
+
+// switch p { | Test(1, true, )}
+//                           ^com
+
+// switch p { | Test(1, , None)}
+//                     ^com
+
+// switch p { | Test(1, true, None, )}
+//                                 ^com
+
+type multiPayloadPolyVariant = [#test(int, bool, option<bool>, array<bool>)]
+
+let v: multiPayloadPolyVariant = #test(1, true, Some(false), [])
+
+// switch v { | #test(1, )}
+//                      ^com
+
+// switch v { | #test(1, true, )}
+//                            ^com
+
+// switch v { | #test(1, , None)}
+//                      ^com
+
+// switch v { | #test(1, true, None, )}
+//                                  ^com
