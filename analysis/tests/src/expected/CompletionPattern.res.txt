@@ -198,7 +198,6 @@ Completable: Cpattern Value[f]->recordField(nest), recordBody
   }]
 
 Complete src/CompletionPattern.res 70:22
-looking for: Cpath Value[f] 
 posCursor:[70:22] posNoWhite:[70:21] Found expr:[67:8->74:1]
 posCursor:[70:22] posNoWhite:[70:21] Found expr:[69:2->72:13]
 posCursor:[70:22] posNoWhite:[70:21] Found expr:[70:5->72:13]
@@ -673,6 +672,40 @@ Complete src/CompletionPattern.res 170:22
 looking for: Cpath Value[s] 
 posCursor:[170:22] posNoWhite:[170:21] Found expr:[170:3->170:30]
 posCursor:[170:22] posNoWhite:[170:21] Found pattern:[170:16->170:28]
+Completable: Cpattern Value[s]->tuple($1)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionPattern.res 173:35
+XXX Not found!
+Completable: Cpattern Value[s]
+[{
+    "label": "(_, _, _)",
+    "kind": 12,
+    "tags": [],
+    "detail": "(bool, option<bool>, array<bool>)",
+    "documentation": null,
+    "insertText": "(${1:_}, ${2:_}, ${3:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionPattern.res 176:41
+looking for: Cpath Value[s] 
+posCursor:[176:41] posNoWhite:[176:40] Found expr:[176:3->176:50]
+posCursor:[176:41] posNoWhite:[176:40] Found pattern:[176:35->176:47]
 Completable: Cpattern Value[s]->tuple($1)
 [{
     "label": "None",
