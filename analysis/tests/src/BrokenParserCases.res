@@ -3,3 +3,7 @@
 // let _ = someFn(~isOff=, ())
 //                       ^com
 
+// This should parse as a single item tuple when in a pattern?
+// switch s { | (t) }
+//                ^com
+
