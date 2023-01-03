@@ -434,6 +434,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | Ppat_or (p1, p2) ->
         [p1; p2] |> List.find_map (fun p -> p |> traversePattern ~patternPath)
       | Ppat_var {txt} -> Some (txt, patternPath)
+      | Ppat_construct ({txt = Lident "()"}, None) ->
+        (* switch s { | (<com>) }*)
+        Some ("", patternPath @ [Completable.PTupleItem {itemNum = 0}])
       | Ppat_construct ({txt = Lident prefix}, None) ->
         Some (prefix, patternPath)
       | Ppat_variant (prefix, None) -> Some ("#" ^ prefix, patternPath)
@@ -444,16 +447,31 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           arrayPatterns
           |> List.find_map (fun pat ->
                  pat |> traversePattern ~patternPath:nextPatternPath)
-      | Ppat_tuple patterns ->
+      | Ppat_tuple tupleItems -> (
         let itemNum = ref (-1) in
-        patterns
-        |> List.find_map (fun pat ->
-               itemNum := !itemNum + 1;
-               pat
-               |> traversePattern
-                    ~patternPath:
-                      ([Completable.PTupleItem {itemNum = !itemNum}]
-                      @ patternPath))
+        let itemWithCursor =
+          tupleItems
+          |> List.find_map (fun pat ->
+                 itemNum := !itemNum + 1;
+                 pat
+                 |> traversePattern
+                      ~patternPath:
+                        ([Completable.PTupleItem {itemNum = !itemNum}]
+                        @ patternPath))
+        in
+        match (itemWithCursor, firstCharBeforeCursorNoWhite) with
+        | None, Some ',' -> (
+          (* No tuple item has the cursor, but there's a comma before the cursor.
+             Figure out what arg we're trying to complete. Example: #test(true, <com>, None) *)
+          let locs = tupleItems |> List.map (fun p -> p.Parsetree.ppat_loc) in
+          match locs |> lastLocIndexBeforePos ~pos:posBeforeCursor with
+          | None -> None
+          | Some itemNum ->
+            Some
+              ( "",
+                [Completable.PTupleItem {itemNum = itemNum + 1}] @ patternPath
+              ))
+        | v, _ -> v)
       | Ppat_record ([], _) ->
         (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
         Some ("", [Completable.PRecordBody {seenFields = []}] @ patternPath)
