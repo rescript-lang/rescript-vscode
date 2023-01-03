@@ -263,7 +263,7 @@ looking for: Cpath Value[z]
 posCursor:[86:20] posNoWhite:[86:19] Found expr:[86:3->86:22]
 posCursor:[86:20] posNoWhite:[86:19] Found pattern:[86:16->86:21]
 posCursor:[86:20] posNoWhite:[86:19] Found pattern:[86:19->86:21]
-Completable: Cpattern Value[z]->variantPayload(Two)
+Completable: Cpattern Value[z]->variantPayload::Two($0)
 [{
     "label": "true",
     "kind": 4,
@@ -283,7 +283,7 @@ looking for: Cpath Value[z]
 posCursor:[89:21] posNoWhite:[89:20] Found expr:[89:3->89:23]
 posCursor:[89:21] posNoWhite:[89:20] Found pattern:[89:16->89:22]
 posCursor:[89:21] posNoWhite:[89:20] Found pattern:[89:20->89:21]
-Completable: Cpattern Value[z]=t->variantPayload(Two)
+Completable: Cpattern Value[z]=t->variantPayload::Two($0)
 [{
     "label": "true",
     "kind": 4,
@@ -297,7 +297,7 @@ looking for: Cpath Value[z]
 posCursor:[92:23] posNoWhite:[92:22] Found expr:[92:3->92:26]
 posCursor:[92:23] posNoWhite:[92:22] Found pattern:[92:16->92:25]
 posCursor:[92:23] posNoWhite:[92:22] Found pattern:[92:22->92:24]
-Completable: Cpattern Value[z]->variantPayload(Three), recordBody
+Completable: Cpattern Value[z]->variantPayload::Three($0), recordBody
 [{
     "label": "first",
     "kind": 5,
@@ -330,7 +330,7 @@ posCursor:[95:27] posNoWhite:[95:26] Found expr:[95:3->95:29]
 posCursor:[95:27] posNoWhite:[95:26] Found pattern:[95:16->95:28]
 posCursor:[95:27] posNoWhite:[95:26] Found pattern:[95:21->95:29]
 posCursor:[95:27] posNoWhite:[95:26] Found pattern:[95:26->95:27]
-Completable: Cpattern Value[z]=t->variantPayload(Three), tuple($1)
+Completable: Cpattern Value[z]=t->variantPayload::Three($1)
 [{
     "label": "true",
     "kind": 4,
@@ -344,7 +344,7 @@ looking for: Cpath Value[b]
 posCursor:[102:21] posNoWhite:[102:20] Found expr:[102:3->102:23]
 posCursor:[102:21] posNoWhite:[102:20] Found pattern:[102:16->102:22]
 posCursor:[102:21] posNoWhite:[102:20] Found pattern:[102:20->102:21]
-Completable: Cpattern Value[b]->polyvariantPayload(two)
+Completable: Cpattern Value[b]->polyvariantPayload::two($0)
 [{
     "label": "true",
     "kind": 4,
@@ -364,7 +364,7 @@ looking for: Cpath Value[b]
 posCursor:[105:22] posNoWhite:[105:21] Found expr:[105:3->105:24]
 posCursor:[105:22] posNoWhite:[105:21] Found pattern:[105:16->105:23]
 posCursor:[105:22] posNoWhite:[105:21] Found pattern:[105:21->105:22]
-Completable: Cpattern Value[b]=t->polyvariantPayload(two)
+Completable: Cpattern Value[b]=t->polyvariantPayload::two($0)
 [{
     "label": "true",
     "kind": 4,
@@ -378,7 +378,7 @@ looking for: Cpath Value[b]
 posCursor:[108:24] posNoWhite:[108:23] Found expr:[108:3->108:27]
 posCursor:[108:24] posNoWhite:[108:23] Found pattern:[108:16->108:26]
 posCursor:[108:24] posNoWhite:[108:23] Found pattern:[108:23->108:25]
-Completable: Cpattern Value[b]->polyvariantPayload(three), recordBody
+Completable: Cpattern Value[b]->polyvariantPayload::three($0), recordBody
 [{
     "label": "first",
     "kind": 5,
@@ -411,7 +411,7 @@ posCursor:[111:28] posNoWhite:[111:27] Found expr:[111:3->111:30]
 posCursor:[111:28] posNoWhite:[111:27] Found pattern:[111:16->111:29]
 posCursor:[111:28] posNoWhite:[111:27] Found pattern:[111:22->111:29]
 posCursor:[111:28] posNoWhite:[111:27] Found pattern:[111:27->111:28]
-Completable: Cpattern Value[b]=t->polyvariantPayload(three), tuple($1)
+Completable: Cpattern Value[b]=t->polyvariantPayload::three($1)
 [{
     "label": "true",
     "kind": 4,
