@@ -3,7 +3,7 @@ posCursor:[16:19] posNoWhite:[16:18] Found expr:[16:11->16:20]
 Pexp_apply ...[16:11->16:19] (...[46:0->16:20])
 posCursor:[16:19] posNoWhite:[16:18] Found expr:[16:11->16:19]
 Pexp_ident someFunc:[16:11->16:19]
-argAtCursor: none
+argAtCursor: unlabelled<0>
 extracted params: 
 [(
   int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
@@ -14,7 +14,7 @@ extracted params:
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
-  "activeParameter": -1
+  "activeParameter": 0
 }
 
 Signature help src/SignatureHelp.res 19:21
@@ -117,7 +117,7 @@ posCursor:[34:20] posNoWhite:[34:19] Found expr:[34:11->34:21]
 Pexp_apply ...[34:11->34:20] (...[46:0->34:21])
 posCursor:[34:20] posNoWhite:[34:19] Found expr:[34:11->34:20]
 Pexp_ident otherFunc:[34:11->34:20]
-argAtCursor: none
+argAtCursor: unlabelled<0>
 extracted params: 
 [(string, int, float]
 {
@@ -126,7 +126,7 @@ extracted params:
     "parameters": [{"label": [15, 22], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [24, 27], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [29, 34], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
-  "activeParameter": -1
+  "activeParameter": 0
 }
 
 Signature help src/SignatureHelp.res 37:24
@@ -185,7 +185,7 @@ posCursor:[50:23] posNoWhite:[50:22] Found expr:[50:11->50:24]
 Pexp_apply ...[50:11->50:23] (...[56:0->50:24])
 posCursor:[50:23] posNoWhite:[50:22] Found expr:[50:11->50:23]
 Pexp_ident iAmSoSpecial:[50:11->50:23]
-argAtCursor: none
+argAtCursor: unlabelled<0>
 extracted params: 
 [string]
 {
@@ -220,7 +220,7 @@ posCursor:[62:13] posNoWhite:[62:12] Found expr:[62:11->62:19]
 Pexp_apply ...[62:11->62:13] (...[62:14->62:16])
 posCursor:[62:13] posNoWhite:[62:12] Found expr:[62:11->62:13]
 Pexp_ident fn:[62:11->62:13]
-argAtCursor: none
+argAtCursor: unlabelled<1>
 extracted params: 
 [(int, string, int]
 {
@@ -229,7 +229,7 @@ extracted params:
     "parameters": [{"label": [8, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 20], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [22, 25], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
   }],
   "activeSignature": 0,
-  "activeParameter": -1
+  "activeParameter": 1
 }
 
 Signature help src/SignatureHelp.res 65:17
@@ -237,7 +237,7 @@ posCursor:[65:13] posNoWhite:[65:12] Found expr:[65:11->65:25]
 Pexp_apply ...[65:11->65:13] (...[65:14->65:16], ...[65:20->65:24])
 posCursor:[65:13] posNoWhite:[65:12] Found expr:[65:11->65:13]
 Pexp_ident fn:[65:11->65:13]
-argAtCursor: none
+argAtCursor: unlabelled<1>
 extracted params: 
 [(int, string, int]
 {
@@ -246,7 +246,7 @@ extracted params:
     "parameters": [{"label": [8, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 20], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [22, 25], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
   }],
   "activeSignature": 0,
-  "activeParameter": -1
+  "activeParameter": 1
 }
 
 Signature help src/SignatureHelp.res 68:26
@@ -254,7 +254,7 @@ posCursor:[68:13] posNoWhite:[68:12] Found expr:[68:11->68:28]
 Pexp_apply ...[68:11->68:13] (...[68:14->68:16], ...[68:18->68:25])
 posCursor:[68:13] posNoWhite:[68:12] Found expr:[68:11->68:13]
 Pexp_ident fn:[68:11->68:13]
-argAtCursor: none
+argAtCursor: unlabelled<2>
 extracted params: 
 [(int, string, int]
 {
@@ -263,6 +263,6 @@ extracted params:
     "parameters": [{"label": [8, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 20], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [22, 25], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
   }],
   "activeSignature": 0,
-  "activeParameter": -1
+  "activeParameter": 2
 }
 

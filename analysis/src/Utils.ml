@@ -152,3 +152,10 @@ let identifyType type_desc =
   | Tunivar _ -> "Tunivar"
   | Tpoly _ -> "Tpoly"
   | Tpackage _ -> "Tpackage"
+
+let rec skipWhite text i =
+  if i < 0 then 0
+  else
+    match text.[i] with
+    | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
+    | _ -> i

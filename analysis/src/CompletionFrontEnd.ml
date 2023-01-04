@@ -1,12 +1,5 @@
 open SharedTypes
 
-let rec skipWhite text i =
-  if i < 0 then 0
-  else
-    match text.[i] with
-    | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
-    | _ -> i
-
 let extractCompletableArgValueInfo exp =
   match exp.Parsetree.pexp_desc with
   | Pexp_ident {txt = Lident txt} -> Some txt
@@ -302,7 +295,7 @@ let completePipeChain ~(lhs : Parsetree.expression) =
   | _ -> None
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
-  let offsetNoWhite = skipWhite text (offset - 1) in
+  let offsetNoWhite = Utils.skipWhite text (offset - 1) in
   let posNoWhite =
     let line, col = posCursor in
     (line, max 0 col - offset + offsetNoWhite)
