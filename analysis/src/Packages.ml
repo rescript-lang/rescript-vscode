@@ -112,6 +112,24 @@ let newBsPackage ~rootPath =
                     listModulePath = ["List"];
                     resultModulePath = ["Result"];
                   }
+                 else if
+                 opens_from_bsc_flags
+                 |> List.find_opt (fun opn ->
+                        match opn with
+                        | ["Belt"] -> true
+                        | _ -> false)
+                 |> Option.is_some
+                then
+                   {
+                     arrayModulePath = ["Array"];
+                     optionModulePath = ["Option"];
+                     stringModulePath = ["Js"; "String2"];
+                     intModulePath = ["Int"];
+                     floatModulePath = ["Float"];
+                     promiseModulePath = ["Js"; "Promise"];
+                     listModulePath = ["List"];
+                     resultModulePath = ["Result"];
+                   }
                  else
                    {
                      arrayModulePath = ["Js"; "Array2"];
