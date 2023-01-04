@@ -18,6 +18,7 @@
 - Add autocomplete for JSX prop values. https://github.com/rescript-lang/rescript-vscode/pull/667
 - Add snippet support in completion items. https://github.com/rescript-lang/rescript-vscode/pull/668
 - Add support from completing polyvariants as values. https://github.com/rescript-lang/rescript-vscode/pull/669
+- Add support for completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/670
 
 #### :nail_care: Polish
 
