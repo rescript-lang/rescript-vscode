@@ -752,3 +752,85 @@ Completable: Cpattern Value[z]
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionPattern.res 182:32
+looking for: Cpath Value[z] 
+posCursor:[182:32] posNoWhite:[182:31] Found expr:[182:3->182:37]
+posCursor:[182:32] posNoWhite:[182:31] Found pattern:[182:16->182:34]
+posCursor:[182:32] posNoWhite:[182:31] Found pattern:[182:22->182:34]
+Completable: Cpattern Value[z]->variantPayload::Two($0)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 185:48
+looking for: Cpath Value[z] 
+posCursor:[185:48] posNoWhite:[185:47] Found expr:[185:3->185:53]
+posCursor:[185:48] posNoWhite:[185:47] Found pattern:[185:16->185:50]
+posCursor:[185:48] posNoWhite:[185:47] Found pattern:[185:22->185:50]
+posCursor:[185:48] posNoWhite:[185:47] Found pattern:[185:27->185:53]
+Completable: Cpattern Value[z]->variantPayload::Three($1)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 188:34
+looking for: Cpath Value[b] 
+posCursor:[188:34] posNoWhite:[188:33] Found expr:[188:3->188:39]
+posCursor:[188:34] posNoWhite:[188:33] Found pattern:[188:16->188:36]
+posCursor:[188:34] posNoWhite:[188:33] Found pattern:[188:23->188:36]
+Completable: Cpattern Value[b]->polyvariantPayload::two($0)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 191:50
+looking for: Cpath Value[b] 
+posCursor:[191:50] posNoWhite:[191:49] Found expr:[191:3->191:55]
+posCursor:[191:50] posNoWhite:[191:49] Found pattern:[191:16->191:52]
+posCursor:[191:50] posNoWhite:[191:49] Found pattern:[191:23->191:52]
+posCursor:[191:50] posNoWhite:[191:49] Found pattern:[191:29->191:52]
+Completable: Cpattern Value[b]->polyvariantPayload::three($1)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+

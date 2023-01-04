@@ -541,17 +541,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               {constructorName = getUnqualifiedName txt; itemNum = 1};
           ]
           @ patternPath )
-    | Ppat_construct ({txt}, Some pat)
-      when locHasCursor pat.ppat_loc && isPatternTuple pat = false ->
-      (* Single payload *)
-      pat
-      |> traversePattern
-           ~patternPath:
-             ([
-                Completable.PVariantPayload
-                  {constructorName = getUnqualifiedName txt; itemNum = 0};
-              ]
-             @ patternPath)
     | Ppat_construct ({txt}, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
       when locHasCursor ppat_loc ->
       tupleItems
@@ -570,6 +559,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                    itemNum = itemNum + 1;
                  };
              ]
+             @ patternPath)
+    | Ppat_construct ({txt}, Some p) when locHasCursor pat.ppat_loc ->
+      p
+      |> traversePattern
+           ~patternPath:
+             ([
+                Completable.PVariantPayload
+                  {constructorName = getUnqualifiedName txt; itemNum = 0};
+              ]
              @ patternPath)
     | Ppat_variant
         ( txt,
@@ -590,17 +588,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         ( "",
           [Completable.PPolyvariantPayload {constructorName = txt; itemNum = 1}]
           @ patternPath )
-    | Ppat_variant (txt, Some pat)
-      when locHasCursor pat.ppat_loc && isPatternTuple pat = false ->
-      (* Single payload *)
-      pat
-      |> traversePattern
-           ~patternPath:
-             ([
-                Completable.PPolyvariantPayload
-                  {constructorName = txt; itemNum = 0};
-              ]
-             @ patternPath)
     | Ppat_variant (txt, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
       when locHasCursor ppat_loc ->
       tupleItems
@@ -613,6 +600,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                Completable.PPolyvariantPayload
                  {constructorName = txt; itemNum = itemNum + 1};
              ]
+             @ patternPath)
+    | Ppat_variant (txt, Some p) when locHasCursor pat.ppat_loc ->
+      p
+      |> traversePattern
+           ~patternPath:
+             ([
+                Completable.PPolyvariantPayload
+                  {constructorName = txt; itemNum = 0};
+              ]
              @ patternPath)
     | _ -> None
   in
