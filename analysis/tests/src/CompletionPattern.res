@@ -179,3 +179,15 @@ let s = (true, Some(true), [false])
 
 // switch z { | One |  }
 //                   ^com
+
+// switch z { | One | Two(true | )  }
+//                              ^com
+
+// switch z { | One | Three({test: true}, true | )  }
+//                                              ^com
+
+// switch b { | #one | #two(true | )  }
+//                                ^com
+
+// switch b { | #one | #three({test: true}, true | )  }
+//                                                ^com
