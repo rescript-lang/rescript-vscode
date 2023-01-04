@@ -420,3 +420,8 @@ let onClick = evt => {
 
 // let _ = 123.0->t
 //                 ^com
+
+let ok = Ok(true)
+
+// ok->
+//     ^com

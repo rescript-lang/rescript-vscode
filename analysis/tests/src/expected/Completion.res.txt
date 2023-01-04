@@ -1623,11 +1623,11 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->415:1], ...[423:0->423:0])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->415:1]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->415:1])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->415:1]
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->428:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->428:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
 Pexp_ident r:[405:21->405:22]
 Completable: Cpath Value[r]
@@ -1736,5 +1736,786 @@ Resolved opens 2 Completion.res Completion.res
     "tags": [],
     "detail": "float => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Float.toString(1.0) === \"1.0\") /* true */\n  ```\n"}
+  }]
+
+Complete src/Completion.res 425:7
+posCursor:[425:7] posNoWhite:[425:6] Found expr:[425:3->0:-1]
+Completable: Cpath Value[ok]->
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "Pervasives.neg_infinity",
+    "kind": 12,
+    "tags": [],
+    "detail": "float",
+    "documentation": {"kind": "markdown", "value": " Negative infinity. "}
+  }, {
+    "label": "Pervasives.print_newline",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => unit",
+    "documentation": {"kind": "markdown", "value": " Print a newline character on standard output, and flush\n   standard output. This can be used to simulate line\n   buffering of standard output. "}
+  }, {
+    "label": "Pervasives.lor",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " Bitwise logical or.\n    Left-associative operator at precedence level 7/11. "}
+  }, {
+    "label": "Pervasives.float_of_int",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => float",
+    "documentation": {"kind": "markdown", "value": " Convert an integer to floating-point. "}
+  }, {
+    "label": "Pervasives.:=",
+    "kind": 12,
+    "tags": [],
+    "detail": "(ref<'a>, 'a) => unit",
+    "documentation": {"kind": "markdown", "value": " [r := a] stores the value of [a] in reference [r].\n   Equivalent to [fun r v -> r.contents <- v].\n   Right-associative operator at precedence level 1/11. "}
+  }, {
+    "label": "Pervasives.<>",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => bool",
+    "documentation": {"kind": "markdown", "value": " Negation of {!Pervasives.( = )}.\n    Left-associative operator at precedence level 4/11. "}
+  }, {
+    "label": "Pervasives.atan2",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " [atan2 y x] returns the arc tangent of [y /. x].  The signs of [x]\n    and [y] are used to determine the quadrant of the result.\n    Result is in radians and is between [-pi] and [pi]. "}
+  }, {
+    "label": "Pervasives.mod_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " [mod_float a b] returns the remainder of [a] with respect to\n   [b].  The returned value is [a -. n *. b], where [n]\n   is the quotient [a /. b] rounded towards zero to an integer. "}
+  }, {
+    "label": "Pervasives.*",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " Integer multiplication.\n    Left-associative operator at precedence level 7/11. "}
+  }, {
+    "label": "Pervasives.abs_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " [abs_float f] returns the absolute value of [f]. "}
+  }, {
+    "label": "Pervasives.char_of_int",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => char",
+    "documentation": {"kind": "markdown", "value": " Return the character with the given ASCII code.\n   Raise [Invalid_argument \"char_of_int\"] if the argument is\n   outside the range 0--255. "}
+  }, {
+    "label": "Pervasives.lsr",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " [n lsr m] shifts [n] to the right by [m] bits.\n   This is a logical shift: zeroes are inserted regardless of\n   the sign of [n].\n   The result is unspecified if [m < 0] or [m >= bitsize].\n   Right-associative operator at precedence level 8/11. "}
+  }, {
+    "label": "Pervasives.<",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => bool",
+    "documentation": {"kind": "markdown", "value": " See {!Pervasives.( >= )}.\n    Left-associative operator at precedence level 4/11. "}
+  }, {
+    "label": "Pervasives./.",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " Floating-point division.\n    Left-associative operator at precedence level 7/11. "}
+  }, {
+    "label": "Pervasives.sin",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Sine.  Argument is in radians. "}
+  }, {
+    "label": "Pervasives.ceil",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Round above to an integer value.\n    [ceil f] returns the least integer value greater than or equal to [f].\n    The result is returned as a float. "}
+  }, {
+    "label": "Pervasives.__LOC__",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": " [__LOC__] returns the location at which this expression appears in\n    the file currently being parsed by the compiler, with the standard\n    error format of OCaml: \"File %S, line %d, characters %d-%d\".\n    @since 4.02.0\n"}
+  }, {
+    "label": "Pervasives.asr",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " [n asr m] shifts [n] to the right by [m] bits.\n   This is an arithmetic shift: the sign bit of [n] is replicated.\n   The result is unspecified if [m < 0] or [m >= bitsize].\n   Right-associative operator at precedence level 8/11. "}
+  }, {
+    "label": "Pervasives.==",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => bool",
+    "documentation": {"kind": "markdown", "value": " [e1 == e2] tests for physical equality of [e1] and [e2].\n   On mutable types such as references, arrays, byte sequences, records with\n   mutable fields and objects with mutable instance variables,\n   [e1 == e2] is true if and only if physical modification of [e1]\n   also affects [e2].\n   On non-mutable types, the behavior of [( == )] is\n   implementation-dependent; however, it is guaranteed that\n   [e1 == e2] implies [compare e1 e2 = 0].\n   Left-associative operator at precedence level 4/11. "}
+  }, {
+    "label": "Pervasives.not",
+    "kind": 12,
+    "tags": [],
+    "detail": "bool => bool",
+    "documentation": {"kind": "markdown", "value": " The boolean negation. "}
+  }, {
+    "label": "Pervasives.|>",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a => 'b) => 'b",
+    "documentation": {"kind": "markdown", "value": " Reverse-application operator: [x |> f |> g] is exactly equivalent\n to [g (f (x))].\n Left-associative operator at precedence level 4/11.\n   @since 4.01\n "}
+  }, {
+    "label": "Pervasives.!=",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => bool",
+    "documentation": {"kind": "markdown", "value": " Negation of {!Pervasives.( == )}.\n    Left-associative operator at precedence level 4/11. "}
+  }, {
+    "label": "Pervasives.pred",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => int",
+    "documentation": {"kind": "markdown", "value": " [pred x] is [x - 1]. "}
+  }, {
+    "label": "Pervasives.decr",
+    "kind": 12,
+    "tags": [],
+    "detail": "ref<int> => unit",
+    "documentation": {"kind": "markdown", "value": " Decrement the integer contained in the given reference.\n   Equivalent to [fun r -> r := pred !r]. "}
+  }, {
+    "label": "Pervasives.modf",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => (float, float)",
+    "documentation": {"kind": "markdown", "value": " [modf f] returns the pair of the fractional and integral\n   part of [f]. "}
+  }, {
+    "label": "Pervasives.~-.",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Unary negation. You can also write [-. e] instead of [~-. e].\n    Unary operator at precedence level 9/11 for [-. e]\n    and 11/11 for [~-. e]. "}
+  }, {
+    "label": "Pervasives.^",
+    "kind": 12,
+    "tags": [],
+    "detail": "(string, string) => string",
+    "documentation": {"kind": "markdown", "value": " {1 String operations}\n\n   More string operations are provided in module {!String}.\n"}
+  }, {
+    "label": "Pervasives.~-",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => int",
+    "documentation": {"kind": "markdown", "value": " Unary negation. You can also write [- e] instead of [~- e].\n    Unary operator at precedence level 9/11 for [- e]\n    and 11/11 for [~- e]. "}
+  }, {
+    "label": "Pervasives.print_endline",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => unit",
+    "documentation": {"kind": "markdown", "value": " Print a string, followed by a newline character, on\n   standard output and flush standard output. "}
+  }, {
+    "label": "Pervasives.-.",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " Floating-point subtraction.\n    Left-associative operator at precedence level 6/11. "}
+  }, {
+    "label": "Pervasives.string_of_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => string",
+    "documentation": {"kind": "markdown", "value": " Return the string representation of a floating-point number. "}
+  }, {
+    "label": "Pervasives.lsl",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " [n lsl m] shifts [n] to the left by [m] bits.\n   The result is unspecified if [m < 0] or [m >= bitsize],\n   where [bitsize] is [32] on a 32-bit platform and\n   [64] on a 64-bit platform.\n   Right-associative operator at precedence level 8/11. "}
+  }, {
+    "label": "Pervasives.+.",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " Floating-point addition.\n    Left-associative operator at precedence level 6/11. "}
+  }, {
+    "label": "Pervasives.!",
+    "kind": 12,
+    "tags": [],
+    "detail": "ref<'a> => 'a",
+    "documentation": {"kind": "markdown", "value": " [!r] returns the current contents of reference [r].\n   Equivalent to [fun r -> r.contents].\n   Unary operator at precedence level 11/11."}
+  }, {
+    "label": "Pervasives.sqrt",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Square root. "}
+  }, {
+    "label": "Pervasives.cosh",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Hyperbolic cosine.  Argument is in radians. "}
+  }, {
+    "label": "Pervasives.prerr_newline",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => unit",
+    "documentation": {"kind": "markdown", "value": " Print a newline character on standard error, and flush\n   standard error. "}
+  }, {
+    "label": "Pervasives.invalid_arg",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => 'a",
+    "documentation": {"kind": "markdown", "value": " Raise exception [Invalid_argument] with the given string. "}
+  }, {
+    "label": "Pervasives.__LOC_OF__",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a => (string, 'a)",
+    "documentation": {"kind": "markdown", "value": " [__LOC_OF__ expr] returns a pair [(loc, expr)] where [loc] is the\n    location of [expr] in the file currently being parsed by the\n    compiler, with the standard error format of OCaml: \"File %S, line\n    %d, characters %d-%d\".\n    @since 4.02.0\n"}
+  }, {
+    "label": "Pervasives.min_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "float",
+    "documentation": {"kind": "markdown", "value": " The smallest positive, non-zero, non-denormalized value of type [float]. "}
+  }, {
+    "label": "Pervasives.abs",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => int",
+    "documentation": {"kind": "markdown", "value": " Return the absolute value of the argument.  Note that this may be\n  negative if the argument is [min_int]. "}
+  }, {
+    "label": "Pervasives.@",
+    "kind": 12,
+    "tags": [],
+    "detail": "(list<'a>, list<'a>) => list<'a>",
+    "documentation": {"kind": "markdown", "value": " List concatenation.  Tail-recursive (length of the first argument).\n    Right-associative operator at precedence level 5/11. "}
+  }, {
+    "label": "Pervasives.*.",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " Floating-point multiplication.\n    Left-associative operator at precedence level 7/11. "}
+  }, {
+    "label": "Pervasives.max_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "float",
+    "documentation": {"kind": "markdown", "value": " The largest positive finite value of type [float]. "}
+  }, {
+    "label": "Pervasives.int_of_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => int",
+    "documentation": {"kind": "markdown", "value": " Truncate the given floating-point number to an integer.\n   The result is unspecified if the argument is [nan] or falls outside the\n   range of representable integers. "}
+  }, {
+    "label": "Pervasives.raise",
+    "kind": 12,
+    "tags": [],
+    "detail": "exn => 'a",
+    "documentation": {"kind": "markdown", "value": " Raise the given exception value "}
+  }, {
+    "label": "Pervasives.max_int",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": " The greatest representable integer. "}
+  }, {
+    "label": "Pervasives.log10",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Base 10 logarithm. "}
+  }, {
+    "label": "Pervasives.int_of_char",
+    "kind": 12,
+    "tags": [],
+    "detail": "char => int",
+    "documentation": {"kind": "markdown", "value": " Return the ASCII code of the argument. "}
+  }, {
+    "label": "Pervasives.-",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " Integer subtraction.\n    Left-associative operator at precedence level 6/11. "}
+  }, {
+    "label": "Pervasives.print_string",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => unit",
+    "documentation": {"kind": "markdown", "value": " Print a string on standard output. "}
+  }, {
+    "label": "Pervasives.print_int",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => unit",
+    "documentation": {"kind": "markdown", "value": " Print an integer, in decimal, on standard output. "}
+  }, {
+    "label": "Pervasives.cos",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Cosine.  Argument is in radians. "}
+  }, {
+    "label": "Pervasives.string_of_bool",
+    "kind": 12,
+    "tags": [],
+    "detail": "bool => string",
+    "documentation": {"kind": "markdown", "value": " Return the string representation of a boolean. As the returned values\n   may be shared, the user should not modify them directly.\n"}
+  }, {
+    "label": "Pervasives.__MODULE__",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": " [__MODULE__] returns the module name of the file being\n    parsed by the compiler.\n    @since 4.02.0\n"}
+  }, {
+    "label": "Pervasives.+",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " Integer addition.\n    Left-associative operator at precedence level 6/11. "}
+  }, {
+    "label": "Pervasives.expm1",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " [expm1 x] computes [exp x -. 1.0], giving numerically-accurate results\n    even if [x] is close to [0.0].\n    @since 3.12.0\n"}
+  }, {
+    "label": "Pervasives.__LINE__",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": " [__LINE__] returns the line number at which this expression\n    appears in the file currently being parsed by the compiler.\n    @since 4.02.0\n"}
+  }, {
+    "label": "Pervasives.string_of_int",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": " Return the string representation of an integer, in decimal. "}
+  }, {
+    "label": "Pervasives.exit",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => 'a",
+    "documentation": {"kind": "markdown", "value": " Terminate the process, returning the given status code\n   to the operating system: usually 0 to indicate no errors,\n   and a small positive integer to indicate failure.\n   All open output channels are flushed with [flush_all].\n   An implicit [exit 0] is performed each time a program\n   terminates normally.  An implicit [exit 2] is performed if the program\n   terminates early because of an uncaught exception. "}
+  }, {
+    "label": "Pervasives.>",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => bool",
+    "documentation": {"kind": "markdown", "value": " See {!Pervasives.( >= )}.\n    Left-associative operator at precedence level 4/11. "}
+  }, {
+    "label": "Pervasives.ref",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a => ref<'a>",
+    "documentation": {"kind": "markdown", "value": " Return a fresh reference containing the given value. "}
+  }, {
+    "label": "Pervasives.failwith",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => 'a",
+    "documentation": {"kind": "markdown", "value": " Raise exception [Failure] with the given string. "}
+  }, {
+    "label": "Pervasives.bool_of_string_opt",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => option<bool>",
+    "documentation": {"kind": "markdown", "value": " Convert the given string to a boolean.\n    Return [None] if the string is not\n    [\"true\"] or [\"false\"].\n    @since 4.05\n"}
+  }, {
+    "label": "Pervasives.raise_notrace",
+    "kind": 12,
+    "tags": [],
+    "detail": "exn => 'a",
+    "documentation": {"kind": "markdown", "value": " A faster version [raise] which does not record the backtrace.\n    @since 4.02.0\n"}
+  }, {
+    "label": "Pervasives.<=",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => bool",
+    "documentation": {"kind": "markdown", "value": " See {!Pervasives.( >= )}.\n    Left-associative operator at precedence level 4/11. "}
+  }, {
+    "label": "Pervasives.compare",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => int",
+    "documentation": {"kind": "markdown", "value": " [compare x y] returns [0] if [x] is equal to [y],\n   a negative integer if [x] is less than [y], and a positive integer\n   if [x] is greater than [y].  The ordering implemented by [compare]\n   is compatible with the comparison predicates [=], [<] and [>]\n   defined above,  with one difference on the treatment of the float value\n   {!Pervasives.nan}.  Namely, the comparison predicates treat [nan]\n   as different from any other float value, including itself;\n   while [compare] treats [nan] as equal to itself and less than any\n   other float value.  This treatment of [nan] ensures that [compare]\n   defines a total ordering relation.\n\n   [compare] applied to functional values may raise [Invalid_argument].\n   [compare] applied to cyclic structures may not terminate.\n\n   The [compare] function can be used as the comparison function\n   required by the {!Set.Make} and {!Map.Make} functors, as well as\n   the {!List.sort} and {!Array.sort} functions. "}
+  }, {
+    "label": "Pervasives.__LINE_OF__",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a => (int, 'a)",
+    "documentation": {"kind": "markdown", "value": " [__LINE__ expr] returns a pair [(line, expr)], where [line] is the\n    line number at which the expression [expr] appears in the file\n    currently being parsed by the compiler.\n    @since 4.02.0\n "}
+  }, {
+    "label": "Pervasives.succ",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => int",
+    "documentation": {"kind": "markdown", "value": " [succ x] is [x + 1]. "}
+  }, {
+    "label": "Pervasives./",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " Integer division.\n   Raise [Division_by_zero] if the second argument is 0.\n   Integer division rounds the real quotient of its arguments towards zero.\n   More precisely, if [x >= 0] and [y > 0], [x / y] is the greatest integer\n   less than or equal to the real quotient of [x] by [y].  Moreover,\n   [(- x) / y = x / (- y) = - (x / y)].\n   Left-associative operator at precedence level 7/11. "}
+  }, {
+    "label": "Pervasives.float",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => float",
+    "documentation": {"kind": "markdown", "value": " Same as {!Pervasives.float_of_int}. "}
+  }, {
+    "label": "Pervasives.ignore",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a => unit",
+    "documentation": {"kind": "markdown", "value": " Discard the value of its argument and return [()].\n   For instance, [ignore(f x)] discards the result of\n   the side-effecting function [f].  It is equivalent to\n   [f x; ()], except that the latter may generate a\n   compiler warning; writing [ignore(f x)] instead\n   avoids the warning. "}
+  }, {
+    "label": "Pervasives.hypot",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " [hypot x y] returns [sqrt(x *. x + y *. y)], that is, the length\n  of the hypotenuse of a right-angled triangle with sides of length\n  [x] and [y], or, equivalently, the distance of the point [(x,y)]\n  to origin.\n  @since 4.00.0  "}
+  }, {
+    "label": "Pervasives.=",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => bool",
+    "documentation": {"kind": "markdown", "value": " [e1 = e2] tests for structural equality of [e1] and [e2].\n   Mutable structures (e.g. references and arrays) are equal\n   if and only if their current contents are structurally equal,\n   even if the two mutable objects are not the same physical object.\n   Equality between functional values raises [Invalid_argument].\n   Equality between cyclic data structures may not terminate.\n   Left-associative operator at precedence level 4/11. "}
+  }, {
+    "label": "Pervasives.__POS_OF__",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a => ((string, int, int, int), 'a)",
+    "documentation": {"kind": "markdown", "value": " [__POS_OF__ expr] returns a pair [(loc,expr)], where [loc] is a\n    tuple [(file,lnum,cnum,enum)] corresponding to the location at\n    which the expression [expr] appears in the file currently being\n    parsed by the compiler. [file] is the current filename, [lnum] the\n    line number, [cnum] the character position in the line and [enum]\n    the last character position in the line.\n    @since 4.02.0\n "}
+  }, {
+    "label": "Pervasives.float_of_string_opt",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => option<float>",
+    "documentation": {"kind": "markdown", "value": " Same as [float_of_string], but returns [None] instead of raising.\n    @since 4.05\n"}
+  }, {
+    "label": "Pervasives.max",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => 'a",
+    "documentation": {"kind": "markdown", "value": " Return the greater of the two arguments.\n    The result is unspecified if one of the arguments contains\n    the float value [nan]. "}
+  }, {
+    "label": "Pervasives.frexp",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => (float, int)",
+    "documentation": {"kind": "markdown", "value": " [frexp f] returns the pair of the significant\n   and the exponent of [f].  When [f] is zero, the\n   significant [x] and the exponent [n] of [f] are equal to\n   zero.  When [f] is non-zero, they are defined by\n   [f = x *. 2 ** n] and [0.5 <= x < 1.0]. "}
+  }, {
+    "label": "Pervasives.copysign",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " [copysign x y] returns a float whose absolute value is that of [x]\n  and whose sign is that of [y].  If [x] is [nan], returns [nan].\n  If [y] is [nan], returns either [x] or [-. x], but it is not\n  specified which.\n  @since 4.00.0  "}
+  }, {
+    "label": "Pervasives.float_of_string",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => float",
+    "documentation": {"kind": "markdown", "value": " Convert the given string to a float.  The string is read in decimal\n   (by default) or in hexadecimal (marked by [0x] or [0X]).\n   The format of decimal floating-point numbers is\n   [ [-] dd.ddd (e|E) [+|-] dd ], where [d] stands for a decimal digit.\n   The format of hexadecimal floating-point numbers is\n   [ [-] 0(x|X) hh.hhh (p|P) [+|-] dd ], where [h] stands for an\n   hexadecimal digit and [d] for a decimal digit.\n   In both cases, at least one of the integer and fractional parts must be\n   given; the exponent part is optional.\n   The [_] (underscore) character can appear anywhere in the string\n   and is ignored.\n   Depending on the execution platforms, other representations of\n   floating-point numbers can be accepted, but should not be relied upon.\n   Raise [Failure \"float_of_string\"] if the given string is not a valid\n   representation of a float. "}
+  }, {
+    "label": "Pervasives.log1p",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " [log1p x] computes [log(1.0 +. x)] (natural logarithm),\n    giving numerically-accurate results even if [x] is close to [0.0].\n    @since 3.12.0\n"}
+  }, {
+    "label": "Pervasives.epsilon_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "float",
+    "documentation": {"kind": "markdown", "value": " The difference between [1.0] and the smallest exactly representable\n    floating-point number greater than [1.0]. "}
+  }, {
+    "label": "Pervasives.nan",
+    "kind": 12,
+    "tags": [],
+    "detail": "float",
+    "documentation": {"kind": "markdown", "value": " A special floating-point value denoting the result of an\n   undefined operation such as [0.0 /. 0.0].  Stands for\n   'not a number'.  Any floating-point operation with [nan] as\n   argument returns [nan] as result.  As for floating-point comparisons,\n   [=], [<], [<=], [>] and [>=] return [false] and [<>] returns [true]\n   if one or both of their arguments is [nan]. "}
+  }, {
+    "label": "Pervasives.classify_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => fpclass",
+    "documentation": {"kind": "markdown", "value": " Return the class of the given floating-point number:\n   normal, subnormal, zero, infinite, or not a number. "}
+  }, {
+    "label": "Pervasives.valid_float_lexem",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => string",
+    "documentation": null
+  }, {
+    "label": "Pervasives.||",
+    "kind": 12,
+    "tags": [],
+    "detail": "(bool, bool) => bool",
+    "documentation": {"kind": "markdown", "value": " The boolean 'or'. Evaluation is sequential, left-to-right:\n   in [e1 || e2], [e1] is evaluated first, and if it returns [true],\n   [e2] is not evaluated at all.\n   Right-associative operator at precedence level 2/11.\n"}
+  }, {
+    "label": "Pervasives.sinh",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Hyperbolic sine.  Argument is in radians. "}
+  }, {
+    "label": "Pervasives.snd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'b)) => 'b",
+    "documentation": {"kind": "markdown", "value": " Return the second component of a pair. "}
+  }, {
+    "label": "Pervasives.>=",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => bool",
+    "documentation": {"kind": "markdown", "value": " Structural ordering functions. These functions coincide with\n   the usual orderings over integers, characters, strings, byte sequences\n   and floating-point numbers, and extend them to a\n   total ordering over all types.\n   The ordering is compatible with [( = )]. As in the case\n   of [( = )], mutable structures are compared by contents.\n   Comparison between functional values raises [Invalid_argument].\n   Comparison between cyclic structures may not terminate.\n   Left-associative operator at precedence level 4/11. "}
+  }, {
+    "label": "Pervasives.lnot",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => int",
+    "documentation": {"kind": "markdown", "value": " Bitwise logical negation. "}
+  }, {
+    "label": "Pervasives.truncate",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => int",
+    "documentation": {"kind": "markdown", "value": " Same as {!Pervasives.int_of_float}. "}
+  }, {
+    "label": "Pervasives.int_of_string_opt",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => option<int>",
+    "documentation": {"kind": "markdown", "value": " Same as [int_of_string], but returns [None] instead of raising.\n    @since 4.05\n"}
+  }, {
+    "label": "Pervasives.asin",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Arc sine.  The argument must fall within the range [[-1.0, 1.0]].\n    Result is in radians and is between [-pi/2] and [pi/2]. "}
+  }, {
+    "label": "Pervasives.prerr_endline",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => unit",
+    "documentation": {"kind": "markdown", "value": " Print a string, followed by a newline character on standard\n   error and flush standard error. "}
+  }, {
+    "label": "Pervasives.__POS__",
+    "kind": 12,
+    "tags": [],
+    "detail": "(string, int, int, int)",
+    "documentation": {"kind": "markdown", "value": " [__POS__] returns a tuple [(file,lnum,cnum,enum)], corresponding\n    to the location at which this expression appears in the file\n    currently being parsed by the compiler. [file] is the current\n    filename, [lnum] the line number, [cnum] the character position in\n    the line and [enum] the last character position in the line.\n    @since 4.02.0\n "}
+  }, {
+    "label": "Pervasives.lxor",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " Bitwise logical exclusive or.\n    Left-associative operator at precedence level 7/11. "}
+  }, {
+    "label": "Pervasives.exp",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Exponential. "}
+  }, {
+    "label": "Pervasives.floor",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Round below to an integer value.\n    [floor f] returns the greatest integer value less than or\n    equal to [f].\n    The result is returned as a float. "}
+  }, {
+    "label": "Pervasives.ldexp",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, int) => float",
+    "documentation": {"kind": "markdown", "value": " [ldexp x n] returns [x *. 2 ** n]. "}
+  }, {
+    "label": "Pervasives.tan",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Tangent.  Argument is in radians. "}
+  }, {
+    "label": "Pervasives.int_of_string",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => int",
+    "documentation": {"kind": "markdown", "value": " Convert the given string to an integer.\n   The string is read in decimal (by default, or if the string \n   begins with [0u]), in hexadecimal (if it begins with [0x] or\n   [0X]), in octal (if it begins with [0o] or [0O]), or in binary\n   (if it begins with [0b] or [0B]).\n\n   The [0u] prefix reads the input as an unsigned integer in the range\n   [[0, 2*max_int+1]].  If the input exceeds {!max_int}\n   it is converted to the signed integer\n   [min_int + input - max_int - 1].\n\n   The [_] (underscore) character can appear anywhere in the string\n   and is ignored.\n   Raise [Failure \"int_of_string\"] if the given string is not\n   a valid representation of an integer, or if the integer represented\n   exceeds the range of integers representable in type [int]. "}
+  }, {
+    "label": "Pervasives.**",
+    "kind": 12,
+    "tags": [],
+    "detail": "(float, float) => float",
+    "documentation": {"kind": "markdown", "value": " Exponentiation. "}
+  }, {
+    "label": "Pervasives.log",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Natural logarithm. "}
+  }, {
+    "label": "Pervasives.infinity",
+    "kind": 12,
+    "tags": [],
+    "detail": "float",
+    "documentation": {"kind": "markdown", "value": " Positive infinity. "}
+  }, {
+    "label": "Pervasives.~+.",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Unary addition. You can also write [+. e] instead of [~+. e].\n    Unary operator at precedence level 9/11 for [+. e]\n    and 11/11 for [~+. e].\n    @since 3.12.0\n"}
+  }, {
+    "label": "Pervasives.at_exit",
+    "kind": 12,
+    "tags": [],
+    "detail": "(unit => unit) => unit",
+    "documentation": {"kind": "markdown", "value": " Register the given function to be called at program termination\n   time. The functions registered with [at_exit] will be called when\n   the program does any of the following:\n   - executes {!Pervasives.exit}\n   - terminates, either normally or because of an uncaught\n     exception\n   - executes the C function [caml_shutdown].\n   The functions are called in 'last in, first out' order: the\n   function most recently added with [at_exit] is called first. "}
+  }, {
+    "label": "Pervasives.min_int",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": " The smallest representable integer. "}
+  }, {
+    "label": "Pervasives.land",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " Bitwise logical and.\n    Left-associative operator at precedence level 7/11. "}
+  }, {
+    "label": "Pervasives.fst",
+    "kind": 12,
+    "tags": [],
+    "detail": "(('a, 'b)) => 'a",
+    "documentation": {"kind": "markdown", "value": " Return the first component of a pair. "}
+  }, {
+    "label": "Pervasives.incr",
+    "kind": 12,
+    "tags": [],
+    "detail": "ref<int> => unit",
+    "documentation": {"kind": "markdown", "value": " Increment the integer contained in the given reference.\n   Equivalent to [fun r -> r := succ !r]. "}
+  }, {
+    "label": "Pervasives.tanh",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Hyperbolic tangent.  Argument is in radians. "}
+  }, {
+    "label": "Pervasives.bool_of_string",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => bool",
+    "documentation": {"kind": "markdown", "value": " Convert the given string to a boolean.\n   Raise [Invalid_argument \"bool_of_string\"] if the string is not\n   [\"true\"] or [\"false\"]. "}
+  }, {
+    "label": "Pervasives.~+",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => int",
+    "documentation": {"kind": "markdown", "value": " Unary addition. You can also write [+ e] instead of [~+ e].\n    Unary operator at precedence level 9/11 for [+ e]\n    and 11/11 for [~+ e].\n    @since 3.12.0\n"}
+  }, {
+    "label": "Pervasives.mod",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": " Integer remainder.  If [y] is not zero, the result\n   of [x mod y] satisfies the following properties:\n   [x = (x / y) * y + x mod y] and\n   [abs(x mod y) <= abs(y) - 1].\n   If [y = 0], [x mod y] raises [Division_by_zero].\n   Note that [x mod y] is negative only if [x < 0].\n   Raise [Division_by_zero] if [y] is zero.\n   Left-associative operator at precedence level 7/11. "}
+  }, {
+    "label": "Pervasives.__FILE__",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": " [__FILE__] returns the name of the file currently being\n    parsed by the compiler.\n    @since 4.02.0\n"}
+  }, {
+    "label": "Pervasives.@@",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a => 'b, 'a) => 'b",
+    "documentation": {"kind": "markdown", "value": " Application operator: [g @@ f @@ x] is exactly equivalent to\n [g (f (x))].\n Right-associative operator at precedence level 5/11.\n   @since 4.01\n"}
+  }, {
+    "label": "Pervasives.acos",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Arc cosine.  The argument must fall within the range [[-1.0, 1.0]].\n    Result is in radians and is between [0.0] and [pi]. "}
+  }, {
+    "label": "Pervasives.print_float",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => unit",
+    "documentation": {"kind": "markdown", "value": " Print a floating-point number, in decimal, on standard output. "}
+  }, {
+    "label": "Pervasives.min",
+    "kind": 12,
+    "tags": [],
+    "detail": "('a, 'a) => 'a",
+    "documentation": {"kind": "markdown", "value": " Return the smaller of the two arguments.\n    The result is unspecified if one of the arguments contains\n    the float value [nan]. "}
+  }, {
+    "label": "Pervasives.__unsafe_cast",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a => 'b",
+    "documentation": null
+  }, {
+    "label": "Pervasives.&&",
+    "kind": 12,
+    "tags": [],
+    "detail": "(bool, bool) => bool",
+    "documentation": {"kind": "markdown", "value": " The boolean 'and'. Evaluation is sequential, left-to-right:\n   in [e1 && e2], [e1] is evaluated first, and if it returns [false],\n   [e2] is not evaluated at all.\n   Right-associative operator at precedence level 3/11. "}
+  }, {
+    "label": "Pervasives.atan",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => float",
+    "documentation": {"kind": "markdown", "value": " Arc tangent.\n    Result is in radians and is between [-pi/2] and [pi/2]. "}
+  }, {
+    "label": "Pervasives.Ok",
+    "kind": 4,
+    "tags": [],
+    "detail": "Ok('a)\n\ntype result<'a, 'b> = Belt.Result.t<'a, 'b> =\n  | Ok('a)\n  | Error('b)",
+    "documentation": null
+  }, {
+    "label": "Pervasives.Error",
+    "kind": 4,
+    "tags": [],
+    "detail": "Error('b)\n\ntype result<'a, 'b> = Belt.Result.t<'a, 'b> =\n  | Ok('a)\n  | Error('b)",
+    "documentation": null
+  }, {
+    "label": "Pervasives.FP_normal",
+    "kind": 4,
+    "tags": [],
+    "detail": "FP_normal\n\ntype fpclass =\n  | FP_normal\n  | FP_subnormal\n  | FP_zero\n  | FP_infinite\n  | FP_nan",
+    "documentation": null
+  }, {
+    "label": "Pervasives.FP_subnormal",
+    "kind": 4,
+    "tags": [],
+    "detail": "FP_subnormal\n\ntype fpclass =\n  | FP_normal\n  | FP_subnormal\n  | FP_zero\n  | FP_infinite\n  | FP_nan",
+    "documentation": null
+  }, {
+    "label": "Pervasives.FP_zero",
+    "kind": 4,
+    "tags": [],
+    "detail": "FP_zero\n\ntype fpclass =\n  | FP_normal\n  | FP_subnormal\n  | FP_zero\n  | FP_infinite\n  | FP_nan",
+    "documentation": null
+  }, {
+    "label": "Pervasives.FP_infinite",
+    "kind": 4,
+    "tags": [],
+    "detail": "FP_infinite\n\ntype fpclass =\n  | FP_normal\n  | FP_subnormal\n  | FP_zero\n  | FP_infinite\n  | FP_nan",
+    "documentation": null
+  }, {
+    "label": "Pervasives.FP_nan",
+    "kind": 4,
+    "tags": [],
+    "detail": "FP_nan\n\ntype fpclass =\n  | FP_normal\n  | FP_subnormal\n  | FP_zero\n  | FP_infinite\n  | FP_nan",
+    "documentation": null
   }]
 
