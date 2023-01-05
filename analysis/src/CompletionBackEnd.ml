@@ -711,6 +711,17 @@ let detail name (kind : Completion.kind) =
   | FileModule _ -> "file module"
   | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
+  | PolyvariantConstructor ({name; args}, s) ->
+    "#" ^ name
+    ^ (match args with
+      | [] -> ""
+      | typeExprs ->
+        "("
+        ^ (typeExprs
+          |> List.map (fun typeExpr -> typeExpr |> Shared.typeToString)
+          |> String.concat ", ")
+        ^ ")")
+    ^ "\n\n" ^ s
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
@@ -1144,12 +1155,29 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       documentation =
         (if docContent = "" then None
         else Some {kind = "markdown"; value = docContent});
+      sortText = None;
+      insertText = None;
+      insertTextFormat = None;
     }
 
-let completionToItem {Completion.name; deprecated; docstring; kind} =
-  mkItem ~name
-    ~kind:(Completion.kindToInt kind)
-    ~deprecated ~detail:(detail name kind) ~docstring
+let completionToItem
+    {
+      Completion.name;
+      deprecated;
+      docstring;
+      kind;
+      sortText;
+      insertText;
+      insertTextFormat;
+    } =
+  let item =
+    mkItem ~name
+      ~kind:(Completion.kindToInt kind)
+      ~deprecated ~detail:(detail name kind) ~docstring
+  in
+  if !Cfg.supportsSnippets then
+    {item with sortText; insertText; insertTextFormat}
+  else item
 
 let completionsGetTypeEnv = function
   | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
@@ -1345,6 +1373,8 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         | Path.Pident id when Ident.name id = "result" -> Some resultModulePath
         | Path.Pident id when Ident.name id = "lazy_t" -> Some ["Lazy"]
         | Path.Pident id when Ident.name id = "char" -> Some ["Char"]
+        | Pdot (Pident id, "result", _) when Ident.name id = "Pervasives" ->
+          Some resultModulePath
         | _ -> None
       in
       let rec expandPath (path : Path.t) =
@@ -1455,7 +1485,333 @@ let getOpens ~debug ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
-let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
+let getArgs ~env (t : Types.type_expr) ~full =
+  let rec getArgsLoop ~env (t : Types.type_expr) ~full ~currentArgumentPosition
+      =
+    match t.desc with
+    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+      getArgsLoop ~full ~env ~currentArgumentPosition t1
+    | Tarrow (Labelled l, tArg, tRet, _) ->
+      (SharedTypes.Completable.Labelled l, tArg)
+      :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
+    | Tarrow (Optional l, tArg, tRet, _) ->
+      (Optional l, tArg) :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
+    | Tarrow (Nolabel, tArg, tRet, _) ->
+      (Unlabelled {argumentPosition = currentArgumentPosition}, tArg)
+      :: getArgsLoop ~full ~env
+           ~currentArgumentPosition:(currentArgumentPosition + 1)
+           tRet
+    | Tconstr (path, typeArgs, _) -> (
+      match References.digConstructor ~env ~package:full.package path with
+      | Some
+          ( env,
+            {
+              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
+            } ) ->
+        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
+        getArgsLoop ~full ~env ~currentArgumentPosition t1
+      | _ -> [])
+    | _ -> []
+  in
+  t |> getArgsLoop ~env ~full ~currentArgumentPosition:0
+
+(** Pulls out a type we can complete from a type expr. *)
+let rec extractType ~env ~package (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
+  | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
+    Some (Completable.Toption (env, payloadTypeExpr))
+  | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
+    Some (Tarray (env, payloadTypeExpr))
+  | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+      extractType ~env ~package t1
+    | Some (env, {name; item = {decl; kind = Type.Variant constructors}}) ->
+      Some
+        (Tvariant
+           {env; constructors; variantName = name.txt; variantDecl = decl})
+    | Some (env, {item = {kind = Record fields}}) ->
+      Some (Trecord {env; fields; typeExpr = t})
+    | _ -> None)
+  | Ttuple expressions -> Some (Tuple (env, expressions, t))
+  | Tvariant {row_fields} ->
+    let constructors =
+      row_fields
+      |> List.map (fun (label, field) ->
+             {
+               name = label;
+               args =
+                 (* Multiple arguments are represented as a Ttuple, while a single argument is just the type expression itself. *)
+                 (match field with
+                 | Types.Rpresent (Some typeExpr) -> (
+                   match typeExpr.desc with
+                   | Ttuple args -> args
+                   | _ -> [typeExpr])
+                 | _ -> []);
+             })
+    in
+    Some (Tpolyvariant {env; constructors; typeExpr = t})
+  | _ -> None
+
+let filterItems items ~prefix =
+  if prefix = "" then items
+  else
+    items
+    |> List.filter (fun (item : Completion.t) ->
+           Utils.startsWith item.name prefix)
+
+let printConstructorArgs argsLen ~asSnippet =
+  let args = ref [] in
+  for argNum = 1 to argsLen do
+    args :=
+      !args @ [(if asSnippet then Printf.sprintf "${%i:_}" argNum else "_")]
+  done;
+  if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
+  else ""
+
+let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+    ~expandOption ~includeLocalValues ~completionContext =
+  let namesUsed = Hashtbl.create 10 in
+  let rec completeTypedValueInner t ~env ~full ~prefix ~expandOption =
+    let items =
+      match t |> extractType ~env ~package:full.package with
+      | Some (Toption (env, typ)) when expandOption ->
+        typ |> completeTypedValueInner ~env ~full ~prefix ~expandOption:false
+      | Some (Tbool env) ->
+        [
+          Completion.create ~name:"true"
+            ~kind:(Label (t |> Shared.typeToString))
+            ~env;
+          Completion.create ~name:"false"
+            ~kind:(Label (t |> Shared.typeToString))
+            ~env;
+        ]
+        |> filterItems ~prefix
+      | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
+        constructors
+        |> List.map (fun (constructor : Constructor.t) ->
+               Completion.createWithSnippet
+                 ~name:
+                   (constructor.cname.txt
+                   ^ printConstructorArgs
+                       (List.length constructor.args)
+                       ~asSnippet:false)
+                 ~insertText:
+                   (constructor.cname.txt
+                   ^ printConstructorArgs
+                       (List.length constructor.args)
+                       ~asSnippet:true)
+                 ~kind:
+                   (Constructor
+                      ( constructor,
+                        variantDecl |> Shared.declToString variantName ))
+                 ~env ())
+        |> filterItems ~prefix
+      | Some (Tpolyvariant {env; constructors; typeExpr}) ->
+        constructors
+        |> List.map (fun (constructor : polyVariantConstructor) ->
+               Completion.createWithSnippet
+                 ~name:
+                   ("#" ^ constructor.name
+                   ^ printConstructorArgs
+                       (List.length constructor.args)
+                       ~asSnippet:false)
+                 ~insertText:
+                   ((if Utils.startsWith prefix "#" then "" else "#")
+                   ^ constructor.name
+                   ^ printConstructorArgs
+                       (List.length constructor.args)
+                       ~asSnippet:true)
+                 ~kind:
+                   (PolyvariantConstructor
+                      (constructor, typeExpr |> Shared.typeToString))
+                 ~env ())
+        |> filterItems ~prefix
+      | Some (Toption (env, t)) ->
+        [
+          Completion.create ~name:"None"
+            ~kind:(Label (t |> Shared.typeToString))
+            ~env;
+          Completion.createWithSnippet ~name:"Some(_)"
+            ~kind:(Label (t |> Shared.typeToString))
+            ~env ~insertText:"Some(${1:_})" ();
+        ]
+        |> filterItems ~prefix
+      | Some (Tuple (env, exprs, typ)) ->
+        let numExprs = List.length exprs in
+        [
+          Completion.createWithSnippet
+            ~name:(printConstructorArgs numExprs ~asSnippet:false)
+            ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
+            ~kind:(Value typ) ~env ();
+        ]
+      | Some (Trecord {env; fields; typeExpr}) -> (
+        (* As we're completing for a record, we'll need a hint (completionContext)
+           here to figure out whether we should complete for a record field, or
+           the record body itself. *)
+        match completionContext with
+        | Some (Completable.RecordField {seenFields}) ->
+          fields
+          |> List.filter (fun (field : field) ->
+                 List.mem field.fname.txt seenFields = false)
+          |> List.map (fun (field : field) ->
+                 Completion.create ~name:field.fname.txt
+                   ~kind:(Field (field, typeExpr |> Shared.typeToString))
+                   ~env)
+          |> filterItems ~prefix
+        | None ->
+          [
+            Completion.createWithSnippet ~name:"{}"
+              ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
+              ~sortText:"a" ~kind:(Value typeExpr) ~env ();
+          ])
+      | Some (Tarray (env, typeExpr)) ->
+        [
+          Completion.createWithSnippet ~name:"[]"
+            ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
+            ~sortText:"a" ~kind:(Value typeExpr) ~env ();
+        ]
+      | _ -> []
+    in
+    (* Include all values and modules in completion if there's a prefix, not otherwise *)
+    if prefix = "" || includeLocalValues = false then items
+    else
+      items
+      @ completionForExportedValues ~env:envWhereCompletionStarted ~prefix
+          ~exact:false ~namesUsed
+      @ completionForExportedModules ~env:envWhereCompletionStarted ~prefix
+          ~exact:false ~namesUsed
+  in
+  completeTypedValueInner ~env ~full ~prefix ~expandOption
+
+let getJsxLabels ~componentPath ~findTypeOfValue ~package =
+  match componentPath @ ["make"] |> findTypeOfValue with
+  | Some (typ, make_env) ->
+    let rec getFieldsV3 (texp : Types.type_expr) =
+      match texp.desc with
+      | Tfield (name, _, t1, t2) ->
+        let fields = t2 |> getFieldsV3 in
+        if name = "children" then fields else (name, t1, make_env) :: fields
+      | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFieldsV3
+      | Tvar None -> []
+      | _ -> []
+    in
+    let getFieldsV4 ~path ~typeArgs =
+      match References.digConstructor ~env:make_env ~package path with
+      | Some
+          ( env,
+            {
+              item =
+                {
+                  decl =
+                    {
+                      type_kind = Type_record (labelDecls, _repr);
+                      type_params = typeParams;
+                    };
+                };
+            } ) ->
+        labelDecls
+        |> List.map (fun (ld : Types.label_declaration) ->
+               let name = Ident.name ld.ld_id in
+               let t = ld.ld_type |> instantiateType ~typeParams ~typeArgs in
+               (name, t, env))
+      | _ -> []
+    in
+    let rec getLabels (t : Types.type_expr) =
+      match t.desc with
+      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
+      | Tarrow
+          ( Nolabel,
+            {
+              desc =
+                ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                | Tobject (tObj, _) );
+            },
+            _,
+            _ ) ->
+        (* JSX V3 *)
+        getFieldsV3 tObj
+      | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
+        when Path.last path = "props" ->
+        (* JSX V4 *)
+        getFieldsV4 ~path ~typeArgs
+      | Tconstr
+          ( clPath,
+            [
+              {
+                desc =
+                  ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                  | Tobject (tObj, _) );
+              };
+              _;
+            ],
+            _ )
+        when Path.name clPath = "React.componentLike" ->
+        (* JSX V3 external or interface *)
+        getFieldsV3 tObj
+      | Tconstr (clPath, [{desc = Tconstr (path, typeArgs, _)}; _], _)
+        when Path.name clPath = "React.componentLike"
+             && Path.last path = "props" ->
+        (* JSX V4 external or interface *)
+        getFieldsV4 ~path ~typeArgs
+      | _ -> []
+    in
+    typ |> getLabels
+  | None -> []
+
+(** This moves through a pattern via a set of instructions, trying to resolve the type at the end of the pattern. *)
+let rec resolveNestedPattern typ ~env ~package ~nested =
+  match nested with
+  | [] -> Some (typ, env, None)
+  | patternPath :: nested -> (
+    match (patternPath, typ |> extractType ~env ~package) with
+    | Completable.PTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
+      match List.nth_opt tupleItems itemNum with
+      | None -> None
+      | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested)
+    | PFollowRecordField {fieldName}, Some (Trecord {env; fields}) -> (
+      match
+        fields
+        |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
+      with
+      | None -> None
+      | Some {typ} -> typ |> resolveNestedPattern ~env ~package ~nested)
+    | PRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
+      Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
+    | ( PVariantPayload {constructorName = "Some"; itemNum = 0},
+        Some (Toption (env, typ)) ) ->
+      typ |> resolveNestedPattern ~env ~package ~nested
+    | ( PVariantPayload {constructorName; itemNum},
+        Some (Tvariant {env; constructors}) ) -> (
+      match
+        constructors
+        |> List.find_opt (fun (c : Constructor.t) ->
+               c.cname.txt = constructorName)
+      with
+      | None -> None
+      | Some constructor -> (
+        match List.nth_opt constructor.args itemNum with
+        | None -> None
+        | Some (typ, _) -> typ |> resolveNestedPattern ~env ~package ~nested))
+    | ( PPolyvariantPayload {constructorName; itemNum},
+        Some (Tpolyvariant {env; constructors}) ) -> (
+      match
+        constructors
+        |> List.find_opt (fun (c : polyVariantConstructor) ->
+               c.name = constructorName)
+      with
+      | None -> None
+      | Some constructor -> (
+        match List.nth_opt constructor.args itemNum with
+        | None -> None
+        | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested))
+    | PArray, Some (Tarray (env, typ)) ->
+      typ |> resolveNestedPattern ~env ~package ~nested
+    | _ -> None)
+
+let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let package = full.package in
   let rawOpens = Scope.getRawOpens scope in
@@ -1474,6 +1830,7 @@ let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
          ~exact:forHover ~scope
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
+    (* Lowercase JSX tag means builtin *)
     let mkLabel (name, typString) =
       Completion.create ~name ~kind:(Label typString) ~env
     in
@@ -1487,99 +1844,37 @@ let processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     |> List.map mkLabel)
     @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
-    let labels =
-      match componentPath @ ["make"] |> findTypeOfValue with
-      | Some (typ, make_env) ->
-        let rec getFieldsV3 (texp : Types.type_expr) =
-          match texp.desc with
-          | Tfield (name, _, t1, t2) ->
-            let fields = t2 |> getFieldsV3 in
-            if name = "children" then fields else (name, t1) :: fields
-          | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFieldsV3
-          | Tvar None -> []
-          | _ -> []
-        in
-        let getFieldsV4 ~path ~typeArgs =
-          match References.digConstructor ~env:make_env ~package path with
-          | Some
-              ( _env,
-                {
-                  item =
-                    {
-                      decl =
-                        {
-                          type_kind = Type_record (labelDecls, _repr);
-                          type_params = typeParams;
-                        };
-                    };
-                } ) ->
-            labelDecls
-            |> List.map (fun (ld : Types.label_declaration) ->
-                   let name = Ident.name ld.ld_id in
-                   let t =
-                     ld.ld_type |> instantiateType ~typeParams ~typeArgs
-                   in
-                   (name, t))
-          | _ -> []
-        in
-        let rec getLabels (t : Types.type_expr) =
-          match t.desc with
-          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
-          | Tarrow
-              ( Nolabel,
-                {
-                  desc =
-                    ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                    | Tobject (tObj, _) );
-                },
-                _,
-                _ ) ->
-            (* JSX V3 *)
-            getFieldsV3 tObj
-          | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
-            when Path.last path = "props" ->
-            (* JSX V4 *)
-            getFieldsV4 ~path ~typeArgs
-          | Tconstr
-              ( clPath,
-                [
-                  {
-                    desc =
-                      ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                      | Tobject (tObj, _) );
-                  };
-                  _;
-                ],
-                _ )
-            when Path.name clPath = "React.componentLike" ->
-            (* JSX V3 external or interface *)
-            getFieldsV3 tObj
-          | Tconstr (clPath, [{desc = Tconstr (path, typeArgs, _)}; _], _)
-            when Path.name clPath = "React.componentLike"
-                 && Path.last path = "props" ->
-            (* JSX V4 external or interface *)
-            getFieldsV4 ~path ~typeArgs
-          | _ -> []
-        in
-        typ |> getLabels
-      | None -> []
-    in
+    let labels = getJsxLabels ~componentPath ~findTypeOfValue ~package in
     let mkLabel_ name typString =
       Completion.create ~name ~kind:(Label typString) ~env
     in
-    let mkLabel (name, typ) = mkLabel_ name (typ |> Shared.typeToString) in
+    let mkLabel (name, typ, _env) =
+      mkLabel_ name (typ |> Shared.typeToString)
+    in
     let keyLabels =
       if Utils.startsWith "key" prefix then [mkLabel_ "key" "string"] else []
     in
     if labels = [] then []
     else
       (labels
-      |> List.filter (fun (name, _t) ->
+      |> List.filter (fun (name, _t, _env) ->
              Utils.startsWith name prefix
              && name <> "key"
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
+  | CjsxPropValue {pathToComponent; prefix; propName} -> (
+    let targetLabel =
+      getJsxLabels ~componentPath:pathToComponent ~findTypeOfValue ~package
+      |> List.find_opt (fun (label, _, _) -> label = propName)
+    in
+    let envWhereCompletionStarted = env in
+    match targetLabel with
+    | None -> []
+    | Some (_, typ, env) ->
+      typ
+      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+           ~expandOption:true ~includeLocalValues:true ~completionContext:None)
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
       {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
@@ -1817,6 +2112,38 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            in
            (dec2, doc))
     |> List.map mkDecorator
+  | Cargument {functionContextPath; argumentLabel; prefix} -> (
+    let envWhereCompletionStarted = env in
+    let labels =
+      match
+        functionContextPath
+        |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:true ~scope
+        |> completionsGetTypeEnv
+      with
+      | Some (typ, _env) -> typ |> getArgs ~full ~env
+      | None -> []
+    in
+    let targetLabel =
+      labels
+      |> List.find_opt (fun (label, _) ->
+             match argumentLabel with
+             | Unlabelled _ -> label = argumentLabel
+             | Labelled name | Optional name -> (
+               match label with
+               | (Labelled n | Optional n) when name = n -> true
+               | _ -> false))
+    in
+    match targetLabel with
+    | None -> []
+    | Some (Optional _, typ) ->
+      typ
+      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+           ~expandOption:true ~includeLocalValues:true ~completionContext:None
+    | Some ((Unlabelled _ | Labelled _), typ) ->
+      typ
+      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+           ~expandOption:false ~includeLocalValues:true ~completionContext:None)
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
@@ -1829,29 +2156,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         if debug then
           Printf.printf "Found type for function %s\n"
             (typ |> Shared.typeToString);
-        let rec getLabels ~env (t : Types.type_expr) =
-          match t.desc with
-          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels ~env t1
-          | Tarrow ((Labelled l | Optional l), tArg, tRet, _) ->
-            (l, tArg) :: getLabels ~env tRet
-          | Tarrow (Nolabel, _, tRet, _) -> getLabels ~env tRet
-          | Tconstr (path, typeArgs, _) -> (
-            match References.digConstructor ~env ~package path with
-            | Some
-                ( env,
-                  {
-                    item =
-                      {
-                        decl =
-                          {type_manifest = Some t1; type_params = typeParams};
-                      };
-                  } ) ->
-              let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
-              getLabels ~env t1
-            | _ -> [])
-          | _ -> []
-        in
-        typ |> getLabels ~env
+
+        typ |> getArgs ~full ~env
+        |> List.filter_map (fun arg ->
+               match arg with
+               | SharedTypes.Completable.Labelled name, a -> Some (name, a)
+               | Optional name, a -> Some (name, a)
+               | _ -> None)
       | None -> []
     in
     let mkLabel (name, typ) =
@@ -1862,3 +2173,29 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
+  | Cpattern {typ; prefix; nested; fallback} -> (
+    let fallbackOrEmpty ?items () =
+      match (fallback, items) with
+      | Some fallback, (None | Some []) ->
+        fallback |> processCompletable ~debug ~full ~scope ~env ~pos ~forHover
+      | _, Some items -> items
+      | None, None -> []
+    in
+    let envWhereCompletionStarted = env in
+    match
+      typ
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | Some (typ, env) -> (
+      match typ |> resolveNestedPattern ~env ~package:full.package ~nested with
+      | None -> fallbackOrEmpty ()
+      | Some (typ, env, completionContext) ->
+        let items =
+          typ
+          |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+               ~expandOption:false ~includeLocalValues:false ~completionContext
+        in
+        fallbackOrEmpty ~items ())
+    | None -> fallbackOrEmpty ())

@@ -279,6 +279,8 @@ end = struct
     {env with exported = structure.exported; pathRev; parent = Some env}
 end
 
+type polyVariantConstructor = {name: string; args: Types.type_expr list}
+
 module Completion = struct
   type kind =
     | Module of Module.t
@@ -287,11 +289,15 @@ module Completion = struct
     | Label of string
     | Type of Type.t
     | Constructor of Constructor.t * string
+    | PolyvariantConstructor of polyVariantConstructor * string
     | Field of field * string
     | FileModule of string
 
   type t = {
     name: string;
+    sortText: string option;
+    insertText: string option;
+    insertTextFormat: Protocol.insertTextFormat option;
     env: QueryEnv.t;
     deprecated: string option;
     docstring: string list;
@@ -299,7 +305,28 @@ module Completion = struct
   }
 
   let create ~name ~kind ~env =
-    {name; env; deprecated = None; docstring = []; kind}
+    {
+      name;
+      env;
+      deprecated = None;
+      docstring = [];
+      kind;
+      sortText = None;
+      insertText = None;
+      insertTextFormat = None;
+    }
+
+  let createWithSnippet ~name ?insertText ~kind ~env ?sortText () =
+    {
+      name;
+      env;
+      deprecated = None;
+      docstring = [];
+      kind;
+      sortText;
+      insertText;
+      insertTextFormat = Some Protocol.Snippet;
+    }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
   (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItemKind *)
@@ -307,7 +334,7 @@ module Completion = struct
     match kind with
     | Module _ -> 9
     | FileModule _ -> 9
-    | Constructor (_, _) -> 4
+    | Constructor (_, _) | PolyvariantConstructor (_, _) -> 4
     | ObjLabel _ -> 4
     | Label _ -> 4
     | Field (_, _) -> 5
@@ -502,6 +529,11 @@ module Completable = struct
   (* Completion context *)
   type completionContext = Type | Value | Module | Field
 
+  type argumentLabel =
+    | Unlabelled of {argumentPosition: int}
+    | Labelled of string
+    | Optional of string
+
   type contextPath =
     | CPString
     | CPArray
@@ -518,6 +550,29 @@ module Completable = struct
             (** The loc item for the left hand side of the pipe. *)
       }
 
+  (** Additional context for a pattern completion where needed. *)
+  type patternContext = RecordField of {seenFields: string list}
+
+  type patternPath =
+    | PTupleItem of {itemNum: int}
+    | PFollowRecordField of {fieldName: string}
+    | PRecordBody of {seenFields: string list}
+    | PVariantPayload of {constructorName: string; itemNum: int}
+    | PPolyvariantPayload of {constructorName: string; itemNum: int}
+    | PArray
+
+  let patternPathToString p =
+    match p with
+    | PTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
+    | PFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
+    | PRecordBody _ -> "recordBody"
+    | PVariantPayload {constructorName; itemNum} ->
+      "variantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum ^ ")"
+    | PPolyvariantPayload {constructorName; itemNum} ->
+      "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum
+      ^ ")"
+    | PArray -> "array"
+
   type t =
     | Cdecorator of string  (** e.g. @module *)
     | CnamedArg of contextPath * string * string list
@@ -526,6 +581,46 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
+    | Cargument of {
+        functionContextPath: contextPath;
+        argumentLabel: argumentLabel;
+        prefix: string;
+      }
+        (** e.g. someFunction(~someBoolArg=<com>), complete for the value of `someBoolArg` (true or false). *)
+    | CjsxPropValue of {
+        pathToComponent: string list;
+        propName: string;
+        prefix: string;
+      }
+    | Cpattern of {
+        typ: contextPath;
+        nested: patternPath list;
+        prefix: string;
+        fallback: t option;
+      }
+
+  (** An extracted type from a type expr *)
+  type extractedType =
+    | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
+    | Toption of QueryEnv.t * Types.type_expr
+    | Tbool of QueryEnv.t
+    | Tarray of QueryEnv.t * Types.type_expr
+    | Tvariant of {
+        env: QueryEnv.t;
+        constructors: Constructor.t list;
+        variantDecl: Types.type_declaration;
+        variantName: string;
+      }
+    | Tpolyvariant of {
+        env: QueryEnv.t;
+        constructors: polyVariantConstructor list;
+        typeExpr: Types.type_expr;
+      }
+    | Trecord of {
+        env: QueryEnv.t;
+        fields: field list;
+        typeExpr: Types.type_expr;
+      }
 
   let toString =
     let completionContextToString = function
@@ -554,6 +649,7 @@ module Completable = struct
       | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
       | CPPipe {contextPath; id} -> contextPathToString contextPath ^ "->" ^ id
     in
+
     function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
@@ -564,6 +660,30 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
+    | Cargument {functionContextPath; argumentLabel; prefix} ->
+      "Cargument "
+      ^ contextPathToString functionContextPath
+      ^ "("
+      ^ (match argumentLabel with
+        | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition
+        | Labelled name -> "~" ^ name
+        | Optional name -> "~" ^ name ^ "=?")
+      ^ (if prefix <> "" then "=" ^ prefix else "")
+      ^ ")"
+    | CjsxPropValue {prefix; pathToComponent; propName} ->
+      "CjsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName ^ "="
+      ^ prefix
+    | Cpattern {typ; nested; prefix} -> (
+      "Cpattern " ^ contextPathToString typ
+      ^ (if prefix = "" then "" else "=" ^ prefix)
+      ^
+      match nested with
+      | [] -> ""
+      | patternPaths ->
+        "->"
+        ^ (patternPaths
+          |> List.map (fun patternPath -> patternPathToString patternPath)
+          |> String.concat ", "))
 end
 
 module CursorPosition = struct
@@ -584,6 +704,10 @@ module CursorPosition = struct
     if posStart <= pos && pos <= posEnd then HasCursor
     else if posEnd = (Location.none |> Loc.end_) then EmptyLoc
     else NoCursor
+
+  let locHasCursor loc ~pos = loc |> classifyLoc ~pos = HasCursor
+
+  let locIsEmpty loc ~pos = loc |> classifyLoc ~pos = EmptyLoc
 end
 
 type labelled = {

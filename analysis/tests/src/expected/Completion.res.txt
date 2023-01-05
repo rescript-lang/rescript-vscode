@@ -463,9 +463,7 @@ Completable: Cpath Value[Js, Dict, u]
 Complete src/Completion.res 59:30
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:15->59:30]
 JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
-posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:29->59:30]
-Pexp_ident z:[59:29->59:30]
-Completable: Cpath Value[z]
+Completable: CjsxPropValue [O, Comp] second=z
 [{
     "label": "zzz",
     "kind": 12,
@@ -1448,7 +1446,9 @@ posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
-Completable: Cpath Value[T]
+Completable: Cpattern Value[x]=T
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
 [{
@@ -1625,11 +1625,11 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->415:1], ...[423:0->423:0])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->415:1]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->415:1])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->415:1]
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->428:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->428:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
 Pexp_ident r:[405:21->405:22]
 Completable: Cpath Value[r]
@@ -1738,5 +1738,24 @@ Resolved opens 2 Completion.res Completion.res
     "tags": [],
     "detail": "float => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Float.toString(1.0) === \"1.0\") /* true */\n  ```\n"}
+  }]
+
+Complete src/Completion.res 425:8
+posCursor:[425:8] posNoWhite:[425:7] Found expr:[425:3->425:8]
+Completable: Cpath Value[ok]->g
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "Belt.Result.getExn",
+    "kind": 12,
+    "tags": [],
+    "detail": "t<'a, 'b> => 'a",
+    "documentation": {"kind": "markdown", "value": "\n  `getExn(res)`: when `res` is `Ok(n)`, returns `n` when `res` is `Error(m)`, raise an exception\n\n  ```res example\n  Belt.Result.getExn(Belt.Result.Ok(42)) == 42\n\n  Belt.Result.getExn(Belt.Result.Error(\"Invalid data\")) /* raises exception */\n  ```\n"}
+  }, {
+    "label": "Belt.Result.getWithDefault",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a, 'b>, 'a) => 'a",
+    "documentation": {"kind": "markdown", "value": "\n  `getWithDefault(res, defaultValue)`: If `res` is `Ok(n)`, returns `n`,\n  otherwise `default`\n\n  ```res example\n  Belt.Result.getWithDefault(Ok(42), 0) == 42\n\n  Belt.Result.getWithDefault(Error(\"Invalid Data\"), 0) == 0\n  ```\n"}
   }]
 

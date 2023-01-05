@@ -12,13 +12,33 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Add autocomplete for function argument values (booleans, variants and options. More values coming), both labelled and unlabelled. https://github.com/rescript-lang/rescript-vscode/pull/665
+- Add autocomplete for JSX prop values. https://github.com/rescript-lang/rescript-vscode/pull/667
+- Add snippet support in completion items. https://github.com/rescript-lang/rescript-vscode/pull/668
+- Add support from completing polyvariants as values. https://github.com/rescript-lang/rescript-vscode/pull/669
+- Add support for completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/670
+
+#### :nail_care: Polish
+
+- Prefer opened `Belt` modules in autocomplete when `-open Belt` is detected in `bsconfig`. https://github.com/rescript-lang/rescript-vscode/pull/673
+- Improve precision in signature help. You now do not need to type anything into the argument for it to highlight. https://github.com/rescript-lang/rescript-vscode/pull/675
+- Remove redundant function name in signature help, to clean up what's shown to the user some. https://github.com/rescript-lang/rescript-vscode/pull/678
+- Migrate `prepareRename` to analysis. https://github.com/rescript-lang/rescript-vscode/pull/657
+
+#### :bug: Bug Fix
+
+- Highlight `catch` like a keyword https://github.com/rescript-lang/rescript-vscode/pull/677
+
+## v1.10.0
+
 #### :nail_care: Polish
 
 - Remove spacing between type definition in clients that do not support markdown links. https://github.com/rescript-lang/rescript-vscode/pull/619
 - Rename custom LSP methods names. https://github.com/rescript-lang/rescript-vscode/pull/611
 - Better performance for Inlay Hints and Codelens. https://github.com/rescript-lang/rescript-vscode/pull/634
 - Accept both `@ns.doc` and the new `@res.doc` for the internal representation of doc comments. And both `@ns.optional` and `@res.optional` for the optional fields. https://github.com/rescript-lang/rescript-vscode/pull/642
-- Migrate `prepareRename` to analysis. https://github.com/rescript-lang/rescript-vscode/pull/657
 - Make pipe completion work more reliably after function calls. https://github.com/rescript-lang/rescript-vscode/pull/656
 - Make pipe completion work in pipe chains, not just on the first pipe. https://github.com/rescript-lang/rescript-vscode/pull/656
 - Make pipe completion work reliably when the path resolution needs to traverse submodules https://github.com/rescript-lang/rescript-vscode/pull/663
