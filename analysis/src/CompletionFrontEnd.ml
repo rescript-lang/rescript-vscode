@@ -260,6 +260,11 @@ let rec exprToContextPath (e : Parsetree.expression) =
     match exprToContextPath e1 with
     | None -> None
     | Some contexPath -> Some (CPApply (contexPath, args |> List.map fst)))
+  | Pexp_tuple exprs ->
+    let exprsAsContextPaths = exprs |> List.filter_map exprToContextPath in
+    if List.length exprs = List.length exprsAsContextPaths then
+      Some (CTuple exprsAsContextPaths)
+    else None
   | _ -> None
 
 let rec getUnqualifiedName txt =

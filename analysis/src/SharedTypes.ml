@@ -549,6 +549,7 @@ module Completable = struct
         lhsLoc: Location.t;
             (** The loc item for the left hand side of the pipe. *)
       }
+    | CTuple of contextPath list
 
   (** Additional context for a pattern completion where needed. *)
   type patternContext = RecordField of {seenFields: string list}
@@ -648,6 +649,10 @@ module Completable = struct
       | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
       | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
       | CPPipe {contextPath; id} -> contextPathToString contextPath ^ "->" ^ id
+      | CTuple ctxPaths ->
+        "CTuple("
+        ^ (ctxPaths |> List.map contextPathToString |> String.concat ", ")
+        ^ ")"
     in
 
     function
