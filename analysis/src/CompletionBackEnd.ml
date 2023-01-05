@@ -2173,27 +2173,14 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | Cpattern {typ; prefix; nested = []; fallback} -> (
-    let envWhereCompletionStarted = env in
-    match
-      typ
-      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
-           ~exact:true ~scope
-      |> completionsGetTypeEnv
-    with
-    | Some (typ, env) -> (
-      let items =
-        typ
-        |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-             ~expandOption:false ~includeLocalValues:false
-             ~completionContext:None
-      in
-      match (items, fallback) with
-      | [], Some fallback ->
-        fallback |> processCompletable ~debug ~full ~scope ~env ~pos ~forHover
-      | items, _ -> items)
-    | None -> [])
   | Cpattern {typ; prefix; nested; fallback} -> (
+    let fallbackOrEmpty ?items () =
+      match (fallback, items) with
+      | Some fallback, (None | Some []) ->
+        fallback |> processCompletable ~debug ~full ~scope ~env ~pos ~forHover
+      | _, Some items -> items
+      | None, None -> []
+    in
     let envWhereCompletionStarted = env in
     match
       typ
@@ -2203,15 +2190,12 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     with
     | Some (typ, env) -> (
       match typ |> resolveNestedPattern ~env ~package:full.package ~nested with
-      | None -> []
-      | Some (typ, env, completionContext) -> (
+      | None -> fallbackOrEmpty ()
+      | Some (typ, env, completionContext) ->
         let items =
           typ
           |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
                ~expandOption:false ~includeLocalValues:false ~completionContext
         in
-        match (items, fallback) with
-        | [], Some fallback ->
-          fallback |> processCompletable ~debug ~full ~scope ~env ~pos ~forHover
-        | items, _ -> items))
-    | None -> [])
+        fallbackOrEmpty ~items ())
+    | None -> fallbackOrEmpty ())
