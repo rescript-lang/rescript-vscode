@@ -624,7 +624,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | Some (prefix, nestedPattern), Some ctxPath ->
       setResult
         (Completable.Cpattern
-           {typ = ctxPath; prefix; nested = List.rev nestedPattern})
+           {
+             typ = ctxPath;
+             prefix;
+             nested = List.rev nestedPattern;
+             fallback = None;
+           })
     | _ -> ()
   in
   let scopeValueBinding (vb : Parsetree.value_binding) =
@@ -691,7 +696,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | None -> ()
         | Some ctxPath ->
           setResult
-            (Completable.Cpattern {typ = ctxPath; nested = []; prefix = ""}))
+            (Completable.Cpattern
+               {typ = ctxPath; nested = []; prefix = ""; fallback = None}))
       | Pexp_match (exp, cases) -> (
         (* If there's more than one case, or the case isn't a pattern hole, figure out if we're completing another
            broken parser case (`switch x { | true => () | <com> }` for example). *)
@@ -717,7 +723,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           | true, false ->
             (* If there's no case with the cursor, but a broken parser case, complete for the top level. *)
             setResult
-              (Completable.Cpattern {typ = ctxPath; nested = []; prefix = ""})
+              (Completable.Cpattern
+                 {typ = ctxPath; nested = []; prefix = ""; fallback = None})
           | false, false -> ()))
       | _ -> unsetLookingForPat ()
   in
@@ -1121,19 +1128,18 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         Printf.printf "posCursor:[%s] posNoWhite:[%s] Found pattern:%s\n"
           (Pos.toString posCursor) (Pos.toString posNoWhite)
           (Loc.toString pat.ppat_loc);
-      (* TODO:
-          This change breaks old behavior of completing constructors in scope.
-          Either be fine with it, fix it somehow, or incorporate completing
-          constructors in scope when regular completion for variants can't
-          be done. *)
-      (match (!lookingForPat, pat.ppat_desc) with
-      | None, Ppat_construct (lid, _) ->
+      (match pat.ppat_desc with
+      | Ppat_construct (lid, _) -> (
         let lidPath = flattenLidCheckDot lid in
         if debug then
           Printf.printf "Ppat_construct %s:%s\n"
             (lidPath |> String.concat ".")
             (Loc.toString lid.loc);
-        setResult (Cpath (CPId (lidPath, Value)))
+        let completion = Completable.Cpath (CPId (lidPath, Value)) in
+        match !result with
+        | Some (Completable.Cpattern p, scope) ->
+          result := Some (Cpattern {p with fallback = Some completion}, scope)
+        | _ -> setResult completion)
       | _ -> ());
       Ast_iterator.default_iterator.pat iterator pat)
   in

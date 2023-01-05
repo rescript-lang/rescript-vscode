@@ -261,7 +261,9 @@ Complete src/CompletionPattern.res 87:20
 looking for: Cpath Value[z] 
 posCursor:[87:20] posNoWhite:[87:19] Found expr:[87:3->87:22]
 posCursor:[87:20] posNoWhite:[87:19] Found pattern:[87:16->87:21]
+Ppat_construct Two:[87:16->87:19]
 posCursor:[87:20] posNoWhite:[87:19] Found pattern:[87:19->87:21]
+Ppat_construct ():[87:19->87:21]
 Completable: Cpattern Value[z]->variantPayload::Two($0)
 [{
     "label": "true",
@@ -281,6 +283,7 @@ Complete src/CompletionPattern.res 90:21
 looking for: Cpath Value[z] 
 posCursor:[90:21] posNoWhite:[90:20] Found expr:[90:3->90:23]
 posCursor:[90:21] posNoWhite:[90:20] Found pattern:[90:16->90:22]
+Ppat_construct Two:[90:16->90:19]
 posCursor:[90:21] posNoWhite:[90:20] Found pattern:[90:20->90:21]
 Completable: Cpattern Value[z]=t->variantPayload::Two($0)
 [{
@@ -295,6 +298,7 @@ Complete src/CompletionPattern.res 93:23
 looking for: Cpath Value[z] 
 posCursor:[93:23] posNoWhite:[93:22] Found expr:[93:3->93:26]
 posCursor:[93:23] posNoWhite:[93:22] Found pattern:[93:16->93:25]
+Ppat_construct Three:[93:16->93:21]
 posCursor:[93:23] posNoWhite:[93:22] Found pattern:[93:22->93:24]
 Completable: Cpattern Value[z]->variantPayload::Three($0), recordBody
 [{
@@ -327,6 +331,7 @@ Complete src/CompletionPattern.res 96:27
 looking for: Cpath Value[z] 
 posCursor:[96:27] posNoWhite:[96:26] Found expr:[96:3->96:29]
 posCursor:[96:27] posNoWhite:[96:26] Found pattern:[96:16->96:28]
+Ppat_construct Three:[96:16->96:21]
 posCursor:[96:27] posNoWhite:[96:26] Found pattern:[96:21->96:29]
 posCursor:[96:27] posNoWhite:[96:26] Found pattern:[96:26->96:27]
 Completable: Cpattern Value[z]=t->variantPayload::Three($1)
@@ -343,6 +348,7 @@ looking for: Cpath Value[b]
 posCursor:[103:21] posNoWhite:[103:20] Found expr:[103:3->103:23]
 posCursor:[103:21] posNoWhite:[103:20] Found pattern:[103:16->103:22]
 posCursor:[103:21] posNoWhite:[103:20] Found pattern:[103:20->103:21]
+Ppat_construct ():[103:20->103:21]
 Completable: Cpattern Value[b]->polyvariantPayload::two($0)
 [{
     "label": "true",
@@ -456,7 +462,9 @@ Complete src/CompletionPattern.res 127:21
 looking for: Cpath Value[o] 
 posCursor:[127:21] posNoWhite:[127:20] Found expr:[127:3->127:24]
 posCursor:[127:21] posNoWhite:[127:20] Found pattern:[127:16->127:22]
+Ppat_construct Some:[127:16->127:20]
 posCursor:[127:21] posNoWhite:[127:20] Found pattern:[127:20->127:22]
+Ppat_construct ():[127:20->127:22]
 Completable: Cpattern Value[o]->variantPayload::Some($0)
 [{
     "label": "true",
@@ -476,6 +484,7 @@ Complete src/CompletionPattern.res 134:23
 looking for: Cpath Value[p] 
 posCursor:[134:23] posNoWhite:[134:22] Found expr:[134:3->134:26]
 posCursor:[134:23] posNoWhite:[134:22] Found pattern:[134:16->134:25]
+Ppat_construct Test:[134:16->134:20]
 Completable: Cpattern Value[p]->variantPayload::Test($1)
 [{
     "label": "true",
@@ -495,6 +504,7 @@ Complete src/CompletionPattern.res 137:29
 looking for: Cpath Value[p] 
 posCursor:[137:29] posNoWhite:[137:28] Found expr:[137:3->137:32]
 posCursor:[137:29] posNoWhite:[137:28] Found pattern:[137:16->137:31]
+Ppat_construct Test:[137:16->137:20]
 posCursor:[137:29] posNoWhite:[137:28] Found pattern:[137:20->137:32]
 Completable: Cpattern Value[p]->variantPayload::Test($2)
 [{
@@ -517,6 +527,7 @@ Complete src/CompletionPattern.res 140:23
 looking for: Cpath Value[p] 
 posCursor:[140:23] posNoWhite:[140:22] Found expr:[140:3->140:32]
 posCursor:[140:23] posNoWhite:[140:22] Found pattern:[140:16->140:31]
+Ppat_construct Test:[140:16->140:20]
 posCursor:[140:23] posNoWhite:[140:22] Found pattern:[140:20->140:32]
 Completable: Cpattern Value[p]->variantPayload::Test($1)
 [{
@@ -537,6 +548,7 @@ Complete src/CompletionPattern.res 143:35
 looking for: Cpath Value[p] 
 posCursor:[143:35] posNoWhite:[143:34] Found expr:[143:3->143:38]
 posCursor:[143:35] posNoWhite:[143:34] Found pattern:[143:16->143:37]
+Ppat_construct Test:[143:16->143:20]
 posCursor:[143:35] posNoWhite:[143:34] Found pattern:[143:20->143:38]
 Completable: Cpattern Value[p]->variantPayload::Test($3)
 [{
@@ -632,6 +644,7 @@ Complete src/CompletionPattern.res 164:17
 looking for: Cpath Value[s] 
 posCursor:[164:17] posNoWhite:[164:16] Found expr:[164:3->164:20]
 posCursor:[164:17] posNoWhite:[164:16] Found pattern:[164:16->164:18]
+Ppat_construct ():[164:16->164:18]
 Completable: Cpattern Value[s]->tuple($0)
 [{
     "label": "true",
@@ -757,6 +770,7 @@ looking for: Cpath Value[z]
 posCursor:[182:32] posNoWhite:[182:31] Found expr:[182:3->182:37]
 posCursor:[182:32] posNoWhite:[182:31] Found pattern:[182:16->182:34]
 posCursor:[182:32] posNoWhite:[182:31] Found pattern:[182:22->182:34]
+Ppat_construct Two:[182:22->182:25]
 Completable: Cpattern Value[z]->variantPayload::Two($0)
 [{
     "label": "true",
@@ -777,6 +791,7 @@ looking for: Cpath Value[z]
 posCursor:[185:48] posNoWhite:[185:47] Found expr:[185:3->185:53]
 posCursor:[185:48] posNoWhite:[185:47] Found pattern:[185:16->185:50]
 posCursor:[185:48] posNoWhite:[185:47] Found pattern:[185:22->185:50]
+Ppat_construct Three:[185:22->185:27]
 posCursor:[185:48] posNoWhite:[185:47] Found pattern:[185:27->185:53]
 Completable: Cpattern Value[z]->variantPayload::Three($1)
 [{
