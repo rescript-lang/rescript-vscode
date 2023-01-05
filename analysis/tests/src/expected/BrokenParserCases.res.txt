@@ -5,7 +5,6 @@ Completable: Cargument Value[someFn]($0)
 []
 
 Complete src/BrokenParserCases.res 6:18
-looking for: Cpath Value[s] 
 posCursor:[6:18] posNoWhite:[6:17] Found expr:[6:3->6:21]
 posCursor:[6:18] posNoWhite:[6:17] Found pattern:[6:16->6:19]
 Completable: Cpattern Value[s]=t
