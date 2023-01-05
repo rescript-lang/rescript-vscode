@@ -1738,106 +1738,22 @@ Resolved opens 2 Completion.res Completion.res
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Float.toString(1.0) === \"1.0\") /* true */\n  ```\n"}
   }]
 
-Complete src/Completion.res 425:7
-posCursor:[425:7] posNoWhite:[425:6] Found expr:[425:3->0:-1]
-Completable: Cpath Value[ok]->
+Complete src/Completion.res 425:8
+posCursor:[425:8] posNoWhite:[425:7] Found expr:[425:3->425:8]
+Completable: Cpath Value[ok]->g
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
 [{
-    "label": "Belt.Result.mapWithDefaultU",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, 'b, (. 'a) => 'b) => 'b",
-    "documentation": null
-  }, {
-    "label": "Belt.Result.flatMapU",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, (. 'a) => t<'b, 'c>) => t<'b, 'c>",
-    "documentation": null
-  }, {
-    "label": "Belt.Result.eqU",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, t<'b, 'd>, (. 'a, 'b) => bool) => bool",
-    "documentation": null
-  }, {
-    "label": "Belt.Result.map",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, 'a => 'b) => t<'b, 'c>",
-    "documentation": {"kind": "markdown", "value": "\n  `map(res, f)`: When res is `Ok(n)`, returns `Ok(f(n))`. Otherwise returns res\n  unchanged. Function `f` takes a value of the same type as `n` and returns an\n  ordinary value.\n\n  ```res example\n  let f = (x) => sqrt(Belt.Int.toFloat(x))\n\n  Belt.Result.map(Ok(64), f) == Ok(8.0)\n\n  Belt.Result.map(Error(\"Invalid data\"), f) == Error(\"Invalid data\")\n  ```\n"}
-  }, {
     "label": "Belt.Result.getExn",
     "kind": 12,
     "tags": [],
     "detail": "t<'a, 'b> => 'a",
     "documentation": {"kind": "markdown", "value": "\n  `getExn(res)`: when `res` is `Ok(n)`, returns `n` when `res` is `Error(m)`, raise an exception\n\n  ```res example\n  Belt.Result.getExn(Belt.Result.Ok(42)) == 42\n\n  Belt.Result.getExn(Belt.Result.Error(\"Invalid data\")) /* raises exception */\n  ```\n"}
   }, {
-    "label": "Belt.Result.mapWithDefault",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, 'b, 'a => 'b) => 'b",
-    "documentation": {"kind": "markdown", "value": "\n  `mapWithDefault(res, default, f)`: When res is `Ok(n)`, returns `f(n)`,\n  otherwise `default`.\n\n  ```res example\n  let ok = Belt.Result.Ok(42)\n  Belt.Result.mapWithDefault(ok, 0, (x) => x / 2) == 21\n\n  let error = Belt.Result.Error(\"Invalid data\")\n  Belt.Result.mapWithDefault(error, 0, (x) => x / 2) == 0\n  ```\n"}
-  }, {
     "label": "Belt.Result.getWithDefault",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a, 'b>, 'a) => 'a",
     "documentation": {"kind": "markdown", "value": "\n  `getWithDefault(res, defaultValue)`: If `res` is `Ok(n)`, returns `n`,\n  otherwise `default`\n\n  ```res example\n  Belt.Result.getWithDefault(Ok(42), 0) == 42\n\n  Belt.Result.getWithDefault(Error(\"Invalid Data\"), 0) == 0\n  ```\n"}
-  }, {
-    "label": "Belt.Result.isError",
-    "kind": 12,
-    "tags": [],
-    "detail": "t<'a, 'b> => bool",
-    "documentation": {"kind": "markdown", "value": "\n  `isError(res)`: Returns `true` if `res` is of the form `Error(e)`, `false` if\n  it is the `Ok(n)` variant.\n"}
-  }, {
-    "label": "Belt.Result.cmpU",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, t<'b, 'd>, (. 'a, 'b) => int) => int",
-    "documentation": null
-  }, {
-    "label": "Belt.Result.flatMap",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, 'a => t<'b, 'c>) => t<'b, 'c>",
-    "documentation": {"kind": "markdown", "value": "\n  `flatMap(res, f)`: When res is `Ok(n)`, returns `f(n)`. Otherwise, returns res\n  unchanged. Function `f` takes a value of the same type as `n` and returns a\n  `Belt.Result`.\n\n  ```res example\n  let recip = (x) =>\n    if (x !== 0.0) {\n      Belt.Result.Ok(1.0 /. x)\n    } else {\n      Belt.Result.Error(\"Divide by zero\")\n    }\n\n  Belt.Result.flatMap(Ok(2.0), recip) == Ok(0.5)\n\n  Belt.Result.flatMap(Ok(0.0), recip) == Error(\"Divide by zero\")\n\n  Belt.Result.flatMap(Error(\"Already bad\"), recip) == Error(\"Already bad\")\n  ```\n"}
-  }, {
-    "label": "Belt.Result.eq",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, t<'b, 'd>, ('a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n  `eq(res1, res2, f)`: Determine if two `Belt.Result` variables are equal with\n  respect to an equality function. If `res1` and `res2` are of the form `Ok(n)`\n  and `Ok(m)`, return the result of `f(n, m)`. If one of `res1` and `res2` are of\n  the form `Error(e)`, return false If both `res1` and `res2` are of the form\n  `Error(e)`, return true\n\n  ```res example\n  let good1 = Belt.Result.Ok(42)\n\n  let good2 = Belt.Result.Ok(32)\n\n  let bad1 = Belt.Result.Error(\"invalid\")\n\n  let bad2 = Belt.Result.Error(\"really invalid\")\n\n  let mod10equal = (a, b) => mod(a, 10) === mod(b, 10)\n\n  Belt.Result.eq(good1, good2, mod10equal) == true\n\n  Belt.Result.eq(good1, bad1, mod10equal) == false\n\n  Belt.Result.eq(bad2, good2, mod10equal) == false\n\n  Belt.Result.eq(bad1, bad2, mod10equal) == true\n  ```\n"}
-  }, {
-    "label": "Belt.Result.mapU",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, (. 'a) => 'b) => t<'b, 'c>",
-    "documentation": null
-  }, {
-    "label": "Belt.Result.isOk",
-    "kind": 12,
-    "tags": [],
-    "detail": "t<'a, 'b> => bool",
-    "documentation": {"kind": "markdown", "value": "\n  `isOk(res)`: Returns `true` if `res` is of the form `Ok(n)`, `false` if it is\n  the `Error(e)` variant.\n"}
-  }, {
-    "label": "Belt.Result.cmp",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'c>, t<'b, 'd>, ('a, 'b) => int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  `cmp(res1, res2, f)`: Compare two `Belt.Result` variables with respect to a\n  comparison function. The comparison function returns -1 if the first variable\n  is \"less than\" the second, 0 if the two variables are equal, and 1 if the first\n  is \"greater than\" the second.\n\n  If `res1` and `res2` are of the form `Ok(n)` and `Ok(m)`, return the result of\n  `f(n, m)`. If `res1` is of the form `Error(e)` and `res2` of the form `Ok(n)`,\n  return -1 (nothing is less than something) If `res1` is of the form `Ok(n)` and\n  `res2` of the form `Error(e)`, return 1 (something is greater than nothing) If\n  both `res1` and `res2` are of the form `Error(e)`, return 0 (equal)\n\n  ```res example\n  let good1 = Belt.Result.Ok(59)\n\n  let good2 = Belt.Result.Ok(37)\n\n  let bad1 = Belt.Result.Error(\"invalid\")\n\n  let bad2 = Belt.Result.Error(\"really invalid\")\n\n  let mod10cmp = (a, b) => Pervasives.compare(mod(a, 10), mod(b, 10))\n\n  Belt.Result.cmp(Ok(39), Ok(57), mod10cmp) == 1\n\n  Belt.Result.cmp(Ok(57), Ok(39), mod10cmp) == (-1)\n\n  Belt.Result.cmp(Ok(39), Error(\"y\"), mod10cmp) == 1\n\n  Belt.Result.cmp(Error(\"x\"), Ok(57), mod10cmp) == (-1)\n\n  Belt.Result.cmp(Error(\"x\"), Error(\"y\"), mod10cmp) == 0\n  ```\n"}
-  }, {
-    "label": "Belt.Result.Ok",
-    "kind": 4,
-    "tags": [],
-    "detail": "Ok('a)\n\ntype t<'a, 'b> = Ok('a) | Error('b)",
-    "documentation": null
-  }, {
-    "label": "Belt.Result.Error",
-    "kind": 4,
-    "tags": [],
-    "detail": "Error('b)\n\ntype t<'a, 'b> = Ok('a) | Error('b)",
-    "documentation": null
   }]
 
