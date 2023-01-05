@@ -657,11 +657,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     scope :=
       !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
-  let setLookingForPat ctxPath =
-    lookingForPat := Some ctxPath;
-    if debug then
-      Printf.printf "looking for: %s \n" (Completable.toString (Cpath ctxPath))
-  in
+  let setLookingForPat ctxPath = lookingForPat := Some ctxPath in
+
   let unsetLookingForPat () = lookingForPat := None in
   (* Identifies expressions where we can do typed pattern or expr completion. *)
   let typedCompletionExpr (exp : Parsetree.expression) =
