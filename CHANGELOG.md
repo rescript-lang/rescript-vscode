@@ -19,6 +19,7 @@
 - Add snippet support in completion items. https://github.com/rescript-lang/rescript-vscode/pull/668
 - Add support from completing polyvariants as values. https://github.com/rescript-lang/rescript-vscode/pull/669
 - Add support for completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/670
+- Add support for pattern completion of unsaved tuples. https://github.com/rescript-lang/rescript-vscode/pull/679
 
 #### :nail_care: Polish
 
