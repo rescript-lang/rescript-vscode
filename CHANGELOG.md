@@ -23,6 +23,7 @@
 
 - Prefer opened `Belt` modules in autocomplete when `-open Belt` is detected in `bsconfig`. https://github.com/rescript-lang/rescript-vscode/pull/673
 - Improve precision in signature help. You now do not need to type anything into the argument for it to highlight. https://github.com/rescript-lang/rescript-vscode/pull/675
+- Remove redundant function name in signature help, to clean up what's shown to the user some. https://github.com/rescript-lang/rescript-vscode/pull/678
 
 #### :bug: Bug Fix
 
