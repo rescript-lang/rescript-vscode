@@ -30,15 +30,15 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
               file )))
   in
   match completables with
-  | Some ({kind = Value type_expr; name; docstring} :: _, env, package, file) ->
+  | Some ({kind = Value type_expr; docstring} :: _, env, package, file) ->
     let args, _ =
       CompletionBackEnd.extractFunctionType type_expr ~env ~package
     in
-    Some (args, name, docstring, type_expr, package, env, file)
+    Some (args, docstring, type_expr, package, env, file)
   | _ -> None
 
 (* Extracts all parameters from a parsed function signature *)
-let extractParameters ~signature ~label =
+let extractParameters ~signature ~typeStrForParser ~labelPrefixLen =
   match signature with
   | [
    {
@@ -55,10 +55,13 @@ let extractParameters ~signature ~label =
        ptyp_loc;
       } ->
         let startOffset =
-          ptyp_loc |> Loc.start |> Pos.positionToOffset label |> Option.get
+          ptyp_loc |> Loc.start
+          |> Pos.positionToOffset typeStrForParser
+          |> Option.get
         in
         let endOffset =
-          argumentTypeExpr.ptyp_loc |> Loc.end_ |> Pos.positionToOffset label
+          argumentTypeExpr.ptyp_loc |> Loc.end_
+          |> Pos.positionToOffset typeStrForParser
           |> Option.get
         in
         (* The AST locations does not account for "=?" of optional arguments, so add that to the offset here if needed. *)
@@ -68,7 +71,14 @@ let extractParameters ~signature ~label =
           | _ -> endOffset
         in
         extractParams nextFunctionExpr
-          (params @ [(argumentLabel, startOffset, endOffset)])
+          (params
+          @ [
+              ( argumentLabel,
+                (* Remove the label prefix offset here, since we're not showing
+                   that to the end user. *)
+                startOffset - labelPrefixLen,
+                endOffset - labelPrefixLen );
+            ])
       | _ -> params
     in
     extractParams expr []
@@ -283,7 +293,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
         (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
         let pos = exp.pexp_loc |> Loc.end_ in
         match findFunctionType ~currentFile ~debug ~path ~pos with
-        | Some (args, name, docstring, type_expr, package, _env, file) ->
+        | Some (args, docstring, type_expr, package, _env, file) ->
           if debug then
             Printf.printf "argAtCursor: %s\n"
               (match argAtCursor with
@@ -296,19 +306,24 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
              in the form of a list of start/end character offsets. We leverage the parser to figure the offsets out by parsing the label, and extract the
              offsets from the parser. *)
 
-          (* Put together a label here that both makes sense to show to the end user in the signature help, but also can be passed to the parser. *)
-          let label = "let " ^ name ^ ": " ^ Shared.typeToString type_expr in
+          (* A full let binding with the type text is needed for the parser to be able to parse it.  *)
+          let labelPrefix = "let fn: " in
+          let labelPrefixLen = String.length labelPrefix in
+          let fnTypeStr = Shared.typeToString type_expr in
+          let typeStrForParser = labelPrefix ^ fnTypeStr in
           let {Res_driver.parsetree = signature} =
             Res_driver.parseInterfaceFromSource ~forPrinter:false
-              ~displayFilename:"<missing-file>" ~source:label
+              ~displayFilename:"<missing-file>" ~source:typeStrForParser
           in
 
-          let parameters = extractParameters ~signature ~label in
+          let parameters =
+            extractParameters ~signature ~typeStrForParser ~labelPrefixLen
+          in
           if debug then
             Printf.printf "extracted params: \n%s\n"
               (parameters
               |> List.map (fun (_, start, end_) ->
-                     String.sub label start (end_ - start))
+                     String.sub fnTypeStr start (end_ - start))
               |> list);
 
           (* Figure out the active parameter *)
@@ -318,7 +333,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
               Protocol.signatures =
                 [
                   {
-                    label;
+                    label = fnTypeStr;
                     parameters =
                       parameters
                       |> List.map (fun (argLabel, start, end_) ->
