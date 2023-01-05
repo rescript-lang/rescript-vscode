@@ -592,7 +592,12 @@ module Completable = struct
         propName: string;
         prefix: string;
       }
-    | Cpattern of {typ: contextPath; nested: patternPath list; prefix: string}
+    | Cpattern of {
+        typ: contextPath;
+        nested: patternPath list;
+        prefix: string;
+        fallback: t option;
+      }
 
   (** An extracted type from a type expr *)
   type extractedType =
