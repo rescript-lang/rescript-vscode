@@ -1458,6 +1458,25 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                })
       | None -> [])
     | None -> [])
+  | CTuple ctxPaths ->
+    (* Turn a list of context paths into a list of type expressions. *)
+    let typeExrps =
+      ctxPaths
+      |> List.map (fun contextPath ->
+             contextPath
+             |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles
+                  ~pos ~env ~exact:true ~scope)
+      |> List.filter_map (fun completionItems ->
+             match completionItems with
+             | {Completion.kind = Value typ} :: _ -> Some typ
+             | _ -> None)
+    in
+    if List.length ctxPaths = List.length typeExrps then
+      [
+        Completion.create ~name:"dummy" ~env
+          ~kind:(Completion.Value (Ctype.newty (Ttuple typeExrps)));
+      ]
+    else []
 
 let getOpens ~debug ~rawOpens ~package ~env =
   if debug && rawOpens <> [] then

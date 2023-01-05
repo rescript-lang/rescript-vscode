@@ -1,0 +1,13 @@
+Complete src/CompletionExpressions.res 3:20
+XXX Not found!
+Completable: Cpattern CTuple(Value[s], Value[f])
+[{
+    "label": "(_, _)",
+    "kind": 12,
+    "tags": [],
+    "detail": "(bool, option<array<bool>>)",
+    "documentation": null,
+    "insertText": "(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
