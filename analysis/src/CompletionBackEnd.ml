@@ -1373,6 +1373,8 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         | Path.Pident id when Ident.name id = "result" -> Some resultModulePath
         | Path.Pident id when Ident.name id = "lazy_t" -> Some ["Lazy"]
         | Path.Pident id when Ident.name id = "char" -> Some ["Char"]
+        | Pdot (Pident id, "result", _) when Ident.name id = "Pervasives" ->
+          Some resultModulePath
         | _ -> None
       in
       let rec expandPath (path : Path.t) =
