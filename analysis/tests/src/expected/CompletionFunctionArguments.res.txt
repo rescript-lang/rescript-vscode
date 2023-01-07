@@ -85,6 +85,12 @@ Completable: Cargument Value[someOtherFn]($0=f)
     "detail": "bool",
     "documentation": null
   }, {
+    "label": "fnTakingRecord",
+    "kind": 12,
+    "tags": [],
+    "detail": "someRecord => unit",
+    "documentation": null
+  }, {
     "label": "fnTakingTuple",
     "kind": 12,
     "tags": [],
@@ -241,5 +247,29 @@ Completable: Cargument Value[fnTakingTuple]($0)
     "documentation": null,
     "insertText": "(${1:_}, ${2:_}, ${3:_})",
     "insertTextFormat": 2
+  }]
+
+Complete src/CompletionFunctionArguments.res 89:27
+posCursor:[89:27] posNoWhite:[89:26] Found expr:[89:11->89:29]
+Pexp_apply ...[89:11->89:25] (...[89:26->89:28])
+Completable: Cargument Value[fnTakingRecord]($0)->recordBody
+[{
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "offline",
+    "kind": 5,
+    "tags": [],
+    "detail": "offline: bool\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "online",
+    "kind": 5,
+    "tags": [],
+    "detail": "online: option<bool>\n\nsomeRecord",
+    "documentation": null
   }]
 

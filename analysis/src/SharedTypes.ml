@@ -574,6 +574,28 @@ module Completable = struct
       ^ ")"
     | PArray -> "array"
 
+  type exprContext = RecordField of {seenFields: string list}
+
+  type exprPath =
+    | ETupleItem of {itemNum: int}
+    | EFollowRecordField of {fieldName: string}
+    | ERecordBody of {seenFields: string list}
+    | EVariantPayload of {constructorName: string; itemNum: int}
+    | EPolyvariantPayload of {constructorName: string; itemNum: int}
+    | EArray
+
+  let exprPathToString p =
+    match p with
+    | ETupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
+    | EFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
+    | ERecordBody _ -> "recordBody"
+    | EVariantPayload {constructorName; itemNum} ->
+      "variantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum ^ ")"
+    | EPolyvariantPayload {constructorName; itemNum} ->
+      "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum
+      ^ ")"
+    | EArray -> "array"
+
   type t =
     | Cdecorator of string  (** e.g. @module *)
     | CnamedArg of contextPath * string * string list
@@ -585,12 +607,14 @@ module Completable = struct
     | Cargument of {
         functionContextPath: contextPath;
         argumentLabel: argumentLabel;
+        nested: exprPath list;
         prefix: string;
       }
         (** e.g. someFunction(~someBoolArg=<com>), complete for the value of `someBoolArg` (true or false). *)
     | CjsxPropValue of {
         pathToComponent: string list;
         propName: string;
+        nested: exprPath list;
         prefix: string;
       }
     | Cpattern of {
@@ -665,7 +689,7 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | Cargument {functionContextPath; argumentLabel; prefix} ->
+    | Cargument {functionContextPath; argumentLabel; prefix; nested} -> (
       "Cargument "
       ^ contextPathToString functionContextPath
       ^ "("
@@ -675,6 +699,14 @@ module Completable = struct
         | Optional name -> "~" ^ name ^ "=?")
       ^ (if prefix <> "" then "=" ^ prefix else "")
       ^ ")"
+      ^
+      match nested with
+      | [] -> ""
+      | exprPaths ->
+        "->"
+        ^ (exprPaths
+          |> List.map (fun exprPath -> exprPathToString exprPath)
+          |> String.concat ", "))
     | CjsxPropValue {prefix; pathToComponent; propName} ->
       "CjsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName ^ "="
       ^ prefix
