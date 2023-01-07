@@ -1,0 +1,389 @@
+Complete src/CompletionJsx.res 3:17
+posCursor:[3:17] posNoWhite:[3:16] Found expr:[3:3->3:17]
+Completable: Cpath Value[someString]->st
+[{
+    "label": "Js.String2.startsWith",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+  }, {
+    "label": "Js.String2.startsWithFrom",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t, int) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+  }]
+
+Complete src/CompletionJsx.res 15:21
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[8:13->35:3]
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[9:4->34:10]
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[10:4->34:10]
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[11:4->34:10]
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[12:4->34:10]
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[13:4->34:10]
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[14:4->34:10]
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[15:7->34:10]
+posCursor:[15:21] posNoWhite:[15:20] Found expr:[15:7->15:21]
+Completable: Cpath Value[someString]->st <<jsx>>
+[{
+    "label": "React.string",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "Js.String2.startsWith",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+  }, {
+    "label": "Js.String2.startsWithFrom",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t, int) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+  }]
+
+Complete src/CompletionJsx.res 20:24
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[8:13->35:3]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[9:4->34:10]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[10:4->34:10]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[11:4->34:10]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[12:4->34:10]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[13:4->34:10]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[14:4->34:10]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[17:5->34:10]
+JSX <div:[17:5->17:8] > _children:17:8
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[17:8->34:4]
+Pexp_construct :::[18:7->34:4] [18:7->34:4]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[18:7->34:4]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[19:7->34:4]
+Pexp_construct :::[19:7->34:4] [19:7->34:4]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[19:7->34:4]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[20:10->34:4]
+Pexp_construct :::[20:10->34:4] [20:10->34:4]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[20:10->34:4]
+posCursor:[20:24] posNoWhite:[20:23] Found expr:[20:10->20:24]
+Completable: Cpath Value[someString]->st <<jsx>>
+[{
+    "label": "React.string",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "Js.String2.startsWith",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+  }, {
+    "label": "Js.String2.startsWithFrom",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t, int) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+  }]
+
+Complete src/CompletionJsx.res 22:27
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[8:13->35:3]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[9:4->34:10]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[10:4->34:10]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[11:4->34:10]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[12:4->34:10]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[13:4->34:10]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[14:4->34:10]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[17:5->34:10]
+JSX <div:[17:5->17:8] > _children:17:8
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[17:8->34:4]
+Pexp_construct :::[18:7->34:4] [18:7->34:4]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[18:7->34:4]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[19:7->34:4]
+Pexp_construct :::[19:7->34:4] [19:7->34:4]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[19:7->34:4]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[22:10->34:4]
+Pexp_construct :::[22:10->34:4] [22:10->34:4]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[22:10->34:4]
+posCursor:[22:27] posNoWhite:[22:26] Found expr:[22:10->22:27]
+Completable: Cpath string->st <<jsx>>
+[{
+    "label": "React.string",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "Js.String2.startsWith",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+  }, {
+    "label": "Js.String2.startsWithFrom",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t, int) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+  }]
+
+Complete src/CompletionJsx.res 24:44
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[8:13->35:3]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[9:4->34:10]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[10:4->34:10]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[11:4->34:10]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[12:4->34:10]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[13:4->34:10]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[14:4->34:10]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[17:5->34:10]
+JSX <div:[17:5->17:8] > _children:17:8
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[17:8->34:4]
+Pexp_construct :::[18:7->34:4] [18:7->34:4]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[18:7->34:4]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[19:7->34:4]
+Pexp_construct :::[19:7->34:4] [19:7->34:4]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[19:7->34:4]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[24:10->34:4]
+Pexp_construct :::[24:10->34:4] [24:10->34:4]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[24:10->34:4]
+posCursor:[24:44] posNoWhite:[24:43] Found expr:[24:10->24:44]
+Completable: Cpath Value[Js, String2, trim](Nolabel)->st <<jsx>>
+[{
+    "label": "React.string",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "Js.String2.startsWith",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+  }, {
+    "label": "Js.String2.startsWithFrom",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t, int) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+  }]
+
+Complete src/CompletionJsx.res 26:19
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[8:13->35:3]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[9:4->34:10]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[10:4->34:10]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[11:4->34:10]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[12:4->34:10]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[13:4->34:10]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[14:4->34:10]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[17:5->34:10]
+JSX <div:[17:5->17:8] > _children:17:8
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[17:8->34:4]
+Pexp_construct :::[18:7->34:4] [18:7->34:4]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[18:7->34:4]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[19:7->34:4]
+Pexp_construct :::[19:7->34:4] [19:7->34:4]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[19:7->34:4]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[26:10->34:4]
+Pexp_construct :::[26:10->34:4] [26:10->34:4]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[26:10->34:4]
+posCursor:[26:19] posNoWhite:[26:18] Found expr:[26:10->0:-1]
+Completable: Cpath Value[someInt]-> <<jsx>>
+[{
+    "label": "React.int",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "Belt.Int.fromString",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => option<int>",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n  ```res example\n  Js.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.*",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": "\n  Multiplication of two `int` values. Same as the multiplication from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 * 2 === 4) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int./",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": "\n  Division of two `int` values. Same as the division from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(4 / 2 === 2); /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.toFloat",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => float",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.fromFloat",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => int",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to an `int`.\n\n  ```res example\n  Js.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.-",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": "\n  Subtraction of two `int` values. Same as the subtraction from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 - 1 === 1) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.+",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": "\n  Addition of two `int` values. Same as the addition from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 + 2 === 4) /* true */\n  ```\n"}
+  }]
+
+Complete src/CompletionJsx.res 28:14
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[8:13->35:3]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[9:4->34:10]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[10:4->34:10]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[11:4->34:10]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[12:4->34:10]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[13:4->34:10]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[14:4->34:10]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[17:5->34:10]
+JSX <div:[17:5->17:8] > _children:17:8
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[17:8->34:4]
+Pexp_construct :::[18:7->34:4] [18:7->34:4]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[18:7->34:4]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[19:7->34:4]
+Pexp_construct :::[19:7->34:4] [19:7->34:4]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[19:7->34:4]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[28:10->34:4]
+Pexp_construct :::[28:10->34:4] [28:10->34:4]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[28:10->34:4]
+posCursor:[28:14] posNoWhite:[28:13] Found expr:[28:10->0:-1]
+Completable: Cpath int-> <<jsx>>
+[{
+    "label": "React.int",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "Belt.Int.fromString",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => option<int>",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n  ```res example\n  Js.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.*",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": "\n  Multiplication of two `int` values. Same as the multiplication from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 * 2 === 4) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int./",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": "\n  Division of two `int` values. Same as the division from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(4 / 2 === 2); /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.toFloat",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => float",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.fromFloat",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => int",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to an `int`.\n\n  ```res example\n  Js.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.-",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": "\n  Subtraction of two `int` values. Same as the subtraction from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 - 1 === 1) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.+",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": {"kind": "markdown", "value": "\n  Addition of two `int` values. Same as the addition from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 + 2 === 4) /* true */\n  ```\n"}
+  }]
+
+Complete src/CompletionJsx.res 30:20
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[8:13->35:3]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[9:4->34:10]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[10:4->34:10]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[11:4->34:10]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[12:4->34:10]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[13:4->34:10]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[14:4->34:10]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[17:5->34:10]
+JSX <div:[17:5->17:8] > _children:17:8
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[17:8->34:4]
+Pexp_construct :::[18:7->34:4] [18:7->34:4]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[18:7->34:4]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[19:7->34:4]
+Pexp_construct :::[19:7->34:4] [19:7->34:4]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[19:7->34:4]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[30:10->34:4]
+Pexp_construct :::[30:10->34:4] [30:10->34:4]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[30:10->34:4]
+posCursor:[30:20] posNoWhite:[30:19] Found expr:[30:10->30:20]
+Completable: Cpath Value[someArr]->a <<jsx>>
+[{
+    "label": "React.array",
+    "kind": 12,
+    "tags": [],
+    "detail": "array<React.element>",
+    "documentation": null
+  }, {
+    "label": "Js.Array2.append",
+    "kind": 12,
+    "tags": [1],
+    "detail": "(t<'a>, 'a) => t<'a>",
+    "documentation": {"kind": "markdown", "value": "Deprecated: `append` is not type-safe. Use `concat` instead.\n\n"}
+  }]
+
+Complete src/CompletionJsx.res 32:27
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[8:13->35:3]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[9:4->34:10]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[10:4->34:10]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[11:4->34:10]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[12:4->34:10]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[13:4->34:10]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[14:4->34:10]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[17:5->34:10]
+JSX <div:[17:5->17:8] > _children:17:8
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[17:8->34:4]
+Pexp_construct :::[18:7->34:4] [18:7->34:4]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[18:7->34:4]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[19:7->34:4]
+Pexp_construct :::[19:7->34:4] [19:7->34:4]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[19:7->34:4]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[32:10->34:4]
+Pexp_construct :::[32:10->34:4] [32:10->34:4]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[32:10->34:4]
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[32:10->32:27]
+Completable: Cpath Value[someInvalidArr]->a <<jsx>>
+[{
+    "label": "Js.Array2.append",
+    "kind": 12,
+    "tags": [1],
+    "detail": "(t<'a>, 'a) => t<'a>",
+    "documentation": {"kind": "markdown", "value": "Deprecated: `append` is not type-safe. Use `concat` instead.\n\n"}
+  }]
+

@@ -212,13 +212,8 @@ module AddTypeAnnotation = struct
       match si.pstr_desc with
       | Pstr_value (_recFlag, bindings) ->
         let processBinding (vb : Parsetree.value_binding) =
-          let isReactComponent =
-            (* Can't add a type annotation to a react component, or the compiler crashes *)
-            vb.pvb_attributes
-            |> List.exists (function
-                 | {Location.txt = "react.component"}, _payload -> true
-                 | _ -> false)
-          in
+          (* Can't add a type annotation to a react component, or the compiler crashes *)
+          let isReactComponent = Utils.isReactComponent vb in
           if not isReactComponent then processPattern vb.pvb_pat;
           processFunction vb.pvb_expr
         in

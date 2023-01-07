@@ -914,6 +914,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
   let setLookingForPat ctxPath = lookingForPat := Some ctxPath in
+  let inJsxContext = ref false in
 
   let unsetLookingForPat () = lookingForPat := None in
   (* Identifies expressions where we can do typed pattern or expr completion. *)
@@ -1035,6 +1036,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     if not !processed then
       Ast_iterator.default_iterator.structure_item iterator item
   in
+  let value_binding (iterator : Ast_iterator.iterator)
+      (value_binding : Parsetree.value_binding) =
+    if
+      locHasCursor value_binding.pvb_expr.pexp_loc
+      && Utils.isReactComponent value_binding
+    then inJsxContext := true;
+    Ast_iterator.default_iterator.value_binding iterator value_binding
+  in
   let signature (iterator : Ast_iterator.iterator)
       (signature : Parsetree.signature) =
     let oldScope = !scope in
@@ -1125,11 +1134,20 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         match exprToContextPath lhs with
         | Some pipe ->
           setResult
-            (Cpath (CPPipe {contextPath = pipe; id; lhsLoc = lhs.pexp_loc}));
+            (Cpath
+               (CPPipe
+                  {
+                    contextPath = pipe;
+                    id;
+                    lhsLoc = lhs.pexp_loc;
+                    inJsx = !inJsxContext;
+                  }));
           true
         | None -> false)
       | Some (pipe, lhsLoc) ->
-        setResult (Cpath (CPPipe {contextPath = pipe; id; lhsLoc}));
+        setResult
+          (Cpath
+             (CPPipe {contextPath = pipe; id; lhsLoc; inJsx = !inJsxContext}));
         true
     in
     typedCompletionExpr expr;
@@ -1201,6 +1219,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
+          inJsxContext := true;
           let jsxProps = extractJsxProps ~compName ~args in
           let compNamePath = flattenLidCheckDot ~jsx:true compName in
           if debug then
@@ -1468,6 +1487,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       structure_item;
       typ;
       type_kind;
+      value_binding;
     }
   in
 

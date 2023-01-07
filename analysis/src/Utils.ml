@@ -168,3 +168,8 @@ let rec unwrapIfOption (t : Types.type_expr) =
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> unwrapIfOption t1
   | Tconstr (Path.Pident {name = "option"}, [unwrappedType], _) -> unwrappedType
   | _ -> t
+let isReactComponent (vb : Parsetree.value_binding) =
+  vb.pvb_attributes
+  |> List.exists (function
+       | {Location.txt = "react.component"}, _payload -> true
+       | _ -> false)

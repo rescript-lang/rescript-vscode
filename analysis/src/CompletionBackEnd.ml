@@ -1477,7 +1477,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                else None)
       | None -> [])
     | None -> [])
-  | CPPipe {contextPath = cp; id = funNamePrefix; lhsLoc} -> (
+  | CPPipe {contextPath = cp; id = funNamePrefix; lhsLoc; inJsx} -> (
     match
       cp
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
@@ -1584,7 +1584,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         | None -> None
       in
       match completionPath with
-      | Some completionPath ->
+      | Some completionPath -> (
         let completionPathMinusOpens =
           completionPath
           |> removeRawOpens package.opens
@@ -1599,14 +1599,50 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           |> getCompletionsForPath ~completionContext:Value ~exact:false
                ~package ~opens ~allFiles ~pos ~env ~scope
         in
-        completions
-        |> List.map (fun (completion : Completion.t) ->
-               {
-                 completion with
-                 name = completionName completion.name;
-                 env
-                 (* Restore original env for the completion after x->foo()... *);
-               })
+        let completions =
+          completions
+          |> List.map (fun (completion : Completion.t) ->
+                 {
+                   completion with
+                   name = completionName completion.name;
+                   env
+                   (* Restore original env for the completion after x->foo()... *);
+                 })
+        in
+        (* We add React element functions to the completion if we're in a JSX context *)
+        let forJsxCompletion =
+          match (inJsx, getTypePath typ) with
+          | true, Some (Path.Pident id) when Ident.name id = "int" -> Some "int"
+          | true, Some (Path.Pident id) when Ident.name id = "float" ->
+            Some "float"
+          | true, Some (Path.Pident id) when Ident.name id = "string" ->
+            Some "string"
+          | true, Some (Path.Pident id) when Ident.name id = "array" ->
+            (* Make sure the array contains React.element *)
+            let isReactElementArray =
+              match typ |> extractType ~env ~package with
+              | Some (Tarray (_env, payload)) -> (
+                match
+                  payload |> getTypePath |> Option.map pathIdentToString
+                with
+                | Some "React.element" -> true
+                | _ -> false)
+              | _ -> false
+            in
+            if isReactElementArray then Some "array" else None
+          | _ -> None
+        in
+        match forJsxCompletion with
+        | Some builtinNameToComplete
+          when checkName builtinNameToComplete ~prefix:funNamePrefix
+                 ~exact:false ->
+          [
+            Completion.create
+              ~name:("React." ^ builtinNameToComplete)
+              ~kind:(Value typ) ~env;
+          ]
+          @ completions
+        | _ -> completions)
       | None -> [])
     | None -> [])
   | CTuple ctxPaths ->
