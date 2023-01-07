@@ -11,3 +11,203 @@ Completable: Cpattern CTuple(Value[s], Value[f])
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionExpressions.res 26:27
+posCursor:[26:27] posNoWhite:[26:26] Found expr:[26:11->26:29]
+Pexp_apply ...[26:11->26:25] (...[26:26->26:28])
+Completable: Cargument Value[fnTakingRecord]($0)->recordBody
+[{
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "offline",
+    "kind": 5,
+    "tags": [],
+    "detail": "offline: bool\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "online",
+    "kind": 5,
+    "tags": [],
+    "detail": "online: option<bool>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "variant",
+    "kind": 5,
+    "tags": [],
+    "detail": "variant: someVariant\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "polyvariant",
+    "kind": 5,
+    "tags": [],
+    "detail": "polyvariant: somePolyVariant\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: option<otherRecord>\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 29:28
+posCursor:[29:28] posNoWhite:[29:27] Found expr:[29:11->29:30]
+Pexp_apply ...[29:11->29:25] (...[29:27->29:28])
+Completable: Cargument Value[fnTakingRecord]($0=n)->recordBody
+[{
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: option<otherRecord>\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 32:35
+posCursor:[32:35] posNoWhite:[32:34] Found expr:[32:11->32:38]
+Pexp_apply ...[32:11->32:25] (...[32:26->32:38])
+Completable: Cargument Value[fnTakingRecord]($0)->recordField(offline)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 35:36
+posCursor:[35:36] posNoWhite:[35:35] Found expr:[35:11->35:39]
+Pexp_apply ...[35:11->35:25] (...[35:26->35:38])
+Completable: Cargument Value[fnTakingRecord]($0)->recordBody
+[{
+    "label": "offline",
+    "kind": 5,
+    "tags": [],
+    "detail": "offline: bool\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "online",
+    "kind": 5,
+    "tags": [],
+    "detail": "online: option<bool>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "variant",
+    "kind": 5,
+    "tags": [],
+    "detail": "variant: someVariant\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "polyvariant",
+    "kind": 5,
+    "tags": [],
+    "detail": "polyvariant: somePolyVariant\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: option<otherRecord>\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 38:37
+posCursor:[38:37] posNoWhite:[38:35] Found expr:[38:11->38:53]
+Pexp_apply ...[38:11->38:25] (...[38:26->38:52])
+Completable: Cargument Value[fnTakingRecord]($0)->recordBody
+[{
+    "label": "online",
+    "kind": 5,
+    "tags": [],
+    "detail": "online: option<bool>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "variant",
+    "kind": 5,
+    "tags": [],
+    "detail": "variant: someVariant\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "polyvariant",
+    "kind": 5,
+    "tags": [],
+    "detail": "polyvariant: somePolyVariant\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: option<otherRecord>\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 41:44
+posCursor:[41:44] posNoWhite:[41:43] Found expr:[41:11->41:47]
+Pexp_apply ...[41:11->41:25] (...[41:26->41:47])
+Completable: Cargument Value[fnTakingRecord]($0)->recordField(nested)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "otherRecord",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "otherRecord",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 44:46
+posCursor:[44:46] posNoWhite:[44:45] Found expr:[44:11->44:49]
+Pexp_apply ...[44:11->44:25] (...[44:26->44:48])
+Completable: Cargument Value[fnTakingRecord]($0)->recordBody, recordField(nested)
+[{
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "offline",
+    "kind": 5,
+    "tags": [],
+    "detail": "offline: bool\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "online",
+    "kind": 5,
+    "tags": [],
+    "detail": "online: option<bool>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "variant",
+    "kind": 5,
+    "tags": [],
+    "detail": "variant: someVariant\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "polyvariant",
+    "kind": 5,
+    "tags": [],
+    "detail": "polyvariant: somePolyVariant\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: option<otherRecord>\n\nsomeRecord",
+    "documentation": null
+  }]
+
