@@ -1830,6 +1830,56 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       typ |> resolveNestedPattern ~env ~package ~nested
     | _ -> None)
 
+(** This moves through a pattern via a set of instructions, trying to resolve the type at the end of the pattern. *)
+let rec resolveNestedExpr typ ~env ~package ~nested =
+  match nested with
+  | [] -> Some (typ, env, None)
+  | patternPath :: nested -> (
+    match (patternPath, typ |> extractType ~env ~package) with
+    | Completable.ETupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
+      match List.nth_opt tupleItems itemNum with
+      | None -> None
+      | Some typ -> typ |> resolveNestedExpr ~env ~package ~nested)
+    | EFollowRecordField {fieldName}, Some (Trecord {env; fields}) -> (
+      match
+        fields
+        |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
+      with
+      | None -> None
+      | Some {typ} -> typ |> resolveNestedExpr ~env ~package ~nested)
+    | ERecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
+      Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
+    | ( EVariantPayload {constructorName = "Some"; itemNum = 0},
+        Some (Toption (env, typ)) ) ->
+      typ |> resolveNestedExpr ~env ~package ~nested
+    | ( EVariantPayload {constructorName; itemNum},
+        Some (Tvariant {env; constructors}) ) -> (
+      match
+        constructors
+        |> List.find_opt (fun (c : Constructor.t) ->
+               c.cname.txt = constructorName)
+      with
+      | None -> None
+      | Some constructor -> (
+        match List.nth_opt constructor.args itemNum with
+        | None -> None
+        | Some (typ, _) -> typ |> resolveNestedExpr ~env ~package ~nested))
+    | ( EPolyvariantPayload {constructorName; itemNum},
+        Some (Tpolyvariant {env; constructors}) ) -> (
+      match
+        constructors
+        |> List.find_opt (fun (c : polyVariantConstructor) ->
+               c.name = constructorName)
+      with
+      | None -> None
+      | Some constructor -> (
+        match List.nth_opt constructor.args itemNum with
+        | None -> None
+        | Some typ -> typ |> resolveNestedExpr ~env ~package ~nested))
+    | EArray, Some (Tarray (env, typ)) ->
+      typ |> resolveNestedExpr ~env ~package ~nested
+    | _ -> None)
+
 let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
   let package = full.package in
@@ -1882,7 +1932,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
-  | CjsxPropValue {pathToComponent; prefix; propName} -> (
+  | CjsxPropValue {pathToComponent; prefix; propName; nested} -> (
     let targetLabel =
       getJsxLabels ~componentPath:pathToComponent ~findTypeOfValue ~package
       |> List.find_opt (fun (label, _, _) -> label = propName)
@@ -1890,10 +1940,13 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     let envWhereCompletionStarted = env in
     match targetLabel with
     | None -> []
-    | Some (_, typ, env) ->
-      typ
-      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:true ~includeLocalValues:true ~completionContext:None)
+    | Some (_, typ, env) -> (
+      match typ |> resolveNestedExpr ~env ~package:full.package ~nested with
+      | None -> []
+      | Some (typ, env, completionContext) ->
+        typ
+        |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+             ~expandOption:true ~includeLocalValues:true ~completionContext))
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
       {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
@@ -2131,7 +2184,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            in
            (dec2, doc))
     |> List.map mkDecorator
-  | Cargument {functionContextPath; argumentLabel; prefix} -> (
+  | Cargument {functionContextPath; argumentLabel; prefix; nested} -> (
     let envWhereCompletionStarted = env in
     let labels =
       match
@@ -2153,16 +2206,20 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                | (Labelled n | Optional n) when name = n -> true
                | _ -> false))
     in
+    let expandOption =
+      match targetLabel with
+      | None | Some ((Unlabelled _ | Labelled _), _) -> false
+      | Some (Optional _, _) -> true
+    in
     match targetLabel with
     | None -> []
-    | Some (Optional _, typ) ->
-      typ
-      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:true ~includeLocalValues:true ~completionContext:None
-    | Some ((Unlabelled _ | Labelled _), typ) ->
-      typ
-      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:false ~includeLocalValues:true ~completionContext:None)
+    | Some (_, typ) -> (
+      match typ |> resolveNestedExpr ~env ~package:full.package ~nested with
+      | None -> []
+      | Some (typ, env, completionContext) ->
+        typ
+        |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
+             ~expandOption ~includeLocalValues:true ~completionContext))
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match

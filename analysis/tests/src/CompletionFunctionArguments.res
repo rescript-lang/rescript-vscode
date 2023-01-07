@@ -76,3 +76,16 @@ let fnTakingTuple = (arg: (int, int, float)) => {
 
 // let _ = fnTakingTuple()
 //                       ^com
+
+type someRecord = {
+  age: int,
+  offline: bool,
+  online: option<bool>,
+}
+
+let fnTakingRecord = (r: someRecord) => {
+  ignore(r)
+}
+
+// let _ = fnTakingRecord({})
+//                         ^com

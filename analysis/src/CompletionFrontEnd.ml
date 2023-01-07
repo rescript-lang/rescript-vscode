@@ -23,6 +23,20 @@ let isPatternTuple pat =
   | Ppat_tuple _ -> true
   | _ -> false
 
+let traverseExpr (exp : Parsetree.expression) ~exprPath ~pos =
+  let someIfHasCursor v =
+    if exp.pexp_loc |> CursorPosition.locHasCursor ~pos then Some v else None
+  in
+  match exp.pexp_desc with
+  | Pexp_ident {txt = Lident txt} -> someIfHasCursor (txt, exprPath)
+  | Pexp_construct ({txt = Lident "()"}, _) -> someIfHasCursor ("", exprPath)
+  | Pexp_construct ({txt = Lident txt}, None) -> someIfHasCursor (txt, exprPath)
+  | Pexp_variant (label, None) -> someIfHasCursor ("#" ^ label, exprPath)
+  | Pexp_record ([], _) ->
+    (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
+    someIfHasCursor ("", [Completable.ERecordBody {seenFields = []}] @ exprPath)
+  | _ -> None
+
 type prop = {
   name: string;
   posStart: int * int;
@@ -60,8 +74,8 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         None
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Cursor on expr assigned *)
-        match extractCompletableArgValueInfo prop.exp with
-        | Some prefix ->
+        match traverseExpr prop.exp ~exprPath:[] ~pos:posBeforeCursor with
+        | Some (prefix, nested) ->
           Some
             (CjsxPropValue
                {
@@ -69,6 +83,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
                    Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                  prefix;
                  propName = prop.name;
+                 nested;
                })
         | _ -> None
       else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
@@ -80,6 +95,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
                    Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                  prefix = "";
                  propName = prop.name;
+                 nested = [];
                })
         else None
       else loop rest
@@ -163,15 +179,16 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Completing in the assignment of labelled argument *)
-        match extractCompletableArgValueInfo exp with
+        match traverseExpr exp ~exprPath:[] ~pos:posBeforeCursor with
         | None -> None
-        | Some prefix ->
+        | Some (prefix, nested) ->
           Some
             (Cargument
                {
                  functionContextPath = contextPath;
                  argumentLabel = Labelled labelled.name;
                  prefix;
+                 nested;
                })
       else if isExprHole exp then
         Some
@@ -180,15 +197,16 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                functionContextPath = contextPath;
                argumentLabel = Labelled labelled.name;
                prefix = "";
+               nested = [];
              })
       else loop rest
     | {label = None; exp} :: rest ->
       if Res_parsetree_viewer.isTemplateLiteral exp then None
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Completing in an unlabelled argument *)
-        match extractCompletableArgValueInfo exp with
+        match traverseExpr exp ~pos:posBeforeCursor ~exprPath:[] with
         | None -> None
-        | Some prefix ->
+        | Some (prefix, nested) ->
           Some
             (Cargument
                {
@@ -196,6 +214,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                  argumentLabel =
                    Unlabelled {argumentPosition = !unlabelledCount};
                  prefix;
+                 nested;
                })
       else if isExprHole exp then
         Some
@@ -204,6 +223,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                functionContextPath = contextPath;
                argumentLabel = Unlabelled {argumentPosition = !unlabelledCount};
                prefix = "";
+               nested = [];
              })
       else (
         unlabelledCount := !unlabelledCount + 1;
@@ -220,6 +240,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                  argumentLabel =
                    Unlabelled {argumentPosition = !unlabelledCount};
                  prefix = "";
+                 nested = [];
                })
       else None
   in
@@ -235,6 +256,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
            functionContextPath = contextPath;
            argumentLabel = Unlabelled {argumentPosition = 0};
            prefix = "";
+           nested = [];
          })
   | _ -> loop args
 
