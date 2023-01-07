@@ -159,3 +159,6 @@ let rec skipWhite text i =
     match text.[i] with
     | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
     | _ -> i
+
+let hasBraces attributes =
+  attributes |> List.exists (fun (loc, _) -> loc.Location.txt = "ns.braces")

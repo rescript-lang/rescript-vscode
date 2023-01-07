@@ -15,11 +15,16 @@ let isPatternTuple pat =
   | Ppat_tuple _ -> true
   | _ -> false
 
-let traverseExpr (exp : Parsetree.expression) ~exprPath ~pos =
+let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
+    ~firstCharBeforeCursorNoWhite =
   let someIfHasCursor v =
     if exp.pexp_loc |> CursorPosition.locHasCursor ~pos then Some v else None
   in
   match exp.pexp_desc with
+  | Pexp_ident {txt = Lident txt} when Utils.hasBraces exp.pexp_attributes ->
+    (* An ident with braces attribute corresponds to for example `{n}`.
+       Looks like a record but is parsed as an ident with braces. *)
+    someIfHasCursor (txt, [Completable.ERecordBody {seenFields = []}] @ exprPath)
   | Pexp_ident {txt = Lident txt} -> someIfHasCursor (txt, exprPath)
   | Pexp_construct ({txt = Lident "()"}, _) -> someIfHasCursor ("", exprPath)
   | Pexp_construct ({txt = Lident txt}, None) -> someIfHasCursor (txt, exprPath)
@@ -27,6 +32,52 @@ let traverseExpr (exp : Parsetree.expression) ~exprPath ~pos =
   | Pexp_record ([], _) ->
     (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
     someIfHasCursor ("", [Completable.ERecordBody {seenFields = []}] @ exprPath)
+  | Pexp_record (fields, _) -> (
+    let fieldWithCursor = ref None in
+    let fieldWithExprHole = ref None in
+    fields
+    |> List.iter (fun (fname, exp) ->
+           match
+             ( fname.Location.txt,
+               exp.Parsetree.pexp_loc |> CursorPosition.classifyLoc ~pos )
+           with
+           | Longident.Lident fname, HasCursor ->
+             fieldWithCursor := Some (fname, exp)
+           | Lident fname, _ when isExprHole exp ->
+             fieldWithExprHole := Some (fname, exp)
+           | _ -> ());
+    let seenFields =
+      fields
+      |> List.filter_map (fun (fieldName, _f) ->
+             match fieldName with
+             | {Location.txt = Longident.Lident fieldName} -> Some fieldName
+             | _ -> None)
+    in
+    match (!fieldWithCursor, !fieldWithExprHole) with
+    | Some (fname, f), _ | None, Some (fname, f) -> (
+      match f.pexp_desc with
+      | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
+        (* An expression hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
+        someIfHasCursor
+          ("", [Completable.EFollowRecordField {fieldName = fname}] @ exprPath)
+      | Pexp_ident {txt = Lident txt} ->
+        (* A var means `{s}` or similar. Complete for fields. *)
+        someIfHasCursor (txt, [Completable.ERecordBody {seenFields}] @ exprPath)
+      | _ ->
+        f
+        |> traverseExpr ~firstCharBeforeCursorNoWhite ~pos
+             ~exprPath:
+               ([Completable.EFollowRecordField {fieldName = fname}] @ exprPath)
+      )
+    | None, None -> (
+      (* Figure out if we're completing for a new field.
+         If the cursor is inside of the record body, but no field has the cursor,
+         and there's no pattern hole. Check the first char to the left of the cursor,
+         ignoring white space. If that's a comma, we assume you're completing for a new field. *)
+      match firstCharBeforeCursorNoWhite with
+      | Some ',' ->
+        someIfHasCursor ("", [Completable.ERecordBody {seenFields}] @ exprPath)
+      | _ -> None))
   | _ -> None
 
 type prop = {
@@ -42,8 +93,8 @@ type jsxProps = {
   childrenStart: (int * int) option;
 }
 
-let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
-    =
+let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
+    ~firstCharBeforeCursorNoWhite ~posAfterCompName =
   let allLabels =
     List.fold_right
       (fun prop allLabels -> prop.name :: allLabels)
@@ -66,7 +117,10 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor ~posAfterCompName
         None
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Cursor on expr assigned *)
-        match traverseExpr prop.exp ~exprPath:[] ~pos:posBeforeCursor with
+        match
+          traverseExpr prop.exp ~exprPath:[] ~pos:posBeforeCursor
+            ~firstCharBeforeCursorNoWhite
+        with
         | Some (prefix, nested) ->
           Some
             (CjsxPropValue
@@ -148,8 +202,8 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
   args |> processProps ~acc:[]
 
 let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
-    ~(contextPath : Completable.contextPath) ~posAfterFunExpr ~charBeforeCursor
-    ~isPipedExpr =
+    ~(contextPath : Completable.contextPath) ~posAfterFunExpr
+    ~firstCharBeforeCursorNoWhite ~charBeforeCursor ~isPipedExpr =
   let fnHasCursor =
     posAfterFunExpr <= posBeforeCursor && posBeforeCursor < endPos
   in
@@ -171,7 +225,10 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
       then Some (Completable.CnamedArg (contextPath, labelled.name, allNames))
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Completing in the assignment of labelled argument *)
-        match traverseExpr exp ~exprPath:[] ~pos:posBeforeCursor with
+        match
+          traverseExpr exp ~exprPath:[] ~pos:posBeforeCursor
+            ~firstCharBeforeCursorNoWhite
+        with
         | None -> None
         | Some (prefix, nested) ->
           Some
@@ -196,7 +253,10 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
       if Res_parsetree_viewer.isTemplateLiteral exp then None
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Completing in an unlabelled argument *)
-        match traverseExpr exp ~pos:posBeforeCursor ~exprPath:[] with
+        match
+          traverseExpr exp ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite
+            ~exprPath:[]
+        with
         | None -> None
         | Some (prefix, nested) ->
           Some
@@ -972,6 +1032,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           let jsxCompletable =
             findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
               ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
+              ~firstCharBeforeCursorNoWhite
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
@@ -1009,6 +1070,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
                 ~charBeforeCursor ~isPipedExpr:true
+                ~firstCharBeforeCursorNoWhite
             | None -> None
           in
 
@@ -1044,6 +1106,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
                 ~posAfterFunExpr:(Loc.end_ funExpr.pexp_loc)
                 ~charBeforeCursor ~isPipedExpr:false
+                ~firstCharBeforeCursorNoWhite
             | None -> None
           in
 
