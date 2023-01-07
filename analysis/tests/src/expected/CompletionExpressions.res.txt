@@ -172,42 +172,6 @@ Completable: Cargument Value[fnTakingRecord]($0)->recordField(nested)
 Complete src/CompletionExpressions.res 44:46
 posCursor:[44:46] posNoWhite:[44:45] Found expr:[44:11->44:49]
 Pexp_apply ...[44:11->44:25] (...[44:26->44:48])
-Completable: Cargument Value[fnTakingRecord]($0)->recordBody, recordField(nested)
-[{
-    "label": "age",
-    "kind": 5,
-    "tags": [],
-    "detail": "age: int\n\nsomeRecord",
-    "documentation": null
-  }, {
-    "label": "offline",
-    "kind": 5,
-    "tags": [],
-    "detail": "offline: bool\n\nsomeRecord",
-    "documentation": null
-  }, {
-    "label": "online",
-    "kind": 5,
-    "tags": [],
-    "detail": "online: option<bool>\n\nsomeRecord",
-    "documentation": null
-  }, {
-    "label": "variant",
-    "kind": 5,
-    "tags": [],
-    "detail": "variant: someVariant\n\nsomeRecord",
-    "documentation": null
-  }, {
-    "label": "polyvariant",
-    "kind": 5,
-    "tags": [],
-    "detail": "polyvariant: somePolyVariant\n\nsomeRecord",
-    "documentation": null
-  }, {
-    "label": "nested",
-    "kind": 5,
-    "tags": [],
-    "detail": "nested: option<otherRecord>\n\nsomeRecord",
-    "documentation": null
-  }]
+Completable: Cargument Value[fnTakingRecord]($0)->recordField(nested), recordBody
+[]
 

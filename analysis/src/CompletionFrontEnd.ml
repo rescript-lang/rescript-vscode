@@ -129,7 +129,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                    Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                  prefix;
                  propName = prop.name;
-                 nested;
+                 nested = List.rev nested;
                })
         | _ -> None
       else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
@@ -237,7 +237,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                  functionContextPath = contextPath;
                  argumentLabel = Labelled labelled.name;
                  prefix;
-                 nested;
+                 nested = List.rev nested;
                })
       else if isExprHole exp then
         Some
@@ -266,7 +266,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                  argumentLabel =
                    Unlabelled {argumentPosition = !unlabelledCount};
                  prefix;
-                 nested;
+                 nested = List.rev nested;
                })
       else if isExprHole exp then
         Some
