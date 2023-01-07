@@ -546,6 +546,7 @@ module Completable = struct
     | CPPipe of {
         contextPath: contextPath;
         id: string;
+        inJsx: bool;  (** Whether this pipe was found in a JSX context. *)
         lhsLoc: Location.t;
             (** The loc item for the left hand side of the pipe. *)
       }
@@ -648,7 +649,10 @@ module Completable = struct
         completionContextToString completionContext ^ list sl
       | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
       | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
-      | CPPipe {contextPath; id} -> contextPathToString contextPath ^ "->" ^ id
+      | CPPipe {contextPath; id; inJsx} ->
+        contextPathToString contextPath
+        ^ "->" ^ id
+        ^ if inJsx then " <<jsx>>" else ""
       | CTuple ctxPaths ->
         "CTuple("
         ^ (ctxPaths |> List.map contextPathToString |> String.concat ", ")
