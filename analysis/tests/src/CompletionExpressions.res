@@ -62,3 +62,22 @@ let fnTakingRecord = (r: someRecord) => {
 
 // let _ = fnTakingRecord({age: 123, polyvariant: #three({}, t) })
 //                                                            ^com
+
+let fnTakingArray = (arr: array<option<bool>>) => {
+  ignore(arr)
+}
+
+// let _ = fnTakingArray()
+//                       ^com
+
+// let _ = fnTakingArray([])
+//                        ^com
+
+// let _ = fnTakingArray([Some()])
+//                             ^com
+
+// let _ = fnTakingArray([None, ])
+//                             ^com
+
+// let _ = fnTakingArray([None, , None])
+//                             ^com

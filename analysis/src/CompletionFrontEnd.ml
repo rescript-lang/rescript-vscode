@@ -39,16 +39,29 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
   | Pexp_construct ({txt = Lident "()"}, _) -> someIfHasCursor ("", exprPath)
   | Pexp_construct ({txt = Lident txt}, None) -> someIfHasCursor (txt, exprPath)
   | Pexp_variant (label, None) -> someIfHasCursor ("#" ^ label, exprPath)
-  | Pexp_array arrayPatterns ->
+  | Pexp_array arrayPatterns -> (
     let nextExprPath = [Completable.EArray] @ exprPath in
+    (* No fields but still has cursor = empty completion *)
     if List.length arrayPatterns = 0 && locHasCursor exp.pexp_loc then
       Some ("", nextExprPath)
     else
-      arrayPatterns
-      |> List.find_map (fun e ->
-             e
-             |> traverseExpr ~exprPath:nextExprPath
-                  ~firstCharBeforeCursorNoWhite ~pos)
+      let arrayItemWithCursor =
+        arrayPatterns
+        |> List.find_map (fun e ->
+               e
+               |> traverseExpr ~exprPath:nextExprPath
+                    ~firstCharBeforeCursorNoWhite ~pos)
+      in
+
+      match (arrayItemWithCursor, locHasCursor exp.pexp_loc) with
+      | Some arrayItemWithCursor, _ -> Some arrayItemWithCursor
+      | None, true when firstCharBeforeCursorNoWhite = Some ',' ->
+        (* No item had the cursor, but the entire expr still has the cursor (so
+           the cursor is in the array somewhere), and the first char before the
+           cursor is a comma = interpret as compleing for a new value (example:
+           `[None, <com>, None]`) *)
+        Some ("", nextExprPath)
+      | _ -> None)
   | Pexp_tuple tupleItems when locHasCursor exp.pexp_loc ->
     tupleItems
     |> traverseExprTupleItems ~firstCharBeforeCursorNoWhite ~pos

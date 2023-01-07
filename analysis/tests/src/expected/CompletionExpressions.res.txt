@@ -282,3 +282,96 @@ Completable: Cargument Value[fnTakingRecord]($0=t)->recordField(polyvariant), po
     "documentation": null
   }]
 
+Complete src/CompletionExpressions.res 69:25
+posCursor:[69:25] posNoWhite:[69:24] Found expr:[69:11->69:26]
+Pexp_apply ...[69:11->69:24] (...[69:25->69:26])
+Completable: Cargument Value[fnTakingArray]($0)
+[{
+    "label": "[]",
+    "kind": 12,
+    "tags": [],
+    "detail": "option<bool>",
+    "documentation": null,
+    "sortText": "a",
+    "insertText": "[$0]",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 72:26
+posCursor:[72:26] posNoWhite:[72:25] Found expr:[72:11->72:28]
+Pexp_apply ...[72:11->72:24] (...[72:25->72:27])
+Completable: Cargument Value[fnTakingArray]($0)->array
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 75:31
+posCursor:[75:31] posNoWhite:[75:30] Found expr:[75:11->75:34]
+Pexp_apply ...[75:11->75:24] (...[75:25->75:33])
+Completable: Cargument Value[fnTakingArray]($0)->array, variantPayload::Some($0)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 78:31
+posCursor:[78:31] posNoWhite:[78:30] Found expr:[78:11->78:34]
+Pexp_apply ...[78:11->78:24] (...[78:25->78:33])
+Completable: Cargument Value[fnTakingArray]($0)->array
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 81:31
+posCursor:[81:31] posNoWhite:[81:30] Found expr:[81:11->81:40]
+Pexp_apply ...[81:11->81:24] (...[81:25->81:39])
+Completable: Cargument Value[fnTakingArray]($0)->array
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
+
