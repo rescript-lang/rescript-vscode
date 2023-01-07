@@ -1780,29 +1780,29 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
     typ |> getLabels
   | None -> []
 
-(** This moves through a pattern via a set of instructions, trying to resolve the type at the end of the pattern. *)
-let rec resolveNestedPattern typ ~env ~package ~nested =
+(** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
+let rec resolveNested typ ~env ~package ~nested =
   match nested with
   | [] -> Some (typ, env, None)
   | patternPath :: nested -> (
     match (patternPath, typ |> extractType ~env ~package) with
-    | Completable.PTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
+    | Completable.NTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
       match List.nth_opt tupleItems itemNum with
       | None -> None
-      | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested)
-    | PFollowRecordField {fieldName}, Some (Trecord {env; fields}) -> (
+      | Some typ -> typ |> resolveNested ~env ~package ~nested)
+    | NFollowRecordField {fieldName}, Some (Trecord {env; fields}) -> (
       match
         fields
         |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
       with
       | None -> None
-      | Some {typ} -> typ |> resolveNestedPattern ~env ~package ~nested)
-    | PRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
+      | Some {typ} -> typ |> resolveNested ~env ~package ~nested)
+    | NRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
       Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
-    | ( PVariantPayload {constructorName = "Some"; itemNum = 0},
+    | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Some (Toption (env, typ)) ) ->
-      typ |> resolveNestedPattern ~env ~package ~nested
-    | ( PVariantPayload {constructorName; itemNum},
+      typ |> resolveNested ~env ~package ~nested
+    | ( NVariantPayload {constructorName; itemNum},
         Some (Tvariant {env; constructors}) ) -> (
       match
         constructors
@@ -1813,8 +1813,8 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       | Some constructor -> (
         match List.nth_opt constructor.args itemNum with
         | None -> None
-        | Some (typ, _) -> typ |> resolveNestedPattern ~env ~package ~nested))
-    | ( PPolyvariantPayload {constructorName; itemNum},
+        | Some (typ, _) -> typ |> resolveNested ~env ~package ~nested))
+    | ( NPolyvariantPayload {constructorName; itemNum},
         Some (Tpolyvariant {env; constructors}) ) -> (
       match
         constructors
@@ -1825,59 +1825,9 @@ let rec resolveNestedPattern typ ~env ~package ~nested =
       | Some constructor -> (
         match List.nth_opt constructor.args itemNum with
         | None -> None
-        | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested))
-    | PArray, Some (Tarray (env, typ)) ->
-      typ |> resolveNestedPattern ~env ~package ~nested
-    | _ -> None)
-
-(** This moves through a pattern via a set of instructions, trying to resolve the type at the end of the pattern. *)
-let rec resolveNestedExpr typ ~env ~package ~nested =
-  match nested with
-  | [] -> Some (typ, env, None)
-  | patternPath :: nested -> (
-    match (patternPath, typ |> extractType ~env ~package) with
-    | Completable.ETupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
-      match List.nth_opt tupleItems itemNum with
-      | None -> None
-      | Some typ -> typ |> resolveNestedExpr ~env ~package ~nested)
-    | EFollowRecordField {fieldName}, Some (Trecord {env; fields}) -> (
-      match
-        fields
-        |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
-      with
-      | None -> None
-      | Some {typ} -> typ |> resolveNestedExpr ~env ~package ~nested)
-    | ERecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
-      Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
-    | ( EVariantPayload {constructorName = "Some"; itemNum = 0},
-        Some (Toption (env, typ)) ) ->
-      typ |> resolveNestedExpr ~env ~package ~nested
-    | ( EVariantPayload {constructorName; itemNum},
-        Some (Tvariant {env; constructors}) ) -> (
-      match
-        constructors
-        |> List.find_opt (fun (c : Constructor.t) ->
-               c.cname.txt = constructorName)
-      with
-      | None -> None
-      | Some constructor -> (
-        match List.nth_opt constructor.args itemNum with
-        | None -> None
-        | Some (typ, _) -> typ |> resolveNestedExpr ~env ~package ~nested))
-    | ( EPolyvariantPayload {constructorName; itemNum},
-        Some (Tpolyvariant {env; constructors}) ) -> (
-      match
-        constructors
-        |> List.find_opt (fun (c : polyVariantConstructor) ->
-               c.name = constructorName)
-      with
-      | None -> None
-      | Some constructor -> (
-        match List.nth_opt constructor.args itemNum with
-        | None -> None
-        | Some typ -> typ |> resolveNestedExpr ~env ~package ~nested))
-    | EArray, Some (Tarray (env, typ)) ->
-      typ |> resolveNestedExpr ~env ~package ~nested
+        | Some typ -> typ |> resolveNested ~env ~package ~nested))
+    | NArray, Some (Tarray (env, typ)) ->
+      typ |> resolveNested ~env ~package ~nested
     | _ -> None)
 
 let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
@@ -1941,7 +1891,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     match targetLabel with
     | None -> []
     | Some (_, typ, env) -> (
-      match typ |> resolveNestedExpr ~env ~package:full.package ~nested with
+      match typ |> resolveNested ~env ~package:full.package ~nested with
       | None -> []
       | Some (typ, env, completionContext) ->
         typ
@@ -2214,7 +2164,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     match targetLabel with
     | None -> []
     | Some (_, typ) -> (
-      match typ |> resolveNestedExpr ~env ~package:full.package ~nested with
+      match typ |> resolveNested ~env ~package:full.package ~nested with
       | None -> []
       | Some (typ, env, completionContext) ->
         typ
@@ -2265,7 +2215,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
-      match typ |> resolveNestedPattern ~env ~package:full.package ~nested with
+      match typ |> resolveNested ~env ~package:full.package ~nested with
       | None -> fallbackOrEmpty ()
       | Some (typ, env, completionContext) ->
         let items =
