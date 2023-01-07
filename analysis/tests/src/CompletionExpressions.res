@@ -44,3 +44,21 @@ let fnTakingRecord = (r: someRecord) => {
 
 // let _ = fnTakingRecord({age: 123, nested: {}})
 //                                            ^com
+
+// let _ = fnTakingRecord({age: 123, nested: Some({})})
+//                                                 ^com
+
+// let _ = fnTakingRecord({age: 123, variant: })
+//                                           ^com
+
+// let _ = fnTakingRecord({age: 123, variant: O })
+//                                             ^com
+
+// let _ = fnTakingRecord({age: 123, polyvariant: #three() })
+//                                                       ^com
+
+// let _ = fnTakingRecord({age: 123, polyvariant: #three({}, ) })
+//                                                          ^com
+
+// let _ = fnTakingRecord({age: 123, polyvariant: #three({}, t) })
+//                                                            ^com

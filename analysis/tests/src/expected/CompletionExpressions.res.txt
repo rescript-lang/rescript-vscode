@@ -175,3 +175,110 @@ Pexp_apply ...[44:11->44:25] (...[44:26->44:48])
 Completable: Cargument Value[fnTakingRecord]($0)->recordField(nested), recordBody
 []
 
+Complete src/CompletionExpressions.res 47:51
+posCursor:[47:51] posNoWhite:[47:50] Found expr:[47:11->47:55]
+Pexp_apply ...[47:11->47:25] (...[47:26->47:54])
+Completable: Cargument Value[fnTakingRecord]($0)->recordField(nested), variantPayload::Some($0), recordBody
+[{
+    "label": "someField",
+    "kind": 5,
+    "tags": [],
+    "detail": "someField: int\n\notherRecord",
+    "documentation": null
+  }, {
+    "label": "otherField",
+    "kind": 5,
+    "tags": [],
+    "detail": "otherField: string\n\notherRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 50:45
+posCursor:[50:45] posNoWhite:[50:44] Found expr:[50:11->50:48]
+Pexp_apply ...[50:11->50:25] (...[50:26->50:48])
+Completable: Cargument Value[fnTakingRecord]($0)->recordField(variant)
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
+    "documentation": null,
+    "insertText": "Two",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 53:47
+posCursor:[53:47] posNoWhite:[53:46] Found expr:[53:11->53:50]
+Pexp_apply ...[53:11->53:25] (...[53:26->53:49])
+Completable: Cargument Value[fnTakingRecord]($0=O)->recordField(variant)
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 56:57
+posCursor:[56:57] posNoWhite:[56:56] Found expr:[56:11->56:61]
+Pexp_apply ...[56:11->56:25] (...[56:26->56:60])
+Completable: Cargument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($0)
+[{
+    "label": "{}",
+    "kind": 12,
+    "tags": [],
+    "detail": "someRecord",
+    "documentation": null,
+    "sortText": "a",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 59:60
+posCursor:[59:60] posNoWhite:[59:59] Found expr:[59:11->59:65]
+Pexp_apply ...[59:11->59:25] (...[59:26->59:64])
+Completable: Cargument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($1)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 62:62
+posCursor:[62:62] posNoWhite:[62:61] Found expr:[62:11->62:66]
+Pexp_apply ...[62:11->62:25] (...[62:26->62:65])
+Completable: Cargument Value[fnTakingRecord]($0=t)->recordField(polyvariant), polyvariantPayload::three($1)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
