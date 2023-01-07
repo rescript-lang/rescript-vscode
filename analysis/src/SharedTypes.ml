@@ -551,50 +551,28 @@ module Completable = struct
       }
     | CTuple of contextPath list
 
-  (** Additional context for a pattern completion where needed. *)
-  type patternContext = RecordField of {seenFields: string list}
+  (** Additional context for nested completion where needed. *)
+  type nestedContext = RecordField of {seenFields: string list}
 
-  type patternPath =
-    | PTupleItem of {itemNum: int}
-    | PFollowRecordField of {fieldName: string}
-    | PRecordBody of {seenFields: string list}
-    | PVariantPayload of {constructorName: string; itemNum: int}
-    | PPolyvariantPayload of {constructorName: string; itemNum: int}
-    | PArray
+  type nestedPath =
+    | NTupleItem of {itemNum: int}
+    | NFollowRecordField of {fieldName: string}
+    | NRecordBody of {seenFields: string list}
+    | NVariantPayload of {constructorName: string; itemNum: int}
+    | NPolyvariantPayload of {constructorName: string; itemNum: int}
+    | NArray
 
-  let patternPathToString p =
+  let nestedPathToString p =
     match p with
-    | PTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
-    | PFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
-    | PRecordBody _ -> "recordBody"
-    | PVariantPayload {constructorName; itemNum} ->
+    | NTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
+    | NFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
+    | NRecordBody _ -> "recordBody"
+    | NVariantPayload {constructorName; itemNum} ->
       "variantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum ^ ")"
-    | PPolyvariantPayload {constructorName; itemNum} ->
+    | NPolyvariantPayload {constructorName; itemNum} ->
       "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum
       ^ ")"
-    | PArray -> "array"
-
-  type exprContext = RecordField of {seenFields: string list}
-
-  type exprPath =
-    | ETupleItem of {itemNum: int}
-    | EFollowRecordField of {fieldName: string}
-    | ERecordBody of {seenFields: string list}
-    | EVariantPayload of {constructorName: string; itemNum: int}
-    | EPolyvariantPayload of {constructorName: string; itemNum: int}
-    | EArray
-
-  let exprPathToString p =
-    match p with
-    | ETupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
-    | EFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
-    | ERecordBody _ -> "recordBody"
-    | EVariantPayload {constructorName; itemNum} ->
-      "variantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum ^ ")"
-    | EPolyvariantPayload {constructorName; itemNum} ->
-      "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum
-      ^ ")"
-    | EArray -> "array"
+    | NArray -> "array"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -607,19 +585,19 @@ module Completable = struct
     | Cargument of {
         functionContextPath: contextPath;
         argumentLabel: argumentLabel;
-        nested: exprPath list;
+        nested: nestedPath list;
         prefix: string;
       }
         (** e.g. someFunction(~someBoolArg=<com>), complete for the value of `someBoolArg` (true or false). *)
     | CjsxPropValue of {
         pathToComponent: string list;
         propName: string;
-        nested: exprPath list;
+        nested: nestedPath list;
         prefix: string;
       }
     | Cpattern of {
         typ: contextPath;
-        nested: patternPath list;
+        nested: nestedPath list;
         prefix: string;
         fallback: t option;
       }
@@ -702,10 +680,10 @@ module Completable = struct
       ^
       match nested with
       | [] -> ""
-      | exprPaths ->
+      | nestedPaths ->
         "->"
-        ^ (exprPaths
-          |> List.map (fun exprPath -> exprPathToString exprPath)
+        ^ (nestedPaths
+          |> List.map (fun nestedPath -> nestedPathToString nestedPath)
           |> String.concat ", "))
     | CjsxPropValue {prefix; pathToComponent; propName} ->
       "CjsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName ^ "="
@@ -716,10 +694,10 @@ module Completable = struct
       ^
       match nested with
       | [] -> ""
-      | patternPaths ->
+      | nestedPaths ->
         "->"
-        ^ (patternPaths
-          |> List.map (fun patternPath -> patternPathToString patternPath)
+        ^ (nestedPaths
+          |> List.map (fun nestedPath -> nestedPathToString nestedPath)
           |> String.concat ", "))
 end
 

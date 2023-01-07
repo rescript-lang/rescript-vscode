@@ -34,13 +34,13 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
   | Pexp_ident {txt = Lident txt} when Utils.hasBraces exp.pexp_attributes ->
     (* An ident with braces attribute corresponds to for example `{n}`.
        Looks like a record but is parsed as an ident with braces. *)
-    someIfHasCursor (txt, [Completable.ERecordBody {seenFields = []}] @ exprPath)
+    someIfHasCursor (txt, [Completable.NRecordBody {seenFields = []}] @ exprPath)
   | Pexp_ident {txt = Lident txt} -> someIfHasCursor (txt, exprPath)
   | Pexp_construct ({txt = Lident "()"}, _) -> someIfHasCursor ("", exprPath)
   | Pexp_construct ({txt = Lident txt}, None) -> someIfHasCursor (txt, exprPath)
   | Pexp_variant (label, None) -> someIfHasCursor ("#" ^ label, exprPath)
   | Pexp_array arrayPatterns -> (
-    let nextExprPath = [Completable.EArray] @ exprPath in
+    let nextExprPath = [Completable.NArray] @ exprPath in
     (* No fields but still has cursor = empty completion *)
     if List.length arrayPatterns = 0 && locHasCursor exp.pexp_loc then
       Some ("", nextExprPath)
@@ -66,12 +66,12 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
     tupleItems
     |> traverseExprTupleItems ~firstCharBeforeCursorNoWhite ~pos
          ~nextExprPath:(fun itemNum ->
-           [Completable.ETupleItem {itemNum}] @ exprPath)
+           [Completable.NTupleItem {itemNum}] @ exprPath)
          ~resultFromFoundItemNum:(fun itemNum ->
-           [Completable.ETupleItem {itemNum = itemNum + 1}] @ exprPath)
+           [Completable.NTupleItem {itemNum = itemNum + 1}] @ exprPath)
   | Pexp_record ([], _) ->
     (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
-    someIfHasCursor ("", [Completable.ERecordBody {seenFields = []}] @ exprPath)
+    someIfHasCursor ("", [Completable.NRecordBody {seenFields = []}] @ exprPath)
   | Pexp_record (fields, _) -> (
     let fieldWithCursor = ref None in
     let fieldWithExprHole = ref None in
@@ -99,15 +99,15 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
       | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
         (* An expression hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
         someIfHasCursor
-          ("", [Completable.EFollowRecordField {fieldName = fname}] @ exprPath)
+          ("", [Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
       | Pexp_ident {txt = Lident txt} ->
         (* A var means `{s}` or similar. Complete for fields. *)
-        someIfHasCursor (txt, [Completable.ERecordBody {seenFields}] @ exprPath)
+        someIfHasCursor (txt, [Completable.NRecordBody {seenFields}] @ exprPath)
       | _ ->
         f
         |> traverseExpr ~firstCharBeforeCursorNoWhite ~pos
              ~exprPath:
-               ([Completable.EFollowRecordField {fieldName = fname}] @ exprPath)
+               ([Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
       )
     | None, None -> (
       (* Figure out if we're completing for a new field.
@@ -116,7 +116,7 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
          ignoring white space. If that's a comma, we assume you're completing for a new field. *)
       match firstCharBeforeCursorNoWhite with
       | Some ',' ->
-        someIfHasCursor ("", [Completable.ERecordBody {seenFields}] @ exprPath)
+        someIfHasCursor ("", [Completable.NRecordBody {seenFields}] @ exprPath)
       | _ -> None))
   | Pexp_construct
       ( {txt},
@@ -126,7 +126,7 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
     Some
       ( "",
         [
-          Completable.EVariantPayload
+          Completable.NVariantPayload
             {constructorName = getUnqualifiedName txt; itemNum = 0};
         ]
         @ exprPath )
@@ -138,7 +138,7 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
     Some
       ( "",
         [
-          Completable.EVariantPayload
+          Completable.NVariantPayload
             {constructorName = getUnqualifiedName txt; itemNum = 1};
         ]
         @ exprPath )
@@ -148,13 +148,13 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
     |> traverseExprTupleItems ~firstCharBeforeCursorNoWhite ~pos
          ~nextExprPath:(fun itemNum ->
            [
-             Completable.EVariantPayload
+             Completable.NVariantPayload
                {constructorName = getUnqualifiedName txt; itemNum};
            ]
            @ exprPath)
          ~resultFromFoundItemNum:(fun itemNum ->
            [
-             Completable.EVariantPayload
+             Completable.NVariantPayload
                {constructorName = getUnqualifiedName txt; itemNum = itemNum + 1};
            ]
            @ exprPath)
@@ -163,7 +163,7 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
     |> traverseExpr ~firstCharBeforeCursorNoWhite ~pos
          ~exprPath:
            ([
-              Completable.EVariantPayload
+              Completable.NVariantPayload
                 {constructorName = getUnqualifiedName txt; itemNum = 0};
             ]
            @ exprPath)
@@ -173,7 +173,7 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
     (* Empty payload with cursor, like: #test(<com>) *)
     Some
       ( "",
-        [Completable.EPolyvariantPayload {constructorName = txt; itemNum = 0}]
+        [Completable.NPolyvariantPayload {constructorName = txt; itemNum = 0}]
         @ exprPath )
   | Pexp_variant (txt, Some e)
     when pos >= (e.pexp_loc |> Loc.end_)
@@ -182,18 +182,18 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
     (* Empty payload with trailing ',', like: #test(true, <com>) *)
     Some
       ( "",
-        [Completable.EPolyvariantPayload {constructorName = txt; itemNum = 1}]
+        [Completable.NPolyvariantPayload {constructorName = txt; itemNum = 1}]
         @ exprPath )
   | Pexp_variant (txt, Some {pexp_loc; pexp_desc = Pexp_tuple tupleItems})
     when locHasCursor pexp_loc ->
     tupleItems
     |> traverseExprTupleItems ~firstCharBeforeCursorNoWhite ~pos
          ~nextExprPath:(fun itemNum ->
-           [Completable.EPolyvariantPayload {constructorName = txt; itemNum}]
+           [Completable.NPolyvariantPayload {constructorName = txt; itemNum}]
            @ exprPath)
          ~resultFromFoundItemNum:(fun itemNum ->
            [
-             Completable.EPolyvariantPayload
+             Completable.NPolyvariantPayload
                {constructorName = txt; itemNum = itemNum + 1};
            ]
            @ exprPath)
@@ -202,7 +202,7 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
     |> traverseExpr ~firstCharBeforeCursorNoWhite ~pos
          ~exprPath:
            ([
-              Completable.EPolyvariantPayload
+              Completable.NPolyvariantPayload
                 {constructorName = txt; itemNum = 0};
             ]
            @ exprPath)
@@ -665,12 +665,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | Ppat_var {txt} -> someIfHasCursor (txt, patternPath)
     | Ppat_construct ({txt = Lident "()"}, None) ->
       (* switch s { | (<com>) }*)
-      someIfHasCursor ("", patternPath @ [Completable.PTupleItem {itemNum = 0}])
+      someIfHasCursor ("", patternPath @ [Completable.NTupleItem {itemNum = 0}])
     | Ppat_construct ({txt = Lident prefix}, None) ->
       someIfHasCursor (prefix, patternPath)
     | Ppat_variant (prefix, None) -> someIfHasCursor ("#" ^ prefix, patternPath)
     | Ppat_array arrayPatterns ->
-      let nextPatternPath = [Completable.PArray] @ patternPath in
+      let nextPatternPath = [Completable.NArray] @ patternPath in
       if List.length arrayPatterns = 0 && locHasCursor pat.ppat_loc then
         Some ("", nextPatternPath)
       else
@@ -681,13 +681,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       tupleItems
       |> traverseTupleItems
            ~nextPatternPath:(fun itemNum ->
-             [Completable.PTupleItem {itemNum}] @ patternPath)
+             [Completable.NTupleItem {itemNum}] @ patternPath)
            ~resultFromFoundItemNum:(fun itemNum ->
-             [Completable.PTupleItem {itemNum = itemNum + 1}] @ patternPath)
+             [Completable.NTupleItem {itemNum = itemNum + 1}] @ patternPath)
     | Ppat_record ([], _) ->
       (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
       someIfHasCursor
-        ("", [Completable.PRecordBody {seenFields = []}] @ patternPath)
+        ("", [Completable.NRecordBody {seenFields = []}] @ patternPath)
     | Ppat_record (fields, _) -> (
       let fieldWithCursor = ref None in
       let fieldWithPatHole = ref None in
@@ -717,17 +717,17 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (* A pattern hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
           someIfHasCursor
             ( "",
-              [Completable.PFollowRecordField {fieldName = fname}] @ patternPath
+              [Completable.NFollowRecordField {fieldName = fname}] @ patternPath
             )
         | Ppat_var {txt} ->
           (* A var means `{s}` or similar. Complete for fields. *)
           someIfHasCursor
-            (txt, [Completable.PRecordBody {seenFields}] @ patternPath)
+            (txt, [Completable.NRecordBody {seenFields}] @ patternPath)
         | _ ->
           f
           |> traversePattern
                ~patternPath:
-                 ([Completable.PFollowRecordField {fieldName = fname}]
+                 ([Completable.NFollowRecordField {fieldName = fname}]
                  @ patternPath))
       | None, None -> (
         (* Figure out if we're completing for a new field.
@@ -737,7 +737,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         match firstCharBeforeCursorNoWhite with
         | Some ',' ->
           someIfHasCursor
-            ("", [Completable.PRecordBody {seenFields}] @ patternPath)
+            ("", [Completable.NRecordBody {seenFields}] @ patternPath)
         | _ -> None))
     | Ppat_construct
         ( {txt},
@@ -748,7 +748,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       Some
         ( "",
           [
-            Completable.PVariantPayload
+            Completable.NVariantPayload
               {constructorName = getUnqualifiedName txt; itemNum = 0};
           ]
           @ patternPath )
@@ -760,7 +760,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       Some
         ( "",
           [
-            Completable.PVariantPayload
+            Completable.NVariantPayload
               {constructorName = getUnqualifiedName txt; itemNum = 1};
           ]
           @ patternPath )
@@ -770,13 +770,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       |> traverseTupleItems
            ~nextPatternPath:(fun itemNum ->
              [
-               Completable.PVariantPayload
+               Completable.NVariantPayload
                  {constructorName = getUnqualifiedName txt; itemNum};
              ]
              @ patternPath)
            ~resultFromFoundItemNum:(fun itemNum ->
              [
-               Completable.PVariantPayload
+               Completable.NVariantPayload
                  {
                    constructorName = getUnqualifiedName txt;
                    itemNum = itemNum + 1;
@@ -788,7 +788,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       |> traversePattern
            ~patternPath:
              ([
-                Completable.PVariantPayload
+                Completable.NVariantPayload
                   {constructorName = getUnqualifiedName txt; itemNum = 0};
               ]
              @ patternPath)
@@ -800,7 +800,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (* Empty payload with cursor, like: #test(<com>) *)
       Some
         ( "",
-          [Completable.PPolyvariantPayload {constructorName = txt; itemNum = 0}]
+          [Completable.NPolyvariantPayload {constructorName = txt; itemNum = 0}]
           @ patternPath )
     | Ppat_variant (txt, Some pat)
       when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
@@ -809,18 +809,18 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (* Empty payload with trailing ',', like: #test(true, <com>) *)
       Some
         ( "",
-          [Completable.PPolyvariantPayload {constructorName = txt; itemNum = 1}]
+          [Completable.NPolyvariantPayload {constructorName = txt; itemNum = 1}]
           @ patternPath )
     | Ppat_variant (txt, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
       when locHasCursor ppat_loc ->
       tupleItems
       |> traverseTupleItems
            ~nextPatternPath:(fun itemNum ->
-             [Completable.PPolyvariantPayload {constructorName = txt; itemNum}]
+             [Completable.NPolyvariantPayload {constructorName = txt; itemNum}]
              @ patternPath)
            ~resultFromFoundItemNum:(fun itemNum ->
              [
-               Completable.PPolyvariantPayload
+               Completable.NPolyvariantPayload
                  {constructorName = txt; itemNum = itemNum + 1};
              ]
              @ patternPath)
@@ -829,7 +829,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       |> traversePattern
            ~patternPath:
              ([
-                Completable.PPolyvariantPayload
+                Completable.NPolyvariantPayload
                   {constructorName = txt; itemNum = 0};
               ]
              @ patternPath)
