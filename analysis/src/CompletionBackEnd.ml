@@ -1717,6 +1717,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
     Some (Tarray (env, payloadTypeExpr))
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
+  | Tconstr (Path.Pident {name = "string"}, [], _) -> Some (Tstring env)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
@@ -1855,7 +1856,7 @@ let completeTypedValue ~env ~full ~prefix ~completionContext =
             [
               Completion.createWithSnippet ~name:"{}"
                 ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
-                ~sortText:"a" ~kind:(Value typeExpr) ~env ();
+                ~sortText:"A" ~kind:(Value typeExpr) ~env ();
             ]
           else [])
       | Some (Tarray (env, typeExpr)) ->
@@ -1863,7 +1864,19 @@ let completeTypedValue ~env ~full ~prefix ~completionContext =
           [
             Completion.createWithSnippet ~name:"[]"
               ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
-              ~sortText:"a" ~kind:(Value typeExpr) ~env ();
+              ~sortText:"A" ~kind:(Value typeExpr) ~env ();
+          ]
+        else []
+      | Some (Tstring env) ->
+        if prefix = "" then
+          [
+            Completion.createWithSnippet ~name:"\"\""
+              ~insertText:(if !Cfg.supportsSnippets then "\"$0\"" else "\"\"")
+              ~sortText:"A"
+              ~kind:
+                (Value
+                   (Ctype.newconstr (Path.Pident (Ident.create "string")) []))
+              ~env ();
           ]
         else []
       | _ -> []
@@ -2297,7 +2310,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                      {
                        c with
                        sortText =
-                         Some ("AAA" ^ string_of_int (index + 1) ^ " " ^ c.name);
+                         Some ("A" ^ string_of_int (index + 1) ^ " " ^ c.name);
                      })
             else items
           in

@@ -233,7 +233,7 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)=O->recordField(vari
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "sortText": "AAA1 One",
+    "sortText": "A1 One",
     "insertText": "One",
     "insertTextFormat": 2
   }, {
@@ -260,7 +260,7 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyva
     "tags": [],
     "detail": "someRecord",
     "documentation": null,
-    "sortText": "a",
+    "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
   }]
@@ -305,7 +305,7 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)
     "tags": [],
     "detail": "option<bool>",
     "documentation": null,
-    "sortText": "a",
+    "sortText": "A",
     "insertText": "[$0]",
     "insertTextFormat": 2
   }]
@@ -410,5 +410,20 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)=so
     "tags": [],
     "detail": "bool",
     "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 96:43
+posCursor:[96:43] posNoWhite:[96:42] Found expr:[96:11->96:46]
+Pexp_apply ...[96:11->96:30] (...[96:31->96:46])
+Completable: Cexpression CArgument Value[fnTakingOtherRecord]($0)->recordField(otherField)
+[{
+    "label": "\"\"",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "\"$0\"",
+    "insertTextFormat": 2
   }]
 

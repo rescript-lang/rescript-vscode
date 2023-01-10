@@ -109,7 +109,7 @@ let stringifyObject properties =
     |> String.concat ",\n")
   ^ "\n  }"
 
-let wrapInQuotes s = "\"" ^ s ^ "\""
+let wrapInQuotes s = "\"" ^ Json.escape s ^ "\""
 
 let optWrapInQuotes s =
   match s with
@@ -119,10 +119,10 @@ let optWrapInQuotes s =
 let stringifyCompletionItem c =
   stringifyObject
     [
-      ("label", Some (wrapInQuotes (Json.escape c.label)));
+      ("label", Some (wrapInQuotes c.label));
       ("kind", Some (string_of_int c.kind));
       ("tags", Some (c.tags |> List.map string_of_int |> array));
-      ("detail", Some (wrapInQuotes (Json.escape c.detail)));
+      ("detail", Some (wrapInQuotes c.detail));
       ( "documentation",
         Some
           (match c.documentation with

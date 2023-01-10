@@ -89,3 +89,10 @@ let someBoolVar = true
 
 // let _ = fnTakingRecord({offline: so })
 //                                    ^com
+
+let fnTakingOtherRecord = (r: otherRecord) => {
+  ignore(r)
+}
+
+// let _ = fnTakingOtherRecord({otherField: })
+//                                         ^com

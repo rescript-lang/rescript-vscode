@@ -26,7 +26,7 @@ Completable: Cexpression CArgument Value[someFn](~isOn)=t
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "sortText": "AAA1 true"
+    "sortText": "A1 true"
   }, {
     "label": "tLocalVar",
     "kind": 12,
@@ -127,7 +127,7 @@ Completable: Cexpression CArgument Value[someFnTakingVariant](~config)=O
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "sortText": "AAA1 One",
+    "sortText": "A1 One",
     "insertText": "One",
     "insertTextFormat": 2
   }, {
@@ -160,7 +160,7 @@ Completable: Cexpression CArgument Value[someFnTakingVariant]($0)=So
     "tags": [],
     "detail": "someVariant",
     "documentation": null,
-    "sortText": "AAA1 Some(_)",
+    "sortText": "A1 Some(_)",
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
   }, {
@@ -181,7 +181,7 @@ Completable: Cexpression CArgument Value[someFnTakingVariant](~configOpt2)=O
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "sortText": "AAA1 One",
+    "sortText": "A1 One",
     "insertText": "One",
     "insertTextFormat": 2
   }, {
@@ -249,7 +249,7 @@ Completable: Cexpression CArgument Value[someOtherFn]($2)=t
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "sortText": "AAA1 true"
+    "sortText": "A1 true"
   }, {
     "label": "tLocalVar",
     "kind": 12,
