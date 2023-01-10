@@ -2281,10 +2281,25 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         match (prefix, completionContext) with
         | "", _ -> items
         | _, None ->
+          (* Completions for local things like variables in scope, modules in the project, etc. *)
           let regularCompletions =
             prefix
             |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env
                  ~scope
+          in
+          let items =
+            if List.length regularCompletions > 0 then
+              (* The client will occasionally sort the list of completions alphabetically, disregarding the order
+                 in which we send it. This fixes that by providing a sort text making the typed completions
+                 guaranteed to end up on top. *)
+              items
+              |> List.mapi (fun index (c : Completion.t) ->
+                     {
+                       c with
+                       sortText =
+                         Some ("AAA" ^ string_of_int (index + 1) ^ " " ^ c.name);
+                     })
+            else items
           in
           items @ regularCompletions
         | _ -> items)))
