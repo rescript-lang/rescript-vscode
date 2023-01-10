@@ -9,10 +9,8 @@ module SomeComponent = {
   let make = (~someProp) => {
     let someInt = 12
     let someArr = [React.null]
-    let someInvalidArr = [12]
     ignore(someInt)
     ignore(someArr)
-    ignore(someInvalidArr)
     // someString->st
     //               ^com
     <div>
@@ -30,8 +28,6 @@ module SomeComponent = {
       //      ^com
       // {someArr->a}
       //            ^com
-      // {someInvalidArr->a}
-      //                   ^com
     </div>
   }
 }

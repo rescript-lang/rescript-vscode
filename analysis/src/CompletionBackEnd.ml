@@ -1618,18 +1618,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           | true, Some (Path.Pident id) when Ident.name id = "string" ->
             Some "string"
           | true, Some (Path.Pident id) when Ident.name id = "array" ->
-            (* Make sure the array contains React.element *)
-            let isReactElementArray =
-              match typ |> extractType ~env ~package with
-              | Some (Tarray (_env, payload)) -> (
-                match
-                  payload |> getTypePath |> Option.map pathIdentToString
-                with
-                | Some "React.element" -> true
-                | _ -> false)
-              | _ -> false
-            in
-            if isReactElementArray then Some "array" else None
+            Some "array"
           | _ -> None
         in
         match forJsxCompletion with
