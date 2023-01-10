@@ -1611,15 +1611,15 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         in
         (* We add React element functions to the completion if we're in a JSX context *)
         let forJsxCompletion =
-          match (inJsx, getTypePath typ) with
-          | true, Some (Path.Pident id) when Ident.name id = "int" -> Some "int"
-          | true, Some (Path.Pident id) when Ident.name id = "float" ->
-            Some "float"
-          | true, Some (Path.Pident id) when Ident.name id = "string" ->
-            Some "string"
-          | true, Some (Path.Pident id) when Ident.name id = "array" ->
-            Some "array"
-          | _ -> None
+          if inJsx then
+            match getTypePath typ with
+            | Some (Path.Pident id) when Ident.name id = "int" -> Some "int"
+            | Some (Path.Pident id) when Ident.name id = "float" -> Some "float"
+            | Some (Path.Pident id) when Ident.name id = "string" ->
+              Some "string"
+            | Some (Path.Pident id) when Ident.name id = "array" -> Some "array"
+            | _ -> None
+          else None
         in
         match forJsxCompletion with
         | Some builtinNameToComplete
