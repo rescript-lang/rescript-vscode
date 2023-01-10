@@ -101,8 +101,8 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
         someIfHasCursor
           ("", [Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
       | Pexp_ident {txt = Lident txt} ->
-        (* A var means `{s}` or similar. Complete for fields. *)
-        someIfHasCursor (txt, [Completable.NRecordBody {seenFields}] @ exprPath)
+        (* A var means `{someField: s}` or similar. Complete for identifiers or values. *)
+        someIfHasCursor (txt, exprPath)
       | _ ->
         f
         |> traverseExpr ~firstCharBeforeCursorNoWhite ~pos
@@ -273,24 +273,32 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
         with
         | Some (prefix, nested) ->
           Some
-            (CjsxPropValue
+            (Cexpression
                {
-                 pathToComponent =
-                   Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                 prefix;
-                 propName = prop.name;
+                 contextPath =
+                   CJsxPropValue
+                     {
+                       pathToComponent =
+                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                       propName = prop.name;
+                     };
                  nested = List.rev nested;
+                 prefix;
                })
         | _ -> None
       else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
         if isExprHole prop.exp then
           Some
-            (CjsxPropValue
+            (Cexpression
                {
-                 pathToComponent =
-                   Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                 contextPath =
+                   CJsxPropValue
+                     {
+                       pathToComponent =
+                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                       propName = prop.name;
+                     };
                  prefix = "";
-                 propName = prop.name;
                  nested = [];
                })
         else None
@@ -382,19 +390,27 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
         | None -> None
         | Some (prefix, nested) ->
           Some
-            (Cargument
+            (Cexpression
                {
-                 functionContextPath = contextPath;
-                 argumentLabel = Labelled labelled.name;
+                 contextPath =
+                   CArgument
+                     {
+                       functionContextPath = contextPath;
+                       argumentLabel = Labelled labelled.name;
+                     };
                  prefix;
                  nested = List.rev nested;
                })
       else if isExprHole exp then
         Some
-          (Cargument
+          (Cexpression
              {
-               functionContextPath = contextPath;
-               argumentLabel = Labelled labelled.name;
+               contextPath =
+                 CArgument
+                   {
+                     functionContextPath = contextPath;
+                     argumentLabel = Labelled labelled.name;
+                   };
                prefix = "";
                nested = [];
              })
@@ -410,20 +426,29 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
         | None -> None
         | Some (prefix, nested) ->
           Some
-            (Cargument
+            (Cexpression
                {
-                 functionContextPath = contextPath;
-                 argumentLabel =
-                   Unlabelled {argumentPosition = !unlabelledCount};
+                 contextPath =
+                   CArgument
+                     {
+                       functionContextPath = contextPath;
+                       argumentLabel =
+                         Unlabelled {argumentPosition = !unlabelledCount};
+                     };
                  prefix;
                  nested = List.rev nested;
                })
       else if isExprHole exp then
         Some
-          (Cargument
+          (Cexpression
              {
-               functionContextPath = contextPath;
-               argumentLabel = Unlabelled {argumentPosition = !unlabelledCount};
+               contextPath =
+                 CArgument
+                   {
+                     functionContextPath = contextPath;
+                     argumentLabel =
+                       Unlabelled {argumentPosition = !unlabelledCount};
+                   };
                prefix = "";
                nested = [];
              })
@@ -436,11 +461,15 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
         | Some '~' -> Some (Completable.CnamedArg (contextPath, "", allNames))
         | _ ->
           Some
-            (Cargument
+            (Cexpression
                {
-                 functionContextPath = contextPath;
-                 argumentLabel =
-                   Unlabelled {argumentPosition = !unlabelledCount};
+                 contextPath =
+                   CArgument
+                     {
+                       functionContextPath = contextPath;
+                       argumentLabel =
+                         Unlabelled {argumentPosition = !unlabelledCount};
+                     };
                  prefix = "";
                  nested = [];
                })
@@ -453,10 +482,14 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
   ]
     when fnHasCursor ->
     Some
-      (Completable.Cargument
+      (Completable.Cexpression
          {
-           functionContextPath = contextPath;
-           argumentLabel = Unlabelled {argumentPosition = 0};
+           contextPath =
+             CArgument
+               {
+                 functionContextPath = contextPath;
+                 argumentLabel = Unlabelled {argumentPosition = 0};
+               };
            prefix = "";
            nested = [];
          })
@@ -841,7 +874,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       setResult
         (Completable.Cpattern
            {
-             typ = ctxPath;
+             contextPath = ctxPath;
              prefix;
              nested = List.rev nestedPattern;
              fallback = None;
@@ -910,7 +943,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | Some ctxPath ->
           setResult
             (Completable.Cpattern
-               {typ = ctxPath; nested = []; prefix = ""; fallback = None}))
+               {
+                 contextPath = ctxPath;
+                 nested = [];
+                 prefix = "";
+                 fallback = None;
+               }))
       | Pexp_match (exp, cases) -> (
         (* If there's more than one case, or the case isn't a pattern hole, figure out if we're completing another
            broken parser case (`switch x { | true => () | <com> }` for example). *)
@@ -937,7 +975,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             (* If there's no case with the cursor, but a broken parser case, complete for the top level. *)
             setResult
               (Completable.Cpattern
-                 {typ = ctxPath; nested = []; prefix = ""; fallback = None})
+                 {
+                   contextPath = ctxPath;
+                   nested = [];
+                   prefix = "";
+                   fallback = None;
+                 })
           | false, false -> ()))
       | _ -> unsetLookingForPat ()
   in
