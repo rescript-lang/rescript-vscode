@@ -1038,11 +1038,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let value_binding (iterator : Ast_iterator.iterator)
       (value_binding : Parsetree.value_binding) =
-    if
-      locHasCursor value_binding.pvb_expr.pexp_loc
-      && Utils.isReactComponent value_binding
-    then inJsxContext := true;
-    Ast_iterator.default_iterator.value_binding iterator value_binding
+    let oldInJsxContext = !inJsxContext in
+    if Utils.isReactComponent value_binding then inJsxContext := true;
+    Ast_iterator.default_iterator.value_binding iterator value_binding;
+    inJsxContext := oldInJsxContext
   in
   let signature (iterator : Ast_iterator.iterator)
       (signature : Parsetree.signature) =
@@ -1120,6 +1119,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in
   let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
+    let oldInJsxContext = !inJsxContext in
     let processed = ref false in
     let setFound () =
       found := true;
@@ -1379,6 +1379,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           processed := true
         | _ -> ());
       if not !processed then Ast_iterator.default_iterator.expr iterator expr
+      else inJsxContext := oldInJsxContext
   in
   let typ (iterator : Ast_iterator.iterator) (core_type : Parsetree.core_type) =
     if core_type.ptyp_loc |> Loc.hasPos ~pos:posNoWhite then (
