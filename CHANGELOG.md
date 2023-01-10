@@ -30,6 +30,7 @@
 #### :bug: Bug Fix
 
 - Highlight `catch` like a keyword https://github.com/rescript-lang/rescript-vscode/pull/677
+- Make signature help work in calls nested inside of other calls. https://github.com/rescript-lang/rescript-vscode/pull/687
 
 ## v1.10.0
 
