@@ -38,6 +38,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] test=T
     "tags": [],
     "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
+    "sortText": "AAA1 Two",
     "insertText": "Two",
     "insertTextFormat": 2
   }, {
@@ -46,6 +47,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] test=T
     "tags": [],
     "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
+    "sortText": "AAA2 Three(_)",
     "insertText": "Three(${1:_})",
     "insertTextFormat": 2
   }, {
