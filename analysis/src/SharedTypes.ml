@@ -605,6 +605,7 @@ module Completable = struct
     | Toption of QueryEnv.t * Types.type_expr
     | Tbool of QueryEnv.t
     | Tarray of QueryEnv.t * Types.type_expr
+    | Tstring of QueryEnv.t
     | Tvariant of {
         env: QueryEnv.t;
         constructors: Constructor.t list;
