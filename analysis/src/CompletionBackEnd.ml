@@ -1626,9 +1626,15 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           when checkName builtinNameToComplete ~prefix:funNamePrefix
                  ~exact:false ->
           [
-            Completion.create
+            Completion.createWithSnippet
               ~name:("React." ^ builtinNameToComplete)
-              ~kind:(Value typ) ~env;
+              ~kind:(Value typ) ~env
+              ~docstring:
+                [
+                  "Turns `" ^ builtinNameToComplete
+                  ^ "` into `React.element` so it can be used inside of JSX.";
+                ]
+              ();
           ]
           @ completions
         | _ -> completions)

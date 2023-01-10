@@ -316,12 +316,13 @@ module Completion = struct
       insertTextFormat = None;
     }
 
-  let createWithSnippet ~name ?insertText ~kind ~env ?sortText () =
+  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?(docstring = [])
+      () =
     {
       name;
       env;
       deprecated = None;
-      docstring = [];
+      docstring;
       kind;
       sortText;
       insertText;
