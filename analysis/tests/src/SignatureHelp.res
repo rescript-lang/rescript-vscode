@@ -68,3 +68,9 @@ let fn = (age: int, name: string, year: int) => {
 
 // let _ = fn(12, "hello", )
 //                        ^she
+
+// let _ = fn({ iAmSoSpecial() })
+//                           ^she
+
+// let _ = fn({ iAmSoSpecial({ someFunc() }) })
+//                                      ^she
