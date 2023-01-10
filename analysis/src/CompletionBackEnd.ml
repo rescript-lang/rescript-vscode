@@ -1765,125 +1765,118 @@ let printConstructorArgs argsLen ~asSnippet =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-let completeTypedValue ~env ~full ~prefix ~completionContext =
-  let completeTypedValueInner t ~env ~full ~prefix =
-    let items =
-      match t |> extractType ~env ~package:full.package with
-      | Some (Tbool env) ->
+let completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
+    ~completionContext =
+  match t |> extractType ~env ~package:full.package with
+  | Some (Tbool env) ->
+    [
+      Completion.create ~name:"true"
+        ~kind:(Label (t |> Shared.typeToString))
+        ~env;
+      Completion.create ~name:"false"
+        ~kind:(Label (t |> Shared.typeToString))
+        ~env;
+    ]
+    |> filterItems ~prefix
+  | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
+    constructors
+    |> List.map (fun (constructor : Constructor.t) ->
+           Completion.createWithSnippet
+             ~name:
+               (constructor.cname.txt
+               ^ printConstructorArgs
+                   (List.length constructor.args)
+                   ~asSnippet:false)
+             ~insertText:
+               (constructor.cname.txt
+               ^ printConstructorArgs
+                   (List.length constructor.args)
+                   ~asSnippet:true)
+             ~kind:
+               (Constructor
+                  (constructor, variantDecl |> Shared.declToString variantName))
+             ~env ())
+    |> filterItems ~prefix
+  | Some (Tpolyvariant {env; constructors; typeExpr}) ->
+    constructors
+    |> List.map (fun (constructor : polyVariantConstructor) ->
+           Completion.createWithSnippet
+             ~name:
+               ("#" ^ constructor.name
+               ^ printConstructorArgs
+                   (List.length constructor.args)
+                   ~asSnippet:false)
+             ~insertText:
+               ((if Utils.startsWith prefix "#" then "" else "#")
+               ^ constructor.name
+               ^ printConstructorArgs
+                   (List.length constructor.args)
+                   ~asSnippet:true)
+             ~kind:
+               (PolyvariantConstructor
+                  (constructor, typeExpr |> Shared.typeToString))
+             ~env ())
+    |> filterItems ~prefix
+  | Some (Toption (env, t)) ->
+    [
+      Completion.create ~name:"None"
+        ~kind:(Label (t |> Shared.typeToString))
+        ~env;
+      Completion.createWithSnippet ~name:"Some(_)"
+        ~kind:(Label (t |> Shared.typeToString))
+        ~env ~insertText:"Some(${1:_})" ();
+    ]
+    |> filterItems ~prefix
+  | Some (Tuple (env, exprs, typ)) ->
+    let numExprs = List.length exprs in
+    [
+      Completion.createWithSnippet
+        ~name:(printConstructorArgs numExprs ~asSnippet:false)
+        ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
+        ~kind:(Value typ) ~env ();
+    ]
+  | Some (Trecord {env; fields; typeExpr}) -> (
+    (* As we're completing for a record, we'll need a hint (completionContext)
+       here to figure out whether we should complete for a record field, or
+       the record body itself. *)
+    match completionContext with
+    | Some (Completable.RecordField {seenFields}) ->
+      fields
+      |> List.filter (fun (field : field) ->
+             List.mem field.fname.txt seenFields = false)
+      |> List.map (fun (field : field) ->
+             Completion.create ~name:field.fname.txt
+               ~kind:(Field (field, typeExpr |> Shared.typeToString))
+               ~env)
+      |> filterItems ~prefix
+    | None ->
+      if prefix = "" then
         [
-          Completion.create ~name:"true"
-            ~kind:(Label (t |> Shared.typeToString))
-            ~env;
-          Completion.create ~name:"false"
-            ~kind:(Label (t |> Shared.typeToString))
-            ~env;
+          Completion.createWithSnippet ~name:"{}"
+            ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
+            ~sortText:"A" ~kind:(Value typeExpr) ~env ();
         ]
-        |> filterItems ~prefix
-      | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
-        constructors
-        |> List.map (fun (constructor : Constructor.t) ->
-               Completion.createWithSnippet
-                 ~name:
-                   (constructor.cname.txt
-                   ^ printConstructorArgs
-                       (List.length constructor.args)
-                       ~asSnippet:false)
-                 ~insertText:
-                   (constructor.cname.txt
-                   ^ printConstructorArgs
-                       (List.length constructor.args)
-                       ~asSnippet:true)
-                 ~kind:
-                   (Constructor
-                      ( constructor,
-                        variantDecl |> Shared.declToString variantName ))
-                 ~env ())
-        |> filterItems ~prefix
-      | Some (Tpolyvariant {env; constructors; typeExpr}) ->
-        constructors
-        |> List.map (fun (constructor : polyVariantConstructor) ->
-               Completion.createWithSnippet
-                 ~name:
-                   ("#" ^ constructor.name
-                   ^ printConstructorArgs
-                       (List.length constructor.args)
-                       ~asSnippet:false)
-                 ~insertText:
-                   ((if Utils.startsWith prefix "#" then "" else "#")
-                   ^ constructor.name
-                   ^ printConstructorArgs
-                       (List.length constructor.args)
-                       ~asSnippet:true)
-                 ~kind:
-                   (PolyvariantConstructor
-                      (constructor, typeExpr |> Shared.typeToString))
-                 ~env ())
-        |> filterItems ~prefix
-      | Some (Toption (env, t)) ->
-        [
-          Completion.create ~name:"None"
-            ~kind:(Label (t |> Shared.typeToString))
-            ~env;
-          Completion.createWithSnippet ~name:"Some(_)"
-            ~kind:(Label (t |> Shared.typeToString))
-            ~env ~insertText:"Some(${1:_})" ();
-        ]
-        |> filterItems ~prefix
-      | Some (Tuple (env, exprs, typ)) ->
-        let numExprs = List.length exprs in
-        [
-          Completion.createWithSnippet
-            ~name:(printConstructorArgs numExprs ~asSnippet:false)
-            ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
-            ~kind:(Value typ) ~env ();
-        ]
-      | Some (Trecord {env; fields; typeExpr}) -> (
-        (* As we're completing for a record, we'll need a hint (completionContext)
-           here to figure out whether we should complete for a record field, or
-           the record body itself. *)
-        match completionContext with
-        | Some (Completable.RecordField {seenFields}) ->
-          fields
-          |> List.filter (fun (field : field) ->
-                 List.mem field.fname.txt seenFields = false)
-          |> List.map (fun (field : field) ->
-                 Completion.create ~name:field.fname.txt
-                   ~kind:(Field (field, typeExpr |> Shared.typeToString))
-                   ~env)
-          |> filterItems ~prefix
-        | None ->
-          if prefix = "" then
-            [
-              Completion.createWithSnippet ~name:"{}"
-                ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
-                ~sortText:"A" ~kind:(Value typeExpr) ~env ();
-            ]
-          else [])
-      | Some (Tarray (env, typeExpr)) ->
-        if prefix = "" then
-          [
-            Completion.createWithSnippet ~name:"[]"
-              ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
-              ~sortText:"A" ~kind:(Value typeExpr) ~env ();
-          ]
-        else []
-      | Some (Tstring env) ->
-        if prefix = "" then
-          [
-            Completion.createWithSnippet ~name:"\"\""
-              ~insertText:(if !Cfg.supportsSnippets then "\"$0\"" else "\"\"")
-              ~sortText:"A"
-              ~kind:
-                (Value
-                   (Ctype.newconstr (Path.Pident (Ident.create "string")) []))
-              ~env ();
-          ]
-        else []
-      | _ -> []
-    in
-    items
-  in
-  completeTypedValueInner ~env ~full ~prefix
+      else [])
+  | Some (Tarray (env, typeExpr)) ->
+    if prefix = "" then
+      [
+        Completion.createWithSnippet ~name:"[]"
+          ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
+          ~sortText:"A" ~kind:(Value typeExpr) ~env ();
+      ]
+    else []
+  | Some (Tstring env) ->
+    if prefix = "" then
+      [
+        Completion.createWithSnippet ~name:"\"\""
+          ~insertText:(if !Cfg.supportsSnippets then "\"$0\"" else "\"\"")
+          ~sortText:"A"
+          ~kind:
+            (Value (Ctype.newconstr (Path.Pident (Ident.create "string")) []))
+          ~env ();
+      ]
+    else []
+  | _ -> []
 
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
 let rec resolveNested typ ~env ~package ~nested =
