@@ -162,3 +162,9 @@ let rec skipWhite text i =
 
 let hasBraces attributes =
   attributes |> List.exists (fun (loc, _) -> loc.Location.txt = "ns.braces")
+
+let rec unwrapIfOption (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> unwrapIfOption t1
+  | Tconstr (Path.Pident {name = "option"}, [unwrappedType], _) -> unwrappedType
+  | _ -> t

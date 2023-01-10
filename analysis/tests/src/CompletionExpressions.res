@@ -73,6 +73,9 @@ let fnTakingArray = (arr: array<option<bool>>) => {
 // let _ = fnTakingArray([])
 //                        ^com
 
+// let _ = fnTakingArray(s)
+//                        ^com
+
 // let _ = fnTakingArray([Some()])
 //                             ^com
 
@@ -81,3 +84,8 @@ let fnTakingArray = (arr: array<option<bool>>) => {
 
 // let _ = fnTakingArray([None, , None])
 //                             ^com
+
+let someBoolVar = true
+
+// let _ = fnTakingRecord({offline: so })
+//                                    ^com

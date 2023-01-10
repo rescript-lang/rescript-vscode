@@ -931,6 +931,30 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
        (processLocalModule ~prefix ~exact ~env ~localTables);
   List.rev_append localTables.resultRev valuesFromOpens
 
+let findLocalCompletionsForValues ~(localTables : LocalTables.t) ~env ~prefix
+    ~exact ~opens ~scope =
+  localTables |> LocalTables.populateValues ~env;
+  localTables |> LocalTables.populateModules ~env;
+  scope
+  |> Scope.iterValuesBeforeFirstOpen
+       (processLocalValue ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesBeforeFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+
+  let valuesFromOpens =
+    getItemsFromOpens ~opens ~localTables ~prefix ~exact
+      ~completionContext:Value
+  in
+
+  scope
+  |> Scope.iterValuesAfterFirstOpen
+       (processLocalValue ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesAfterFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+  List.rev_append localTables.resultRev valuesFromOpens
+
 let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
     ~exact ~opens ~scope =
   localTables |> LocalTables.populateTypes ~env;
@@ -1098,6 +1122,28 @@ let extractFunctionType ~env ~package typ =
   in
   loop ~env [] typ
 
+let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env prefix
+    =
+  let exact = false in
+  let localCompletionsWithOpens =
+    let localTables = LocalTables.create () in
+    findLocalCompletionsForValues ~localTables ~env ~prefix ~exact ~opens ~scope
+  in
+  let fileModules =
+    allFiles |> FileSet.elements
+    |> Utils.filterMap (fun name ->
+           if
+             checkName name ~prefix ~exact
+             && not
+                  (* TODO complete the namespaced name too *)
+                  (String.contains name '-')
+           then
+             Some
+               (Completion.create ~name ~env ~kind:(Completion.FileModule name))
+           else None)
+  in
+  localCompletionsWithOpens @ fileModules
+
 let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
   match path with
@@ -1192,6 +1238,111 @@ let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
     | args, tRet when args <> [] -> Some tRet
     | _ -> None)
   | _ -> None
+
+let getJsxLabels ~componentPath ~findTypeOfValue ~package =
+  match componentPath @ ["make"] |> findTypeOfValue with
+  | Some (typ, make_env) ->
+    let rec getFieldsV3 (texp : Types.type_expr) =
+      match texp.desc with
+      | Tfield (name, _, t1, t2) ->
+        let fields = t2 |> getFieldsV3 in
+        if name = "children" then fields else (name, t1, make_env) :: fields
+      | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFieldsV3
+      | Tvar None -> []
+      | _ -> []
+    in
+    let getFieldsV4 ~path ~typeArgs =
+      match References.digConstructor ~env:make_env ~package path with
+      | Some
+          ( env,
+            {
+              item =
+                {
+                  decl =
+                    {
+                      type_kind = Type_record (labelDecls, _repr);
+                      type_params = typeParams;
+                    };
+                };
+            } ) ->
+        labelDecls
+        |> List.map (fun (ld : Types.label_declaration) ->
+               let name = Ident.name ld.ld_id in
+               let t = ld.ld_type |> instantiateType ~typeParams ~typeArgs in
+               (name, t, env))
+      | _ -> []
+    in
+    let rec getLabels (t : Types.type_expr) =
+      match t.desc with
+      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
+      | Tarrow
+          ( Nolabel,
+            {
+              desc =
+                ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                | Tobject (tObj, _) );
+            },
+            _,
+            _ ) ->
+        (* JSX V3 *)
+        getFieldsV3 tObj
+      | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
+        when Path.last path = "props" ->
+        (* JSX V4 *)
+        getFieldsV4 ~path ~typeArgs
+      | Tconstr
+          ( clPath,
+            [
+              {
+                desc =
+                  ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
+                  | Tobject (tObj, _) );
+              };
+              _;
+            ],
+            _ )
+        when Path.name clPath = "React.componentLike" ->
+        (* JSX V3 external or interface *)
+        getFieldsV3 tObj
+      | Tconstr (clPath, [{desc = Tconstr (path, typeArgs, _)}; _], _)
+        when Path.name clPath = "React.componentLike"
+             && Path.last path = "props" ->
+        (* JSX V4 external or interface *)
+        getFieldsV4 ~path ~typeArgs
+      | _ -> []
+    in
+    typ |> getLabels
+  | None -> []
+
+let getArgs ~env (t : Types.type_expr) ~full =
+  let rec getArgsLoop ~env (t : Types.type_expr) ~full ~currentArgumentPosition
+      =
+    match t.desc with
+    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+      getArgsLoop ~full ~env ~currentArgumentPosition t1
+    | Tarrow (Labelled l, tArg, tRet, _) ->
+      (SharedTypes.Completable.Labelled l, tArg)
+      :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
+    | Tarrow (Optional l, tArg, tRet, _) ->
+      (Optional l, tArg) :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
+    | Tarrow (Nolabel, tArg, tRet, _) ->
+      (Unlabelled {argumentPosition = currentArgumentPosition}, tArg)
+      :: getArgsLoop ~full ~env
+           ~currentArgumentPosition:(currentArgumentPosition + 1)
+           tRet
+    | Tconstr (path, typeArgs, _) -> (
+      match References.digConstructor ~env ~package:full.package path with
+      | Some
+          ( env,
+            {
+              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
+            } ) ->
+        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
+        getArgsLoop ~full ~env ~currentArgumentPosition t1
+      | _ -> [])
+    | _ -> []
+  in
+  t |> getArgsLoop ~env ~full ~currentArgumentPosition:0
 
 let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     ~exact ~scope (contextPath : Completable.contextPath) =
@@ -1477,6 +1628,59 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           ~kind:(Completion.Value (Ctype.newty (Ttuple typeExrps)));
       ]
     else []
+  | CJsxPropValue {pathToComponent; propName} -> (
+    let findTypeOfValue path =
+      path
+      |> getCompletionsForPath ~completionContext:Value ~exact:true ~package
+           ~opens ~allFiles ~pos ~env ~scope
+      |> completionsGetTypeEnv
+    in
+    let targetLabel =
+      getJsxLabels ~componentPath:pathToComponent ~findTypeOfValue ~package
+      |> List.find_opt (fun (label, _, _) -> label = propName)
+    in
+    match targetLabel with
+    | None -> []
+    | Some (_, typ, env) ->
+      [
+        Completion.create ~name:"dummy" ~env
+          ~kind:(Completion.Value (Utils.unwrapIfOption typ));
+      ])
+  | CArgument {functionContextPath; argumentLabel} -> (
+    let labels, env =
+      match
+        functionContextPath
+        |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:true ~scope
+        |> completionsGetTypeEnv
+      with
+      | Some (typ, env) -> (typ |> getArgs ~full ~env, env)
+      | None -> ([], env)
+    in
+    let targetLabel =
+      labels
+      |> List.find_opt (fun (label, _) ->
+             match argumentLabel with
+             | Unlabelled _ -> label = argumentLabel
+             | Labelled name | Optional name -> (
+               match label with
+               | (Labelled n | Optional n) when name = n -> true
+               | _ -> false))
+    in
+    let expandOption =
+      match targetLabel with
+      | None | Some ((Unlabelled _ | Labelled _), _) -> false
+      | Some (Optional _, _) -> true
+    in
+    match targetLabel with
+    | None -> []
+    | Some (_, typ) ->
+      [
+        Completion.create ~name:"dummy" ~env
+          ~kind:
+            (Completion.Value
+               (if expandOption then Utils.unwrapIfOption typ else typ));
+      ])
 
 let getOpens ~debug ~rawOpens ~package ~env =
   if debug && rawOpens <> [] then
@@ -1503,36 +1707,6 @@ let getOpens ~debug ~rawOpens ~package ~env =
           |> List.map (fun (e : QueryEnv.t) -> Uri.toString e.file.uri)));
   (* Last open takes priority *)
   List.rev resolvedOpens
-
-let getArgs ~env (t : Types.type_expr) ~full =
-  let rec getArgsLoop ~env (t : Types.type_expr) ~full ~currentArgumentPosition
-      =
-    match t.desc with
-    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
-      getArgsLoop ~full ~env ~currentArgumentPosition t1
-    | Tarrow (Labelled l, tArg, tRet, _) ->
-      (SharedTypes.Completable.Labelled l, tArg)
-      :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
-    | Tarrow (Optional l, tArg, tRet, _) ->
-      (Optional l, tArg) :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
-    | Tarrow (Nolabel, tArg, tRet, _) ->
-      (Unlabelled {argumentPosition = currentArgumentPosition}, tArg)
-      :: getArgsLoop ~full ~env
-           ~currentArgumentPosition:(currentArgumentPosition + 1)
-           tRet
-    | Tconstr (path, typeArgs, _) -> (
-      match References.digConstructor ~env ~package:full.package path with
-      | Some
-          ( env,
-            {
-              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
-            } ) ->
-        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
-        getArgsLoop ~full ~env ~currentArgumentPosition t1
-      | _ -> [])
-    | _ -> []
-  in
-  t |> getArgsLoop ~env ~full ~currentArgumentPosition:0
 
 (** Pulls out a type we can complete from a type expr. *)
 let rec extractType ~env ~package (t : Types.type_expr) =
@@ -1590,14 +1764,10 @@ let printConstructorArgs argsLen ~asSnippet =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-    ~expandOption ~includeLocalValues ~completionContext =
-  let namesUsed = Hashtbl.create 10 in
-  let rec completeTypedValueInner t ~env ~full ~prefix ~expandOption =
+let completeTypedValue ~env ~full ~prefix ~completionContext =
+  let completeTypedValueInner t ~env ~full ~prefix =
     let items =
       match t |> extractType ~env ~package:full.package with
-      | Some (Toption (env, typ)) when expandOption ->
-        typ |> completeTypedValueInner ~env ~full ~prefix ~expandOption:false
       | Some (Tbool env) ->
         [
           Completion.create ~name:"true"
@@ -1681,104 +1851,26 @@ let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
                    ~env)
           |> filterItems ~prefix
         | None ->
-          [
-            Completion.createWithSnippet ~name:"{}"
-              ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
-              ~sortText:"a" ~kind:(Value typeExpr) ~env ();
-          ])
-      | Some (Tarray (env, typeExpr)) ->
-        [
-          Completion.createWithSnippet ~name:"[]"
-            ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
-            ~sortText:"a" ~kind:(Value typeExpr) ~env ();
-        ]
-      | _ -> []
-    in
-    (* Include all values and modules in completion if there's a prefix, not otherwise *)
-    if prefix = "" || includeLocalValues = false then items
-    else
-      items
-      @ completionForExportedValues ~env:envWhereCompletionStarted ~prefix
-          ~exact:false ~namesUsed
-      @ completionForExportedModules ~env:envWhereCompletionStarted ~prefix
-          ~exact:false ~namesUsed
-  in
-  completeTypedValueInner ~env ~full ~prefix ~expandOption
-
-let getJsxLabels ~componentPath ~findTypeOfValue ~package =
-  match componentPath @ ["make"] |> findTypeOfValue with
-  | Some (typ, make_env) ->
-    let rec getFieldsV3 (texp : Types.type_expr) =
-      match texp.desc with
-      | Tfield (name, _, t1, t2) ->
-        let fields = t2 |> getFieldsV3 in
-        if name = "children" then fields else (name, t1, make_env) :: fields
-      | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFieldsV3
-      | Tvar None -> []
-      | _ -> []
-    in
-    let getFieldsV4 ~path ~typeArgs =
-      match References.digConstructor ~env:make_env ~package path with
-      | Some
-          ( env,
-            {
-              item =
-                {
-                  decl =
-                    {
-                      type_kind = Type_record (labelDecls, _repr);
-                      type_params = typeParams;
-                    };
-                };
-            } ) ->
-        labelDecls
-        |> List.map (fun (ld : Types.label_declaration) ->
-               let name = Ident.name ld.ld_id in
-               let t = ld.ld_type |> instantiateType ~typeParams ~typeArgs in
-               (name, t, env))
-      | _ -> []
-    in
-    let rec getLabels (t : Types.type_expr) =
-      match t.desc with
-      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
-      | Tarrow
-          ( Nolabel,
-            {
-              desc =
-                ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                | Tobject (tObj, _) );
-            },
-            _,
-            _ ) ->
-        (* JSX V3 *)
-        getFieldsV3 tObj
-      | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
-        when Path.last path = "props" ->
-        (* JSX V4 *)
-        getFieldsV4 ~path ~typeArgs
-      | Tconstr
-          ( clPath,
+          if prefix = "" then
             [
-              {
-                desc =
-                  ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                  | Tobject (tObj, _) );
-              };
-              _;
-            ],
-            _ )
-        when Path.name clPath = "React.componentLike" ->
-        (* JSX V3 external or interface *)
-        getFieldsV3 tObj
-      | Tconstr (clPath, [{desc = Tconstr (path, typeArgs, _)}; _], _)
-        when Path.name clPath = "React.componentLike"
-             && Path.last path = "props" ->
-        (* JSX V4 external or interface *)
-        getFieldsV4 ~path ~typeArgs
+              Completion.createWithSnippet ~name:"{}"
+                ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
+                ~sortText:"a" ~kind:(Value typeExpr) ~env ();
+            ]
+          else [])
+      | Some (Tarray (env, typeExpr)) ->
+        if prefix = "" then
+          [
+            Completion.createWithSnippet ~name:"[]"
+              ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
+              ~sortText:"a" ~kind:(Value typeExpr) ~env ();
+          ]
+        else []
       | _ -> []
     in
-    typ |> getLabels
-  | None -> []
+    items
+  in
+  completeTypedValueInner ~env ~full ~prefix
 
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
 let rec resolveNested typ ~env ~package ~nested =
@@ -1882,21 +1974,6 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
-  | CjsxPropValue {pathToComponent; prefix; propName; nested} -> (
-    let targetLabel =
-      getJsxLabels ~componentPath:pathToComponent ~findTypeOfValue ~package
-      |> List.find_opt (fun (label, _, _) -> label = propName)
-    in
-    let envWhereCompletionStarted = env in
-    match targetLabel with
-    | None -> []
-    | Some (_, typ, env) -> (
-      match typ |> resolveNested ~env ~package:full.package ~nested with
-      | None -> []
-      | Some (typ, env, completionContext) ->
-        typ
-        |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-             ~expandOption:true ~includeLocalValues:true ~completionContext))
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
       {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
@@ -2134,42 +2211,6 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            in
            (dec2, doc))
     |> List.map mkDecorator
-  | Cargument {functionContextPath; argumentLabel; prefix; nested} -> (
-    let envWhereCompletionStarted = env in
-    let labels =
-      match
-        functionContextPath
-        |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
-             ~env ~exact:true ~scope
-        |> completionsGetTypeEnv
-      with
-      | Some (typ, _env) -> typ |> getArgs ~full ~env
-      | None -> []
-    in
-    let targetLabel =
-      labels
-      |> List.find_opt (fun (label, _) ->
-             match argumentLabel with
-             | Unlabelled _ -> label = argumentLabel
-             | Labelled name | Optional name -> (
-               match label with
-               | (Labelled n | Optional n) when name = n -> true
-               | _ -> false))
-    in
-    let expandOption =
-      match targetLabel with
-      | None | Some ((Unlabelled _ | Labelled _), _) -> false
-      | Some (Optional _, _) -> true
-    in
-    match targetLabel with
-    | None -> []
-    | Some (_, typ) -> (
-      match typ |> resolveNested ~env ~package:full.package ~nested with
-      | None -> []
-      | Some (typ, env, completionContext) ->
-        typ
-        |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-             ~expandOption ~includeLocalValues:true ~completionContext))
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
@@ -2199,7 +2240,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | Cpattern {typ; prefix; nested; fallback} -> (
+  | Cpattern {contextPath; prefix; nested; fallback} -> (
     let fallbackOrEmpty ?items () =
       match (fallback, items) with
       | Some fallback, (None | Some []) ->
@@ -2207,9 +2248,8 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | _, Some items -> items
       | None, None -> []
     in
-    let envWhereCompletionStarted = env in
     match
-      typ
+      contextPath
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
       |> completionsGetTypeEnv
@@ -2219,9 +2259,32 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | None -> fallbackOrEmpty ()
       | Some (typ, env, completionContext) ->
         let items =
-          typ
-          |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-               ~expandOption:false ~includeLocalValues:false ~completionContext
+          typ |> completeTypedValue ~env ~full ~prefix ~completionContext
         in
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
+  | Cexpression {contextPath; prefix; nested} -> (
+    match
+      contextPath
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | None -> []
+    | Some (typ, env) -> (
+      match typ |> resolveNested ~env ~package:full.package ~nested with
+      | None -> []
+      | Some (typ, env, completionContext) -> (
+        let items =
+          typ |> completeTypedValue ~env ~full ~prefix ~completionContext
+        in
+        match (prefix, completionContext) with
+        | "", _ -> items
+        | _, None ->
+          let regularCompletions =
+            prefix
+            |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env
+                 ~scope
+          in
+          items @ regularCompletions
+        | _ -> items)))

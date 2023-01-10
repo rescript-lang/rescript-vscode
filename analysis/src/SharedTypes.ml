@@ -550,6 +550,11 @@ module Completable = struct
             (** The loc item for the left hand side of the pipe. *)
       }
     | CTuple of contextPath list
+    | CArgument of {
+        functionContextPath: contextPath;
+        argumentLabel: argumentLabel;
+      }
+    | CJsxPropValue of {pathToComponent: string list; propName: string}
 
   (** Additional context for nested completion where needed. *)
   type nestedContext = RecordField of {seenFields: string list}
@@ -582,21 +587,13 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
-    | Cargument of {
-        functionContextPath: contextPath;
-        argumentLabel: argumentLabel;
-        nested: nestedPath list;
-        prefix: string;
-      }
-        (** e.g. someFunction(~someBoolArg=<com>), complete for the value of `someBoolArg` (true or false). *)
-    | CjsxPropValue of {
-        pathToComponent: string list;
-        propName: string;
+    | Cexpression of {
+        contextPath: contextPath;
         nested: nestedPath list;
         prefix: string;
       }
     | Cpattern of {
-        typ: contextPath;
+        contextPath: contextPath;
         nested: nestedPath list;
         prefix: string;
         fallback: t option;
@@ -655,6 +652,18 @@ module Completable = struct
         "CTuple("
         ^ (ctxPaths |> List.map contextPathToString |> String.concat ", ")
         ^ ")"
+      | CArgument {functionContextPath; argumentLabel} ->
+        "CArgument "
+        ^ contextPathToString functionContextPath
+        ^ "("
+        ^ (match argumentLabel with
+          | Unlabelled {argumentPosition} ->
+            "$" ^ string_of_int argumentPosition
+          | Labelled name -> "~" ^ name
+          | Optional name -> "~" ^ name ^ "=?")
+        ^ ")"
+      | CJsxPropValue {pathToComponent; propName} ->
+        "CJsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName
     in
 
     function
@@ -667,16 +676,10 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | Cargument {functionContextPath; argumentLabel; prefix; nested} -> (
-      "Cargument "
-      ^ contextPathToString functionContextPath
-      ^ "("
-      ^ (match argumentLabel with
-        | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition
-        | Labelled name -> "~" ^ name
-        | Optional name -> "~" ^ name ^ "=?")
-      ^ (if prefix <> "" then "=" ^ prefix else "")
-      ^ ")"
+    | Cpattern {contextPath; nested; prefix} -> (
+      "Cpattern "
+      ^ contextPathToString contextPath
+      ^ (if prefix = "" then "" else "=" ^ prefix)
       ^
       match nested with
       | [] -> ""
@@ -685,11 +688,9 @@ module Completable = struct
         ^ (nestedPaths
           |> List.map (fun nestedPath -> nestedPathToString nestedPath)
           |> String.concat ", "))
-    | CjsxPropValue {prefix; pathToComponent; propName} ->
-      "CjsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName ^ "="
-      ^ prefix
-    | Cpattern {typ; nested; prefix} -> (
-      "Cpattern " ^ contextPathToString typ
+    | Cexpression {contextPath; nested; prefix} -> (
+      "Cexpression "
+      ^ contextPathToString contextPath
       ^ (if prefix = "" then "" else "=" ^ prefix)
       ^
       match nested with

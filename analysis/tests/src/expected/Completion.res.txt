@@ -463,7 +463,7 @@ Completable: Cpath Value[Js, Dict, u]
 Complete src/Completion.res 59:30
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:15->59:30]
 JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
-Completable: CjsxPropValue [O, Comp] second=z
+Completable: Cexpression CJsxPropValue [O, Comp] second=z
 [{
     "label": "zzz",
     "kind": 12,
