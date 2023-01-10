@@ -29,7 +29,8 @@ Completable: Cpath Value[someString]->st <<jsx>>
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "insertTextFormat": 2
   }, {
     "label": "Js.String2.startsWith",
     "kind": 12,
@@ -68,7 +69,8 @@ Completable: Cpath Value[someString]->st <<jsx>>
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "insertTextFormat": 2
   }, {
     "label": "Js.String2.startsWith",
     "kind": 12,
@@ -107,7 +109,8 @@ Completable: Cpath string->st <<jsx>>
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "insertTextFormat": 2
   }, {
     "label": "Js.String2.startsWith",
     "kind": 12,
@@ -146,7 +149,8 @@ Completable: Cpath Value[Js, String2, trim](Nolabel)->st <<jsx>>
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "insertTextFormat": 2
   }, {
     "label": "Js.String2.startsWith",
     "kind": 12,
@@ -185,7 +189,8 @@ Completable: Cpath Value[someInt]-> <<jsx>>
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "Turns `int` into `React.element` so it can be used inside of JSX."},
+    "insertTextFormat": 2
   }, {
     "label": "Belt.Int.fromString",
     "kind": 12,
@@ -260,7 +265,8 @@ Completable: Cpath int-> <<jsx>>
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "Turns `int` into `React.element` so it can be used inside of JSX."},
+    "insertTextFormat": 2
   }, {
     "label": "Belt.Int.fromString",
     "kind": 12,
@@ -335,7 +341,8 @@ Completable: Cpath Value[someArr]->a <<jsx>>
     "kind": 12,
     "tags": [],
     "detail": "array<React.element>",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "Turns `array` into `React.element` so it can be used inside of JSX."},
+    "insertTextFormat": 2
   }, {
     "label": "Js.Array2.append",
     "kind": 12,
