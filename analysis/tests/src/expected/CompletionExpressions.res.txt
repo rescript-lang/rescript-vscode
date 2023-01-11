@@ -167,6 +167,14 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some({})",
+    "kind": 12,
+    "tags": [],
+    "detail": "otherRecord",
+    "documentation": null,
+    "insertText": "Some({$0})",
+    "insertTextFormat": 2
   }]
 
 Complete src/CompletionExpressions.res 44:46
@@ -328,6 +336,18 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionExpressions.res 75:26
@@ -378,6 +398,18 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionExpressions.res 84:31
@@ -398,6 +430,18 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionExpressions.res 89:38
@@ -443,5 +487,49 @@ Completable: Cexpression CArgument Value[fnTakingRecordWithOptionalField]($0)->r
     "tags": [],
     "detail": "bool",
     "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 116:53
+posCursor:[116:53] posNoWhite:[116:52] Found expr:[116:11->116:56]
+Pexp_apply ...[116:11->116:39] (...[116:40->116:56])
+Completable: Cexpression CArgument Value[fnTakingRecordWithOptVariant]($0)->recordField(someVariant)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(One)",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
+    "documentation": null,
+    "insertText": "Some(One)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(Two)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
+    "documentation": null,
+    "insertText": "Some(Two)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(Three(_, _))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
+    "documentation": null,
+    "insertText": "Some(Three(${1:_}, ${2:_}))",
+    "insertTextFormat": 2
   }]
 
