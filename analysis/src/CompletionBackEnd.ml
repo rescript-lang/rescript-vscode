@@ -2299,12 +2299,8 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
                  in which we send it. This fixes that by providing a sort text making the typed completions
                  guaranteed to end up on top. *)
               items
-              |> List.mapi (fun index (c : Completion.t) ->
-                     {
-                       c with
-                       sortText =
-                         Some ("A" ^ string_of_int (index + 1) ^ " " ^ c.name);
-                     })
+              |> List.map (fun (c : Completion.t) ->
+                     {c with sortText = Some ("A" ^ " " ^ c.name)})
             else items
           in
           items @ regularCompletions
