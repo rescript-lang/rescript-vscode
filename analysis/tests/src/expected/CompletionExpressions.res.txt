@@ -427,3 +427,23 @@ Completable: Cexpression CArgument Value[fnTakingOtherRecord]($0)->recordField(o
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionExpressions.res 108:57
+posCursor:[108:57] posNoWhite:[108:56] Found expr:[108:11->108:60]
+Pexp_apply ...[108:11->108:42] (...[108:43->108:60])
+Completable: Cexpression CArgument Value[fnTakingRecordWithOptionalField]($0)->recordField(someOptField)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }]
+

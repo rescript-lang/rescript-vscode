@@ -96,3 +96,15 @@ let fnTakingOtherRecord = (r: otherRecord) => {
 
 // let _ = fnTakingOtherRecord({otherField: })
 //                                         ^com
+
+type recordWithOptionalField = {
+  someField: int,
+  someOptField?: string,
+}
+
+let fnTakingRecordWithOptionalField = (r: recordWithOptionalField) => {
+  ignore(r)
+}
+
+// let _ = fnTakingRecordWithOptionalField({someOptField: })
+//                                                       ^com
