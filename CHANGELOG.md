@@ -24,6 +24,7 @@
 - Complete for `React.element` creator functions (`React.string` etc) when in JSX context. https://github.com/rescript-lang/rescript-vscode/pull/681
 - Handle optional record fields in expression/pattern completion. https://github.com/rescript-lang/rescript-vscode/pull/691
 - Expand options in completion to make working with options a bit more ergonomic. https://github.com/rescript-lang/rescript-vscode/pull/690
+- Let `_` trigger completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/692
 
 #### :nail_care: Polish
 
