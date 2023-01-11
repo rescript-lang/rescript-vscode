@@ -233,3 +233,18 @@ let _ = NotShadowed.xx
 
 let _ = Shadowed.xx
 //               ^hov
+
+type recordWithDocstringField = {
+  /** Mighty fine field here. */
+  someField: bool,
+}
+
+let x: recordWithDocstringField = {
+  someField: true,
+}
+
+// x.someField
+//    ^hov
+
+let someField = x.someField
+//                 ^hov

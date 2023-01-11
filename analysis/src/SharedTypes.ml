@@ -29,6 +29,7 @@ type field = {
   fname: string Location.loc;
   typ: Types.type_expr;
   optional: bool;
+  docstring: string list;
 }
 
 module Constructor = struct
@@ -309,12 +310,12 @@ module Completion = struct
     kind: kind;
   }
 
-  let create ~name ~kind ~env =
+  let create ~name ~kind ~env ?(docstring = []) () =
     {
       name;
       env;
       deprecated = None;
-      docstring = [];
+      docstring;
       kind;
       sortText = None;
       insertText = None;
