@@ -21,6 +21,7 @@
 - Add support for completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/670
 - Add support for pattern completion of unsaved tuples. https://github.com/rescript-lang/rescript-vscode/pull/679
 - Add support for completion in typed expressions. https://github.com/rescript-lang/rescript-vscode/pull/682
+- Complete for `React.element` creator functions (`React.string` etc) when in JSX context. https://github.com/rescript-lang/rescript-vscode/pull/681
 
 #### :nail_care: Polish
 
