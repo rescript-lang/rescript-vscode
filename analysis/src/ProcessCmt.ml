@@ -89,13 +89,16 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
               | Type_record (fields, _) ->
                 Record
                   (fields
-                  |> List.map (fun {Types.ld_id; ld_type} ->
+                  |> List.map (fun {Types.ld_id; ld_type; ld_attributes} ->
                          let astamp = Ident.binding_time ld_id in
                          let name = Ident.name ld_id in
                          {
                            stamp = astamp;
                            fname = Location.mknoloc name;
                            typ = ld_type;
+                           optional =
+                             Res_parsetree_viewer.hasOptionalAttribute
+                               ld_attributes;
                          })));
           }
         ~name ~stamp:(Ident.binding_time ident) ~env type_attributes
@@ -212,10 +215,22 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                 (fields
                 |> List.map
                      (fun
-                       {Typedtree.ld_id; ld_name = fname; ld_type = {ctyp_type}}
+                       {
+                         Typedtree.ld_id;
+                         ld_name = fname;
+                         ld_type = {ctyp_type};
+                         ld_attributes;
+                       }
                      ->
                        let fstamp = Ident.binding_time ld_id in
-                       {stamp = fstamp; fname; typ = ctyp_type})));
+                       {
+                         stamp = fstamp;
+                         fname;
+                         typ = ctyp_type;
+                         optional =
+                           Res_parsetree_viewer.hasOptionalAttribute
+                             ld_attributes;
+                       })));
         }
       ~name ~stamp ~env typ_attributes
       (Exported.add exported Exported.Type)
