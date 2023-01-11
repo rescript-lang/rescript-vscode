@@ -1378,8 +1378,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           scope := oldScope;
           processed := true
         | _ -> ());
-      if not !processed then Ast_iterator.default_iterator.expr iterator expr
-      else inJsxContext := oldInJsxContext
+      if not !processed then Ast_iterator.default_iterator.expr iterator expr;
+      inJsxContext := oldInJsxContext
   in
   let typ (iterator : Ast_iterator.iterator) (core_type : Parsetree.core_type) =
     if core_type.ptyp_loc |> Loc.hasPos ~pos:posNoWhite then (
