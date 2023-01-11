@@ -233,7 +233,7 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)=O->recordField(vari
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "sortText": "A1 One",
+    "sortText": "A One",
     "insertText": "One",
     "insertTextFormat": 2
   }, {
