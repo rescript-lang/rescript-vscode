@@ -24,7 +24,12 @@ module ModulePath = struct
     loop modulePath [tipName]
 end
 
-type field = {stamp: int; fname: string Location.loc; typ: Types.type_expr}
+type field = {
+  stamp: int;
+  fname: string Location.loc;
+  typ: Types.type_expr;
+  optional: bool;
+}
 
 module Constructor = struct
   type t = {
