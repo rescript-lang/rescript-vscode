@@ -30,6 +30,7 @@ Completable: Cpath Value[someString]->st <<jsx>>
     "tags": [],
     "detail": "string",
     "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "sortText": "A",
     "insertTextFormat": 2
   }, {
     "label": "Js.String2.startsWith",
@@ -70,6 +71,7 @@ Completable: Cpath Value[someString]->st <<jsx>>
     "tags": [],
     "detail": "string",
     "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "sortText": "A",
     "insertTextFormat": 2
   }, {
     "label": "Js.String2.startsWith",
@@ -110,6 +112,7 @@ Completable: Cpath string->st <<jsx>>
     "tags": [],
     "detail": "string",
     "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "sortText": "A",
     "insertTextFormat": 2
   }, {
     "label": "Js.String2.startsWith",
@@ -150,6 +153,7 @@ Completable: Cpath Value[Js, String2, trim](Nolabel)->st <<jsx>>
     "tags": [],
     "detail": "string",
     "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "sortText": "A",
     "insertTextFormat": 2
   }, {
     "label": "Js.String2.startsWith",
@@ -190,6 +194,7 @@ Completable: Cpath Value[someInt]-> <<jsx>>
     "tags": [],
     "detail": "int",
     "documentation": {"kind": "markdown", "value": "Turns `int` into `React.element` so it can be used inside of JSX."},
+    "sortText": "A",
     "insertTextFormat": 2
   }, {
     "label": "Belt.Int.fromString",
@@ -266,6 +271,7 @@ Completable: Cpath int-> <<jsx>>
     "tags": [],
     "detail": "int",
     "documentation": {"kind": "markdown", "value": "Turns `int` into `React.element` so it can be used inside of JSX."},
+    "sortText": "A",
     "insertTextFormat": 2
   }, {
     "label": "Belt.Int.fromString",
@@ -342,6 +348,7 @@ Completable: Cpath Value[someArr]->a <<jsx>>
     "tags": [],
     "detail": "array<React.element>",
     "documentation": {"kind": "markdown", "value": "Turns `array` into `React.element` so it can be used inside of JSX."},
+    "sortText": "A",
     "insertTextFormat": 2
   }, {
     "label": "Js.Array2.append",
