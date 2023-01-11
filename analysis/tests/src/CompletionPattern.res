@@ -191,3 +191,6 @@ let s = (true, Some(true), [false])
 
 // switch b { | #one | #three({test: true}, true | )  }
 //                                                ^com
+
+// switch s { | (true, _, []) }
+//                      ^com

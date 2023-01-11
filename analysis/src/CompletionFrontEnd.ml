@@ -681,7 +681,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       if locHasCursor pat.Parsetree.ppat_loc then Some v else None
     in
     match pat.ppat_desc with
-    | Ppat_any | Ppat_constant _ | Ppat_interval _ -> None
+    | Ppat_constant _ | Ppat_interval _ -> None
     | Ppat_lazy p
     | Ppat_constraint (p, _)
     | Ppat_alias (p, _)
@@ -695,6 +695,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       match orPatWithItem with
       | None when isPatternHole p1 || isPatternHole p2 -> Some ("", patternPath)
       | v -> v)
+    | Ppat_any -> someIfHasCursor ("", patternPath)
     | Ppat_var {txt} -> someIfHasCursor (txt, patternPath)
     | Ppat_construct ({txt = Lident "()"}, None) ->
       (* switch s { | (<com>) }*)
