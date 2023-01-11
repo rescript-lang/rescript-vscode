@@ -1628,7 +1628,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           [
             Completion.createWithSnippet
               ~name:("React." ^ builtinNameToComplete)
-              ~kind:(Value typ) ~env
+              ~kind:(Value typ) ~env ~sortText:"A"
               ~docstring:
                 [
                   "Turns `" ^ builtinNameToComplete
