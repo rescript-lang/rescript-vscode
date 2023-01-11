@@ -99,6 +99,12 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
                            optional =
                              Res_parsetree_viewer.hasOptionalAttribute
                                ld_attributes;
+                           docstring =
+                             (match
+                                ProcessAttributes.findDocAttribute ld_attributes
+                              with
+                             | None -> []
+                             | Some docstring -> [docstring]);
                          })));
           }
         ~name ~stamp:(Ident.binding_time ident) ~env type_attributes
@@ -230,6 +236,12 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                          optional =
                            Res_parsetree_viewer.hasOptionalAttribute
                              ld_attributes;
+                         docstring =
+                           (match
+                              ProcessAttributes.findDocAttribute ld_attributes
+                            with
+                           | None -> []
+                           | Some docstring -> [docstring]);
                        })));
         }
       ~name ~stamp ~env typ_attributes

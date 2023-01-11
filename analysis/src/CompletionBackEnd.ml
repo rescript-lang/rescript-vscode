@@ -558,7 +558,8 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
           res :=
             {
               (Completion.create ~name:declared.name.txt ~env
-                 ~kind:(transformContents declared.item))
+                 ~kind:(transformContents declared.item)
+                 ())
               with
               deprecated = declared.deprecated;
               docstring = declared.docstring;
@@ -600,7 +601,8 @@ let completionsForExportedConstructors ~(env : QueryEnv.t) ~prefix ~exact
                      (Completion.create ~name ~env
                         ~kind:
                           (Completion.Constructor
-                             (c, t.item.decl |> Shared.declToString t.name.txt)))
+                             (c, t.item.decl |> Shared.declToString t.name.txt))
+                        ())
                  else None))
           @ !res
       | _ -> ());
@@ -619,10 +621,11 @@ let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
                  if not (Hashtbl.mem namesUsed name) then
                    let () = Hashtbl.add namesUsed name () in
                    Some
-                     (Completion.create ~name ~env
+                     (Completion.create ~name ~env ~docstring:f.docstring
                         ~kind:
                           (Completion.Field
-                             (f, t.item.decl |> Shared.declToString t.name.txt)))
+                             (f, t.item.decl |> Shared.declToString t.name.txt))
+                        ())
                  else None))
           @ !res
       | _ -> ());
@@ -801,7 +804,7 @@ let processLocalValue name loc ~prefix ~exact ~env
         localTables.resultRev <-
           {
             (Completion.create ~name:declared.name.txt ~env
-               ~kind:(Value declared.item))
+               ~kind:(Value declared.item) ())
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -818,6 +821,7 @@ let processLocalValue name loc ~prefix ~exact ~env
                (Ctype.newconstr
                   (Path.Pident (Ident.create "Type Not Known"))
                   []))
+          ()
         :: localTables.resultRev
 
 let processLocalConstructor name loc ~prefix ~exact ~env
@@ -836,7 +840,8 @@ let processLocalConstructor name loc ~prefix ~exact ~env
                  (Constructor
                     ( declared.item,
                       snd declared.item.typeDecl
-                      |> Shared.declToString (fst declared.item.typeDecl) )))
+                      |> Shared.declToString (fst declared.item.typeDecl) ))
+               ())
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -857,7 +862,7 @@ let processLocalType name loc ~prefix ~exact ~env ~(localTables : LocalTables.t)
         localTables.resultRev <-
           {
             (Completion.create ~name:declared.name.txt ~env
-               ~kind:(Type declared.item))
+               ~kind:(Type declared.item) ())
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -878,7 +883,7 @@ let processLocalModule name loc ~prefix ~exact ~env
         localTables.resultRev <-
           {
             (Completion.create ~name:declared.name.txt ~env
-               ~kind:(Module declared.item))
+               ~kind:(Module declared.item) ())
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -1139,7 +1144,8 @@ let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env prefix
                   (String.contains name '-')
            then
              Some
-               (Completion.create ~name ~env ~kind:(Completion.FileModule name))
+               (Completion.create ~name ~env ~kind:(Completion.FileModule name)
+                  ())
            else None)
   in
   localCompletionsWithOpens @ fileModules
@@ -1164,7 +1170,7 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
              then
                Some
                  (Completion.create ~name ~env
-                    ~kind:(Completion.FileModule name))
+                    ~kind:(Completion.FileModule name) ())
              else None)
     in
     localCompletionsWithOpens @ fileModules
@@ -1353,28 +1359,32 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
       Completion.create ~name:"string" ~env
         ~kind:
           (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
+             (Ctype.newconstr (Path.Pident (Ident.create "string")) []))
+        ();
     ]
   | CPInt ->
     [
       Completion.create ~name:"int" ~env
         ~kind:
           (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "int")) []));
+             (Ctype.newconstr (Path.Pident (Ident.create "int")) []))
+        ();
     ]
   | CPFloat ->
     [
       Completion.create ~name:"float" ~env
         ~kind:
           (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "float")) []));
+             (Ctype.newconstr (Path.Pident (Ident.create "float")) []))
+        ();
     ]
   | CPArray ->
     [
       Completion.create ~name:"array" ~env
         ~kind:
           (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
+             (Ctype.newconstr (Path.Pident (Ident.create "array")) []))
+        ();
     ]
   | CPId (path, completionContext) ->
     path
@@ -1418,7 +1428,10 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
       | args, tRet when args <> [] ->
         let args = processApply args labels in
         let retType = reconstructFunctionType args tRet in
-        [Completion.create ~name:"dummy" ~env ~kind:(Completion.Value retType)]
+        [
+          Completion.create ~name:"dummy" ~env ~kind:(Completion.Value retType)
+            ();
+        ]
       | _ -> [])
     | None -> [])
   | CPField (CPId (path, Module), fieldName) ->
@@ -1441,11 +1454,13 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                if checkName field.fname.txt ~prefix:fieldName ~exact then
                  Some
                    (Completion.create ~name:field.fname.txt ~env
+                      ~docstring:field.docstring
                       ~kind:
                         (Completion.Field
                            ( field,
                              typDecl.item.decl
-                             |> Shared.declToString typDecl.name.txt )))
+                             |> Shared.declToString typDecl.name.txt ))
+                      ())
                else None)
       | None -> [])
     | None -> [])
@@ -1473,7 +1488,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                if checkName field ~prefix:label ~exact then
                  Some
                    (Completion.create ~name:field ~env
-                      ~kind:(Completion.ObjLabel typ))
+                      ~kind:(Completion.ObjLabel typ) ())
                else None)
       | None -> [])
     | None -> [])
@@ -1656,7 +1671,8 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     if List.length ctxPaths = List.length typeExrps then
       [
         Completion.create ~name:"dummy" ~env
-          ~kind:(Completion.Value (Ctype.newty (Ttuple typeExrps)));
+          ~kind:(Completion.Value (Ctype.newty (Ttuple typeExrps)))
+          ();
       ]
     else []
   | CJsxPropValue {pathToComponent; propName} -> (
@@ -1675,7 +1691,8 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     | Some (_, typ, env) ->
       [
         Completion.create ~name:"dummy" ~env
-          ~kind:(Completion.Value (Utils.unwrapIfOption typ));
+          ~kind:(Completion.Value (Utils.unwrapIfOption typ))
+          ();
       ])
   | CArgument {functionContextPath; argumentLabel} -> (
     let labels, env =
@@ -1710,7 +1727,8 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         Completion.create ~name:"dummy" ~env
           ~kind:
             (Completion.Value
-               (if expandOption then Utils.unwrapIfOption typ else typ));
+               (if expandOption then Utils.unwrapIfOption typ else typ))
+          ();
       ])
 
 let getOpens ~debug ~rawOpens ~package ~env =
@@ -1803,10 +1821,10 @@ let rec completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
     [
       Completion.create ~name:"true"
         ~kind:(Label (t |> Shared.typeToString))
-        ~env;
+        ~env ();
       Completion.create ~name:"false"
         ~kind:(Label (t |> Shared.typeToString))
-        ~env;
+        ~env ();
     ]
     |> filterItems ~prefix
   | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
@@ -1867,7 +1885,7 @@ let rec completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
     [
       Completion.create ~name:"None"
         ~kind:(Label (t |> Shared.typeToString))
-        ~env;
+        ~env ();
       Completion.createWithSnippet ~name:"Some(_)"
         ~kind:(Label (t |> Shared.typeToString))
         ~env ~insertText:"Some(${1:_})" ();
@@ -1894,7 +1912,7 @@ let rec completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
       |> List.map (fun (field : field) ->
              Completion.create ~name:field.fname.txt
                ~kind:(Field (field, typeExpr |> Shared.typeToString))
-               ~env)
+               ~env ())
       |> filterItems ~prefix
     | None ->
       if prefix = "" then
@@ -1998,7 +2016,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     (* Lowercase JSX tag means builtin *)
     let mkLabel (name, typString) =
-      Completion.create ~name ~kind:(Label typString) ~env
+      Completion.create ~name ~kind:(Label typString) ~env ()
     in
     let keyLabels =
       if Utils.startsWith "key" prefix then [mkLabel ("key", "string")] else []
@@ -2012,7 +2030,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
   | Cjsx (componentPath, prefix, identsSeen) ->
     let labels = getJsxLabels ~componentPath ~findTypeOfValue ~package in
     let mkLabel_ name typString =
-      Completion.create ~name ~kind:(Label typString) ~env
+      Completion.create ~name ~kind:(Label typString) ~env ()
     in
     let mkLabel (name, typ, _env) =
       mkLabel_ name (typ |> Shared.typeToString)
@@ -2031,7 +2049,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       @ keyLabels
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
-      {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
+      {(Completion.create ~name ~kind:(Label "") ~env ()) with docstring}
     in
     [
       ( "as",
@@ -2288,7 +2306,7 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | None -> []
     in
     let mkLabel (name, typ) =
-      Completion.create ~name ~kind:(Label (typ |> Shared.typeToString)) ~env
+      Completion.create ~name ~kind:(Label (typ |> Shared.typeToString)) ~env ()
     in
     labels
     |> List.filter (fun (name, _t) ->
