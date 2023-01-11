@@ -1925,7 +1925,9 @@ let rec resolveNested typ ~env ~package ~nested =
         |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
       with
       | None -> None
-      | Some {typ} -> typ |> resolveNested ~env ~package ~nested)
+      | Some {typ; optional} ->
+        let typ = if optional then Utils.unwrapIfOption typ else typ in
+        typ |> resolveNested ~env ~package ~nested)
     | NRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
       Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},

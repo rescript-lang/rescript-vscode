@@ -99,7 +99,7 @@ let fnTakingOtherRecord = (r: otherRecord) => {
 
 type recordWithOptionalField = {
   someField: int,
-  someOptField?: string,
+  someOptField?: bool,
 }
 
 let fnTakingRecordWithOptionalField = (r: recordWithOptionalField) => {
