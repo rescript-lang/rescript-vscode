@@ -497,6 +497,18 @@ Completable: Cpattern Value[p]->variantPayload::Test($2)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 140:23
@@ -573,6 +585,18 @@ Completable: Cpattern Value[v]->polyvariantPayload::test($2)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 156:24
@@ -647,6 +671,18 @@ Completable: Cpattern Value[s]->tuple($1)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 170:22
@@ -667,6 +703,18 @@ Completable: Cpattern Value[s]->tuple($1)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 173:35
@@ -700,6 +748,18 @@ Completable: Cpattern Value[s]->tuple($1)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 179:21

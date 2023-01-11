@@ -108,3 +108,11 @@ let fnTakingRecordWithOptionalField = (r: recordWithOptionalField) => {
 
 // let _ = fnTakingRecordWithOptionalField({someOptField: })
 //                                                       ^com
+type recordWithOptVariant = {someVariant: option<someVariant>}
+
+let fnTakingRecordWithOptVariant = (r: recordWithOptVariant) => {
+  ignore(r)
+}
+
+// let _ = fnTakingRecordWithOptVariant({someVariant: })
+//                                                   ^com

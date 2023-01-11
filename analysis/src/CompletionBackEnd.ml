@@ -1796,7 +1796,7 @@ let printConstructorArgs argsLen ~asSnippet =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-let completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
+let rec completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
     ~completionContext =
   match t |> extractType ~env ~package:full.package with
   | Some (Tbool env) ->
@@ -1849,6 +1849,21 @@ let completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
              ~env ())
     |> filterItems ~prefix
   | Some (Toption (env, t)) ->
+    let innerType = Utils.unwrapIfOption t in
+    let expandedCompletions =
+      innerType
+      |> completeTypedValue ~env ~full ~prefix ~completionContext
+      |> List.map (fun (c : Completion.t) ->
+             {
+               c with
+               name = "Some(" ^ c.name ^ ")";
+               sortText = None;
+               insertText =
+                 (match c.insertText with
+                 | None -> None
+                 | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
+             })
+    in
     [
       Completion.create ~name:"None"
         ~kind:(Label (t |> Shared.typeToString))
@@ -1857,6 +1872,7 @@ let completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
         ~kind:(Label (t |> Shared.typeToString))
         ~env ~insertText:"Some(${1:_})" ();
     ]
+    @ expandedCompletions
     |> filterItems ~prefix
   | Some (Tuple (env, exprs, typ)) ->
     let numExprs = List.length exprs in
