@@ -598,7 +598,7 @@ let completionsForExportedConstructors ~(env : QueryEnv.t) ~prefix ~exact
                  if not (Hashtbl.mem namesUsed name) then
                    let () = Hashtbl.add namesUsed name () in
                    Some
-                     (Completion.create ~name ~env
+                     (Completion.create ~name ~env ~docstring:c.docstring
                         ~kind:
                           (Completion.Constructor
                              (c, t.item.decl |> Shared.declToString t.name.txt))

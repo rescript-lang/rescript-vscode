@@ -39,6 +39,7 @@ module Constructor = struct
     args: (Types.type_expr * Location.t) list;
     res: Types.type_expr option;
     typeDecl: string * Types.type_declaration;
+    docstring: string list;
   }
 end
 
