@@ -241,7 +241,7 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
         | `Declared ->
           let typeString, docstring = t |> fromType ~docstring in
           typeString :: docstring
-        | `Constructor {cname = {txt}; args} ->
+        | `Constructor {cname = {txt}; args; docstring} ->
           let typeString, docstring = t |> fromType ~docstring in
           let argsString =
             match args with

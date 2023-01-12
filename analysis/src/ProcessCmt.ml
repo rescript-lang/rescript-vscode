@@ -76,6 +76,13 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
                                | Cstr_record _ -> []);
                              res = cd_res;
                              typeDecl = (name, decl);
+                             docstring =
+                               (match
+                                  ProcessAttributes.findDocAttribute
+                                    cd_attributes
+                                with
+                               | None -> []
+                               | Some docstring -> [docstring]);
                            }
                          in
                          let declared =
@@ -207,6 +214,12 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                              | None -> None
                              | Some t -> Some t.ctyp_type);
                            typeDecl = (name.txt, typ_type);
+                           docstring =
+                             (match
+                                ProcessAttributes.findDocAttribute cd_attributes
+                              with
+                             | None -> []
+                             | Some docstring -> [docstring]);
                          }
                        in
                        let declared =
