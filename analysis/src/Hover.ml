@@ -251,7 +251,7 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
               |> List.map (fun (t, _) -> Shared.typeToString t)
               |> String.concat ", " |> Printf.sprintf "(%s)"
           in
-          typeString :: Markdown.codeBlock (txt ^ argsString) :: docstring
+          [Markdown.codeBlock (txt ^ argsString)] @ docstring @ [typeString]
         | `Field ->
           let typeString, docstring = t |> fromType ~docstring in
           typeString :: docstring)

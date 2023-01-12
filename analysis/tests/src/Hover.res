@@ -248,3 +248,8 @@ let x: recordWithDocstringField = {
 
 let someField = x.someField
 //                 ^hov
+
+type variant = | /** Cool variant! */ CoolVariant | /** Other cool variant */ OtherCoolVariant
+
+let coolVariant = CoolVariant
+//                  ^hov
