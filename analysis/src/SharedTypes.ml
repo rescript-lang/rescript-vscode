@@ -311,7 +311,7 @@ module Completion = struct
     kind: kind;
   }
 
-  let create ~name ~kind ~env ?(docstring = []) () =
+  let create ~kind ~env ?(docstring = []) name =
     {
       name;
       env;
