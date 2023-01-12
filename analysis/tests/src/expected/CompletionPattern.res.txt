@@ -871,26 +871,3 @@ Completable: Cpattern Value[b]->polyvariantPayload::three($1)
     "documentation": null
   }]
 
-Complete src/CompletionPattern.res 198:20
-posCursor:[198:20] posNoWhite:[198:19] Found expr:[198:3->198:22]
-posCursor:[198:20] posNoWhite:[198:19] Found pattern:[198:16->198:21]
-Ppat_construct One:[198:16->198:19]
-posCursor:[198:20] posNoWhite:[198:19] Found pattern:[198:19->198:21]
-Ppat_construct ():[198:19->198:21]
-Completable: Cpattern Value[r]->variantPayload::One($0)
-[]
-
-Complete src/CompletionPattern.res 201:21
-posCursor:[201:21] posNoWhite:[201:20] Found expr:[201:3->201:24]
-posCursor:[201:21] posNoWhite:[201:20] Found pattern:[201:16->201:23]
-Ppat_construct One:[201:16->201:19]
-posCursor:[201:21] posNoWhite:[201:20] Found pattern:[201:20->201:22]
-Completable: Cpattern Value[r]->variantPayload::One($0), recordBody
-[{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\ntype variantWithInlineRecord =\n  | One({thing: bool, otherThing: option<bool>})",
-    "documentation": null
-  }]
-

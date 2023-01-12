@@ -10,6 +10,11 @@ let addDeclared ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t)
   addStamp env.stamps stamp declared;
   declared
 
+let attrsToDocstring attrs =
+  match ProcessAttributes.findDocAttribute attrs with
+  | None -> []
+  | Some docstring -> [docstring]
+
 let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
     (item : Types.signature_item) =
   match item with
@@ -76,13 +81,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
                                | Cstr_record _ -> []);
                              res = cd_res;
                              typeDecl = (name, decl);
-                             docstring =
-                               (match
-                                  ProcessAttributes.findDocAttribute
-                                    cd_attributes
-                                with
-                               | None -> []
-                               | Some docstring -> [docstring]);
+                             docstring = attrsToDocstring cd_attributes;
                            }
                          in
                          let declared =
@@ -106,12 +105,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
                            optional =
                              Res_parsetree_viewer.hasOptionalAttribute
                                ld_attributes;
-                           docstring =
-                             (match
-                                ProcessAttributes.findDocAttribute ld_attributes
-                              with
-                             | None -> []
-                             | Some docstring -> [docstring]);
+                           docstring = attrsToDocstring ld_attributes;
                          })));
           }
         ~name ~stamp:(Ident.binding_time ident) ~env type_attributes
@@ -214,12 +208,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                              | None -> None
                              | Some t -> Some t.ctyp_type);
                            typeDecl = (name.txt, typ_type);
-                           docstring =
-                             (match
-                                ProcessAttributes.findDocAttribute cd_attributes
-                              with
-                             | None -> []
-                             | Some docstring -> [docstring]);
+                           docstring = attrsToDocstring cd_attributes;
                          }
                        in
                        let declared =
@@ -249,12 +238,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                          optional =
                            Res_parsetree_viewer.hasOptionalAttribute
                              ld_attributes;
-                         docstring =
-                           (match
-                              ProcessAttributes.findDocAttribute ld_attributes
-                            with
-                           | None -> []
-                           | Some docstring -> [docstring]);
+                         docstring = attrsToDocstring ld_attributes;
                        })));
         }
       ~name ~stamp ~env typ_attributes
@@ -334,11 +318,7 @@ let forSignature ~name ~env sigItems =
     | {sig_desc = Tsig_attribute attribute} :: _ -> [attribute]
     | _ -> []
   in
-  let docstring =
-    match ProcessAttributes.findDocAttribute attributes with
-    | None -> []
-    | Some d -> [d]
-  in
+  let docstring = attrsToDocstring attributes in
   {Module.name; docstring; exported; items}
 
 let forTreeModuleType ~name ~env {Typedtree.mty_desc} =
@@ -508,11 +488,7 @@ and forStructure ~name ~env strItems =
     | {str_desc = Tstr_attribute attribute} :: _ -> [attribute]
     | _ -> []
   in
-  let docstring =
-    match ProcessAttributes.findDocAttribute attributes with
-    | None -> []
-    | Some d -> [d]
-  in
+  let docstring = attrsToDocstring attributes in
   {Module.name; docstring; exported; items}
 
 let fileForCmtInfos ~moduleName ~uri

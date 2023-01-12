@@ -156,7 +156,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
             let typeString =
               hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
             in
-            let parts = [typeString] @ docstring in
+            let parts = typeString :: docstring in
             Some (Protocol.stringifyHover (String.concat "\n\n" parts))
           | None -> None)
         | _ -> (
@@ -251,7 +251,7 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
               |> List.map (fun (t, _) -> Shared.typeToString t)
               |> String.concat ", " |> Printf.sprintf "(%s)"
           in
-          [Markdown.codeBlock (txt ^ argsString)] @ docstring @ [typeString]
+          (Markdown.codeBlock (txt ^ argsString) :: docstring) @ [typeString]
         | `Field ->
           let typeString, docstring = t |> fromType ~docstring in
           typeString :: docstring)

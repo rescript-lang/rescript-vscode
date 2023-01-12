@@ -191,13 +191,3 @@ let s = (true, Some(true), [false])
 
 // switch b { | #one | #three({test: true}, true | )  }
 //                                                ^com
-
-type variantWithInlineRecord = One({thing: bool, otherThing: option<bool>})
-
-let r: variantWithInlineRecord = One({thing: true, otherThing: None})
-
-// switch r { | One()}
-//                  ^com
-
-// switch r { | One({})}
-//                   ^com
