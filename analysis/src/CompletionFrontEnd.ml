@@ -695,7 +695,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       match orPatWithItem with
       | None when isPatternHole p1 || isPatternHole p2 -> Some ("", patternPath)
       | v -> v)
-    | Ppat_any -> someIfHasCursor ("", patternPath)
+    | Ppat_any ->
+      (* We treat any `_` as an empty completion. This is mainly because we're
+         inserting `_` in snippets and automatically put the cursor there. So
+         letting it trigger an empty completion improves the ergonomics by a
+         lot. *)
+      someIfHasCursor ("", patternPath)
     | Ppat_var {txt} -> someIfHasCursor (txt, patternPath)
     | Ppat_construct ({txt = Lident "()"}, None) ->
       (* switch s { | (<com>) }*)
