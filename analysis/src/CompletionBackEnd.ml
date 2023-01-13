@@ -490,8 +490,8 @@ let domLabels =
 let showConstructor {Constructor.cname = {txt}; args; res} =
   txt
   ^ (match args with
-    | [] -> ""
-    | _ ->
+    | Args [] | InlineRecord _ -> ""
+    | Args args ->
       "("
       ^ (args
         |> List.map (fun (typ, _) -> typ |> Shared.typeToString)
@@ -1793,29 +1793,35 @@ let printConstructorArgs argsLen ~asSnippet =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-let rec completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
+let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
     ~completionContext =
-  match t |> extractType ~env ~package:full.package with
+  let extractedType =
+    match t with
+    | TypeExpr t -> t |> extractType ~env ~package:full.package
+    | InlineRecord fields -> Some (TinlineRecord {env; fields})
+  in
+  match extractedType with
   | Some (Tbool env) ->
     [
-      Completion.create "true" ~kind:(Label (t |> Shared.typeToString)) ~env;
-      Completion.create "false" ~kind:(Label (t |> Shared.typeToString)) ~env;
+      Completion.create "true" ~kind:(Label "bool") ~env;
+      Completion.create "false" ~kind:(Label "bool") ~env;
     ]
     |> filterItems ~prefix
   | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
     constructors
     |> List.map (fun (constructor : Constructor.t) ->
+           let numArgs =
+             match constructor.args with
+             | InlineRecord _ -> 1
+             | Args args -> List.length args
+           in
            Completion.createWithSnippet
              ~name:
                (constructor.cname.txt
-               ^ printConstructorArgs
-                   (List.length constructor.args)
-                   ~asSnippet:false)
+               ^ printConstructorArgs numArgs ~asSnippet:false)
              ~insertText:
                (constructor.cname.txt
-               ^ printConstructorArgs
-                   (List.length constructor.args)
-                   ~asSnippet:true)
+               ^ printConstructorArgs numArgs ~asSnippet:true)
              ~kind:
                (Constructor
                   (constructor, variantDecl |> Shared.declToString variantName))
@@ -1844,7 +1850,7 @@ let rec completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
   | Some (Toption (env, t)) ->
     let innerType = Utils.unwrapIfOption t in
     let expandedCompletions =
-      innerType
+      TypeExpr innerType
       |> completeTypedValue ~env ~full ~prefix ~completionContext
       |> List.map (fun (c : Completion.t) ->
              {
@@ -1895,6 +1901,24 @@ let rec completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
             ~sortText:"A" ~kind:(Value typeExpr) ~env ();
         ]
       else [])
+  | Some (TinlineRecord {env; fields}) -> (
+    match completionContext with
+    | Some (Completable.RecordField {seenFields}) ->
+      fields
+      |> List.filter (fun (field : field) ->
+             List.mem field.fname.txt seenFields = false)
+      |> List.map (fun (field : field) ->
+             Completion.create field.fname.txt ~kind:(Label "Inline record")
+               ~env)
+      |> filterItems ~prefix
+    | None ->
+      if prefix = "" then
+        [
+          Completion.createWithSnippet ~name:"{}"
+            ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
+            ~sortText:"A" ~kind:(Label "Inline record") ~env ();
+        ]
+      else [])
   | Some (Tarray (env, typeExpr)) ->
     if prefix = "" then
       [
@@ -1917,16 +1941,22 @@ let rec completeTypedValue (t : Types.type_expr) ~env ~full ~prefix
   | _ -> []
 
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
-let rec resolveNested typ ~env ~package ~nested =
+let rec resolveNested (typ : completionType) ~env ~package ~nested =
   match nested with
   | [] -> Some (typ, env, None)
   | patternPath :: nested -> (
-    match (patternPath, typ |> extractType ~env ~package) with
+    let extractedType =
+      match typ with
+      | TypeExpr typ -> typ |> extractType ~env ~package
+      | InlineRecord fields -> Some (TinlineRecord {env; fields})
+    in
+    match (patternPath, extractedType) with
     | Completable.NTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
       match List.nth_opt tupleItems itemNum with
       | None -> None
-      | Some typ -> typ |> resolveNested ~env ~package ~nested)
-    | NFollowRecordField {fieldName}, Some (Trecord {env; fields}) -> (
+      | Some typ -> TypeExpr typ |> resolveNested ~env ~package ~nested)
+    | ( NFollowRecordField {fieldName},
+        Some (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
       match
         fields
         |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
@@ -1934,12 +1964,15 @@ let rec resolveNested typ ~env ~package ~nested =
       | None -> None
       | Some {typ; optional} ->
         let typ = if optional then Utils.unwrapIfOption typ else typ in
-        typ |> resolveNested ~env ~package ~nested)
+        TypeExpr typ |> resolveNested ~env ~package ~nested)
     | NRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
-      Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
+      Some (TypeExpr typeExpr, env, Some (Completable.RecordField {seenFields}))
+    | NRecordBody {seenFields}, Some (TinlineRecord {env; fields}) ->
+      Some
+        (InlineRecord fields, env, Some (Completable.RecordField {seenFields}))
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Some (Toption (env, typ)) ) ->
-      typ |> resolveNested ~env ~package ~nested
+      TypeExpr typ |> resolveNested ~env ~package ~nested
     | ( NVariantPayload {constructorName; itemNum},
         Some (Tvariant {env; constructors}) ) -> (
       match
@@ -1947,11 +1980,13 @@ let rec resolveNested typ ~env ~package ~nested =
         |> List.find_opt (fun (c : Constructor.t) ->
                c.cname.txt = constructorName)
       with
-      | None -> None
-      | Some constructor -> (
-        match List.nth_opt constructor.args itemNum with
+      | Some {args = Args args} -> (
+        match List.nth_opt args itemNum with
         | None -> None
-        | Some (typ, _) -> typ |> resolveNested ~env ~package ~nested))
+        | Some (typ, _) -> TypeExpr typ |> resolveNested ~env ~package ~nested)
+      | Some {args = InlineRecord fields} when itemNum = 0 ->
+        InlineRecord fields |> resolveNested ~env ~package ~nested
+      | _ -> None)
     | ( NPolyvariantPayload {constructorName; itemNum},
         Some (Tpolyvariant {env; constructors}) ) -> (
       match
@@ -1963,9 +1998,9 @@ let rec resolveNested typ ~env ~package ~nested =
       | Some constructor -> (
         match List.nth_opt constructor.args itemNum with
         | None -> None
-        | Some typ -> typ |> resolveNested ~env ~package ~nested))
+        | Some typ -> TypeExpr typ |> resolveNested ~env ~package ~nested))
     | NArray, Some (Tarray (env, typ)) ->
-      typ |> resolveNested ~env ~package ~nested
+      TypeExpr typ |> resolveNested ~env ~package ~nested
     | _ -> None)
 
 let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
@@ -2301,7 +2336,9 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
-      match typ |> resolveNested ~env ~package:full.package ~nested with
+      match
+        TypeExpr typ |> resolveNested ~env ~package:full.package ~nested
+      with
       | None -> fallbackOrEmpty ()
       | Some (typ, env, completionContext) ->
         let items =
@@ -2318,7 +2355,9 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
     with
     | None -> []
     | Some (typ, env) -> (
-      match typ |> resolveNested ~env ~package:full.package ~nested with
+      match
+        TypeExpr typ |> resolveNested ~env ~package:full.package ~nested
+      with
       | None -> []
       | Some (typ, env, completionContext) -> (
         let items =

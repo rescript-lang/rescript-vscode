@@ -245,8 +245,8 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
           let typeString, docstring = t |> fromType ~docstring in
           let argsString =
             match args with
-            | [] -> ""
-            | _ ->
+            | InlineRecord _ | Args [] -> ""
+            | Args args ->
               args
               |> List.map (fun (t, _) -> Shared.typeToString t)
               |> String.concat ", " |> Printf.sprintf "(%s)"

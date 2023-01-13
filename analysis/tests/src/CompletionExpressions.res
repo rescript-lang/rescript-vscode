@@ -116,3 +116,25 @@ let fnTakingRecordWithOptVariant = (r: recordWithOptVariant) => {
 
 // let _ = fnTakingRecordWithOptVariant({someVariant: })
 //                                                   ^com
+
+type variantWithInlineRecord =
+  WithInlineRecord({someBoolField: bool, otherField: option<bool>, nestedRecord: otherRecord})
+
+let fnTakingInlineRecord = (r: variantWithInlineRecord) => {
+  ignore(r)
+}
+
+// let _ = fnTakingInlineRecord(WithInlineRecord())
+//                                               ^com
+
+// let _ = fnTakingInlineRecord(WithInlineRecord({}))
+//                                                ^com
+
+// let _ = fnTakingInlineRecord(WithInlineRecord({s}))
+//                                                 ^com
+
+// let _ = fnTakingInlineRecord(WithInlineRecord({nestedRecord: }))
+//                                                             ^com
+
+// let _ = fnTakingInlineRecord(WithInlineRecord({nestedRecord: {} }))
+//                                                               ^com
