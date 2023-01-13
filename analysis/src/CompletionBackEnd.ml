@@ -1064,6 +1064,7 @@ let instantiateType ~typeParams ~typeArgs (t : Types.type_expr) =
 let rec extractRecordType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractRecordType ~env ~package t1
+  | Tconstr (Pident {name = "option"}, [{desc = Tconstr (path, typeArgs, _)}], _)
   | Tconstr (path, typeArgs, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (env, ({item = {kind = Record fields}} as typ)) ->
