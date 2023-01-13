@@ -533,3 +533,87 @@ Completable: Cexpression CArgument Value[fnTakingRecordWithOptVariant]($0)->reco
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionExpressions.res 126:49
+posCursor:[126:49] posNoWhite:[126:48] Found expr:[126:11->126:51]
+Pexp_apply ...[126:11->126:31] (...[126:32->126:50])
+Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0)
+[{
+    "label": "{}",
+    "kind": 4,
+    "tags": [],
+    "detail": "Inline record",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 129:50
+posCursor:[129:50] posNoWhite:[129:49] Found expr:[129:11->129:53]
+Pexp_apply ...[129:11->129:31] (...[129:32->129:52])
+Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordBody
+[{
+    "label": "someBoolField",
+    "kind": 4,
+    "tags": [],
+    "detail": "Inline record",
+    "documentation": null
+  }, {
+    "label": "otherField",
+    "kind": 4,
+    "tags": [],
+    "detail": "Inline record",
+    "documentation": null
+  }, {
+    "label": "nestedRecord",
+    "kind": 4,
+    "tags": [],
+    "detail": "Inline record",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 132:51
+posCursor:[132:51] posNoWhite:[132:50] Found expr:[132:11->132:54]
+Pexp_apply ...[132:11->132:31] (...[132:32->132:53])
+Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0), recordBody
+[{
+    "label": "someBoolField",
+    "kind": 4,
+    "tags": [],
+    "detail": "Inline record",
+    "documentation": null
+  }]
+
+Complete src/CompletionExpressions.res 135:63
+posCursor:[135:63] posNoWhite:[135:62] Found expr:[135:11->135:67]
+Pexp_apply ...[135:11->135:31] (...[135:32->135:66])
+Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord)
+[{
+    "label": "{}",
+    "kind": 12,
+    "tags": [],
+    "detail": "otherRecord",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 138:65
+posCursor:[138:65] posNoWhite:[138:64] Found expr:[138:11->138:70]
+Pexp_apply ...[138:11->138:31] (...[138:32->138:69])
+Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord), recordBody
+[{
+    "label": "someField",
+    "kind": 5,
+    "tags": [],
+    "detail": "someField: int\n\notherRecord",
+    "documentation": null
+  }, {
+    "label": "otherField",
+    "kind": 5,
+    "tags": [],
+    "detail": "otherField: string\n\notherRecord",
+    "documentation": null
+  }]
+

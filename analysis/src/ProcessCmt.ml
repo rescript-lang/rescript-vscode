@@ -15,6 +15,20 @@ let attrsToDocstring attrs =
   | None -> []
   | Some docstring -> [docstring]
 
+let mapRecordField {Types.ld_id; ld_type; ld_attributes} =
+  let astamp = Ident.binding_time ld_id in
+  let name = Ident.name ld_id in
+  {
+    stamp = astamp;
+    fname = Location.mknoloc name;
+    typ = ld_type;
+    optional = Res_parsetree_viewer.hasOptionalAttribute ld_attributes;
+    docstring =
+      (match ProcessAttributes.findDocAttribute ld_attributes with
+      | None -> []
+      | Some docstring -> [docstring]);
+  }
+
 let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
     (item : Types.signature_item) =
   match item with
@@ -76,9 +90,11 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
                              args =
                                (match cd_args with
                                | Cstr_tuple args ->
-                                 args |> List.map (fun t -> (t, Location.none))
-                               (* TODO(406): constructor record args support *)
-                               | Cstr_record _ -> []);
+                                 Args
+                                   (args
+                                   |> List.map (fun t -> (t, Location.none)))
+                               | Cstr_record fields ->
+                                 InlineRecord (fields |> List.map mapRecordField));
                              res = cd_res;
                              typeDecl = (name, decl);
                              docstring = attrsToDocstring cd_attributes;
@@ -93,20 +109,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
                          Stamps.addConstructor env.stamps stamp declared;
                          item))
               | Type_record (fields, _) ->
-                Record
-                  (fields
-                  |> List.map (fun {Types.ld_id; ld_type; ld_attributes} ->
-                         let astamp = Ident.binding_time ld_id in
-                         let name = Ident.name ld_id in
-                         {
-                           stamp = astamp;
-                           fname = Location.mknoloc name;
-                           typ = ld_type;
-                           optional =
-                             Res_parsetree_viewer.hasOptionalAttribute
-                               ld_attributes;
-                           docstring = attrsToDocstring ld_attributes;
-                         })));
+                Record (fields |> List.map mapRecordField));
           }
         ~name ~stamp:(Ident.binding_time ident) ~env type_attributes
         (Exported.add exported Exported.Type)
@@ -198,11 +201,35 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                            args =
                              (match cd_args with
                              | Cstr_tuple args ->
-                               args
-                               |> List.map (fun t ->
-                                      (t.Typedtree.ctyp_type, t.ctyp_loc))
-                             (* TODO(406) *)
-                             | Cstr_record _ -> []);
+                               Args
+                                 (args
+                                 |> List.map (fun t ->
+                                        (t.Typedtree.ctyp_type, t.ctyp_loc)))
+                             | Cstr_record fields ->
+                               InlineRecord
+                                 (fields
+                                 |> List.map
+                                      (fun (f : Typedtree.label_declaration) ->
+                                        let astamp =
+                                          Ident.binding_time f.ld_id
+                                        in
+                                        let name = Ident.name f.ld_id in
+                                        {
+                                          stamp = astamp;
+                                          fname = Location.mknoloc name;
+                                          typ = f.ld_type.ctyp_type;
+                                          optional =
+                                            Res_parsetree_viewer
+                                            .hasOptionalAttribute
+                                              f.ld_attributes;
+                                          docstring =
+                                            (match
+                                               ProcessAttributes
+                                               .findDocAttribute f.ld_attributes
+                                             with
+                                            | None -> []
+                                            | Some docstring -> [docstring]);
+                                        })));
                            res =
                              (match cd_res with
                              | None -> None

@@ -32,11 +32,17 @@ type field = {
   docstring: string list;
 }
 
+type completionType = TypeExpr of Types.type_expr | InlineRecord of field list
+
+type constructorArgs =
+  | InlineRecord of field list
+  | Args of (Types.type_expr * Location.t) list
+
 module Constructor = struct
   type t = {
     stamp: int;
     cname: string Location.loc;
-    args: (Types.type_expr * Location.t) list;
+    args: constructorArgs;
     res: Types.type_expr option;
     typeDecl: string * Types.type_declaration;
     docstring: string list;
@@ -631,6 +637,7 @@ module Completable = struct
         fields: field list;
         typeExpr: Types.type_expr;
       }
+    | TinlineRecord of {env: QueryEnv.t; fields: field list}
 
   let toString =
     let completionContextToString = function
