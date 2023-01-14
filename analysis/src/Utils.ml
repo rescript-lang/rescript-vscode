@@ -173,3 +173,12 @@ let isReactComponent (vb : Parsetree.value_binding) =
   |> List.exists (function
        | {Location.txt = "react.component"}, _payload -> true
        | _ -> false)
+
+let checkName name ~prefix ~exact =
+  if exact then name = prefix else startsWith name prefix
+
+let rec getUnqualifiedName txt =
+  match txt with
+  | Longident.Lident fieldName -> fieldName
+  | Ldot (t, _) -> getUnqualifiedName t
+  | _ -> ""
