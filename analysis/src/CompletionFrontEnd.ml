@@ -1,364 +1,5 @@
 open SharedTypes
 
-let isExprHole exp =
-  match exp.Parsetree.pexp_desc with
-  | Pexp_extension ({txt = "rescript.exprhole"}, _) -> true
-  | _ -> false
-
-let isPatternHole pat =
-  match pat.Parsetree.ppat_desc with
-  | Ppat_extension ({txt = "rescript.patternhole"}, _) -> true
-  | _ -> false
-
-let isPatternTuple pat =
-  match pat.Parsetree.ppat_desc with
-  | Ppat_tuple _ -> true
-  | _ -> false
-
-let isExprTuple expr =
-  match expr.Parsetree.pexp_desc with
-  | Pexp_tuple _ -> true
-  | _ -> false
-
-let rec getUnqualifiedName txt =
-  match txt with
-  | Longident.Lident fieldName -> fieldName
-  | Ldot (t, _) -> getUnqualifiedName t
-  | _ -> ""
-
-let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
-    ~firstCharBeforeCursorNoWhite =
-  let locHasCursor loc = loc |> CursorPosition.locHasCursor ~pos in
-  let someIfHasCursor v = if locHasCursor exp.pexp_loc then Some v else None in
-  match exp.pexp_desc with
-  | Pexp_ident {txt = Lident txt} when Utils.hasBraces exp.pexp_attributes ->
-    (* An ident with braces attribute corresponds to for example `{n}`.
-       Looks like a record but is parsed as an ident with braces. *)
-    someIfHasCursor (txt, [Completable.NRecordBody {seenFields = []}] @ exprPath)
-  | Pexp_ident {txt = Lident txt} -> someIfHasCursor (txt, exprPath)
-  | Pexp_construct ({txt = Lident "()"}, _) -> someIfHasCursor ("", exprPath)
-  | Pexp_construct ({txt = Lident txt}, None) -> someIfHasCursor (txt, exprPath)
-  | Pexp_variant (label, None) -> someIfHasCursor ("#" ^ label, exprPath)
-  | Pexp_array arrayPatterns -> (
-    let nextExprPath = [Completable.NArray] @ exprPath in
-    (* No fields but still has cursor = empty completion *)
-    if List.length arrayPatterns = 0 && locHasCursor exp.pexp_loc then
-      Some ("", nextExprPath)
-    else
-      let arrayItemWithCursor =
-        arrayPatterns
-        |> List.find_map (fun e ->
-               e
-               |> traverseExpr ~exprPath:nextExprPath
-                    ~firstCharBeforeCursorNoWhite ~pos)
-      in
-
-      match (arrayItemWithCursor, locHasCursor exp.pexp_loc) with
-      | Some arrayItemWithCursor, _ -> Some arrayItemWithCursor
-      | None, true when firstCharBeforeCursorNoWhite = Some ',' ->
-        (* No item had the cursor, but the entire expr still has the cursor (so
-           the cursor is in the array somewhere), and the first char before the
-           cursor is a comma = interpret as compleing for a new value (example:
-           `[None, <com>, None]`) *)
-        Some ("", nextExprPath)
-      | _ -> None)
-  | Pexp_tuple tupleItems when locHasCursor exp.pexp_loc ->
-    tupleItems
-    |> traverseExprTupleItems ~firstCharBeforeCursorNoWhite ~pos
-         ~nextExprPath:(fun itemNum ->
-           [Completable.NTupleItem {itemNum}] @ exprPath)
-         ~resultFromFoundItemNum:(fun itemNum ->
-           [Completable.NTupleItem {itemNum = itemNum + 1}] @ exprPath)
-  | Pexp_record ([], _) ->
-    (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
-    someIfHasCursor ("", [Completable.NRecordBody {seenFields = []}] @ exprPath)
-  | Pexp_record (fields, _) -> (
-    let fieldWithCursor = ref None in
-    let fieldWithExprHole = ref None in
-    fields
-    |> List.iter (fun (fname, exp) ->
-           match
-             ( fname.Location.txt,
-               exp.Parsetree.pexp_loc |> CursorPosition.classifyLoc ~pos )
-           with
-           | Longident.Lident fname, HasCursor ->
-             fieldWithCursor := Some (fname, exp)
-           | Lident fname, _ when isExprHole exp ->
-             fieldWithExprHole := Some (fname, exp)
-           | _ -> ());
-    let seenFields =
-      fields
-      |> List.filter_map (fun (fieldName, _f) ->
-             match fieldName with
-             | {Location.txt = Longident.Lident fieldName} -> Some fieldName
-             | _ -> None)
-    in
-    match (!fieldWithCursor, !fieldWithExprHole) with
-    | Some (fname, f), _ | None, Some (fname, f) -> (
-      match f.pexp_desc with
-      | Pexp_extension ({txt = "rescript.exprhole"}, _) ->
-        (* An expression hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
-        someIfHasCursor
-          ("", [Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
-      | Pexp_ident {txt = Lident txt} ->
-        (* A var means `{someField: s}` or similar. Complete for identifiers or values. *)
-        someIfHasCursor (txt, exprPath)
-      | _ ->
-        f
-        |> traverseExpr ~firstCharBeforeCursorNoWhite ~pos
-             ~exprPath:
-               ([Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
-      )
-    | None, None -> (
-      (* Figure out if we're completing for a new field.
-         If the cursor is inside of the record body, but no field has the cursor,
-         and there's no pattern hole. Check the first char to the left of the cursor,
-         ignoring white space. If that's a comma, we assume you're completing for a new field. *)
-      match firstCharBeforeCursorNoWhite with
-      | Some ',' ->
-        someIfHasCursor ("", [Completable.NRecordBody {seenFields}] @ exprPath)
-      | _ -> None))
-  | Pexp_construct
-      ( {txt},
-        Some {pexp_loc; pexp_desc = Pexp_construct ({txt = Lident "()"}, _)} )
-    when locHasCursor pexp_loc ->
-    (* Empty payload with cursor, like: Test(<com>) *)
-    Some
-      ( "",
-        [
-          Completable.NVariantPayload
-            {constructorName = getUnqualifiedName txt; itemNum = 0};
-        ]
-        @ exprPath )
-  | Pexp_construct ({txt}, Some e)
-    when pos >= (e.pexp_loc |> Loc.end_)
-         && firstCharBeforeCursorNoWhite = Some ','
-         && isExprTuple e = false ->
-    (* Empty payload with trailing ',', like: Test(true, <com>) *)
-    Some
-      ( "",
-        [
-          Completable.NVariantPayload
-            {constructorName = getUnqualifiedName txt; itemNum = 1};
-        ]
-        @ exprPath )
-  | Pexp_construct ({txt}, Some {pexp_loc; pexp_desc = Pexp_tuple tupleItems})
-    when locHasCursor pexp_loc ->
-    tupleItems
-    |> traverseExprTupleItems ~firstCharBeforeCursorNoWhite ~pos
-         ~nextExprPath:(fun itemNum ->
-           [
-             Completable.NVariantPayload
-               {constructorName = getUnqualifiedName txt; itemNum};
-           ]
-           @ exprPath)
-         ~resultFromFoundItemNum:(fun itemNum ->
-           [
-             Completable.NVariantPayload
-               {constructorName = getUnqualifiedName txt; itemNum = itemNum + 1};
-           ]
-           @ exprPath)
-  | Pexp_construct ({txt}, Some p) when locHasCursor exp.pexp_loc ->
-    p
-    |> traverseExpr ~firstCharBeforeCursorNoWhite ~pos
-         ~exprPath:
-           ([
-              Completable.NVariantPayload
-                {constructorName = getUnqualifiedName txt; itemNum = 0};
-            ]
-           @ exprPath)
-  | Pexp_variant
-      (txt, Some {pexp_loc; pexp_desc = Pexp_construct ({txt = Lident "()"}, _)})
-    when locHasCursor pexp_loc ->
-    (* Empty payload with cursor, like: #test(<com>) *)
-    Some
-      ( "",
-        [Completable.NPolyvariantPayload {constructorName = txt; itemNum = 0}]
-        @ exprPath )
-  | Pexp_variant (txt, Some e)
-    when pos >= (e.pexp_loc |> Loc.end_)
-         && firstCharBeforeCursorNoWhite = Some ','
-         && isExprTuple e = false ->
-    (* Empty payload with trailing ',', like: #test(true, <com>) *)
-    Some
-      ( "",
-        [Completable.NPolyvariantPayload {constructorName = txt; itemNum = 1}]
-        @ exprPath )
-  | Pexp_variant (txt, Some {pexp_loc; pexp_desc = Pexp_tuple tupleItems})
-    when locHasCursor pexp_loc ->
-    tupleItems
-    |> traverseExprTupleItems ~firstCharBeforeCursorNoWhite ~pos
-         ~nextExprPath:(fun itemNum ->
-           [Completable.NPolyvariantPayload {constructorName = txt; itemNum}]
-           @ exprPath)
-         ~resultFromFoundItemNum:(fun itemNum ->
-           [
-             Completable.NPolyvariantPayload
-               {constructorName = txt; itemNum = itemNum + 1};
-           ]
-           @ exprPath)
-  | Pexp_variant (txt, Some p) when locHasCursor exp.pexp_loc ->
-    p
-    |> traverseExpr ~firstCharBeforeCursorNoWhite ~pos
-         ~exprPath:
-           ([
-              Completable.NPolyvariantPayload
-                {constructorName = txt; itemNum = 0};
-            ]
-           @ exprPath)
-  | _ -> None
-
-and traverseExprTupleItems tupleItems ~nextExprPath ~resultFromFoundItemNum ~pos
-    ~firstCharBeforeCursorNoWhite =
-  let itemNum = ref (-1) in
-  let itemWithCursor =
-    tupleItems
-    |> List.find_map (fun e ->
-           itemNum := !itemNum + 1;
-           e
-           |> traverseExpr ~exprPath:(nextExprPath !itemNum)
-                ~firstCharBeforeCursorNoWhite ~pos)
-  in
-  match (itemWithCursor, firstCharBeforeCursorNoWhite) with
-  | None, Some ',' ->
-    (* No tuple item has the cursor, but there's a comma before the cursor.
-       Figure out what arg we're trying to complete. Example: (true, <com>, None) *)
-    let posNum = ref (-1) in
-    tupleItems
-    |> List.iteri (fun index e ->
-           if pos >= Loc.start e.Parsetree.pexp_loc then posNum := index);
-    if !posNum > -1 then Some ("", resultFromFoundItemNum !posNum) else None
-  | v, _ -> v
-
-type prop = {
-  name: string;
-  posStart: int * int;
-  posEnd: int * int;
-  exp: Parsetree.expression;
-}
-
-type jsxProps = {
-  compName: Longident.t Location.loc;
-  props: prop list;
-  childrenStart: (int * int) option;
-}
-
-let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
-    ~firstCharBeforeCursorNoWhite ~posAfterCompName =
-  let allLabels =
-    List.fold_right
-      (fun prop allLabels -> prop.name :: allLabels)
-      jsxProps.props []
-  in
-  let rec loop props =
-    match props with
-    | prop :: rest ->
-      if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
-        (* Cursor on the prop name *)
-        Some
-          (Completable.Cjsx
-             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
-               prop.name,
-               allLabels ))
-      else if
-        prop.posEnd <= posBeforeCursor
-        && posBeforeCursor < Loc.start prop.exp.pexp_loc
-      then (* Cursor between the prop name and expr assigned *)
-        None
-      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
-        (* Cursor on expr assigned *)
-        match
-          traverseExpr prop.exp ~exprPath:[] ~pos:posBeforeCursor
-            ~firstCharBeforeCursorNoWhite
-        with
-        | Some (prefix, nested) ->
-          Some
-            (Cexpression
-               {
-                 contextPath =
-                   CJsxPropValue
-                     {
-                       pathToComponent =
-                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                       propName = prop.name;
-                     };
-                 nested = List.rev nested;
-                 prefix;
-               })
-        | _ -> None
-      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-        if isExprHole prop.exp then
-          Some
-            (Cexpression
-               {
-                 contextPath =
-                   CJsxPropValue
-                     {
-                       pathToComponent =
-                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                       propName = prop.name;
-                     };
-                 prefix = "";
-                 nested = [];
-               })
-        else None
-      else loop rest
-    | [] ->
-      let beforeChildrenStart =
-        match jsxProps.childrenStart with
-        | Some childrenPos -> posBeforeCursor < childrenPos
-        | None -> posBeforeCursor <= endPos
-      in
-      let afterCompName = posBeforeCursor >= posAfterCompName in
-      if afterCompName && beforeChildrenStart then
-        Some
-          (Cjsx
-             ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
-               "",
-               allLabels ))
-      else None
-  in
-  loop jsxProps.props
-
-let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
-  let thisCaseShouldNotHappen =
-    {
-      compName = Location.mknoloc (Longident.Lident "");
-      props = [];
-      childrenStart = None;
-    }
-  in
-  let rec processProps ~acc args =
-    match args with
-    | (Asttypes.Labelled "children", {Parsetree.pexp_loc}) :: _ ->
-      {
-        compName;
-        props = List.rev acc;
-        childrenStart =
-          (if pexp_loc.loc_ghost then None else Some (Loc.start pexp_loc));
-      }
-    | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
-      let namedArgLoc =
-        eProp.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
-      in
-      match namedArgLoc with
-      | Some ({loc}, _) ->
-        processProps
-          ~acc:
-            ({
-               name = s;
-               posStart = Loc.start loc;
-               posEnd = Loc.end_ loc;
-               exp = eProp;
-             }
-            :: acc)
-          rest
-      | None -> processProps ~acc rest)
-    | _ -> thisCaseShouldNotHappen
-  in
-  args |> processProps ~acc:[]
-
 let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
     ~(contextPath : Completable.contextPath) ~posAfterFunExpr
     ~firstCharBeforeCursorNoWhite ~charBeforeCursor ~isPipedExpr =
@@ -384,8 +25,8 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Completing in the assignment of labelled argument *)
         match
-          traverseExpr exp ~exprPath:[] ~pos:posBeforeCursor
-            ~firstCharBeforeCursorNoWhite
+          CompletionExpressions.traverseExpr exp ~exprPath:[]
+            ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite
         with
         | None -> None
         | Some (prefix, nested) ->
@@ -401,7 +42,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                  prefix;
                  nested = List.rev nested;
                })
-      else if isExprHole exp then
+      else if CompletionExpressions.isExprHole exp then
         Some
           (Cexpression
              {
@@ -420,8 +61,8 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
         (* Completing in an unlabelled argument *)
         match
-          traverseExpr exp ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite
-            ~exprPath:[]
+          CompletionExpressions.traverseExpr exp ~pos:posBeforeCursor
+            ~firstCharBeforeCursorNoWhite ~exprPath:[]
         with
         | None -> None
         | Some (prefix, nested) ->
@@ -438,7 +79,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                  prefix;
                  nested = List.rev nested;
                })
-      else if isExprHole exp then
+      else if CompletionExpressions.isExprHole exp then
         Some
           (Cexpression
              {
@@ -656,226 +297,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let locHasCursor = CursorPosition.locHasCursor ~pos:posBeforeCursor in
   let locIsEmpty = CursorPosition.locIsEmpty ~pos:posBeforeCursor in
 
-  let rec traverseTupleItems tupleItems ~nextPatternPath ~resultFromFoundItemNum
-      =
-    let itemNum = ref (-1) in
-    let itemWithCursor =
-      tupleItems
-      |> List.find_map (fun pat ->
-             itemNum := !itemNum + 1;
-             pat |> traversePattern ~patternPath:(nextPatternPath !itemNum))
-    in
-    match (itemWithCursor, firstCharBeforeCursorNoWhite) with
-    | None, Some ',' ->
-      (* No tuple item has the cursor, but there's a comma before the cursor.
-         Figure out what arg we're trying to complete. Example: (true, <com>, None) *)
-      let posNum = ref (-1) in
-      tupleItems
-      |> List.iteri (fun index pat ->
-             if posBeforeCursor >= Loc.start pat.Parsetree.ppat_loc then
-               posNum := index);
-      if !posNum > -1 then Some ("", resultFromFoundItemNum !posNum) else None
-    | v, _ -> v
-  and traversePattern (pat : Parsetree.pattern) ~patternPath =
-    let someIfHasCursor v =
-      if locHasCursor pat.Parsetree.ppat_loc then Some v else None
-    in
-    match pat.ppat_desc with
-    | Ppat_constant _ | Ppat_interval _ -> None
-    | Ppat_lazy p
-    | Ppat_constraint (p, _)
-    | Ppat_alias (p, _)
-    | Ppat_exception p
-    | Ppat_open (_, p) ->
-      p |> traversePattern ~patternPath
-    | Ppat_or (p1, p2) -> (
-      let orPatWithItem =
-        [p1; p2] |> List.find_map (fun p -> p |> traversePattern ~patternPath)
-      in
-      match orPatWithItem with
-      | None when isPatternHole p1 || isPatternHole p2 -> Some ("", patternPath)
-      | v -> v)
-    | Ppat_any ->
-      (* We treat any `_` as an empty completion. This is mainly because we're
-         inserting `_` in snippets and automatically put the cursor there. So
-         letting it trigger an empty completion improves the ergonomics by a
-         lot. *)
-      someIfHasCursor ("", patternPath)
-    | Ppat_var {txt} -> someIfHasCursor (txt, patternPath)
-    | Ppat_construct ({txt = Lident "()"}, None) ->
-      (* switch s { | (<com>) }*)
-      someIfHasCursor ("", patternPath @ [Completable.NTupleItem {itemNum = 0}])
-    | Ppat_construct ({txt = Lident prefix}, None) ->
-      someIfHasCursor (prefix, patternPath)
-    | Ppat_variant (prefix, None) -> someIfHasCursor ("#" ^ prefix, patternPath)
-    | Ppat_array arrayPatterns ->
-      let nextPatternPath = [Completable.NArray] @ patternPath in
-      if List.length arrayPatterns = 0 && locHasCursor pat.ppat_loc then
-        Some ("", nextPatternPath)
-      else
-        arrayPatterns
-        |> List.find_map (fun pat ->
-               pat |> traversePattern ~patternPath:nextPatternPath)
-    | Ppat_tuple tupleItems when locHasCursor pat.ppat_loc ->
-      tupleItems
-      |> traverseTupleItems
-           ~nextPatternPath:(fun itemNum ->
-             [Completable.NTupleItem {itemNum}] @ patternPath)
-           ~resultFromFoundItemNum:(fun itemNum ->
-             [Completable.NTupleItem {itemNum = itemNum + 1}] @ patternPath)
-    | Ppat_record ([], _) ->
-      (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
-      someIfHasCursor
-        ("", [Completable.NRecordBody {seenFields = []}] @ patternPath)
-    | Ppat_record (fields, _) -> (
-      let fieldWithCursor = ref None in
-      let fieldWithPatHole = ref None in
-      fields
-      |> List.iter (fun (fname, f) ->
-             match
-               ( fname.Location.txt,
-                 f.Parsetree.ppat_loc
-                 |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
-             with
-             | Longident.Lident fname, HasCursor ->
-               fieldWithCursor := Some (fname, f)
-             | Lident fname, _ when isPatternHole f ->
-               fieldWithPatHole := Some (fname, f)
-             | _ -> ());
-      let seenFields =
-        fields
-        |> List.filter_map (fun (fieldName, _f) ->
-               match fieldName with
-               | {Location.txt = Longident.Lident fieldName} -> Some fieldName
-               | _ -> None)
-      in
-      match (!fieldWithCursor, !fieldWithPatHole) with
-      | Some (fname, f), _ | None, Some (fname, f) -> (
-        match f.ppat_desc with
-        | Ppat_extension ({txt = "rescript.patternhole"}, _) ->
-          (* A pattern hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
-          someIfHasCursor
-            ( "",
-              [Completable.NFollowRecordField {fieldName = fname}] @ patternPath
-            )
-        | Ppat_var {txt} ->
-          (* A var means `{s}` or similar. Complete for fields. *)
-          someIfHasCursor
-            (txt, [Completable.NRecordBody {seenFields}] @ patternPath)
-        | _ ->
-          f
-          |> traversePattern
-               ~patternPath:
-                 ([Completable.NFollowRecordField {fieldName = fname}]
-                 @ patternPath))
-      | None, None -> (
-        (* Figure out if we're completing for a new field.
-           If the cursor is inside of the record body, but no field has the cursor,
-           and there's no pattern hole. Check the first char to the left of the cursor,
-           ignoring white space. If that's a comma, we assume you're completing for a new field. *)
-        match firstCharBeforeCursorNoWhite with
-        | Some ',' ->
-          someIfHasCursor
-            ("", [Completable.NRecordBody {seenFields}] @ patternPath)
-        | _ -> None))
-    | Ppat_construct
-        ( {txt},
-          Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
-        )
-      when locHasCursor ppat_loc ->
-      (* Empty payload with cursor, like: Test(<com>) *)
-      Some
-        ( "",
-          [
-            Completable.NVariantPayload
-              {constructorName = getUnqualifiedName txt; itemNum = 0};
-          ]
-          @ patternPath )
-    | Ppat_construct ({txt}, Some pat)
-      when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
-           && firstCharBeforeCursorNoWhite = Some ','
-           && isPatternTuple pat = false ->
-      (* Empty payload with trailing ',', like: Test(true, <com>) *)
-      Some
-        ( "",
-          [
-            Completable.NVariantPayload
-              {constructorName = getUnqualifiedName txt; itemNum = 1};
-          ]
-          @ patternPath )
-    | Ppat_construct ({txt}, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
-      when locHasCursor ppat_loc ->
-      tupleItems
-      |> traverseTupleItems
-           ~nextPatternPath:(fun itemNum ->
-             [
-               Completable.NVariantPayload
-                 {constructorName = getUnqualifiedName txt; itemNum};
-             ]
-             @ patternPath)
-           ~resultFromFoundItemNum:(fun itemNum ->
-             [
-               Completable.NVariantPayload
-                 {
-                   constructorName = getUnqualifiedName txt;
-                   itemNum = itemNum + 1;
-                 };
-             ]
-             @ patternPath)
-    | Ppat_construct ({txt}, Some p) when locHasCursor pat.ppat_loc ->
-      p
-      |> traversePattern
-           ~patternPath:
-             ([
-                Completable.NVariantPayload
-                  {constructorName = getUnqualifiedName txt; itemNum = 0};
-              ]
-             @ patternPath)
-    | Ppat_variant
-        ( txt,
-          Some {ppat_loc; ppat_desc = Ppat_construct ({txt = Lident "()"}, _)}
-        )
-      when locHasCursor ppat_loc ->
-      (* Empty payload with cursor, like: #test(<com>) *)
-      Some
-        ( "",
-          [Completable.NPolyvariantPayload {constructorName = txt; itemNum = 0}]
-          @ patternPath )
-    | Ppat_variant (txt, Some pat)
-      when posBeforeCursor >= (pat.ppat_loc |> Loc.end_)
-           && firstCharBeforeCursorNoWhite = Some ','
-           && isPatternTuple pat = false ->
-      (* Empty payload with trailing ',', like: #test(true, <com>) *)
-      Some
-        ( "",
-          [Completable.NPolyvariantPayload {constructorName = txt; itemNum = 1}]
-          @ patternPath )
-    | Ppat_variant (txt, Some {ppat_loc; ppat_desc = Ppat_tuple tupleItems})
-      when locHasCursor ppat_loc ->
-      tupleItems
-      |> traverseTupleItems
-           ~nextPatternPath:(fun itemNum ->
-             [Completable.NPolyvariantPayload {constructorName = txt; itemNum}]
-             @ patternPath)
-           ~resultFromFoundItemNum:(fun itemNum ->
-             [
-               Completable.NPolyvariantPayload
-                 {constructorName = txt; itemNum = itemNum + 1};
-             ]
-             @ patternPath)
-    | Ppat_variant (txt, Some p) when locHasCursor pat.ppat_loc ->
-      p
-      |> traversePattern
-           ~patternPath:
-             ([
-                Completable.NPolyvariantPayload
-                  {constructorName = txt; itemNum = 0};
-              ]
-             @ patternPath)
-    | _ -> None
-  in
   let completePattern (pat : Parsetree.pattern) =
-    match (pat |> traversePattern ~patternPath:[], !lookingForPat) with
+    match
+      ( pat
+        |> CompletionPatterns.traversePattern ~patternPath:[] ~locHasCursor
+             ~firstCharBeforeCursorNoWhite ~posBeforeCursor,
+        !lookingForPat )
+    with
     | Some (prefix, nestedPattern), Some ctxPath ->
       setResult
         (Completable.Cpattern
@@ -1226,14 +654,15 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.isJsxExpression expr ->
           inJsxContext := true;
-          let jsxProps = extractJsxProps ~compName ~args in
+          let jsxProps = CompletionJsx.extractJsxProps ~compName ~args in
           let compNamePath = flattenLidCheckDot ~jsx:true compName in
           if debug then
             Printf.printf "JSX <%s:%s %s> _children:%s\n"
               (compNamePath |> String.concat ".")
               (Loc.toString compName.loc)
               (jsxProps.props
-              |> List.map (fun {name; posStart; posEnd; exp} ->
+              |> List.map
+                   (fun ({name; posStart; posEnd; exp} : CompletionJsx.prop) ->
                      Printf.sprintf "%s[%s->%s]=...%s" name
                        (Pos.toString posStart) (Pos.toString posEnd)
                        (Loc.toString exp.pexp_loc))
@@ -1242,8 +671,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               | None -> "None"
               | Some childrenPosStart -> Pos.toString childrenPosStart);
           let jsxCompletable =
-            findJsxPropsCompletable ~jsxProps ~endPos:(Loc.end_ expr.pexp_loc)
-              ~posBeforeCursor ~posAfterCompName:(Loc.end_ compName.loc)
+            CompletionJsx.findJsxPropsCompletable ~jsxProps
+              ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
+              ~posAfterCompName:(Loc.end_ compName.loc)
               ~firstCharBeforeCursorNoWhite
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable

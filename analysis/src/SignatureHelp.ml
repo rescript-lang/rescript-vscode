@@ -31,9 +31,7 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
   in
   match completables with
   | Some ({kind = Value type_expr; docstring} :: _, env, package, file) ->
-    let args, _ =
-      CompletionBackEnd.extractFunctionType type_expr ~env ~package
-    in
+    let args, _ = TypeUtils.extractFunctionType type_expr ~env ~package in
     Some (args, docstring, type_expr, package, env, file)
   | _ -> None
 
