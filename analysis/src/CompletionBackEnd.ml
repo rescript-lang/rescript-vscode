@@ -232,6 +232,7 @@ let detail name (kind : Completion.kind) =
           |> String.concat ", ")
         ^ ")")
     ^ "\n\n" ^ s
+  | Snippet s -> s
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
@@ -552,6 +553,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       sortText = None;
       insertText = None;
       insertTextFormat = None;
+      filterText = None;
     }
 
 let completionToItem
@@ -563,6 +565,7 @@ let completionToItem
       sortText;
       insertText;
       insertTextFormat;
+      filterText;
     } =
   let item =
     mkItem ~name
@@ -570,7 +573,7 @@ let completionToItem
       ~deprecated ~detail:(detail name kind) ~docstring
   in
   if !Cfg.supportsSnippets then
-    {item with sortText; insertText; insertTextFormat}
+    {item with sortText; insertText; insertTextFormat; filterText}
   else item
 
 let completionsGetTypeEnv = function
@@ -1304,3 +1307,69 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
           in
           items @ regularCompletions
         | _ -> items)))
+  | CexhaustiveSwitch {contextPath; exprLoc} ->
+    let range = Utils.rangeOfLoc exprLoc in
+    let printFailwithStr num =
+      "${" ^ string_of_int num ^ ":failwith(\"todo\")}"
+    in
+    let withExhaustiveItem ~cases ?(startIndex = 0) (c : Completion.t) =
+      (* We don't need to write out `switch` here since we know that's what the
+         user has already written. Just complete for the rest. *)
+      let newText =
+        c.name ^ " {\n"
+        ^ (cases
+          |> List.mapi (fun index caseText ->
+                 "| " ^ caseText ^ " => "
+                 ^ printFailwithStr (startIndex + index + 1))
+          |> String.concat "\n")
+        ^ "\n}"
+        |> Utils.indent range.start.character
+      in
+      [
+        c;
+        {
+          c with
+          name = c.name ^ " (exhaustive switch)";
+          filterText = Some c.name;
+          insertTextFormat = Some Snippet;
+          insertText = Some newText;
+          kind = Snippet "insert exhaustive switch for value";
+        };
+      ]
+    in
+    let completionsForContextPath =
+      contextPath
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:forHover ~scope
+    in
+    completionsForContextPath
+    |> List.map (fun (c : Completion.t) ->
+           match c.kind with
+           | Value typExpr -> (
+             match typExpr |> TypeUtils.extractType ~env:c.env ~package with
+             | Some (Tvariant v) ->
+               withExhaustiveItem c
+                 ~cases:
+                   (v.constructors
+                   |> List.map (fun (constructor : Constructor.t) ->
+                          constructor.cname.txt
+                          ^
+                          match constructor.args with
+                          | Args [] -> ""
+                          | _ -> "(_)"))
+             | Some (Tpolyvariant v) ->
+               withExhaustiveItem c
+                 ~cases:
+                   (v.constructors
+                   |> List.map (fun (constructor : polyVariantConstructor) ->
+                          "| #" ^ constructor.name
+                          ^
+                          match constructor.args with
+                          | [] -> ""
+                          | _ -> "(_)"))
+             | Some (Toption (_env, _typ)) ->
+               withExhaustiveItem c ~cases:["Some($1)"; "None"] ~startIndex:1
+             | Some (Tbool _) -> withExhaustiveItem c ~cases:["true"; "false"]
+             | _ -> [c])
+           | _ -> [c])
+    |> List.flatten
