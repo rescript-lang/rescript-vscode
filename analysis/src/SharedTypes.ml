@@ -305,11 +305,13 @@ module Completion = struct
     | PolyvariantConstructor of polyVariantConstructor * string
     | Field of field * string
     | FileModule of string
+    | Snippet of string
 
   type t = {
     name: string;
     sortText: string option;
     insertText: string option;
+    filterText: string option;
     insertTextFormat: Protocol.insertTextFormat option;
     env: QueryEnv.t;
     deprecated: string option;
@@ -317,7 +319,7 @@ module Completion = struct
     kind: kind;
   }
 
-  let create ~kind ~env ?(docstring = []) name =
+  let create ~kind ~env ?(docstring = []) ?filterText name =
     {
       name;
       env;
@@ -327,10 +329,11 @@ module Completion = struct
       sortText = None;
       insertText = None;
       insertTextFormat = None;
+      filterText;
     }
 
-  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?(docstring = [])
-      () =
+  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?filterText
+      ?(docstring = []) () =
     {
       name;
       env;
@@ -340,6 +343,7 @@ module Completion = struct
       sortText;
       insertText;
       insertTextFormat = Some Protocol.Snippet;
+      filterText;
     }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
@@ -354,6 +358,7 @@ module Completion = struct
     | Field (_, _) -> 5
     | Type _ -> 22
     | Value _ -> 12
+    | Snippet _ -> 15
 end
 
 module Env = struct
@@ -613,6 +618,7 @@ module Completable = struct
         prefix: string;
         fallback: t option;
       }
+    | CexhaustiveSwitch of {contextPath: contextPath; exprLoc: Location.t}
 
   (** An extracted type from a type expr *)
   type extractedType =
@@ -720,6 +726,8 @@ module Completable = struct
         ^ (nestedPaths
           |> List.map (fun nestedPath -> nestedPathToString nestedPath)
           |> String.concat ", "))
+    | CexhaustiveSwitch {contextPath} ->
+      "CexhaustiveSwitch " ^ contextPathToString contextPath
 end
 
 module CursorPosition = struct

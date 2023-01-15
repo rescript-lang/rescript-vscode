@@ -47,6 +47,7 @@ type completionItem = {
   tags: int list;
   detail: string;
   sortText: string option;
+  filterText: string option;
   insertTextFormat: insertTextFormat option;
   insertText: string option;
   documentation: markupContent option;
@@ -129,6 +130,7 @@ let stringifyCompletionItem c =
           | None -> null
           | Some doc -> stringifyMarkupContent doc) );
       ("sortText", optWrapInQuotes c.sortText);
+      ("filterText", optWrapInQuotes c.filterText);
       ("insertText", optWrapInQuotes c.insertText);
       ( "insertTextFormat",
         match c.insertTextFormat with

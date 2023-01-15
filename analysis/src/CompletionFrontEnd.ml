@@ -353,14 +353,18 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   let unsetLookingForPat () = lookingForPat := None in
   (* Identifies expressions where we can do typed pattern or expr completion. *)
   let typedCompletionExpr (exp : Parsetree.expression) =
-    if
-      exp.pexp_loc
-      |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-      = HasCursor
-    then
+    if exp.pexp_loc |> CursorPosition.locHasCursor ~pos:posBeforeCursor then
       match exp.pexp_desc with
-      | Pexp_match (_exp, []) ->
-        (* No cases means there's no `|` yet in the switch *) ()
+      (* No cases means there's no `|` yet in the switch *)
+      | Pexp_match (({pexp_desc = Pexp_ident _} as expr), []) -> (
+        if locHasCursor expr.pexp_loc then
+          (* We can do exhaustive switch completion if this is an ident we can
+             complete from. *)
+          match exprToContextPath expr with
+          | None -> ()
+          | Some contextPath ->
+            setResult (CexhaustiveSwitch {contextPath; exprLoc = exp.pexp_loc}))
+      | Pexp_match (_expr, []) -> ()
       | Pexp_match
           ( exp,
             [

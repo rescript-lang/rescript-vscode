@@ -252,21 +252,6 @@ module AddTypeAnnotation = struct
         | _ -> ()))
 end
 
-let indent n text =
-  let spaces = String.make n ' ' in
-  let len = String.length text in
-  let text =
-    if len != 0 && text.[len - 1] = '\n' then String.sub text 0 (len - 1)
-    else text
-  in
-  let lines = String.split_on_char '\n' text in
-  match lines with
-  | [] -> ""
-  | [line] -> line
-  | line :: lines ->
-    line ^ "\n"
-    ^ (lines |> List.map (fun line -> spaces ^ line) |> String.concat "\n")
-
 let parse ~filename =
   let {Res_driver.parsetree = structure; comments} =
     Res_driver.parsingEngine.parseImplementation ~forPrinter:false ~filename
@@ -283,7 +268,7 @@ let parse ~filename =
     structure
     |> Res_printer.printImplementation ~width:!Res_cli.ResClflags.width
          ~comments:(comments |> filterComments ~loc:expr.pexp_loc)
-    |> indent range.start.character
+    |> Utils.indent range.start.character
   in
   let printStructureItem ~(range : Protocol.range)
       (item : Parsetree.structure_item) =
@@ -291,7 +276,7 @@ let parse ~filename =
     structure
     |> Res_printer.printImplementation ~width:!Res_cli.ResClflags.width
          ~comments:(comments |> filterComments ~loc:item.pstr_loc)
-    |> indent range.start.character
+    |> Utils.indent range.start.character
   in
   (structure, printExpr, printStructureItem)
 
