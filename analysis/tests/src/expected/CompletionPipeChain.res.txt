@@ -256,3 +256,31 @@ Completable: Cpath Value[Belt, Array, reduce](Nolabel, Nolabel, Nolabel)->t
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
   }]
 
+Complete src/CompletionPipeChain.res 70:12
+posCursor:[70:12] posNoWhite:[70:11] Found expr:[70:3->0:-1]
+Completable: Cpath Value[aliased]->
+[]
+
+Complete src/CompletionPipeChain.res 73:15
+posCursor:[73:15] posNoWhite:[73:14] Found expr:[73:3->0:-1]
+Completable: Cpath Value[notAliased]->
+[{
+    "label": "CompletionSupport.Test.add",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": null
+  }, {
+    "label": "CompletionSupport.Test.addSelf",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": null
+  }, {
+    "label": "CompletionSupport.Test.make",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null
+  }]
+
