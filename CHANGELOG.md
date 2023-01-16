@@ -26,6 +26,7 @@
 - Expand options in completion to make working with options a bit more ergonomic. https://github.com/rescript-lang/rescript-vscode/pull/690
 - Let `_` trigger completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/692
 - Support inline records in completion. https://github.com/rescript-lang/rescript-vscode/pull/695
+- Add way to autocomplete an exhaustive switch statement for identifiers. Example: an identifier that's a variant can have a switch autoinserted matching all variant cases. https://github.com/rescript-lang/rescript-vscode/pull/699
 
 #### :nail_care: Polish
 
