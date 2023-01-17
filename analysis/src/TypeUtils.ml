@@ -148,6 +148,19 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     Some (Tpolyvariant {env; constructors; typeExpr = t})
   | _ -> None
 
+let rec resolveTypeForPipeCompletion ~env ~package (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+    resolveTypeForPipeCompletion ~env ~package t1
+  (* Don't descend into types named "t". Type t is a convention in the ReScript ecosystem. *)
+  | Tconstr (path, _, _) when path |> Path.last = "t" -> (env, t)
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, {item = {decl = {type_manifest = Some typ}}}) ->
+      resolveTypeForPipeCompletion ~env ~package typ
+    | _ -> (env, t))
+  | _ -> (env, t)
+
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
 let rec resolveNested (typ : completionType) ~env ~package ~nested =
   match nested with

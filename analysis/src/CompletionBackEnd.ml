@@ -723,6 +723,10 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
       |> completionsGetTypeEnv
     with
     | Some (typ, envFromCompletionItem) -> (
+      let env, typ =
+        typ |> TypeUtils.resolveTypeForPipeCompletion ~env ~package
+      in
+
       (* If the type we're completing on is a type parameter, we won't be able to do
          completion unless we know what that type parameter is compiled as. This
          attempts to look up the compiled type for that type parameter by looking

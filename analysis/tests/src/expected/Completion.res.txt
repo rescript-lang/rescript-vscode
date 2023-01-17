@@ -1745,17 +1745,5 @@ posCursor:[425:8] posNoWhite:[425:7] Found expr:[425:3->425:8]
 Completable: Cpath Value[ok]->g
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
-[{
-    "label": "Belt.Result.getExn",
-    "kind": 12,
-    "tags": [],
-    "detail": "t<'a, 'b> => 'a",
-    "documentation": {"kind": "markdown", "value": "\n  `getExn(res)`: when `res` is `Ok(n)`, returns `n` when `res` is `Error(m)`, raise an exception\n\n  ```res example\n  Belt.Result.getExn(Belt.Result.Ok(42)) == 42\n\n  Belt.Result.getExn(Belt.Result.Error(\"Invalid data\")) /* raises exception */\n  ```\n"}
-  }, {
-    "label": "Belt.Result.getWithDefault",
-    "kind": 12,
-    "tags": [],
-    "detail": "(t<'a, 'b>, 'a) => 'a",
-    "documentation": {"kind": "markdown", "value": "\n  `getWithDefault(res, defaultValue)`: If `res` is `Ok(n)`, returns `n`,\n  otherwise `default`\n\n  ```res example\n  Belt.Result.getWithDefault(Ok(42), 0) == 42\n\n  Belt.Result.getWithDefault(Error(\"Invalid Data\"), 0) == 0\n  ```\n"}
-  }]
+[]
 
