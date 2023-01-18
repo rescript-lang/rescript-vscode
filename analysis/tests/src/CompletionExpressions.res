@@ -138,3 +138,42 @@ let fnTakingInlineRecord = (r: variantWithInlineRecord) => {
 
 // let _ = fnTakingInlineRecord(WithInlineRecord({nestedRecord: {} }))
 //                                                               ^com
+
+type variant = First | Second(bool)
+
+let fnTakingCallback = (
+  cb: unit => unit,
+  cb2: bool => unit,
+  cb3: ReactEvent.Mouse.t => unit,
+  cb4: (~on: bool, ~off: bool=?, variant) => int,
+  cb5: (bool, option<bool>, bool) => unit,
+  cb6: (~on: bool=?, ~off: bool=?, unit) => int,
+) => {
+  let _ = cb
+  let _ = cb2
+  let _ = cb3
+  let _ = cb4
+  let _ = cb5
+  let _ = cb6
+}
+
+// fnTakingCallback()
+//                  ^com
+
+// fnTakingCallback(a)
+//                   ^com
+
+// fnTakingCallback(a, )
+//                    ^com
+
+// fnTakingCallback(a, b, )
+//                       ^com
+
+// fnTakingCallback(a, b, c, )
+//                           ^com
+
+// fnTakingCallback(a, b, c, d, )
+//                              ^com
+
+// fnTakingCallback(a, b, c, d, e, )
+//                                ^com

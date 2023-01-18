@@ -146,6 +146,10 @@ let rec extractType ~env ~package (t : Types.type_expr) =
              })
     in
     Some (Tpolyvariant {env; constructors; typeExpr = t})
+  | Tarrow _ -> (
+    match extractFunctionType t ~env ~package with
+    | args, _tRet when args <> [] -> Some (Tfunction {env; args; typ = t})
+    | _args, _tRet -> None)
   | _ -> None
 
 let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
@@ -325,3 +329,13 @@ let getArgs ~env (t : Types.type_expr) ~full =
     | _ -> []
   in
   t |> getArgsLoop ~env ~full ~currentArgumentPosition:0
+
+let typeIsUnit (typ : Types.type_expr) =
+  match typ.desc with
+  | Tconstr (Pident id, _typeArgs, _)
+  | Tlink {desc = Tconstr (Pident id, _typeArgs, _)}
+  | Tsubst {desc = Tconstr (Pident id, _typeArgs, _)}
+  | Tpoly ({desc = Tconstr (Pident id, _typeArgs, _)}, [])
+    when Ident.name id = "unit" ->
+    true
+  | _ -> false

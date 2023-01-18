@@ -1119,7 +1119,7 @@ function onMessage(msg: p.Message) {
           renameProvider: { prepareProvider: true },
           documentSymbolProvider: true,
           completionProvider: {
-            triggerCharacters: [".", ">", "@", "~", '"', "="],
+            triggerCharacters: [".", ">", "@", "~", '"', "=", "("],
           },
           semanticTokensProvider: {
             legend: {

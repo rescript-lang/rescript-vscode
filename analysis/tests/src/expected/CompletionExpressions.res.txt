@@ -617,3 +617,99 @@ Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPaylo
     "documentation": null
   }]
 
+Complete src/CompletionExpressions.res 159:20
+posCursor:[159:20] posNoWhite:[159:19] Found expr:[159:3->159:21]
+Pexp_apply ...[159:3->159:19] (...[159:20->159:21])
+Completable: Cexpression CArgument Value[fnTakingCallback]($0)
+[{
+    "label": "() => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => unit",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "() => ${0:{\\}}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 162:21
+posCursor:[162:21] posNoWhite:[162:20] Found expr:[162:3->162:22]
+Pexp_apply ...[162:3->162:19] (...[162:20->162:21])
+Completable: Cexpression CArgument Value[fnTakingCallback]($0)=a
+[]
+
+Complete src/CompletionExpressions.res 165:22
+posCursor:[165:22] posNoWhite:[165:21] Found expr:[165:3->165:24]
+Pexp_apply ...[165:3->165:19] (...[165:20->165:21])
+Completable: Cexpression CArgument Value[fnTakingCallback]($1)
+[{
+    "label": "v1 => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "bool => unit",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:v1} => ${0:{\\}}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 168:25
+posCursor:[168:25] posNoWhite:[168:24] Found expr:[168:3->168:27]
+Pexp_apply ...[168:3->168:19] (...[168:20->168:21], ...[168:23->168:24])
+Completable: Cexpression CArgument Value[fnTakingCallback]($2)
+[{
+    "label": "v1 => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "ReactEvent.Mouse.t => unit",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:v1} => ${0:{\\}}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 171:29
+posCursor:[171:29] posNoWhite:[171:27] Found expr:[171:3->171:30]
+Pexp_apply ...[171:3->171:19] (...[171:20->171:21], ...[171:23->171:24], ...[171:26->171:27])
+Completable: Cexpression CArgument Value[fnTakingCallback]($3)
+[{
+    "label": "(~on, ~off=?, v1) => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "(~on: bool, ~off: bool=?, variant) => int",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "(~on, ~off=?, ${1:v1}) => ${0:{\\}}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 174:32
+posCursor:[174:32] posNoWhite:[174:30] Found expr:[174:3->174:33]
+Pexp_apply ...[174:3->174:19] (...[174:20->174:21], ...[174:23->174:24], ...[174:26->174:27], ...[174:29->174:30])
+Completable: Cexpression CArgument Value[fnTakingCallback]($4)
+[{
+    "label": "(v1, v2, v3) => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "(bool, option<bool>, bool) => unit",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "(${1:v1}, ${2:v2}, ${3:v3}) => ${0:{\\}}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 177:34
+posCursor:[177:34] posNoWhite:[177:33] Found expr:[177:3->177:36]
+Pexp_apply ...[177:3->177:19] (...[177:20->177:21], ...[177:23->177:24], ...[177:26->177:27], ...[177:29->177:30], ...[177:32->177:33])
+Completable: Cexpression CArgument Value[fnTakingCallback]($5)
+[{
+    "label": "(~on=?, ~off=?, ()) => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "(~on: bool=?, ~off: bool=?, unit) => int",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "(~on=?, ~off=?, ()) => ${0:{\\}}",
+    "insertTextFormat": 2
+  }]
+
