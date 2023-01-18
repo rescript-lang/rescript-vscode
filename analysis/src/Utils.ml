@@ -206,3 +206,9 @@ let rangeOfLoc (loc : Location.t) =
   let start = loc |> Loc.start |> mkPosition in
   let end_ = loc |> Loc.end_ |> mkPosition in
   {Protocol.start; end_}
+
+let rec expandPath (path : Path.t) =
+  match path with
+  | Pident id -> [Ident.name id]
+  | Pdot (p, s, _) -> s :: expandPath p
+  | Papply _ -> []

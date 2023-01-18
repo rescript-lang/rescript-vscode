@@ -756,18 +756,12 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
             | Lazy -> ["Lazy"]
             | Char -> ["Char"])
         | TypExpr t -> (
-          let rec expandPath (path : Path.t) =
-            match path with
-            | Pident id -> [Ident.name id]
-            | Pdot (p, s, _) -> s :: expandPath p
-            | Papply _ -> []
-          in
           match t.Types.desc with
           | Tconstr (path, _typeArgs, _)
           | Tlink {desc = Tconstr (path, _typeArgs, _)}
           | Tsubst {desc = Tconstr (path, _typeArgs, _)}
           | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) -> (
-            match expandPath path with
+            match Utils.expandPath path with
             | _ :: pathRev ->
               (* type path is relative to the completion environment
                  express it from the root of the file *)
@@ -882,10 +876,33 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~opens ~allFiles ~pos ~env ~scope
       |> completionsGetTypeEnv
     in
+    let isBuiltin =
+      match pathToComponent with
+      | [elName] when Char.lowercase_ascii elName.[0] = elName.[0] -> true
+      | _ -> false
+    in
     let targetLabel =
-      CompletionJsx.getJsxLabels ~componentPath:pathToComponent ~findTypeOfValue
-        ~package
-      |> List.find_opt (fun (label, _, _) -> label = propName)
+      if isBuiltin then
+        let rec digToTypeForCompletion path ~env =
+          match
+            path
+            |> getCompletionsForPath ~completionContext:Type ~exact:true
+                 ~package ~opens ~allFiles ~pos ~env ~scope
+          with
+          | {kind = Type {kind = Abstract (Some (p, _))}; env} :: _ ->
+            let pathRev = p |> Utils.expandPath in
+            pathRev |> List.rev |> digToTypeForCompletion ~env
+          | {kind = Type {kind = Record fields}; env} :: _ -> (
+            match fields |> List.find_opt (fun f -> f.fname.txt = propName) with
+            | None -> None
+            | Some f -> Some (f.fname.txt, f.typ, env))
+          | _ -> None
+        in
+        ["ReactDOM"; "domProps"] |> digToTypeForCompletion ~env
+      else
+        CompletionJsx.getJsxLabels ~componentPath:pathToComponent
+          ~findTypeOfValue ~package
+        |> List.find_opt (fun (label, _, _) -> label = propName)
     in
     match targetLabel with
     | None -> []
