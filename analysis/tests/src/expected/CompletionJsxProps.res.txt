@@ -132,3 +132,21 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyAr
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionJsxProps.res 15:22
+posCursor:[15:22] posNoWhite:[15:21] Found expr:[15:12->15:25]
+JSX <div:[15:12->15:15] muted[15:16->15:21]=...__ghost__[0:-1->0:-1]> _children:15:23
+Completable: Cexpression CJsxPropValue [div] muted
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+

@@ -13,3 +13,6 @@
 // let _ = <CompletionSupport.TestComponent polyArg=#t
 //                                                    ^com
 
+// let _ = <div muted= />
+//                    ^com
+
