@@ -148,18 +148,90 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     Some (Tpolyvariant {env; constructors; typeExpr = t})
   | _ -> None
 
-let rec resolveTypeForPipeCompletion ~env ~package (t : Types.type_expr) =
-  match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
-    resolveTypeForPipeCompletion ~env ~package t1
-  (* Don't descend into types named "t". Type t is a convention in the ReScript ecosystem. *)
-  | Tconstr (path, _, _) when path |> Path.last = "t" -> (env, t)
-  | Tconstr (path, _, _) -> (
-    match References.digConstructor ~env ~package path with
-    | Some (env, {item = {decl = {type_manifest = Some typ}}}) ->
-      resolveTypeForPipeCompletion ~env ~package typ
-    | _ -> (env, t))
-  | _ -> (env, t)
+let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
+  match References.getLocItem ~full ~pos:(loc |> Loc.end_) ~debug with
+  | Some {locType = Typed (_, typExpr, _)} -> (
+    match extractFunctionType ~env ~package:full.package typExpr with
+    | args, tRet when args <> [] -> Some tRet
+    | _ -> None)
+  | _ -> None
+
+type builtinType =
+  | Array
+  | Option
+  | String
+  | Int
+  | Float
+  | Promise
+  | List
+  | Result
+  | Lazy
+  | Char
+
+type pipeCompletionType =
+  | Builtin of builtinType * Types.type_expr
+  | TypExpr of Types.type_expr
+
+let getBuiltinFromTypePath path =
+  match path with
+  | Path.Pident id when Ident.name id = "array" -> Some Array
+  | Path.Pident id when Ident.name id = "option" -> Some Option
+  | Path.Pident id when Ident.name id = "string" -> Some String
+  | Path.Pident id when Ident.name id = "int" -> Some Int
+  | Path.Pident id when Ident.name id = "float" -> Some Float
+  | Path.Pident id when Ident.name id = "promise" -> Some Promise
+  | Path.Pident id when Ident.name id = "list" -> Some List
+  | Path.Pident id when Ident.name id = "result" -> Some Result
+  | Path.Pident id when Ident.name id = "lazy_t" -> Some Lazy
+  | Path.Pident id when Ident.name id = "char" -> Some Char
+  | Pdot (Pident id, "result", _) when Ident.name id = "Pervasives" ->
+    Some Result
+  | _ -> None
+
+let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
+    (t : Types.type_expr) =
+  let builtin =
+    match t.desc with
+    | Tconstr (path, _typeArgs, _)
+    | Tlink {desc = Tconstr (path, _typeArgs, _)}
+    | Tsubst {desc = Tconstr (path, _typeArgs, _)}
+    | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
+      path |> getBuiltinFromTypePath
+    | _ -> None
+  in
+  match builtin with
+  | Some builtin -> (env, Builtin (builtin, t))
+  | None -> (
+    (* If the type we're completing on is a type parameter, we won't be able to
+       do completion unless we know what that type parameter is compiled as.
+       This attempts to look up the compiled type for that type parameter by
+       looking for compiled information at the loc of that expression. *)
+    let typFromLoc =
+      match t with
+      | {Types.desc = Tvar _} -> (
+        match findReturnTypeOfFunctionAtLoc lhsLoc ~env ~full ~debug:false with
+        | None -> None
+        | Some typFromLoc -> Some typFromLoc)
+      | _ -> None
+    in
+    match typFromLoc with
+    | Some typFromLoc ->
+      typFromLoc |> resolveTypeForPipeCompletion ~lhsLoc ~env ~package ~full
+    | None ->
+      let rec digToRelevantType ~env ~package (t : Types.type_expr) =
+        match t.desc with
+        | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+          digToRelevantType ~env ~package t1
+        (* Don't descend into types named "t". Type t is a convention in the ReScript ecosystem. *)
+        | Tconstr (path, _, _) when path |> Path.last = "t" -> (env, TypExpr t)
+        | Tconstr (path, _, _) -> (
+          match References.digConstructor ~env ~package path with
+          | Some (env, {item = {decl = {type_manifest = Some typ}}}) ->
+            digToRelevantType ~env ~package typ
+          | _ -> (env, TypExpr t))
+        | _ -> (env, TypExpr t)
+      in
+      digToRelevantType ~env ~package t)
 
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
 let rec resolveNested (typ : completionType) ~env ~package ~nested =
@@ -223,14 +295,6 @@ let rec resolveNested (typ : completionType) ~env ~package ~nested =
     | NArray, Some (Tarray (env, typ)) ->
       TypeExpr typ |> resolveNested ~env ~package ~nested
     | _ -> None)
-
-let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
-  match References.getLocItem ~full ~pos:(loc |> Loc.end_) ~debug with
-  | Some {locType = Typed (_, typExpr, _)} -> (
-    match extractFunctionType ~env ~package:full.package typExpr with
-    | args, tRet when args <> [] -> Some tRet
-    | _ -> None)
-  | _ -> None
 
 let getArgs ~env (t : Types.type_expr) ~full =
   let rec getArgsLoop ~env (t : Types.type_expr) ~full ~currentArgumentPosition

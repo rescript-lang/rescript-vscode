@@ -722,93 +722,52 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
       |> completionsGetTypeEnv
     with
+    | None -> []
     | Some (typ, envFromCompletionItem) -> (
       let env, typ =
-        typ |> TypeUtils.resolveTypeForPipeCompletion ~env ~package
-      in
-
-      (* If the type we're completing on is a type parameter, we won't be able to do
-         completion unless we know what that type parameter is compiled as. This
-         attempts to look up the compiled type for that type parameter by looking
-         for compiled information at the loc of that expression. *)
-      let typ =
-        match typ with
-        | {Types.desc = Tvar _} -> (
-          match
-            TypeUtils.findReturnTypeOfFunctionAtLoc lhsLoc ~env ~full
-              ~debug:false
-          with
-          | None -> typ
-          | Some typFromLoc -> typFromLoc)
-        | _ -> typ
-      in
-      let {
-        arrayModulePath;
-        optionModulePath;
-        stringModulePath;
-        intModulePath;
-        floatModulePath;
-        promiseModulePath;
-        listModulePath;
-        resultModulePath;
-      } =
-        package.builtInCompletionModules
-      in
-      let getBuiltinTypePath path =
-        match path with
-        | Path.Pident id when Ident.name id = "array" -> Some arrayModulePath
-        | Path.Pident id when Ident.name id = "option" -> Some optionModulePath
-        | Path.Pident id when Ident.name id = "string" -> Some stringModulePath
-        | Path.Pident id when Ident.name id = "int" -> Some intModulePath
-        | Path.Pident id when Ident.name id = "float" -> Some floatModulePath
-        | Path.Pident id when Ident.name id = "promise" ->
-          Some promiseModulePath
-        | Path.Pident id when Ident.name id = "list" -> Some listModulePath
-        | Path.Pident id when Ident.name id = "result" -> Some resultModulePath
-        | Path.Pident id when Ident.name id = "lazy_t" -> Some ["Lazy"]
-        | Path.Pident id when Ident.name id = "char" -> Some ["Char"]
-        | Pdot (Pident id, "result", _) when Ident.name id = "Pervasives" ->
-          Some resultModulePath
-        | _ -> None
-      in
-      let rec expandPath (path : Path.t) =
-        match path with
-        | Pident id -> [Ident.name id]
-        | Pdot (p, s, _) -> s :: expandPath p
-        | Papply _ -> []
-      in
-      let getTypePath typ =
-        match typ.Types.desc with
-        | Tconstr (path, _typeArgs, _)
-        | Tlink {desc = Tconstr (path, _typeArgs, _)}
-        | Tsubst {desc = Tconstr (path, _typeArgs, _)}
-        | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
-          Some path
-        | _ -> None
-      in
-      let rec removeRawOpen rawOpen modulePath =
-        match (rawOpen, modulePath) with
-        | [_], _ -> Some modulePath
-        | s :: inner, first :: restPath when s = first ->
-          removeRawOpen inner restPath
-        | _ -> None
-      in
-      let rec removeRawOpens rawOpens modulePath =
-        match rawOpens with
-        | rawOpen :: restOpens -> (
-          let newModulePath = removeRawOpens restOpens modulePath in
-          match removeRawOpen rawOpen newModulePath with
-          | None -> newModulePath
-          | Some mp -> mp)
-        | [] -> modulePath
+        typ
+        |> TypeUtils.resolveTypeForPipeCompletion ~env ~package ~full ~lhsLoc
       in
       let completionPath =
-        match getTypePath typ with
-        | Some typePath -> (
-          match getBuiltinTypePath typePath with
-          | Some path -> Some path
-          | None -> (
-            match expandPath typePath with
+        match typ with
+        | Builtin (builtin, _) ->
+          let {
+            arrayModulePath;
+            optionModulePath;
+            stringModulePath;
+            intModulePath;
+            floatModulePath;
+            promiseModulePath;
+            listModulePath;
+            resultModulePath;
+          } =
+            package.builtInCompletionModules
+          in
+          Some
+            (match builtin with
+            | Array -> arrayModulePath
+            | Option -> optionModulePath
+            | String -> stringModulePath
+            | Int -> intModulePath
+            | Float -> floatModulePath
+            | Promise -> promiseModulePath
+            | List -> listModulePath
+            | Result -> resultModulePath
+            | Lazy -> ["Lazy"]
+            | Char -> ["Char"])
+        | TypExpr t -> (
+          let rec expandPath (path : Path.t) =
+            match path with
+            | Pident id -> [Ident.name id]
+            | Pdot (p, s, _) -> s :: expandPath p
+            | Papply _ -> []
+          in
+          match t.Types.desc with
+          | Tconstr (path, _typeArgs, _)
+          | Tlink {desc = Tconstr (path, _typeArgs, _)}
+          | Tsubst {desc = Tconstr (path, _typeArgs, _)}
+          | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) -> (
+            match expandPath path with
             | _ :: pathRev ->
               (* type path is relative to the completion environment
                  express it from the root of the file *)
@@ -823,11 +782,27 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                   else envFromCompletionItem.file.moduleName :: pathFromEnv_
                 in
                 Some pathFromEnv
-            | _ -> None))
-        | None -> None
+            | _ -> None)
+          | _ -> None)
       in
       match completionPath with
       | Some completionPath -> (
+        let rec removeRawOpen rawOpen modulePath =
+          match (rawOpen, modulePath) with
+          | [_], _ -> Some modulePath
+          | s :: inner, first :: restPath when s = first ->
+            removeRawOpen inner restPath
+          | _ -> None
+        in
+        let rec removeRawOpens rawOpens modulePath =
+          match rawOpens with
+          | rawOpen :: restOpens -> (
+            let newModulePath = removeRawOpens restOpens modulePath in
+            match removeRawOpen rawOpen newModulePath with
+            | None -> newModulePath
+            | Some mp -> mp)
+          | [] -> modulePath
+        in
         let completionPathMinusOpens =
           completionPath
           |> removeRawOpens package.opens
@@ -855,17 +830,16 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         (* We add React element functions to the completion if we're in a JSX context *)
         let forJsxCompletion =
           if inJsx then
-            match getTypePath typ with
-            | Some (Path.Pident id) when Ident.name id = "int" -> Some "int"
-            | Some (Path.Pident id) when Ident.name id = "float" -> Some "float"
-            | Some (Path.Pident id) when Ident.name id = "string" ->
-              Some "string"
-            | Some (Path.Pident id) when Ident.name id = "array" -> Some "array"
+            match typ with
+            | Builtin (Int, t) -> Some ("int", t)
+            | Builtin (Float, t) -> Some ("float", t)
+            | Builtin (String, t) -> Some ("string", t)
+            | Builtin (Array, t) -> Some ("array", t)
             | _ -> None
           else None
         in
         match forJsxCompletion with
-        | Some builtinNameToComplete
+        | Some (builtinNameToComplete, typ)
           when Utils.checkName builtinNameToComplete ~prefix:funNamePrefix
                  ~exact:false ->
           [
@@ -881,8 +855,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           ]
           @ completions
         | _ -> completions)
-      | None -> [])
-    | None -> [])
+      | None -> []))
   | CTuple ctxPaths ->
     (* Turn a list of context paths into a list of type expressions. *)
     let typeExrps =
