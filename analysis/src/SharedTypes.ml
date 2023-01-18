@@ -4,6 +4,8 @@ let ident l = l |> List.map str |> String.concat "."
 
 type path = string list
 
+type typedFnArg = Asttypes.arg_label * Types.type_expr
+
 let pathToString (path : path) = path |> String.concat "."
 
 module ModulePath = struct
@@ -644,6 +646,11 @@ module Completable = struct
         typeExpr: Types.type_expr;
       }
     | TinlineRecord of {env: QueryEnv.t; fields: field list}
+    | Tfunction of {
+        env: QueryEnv.t;
+        args: typedFnArg list;
+        typ: Types.type_expr;
+      }
 
   let toString =
     let completionContextToString = function
