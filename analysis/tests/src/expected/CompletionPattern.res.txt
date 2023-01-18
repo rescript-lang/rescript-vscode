@@ -904,3 +904,9 @@ Completable: Cpattern Value[s]->tuple($1)
     "documentation": null
   }]
 
+Complete src/CompletionPattern.res 201:25
+posCursor:[201:25] posNoWhite:[201:24] Found expr:[201:3->201:28]
+posCursor:[201:25] posNoWhite:[201:24] Found pattern:[201:17->201:28]
+Completable: Cpattern Value[ff]->recordField(someFn)
+[]
+
