@@ -972,8 +972,10 @@ let printConstructorArgs argsLen ~asSnippet =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
+type completionMode = Pattern | Expression
+
 let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
-    ~completionContext =
+    ~completionContext ~mode =
   let extractedType =
     match t with
     | TypeExpr t -> t |> TypeUtils.extractType ~env ~package:full.package
@@ -1030,7 +1032,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
     let innerType = Utils.unwrapIfOption t in
     let expandedCompletions =
       TypeExpr innerType
-      |> completeTypedValue ~env ~full ~prefix ~completionContext
+      |> completeTypedValue ~env ~full ~prefix ~completionContext ~mode
       |> List.map (fun (c : Completion.t) ->
              {
                c with
@@ -1118,41 +1120,44 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
       ]
     else []
   | Some (Tfunction {env; typ; args}) ->
-    let mkFnBody ~asSnippet =
-      match args with
-      | [(Nolabel, argTyp)] when TypeUtils.typeIsUnit argTyp -> "()"
-      | [(Nolabel, _)] -> if asSnippet then "${1:v1}" else "v1"
-      | _ ->
-        let currentUnlabelledIndex = ref 0 in
-        let argsText =
-          args
-          |> List.map (fun ((label, typ) : typedFnArg) ->
-                 match label with
-                 | Optional name -> "~" ^ name ^ "=?"
-                 | Labelled name -> "~" ^ name
-                 | Nolabel ->
-                   if TypeUtils.typeIsUnit typ then "()"
-                   else (
-                     currentUnlabelledIndex := !currentUnlabelledIndex + 1;
-                     let num = !currentUnlabelledIndex in
-                     if asSnippet then
-                       "${" ^ string_of_int num ^ ":v" ^ string_of_int num ^ "}"
-                     else "v" ^ string_of_int num))
-          |> String.concat ", "
-        in
-        "(" ^ argsText ^ ")"
-    in
-    if prefix = "" then
-      [
-        Completion.createWithSnippet
-          ~name:(mkFnBody ~asSnippet:false ^ " => {}")
-          ~insertText:
-            (mkFnBody ~asSnippet:!Cfg.supportsSnippets
-            ^ " => "
-            ^ if !Cfg.supportsSnippets then "${0:{\\}}" else "{}")
-          ~sortText:"A" ~kind:(Value typ) ~env ();
-      ]
-    else []
+    if mode = Pattern then []
+    else
+      let mkFnBody ~asSnippet =
+        match args with
+        | [(Nolabel, argTyp)] when TypeUtils.typeIsUnit argTyp -> "()"
+        | [(Nolabel, _)] -> if asSnippet then "${1:v1}" else "v1"
+        | _ ->
+          let currentUnlabelledIndex = ref 0 in
+          let argsText =
+            args
+            |> List.map (fun ((label, typ) : typedFnArg) ->
+                   match label with
+                   | Optional name -> "~" ^ name ^ "=?"
+                   | Labelled name -> "~" ^ name
+                   | Nolabel ->
+                     if TypeUtils.typeIsUnit typ then "()"
+                     else (
+                       currentUnlabelledIndex := !currentUnlabelledIndex + 1;
+                       let num = !currentUnlabelledIndex in
+                       if asSnippet then
+                         "${" ^ string_of_int num ^ ":v" ^ string_of_int num
+                         ^ "}"
+                       else "v" ^ string_of_int num))
+            |> String.concat ", "
+          in
+          "(" ^ argsText ^ ")"
+      in
+      if prefix = "" then
+        [
+          Completion.createWithSnippet
+            ~name:(mkFnBody ~asSnippet:false ^ " => {}")
+            ~insertText:
+              (mkFnBody ~asSnippet:!Cfg.supportsSnippets
+              ^ " => "
+              ^ if !Cfg.supportsSnippets then "${0:{\\}}" else "{}")
+            ~sortText:"A" ~kind:(Value typ) ~env ();
+        ]
+      else []
   | _ -> []
 
 let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
@@ -1277,7 +1282,9 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       | None -> fallbackOrEmpty ()
       | Some (typ, env, completionContext) ->
         let items =
-          typ |> completeTypedValue ~env ~full ~prefix ~completionContext
+          typ
+          |> completeTypedValue ~mode:Pattern ~env ~full ~prefix
+               ~completionContext
         in
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
@@ -1297,7 +1304,9 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       | None -> []
       | Some (typ, env, completionContext) -> (
         let items =
-          typ |> completeTypedValue ~env ~full ~prefix ~completionContext
+          typ
+          |> completeTypedValue ~mode:Expression ~env ~full ~prefix
+               ~completionContext
         in
         match (prefix, completionContext) with
         | "", _ -> items

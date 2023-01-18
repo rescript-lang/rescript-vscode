@@ -194,3 +194,10 @@ let s = (true, Some(true), [false])
 
 // switch s { | (true, _, []) }
 //                      ^com
+
+type recordWithFn = {someFn: unit => unit}
+
+let ff: recordWithFn = {someFn: () => ()}
+
+// switch ff { | {someFn: }}
+//                       ^com
