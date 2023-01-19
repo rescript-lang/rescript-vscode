@@ -192,16 +192,21 @@ let getBuiltinFromTypePath path =
     Some Result
   | _ -> None
 
+let pathFromTypeExpr (t : Types.type_expr) =
+  match t.desc with
+  | Tconstr (path, _typeArgs, _)
+  | Tlink {desc = Tconstr (path, _typeArgs, _)}
+  | Tsubst {desc = Tconstr (path, _typeArgs, _)}
+  | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
+    Some path
+  | _ -> None
+
 let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
     (t : Types.type_expr) =
   let builtin =
-    match t.desc with
-    | Tconstr (path, _typeArgs, _)
-    | Tlink {desc = Tconstr (path, _typeArgs, _)}
-    | Tsubst {desc = Tconstr (path, _typeArgs, _)}
-    | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
-      path |> getBuiltinFromTypePath
-    | _ -> None
+    match t |> pathFromTypeExpr with
+    | Some path -> path |> getBuiltinFromTypePath
+    | None -> None
   in
   match builtin with
   | Some builtin -> (env, Builtin (builtin, t))
