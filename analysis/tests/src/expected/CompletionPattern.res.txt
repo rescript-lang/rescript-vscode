@@ -80,7 +80,7 @@ Completable: Cpattern Value[f]
     "tags": [],
     "detail": "someRecord",
     "documentation": null,
-    "sortText": "a",
+    "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
   }]
@@ -170,7 +170,7 @@ Completable: Cpattern Value[f]->recordField(nest)
     "tags": [],
     "detail": "nestedRecord",
     "documentation": null,
-    "sortText": "a",
+    "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
   }]
@@ -414,7 +414,7 @@ Completable: Cpattern Value[c]
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "sortText": "a",
+    "sortText": "A",
     "insertText": "[$0]",
     "insertTextFormat": 2
   }]
@@ -497,6 +497,18 @@ Completable: Cpattern Value[p]->variantPayload::Test($2)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 140:23
@@ -531,7 +543,7 @@ Completable: Cpattern Value[p]->variantPayload::Test($3)
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "sortText": "a",
+    "sortText": "A",
     "insertText": "[$0]",
     "insertTextFormat": 2
   }]
@@ -573,6 +585,18 @@ Completable: Cpattern Value[v]->polyvariantPayload::test($2)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 156:24
@@ -605,7 +629,7 @@ Completable: Cpattern Value[v]->polyvariantPayload::test($3)
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "sortText": "a",
+    "sortText": "A",
     "insertText": "[$0]",
     "insertTextFormat": 2
   }]
@@ -647,6 +671,18 @@ Completable: Cpattern Value[s]->tuple($1)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 170:22
@@ -667,6 +703,18 @@ Completable: Cpattern Value[s]->tuple($1)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 173:35
@@ -700,6 +748,18 @@ Completable: Cpattern Value[s]->tuple($1)
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
   }]
 
 Complete src/CompletionPattern.res 179:21
@@ -810,4 +870,43 @@ Completable: Cpattern Value[b]->polyvariantPayload::three($1)
     "detail": "bool",
     "documentation": null
   }]
+
+Complete src/CompletionPattern.res 194:24
+posCursor:[194:24] posNoWhite:[194:23] Found expr:[194:3->194:31]
+posCursor:[194:24] posNoWhite:[194:23] Found pattern:[194:16->194:29]
+posCursor:[194:24] posNoWhite:[194:23] Found pattern:[194:23->194:24]
+Completable: Cpattern Value[s]->tuple($1)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionPattern.res 201:25
+posCursor:[201:25] posNoWhite:[201:24] Found expr:[201:3->201:28]
+posCursor:[201:25] posNoWhite:[201:24] Found pattern:[201:17->201:28]
+Completable: Cpattern Value[ff]->recordField(someFn)
+[]
 

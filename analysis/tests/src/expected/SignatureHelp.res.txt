@@ -266,3 +266,45 @@ extracted params:
   "activeParameter": 2
 }
 
+Signature help src/SignatureHelp.res 71:29
+posCursor:[71:28] posNoWhite:[71:27] Found expr:[71:11->71:33]
+Pexp_apply ...[71:11->71:13] (...[71:16->71:30])
+posCursor:[71:28] posNoWhite:[71:27] Found expr:[71:16->71:30]
+Pexp_apply ...[71:16->71:28] (...[71:29->71:30])
+posCursor:[71:28] posNoWhite:[71:27] Found expr:[71:16->71:28]
+Pexp_ident iAmSoSpecial:[71:16->71:28]
+argAtCursor: unlabelled<0>
+extracted params: 
+[string]
+{
+  "signatures": [{
+    "label": "string => unit",
+    "parameters": [{"label": [0, 6], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 74:40
+posCursor:[74:39] posNoWhite:[74:38] Found expr:[74:11->74:47]
+Pexp_apply ...[74:11->74:13] (...[74:16->74:44])
+posCursor:[74:39] posNoWhite:[74:38] Found expr:[74:16->74:44]
+Pexp_apply ...[74:16->74:28] (...[74:31->74:41])
+posCursor:[74:39] posNoWhite:[74:38] Found expr:[74:31->74:41]
+Pexp_apply ...[74:31->74:39] (...[74:40->74:41])
+posCursor:[74:39] posNoWhite:[74:38] Found expr:[74:31->74:39]
+Pexp_ident someFunc:[74:31->74:39]
+argAtCursor: unlabelled<0>
+extracted params: 
+[(
+  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
+{
+  "signatures": [{
+    "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+

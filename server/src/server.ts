@@ -1095,7 +1095,7 @@ function onMessage(msg: p.Message) {
           renameProvider: { prepareProvider: true },
           documentSymbolProvider: true,
           completionProvider: {
-            triggerCharacters: [".", ">", "@", "~", '"', "="],
+            triggerCharacters: [".", ">", "@", "~", '"', "=", "("],
           },
           semanticTokensProvider: {
             legend: {
@@ -1111,7 +1111,7 @@ function onMessage(msg: p.Message) {
               ],
               tokenModifiers: [],
             },
-            documentSelector: null,
+            documentSelector: [{ scheme: "file", language: "rescript" }],
             // TODO: Support range for full, and add delta support
             full: true,
           },

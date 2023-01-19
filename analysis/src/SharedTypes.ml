@@ -4,6 +4,8 @@ let ident l = l |> List.map str |> String.concat "."
 
 type path = string list
 
+type typedFnArg = Asttypes.arg_label * Types.type_expr
+
 let pathToString (path : path) = path |> String.concat "."
 
 module ModulePath = struct
@@ -24,15 +26,28 @@ module ModulePath = struct
     loop modulePath [tipName]
 end
 
-type field = {stamp: int; fname: string Location.loc; typ: Types.type_expr}
+type field = {
+  stamp: int;
+  fname: string Location.loc;
+  typ: Types.type_expr;
+  optional: bool;
+  docstring: string list;
+}
+
+type completionType = TypeExpr of Types.type_expr | InlineRecord of field list
+
+type constructorArgs =
+  | InlineRecord of field list
+  | Args of (Types.type_expr * Location.t) list
 
 module Constructor = struct
   type t = {
     stamp: int;
     cname: string Location.loc;
-    args: (Types.type_expr * Location.t) list;
+    args: constructorArgs;
     res: Types.type_expr option;
     typeDecl: string * Types.type_declaration;
+    docstring: string list;
   }
 end
 
@@ -292,11 +307,13 @@ module Completion = struct
     | PolyvariantConstructor of polyVariantConstructor * string
     | Field of field * string
     | FileModule of string
+    | Snippet of string
 
   type t = {
     name: string;
     sortText: string option;
     insertText: string option;
+    filterText: string option;
     insertTextFormat: Protocol.insertTextFormat option;
     env: QueryEnv.t;
     deprecated: string option;
@@ -304,28 +321,31 @@ module Completion = struct
     kind: kind;
   }
 
-  let create ~name ~kind ~env =
+  let create ~kind ~env ?(docstring = []) ?filterText name =
     {
       name;
       env;
       deprecated = None;
-      docstring = [];
+      docstring;
       kind;
       sortText = None;
       insertText = None;
       insertTextFormat = None;
+      filterText;
     }
 
-  let createWithSnippet ~name ?insertText ~kind ~env ?sortText () =
+  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?filterText
+      ?(docstring = []) () =
     {
       name;
       env;
       deprecated = None;
-      docstring = [];
+      docstring;
       kind;
       sortText;
       insertText;
       insertTextFormat = Some Protocol.Snippet;
+      filterText;
     }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
@@ -340,6 +360,7 @@ module Completion = struct
     | Field (_, _) -> 5
     | Type _ -> 22
     | Value _ -> 12
+    | Snippet _ -> 15
 end
 
 module Env = struct
@@ -546,32 +567,39 @@ module Completable = struct
     | CPPipe of {
         contextPath: contextPath;
         id: string;
+        inJsx: bool;  (** Whether this pipe was found in a JSX context. *)
         lhsLoc: Location.t;
             (** The loc item for the left hand side of the pipe. *)
       }
+    | CTuple of contextPath list
+    | CArgument of {
+        functionContextPath: contextPath;
+        argumentLabel: argumentLabel;
+      }
+    | CJsxPropValue of {pathToComponent: string list; propName: string}
 
-  (** Additional context for a pattern completion where needed. *)
-  type patternContext = RecordField of {seenFields: string list}
+  (** Additional context for nested completion where needed. *)
+  type nestedContext = RecordField of {seenFields: string list}
 
-  type patternPath =
-    | PTupleItem of {itemNum: int}
-    | PFollowRecordField of {fieldName: string}
-    | PRecordBody of {seenFields: string list}
-    | PVariantPayload of {constructorName: string; itemNum: int}
-    | PPolyvariantPayload of {constructorName: string; itemNum: int}
-    | PArray
+  type nestedPath =
+    | NTupleItem of {itemNum: int}
+    | NFollowRecordField of {fieldName: string}
+    | NRecordBody of {seenFields: string list}
+    | NVariantPayload of {constructorName: string; itemNum: int}
+    | NPolyvariantPayload of {constructorName: string; itemNum: int}
+    | NArray
 
-  let patternPathToString p =
+  let nestedPathToString p =
     match p with
-    | PTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
-    | PFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
-    | PRecordBody _ -> "recordBody"
-    | PVariantPayload {constructorName; itemNum} ->
+    | NTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
+    | NFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
+    | NRecordBody _ -> "recordBody"
+    | NVariantPayload {constructorName; itemNum} ->
       "variantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum ^ ")"
-    | PPolyvariantPayload {constructorName; itemNum} ->
+    | NPolyvariantPayload {constructorName; itemNum} ->
       "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum
       ^ ")"
-    | PArray -> "array"
+    | NArray -> "array"
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -581,23 +609,18 @@ module Completable = struct
     | Cpath of contextPath
     | Cjsx of string list * string * string list
         (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
-    | Cargument of {
-        functionContextPath: contextPath;
-        argumentLabel: argumentLabel;
-        prefix: string;
-      }
-        (** e.g. someFunction(~someBoolArg=<com>), complete for the value of `someBoolArg` (true or false). *)
-    | CjsxPropValue of {
-        pathToComponent: string list;
-        propName: string;
+    | Cexpression of {
+        contextPath: contextPath;
+        nested: nestedPath list;
         prefix: string;
       }
     | Cpattern of {
-        typ: contextPath;
-        nested: patternPath list;
+        contextPath: contextPath;
+        nested: nestedPath list;
         prefix: string;
         fallback: t option;
       }
+    | CexhaustiveSwitch of {contextPath: contextPath; exprLoc: Location.t}
 
   (** An extracted type from a type expr *)
   type extractedType =
@@ -605,6 +628,7 @@ module Completable = struct
     | Toption of QueryEnv.t * Types.type_expr
     | Tbool of QueryEnv.t
     | Tarray of QueryEnv.t * Types.type_expr
+    | Tstring of QueryEnv.t
     | Tvariant of {
         env: QueryEnv.t;
         constructors: Constructor.t list;
@@ -620,6 +644,12 @@ module Completable = struct
         env: QueryEnv.t;
         fields: field list;
         typeExpr: Types.type_expr;
+      }
+    | TinlineRecord of {env: QueryEnv.t; fields: field list}
+    | Tfunction of {
+        env: QueryEnv.t;
+        args: typedFnArg list;
+        typ: Types.type_expr;
       }
 
   let toString =
@@ -647,7 +677,26 @@ module Completable = struct
         completionContextToString completionContext ^ list sl
       | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
       | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
-      | CPPipe {contextPath; id} -> contextPathToString contextPath ^ "->" ^ id
+      | CPPipe {contextPath; id; inJsx} ->
+        contextPathToString contextPath
+        ^ "->" ^ id
+        ^ if inJsx then " <<jsx>>" else ""
+      | CTuple ctxPaths ->
+        "CTuple("
+        ^ (ctxPaths |> List.map contextPathToString |> String.concat ", ")
+        ^ ")"
+      | CArgument {functionContextPath; argumentLabel} ->
+        "CArgument "
+        ^ contextPathToString functionContextPath
+        ^ "("
+        ^ (match argumentLabel with
+          | Unlabelled {argumentPosition} ->
+            "$" ^ string_of_int argumentPosition
+          | Labelled name -> "~" ^ name
+          | Optional name -> "~" ^ name ^ "=?")
+        ^ ")"
+      | CJsxPropValue {pathToComponent; propName} ->
+        "CJsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName
     in
 
     function
@@ -660,30 +709,32 @@ module Completable = struct
     | Cnone -> "Cnone"
     | Cjsx (sl1, s, sl2) ->
       "Cjsx(" ^ (sl1 |> list) ^ ", " ^ str s ^ ", " ^ (sl2 |> list) ^ ")"
-    | Cargument {functionContextPath; argumentLabel; prefix} ->
-      "Cargument "
-      ^ contextPathToString functionContextPath
-      ^ "("
-      ^ (match argumentLabel with
-        | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition
-        | Labelled name -> "~" ^ name
-        | Optional name -> "~" ^ name ^ "=?")
-      ^ (if prefix <> "" then "=" ^ prefix else "")
-      ^ ")"
-    | CjsxPropValue {prefix; pathToComponent; propName} ->
-      "CjsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName ^ "="
-      ^ prefix
-    | Cpattern {typ; nested; prefix} -> (
-      "Cpattern " ^ contextPathToString typ
+    | Cpattern {contextPath; nested; prefix} -> (
+      "Cpattern "
+      ^ contextPathToString contextPath
       ^ (if prefix = "" then "" else "=" ^ prefix)
       ^
       match nested with
       | [] -> ""
-      | patternPaths ->
+      | nestedPaths ->
         "->"
-        ^ (patternPaths
-          |> List.map (fun patternPath -> patternPathToString patternPath)
+        ^ (nestedPaths
+          |> List.map (fun nestedPath -> nestedPathToString nestedPath)
           |> String.concat ", "))
+    | Cexpression {contextPath; nested; prefix} -> (
+      "Cexpression "
+      ^ contextPathToString contextPath
+      ^ (if prefix = "" then "" else "=" ^ prefix)
+      ^
+      match nested with
+      | [] -> ""
+      | nestedPaths ->
+        "->"
+        ^ (nestedPaths
+          |> List.map (fun nestedPath -> nestedPathToString nestedPath)
+          |> String.concat ", "))
+    | CexhaustiveSwitch {contextPath} ->
+      "CexhaustiveSwitch " ^ contextPathToString contextPath
 end
 
 module CursorPosition = struct

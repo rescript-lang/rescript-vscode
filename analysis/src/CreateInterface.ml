@@ -262,8 +262,8 @@ let printSignature ~extractor ~signature =
           | [] -> retType
           | labelDecl :: rest ->
             let propType =
-              CompletionBackEnd.instantiateType ~typeParams:type_params
-                ~typeArgs labelDecl.ld_type
+              TypeUtils.instantiateType ~typeParams:type_params ~typeArgs
+                labelDecl.ld_type
             in
             let lblName = labelDecl.ld_id |> Ident.name in
             let lbl =

@@ -159,3 +159,50 @@ let rec skipWhite text i =
     match text.[i] with
     | ' ' | '\n' | '\r' | '\t' -> skipWhite text (i - 1)
     | _ -> i
+
+let hasBraces attributes =
+  attributes |> List.exists (fun (loc, _) -> loc.Location.txt = "ns.braces")
+
+let rec unwrapIfOption (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> unwrapIfOption t1
+  | Tconstr (Path.Pident {name = "option"}, [unwrappedType], _) -> unwrappedType
+  | _ -> t
+let isReactComponent (vb : Parsetree.value_binding) =
+  vb.pvb_attributes
+  |> List.exists (function
+       | {Location.txt = "react.component"}, _payload -> true
+       | _ -> false)
+
+let checkName name ~prefix ~exact =
+  if exact then name = prefix else startsWith name prefix
+
+let rec getUnqualifiedName txt =
+  match txt with
+  | Longident.Lident fieldName -> fieldName
+  | Ldot (t, _) -> getUnqualifiedName t
+  | _ -> ""
+
+let indent n text =
+  let spaces = String.make n ' ' in
+  let len = String.length text in
+  let text =
+    if len != 0 && text.[len - 1] = '\n' then String.sub text 0 (len - 1)
+    else text
+  in
+  let lines = String.split_on_char '\n' text in
+  match lines with
+  | [] -> ""
+  | [line] -> line
+  | line :: lines ->
+    line ^ "\n"
+    ^ (lines |> List.map (fun line -> spaces ^ line) |> String.concat "\n")
+
+let mkPosition (pos : Pos.t) =
+  let line, character = pos in
+  {Protocol.line; character}
+
+let rangeOfLoc (loc : Location.t) =
+  let start = loc |> Loc.start |> mkPosition in
+  let end_ = loc |> Loc.end_ |> mkPosition in
+  {Protocol.start; end_}

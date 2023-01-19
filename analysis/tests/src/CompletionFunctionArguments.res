@@ -55,8 +55,8 @@ let someFnTakingVariant = (
 // let _ = someFnTakingVariant(~config=O)
 //                                      ^com
 
-// let _ = someFnTakingVariant(S)
-//                              ^com
+// let _ = someFnTakingVariant(So)
+//                               ^com
 
 // let _ = someFnTakingVariant(~configOpt2=O)
 //                                          ^com
@@ -76,3 +76,16 @@ let fnTakingTuple = (arg: (int, int, float)) => {
 
 // let _ = fnTakingTuple()
 //                       ^com
+
+type someRecord = {
+  age: int,
+  offline: bool,
+  online: option<bool>,
+}
+
+let fnTakingRecord = (r: someRecord) => {
+  ignore(r)
+}
+
+// let _ = fnTakingRecord({})
+//                         ^com

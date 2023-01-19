@@ -169,8 +169,14 @@ let definedForLoc ~file ~package locKind =
     | Constructor name -> (
       match getConstructor file stamp name with
       | None -> None
-      | Some constructor -> Some ([], `Constructor constructor))
-    | Field _name -> Some ([], `Field)
+      | Some constructor ->
+        Some (constructor.docstring, `Constructor constructor))
+    | Field name ->
+      Some
+        ( (match getField file stamp name with
+          | None -> []
+          | Some field -> field.docstring),
+          `Field )
     | _ -> (
       maybeLog
         ("Trying for declared " ^ Tip.toString tip ^ " " ^ string_of_int stamp

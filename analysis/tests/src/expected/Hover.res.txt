@@ -179,3 +179,16 @@ Hover src/Hover.res 230:20
 Hover src/Hover.res 233:17
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n More Stuff "}}
 
+Hover src/Hover.res 245:6
+Nothing at that position. Now trying to use completion.
+posCursor:[245:6] posNoWhite:[245:5] Found expr:[245:3->245:14]
+Pexp_field [245:3->245:4] someField:[245:5->245:14]
+Completable: Cpath Value[x].someField
+{"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n\n Mighty fine field here. "}}
+
+Hover src/Hover.res 248:19
+{"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n\n Mighty fine field here. "}}
+
+Hover src/Hover.res 253:20
+{"contents": {"kind": "markdown", "value": "```rescript\nCoolVariant\n```\n\n Cool variant! \n\n```rescript\nvariant\n```\n\n---\n\n```\n \n```\n```rescript\ntype variant = CoolVariant | OtherCoolVariant\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C251%2C0%5D)\n"}}
+

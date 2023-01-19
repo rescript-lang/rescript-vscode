@@ -9,17 +9,6 @@
 			"}"
 		]
 	},
-	"Switch": {
-		"prefix": [
-			"switch"
-		],
-		"body": [
-			"switch ${1:value} {",
-			"| ${2:pattern1} => ${3:expression}",
-			"${4:| ${5:pattern2} => ${6:expression}}",
-			"}"
-		]
-	},
 	"Try": {
 		"prefix": [
 			"try"

@@ -1,497 +1,10 @@
 open SharedTypes
 
-let domLabels =
-  let bool = "bool" in
-  let float = "float" in
-  let int = "int" in
-  let string = "string" in
-  [
-    ("ariaDetails", string);
-    ("ariaDisabled", bool);
-    ("ariaHidden", bool);
-    ("ariaKeyshortcuts", string);
-    ("ariaLabel", string);
-    ("ariaRoledescription", string);
-    ("ariaExpanded", bool);
-    ("ariaLevel", int);
-    ("ariaModal", bool);
-    ("ariaMultiline", bool);
-    ("ariaMultiselectable", bool);
-    ("ariaPlaceholder", string);
-    ("ariaReadonly", bool);
-    ("ariaRequired", bool);
-    ("ariaSelected", bool);
-    ("ariaSort", string);
-    ("ariaValuemax", float);
-    ("ariaValuemin", float);
-    ("ariaValuenow", float);
-    ("ariaValuetext", string);
-    ("ariaAtomic", bool);
-    ("ariaBusy", bool);
-    ("ariaRelevant", string);
-    ("ariaGrabbed", bool);
-    ("ariaActivedescendant", string);
-    ("ariaColcount", int);
-    ("ariaColindex", int);
-    ("ariaColspan", int);
-    ("ariaControls", string);
-    ("ariaDescribedby", string);
-    ("ariaErrormessage", string);
-    ("ariaFlowto", string);
-    ("ariaLabelledby", string);
-    ("ariaOwns", string);
-    ("ariaPosinset", int);
-    ("ariaRowcount", int);
-    ("ariaRowindex", int);
-    ("ariaRowspan", int);
-    ("ariaSetsize", int);
-    ("defaultChecked", bool);
-    ("defaultValue", string);
-    ("accessKey", string);
-    ("className", string);
-    ("contentEditable", bool);
-    ("contextMenu", string);
-    ("dir", string);
-    ("draggable", bool);
-    ("hidden", bool);
-    ("id", string);
-    ("lang", string);
-    ("style", "style");
-    ("spellCheck", bool);
-    ("tabIndex", int);
-    ("title", string);
-    ("itemID", string);
-    ("itemProp", string);
-    ("itemRef", string);
-    ("itemScope", bool);
-    ("itemType", string);
-    ("accept", string);
-    ("acceptCharset", string);
-    ("action", string);
-    ("allowFullScreen", bool);
-    ("alt", string);
-    ("async", bool);
-    ("autoComplete", string);
-    ("autoCapitalize", string);
-    ("autoFocus", bool);
-    ("autoPlay", bool);
-    ("challenge", string);
-    ("charSet", string);
-    ("checked", bool);
-    ("cite", string);
-    ("crossOrigin", string);
-    ("cols", int);
-    ("colSpan", int);
-    ("content", string);
-    ("controls", bool);
-    ("coords", string);
-    ("data", string);
-    ("dateTime", string);
-    ("default", bool);
-    ("defer", bool);
-    ("disabled", bool);
-    ("download", string);
-    ("encType", string);
-    ("form", string);
-    ("formAction", string);
-    ("formTarget", string);
-    ("formMethod", string);
-    ("headers", string);
-    ("height", string);
-    ("high", int);
-    ("href", string);
-    ("hrefLang", string);
-    ("htmlFor", string);
-    ("httpEquiv", string);
-    ("icon", string);
-    ("inputMode", string);
-    ("integrity", string);
-    ("keyType", string);
-    ("label", string);
-    ("list", string);
-    ("loop", bool);
-    ("low", int);
-    ("manifest", string);
-    ("max", string);
-    ("maxLength", int);
-    ("media", string);
-    ("mediaGroup", string);
-    ("method", string);
-    ("min", string);
-    ("minLength", int);
-    ("multiple", bool);
-    ("muted", bool);
-    ("name", string);
-    ("nonce", string);
-    ("noValidate", bool);
-    ("open_", bool);
-    ("optimum", int);
-    ("pattern", string);
-    ("placeholder", string);
-    ("playsInline", bool);
-    ("poster", string);
-    ("preload", string);
-    ("radioGroup", string);
-    ("readOnly", bool);
-    ("rel", string);
-    ("required", bool);
-    ("reversed", bool);
-    ("rows", int);
-    ("rowSpan", int);
-    ("sandbox", string);
-    ("scope", string);
-    ("scoped", bool);
-    ("scrolling", string);
-    ("selected", bool);
-    ("shape", string);
-    ("size", int);
-    ("sizes", string);
-    ("span", int);
-    ("src", string);
-    ("srcDoc", string);
-    ("srcLang", string);
-    ("srcSet", string);
-    ("start", int);
-    ("step", float);
-    ("summary", string);
-    ("target", string);
-    ("type_", string);
-    ("useMap", string);
-    ("value", string);
-    ("width", string);
-    ("wrap", string);
-    ("onCopy", "ReactEvent.Clipboard.t => unit");
-    ("onCut", "ReactEvent.Clipboard.t => unit");
-    ("onPaste", "ReactEvent.Clipboard.t => unit");
-    ("onCompositionEnd", "ReactEvent.Composition.t => unit");
-    ("onCompositionStart", "ReactEvent.Composition.t => unit");
-    ("onCompositionUpdate", "ReactEvent.Composition.t => unit");
-    ("onKeyDown", "ReactEvent.Keyboard.t => unit");
-    ("onKeyPress", "ReactEvent.Keyboard.t => unit");
-    ("onKeyUp", "ReactEvent.Keyboard.t => unit");
-    ("onFocus", "ReactEvent.Focus.t => unit");
-    ("onBlur", "ReactEvent.Focus.t => unit");
-    ("onChange", "ReactEvent.Form.t => unit");
-    ("onInput", "ReactEvent.Form.t => unit");
-    ("onSubmit", "ReactEvent.Form.t => unit");
-    ("onInvalid", "ReactEvent.Form.t => unit");
-    ("onClick", "ReactEvent.Mouse.t => unit");
-    ("onContextMenu", "ReactEvent.Mouse.t => unit");
-    ("onDoubleClick", "ReactEvent.Mouse.t => unit");
-    ("onDrag", "ReactEvent.Mouse.t => unit");
-    ("onDragEnd", "ReactEvent.Mouse.t => unit");
-    ("onDragEnter", "ReactEvent.Mouse.t => unit");
-    ("onDragExit", "ReactEvent.Mouse.t => unit");
-    ("onDragLeave", "ReactEvent.Mouse.t => unit");
-    ("onDragOver", "ReactEvent.Mouse.t => unit");
-    ("onDragStart", "ReactEvent.Mouse.t => unit");
-    ("onDrop", "ReactEvent.Mouse.t => unit");
-    ("onMouseDown", "ReactEvent.Mouse.t => unit");
-    ("onMouseEnter", "ReactEvent.Mouse.t => unit");
-    ("onMouseLeave", "ReactEvent.Mouse.t => unit");
-    ("onMouseMove", "ReactEvent.Mouse.t => unit");
-    ("onMouseOut", "ReactEvent.Mouse.t => unit");
-    ("onMouseOver", "ReactEvent.Mouse.t => unit");
-    ("onMouseUp", "ReactEvent.Mouse.t => unit");
-    ("onSelect", "ReactEvent.Selection.t => unit");
-    ("onTouchCancel", "ReactEvent.Touch.t => unit");
-    ("onTouchEnd", "ReactEvent.Touch.t => unit");
-    ("onTouchMove", "ReactEvent.Touch.t => unit");
-    ("onTouchStart", "ReactEvent.Touch.t => unit");
-    ("onPointerOver", "ReactEvent.Pointer.t => unit");
-    ("onPointerEnter", "ReactEvent.Pointer.t => unit");
-    ("onPointerDown", "ReactEvent.Pointer.t => unit");
-    ("onPointerMove", "ReactEvent.Pointer.t => unit");
-    ("onPointerUp", "ReactEvent.Pointer.t => unit");
-    ("onPointerCancel", "ReactEvent.Pointer.t => unit");
-    ("onPointerOut", "ReactEvent.Pointer.t => unit");
-    ("onPointerLeave", "ReactEvent.Pointer.t => unit");
-    ("onGotPointerCapture", "ReactEvent.Pointer.t => unit");
-    ("onLostPointerCapture", "ReactEvent.Pointer.t => unit");
-    ("onScroll", "ReactEvent.UI.t => unit");
-    ("onWheel", "ReactEvent.Wheel.t => unit");
-    ("onAbort", "ReactEvent.Media.t => unit");
-    ("onCanPlay", "ReactEvent.Media.t => unit");
-    ("onCanPlayThrough", "ReactEvent.Media.t => unit");
-    ("onDurationChange", "ReactEvent.Media.t => unit");
-    ("onEmptied", "ReactEvent.Media.t => unit");
-    ("onEncrypetd", "ReactEvent.Media.t => unit");
-    ("onEnded", "ReactEvent.Media.t => unit");
-    ("onError", "ReactEvent.Media.t => unit");
-    ("onLoadedData", "ReactEvent.Media.t => unit");
-    ("onLoadedMetadata", "ReactEvent.Media.t => unit");
-    ("onLoadStart", "ReactEvent.Media.t => unit");
-    ("onPause", "ReactEvent.Media.t => unit");
-    ("onPlay", "ReactEvent.Media.t => unit");
-    ("onPlaying", "ReactEvent.Media.t => unit");
-    ("onProgress", "ReactEvent.Media.t => unit");
-    ("onRateChange", "ReactEvent.Media.t => unit");
-    ("onSeeked", "ReactEvent.Media.t => unit");
-    ("onSeeking", "ReactEvent.Media.t => unit");
-    ("onStalled", "ReactEvent.Media.t => unit");
-    ("onSuspend", "ReactEvent.Media.t => unit");
-    ("onTimeUpdate", "ReactEvent.Media.t => unit");
-    ("onVolumeChange", "ReactEvent.Media.t => unit");
-    ("onWaiting", "ReactEvent.Media.t => unit");
-    ("onAnimationStart", "ReactEvent.Animation.t => unit");
-    ("onAnimationEnd", "ReactEvent.Animation.t => unit");
-    ("onAnimationIteration", "ReactEvent.Animation.t => unit");
-    ("onTransitionEnd", "ReactEvent.Transition.t => unit");
-    ("accentHeight", string);
-    ("accumulate", string);
-    ("additive", string);
-    ("alignmentBaseline", string);
-    ("allowReorder", string);
-    ("alphabetic", string);
-    ("amplitude", string);
-    ("arabicForm", string);
-    ("ascent", string);
-    ("attributeName", string);
-    ("attributeType", string);
-    ("autoReverse", string);
-    ("azimuth", string);
-    ("baseFrequency", string);
-    ("baseProfile", string);
-    ("baselineShift", string);
-    ("bbox", string);
-    ("bias", string);
-    ("by", string);
-    ("calcMode", string);
-    ("capHeight", string);
-    ("clip", string);
-    ("clipPath", string);
-    ("clipPathUnits", string);
-    ("clipRule", string);
-    ("colorInterpolation", string);
-    ("colorInterpolationFilters", string);
-    ("colorProfile", string);
-    ("colorRendering", string);
-    ("contentScriptType", string);
-    ("contentStyleType", string);
-    ("cursor", string);
-    ("cx", string);
-    ("cy", string);
-    ("d", string);
-    ("decelerate", string);
-    ("descent", string);
-    ("diffuseConstant", string);
-    ("direction", string);
-    ("display", string);
-    ("divisor", string);
-    ("dominantBaseline", string);
-    ("dur", string);
-    ("dx", string);
-    ("dy", string);
-    ("edgeMode", string);
-    ("elevation", string);
-    ("enableBackground", string);
-    ("exponent", string);
-    ("externalResourcesRequired", string);
-    ("fill", string);
-    ("fillOpacity", string);
-    ("fillRule", string);
-    ("filter", string);
-    ("filterRes", string);
-    ("filterUnits", string);
-    ("floodColor", string);
-    ("floodOpacity", string);
-    ("focusable", string);
-    ("fontFamily", string);
-    ("fontSize", string);
-    ("fontSizeAdjust", string);
-    ("fontStretch", string);
-    ("fontStyle", string);
-    ("fontVariant", string);
-    ("fontWeight", string);
-    ("fomat", string);
-    ("from", string);
-    ("fx", string);
-    ("fy", string);
-    ("g1", string);
-    ("g2", string);
-    ("glyphName", string);
-    ("glyphOrientationHorizontal", string);
-    ("glyphOrientationVertical", string);
-    ("glyphRef", string);
-    ("gradientTransform", string);
-    ("gradientUnits", string);
-    ("hanging", string);
-    ("horizAdvX", string);
-    ("horizOriginX", string);
-    ("ideographic", string);
-    ("imageRendering", string);
-    ("in2", string);
-    ("intercept", string);
-    ("k", string);
-    ("k1", string);
-    ("k2", string);
-    ("k3", string);
-    ("k4", string);
-    ("kernelMatrix", string);
-    ("kernelUnitLength", string);
-    ("kerning", string);
-    ("keyPoints", string);
-    ("keySplines", string);
-    ("keyTimes", string);
-    ("lengthAdjust", string);
-    ("letterSpacing", string);
-    ("lightingColor", string);
-    ("limitingConeAngle", string);
-    ("local", string);
-    ("markerEnd", string);
-    ("markerHeight", string);
-    ("markerMid", string);
-    ("markerStart", string);
-    ("markerUnits", string);
-    ("markerWidth", string);
-    ("mask", string);
-    ("maskContentUnits", string);
-    ("maskUnits", string);
-    ("mathematical", string);
-    ("mode", string);
-    ("numOctaves", string);
-    ("offset", string);
-    ("opacity", string);
-    ("operator", string);
-    ("order", string);
-    ("orient", string);
-    ("orientation", string);
-    ("origin", string);
-    ("overflow", string);
-    ("overflowX", string);
-    ("overflowY", string);
-    ("overlinePosition", string);
-    ("overlineThickness", string);
-    ("paintOrder", string);
-    ("panose1", string);
-    ("pathLength", string);
-    ("patternContentUnits", string);
-    ("patternTransform", string);
-    ("patternUnits", string);
-    ("pointerEvents", string);
-    ("points", string);
-    ("pointsAtX", string);
-    ("pointsAtY", string);
-    ("pointsAtZ", string);
-    ("preserveAlpha", string);
-    ("preserveAspectRatio", string);
-    ("primitiveUnits", string);
-    ("r", string);
-    ("radius", string);
-    ("refX", string);
-    ("refY", string);
-    ("renderingIntent", string);
-    ("repeatCount", string);
-    ("repeatDur", string);
-    ("requiredExtensions", string);
-    ("requiredFeatures", string);
-    ("restart", string);
-    ("result", string);
-    ("rotate", string);
-    ("rx", string);
-    ("ry", string);
-    ("scale", string);
-    ("seed", string);
-    ("shapeRendering", string);
-    ("slope", string);
-    ("spacing", string);
-    ("specularConstant", string);
-    ("specularExponent", string);
-    ("speed", string);
-    ("spreadMethod", string);
-    ("startOffset", string);
-    ("stdDeviation", string);
-    ("stemh", string);
-    ("stemv", string);
-    ("stitchTiles", string);
-    ("stopColor", string);
-    ("stopOpacity", string);
-    ("strikethroughPosition", string);
-    ("strikethroughThickness", string);
-    (string, string);
-    ("stroke", string);
-    ("strokeDasharray", string);
-    ("strokeDashoffset", string);
-    ("strokeLinecap", string);
-    ("strokeLinejoin", string);
-    ("strokeMiterlimit", string);
-    ("strokeOpacity", string);
-    ("strokeWidth", string);
-    ("surfaceScale", string);
-    ("systemLanguage", string);
-    ("tableValues", string);
-    ("targetX", string);
-    ("targetY", string);
-    ("textAnchor", string);
-    ("textDecoration", string);
-    ("textLength", string);
-    ("textRendering", string);
-    ("transform", string);
-    ("u1", string);
-    ("u2", string);
-    ("underlinePosition", string);
-    ("underlineThickness", string);
-    ("unicode", string);
-    ("unicodeBidi", string);
-    ("unicodeRange", string);
-    ("unitsPerEm", string);
-    ("vAlphabetic", string);
-    ("vHanging", string);
-    ("vIdeographic", string);
-    ("vMathematical", string);
-    ("values", string);
-    ("vectorEffect", string);
-    ("version", string);
-    ("vertAdvX", string);
-    ("vertAdvY", string);
-    ("vertOriginX", string);
-    ("vertOriginY", string);
-    ("viewBox", string);
-    ("viewTarget", string);
-    ("visibility", string);
-    ("widths", string);
-    ("wordSpacing", string);
-    ("writingMode", string);
-    ("x", string);
-    ("x1", string);
-    ("x2", string);
-    ("xChannelSelector", string);
-    ("xHeight", string);
-    ("xlinkActuate", string);
-    ("xlinkArcrole", string);
-    ("xlinkHref", string);
-    ("xlinkRole", string);
-    ("xlinkShow", string);
-    ("xlinkTitle", string);
-    ("xlinkType", string);
-    ("xmlns", string);
-    ("xmlnsXlink", string);
-    ("xmlBase", string);
-    ("xmlLang", string);
-    ("xmlSpace", string);
-    ("y", string);
-    ("y1", string);
-    ("y2", string);
-    ("yChannelSelector", string);
-    ("z", string);
-    ("zoomAndPan", string);
-    ("about", string);
-    ("datatype", string);
-    ("inlist", string);
-    ("prefix", string);
-    ("property", string);
-    ("resource", string);
-    ("typeof", string);
-    ("vocab", string);
-    ("dangerouslySetInnerHTML", "{\"__html\": string}");
-    ("suppressContentEditableWarning", bool);
-  ]
-
 let showConstructor {Constructor.cname = {txt}; args; res} =
   txt
   ^ (match args with
-    | [] -> ""
-    | _ ->
+    | Args [] | InlineRecord _ -> ""
+    | Args args ->
       "("
       ^ (args
         |> List.map (fun (typ, _) -> typ |> Shared.typeToString)
@@ -542,22 +55,19 @@ let resolveOpens ~env opens ~package =
     (* loop(previous) *)
     [] opens
 
-let checkName name ~prefix ~exact =
-  if exact then name = prefix else Utils.startsWith name prefix
-
 let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
     ~namesUsed transformContents =
   let res = ref [] in
   iterExported (fun name stamp ->
       (* Log.log("checking exported: " ++ name); *)
-      if checkName name ~prefix ~exact then
+      if Utils.checkName name ~prefix ~exact then
         match getDeclared stamp with
         | Some (declared : _ Declared.t)
           when not (Hashtbl.mem namesUsed declared.name.txt) ->
           Hashtbl.add namesUsed declared.name.txt ();
           res :=
             {
-              (Completion.create ~name:declared.name.txt ~env
+              (Completion.create declared.name.txt ~env
                  ~kind:(transformContents declared.item))
               with
               deprecated = declared.deprecated;
@@ -591,13 +101,13 @@ let completionsForExportedConstructors ~(env : QueryEnv.t) ~prefix ~exact
         res :=
           (constructors
           |> List.filter (fun c ->
-                 checkName c.Constructor.cname.txt ~prefix ~exact)
+                 Utils.checkName c.Constructor.cname.txt ~prefix ~exact)
           |> Utils.filterMap (fun c ->
                  let name = c.Constructor.cname.txt in
                  if not (Hashtbl.mem namesUsed name) then
                    let () = Hashtbl.add namesUsed name () in
                    Some
-                     (Completion.create ~name ~env
+                     (Completion.create name ~env ~docstring:c.docstring
                         ~kind:
                           (Completion.Constructor
                              (c, t.item.decl |> Shared.declToString t.name.txt)))
@@ -613,13 +123,13 @@ let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
       | Some ({item = {kind = Record fields}} as t) ->
         res :=
           (fields
-          |> List.filter (fun f -> checkName f.fname.txt ~prefix ~exact)
+          |> List.filter (fun f -> Utils.checkName f.fname.txt ~prefix ~exact)
           |> Utils.filterMap (fun f ->
                  let name = f.fname.txt in
                  if not (Hashtbl.mem namesUsed name) then
                    let () = Hashtbl.add namesUsed name () in
                    Some
-                     (Completion.create ~name ~env
+                     (Completion.create name ~env ~docstring:f.docstring
                         ~kind:
                           (Completion.Field
                              (f, t.item.decl |> Shared.declToString t.name.txt)))
@@ -722,6 +232,7 @@ let detail name (kind : Completion.kind) =
           |> String.concat ", ")
         ^ ")")
     ^ "\n\n" ^ s
+  | Snippet s -> s
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
@@ -739,69 +250,16 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     completionForExportedFields ~env ~prefix ~exact ~namesUsed
     @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
 
-module LocalTables = struct
-  type 'a table = (string * (int * int), 'a Declared.t) Hashtbl.t
-  type namesUsed = (string, unit) Hashtbl.t
-
-  type t = {
-    namesUsed: namesUsed;
-    mutable resultRev: Completion.t list;
-    constructorTable: Constructor.t table;
-    modulesTable: Module.t table;
-    typesTable: Type.t table;
-    valueTable: Types.type_expr table;
-  }
-
-  let create () =
-    {
-      namesUsed = Hashtbl.create 1;
-      resultRev = [];
-      constructorTable = Hashtbl.create 1;
-      modulesTable = Hashtbl.create 1;
-      typesTable = Hashtbl.create 1;
-      valueTable = Hashtbl.create 1;
-    }
-
-  let populateValues ~env localTables =
-    env.QueryEnv.file.stamps
-    |> Stamps.iterValues (fun _ declared ->
-           Hashtbl.replace localTables.valueTable
-             (declared.name.txt, declared.extentLoc |> Loc.start)
-             declared)
-
-  let populateConstructors ~env localTables =
-    env.QueryEnv.file.stamps
-    |> Stamps.iterConstructors (fun _ declared ->
-           Hashtbl.replace localTables.constructorTable
-             (declared.name.txt, declared.extentLoc |> Loc.start)
-             declared)
-
-  let populateTypes ~env localTables =
-    env.QueryEnv.file.stamps
-    |> Stamps.iterTypes (fun _ declared ->
-           Hashtbl.replace localTables.typesTable
-             (declared.name.txt, declared.name.loc |> Loc.start)
-             declared)
-
-  let populateModules ~env localTables =
-    env.QueryEnv.file.stamps
-    |> Stamps.iterModules (fun _ declared ->
-           Hashtbl.replace localTables.modulesTable
-             (declared.name.txt, declared.extentLoc |> Loc.start)
-             declared)
-end
-
 let processLocalValue name loc ~prefix ~exact ~env
     ~(localTables : LocalTables.t) =
-  if checkName name ~prefix ~exact then
+  if Utils.checkName name ~prefix ~exact then
     match Hashtbl.find_opt localTables.valueTable (name, Loc.start loc) with
     | Some declared ->
       if not (Hashtbl.mem localTables.namesUsed name) then (
         Hashtbl.add localTables.namesUsed name ();
         localTables.resultRev <-
           {
-            (Completion.create ~name:declared.name.txt ~env
-               ~kind:(Value declared.item))
+            (Completion.create declared.name.txt ~env ~kind:(Value declared.item))
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -812,7 +270,7 @@ let processLocalValue name loc ~prefix ~exact ~env
         (Printf.sprintf "Completion Value Not Found %s loc:%s\n" name
            (Loc.toString loc));
       localTables.resultRev <-
-        Completion.create ~name ~env
+        Completion.create name ~env
           ~kind:
             (Value
                (Ctype.newconstr
@@ -822,7 +280,7 @@ let processLocalValue name loc ~prefix ~exact ~env
 
 let processLocalConstructor name loc ~prefix ~exact ~env
     ~(localTables : LocalTables.t) =
-  if checkName name ~prefix ~exact then
+  if Utils.checkName name ~prefix ~exact then
     match
       Hashtbl.find_opt localTables.constructorTable (name, Loc.start loc)
     with
@@ -831,7 +289,7 @@ let processLocalConstructor name loc ~prefix ~exact ~env
         Hashtbl.add localTables.namesUsed name ();
         localTables.resultRev <-
           {
-            (Completion.create ~name:declared.name.txt ~env
+            (Completion.create declared.name.txt ~env
                ~kind:
                  (Constructor
                     ( declared.item,
@@ -849,15 +307,14 @@ let processLocalConstructor name loc ~prefix ~exact ~env
 
 let processLocalType name loc ~prefix ~exact ~env ~(localTables : LocalTables.t)
     =
-  if checkName name ~prefix ~exact then
+  if Utils.checkName name ~prefix ~exact then
     match Hashtbl.find_opt localTables.typesTable (name, Loc.start loc) with
     | Some declared ->
       if not (Hashtbl.mem localTables.namesUsed name) then (
         Hashtbl.add localTables.namesUsed name ();
         localTables.resultRev <-
           {
-            (Completion.create ~name:declared.name.txt ~env
-               ~kind:(Type declared.item))
+            (Completion.create declared.name.txt ~env ~kind:(Type declared.item))
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -870,14 +327,14 @@ let processLocalType name loc ~prefix ~exact ~env ~(localTables : LocalTables.t)
 
 let processLocalModule name loc ~prefix ~exact ~env
     ~(localTables : LocalTables.t) =
-  if checkName name ~prefix ~exact then
+  if Utils.checkName name ~prefix ~exact then
     match Hashtbl.find_opt localTables.modulesTable (name, Loc.start loc) with
     | Some declared ->
       if not (Hashtbl.mem localTables.namesUsed name) then (
         Hashtbl.add localTables.namesUsed name ();
         localTables.resultRev <-
           {
-            (Completion.create ~name:declared.name.txt ~env
+            (Completion.create declared.name.txt ~env
                ~kind:(Module declared.item))
             with
             deprecated = declared.deprecated;
@@ -926,6 +383,30 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
   scope
   |> Scope.iterConstructorsAfterFirstOpen
        (processLocalConstructor ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesAfterFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+  List.rev_append localTables.resultRev valuesFromOpens
+
+let findLocalCompletionsForValues ~(localTables : LocalTables.t) ~env ~prefix
+    ~exact ~opens ~scope =
+  localTables |> LocalTables.populateValues ~env;
+  localTables |> LocalTables.populateModules ~env;
+  scope
+  |> Scope.iterValuesBeforeFirstOpen
+       (processLocalValue ~prefix ~exact ~env ~localTables);
+  scope
+  |> Scope.iterModulesBeforeFirstOpen
+       (processLocalModule ~prefix ~exact ~env ~localTables);
+
+  let valuesFromOpens =
+    getItemsFromOpens ~opens ~localTables ~prefix ~exact
+      ~completionContext:Value
+  in
+
+  scope
+  |> Scope.iterValuesAfterFirstOpen
+       (processLocalValue ~prefix ~exact ~env ~localTables);
   scope
   |> Scope.iterModulesAfterFirstOpen
        (processLocalModule ~prefix ~exact ~env ~localTables);
@@ -991,112 +472,27 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
     (* There's no local completion for fields *)
     []
 
-let instantiateType ~typeParams ~typeArgs (t : Types.type_expr) =
-  if typeParams = [] || typeArgs = [] then t
-  else
-    let rec applySub tp ta t =
-      match (tp, ta) with
-      | t1 :: tRest1, t2 :: tRest2 ->
-        if t1 = t then t2 else applySub tRest1 tRest2 t
-      | [], _ | _, [] -> t
-    in
-    let rec loop (t : Types.type_expr) =
-      match t.desc with
-      | Tlink t -> loop t
-      | Tvar _ -> applySub typeParams typeArgs t
-      | Tunivar _ -> t
-      | Tconstr (path, args, memo) ->
-        {t with desc = Tconstr (path, args |> List.map loop, memo)}
-      | Tsubst t -> loop t
-      | Tvariant rd -> {t with desc = Tvariant (rowDesc rd)}
-      | Tnil -> t
-      | Tarrow (lbl, t1, t2, c) ->
-        {t with desc = Tarrow (lbl, loop t1, loop t2, c)}
-      | Ttuple tl -> {t with desc = Ttuple (tl |> List.map loop)}
-      | Tobject (t, r) -> {t with desc = Tobject (loop t, r)}
-      | Tfield (n, k, t1, t2) -> {t with desc = Tfield (n, k, loop t1, loop t2)}
-      | Tpoly (t, []) -> loop t
-      | Tpoly (t, tl) -> {t with desc = Tpoly (loop t, tl |> List.map loop)}
-      | Tpackage (p, l, tl) ->
-        {t with desc = Tpackage (p, l, tl |> List.map loop)}
-    and rowDesc (rd : Types.row_desc) =
-      let row_fields =
-        rd.row_fields |> List.map (fun (l, rf) -> (l, rowField rf))
-      in
-      let row_more = loop rd.row_more in
-      let row_name =
-        match rd.row_name with
-        | None -> None
-        | Some (p, tl) -> Some (p, tl |> List.map loop)
-      in
-      {rd with row_fields; row_more; row_name}
-    and rowField (rf : Types.row_field) =
-      match rf with
-      | Rpresent None -> rf
-      | Rpresent (Some t) -> Rpresent (Some (loop t))
-      | Reither (b1, tl, b2, r) -> Reither (b1, tl |> List.map loop, b2, r)
-      | Rabsent -> Rabsent
-    in
-    loop t
-
-let rec extractRecordType ~env ~package (t : Types.type_expr) =
-  match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractRecordType ~env ~package t1
-  | Tconstr (path, typeArgs, _) -> (
-    match References.digConstructor ~env ~package path with
-    | Some (env, ({item = {kind = Record fields}} as typ)) ->
-      let typeParams = typ.item.decl.type_params in
-      let fields =
-        fields
-        |> List.map (fun field ->
-               let fieldTyp =
-                 field.typ |> instantiateType ~typeParams ~typeArgs
-               in
-               {field with typ = fieldTyp})
-      in
-      Some (env, fields, typ)
-    | Some
-        ( env,
-          {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}
-        ) ->
-      let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
-      extractRecordType ~env ~package t1
-    | _ -> None)
-  | _ -> None
-
-let rec extractObjectType ~env ~package (t : Types.type_expr) =
-  match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractObjectType ~env ~package t1
-  | Tobject (tObj, _) -> Some (env, tObj)
-  | Tconstr (path, typeArgs, _) -> (
-    match References.digConstructor ~env ~package path with
-    | Some
-        ( env,
-          {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}
-        ) ->
-      let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
-      extractObjectType ~env ~package t1
-    | _ -> None)
-  | _ -> None
-
-let extractFunctionType ~env ~package typ =
-  let rec loop ~env acc (t : Types.type_expr) =
-    match t.desc with
-    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop ~env acc t1
-    | Tarrow (label, tArg, tRet, _) -> loop ~env ((label, tArg) :: acc) tRet
-    | Tconstr (path, typeArgs, _) -> (
-      match References.digConstructor ~env ~package path with
-      | Some
-          ( env,
-            {
-              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
-            } ) ->
-        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
-        loop ~env acc t1
-      | _ -> (List.rev acc, t))
-    | _ -> (List.rev acc, t)
+let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env prefix
+    =
+  let exact = false in
+  let localCompletionsWithOpens =
+    let localTables = LocalTables.create () in
+    findLocalCompletionsForValues ~localTables ~env ~prefix ~exact ~opens ~scope
   in
-  loop ~env [] typ
+  let fileModules =
+    allFiles |> FileSet.elements
+    |> Utils.filterMap (fun name ->
+           if
+             Utils.checkName name ~prefix ~exact
+             && not
+                  (* TODO complete the namespaced name too *)
+                  (String.contains name '-')
+           then
+             Some
+               (Completion.create name ~env ~kind:(Completion.FileModule name))
+           else None)
+  in
+  localCompletionsWithOpens @ fileModules
 
 let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
@@ -1111,14 +507,13 @@ let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
       allFiles |> FileSet.elements
       |> Utils.filterMap (fun name ->
              if
-               checkName name ~prefix ~exact
+               Utils.checkName name ~prefix ~exact
                && not
                     (* TODO complete the namespaced name too *)
                     (String.contains name '-')
              then
                Some
-                 (Completion.create ~name ~env
-                    ~kind:(Completion.FileModule name))
+                 (Completion.create name ~env ~kind:(Completion.FileModule name))
              else None)
     in
     localCompletionsWithOpens @ fileModules
@@ -1158,6 +553,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       sortText = None;
       insertText = None;
       insertTextFormat = None;
+      filterText = None;
     }
 
 let completionToItem
@@ -1169,6 +565,7 @@ let completionToItem
       sortText;
       insertText;
       insertTextFormat;
+      filterText;
     } =
   let item =
     mkItem ~name
@@ -1176,7 +573,7 @@ let completionToItem
       ~deprecated ~detail:(detail name kind) ~docstring
   in
   if !Cfg.supportsSnippets then
-    {item with sortText; insertText; insertTextFormat}
+    {item with sortText; insertText; insertTextFormat; filterText}
   else item
 
 let completionsGetTypeEnv = function
@@ -1185,42 +582,34 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
-let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
-  match References.getLocItem ~full ~pos:(loc |> Loc.end_) ~debug with
-  | Some {locType = Typed (_, typExpr, _)} -> (
-    match extractFunctionType ~env ~package:full.package typExpr with
-    | args, tRet when args <> [] -> Some tRet
-    | _ -> None)
-  | _ -> None
-
 let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     ~exact ~scope (contextPath : Completable.contextPath) =
   let package = full.package in
   match contextPath with
   | CPString ->
     [
-      Completion.create ~name:"string" ~env
+      Completion.create "string" ~env
         ~kind:
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
     ]
   | CPInt ->
     [
-      Completion.create ~name:"int" ~env
+      Completion.create "int" ~env
         ~kind:
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "int")) []));
     ]
   | CPFloat ->
     [
-      Completion.create ~name:"float" ~env
+      Completion.create "float" ~env
         ~kind:
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "float")) []));
     ]
   | CPArray ->
     [
-      Completion.create ~name:"array" ~env
+      Completion.create "array" ~env
         ~kind:
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
@@ -1263,11 +652,11 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         | [], [(Nolabel | Labelled _ | Optional _)] ->
           (* should not happen, but just ignore extra arguments *) []
       in
-      match extractFunctionType ~env ~package typ with
+      match TypeUtils.extractFunctionType ~env ~package typ with
       | args, tRet when args <> [] ->
         let args = processApply args labels in
         let retType = reconstructFunctionType args tRet in
-        [Completion.create ~name:"dummy" ~env ~kind:(Completion.Value retType)]
+        [Completion.create "dummy" ~env ~kind:(Completion.Value retType)]
       | _ -> [])
     | None -> [])
   | CPField (CPId (path, Module), fieldName) ->
@@ -1283,13 +672,14 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
-      match typ |> extractRecordType ~env ~package with
+      match typ |> TypeUtils.extractRecordType ~env ~package with
       | Some (env, fields, typDecl) ->
         fields
         |> Utils.filterMap (fun field ->
-               if checkName field.fname.txt ~prefix:fieldName ~exact then
+               if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
                  Some
-                   (Completion.create ~name:field.fname.txt ~env
+                   (Completion.create field.fname.txt ~env
+                      ~docstring:field.docstring
                       ~kind:
                         (Completion.Field
                            ( field,
@@ -1306,7 +696,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
-      match typ |> extractObjectType ~env ~package with
+      match typ |> TypeUtils.extractObjectType ~env ~package with
       | Some (env, tObj) ->
         let rec getFields (texp : Types.type_expr) =
           match texp.desc with
@@ -1319,102 +709,65 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         in
         tObj |> getFields
         |> Utils.filterMap (fun (field, typ) ->
-               if checkName field ~prefix:label ~exact then
+               if Utils.checkName field ~prefix:label ~exact then
                  Some
-                   (Completion.create ~name:field ~env
-                      ~kind:(Completion.ObjLabel typ))
+                   (Completion.create field ~env ~kind:(Completion.ObjLabel typ))
                else None)
       | None -> [])
     | None -> [])
-  | CPPipe {contextPath = cp; id = funNamePrefix; lhsLoc} -> (
+  | CPPipe {contextPath = cp; id = funNamePrefix; lhsLoc; inJsx} -> (
     match
       cp
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
       |> completionsGetTypeEnv
     with
+    | None -> []
     | Some (typ, envFromCompletionItem) -> (
-      (* If the type we're completing on is a type parameter, we won't be able to do
-         completion unless we know what that type parameter is compiled as. This
-         attempts to look up the compiled type for that type parameter by looking
-         for compiled information at the loc of that expression. *)
-      let typ =
-        match typ with
-        | {Types.desc = Tvar _} -> (
-          match
-            findReturnTypeOfFunctionAtLoc lhsLoc ~env ~full ~debug:false
-          with
-          | None -> typ
-          | Some typFromLoc -> typFromLoc)
-        | _ -> typ
-      in
-      let {
-        arrayModulePath;
-        optionModulePath;
-        stringModulePath;
-        intModulePath;
-        floatModulePath;
-        promiseModulePath;
-        listModulePath;
-        resultModulePath;
-      } =
-        package.builtInCompletionModules
-      in
-      let getBuiltinTypePath path =
-        match path with
-        | Path.Pident id when Ident.name id = "array" -> Some arrayModulePath
-        | Path.Pident id when Ident.name id = "option" -> Some optionModulePath
-        | Path.Pident id when Ident.name id = "string" -> Some stringModulePath
-        | Path.Pident id when Ident.name id = "int" -> Some intModulePath
-        | Path.Pident id when Ident.name id = "float" -> Some floatModulePath
-        | Path.Pident id when Ident.name id = "promise" ->
-          Some promiseModulePath
-        | Path.Pident id when Ident.name id = "list" -> Some listModulePath
-        | Path.Pident id when Ident.name id = "result" -> Some resultModulePath
-        | Path.Pident id when Ident.name id = "lazy_t" -> Some ["Lazy"]
-        | Path.Pident id when Ident.name id = "char" -> Some ["Char"]
-        | Pdot (Pident id, "result", _) when Ident.name id = "Pervasives" ->
-          Some resultModulePath
-        | _ -> None
-      in
-      let rec expandPath (path : Path.t) =
-        match path with
-        | Pident id -> [Ident.name id]
-        | Pdot (p, s, _) -> s :: expandPath p
-        | Papply _ -> []
-      in
-      let getTypePath typ =
-        match typ.Types.desc with
-        | Tconstr (path, _typeArgs, _)
-        | Tlink {desc = Tconstr (path, _typeArgs, _)}
-        | Tsubst {desc = Tconstr (path, _typeArgs, _)}
-        | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
-          Some path
-        | _ -> None
-      in
-      let rec removeRawOpen rawOpen modulePath =
-        match (rawOpen, modulePath) with
-        | [_], _ -> Some modulePath
-        | s :: inner, first :: restPath when s = first ->
-          removeRawOpen inner restPath
-        | _ -> None
-      in
-      let rec removeRawOpens rawOpens modulePath =
-        match rawOpens with
-        | rawOpen :: restOpens -> (
-          let newModulePath = removeRawOpens restOpens modulePath in
-          match removeRawOpen rawOpen newModulePath with
-          | None -> newModulePath
-          | Some mp -> mp)
-        | [] -> modulePath
+      let env, typ =
+        typ
+        |> TypeUtils.resolveTypeForPipeCompletion ~env ~package ~full ~lhsLoc
       in
       let completionPath =
-        match getTypePath typ with
-        | Some typePath -> (
-          match getBuiltinTypePath typePath with
-          | Some path -> Some path
-          | None -> (
-            match expandPath typePath with
+        match typ with
+        | Builtin (builtin, _) ->
+          let {
+            arrayModulePath;
+            optionModulePath;
+            stringModulePath;
+            intModulePath;
+            floatModulePath;
+            promiseModulePath;
+            listModulePath;
+            resultModulePath;
+          } =
+            package.builtInCompletionModules
+          in
+          Some
+            (match builtin with
+            | Array -> arrayModulePath
+            | Option -> optionModulePath
+            | String -> stringModulePath
+            | Int -> intModulePath
+            | Float -> floatModulePath
+            | Promise -> promiseModulePath
+            | List -> listModulePath
+            | Result -> resultModulePath
+            | Lazy -> ["Lazy"]
+            | Char -> ["Char"])
+        | TypExpr t -> (
+          let rec expandPath (path : Path.t) =
+            match path with
+            | Pident id -> [Ident.name id]
+            | Pdot (p, s, _) -> s :: expandPath p
+            | Papply _ -> []
+          in
+          match t.Types.desc with
+          | Tconstr (path, _typeArgs, _)
+          | Tlink {desc = Tconstr (path, _typeArgs, _)}
+          | Tsubst {desc = Tconstr (path, _typeArgs, _)}
+          | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) -> (
+            match expandPath path with
             | _ :: pathRev ->
               (* type path is relative to the completion environment
                  express it from the root of the file *)
@@ -1429,11 +782,27 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                   else envFromCompletionItem.file.moduleName :: pathFromEnv_
                 in
                 Some pathFromEnv
-            | _ -> None))
-        | None -> None
+            | _ -> None)
+          | _ -> None)
       in
       match completionPath with
-      | Some completionPath ->
+      | Some completionPath -> (
+        let rec removeRawOpen rawOpen modulePath =
+          match (rawOpen, modulePath) with
+          | [_], _ -> Some modulePath
+          | s :: inner, first :: restPath when s = first ->
+            removeRawOpen inner restPath
+          | _ -> None
+        in
+        let rec removeRawOpens rawOpens modulePath =
+          match rawOpens with
+          | rawOpen :: restOpens -> (
+            let newModulePath = removeRawOpens restOpens modulePath in
+            match removeRawOpen rawOpen newModulePath with
+            | None -> newModulePath
+            | Some mp -> mp)
+          | [] -> modulePath
+        in
         let completionPathMinusOpens =
           completionPath
           |> removeRawOpens package.opens
@@ -1448,16 +817,118 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           |> getCompletionsForPath ~completionContext:Value ~exact:false
                ~package ~opens ~allFiles ~pos ~env ~scope
         in
-        completions
-        |> List.map (fun (completion : Completion.t) ->
-               {
-                 completion with
-                 name = completionName completion.name;
-                 env
-                 (* Restore original env for the completion after x->foo()... *);
-               })
-      | None -> [])
-    | None -> [])
+        let completions =
+          completions
+          |> List.map (fun (completion : Completion.t) ->
+                 {
+                   completion with
+                   name = completionName completion.name;
+                   env
+                   (* Restore original env for the completion after x->foo()... *);
+                 })
+        in
+        (* We add React element functions to the completion if we're in a JSX context *)
+        let forJsxCompletion =
+          if inJsx then
+            match typ with
+            | Builtin (Int, t) -> Some ("int", t)
+            | Builtin (Float, t) -> Some ("float", t)
+            | Builtin (String, t) -> Some ("string", t)
+            | Builtin (Array, t) -> Some ("array", t)
+            | _ -> None
+          else None
+        in
+        match forJsxCompletion with
+        | Some (builtinNameToComplete, typ)
+          when Utils.checkName builtinNameToComplete ~prefix:funNamePrefix
+                 ~exact:false ->
+          [
+            Completion.createWithSnippet
+              ~name:("React." ^ builtinNameToComplete)
+              ~kind:(Value typ) ~env ~sortText:"A"
+              ~docstring:
+                [
+                  "Turns `" ^ builtinNameToComplete
+                  ^ "` into `React.element` so it can be used inside of JSX.";
+                ]
+              ();
+          ]
+          @ completions
+        | _ -> completions)
+      | None -> []))
+  | CTuple ctxPaths ->
+    (* Turn a list of context paths into a list of type expressions. *)
+    let typeExrps =
+      ctxPaths
+      |> List.map (fun contextPath ->
+             contextPath
+             |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles
+                  ~pos ~env ~exact:true ~scope)
+      |> List.filter_map (fun completionItems ->
+             match completionItems with
+             | {Completion.kind = Value typ} :: _ -> Some typ
+             | _ -> None)
+    in
+    if List.length ctxPaths = List.length typeExrps then
+      [
+        Completion.create "dummy" ~env
+          ~kind:(Completion.Value (Ctype.newty (Ttuple typeExrps)));
+      ]
+    else []
+  | CJsxPropValue {pathToComponent; propName} -> (
+    let findTypeOfValue path =
+      path
+      |> getCompletionsForPath ~completionContext:Value ~exact:true ~package
+           ~opens ~allFiles ~pos ~env ~scope
+      |> completionsGetTypeEnv
+    in
+    let targetLabel =
+      CompletionJsx.getJsxLabels ~componentPath:pathToComponent ~findTypeOfValue
+        ~package
+      |> List.find_opt (fun (label, _, _) -> label = propName)
+    in
+    match targetLabel with
+    | None -> []
+    | Some (_, typ, env) ->
+      [
+        Completion.create "dummy" ~env
+          ~kind:(Completion.Value (Utils.unwrapIfOption typ));
+      ])
+  | CArgument {functionContextPath; argumentLabel} -> (
+    let labels, env =
+      match
+        functionContextPath
+        |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:true ~scope
+        |> completionsGetTypeEnv
+      with
+      | Some (typ, env) -> (typ |> TypeUtils.getArgs ~full ~env, env)
+      | None -> ([], env)
+    in
+    let targetLabel =
+      labels
+      |> List.find_opt (fun (label, _) ->
+             match argumentLabel with
+             | Unlabelled _ -> label = argumentLabel
+             | Labelled name | Optional name -> (
+               match label with
+               | (Labelled n | Optional n) when name = n -> true
+               | _ -> false))
+    in
+    let expandOption =
+      match targetLabel with
+      | None | Some ((Unlabelled _ | Labelled _), _) -> false
+      | Some (Optional _, _) -> true
+    in
+    match targetLabel with
+    | None -> []
+    | Some (_, typ) ->
+      [
+        Completion.create "dummy" ~env
+          ~kind:
+            (Completion.Value
+               (if expandOption then Utils.unwrapIfOption typ else typ));
+      ])
 
 let getOpens ~debug ~rawOpens ~package ~env =
   if debug && rawOpens <> [] then
@@ -1485,76 +956,6 @@ let getOpens ~debug ~rawOpens ~package ~env =
   (* Last open takes priority *)
   List.rev resolvedOpens
 
-let getArgs ~env (t : Types.type_expr) ~full =
-  let rec getArgsLoop ~env (t : Types.type_expr) ~full ~currentArgumentPosition
-      =
-    match t.desc with
-    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
-      getArgsLoop ~full ~env ~currentArgumentPosition t1
-    | Tarrow (Labelled l, tArg, tRet, _) ->
-      (SharedTypes.Completable.Labelled l, tArg)
-      :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
-    | Tarrow (Optional l, tArg, tRet, _) ->
-      (Optional l, tArg) :: getArgsLoop ~full ~env ~currentArgumentPosition tRet
-    | Tarrow (Nolabel, tArg, tRet, _) ->
-      (Unlabelled {argumentPosition = currentArgumentPosition}, tArg)
-      :: getArgsLoop ~full ~env
-           ~currentArgumentPosition:(currentArgumentPosition + 1)
-           tRet
-    | Tconstr (path, typeArgs, _) -> (
-      match References.digConstructor ~env ~package:full.package path with
-      | Some
-          ( env,
-            {
-              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
-            } ) ->
-        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
-        getArgsLoop ~full ~env ~currentArgumentPosition t1
-      | _ -> [])
-    | _ -> []
-  in
-  t |> getArgsLoop ~env ~full ~currentArgumentPosition:0
-
-(** Pulls out a type we can complete from a type expr. *)
-let rec extractType ~env ~package (t : Types.type_expr) =
-  match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
-  | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    Some (Completable.Toption (env, payloadTypeExpr))
-  | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
-    Some (Tarray (env, payloadTypeExpr))
-  | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
-  | Tconstr (path, _, _) -> (
-    match References.digConstructor ~env ~package path with
-    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
-      extractType ~env ~package t1
-    | Some (env, {name; item = {decl; kind = Type.Variant constructors}}) ->
-      Some
-        (Tvariant
-           {env; constructors; variantName = name.txt; variantDecl = decl})
-    | Some (env, {item = {kind = Record fields}}) ->
-      Some (Trecord {env; fields; typeExpr = t})
-    | _ -> None)
-  | Ttuple expressions -> Some (Tuple (env, expressions, t))
-  | Tvariant {row_fields} ->
-    let constructors =
-      row_fields
-      |> List.map (fun (label, field) ->
-             {
-               name = label;
-               args =
-                 (* Multiple arguments are represented as a Ttuple, while a single argument is just the type expression itself. *)
-                 (match field with
-                 | Types.Rpresent (Some typeExpr) -> (
-                   match typeExpr.desc with
-                   | Ttuple args -> args
-                   | _ -> [typeExpr])
-                 | _ -> []);
-             })
-    in
-    Some (Tpolyvariant {env; constructors; typeExpr = t})
-  | _ -> None
-
 let filterItems items ~prefix =
   if prefix = "" then items
   else
@@ -1571,245 +972,206 @@ let printConstructorArgs argsLen ~asSnippet =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-let completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-    ~expandOption ~includeLocalValues ~completionContext =
-  let namesUsed = Hashtbl.create 10 in
-  let rec completeTypedValueInner t ~env ~full ~prefix ~expandOption =
-    let items =
-      match t |> extractType ~env ~package:full.package with
-      | Some (Toption (env, typ)) when expandOption ->
-        typ |> completeTypedValueInner ~env ~full ~prefix ~expandOption:false
-      | Some (Tbool env) ->
-        [
-          Completion.create ~name:"true"
-            ~kind:(Label (t |> Shared.typeToString))
-            ~env;
-          Completion.create ~name:"false"
-            ~kind:(Label (t |> Shared.typeToString))
-            ~env;
-        ]
-        |> filterItems ~prefix
-      | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
-        constructors
-        |> List.map (fun (constructor : Constructor.t) ->
-               Completion.createWithSnippet
-                 ~name:
-                   (constructor.cname.txt
-                   ^ printConstructorArgs
-                       (List.length constructor.args)
-                       ~asSnippet:false)
-                 ~insertText:
-                   (constructor.cname.txt
-                   ^ printConstructorArgs
-                       (List.length constructor.args)
-                       ~asSnippet:true)
-                 ~kind:
-                   (Constructor
-                      ( constructor,
-                        variantDecl |> Shared.declToString variantName ))
-                 ~env ())
-        |> filterItems ~prefix
-      | Some (Tpolyvariant {env; constructors; typeExpr}) ->
-        constructors
-        |> List.map (fun (constructor : polyVariantConstructor) ->
-               Completion.createWithSnippet
-                 ~name:
-                   ("#" ^ constructor.name
-                   ^ printConstructorArgs
-                       (List.length constructor.args)
-                       ~asSnippet:false)
-                 ~insertText:
-                   ((if Utils.startsWith prefix "#" then "" else "#")
-                   ^ constructor.name
-                   ^ printConstructorArgs
-                       (List.length constructor.args)
-                       ~asSnippet:true)
-                 ~kind:
-                   (PolyvariantConstructor
-                      (constructor, typeExpr |> Shared.typeToString))
-                 ~env ())
-        |> filterItems ~prefix
-      | Some (Toption (env, t)) ->
-        [
-          Completion.create ~name:"None"
-            ~kind:(Label (t |> Shared.typeToString))
-            ~env;
-          Completion.createWithSnippet ~name:"Some(_)"
-            ~kind:(Label (t |> Shared.typeToString))
-            ~env ~insertText:"Some(${1:_})" ();
-        ]
-        |> filterItems ~prefix
-      | Some (Tuple (env, exprs, typ)) ->
-        let numExprs = List.length exprs in
-        [
-          Completion.createWithSnippet
-            ~name:(printConstructorArgs numExprs ~asSnippet:false)
-            ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
-            ~kind:(Value typ) ~env ();
-        ]
-      | Some (Trecord {env; fields; typeExpr}) -> (
-        (* As we're completing for a record, we'll need a hint (completionContext)
-           here to figure out whether we should complete for a record field, or
-           the record body itself. *)
-        match completionContext with
-        | Some (Completable.RecordField {seenFields}) ->
-          fields
-          |> List.filter (fun (field : field) ->
-                 List.mem field.fname.txt seenFields = false)
-          |> List.map (fun (field : field) ->
-                 Completion.create ~name:field.fname.txt
-                   ~kind:(Field (field, typeExpr |> Shared.typeToString))
-                   ~env)
-          |> filterItems ~prefix
-        | None ->
-          [
-            Completion.createWithSnippet ~name:"{}"
-              ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
-              ~sortText:"a" ~kind:(Value typeExpr) ~env ();
-          ])
-      | Some (Tarray (env, typeExpr)) ->
-        [
-          Completion.createWithSnippet ~name:"[]"
-            ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
-            ~sortText:"a" ~kind:(Value typeExpr) ~env ();
-        ]
-      | _ -> []
-    in
-    (* Include all values and modules in completion if there's a prefix, not otherwise *)
-    if prefix = "" || includeLocalValues = false then items
-    else
-      items
-      @ completionForExportedValues ~env:envWhereCompletionStarted ~prefix
-          ~exact:false ~namesUsed
-      @ completionForExportedModules ~env:envWhereCompletionStarted ~prefix
-          ~exact:false ~namesUsed
+type completionMode = Pattern | Expression
+
+let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
+    ~completionContext ~mode =
+  let extractedType =
+    match t with
+    | TypeExpr t -> t |> TypeUtils.extractType ~env ~package:full.package
+    | InlineRecord fields -> Some (TinlineRecord {env; fields})
   in
-  completeTypedValueInner ~env ~full ~prefix ~expandOption
-
-let getJsxLabels ~componentPath ~findTypeOfValue ~package =
-  match componentPath @ ["make"] |> findTypeOfValue with
-  | Some (typ, make_env) ->
-    let rec getFieldsV3 (texp : Types.type_expr) =
-      match texp.desc with
-      | Tfield (name, _, t1, t2) ->
-        let fields = t2 |> getFieldsV3 in
-        if name = "children" then fields else (name, t1, make_env) :: fields
-      | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getFieldsV3
-      | Tvar None -> []
-      | _ -> []
+  match extractedType with
+  | Some (Tbool env) ->
+    [
+      Completion.create "true" ~kind:(Label "bool") ~env;
+      Completion.create "false" ~kind:(Label "bool") ~env;
+    ]
+    |> filterItems ~prefix
+  | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
+    constructors
+    |> List.map (fun (constructor : Constructor.t) ->
+           let numArgs =
+             match constructor.args with
+             | InlineRecord _ -> 1
+             | Args args -> List.length args
+           in
+           Completion.createWithSnippet
+             ~name:
+               (constructor.cname.txt
+               ^ printConstructorArgs numArgs ~asSnippet:false)
+             ~insertText:
+               (constructor.cname.txt
+               ^ printConstructorArgs numArgs ~asSnippet:true)
+             ~kind:
+               (Constructor
+                  (constructor, variantDecl |> Shared.declToString variantName))
+             ~env ())
+    |> filterItems ~prefix
+  | Some (Tpolyvariant {env; constructors; typeExpr}) ->
+    constructors
+    |> List.map (fun (constructor : polyVariantConstructor) ->
+           Completion.createWithSnippet
+             ~name:
+               ("#" ^ constructor.name
+               ^ printConstructorArgs
+                   (List.length constructor.args)
+                   ~asSnippet:false)
+             ~insertText:
+               ((if Utils.startsWith prefix "#" then "" else "#")
+               ^ constructor.name
+               ^ printConstructorArgs
+                   (List.length constructor.args)
+                   ~asSnippet:true)
+             ~kind:
+               (PolyvariantConstructor
+                  (constructor, typeExpr |> Shared.typeToString))
+             ~env ())
+    |> filterItems ~prefix
+  | Some (Toption (env, t)) ->
+    let innerType = Utils.unwrapIfOption t in
+    let expandedCompletions =
+      TypeExpr innerType
+      |> completeTypedValue ~env ~full ~prefix ~completionContext ~mode
+      |> List.map (fun (c : Completion.t) ->
+             {
+               c with
+               name = "Some(" ^ c.name ^ ")";
+               sortText = None;
+               insertText =
+                 (match c.insertText with
+                 | None -> None
+                 | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
+             })
     in
-    let getFieldsV4 ~path ~typeArgs =
-      match References.digConstructor ~env:make_env ~package path with
-      | Some
-          ( env,
-            {
-              item =
-                {
-                  decl =
-                    {
-                      type_kind = Type_record (labelDecls, _repr);
-                      type_params = typeParams;
-                    };
-                };
-            } ) ->
-        labelDecls
-        |> List.map (fun (ld : Types.label_declaration) ->
-               let name = Ident.name ld.ld_id in
-               let t = ld.ld_type |> instantiateType ~typeParams ~typeArgs in
-               (name, t, env))
-      | _ -> []
+    [
+      Completion.create "None" ~kind:(Label (t |> Shared.typeToString)) ~env;
+      Completion.createWithSnippet ~name:"Some(_)"
+        ~kind:(Label (t |> Shared.typeToString))
+        ~env ~insertText:"Some(${1:_})" ();
+    ]
+    @ expandedCompletions
+    |> filterItems ~prefix
+  | Some (Tuple (env, exprs, typ)) ->
+    let numExprs = List.length exprs in
+    [
+      Completion.createWithSnippet
+        ~name:(printConstructorArgs numExprs ~asSnippet:false)
+        ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
+        ~kind:(Value typ) ~env ();
+    ]
+  | Some (Trecord {env; fields; typeExpr}) -> (
+    (* As we're completing for a record, we'll need a hint (completionContext)
+       here to figure out whether we should complete for a record field, or
+       the record body itself. *)
+    match completionContext with
+    | Some (Completable.RecordField {seenFields}) ->
+      fields
+      |> List.filter (fun (field : field) ->
+             List.mem field.fname.txt seenFields = false)
+      |> List.map (fun (field : field) ->
+             Completion.create field.fname.txt
+               ~kind:(Field (field, typeExpr |> Shared.typeToString))
+               ~env)
+      |> filterItems ~prefix
+    | None ->
+      if prefix = "" then
+        [
+          Completion.createWithSnippet ~name:"{}"
+            ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
+            ~sortText:"A" ~kind:(Value typeExpr) ~env ();
+        ]
+      else [])
+  | Some (TinlineRecord {env; fields}) -> (
+    match completionContext with
+    | Some (Completable.RecordField {seenFields}) ->
+      fields
+      |> List.filter (fun (field : field) ->
+             List.mem field.fname.txt seenFields = false)
+      |> List.map (fun (field : field) ->
+             Completion.create field.fname.txt ~kind:(Label "Inline record")
+               ~env)
+      |> filterItems ~prefix
+    | None ->
+      if prefix = "" then
+        [
+          Completion.createWithSnippet ~name:"{}"
+            ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
+            ~sortText:"A" ~kind:(Label "Inline record") ~env ();
+        ]
+      else [])
+  | Some (Tarray (env, typeExpr)) ->
+    if prefix = "" then
+      [
+        Completion.createWithSnippet ~name:"[]"
+          ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
+          ~sortText:"A" ~kind:(Value typeExpr) ~env ();
+      ]
+    else []
+  | Some (Tstring env) ->
+    if prefix = "" then
+      [
+        Completion.createWithSnippet ~name:"\"\""
+          ~insertText:(if !Cfg.supportsSnippets then "\"$0\"" else "\"\"")
+          ~sortText:"A"
+          ~kind:
+            (Value (Ctype.newconstr (Path.Pident (Ident.create "string")) []))
+          ~env ();
+      ]
+    else []
+  | Some (Tfunction {env; typ; args}) when prefix = "" && mode = Expression ->
+    let prettyPrintArgTyp ?currentIndex (argTyp : Types.type_expr) =
+      let indexText =
+        match currentIndex with
+        | None -> ""
+        | Some i -> string_of_int i
+      in
+      match argTyp |> TypeUtils.pathFromTypeExpr with
+      | None -> "v" ^ indexText
+      | Some p -> (
+        (* Pretty print a few common patterns. *)
+        match Path.head p |> Ident.name with
+        | "unit" -> "()"
+        | "ReactEvent" -> "event"
+        | _ -> "v" ^ indexText)
     in
-    let rec getLabels (t : Types.type_expr) =
-      match t.desc with
-      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
-      | Tarrow
-          ( Nolabel,
-            {
-              desc =
-                ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                | Tobject (tObj, _) );
-            },
-            _,
-            _ ) ->
-        (* JSX V3 *)
-        getFieldsV3 tObj
-      | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
-        when Path.last path = "props" ->
-        (* JSX V4 *)
-        getFieldsV4 ~path ~typeArgs
-      | Tconstr
-          ( clPath,
-            [
-              {
-                desc =
-                  ( Tconstr (* Js.t *) (_, [{desc = Tobject (tObj, _)}], _)
-                  | Tobject (tObj, _) );
-              };
-              _;
-            ],
-            _ )
-        when Path.name clPath = "React.componentLike" ->
-        (* JSX V3 external or interface *)
-        getFieldsV3 tObj
-      | Tconstr (clPath, [{desc = Tconstr (path, typeArgs, _)}; _], _)
-        when Path.name clPath = "React.componentLike"
-             && Path.last path = "props" ->
-        (* JSX V4 external or interface *)
-        getFieldsV4 ~path ~typeArgs
-      | _ -> []
+    let mkFnArgs ~asSnippet =
+      match args with
+      | [(Nolabel, argTyp)] when TypeUtils.typeIsUnit argTyp -> "()"
+      | [(Nolabel, argTyp)] ->
+        let varName = prettyPrintArgTyp argTyp in
+        if asSnippet then "${1:" ^ varName ^ "}" else varName
+      | _ ->
+        let currentUnlabelledIndex = ref 0 in
+        let argsText =
+          args
+          |> List.map (fun ((label, typ) : typedFnArg) ->
+                 match label with
+                 | Optional name -> "~" ^ name ^ "=?"
+                 | Labelled name -> "~" ^ name
+                 | Nolabel ->
+                   if TypeUtils.typeIsUnit typ then "()"
+                   else (
+                     currentUnlabelledIndex := !currentUnlabelledIndex + 1;
+                     let num = !currentUnlabelledIndex in
+                     let varName = prettyPrintArgTyp typ ~currentIndex:num in
+                     if asSnippet then
+                       "${" ^ string_of_int num ^ ":" ^ varName ^ "}"
+                     else varName))
+          |> String.concat ", "
+        in
+        "(" ^ argsText ^ ")"
     in
-    typ |> getLabels
-  | None -> []
-
-(** This moves through a pattern via a set of instructions, trying to resolve the type at the end of the pattern. *)
-let rec resolveNestedPattern typ ~env ~package ~nested =
-  match nested with
-  | [] -> Some (typ, env, None)
-  | patternPath :: nested -> (
-    match (patternPath, typ |> extractType ~env ~package) with
-    | Completable.PTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
-      match List.nth_opt tupleItems itemNum with
-      | None -> None
-      | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested)
-    | PFollowRecordField {fieldName}, Some (Trecord {env; fields}) -> (
-      match
-        fields
-        |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
-      with
-      | None -> None
-      | Some {typ} -> typ |> resolveNestedPattern ~env ~package ~nested)
-    | PRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
-      Some (typeExpr, env, Some (Completable.RecordField {seenFields}))
-    | ( PVariantPayload {constructorName = "Some"; itemNum = 0},
-        Some (Toption (env, typ)) ) ->
-      typ |> resolveNestedPattern ~env ~package ~nested
-    | ( PVariantPayload {constructorName; itemNum},
-        Some (Tvariant {env; constructors}) ) -> (
-      match
-        constructors
-        |> List.find_opt (fun (c : Constructor.t) ->
-               c.cname.txt = constructorName)
-      with
-      | None -> None
-      | Some constructor -> (
-        match List.nth_opt constructor.args itemNum with
-        | None -> None
-        | Some (typ, _) -> typ |> resolveNestedPattern ~env ~package ~nested))
-    | ( PPolyvariantPayload {constructorName; itemNum},
-        Some (Tpolyvariant {env; constructors}) ) -> (
-      match
-        constructors
-        |> List.find_opt (fun (c : polyVariantConstructor) ->
-               c.name = constructorName)
-      with
-      | None -> None
-      | Some constructor -> (
-        match List.nth_opt constructor.args itemNum with
-        | None -> None
-        | Some typ -> typ |> resolveNestedPattern ~env ~package ~nested))
-    | PArray, Some (Tarray (env, typ)) ->
-      typ |> resolveNestedPattern ~env ~package ~nested
-    | _ -> None)
+    [
+      Completion.createWithSnippet
+        ~name:(mkFnArgs ~asSnippet:false ^ " => {}")
+        ~insertText:
+          (mkFnArgs ~asSnippet:!Cfg.supportsSnippets
+          ^ " => "
+          ^ if !Cfg.supportsSnippets then "{$0}" else "{}")
+        ~sortText:"A" ~kind:(Value typ) ~env ();
+    ]
+  | _ -> []
 
 let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =
@@ -1832,21 +1194,23 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     (* Lowercase JSX tag means builtin *)
     let mkLabel (name, typString) =
-      Completion.create ~name ~kind:(Label typString) ~env
+      Completion.create name ~kind:(Label typString) ~env
     in
     let keyLabels =
       if Utils.startsWith "key" prefix then [mkLabel ("key", "string")] else []
     in
-    (domLabels
+    (CompletionJsx.domLabels
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel)
     @ keyLabels
   | Cjsx (componentPath, prefix, identsSeen) ->
-    let labels = getJsxLabels ~componentPath ~findTypeOfValue ~package in
+    let labels =
+      CompletionJsx.getJsxLabels ~componentPath ~findTypeOfValue ~package
+    in
     let mkLabel_ name typString =
-      Completion.create ~name ~kind:(Label typString) ~env
+      Completion.create name ~kind:(Label typString) ~env
     in
     let mkLabel (name, typ, _env) =
       mkLabel_ name (typ |> Shared.typeToString)
@@ -1863,244 +1227,11 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
-  | CjsxPropValue {pathToComponent; prefix; propName} -> (
-    let targetLabel =
-      getJsxLabels ~componentPath:pathToComponent ~findTypeOfValue ~package
-      |> List.find_opt (fun (label, _, _) -> label = propName)
-    in
-    let envWhereCompletionStarted = env in
-    match targetLabel with
-    | None -> []
-    | Some (_, typ, env) ->
-      typ
-      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:true ~includeLocalValues:true ~completionContext:None)
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
-      {(Completion.create ~name ~kind:(Label "") ~env) with docstring}
+      {(Completion.create name ~kind:(Label "") ~env) with docstring}
     in
-    [
-      ( "as",
-        [
-          {|The `@as` decorator is commonly used on record types to alias record field names to a different JavaScript attribute name.
-
-This is useful to map to JavaScript attribute names that cannot be expressed in ReScript (such as keywords).
-
-It is also possible to map a ReScript record to a JavaScript array by passing indices to the `@as` decorator.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#as-decorator).|};
-        ] );
-      ( "dead",
-        [
-          {|The `@dead` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.
-
-`@dead` suppresses reporting on the value/type, but can also be used to force the analysis to consider a value as dead. Typically used to acknowledge cases of dead code you are not planning to address right now, but can be searched easily later.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#dead-decorator).
-
-> Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
-        ] );
-      ( "deriving",
-        [
-          {|When the `@deriving` decorator is applied to a record type, it expands the type into a factory function plus a set of getter/setter functions for its fields.
-      
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#deriving-decorator).|};
-        ] );
-      ( "deprecated",
-        [
-          {|The `@deprecated` decorator is used to add deprecation notes to types, values and submodules. The compiler and editor tooling will yield a warning whenever a deprecated entity is being used.
-
-Alternatively, use the `@@deprecated` decorator to add a deprecation warning to the file level.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#expression-deprecated-decorator).|};
-        ] );
-      ( "doesNotRaise",
-        [
-          {|The `@doesNotRaise` decorator is for reanalyze, a static analysis tool for ReScript that can perform exception analysis.
-
-`@doesNotRaise` is uses to override the analysis and state that an expression does not raise any exceptions,
-even though the analysis reports otherwise. This can happen for example in the case of array access where
-the analysis does not perform range checks but takes a conservative stance that any access
-could potentially raise.
-[Read more and see examples in the documentation](https://github.com/rescript-association/reanalyze/blob/master/EXCEPTION.md).
-> Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
-        ] );
-      ( "genType",
-        [
-          {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
-      
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#gentype-decorator).|};
-        ] );
-      ( "genType.as",
-        [
-          {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
-    
-[Read more and see examples in the documentation](https://rescript-lang.org/docs/gentype/latest/usage).|};
-        ] );
-      ( "genType.import",
-        [
-          {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
-    
-[Read more and see examples in the documentation](https://rescript-lang.org/docs/gentype/latest/usage).|};
-        ] );
-      ( "genType.opaque",
-        [
-          {|The @genType decorator may be used to export ReScript values and types to JavaScript, and import JavaScript values and types into ReScript. It allows seamless integration of compiled ReScript modules in existing TypeScript, Flow, or plain JavaScript codebases, without loosing type information across different type systems.
-    
-[Read more and see examples in the documentation](https://rescript-lang.org/docs/gentype/latest/usage).|};
-        ] );
-      ( "get",
-        [
-          {|The `@get` decorator is used to bind to a property of an object.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#get-decorator).|};
-        ] );
-      ( "get_index",
-        [
-          {|The `@get_index` decorator is used to access a dynamic property on an object, or an index of an array.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#get-index-decorator).|};
-        ] );
-      ( "inline",
-        [
-          {|The `@inline` decorator tells the compiler to inline its value in every place the binding is being used, rather than use a variable.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#inline-decorator).|};
-        ] );
-      ( "int",
-        [
-          {|The `@int` decorator can be used with polymorphic variants and the @as decorator on externals to modify the compiled JavaScript to use integers for the values instead of strings.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#int-decorator).|};
-        ] );
-      ( "live",
-        [
-          {|The `@live` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.
-
-`@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).
-
-Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
-        ] );
-      ( "meth",
-        [
-          {|The `@meth` decorator is used to call a function on a JavaScript object, and avoid issues with currying.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#meth-decorator).|};
-        ] );
-      ( "module",
-        [
-          {|The `@module` decorator is used to bind to a JavaScript module.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#module-decorator).|};
-        ] );
-      ( "new",
-        [
-          {|
-The `@new` decorator is used whenever you need to bind to a JavaScript class constructor that requires the new keword for instantiation.|
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#new-decorator).|};
-        ] );
-      ( "obj",
-        [
-          {|The `@obj` decorator is used to create functions that return JavaScript objects with properties that match the function's parameter labels.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#obj-decorator).|};
-        ] );
-      ( "raises",
-        [
-          {|The `@raises` decorator is for reanalyze, a static analysis tool for ReScript that can perform exception analysis.
-
-`@raises` acknowledges that a function can raise exceptions that are not caught, and suppresses
-a warning in that case. Callers of the functions are then subjected to the same rule.
-Example `@raises(Exn)` or `@raises([E1, E2, E3])` for multiple exceptions.
-[Read more and see examples in the documentation](https://github.com/rescript-association/reanalyze/blob/master/EXCEPTION.md).
-> Hint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!|};
-        ] );
-      ( "react.component",
-        [
-          {|The `@react.component` decorator is used to annotate functions that are RescriptReact components.
-
-You will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.
-
-Note: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator).|};
-        ] );
-      ( "return",
-        [
-          {|The `@return` decorator is used to control how `null` and `undefined` values are converted to option types in ReScript.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#return-decorator).|};
-        ] );
-      ( "scope",
-        [
-          {|The `@scope` decorator is used with other decorators such as `@val` and `@module` to declare a parent scope for the binding.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#scope-decorator).|};
-        ] );
-      ( "send",
-        [
-          {|The `@send` decorator is used to bind to a method on an object or array.
-      
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#send-decorator).|};
-        ] );
-      ( "set",
-        [
-          {|The `@set` decorator is used to set a property of an object.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#set-decorator).|};
-        ] );
-      ( "set_index",
-        [
-          {|The `@set_index` decorator is used to set a dynamic property on an object, or an index of an array.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#set-index-decorator).|};
-        ] );
-      ( "string",
-        [
-          {|The `@string` decorator can be used with polymorphic variants and the `@as` decorator on externals to modify the string values used for the variants in the compiled JavaScript.
-      
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#string-decorator).|};
-        ] );
-      ( "this",
-        [
-          {|The `@this` decorator may be used to bind to an external callback function that require access to a this context.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#this-decorator).|};
-        ] );
-      ( "unboxed",
-        [
-          {|The `@unboxed` decorator provides a way to unwrap variant constructors that have a single argument, or record objects that have a single field.
-      
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#unboxed-decorator).|};
-        ] );
-      ( "uncurry",
-        [
-          {|The `@uncurry` decorator can be used to mark any callback argument within an external function as an uncurried function without the need for any explicit uncurried function syntax (`(.) => { ... }`).
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#uncurry-decorator).|};
-        ] );
-      ( "unwrap",
-        [
-          {|The `@unwrap` decorator may be used when binding to external functions that accept multiple types for an argument.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#unwrap-decorator).|};
-        ] );
-      ( "val",
-        [
-          {|The `@val` decorator allows you to bind to JavaScript values that are on the global scope.
-      
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#val-decorator).|};
-        ] );
-      ( "variadic",
-        [
-          {|The `@variadic` decorator is used to model JavaScript functions that take a variable number of arguments, where all arguments are of the same type.
-
-[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#variadic-decorator).|};
-        ] );
-    ]
+    CompletionDecorators.decorators
     |> List.filter (fun (decorator, _) -> Utils.startsWith decorator prefix)
     |> List.map (fun (decorator, doc) ->
            let parts = String.split_on_char '.' prefix in
@@ -2112,38 +1243,6 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
            in
            (dec2, doc))
     |> List.map mkDecorator
-  | Cargument {functionContextPath; argumentLabel; prefix} -> (
-    let envWhereCompletionStarted = env in
-    let labels =
-      match
-        functionContextPath
-        |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
-             ~env ~exact:true ~scope
-        |> completionsGetTypeEnv
-      with
-      | Some (typ, _env) -> typ |> getArgs ~full ~env
-      | None -> []
-    in
-    let targetLabel =
-      labels
-      |> List.find_opt (fun (label, _) ->
-             match argumentLabel with
-             | Unlabelled _ -> label = argumentLabel
-             | Labelled name | Optional name -> (
-               match label with
-               | (Labelled n | Optional n) when name = n -> true
-               | _ -> false))
-    in
-    match targetLabel with
-    | None -> []
-    | Some (Optional _, typ) ->
-      typ
-      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:true ~includeLocalValues:true ~completionContext:None
-    | Some ((Unlabelled _ | Labelled _), typ) ->
-      typ
-      |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-           ~expandOption:false ~includeLocalValues:true ~completionContext:None)
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
       match
@@ -2157,7 +1256,8 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
           Printf.printf "Found type for function %s\n"
             (typ |> Shared.typeToString);
 
-        typ |> getArgs ~full ~env
+        typ
+        |> TypeUtils.getArgs ~full ~env
         |> List.filter_map (fun arg ->
                match arg with
                | SharedTypes.Completable.Labelled name, a -> Some (name, a)
@@ -2166,14 +1266,14 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | None -> []
     in
     let mkLabel (name, typ) =
-      Completion.create ~name ~kind:(Label (typ |> Shared.typeToString)) ~env
+      Completion.create name ~kind:(Label (typ |> Shared.typeToString)) ~env
     in
     labels
     |> List.filter (fun (name, _t) ->
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | Cpattern {typ; prefix; nested; fallback} -> (
+  | Cpattern {contextPath; prefix; nested; fallback} -> (
     let fallbackOrEmpty ?items () =
       match (fallback, items) with
       | Some fallback, (None | Some []) ->
@@ -2181,21 +1281,130 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       | _, Some items -> items
       | None, None -> []
     in
-    let envWhereCompletionStarted = env in
     match
-      typ
+      contextPath
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
-      match typ |> resolveNestedPattern ~env ~package:full.package ~nested with
+      match
+        TypeExpr typ
+        |> TypeUtils.resolveNested ~env ~package:full.package ~nested
+      with
       | None -> fallbackOrEmpty ()
       | Some (typ, env, completionContext) ->
         let items =
           typ
-          |> completeTypedValue ~env ~envWhereCompletionStarted ~full ~prefix
-               ~expandOption:false ~includeLocalValues:false ~completionContext
+          |> completeTypedValue ~mode:Pattern ~env ~full ~prefix
+               ~completionContext
         in
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
+  | Cexpression {contextPath; prefix; nested} -> (
+    match
+      contextPath
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
+      |> completionsGetTypeEnv
+    with
+    | None -> []
+    | Some (typ, env) -> (
+      match
+        TypeExpr typ
+        |> TypeUtils.resolveNested ~env ~package:full.package ~nested
+      with
+      | None -> []
+      | Some (typ, env, completionContext) -> (
+        let items =
+          typ
+          |> completeTypedValue ~mode:Expression ~env ~full ~prefix
+               ~completionContext
+        in
+        match (prefix, completionContext) with
+        | "", _ -> items
+        | _, None ->
+          (* Completions for local things like variables in scope, modules in the project, etc. *)
+          let regularCompletions =
+            prefix
+            |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env
+                 ~scope
+          in
+          let items =
+            if List.length regularCompletions > 0 then
+              (* The client will occasionally sort the list of completions alphabetically, disregarding the order
+                 in which we send it. This fixes that by providing a sort text making the typed completions
+                 guaranteed to end up on top. *)
+              items
+              |> List.map (fun (c : Completion.t) ->
+                     {c with sortText = Some ("A" ^ " " ^ c.name)})
+            else items
+          in
+          items @ regularCompletions
+        | _ -> items)))
+  | CexhaustiveSwitch {contextPath; exprLoc} ->
+    let range = Utils.rangeOfLoc exprLoc in
+    let printFailwithStr num =
+      "${" ^ string_of_int num ^ ":failwith(\"todo\")}"
+    in
+    let withExhaustiveItem ~cases ?(startIndex = 0) (c : Completion.t) =
+      (* We don't need to write out `switch` here since we know that's what the
+         user has already written. Just complete for the rest. *)
+      let newText =
+        c.name ^ " {\n"
+        ^ (cases
+          |> List.mapi (fun index caseText ->
+                 "| " ^ caseText ^ " => "
+                 ^ printFailwithStr (startIndex + index + 1))
+          |> String.concat "\n")
+        ^ "\n}"
+        |> Utils.indent range.start.character
+      in
+      [
+        c;
+        {
+          c with
+          name = c.name ^ " (exhaustive switch)";
+          filterText = Some c.name;
+          insertTextFormat = Some Snippet;
+          insertText = Some newText;
+          kind = Snippet "insert exhaustive switch for value";
+        };
+      ]
+    in
+    let completionsForContextPath =
+      contextPath
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:forHover ~scope
+    in
+    completionsForContextPath
+    |> List.map (fun (c : Completion.t) ->
+           match c.kind with
+           | Value typExpr -> (
+             match typExpr |> TypeUtils.extractType ~env:c.env ~package with
+             | Some (Tvariant v) ->
+               withExhaustiveItem c
+                 ~cases:
+                   (v.constructors
+                   |> List.map (fun (constructor : Constructor.t) ->
+                          constructor.cname.txt
+                          ^
+                          match constructor.args with
+                          | Args [] -> ""
+                          | _ -> "(_)"))
+             | Some (Tpolyvariant v) ->
+               withExhaustiveItem c
+                 ~cases:
+                   (v.constructors
+                   |> List.map (fun (constructor : polyVariantConstructor) ->
+                          "| #" ^ constructor.name
+                          ^
+                          match constructor.args with
+                          | [] -> ""
+                          | _ -> "(_)"))
+             | Some (Toption (_env, _typ)) ->
+               withExhaustiveItem c ~cases:["Some($1)"; "None"] ~startIndex:1
+             | Some (Tbool _) -> withExhaustiveItem c ~cases:["true"; "false"]
+             | _ -> [c])
+           | _ -> [c])
+    |> List.flatten

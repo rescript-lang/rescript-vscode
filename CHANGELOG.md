@@ -19,6 +19,14 @@
 - Add snippet support in completion items. https://github.com/rescript-lang/rescript-vscode/pull/668
 - Add support from completing polyvariants as values. https://github.com/rescript-lang/rescript-vscode/pull/669
 - Add support for completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/670
+- Add support for pattern completion of unsaved tuples. https://github.com/rescript-lang/rescript-vscode/pull/679
+- Add support for completion in typed expressions. https://github.com/rescript-lang/rescript-vscode/pull/682
+- Complete for `React.element` creator functions (`React.string` etc) when in JSX context. https://github.com/rescript-lang/rescript-vscode/pull/681
+- Handle optional record fields in expression/pattern completion. https://github.com/rescript-lang/rescript-vscode/pull/691
+- Expand options in completion to make working with options a bit more ergonomic. https://github.com/rescript-lang/rescript-vscode/pull/690
+- Let `_` trigger completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/692
+- Support inline records in completion. https://github.com/rescript-lang/rescript-vscode/pull/695
+- Add way to autocomplete an exhaustive switch statement for identifiers. Example: an identifier that's a variant can have a switch autoinserted matching all variant cases. https://github.com/rescript-lang/rescript-vscode/pull/699
 
 #### :nail_care: Polish
 
@@ -26,10 +34,13 @@
 - Improve precision in signature help. You now do not need to type anything into the argument for it to highlight. https://github.com/rescript-lang/rescript-vscode/pull/675
 - Remove redundant function name in signature help, to clean up what's shown to the user some. https://github.com/rescript-lang/rescript-vscode/pull/678
 - Migrate `prepareRename` to analysis. https://github.com/rescript-lang/rescript-vscode/pull/657
+- Show docstrings in hover for record fields and variant constructors. https://github.com/rescript-lang/rescript-vscode/pull/694
 
 #### :bug: Bug Fix
 
 - Highlight `catch` like a keyword https://github.com/rescript-lang/rescript-vscode/pull/677
+- Make signature help work in calls nested inside of other calls. https://github.com/rescript-lang/rescript-vscode/pull/687
+- Fix pipe completion to work on aliased types. https://github.com/rescript-lang/rescript-vscode/pull/700
 
 ## v1.10.0
 

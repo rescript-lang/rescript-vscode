@@ -1,7 +1,7 @@
 Complete src/CompletionJsxProps.res 0:47
 posCursor:[0:47] posNoWhite:[0:46] Found expr:[0:12->0:47]
 JSX <CompletionSupport.TestComponent:[0:12->0:43] on[0:44->0:46]=...__ghost__[0:-1->0:-1]> _children:None
-Completable: CjsxPropValue [CompletionSupport, TestComponent] on=
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] on
 [{
     "label": "true",
     "kind": 4,
@@ -19,7 +19,7 @@ Completable: CjsxPropValue [CompletionSupport, TestComponent] on=
 Complete src/CompletionJsxProps.res 3:48
 posCursor:[3:48] posNoWhite:[3:47] Found expr:[3:12->3:48]
 JSX <CompletionSupport.TestComponent:[3:12->3:43] on[3:44->3:46]=...[3:47->3:48]> _children:None
-Completable: CjsxPropValue [CompletionSupport, TestComponent] on=t
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] on=t
 [{
     "label": "true",
     "kind": 4,
@@ -31,13 +31,14 @@ Completable: CjsxPropValue [CompletionSupport, TestComponent] on=t
 Complete src/CompletionJsxProps.res 6:50
 posCursor:[6:50] posNoWhite:[6:49] Found expr:[6:12->6:50]
 JSX <CompletionSupport.TestComponent:[6:12->6:43] test[6:44->6:48]=...[6:49->6:50]> _children:None
-Completable: CjsxPropValue [CompletionSupport, TestComponent] test=T
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] test=T
 [{
     "label": "Two",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
+    "sortText": "A Two",
     "insertText": "Two",
     "insertTextFormat": 2
   }, {
@@ -46,14 +47,27 @@ Completable: CjsxPropValue [CompletionSupport, TestComponent] test=T
     "tags": [],
     "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
+    "sortText": "A Three(_)",
     "insertText": "Three(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "TableclothMap",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "TypeDefinition",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
   }]
 
 Complete src/CompletionJsxProps.res 9:52
 posCursor:[9:52] posNoWhite:[9:51] Found expr:[9:12->9:52]
 JSX <CompletionSupport.TestComponent:[9:12->9:43] polyArg[9:44->9:51]=...__ghost__[0:-1->0:-1]> _children:None
-Completable: CjsxPropValue [CompletionSupport, TestComponent] polyArg=
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyArg
 [{
     "label": "#one",
     "kind": 4,
@@ -91,7 +105,7 @@ Completable: CjsxPropValue [CompletionSupport, TestComponent] polyArg=
 Complete src/CompletionJsxProps.res 12:54
 posCursor:[12:54] posNoWhite:[12:53] Found expr:[12:12->12:54]
 JSX <CompletionSupport.TestComponent:[12:12->12:43] polyArg[12:44->12:51]=...[12:52->12:54]> _children:None
-Completable: CjsxPropValue [CompletionSupport, TestComponent] polyArg=#t
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyArg=#t
 [{
     "label": "#three(_, _)",
     "kind": 4,

@@ -31,9 +31,7 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
   in
   match completables with
   | Some ({kind = Value type_expr; docstring} :: _, env, package, file) ->
-    let args, _ =
-      CompletionBackEnd.extractFunctionType type_expr ~env ~package
-    in
+    let args, _ = TypeUtils.extractFunctionType type_expr ~env ~package in
     Some (args, docstring, type_expr, package, env, file)
   | _ -> None
 
@@ -179,10 +177,19 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       let supportsMarkdownLinks = true in
       let foundFunctionApplicationExpr = ref None in
       let setFound r =
-        if !foundFunctionApplicationExpr = None then
+        (* Because we want to handle both piped and regular function calls, and in
+           the case of piped calls the iterator will process both the pipe and the
+           regular call (even though it's piped), we need to ensure that we don't
+           re-save the same expression (but unpiped, even though it's actually piped). *)
+        match (!foundFunctionApplicationExpr, r) with
+        | Some (_, alreadyFoundExp, _), (_, newExp, _)
+          when alreadyFoundExp.Parsetree.pexp_loc <> newExp.Parsetree.pexp_loc
+          ->
           foundFunctionApplicationExpr := Some r
+        | None, _ -> foundFunctionApplicationExpr := Some r
+        | Some _, _ -> ()
       in
-      let searchForArgWithCursor ~isPipeExpr ~args ~exp =
+      let searchForArgWithCursor ~isPipeExpr ~args =
         let extractedArgs = extractExpApplyArgs ~args in
         let argAtCursor =
           let firstArgIndex = if isPipeExpr then 1 else 0 in
@@ -246,7 +253,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                  else 0))
           | v -> v
         in
-        setFound (argAtCursor, exp, extractedArgs)
+        (argAtCursor, extractedArgs)
       in
       let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression)
           =
@@ -269,7 +276,10 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
           when pexp_loc
                |> CursorPosition.classifyLoc ~pos:posBeforeCursor
                == HasCursor ->
-          searchForArgWithCursor ~isPipeExpr:true ~args ~exp
+          let argAtCursor, extractedArgs =
+            searchForArgWithCursor ~isPipeExpr:true ~args
+          in
+          setFound (argAtCursor, exp, extractedArgs)
         (* Look for applying idents, like someIdent(...) *)
         | {
          pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
@@ -278,7 +288,10 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
           when pexp_loc
                |> CursorPosition.classifyLoc ~pos:posBeforeCursor
                == HasCursor ->
-          searchForArgWithCursor ~isPipeExpr:false ~args ~exp
+          let argAtCursor, extractedArgs =
+            searchForArgWithCursor ~isPipeExpr:false ~args
+          in
+          setFound (argAtCursor, exp, extractedArgs)
         | _ -> ());
         Ast_iterator.default_iterator.expr iterator expr
       in
