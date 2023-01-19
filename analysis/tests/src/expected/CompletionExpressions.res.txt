@@ -628,7 +628,7 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($0)
     "detail": "unit => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "() => ${0:{\\}}",
+    "insertText": "() => {$0}",
     "insertTextFormat": 2
   }]
 
@@ -643,13 +643,13 @@ posCursor:[165:22] posNoWhite:[165:21] Found expr:[165:3->165:24]
 Pexp_apply ...[165:3->165:19] (...[165:20->165:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($1)
 [{
-    "label": "v1 => {}",
+    "label": "v => {}",
     "kind": 12,
     "tags": [],
     "detail": "bool => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:v1} => ${0:{\\}}",
+    "insertText": "${1:v} => {$0}",
     "insertTextFormat": 2
   }]
 
@@ -658,13 +658,13 @@ posCursor:[168:25] posNoWhite:[168:24] Found expr:[168:3->168:27]
 Pexp_apply ...[168:3->168:19] (...[168:20->168:21], ...[168:23->168:24])
 Completable: Cexpression CArgument Value[fnTakingCallback]($2)
 [{
-    "label": "v1 => {}",
+    "label": "event => {}",
     "kind": 12,
     "tags": [],
     "detail": "ReactEvent.Mouse.t => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:v1} => ${0:{\\}}",
+    "insertText": "${1:event} => {$0}",
     "insertTextFormat": 2
   }]
 
@@ -679,7 +679,7 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($3)
     "detail": "(~on: bool, ~off: bool=?, variant) => int",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(~on, ~off=?, ${1:v1}) => ${0:{\\}}",
+    "insertText": "(~on, ~off=?, ${1:v1}) => {$0}",
     "insertTextFormat": 2
   }]
 
@@ -694,7 +694,7 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($4)
     "detail": "(bool, option<bool>, bool) => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(${1:v1}, ${2:v2}, ${3:v3}) => ${0:{\\}}",
+    "insertText": "(${1:v1}, ${2:v2}, ${3:v3}) => {$0}",
     "insertTextFormat": 2
   }]
 
@@ -709,7 +709,7 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($5)
     "detail": "(~on: bool=?, ~off: bool=?, unit) => int",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(~on=?, ~off=?, ()) => ${0:{\\}}",
+    "insertText": "(~on=?, ~off=?, ()) => {$0}",
     "insertTextFormat": 2
   }]
 
