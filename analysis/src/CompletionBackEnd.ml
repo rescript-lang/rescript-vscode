@@ -876,13 +876,13 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~opens ~allFiles ~pos ~env ~scope
       |> completionsGetTypeEnv
     in
-    let isBuiltin =
+    let lowercaseComponent =
       match pathToComponent with
       | [elName] when Char.lowercase_ascii elName.[0] = elName.[0] -> true
       | _ -> false
     in
     let targetLabel =
-      if isBuiltin then
+      if lowercaseComponent then
         let rec digToTypeForCompletion path ~env =
           match
             path
@@ -890,6 +890,9 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                  ~package ~opens ~allFiles ~pos ~env ~scope
           with
           | {kind = Type {kind = Abstract (Some (p, _))}; env} :: _ ->
+            (* This case happens when what we're looking for is a type alias.
+               This is the case in newer rescript-react versions where
+               ReactDOM.domProps is an alias for JsxEvent.t. *)
             let pathRev = p |> Utils.expandPath in
             pathRev |> List.rev |> digToTypeForCompletion ~env
           | {kind = Type {kind = Record fields}; env} :: _ -> (
@@ -1149,7 +1152,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
         (* Pretty print a few common patterns. *)
         match Path.head p |> Ident.name with
         | "unit" -> "()"
-        | "ReactEvent" -> "event"
+        | "ReactEvent" | "JsxEvent" -> "event"
         | _ -> "v" ^ indexText)
     in
     let mkFnArgs ~asSnippet =
@@ -1333,10 +1336,25 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       with
       | None -> []
       | Some (typ, env, completionContext) -> (
+        let isJsx =
+          match contextPath with
+          | CJsxPropValue _ | CPPipe {inJsx = true} -> true
+          | _ -> false
+        in
         let items =
           typ
           |> completeTypedValue ~mode:Expression ~env ~full ~prefix
                ~completionContext
+          |> List.map (fun (c : Completion.t) ->
+                 if isJsx then
+                   {
+                     c with
+                     insertText =
+                       (match c.insertText with
+                       | None -> None
+                       | Some text -> Some ("{" ^ text ^ "}"));
+                   }
+                 else c)
         in
         match (prefix, completionContext) with
         | "", _ -> items

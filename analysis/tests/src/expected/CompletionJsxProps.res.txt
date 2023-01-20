@@ -39,7 +39,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] test=T
     "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
     "sortText": "A Two",
-    "insertText": "Two",
+    "insertText": "{Two}",
     "insertTextFormat": 2
   }, {
     "label": "Three(_)",
@@ -48,7 +48,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] test=T
     "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
     "sortText": "A Three(_)",
-    "insertText": "Three(${1:_})",
+    "insertText": "{Three(${1:_})}",
     "insertTextFormat": 2
   }, {
     "label": "TableclothMap",
@@ -74,7 +74,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyAr
     "tags": [],
     "detail": "#one\n\n[#one | #three(int, bool) | #two | #two2]",
     "documentation": null,
-    "insertText": "#one",
+    "insertText": "{#one}",
     "insertTextFormat": 2
   }, {
     "label": "#three(_, _)",
@@ -82,7 +82,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyAr
     "tags": [],
     "detail": "#three(int, bool)\n\n[#one | #three(int, bool) | #two | #two2]",
     "documentation": null,
-    "insertText": "#three(${1:_}, ${2:_})",
+    "insertText": "{#three(${1:_}, ${2:_})}",
     "insertTextFormat": 2
   }, {
     "label": "#two",
@@ -90,7 +90,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyAr
     "tags": [],
     "detail": "#two\n\n[#one | #three(int, bool) | #two | #two2]",
     "documentation": null,
-    "insertText": "#two",
+    "insertText": "{#two}",
     "insertTextFormat": 2
   }, {
     "label": "#two2",
@@ -98,7 +98,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyAr
     "tags": [],
     "detail": "#two2\n\n[#one | #three(int, bool) | #two | #two2]",
     "documentation": null,
-    "insertText": "#two2",
+    "insertText": "{#two2}",
     "insertTextFormat": 2
   }]
 
@@ -112,7 +112,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyAr
     "tags": [],
     "detail": "#three(int, bool)\n\n[#one | #three(int, bool) | #two | #two2]",
     "documentation": null,
-    "insertText": "three(${1:_}, ${2:_})",
+    "insertText": "{three(${1:_}, ${2:_})}",
     "insertTextFormat": 2
   }, {
     "label": "#two",
@@ -120,7 +120,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyAr
     "tags": [],
     "detail": "#two\n\n[#one | #three(int, bool) | #two | #two2]",
     "documentation": null,
-    "insertText": "two",
+    "insertText": "{two}",
     "insertTextFormat": 2
   }, {
     "label": "#two2",
@@ -128,7 +128,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyAr
     "tags": [],
     "detail": "#two2\n\n[#one | #three(int, bool) | #two | #two2]",
     "documentation": null,
-    "insertText": "two2",
+    "insertText": "{two2}",
     "insertTextFormat": 2
   }]
 
@@ -148,5 +148,20 @@ Completable: Cexpression CJsxPropValue [div] muted
     "tags": [],
     "detail": "bool",
     "documentation": null
+  }]
+
+Complete src/CompletionJsxProps.res 18:29
+posCursor:[18:29] posNoWhite:[18:28] Found expr:[18:12->18:32]
+JSX <div:[18:12->18:15] onMouseEnter[18:16->18:28]=...__ghost__[0:-1->0:-1]> _children:18:30
+Completable: Cexpression CJsxPropValue [div] onMouseEnter
+[{
+    "label": "event => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "JsxEvent.Mouse.t => unit",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{${1:event} => {$0}}",
+    "insertTextFormat": 2
   }]
 

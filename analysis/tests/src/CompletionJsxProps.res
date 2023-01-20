@@ -16,3 +16,6 @@
 // let _ = <div muted= />
 //                    ^com
 
+// let _ = <div onMouseEnter= />
+//                           ^com
+
