@@ -24,3 +24,16 @@ type somePolyVariant = [#one | #two(bool)]
 
 // let x: somePolyVariant = #o
 //                            ^com
+
+type someFunc = (int, string) => bool
+
+// let x: someFunc =
+//                  ^com
+
+type someTuple = (bool, option<bool>)
+
+// let x: someTuple =
+//                   ^com
+
+// let x: someTuple = (true, )
+//                          ^com
