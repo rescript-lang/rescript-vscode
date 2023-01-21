@@ -242,21 +242,33 @@ let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
       in
       digToRelevantType ~env ~package t)
 
+let extractTypeFromCompletionType (t : completionType) ~env ~full =
+  match t with
+  | TypeExpr t -> t |> extractType ~env ~package:full.package
+  | InlineRecord fields -> Some (TinlineRecord {env; fields})
+  | ResolvedType typ -> (
+    match typ.kind with
+    | Tuple items -> Some (Tuple (env, items, Ctype.newty (Ttuple items)))
+    | Record fields -> Some (TinlineRecord {env; fields})
+    | Variant constructors ->
+      Some
+        (Tvariant {env; constructors; variantName = ""; variantDecl = typ.decl})
+    | Abstract _ | Open -> (
+      match typ.decl.type_manifest with
+      | None -> None
+      | Some t -> t |> extractType ~env ~package:full.package))
+
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
-let rec resolveNested (typ : completionType) ~env ~package ~nested =
+let rec resolveNested (typ : completionType) ~env ~full ~nested =
   match nested with
   | [] -> Some (typ, env, None)
   | patternPath :: nested -> (
-    let extractedType =
-      match typ with
-      | TypeExpr typ -> typ |> extractType ~env ~package
-      | InlineRecord fields -> Some (TinlineRecord {env; fields})
-    in
+    let extractedType = typ |> extractTypeFromCompletionType ~env ~full in
     match (patternPath, extractedType) with
     | Completable.NTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
       match List.nth_opt tupleItems itemNum with
       | None -> None
-      | Some typ -> TypeExpr typ |> resolveNested ~env ~package ~nested)
+      | Some typ -> TypeExpr typ |> resolveNested ~env ~full ~nested)
     | ( NFollowRecordField {fieldName},
         Some (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
       match
@@ -266,7 +278,7 @@ let rec resolveNested (typ : completionType) ~env ~package ~nested =
       | None -> None
       | Some {typ; optional} ->
         let typ = if optional then Utils.unwrapIfOption typ else typ in
-        TypeExpr typ |> resolveNested ~env ~package ~nested)
+        TypeExpr typ |> resolveNested ~env ~full ~nested)
     | NRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
       Some (TypeExpr typeExpr, env, Some (Completable.RecordField {seenFields}))
     | NRecordBody {seenFields}, Some (TinlineRecord {env; fields}) ->
@@ -274,7 +286,7 @@ let rec resolveNested (typ : completionType) ~env ~package ~nested =
         (InlineRecord fields, env, Some (Completable.RecordField {seenFields}))
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Some (Toption (env, typ)) ) ->
-      TypeExpr typ |> resolveNested ~env ~package ~nested
+      TypeExpr typ |> resolveNested ~env ~full ~nested
     | ( NVariantPayload {constructorName; itemNum},
         Some (Tvariant {env; constructors}) ) -> (
       match
@@ -285,9 +297,9 @@ let rec resolveNested (typ : completionType) ~env ~package ~nested =
       | Some {args = Args args} -> (
         match List.nth_opt args itemNum with
         | None -> None
-        | Some (typ, _) -> TypeExpr typ |> resolveNested ~env ~package ~nested)
+        | Some (typ, _) -> TypeExpr typ |> resolveNested ~env ~full ~nested)
       | Some {args = InlineRecord fields} when itemNum = 0 ->
-        InlineRecord fields |> resolveNested ~env ~package ~nested
+        InlineRecord fields |> resolveNested ~env ~full ~nested
       | _ -> None)
     | ( NPolyvariantPayload {constructorName; itemNum},
         Some (Tpolyvariant {env; constructors}) ) -> (
@@ -300,9 +312,9 @@ let rec resolveNested (typ : completionType) ~env ~package ~nested =
       | Some constructor -> (
         match List.nth_opt constructor.args itemNum with
         | None -> None
-        | Some typ -> TypeExpr typ |> resolveNested ~env ~package ~nested))
+        | Some typ -> TypeExpr typ |> resolveNested ~env ~full ~nested))
     | NArray, Some (Tarray (env, typ)) ->
-      TypeExpr typ |> resolveNested ~env ~package ~nested
+      TypeExpr typ |> resolveNested ~env ~full ~nested
     | _ -> None)
 
 let getArgs ~env (t : Types.type_expr) ~full =
@@ -344,3 +356,9 @@ let typeIsUnit (typ : Types.type_expr) =
     when Ident.name id = "unit" ->
     true
   | _ -> false
+
+let contextPathFromCoreType (coreType : Parsetree.core_type) =
+  match coreType.ptyp_desc with
+  | Ptyp_constr (loc, []) ->
+    Some (Completable.CPId (loc.txt |> Utils.flattenLongIdent, Type))
+  | _ -> None

@@ -582,6 +582,13 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
+let completionsGetCompletionType = function
+  | {Completion.kind = Value typ; env} :: _ -> Some (TypeExpr typ, env)
+  | {Completion.kind = ObjLabel typ; env} :: _ -> Some (TypeExpr typ, env)
+  | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (TypeExpr typ, env)
+  | {Completion.kind = Type typ; env} :: _ -> Some (ResolvedType typ, env)
+  | _ -> None
+
 let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     ~exact ~scope (contextPath : Completable.contextPath) =
   let package = full.package in
@@ -996,11 +1003,7 @@ type completionMode = Pattern | Expression
 
 let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
     ~completionContext ~mode =
-  let extractedType =
-    match t with
-    | TypeExpr t -> t |> TypeUtils.extractType ~env ~package:full.package
-    | InlineRecord fields -> Some (TinlineRecord {env; fields})
-  in
+  let extractedType = t |> TypeUtils.extractTypeFromCompletionType ~env ~full in
   match extractedType with
   | Some (Tbool env) ->
     [
@@ -1308,10 +1311,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
-      match
-        TypeExpr typ
-        |> TypeUtils.resolveNested ~env ~package:full.package ~nested
-      with
+      match TypeExpr typ |> TypeUtils.resolveNested ~env ~full ~nested with
       | None -> fallbackOrEmpty ()
       | Some (typ, env, completionContext) ->
         let items =
@@ -1326,14 +1326,11 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       contextPath
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
-      |> completionsGetTypeEnv
+      |> completionsGetCompletionType
     with
     | None -> []
     | Some (typ, env) -> (
-      match
-        TypeExpr typ
-        |> TypeUtils.resolveNested ~env ~package:full.package ~nested
-      with
+      match typ |> TypeUtils.resolveNested ~env ~full ~nested with
       | None -> []
       | Some (typ, env, completionContext) -> (
         let isJsx =
