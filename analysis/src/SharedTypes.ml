@@ -34,8 +34,6 @@ type field = {
   docstring: string list;
 }
 
-type completionType = TypeExpr of Types.type_expr | InlineRecord of field list
-
 type constructorArgs =
   | InlineRecord of field list
   | Args of (Types.type_expr * Location.t) list
@@ -141,6 +139,11 @@ module Declared = struct
     item: 'item;
   }
 end
+
+type completionType =
+  | TypeExpr of Types.type_expr
+  | InlineRecord of field list
+  | ResolvedType of Type.t
 
 module Stamps : sig
   type t

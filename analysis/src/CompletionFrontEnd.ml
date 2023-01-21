@@ -316,27 +316,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | _ -> ()
   in
   let scopeValueBinding (vb : Parsetree.value_binding) =
-    scopePattern vb.pvb_pat;
-    (* Identify relevant destructures for completion, like `let {<com>} = someVar` or `let (true, false) = someFn()`. *)
-    match vb with
-    | {pvb_pat; pvb_expr} when locHasCursor pvb_pat.ppat_loc -> (
-      match
-        ( pvb_pat
-          |> CompletionPatterns.traversePattern ~patternPath:[] ~locHasCursor
-               ~firstCharBeforeCursorNoWhite ~posBeforeCursor,
-          exprToContextPath pvb_expr )
-      with
-      | Some (prefix, nestedPattern), Some ctxPath ->
-        setResult
-          (Completable.Cpattern
-             {
-               contextPath = ctxPath;
-               prefix;
-               nested = List.rev nestedPattern;
-               fallback = None;
-             })
-      | _ -> ())
-    | _ -> ()
+    scopePattern vb.pvb_pat
   in
   let scopeTypeKind (tk : Parsetree.type_kind) =
     match tk with
@@ -490,6 +470,58 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (value_binding : Parsetree.value_binding) =
     let oldInJsxContext = !inJsxContext in
     if Utils.isReactComponent value_binding then inJsxContext := true;
+    (match value_binding with
+    | {pvb_pat = {ppat_desc = Ppat_constraint (_pat, coreType)}; pvb_expr}
+      when locHasCursor pvb_expr.pexp_loc -> (
+      (* Expression with derivable type annotation.
+         E.g: let x: someRecord = {<com>} *)
+      match
+        ( TypeUtils.contextPathFromCoreType coreType,
+          pvb_expr
+          |> CompletionExpressions.traverseExpr ~exprPath:[]
+               ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite )
+      with
+      | Some ctxPath, Some (prefix, nested) ->
+        setResult
+          (Completable.Cexpression
+             {contextPath = ctxPath; prefix; nested = List.rev nested})
+      | _ -> ())
+    | {
+     pvb_pat = {ppat_desc = Ppat_constraint (_pat, coreType); ppat_loc};
+     pvb_expr;
+    }
+      when locHasCursor value_binding.pvb_loc
+           && locHasCursor ppat_loc = false
+           && locHasCursor pvb_expr.pexp_loc = false
+           && CompletionExpressions.isExprHole pvb_expr -> (
+      (* Expression with derivable type annotation, when the expression is empty (expr hole).
+         E.g: let x: someRecord = <com> *)
+      match TypeUtils.contextPathFromCoreType coreType with
+      | Some ctxPath ->
+        setResult
+          (Completable.Cexpression
+             {contextPath = ctxPath; prefix = ""; nested = []})
+      | _ -> ())
+    | {pvb_pat; pvb_expr} when locHasCursor pvb_pat.ppat_loc -> (
+      (* Completing a destructuring.
+         E.g: let {<com>} = someVar *)
+      match
+        ( pvb_pat
+          |> CompletionPatterns.traversePattern ~patternPath:[] ~locHasCursor
+               ~firstCharBeforeCursorNoWhite ~posBeforeCursor,
+          exprToContextPath pvb_expr )
+      with
+      | Some (prefix, nested), Some ctxPath ->
+        setResult
+          (Completable.Cpattern
+             {
+               contextPath = ctxPath;
+               prefix;
+               nested = List.rev nested;
+               fallback = None;
+             })
+      | _ -> ())
+    | _ -> ());
     Ast_iterator.default_iterator.value_binding iterator value_binding;
     inJsxContext := oldInJsxContext
   in

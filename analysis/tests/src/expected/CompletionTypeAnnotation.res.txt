@@ -1,25 +1,67 @@
 Complete src/CompletionTypeAnnotation.res 9:22
 XXX Not found!
-[]
+Completable: Cexpression Type[someRecord]
+[{
+    "label": "{}",
+    "kind": 4,
+    "tags": [],
+    "detail": "Inline record",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
 
 Complete src/CompletionTypeAnnotation.res 12:24
-posCursor:[12:24] posNoWhite:[12:23] Found expr:[12:23->12:25]
-[]
+XXX Not found!
+Completable: Cexpression Type[someRecord]->recordBody
+[{
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "Inline record",
+    "documentation": null
+  }, {
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "Inline record",
+    "documentation": null
+  }]
 
 Complete src/CompletionTypeAnnotation.res 15:23
 XXX Not found!
-[]
-
-Complete src/CompletionTypeAnnotation.res 18:25
-posCursor:[18:25] posNoWhite:[18:24] Found expr:[18:24->18:25]
-Pexp_construct O:[18:24->18:25] None
-Completable: Cpath Value[O]
+Completable: Cexpression Type[someVariant]
 [{
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two(bool)",
-    "documentation": null
+    "detail": "One\n\ntype  = One | Two(bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype  = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 18:25
+XXX Not found!
+Completable: Cexpression Type[someVariant]=O
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype  = One | Two(bool)",
+    "documentation": null,
+    "sortText": "A One",
+    "insertText": "One",
+    "insertTextFormat": 2
   }, {
     "label": "Obj",
     "kind": 9,
@@ -36,9 +78,35 @@ Completable: Cpath Value[O]
 
 Complete src/CompletionTypeAnnotation.res 21:27
 XXX Not found!
-[]
+Completable: Cexpression Type[somePolyVariant]
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #two(bool)]",
+    "documentation": null,
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two(bool)\n\n[#one | #two(bool)]",
+    "documentation": null,
+    "insertText": "#two(${1:_})",
+    "insertTextFormat": 2
+  }]
 
 Complete src/CompletionTypeAnnotation.res 24:30
-posCursor:[24:30] posNoWhite:[24:29] Found expr:[24:28->24:30]
-[]
+XXX Not found!
+Completable: Cexpression Type[somePolyVariant]=#o
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #two(bool)]",
+    "documentation": null,
+    "insertText": "one",
+    "insertTextFormat": 2
+  }]
 
