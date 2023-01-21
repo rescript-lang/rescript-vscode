@@ -360,11 +360,6 @@ let pat ~(file : File.t) ~env ~extra (iter : Tast_iterator.iterator)
     (pattern : Typedtree.pattern) =
   let addForPattern stamp name =
     if Stamps.findValue file.stamps stamp = None then (
-      (* This is where the broken loc is found/added *)
-      if false && name.Location.txt = "thisGetsBrokenLoc" then
-        Printf.printf "this loc is broken and would need to work %s %s\n"
-          name.Location.txt
-          (pattern.pat_loc |> Loc.toString);
       let declared =
         ProcessAttributes.newDeclared ~name ~stamp ~modulePath:NotVisible
           ~extent:pattern.pat_loc ~item:pattern.pat_type false

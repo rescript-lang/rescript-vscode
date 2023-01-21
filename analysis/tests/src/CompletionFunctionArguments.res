@@ -105,7 +105,6 @@ module FineModule = {
 let _ =
   <div
     onMouseDown={thisGetsBrokenLoc => {
-      //                         ^com
       let reassignedWorks = thisGetsBrokenLoc
       ignore(reassignedWorks)
       // thisGetsBrokenLoc->a

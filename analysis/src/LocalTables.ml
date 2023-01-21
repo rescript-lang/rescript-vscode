@@ -25,14 +25,8 @@ let create () =
 let populateValues ~env localTables =
   env.QueryEnv.file.stamps
   |> Stamps.iterValues (fun _ declared ->
-         if declared.name.txt = "thisGetsBrokenLoc" then
-           Printf.printf "populaing %s %s startPos %s full pos %s\n"
-             declared.name.txt
-             (Shared.typeToString declared.item)
-             (declared.extentLoc |> Loc.start |> Pos.toString)
-             (declared.extentLoc |> Loc.toString);
          Hashtbl.replace localTables.valueTable
-           (declared.name.txt, declared.extentLoc |> Loc.start)
+           (declared.name.txt, declared.name.loc |> Loc.start)
            declared)
 
 let populateConstructors ~env localTables =
