@@ -1,0 +1,44 @@
+Complete src/CompletionTypeAnnotation.res 9:22
+XXX Not found!
+[]
+
+Complete src/CompletionTypeAnnotation.res 12:24
+posCursor:[12:24] posNoWhite:[12:23] Found expr:[12:23->12:25]
+[]
+
+Complete src/CompletionTypeAnnotation.res 15:23
+XXX Not found!
+[]
+
+Complete src/CompletionTypeAnnotation.res 18:25
+posCursor:[18:25] posNoWhite:[18:24] Found expr:[18:24->18:25]
+Pexp_construct O:[18:24->18:25] None
+Completable: Cpath Value[O]
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null
+  }, {
+    "label": "Obj",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Object",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
+
+Complete src/CompletionTypeAnnotation.res 21:27
+XXX Not found!
+[]
+
+Complete src/CompletionTypeAnnotation.res 24:30
+posCursor:[24:30] posNoWhite:[24:29] Found expr:[24:28->24:30]
+[]
+
