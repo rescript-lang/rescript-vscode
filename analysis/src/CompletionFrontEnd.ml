@@ -317,7 +317,26 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let scopeValueBinding (vb : Parsetree.value_binding) =
     scopePattern vb.pvb_pat;
-    completePattern vb.pvb_pat
+    (* Identify relevant destructures for completion, like `let {<com>} = someVar` or `let (true, false) = someFn()`. *)
+    match vb with
+    | {pvb_pat; pvb_expr} when locHasCursor pvb_pat.ppat_loc -> (
+      match
+        ( pvb_pat
+          |> CompletionPatterns.traversePattern ~patternPath:[] ~locHasCursor
+               ~firstCharBeforeCursorNoWhite ~posBeforeCursor,
+          exprToContextPath pvb_expr )
+      with
+      | Some (prefix, nestedPattern), Some ctxPath ->
+        setResult
+          (Completable.Cpattern
+             {
+               contextPath = ctxPath;
+               prefix;
+               nested = List.rev nestedPattern;
+               fallback = None;
+             })
+      | _ -> ())
+    | _ -> ()
   in
   let scopeTypeKind (tk : Parsetree.type_kind) =
     match tk with
@@ -446,13 +465,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       scope := !scope |> Scope.addOpen ~lid:popen_lid.txt
     | Pstr_primitive vd -> scopeValueDescription vd
     | Pstr_value (recFlag, bindings) ->
-      (* Identify relevant destructures for completion, like `let {<com>} = someVar` or `let (true, false) = someFn()`. *)
-      (match bindings with
-      | [{pvb_pat = {ppat_desc = Ppat_record _ | Ppat_tuple _}; pvb_expr}] -> (
-        match exprToContextPath pvb_expr with
-        | None -> ()
-        | Some ctxPath -> setLookingForPat ctxPath)
-      | _ -> ());
       if recFlag = Recursive then bindings |> List.iter scopeValueBinding;
       bindings |> List.iter (fun vb -> iterator.value_binding iterator vb);
       if recFlag = Nonrecursive then bindings |> List.iter scopeValueBinding;
