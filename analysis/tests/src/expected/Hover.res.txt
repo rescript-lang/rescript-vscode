@@ -5,10 +5,10 @@ Hover src/Hover.res 3:5
 {"contents": {"kind": "markdown", "value": "```rescript\ntype t = (int, float)\n```"}}
 
 Hover src/Hover.res 6:7
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule Id = {\n  type x = int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule Id: {\n  type x = int\n}\n```"}}
 
 Hover src/Hover.res 19:11
-{"contents": {"kind": "markdown", "value": "\nThis module is commented\n```rescript\nmodule Dep = {\n  let customDouble: int => int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "\nThis module is commented\n```rescript\nmodule Dep: {\n  let customDouble: int => int\n}\n```"}}
 
 Hover src/Hover.res 22:11
 {"contents": {"kind": "markdown", "value": "```rescript\nint => int\n```\n\nSome doc comment"}}
@@ -50,13 +50,13 @@ Definition src/Hover.res 60:14
 {"uri": "Hover.res", "range": {"start": {"line": 49, "character": 12}, "end": {"line": 49, "character": 18}}}
 
 Hover src/Hover.res 63:9
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule IdDefinedTwice = {\n  let y: int\n  let _x: int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule IdDefinedTwice: {\n  let y: int\n  let _x: int\n}\n```"}}
 
 Hover src/Hover.res 74:7
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule A = {\n  let x: int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule A: {\n  let x: int\n}\n```"}}
 
 Hover src/Hover.res 77:7
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule A = {\n  let x: int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule A: {\n  let x: int\n}\n```"}}
 
 Hover src/Hover.res 91:10
 Nothing at that position. Now trying to use completion.

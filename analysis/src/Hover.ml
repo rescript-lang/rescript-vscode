@@ -1,6 +1,6 @@
 open SharedTypes
 
-let showModuleTopLevel ~docstring ~name (topLevel : Module.item list) =
+let showModuleTopLevel ~docstring ~isType ~name (topLevel : Module.item list) =
   let contents =
     topLevel
     |> List.map (fun item ->
@@ -15,7 +15,10 @@ let showModuleTopLevel ~docstring ~name (topLevel : Module.item list) =
     |> String.concat "\n"
   in
   let full =
-    Markdown.codeBlock ("module " ^ name ^ " = {" ^ "\n" ^ contents ^ "\n}")
+    Markdown.codeBlock
+      ("module "
+      ^ (if isType then "type " ^ name ^ " = " else name ^ ": ")
+      ^ "{" ^ "\n" ^ contents ^ "\n}")
   in
   let doc =
     match docstring with
@@ -27,14 +30,15 @@ let showModuleTopLevel ~docstring ~name (topLevel : Module.item list) =
 let rec showModule ~docstring ~(file : File.t) ~name
     (declared : Module.t Declared.t option) =
   match declared with
-  | None -> showModuleTopLevel ~docstring ~name file.structure.items
+  | None ->
+    showModuleTopLevel ~docstring ~isType:false ~name file.structure.items
   | Some {item = Structure {items}; modulePath} ->
-    let name =
+    let isType =
       match modulePath with
-      | ExportedModule {isType} when isType = true -> "type " ^ name
-      | _ -> name
+      | ExportedModule {isType} -> isType
+      | _ -> false
     in
-    showModuleTopLevel ~docstring ~name items
+    showModuleTopLevel ~docstring ~isType ~name items
   | Some ({item = Constraint (_moduleItem, moduleTypeItem)} as declared) ->
     (* show the interface *)
     showModule ~docstring ~file ~name
