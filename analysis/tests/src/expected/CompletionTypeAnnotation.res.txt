@@ -110,3 +110,61 @@ Completable: Cexpression Type[somePolyVariant]=#o
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionTypeAnnotation.res 29:20
+XXX Not found!
+Completable: Cexpression Type[someFunc]
+[{
+    "label": "(v1, v2) => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, string) => bool",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "(${1:v1}, ${2:v2}) => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 34:21
+XXX Not found!
+Completable: Cexpression Type[someTuple]
+[{
+    "label": "(_, _)",
+    "kind": 12,
+    "tags": [],
+    "detail": "(bool, option<bool>)",
+    "documentation": null,
+    "insertText": "(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 37:28
+XXX Not found!
+Completable: Cexpression Type[someTuple]->tuple($1)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
