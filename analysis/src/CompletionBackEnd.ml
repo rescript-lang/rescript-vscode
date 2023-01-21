@@ -252,7 +252,10 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
 
 let processLocalValue name loc ~prefix ~exact ~env
     ~(localTables : LocalTables.t) =
-  if Utils.checkName name ~prefix ~exact then
+  if Utils.checkName name ~prefix ~exact then (
+    if name = "thisGetsBrokenLoc" then
+      Printf.printf "looking for %s startPos %s\n" name
+        (loc |> Loc.start |> Pos.toString);
     match Hashtbl.find_opt localTables.valueTable (name, Loc.start loc) with
     | Some declared ->
       if not (Hashtbl.mem localTables.namesUsed name) then (
@@ -276,7 +279,7 @@ let processLocalValue name loc ~prefix ~exact ~env
                (Ctype.newconstr
                   (Path.Pident (Ident.create "Type Not Known"))
                   []))
-        :: localTables.resultRev
+        :: localTables.resultRev)
 
 let processLocalConstructor name loc ~prefix ~exact ~env
     ~(localTables : LocalTables.t) =

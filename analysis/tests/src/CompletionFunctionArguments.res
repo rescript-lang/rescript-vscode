@@ -89,3 +89,28 @@ let fnTakingRecord = (r: someRecord) => {
 
 // let _ = fnTakingRecord({})
 //                         ^com
+
+module FineModule = {
+  type t = {
+    online: bool,
+    somethingElse: string,
+  }
+
+  let setToFalse = (t: t) => {
+    ...t,
+    online: false,
+  }
+}
+
+let _ =
+  <div
+    onMouseDown={thisGetsBrokenLoc => {
+      //                         ^com
+      let reassignedWorks = thisGetsBrokenLoc
+      ignore(reassignedWorks)
+      // thisGetsBrokenLoc->a
+      //                     ^com
+      // reassignedWorks->a
+      //                   ^com
+    }}
+  />
