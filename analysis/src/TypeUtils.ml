@@ -112,7 +112,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    Some (Completable.Toption (env, payloadTypeExpr))
+    Some (Toption (env, payloadTypeExpr))
   | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
     Some (Tarray (env, payloadTypeExpr))
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
@@ -126,7 +126,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
         (Tvariant
            {env; constructors; variantName = name.txt; variantDecl = decl})
     | Some (env, {item = {kind = Record fields}}) ->
-      Some (Trecord {env; fields; typeExpr = t})
+      Some (Trecord {env; fields; name = `TypeExpr t})
     | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions, t))
   | Tvariant {row_fields} ->
@@ -244,15 +244,17 @@ let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
 
 let extractTypeFromCompletionType (t : completionType) ~env ~full =
   match t with
+  | ExtractedType extractedType -> Some extractedType
   | TypeExpr t -> t |> extractType ~env ~package:full.package
   | InlineRecord fields -> Some (TinlineRecord {env; fields})
   | ResolvedType typ -> (
     match typ.kind with
     | Tuple items -> Some (Tuple (env, items, Ctype.newty (Ttuple items)))
-    | Record fields -> Some (TinlineRecord {env; fields})
+    | Record fields -> Some (Trecord {env; fields; name = `Str typ.name})
     | Variant constructors ->
       Some
-        (Tvariant {env; constructors; variantName = ""; variantDecl = typ.decl})
+        (Tvariant
+           {env; constructors; variantName = typ.name; variantDecl = typ.decl})
     | Abstract _ | Open -> (
       match typ.decl.type_manifest with
       | None -> None
@@ -279,8 +281,15 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
       | Some {typ; optional} ->
         let typ = if optional then Utils.unwrapIfOption typ else typ in
         TypeExpr typ |> resolveNested ~env ~full ~nested)
-    | NRecordBody {seenFields}, Some (Trecord {env; typeExpr}) ->
+    | NRecordBody {seenFields}, Some (Trecord {env; name = `TypeExpr typeExpr})
+      ->
       Some (TypeExpr typeExpr, env, Some (Completable.RecordField {seenFields}))
+    | ( NRecordBody {seenFields},
+        Some (Trecord {env; name = `Str _} as extractedType) ) ->
+      Some
+        ( ExtractedType extractedType,
+          env,
+          Some (Completable.RecordField {seenFields}) )
     | NRecordBody {seenFields}, Some (TinlineRecord {env; fields}) ->
       Some
         (InlineRecord fields, env, Some (Completable.RecordField {seenFields}))
@@ -362,3 +371,28 @@ let contextPathFromCoreType (coreType : Parsetree.core_type) =
   | Ptyp_constr (loc, []) ->
     Some (Completable.CPId (loc.txt |> Utils.flattenLongIdent, Type))
   | _ -> None
+
+let printRecordFromFields ?name (fields : field list) =
+  (match name with
+  | None -> ""
+  | Some name -> "type " ^ name ^ " = ")
+  ^ "{"
+  ^ (fields
+    |> List.map (fun f -> f.fname.txt ^ ": " ^ Shared.typeToString f.typ)
+    |> String.concat ", ")
+  ^ "}"
+
+let extractedTypeToString = function
+  | Tuple (_, _, typ)
+  | Toption (_, typ)
+  | Tpolyvariant {typeExpr = typ}
+  | Tfunction {typ}
+  | Trecord {name = `TypeExpr typ} ->
+    Shared.typeToString typ
+  | Tbool _ -> "bool"
+  | Tstring _ -> "string"
+  | Tarray (_, innerTyp) -> "array<" ^ Shared.typeToString innerTyp ^ ">"
+  | Tvariant {variantDecl; variantName} ->
+    Shared.declToString variantName variantDecl
+  | Trecord {name = `Str name; fields} -> printRecordFromFields ~name fields
+  | TinlineRecord {fields} -> printRecordFromFields fields

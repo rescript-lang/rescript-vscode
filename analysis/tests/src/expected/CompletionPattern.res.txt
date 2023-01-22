@@ -76,7 +76,7 @@ XXX Not found!
 Completable: Cpattern Value[f]
 [{
     "label": "{}",
-    "kind": 12,
+    "kind": 22,
     "tags": [],
     "detail": "someRecord",
     "documentation": null,
@@ -166,7 +166,7 @@ posCursor:[61:22] posNoWhite:[61:21] Found pattern:[61:16->61:25]
 Completable: Cpattern Value[f]->recordField(nest)
 [{
     "label": "{}",
-    "kind": 12,
+    "kind": 22,
     "tags": [],
     "detail": "nestedRecord",
     "documentation": null,

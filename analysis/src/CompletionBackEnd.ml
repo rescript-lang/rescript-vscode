@@ -233,6 +233,7 @@ let detail name (kind : Completion.kind) =
         ^ ")")
     ^ "\n\n" ^ s
   | Snippet s -> s
+  | ExtractedType extractedType -> TypeUtils.extractedTypeToString extractedType
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
@@ -587,6 +588,8 @@ let completionsGetCompletionType = function
   | {Completion.kind = ObjLabel typ; env} :: _ -> Some (TypeExpr typ, env)
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (TypeExpr typ, env)
   | {Completion.kind = Type typ; env} :: _ -> Some (ResolvedType typ, env)
+  | {Completion.kind = ExtractedType typ; env} :: _ ->
+    Some (ExtractedType typ, env)
   | _ -> None
 
 let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
@@ -1083,7 +1086,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
         ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
         ~kind:(Value typ) ~env ();
     ]
-  | Some (Trecord {env; fields; typeExpr}) -> (
+  | Some (Trecord {env; fields} as extractedType) -> (
     (* As we're completing for a record, we'll need a hint (completionContext)
        here to figure out whether we should complete for a record field, or
        the record body itself. *)
@@ -1094,7 +1097,8 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
              List.mem field.fname.txt seenFields = false)
       |> List.map (fun (field : field) ->
              Completion.create field.fname.txt
-               ~kind:(Field (field, typeExpr |> Shared.typeToString))
+               ~kind:
+                 (Field (field, TypeUtils.extractedTypeToString extractedType))
                ~env)
       |> filterItems ~prefix
     | None ->
@@ -1102,7 +1106,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
         [
           Completion.createWithSnippet ~name:"{}"
             ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
-            ~sortText:"A" ~kind:(Value typeExpr) ~env ();
+            ~sortText:"A" ~kind:(ExtractedType extractedType) ~env ();
         ]
       else [])
   | Some (TinlineRecord {env; fields}) -> (
