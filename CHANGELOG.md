@@ -42,6 +42,7 @@
 - Make signature help work in calls nested inside of other calls. https://github.com/rescript-lang/rescript-vscode/pull/687
 - Fix pipe completion to work on aliased types. https://github.com/rescript-lang/rescript-vscode/pull/700
 - Fix issue with not finding type for function arguments. https://github.com/rescript-lang/rescript-vscode/pull/706
+- Fix incorrect syntax in hover help for module. https://github.com/rescript-lang/rescript-vscode/pull/709
 
 ## v1.10.0
 
