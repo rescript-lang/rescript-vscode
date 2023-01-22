@@ -57,7 +57,7 @@ module Type = struct
     | Record of field list
     | Variant of Constructor.t list
 
-  type t = {kind: kind; decl: Types.type_declaration}
+  type t = {kind: kind; decl: Types.type_declaration; name: string}
 end
 
 module Exported = struct
@@ -139,11 +139,6 @@ module Declared = struct
     item: 'item;
   }
 end
-
-type completionType =
-  | TypeExpr of Types.type_expr
-  | InlineRecord of field list
-  | ResolvedType of Type.t
 
 module Stamps : sig
   type t
@@ -299,6 +294,38 @@ end
 
 type polyVariantConstructor = {name: string; args: Types.type_expr list}
 
+(** An extracted type from a type expr *)
+type extractedType =
+  | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
+  | Toption of QueryEnv.t * Types.type_expr
+  | Tbool of QueryEnv.t
+  | Tarray of QueryEnv.t * Types.type_expr
+  | Tstring of QueryEnv.t
+  | Tvariant of {
+      env: QueryEnv.t;
+      constructors: Constructor.t list;
+      variantDecl: Types.type_declaration;
+      variantName: string;
+    }
+  | Tpolyvariant of {
+      env: QueryEnv.t;
+      constructors: polyVariantConstructor list;
+      typeExpr: Types.type_expr;
+    }
+  | Trecord of {
+      env: QueryEnv.t;
+      fields: field list;
+      name: [`Str of string | `TypeExpr of Types.type_expr];
+    }
+  | TinlineRecord of {env: QueryEnv.t; fields: field list}
+  | Tfunction of {env: QueryEnv.t; args: typedFnArg list; typ: Types.type_expr}
+
+type completionType =
+  | TypeExpr of Types.type_expr
+  | InlineRecord of field list
+  | ResolvedType of Type.t
+  | ExtractedType of extractedType
+
 module Completion = struct
   type kind =
     | Module of Module.t
@@ -311,6 +338,7 @@ module Completion = struct
     | Field of field * string
     | FileModule of string
     | Snippet of string
+    | ExtractedType of extractedType
 
   type t = {
     name: string;
@@ -361,7 +389,7 @@ module Completion = struct
     | ObjLabel _ -> 4
     | Label _ -> 4
     | Field (_, _) -> 5
-    | Type _ -> 22
+    | Type _ | ExtractedType _ -> 22
     | Value _ -> 12
     | Snippet _ -> 15
 end
@@ -624,36 +652,6 @@ module Completable = struct
         fallback: t option;
       }
     | CexhaustiveSwitch of {contextPath: contextPath; exprLoc: Location.t}
-
-  (** An extracted type from a type expr *)
-  type extractedType =
-    | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
-    | Toption of QueryEnv.t * Types.type_expr
-    | Tbool of QueryEnv.t
-    | Tarray of QueryEnv.t * Types.type_expr
-    | Tstring of QueryEnv.t
-    | Tvariant of {
-        env: QueryEnv.t;
-        constructors: Constructor.t list;
-        variantDecl: Types.type_declaration;
-        variantName: string;
-      }
-    | Tpolyvariant of {
-        env: QueryEnv.t;
-        constructors: polyVariantConstructor list;
-        typeExpr: Types.type_expr;
-      }
-    | Trecord of {
-        env: QueryEnv.t;
-        fields: field list;
-        typeExpr: Types.type_expr;
-      }
-    | TinlineRecord of {env: QueryEnv.t; fields: field list}
-    | Tfunction of {
-        env: QueryEnv.t;
-        args: typedFnArg list;
-        typ: Types.type_expr;
-      }
 
   let toString =
     let completionContextToString = function

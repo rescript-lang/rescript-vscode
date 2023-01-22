@@ -3,9 +3,9 @@ XXX Not found!
 Completable: Cexpression Type[someRecord]
 [{
     "label": "{}",
-    "kind": 4,
+    "kind": 22,
     "tags": [],
-    "detail": "Inline record",
+    "detail": "type someRecord = {age: int, name: string}",
     "documentation": null,
     "sortText": "A",
     "insertText": "{$0}",
@@ -17,15 +17,15 @@ XXX Not found!
 Completable: Cexpression Type[someRecord]->recordBody
 [{
     "label": "age",
-    "kind": 4,
+    "kind": 5,
     "tags": [],
-    "detail": "Inline record",
+    "detail": "age: int\n\ntype someRecord = {age: int, name: string}",
     "documentation": null
   }, {
     "label": "name",
-    "kind": 4,
+    "kind": 5,
     "tags": [],
-    "detail": "Inline record",
+    "detail": "name: string\n\ntype someRecord = {age: int, name: string}",
     "documentation": null
   }]
 
@@ -36,7 +36,7 @@ Completable: Cexpression Type[someVariant]
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype  = One | Two(bool)",
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
     "documentation": null,
     "insertText": "One",
     "insertTextFormat": 2
@@ -44,7 +44,7 @@ Completable: Cexpression Type[someVariant]
     "label": "Two(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Two(bool)\n\ntype  = One | Two(bool)",
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
     "documentation": null,
     "insertText": "Two(${1:_})",
     "insertTextFormat": 2
@@ -57,7 +57,7 @@ Completable: Cexpression Type[someVariant]=O
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype  = One | Two(bool)",
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
     "documentation": null,
     "sortText": "A One",
     "insertText": "One",

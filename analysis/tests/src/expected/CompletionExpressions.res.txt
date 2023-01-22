@@ -169,7 +169,7 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested
     "insertTextFormat": 2
   }, {
     "label": "Some({})",
-    "kind": 12,
+    "kind": 22,
     "tags": [],
     "detail": "otherRecord",
     "documentation": null,
@@ -264,7 +264,7 @@ Pexp_apply ...[56:11->56:25] (...[56:26->56:60])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($0)
 [{
     "label": "{}",
-    "kind": 12,
+    "kind": 22,
     "tags": [],
     "detail": "someRecord",
     "documentation": null,
@@ -590,7 +590,7 @@ Pexp_apply ...[135:11->135:31] (...[135:32->135:66])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord)
 [{
     "label": "{}",
-    "kind": 12,
+    "kind": 22,
     "tags": [],
     "detail": "otherRecord",
     "documentation": null,
