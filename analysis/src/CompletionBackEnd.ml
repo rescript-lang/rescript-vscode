@@ -1090,7 +1090,10 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
       |> List.filter (fun (field : field) ->
              List.mem field.fname.txt seenFields = false)
       |> List.map (fun (field : field) ->
-             Completion.create field.fname.txt
+             let fname =
+               PrintType.printIdentLike ~allowUident:false field.fname.txt
+             in
+             Completion.create fname
                ~kind:(Field (field, typeExpr |> Shared.typeToString))
                ~env)
       |> filterItems ~prefix
@@ -1214,6 +1217,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
   | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
     (* Lowercase JSX tag means builtin *)
     let mkLabel (name, typString) =
+      let name = PrintType.printIdentLike ~allowUident:false name in
       Completion.create name ~kind:(Label typString) ~env
     in
     let keyLabels =
@@ -1230,6 +1234,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       CompletionJsx.getJsxLabels ~componentPath ~findTypeOfValue ~package
     in
     let mkLabel_ name typString =
+      let name = PrintType.printIdentLike ~allowUident:false name in
       Completion.create name ~kind:(Label typString) ~env
     in
     let mkLabel (name, typ, _env) =
@@ -1286,6 +1291,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       | None -> []
     in
     let mkLabel (name, typ) =
+      let name = PrintType.printIdentLike ~allowUident:false name in
       Completion.create name ~kind:(Label (typ |> Shared.typeToString)) ~env
     in
     labels

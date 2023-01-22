@@ -1,5 +1,5 @@
 Hover src/ExoticIdentifiers.res 0:7
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule X: {\n  let Foo: string\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule X: {\n  let \\\"Foo\": string\n}\n```"}}
 
 Complete src/ExoticIdentifiers.res 5:15
 posCursor:[5:15] posNoWhite:[5:14] Found expr:[5:13->5:15]
@@ -14,7 +14,7 @@ Completable: Cpath Value[X, ""]
   }]
 
 Hover src/ExoticIdentifiers.res 8:12
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule type Y = {\n  let Foo: string\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule type Y = {\n  let \\\"Foo\": string\n}\n```"}}
 
 Hover src/ExoticIdentifiers.res 13:5
 {"contents": {"kind": "markdown", "value": "```rescript\ntype x = {\\\"Foo\": string}\n```"}}
@@ -25,10 +25,10 @@ posCursor:[17:10] posNoWhite:[17:9] Found expr:[17:5->19:11]
 posCursor:[17:10] posNoWhite:[17:9] Found pattern:[17:9->17:11]
 Completable: Cpattern Value[x]->recordBody
 [{
-    "label": "Foo",
+    "label": "\\\"Foo\"",
     "kind": 5,
     "tags": [],
-    "detail": "Foo: string\n\nx",
+    "detail": "\\\"Foo\": string\n\nx",
     "documentation": null
   }]
 
@@ -41,7 +41,7 @@ Pexp_apply ...[25:3->25:4] ()
 Completable: CnamedArg(Value[g], "", [])
 Found type for function (~Foo: 'a) => 'a
 [{
-    "label": "Foo",
+    "label": "\\\"Foo\"",
     "kind": 4,
     "tags": [],
     "detail": "'a",
@@ -56,7 +56,7 @@ posCursor:[38:11] posNoWhite:[38:9] Found expr:[38:9->38:13]
 JSX <C:[38:9->38:10] > _children:38:11
 Completable: Cjsx([C], "", [])
 [{
-    "label": "Foo",
+    "label": "\\\"Foo\"",
     "kind": 4,
     "tags": [],
     "detail": "option<string>",

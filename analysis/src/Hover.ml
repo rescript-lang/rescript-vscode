@@ -10,7 +10,10 @@ let showModuleTopLevel ~docstring ~isType ~name (topLevel : Module.item list) =
              "  " ^ (decl |> Shared.declToString ~recStatus item.name)
            | Module _ -> "  module " ^ item.name
            | Value typ ->
-             "  let " ^ item.name ^ ": " ^ (typ |> Shared.typeToString))
+             "  let "
+             ^ PrintType.printIdentLike ~allowUident:false item.name
+             ^ ": "
+             ^ (typ |> Shared.typeToString))
     (* TODO indent *)
     |> String.concat "\n"
   in

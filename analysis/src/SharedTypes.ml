@@ -692,8 +692,12 @@ module Completable = struct
         ^ (match argumentLabel with
           | Unlabelled {argumentPosition} ->
             "$" ^ string_of_int argumentPosition
-          | Labelled name -> "~" ^ name
-          | Optional name -> "~" ^ name ^ "=?")
+          | Labelled name ->
+            let name = PrintType.printIdentLike ~allowUident:false name in
+            "~" ^ name
+          | Optional name ->
+            let name = PrintType.printIdentLike ~allowUident:false name in
+            "~" ^ name ^ "= ?")
         ^ ")"
       | CJsxPropValue {pathToComponent; propName} ->
         "CJsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName
