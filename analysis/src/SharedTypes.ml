@@ -322,8 +322,6 @@ type extractedType =
 
 type completionType =
   | TypeExpr of Types.type_expr
-  | InlineRecord of field list
-  | ResolvedType of Type.t
   | ExtractedType of extractedType
 
 module Completion = struct

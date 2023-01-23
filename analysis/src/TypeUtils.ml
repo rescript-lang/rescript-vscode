@@ -242,23 +242,23 @@ let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
       in
       digToRelevantType ~env ~package t)
 
+let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
+  match typ.kind with
+  | Tuple items -> Some (Tuple (env, items, Ctype.newty (Ttuple items)))
+  | Record fields -> Some (Trecord {env; fields; name = `Str typ.name})
+  | Variant constructors ->
+    Some
+      (Tvariant
+         {env; constructors; variantName = typ.name; variantDecl = typ.decl})
+  | Abstract _ | Open -> (
+    match typ.decl.type_manifest with
+    | None -> None
+    | Some t -> t |> extractType ~env ~package:full.package)
+
 let extractTypeFromCompletionType (t : completionType) ~env ~full =
   match t with
   | ExtractedType extractedType -> Some extractedType
   | TypeExpr t -> t |> extractType ~env ~package:full.package
-  | InlineRecord fields -> Some (TinlineRecord {env; fields})
-  | ResolvedType typ -> (
-    match typ.kind with
-    | Tuple items -> Some (Tuple (env, items, Ctype.newty (Ttuple items)))
-    | Record fields -> Some (Trecord {env; fields; name = `Str typ.name})
-    | Variant constructors ->
-      Some
-        (Tvariant
-           {env; constructors; variantName = typ.name; variantDecl = typ.decl})
-    | Abstract _ | Open -> (
-      match typ.decl.type_manifest with
-      | None -> None
-      | Some t -> t |> extractType ~env ~package:full.package))
 
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
 let rec resolveNested (typ : completionType) ~env ~full ~nested =
@@ -292,7 +292,9 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
           Some (Completable.RecordField {seenFields}) )
     | NRecordBody {seenFields}, Some (TinlineRecord {env; fields}) ->
       Some
-        (InlineRecord fields, env, Some (Completable.RecordField {seenFields}))
+        ( ExtractedType (TinlineRecord {fields; env}),
+          env,
+          Some (Completable.RecordField {seenFields}) )
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Some (Toption (env, typ)) ) ->
       TypeExpr typ |> resolveNested ~env ~full ~nested
@@ -308,7 +310,8 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
         | None -> None
         | Some (typ, _) -> TypeExpr typ |> resolveNested ~env ~full ~nested)
       | Some {args = InlineRecord fields} when itemNum = 0 ->
-        InlineRecord fields |> resolveNested ~env ~full ~nested
+        ExtractedType (TinlineRecord {env; fields})
+        |> resolveNested ~env ~full ~nested
       | _ -> None)
     | ( NPolyvariantPayload {constructorName; itemNum},
         Some (Tpolyvariant {env; constructors}) ) -> (
