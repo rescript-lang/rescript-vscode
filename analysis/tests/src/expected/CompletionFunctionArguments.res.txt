@@ -158,7 +158,7 @@ Completable: Cexpression CArgument Value[someFnTakingVariant]($0)=So
     "label": "Some(_)",
     "kind": 4,
     "tags": [],
-    "detail": "someVariant",
+    "detail": "type someVariant = One | Two | Three(int, string)",
     "documentation": null,
     "sortText": "A Some(_)",
     "insertText": "Some(${1:_})",
