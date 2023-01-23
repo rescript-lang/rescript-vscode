@@ -64,7 +64,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         ~item:
           {
             Type.decl;
-            name = ident.name;
+            name = name.txt;
             kind =
               (match type_kind with
               | Type_abstract -> (

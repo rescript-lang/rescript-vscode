@@ -381,8 +381,8 @@ let typeIsUnit (typ : Types.type_expr) =
 
 let contextPathFromCoreType (coreType : Parsetree.core_type) =
   match coreType.ptyp_desc with
-  | Ptyp_constr (loc, []) ->
-    Some (Completable.CPId (loc.txt |> Utils.flattenLongIdent, Type))
+  | Ptyp_constr (lid, []) ->
+    Some (Completable.CPId (lid.txt |> Utils.flattenLongIdent, Type))
   | _ -> None
 
 let printRecordFromFields ?name (fields : field list) =

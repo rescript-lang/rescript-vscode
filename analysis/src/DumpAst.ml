@@ -59,10 +59,10 @@ let printCoreType typ ~pos =
   match typ.ptyp_desc with
   | Ptyp_any -> "Ptyp_any"
   | Ptyp_var name -> "Ptyp_var(" ^ str name ^ ")"
-  | Ptyp_constr (loc, _types) ->
+  | Ptyp_constr (lid, _types) ->
     "Ptyp_constr("
-    ^ (loc |> printLocDenominatorLoc ~pos)
-    ^ (Utils.flattenLongIdent loc.txt |> ident |> str)
+    ^ (lid |> printLocDenominatorLoc ~pos)
+    ^ (Utils.flattenLongIdent lid.txt |> ident |> str)
     ^ ")"
   | Ptyp_variant _ -> "Ptyp_variant(<unimplemented>)"
   | _ -> "<unimplemented_ptyp_desc>"
