@@ -379,7 +379,7 @@ Found type for function (~age: int, ~name: string) => string
 
 Complete src/Completion.res 26:13
 posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:3->26:13]
-Completable: Cpath array->m
+Completable: Cpath array<int>->m
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,

@@ -384,6 +384,8 @@ let rec contextPathFromCoreType (coreType : Parsetree.core_type) =
   | Ptyp_constr ({txt = Lident "option"}, [innerTyp]) ->
     innerTyp |> contextPathFromCoreType
     |> Option.map (fun innerTyp -> Completable.CPOption innerTyp)
+  | Ptyp_constr ({txt = Lident "array"}, [innerTyp]) ->
+    Some (Completable.CPArray (innerTyp |> contextPathFromCoreType))
   | Ptyp_constr (lid, _) ->
     Some (CPId (lid.txt |> Utils.flattenLongIdent, Type))
   | _ -> None
@@ -398,20 +400,26 @@ let printRecordFromFields ?name (fields : field list) =
     |> String.concat ", ")
   ^ "}"
 
-let rec extractedTypeToString = function
+let rec extractedTypeToString ?(inner = false) = function
   | Tuple (_, _, typ)
   | Tpolyvariant {typeExpr = typ}
   | Tfunction {typ}
   | Trecord {definition = `TypeExpr typ} ->
-    Shared.typeToString typ
+    if inner then
+      match pathFromTypeExpr typ with
+      | None -> "record" (* Won't happen *)
+      | Some p -> p |> SharedTypes.pathIdentToString
+    else Shared.typeToString typ
   | Tbool _ -> "bool"
   | Tstring _ -> "string"
-  | Tarray (_, innerTyp) -> "array<" ^ extractedTypeToString innerTyp ^ ">"
-  | Toption (_, innerTyp) -> "option<" ^ extractedTypeToString innerTyp ^ ">"
+  | Tarray (_, innerTyp) ->
+    "array<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
+  | Toption (_, innerTyp) ->
+    "option<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
   | Tvariant {variantDecl; variantName} ->
-    Shared.declToString variantName variantDecl
+    if inner then variantName else Shared.declToString variantName variantDecl
   | Trecord {definition = `NameOnly name; fields} ->
-    printRecordFromFields ~name fields
+    if inner then name else printRecordFromFields ~name fields
   | TinlineRecord {fields} -> printRecordFromFields fields
 
 let unwrapCompletionTypeIfOption (t : SharedTypes.completionType) =

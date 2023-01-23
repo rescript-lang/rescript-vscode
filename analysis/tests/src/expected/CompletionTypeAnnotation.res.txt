@@ -203,3 +203,94 @@ Completable: Cexpression option<Type[someVariant]>
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionTypeAnnotation.res 43:37
+XXX Not found!
+Completable: Cexpression option<Type[someVariant]>->variantPayload::Some($0)
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 46:30
+XXX Not found!
+Completable: Cexpression array<Type[someVariant]>
+[{
+    "label": "[]",
+    "kind": 12,
+    "tags": [],
+    "detail": "type someVariant = One | Two(bool)",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "[$0]",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 49:32
+XXX Not found!
+Completable: Cexpression array<Type[someVariant]>->array
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 52:38
+XXX Not found!
+Completable: Cexpression array<option<Type[someVariant]>>
+[{
+    "label": "[]",
+    "kind": 12,
+    "tags": [],
+    "detail": "option<someVariant>",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "[$0]",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 55:45
+XXX Not found!
+Completable: Cexpression option<array<Type[someVariant]>>->variantPayload::Some($0), array
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }]
+

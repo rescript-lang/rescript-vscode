@@ -586,7 +586,7 @@ module Completable = struct
 
   type contextPath =
     | CPString
-    | CPArray
+    | CPArray of contextPath option
     | CPInt
     | CPFloat
     | CPOption of contextPath
@@ -673,7 +673,8 @@ module Completable = struct
                | Optional s -> "?" ^ s)
           |> String.concat ", ")
         ^ ")"
-      | CPArray -> "array"
+      | CPArray (Some ctxPath) -> "array<" ^ contextPathToString ctxPath ^ ">"
+      | CPArray None -> "array"
       | CPId (sl, completionContext) ->
         completionContextToString completionContext ^ list sl
       | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s

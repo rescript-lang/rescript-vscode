@@ -599,7 +599,7 @@ let completionsGetCompletionType ~full = function
   | _ -> None
 
 let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
-    ~exact ~scope (contextPath : Completable.contextPath) =
+    ~exact ~scope ?(mode = `Regular) (contextPath : Completable.contextPath) =
   let package = full.package in
   match contextPath with
   | CPString ->
@@ -623,13 +623,37 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "float")) []));
     ]
-  | CPArray ->
+  | CPArray None ->
     [
       Completion.create "array" ~env
         ~kind:
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
     ]
+  | CPArray (Some cp) -> (
+    match mode with
+    | `Regular -> (
+      match
+        cp
+        |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
+             ~env ~exact:true ~scope
+        |> completionsGetCompletionType ~full
+      with
+      | None -> []
+      | Some (typ, env) ->
+        [
+          Completion.create "dummy" ~env
+            ~kind:(Completion.ExtractedType (Tarray (env, typ), `Type));
+        ])
+    | `Pipe ->
+      (* Pipe completion with array just needs to know that it's an array, not
+         what inner type it has. *)
+      [
+        Completion.create "array" ~env
+          ~kind:
+            (Completion.Value
+               (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
+      ])
   | CPOption cp -> (
     match
       cp
@@ -748,7 +772,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     match
       cp
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
-           ~exact:true ~scope
+           ~exact:true ~scope ~mode:`Pipe
       |> completionsGetTypeEnv
     with
     | None -> []
