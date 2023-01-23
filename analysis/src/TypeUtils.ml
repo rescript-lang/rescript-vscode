@@ -112,7 +112,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    Some (Toption (env, payloadTypeExpr))
+    payloadTypeExpr |> extractType ~env ~package
+    |> Option.map (fun payloadTyp -> Toption (env, payloadTyp))
   | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
     Some (Tarray (env, payloadTypeExpr))
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
@@ -299,10 +300,7 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
           Some (Completable.RecordField {seenFields}) )
     | NVariantPayload {constructorName = "Some"; itemNum = 0}, Toption (env, typ)
       ->
-      typ
-      |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun typ ->
-             typ |> resolveNested ~env ~full ~nested)
+      typ |> resolveNested ~env ~full ~nested
     | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
       -> (
       match
@@ -400,9 +398,8 @@ let printRecordFromFields ?name (fields : field list) =
     |> String.concat ", ")
   ^ "}"
 
-let extractedTypeToString = function
+let rec extractedTypeToString = function
   | Tuple (_, _, typ)
-  | Toption (_, typ)
   | Tpolyvariant {typeExpr = typ}
   | Tfunction {typ}
   | Trecord {definition = `TypeExpr typ} ->
@@ -410,8 +407,14 @@ let extractedTypeToString = function
   | Tbool _ -> "bool"
   | Tstring _ -> "string"
   | Tarray (_, innerTyp) -> "array<" ^ Shared.typeToString innerTyp ^ ">"
+  | Toption (_, typ) -> "option<" ^ extractedTypeToString typ ^ ">"
   | Tvariant {variantDecl; variantName} ->
     Shared.declToString variantName variantDecl
   | Trecord {definition = `NameOnly name; fields} ->
     printRecordFromFields ~name fields
   | TinlineRecord {fields} -> printRecordFromFields fields
+
+let unwrapCompletionTypeIfOption (t : SharedTypes.completionType) =
+  match t with
+  | Toption (_, unwrapped) -> unwrapped
+  | _ -> t

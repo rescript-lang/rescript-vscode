@@ -1059,35 +1059,30 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~full ~prefix
              ~env ())
     |> filterItems ~prefix
   | Toption (env, t) ->
-    let innerType =
-      Utils.unwrapIfOption t |> TypeUtils.extractType ~env ~package:full.package
-    in
+    let innerType = TypeUtils.unwrapCompletionTypeIfOption t in
     let expandedCompletions =
       innerType
-      |> Option.map (fun innerType ->
-             innerType
-             |> completeTypedValue ~full ~prefix ~completionContext ~mode
-             |> List.map (fun (c : Completion.t) ->
-                    {
-                      c with
-                      name = "Some(" ^ c.name ^ ")";
-                      sortText = None;
-                      insertText =
-                        (match c.insertText with
-                        | None -> None
-                        | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
-                    }))
+      |> completeTypedValue ~full ~prefix ~completionContext ~mode
+      |> List.map (fun (c : Completion.t) ->
+             {
+               c with
+               name = "Some(" ^ c.name ^ ")";
+               sortText = None;
+               insertText =
+                 (match c.insertText with
+                 | None -> None
+                 | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
+             })
     in
-    ([
-       Completion.create "None" ~kind:(Label (t |> Shared.typeToString)) ~env;
-       Completion.createWithSnippet ~name:"Some(_)"
-         ~kind:(Label (t |> Shared.typeToString))
-         ~env ~insertText:"Some(${1:_})" ();
-     ]
-    @
-    match expandedCompletions with
-    | None -> []
-    | Some expandedCompletions -> expandedCompletions)
+    [
+      Completion.create "None"
+        ~kind:(Label (t |> TypeUtils.extractedTypeToString))
+        ~env;
+      Completion.createWithSnippet ~name:"Some(_)"
+        ~kind:(Label (t |> TypeUtils.extractedTypeToString))
+        ~env ~insertText:"Some(${1:_})" ();
+    ]
+    @ expandedCompletions
     |> filterItems ~prefix
   | Tuple (env, exprs, typ) ->
     let numExprs = List.length exprs in

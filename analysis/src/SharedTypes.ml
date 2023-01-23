@@ -297,7 +297,7 @@ type polyVariantConstructor = {name: string; args: Types.type_expr list}
 (** An type that can be used to drive completion *)
 type completionType =
   | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
-  | Toption of QueryEnv.t * Types.type_expr
+  | Toption of QueryEnv.t * completionType
   | Tbool of QueryEnv.t
   | Tarray of QueryEnv.t * Types.type_expr
   | Tstring of QueryEnv.t
