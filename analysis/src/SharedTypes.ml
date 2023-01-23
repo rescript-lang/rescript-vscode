@@ -315,7 +315,11 @@ type completionType =
   | Trecord of {
       env: QueryEnv.t;
       fields: field list;
-      name: [`Str of string | `TypeExpr of Types.type_expr];
+      definition:
+        [ `NameOnly of string
+          (** When we only have the name, like when pulling the record from a declared type. *)
+        | `TypeExpr of Types.type_expr
+          (** When we have the full type expr from the compiler. *) ];
     }
   | TinlineRecord of {env: QueryEnv.t; fields: field list}
   | Tfunction of {env: QueryEnv.t; args: typedFnArg list; typ: Types.type_expr}

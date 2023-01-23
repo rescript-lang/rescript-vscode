@@ -126,7 +126,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
         (Tvariant
            {env; constructors; variantName = name.txt; variantDecl = decl})
     | Some (env, {item = {kind = Record fields}}) ->
-      Some (Trecord {env; fields; name = `TypeExpr t})
+      Some (Trecord {env; fields; definition = `TypeExpr t})
     | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions, t))
   | Tvariant {row_fields} ->
@@ -245,7 +245,8 @@ let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
 let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
   match typ.kind with
   | Tuple items -> Some (Tuple (env, items, Ctype.newty (Ttuple items)))
-  | Record fields -> Some (Trecord {env; fields; name = `Str typ.name})
+  | Record fields ->
+    Some (Trecord {env; fields; definition = `NameOnly typ.name})
   | Variant constructors ->
     Some
       (Tvariant
@@ -282,13 +283,14 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
         |> extractType ~env ~package:full.package
         |> Utils.Option.flatMap (fun typ ->
                typ |> resolveNested ~env ~full ~nested))
-    | NRecordBody {seenFields}, Trecord {env; name = `TypeExpr typeExpr} ->
+    | NRecordBody {seenFields}, Trecord {env; definition = `TypeExpr typeExpr}
+      ->
       typeExpr
       |> extractType ~env ~package:full.package
       |> Option.map (fun typ ->
              (typ, env, Some (Completable.RecordField {seenFields})))
-    | NRecordBody {seenFields}, (Trecord {env; name = `Str _} as extractedType)
-      ->
+    | ( NRecordBody {seenFields},
+        (Trecord {env; definition = `NameOnly _} as extractedType) ) ->
       Some (extractedType, env, Some (Completable.RecordField {seenFields}))
     | NRecordBody {seenFields}, TinlineRecord {env; fields} ->
       Some
@@ -403,12 +405,13 @@ let extractedTypeToString = function
   | Toption (_, typ)
   | Tpolyvariant {typeExpr = typ}
   | Tfunction {typ}
-  | Trecord {name = `TypeExpr typ} ->
+  | Trecord {definition = `TypeExpr typ} ->
     Shared.typeToString typ
   | Tbool _ -> "bool"
   | Tstring _ -> "string"
   | Tarray (_, innerTyp) -> "array<" ^ Shared.typeToString innerTyp ^ ">"
   | Tvariant {variantDecl; variantName} ->
     Shared.declToString variantName variantDecl
-  | Trecord {name = `Str name; fields} -> printRecordFromFields ~name fields
+  | Trecord {definition = `NameOnly name; fields} ->
+    printRecordFromFields ~name fields
   | TinlineRecord {fields} -> printRecordFromFields fields
