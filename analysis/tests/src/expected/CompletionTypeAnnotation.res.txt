@@ -3,7 +3,7 @@ XXX Not found!
 Completable: Cexpression Type[someRecord]
 [{
     "label": "{}",
-    "kind": 22,
+    "kind": 12,
     "tags": [],
     "detail": "type someRecord = {age: int, name: string}",
     "documentation": null,

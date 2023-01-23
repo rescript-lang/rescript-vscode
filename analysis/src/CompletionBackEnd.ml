@@ -233,7 +233,8 @@ let detail name (kind : Completion.kind) =
         ^ ")")
     ^ "\n\n" ^ s
   | Snippet s -> s
-  | ExtractedType extractedType -> TypeUtils.extractedTypeToString extractedType
+  | ExtractedType (extractedType, _) ->
+    TypeUtils.extractedTypeToString extractedType
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
@@ -594,7 +595,7 @@ let completionsGetCompletionType ~full = function
     match TypeUtils.extractTypeFromResolvedType typ ~env ~full with
     | None -> None
     | Some extractedType -> Some (extractedType, env))
-  | {Completion.kind = ExtractedType typ; env} :: _ -> Some (typ, env)
+  | {Completion.kind = ExtractedType (typ, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
 let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
@@ -1112,7 +1113,14 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~full ~prefix
         [
           Completion.createWithSnippet ~name:"{}"
             ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
-            ~sortText:"A" ~kind:(ExtractedType extractedType) ~env ();
+            ~sortText:"A"
+            ~kind:
+              (ExtractedType
+                 ( extractedType,
+                   match mode with
+                   | Pattern -> `Type
+                   | Expression -> `Value ))
+            ~env ();
         ]
       else [])
   | TinlineRecord {env; fields} -> (
@@ -1133,12 +1141,19 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~full ~prefix
             ~sortText:"A" ~kind:(Label "Inline record") ~env ();
         ]
       else [])
-  | Tarray (env, typeExpr) ->
+  | Tarray (env, typ) ->
     if prefix = "" then
       [
         Completion.createWithSnippet ~name:"[]"
           ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
-          ~sortText:"A" ~kind:(Value typeExpr) ~env ();
+          ~sortText:"A"
+          ~kind:
+            (ExtractedType
+               ( typ,
+                 match mode with
+                 | Pattern -> `Type
+                 | Expression -> `Value ))
+          ~env ();
       ]
     else []
   | Tstring env ->
