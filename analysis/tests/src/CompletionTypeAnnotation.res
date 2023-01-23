@@ -37,3 +37,6 @@ type someTuple = (bool, option<bool>)
 
 // let x: someTuple = (true, )
 //                          ^com
+
+// let x: option<someVariant> =
+//                             ^com

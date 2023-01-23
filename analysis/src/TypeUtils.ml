@@ -379,10 +379,13 @@ let typeIsUnit (typ : Types.type_expr) =
     true
   | _ -> false
 
-let contextPathFromCoreType (coreType : Parsetree.core_type) =
+let rec contextPathFromCoreType (coreType : Parsetree.core_type) =
   match coreType.ptyp_desc with
-  | Ptyp_constr (lid, []) ->
-    Some (Completable.CPId (lid.txt |> Utils.flattenLongIdent, Type))
+  | Ptyp_constr ({txt = Lident "option"}, [innerTyp]) ->
+    innerTyp |> contextPathFromCoreType
+    |> Option.map (fun innerTyp -> Completable.CPOption innerTyp)
+  | Ptyp_constr (lid, _) ->
+    Some (CPId (lid.txt |> Utils.flattenLongIdent, Type))
   | _ -> None
 
 let printRecordFromFields ?name (fields : field list) =

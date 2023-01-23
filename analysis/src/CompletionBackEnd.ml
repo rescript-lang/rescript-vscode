@@ -630,6 +630,19 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           (Completion.Value
              (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
     ]
+  | CPOption cp -> (
+    match
+      cp
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
+      |> completionsGetCompletionType ~full
+    with
+    | None -> []
+    | Some (typ, env) ->
+      [
+        Completion.create "dummy" ~env
+          ~kind:(Completion.ExtractedType (Toption (env, typ), `Type));
+      ])
   | CPId (path, completionContext) ->
     path
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact

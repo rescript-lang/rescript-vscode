@@ -589,6 +589,7 @@ module Completable = struct
     | CPArray
     | CPInt
     | CPFloat
+    | CPOption of contextPath
     | CPApply of contextPath * Asttypes.arg_label list
     | CPId of string list * completionContext
     | CPField of contextPath * string
@@ -662,6 +663,7 @@ module Completable = struct
       | CPString -> "string"
       | CPInt -> "int"
       | CPFloat -> "float"
+      | CPOption ctxPath -> "option<" ^ contextPathToString ctxPath ^ ">"
       | CPApply (cp, labels) ->
         contextPathToString cp ^ "("
         ^ (labels
