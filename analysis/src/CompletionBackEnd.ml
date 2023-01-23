@@ -583,11 +583,14 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
-let completionsGetCompletionType = function
+let completionsGetCompletionType ~full = function
   | {Completion.kind = Value typ; env} :: _ -> Some (TypeExpr typ, env)
   | {Completion.kind = ObjLabel typ; env} :: _ -> Some (TypeExpr typ, env)
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (TypeExpr typ, env)
-  | {Completion.kind = Type typ; env} :: _ -> Some (ResolvedType typ, env)
+  | {Completion.kind = Type typ; env} :: _ -> (
+    match TypeUtils.extractTypeFromResolvedType typ ~env ~full with
+    | None -> None
+    | Some extractedType -> Some (ExtractedType extractedType, env))
   | {Completion.kind = ExtractedType typ; env} :: _ ->
     Some (ExtractedType typ, env)
   | _ -> None
@@ -1330,7 +1333,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       contextPath
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
-      |> completionsGetCompletionType
+      |> completionsGetCompletionType ~full
     with
     | None -> []
     | Some (typ, env) -> (
