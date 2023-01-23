@@ -168,3 +168,38 @@ Completable: Cexpression Type[someTuple]->tuple($1)
     "documentation": null
   }]
 
+Complete src/CompletionTypeAnnotation.res 40:31
+XXX Not found!
+Completable: Cexpression option<Type[someVariant]>
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "type someVariant = One | Two(bool)",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "type someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(One)",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Some(One)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(Two(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Some(Two(${1:_}))",
+    "insertTextFormat": 2
+  }]
+
