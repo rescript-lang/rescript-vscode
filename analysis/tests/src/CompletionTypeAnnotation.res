@@ -40,3 +40,18 @@ type someTuple = (bool, option<bool>)
 
 // let x: option<someVariant> =
 //                             ^com
+
+// let x: option<someVariant> = Some()
+//                                   ^com
+
+// let x: array<someVariant> =
+//                            ^com
+
+// let x: array<someVariant> = []
+//                              ^com
+
+// let x: array<option<someVariant>> =
+//                                    ^com
+
+// let x: option<array<someVariant>> = Some([])
+//                                           ^com
