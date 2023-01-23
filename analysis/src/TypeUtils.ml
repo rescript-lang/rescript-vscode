@@ -115,7 +115,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     payloadTypeExpr |> extractType ~env ~package
     |> Option.map (fun payloadTyp -> Toption (env, payloadTyp))
   | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
-    Some (Tarray (env, payloadTypeExpr))
+    payloadTypeExpr |> extractType ~env ~package
+    |> Option.map (fun payloadTyp -> Tarray (env, payloadTyp))
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
   | Tconstr (Path.Pident {name = "string"}, [], _) -> Some (Tstring env)
   | Tconstr (path, _, _) -> (
@@ -335,11 +336,7 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
           |> extractType ~env ~package:full.package
           |> Utils.Option.flatMap (fun typ ->
                  typ |> resolveNested ~env ~full ~nested)))
-    | NArray, Tarray (env, typ) ->
-      typ
-      |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun typ ->
-             typ |> resolveNested ~env ~full ~nested)
+    | NArray, Tarray (env, typ) -> typ |> resolveNested ~env ~full ~nested
     | _ -> None)
 
 let getArgs ~env (t : Types.type_expr) ~full =
@@ -406,8 +403,8 @@ let rec extractedTypeToString = function
     Shared.typeToString typ
   | Tbool _ -> "bool"
   | Tstring _ -> "string"
-  | Tarray (_, innerTyp) -> "array<" ^ Shared.typeToString innerTyp ^ ">"
-  | Toption (_, typ) -> "option<" ^ extractedTypeToString typ ^ ">"
+  | Tarray (_, innerTyp) -> "array<" ^ extractedTypeToString innerTyp ^ ">"
+  | Toption (_, innerTyp) -> "option<" ^ extractedTypeToString innerTyp ^ ">"
   | Tvariant {variantDecl; variantName} ->
     Shared.declToString variantName variantDecl
   | Trecord {definition = `NameOnly name; fields} ->

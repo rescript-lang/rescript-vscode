@@ -410,7 +410,7 @@ XXX Not found!
 Completable: Cpattern Value[c]
 [{
     "label": "[]",
-    "kind": 12,
+    "kind": 22,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -539,7 +539,7 @@ posCursor:[143:35] posNoWhite:[143:34] Found pattern:[143:20->143:38]
 Completable: Cpattern Value[p]->variantPayload::Test($3)
 [{
     "label": "[]",
-    "kind": 12,
+    "kind": 22,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -625,7 +625,7 @@ posCursor:[159:36] posNoWhite:[159:35] Found pattern:[159:21->159:38]
 Completable: Cpattern Value[v]->polyvariantPayload::test($3)
 [{
     "label": "[]",
-    "kind": 12,
+    "kind": 22,
     "tags": [],
     "detail": "bool",
     "documentation": null,

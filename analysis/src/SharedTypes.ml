@@ -299,7 +299,7 @@ type completionType =
   | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
   | Toption of QueryEnv.t * completionType
   | Tbool of QueryEnv.t
-  | Tarray of QueryEnv.t * Types.type_expr
+  | Tarray of QueryEnv.t * completionType
   | Tstring of QueryEnv.t
   | Tvariant of {
       env: QueryEnv.t;
@@ -336,7 +336,7 @@ module Completion = struct
     | Field of field * string
     | FileModule of string
     | Snippet of string
-    | ExtractedType of completionType
+    | ExtractedType of completionType * [`Value | `Type]
 
   type t = {
     name: string;
@@ -387,8 +387,8 @@ module Completion = struct
     | ObjLabel _ -> 4
     | Label _ -> 4
     | Field (_, _) -> 5
-    | Type _ | ExtractedType _ -> 22
-    | Value _ -> 12
+    | Type _ | ExtractedType (_, `Type) -> 22
+    | Value _ | ExtractedType (_, `Value) -> 12
     | Snippet _ -> 15
 end
 
