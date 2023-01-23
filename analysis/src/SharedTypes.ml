@@ -294,8 +294,8 @@ end
 
 type polyVariantConstructor = {name: string; args: Types.type_expr list}
 
-(** An extracted type from a type expr *)
-type extractedType =
+(** An type that can be used to drive completion *)
+type completionType =
   | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
   | Toption of QueryEnv.t * Types.type_expr
   | Tbool of QueryEnv.t
@@ -320,10 +320,6 @@ type extractedType =
   | TinlineRecord of {env: QueryEnv.t; fields: field list}
   | Tfunction of {env: QueryEnv.t; args: typedFnArg list; typ: Types.type_expr}
 
-type completionType =
-  | TypeExpr of Types.type_expr
-  | ExtractedType of extractedType
-
 module Completion = struct
   type kind =
     | Module of Module.t
@@ -336,7 +332,7 @@ module Completion = struct
     | Field of field * string
     | FileModule of string
     | Snippet of string
-    | ExtractedType of extractedType
+    | ExtractedType of completionType
 
   type t = {
     name: string;
