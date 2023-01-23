@@ -28,6 +28,7 @@
 - Support inline records in completion. https://github.com/rescript-lang/rescript-vscode/pull/695
 - Add way to autocomplete an exhaustive switch statement for identifiers. Example: an identifier that's a variant can have a switch autoinserted matching all variant cases. https://github.com/rescript-lang/rescript-vscode/pull/699
 - Support typed expression completion for lowercase (builtin) JSX tags. https://github.com/rescript-lang/rescript-vscode/pull/702
+- Support typed expression completion driven by type annotations. https://github.com/rescript-lang/rescript-vscode/pull/711
 
 #### :nail_care: Polish
 
