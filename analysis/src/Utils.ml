@@ -212,3 +212,10 @@ let rec expandPath (path : Path.t) =
   | Pident id -> [Ident.name id]
   | Pdot (p, s, _) -> s :: expandPath p
   | Papply _ -> []
+
+module Option = struct
+  let flatMap f o =
+    match o with
+    | None -> None
+    | Some v -> f v
+end

@@ -584,15 +584,17 @@ let completionsGetTypeEnv = function
   | _ -> None
 
 let completionsGetCompletionType ~full = function
-  | {Completion.kind = Value typ; env} :: _ -> Some (TypeExpr typ, env)
-  | {Completion.kind = ObjLabel typ; env} :: _ -> Some (TypeExpr typ, env)
-  | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (TypeExpr typ, env)
+  | {Completion.kind = Value typ; env} :: _
+  | {Completion.kind = ObjLabel typ; env} :: _
+  | {Completion.kind = Field ({typ}, _); env} :: _ ->
+    typ
+    |> TypeUtils.extractType ~env ~package:full.package
+    |> Option.map (fun typ -> (typ, env))
   | {Completion.kind = Type typ; env} :: _ -> (
     match TypeUtils.extractTypeFromResolvedType typ ~env ~full with
     | None -> None
-    | Some extractedType -> Some (ExtractedType extractedType, env))
-  | {Completion.kind = ExtractedType typ; env} :: _ ->
-    Some (ExtractedType typ, env)
+    | Some extractedType -> Some (extractedType, env))
+  | {Completion.kind = ExtractedType typ; env} :: _ -> Some (typ, env)
   | _ -> None
 
 let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
@@ -1007,17 +1009,16 @@ let printConstructorArgs argsLen ~asSnippet =
 
 type completionMode = Pattern | Expression
 
-let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
+let rec completeTypedValue (t : SharedTypes.completionType) ~full ~prefix
     ~completionContext ~mode =
-  let extractedType = t |> TypeUtils.extractTypeFromCompletionType ~env ~full in
-  match extractedType with
-  | Some (Tbool env) ->
+  match t with
+  | Tbool env ->
     [
       Completion.create "true" ~kind:(Label "bool") ~env;
       Completion.create "false" ~kind:(Label "bool") ~env;
     ]
     |> filterItems ~prefix
-  | Some (Tvariant {env; constructors; variantDecl; variantName}) ->
+  | Tvariant {env; constructors; variantDecl; variantName} ->
     constructors
     |> List.map (fun (constructor : Constructor.t) ->
            let numArgs =
@@ -1037,7 +1038,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
                   (constructor, variantDecl |> Shared.declToString variantName))
              ~env ())
     |> filterItems ~prefix
-  | Some (Tpolyvariant {env; constructors; typeExpr}) ->
+  | Tpolyvariant {env; constructors; typeExpr} ->
     constructors
     |> List.map (fun (constructor : polyVariantConstructor) ->
            Completion.createWithSnippet
@@ -1057,31 +1058,38 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
                   (constructor, typeExpr |> Shared.typeToString))
              ~env ())
     |> filterItems ~prefix
-  | Some (Toption (env, t)) ->
-    let innerType = Utils.unwrapIfOption t in
-    let expandedCompletions =
-      TypeExpr innerType
-      |> completeTypedValue ~env ~full ~prefix ~completionContext ~mode
-      |> List.map (fun (c : Completion.t) ->
-             {
-               c with
-               name = "Some(" ^ c.name ^ ")";
-               sortText = None;
-               insertText =
-                 (match c.insertText with
-                 | None -> None
-                 | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
-             })
+  | Toption (env, t) ->
+    let innerType =
+      Utils.unwrapIfOption t |> TypeUtils.extractType ~env ~package:full.package
     in
-    [
-      Completion.create "None" ~kind:(Label (t |> Shared.typeToString)) ~env;
-      Completion.createWithSnippet ~name:"Some(_)"
-        ~kind:(Label (t |> Shared.typeToString))
-        ~env ~insertText:"Some(${1:_})" ();
-    ]
-    @ expandedCompletions
+    let expandedCompletions =
+      innerType
+      |> Option.map (fun innerType ->
+             innerType
+             |> completeTypedValue ~full ~prefix ~completionContext ~mode
+             |> List.map (fun (c : Completion.t) ->
+                    {
+                      c with
+                      name = "Some(" ^ c.name ^ ")";
+                      sortText = None;
+                      insertText =
+                        (match c.insertText with
+                        | None -> None
+                        | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
+                    }))
+    in
+    ([
+       Completion.create "None" ~kind:(Label (t |> Shared.typeToString)) ~env;
+       Completion.createWithSnippet ~name:"Some(_)"
+         ~kind:(Label (t |> Shared.typeToString))
+         ~env ~insertText:"Some(${1:_})" ();
+     ]
+    @
+    match expandedCompletions with
+    | None -> []
+    | Some expandedCompletions -> expandedCompletions)
     |> filterItems ~prefix
-  | Some (Tuple (env, exprs, typ)) ->
+  | Tuple (env, exprs, typ) ->
     let numExprs = List.length exprs in
     [
       Completion.createWithSnippet
@@ -1089,7 +1097,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
         ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
         ~kind:(Value typ) ~env ();
     ]
-  | Some (Trecord {env; fields} as extractedType) -> (
+  | Trecord {env; fields} as extractedType -> (
     (* As we're completing for a record, we'll need a hint (completionContext)
        here to figure out whether we should complete for a record field, or
        the record body itself. *)
@@ -1112,7 +1120,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
             ~sortText:"A" ~kind:(ExtractedType extractedType) ~env ();
         ]
       else [])
-  | Some (TinlineRecord {env; fields}) -> (
+  | TinlineRecord {env; fields} -> (
     match completionContext with
     | Some (Completable.RecordField {seenFields}) ->
       fields
@@ -1130,7 +1138,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
             ~sortText:"A" ~kind:(Label "Inline record") ~env ();
         ]
       else [])
-  | Some (Tarray (env, typeExpr)) ->
+  | Tarray (env, typeExpr) ->
     if prefix = "" then
       [
         Completion.createWithSnippet ~name:"[]"
@@ -1138,7 +1146,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
           ~sortText:"A" ~kind:(Value typeExpr) ~env ();
       ]
     else []
-  | Some (Tstring env) ->
+  | Tstring env ->
     if prefix = "" then
       [
         Completion.createWithSnippet ~name:"\"\""
@@ -1149,7 +1157,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~env ~full ~prefix
           ~env ();
       ]
     else []
-  | Some (Tfunction {env; typ; args}) when prefix = "" && mode = Expression ->
+  | Tfunction {env; typ; args} when prefix = "" && mode = Expression ->
     let prettyPrintArgTyp ?currentIndex (argTyp : Types.type_expr) =
       let indexText =
         match currentIndex with
@@ -1318,13 +1326,17 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       |> completionsGetTypeEnv
     with
     | Some (typ, env) -> (
-      match TypeExpr typ |> TypeUtils.resolveNested ~env ~full ~nested with
+      match
+        typ
+        |> TypeUtils.extractType ~env ~package:full.package
+        |> Utils.Option.flatMap (fun typ ->
+               typ |> TypeUtils.resolveNested ~env ~full ~nested)
+      with
       | None -> fallbackOrEmpty ()
-      | Some (typ, env, completionContext) ->
+      | Some (typ, _env, completionContext) ->
         let items =
           typ
-          |> completeTypedValue ~mode:Pattern ~env ~full ~prefix
-               ~completionContext
+          |> completeTypedValue ~mode:Pattern ~full ~prefix ~completionContext
         in
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
@@ -1347,7 +1359,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
         in
         let items =
           typ
-          |> completeTypedValue ~mode:Expression ~env ~full ~prefix
+          |> completeTypedValue ~mode:Expression ~full ~prefix
                ~completionContext
           |> List.map (fun (c : Completion.t) ->
                  if isJsx then

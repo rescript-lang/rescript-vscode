@@ -255,24 +255,22 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
     | None -> None
     | Some t -> t |> extractType ~env ~package:full.package)
 
-let extractTypeFromCompletionType (t : completionType) ~env ~full =
-  match t with
-  | ExtractedType extractedType -> Some extractedType
-  | TypeExpr t -> t |> extractType ~env ~package:full.package
-
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
 let rec resolveNested (typ : completionType) ~env ~full ~nested =
   match nested with
   | [] -> Some (typ, env, None)
   | patternPath :: nested -> (
-    let extractedType = typ |> extractTypeFromCompletionType ~env ~full in
-    match (patternPath, extractedType) with
-    | Completable.NTupleItem {itemNum}, Some (Tuple (env, tupleItems, _)) -> (
+    match (patternPath, typ) with
+    | Completable.NTupleItem {itemNum}, Tuple (env, tupleItems, _) -> (
       match List.nth_opt tupleItems itemNum with
       | None -> None
-      | Some typ -> TypeExpr typ |> resolveNested ~env ~full ~nested)
+      | Some typ ->
+        typ
+        |> extractType ~env ~package:full.package
+        |> Utils.Option.flatMap (fun typ ->
+               typ |> resolveNested ~env ~full ~nested))
     | ( NFollowRecordField {fieldName},
-        Some (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
+        (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
       match
         fields
         |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
@@ -280,26 +278,31 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
       | None -> None
       | Some {typ; optional} ->
         let typ = if optional then Utils.unwrapIfOption typ else typ in
-        TypeExpr typ |> resolveNested ~env ~full ~nested)
-    | NRecordBody {seenFields}, Some (Trecord {env; name = `TypeExpr typeExpr})
+        typ
+        |> extractType ~env ~package:full.package
+        |> Utils.Option.flatMap (fun typ ->
+               typ |> resolveNested ~env ~full ~nested))
+    | NRecordBody {seenFields}, Trecord {env; name = `TypeExpr typeExpr} ->
+      typeExpr
+      |> extractType ~env ~package:full.package
+      |> Option.map (fun typ ->
+             (typ, env, Some (Completable.RecordField {seenFields})))
+    | NRecordBody {seenFields}, (Trecord {env; name = `Str _} as extractedType)
       ->
-      Some (TypeExpr typeExpr, env, Some (Completable.RecordField {seenFields}))
-    | ( NRecordBody {seenFields},
-        Some (Trecord {env; name = `Str _} as extractedType) ) ->
+      Some (extractedType, env, Some (Completable.RecordField {seenFields}))
+    | NRecordBody {seenFields}, TinlineRecord {env; fields} ->
       Some
-        ( ExtractedType extractedType,
+        ( TinlineRecord {fields; env},
           env,
           Some (Completable.RecordField {seenFields}) )
-    | NRecordBody {seenFields}, Some (TinlineRecord {env; fields}) ->
-      Some
-        ( ExtractedType (TinlineRecord {fields; env}),
-          env,
-          Some (Completable.RecordField {seenFields}) )
-    | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
-        Some (Toption (env, typ)) ) ->
-      TypeExpr typ |> resolveNested ~env ~full ~nested
-    | ( NVariantPayload {constructorName; itemNum},
-        Some (Tvariant {env; constructors}) ) -> (
+    | NVariantPayload {constructorName = "Some"; itemNum = 0}, Toption (env, typ)
+      ->
+      typ
+      |> extractType ~env ~package:full.package
+      |> Utils.Option.flatMap (fun typ ->
+             typ |> resolveNested ~env ~full ~nested)
+    | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
+      -> (
       match
         constructors
         |> List.find_opt (fun (c : Constructor.t) ->
@@ -308,13 +311,16 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
       | Some {args = Args args} -> (
         match List.nth_opt args itemNum with
         | None -> None
-        | Some (typ, _) -> TypeExpr typ |> resolveNested ~env ~full ~nested)
+        | Some (typ, _) ->
+          typ
+          |> extractType ~env ~package:full.package
+          |> Utils.Option.flatMap (fun typ ->
+                 typ |> resolveNested ~env ~full ~nested))
       | Some {args = InlineRecord fields} when itemNum = 0 ->
-        ExtractedType (TinlineRecord {env; fields})
-        |> resolveNested ~env ~full ~nested
+        TinlineRecord {env; fields} |> resolveNested ~env ~full ~nested
       | _ -> None)
     | ( NPolyvariantPayload {constructorName; itemNum},
-        Some (Tpolyvariant {env; constructors}) ) -> (
+        Tpolyvariant {env; constructors} ) -> (
       match
         constructors
         |> List.find_opt (fun (c : polyVariantConstructor) ->
@@ -324,9 +330,16 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
       | Some constructor -> (
         match List.nth_opt constructor.args itemNum with
         | None -> None
-        | Some typ -> TypeExpr typ |> resolveNested ~env ~full ~nested))
-    | NArray, Some (Tarray (env, typ)) ->
-      TypeExpr typ |> resolveNested ~env ~full ~nested
+        | Some typ ->
+          typ
+          |> extractType ~env ~package:full.package
+          |> Utils.Option.flatMap (fun typ ->
+                 typ |> resolveNested ~env ~full ~nested)))
+    | NArray, Tarray (env, typ) ->
+      typ
+      |> extractType ~env ~package:full.package
+      |> Utils.Option.flatMap (fun typ ->
+             typ |> resolveNested ~env ~full ~nested)
     | _ -> None)
 
 let getArgs ~env (t : Types.type_expr) ~full =
