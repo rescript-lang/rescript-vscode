@@ -1,0 +1,53 @@
+Complete src/CompletionInferValues.res 15:43
+posCursor:[15:43] posNoWhite:[15:42] Found expr:[15:33->15:43]
+Completable: Cpath Value[aliased]->f
+[{
+    "label": "Belt.Int.fromString",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => option<int>",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n  ```res example\n  Js.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.fromFloat",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => int",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to an `int`.\n\n  ```res example\n  Js.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n  ```\n"}
+  }]
+
+Complete src/CompletionInferValues.res 18:30
+posCursor:[18:30] posNoWhite:[18:29] Found expr:[18:28->18:30]
+Pexp_field [18:28->18:29] _:[24:0->18:30]
+Completable: Cpath Value[x].""
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 21:53
+posCursor:[21:53] posNoWhite:[21:52] Found expr:[21:45->21:53]
+Pexp_field [21:45->21:52] _:[24:0->21:53]
+Completable: Cpath Value[aliased].""
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }]
+
