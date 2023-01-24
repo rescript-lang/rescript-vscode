@@ -258,6 +258,25 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     Utils.flattenLongIdent ~cutAtOffset ~jsx lid.txt
   in
 
+  let currentCtxPath = ref None in
+  let setCurrentCtxPath ctxPath =
+    if !Cfg.debugFollowCtxPath then
+      Printf.printf "setting current ctxPath: %s\n"
+        (Completable.contextPathToString ctxPath);
+    currentCtxPath := Some ctxPath
+  in
+  let resetCurrentCtxPath ctxPath =
+    (match (!currentCtxPath, ctxPath) with
+    | None, None -> ()
+    | _ ->
+      if !Cfg.debugFollowCtxPath then
+        Printf.printf "resetting current ctxPath to: %s\n"
+          (match ctxPath with
+          | None -> "None"
+          | Some ctxPath -> Completable.contextPathToString ctxPath));
+    currentCtxPath := ctxPath
+  in
+
   let found = ref false in
   let result = ref None in
   let scope = ref (Scope.create ()) in
@@ -443,7 +462,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
 
   let case (iterator : Ast_iterator.iterator) (case : Parsetree.case) =
     let oldScope = !scope in
-    scopePattern case.pc_lhs;
+    scopePattern ?contextPath:!currentCtxPath case.pc_lhs;
     completePattern case.pc_lhs;
     Ast_iterator.default_iterator.case iterator case;
     scope := oldScope
@@ -619,7 +638,34 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       | _ -> ());
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in
-  let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
+  let rec iterateFnArguments ~args ~iterator ~isPipe
+      (argCompletable : Completable.t option) =
+    match argCompletable with
+    | None -> (
+      match !currentCtxPath with
+      | None -> ()
+      | Some functionContextPath ->
+        let currentUnlabelledCount = ref (if isPipe then 1 else 0) in
+        args
+        |> List.iter (fun (arg : arg) ->
+               let previousCtxPath = !currentCtxPath in
+               setCurrentCtxPath
+                 (CArgument
+                    {
+                      functionContextPath;
+                      argumentLabel =
+                        (match arg with
+                        | {label = None} ->
+                          let current = !currentUnlabelledCount in
+                          currentUnlabelledCount := current + 1;
+                          Unlabelled {argumentPosition = current}
+                        | {label = Some {name; opt = true}} -> Optional name
+                        | {label = Some {name; opt = false}} -> Labelled name);
+                    });
+               expr iterator arg.exp;
+               resetCurrentCtxPath previousCtxPath))
+    | Some argCompletable -> setResult argCompletable
+  and expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
     let oldInJsxContext = !inJsxContext in
     let processed = ref false in
     let setFound () =
@@ -773,7 +819,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                   But it should not fire in foo(~a)<---there *)
                not
                  (Loc.end_ expr.pexp_loc = posCursor
-                 && charBeforeCursor = Some ')') ->
+                 && charBeforeCursor = Some ')') -> (
           (* Complete fn argument values and named args when the fn call is piped. E.g. someVar->someFn(<com>). *)
           let args = extractExpApplyArgs ~args in
           let argCompletable =
@@ -786,15 +832,23 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                 ~firstCharBeforeCursorNoWhite
             | None -> None
           in
-
-          setResultOpt argCompletable
+          match argCompletable with
+          | None -> (
+            match exprToContextPath funExpr with
+            | None -> ()
+            | Some funCtxPath ->
+              let oldCtxPath = !currentCtxPath in
+              setCurrentCtxPath funCtxPath;
+              argCompletable |> iterateFnArguments ~isPipe:true ~args ~iterator;
+              resetCurrentCtxPath oldCtxPath)
+          | Some argCompletable -> setResult argCompletable)
         | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
           (* Ignore any other pipe. *)
           ()
         | Pexp_apply (funExpr, args)
           when not
                  (Loc.end_ expr.pexp_loc = posCursor
-                 && charBeforeCursor = Some ')') ->
+                 && charBeforeCursor = Some ')') -> (
           (* Complete fn argument values and named args when the fn call is _not_ piped. E.g. someFn(<com>). *)
           let args = extractExpApplyArgs ~args in
           if debug then
@@ -822,8 +876,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                 ~firstCharBeforeCursorNoWhite
             | None -> None
           in
-
-          setResultOpt argCompletable
+          match argCompletable with
+          | None -> (
+            match exprToContextPath funExpr with
+            | None -> ()
+            | Some funCtxPath ->
+              let oldCtxPath = !currentCtxPath in
+              setCurrentCtxPath funCtxPath;
+              argCompletable |> iterateFnArguments ~isPipe:false ~args ~iterator;
+              resetCurrentCtxPath oldCtxPath)
+          | Some argCompletable -> setResult argCompletable)
         | Pexp_send (lhs, {txt; loc}) -> (
           (* e["txt"]
              If the string for txt is not closed, it could go over several lines.
@@ -850,16 +912,33 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             match exprToContextPath lhs with
             | Some contextPath -> setResult (Cpath (CPObj (contextPath, label)))
             | None -> ())
-        | Pexp_fun (_lbl, defaultExpOpt, pat, e) ->
+        | Pexp_fun (lbl, defaultExpOpt, pat, e) ->
           let oldScope = !scope in
+          let oldCtxPath = !currentCtxPath in
+          (* TODO: Haven't figured out how to count unlabelled args here yet... *)
+          (* TODO: This is broken *)
+          (match !currentCtxPath with
+          | None -> ()
+          | Some ctxPath ->
+            setCurrentCtxPath
+              (CArgument
+                 {
+                   functionContextPath = ctxPath;
+                   argumentLabel =
+                     (match lbl with
+                     | Nolabel -> Unlabelled {argumentPosition = 0}
+                     | Optional name -> Optional name
+                     | Labelled name -> Labelled name);
+                 }));
           (match defaultExpOpt with
           | None -> ()
           | Some defaultExp -> iterator.expr iterator defaultExp);
-          scopePattern pat;
+          scopePattern ?contextPath:!currentCtxPath pat;
           completePattern pat;
           iterator.pat iterator pat;
           iterator.expr iterator e;
           scope := oldScope;
+          resetCurrentCtxPath oldCtxPath;
           processed := true
         | Pexp_let (recFlag, bindings, e) ->
           let oldScope = !scope in

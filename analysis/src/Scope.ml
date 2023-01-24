@@ -26,7 +26,7 @@ let addField ~name ~loc x = Field (name, loc) :: x
 let addModule ~name ~loc x = Module (name, loc) :: x
 let addOpen ~lid x = Open (Utils.flattenLongIdent lid @ ["place holder"]) :: x
 let addValue ~name ~loc ?contextPath x =
-  let showDebug = Cfg.debugFollowCtxPath in
+  let showDebug = !Cfg.debugFollowCtxPath in
   (if showDebug then
    match contextPath with
    | None -> Printf.printf "adding value '%s', no ctxPath\n" name
