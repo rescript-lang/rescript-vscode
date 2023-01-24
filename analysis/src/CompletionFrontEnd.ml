@@ -141,6 +141,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
   | Pexp_constant (Pconst_integer _) -> Some CPInt
   | Pexp_constant (Pconst_float _) -> Some CPFloat
+  | Pexp_construct ({txt = Lident ("true" | "false")}, None) -> Some CPBool
   | Pexp_array exprs ->
     Some
       (CPArray
@@ -271,30 +272,38 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     scope :=
       !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_name.loc
   in
-  let rec scopePattern (pat : Parsetree.pattern) =
+  let rec scopePattern ?contextPath (pat : Parsetree.pattern) =
     match pat.ppat_desc with
     | Ppat_any -> ()
-    | Ppat_var {txt; loc} -> scope := !scope |> Scope.addValue ~name:txt ~loc
+    | Ppat_var {txt; loc} ->
+      scope := !scope |> Scope.addValue ~name:txt ~loc ?contextPath
     | Ppat_alias (p, asA) ->
       scopePattern p;
-      scope := !scope |> Scope.addValue ~name:asA.txt ~loc:asA.loc
+      scope :=
+        !scope
+        |> Scope.addValue ~name:asA.txt ~loc:asA.loc
+             ?contextPath:
+               (match p with
+               | {ppat_desc = Ppat_var {txt}} -> Some (CPId ([txt], Value))
+               | _ -> None)
     | Ppat_constant _ | Ppat_interval _ -> ()
-    | Ppat_tuple pl -> pl |> List.iter scopePattern
+    | Ppat_tuple pl -> pl |> List.iter (scopePattern ?contextPath)
     | Ppat_construct (_, None) -> ()
-    | Ppat_construct (_, Some p) -> scopePattern p
+    | Ppat_construct (_, Some p) -> scopePattern ?contextPath p
     | Ppat_variant (_, None) -> ()
-    | Ppat_variant (_, Some p) -> scopePattern p
+    | Ppat_variant (_, Some p) -> scopePattern ?contextPath p
     | Ppat_record (fields, _) ->
-      fields |> List.iter (fun (_, p) -> scopePattern p)
-    | Ppat_array pl -> pl |> List.iter scopePattern
-    | Ppat_or (p1, _) -> scopePattern p1
-    | Ppat_constraint (p, _) -> scopePattern p
+      fields |> List.iter (fun (_, p) -> scopePattern ?contextPath p)
+    | Ppat_array pl -> pl |> List.iter (scopePattern ?contextPath)
+    | Ppat_or (p1, _) -> scopePattern ?contextPath p1
+    | Ppat_constraint (p, _) -> scopePattern ?contextPath p
     | Ppat_type _ -> ()
-    | Ppat_lazy p -> scopePattern p
-    | Ppat_unpack {txt; loc} -> scope := !scope |> Scope.addValue ~name:txt ~loc
-    | Ppat_exception p -> scopePattern p
+    | Ppat_lazy p -> scopePattern ?contextPath p
+    | Ppat_unpack {txt; loc} ->
+      scope := !scope |> Scope.addValue ~name:txt ~loc ?contextPath
+    | Ppat_exception p -> scopePattern ?contextPath p
     | Ppat_extension _ -> ()
-    | Ppat_open (_, p) -> scopePattern p
+    | Ppat_open (_, p) -> scopePattern ?contextPath p
   in
 
   let lookingForPat = ref None in
@@ -322,7 +331,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | _ -> ()
   in
   let scopeValueBinding (vb : Parsetree.value_binding) =
-    scopePattern vb.pvb_pat
+    let contextPath = exprToContextPath vb.pvb_expr in
+    scopePattern ?contextPath vb.pvb_pat
   in
   let scopeTypeKind (tk : Parsetree.type_kind) =
     match tk with
