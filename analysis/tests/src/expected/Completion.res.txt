@@ -1364,6 +1364,9 @@ posCursor:[336:26] posNoWhite:[336:25] Found expr:[336:16->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found pattern:[336:20->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found type:[336:23->338:5]
 Ptyp_constr Res:[336:23->338:5]
+posCursor:[336:26] posNoWhite:[336:25] Found pattern:[336:20->338:5]
+posCursor:[336:26] posNoWhite:[336:25] Found type:[336:23->338:5]
+Ptyp_constr Res:[336:23->338:5]
 Completable: Cpath Type[Res]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res

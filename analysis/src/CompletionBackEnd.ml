@@ -978,25 +978,25 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     in
     let targetLabel =
       if lowercaseComponent then
-        let rec digToTypeForCompletion path ~env =
+        let rec digToTypeForCompletion path =
           match
             path
             |> getCompletionsForPath ~completionContext:Type ~exact:true
                  ~package ~opens ~allFiles ~pos ~env ~scope
           with
-          | {kind = Type {kind = Abstract (Some (p, _))}; env} :: _ ->
+          | {kind = Type {kind = Abstract (Some (p, _))}} :: _ ->
             (* This case happens when what we're looking for is a type alias.
                This is the case in newer rescript-react versions where
                ReactDOM.domProps is an alias for JsxEvent.t. *)
             let pathRev = p |> Utils.expandPath in
-            pathRev |> List.rev |> digToTypeForCompletion ~env
-          | {kind = Type {kind = Record fields}; env} :: _ -> (
+            pathRev |> List.rev |> digToTypeForCompletion
+          | {kind = Type {kind = Record fields}} :: _ -> (
             match fields |> List.find_opt (fun f -> f.fname.txt = propName) with
             | None -> None
             | Some f -> Some (f.fname.txt, f.typ, env))
           | _ -> None
         in
-        ["ReactDOM"; "domProps"] |> digToTypeForCompletion ~env
+        ["ReactDOM"; "domProps"] |> digToTypeForCompletion
       else
         CompletionJsx.getJsxLabels ~componentPath:pathToComponent
           ~findTypeOfValue ~package
