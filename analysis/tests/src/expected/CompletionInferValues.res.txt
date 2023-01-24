@@ -17,7 +17,7 @@ Completable: Cpath Value[aliased]->f
 
 Complete src/CompletionInferValues.res 18:30
 posCursor:[18:30] posNoWhite:[18:29] Found expr:[18:28->18:30]
-Pexp_field [18:28->18:29] _:[24:0->18:30]
+Pexp_field [18:28->18:29] _:[34:0->18:30]
 Completable: Cpath Value[x].""
 [{
     "label": "name",
@@ -35,7 +35,7 @@ Completable: Cpath Value[x].""
 
 Complete src/CompletionInferValues.res 21:53
 posCursor:[21:53] posNoWhite:[21:52] Found expr:[21:45->21:53]
-Pexp_field [21:45->21:52] _:[24:0->21:53]
+Pexp_field [21:45->21:52] _:[34:0->21:53]
 Completable: Cpath Value[aliased].""
 [{
     "label": "name",
@@ -48,6 +48,54 @@ Completable: Cpath Value[aliased].""
     "kind": 5,
     "tags": [],
     "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 24:63
+posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:3->24:64]
+Pexp_apply ...[24:3->24:21] (...[24:22->24:63])
+posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:22->24:63]
+posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:36->24:63]
+posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:42->24:63]
+posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:52->24:63]
+Pexp_field [24:52->24:62] _:[24:63->24:63]
+Completable: Cpath Value[someRecord].""
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 28:90
+posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:39->28:91]
+Pexp_apply ...[28:39->28:48] (...[28:49->28:90])
+posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:49->28:90]
+posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:56->28:90]
+posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:69->28:90]
+posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:79->28:90]
+Pexp_field [28:79->28:89] _:[28:90->28:90]
+Completable: Cpath Value[someRecord].""
+[]
+
+Complete src/CompletionInferValues.res 31:36
+posCursor:[31:36] posNoWhite:[31:35] Found expr:[31:3->31:39]
+Pexp_apply ...[31:3->31:15] (...[31:16->31:38])
+posCursor:[31:36] posNoWhite:[31:35] Found expr:[31:16->31:38]
+posCursor:[31:36] posNoWhite:[31:35] Found expr:[31:27->31:36]
+Completable: Cpath Value[event]->pr
+[{
+    "label": "ReactEvent.Mouse.preventDefault",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => unit",
     "documentation": null
   }]
 

@@ -1023,12 +1023,14 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     let targetLabel =
       labels
       |> List.find_opt (fun (label, _) ->
-             match argumentLabel with
-             | Unlabelled _ -> label = argumentLabel
-             | Labelled name | Optional name -> (
-               match label with
-               | (Labelled n | Optional n) when name = n -> true
-               | _ -> false))
+             match (argumentLabel, label) with
+             | ( Unlabelled {argumentPosition = pos1},
+                 Completable.Unlabelled {argumentPosition = pos2} ) ->
+               pos1 = pos2
+             | ( (Labelled name1 | Optional name1),
+                 (Labelled name2 | Optional name2) ) ->
+               name1 = name2
+             | _ -> false)
     in
     let expandOption =
       match targetLabel with

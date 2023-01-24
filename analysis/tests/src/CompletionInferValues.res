@@ -7,7 +7,7 @@ let someFnWithCallback = (cb: (~num: int, ~someRecord: someRecord, ~isOn: bool) 
   let _ = cb
 }
 
-let reactEventFn = (cb: someRecord => unit) => {
+let reactEventFn = (cb: ReactEvent.Mouse.t => unit) => {
   let _ = cb
 }
 
@@ -21,3 +21,13 @@ let reactEventFn = (cb: someRecord => unit) => {
 
 // let x = getSomeRecord(); let aliased = x; aliased.
 //                                                   ^com
+
+// someFnWithCallback((~someRecord, ~num, ~isOn) => someRecord.)
+//                                                             ^com
+
+// Broken because not using the first argument (argument context seems to pile on when they should be plucked off and new one added)
+// let aliasedFn = someFnWithCallback; aliasedFn((~num, ~someRecord, ~isOn) => someRecord.)
+//                                                                                        ^com
+
+// reactEventFn(event => { event->pr });
+//                                  ^com
