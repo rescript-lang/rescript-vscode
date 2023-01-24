@@ -598,8 +598,10 @@ let completionsGetCompletionType ~full = function
   | {Completion.kind = ExtractedType (typ, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
+type getCompletionsForContextPathMode = Regular | Pipe
+
 let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
-    ~exact ~scope ?(mode = `Regular) (contextPath : Completable.contextPath) =
+    ~exact ~scope ?(mode = Regular) (contextPath : Completable.contextPath) =
   let package = full.package in
   match contextPath with
   | CPString ->
@@ -632,7 +634,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     ]
   | CPArray (Some cp) -> (
     match mode with
-    | `Regular -> (
+    | Regular -> (
       match
         cp
         |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
@@ -645,7 +647,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           Completion.create "dummy" ~env
             ~kind:(Completion.ExtractedType (Tarray (env, typ), `Type));
         ])
-    | `Pipe ->
+    | Pipe ->
       (* Pipe completion with array just needs to know that it's an array, not
          what inner type it has. *)
       [
@@ -772,7 +774,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     match
       cp
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
-           ~exact:true ~scope ~mode:`Pipe
+           ~exact:true ~scope ~mode:Pipe
       |> completionsGetTypeEnv
     with
     | None -> []
