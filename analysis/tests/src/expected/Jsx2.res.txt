@@ -257,6 +257,12 @@ posCursor:[80:6] posNoWhite:[80:5] Found expr:[80:5->83:20]
 Pexp_construct :::[83:0->83:20] [83:0->83:20]
 posCursor:[80:6] posNoWhite:[80:5] Found expr:__ghost__[80:5->83:20]
 Pexp_construct []:__ghost__[80:5->83:20] None
+posCursor:[80:6] posNoWhite:[80:5] Found expr:[80:4->83:19]
+JSX <M:[80:4->80:5] > _children:80:5
+posCursor:[80:6] posNoWhite:[80:5] Found expr:[80:5->83:20]
+Pexp_construct :::[83:0->83:20] [83:0->83:20]
+posCursor:[80:6] posNoWhite:[80:5] Found expr:__ghost__[80:5->83:20]
+Pexp_construct []:__ghost__[80:5->83:20] None
 []
 
 Complete src/Jsx2.res 89:16

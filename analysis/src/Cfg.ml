@@ -1,3 +1,3 @@
 let supportsSnippets = ref false
 
-let debugFollowCtxPath = false
+let debugFollowCtxPath = ref false
