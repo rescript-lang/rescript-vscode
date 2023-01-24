@@ -99,3 +99,31 @@ Completable: Cpath Value[event]->pr
     "documentation": null
   }]
 
+Complete src/CompletionInferValues.res 42:50
+posCursor:[42:50] posNoWhite:[42:49] Found expr:[42:12->42:56]
+JSX <div:[42:12->42:15] onMouseEnter[42:16->42:28]=...[42:36->42:52]> _children:42:54
+posCursor:[42:50] posNoWhite:[42:49] Found expr:[42:36->42:52]
+posCursor:[42:50] posNoWhite:[42:49] Found expr:[42:41->42:50]
+Completable: Cpath Value[event]->pr <<jsx>>
+[{
+    "label": "JsxEvent.Mouse.preventDefault",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => unit",
+    "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 45:50
+posCursor:[45:50] posNoWhite:[45:49] Found expr:[45:12->45:56]
+JSX <Div:[45:12->45:15] onMouseEnter[45:16->45:28]=...[45:36->45:52]> _children:45:54
+posCursor:[45:50] posNoWhite:[45:49] Found expr:[45:36->45:52]
+posCursor:[45:50] posNoWhite:[45:49] Found expr:[45:41->45:50]
+Completable: Cpath Value[event]->pr <<jsx>>
+[{
+    "label": "JsxEvent.Mouse.preventDefault",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => unit",
+    "documentation": null
+  }]
+

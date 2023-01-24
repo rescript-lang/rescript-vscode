@@ -665,6 +665,19 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                expr iterator arg.exp;
                resetCurrentCtxPath previousCtxPath))
     | Some argCompletable -> setResult argCompletable
+  and iterateJsxProps ~iterator (props : CompletionJsx.jsxProps) =
+    props.props
+    |> List.iter (fun (prop : CompletionJsx.prop) ->
+           let previousCtxPath = !currentCtxPath in
+           setCurrentCtxPath
+             (CJsxPropValue
+                {
+                  pathToComponent =
+                    Utils.flattenLongIdent ~jsx:true props.compName.txt;
+                  propName = prop.name;
+                });
+           expr iterator prop.exp;
+           resetCurrentCtxPath previousCtxPath)
   and expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
     let oldInJsxContext = !inJsxContext in
     let processed = ref false in
@@ -796,6 +809,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               | [prefix] when Char.lowercase_ascii prefix.[0] = prefix.[0] ->
                 ChtmlElement {prefix}
               | _ -> Cpath (CPId (compNamePath, Module)))
+          else iterateJsxProps ~iterator jsxProps
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [
