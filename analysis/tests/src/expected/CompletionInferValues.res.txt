@@ -127,3 +127,13 @@ Completable: Cpath Value[event]->pr <<jsx>>
     "documentation": null
   }]
 
+Complete src/CompletionInferValues.res 49:86
+posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:12->49:92]
+JSX <div:[49:12->49:15] onMouseEnter[49:16->49:28]=...[49:36->49:88]> _children:49:90
+posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:36->49:88]
+posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:41->49:86]
+posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:81->0:-1]
+posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:81->0:-1]
+Completable: Cpath Value[btn]-> <<jsx>>
+[]
+

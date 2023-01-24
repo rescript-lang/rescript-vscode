@@ -136,6 +136,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
          })
   | _ -> loop args
 
+(* TODO: Mimic pipe chain detection here? *)
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
@@ -930,7 +931,11 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           let oldScope = !scope in
           let oldCtxPath = !currentCtxPath in
           (* TODO: Haven't figured out how to count unlabelled args here yet... *)
-          (* TODO: This is broken *)
+          (* TODO: This is broken. I'm trying to set the CArgument context path
+             below here continuously for each argument as I traverse the expr
+             for the arg, but I end up piling them on each other. So what should
+             be Carg $0, then Carg $1, then Carg $3... is now (faulty) Carg $0,
+             then Carg Carg $0 $1, then Carg Carg Carg $0 $1 $2, and so on. *)
           (match !currentCtxPath with
           | None -> ()
           | Some ctxPath ->
