@@ -45,3 +45,7 @@ module Div = {
 
 // let _ = <Div onMouseEnter={event => { event->pr }} />
 //                                                ^com
+
+// Pipe are broken, need to fix
+// let _ = <div onMouseEnter={event => { let btn = event->JsxEvent.Mouse.button; btn-> }} />
+//                                                                                    ^com
