@@ -604,6 +604,12 @@ let completionsGetTypeEnv = function
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
+type getCompletionsForContextPathMode = Regular | Pipe
+
+type completionsTypeEnvTyp =
+  | TypeExpr of Types.type_expr
+  | ExtractedType of completionType
+
 let completionsGetCompletionType ~full = function
   | {Completion.kind = Value typ; env} :: _
   | {Completion.kind = ObjLabel typ; env} :: _
@@ -618,9 +624,27 @@ let completionsGetCompletionType ~full = function
   | {Completion.kind = ExtractedType (typ, _); env} :: _ -> Some (typ, env)
   | _ -> None
 
-type getCompletionsForContextPathMode = Regular | Pipe
+let rec completionsGetCompletionType2 ~full ~opens ~rawOpens ~allFiles ~pos
+    ~scope = function
+  | {Completion.kind = Value typ; env} :: _
+  | {Completion.kind = ObjLabel typ; env} :: _
+  | {Completion.kind = Field ({typ}, _); env} :: _ ->
+    Some (TypeExpr typ, env)
+  | {Completion.kind = FollowContextPath ctxPath; env} :: _ ->
+    ctxPath
+    |> getCompletionsForContextPath ~full ~env ~exact:true ~opens ~rawOpens
+         ~allFiles ~pos ~scope
+    |> completionsGetCompletionType2 ~full ~opens ~rawOpens ~allFiles ~pos
+         ~scope
+  | {Completion.kind = Type typ; env} :: _ -> (
+    match TypeUtils.extractTypeFromResolvedType typ ~env ~full with
+    | None -> None
+    | Some extractedType -> Some (ExtractedType extractedType, env))
+  | {Completion.kind = ExtractedType (typ, _); env} :: _ ->
+    Some (ExtractedType typ, env)
+  | _ -> None
 
-let rec completionsGetTypeEnv2 (completions : Completion.t list) ~full ~opens
+and completionsGetTypeEnv2 (completions : Completion.t list) ~full ~opens
     ~rawOpens ~allFiles ~pos ~scope =
   match completions with
   | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
@@ -760,29 +784,43 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
          ~completionContext:Field ~env ~scope
   | CPField (cp, fieldName) -> (
-    match
+    let completionsForCtxPath =
       cp
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
-      |> completionsGetTypeEnv2 ~full ~opens ~rawOpens ~allFiles ~pos ~scope
-    with
-    | Some (typ, env) -> (
-      match typ |> TypeUtils.extractRecordType ~env ~package with
-      | Some (env, fields, typDecl) ->
-        fields
-        |> Utils.filterMap (fun field ->
-               if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
-                 Some
-                   (Completion.create field.fname.txt ~env
-                      ~docstring:field.docstring ?deprecated:field.deprecated
-                      ~kind:
-                        (Completion.Field
-                           ( field,
-                             typDecl.item.decl
-                             |> Shared.declToString typDecl.name.txt )))
-               else None)
-      | None -> [])
-    | None -> [])
+    in
+    let extracted =
+      match
+        completionsForCtxPath
+        |> completionsGetCompletionType2 ~full ~opens ~rawOpens ~allFiles ~pos
+             ~scope
+      with
+      | Some (TypeExpr typ, env) -> (
+        match typ |> TypeUtils.extractRecordType ~env ~package with
+        | Some (env, fields, typDecl) ->
+          Some
+            ( env,
+              fields,
+              typDecl.item.decl |> Shared.declToString typDecl.name.txt )
+        | None -> None)
+      | Some (ExtractedType typ, env) -> (
+        match typ with
+        | Trecord {fields} ->
+          Some (env, fields, typ |> TypeUtils.extractedTypeToString)
+        | _ -> None)
+      | None -> None
+    in
+    match extracted with
+    | None -> []
+    | Some (env, fields, recordAsString) ->
+      fields
+      |> Utils.filterMap (fun field ->
+             if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
+               Some
+                 (Completion.create field.fname.txt ~env
+                    ~docstring:field.docstring
+                    ~kind:(Completion.Field (field, recordAsString)))
+             else None))
   | CPObj (cp, label) -> (
     match
       cp
