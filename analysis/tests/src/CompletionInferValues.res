@@ -46,6 +46,11 @@ module Div = {
 // let _ = <Div onMouseEnter={event => { event->pr }} />
 //                                                ^com
 
-// Pipe are broken, need to fix
-// let _ = <div onMouseEnter={event => { let btn = event->JsxEvent.Mouse.button; btn-> }} />
-//                                                                                    ^com
+// let _ = <div onMouseEnter={event => { let btn = event->JsxEvent.Mouse.button; btn->t }} />
+//                                                                                     ^com
+
+// let _ = <div onMouseEnter={event => { let btn = event->JsxEvent.Mouse.button->Belt.Int.toString; btn->spl }} />
+//                                                                                                          ^com
+
+// let _ = <div onMouseEnter={event => { let btn = event->JsxEvent.Mouse.button->Belt.Int.toString->Js.String2.split("/"); btn->ma }} />
+//                                                                                                                                ^com
