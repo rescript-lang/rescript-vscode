@@ -220,3 +220,51 @@ Completable: Cpath Value[x].""
     "documentation": null
   }]
 
+Complete src/CompletionInferValues.res 72:135
+posCursor:[72:135] posNoWhite:[72:134] Found expr:[72:127->72:135]
+Pexp_field [72:127->72:134] _:[81:0->72:135]
+Completable: Cpath Value[srecord].""
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\nsomeRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 75:143
+posCursor:[75:143] posNoWhite:[75:142] Found expr:[75:135->75:143]
+Pexp_field [75:135->75:142] _:[81:0->75:143]
+Completable: Cpath Value[aliased].""
+[{
+    "label": "someRecord",
+    "kind": 5,
+    "tags": [],
+    "detail": "someRecord: someRecord\n\nsomeNestedRecord",
+    "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 78:160
+posCursor:[78:160] posNoWhite:[78:159] Found expr:[78:149->78:160]
+Pexp_field [78:149->78:159] _:[81:0->78:160]
+Completable: Cpath Value[someRecord].""
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\nsomeRecord",
+    "documentation": null
+  }]
+
