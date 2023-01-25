@@ -58,3 +58,20 @@ Completable: Cpattern Value[x]->recordBody
     "documentation": null
   }]
 
+Complete src/Destructuring.res 31:8
+posCursor:[31:8] posNoWhite:[31:7] Found pattern:[31:7->31:9]
+Completable: Cpattern Value[x]->recordBody
+[{
+    "label": "someField",
+    "kind": 5,
+    "tags": [],
+    "detail": "someField: int\n\nrecordWithOptField",
+    "documentation": null
+  }, {
+    "label": "?someOptField",
+    "kind": 5,
+    "tags": [],
+    "detail": "?someOptField: option<bool>\n\nrecordWithOptField",
+    "documentation": {"kind": "markdown", "value": "someOptField is an optional field, and needs to be destructured using '?'."}
+  }]
+
