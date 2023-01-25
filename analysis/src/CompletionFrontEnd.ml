@@ -136,7 +136,6 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
          })
   | _ -> loop args
 
-(* TODO: Mimic pipe chain detection here? *)
 let rec exprToContextPath (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
@@ -149,6 +148,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
          (match exprs with
          | [] -> None
          | exp :: _ -> exprToContextPath exp))
+  | Pexp_ident {txt = Lident "|."} -> None
   | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
   | Pexp_field (e1, {txt = Lident name}) -> (
     match exprToContextPath e1 with
@@ -172,7 +172,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
     else None
   | _ -> None
 
-let completePipeChain ~(lhs : Parsetree.expression) =
+let completePipeChain (exp : Parsetree.expression) =
   (* Complete the end of pipe chains by reconstructing the pipe chain as a single pipe,
      so it can be completed.
      Example:
@@ -180,7 +180,7 @@ let completePipeChain ~(lhs : Parsetree.expression) =
         will complete as:
       Js.Array2.map(someArray->Js.Array2.filter(v => v > 10), v => v + 2)->
   *)
-  match lhs.pexp_desc with
+  match exp.pexp_desc with
   (* When the left side of the pipe we're completing is a function application.
      Example: someArray->Js.Array2.map(v => v + 2)-> *)
   | Pexp_apply
@@ -351,7 +351,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | _ -> ()
   in
   let scopeValueBinding (vb : Parsetree.value_binding) =
-    let contextPath = exprToContextPath vb.pvb_expr in
+    let contextPath =
+      (* Pipe chains get special treatment here, because when assigning values
+         we want the return of the entire pipe chain as a function call, rather
+         than as a pipe completion call. *)
+      match completePipeChain vb.pvb_expr with
+      | Some (ctxPath, _) -> Some ctxPath
+      | None -> exprToContextPath vb.pvb_expr
+    in
     scopePattern ?contextPath vb.pvb_pat
   in
   let scopeTypeKind (tk : Parsetree.type_kind) =
@@ -690,7 +697,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (Loc.toString expr.pexp_loc)
     in
     let setPipeResult ~(lhs : Parsetree.expression) ~id =
-      match completePipeChain ~lhs with
+      match completePipeChain lhs with
       | None -> (
         match exprToContextPath lhs with
         | Some pipe ->
