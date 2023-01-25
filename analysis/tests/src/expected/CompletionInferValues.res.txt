@@ -127,13 +127,78 @@ Completable: Cpath Value[event]->pr <<jsx>>
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 49:86
-posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:12->49:92]
-JSX <div:[49:12->49:15] onMouseEnter[49:16->49:28]=...[49:36->49:88]> _children:49:90
-posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:36->49:88]
-posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:41->49:86]
-posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:81->0:-1]
-posCursor:[49:86] posNoWhite:[49:85] Found expr:[49:81->0:-1]
-Completable: Cpath Value[btn]-> <<jsx>>
-[]
+Complete src/CompletionInferValues.res 48:87
+posCursor:[48:87] posNoWhite:[48:86] Found expr:[48:12->48:93]
+JSX <div:[48:12->48:15] onMouseEnter[48:16->48:28]=...[48:36->48:89]> _children:48:91
+posCursor:[48:87] posNoWhite:[48:86] Found expr:[48:36->48:89]
+posCursor:[48:87] posNoWhite:[48:86] Found expr:[48:41->48:87]
+posCursor:[48:87] posNoWhite:[48:86] Found expr:[48:81->48:87]
+Completable: Cpath Value[btn]->t <<jsx>>
+[{
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.toFloat",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => float",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+  }]
+
+Complete src/CompletionInferValues.res 51:108
+posCursor:[51:108] posNoWhite:[51:107] Found expr:[51:12->51:114]
+JSX <div:[51:12->51:15] onMouseEnter[51:16->51:28]=...[51:36->51:110]> _children:51:112
+posCursor:[51:108] posNoWhite:[51:107] Found expr:[51:36->51:110]
+posCursor:[51:108] posNoWhite:[51:107] Found expr:[51:41->51:108]
+posCursor:[51:108] posNoWhite:[51:107] Found expr:[51:100->51:108]
+Completable: Cpath Value[btn]->spl <<jsx>>
+[{
+    "label": "Js.String2.splitAtMost",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t, ~limit: int) => array<t>",
+    "documentation": {"kind": "markdown", "value": "\n  `splitAtMost delimiter ~limit: n str` splits the given `str` at every occurrence of `delimiter` and returns an array of the first `n` resulting substrings. If `n` is negative or greater than the number of substrings, the array will contain all the substrings.\n\n```\nsplitAtMost \"ant/bee/cat/dog/elk\" \"/\" ~limit: 3 = [|\"ant\"; \"bee\"; \"cat\"|];;\nsplitAtMost \"ant/bee/cat/dog/elk\" \"/\" ~limit: 0 = [| |];;\nsplitAtMost \"ant/bee/cat/dog/elk\" \"/\" ~limit: 9 = [|\"ant\"; \"bee\"; \"cat\"; \"dog\"; \"elk\"|];;\n```\n"}
+  }, {
+    "label": "Js.String2.splitByRe",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, Js_re.t) => array<option<t>>",
+    "documentation": {"kind": "markdown", "value": "\n`splitByRe(str, regex)` splits the given `str` at every occurrence of `regex`\nand returns an array of the resulting substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByRe(\"art; bed , cog ;dad\", %re(\"/\\s*[,;]\\s*/\")) == [\n    Some(\"art\"),\n    Some(\"bed\"),\n    Some(\"cog\"),\n    Some(\"dad\"),\n  ]\n```\n"}
+  }, {
+    "label": "Js.String2.split",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t) => array<t>",
+    "documentation": {"kind": "markdown", "value": "\n`split(str, delimiter)` splits the given `str` at every occurrence of\n`delimiter` and returns an array of the resulting substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.split(\"2018-01-02\", \"-\") == [\"2018\", \"01\", \"02\"]\nJs.String2.split(\"a,b,,c\", \",\") == [\"a\", \"b\", \"\", \"c\"]\nJs.String2.split(\"good::bad as great::awful\", \"::\") == [\"good\", \"bad as great\", \"awful\"]\nJs.String2.split(\"has-no-delimiter\", \";\") == [\"has-no-delimiter\"]\n```\n"}
+  }, {
+    "label": "Js.String2.splitByReAtMost",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, Js_re.t, ~limit: int) => array<option<t>>",
+    "documentation": {"kind": "markdown", "value": "\n`splitByReAtMost(str, regex, ~limit:n)` splits the given `str` at every\noccurrence of `regex` and returns an array of the first `n` resulting\nsubstrings. If `n` is negative or greater than the number of substrings, the\narray will contain all the substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=3) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n  ]\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=0) == []\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=8) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n    Some(\"four\"),\n  ]\n```\n"}
+  }]
+
+Complete src/CompletionInferValues.res 54:130
+posCursor:[54:130] posNoWhite:[54:129] Found expr:[54:12->54:136]
+JSX <div:[54:12->54:15] onMouseEnter[54:16->54:28]=...[54:36->54:132]> _children:54:134
+posCursor:[54:130] posNoWhite:[54:129] Found expr:[54:36->54:132]
+posCursor:[54:130] posNoWhite:[54:129] Found expr:[54:41->54:130]
+posCursor:[54:130] posNoWhite:[54:129] Found expr:[54:123->54:130]
+Completable: Cpath Value[btn]->ma <<jsx>>
+[{
+    "label": "Js.Array2.mapi",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
+  }, {
+    "label": "Js.Array2.map",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
+  }]
 
