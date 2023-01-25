@@ -54,3 +54,6 @@ module Div = {
 
 // let _ = <div onMouseEnter={event => { let btn = event->JsxEvent.Mouse.button->Belt.Int.toString->Js.String2.split("/"); btn->ma }} />
 //                                                                                                                                ^com
+
+// let x: someRecord = {name: "Hello", age: 123}; x.
+//                                                  ^com
