@@ -292,39 +292,105 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     scope :=
       !scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_name.loc
   in
-  let rec scopePattern ?contextPath (pat : Parsetree.pattern) =
+  let rec scopePattern ?contextPath
+      ?(patternPath : Completable.nestedPath list = [])
+      (pat : Parsetree.pattern) =
+    let contextPathToSave =
+      match (contextPath, patternPath) with
+      | maybeContextPath, [] -> maybeContextPath
+      | Some contextPath, patternPath ->
+        Some
+          (Completable.CPatternPath
+             {rootCtxPath = contextPath; nested = List.rev patternPath})
+      | _ -> None
+    in
     match pat.ppat_desc with
     | Ppat_any -> ()
     | Ppat_var {txt; loc} ->
-      scope := !scope |> Scope.addValue ~name:txt ~loc ?contextPath
-    | Ppat_alias (p, asA) ->
-      scopePattern p;
       scope :=
-        !scope
-        |> Scope.addValue ~name:asA.txt ~loc:asA.loc
-             ?contextPath:
-               (match p with
-               | {ppat_desc = Ppat_var {txt}} -> Some (CPId ([txt], Value))
-               | _ -> None)
+        !scope |> Scope.addValue ~name:txt ~loc ?contextPath:contextPathToSave
+    | Ppat_alias (p, asA) ->
+      scopePattern p ~patternPath ?contextPath;
+      let ctxPath =
+        if contextPathToSave = None then
+          match p with
+          | {ppat_desc = Ppat_var {txt}} ->
+            Some (Completable.CPId ([txt], Value))
+          | _ -> None
+        else None
+      in
+      scope :=
+        !scope |> Scope.addValue ~name:asA.txt ~loc:asA.loc ?contextPath:ctxPath
     | Ppat_constant _ | Ppat_interval _ -> ()
-    | Ppat_tuple pl -> pl |> List.iter (scopePattern ?contextPath)
+    | Ppat_tuple pl ->
+      pl
+      |> List.iteri (fun index p ->
+             scopePattern p
+               ~patternPath:(NTupleItem {itemNum = index} :: patternPath)
+               ?contextPath)
     | Ppat_construct (_, None) -> ()
-    | Ppat_construct (_, Some p) -> scopePattern ?contextPath p
+    | Ppat_construct ({txt}, Some {ppat_desc = Ppat_tuple pl}) ->
+      pl
+      |> List.iteri (fun index p ->
+             scopePattern p
+               ~patternPath:
+                 (NVariantPayload
+                    {
+                      itemNum = index;
+                      constructorName = Utils.getUnqualifiedName txt;
+                    }
+                 :: patternPath)
+               ?contextPath)
+    | Ppat_construct ({txt}, Some p) ->
+      scopePattern
+        ~patternPath:
+          (NVariantPayload
+             {itemNum = 0; constructorName = Utils.getUnqualifiedName txt}
+          :: patternPath)
+        ?contextPath p
     | Ppat_variant (_, None) -> ()
-    | Ppat_variant (_, Some p) -> scopePattern ?contextPath p
+    | Ppat_variant (txt, Some {ppat_desc = Ppat_tuple pl}) ->
+      pl
+      |> List.iteri (fun index p ->
+             scopePattern p
+               ~patternPath:
+                 (NPolyvariantPayload {itemNum = index; constructorName = txt}
+                 :: patternPath)
+               ?contextPath)
+    | Ppat_variant (txt, Some p) ->
+      scopePattern
+        ~patternPath:
+          (NPolyvariantPayload {itemNum = 0; constructorName = txt}
+          :: patternPath)
+        ?contextPath p
     | Ppat_record (fields, _) ->
-      fields |> List.iter (fun (_, p) -> scopePattern ?contextPath p)
-    | Ppat_array pl -> pl |> List.iter (scopePattern ?contextPath)
-    | Ppat_or (p1, _) -> scopePattern ?contextPath p1
+      fields
+      |> List.iter (fun (fname, p) ->
+             match fname with
+             | {Location.txt = Longident.Lident fname} ->
+               scopePattern
+                 ~patternPath:
+                   (Completable.NFollowRecordField {fieldName = fname}
+                   :: patternPath)
+                 ?contextPath p
+             | _ -> ())
+    | Ppat_array pl ->
+      pl
+      |> List.iter
+           (scopePattern ~patternPath:(NArray :: patternPath) ?contextPath)
+    | Ppat_or (p1, _) -> scopePattern ~patternPath ?contextPath p1
     | Ppat_constraint (p, coreType) ->
-      scopePattern ?contextPath:(TypeUtils.contextPathFromCoreType coreType) p
+      scopePattern ~patternPath
+        ?contextPath:(TypeUtils.contextPathFromCoreType coreType)
+        p
     | Ppat_type _ -> ()
-    | Ppat_lazy p -> scopePattern ?contextPath p
+    | Ppat_lazy p -> scopePattern ~patternPath ?contextPath p
     | Ppat_unpack {txt; loc} ->
-      scope := !scope |> Scope.addValue ~name:txt ~loc ?contextPath
-    | Ppat_exception p -> scopePattern ?contextPath p
+      scope :=
+        !scope |> Scope.addValue ~name:txt ~loc ?contextPath:contextPathToSave
+    | Ppat_exception p -> scopePattern ~patternPath ?contextPath p
     | Ppat_extension _ -> ()
-    | Ppat_open (_, p) -> scopePattern ?contextPath p
+    | Ppat_open (_, p) -> scopePattern ~patternPath ?contextPath p
   in
 
   let lookingForPat = ref None in

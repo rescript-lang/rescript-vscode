@@ -57,3 +57,24 @@ module Div = {
 
 // let x: someRecord = {name: "Hello", age: 123}; x.
 //                                                  ^com
+
+type someVariant = One | Two | Three(int, string)
+type someNestedRecord = {someRecord: someRecord}
+
+type someRecordWithNestedStuff = {
+  things: string,
+  srecord: someRecord,
+  nested: someNestedRecord,
+  someStuff: bool,
+}
+
+type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int)}
+
+// let x: someRecordWithNestedStuff = {things: "", someRecord: {name: "Hello", age: 123}, someStuff: true}; let {srecord} = x; srecord.
+//                                                                                                                                     ^com
+
+// let x: someRecordWithNestedStuff = {things: "", someRecord: {name: "Hello", age: 123}, someStuff: true}; let {nested: aliased} = x; aliased.
+//                                                                                                                                             ^com
+
+// let x: someRecordWithNestedStuff = {things: "", someRecord: {name: "Hello", age: 123}, someStuff: true}; let {srecord, nested: {someRecord}} = x; someRecord.
+//                                                                                                                                                              ^com

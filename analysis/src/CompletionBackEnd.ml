@@ -715,7 +715,7 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
       (* Pipe completion with array just needs to know that it's an array, not
          what inner type it has. *)
       [
-        Completion.create "array" ~env
+        Completion.create "dummy" ~env
           ~kind:
             (Completion.Value
                (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
@@ -738,6 +738,7 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
          ~completionContext ~env ~scope
   | CPApply (cp, labels) -> (
+    (* TODO: Also needs to support ExtractedType *)
     match
       cp
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
@@ -822,6 +823,7 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                     ~kind:(Completion.Field (field, recordAsString)))
              else None))
   | CPObj (cp, label) -> (
+    (* TODO: Also needs to support ExtractedType *)
     match
       cp
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
@@ -1048,6 +1050,7 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           ~kind:(Completion.Value (Utils.unwrapIfOption typ));
       ])
   | CArgument {functionContextPath; argumentLabel} -> (
+    (* TODO: Also needs to support ExtractedType *)
     let labels, env =
       match
         functionContextPath
@@ -1084,6 +1087,31 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
             (Completion.Value
                (if expandOption then Utils.unwrapIfOption typ else typ));
       ])
+  | CPatternPath {rootCtxPath; nested} -> (
+    match
+      rootCtxPath
+      |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
+           ~exact:true ~scope
+      |> completionsGetCompletionType2 ~full ~opens ~rawOpens ~allFiles ~pos
+           ~scope
+    with
+    | Some (typ, env) -> (
+      let typ =
+        match typ with
+        | ExtractedType typ -> Some typ
+        | TypeExpr typ -> typ |> TypeUtils.extractType ~env ~package
+      in
+      match typ with
+      | None -> []
+      | Some typ -> (
+        match typ |> TypeUtils.resolveNested ~env ~full ~nested with
+        | Some (typ, env, _completionContext) ->
+          [
+            Completion.create "dummy" ~env
+              ~kind:(Completion.ExtractedType (typ, `Value));
+          ]
+        | None -> []))
+    | None -> [])
 
 let getOpens ~debug ~rawOpens ~package ~env =
   if debug && rawOpens <> [] then

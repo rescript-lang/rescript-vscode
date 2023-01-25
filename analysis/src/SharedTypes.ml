@@ -520,6 +520,29 @@ module Completable = struct
     | Labelled of string
     | Optional of string
 
+  (** Additional context for nested completion where needed. *)
+  type nestedContext = RecordField of {seenFields: string list}
+
+  type nestedPath =
+    | NTupleItem of {itemNum: int}
+    | NFollowRecordField of {fieldName: string}
+    | NRecordBody of {seenFields: string list}
+    | NVariantPayload of {constructorName: string; itemNum: int}
+    | NPolyvariantPayload of {constructorName: string; itemNum: int}
+    | NArray
+
+  let nestedPathToString p =
+    match p with
+    | NTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
+    | NFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
+    | NRecordBody _ -> "recordBody"
+    | NVariantPayload {constructorName; itemNum} ->
+      "variantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum ^ ")"
+    | NPolyvariantPayload {constructorName; itemNum} ->
+      "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum
+      ^ ")"
+    | NArray -> "array"
+
   type contextPath =
     | CPString
     | CPArray of contextPath option
@@ -544,29 +567,7 @@ module Completable = struct
         argumentLabel: argumentLabel;
       }
     | CJsxPropValue of {pathToComponent: string list; propName: string}
-
-  (** Additional context for nested completion where needed. *)
-  type nestedContext = RecordField of {seenFields: string list}
-
-  type nestedPath =
-    | NTupleItem of {itemNum: int}
-    | NFollowRecordField of {fieldName: string}
-    | NRecordBody of {seenFields: string list}
-    | NVariantPayload of {constructorName: string; itemNum: int}
-    | NPolyvariantPayload of {constructorName: string; itemNum: int}
-    | NArray
-
-  let nestedPathToString p =
-    match p with
-    | NTupleItem {itemNum} -> "tuple($" ^ string_of_int itemNum ^ ")"
-    | NFollowRecordField {fieldName} -> "recordField(" ^ fieldName ^ ")"
-    | NRecordBody _ -> "recordBody"
-    | NVariantPayload {constructorName; itemNum} ->
-      "variantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum ^ ")"
-    | NPolyvariantPayload {constructorName; itemNum} ->
-      "polyvariantPayload::" ^ constructorName ^ "($" ^ string_of_int itemNum
-      ^ ")"
-    | NArray -> "array"
+    | CPatternPath of {rootCtxPath: contextPath; nested: nestedPath list}
 
   type patternMode = Default | Destructuring
 
@@ -639,6 +640,13 @@ module Completable = struct
       ^ ")"
     | CJsxPropValue {pathToComponent; propName} ->
       "CJsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName
+    | CPatternPath {rootCtxPath; nested} ->
+      "CPatternPath("
+      ^ contextPathToString rootCtxPath
+      ^ ")" ^ "->"
+      ^ (nested
+        |> List.map (fun nestedPath -> nestedPathToString nestedPath)
+        |> String.concat "->")
 
   let toString = function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
