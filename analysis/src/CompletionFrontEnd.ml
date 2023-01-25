@@ -316,7 +316,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       fields |> List.iter (fun (_, p) -> scopePattern ?contextPath p)
     | Ppat_array pl -> pl |> List.iter (scopePattern ?contextPath)
     | Ppat_or (p1, _) -> scopePattern ?contextPath p1
-    | Ppat_constraint (p, _) -> scopePattern ?contextPath p
+    | Ppat_constraint (p, coreType) ->
+      scopePattern ?contextPath:(TypeUtils.contextPathFromCoreType coreType) p
     | Ppat_type _ -> ()
     | Ppat_lazy p -> scopePattern ?contextPath p
     | Ppat_unpack {txt; loc} ->

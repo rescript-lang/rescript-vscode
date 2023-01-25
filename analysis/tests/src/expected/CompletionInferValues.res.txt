@@ -202,3 +202,21 @@ Completable: Cpath Value[btn]->ma <<jsx>>
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
   }]
 
+Complete src/CompletionInferValues.res 57:52
+posCursor:[57:52] posNoWhite:[57:51] Found expr:[57:50->57:52]
+Pexp_field [57:50->57:51] _:[60:0->57:52]
+Completable: Cpath Value[x].""
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }]
+
