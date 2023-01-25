@@ -36,6 +36,7 @@
 - Improve precision in signature help. You now do not need to type anything into the argument for it to highlight. https://github.com/rescript-lang/rescript-vscode/pull/675
 - Remove redundant function name in signature help, to clean up what's shown to the user some. https://github.com/rescript-lang/rescript-vscode/pull/678
 - Show docstrings in hover for record fields and variant constructors. https://github.com/rescript-lang/rescript-vscode/pull/694
+- The necessary leading `?` is now automatically inserted for optional fields when destructuring records. https://github.com/rescript-lang/rescript-vscode/pull/715
 
 #### :bug: Bug Fix
 
