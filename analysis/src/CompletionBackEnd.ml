@@ -1047,10 +1047,10 @@ let printConstructorArgs argsLen ~asSnippet =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-type completionMode = Pattern | Expression
+type completionMode = Pattern of Completable.patternMode option | Expression
 
-let rec completeTypedValue (t : SharedTypes.completionType) ~full ~prefix
-    ~completionContext ~mode =
+let rec completeTypedValue ~full ~prefix ~completionContext ~mode
+    (t : SharedTypes.completionType) =
   match t with
   | Tbool env ->
     [
@@ -1142,10 +1142,23 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~full ~prefix
       |> List.filter (fun (field : field) ->
              List.mem field.fname.txt seenFields = false)
       |> List.map (fun (field : field) ->
-             Completion.create field.fname.txt
-               ~kind:
-                 (Field (field, TypeUtils.extractedTypeToString extractedType))
-               ~env)
+             match (field.optional, mode) with
+             | true, Pattern (Some Destructuring) ->
+               Completion.create ("?" ^ field.fname.txt)
+                 ~docstring:
+                   [
+                     field.fname.txt
+                     ^ " is an optional field, and needs to be destructured \
+                        using '?'.";
+                   ]
+                 ~kind:
+                   (Field (field, TypeUtils.extractedTypeToString extractedType))
+                 ~env
+             | _ ->
+               Completion.create field.fname.txt
+                 ~kind:
+                   (Field (field, TypeUtils.extractedTypeToString extractedType))
+                 ~env)
       |> filterItems ~prefix
     | None ->
       if prefix = "" then
@@ -1157,7 +1170,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~full ~prefix
               (ExtractedType
                  ( extractedType,
                    match mode with
-                   | Pattern -> `Type
+                   | Pattern _ -> `Type
                    | Expression -> `Value ))
             ~env ();
         ]
@@ -1190,7 +1203,7 @@ let rec completeTypedValue (t : SharedTypes.completionType) ~full ~prefix
             (ExtractedType
                ( typ,
                  match mode with
-                 | Pattern -> `Type
+                 | Pattern _ -> `Type
                  | Expression -> `Value ))
           ~env ();
       ]
@@ -1360,7 +1373,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
            Utils.startsWith name prefix
            && (forHover || not (List.mem name identsSeen)))
     |> List.map mkLabel
-  | Cpattern {contextPath; prefix; nested; fallback} -> (
+  | Cpattern {contextPath; prefix; nested; fallback; patternMode} -> (
     let fallbackOrEmpty ?items () =
       match (fallback, items) with
       | Some fallback, (None | Some []) ->
@@ -1385,7 +1398,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       | Some (typ, _env, completionContext) ->
         let items =
           typ
-          |> completeTypedValue ~mode:Pattern ~full ~prefix ~completionContext
+          |> completeTypedValue ~mode:(Pattern patternMode) ~full ~prefix
+               ~completionContext
         in
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())

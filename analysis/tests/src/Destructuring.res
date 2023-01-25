@@ -19,3 +19,15 @@ let f2 = (x: x) => {
   //      ^com
   ignore(x)
 }
+
+type recordWithOptField = {
+  someField: int,
+  someOptField?: bool
+}
+
+let x: recordWithOptField = {
+  someField: 123
+}
+
+// let {} = x
+//      ^com
