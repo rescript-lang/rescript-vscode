@@ -911,8 +911,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                  && charBeforeCursor = Some ')') -> (
           (* Complete fn argument values and named args when the fn call is piped. E.g. someVar->someFn(<com>). *)
           let args = extractExpApplyArgs ~args in
+          let funCtxPath = exprToContextPath funExpr in
           let argCompletable =
-            match exprToContextPath funExpr with
+            match funCtxPath with
             | Some contextPath ->
               findArgCompletables ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
@@ -923,7 +924,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           in
           match argCompletable with
           | None -> (
-            match exprToContextPath funExpr with
+            match funCtxPath with
             | None -> ()
             | Some funCtxPath ->
               let oldCtxPath = !currentCtxPath in
@@ -955,8 +956,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                        (Loc.toString exp.pexp_loc))
               |> String.concat ", ");
 
+          let funCtxPath = exprToContextPath funExpr in
           let argCompletable =
-            match exprToContextPath funExpr with
+            match funCtxPath with
             | Some contextPath ->
               findArgCompletables ~contextPath ~args
                 ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
@@ -967,7 +969,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           in
           match argCompletable with
           | None -> (
-            match exprToContextPath funExpr with
+            match funCtxPath with
             | None -> ()
             | Some funCtxPath ->
               let oldCtxPath = !currentCtxPath in
