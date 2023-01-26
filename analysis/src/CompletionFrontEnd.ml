@@ -317,7 +317,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
              prefix;
              nested = List.rev nestedPattern;
              fallback = None;
-             patternMode = None;
+             patternMode = Default;
            })
     | _ -> ()
   in
@@ -392,7 +392,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                  nested = [];
                  prefix = "";
                  fallback = None;
-                 patternMode = None;
+                 patternMode = Default;
                }))
       | Pexp_match (exp, cases) -> (
         (* If there's more than one case, or the case isn't a pattern hole, figure out if we're completing another
@@ -425,7 +425,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                    nested = [];
                    prefix = "";
                    fallback = None;
-                   patternMode = None;
+                   patternMode = Default;
                  })
           | false, false -> ()))
       | _ -> unsetLookingForPat ()
@@ -527,7 +527,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                prefix;
                nested = List.rev nested;
                fallback = None;
-               patternMode = Some Destructuring;
+               patternMode = Destructuring;
              })
       | _ -> ())
     | _ -> ());

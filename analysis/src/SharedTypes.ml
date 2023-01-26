@@ -631,7 +631,7 @@ module Completable = struct
       ^ ")"
     | NArray -> "array"
 
-  type patternMode = Destructuring
+  type patternMode = Default | Destructuring
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -650,7 +650,7 @@ module Completable = struct
         contextPath: contextPath;
         nested: nestedPath list;
         prefix: string;
-        patternMode: patternMode option;
+        patternMode: patternMode;
         fallback: t option;
       }
     | CexhaustiveSwitch of {contextPath: contextPath; exprLoc: Location.t}
