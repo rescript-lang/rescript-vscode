@@ -1047,7 +1047,7 @@ let printConstructorArgs argsLen ~asSnippet =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-type completionMode = Pattern of Completable.patternMode option | Expression
+type completionMode = Pattern of Completable.patternMode | Expression
 
 let rec completeTypedValue ~full ~prefix ~completionContext ~mode
     (t : SharedTypes.completionType) =
@@ -1143,7 +1143,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
              List.mem field.fname.txt seenFields = false)
       |> List.map (fun (field : field) ->
              match (field.optional, mode) with
-             | true, Pattern (Some Destructuring) ->
+             | true, Pattern Destructuring ->
                Completion.create ("?" ^ field.fname.txt)
                  ~docstring:
                    [
