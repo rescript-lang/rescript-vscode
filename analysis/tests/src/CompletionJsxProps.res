@@ -19,3 +19,11 @@
 // let _ = <div onMouseEnter= />
 //                           ^com
 
+// Should wrap in {}
+// let _ = <CompletionSupport.TestComponent testArr=
+//                                                  ^com
+
+// Should not wrap in {}
+// let _ = <CompletionSupport.TestComponent testArr={[]}
+//                                                    ^com
+

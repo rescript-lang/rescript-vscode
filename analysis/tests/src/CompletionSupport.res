@@ -12,10 +12,12 @@ module TestComponent = {
   let make = (
     ~on: bool,
     ~test: testVariant,
+    ~testArr: array<testVariant>,
     ~polyArg: option<[#one | #two | #two2 | #three(int, bool)]>=?,
   ) => {
     ignore(on)
     ignore(test)
+    ignore(testArr)
     ignore(polyArg)
     React.null
   }
