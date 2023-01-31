@@ -1415,17 +1415,21 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
       match typ |> TypeUtils.resolveNested ~env ~full ~nested with
       | None -> []
       | Some (typ, env, completionContext) -> (
-        let isJsx =
-          match contextPath with
-          | CJsxPropValue _ | CPPipe {inJsx = true} -> true
-          | _ -> false
+        (* Wrap the insert text in braces when we're completing the root of a
+           JSX prop value. *)
+        let wrapInsertTextInBraces =
+          if List.length nested > 0 then false
+          else
+            match contextPath with
+            | CJsxPropValue _ -> true
+            | _ -> false
         in
         let items =
           typ
           |> completeTypedValue ~mode:Expression ~full ~prefix
                ~completionContext
           |> List.map (fun (c : Completion.t) ->
-                 if isJsx then
+                 if wrapInsertTextInBraces then
                    {
                      c with
                      insertText =
