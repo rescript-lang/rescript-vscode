@@ -31,3 +31,15 @@ module SomeComponent = {
     </div>
   }
 }
+
+module CompWithoutJsxPpx = {
+  type props = {name: string}
+
+  let make = ({name}) => {
+    ignore(name)
+    React.null
+  }
+}
+
+// <CompWithoutJsxPpx n
+//                     ^com
