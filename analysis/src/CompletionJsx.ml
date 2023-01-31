@@ -487,6 +487,8 @@ let domLabels =
     ("suppressContentEditableWarning", bool);
   ]
 
+(* List and explanations taken from
+   https://www.tutorialrepublic.com/html-reference/html5-tags.php. *)
 let htmlElements =
   [
     ("a", "Defines a hyperlink.", false);
