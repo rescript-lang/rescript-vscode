@@ -686,7 +686,7 @@ let htmlElements =
     ( "track",
       "Defines text tracks for the media elements like <audio> or <video>.",
       false );
-    ("tt", "Obsolete Displays text in a teletype style.", false);
+    ("tt", "Displays text in a teletype style.", true);
     ("u", "Displays text with an underline.", false);
     ("ul", "Defines an unordered list.", false);
     ("var", "Defines a variable.", false);
