@@ -348,19 +348,22 @@ module Completion = struct
     deprecated: string option;
     docstring: string list;
     kind: kind;
+    detail: string option;
   }
 
-  let create ~kind ~env ?(docstring = []) ?filterText name =
+  let create ~kind ~env ?(docstring = []) ?filterText ?insertText ?deprecated
+      ?detail name =
     {
       name;
       env;
-      deprecated = None;
+      deprecated;
       docstring;
       kind;
       sortText = None;
-      insertText = None;
+      insertText;
       insertTextFormat = None;
       filterText;
+      detail;
     }
 
   let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?filterText
@@ -375,6 +378,7 @@ module Completion = struct
       insertText;
       insertTextFormat = Some Protocol.Snippet;
       filterText;
+      detail = None;
     }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
@@ -654,6 +658,7 @@ module Completable = struct
         fallback: t option;
       }
     | CexhaustiveSwitch of {contextPath: contextPath; exprLoc: Location.t}
+    | ChtmlElement of {prefix: string}
 
   let toString =
     let completionContextToString = function
@@ -740,6 +745,7 @@ module Completable = struct
           |> String.concat ", "))
     | CexhaustiveSwitch {contextPath} ->
       "CexhaustiveSwitch " ^ contextPathToString contextPath
+    | ChtmlElement {prefix} -> "ChtmlElement <" ^ prefix
 end
 
 module CursorPosition = struct

@@ -211,7 +211,7 @@ let getEnvWithOpens ~scope ~(env : QueryEnv.t) ~package
       | None -> None
       | Some env -> ResolvePath.resolvePath ~env ~package ~path))
 
-let detail name (kind : Completion.kind) =
+let kindToDetail name (kind : Completion.kind) =
   match kind with
   | Type {decl} -> decl |> Shared.declToString name
   | Value typ -> typ |> Shared.typeToString
@@ -568,11 +568,17 @@ let completionToItem
       insertText;
       insertTextFormat;
       filterText;
+      detail;
     } =
   let item =
     mkItem ~name
       ~kind:(Completion.kindToInt kind)
-      ~deprecated ~detail:(detail name kind) ~docstring
+      ~deprecated
+      ~detail:
+        (match detail with
+        | None -> kindToDetail name kind
+        | Some detail -> detail)
+      ~docstring
   in
   if !Cfg.supportsSnippets then
     {item with sortText; insertText; insertTextFormat; filterText}
@@ -1526,3 +1532,16 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
              | _ -> [c])
            | _ -> [c])
     |> List.flatten
+  | ChtmlElement {prefix} ->
+    CompletionJsx.htmlElements
+    |> List.filter_map (fun (elementName, description, deprecated) ->
+           if Utils.startsWith elementName prefix then
+             let name = "<" ^ elementName ^ ">" in
+             Some
+               (Completion.create name ~kind:(Label name) ~detail:description ~env
+                  ~docstring:[description] ~insertText:elementName
+                  ?deprecated:
+                    (match deprecated with
+                    | true -> Some "true"
+                    | false -> None))
+           else None)

@@ -735,7 +735,11 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            setResult (Cpath (CPId (compNamePath, Module)))
+            setResult
+              (match compNamePath with
+              | [prefix] when Char.lowercase_ascii prefix.[0] = prefix.[0] ->
+                ChtmlElement {prefix}
+              | _ -> Cpath (CPId (compNamePath, Module)))
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
               [

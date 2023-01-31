@@ -358,27 +358,48 @@ Completable: Cpath Value[someArr]->a <<jsx>>
     "documentation": {"kind": "markdown", "value": "Deprecated: `append` is not type-safe. Use `concat` instead.\n\n"}
   }]
 
-Complete src/CompletionJsx.res 30:11
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[8:13->33:3]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[9:4->32:10]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[10:4->32:10]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[11:4->32:10]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[12:4->32:10]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[15:5->32:10]
+Complete src/CompletionJsx.res 30:12
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[8:13->33:3]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[9:4->32:10]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[10:4->32:10]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[11:4->32:10]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[12:4->32:10]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[15:5->32:10]
 JSX <div:[15:5->15:8] > _children:15:8
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[15:8->32:4]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[15:8->32:4]
 Pexp_construct :::[16:7->32:4] [16:7->32:4]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[16:7->32:4]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[17:7->32:4]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[16:7->32:4]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[17:7->32:4]
 Pexp_construct :::[17:7->32:4] [17:7->32:4]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[17:7->32:4]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[30:10->32:4]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[17:7->32:4]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[30:10->32:4]
 Pexp_construct :::[30:10->32:4] [30:10->32:4]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[30:10->32:4]
-posCursor:[30:11] posNoWhite:[30:10] Found expr:[30:10->30:11]
-JSX <d:[30:10->30:11] > _children:None
-Completable: Cpath Module[d]
-[]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[30:10->32:4]
+posCursor:[30:12] posNoWhite:[30:11] Found expr:[30:10->30:12]
+JSX <di:[30:10->30:12] > _children:None
+Completable: ChtmlElement <di
+[{
+    "label": "<dialog>",
+    "kind": 4,
+    "tags": [],
+    "detail": "Defines a dialog box or subwindow.",
+    "documentation": {"kind": "markdown", "value": "Defines a dialog box or subwindow."},
+    "insertText": "dialog"
+  }, {
+    "label": "<dir>",
+    "kind": 4,
+    "tags": [1],
+    "detail": "Defines a directory list. Use <ul> instead.",
+    "documentation": {"kind": "markdown", "value": "Deprecated: true\n\nDefines a directory list. Use <ul> instead."},
+    "insertText": "dir"
+  }, {
+    "label": "<div>",
+    "kind": 4,
+    "tags": [],
+    "detail": "Specifies a division or a section in a document.",
+    "documentation": {"kind": "markdown", "value": "Specifies a division or a section in a document."},
+    "insertText": "div"
+  }]
 
 Complete src/CompletionJsx.res 45:23
 posCursor:[45:23] posNoWhite:[45:22] Found expr:[45:4->45:23]
