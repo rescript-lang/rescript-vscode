@@ -98,7 +98,7 @@ let newBsPackage ~rootPath =
                   opens_from_bsc_flags
                   |> List.find_opt (fun opn ->
                          match opn with
-                         | ["RescriptStdlib"] -> true
+                         | ["RescriptCore"] -> true
                          | _ -> false)
                   |> Option.is_some
                  then
