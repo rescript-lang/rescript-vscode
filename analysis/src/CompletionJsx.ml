@@ -487,6 +487,206 @@ let domLabels =
     ("suppressContentEditableWarning", bool);
   ]
 
+let htmlElements =
+  [
+    ("a", "Defines a hyperlink.", false);
+    ("abbr", "Defines an abbreviated form of a longer word or phrase.", false);
+    ("acronym", "Defines an acronym. Use <abbr> instead.", true);
+    ("address", "Specifies the author's contact information.", false);
+    ( "applet",
+      "Embeds a Java applet (mini Java applications) on the page. Use <object> \
+       instead.",
+      true );
+    ("area", "Defines a specific area within an image map.", false);
+    ("article", "Defines an article.", false);
+    ("aside", "Defines some content loosely related to the page content.", false);
+    ("audio", "Embeds a sound, or an audio stream in an HTML document.", false);
+    ("b", "Displays text in a bold style.", false);
+    ("base", "Defines the base URL for all relative URLs in a document.", false);
+    ("basefont", "Specifies the base font for a page. Use CSS instead.", true);
+    ( "bdi",
+      "Represents text that is isolated from its surrounding for the purposes \
+       of bidirectional text formatting.",
+      false );
+    ("bdo", "Overrides the current text direction.", false);
+    ("big", "Displays text in a large size. Use CSS instead.", true);
+    ( "blockquote",
+      "Represents a section that is quoted from another source.",
+      false );
+    ("body", "Defines the document's body.", false);
+    ("br", "Produces a single line break.", false);
+    ("button", "Creates a clickable button.", false);
+    ( "canvas",
+      "Defines a region in the document, which can be used to draw graphics on \
+       the fly via scripting (usually JavaScript).",
+      false );
+    ("caption", "Defines the caption or title of the table.", false);
+    ("center", "Align contents in the center. Use CSS instead.", true);
+    ("cite", "Indicates a citation or reference to another source.", false);
+    ("code", "Specifies text as computer code.", false);
+    ( "col",
+      "Defines attribute values for one or more columns in a table.",
+      false );
+    ("colgroup", "Specifies attributes for multiple columns in a table.", false);
+    ( "data",
+      "Links a piece of content with a machine-readable translation.",
+      false );
+    ( "datalist",
+      "Represents a set of pre-defined options for an <input> element.",
+      false );
+    ( "dd",
+      "Specifies a description, or value for the term (<dt>) in a description \
+       list (<dl>).",
+      false );
+    ("del", "Represents text that has been deleted from the document.", false);
+    ( "details",
+      "Represents a widget from which the user can obtain additional \
+       information or controls on-demand.",
+      false );
+    ("dfn", "Specifies a definition.", false);
+    ("dialog", "Defines a dialog box or subwindow.", false);
+    ("dir", "Defines a directory list. Use <ul> instead.", true);
+    ("div", "Specifies a division or a section in a document.", false);
+    ("dl", "Defines a description list.", false);
+    ("dt", "Defines a term (an item) in a description list.", false);
+    ("em", "Defines emphasized text.", false);
+    ( "embed",
+      "Embeds external application, typically multimedia content like audio or \
+       video into an HTML document.",
+      false );
+    ("fieldset", "Specifies a set of related form fields.", false);
+    ("figcaption", "Defines a caption or legend for a figure.", false);
+    ("figure", "Represents a figure illustrated as part of the document.", false);
+    ("font", "Defines font, color, and size for text. Use CSS instead.", true);
+    ("footer", "Represents the footer of a document or a section.", false);
+    ("form", "Defines an HTML form for user input.", false);
+    ("frame", "Defines a single frame within a frameset.", true);
+    ("frameset", "Defines a collection of frames or other frameset.", true);
+    ( "head",
+      "Defines the head portion of the document that contains information \
+       about the document such as title.",
+      false );
+    ("header", "Represents the header of a document or a section.", false);
+    ("hgroup", "Defines a group of headings.", false);
+    ("h1", "to <h6>\tDefines HTML headings.", false);
+    ("hr", "Produce a horizontal line.", false);
+    ("html", "Defines the root of an HTML document.", false);
+    ("i", "Displays text in an italic style.", false);
+    ("iframe", "Displays a URL in an inline frame.", false);
+    ("img", "Represents an image.", false);
+    ("input", "Defines an input control.", false);
+    ( "ins",
+      "Defines a block of text that has been inserted into a document.",
+      false );
+    ("kbd", "Specifies text as keyboard input.", false);
+    ( "keygen",
+      "Represents a control for generating a public-private key pair.",
+      false );
+    ("label", "Defines a label for an <input> control.", false);
+    ("legend", "Defines a caption for a <fieldset> element.", false);
+    ("li", "Defines a list item.", false);
+    ( "link",
+      "Defines the relationship between the current document and an external \
+       resource.",
+      false );
+    ("main", "Represents the main or dominant content of the document.", false);
+    ("map", "Defines a client-side image-map.", false);
+    ("mark", "Represents text highlighted for reference purposes.", false);
+    ("menu", "Represents a list of commands.", false);
+    ( "menuitem",
+      "Defines a list (or menuitem) of commands that a user can perform.",
+      false );
+    ("meta", "Provides structured metadata about the document content.", false);
+    ("meter", "Represents a scalar measurement within a known range.", false);
+    ("nav", "Defines a section of navigation links.", false);
+    ( "noframes",
+      "Defines an alternate content that displays in browsers that do not \
+       support frames.",
+      true );
+    ( "noscript",
+      "Defines alternative content to display when the browser doesn't support \
+       scripting.",
+      false );
+    ("object", "Defines an embedded object.", false);
+    ("ol", "Defines an ordered list.", false);
+    ( "optgroup",
+      "Defines a group of related options in a selection list.",
+      false );
+    ("option", "Defines an option in a selection list.", false);
+    ("output", "Represents the result of a calculation.", false);
+    ("p", "Defines a paragraph.", false);
+    ("param", "Defines a parameter for an object or applet element.", false);
+    ("picture", "Defines a container for multiple image sources.", false);
+    ("pre", "Defines a block of preformatted text.", false);
+    ("progress", "Represents the completion progress of a task.", false);
+    ("q", "Defines a short inline quotation.", false);
+    ( "rp",
+      "Provides fall-back parenthesis for browsers that that don't support \
+       ruby annotations.",
+      false );
+    ( "rt",
+      "Defines the pronunciation of character presented in a ruby annotations.",
+      false );
+    ("ruby", "Represents a ruby annotation.", false);
+    ( "s",
+      "Represents contents that are no longer accurate or no longer relevant.",
+      false );
+    ("samp", "Specifies text as sample output from a computer program.", false);
+    ( "script",
+      "Places script in the document for client-side processing.",
+      false );
+    ( "section",
+      "Defines a section of a document, such as header, footer etc.",
+      false );
+    ("select", "Defines a selection list within a form.", false);
+    ("small", "Displays text in a smaller size.", false);
+    ( "source",
+      "Defines alternative media resources for the media elements like <audio> \
+       or <video>.",
+      false );
+    ("span", "Defines an inline styleless section in a document.", false);
+    ("strike", "Displays text in strikethrough style.", true);
+    ("strong", "Indicate strongly emphasized text.", false);
+    ( "style",
+      "Inserts style information (commonly CSS) into the head of a document.",
+      false );
+    ("sub", "Defines subscripted text.", false);
+    ("summary", "Defines a summary for the <details> element.", false);
+    ("sup", "Defines superscripted text.", false);
+    ( "svg",
+      "Embed SVG (Scalable Vector Graphics) content in an HTML document.",
+      false );
+    ("table", "Defines a data table.", false);
+    ( "tbody",
+      "Groups a set of rows defining the main body of the table data.",
+      false );
+    ("td", "Defines a cell in a table.", false);
+    ( "template",
+      "Defines the fragments of HTML that should be hidden when the page is \
+       loaded, but can be cloned and inserted in the document by JavaScript.",
+      false );
+    ("textarea", "Defines a multi-line text input control (text area).", false);
+    ( "tfoot",
+      "Groups a set of rows summarizing the columns of the table.",
+      false );
+    ("th", "Defines a header cell in a table.", false);
+    ( "thead",
+      "Groups a set of rows that describes the column labels of a table.",
+      false );
+    ("time", "Represents a time and/or date.", false);
+    ("title", "Defines a title for the document.", false);
+    ("tr", "Defines a row of cells in a table.", false);
+    ( "track",
+      "Defines text tracks for the media elements like <audio> or <video>.",
+      false );
+    ("tt", "Obsolete Displays text in a teletype style.", false);
+    ("u", "Displays text with an underline.", false);
+    ("ul", "Defines an unordered list.", false);
+    ("var", "Defines a variable.", false);
+    ("video", "Embeds video content in an HTML document.", false);
+    ("wbr", "Represents a line break opportunity.", false);
+  ]
+
 let getJsxLabels ~componentPath ~findTypeOfValue ~package =
   match componentPath @ ["make"] |> findTypeOfValue with
   | Some (typ, make_env) ->

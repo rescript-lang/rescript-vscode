@@ -28,8 +28,8 @@ module SomeComponent = {
       //      ^com
       // {someArr->a}
       //            ^com
-      // <d
-      //   ^com
+      // <di
+      //    ^com
     </div>
   }
 }
