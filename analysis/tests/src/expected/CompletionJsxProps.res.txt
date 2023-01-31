@@ -190,7 +190,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] testAr
     "tags": [],
     "detail": "One\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
-    "insertText": "{One}",
+    "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two",
@@ -198,7 +198,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] testAr
     "tags": [],
     "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
-    "insertText": "{Two}",
+    "insertText": "Two",
     "insertTextFormat": 2
   }, {
     "label": "Three(_)",
@@ -206,7 +206,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] testAr
     "tags": [],
     "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
-    "insertText": "{Three(${1:_})}",
+    "insertText": "Three(${1:_})",
     "insertTextFormat": 2
   }]
 
