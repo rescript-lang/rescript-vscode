@@ -358,3 +358,15 @@ Completable: Cpath Value[someArr]->a <<jsx>>
     "documentation": {"kind": "markdown", "value": "Deprecated: `append` is not type-safe. Use `concat` instead.\n\n"}
   }]
 
+Complete src/CompletionJsx.res 43:23
+posCursor:[43:23] posNoWhite:[43:22] Found expr:[43:4->43:23]
+JSX <CompWithoutJsxPpx:[43:4->43:21] n[43:22->43:23]=...[43:22->43:23]> _children:None
+Completable: Cjsx([CompWithoutJsxPpx], n, [n])
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+

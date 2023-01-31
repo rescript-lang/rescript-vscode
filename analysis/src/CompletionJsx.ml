@@ -559,6 +559,19 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
              && Path.last path = "props" ->
         (* JSX V4 external or interface *)
         getFieldsV4 ~path ~typeArgs
+      | Tarrow (Nolabel, typ, _, _) -> (
+        (* Component without the JSX PPX, like a make fn taking a hand-written
+           type props. *)
+        let rec digToConstr typ =
+          match typ.Types.desc with
+          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> digToConstr t1
+          | Tconstr (path, typeArgs, _) when Path.last path = "props" ->
+            Some (path, typeArgs)
+          | _ -> None
+        in
+        match digToConstr typ with
+        | None -> []
+        | Some (path, typeArgs) -> getFieldsV4 ~path ~typeArgs)
       | _ -> []
     in
     typ |> getLabels
