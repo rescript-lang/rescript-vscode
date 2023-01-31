@@ -570,7 +570,12 @@ let htmlElements =
       false );
     ("header", "Represents the header of a document or a section.", false);
     ("hgroup", "Defines a group of headings.", false);
-    ("h1", "to <h6>\tDefines HTML headings.", false);
+    ("h1", "Defines HTML headings.", false);
+    ("h2", "Defines HTML headings.", false);
+    ("h3", "Defines HTML headings.", false);
+    ("h4", "Defines HTML headings.", false);
+    ("h5", "Defines HTML headings.", false);
+    ("h6", "Defines HTML headings.", false);
     ("hr", "Produce a horizontal line.", false);
     ("html", "Defines the root of an HTML document.", false);
     ("i", "Displays text in an italic style.", false);
