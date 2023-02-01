@@ -1410,10 +1410,15 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
   | Cexpression {contextPath; prefix; nested} -> (
-    (* Completions for local things like variables in scope, modules in the project, etc. *)
+    (* Completions for local things like variables in scope, modules in the
+       project, etc. We only add completions when there's a prefix of some sort
+       we can filter on, since we know we're in some sort of context, and
+       therefore don't want to overwhelm the user with completion items. *)
     let regularCompletions =
-      prefix
-      |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env ~scope
+      if prefix = "" then []
+      else
+        prefix
+        |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env ~scope
     in
     match
       contextPath
@@ -1537,8 +1542,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
            if Utils.startsWith elementName prefix then
              let name = "<" ^ elementName ^ ">" in
              Some
-               (Completion.create name ~kind:(Label name) ~detail:description ~env
-                  ~docstring:[description] ~insertText:elementName
+               (Completion.create name ~kind:(Label name) ~detail:description
+                  ~env ~docstring:[description] ~insertText:elementName
                   ?deprecated:
                     (match deprecated with
                     | true -> Some "true"
