@@ -1410,17 +1410,22 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
   | Cexpression {contextPath; prefix; nested} -> (
+    (* Completions for local things like variables in scope, modules in the project, etc. *)
+    let regularCompletions =
+      prefix
+      |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env ~scope
+    in
     match
       contextPath
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
       |> completionsGetCompletionType ~full
     with
-    | None -> []
+    | None -> regularCompletions
     | Some (typ, env) -> (
       match typ |> TypeUtils.resolveNested ~env ~full ~nested with
-      | None -> []
-      | Some (typ, env, completionContext) -> (
+      | None -> regularCompletions
+      | Some (typ, _env, completionContext) -> (
         (* Wrap the insert text in braces when we're completing the root of a
            JSX prop value. *)
         let wrapInsertTextInBraces =
@@ -1448,12 +1453,6 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
         match (prefix, completionContext) with
         | "", _ -> items
         | _, None ->
-          (* Completions for local things like variables in scope, modules in the project, etc. *)
-          let regularCompletions =
-            prefix
-            |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env
-                 ~scope
-          in
           let items =
             if List.length regularCompletions > 0 then
               (* The client will occasionally sort the list of completions alphabetically, disregarding the order

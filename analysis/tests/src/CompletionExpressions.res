@@ -177,3 +177,12 @@ let fnTakingCallback = (
 
 // fnTakingCallback(a, b, c, d, e, )
 //                                ^com
+
+let something = {
+  let second = true
+  let second2 = 1
+  ignore(second)
+  ignore(second2)
+  Js.log(s)
+  //      ^com
+}
