@@ -5,13 +5,11 @@ Completable: CnamedArg(Value[someFn], isOff, [isOff])
 []
 
 Complete src/BrokenParserCases.res 6:17
-posCursor:[6:17] posNoWhite:[6:16] Found expr:[6:3->6:21]
 posCursor:[6:17] posNoWhite:[6:16] Found pattern:[6:16->6:19]
 Completable: Cpattern Value[s]=t
 []
 
 Complete src/BrokenParserCases.res 10:29
-posCursor:[10:29] posNoWhite:[10:27] Found expr:[10:11->10:41]
 posCursor:[10:29] posNoWhite:[10:27] Found pattern:[10:24->10:39]
 posCursor:[10:29] posNoWhite:[10:27] Found pattern:[10:24->10:28]
 Ppat_construct None:[10:24->10:28]

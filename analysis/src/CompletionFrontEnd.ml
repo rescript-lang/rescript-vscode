@@ -534,14 +534,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           | false, false -> ()))
       | _ -> unsetLookingForPat ()
   in
-
-  let case (iterator : Ast_iterator.iterator) (case : Parsetree.case) =
-    let oldScope = !scope in
-    scopePattern ?contextPath:!currentCtxPath case.pc_lhs;
-    completePattern case.pc_lhs;
-    Ast_iterator.default_iterator.case iterator case;
-    scope := oldScope
-  in
   let structure (iterator : Ast_iterator.iterator)
       (structure : Parsetree.structure) =
     let oldScope = !scope in
@@ -787,6 +779,18 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     in
     typedCompletionExpr expr;
     match expr.pexp_desc with
+    | Pexp_match (_expr, []) -> ()
+    | Pexp_match (expr, cases) ->
+      let ctxPath = exprToContextPath expr in
+      let oldCtxPath = !currentCtxPath in
+      cases
+      |> List.iter (fun (case : Parsetree.case) ->
+             let oldScope = !scope in
+             scopePattern ?contextPath:ctxPath case.pc_lhs;
+             completePattern case.pc_lhs;
+             Ast_iterator.default_iterator.case iterator case;
+             scope := oldScope);
+      resetCurrentCtxPath oldCtxPath
     | Pexp_apply
         ( {pexp_desc = Pexp_ident {txt = Lident "|."; loc = opLoc}},
           [
@@ -1157,7 +1161,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     {
       Ast_iterator.default_iterator with
       attribute;
-      case;
       expr;
       location;
       module_expr;
