@@ -222,7 +222,7 @@ Completable: Cpath Value[x].""
 
 Complete src/CompletionInferValues.res 79:78
 posCursor:[79:78] posNoWhite:[79:77] Found expr:[79:70->79:78]
-Pexp_field [79:70->79:77] _:[122:0->79:78]
+Pexp_field [79:70->79:77] _:[126:0->79:78]
 Completable: Cpath Value[srecord].""
 [{
     "label": "name",
@@ -240,7 +240,7 @@ Completable: Cpath Value[srecord].""
 
 Complete src/CompletionInferValues.res 83:86
 posCursor:[83:86] posNoWhite:[83:85] Found expr:[83:78->83:86]
-Pexp_field [83:78->83:85] _:[122:0->83:86]
+Pexp_field [83:78->83:85] _:[126:0->83:86]
 Completable: Cpath Value[aliased].""
 [{
     "label": "someRecord",
@@ -252,7 +252,7 @@ Completable: Cpath Value[aliased].""
 
 Complete src/CompletionInferValues.res 87:103
 posCursor:[87:103] posNoWhite:[87:102] Found expr:[87:92->87:103]
-Pexp_field [87:92->87:102] _:[122:0->87:103]
+Pexp_field [87:92->87:102] _:[126:0->87:103]
 Completable: Cpath Value[someRecord].""
 [{
     "label": "name",
@@ -388,12 +388,23 @@ Completable: Cpath Value[inner].s
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 127:26
-posCursor:[127:26] posNoWhite:[127:25] Found expr:[127:3->127:37]
-Pexp_apply ...[127:3->127:23] (...[127:24->127:36])
-posCursor:[127:26] posNoWhite:[127:25] Found expr:[127:24->127:36]
-posCursor:[127:26] posNoWhite:[127:25] Found pattern:[127:25->127:27]
-posCursor:[127:26] posNoWhite:[127:25] Found pattern:[127:25->127:27]
+Complete src/CompletionInferValues.res 123:53
+posCursor:[123:53] posNoWhite:[123:52] Found expr:[123:46->123:53]
+Completable: Cpath Value[v]->toSt
+[{
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+  }]
+
+Complete src/CompletionInferValues.res 131:26
+posCursor:[131:26] posNoWhite:[131:25] Found expr:[131:3->131:37]
+Pexp_apply ...[131:3->131:23] (...[131:24->131:36])
+posCursor:[131:26] posNoWhite:[131:25] Found expr:[131:24->131:36]
+posCursor:[131:26] posNoWhite:[131:25] Found pattern:[131:25->131:27]
+posCursor:[131:26] posNoWhite:[131:25] Found pattern:[131:25->131:27]
 Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->recordBody
 [{
     "label": "name",
