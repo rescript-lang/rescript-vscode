@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.12.0
+
 #### :rocket: New Feature
 
 - Add autocomplete for function argument values (booleans, variants and options. More values coming), both labelled and unlabelled. https://github.com/rescript-lang/rescript-vscode/pull/665
