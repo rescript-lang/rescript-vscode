@@ -156,9 +156,9 @@ Pexp_apply ...[57:11->57:30] (...[57:31->57:33])
 Completable: Cexpression CArgument Value[someFnTakingVariant]($0)=So
 [{
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
+    "detail": "someVariant",
     "documentation": null,
     "sortText": "A Some(_)",
     "insertText": "Some(${1:_})",

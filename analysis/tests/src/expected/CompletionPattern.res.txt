@@ -485,13 +485,13 @@ posCursor:[137:29] posNoWhite:[137:28] Found pattern:[137:20->137:32]
 Completable: Cpattern Value[p]->variantPayload::Test($2)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -573,13 +573,13 @@ posCursor:[153:30] posNoWhite:[153:29] Found pattern:[153:21->153:32]
 Completable: Cpattern Value[v]->polyvariantPayload::test($2)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -659,13 +659,13 @@ posCursor:[167:23] posNoWhite:[167:21] Found pattern:[167:16->167:24]
 Completable: Cpattern Value[s]->tuple($1)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -691,13 +691,13 @@ posCursor:[170:22] posNoWhite:[170:21] Found pattern:[170:16->170:28]
 Completable: Cpattern Value[s]->tuple($1)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -736,13 +736,13 @@ posCursor:[176:41] posNoWhite:[176:40] Found pattern:[176:35->176:47]
 Completable: Cpattern Value[s]->tuple($1)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -878,13 +878,13 @@ posCursor:[194:24] posNoWhite:[194:23] Found pattern:[194:23->194:24]
 Completable: Cpattern Value[s]->tuple($1)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,

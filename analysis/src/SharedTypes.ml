@@ -296,11 +296,11 @@ end
 
 type polyVariantConstructor = {name: string; args: Types.type_expr list}
 
-(** An type that can be used to drive completion *)
-type completionType =
+type innerType = TypeExpr of Types.type_expr | ExtractedType of completionType
+and completionType =
   | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
-  | Toption of QueryEnv.t * completionType
   | Texn of QueryEnv.t
+  | Toption of QueryEnv.t * innerType
   | Tbool of QueryEnv.t
   | Tarray of QueryEnv.t * completionType
   | Tstring of QueryEnv.t
@@ -759,6 +759,12 @@ module Completion = struct
     | Value _ | ExtractedType (_, `Value) -> 12
     | Snippet _ | FollowContextPath _ -> 15
 end
+
+let kindFromInnerType (t : innerType) =
+  match t with
+  | ExtractedType extractedType ->
+    Completion.ExtractedType (extractedType, `Value)
+  | TypeExpr typ -> Value typ
 
 module CursorPosition = struct
   type t = NoCursor | HasCursor | EmptyLoc

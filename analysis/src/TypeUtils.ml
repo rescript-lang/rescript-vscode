@@ -112,8 +112,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    payloadTypeExpr |> extractType ~env ~package
-    |> Option.map (fun payloadTyp -> Toption (env, payloadTyp))
+    Some (Toption (env, TypeExpr payloadTypeExpr))
   | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
     payloadTypeExpr |> extractType ~env ~package
     |> Option.map (fun payloadTyp -> Tarray (env, payloadTyp))
@@ -300,9 +299,14 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
         ( TinlineRecord {fields; env},
           env,
           Some (Completable.RecordField {seenFields}) )
-    | NVariantPayload {constructorName = "Some"; itemNum = 0}, Toption (env, typ)
-      ->
+    | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
+        Toption (env, ExtractedType typ) ) ->
       typ |> resolveNested ~env ~full ~nested
+    | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
+        Toption (env, TypeExpr typ) ) ->
+      typ
+      |> extractType ~env ~package:full.package
+      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
     | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
       -> (
       match
@@ -415,7 +419,9 @@ let rec extractedTypeToString ?(inner = false) = function
   | Tstring _ -> "string"
   | Tarray (_, innerTyp) ->
     "array<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
-  | Toption (_, innerTyp) ->
+  | Toption (_, TypeExpr innerTyp) ->
+    "option<" ^ Shared.typeToString innerTyp ^ ">"
+  | Toption (_, ExtractedType innerTyp) ->
     "option<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
   | Tvariant {variantDecl; variantName} ->
     if inner then variantName else Shared.declToString variantName variantDecl
@@ -426,5 +432,5 @@ let rec extractedTypeToString ?(inner = false) = function
 
 let unwrapCompletionTypeIfOption (t : SharedTypes.completionType) =
   match t with
-  | Toption (_, unwrapped) -> unwrapped
+  | Toption (_, ExtractedType unwrapped) -> unwrapped
   | _ -> t
