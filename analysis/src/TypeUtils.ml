@@ -424,6 +424,7 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
       | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
           Toption (env, typ) ) ->
         Some (typ, env)
+      | NArray, Tarray (env, typ) -> Some (typ, env)
       | _ -> None))
   | patternPath :: nested -> (
     match t with
@@ -468,6 +469,8 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
         | None -> None)
       | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
           Toption (env, typ) ) ->
+        typ |> resolveNestedPatternPath ~env ~full ~nested
+      | NArray, Tarray (env, typ) ->
         typ |> resolveNestedPatternPath ~env ~full ~nested
       | _ -> None))
 

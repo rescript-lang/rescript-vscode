@@ -222,7 +222,7 @@ Completable: Cpath Value[x].""
 
 Complete src/CompletionInferValues.res 79:78
 posCursor:[79:78] posNoWhite:[79:77] Found expr:[79:70->79:78]
-Pexp_field [79:70->79:77] _:[118:0->79:78]
+Pexp_field [79:70->79:77] _:[122:0->79:78]
 Completable: Cpath Value[srecord].""
 [{
     "label": "name",
@@ -240,7 +240,7 @@ Completable: Cpath Value[srecord].""
 
 Complete src/CompletionInferValues.res 83:86
 posCursor:[83:86] posNoWhite:[83:85] Found expr:[83:78->83:86]
-Pexp_field [83:78->83:85] _:[118:0->83:86]
+Pexp_field [83:78->83:85] _:[122:0->83:86]
 Completable: Cpath Value[aliased].""
 [{
     "label": "someRecord",
@@ -252,7 +252,7 @@ Completable: Cpath Value[aliased].""
 
 Complete src/CompletionInferValues.res 87:103
 posCursor:[87:103] posNoWhite:[87:102] Found expr:[87:92->87:103]
-Pexp_field [87:92->87:102] _:[118:0->87:103]
+Pexp_field [87:92->87:102] _:[122:0->87:103]
 Completable: Cpath Value[someRecord].""
 [{
     "label": "name",
@@ -370,12 +370,30 @@ Completable: Cpath Value[name]->slic
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 123:26
-posCursor:[123:26] posNoWhite:[123:25] Found expr:[123:3->123:37]
-Pexp_apply ...[123:3->123:23] (...[123:24->123:36])
-posCursor:[123:26] posNoWhite:[123:25] Found expr:[123:24->123:36]
-posCursor:[123:26] posNoWhite:[123:25] Found pattern:[123:25->123:27]
-posCursor:[123:26] posNoWhite:[123:25] Found pattern:[123:25->123:27]
+Complete src/CompletionInferValues.res 119:67
+posCursor:[119:67] posNoWhite:[119:66] Found expr:[119:60->119:67]
+Pexp_field [119:60->119:65] s:[119:66->119:67]
+Completable: Cpath Value[inner].s
+[{
+    "label": "someRecord",
+    "kind": 5,
+    "tags": [],
+    "detail": "someRecord: someRecord\n\ntype otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant), optRecord: option<someRecord>}",
+    "documentation": null
+  }, {
+    "label": "someTuple",
+    "kind": 5,
+    "tags": [],
+    "detail": "someTuple: (someVariant, int, somePolyVariant)\n\ntype otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant), optRecord: option<someRecord>}",
+    "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 127:26
+posCursor:[127:26] posNoWhite:[127:25] Found expr:[127:3->127:37]
+Pexp_apply ...[127:3->127:23] (...[127:24->127:36])
+posCursor:[127:26] posNoWhite:[127:25] Found expr:[127:24->127:36]
+posCursor:[127:26] posNoWhite:[127:25] Found pattern:[127:25->127:27]
+posCursor:[127:26] posNoWhite:[127:25] Found pattern:[127:25->127:27]
 Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->recordBody
 [{
     "label": "name",
