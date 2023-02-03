@@ -131,3 +131,19 @@ let fnWithRecordCallback = (cb: someRecord => unit) => {
 // Complete pattern of function parameter
 // fnWithRecordCallback(({}) => {()})
 //                        ^com
+
+let fn2 = (~cb: CompletionSupport.Nested.config => unit) => {
+  let _ = cb
+}
+
+// fn2(~cb=({root}) => {root-> })
+//                            ^com
+
+type sameFileRecord = {root: CompletionSupport.Test.t, test: int}
+
+let fn3 = (~cb: sameFileRecord => unit) => {
+  let _ = cb
+}
+
+// fn3(~cb=({root}) => {root-> })
+//                            ^com

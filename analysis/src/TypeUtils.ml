@@ -397,7 +397,7 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
     | Some completionType -> (
       match (finalPatternPath, completionType) with
       | ( Completable.NFollowRecordField {fieldName},
-          (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
+          (TinlineRecord {fields} | Trecord {fields}) ) -> (
         match fields |> findTypeOfRecordField ~fieldName with
         | None -> None
         | Some typ -> Some (TypeExpr typ, env))
