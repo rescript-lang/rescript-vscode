@@ -71,17 +71,26 @@ type someRecordWithNestedStuff = {
 
 type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int)}
 
+// Destructure record
 // let x: someRecordWithNestedStuff = Obj.magic(); let {srecord} = x; srecord.
 //                                                                            ^com
 
+// Follow aliased
 // let x: someRecordWithNestedStuff = Obj.magic(); let {nested: aliased} = x; aliased.
 //                                                                                    ^com
 
+// Follow nested record
 // let x: someRecordWithNestedStuff = Obj.magic(); let {srecord, nested: {someRecord}} = x; someRecord.
 //                                                                                                     ^com
 
+// Destructure string
 // let x: someRecordWithNestedStuff = Obj.magic(); let {things} = x; things->slic
 //                                                                               ^com
 
+// Destructure int
 // let x: someRecordWithNestedStuff = Obj.magic(); let {someInt} = x; someInt->toS
 //                                                                                ^com
+
+// Follow tuples
+// let x: otherNestedRecord = Obj.magic(); let {someTuple} = x; let (_, someInt) = someTuple; someInt->toS
+//                                                                                                        ^com

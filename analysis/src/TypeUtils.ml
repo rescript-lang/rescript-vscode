@@ -349,6 +349,15 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
              typ |> resolveNested ~env ~full ~nested)
     | _ -> None)
 
+let findTypeOfRecordField fields ~fieldName =
+  match
+    fields |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
+  with
+  | None -> None
+  | Some {typ; optional} ->
+    let typ = if optional then Utils.unwrapIfOption typ else typ in
+    Some typ
+
 let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
   let t =
     match typ with
@@ -364,14 +373,13 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
       match (finalPatternPath, completionType) with
       | ( Completable.NFollowRecordField {fieldName},
           (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
-        match
-          fields
-          |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
-        with
+        match fields |> findTypeOfRecordField ~fieldName with
         | None -> None
-        | Some {typ; optional} ->
-          let typ = if optional then Utils.unwrapIfOption typ else typ in
-          Some (TypeExpr typ, env))
+        | Some typ -> Some (TypeExpr typ, env))
+      | NTupleItem {itemNum}, Tuple (env, tupleItems, _) -> (
+        match List.nth_opt tupleItems itemNum with
+        | None -> None
+        | Some typ -> Some (TypeExpr typ, env))
       | _ -> None))
   | patternPath :: nested -> (
     match t with
@@ -380,13 +388,18 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
       match (patternPath, completionType) with
       | ( Completable.NFollowRecordField {fieldName},
           (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
-        match
-          fields
-          |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
-        with
+        match fields |> findTypeOfRecordField ~fieldName with
         | None -> None
-        | Some {typ; optional} ->
-          let typ = if optional then Utils.unwrapIfOption typ else typ in
+        | Some typ ->
+          typ
+          |> extractType ~env ~package:full.package
+          |> Utils.Option.flatMap (fun typ ->
+                 ExtractedType typ
+                 |> resolveNestedPatternPath ~env ~full ~nested))
+      | NTupleItem {itemNum}, Tuple (env, tupleItems, _) -> (
+        match List.nth_opt tupleItems itemNum with
+        | None -> None
+        | Some typ ->
           typ
           |> extractType ~env ~package:full.package
           |> Utils.Option.flatMap (fun typ ->
