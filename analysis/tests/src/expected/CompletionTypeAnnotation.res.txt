@@ -142,13 +142,13 @@ XXX Not found!
 Completable: Cexpression Type[someTuple]->tuple($1)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -173,13 +173,13 @@ XXX Not found!
 Completable: Cexpression option<Type[someVariant]>
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "type someVariant = One | Two(bool)",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "type someVariant = One | Two(bool)",
     "documentation": null,

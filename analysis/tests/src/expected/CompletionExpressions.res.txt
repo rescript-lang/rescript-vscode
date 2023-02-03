@@ -155,13 +155,13 @@ Pexp_apply ...[41:11->41:25] (...[41:26->41:47])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "otherRecord",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "otherRecord",
     "documentation": null,
@@ -324,13 +324,13 @@ Pexp_apply ...[72:11->72:24] (...[72:25->72:27])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -386,13 +386,13 @@ Pexp_apply ...[81:11->81:24] (...[81:25->81:33])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -418,13 +418,13 @@ Pexp_apply ...[84:11->84:24] (...[84:25->84:39])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -495,15 +495,15 @@ Pexp_apply ...[116:11->116:39] (...[116:40->116:56])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptVariant]($0)->recordField(someVariant)
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
+    "detail": "someVariant",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
+    "detail": "someVariant",
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
