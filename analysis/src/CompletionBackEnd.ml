@@ -736,14 +736,14 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
          ~completionContext ~env ~scope
   | CPApply (cp, labels) -> (
-    (* TODO: Also needs to support ExtractedType *)
     match
       cp
       |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~exact:true ~scope
-      |> completionsGetTypeEnv2 ~full ~opens ~rawOpens ~allFiles ~pos ~scope
+      |> completionsGetCompletionType2 ~full ~opens ~rawOpens ~allFiles ~pos
+           ~scope
     with
-    | Some (typ, env) -> (
+    | Some ((TypeExpr typ | ExtractedType (Tfunction {typ})), env) -> (
       let rec reconstructFunctionType args tRet =
         match args with
         | [] -> tRet
@@ -776,7 +776,7 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
         let retType = reconstructFunctionType args tRet in
         [Completion.create "dummy" ~env ~kind:(Completion.Value retType)]
       | _ -> [])
-    | None -> [])
+    | _ -> [])
   | CPField (CPId (path, Module), fieldName) ->
     (* M.field *)
     path @ [fieldName]
@@ -1048,16 +1048,17 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
           ~kind:(Completion.Value (Utils.unwrapIfOption typ));
       ])
   | CArgument {functionContextPath; argumentLabel} -> (
-    (* TODO: Also needs to support ExtractedType *)
     let labels, env =
       match
         functionContextPath
         |> getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos
              ~env ~exact:true ~scope
-        |> completionsGetTypeEnv2 ~full ~opens ~rawOpens ~allFiles ~pos ~scope
+        |> completionsGetCompletionType2 ~full ~opens ~rawOpens ~allFiles ~pos
+             ~scope
       with
-      | Some (typ, env) -> (typ |> TypeUtils.getArgs ~full ~env, env)
-      | None -> ([], env)
+      | Some ((TypeExpr typ | ExtractedType (Tfunction {typ})), env) ->
+        (typ |> TypeUtils.getArgs ~full ~env, env)
+      | _ -> ([], env)
     in
     let targetLabel =
       labels
