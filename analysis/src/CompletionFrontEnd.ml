@@ -392,18 +392,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     | Ppat_extension _ -> ()
     | Ppat_open (_, p) -> scopePattern ~patternPath ?contextPath p
   in
-
-  let lookingForPat = ref None in
-
   let locHasCursor = CursorPosition.locHasCursor ~pos:posBeforeCursor in
   let locIsEmpty = CursorPosition.locIsEmpty ~pos:posBeforeCursor in
-
-  let completePattern (pat : Parsetree.pattern) =
+  let completePattern ?contextPath (pat : Parsetree.pattern) =
     match
       ( pat
         |> CompletionPatterns.traversePattern ~patternPath:[] ~locHasCursor
              ~firstCharBeforeCursorNoWhite ~posBeforeCursor,
-        !lookingForPat )
+        contextPath )
     with
     | Some (prefix, nestedPattern), Some ctxPath ->
       setResult
@@ -456,11 +452,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     scope :=
       !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
-  (* TODO: Can get rid of setLookingForPat soon *)
-  let setLookingForPat ctxPath = lookingForPat := Some ctxPath in
   let inJsxContext = ref false in
-
-  let unsetLookingForPat () = lookingForPat := None in
   (* Identifies expressions where we can do typed pattern or expr completion. *)
   let typedCompletionExpr (exp : Parsetree.expression) =
     if exp.pexp_loc |> CursorPosition.locHasCursor ~pos:posBeforeCursor then
@@ -520,7 +512,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           match (hasCaseWithEmptyLoc, hasCaseWithCursor) with
           | _, true ->
             (* Always continue if there's a case with the cursor *)
-            setLookingForPat ctxPath
+            ()
           | true, false ->
             (* If there's no case with the cursor, but a broken parser case, complete for the top level. *)
             setResult
@@ -533,7 +525,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
                    patternMode = Default;
                  })
           | false, false -> ()))
-      | _ -> unsetLookingForPat ()
+      | _ -> ()
   in
   let structure (iterator : Ast_iterator.iterator)
       (structure : Parsetree.structure) =
@@ -543,7 +535,6 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let structure_item (iterator : Ast_iterator.iterator)
       (item : Parsetree.structure_item) =
-    unsetLookingForPat ();
     let processed = ref false in
     (match item.pstr_desc with
     | Pstr_open {popen_lid} ->
@@ -788,7 +779,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       |> List.iter (fun (case : Parsetree.case) ->
              let oldScope = !scope in
              scopePattern ?contextPath:ctxPath case.pc_lhs;
-             completePattern case.pc_lhs;
+             completePattern ?contextPath:ctxPath case.pc_lhs;
              Ast_iterator.default_iterator.case iterator case;
              scope := oldScope);
       resetCurrentCtxPath oldCtxPath
@@ -1033,12 +1024,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (match defaultExpOpt with
           | None -> ()
           | Some defaultExp -> iterator.expr iterator defaultExp);
-          (match !currentCtxPath with
-          | None -> ()
-          | Some ctxPath -> setLookingForPat ctxPath);
-          completePattern pat;
-          unsetLookingForPat ();
-          scopePattern ?contextPath:!currentCtxPath pat;
+          let currentContextPath = !currentCtxPath in
+          completePattern ?contextPath:currentContextPath pat;
+          scopePattern ?contextPath:currentContextPath pat;
           iterator.pat iterator pat;
           iterator.expr iterator e;
           scope := oldScope;
