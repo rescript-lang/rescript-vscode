@@ -421,6 +421,9 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
         with
         | Some typ -> Some (TypeExpr typ, env)
         | None -> None)
+      | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
+          Toption (env, typ) ) ->
+        Some (typ, env)
       | _ -> None))
   | patternPath :: nested -> (
     match t with
@@ -463,6 +466,9 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
         | Some typ ->
           TypeExpr typ |> resolveNestedPatternPath ~env ~full ~nested
         | None -> None)
+      | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
+          Toption (env, typ) ) ->
+        typ |> resolveNestedPatternPath ~env ~full ~nested
       | _ -> None))
 
 let getArgs ~env (t : Types.type_expr) ~full =

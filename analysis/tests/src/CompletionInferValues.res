@@ -70,7 +70,11 @@ type someRecordWithNestedStuff = {
   someStuff: bool,
 }
 
-type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant)}
+type otherNestedRecord = {
+  someRecord: someRecord,
+  someTuple: (someVariant, int, somePolyVariant),
+  optRecord: option<someRecord>,
+}
 
 // Destructure record
 // let x: someRecordWithNestedStuff = Obj.magic(); let {srecord} = x; srecord.
@@ -107,6 +111,10 @@ type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, 
 // Follow polyvariant payloads
 // let x: otherNestedRecord; switch x { | {someTuple:(_, _, #three(_, str))} => str->slic }
 //                                                                                       ^com
+
+// Follow options
+// let x: otherNestedRecord; switch x { | {optRecord:Some({name})} => name->slic }
+//                                                                              ^com
 
 let fnWithRecordCallback = (cb: someRecord => unit) => {
   let _ = cb
