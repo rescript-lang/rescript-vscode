@@ -94,3 +94,7 @@ type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int)}
 // Follow tuples
 // let x: otherNestedRecord = Obj.magic(); let {someTuple} = x; let (_, someInt) = someTuple; someInt->toS
 //                                                                                                        ^com
+
+// Same as above, but follow in switch case
+// let x: otherNestedRecord; switch x { | {someTuple} => let (_, someInt) = someTuple; someInt->toS }
+//                                                                                                 ^com

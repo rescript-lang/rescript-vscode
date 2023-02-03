@@ -57,23 +57,8 @@ Complete src/CompletionFunctionArguments.res 21:27
 posCursor:[21:27] posNoWhite:[21:26] Found expr:[19:8->25:1]
 Pexp_apply ...[19:8->19:14] (~isOn20:3->20:7=...[21:7->23:8])
 posCursor:[21:27] posNoWhite:[21:26] Found expr:[21:7->23:8]
-posCursor:[21:27] posNoWhite:[21:26] Found expr:[21:7->21:28]
-posCursor:[21:27] posNoWhite:[21:26] Found expr:[21:14->21:28]
-Pexp_apply ...[21:14->21:20] (~isOn21:22->21:26=...__ghost__[0:-1->0:-1])
-Completable: Cexpression CArgument Value[someFn](~isOn)
-[{
-    "label": "true",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }, {
-    "label": "false",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }]
+posCursor:[21:27] posNoWhite:[21:26] Found expr:[21:7->23:8]
+[]
 
 Complete src/CompletionFunctionArguments.res 34:24
 posCursor:[34:24] posNoWhite:[34:23] Found expr:[34:11->34:25]
