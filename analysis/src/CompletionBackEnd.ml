@@ -606,10 +606,6 @@ let completionsGetTypeEnv = function
 
 type getCompletionsForContextPathMode = Regular | Pipe
 
-type completionsTypeEnvTyp =
-  | TypeExpr of Types.type_expr
-  | ExtractedType of completionType
-
 let completionsGetCompletionType ~full = function
   | {Completion.kind = Value typ; env} :: _
   | {Completion.kind = ObjLabel typ; env} :: _
@@ -1098,21 +1094,10 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
            ~scope
     with
     | Some (typ, env) -> (
-      let typ =
-        match typ with
-        | ExtractedType typ -> Some typ
-        | TypeExpr typ -> typ |> TypeUtils.extractType ~env ~package
-      in
-      match typ with
-      | None -> []
-      | Some typ -> (
-        match typ |> TypeUtils.resolveNested ~env ~full ~nested with
-        | Some (typ, env, _completionContext) ->
-          [
-            Completion.create "dummy" ~env
-              ~kind:(Completion.ExtractedType (typ, `Value));
-          ]
-        | None -> []))
+      match typ |> TypeUtils.resolveNestedPatternPath ~env ~full ~nested with
+      | Some (typ, env) ->
+        [Completion.create "dummy" ~env ~kind:(kindFromInnerType typ)]
+      | None -> [])
     | None -> [])
 
 let getOpens ~debug ~rawOpens ~package ~env =

@@ -63,6 +63,7 @@ type someNestedRecord = {someRecord: someRecord}
 
 type someRecordWithNestedStuff = {
   things: string,
+  someInt: int,
   srecord: someRecord,
   nested: someNestedRecord,
   someStuff: bool,
@@ -70,11 +71,17 @@ type someRecordWithNestedStuff = {
 
 type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int)}
 
-// let x: someRecordWithNestedStuff = {things: "", someRecord: {name: "Hello", age: 123}, someStuff: true}; let {srecord} = x; srecord.
-//                                                                                                                                     ^com
+// let x: someRecordWithNestedStuff = Obj.magic(); let {srecord} = x; srecord.
+//                                                                            ^com
 
-// let x: someRecordWithNestedStuff = {things: "", someRecord: {name: "Hello", age: 123}, someStuff: true}; let {nested: aliased} = x; aliased.
-//                                                                                                                                             ^com
+// let x: someRecordWithNestedStuff = Obj.magic(); let {nested: aliased} = x; aliased.
+//                                                                                    ^com
 
-// let x: someRecordWithNestedStuff = {things: "", someRecord: {name: "Hello", age: 123}, someStuff: true}; let {srecord, nested: {someRecord}} = x; someRecord.
-//                                                                                                                                                              ^com
+// let x: someRecordWithNestedStuff = Obj.magic(); let {srecord, nested: {someRecord}} = x; someRecord.
+//                                                                                                     ^com
+
+// let x: someRecordWithNestedStuff = Obj.magic(); let {things} = x; things->slic
+//                                                                               ^com
+
+// let x: someRecordWithNestedStuff = Obj.magic(); let {someInt} = x; someInt->toS
+//                                                                                ^com
