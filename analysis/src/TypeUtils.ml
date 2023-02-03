@@ -371,6 +371,18 @@ let findTypeOfConstructorArg constructors ~constructorName ~payloadNum ~env =
     Some (ExtractedType (TinlineRecord {env; fields}))
   | _ -> None
 
+let findTypeOfPolyvariantArg constructors ~constructorName ~payloadNum =
+  match
+    constructors
+    |> List.find_opt (fun (c : polyVariantConstructor) ->
+           c.name = constructorName)
+  with
+  | Some {args} -> (
+    match List.nth_opt args payloadNum with
+    | None -> None
+    | Some typ -> Some typ)
+  | None -> None
+
 let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
   let t =
     match typ with
@@ -400,6 +412,14 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
           |> findTypeOfConstructorArg ~constructorName ~payloadNum:itemNum ~env
         with
         | Some typ -> Some (typ, env)
+        | None -> None)
+      | ( NPolyvariantPayload {constructorName; itemNum},
+          Tpolyvariant {env; constructors} ) -> (
+        match
+          constructors
+          |> findTypeOfPolyvariantArg ~constructorName ~payloadNum:itemNum
+        with
+        | Some typ -> Some (TypeExpr typ, env)
         | None -> None)
       | _ -> None))
   | patternPath :: nested -> (
@@ -433,6 +453,15 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
           |> findTypeOfConstructorArg ~constructorName ~payloadNum:itemNum ~env
         with
         | Some typ -> typ |> resolveNestedPatternPath ~env ~full ~nested
+        | None -> None)
+      | ( NPolyvariantPayload {constructorName; itemNum},
+          Tpolyvariant {env; constructors} ) -> (
+        match
+          constructors
+          |> findTypeOfPolyvariantArg ~constructorName ~payloadNum:itemNum
+        with
+        | Some typ ->
+          TypeExpr typ |> resolveNestedPatternPath ~env ~full ~nested
         | None -> None)
       | _ -> None))
 

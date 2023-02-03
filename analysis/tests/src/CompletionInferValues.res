@@ -59,6 +59,7 @@ module Div = {
 //                                                  ^com
 
 type someVariant = One | Two | Three(int, string)
+type somePolyVariant = [#one | #two | #three(int, string)]
 type someNestedRecord = {someRecord: someRecord}
 
 type someRecordWithNestedStuff = {
@@ -69,7 +70,7 @@ type someRecordWithNestedStuff = {
   someStuff: bool,
 }
 
-type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int)}
+type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant)}
 
 // Destructure record
 // let x: someRecordWithNestedStuff = Obj.magic(); let {srecord} = x; srecord.
@@ -92,16 +93,21 @@ type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int)}
 //                                                                                ^com
 
 // Follow tuples
-// let x: otherNestedRecord = Obj.magic(); let {someTuple} = x; let (_, someInt) = someTuple; someInt->toS
-//                                                                                                        ^com
+// let x: otherNestedRecord = Obj.magic(); let {someTuple} = x; let (_, someInt, _) = someTuple; someInt->toS
+//                                                                                                           ^com
 
 // Same as above, but follow in switch case
-// let x: otherNestedRecord; switch x { | {someTuple} => let (_, someInt) = someTuple; someInt->toS }
-//                                                                                                 ^com
+// let x: otherNestedRecord; switch x { | {someTuple} => let (_, someInt, _) = someTuple; someInt->toS }
+//                                                                                                    ^com
 
 // Follow variant payloads
-// let x: otherNestedRecord; switch x { | {someTuple:(Three(_, str), _)} => str->slic }
-//                                                                                   ^com
+// let x: otherNestedRecord; switch x { | {someTuple:(Three(_, str), _, _)} => str->slic }
+//                                                                                      ^com
+
+// Follow polyvariant payloads
+// let x: otherNestedRecord; switch x { | {someTuple:(_, _, #three(_, str))} => str->slic }
+//                                                                                       ^com
+
 let fnWithRecordCallback = (cb: someRecord => unit) => {
   let _ = cb
 }
