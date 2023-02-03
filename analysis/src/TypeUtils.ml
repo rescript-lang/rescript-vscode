@@ -349,6 +349,51 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
              typ |> resolveNested ~env ~full ~nested)
     | _ -> None)
 
+let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
+  let t =
+    match typ with
+    | TypeExpr t -> t |> extractType ~env ~package:full.package
+    | ExtractedType t -> Some t
+  in
+  match nested with
+  | [] -> None
+  | [finalPatternPath] -> (
+    match t with
+    | None -> None
+    | Some completionType -> (
+      match (finalPatternPath, completionType) with
+      | ( Completable.NFollowRecordField {fieldName},
+          (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
+        match
+          fields
+          |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
+        with
+        | None -> None
+        | Some {typ; optional} ->
+          let typ = if optional then Utils.unwrapIfOption typ else typ in
+          Some (TypeExpr typ, env))
+      | _ -> None))
+  | patternPath :: nested -> (
+    match t with
+    | None -> None
+    | Some completionType -> (
+      match (patternPath, completionType) with
+      | ( Completable.NFollowRecordField {fieldName},
+          (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
+        match
+          fields
+          |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
+        with
+        | None -> None
+        | Some {typ; optional} ->
+          let typ = if optional then Utils.unwrapIfOption typ else typ in
+          typ
+          |> extractType ~env ~package:full.package
+          |> Utils.Option.flatMap (fun typ ->
+                 ExtractedType typ
+                 |> resolveNestedPatternPath ~env ~full ~nested))
+      | _ -> None))
+
 let getArgs ~env (t : Types.type_expr) ~full =
   let rec getArgsLoop ~env (t : Types.type_expr) ~full ~currentArgumentPosition
       =
