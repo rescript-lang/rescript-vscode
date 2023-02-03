@@ -173,7 +173,7 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] testAr
     "label": "[]",
     "kind": 12,
     "tags": [],
-    "detail": "type testVariant = One | Two | Three(int)",
+    "detail": "testVariant",
     "documentation": null,
     "sortText": "A",
     "insertText": "{[$0]}",

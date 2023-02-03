@@ -709,7 +709,8 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
       | Some (typ, env) ->
         [
           Completion.create "dummy" ~env
-            ~kind:(Completion.ExtractedType (Tarray (env, typ), `Type));
+            ~kind:
+              (Completion.ExtractedType (Tarray (env, ExtractedType typ), `Type));
         ])
     | Pipe ->
       (* Pipe completion with array just needs to know that it's an array, not
@@ -1314,11 +1315,14 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
           ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
           ~sortText:"A"
           ~kind:
-            (ExtractedType
-               ( typ,
-                 match mode with
-                 | Pattern _ -> `Type
-                 | Expression -> `Value ))
+            (match typ with
+            | ExtractedType typ ->
+              ExtractedType
+                ( typ,
+                  match mode with
+                  | Pattern _ -> `Type
+                  | Expression -> `Value )
+            | TypeExpr typ -> Value typ)
           ~env ();
       ]
     else []
