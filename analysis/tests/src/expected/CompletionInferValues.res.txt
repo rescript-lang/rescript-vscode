@@ -420,3 +420,51 @@ Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->r
     "documentation": null
   }]
 
+Complete src/CompletionInferValues.res 138:30
+posCursor:[138:30] posNoWhite:[138:29] Found expr:[138:3->138:33]
+Pexp_apply ...[138:3->138:6] (~cb138:8->138:10=...[138:11->138:32])
+posCursor:[138:30] posNoWhite:[138:29] Found expr:[138:11->138:32]
+posCursor:[138:30] posNoWhite:[138:29] Found expr:[138:24->0:-1]
+posCursor:[138:30] posNoWhite:[138:29] Found expr:[138:24->0:-1]
+Completable: Cpath Value[root]->
+[{
+    "label": "ReactDOM.Client.Root.unmount",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, unit) => unit",
+    "documentation": null
+  }, {
+    "label": "ReactDOM.Client.Root.render",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, React.element) => unit",
+    "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 147:30
+posCursor:[147:30] posNoWhite:[147:29] Found expr:[147:3->147:33]
+Pexp_apply ...[147:3->147:6] (~cb147:8->147:10=...[147:11->147:32])
+posCursor:[147:30] posNoWhite:[147:29] Found expr:[147:11->147:32]
+posCursor:[147:30] posNoWhite:[147:29] Found expr:[147:24->0:-1]
+posCursor:[147:30] posNoWhite:[147:29] Found expr:[147:24->0:-1]
+Completable: Cpath Value[root]->
+[{
+    "label": "CompletionSupport.Test.add",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": null
+  }, {
+    "label": "CompletionSupport.Test.addSelf",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": null
+  }, {
+    "label": "CompletionSupport.Test.make",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null
+  }]
+
