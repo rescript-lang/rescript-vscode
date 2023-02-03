@@ -220,9 +220,9 @@ Completable: Cpath Value[x].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 74:78
-posCursor:[74:78] posNoWhite:[74:77] Found expr:[74:70->74:78]
-Pexp_field [74:70->74:77] _:[104:0->74:78]
+Complete src/CompletionInferValues.res 75:78
+posCursor:[75:78] posNoWhite:[75:77] Found expr:[75:70->75:78]
+Pexp_field [75:70->75:77] _:[110:0->75:78]
 Completable: Cpath Value[srecord].""
 [{
     "label": "name",
@@ -238,9 +238,9 @@ Completable: Cpath Value[srecord].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 78:86
-posCursor:[78:86] posNoWhite:[78:85] Found expr:[78:78->78:86]
-Pexp_field [78:78->78:85] _:[104:0->78:86]
+Complete src/CompletionInferValues.res 79:86
+posCursor:[79:86] posNoWhite:[79:85] Found expr:[79:78->79:86]
+Pexp_field [79:78->79:85] _:[110:0->79:86]
 Completable: Cpath Value[aliased].""
 [{
     "label": "someRecord",
@@ -250,9 +250,9 @@ Completable: Cpath Value[aliased].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 82:103
-posCursor:[82:103] posNoWhite:[82:102] Found expr:[82:92->82:103]
-Pexp_field [82:92->82:102] _:[104:0->82:103]
+Complete src/CompletionInferValues.res 83:103
+posCursor:[83:103] posNoWhite:[83:102] Found expr:[83:92->83:103]
+Pexp_field [83:92->83:102] _:[110:0->83:103]
 Completable: Cpath Value[someRecord].""
 [{
     "label": "name",
@@ -268,8 +268,8 @@ Completable: Cpath Value[someRecord].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 86:81
-posCursor:[86:81] posNoWhite:[86:80] Found expr:[86:69->86:81]
+Complete src/CompletionInferValues.res 87:81
+posCursor:[87:81] posNoWhite:[87:80] Found expr:[87:69->87:81]
 Completable: Cpath Value[things]->slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -285,8 +285,8 @@ Completable: Cpath Value[things]->slic
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 90:82
-posCursor:[90:82] posNoWhite:[90:81] Found expr:[90:70->90:82]
+Complete src/CompletionInferValues.res 91:82
+posCursor:[91:82] posNoWhite:[91:81] Found expr:[91:70->91:82]
 Completable: Cpath Value[someInt]->toS
 [{
     "label": "Belt.Int.toString",
@@ -296,8 +296,8 @@ Completable: Cpath Value[someInt]->toS
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 94:106
-posCursor:[94:106] posNoWhite:[94:105] Found expr:[94:94->94:106]
+Complete src/CompletionInferValues.res 95:109
+posCursor:[95:109] posNoWhite:[95:108] Found expr:[95:97->95:109]
 Completable: Cpath Value[someInt]->toS
 [{
     "label": "Belt.Int.toString",
@@ -307,9 +307,9 @@ Completable: Cpath Value[someInt]->toS
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 98:99
-posCursor:[98:99] posNoWhite:[98:98] Found expr:[98:57->98:99]
-posCursor:[98:99] posNoWhite:[98:98] Found expr:[98:87->98:99]
+Complete src/CompletionInferValues.res 99:102
+posCursor:[99:102] posNoWhite:[99:101] Found expr:[99:57->99:102]
+posCursor:[99:102] posNoWhite:[99:101] Found expr:[99:90->99:102]
 Completable: Cpath Value[someInt]->toS
 [{
     "label": "Belt.Int.toString",
@@ -319,8 +319,8 @@ Completable: Cpath Value[someInt]->toS
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 102:85
-posCursor:[102:85] posNoWhite:[102:84] Found expr:[102:76->102:85]
+Complete src/CompletionInferValues.res 103:88
+posCursor:[103:88] posNoWhite:[103:87] Found expr:[103:79->103:88]
 Completable: Cpath Value[str]->slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -336,12 +336,29 @@ Completable: Cpath Value[str]->slic
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 109:26
-posCursor:[109:26] posNoWhite:[109:25] Found expr:[109:3->109:37]
-Pexp_apply ...[109:3->109:23] (...[109:24->109:36])
-posCursor:[109:26] posNoWhite:[109:25] Found expr:[109:24->109:36]
-posCursor:[109:26] posNoWhite:[109:25] Found pattern:[109:25->109:27]
-posCursor:[109:26] posNoWhite:[109:25] Found pattern:[109:25->109:27]
+Complete src/CompletionInferValues.res 107:89
+posCursor:[107:89] posNoWhite:[107:88] Found expr:[107:80->107:89]
+Completable: Cpath Value[str]->slic
+[{
+    "label": "Js.String2.sliceToEnd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, ~from: int) => t",
+    "documentation": {"kind": "markdown", "value": "\n`sliceToEnd(str, from:n)` returns the substring of `str` starting at character\n`n` to the end of the string.\n- If `n` is negative, then it is evaluated as `length(str - n)`.\n- If `n` is greater than the length of `str`, then sliceToEnd returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.sliceToEnd(\"abcdefg\", ~from=4) == \"efg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=-2) == \"fg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=7) == \"\"\n```\n"}
+  }, {
+    "label": "Js.String2.slice",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, ~from: int, ~to_: int) => t",
+    "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
+  }]
+
+Complete src/CompletionInferValues.res 115:26
+posCursor:[115:26] posNoWhite:[115:25] Found expr:[115:3->115:37]
+Pexp_apply ...[115:3->115:23] (...[115:24->115:36])
+posCursor:[115:26] posNoWhite:[115:25] Found expr:[115:24->115:36]
+posCursor:[115:26] posNoWhite:[115:25] Found pattern:[115:25->115:27]
+posCursor:[115:26] posNoWhite:[115:25] Found pattern:[115:25->115:27]
 Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->recordBody
 [{
     "label": "name",
