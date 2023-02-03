@@ -220,51 +220,79 @@ Completable: Cpath Value[x].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 72:135
-posCursor:[72:135] posNoWhite:[72:134] Found expr:[72:127->72:135]
-Pexp_field [72:127->72:134] _:[81:0->72:135]
+Complete src/CompletionInferValues.res 73:78
+posCursor:[73:78] posNoWhite:[73:77] Found expr:[73:70->73:78]
+Pexp_field [73:70->73:77] _:[88:0->73:78]
 Completable: Cpath Value[srecord].""
 [{
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\nsomeRecord",
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
     "documentation": null
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nsomeRecord",
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 75:143
-posCursor:[75:143] posNoWhite:[75:142] Found expr:[75:135->75:143]
-Pexp_field [75:135->75:142] _:[81:0->75:143]
+Complete src/CompletionInferValues.res 76:86
+posCursor:[76:86] posNoWhite:[76:85] Found expr:[76:78->76:86]
+Pexp_field [76:78->76:85] _:[88:0->76:86]
 Completable: Cpath Value[aliased].""
 [{
     "label": "someRecord",
     "kind": 5,
     "tags": [],
-    "detail": "someRecord: someRecord\n\nsomeNestedRecord",
+    "detail": "someRecord: someRecord\n\ntype someNestedRecord = {someRecord: someRecord}",
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 78:160
-posCursor:[78:160] posNoWhite:[78:159] Found expr:[78:149->78:160]
-Pexp_field [78:149->78:159] _:[81:0->78:160]
+Complete src/CompletionInferValues.res 79:103
+posCursor:[79:103] posNoWhite:[79:102] Found expr:[79:92->79:103]
+Pexp_field [79:92->79:102] _:[88:0->79:103]
 Completable: Cpath Value[someRecord].""
 [{
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\nsomeRecord",
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
     "documentation": null
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nsomeRecord",
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
     "documentation": null
+  }]
+
+Complete src/CompletionInferValues.res 82:81
+posCursor:[82:81] posNoWhite:[82:80] Found expr:[82:69->82:81]
+Completable: Cpath Value[things]->slic
+[{
+    "label": "Js.String2.sliceToEnd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, ~from: int) => t",
+    "documentation": {"kind": "markdown", "value": "\n`sliceToEnd(str, from:n)` returns the substring of `str` starting at character\n`n` to the end of the string.\n- If `n` is negative, then it is evaluated as `length(str - n)`.\n- If `n` is greater than the length of `str`, then sliceToEnd returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.sliceToEnd(\"abcdefg\", ~from=4) == \"efg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=-2) == \"fg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=7) == \"\"\n```\n"}
+  }, {
+    "label": "Js.String2.slice",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, ~from: int, ~to_: int) => t",
+    "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
+  }]
+
+Complete src/CompletionInferValues.res 85:82
+posCursor:[85:82] posNoWhite:[85:81] Found expr:[85:70->85:82]
+Completable: Cpath Value[someInt]->toS
+[{
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
