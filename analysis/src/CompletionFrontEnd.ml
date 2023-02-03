@@ -778,8 +778,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       cases
       |> List.iter (fun (case : Parsetree.case) ->
              let oldScope = !scope in
-             scopePattern ?contextPath:ctxPath case.pc_lhs;
              completePattern ?contextPath:ctxPath case.pc_lhs;
+             scopePattern ?contextPath:ctxPath case.pc_lhs;
              Ast_iterator.default_iterator.case iterator case;
              scope := oldScope);
       resetCurrentCtxPath oldCtxPath
