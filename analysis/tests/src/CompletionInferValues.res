@@ -120,6 +120,10 @@ type otherNestedRecord = {
 // let x: array<otherNestedRecord>; switch x { | [inner] => inner.s }
 //                                                                 ^com
 
+// Infer top level return
+// let x = 123; switch x { | 123 => () | v => v->toSt }
+//                                                   ^com
+
 let fnWithRecordCallback = (cb: someRecord => unit) => {
   let _ = cb
 }
