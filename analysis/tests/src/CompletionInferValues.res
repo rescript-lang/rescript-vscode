@@ -98,3 +98,11 @@ type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int)}
 // Same as above, but follow in switch case
 // let x: otherNestedRecord; switch x { | {someTuple} => let (_, someInt) = someTuple; someInt->toS }
 //                                                                                                 ^com
+
+let fnWithRecordCallback = (cb: someRecord => unit) => {
+  let _ = cb
+}
+
+// Complete pattern of function parameter
+// fnWithRecordCallback(({}) => {()})
+//                        ^com
