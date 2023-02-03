@@ -965,7 +965,6 @@ Resolved opens 2 Completion.res Completion.res
 []
 
 Complete src/Completion.res 243:8
-posCursor:[243:8] posNoWhite:[243:7] Found expr:[241:8->246:1]
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[242:14->243:8]
 Pexp_apply ...[243:3->243:4] (...[242:14->242:15], ...[243:5->243:8])
 posCursor:[243:8] posNoWhite:[243:7] Found expr:[243:5->243:8]
@@ -1385,7 +1384,6 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 343:57
-posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->346:23]
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->346:23]
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:53->343:57]
 Pexp_ident this:[343:53->343:57]
@@ -1445,7 +1443,6 @@ posCursor:[355:23] posNoWhite:[355:22] Found expr:[355:12->355:23]
 
 Complete src/Completion.res 362:8
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
-posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
@@ -1482,7 +1479,6 @@ Resolved opens 2 Completion.res Completion.res
 
 Complete src/Completion.res 373:21
 posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
-posCursor:[373:21] posNoWhite:[373:20] Found expr:[372:2->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
 Ppat_construct AndThatOther.T:[373:7->373:21]

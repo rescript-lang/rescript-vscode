@@ -222,7 +222,7 @@ Completable: Cpath Value[x].""
 
 Complete src/CompletionInferValues.res 74:78
 posCursor:[74:78] posNoWhite:[74:77] Found expr:[74:70->74:78]
-Pexp_field [74:70->74:77] _:[97:0->74:78]
+Pexp_field [74:70->74:77] _:[101:0->74:78]
 Completable: Cpath Value[srecord].""
 [{
     "label": "name",
@@ -240,7 +240,7 @@ Completable: Cpath Value[srecord].""
 
 Complete src/CompletionInferValues.res 78:86
 posCursor:[78:86] posNoWhite:[78:85] Found expr:[78:78->78:86]
-Pexp_field [78:78->78:85] _:[97:0->78:86]
+Pexp_field [78:78->78:85] _:[101:0->78:86]
 Completable: Cpath Value[aliased].""
 [{
     "label": "someRecord",
@@ -252,7 +252,7 @@ Completable: Cpath Value[aliased].""
 
 Complete src/CompletionInferValues.res 82:103
 posCursor:[82:103] posNoWhite:[82:102] Found expr:[82:92->82:103]
-Pexp_field [82:92->82:102] _:[97:0->82:103]
+Pexp_field [82:92->82:102] _:[101:0->82:103]
 Completable: Cpath Value[someRecord].""
 [{
     "label": "name",
@@ -298,6 +298,18 @@ Completable: Cpath Value[someInt]->toS
 
 Complete src/CompletionInferValues.res 94:106
 posCursor:[94:106] posNoWhite:[94:105] Found expr:[94:94->94:106]
+Completable: Cpath Value[someInt]->toS
+[{
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+  }]
+
+Complete src/CompletionInferValues.res 98:99
+posCursor:[98:99] posNoWhite:[98:98] Found expr:[98:57->98:99]
+posCursor:[98:99] posNoWhite:[98:98] Found expr:[98:87->98:99]
 Completable: Cpath Value[someInt]->toS
 [{
     "label": "Belt.Int.toString",
