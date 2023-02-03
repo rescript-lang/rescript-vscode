@@ -456,6 +456,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     scope :=
       !scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
   in
+  (* TODO: Can get rid of setLookingForPat soon *)
   let setLookingForPat ctxPath = lookingForPat := Some ctxPath in
   let inJsxContext = ref false in
 
@@ -1032,8 +1033,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (match defaultExpOpt with
           | None -> ()
           | Some defaultExp -> iterator.expr iterator defaultExp);
-          scopePattern ?contextPath:!currentCtxPath pat;
+          (match !currentCtxPath with
+          | None -> ()
+          | Some ctxPath -> setLookingForPat ctxPath);
           completePattern pat;
+          unsetLookingForPat ();
+          scopePattern ?contextPath:!currentCtxPath pat;
           iterator.pat iterator pat;
           iterator.expr iterator e;
           scope := oldScope;

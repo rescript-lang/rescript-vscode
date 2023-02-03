@@ -319,3 +319,24 @@ Completable: Cpath Value[someInt]->toS
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
+Complete src/CompletionInferValues.res 105:26
+posCursor:[105:26] posNoWhite:[105:25] Found expr:[105:3->105:37]
+Pexp_apply ...[105:3->105:23] (...[105:24->105:36])
+posCursor:[105:26] posNoWhite:[105:25] Found expr:[105:24->105:36]
+posCursor:[105:26] posNoWhite:[105:25] Found pattern:[105:25->105:27]
+posCursor:[105:26] posNoWhite:[105:25] Found pattern:[105:25->105:27]
+Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->recordBody
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\nsomeRecord",
+    "documentation": null
+  }]
+
