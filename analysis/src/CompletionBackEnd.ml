@@ -731,7 +731,8 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     | Some (typ, env) ->
       [
         Completion.create "dummy" ~env
-          ~kind:(Completion.ExtractedType (Toption (env, typ), `Type));
+          ~kind:
+            (Completion.ExtractedType (Toption (env, ExtractedType typ), `Type));
       ])
   | CPId (path, completionContext) ->
     path
@@ -1207,27 +1208,31 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
              ~env ())
     |> filterItems ~prefix
   | Toption (env, t) ->
-    let innerType = TypeUtils.unwrapCompletionTypeIfOption t in
+    let innerType =
+      match t with
+      | ExtractedType t -> Some t
+      | TypeExpr t -> t |> TypeUtils.extractType ~env ~package:full.package
+    in
     let expandedCompletions =
-      innerType
-      |> completeTypedValue ~full ~prefix ~completionContext ~mode
-      |> List.map (fun (c : Completion.t) ->
-             {
-               c with
-               name = "Some(" ^ c.name ^ ")";
-               sortText = None;
-               insertText =
-                 (match c.insertText with
-                 | None -> None
-                 | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
-             })
+      match innerType with
+      | None -> []
+      | Some innerType ->
+        innerType
+        |> completeTypedValue ~full ~prefix ~completionContext ~mode
+        |> List.map (fun (c : Completion.t) ->
+               {
+                 c with
+                 name = "Some(" ^ c.name ^ ")";
+                 sortText = None;
+                 insertText =
+                   (match c.insertText with
+                   | None -> None
+                   | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
+               })
     in
     [
-      Completion.create "None"
-        ~kind:(Label (t |> TypeUtils.extractedTypeToString))
-        ~env;
-      Completion.createWithSnippet ~name:"Some(_)"
-        ~kind:(Label (t |> TypeUtils.extractedTypeToString))
+      Completion.create "None" ~kind:(kindFromInnerType t) ~env;
+      Completion.createWithSnippet ~name:"Some(_)" ~kind:(kindFromInnerType t)
         ~env ~insertText:"Some(${1:_})" ();
     ]
     @ expandedCompletions
