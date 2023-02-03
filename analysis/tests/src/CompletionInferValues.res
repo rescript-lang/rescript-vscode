@@ -99,6 +99,9 @@ type otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int)}
 // let x: otherNestedRecord; switch x { | {someTuple} => let (_, someInt) = someTuple; someInt->toS }
 //                                                                                                 ^com
 
+// Follow variant payloads
+// let x: otherNestedRecord; switch x { | {someTuple:(Three(_, str), _)} => str->slic }
+//                                                                                   ^com
 let fnWithRecordCallback = (cb: someRecord => unit) => {
   let _ = cb
 }
