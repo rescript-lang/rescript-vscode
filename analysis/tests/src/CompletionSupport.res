@@ -22,3 +22,7 @@ module TestComponent = {
     React.null
   }
 }
+
+module Nested = {
+  type config = {root: ReactDOM.Client.Root.t}
+}
