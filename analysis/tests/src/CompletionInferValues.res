@@ -116,6 +116,10 @@ type otherNestedRecord = {
 // let x: otherNestedRecord; switch x { | {optRecord:Some({name})} => name->slic }
 //                                                                              ^com
 
+// Follow arrays
+// let x: array<otherNestedRecord>; switch x { | [inner] => inner.s }
+//                                                                 ^com
+
 let fnWithRecordCallback = (cb: someRecord => unit) => {
   let _ = cb
 }
