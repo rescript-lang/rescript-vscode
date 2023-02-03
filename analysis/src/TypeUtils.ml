@@ -358,6 +358,19 @@ let findTypeOfRecordField fields ~fieldName =
     let typ = if optional then Utils.unwrapIfOption typ else typ in
     Some typ
 
+let findTypeOfConstructorArg constructors ~constructorName ~payloadNum ~env =
+  match
+    constructors
+    |> List.find_opt (fun (c : Constructor.t) -> c.cname.txt = constructorName)
+  with
+  | Some {args = Args args} -> (
+    match List.nth_opt args payloadNum with
+    | None -> None
+    | Some (typ, _) -> Some (TypeExpr typ))
+  | Some {args = InlineRecord fields} when payloadNum = 0 ->
+    Some (ExtractedType (TinlineRecord {env; fields}))
+  | _ -> None
+
 let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
   let t =
     match typ with
@@ -380,6 +393,14 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
         match List.nth_opt tupleItems itemNum with
         | None -> None
         | Some typ -> Some (TypeExpr typ, env))
+      | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
+        -> (
+        match
+          constructors
+          |> findTypeOfConstructorArg ~constructorName ~payloadNum:itemNum ~env
+        with
+        | Some typ -> Some (typ, env)
+        | None -> None)
       | _ -> None))
   | patternPath :: nested -> (
     match t with
@@ -405,6 +426,14 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
           |> Utils.Option.flatMap (fun typ ->
                  ExtractedType typ
                  |> resolveNestedPatternPath ~env ~full ~nested))
+      | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
+        -> (
+        match
+          constructors
+          |> findTypeOfConstructorArg ~constructorName ~payloadNum:itemNum ~env
+        with
+        | Some typ -> typ |> resolveNestedPatternPath ~env ~full ~nested
+        | None -> None)
       | _ -> None))
 
 let getArgs ~env (t : Types.type_expr) ~full =

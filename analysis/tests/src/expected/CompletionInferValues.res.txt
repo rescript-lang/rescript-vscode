@@ -222,7 +222,7 @@ Completable: Cpath Value[x].""
 
 Complete src/CompletionInferValues.res 74:78
 posCursor:[74:78] posNoWhite:[74:77] Found expr:[74:70->74:78]
-Pexp_field [74:70->74:77] _:[101:0->74:78]
+Pexp_field [74:70->74:77] _:[104:0->74:78]
 Completable: Cpath Value[srecord].""
 [{
     "label": "name",
@@ -240,7 +240,7 @@ Completable: Cpath Value[srecord].""
 
 Complete src/CompletionInferValues.res 78:86
 posCursor:[78:86] posNoWhite:[78:85] Found expr:[78:78->78:86]
-Pexp_field [78:78->78:85] _:[101:0->78:86]
+Pexp_field [78:78->78:85] _:[104:0->78:86]
 Completable: Cpath Value[aliased].""
 [{
     "label": "someRecord",
@@ -252,7 +252,7 @@ Completable: Cpath Value[aliased].""
 
 Complete src/CompletionInferValues.res 82:103
 posCursor:[82:103] posNoWhite:[82:102] Found expr:[82:92->82:103]
-Pexp_field [82:92->82:102] _:[101:0->82:103]
+Pexp_field [82:92->82:102] _:[104:0->82:103]
 Completable: Cpath Value[someRecord].""
 [{
     "label": "name",
@@ -319,12 +319,29 @@ Completable: Cpath Value[someInt]->toS
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 105:26
-posCursor:[105:26] posNoWhite:[105:25] Found expr:[105:3->105:37]
-Pexp_apply ...[105:3->105:23] (...[105:24->105:36])
-posCursor:[105:26] posNoWhite:[105:25] Found expr:[105:24->105:36]
-posCursor:[105:26] posNoWhite:[105:25] Found pattern:[105:25->105:27]
-posCursor:[105:26] posNoWhite:[105:25] Found pattern:[105:25->105:27]
+Complete src/CompletionInferValues.res 102:85
+posCursor:[102:85] posNoWhite:[102:84] Found expr:[102:76->102:85]
+Completable: Cpath Value[str]->slic
+[{
+    "label": "Js.String2.sliceToEnd",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, ~from: int) => t",
+    "documentation": {"kind": "markdown", "value": "\n`sliceToEnd(str, from:n)` returns the substring of `str` starting at character\n`n` to the end of the string.\n- If `n` is negative, then it is evaluated as `length(str - n)`.\n- If `n` is greater than the length of `str`, then sliceToEnd returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.sliceToEnd(\"abcdefg\", ~from=4) == \"efg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=-2) == \"fg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=7) == \"\"\n```\n"}
+  }, {
+    "label": "Js.String2.slice",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, ~from: int, ~to_: int) => t",
+    "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
+  }]
+
+Complete src/CompletionInferValues.res 109:26
+posCursor:[109:26] posNoWhite:[109:25] Found expr:[109:3->109:37]
+Pexp_apply ...[109:3->109:23] (...[109:24->109:36])
+posCursor:[109:26] posNoWhite:[109:25] Found expr:[109:24->109:36]
+posCursor:[109:26] posNoWhite:[109:25] Found pattern:[109:25->109:27]
+posCursor:[109:26] posNoWhite:[109:25] Found pattern:[109:25->109:27]
 Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->recordBody
 [{
     "label": "name",
