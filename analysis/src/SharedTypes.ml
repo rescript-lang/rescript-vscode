@@ -302,7 +302,7 @@ and completionType =
   | Texn of QueryEnv.t
   | Toption of QueryEnv.t * innerType
   | Tbool of QueryEnv.t
-  | Tarray of QueryEnv.t * completionType
+  | Tarray of QueryEnv.t * innerType
   | Tstring of QueryEnv.t
   | Tvariant of {
       env: QueryEnv.t;
