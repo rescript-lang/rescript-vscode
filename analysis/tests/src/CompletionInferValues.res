@@ -25,7 +25,6 @@ let reactEventFn = (cb: ReactEvent.Mouse.t => unit) => {
 // someFnWithCallback((~someRecord, ~num, ~isOn) => someRecord.)
 //                                                             ^com
 
-// Broken because not using the first argument (argument context seems to pile on when they should be plucked off and new one added)
 // let aliasedFn = someFnWithCallback; aliasedFn((~num, ~someRecord, ~isOn) => someRecord.)
 //                                                                                        ^com
 
