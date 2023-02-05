@@ -147,3 +147,11 @@ let fn3 = (~cb: sameFileRecord => unit) => {
 
 // fn3(~cb=({root}) => {root-> })
 //                            ^com
+
+// Handles pipe chains as input for switch
+// let x = 123; switch x->Belt.Int.toString { | }
+//                                             ^com
+
+// Handles pipe chains as input for switch
+// let x = 123; switch x->Belt.Int.toString->Js.String2.split("/") { | }
+//                                                                    ^com

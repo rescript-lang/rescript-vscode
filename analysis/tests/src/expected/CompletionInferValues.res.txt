@@ -468,3 +468,31 @@ Completable: Cpath Value[root]->
     "documentation": null
   }]
 
+Complete src/CompletionInferValues.res 151:47
+XXX Not found!
+Completable: Cpattern Value[Belt, Int, toString](Nolabel)
+[{
+    "label": "\"\"",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "\"$0\"",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionInferValues.res 155:70
+XXX Not found!
+Completable: Cpattern Value[Js, String2, split](Nolabel, Nolabel)
+[{
+    "label": "[]",
+    "kind": 12,
+    "tags": [],
+    "detail": "t",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "[$0]",
+    "insertTextFormat": 2
+  }]
+
