@@ -17,7 +17,7 @@ Completable: Cpath Value[aliased]->f
 
 Complete src/CompletionInferValues.res 18:30
 posCursor:[18:30] posNoWhite:[18:29] Found expr:[18:28->18:30]
-Pexp_field [18:28->18:29] _:[34:0->18:30]
+Pexp_field [18:28->18:29] _:[33:0->18:30]
 Completable: Cpath Value[x].""
 [{
     "label": "name",
@@ -35,7 +35,7 @@ Completable: Cpath Value[x].""
 
 Complete src/CompletionInferValues.res 21:53
 posCursor:[21:53] posNoWhite:[21:52] Found expr:[21:45->21:53]
-Pexp_field [21:45->21:52] _:[34:0->21:53]
+Pexp_field [21:45->21:52] _:[33:0->21:53]
 Completable: Cpath Value[aliased].""
 [{
     "label": "name",
@@ -74,22 +74,34 @@ Completable: Cpath Value[someRecord].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 28:90
-posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:39->28:91]
-Pexp_apply ...[28:39->28:48] (...[28:49->28:90])
-posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:49->28:90]
-posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:56->28:90]
-posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:69->28:90]
-posCursor:[28:90] posNoWhite:[28:89] Found expr:[28:79->28:90]
-Pexp_field [28:79->28:89] _:[28:90->28:90]
+Complete src/CompletionInferValues.res 27:90
+posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:39->27:91]
+Pexp_apply ...[27:39->27:48] (...[27:49->27:90])
+posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:49->27:90]
+posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:56->27:90]
+posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:69->27:90]
+posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:79->27:90]
+Pexp_field [27:79->27:89] _:[27:90->27:90]
 Completable: Cpath Value[someRecord].""
-[]
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }]
 
-Complete src/CompletionInferValues.res 31:36
-posCursor:[31:36] posNoWhite:[31:35] Found expr:[31:3->31:39]
-Pexp_apply ...[31:3->31:15] (...[31:16->31:38])
-posCursor:[31:36] posNoWhite:[31:35] Found expr:[31:16->31:38]
-posCursor:[31:36] posNoWhite:[31:35] Found expr:[31:27->31:36]
+Complete src/CompletionInferValues.res 30:36
+posCursor:[30:36] posNoWhite:[30:35] Found expr:[30:3->30:39]
+Pexp_apply ...[30:3->30:15] (...[30:16->30:38])
+posCursor:[30:36] posNoWhite:[30:35] Found expr:[30:16->30:38]
+posCursor:[30:36] posNoWhite:[30:35] Found expr:[30:27->30:36]
 Completable: Cpath Value[event]->pr
 [{
     "label": "ReactEvent.Mouse.preventDefault",
@@ -99,11 +111,11 @@ Completable: Cpath Value[event]->pr
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 42:50
-posCursor:[42:50] posNoWhite:[42:49] Found expr:[42:12->42:56]
-JSX <div:[42:12->42:15] onMouseEnter[42:16->42:28]=...[42:36->42:52]> _children:42:54
-posCursor:[42:50] posNoWhite:[42:49] Found expr:[42:36->42:52]
-posCursor:[42:50] posNoWhite:[42:49] Found expr:[42:41->42:50]
+Complete src/CompletionInferValues.res 41:50
+posCursor:[41:50] posNoWhite:[41:49] Found expr:[41:12->41:56]
+JSX <div:[41:12->41:15] onMouseEnter[41:16->41:28]=...[41:36->41:52]> _children:41:54
+posCursor:[41:50] posNoWhite:[41:49] Found expr:[41:36->41:52]
+posCursor:[41:50] posNoWhite:[41:49] Found expr:[41:41->41:50]
 Completable: Cpath Value[event]->pr <<jsx>>
 [{
     "label": "JsxEvent.Mouse.preventDefault",
@@ -113,11 +125,11 @@ Completable: Cpath Value[event]->pr <<jsx>>
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 45:50
-posCursor:[45:50] posNoWhite:[45:49] Found expr:[45:12->45:56]
-JSX <Div:[45:12->45:15] onMouseEnter[45:16->45:28]=...[45:36->45:52]> _children:45:54
-posCursor:[45:50] posNoWhite:[45:49] Found expr:[45:36->45:52]
-posCursor:[45:50] posNoWhite:[45:49] Found expr:[45:41->45:50]
+Complete src/CompletionInferValues.res 44:50
+posCursor:[44:50] posNoWhite:[44:49] Found expr:[44:12->44:56]
+JSX <Div:[44:12->44:15] onMouseEnter[44:16->44:28]=...[44:36->44:52]> _children:44:54
+posCursor:[44:50] posNoWhite:[44:49] Found expr:[44:36->44:52]
+posCursor:[44:50] posNoWhite:[44:49] Found expr:[44:41->44:50]
 Completable: Cpath Value[event]->pr <<jsx>>
 [{
     "label": "JsxEvent.Mouse.preventDefault",
@@ -127,12 +139,12 @@ Completable: Cpath Value[event]->pr <<jsx>>
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 48:87
-posCursor:[48:87] posNoWhite:[48:86] Found expr:[48:12->48:93]
-JSX <div:[48:12->48:15] onMouseEnter[48:16->48:28]=...[48:36->48:89]> _children:48:91
-posCursor:[48:87] posNoWhite:[48:86] Found expr:[48:36->48:89]
-posCursor:[48:87] posNoWhite:[48:86] Found expr:[48:41->48:87]
-posCursor:[48:87] posNoWhite:[48:86] Found expr:[48:81->48:87]
+Complete src/CompletionInferValues.res 47:87
+posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:12->47:93]
+JSX <div:[47:12->47:15] onMouseEnter[47:16->47:28]=...[47:36->47:89]> _children:47:91
+posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:36->47:89]
+posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:41->47:87]
+posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:81->47:87]
 Completable: Cpath Value[btn]->t <<jsx>>
 [{
     "label": "Belt.Int.toString",
@@ -148,12 +160,12 @@ Completable: Cpath Value[btn]->t <<jsx>>
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 51:108
-posCursor:[51:108] posNoWhite:[51:107] Found expr:[51:12->51:114]
-JSX <div:[51:12->51:15] onMouseEnter[51:16->51:28]=...[51:36->51:110]> _children:51:112
-posCursor:[51:108] posNoWhite:[51:107] Found expr:[51:36->51:110]
-posCursor:[51:108] posNoWhite:[51:107] Found expr:[51:41->51:108]
-posCursor:[51:108] posNoWhite:[51:107] Found expr:[51:100->51:108]
+Complete src/CompletionInferValues.res 50:108
+posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:12->50:114]
+JSX <div:[50:12->50:15] onMouseEnter[50:16->50:28]=...[50:36->50:110]> _children:50:112
+posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:36->50:110]
+posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:41->50:108]
+posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:100->50:108]
 Completable: Cpath Value[btn]->spl <<jsx>>
 [{
     "label": "Js.String2.splitAtMost",
@@ -181,12 +193,12 @@ Completable: Cpath Value[btn]->spl <<jsx>>
     "documentation": {"kind": "markdown", "value": "\n`splitByReAtMost(str, regex, ~limit:n)` splits the given `str` at every\noccurrence of `regex` and returns an array of the first `n` resulting\nsubstrings. If `n` is negative or greater than the number of substrings, the\narray will contain all the substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=3) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n  ]\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=0) == []\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=8) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n    Some(\"four\"),\n  ]\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 54:130
-posCursor:[54:130] posNoWhite:[54:129] Found expr:[54:12->54:136]
-JSX <div:[54:12->54:15] onMouseEnter[54:16->54:28]=...[54:36->54:132]> _children:54:134
-posCursor:[54:130] posNoWhite:[54:129] Found expr:[54:36->54:132]
-posCursor:[54:130] posNoWhite:[54:129] Found expr:[54:41->54:130]
-posCursor:[54:130] posNoWhite:[54:129] Found expr:[54:123->54:130]
+Complete src/CompletionInferValues.res 53:130
+posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:12->53:136]
+JSX <div:[53:12->53:15] onMouseEnter[53:16->53:28]=...[53:36->53:132]> _children:53:134
+posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:36->53:132]
+posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:41->53:130]
+posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:123->53:130]
 Completable: Cpath Value[btn]->ma <<jsx>>
 [{
     "label": "Js.Array2.mapi",
@@ -202,9 +214,9 @@ Completable: Cpath Value[btn]->ma <<jsx>>
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 57:52
-posCursor:[57:52] posNoWhite:[57:51] Found expr:[57:50->57:52]
-Pexp_field [57:50->57:51] _:[60:0->57:52]
+Complete src/CompletionInferValues.res 56:52
+posCursor:[56:52] posNoWhite:[56:51] Found expr:[56:50->56:52]
+Pexp_field [56:50->56:51] _:[59:0->56:52]
 Completable: Cpath Value[x].""
 [{
     "label": "name",
@@ -220,9 +232,9 @@ Completable: Cpath Value[x].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 79:78
-posCursor:[79:78] posNoWhite:[79:77] Found expr:[79:70->79:78]
-Pexp_field [79:70->79:77] _:[126:0->79:78]
+Complete src/CompletionInferValues.res 78:78
+posCursor:[78:78] posNoWhite:[78:77] Found expr:[78:70->78:78]
+Pexp_field [78:70->78:77] _:[125:0->78:78]
 Completable: Cpath Value[srecord].""
 [{
     "label": "name",
@@ -238,9 +250,9 @@ Completable: Cpath Value[srecord].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 83:86
-posCursor:[83:86] posNoWhite:[83:85] Found expr:[83:78->83:86]
-Pexp_field [83:78->83:85] _:[126:0->83:86]
+Complete src/CompletionInferValues.res 82:86
+posCursor:[82:86] posNoWhite:[82:85] Found expr:[82:78->82:86]
+Pexp_field [82:78->82:85] _:[125:0->82:86]
 Completable: Cpath Value[aliased].""
 [{
     "label": "someRecord",
@@ -250,9 +262,9 @@ Completable: Cpath Value[aliased].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 87:103
-posCursor:[87:103] posNoWhite:[87:102] Found expr:[87:92->87:103]
-Pexp_field [87:92->87:102] _:[126:0->87:103]
+Complete src/CompletionInferValues.res 86:103
+posCursor:[86:103] posNoWhite:[86:102] Found expr:[86:92->86:103]
+Pexp_field [86:92->86:102] _:[125:0->86:103]
 Completable: Cpath Value[someRecord].""
 [{
     "label": "name",
@@ -268,8 +280,8 @@ Completable: Cpath Value[someRecord].""
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 91:81
-posCursor:[91:81] posNoWhite:[91:80] Found expr:[91:69->91:81]
+Complete src/CompletionInferValues.res 90:81
+posCursor:[90:81] posNoWhite:[90:80] Found expr:[90:69->90:81]
 Completable: Cpath Value[things]->slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -285,8 +297,8 @@ Completable: Cpath Value[things]->slic
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 95:82
-posCursor:[95:82] posNoWhite:[95:81] Found expr:[95:70->95:82]
+Complete src/CompletionInferValues.res 94:82
+posCursor:[94:82] posNoWhite:[94:81] Found expr:[94:70->94:82]
 Completable: Cpath Value[someInt]->toS
 [{
     "label": "Belt.Int.toString",
@@ -296,8 +308,8 @@ Completable: Cpath Value[someInt]->toS
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 99:109
-posCursor:[99:109] posNoWhite:[99:108] Found expr:[99:97->99:109]
+Complete src/CompletionInferValues.res 98:109
+posCursor:[98:109] posNoWhite:[98:108] Found expr:[98:97->98:109]
 Completable: Cpath Value[someInt]->toS
 [{
     "label": "Belt.Int.toString",
@@ -307,9 +319,9 @@ Completable: Cpath Value[someInt]->toS
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 103:102
-posCursor:[103:102] posNoWhite:[103:101] Found expr:[103:57->103:102]
-posCursor:[103:102] posNoWhite:[103:101] Found expr:[103:90->103:102]
+Complete src/CompletionInferValues.res 102:102
+posCursor:[102:102] posNoWhite:[102:101] Found expr:[102:57->102:102]
+posCursor:[102:102] posNoWhite:[102:101] Found expr:[102:90->102:102]
 Completable: Cpath Value[someInt]->toS
 [{
     "label": "Belt.Int.toString",
@@ -319,8 +331,8 @@ Completable: Cpath Value[someInt]->toS
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 107:88
-posCursor:[107:88] posNoWhite:[107:87] Found expr:[107:79->107:88]
+Complete src/CompletionInferValues.res 106:88
+posCursor:[106:88] posNoWhite:[106:87] Found expr:[106:79->106:88]
 Completable: Cpath Value[str]->slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -336,8 +348,8 @@ Completable: Cpath Value[str]->slic
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 111:89
-posCursor:[111:89] posNoWhite:[111:88] Found expr:[111:80->111:89]
+Complete src/CompletionInferValues.res 110:89
+posCursor:[110:89] posNoWhite:[110:88] Found expr:[110:80->110:89]
 Completable: Cpath Value[str]->slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -353,8 +365,8 @@ Completable: Cpath Value[str]->slic
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 115:80
-posCursor:[115:80] posNoWhite:[115:79] Found expr:[115:70->115:80]
+Complete src/CompletionInferValues.res 114:80
+posCursor:[114:80] posNoWhite:[114:79] Found expr:[114:70->114:80]
 Completable: Cpath Value[name]->slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -370,9 +382,9 @@ Completable: Cpath Value[name]->slic
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
-Complete src/CompletionInferValues.res 119:67
-posCursor:[119:67] posNoWhite:[119:66] Found expr:[119:60->119:67]
-Pexp_field [119:60->119:65] s:[119:66->119:67]
+Complete src/CompletionInferValues.res 118:67
+posCursor:[118:67] posNoWhite:[118:66] Found expr:[118:60->118:67]
+Pexp_field [118:60->118:65] s:[118:66->118:67]
 Completable: Cpath Value[inner].s
 [{
     "label": "someRecord",
@@ -388,8 +400,8 @@ Completable: Cpath Value[inner].s
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 123:53
-posCursor:[123:53] posNoWhite:[123:52] Found expr:[123:46->123:53]
+Complete src/CompletionInferValues.res 122:53
+posCursor:[122:53] posNoWhite:[122:52] Found expr:[122:46->122:53]
 Completable: Cpath Value[v]->toSt
 [{
     "label": "Belt.Int.toString",
@@ -399,12 +411,12 @@ Completable: Cpath Value[v]->toSt
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
-Complete src/CompletionInferValues.res 131:26
-posCursor:[131:26] posNoWhite:[131:25] Found expr:[131:3->131:37]
-Pexp_apply ...[131:3->131:23] (...[131:24->131:36])
-posCursor:[131:26] posNoWhite:[131:25] Found expr:[131:24->131:36]
-posCursor:[131:26] posNoWhite:[131:25] Found pattern:[131:25->131:27]
-posCursor:[131:26] posNoWhite:[131:25] Found pattern:[131:25->131:27]
+Complete src/CompletionInferValues.res 130:26
+posCursor:[130:26] posNoWhite:[130:25] Found expr:[130:3->130:37]
+Pexp_apply ...[130:3->130:23] (...[130:24->130:36])
+posCursor:[130:26] posNoWhite:[130:25] Found expr:[130:24->130:36]
+posCursor:[130:26] posNoWhite:[130:25] Found pattern:[130:25->130:27]
+posCursor:[130:26] posNoWhite:[130:25] Found pattern:[130:25->130:27]
 Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->recordBody
 [{
     "label": "name",
@@ -420,12 +432,12 @@ Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->r
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 138:30
-posCursor:[138:30] posNoWhite:[138:29] Found expr:[138:3->138:33]
-Pexp_apply ...[138:3->138:6] (~cb138:8->138:10=...[138:11->138:32])
-posCursor:[138:30] posNoWhite:[138:29] Found expr:[138:11->138:32]
-posCursor:[138:30] posNoWhite:[138:29] Found expr:[138:24->0:-1]
-posCursor:[138:30] posNoWhite:[138:29] Found expr:[138:24->0:-1]
+Complete src/CompletionInferValues.res 137:30
+posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:3->137:33]
+Pexp_apply ...[137:3->137:6] (~cb137:8->137:10=...[137:11->137:32])
+posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:11->137:32]
+posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:24->0:-1]
+posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:24->0:-1]
 Completable: Cpath Value[root]->
 [{
     "label": "ReactDOM.Client.Root.unmount",
@@ -441,12 +453,12 @@ Completable: Cpath Value[root]->
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 147:30
-posCursor:[147:30] posNoWhite:[147:29] Found expr:[147:3->147:33]
-Pexp_apply ...[147:3->147:6] (~cb147:8->147:10=...[147:11->147:32])
-posCursor:[147:30] posNoWhite:[147:29] Found expr:[147:11->147:32]
-posCursor:[147:30] posNoWhite:[147:29] Found expr:[147:24->0:-1]
-posCursor:[147:30] posNoWhite:[147:29] Found expr:[147:24->0:-1]
+Complete src/CompletionInferValues.res 146:30
+posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:3->146:33]
+Pexp_apply ...[146:3->146:6] (~cb146:8->146:10=...[146:11->146:32])
+posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:11->146:32]
+posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:24->0:-1]
+posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:24->0:-1]
 Completable: Cpath Value[root]->
 [{
     "label": "CompletionSupport.Test.add",
@@ -468,7 +480,7 @@ Completable: Cpath Value[root]->
     "documentation": null
   }]
 
-Complete src/CompletionInferValues.res 151:47
+Complete src/CompletionInferValues.res 150:47
 XXX Not found!
 Completable: Cpattern Value[Belt, Int, toString](Nolabel)
 [{
@@ -482,7 +494,7 @@ Completable: Cpattern Value[Belt, Int, toString](Nolabel)
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionInferValues.res 155:70
+Complete src/CompletionInferValues.res 154:70
 XXX Not found!
 Completable: Cpattern Value[Js, String2, split](Nolabel, Nolabel)
 [{
