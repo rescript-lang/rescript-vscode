@@ -905,8 +905,19 @@ Completable: Cpattern Value[s]->tuple($1)
   }]
 
 Complete src/CompletionPattern.res 201:25
-posCursor:[201:25] posNoWhite:[201:24] Found expr:[201:3->201:28]
+posCursor:[201:25] posNoWhite:[201:24] Found expr:[201:3->204:25]
 posCursor:[201:25] posNoWhite:[201:24] Found pattern:[201:17->201:28]
 Completable: Cpattern Value[ff]->recordField(someFn)
 []
+
+Complete src/CompletionPattern.res 206:16
+XXX Not found!
+Completable: Cpattern Value[xn]
+[{
+    "label": "Js.Exn.Error(error)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Catches errors from JavaScript errors.",
+    "documentation": {"kind": "markdown", "value": "Matches on a JavaScript error. Read more in the [documentation on catching JS exceptions](https://rescript-lang.org/docs/manual/latest/exception#catching-js-exceptions)."}
+  }]
 

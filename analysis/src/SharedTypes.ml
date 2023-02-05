@@ -298,6 +298,7 @@ type polyVariantConstructor = {name: string; args: Types.type_expr list}
 type completionType =
   | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
   | Toption of QueryEnv.t * completionType
+  | Texn of QueryEnv.t
   | Tbool of QueryEnv.t
   | Tarray of QueryEnv.t * completionType
   | Tstring of QueryEnv.t
@@ -519,6 +520,7 @@ type builtInCompletionModules = {
   promiseModulePath: string list;
   listModulePath: string list;
   resultModulePath: string list;
+  exnModulePath: string list;
 }
 
 type package = {
