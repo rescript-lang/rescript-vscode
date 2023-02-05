@@ -268,6 +268,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
 
   let currentCtxPath = ref None in
+  let processingFun = ref None in
   let setCurrentCtxPath ctxPath =
     if !Cfg.debugFollowCtxPath then
       Printf.printf "setting current ctxPath: %s\n"
@@ -1010,25 +1011,27 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
         | Pexp_fun (lbl, defaultExpOpt, pat, e) ->
           let oldScope = !scope in
           let oldCtxPath = !currentCtxPath in
-          (* TODO: Haven't figured out how to count unlabelled args here yet... *)
-          (* TODO: This is broken. I'm trying to set the CArgument context path
-             below here continuously for each argument as I traverse the expr
-             for the arg, but I end up piling them on each other. So what should
-             be Carg $0, then Carg $1, then Carg $3... is now (faulty) Carg $0,
-             then Carg Carg $0 $1, then Carg Carg Carg $0 $1 $2, and so on. *)
-          (match !currentCtxPath with
+          (match (!processingFun, !currentCtxPath) with
+          | None, Some ctxPath -> processingFun := Some (ctxPath, 0)
+          | _ -> ());
+          (match !processingFun with
           | None -> ()
-          | Some ctxPath ->
+          | Some (ctxPath, currentUnlabelledCount) -> (
             setCurrentCtxPath
               (CArgument
                  {
                    functionContextPath = ctxPath;
                    argumentLabel =
                      (match lbl with
-                     | Nolabel -> Unlabelled {argumentPosition = 0}
+                     | Nolabel ->
+                       Unlabelled {argumentPosition = currentUnlabelledCount}
                      | Optional name -> Optional name
                      | Labelled name -> Labelled name);
-                 }));
+                 });
+            processingFun :=
+              match lbl with
+              | Nolabel -> Some (ctxPath, currentUnlabelledCount + 1)
+              | _ -> Some (ctxPath, currentUnlabelledCount)));
           (match defaultExpOpt with
           | None -> ()
           | Some defaultExp -> iterator.expr iterator defaultExp);
