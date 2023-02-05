@@ -37,7 +37,7 @@ interface extensionConfiguration {
   binaryPath: string | null;
   platformPath: string | null;
   signatureHelp: {
-    enable: boolean;
+    enabled: boolean;
   };
 }
 
@@ -63,7 +63,7 @@ let extensionConfiguration: extensionConfiguration = {
   binaryPath: null,
   platformPath: null,
   signatureHelp: {
-    enable: false,
+    enabled: true,
   },
 };
 // Below here is some state that's not important exactly how long it lives.
@@ -1145,7 +1145,7 @@ function onMessage(msg: p.Message) {
                 workDoneProgress: false,
               }
             : undefined,
-          signatureHelpProvider: extensionConfiguration.signatureHelp?.enable
+          signatureHelpProvider: extensionConfiguration.signatureHelp?.enabled
             ? {
                 triggerCharacters: ["("],
                 retriggerCharacters: ["=", ","],

@@ -16,6 +16,10 @@
 
 - Enable completion for `Js.Exn.Error(error)` when pattern matching on `exn`. This is to make the `Js.Exn.Error` API more discoverable. https://github.com/rescript-lang/rescript-vscode/pull/728
 
+#### :nail_care: Polish
+
+- Signature Help is now considered stable, and enabled for all users. Can still be turned off in settings.
+
 ## 1.12.0
 
 #### :rocket: New Feature

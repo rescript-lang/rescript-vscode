@@ -158,10 +158,10 @@
 					"default": false,
 					"description": "Enable (experimental) code lens for function definitions."
 				},
-				"rescript.settings.signatureHelp.enable": {
+				"rescript.settings.signatureHelp.enabled": {
 					"type": "boolean",
-					"default": false,
-					"description": "Enable (experimental) signature help for function calls."
+					"default": true,
+					"description": "Enable signature help for function calls."
 				},
 				"rescript.settings.binaryPath": {
 					"type": ["string", "null"],
