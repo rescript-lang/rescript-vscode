@@ -161,6 +161,33 @@ let rec exprToContextPath (e : Parsetree.expression) =
     match exprToContextPath e1 with
     | None -> None
     | Some contexPath -> Some (CPObj (contexPath, txt)))
+  | Pexp_apply
+      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+        [
+          (_, lhs);
+          (_, {pexp_desc = Pexp_apply (d, args); pexp_loc; pexp_attributes});
+        ] ) ->
+    (* Transform away pipe with apply call *)
+    exprToContextPath
+      {
+        pexp_desc = Pexp_apply (d, (Nolabel, lhs) :: args);
+        pexp_loc;
+        pexp_attributes;
+      }
+  | Pexp_apply
+      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+        [(_, lhs); (_, {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes})]
+      ) ->
+    (* Transform away pipe with identifier *)
+    exprToContextPath
+      {
+        pexp_desc =
+          Pexp_apply
+            ( {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes},
+              [(Nolabel, lhs)] );
+        pexp_loc;
+        pexp_attributes;
+      }
   | Pexp_apply (e1, args) -> (
     match exprToContextPath e1 with
     | None -> None
@@ -185,33 +212,14 @@ let completePipeChain (exp : Parsetree.expression) =
      Example: someArray->Js.Array2.map(v => v + 2)-> *)
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
-        [
-          (_, lhs);
-          (_, {pexp_desc = Pexp_apply (d, args); pexp_loc; pexp_attributes});
-        ] ) ->
-    exprToContextPath
-      {
-        pexp_desc = Pexp_apply (d, (Nolabel, lhs) :: args);
-        pexp_loc;
-        pexp_attributes;
-      }
-    |> Option.map (fun ctxPath -> (ctxPath, d.pexp_loc))
+        [_; (_, {pexp_desc = Pexp_apply (d, _)})] ) ->
+    exprToContextPath exp |> Option.map (fun ctxPath -> (ctxPath, d.pexp_loc))
     (* When the left side of the pipe we're completing is an identifier application.
        Example: someArray->filterAllTheGoodStuff-> *)
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
-        [(_, lhs); (_, {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes})]
-      ) ->
-    exprToContextPath
-      {
-        pexp_desc =
-          Pexp_apply
-            ( {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes},
-              [(Nolabel, lhs)] );
-        pexp_loc;
-        pexp_attributes;
-      }
-    |> Option.map (fun ctxPath -> (ctxPath, pexp_loc))
+        [_; (_, {pexp_desc = Pexp_ident _; pexp_loc})] ) ->
+    exprToContextPath exp |> Option.map (fun ctxPath -> (ctxPath, pexp_loc))
   | _ -> None
 
 let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
