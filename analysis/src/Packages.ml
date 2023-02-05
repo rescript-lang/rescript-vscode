@@ -111,6 +111,7 @@ let newBsPackage ~rootPath =
                     promiseModulePath = ["Promise"];
                     listModulePath = ["List"];
                     resultModulePath = ["Result"];
+                    exnModulePath = ["Exn"];
                   }
                  else if
                  opens_from_bsc_flags
@@ -129,6 +130,7 @@ let newBsPackage ~rootPath =
                      promiseModulePath = ["Js"; "Promise"];
                      listModulePath = ["List"];
                      resultModulePath = ["Result"];
+                     exnModulePath = ["Js"; "Exn"];
                    }
                  else
                    {
@@ -140,6 +142,7 @@ let newBsPackage ~rootPath =
                      promiseModulePath = ["Js"; "Promise"];
                      listModulePath = ["Belt"; "List"];
                      resultModulePath = ["Belt"; "Result"];
+                     exnModulePath = ["Js"; "Exn"];
                    });
              })))
     | None -> None)

@@ -1277,7 +1277,21 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
           ^ if !Cfg.supportsSnippets then "{$0}" else "{}")
         ~sortText:"A" ~kind:(Value typ) ~env ();
     ]
-  | _ -> []
+  | Tfunction _ -> []
+  | Texn env ->
+    [
+      Completion.create
+        (full.package.builtInCompletionModules.exnModulePath @ ["Error(error)"]
+        |> ident)
+        ~kind:(Label "Catches errors from JavaScript errors.")
+        ~docstring:
+          [
+            "Matches on a JavaScript error. Read more in the [documentation on \
+             catching JS \
+             exceptions](https://rescript-lang.org/docs/manual/latest/exception#catching-js-exceptions).";
+          ]
+        ~env;
+    ]
 
 let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
     (completable : Completable.t) =

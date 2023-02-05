@@ -119,6 +119,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     |> Option.map (fun payloadTyp -> Tarray (env, payloadTyp))
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
   | Tconstr (Path.Pident {name = "string"}, [], _) -> Some (Tstring env)
+  | Tconstr (Path.Pident {name = "exn"}, [], _) -> Some (Texn env)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
@@ -421,6 +422,7 @@ let rec extractedTypeToString ?(inner = false) = function
   | Trecord {definition = `NameOnly name; fields} ->
     if inner then name else printRecordFromFields ~name fields
   | TinlineRecord {fields} -> printRecordFromFields fields
+  | Texn _ -> "exn"
 
 let unwrapCompletionTypeIfOption (t : SharedTypes.completionType) =
   match t with

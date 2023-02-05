@@ -201,3 +201,8 @@ let ff: recordWithFn = {someFn: () => ()}
 
 // switch ff { | {someFn: }}
 //                       ^com
+
+let xn: exn = Obj.magic()
+
+// switch xn { | }
+//              ^com
