@@ -802,7 +802,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
       (* Case foo-> when the parser adds a ghost expression to the rhs
          so the apply expression does not include the cursor *)
       if setPipeResult ~lhs ~id:"" then setFound ()
-    | _ ->
+    | _ -> (
       if expr.pexp_loc |> Loc.hasPos ~pos:posNoWhite && !result = None then (
         setFound ();
         match expr.pexp_desc with
@@ -1010,38 +1010,37 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             | None -> ())
         | Pexp_fun (lbl, defaultExpOpt, pat, e) ->
           let oldScope = !scope in
-          let oldCtxPath = !currentCtxPath in
           (match (!processingFun, !currentCtxPath) with
           | None, Some ctxPath -> processingFun := Some (ctxPath, 0)
           | _ -> ());
-          (match !processingFun with
-          | None -> ()
-          | Some (ctxPath, currentUnlabelledCount) -> (
-            setCurrentCtxPath
-              (CArgument
-                 {
-                   functionContextPath = ctxPath;
-                   argumentLabel =
-                     (match lbl with
-                     | Nolabel ->
-                       Unlabelled {argumentPosition = currentUnlabelledCount}
-                     | Optional name -> Optional name
-                     | Labelled name -> Labelled name);
-                 });
-            processingFun :=
-              match lbl with
-              | Nolabel -> Some (ctxPath, currentUnlabelledCount + 1)
-              | _ -> Some (ctxPath, currentUnlabelledCount)));
+          let argContextPath =
+            match !processingFun with
+            | None -> None
+            | Some (ctxPath, currentUnlabelledCount) ->
+              (processingFun :=
+                 match lbl with
+                 | Nolabel -> Some (ctxPath, currentUnlabelledCount + 1)
+                 | _ -> Some (ctxPath, currentUnlabelledCount));
+              Some
+                (Completable.CArgument
+                   {
+                     functionContextPath = ctxPath;
+                     argumentLabel =
+                       (match lbl with
+                       | Nolabel ->
+                         Unlabelled {argumentPosition = currentUnlabelledCount}
+                       | Optional name -> Optional name
+                       | Labelled name -> Labelled name);
+                   })
+          in
           (match defaultExpOpt with
           | None -> ()
           | Some defaultExp -> iterator.expr iterator defaultExp);
-          let currentContextPath = !currentCtxPath in
-          completePattern ?contextPath:currentContextPath pat;
-          scopePattern ?contextPath:currentContextPath pat;
+          completePattern ?contextPath:argContextPath pat;
+          scopePattern ?contextPath:argContextPath pat;
           iterator.pat iterator pat;
           iterator.expr iterator e;
           scope := oldScope;
-          resetCurrentCtxPath oldCtxPath;
           processed := true
         | Pexp_let (recFlag, bindings, e) ->
           let oldScope = !scope in
@@ -1068,7 +1067,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           processed := true
         | _ -> ());
       if not !processed then Ast_iterator.default_iterator.expr iterator expr;
-      inJsxContext := oldInJsxContext
+      inJsxContext := oldInJsxContext;
+      match expr.pexp_desc with
+      | Pexp_fun _ -> ()
+      | _ -> processingFun := None)
   in
   let typ (iterator : Ast_iterator.iterator) (core_type : Parsetree.core_type) =
     if core_type.ptyp_loc |> Loc.hasPos ~pos:posNoWhite then (
