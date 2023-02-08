@@ -425,3 +425,20 @@ let ok = Ok(true)
 
 // ok->g
 //      ^com
+
+type someRecordWithDeprecatedField = {
+  name: string,
+  @deprecated
+  someInt: int,
+  @deprecated("Use 'someInt'.")
+  someFloat: float,
+}
+
+let rWithDepr: someRecordWithDeprecatedField = {
+  name: "hej",
+  someInt: 12,
+  someFloat: 12.,
+}
+
+// rWithDepr.so
+//             ^com

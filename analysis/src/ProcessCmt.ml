@@ -27,6 +27,7 @@ let mapRecordField {Types.ld_id; ld_type; ld_attributes} =
       (match ProcessAttributes.findDocAttribute ld_attributes with
       | None -> []
       | Some docstring -> [docstring]);
+    deprecated = ProcessAttributes.findDeprecatedAttribute ld_attributes;
   }
 
 let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
@@ -231,6 +232,10 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                                              with
                                             | None -> []
                                             | Some docstring -> [docstring]);
+                                          deprecated =
+                                            ProcessAttributes
+                                            .findDeprecatedAttribute
+                                              f.ld_attributes;
                                         })));
                            res =
                              (match cd_res with
@@ -268,6 +273,9 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                            Res_parsetree_viewer.hasOptionalAttribute
                              ld_attributes;
                          docstring = attrsToDocstring ld_attributes;
+                         deprecated =
+                           ProcessAttributes.findDeprecatedAttribute
+                             ld_attributes;
                        })));
         }
       ~name ~stamp ~env typ_attributes

@@ -32,6 +32,7 @@ type field = {
   typ: Types.type_expr;
   optional: bool;
   docstring: string list;
+  deprecated: string option;
 }
 
 type constructorArgs =
