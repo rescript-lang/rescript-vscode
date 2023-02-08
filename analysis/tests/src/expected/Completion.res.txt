@@ -1625,8 +1625,8 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->428:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->428:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->445:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->445:0])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
@@ -1757,5 +1757,25 @@ Resolved opens 2 Completion.res Completion.res
     "tags": [],
     "detail": "(t<'a, 'b>, 'a) => 'a",
     "documentation": {"kind": "markdown", "value": "\n  `getWithDefault(res, defaultValue)`: If `res` is `Ok(n)`, returns `n`,\n  otherwise `default`\n\n  ```res example\n  Belt.Result.getWithDefault(Ok(42), 0) == 42\n\n  Belt.Result.getWithDefault(Error(\"Invalid Data\"), 0) == 0\n  ```\n"}
+  }]
+
+Complete src/Completion.res 442:15
+posCursor:[442:15] posNoWhite:[442:14] Found expr:[442:3->442:15]
+Pexp_field [442:3->442:12] so:[442:13->442:15]
+Completable: Cpath Value[rWithDepr].so
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "someInt",
+    "kind": 5,
+    "tags": [1],
+    "detail": "someInt: int\n\ntype someRecordWithDeprecatedField = {\n  name: string,\n  someInt: int,\n  someFloat: float,\n}",
+    "documentation": {"kind": "markdown", "value": "Deprecated: \n\n"}
+  }, {
+    "label": "someFloat",
+    "kind": 5,
+    "tags": [1],
+    "detail": "someFloat: float\n\ntype someRecordWithDeprecatedField = {\n  name: string,\n  someInt: int,\n  someFloat: float,\n}",
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use 'someInt'.\n\n"}
   }]
 

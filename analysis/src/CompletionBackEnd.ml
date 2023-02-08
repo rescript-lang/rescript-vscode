@@ -130,6 +130,7 @@ let completionForExportedFields ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed =
                    let () = Hashtbl.add namesUsed name () in
                    Some
                      (Completion.create name ~env ~docstring:f.docstring
+                        ?deprecated:f.deprecated
                         ~kind:
                           (Completion.Field
                              (f, t.item.decl |> Shared.declToString t.name.txt)))
@@ -740,7 +741,7 @@ let rec getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
                if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
                  Some
                    (Completion.create field.fname.txt ~env
-                      ~docstring:field.docstring
+                      ~docstring:field.docstring ?deprecated:field.deprecated
                       ~kind:
                         (Completion.Field
                            ( field,
@@ -1151,6 +1152,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
              match (field.optional, mode) with
              | true, Pattern Destructuring ->
                Completion.create ("?" ^ field.fname.txt)
+                 ?deprecated:field.deprecated
                  ~docstring:
                    [
                      field.fname.txt
@@ -1161,7 +1163,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                    (Field (field, TypeUtils.extractedTypeToString extractedType))
                  ~env
              | _ ->
-               Completion.create field.fname.txt
+               Completion.create field.fname.txt ?deprecated:field.deprecated
                  ~kind:
                    (Field (field, TypeUtils.extractedTypeToString extractedType))
                  ~env)
@@ -1189,7 +1191,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
              List.mem field.fname.txt seenFields = false)
       |> List.map (fun (field : field) ->
              Completion.create field.fname.txt ~kind:(Label "Inline record")
-               ~env)
+               ?deprecated:field.deprecated ~env)
       |> filterItems ~prefix
     | None ->
       if prefix = "" then
