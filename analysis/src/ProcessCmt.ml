@@ -100,6 +100,9 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
                              res = cd_res;
                              typeDecl = (name, decl);
                              docstring = attrsToDocstring cd_attributes;
+                             deprecated =
+                               ProcessAttributes.findDeprecatedAttribute
+                                 cd_attributes;
                            }
                          in
                          let declared =
@@ -201,6 +204,9 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                          {
                            Constructor.stamp;
                            cname;
+                           deprecated =
+                             ProcessAttributes.findDeprecatedAttribute
+                               cd_attributes;
                            args =
                              (match cd_args with
                              | Cstr_tuple args ->

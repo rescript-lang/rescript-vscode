@@ -108,6 +108,7 @@ let completionsForExportedConstructors ~(env : QueryEnv.t) ~prefix ~exact
                    let () = Hashtbl.add namesUsed name () in
                    Some
                      (Completion.create name ~env ~docstring:c.docstring
+                        ?deprecated:c.deprecated
                         ~kind:
                           (Completion.Constructor
                              (c, t.item.decl |> Shared.declToString t.name.txt)))
@@ -1073,7 +1074,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
              | InlineRecord _ -> 1
              | Args args -> List.length args
            in
-           Completion.createWithSnippet
+           Completion.createWithSnippet ?deprecated:constructor.deprecated
              ~name:
                (constructor.cname.txt
                ^ printConstructorArgs numArgs ~asSnippet:false)
