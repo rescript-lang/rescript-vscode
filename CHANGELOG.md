@@ -19,6 +19,7 @@
 #### :nail_care: Polish
 
 - Signature Help is now considered stable, and enabled for all users. Can still be turned off in settings.
+- Show whether record fields and variant constructors are deprecated when completing. https://github.com/rescript-lang/rescript-vscode/pull/731
 
 ## 1.12.0
 
