@@ -440,5 +440,13 @@ let rWithDepr: someRecordWithDeprecatedField = {
   someFloat: 12.,
 }
 
+// Should show deprecated status
 // rWithDepr.so
 //             ^com
+
+type someVariantWithDeprecated =
+  | @deprecated DoNotUseMe | UseMeInstead | @deprecated("Use 'UseMeInstead'") AndNotMe
+
+// Should show deprecated status
+// let v: someVariantWithDeprecated =
+//                                   ^com

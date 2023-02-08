@@ -47,6 +47,7 @@ module Constructor = struct
     res: Types.type_expr option;
     typeDecl: string * Types.type_declaration;
     docstring: string list;
+    deprecated: string option;
   }
 end
 
@@ -368,12 +369,12 @@ module Completion = struct
       detail;
     }
 
-  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?filterText
-      ?(docstring = []) () =
+  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?deprecated
+      ?filterText ?(docstring = []) () =
     {
       name;
       env;
-      deprecated = None;
+      deprecated;
       docstring;
       kind;
       sortText;

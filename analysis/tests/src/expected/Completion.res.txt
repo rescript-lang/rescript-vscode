@@ -1625,8 +1625,8 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->445:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->445:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->453:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->453:0])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
@@ -1759,9 +1759,9 @@ Resolved opens 2 Completion.res Completion.res
     "documentation": {"kind": "markdown", "value": "\n  `getWithDefault(res, defaultValue)`: If `res` is `Ok(n)`, returns `n`,\n  otherwise `default`\n\n  ```res example\n  Belt.Result.getWithDefault(Ok(42), 0) == 42\n\n  Belt.Result.getWithDefault(Error(\"Invalid Data\"), 0) == 0\n  ```\n"}
   }]
 
-Complete src/Completion.res 442:15
-posCursor:[442:15] posNoWhite:[442:14] Found expr:[442:3->442:15]
-Pexp_field [442:3->442:12] so:[442:13->442:15]
+Complete src/Completion.res 443:15
+posCursor:[443:15] posNoWhite:[443:14] Found expr:[443:3->443:15]
+Pexp_field [443:3->443:12] so:[443:13->443:15]
 Completable: Cpath Value[rWithDepr].so
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
@@ -1777,5 +1777,36 @@ Resolved opens 2 Completion.res Completion.res
     "tags": [1],
     "detail": "someFloat: float\n\ntype someRecordWithDeprecatedField = {\n  name: string,\n  someInt: int,\n  someFloat: float,\n}",
     "documentation": {"kind": "markdown", "value": "Deprecated: Use 'someInt'.\n\n"}
+  }]
+
+Complete src/Completion.res 450:37
+XXX Not found!
+Completable: Cexpression Type[someVariantWithDeprecated]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "DoNotUseMe",
+    "kind": 4,
+    "tags": [1],
+    "detail": "DoNotUseMe\n\ntype someVariantWithDeprecated =\n  | DoNotUseMe\n  | UseMeInstead\n  | AndNotMe",
+    "documentation": {"kind": "markdown", "value": "Deprecated: \n\n"},
+    "insertText": "DoNotUseMe",
+    "insertTextFormat": 2
+  }, {
+    "label": "UseMeInstead",
+    "kind": 4,
+    "tags": [],
+    "detail": "UseMeInstead\n\ntype someVariantWithDeprecated =\n  | DoNotUseMe\n  | UseMeInstead\n  | AndNotMe",
+    "documentation": null,
+    "insertText": "UseMeInstead",
+    "insertTextFormat": 2
+  }, {
+    "label": "AndNotMe",
+    "kind": 4,
+    "tags": [1],
+    "detail": "AndNotMe\n\ntype someVariantWithDeprecated =\n  | DoNotUseMe\n  | UseMeInstead\n  | AndNotMe",
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use 'UseMeInstead'\n\n"},
+    "insertText": "AndNotMe",
+    "insertTextFormat": 2
   }]
 
