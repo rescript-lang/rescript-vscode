@@ -730,12 +730,12 @@ module Completion = struct
       detail;
     }
 
-  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?filterText
-      ?detail ?(docstring = []) () =
+  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?deprecated
+      ?filterText ?detail ?(docstring = []) () =
     {
       name;
       env;
-      deprecated = None;
+      deprecated;
       docstring;
       kind;
       sortText;
