@@ -817,7 +817,7 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
              if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
                Some
                  (Completion.create field.fname.txt ~env
-                    ~docstring:field.docstring
+                    ?deprecated:field.deprecated ~docstring:field.docstring
                     ~kind:(Completion.Field (field, recordAsString)))
              else None))
   | CPObj (cp, label) -> (
