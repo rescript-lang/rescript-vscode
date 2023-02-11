@@ -10,6 +10,7 @@ extracting docs for src/DocExtractionRes.res
     "name": "t",
     "signature": "type t = {name: string, online: bool}",
     "docstrings": ["This type represents stuff."],
+    "linkables": [],
     "detail": 
     {
       "kind": "record",
@@ -26,13 +27,23 @@ extracting docs for src/DocExtractionRes.res
     "kind": "value",
     "name": "make",
     "signature": "let make: string => t",
-    "docstrings": ["Create stuff.\\n\\n```rescript example\\nlet stuff = make(\\\"My name\\\")\\n```"]
+    "docstrings": ["Create stuff.\\n\\n```rescript example\\nlet stuff = make(\\\"My name\\\")\\n```"],
+    "linkables": [{
+        "path": "t",
+        "moduleName": "DocExtractionRes",
+        "external": false
+      }]
   }, 
   {
     "kind": "value",
     "name": "asOffline",
     "signature": "let asOffline: t => t",
-    "docstrings": ["Stuff goes offline."]
+    "docstrings": ["Stuff goes offline."],
+    "linkables": [{
+        "path": "t",
+        "moduleName": "DocExtractionRes",
+        "external": false
+      }]
   }, 
   {
     "kind": "module",
@@ -46,6 +57,11 @@ extracting docs for src/DocExtractionRes.res
         "name": "status",
         "signature": "type status = Started(t) | Stopped | Idle",
         "docstrings": [],
+        "linkables": [{
+            "path": "t",
+            "moduleName": "DocExtractionRes",
+            "external": false
+          }],
         "detail": 
         {
           "kind": "variant",
@@ -67,14 +83,24 @@ extracting docs for src/DocExtractionRes.res
       {
         "kind": "type",
         "name": "validInputs",
-        "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #withPayload(int)\\n]",
-        "docstrings": ["These are all the valid inputs."]
+        "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #status(status)\\n  | #withPayload(int)\\n]",
+        "docstrings": ["These are all the valid inputs."],
+        "linkables": []
       }, 
       {
         "kind": "type",
         "name": "callback",
         "signature": "type callback = (t, ~status: status) => unit",
-        "docstrings": []
+        "docstrings": [],
+        "linkables": [{
+            "path": "t",
+            "moduleName": "DocExtractionRes",
+            "external": false
+          }, {
+            "path": "status",
+            "moduleName": "DocExtractionRes",
+            "external": false
+          }]
       }]
     }
   }, 
@@ -89,7 +115,50 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "callback",
         "signature": "type callback = SomeInnerModule.status => unit",
-        "docstrings": ["Testing what this looks like."]
+        "docstrings": ["Testing what this looks like."],
+        "linkables": [{
+            "path": "SomeInnerModule.status",
+            "moduleName": "DocExtractionRes",
+            "external": false
+          }]
+      }, 
+      {
+        "kind": "value",
+        "name": "isGoodStatus",
+        "signature": "let isGoodStatus: SomeInnerModule.status => bool",
+        "docstrings": [],
+        "linkables": [{
+            "path": "SomeInnerModule.status",
+            "moduleName": "DocExtractionRes",
+            "external": false
+          }]
+      }, 
+      {
+        "kind": "type",
+        "name": "someVariantWithInlineRecords",
+        "signature": "type someVariantWithInlineRecords = SomeStuff({offline: bool})",
+        "docstrings": ["Trying how it looks with an inline record in a variant."],
+        "linkables": [],
+        "detail": 
+        {
+          "kind": "variant",
+          "fieldDocs": [
+          {
+            "constructorName": "SomeStuff",
+            "docstrings": ["This has inline records..."]
+          }]
+        }
+      }, 
+      {
+        "kind": "type",
+        "name": "domRoot",
+        "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
+        "docstrings": ["Callback to get the DOM root..."],
+        "linkables": [{
+            "path": "ReactDOM.Client.Root.t",
+            "moduleName": "ReactDOM",
+            "external": true
+          }]
       }]
     }
   }]

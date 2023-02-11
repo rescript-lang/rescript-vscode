@@ -28,7 +28,7 @@ module SomeInnerModule = {
     | /** If this is started or not */ Started(t) | /** Stopped? */ Stopped | /** Now idle.*/ Idle
 
   /** These are all the valid inputs.*/
-  type validInputs = [#something | #"needs-escaping" | #withPayload(int)]
+  type validInputs = [#something | #"needs-escaping" | #withPayload(int) | #status(status)]
 
   type callback = (t, ~status: status) => unit
 }
@@ -39,6 +39,16 @@ module AnotherModule = {
   /**
   Testing what this looks like.*/
   type callback = SomeInnerModule.status => unit
+
+  let isGoodStatus = (status: SomeInnerModule.status) => status == Stopped
+
+  /** Trying how it looks with an inline record in a variant. */
+  type someVariantWithInlineRecords = | /** This has inline records...*/ SomeStuff({offline: bool})
+
+  open ReactDOM
+
+  /**Callback to get the DOM root...*/
+  type domRoot = unit => Client.Root.t
 }
 
 // ^dex
