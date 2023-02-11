@@ -780,8 +780,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
     in
     typedCompletionExpr expr;
     match expr.pexp_desc with
-    | Pexp_match (_expr, []) -> ()
-    | Pexp_match (expr, cases) ->
+    | Pexp_match (expr, cases) when cases <> [] ->
       let ctxPath = exprToContextPath expr in
       let oldCtxPath = !currentCtxPath in
       cases
