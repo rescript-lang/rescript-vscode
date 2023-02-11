@@ -154,3 +154,11 @@ let fn3 = (~cb: sameFileRecord => unit) => {
 // Handles pipe chains as input for switch
 // let x = 123; switch x->Belt.Int.toString->Js.String2.split("/") { | }
 //                                                                    ^com
+
+// Regular completion works
+// let renderer = CompletionSupport2.makeRenderer(~prepare=() => "hello",~render=({support}) => {support.},())
+//                                                                                                       ^com
+
+// But pipe completion gets the wrong completion path. Should be `ReactDOM.Client.Root.t`, but ends up being `CompletionSupport2.ReactDOM.Client.Root.t`.
+// let renderer = CompletionSupport2.makeRenderer(~prepare=() => "hello",~render=({support:{root}}) => {root->},())
+//                                                                                                            ^com
