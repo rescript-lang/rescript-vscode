@@ -122,7 +122,7 @@ module Module = struct
     | Type of Type.t * Types.rec_status
     | Module of t
 
-  and item = {kind: kind; name: string}
+  and item = {kind: kind; name: string; docstring: string list}
 
   and structure = {
     name: string;

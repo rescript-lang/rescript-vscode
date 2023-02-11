@@ -343,6 +343,9 @@ let test ~path =
             let currentFile = createCurrentFile () in
             signatureHelp ~path ~pos:(line, col) ~currentFile ~debug:true;
             Sys.remove currentFile
+          | "dex" ->
+            print_endline ("Documentation extraction " ^ path);
+            DocExtraction.extractDocs ~path ~debug:true
           | "int" ->
             print_endline ("Create Interface " ^ path);
             let cmiFile =
