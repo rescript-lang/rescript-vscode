@@ -73,3 +73,22 @@ let notAliased: CompletionSupport.Test.t = {name: 123}
 
 // notAliased->
 //             ^com
+
+let renderer = CompletionSupport2.makeRenderer(
+  ~prepare=() => "hello",
+  ~render=props => {
+    ignore(props)
+
+    // Doesn't work when tried through this chain. Presumably because it now goes through multiple different files.
+    // props.support.root->ren
+    //                        ^com
+    let root = props.support.root
+    ignore(root)
+
+    // Works here though when it's lifted out. Probably because it only goes through one file...?
+    // root->ren
+    //          ^com
+    React.null
+  },
+  (),
+)
