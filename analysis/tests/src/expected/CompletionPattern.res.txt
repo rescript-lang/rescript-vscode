@@ -1,5 +1,5 @@
 Complete src/CompletionPattern.res 7:13
-XXX Not found!
+posCursor:[7:13] posNoWhite:[7:12] Found expr:[7:3->7:13]
 []
 
 Complete src/CompletionPattern.res 10:15
