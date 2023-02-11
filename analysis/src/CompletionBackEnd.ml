@@ -857,9 +857,14 @@ and getCompletionsForContextPath ~full ~opens ~rawOpens ~allFiles ~pos ~env
     with
     | None -> []
     | Some (typ, envFromCompletionItem) -> (
+      (* Passing `envFromCompletionItem` into `resolveTypeForPipeCompletion`
+         fixes the issue in `CompletionInferValues.res`, but breaks other pipe
+         chains. Change it and see what breaks instead. *)
       let env, typ =
         typ
-        |> TypeUtils.resolveTypeForPipeCompletion ~env ~package ~full ~lhsLoc
+        |> TypeUtils.resolveTypeForPipeCompletion
+           (* by doing this ~env:envFromCompletionItem*)
+             ~env ~package ~full ~lhsLoc
       in
       let completionPath =
         match typ with
