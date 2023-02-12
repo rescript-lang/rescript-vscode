@@ -1,0 +1,55 @@
+Documentation extraction src/DocExtraction2.res
+extracting docs for src/DocExtraction2.res
+preferring found resi file for impl: src/DocExtraction2.resi
+
+{
+  "name": "DocExtraction2",
+  "docstrings": ["Module level doc here."],
+  "items": [
+  {
+    "kind": "type",
+    "name": "t",
+    "signature": "type t",
+    "docstrings": ["Type t is pretty cool."],
+    "linkables": []
+  }, 
+  {
+    "kind": "value",
+    "name": "make",
+    "signature": "let make: unit => t",
+    "docstrings": ["Makerz of stuffz."],
+    "linkables": [{
+        "path": "t",
+        "moduleName": "DocExtraction2",
+        "external": false
+      }]
+  }, 
+  {
+    "kind": "module",
+    "item": 
+    {
+      "name": "InnerModule",
+      "docstrings": [],
+      "items": [
+      {
+        "kind": "type",
+        "name": "t",
+        "signature": "type t",
+        "docstrings": ["This type is also t."],
+        "linkables": []
+      }, 
+      {
+        "kind": "value",
+        "name": "make",
+        "signature": "let make: unit => t",
+        "docstrings": ["Maker of tea."],
+        "linkables": [{
+            "path": "t",
+            "moduleName": "DocExtraction2",
+            "external": false
+          }]
+      }]
+    }
+  }]
+}
+

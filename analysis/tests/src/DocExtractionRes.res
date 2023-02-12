@@ -51,4 +51,38 @@ module AnotherModule = {
   type domRoot = unit => Client.Root.t
 }
 
+module ModuleWithThingsThatShouldNotBeExported: {
+  /*** BROKEN: This docstring isn't picked up Doesn't seem to be parsed at all, no attributes found.*/
+
+  /** The type t is stuff. */
+  type t
+
+  /** The maker of stuff!*/
+  let make: unit => t
+} = {
+  /*** Mighty fine module here too!*/
+  type t = string
+  type x = int
+  type f = bool
+
+  let m1 = (x: x) => {
+    x + 1
+  }
+
+  let m2 = (f: f) =>
+    if f {
+      true
+    } else {
+      false
+    }
+
+  let make = () => {
+    if m2(true) && m1(1) > 2 {
+      "1"
+    } else {
+      "2"
+    }
+  }
+}
+
 // ^dex
