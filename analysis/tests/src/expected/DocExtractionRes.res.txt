@@ -6,6 +6,7 @@ extracting docs for src/DocExtractionRes.res
   "docstrings": ["Module level documentation goes here."],
   "items": [
   {
+    "id": "DocExtractionRes.t",
     "kind": "type",
     "name": "t",
     "signature": "type t = {name: string, online: bool}",
@@ -16,14 +17,17 @@ extracting docs for src/DocExtractionRes.res
       "kind": "record",
       "fieldDocs": [{
         "fieldName": "name",
-        "docstrings": ["The name of the stuff."]
+        "docstrings": ["The name of the stuff."],
+        "signature": "string"
       }, {
         "fieldName": "online",
-        "docstrings": ["Whether stuff is online."]
+        "docstrings": ["Whether stuff is online."],
+        "signature": "bool"
       }]
     }
   }, 
   {
+    "id": "DocExtractionRes.make",
     "kind": "value",
     "name": "make",
     "signature": "let make: string => t",
@@ -35,6 +39,7 @@ extracting docs for src/DocExtractionRes.res
       }]
   }, 
   {
+    "id": "DocExtractionRes.asOffline",
     "kind": "value",
     "name": "asOffline",
     "signature": "let asOffline: t => t",
@@ -46,6 +51,7 @@ extracting docs for src/DocExtractionRes.res
       }]
   }, 
   {
+    "id": "SomeInnerModule.DocExtractionRes",
     "kind": "module",
     "item": 
     {
@@ -53,6 +59,7 @@ extracting docs for src/DocExtractionRes.res
       "docstrings": ["Another module level docstring here."],
       "items": [
       {
+        "id": "DocExtractionRes.SomeInnerModule.status",
         "kind": "type",
         "name": "status",
         "signature": "type status = Started(t) | Stopped | Idle",
@@ -68,19 +75,23 @@ extracting docs for src/DocExtractionRes.res
           "fieldDocs": [
           {
             "constructorName": "Started",
-            "docstrings": ["If this is started or not"]
+            "docstrings": ["If this is started or not"],
+            "signature": "Started(t)"
           }, 
           {
             "constructorName": "Stopped",
-            "docstrings": ["Stopped?"]
+            "docstrings": ["Stopped?"],
+            "signature": "Stopped"
           }, 
           {
             "constructorName": "Idle",
-            "docstrings": ["Now idle."]
+            "docstrings": ["Now idle."],
+            "signature": "Idle"
           }]
         }
       }, 
       {
+        "id": "DocExtractionRes.SomeInnerModule.validInputs",
         "kind": "type",
         "name": "validInputs",
         "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #status(status)\\n  | #withPayload(int)\\n]",
@@ -88,6 +99,7 @@ extracting docs for src/DocExtractionRes.res
         "linkables": []
       }, 
       {
+        "id": "DocExtractionRes.SomeInnerModule.callback",
         "kind": "type",
         "name": "callback",
         "signature": "type callback = (t, ~status: status) => unit",
@@ -105,6 +117,7 @@ extracting docs for src/DocExtractionRes.res
     }
   }, 
   {
+    "id": "AnotherModule.DocExtractionRes",
     "kind": "module",
     "item": 
     {
@@ -112,6 +125,7 @@ extracting docs for src/DocExtractionRes.res
       "docstrings": ["Mighty fine module here too!"],
       "items": [
       {
+        "id": "DocExtractionRes.AnotherModule.callback",
         "kind": "type",
         "name": "callback",
         "signature": "type callback = SomeInnerModule.status => unit",
@@ -123,6 +137,7 @@ extracting docs for src/DocExtractionRes.res
           }]
       }, 
       {
+        "id": "DocExtractionRes.AnotherModule.isGoodStatus",
         "kind": "value",
         "name": "isGoodStatus",
         "signature": "let isGoodStatus: SomeInnerModule.status => bool",
@@ -134,6 +149,7 @@ extracting docs for src/DocExtractionRes.res
           }]
       }, 
       {
+        "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
         "kind": "type",
         "name": "someVariantWithInlineRecords",
         "signature": "type someVariantWithInlineRecords = SomeStuff({offline: bool})",
@@ -145,11 +161,13 @@ extracting docs for src/DocExtractionRes.res
           "fieldDocs": [
           {
             "constructorName": "SomeStuff",
-            "docstrings": ["This has inline records..."]
+            "docstrings": ["This has inline records..."],
+            "signature": "SomeStuff"
           }]
         }
       }, 
       {
+        "id": "DocExtractionRes.AnotherModule.domRoot",
         "kind": "type",
         "name": "domRoot",
         "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
@@ -163,6 +181,7 @@ extracting docs for src/DocExtractionRes.res
     }
   }, 
   {
+    "id": "ModuleWithThingsThatShouldNotBeExported.DocExtractionRes",
     "kind": "module",
     "item": 
     {
@@ -170,6 +189,7 @@ extracting docs for src/DocExtractionRes.res
       "docstrings": [],
       "items": [
       {
+        "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",
         "kind": "type",
         "name": "t",
         "signature": "type t",
@@ -177,6 +197,7 @@ extracting docs for src/DocExtractionRes.res
         "linkables": []
       }, 
       {
+        "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.make",
         "kind": "value",
         "name": "make",
         "signature": "let make: unit => t",

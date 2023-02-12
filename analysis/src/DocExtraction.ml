@@ -5,11 +5,20 @@ type linkableType = {
   loc: Location.t;
 }
 
+type fieldDoc = {fieldName: string; docstrings: string list; signature: string}
+
+type constructorDoc = {
+  constructorName: string;
+  docstrings: string list;
+  signature: string;
+}
+
 type docItemDetail =
-  | Record of {fieldDocs: (string * string list) list}
-  | Variant of {constructorDocs: (string * string list) list}
+  | Record of {fieldDocs: fieldDoc list}
+  | Variant of {constructorDocs: constructorDoc list}
 type docItem =
   | Value of {
+      id: string;
       docstring: string list;
       signature: string;
       name: string;
@@ -17,6 +26,7 @@ type docItem =
           (** Relevant types to link to, found in relation to this value. *)
     }
   | Type of {
+      id: string;
       docstring: string list;
       signature: string;
       name: string;
@@ -26,7 +36,12 @@ type docItem =
           (** Relevant types to link to, found in relation to this type. *)
     }
   | Module of docsForModule
-and docsForModule = {docstring: string list; name: string; items: docItem list}
+and docsForModule = {
+  id: string;
+  docstring: string list;
+  name: string;
+  items: docItem list;
+}
 
 let formatCode content =
   let {Res_driver.parsetree = signature; comments} =
@@ -130,11 +145,13 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
         ( "fieldDocs",
           Some
             (fieldDocs
-            |> List.map (fun (fieldName, docstrings) ->
+            |> List.map (fun fieldDoc ->
                    stringifyObject ~indentation:(indentation + 1)
                      [
-                       ("fieldName", Some (wrapInQuotes fieldName));
-                       ("docstrings", Some (stringifyDocstrings docstrings));
+                       ("fieldName", Some (wrapInQuotes fieldDoc.fieldName));
+                       ( "docstrings",
+                         Some (stringifyDocstrings fieldDoc.docstrings) );
+                       ("signature", Some (wrapInQuotes fieldDoc.signature));
                      ])
             |> array) );
       ]
@@ -145,12 +162,16 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
         ( "fieldDocs",
           Some
             (constructorDocs
-            |> List.map (fun (constructorName, docstrings) ->
+            |> List.map (fun constructorDoc ->
                    stringifyObject ~startOnNewline:true
                      ~indentation:(indentation + 1)
                      [
-                       ("constructorName", Some (wrapInQuotes constructorName));
-                       ("docstrings", Some (stringifyDocstrings docstrings));
+                       ( "constructorName",
+                         Some (wrapInQuotes constructorDoc.constructorName) );
+                       ( "docstrings",
+                         Some (stringifyDocstrings constructorDoc.docstrings) );
+                       ( "signature",
+                         Some (wrapInQuotes constructorDoc.signature) );
                      ])
             |> array) );
       ]
@@ -158,9 +179,10 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
 let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
   let open Protocol in
   match item with
-  | Value {docstring; signature; name; linkables} ->
+  | Value {id; docstring; signature; name; linkables} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
+        ("id", Some (wrapInQuotes id));
         ("kind", Some (wrapInQuotes "value"));
         ("name", Some (name |> Json.escape |> wrapInQuotes));
         ( "signature",
@@ -171,9 +193,10 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
             (stringifyLinkables ~originalEnv ~indentation:(indentation + 1)
                linkables) );
       ]
-  | Type {docstring; signature; name; detail; linkables} ->
+  | Type {id; docstring; signature; name; detail; linkables} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
+        ("id", Some (wrapInQuotes id));
         ("kind", Some (wrapInQuotes "type"));
         ("name", Some (name |> Json.escape |> wrapInQuotes));
         ("signature", Some (signature |> Json.escape |> wrapInQuotes));
@@ -191,6 +214,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
   | Module m ->
     stringifyObject ~startOnNewline:true ~indentation
       [
+        ("id", Some (wrapInQuotes m.id));
         ("kind", Some (wrapInQuotes "module"));
         ( "item",
           Some
@@ -213,6 +237,9 @@ and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
     ]
 
 exception Invalid_file_type
+
+let makeId modulePath ~identifier =
+  identifier :: modulePath |> List.rev |> SharedTypes.ident
 
 let extractDocs ~path ~debug =
   if debug then Printf.printf "extracting docs for %s\n" path;
@@ -241,8 +268,10 @@ let extractDocs ~path ~debug =
     let structure = file.structure in
     let open SharedTypes in
     let env = QueryEnv.fromFile file in
-    let rec extractDocs (structure : Module.structure) =
+    let rec extractDocs ?(modulePath = [env.file.moduleName])
+        (structure : Module.structure) =
       {
+        id = modulePath |> ident;
         docstring = structure.docstring |> List.map String.trim;
         name = structure.name;
         items =
@@ -253,6 +282,7 @@ let extractDocs ~path ~debug =
                    Some
                      (Value
                         {
+                          id = modulePath |> makeId ~identifier:item.name;
                           docstring = item.docstring |> List.map String.trim;
                           signature =
                             "let " ^ item.name ^ ": " ^ Shared.typeToString typ
@@ -265,6 +295,7 @@ let extractDocs ~path ~debug =
                    Some
                      (Type
                         {
+                          id = modulePath |> makeId ~identifier:item.name;
                           linkables =
                             Typ typ |> Linkables.findLinkables ~env ~full;
                           docstring = item.docstring |> List.map String.trim;
@@ -285,7 +316,12 @@ let extractDocs ~path ~debug =
                                      fieldDocs =
                                        fields
                                        |> List.map (fun (field : field) ->
-                                              (field.fname.txt, field.docstring));
+                                              {
+                                                fieldName = field.fname.txt;
+                                                docstrings = field.docstring;
+                                                signature =
+                                                  Shared.typeToString field.typ;
+                                              });
                                    })
                             | Some (Tvariant {constructors}) ->
                               Some
@@ -294,16 +330,27 @@ let extractDocs ~path ~debug =
                                      constructorDocs =
                                        constructors
                                        |> List.map (fun (c : Constructor.t) ->
-                                              (c.cname.txt, c.docstring));
+                                              {
+                                                constructorName = c.cname.txt;
+                                                docstrings = c.docstring;
+                                                signature =
+                                                  CompletionBackEnd
+                                                  .showConstructor c;
+                                              });
                                    })
                             | _ -> None);
                         })
                  | Module (Structure m) ->
                    (* module Whatever = {} in res or module Whatever: {} in resi. *)
-                   Some (Module (extractDocs m))
+                   Some
+                     (Module (extractDocs ~modulePath:(m.name :: modulePath) m))
                  | Module (Constraint (Structure _impl, Structure interface)) ->
                    (* module Whatever: { <interface> } = { <impl> }. Prefer the interface. *)
-                   Some (Module (extractDocs interface))
+                   Some
+                     (Module
+                        (extractDocs
+                           ~modulePath:(interface.name :: modulePath)
+                           interface))
                  | _ -> None);
       }
     in
