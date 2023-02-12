@@ -152,6 +152,12 @@ let openCompiledFileRequest = new v.RequestType<
   void
 >("textDocument/openCompiled");
 
+let extractDocsRequest = new v.RequestType<
+  p.TextDocumentIdentifier,
+  p.TextDocumentIdentifier,
+  void
+>("textDocument/extractDocs");
+
 let getCurrentCompilerDiagnosticsForFile = (
   fileUri: string
 ): p.Diagnostic[] => {
@@ -965,6 +971,24 @@ function createInterface(msg: p.RequestMessage): p.Message {
   }
 }
 
+function extractDocs(msg: p.RequestMessage): p.Message {
+  let params = msg.params as p.TextDocumentIdentifier;
+  let filePath = fileURLToPath(params.uri);
+
+  let response = utils.runAnalysisCommand(
+    filePath,
+    ["extractDocs", filePath],
+    msg
+  );
+
+  let res: p.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: response.result,
+  };
+  return res;
+}
+
 function openCompiledFile(msg: p.RequestMessage): p.Message {
   let params = msg.params as p.TextDocumentIdentifier;
   let filePath = fileURLToPath(params.uri);
@@ -1230,6 +1254,8 @@ function onMessage(msg: p.Message) {
       send(createInterface(msg));
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
+    } else if (msg.method === extractDocsRequest.method) {
+      send(extractDocs(msg));
     } else if (msg.method === p.InlayHintRequest.method) {
       let params = msg.params as InlayHintParams;
       let extName = path.extname(params.textDocument.uri);
