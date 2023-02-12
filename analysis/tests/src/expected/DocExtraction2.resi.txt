@@ -6,6 +6,7 @@ extracting docs for src/DocExtraction2.resi
   "docstrings": ["Module level doc here."],
   "items": [
   {
+    "id": "DocExtraction2.t",
     "kind": "type",
     "name": "t",
     "signature": "type t",
@@ -13,6 +14,7 @@ extracting docs for src/DocExtraction2.resi
     "linkables": []
   }, 
   {
+    "id": "DocExtraction2.make",
     "kind": "value",
     "name": "make",
     "signature": "let make: unit => t",
@@ -24,6 +26,7 @@ extracting docs for src/DocExtraction2.resi
       }]
   }, 
   {
+    "id": "InnerModule.DocExtraction2",
     "kind": "module",
     "item": 
     {
@@ -31,6 +34,7 @@ extracting docs for src/DocExtraction2.resi
       "docstrings": [],
       "items": [
       {
+        "id": "DocExtraction2.InnerModule.t",
         "kind": "type",
         "name": "t",
         "signature": "type t",
@@ -38,6 +42,7 @@ extracting docs for src/DocExtraction2.resi
         "linkables": []
       }, 
       {
+        "id": "DocExtraction2.InnerModule.make",
         "kind": "value",
         "name": "make",
         "signature": "let make: unit => t",
