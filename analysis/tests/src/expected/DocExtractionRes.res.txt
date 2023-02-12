@@ -18,11 +18,13 @@ extracting docs for src/DocExtractionRes.res
       "fieldDocs": [{
         "fieldName": "name",
         "docstrings": ["The name of the stuff."],
-        "signature": "string"
+        "signature": "string",
+        "linkables": []
       }, {
         "fieldName": "online",
         "docstrings": ["Whether stuff is online."],
-        "signature": "bool"
+        "signature": "bool",
+        "linkables": []
       }]
     }
   }, 
@@ -79,17 +81,25 @@ extracting docs for src/DocExtractionRes.res
           {
             "constructorName": "Started",
             "docstrings": ["If this is started or not"],
-            "signature": "Started(t)"
+            "signature": "Started(t)",
+            "linkables": [{
+              "linkId": "DocExtractionRes.t",
+              "path": "t",
+              "moduleName": "DocExtractionRes",
+              "external": false
+            }]
           }, 
           {
             "constructorName": "Stopped",
             "docstrings": ["Stopped?"],
-            "signature": "Stopped"
+            "signature": "Stopped",
+            "linkables": []
           }, 
           {
             "constructorName": "Idle",
             "docstrings": ["Now idle."],
-            "signature": "Idle"
+            "signature": "Idle",
+            "linkables": []
           }]
         }
       }, 
@@ -169,7 +179,8 @@ extracting docs for src/DocExtractionRes.res
           {
             "constructorName": "SomeStuff",
             "docstrings": ["This has inline records..."],
-            "signature": "SomeStuff"
+            "signature": "SomeStuff",
+            "linkables": []
           }]
         }
       }, 
