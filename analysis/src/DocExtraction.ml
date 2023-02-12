@@ -5,12 +5,18 @@ type linkableType = {
   loc: Location.t;
 }
 
-type fieldDoc = {fieldName: string; docstrings: string list; signature: string}
+type fieldDoc = {
+  fieldName: string;
+  docstrings: string list;
+  signature: string;
+  linkables: linkableType list;
+}
 
 type constructorDoc = {
   constructorName: string;
   docstrings: string list;
   signature: string;
+  linkables: linkableType list;
 }
 
 type docItemDetail =
@@ -83,7 +89,9 @@ module Linkables = struct
     | Some path -> (
       match References.digConstructor ~env ~package:full.package path with
       | None -> (env, [typ])
-      | Some (env1, {item = {decl}}) -> linkablesFromDecl decl ~env:env1 ~full)
+      | Some (env1, {item = {decl}}) ->
+        let env, types = linkablesFromDecl decl ~env:env1 ~full in
+        (env, typ :: types))
     | None -> (env, [typ])
 
   type linkableSource =
@@ -138,7 +146,7 @@ let stringifyLinkables ?(indentation = 0)
            ])
   |> array
 
-let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
+let stringifyDetail ?(indentation = 0) ~originalEnv (detail : docItemDetail) =
   let open Protocol in
   match detail with
   | Record {fieldDocs} ->
@@ -155,6 +163,10 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                        ( "docstrings",
                          Some (stringifyDocstrings fieldDoc.docstrings) );
                        ("signature", Some (wrapInQuotes fieldDoc.signature));
+                       ( "linkables",
+                         Some
+                           (stringifyLinkables ~indentation:(indentation + 1)
+                              ~originalEnv fieldDoc.linkables) );
                      ])
             |> array) );
       ]
@@ -175,6 +187,10 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                          Some (stringifyDocstrings constructorDoc.docstrings) );
                        ( "signature",
                          Some (wrapInQuotes constructorDoc.signature) );
+                       ( "linkables",
+                         Some
+                           (stringifyLinkables ~indentation:(indentation + 1)
+                              ~originalEnv constructorDoc.linkables) );
                      ])
             |> array) );
       ]
@@ -212,7 +228,9 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           match detail with
           | None -> None
           | Some detail ->
-            Some (stringifyDetail ~indentation:(indentation + 1) detail) );
+            Some
+              (stringifyDetail ~originalEnv ~indentation:(indentation + 1)
+                 detail) );
       ]
   | Module m ->
     stringifyObject ~startOnNewline:true ~indentation
@@ -238,6 +256,49 @@ and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
                (stringifyDocItem ~originalEnv ~indentation:(indentation + 1))
           |> array) );
     ]
+
+let typeDetail typ ~env ~full =
+  let open SharedTypes in
+  match TypeUtils.extractTypeFromResolvedType ~env ~full typ with
+  | Some (Trecord {fields}) ->
+    Some
+      (Record
+         {
+           fieldDocs =
+             fields
+             |> List.map (fun (field : field) ->
+                    {
+                      fieldName = field.fname.txt;
+                      docstrings = field.docstring;
+                      signature = Shared.typeToString field.typ;
+                      linkables =
+                        TypeExpr field.typ |> Linkables.findLinkables ~env ~full;
+                    });
+         })
+  | Some (Tvariant {constructors}) ->
+    Some
+      (Variant
+         {
+           constructorDocs =
+             constructors
+             |> List.map (fun (c : Constructor.t) ->
+                    let linkables =
+                      (match c.args with
+                      | Args args -> args |> List.map (fun (t, _) -> t)
+                      | InlineRecord fields ->
+                        fields |> List.map (fun f -> f.typ))
+                      |> List.map (fun t ->
+                             TypeExpr t |> Linkables.findLinkables ~env ~full)
+                      |> List.flatten
+                    in
+                    {
+                      constructorName = c.cname.txt;
+                      docstrings = c.docstring;
+                      signature = CompletionBackEnd.showConstructor c;
+                      linkables;
+                    });
+         })
+  | _ -> None
 
 exception Invalid_file_type
 
@@ -307,41 +368,7 @@ let extractDocs ~path ~debug =
                             |> Shared.declToString item.name
                             |> formatCode;
                           name = item.name;
-                          detail =
-                            (match
-                               TypeUtils.extractTypeFromResolvedType ~env ~full
-                                 typ
-                             with
-                            | Some (Trecord {fields}) ->
-                              Some
-                                (Record
-                                   {
-                                     fieldDocs =
-                                       fields
-                                       |> List.map (fun (field : field) ->
-                                              {
-                                                fieldName = field.fname.txt;
-                                                docstrings = field.docstring;
-                                                signature =
-                                                  Shared.typeToString field.typ;
-                                              });
-                                   })
-                            | Some (Tvariant {constructors}) ->
-                              Some
-                                (Variant
-                                   {
-                                     constructorDocs =
-                                       constructors
-                                       |> List.map (fun (c : Constructor.t) ->
-                                              {
-                                                constructorName = c.cname.txt;
-                                                docstrings = c.docstring;
-                                                signature =
-                                                  CompletionBackEnd
-                                                  .showConstructor c;
-                                              });
-                                   })
-                            | _ -> None);
+                          detail = typeDetail typ ~full ~env;
                         })
                  | Module (Structure m) ->
                    (* module Whatever = {} in res or module Whatever: {} in resi. *)
