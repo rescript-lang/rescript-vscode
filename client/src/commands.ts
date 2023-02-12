@@ -6,6 +6,7 @@ import {
 } from "./commands/code_analysis";
 
 export { createInterface } from "./commands/create_interface";
+export { extractDocs } from "./commands/extract_docs";
 export { openCompiled } from "./commands/open_compiled";
 export { switchImplIntf } from "./commands/switch_impl_intf";
 
