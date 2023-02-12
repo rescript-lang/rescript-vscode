@@ -121,17 +121,20 @@ let stringifyLinkables ?(indentation = 0)
   let open Protocol in
   linkables
   |> List.map (fun l ->
+         let isExternal = originalEnv.file.uri <> l.env.file.uri in
          stringifyObject ~indentation:(indentation + 1)
            [
+             ( "linkId",
+               Some
+                 ((if isExternal then "" else l.env.file.moduleName ^ ".")
+                  ^ (l.path |> SharedTypes.pathIdentToString)
+                 |> Json.escape |> wrapInQuotes) );
              ( "path",
                Some
                  (l.path |> SharedTypes.pathIdentToString |> Json.escape
                 |> wrapInQuotes) );
              ("moduleName", Some (l.env.file.moduleName |> wrapInQuotes));
-             ( "external",
-               Some
-                 (Printf.sprintf "%b" (originalEnv.file.uri <> l.env.file.uri))
-             );
+             ("external", Some (Printf.sprintf "%b" isExternal));
            ])
   |> array
 

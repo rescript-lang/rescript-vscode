@@ -21,6 +21,7 @@ preferring found resi file for impl: src/DocExtraction2.resi
     "signature": "let make: unit => t",
     "docstrings": ["Makerz of stuffz."],
     "linkables": [{
+        "linkId": "DocExtraction2.t",
         "path": "t",
         "moduleName": "DocExtraction2",
         "external": false
@@ -49,6 +50,7 @@ preferring found resi file for impl: src/DocExtraction2.resi
         "signature": "let make: unit => t",
         "docstrings": ["Maker of tea."],
         "linkables": [{
+            "linkId": "DocExtraction2.t",
             "path": "t",
             "moduleName": "DocExtraction2",
             "external": false

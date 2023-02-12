@@ -33,6 +33,7 @@ extracting docs for src/DocExtractionRes.res
     "signature": "let make: string => t",
     "docstrings": ["Create stuff.\\n\\n```rescript example\\nlet stuff = make(\\\"My name\\\")\\n```"],
     "linkables": [{
+        "linkId": "DocExtractionRes.t",
         "path": "t",
         "moduleName": "DocExtractionRes",
         "external": false
@@ -45,6 +46,7 @@ extracting docs for src/DocExtractionRes.res
     "signature": "let asOffline: t => t",
     "docstrings": ["Stuff goes offline."],
     "linkables": [{
+        "linkId": "DocExtractionRes.t",
         "path": "t",
         "moduleName": "DocExtractionRes",
         "external": false
@@ -65,6 +67,7 @@ extracting docs for src/DocExtractionRes.res
         "signature": "type status = Started(t) | Stopped | Idle",
         "docstrings": [],
         "linkables": [{
+            "linkId": "DocExtractionRes.t",
             "path": "t",
             "moduleName": "DocExtractionRes",
             "external": false
@@ -105,10 +108,12 @@ extracting docs for src/DocExtractionRes.res
         "signature": "type callback = (t, ~status: status) => unit",
         "docstrings": [],
         "linkables": [{
+            "linkId": "DocExtractionRes.t",
             "path": "t",
             "moduleName": "DocExtractionRes",
             "external": false
           }, {
+            "linkId": "DocExtractionRes.status",
             "path": "status",
             "moduleName": "DocExtractionRes",
             "external": false
@@ -131,6 +136,7 @@ extracting docs for src/DocExtractionRes.res
         "signature": "type callback = SomeInnerModule.status => unit",
         "docstrings": ["Testing what this looks like."],
         "linkables": [{
+            "linkId": "DocExtractionRes.SomeInnerModule.status",
             "path": "SomeInnerModule.status",
             "moduleName": "DocExtractionRes",
             "external": false
@@ -143,6 +149,7 @@ extracting docs for src/DocExtractionRes.res
         "signature": "let isGoodStatus: SomeInnerModule.status => bool",
         "docstrings": [],
         "linkables": [{
+            "linkId": "DocExtractionRes.SomeInnerModule.status",
             "path": "SomeInnerModule.status",
             "moduleName": "DocExtractionRes",
             "external": false
@@ -173,6 +180,7 @@ extracting docs for src/DocExtractionRes.res
         "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
         "docstrings": ["Callback to get the DOM root..."],
         "linkables": [{
+            "linkId": "ReactDOM.Client.Root.t",
             "path": "ReactDOM.Client.Root.t",
             "moduleName": "ReactDOM",
             "external": true
@@ -203,6 +211,7 @@ extracting docs for src/DocExtractionRes.res
         "signature": "let make: unit => t",
         "docstrings": ["The maker of stuff!"],
         "linkables": [{
+            "linkId": "DocExtractionRes.t",
             "path": "t",
             "moduleName": "DocExtractionRes",
             "external": false
