@@ -161,6 +161,33 @@ extracting docs for src/DocExtractionRes.res
           }]
       }]
     }
+  }, 
+  {
+    "kind": "module",
+    "item": 
+    {
+      "name": "ModuleWithThingsThatShouldNotBeExported",
+      "docstrings": [],
+      "items": [
+      {
+        "kind": "type",
+        "name": "t",
+        "signature": "type t",
+        "docstrings": ["The type t is stuff."],
+        "linkables": []
+      }, 
+      {
+        "kind": "value",
+        "name": "make",
+        "signature": "let make: unit => t",
+        "docstrings": ["The maker of stuff!"],
+        "linkables": [{
+            "path": "t",
+            "moduleName": "DocExtractionRes",
+            "external": false
+          }]
+      }]
+    }
   }]
 }
 

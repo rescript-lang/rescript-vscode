@@ -212,21 +212,42 @@ and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
           |> array) );
     ]
 
+exception Invalid_file_type
+
 let extractDocs ~path ~debug =
   if debug then Printf.printf "extracting docs for %s\n" path;
+  if
+    FindFiles.isImplementation path = false
+    && FindFiles.isInterface path = false
+  then raise Invalid_file_type;
+  let path =
+    if FindFiles.isImplementation path then
+      let pathAsResi =
+        (path |> Filename.dirname) ^ "/"
+        ^ (path |> Filename.basename |> Filename.chop_extension)
+        ^ ".resi"
+      in
+      if Sys.file_exists pathAsResi then (
+        if debug then
+          Printf.printf "preferring found resi file for impl: %s\n" pathAsResi;
+        pathAsResi)
+      else path
+    else path
+  in
   match Cmt.loadFullCmtFromPath ~path with
   | None -> ()
   | Some full ->
     let file = full.file in
     let structure = file.structure in
-    let env = SharedTypes.QueryEnv.fromFile file in
-    let rec extractDocs (structure : SharedTypes.Module.structure) =
+    let open SharedTypes in
+    let env = QueryEnv.fromFile file in
+    let rec extractDocs (structure : Module.structure) =
       {
         docstring = structure.docstring |> List.map String.trim;
         name = structure.name;
         items =
           structure.items
-          |> List.filter_map (fun (item : SharedTypes.Module.item) ->
+          |> List.filter_map (fun (item : Module.item) ->
                  match item.kind with
                  | Value typ ->
                    Some
@@ -263,8 +284,7 @@ let extractDocs ~path ~debug =
                                    {
                                      fieldDocs =
                                        fields
-                                       |> List.map
-                                            (fun (field : SharedTypes.field) ->
+                                       |> List.map (fun (field : field) ->
                                               (field.fname.txt, field.docstring));
                                    })
                             | Some (Tvariant {constructors}) ->
@@ -273,13 +293,17 @@ let extractDocs ~path ~debug =
                                    {
                                      constructorDocs =
                                        constructors
-                                       |> List.map
-                                            (fun (c : SharedTypes.Constructor.t)
-                                            -> (c.cname.txt, c.docstring));
+                                       |> List.map (fun (c : Constructor.t) ->
+                                              (c.cname.txt, c.docstring));
                                    })
                             | _ -> None);
                         })
-                 | Module (Structure m) -> Some (Module (extractDocs m))
+                 | Module (Structure m) ->
+                   (* module Whatever = {} in res or module Whatever: {} in resi. *)
+                   Some (Module (extractDocs m))
+                 | Module (Constraint (Structure _impl, Structure interface)) ->
+                   (* module Whatever: { <interface> } = { <impl> }. Prefer the interface. *)
+                   Some (Module (extractDocs interface))
                  | _ -> None);
       }
     in
