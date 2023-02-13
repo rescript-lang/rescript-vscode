@@ -1,5 +1,6 @@
 type linkableType = {
   name: string;
+  modulePath: string list;
   path: Path.t;
   env: SharedTypes.QueryEnv.t;
   loc: Location.t;
@@ -109,9 +110,17 @@ module Linkables = struct
     let fromConstructorPath ~env path =
       match References.digConstructor ~env ~package:full.package path with
       | None -> None
-      | Some (env, {name = {txt}; extentLoc}) ->
+      | Some (env, {name = {txt}; extentLoc; modulePath}) ->
         if Utils.isUncurriedInternal path then None
-        else Some {name = txt; env; loc = extentLoc; path}
+        else
+          Some
+            {
+              name = txt;
+              env;
+              loc = extentLoc;
+              modulePath = SharedTypes.ModulePath.toPath modulePath txt;
+              path;
+            }
     in
     let constructors = Shared.findTypeConstructors typesToSearch in
     constructors |> List.filter_map (fromConstructorPath ~env:envToSearch)
@@ -130,18 +139,16 @@ let stringifyLinkables ?(indentation = 0)
   linkables
   |> List.map (fun l ->
          let isExternal = originalEnv.file.uri <> l.env.file.uri in
+         let linkId = l.env.file.moduleName :: l.modulePath in
          stringifyObject ~indentation:(indentation + 1)
            [
              ( "linkId",
-               Some
-                 ((if isExternal then "" else l.env.file.moduleName ^ ".")
-                  ^ (l.path |> SharedTypes.pathIdentToString)
-                 |> Json.escape |> wrapInQuotes) );
-             ( "path",
+               Some (linkId |> SharedTypes.ident |> Json.escape |> wrapInQuotes)
+             );
+             ( "name",
                Some
                  (l.path |> SharedTypes.pathIdentToString |> Json.escape
                 |> wrapInQuotes) );
-             ("moduleName", Some (l.env.file.moduleName |> wrapInQuotes));
              ("external", Some (Printf.sprintf "%b" isExternal));
            ])
   |> array

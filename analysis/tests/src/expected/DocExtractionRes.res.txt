@@ -36,8 +36,7 @@ extracting docs for src/DocExtractionRes.res
     "docstrings": ["Create stuff.\\n\\n```rescript example\\nlet stuff = make(\\\"My name\\\")\\n```"],
     "linkables": [{
         "linkId": "DocExtractionRes.t",
-        "path": "t",
-        "moduleName": "DocExtractionRes",
+        "name": "t",
         "external": false
       }]
   }, 
@@ -49,8 +48,7 @@ extracting docs for src/DocExtractionRes.res
     "docstrings": ["Stuff goes offline."],
     "linkables": [{
         "linkId": "DocExtractionRes.t",
-        "path": "t",
-        "moduleName": "DocExtractionRes",
+        "name": "t",
         "external": false
       }]
   }, 
@@ -70,8 +68,7 @@ extracting docs for src/DocExtractionRes.res
         "docstrings": [],
         "linkables": [{
             "linkId": "DocExtractionRes.t",
-            "path": "t",
-            "moduleName": "DocExtractionRes",
+            "name": "t",
             "external": false
           }],
         "detail": 
@@ -84,8 +81,7 @@ extracting docs for src/DocExtractionRes.res
             "signature": "Started(t)",
             "linkables": [{
               "linkId": "DocExtractionRes.t",
-              "path": "t",
-              "moduleName": "DocExtractionRes",
+              "name": "t",
               "external": false
             }]
           }, 
@@ -119,13 +115,11 @@ extracting docs for src/DocExtractionRes.res
         "docstrings": [],
         "linkables": [{
             "linkId": "DocExtractionRes.t",
-            "path": "t",
-            "moduleName": "DocExtractionRes",
+            "name": "t",
             "external": false
           }, {
-            "linkId": "DocExtractionRes.status",
-            "path": "status",
-            "moduleName": "DocExtractionRes",
+            "linkId": "DocExtractionRes.SomeInnerModule.status",
+            "name": "status",
             "external": false
           }]
       }]
@@ -147,8 +141,7 @@ extracting docs for src/DocExtractionRes.res
         "docstrings": ["Testing what this looks like."],
         "linkables": [{
             "linkId": "DocExtractionRes.SomeInnerModule.status",
-            "path": "SomeInnerModule.status",
-            "moduleName": "DocExtractionRes",
+            "name": "SomeInnerModule.status",
             "external": false
           }]
       }, 
@@ -160,8 +153,7 @@ extracting docs for src/DocExtractionRes.res
         "docstrings": [],
         "linkables": [{
             "linkId": "DocExtractionRes.SomeInnerModule.status",
-            "path": "SomeInnerModule.status",
-            "moduleName": "DocExtractionRes",
+            "name": "SomeInnerModule.status",
             "external": false
           }]
       }, 
@@ -192,8 +184,7 @@ extracting docs for src/DocExtractionRes.res
         "docstrings": ["Callback to get the DOM root..."],
         "linkables": [{
             "linkId": "ReactDOM.Client.Root.t",
-            "path": "ReactDOM.Client.Root.t",
-            "moduleName": "ReactDOM",
+            "name": "ReactDOM.Client.Root.t",
             "external": true
           }]
       }]
@@ -222,9 +213,8 @@ extracting docs for src/DocExtractionRes.res
         "signature": "let make: unit => t",
         "docstrings": ["The maker of stuff!"],
         "linkables": [{
-            "linkId": "DocExtractionRes.t",
-            "path": "t",
-            "moduleName": "DocExtractionRes",
+            "linkId": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",
+            "name": "t",
             "external": false
           }]
       }]
