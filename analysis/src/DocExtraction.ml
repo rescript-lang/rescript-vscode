@@ -129,8 +129,7 @@ end
 let stringifyDocstrings docstrings =
   let open Protocol in
   docstrings
-  |> List.map (fun docstring ->
-         docstring |> String.trim |> Json.escape |> wrapInQuotes)
+  |> List.map (fun docstring -> docstring |> String.trim |> wrapInQuotes)
   |> array
 
 let stringifyLinkables ?(indentation = 0)
@@ -181,7 +180,7 @@ let stringifyDetail ?(indentation = 0) ~originalEnv (detail : docItemDetail) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("kind", Some (wrapInQuotes "variant"));
-        ( "fieldDocs",
+        ( "constructorDocs",
           Some
             (constructorDocs
             |> List.map (fun constructorDoc ->

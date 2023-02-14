@@ -33,7 +33,7 @@ extracting docs for src/DocExtractionRes.res
     "kind": "value",
     "name": "make",
     "signature": "let make: string => t",
-    "docstrings": ["Create stuff.\\n\\n```rescript example\\nlet stuff = make(\\\"My name\\\")\\n```"],
+    "docstrings": ["Create stuff.\n\n```rescript example\nlet stuff = make(\"My name\")\n```"],
     "linkables": [{
         "linkId": "DocExtractionRes.t",
         "name": "t",
@@ -74,7 +74,7 @@ extracting docs for src/DocExtractionRes.res
         "detail": 
         {
           "kind": "variant",
-          "fieldDocs": [
+          "constructorDocs": [
           {
             "constructorName": "Started",
             "docstrings": ["If this is started or not"],
@@ -167,7 +167,7 @@ extracting docs for src/DocExtractionRes.res
         "detail": 
         {
           "kind": "variant",
-          "fieldDocs": [
+          "constructorDocs": [
           {
             "constructorName": "SomeStuff",
             "docstrings": ["This has inline records..."],
