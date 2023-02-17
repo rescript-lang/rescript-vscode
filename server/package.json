@@ -8,6 +8,10 @@
 	"bin": {
 		"rescriptlsp": "./out/cli.js"
 	},
+	"files": [
+		"out/*",
+		"README.md"
+	],
 	"engines": {
 		"node": "*"
 	},
