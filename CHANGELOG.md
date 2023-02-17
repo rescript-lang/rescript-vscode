@@ -12,12 +12,65 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Enable completion for `Js.Exn.Error(error)` when pattern matching on `exn`. This is to make the `Js.Exn.Error` API more discoverable. https://github.com/rescript-lang/rescript-vscode/pull/728
+
+#### :nail_care: Polish
+
+- Signature Help is now considered stable, and enabled for all users. Can still be turned off in settings.
+- Show whether record fields and variant constructors are deprecated when completing. https://github.com/rescript-lang/rescript-vscode/pull/731
+
+## 1.12.0
+
+#### :rocket: New Feature
+
+- Add autocomplete for function argument values (booleans, variants and options. More values coming), both labelled and unlabelled. https://github.com/rescript-lang/rescript-vscode/pull/665
+- Add autocomplete for JSX prop values. https://github.com/rescript-lang/rescript-vscode/pull/667
+- Add snippet support in completion items. https://github.com/rescript-lang/rescript-vscode/pull/668
+- Add support from completing polyvariants as values. https://github.com/rescript-lang/rescript-vscode/pull/669
+- Add support for completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/670
+- Add support for pattern completion of unsaved tuples. https://github.com/rescript-lang/rescript-vscode/pull/679
+- Add support for completion in typed expressions. https://github.com/rescript-lang/rescript-vscode/pull/682
+- Complete for `React.element` creator functions (`React.string` etc) when in JSX context. https://github.com/rescript-lang/rescript-vscode/pull/681
+- Handle optional record fields in expression/pattern completion. https://github.com/rescript-lang/rescript-vscode/pull/691
+- Expand options in completion to make working with options a bit more ergonomic. https://github.com/rescript-lang/rescript-vscode/pull/690
+- Let `_` trigger completion in patterns. https://github.com/rescript-lang/rescript-vscode/pull/692
+- Support inline records in completion. https://github.com/rescript-lang/rescript-vscode/pull/695
+- Add way to autocomplete an exhaustive switch statement for identifiers. Example: an identifier that's a variant can have a switch autoinserted matching all variant cases. https://github.com/rescript-lang/rescript-vscode/pull/699
+- Support typed expression completion for lowercase (builtin) JSX tags. https://github.com/rescript-lang/rescript-vscode/pull/702
+- Support typed expression completion driven by type annotations. https://github.com/rescript-lang/rescript-vscode/pull/711
+- Completion for lowercase JSX elements, treating them like HTML elements. https://github.com/rescript-lang/rescript-vscode/pull/719
+
+#### :nail_care: Polish
+
+- Prefer opened `Belt` modules in autocomplete when `-open Belt` is detected in `bsconfig`. https://github.com/rescript-lang/rescript-vscode/pull/673
+- Improve precision in signature help. You now do not need to type anything into the argument for it to highlight. https://github.com/rescript-lang/rescript-vscode/pull/675
+- Remove redundant function name in signature help, to clean up what's shown to the user some. https://github.com/rescript-lang/rescript-vscode/pull/678
+- Show docstrings in hover for record fields and variant constructors. https://github.com/rescript-lang/rescript-vscode/pull/694
+- The necessary leading `?` is now automatically inserted for optional fields when destructuring records. https://github.com/rescript-lang/rescript-vscode/pull/715
+
+#### :bug: Bug Fix
+
+- Highlight `catch` like a keyword https://github.com/rescript-lang/rescript-vscode/pull/677
+- Make signature help work in calls nested inside of other calls. https://github.com/rescript-lang/rescript-vscode/pull/687
+- Fix pipe completion to work on aliased types. https://github.com/rescript-lang/rescript-vscode/pull/700
+- Fix issue with not finding type for function arguments. https://github.com/rescript-lang/rescript-vscode/pull/706
+- Fix incorrect syntax in hover help for module. https://github.com/rescript-lang/rescript-vscode/pull/709
+
+## v1.10.0
+
 #### :nail_care: Polish
 
 - Remove spacing between type definition in clients that do not support markdown links. https://github.com/rescript-lang/rescript-vscode/pull/619
 - Rename custom LSP methods names. https://github.com/rescript-lang/rescript-vscode/pull/611
-- Better performance for Inlay Hints and Codelens.
+- Better performance for Inlay Hints and Codelens. https://github.com/rescript-lang/rescript-vscode/pull/634
 - Accept both `@ns.doc` and the new `@res.doc` for the internal representation of doc comments. And both `@ns.optional` and `@res.optional` for the optional fields. https://github.com/rescript-lang/rescript-vscode/pull/642
+- Make pipe completion work more reliably after function calls. https://github.com/rescript-lang/rescript-vscode/pull/656
+- Make pipe completion work in pipe chains, not just on the first pipe. https://github.com/rescript-lang/rescript-vscode/pull/656
+- Make pipe completion work reliably when the path resolution needs to traverse submodules https://github.com/rescript-lang/rescript-vscode/pull/663
+- Make pipe completion work (after saving/compiling) when the return type of a function call is unknown until compilation https://github.com/rescript-lang/rescript-vscode/pull/662
+- Add pipe completion for `int` and `float` constants https://github.com/rescript-lang/rescript-vscode/pull/664
 
 #### :bug: Bug Fix
 
@@ -42,6 +95,10 @@
 - Fix issue with references to elements defined in an interface file https://github.com/rescript-lang/rescript-vscode/pull/646
 
 - Fix issue with references from implementation files which also happen to have interface files https://github.com/rescript-lang/rescript-vscode/issues/645
+
+- Fix issue where jump to definition would go to the wrong place when there are aliased identifiers in submodules https://github.com/rescript-lang/rescript-vscode/pull/653
+
+- Fix issue where document symbols were not shown nested https://github.com/rescript-lang/rescript-vscode/pull/655
 
 ## v1.8.2
 

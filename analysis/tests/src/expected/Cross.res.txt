@@ -99,3 +99,6 @@ Pexp_ident DefinitionWithInterface.a:[36:3->36:28]
 Completable: Cpath Value[DefinitionWithInterface, a]
 []
 
+Definition src/Cross.res 39:39
+{"uri": "DefinitionWithInterface.res", "range": {"start": {"line": 9, "character": 6}, "end": {"line": 9, "character": 7}}}
+

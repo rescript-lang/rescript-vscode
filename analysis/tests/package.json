@@ -8,6 +8,6 @@
     "@rescript/react": "^0.11.0-rc.3"
   },
   "dependencies": {
-    "rescript": "^10.1.0"
+    "rescript": "^10.1.2"
   }
 }

@@ -18,26 +18,25 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
       | Some (completable, scope) -> (
         match Cmt.loadFullCmtFromPath ~path with
         | None -> None
-        | Some {file; package} ->
+        | Some full ->
+          let {file; package} = full in
           let env = QueryEnv.fromFile file in
           Some
             ( completable
-              |> CompletionBackEnd.processCompletable ~debug ~package ~pos
-                   ~scope ~env ~forHover:true,
+              |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope
+                   ~env ~forHover:true,
               env,
               package,
               file )))
   in
   match completables with
-  | Some ({kind = Value type_expr; name; docstring} :: _, env, package, file) ->
-    let args, _ =
-      CompletionBackEnd.extractFunctionType type_expr ~env ~package
-    in
-    Some (args, name, docstring, type_expr, package, env, file)
+  | Some ({kind = Value type_expr; docstring} :: _, env, package, file) ->
+    let args, _ = TypeUtils.extractFunctionType type_expr ~env ~package in
+    Some (args, docstring, type_expr, package, env, file)
   | _ -> None
 
 (* Extracts all parameters from a parsed function signature *)
-let extractParameters ~signature ~label =
+let extractParameters ~signature ~typeStrForParser ~labelPrefixLen =
   match signature with
   | [
    {
@@ -54,10 +53,13 @@ let extractParameters ~signature ~label =
        ptyp_loc;
       } ->
         let startOffset =
-          ptyp_loc |> Loc.start |> Pos.positionToOffset label |> Option.get
+          ptyp_loc |> Loc.start
+          |> Pos.positionToOffset typeStrForParser
+          |> Option.get
         in
         let endOffset =
-          argumentTypeExpr.ptyp_loc |> Loc.end_ |> Pos.positionToOffset label
+          argumentTypeExpr.ptyp_loc |> Loc.end_
+          |> Pos.positionToOffset typeStrForParser
           |> Option.get
         in
         (* The AST locations does not account for "=?" of optional arguments, so add that to the offset here if needed. *)
@@ -67,7 +69,14 @@ let extractParameters ~signature ~label =
           | _ -> endOffset
         in
         extractParams nextFunctionExpr
-          (params @ [(argumentLabel, startOffset, endOffset)])
+          (params
+          @ [
+              ( argumentLabel,
+                (* Remove the label prefix offset here, since we're not showing
+                   that to the end user. *)
+                startOffset - labelPrefixLen,
+                endOffset - labelPrefixLen );
+            ])
       | _ -> params
     in
     extractParams expr []
@@ -151,159 +160,226 @@ let docsForLabel typeExpr ~file ~package ~supportsMarkdownLinks =
   typeString :: typeDefinitions |> String.concat "\n"
 
 let signatureHelp ~path ~pos ~currentFile ~debug =
-  let posBeforeCursor = Pos.posBeforeCursor pos in
-  let supportsMarkdownLinks = true in
-  let foundFunctionApplicationExpr = ref None in
-  let setFound r =
-    if !foundFunctionApplicationExpr = None then
-      foundFunctionApplicationExpr := Some r
-  in
-  let searchForArgWithCursor ~isPipeExpr ~args ~exp =
-    let extractedArgs = extractExpApplyArgs ~args in
-    let argAtCursor =
-      let unlabelledArgCount = ref (if isPipeExpr then 1 else 0) in
-      extractedArgs
-      |> List.find_map (fun arg ->
-             match arg.label with
-             | None ->
-               let currentUnlabelledArgCount = !unlabelledArgCount in
-               unlabelledArgCount := currentUnlabelledArgCount + 1;
-               (* An argument without a label is just the expression, so we can use that. *)
-               if arg.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
-                 Some (Unlabelled currentUnlabelledArgCount)
-               else None
-             | Some {name; posStart; posEnd} -> (
-               (* Check for the label identifier itself having the cursor *)
-               match
-                 pos |> CursorPosition.classifyPositions ~posStart ~posEnd
-               with
-               | HasCursor -> Some (Labelled name)
-               | NoCursor | EmptyLoc -> (
-                 (* If we're not in the label, check the exp. Either the exp
-                    exists and has the cursor. Or the exp is a parser recovery
-                    node, in which case we assume that the parser recovery
-                    indicates that the cursor was here. *)
-                 match
-                   ( arg.exp.pexp_desc,
-                     arg.exp.pexp_loc
-                     |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
-                 with
-                 | Pexp_extension ({txt = "rescript.exprhole"}, _), _
-                 | _, HasCursor ->
-                   Some (Labelled name)
-                 | _ -> None)))
-    in
-    setFound (argAtCursor, exp, extractedArgs)
-  in
-  let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression) =
-    (match expr with
-    (* Handle pipes, like someVar->someFunc(... *)
-    | {
-     pexp_desc =
-       Pexp_apply
-         ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
-           [
-             _;
-             ( _,
-               {
-                 pexp_desc =
-                   Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
-                 pexp_loc;
-               } );
-           ] );
-    }
-      when pexp_loc
-           |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-           == HasCursor ->
-      searchForArgWithCursor ~isPipeExpr:true ~args ~exp
-    (* Look for applying idents, like someIdent(...) *)
-    | {
-     pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
-     pexp_loc;
-    }
-      when pexp_loc
-           |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-           == HasCursor ->
-      searchForArgWithCursor ~isPipeExpr:false ~args ~exp
-    | _ -> ());
-    Ast_iterator.default_iterator.expr iterator expr
-  in
-  let iterator = {Ast_iterator.default_iterator with expr} in
-  let parser = Res_driver.parsingEngine.parseImplementation ~forPrinter:false in
-  let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
-  iterator.structure iterator structure |> ignore;
-  match !foundFunctionApplicationExpr with
-  | Some (argAtCursor, exp, _extractedArgs) -> (
-    (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
-    let pos = exp.pexp_loc |> Loc.end_ in
-    match findFunctionType ~currentFile ~debug ~path ~pos with
-    | Some (args, name, docstring, type_expr, package, _env, file) ->
-      if debug then
-        Printf.printf "argAtCursor: %s\n"
-          (match argAtCursor with
-          | None -> "none"
-          | Some (Labelled name) -> "~" ^ name
-          | Some (Unlabelled index) -> "unlabelled<" ^ string_of_int index ^ ">");
-
-      (* The LS protocol wants us to send both the full type signature (label) that the end user sees as the signature help, and all parameters in that label
-         in the form of a list of start/end character offsets. We leverage the parser to figure the offsets out by parsing the label, and extract the
-         offsets from the parser. *)
-
-      (* Put together a label here that both makes sense to show to the end user in the signature help, but also can be passed to the parser. *)
-      let label = "let " ^ name ^ ": " ^ Shared.typeToString type_expr in
-      let {Res_driver.parsetree = signature} =
-        Res_driver.parseInterfaceFromSource ~forPrinter:false
-          ~displayFilename:"<missing-file>" ~source:label
+  let textOpt = Files.readFile currentFile in
+  match textOpt with
+  | None | Some "" -> None
+  | Some text -> (
+    match Pos.positionToOffset text pos with
+    | None -> None
+    | Some offset -> (
+      let posBeforeCursor = Pos.posBeforeCursor pos in
+      let offsetNoWhite = Utils.skipWhite text (offset - 1) in
+      let firstCharBeforeCursorNoWhite =
+        if offsetNoWhite < String.length text && offsetNoWhite >= 0 then
+          Some text.[offsetNoWhite]
+        else None
       in
+      let supportsMarkdownLinks = true in
+      let foundFunctionApplicationExpr = ref None in
+      let setFound r =
+        (* Because we want to handle both piped and regular function calls, and in
+           the case of piped calls the iterator will process both the pipe and the
+           regular call (even though it's piped), we need to ensure that we don't
+           re-save the same expression (but unpiped, even though it's actually piped). *)
+        match (!foundFunctionApplicationExpr, r) with
+        | Some (_, alreadyFoundExp, _), (_, newExp, _)
+          when alreadyFoundExp.Parsetree.pexp_loc <> newExp.Parsetree.pexp_loc
+          ->
+          foundFunctionApplicationExpr := Some r
+        | None, _ -> foundFunctionApplicationExpr := Some r
+        | Some _, _ -> ()
+      in
+      let searchForArgWithCursor ~isPipeExpr ~args =
+        let extractedArgs = extractExpApplyArgs ~args in
+        let argAtCursor =
+          let firstArgIndex = if isPipeExpr then 1 else 0 in
+          let unlabelledArgCount = ref firstArgIndex in
+          let lastUnlabelledArgBeforeCursor = ref firstArgIndex in
+          let argAtCursor_ =
+            extractedArgs
+            |> List.find_map (fun arg ->
+                   match arg.label with
+                   | None ->
+                     let currentUnlabelledArgCount = !unlabelledArgCount in
+                     unlabelledArgCount := currentUnlabelledArgCount + 1;
+                     (* An argument without a label is just the expression, so we can use that. *)
+                     if arg.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+                       Some (Unlabelled currentUnlabelledArgCount)
+                     else (
+                       (* If this unlabelled arg doesn't have the cursor, record
+                          it as the last seen unlabelled arg before the
+                          cursor.*)
+                       if posBeforeCursor >= (arg.exp.pexp_loc |> Loc.start)
+                       then
+                         lastUnlabelledArgBeforeCursor :=
+                           currentUnlabelledArgCount;
+                       None)
+                   | Some {name; posStart; posEnd} -> (
+                     (* Check for the label identifier itself having the cursor *)
+                     match
+                       pos |> CursorPosition.classifyPositions ~posStart ~posEnd
+                     with
+                     | HasCursor -> Some (Labelled name)
+                     | NoCursor | EmptyLoc -> (
+                       (* If we're not in the label, check the exp. Either the exp
+                          exists and has the cursor. Or the exp is a parser recovery
+                          node, in which case we assume that the parser recovery
+                          indicates that the cursor was here. *)
+                       match
+                         ( arg.exp.pexp_desc,
+                           arg.exp.pexp_loc
+                           |> CursorPosition.classifyLoc ~pos:posBeforeCursor )
+                       with
+                       | Pexp_extension ({txt = "rescript.exprhole"}, _), _
+                       | _, HasCursor ->
+                         Some (Labelled name)
+                       | _ -> None)))
+          in
 
-      let parameters = extractParameters ~signature ~label in
-      if debug then
-        Printf.printf "extracted params: \n%s\n"
-          (parameters
-          |> List.map (fun (_, start, end_) ->
-                 String.sub label start (end_ - start))
-          |> list);
-
-      (* Figure out the active parameter *)
-      let activeParameter = findActiveParameter ~argAtCursor ~args in
-      Some
-        {
-          Protocol.signatures =
-            [
-              {
-                label;
-                parameters =
-                  parameters
-                  |> List.map (fun (argLabel, start, end_) ->
-                         {
-                           Protocol.label = (start, end_);
-                           documentation =
-                             (match
-                                args
-                                |> List.find_opt (fun (lbl, _) ->
-                                       lbl = argLabel)
-                              with
-                             | None ->
-                               {Protocol.kind = "markdown"; value = "Nope"}
-                             | Some (_, labelTypExpr) ->
-                               {
-                                 Protocol.kind = "markdown";
-                                 value =
-                                   docsForLabel ~supportsMarkdownLinks ~file
-                                     ~package labelTypExpr;
-                               });
-                         });
-                documentation =
-                  (match List.nth_opt docstring 0 with
-                  | None -> None
-                  | Some docs -> Some {Protocol.kind = "markdown"; value = docs});
-              };
-            ];
-          activeSignature = Some 0;
-          activeParameter =
-            (match activeParameter with
-            | None -> Some (-1)
-            | activeParameter -> activeParameter);
+          match argAtCursor_ with
+          | None ->
+            Some
+              (Unlabelled
+                 (!lastUnlabelledArgBeforeCursor
+                 +
+                 if firstCharBeforeCursorNoWhite = Some ',' then 1
+                   (* If we found no argument with the cursor, we might still be
+                      able to complete for an unlabelled argument, if the char
+                      before the cursor is ',', like: `someFn(123, <com>)`
+                      complete for argument 2, or: `someFn(123, <com>, true)`
+                      complete for argument 2 as well. Adding 1 here accounts
+                      for the comma telling us that the users intent is to fill
+                      in the next argument. *)
+                 else 0))
+          | v -> v
+        in
+        (argAtCursor, extractedArgs)
+      in
+      let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression)
+          =
+        (match expr with
+        (* Handle pipes, like someVar->someFunc(... *)
+        | {
+         pexp_desc =
+           Pexp_apply
+             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+               [
+                 _;
+                 ( _,
+                   {
+                     pexp_desc =
+                       Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
+                     pexp_loc;
+                   } );
+               ] );
         }
-    | _ -> None)
-  | _ -> None
+          when pexp_loc
+               |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+               == HasCursor ->
+          let argAtCursor, extractedArgs =
+            searchForArgWithCursor ~isPipeExpr:true ~args
+          in
+          setFound (argAtCursor, exp, extractedArgs)
+        (* Look for applying idents, like someIdent(...) *)
+        | {
+         pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
+         pexp_loc;
+        }
+          when pexp_loc
+               |> CursorPosition.classifyLoc ~pos:posBeforeCursor
+               == HasCursor ->
+          let argAtCursor, extractedArgs =
+            searchForArgWithCursor ~isPipeExpr:false ~args
+          in
+          setFound (argAtCursor, exp, extractedArgs)
+        | _ -> ());
+        Ast_iterator.default_iterator.expr iterator expr
+      in
+      let iterator = {Ast_iterator.default_iterator with expr} in
+      let parser =
+        Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+      in
+      let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
+      iterator.structure iterator structure |> ignore;
+      match !foundFunctionApplicationExpr with
+      | Some (argAtCursor, exp, _extractedArgs) -> (
+        (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
+        let pos = exp.pexp_loc |> Loc.end_ in
+        match findFunctionType ~currentFile ~debug ~path ~pos with
+        | Some (args, docstring, type_expr, package, _env, file) ->
+          if debug then
+            Printf.printf "argAtCursor: %s\n"
+              (match argAtCursor with
+              | None -> "none"
+              | Some (Labelled name) -> "~" ^ name
+              | Some (Unlabelled index) ->
+                "unlabelled<" ^ string_of_int index ^ ">");
+
+          (* The LS protocol wants us to send both the full type signature (label) that the end user sees as the signature help, and all parameters in that label
+             in the form of a list of start/end character offsets. We leverage the parser to figure the offsets out by parsing the label, and extract the
+             offsets from the parser. *)
+
+          (* A full let binding with the type text is needed for the parser to be able to parse it.  *)
+          let labelPrefix = "let fn: " in
+          let labelPrefixLen = String.length labelPrefix in
+          let fnTypeStr = Shared.typeToString type_expr in
+          let typeStrForParser = labelPrefix ^ fnTypeStr in
+          let {Res_driver.parsetree = signature} =
+            Res_driver.parseInterfaceFromSource ~forPrinter:false
+              ~displayFilename:"<missing-file>" ~source:typeStrForParser
+          in
+
+          let parameters =
+            extractParameters ~signature ~typeStrForParser ~labelPrefixLen
+          in
+          if debug then
+            Printf.printf "extracted params: \n%s\n"
+              (parameters
+              |> List.map (fun (_, start, end_) ->
+                     String.sub fnTypeStr start (end_ - start))
+              |> list);
+
+          (* Figure out the active parameter *)
+          let activeParameter = findActiveParameter ~argAtCursor ~args in
+          Some
+            {
+              Protocol.signatures =
+                [
+                  {
+                    label = fnTypeStr;
+                    parameters =
+                      parameters
+                      |> List.map (fun (argLabel, start, end_) ->
+                             {
+                               Protocol.label = (start, end_);
+                               documentation =
+                                 (match
+                                    args
+                                    |> List.find_opt (fun (lbl, _) ->
+                                           lbl = argLabel)
+                                  with
+                                 | None ->
+                                   {Protocol.kind = "markdown"; value = "Nope"}
+                                 | Some (_, labelTypExpr) ->
+                                   {
+                                     Protocol.kind = "markdown";
+                                     value =
+                                       docsForLabel ~supportsMarkdownLinks ~file
+                                         ~package labelTypExpr;
+                                   });
+                             });
+                    documentation =
+                      (match List.nth_opt docstring 0 with
+                      | None -> None
+                      | Some docs ->
+                        Some {Protocol.kind = "markdown"; value = docs});
+                  };
+                ];
+              activeSignature = Some 0;
+              activeParameter =
+                (match activeParameter with
+                | None -> Some (-1)
+                | activeParameter -> activeParameter);
+            }
+        | _ -> None)
+      | _ -> None))

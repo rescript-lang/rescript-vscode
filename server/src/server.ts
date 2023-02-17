@@ -37,7 +37,7 @@ interface extensionConfiguration {
   binaryPath: string | null;
   platformPath: string | null;
   signatureHelp: {
-    enable: boolean;
+    enabled: boolean;
   };
 }
 
@@ -46,6 +46,7 @@ interface extensionConfiguration {
 // work in one client, like VSCode, but perhaps not in others, like vim.
 export interface extensionClientCapabilities {
   supportsMarkdownLinks?: boolean | null;
+  supportsSnippetSyntax?: boolean | null;
 }
 let extensionClientCapabilities: extensionClientCapabilities = {};
 
@@ -62,7 +63,7 @@ let extensionConfiguration: extensionConfiguration = {
   binaryPath: null,
   platformPath: null,
   signatureHelp: {
-    enable: false,
+    enabled: true,
   },
 };
 // Below here is some state that's not important exactly how long it lives.
@@ -682,6 +683,7 @@ function completion(msg: p.RequestMessage) {
       params.position.line,
       params.position.character,
       tmpname,
+      Boolean(extensionClientCapabilities.supportsSnippetSyntax),
     ],
     msg
   );
@@ -948,7 +950,7 @@ function createInterface(msg: p.RequestMessage): p.Message {
       jsonrpc: c.jsonrpcVersion,
       id: msg.id,
       result: {
-        uri: utils.pathToURI(resiPath)
+        uri: utils.pathToURI(resiPath),
       },
     };
     return response;
@@ -1015,7 +1017,7 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
     id: msg.id,
     result: {
       uri: utils.pathToURI(compiledFilePath.result),
-    }
+    },
   };
 
   return response;
@@ -1097,6 +1099,11 @@ function onMessage(msg: p.Message) {
         extensionClientCapabilities = extensionClientCapabilitiesFromClient;
       }
 
+      extensionClientCapabilities.supportsSnippetSyntax = Boolean(
+        initParams.capabilities.textDocument?.completion?.completionItem
+          ?.snippetSupport
+      );
+
       // send the list of features we support
       let result: p.InitializeResult = {
         // This tells the client: "hey, we support the following operations".
@@ -1113,7 +1120,9 @@ function onMessage(msg: p.Message) {
           codeActionProvider: true,
           renameProvider: { prepareProvider: true },
           documentSymbolProvider: true,
-          completionProvider: { triggerCharacters: [".", ">", "@", "~", '"'] },
+          completionProvider: {
+            triggerCharacters: [".", ">", "@", "~", '"', "=", "("],
+          },
           semanticTokensProvider: {
             legend: {
               tokenTypes: [
@@ -1128,7 +1137,7 @@ function onMessage(msg: p.Message) {
               ],
               tokenModifiers: [],
             },
-            documentSelector: null,
+            documentSelector: [{ scheme: "file", language: "rescript" }],
             // TODO: Support range for full, and add delta support
             full: true,
           },
@@ -1138,7 +1147,7 @@ function onMessage(msg: p.Message) {
                 workDoneProgress: false,
               }
             : undefined,
-          signatureHelpProvider: extensionConfiguration.signatureHelp?.enable
+          signatureHelpProvider: extensionConfiguration.signatureHelp?.enabled
             ? {
                 triggerCharacters: ["("],
                 retriggerCharacters: ["=", ","],

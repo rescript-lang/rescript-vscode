@@ -15,10 +15,10 @@ let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
       (* Only perform expensive ast operations if there are completables *)
       match Cmt.loadFullCmtFromPath ~path with
       | None -> []
-      | Some {file; package} ->
-        let env = SharedTypes.QueryEnv.fromFile file in
+      | Some full ->
+        let env = SharedTypes.QueryEnv.fromFile full.file in
         completable
-        |> CompletionBackEnd.processCompletable ~debug ~package ~pos ~scope ~env
+        |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
              ~forHover))
 
 let completion ~debug ~path ~pos ~currentFile =

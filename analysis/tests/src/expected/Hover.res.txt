@@ -5,10 +5,10 @@ Hover src/Hover.res 3:5
 {"contents": {"kind": "markdown", "value": "```rescript\ntype t = (int, float)\n```"}}
 
 Hover src/Hover.res 6:7
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule Id = {\n  type x = int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule Id: {\n  type x = int\n}\n```"}}
 
 Hover src/Hover.res 19:11
-{"contents": {"kind": "markdown", "value": "\nThis module is commented\n```rescript\nmodule Dep = {\n  let customDouble: int => int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "\nThis module is commented\n```rescript\nmodule Dep: {\n  let customDouble: int => int\n}\n```"}}
 
 Hover src/Hover.res 22:11
 {"contents": {"kind": "markdown", "value": "```rescript\nint => int\n```\n\nSome doc comment"}}
@@ -50,13 +50,13 @@ Definition src/Hover.res 60:14
 {"uri": "Hover.res", "range": {"start": {"line": 49, "character": 12}, "end": {"line": 49, "character": 18}}}
 
 Hover src/Hover.res 63:9
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule IdDefinedTwice = {\n  let y: int\n  let _x: int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule IdDefinedTwice: {\n  let y: int\n  let _x: int\n}\n```"}}
 
 Hover src/Hover.res 74:7
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule A = {\n  let x: int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule A: {\n  let x: int\n}\n```"}}
 
 Hover src/Hover.res 77:7
-{"contents": {"kind": "markdown", "value": "```rescript\nmodule A = {\n  let x: int\n}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nmodule A: {\n  let x: int\n}\n```"}}
 
 Hover src/Hover.res 91:10
 Nothing at that position. Now trying to use completion.
@@ -178,4 +178,17 @@ Hover src/Hover.res 230:20
 
 Hover src/Hover.res 233:17
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n More Stuff "}}
+
+Hover src/Hover.res 245:6
+Nothing at that position. Now trying to use completion.
+posCursor:[245:6] posNoWhite:[245:5] Found expr:[245:3->245:14]
+Pexp_field [245:3->245:4] someField:[245:5->245:14]
+Completable: Cpath Value[x].someField
+{"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n\n Mighty fine field here. "}}
+
+Hover src/Hover.res 248:19
+{"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n\n Mighty fine field here. "}}
+
+Hover src/Hover.res 253:20
+{"contents": {"kind": "markdown", "value": "```rescript\nCoolVariant\n```\n\n Cool variant! \n\n```rescript\nvariant\n```\n\n---\n\n```\n \n```\n```rescript\ntype variant = CoolVariant | OtherCoolVariant\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C251%2C0%5D)\n"}}
 

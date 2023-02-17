@@ -1,0 +1,296 @@
+Complete src/CompletionTypeAnnotation.res 9:22
+XXX Not found!
+Completable: Cexpression Type[someRecord]
+[{
+    "label": "{}",
+    "kind": 12,
+    "tags": [],
+    "detail": "type someRecord = {age: int, name: string}",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 12:24
+XXX Not found!
+Completable: Cexpression Type[someRecord]->recordBody
+[{
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {age: int, name: string}",
+    "documentation": null
+  }, {
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {age: int, name: string}",
+    "documentation": null
+  }]
+
+Complete src/CompletionTypeAnnotation.res 15:23
+XXX Not found!
+Completable: Cexpression Type[someVariant]
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 18:25
+XXX Not found!
+Completable: Cexpression Type[someVariant]=O
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "sortText": "A One",
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Obj",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Object",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
+
+Complete src/CompletionTypeAnnotation.res 21:27
+XXX Not found!
+Completable: Cexpression Type[somePolyVariant]
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #two(bool)]",
+    "documentation": null,
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two(bool)\n\n[#one | #two(bool)]",
+    "documentation": null,
+    "insertText": "#two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 24:30
+XXX Not found!
+Completable: Cexpression Type[somePolyVariant]=#o
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #two(bool)]",
+    "documentation": null,
+    "insertText": "one",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 29:20
+XXX Not found!
+Completable: Cexpression Type[someFunc]
+[{
+    "label": "(v1, v2) => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, string) => bool",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "(${1:v1}, ${2:v2}) => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 34:21
+XXX Not found!
+Completable: Cexpression Type[someTuple]
+[{
+    "label": "(_, _)",
+    "kind": 12,
+    "tags": [],
+    "detail": "(bool, option<bool>)",
+    "documentation": null,
+    "insertText": "(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 37:28
+XXX Not found!
+Completable: Cexpression Type[someTuple]->tuple($1)
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionTypeAnnotation.res 40:31
+XXX Not found!
+Completable: Cexpression option<Type[someVariant]>
+[{
+    "label": "None",
+    "kind": 4,
+    "tags": [],
+    "detail": "type someVariant = One | Two(bool)",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "type someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(One)",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Some(One)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(Two(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Some(Two(${1:_}))",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 43:37
+XXX Not found!
+Completable: Cexpression option<Type[someVariant]>->variantPayload::Some($0)
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 46:30
+XXX Not found!
+Completable: Cexpression array<Type[someVariant]>
+[{
+    "label": "[]",
+    "kind": 12,
+    "tags": [],
+    "detail": "type someVariant = One | Two(bool)",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "[$0]",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 49:32
+XXX Not found!
+Completable: Cexpression array<Type[someVariant]>->array
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 52:38
+XXX Not found!
+Completable: Cexpression array<option<Type[someVariant]>>
+[{
+    "label": "[]",
+    "kind": 12,
+    "tags": [],
+    "detail": "option<someVariant>",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "[$0]",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionTypeAnnotation.res 55:45
+XXX Not found!
+Completable: Cexpression option<array<Type[someVariant]>>->variantPayload::Some($0), array
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }]
+

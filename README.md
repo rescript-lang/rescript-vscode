@@ -5,13 +5,6 @@
 <p align="center">The Official VSCode plugin for ReScript</p>
 
 <p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=chenglou92.rescript-vscode">
-    <img src="https://vsmarketplacebadge.apphb.com/version/chenglou92.rescript-vscode.svg"/>
-    <img src="https://vsmarketplacebadge.apphb.com/installs/chenglou92.rescript-vscode.svg"/>
-  </a>
-</p>
-
-<p align="center">
   <img src="https://user-images.githubusercontent.com/1909539/101266821-790b1400-3707-11eb-8e9f-fb7e36e660e6.gif"/>
 </p>
 
@@ -111,7 +104,7 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 | ReScript Platform Path         | The extension will look for the existence of a `node_modules/rescript` directory and use the subdirectory corresponding to the current platform as the `platformPath`. If it does not find it at the project root (which is where the nearest `bsconfig.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level. To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.platformPath` |
 | Inlay Hints (experimental)     | This allows an editor to place annotations inline with text to display type hints. Enable using `rescript.settings.inlayHints.enable: true`                                                                                                                                                                                                                                                                                                                                                                                      |
 | Code Lens (experimental)       | This tells the editor to add code lenses to function definitions, showing its full type above the definition. Enable using `rescript.settings.codeLens: true`                                                                                                                                                                                                                                                                                                                                                                    |
-| Signature Help (experimental)  | This tells the editor to show signature help when you're writing function calls. Enable using `rescript.settings.signatureHelp.enable: true`                                                                                                                                                                                                                                                                                                                                                                                     |
+| Signature Help                 | This tells the editor to show signature help when you're writing function calls. Enable using `rescript.settings.signatureHelp.enabled: true`                                                                                                                                                                                                                                                                                                                                                                                    |
 | Autostarting the Code Analyzer | The Code Analyzer needs to be started manually by default. However, you can configure the extension to start the Code Analyzer automatically via the setting `rescript.settings.autoRunCodeAnalysis`.                                                                                                                                                                                                                                                                                                                            |
 
 **Default settings:**

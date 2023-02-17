@@ -1,0 +1,56 @@
+Complete src/CompletionPipeSubmodules.res 12:20
+posCursor:[12:20] posNoWhite:[12:19] Found expr:[12:11->20:8]
+Completable: Cpath Value[A, B1, xx]->
+[{
+    "label": "A.B1.xx",
+    "kind": 12,
+    "tags": [],
+    "detail": "b1",
+    "documentation": null
+  }, {
+    "label": "A.B1.B1",
+    "kind": 4,
+    "tags": [],
+    "detail": "B1\n\ntype b1 = B1",
+    "documentation": null
+  }]
+
+Complete src/CompletionPipeSubmodules.res 16:18
+posCursor:[16:18] posNoWhite:[16:17] Found expr:[16:11->20:8]
+Completable: Cpath Value[A, x].v->
+[{
+    "label": "A.B1.xx",
+    "kind": 12,
+    "tags": [],
+    "detail": "b1",
+    "documentation": null
+  }, {
+    "label": "A.B1.B1",
+    "kind": 4,
+    "tags": [],
+    "detail": "B1\n\ntype b1 = B1",
+    "documentation": null
+  }]
+
+Complete src/CompletionPipeSubmodules.res 38:20
+posCursor:[38:20] posNoWhite:[38:19] Found expr:[38:11->0:-1]
+Completable: Cpath Value[E, e].v.v->
+[{
+    "label": "C.C",
+    "kind": 4,
+    "tags": [],
+    "detail": "C\n\ntype t = C",
+    "documentation": null
+  }]
+
+Complete src/CompletionPipeSubmodules.res 42:21
+posCursor:[42:21] posNoWhite:[42:20] Found expr:[42:11->0:-1]
+Completable: Cpath Value[E, e].v.v2->
+[{
+    "label": "D.C2.C2",
+    "kind": 4,
+    "tags": [],
+    "detail": "C2\n\ntype t2 = C2",
+    "documentation": null
+  }]
+

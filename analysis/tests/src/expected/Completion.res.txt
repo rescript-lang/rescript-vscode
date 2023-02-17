@@ -379,7 +379,7 @@ Found type for function (~age: int, ~name: string) => string
 
 Complete src/Completion.res 26:13
 posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:3->26:13]
-Completable: Cpath array->m
+Completable: Cpath array<int>->m
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -463,9 +463,7 @@ Completable: Cpath Value[Js, Dict, u]
 Complete src/Completion.res 59:30
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:15->59:30]
 JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
-posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:29->59:30]
-Pexp_ident z:[59:29->59:30]
-Completable: Cpath Value[z]
+Completable: Cexpression CJsxPropValue [O, Comp] second=z
 [{
     "label": "zzz",
     "kind": 12,
@@ -1448,7 +1446,9 @@ posCursor:[362:8] posNoWhite:[362:7] Found expr:[361:2->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
-Completable: Cpath Value[T]
+Completable: Cpattern Value[x]=T
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
 [{
@@ -1625,11 +1625,11 @@ Resolved opens 2 Completion.res Completion.res
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->417:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->415:1], ...[417:0->417:0])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->415:1]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->415:1])
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->415:1]
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->453:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->453:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->405:22]
 Pexp_ident r:[405:21->405:22]
 Completable: Cpath Value[r]
@@ -1700,5 +1700,113 @@ Resolved opens 2 Completion.res Completion.res
     "tags": [],
     "detail": "int",
     "documentation": null
+  }]
+
+Complete src/Completion.res 417:17
+posCursor:[417:17] posNoWhite:[417:16] Found expr:[417:11->417:17]
+Completable: Cpath int->t
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+  }, {
+    "label": "Belt.Int.toFloat",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => float",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+  }]
+
+Complete src/Completion.res 420:19
+posCursor:[420:19] posNoWhite:[420:18] Found expr:[420:11->420:19]
+Completable: Cpath float->t
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "Belt.Float.toInt",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => int",
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n```res example\nJs.log(Belt.Float.toInt(1.0) === 1) /* true */\n```\n"}
+  }, {
+    "label": "Belt.Float.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "float => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Float.toString(1.0) === \"1.0\") /* true */\n  ```\n"}
+  }]
+
+Complete src/Completion.res 425:8
+posCursor:[425:8] posNoWhite:[425:7] Found expr:[425:3->425:8]
+Completable: Cpath Value[ok]->g
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "Belt.Result.getExn",
+    "kind": 12,
+    "tags": [],
+    "detail": "t<'a, 'b> => 'a",
+    "documentation": {"kind": "markdown", "value": "\n  `getExn(res)`: when `res` is `Ok(n)`, returns `n` when `res` is `Error(m)`, raise an exception\n\n  ```res example\n  Belt.Result.getExn(Belt.Result.Ok(42)) == 42\n\n  Belt.Result.getExn(Belt.Result.Error(\"Invalid data\")) /* raises exception */\n  ```\n"}
+  }, {
+    "label": "Belt.Result.getWithDefault",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a, 'b>, 'a) => 'a",
+    "documentation": {"kind": "markdown", "value": "\n  `getWithDefault(res, defaultValue)`: If `res` is `Ok(n)`, returns `n`,\n  otherwise `default`\n\n  ```res example\n  Belt.Result.getWithDefault(Ok(42), 0) == 42\n\n  Belt.Result.getWithDefault(Error(\"Invalid Data\"), 0) == 0\n  ```\n"}
+  }]
+
+Complete src/Completion.res 443:15
+posCursor:[443:15] posNoWhite:[443:14] Found expr:[443:3->443:15]
+Pexp_field [443:3->443:12] so:[443:13->443:15]
+Completable: Cpath Value[rWithDepr].so
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "someInt",
+    "kind": 5,
+    "tags": [1],
+    "detail": "someInt: int\n\ntype someRecordWithDeprecatedField = {\n  name: string,\n  someInt: int,\n  someFloat: float,\n}",
+    "documentation": {"kind": "markdown", "value": "Deprecated: \n\n"}
+  }, {
+    "label": "someFloat",
+    "kind": 5,
+    "tags": [1],
+    "detail": "someFloat: float\n\ntype someRecordWithDeprecatedField = {\n  name: string,\n  someInt: int,\n  someFloat: float,\n}",
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use 'someInt'.\n\n"}
+  }]
+
+Complete src/Completion.res 450:37
+XXX Not found!
+Completable: Cexpression Type[someVariantWithDeprecated]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Resolved opens 2 Completion.res Completion.res
+[{
+    "label": "DoNotUseMe",
+    "kind": 4,
+    "tags": [1],
+    "detail": "DoNotUseMe\n\ntype someVariantWithDeprecated =\n  | DoNotUseMe\n  | UseMeInstead\n  | AndNotMe",
+    "documentation": {"kind": "markdown", "value": "Deprecated: \n\n"},
+    "insertText": "DoNotUseMe",
+    "insertTextFormat": 2
+  }, {
+    "label": "UseMeInstead",
+    "kind": 4,
+    "tags": [],
+    "detail": "UseMeInstead\n\ntype someVariantWithDeprecated =\n  | DoNotUseMe\n  | UseMeInstead\n  | AndNotMe",
+    "documentation": null,
+    "insertText": "UseMeInstead",
+    "insertTextFormat": 2
+  }, {
+    "label": "AndNotMe",
+    "kind": 4,
+    "tags": [1],
+    "detail": "AndNotMe\n\ntype someVariantWithDeprecated =\n  | DoNotUseMe\n  | UseMeInstead\n  | AndNotMe",
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use 'UseMeInstead'\n\n"},
+    "insertText": "AndNotMe",
+    "insertTextFormat": 2
   }]
 

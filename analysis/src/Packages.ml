@@ -98,7 +98,7 @@ let newBsPackage ~rootPath =
                   opens_from_bsc_flags
                   |> List.find_opt (fun opn ->
                          match opn with
-                         | ["RescriptStdlib"] -> true
+                         | ["RescriptCore"] -> true
                          | _ -> false)
                   |> Option.is_some
                  then
@@ -111,7 +111,27 @@ let newBsPackage ~rootPath =
                     promiseModulePath = ["Promise"];
                     listModulePath = ["List"];
                     resultModulePath = ["Result"];
+                    exnModulePath = ["Exn"];
                   }
+                 else if
+                 opens_from_bsc_flags
+                 |> List.find_opt (fun opn ->
+                        match opn with
+                        | ["Belt"] -> true
+                        | _ -> false)
+                 |> Option.is_some
+                then
+                   {
+                     arrayModulePath = ["Array"];
+                     optionModulePath = ["Option"];
+                     stringModulePath = ["Js"; "String2"];
+                     intModulePath = ["Int"];
+                     floatModulePath = ["Float"];
+                     promiseModulePath = ["Js"; "Promise"];
+                     listModulePath = ["List"];
+                     resultModulePath = ["Result"];
+                     exnModulePath = ["Js"; "Exn"];
+                   }
                  else
                    {
                      arrayModulePath = ["Js"; "Array2"];
@@ -122,6 +142,7 @@ let newBsPackage ~rootPath =
                      promiseModulePath = ["Js"; "Promise"];
                      listModulePath = ["Belt"; "List"];
                      resultModulePath = ["Belt"; "Result"];
+                     exnModulePath = ["Js"; "Exn"];
                    });
              })))
     | None -> None)

@@ -403,7 +403,7 @@ let header2 = `
     background-color: ${red}; `
 //                       ^com
 
-// let _ = `color: ${r    
+// let _ = `color: ${r
 //                    ^com
 
 let onClick = evt => {
@@ -414,3 +414,39 @@ let onClick = evt => {
   //                 ^com
   Js.log("Hello")
 }
+
+// let _ = 123->t
+//               ^com
+
+// let _ = 123.0->t
+//                 ^com
+
+let ok = Ok(true)
+
+// ok->g
+//      ^com
+
+type someRecordWithDeprecatedField = {
+  name: string,
+  @deprecated
+  someInt: int,
+  @deprecated("Use 'someInt'.")
+  someFloat: float,
+}
+
+let rWithDepr: someRecordWithDeprecatedField = {
+  name: "hej",
+  someInt: 12,
+  someFloat: 12.,
+}
+
+// Should show deprecated status
+// rWithDepr.so
+//             ^com
+
+type someVariantWithDeprecated =
+  | @deprecated DoNotUseMe | UseMeInstead | @deprecated("Use 'UseMeInstead'") AndNotMe
+
+// Should show deprecated status
+// let v: someVariantWithDeprecated =
+//                                   ^com

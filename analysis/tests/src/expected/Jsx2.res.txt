@@ -6,9 +6,7 @@ the type is not great but jump to definition works
 Complete src/Jsx2.res 8:15
 posCursor:[8:15] posNoWhite:[8:14] Found expr:[8:4->8:15]
 JSX <M:[8:4->8:5] second[8:6->8:12]=...[8:13->8:15]> _children:None
-posCursor:[8:15] posNoWhite:[8:14] Found expr:[8:13->8:15]
-Pexp_ident fi:[8:13->8:15]
-Completable: Cpath Value[fi]
+Completable: Cexpression CJsxPropValue [M] second=fi
 []
 
 Complete src/Jsx2.res 11:20

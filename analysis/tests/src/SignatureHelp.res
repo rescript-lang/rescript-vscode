@@ -53,3 +53,24 @@ let iAmSoSpecial = (iJustHaveOneArg: string) => {
 
 // let _ = "hello"->otherFunc(1
 //                             ^she
+
+let fn = (age: int, name: string, year: int) => {
+  ignore(age)
+  ignore(name)
+  ignore(year)
+}
+
+// let _ = fn(22, )
+//               ^she
+
+// let _ = fn(22, , 2023)
+//               ^she
+
+// let _ = fn(12, "hello", )
+//                        ^she
+
+// let _ = fn({ iAmSoSpecial() })
+//                           ^she
+
+// let _ = fn({ iAmSoSpecial({ someFunc() }) })
+//                                      ^she

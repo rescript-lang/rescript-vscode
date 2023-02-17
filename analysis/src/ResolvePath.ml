@@ -46,7 +46,8 @@ and resolvePathInner ~(env : QueryEnv.t) ~path =
 
 and findInModule ~(env : QueryEnv.t) module_ path =
   match module_ with
-  | Structure {exported} -> resolvePathInner ~env:{env with exported} ~path
+  | Structure structure ->
+    resolvePathInner ~env:(QueryEnv.enterStructure env structure) ~path
   | Constraint (_, module1) -> findInModule ~env module1 path
   | Ident modulePath -> (
     let stamp, moduleName, fullPath = joinPaths modulePath path in
@@ -133,7 +134,7 @@ let resolveFromCompilerPath ~env ~package path =
   | NotFound -> NotFound
   | Exported (env, name) -> Exported (env, name)
 
-let rec getSourceUri ~(env : QueryEnv.t) ~package path =
+let rec getSourceUri ~(env : QueryEnv.t) ~package (path : ModulePath.t) =
   match path with
   | File (uri, _moduleName) -> uri
   | NotVisible -> env.file.uri
