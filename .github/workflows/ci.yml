@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ master, publish-npm ]
+    branches: [ master ]
     tags: "*.*.*"
   pull_request:
     branches: [ master ]
@@ -14,18 +14,18 @@ jobs:
       matrix:
         # Stay on the oldest Ubuntu version that's still supported by Github Actions
         # to avoid glibc incompatibilities as far as possible.
-        os: [ubuntu-20.04]
+        os: [macos-latest, macos-arm, ubuntu-20.04, windows-latest]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
-          # - os: macos-latest
-          #   artifact-folder: darwin
-          # - os: macos-arm
-          #   artifact-folder: darwinarm64
+          - os: macos-latest
+            artifact-folder: darwin
+          - os: macos-arm
+            artifact-folder: darwinarm64
           - os: ubuntu-20.04
             artifact-folder: linux
-          # - os: windows-latest
-          #   artifact-folder: win32
+          - os: windows-latest
+            artifact-folder: win32
 
     runs-on: ${{matrix.os}}
 
@@ -96,21 +96,21 @@ jobs:
     - run: npm ci
     - run: npm run compile
 
-    # - name: Download MacOS binary
-    #   uses: actions/download-artifact@v3
-    #   with:
-    #     name: macos-latest
-    #     path: ./server/analysis_binaries
-    # - run: tar -xvf binary.tar
-    #   working-directory: ./server/analysis_binaries
+    - name: Download MacOS binary
+      uses: actions/download-artifact@v3
+      with:
+        name: macos-latest
+        path: ./server/analysis_binaries
+    - run: tar -xvf binary.tar
+      working-directory: ./server/analysis_binaries
 
-    # - name: Download MacOS ARM binary
-    #   uses: actions/download-artifact@v3
-    #   with:
-    #     name: macos-arm
-    #     path: ./server/analysis_binaries
-    # - run: tar -xvf binary.tar
-    #   working-directory: ./server/analysis_binaries
+    - name: Download MacOS ARM binary
+      uses: actions/download-artifact@v3
+      with:
+        name: macos-arm
+        path: ./server/analysis_binaries
+    - run: tar -xvf binary.tar
+      working-directory: ./server/analysis_binaries
 
     - name: Download Linux binary
       uses: actions/download-artifact@v3
@@ -120,13 +120,13 @@ jobs:
     - run: tar -xvf binary.tar
       working-directory: ./server/analysis_binaries
 
-    # - name: Download Windows binary
-    #   uses: actions/download-artifact@v3
-    #   with:
-    #     name: windows-latest
-    #     path: ./server/analysis_binaries
-    # - run: tar -xvf binary.tar
-    #   working-directory: ./server/analysis_binaries
+    - name: Download Windows binary
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-latest
+        path: ./server/analysis_binaries
+    - run: tar -xvf binary.tar
+      working-directory: ./server/analysis_binaries
 
     - name: Cleanup tar file
       run: rm binary.tar
@@ -207,15 +207,6 @@ jobs:
     - name: Publish extension as release
       if: startsWith(github.ref, 'refs/tags/')
       run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
-
-    # Get version from experimental tag and increment minor version
-    - name: Publish pre-release server to npm
-      if: github.ref == 'refs/heads/master'
-      run: |
-        NEW_NPM_VERSION=$(npm show rescript-language-server dist-tags --json | jq -r '.experimental' | awk 'BEGIN{FS=OFS="."} {$2+=1} 1')
-        npm version $(NEW_NPM_VERSION)
-        npm publish --tag experimental
-      working-directory: ./server
 
     - name: Publish release server to npm
       if: startsWith(github.ref, 'refs/tags/')
