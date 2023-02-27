@@ -221,7 +221,15 @@ let kindToDetail name (kind : Completion.kind) =
   | Label typString -> typString
   | Module _ -> "module"
   | FileModule _ -> "file module"
-  | Field ({typ}, s) -> name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
+  | Field ({typ; optional}, s) ->
+    (* Handle optional fields. Checking for "?" is because sometimes optional
+       fields are prefixed with "?" when completing, and at that point we don't
+       need to _also_ add a "?" after the field name, as that looks weird. *)
+    if optional && Utils.startsWith name "?" = false then
+      name ^ "?: "
+      ^ (typ |> Utils.unwrapIfOption |> Shared.typeToString)
+      ^ "\n\n" ^ s
+    else name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
   | PolyvariantConstructor ({name; args}, s) ->
     "#" ^ name
