@@ -20,6 +20,7 @@
 
 - Signature Help is now considered stable, and enabled for all users. Can still be turned off in settings.
 - Show whether record fields and variant constructors are deprecated when completing. https://github.com/rescript-lang/rescript-vscode/pull/731
+- Prettify how optional record fields are printed in the completion item detail. https://github.com/rescript-lang/rescript-vscode/pull/737
 
 ## 1.12.0
 
