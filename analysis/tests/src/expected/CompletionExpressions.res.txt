@@ -747,3 +747,15 @@ Completable: Cexpression CArgument Value[Js, log]($0)=s
     "documentation": null
   }]
 
+Complete src/CompletionExpressions.res 196:14
+posCursor:[196:14] posNoWhite:[196:13] Found expr:[196:3->196:14]
+Pexp_field [196:3->196:6] someOpt:[196:7->196:14]
+Completable: Cpath Value[fff].someOpt
+[{
+    "label": "someOptField",
+    "kind": 5,
+    "tags": [],
+    "detail": "someOptField?: bool\n\ntype recordWithOptionalField = {\n  someField: int,\n  someOptField?: bool,\n}",
+    "documentation": null
+  }]
+

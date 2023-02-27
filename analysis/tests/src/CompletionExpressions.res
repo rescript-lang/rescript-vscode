@@ -186,3 +186,13 @@ let something = {
   Js.log(s)
   //      ^com
 }
+
+let fff: recordWithOptionalField = {
+  someField: 123,
+  someOptField: true,
+}
+
+ignore(fff)
+
+// fff.someOpt
+//            ^com
