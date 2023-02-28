@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.14.0
+
 #### :rocket: New Feature
 
 - Enable completion for `Js.Exn.Error(error)` when pattern matching on `exn`. This is to make the `Js.Exn.Error` API more discoverable. https://github.com/rescript-lang/rescript-vscode/pull/728
@@ -21,6 +23,10 @@
 - Signature Help is now considered stable, and enabled for all users. Can still be turned off in settings.
 - Show whether record fields and variant constructors are deprecated when completing. https://github.com/rescript-lang/rescript-vscode/pull/731
 - Prettify how optional record fields are printed in the completion item detail. https://github.com/rescript-lang/rescript-vscode/pull/737
+
+#### :bug: Bug Fix
+
+- Fix crashes in document symbol requests when broken syntax exists. https://github.com/rescript-lang/rescript-vscode/pull/736
 
 ## 1.12.0
 
