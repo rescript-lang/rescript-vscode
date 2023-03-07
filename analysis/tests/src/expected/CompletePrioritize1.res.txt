@@ -1,6 +1,8 @@
 Complete src/CompletePrioritize1.res 5:6
 posCursor:[5:6] posNoWhite:[5:5] Found expr:[5:3->0:-1]
 Completable: Cpath Value[a]->
+ContextPath Value[a]->
+ContextPath Value[a]
 [{
     "label": "Test.add",
     "kind": 12,

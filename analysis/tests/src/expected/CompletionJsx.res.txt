@@ -1,6 +1,8 @@
 Complete src/CompletionJsx.res 3:17
 posCursor:[3:17] posNoWhite:[3:16] Found expr:[3:3->3:17]
 Completable: Cpath Value[someString]->st
+ContextPath Value[someString]->st
+ContextPath Value[someString]
 [{
     "label": "Js.String2.startsWith",
     "kind": 12,
@@ -24,6 +26,8 @@ posCursor:[13:21] posNoWhite:[13:20] Found expr:[12:4->32:10]
 posCursor:[13:21] posNoWhite:[13:20] Found expr:[13:7->32:10]
 posCursor:[13:21] posNoWhite:[13:20] Found expr:[13:7->13:21]
 Completable: Cpath Value[someString]->st <<jsx>>
+ContextPath Value[someString]->st <<jsx>>
+ContextPath Value[someString]
 [{
     "label": "React.string",
     "kind": 12,
@@ -65,6 +69,8 @@ Pexp_construct :::[18:10->32:4] [18:10->32:4]
 posCursor:[18:24] posNoWhite:[18:23] Found expr:[18:10->32:4]
 posCursor:[18:24] posNoWhite:[18:23] Found expr:[18:10->18:24]
 Completable: Cpath Value[someString]->st <<jsx>>
+ContextPath Value[someString]->st <<jsx>>
+ContextPath Value[someString]
 [{
     "label": "React.string",
     "kind": 12,
@@ -106,6 +112,8 @@ Pexp_construct :::[20:10->32:4] [20:10->32:4]
 posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->32:4]
 posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->20:27]
 Completable: Cpath string->st <<jsx>>
+ContextPath string->st <<jsx>>
+ContextPath string
 [{
     "label": "React.string",
     "kind": 12,
@@ -147,6 +155,9 @@ Pexp_construct :::[22:10->32:4] [22:10->32:4]
 posCursor:[22:44] posNoWhite:[22:43] Found expr:[22:10->32:4]
 posCursor:[22:44] posNoWhite:[22:43] Found expr:[22:10->22:44]
 Completable: Cpath Value[Js, String2, trim](Nolabel)->st <<jsx>>
+ContextPath Value[Js, String2, trim](Nolabel)->st <<jsx>>
+ContextPath Value[Js, String2, trim](Nolabel)
+ContextPath Value[Js, String2, trim]
 [{
     "label": "React.string",
     "kind": 12,
@@ -188,6 +199,8 @@ Pexp_construct :::[24:10->32:4] [24:10->32:4]
 posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:10->32:4]
 posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:10->0:-1]
 Completable: Cpath Value[someInt]-> <<jsx>>
+ContextPath Value[someInt]-> <<jsx>>
+ContextPath Value[someInt]
 [{
     "label": "React.int",
     "kind": 12,
@@ -265,6 +278,8 @@ Pexp_construct :::[26:10->32:4] [26:10->32:4]
 posCursor:[26:14] posNoWhite:[26:13] Found expr:[26:10->32:4]
 posCursor:[26:14] posNoWhite:[26:13] Found expr:[26:10->0:-1]
 Completable: Cpath int-> <<jsx>>
+ContextPath int-> <<jsx>>
+ContextPath int
 [{
     "label": "React.int",
     "kind": 12,
@@ -342,6 +357,8 @@ Pexp_construct :::[28:10->32:4] [28:10->32:4]
 posCursor:[28:20] posNoWhite:[28:19] Found expr:[28:10->32:4]
 posCursor:[28:20] posNoWhite:[28:19] Found expr:[28:10->28:20]
 Completable: Cpath Value[someArr]->a <<jsx>>
+ContextPath Value[someArr]->a <<jsx>>
+ContextPath Value[someArr]
 [{
     "label": "React.array",
     "kind": 12,

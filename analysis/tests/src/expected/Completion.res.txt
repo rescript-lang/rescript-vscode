@@ -2,6 +2,7 @@ Complete src/Completion.res 1:11
 posCursor:[1:11] posNoWhite:[1:10] Found expr:[1:3->1:11]
 Pexp_ident MyList.m:[1:3->1:11]
 Completable: Cpath Value[MyList, m]
+ContextPath Value[MyList, m]
 [{
     "label": "mapReverse",
     "kind": 12,
@@ -74,6 +75,7 @@ Complete src/Completion.res 3:9
 posCursor:[3:9] posNoWhite:[3:8] Found expr:[3:3->3:9]
 Pexp_ident Array.:[3:3->3:9]
 Completable: Cpath Value[Array, ""]
+ContextPath Value[Array, ""]
 [{
     "label": "fold_left",
     "kind": 12,
@@ -296,6 +298,7 @@ Complete src/Completion.res 5:10
 posCursor:[5:10] posNoWhite:[5:9] Found expr:[5:3->5:10]
 Pexp_ident Array.m:[5:3->5:10]
 Completable: Cpath Value[Array, m]
+ContextPath Value[Array, m]
 [{
     "label": "mapi",
     "kind": 12,
@@ -350,6 +353,7 @@ Complete src/Completion.res 15:17
 posCursor:[15:17] posNoWhite:[15:16] Found expr:[15:12->15:17]
 Pexp_ident Dep.c:[15:12->15:17]
 Completable: Cpath Value[Dep, c]
+ContextPath Value[Dep, c]
 [{
     "label": "customDouble",
     "kind": 12,
@@ -362,6 +366,7 @@ Complete src/Completion.res 23:20
 posCursor:[23:20] posNoWhite:[23:19] Found expr:[23:11->23:20]
 Pexp_apply ...[23:11->23:18] ()
 Completable: CnamedArg(Value[Lib, foo], "", [])
+ContextPath Value[Lib, foo]
 Found type for function (~age: int, ~name: string) => string
 [{
     "label": "age",
@@ -380,6 +385,8 @@ Found type for function (~age: int, ~name: string) => string
 Complete src/Completion.res 26:13
 posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:3->26:13]
 Completable: Cpath array<int>->m
+ContextPath array<int>->m
+ContextPath array<int>
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -397,6 +404,8 @@ Completable: Cpath array<int>->m
 Complete src/Completion.res 29:13
 posCursor:[29:13] posNoWhite:[29:12] Found expr:[29:3->29:13]
 Completable: Cpath string->toU
+ContextPath string->toU
+ContextPath string
 [{
     "label": "Js.String2.toUpperCase",
     "kind": 12,
@@ -408,6 +417,8 @@ Completable: Cpath string->toU
 Complete src/Completion.res 34:8
 posCursor:[34:8] posNoWhite:[34:7] Found expr:[34:3->34:8]
 Completable: Cpath Value[op]->e
+ContextPath Value[op]->e
+ContextPath Value[op]
 [{
     "label": "Belt.Option.eqU",
     "kind": 12,
@@ -427,6 +438,8 @@ posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:3->54:3]
 Pexp_apply ...[50:9->50:10] (...[44:3->50:8], ...[51:2->54:3])
 posCursor:[44:7] posNoWhite:[44:6] Found expr:[44:3->50:8]
 Completable: Cpath Value[fa]->
+ContextPath Value[fa]->
+ContextPath Value[fa]
 [{
     "label": "ForAuto.abc",
     "kind": 12,
@@ -446,6 +459,7 @@ posCursor:[47:21] posNoWhite:[47:20] Found expr:[47:3->47:21]
 posCursor:[47:21] posNoWhite:[47:20] Found expr:[47:12->47:21]
 Pexp_ident Js.Dict.u:[47:12->47:21]
 Completable: Cpath Value[Js, Dict, u]
+ContextPath Value[Js, Dict, u]
 [{
     "label": "unsafeGet",
     "kind": 12,
@@ -464,6 +478,7 @@ Complete src/Completion.res 59:30
 posCursor:[59:30] posNoWhite:[59:29] Found expr:[59:15->59:30]
 JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:None
 Completable: Cexpression CJsxPropValue [O, Comp] second=z
+ContextPath CJsxPropValue [O, Comp] second
 [{
     "label": "zzz",
     "kind": 12,
@@ -512,6 +527,7 @@ Complete src/Completion.res 71:27
 posCursor:[71:27] posNoWhite:[71:26] Found expr:[71:11->71:27]
 Pexp_apply ...[71:11->71:18] (~name71:20->71:24=...[71:20->71:24])
 Completable: CnamedArg(Value[Lib, foo], "", [name])
+ContextPath Value[Lib, foo]
 Found type for function (~age: int, ~name: string) => string
 [{
     "label": "age",
@@ -525,6 +541,7 @@ Complete src/Completion.res 74:26
 posCursor:[74:26] posNoWhite:[74:25] Found expr:[74:11->74:26]
 Pexp_apply ...[74:11->74:18] (~age74:20->74:23=...[74:20->74:23])
 Completable: CnamedArg(Value[Lib, foo], "", [age])
+ContextPath Value[Lib, foo]
 Found type for function (~age: int, ~name: string) => string
 [{
     "label": "name",
@@ -538,6 +555,7 @@ Complete src/Completion.res 77:32
 posCursor:[77:32] posNoWhite:[77:31] Found expr:[77:11->77:32]
 Pexp_apply ...[77:11->77:18] (~age77:20->77:23=...[77:25->77:28])
 Completable: CnamedArg(Value[Lib, foo], "", [age])
+ContextPath Value[Lib, foo]
 Found type for function (~age: int, ~name: string) => string
 [{
     "label": "name",
@@ -551,6 +569,7 @@ Complete src/Completion.res 82:5
 posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
 Pexp_apply ...[80:8->80:15] (~age84:3->84:6=...[84:7->84:8], ~name85:3->85:7=...[85:8->85:10])
 Completable: CnamedArg(Value[Lib, foo], "", [age, name])
+ContextPath Value[Lib, foo]
 Found type for function (~age: int, ~name: string) => string
 []
 
@@ -558,6 +577,8 @@ Complete src/Completion.res 90:13
 posCursor:[90:13] posNoWhite:[90:12] Found expr:[90:3->93:18]
 Pexp_send a[90:12->90:13] e:[90:3->90:10]
 Completable: Cpath Value[someObj]["a"]
+ContextPath Value[someObj]["a"]
+ContextPath Value[someObj]
 [{
     "label": "age",
     "kind": 4,
@@ -570,6 +591,10 @@ Complete src/Completion.res 95:24
 posCursor:[95:24] posNoWhite:[95:23] Found expr:[95:3->99:6]
 Pexp_send [95:24->95:24] e:[95:3->95:22]
 Completable: Cpath Value[nestedObj]["x"]["y"][""]
+ContextPath Value[nestedObj]["x"]["y"][""]
+ContextPath Value[nestedObj]["x"]["y"]
+ContextPath Value[nestedObj]["x"]
+ContextPath Value[nestedObj]
 [{
     "label": "age",
     "kind": 4,
@@ -588,6 +613,8 @@ Complete src/Completion.res 99:7
 posCursor:[99:7] posNoWhite:[99:6] Found expr:[99:3->102:20]
 Pexp_send a[99:6->99:7] e:[99:3->99:4]
 Completable: Cpath Value[o]["a"]
+ContextPath Value[o]["a"]
+ContextPath Value[o]
 [{
     "label": "age",
     "kind": 4,
@@ -600,6 +627,10 @@ Complete src/Completion.res 104:17
 posCursor:[104:17] posNoWhite:[104:16] Found expr:[104:3->125:18]
 Pexp_send [104:17->104:17] e:[104:3->104:15]
 Completable: Cpath Value[no]["x"]["y"][""]
+ContextPath Value[no]["x"]["y"][""]
+ContextPath Value[no]["x"]["y"]
+ContextPath Value[no]["x"]
+ContextPath Value[no]
 [{
     "label": "name",
     "kind": 4,
@@ -618,6 +649,8 @@ Complete src/Completion.res 110:5
 posCursor:[110:5] posNoWhite:[110:4] Found expr:[110:3->110:5]
 Pexp_field [110:3->110:4] _:[116:0->110:5]
 Completable: Cpath Value[r].""
+ContextPath Value[r].""
+ContextPath Value[r]
 [{
     "label": "x",
     "kind": 5,
@@ -636,6 +669,8 @@ Complete src/Completion.res 113:24
 posCursor:[113:24] posNoWhite:[113:23] Found expr:[113:3->113:24]
 Pexp_field [113:3->113:23] _:[116:0->113:24]
 Completable: Cpath Value[Object, Rec, recordVal].""
+ContextPath Value[Object, Rec, recordVal].""
+ContextPath Value[Object, Rec, recordVal]
 [{
     "label": "xx",
     "kind": 5,
@@ -656,6 +691,7 @@ posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->122:5]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->120:7]
 Pexp_ident my:[120:5->120:7]
 Completable: Cpath Value[my]
+ContextPath Value[my]
 [{
     "label": "myAmazingFunction",
     "kind": 12,
@@ -668,6 +704,8 @@ Complete src/Completion.res 125:18
 posCursor:[125:18] posNoWhite:[125:17] Found expr:[125:3->145:32]
 Pexp_send [125:18->125:18] e:[125:3->125:16]
 Completable: Cpath Value[Object, object][""]
+ContextPath Value[Object, object][""]
+ContextPath Value[Object, object]
 [{
     "label": "name",
     "kind": 4,
@@ -686,6 +724,7 @@ Complete src/Completion.res 151:6
 posCursor:[151:6] posNoWhite:[151:5] Found expr:[151:4->151:6]
 JSX <O.:[151:4->151:6] > _children:None
 Completable: Cpath Module[O, ""]
+ContextPath Module[O, ""]
 [{
     "label": "Comp",
     "kind": 9,
@@ -698,6 +737,9 @@ Complete src/Completion.res 157:8
 posCursor:[157:8] posNoWhite:[157:7] Found expr:[157:3->157:8]
 Pexp_field [157:3->157:7] _:[165:0->157:8]
 Completable: Cpath Value[q].aa.""
+ContextPath Value[q].aa.""
+ContextPath Value[q].aa
+ContextPath Value[q]
 [{
     "label": "x",
     "kind": 5,
@@ -716,6 +758,9 @@ Complete src/Completion.res 159:9
 posCursor:[159:9] posNoWhite:[159:8] Found expr:[159:3->159:9]
 Pexp_field [159:3->159:7] n:[159:8->159:9]
 Completable: Cpath Value[q].aa.n
+ContextPath Value[q].aa.n
+ContextPath Value[q].aa
+ContextPath Value[q]
 [{
     "label": "name",
     "kind": 5,
@@ -728,6 +773,7 @@ Complete src/Completion.res 162:6
 posCursor:[162:6] posNoWhite:[162:5] Found expr:[162:3->162:6]
 Pexp_construct Lis:[162:3->162:6] None
 Completable: Cpath Value[Lis]
+ContextPath Value[Lis]
 [{
     "label": "List",
     "kind": 9,
@@ -746,6 +792,7 @@ Complete src/Completion.res 169:16
 posCursor:[169:16] posNoWhite:[169:15] Found expr:[169:4->169:16]
 JSX <WithChildren:[169:4->169:16] > _children:None
 Completable: Cpath Module[WithChildren]
+ContextPath Module[WithChildren]
 [{
     "label": "WithChildren",
     "kind": 9,
@@ -758,6 +805,7 @@ Complete src/Completion.res 172:16
 posCursor:[172:16] posNoWhite:[172:15] Found type:[172:12->172:16]
 Ptyp_constr Js.n:[172:12->172:16]
 Completable: Cpath Type[Js, n]
+ContextPath Type[Js, n]
 [{
     "label": "null_undefined",
     "kind": 22,
@@ -782,6 +830,7 @@ Complete src/Completion.res 174:20
 posCursor:[174:20] posNoWhite:[174:19] Found type:[174:12->174:20]
 Ptyp_constr ForAuto.:[174:12->174:20]
 Completable: Cpath Type[ForAuto, ""]
+ContextPath Type[ForAuto, ""]
 [{
     "label": "t",
     "kind": 22,
@@ -794,6 +843,7 @@ Complete src/Completion.res 179:13
 posCursor:[179:13] posNoWhite:[179:12] Found expr:[179:11->179:13]
 Pexp_construct As:[179:11->179:13] None
 Completable: Cpath Value[As]
+ContextPath Value[As]
 [{
     "label": "Asterix",
     "kind": 4,
@@ -805,6 +855,7 @@ Completable: Cpath Value[As]
 Complete src/Completion.res 182:17
 Pmod_ident For:[182:14->182:17]
 Completable: Cpath Module[For]
+ContextPath Module[For]
 [{
     "label": "ForAuto",
     "kind": 9,
@@ -817,6 +868,7 @@ Complete src/Completion.res 190:11
 posCursor:[190:11] posNoWhite:[190:10] Found expr:[190:3->190:11]
 Pexp_ident Private.:[190:3->190:11]
 Completable: Cpath Value[Private, ""]
+ContextPath Value[Private, ""]
 [{
     "label": "b",
     "kind": 12,
@@ -829,6 +881,7 @@ Complete src/Completion.res 202:6
 posCursor:[202:6] posNoWhite:[202:5] Found expr:[202:3->202:6]
 Pexp_ident sha:[202:3->202:6]
 Completable: Cpath Value[sha]
+ContextPath Value[sha]
 []
 
 Complete src/Completion.res 205:6
@@ -837,6 +890,7 @@ Pexp_ident sha:[205:3->205:6]
 Completable: Cpath Value[sha]
 Raw opens: 1 Shadow.A.place holder
 Resolved opens 1 Completion.res
+ContextPath Value[sha]
 [{
     "label": "shadowed",
     "kind": 12,
@@ -851,6 +905,7 @@ Pexp_ident sha:[208:3->208:6]
 Completable: Cpath Value[sha]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[sha]
 [{
     "label": "shadowed",
     "kind": 12,
@@ -865,6 +920,8 @@ Pexp_send [221:22->221:22] e:[221:3->221:20]
 Completable: Cpath Value[FAO, forAutoObject][""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[FAO, forAutoObject][""]
+ContextPath Value[FAO, forAutoObject]
 [{
     "label": "age",
     "kind": 4,
@@ -885,6 +942,9 @@ Pexp_field [224:3->224:36] _:[233:0->224:37]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"].""
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
+ContextPath Value[FAO, forAutoObject]
 [{
     "label": "forAuto",
     "kind": 5,
@@ -904,6 +964,10 @@ posCursor:[227:46] posNoWhite:[227:45] Found expr:[227:3->0:-1]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
+ContextPath Value[FAO, forAutoObject]
 [{
     "label": "ForAuto.abc",
     "kind": 12,
@@ -925,6 +989,7 @@ Pexp_ident ForAuto.a:[230:46->230:55]
 Completable: Cpath Value[ForAuto, a]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ForAuto, a]
 [{
     "label": "abc",
     "kind": 12,
@@ -949,6 +1014,7 @@ Pexp_ident na:[234:32->234:34]
 Completable: Cpath Value[na]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[na]
 [{
     "label": "name",
     "kind": 12,
@@ -972,6 +1038,8 @@ Pexp_field [243:5->243:7] _:[245:0->243:8]
 Completable: Cpath Value[_z].""
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[_z].""
+ContextPath Value[_z]
 [{
     "label": "x",
     "kind": 5,
@@ -992,6 +1060,7 @@ Pexp_construct SomeLo:[254:11->254:17] None
 Completable: Cpath Value[SomeLo]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[SomeLo]
 [{
     "label": "SomeLocalModule",
     "kind": 9,
@@ -1006,6 +1075,7 @@ Ptyp_constr SomeLocalModule.:[256:13->256:29]
 Completable: Cpath Type[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Type[SomeLocalModule, ""]
 [{
     "label": "zz",
     "kind": 22,
@@ -1020,6 +1090,7 @@ Ptyp_constr SomeLocalModule.:[261:17->263:11]
 Completable: Cpath Type[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Type[SomeLocalModule, ""]
 [{
     "label": "zz",
     "kind": 22,
@@ -1033,6 +1104,7 @@ Ptype_variant unary SomeLocal:[268:12->268:21]
 Completable: Cpath Value[SomeLocal]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[SomeLocal]
 [{
     "label": "SomeLocalVariantItem",
     "kind": 4,
@@ -1054,6 +1126,7 @@ Ptyp_constr SomeLocal:[271:11->274:3]
 Completable: Cpath Type[SomeLocal]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Type[SomeLocal]
 [{
     "label": "SomeLocalModule",
     "kind": 9,
@@ -1070,6 +1143,7 @@ Pexp_ident _w:[275:13->275:15]
 Completable: Cpath Value[_w]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[_w]
 [{
     "label": "_world",
     "kind": 12,
@@ -1084,6 +1158,7 @@ Ptyp_constr s:[281:21->281:22]
 Completable: Cpath Type[s]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Type[s]
 [{
     "label": "someType",
     "kind": 22,
@@ -1104,6 +1179,8 @@ Pexp_apply ...[291:11->291:28] ()
 Completable: CnamedArg(Value[funRecord].someFun, "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[funRecord].someFun
+ContextPath Value[funRecord]
 Found type for function (~name: string) => unit
 [{
     "label": "name",
@@ -1119,6 +1196,9 @@ Pexp_field [296:3->296:10] _:[299:0->296:11]
 Completable: Cpath Value[retAA](Nolabel).""
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[retAA](Nolabel).""
+ContextPath Value[retAA](Nolabel)
+ContextPath Value[retAA]
 [{
     "label": "x",
     "kind": 5,
@@ -1139,6 +1219,8 @@ Pexp_apply ...[301:3->301:11] ()
 Completable: CnamedArg(Value[ff](~c), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ff](~c)
+ContextPath Value[ff]
 Found type for function (
   ~opt1: int=?,
   ~a: int,
@@ -1179,6 +1261,9 @@ Pexp_apply ...[304:3->304:13] ()
 Completable: CnamedArg(Value[ff](~c)(Nolabel), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ff](~c)(Nolabel)
+ContextPath Value[ff](~c)
+ContextPath Value[ff]
 Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
 [{
     "label": "a",
@@ -1206,6 +1291,8 @@ Pexp_apply ...[307:3->307:15] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ff](~c, Nolabel)
+ContextPath Value[ff]
 Found type for function (~a: int, ~b: int, ~opt2: int=?, unit) => int
 [{
     "label": "a",
@@ -1233,6 +1320,8 @@ Pexp_apply ...[310:3->310:19] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel, Nolabel), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ff](~c, Nolabel, Nolabel)
+ContextPath Value[ff]
 Found type for function (~a: int, ~b: int) => int
 [{
     "label": "a",
@@ -1254,6 +1343,8 @@ Pexp_apply ...[313:3->313:21] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel, ~b), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ff](~c, Nolabel, ~b)
+ContextPath Value[ff]
 Found type for function (~a: int, ~opt2: int=?, unit) => int
 [{
     "label": "a",
@@ -1275,6 +1366,8 @@ Pexp_apply ...[316:3->316:14] ()
 Completable: CnamedArg(Value[ff](~opt2), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ff](~opt2)
+ContextPath Value[ff]
 Found type for function (~opt1: int=?, ~a: int, ~b: int, unit, unit, ~c: int) => int
 [{
     "label": "opt1",
@@ -1308,6 +1401,7 @@ Pexp_apply ...[323:3->323:15] ()
 Completable: CnamedArg(Value[withCallback], "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[withCallback]
 Found type for function (~b: int) => callback
 [{
     "label": "b",
@@ -1329,6 +1423,8 @@ Pexp_apply ...[326:3->326:19] ()
 Completable: CnamedArg(Value[withCallback](~a), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[withCallback](~a)
+ContextPath Value[withCallback]
 Found type for function (~b: int) => int
 [{
     "label": "b",
@@ -1344,6 +1440,8 @@ Pexp_apply ...[329:3->329:19] ()
 Completable: CnamedArg(Value[withCallback](~b), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[withCallback](~b)
+ContextPath Value[withCallback]
 Found type for function (~a: int) => int
 [{
     "label": "a",
@@ -1369,6 +1467,7 @@ Ptyp_constr Res:[336:23->338:5]
 Completable: Cpath Type[Res]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Type[Res]
 [{
     "label": "RescriptReactErrorBoundary",
     "kind": 9,
@@ -1390,6 +1489,7 @@ Pexp_ident this:[343:53->343:57]
 Completable: Cpath Value[this]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[this]
 [{
     "label": "thisIsNotSaved",
     "kind": 12,
@@ -1416,6 +1516,7 @@ Pexp_ident FAO.forAutoObject:[349:11->349:28]
 Completable: Cpath Value[FAO, forAutoObject]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[FAO, forAutoObject]
 {"contents": {"kind": "markdown", "value": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}}
 
 Hover src/Completion.res 352:17
@@ -1425,6 +1526,7 @@ Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
 Completable: CnamedArg(Value[ff], opt1, [opt1])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ff]
 Found type for function (
   ~opt1: int=?,
   ~a: int,
@@ -1449,9 +1551,11 @@ Ppat_construct T:[362:7->362:8]
 Completable: Cpattern Value[x]=T
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[x]
 Completable: Cpath Value[T]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[T]
 [{
     "label": "That",
     "kind": 4,
@@ -1486,6 +1590,7 @@ Ppat_construct AndThatOther.T:[373:7->373:21]
 Completable: Cpath Value[AndThatOther, T]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[AndThatOther, T]
 [{
     "label": "ThatOther",
     "kind": 4,
@@ -1504,6 +1609,7 @@ Pexp_ident ForAuto.:[378:16->378:24]
 Completable: Cpath Value[ForAuto, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ForAuto, ""]
 [{
     "label": "abc",
     "kind": 12,
@@ -1528,6 +1634,8 @@ Pexp_send [381:38->381:38] e:[381:19->381:36]
 Completable: Cpath Value[FAO, forAutoObject][""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[FAO, forAutoObject][""]
+ContextPath Value[FAO, forAutoObject]
 [{
     "label": "age",
     "kind": 4,
@@ -1552,6 +1660,8 @@ Pexp_field [384:14->384:23] _:[384:24->384:24]
 Completable: Cpath Value[funRecord].""
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[funRecord].""
+ContextPath Value[funRecord]
 [{
     "label": "someFun",
     "kind": 5,
@@ -1574,6 +1684,8 @@ posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->389:12]
 Completable: Cpath array->ma
 Raw opens: 3 Js.place holder ... Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 3 Completion.res Completion.res js.ml
+ContextPath array->ma
+ContextPath array
 [{
     "label": "Array2.mapi",
     "kind": 12,
@@ -1598,6 +1710,7 @@ Pexp_ident red:[397:13->397:16]
 Completable: Cpath Value[red]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[red]
 [{
     "label": "red",
     "kind": 12,
@@ -1616,6 +1729,7 @@ Pexp_ident red:[402:24->402:27]
 Completable: Cpath Value[red]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[red]
 [{
     "label": "red",
     "kind": 12,
@@ -1635,6 +1749,7 @@ Pexp_ident r:[405:21->405:22]
 Completable: Cpath Value[r]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[r]
 [{
     "label": "red",
     "kind": 12,
@@ -1664,6 +1779,7 @@ Pexp_ident SomeLocalModule.:[409:5->411:5]
 Completable: Cpath Value[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[SomeLocalModule, ""]
 [{
     "label": "bb",
     "kind": 12,
@@ -1688,6 +1804,7 @@ Pexp_ident SomeLocalModule.:[412:5->414:8]
 Completable: Cpath Value[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[SomeLocalModule, ""]
 [{
     "label": "bb",
     "kind": 12,
@@ -1707,6 +1824,8 @@ posCursor:[417:17] posNoWhite:[417:16] Found expr:[417:11->417:17]
 Completable: Cpath int->t
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath int->t
+ContextPath int
 [{
     "label": "Belt.Int.toString",
     "kind": 12,
@@ -1726,6 +1845,8 @@ posCursor:[420:19] posNoWhite:[420:18] Found expr:[420:11->420:19]
 Completable: Cpath float->t
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath float->t
+ContextPath float
 [{
     "label": "Belt.Float.toInt",
     "kind": 12,
@@ -1745,6 +1866,8 @@ posCursor:[425:8] posNoWhite:[425:7] Found expr:[425:3->425:8]
 Completable: Cpath Value[ok]->g
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[ok]->g
+ContextPath Value[ok]
 [{
     "label": "Belt.Result.getExn",
     "kind": 12,
@@ -1765,6 +1888,8 @@ Pexp_field [443:3->443:12] so:[443:13->443:15]
 Completable: Cpath Value[rWithDepr].so
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Value[rWithDepr].so
+ContextPath Value[rWithDepr]
 [{
     "label": "someInt",
     "kind": 5,
@@ -1784,6 +1909,7 @@ XXX Not found!
 Completable: Cexpression Type[someVariantWithDeprecated]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+ContextPath Type[someVariantWithDeprecated]
 [{
     "label": "DoNotUseMe",
     "kind": 4,

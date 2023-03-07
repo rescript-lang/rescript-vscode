@@ -11,6 +11,7 @@ posCursor:[6:26] posNoWhite:[6:25] Found pattern:[6:20->8:5]
 posCursor:[6:26] posNoWhite:[6:25] Found type:[6:23->8:5]
 Ptyp_constr Res:[6:23->8:5]
 Completable: Cpath Type[Res]
+ContextPath Type[Res]
 [{
     "label": "RescriptReactErrorBoundary",
     "kind": 9,
