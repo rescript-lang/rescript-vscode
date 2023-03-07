@@ -510,8 +510,9 @@ let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env prefix
   in
   localCompletionsWithOpens @ fileModules
 
-let getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact ~scope
+let getCompletionsForPath ~debug ~package ~opens ~allFiles ~pos ~exact ~scope
     ~completionContext ~env path =
+  if debug then Printf.printf "Path %s\n" (path |> String.concat ".");
   match path with
   | [] -> []
   | [prefix] ->
@@ -737,7 +738,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
       ])
   | CPId (path, completionContext) ->
     path
-    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
+    |> getCompletionsForPath ~debug ~package ~opens ~allFiles ~pos ~exact
          ~completionContext ~env ~scope
   | CPApply (cp, labels) -> (
     match
@@ -784,7 +785,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
   | CPField (CPId (path, Module), fieldName) ->
     (* M.field *)
     path @ [fieldName]
-    |> getCompletionsForPath ~package ~opens ~allFiles ~pos ~exact
+    |> getCompletionsForPath ~debug ~package ~opens ~allFiles ~pos ~exact
          ~completionContext:Field ~env ~scope
   | CPField (cp, fieldName) -> (
     let completionsForCtxPath =
@@ -952,7 +953,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
         in
         let completions =
           completionPath @ [funNamePrefix]
-          |> getCompletionsForPath ~completionContext:Value ~exact:false
+          |> getCompletionsForPath ~debug ~completionContext:Value ~exact:false
                ~package ~opens ~allFiles ~pos ~env ~scope
         in
         let completions =
@@ -1016,8 +1017,8 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
   | CJsxPropValue {pathToComponent; propName} -> (
     let findTypeOfValue path =
       path
-      |> getCompletionsForPath ~completionContext:Value ~exact:true ~package
-           ~opens ~allFiles ~pos ~env ~scope
+      |> getCompletionsForPath ~debug ~completionContext:Value ~exact:true
+           ~package ~opens ~allFiles ~pos ~env ~scope
       |> completionsGetTypeEnv2 ~debug ~full ~opens ~rawOpens ~allFiles ~pos
            ~scope
     in
@@ -1031,7 +1032,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
         let rec digToTypeForCompletion path =
           match
             path
-            |> getCompletionsForPath ~completionContext:Type ~exact:true
+            |> getCompletionsForPath ~debug ~completionContext:Type ~exact:true
                  ~package ~opens ~allFiles ~pos ~env ~scope
           with
           | {kind = Type {kind = Abstract (Some (p, _))}} :: _ ->
@@ -1412,8 +1413,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
   let allFiles = FileSet.union package.projectFiles package.dependenciesFiles in
   let findTypeOfValue path =
     path
-    |> getCompletionsForPath ~completionContext:Value ~exact:true ~package
-         ~opens ~allFiles ~pos ~env ~scope
+    |> getCompletionsForPath ~debug ~completionContext:Value ~exact:true
+         ~package ~opens ~allFiles ~pos ~env ~scope
     |> completionsGetTypeEnv2 ~debug ~full ~opens ~rawOpens ~allFiles ~pos
          ~scope
   in

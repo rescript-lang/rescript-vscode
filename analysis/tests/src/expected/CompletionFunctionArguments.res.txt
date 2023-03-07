@@ -4,6 +4,7 @@ Pexp_apply ...[10:11->10:17] (~isOn10:19->10:23=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[someFn](~isOn)
 ContextPath CArgument Value[someFn](~isOn)
 ContextPath Value[someFn]
+Path someFn
 [{
     "label": "true",
     "kind": 4,
@@ -24,6 +25,7 @@ Pexp_apply ...[13:11->13:17] (~isOn13:19->13:23=...[13:24->13:25])
 Completable: Cexpression CArgument Value[someFn](~isOn)=t
 ContextPath CArgument Value[someFn](~isOn)
 ContextPath Value[someFn]
+Path someFn
 [{
     "label": "true",
     "kind": 4,
@@ -45,6 +47,7 @@ Pexp_apply ...[16:11->16:17] (~isOff16:19->16:24=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[someFn](~isOff)
 ContextPath CArgument Value[someFn](~isOff)
 ContextPath Value[someFn]
+Path someFn
 [{
     "label": "true",
     "kind": 4,
@@ -69,6 +72,7 @@ Pexp_apply ...[21:14->21:20] (~isOn21:22->21:26=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[someFn](~isOn)
 ContextPath CArgument Value[someFn](~isOn)
 ContextPath Value[someFn]
+Path someFn
 [{
     "label": "true",
     "kind": 4,
@@ -89,6 +93,7 @@ Pexp_apply ...[34:11->34:22] (...[34:23->34:24])
 Completable: Cexpression CArgument Value[someOtherFn]($0)=f
 ContextPath CArgument Value[someOtherFn]($0)
 ContextPath Value[someOtherFn]
+Path someOtherFn
 [{
     "label": "false",
     "kind": 4,
@@ -103,6 +108,7 @@ Pexp_apply ...[51:11->51:30] (~config51:32->51:38=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[someFnTakingVariant](~config)
 ContextPath CArgument Value[someFnTakingVariant](~config)
 ContextPath Value[someFnTakingVariant]
+Path someFnTakingVariant
 [{
     "label": "One",
     "kind": 4,
@@ -135,6 +141,7 @@ Pexp_apply ...[54:11->54:30] (~config54:32->54:38=...[54:39->54:40])
 Completable: Cexpression CArgument Value[someFnTakingVariant](~config)=O
 ContextPath CArgument Value[someFnTakingVariant](~config)
 ContextPath Value[someFnTakingVariant]
+Path someFnTakingVariant
 [{
     "label": "One",
     "kind": 4,
@@ -170,6 +177,7 @@ Pexp_apply ...[57:11->57:30] (...[57:31->57:33])
 Completable: Cexpression CArgument Value[someFnTakingVariant]($0)=So
 ContextPath CArgument Value[someFnTakingVariant]($0)
 ContextPath Value[someFnTakingVariant]
+Path someFnTakingVariant
 [{
     "label": "Some(_)",
     "kind": 12,
@@ -193,6 +201,7 @@ Pexp_apply ...[60:11->60:30] (~configOpt260:32->60:42=...[60:43->60:44])
 Completable: Cexpression CArgument Value[someFnTakingVariant](~configOpt2)=O
 ContextPath CArgument Value[someFnTakingVariant](~configOpt2)
 ContextPath Value[someFnTakingVariant]
+Path someFnTakingVariant
 [{
     "label": "One",
     "kind": 4,
@@ -228,6 +237,7 @@ Pexp_apply ...[63:11->63:22] (...[63:23->63:24])
 Completable: Cexpression CArgument Value[someOtherFn]($0)
 ContextPath CArgument Value[someOtherFn]($0)
 ContextPath Value[someOtherFn]
+Path someOtherFn
 [{
     "label": "true",
     "kind": 4,
@@ -248,6 +258,7 @@ Pexp_apply ...[66:11->66:22] (...[66:23->66:24], ...[66:26->66:27])
 Completable: Cexpression CArgument Value[someOtherFn]($2)
 ContextPath CArgument Value[someOtherFn]($2)
 ContextPath Value[someOtherFn]
+Path someOtherFn
 [{
     "label": "true",
     "kind": 4,
@@ -267,6 +278,7 @@ posCursor:[69:30] posNoWhite:[69:29] Found expr:[69:11->69:31]
 Completable: Cexpression CArgument Value[someOtherFn]($2)=t
 ContextPath CArgument Value[someOtherFn]($2)
 ContextPath Value[someOtherFn]
+Path someOtherFn
 [{
     "label": "true",
     "kind": 4,
@@ -288,6 +300,7 @@ Pexp_apply ...[76:11->76:24] (...[76:25->76:26])
 Completable: Cexpression CArgument Value[fnTakingTuple]($0)
 ContextPath CArgument Value[fnTakingTuple]($0)
 ContextPath Value[fnTakingTuple]
+Path fnTakingTuple
 [{
     "label": "(_, _, _)",
     "kind": 12,
@@ -304,6 +317,7 @@ Pexp_apply ...[89:11->89:25] (...[89:26->89:28])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "age",
     "kind": 5,
@@ -334,6 +348,8 @@ posCursor:[109:29] posNoWhite:[109:28] Found expr:[109:9->109:29]
 Completable: Cpath Value[thisGetsBrokenLoc]->a <<jsx>>
 ContextPath Value[thisGetsBrokenLoc]->a <<jsx>>
 ContextPath Value[thisGetsBrokenLoc]
+Path thisGetsBrokenLoc
+Path ReactEvent.Mouse.a
 [{
     "label": "ReactEvent.Mouse.altKey",
     "kind": 12,
@@ -352,6 +368,8 @@ posCursor:[111:27] posNoWhite:[111:26] Found expr:[111:9->111:27]
 Completable: Cpath Value[reassignedWorks]->a <<jsx>>
 ContextPath Value[reassignedWorks]->a <<jsx>>
 ContextPath Value[reassignedWorks]
+Path reassignedWorks
+Path ReactEvent.Mouse.a
 [{
     "label": "ReactEvent.Mouse.altKey",
     "kind": 12,

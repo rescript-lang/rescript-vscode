@@ -3,6 +3,8 @@ posCursor:[9:7] posNoWhite:[9:6] Found expr:[9:3->0:-1]
 Completable: Cpath Value[ax]->
 ContextPath Value[ax]->
 ContextPath Value[ax]
+Path ax
+Path Test.
 [{
     "label": "Test.add",
     "kind": 12,
@@ -16,6 +18,7 @@ posCursor:[12:5] posNoWhite:[12:4] Found expr:[12:3->12:5]
 Pexp_ident ax:[12:3->12:5]
 Completable: Cpath Value[ax]
 ContextPath Value[ax]
+Path ax
 [{
     "label": "ax",
     "kind": 12,

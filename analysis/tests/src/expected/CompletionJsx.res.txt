@@ -3,6 +3,8 @@ posCursor:[3:17] posNoWhite:[3:16] Found expr:[3:3->3:17]
 Completable: Cpath Value[someString]->st
 ContextPath Value[someString]->st
 ContextPath Value[someString]
+Path someString
+Path Js.String2.st
 [{
     "label": "Js.String2.startsWith",
     "kind": 12,
@@ -28,6 +30,8 @@ posCursor:[13:21] posNoWhite:[13:20] Found expr:[13:7->13:21]
 Completable: Cpath Value[someString]->st <<jsx>>
 ContextPath Value[someString]->st <<jsx>>
 ContextPath Value[someString]
+Path someString
+Path Js.String2.st
 [{
     "label": "React.string",
     "kind": 12,
@@ -71,6 +75,8 @@ posCursor:[18:24] posNoWhite:[18:23] Found expr:[18:10->18:24]
 Completable: Cpath Value[someString]->st <<jsx>>
 ContextPath Value[someString]->st <<jsx>>
 ContextPath Value[someString]
+Path someString
+Path Js.String2.st
 [{
     "label": "React.string",
     "kind": 12,
@@ -114,6 +120,7 @@ posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->20:27]
 Completable: Cpath string->st <<jsx>>
 ContextPath string->st <<jsx>>
 ContextPath string
+Path Js.String2.st
 [{
     "label": "React.string",
     "kind": 12,
@@ -158,6 +165,8 @@ Completable: Cpath Value[Js, String2, trim](Nolabel)->st <<jsx>>
 ContextPath Value[Js, String2, trim](Nolabel)->st <<jsx>>
 ContextPath Value[Js, String2, trim](Nolabel)
 ContextPath Value[Js, String2, trim]
+Path Js.String2.trim
+Path Js.String2.st
 [{
     "label": "React.string",
     "kind": 12,
@@ -201,6 +210,8 @@ posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:10->0:-1]
 Completable: Cpath Value[someInt]-> <<jsx>>
 ContextPath Value[someInt]-> <<jsx>>
 ContextPath Value[someInt]
+Path someInt
+Path Belt.Int.
 [{
     "label": "React.int",
     "kind": 12,
@@ -280,6 +291,7 @@ posCursor:[26:14] posNoWhite:[26:13] Found expr:[26:10->0:-1]
 Completable: Cpath int-> <<jsx>>
 ContextPath int-> <<jsx>>
 ContextPath int
+Path Belt.Int.
 [{
     "label": "React.int",
     "kind": 12,
@@ -359,6 +371,8 @@ posCursor:[28:20] posNoWhite:[28:19] Found expr:[28:10->28:20]
 Completable: Cpath Value[someArr]->a <<jsx>>
 ContextPath Value[someArr]->a <<jsx>>
 ContextPath Value[someArr]
+Path someArr
+Path Js.Array2.a
 [{
     "label": "React.array",
     "kind": 12,
@@ -422,6 +436,7 @@ Complete src/CompletionJsx.res 45:23
 posCursor:[45:23] posNoWhite:[45:22] Found expr:[45:4->45:23]
 JSX <CompWithoutJsxPpx:[45:4->45:21] n[45:22->45:23]=...[45:22->45:23]> _children:None
 Completable: Cjsx([CompWithoutJsxPpx], n, [n])
+Path CompWithoutJsxPpx.make
 [{
     "label": "name",
     "kind": 4,
