@@ -9,9 +9,6 @@ let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
     with
     | None -> None
     | Some (completable, scope) -> (
-      if debug then
-        Printf.printf "Completable: %s\n"
-          (SharedTypes.Completable.toString completable);
       (* Only perform expensive ast operations if there are completables *)
       match Cmt.loadFullCmtFromPath ~path with
       | None -> None

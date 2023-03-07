@@ -1396,8 +1396,9 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
         ~env;
     ]
 
-let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover
-    (completable : Completable.t) =
+let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
+  if debug then
+    Printf.printf "Completable: %s\n" (Completable.toString completable);
   let package = full.package in
   let rawOpens = Scope.getRawOpens scope in
   let opens = getOpens ~debug ~rawOpens ~package ~env in
