@@ -7,6 +7,7 @@ Complete src/Jsx2.res 8:15
 posCursor:[8:15] posNoWhite:[8:14] Found expr:[8:4->8:15]
 JSX <M:[8:4->8:5] second[8:6->8:12]=...[8:13->8:15]> _children:None
 Completable: Cexpression CJsxPropValue [M] second=fi
+ContextPath CJsxPropValue [M] second
 []
 
 Complete src/Jsx2.res 11:20
@@ -31,6 +32,7 @@ Complete src/Jsx2.res 14:13
 posCursor:[14:13] posNoWhite:[14:12] Found expr:[14:12->14:13]
 JSX <M:[14:12->14:13] > _children:None
 Completable: Cpath Module[M]
+ContextPath Module[M]
 [{
     "label": "M",
     "kind": 9,
@@ -269,6 +271,7 @@ Complete src/Jsx2.res 89:16
 posCursor:[89:16] posNoWhite:[89:15] Found expr:[89:4->89:16]
 JSX <WithChildren:[89:4->89:16] > _children:None
 Completable: Cpath Module[WithChildren]
+ContextPath Module[WithChildren]
 [{
     "label": "WithChildren",
     "kind": 9,
@@ -294,6 +297,7 @@ posCursor:[94:18] posNoWhite:[94:17] Found pattern:[94:7->94:18]
 posCursor:[94:18] posNoWhite:[94:17] Found type:[94:11->94:18]
 Ptyp_constr React.e:[94:11->94:18]
 Completable: Cpath Type[React, e]
+ContextPath Type[React, e]
 [{
     "label": "element",
     "kind": 22,
@@ -307,6 +311,7 @@ posCursor:[96:20] posNoWhite:[96:19] Found pattern:[96:7->99:6]
 posCursor:[96:20] posNoWhite:[96:19] Found type:[96:11->99:6]
 Ptyp_constr ReactDOMR:[96:11->99:6]
 Completable: Cpath Type[ReactDOMR]
+ContextPath Type[ReactDOMR]
 [{
     "label": "ReactDOMRe",
     "kind": 9,
@@ -321,12 +326,15 @@ Pexp_apply ...[102:15->102:16] (...[102:13->102:14], ...[102:17->102:21])
 posCursor:[102:21] posNoWhite:[102:20] Found expr:[102:17->102:21]
 Pexp_field [102:17->102:18] th:[102:19->102:21]
 Completable: Cpath Value[x].th
+ContextPath Value[x].th
+ContextPath Value[x]
 []
 
 Complete src/Jsx2.res 106:28
 posCursor:[106:28] posNoWhite:[106:27] Found expr:[106:11->106:28]
 Pexp_ident DefineSomeFields.:[106:11->106:28]
 Completable: Cpath Value[DefineSomeFields, ""]
+ContextPath Value[DefineSomeFields, ""]
 [{
     "label": "thisValue",
     "kind": 12,
@@ -341,6 +349,7 @@ Pexp_apply ...[108:13->108:14] (...[108:11->108:12], ...[108:15->108:36])
 posCursor:[108:36] posNoWhite:[108:35] Found expr:[108:15->108:36]
 Pexp_field [108:15->108:16] DefineSomeFields.th:[108:17->108:36]
 Completable: Cpath Module[DefineSomeFields].th
+ContextPath Module[DefineSomeFields].th
 [{
     "label": "thisField",
     "kind": 5,
@@ -361,6 +370,7 @@ JSX <div:[121:3->121:6] x[122:5->122:6]=...[122:7->122:20] name[124:4->124:8]=..
 posCursor:[122:20] posNoWhite:[122:19] Found expr:[122:7->122:20]
 Pexp_ident Outer.Inner.h:[122:7->122:20]
 Completable: Cpath Value[Outer, Inner, h]
+ContextPath Value[Outer, Inner, h]
 [{
     "label": "hello",
     "kind": 12,
@@ -375,6 +385,7 @@ JSX <div:[128:3->128:6] x[129:5->129:6]=...[129:7->131:8]> _children:None
 posCursor:[129:19] posNoWhite:[129:18] Found expr:[129:7->131:8]
 Pexp_ident Outer.Inner.:[129:7->131:8]
 Completable: Cpath Value[Outer, Inner, ""]
+ContextPath Value[Outer, Inner, ""]
 [{
     "label": "hello",
     "kind": 12,
@@ -392,6 +403,7 @@ Complete src/Jsx2.res 150:21
 posCursor:[150:21] posNoWhite:[150:20] Found expr:[150:12->150:32]
 JSX <Nested.Co:[150:12->150:21] name[150:22->150:26]=...[150:27->150:29]> _children:150:30
 Completable: Cpath Module[Nested, Co]
+ContextPath Module[Nested, Co]
 [{
     "label": "Comp",
     "kind": 9,
@@ -404,6 +416,7 @@ Complete src/Jsx2.res 153:19
 posCursor:[153:19] posNoWhite:[153:18] Found expr:[153:12->153:25]
 JSX <Nested.:[153:12->153:24] > _children:None
 Completable: Cpath Module[Nested, ""]
+ContextPath Module[Nested, ""]
 [{
     "label": "Comp",
     "kind": 9,
