@@ -1449,6 +1449,7 @@ Ppat_construct T:[362:7->362:8]
 Completable: Cpattern Value[x]=T
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
+Completable: Cpath Value[T]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
 [{
