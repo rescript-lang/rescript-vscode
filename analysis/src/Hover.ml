@@ -123,54 +123,33 @@ let hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ =
    makes it (most often) work with unsaved content. *)
 let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
     ~supportsMarkdownLinks =
-  let textOpt = Files.readFile currentFile in
-  match textOpt with
-  | None | Some "" -> None
-  | Some text -> (
-    match
-      CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
-        ~currentFile ~text
-    with
-    | None -> None
-    | Some (completable, scope) -> (
-      if debug then
-        Printf.printf "Completable: %s\n"
-          (SharedTypes.Completable.toString completable);
-      (* Only perform expensive ast operations if there are completables *)
-      match Cmt.loadFullCmtFromPath ~path with
-      | None -> None
-      | Some full -> (
-        let {file; package} = full in
-        let env = SharedTypes.QueryEnv.fromFile file in
-        let completions =
-          completable
-          |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
-               ~forHover
+  match Completions.getCompletions ~debug ~path ~pos ~currentFile ~forHover with
+  | None -> None
+  | Some (completions, {file; package}) -> (
+    match completions with
+    | {kind = Label typString; docstring} :: _ ->
+      let parts =
+        (if typString = "" then [] else [Markdown.codeBlock typString])
+        @ docstring
+      in
+      Some (Protocol.stringifyHover (String.concat "\n\n" parts))
+    | {kind = Field _; docstring} :: _ -> (
+      match CompletionBackEnd.completionsGetTypeEnv completions with
+      | Some (typ, _env) ->
+        let typeString =
+          hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
         in
-        match completions with
-        | {kind = Label typString; docstring} :: _ ->
-          let parts =
-            (if typString = "" then [] else [Markdown.codeBlock typString])
-            @ docstring
-          in
-          Some (Protocol.stringifyHover (String.concat "\n\n" parts))
-        | {kind = Field _; docstring} :: _ -> (
-          match CompletionBackEnd.completionsGetTypeEnv completions with
-          | Some (typ, _env) ->
-            let typeString =
-              hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
-            in
-            let parts = typeString :: docstring in
-            Some (Protocol.stringifyHover (String.concat "\n\n" parts))
-          | None -> None)
-        | _ -> (
-          match CompletionBackEnd.completionsGetTypeEnv completions with
-          | Some (typ, _env) ->
-            let typeString =
-              hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
-            in
-            Some (Protocol.stringifyHover typeString)
-          | None -> None))))
+        let parts = typeString :: docstring in
+        Some (Protocol.stringifyHover (String.concat "\n\n" parts))
+      | None -> None)
+    | _ -> (
+      match CompletionBackEnd.completionsGetTypeEnv completions with
+      | Some (typ, _env) ->
+        let typeString =
+          hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
+        in
+        Some (Protocol.stringifyHover typeString)
+      | None -> None))
 
 let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
   match locItem.locType with

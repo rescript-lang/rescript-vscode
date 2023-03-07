@@ -1,29 +1,13 @@
-let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
-  let textOpt = Files.readFile currentFile in
-  match textOpt with
-  | None | Some "" -> []
-  | Some text -> (
+let completion ~debug ~path ~pos ~currentFile =
+  let completions =
     match
-      CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
-        ~currentFile ~text
+      Completions.getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
     with
     | None -> []
-    | Some (completable, scope) -> (
-      if debug then
-        Printf.printf "Completable: %s\n"
-          (SharedTypes.Completable.toString completable);
-      (* Only perform expensive ast operations if there are completables *)
-      match Cmt.loadFullCmtFromPath ~path with
-      | None -> []
-      | Some full ->
-        let env = SharedTypes.QueryEnv.fromFile full.file in
-        completable
-        |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
-             ~forHover))
-
-let completion ~debug ~path ~pos ~currentFile =
+    | Some (completions, _) -> completions
+  in
   print_endline
-    (getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
+    (completions
     |> List.map CompletionBackEnd.completionToItem
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
