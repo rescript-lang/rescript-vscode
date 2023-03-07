@@ -1,18 +1,20 @@
 Complete src/CompletionJsx.res 3:17
 posCursor:[3:17] posNoWhite:[3:16] Found expr:[3:3->3:17]
 Completable: Cpath Value[someString]->st
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
-    "label": "Js.String2.startsWith",
+    "label": "String.startsWith",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+    "detail": "(string, string) => bool",
+    "documentation": null
   }, {
-    "label": "Js.String2.startsWithFrom",
+    "label": "String.startsWithFrom",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t, int) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+    "detail": "(string, string, int) => bool",
+    "documentation": null
   }]
 
 Complete src/CompletionJsx.res 13:21
@@ -24,6 +26,8 @@ posCursor:[13:21] posNoWhite:[13:20] Found expr:[12:4->32:10]
 posCursor:[13:21] posNoWhite:[13:20] Found expr:[13:7->32:10]
 posCursor:[13:21] posNoWhite:[13:20] Found expr:[13:7->13:21]
 Completable: Cpath Value[someString]->st <<jsx>>
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "React.string",
     "kind": 12,
@@ -33,17 +37,17 @@ Completable: Cpath Value[someString]->st <<jsx>>
     "sortText": "A",
     "insertTextFormat": 2
   }, {
-    "label": "Js.String2.startsWith",
+    "label": "String.startsWith",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+    "detail": "(string, string) => bool",
+    "documentation": null
   }, {
-    "label": "Js.String2.startsWithFrom",
+    "label": "String.startsWithFrom",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t, int) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+    "detail": "(string, string, int) => bool",
+    "documentation": null
   }]
 
 Complete src/CompletionJsx.res 18:24
@@ -65,6 +69,8 @@ Pexp_construct :::[18:10->32:4] [18:10->32:4]
 posCursor:[18:24] posNoWhite:[18:23] Found expr:[18:10->32:4]
 posCursor:[18:24] posNoWhite:[18:23] Found expr:[18:10->18:24]
 Completable: Cpath Value[someString]->st <<jsx>>
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "React.string",
     "kind": 12,
@@ -74,17 +80,17 @@ Completable: Cpath Value[someString]->st <<jsx>>
     "sortText": "A",
     "insertTextFormat": 2
   }, {
-    "label": "Js.String2.startsWith",
+    "label": "String.startsWith",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+    "detail": "(string, string) => bool",
+    "documentation": null
   }, {
-    "label": "Js.String2.startsWithFrom",
+    "label": "String.startsWithFrom",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t, int) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+    "detail": "(string, string, int) => bool",
+    "documentation": null
   }]
 
 Complete src/CompletionJsx.res 20:27
@@ -106,6 +112,8 @@ Pexp_construct :::[20:10->32:4] [20:10->32:4]
 posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->32:4]
 posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->20:27]
 Completable: Cpath string->st <<jsx>>
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "React.string",
     "kind": 12,
@@ -115,17 +123,17 @@ Completable: Cpath string->st <<jsx>>
     "sortText": "A",
     "insertTextFormat": 2
   }, {
-    "label": "Js.String2.startsWith",
+    "label": "String.startsWith",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+    "detail": "(string, string) => bool",
+    "documentation": null
   }, {
-    "label": "Js.String2.startsWithFrom",
+    "label": "String.startsWithFrom",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t, int) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+    "detail": "(string, string, int) => bool",
+    "documentation": null
   }]
 
 Complete src/CompletionJsx.res 22:44
@@ -147,6 +155,8 @@ Pexp_construct :::[22:10->32:4] [22:10->32:4]
 posCursor:[22:44] posNoWhite:[22:43] Found expr:[22:10->32:4]
 posCursor:[22:44] posNoWhite:[22:43] Found expr:[22:10->22:44]
 Completable: Cpath Value[Js, String2, trim](Nolabel)->st <<jsx>>
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "React.string",
     "kind": 12,
@@ -156,17 +166,17 @@ Completable: Cpath Value[Js, String2, trim](Nolabel)->st <<jsx>>
     "sortText": "A",
     "insertTextFormat": 2
   }, {
-    "label": "Js.String2.startsWith",
+    "label": "String.startsWith",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWith(str, substr)` returns `true` if the `str` starts with\n`substr`, `false` otherwise.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWith(\"BuckleScript\", \"Buckle\") == true\nJs.String2.startsWith(\"BuckleScript\", \"\") == true\nJs.String2.startsWith(\"JavaScript\", \"Buckle\") == false\n```\n"}
+    "detail": "(string, string) => bool",
+    "documentation": null
   }, {
-    "label": "Js.String2.startsWithFrom",
+    "label": "String.startsWithFrom",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t, int) => bool",
-    "documentation": {"kind": "markdown", "value": "\nES2015: `startsWithFrom(str, substr, n)` returns `true` if the `str` starts\nwith `substr` starting at position `n`, false otherwise. If `n` is negative,\nthe search starts at the beginning of `str`.\n\nSee [`String.startsWith`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)\non MDN.\n\n```res example\nJs.String2.startsWithFrom(\"BuckleScript\", \"kle\", 3) == true\nJs.String2.startsWithFrom(\"BuckleScript\", \"\", 3) == true\nJs.String2.startsWithFrom(\"JavaScript\", \"Buckle\", 2) == false\n```\n"}
+    "detail": "(string, string, int) => bool",
+    "documentation": null
   }]
 
 Complete src/CompletionJsx.res 24:19
@@ -188,6 +198,8 @@ Pexp_construct :::[24:10->32:4] [24:10->32:4]
 posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:10->32:4]
 posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:10->0:-1]
 Completable: Cpath Value[someInt]-> <<jsx>>
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "React.int",
     "kind": 12,
@@ -197,53 +209,89 @@ Completable: Cpath Value[someInt]-> <<jsx>>
     "sortText": "A",
     "insertTextFormat": 2
   }, {
-    "label": "Belt.Int.fromString",
+    "label": "Int.fromString",
     "kind": 12,
     "tags": [],
-    "detail": "string => option<int>",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n  ```res example\n  Js.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n  ```\n"}
+    "detail": "(~radix: int=?, 'a) => option<int>",
+    "documentation": null
   }, {
-    "label": "Belt.Int.*",
+    "label": "Int.toStringWithRadix",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  Multiplication of two `int` values. Same as the multiplication from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 * 2 === 4) /* true */\n  ```\n"}
+    "detail": "(int, ~radix: int) => string",
+    "documentation": null
   }, {
-    "label": "Belt.Int./",
+    "label": "Int.toExponentialWithPrecision",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  Division of two `int` values. Same as the division from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(4 / 2 === 2); /* true */\n  ```\n"}
+    "detail": "(int, ~digits: int) => string",
+    "documentation": null
   }, {
-    "label": "Belt.Int.toString",
+    "label": "Int.toPrecisionWithPrecision",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, ~digits: int) => string",
+    "documentation": null
+  }, {
+    "label": "Int.toFixedWithPrecision",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, ~digits: int) => string",
+    "documentation": null
+  }, {
+    "label": "Int.toPrecision",
     "kind": 12,
     "tags": [],
     "detail": "int => string",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+    "documentation": null
   }, {
-    "label": "Belt.Int.toFloat",
+    "label": "Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": null
+  }, {
+    "label": "Int.mod",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": null
+  }, {
+    "label": "Int.toFloat",
     "kind": 12,
     "tags": [],
     "detail": "int => float",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+    "documentation": null
   }, {
-    "label": "Belt.Int.fromFloat",
+    "label": "Int.fromFloat",
     "kind": 12,
     "tags": [],
     "detail": "float => int",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to an `int`.\n\n  ```res example\n  Js.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n  ```\n"}
+    "documentation": null
   }, {
-    "label": "Belt.Int.-",
+    "label": "Int.toLocaleString",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  Subtraction of two `int` values. Same as the subtraction from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 - 1 === 1) /* true */\n  ```\n"}
+    "detail": "int => string",
+    "documentation": null
   }, {
-    "label": "Belt.Int.+",
+    "label": "Int.toFixed",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  Addition of two `int` values. Same as the addition from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 + 2 === 4) /* true */\n  ```\n"}
+    "detail": "int => string",
+    "documentation": null
+  }, {
+    "label": "Int.toExponential",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": null
+  }, {
+    "label": "Int.Constants",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
   }]
 
 Complete src/CompletionJsx.res 26:14
@@ -265,6 +313,8 @@ Pexp_construct :::[26:10->32:4] [26:10->32:4]
 posCursor:[26:14] posNoWhite:[26:13] Found expr:[26:10->32:4]
 posCursor:[26:14] posNoWhite:[26:13] Found expr:[26:10->0:-1]
 Completable: Cpath int-> <<jsx>>
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "React.int",
     "kind": 12,
@@ -274,53 +324,89 @@ Completable: Cpath int-> <<jsx>>
     "sortText": "A",
     "insertTextFormat": 2
   }, {
-    "label": "Belt.Int.fromString",
+    "label": "Int.fromString",
     "kind": 12,
     "tags": [],
-    "detail": "string => option<int>",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n  ```res example\n  Js.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n  ```\n"}
+    "detail": "(~radix: int=?, 'a) => option<int>",
+    "documentation": null
   }, {
-    "label": "Belt.Int.*",
+    "label": "Int.toStringWithRadix",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  Multiplication of two `int` values. Same as the multiplication from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 * 2 === 4) /* true */\n  ```\n"}
+    "detail": "(int, ~radix: int) => string",
+    "documentation": null
   }, {
-    "label": "Belt.Int./",
+    "label": "Int.toExponentialWithPrecision",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  Division of two `int` values. Same as the division from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(4 / 2 === 2); /* true */\n  ```\n"}
+    "detail": "(int, ~digits: int) => string",
+    "documentation": null
   }, {
-    "label": "Belt.Int.toString",
+    "label": "Int.toPrecisionWithPrecision",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, ~digits: int) => string",
+    "documentation": null
+  }, {
+    "label": "Int.toFixedWithPrecision",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, ~digits: int) => string",
+    "documentation": null
+  }, {
+    "label": "Int.toPrecision",
     "kind": 12,
     "tags": [],
     "detail": "int => string",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+    "documentation": null
   }, {
-    "label": "Belt.Int.toFloat",
+    "label": "Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": null
+  }, {
+    "label": "Int.mod",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": null
+  }, {
+    "label": "Int.toFloat",
     "kind": 12,
     "tags": [],
     "detail": "int => float",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+    "documentation": null
   }, {
-    "label": "Belt.Int.fromFloat",
+    "label": "Int.fromFloat",
     "kind": 12,
     "tags": [],
     "detail": "float => int",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to an `int`.\n\n  ```res example\n  Js.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n  ```\n"}
+    "documentation": null
   }, {
-    "label": "Belt.Int.-",
+    "label": "Int.toLocaleString",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  Subtraction of two `int` values. Same as the subtraction from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 - 1 === 1) /* true */\n  ```\n"}
+    "detail": "int => string",
+    "documentation": null
   }, {
-    "label": "Belt.Int.+",
+    "label": "Int.toFixed",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
-    "documentation": {"kind": "markdown", "value": "\n  Addition of two `int` values. Same as the addition from `Pervasives`.\n\n  ```res example\n  open Belt.Int\n  Js.log(2 + 2 === 4) /* true */\n  ```\n"}
+    "detail": "int => string",
+    "documentation": null
+  }, {
+    "label": "Int.toExponential",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": null
+  }, {
+    "label": "Int.Constants",
+    "kind": 9,
+    "tags": [],
+    "detail": "module",
+    "documentation": null
   }]
 
 Complete src/CompletionJsx.res 28:20
@@ -342,6 +428,8 @@ Pexp_construct :::[28:10->32:4] [28:10->32:4]
 posCursor:[28:20] posNoWhite:[28:19] Found expr:[28:10->32:4]
 posCursor:[28:20] posNoWhite:[28:19] Found expr:[28:10->28:20]
 Completable: Cpath Value[someArr]->a <<jsx>>
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "React.array",
     "kind": 12,
@@ -350,12 +438,6 @@ Completable: Cpath Value[someArr]->a <<jsx>>
     "documentation": {"kind": "markdown", "value": "Turns `array` into `React.element` so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
-  }, {
-    "label": "Js.Array2.append",
-    "kind": 12,
-    "tags": [1],
-    "detail": "(t<'a>, 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "Deprecated: `append` is not type-safe. Use `concat` instead.\n\n"}
   }]
 
 Complete src/CompletionJsx.res 30:12
@@ -378,6 +460,8 @@ posCursor:[30:12] posNoWhite:[30:11] Found expr:[30:10->32:4]
 posCursor:[30:12] posNoWhite:[30:11] Found expr:[30:10->30:12]
 JSX <di:[30:10->30:12] > _children:None
 Completable: ChtmlElement <di
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "<dialog>",
     "kind": 4,
@@ -405,6 +489,8 @@ Complete src/CompletionJsx.res 45:23
 posCursor:[45:23] posNoWhite:[45:22] Found expr:[45:4->45:23]
 JSX <CompWithoutJsxPpx:[45:4->45:21] n[45:22->45:23]=...[45:22->45:23]> _children:None
 Completable: Cjsx([CompWithoutJsxPpx], n, [n])
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "name",
     "kind": 4,

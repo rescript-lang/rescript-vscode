@@ -5,7 +5,7 @@ Definition src/Definition.res 10:23
 {"uri": "Definition.res", "range": {"start": {"line": 6, "character": 7}, "end": {"line": 6, "character": 13}}}
 
 Hover src/Definition.res 14:14
-{"contents": {"kind": "markdown", "value": "```rescript\n('a => 'b, list<'a>) => list<'b>\n```\n\n [List.map f [a1; ...; an]] applies function [f] to [a1, ..., an],\n   and builds the list [[f a1; ...; f an]]\n   with the results returned by [f].  Not tail-recursive. "}}
+{"contents": {"kind": "markdown", "value": "```rescript\n(\n  RescriptCore.List.t<'a>,\n  'a => 'b,\n) => RescriptCore.List.t<'b>\n```\n\n---\n\n```\n \n```\n```rescript\ntype RescriptCore.List.t<'a> = list<'a>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Core__List.resi%22%2C34%2C0%5D)\n\n\n\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->List.map(x => x + 1) // list{3, 4}\n  ```\n"}}
 
 Hover src/Definition.res 18:14
 {"contents": {"kind": "markdown", "value": "```rescript\n(Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b>\n```\n\n---\n\n```\n \n```\n```rescript\ntype Belt.List.t<'a> = list<'a>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22belt_List.mli%22%2C34%2C0%5D)\n\n\n\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"}}

@@ -96,11 +96,11 @@ let nestedObj = {"x": {"y": {"name": "a", "age": 32}}}
 // nestedObj["x"]["y"]["
 //                      ^com
 
-let o: Object.objT = assert false
+let o: Objects.objT = assert false
 // o["a
 //     ^com
 
-type nestedObjT = {"x": Object.nestedObjT}
+type nestedObjT = {"x": Objects.nestedObjT}
 let no: nestedObjT = assert false
 // no["x"]["y"]["
 //               ^com
