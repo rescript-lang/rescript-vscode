@@ -3,6 +3,8 @@ posCursor:[12:20] posNoWhite:[12:19] Found expr:[12:11->20:8]
 Completable: Cpath Value[A, B1, xx]->
 ContextPath Value[A, B1, xx]->
 ContextPath Value[A, B1, xx]
+Path A.B1.xx
+Path A.B1.
 [{
     "label": "A.B1.xx",
     "kind": 12,
@@ -23,6 +25,8 @@ Completable: Cpath Value[A, x].v->
 ContextPath Value[A, x].v->
 ContextPath Value[A, x].v
 ContextPath Value[A, x]
+Path A.x
+Path A.B1.
 [{
     "label": "A.B1.xx",
     "kind": 12,
@@ -44,6 +48,8 @@ ContextPath Value[E, e].v.v->
 ContextPath Value[E, e].v.v
 ContextPath Value[E, e].v
 ContextPath Value[E, e]
+Path E.e
+Path C.
 [{
     "label": "C.C",
     "kind": 4,
@@ -59,6 +65,8 @@ ContextPath Value[E, e].v.v2->
 ContextPath Value[E, e].v.v2
 ContextPath Value[E, e].v
 ContextPath Value[E, e]
+Path E.e
+Path D.C2.
 [{
     "label": "D.C2.C2",
     "kind": 4,

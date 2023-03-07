@@ -2,6 +2,7 @@ Complete src/CompletionTypeAnnotation.res 9:22
 XXX Not found!
 Completable: Cexpression Type[someRecord]
 ContextPath Type[someRecord]
+Path someRecord
 [{
     "label": "{}",
     "kind": 12,
@@ -17,6 +18,7 @@ Complete src/CompletionTypeAnnotation.res 12:24
 XXX Not found!
 Completable: Cexpression Type[someRecord]->recordBody
 ContextPath Type[someRecord]
+Path someRecord
 [{
     "label": "age",
     "kind": 5,
@@ -35,6 +37,7 @@ Complete src/CompletionTypeAnnotation.res 15:23
 XXX Not found!
 Completable: Cexpression Type[someVariant]
 ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -57,6 +60,7 @@ Complete src/CompletionTypeAnnotation.res 18:25
 XXX Not found!
 Completable: Cexpression Type[someVariant]=O
 ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -84,6 +88,7 @@ Complete src/CompletionTypeAnnotation.res 21:27
 XXX Not found!
 Completable: Cexpression Type[somePolyVariant]
 ContextPath Type[somePolyVariant]
+Path somePolyVariant
 [{
     "label": "#one",
     "kind": 4,
@@ -106,6 +111,7 @@ Complete src/CompletionTypeAnnotation.res 24:30
 XXX Not found!
 Completable: Cexpression Type[somePolyVariant]=#o
 ContextPath Type[somePolyVariant]
+Path somePolyVariant
 [{
     "label": "#one",
     "kind": 4,
@@ -120,6 +126,7 @@ Complete src/CompletionTypeAnnotation.res 29:20
 XXX Not found!
 Completable: Cexpression Type[someFunc]
 ContextPath Type[someFunc]
+Path someFunc
 [{
     "label": "(v1, v2) => {}",
     "kind": 12,
@@ -135,6 +142,7 @@ Complete src/CompletionTypeAnnotation.res 34:21
 XXX Not found!
 Completable: Cexpression Type[someTuple]
 ContextPath Type[someTuple]
+Path someTuple
 [{
     "label": "(_, _)",
     "kind": 12,
@@ -149,6 +157,7 @@ Complete src/CompletionTypeAnnotation.res 37:28
 XXX Not found!
 Completable: Cexpression Type[someTuple]->tuple($1)
 ContextPath Type[someTuple]
+Path someTuple
 [{
     "label": "None",
     "kind": 12,
@@ -182,6 +191,7 @@ XXX Not found!
 Completable: Cexpression option<Type[someVariant]>
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "None",
     "kind": 12,
@@ -219,6 +229,7 @@ XXX Not found!
 Completable: Cexpression option<Type[someVariant]>->variantPayload::Some($0)
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -242,6 +253,7 @@ XXX Not found!
 Completable: Cexpression array<Type[someVariant]>
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "[]",
     "kind": 12,
@@ -258,6 +270,7 @@ XXX Not found!
 Completable: Cexpression array<Type[someVariant]>->array
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -282,6 +295,7 @@ Completable: Cexpression array<option<Type[someVariant]>>
 ContextPath array<option<Type[someVariant]>>
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "[]",
     "kind": 12,
@@ -299,6 +313,7 @@ Completable: Cexpression option<array<Type[someVariant]>>->variantPayload::Some(
 ContextPath option<array<Type[someVariant]>>
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,

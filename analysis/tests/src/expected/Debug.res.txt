@@ -11,6 +11,7 @@ Completable: Cpath Value[eqN]
 Raw opens: 1 Js.place holder
 Resolved opens 1 js.ml
 ContextPath Value[eqN]
+Path eqN
 [{
     "label": "eqNullable",
     "kind": 12,
