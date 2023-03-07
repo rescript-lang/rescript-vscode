@@ -3,6 +3,8 @@ posCursor:[27:16] posNoWhite:[27:15] Found expr:[27:11->0:-1]
 Completable: Cpath Value[int]->
 ContextPath Value[int]->
 ContextPath Value[int]
+Path int
+Path Integer.
 [{
     "label": "Integer.toInt",
     "kind": 12,
@@ -35,6 +37,8 @@ Completable: Cpath Value[toFlt](Nolabel)->
 ContextPath Value[toFlt](Nolabel)->
 ContextPath Value[toFlt](Nolabel)
 ContextPath Value[toFlt]
+Path toFlt
+Path SuperFloat.
 [{
     "label": "SuperFloat.fromInteger",
     "kind": 12,
@@ -55,6 +59,8 @@ Completable: Cpath Value[Integer, increment](Nolabel, Nolabel)->
 ContextPath Value[Integer, increment](Nolabel, Nolabel)->
 ContextPath Value[Integer, increment](Nolabel, Nolabel)
 ContextPath Value[Integer, increment]
+Path Integer.increment
+Path Integer.
 [{
     "label": "Integer.toInt",
     "kind": 12,
@@ -87,6 +93,8 @@ Completable: Cpath Value[Integer, increment](Nolabel, Nolabel)->
 ContextPath Value[Integer, increment](Nolabel, Nolabel)->
 ContextPath Value[Integer, increment](Nolabel, Nolabel)
 ContextPath Value[Integer, increment]
+Path Integer.increment
+Path Integer.
 [{
     "label": "Integer.toInt",
     "kind": 12,
@@ -119,6 +127,8 @@ Completable: Cpath Value[Integer, decrement](Nolabel, Nolabel)->
 ContextPath Value[Integer, decrement](Nolabel, Nolabel)->
 ContextPath Value[Integer, decrement](Nolabel, Nolabel)
 ContextPath Value[Integer, decrement]
+Path Integer.decrement
+Path Integer.
 [{
     "label": "Integer.toInt",
     "kind": 12,
@@ -151,6 +161,8 @@ Completable: Cpath Value[Integer, decrement](Nolabel, Nolabel)->
 ContextPath Value[Integer, decrement](Nolabel, Nolabel)->
 ContextPath Value[Integer, decrement](Nolabel, Nolabel)
 ContextPath Value[Integer, decrement]
+Path Integer.decrement
+Path Integer.
 [{
     "label": "Integer.toInt",
     "kind": 12,
@@ -183,6 +195,8 @@ Completable: Cpath Value[SuperFloat, fromInteger](Nolabel)->
 ContextPath Value[SuperFloat, fromInteger](Nolabel)->
 ContextPath Value[SuperFloat, fromInteger](Nolabel)
 ContextPath Value[SuperFloat, fromInteger]
+Path SuperFloat.fromInteger
+Path SuperFloat.
 [{
     "label": "SuperFloat.fromInteger",
     "kind": 12,
@@ -203,6 +217,8 @@ Completable: Cpath Value[SuperFloat, fromInteger](Nolabel)->t
 ContextPath Value[SuperFloat, fromInteger](Nolabel)->t
 ContextPath Value[SuperFloat, fromInteger](Nolabel)
 ContextPath Value[SuperFloat, fromInteger]
+Path SuperFloat.fromInteger
+Path SuperFloat.t
 [{
     "label": "SuperFloat.toInteger",
     "kind": 12,
@@ -217,6 +233,8 @@ Completable: Cpath Value[CompletionSupport, Test, make](Nolabel)->
 ContextPath Value[CompletionSupport, Test, make](Nolabel)->
 ContextPath Value[CompletionSupport, Test, make](Nolabel)
 ContextPath Value[CompletionSupport, Test, make]
+Path CompletionSupport.Test.make
+Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
     "kind": 12,
@@ -243,6 +261,8 @@ Completable: Cpath Value[CompletionSupport, Test, addSelf](Nolabel, Nolabel)->
 ContextPath Value[CompletionSupport, Test, addSelf](Nolabel, Nolabel)->
 ContextPath Value[CompletionSupport, Test, addSelf](Nolabel, Nolabel)
 ContextPath Value[CompletionSupport, Test, addSelf]
+Path CompletionSupport.Test.addSelf
+Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
     "kind": 12,
@@ -269,6 +289,7 @@ Completable: Cpath Value[Js, Array2, forEach](Nolabel, Nolabel)->
 ContextPath Value[Js, Array2, forEach](Nolabel, Nolabel)->
 ContextPath Value[Js, Array2, forEach](Nolabel, Nolabel)
 ContextPath Value[Js, Array2, forEach]
+Path Js.Array2.forEach
 []
 
 Complete src/CompletionPipeChain.res 62:6
@@ -277,6 +298,8 @@ Completable: Cpath Value[Belt, Array, reduce](Nolabel, Nolabel, Nolabel)->t
 ContextPath Value[Belt, Array, reduce](Nolabel, Nolabel, Nolabel)->t
 ContextPath Value[Belt, Array, reduce](Nolabel, Nolabel, Nolabel)
 ContextPath Value[Belt, Array, reduce]
+Path Belt.Array.reduce
+Path Belt.Int.t
 [{
     "label": "Belt.Int.toString",
     "kind": 12,
@@ -296,6 +319,8 @@ posCursor:[70:12] posNoWhite:[70:11] Found expr:[70:3->0:-1]
 Completable: Cpath Value[aliased]->
 ContextPath Value[aliased]->
 ContextPath Value[aliased]
+Path aliased
+Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
     "kind": 12,
@@ -321,6 +346,8 @@ posCursor:[73:15] posNoWhite:[73:14] Found expr:[73:3->0:-1]
 Completable: Cpath Value[notAliased]->
 ContextPath Value[notAliased]->
 ContextPath Value[notAliased]
+Path notAliased
+Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
     "kind": 12,

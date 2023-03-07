@@ -2,6 +2,7 @@ Complete src/Destructuring.res 4:11
 posCursor:[4:11] posNoWhite:[4:9] Found pattern:[4:4->4:12]
 Completable: Cpattern Value[x]->recordBody
 ContextPath Value[x]
+Path x
 [{
     "label": "age",
     "kind": 5,
@@ -14,6 +15,7 @@ Complete src/Destructuring.res 7:8
 posCursor:[7:8] posNoWhite:[7:7] Found pattern:[7:7->7:9]
 Completable: Cpattern Value[x]->recordBody
 ContextPath Value[x]
+Path x
 [{
     "label": "name",
     "kind": 5,
@@ -34,6 +36,7 @@ posCursor:[11:13] posNoWhite:[11:11] Found expr:[11:2->13:6]
 posCursor:[11:13] posNoWhite:[11:11] Found pattern:[11:6->11:14]
 Completable: Cpattern Value[x]->recordBody
 ContextPath Value[x]
+Path x
 [{
     "label": "age",
     "kind": 5,
@@ -48,6 +51,7 @@ posCursor:[17:10] posNoWhite:[17:9] Found expr:[17:5->19:11]
 posCursor:[17:10] posNoWhite:[17:9] Found pattern:[17:9->17:11]
 Completable: Cpattern Value[x]->recordBody
 ContextPath Value[x]
+Path x
 [{
     "label": "name",
     "kind": 5,
@@ -66,6 +70,7 @@ Complete src/Destructuring.res 31:8
 posCursor:[31:8] posNoWhite:[31:7] Found pattern:[31:7->31:9]
 Completable: Cpattern Value[x]->recordBody
 ContextPath Value[x]
+Path x
 [{
     "label": "someField",
     "kind": 5,

@@ -5,6 +5,7 @@ posCursor:[16:19] posNoWhite:[16:18] Found expr:[16:11->16:19]
 Pexp_ident someFunc:[16:11->16:19]
 Completable: Cpath Value[someFunc]
 ContextPath Value[someFunc]
+Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
 [(
@@ -26,6 +27,7 @@ posCursor:[19:19] posNoWhite:[19:18] Found expr:[19:11->19:19]
 Pexp_ident someFunc:[19:11->19:19]
 Completable: Cpath Value[someFunc]
 ContextPath Value[someFunc]
+Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
 [(
@@ -47,6 +49,7 @@ posCursor:[22:19] posNoWhite:[22:18] Found expr:[22:11->22:19]
 Pexp_ident someFunc:[22:11->22:19]
 Completable: Cpath Value[someFunc]
 ContextPath Value[someFunc]
+Path someFunc
 argAtCursor: ~two
 extracted params: 
 [(
@@ -68,6 +71,7 @@ posCursor:[25:19] posNoWhite:[25:18] Found expr:[25:11->25:19]
 Pexp_ident someFunc:[25:11->25:19]
 Completable: Cpath Value[someFunc]
 ContextPath Value[someFunc]
+Path someFunc
 argAtCursor: ~two
 extracted params: 
 [(
@@ -89,6 +93,7 @@ posCursor:[28:19] posNoWhite:[28:18] Found expr:[28:11->28:19]
 Pexp_ident someFunc:[28:11->28:19]
 Completable: Cpath Value[someFunc]
 ContextPath Value[someFunc]
+Path someFunc
 argAtCursor: ~four
 extracted params: 
 [(
@@ -110,6 +115,7 @@ posCursor:[31:19] posNoWhite:[31:18] Found expr:[31:11->31:19]
 Pexp_ident someFunc:[31:11->31:19]
 Completable: Cpath Value[someFunc]
 ContextPath Value[someFunc]
+Path someFunc
 argAtCursor: ~four
 extracted params: 
 [(
@@ -131,6 +137,7 @@ posCursor:[34:20] posNoWhite:[34:19] Found expr:[34:11->34:20]
 Pexp_ident otherFunc:[34:11->34:20]
 Completable: Cpath Value[otherFunc]
 ContextPath Value[otherFunc]
+Path otherFunc
 argAtCursor: unlabelled<0>
 extracted params: 
 [(string, int, float]
@@ -150,6 +157,7 @@ posCursor:[37:20] posNoWhite:[37:19] Found expr:[37:11->37:20]
 Pexp_ident otherFunc:[37:11->37:20]
 Completable: Cpath Value[otherFunc]
 ContextPath Value[otherFunc]
+Path otherFunc
 argAtCursor: unlabelled<0>
 extracted params: 
 [(string, int, float]
@@ -169,6 +177,7 @@ posCursor:[40:20] posNoWhite:[40:19] Found expr:[40:11->40:20]
 Pexp_ident otherFunc:[40:11->40:20]
 Completable: Cpath Value[otherFunc]
 ContextPath Value[otherFunc]
+Path otherFunc
 argAtCursor: unlabelled<2>
 extracted params: 
 [(string, int, float]
@@ -188,6 +197,7 @@ posCursor:[43:29] posNoWhite:[43:28] Found expr:[43:11->43:29]
 Pexp_ident Completion.Lib.foo:[43:11->43:29]
 Completable: Cpath Value[Completion, Lib, foo]
 ContextPath Value[Completion, Lib, foo]
+Path Completion.Lib.foo
 argAtCursor: ~age
 extracted params: 
 [(~age: int, ~name: string]
@@ -207,6 +217,7 @@ posCursor:[50:23] posNoWhite:[50:22] Found expr:[50:11->50:23]
 Pexp_ident iAmSoSpecial:[50:11->50:23]
 Completable: Cpath Value[iAmSoSpecial]
 ContextPath Value[iAmSoSpecial]
+Path iAmSoSpecial
 argAtCursor: unlabelled<0>
 extracted params: 
 [string]
@@ -227,6 +238,7 @@ posCursor:[53:29] posNoWhite:[53:28] Found expr:[53:20->53:29]
 Pexp_ident otherFunc:[53:20->53:29]
 Completable: Cpath Value[otherFunc]
 ContextPath Value[otherFunc]
+Path otherFunc
 argAtCursor: unlabelled<1>
 extracted params: 
 [(string, int, float]
@@ -246,6 +258,7 @@ posCursor:[62:13] posNoWhite:[62:12] Found expr:[62:11->62:13]
 Pexp_ident fn:[62:11->62:13]
 Completable: Cpath Value[fn]
 ContextPath Value[fn]
+Path fn
 argAtCursor: unlabelled<1>
 extracted params: 
 [(int, string, int]
@@ -265,6 +278,7 @@ posCursor:[65:13] posNoWhite:[65:12] Found expr:[65:11->65:13]
 Pexp_ident fn:[65:11->65:13]
 Completable: Cpath Value[fn]
 ContextPath Value[fn]
+Path fn
 argAtCursor: unlabelled<1>
 extracted params: 
 [(int, string, int]
@@ -284,6 +298,7 @@ posCursor:[68:13] posNoWhite:[68:12] Found expr:[68:11->68:13]
 Pexp_ident fn:[68:11->68:13]
 Completable: Cpath Value[fn]
 ContextPath Value[fn]
+Path fn
 argAtCursor: unlabelled<2>
 extracted params: 
 [(int, string, int]
@@ -305,6 +320,7 @@ posCursor:[71:28] posNoWhite:[71:27] Found expr:[71:16->71:28]
 Pexp_ident iAmSoSpecial:[71:16->71:28]
 Completable: Cpath Value[iAmSoSpecial]
 ContextPath Value[iAmSoSpecial]
+Path iAmSoSpecial
 argAtCursor: unlabelled<0>
 extracted params: 
 [string]
@@ -328,6 +344,7 @@ posCursor:[74:39] posNoWhite:[74:38] Found expr:[74:31->74:39]
 Pexp_ident someFunc:[74:31->74:39]
 Completable: Cpath Value[someFunc]
 ContextPath Value[someFunc]
+Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
 [(

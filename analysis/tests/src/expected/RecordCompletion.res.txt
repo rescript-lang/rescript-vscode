@@ -4,6 +4,8 @@ Completable: Cpath Value[t].n->m
 ContextPath Value[t].n->m
 ContextPath Value[t].n
 ContextPath Value[t]
+Path t
+Path Js.Array2.m
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -25,6 +27,8 @@ ContextPath Value[t2].n2.n->m
 ContextPath Value[t2].n2.n
 ContextPath Value[t2].n2
 ContextPath Value[t2]
+Path t2
+Path Js.Array2.m
 [{
     "label": "Js.Array2.mapi",
     "kind": 12,
@@ -44,6 +48,7 @@ posCursor:[19:7] posNoWhite:[19:6] Found expr:[19:3->19:7]
 Pexp_field [19:3->19:4] R.:[19:5->19:7]
 Completable: Cpath Module[R].""
 ContextPath Module[R].""
+Path R.
 [{
     "label": "name",
     "kind": 5,
@@ -57,6 +62,7 @@ posCursor:[22:7] posNoWhite:[22:6] Found expr:[22:3->22:10]
 Pexp_field [22:3->22:4] R.xx:[22:5->22:10]
 Completable: Cpath Module[R].""
 ContextPath Module[R].""
+Path R.
 [{
     "label": "name",
     "kind": 5,

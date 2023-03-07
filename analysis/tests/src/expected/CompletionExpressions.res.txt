@@ -3,7 +3,9 @@ XXX Not found!
 Completable: Cpattern CTuple(Value[s], Value[f])
 ContextPath CTuple(Value[s], Value[f])
 ContextPath Value[s]
+Path s
 ContextPath Value[f]
+Path f
 [{
     "label": "(_, _)",
     "kind": 12,
@@ -20,6 +22,7 @@ Pexp_apply ...[26:11->26:25] (...[26:26->26:28])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "age",
     "kind": 5,
@@ -64,6 +67,7 @@ Pexp_apply ...[29:11->29:25] (...[29:27->29:28])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n->recordBody
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "nested",
     "kind": 5,
@@ -78,6 +82,7 @@ Pexp_apply ...[32:11->32:25] (...[32:26->32:38])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(offline)
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "true",
     "kind": 4,
@@ -98,6 +103,7 @@ Pexp_apply ...[35:11->35:25] (...[35:26->35:38])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "offline",
     "kind": 5,
@@ -136,6 +142,7 @@ Pexp_apply ...[38:11->38:25] (...[38:26->38:52])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "online",
     "kind": 5,
@@ -168,6 +175,7 @@ Pexp_apply ...[41:11->41:25] (...[41:26->41:47])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested)
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "None",
     "kind": 12,
@@ -198,6 +206,7 @@ Pexp_apply ...[44:11->44:25] (...[44:26->44:48])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested), recordBody
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 []
 
 Complete src/CompletionExpressions.res 47:51
@@ -206,6 +215,7 @@ Pexp_apply ...[47:11->47:25] (...[47:26->47:54])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested), variantPayload::Some($0), recordBody
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "someField",
     "kind": 5,
@@ -226,6 +236,7 @@ Pexp_apply ...[50:11->50:25] (...[50:26->50:48])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(variant)
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "One",
     "kind": 4,
@@ -258,6 +269,7 @@ Pexp_apply ...[53:11->53:25] (...[53:26->53:49])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=O->recordField(variant)
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "One",
     "kind": 4,
@@ -287,6 +299,7 @@ Pexp_apply ...[56:11->56:25] (...[56:26->56:60])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($0)
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "{}",
     "kind": 12,
@@ -304,6 +317,7 @@ Pexp_apply ...[59:11->59:25] (...[59:26->59:64])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($1)
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "true",
     "kind": 4,
@@ -324,6 +338,7 @@ Pexp_apply ...[62:11->62:25] (...[62:26->62:65])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=t->recordField(polyvariant), polyvariantPayload::three($1)
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "true",
     "kind": 4,
@@ -338,6 +353,7 @@ Pexp_apply ...[69:11->69:24] (...[69:25->69:26])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
+Path fnTakingArray
 [{
     "label": "[]",
     "kind": 12,
@@ -355,6 +371,7 @@ Pexp_apply ...[72:11->72:24] (...[72:25->72:27])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
+Path fnTakingArray
 [{
     "label": "None",
     "kind": 12,
@@ -389,6 +406,7 @@ Pexp_apply ...[75:11->75:24] (...[75:25->75:26])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)=s
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
+Path fnTakingArray
 [{
     "label": "s",
     "kind": 12,
@@ -403,6 +421,7 @@ Pexp_apply ...[78:11->78:24] (...[78:25->78:33])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array, variantPayload::Some($0)
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
+Path fnTakingArray
 [{
     "label": "true",
     "kind": 4,
@@ -423,6 +442,7 @@ Pexp_apply ...[81:11->81:24] (...[81:25->81:33])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
+Path fnTakingArray
 [{
     "label": "None",
     "kind": 12,
@@ -457,6 +477,7 @@ Pexp_apply ...[84:11->84:24] (...[84:25->84:39])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
+Path fnTakingArray
 [{
     "label": "None",
     "kind": 12,
@@ -491,6 +512,7 @@ Pexp_apply ...[89:11->89:25] (...[89:26->89:40])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=so
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
+Path fnTakingRecord
 [{
     "label": "someBoolVar",
     "kind": 12,
@@ -505,6 +527,7 @@ Pexp_apply ...[96:11->96:30] (...[96:31->96:46])
 Completable: Cexpression CArgument Value[fnTakingOtherRecord]($0)->recordField(otherField)
 ContextPath CArgument Value[fnTakingOtherRecord]($0)
 ContextPath Value[fnTakingOtherRecord]
+Path fnTakingOtherRecord
 [{
     "label": "\"\"",
     "kind": 12,
@@ -522,6 +545,7 @@ Pexp_apply ...[108:11->108:42] (...[108:43->108:60])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptionalField]($0)->recordField(someOptField)
 ContextPath CArgument Value[fnTakingRecordWithOptionalField]($0)
 ContextPath Value[fnTakingRecordWithOptionalField]
+Path fnTakingRecordWithOptionalField
 [{
     "label": "true",
     "kind": 4,
@@ -542,6 +566,7 @@ Pexp_apply ...[116:11->116:39] (...[116:40->116:56])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptVariant]($0)->recordField(someVariant)
 ContextPath CArgument Value[fnTakingRecordWithOptVariant]($0)
 ContextPath Value[fnTakingRecordWithOptVariant]
+Path fnTakingRecordWithOptVariant
 [{
     "label": "None",
     "kind": 12,
@@ -588,6 +613,7 @@ Pexp_apply ...[126:11->126:31] (...[126:32->126:50])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0)
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
+Path fnTakingInlineRecord
 [{
     "label": "{}",
     "kind": 4,
@@ -605,6 +631,7 @@ Pexp_apply ...[129:11->129:31] (...[129:32->129:52])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordBody
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
+Path fnTakingInlineRecord
 [{
     "label": "someBoolField",
     "kind": 4,
@@ -631,6 +658,7 @@ Pexp_apply ...[132:11->132:31] (...[132:32->132:53])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0), recordBody
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
+Path fnTakingInlineRecord
 [{
     "label": "someBoolField",
     "kind": 4,
@@ -645,6 +673,7 @@ Pexp_apply ...[135:11->135:31] (...[135:32->135:66])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord)
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
+Path fnTakingInlineRecord
 [{
     "label": "{}",
     "kind": 12,
@@ -662,6 +691,7 @@ Pexp_apply ...[138:11->138:31] (...[138:32->138:69])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord), recordBody
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
+Path fnTakingInlineRecord
 [{
     "label": "someField",
     "kind": 5,
@@ -682,6 +712,7 @@ Pexp_apply ...[159:3->159:19] (...[159:20->159:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($0)
 ContextPath CArgument Value[fnTakingCallback]($0)
 ContextPath Value[fnTakingCallback]
+Path fnTakingCallback
 [{
     "label": "() => {}",
     "kind": 12,
@@ -699,6 +730,7 @@ Pexp_apply ...[162:3->162:19] (...[162:20->162:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($0)=a
 ContextPath CArgument Value[fnTakingCallback]($0)
 ContextPath Value[fnTakingCallback]
+Path fnTakingCallback
 []
 
 Complete src/CompletionExpressions.res 165:22
@@ -707,6 +739,7 @@ Pexp_apply ...[165:3->165:19] (...[165:20->165:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($1)
 ContextPath CArgument Value[fnTakingCallback]($1)
 ContextPath Value[fnTakingCallback]
+Path fnTakingCallback
 [{
     "label": "v => {}",
     "kind": 12,
@@ -724,6 +757,7 @@ Pexp_apply ...[168:3->168:19] (...[168:20->168:21], ...[168:23->168:24])
 Completable: Cexpression CArgument Value[fnTakingCallback]($2)
 ContextPath CArgument Value[fnTakingCallback]($2)
 ContextPath Value[fnTakingCallback]
+Path fnTakingCallback
 [{
     "label": "event => {}",
     "kind": 12,
@@ -741,6 +775,7 @@ Pexp_apply ...[171:3->171:19] (...[171:20->171:21], ...[171:23->171:24], ...[171
 Completable: Cexpression CArgument Value[fnTakingCallback]($3)
 ContextPath CArgument Value[fnTakingCallback]($3)
 ContextPath Value[fnTakingCallback]
+Path fnTakingCallback
 [{
     "label": "(~on, ~off=?, v1) => {}",
     "kind": 12,
@@ -758,6 +793,7 @@ Pexp_apply ...[174:3->174:19] (...[174:20->174:21], ...[174:23->174:24], ...[174
 Completable: Cexpression CArgument Value[fnTakingCallback]($4)
 ContextPath CArgument Value[fnTakingCallback]($4)
 ContextPath Value[fnTakingCallback]
+Path fnTakingCallback
 [{
     "label": "(v1, v2, v3) => {}",
     "kind": 12,
@@ -775,6 +811,7 @@ Pexp_apply ...[177:3->177:19] (...[177:20->177:21], ...[177:23->177:24], ...[177
 Completable: Cexpression CArgument Value[fnTakingCallback]($5)
 ContextPath CArgument Value[fnTakingCallback]($5)
 ContextPath Value[fnTakingCallback]
+Path fnTakingCallback
 [{
     "label": "(~on=?, ~off=?, ()) => {}",
     "kind": 12,
@@ -796,6 +833,7 @@ Pexp_apply ...[185:2->185:8] (...[185:9->185:10])
 Completable: Cexpression CArgument Value[Js, log]($0)=s
 ContextPath CArgument Value[Js, log]($0)
 ContextPath Value[Js, log]
+Path Js.log
 [{
     "label": "second2",
     "kind": 12,
