@@ -864,6 +864,9 @@ Complete src/CompletionExpressions.res 196:14
 posCursor:[196:14] posNoWhite:[196:13] Found expr:[196:3->196:14]
 Pexp_field [196:3->196:6] someOpt:[196:7->196:14]
 Completable: Cpath Value[fff].someOpt
+ContextPath Value[fff].someOpt
+ContextPath Value[fff]
+Path fff
 [{
     "label": "someOptField",
     "kind": 5,
