@@ -150,6 +150,7 @@ ContextPath Value[reactEventFn]
 Path reactEventFn
 CPPipe env:CompletionInferValues
 CPPipe type path:ReactEvent.Mouse.t
+CPPipe pathFromEnv:ReactEvent.Mouse found:false
 Path ReactEvent.Mouse.pr
 [{
     "label": "ReactEvent.Mouse.preventDefault",
@@ -174,6 +175,7 @@ Path ReactDOM.domProps
 Path JsxDOM.domProps
 CPPipe env:CompletionInferValues
 CPPipe type path:JsxEvent.Mouse.t
+CPPipe pathFromEnv:JsxEvent.Mouse found:false
 Path JsxEvent.Mouse.pr
 [{
     "label": "JsxEvent.Mouse.preventDefault",
@@ -197,6 +199,7 @@ ContextPath CJsxPropValue [Div] onMouseEnter
 Path Div.make
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionInferValues.Div
 CPPipe type path:JsxEvent.Mouse.t
+CPPipe pathFromEnv:JsxEvent.Mouse found:false
 Path JsxEvent.Mouse.pr
 [{
     "label": "JsxEvent.Mouse.preventDefault",
@@ -666,6 +669,7 @@ ContextPath Value[fn2]
 Path fn2
 CPPipe env:CompletionInferValues
 CPPipe type path:ReactDOM.Client.Root.t
+CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path ReactDOM.Client.Root.
 [{
     "label": "ReactDOM.Client.Root.unmount",
@@ -698,6 +702,7 @@ ContextPath Value[fn3]
 Path fn3
 CPPipe env:CompletionInferValues
 CPPipe type path:CompletionSupport.Test.t
+CPPipe pathFromEnv:CompletionSupport.Test found:false
 Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
@@ -793,6 +798,7 @@ ContextPath Value[CompletionSupport2, makeRenderer]
 Path CompletionSupport2.makeRenderer
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2.Internal
 CPPipe type path:ReactDOM.Client.Root.t
+CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path CompletionSupport2.ReactDOM.Client.Root.
 []
 

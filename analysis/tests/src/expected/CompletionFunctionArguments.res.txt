@@ -351,6 +351,7 @@ ContextPath Value[thisGetsBrokenLoc]
 Path thisGetsBrokenLoc
 CPPipe env:CompletionFunctionArguments
 CPPipe type path:ReactEvent.Mouse.t
+CPPipe pathFromEnv:ReactEvent.Mouse found:false
 Path ReactEvent.Mouse.a
 [{
     "label": "ReactEvent.Mouse.altKey",
@@ -373,6 +374,7 @@ ContextPath Value[reassignedWorks]
 Path reassignedWorks
 CPPipe env:CompletionFunctionArguments
 CPPipe type path:ReactEvent.Mouse.t
+CPPipe pathFromEnv:ReactEvent.Mouse found:false
 Path ReactEvent.Mouse.a
 [{
     "label": "ReactEvent.Mouse.altKey",

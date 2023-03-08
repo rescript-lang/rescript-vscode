@@ -455,6 +455,7 @@ ContextPath Value[fa]
 Path fa
 CPPipe env:Completion
 CPPipe type path:ForAuto.t
+CPPipe pathFromEnv:ForAuto found:true
 Path ForAuto.
 [{
     "label": "ForAuto.abc",
@@ -1017,6 +1018,7 @@ ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
 CPPipe env:Completion envFromCompletionItem:Completion.FAR
 CPPipe type path:ForAuto.t
+CPPipe pathFromEnv:ForAuto found:false
 Path ForAuto.
 [{
     "label": "ForAuto.abc",

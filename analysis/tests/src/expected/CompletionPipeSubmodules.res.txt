@@ -6,6 +6,7 @@ ContextPath Value[A, B1, xx]
 Path A.B1.xx
 CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.A.B1
 CPPipe type path:b1
+CPPipe pathFromEnv:A.B1 found:true
 Path A.B1.
 [{
     "label": "A.B1.xx",
@@ -30,6 +31,7 @@ ContextPath Value[A, x]
 Path A.x
 CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.A
 CPPipe type path:B1.b1
+CPPipe pathFromEnv:A.B1 found:true
 Path A.B1.
 [{
     "label": "A.B1.xx",
@@ -55,6 +57,7 @@ ContextPath Value[E, e]
 Path E.e
 CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.D
 CPPipe type path:C.t
+CPPipe pathFromEnv:C found:false
 Path C.
 [{
     "label": "C.C",
@@ -74,6 +77,7 @@ ContextPath Value[E, e]
 Path E.e
 CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.D
 CPPipe type path:C2.t2
+CPPipe pathFromEnv:D.C2 found:true
 Path D.C2.
 [{
     "label": "D.C2.C2",
