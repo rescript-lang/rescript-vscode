@@ -267,8 +267,13 @@ module QueryEnv : sig
      The result is A.B.C.D if D is inside C.
      Or A.B.D or A.D or D if it's in one of its parents. *)
   val pathFromEnv : t -> path -> path
+
+  val toString : t -> string
 end = struct
   type t = {file: File.t; exported: Exported.t; pathRev: path; parent: t option}
+
+  let toString {file; pathRev} =
+    file.moduleName :: List.rev pathRev |> String.concat "."
 
   let fromFile (file : File.t) =
     {file; exported = file.structure.exported; pathRev = []; parent = None}

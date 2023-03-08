@@ -4,6 +4,8 @@ Completable: Cpath Value[ax]->
 ContextPath Value[ax]->
 ContextPath Value[ax]
 Path ax
+CPPipe env:CompletePrioritize2
+CPPipe type path:Test.t
 Path Test.
 [{
     "label": "Test.add",

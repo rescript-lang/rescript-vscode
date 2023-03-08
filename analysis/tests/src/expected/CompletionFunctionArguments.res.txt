@@ -349,6 +349,8 @@ Completable: Cpath Value[thisGetsBrokenLoc]->a <<jsx>>
 ContextPath Value[thisGetsBrokenLoc]->a <<jsx>>
 ContextPath Value[thisGetsBrokenLoc]
 Path thisGetsBrokenLoc
+CPPipe env:CompletionFunctionArguments
+CPPipe type path:ReactEvent.Mouse.t
 Path ReactEvent.Mouse.a
 [{
     "label": "ReactEvent.Mouse.altKey",
@@ -369,6 +371,8 @@ Completable: Cpath Value[reassignedWorks]->a <<jsx>>
 ContextPath Value[reassignedWorks]->a <<jsx>>
 ContextPath Value[reassignedWorks]
 Path reassignedWorks
+CPPipe env:CompletionFunctionArguments
+CPPipe type path:ReactEvent.Mouse.t
 Path ReactEvent.Mouse.a
 [{
     "label": "ReactEvent.Mouse.altKey",

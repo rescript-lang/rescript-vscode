@@ -4,6 +4,8 @@ Completable: Cpath Value[A, B1, xx]->
 ContextPath Value[A, B1, xx]->
 ContextPath Value[A, B1, xx]
 Path A.B1.xx
+CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.A.B1
+CPPipe type path:b1
 Path A.B1.
 [{
     "label": "A.B1.xx",
@@ -26,6 +28,8 @@ ContextPath Value[A, x].v->
 ContextPath Value[A, x].v
 ContextPath Value[A, x]
 Path A.x
+CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.A
+CPPipe type path:B1.b1
 Path A.B1.
 [{
     "label": "A.B1.xx",
@@ -49,6 +53,8 @@ ContextPath Value[E, e].v.v
 ContextPath Value[E, e].v
 ContextPath Value[E, e]
 Path E.e
+CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.D
+CPPipe type path:C.t
 Path C.
 [{
     "label": "C.C",
@@ -66,6 +72,8 @@ ContextPath Value[E, e].v.v2
 ContextPath Value[E, e].v
 ContextPath Value[E, e]
 Path E.e
+CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.D
+CPPipe type path:C2.t2
 Path D.C2.
 [{
     "label": "D.C2.C2",
