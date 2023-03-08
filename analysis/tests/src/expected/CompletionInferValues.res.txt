@@ -799,6 +799,18 @@ Path CompletionSupport2.makeRenderer
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2.Internal
 CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
-Path CompletionSupport2.ReactDOM.Client.Root.
-[]
+Path ReactDOM.Client.Root.
+[{
+    "label": "ReactDOM.Client.Root.unmount",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, unit) => unit",
+    "documentation": null
+  }, {
+    "label": "ReactDOM.Client.Root.render",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, React.element) => unit",
+    "documentation": null
+  }]
 
