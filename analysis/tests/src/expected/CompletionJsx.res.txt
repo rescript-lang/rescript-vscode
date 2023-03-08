@@ -4,6 +4,7 @@ Completable: Cpath Value[someString]->st
 ContextPath Value[someString]->st
 ContextPath Value[someString]
 Path someString
+CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "Js.String2.startsWith",
@@ -31,6 +32,7 @@ Completable: Cpath Value[someString]->st <<jsx>>
 ContextPath Value[someString]->st <<jsx>>
 ContextPath Value[someString]
 Path someString
+CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -76,6 +78,7 @@ Completable: Cpath Value[someString]->st <<jsx>>
 ContextPath Value[someString]->st <<jsx>>
 ContextPath Value[someString]
 Path someString
+CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -120,6 +123,7 @@ posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->20:27]
 Completable: Cpath string->st <<jsx>>
 ContextPath string->st <<jsx>>
 ContextPath string
+CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -166,6 +170,7 @@ ContextPath Value[Js, String2, trim](Nolabel)->st <<jsx>>
 ContextPath Value[Js, String2, trim](Nolabel)
 ContextPath Value[Js, String2, trim]
 Path Js.String2.trim
+CPPipe env:CompletionJsx envFromCompletionItem:Js_string2
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -211,6 +216,7 @@ Completable: Cpath Value[someInt]-> <<jsx>>
 ContextPath Value[someInt]-> <<jsx>>
 ContextPath Value[someInt]
 Path someInt
+CPPipe env:CompletionJsx
 Path Belt.Int.
 [{
     "label": "React.int",
@@ -291,6 +297,7 @@ posCursor:[26:14] posNoWhite:[26:13] Found expr:[26:10->0:-1]
 Completable: Cpath int-> <<jsx>>
 ContextPath int-> <<jsx>>
 ContextPath int
+CPPipe env:CompletionJsx
 Path Belt.Int.
 [{
     "label": "React.int",
@@ -372,6 +379,7 @@ Completable: Cpath Value[someArr]->a <<jsx>>
 ContextPath Value[someArr]->a <<jsx>>
 ContextPath Value[someArr]
 Path someArr
+CPPipe env:CompletionJsx
 Path Js.Array2.a
 [{
     "label": "React.array",

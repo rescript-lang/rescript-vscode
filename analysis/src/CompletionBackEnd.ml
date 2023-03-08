@@ -873,6 +873,12 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
            (* by doing this ~env:envFromCompletionItem*)
              ~env ~package ~full ~lhsLoc
       in
+      if debug then
+        if env <> envFromCompletionItem then
+          Printf.printf "CPPipe env:%s envFromCompletionItem:%s\n"
+            (QueryEnv.toString env)
+            (QueryEnv.toString envFromCompletionItem)
+        else Printf.printf "CPPipe env:%s\n" (QueryEnv.toString env);
       let completionPath =
         match typ with
         | Builtin (builtin, _) ->
@@ -906,6 +912,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
           | Tlink {desc = Tconstr (path, _typeArgs, _)}
           | Tsubst {desc = Tconstr (path, _typeArgs, _)}
           | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) -> (
+            if debug then Printf.printf "CPPipe type path:%s\n" (Path.name path);
             match Utils.expandPath path with
             | _ :: pathRev ->
               (* type path is relative to the completion environment

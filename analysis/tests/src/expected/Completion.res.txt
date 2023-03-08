@@ -392,6 +392,7 @@ posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:3->26:13]
 Completable: Cpath array<int>->m
 ContextPath array<int>->m
 ContextPath array<int>
+CPPipe env:Completion
 Path Js.Array2.m
 [{
     "label": "Js.Array2.mapi",
@@ -412,6 +413,7 @@ posCursor:[29:13] posNoWhite:[29:12] Found expr:[29:3->29:13]
 Completable: Cpath string->toU
 ContextPath string->toU
 ContextPath string
+CPPipe env:Completion
 Path Js.String2.toU
 [{
     "label": "Js.String2.toUpperCase",
@@ -427,6 +429,7 @@ Completable: Cpath Value[op]->e
 ContextPath Value[op]->e
 ContextPath Value[op]
 Path op
+CPPipe env:Completion
 Path Belt.Option.e
 [{
     "label": "Belt.Option.eqU",
@@ -450,6 +453,8 @@ Completable: Cpath Value[fa]->
 ContextPath Value[fa]->
 ContextPath Value[fa]
 Path fa
+CPPipe env:Completion
+CPPipe type path:ForAuto.t
 Path ForAuto.
 [{
     "label": "ForAuto.abc",
@@ -1010,6 +1015,8 @@ ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
+CPPipe env:Completion envFromCompletionItem:Completion.FAR
+CPPipe type path:ForAuto.t
 Path ForAuto.
 [{
     "label": "ForAuto.abc",
@@ -1760,6 +1767,7 @@ Raw opens: 3 Js.place holder ... Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 3 Completion.res Completion.res js.ml
 ContextPath array->ma
 ContextPath array
+CPPipe env:Completion
 Path Js.Array2.ma
 [{
     "label": "Array2.mapi",
@@ -1906,6 +1914,7 @@ Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
 ContextPath int->t
 ContextPath int
+CPPipe env:Completion
 Path Belt.Int.t
 [{
     "label": "Belt.Int.toString",
@@ -1928,6 +1937,7 @@ Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
 ContextPath float->t
 ContextPath float
+CPPipe env:Completion
 Path Belt.Float.t
 [{
     "label": "Belt.Float.toInt",
@@ -1951,6 +1961,7 @@ Resolved opens 2 Completion.res Completion.res
 ContextPath Value[ok]->g
 ContextPath Value[ok]
 Path ok
+CPPipe env:Completion
 Path Belt.Result.g
 [{
     "label": "Belt.Result.getExn",
