@@ -424,8 +424,14 @@ Path props
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionSupport.Nested
 CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
-Path CompletionSupport.ReactDOM.Client.Root.ren
-[]
+Path ReactDOM.Client.Root.ren
+[{
+    "label": "ReactDOM.Client.Root.render",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, React.element) => unit",
+    "documentation": null
+  }]
 
 Complete src/CompletionPipeChain.res 88:16
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[76:15->93:1]
