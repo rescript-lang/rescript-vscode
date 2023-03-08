@@ -6,6 +6,7 @@ ContextPath Value[int]
 Path int
 CPPipe env:CompletionPipeChain
 CPPipe type path:Integer.t
+CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
     "label": "Integer.toInt",
@@ -42,6 +43,7 @@ ContextPath Value[toFlt]
 Path toFlt
 CPPipe env:CompletionPipeChain
 CPPipe type path:SuperFloat.t
+CPPipe pathFromEnv:SuperFloat found:true
 Path SuperFloat.
 [{
     "label": "SuperFloat.fromInteger",
@@ -66,6 +68,7 @@ ContextPath Value[Integer, increment]
 Path Integer.increment
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.Integer
 CPPipe type path:t
+CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
     "label": "Integer.toInt",
@@ -102,6 +105,7 @@ ContextPath Value[Integer, increment]
 Path Integer.increment
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.Integer
 CPPipe type path:t
+CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
     "label": "Integer.toInt",
@@ -138,6 +142,7 @@ ContextPath Value[Integer, decrement]
 Path Integer.decrement
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.Integer
 CPPipe type path:t
+CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
     "label": "Integer.toInt",
@@ -174,6 +179,7 @@ ContextPath Value[Integer, decrement]
 Path Integer.decrement
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.Integer
 CPPipe type path:t
+CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
     "label": "Integer.toInt",
@@ -210,6 +216,7 @@ ContextPath Value[SuperFloat, fromInteger]
 Path SuperFloat.fromInteger
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.SuperFloat
 CPPipe type path:t
+CPPipe pathFromEnv:SuperFloat found:true
 Path SuperFloat.
 [{
     "label": "SuperFloat.fromInteger",
@@ -234,6 +241,7 @@ ContextPath Value[SuperFloat, fromInteger]
 Path SuperFloat.fromInteger
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.SuperFloat
 CPPipe type path:t
+CPPipe pathFromEnv:SuperFloat found:true
 Path SuperFloat.t
 [{
     "label": "SuperFloat.toInteger",
@@ -252,6 +260,7 @@ ContextPath Value[CompletionSupport, Test, make]
 Path CompletionSupport.Test.make
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionSupport.Test
 CPPipe type path:t
+CPPipe pathFromEnv:Test found:true
 Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
@@ -282,6 +291,7 @@ ContextPath Value[CompletionSupport, Test, addSelf]
 Path CompletionSupport.Test.addSelf
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionSupport.Test
 CPPipe type path:t
+CPPipe pathFromEnv:Test found:true
 Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
@@ -312,6 +322,7 @@ ContextPath Value[Js, Array2, forEach]
 Path Js.Array2.forEach
 CPPipe env:CompletionPipeChain envFromCompletionItem:Js_array2
 CPPipe type path:unit
+CPPipe pathFromEnv: found:true
 []
 
 Complete src/CompletionPipeChain.res 62:6
@@ -345,6 +356,7 @@ ContextPath Value[aliased]
 Path aliased
 CPPipe env:CompletionPipeChain
 CPPipe type path:CompletionSupport.Test.t
+CPPipe pathFromEnv:CompletionSupport.Test found:false
 Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
@@ -374,6 +386,7 @@ ContextPath Value[notAliased]
 Path notAliased
 CPPipe env:CompletionPipeChain
 CPPipe type path:CompletionSupport.Test.t
+CPPipe pathFromEnv:CompletionSupport.Test found:false
 Path CompletionSupport.Test.
 [{
     "label": "CompletionSupport.Test.add",
@@ -410,6 +423,7 @@ ContextPath Value[props]
 Path props
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionSupport.Nested
 CPPipe type path:ReactDOM.Client.Root.t
+CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path CompletionSupport.ReactDOM.Client.Root.ren
 []
 
@@ -428,6 +442,7 @@ ContextPath Value[root]
 Path root
 CPPipe env:CompletionPipeChain
 CPPipe type path:ReactDOM.Client.Root.t
+CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path ReactDOM.Client.Root.ren
 [{
     "label": "ReactDOM.Client.Root.render",

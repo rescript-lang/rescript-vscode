@@ -6,6 +6,7 @@ ContextPath Value[a]
 Path a
 CPPipe env:CompletePrioritize1
 CPPipe type path:Test.t
+CPPipe pathFromEnv:Test found:true
 Path Test.
 [{
     "label": "Test.add",
