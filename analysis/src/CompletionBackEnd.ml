@@ -926,9 +926,9 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
                   found;
               if pathFromEnv = [] then None
               else if
-                env.file.moduleName = envFromCompletionItem.file.moduleName
-              then Some pathFromEnv
-              else Some (envFromCompletionItem.file.moduleName :: pathFromEnv)
+                env.file.moduleName <> envFromCompletionItem.file.moduleName
+              then Some (envFromCompletionItem.file.moduleName :: pathFromEnv)
+              else Some pathFromEnv
             | _ -> None)
           | _ -> None)
       in
