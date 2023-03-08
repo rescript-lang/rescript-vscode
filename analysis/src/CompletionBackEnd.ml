@@ -917,17 +917,18 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~allFiles ~pos
             | _ :: pathRev ->
               (* type path is relative to the completion environment
                  express it from the root of the file *)
-              let pathFromEnv_ =
+              let found, pathFromEnv =
                 QueryEnv.pathFromEnv envFromCompletionItem (List.rev pathRev)
               in
-              if pathFromEnv_ = [] then None
-              else
-                let pathFromEnv =
-                  if env.file.moduleName = envFromCompletionItem.file.moduleName
-                  then pathFromEnv_
-                  else envFromCompletionItem.file.moduleName :: pathFromEnv_
-                in
-                Some pathFromEnv
+              if debug then
+                Printf.printf "CPPipe pathFromEnv:%s found:%b\n"
+                  (pathFromEnv |> String.concat ".")
+                  found;
+              if pathFromEnv = [] then None
+              else if
+                env.file.moduleName = envFromCompletionItem.file.moduleName
+              then Some pathFromEnv
+              else Some (envFromCompletionItem.file.moduleName :: pathFromEnv)
             | _ -> None)
           | _ -> None)
       in

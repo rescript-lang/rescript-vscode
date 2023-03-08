@@ -266,7 +266,7 @@ module QueryEnv : sig
      E.g. the env is at A.B.C and the path is D.
      The result is A.B.C.D if D is inside C.
      Or A.B.D or A.D or D if it's in one of its parents. *)
-  val pathFromEnv : t -> path -> path
+  val pathFromEnv : t -> path -> bool * path
 
   val toString : t -> string
 end = struct
@@ -280,22 +280,22 @@ end = struct
 
   (* Prune a path and find a parent environment that contains the module name *)
   let rec prunePath pathRev env name =
-    if Exported.find env.exported Module name <> None then pathRev
+    if Exported.find env.exported Module name <> None then (true, pathRev)
     else
       match (pathRev, env.parent) with
       | _ :: rest, Some env -> prunePath rest env name
-      | _ -> []
+      | _ -> (false, [])
 
   let pathFromEnv env path =
     match path with
-    | [] -> env.pathRev |> List.rev
+    | [] -> (true, env.pathRev |> List.rev)
     | name :: _ ->
-      let prunedPathRev = prunePath env.pathRev env name in
-      List.rev_append prunedPathRev path
+      let found, prunedPathRev = prunePath env.pathRev env name in
+      (found, List.rev_append prunedPathRev path)
 
   let enterStructure env (structure : Module.structure) =
     let name = structure.name in
-    let pathRev = name :: prunePath env.pathRev env name in
+    let pathRev = name :: snd (prunePath env.pathRev env name) in
     {env with exported = structure.exported; pathRev; parent = Some env}
 end
 
