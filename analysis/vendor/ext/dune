@@ -1,6 +1,6 @@
 (library
  (name ext)
-;  (wrapped false)
+ (wrapped false)
  (preprocess
   (action
    (run %{bin:cppo} %{env:CPPO_FLAGS=} %{input-file})))

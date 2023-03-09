@@ -3,6 +3,5 @@
  (flags
   (-w "+6+26+27+32+33+39")
   (-open Jsonlib)
-  (-open Ext)
   (-open Ml))
  (libraries jsonlib ext ml str unix))
