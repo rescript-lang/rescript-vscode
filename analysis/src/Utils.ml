@@ -161,7 +161,7 @@ let rec skipWhite text i =
     | _ -> i
 
 let hasBraces attributes =
-  attributes |> List.exists (fun (loc, _) -> loc.Location.txt = "ns.braces")
+  attributes |> List.exists (fun (loc, _) -> loc.Location.txt = "res.braces")
 
 let rec unwrapIfOption (t : Types.type_expr) =
   match t.desc with

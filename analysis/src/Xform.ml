@@ -146,7 +146,7 @@ module AddBracesToFn = struct
               };
           }
         in
-        (Location.mkloc "ns.braces" loc, Parsetree.PStr [])
+        (Location.mkloc "res.braces" loc, Parsetree.PStr [])
       in
       let isFunction = function
         | {Parsetree.pexp_desc = Pexp_fun _} -> true

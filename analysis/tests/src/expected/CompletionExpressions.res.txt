@@ -57,8 +57,14 @@ Complete src/CompletionExpressions.res 29:28
 posCursor:[29:28] posNoWhite:[29:27] Found expr:[29:11->29:30]
 Pexp_apply ...[29:11->29:25] (...[29:27->29:28])
 Attribute id:res.braces:[29:26->29:29] label:{n}
-Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n
-[]
+Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n->recordBody
+[{
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: option<otherRecord>\n\nsomeRecord",
+    "documentation": null
+  }]
 
 Complete src/CompletionExpressions.res 32:35
 posCursor:[32:35] posNoWhite:[32:34] Found expr:[32:11->32:38]
@@ -571,18 +577,12 @@ Complete src/CompletionExpressions.res 132:51
 posCursor:[132:51] posNoWhite:[132:50] Found expr:[132:11->132:54]
 Pexp_apply ...[132:11->132:31] (...[132:32->132:53])
 Attribute id:res.braces:[132:49->132:52] label:{s}
-Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0)
+Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0), recordBody
 [{
-    "label": "someBoolVar",
-    "kind": 12,
+    "label": "someBoolField",
+    "kind": 4,
     "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }, {
-    "label": "s",
-    "kind": 12,
-    "tags": [],
-    "detail": "bool",
+    "detail": "Inline record",
     "documentation": null
   }]
 
