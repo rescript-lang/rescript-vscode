@@ -15,6 +15,16 @@ let expr expr =
     | {pexp_desc = Pexp_constraint _} -> Parenthesized
     | _ -> Nothing)
 
+let exprRecordRowRhs e =
+  let kind = expr e in
+  match kind with
+  | Nothing when Res_parsetree_viewer.hasOptionalAttribute e.pexp_attributes
+    -> (
+    match e.pexp_desc with
+    | Pexp_ifthenelse _ | Pexp_fun _ -> Parenthesized
+    | _ -> kind)
+  | _ -> kind
+
 let callExpr expr =
   let optBraces, _ = ParsetreeViewer.processBracesAttr expr in
   match optBraces with
@@ -175,7 +185,11 @@ let flattenOperandRhs parentOperator rhs =
   | _ when ParsetreeViewer.isTernaryExpr rhs -> true
   | _ -> false
 
-let lazyOrAssertOrAwaitExprRhs expr =
+let binaryOperatorInsideAwaitNeedsParens operator =
+  ParsetreeViewer.operatorPrecedence operator
+  < ParsetreeViewer.operatorPrecedence "|."
+
+let lazyOrAssertOrAwaitExprRhs ?(inAwait = false) expr =
   let optBraces, _ = ParsetreeViewer.processBracesAttr expr in
   match optBraces with
   | Some ({Location.loc = bracesLoc}, _) -> Braced bracesLoc
@@ -186,7 +200,14 @@ let lazyOrAssertOrAwaitExprRhs expr =
            | _ :: _ -> true
            | [] -> false ->
       Parenthesized
-    | expr when ParsetreeViewer.isBinaryExpression expr -> Parenthesized
+    | {
+     pexp_desc =
+       Pexp_apply ({pexp_desc = Pexp_ident {txt = Longident.Lident operator}}, _);
+    }
+      when ParsetreeViewer.isBinaryExpression expr ->
+      if inAwait && not (binaryOperatorInsideAwaitNeedsParens operator) then
+        Nothing
+      else Parenthesized
     | {
      pexp_desc =
        Pexp_constraint ({pexp_desc = Pexp_pack _}, {ptyp_desc = Ptyp_package _});
@@ -202,7 +223,9 @@ let lazyOrAssertOrAwaitExprRhs expr =
        | Pexp_try _ | Pexp_while _ | Pexp_for _ | Pexp_ifthenelse _ );
     } ->
       Parenthesized
-    | _ when ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
+    | _
+      when (not inAwait)
+           && ParsetreeViewer.hasAwaitAttribute expr.pexp_attributes ->
       Parenthesized
     | _ -> Nothing)
 
@@ -278,8 +301,8 @@ let ternaryOperand expr =
     } ->
       Nothing
     | {pexp_desc = Pexp_constraint _} -> Parenthesized
-    | {pexp_desc = Pexp_fun _ | Pexp_newtype _} -> (
-      let _attrsOnArrow, _parameters, returnExpr =
+    | _ when Res_parsetree_viewer.isFunNewtype expr -> (
+      let _uncurried, _attrsOnArrow, _parameters, returnExpr =
         ParsetreeViewer.funExpr expr
       in
       match returnExpr.pexp_desc with

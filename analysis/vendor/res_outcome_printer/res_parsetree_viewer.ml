@@ -1,20 +1,22 @@
 open Parsetree
 
-let arrowType ct =
-  let rec process attrsBefore acc typ =
+let arrowType ?(arity = max_int) ct =
+  let rec process attrsBefore acc typ arity =
     match typ with
+    | typ when arity <= 0 -> (attrsBefore, List.rev acc, typ)
     | {
      ptyp_desc = Ptyp_arrow ((Nolabel as lbl), typ1, typ2);
      ptyp_attributes = [];
     } ->
       let arg = ([], lbl, typ1) in
-      process attrsBefore (arg :: acc) typ2
+      process attrsBefore (arg :: acc) typ2 (arity - 1)
     | {
-     ptyp_desc = Ptyp_arrow ((Nolabel as lbl), typ1, typ2);
-     ptyp_attributes = [({txt = "bs" | "res.async"}, _)] as attrs;
+     ptyp_desc = Ptyp_arrow (Nolabel, _typ1, _typ2);
+     ptyp_attributes = [({txt = "bs"}, _)];
     } ->
-      let arg = (attrs, lbl, typ1) in
-      process attrsBefore (arg :: acc) typ2
+      (* stop here, the uncurried attribute always indicates the beginning of an arrow function
+         * e.g. `(. int) => (. int)` instead of `(. int, . int)` *)
+      (attrsBefore, List.rev acc, typ)
     | {ptyp_desc = Ptyp_arrow (Nolabel, _typ1, _typ2); ptyp_attributes = _attrs}
       as returnType ->
       let args = List.rev acc in
@@ -24,14 +26,14 @@ let arrowType ct =
      ptyp_attributes = attrs;
     } ->
       let arg = (attrs, lbl, typ1) in
-      process attrsBefore (arg :: acc) typ2
+      process attrsBefore (arg :: acc) typ2 (arity - 1)
     | typ -> (attrsBefore, List.rev acc, typ)
   in
   match ct with
   | {ptyp_desc = Ptyp_arrow (Nolabel, _typ1, _typ2); ptyp_attributes = attrs} as
     typ ->
-    process attrs [] {typ with ptyp_attributes = []}
-  | typ -> process [] [] typ
+    process attrs [] {typ with ptyp_attributes = []} arity
+  | typ -> process [] [] typ arity
 
 let functorType modtype =
   let rec process acc modtype =
@@ -46,29 +48,43 @@ let functorType modtype =
   in
   process [] modtype
 
-let processUncurriedAttribute attrs =
-  let rec process uncurriedSpotted acc attrs =
+let processBsAttribute attrs =
+  let rec process bsSpotted acc attrs =
     match attrs with
-    | [] -> (uncurriedSpotted, List.rev acc)
+    | [] -> (bsSpotted, List.rev acc)
     | ({Location.txt = "bs"}, _) :: rest -> process true acc rest
-    | attr :: rest -> process uncurriedSpotted (attr :: acc) rest
+    | attr :: rest -> process bsSpotted (attr :: acc) rest
+  in
+  process false [] attrs
+
+let processUncurriedAppAttribute attrs =
+  let rec process uncurriedApp acc attrs =
+    match attrs with
+    | [] -> (uncurriedApp, List.rev acc)
+    | ( {
+          Location.txt =
+            "bs" (* still support @bs to convert .ml files *) | "res.uapp";
+        },
+        _ )
+      :: rest ->
+      process true acc rest
+    | attr :: rest -> process uncurriedApp (attr :: acc) rest
   in
   process false [] attrs
 
 type functionAttributesInfo = {
   async: bool;
-  uncurried: bool;
+  bs: bool;
   attributes: Parsetree.attributes;
 }
 
 let processFunctionAttributes attrs =
-  let rec process async uncurried acc attrs =
+  let rec process async bs acc attrs =
     match attrs with
-    | [] -> {async; uncurried; attributes = List.rev acc}
+    | [] -> {async; bs; attributes = List.rev acc}
     | ({Location.txt = "bs"}, _) :: rest -> process async true acc rest
-    | ({Location.txt = "res.async"}, _) :: rest ->
-      process true uncurried acc rest
-    | attr :: rest -> process async uncurried (attr :: acc) rest
+    | ({Location.txt = "res.async"}, _) :: rest -> process true bs acc rest
+    | attr :: rest -> process async bs (attr :: acc) rest
   in
   process false false [] attrs
 
@@ -135,7 +151,7 @@ let funExpr expr =
       collectNewTypes (stringLoc :: acc) returnExpr
     | returnExpr -> (List.rev acc, returnExpr)
   in
-  let rec collect attrsBefore acc expr =
+  let rec collect ~uncurried ~nFun attrsBefore acc expr =
     match expr with
     | {
      pexp_desc =
@@ -145,44 +161,39 @@ let funExpr expr =
            {ppat_desc = Ppat_var {txt = "__x"}},
            {pexp_desc = Pexp_apply _} );
     } ->
-      (attrsBefore, List.rev acc, rewriteUnderscoreApply expr)
+      (uncurried, attrsBefore, List.rev acc, rewriteUnderscoreApply expr)
+    | {pexp_desc = Pexp_newtype (stringLoc, rest); pexp_attributes = attrs} ->
+      let stringLocs, returnExpr = collectNewTypes [stringLoc] rest in
+      let param = NewTypes {attrs; locs = stringLocs} in
+      collect ~uncurried ~nFun attrsBefore (param :: acc) returnExpr
     | {
      pexp_desc = Pexp_fun (lbl, defaultExpr, pattern, returnExpr);
      pexp_attributes = [];
     } ->
       let parameter = Parameter {attrs = []; lbl; defaultExpr; pat = pattern} in
-      collect attrsBefore (parameter :: acc) returnExpr
-    | {pexp_desc = Pexp_newtype (stringLoc, rest); pexp_attributes = attrs} ->
-      let stringLocs, returnExpr = collectNewTypes [stringLoc] rest in
-      let param = NewTypes {attrs; locs = stringLocs} in
-      collect attrsBefore (param :: acc) returnExpr
-    | {
-     pexp_desc = Pexp_fun (lbl, defaultExpr, pattern, returnExpr);
-     pexp_attributes = [({txt = "bs"}, _)] as attrs;
-    } ->
-      let parameter = Parameter {attrs; lbl; defaultExpr; pat = pattern} in
-      collect attrsBefore (parameter :: acc) returnExpr
-    | {
-     pexp_desc =
-       Pexp_fun
-         (((Labelled _ | Optional _) as lbl), defaultExpr, pattern, returnExpr);
-     pexp_attributes = attrs;
-    } ->
-      let parameter = Parameter {attrs; lbl; defaultExpr; pat = pattern} in
-      collect attrsBefore (parameter :: acc) returnExpr
-    | expr -> (attrsBefore, List.rev acc, expr)
+      collect ~uncurried ~nFun:(nFun + 1) attrsBefore (parameter :: acc)
+        returnExpr
+    (* If a fun has an attribute, then it stops here and makes currying.
+       i.e attributes outside of (...), uncurried `(.)` and `async` make currying *)
+    | {pexp_desc = Pexp_fun _} -> (uncurried, attrsBefore, List.rev acc, expr)
+    | expr when nFun = 0 && Ast_uncurried.exprIsUncurriedFun expr ->
+      let expr = Ast_uncurried.exprExtractUncurriedFun expr in
+      collect ~uncurried:true ~nFun attrsBefore acc expr
+    | expr -> (uncurried, attrsBefore, List.rev acc, expr)
   in
   match expr with
-  | {
-      pexp_desc = Pexp_fun (Nolabel, _defaultExpr, _pattern, _returnExpr);
-      pexp_attributes = attrs;
-    } as expr ->
-    collect attrs [] {expr with pexp_attributes = []}
-  | expr -> collect [] [] expr
+  | {pexp_desc = Pexp_fun _ | Pexp_newtype _} ->
+    collect ~uncurried:false ~nFun:0 expr.pexp_attributes []
+      {expr with pexp_attributes = []}
+  | _ when Ast_uncurried.exprIsUncurriedFun expr ->
+    let expr = Ast_uncurried.exprExtractUncurriedFun expr in
+    collect ~uncurried:true ~nFun:0 expr.pexp_attributes []
+      {expr with pexp_attributes = []}
+  | _ -> collect ~uncurried:false ~nFun:0 [] [] expr
 
 let processBracesAttr expr =
   match expr.pexp_attributes with
-  | (({txt = "ns.braces"}, _) as attr) :: attrs ->
+  | (({txt = "res.braces"}, _) as attr) :: attrs ->
     (Some attr, {expr with pexp_attributes = attrs})
   | _ -> (None, expr)
 
@@ -192,9 +203,9 @@ let filterParsingAttrs attrs =
       match attr with
       | ( {
             Location.txt =
-              ( "bs" | "ns.braces" | "ns.iflet" | "ns.namedArgLoc"
-              | "ns.optional" | "ns.ternary" | "res.async" | "res.await"
-              | "res.template" );
+              ( "bs" | "res.uapp" | "res.arity" | "res.braces" | "res.iflet"
+              | "res.namedArgLoc" | "res.optional" | "res.ternary" | "res.async"
+              | "res.await" | "res.template" );
           },
           _ ) ->
         false
@@ -264,7 +275,7 @@ let operatorPrecedence operator =
   | "+" | "+." | "-" | "-." | "^" -> 5
   | "*" | "*." | "/" | "/." -> 6
   | "**" -> 7
-  | "#" | "##" | "|." -> 8
+  | "#" | "##" | "|." | "|.u" -> 8
   | _ -> 0
 
 let isUnaryOperator operator =
@@ -286,7 +297,7 @@ let isBinaryOperator operator =
   match operator with
   | ":=" | "||" | "&&" | "=" | "==" | "<" | ">" | "!=" | "!==" | "<=" | ">="
   | "|>" | "+" | "+." | "-" | "-." | "^" | "*" | "*." | "/" | "/." | "**" | "|."
-  | "<>" ->
+  | "|.u" | "<>" ->
     true
   | _ -> false
 
@@ -309,6 +320,11 @@ let isEqualityOperator operator =
   | "=" | "==" | "<>" | "!=" -> true
   | _ -> false
 
+let isRhsBinaryOperator operator =
+  match operator with
+  | "**" -> true
+  | _ -> false
+
 let flattenableOperators parentOperator childOperator =
   let precParent = operatorPrecedence parentOperator in
   let precChild = operatorPrecedence childOperator in
@@ -319,7 +335,7 @@ let flattenableOperators parentOperator childOperator =
 let rec hasIfLetAttribute attrs =
   match attrs with
   | [] -> false
-  | ({Location.txt = "ns.iflet"}, _) :: _ -> true
+  | ({Location.txt = "res.iflet"}, _) :: _ -> true
   | _ :: attrs -> hasIfLetAttribute attrs
 
 let isIfLetExpr expr =
@@ -332,7 +348,7 @@ let isIfLetExpr expr =
 let rec hasOptionalAttribute attrs =
   match attrs with
   | [] -> false
-  | ({Location.txt = "ns.optional"}, _) :: _ -> true
+  | ({Location.txt = "res.optional"}, _) :: _ -> true
   | _ :: attrs -> hasOptionalAttribute attrs
 
 let hasAttributes attrs =
@@ -341,8 +357,8 @@ let hasAttributes attrs =
       match attr with
       | ( {
             Location.txt =
-              ( "bs" | "ns.braces" | "ns.iflet" | "ns.ternary" | "res.async"
-              | "res.await" | "res.template" );
+              ( "bs" | "res.uapp" | "res.arity" | "res.braces" | "res.iflet"
+              | "res.ternary" | "res.async" | "res.await" | "res.template" );
           },
           _ ) ->
         false
@@ -410,7 +426,7 @@ let collectIfExpressions expr =
 let rec hasTernaryAttribute attrs =
   match attrs with
   | [] -> false
-  | ({Location.txt = "ns.ternary"}, _) :: _ -> true
+  | ({Location.txt = "res.ternary"}, _) :: _ -> true
   | _ :: attrs -> hasTernaryAttribute attrs
 
 let isTernaryExpr expr =
@@ -444,7 +460,7 @@ let filterTernaryAttributes attrs =
   List.filter
     (fun attr ->
       match attr with
-      | {Location.txt = "ns.ternary"}, _ -> false
+      | {Location.txt = "res.ternary"}, _ -> false
       | _ -> true)
     attrs
 
@@ -523,8 +539,8 @@ let isPrintableAttribute attr =
   match attr with
   | ( {
         Location.txt =
-          ( "bs" | "ns.iflet" | "ns.braces" | "JSX" | "res.async" | "res.await"
-          | "res.template" | "ns.ternary" );
+          ( "bs" | "res.uapp" | "res.arity" | "res.iflet" | "res.braces" | "JSX"
+          | "res.async" | "res.await" | "res.template" | "res.ternary" );
       },
       _ ) ->
     false
@@ -537,12 +553,17 @@ let filterPrintableAttributes attrs = List.filter isPrintableAttribute attrs
 let partitionPrintableAttributes attrs =
   List.partition isPrintableAttribute attrs
 
+let isFunNewtype expr =
+  match expr.pexp_desc with
+  | Pexp_fun _ | Pexp_newtype _ -> true
+  | _ -> Ast_uncurried.exprIsUncurriedFun expr
+
 let requiresSpecialCallbackPrintingLastArg args =
   let rec loop args =
     match args with
     | [] -> false
-    | [(_, {pexp_desc = Pexp_fun _ | Pexp_newtype _})] -> true
-    | (_, {pexp_desc = Pexp_fun _ | Pexp_newtype _}) :: _ -> false
+    | [(_, expr)] when isFunNewtype expr -> true
+    | (_, expr) :: _ when isFunNewtype expr -> false
     | _ :: rest -> loop rest
   in
   loop args
@@ -551,12 +572,12 @@ let requiresSpecialCallbackPrintingFirstArg args =
   let rec loop args =
     match args with
     | [] -> true
-    | (_, {pexp_desc = Pexp_fun _ | Pexp_newtype _}) :: _ -> false
+    | (_, expr) :: _ when isFunNewtype expr -> false
     | _ :: rest -> loop rest
   in
   match args with
-  | [(_, {pexp_desc = Pexp_fun _ | Pexp_newtype _})] -> false
-  | (_, {pexp_desc = Pexp_fun _ | Pexp_newtype _}) :: rest -> loop rest
+  | [(_, expr)] when isFunNewtype expr -> false
+  | (_, expr) :: rest when isFunNewtype expr -> loop rest
   | _ -> false
 
 let modExprApply modExpr =
@@ -608,6 +629,25 @@ let isTemplateLiteral expr =
   | Pexp_constant _ when hasTemplateLiteralAttr expr.pexp_attributes -> true
   | _ -> false
 
+let hasSpreadAttr attrs =
+  List.exists
+    (fun attr ->
+      match attr with
+      | {Location.txt = "res.spread"}, _ -> true
+      | _ -> false)
+    attrs
+
+let isSpreadBeltListConcat expr =
+  match expr.pexp_desc with
+  | Pexp_ident
+      {
+        txt =
+          Longident.Ldot
+            (Longident.Ldot (Longident.Lident "Belt", "List"), "concatMany");
+      } ->
+    hasSpreadAttr expr.pexp_attributes
+  | _ -> false
+
 (* Blue | Red | Green -> [Blue; Red; Green] *)
 let collectOrPatternChain pat =
   let rec loop pattern chain =
@@ -633,14 +673,14 @@ let isSinglePipeExpr expr =
   let isPipeExpr expr =
     match expr.pexp_desc with
     | Pexp_apply
-        ( {pexp_desc = Pexp_ident {txt = Longident.Lident ("|." | "|>")}},
+        ( {pexp_desc = Pexp_ident {txt = Longident.Lident ("|." | "|.u" | "|>")}},
           [(Nolabel, _operand1); (Nolabel, _operand2)] ) ->
       true
     | _ -> false
   in
   match expr.pexp_desc with
   | Pexp_apply
-      ( {pexp_desc = Pexp_ident {txt = Longident.Lident ("|." | "|>")}},
+      ( {pexp_desc = Pexp_ident {txt = Longident.Lident ("|." | "|.u" | "|>")}},
         [(Nolabel, operand1); (Nolabel, _operand2)] )
     when not (isPipeExpr operand1) ->
     true

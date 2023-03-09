@@ -2,6 +2,7 @@
    * The parsetree contains: a => b => c => d, for printing purposes
    * we restructure the tree into (a, b, c) and its returnType d *)
 val arrowType :
+  ?arity:int ->
   Parsetree.core_type ->
   Parsetree.attributes
   * (Parsetree.attributes * Asttypes.arg_label * Parsetree.core_type) list
@@ -14,12 +15,14 @@ val functorType :
   * Parsetree.module_type
 
 (* filters @bs out of the provided attributes *)
-val processUncurriedAttribute :
+val processBsAttribute : Parsetree.attributes -> bool * Parsetree.attributes
+
+val processUncurriedAppAttribute :
   Parsetree.attributes -> bool * Parsetree.attributes
 
 type functionAttributesInfo = {
   async: bool;
-  uncurried: bool;
+  bs: bool;
   attributes: Parsetree.attributes;
 }
 
@@ -55,7 +58,7 @@ type funParamKind =
 
 val funExpr :
   Parsetree.expression ->
-  Parsetree.attributes * funParamKind list * Parsetree.expression
+  bool * Parsetree.attributes * funParamKind list * Parsetree.expression
 
 (* example:
    *  `makeCoordinate({
@@ -74,6 +77,7 @@ val operatorPrecedence : string -> int
 val isUnaryExpression : Parsetree.expression -> bool
 val isBinaryOperator : string -> bool
 val isBinaryExpression : Parsetree.expression -> bool
+val isRhsBinaryOperator : string -> bool
 
 val flattenableOperators : string -> string -> bool
 
@@ -132,6 +136,8 @@ val isBlockExpr : Parsetree.expression -> bool
 val isTemplateLiteral : Parsetree.expression -> bool
 val hasTemplateLiteralAttr : Parsetree.attributes -> bool
 
+val isSpreadBeltListConcat : Parsetree.expression -> bool
+
 val collectOrPatternChain : Parsetree.pattern -> Parsetree.pattern list
 
 val processBracesAttr :
@@ -152,3 +158,5 @@ val isUnderscoreApplySugar : Parsetree.expression -> bool
 val hasIfLetAttribute : Parsetree.attributes -> bool
 
 val isRewrittenUnderscoreApplySugar : Parsetree.expression -> bool
+
+val isFunNewtype : Parsetree.expression -> bool

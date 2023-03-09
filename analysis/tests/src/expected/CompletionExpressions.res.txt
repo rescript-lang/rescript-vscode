@@ -56,14 +56,9 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Complete src/CompletionExpressions.res 29:28
 posCursor:[29:28] posNoWhite:[29:27] Found expr:[29:11->29:30]
 Pexp_apply ...[29:11->29:25] (...[29:27->29:28])
-Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n->recordBody
-[{
-    "label": "nested",
-    "kind": 5,
-    "tags": [],
-    "detail": "nested: option<otherRecord>\n\nsomeRecord",
-    "documentation": null
-  }]
+Attribute id:res.braces:[29:26->29:29] label:{n}
+Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n
+[]
 
 Complete src/CompletionExpressions.res 32:35
 posCursor:[32:35] posNoWhite:[32:34] Found expr:[32:11->32:38]
@@ -476,13 +471,27 @@ posCursor:[108:57] posNoWhite:[108:56] Found expr:[108:11->108:60]
 Pexp_apply ...[108:11->108:42] (...[108:43->108:60])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptionalField]($0)->recordField(someOptField)
 [{
-    "label": "true",
+    "label": "None",
     "kind": 4,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
-    "label": "false",
+    "label": "Some(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(true)",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "Some(false)",
     "kind": 4,
     "tags": [],
     "detail": "bool",
@@ -575,12 +584,19 @@ Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPaylo
 Complete src/CompletionExpressions.res 132:51
 posCursor:[132:51] posNoWhite:[132:50] Found expr:[132:11->132:54]
 Pexp_apply ...[132:11->132:31] (...[132:32->132:53])
-Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0), recordBody
+Attribute id:res.braces:[132:49->132:52] label:{s}
+Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0)
 [{
-    "label": "someBoolField",
-    "kind": 4,
+    "label": "someBoolVar",
+    "kind": 12,
     "tags": [],
-    "detail": "Inline record",
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "s",
+    "kind": 12,
+    "tags": [],
+    "detail": "bool",
     "documentation": null
   }]
 
@@ -755,7 +771,7 @@ Completable: Cpath Value[fff].someOpt
     "label": "someOptField",
     "kind": 5,
     "tags": [],
-    "detail": "someOptField?: bool\n\ntype recordWithOptionalField = {\n  someField: int,\n  someOptField?: bool,\n}",
+    "detail": "someOptField: option<bool>\n\ntype recordWithOptionalField = {\n  someField: int,\n  someOptField?: bool,\n}",
     "documentation": null
   }]
 

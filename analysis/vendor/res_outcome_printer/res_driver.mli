@@ -24,12 +24,14 @@ val parseImplementationFromSource :
   displayFilename:string ->
   source:string ->
   (Parsetree.structure, Res_diagnostics.t list) parseResult
+  [@@live]
 
 val parseInterfaceFromSource :
   forPrinter:bool ->
   displayFilename:string ->
   source:string ->
   (Parsetree.signature, Res_diagnostics.t list) parseResult
+  [@@live]
 
 type printEngine = {
   printImplementation:

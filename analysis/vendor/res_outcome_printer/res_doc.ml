@@ -133,6 +133,15 @@ let join ~sep docs =
   in
   concat (loop [] sep docs)
 
+let joinWithSep docsWithSep =
+  let rec loop acc docs =
+    match docs with
+    | [] -> List.rev acc
+    | [(x, _sep)] -> List.rev (x :: acc)
+    | (x, sep) :: xs -> loop (sep :: x :: acc) xs
+  in
+  concat (loop [] docsWithSep)
+
 let fits w stack =
   let width = ref w in
   let result = ref None in
