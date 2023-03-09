@@ -64,7 +64,6 @@ posCursor:[18:24] posNoWhite:[18:23] Found expr:[18:10->32:4]
 Pexp_construct :::[18:10->32:4] [18:10->32:4]
 posCursor:[18:24] posNoWhite:[18:23] Found expr:[18:10->32:4]
 posCursor:[18:24] posNoWhite:[18:23] Found expr:[18:10->18:24]
-Attribute id:res.braces:[18:9->18:25] label:{someString->st}
 Completable: Cpath Value[someString]->st <<jsx>>
 [{
     "label": "React.string",
@@ -106,7 +105,6 @@ posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->32:4]
 Pexp_construct :::[20:10->32:4] [20:10->32:4]
 posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->32:4]
 posCursor:[20:27] posNoWhite:[20:26] Found expr:[20:10->20:27]
-Attribute id:res.braces:[20:9->20:28] label:{"Some
 Completable: Cpath string->st <<jsx>>
 [{
     "label": "React.string",
@@ -148,7 +146,6 @@ posCursor:[22:44] posNoWhite:[22:43] Found expr:[22:10->32:4]
 Pexp_construct :::[22:10->32:4] [22:10->32:4]
 posCursor:[22:44] posNoWhite:[22:43] Found expr:[22:10->32:4]
 posCursor:[22:44] posNoWhite:[22:43] Found expr:[22:10->22:44]
-Attribute id:res.braces:[22:9->22:45] label:{"Some
 Completable: Cpath Value[Js, String2, trim](Nolabel)->st <<jsx>>
 [{
     "label": "React.string",
@@ -344,7 +341,6 @@ posCursor:[28:20] posNoWhite:[28:19] Found expr:[28:10->32:4]
 Pexp_construct :::[28:10->32:4] [28:10->32:4]
 posCursor:[28:20] posNoWhite:[28:19] Found expr:[28:10->32:4]
 posCursor:[28:20] posNoWhite:[28:19] Found expr:[28:10->28:20]
-Attribute id:res.braces:[28:9->28:21] label:{someArr->a}
 Completable: Cpath Value[someArr]->a <<jsx>>
 [{
     "label": "React.array",
@@ -408,7 +404,6 @@ Completable: ChtmlElement <di
 Complete src/CompletionJsx.res 45:23
 posCursor:[45:23] posNoWhite:[45:22] Found expr:[45:4->45:23]
 JSX <CompWithoutJsxPpx:[45:4->45:21] n[45:22->45:23]=...[45:22->45:23]> _children:None
-Attribute id:res.namedArgLoc:[45:22->45:23] label:n
 Completable: Cjsx([CompWithoutJsxPpx], n, [n])
 [{
     "label": "name",

@@ -475,7 +475,6 @@ Completable: Cexpression CJsxPropValue [O, Comp] second=z
 Complete src/Completion.res 62:23
 posCursor:[62:23] posNoWhite:[62:22] Found expr:[62:15->62:23]
 JSX <O.Comp:[62:15->62:21] z[62:22->62:23]=...[62:22->62:23]> _children:None
-Attribute id:res.namedArgLoc:[62:22->62:23] label:z
 Completable: Cjsx([O, Comp], z, [z])
 [{
     "label": "zoo",
@@ -654,9 +653,16 @@ Completable: Cpath Value[Object, Rec, recordVal].""
 Complete src/Completion.res 120:7
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[119:11->123:1]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->122:5]
-Attribute id:res.braces:[119:17->123:1] label:{
-Completable: Cdecorator({)
-[]
+posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->120:7]
+Pexp_ident my:[120:5->120:7]
+Completable: Cpath Value[my]
+[{
+    "label": "myAmazingFunction",
+    "kind": 12,
+    "tags": [],
+    "detail": "(int, int) => int",
+    "documentation": null
+  }]
 
 Complete src/Completion.res 125:18
 posCursor:[125:18] posNoWhite:[125:17] Found expr:[125:3->145:32]
@@ -1352,15 +1358,28 @@ Complete src/Completion.res 336:26
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->346:23]
 JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->346:23]> _children:None
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
-Attribute id:res.braces:[334:12->346:23] label:{_
-Attribute id:res.braces:[334:18->338:6] label:{
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[335:6->338:5]
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[336:16->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found pattern:[336:20->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found type:[336:23->338:5]
 Ptyp_constr Res:[336:23->338:5]
-Completable: Cdecorator({_)
+Completable: Cpath Type[Res]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
-[]
+[{
+    "label": "RescriptReactErrorBoundary",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "RescriptReactRouter",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
 
 Complete src/Completion.res 343:57
 posCursor:[343:57] posNoWhite:[343:56] Found expr:[343:10->346:23]
@@ -1382,7 +1401,6 @@ Hover src/Completion.res 346:14
 Nothing at that position. Now trying to use completion.
 posCursor:[346:14] posNoWhite:[346:13] Found expr:[346:9->346:23]
 JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346:21
-Attribute id:res.namedArgLoc:[346:13->346:17] label:name
 Completable: Cjsx([div], name, [name])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
@@ -1403,7 +1421,6 @@ Hover src/Completion.res 352:17
 Nothing at that position. Now trying to use completion.
 posCursor:[352:17] posNoWhite:[352:16] Found expr:[352:11->352:22]
 Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
-Attribute id:res.namedArgLoc:[352:15->352:19] label:opt1
 Completable: CnamedArg(Value[ff], opt1, [opt1])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
@@ -1641,20 +1658,49 @@ Resolved opens 2 Completion.res Completion.res
 Complete src/Completion.res 409:21
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[408:14->415:1]
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->414:17]
-Attribute id:res.braces:[408:21->415:1] label:{
-Completable: Cdecorator({)
+posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->411:42]
+posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->411:5]
+Pexp_ident SomeLocalModule.:[409:5->411:5]
+Completable: Cpath Value[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
-[]
+[{
+    "label": "bb",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "aa",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
 
 Complete src/Completion.res 412:21
 posCursor:[412:21] posNoWhite:[412:20] Found expr:[408:14->415:1]
 posCursor:[412:21] posNoWhite:[412:20] Found expr:[411:2->414:17]
-Attribute id:res.braces:[408:21->415:1] label:{
-Completable: Cdecorator({)
+posCursor:[412:21] posNoWhite:[412:20] Found expr:[412:5->414:17]
+Pexp_apply ...[412:5->414:8] (...[414:9->414:16])
+posCursor:[412:21] posNoWhite:[412:20] Found expr:[412:5->414:8]
+Pexp_ident SomeLocalModule.:[412:5->414:8]
+Completable: Cpath Value[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
-[]
+[{
+    "label": "bb",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }, {
+    "label": "aa",
+    "kind": 12,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
 
 Complete src/Completion.res 417:17
 posCursor:[417:17] posNoWhite:[417:16] Found expr:[417:11->417:17]

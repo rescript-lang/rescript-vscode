@@ -12,7 +12,6 @@ Completable: Cexpression CJsxPropValue [M] second=fi
 Complete src/Jsx2.res 11:20
 posCursor:[11:20] posNoWhite:[11:19] Found expr:[11:4->11:20]
 JSX <M:[11:4->11:5] second[11:6->11:12]=...[11:13->11:18] f[11:19->11:20]=...[11:19->11:20]> _children:None
-Attribute id:res.namedArgLoc:[11:19->11:20] label:f
 Completable: Cjsx([M], f, [second, f])
 [{
     "label": "first",
@@ -61,7 +60,6 @@ Completable: Cpath Module[M]
 Complete src/Jsx2.res 22:19
 posCursor:[22:19] posNoWhite:[22:18] Found expr:[22:4->22:19]
 JSX <M:[22:4->22:5] prop[22:6->22:10]=...[22:12->22:16] k[22:18->22:19]=...[22:18->22:19]> _children:None
-Attribute id:res.namedArgLoc:[22:18->22:19] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -74,7 +72,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 25:17
 posCursor:[25:17] posNoWhite:[25:16] Found expr:[25:4->25:17]
 JSX <M:[25:4->25:5] prop[25:6->25:10]=...[25:11->25:15] k[25:16->25:17]=...[25:16->25:17]> _children:None
-Attribute id:res.namedArgLoc:[25:16->25:17] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -87,7 +84,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 28:21
 posCursor:[28:21] posNoWhite:[28:20] Found expr:[28:4->28:21]
 JSX <M:[28:4->28:5] prop[28:6->28:10]=...[28:11->28:19] k[28:20->28:21]=...[28:20->28:21]> _children:None
-Attribute id:res.namedArgLoc:[28:20->28:21] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -100,7 +96,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 31:24
 posCursor:[31:24] posNoWhite:[31:23] Found expr:[31:4->31:24]
 JSX <M:[31:4->31:5] prop[31:6->31:10]=...[31:11->31:22] k[31:23->31:24]=...[31:23->31:24]> _children:None
-Attribute id:res.namedArgLoc:[31:23->31:24] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -113,7 +108,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 34:18
 posCursor:[34:18] posNoWhite:[34:17] Found expr:[34:4->34:18]
 JSX <M:[34:4->34:5] prop[34:6->34:10]=...[34:12->34:16] k[34:17->34:18]=...[34:17->34:18]> _children:None
-Attribute id:res.namedArgLoc:[34:17->34:18] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -126,7 +120,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 37:16
 posCursor:[37:16] posNoWhite:[37:15] Found expr:[37:4->37:16]
 JSX <M:[37:4->37:5] prop[37:6->37:10]=...[37:11->37:14] k[37:15->37:16]=...[37:15->37:16]> _children:None
-Attribute id:res.namedArgLoc:[37:15->37:16] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -139,7 +132,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 40:17
 posCursor:[40:17] posNoWhite:[40:16] Found expr:[40:4->40:17]
 JSX <M:[40:4->40:5] prop[40:6->40:10]=...[40:11->40:15] k[40:16->40:17]=...[40:16->40:17]> _children:None
-Attribute id:res.namedArgLoc:[40:16->40:17] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -152,7 +144,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 43:18
 posCursor:[43:18] posNoWhite:[43:17] Found expr:[43:4->43:18]
 JSX <M:[43:4->43:5] prop[43:6->43:10]=...[43:11->43:16] k[43:17->43:18]=...[43:17->43:18]> _children:None
-Attribute id:res.namedArgLoc:[43:17->43:18] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -165,7 +156,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 46:16
 posCursor:[46:16] posNoWhite:[46:15] Found expr:[46:4->46:16]
 JSX <M:[46:4->46:5] prop[46:6->46:10]=...[46:11->46:14] k[46:15->46:16]=...[46:15->46:16]> _children:None
-Attribute id:res.namedArgLoc:[46:15->46:16] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -178,7 +168,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 49:27
 posCursor:[49:27] posNoWhite:[49:26] Found expr:[49:4->49:27]
 JSX <M:[49:4->49:5] prop[49:6->49:10]=...[49:11->49:25] k[49:26->49:27]=...[49:26->49:27]> _children:None
-Attribute id:res.namedArgLoc:[49:26->49:27] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -191,7 +180,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 52:38
 posCursor:[52:38] posNoWhite:[52:37] Found expr:[52:4->52:38]
 JSX <M:[52:4->52:5] prop[52:6->52:10]=...[52:11->52:36] k[52:37->52:38]=...[52:37->52:38]> _children:None
-Attribute id:res.namedArgLoc:[52:37->52:38] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -204,7 +192,6 @@ Completable: Cjsx([M], k, [prop, k])
 Complete src/Jsx2.res 55:25
 posCursor:[55:25] posNoWhite:[55:24] Found expr:[55:4->55:25]
 JSX <M:[55:4->55:5] prop[55:6->55:10]=...[55:11->55:23] k[55:24->55:25]=...[55:24->55:25]> _children:None
-Attribute id:res.namedArgLoc:[55:24->55:25] label:k
 Completable: Cjsx([M], k, [prop, k])
 [{
     "label": "key",
@@ -222,7 +209,6 @@ the type is not great but jump to definition works
 Complete src/Jsx2.res 68:10
 posCursor:[68:10] posNoWhite:[68:9] Found expr:[68:4->68:10]
 JSX <Ext:[68:4->68:7] al[68:8->68:10]=...[68:8->68:10]> _children:None
-Attribute id:res.namedArgLoc:[68:8->68:10] label:al
 Completable: Cjsx([Ext], al, [al])
 [{
     "label": "align",
@@ -235,14 +221,12 @@ Completable: Cjsx([Ext], al, [al])
 Complete src/Jsx2.res 71:11
 posCursor:[71:11] posNoWhite:[71:10] Found expr:[71:4->71:11]
 JSX <M:[71:4->71:5] first[71:6->71:11]=...[71:6->71:11]> _children:None
-Attribute id:res.namedArgLoc:[71:6->71:11] label:first
 Completable: Cjsx([M], first, [first])
 []
 
 Complete src/Jsx2.res 74:16
 posCursor:[74:16] posNoWhite:[74:15] Found expr:[74:4->74:16]
 JSX <M:[74:4->74:5] first[74:6->74:11]=...[74:12->74:14] k[74:15->74:16]=...[74:15->74:16]> _children:None
-Attribute id:res.namedArgLoc:[74:15->74:16] label:k
 Completable: Cjsx([M], k, [first, k])
 [{
     "label": "key",
@@ -255,7 +239,6 @@ Completable: Cjsx([M], k, [first, k])
 Complete src/Jsx2.res 77:23
 posCursor:[77:23] posNoWhite:[77:22] Found expr:[77:4->77:23]
 JSX <M:[77:4->77:5] first[77:6->77:11]=...[77:19->77:21] k[77:22->77:23]=...[77:22->77:23]> _children:None
-Attribute id:res.namedArgLoc:[77:22->77:23] label:k
 Completable: Cjsx([M], k, [first, k])
 [{
     "label": "key",
@@ -291,7 +274,6 @@ Completable: Cpath Module[WithChildren]
 Complete src/Jsx2.res 91:18
 posCursor:[91:18] posNoWhite:[91:17] Found expr:[91:4->91:18]
 JSX <WithChildren:[91:4->91:16] n[91:17->91:18]=...[91:17->91:18]> _children:None
-Attribute id:res.namedArgLoc:[91:17->91:18] label:n
 Completable: Cjsx([WithChildren], n, [n])
 [{
     "label": "name",
@@ -428,18 +410,22 @@ Hover src/Jsx2.res 162:12
 Nothing at that position. Now trying to use completion.
 posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:3->162:21]
 Pexp_construct :::[162:6->162:21] [162:6->162:21]
-Attribute id:res.braces:[161:8->164:1] label:{
-Attribute id:res.namedArgLoc:[162:11->162:14] label:age
-Completable: Cdecorator({)
-null
+posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:6->162:21]
+posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:6->162:20]
+JSX <Comp:[162:6->162:10] age[162:11->162:14]=...[162:15->162:17]> _children:162:18
+Completable: Cjsx([Comp], age, [age])
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Jsx2.res 167:16
 Nothing at that position. Now trying to use completion.
 posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:3->167:30]
 Pexp_construct :::[167:7->167:30] [167:7->167:30]
-Attribute id:res.braces:[166:8->169:1] label:{
-Attribute id:res.braces:[167:5->167:29] label:{<>
-Attribute id:res.namedArgLoc:[167:15->167:18] label:age
-Completable: Cdecorator({)
-null
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:7->167:30]
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:7->167:25]
+Pexp_construct :::[167:10->167:25] [167:10->167:25]
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:10->167:25]
+posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:10->167:24]
+JSX <Comp:[167:10->167:14] age[167:15->167:18]=...[167:19->167:21]> _children:167:22
+Completable: Cjsx([Comp], age, [age])
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 

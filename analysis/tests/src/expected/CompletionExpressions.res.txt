@@ -56,7 +56,6 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Complete src/CompletionExpressions.res 29:28
 posCursor:[29:28] posNoWhite:[29:27] Found expr:[29:11->29:30]
 Pexp_apply ...[29:11->29:25] (...[29:27->29:28])
-Attribute id:res.braces:[29:26->29:29] label:{n}
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n->recordBody
 [{
     "label": "nested",
@@ -576,7 +575,6 @@ Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPaylo
 Complete src/CompletionExpressions.res 132:51
 posCursor:[132:51] posNoWhite:[132:50] Found expr:[132:11->132:54]
 Pexp_apply ...[132:11->132:31] (...[132:32->132:53])
-Attribute id:res.braces:[132:49->132:52] label:{s}
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0), recordBody
 [{
     "label": "someBoolField",

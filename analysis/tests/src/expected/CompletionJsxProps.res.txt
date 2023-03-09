@@ -183,7 +183,6 @@ Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] testAr
 Complete src/CompletionJsxProps.res 26:54
 posCursor:[26:54] posNoWhite:[26:53] Found expr:[26:12->26:56]
 JSX <CompletionSupport.TestComponent:[26:12->26:43] testArr[26:44->26:51]=...[26:53->26:55]> _children:None
-Attribute id:res.braces:[26:52->26:56] label:{[]}
 Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] testArr->array
 [{
     "label": "One",

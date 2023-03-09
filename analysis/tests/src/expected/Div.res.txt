@@ -5,7 +5,6 @@ getLocItem #3: heuristic for <div>
 Complete src/Div.res 3:17
 posCursor:[3:17] posNoWhite:[3:16] Found expr:[3:4->3:17]
 JSX <div:[3:4->3:7] dangerous[3:8->3:17]=...[3:8->3:17]> _children:None
-Attribute id:res.namedArgLoc:[3:8->3:17] label:dangerous
 Completable: Cjsx([div], dangerous, [dangerous])
 [{
     "label": "dangerouslySetInnerHTML",
