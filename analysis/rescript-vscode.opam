@@ -8,6 +8,7 @@ bug-reports: "https://github.com/rescript-lang/rescript-vscode/issues"
 depends: [
   "ocaml" {>= "4.10"}
   "ocamlformat" {= "0.22.4"}
+  "cppo" {= "1.6.9"}
   "reanalyze" {= "2.23.0"}
   "dune"
 ]

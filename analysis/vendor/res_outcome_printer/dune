@@ -1,6 +1,6 @@
 (library
  (name outcomeprinter)
+ (wrapped false)
  (flags
-  (-w "+26+27+32+33+39")
-  (-open Compilerlibs406))
- (libraries compilerlibs406))
+  (-w "+26+27+32+33+39"))
+ (libraries ml ext))

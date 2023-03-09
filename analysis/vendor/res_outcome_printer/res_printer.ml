@@ -510,7 +510,7 @@ let printConstant ?(templateLiteral = false) c =
   | Pconst_float (s, _) -> Doc.text s
   | Pconst_char c ->
     let str =
-      match c with
+      match Char.chr c with
       | '\'' -> "\\'"
       | '\\' -> "\\\\"
       | '\n' -> "\\n"

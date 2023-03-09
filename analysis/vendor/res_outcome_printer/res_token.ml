@@ -5,7 +5,7 @@ type t =
   | Open
   | True
   | False
-  | Codepoint of {c: char; original: string}
+  | Codepoint of {c: int; original: string}
   | Int of {i: string; suffix: char option}
   | Float of {f: string; suffix: char option}
   | String of string

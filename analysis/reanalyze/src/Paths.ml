@@ -1,5 +1,5 @@
 open Common
-module StringMap = Ext_json_types.StringMap
+module StringMap = Map_string
 
 let bsconfig = "bsconfig.json"
 
@@ -138,19 +138,19 @@ let readDirsFromConfig ~configSources =
   in
   let rec processSourceItem (sourceItem : Ext_json_types.t) =
     match sourceItem with
-    | Str str -> str |> processDir ~subdirs:false
-    | Obj map -> (
-      match map |> StringMap.find_opt "dir" with
-      | Some (Str str) ->
+    | Str {str} -> str |> processDir ~subdirs:false
+    | Obj {map} -> (
+      match StringMap.find_opt map "dir" with
+      | Some (Str {str}) ->
         let subdirs =
-          match map |> StringMap.find_opt "subdirs" with
+          match StringMap.find_opt map "subdirs" with
           | Some (True _) -> true
           | Some (False _) -> false
           | _ -> false
         in
         str |> processDir ~subdirs
       | _ -> ())
-    | Arr arr -> arr |> Array.iter processSourceItem
+    | Arr {content = arr} -> arr |> Array.iter processSourceItem
     | _ -> ()
   in
   (match configSources with
@@ -166,13 +166,13 @@ let readSourceDirs ~configSources =
   let dirs = ref [] in
   let readDirs json =
     match json with
-    | Ext_json_types.Obj map -> (
-      match map |> StringMap.find_opt "dirs" with
-      | Some (Arr arr) ->
+    | Ext_json_types.Obj {map} -> (
+      match StringMap.find_opt map "dirs" with
+      | Some (Arr {content = arr}) ->
         arr
         |> Array.iter (fun x ->
                match x with
-               | Ext_json_types.Str str -> dirs := str :: !dirs
+               | Ext_json_types.Str {str} -> dirs := str :: !dirs
                | _ -> ());
         ()
       | _ -> ())
@@ -181,12 +181,12 @@ let readSourceDirs ~configSources =
   if sourceDirs |> Sys.file_exists then
     let jsonOpt = sourceDirs |> Ext_json_parse.parse_json_from_file in
     match jsonOpt with
-    | Some json ->
+    | exception _ -> ()
+    | json ->
       if runConfig.bsbProjectRoot <> runConfig.projectRoot then (
         readDirs json;
         dirs := readDirsFromConfig ~configSources)
       else readDirs json
-    | None -> ()
   else (
     if !Cli.debug then (
       Log_.item "Warning: can't find source dirs: %s\n" sourceDirs;
