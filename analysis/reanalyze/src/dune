@@ -2,6 +2,5 @@
  (name reanalyze)
  (flags
   (-w "+6+26+27+32+33+39")
-  (-open Jsonlib)
-  (-open Ml))
+  (-open Jsonlib))
  (libraries jsonlib ext ml str unix))

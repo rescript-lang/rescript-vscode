@@ -1,6 +1,5 @@
 (library
  (name outcomeprinter)
  (flags
-  (-w "+26+27+32+33+39")
-  (-open Ml))
+  (-w "+26+27+32+33+39"))
  (libraries ml ext))
