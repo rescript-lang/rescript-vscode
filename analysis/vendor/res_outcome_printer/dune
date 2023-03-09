@@ -1,6 +1,6 @@
 (library
- (name outcomeprinter)
+ (name syntax)
  (wrapped false)
  (flags
-  (-w "+26+27+32+33+39"))
- (libraries ml ext))
+  (:standard -w +a-4-42-40-9-48-70))
+ (libraries ml))

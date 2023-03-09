@@ -6,4 +6,4 @@
  (flags
   (-w "+6+26+27+32+33+39"))
  ; Depends on:
- (libraries unix str ext ml jsonlib outcomeprinter reanalyze))
+ (libraries unix str ext ml jsonlib syntax reanalyze))
