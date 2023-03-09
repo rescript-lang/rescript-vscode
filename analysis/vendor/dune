@@ -1,1 +1,1 @@
-(dirs compiler-libs-406 ext ml res_outcome_printer json)
+(dirs ext ml res_syntax json)

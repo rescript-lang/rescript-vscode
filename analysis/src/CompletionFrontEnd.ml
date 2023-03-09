@@ -566,7 +566,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
   in
   let attribute (iterator : Ast_iterator.iterator)
       ((id, payload) : Parsetree.attribute) =
-    (if String.length id.txt >= 3 && String.sub id.txt 0 3 = "ns." then
+    (if String.length id.txt >= 4 && String.sub id.txt 0 4 = "res." then
      (* skip: internal parser attribute *) ()
     else if id.loc.loc_ghost then ()
     else if id.loc |> Loc.hasPos ~pos:posBeforeCursor then

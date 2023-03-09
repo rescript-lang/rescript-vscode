@@ -20,6 +20,9 @@ val customLayout : t list -> t
 val breakParent : t
 val join : sep:t -> t list -> t
 
+(* [(doc1, sep1); (doc2,sep2)] joins as doc1 sep1 doc2 *)
+val joinWithSep : (t * t) list -> t
+
 val space : t
 val comma : t
 val dot : t

@@ -22,6 +22,7 @@ type t = {
   mutable diagnostics: Diagnostics.t list;
   mutable comments: Comment.t list;
   mutable regions: regionStatus ref list;
+  mutable uncurried_config: Res_uncurried.config;
 }
 
 let err ?startPos ?endPos p error =
@@ -121,6 +122,7 @@ let make ?(mode = ParseForTypeChecker) src filename =
       diagnostics = [];
       comments = [];
       regions = [ref Report];
+      uncurried_config = Res_uncurried.init;
     }
   in
   parserState.scanner.err <-
@@ -168,6 +170,7 @@ let lookahead p callback =
   let errors = p.errors in
   let diagnostics = p.diagnostics in
   let comments = p.comments in
+  let uncurried_config = p.uncurried_config in
 
   let res = callback p in
 
@@ -185,5 +188,6 @@ let lookahead p callback =
   p.errors <- errors;
   p.diagnostics <- diagnostics;
   p.comments <- comments;
+  p.uncurried_config <- uncurried_config;
 
   res

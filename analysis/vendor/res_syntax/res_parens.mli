@@ -10,7 +10,8 @@ val subBinaryExprOperand : string -> string -> bool
 val rhsBinaryExprOperand : string -> Parsetree.expression -> bool
 val flattenOperandRhs : string -> Parsetree.expression -> bool
 
-val lazyOrAssertOrAwaitExprRhs : Parsetree.expression -> kind
+val binaryOperatorInsideAwaitNeedsParens : string -> bool
+val lazyOrAssertOrAwaitExprRhs : ?inAwait:bool -> Parsetree.expression -> kind
 
 val fieldExpr : Parsetree.expression -> kind
 
@@ -34,3 +35,5 @@ val includeModExpr : Parsetree.module_expr -> bool
 val arrowReturnTypExpr : Parsetree.core_type -> bool
 
 val patternRecordRowRhs : Parsetree.pattern -> bool
+
+val exprRecordRowRhs : Parsetree.expression -> kind

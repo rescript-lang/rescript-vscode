@@ -1,9 +1,8 @@
 open SharedTypes
 
-type inlayHintKind = Type | Parameter
+type inlayHintKind = Type
 let inlayKindToNumber = function
   | Type -> 1
-  | Parameter -> 2
 
 let locItemToTypeHint ~full:{file; package} locItem =
   match locItem.locType with
