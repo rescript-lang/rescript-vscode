@@ -193,7 +193,7 @@ let funExpr expr =
 
 let processBracesAttr expr =
   match expr.pexp_attributes with
-  | (({txt = "res.braces"}, _) as attr) :: attrs ->
+  | (({txt = "res.braces" | "ns.braces"}, _) as attr) :: attrs ->
     (Some attr, {expr with pexp_attributes = attrs})
   | _ -> (None, expr)
 
@@ -203,7 +203,7 @@ let filterParsingAttrs attrs =
       match attr with
       | ( {
             Location.txt =
-              ( "bs" | "res.uapp" | "res.arity" | "res.braces" | "res.iflet"
+              ( "bs" | "res.uapp" | "res.arity" | "res.braces"| "ns.braces" | "res.iflet"
               | "res.namedArgLoc" | "res.optional" | "res.ternary" | "res.async"
               | "res.await" | "res.template" );
           },
@@ -357,7 +357,7 @@ let hasAttributes attrs =
       match attr with
       | ( {
             Location.txt =
-              ( "bs" | "res.uapp" | "res.arity" | "res.braces" | "res.iflet"
+              ( "bs" | "res.uapp" | "res.arity" | "res.braces"| "ns.braces" | "res.iflet"
               | "res.ternary" | "res.async" | "res.await" | "res.template" );
           },
           _ ) ->
@@ -539,7 +539,7 @@ let isPrintableAttribute attr =
   match attr with
   | ( {
         Location.txt =
-          ( "bs" | "res.uapp" | "res.arity" | "res.iflet" | "res.braces" | "JSX"
+          ( "bs" | "res.uapp" | "res.arity" | "res.iflet" | "res.braces"| "ns.braces" | "JSX"
           | "res.async" | "res.await" | "res.template" | "res.ternary" );
       },
       _ ) ->

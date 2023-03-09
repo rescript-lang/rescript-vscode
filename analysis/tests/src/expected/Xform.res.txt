@@ -41,14 +41,14 @@ Hit: Add braces to function
 {"start": {"line": 26, "character": 0}, "end": {"line": 32, "character": 3}}
 newText:
 <--here
-let foo = x =>
+let foo = x => {
   //      ^xfm
-  @ns.braces
   switch x {
   | None => 33
   | Some(q) => q.T.a + 1
   //     ^xfm
   }
+}
 
 Xform src/Xform.res 34:21
 Hit: Add type annotation
@@ -71,7 +71,9 @@ Hit: Add braces to function
 {"start": {"line": 48, "character": 0}, "end": {"line": 48, "character": 25}}
 newText:
 <--here
-let noBraces = () => @ns.braces name
+let noBraces = () => {
+  name
+}
 
 Xform src/Xform.res 52:34
 Hit: Add braces to function
@@ -79,7 +81,9 @@ Hit: Add braces to function
 newText:
 <--here
 let nested = () => {
-  let _noBraces = (_x, _y, _z) => @ns.braces "someNewFunc"
+  let _noBraces = (_x, _y, _z) => {
+    "someNewFunc"
+  }
   //                              ^xfm
 }
 
@@ -88,10 +92,10 @@ Hit: Add braces to function
 {"start": {"line": 58, "character": 4}, "end": {"line": 62, "character": 7}}
 newText:
     <--here
-    let foo = (_x, y, _z) =>
-      @ns.braces
+    let foo = (_x, y, _z) => {
       switch y {
       | #some => 3
       | #stuff => 4
       }
+    }
 
