@@ -11,3 +11,7 @@
 // let _ = switch x { | None |  => None }
 //                           ^com
 
+// The parser eats the tuple, and turns this into {role: age}
+// let x = ({role: , age: 12}, 123)
+//                ^ast
+

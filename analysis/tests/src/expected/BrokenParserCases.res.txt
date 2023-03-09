@@ -22,3 +22,36 @@ ContextPath Value[None]
 Path None
 []
 
+Dump AST src/BrokenParserCases.res 14:18
+
+Source:
+// let x = ({role: , age: 12}, 123)
+//                ^ast
+
+<*>Pstr_value(
+  value:
+    Ppat_var(x)
+  expr:
+    <*>Pexp_record(
+      fields:
+        role: Pexp_ident:age
+    )
+)
+
+Dump AST src/BrokenParserCases.res 18:20
+
+Source:
+// switch x { | (23, )}
+//                  ^ast
+
+<*>Pstr_eval(
+<*>Pexp_match(Pexp_ident:x)
+    case 1:
+      pattern<*>:
+        <*>Ppat_tuple(
+        Ppat_constant(Pconst_integer(23))
+    )
+      expr<x>:
+        <x>Pexp_extension(%<x>rescript.exprhole)
+)
+
