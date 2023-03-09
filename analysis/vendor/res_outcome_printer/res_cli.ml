@@ -162,7 +162,10 @@ module ResClflags : sig
   val origin : string ref
   val file : string ref
   val interface : bool ref
-  val ppx : string ref
+  val jsxVersion : int ref
+  val jsxModule : string ref
+  val jsxMode : string ref
+  val typechecker : bool ref
 
   val parse : unit -> unit
 end = struct
@@ -172,16 +175,20 @@ end = struct
   let print = ref "res"
   let origin = ref ""
   let interface = ref false
-  let ppx = ref ""
+  let jsxVersion = ref (-1)
+  let jsxModule = ref "react"
+  let jsxMode = ref "classic"
   let file = ref ""
+  let typechecker = ref false
 
   let usage =
     "\n\
      **This command line is for the repo developer's testing purpose only. DO \
      NOT use it in production**!\n\n"
-    ^ "Usage:\n  rescript <options> <file>\n\n" ^ "Examples:\n"
-    ^ "  rescript myFile.res\n" ^ "  rescript -parse ml -print res myFile.ml\n"
-    ^ "  rescript -parse res -print binary -interface myFile.resi\n\n"
+    ^ "Usage:\n  res_parser <options> <file>\n\n" ^ "Examples:\n"
+    ^ "  res_parser myFile.res\n"
+    ^ "  res_parser -parse ml -print res myFile.ml\n"
+    ^ "  res_parser -parse res -print binary -interface myFile.resi\n\n"
     ^ "Options are:"
 
   let spec =
@@ -189,20 +196,30 @@ end = struct
       ("-recover", Arg.Unit (fun () -> recover := true), "Emit partial ast");
       ( "-parse",
         Arg.String (fun txt -> origin := txt),
-        "Parse reasonBinary, ml or res. Default: res" );
+        "Parse ml or res. Default: res" );
       ( "-print",
         Arg.String (fun txt -> print := txt),
-        "Print either binary, ml, ast, sexp or res. Default: res" );
+        "Print either binary, ml, ast, sexp, comments or res. Default: res" );
       ( "-width",
         Arg.Int (fun w -> width := w),
         "Specify the line length for the printer (formatter)" );
       ( "-interface",
         Arg.Unit (fun () -> interface := true),
         "Parse as interface" );
-      ( "-ppx",
-        Arg.String (fun txt -> ppx := txt),
-        "Apply a specific built-in ppx before parsing, none or jsx. Default: \
+      ( "-jsx-version",
+        Arg.Int (fun i -> jsxVersion := i),
+        "Apply a specific built-in ppx before parsing, none or 3, 4. Default: \
          none" );
+      ( "-jsx-module",
+        Arg.String (fun txt -> jsxModule := txt),
+        "Specify the jsx module. Default: react" );
+      ( "-jsx-mode",
+        Arg.String (fun txt -> jsxMode := txt),
+        "Specify the jsx mode, classic or automatic. Default: classic" );
+      ( "-typechecker",
+        Arg.Unit (fun () -> typechecker := true),
+        "Parses the ast as it would be passed to the typechecker and not the \
+         printer" );
     ]
 
   let parse () = Arg.parse spec (fun f -> file := f) usage
@@ -212,7 +229,8 @@ module CliArgProcessor = struct
   type backend = Parser : 'diagnostics Res_driver.parsingEngine -> backend
   [@@unboxed]
 
-  let processFile ~isInterface ~width ~recover ~origin ~target ~ppx filename =
+  let processFile ~isInterface ~width ~recover ~origin ~target ~jsxVersion
+      ~jsxModule ~jsxMode ~typechecker filename =
     let len = String.length filename in
     let processInterface =
       isInterface
@@ -220,18 +238,15 @@ module CliArgProcessor = struct
     in
     let parsingEngine =
       match origin with
-      | "reasonBinary" -> Parser Res_driver_reason_binary.parsingEngine
       | "ml" -> Parser Res_driver_ml_parser.parsingEngine
       | "res" -> Parser Res_driver.parsingEngine
       | "" -> (
         match Filename.extension filename with
         | ".ml" | ".mli" -> Parser Res_driver_ml_parser.parsingEngine
-        | ".re" | ".rei" -> Parser Res_driver_reason_binary.parsingEngine
         | _ -> Parser Res_driver.parsingEngine)
       | origin ->
         print_endline
-          ("-parse needs to be either reasonBinary, ml or res. You provided "
-         ^ origin);
+          ("-parse needs to be either ml or res. You provided " ^ origin);
         exit 1
     in
     let printEngine =
@@ -240,17 +255,18 @@ module CliArgProcessor = struct
       | "ml" -> Res_driver_ml_parser.printEngine
       | "ast" -> Res_ast_debugger.printEngine
       | "sexp" -> Res_ast_debugger.sexpPrintEngine
+      | "comments" -> Res_ast_debugger.commentsPrintEngine
       | "res" -> Res_driver.printEngine
       | target ->
         print_endline
-          ("-print needs to be either binary, ml, ast, sexp or res. You \
-            provided " ^ target);
+          ("-print needs to be either binary, ml, ast, sexp, comments or res. \
+            You provided " ^ target);
         exit 1
     in
 
     let forPrinter =
       match target with
-      | "res" | "sexp" -> true
+      | ("res" | "sexp") when not typechecker -> true
       | _ -> false
     in
 
@@ -268,9 +284,8 @@ module CliArgProcessor = struct
         else exit 1)
       else
         let parsetree =
-          match ppx with
-          | "jsx" -> Reactjs_jsx_ppx_v3.rewrite_signature parseResult.parsetree
-          | _ -> parseResult.parsetree
+          Reactjs_jsx_ppx.rewrite_signature ~jsxVersion ~jsxModule ~jsxMode
+            parseResult.parsetree
         in
         printEngine.printInterface ~width ~filename
           ~comments:parseResult.comments parsetree
@@ -285,25 +300,21 @@ module CliArgProcessor = struct
         else exit 1)
       else
         let parsetree =
-          match ppx with
-          | "jsx" ->
-            Reactjs_jsx_ppx_v3.rewrite_implementation parseResult.parsetree
-          | _ -> parseResult.parsetree
+          Reactjs_jsx_ppx.rewrite_implementation ~jsxVersion ~jsxModule ~jsxMode
+            parseResult.parsetree
         in
         printEngine.printImplementation ~width ~filename
           ~comments:parseResult.comments parsetree
-    [@@raises Invalid_argument, Failure, exit]
+    [@@raises exit]
 end
 
-(* let [@raises Invalid_argument, Failure, exit] () =
-     if not !Sys.interactive then begin
-       ResClflags.parse ();
-       CliArgProcessor.processFile
-         ~isInterface:!ResClflags.interface
-         ~width:!ResClflags.width
-         ~recover:!ResClflags.recover
-         ~target:!ResClflags.print
-         ~origin:!ResClflags.origin
-         ~ppx:!ResClflags.ppx
-         !ResClflags.file
-   end *)
+(* let () =
+  if not !Sys.interactive then (
+    ResClflags.parse ();
+    CliArgProcessor.processFile ~isInterface:!ResClflags.interface
+      ~width:!ResClflags.width ~recover:!ResClflags.recover
+      ~target:!ResClflags.print ~origin:!ResClflags.origin
+      ~jsxVersion:!ResClflags.jsxVersion ~jsxModule:!ResClflags.jsxModule
+      ~jsxMode:!ResClflags.jsxMode ~typechecker:!ResClflags.typechecker
+      !ResClflags.file)
+  [@@raises exit] *)

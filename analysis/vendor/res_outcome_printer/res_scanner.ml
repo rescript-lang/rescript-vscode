@@ -165,13 +165,6 @@ let digitValue ch =
   | 'A' .. 'F' -> Char.code ch + 32 - Char.code 'a' + 10
   | _ -> 16 (* larger than any legal value *)
 
-let rec skipLowerCaseChars scanner =
-  match scanner.ch with
-  | 'a' .. 'z' ->
-    next scanner;
-    skipLowerCaseChars scanner
-  | _ -> ()
-
 (* scanning helpers *)
 
 let scanIdentifier scanner =
@@ -464,24 +457,23 @@ let scanEscape scanner =
       next scanner
     done;
     let c = !x in
-    if Res_utf8.isValidCodePoint c then Char.unsafe_chr c
-    else Char.unsafe_chr Res_utf8.repl
+    if Res_utf8.isValidCodePoint c then c else Res_utf8.repl
   in
   let codepoint =
     match scanner.ch with
     | '0' .. '9' -> convertNumber scanner ~n:3 ~base:10
     | 'b' ->
       next scanner;
-      '\008'
+      8
     | 'n' ->
       next scanner;
-      '\010'
+      10
     | 'r' ->
       next scanner;
-      '\013'
+      13
     | 't' ->
       next scanner;
-      '\009'
+      009
     | 'x' ->
       next scanner;
       convertNumber scanner ~n:2 ~base:16
@@ -508,14 +500,13 @@ let scanEscape scanner =
         | '}' -> next scanner
         | _ -> ());
         let c = !x in
-        if Res_utf8.isValidCodePoint c then Char.unsafe_chr c
-        else Char.unsafe_chr Res_utf8.repl
+        if Res_utf8.isValidCodePoint c then c else Res_utf8.repl
       | _ ->
         (* unicode escape sequence: '\u007A', exactly 4 hex digits *)
         convertNumber scanner ~n:4 ~base:16)
     | ch ->
       next scanner;
-      ch
+      Char.code ch
   in
   let contents =
     (String.sub [@doesNotRaise]) scanner.src offset (scanner.offset - offset)
@@ -849,7 +840,10 @@ let rec scan scanner =
         let offset = scanner.offset + 1 in
         next3 scanner;
         Token.Codepoint
-          {c = ch; original = (String.sub [@doesNotRaise]) scanner.src offset 1}
+          {
+            c = Char.code ch;
+            original = (String.sub [@doesNotRaise]) scanner.src offset 1;
+          }
       | ch, _ ->
         next scanner;
         let offset = scanner.offset in
@@ -865,7 +859,7 @@ let rec scan scanner =
             (String.sub [@doesNotRaise]) scanner.src offset length
           in
           next scanner;
-          Token.Codepoint {c = Obj.magic codepoint; original = contents})
+          Token.Codepoint {c = codepoint; original = contents})
         else (
           scanner.ch <- ch;
           scanner.offset <- offset;
@@ -943,42 +937,3 @@ let isBinaryOp src startCnum endCnum =
       || isWhitespace (String.unsafe_get src endCnum)
     in
     leftOk && rightOk)
-
-(* Assume `{` consumed, advances the scanner towards the ends of Reason quoted strings. (for conversion)
- * In {| foo bar |} the scanner will be advanced until after the `|}` *)
-let tryAdvanceQuotedString scanner =
-  let rec scanContents tag =
-    match scanner.ch with
-    | '|' -> (
-      next scanner;
-      match scanner.ch with
-      | 'a' .. 'z' ->
-        let startOff = scanner.offset in
-        skipLowerCaseChars scanner;
-        let suffix =
-          (String.sub [@doesNotRaise]) scanner.src startOff
-            (scanner.offset - startOff)
-        in
-        if tag = suffix then
-          if scanner.ch = '}' then next scanner else scanContents tag
-        else scanContents tag
-      | '}' -> next scanner
-      | _ -> scanContents tag)
-    | ch when ch == hackyEOFChar ->
-      (* TODO: why is this place checking EOF and not others? *)
-      ()
-    | _ ->
-      next scanner;
-      scanContents tag
-  in
-  match scanner.ch with
-  | 'a' .. 'z' ->
-    let startOff = scanner.offset in
-    skipLowerCaseChars scanner;
-    let tag =
-      (String.sub [@doesNotRaise]) scanner.src startOff
-        (scanner.offset - startOff)
-    in
-    if scanner.ch = '|' then scanContents tag
-  | '|' -> scanContents ""
-  | _ -> ()

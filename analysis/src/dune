@@ -5,8 +5,9 @@
  (name Cli)
  (flags
   (-w "+6+26+27+32+33+39")
-  (-open Compilerlibs406)
   (-open Jsonlib)
-  (-open Outcomeprinter))
+  (-open Outcomeprinter)
+  (-open Ext)
+  (-open Ml))
  ; Depends on:
- (libraries unix str compilerlibs406 jsonlib outcomeprinter reanalyze))
+ (libraries unix str ext ml jsonlib outcomeprinter reanalyze))

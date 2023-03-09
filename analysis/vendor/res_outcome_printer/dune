@@ -2,5 +2,6 @@
  (name outcomeprinter)
  (flags
   (-w "+26+27+32+33+39")
-  (-open Compilerlibs406))
- (libraries compilerlibs406))
+  (-open Ml)
+  (-open Ext))
+ (libraries ml ext))
