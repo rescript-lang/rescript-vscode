@@ -471,27 +471,13 @@ posCursor:[108:57] posNoWhite:[108:56] Found expr:[108:11->108:60]
 Pexp_apply ...[108:11->108:42] (...[108:43->108:60])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptionalField]($0)->recordField(someOptField)
 [{
-    "label": "None",
+    "label": "true",
     "kind": 4,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
-    "label": "Some(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null,
-    "insertText": "Some(${1:_})",
-    "insertTextFormat": 2
-  }, {
-    "label": "Some(true)",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }, {
-    "label": "Some(false)",
+    "label": "false",
     "kind": 4,
     "tags": [],
     "detail": "bool",
@@ -771,7 +757,7 @@ Completable: Cpath Value[fff].someOpt
     "label": "someOptField",
     "kind": 5,
     "tags": [],
-    "detail": "someOptField: option<bool>\n\ntype recordWithOptionalField = {\n  someField: int,\n  someOptField?: bool,\n}",
+    "detail": "someOptField?: bool\n\ntype recordWithOptionalField = {\n  someField: int,\n  someOptField?: bool,\n}",
     "documentation": null
   }]
 

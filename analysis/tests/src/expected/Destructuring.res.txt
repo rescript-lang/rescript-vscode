@@ -68,10 +68,10 @@ Completable: Cpattern Value[x]->recordBody
     "detail": "someField: int\n\nrecordWithOptField",
     "documentation": null
   }, {
-    "label": "someOptField",
+    "label": "?someOptField",
     "kind": 5,
     "tags": [],
-    "detail": "someOptField: option<bool>\n\nrecordWithOptField",
-    "documentation": null
+    "detail": "?someOptField: option<bool>\n\nrecordWithOptField",
+    "documentation": {"kind": "markdown", "value": "someOptField is an optional field, and needs to be destructured using '?'."}
   }]
 

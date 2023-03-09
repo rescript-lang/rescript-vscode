@@ -348,7 +348,7 @@ let isIfLetExpr expr =
 let rec hasOptionalAttribute attrs =
   match attrs with
   | [] -> false
-  | ({Location.txt = "res.optional"}, _) :: _ -> true
+  | ({Location.txt = "ns.optional" | "res.optional"}, _) :: _ -> true
   | _ :: attrs -> hasOptionalAttribute attrs
 
 let hasAttributes attrs =
