@@ -1,6 +1,8 @@
 Complete src/ExhaustiveSwitch.res 8:24
 XXX Not found!
 Completable: CexhaustiveSwitch Value[withSomeVarian]
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "withSomeVariant",
     "kind": 12,
@@ -21,6 +23,8 @@ Completable: CexhaustiveSwitch Value[withSomeVarian]
 Complete src/ExhaustiveSwitch.res 11:21
 XXX Not found!
 Completable: CexhaustiveSwitch Value[withSomePol]
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "withSomePoly",
     "kind": 12,
@@ -41,6 +45,8 @@ Completable: CexhaustiveSwitch Value[withSomePol]
 Complete src/ExhaustiveSwitch.res 14:17
 XXX Not found!
 Completable: CexhaustiveSwitch Value[someBoo]
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "someBool",
     "kind": 12,
@@ -61,6 +67,8 @@ Completable: CexhaustiveSwitch Value[someBoo]
 Complete src/ExhaustiveSwitch.res 17:16
 XXX Not found!
 Completable: CexhaustiveSwitch Value[someOp]
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "someOpt",
     "kind": 12,

@@ -1,6 +1,8 @@
 Complete src/CompletePrioritize2.res 9:7
 posCursor:[9:7] posNoWhite:[9:6] Found expr:[9:3->0:-1]
 Completable: Cpath Value[ax]->
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "Test.add",
     "kind": 12,
@@ -13,6 +15,8 @@ Complete src/CompletePrioritize2.res 12:5
 posCursor:[12:5] posNoWhite:[12:4] Found expr:[12:3->12:5]
 Pexp_ident ax:[12:3->12:5]
 Completable: Cpath Value[ax]
+Package opens RescriptCore.place holder
+Resolved opens 1 RescriptCore.res
 [{
     "label": "ax",
     "kind": 12,
