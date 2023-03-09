@@ -547,35 +547,23 @@ Completable: Cdecorator(react.)
 
 Complete src/Completion.res 71:27
 posCursor:[71:27] posNoWhite:[71:26] Found expr:[71:11->71:27]
-Pexp_apply ...[71:11->71:18] ()
-Completable: CnamedArg(Value[Lib, foo], "", [])
+Pexp_apply ...[71:11->71:18] (~name71:20->71:24=...[71:20->71:24])
+Completable: CnamedArg(Value[Lib, foo], "", [name])
 Found type for function (~age: int, ~name: string) => string
 [{
     "label": "age",
     "kind": 4,
     "tags": [],
     "detail": "int",
-    "documentation": null
-  }, {
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
     "documentation": null
   }]
 
 Complete src/Completion.res 74:26
 posCursor:[74:26] posNoWhite:[74:25] Found expr:[74:11->74:26]
-Pexp_apply ...[74:11->74:18] ()
-Completable: CnamedArg(Value[Lib, foo], "", [])
+Pexp_apply ...[74:11->74:18] (~age74:20->74:23=...[74:20->74:23])
+Completable: CnamedArg(Value[Lib, foo], "", [age])
 Found type for function (~age: int, ~name: string) => string
 [{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }, {
     "label": "name",
     "kind": 4,
     "tags": [],
@@ -585,16 +573,10 @@ Found type for function (~age: int, ~name: string) => string
 
 Complete src/Completion.res 77:32
 posCursor:[77:32] posNoWhite:[77:31] Found expr:[77:11->77:32]
-Pexp_apply ...[77:11->77:18] ()
-Completable: CnamedArg(Value[Lib, foo], "", [])
+Pexp_apply ...[77:11->77:18] (~age77:20->77:23=...[77:25->77:28])
+Completable: CnamedArg(Value[Lib, foo], "", [age])
 Found type for function (~age: int, ~name: string) => string
 [{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }, {
     "label": "name",
     "kind": 4,
     "tags": [],
@@ -604,22 +586,10 @@ Found type for function (~age: int, ~name: string) => string
 
 Complete src/Completion.res 82:5
 posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
-Pexp_apply ...[80:8->80:15] ()
-Completable: CnamedArg(Value[Lib, foo], "", [])
+Pexp_apply ...[80:8->80:15] (~age84:3->84:6=...[84:7->84:8], ~name85:3->85:7=...[85:8->85:10])
+Completable: CnamedArg(Value[Lib, foo], "", [age, name])
 Found type for function (~age: int, ~name: string) => string
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }, {
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+[]
 
 Complete src/Completion.res 90:13
 posCursor:[90:13] posNoWhite:[90:12] Found expr:[90:3->93:18]
@@ -4347,12 +4317,21 @@ Resolved opens 2 Completion.res Completion.res
 Hover src/Completion.res 352:17
 Nothing at that position. Now trying to use completion.
 posCursor:[352:17] posNoWhite:[352:16] Found expr:[352:11->352:22]
-Pexp_apply ...[352:11->352:13] ()
+Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
 Attribute id:res.namedArgLoc:[352:15->352:19] label:opt1
-Completable: Cexpression CArgument Value[ff]($0)
+Completable: CnamedArg(Value[ff], opt1, [opt1])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
-null
+Found type for function (
+  ~opt1: int=?,
+  ~a: int,
+  ~b: int,
+  unit,
+  ~opt2: int=?,
+  unit,
+  ~c: int,
+) => int
+{"contents": {"kind": "markdown", "value": "```rescript\noption<int>\n```"}}
 
 Complete src/Completion.res 355:23
 posCursor:[355:23] posNoWhite:[355:22] Found expr:[0:-1->355:23]

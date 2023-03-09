@@ -1,26 +1,64 @@
 Complete src/CompletionFunctionArguments.res 10:24
 posCursor:[10:24] posNoWhite:[10:23] Found expr:[10:11->10:25]
-Pexp_apply ...[10:11->10:17] ()
-Completable: Cexpression CArgument Value[someFn]($0)
-[]
+Pexp_apply ...[10:11->10:17] (~isOn10:19->10:23=...__ghost__[0:-1->0:-1])
+Completable: Cexpression CArgument Value[someFn](~isOn)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
 
 Complete src/CompletionFunctionArguments.res 13:25
 posCursor:[13:25] posNoWhite:[13:24] Found expr:[13:11->13:26]
-Pexp_apply ...[13:11->13:17] ()
-Completable: Cexpression CArgument Value[someFn]($0)
-[]
+Pexp_apply ...[13:11->13:17] (~isOn13:19->13:23=...[13:24->13:25])
+Completable: Cexpression CArgument Value[someFn](~isOn)=t
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "sortText": "A true"
+  }, {
+    "label": "tLocalVar",
+    "kind": 12,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
 
 Complete src/CompletionFunctionArguments.res 16:25
 posCursor:[16:25] posNoWhite:[16:24] Found expr:[16:11->16:26]
-Pexp_apply ...[16:11->16:17] ()
-Completable: Cexpression CArgument Value[someFn]($0)
-[]
+Pexp_apply ...[16:11->16:17] (~isOff16:19->16:24=...__ghost__[0:-1->0:-1])
+Completable: Cexpression CArgument Value[someFn](~isOff)
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "false",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
 
 Complete src/CompletionFunctionArguments.res 21:27
 posCursor:[21:27] posNoWhite:[21:26] Found expr:[19:8->25:1]
-Pexp_apply ...[19:8->19:14] ()
+Pexp_apply ...[19:8->19:14] (~isOn20:3->20:7=...[21:7->23:8])
+posCursor:[21:27] posNoWhite:[21:26] Found expr:[21:7->23:8]
 Attribute id:res.braces:[20:8->24:3] label:{
-Completable: Cexpression CArgument Value[someFn]($0)
+Completable: Cdecorator({)
 []
 
 Complete src/CompletionFunctionArguments.res 34:24
@@ -37,90 +75,65 @@ Completable: Cexpression CArgument Value[someOtherFn]($0)=f
 
 Complete src/CompletionFunctionArguments.res 51:39
 posCursor:[51:39] posNoWhite:[51:38] Found expr:[51:11->51:40]
-Pexp_apply ...[51:11->51:30] ()
-Completable: Cexpression CArgument Value[someFnTakingVariant]($0)
+Pexp_apply ...[51:11->51:30] (~config51:32->51:38=...__ghost__[0:-1->0:-1])
+Completable: Cexpression CArgument Value[someFnTakingVariant](~config)
 [{
-    "label": "None",
-    "kind": 4,
-    "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
-    "documentation": null
-  }, {
-    "label": "Some(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Some(${1:_})",
-    "insertTextFormat": 2
-  }, {
-    "label": "Some(One)",
+    "label": "One",
     "kind": 4,
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "insertText": "Some(One)",
+    "insertText": "One",
     "insertTextFormat": 2
   }, {
-    "label": "Some(Two)",
+    "label": "Two",
     "kind": 4,
     "tags": [],
     "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "insertText": "Some(Two)",
+    "insertText": "Two",
     "insertTextFormat": 2
   }, {
-    "label": "Some(Three(_, _))",
+    "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
     "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "insertText": "Some(Three(${1:_}, ${2:_}))",
+    "insertText": "Three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }]
 
 Complete src/CompletionFunctionArguments.res 54:40
 posCursor:[54:40] posNoWhite:[54:39] Found expr:[54:11->54:41]
-Pexp_apply ...[54:11->54:30] ()
-Completable: Cexpression CArgument Value[someFnTakingVariant]($0)
+Pexp_apply ...[54:11->54:30] (~config54:32->54:38=...[54:39->54:40])
+Completable: Cexpression CArgument Value[someFnTakingVariant](~config)=O
 [{
-    "label": "None",
-    "kind": 4,
-    "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
-    "documentation": null
-  }, {
-    "label": "Some(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Some(${1:_})",
-    "insertTextFormat": 2
-  }, {
-    "label": "Some(One)",
+    "label": "One",
     "kind": 4,
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "insertText": "Some(One)",
+    "sortText": "A One",
+    "insertText": "One",
     "insertTextFormat": 2
   }, {
-    "label": "Some(Two)",
-    "kind": 4,
+    "label": "OIncludeMeInCompletions",
+    "kind": 9,
     "tags": [],
-    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Some(Two)",
-    "insertTextFormat": 2
+    "detail": "module",
+    "documentation": null
   }, {
-    "label": "Some(Three(_, _))",
-    "kind": 4,
+    "label": "Obj",
+    "kind": 9,
     "tags": [],
-    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Some(Three(${1:_}, ${2:_}))",
-    "insertTextFormat": 2
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Object",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
   }]
 
 Complete src/CompletionFunctionArguments.res 57:33
@@ -146,46 +159,35 @@ Completable: Cexpression CArgument Value[someFnTakingVariant]($0)=So
 
 Complete src/CompletionFunctionArguments.res 60:44
 posCursor:[60:44] posNoWhite:[60:43] Found expr:[60:11->60:45]
-Pexp_apply ...[60:11->60:30] ()
-Completable: Cexpression CArgument Value[someFnTakingVariant]($0)
+Pexp_apply ...[60:11->60:30] (~configOpt260:32->60:42=...[60:43->60:44])
+Completable: Cexpression CArgument Value[someFnTakingVariant](~configOpt2)=O
 [{
-    "label": "None",
-    "kind": 4,
-    "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
-    "documentation": null
-  }, {
-    "label": "Some(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "type someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Some(${1:_})",
-    "insertTextFormat": 2
-  }, {
-    "label": "Some(One)",
+    "label": "One",
     "kind": 4,
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "insertText": "Some(One)",
+    "sortText": "A One",
+    "insertText": "One",
     "insertTextFormat": 2
   }, {
-    "label": "Some(Two)",
-    "kind": 4,
+    "label": "OIncludeMeInCompletions",
+    "kind": 9,
     "tags": [],
-    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Some(Two)",
-    "insertTextFormat": 2
+    "detail": "module",
+    "documentation": null
   }, {
-    "label": "Some(Three(_, _))",
-    "kind": 4,
+    "label": "Obj",
+    "kind": 9,
     "tags": [],
-    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Some(Three(${1:_}, ${2:_}))",
-    "insertTextFormat": 2
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Object",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
   }]
 
 Complete src/CompletionFunctionArguments.res 63:23

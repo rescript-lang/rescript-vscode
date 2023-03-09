@@ -793,7 +793,7 @@ let extractExpApplyArgs ~args =
       :: rest -> (
       let namedArgLoc =
         e.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "res.namedArgLoc")
       in
       match namedArgLoc with
       | Some ({loc}, _) ->
