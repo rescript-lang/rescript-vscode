@@ -3,32 +3,14 @@ Definition src/JsxV4.res 8:9
 
 Complete src/JsxV4.res 11:20
 posCursor:[11:20] posNoWhite:[11:19] Found expr:[11:4->11:20]
-JSX <M4:[11:4->11:6] > _children:None
+JSX <M4:[11:4->11:6] first[11:7->11:12]=...[11:13->11:18] f[11:19->11:20]=...[11:19->11:20]> _children:None
 Attribute id:res.namedArgLoc:[11:19->11:20] label:f
-Completable: Cjsx([M4], "", [])
+Completable: Cjsx([M4], f, [first, f])
 [{
-    "label": "first",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
     "label": "fun",
     "kind": 4,
     "tags": [],
     "detail": "option<string>",
-    "documentation": null
-  }, {
-    "label": "second",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<string>",
-    "documentation": null
-  }, {
-    "label": "key",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
     "documentation": null
   }]
 

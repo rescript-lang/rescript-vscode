@@ -894,7 +894,7 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
     | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
       let namedArgLoc =
         eProp.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "res.namedArgLoc")
       in
       match namedArgLoc with
       | Some ({loc}, _) ->

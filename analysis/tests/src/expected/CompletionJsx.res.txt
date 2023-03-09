@@ -407,17 +407,11 @@ Completable: ChtmlElement <di
 
 Complete src/CompletionJsx.res 45:23
 posCursor:[45:23] posNoWhite:[45:22] Found expr:[45:4->45:23]
-JSX <CompWithoutJsxPpx:[45:4->45:21] > _children:None
+JSX <CompWithoutJsxPpx:[45:4->45:21] n[45:22->45:23]=...[45:22->45:23]> _children:None
 Attribute id:res.namedArgLoc:[45:22->45:23] label:n
-Completable: Cjsx([CompWithoutJsxPpx], "", [])
+Completable: Cjsx([CompWithoutJsxPpx], n, [n])
 [{
     "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }, {
-    "label": "key",
     "kind": 4,
     "tags": [],
     "detail": "string",
