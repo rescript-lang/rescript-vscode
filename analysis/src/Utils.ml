@@ -137,22 +137,6 @@ let identifyPpat pat =
   | Ppat_extension _ -> "Ppat_extension"
   | Ppat_open _ -> "Ppat_open"
 
-let identifyType type_desc =
-  match type_desc with
-  | Types.Tvar _ -> "Tvar"
-  | Tarrow _ -> "Tarrow"
-  | Ttuple _ -> "Ttuple"
-  | Tconstr _ -> "Tconstr"
-  | Tobject _ -> "Tobject"
-  | Tfield _ -> "Tfield"
-  | Tnil -> "Tnil"
-  | Tlink _ -> "Tlink"
-  | Tsubst _ -> "Tsubst"
-  | Tvariant _ -> "Tvariant"
-  | Tunivar _ -> "Tunivar"
-  | Tpoly _ -> "Tpoly"
-  | Tpackage _ -> "Tpackage"
-
 let rec skipWhite text i =
   if i < 0 then 0
   else

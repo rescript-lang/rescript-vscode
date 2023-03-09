@@ -354,8 +354,7 @@ module Completion = struct
     detail: string option;
   }
 
-  let create ~kind ~env ?(docstring = []) ?filterText ?insertText ?deprecated
-      ?detail name =
+  let create ~kind ~env ?(docstring = []) ?insertText ?deprecated ?detail name =
     {
       name;
       env;
@@ -365,12 +364,12 @@ module Completion = struct
       sortText = None;
       insertText;
       insertTextFormat = None;
-      filterText;
+      filterText = None;
       detail;
     }
 
   let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?deprecated
-      ?filterText ?(docstring = []) () =
+      ?(docstring = []) () =
     {
       name;
       env;
@@ -380,7 +379,7 @@ module Completion = struct
       sortText;
       insertText;
       insertTextFormat = Some Protocol.Snippet;
-      filterText;
+      filterText = None;
       detail = None;
     }
 

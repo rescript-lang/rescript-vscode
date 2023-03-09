@@ -34,11 +34,10 @@ type signatureHelp = {
 }
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#insertTextFormat *)
-type insertTextFormat = PlainText | Snippet
+type insertTextFormat = Snippet
 
 let insertTextFormatToInt f =
   match f with
-  | PlainText -> 1
   | Snippet -> 2
 
 type completionItem = {
