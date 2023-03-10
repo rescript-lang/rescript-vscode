@@ -286,6 +286,7 @@ let extractCodeActions ~path ~pos ~currentFile ~debug =
     let structure, printExpr, printStructureItem =
       parse ~filename:currentFile
     in
+    let path = path |> Uri.fromPath |> Uri.toString in
     let codeActions = ref [] in
     AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions ~debug;
     IfThenElse.xform ~pos ~codeActions ~printExpr ~path structure;
