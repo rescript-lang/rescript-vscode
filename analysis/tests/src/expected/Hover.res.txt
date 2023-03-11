@@ -191,25 +191,47 @@ ContextPath Value[usr]
 Path usr
 {"contents": {"kind": "markdown", "value": "```rescript\nuseR\n```\n\n---\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n"}}
 
-Hover src/Hover.res 230:20
+Hover src/Hover.res 229:20
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n More Stuff "}}
 
-Hover src/Hover.res 233:17
+Hover src/Hover.res 232:17
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n More Stuff "}}
 
-Hover src/Hover.res 245:6
+Hover src/Hover.res 244:6
 Nothing at that position. Now trying to use completion.
-posCursor:[245:6] posNoWhite:[245:5] Found expr:[245:3->245:14]
-Pexp_field [245:3->245:4] someField:[245:5->245:14]
+posCursor:[244:6] posNoWhite:[244:5] Found expr:[244:3->244:14]
+Pexp_field [244:3->244:4] someField:[244:5->244:14]
 Completable: Cpath Value[x].someField
 ContextPath Value[x].someField
 ContextPath Value[x]
 Path x
 {"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n\n Mighty fine field here. "}}
 
-Hover src/Hover.res 248:19
+Hover src/Hover.res 247:19
 {"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n\n Mighty fine field here. "}}
 
-Hover src/Hover.res 253:20
-{"contents": {"kind": "markdown", "value": "```rescript\nCoolVariant\n```\n\n Cool variant! \n\n```rescript\nvariant\n```\n\n---\n\n```\n \n```\n```rescript\ntype variant = CoolVariant | OtherCoolVariant\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C251%2C0%5D)\n"}}
+Hover src/Hover.res 252:20
+{"contents": {"kind": "markdown", "value": "```rescript\nCoolVariant\n```\n\n Cool variant! \n\n```rescript\nvariant\n```\n\n---\n\n```\n \n```\n```rescript\ntype variant = CoolVariant | OtherCoolVariant\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C250%2C0%5D)\n"}}
+
+Hover src/Hover.res 256:23
+Nothing at that position. Now trying to use completion.
+posCursor:[256:23] posNoWhite:[256:22] Found expr:[256:22->256:25]
+Pexp_ident fff:[256:22->256:25]
+Completable: Cpath Value[fff]
+ContextPath Value[fff]
+Path fff
+ContextPath string
+{"contents": {"kind": "markdown", "value": "```rescript\nstring\n```"}}
+
+Hover src/Hover.res 259:33
+Nothing at that position. Now trying to use completion.
+posCursor:[259:33] posNoWhite:[259:32] Found expr:[259:31->259:40]
+Pexp_ident someField:[259:31->259:40]
+Completable: Cpath Value[someField]
+ContextPath Value[someField]
+Path someField
+ContextPath CPatternPath(Value[x])->recordField(someField)
+ContextPath Value[x]
+Path x
+{"contents": {"kind": "markdown", "value": "```rescript\nbool\n```"}}
 

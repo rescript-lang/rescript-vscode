@@ -19,4 +19,4 @@ let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
           |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
                ~forHover
         in
-        Some (completables, full)))
+        Some (completables, full, scope)))
