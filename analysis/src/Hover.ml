@@ -125,7 +125,11 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
     ~supportsMarkdownLinks =
   match Completions.getCompletions ~debug ~path ~pos ~currentFile ~forHover with
   | None -> None
-  | Some (completions, {file; package}) -> (
+  | Some (completions, ({file; package} as full), scope) -> (
+    let rawOpens = Scope.getRawOpens scope in
+    let allFiles =
+      FileSet.union package.projectFiles package.dependenciesFiles
+    in
     match completions with
     | {kind = Label typString; docstring} :: _ ->
       let parts =
@@ -133,8 +137,12 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
         @ docstring
       in
       Some (Protocol.stringifyHover (String.concat "\n\n" parts))
-    | {kind = Field _; docstring} :: _ -> (
-      match CompletionBackEnd.completionsGetTypeEnv completions with
+    | {kind = Field _; env; docstring} :: _ -> (
+      let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
+      match
+        CompletionBackEnd.completionsGetTypeEnv2 ~debug ~full ~rawOpens ~opens
+          ~allFiles ~pos ~scope completions
+      with
       | Some (typ, _env) ->
         let typeString =
           hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
@@ -142,14 +150,19 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
         let parts = typeString :: docstring in
         Some (Protocol.stringifyHover (String.concat "\n\n" parts))
       | None -> None)
-    | _ -> (
-      match CompletionBackEnd.completionsGetTypeEnv completions with
+    | {env} :: _ -> (
+      let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
+      match
+        CompletionBackEnd.completionsGetTypeEnv2 ~debug ~full ~rawOpens ~opens
+          ~allFiles ~pos ~scope completions
+      with
       | Some (typ, _env) ->
         let typeString =
           hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
         in
         Some (Protocol.stringifyHover typeString)
-      | None -> None))
+      | None -> None)
+    | _ -> None)
 
 let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
   match locItem.locType with

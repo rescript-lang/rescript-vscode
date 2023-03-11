@@ -129,7 +129,7 @@ let arity0a = (. ()) => {
   f
 }
 
-let arity0b = (. (), . ()) => 3
+let arity0b = (. ()) => (. ()) => 3
 //  ^hov
 
 let arity0c = (. (), ()) => 3
@@ -211,7 +211,6 @@ let usr: useR = {
 // let f = usr
 //           ^hov
 
-
 module NotShadowed = {
   /** Stuff */
   let xx_ = 10
@@ -253,3 +252,10 @@ type variant = | /** Cool variant! */ CoolVariant | /** Other cool variant */ Ot
 
 let coolVariant = CoolVariant
 //                  ^hov
+
+// Hover on unsaved
+// let fff = "hello"; fff
+//                     ^hov
+
+// switch x { | {someField} => someField }
+//                               ^hov

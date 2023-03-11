@@ -1593,6 +1593,7 @@ Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Resolved opens 2 Completion.res Completion.res
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 {"contents": {"kind": "markdown", "value": "```rescript\n{\"age\": int, \"forAutoLabel\": FAR.forAutoRecord}\n```"}}
 
 Hover src/Completion.res 352:17
