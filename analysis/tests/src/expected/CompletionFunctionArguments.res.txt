@@ -164,7 +164,7 @@ Path someFnTakingVariant
     "detail": "file module",
     "documentation": null
   }, {
-    "label": "Object",
+    "label": "Objects",
     "kind": 9,
     "tags": [],
     "detail": "file module",
@@ -224,7 +224,7 @@ Path someFnTakingVariant
     "detail": "file module",
     "documentation": null
   }, {
-    "label": "Object",
+    "label": "Objects",
     "kind": 9,
     "tags": [],
     "detail": "file module",
