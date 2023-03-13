@@ -286,7 +286,7 @@ Path fnTakingRecord
     "detail": "file module",
     "documentation": null
   }, {
-    "label": "Object",
+    "label": "Objects",
     "kind": 9,
     "tags": [],
     "detail": "file module",

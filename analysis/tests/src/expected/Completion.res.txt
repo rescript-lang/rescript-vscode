@@ -651,7 +651,7 @@ Path o
   }]
 
 Complete src/Completion.res 104:17
-posCursor:[104:17] posNoWhite:[104:16] Found expr:[104:3->125:18]
+posCursor:[104:17] posNoWhite:[104:16] Found expr:[104:3->125:19]
 Pexp_send [104:17->104:17] e:[104:3->104:15]
 Completable: Cpath Value[no]["x"]["y"][""]
 ContextPath Value[no]["x"]["y"][""]
@@ -694,13 +694,13 @@ Path r
     "documentation": null
   }]
 
-Complete src/Completion.res 113:24
-posCursor:[113:24] posNoWhite:[113:23] Found expr:[113:3->113:24]
-Pexp_field [113:3->113:23] _:[116:0->113:24]
-Completable: Cpath Value[Object, Rec, recordVal].""
-ContextPath Value[Object, Rec, recordVal].""
-ContextPath Value[Object, Rec, recordVal]
-Path Object.Rec.recordVal
+Complete src/Completion.res 113:25
+posCursor:[113:25] posNoWhite:[113:24] Found expr:[113:3->113:25]
+Pexp_field [113:3->113:24] _:[116:0->113:25]
+Completable: Cpath Value[Objects, Rec, recordVal].""
+ContextPath Value[Objects, Rec, recordVal].""
+ContextPath Value[Objects, Rec, recordVal]
+Path Objects.Rec.recordVal
 [{
     "label": "xx",
     "kind": 5,
@@ -731,13 +731,13 @@ Path my
     "documentation": null
   }]
 
-Complete src/Completion.res 125:18
-posCursor:[125:18] posNoWhite:[125:17] Found expr:[125:3->145:32]
-Pexp_send [125:18->125:18] e:[125:3->125:16]
-Completable: Cpath Value[Object, object][""]
-ContextPath Value[Object, object][""]
-ContextPath Value[Object, object]
-Path Object.object
+Complete src/Completion.res 125:19
+posCursor:[125:19] posNoWhite:[125:18] Found expr:[125:3->145:32]
+Pexp_send [125:19->125:19] e:[125:3->125:17]
+Completable: Cpath Value[Objects, object][""]
+ContextPath Value[Objects, object][""]
+ContextPath Value[Objects, object]
+Path Objects.object
 [{
     "label": "name",
     "kind": 4,
