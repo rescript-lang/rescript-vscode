@@ -319,7 +319,7 @@ let ff = (~opt1=0, ~a, ~b, (), ~opt2=0, (), ~c) => a + b + c + opt1 + opt2
 
 type callback = (~a: int) => int
 
-let withCallback: (~b: int) => callback = (~b, ~a) => a + b
+let withCallback: (~b: int) => callback = (~b) => { (); (~a) => a + b }
 
 // withCallback(~
 //               ^com

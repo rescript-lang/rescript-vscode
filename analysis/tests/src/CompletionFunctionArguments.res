@@ -17,7 +17,7 @@ let tLocalVar = false
 // let _ = someFn(~isOff=)
 //                       ^com
 
-let _ = someFn(
+let _ = @res.partial someFn(
   ~isOn={
     // switch someFn(~isOn=)
     //                     ^com
