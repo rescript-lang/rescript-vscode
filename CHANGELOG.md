@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.16.0
+
 #### :rocket: New Feature
 
 - Greatly extend completion abilities for unsaved code. WARNING: Might be a bit unstable initially. Report any issues you see. https://github.com/rescript-lang/rescript-vscode/pull/712
