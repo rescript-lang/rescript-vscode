@@ -127,9 +127,6 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
   | None -> None
   | Some (completions, ({file; package} as full), scope) -> (
     let rawOpens = Scope.getRawOpens scope in
-    let allFiles =
-      FileSet.union package.projectFiles package.dependenciesFiles
-    in
     match completions with
     | {kind = Label typString; docstring} :: _ ->
       let parts =
@@ -141,7 +138,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
       match
         CompletionBackEnd.completionsGetTypeEnv2 ~debug ~full ~rawOpens ~opens
-          ~allFiles ~pos ~scope completions
+          ~pos ~scope completions
       with
       | Some (typ, _env) ->
         let typeString =
@@ -154,7 +151,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
       match
         CompletionBackEnd.completionsGetTypeEnv2 ~debug ~full ~rawOpens ~opens
-          ~allFiles ~pos ~scope completions
+          ~pos ~scope completions
       with
       | Some (typ, _env) ->
         let typeString =
