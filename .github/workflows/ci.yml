@@ -65,7 +65,6 @@ jobs:
 
     - name: Build and test
       run: opam exec -- make test
-      working-directory: analysis
 
     # Also avoids artifacts upload permission loss:
     # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss

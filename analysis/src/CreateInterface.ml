@@ -411,5 +411,5 @@ let command ~path ~cmiFile =
   match Shared.tryReadCmi cmiFile with
   | Some cmi_info ->
     let extractor = SourceFileExtractor.create ~path in
-    printSignature ~extractor ~signature:cmi_info.cmi_sign
-  | None -> ""
+    Some (printSignature ~extractor ~signature:cmi_info.cmi_sign)
+  | None -> None

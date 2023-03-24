@@ -20,3 +20,11 @@ let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
                ~forHover
         in
         Some (completables, full, scope)))
+
+let complete ~debug ~path ~pos ~currentFile =
+  let completions =
+    match getCompletions ~debug ~path ~pos ~currentFile ~forHover:false with
+    | None -> []
+    | Some (completions, _, _) -> completions
+  in
+  completions |> List.map CompletionBackEnd.completionToItem

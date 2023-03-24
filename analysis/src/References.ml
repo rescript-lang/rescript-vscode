@@ -571,3 +571,23 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
            ^ " and stamp " ^ string_of_int stamp ^ " and tip "
            ^ Tip.toString tip);
           forLocalStamp ~full stamp tip)))
+
+let get ~path ~pos ~debug =
+  match Cmt.loadFullCmtFromPath ~path with
+  | None -> []
+  | Some full -> (
+    match getLocItem ~full ~pos ~debug with
+    | None -> []
+    | Some locItem ->
+      let allReferences = allReferencesForLocItem ~full locItem in
+      allReferences
+      |> List.fold_left
+           (fun acc {uri = uri2; locOpt} ->
+             let loc =
+               match locOpt with
+               | Some loc -> loc
+               | None -> Uri.toTopLevelLoc uri2
+             in
+             Protocol.{uri = Uri.toString uri2; range = Utils.cmtLocToRange loc}
+             :: acc)
+           [])

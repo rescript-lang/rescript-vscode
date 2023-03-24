@@ -95,7 +95,7 @@ let inlay ~path ~pos ~maxLength ~debug =
                match locItemToTypeHint locItem ~full with
                | Some label -> (
                  let result =
-                   Protocol.stringifyHint
+                   Protocol.
                      {
                        kind = inlayKindToNumber hintKind;
                        position;
@@ -153,21 +153,21 @@ let codeLens ~path ~debug =
              with
              | Some {locType = Typed (_, typeExpr, _)} ->
                Some
-                 (Protocol.stringifyCodeLens
-                    {
-                      range;
-                      command =
-                        Some
-                          {
-                            (* Code lenses can run commands. An empty command string means we just want the editor
-                               to print the text, not link to running a command. *)
-                            command = "";
-                            (* Print the type with a huge line width, because the code lens always prints on a
-                               single line in the editor. *)
-                            title =
-                              typeExpr |> Shared.typeToString ~lineWidth:400;
-                          };
-                    })
+                 Protocol.
+                   {
+                     range;
+                     command =
+                       Some
+                         {
+                           (* Code lenses can run commands. An empty command string means we just want the editor
+                              to print the text, not link to running a command. *)
+                           command = "";
+                           (* Print the type with a huge line width, because the code lens always prints on a
+                              single line in the editor. *)
+                           title =
+                             typeExpr |> Shared.typeToString ~lineWidth:400;
+                         };
+                   }
              | _ -> None)
     in
     Some result

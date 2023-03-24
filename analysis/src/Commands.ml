@@ -1,21 +1,13 @@
 let completion ~debug ~path ~pos ~currentFile =
-  let completions =
-    match
-      Completions.getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
-    with
-    | None -> []
-    | Some (completions, _, _) -> completions
-  in
   print_endline
-    (completions
-    |> List.map CompletionBackEnd.completionToItem
+    (Completions.complete ~debug ~path ~pos ~currentFile
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
 
 let inlayhint ~path ~pos ~maxLength ~debug =
   let result =
     match Hint.inlay ~path ~pos ~maxLength ~debug with
-    | Some hints -> hints |> Protocol.array
+    | Some hints -> hints |> List.map Protocol.stringifyHint |> Protocol.array
     | None -> Protocol.null
   in
   print_endline result
@@ -23,53 +15,16 @@ let inlayhint ~path ~pos ~maxLength ~debug =
 let codeLens ~path ~debug =
   let result =
     match Hint.codeLens ~path ~debug with
-    | Some lens -> lens |> Protocol.array
+    | Some lens -> lens |> List.map Protocol.stringifyCodeLens |> Protocol.array
     | None -> Protocol.null
   in
   print_endline result
 
 let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
-  let result =
-    match Cmt.loadFullCmtFromPath ~path with
-    | None -> Protocol.null
-    | Some full -> (
-      match References.getLocItem ~full ~pos ~debug with
-      | None -> (
-        if debug then
-          Printf.printf
-            "Nothing at that position. Now trying to use completion.\n";
-        match
-          Hover.getHoverViaCompletions ~debug ~path ~pos ~currentFile
-            ~forHover:true ~supportsMarkdownLinks
-        with
-        | None -> Protocol.null
-        | Some hover -> hover)
-      | Some locItem -> (
-        let isModule =
-          match locItem.locType with
-          | LModule _ | TopLevelModule _ -> true
-          | TypeDefinition _ | Typed _ | Constant _ -> false
-        in
-        let uriLocOpt = References.definitionForLocItem ~full locItem in
-        let skipZero =
-          match uriLocOpt with
-          | None -> false
-          | Some (_, loc) ->
-            let isInterface = full.file.uri |> Uri.isInterface in
-            let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-              (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
-            in
-            (* Skip if range is all zero, unless it's a module *)
-            (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
-        in
-        if skipZero then Protocol.null
-        else
-          let hoverText = Hover.newHover ~supportsMarkdownLinks ~full locItem in
-          match hoverText with
-          | None -> Protocol.null
-          | Some s -> Protocol.stringifyHover s))
-  in
-  print_endline result
+  (match Hover.hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks with
+  | None -> Protocol.null
+  | Some content -> content |> Protocol.stringifyHover)
+  |> print_endline
 
 let signatureHelp ~path ~pos ~currentFile ~debug =
   let result =
@@ -85,180 +40,64 @@ let codeAction ~path ~pos ~currentFile ~debug =
   |> CodeActions.stringifyCodeActions |> print_endline
 
 let definition ~path ~pos ~debug =
-  let locationOpt =
-    match Cmt.loadFullCmtFromPath ~path with
-    | None -> None
-    | Some full -> (
-      match References.getLocItem ~full ~pos ~debug with
-      | None -> None
-      | Some locItem -> (
-        match References.definitionForLocItem ~full locItem with
-        | None -> None
-        | Some (uri, loc) ->
-          let isInterface = full.file.uri |> Uri.isInterface in
-          let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
-            (* range is zero *)
-            pos_lnum = 1 && pos_cnum - pos_bol = 0
-          in
-          let isModule =
-            match locItem.locType with
-            | LModule _ | TopLevelModule _ -> true
-            | TypeDefinition _ | Typed _ | Constant _ -> false
-          in
-          let skipLoc =
-            (not isModule) && (not isInterface) && posIsZero loc.loc_start
-            && posIsZero loc.loc_end
-          in
-          if skipLoc then None
-          else
-            Some
-              {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}
-        ))
-  in
-  print_endline
-    (match locationOpt with
-    | None -> Protocol.null
-    | Some location -> location |> Protocol.stringifyLocation)
+  (match Definition.definition ~path ~pos ~debug with
+  | Some loc -> loc |> Protocol.stringifyLocation
+  | None -> Protocol.null)
+  |> print_endline
 
 let typeDefinition ~path ~pos ~debug =
-  let maybeLocation =
-    match Cmt.loadFullCmtFromPath ~path with
-    | None -> None
-    | Some full -> (
-      match References.getLocItem ~full ~pos ~debug with
-      | None -> None
-      | Some locItem -> (
-        match References.typeDefinitionForLocItem ~full locItem with
-        | None -> None
-        | Some (uri, loc) ->
-          Some
-            {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}))
-  in
   print_endline
-    (match maybeLocation with
+    (match TypeDefinition.typeDefinition ~path ~pos ~debug with
     | None -> Protocol.null
     | Some location -> location |> Protocol.stringifyLocation)
 
 let references ~path ~pos ~debug =
-  let allLocs =
-    match Cmt.loadFullCmtFromPath ~path with
-    | None -> []
-    | Some full -> (
-      match References.getLocItem ~full ~pos ~debug with
-      | None -> []
-      | Some locItem ->
-        let allReferences = References.allReferencesForLocItem ~full locItem in
-        allReferences
-        |> List.fold_left
-             (fun acc {References.uri = uri2; locOpt} ->
-               let loc =
-                 match locOpt with
-                 | Some loc -> loc
-                 | None -> Uri.toTopLevelLoc uri2
-               in
-               Protocol.stringifyLocation
-                 {uri = Uri.toString uri2; range = Utils.cmtLocToRange loc}
-               :: acc)
-             [])
-  in
   print_endline
-    (if allLocs = [] then Protocol.null
-    else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
+    (match References.get ~path ~pos ~debug with
+    | [] -> Protocol.null
+    | locs -> locs |> List.map Protocol.stringifyLocation |> Protocol.array)
 
 let rename ~path ~pos ~newName ~debug =
   let result =
-    match Cmt.loadFullCmtFromPath ~path with
+    match Rename.rename ~path ~pos ~newName ~debug with
     | None -> Protocol.null
-    | Some full -> (
-      match References.getLocItem ~full ~pos ~debug with
-      | None -> Protocol.null
-      | Some locItem ->
-        let allReferences = References.allReferencesForLocItem ~full locItem in
-        let referencesToToplevelModules =
-          allReferences
-          |> Utils.filterMap (fun {References.uri = uri2; locOpt} ->
-                 if locOpt = None then Some uri2 else None)
-        in
-        let referencesToItems =
-          allReferences
-          |> Utils.filterMap (function
-               | {References.uri = uri2; locOpt = Some loc} -> Some (uri2, loc)
-               | {locOpt = None} -> None)
-        in
-        let fileRenames =
-          referencesToToplevelModules
-          |> List.map (fun uri ->
-                 let path = Uri.toPath uri in
-                 let dir = Filename.dirname path in
-                 let newPath =
-                   Filename.concat dir (newName ^ Filename.extension path)
-                 in
-                 let newUri = Uri.fromPath newPath in
-                 Protocol.
-                   {
-                     oldUri = uri |> Uri.toString;
-                     newUri = newUri |> Uri.toString;
-                   })
-        in
-        let textDocumentEdits =
-          let module StringMap = Misc.StringMap in
-          let textEditsByUri =
-            referencesToItems
-            |> List.map (fun (uri, loc) -> (Uri.toString uri, loc))
-            |> List.fold_left
-                 (fun acc (uri, loc) ->
-                   let textEdit =
-                     Protocol.
-                       {range = Utils.cmtLocToRange loc; newText = newName}
-                   in
-                   match StringMap.find_opt uri acc with
-                   | None -> StringMap.add uri [textEdit] acc
-                   | Some prevEdits ->
-                     StringMap.add uri (textEdit :: prevEdits) acc)
-                 StringMap.empty
-          in
-          StringMap.fold
-            (fun uri edits acc ->
-              let textDocumentEdit =
-                Protocol.{textDocument = {uri; version = None}; edits}
-              in
-              textDocumentEdit :: acc)
-            textEditsByUri []
-        in
-        let fileRenamesString =
-          fileRenames |> List.map Protocol.stringifyRenameFile
-        in
-        let textDocumentEditsString =
-          textDocumentEdits |> List.map Protocol.stringifyTextDocumentEdit
-        in
-        "[\n"
-        ^ (fileRenamesString @ textDocumentEditsString |> String.concat ",\n")
-        ^ "\n]")
+    | Some documentChanges ->
+      documentChanges
+      |> List.map (fun (changes : Protocol.documentChanges) ->
+             match changes with
+             | RenameFile renames ->
+               renames |> List.map Protocol.stringifyRenameFile
+             | TextDocumentEdit textDocumentEdits ->
+               textDocumentEdits |> List.map Protocol.stringifyTextDocumentEdit)
+      |> List.flatten |> Protocol.array
   in
   print_endline result
 
 let format ~path =
-  if Filename.check_suffix path ".res" then
-    let {Res_driver.parsetree = structure; comments; diagnostics} =
-      Res_driver.parsingEngine.parseImplementation ~forPrinter:true
-        ~filename:path
-    in
-    if List.length diagnostics > 0 then ""
-    else
-      Res_printer.printImplementation ~width:!Res_cli.ResClflags.width ~comments
-        structure
-  else if Filename.check_suffix path ".resi" then
-    let {Res_driver.parsetree = signature; comments; diagnostics} =
-      Res_driver.parsingEngine.parseInterface ~forPrinter:true ~filename:path
-    in
-    if List.length diagnostics > 0 then ""
-    else
-      Res_printer.printInterface ~width:!Res_cli.ResClflags.width ~comments
-        signature
-  else ""
+  let result =
+    match Formatter.format ~path with
+    | Some text -> text
+    | None -> ""
+  in
+  Printf.printf "\"%s\"" (Json.escape result)
 
 let diagnosticSyntax ~path =
-  print_endline (Diagnostics.document_syntax ~path |> Protocol.array)
+  Diagnostics.document_syntax ~path
+  |> List.map Protocol.stringifyDiagnostic
+  |> Protocol.array |> print_endline
+
+let semanticTokens ~currentFile =
+  Printf.printf "{\"data\":[%s]}" (SemanticTokens.semanticTokens ~currentFile)
+
+let createInterface ~path ~cmiFile =
+  (match CreateInterface.command ~path ~cmiFile with
+  | Some text -> text
+  | None -> "")
+  |> Json.escape |> Printf.printf "\"%s\""
+
+let documentSymbol ~path =
+  DocumentSymbol.command ~path
+  |> Protocol.stringifyDocumentSymbolItems |> print_endline
 
 let test ~path =
   Uri.stripPath := true;
@@ -322,7 +161,7 @@ let test ~path =
             DceCommand.command ()
           | "doc" ->
             print_endline ("DocumentSymbol " ^ path);
-            DocumentSymbol.command ~path
+            documentSymbol ~path
           | "hig" ->
             print_endline ("Highlight " ^ path);
             SemanticTokens.command ~debug:true
@@ -352,7 +191,10 @@ let test ~path =
               let dir = dirname path in
               dir ++ parent_dir_name ++ "lib" ++ "bs" ++ "src" ++ name
             in
-            Printf.printf "%s" (CreateInterface.command ~path ~cmiFile)
+            Printf.printf "%s"
+              (match CreateInterface.command ~path ~cmiFile with
+              | Some text -> text
+              | None -> "")
           | "ref" ->
             print_endline
               ("References " ^ path ^ " " ^ string_of_int line ^ ":"

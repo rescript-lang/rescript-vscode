@@ -4,7 +4,7 @@ node_modules
 examples/*/lib
 analysis/tests/lib
 analysis/tests/.bsb.lock
-analysis/_build
 analysis/tests/.merlin
 analysis/rescript-editor-analysis.exe
-analysis/_opam
+_build
+_opam

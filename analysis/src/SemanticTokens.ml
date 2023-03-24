@@ -457,4 +457,4 @@ let command ~debug ~emitter ~path =
 let semanticTokens ~currentFile =
   let emitter = Token.createEmitter () in
   command ~emitter ~debug:false ~path:currentFile;
-  Printf.printf "{\"data\":[%s]}" (Token.emit emitter)
+  Token.emit emitter

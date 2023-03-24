@@ -62,7 +62,7 @@ type documentSymbolItem = {
 type renameFile = {oldUri: string; newUri: string}
 type textEdit = {range: range; newText: string}
 
-type diagnostic = {range: range; message: string; severity: int}
+type diagnostic = {range: range; message: Res_diagnostics.t; severity: int}
 
 type optionalVersionedTextDocumentIdentifier = {
   version: int option;
@@ -73,6 +73,12 @@ type textDocumentEdit = {
   textDocument: optionalVersionedTextDocumentIdentifier;
   edits: textEdit list;
 }
+
+type documentChanges =
+  | RenameFile of renameFile list
+  | TextDocumentEdit of textDocumentEdit list
+
+type workspaceEdit = {documentChanges: documentChanges}
 
 type codeActionEdit = {documentChanges: textDocumentEdit list}
 type codeActionKind = RefactorRewrite
@@ -138,9 +144,8 @@ let stringifyCompletionItem c =
           Some (Printf.sprintf "%i" (insertTextFormatToInt insertTextFormat)) );
     ]
 
-let stringifyHover value =
-  Printf.sprintf {|{"contents": %s}|}
-    (stringifyMarkupContent {kind = "markdown"; value})
+let stringifyHover {kind; value} =
+  Printf.sprintf {|{"contents": %s}|} (stringifyMarkupContent {kind; value})
 
 let stringifyLocation (h : location) =
   Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
@@ -309,4 +314,6 @@ let stringifyDiagnostic d =
   "severity": %d,
   "source": "ReScript"
 }|}
-    (stringifyRange d.range) (Json.escape d.message) d.severity
+    (stringifyRange d.range)
+    (Json.escape (Res_diagnostics.explain d.message))
+    d.severity

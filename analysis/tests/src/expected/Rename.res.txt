@@ -1,6 +1,5 @@
 Rename src/Rename.res 0:4 y
-[
-{
+[{
   "textDocument": {
   "version": null,
   "uri": "Rename.res"
@@ -15,12 +14,10 @@ Rename src/Rename.res 0:4 y
   "range": {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 9}},
   "newText": "y"
   }]
-  }
-]
+  }]
 
 Rename src/Rename.res 9:19 yy
-[
-{
+[{
   "textDocument": {
   "version": null,
   "uri": "Rename.res"
@@ -32,6 +29,5 @@ Rename src/Rename.res 9:19 yy
   "range": {"start": {"line": 9, "character": 19}, "end": {"line": 9, "character": 21}},
   "newText": "yy"
   }]
-  }
-]
+  }]
 

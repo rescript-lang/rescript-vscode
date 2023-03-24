@@ -1,3 +1,4 @@
+open Analysis
 let help =
   {|
 **Private CLI For rescript-vscode usage only**
@@ -102,7 +103,7 @@ let main () =
     Commands.typeDefinition ~path
       ~pos:(int_of_string line, int_of_string col)
       ~debug:false
-  | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
+  | [_; "documentSymbol"; path] -> Commands.documentSymbol ~path
   | [_; "hover"; path; line; col; currentFile; supportsMarkdownLinks] ->
     Commands.hover ~path
       ~pos:(int_of_string line, int_of_string col)
@@ -140,13 +141,10 @@ let main () =
     Commands.rename ~path
       ~pos:(int_of_string line, int_of_string col)
       ~newName ~debug:false
-  | [_; "semanticTokens"; currentFile] ->
-    SemanticTokens.semanticTokens ~currentFile
+  | [_; "semanticTokens"; currentFile] -> Commands.semanticTokens ~currentFile
   | [_; "createInterface"; path; cmiFile] ->
-    Printf.printf "\"%s\""
-      (Json.escape (CreateInterface.command ~path ~cmiFile))
-  | [_; "format"; path] ->
-    Printf.printf "\"%s\"" (Json.escape (Commands.format ~path))
+    Commands.createInterface ~path ~cmiFile
+  | [_; "format"; path] -> Commands.format ~path
   | [_; "test"; path] ->
     Cfg.supportsSnippets := true;
     Commands.test ~path

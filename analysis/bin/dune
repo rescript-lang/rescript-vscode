@@ -1,0 +1,6 @@
+(executable
+ (name main)
+ (public_name analysis)
+ (package analysis)
+ (modes byte exe)
+ (libraries analysis))

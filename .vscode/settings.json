@@ -8,6 +8,6 @@
 	},
 	"ocaml.sandbox": {
 		"kind": "opam",
-		"switch": "${workspaceFolder:rescript-vscode}/analysis"
+		"switch": "${workspaceFolder:rescript-vscode}"
 	}
 }

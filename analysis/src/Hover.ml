@@ -133,7 +133,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
         (if typString = "" then [] else [Markdown.codeBlock typString])
         @ docstring
       in
-      Some (Protocol.stringifyHover (String.concat "\n\n" parts))
+      Some (String.concat "\n\n" parts)
     | {kind = Field _; env; docstring} :: _ -> (
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
       match
@@ -145,7 +145,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
           hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
         in
         let parts = typeString :: docstring in
-        Some (Protocol.stringifyHover (String.concat "\n\n" parts))
+        Some (String.concat "\n\n" parts)
       | None -> None)
     | {env} :: _ -> (
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
@@ -157,7 +157,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
         let typeString =
           hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
         in
-        Some (Protocol.stringifyHover typeString)
+        Some typeString
       | None -> None)
     | _ -> None)
 
@@ -250,3 +250,44 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
           typeString :: docstring)
     in
     Some (String.concat "\n\n" parts)
+
+let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
+  let value =
+    match Cmt.loadFullCmtFromPath ~path with
+    | None -> None
+    | Some full -> (
+      match References.getLocItem ~full ~pos ~debug with
+      | None -> (
+        if debug then
+          Printf.printf
+            "Nothing at that position. Now trying to use completion.\n";
+        match
+          getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover:true
+            ~supportsMarkdownLinks
+        with
+        | None -> None
+        | Some hover -> Some hover)
+      | Some locItem ->
+        let isModule =
+          match locItem.locType with
+          | LModule _ | TopLevelModule _ -> true
+          | TypeDefinition _ | Typed _ | Constant _ -> false
+        in
+        let uriLocOpt = References.definitionForLocItem ~full locItem in
+        let skipZero =
+          match uriLocOpt with
+          | None -> false
+          | Some (_, loc) ->
+            let isInterface = full.file.uri |> Uri.isInterface in
+            let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
+              (not isInterface) && pos_lnum = 1 && pos_cnum - pos_bol = 0
+            in
+            (* Skip if range is all zero, unless it's a module *)
+            (not isModule) && posIsZero loc.loc_start && posIsZero loc.loc_end
+        in
+        if skipZero then None else newHover ~supportsMarkdownLinks ~full locItem
+      )
+  in
+  match value with
+  | Some value -> Some Protocol.{kind = "markdown"; value}
+  | None -> None

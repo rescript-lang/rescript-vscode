@@ -1,4 +1,4 @@
-(lang dune 2.3)
+(lang dune 3.6)
 
 (generate_opam_files true)
 
@@ -11,8 +11,8 @@
 (bug_reports "https://github.com/rescript-lang/rescript-vscode/issues")
 
 (package
- (name rescript-vscode)
- (synopsis "ReScript vscode support")
+ (name analysis)
+ (synopsis "ReScript Analysis")
  (depends
   (ocaml
    (>= 4.10))
