@@ -55,7 +55,6 @@ jobs:
         node-version: 16
 
     - run: npm ci
-    - run: opam install dune cppo
     - run: npm run compile
 
     # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
