@@ -63,6 +63,9 @@ jobs:
     # - run: opam pin add rescript-editor-analysis.dev . --no-action
     # - run: opam install . --deps-only --with-doc --with-test
 
+    - name: Install opam deps
+      run: opam install . --deps-only
+
     - name: Build and test
       run: opam exec -- make test
 
