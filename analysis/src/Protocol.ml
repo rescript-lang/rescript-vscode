@@ -62,7 +62,7 @@ type documentSymbolItem = {
 type renameFile = {oldUri: string; newUri: string}
 type textEdit = {range: range; newText: string}
 
-type diagnostic = {range: range; message: Res_diagnostics.t; severity: int}
+type diagnostic = {range: range; message: string; severity: int}
 
 type optionalVersionedTextDocumentIdentifier = {
   version: int option;
@@ -315,5 +315,5 @@ let stringifyDiagnostic d =
   "source": "ReScript"
 }|}
     (stringifyRange d.range)
-    (Json.escape (Res_diagnostics.explain d.message))
+    (Json.escape d.message)
     d.severity

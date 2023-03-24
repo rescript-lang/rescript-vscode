@@ -8,7 +8,12 @@ let document_syntax ~path =
            let end_ =
              Utils.cmtPosToPosition (Res_diagnostics.getEndPos diagnostic)
            in
-           Protocol.{range = {start; end_}; message = diagnostic; severity = 1})
+           Protocol.
+             {
+               range = {start; end_};
+               message = Res_diagnostics.explain diagnostic;
+               severity = 1;
+             })
   in
   if FindFiles.isImplementation path then
     let parseImplementation =
