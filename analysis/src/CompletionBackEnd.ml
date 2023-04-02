@@ -1355,7 +1355,9 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
         match Path.head p |> Ident.name with
         | "unit" -> "()"
         | "ReactEvent" | "JsxEvent" -> "event"
-        | _ -> "v" ^ indexText)
+        | _ ->
+          TypeUtils.templateVarNameForTyp ~env ~package:full.package argTyp
+          ^ indexText)
     in
     let mkFnArgs ~asSnippet =
       match args with

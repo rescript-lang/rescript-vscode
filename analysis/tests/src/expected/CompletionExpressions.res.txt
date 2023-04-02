@@ -951,3 +951,21 @@ Path fff
     "documentation": null
   }]
 
+Complete src/CompletionExpressions.res 206:11
+posCursor:[206:11] posNoWhite:[206:10] Found expr:[206:3->206:12]
+Pexp_apply ...[206:3->206:10] (...[206:11->206:12])
+Completable: Cexpression CArgument Value[takesCb]($0)
+ContextPath CArgument Value[takesCb]($0)
+ContextPath Value[takesCb]
+Path takesCb
+[{
+    "label": "someTyp => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "someTyp => 'a",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:someTyp} => {$0}",
+    "insertTextFormat": 2
+  }]
+

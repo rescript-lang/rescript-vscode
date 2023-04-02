@@ -17,6 +17,23 @@ let rec findDocAttribute attributes =
     Some doc
   | _ :: rest -> findDocAttribute rest
 
+let rec findTemplateVarNameAttribute attributes =
+  let open Parsetree in
+  match attributes with
+  | [] -> None
+  | ( {Asttypes.txt = "editor.templateVariableName"},
+      PStr
+        [
+          {
+            pstr_desc =
+              Pstr_eval
+                ({pexp_desc = Pexp_constant (Pconst_string (name, _))}, _);
+          };
+        ] )
+    :: _ ->
+    Some name
+  | _ :: rest -> findTemplateVarNameAttribute rest
+
 let rec findDeprecatedAttribute attributes =
   let open Parsetree in
   match attributes with

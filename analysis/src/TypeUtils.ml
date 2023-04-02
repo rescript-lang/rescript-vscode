@@ -202,6 +202,19 @@ let pathFromTypeExpr (t : Types.type_expr) =
     Some path
   | _ -> None
 
+let rec templateVarNameForTyp ~env ~package (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+    templateVarNameForTyp ~env ~package t1
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (_env, {item = {attributes}}) -> (
+      match ProcessAttributes.findTemplateVarNameAttribute attributes with
+      | None -> "v"
+      | Some name -> name)
+    | _ -> "v")
+  | _ -> "v"
+
 let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
     (t : Types.type_expr) =
   let builtin =

@@ -196,3 +196,13 @@ ignore(fff)
 
 // fff.someOpt
 //            ^com
+
+@editor.templateVariableName("someTyp")
+type someTyp = {test: bool}
+
+let takesCb = cb => {
+  cb({test: true})
+}
+
+// takesCb()
+//         ^com
