@@ -209,11 +209,9 @@ let rec templateVarNameForTyp ~env ~package (t : Types.type_expr) =
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (_env, {item = {attributes}}) -> (
-      match ProcessAttributes.findTemplateVarNameAttribute attributes with
-      | None -> "v"
-      | Some name -> name)
-    | _ -> "v")
-  | _ -> "v"
+      ProcessAttributes.findTemplateVarNameAttribute attributes)
+    | _ -> None)
+  | _ -> None
 
 let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
     (t : Types.type_expr) =

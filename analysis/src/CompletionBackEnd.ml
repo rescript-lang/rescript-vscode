@@ -1356,8 +1356,22 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
         | "unit" -> "()"
         | "ReactEvent" | "JsxEvent" -> "event"
         | _ ->
-          TypeUtils.templateVarNameForTyp ~env ~package:full.package argTyp
-          ^ indexText)
+          let txt =
+            match
+              TypeUtils.templateVarNameForTyp ~env ~package:full.package argTyp
+            with
+            | Some txt -> txt
+            | None -> (
+              match p |> Utils.expandPath |> Utils.lastElements with
+              | [] | ["t"] -> "v"
+              | [someName; "t"] | [_; someName] | [someName] -> (
+                match someName with
+                | "string" | "int" | "float" | "array" | "option" | "bool" ->
+                  "v"
+                | someName -> someName |> Utils.lowercaseFirstChar)
+              | _ -> "v")
+          in
+          txt ^ indexText)
     in
     let mkFnArgs ~asSnippet =
       match args with

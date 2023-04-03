@@ -206,3 +206,35 @@ let takesCb = cb => {
 
 // takesCb()
 //         ^com
+
+module Environment = {
+  type t = {hello: bool}
+}
+
+let takesCb2 = cb => {
+  cb({Environment.hello: true})
+}
+
+// takesCb2()
+//          ^com
+
+type apiCallResult = {hi: bool}
+
+let takesCb3 = cb => {
+  cb({hi: true})
+}
+
+// takesCb3()
+//          ^com
+
+module RecordSourceSelectorProxy = {
+  @editor.templateVariableName("store")
+  type t
+}
+
+@val
+external commitLocalUpdate: (~updater: RecordSourceSelectorProxy.t => unit) => unit =
+  "commitLocalUpdate"
+
+// commitLocalUpdate(~updater=)
+//                            ^com

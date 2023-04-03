@@ -845,13 +845,13 @@ ContextPath CArgument Value[fnTakingCallback]($3)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 [{
-    "label": "(~on, ~off=?, v1) => {}",
+    "label": "(~on, ~off=?, variant1) => {}",
     "kind": 12,
     "tags": [],
     "detail": "(~on: bool, ~off: bool=?, variant) => int",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(~on, ~off=?, ${1:v1}) => {$0}",
+    "insertText": "(~on, ~off=?, ${1:variant1}) => {$0}",
     "insertTextFormat": 2
   }]
 
@@ -966,6 +966,60 @@ Path takesCb
     "documentation": null,
     "sortText": "A",
     "insertText": "${1:someTyp} => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 217:12
+posCursor:[217:12] posNoWhite:[217:11] Found expr:[217:3->217:13]
+Pexp_apply ...[217:3->217:11] (...[217:12->217:13])
+Completable: Cexpression CArgument Value[takesCb2]($0)
+ContextPath CArgument Value[takesCb2]($0)
+ContextPath Value[takesCb2]
+Path takesCb2
+[{
+    "label": "environment => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "Environment.t => 'a",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:environment} => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 226:12
+posCursor:[226:12] posNoWhite:[226:11] Found expr:[226:3->226:13]
+Pexp_apply ...[226:3->226:11] (...[226:12->226:13])
+Completable: Cexpression CArgument Value[takesCb3]($0)
+ContextPath CArgument Value[takesCb3]($0)
+ContextPath Value[takesCb3]
+Path takesCb3
+[{
+    "label": "apiCallResult => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "apiCallResult => 'a",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:apiCallResult} => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 238:30
+posCursor:[238:30] posNoWhite:[238:29] Found expr:[238:3->238:31]
+Pexp_apply ...[238:3->238:20] (~updater238:22->238:29=...__ghost__[0:-1->0:-1])
+Completable: Cexpression CArgument Value[commitLocalUpdate](~updater)
+ContextPath CArgument Value[commitLocalUpdate](~updater)
+ContextPath Value[commitLocalUpdate]
+Path commitLocalUpdate
+[{
+    "label": "store => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "RecordSourceSelectorProxy.t => unit",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:store} => {$0}",
     "insertTextFormat": 2
   }]
 

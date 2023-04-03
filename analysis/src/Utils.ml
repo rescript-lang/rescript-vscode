@@ -204,3 +204,12 @@ module Option = struct
     | None -> None
     | Some v -> f v
 end
+
+let rec lastElements list =
+  match list with
+  | ([_] | [_; _] | []) as res -> res
+  | _ :: tl -> lastElements tl
+
+let lowercaseFirstChar s =
+  if String.length s = 0 then s
+  else String.mapi (fun i c -> if i = 0 then Char.lowercase_ascii c else c) s
