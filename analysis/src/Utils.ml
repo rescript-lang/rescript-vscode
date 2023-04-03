@@ -207,7 +207,7 @@ end
 
 let rec lastElements list =
   match list with
-  | ([_] | [_; _] | []) as res -> res
+  | ([_; _] | [_] | []) as res -> res
   | _ :: tl -> lastElements tl
 
 let lowercaseFirstChar s =

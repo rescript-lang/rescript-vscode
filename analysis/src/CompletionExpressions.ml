@@ -216,3 +216,39 @@ and traverseExprTupleItems tupleItems ~nextExprPath ~resultFromFoundItemNum ~pos
            if pos >= Loc.start e.Parsetree.pexp_loc then posNum := index);
     if !posNum > -1 then Some ("", resultFromFoundItemNum !posNum) else None
   | v, _ -> v
+
+let prettyPrintFnTemplateArgName ?currentIndex ~env ~full
+    (argTyp : Types.type_expr) =
+  let indexText =
+    match currentIndex with
+    | None -> ""
+    | Some i -> string_of_int i
+  in
+  let defaultVarName = "v" ^ indexText in
+  let argTyp, suffix, env =
+    TypeUtils.digToRelevantTemplateNameType ~env ~package:full.package argTyp
+  in
+  match TypeUtils.templateVarNameForTyp ~env ~package:full.package argTyp with
+  | Some txt -> txt
+  | None -> (
+    match argTyp |> TypeUtils.pathFromTypeExpr with
+    | None -> defaultVarName
+    | Some p -> (
+      match p |> Utils.expandPath |> List.rev |> Utils.lastElements with
+      | [] | ["t"] -> defaultVarName
+      | ["unit"] -> "()"
+      (* Special treatment for JsxEvent, since that's a common enough thing
+         used in event handlers. *)
+      | ["JsxEvent"; "synthetic"] -> "event"
+      | ["synthetic"] when env.file.moduleName = "JsxEvent" -> "event"
+      (* Ignore `t` types, and go for its module name instead. *)
+      | [someName; "t"] | [_; someName] | [someName] -> (
+        match someName with
+        | "string" | "int" | "float" | "array" | "option" | "bool" ->
+          defaultVarName
+        | someName when String.length someName < 30 ->
+          (* We cap how long the name can be, so we don't end up with super
+             long type names. *)
+          (someName |> Utils.lowercaseFirstChar) ^ suffix
+        | _ -> defaultVarName)
+      | _ -> defaultVarName))

@@ -227,6 +227,20 @@ let takesCb3 = cb => {
 // takesCb3()
 //          ^com
 
+let takesCb4 = cb => {
+  cb(Some({hi: true}))
+}
+
+// takesCb4()
+//          ^com
+
+let takesCb5 = cb => {
+  cb([Some({hi: true})])
+}
+
+// takesCb5()
+//          ^com
+
 module RecordSourceSelectorProxy = {
   @editor.templateVariableName("store")
   type t

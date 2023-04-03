@@ -1005,9 +1005,45 @@ Path takesCb3
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionExpressions.res 238:30
-posCursor:[238:30] posNoWhite:[238:29] Found expr:[238:3->238:31]
-Pexp_apply ...[238:3->238:20] (~updater238:22->238:29=...__ghost__[0:-1->0:-1])
+Complete src/CompletionExpressions.res 233:12
+posCursor:[233:12] posNoWhite:[233:11] Found expr:[233:3->233:13]
+Pexp_apply ...[233:3->233:11] (...[233:12->233:13])
+Completable: Cexpression CArgument Value[takesCb4]($0)
+ContextPath CArgument Value[takesCb4]($0)
+ContextPath Value[takesCb4]
+Path takesCb4
+[{
+    "label": "apiCallResult => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "option<apiCallResult> => 'a",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:apiCallResult} => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 240:12
+posCursor:[240:12] posNoWhite:[240:11] Found expr:[240:3->240:13]
+Pexp_apply ...[240:3->240:11] (...[240:12->240:13])
+Completable: Cexpression CArgument Value[takesCb5]($0)
+ContextPath CArgument Value[takesCb5]($0)
+ContextPath Value[takesCb5]
+Path takesCb5
+[{
+    "label": "apiCallResults => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "array<option<apiCallResult>> => 'a",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:apiCallResults} => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 252:30
+posCursor:[252:30] posNoWhite:[252:29] Found expr:[252:3->252:31]
+Pexp_apply ...[252:3->252:20] (~updater252:22->252:29=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[commitLocalUpdate](~updater)
 ContextPath CArgument Value[commitLocalUpdate](~updater)
 ContextPath Value[commitLocalUpdate]
