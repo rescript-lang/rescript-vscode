@@ -845,13 +845,13 @@ ContextPath CArgument Value[fnTakingCallback]($3)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 [{
-    "label": "(~on, ~off=?, variant1) => {}",
+    "label": "(~on, ~off=?, variant) => {}",
     "kind": 12,
     "tags": [],
     "detail": "(~on: bool, ~off: bool=?, variant) => int",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(~on, ~off=?, ${1:variant1}) => {$0}",
+    "insertText": "(~on, ~off=?, ${1:variant}) => {$0}",
     "insertTextFormat": 2
   }]
 
