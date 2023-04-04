@@ -197,7 +197,7 @@ ignore(fff)
 // fff.someOpt
 //            ^com
 
-@editor.templateVariableName("someTyp")
+@editor.templateVariableName("otherNameForType")
 type someTyp = {test: bool}
 
 let takesCb = cb => {
