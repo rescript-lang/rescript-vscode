@@ -2,6 +2,7 @@ Complete src/CompletionExpressions.res 3:20
 XXX Not found!
 Completable: Cpattern CTuple(Value[s], Value[f])
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CTuple(Value[s], Value[f])
 ContextPath Value[s]
 Path s
@@ -22,6 +23,7 @@ posCursor:[26:27] posNoWhite:[26:26] Found expr:[26:11->26:29]
 Pexp_apply ...[26:11->26:25] (...[26:26->26:28])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -68,6 +70,7 @@ posCursor:[29:28] posNoWhite:[29:27] Found expr:[29:11->29:30]
 Pexp_apply ...[29:11->29:25] (...[29:27->29:28])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n->recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -84,6 +87,7 @@ posCursor:[32:35] posNoWhite:[32:34] Found expr:[32:11->32:38]
 Pexp_apply ...[32:11->32:25] (...[32:26->32:38])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(offline)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -106,6 +110,7 @@ posCursor:[35:36] posNoWhite:[35:35] Found expr:[35:11->35:39]
 Pexp_apply ...[35:11->35:25] (...[35:26->35:38])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -146,6 +151,7 @@ posCursor:[38:37] posNoWhite:[38:35] Found expr:[38:11->38:53]
 Pexp_apply ...[38:11->38:25] (...[38:26->38:52])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -180,6 +186,7 @@ posCursor:[41:44] posNoWhite:[41:43] Found expr:[41:11->41:47]
 Pexp_apply ...[41:11->41:25] (...[41:26->41:47])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -212,6 +219,7 @@ posCursor:[44:46] posNoWhite:[44:45] Found expr:[44:11->44:49]
 Pexp_apply ...[44:11->44:25] (...[44:26->44:48])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested), recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -222,6 +230,7 @@ posCursor:[47:51] posNoWhite:[47:50] Found expr:[47:11->47:55]
 Pexp_apply ...[47:11->47:25] (...[47:26->47:54])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested), variantPayload::Some($0), recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -244,6 +253,7 @@ posCursor:[50:45] posNoWhite:[50:44] Found expr:[50:11->50:48]
 Pexp_apply ...[50:11->50:25] (...[50:26->50:48])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(variant)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -278,6 +288,7 @@ posCursor:[53:47] posNoWhite:[53:46] Found expr:[53:11->53:50]
 Pexp_apply ...[53:11->53:25] (...[53:26->53:49])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=O->recordField(variant)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -309,6 +320,7 @@ posCursor:[56:57] posNoWhite:[56:56] Found expr:[56:11->56:61]
 Pexp_apply ...[56:11->56:25] (...[56:26->56:60])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($0)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -328,6 +340,7 @@ posCursor:[59:60] posNoWhite:[59:59] Found expr:[59:11->59:65]
 Pexp_apply ...[59:11->59:25] (...[59:26->59:64])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($1)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -350,6 +363,7 @@ posCursor:[62:62] posNoWhite:[62:61] Found expr:[62:11->62:66]
 Pexp_apply ...[62:11->62:25] (...[62:26->62:65])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=t->recordField(polyvariant), polyvariantPayload::three($1)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -366,6 +380,7 @@ posCursor:[69:25] posNoWhite:[69:24] Found expr:[69:11->69:26]
 Pexp_apply ...[69:11->69:24] (...[69:25->69:26])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
@@ -385,6 +400,7 @@ posCursor:[72:26] posNoWhite:[72:25] Found expr:[72:11->72:28]
 Pexp_apply ...[72:11->72:24] (...[72:25->72:27])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
@@ -421,6 +437,7 @@ posCursor:[75:26] posNoWhite:[75:25] Found expr:[75:11->75:27]
 Pexp_apply ...[75:11->75:24] (...[75:25->75:26])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)=s
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
@@ -437,6 +454,7 @@ posCursor:[78:31] posNoWhite:[78:30] Found expr:[78:11->78:34]
 Pexp_apply ...[78:11->78:24] (...[78:25->78:33])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array, variantPayload::Some($0)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
@@ -459,6 +477,7 @@ posCursor:[81:31] posNoWhite:[81:30] Found expr:[81:11->81:34]
 Pexp_apply ...[81:11->81:24] (...[81:25->81:33])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
@@ -495,6 +514,7 @@ posCursor:[84:31] posNoWhite:[84:30] Found expr:[84:11->84:40]
 Pexp_apply ...[84:11->84:24] (...[84:25->84:39])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingArray]($0)
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
@@ -531,6 +551,7 @@ posCursor:[89:38] posNoWhite:[89:37] Found expr:[89:11->89:41]
 Pexp_apply ...[89:11->89:25] (...[89:26->89:40])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=so
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
@@ -547,6 +568,7 @@ posCursor:[96:43] posNoWhite:[96:42] Found expr:[96:11->96:46]
 Pexp_apply ...[96:11->96:30] (...[96:31->96:46])
 Completable: Cexpression CArgument Value[fnTakingOtherRecord]($0)->recordField(otherField)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingOtherRecord]($0)
 ContextPath Value[fnTakingOtherRecord]
 Path fnTakingOtherRecord
@@ -566,6 +588,7 @@ posCursor:[108:57] posNoWhite:[108:56] Found expr:[108:11->108:60]
 Pexp_apply ...[108:11->108:42] (...[108:43->108:60])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptionalField]($0)->recordField(someOptField)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecordWithOptionalField]($0)
 ContextPath Value[fnTakingRecordWithOptionalField]
 Path fnTakingRecordWithOptionalField
@@ -588,6 +611,7 @@ posCursor:[116:53] posNoWhite:[116:52] Found expr:[116:11->116:56]
 Pexp_apply ...[116:11->116:39] (...[116:40->116:56])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptVariant]($0)->recordField(someVariant)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingRecordWithOptVariant]($0)
 ContextPath Value[fnTakingRecordWithOptVariant]
 Path fnTakingRecordWithOptVariant
@@ -636,6 +660,7 @@ posCursor:[126:49] posNoWhite:[126:48] Found expr:[126:11->126:51]
 Pexp_apply ...[126:11->126:31] (...[126:32->126:50])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
@@ -655,6 +680,7 @@ posCursor:[129:50] posNoWhite:[129:49] Found expr:[129:11->129:53]
 Pexp_apply ...[129:11->129:31] (...[129:32->129:52])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
@@ -683,6 +709,7 @@ posCursor:[132:51] posNoWhite:[132:50] Found expr:[132:11->132:54]
 Pexp_apply ...[132:11->132:31] (...[132:32->132:53])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0), recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
@@ -699,6 +726,7 @@ posCursor:[135:63] posNoWhite:[135:62] Found expr:[135:11->135:67]
 Pexp_apply ...[135:11->135:31] (...[135:32->135:66])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
@@ -718,6 +746,7 @@ posCursor:[138:65] posNoWhite:[138:64] Found expr:[138:11->138:70]
 Pexp_apply ...[138:11->138:31] (...[138:32->138:69])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord), recordBody
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
@@ -740,6 +769,7 @@ posCursor:[159:20] posNoWhite:[159:19] Found expr:[159:3->159:21]
 Pexp_apply ...[159:3->159:19] (...[159:20->159:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($0)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingCallback]($0)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
@@ -759,6 +789,7 @@ posCursor:[162:21] posNoWhite:[162:20] Found expr:[162:3->162:22]
 Pexp_apply ...[162:3->162:19] (...[162:20->162:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($0)=a
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingCallback]($0)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
@@ -769,6 +800,7 @@ posCursor:[165:22] posNoWhite:[165:21] Found expr:[165:3->165:24]
 Pexp_apply ...[165:3->165:19] (...[165:20->165:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($1)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingCallback]($1)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
@@ -788,6 +820,7 @@ posCursor:[168:25] posNoWhite:[168:24] Found expr:[168:3->168:27]
 Pexp_apply ...[168:3->168:19] (...[168:20->168:21], ...[168:23->168:24])
 Completable: Cexpression CArgument Value[fnTakingCallback]($2)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingCallback]($2)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
@@ -807,6 +840,7 @@ posCursor:[171:29] posNoWhite:[171:27] Found expr:[171:3->171:30]
 Pexp_apply ...[171:3->171:19] (...[171:20->171:21], ...[171:23->171:24], ...[171:26->171:27])
 Completable: Cexpression CArgument Value[fnTakingCallback]($3)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingCallback]($3)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
@@ -826,6 +860,7 @@ posCursor:[174:32] posNoWhite:[174:30] Found expr:[174:3->174:33]
 Pexp_apply ...[174:3->174:19] (...[174:20->174:21], ...[174:23->174:24], ...[174:26->174:27], ...[174:29->174:30])
 Completable: Cexpression CArgument Value[fnTakingCallback]($4)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingCallback]($4)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
@@ -845,6 +880,7 @@ posCursor:[177:34] posNoWhite:[177:33] Found expr:[177:3->177:36]
 Pexp_apply ...[177:3->177:19] (...[177:20->177:21], ...[177:23->177:24], ...[177:26->177:27], ...[177:29->177:30], ...[177:32->177:33])
 Completable: Cexpression CArgument Value[fnTakingCallback]($5)
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[fnTakingCallback]($5)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
@@ -868,6 +904,7 @@ posCursor:[185:10] posNoWhite:[185:9] Found expr:[185:2->185:11]
 Pexp_apply ...[185:2->185:8] (...[185:9->185:10])
 Completable: Cexpression CArgument Value[Js, log]($0)=s
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath CArgument Value[Js, log]($0)
 ContextPath Value[Js, log]
 Path Js.log
@@ -902,6 +939,7 @@ posCursor:[196:14] posNoWhite:[196:13] Found expr:[196:3->196:14]
 Pexp_field [196:3->196:6] someOpt:[196:7->196:14]
 Completable: Cpath Value[fff].someOpt
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath Value[fff].someOpt
 ContextPath Value[fff]
 Path fff

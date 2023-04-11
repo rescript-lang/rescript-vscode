@@ -2,6 +2,7 @@ Complete src/ExhaustiveSwitch.res 8:24
 XXX Not found!
 Completable: CexhaustiveSwitch Value[withSomeVarian]
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath Value[withSomeVarian]
 Path withSomeVarian
 [{
@@ -25,6 +26,7 @@ Complete src/ExhaustiveSwitch.res 11:21
 XXX Not found!
 Completable: CexhaustiveSwitch Value[withSomePol]
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath Value[withSomePol]
 Path withSomePol
 [{
@@ -48,6 +50,7 @@ Complete src/ExhaustiveSwitch.res 14:17
 XXX Not found!
 Completable: CexhaustiveSwitch Value[someBoo]
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath Value[someBoo]
 Path someBoo
 [{
@@ -71,6 +74,7 @@ Complete src/ExhaustiveSwitch.res 17:16
 XXX Not found!
 Completable: CexhaustiveSwitch Value[someOp]
 Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives.res
 ContextPath Value[someOp]
 Path someOp
 [{
