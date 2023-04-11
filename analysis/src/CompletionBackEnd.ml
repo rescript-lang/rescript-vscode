@@ -1136,7 +1136,12 @@ let getOpens ~debug ~rawOpens ~package ~env =
       ^ " "
       ^ String.concat " "
           (resolvedOpens
-          |> List.map (fun (e : QueryEnv.t) -> Uri.toString e.file.uri)));
+          |> List.map (fun (e : QueryEnv.t) ->
+                 let name = Uri.toString e.file.uri in
+
+                 if Utils.startsWith name "pervasives." then
+                   Filename.chop_extension name
+                 else name)));
   (* Last open takes priority *)
   List.rev resolvedOpens
 
