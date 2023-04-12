@@ -32,9 +32,9 @@
 		"semanticTokenScopes": [
 			{
 				"scopes": {
-					"jsx-lowercase": ["entity.name.tag"],
-					"jsx-tag": ["punctuation.definition.tag"],
-					"support-type-primitive": ["support.type.primitive"]
+					"interface": ["entity.name.tag"],
+					"class": ["punctuation.definition.tag"],
+					"type": ["support.type.primitive"]
 				}
 			}
 		],
