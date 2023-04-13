@@ -1127,7 +1127,7 @@ function onMessage(msg: p.Message) {
                 "operator",
                 "variable",
                 "type",
-                "class", // emit jsx-tag < and > in <div> as class
+                "modifier", // emit jsx-tag < and > in <div> as modifier
                 "namespace",
                 "enumMember",
                 "property",

@@ -33,7 +33,7 @@
 			{
 				"scopes": {
 					"interface": ["entity.name.tag"],
-					"class": ["punctuation.definition.tag"],
+					"modifier": ["punctuation.definition.tag"],
 					"type": ["support.type.primitive"]
 				}
 			}
