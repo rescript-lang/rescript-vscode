@@ -575,9 +575,9 @@ let printOptionalLabel attrs =
 module State = struct
   let customLayoutThreshold = 2
 
-  type t = {customLayout: int; mutable uncurried_config: Res_uncurried.config}
+  type t = {customLayout: int; mutable uncurried_config: Config.uncurried}
 
-  let init = {customLayout = 0; uncurried_config = Res_uncurried.init}
+  let init () = {customLayout = 0; uncurried_config = !Config.uncurried}
 
   let nextCustomLayout t = {t with customLayout = t.customLayout + 1}
 
@@ -1531,9 +1531,12 @@ and printLabelDeclaration ~state (ld : Parsetree.label_declaration) cmtTbl =
     | Mutable -> Doc.text "mutable "
     | Immutable -> Doc.nil
   in
-  let name =
-    let doc = printIdentLike ld.pld_name.txt in
-    printComments doc cmtTbl ld.pld_name.loc
+  let name, isDot =
+    let doc, isDot =
+      if ld.pld_name.txt = "..." then (Doc.text ld.pld_name.txt, true)
+      else (printIdentLike ld.pld_name.txt, false)
+    in
+    (printComments doc cmtTbl ld.pld_name.loc, isDot)
   in
   let optional = printOptionalLabel ld.pld_attributes in
   Doc.group
@@ -1543,7 +1546,7 @@ and printLabelDeclaration ~state (ld : Parsetree.label_declaration) cmtTbl =
          mutableFlag;
          name;
          optional;
-         Doc.text ": ";
+         (if isDot then Doc.nil else Doc.text ": ");
          printTypExpr ~state ld.pld_type cmtTbl;
        ])
 
@@ -1644,6 +1647,7 @@ and printTypExpr ~(state : State.t) (typExpr : Parsetree.core_type) cmtTbl =
         let needsParens =
           match typ.ptyp_desc with
           | Ptyp_arrow _ -> true
+          | _ when Ast_uncurried.typeIsUncurriedFun typ -> true
           | _ -> false
         in
         let doc = printTypExpr ~state typ cmtTbl in
@@ -2667,18 +2671,32 @@ and printExpression ~state (e : Parsetree.expression) cmtTbl =
       (Doc.concat
          [attrs; parametersDoc; typConstraintDoc; Doc.text " =>"; returnExprDoc])
   in
+  let uncurried = Ast_uncurried.exprIsUncurriedFun e in
+  let e_fun =
+    if uncurried then Ast_uncurried.exprExtractUncurriedFun e else e
+  in
   let printedExpression =
-    match e.pexp_desc with
+    match e_fun.pexp_desc with
     | Pexp_fun
         ( Nolabel,
           None,
           {ppat_desc = Ppat_var {txt = "__x"}},
-          {pexp_desc = Pexp_apply _} ) ->
+          {pexp_desc = Pexp_apply _} )
+    | Pexp_construct
+        ( {txt = Lident "Function$"},
+          Some
+            {
+              pexp_desc =
+                Pexp_fun
+                  ( Nolabel,
+                    None,
+                    {ppat_desc = Ppat_var {txt = "__x"}},
+                    {pexp_desc = Pexp_apply _} );
+            } ) ->
       (* (__x) => f(a, __x, c) -----> f(a, _, c)  *)
       printExpressionWithComments ~state
-        (ParsetreeViewer.rewriteUnderscoreApply e)
+        (ParsetreeViewer.rewriteUnderscoreApply e_fun)
         cmtTbl
-    | _ when Ast_uncurried.exprIsUncurriedFun e -> printArrow e
     | Pexp_fun _ | Pexp_newtype _ -> printArrow e
     | Parsetree.Pexp_constant c ->
       printConstant ~templateLiteral:(ParsetreeViewer.isTemplateLiteral e) c
@@ -5276,12 +5294,12 @@ and printAttribute ?(standalone = false) ~state
   | _ ->
     let id =
       match id.txt with
-      | "uncurried" ->
-        state.uncurried_config <- Res_uncurried.Default;
+      | "uncurried.swap" ->
+        state.uncurried_config <- Config.Swap;
         id
-      | "toUncurried" ->
-        state.uncurried_config <- Res_uncurried.Default;
-        {id with txt = "uncurried"}
+      | "uncurried" ->
+        state.uncurried_config <- Config.Uncurried;
+        id
       | _ -> id
     in
     ( Doc.group
@@ -5557,22 +5575,22 @@ and printExtensionConstructor ~state (constr : Parsetree.extension_constructor)
   in
   Doc.concat [bar; Doc.group (Doc.concat [attrs; name; kind])]
 
-let printTypeParams = printTypeParams ~state:State.init
-let printTypExpr = printTypExpr ~state:State.init
-let printExpression = printExpression ~state:State.init
-let printPattern = printPattern ~state:State.init
+let printTypeParams params = printTypeParams ~state:(State.init ()) params
+let printTypExpr t = printTypExpr ~state:(State.init ()) t
+let printExpression e = printExpression ~state:(State.init ()) e
+let printPattern p = printPattern ~state:(State.init ()) p
 
 let printImplementation ~width (s : Parsetree.structure) ~comments =
   let cmtTbl = CommentTable.make () in
   CommentTable.walkStructure s cmtTbl comments;
   (* CommentTable.log cmtTbl; *)
-  let doc = printStructure ~state:State.init s cmtTbl in
+  let doc = printStructure ~state:(State.init ()) s cmtTbl in
   (* Doc.debug doc; *)
   Doc.toString ~width doc ^ "\n"
 
 let printInterface ~width (s : Parsetree.signature) ~comments =
   let cmtTbl = CommentTable.make () in
   CommentTable.walkSignature s cmtTbl comments;
-  Doc.toString ~width (printSignature ~state:State.init s cmtTbl) ^ "\n"
+  Doc.toString ~width (printSignature ~state:(State.init ()) s cmtTbl) ^ "\n"
 
-let printStructure = printStructure ~state:State.init
+let printStructure = printStructure ~state:(State.init ())
