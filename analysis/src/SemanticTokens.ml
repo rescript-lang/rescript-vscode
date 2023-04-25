@@ -28,6 +28,7 @@ module Token = struct
     | EnumMember  (** variant A or poly variant #A *)
     | Property  (** {x:...} *)
     | JsxLowercase  (** div in <div> *)
+    | Function
 
   let tokenTypeToString = function
     | Operator -> "0"
@@ -38,6 +39,7 @@ module Token = struct
     | EnumMember -> "5"
     | Property -> "6"
     | JsxLowercase -> "7"
+    | Function -> "8"
 
   let tokenTypeDebug = function
     | Operator -> "Operator"
@@ -48,21 +50,26 @@ module Token = struct
     | EnumMember -> "EnumMember"
     | Property -> "Property"
     | JsxLowercase -> "JsxLowercase"
+    | Function -> "Function"
 
   let tokenModifiersString = "0" (* None at the moment *)
 
-  type token = int * int * int * tokenType
-
   type emitter = {
-    mutable tokens: token list;
+    mutable tokens: (int * int * tokenType, int) Hashtbl.t;
     mutable lastLine: int;
     mutable lastChar: int;
   }
 
-  let createEmitter () = {tokens = []; lastLine = 0; lastChar = 0}
+  let createEmitter () =
+    {tokens = Hashtbl.create 10; lastLine = 0; lastChar = 0}
 
   let add ~line ~char ~length ~type_ e =
-    e.tokens <- (line, char, length, type_) :: e.tokens
+    match type_ with
+    | Variable -> (
+      match Hashtbl.find_opt e.tokens (line, char, Function) with
+      | Some _ -> ()
+      | None -> Hashtbl.add e.tokens (line, char, type_) length)
+    | _ -> Hashtbl.add e.tokens (line, char, type_) length
 
   let emitToken buf (line, char, length, type_) e =
     let deltaLine = line - e.lastLine in
@@ -80,8 +87,14 @@ module Token = struct
        ^ tokenModifiersString)
 
   let emit e =
+    let list =
+      Hashtbl.fold
+        (fun (line, char, token) length acc ->
+          (line, char, length, token) :: acc)
+        e.tokens []
+    in
     let sortedTokens =
-      e.tokens
+      list
       |> List.sort (fun (l1, c1, _, _) (l2, c2, _, _) ->
              if l1 = l2 then compare c1 c2 else compare l1 l2)
     in
@@ -115,8 +128,8 @@ let emitFromLoc ~loc ~type_ emitter =
 
 let emitLongident ?(backwards = false) ?(jsx = false)
     ?(lowerCaseToken = if jsx then Token.JsxLowercase else Token.Variable)
-    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ?(posEnd = None) ~pos
-    ~lid ~debug emitter =
+    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ?(posEnd = None)
+    ~pos ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -306,6 +319,17 @@ let command ~debug ~emitter ~path =
       if debug then
         Printf.printf "Binary operator %s %s\n" op (Loc.toString loc);
       emitter |> emitFromLoc ~loc ~type_:Operator;
+      Ast_iterator.default_iterator.expr iterator e
+    | Pexp_apply ({pexp_desc = Pexp_ident {txt = lid; loc}}, _)
+      when Longident.Lident "|." <> lid ->
+      emitter
+      |> emitLongident ~pos:(Loc.start loc) ~lid ~lowerCaseToken:Function ~debug;
+      Ast_iterator.default_iterator.expr iterator e
+    | Pexp_apply
+        ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+          [_; (_, {pexp_desc = Pexp_ident {txt = lid; loc}})] ) ->
+      emitter
+      |> emitLongident ~pos:(Loc.start loc) ~lid ~lowerCaseToken:Function ~debug;
       Ast_iterator.default_iterator.expr iterator e
     | Pexp_record (cases, _) ->
       cases
