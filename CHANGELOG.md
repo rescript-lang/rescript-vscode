@@ -15,6 +15,7 @@
 #### :rocket: New Feature
 
 - Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
+- Improve unlabelled argument names in completion function templates. https://github.com/rescript-lang/rescript-vscode/pull/754
 
 ## 1.16.0
 
