@@ -18,6 +18,7 @@
 
 - Greatly extend completion abilities for unsaved code. WARNING: Might be a bit unstable initially. Report any issues you see. https://github.com/rescript-lang/rescript-vscode/pull/712
 - Provide hovers for more unsaved code via the new completion features. https://github.com/rescript-lang/rescript-vscode/pull/749
+- Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
 
 ## 1.14.0
 
