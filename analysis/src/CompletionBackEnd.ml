@@ -1235,13 +1235,26 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                    | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
                })
     in
-    [
-      Completion.create "None" ~kind:(kindFromInnerType t) ~env;
+    let noneCase = Completion.create "None" ~kind:(kindFromInnerType t) ~env in
+    let someAnyCase =
       Completion.createWithSnippet ~name:"Some(_)" ~kind:(kindFromInnerType t)
-        ~env ~insertText:"Some(${1:_})" ();
-    ]
-    @ expandedCompletions
-    |> filterItems ~prefix
+        ~env ~insertText:"Some(${1:_})" ()
+    in
+    let completions =
+      match completionContext with
+      | Some (Completable.CameFromRecordField fieldName) ->
+        [
+          Completion.createWithSnippet
+            ~name:("Some(" ^ fieldName ^ ")")
+            ~kind:(kindFromInnerType t) ~env
+            ~insertText:("Some(${1:" ^ fieldName ^ "})")
+            ();
+          someAnyCase;
+          noneCase;
+        ]
+      | _ -> [noneCase; someAnyCase]
+    in
+    completions @ expandedCompletions |> filterItems ~prefix
   | Tuple (env, exprs, typ) ->
     let numExprs = List.length exprs in
     [
@@ -1279,7 +1292,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                    (Field (field, TypeUtils.extractedTypeToString extractedType))
                  ~env)
       |> filterItems ~prefix
-    | None ->
+    | _ ->
       if prefix = "" then
         [
           Completion.createWithSnippet ~name:"{}"
@@ -1304,7 +1317,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
              Completion.create field.fname.txt ~kind:(Label "Inline record")
                ?deprecated:field.deprecated ~env)
       |> filterItems ~prefix
-    | None ->
+    | _ ->
       if prefix = "" then
         [
           Completion.createWithSnippet ~name:"{}"
