@@ -202,17 +202,6 @@ let pathFromTypeExpr (t : Types.type_expr) =
     Some path
   | _ -> None
 
-let rec templateVarNameForTyp ~env ~package (t : Types.type_expr) =
-  match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
-    templateVarNameForTyp ~env ~package t1
-  | Tconstr (path, _, _) -> (
-    match References.digConstructor ~env ~package path with
-    | Some (_env, {item = {attributes}}) ->
-      ProcessAttributes.findTemplateVarNameAttribute attributes
-    | _ -> None)
-  | _ -> None
-
 let rec digToRelevantTemplateNameType ~env ~package ?(suffix = "")
     (t : Types.type_expr) =
   match t.desc with

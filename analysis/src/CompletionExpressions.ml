@@ -225,30 +225,33 @@ let prettyPrintFnTemplateArgName ?currentIndex ~env ~full
     | Some i -> string_of_int i
   in
   let defaultVarName = "v" ^ indexText in
-  let argTyp, suffix, env =
+  let argTyp, suffix, _env =
     TypeUtils.digToRelevantTemplateNameType ~env ~package:full.package argTyp
   in
-  match TypeUtils.templateVarNameForTyp ~env ~package:full.package argTyp with
-  | Some txt -> txt
-  | None -> (
-    match argTyp |> TypeUtils.pathFromTypeExpr with
-    | None -> defaultVarName
-    | Some p -> (
-      match p |> Utils.expandPath |> List.rev |> Utils.lastElements with
-      | [] | ["t"] -> defaultVarName
-      | ["unit"] -> "()"
-      (* Special treatment for JsxEvent, since that's a common enough thing
-         used in event handlers. *)
-      | ["JsxEvent"; "synthetic"] -> "event"
-      | ["synthetic"] when env.file.moduleName = "JsxEvent" -> "event"
-      (* Ignore `t` types, and go for its module name instead. *)
-      | [someName; "t"] | [_; someName] | [someName] -> (
-        match someName with
-        | "string" | "int" | "float" | "array" | "option" | "bool" ->
-          defaultVarName
-        | someName when String.length someName < 30 ->
-          (* We cap how long the name can be, so we don't end up with super
-             long type names. *)
-          (someName |> Utils.lowercaseFirstChar) ^ suffix
-        | _ -> defaultVarName)
-      | _ -> defaultVarName))
+  match argTyp |> TypeUtils.pathFromTypeExpr with
+  | None -> defaultVarName
+  | Some p -> (
+    let trailingElementsOfPath =
+      p |> Utils.expandPath |> List.rev |> Utils.lastElements
+    in
+    match trailingElementsOfPath with
+    | [] | ["t"] -> defaultVarName
+    | ["unit"] -> "()"
+    (* Special treatment for JsxEvent, since that's a common enough thing
+       used in event handlers. *)
+    | ["JsxEvent"; "synthetic"] -> "event"
+    | ["synthetic"] -> "event"
+    (* Ignore `t` types, and go for its module name instead. *)
+    | [someName; "t"] | [_; someName] | [someName] -> (
+      match someName with
+      | "string" | "int" | "float" | "array" | "option" | "bool" ->
+        defaultVarName
+      | someName when String.length someName < 30 ->
+        if someName = "synthetic" then
+          Printf.printf "synthetic! %s\n"
+            (trailingElementsOfPath |> SharedTypes.ident);
+        (* We cap how long the name can be, so we don't end up with super
+           long type names. *)
+        (someName |> Utils.lowercaseFirstChar) ^ suffix
+      | _ -> defaultVarName)
+    | _ -> defaultVarName)

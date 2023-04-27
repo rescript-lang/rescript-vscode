@@ -197,7 +197,6 @@ ignore(fff)
 // fff.someOpt
 //            ^com
 
-@editor.templateVariableName("otherNameForType")
 type someTyp = {test: bool}
 
 let takesCb = cb => {
@@ -242,7 +241,6 @@ let takesCb5 = cb => {
 //          ^com
 
 module RecordSourceSelectorProxy = {
-  @editor.templateVariableName("store")
   type t
 }
 

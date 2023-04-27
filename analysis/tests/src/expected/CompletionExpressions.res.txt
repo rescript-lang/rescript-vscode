@@ -951,28 +951,32 @@ Path fff
     "documentation": null
   }]
 
-Complete src/CompletionExpressions.res 206:11
-posCursor:[206:11] posNoWhite:[206:10] Found expr:[206:3->206:12]
-Pexp_apply ...[206:3->206:10] (...[206:11->206:12])
+Complete src/CompletionExpressions.res 205:11
+posCursor:[205:11] posNoWhite:[205:10] Found expr:[205:3->205:12]
+Pexp_apply ...[205:3->205:10] (...[205:11->205:12])
 Completable: Cexpression CArgument Value[takesCb]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb]($0)
 ContextPath Value[takesCb]
 Path takesCb
 [{
-    "label": "otherNameForType => {}",
+    "label": "someTyp => {}",
     "kind": 12,
     "tags": [],
     "detail": "someTyp => 'a",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:otherNameForType} => {$0}",
+    "insertText": "${1:someTyp} => {$0}",
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionExpressions.res 217:12
-posCursor:[217:12] posNoWhite:[217:11] Found expr:[217:3->217:13]
-Pexp_apply ...[217:3->217:11] (...[217:12->217:13])
+Complete src/CompletionExpressions.res 216:12
+posCursor:[216:12] posNoWhite:[216:11] Found expr:[216:3->216:13]
+Pexp_apply ...[216:3->216:11] (...[216:12->216:13])
 Completable: Cexpression CArgument Value[takesCb2]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb2]($0)
 ContextPath Value[takesCb2]
 Path takesCb2
@@ -987,10 +991,12 @@ Path takesCb2
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionExpressions.res 226:12
-posCursor:[226:12] posNoWhite:[226:11] Found expr:[226:3->226:13]
-Pexp_apply ...[226:3->226:11] (...[226:12->226:13])
+Complete src/CompletionExpressions.res 225:12
+posCursor:[225:12] posNoWhite:[225:11] Found expr:[225:3->225:13]
+Pexp_apply ...[225:3->225:11] (...[225:12->225:13])
 Completable: Cexpression CArgument Value[takesCb3]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb3]($0)
 ContextPath Value[takesCb3]
 Path takesCb3
@@ -1005,10 +1011,12 @@ Path takesCb3
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionExpressions.res 233:12
-posCursor:[233:12] posNoWhite:[233:11] Found expr:[233:3->233:13]
-Pexp_apply ...[233:3->233:11] (...[233:12->233:13])
+Complete src/CompletionExpressions.res 232:12
+posCursor:[232:12] posNoWhite:[232:11] Found expr:[232:3->232:13]
+Pexp_apply ...[232:3->232:11] (...[232:12->232:13])
 Completable: Cexpression CArgument Value[takesCb4]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb4]($0)
 ContextPath Value[takesCb4]
 Path takesCb4
@@ -1023,10 +1031,12 @@ Path takesCb4
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionExpressions.res 240:12
-posCursor:[240:12] posNoWhite:[240:11] Found expr:[240:3->240:13]
-Pexp_apply ...[240:3->240:11] (...[240:12->240:13])
+Complete src/CompletionExpressions.res 239:12
+posCursor:[239:12] posNoWhite:[239:11] Found expr:[239:3->239:13]
+Pexp_apply ...[239:3->239:11] (...[239:12->239:13])
 Completable: Cexpression CArgument Value[takesCb5]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb5]($0)
 ContextPath Value[takesCb5]
 Path takesCb5
@@ -1041,21 +1051,23 @@ Path takesCb5
     "insertTextFormat": 2
   }]
 
-Complete src/CompletionExpressions.res 252:30
-posCursor:[252:30] posNoWhite:[252:29] Found expr:[252:3->252:31]
-Pexp_apply ...[252:3->252:20] (~updater252:22->252:29=...__ghost__[0:-1->0:-1])
+Complete src/CompletionExpressions.res 250:30
+posCursor:[250:30] posNoWhite:[250:29] Found expr:[250:3->250:31]
+Pexp_apply ...[250:3->250:20] (~updater250:22->250:29=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[commitLocalUpdate](~updater)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 ContextPath CArgument Value[commitLocalUpdate](~updater)
 ContextPath Value[commitLocalUpdate]
 Path commitLocalUpdate
 [{
-    "label": "store => {}",
+    "label": "recordSourceSelectorProxy => {}",
     "kind": 12,
     "tags": [],
     "detail": "RecordSourceSelectorProxy.t => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:store} => {$0}",
+    "insertText": "${1:recordSourceSelectorProxy} => {$0}",
     "insertTextFormat": 2
   }]
 
