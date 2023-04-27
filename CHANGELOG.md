@@ -16,16 +16,16 @@
 
 - Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
 
+#### :bug: Bug Fix
+
+- Fix URL scheme for Code Action. https://github.com/rescript-lang/rescript-vscode/pull/748
+
 ## 1.16.0
 
 #### :rocket: New Feature
 
 - Greatly extend completion abilities for unsaved code. WARNING: Might be a bit unstable initially. Report any issues you see. https://github.com/rescript-lang/rescript-vscode/pull/712
 - Provide hovers for more unsaved code via the new completion features. https://github.com/rescript-lang/rescript-vscode/pull/749
-
-#### :bug: Bug Fix
-
-- Fix URL scheme for Code Action. https://github.com/rescript-lang/rescript-vscode/pull/748
 
 ## 1.14.0
 
