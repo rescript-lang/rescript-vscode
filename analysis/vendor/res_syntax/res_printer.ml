@@ -710,6 +710,11 @@ and printModuleBinding ~state ~isRec moduleBinding cmtTbl i =
         Doc.concat [Doc.text ": "; printModType ~state modType cmtTbl] )
     | modExpr -> (printModExpr ~state modExpr cmtTbl, Doc.nil)
   in
+  let modExprDoc =
+    if ParsetreeViewer.hasAwaitAttribute moduleBinding.pmb_expr.pmod_attributes
+    then Doc.concat [Doc.text "await "; modExprDoc]
+    else modExprDoc
+  in
   let modName =
     let doc = Doc.text moduleBinding.pmb_name.Location.txt in
     printComments doc cmtTbl moduleBinding.pmb_name.loc
@@ -3187,14 +3192,8 @@ and printExpression ~state (e : Parsetree.expression) cmtTbl =
     | Pexp_letexception (_extensionConstructor, _expr) ->
       printExpressionBlock ~state ~braces:true e cmtTbl
     | Pexp_assert expr ->
-      let rhs =
-        let doc = printExpressionWithComments ~state expr cmtTbl in
-        match Parens.lazyOrAssertOrAwaitExprRhs expr with
-        | Parens.Parenthesized -> addParens doc
-        | Braced braces -> printBraces doc expr braces
-        | Nothing -> doc
-      in
-      Doc.concat [Doc.text "assert "; rhs]
+      let expr = printExpressionWithComments ~state expr cmtTbl in
+      Doc.concat [Doc.text "assert("; expr; Doc.text ")"]
     | Pexp_lazy expr ->
       let rhs =
         let doc = printExpressionWithComments ~state expr cmtTbl in
@@ -3970,6 +3969,13 @@ and printPexpApply ~state expr cmtTbl =
     let uncurried, attrs =
       ParsetreeViewer.processUncurriedAppAttribute expr.pexp_attributes
     in
+    let partial, attrs = ParsetreeViewer.processPartialAppAttribute attrs in
+    let args =
+      if partial then
+        let dummy = Ast_helper.Exp.constant (Ast_helper.Const.int 0) in
+        args @ [(Asttypes.Labelled "...", dummy)]
+      else args
+    in
     let dotted = state.uncurried_config |> Res_uncurried.getDotted ~uncurried in
     let callExprDoc =
       let doc = printExpressionWithComments ~state callExpr cmtTbl in
@@ -4580,7 +4586,7 @@ and printArguments ~state ~dotted
 and printArgument ~state (argLbl, arg) cmtTbl =
   match (argLbl, arg) with
   (* ~a (punned)*)
-  | ( Asttypes.Labelled lbl,
+  | ( Labelled lbl,
       ({
          pexp_desc = Pexp_ident {txt = Longident.Lident name};
          pexp_attributes = [] | [({Location.txt = "res.namedArgLoc"}, _)];
@@ -4594,7 +4600,7 @@ and printArgument ~state (argLbl, arg) cmtTbl =
     let doc = Doc.concat [Doc.tilde; printIdentLike lbl] in
     printComments doc cmtTbl loc
   (* ~a: int (punned)*)
-  | ( Asttypes.Labelled lbl,
+  | ( Labelled lbl,
       {
         pexp_desc =
           Pexp_constraint
@@ -4622,7 +4628,7 @@ and printArgument ~state (argLbl, arg) cmtTbl =
     in
     printComments doc cmtTbl loc
   (* ~a? (optional lbl punned)*)
-  | ( Asttypes.Optional lbl,
+  | ( Optional lbl,
       {
         pexp_desc = Pexp_ident {txt = Longident.Lident name};
         pexp_attributes = [] | [({Location.txt = "res.namedArgLoc"}, _)];
@@ -4642,27 +4648,32 @@ and printArgument ~state (argLbl, arg) cmtTbl =
         (loc, {expr with pexp_attributes = attrs})
       | _ -> (expr.pexp_loc, expr)
     in
-    let printedLbl =
+    let printedLbl, dotdotdot =
       match argLbl with
-      | Asttypes.Nolabel -> Doc.nil
-      | Asttypes.Labelled lbl ->
+      | Nolabel -> (Doc.nil, false)
+      | Labelled "..." ->
+        let doc = Doc.text "..." in
+        (printComments doc cmtTbl argLoc, true)
+      | Labelled lbl ->
         let doc = Doc.concat [Doc.tilde; printIdentLike lbl; Doc.equal] in
-        printComments doc cmtTbl argLoc
-      | Asttypes.Optional lbl ->
+        (printComments doc cmtTbl argLoc, false)
+      | Optional lbl ->
         let doc =
           Doc.concat [Doc.tilde; printIdentLike lbl; Doc.equal; Doc.question]
         in
-        printComments doc cmtTbl argLoc
+        (printComments doc cmtTbl argLoc, false)
     in
     let printedExpr =
       let doc = printExpressionWithComments ~state expr cmtTbl in
       match Parens.expr expr with
-      | Parens.Parenthesized -> addParens doc
+      | Parenthesized -> addParens doc
       | Braced braces -> printBraces doc expr braces
       | Nothing -> doc
     in
     let loc = {argLoc with loc_end = expr.pexp_loc.loc_end} in
-    let doc = Doc.concat [printedLbl; printedExpr] in
+    let doc =
+      if dotdotdot then printedLbl else Doc.concat [printedLbl; printedExpr]
+    in
     printComments doc cmtTbl loc
 
 and printCases ~state (cases : Parsetree.case list) cmtTbl =
