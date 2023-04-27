@@ -15,6 +15,7 @@
 #### :rocket: New Feature
 
 - Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
+- Add `Some(fieldName)` case when completing in a pattern with an option on a record field. https://github.com/rescript-lang/rescript-vscode/pull/766
 
 #### :bug: Bug Fix
 
