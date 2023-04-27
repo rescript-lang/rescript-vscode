@@ -2110,7 +2110,7 @@ and parseOperandExpr ~context p =
     match p.Parser.token with
     | Assert ->
       Parser.next p;
-      let expr = parseUnaryExpr p in
+      let expr = parseExpr p in
       let loc = mkLoc startPos p.prevEndPos in
       Ast_helper.Exp.assert_ ~loc expr
     | Lident "async"
@@ -3598,6 +3598,17 @@ and parseCallExpr p funExpr =
     parseCommaDelimitedRegion ~grammar:Grammar.ArgumentList ~closing:Rparen
       ~f:parseArgument p
   in
+  let resPartialAttr =
+    let loc = mkLoc startPos p.prevEndPos in
+    (Location.mkloc "res.partial" loc, Parsetree.PStr [])
+  in
+  let isPartial =
+    match p.token with
+    | DotDotDot when args <> [] ->
+      Parser.next p;
+      true
+    | _ -> false
+  in
   Parser.expect Rparen p;
   let args =
     match args with
@@ -3626,7 +3637,8 @@ and parseCallExpr p funExpr =
          } as expr;
      };
     ]
-      when (not loc.loc_ghost) && p.mode = ParseForTypeChecker ->
+      when (not loc.loc_ghost) && p.mode = ParseForTypeChecker && not isPartial
+      ->
       (*  Since there is no syntax space for arity zero vs arity one,
        *  we expand
        *    `fn(. ())` into
@@ -3670,22 +3682,20 @@ and parseCallExpr p funExpr =
     | [] -> []
   in
   let apply =
-    List.fold_left
-      (fun callBody group ->
+    Ext_list.fold_left args funExpr (fun callBody group ->
         let dotted, args = group in
         let args, wrap = processUnderscoreApplication p args in
         let exp =
           let uncurried =
             p.uncurried_config |> Res_uncurried.fromDotted ~dotted
           in
-          if uncurried then
-            let attrs = [uncurriedAppAttr] in
-            Ast_helper.Exp.apply ~loc ~attrs callBody args
-          else Ast_helper.Exp.apply ~loc callBody args
+          let attrs = if uncurried then [uncurriedAppAttr] else [] in
+          let attrs = if isPartial then resPartialAttr :: attrs else attrs in
+          Ast_helper.Exp.apply ~loc ~attrs callBody args
         in
         wrap exp)
-      funExpr args
   in
+
   Parser.eatBreadcrumb p;
   apply
 
@@ -4488,7 +4498,18 @@ and parseFieldDeclarationRegion ?foundObjectField p =
     let loc = mkLoc startPos typ.ptyp_loc.loc_end in
     let attrs = if optional then optionalAttr :: attrs else attrs in
     Some (Ast_helper.Type.field ~attrs ~loc ~mut name typ)
-  | _ -> None
+  | _ ->
+    if attrs <> [] then
+      Parser.err ~startPos p
+        (Diagnostics.message
+           "Attributes and doc comments can only be used at the beginning of a \
+            field declaration");
+    if mut = Mutable then
+      Parser.err ~startPos p
+        (Diagnostics.message
+           "The `mutable` qualifier can only be used at the beginning of a \
+            field declaration");
+    None
 
 (* record-decl ::=
  *  | { field-decl }
@@ -5773,7 +5794,22 @@ and parseFunctorModuleExpr p =
  *  | extension
  *  | attributes module-expr *)
 and parseModuleExpr p =
+  let hasAwait, loc_await =
+    let startPos = p.startPos in
+    match p.Parser.token with
+    | Await ->
+      Parser.expect Await p;
+      let endPos = p.endPos in
+      (true, mkLoc startPos endPos)
+    | _ -> (false, mkLoc startPos startPos)
+  in
   let attrs = parseAttributes p in
+  let attrs =
+    if hasAwait then
+      (({txt = "res.await"; loc = loc_await}, PStr []) : Parsetree.attribute)
+      :: attrs
+    else attrs
+  in
   let modExpr =
     if isEs6ArrowFunctor p then parseFunctorModuleExpr p
     else parsePrimaryModExpr p
