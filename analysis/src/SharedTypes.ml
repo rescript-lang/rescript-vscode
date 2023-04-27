@@ -529,7 +529,12 @@ module Completable = struct
     | Optional of string
 
   (** Additional context for nested completion where needed. *)
-  type nestedContext = RecordField of {seenFields: string list}
+  type nestedContext =
+    | RecordField of {seenFields: string list}
+        (** Completing for a record field, and we already saw the following fields... *)
+    | CameFromRecordField of string
+        (** We just came from this field (we leverage use this for better
+            completion names etc) *)
 
   type nestedPath =
     | NTupleItem of {itemNum: int}
