@@ -4,7 +4,7 @@ let completion ~debug ~path ~pos ~currentFile =
       Completions.getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
     with
     | None -> []
-    | Some (completions, _) -> completions
+    | Some (completions, _, _) -> completions
   in
   print_endline
     (completions

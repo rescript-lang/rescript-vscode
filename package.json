@@ -4,7 +4,7 @@
 	"description": "ReScript language support (official)",
 	"author": "chenglou",
 	"license": "MIT",
-	"version": "1.14.0",
+	"version": "1.16.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/rescript-lang/rescript-vscode"
@@ -32,9 +32,9 @@
 		"semanticTokenScopes": [
 			{
 				"scopes": {
-					"jsx-lowercase": ["entity.name.tag"],
-					"jsx-tag": ["punctuation.definition.tag"],
-					"support-type-primitive": ["support.type.primitive"]
+					"interface": ["entity.name.tag"],
+					"modifier": ["punctuation.definition.tag"],
+					"type": ["support.type.primitive"]
 				}
 			}
 		],

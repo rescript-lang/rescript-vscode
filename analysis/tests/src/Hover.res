@@ -253,3 +253,10 @@ type variant = | /** Cool variant! */ CoolVariant | /** Other cool variant */ Ot
 
 let coolVariant = CoolVariant
 //                  ^hov
+
+// Hover on unsaved
+// let fff = "hello"; fff
+//                     ^hov
+
+// switch x { | {someField} => someField }
+//                               ^hov

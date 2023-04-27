@@ -575,9 +575,9 @@ let printOptionalLabel attrs =
 module State = struct
   let customLayoutThreshold = 2
 
-  type t = {customLayout: int; mutable uncurried_config: Res_uncurried.config}
+  type t = {customLayout: int; mutable uncurried_config: Config.uncurried}
 
-  let init = {customLayout = 0; uncurried_config = Res_uncurried.init}
+  let init () = {customLayout = 0; uncurried_config = !Config.uncurried}
 
   let nextCustomLayout t = {t with customLayout = t.customLayout + 1}
 
@@ -709,6 +709,11 @@ and printModuleBinding ~state ~isRec moduleBinding cmtTbl i =
       ( printModExpr ~state modExpr cmtTbl,
         Doc.concat [Doc.text ": "; printModType ~state modType cmtTbl] )
     | modExpr -> (printModExpr ~state modExpr cmtTbl, Doc.nil)
+  in
+  let modExprDoc =
+    if ParsetreeViewer.hasAwaitAttribute moduleBinding.pmb_expr.pmod_attributes
+    then Doc.concat [Doc.text "await "; modExprDoc]
+    else modExprDoc
   in
   let modName =
     let doc = Doc.text moduleBinding.pmb_name.Location.txt in
@@ -1531,9 +1536,12 @@ and printLabelDeclaration ~state (ld : Parsetree.label_declaration) cmtTbl =
     | Mutable -> Doc.text "mutable "
     | Immutable -> Doc.nil
   in
-  let name =
-    let doc = printIdentLike ld.pld_name.txt in
-    printComments doc cmtTbl ld.pld_name.loc
+  let name, isDot =
+    let doc, isDot =
+      if ld.pld_name.txt = "..." then (Doc.text ld.pld_name.txt, true)
+      else (printIdentLike ld.pld_name.txt, false)
+    in
+    (printComments doc cmtTbl ld.pld_name.loc, isDot)
   in
   let optional = printOptionalLabel ld.pld_attributes in
   Doc.group
@@ -1543,7 +1551,7 @@ and printLabelDeclaration ~state (ld : Parsetree.label_declaration) cmtTbl =
          mutableFlag;
          name;
          optional;
-         Doc.text ": ";
+         (if isDot then Doc.nil else Doc.text ": ");
          printTypExpr ~state ld.pld_type cmtTbl;
        ])
 
@@ -1644,6 +1652,7 @@ and printTypExpr ~(state : State.t) (typExpr : Parsetree.core_type) cmtTbl =
         let needsParens =
           match typ.ptyp_desc with
           | Ptyp_arrow _ -> true
+          | _ when Ast_uncurried.typeIsUncurriedFun typ -> true
           | _ -> false
         in
         let doc = printTypExpr ~state typ cmtTbl in
@@ -2667,18 +2676,32 @@ and printExpression ~state (e : Parsetree.expression) cmtTbl =
       (Doc.concat
          [attrs; parametersDoc; typConstraintDoc; Doc.text " =>"; returnExprDoc])
   in
+  let uncurried = Ast_uncurried.exprIsUncurriedFun e in
+  let e_fun =
+    if uncurried then Ast_uncurried.exprExtractUncurriedFun e else e
+  in
   let printedExpression =
-    match e.pexp_desc with
+    match e_fun.pexp_desc with
     | Pexp_fun
         ( Nolabel,
           None,
           {ppat_desc = Ppat_var {txt = "__x"}},
-          {pexp_desc = Pexp_apply _} ) ->
+          {pexp_desc = Pexp_apply _} )
+    | Pexp_construct
+        ( {txt = Lident "Function$"},
+          Some
+            {
+              pexp_desc =
+                Pexp_fun
+                  ( Nolabel,
+                    None,
+                    {ppat_desc = Ppat_var {txt = "__x"}},
+                    {pexp_desc = Pexp_apply _} );
+            } ) ->
       (* (__x) => f(a, __x, c) -----> f(a, _, c)  *)
       printExpressionWithComments ~state
-        (ParsetreeViewer.rewriteUnderscoreApply e)
+        (ParsetreeViewer.rewriteUnderscoreApply e_fun)
         cmtTbl
-    | _ when Ast_uncurried.exprIsUncurriedFun e -> printArrow e
     | Pexp_fun _ | Pexp_newtype _ -> printArrow e
     | Parsetree.Pexp_constant c ->
       printConstant ~templateLiteral:(ParsetreeViewer.isTemplateLiteral e) c
@@ -3169,14 +3192,8 @@ and printExpression ~state (e : Parsetree.expression) cmtTbl =
     | Pexp_letexception (_extensionConstructor, _expr) ->
       printExpressionBlock ~state ~braces:true e cmtTbl
     | Pexp_assert expr ->
-      let rhs =
-        let doc = printExpressionWithComments ~state expr cmtTbl in
-        match Parens.lazyOrAssertOrAwaitExprRhs expr with
-        | Parens.Parenthesized -> addParens doc
-        | Braced braces -> printBraces doc expr braces
-        | Nothing -> doc
-      in
-      Doc.concat [Doc.text "assert "; rhs]
+      let expr = printExpressionWithComments ~state expr cmtTbl in
+      Doc.concat [Doc.text "assert("; expr; Doc.text ")"]
     | Pexp_lazy expr ->
       let rhs =
         let doc = printExpressionWithComments ~state expr cmtTbl in
@@ -3952,6 +3969,13 @@ and printPexpApply ~state expr cmtTbl =
     let uncurried, attrs =
       ParsetreeViewer.processUncurriedAppAttribute expr.pexp_attributes
     in
+    let partial, attrs = ParsetreeViewer.processPartialAppAttribute attrs in
+    let args =
+      if partial then
+        let dummy = Ast_helper.Exp.constant (Ast_helper.Const.int 0) in
+        args @ [(Asttypes.Labelled "...", dummy)]
+      else args
+    in
     let dotted = state.uncurried_config |> Res_uncurried.getDotted ~uncurried in
     let callExprDoc =
       let doc = printExpressionWithComments ~state callExpr cmtTbl in
@@ -4562,7 +4586,7 @@ and printArguments ~state ~dotted
 and printArgument ~state (argLbl, arg) cmtTbl =
   match (argLbl, arg) with
   (* ~a (punned)*)
-  | ( Asttypes.Labelled lbl,
+  | ( Labelled lbl,
       ({
          pexp_desc = Pexp_ident {txt = Longident.Lident name};
          pexp_attributes = [] | [({Location.txt = "res.namedArgLoc"}, _)];
@@ -4576,7 +4600,7 @@ and printArgument ~state (argLbl, arg) cmtTbl =
     let doc = Doc.concat [Doc.tilde; printIdentLike lbl] in
     printComments doc cmtTbl loc
   (* ~a: int (punned)*)
-  | ( Asttypes.Labelled lbl,
+  | ( Labelled lbl,
       {
         pexp_desc =
           Pexp_constraint
@@ -4604,7 +4628,7 @@ and printArgument ~state (argLbl, arg) cmtTbl =
     in
     printComments doc cmtTbl loc
   (* ~a? (optional lbl punned)*)
-  | ( Asttypes.Optional lbl,
+  | ( Optional lbl,
       {
         pexp_desc = Pexp_ident {txt = Longident.Lident name};
         pexp_attributes = [] | [({Location.txt = "res.namedArgLoc"}, _)];
@@ -4624,27 +4648,32 @@ and printArgument ~state (argLbl, arg) cmtTbl =
         (loc, {expr with pexp_attributes = attrs})
       | _ -> (expr.pexp_loc, expr)
     in
-    let printedLbl =
+    let printedLbl, dotdotdot =
       match argLbl with
-      | Asttypes.Nolabel -> Doc.nil
-      | Asttypes.Labelled lbl ->
+      | Nolabel -> (Doc.nil, false)
+      | Labelled "..." ->
+        let doc = Doc.text "..." in
+        (printComments doc cmtTbl argLoc, true)
+      | Labelled lbl ->
         let doc = Doc.concat [Doc.tilde; printIdentLike lbl; Doc.equal] in
-        printComments doc cmtTbl argLoc
-      | Asttypes.Optional lbl ->
+        (printComments doc cmtTbl argLoc, false)
+      | Optional lbl ->
         let doc =
           Doc.concat [Doc.tilde; printIdentLike lbl; Doc.equal; Doc.question]
         in
-        printComments doc cmtTbl argLoc
+        (printComments doc cmtTbl argLoc, false)
     in
     let printedExpr =
       let doc = printExpressionWithComments ~state expr cmtTbl in
       match Parens.expr expr with
-      | Parens.Parenthesized -> addParens doc
+      | Parenthesized -> addParens doc
       | Braced braces -> printBraces doc expr braces
       | Nothing -> doc
     in
     let loc = {argLoc with loc_end = expr.pexp_loc.loc_end} in
-    let doc = Doc.concat [printedLbl; printedExpr] in
+    let doc =
+      if dotdotdot then printedLbl else Doc.concat [printedLbl; printedExpr]
+    in
     printComments doc cmtTbl loc
 
 and printCases ~state (cases : Parsetree.case list) cmtTbl =
@@ -5276,12 +5305,12 @@ and printAttribute ?(standalone = false) ~state
   | _ ->
     let id =
       match id.txt with
-      | "uncurried" ->
-        state.uncurried_config <- Res_uncurried.Default;
+      | "uncurried.swap" ->
+        state.uncurried_config <- Config.Swap;
         id
-      | "toUncurried" ->
-        state.uncurried_config <- Res_uncurried.Default;
-        {id with txt = "uncurried"}
+      | "uncurried" ->
+        state.uncurried_config <- Config.Uncurried;
+        id
       | _ -> id
     in
     ( Doc.group
@@ -5557,22 +5586,22 @@ and printExtensionConstructor ~state (constr : Parsetree.extension_constructor)
   in
   Doc.concat [bar; Doc.group (Doc.concat [attrs; name; kind])]
 
-let printTypeParams = printTypeParams ~state:State.init
-let printTypExpr = printTypExpr ~state:State.init
-let printExpression = printExpression ~state:State.init
-let printPattern = printPattern ~state:State.init
+let printTypeParams params = printTypeParams ~state:(State.init ()) params
+let printTypExpr t = printTypExpr ~state:(State.init ()) t
+let printExpression e = printExpression ~state:(State.init ()) e
+let printPattern p = printPattern ~state:(State.init ()) p
 
 let printImplementation ~width (s : Parsetree.structure) ~comments =
   let cmtTbl = CommentTable.make () in
   CommentTable.walkStructure s cmtTbl comments;
   (* CommentTable.log cmtTbl; *)
-  let doc = printStructure ~state:State.init s cmtTbl in
+  let doc = printStructure ~state:(State.init ()) s cmtTbl in
   (* Doc.debug doc; *)
   Doc.toString ~width doc ^ "\n"
 
 let printInterface ~width (s : Parsetree.signature) ~comments =
   let cmtTbl = CommentTable.make () in
   CommentTable.walkSignature s cmtTbl comments;
-  Doc.toString ~width (printSignature ~state:State.init s cmtTbl) ^ "\n"
+  Doc.toString ~width (printSignature ~state:(State.init ()) s cmtTbl) ^ "\n"
 
-let printStructure = printStructure ~state:State.init
+let printStructure = printStructure ~state:(State.init ())

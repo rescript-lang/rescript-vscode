@@ -63,5 +63,5 @@ let bar = () => {
       }
     //^xfm
   }
-  Inner.foo(1)
+  @res.partial Inner.foo(1)
 }

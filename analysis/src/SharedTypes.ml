@@ -468,6 +468,9 @@ type package = {
   opens: path list;
 }
 
+let allFilesInPackage package =
+  FileSet.union package.projectFiles package.dependenciesFiles
+
 type full = {extra: extra; file: File.t; package: package}
 
 let initExtra () =
