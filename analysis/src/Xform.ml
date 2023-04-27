@@ -252,6 +252,103 @@ module AddTypeAnnotation = struct
         | _ -> ()))
 end
 
+module AddDocTemplate = struct
+  let mkIterator ~pos ~result =
+    let signature_item (iterator : Ast_iterator.iterator)
+        (item : Parsetree.signature_item) =
+      match item.psig_desc with
+      | Psig_value value_description as r
+        when Loc.hasPos ~pos value_description.pval_loc
+             && ProcessAttributes.findDocAttribute
+                  value_description.pval_attributes
+                = None ->
+        result := Some (r, item.psig_loc)
+      | Psig_type (_, hd :: _) as r
+        when Loc.hasPos ~pos hd.ptype_loc
+             && ProcessAttributes.findDocAttribute hd.ptype_attributes = None ->
+        result := Some (r, item.psig_loc)
+      | Psig_module {pmd_name = {loc}} as r ->
+        if Loc.start loc = pos then result := Some (r, item.psig_loc)
+        else Ast_iterator.default_iterator.signature_item iterator item
+      | _ -> Ast_iterator.default_iterator.signature_item iterator item
+    in
+    {Ast_iterator.default_iterator with signature_item}
+
+  let createTemplate () =
+    let docContent = ["\n"; "\n"] in
+    let expression =
+      Ast_helper.Exp.constant
+        (Parsetree.Pconst_string (String.concat "" docContent, None))
+    in
+    let structureItemDesc = Parsetree.Pstr_eval (expression, []) in
+    let structureItem = Ast_helper.Str.mk structureItemDesc in
+    let attrLoc =
+      {
+        Location.none with
+        loc_start = Lexing.dummy_pos;
+        loc_end =
+          {
+            Lexing.dummy_pos with
+            pos_lnum = Lexing.dummy_pos.pos_lnum (* force line break *);
+          };
+      }
+    in
+    (Location.mkloc "res.doc" attrLoc, Parsetree.PStr [structureItem])
+
+  let processSigValue (vl_desc : Parsetree.value_description) loc =
+    let attr = createTemplate () in
+    let newValueBinding =
+      {vl_desc with pval_attributes = attr :: vl_desc.pval_attributes}
+    in
+    let signature_item_desc = Parsetree.Psig_value newValueBinding in
+    Ast_helper.Sig.mk ~loc signature_item_desc
+
+  let processTypeDecl (typ : Parsetree.type_declaration) =
+    let attr = createTemplate () in
+    let newTypeDeclaration =
+      {typ with ptype_attributes = attr :: typ.ptype_attributes}
+    in
+    newTypeDeclaration
+
+  let processModDecl (modDecl : Parsetree.module_declaration) loc =
+    let attr = createTemplate () in
+    let newModDecl =
+      {modDecl with pmd_attributes = attr :: modDecl.pmd_attributes}
+    in
+    Ast_helper.Sig.mk ~loc (Parsetree.Psig_module newModDecl)
+
+  let xform ~path ~pos ~codeActions ~signature ~printSignatureItem =
+    let result = ref None in
+    let iterator = mkIterator ~pos ~result in
+    iterator.signature iterator signature;
+    match !result with
+    | Some (signatureItem, loc) -> (
+      let newSignatureItem =
+        match signatureItem with
+        | Psig_value value_desc ->
+          Some (processSigValue value_desc value_desc.pval_loc) (* Some loc *)
+        | Psig_type (flag, hd :: tl) ->
+          let newFirstTypeDecl = processTypeDecl hd in
+          Some
+            (Ast_helper.Sig.mk ~loc
+               (Parsetree.Psig_type (flag, newFirstTypeDecl :: tl)))
+        | Psig_module modDecl -> Some (processModDecl modDecl loc)
+        | _ -> None
+      in
+
+      match newSignatureItem with
+      | Some sig_item ->
+        let range = rangeOfLoc sig_item.psig_loc in
+        let newText = printSignatureItem ~range sig_item in
+        let codeAction =
+          CodeActions.make ~title:"Add Documentation template"
+            ~kind:RefactorRewrite ~uri:path ~newText ~range
+        in
+        codeActions := codeAction :: !codeActions
+      | None -> ())
+    | None -> ()
+end
+
 let parse ~filename =
   let {Res_driver.parsetree = structure; comments} =
     Res_driver.parsingEngine.parseImplementation ~forPrinter:false ~filename
@@ -280,6 +377,27 @@ let parse ~filename =
   in
   (structure, printExpr, printStructureItem)
 
+let parseInterface ~filename =
+  let {Res_driver.parsetree = structure; comments} =
+    Res_driver.parsingEngine.parseInterface ~forPrinter:false ~filename
+  in
+  let filterComments ~loc comments =
+    (* Relevant comments in the range of the expression *)
+    let filter comment =
+      Loc.hasPos ~pos:(Loc.start (Res_comment.loc comment)) loc
+    in
+    comments |> List.filter filter
+  in
+  let printSignatureItem ~(range : Protocol.range)
+      (item : Parsetree.signature_item) =
+    let signature_item = [item] in
+    signature_item
+    |> Res_printer.printInterface ~width:!Res_cli.ResClflags.width
+         ~comments:(comments |> filterComments ~loc:item.psig_loc)
+    |> Utils.indent range.start.character
+  in
+  (structure, printSignatureItem)
+
 let extractCodeActions ~path ~pos ~currentFile ~debug =
   match Cmt.loadFullCmtFromPath ~path with
   | Some full when Files.classifySourceFile currentFile = Res ->
@@ -290,5 +408,10 @@ let extractCodeActions ~path ~pos ~currentFile ~debug =
     AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions ~debug;
     IfThenElse.xform ~pos ~codeActions ~printExpr ~path structure;
     AddBracesToFn.xform ~pos ~codeActions ~path ~printStructureItem structure;
+    !codeActions
+  | _ when Files.classifySourceFile currentFile = Resi ->
+    let signature, printSignatureItem = parseInterface ~filename:currentFile in
+    let codeActions = ref [] in
+    AddDocTemplate.xform ~pos ~codeActions ~path ~signature ~printSignatureItem;
     !codeActions
   | _ -> []
