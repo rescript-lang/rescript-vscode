@@ -16,6 +16,10 @@
 
 - Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
 
+#### :bug: Bug Fix
+
+- Fix URL scheme for Code Action. https://github.com/rescript-lang/rescript-vscode/pull/748
+
 ## 1.16.0
 
 #### :rocket: New Feature
