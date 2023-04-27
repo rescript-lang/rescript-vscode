@@ -1021,6 +1021,55 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
   return response;
 }
 
+let executeCommands = [
+  "rescriptls/open-compiled-js",
+  "rescriptls/open-interface-file",
+  "rescriptls/open-implementation-file",
+  "rescriptls/create-interface-file"
+]
+
+function executeCommand(msg: p.RequestMessage): p.Message {
+  let params = msg.params as p.ExecuteCommandParams;
+  let command = params.command;
+  let args = params.arguments;
+
+  let response: p.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: null,
+  };
+
+  if (!args) {
+    return response;
+  }
+
+
+  let reqParams: p.ShowDocumentParams = {
+    uri: args[0],
+    takeFocus: true,
+  }
+
+  let request: p.RequestMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: serverSentRequestIdCounter++,
+    method: "window/showDocument",
+    params: reqParams
+  }
+
+  if (command === "rescriptls/open-compiled-js") {
+    send(request);
+  } else if (command === "rescriptls/open-interface-file") {
+    send(request);
+  } else if (command === "rescriptls/open-implementation-file") {
+    send(request);
+  } else if (command === "rescriptls/create-interface-file") {
+    let uri = lookup.replaceFileExtension(args[0], c.resExt);
+    send(createInterface({ ...msg, params: { uri } }))
+  }
+
+  return response
+}
+
 function onMessage(msg: p.Message) {
   if (p.Message.isNotification(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
@@ -1120,6 +1169,9 @@ function onMessage(msg: p.Message) {
           documentSymbolProvider: true,
           completionProvider: {
             triggerCharacters: [".", ">", "@", "~", '"', "=", "("],
+          },
+          executeCommandProvider: {
+            commands: executeCommands
           },
           semanticTokensProvider: {
             legend: {
@@ -1248,6 +1300,8 @@ function onMessage(msg: p.Message) {
       if (extName === c.resExt) {
         send(signatureHelp(msg));
       }
+    } else if (msg.method === p.ExecuteCommandRequest.type.method) {
+      send(executeCommand(msg));
     } else {
       let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,

@@ -1,4 +1,5 @@
 Xform src/Xform.res 6:5
+Hit: Create Xform.resi
 Hit: Replace with switch
 {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
 newText:
@@ -11,6 +12,7 @@ switch kind {
 }
 
 Xform src/Xform.res 13:15
+Hit: Create Xform.resi
 Hit: Replace with switch
 {"start": {"line": 13, "character": 0}, "end": {"line": 13, "character": 79}}
 newText:
@@ -26,6 +28,7 @@ Hit: Add type annotation
 newText:
         <--here
         : string
+Hit: Create Xform.resi
 Hit: Add Documentation template
 {"start": {"line": 16, "character": 0}, "end": {"line": 16, "character": 18}}
 newText:
@@ -36,6 +39,7 @@ newText:
 let name = "hello"
 
 Xform src/Xform.res 19:5
+Hit: Create Xform.resi
 Hit: Add Documentation template
 {"start": {"line": 19, "character": 0}, "end": {"line": 19, "character": 23}}
 newText:
@@ -51,8 +55,10 @@ Hit: Add type annotation
 newText:
           <--here
           (x: option<T.r>)
+Hit: Create Xform.resi
 
 Xform src/Xform.res 30:9
+Hit: Create Xform.resi
 Hit: Add braces to function
 {"start": {"line": 26, "character": 0}, "end": {"line": 32, "character": 3}}
 newText:
@@ -72,8 +78,10 @@ Hit: Add type annotation
 newText:
                         <--here
                         : int
+Hit: Create Xform.resi
 
 Xform src/Xform.res 38:5
+Hit: Create Xform.resi
 Hit: Add Documentation template
 {"start": {"line": 37, "character": 0}, "end": {"line": 38, "character": 40}}
 newText:
@@ -90,8 +98,10 @@ Hit: Add type annotation
 newText:
            <--here
            : int
+Hit: Create Xform.resi
 
 Xform src/Xform.res 48:21
+Hit: Create Xform.resi
 Hit: Add braces to function
 {"start": {"line": 48, "character": 0}, "end": {"line": 48, "character": 25}}
 newText:
@@ -101,6 +111,7 @@ let noBraces = () => {
 }
 
 Xform src/Xform.res 52:34
+Hit: Create Xform.resi
 Hit: Add braces to function
 {"start": {"line": 51, "character": 0}, "end": {"line": 54, "character": 1}}
 newText:
@@ -113,6 +124,7 @@ let nested = () => {
 }
 
 Xform src/Xform.res 62:6
+Hit: Create Xform.resi
 Hit: Add braces to function
 {"start": {"line": 58, "character": 4}, "end": {"line": 62, "character": 7}}
 newText:

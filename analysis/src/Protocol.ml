@@ -3,7 +3,7 @@ type range = {start: position; end_: position}
 type markupContent = {kind: string; value: string}
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#command *)
-type command = {title: string; command: string}
+type command = {title: string; command: string; arguments: string list option}
 
 (* https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeLens *)
 type codeLens = {range: range; command: command option}
@@ -74,13 +74,20 @@ type textDocumentEdit = {
   edits: textEdit list;
 }
 
-type codeActionEdit = {documentChanges: textDocumentEdit list}
+type createFile = {uri: string}
+
+type kindEdit =
+  | TextDocumentEdit of textDocumentEdit
+  | CreateFile of createFile
+
+type codeActionEdit = {documentChanges: kindEdit list}
 type codeActionKind = RefactorRewrite
 
 type codeAction = {
   title: string;
   codeActionKind: codeActionKind;
-  edit: codeActionEdit;
+  edit: codeActionEdit option;
+  command: command option;
 }
 
 let null = "null"
@@ -212,13 +219,20 @@ let stringifyoptionalVersionedTextDocumentIdentifier td =
     | Some v -> string_of_int v)
     (Json.escape td.uri)
 
-let stringifyTextDocumentEdit tde =
-  Printf.sprintf {|{
+let stringifyTextDocumentEdit (tde : kindEdit) =
+  match tde with
+  | TextDocumentEdit edit ->
+    Printf.sprintf {|{
   "textDocument": %s,
   "edits": %s
   }|}
-    (stringifyoptionalVersionedTextDocumentIdentifier tde.textDocument)
-    (tde.edits |> List.map stringifyTextEdit |> array)
+      (stringifyoptionalVersionedTextDocumentIdentifier edit.textDocument)
+      (edit.edits |> List.map stringifyTextEdit |> array)
+  | CreateFile file ->
+    Printf.sprintf {|{
+  "kind": "create",
+  "uri": "%s"
+  }|} file.uri
 
 let codeActionKindToString kind =
   match kind with
@@ -228,10 +242,32 @@ let stringifyCodeActionEdit cae =
   Printf.sprintf {|{"documentChanges": %s}|}
     (cae.documentChanges |> List.map stringifyTextDocumentEdit |> array)
 
-let stringifyCodeAction ca =
-  Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title
-    (codeActionKindToString ca.codeActionKind)
-    (ca.edit |> stringifyCodeActionEdit)
+let stringifyCommand (command : command) =
+  stringifyObject
+    [
+      ("title", Some (wrapInQuotes command.title));
+      ("command", Some (wrapInQuotes command.command));
+      ( "arguments",
+        match command.arguments with
+        | None -> None
+        | Some (hd :: _) -> Some (array [wrapInQuotes hd])
+        | Some _ -> None );
+    ]
+
+let stringifyCodeAction (ca : codeAction) =
+  stringifyObject
+    [
+      ("title", Some (wrapInQuotes ca.title));
+      ("kind", Some (wrapInQuotes (codeActionKindToString ca.codeActionKind)));
+      ( "edit",
+        match ca.edit with
+        | None -> None
+        | Some edit -> Some (edit |> stringifyCodeActionEdit) );
+      ( "command",
+        match ca.command with
+        | None -> None
+        | Some command -> Some (command |> stringifyCommand) );
+    ]
 
 let stringifyHint hint =
   Printf.sprintf
@@ -244,12 +280,6 @@ let stringifyHint hint =
 }|}
     (stringifyPosition hint.position)
     (Json.escape hint.label) hint.kind hint.paddingLeft hint.paddingRight
-
-let stringifyCommand (command : command) =
-  Printf.sprintf {|{"title": "%s", "command": "%s"}|}
-    (Json.escape command.title)
-    (Json.escape command.command)
-
 let stringifyCodeLens (codeLens : codeLens) =
   Printf.sprintf
     {|{

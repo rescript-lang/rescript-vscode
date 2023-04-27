@@ -1,5 +1,6 @@
 Xform not_compiled/DocTemplate.res 3:3
 can't find module DocTemplate
+Hit: Open DocTemplate.resi
 Hit: Add Documentation template
 {"start": {"line": 3, "character": 0}, "end": {"line": 5, "character": 9}}
 newText:
@@ -13,6 +14,7 @@ and e = C
 
 Xform not_compiled/DocTemplate.res 6:15
 can't find module DocTemplate
+Hit: Open DocTemplate.resi
 Hit: Add Documentation template
 {"start": {"line": 6, "character": 0}, "end": {"line": 6, "character": 33}}
 newText:
@@ -25,6 +27,7 @@ type name = Name(string)
 
 Xform not_compiled/DocTemplate.res 8:4
 can't find module DocTemplate
+Hit: Open DocTemplate.resi
 Hit: Add Documentation template
 {"start": {"line": 8, "character": 0}, "end": {"line": 8, "character": 9}}
 newText:
@@ -36,6 +39,7 @@ let a = 1
 
 Xform not_compiled/DocTemplate.res 10:4
 can't find module DocTemplate
+Hit: Open DocTemplate.resi
 Hit: Add Documentation template
 {"start": {"line": 10, "character": 0}, "end": {"line": 10, "character": 20}}
 newText:
@@ -47,6 +51,7 @@ let inc = x => x + 1
 
 Xform not_compiled/DocTemplate.res 12:7
 can't find module DocTemplate
+Hit: Open DocTemplate.resi
 Hit: Add Documentation template
 {"start": {"line": 12, "character": 0}, "end": {"line": 16, "character": 1}}
 newText:
@@ -62,6 +67,7 @@ module T = {
 
 Xform not_compiled/DocTemplate.res 14:6
 can't find module DocTemplate
+Hit: Open DocTemplate.resi
 Hit: Add Documentation template
 {"start": {"line": 14, "character": 2}, "end": {"line": 14, "character": 11}}
 newText:
@@ -73,6 +79,7 @@ newText:
 
 Xform not_compiled/DocTemplate.res 18:2
 can't find module DocTemplate
+Hit: Open DocTemplate.resi
 Hit: Add Documentation template
 {"start": {"line": 17, "character": 0}, "end": {"line": 18, "character": 46}}
 newText:

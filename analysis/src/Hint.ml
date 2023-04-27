@@ -166,6 +166,7 @@ let codeLens ~path ~debug =
                                single line in the editor. *)
                             title =
                               typeExpr |> Shared.typeToString ~lineWidth:400;
+                            arguments = None;
                           };
                     })
              | _ -> None)

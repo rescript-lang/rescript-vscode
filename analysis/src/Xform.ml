@@ -112,7 +112,24 @@ module IfThenElse = struct
       let newText = printExpr ~range newExpr in
       let codeAction =
         CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
-          ~uri:path ~newText ~range
+          ~command:None
+          ~edit:
+            (Some
+               Protocol.
+                 {
+                   documentChanges =
+                     [
+                       TextDocumentEdit
+                         {
+                           textDocument =
+                             {
+                               version = None;
+                               uri = path |> Uri.fromPath |> Uri.toString;
+                             };
+                           edits = [{newText; range}];
+                         };
+                     ];
+                 })
       in
       codeActions := codeAction :: !codeActions
 end
@@ -176,7 +193,24 @@ module AddBracesToFn = struct
       let newText = printStructureItem ~range newStructureItem in
       let codeAction =
         CodeActions.make ~title:"Add braces to function" ~kind:RefactorRewrite
-          ~uri:path ~newText ~range
+          ~command:None
+          ~edit:
+            (Some
+               Protocol.
+                 {
+                   documentChanges =
+                     [
+                       TextDocumentEdit
+                         {
+                           textDocument =
+                             {
+                               version = None;
+                               uri = path |> Uri.fromPath |> Uri.toString;
+                             };
+                           edits = [{newText; range}];
+                         };
+                     ];
+                 })
       in
       codeActions := codeAction :: !codeActions
 end
@@ -246,7 +280,24 @@ module AddTypeAnnotation = struct
           in
           let codeAction =
             CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
-              ~uri:path ~newText ~range
+              ~command:None
+              ~edit:
+                (Some
+                   Protocol.
+                     {
+                       documentChanges =
+                         [
+                           TextDocumentEdit
+                             {
+                               textDocument =
+                                 {
+                                   version = None;
+                                   uri = path |> Uri.fromPath |> Uri.toString;
+                                 };
+                               edits = [{newText; range}];
+                             };
+                         ];
+                     })
           in
           codeActions := codeAction :: !codeActions
         | _ -> ()))
@@ -344,7 +395,24 @@ module AddDocTemplate = struct
           let newText = printSignatureItem ~range signatureItem in
           let codeAction =
             CodeActions.make ~title:"Add Documentation template"
-              ~kind:RefactorRewrite ~uri:path ~newText ~range
+              ~kind:RefactorRewrite ~command:None
+              ~edit:
+                (Some
+                   Protocol.
+                     {
+                       documentChanges =
+                         [
+                           TextDocumentEdit
+                             {
+                               textDocument =
+                                 {
+                                   version = None;
+                                   uri = path |> Uri.fromPath |> Uri.toString;
+                                 };
+                               edits = [{newText; range}];
+                             };
+                         ];
+                     })
           in
           codeActions := codeAction :: !codeActions
         | None -> ())
@@ -429,11 +497,116 @@ module AddDocTemplate = struct
           let newText = printStructureItem ~range structureItem in
           let codeAction =
             CodeActions.make ~title:"Add Documentation template"
-              ~kind:RefactorRewrite ~uri:path ~newText ~range
+              ~kind:RefactorRewrite ~command:None
+              ~edit:
+                (Some
+                   Protocol.
+                     {
+                       documentChanges =
+                         [
+                           TextDocumentEdit
+                             {
+                               textDocument =
+                                 {
+                                   version = None;
+                                   uri = path |> Uri.fromPath |> Uri.toString;
+                                 };
+                               edits = [{newText; range}];
+                             };
+                         ];
+                     })
           in
           codeActions := codeAction :: !codeActions
         | None -> ())
   end
+end
+
+module ExecuteCommands = struct
+  let openCompiledJS = "rescriptls/open-compiled-js"
+  let openInterface = "rescriptls/open-interface-file"
+  let openImplementation = "rescriptls/open-implementation-file"
+  let createInterface = "rescriptls/create-interface-file"
+end
+
+module OpenCompiledFile = struct
+  let xform ~path ~codeActions =
+    match OpenCompiled.command ~path with
+    | Some path ->
+      let uri = path |> Uri.fromPath |> Uri.toString in
+      let title = Filename.basename uri in
+      let codeAction =
+        CodeActions.make ~title:("Open " ^ title) ~kind:RefactorRewrite
+          ~edit:None
+          ~command:
+            (Some
+               Protocol.
+                 {
+                   title = "Open Compiled File";
+                   command = ExecuteCommands.openCompiledJS;
+                   arguments = Some [uri];
+                 })
+      in
+      codeActions := codeAction :: !codeActions
+    | None -> ()
+end
+
+module HandleImpltInter = struct
+  type t = Create | OpenImpl | OpenInter
+  let xform ~path ~codeActions =
+    match Files.classifySourceFile path with
+    | Res ->
+      let resiFile = path ^ "i" in
+      if Sys.file_exists resiFile then
+        let uri = resiFile |> Uri.fromPath |> Uri.toString in
+        let title = Filename.basename uri in
+        let openResi =
+          CodeActions.make ~title:("Open " ^ title) ~kind:RefactorRewrite
+            ~edit:None
+            ~command:
+              (Some
+                 Protocol.
+                   {
+                     title = "Open Interface File";
+                     command = ExecuteCommands.openInterface;
+                     arguments = Some [uri];
+                   })
+        in
+        codeActions := openResi :: !codeActions
+      else
+        let uri = (path ^ "i") |> Uri.fromPath |> Uri.toString in
+        let title = Filename.basename uri in
+        let createResi =
+          CodeActions.make ~title:("Create " ^ title) ~kind:RefactorRewrite
+            ~edit:None
+            ~command:
+              (Some
+                 Protocol.
+                   {
+                     title = "Create Interface File";
+                     command = ExecuteCommands.createInterface;
+                     arguments = Some [uri];
+                   })
+        in
+        codeActions := createResi :: !codeActions
+    | Resi ->
+      let resFile = Filename.remove_extension path ^ ".res" in
+      if Sys.file_exists resFile then
+        let uri = resFile |> Uri.fromPath |> Uri.toString in
+        let title = Filename.basename uri in
+        let openRes =
+          CodeActions.make ~title:("Open " ^ title) ~kind:RefactorRewrite
+            ~edit:None
+            ~command:
+              (Some
+                 Protocol.
+                   {
+                     title = "Open Implementation File";
+                     command = ExecuteCommands.openImplementation;
+                     arguments = Some [uri];
+                   })
+        in
+        codeActions := openRes :: !codeActions
+    | Other -> ()
 end
 
 let parseImplementation ~filename =
@@ -496,6 +669,8 @@ let extractCodeActions ~path ~pos ~currentFile ~debug =
     AddBracesToFn.xform ~pos ~codeActions ~path ~printStructureItem structure;
     AddDocTemplate.Implementation.xform ~pos ~codeActions ~path
       ~printStructureItem ~structure;
+    OpenCompiledFile.xform ~path ~codeActions;
+    HandleImpltInter.xform ~path ~codeActions;
 
     (* This Code Action needs type info *)
     let () =
@@ -510,5 +685,7 @@ let extractCodeActions ~path ~pos ~currentFile ~debug =
     let signature, printSignatureItem = parseInterface ~filename:currentFile in
     AddDocTemplate.Interface.xform ~pos ~codeActions ~path ~signature
       ~printSignatureItem;
+    HandleImpltInter.xform ~path ~codeActions;
+    OpenCompiledFile.xform ~path ~codeActions;
     !codeActions
   | Other -> []

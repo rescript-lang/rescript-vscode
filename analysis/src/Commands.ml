@@ -220,7 +220,8 @@ let rename ~path ~pos ~newName ~debug =
           StringMap.fold
             (fun uri edits acc ->
               let textDocumentEdit =
-                Protocol.{textDocument = {uri; version = None}; edits}
+                Protocol.TextDocumentEdit
+                  Protocol.{textDocument = {uri; version = None}; edits}
               in
               textDocumentEdit :: acc)
             textEditsByUri []
@@ -380,18 +381,25 @@ let test ~path =
                 ~debug:true
             in
             codeActions
-            |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
+            |> List.iter (fun {Protocol.title; edit} ->
                    Printf.printf "Hit: %s\n" title;
-                   documentChanges
-                   |> List.iter (fun {Protocol.edits} ->
-                          edits
-                          |> List.iter (fun {Protocol.range; newText} ->
-                                 let indent =
-                                   String.make range.start.character ' '
-                                 in
-                                 Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
-                                   (Protocol.stringifyRange range)
-                                   indent indent newText)))
+                   match edit with
+                   | Some {documentChanges} ->
+                     documentChanges
+                     |> List.iter (fun kindEdit ->
+                            match kindEdit with
+                            | Protocol.TextDocumentEdit {edits} ->
+                              edits
+                              |> List.iter (fun {Protocol.range; newText} ->
+                                     let indent =
+                                       String.make range.start.character ' '
+                                     in
+                                     Printf.printf
+                                       "%s\nnewText:\n%s<--here\n%s%s\n"
+                                       (Protocol.stringifyRange range)
+                                       indent indent newText)
+                            | _ -> ())
+                   | None -> ())
           | "dia" -> diagnosticSyntax ~path
           | "hin" ->
             (* Get all inlay Hint between line 1 and n.
