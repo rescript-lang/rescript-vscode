@@ -522,7 +522,7 @@ module AddDocTemplate = struct
 end
 
 module ExecuteCommands = struct
-  let openCompiledJS = "rescriptls/open-compiled-js"
+  let openCompiled = "rescriptls/open-compiled-file"
   let openInterface = "rescriptls/open-interface-file"
   let openImplementation = "rescriptls/open-implementation-file"
   let createInterface = "rescriptls/create-interface-file"
@@ -530,24 +530,20 @@ end
 
 module OpenCompiledFile = struct
   let xform ~path ~codeActions =
-    match OpenCompiled.command ~path with
-    | Some path ->
-      let uri = path |> Uri.fromPath |> Uri.toString in
-      let title = Filename.basename uri in
-      let codeAction =
-        CodeActions.make ~title:("Open " ^ title) ~kind:RefactorRewrite
-          ~edit:None
-          ~command:
-            (Some
-               Protocol.
-                 {
-                   title = "Open Compiled File";
-                   command = ExecuteCommands.openCompiledJS;
-                   arguments = Some [uri];
-                 })
-      in
-      codeActions := codeAction :: !codeActions
-    | None -> ()
+    let uri = path |> Uri.fromPath |> Uri.toString in
+    let codeAction =
+      CodeActions.make ~title:"Open Compiled JS" ~kind:RefactorRewrite
+        ~edit:None
+        ~command:
+          (Some
+             Protocol.
+               {
+                 title = "Open Compiled File";
+                 command = ExecuteCommands.openCompiled;
+                 arguments = Some [uri];
+               })
+    in
+    codeActions := codeAction :: !codeActions
 end
 
 module HandleImpltInter = struct
@@ -558,10 +554,9 @@ module HandleImpltInter = struct
       let resiFile = path ^ "i" in
       if Sys.file_exists resiFile then
         let uri = resiFile |> Uri.fromPath |> Uri.toString in
-        let title = Filename.basename uri in
+        let title = "Open " ^ Filename.basename uri in
         let openResi =
-          CodeActions.make ~title:("Open " ^ title) ~kind:RefactorRewrite
-            ~edit:None
+          CodeActions.make ~title ~kind:RefactorRewrite ~edit:None
             ~command:
               (Some
                  Protocol.
@@ -573,11 +568,10 @@ module HandleImpltInter = struct
         in
         codeActions := openResi :: !codeActions
       else
-        let uri = (path ^ "i") |> Uri.fromPath |> Uri.toString in
-        let title = Filename.basename uri in
+        let uri = path |> Uri.fromPath |> Uri.toString in
+        let title = "Create " ^ Filename.basename uri ^ "i" in
         let createResi =
-          CodeActions.make ~title:("Create " ^ title) ~kind:RefactorRewrite
-            ~edit:None
+          CodeActions.make ~title ~kind:RefactorRewrite ~edit:None
             ~command:
               (Some
                  Protocol.
@@ -592,10 +586,9 @@ module HandleImpltInter = struct
       let resFile = Filename.remove_extension path ^ ".res" in
       if Sys.file_exists resFile then
         let uri = resFile |> Uri.fromPath |> Uri.toString in
-        let title = Filename.basename uri in
+        let title = "Open " ^ Filename.basename uri in
         let openRes =
-          CodeActions.make ~title:("Open " ^ title) ~kind:RefactorRewrite
-            ~edit:None
+          CodeActions.make ~title ~kind:RefactorRewrite ~edit:None
             ~command:
               (Some
                  Protocol.

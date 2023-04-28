@@ -1022,7 +1022,7 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
 }
 
 let executeCommands = [
-  "rescriptls/open-compiled-js",
+  "rescriptls/open-compiled-file",
   "rescriptls/open-interface-file",
   "rescriptls/open-implementation-file",
   "rescriptls/create-interface-file"
@@ -1043,9 +1043,10 @@ function executeCommand(msg: p.RequestMessage): p.Message {
     return response;
   }
 
+  let uri = args[0];
 
   let reqParams: p.ShowDocumentParams = {
-    uri: args[0],
+    uri,
     takeFocus: true,
   }
 
@@ -1056,15 +1057,28 @@ function executeCommand(msg: p.RequestMessage): p.Message {
     params: reqParams
   }
 
-  if (command === "rescriptls/open-compiled-js") {
-    send(request);
+  if (command === "rescriptls/open-compiled-file") {
+    let message = openCompiledFile({ ...msg, params: { uri } })
+    if (p.Message.isResponse(message)) {
+      let { uri } = message.result as p.TextDocumentIdentifier
+      let showDocument: p.RequestMessage = { ...request, params: { uri } }
+      send(showDocument);
+    } else {
+      send(message)
+    }
+  } else if (command === "rescriptls/create-interface-file") {
+    let message = createInterface({ ...msg, params: { uri } })
+    if (p.Message.isResponse(message)) {
+      let { uri } = message.result as p.TextDocumentIdentifier
+      let showDocument: p.RequestMessage = { ...request, params: { uri } }
+      send(showDocument);
+    } else {
+      send(message)
+    }
   } else if (command === "rescriptls/open-interface-file") {
     send(request);
   } else if (command === "rescriptls/open-implementation-file") {
     send(request);
-  } else if (command === "rescriptls/create-interface-file") {
-    let uri = lookup.replaceFileExtension(args[0], c.resExt);
-    send(createInterface({ ...msg, params: { uri } }))
   }
 
   return response

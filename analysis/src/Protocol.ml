@@ -250,8 +250,7 @@ let stringifyCommand (command : command) =
       ( "arguments",
         match command.arguments with
         | None -> None
-        | Some (hd :: _) -> Some (array [wrapInQuotes hd])
-        | Some _ -> None );
+        | Some args -> Some (args |> List.map wrapInQuotes |> array) );
     ]
 
 let stringifyCodeAction (ca : codeAction) =
