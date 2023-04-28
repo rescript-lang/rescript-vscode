@@ -527,7 +527,7 @@ module OpenCompiledFile = struct
   let xform ~path ~codeActions =
     let uri = path |> Uri.fromPath |> Uri.toString in
     let codeAction =
-      CodeActions.make ~title:"Open Compiled JS" ~kind:RefactorRewrite
+      CodeActions.make ~title:"Open Compiled JS" ~kind:Empty
         ~edit:None
         ~command:
           (Some
@@ -551,7 +551,7 @@ module HandleImpltInter = struct
         let uri = resiFile |> Uri.fromPath |> Uri.toString in
         let title = "Open " ^ Filename.basename uri in
         let openResi =
-          CodeActions.make ~title ~kind:RefactorRewrite ~edit:None
+          CodeActions.make ~title ~kind:Empty ~edit:None
             ~command:
               (Some
                  Protocol.
@@ -566,7 +566,7 @@ module HandleImpltInter = struct
         let uri = path |> Uri.fromPath |> Uri.toString in
         let title = "Create " ^ Filename.basename uri ^ "i" in
         let createResi =
-          CodeActions.make ~title ~kind:RefactorRewrite ~edit:None
+          CodeActions.make ~title ~kind:Empty ~edit:None
             ~command:
               (Some
                  Protocol.
@@ -583,7 +583,7 @@ module HandleImpltInter = struct
         let uri = resFile |> Uri.fromPath |> Uri.toString in
         let title = "Open " ^ Filename.basename uri in
         let openRes =
-          CodeActions.make ~title ~kind:RefactorRewrite ~edit:None
+          CodeActions.make ~title ~kind:Empty ~edit:None
             ~command:
               (Some
                  Protocol.

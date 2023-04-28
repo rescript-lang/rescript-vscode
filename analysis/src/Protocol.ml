@@ -75,7 +75,7 @@ type textDocumentEdit = {
 }
 
 type codeActionEdit = {documentChanges: textDocumentEdit list}
-type codeActionKind = RefactorRewrite
+type codeActionKind = RefactorRewrite | Empty
 
 type codeAction = {
   title: string;
@@ -224,6 +224,7 @@ let stringifyTextDocumentEdit (tde : textDocumentEdit) =
 let codeActionKindToString kind =
   match kind with
   | RefactorRewrite -> "refactor.rewrite"
+  | Empty -> ""
 
 let stringifyCodeActionEdit cae =
   Printf.sprintf {|{"documentChanges": %s}|}
