@@ -191,11 +191,13 @@ ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
 [{
-    "label": "None",
+    "label": "Some(nested)",
     "kind": 12,
     "tags": [],
     "detail": "otherRecord",
-    "documentation": null
+    "documentation": null,
+    "insertText": "Some(${1:nested})",
+    "insertTextFormat": 2
   }, {
     "label": "Some(_)",
     "kind": 12,
@@ -204,6 +206,12 @@ Path fnTakingRecord
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "None",
+    "kind": 12,
+    "tags": [],
+    "detail": "otherRecord",
+    "documentation": null
   }, {
     "label": "Some({})",
     "kind": 12,
@@ -298,21 +306,8 @@ Path fnTakingRecord
     "tags": [],
     "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
     "documentation": null,
-    "sortText": "A One",
     "insertText": "One",
     "insertTextFormat": 2
-  }, {
-    "label": "Obj",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Objects",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
   }]
 
 Complete src/CompletionExpressions.res 56:57
@@ -616,11 +611,13 @@ ContextPath CArgument Value[fnTakingRecordWithOptVariant]($0)
 ContextPath Value[fnTakingRecordWithOptVariant]
 Path fnTakingRecordWithOptVariant
 [{
-    "label": "None",
+    "label": "Some(someVariant)",
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": null,
+    "insertText": "Some(${1:someVariant})",
+    "insertTextFormat": 2
   }, {
     "label": "Some(_)",
     "kind": 12,
@@ -629,6 +626,12 @@ Path fnTakingRecordWithOptVariant
     "documentation": null,
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
+  }, {
+    "label": "None",
+    "kind": 12,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null
   }, {
     "label": "Some(One)",
     "kind": 4,
