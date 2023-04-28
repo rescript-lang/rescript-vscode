@@ -1355,26 +1355,13 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
       ]
     else []
   | Tfunction {env; typ; args} when prefix = "" && mode = Expression ->
-    let prettyPrintArgTyp ?currentIndex (argTyp : Types.type_expr) =
-      let indexText =
-        match currentIndex with
-        | None -> ""
-        | Some i -> string_of_int i
-      in
-      match argTyp |> TypeUtils.pathFromTypeExpr with
-      | None -> "v" ^ indexText
-      | Some p -> (
-        (* Pretty print a few common patterns. *)
-        match Path.head p |> Ident.name with
-        | "unit" -> "()"
-        | "ReactEvent" | "JsxEvent" -> "event"
-        | _ -> "v" ^ indexText)
-    in
     let mkFnArgs ~asSnippet =
       match args with
       | [(Nolabel, argTyp)] when TypeUtils.typeIsUnit argTyp -> "()"
       | [(Nolabel, argTyp)] ->
-        let varName = prettyPrintArgTyp argTyp in
+        let varName =
+          CompletionExpressions.prettyPrintFnTemplateArgName ~env ~full argTyp
+        in
         if asSnippet then "${1:" ^ varName ^ "}" else varName
       | _ ->
         let currentUnlabelledIndex = ref 0 in
@@ -1389,7 +1376,10 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                    else (
                      currentUnlabelledIndex := !currentUnlabelledIndex + 1;
                      let num = !currentUnlabelledIndex in
-                     let varName = prettyPrintArgTyp typ ~currentIndex:num in
+                     let varName =
+                       CompletionExpressions.prettyPrintFnTemplateArgName
+                         ~currentIndex:num ~env ~full typ
+                     in
                      if asSnippet then
                        "${" ^ string_of_int num ^ ":" ^ varName ^ "}"
                      else varName))

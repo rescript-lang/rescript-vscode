@@ -59,7 +59,12 @@ module Type = struct
     | Record of field list
     | Variant of Constructor.t list
 
-  type t = {kind: kind; decl: Types.type_declaration; name: string}
+  type t = {
+    kind: kind;
+    decl: Types.type_declaration;
+    name: string;
+    attributes: Parsetree.attributes;
+  }
 end
 
 module Exported = struct

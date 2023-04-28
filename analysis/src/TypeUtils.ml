@@ -202,6 +202,22 @@ let pathFromTypeExpr (t : Types.type_expr) =
     Some path
   | _ -> None
 
+let rec digToRelevantTemplateNameType ~env ~package ?(suffix = "")
+    (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+    digToRelevantTemplateNameType ~suffix ~env ~package t1
+  | Tconstr (Path.Pident {name = "option"}, [t1], _) ->
+    digToRelevantTemplateNameType ~suffix ~env ~package t1
+  | Tconstr (Path.Pident {name = "array"}, [t1], _) ->
+    digToRelevantTemplateNameType ~suffix:"s" ~env ~package t1
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, {item = {decl = {type_manifest = Some typ}}}) ->
+      digToRelevantTemplateNameType ~suffix ~env ~package typ
+    | _ -> (t, suffix, env))
+  | _ -> (t, suffix, env)
+
 let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
     (t : Types.type_expr) =
   let builtin =
