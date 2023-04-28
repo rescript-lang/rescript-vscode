@@ -1,4 +1,5 @@
 Xform not_compiled/DocTemplate.resi 3:3
+Hit: Open Compiled JS
 Hit: Open DocTemplate.res
 Hit: Add Documentation template
 {"start": {"line": 3, "character": 0}, "end": {"line": 5, "character": 9}}
@@ -12,6 +13,7 @@ type rec t = A | B
 and e = C
 
 Xform not_compiled/DocTemplate.resi 6:15
+Hit: Open Compiled JS
 Hit: Open DocTemplate.res
 Hit: Add Documentation template
 {"start": {"line": 6, "character": 0}, "end": {"line": 6, "character": 33}}
@@ -24,6 +26,7 @@ newText:
 type name = Name(string)
 
 Xform not_compiled/DocTemplate.resi 8:4
+Hit: Open Compiled JS
 Hit: Open DocTemplate.res
 Hit: Add Documentation template
 {"start": {"line": 8, "character": 0}, "end": {"line": 8, "character": 10}}
@@ -35,6 +38,7 @@ newText:
 let a: int
 
 Xform not_compiled/DocTemplate.resi 10:4
+Hit: Open Compiled JS
 Hit: Open DocTemplate.res
 Hit: Add Documentation template
 {"start": {"line": 10, "character": 0}, "end": {"line": 10, "character": 19}}
@@ -46,6 +50,7 @@ newText:
 let inc: int => int
 
 Xform not_compiled/DocTemplate.resi 12:7
+Hit: Open Compiled JS
 Hit: Open DocTemplate.res
 Hit: Add Documentation template
 {"start": {"line": 12, "character": 0}, "end": {"line": 16, "character": 1}}
@@ -61,6 +66,7 @@ module T: {
 }
 
 Xform not_compiled/DocTemplate.resi 14:6
+Hit: Open Compiled JS
 Hit: Open DocTemplate.res
 Hit: Add Documentation template
 {"start": {"line": 14, "character": 2}, "end": {"line": 14, "character": 12}}
@@ -72,6 +78,7 @@ newText:
   let b: int
 
 Xform not_compiled/DocTemplate.resi 18:2
+Hit: Open Compiled JS
 Hit: Open DocTemplate.res
 Hit: Add Documentation template
 {"start": {"line": 17, "character": 0}, "end": {"line": 18, "character": 46}}
