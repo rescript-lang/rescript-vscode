@@ -119,15 +119,14 @@ module IfThenElse = struct
                  {
                    documentChanges =
                      [
-                       TextDocumentEdit
-                         {
-                           textDocument =
-                             {
-                               version = None;
-                               uri = path |> Uri.fromPath |> Uri.toString;
-                             };
-                           edits = [{newText; range}];
-                         };
+                       {
+                         textDocument =
+                           {
+                             version = None;
+                             uri = path |> Uri.fromPath |> Uri.toString;
+                           };
+                         edits = [{newText; range}];
+                       };
                      ];
                  })
       in
@@ -200,15 +199,14 @@ module AddBracesToFn = struct
                  {
                    documentChanges =
                      [
-                       TextDocumentEdit
-                         {
-                           textDocument =
-                             {
-                               version = None;
-                               uri = path |> Uri.fromPath |> Uri.toString;
-                             };
-                           edits = [{newText; range}];
-                         };
+                       {
+                         textDocument =
+                           {
+                             version = None;
+                             uri = path |> Uri.fromPath |> Uri.toString;
+                           };
+                         edits = [{newText; range}];
+                       };
                      ];
                  })
       in
@@ -287,15 +285,14 @@ module AddTypeAnnotation = struct
                      {
                        documentChanges =
                          [
-                           TextDocumentEdit
-                             {
-                               textDocument =
-                                 {
-                                   version = None;
-                                   uri = path |> Uri.fromPath |> Uri.toString;
-                                 };
-                               edits = [{newText; range}];
-                             };
+                           {
+                             textDocument =
+                               {
+                                 version = None;
+                                 uri = path |> Uri.fromPath |> Uri.toString;
+                               };
+                             edits = [{newText; range}];
+                           };
                          ];
                      })
           in
@@ -402,15 +399,14 @@ module AddDocTemplate = struct
                      {
                        documentChanges =
                          [
-                           TextDocumentEdit
-                             {
-                               textDocument =
-                                 {
-                                   version = None;
-                                   uri = path |> Uri.fromPath |> Uri.toString;
-                                 };
-                               edits = [{newText; range}];
-                             };
+                           {
+                             textDocument =
+                               {
+                                 version = None;
+                                 uri = path |> Uri.fromPath |> Uri.toString;
+                               };
+                             edits = [{newText; range}];
+                           };
                          ];
                      })
           in
@@ -504,15 +500,14 @@ module AddDocTemplate = struct
                      {
                        documentChanges =
                          [
-                           TextDocumentEdit
-                             {
-                               textDocument =
-                                 {
-                                   version = None;
-                                   uri = path |> Uri.fromPath |> Uri.toString;
-                                 };
-                               edits = [{newText; range}];
-                             };
+                           {
+                             textDocument =
+                               {
+                                 version = None;
+                                 uri = path |> Uri.fromPath |> Uri.toString;
+                               };
+                             edits = [{newText; range}];
+                           };
                          ];
                      })
           in

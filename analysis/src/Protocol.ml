@@ -74,13 +74,7 @@ type textDocumentEdit = {
   edits: textEdit list;
 }
 
-type createFile = {uri: string}
-
-type kindEdit =
-  | TextDocumentEdit of textDocumentEdit
-  | CreateFile of createFile
-
-type codeActionEdit = {documentChanges: kindEdit list}
+type codeActionEdit = {documentChanges: textDocumentEdit list}
 type codeActionKind = RefactorRewrite
 
 type codeAction = {
@@ -219,20 +213,13 @@ let stringifyoptionalVersionedTextDocumentIdentifier td =
     | Some v -> string_of_int v)
     (Json.escape td.uri)
 
-let stringifyTextDocumentEdit (tde : kindEdit) =
-  match tde with
-  | TextDocumentEdit edit ->
-    Printf.sprintf {|{
+let stringifyTextDocumentEdit (tde : textDocumentEdit) =
+  Printf.sprintf {|{
   "textDocument": %s,
   "edits": %s
   }|}
-      (stringifyoptionalVersionedTextDocumentIdentifier edit.textDocument)
-      (edit.edits |> List.map stringifyTextEdit |> array)
-  | CreateFile file ->
-    Printf.sprintf {|{
-  "kind": "create",
-  "uri": "%s"
-  }|} file.uri
+    (stringifyoptionalVersionedTextDocumentIdentifier tde.textDocument)
+    (tde.edits |> List.map stringifyTextEdit |> array)
 
 let codeActionKindToString kind =
   match kind with
