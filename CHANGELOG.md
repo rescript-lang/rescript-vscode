@@ -15,6 +15,7 @@
 #### :rocket: New Feature
 
 - Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
+- Code Actions: open Implementation/Interface/Compiled and create Interface file. https://github.com/rescript-lang/rescript-vscode/pull/767
 
 #### :bug: Bug Fix
 
