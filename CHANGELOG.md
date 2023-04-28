@@ -16,6 +16,8 @@
 
 - Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
 - Code Actions: open Implementation/Interface/Compiled and create Interface file. https://github.com/rescript-lang/rescript-vscode/pull/767
+- Improve unlabelled argument names in completion function templates. https://github.com/rescript-lang/rescript-vscode/pull/754
+- Add `Some(fieldName)` case when completing in a pattern with an option on a record field. https://github.com/rescript-lang/rescript-vscode/pull/766
 
 #### :bug: Bug Fix
 

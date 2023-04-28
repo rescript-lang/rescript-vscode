@@ -65,6 +65,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         ~item:
           {
             Type.decl;
+            attributes = type_attributes;
             name = name.txt;
             kind =
               (match type_kind with
@@ -172,6 +173,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
       ~item:
         {
           Type.decl = typ_type;
+          attributes = typ_attributes;
           name = name.txt;
           kind =
             (match typ_kind with

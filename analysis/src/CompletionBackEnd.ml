@@ -1235,13 +1235,26 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                    | Some insertText -> Some ("Some(" ^ insertText ^ ")"));
                })
     in
-    [
-      Completion.create "None" ~kind:(kindFromInnerType t) ~env;
+    let noneCase = Completion.create "None" ~kind:(kindFromInnerType t) ~env in
+    let someAnyCase =
       Completion.createWithSnippet ~name:"Some(_)" ~kind:(kindFromInnerType t)
-        ~env ~insertText:"Some(${1:_})" ();
-    ]
-    @ expandedCompletions
-    |> filterItems ~prefix
+        ~env ~insertText:"Some(${1:_})" ()
+    in
+    let completions =
+      match completionContext with
+      | Some (Completable.CameFromRecordField fieldName) ->
+        [
+          Completion.createWithSnippet
+            ~name:("Some(" ^ fieldName ^ ")")
+            ~kind:(kindFromInnerType t) ~env
+            ~insertText:("Some(${1:" ^ fieldName ^ "})")
+            ();
+          someAnyCase;
+          noneCase;
+        ]
+      | _ -> [noneCase; someAnyCase]
+    in
+    completions @ expandedCompletions |> filterItems ~prefix
   | Tuple (env, exprs, typ) ->
     let numExprs = List.length exprs in
     [
@@ -1279,7 +1292,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                    (Field (field, TypeUtils.extractedTypeToString extractedType))
                  ~env)
       |> filterItems ~prefix
-    | None ->
+    | _ ->
       if prefix = "" then
         [
           Completion.createWithSnippet ~name:"{}"
@@ -1304,7 +1317,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
              Completion.create field.fname.txt ~kind:(Label "Inline record")
                ?deprecated:field.deprecated ~env)
       |> filterItems ~prefix
-    | None ->
+    | _ ->
       if prefix = "" then
         [
           Completion.createWithSnippet ~name:"{}"
@@ -1342,26 +1355,13 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
       ]
     else []
   | Tfunction {env; typ; args} when prefix = "" && mode = Expression ->
-    let prettyPrintArgTyp ?currentIndex (argTyp : Types.type_expr) =
-      let indexText =
-        match currentIndex with
-        | None -> ""
-        | Some i -> string_of_int i
-      in
-      match argTyp |> TypeUtils.pathFromTypeExpr with
-      | None -> "v" ^ indexText
-      | Some p -> (
-        (* Pretty print a few common patterns. *)
-        match Path.head p |> Ident.name with
-        | "unit" -> "()"
-        | "ReactEvent" | "JsxEvent" -> "event"
-        | _ -> "v" ^ indexText)
-    in
     let mkFnArgs ~asSnippet =
       match args with
       | [(Nolabel, argTyp)] when TypeUtils.typeIsUnit argTyp -> "()"
       | [(Nolabel, argTyp)] ->
-        let varName = prettyPrintArgTyp argTyp in
+        let varName =
+          CompletionExpressions.prettyPrintFnTemplateArgName ~env ~full argTyp
+        in
         if asSnippet then "${1:" ^ varName ^ "}" else varName
       | _ ->
         let currentUnlabelledIndex = ref 0 in
@@ -1376,7 +1376,10 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                    else (
                      currentUnlabelledIndex := !currentUnlabelledIndex + 1;
                      let num = !currentUnlabelledIndex in
-                     let varName = prettyPrintArgTyp typ ~currentIndex:num in
+                     let varName =
+                       CompletionExpressions.prettyPrintFnTemplateArgName
+                         ~currentIndex:num ~env ~full typ
+                     in
                      if asSnippet then
                        "${" ^ string_of_int num ^ ":" ^ varName ^ "}"
                      else varName))
