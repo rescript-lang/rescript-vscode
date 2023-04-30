@@ -29,6 +29,11 @@ let newBsPackage ~rootPath =
         | Some libBs ->
           Some
             (let namespace = FindFiles.getNamespace config in
+             let uncurried =
+               let ns = config |> Json.get "uncurried" in
+               Option.bind ns Json.bool
+             in
+             let uncurried = uncurried = Some true in
              let sourceDirectories =
                FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
                  config
@@ -144,6 +149,7 @@ let newBsPackage ~rootPath =
                      resultModulePath = ["Belt"; "Result"];
                      exnModulePath = ["Js"; "Exn"];
                    });
+               uncurried;
              })))
     | None -> None)
 

@@ -33,4 +33,10 @@ let fullsFromModule ~package ~moduleName =
 
 let loadFullCmtFromPath ~path =
   let uri = Uri.fromPath path in
-  fullFromUri ~uri
+  let full = fullFromUri ~uri in
+  match full with
+  | None -> None
+  | Some full ->
+    (* Turn on uncurried for the outcome printer *)
+    if full.package.uncurried then Config.uncurried := Uncurried;
+    Some full
