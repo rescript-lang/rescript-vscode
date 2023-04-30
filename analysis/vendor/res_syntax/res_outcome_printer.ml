@@ -322,7 +322,6 @@ and printOutArrowType ~uncurried typ =
   let uncurried =
     if !Config.uncurried <> Legacy then not uncurried else uncurried
   in
-  (* let uncurried = false && uncurried in *)
   let typArgs, typ = collectArrowArgs typ [] in
   let args =
     Doc.join
