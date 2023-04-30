@@ -34,7 +34,6 @@ let newBsPackage ~rootPath =
                Option.bind ns Json.bool
              in
              let uncurried = uncurried = Some true in
-             if uncurried then Config.uncurried := Uncurried;
              let sourceDirectories =
                FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
                  config
