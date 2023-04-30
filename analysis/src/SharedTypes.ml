@@ -471,6 +471,7 @@ type package = {
   namespace: string option;
   builtInCompletionModules: builtInCompletionModules;
   opens: path list;
+  uncurried: bool;
 }
 
 let allFilesInPackage package =
