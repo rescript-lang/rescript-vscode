@@ -1,23 +1,9 @@
-type linkableType = {
-  name: string;
-  modulePath: string list;
-  path: Path.t;
-  env: SharedTypes.QueryEnv.t;
-  loc: Location.t;
-}
-
-type fieldDoc = {
-  fieldName: string;
-  docstrings: string list;
-  signature: string;
-  linkables: linkableType list;
-}
+type fieldDoc = {fieldName: string; docstrings: string list; signature: string}
 
 type constructorDoc = {
   constructorName: string;
   docstrings: string list;
   signature: string;
-  linkables: linkableType list;
 }
 
 type docItemDetail =
@@ -29,8 +15,6 @@ type docItem =
       docstring: string list;
       signature: string;
       name: string;
-      linkables: linkableType list;
-          (** Relevant types to link to, found in relation to this value. *)
     }
   | Type of {
       id: string;
@@ -39,8 +23,6 @@ type docItem =
       name: string;
       detail: docItemDetail option;
           (** Additional documentation for constructors and record fields, if available. *)
-      linkables: linkableType list;
-          (** Relevant types to link to, found in relation to this type. *)
     }
   | Module of docsForModule
 and docsForModule = {
@@ -59,100 +41,13 @@ let formatCode content =
     signature
   |> String.trim
 
-module Linkables = struct
-  (* TODO: Extend this by going into function arguments, tuples etc... *)
-  let labelDeclarationsTypes lds =
-    lds |> List.map (fun (ld : Types.label_declaration) -> ld.ld_type)
-
-  let rec linkablesFromDecl (decl : Types.type_declaration) ~env ~full =
-    match decl.type_kind with
-    | Type_record (lds, _) -> (env, lds |> labelDeclarationsTypes)
-    | Type_variant cds ->
-      ( env,
-        cds
-        |> List.map (fun (cd : Types.constructor_declaration) ->
-               let fromArgs =
-                 match cd.cd_args with
-                 | Cstr_tuple ts -> ts
-                 | Cstr_record lds -> lds |> labelDeclarationsTypes
-               in
-               match cd.cd_res with
-               | None -> fromArgs
-               | Some t -> t :: fromArgs)
-        |> List.flatten )
-    | _ -> (
-      match decl.type_manifest with
-      | None -> (env, [])
-      | Some typ -> linkablesFromTyp typ ~env ~full)
-
-  and linkablesFromTyp ~env ~(full : SharedTypes.full) typ =
-    match typ |> Shared.digConstructor with
-    | Some path -> (
-      match References.digConstructor ~env ~package:full.package path with
-      | None -> (env, [typ])
-      | Some (env1, {item = {decl}}) ->
-        let env, types = linkablesFromDecl decl ~env:env1 ~full in
-        (env, typ :: types))
-    | None -> (env, [typ])
-
-  type linkableSource =
-    | Typ of SharedTypes.Type.t
-    | TypeExpr of Types.type_expr
-
-  let findLinkables ~env ~(full : SharedTypes.full) (typ : linkableSource) =
-    (* Expand definitions of types mentioned in typ.
-       If typ itself is a record or variant, search its body *)
-    let envToSearch, typesToSearch =
-      match typ with
-      | Typ t -> linkablesFromDecl ~env t.decl ~full
-      | TypeExpr t -> linkablesFromTyp t ~env ~full
-    in
-    let fromConstructorPath ~env path =
-      match References.digConstructor ~env ~package:full.package path with
-      | None -> None
-      | Some (env, {name = {txt}; extentLoc; modulePath}) ->
-        if Utils.isUncurriedInternal path then None
-        else
-          Some
-            {
-              name = txt;
-              env;
-              loc = extentLoc;
-              modulePath = SharedTypes.ModulePath.toPath modulePath txt;
-              path;
-            }
-    in
-    let constructors = Shared.findTypeConstructors typesToSearch in
-    constructors |> List.filter_map (fromConstructorPath ~env:envToSearch)
-end
-
 let stringifyDocstrings docstrings =
   let open Protocol in
   docstrings
   |> List.map (fun docstring -> docstring |> String.trim |> wrapInQuotes)
   |> array
 
-let stringifyLinkables ?(indentation = 0)
-    ~(originalEnv : SharedTypes.QueryEnv.t) (linkables : linkableType list) =
-  let open Protocol in
-  linkables
-  |> List.map (fun l ->
-         let isExternal = originalEnv.file.uri <> l.env.file.uri in
-         let linkId = l.env.file.moduleName :: l.modulePath in
-         stringifyObject ~indentation:(indentation + 1)
-           [
-             ( "linkId",
-               Some (linkId |> SharedTypes.ident |> Json.escape |> wrapInQuotes)
-             );
-             ( "name",
-               Some
-                 (l.path |> SharedTypes.pathIdentToString |> Json.escape
-                |> wrapInQuotes) );
-             ("external", Some (Printf.sprintf "%b" isExternal));
-           ])
-  |> array
-
-let stringifyDetail ?(indentation = 0) ~originalEnv (detail : docItemDetail) =
+let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
   let open Protocol in
   match detail with
   | Record {fieldDocs} ->
@@ -169,10 +64,6 @@ let stringifyDetail ?(indentation = 0) ~originalEnv (detail : docItemDetail) =
                        ( "docstrings",
                          Some (stringifyDocstrings fieldDoc.docstrings) );
                        ("signature", Some (wrapInQuotes fieldDoc.signature));
-                       ( "linkables",
-                         Some
-                           (stringifyLinkables ~indentation:(indentation + 1)
-                              ~originalEnv fieldDoc.linkables) );
                      ])
             |> array) );
       ]
@@ -193,10 +84,6 @@ let stringifyDetail ?(indentation = 0) ~originalEnv (detail : docItemDetail) =
                          Some (stringifyDocstrings constructorDoc.docstrings) );
                        ( "signature",
                          Some (wrapInQuotes constructorDoc.signature) );
-                       ( "linkables",
-                         Some
-                           (stringifyLinkables ~indentation:(indentation + 1)
-                              ~originalEnv constructorDoc.linkables) );
                      ])
             |> array) );
       ]
@@ -204,7 +91,7 @@ let stringifyDetail ?(indentation = 0) ~originalEnv (detail : docItemDetail) =
 let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
   let open Protocol in
   match item with
-  | Value {id; docstring; signature; name; linkables} ->
+  | Value {id; docstring; signature; name} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
@@ -213,12 +100,8 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ( "signature",
           Some (signature |> String.trim |> Json.escape |> wrapInQuotes) );
         ("docstrings", Some (stringifyDocstrings docstring));
-        ( "linkables",
-          Some
-            (stringifyLinkables ~originalEnv ~indentation:(indentation + 1)
-               linkables) );
       ]
-  | Type {id; docstring; signature; name; detail; linkables} ->
+  | Type {id; docstring; signature; name; detail} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
@@ -226,17 +109,11 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("name", Some (name |> Json.escape |> wrapInQuotes));
         ("signature", Some (signature |> Json.escape |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
-        ( "linkables",
-          Some
-            (stringifyLinkables ~originalEnv ~indentation:(indentation + 1)
-               linkables) );
         ( "detail",
           match detail with
           | None -> None
           | Some detail ->
-            Some
-              (stringifyDetail ~originalEnv ~indentation:(indentation + 1)
-                 detail) );
+            Some (stringifyDetail ~indentation:(indentation + 1) detail) );
       ]
   | Module m ->
     stringifyObject ~startOnNewline:true ~indentation
@@ -277,8 +154,6 @@ let typeDetail typ ~env ~full =
                       fieldName = field.fname.txt;
                       docstrings = field.docstring;
                       signature = Shared.typeToString field.typ;
-                      linkables =
-                        TypeExpr field.typ |> Linkables.findLinkables ~env ~full;
                     });
          })
   | Some (Tvariant {constructors}) ->
@@ -288,20 +163,10 @@ let typeDetail typ ~env ~full =
            constructorDocs =
              constructors
              |> List.map (fun (c : Constructor.t) ->
-                    let linkables =
-                      (match c.args with
-                      | Args args -> args |> List.map (fun (t, _) -> t)
-                      | InlineRecord fields ->
-                        fields |> List.map (fun f -> f.typ))
-                      |> List.map (fun t ->
-                             TypeExpr t |> Linkables.findLinkables ~env ~full)
-                      |> List.flatten
-                    in
                     {
                       constructorName = c.cname.txt;
                       docstrings = c.docstring;
                       signature = CompletionBackEnd.showConstructor c;
-                      linkables;
                     });
          })
   | _ -> None
@@ -358,16 +223,12 @@ let extractDocs ~path ~debug =
                             "let " ^ item.name ^ ": " ^ Shared.typeToString typ
                             |> formatCode;
                           name = item.name;
-                          linkables =
-                            TypeExpr typ |> Linkables.findLinkables ~env ~full;
                         })
                  | Type (typ, _) ->
                    Some
                      (Type
                         {
                           id = modulePath |> makeId ~identifier:item.name;
-                          linkables =
-                            Typ typ |> Linkables.findLinkables ~env ~full;
                           docstring = item.docstring |> List.map String.trim;
                           signature =
                             typ.decl

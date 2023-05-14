@@ -11,20 +11,17 @@ extracting docs for src/DocExtractionRes.res
     "name": "t",
     "signature": "type t = {name: string, online: bool}",
     "docstrings": ["This type represents stuff."],
-    "linkables": [],
     "detail": 
     {
       "kind": "record",
       "fieldDocs": [{
         "fieldName": "name",
         "docstrings": ["The name of the stuff."],
-        "signature": "string",
-        "linkables": []
+        "signature": "string"
       }, {
         "fieldName": "online",
         "docstrings": ["Whether stuff is online."],
-        "signature": "bool",
-        "linkables": []
+        "signature": "bool"
       }]
     }
   }, 
@@ -33,24 +30,14 @@ extracting docs for src/DocExtractionRes.res
     "kind": "value",
     "name": "make",
     "signature": "let make: string => t",
-    "docstrings": ["Create stuff.\n\n```rescript example\nlet stuff = make(\"My name\")\n```"],
-    "linkables": [{
-        "linkId": "DocExtractionRes.t",
-        "name": "t",
-        "external": false
-      }]
+    "docstrings": ["Create stuff.\n\n```rescript example\nlet stuff = make(\"My name\")\n```"]
   }, 
   {
     "id": "DocExtractionRes.asOffline",
     "kind": "value",
     "name": "asOffline",
     "signature": "let asOffline: t => t",
-    "docstrings": ["Stuff goes offline."],
-    "linkables": [{
-        "linkId": "DocExtractionRes.t",
-        "name": "t",
-        "external": false
-      }]
+    "docstrings": ["Stuff goes offline."]
   }, 
   {
     "id": "SomeInnerModule.DocExtractionRes",
@@ -66,11 +53,6 @@ extracting docs for src/DocExtractionRes.res
         "name": "status",
         "signature": "type status = Started(t) | Stopped | Idle",
         "docstrings": [],
-        "linkables": [{
-            "linkId": "DocExtractionRes.t",
-            "name": "t",
-            "external": false
-          }],
         "detail": 
         {
           "kind": "variant",
@@ -78,24 +60,17 @@ extracting docs for src/DocExtractionRes.res
           {
             "constructorName": "Started",
             "docstrings": ["If this is started or not"],
-            "signature": "Started(t)",
-            "linkables": [{
-              "linkId": "DocExtractionRes.t",
-              "name": "t",
-              "external": false
-            }]
+            "signature": "Started(t)"
           }, 
           {
             "constructorName": "Stopped",
             "docstrings": ["Stopped?"],
-            "signature": "Stopped",
-            "linkables": []
+            "signature": "Stopped"
           }, 
           {
             "constructorName": "Idle",
             "docstrings": ["Now idle."],
-            "signature": "Idle",
-            "linkables": []
+            "signature": "Idle"
           }]
         }
       }, 
@@ -104,24 +79,14 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "validInputs",
         "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #status(status)\\n  | #withPayload(int)\\n]",
-        "docstrings": ["These are all the valid inputs."],
-        "linkables": []
+        "docstrings": ["These are all the valid inputs."]
       }, 
       {
         "id": "DocExtractionRes.SomeInnerModule.callback",
         "kind": "type",
         "name": "callback",
         "signature": "type callback = (t, ~status: status) => unit",
-        "docstrings": [],
-        "linkables": [{
-            "linkId": "DocExtractionRes.t",
-            "name": "t",
-            "external": false
-          }, {
-            "linkId": "DocExtractionRes.SomeInnerModule.status",
-            "name": "status",
-            "external": false
-          }]
+        "docstrings": []
       }]
     }
   }, 
@@ -138,24 +103,14 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "callback",
         "signature": "type callback = SomeInnerModule.status => unit",
-        "docstrings": ["Testing what this looks like."],
-        "linkables": [{
-            "linkId": "DocExtractionRes.SomeInnerModule.status",
-            "name": "SomeInnerModule.status",
-            "external": false
-          }]
+        "docstrings": ["Testing what this looks like."]
       }, 
       {
         "id": "DocExtractionRes.AnotherModule.isGoodStatus",
         "kind": "value",
         "name": "isGoodStatus",
         "signature": "let isGoodStatus: SomeInnerModule.status => bool",
-        "docstrings": [],
-        "linkables": [{
-            "linkId": "DocExtractionRes.SomeInnerModule.status",
-            "name": "SomeInnerModule.status",
-            "external": false
-          }]
+        "docstrings": []
       }, 
       {
         "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
@@ -163,7 +118,6 @@ extracting docs for src/DocExtractionRes.res
         "name": "someVariantWithInlineRecords",
         "signature": "type someVariantWithInlineRecords = SomeStuff({offline: bool})",
         "docstrings": ["Trying how it looks with an inline record in a variant."],
-        "linkables": [],
         "detail": 
         {
           "kind": "variant",
@@ -171,8 +125,7 @@ extracting docs for src/DocExtractionRes.res
           {
             "constructorName": "SomeStuff",
             "docstrings": ["This has inline records..."],
-            "signature": "SomeStuff",
-            "linkables": []
+            "signature": "SomeStuff"
           }]
         }
       }, 
@@ -181,12 +134,7 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "domRoot",
         "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
-        "docstrings": ["Callback to get the DOM root..."],
-        "linkables": [{
-            "linkId": "ReactDOM.Client.Root.t",
-            "name": "ReactDOM.Client.Root.t",
-            "external": true
-          }]
+        "docstrings": ["Callback to get the DOM root..."]
       }]
     }
   }, 
@@ -203,20 +151,14 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "t",
         "signature": "type t",
-        "docstrings": ["The type t is stuff."],
-        "linkables": []
+        "docstrings": ["The type t is stuff."]
       }, 
       {
         "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.make",
         "kind": "value",
         "name": "make",
         "signature": "let make: unit => t",
-        "docstrings": ["The maker of stuff!"],
-        "linkables": [{
-            "linkId": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",
-            "name": "t",
-            "external": false
-          }]
+        "docstrings": ["The maker of stuff!"]
       }]
     }
   }]
