@@ -11,20 +11,14 @@ preferring found resi file for impl: src/DocExtraction2.resi
     "kind": "type",
     "name": "t",
     "signature": "type t",
-    "docstrings": ["Type t is pretty cool."],
-    "linkables": []
+    "docstrings": ["Type t is pretty cool."]
   }, 
   {
     "id": "DocExtraction2.make",
     "kind": "value",
     "name": "make",
     "signature": "let make: unit => t",
-    "docstrings": ["Makerz of stuffz."],
-    "linkables": [{
-        "linkId": "DocExtraction2.t",
-        "name": "t",
-        "external": false
-      }]
+    "docstrings": ["Makerz of stuffz."]
   }, 
   {
     "id": "InnerModule.DocExtraction2",
@@ -39,20 +33,14 @@ preferring found resi file for impl: src/DocExtraction2.resi
         "kind": "type",
         "name": "t",
         "signature": "type t",
-        "docstrings": ["This type is also t."],
-        "linkables": []
+        "docstrings": ["This type is also t."]
       }, 
       {
         "id": "DocExtraction2.InnerModule.make",
         "kind": "value",
         "name": "make",
         "signature": "let make: unit => t",
-        "docstrings": ["Maker of tea."],
-        "linkables": [{
-            "linkId": "DocExtraction2.InnerModule.t",
-            "name": "t",
-            "external": false
-          }]
+        "docstrings": ["Maker of tea."]
       }]
     }
   }]
