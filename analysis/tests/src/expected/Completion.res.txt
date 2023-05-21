@@ -2161,15 +2161,23 @@ Path someVariantWithDeprecated
     "insertTextFormat": 2
   }]
 
-Complete src/Completion.res 455:27
-posCursor:[455:27] posNoWhite:[455:26] Found expr:[455:11->0:-1]
-Completable: Cpath Value[uncurried](Nolabel)->
+Complete src/Completion.res 455:30
+posCursor:[455:30] posNoWhite:[455:29] Found expr:[455:11->455:30]
+Completable: Cpath Value[uncurried](Nolabel)->toS
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 Completion.res Completion.res pervasives
-ContextPath Value[uncurried](Nolabel)->
+ContextPath Value[uncurried](Nolabel)->toS
 ContextPath Value[uncurried](Nolabel)
 ContextPath Value[uncurried]
 Path uncurried
-[]
+CPPipe env:Completion
+Path Belt.Int.toS
+[{
+    "label": "Belt.Int.toString",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+  }]
 

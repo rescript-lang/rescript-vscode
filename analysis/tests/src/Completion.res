@@ -453,5 +453,5 @@ type someVariantWithDeprecated =
 
 let uncurried = (. num) => num + 2
 
-// let _ = uncurried(. 1)->
-//                         ^com
+// let _ = uncurried(. 1)->toS
+//                            ^com
