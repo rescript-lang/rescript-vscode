@@ -88,11 +88,13 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let extractFunctionType ~env ~package typ =
+let rec extractFunctionType ~env ~package typ =
   let rec loop ~env acc (t : Types.type_expr) =
     match t.desc with
     | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop ~env acc t1
     | Tarrow (label, tArg, tRet, _) -> loop ~env ((label, tArg) :: acc) tRet
+    | Tconstr (Pident {name = "function$"}, [t; _], _) ->
+      extractFunctionType ~env ~package t
     | Tconstr (path, typeArgs, _) -> (
       match References.digConstructor ~env ~package path with
       | Some
