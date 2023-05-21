@@ -2613,1917 +2613,1917 @@ File References
   Live Value +OptArg.+foo: 1 references (OptArg.res:5:7) [0]
 
   Incorrect Dead Annotation
-  File "DeadTest.res", line 178, characters 1-23
+  DeadTest.res:178:1-22
   deadIncorrect  is annotated @dead but is live
 
   Warning Unused Argument
-  File "TestOptArg.res", line 9, characters 1-66
+  TestOptArg.res:9:1-65
   optional argument x of function notSuppressesOptArgs is never used
 
   Warning Unused Argument
-  File "TestOptArg.res", line 9, characters 1-66
+  TestOptArg.res:9:1-65
   optional argument y of function notSuppressesOptArgs is never used
 
   Warning Unused Argument
-  File "TestOptArg.res", line 9, characters 1-66
+  TestOptArg.res:9:1-65
   optional argument z of function notSuppressesOptArgs is never used
 
   Warning Redundant Optional Argument
-  File "TestOptArg.res", line 3, characters 1-29
+  TestOptArg.res:3:1-28
   optional argument x of function foo is always supplied (1 calls)
 
   Warning Redundant Optional Argument
-  File "Unison.res", line 17, characters 1-61
+  Unison.res:17:1-60
   optional argument break of function group is always supplied (2 calls)
 
   Warning Unused Argument
-  File "OptArg.resi", line 2, characters 1-51
+  OptArg.resi:2:1-50
   optional argument x of function bar is never used
 
   Warning Redundant Optional Argument
-  File "OptArg.res", line 26, characters 1-71
+  OptArg.res:26:1-70
   optional argument c of function wrapfourArgs is always supplied (2 calls)
 
   Warning Unused Argument
-  File "OptArg.res", line 24, characters 1-64
+  OptArg.res:24:1-63
   optional argument d of function fourArgs is never used
 
   Warning Redundant Optional Argument
-  File "OptArg.res", line 20, characters 1-52
+  OptArg.res:20:1-51
   optional argument a of function wrapOneArg is always supplied (1 calls)
 
   Warning Unused Argument
-  File "OptArg.res", line 14, characters 1-43
+  OptArg.res:14:1-42
   optional argument a of function twoArgs is never used
 
   Warning Unused Argument
-  File "OptArg.res", line 14, characters 1-43
+  OptArg.res:14:1-42
   optional argument b of function twoArgs is never used
 
   Warning Unused Argument
-  File "OptArg.res", line 9, characters 1-55
+  OptArg.res:9:1-54
   optional argument b of function threeArgs is never used
 
   Warning Redundant Optional Argument
-  File "OptArg.res", line 9, characters 1-55
+  OptArg.res:9:1-54
   optional argument a of function threeArgs is always supplied (2 calls)
 
   Warning Unused Argument
-  File "OptArg.res", line 3, characters 1-39
+  OptArg.res:3:1-38
   optional argument x of function bar is never used
 
   Warning Unused Argument
-  File "OptArg.res", line 1, characters 1-49
+  OptArg.res:1:1-48
   optional argument y of function foo is never used
 
   Warning Unused Argument
-  File "OptArg.res", line 1, characters 1-49
+  OptArg.res:1:1-48
   optional argument z of function foo is never used
 
   Warning Dead Module
-  File "AutoAnnotate.res", line 0, characters 1-1
+  AutoAnnotate.res:0:1
   AutoAnnotate is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "AutoAnnotate.res", line 1, characters 16-22
+  AutoAnnotate.res:1:16-21
   variant.R is a variant case which is never constructed
   <-- line 1
   type variant = | @dead("variant.R") R(int)
 
   Warning Dead Type
-  File "AutoAnnotate.res", line 4, characters 16-32
+  AutoAnnotate.res:4:16-31
   record.variant is a record label never used to read a value
   <-- line 4
   type record = {@dead("record.variant") variant: variant}
 
   Warning Dead Type
-  File "AutoAnnotate.res", line 6, characters 12-19
+  AutoAnnotate.res:6:12-18
   r2.r2 is a record label never used to read a value
   <-- line 6
   type r2 = {@dead("r2.r2") r2: int}
 
   Warning Dead Type
-  File "AutoAnnotate.res", line 8, characters 12-19
+  AutoAnnotate.res:8:12-18
   r3.r3 is a record label never used to read a value
   <-- line 8
   type r3 = {@dead("r3.r3") r3: int}
 
   Warning Dead Type
-  File "AutoAnnotate.res", line 10, characters 12-19
+  AutoAnnotate.res:10:12-18
   r4.r4 is a record label never used to read a value
   <-- line 10
   type r4 = {@dead("r4.r4") r4: int}
 
   Warning Dead Type
-  File "AutoAnnotate.res", line 14, characters 3-15
+  AutoAnnotate.res:14:3-14
   annotatedVariant.R2 is a variant case which is never constructed
   <-- line 14
     | @dead("annotatedVariant.R2") R2(r2, r3)
 
   Warning Dead Type
-  File "AutoAnnotate.res", line 15, characters 5-11
+  AutoAnnotate.res:15:5-10
   annotatedVariant.R4 is a variant case which is never constructed
   <-- line 15
     | @dead("annotatedVariant.R4") R4(r4)
 
   Warning Dead Module
-  File "BucklescriptAnnotations.res", line 0, characters 1-1
+  BucklescriptAnnotations.res:0:1
   BucklescriptAnnotations is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "BucklescriptAnnotations.res", line 25, characters 1-71
+  BucklescriptAnnotations.res:25:1-70
   bar is never used
   <-- line 25
   @dead("bar") let bar = (x: someMethods) => {
 
   Warning Dead Exception
-  File "DeadExn.res", line 7, characters 1-16
+  DeadExn.res:7:1-15
   DeadE is never raised or passed as value
   <-- line 7
   @dead("DeadE") exception DeadE
 
   Warning Dead Value
-  File "DeadExn.res", line 8, characters 1-26
+  DeadExn.res:8:1-25
   eToplevel is never used
   <-- line 8
   @dead("eToplevel") let eToplevel = Etoplevel
 
   Warning Dead Module
-  File "DeadMl.ml", line 1, characters 1-121
+  DeadMl.ml:1:1-120
   DeadMl.QQ is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "DeadMl.ml", line 3, characters 5-94
+  DeadMl.ml:3:5-93
   QQ.thisSpansSeveralLines is never used
   <-- line 3
             x + y : int -> int -> int) [@@dead "QQ.thisSpansSeveralLines"] 
 
   Warning Dead Module
-  File "DeadMl.ml", line 8, characters 1-104
+  DeadMl.ml:8:1-103
   DeadMl.AA is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "DeadMl.ml", line 9, characters 3-41
+  DeadMl.ml:9:3-40
   AA.thisIsInInterface is never used
   <-- line 9
       int -> int [@@dead "AA.thisIsInInterface"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 12, characters 3-30
+  DeadMl.ml:12:3-29
   AA.thisIsInInterface is never used
   <-- line 12
     let thisIsInInterface x = x [@@dead "AA.thisIsInInterface"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 15, characters 1-26
+  DeadMl.ml:15:1-25
   thisHasSemicolons is never used
   <-- line 15
   let thisHasSemicolons = 3 [@@dead "thisHasSemicolons"] ;;
 
   Warning Dead Type
-  File "DeadMl.ml", line 17, characters 19-26
+  DeadMl.ml:17:19-25
   thisIsDead.DeadA is a variant case which is never constructed
   <-- line 17
   type thisIsDead = | DeadA [@dead "thisIsDead.DeadA"]  | DeadB [@dead "thisIsDead.DeadB"] 
 
   Warning Dead Type
-  File "DeadMl.ml", line 17, characters 27-34
+  DeadMl.ml:17:27-33
   thisIsDead.DeadB is a variant case which is never constructed
   <-- line 17
   type thisIsDead = | DeadA [@dead "thisIsDead.DeadA"]  | DeadB [@dead "thisIsDead.DeadB"] 
 
   Warning Dead Module
-  File "DeadMl.ml", line 25, characters 1-257
+  DeadMl.ml:25:1-256
   DeadMl.Bs_version is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "DeadMl.ml", line 26, characters 7-27
+  DeadMl.ml:26:7-26
   Bs_version.version is never used
   <-- line 26
     sig val version : string [@@dead "Bs_version.version"]  val header : string [@@dead "Bs_version.header"]  val package_name : string [@@dead "Bs_version.package_name"]  end 
 
   Warning Dead Value
-  File "DeadMl.ml", line 26, characters 28-47
+  DeadMl.ml:26:28-46
   Bs_version.header is never used
   <-- line 26
     sig val version : string [@@dead "Bs_version.version"]  val header : string [@@dead "Bs_version.header"]  val package_name : string [@@dead "Bs_version.package_name"]  end 
 
   Warning Dead Value
-  File "DeadMl.ml", line 26, characters 48-73
+  DeadMl.ml:26:48-72
   Bs_version.package_name is never used
   <-- line 26
     sig val version : string [@@dead "Bs_version.version"]  val header : string [@@dead "Bs_version.header"]  val package_name : string [@@dead "Bs_version.package_name"]  end 
 
   Warning Dead Value
-  File "DeadMl.ml", line 29, characters 5-32
+  DeadMl.ml:29:5-31
   Bs_version.version is never used
   <-- line 29
       let version = "7.2.0-dev.4" [@@dead "Bs_version.version"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 30, characters 5-71
+  DeadMl.ml:30:5-70
   Bs_version.header is never used
   <-- line 30
       let header = "// Generated by BUCKLESCRIPT, PLEASE EDIT WITH CARE" [@@dead "Bs_version.header"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 31, characters 5-37
+  DeadMl.ml:31:5-36
   Bs_version.package_name is never used
   <-- line 31
       let package_name = "bs-platform" [@@dead "Bs_version.package_name"] 
 
   Warning Dead Type
-  File "DeadMl.ml", line 35, characters 3-138
+  DeadMl.ml:35:3-137
   l.Lfunction is a variant case which is never constructed
   <-- line 35
                          } [@dead "l.Lfunction"] 
 
   Warning Dead Type
-  File "DeadMl.ml", line 41, characters 3-23
+  DeadMl.ml:41:3-22
   module_info.module_name is a record label never used to read a value
   <-- line 41
     module_name: string; [@dead "module_info.module_name"] 
 
   Warning Dead Type
-  File "DeadMl.ml", line 42, characters 3-13
+  DeadMl.ml:42:3-12
   module_info.case is a record label never used to read a value
   <-- line 42
     case: bool [@dead "module_info.case"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 45, characters 1-306
+  DeadMl.ml:45:1-305
   map_split_opt is never used
   <-- line 45
       (match d with Some d -> d::ds | None -> ds) [@@dead "map_split_opt"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 56, characters 1-41
+  DeadMl.ml:56:1-40
   inline_threshold is never used
   <-- line 56
   let inline_threshold = Some (10. /. 8.); [@@dead "inline_threshold"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 59, characters 3-16
+  DeadMl.ml:59:3-15
   Scope.dead1 is never used
   <-- line 59
     let dead1 = 1 [@@dead "Scope.dead1"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 62, characters 5-23
+  DeadMl.ml:62:5-22
   Scope.Inner1.deadInner1 is never used
   <-- line 62
       let deadInner1 = 0 [@@dead "Scope.Inner1.deadInner1"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 69, characters 3-16
+  DeadMl.ml:69:3-15
   Scope.dead2 is never used
   <-- line 69
     let dead2 = 2 [@@dead "Scope.dead2"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 80, characters 1-14
+  DeadMl.ml:80:1-13
   dead4 is never used
   <-- line 80
   let dead4 = 4 [@@dead "dead4"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 85, characters 1-14
+  DeadMl.ml:85:1-13
   dead5 is never used
   <-- line 85
   let dead5 = 5 [@@dead "dead5"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 90, characters 1-38
+  DeadMl.ml:90:1-37
   dead7 is never used
   <-- line 90
   [@@ocaml.warning "-30"] [@@dead "dead7"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 94, characters 3-17
+  DeadMl.ml:94:3-16
   WithSignature.dead8 is never used
   <-- line 94
     val dead8: int [@@dead "WithSignature.dead8"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 99, characters 3-18
+  DeadMl.ml:99:3-17
   WithSignature.dead10 is never used
   <-- line 99
     val dead10: int [@@dead "WithSignature.dead10"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 106, characters 3-16
+  DeadMl.ml:106:3-15
   WithSignature.dead8 is never used
   <-- line 106
     let dead8 = 8 [@@dead "WithSignature.dead8"] 
 
   Warning Dead Value
-  File "DeadMl.ml", line 108, characters 3-18
+  DeadMl.ml:108:3-17
   WithSignature.dead10 is never used
   <-- line 108
     let dead10 = 10 [@@dead "WithSignature.dead10"] 
 
   Warning Dead Value
-  File "DeadRT.res", line 5, characters 1-117
+  DeadRT.res:5:1-116
   emitModuleAccessPath is never used
   <-- line 5
   @dead("emitModuleAccessPath") let rec emitModuleAccessPath = moduleAccessPath =>
 
   Warning Dead Value
-  File "DeadTest.res", line 2, characters 1-18
+  DeadTest.res:2:1-17
   fortytwo is never used
   <-- line 2
   @dead("fortytwo") let fortytwo = 42
 
   Warning Dead Module
-  File "DeadTest.res", line 27, characters 8-98
+  DeadTest.res:27:8-97
   DeadTest.M is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "DeadTest.res", line 31, characters 3-35
+  DeadTest.res:31:3-34
   M.thisSignatureItemIsDead is never used
   <-- line 31
     @dead("M.thisSignatureItemIsDead") let thisSignatureItemIsDead = 34
 
   Warning Dead Value
-  File "DeadTest.res", line 61, characters 3-13
+  DeadTest.res:61:3-12
   MM.y is never used
   <-- line 61
     @dead("MM.y") let y: int
 
   Warning Dead Value
-  File "DeadTest.res", line 65, characters 3-36
+  DeadTest.res:65:3-35
   MM.valueOnlyInImplementation is never used
   <-- line 65
     @dead("MM.valueOnlyInImplementation") let valueOnlyInImplementation = 7
 
   Warning Dead Value
-  File "DeadTest.res", line 75, characters 1-38
+  DeadTest.res:75:1-37
   unusedRec is never used
   <-- line 75
   @dead("unusedRec") let rec unusedRec = () => unusedRec()
 
   Warning Dead Value
-  File "DeadTest.res", line 77, characters 1-61
+  DeadTest.res:77:1-60
   split_map is never used
   <-- line 77
   @dead("split_map") let rec split_map = l => {
 
   Warning Dead Value
-  File "DeadTest.res", line 82, characters 1-28
+  DeadTest.res:82:1-27
   rec1 is never used
   <-- line 82
   @dead("rec1") let rec rec1 = () => rec2()
 
   Warning Dead Value
-  File "DeadTest.res", line 83, characters 1-24
+  DeadTest.res:83:1-23
   rec2 is never used
   <-- line 83
   @dead("rec2") and rec2 = () => rec1()
 
   Warning Dead Value
-  File "DeadTest.res", line 85, characters 1-78
+  DeadTest.res:85:1-77
   recWithCallback is never used
   <-- line 85
   @dead("recWithCallback") let rec recWithCallback = () => {
 
   Warning Dead Value
-  File "DeadTest.res", line 90, characters 1-54
+  DeadTest.res:90:1-53
   foo is never used
   <-- line 90
   @dead("foo") let rec foo = () => {
 
   Warning Dead Value
-  File "DeadTest.res", line 94, characters 1-22
+  DeadTest.res:94:1-21
   bar is never used
   <-- line 94
   @dead("bar") and bar = () => foo()
 
   Warning Dead Value
-  File "DeadTest.res", line 96, characters 1-72
+  DeadTest.res:96:1-71
   withDefaultValue is never used
   <-- line 96
   @dead("withDefaultValue") let withDefaultValue = (~paramWithDefault=3, y) => paramWithDefault + y
 
   Warning Dead Module
-  File "DeadTest.res", line 110, characters 8-414
+  DeadTest.res:110:8-413
   DeadTest.LazyDynamicallyLoadedComponent2 is a dead module as all its items are dead.
 
   Warning Dead Value With Side Effects
-  File "DeadTest.res", line 111, characters 3-143
+  DeadTest.res:111:3-142
   LazyDynamicallyLoadedComponent2.reasonResource is never used and could have side effects
 
   Warning Dead Value
-  File "DeadTest.res", line 114, characters 3-55
+  DeadTest.res:114:3-54
   LazyDynamicallyLoadedComponent2.makeProps is never used
   <-- line 114
     @dead("LazyDynamicallyLoadedComponent2.makeProps") let makeProps = DynamicallyLoadedComponent.makeProps
 
   Warning Dead Value
-  File "DeadTest.res", line 115, characters 3-171
+  DeadTest.res:115:3-170
   LazyDynamicallyLoadedComponent2.make is never used
   <-- line 115
     @dead("LazyDynamicallyLoadedComponent2.make") let make = props =>
 
   Warning Dead Value
-  File "DeadTest.res", line 127, characters 1-53
+  DeadTest.res:127:1-52
   zzz is never used
   <-- line 127
   @dead("zzz") let zzz = {
 
   Warning Dead Value
-  File "DeadTest.res", line 135, characters 1-16
+  DeadTest.res:135:1-15
   second is never used
   <-- line 135
   @dead("second") let second = 1L
 
   Warning Dead Value
-  File "DeadTest.res", line 136, characters 1-36
+  DeadTest.res:136:1-35
   minute is never used
   <-- line 136
   @dead("minute") let minute = Int64.mul(60L, second)
 
   Warning Dead Value
-  File "DeadTest.res", line 138, characters 1-22
+  DeadTest.res:138:1-21
   deadRef is never used
   <-- line 138
   @dead("deadRef") let deadRef = ref(12)
 
   Warning Dead Value With Side Effects
-  File "DeadTest.res", line 145, characters 1-41
+  DeadTest.res:145:1-40
   theSideEffectIsLogging is never used and could have side effects
 
   Warning Dead Value
-  File "DeadTest.res", line 147, characters 1-55
+  DeadTest.res:147:1-54
   stringLengthNoSideEffects is never used
   <-- line 147
   @dead("stringLengthNoSideEffects") let stringLengthNoSideEffects = String.length("sdkdl")
 
   Warning Dead Type
-  File "DeadTest.res", line 175, characters 12-18
+  DeadTest.res:175:12-17
   rc.a is a record label never used to read a value
   <-- line 175
   type rc = {@dead("rc.a") a: int}
 
   Warning Dead Module
-  File "DeadTestBlacklist.res", line 0, characters 1-1
+  DeadTestBlacklist.res:0:1
   DeadTestBlacklist is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "DeadTestBlacklist.res", line 1, characters 1-11
+  DeadTestBlacklist.res:1:1-10
   x is never used
   <-- line 1
   @dead("x") let x = 34
 
   Warning Dead Module
-  File "DeadTestWithInterface.res", line 1, characters 8-55
+  DeadTestWithInterface.res:1:8-54
   DeadTestWithInterface.Ext_buffer is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "DeadTestWithInterface.res", line 2, characters 3-13
+  DeadTestWithInterface.res:2:3-12
   Ext_buffer.x is never used
   <-- line 2
     @dead("Ext_buffer.x") let x: int
 
   Warning Dead Value
-  File "DeadTestWithInterface.res", line 4, characters 3-13
+  DeadTestWithInterface.res:4:3-12
   Ext_buffer.x is never used
   <-- line 4
     @dead("Ext_buffer.x") let x = 42
 
   Warning Dead Type
-  File "DeadTypeTest.res", line 3, characters 5-6
+  DeadTypeTest.res:3:5
   t.B is a variant case which is never constructed
   <-- line 3
     | @dead("t.B") B
 
   Warning Dead Value
-  File "DeadTypeTest.res", line 4, characters 1-10
+  DeadTypeTest.res:4:1-9
   a is never used
   <-- line 4
   @dead("a") let a = A
 
   Warning Dead Type
-  File "DeadTypeTest.res", line 10, characters 5-14
+  DeadTypeTest.res:10:5-13
   deadType.InNeither is a variant case which is never constructed
   <-- line 10
     | @dead("deadType.InNeither") InNeither
 
   Warning Dead Type
-  File "DeadTypeTest.resi", line 3, characters 5-6
+  DeadTypeTest.resi:3:5
   t.B is a variant case which is never constructed
   <-- line 3
     | @dead("t.B") B
 
   Warning Dead Value
-  File "DeadTypeTest.resi", line 4, characters 1-9
+  DeadTypeTest.resi:4:1-8
   a is never used
   <-- line 4
   @dead("a") let a: t
 
   Warning Dead Type
-  File "DeadTypeTest.resi", line 10, characters 5-14
+  DeadTypeTest.resi:10:5-13
   deadType.InNeither is a variant case which is never constructed
   <-- line 10
     | @dead("deadType.InNeither") InNeither
 
   Warning Dead Value
-  File "DeadValueTest.res", line 2, characters 1-18
+  DeadValueTest.res:2:1-17
   valueDead is never used
   <-- line 2
   @dead("valueDead") let valueDead = 2
 
   Warning Dead Value
-  File "DeadValueTest.res", line 4, characters 1-34
+  DeadValueTest.res:4:1-33
   valueOnlyInImplementation is never used
   <-- line 4
   @dead("valueOnlyInImplementation") let valueOnlyInImplementation = 3
 
   Warning Dead Value
-  File "DeadValueTest.res", line 6, characters 1-261
+  DeadValueTest.res:6:1-260
   subList is never used
   <-- line 6
   @dead("subList") let rec subList = (b, e, l) =>
 
   Warning Dead Value
-  File "DeadValueTest.resi", line 2, characters 1-19
+  DeadValueTest.resi:2:1-18
   valueDead is never used
   <-- line 2
   @dead("valueDead") let valueDead: int
 
   Warning Dead Type
-  File "Docstrings.res", line 61, characters 5-6
+  Docstrings.res:61:5
   t.B is a variant case which is never constructed
   <-- line 61
     | @dead("t.B") B
 
   Warning Dead Module
-  File "ErrorHandler.res", line 0, characters 1-1
+  ErrorHandler.res:0:1
   ErrorHandler is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "ErrorHandler.res", line 12, characters 1-11
+  ErrorHandler.res:12:1-10
   x is never used
   <-- line 12
   @dead("x") let x = 42
 
   Warning Dead Module
-  File "ErrorHandler.resi", line 0, characters 1-1
+  ErrorHandler.resi:0:1
   ErrorHandler is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "ErrorHandler.resi", line 10, characters 1-11
+  ErrorHandler.resi:10:1-10
   x is never used
   <-- line 10
   @dead("x") let x: int
 
   Warning Dead Module
-  File "EverythingLiveHere.res", line 0, characters 1-1
+  EverythingLiveHere.res:0:1
   EverythingLiveHere is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "EverythingLiveHere.res", line 1, characters 1-10
+  EverythingLiveHere.res:1:1-9
   x is never used
   <-- line 1
   @dead("x") let x = 1
 
   Warning Dead Value
-  File "EverythingLiveHere.res", line 3, characters 1-10
+  EverythingLiveHere.res:3:1-9
   y is never used
   <-- line 3
   @dead("y") let y = 3
 
   Warning Dead Value
-  File "EverythingLiveHere.res", line 5, characters 1-10
+  EverythingLiveHere.res:5:1-9
   z is never used
   <-- line 5
   @dead("z") let z = 4
 
   Warning Dead Module
-  File "FirstClassModulesInterface.res", line 0, characters 1-1
+  FirstClassModulesInterface.res:0:1
   FirstClassModulesInterface is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "FirstClassModulesInterface.res", line 2, characters 3-9
+  FirstClassModulesInterface.res:2:3-8
   record.x is a record label never used to read a value
   <-- line 2
     @dead("record.x") x: int,
 
   Warning Dead Type
-  File "FirstClassModulesInterface.res", line 3, characters 3-12
+  FirstClassModulesInterface.res:3:3-11
   record.y is a record label never used to read a value
   <-- line 3
     @dead("record.y") y: string,
 
   Warning Dead Value
-  File "FirstClassModulesInterface.res", line 6, characters 1-27
+  FirstClassModulesInterface.res:6:1-26
   r is never used
   <-- line 6
   @dead("r") let r = {x: 3, y: "hello"}
 
   Warning Dead Module
-  File "FirstClassModulesInterface.resi", line 0, characters 1-1
+  FirstClassModulesInterface.resi:0:1
   FirstClassModulesInterface is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "FirstClassModulesInterface.resi", line 3, characters 3-9
+  FirstClassModulesInterface.resi:3:3-8
   record.x is a record label never used to read a value
   <-- line 3
     @dead("record.x") x: int,
 
   Warning Dead Type
-  File "FirstClassModulesInterface.resi", line 4, characters 3-12
+  FirstClassModulesInterface.resi:4:3-11
   record.y is a record label never used to read a value
   <-- line 4
     @dead("record.y") y: string,
 
   Warning Dead Value
-  File "FirstClassModulesInterface.resi", line 7, characters 1-14
+  FirstClassModulesInterface.resi:7:1-13
   r is never used
   <-- line 7
   @dead("r") let r: record
 
   Warning Dead Value
-  File "ImmutableArray.res", line 16, characters 3-42
+  ImmutableArray.res:16:3-41
   toArray is never used
   <-- line 16
     @dead("toArray") let toArray = a => Array.copy(a->fromT)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 20, characters 3-43
+  ImmutableArray.res:20:3-42
   length is never used
   <-- line 20
     @dead("length") let length = a => Array.length(a->fromT)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 22, characters 3-39
+  ImmutableArray.res:22:3-38
   size is never used
   <-- line 22
     @dead("size") let size = a => Array.size(a->fromT)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 26, characters 3-51
+  ImmutableArray.res:26:3-50
   getExn is never used
   <-- line 26
     @dead("getExn") let getExn = (a, x) => Array.getExn(a->fromT, x)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 28, characters 3-57
+  ImmutableArray.res:28:3-56
   getUnsafe is never used
   <-- line 28
     @dead("getUnsafe") let getUnsafe = (a, x) => Array.getUnsafe(a->fromT, x)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 30, characters 3-63
+  ImmutableArray.res:30:3-62
   getUndefined is never used
   <-- line 30
     @dead("getUndefined") let getUndefined = (a, x) => Array.getUndefined(a->fromT, x)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 32, characters 3-50
+  ImmutableArray.res:32:3-49
   shuffle is never used
   <-- line 32
     @dead("shuffle") let shuffle = x => Array.shuffle(x->fromT)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 34, characters 3-50
+  ImmutableArray.res:34:3-49
   reverse is never used
   <-- line 34
     @dead("reverse") let reverse = x => Array.reverse(x->fromT)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 36, characters 3-63
+  ImmutableArray.res:36:3-62
   makeUninitialized is never used
   <-- line 36
     @dead("makeUninitialized") let makeUninitialized = x => Array.makeUninitialized(x)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 38, characters 3-75
+  ImmutableArray.res:38:3-74
   makeUninitializedUnsafe is never used
   <-- line 38
     @dead("makeUninitializedUnsafe") let makeUninitializedUnsafe = x => Array.makeUninitializedUnsafe(x)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 40, characters 3-45
+  ImmutableArray.res:40:3-44
   make is never used
   <-- line 40
     @dead("make") let make = (x, y) => Array.make(x, y)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 42, characters 3-47
+  ImmutableArray.res:42:3-46
   range is never used
   <-- line 42
     @dead("range") let range = (x, y) => Array.range(x, y)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 44, characters 3-65
+  ImmutableArray.res:44:3-64
   rangeBy is never used
   <-- line 44
     @dead("rangeBy") let rangeBy = (x, y, ~step) => Array.rangeBy(x, y, ~step)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 46, characters 3-51
+  ImmutableArray.res:46:3-50
   makeByU is never used
   <-- line 46
     @dead("makeByU") let makeByU = (c, f) => Array.makeByU(c, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 47, characters 3-49
+  ImmutableArray.res:47:3-48
   makeBy is never used
   <-- line 47
     @dead("makeBy") let makeBy = (c, f) => Array.makeBy(c, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 49, characters 3-71
+  ImmutableArray.res:49:3-70
   makeByAndShuffleU is never used
   <-- line 49
     @dead("makeByAndShuffleU") let makeByAndShuffleU = (c, f) => Array.makeByAndShuffleU(c, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 50, characters 3-69
+  ImmutableArray.res:50:3-68
   makeByAndShuffle is never used
   <-- line 50
     @dead("makeByAndShuffle") let makeByAndShuffle = (c, f) => Array.makeByAndShuffle(c, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 52, characters 3-62
+  ImmutableArray.res:52:3-61
   zip is never used
   <-- line 52
     @dead("zip") let zip = (a1, a2) => Array.zip(fromT(a1), fromT(a2))->toTp
 
   Warning Dead Value
-  File "ImmutableArray.res", line 54, characters 3-73
+  ImmutableArray.res:54:3-72
   zipByU is never used
   <-- line 54
     @dead("zipByU") let zipByU = (a1, a2, f) => Array.zipByU(fromT(a1), fromT(a2), f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 55, characters 3-71
+  ImmutableArray.res:55:3-70
   zipBy is never used
   <-- line 55
     @dead("zipBy") let zipBy = (a1, a2, f) => Array.zipBy(fromT(a1), fromT(a2), f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 57, characters 3-48
+  ImmutableArray.res:57:3-47
   unzip is never used
   <-- line 57
     @dead("unzip") let unzip = a => Array.unzip(a->fromTp)->toT2
 
   Warning Dead Value
-  File "ImmutableArray.res", line 59, characters 3-67
+  ImmutableArray.res:59:3-66
   concat is never used
   <-- line 59
     @dead("concat") let concat = (a1, a2) => Array.concat(a1->fromT, a2->fromT)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 61, characters 3-68
+  ImmutableArray.res:61:3-67
   concatMany is never used
   <-- line 61
     @dead("concatMany") let concatMany = (a: t<t<_>>) => Array.concatMany(a->fromTT)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 63, characters 3-78
+  ImmutableArray.res:63:3-77
   slice is never used
   <-- line 63
     @dead("slice") let slice = (a, ~offset, ~len) => Array.slice(a->fromT, ~offset, ~len)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 65, characters 3-64
+  ImmutableArray.res:65:3-63
   sliceToEnd is never used
   <-- line 65
     @dead("sliceToEnd") let sliceToEnd = (a, b) => Array.sliceToEnd(a->fromT, b)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 67, characters 3-44
+  ImmutableArray.res:67:3-43
   copy is never used
   <-- line 67
     @dead("copy") let copy = a => Array.copy(a->fromT)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 69, characters 3-55
+  ImmutableArray.res:69:3-54
   forEachU is never used
   <-- line 69
     @dead("forEachU") let forEachU = (a, f) => Array.forEachU(a->fromT, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 70, characters 3-53
+  ImmutableArray.res:70:3-52
   forEach is never used
   <-- line 70
     @dead("forEach") let forEach = (a, f) => Array.forEach(a->fromT, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 72, characters 3-52
+  ImmutableArray.res:72:3-51
   mapU is never used
   <-- line 72
     @dead("mapU") let mapU = (a, f) => Array.mapU(a->fromT, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 73, characters 3-50
+  ImmutableArray.res:73:3-49
   map is never used
   <-- line 73
     @dead("map") let map = (a, f) => Array.map(a->fromT, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 75, characters 3-72
+  ImmutableArray.res:75:3-71
   keepWithIndexU is never used
   <-- line 75
     @dead("keepWithIndexU") let keepWithIndexU = (a, f) => Array.keepWithIndexU(a->fromT, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 76, characters 3-70
+  ImmutableArray.res:76:3-69
   keepWithIndex is never used
   <-- line 76
     @dead("keepWithIndex") let keepWithIndex = (a, f) => Array.keepWithIndex(a->fromT, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 78, characters 3-60
+  ImmutableArray.res:78:3-59
   keepMapU is never used
   <-- line 78
     @dead("keepMapU") let keepMapU = (a, f) => Array.keepMapU(a->fromT, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 79, characters 3-58
+  ImmutableArray.res:79:3-57
   keepMap is never used
   <-- line 79
     @dead("keepMap") let keepMap = (a, f) => Array.keepMap(a->fromT, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 81, characters 3-73
+  ImmutableArray.res:81:3-72
   forEachWithIndexU is never used
   <-- line 81
     @dead("forEachWithIndexU") let forEachWithIndexU = (a, f) => Array.forEachWithIndexU(a->fromT, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 82, characters 3-71
+  ImmutableArray.res:82:3-70
   forEachWithIndex is never used
   <-- line 82
     @dead("forEachWithIndex") let forEachWithIndex = (a, f) => Array.forEachWithIndex(a->fromT, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 84, characters 3-70
+  ImmutableArray.res:84:3-69
   mapWithIndexU is never used
   <-- line 84
     @dead("mapWithIndexU") let mapWithIndexU = (a, f) => Array.mapWithIndexU(a->fromT, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 85, characters 3-68
+  ImmutableArray.res:85:3-67
   mapWithIndex is never used
   <-- line 85
     @dead("mapWithIndex") let mapWithIndex = (a, f) => Array.mapWithIndex(a->fromT, f)->toT
 
   Warning Dead Value
-  File "ImmutableArray.res", line 87, characters 3-65
+  ImmutableArray.res:87:3-64
   partitionU is never used
   <-- line 87
     @dead("partitionU") let partitionU = (a, f) => Array.partitionU(a->fromT, f)->toT2
 
   Warning Dead Value
-  File "ImmutableArray.res", line 88, characters 3-63
+  ImmutableArray.res:88:3-62
   partition is never used
   <-- line 88
     @dead("partition") let partition = (a, f) => Array.partition(a->fromT, f)->toT2
 
   Warning Dead Value
-  File "ImmutableArray.res", line 90, characters 3-59
+  ImmutableArray.res:90:3-58
   reduceU is never used
   <-- line 90
     @dead("reduceU") let reduceU = (a, b, f) => Array.reduceU(a->fromT, b, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 91, characters 3-57
+  ImmutableArray.res:91:3-56
   reduce is never used
   <-- line 91
     @dead("reduce") let reduce = (a, b, f) => Array.reduce(a->fromT, b, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 93, characters 3-73
+  ImmutableArray.res:93:3-72
   reduceReverseU is never used
   <-- line 93
     @dead("reduceReverseU") let reduceReverseU = (a, b, f) => Array.reduceReverseU(a->fromT, b, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 94, characters 3-71
+  ImmutableArray.res:94:3-70
   reduceReverse is never used
   <-- line 94
     @dead("reduceReverse") let reduceReverse = (a, b, f) => Array.reduceReverse(a->fromT, b, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 96, characters 3-92
+  ImmutableArray.res:96:3-91
   reduceReverse2U is never used
   <-- line 96
     @dead("reduceReverse2U") let reduceReverse2U = (a1, a2, c, f) => Array.reduceReverse2U(fromT(a1), fromT(a2), c, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 97, characters 3-90
+  ImmutableArray.res:97:3-89
   reduceReverse2 is never used
   <-- line 97
     @dead("reduceReverse2") let reduceReverse2 = (a1, a2, c, f) => Array.reduceReverse2(fromT(a1), fromT(a2), c, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 99, characters 3-49
+  ImmutableArray.res:99:3-48
   someU is never used
   <-- line 99
     @dead("someU") let someU = (a, f) => Array.someU(a->fromT, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 100, characters 3-47
+  ImmutableArray.res:100:3-46
   some is never used
   <-- line 100
     @dead("some") let some = (a, f) => Array.some(a->fromT, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 102, characters 3-51
+  ImmutableArray.res:102:3-50
   everyU is never used
   <-- line 102
     @dead("everyU") let everyU = (a, f) => Array.everyU(a->fromT, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 103, characters 3-49
+  ImmutableArray.res:103:3-48
   every is never used
   <-- line 103
     @dead("every") let every = (a, f) => Array.every(a->fromT, f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 105, characters 3-70
+  ImmutableArray.res:105:3-69
   every2U is never used
   <-- line 105
     @dead("every2U") let every2U = (a1, a2, f) => Array.every2U(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 106, characters 3-68
+  ImmutableArray.res:106:3-67
   every2 is never used
   <-- line 106
     @dead("every2") let every2 = (a1, a2, f) => Array.every2(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 108, characters 3-68
+  ImmutableArray.res:108:3-67
   some2U is never used
   <-- line 108
     @dead("some2U") let some2U = (a1, a2, f) => Array.some2U(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 109, characters 3-66
+  ImmutableArray.res:109:3-65
   some2 is never used
   <-- line 109
     @dead("some2") let some2 = (a1, a2, f) => Array.some2(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 111, characters 3-64
+  ImmutableArray.res:111:3-63
   cmpU is never used
   <-- line 111
     @dead("cmpU") let cmpU = (a1, a2, f) => Array.cmpU(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 112, characters 3-62
+  ImmutableArray.res:112:3-61
   cmp is never used
   <-- line 112
     @dead("cmp") let cmp = (a1, a2, f) => Array.cmp(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 114, characters 3-62
+  ImmutableArray.res:114:3-61
   eqU is never used
   <-- line 114
     @dead("eqU") let eqU = (a1, a2, f) => Array.eqU(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  File "ImmutableArray.res", line 115, characters 3-60
+  ImmutableArray.res:115:3-59
   eq is never used
   <-- line 115
     @dead("eq") let eq = (a1, a2, f) => Array.eq(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 12, characters 1-32
+  ImmutableArray.resi:12:1-31
   toArray is never used
   <-- line 12
   @dead("toArray") let toArray: t<'a> => array<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 14, characters 1-108
+  ImmutableArray.resi:14:1-107
   length is never used
   <-- line 14
   @dead("length") @ocaml.doc(" Subset of the Belt.Array oprerations that do not mutate the array. ")
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 17, characters 1-23
+  ImmutableArray.resi:17:1-22
   size is never used
   <-- line 17
   @dead("size") let size: t<'a> => int
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 19, characters 1-36
+  ImmutableArray.resi:19:1-35
   get is never used
   <-- line 19
   @dead("get") let get: (t<'a>, int) => option<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 21, characters 1-31
+  ImmutableArray.resi:21:1-30
   getExn is never used
   <-- line 21
   @dead("getExn") let getExn: (t<'a>, int) => 'a
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 23, characters 1-34
+  ImmutableArray.resi:23:1-33
   getUnsafe is never used
   <-- line 23
   @dead("getUnsafe") let getUnsafe: (t<'a>, int) => 'a
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 25, characters 1-51
+  ImmutableArray.resi:25:1-50
   getUndefined is never used
   <-- line 25
   @dead("getUndefined") let getUndefined: (t<'a>, int) => Js.undefined<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 27, characters 1-28
+  ImmutableArray.resi:27:1-27
   shuffle is never used
   <-- line 27
   @dead("shuffle") let shuffle: t<'a> => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 29, characters 1-28
+  ImmutableArray.resi:29:1-27
   reverse is never used
   <-- line 29
   @dead("reverse") let reverse: t<'a> => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 31, characters 1-50
+  ImmutableArray.resi:31:1-49
   makeUninitialized is never used
   <-- line 31
   @dead("makeUninitialized") let makeUninitialized: int => t<Js.undefined<'a>>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 33, characters 1-42
+  ImmutableArray.resi:33:1-41
   makeUninitializedUnsafe is never used
   <-- line 33
   @dead("makeUninitializedUnsafe") let makeUninitializedUnsafe: int => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 35, characters 1-29
+  ImmutableArray.resi:35:1-28
   make is never used
   <-- line 35
   @dead("make") let make: (int, 'a) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 37, characters 1-32
+  ImmutableArray.resi:37:1-31
   range is never used
   <-- line 37
   @dead("range") let range: (int, int) => t<int>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 39, characters 1-46
+  ImmutableArray.resi:39:1-45
   rangeBy is never used
   <-- line 39
   @dead("rangeBy") let rangeBy: (int, int, ~step: int) => t<int>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 41, characters 1-43
+  ImmutableArray.resi:41:1-42
   makeByU is never used
   <-- line 41
   @dead("makeByU") let makeByU: (int, (. int) => 'a) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 42, characters 1-38
+  ImmutableArray.resi:42:1-37
   makeBy is never used
   <-- line 42
   @dead("makeBy") let makeBy: (int, int => 'a) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 44, characters 1-53
+  ImmutableArray.resi:44:1-52
   makeByAndShuffleU is never used
   <-- line 44
   @dead("makeByAndShuffleU") let makeByAndShuffleU: (int, (. int) => 'a) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 45, characters 1-48
+  ImmutableArray.resi:45:1-47
   makeByAndShuffle is never used
   <-- line 45
   @dead("makeByAndShuffle") let makeByAndShuffle: (int, int => 'a) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 47, characters 1-39
+  ImmutableArray.resi:47:1-38
   zip is never used
   <-- line 47
   @dead("zip") let zip: (t<'a>, t<'b>) => t<('a, 'b)>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 49, characters 1-54
+  ImmutableArray.resi:49:1-53
   zipByU is never used
   <-- line 49
   @dead("zipByU") let zipByU: (t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 50, characters 1-51
+  ImmutableArray.resi:50:1-50
   zipBy is never used
   <-- line 50
   @dead("zipBy") let zipBy: (t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 52, characters 1-41
+  ImmutableArray.resi:52:1-40
   unzip is never used
   <-- line 52
   @dead("unzip") let unzip: t<('a, 'a)> => (t<'a>, t<'a>)
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 54, characters 1-36
+  ImmutableArray.resi:54:1-35
   concat is never used
   <-- line 54
   @dead("concat") let concat: (t<'a>, t<'a>) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 56, characters 1-34
+  ImmutableArray.resi:56:1-33
   concatMany is never used
   <-- line 56
   @dead("concatMany") let concatMany: t<t<'a>> => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 58, characters 1-53
+  ImmutableArray.resi:58:1-52
   slice is never used
   <-- line 58
   @dead("slice") let slice: (t<'a>, ~offset: int, ~len: int) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 60, characters 1-38
+  ImmutableArray.resi:60:1-37
   sliceToEnd is never used
   <-- line 60
   @dead("sliceToEnd") let sliceToEnd: (t<'a>, int) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 62, characters 1-25
+  ImmutableArray.resi:62:1-24
   copy is never used
   <-- line 62
   @dead("copy") let copy: t<'a> => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 64, characters 1-46
+  ImmutableArray.resi:64:1-45
   forEachU is never used
   <-- line 64
   @dead("forEachU") let forEachU: (t<'a>, (. 'a) => unit) => unit
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 65, characters 1-41
+  ImmutableArray.resi:65:1-40
   forEach is never used
   <-- line 65
   @dead("forEach") let forEach: (t<'a>, 'a => unit) => unit
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 67, characters 1-41
+  ImmutableArray.resi:67:1-40
   mapU is never used
   <-- line 67
   @dead("mapU") let mapU: (t<'a>, (. 'a) => 'b) => t<'b>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 68, characters 1-36
+  ImmutableArray.resi:68:1-35
   map is never used
   <-- line 68
   @dead("map") let map: (t<'a>, 'a => 'b) => t<'b>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 70, characters 1-58
+  ImmutableArray.resi:70:1-57
   keepWithIndexU is never used
   <-- line 70
   @dead("keepWithIndexU") let keepWithIndexU: (t<'a>, (. 'a, int) => bool) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 71, characters 1-55
+  ImmutableArray.resi:71:1-54
   keepWithIndex is never used
   <-- line 71
   @dead("keepWithIndex") let keepWithIndex: (t<'a>, ('a, int) => bool) => t<'a>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 73, characters 1-53
+  ImmutableArray.resi:73:1-52
   keepMapU is never used
   <-- line 73
   @dead("keepMapU") let keepMapU: (t<'a>, (. 'a) => option<'b>) => t<'b>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 74, characters 1-48
+  ImmutableArray.resi:74:1-47
   keepMap is never used
   <-- line 74
   @dead("keepMap") let keepMap: (t<'a>, 'a => option<'b>) => t<'b>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 76, characters 1-60
+  ImmutableArray.resi:76:1-59
   forEachWithIndexU is never used
   <-- line 76
   @dead("forEachWithIndexU") let forEachWithIndexU: (t<'a>, (. int, 'a) => unit) => unit
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 77, characters 1-57
+  ImmutableArray.resi:77:1-56
   forEachWithIndex is never used
   <-- line 77
   @dead("forEachWithIndex") let forEachWithIndex: (t<'a>, (int, 'a) => unit) => unit
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 79, characters 1-55
+  ImmutableArray.resi:79:1-54
   mapWithIndexU is never used
   <-- line 79
   @dead("mapWithIndexU") let mapWithIndexU: (t<'a>, (. int, 'a) => 'b) => t<'b>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 80, characters 1-52
+  ImmutableArray.resi:80:1-51
   mapWithIndex is never used
   <-- line 80
   @dead("mapWithIndex") let mapWithIndex: (t<'a>, (int, 'a) => 'b) => t<'b>
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 82, characters 1-58
+  ImmutableArray.resi:82:1-57
   partitionU is never used
   <-- line 82
   @dead("partitionU") let partitionU: (t<'a>, (. 'a) => bool) => (t<'a>, t<'a>)
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 83, characters 1-53
+  ImmutableArray.resi:83:1-52
   partition is never used
   <-- line 83
   @dead("partition") let partition: (t<'a>, 'a => bool) => (t<'a>, t<'a>)
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 85, characters 1-49
+  ImmutableArray.resi:85:1-48
   reduceU is never used
   <-- line 85
   @dead("reduceU") let reduceU: (t<'a>, 'b, (. 'b, 'a) => 'b) => 'b
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 86, characters 1-46
+  ImmutableArray.resi:86:1-45
   reduce is never used
   <-- line 86
   @dead("reduce") let reduce: (t<'a>, 'b, ('b, 'a) => 'b) => 'b
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 88, characters 1-56
+  ImmutableArray.resi:88:1-55
   reduceReverseU is never used
   <-- line 88
   @dead("reduceReverseU") let reduceReverseU: (t<'a>, 'b, (. 'b, 'a) => 'b) => 'b
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 89, characters 1-53
+  ImmutableArray.resi:89:1-52
   reduceReverse is never used
   <-- line 89
   @dead("reduceReverse") let reduceReverse: (t<'a>, 'b, ('b, 'a) => 'b) => 'b
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 91, characters 1-68
+  ImmutableArray.resi:91:1-67
   reduceReverse2U is never used
   <-- line 91
   @dead("reduceReverse2U") let reduceReverse2U: (t<'a>, t<'b>, 'c, (. 'c, 'a, 'b) => 'c) => 'c
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 92, characters 1-65
+  ImmutableArray.resi:92:1-64
   reduceReverse2 is never used
   <-- line 92
   @dead("reduceReverse2") let reduceReverse2: (t<'a>, t<'b>, 'c, ('c, 'a, 'b) => 'c) => 'c
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 94, characters 1-43
+  ImmutableArray.resi:94:1-42
   someU is never used
   <-- line 94
   @dead("someU") let someU: (t<'a>, (. 'a) => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 95, characters 1-38
+  ImmutableArray.resi:95:1-37
   some is never used
   <-- line 95
   @dead("some") let some: (t<'a>, 'a => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 97, characters 1-44
+  ImmutableArray.resi:97:1-43
   everyU is never used
   <-- line 97
   @dead("everyU") let everyU: (t<'a>, (. 'a) => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 98, characters 1-39
+  ImmutableArray.resi:98:1-38
   every is never used
   <-- line 98
   @dead("every") let every: (t<'a>, 'a => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 100, characters 1-56
+  ImmutableArray.resi:100:1-55
   every2U is never used
   <-- line 100
   @dead("every2U") let every2U: (t<'a>, t<'b>, (. 'a, 'b) => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 101, characters 1-53
+  ImmutableArray.resi:101:1-52
   every2 is never used
   <-- line 101
   @dead("every2") let every2: (t<'a>, t<'b>, ('a, 'b) => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 103, characters 1-55
+  ImmutableArray.resi:103:1-54
   some2U is never used
   <-- line 103
   @dead("some2U") let some2U: (t<'a>, t<'b>, (. 'a, 'b) => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 104, characters 1-52
+  ImmutableArray.resi:104:1-51
   some2 is never used
   <-- line 104
   @dead("some2") let some2: (t<'a>, t<'b>, ('a, 'b) => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 106, characters 1-51
+  ImmutableArray.resi:106:1-50
   cmpU is never used
   <-- line 106
   @dead("cmpU") let cmpU: (t<'a>, t<'a>, (. 'a, 'a) => int) => int
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 107, characters 1-48
+  ImmutableArray.resi:107:1-47
   cmp is never used
   <-- line 107
   @dead("cmp") let cmp: (t<'a>, t<'a>, ('a, 'a) => int) => int
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 109, characters 1-52
+  ImmutableArray.resi:109:1-51
   eqU is never used
   <-- line 109
   @dead("eqU") let eqU: (t<'a>, t<'a>, (. 'a, 'a) => bool) => bool
 
   Warning Dead Value
-  File "ImmutableArray.resi", line 110, characters 1-49
+  ImmutableArray.resi:110:1-48
   eq is never used
   <-- line 110
   @dead("eq") let eq: (t<'a>, t<'a>, ('a, 'a) => bool) => bool
 
   Warning Dead Type
-  File "ImportHookDefault.res", line 2, characters 3-15
+  ImportHookDefault.res:2:3-14
   person.name is a record label never used to read a value
   <-- line 2
     @dead("person.name") name: string,
 
   Warning Dead Type
-  File "ImportHookDefault.res", line 3, characters 3-11
+  ImportHookDefault.res:3:3-10
   person.age is a record label never used to read a value
   <-- line 3
     @dead("person.age") age: int,
 
   Warning Dead Type
-  File "ImportHooks.res", line 3, characters 3-15
+  ImportHooks.res:3:3-14
   person.name is a record label never used to read a value
   <-- line 3
     @dead("person.name") name: string,
 
   Warning Dead Type
-  File "ImportHooks.res", line 4, characters 3-11
+  ImportHooks.res:4:3-10
   person.age is a record label never used to read a value
   <-- line 4
     @dead("person.age") age: int,
 
   Warning Dead Type
-  File "ImportJsValue.res", line 11, characters 3-9
+  ImportJsValue.res:11:3-8
   point.x is a record label never used to read a value
   <-- line 11
     @dead("point.x") x: int,
 
   Warning Dead Type
-  File "ImportJsValue.res", line 12, characters 3-17
+  ImportJsValue.res:12:3-16
   point.y is a record label never used to read a value
   <-- line 12
     @dead("point.y") y: option<int>,
 
   Warning Dead Type
-  File "ImportJsValue.res", line 67, characters 3-11
+  ImportJsValue.res:67:3-10
   variant.I is a variant case which is never constructed
   <-- line 67
     | @dead("variant.I") I(int)
 
   Warning Dead Type
-  File "ImportJsValue.res", line 68, characters 5-14
+  ImportJsValue.res:68:5-13
   variant.S is a variant case which is never constructed
   <-- line 68
     | @dead("variant.S") S(string)
 
   Warning Dead Type
-  File "ImportMyBanner.res", line 5, characters 17-29
+  ImportMyBanner.res:5:17-28
   message.text is a record label never used to read a value
   <-- line 5
   type message = {@dead("message.text") text: string}
 
   Warning Dead Value
-  File "ImportMyBanner.res", line 12, characters 1-16
+  ImportMyBanner.res:12:1-15
   make is never used
   <-- line 12
   @dead("make") let make = make
 
   Warning Dead Module
-  File "ModuleAliases.res", line 2, characters 10-57
+  ModuleAliases.res:2:10-56
   ModuleAliases.Outer.Inner is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "ModuleAliases.res", line 3, characters 20-33
+  ModuleAliases.res:3:20-32
   Outer.Inner.innerT.inner is a record label never used to read a value
   <-- line 3
       type innerT = {@dead("Outer.Inner.innerT.inner") inner: string}
 
   Warning Dead Module
-  File "ModuleAliases.res", line 10, characters 12-62
+  ModuleAliases.res:10:12-61
   ModuleAliases.Outer2.Inner2.InnerNested is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "ModuleAliases.res", line 11, characters 17-28
+  ModuleAliases.res:11:17-27
   Outer2.Inner2.InnerNested.t.nested is a record label never used to read a value
   <-- line 11
         type t = {@dead("Outer2.Inner2.InnerNested.t.nested") nested: int}
 
   Warning Dead Module
-  File "ModuleAliases2.res", line 0, characters 1-1
+  ModuleAliases2.res:0:1
   ModuleAliases2 is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "ModuleAliases2.res", line 3, characters 3-9
+  ModuleAliases2.res:3:3-8
   record.x is a record label never used to read a value
   <-- line 3
     @dead("record.x") x: int,
 
   Warning Dead Type
-  File "ModuleAliases2.res", line 4, characters 3-12
+  ModuleAliases2.res:4:3-11
   record.y is a record label never used to read a value
   <-- line 4
     @dead("record.y") y: string,
 
   Warning Dead Module
-  File "ModuleAliases2.res", line 7, characters 8-131
+  ModuleAliases2.res:7:8-130
   ModuleAliases2.Outer is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "ModuleAliases2.res", line 9, characters 17-30
+  ModuleAliases2.res:9:17-29
   Outer.outer.outer is a record label never used to read a value
   <-- line 9
     type outer = {@dead("Outer.outer.outer") outer: string}
 
   Warning Dead Module
-  File "ModuleAliases2.res", line 11, characters 10-69
+  ModuleAliases2.res:11:10-68
   ModuleAliases2.Outer.Inner is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "ModuleAliases2.res", line 13, characters 19-32
+  ModuleAliases2.res:13:19-31
   Outer.Inner.inner.inner is a record label never used to read a value
   <-- line 13
       type inner = {@dead("Outer.Inner.inner.inner") inner: string}
 
   Warning Dead Value
-  File "ModuleAliases2.res", line 21, characters 1-11
+  ModuleAliases2.res:21:1-10
   q is never used
   <-- line 21
   @dead("q") let q = 42
 
   Warning Dead Module
-  File "ModuleExceptionBug.res", line 1, characters 8-53
+  ModuleExceptionBug.res:1:8-52
   ModuleExceptionBug.Dep is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "ModuleExceptionBug.res", line 2, characters 3-36
+  ModuleExceptionBug.res:2:3-35
   Dep.customDouble is never used
   <-- line 2
     @dead("Dep.customDouble") let customDouble = foo => foo * 2
 
   Warning Dead Exception
-  File "ModuleExceptionBug.res", line 5, characters 1-27
+  ModuleExceptionBug.res:5:1-26
   MyOtherException is never raised or passed as value
   <-- line 5
   @dead("MyOtherException") exception MyOtherException
 
   Warning Dead Value
-  File "NestedModules.res", line 8, characters 3-23
+  NestedModules.res:8:3-22
   Universe.notExported is never used
   <-- line 8
     @dead("Universe.notExported") let notExported = 33
 
   Warning Dead Value
-  File "NestedModules.res", line 14, characters 5-14
+  NestedModules.res:14:5-13
   Universe.Nested2.x is never used
   <-- line 14
       @dead("Universe.Nested2.x") let x = 0
 
   Warning Dead Value
-  File "NestedModules.res", line 19, characters 5-14
+  NestedModules.res:19:5-13
   Universe.Nested2.y is never used
   <-- line 19
       @dead("Universe.Nested2.y") let y = 2
 
   Warning Dead Value
-  File "NestedModules.res", line 25, characters 7-16
+  NestedModules.res:25:7-15
   Universe.Nested2.Nested3.x is never used
   <-- line 25
         @dead("Universe.Nested2.Nested3.x") let x = 0
 
   Warning Dead Value
-  File "NestedModules.res", line 26, characters 7-16
+  NestedModules.res:26:7-15
   Universe.Nested2.Nested3.y is never used
   <-- line 26
         @dead("Universe.Nested2.Nested3.y") let y = 1
 
   Warning Dead Value
-  File "NestedModules.res", line 27, characters 7-16
+  NestedModules.res:27:7-15
   Universe.Nested2.Nested3.z is never used
   <-- line 27
         @dead("Universe.Nested2.Nested3.z") let z = 2
 
   Warning Dead Value
-  File "NestedModules.res", line 28, characters 7-16
+  NestedModules.res:28:7-15
   Universe.Nested2.Nested3.w is never used
   <-- line 28
         @dead("Universe.Nested2.Nested3.w") let w = 3
 
   Warning Dead Type
-  File "NestedModules.res", line 46, characters 5-8
+  NestedModules.res:46:5-7
   Universe.variant.A is a variant case which is never constructed
   <-- line 46
       | @dead("Universe.variant.A") A
 
   Warning Dead Type
-  File "NestedModules.res", line 47, characters 7-16
+  NestedModules.res:47:7-15
   Universe.variant.B is a variant case which is never constructed
   <-- line 47
       | @dead("Universe.variant.B") B(string)
 
   Warning Dead Module
-  File "Newsyntax.res", line 0, characters 1-1
+  Newsyntax.res:0:1
   Newsyntax is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "Newsyntax.res", line 1, characters 1-11
+  Newsyntax.res:1:1-10
   x is never used
   <-- line 1
   @dead("x") let x = 34
 
   Warning Dead Value
-  File "Newsyntax.res", line 3, characters 1-11
+  Newsyntax.res:3:1-10
   y is never used
   <-- line 3
   @dead("y") let y = 11
 
   Warning Dead Type
-  File "Newsyntax.res", line 6, characters 3-11
+  Newsyntax.res:6:3-10
   record.xxx is a record label never used to read a value
   <-- line 6
     @dead("record.xxx") xxx: int,
 
   Warning Dead Type
-  File "Newsyntax.res", line 7, characters 3-11
+  Newsyntax.res:7:3-10
   record.yyy is a record label never used to read a value
   <-- line 7
     @dead("record.yyy") yyy: int,
 
   Warning Dead Type
-  File "Newsyntax.res", line 10, characters 16-17
+  Newsyntax.res:10:16
   variant.A is a variant case which is never constructed
   <-- line 10
   type variant = | @dead("variant.A") A | @dead("variant.B") B(int)|@dead("variant.C") C
 
   Warning Dead Type
-  File "Newsyntax.res", line 10, characters 20-26
+  Newsyntax.res:10:20-25
   variant.B is a variant case which is never constructed
   <-- line 10
   type variant = | @dead("variant.A") A | @dead("variant.B") B(int)|@dead("variant.C") C
 
   Warning Dead Type
-  File "Newsyntax.res", line 10, characters 26-28
+  Newsyntax.res:10:26-27
   variant.C is a variant case which is never constructed
   <-- line 10
   type variant = | @dead("variant.A") A | @dead("variant.B") B(int)|@dead("variant.C") C
 
   Warning Dead Type
-  File "Newsyntax.res", line 12, characters 17-23
+  Newsyntax.res:12:17-22
   record2.xx is a record label never used to read a value
   <-- line 12
   type record2 = {@dead("record2.xx") xx:int,@dead("record2.yy") yy:int}
 
   Warning Dead Type
-  File "Newsyntax.res", line 12, characters 24-30
+  Newsyntax.res:12:24-29
   record2.yy is a record label never used to read a value
   <-- line 12
   type record2 = {@dead("record2.xx") xx:int,@dead("record2.yy") yy:int}
 
   Warning Dead Type
-  File "Opaque.res", line 2, characters 26-42
+  Opaque.res:2:26-41
   opaqueFromRecords.A is a variant case which is never constructed
   <-- line 2
   type opaqueFromRecords = | @dead("opaqueFromRecords.A") A(Records.coord)
 
   Warning Dead Value
-  File "OptArg.resi", line 1, characters 1-55
+  OptArg.resi:1:1-54
   foo is never used
   <-- line 1
   @dead("foo") let foo: (~x: int=?, ~y: int=?, ~z: int=?, int) => int
 
   Warning Dead Type
-  File "Records.res", line 24, characters 3-15
+  Records.res:24:3-14
   person.name is a record label never used to read a value
   <-- line 24
     @dead("person.name") name: string,
 
   Warning Dead Type
-  File "Records.res", line 25, characters 3-11
+  Records.res:25:3-10
   person.age is a record label never used to read a value
   <-- line 25
     @dead("person.age") age: int,
 
   Warning Dead Type
-  File "Records.res", line 31, characters 3-15
+  Records.res:31:3-14
   business.name is a record label never used to read a value
   <-- line 31
     @dead("business.name") name: string,
 
   Warning Dead Type
-  File "Records.res", line 60, characters 3-11
+  Records.res:60:3-10
   payload.num is a record label never used to read a value
   <-- line 60
     @dead("payload.num") num: int,
 
   Warning Dead Type
-  File "Records.res", line 70, characters 3-9
+  Records.res:70:3-8
   record.w is a record label never used to read a value
   <-- line 70
     @dead("record.w") w: int,
 
   Warning Dead Type
-  File "Records.res", line 90, characters 3-15
+  Records.res:90:3-14
   business2.name is a record label never used to read a value
   <-- line 90
     @dead("business2.name") name: string,
 
   Warning Dead Type
-  File "Records.res", line 91, characters 3-31
+  Records.res:91:3-30
   business2.owner is a record label never used to read a value
   <-- line 91
     @dead("business2.owner") owner: Js.Nullable.t<person>,
 
   Warning Dead Type
-  File "References.res", line 39, characters 28-34
+  References.res:39:28-33
   requiresConversion.x is a record label never used to read a value
   <-- line 39
   type requiresConversion = {@dead("requiresConversion.x") x: int}
 
   Warning Dead Type
-  File "RepeatedLabel.res", line 2, characters 3-10
+  RepeatedLabel.res:2:3-9
   userData.a is a record label never used to read a value
   <-- line 2
     @dead("userData.a") a: bool,
 
   Warning Dead Type
-  File "RepeatedLabel.res", line 3, characters 3-9
+  RepeatedLabel.res:3:3-8
   userData.b is a record label never used to read a value
   <-- line 3
     @dead("userData.b") b: int,
 
   Warning Dead Type
-  File "RepeatedLabel.res", line 9, characters 3-12
+  RepeatedLabel.res:9:3-11
   tabState.f is a record label never used to read a value
   <-- line 9
     @dead("tabState.f") f: string,
 
   Warning Dead Value
-  File "Shadow.res", line 11, characters 3-23
+  Shadow.res:11:3-22
   M.test is never used
   <-- line 11
     @dead("M.test") let test = () => "a"
 
   Warning Dead Value
-  File "TestImmutableArray.res", line 12, characters 1-55
+  TestImmutableArray.res:12:1-54
   testBeltArrayGet is never used
   <-- line 12
   @dead("testBeltArrayGet") let testBeltArrayGet = arr => {
 
   Warning Dead Value
-  File "TestImmutableArray.res", line 17, characters 1-59
+  TestImmutableArray.res:17:1-58
   testBeltArraySet is never used
   <-- line 17
   @dead("testBeltArraySet") let testBeltArraySet = arr => {
 
   Warning Dead Value
-  File "TestImport.res", line 13, characters 1-44
+  TestImport.res:13:1-43
   innerStuffContents is never used
   <-- line 13
   @dead("innerStuffContents") let innerStuffContents = innerStuffContents
 
   Warning Dead Type
-  File "TestImport.res", line 22, characters 17-29
+  TestImport.res:22:17-28
   message.text is a record label never used to read a value
   <-- line 22
   type message = {@dead("message.text") text: string}
 
   Warning Dead Value
-  File "TestImport.res", line 27, characters 1-16
+  TestImport.res:27:1-15
   make is never used
   <-- line 27
   @dead("make") let make = make
 
   Warning Dead Type
-  File "TestPromise.res", line 6, characters 3-9
+  TestPromise.res:6:3-8
   fromPayload.x is a record label never used to read a value
   <-- line 6
     @dead("fromPayload.x") x: int,
 
   Warning Dead Type
-  File "TestPromise.res", line 11, characters 19-33
+  TestPromise.res:11:19-32
   toPayload.result is a record label never used to read a value
   <-- line 11
   type toPayload = {@dead("toPayload.result") result: string}
 
   Warning Dead Module
-  File "TransitiveType2.res", line 0, characters 1-1
+  TransitiveType2.res:0:1
   TransitiveType2 is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "TransitiveType2.res", line 7, characters 1-29
+  TransitiveType2.res:7:1-28
   convertT2 is never used
   <-- line 7
   @dead("convertT2") let convertT2 = (x: t2) => x
 
   Warning Dead Type
-  File "TransitiveType3.res", line 3, characters 3-9
+  TransitiveType3.res:3:3-8
   t3.i is a record label never used to read a value
   <-- line 3
     @dead("t3.i") i: int,
 
   Warning Dead Type
-  File "TransitiveType3.res", line 4, characters 3-12
+  TransitiveType3.res:4:3-11
   t3.s is a record label never used to read a value
   <-- line 4
     @dead("t3.s") s: string,
 
   Warning Dead Module
-  File "TypeParams1.res", line 0, characters 1-1
+  TypeParams1.res:0:1
   TypeParams1 is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "TypeParams1.res", line 4, characters 1-25
+  TypeParams1.res:4:1-24
   exportSomething is never used
   <-- line 4
   @dead("exportSomething") let exportSomething = 10
 
   Warning Dead Module
-  File "TypeParams2.res", line 0, characters 1-1
+  TypeParams2.res:0:1
   TypeParams2 is a dead module as all its items are dead.
 
   Warning Dead Type
-  File "TypeParams2.res", line 2, characters 14-21
+  TypeParams2.res:2:14-20
   item.id is a record label never used to read a value
   <-- line 2
   type item = {@dead("item.id") id: int}
 
   Warning Dead Value
-  File "TypeParams2.res", line 10, characters 1-25
+  TypeParams2.res:10:1-24
   exportSomething is never used
   <-- line 10
   @dead("exportSomething") let exportSomething = 10
 
   Warning Dead Type
-  File "Types.res", line 12, characters 3-14
+  Types.res:12:3-13
   typeWithVars.A is a variant case which is never constructed
   <-- line 12
     | @dead("typeWithVars.A") A('x, 'y)
 
   Warning Dead Type
-  File "Types.res", line 13, characters 5-10
+  Types.res:13:5-9
   typeWithVars.B is a variant case which is never constructed
   <-- line 13
     | @dead("typeWithVars.B") B('z)
 
   Warning Dead Type
-  File "Types.res", line 35, characters 27-48
+  Types.res:35:27-47
   mutuallyRecursiveB.a is a record label never used to read a value
   <-- line 35
   and mutuallyRecursiveB = {@dead("mutuallyRecursiveB.a") a: mutuallyRecursiveA}
 
   Warning Dead Type
-  File "Types.res", line 56, characters 3-6
+  Types.res:56:3-5
   opaqueVariant.A is a variant case which is never constructed
   <-- line 56
     | @dead("opaqueVariant.A") A
 
   Warning Dead Type
-  File "Types.res", line 57, characters 5-6
+  Types.res:57:5
   opaqueVariant.B is a variant case which is never constructed
   <-- line 57
     | @dead("opaqueVariant.B") B
 
   Warning Dead Type
-  File "Types.res", line 87, characters 3-9
+  Types.res:87:3-8
   record.i is a record label never used to read a value
   <-- line 87
     @dead("record.i") i: int,
 
   Warning Dead Type
-  File "Types.res", line 88, characters 3-12
+  Types.res:88:3-11
   record.s is a record label never used to read a value
   <-- line 88
     @dead("record.s") s: string,
 
   Warning Dead Type
-  File "Types.res", line 133, characters 20-27
+  Types.res:133:20-26
   someRecord.id is a record label never used to read a value
   <-- line 133
   type someRecord = {@dead("someRecord.id") id: int}
 
   Warning Dead Module
-  File "Types.res", line 161, characters 8-80
+  Types.res:161:8-79
   Types.ObjectId is a dead module as all its items are dead.
 
   Warning Dead Value
-  File "Types.res", line 166, characters 3-12
+  Types.res:166:3-11
   ObjectId.x is never used
   <-- line 166
     @dead("ObjectId.x") let x = 1
 
   Warning Dead Type
-  File "Unboxed.res", line 2, characters 11-17
+  Unboxed.res:2:11-16
   v1.A is a variant case which is never constructed
   <-- line 2
   type v1 = | @dead("v1.A") A(int)
 
   Warning Dead Type
-  File "Unboxed.res", line 5, characters 11-17
+  Unboxed.res:5:11-16
   v2.A is a variant case which is never constructed
   <-- line 5
   type v2 = | @dead("v2.A") A(int)
 
   Warning Dead Type
-  File "Unboxed.res", line 11, characters 12-18
+  Unboxed.res:11:12-17
   r1.x is a record label never used to read a value
   <-- line 11
   type r1 = {@dead("r1.x") x: int}
 
   Warning Dead Type
-  File "Unboxed.res", line 14, characters 11-25
+  Unboxed.res:14:11-24
   r2.B is a variant case which is never constructed
   <-- line 14
   type r2 = | @dead("r2.B") B({g: string})
 
   Warning Dead Type
-  File "Variants.res", line 95, characters 14-40
+  Variants.res:95:14-39
   type_.Type is a variant case which is never constructed
   <-- line 95
   type type_ = | @dead("type_.Type") @genType.as("type") Type
 
   Warning Dead Type
-  File "Variants.res", line 102, characters 3-11
+  Variants.res:102:3-10
   result1.Ok is a variant case which is never constructed
   <-- line 102
     | @dead("result1.Ok") Ok('a)
 
   Warning Dead Type
-  File "Variants.res", line 103, characters 5-14
+  Variants.res:103:5-13
   result1.Error is a variant case which is never constructed
   <-- line 103
     | @dead("result1.Error") Error('b)
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 49, characters 3-6
+  VariantsWithPayload.res:49:3-5
   simpleVariant.A is a variant case which is never constructed
   <-- line 49
     | @dead("simpleVariant.A") A
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 50, characters 5-6
+  VariantsWithPayload.res:50:5
   simpleVariant.B is a variant case which is never constructed
   <-- line 50
     | @dead("simpleVariant.B") B
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 51, characters 5-6
+  VariantsWithPayload.res:51:5
   simpleVariant.C is a variant case which is never constructed
   <-- line 51
     | @dead("simpleVariant.C") C
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 58, characters 3-30
+  VariantsWithPayload.res:58:3-29
   variantWithPayloads.A is a variant case which is never constructed
   <-- line 58
     | @dead("variantWithPayloads.A") @genType.as("ARenamed") A
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 59, characters 5-11
+  VariantsWithPayload.res:59:5-10
   variantWithPayloads.B is a variant case which is never constructed
   <-- line 59
     | @dead("variantWithPayloads.B") B(int)
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 60, characters 5-16
+  VariantsWithPayload.res:60:5-15
   variantWithPayloads.C is a variant case which is never constructed
   <-- line 60
     | @dead("variantWithPayloads.C") C(int, int)
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 61, characters 5-18
+  VariantsWithPayload.res:61:5-17
   variantWithPayloads.D is a variant case which is never constructed
   <-- line 61
     | @dead("variantWithPayloads.D") D((int, int))
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 62, characters 5-24
+  VariantsWithPayload.res:62:5-23
   variantWithPayloads.E is a variant case which is never constructed
   <-- line 62
     | @dead("variantWithPayloads.E") E(int, string, int)
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 90, characters 20-26
+  VariantsWithPayload.res:90:20-25
   variant1Int.R is a variant case which is never constructed
   <-- line 90
   type variant1Int = | @dead("variant1Int.R") R(int)
 
   Warning Dead Type
-  File "VariantsWithPayload.res", line 96, characters 23-33
+  VariantsWithPayload.res:96:23-32
   variant1Object.R is a variant case which is never constructed
   <-- line 96
   type variant1Object = | @dead("variant1Object.R") R(payload)
