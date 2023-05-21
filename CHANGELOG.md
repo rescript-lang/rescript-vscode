@@ -21,6 +21,7 @@
 #### :bug: Bug Fix
 
 - Fix URL scheme for Code Action. https://github.com/rescript-lang/rescript-vscode/pull/748
+- Support uncurried functions in various places where we look up and use function types. https://github.com/rescript-lang/rescript-vscode/pull/771
 
 ## 1.16.0
 
