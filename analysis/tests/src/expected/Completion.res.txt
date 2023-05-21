@@ -1944,8 +1944,8 @@ Path red
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->453:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->453:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->457:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->457:0])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
@@ -2160,4 +2160,16 @@ Path someVariantWithDeprecated
     "insertText": "AndNotMe",
     "insertTextFormat": 2
   }]
+
+Complete src/Completion.res 455:27
+posCursor:[455:27] posNoWhite:[455:26] Found expr:[455:11->0:-1]
+Completable: Cpath Value[uncurried](Nolabel)->
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 3 Completion.res Completion.res pervasives
+ContextPath Value[uncurried](Nolabel)->
+ContextPath Value[uncurried](Nolabel)
+ContextPath Value[uncurried]
+Path uncurried
+[]
 
