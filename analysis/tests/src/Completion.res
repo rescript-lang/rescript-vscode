@@ -450,3 +450,8 @@ type someVariantWithDeprecated =
 // Should show deprecated status
 // let v: someVariantWithDeprecated =
 //                                   ^com
+
+let uncurried = (. num) => num + 2
+
+// let _ = uncurried(. 1)->
+//                         ^com
