@@ -1354,15 +1354,19 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
           ~env ();
       ]
     else []
-  | Tfunction {env; typ; args} when prefix = "" && mode = Expression ->
+  | Tfunction {env; typ; args; uncurried} when prefix = "" && mode = Expression
+    ->
+    let shouldPrintAsUncurried = uncurried && !Config.uncurried <> Uncurried in
     let mkFnArgs ~asSnippet =
       match args with
-      | [(Nolabel, argTyp)] when TypeUtils.typeIsUnit argTyp -> "()"
+      | [(Nolabel, argTyp)] when TypeUtils.typeIsUnit argTyp ->
+        if shouldPrintAsUncurried then "(. )" else "()"
       | [(Nolabel, argTyp)] ->
         let varName =
           CompletionExpressions.prettyPrintFnTemplateArgName ~env ~full argTyp
         in
-        if asSnippet then "${1:" ^ varName ^ "}" else varName
+        let argsText = if asSnippet then "${1:" ^ varName ^ "}" else varName in
+        if shouldPrintAsUncurried then "(. " ^ argsText ^ ")" else argsText
       | _ ->
         let currentUnlabelledIndex = ref 0 in
         let argsText =
@@ -1385,7 +1389,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                      else varName))
           |> String.concat ", "
         in
-        "(" ^ argsText ^ ")"
+        "(" ^ if shouldPrintAsUncurried then ". " else "" ^ argsText ^ ")"
     in
     [
       Completion.createWithSnippet

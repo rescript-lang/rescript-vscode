@@ -120,6 +120,12 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
   | Tconstr (Path.Pident {name = "string"}, [], _) -> Some (Tstring env)
   | Tconstr (Path.Pident {name = "exn"}, [], _) -> Some (Texn env)
+  | Tconstr (Pident {name = "function$"}, [t; _], _) -> (
+    (* Uncurried functions. *)
+    match extractFunctionType t ~env ~package with
+    | args, _tRet when args <> [] ->
+      Some (Tfunction {env; args; typ = t; uncurried = true})
+    | _args, _tRet -> None)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
@@ -151,7 +157,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     Some (Tpolyvariant {env; constructors; typeExpr = t})
   | Tarrow _ -> (
     match extractFunctionType t ~env ~package with
-    | args, _tRet when args <> [] -> Some (Tfunction {env; args; typ = t})
+    | args, _tRet when args <> [] ->
+      Some (Tfunction {env; args; typ = t; uncurried = false})
     | _args, _tRet -> None)
   | _ -> None
 

@@ -335,7 +335,12 @@ and completionType =
           (** When we have the full type expr from the compiler. *) ];
     }
   | TinlineRecord of {env: QueryEnv.t; fields: field list}
-  | Tfunction of {env: QueryEnv.t; args: typedFnArg list; typ: Types.type_expr}
+  | Tfunction of {
+      env: QueryEnv.t;
+      args: typedFnArg list;
+      typ: Types.type_expr;
+      uncurried: bool;
+    }
 
 module Env = struct
   type t = {stamps: Stamps.t; modulePath: ModulePath.t}
