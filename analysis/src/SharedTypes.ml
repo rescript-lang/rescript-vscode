@@ -59,7 +59,12 @@ module Type = struct
     | Record of field list
     | Variant of Constructor.t list
 
-  type t = {kind: kind; decl: Types.type_declaration; name: string}
+  type t = {
+    kind: kind;
+    decl: Types.type_declaration;
+    name: string;
+    attributes: Parsetree.attributes;
+  }
 end
 
 module Exported = struct
@@ -330,7 +335,12 @@ and completionType =
           (** When we have the full type expr from the compiler. *) ];
     }
   | TinlineRecord of {env: QueryEnv.t; fields: field list}
-  | Tfunction of {env: QueryEnv.t; args: typedFnArg list; typ: Types.type_expr}
+  | Tfunction of {
+      env: QueryEnv.t;
+      args: typedFnArg list;
+      typ: Types.type_expr;
+      uncurried: bool;
+    }
 
 module Env = struct
   type t = {stamps: Stamps.t; modulePath: ModulePath.t}
@@ -466,6 +476,7 @@ type package = {
   namespace: string option;
   builtInCompletionModules: builtInCompletionModules;
   opens: path list;
+  uncurried: bool;
 }
 
 let allFilesInPackage package =
@@ -529,7 +540,12 @@ module Completable = struct
     | Optional of string
 
   (** Additional context for nested completion where needed. *)
-  type nestedContext = RecordField of {seenFields: string list}
+  type nestedContext =
+    | RecordField of {seenFields: string list}
+        (** Completing for a record field, and we already saw the following fields... *)
+    | CameFromRecordField of string
+        (** We just came from this field (we leverage use this for better
+            completion names etc) *)
 
   type nestedPath =
     | NTupleItem of {itemNum: int}

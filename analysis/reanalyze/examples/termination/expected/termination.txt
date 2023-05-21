@@ -160,29 +160,29 @@
   
 
   Error Termination
-  File "TestCyberTruck.res", line 29, characters 28-40
+  TestCyberTruck.res:29:28-39
   Possible infinite loop when calling alwaysLoop
   CallStack:
     1 alwaysLoop (TestCyberTruck.res 29)
 
   Error Termination
-  File "TestCyberTruck.res", line 40, characters 3-29
+  TestCyberTruck.res:40:3-28
   Possible infinite loop when calling alwaysProgressWrongOrder
   CallStack:
     1 alwaysProgressWrongOrder (TestCyberTruck.res 39)
 
   Error Hygiene
-  File "TestCyberTruck.res", line 47, characters 15-25
+  TestCyberTruck.res:47:15-24
   doNotAlias can only be called directly, or passed as labeled argument
 
   Error Termination
-  File "TestCyberTruck.res", line 68, characters 3-25
+  TestCyberTruck.res:68:3-24
   Possible infinite loop when calling progressOnOneBranch
   CallStack:
     1 progressOnOneBranch (TestCyberTruck.res 64)
 
   Error Termination
-  File "TestCyberTruck.res", line 80, characters 48-64
+  TestCyberTruck.res:80:48-63
   Possible infinite loop when calling parseFunction which is testParametricFunction
   CallStack:
     3 callParseFunction<parseFunction:testParametricFunction> (TestCyberTruck.res 79)
@@ -190,25 +190,25 @@
     1 testParametricFunction (TestCyberTruck.res 73)
 
   Error Termination
-  File "TestCyberTruck.res", line 89, characters 3-18
+  TestCyberTruck.res:89:3-17
   Possible infinite loop when calling testCacheHit
   CallStack:
     1 testCacheHit (TestCyberTruck.res 83)
 
   Error Termination
-  File "TestCyberTruck.res", line 97, characters 31-59
+  TestCyberTruck.res:97:31-58
   Possible infinite loop when calling evalOrderIsNotLeftToRight
   CallStack:
     1 evalOrderIsNotLeftToRight (TestCyberTruck.res 95)
 
   Error Termination
-  File "TestCyberTruck.res", line 104, characters 19-47
+  TestCyberTruck.res:104:19-46
   Possible infinite loop when calling evalOrderIsNotRightToLeft
   CallStack:
     1 evalOrderIsNotRightToLeft (TestCyberTruck.res 102)
 
   Error Termination
-  File "TestCyberTruck.res", line 180, characters 15-22
+  TestCyberTruck.res:180:15-21
   Possible infinite loop when calling parseList$loop<f:f> which is parseList$loop<f:parseListInt>
   CallStack:
     3 parseList$loop<f:parseListInt> (TestCyberTruck.res 183)
@@ -216,13 +216,13 @@
     1 parseListListInt (TestCyberTruck.res 201)
 
   Error Termination
-  File "TestCyberTruck.res", line 238, characters 31-50
+  TestCyberTruck.res:238:31-49
   Possible infinite loop when calling loopAfterProgress
   CallStack:
     1 loopAfterProgress (TestCyberTruck.res 236)
 
   Error Termination
-  File "TestCyberTruck.res", line 286, characters 32-62
+  TestCyberTruck.res:286:32-61
   Possible infinite loop when calling countRendersCompiled
   CallStack:
     1 countRendersCompiled (TestCyberTruck.res 283)

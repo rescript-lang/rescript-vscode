@@ -493,7 +493,7 @@ export let parseCompilerLogOutput = (
         code: undefined,
         severity: t.DiagnosticSeverity.Error,
         tag: undefined,
-        content: [line],
+        content: [],
       });
     } else if (line.startsWith("#Start(")) {
       // do nothing for now

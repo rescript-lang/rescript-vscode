@@ -88,11 +88,13 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let extractFunctionType ~env ~package typ =
+let rec extractFunctionType ~env ~package typ =
   let rec loop ~env acc (t : Types.type_expr) =
     match t.desc with
     | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop ~env acc t1
     | Tarrow (label, tArg, tRet, _) -> loop ~env ((label, tArg) :: acc) tRet
+    | Tconstr (Pident {name = "function$"}, [t; _], _) ->
+      extractFunctionType ~env ~package t
     | Tconstr (path, typeArgs, _) -> (
       match References.digConstructor ~env ~package path with
       | Some
@@ -118,6 +120,12 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
   | Tconstr (Path.Pident {name = "string"}, [], _) -> Some (Tstring env)
   | Tconstr (Path.Pident {name = "exn"}, [], _) -> Some (Texn env)
+  | Tconstr (Pident {name = "function$"}, [t; _], _) -> (
+    (* Uncurried functions. *)
+    match extractFunctionType t ~env ~package with
+    | args, _tRet when args <> [] ->
+      Some (Tfunction {env; args; typ = t; uncurried = true})
+    | _args, _tRet -> None)
   | Tconstr (path, _, _) -> (
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
@@ -149,7 +157,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     Some (Tpolyvariant {env; constructors; typeExpr = t})
   | Tarrow _ -> (
     match extractFunctionType t ~env ~package with
-    | args, _tRet when args <> [] -> Some (Tfunction {env; args; typ = t})
+    | args, _tRet when args <> [] ->
+      Some (Tfunction {env; args; typ = t; uncurried = false})
     | _args, _tRet -> None)
   | _ -> None
 
@@ -201,6 +210,22 @@ let pathFromTypeExpr (t : Types.type_expr) =
   | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
     Some path
   | _ -> None
+
+let rec digToRelevantTemplateNameType ~env ~package ?(suffix = "")
+    (t : Types.type_expr) =
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+    digToRelevantTemplateNameType ~suffix ~env ~package t1
+  | Tconstr (Path.Pident {name = "option"}, [t1], _) ->
+    digToRelevantTemplateNameType ~suffix ~env ~package t1
+  | Tconstr (Path.Pident {name = "array"}, [t1], _) ->
+    digToRelevantTemplateNameType ~suffix:"s" ~env ~package t1
+  | Tconstr (path, _, _) -> (
+    match References.digConstructor ~env ~package path with
+    | Some (env, {item = {decl = {type_manifest = Some typ}}}) ->
+      digToRelevantTemplateNameType ~suffix ~env ~package typ
+    | _ -> (t, suffix, env))
+  | _ -> (t, suffix, env)
 
 let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
     (t : Types.type_expr) =
@@ -257,10 +282,20 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
     | None -> None
     | Some t -> t |> extractType ~env ~package:full.package)
 
+(** The context we just came from as we resolve the nested structure. *)
+type ctx = Rfield of string  (** A record field of name *)
+
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
-let rec resolveNested (typ : completionType) ~env ~full ~nested =
+let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
   match nested with
-  | [] -> Some (typ, env, None)
+  | [] ->
+    Some
+      ( typ,
+        env,
+        match ctx with
+        | None -> None
+        | Some (Rfield fieldName) ->
+          Some (Completable.CameFromRecordField fieldName) )
   | patternPath :: nested -> (
     match (patternPath, typ) with
     | Completable.NTupleItem {itemNum}, Tuple (env, tupleItems, _) -> (
@@ -283,7 +318,7 @@ let rec resolveNested (typ : completionType) ~env ~full ~nested =
         typ
         |> extractType ~env ~package:full.package
         |> Utils.Option.flatMap (fun typ ->
-               typ |> resolveNested ~env ~full ~nested))
+               typ |> resolveNested ~ctx:(Rfield fieldName) ~env ~full ~nested))
     | NRecordBody {seenFields}, Trecord {env; definition = `TypeExpr typeExpr}
       ->
       typeExpr

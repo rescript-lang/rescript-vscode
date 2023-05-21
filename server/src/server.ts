@@ -1126,12 +1126,12 @@ function onMessage(msg: p.Message) {
               tokenTypes: [
                 "operator",
                 "variable",
-                "support-type-primitive",
-                "jsx-tag",
-                "class",
+                "type",
+                "modifier", // emit jsx-tag < and > in <div> as modifier
+                "namespace",
                 "enumMember",
                 "property",
-                "jsx-lowercase",
+                "interface", // emit jsxlowercase, div in <div> as interface
               ],
               tokenModifiers: [],
             },

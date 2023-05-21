@@ -24,7 +24,7 @@ module Token = struct
     | Variable  (** let x = *)
     | Type  (** type t = *)
     | JsxTag  (** the < and > in <div> *)
-    | Class  (** module M = *)
+    | Namespace  (** module M = *)
     | EnumMember  (** variant A or poly variant #A *)
     | Property  (** {x:...} *)
     | JsxLowercase  (** div in <div> *)
@@ -34,7 +34,7 @@ module Token = struct
     | Variable -> "1"
     | Type -> "2"
     | JsxTag -> "3"
-    | Class -> "4"
+    | Namespace -> "4"
     | EnumMember -> "5"
     | Property -> "6"
     | JsxLowercase -> "7"
@@ -44,7 +44,7 @@ module Token = struct
     | Variable -> "Variable"
     | Type -> "Type"
     | JsxTag -> "JsxTag"
-    | Class -> "Class"
+    | Namespace -> "Namespace"
     | EnumMember -> "EnumMember"
     | Property -> "Property"
     | JsxLowercase -> "JsxLowercase"
@@ -115,7 +115,7 @@ let emitFromLoc ~loc ~type_ emitter =
 
 let emitLongident ?(backwards = false) ?(jsx = false)
     ?(lowerCaseToken = if jsx then Token.JsxLowercase else Token.Variable)
-    ?(upperCaseToken = Token.Class) ?(lastToken = None) ?(posEnd = None) ~pos
+    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ?(posEnd = None) ~pos
     ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
