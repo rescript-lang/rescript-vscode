@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.18.0
+
 #### :rocket: New Feature
 
 - Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
