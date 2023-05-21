@@ -1944,8 +1944,8 @@ Path red
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->464:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->464:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->465:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->465:0])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
@@ -2189,5 +2189,14 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Type[withUncurried]
 Path withUncurried
-[]
+[{
+    "label": "(. v) => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => unit",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "(. ${1:v}) => {$0}",
+    "insertTextFormat": 2
+  }]
 
