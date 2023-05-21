@@ -455,3 +455,10 @@ let uncurried = (. num) => num + 2
 
 // let _ = uncurried(. 1)->toS
 //                            ^com
+
+type withUncurried = {
+  fn: (. int) => unit
+}
+
+// let f: withUncurried = {fn: }
+//                            ^com

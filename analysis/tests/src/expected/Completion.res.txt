@@ -1944,8 +1944,8 @@ Path red
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->457:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->457:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->464:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->464:0])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
@@ -2180,4 +2180,14 @@ Path Belt.Int.toS
     "detail": "int => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
+
+Complete src/Completion.res 462:30
+XXX Not found!
+Completable: Cexpression Type[withUncurried]->recordField(fn)
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 3 Completion.res Completion.res pervasives
+ContextPath Type[withUncurried]
+Path withUncurried
+[]
 
