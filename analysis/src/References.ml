@@ -572,7 +572,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
            ^ Tip.toString tip);
           forLocalStamp ~full stamp tip)))
 
-let get ~path ~pos ~debug =
+let references ~path ~pos ~debug =
   match Cmt.loadFullCmtFromPath ~path with
   | None -> []
   | Some full -> (

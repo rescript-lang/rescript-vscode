@@ -1,8 +1,7 @@
 let completion ~debug ~path ~pos ~currentFile =
-  print_endline
-    (Completions.complete ~debug ~path ~pos ~currentFile
-    |> List.map Protocol.stringifyCompletionItem
-    |> Protocol.array)
+  Completions.complete ~debug ~path ~pos ~currentFile
+  |> List.map Protocol.stringifyCompletionItem
+  |> Protocol.array |> print_endline
 
 let inlayhint ~path ~pos ~maxLength ~debug =
   let result =
@@ -46,16 +45,16 @@ let definition ~path ~pos ~debug =
   |> print_endline
 
 let typeDefinition ~path ~pos ~debug =
-  print_endline
-    (match TypeDefinition.typeDefinition ~path ~pos ~debug with
-    | None -> Protocol.null
-    | Some location -> location |> Protocol.stringifyLocation)
+  (match TypeDefinition.typeDefinition ~path ~pos ~debug with
+  | None -> Protocol.null
+  | Some location -> location |> Protocol.stringifyLocation)
+  |> print_endline
 
 let references ~path ~pos ~debug =
-  print_endline
-    (match References.get ~path ~pos ~debug with
-    | [] -> Protocol.null
-    | locs -> locs |> List.map Protocol.stringifyLocation |> Protocol.array)
+  (match References.references ~path ~pos ~debug with
+  | [] -> Protocol.null
+  | locs -> locs |> List.map Protocol.stringifyLocation |> Protocol.array)
+  |> print_endline
 
 let rename ~path ~pos ~newName ~debug =
   let result =
