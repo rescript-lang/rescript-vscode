@@ -511,49 +511,46 @@
   },
   "patterns": [
     {
-      "include": "#attribute"
-    },
-    {
-      "include": "#bracketAccess"
-    },
-    {
-      "include": "#character"
-    },
-    {
-      "include": "#commentBlock"
-    },
-    {
-      "include": "#commentLine"
-    },
-    {
-      "include": "#constant"
-    },
-    {
-      "include": "#constructor"
-    },
-    {
-      "include": "#defaultIdIsVariable"
+      "include": "#storage"
     },
     {
       "include": "#ffi"
     },
     {
+      "include": "#constant"
+    },
+    {
+      "include": "#commentLine"
+    },
+    {
+      "include": "#commentBlock"
+    },
+    {
+      "include": "#character"
+    },
+    {
+      "include": "#typeParameter"
+    },
+    {
+      "include": "#string"
+    },
+    {
+      "include": "#attribute"
+    },
+    {
       "include": "#function"
-    },
-    {
-      "include": "#jsx"
-    },
-    {
-      "include": "#keyword"
     },
     {
       "include": "#list"
     },
     {
-      "include": "#moduleAccess"
+      "include": "#bracketAccess"
     },
     {
-      "include": "#moduleDeclaration"
+      "include": "#jsx"
+    },
+    {
+      "include": "#operator"
     },
     {
       "include": "#number"
@@ -562,19 +559,22 @@
       "include": "#openOrIncludeModule"
     },
     {
-      "include": "#operator"
+      "include": "#moduleDeclaration"
+    },
+    {
+      "include": "#moduleAccess"
+    },
+    {
+      "include": "#constructor"
+    },
+    {
+      "include": "#keyword"
     },
     {
       "include": "#punctuations"
     },
     {
-      "include": "#storage"
-    },
-    {
-      "include": "#string"
-    },
-    {
-      "include": "#typeParameter"
+      "include": "#defaultIdIsVariable"
     }
   ]
 }
