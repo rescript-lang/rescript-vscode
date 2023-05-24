@@ -484,6 +484,7 @@
     },
     "ffi": {
       "name": "source.embedded.javascript",
+      "contentName": "meta.embedded.block.javascript",
       "begin": "(%|%%)(raw|ffi)(\\()(`)",
       "end": "(`)(\\))",
       "beginCaptures": {
