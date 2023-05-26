@@ -18,7 +18,7 @@ Path React.e
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element = PervasivesU.Jsx.element",
+    "detail": "type element = Jsx.element",
     "documentation": null
   }]
 
@@ -34,7 +34,7 @@ Path React.e
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element = PervasivesU.Jsx.element",
+    "detail": "type element = Jsx.element",
     "documentation": null
   }]
 

@@ -465,5 +465,11 @@ Completable: Cjsx([CompWithoutJsxPpx], n, [n])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path CompWithoutJsxPpx.make
-[]
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 

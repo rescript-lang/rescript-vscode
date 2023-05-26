@@ -1,15 +1,15 @@
 Create Interface src/CreateInterface.res
 type r = {name: string, age: int}
-let add: (. ~x: int, ~y: int) => int
-
-let make: (. {"name": string}) => React.element
+let add: (~x: int, ~y: int) => int
+@react.component
+let make: (~name: string) => React.element
 module Other: {
-
-  let otherComponentName: (. {"name": string}) => React.element
+  @react.component
+  let otherComponentName: (~name: string) => React.element
 }
 module Mod: {
-
-  let make: (. {"name": string}) => React.element
+  @react.component
+  let make: (~name: string) => React.element
 }
 module type ModTyp = {
   @react.component
@@ -48,8 +48,8 @@ module RFS: {
 }
 module Functor: () =>
 {
-
-  let make: (. {.}) => React.element
+  @react.component
+  let make: unit => React.element
 }
 module type FT = {
   module Functor: (
@@ -84,23 +84,23 @@ module type OptT = {
   }
 }
 module Opt: {
-
-  let withOpt1: (. {"x": option<int>, "y": int}) => int
+  @react.component
+  let withOpt1: (~x: int=?, ~y: int) => int
   module Opt2: {
-
-    let withOpt2: (. {"x": option<int>, "y": int}) => int
+    @react.component
+    let withOpt2: (~x: int=?, ~y: int) => int
   }
   module type Opt2 = {
-
-    let withOpt2: (. {"x": option<int>, "y": int}) => int
+    @react.component
+    let withOpt2: (~x: int=?, ~y: int) => int
   }
   module Opt3: {
-
-    let withOpt3: (. {"x": option<int>, "y": int}) => int
+    @react.component
+    let withOpt3: (~x: option<int>, ~y: int) => int
   }
   module type Opt3 = {
-
-    let withOpt3: (. {"x": option<int>, "y": int}) => int
+    @react.component
+    let withOpt3: (~x: option<int>, ~y: int) => int
   }
 }
 module Opt2: OptT

@@ -97,7 +97,19 @@ ContextPath CArgument CArgument Value[someFnWithCallback]($0)(~someRecord)
 ContextPath CArgument Value[someFnWithCallback]($0)
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
-[]
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 27:90
 posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:39->27:91]
@@ -119,7 +131,19 @@ ContextPath Value[aliasedFn]
 Path aliasedFn
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
-[]
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 30:36
 posCursor:[30:36] posNoWhite:[30:35] Found expr:[30:3->30:39]
@@ -136,7 +160,17 @@ ContextPath CArgument CArgument Value[reactEventFn]($0)($0)
 ContextPath CArgument Value[reactEventFn]($0)
 ContextPath Value[reactEventFn]
 Path reactEventFn
-[]
+CPPipe env:CompletionInferValues
+CPPipe type path:ReactEvent.Mouse.t
+CPPipe pathFromEnv:ReactEvent.Mouse found:false
+Path ReactEvent.Mouse.pr
+[{
+    "label": "ReactEvent.Mouse.preventDefault",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => unit",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 41:50
 posCursor:[41:50] posNoWhite:[41:49] Found expr:[41:12->41:56]
@@ -152,8 +186,18 @@ Path event
 ContextPath CArgument CJsxPropValue [div] onMouseEnter($0)
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
-Path PervasivesU.JsxDOM.domProps
-[]
+Path Pervasives.JsxDOM.domProps
+CPPipe env:CompletionInferValues
+CPPipe type path:JsxEventC.Mouse.t
+CPPipe pathFromEnv:JsxEventC.Mouse found:false
+Path JsxEventC.Mouse.pr
+[{
+    "label": "JsxEventC.Mouse.preventDefault",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => unit",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 44:50
 posCursor:[44:50] posNoWhite:[44:49] Found expr:[44:12->44:56]
@@ -169,7 +213,17 @@ Path event
 ContextPath CArgument CJsxPropValue [Div] onMouseEnter($0)
 ContextPath CJsxPropValue [Div] onMouseEnter
 Path Div.make
-[]
+CPPipe env:CompletionInferValues envFromCompletionItem:CompletionInferValues.Div
+CPPipe type path:Pervasives.JsxEvent.Mouse.t
+CPPipe pathFromEnv:Pervasives.JsxEvent.Mouse found:false
+Path Pervasives.JsxEvent.Mouse.pr
+[{
+    "label": "Pervasives.JsxEvent.Mouse.preventDefault",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => unit",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 47:87
 posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:12->47:93]
@@ -634,7 +688,19 @@ ContextPath CArgument CArgument Value[fnWithRecordCallback]($0)($0)
 ContextPath CArgument Value[fnWithRecordCallback]($0)
 ContextPath Value[fnWithRecordCallback]
 Path fnWithRecordCallback
-[]
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "name: string\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\nsomeRecord",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 137:30
 posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:3->137:33]
@@ -653,7 +719,23 @@ ContextPath CArgument CArgument Value[fn2](~cb)($0)
 ContextPath CArgument Value[fn2](~cb)
 ContextPath Value[fn2]
 Path fn2
-[]
+CPPipe env:CompletionInferValues
+CPPipe type path:ReactDOM.Client.Root.t
+CPPipe pathFromEnv:ReactDOM.Client.Root found:false
+Path ReactDOM.Client.Root.
+[{
+    "label": "ReactDOM.Client.Root.unmount",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, unit) => unit",
+    "documentation": null
+  }, {
+    "label": "ReactDOM.Client.Root.render",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, React.element) => unit",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 146:30
 posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:3->146:33]
@@ -672,7 +754,29 @@ ContextPath CArgument CArgument Value[fn3](~cb)($0)
 ContextPath CArgument Value[fn3](~cb)
 ContextPath Value[fn3]
 Path fn3
-[]
+CPPipe env:CompletionInferValues
+CPPipe type path:CompletionSupport.Test.t
+CPPipe pathFromEnv:CompletionSupport.Test found:false
+Path CompletionSupport.Test.
+[{
+    "label": "CompletionSupport.Test.add",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": null
+  }, {
+    "label": "CompletionSupport.Test.addSelf",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": null
+  }, {
+    "label": "CompletionSupport.Test.make",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 150:47
 XXX Not found!
@@ -729,7 +833,13 @@ ContextPath CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath Value[CompletionSupport2, makeRenderer]
 Path CompletionSupport2.makeRenderer
-[]
+[{
+    "label": "root",
+    "kind": 5,
+    "tags": [],
+    "detail": "root: ReactDOM.Client.Root.t\n\ntype config = {root: ReactDOM.Client.Root.t}",
+    "documentation": null
+  }]
 
 Complete src/CompletionInferValues.res 162:110
 posCursor:[162:110] posNoWhite:[162:109] Found expr:[162:18->162:115]
@@ -748,5 +858,21 @@ ContextPath CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath Value[CompletionSupport2, makeRenderer]
 Path CompletionSupport2.makeRenderer
-[]
+CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2.Internal
+CPPipe type path:ReactDOM.Client.Root.t
+CPPipe pathFromEnv:ReactDOM.Client.Root found:false
+Path ReactDOM.Client.Root.
+[{
+    "label": "ReactDOM.Client.Root.unmount",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, unit) => unit",
+    "documentation": null
+  }, {
+    "label": "ReactDOM.Client.Root.render",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, React.element) => unit",
+    "documentation": null
+  }]
 

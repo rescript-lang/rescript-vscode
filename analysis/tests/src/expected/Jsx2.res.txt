@@ -20,7 +20,19 @@ Completable: Cjsx([M], f, [second, f])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "first",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }, {
+    "label": "fun",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 14:13
 posCursor:[14:13] posNoWhite:[14:12] Found expr:[14:12->14:13]
@@ -63,7 +75,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 25:17
 posCursor:[25:17] posNoWhite:[25:16] Found expr:[25:4->25:17]
@@ -72,7 +90,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 28:21
 posCursor:[28:21] posNoWhite:[28:20] Found expr:[28:4->28:21]
@@ -81,7 +105,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 31:24
 posCursor:[31:24] posNoWhite:[31:23] Found expr:[31:4->31:24]
@@ -90,7 +120,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 34:18
 posCursor:[34:18] posNoWhite:[34:17] Found expr:[34:4->34:18]
@@ -99,7 +135,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 37:16
 posCursor:[37:16] posNoWhite:[37:15] Found expr:[37:4->37:16]
@@ -108,7 +150,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 40:17
 posCursor:[40:17] posNoWhite:[40:16] Found expr:[40:4->40:17]
@@ -117,7 +165,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 43:18
 posCursor:[43:18] posNoWhite:[43:17] Found expr:[43:4->43:18]
@@ -126,7 +180,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 46:16
 posCursor:[46:16] posNoWhite:[46:15] Found expr:[46:4->46:16]
@@ -135,7 +195,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 49:27
 posCursor:[49:27] posNoWhite:[49:26] Found expr:[49:4->49:27]
@@ -144,7 +210,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 52:38
 posCursor:[52:38] posNoWhite:[52:37] Found expr:[52:4->52:38]
@@ -153,7 +225,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 55:25
 posCursor:[55:25] posNoWhite:[55:24] Found expr:[55:4->55:25]
@@ -162,7 +240,13 @@ Completable: Cjsx([M], k, [prop, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Definition src/Jsx2.res 58:11
 getLocItem #4: heuristic for </Comp> within fragments: take make as makeProps does not work
@@ -200,7 +284,13 @@ Completable: Cjsx([M], k, [first, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 77:23
 posCursor:[77:23] posNoWhite:[77:22] Found expr:[77:4->77:23]
@@ -209,7 +299,13 @@ Completable: Cjsx([M], k, [first, k])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path M.make
-[]
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 80:6
 posCursor:[80:6] posNoWhite:[80:5] Found expr:[80:4->85:69]
@@ -251,7 +347,13 @@ Completable: Cjsx([WithChildren], n, [n])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path WithChildren.make
-[]
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete src/Jsx2.res 94:18
 posCursor:[94:18] posNoWhite:[94:17] Found pattern:[94:7->94:18]
@@ -266,7 +368,7 @@ Path React.e
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element = PervasivesU.Jsx.element",
+    "detail": "type element = Jsx.element",
     "documentation": null
   }]
 
@@ -424,7 +526,7 @@ Completable: Cjsx([Comp], age, [age])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path Comp.make
-null
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Jsx2.res 167:16
 Nothing at that position. Now trying to use completion.
@@ -440,5 +542,5 @@ Completable: Cjsx([Comp], age, [age])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path Comp.make
-null
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 

@@ -9,6 +9,7 @@
       "subdirs": true
     }
   ],
+  "uncurried": false,
   "bsc-flags": ["-w -33-44"],
   "bs-dependencies": ["@rescript/react"],
   "jsx": { "version": 3 }
