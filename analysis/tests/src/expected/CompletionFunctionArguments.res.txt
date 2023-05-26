@@ -7,19 +7,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[someFn](~isOn)
 ContextPath Value[someFn]
 Path someFn
-[{
-    "label": "true",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }, {
-    "label": "false",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 13:25
 posCursor:[13:25] posNoWhite:[13:24] Found expr:[13:11->13:26]
@@ -31,13 +19,6 @@ ContextPath CArgument Value[someFn](~isOn)
 ContextPath Value[someFn]
 Path someFn
 [{
-    "label": "true",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null,
-    "sortText": "A true"
-  }, {
     "label": "tLocalVar",
     "kind": 12,
     "tags": [],
@@ -54,19 +35,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[someFn](~isOff)
 ContextPath Value[someFn]
 Path someFn
-[{
-    "label": "true",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }, {
-    "label": "false",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 21:27
 posCursor:[21:27] posNoWhite:[21:26] Found expr:[19:21->25:1]
@@ -81,19 +50,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[someFn](~isOn)
 ContextPath Value[someFn]
 Path someFn
-[{
-    "label": "true",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }, {
-    "label": "false",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 34:24
 posCursor:[34:24] posNoWhite:[34:23] Found expr:[34:11->34:25]
@@ -104,13 +61,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[someOtherFn]($0)
 ContextPath Value[someOtherFn]
 Path someOtherFn
-[{
-    "label": "false",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 51:39
 posCursor:[51:39] posNoWhite:[51:38] Found expr:[51:11->51:40]
@@ -121,31 +72,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[someFnTakingVariant](~config)
 ContextPath Value[someFnTakingVariant]
 Path someFnTakingVariant
-[{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "One",
-    "insertTextFormat": 2
-  }, {
-    "label": "Two",
-    "kind": 4,
-    "tags": [],
-    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Two",
-    "insertTextFormat": 2
-  }, {
-    "label": "Three(_, _)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "insertText": "Three(${1:_}, ${2:_})",
-    "insertTextFormat": 2
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 54:40
 posCursor:[54:40] posNoWhite:[54:39] Found expr:[54:11->54:41]
@@ -157,15 +84,6 @@ ContextPath CArgument Value[someFnTakingVariant](~config)
 ContextPath Value[someFnTakingVariant]
 Path someFnTakingVariant
 [{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "sortText": "A One",
-    "insertText": "One",
-    "insertTextFormat": 2
-  }, {
     "label": "OIncludeMeInCompletions",
     "kind": 9,
     "tags": [],
@@ -195,15 +113,6 @@ ContextPath CArgument Value[someFnTakingVariant]($0)
 ContextPath Value[someFnTakingVariant]
 Path someFnTakingVariant
 [{
-    "label": "Some(_)",
-    "kind": 12,
-    "tags": [],
-    "detail": "someVariant",
-    "documentation": null,
-    "sortText": "A Some(_)",
-    "insertText": "Some(${1:_})",
-    "insertTextFormat": 2
-  }, {
     "label": "Sort",
     "kind": 9,
     "tags": [],
@@ -221,15 +130,6 @@ ContextPath CArgument Value[someFnTakingVariant](~configOpt2)
 ContextPath Value[someFnTakingVariant]
 Path someFnTakingVariant
 [{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
-    "sortText": "A One",
-    "insertText": "One",
-    "insertTextFormat": 2
-  }, {
     "label": "OIncludeMeInCompletions",
     "kind": 9,
     "tags": [],
@@ -258,19 +158,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[someOtherFn]($0)
 ContextPath Value[someOtherFn]
 Path someOtherFn
-[{
-    "label": "true",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }, {
-    "label": "false",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 66:28
 posCursor:[66:28] posNoWhite:[66:27] Found expr:[66:11->66:30]
@@ -281,19 +169,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[someOtherFn]($2)
 ContextPath Value[someOtherFn]
 Path someOtherFn
-[{
-    "label": "true",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }, {
-    "label": "false",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 69:30
 posCursor:[69:30] posNoWhite:[69:29] Found expr:[69:11->69:31]
@@ -304,13 +180,6 @@ ContextPath CArgument Value[someOtherFn]($2)
 ContextPath Value[someOtherFn]
 Path someOtherFn
 [{
-    "label": "true",
-    "kind": 4,
-    "tags": [],
-    "detail": "bool",
-    "documentation": null,
-    "sortText": "A true"
-  }, {
     "label": "tLocalVar",
     "kind": 12,
     "tags": [],
@@ -327,15 +196,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingTuple]($0)
 ContextPath Value[fnTakingTuple]
 Path fnTakingTuple
-[{
-    "label": "(_, _, _)",
-    "kind": 12,
-    "tags": [],
-    "detail": "(int, int, float)",
-    "documentation": null,
-    "insertText": "(${1:_}, ${2:_}, ${3:_})",
-    "insertTextFormat": 2
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 89:27
 posCursor:[89:27] posNoWhite:[89:26] Found expr:[89:11->89:29]
@@ -346,25 +207,7 @@ Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
-[{
-    "label": "age",
-    "kind": 5,
-    "tags": [],
-    "detail": "age: int\n\nsomeRecord",
-    "documentation": null
-  }, {
-    "label": "offline",
-    "kind": 5,
-    "tags": [],
-    "detail": "offline: bool\n\nsomeRecord",
-    "documentation": null
-  }, {
-    "label": "online",
-    "kind": 5,
-    "tags": [],
-    "detail": "online: option<bool>\n\nsomeRecord",
-    "documentation": null
-  }]
+[]
 
 Complete src/CompletionFunctionArguments.res 109:29
 posCursor:[109:29] posNoWhite:[109:28] Found expr:[105:3->114:4]
@@ -387,7 +230,7 @@ Path ReactEvent.Mouse.a
     "label": "ReactEvent.Mouse.altKey",
     "kind": 12,
     "tags": [],
-    "detail": "t => bool",
+    "detail": "(. t) => bool",
     "documentation": null
   }]
 
@@ -412,7 +255,7 @@ Path ReactEvent.Mouse.a
     "label": "ReactEvent.Mouse.altKey",
     "kind": 12,
     "tags": [],
-    "detail": "t => bool",
+    "detail": "(. t) => bool",
     "documentation": null
   }]
 

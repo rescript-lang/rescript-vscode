@@ -370,7 +370,7 @@ Path Dep.c
     "label": "customDouble",
     "kind": 12,
     "tags": [1],
-    "detail": "int => int",
+    "detail": "(. int) => int",
     "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment"}
   }]
 
@@ -382,20 +382,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (~age: int, ~name: string) => string
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }, {
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+Found type for function (. ~age: int, ~name: string) => string
+[]
 
 Complete src/Completion.res 26:13
 posCursor:[26:13] posNoWhite:[26:12] Found expr:[26:3->26:13]
@@ -479,13 +467,13 @@ Path ForAuto.
     "label": "ForAuto.abc",
     "kind": 12,
     "tags": [],
-    "detail": "(t, int) => t",
+    "detail": "(. t, int) => t",
     "documentation": null
   }, {
     "label": "ForAuto.abd",
     "kind": 12,
     "tags": [],
-    "detail": "(t, int) => t",
+    "detail": "(. t, int) => t",
     "documentation": null
   }]
 
@@ -535,13 +523,7 @@ Completable: Cjsx([O, Comp], z, [z])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path O.Comp.make
-[{
-    "label": "zoo",
-    "kind": 4,
-    "tags": [],
-    "detail": "option<int>",
-    "documentation": null
-  }]
+[]
 
 Complete src/Completion.res 65:8
 Attribute id:reac:[65:3->65:8] label:reac
@@ -579,14 +561,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (~age: int, ~name: string) => string
-[{
-    "label": "age",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }]
+Found type for function (. ~age: int, ~name: string) => string
+[]
 
 Complete src/Completion.res 74:26
 posCursor:[74:26] posNoWhite:[74:25] Found expr:[74:11->74:26]
@@ -596,14 +572,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (~age: int, ~name: string) => string
-[{
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+Found type for function (. ~age: int, ~name: string) => string
+[]
 
 Complete src/Completion.res 77:32
 posCursor:[77:32] posNoWhite:[77:31] Found expr:[77:11->77:32]
@@ -613,14 +583,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (~age: int, ~name: string) => string
-[{
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+Found type for function (. ~age: int, ~name: string) => string
+[]
 
 Complete src/Completion.res 82:5
 posCursor:[82:5] posNoWhite:[82:4] Found expr:[80:8->86:1]
@@ -630,7 +594,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (~age: int, ~name: string) => string
+Found type for function (. ~age: int, ~name: string) => string
 []
 
 Complete src/Completion.res 90:13
@@ -777,7 +741,7 @@ Path my
     "label": "myAmazingFunction",
     "kind": 12,
     "tags": [],
-    "detail": "(int, int) => int",
+    "detail": "(. int, int) => int",
     "documentation": null
   }]
 
@@ -918,13 +882,13 @@ Path Js.n
     "label": "nullable",
     "kind": 22,
     "tags": [],
-    "detail": "type nullable<+'a>",
-    "documentation": {"kind": "markdown", "value": "\n  A value of this type can be undefined, null or 'a. This type is equivalent to Js.Null_undefined.t.\n"}
+    "detail": "type nullable<'a> = Value('a) | Null | Undefined",
+    "documentation": null
   }, {
     "label": "null",
     "kind": 22,
     "tags": [],
-    "detail": "type null<+'a>",
+    "detail": "type null<'a> = Value('a) | Null",
     "documentation": {"kind": "markdown", "value": "\n  Nullable value of this type can be either null or 'a. This type is equivalent to Js.Null.t.\n"}
   }]
 
@@ -1103,13 +1067,13 @@ Path ForAuto.
     "label": "ForAuto.abc",
     "kind": 12,
     "tags": [],
-    "detail": "(t, int) => t",
+    "detail": "(. t, int) => t",
     "documentation": null
   }, {
     "label": "ForAuto.abd",
     "kind": 12,
     "tags": [],
-    "detail": "(t, int) => t",
+    "detail": "(. t, int) => t",
     "documentation": null
   }]
 
@@ -1127,13 +1091,13 @@ Path ForAuto.a
     "label": "abc",
     "kind": 12,
     "tags": [],
-    "detail": "(t, int) => t",
+    "detail": "(. t, int) => t",
     "documentation": null
   }, {
     "label": "abd",
     "kind": 12,
     "tags": [],
-    "detail": "(t, int) => t",
+    "detail": "(. t, int) => t",
     "documentation": null
   }]
 
@@ -1335,14 +1299,8 @@ Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[funRecord].someFun
 ContextPath Value[funRecord]
 Path funRecord
-Found type for function (~name: string) => unit
-[{
-    "label": "name",
-    "kind": 4,
-    "tags": [],
-    "detail": "string",
-    "documentation": null
-  }]
+Found type for function (. ~name: string) => unit
+[]
 
 Complete src/Completion.res 296:11
 posCursor:[296:11] posNoWhite:[296:10] Found expr:[296:3->296:11]
@@ -1572,20 +1530,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[withCallback]
 Path withCallback
-Found type for function (~b: int) => callback
-[{
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }, {
-    "label": "a",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }]
+Found type for function (. ~b: int) => callback
+[]
 
 Complete src/Completion.res 326:21
 posCursor:[326:21] posNoWhite:[326:20] Found expr:[326:3->326:21]
@@ -1597,14 +1543,8 @@ Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[withCallback](~a)
 ContextPath Value[withCallback]
 Path withCallback
-Found type for function (~b: int) => int
-[{
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }]
+Found type for function int
+[]
 
 Complete src/Completion.res 329:21
 posCursor:[329:21] posNoWhite:[329:20] Found expr:[329:3->329:21]
@@ -1713,7 +1653,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[ff]
 Path ff
-Found type for function (
+Found type for function (.
   ~opt1: int=?,
   ~a: int,
   ~b: int,
@@ -1722,7 +1662,7 @@ Found type for function (
   unit,
   ~c: int,
 ) => int
-{"contents": {"kind": "markdown", "value": "```rescript\noption<int>\n```"}}
+null
 
 Complete src/Completion.res 355:23
 posCursor:[355:23] posNoWhite:[355:22] Found expr:[0:-1->355:23]
@@ -1808,13 +1748,13 @@ Path ForAuto.
     "label": "abc",
     "kind": 12,
     "tags": [],
-    "detail": "(t, int) => t",
+    "detail": "(. t, int) => t",
     "documentation": null
   }, {
     "label": "abd",
     "kind": 12,
     "tags": [],
-    "detail": "(t, int) => t",
+    "detail": "(. t, int) => t",
     "documentation": null
   }]
 
@@ -1864,13 +1804,13 @@ Path funRecord
     "label": "someFun",
     "kind": 5,
     "tags": [],
-    "detail": "someFun: (~name: string) => unit\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
+    "detail": "someFun: (. ~name: string) => unit\n\ntype funRecord = {\n  someFun: (. ~name: string) => unit,\n  stuff: string,\n}",
     "documentation": null
   }, {
     "label": "stuff",
     "kind": 5,
     "tags": [],
-    "detail": "stuff: string\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
+    "detail": "stuff: string\n\ntype funRecord = {\n  someFun: (. ~name: string) => unit,\n  stuff: string,\n}",
     "documentation": null
   }]
 
@@ -1967,7 +1907,7 @@ Path r
     "label": "retAA",
     "kind": 12,
     "tags": [],
-    "detail": "unit => aa",
+    "detail": "(. unit) => aa",
     "documentation": null
   }, {
     "label": "r",
@@ -2087,7 +2027,9 @@ Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[ok]->g
 ContextPath Value[ok]
 Path ok
-CPPipe env:Completion
+CPPipe env:PervasivesU envFromCompletionItem:Completion
+CPPipe type path:Belt.Result.t
+CPPipe pathFromEnv:Belt.Result found:false
 Path Belt.Result.g
 [{
     "label": "Belt.Result.getExn",
