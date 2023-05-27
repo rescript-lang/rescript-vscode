@@ -99,6 +99,12 @@ extracting docs for src/DocExtractionRes.res
       "docstrings": ["Mighty fine module here too!"],
       "items": [
       {
+        "id": "DocExtractionRes.AnotherModule.SomeInnerModule",
+        "kind": "moduleAlias",
+        "docstrings": ["This links another module. Neat."],
+        "signature": "module LinkedModule = SomeInnerModule"
+      }, 
+      {
         "id": "DocExtractionRes.AnotherModule.callback",
         "kind": "type",
         "name": "callback",
