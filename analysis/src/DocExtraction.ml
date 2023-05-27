@@ -6,6 +6,13 @@ type constructorDoc = {
   signature: string;
 }
 
+type docsForModuleAlias = {
+  id: string;
+  docstring: string list;
+  name: string;
+  signature: string;
+}
+
 type docItemDetail =
   | Record of {fieldDocs: fieldDoc list}
   | Variant of {constructorDocs: constructorDoc list}
@@ -25,6 +32,7 @@ type docItem =
           (** Additional documentation for constructors and record fields, if available. *)
     }
   | Module of docsForModule
+  | ModuleAlias of docsForModuleAlias
 and docsForModule = {
   id: string;
   docstring: string list;
@@ -125,6 +133,14 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
             (stringifyDocsForModule ~originalEnv ~indentation:(indentation + 1)
                m) );
       ]
+  | ModuleAlias m ->
+    stringifyObject ~startOnNewline:true ~indentation
+      [
+        ("id", Some (wrapInQuotes m.id));
+        ("kind", Some (wrapInQuotes "moduleAlias"));
+        ("docstrings", Some (stringifyDocstrings m.docstring));
+        ("signature", Some (m.signature |> Json.escape |> wrapInQuotes));
+      ]
 
 and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
   let open Protocol in
@@ -203,7 +219,7 @@ let extractDocs ~path ~debug =
     let structure = file.structure in
     let open SharedTypes in
     let env = QueryEnv.fromFile file in
-    let rec extractDocs ?(modulePath = [env.file.moduleName])
+    let rec extractDocsForModule ?(modulePath = [env.file.moduleName])
         (structure : Module.structure) =
       {
         id = modulePath |> ident;
@@ -237,19 +253,35 @@ let extractDocs ~path ~debug =
                           name = item.name;
                           detail = typeDetail typ ~full ~env;
                         })
+                 | Module (Ident p) ->
+                   (* module Whatever = OtherModule *)
+                   let aliasToModule = p |> pathIdentToString in
+                   let modulePath = aliasToModule :: modulePath in
+                   Some
+                     (ModuleAlias
+                        {
+                          id = modulePath |> List.rev |> SharedTypes.ident;
+                          signature =
+                            Printf.sprintf "module %s = %s" item.name
+                              aliasToModule;
+                          name = item.name;
+                          docstring = item.docstring |> List.map String.trim;
+                        })
                  | Module (Structure m) ->
                    (* module Whatever = {} in res or module Whatever: {} in resi. *)
                    Some
-                     (Module (extractDocs ~modulePath:(m.name :: modulePath) m))
+                     (Module
+                        (extractDocsForModule ~modulePath:(m.name :: modulePath)
+                           m))
                  | Module (Constraint (Structure _impl, Structure interface)) ->
                    (* module Whatever: { <interface> } = { <impl> }. Prefer the interface. *)
                    Some
                      (Module
-                        (extractDocs
+                        (extractDocsForModule
                            ~modulePath:(interface.name :: modulePath)
                            interface))
                  | _ -> None);
       }
     in
-    let docs = extractDocs structure in
+    let docs = extractDocsForModule structure in
     print_endline (stringifyDocsForModule ~originalEnv:env docs)

@@ -36,6 +36,9 @@ module SomeInnerModule = {
 module AnotherModule = {
   /*** Mighty fine module here too!*/
 
+  /** This links another module. Neat. */
+  module LinkedModule = SomeInnerModule
+
   /**
   Testing what this looks like.*/
   type callback = SomeInnerModule.status => unit
