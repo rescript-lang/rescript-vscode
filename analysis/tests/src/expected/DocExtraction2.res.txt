@@ -12,11 +12,6 @@ preferring found resi file for impl: src/DocExtraction2.resi
     "kind": "type",
     "name": "t",
     "deprecated": false,
-    "location": {
-      "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtraction2.resi",
-      "line": 4,
-      "col": 1
-    },
     "signature": "type t",
     "docstrings": ["Type t is pretty cool."]
   }, 
@@ -25,11 +20,6 @@ preferring found resi file for impl: src/DocExtraction2.resi
     "kind": "value",
     "name": "make",
     "deprecated": false,
-    "location": {
-      "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtraction2.resi",
-      "line": 7,
-      "col": 5
-    },
     "signature": "let make: unit => t",
     "docstrings": ["Makerz of stuffz."]
   }, 
@@ -47,11 +37,6 @@ preferring found resi file for impl: src/DocExtraction2.resi
         "kind": "type",
         "name": "t",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtraction2.resi",
-          "line": 13,
-          "col": 3
-        },
         "signature": "type t",
         "docstrings": ["This type is also t."]
       }, 
@@ -60,11 +45,6 @@ preferring found resi file for impl: src/DocExtraction2.resi
         "kind": "value",
         "name": "make",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtraction2.resi",
-          "line": 15,
-          "col": 3
-        },
         "signature": "let make: unit => t",
         "docstrings": ["Maker of tea."]
       }]
