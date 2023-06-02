@@ -82,12 +82,8 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                      [
                        ("fieldName", Some (wrapInQuotes fieldDoc.fieldName));
                        ( "deprecated",
-                         Some
-                           (string_of_bool (Option.is_some fieldDoc.deprecated))
-                       );
-                       ( "deprecatedMessage",
                          match fieldDoc.deprecated with
-                         | Some msg -> Some (wrapInQuotes msg)
+                         | Some d -> Some (wrapInQuotes d)
                          | None -> None );
                        ("optional", Some (string_of_bool fieldDoc.optional));
                        ( "docstrings",
@@ -110,12 +106,8 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                        ( "constructorName",
                          Some (wrapInQuotes constructorDoc.constructorName) );
                        ( "deprecated",
-                         Some
-                           (string_of_bool
-                              (Option.is_some constructorDoc.deprecated)) );
-                       ( "deprecatedMessage",
                          match constructorDoc.deprecated with
-                         | Some msg -> Some (wrapInQuotes msg)
+                         | Some d -> Some (wrapInQuotes d)
                          | None -> None );
                        ( "docstrings",
                          Some (stringifyDocstrings constructorDoc.docstrings) );
@@ -139,32 +131,30 @@ let stringifyLoc loc ~indentation =
 let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
   let open Protocol in
   match item with
-  | Value {id; docstring; signature; name; loc; deprecated} ->
+  | Value {id; docstring; signature; name; deprecated} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
         ("kind", Some (wrapInQuotes "value"));
         ("name", Some (name |> Json.escape |> wrapInQuotes));
-        ("deprecated", Some (string_of_bool (Option.is_some deprecated)));
-        ( "deprecatedMessage",
+        ( "deprecated",
           match deprecated with
-          | Some msg -> Some (wrapInQuotes msg)
+          | Some d -> Some (wrapInQuotes d)
           | None -> None );
         (* ("location", Some (stringifyLoc loc ~indentation)); *)
         ( "signature",
           Some (signature |> String.trim |> Json.escape |> wrapInQuotes) );
         ("docstrings", Some (stringifyDocstrings docstring));
       ]
-  | Type {id; docstring; signature; name; loc; deprecated; detail} ->
+  | Type {id; docstring; signature; name; deprecated; detail} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
         ("kind", Some (wrapInQuotes "type"));
         ("name", Some (name |> Json.escape |> wrapInQuotes));
-        ("deprecated", Some (string_of_bool (Option.is_some deprecated)));
-        ( "deprecatedMessage",
+        ( "deprecated",
           match deprecated with
-          | Some msg -> Some (wrapInQuotes msg)
+          | Some d -> Some (wrapInQuotes d)
           | None -> None );
         (* ("location", Some (stringifyLoc loc ~indentation)); *)
         ("signature", Some (signature |> Json.escape |> wrapInQuotes));
@@ -199,10 +189,9 @@ and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
   stringifyObject ~startOnNewline:true ~indentation
     [
       ("name", Some (wrapInQuotes d.name));
-      ("deprecated", Some (string_of_bool (Option.is_some d.deprecated)));
-      ( "deprecatedMessage",
+      ( "deprecated",
         match d.deprecated with
-        | Some msg -> Some (wrapInQuotes msg)
+        | Some d -> Some (wrapInQuotes d)
         | None -> None );
       ("docstrings", Some (stringifyDocstrings d.docstring));
       ( "items",
