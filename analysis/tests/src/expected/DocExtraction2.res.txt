@@ -4,14 +4,12 @@ preferring found resi file for impl: src/DocExtraction2.resi
 
 {
   "name": "DocExtraction2",
-  "deprecated": false,
   "docstrings": ["Module level doc here."],
   "items": [
   {
     "id": "DocExtraction2.t",
     "kind": "type",
     "name": "t",
-    "deprecated": false,
     "signature": "type t",
     "docstrings": ["Type t is pretty cool."]
   }, 
@@ -19,7 +17,6 @@ preferring found resi file for impl: src/DocExtraction2.resi
     "id": "DocExtraction2.make",
     "kind": "value",
     "name": "make",
-    "deprecated": false,
     "signature": "let make: unit => t",
     "docstrings": ["Makerz of stuffz."]
   }, 
@@ -29,14 +26,12 @@ preferring found resi file for impl: src/DocExtraction2.resi
     "item": 
     {
       "name": "InnerModule",
-      "deprecated": false,
       "docstrings": [],
       "items": [
       {
         "id": "DocExtraction2.InnerModule.t",
         "kind": "type",
         "name": "t",
-        "deprecated": false,
         "signature": "type t",
         "docstrings": ["This type is also t."]
       }, 
@@ -44,7 +39,6 @@ preferring found resi file for impl: src/DocExtraction2.resi
         "id": "DocExtraction2.InnerModule.make",
         "kind": "value",
         "name": "make",
-        "deprecated": false,
         "signature": "let make: unit => t",
         "docstrings": ["Maker of tea."]
       }]
