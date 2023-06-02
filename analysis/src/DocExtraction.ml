@@ -150,7 +150,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           match deprecated with
           | Some msg -> Some (wrapInQuotes msg)
           | None -> None );
-        ("location", Some (stringifyLoc loc ~indentation));
+        (* ("location", Some (stringifyLoc loc ~indentation)); *)
         ( "signature",
           Some (signature |> String.trim |> Json.escape |> wrapInQuotes) );
         ("docstrings", Some (stringifyDocstrings docstring));
@@ -166,7 +166,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           match deprecated with
           | Some msg -> Some (wrapInQuotes msg)
           | None -> None );
-        ("location", Some (stringifyLoc loc ~indentation));
+        (* ("location", Some (stringifyLoc loc ~indentation)); *)
         ("signature", Some (signature |> Json.escape |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
         ( "detail",

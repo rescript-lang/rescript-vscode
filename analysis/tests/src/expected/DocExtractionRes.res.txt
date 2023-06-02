@@ -11,11 +11,6 @@ extracting docs for src/DocExtractionRes.res
     "kind": "type",
     "name": "t",
     "deprecated": false,
-    "location": {
-      "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-      "line": 4,
-      "col": 1
-    },
     "signature": "type t = {name: string, online: bool}",
     "docstrings": ["This type represents stuff."],
     "detail": 
@@ -41,11 +36,6 @@ extracting docs for src/DocExtractionRes.res
     "kind": "value",
     "name": "make",
     "deprecated": false,
-    "location": {
-      "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-      "line": 17,
-      "col": 5
-    },
     "signature": "let make: string => t",
     "docstrings": ["Create stuff.\n\n```rescript example\nlet stuff = make(\"My name\")\n```"]
   }, 
@@ -54,11 +44,6 @@ extracting docs for src/DocExtractionRes.res
     "kind": "value",
     "name": "asOffline",
     "deprecated": false,
-    "location": {
-      "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-      "line": 23,
-      "col": 5
-    },
     "signature": "let asOffline: t => t",
     "docstrings": ["Stuff goes offline."]
   }, 
@@ -76,11 +61,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "status",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 27,
-          "col": 3
-        },
         "signature": "type status = Started(t) | Stopped | Idle",
         "docstrings": [],
         "detail": 
@@ -112,11 +92,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "validInputs",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 31,
-          "col": 3
-        },
         "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #status(status)\\n  | #withPayload(int)\\n]",
         "docstrings": ["These are all the valid inputs."]
       }, 
@@ -125,11 +100,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "callback",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 33,
-          "col": 3
-        },
         "signature": "type callback = (t, ~status: status) => unit",
         "docstrings": []
       }]
@@ -155,11 +125,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "callback",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 44,
-          "col": 3
-        },
         "signature": "type callback = SomeInnerModule.status => unit",
         "docstrings": ["Testing what this looks like."]
       }, 
@@ -168,11 +133,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "value",
         "name": "isGoodStatus",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 46,
-          "col": 7
-        },
         "signature": "let isGoodStatus: SomeInnerModule.status => bool",
         "docstrings": []
       }, 
@@ -181,11 +141,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "someVariantWithInlineRecords",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 49,
-          "col": 3
-        },
         "signature": "type someVariantWithInlineRecords = SomeStuff({offline: bool})",
         "docstrings": ["Trying how it looks with an inline record in a variant."],
         "detail": 
@@ -205,11 +160,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "domRoot",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 54,
-          "col": 3
-        },
         "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
         "docstrings": ["Callback to get the DOM root..."]
       }]
@@ -229,11 +179,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "type",
         "name": "t",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 61,
-          "col": 3
-        },
         "signature": "type t",
         "docstrings": ["The type t is stuff."]
       }, 
@@ -242,11 +187,6 @@ extracting docs for src/DocExtractionRes.res
         "kind": "value",
         "name": "make",
         "deprecated": false,
-        "location": {
-          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
-          "line": 63,
-          "col": 3
-        },
         "signature": "let make: unit => t",
         "docstrings": ["The maker of stuff!"]
       }]
