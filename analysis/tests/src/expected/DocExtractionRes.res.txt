@@ -3,12 +3,19 @@ extracting docs for src/DocExtractionRes.res
 
 {
   "name": "DocExtractionRes",
+  "deprecated": false,
   "docstrings": ["Module level documentation goes here."],
   "items": [
   {
     "id": "DocExtractionRes.t",
     "kind": "type",
     "name": "t",
+    "deprecated": false,
+    "location": {
+      "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+      "line": 4,
+      "col": 1
+    },
     "signature": "type t = {name: string, online: bool}",
     "docstrings": ["This type represents stuff."],
     "detail": 
@@ -16,10 +23,14 @@ extracting docs for src/DocExtractionRes.res
       "kind": "record",
       "fieldDocs": [{
         "fieldName": "name",
+        "deprecated": false,
+        "optional": false,
         "docstrings": ["The name of the stuff."],
         "signature": "string"
       }, {
         "fieldName": "online",
+        "deprecated": false,
+        "optional": false,
         "docstrings": ["Whether stuff is online."],
         "signature": "bool"
       }]
@@ -29,6 +40,12 @@ extracting docs for src/DocExtractionRes.res
     "id": "DocExtractionRes.make",
     "kind": "value",
     "name": "make",
+    "deprecated": false,
+    "location": {
+      "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+      "line": 17,
+      "col": 5
+    },
     "signature": "let make: string => t",
     "docstrings": ["Create stuff.\n\n```rescript example\nlet stuff = make(\"My name\")\n```"]
   }, 
@@ -36,6 +53,12 @@ extracting docs for src/DocExtractionRes.res
     "id": "DocExtractionRes.asOffline",
     "kind": "value",
     "name": "asOffline",
+    "deprecated": false,
+    "location": {
+      "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+      "line": 23,
+      "col": 5
+    },
     "signature": "let asOffline: t => t",
     "docstrings": ["Stuff goes offline."]
   }, 
@@ -45,12 +68,19 @@ extracting docs for src/DocExtractionRes.res
     "item": 
     {
       "name": "SomeInnerModule",
+      "deprecated": false,
       "docstrings": ["Another module level docstring here."],
       "items": [
       {
         "id": "DocExtractionRes.SomeInnerModule.status",
         "kind": "type",
         "name": "status",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 27,
+          "col": 3
+        },
         "signature": "type status = Started(t) | Stopped | Idle",
         "docstrings": [],
         "detail": 
@@ -59,16 +89,19 @@ extracting docs for src/DocExtractionRes.res
           "constructorDocs": [
           {
             "constructorName": "Started",
+            "deprecated": false,
             "docstrings": ["If this is started or not"],
             "signature": "Started(t)"
           }, 
           {
             "constructorName": "Stopped",
+            "deprecated": false,
             "docstrings": ["Stopped?"],
             "signature": "Stopped"
           }, 
           {
             "constructorName": "Idle",
+            "deprecated": false,
             "docstrings": ["Now idle."],
             "signature": "Idle"
           }]
@@ -78,6 +111,12 @@ extracting docs for src/DocExtractionRes.res
         "id": "DocExtractionRes.SomeInnerModule.validInputs",
         "kind": "type",
         "name": "validInputs",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 31,
+          "col": 3
+        },
         "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #status(status)\\n  | #withPayload(int)\\n]",
         "docstrings": ["These are all the valid inputs."]
       }, 
@@ -85,6 +124,12 @@ extracting docs for src/DocExtractionRes.res
         "id": "DocExtractionRes.SomeInnerModule.callback",
         "kind": "type",
         "name": "callback",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 33,
+          "col": 3
+        },
         "signature": "type callback = (t, ~status: status) => unit",
         "docstrings": []
       }]
@@ -96,6 +141,7 @@ extracting docs for src/DocExtractionRes.res
     "item": 
     {
       "name": "AnotherModule",
+      "deprecated": false,
       "docstrings": ["Mighty fine module here too!"],
       "items": [
       {
@@ -108,6 +154,12 @@ extracting docs for src/DocExtractionRes.res
         "id": "DocExtractionRes.AnotherModule.callback",
         "kind": "type",
         "name": "callback",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 44,
+          "col": 3
+        },
         "signature": "type callback = SomeInnerModule.status => unit",
         "docstrings": ["Testing what this looks like."]
       }, 
@@ -115,6 +167,12 @@ extracting docs for src/DocExtractionRes.res
         "id": "DocExtractionRes.AnotherModule.isGoodStatus",
         "kind": "value",
         "name": "isGoodStatus",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 46,
+          "col": 7
+        },
         "signature": "let isGoodStatus: SomeInnerModule.status => bool",
         "docstrings": []
       }, 
@@ -122,6 +180,12 @@ extracting docs for src/DocExtractionRes.res
         "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
         "kind": "type",
         "name": "someVariantWithInlineRecords",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 49,
+          "col": 3
+        },
         "signature": "type someVariantWithInlineRecords = SomeStuff({offline: bool})",
         "docstrings": ["Trying how it looks with an inline record in a variant."],
         "detail": 
@@ -130,6 +194,7 @@ extracting docs for src/DocExtractionRes.res
           "constructorDocs": [
           {
             "constructorName": "SomeStuff",
+            "deprecated": false,
             "docstrings": ["This has inline records..."],
             "signature": "SomeStuff"
           }]
@@ -139,6 +204,12 @@ extracting docs for src/DocExtractionRes.res
         "id": "DocExtractionRes.AnotherModule.domRoot",
         "kind": "type",
         "name": "domRoot",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 54,
+          "col": 3
+        },
         "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
         "docstrings": ["Callback to get the DOM root..."]
       }]
@@ -150,12 +221,19 @@ extracting docs for src/DocExtractionRes.res
     "item": 
     {
       "name": "ModuleWithThingsThatShouldNotBeExported",
+      "deprecated": false,
       "docstrings": [],
       "items": [
       {
         "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",
         "kind": "type",
         "name": "t",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 61,
+          "col": 3
+        },
         "signature": "type t",
         "docstrings": ["The type t is stuff."]
       }, 
@@ -163,6 +241,12 @@ extracting docs for src/DocExtractionRes.res
         "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.make",
         "kind": "value",
         "name": "make",
+        "deprecated": false,
+        "location": {
+          "path": "/home/pedro/Desktop/projects/rescript-vscode/analysis/tests/src/DocExtractionRes.res",
+          "line": 63,
+          "col": 3
+        },
         "signature": "let make: unit => t",
         "docstrings": ["The maker of stuff!"]
       }]
