@@ -132,3 +132,11 @@ let _ = 3 == 3 || 3 === 3
 let _ = (~_type_ as _) => ()
 
 let _ = {"abc": 34}
+
+let _ = Js.log("Hello")
+
+"Hello"->Js.log
+
+"Hello"->Js.String2.concat("World")->Js.log
+
+[1, 2, 3]->Js.Array2.forEach(i => i->Js.log)

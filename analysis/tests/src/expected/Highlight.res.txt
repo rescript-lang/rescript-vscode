@@ -1,5 +1,5 @@
 Highlight src/Highlight.res
-structure items:38 diagnostics:0 
+structure items:42 diagnostics:0 
 Lident: M 0:7 Namespace
 Lident: C 1:9 Namespace
 Lident: Component 1:13 Namespace
@@ -20,6 +20,8 @@ Lident: div 16:4 JsxLowercase
 JsxTag >: 11:6
 JsxTag >: 16:7
 Ldot: React 12:5 Namespace
+Lident: string 12:11 Function
+Ldot: React 12:5 Namespace
 Lident: string 12:11 Variable
 JsxTag <: 13:4
 Lident: div 13:5 JsxLowercase
@@ -27,9 +29,15 @@ Lident: div 13:34 JsxLowercase
 JsxTag >: 13:8
 JsxTag >: 13:37
 Ldot: React 13:11 Namespace
+Lident: string 13:17 Function
+Ldot: React 13:11 Namespace
 Lident: string 13:17 Variable
 Ldot: React 14:5 Namespace
+Lident: string 14:11 Function
+Ldot: React 14:5 Namespace
 Lident: string 14:11 Variable
+Ldot: React 15:5 Namespace
+Lident: string 15:11 Function
 Ldot: React 15:5 Namespace
 Lident: string 15:11 Variable
 Lident: pair 18:5 Type
@@ -45,6 +53,7 @@ TypeArg: [26:4->26:50]
 TypeArg: [27:4->27:53]
 Lident: looooooooooooooooooooooooooooooooooooooong_int 26:4 Type
 Lident: looooooooooooooooooooooooooooooooooooooong_string 27:4 Type
+Lident: not 31:8 Function
 Binary operator < [31:12->31:13]
 Binary operator > [31:22->31:23]
 Lident: MT 33:12 Type
@@ -81,6 +90,7 @@ Variable: x [69:21->69:22]
 Variable: world [69:24->69:30]
 Lident: x 69:35 Variable
 Lident: world 69:39 Variable
+Lident: add 71:21 Function
 Lident: add 71:21 Variable
 JsxTag <: 73:8
 Lident: div 73:9 JsxLowercase
@@ -107,6 +117,7 @@ Variable: toAs [90:4->90:8]
 Variable: x [90:19->90:20]
 Lident: x 90:25 Variable
 Variable: _toEquals [91:4->91:13]
+Lident: toAs 91:16 Function
 Lident: toAs 91:16 Variable
 Variable: to [93:4->93:6]
 Lident: to 94:9 Variable
@@ -116,6 +127,8 @@ Lident: to 94:25 Variable
 Lident: ToAsProp 98:7 Namespace
 Variable: make [100:6->100:10]
 Variable: to [100:14->100:17]
+Ldot: React 101:8 Namespace
+Lident: int 101:14 Function
 Ldot: React 101:8 Namespace
 Lident: int 101:14 Variable
 Lident: to 101:18 Variable
@@ -140,4 +153,34 @@ Lident: x 124:9 Variable
 Ldot: QQ 126:8 Namespace
 Lident: somePolyEnumType 126:11 Type
 Lident: abc 133:9->133:14 Property
+Ldot: Js 135:8 Namespace
+Lident: log 135:11 Function
+Ldot: Js 135:8 Namespace
+Lident: log 135:11 Variable
+Ldot: Js 137:9 Namespace
+Lident: log 137:12 Function
+Ldot: Js 137:9 Namespace
+Lident: log 137:12 Variable
+Ldot: Js 139:37 Namespace
+Lident: log 139:40 Function
+Ldot: Js 139:9 Namespace
+Ldot: String2 139:12 Namespace
+Lident: concat 139:20 Function
+Ldot: Js 139:9 Namespace
+Ldot: String2 139:12 Namespace
+Lident: concat 139:20 Variable
+Ldot: Js 139:37 Namespace
+Lident: log 139:40 Variable
+Ldot: Js 141:11 Namespace
+Ldot: Array2 141:14 Namespace
+Lident: forEach 141:21 Function
+Ldot: Js 141:11 Namespace
+Ldot: Array2 141:14 Namespace
+Lident: forEach 141:21 Variable
+Variable: i [141:29->141:30]
+Ldot: Js 141:37 Namespace
+Lident: log 141:40 Function
+Lident: i 141:34 Variable
+Ldot: Js 141:37 Namespace
+Lident: log 141:40 Variable
 

@@ -1131,7 +1131,8 @@ function onMessage(msg: p.Message) {
                 "namespace",
                 "enumMember",
                 "property",
-                "interface", // emit jsxlowercase, div in <div> as interface
+                "interface", // emit jsxlowercase, div in <div> as interface,
+                "function"
               ],
               tokenModifiers: [],
             },
