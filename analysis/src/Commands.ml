@@ -94,7 +94,7 @@ let definition ~path ~pos ~debug =
       | Some locItem -> (
         match References.definitionForLocItem ~full locItem with
         | None -> None
-        | Some (uri, loc) ->
+        | Some (uri, loc) when not loc.loc_ghost ->
           let isInterface = full.file.uri |> Uri.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
             (* range is zero *)
@@ -113,7 +113,7 @@ let definition ~path ~pos ~debug =
           else
             Some
               {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}
-        ))
+        | Some _ -> None))
   in
   print_endline
     (match locationOpt with
