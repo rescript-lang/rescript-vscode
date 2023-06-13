@@ -126,7 +126,6 @@ module Module = struct
     kind: kind;
     name: string;
     docstring: string list;
-    loc: Warnings.loc;
     deprecated: string option;
   }
 
