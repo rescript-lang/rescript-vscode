@@ -29,7 +29,6 @@ type docItem =
       docstring: string list;
       signature: string;
       name: string;
-      loc: Warnings.loc;
       deprecated: string option;
     }
   | Type of {
@@ -37,7 +36,6 @@ type docItem =
       docstring: string list;
       signature: string;
       name: string;
-      loc: Warnings.loc;
       deprecated: string option;
       detail: docItemDetail option;
           (** Additional documentation for constructors and record fields, if available. *)
@@ -117,17 +115,6 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
             |> array) );
       ]
 
-let stringifyLoc loc ~indentation =
-  let open Protocol in
-  let line, col = Loc.start loc in
-  let path = loc.loc_start.pos_fname in
-  stringifyObject ~startOnNewline:false ~indentation:(indentation + 1)
-    [
-      ("path", Some (wrapInQuotes path));
-      ("line", Some (string_of_int (line + 1)));
-      ("col", Some (string_of_int (col + 1)));
-    ]
-
 let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
   let open Protocol in
   match item with
@@ -141,7 +128,6 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           match deprecated with
           | Some d -> Some (wrapInQuotes d)
           | None -> None );
-        (* ("location", Some (stringifyLoc loc ~indentation)); *)
         ( "signature",
           Some (signature |> String.trim |> Json.escape |> wrapInQuotes) );
         ("docstrings", Some (stringifyDocstrings docstring));
@@ -156,7 +142,6 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           match deprecated with
           | Some d -> Some (wrapInQuotes d)
           | None -> None );
-        (* ("location", Some (stringifyLoc loc ~indentation)); *)
         ("signature", Some (signature |> Json.escape |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
         ( "detail",
@@ -289,7 +274,6 @@ let extractDocs ~path ~debug =
                             "let " ^ item.name ^ ": " ^ Shared.typeToString typ
                             |> formatCode;
                           name = item.name;
-                          loc = item.loc;
                           deprecated = item.deprecated;
                         })
                  | Type (typ, _) ->
@@ -303,7 +287,6 @@ let extractDocs ~path ~debug =
                             |> Shared.declToString item.name
                             |> formatCode;
                           name = item.name;
-                          loc = item.loc;
                           deprecated = item.deprecated;
                           detail = typeDetail typ ~full ~env;
                         })

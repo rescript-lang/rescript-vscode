@@ -59,7 +59,6 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         Module.kind = Module.Value declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
-        loc;
         deprecated = declared.deprecated;
       };
     ]
@@ -134,7 +133,6 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         Module.kind = Type (declared.item, recStatus);
         name = declared.name.txt;
         docstring = declared.docstring;
-        loc = type_loc;
         deprecated = declared.deprecated;
       };
     ]
@@ -153,7 +151,6 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         Module.kind = Module declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
-        loc = md_loc;
         deprecated = declared.deprecated;
       };
     ]
@@ -318,7 +315,6 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
     Module.kind = Module.Type (declared.item, recStatus);
     name = declared.name.txt;
     docstring = declared.docstring;
-    loc = typ_loc;
     deprecated = declared.deprecated;
   }
 
@@ -338,7 +334,6 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         Module.kind = Module.Value declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
-        loc = name.loc;
         deprecated = declared.deprecated;
       };
     ]
@@ -370,7 +365,6 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         Module.kind = Module declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
-        loc = name.loc;
         deprecated = declared.deprecated;
       };
     ]
@@ -448,7 +442,6 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
             Module.kind = Module.Value declared.item;
             name = declared.name.txt;
             docstring = declared.docstring;
-            loc = pat.pat_loc;
             deprecated = declared.deprecated;
           }
           :: !items
@@ -484,7 +477,6 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         Module.kind = Module declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
-        loc = name.loc;
         deprecated = declared.deprecated;
       };
     ]
@@ -516,7 +508,6 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         Module.kind = Module modTypeItem;
         name = declared.name.txt;
         docstring = declared.docstring;
-        loc = name.loc;
         deprecated = declared.deprecated;
       };
     ]
@@ -546,7 +537,6 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         Module.kind = Value declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
-        loc = vd.val_loc;
         deprecated = declared.deprecated;
       };
     ]
