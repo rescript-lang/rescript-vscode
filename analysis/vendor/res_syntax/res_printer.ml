@@ -1591,7 +1591,7 @@ and printTypExpr ~(state : State.t) (typExpr : Parsetree.core_type) cmtTbl =
         let doc = printTypExpr ~state n cmtTbl in
         match n.ptyp_desc with
         | Ptyp_arrow _ | Ptyp_tuple _ | Ptyp_alias _ -> addParens doc
-        | _ when Ast_uncurried.typeIsUncurriedFun n -> addParens doc
+        | _ when Ast_uncurried.coreTypeIsUncurriedFun n -> addParens doc
         | _ -> doc
       in
       Doc.group
@@ -1652,7 +1652,7 @@ and printTypExpr ~(state : State.t) (typExpr : Parsetree.core_type) cmtTbl =
         let needsParens =
           match typ.ptyp_desc with
           | Ptyp_arrow _ -> true
-          | _ when Ast_uncurried.typeIsUncurriedFun typ -> true
+          | _ when Ast_uncurried.coreTypeIsUncurriedFun typ -> true
           | _ -> false
         in
         let doc = printTypExpr ~state typ cmtTbl in
@@ -1664,7 +1664,7 @@ and printTypExpr ~(state : State.t) (typExpr : Parsetree.core_type) cmtTbl =
     | Ptyp_object (fields, openFlag) ->
       printObject ~state ~inline:false fields openFlag cmtTbl
     | Ptyp_arrow _ -> printArrow ~uncurried:false typExpr
-    | Ptyp_constr _ when Ast_uncurried.typeIsUncurriedFun typExpr ->
+    | Ptyp_constr _ when Ast_uncurried.coreTypeIsUncurriedFun typExpr ->
       let arity, tArg = Ast_uncurried.typeExtractUncurriedFun typExpr in
       printArrow ~uncurried:true ~arity tArg
     | Ptyp_constr (longidentLoc, [{ptyp_desc = Ptyp_object (fields, openFlag)}])
@@ -4018,7 +4018,7 @@ and printPexpApply ~state expr cmtTbl =
           argsDoc;
         ]
     else
-      let argsDoc = printArguments ~state ~dotted args cmtTbl in
+      let argsDoc = printArguments ~state ~dotted ~partial args cmtTbl in
       Doc.concat [printAttributes ~state attrs cmtTbl; callExprDoc; argsDoc]
   | _ -> assert false
 
@@ -4524,7 +4524,7 @@ and printArgumentsWithCallbackInLastPosition ~state ~dotted args cmtTbl =
         Lazy.force breakAllArgs;
       ]
 
-and printArguments ~state ~dotted
+and printArguments ~state ~dotted ?(partial = false)
     (args : (Asttypes.arg_label * Parsetree.expression) list) cmtTbl =
   match args with
   | [
@@ -4564,7 +4564,7 @@ and printArguments ~state ~dotted
                     ~sep:(Doc.concat [Doc.comma; Doc.line])
                     (List.map (fun arg -> printArgument ~state arg cmtTbl) args);
                 ]);
-           Doc.trailingComma;
+           (if partial then Doc.nil else Doc.trailingComma);
            Doc.softLine;
            Doc.rparen;
          ])
