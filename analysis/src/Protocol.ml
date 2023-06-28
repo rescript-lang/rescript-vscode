@@ -85,6 +85,7 @@ type codeAction = {
 
 let null = "null"
 let array l = "[" ^ String.concat ", " l ^ "]"
+let array_newline l = "[" ^ String.concat ",\n" l ^ "]"
 
 let stringifyPosition p =
   Printf.sprintf {|{"line": %i, "character": %i}|} p.line p.character

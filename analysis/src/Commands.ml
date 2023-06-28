@@ -140,30 +140,51 @@ let typeDefinition ~path ~pos ~debug =
     | Some location -> location |> Protocol.stringifyLocation)
 
 let references ~path ~pos ~debug =
-  let allLocs =
+  let allLocs, prompt_segments =
     match Cmt.loadFullCmtFromPath ~path with
-    | None -> []
+    | None -> ([], [])
     | Some full -> (
       match References.getLocItem ~full ~pos ~debug with
-      | None -> []
+      | None -> ([], [])
       | Some locItem ->
+        let itemName =
+          match locItem.locType with
+          | Typed (name, _, _) -> name
+          | _ -> "UnknownName"
+        in
+        let prompt = Prompt.createForReferences itemName in
         let allReferences = References.allReferencesForLocItem ~full locItem in
-        allReferences
-        |> List.fold_left
-             (fun acc {References.uri = uri2; locOpt} ->
-               let loc =
-                 match locOpt with
-                 | Some loc -> loc
-                 | None -> Uri.toTopLevelLoc uri2
-               in
-               Protocol.stringifyLocation
-                 {uri = Uri.toString uri2; range = Utils.cmtLocToRange loc}
-               :: acc)
-             [])
+        let references =
+          allReferences
+          |> List.fold_left
+               (fun acc {References.uri = uri2; locOpt} ->
+                 let loc =
+                   match locOpt with
+                   | Some loc -> loc
+                   | None -> Uri.toTopLevelLoc uri2
+                 in
+                 prompt
+                 |> Prompt.addSnippet ~isDefinition:(locItem.loc = loc)
+                      ~pos:(Loc.start loc) ~uri:uri2;
+                 Protocol.stringifyLocation
+                   {uri = Uri.toString uri2; range = Utils.cmtLocToRange loc}
+                 :: acc)
+               []
+        in
+        (references, Prompt.toSegments prompt))
   in
+
   print_endline
     (if allLocs = [] then Protocol.null
-    else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
+    else
+      let prompt =
+        prompt_segments
+        |> List.map Protocol.wrapInQuotes
+        |> Protocol.array_newline
+      in
+      let references = allLocs |> Protocol.array_newline in
+      Printf.sprintf "{\"prompt\":\n%s,\n\"references\":\n%s}\n" prompt
+        references)
 
 let rename ~path ~pos ~newName ~debug =
   let result =

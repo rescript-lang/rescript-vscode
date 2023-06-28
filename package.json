@@ -122,6 +122,14 @@
 			"type": "object",
 			"title": "ReScript",
 			"properties": {
+				"rescript.settings.openaiKey": {
+					"type": [
+					  "string",
+					  "null"
+					],
+					"default": null,
+					"description": "OpenAI API key"
+				  },		  
 				"rescript.settings.allowBuiltInFormatter": {
 					"scope": "language-overridable",
 					"type": "boolean",
@@ -221,5 +229,10 @@
 		"@types/vscode": "1.68.0",
 		"semver": "^7.3.7",
 		"typescript": "^4.7.3"
+	},
+	"dependencies": {
+		"gpt-3-encoder": "^1.1.4",
+		"openai": "^3.2.1",
+		"vscode-uri": "^3.0.7"
 	}
 }

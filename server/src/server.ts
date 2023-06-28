@@ -25,8 +25,13 @@ import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { filesDiagnostics } from "./utils";
+import { URI } from "vscode-uri";
+import * as os from "os";
+const { Configuration, OpenAIApi } = require("openai");
+const { encode, decode } = require("gpt-3-encoder");
 
 interface extensionConfiguration {
+  openaiKey: string | null;
   allowBuiltInFormatter: boolean;
   askToStartBuild: boolean;
   inlayHints: {
@@ -53,6 +58,7 @@ let extensionClientCapabilities: extensionClientCapabilities = {};
 // All values here are temporary, and will be overridden as the server is
 // initialized, and the current config is received from the client.
 let extensionConfiguration: extensionConfiguration = {
+  openaiKey: null,
   allowBuiltInFormatter: false,
   askToStartBuild: true,
   inlayHints: {
@@ -536,18 +542,93 @@ function typeDefinition(msg: p.RequestMessage) {
   return response;
 }
 
+var promptNum = 0;
+
+function showMarkdown(content: string, title: string) {
+  promptNum++;
+  let tempFileName = "prompt_" + promptNum + "____" + process.pid + ".md";
+  let tmpname = path.join(os.tmpdir(), tempFileName);
+  fs.writeFileSync(tmpname, content, { encoding: "utf-8" });
+  let command = `command:markdown.showPreview?${encodeURIComponent(
+    JSON.stringify([URI.parse(tmpname)])
+  )}`;
+  let params: p.ShowMessageParams = {
+    type: p.MessageType.Warning,
+    message: `${title} is ready. [Open it](${command}).`,
+  };
+  let message: p.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "window/showMessage",
+    params: params,
+  };
+  send(message);
+}
+
 function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
-    filePath,
-    params.position
-  );
+  let result = utils.getReferencesForPosition(filePath, params.position);
+  let references: typeof p.ReferencesRequest.type = result.references;
+  let segments: string[] = result.prompt;
+
+  type model = { name: string; maxTokens: number };
+  let gpt3: model = { name: "gpt-3.5-turbo", maxTokens: 4000 };
+  let gpt3_16k: model = { name: "gpt-3.5-turbo-16k", maxTokens: 16000 };
+  let gpt4: model = { name: "gpt-4", maxTokens: 4000 };
+
+  let model = gpt3;
+  let prompt = "";
+  let numTokens = 0;
+  while (true) {
+    let nextSegment = segments.shift();
+    if (!nextSegment) break;
+    let newPrompt = prompt + "\n" + nextSegment;
+    let newTokens = encode(newPrompt).length;
+    if (newTokens < model.maxTokens) {
+      prompt = newPrompt;
+      numTokens = newTokens;
+    } else break;
+  }
+  let key = extensionConfiguration.openaiKey;
+  if (!key) {
+    showMarkdown(
+      "Please set the `OpenAI API Key` in the `settings.json` file.",
+      "OpenAI API Key not set."
+    );
+  } else {
+    const configuration = new Configuration({
+      apiKey: extensionConfiguration.openaiKey,
+    });
+    const openai = new OpenAIApi(configuration);
+    let foo = async () => {
+      var completion;
+      var err;
+      try {
+        completion = await openai.createChatCompletion({
+          model: model.name,
+          messages: [{ role: "user", content: prompt }],
+        });
+      } catch (error) {
+        let e: any = error;
+        if (e.response) {
+          err = `status:${e.response.status}, data:${JSON.stringify(
+            e.response.data
+          )}`;
+        } else {
+          err = `Error with OpenAI API request: ${e.message}`;
+        }
+      }
+      let reply = err || completion.data.choices[0].message.content;
+      showMarkdown(reply, "The Reply");
+    };
+    foo();
+  }
+
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
-    result,
+    result: references,
     // error: code and message set in case an exception happens during the definition request.
   };
   return response;

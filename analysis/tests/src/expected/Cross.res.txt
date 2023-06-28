@@ -1,21 +1,36 @@
 References src/Cross.res 0:17
-[
-{"uri": "Cross.res", "range": {"start": {"line": 0, "character": 15}, "end": {"line": 0, "character": 25}}},
+{"prompt":
+["A Snippet has the form: {\"file\": \"Hello.res\", \"line\":23, \"code\": \"...the code...\"} where the first line of code is line 23.\nFind Uses of \"UnknownName\" given snippets for its Definition and its Users.\n\nThe input has form:\n        Definition:\n        snippet\n        \n        Use1:\n        snippet1\n        \n        Use2:\n        snippet2\n        ...\n\nYou will produce output of the form:\n- `File.res` line `12`: function `foo` calls `UnknownName` ...\n- `File2.res` line `34`: function `bar` uses `UnknownName` to ...\n\nIgnore any code in the Snippets that is not directly relevant to using \"UnknownName\".\nAdd enough details to understand at high level how \"UnknownName\" is used targeted at a person who is trying to undersand the codebase.\n",
+"Definition:\n{\"file\": Cross.res, \"line\": 1, \"code\":\nlet crossRef = References.x\n//               ^ref\n\nlet crossRef2 = References.x\n\"}\n",
+"Use1:\n{\"file\": Cross.res, \"line\": 4, \"code\":\nlet crossRef = References.x\n//               ^ref\n\nlet crossRef2 = References.x\n\nmodule Ref = References\n\nlet crossRef3 = References.x\"}\n",
+"Use2:\n{\"file\": Cross.res, \"line\": 6, \"code\":\nlet crossRef = References.x\n//               ^ref\n\nlet crossRef2 = References.x\n\nmodule Ref = References\n\nlet crossRef3 = References.x\n\nlet crossRefWithInterface = ReferencesWithInterface.x\"}\n",
+"Use3:\n{\"file\": Cross.res, \"line\": 8, \"code\":\n\nlet crossRef2 = References.x\n\nmodule Ref = References\n\nlet crossRef3 = References.x\n\nlet crossRefWithInterface = ReferencesWithInterface.x\n//                             ^ref\n\"}\n",
+"Use4:\n{\"file\": References.res, \"line\": 1, \"code\":\nlet x = 12\n//  ^ref\n\nlet a = x\n\"}\n"],
+"references":
+[{"uri": "Cross.res", "range": {"start": {"line": 0, "character": 15}, "end": {"line": 0, "character": 25}}},
 {"uri": "Cross.res", "range": {"start": {"line": 3, "character": 16}, "end": {"line": 3, "character": 26}}},
 {"uri": "Cross.res", "range": {"start": {"line": 5, "character": 13}, "end": {"line": 5, "character": 23}}},
 {"uri": "Cross.res", "range": {"start": {"line": 7, "character": 16}, "end": {"line": 7, "character": 26}}},
-{"uri": "References.res", "range": {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 0}}}
-]
+{"uri": "References.res", "range": {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 0}}}]}
+
 
 References src/Cross.res 9:31
-[
-{"uri": "Cross.res", "range": {"start": {"line": 9, "character": 28}, "end": {"line": 9, "character": 51}}},
+{"prompt":
+["A Snippet has the form: {\"file\": \"Hello.res\", \"line\":23, \"code\": \"...the code...\"} where the first line of code is line 23.\nFind Uses of \"UnknownName\" given snippets for its Definition and its Users.\n\nThe input has form:\n        Definition:\n        snippet\n        \n        Use1:\n        snippet1\n        \n        Use2:\n        snippet2\n        ...\n\nYou will produce output of the form:\n- `File.res` line `12`: function `foo` calls `UnknownName` ...\n- `File2.res` line `34`: function `bar` uses `UnknownName` to ...\n\nIgnore any code in the Snippets that is not directly relevant to using \"UnknownName\".\nAdd enough details to understand at high level how \"UnknownName\" is used targeted at a person who is trying to undersand the codebase.\n",
+"Definition:\n{\"file\": Cross.res, \"line\": 10, \"code\":\n\nmodule Ref = References\n\nlet crossRef3 = References.x\n\nlet crossRefWithInterface = ReferencesWithInterface.x\n//                             ^ref\n\nlet crossRefWithInterface2 = ReferencesWithInterface.x\n\"}\n",
+"Use1:\n{\"file\": Cross.res, \"line\": 13, \"code\":\nlet crossRef3 = References.x\n\nlet crossRefWithInterface = ReferencesWithInterface.x\n//                             ^ref\n\nlet crossRefWithInterface2 = ReferencesWithInterface.x\n\nmodule RefWithInterface = ReferencesWithInterface\n\nlet crossRefWithInterface3 = ReferencesWithInterface.x\"}\n",
+"Use2:\n{\"file\": Cross.res, \"line\": 15, \"code\":\nlet crossRefWithInterface = ReferencesWithInterface.x\n//                             ^ref\n\nlet crossRefWithInterface2 = ReferencesWithInterface.x\n\nmodule RefWithInterface = ReferencesWithInterface\n\nlet crossRefWithInterface3 = ReferencesWithInterface.x\n\nlet _ = RenameWithInterface.x\"}\n",
+"Use3:\n{\"file\": Cross.res, \"line\": 17, \"code\":\n\nlet crossRefWithInterface2 = ReferencesWithInterface.x\n\nmodule RefWithInterface = ReferencesWithInterface\n\nlet crossRefWithInterface3 = ReferencesWithInterface.x\n\nlet _ = RenameWithInterface.x\n//           ^ren RenameWithInterfacePrime\n\"}\n",
+"Use4:\n{\"file\": ReferencesWithInterface.res, \"line\": 1, \"code\":\nlet x = 2\"}\n",
+"Use5:\n{\"file\": ReferencesWithInterface.resi, \"line\": 1, \"code\":\nlet x: int\"}\n"],
+"references":
+[{"uri": "Cross.res", "range": {"start": {"line": 9, "character": 28}, "end": {"line": 9, "character": 51}}},
 {"uri": "Cross.res", "range": {"start": {"line": 12, "character": 29}, "end": {"line": 12, "character": 52}}},
 {"uri": "Cross.res", "range": {"start": {"line": 14, "character": 26}, "end": {"line": 14, "character": 49}}},
 {"uri": "Cross.res", "range": {"start": {"line": 16, "character": 29}, "end": {"line": 16, "character": 52}}},
 {"uri": "ReferencesWithInterface.res", "range": {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 0}}},
-{"uri": "ReferencesWithInterface.resi", "range": {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 0}}}
-]
+{"uri": "ReferencesWithInterface.resi", "range": {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 0}}}]}
+
 
 Rename src/Cross.res 18:13 RenameWithInterfacePrime
 [
