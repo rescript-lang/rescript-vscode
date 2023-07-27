@@ -6,13 +6,6 @@ type constructorDoc = {
   signature: string;
 }
 
-type docsForModuleAlias = {
-  id: string;
-  docstring: string list;
-  name: string;
-  signature: string;
-}
-
 type docItemDetail =
   | Record of {fieldDocs: fieldDoc list}
   | Variant of {constructorDocs: constructorDoc list}
@@ -32,7 +25,12 @@ type docItem =
           (** Additional documentation for constructors and record fields, if available. *)
     }
   | Module of docsForModule
-  | ModuleAlias of docsForModuleAlias
+  | ModuleAlias of {
+      id: string;
+      docstring: string list;
+      name: string;
+      items: docItem list;
+    }
 and docsForModule = {
   id: string;
   docstring: string list;
@@ -137,9 +135,15 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes m.id));
+        ("name", Some (wrapInQuotes m.name));
         ("kind", Some (wrapInQuotes "moduleAlias"));
         ("docstrings", Some (stringifyDocstrings m.docstring));
-        ("signature", Some (m.signature |> Json.escape |> wrapInQuotes));
+        ( "items",
+          Some
+            (m.items
+            |> List.map
+                 (stringifyDocItem ~originalEnv ~indentation:(indentation + 1))
+            |> array) );
       ]
 
 and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
@@ -257,14 +261,24 @@ let extractDocs ~path ~debug =
                    (* module Whatever = OtherModule *)
                    let aliasToModule = p |> pathIdentToString in
                    let modulePath = aliasToModule :: modulePath in
+                   let items =
+                     match
+                       ProcessCmt.fileForModule ~package:full.package
+                         aliasToModule
+                     with
+                     | None -> []
+                     | Some file ->
+                       let docs =
+                         extractDocsForModule ~modulePath file.structure
+                       in
+                       docs.items
+                   in
                    Some
                      (ModuleAlias
                         {
                           id = modulePath |> List.rev |> SharedTypes.ident;
-                          signature =
-                            Printf.sprintf "module %s = %s" item.name
-                              aliasToModule;
                           name = item.name;
+                          items;
                           docstring = item.docstring |> List.map String.trim;
                         })
                  | Module (Structure m) ->
