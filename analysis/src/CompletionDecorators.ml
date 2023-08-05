@@ -224,13 +224,13 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
       ] );
     ( TopLevel "directive",
       [
-        {|The `@@directive` will output that string verbatim at the very top of the generated JavaScript file, before any imports.
+        {|The `@@directive` decorator will output that string verbatim at the very top of the generated JavaScript file, before any imports.
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#directive-decorator).|};
       ] );
     ( TopLevel "warning",
       [
-        {|The @@warning decorator is used to modify the enabled compiler warnings for the current module. See here for all available warning numbers.
+        {|The `@@warning` decorator is used to modify the enabled compiler warnings for the current module. See here for all available warning numbers.
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#module-warning-decorator).
          |};
