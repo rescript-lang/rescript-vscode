@@ -15,6 +15,7 @@
 #### :rocket: New Feature
 
 - Add support for syntax highlighting in `%raw` and `%ffi` extension points. https://github.com/rescript-lang/rescript-vscode/pull/774
+- Add completion to top level decorators. https://github.com/rescript-lang/rescript-vscode/pull/799
 
 #### :bug: Bug Fix
 
