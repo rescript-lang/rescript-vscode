@@ -19,6 +19,7 @@
 #### :bug: Bug Fix
 
 - Fix invalid range for `definition`. https://github.com/rescript-lang/rescript-vscode/pull/781
+- Don't emit object keys in uppercase as namespace. https://github.com/rescript-lang/rescript-vscode/pull/798
 
 ## 1.18.0
 
