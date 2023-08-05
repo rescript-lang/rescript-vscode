@@ -481,11 +481,41 @@
           ]
         }
       ]
+    },
+    "ffi": {
+      "name": "source.embedded.javascript",
+      "contentName": "meta.embedded.block.javascript",
+      "begin": "(%|%%)(raw|ffi)(\\()(`)",
+      "end": "(`)(\\))",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.decorator"
+        },
+        "2": {
+          "name": "entity.name.function"
+        },
+        "4": {
+          "name": "punctuation.definition.string.template.begin.embedded-js"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.template.end.embedded-js"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.js"
+        }
+      ]
     }
   },
   "patterns": [
     {
       "include": "#storage"
+    },
+    {
+      "include": "#ffi"
     },
     {
       "include": "#constant"

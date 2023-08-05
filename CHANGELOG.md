@@ -12,6 +12,14 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Add support for syntax highlighting in `%raw` and `%ffi` extension points. https://github.com/rescript-lang/rescript-vscode/pull/774
+
+#### :bug: Bug Fix
+
+- Fix invalid range for `definition`. https://github.com/rescript-lang/rescript-vscode/pull/781
+
 ## 1.18.0
 
 #### :rocket: New Feature

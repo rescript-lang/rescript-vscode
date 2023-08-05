@@ -705,15 +705,13 @@ and printModuleBinding ~state ~isRec moduleBinding cmtTbl i =
   in
   let modExprDoc, modConstraintDoc =
     match moduleBinding.pmb_expr with
-    | {pmod_desc = Pmod_constraint (modExpr, modType)} ->
+    | {pmod_desc = Pmod_constraint (modExpr, modType)}
+      when not
+             (ParsetreeViewer.hasAwaitAttribute
+                moduleBinding.pmb_expr.pmod_attributes) ->
       ( printModExpr ~state modExpr cmtTbl,
         Doc.concat [Doc.text ": "; printModType ~state modType cmtTbl] )
     | modExpr -> (printModExpr ~state modExpr cmtTbl, Doc.nil)
-  in
-  let modExprDoc =
-    if ParsetreeViewer.hasAwaitAttribute moduleBinding.pmb_expr.pmod_attributes
-    then Doc.concat [Doc.text "await "; modExprDoc]
-    else modExprDoc
   in
   let modName =
     let doc = Doc.text moduleBinding.pmb_name.Location.txt in
@@ -1591,7 +1589,7 @@ and printTypExpr ~(state : State.t) (typExpr : Parsetree.core_type) cmtTbl =
         let doc = printTypExpr ~state n cmtTbl in
         match n.ptyp_desc with
         | Ptyp_arrow _ | Ptyp_tuple _ | Ptyp_alias _ -> addParens doc
-        | _ when Ast_uncurried.typeIsUncurriedFun n -> addParens doc
+        | _ when Ast_uncurried.coreTypeIsUncurriedFun n -> addParens doc
         | _ -> doc
       in
       Doc.group
@@ -1652,7 +1650,7 @@ and printTypExpr ~(state : State.t) (typExpr : Parsetree.core_type) cmtTbl =
         let needsParens =
           match typ.ptyp_desc with
           | Ptyp_arrow _ -> true
-          | _ when Ast_uncurried.typeIsUncurriedFun typ -> true
+          | _ when Ast_uncurried.coreTypeIsUncurriedFun typ -> true
           | _ -> false
         in
         let doc = printTypExpr ~state typ cmtTbl in
@@ -1664,7 +1662,7 @@ and printTypExpr ~(state : State.t) (typExpr : Parsetree.core_type) cmtTbl =
     | Ptyp_object (fields, openFlag) ->
       printObject ~state ~inline:false fields openFlag cmtTbl
     | Ptyp_arrow _ -> printArrow ~uncurried:false typExpr
-    | Ptyp_constr _ when Ast_uncurried.typeIsUncurriedFun typExpr ->
+    | Ptyp_constr _ when Ast_uncurried.coreTypeIsUncurriedFun typExpr ->
       let arity, tArg = Ast_uncurried.typeExtractUncurriedFun typExpr in
       printArrow ~uncurried:true ~arity tArg
     | Ptyp_constr (longidentLoc, [{ptyp_desc = Ptyp_object (fields, openFlag)}])
@@ -4018,7 +4016,7 @@ and printPexpApply ~state expr cmtTbl =
           argsDoc;
         ]
     else
-      let argsDoc = printArguments ~state ~dotted args cmtTbl in
+      let argsDoc = printArguments ~state ~dotted ~partial args cmtTbl in
       Doc.concat [printAttributes ~state attrs cmtTbl; callExprDoc; argsDoc]
   | _ -> assert false
 
@@ -4524,7 +4522,7 @@ and printArgumentsWithCallbackInLastPosition ~state ~dotted args cmtTbl =
         Lazy.force breakAllArgs;
       ]
 
-and printArguments ~state ~dotted
+and printArguments ~state ~dotted ?(partial = false)
     (args : (Asttypes.arg_label * Parsetree.expression) list) cmtTbl =
   match args with
   | [
@@ -4564,7 +4562,7 @@ and printArguments ~state ~dotted
                     ~sep:(Doc.concat [Doc.comma; Doc.line])
                     (List.map (fun arg -> printArgument ~state arg cmtTbl) args);
                 ]);
-           Doc.trailingComma;
+           (if partial then Doc.nil else Doc.trailingComma);
            Doc.softLine;
            Doc.rparen;
          ])
@@ -4967,11 +4965,13 @@ and printExpressionBlock ~state ~braces expr cmtTbl =
       in
       let name, modExpr =
         match modExpr.pmod_desc with
-        | Pmod_constraint (modExpr, modType) ->
+        | Pmod_constraint (modExpr2, modType)
+          when not (ParsetreeViewer.hasAwaitAttribute modExpr.pmod_attributes)
+          ->
           let name =
             Doc.concat [name; Doc.text ": "; printModType ~state modType cmtTbl]
           in
-          (name, modExpr)
+          (name, modExpr2)
         | _ -> (name, modExpr)
       in
       let letModuleDoc =
@@ -5454,6 +5454,14 @@ and printModExpr ~state modExpr cmtTbl =
           printModType ~state modType cmtTbl;
         ]
     | Pmod_functor _ -> printModFunctor ~state modExpr cmtTbl
+  in
+  let doc =
+    if ParsetreeViewer.hasAwaitAttribute modExpr.pmod_attributes then
+      match modExpr.pmod_desc with
+      | Pmod_constraint _ ->
+        Doc.concat [Doc.text "await "; Doc.lparen; doc; Doc.rparen]
+      | _ -> Doc.concat [Doc.text "await "; doc]
+    else doc
   in
   printComments doc cmtTbl modExpr.pmod_loc
 
