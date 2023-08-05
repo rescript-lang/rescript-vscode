@@ -115,8 +115,8 @@ let emitFromLoc ~loc ~type_ emitter =
 
 let emitLongident ?(backwards = false) ?(jsx = false)
     ?(lowerCaseToken = if jsx then Token.JsxLowercase else Token.Variable)
-    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ?(posEnd = None) ~pos
-    ~lid ~debug emitter =
+    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ?(posEnd = None)
+    ~pos ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -309,7 +309,14 @@ let command ~debug ~emitter ~path =
       Ast_iterator.default_iterator.expr iterator e
     | Pexp_record (cases, _) ->
       cases
-      |> List.iter (fun (label, _) -> emitter |> emitRecordLabel ~label ~debug);
+      |> List.filter_map (fun ((label : Longident.t Location.loc), _) ->
+             match label.txt with
+             | Longident.Lident s
+               when String.length s > 0
+                    && not (Char.equal s.[0] (Char.uppercase_ascii s.[0])) ->
+               Some label
+             | _ -> None)
+      |> List.iter (fun label -> emitter |> emitRecordLabel ~label ~debug);
       Ast_iterator.default_iterator.expr iterator e
     | Pexp_field (_, label) | Pexp_setfield (_, label, _) ->
       emitter |> emitRecordLabel ~label ~debug;
