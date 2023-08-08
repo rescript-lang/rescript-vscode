@@ -311,7 +311,7 @@ let command ~debug ~emitter ~path =
       cases
       |> List.filter_map (fun ((label : Longident.t Location.loc), _) ->
              match label.txt with
-             | Longident.Lident s when Utils.isFirstCharUppercase s ->
+             | Longident.Lident s when not (Utils.isFirstCharUppercase s) ->
                Some label
              | _ -> None)
       |> List.iter (fun label -> emitter |> emitRecordLabel ~label ~debug);

@@ -16,7 +16,7 @@ let endsWith s suffix =
     p <= String.length s && String.sub s (l - p) p = suffix
 
 let isFirstCharUppercase s =
-  String.length s > 0 && not (Char.equal s.[0] (Char.uppercase_ascii s.[0]))
+  String.length s > 0 && Char.equal s.[0] (Char.uppercase_ascii s.[0])
 
 let cmtPosToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} =
   Protocol.{line = pos_lnum - 1; character = pos_cnum - pos_bol}
