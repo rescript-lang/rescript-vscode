@@ -1486,6 +1486,15 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     in
     decorators
     |> List.filter (fun (decorator, _) -> Utils.startsWith decorator prefix)
+    |> List.map (fun (decorator, doc) ->
+           let parts = String.split_on_char '.' prefix in
+           let len = String.length prefix in
+           let dec2 =
+             if List.length parts > 1 then
+               String.sub decorator len (String.length decorator - len)
+             else decorator
+           in
+           (dec2, doc))
     |> List.map mkDecorator
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
