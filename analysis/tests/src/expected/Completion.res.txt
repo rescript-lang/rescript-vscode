@@ -564,7 +564,7 @@ Completable: Cdecorator(react.)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 [{
-    "label": "component",
+    "label": "react.component",
     "kind": 4,
     "tags": [],
     "detail": "",

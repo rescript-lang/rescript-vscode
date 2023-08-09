@@ -1480,32 +1480,12 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       if isTopLevel then String.sub prefix 1 (String.length prefix - 1)
       else prefix
     in
-    CompletionDecorators.decorators
-    |> List.filter (fun (decorator, _) ->
-           match isTopLevel with
-           | true -> (
-             match decorator with
-             | CompletionDecorators.TopLevel s | TopLevelOrLocal s ->
-               Utils.startsWith s prefix
-             | _ -> false)
-           | false -> (
-             match decorator with
-             | CompletionDecorators.Local s -> Utils.startsWith s prefix
-             | _ -> false))
-    |> List.map (fun (decorator, doc) ->
-           let decorator =
-             match decorator with
-             | CompletionDecorators.Local s | TopLevel s | TopLevelOrLocal s ->
-               s
-           in
-           let parts = String.split_on_char '.' prefix in
-           let len = String.length prefix in
-           let dec2 =
-             if List.length parts > 1 then
-               String.sub decorator len (String.length decorator - len)
-             else decorator
-           in
-           (dec2, doc))
+    let decorators =
+      if isTopLevel then CompletionDecorators.toplevel
+      else CompletionDecorators.local
+    in
+    decorators
+    |> List.filter (fun (decorator, _) -> Utils.startsWith decorator prefix)
     |> List.map mkDecorator
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =
