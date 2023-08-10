@@ -380,18 +380,22 @@ let test ~path =
                 ~debug:true
             in
             codeActions
-            |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
-                   Printf.printf "Hit: %s\n" title;
-                   documentChanges
-                   |> List.iter (fun {Protocol.edits} ->
-                          edits
-                          |> List.iter (fun {Protocol.range; newText} ->
-                                 let indent =
-                                   String.make range.start.character ' '
-                                 in
-                                 Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
-                                   (Protocol.stringifyRange range)
-                                   indent indent newText)))
+            |> List.iter (fun {Protocol.title; edit} ->
+                   match edit with
+                   | Some {documentChanges} ->
+                     Printf.printf "Hit: %s\n" title;
+                     documentChanges
+                     |> List.iter (fun {Protocol.edits} ->
+                            edits
+                            |> List.iter (fun {Protocol.range; newText} ->
+                                   let indent =
+                                     String.make range.start.character ' '
+                                   in
+                                   Printf.printf
+                                     "%s\nnewText:\n%s<--here\n%s%s\n"
+                                     (Protocol.stringifyRange range)
+                                     indent indent newText))
+                   | None -> ())
           | "dia" -> diagnosticSyntax ~path
           | "hin" ->
             (* Get all inlay Hint between line 1 and n.
