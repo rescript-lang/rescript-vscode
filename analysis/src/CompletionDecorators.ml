@@ -30,6 +30,8 @@ It is also possible to map a ReScript record to a JavaScript array by passing in
       [
         {|The `@deprecated` decorator is used to add deprecation notes to types, values and submodules. The compiler and editor tooling will yield a warning whenever a deprecated entity is being used.
 
+Alternatively, use the `@@deprecated` decorator to add a deprecation warning to the file level.
+
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#expression-deprecated-decorator).|};
       ] );
     ( "doesNotRaise",
