@@ -5,6 +5,9 @@
 **/tsconfig.json
 contributing.md
 .github/**
-server/node_modules/.bin
-node_modules/.bin
+server/node_modules/
+node_modules/
+client/node_modules/
 analysis/
+Makefile
+server/analysis_binaries/README.md
