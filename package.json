@@ -32,9 +32,15 @@
 		"semanticTokenScopes": [
 			{
 				"scopes": {
-					"interface": ["entity.name.tag"],
-					"modifier": ["punctuation.definition.tag"],
-					"type": ["support.type.primitive"]
+					"interface": [
+						"entity.name.tag"
+					],
+					"modifier": [
+						"punctuation.definition.tag"
+					],
+					"type": [
+						"support.type.primitive"
+					]
 				}
 			}
 		],
@@ -146,12 +152,12 @@
 				},
 				"rescript.settings.inlayHints.maxLength": {
 					"markdownDescription": "Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown.",
-                    "default": 25,
-                    "type": [
-                        "null",
-                        "integer"
-                    ],
-                    "minimum": 0
+					"default": 25,
+					"type": [
+						"null",
+						"integer"
+					],
+					"minimum": 0
 				},
 				"rescript.settings.codeLens": {
 					"type": "boolean",
@@ -164,12 +170,18 @@
 					"description": "Enable signature help for function calls."
 				},
 				"rescript.settings.binaryPath": {
-					"type": ["string", "null"],
+					"type": [
+						"string",
+						"null"
+					],
 					"default": null,
 					"description": "Path to the directory where cross-platform ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
 				},
 				"rescript.settings.platformPath": {
-					"type": ["string", "null"],
+					"type": [
+						"string",
+						"null"
+					],
 					"default": null,
 					"description": "Path to the directory where platform-specific ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
 				}
@@ -212,14 +224,15 @@
 	"scripts": {
 		"clean": "rm -rf client/out server/out",
 		"vscode:prepublish": "npm run clean && npm run esbuild-server && npm run esbuild-client",
-		"esbuild-server": "npx esbuild server/src/server.ts --bundle --outfile=server/out/server.js --external:vscode --format=cjs --platform=node --minify",
-		"esbuild-client": "npx esbuild client/src/extension.ts --bundle --outfile=client/out/extension.js --external:vscode --format=cjs --platform=node --minify",
+		"esbuild-server": "esbuild server/src/server.ts --bundle --outfile=server/out/server.js --external:vscode --format=cjs --platform=node --minify",
+		"esbuild-client": "esbuild client/src/extension.ts --bundle --outfile=client/out/extension.js --external:vscode --format=cjs --platform=node --minify",
 		"watch": "tsc -b -w",
 		"postinstall": "cd server && npm i && cd ../client && npm i && cd ../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i"
 	},
 	"devDependencies": {
 		"@types/node": "^14.14.41",
 		"@types/vscode": "1.68.0",
+		"esbuild": "^0.19.1",
 		"semver": "^7.3.7",
 		"typescript": "^4.7.3"
 	}
