@@ -17,6 +17,7 @@
 - Add support for syntax highlighting in `%raw` and `%ffi` extension points. https://github.com/rescript-lang/rescript-vscode/pull/774
 - Add completion to top level decorators. https://github.com/rescript-lang/rescript-vscode/pull/799
 - Add code action for wrapping patterns where option is expected with `Some`. https://github.com/rescript-lang/rescript-vscode/pull/806
+- Better completion from identifiers with inferred types. https://github.com/rescript-lang/rescript-vscode/pull/808
 
 #### :nail_care: Polish
 
