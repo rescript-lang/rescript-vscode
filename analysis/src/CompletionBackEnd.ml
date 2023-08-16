@@ -1113,6 +1113,14 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         [Completion.create "dummy" ~env ~kind:(kindFromInnerType typ)]
       | None -> [])
     | None -> [])
+  | CTypeAtPos loc -> (
+    match
+      References.getLocItem ~full ~pos:(Pos.ofLexing loc.loc_start) ~debug
+    with
+    | None -> []
+    | Some {locType = Typed (_, typExpr, _)} ->
+      [Completion.create "dummy" ~env ~kind:(Value typExpr)]
+    | _ -> [])
 
 let getOpens ~debug ~rawOpens ~package ~env =
   if debug && rawOpens <> [] then

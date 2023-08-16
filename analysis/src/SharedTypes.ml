@@ -592,6 +592,8 @@ module Completable = struct
       }
     | CJsxPropValue of {pathToComponent: string list; propName: string}
     | CPatternPath of {rootCtxPath: contextPath; nested: nestedPath list}
+    | CTypeAtPos of Location.t
+        (** A position holding something that might have a *compiled* type. *)
 
   type patternMode = Default | Destructuring
 
@@ -671,6 +673,7 @@ module Completable = struct
       ^ (nested
         |> List.map (fun nestedPath -> nestedPathToString nestedPath)
         |> String.concat "->")
+    | CTypeAtPos _loc -> "CTypeAtPos()"
 
   let toString = function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
