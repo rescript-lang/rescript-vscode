@@ -18,3 +18,8 @@ let x = One(
     //            ^com
   },
 )
+
+let arr = [
+  optRecord,
+  //        ^com
+]
