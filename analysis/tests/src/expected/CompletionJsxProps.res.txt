@@ -69,6 +69,12 @@ Path CompletionSupport.TestComponent.make
     "detail": "file module",
     "documentation": null
   }, {
+    "label": "TypeAtPosCompletion",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
