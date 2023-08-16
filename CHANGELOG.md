@@ -21,6 +21,7 @@
 
 - Fix invalid range for `definition`. https://github.com/rescript-lang/rescript-vscode/pull/781
 - Don't emit object keys in uppercase as namespace. https://github.com/rescript-lang/rescript-vscode/pull/798
+- Fix accidental output of extra `|` when producing exhaustive switch code for polyvariants. https://github.com/rescript-lang/rescript-vscode/pull/805
 
 ## 1.18.0
 
