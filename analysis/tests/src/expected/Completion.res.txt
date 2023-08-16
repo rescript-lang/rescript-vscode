@@ -918,13 +918,13 @@ Path Js.n
     "label": "nullable",
     "kind": 22,
     "tags": [],
-    "detail": "type nullable<+'a>",
-    "documentation": {"kind": "markdown", "value": "\n  A value of this type can be undefined, null or 'a. This type is equivalent to Js.Null_undefined.t.\n"}
+    "detail": "type nullable<'a> = Value('a) | Null | Undefined",
+    "documentation": null
   }, {
     "label": "null",
     "kind": 22,
     "tags": [],
-    "detail": "type null<+'a>",
+    "detail": "type null<'a> = Value('a) | Null",
     "documentation": {"kind": "markdown", "value": "\n  Nullable value of this type can be either null or 'a. This type is equivalent to Js.Null.t.\n"}
   }]
 
