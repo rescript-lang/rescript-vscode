@@ -156,6 +156,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
       simpleConversion,
       applyUncurried,
       simpleAddMissingCases,
+      wrapInSome,
     ];
 
     for (let extractCodeAction of codeActionEtractors) {
@@ -234,6 +235,77 @@ let didYouMeanAction: codeActionExtractor = ({
       });
 
       return true;
+    }
+  }
+
+  return false;
+};
+
+// This action offers to wrap patterns that aren't option in Some.
+let wrapInSome: codeActionExtractor = ({
+  codeActions,
+  diagnostic,
+  file,
+  line,
+  range,
+  array,
+  index,
+}) => {
+  if (line.startsWith("This pattern matches values of type")) {
+    let regex = /This pattern matches values of type (.*)$/;
+
+    let match = line.match(regex);
+
+    if (match === null) {
+      return false;
+    }
+
+    let [_, type] = match;
+
+    if (!type.startsWith("option<")) {
+      // Look for the expected type
+      let restOfMessage = array.slice(index + 1);
+      let lineIndexWithType = restOfMessage.findIndex((l) =>
+        l
+          .trim()
+          .startsWith("but a pattern was expected which matches values of type")
+      );
+
+      if (lineIndexWithType === -1) return false;
+      // The type is either on this line or the next
+      let [_, typ = ""] = restOfMessage[lineIndexWithType].split(
+        "but a pattern was expected which matches values of type"
+      );
+
+      console.log({ typ });
+
+      if (typ.trim() === "") {
+        // Type is on the next line
+        typ = (restOfMessage[lineIndexWithType + 1] ?? "").trim();
+      }
+
+      if (typ.trim().startsWith("option<")) {
+        codeActions[file] = codeActions[file] || [];
+
+        let codeAction: p.CodeAction = {
+          title: `Wrap in option Some`,
+          edit: {
+            changes: {
+              [file]: wrapRangeInText(range, `Some(`, `)`),
+            },
+          },
+          diagnostics: [diagnostic],
+          kind: p.CodeActionKind.QuickFix,
+          isPreferred: true,
+        };
+
+        codeActions[file].push({
+          range,
+          codeAction,
+        });
+
+        return true;
+      }
     }
   }
 
