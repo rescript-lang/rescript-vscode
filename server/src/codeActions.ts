@@ -449,52 +449,8 @@ let applyUncurried: codeActionExtractor = ({
   return false;
 };
 
-// Untransformed is typically OCaml, and looks like these examples:
-//
-// `SomeVariantName
-//
-// SomeVariantWithPayload _
-//
-// ...and we'll need to transform this into proper ReScript. In the future, the
-// compiler itself should of course output real ReScript. But it currently does
-// not.
-//
-// Note that we're trying to not be too clever here, so we'll only try to
-// convert the very simplest cases - single variant/polyvariant, with single
-// payloads. No records, tuples etc yet. We can add those when the compiler
-// outputs them in proper ReScript.
-let transformMatchPattern = (matchPattern: string): string | null => {
-  let text = matchPattern.replace(/`/g, "#");
-
-  let payloadRegexp = / /g;
-  let matched = text.match(payloadRegexp);
-
-  // Constructors are preceded by a single space. Bail if there's more than 1.
-  if (matched != null && matched.length > 2) {
-    return null;
-  }
-
-  // Fix payloads if they can be fixed. If not, bail.
-  if (text.includes(" ")) {
-    let [variantText, payloadText] = text.split(" ");
-
-    let transformedPayloadText = transformMatchPattern(payloadText);
-    if (transformedPayloadText == null) {
-      return null;
-    }
-
-    text = `${variantText}(${payloadText})`;
-  }
-
-  return text;
-};
-
 // This action detects missing cases for exhaustive pattern matches, and offers
-// to insert dummy branches (using `assert false`) for those branches. Right now
-// it works on single variants/polyvariants with and without payloads. In the
-// future it could be made to work on anything the compiler tell us about, but
-// the compiler needs to emit proper ReScript in the error messages for that to
-// work.
+// to insert dummy branches (using `failwith("TODO")`) for those branches.
 let simpleAddMissingCases: codeActionExtractor = ({
   line,
   codeActions,
@@ -504,24 +460,6 @@ let simpleAddMissingCases: codeActionExtractor = ({
   array,
   index,
 }) => {
-  // Examples:
-  //
-  // You forgot to handle a possible case here, for example:
-  // (AnotherValue|Third|Fourth)
-  //
-  // You forgot to handle a possible case here, for example:
-  // (`AnotherValue|`Third|`Fourth)
-  //
-  // You forgot to handle a possible case here, for example:
-  // `AnotherValue
-  //
-  // You forgot to handle a possible case here, for example:
-  // AnotherValue
-  //
-  // You forgot to handle a possible case here, for example:
-  // (`One _|`Two _|
-  // `Three _)
-
   if (
     line.startsWith("You forgot to handle a possible case here, for example:")
   ) {
