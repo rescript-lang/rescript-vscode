@@ -277,8 +277,6 @@ let wrapInSome: codeActionExtractor = ({
         "but a pattern was expected which matches values of type"
       );
 
-      console.log({ typ });
-
       if (typ.trim() === "") {
         // Type is on the next line
         typ = (restOfMessage[lineIndexWithType + 1] ?? "").trim();
