@@ -124,6 +124,19 @@ let main () =
     Commands.codeAction ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug:false
+  | [_; "codemod"; path; line; col; typ; hint] ->
+    let typ =
+      match typ with
+      | "add-missing-cases" -> Codemod.AddMissingCases
+      | _ -> raise (Failure "unsupported type")
+    in
+    let res =
+      Codemod.transform ~path
+        ~pos:(int_of_string line, int_of_string col)
+        ~debug:false ~typ ~hint
+      |> Json.escape
+    in
+    Printf.printf "\"%s\"" res
   | [_; "diagnosticSyntax"; path] -> Commands.diagnosticSyntax ~path
   | _ :: "reanalyze" :: _ ->
     let len = Array.length Sys.argv in

@@ -2,6 +2,8 @@
 // actions available in the extension, but they are derived via the analysis
 // OCaml binary.
 import * as p from "vscode-languageserver-protocol";
+import * as utils from "./utils";
+import { fileURLToPath } from "url";
 
 export type filesCodeActions = {
   [key: string]: { range: p.Range; codeAction: p.CodeAction }[];
@@ -77,6 +79,15 @@ let insertBeforeEndingChar = (
         start: beforeEndingChar,
         end: beforeEndingChar,
       },
+      newText,
+    },
+  ];
+};
+
+let replaceText = (range: p.Range, newText: string): p.TextEdit[] => {
+  return [
+    {
+      range,
       newText,
     },
   ];
@@ -514,8 +525,6 @@ let simpleAddMissingCases: codeActionExtractor = ({
   if (
     line.startsWith("You forgot to handle a possible case here, for example:")
   ) {
-    let cases: string[] = [];
-
     // This collects the rest of the fields if fields are printed on
     // multiple lines.
     let allCasesAsOneLine = array
@@ -523,58 +532,23 @@ let simpleAddMissingCases: codeActionExtractor = ({
       .join("")
       .trim();
 
-    // We only handle the simplest possible cases until the compiler actually
-    // outputs ReScript. This means bailing on anything that's not a
-    // variant/polyvariant, with one payload (or no payloads at all).
-    let openParensCount = allCasesAsOneLine.split("(").length - 1;
+    let filePath = fileURLToPath(file);
 
-    if (openParensCount > 1 || allCasesAsOneLine.includes("{")) {
-      return false;
-    }
-
-    // Remove surrounding braces if they exist
-    if (allCasesAsOneLine[0] === "(") {
-      allCasesAsOneLine = allCasesAsOneLine.slice(
-        1,
-        allCasesAsOneLine.length - 1
-      );
-    }
-
-    cases.push(
-      ...(allCasesAsOneLine
-        .split("|")
-        .map(transformMatchPattern)
-        .filter(Boolean) as string[])
-    );
-
-    if (cases.length === 0) {
-      return false;
-    }
-
-    // The end char is the closing brace. In switches, the leading `|` always
-    // has the same left padding as the end brace.
-    let paddingContentSwitchCase = Array.from({
-      length: range.end.character,
-    }).join(" ");
-
-    let newText = cases
-      .map((variantName, index) => {
-        // The first case will automatically be padded because we're inserting
-        // it where the end brace is currently located.
-        let padding = index === 0 ? "" : paddingContentSwitchCase;
-        return `${padding}| ${variantName} => assert false`;
-      })
-      .join("\n");
-
-    // Let's put the end brace back where it was (we still have it to the direct right of us).
-    newText += `\n${paddingContentSwitchCase}`;
+    let newSwitchCode = utils.runAnalysisAfterSanityCheck(filePath, [
+      "codemod",
+      filePath,
+      range.start.line,
+      range.start.character,
+      "add-missing-cases",
+      allCasesAsOneLine,
+    ]);
 
     codeActions[file] = codeActions[file] || [];
     let codeAction: p.CodeAction = {
       title: `Insert missing cases`,
       edit: {
         changes: {
-          [file]: insertBeforeEndingChar(range, newText),
+          [file]: replaceText(range, newSwitchCode),
         },
       },
       diagnostics: [diagnostic],

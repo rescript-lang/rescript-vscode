@@ -392,6 +392,14 @@ let test ~path =
                                  Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
+          | "c-a" ->
+            let hint = String.sub rest 3 (String.length rest - 3) in
+            print_endline
+              ("Codemod AddMissingCases" ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            Codemod.transform ~path ~pos:(line, col) ~debug:true
+              ~typ:AddMissingCases ~hint
+            |> print_endline
           | "dia" -> diagnosticSyntax ~path
           | "hin" ->
             (* Get all inlay Hint between line 1 and n.
