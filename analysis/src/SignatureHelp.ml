@@ -270,7 +270,6 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       in
       let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression)
           =
-        (*DumpAst.printExprItem ~pos ~indentation:0 expr |> print_endline;*)
         (match expr with
         (* Handle pipes, like someVar->someFunc(... *)
         | {
@@ -294,7 +293,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
             searchForArgWithCursor ~isPipeExpr:true ~args
           in
           setFound (argAtCursor, exp, extractedArgs)
-          (* Look for applying idents, like someIdent(...) *)
+        (* Look for applying idents, like someIdent(...) *)
         | {
          pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
          pexp_loc;
