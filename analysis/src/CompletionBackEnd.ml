@@ -1133,7 +1133,14 @@ let getOpens ~debug ~rawOpens ~package ~env =
   if debug && packageOpens <> [] then
     Printf.printf "%s\n"
       ("Package opens "
-      ^ String.concat " " (packageOpens |> List.map pathToString));
+      ^ String.concat " "
+          (packageOpens
+          |> List.map (fun p ->
+                 p
+                 |> List.map (fun name ->
+                        (* Unify formatting between curried and uncurried *)
+                        if name = "PervasivesU" then "Pervasives" else name)
+                 |> pathToString)));
   let resolvedOpens =
     resolveOpens ~env (List.rev (packageOpens @ rawOpens)) ~package
   in
@@ -1147,8 +1154,11 @@ let getOpens ~debug ~rawOpens ~package ~env =
           |> List.map (fun (e : QueryEnv.t) ->
                  let name = Uri.toString e.file.uri in
 
-                 if Utils.startsWith name "pervasives." then
-                   Filename.chop_extension name
+                 (* Unify formatting between curried and uncurried *)
+                 if
+                   name = "pervasives.res" || name = "pervasives.resi"
+                   || name = "pervasivesU.res" || name = "pervasivesU.resi"
+                 then "pervasives"
                  else name)));
   (* Last open takes priority *)
   List.rev resolvedOpens

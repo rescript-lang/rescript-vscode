@@ -145,7 +145,7 @@ Path someFunc
     "label": "(v1, v2) => {}",
     "kind": 12,
     "tags": [],
-    "detail": "(int, string) => bool",
+    "detail": "(. int, string) => bool",
     "documentation": null,
     "sortText": "A",
     "insertText": "(${1:v1}, ${2:v2}) => {$0}",

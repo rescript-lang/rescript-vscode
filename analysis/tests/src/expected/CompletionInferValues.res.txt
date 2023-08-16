@@ -15,13 +15,13 @@ Path Belt.Int.f
     "label": "Belt.Int.fromString",
     "kind": 12,
     "tags": [],
-    "detail": "string => option<int>",
+    "detail": "(. string) => option<int>",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n  ```res example\n  Js.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n  ```\n"}
   }, {
     "label": "Belt.Int.fromFloat",
     "kind": 12,
     "tags": [],
-    "detail": "float => int",
+    "detail": "(. float) => int",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to an `int`.\n\n  ```res example\n  Js.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n  ```\n"}
   }]
 
@@ -83,6 +83,8 @@ Complete src/CompletionInferValues.res 24:63
 posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:3->24:64]
 Pexp_apply ...[24:3->24:21] (...[24:22->24:63])
 posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:22->24:63]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [24:23->24:63]
+posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:23->24:63]
 posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:36->24:63]
 posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:42->24:63]
 posCursor:[24:63] posNoWhite:[24:62] Found expr:[24:52->24:63]
@@ -115,6 +117,8 @@ Complete src/CompletionInferValues.res 27:90
 posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:39->27:91]
 Pexp_apply ...[27:39->27:48] (...[27:49->27:90])
 posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:49->27:90]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [27:50->27:90]
+posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:50->27:90]
 posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:56->27:90]
 posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:69->27:90]
 posCursor:[27:90] posNoWhite:[27:89] Found expr:[27:79->27:90]
@@ -149,6 +153,8 @@ Complete src/CompletionInferValues.res 30:36
 posCursor:[30:36] posNoWhite:[30:35] Found expr:[30:3->30:39]
 Pexp_apply ...[30:3->30:15] (...[30:16->30:38])
 posCursor:[30:36] posNoWhite:[30:35] Found expr:[30:16->30:38]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [30:16->30:38]
+posCursor:[30:36] posNoWhite:[30:35] Found expr:[30:16->30:38]
 posCursor:[30:36] posNoWhite:[30:35] Found expr:[30:27->30:36]
 Completable: Cpath Value[event]->pr
 Package opens Pervasives.JsxModules.place holder
@@ -176,6 +182,8 @@ Complete src/CompletionInferValues.res 41:50
 posCursor:[41:50] posNoWhite:[41:49] Found expr:[41:12->41:56]
 JSX <div:[41:12->41:15] onMouseEnter[41:16->41:28]=...[41:36->41:52]> _children:41:54
 posCursor:[41:50] posNoWhite:[41:49] Found expr:[41:36->41:52]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [41:29->41:52]
+posCursor:[41:50] posNoWhite:[41:49] Found expr:[41:29->41:52]
 posCursor:[41:50] posNoWhite:[41:49] Found expr:[41:41->41:50]
 Completable: Cpath Value[event]->pr <<jsx>>
 Package opens Pervasives.JsxModules.place holder
@@ -186,13 +194,13 @@ Path event
 ContextPath CArgument CJsxPropValue [div] onMouseEnter($0)
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
-Path Pervasives.JsxDOM.domProps
+Path PervasivesU.JsxDOM.domProps
 CPPipe env:CompletionInferValues
-CPPipe type path:JsxEventC.Mouse.t
-CPPipe pathFromEnv:JsxEventC.Mouse found:false
-Path JsxEventC.Mouse.pr
+CPPipe type path:JsxEventU.Mouse.t
+CPPipe pathFromEnv:JsxEventU.Mouse found:false
+Path JsxEventU.Mouse.pr
 [{
-    "label": "JsxEventC.Mouse.preventDefault",
+    "label": "JsxEventU.Mouse.preventDefault",
     "kind": 12,
     "tags": [],
     "detail": "t => unit",
@@ -203,6 +211,8 @@ Complete src/CompletionInferValues.res 44:50
 posCursor:[44:50] posNoWhite:[44:49] Found expr:[44:12->44:56]
 JSX <Div:[44:12->44:15] onMouseEnter[44:16->44:28]=...[44:36->44:52]> _children:44:54
 posCursor:[44:50] posNoWhite:[44:49] Found expr:[44:36->44:52]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [44:29->44:52]
+posCursor:[44:50] posNoWhite:[44:49] Found expr:[44:29->44:52]
 posCursor:[44:50] posNoWhite:[44:49] Found expr:[44:41->44:50]
 Completable: Cpath Value[event]->pr <<jsx>>
 Package opens Pervasives.JsxModules.place holder
@@ -214,11 +224,11 @@ ContextPath CArgument CJsxPropValue [Div] onMouseEnter($0)
 ContextPath CJsxPropValue [Div] onMouseEnter
 Path Div.make
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionInferValues.Div
-CPPipe type path:Pervasives.JsxEvent.Mouse.t
-CPPipe pathFromEnv:Pervasives.JsxEvent.Mouse found:false
-Path Pervasives.JsxEvent.Mouse.pr
+CPPipe type path:PervasivesU.JsxEvent.Mouse.t
+CPPipe pathFromEnv:PervasivesU.JsxEvent.Mouse found:false
+Path PervasivesU.JsxEvent.Mouse.pr
 [{
-    "label": "Pervasives.JsxEvent.Mouse.preventDefault",
+    "label": "PervasivesU.JsxEvent.Mouse.preventDefault",
     "kind": 12,
     "tags": [],
     "detail": "t => unit",
@@ -229,6 +239,8 @@ Complete src/CompletionInferValues.res 47:87
 posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:12->47:93]
 JSX <div:[47:12->47:15] onMouseEnter[47:16->47:28]=...[47:36->47:89]> _children:47:91
 posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:36->47:89]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [47:29->47:89]
+posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:29->47:89]
 posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:41->47:87]
 posCursor:[47:87] posNoWhite:[47:86] Found expr:[47:81->47:87]
 Completable: Cpath Value[btn]->t <<jsx>>
@@ -240,19 +252,19 @@ Path btn
 ContextPath Value[JsxEvent, Mouse, button](Nolabel)
 ContextPath Value[JsxEvent, Mouse, button]
 Path JsxEvent.Mouse.button
-CPPipe env:CompletionInferValues envFromCompletionItem:JsxEventC.Mouse
+CPPipe env:CompletionInferValues envFromCompletionItem:JsxEventU.Mouse
 Path Belt.Int.t
 [{
     "label": "Belt.Int.toString",
     "kind": 12,
     "tags": [],
-    "detail": "int => string",
+    "detail": "(. int) => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }, {
     "label": "Belt.Int.toFloat",
     "kind": 12,
     "tags": [],
-    "detail": "int => float",
+    "detail": "(. int) => float",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
   }]
 
@@ -260,6 +272,8 @@ Complete src/CompletionInferValues.res 50:108
 posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:12->50:114]
 JSX <div:[50:12->50:15] onMouseEnter[50:16->50:28]=...[50:36->50:110]> _children:50:112
 posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:36->50:110]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [50:29->50:110]
+posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:29->50:110]
 posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:41->50:108]
 posCursor:[50:108] posNoWhite:[50:107] Found expr:[50:100->50:108]
 Completable: Cpath Value[btn]->spl <<jsx>>
@@ -277,32 +291,34 @@ Path Js.String2.spl
     "label": "Js.String2.splitAtMost",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t, ~limit: int) => array<t>",
+    "detail": "(. t, t, ~limit: int) => array<t>",
     "documentation": {"kind": "markdown", "value": "\n  `splitAtMost delimiter ~limit: n str` splits the given `str` at every occurrence of `delimiter` and returns an array of the first `n` resulting substrings. If `n` is negative or greater than the number of substrings, the array will contain all the substrings.\n\n```\nsplitAtMost \"ant/bee/cat/dog/elk\" \"/\" ~limit: 3 = [|\"ant\"; \"bee\"; \"cat\"|];;\nsplitAtMost \"ant/bee/cat/dog/elk\" \"/\" ~limit: 0 = [| |];;\nsplitAtMost \"ant/bee/cat/dog/elk\" \"/\" ~limit: 9 = [|\"ant\"; \"bee\"; \"cat\"; \"dog\"; \"elk\"|];;\n```\n"}
   }, {
     "label": "Js.String2.splitByRe",
     "kind": 12,
     "tags": [],
-    "detail": "(t, Js_re.t) => array<option<t>>",
-    "documentation": {"kind": "markdown", "value": "\n`splitByRe(str, regex)` splits the given `str` at every occurrence of `regex`\nand returns an array of the resulting substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByRe(\"art; bed , cog ;dad\", %re(\"/\\s*[,;]\\s*/\")) == [\n    Some(\"art\"),\n    Some(\"bed\"),\n    Some(\"cog\"),\n    Some(\"dad\"),\n  ]\n```\n"}
+    "detail": "(. t, Js_re.t) => array<option<t>>",
+    "documentation": {"kind": "markdown", "value": "\n`splitByRe(str, regex)` splits the given `str` at every occurrence of `regex`\nand returns an array of the resulting substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByRe(\"art; bed , cog ;dad\", %re(\"/\\s*[,;]\\s*TODO/\")) == [\n    Some(\"art\"),\n    Some(\"bed\"),\n    Some(\"cog\"),\n    Some(\"dad\"),\n  ]\n```\n"}
   }, {
     "label": "Js.String2.split",
     "kind": 12,
     "tags": [],
-    "detail": "(t, t) => array<t>",
+    "detail": "(. t, t) => array<t>",
     "documentation": {"kind": "markdown", "value": "\n`split(str, delimiter)` splits the given `str` at every occurrence of\n`delimiter` and returns an array of the resulting substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.split(\"2018-01-02\", \"-\") == [\"2018\", \"01\", \"02\"]\nJs.String2.split(\"a,b,,c\", \",\") == [\"a\", \"b\", \"\", \"c\"]\nJs.String2.split(\"good::bad as great::awful\", \"::\") == [\"good\", \"bad as great\", \"awful\"]\nJs.String2.split(\"has-no-delimiter\", \";\") == [\"has-no-delimiter\"]\n```\n"}
   }, {
     "label": "Js.String2.splitByReAtMost",
     "kind": 12,
     "tags": [],
-    "detail": "(t, Js_re.t, ~limit: int) => array<option<t>>",
-    "documentation": {"kind": "markdown", "value": "\n`splitByReAtMost(str, regex, ~limit:n)` splits the given `str` at every\noccurrence of `regex` and returns an array of the first `n` resulting\nsubstrings. If `n` is negative or greater than the number of substrings, the\narray will contain all the substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=3) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n  ]\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=0) == []\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=8) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n    Some(\"four\"),\n  ]\n```\n"}
+    "detail": "(. t, Js_re.t, ~limit: int) => array<option<t>>",
+    "documentation": {"kind": "markdown", "value": "\n`splitByReAtMost(str, regex, ~limit:n)` splits the given `str` at every\noccurrence of `regex` and returns an array of the first `n` resulting\nsubstrings. If `n` is negative or greater than the number of substrings, the\narray will contain all the substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*TODO/\"), ~limit=3) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n  ]\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*TODO/\"), ~limit=0) == []\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*TODO/\"), ~limit=8) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n    Some(\"four\"),\n  ]\n```\n"}
   }]
 
 Complete src/CompletionInferValues.res 53:130
 posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:12->53:136]
 JSX <div:[53:12->53:15] onMouseEnter[53:16->53:28]=...[53:36->53:132]> _children:53:134
 posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:36->53:132]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [53:29->53:132]
+posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:29->53:132]
 posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:41->53:130]
 posCursor:[53:130] posNoWhite:[53:129] Found expr:[53:123->53:130]
 Completable: Cpath Value[btn]->ma <<jsx>>
@@ -320,13 +336,13 @@ Path Js.Array2.ma
     "label": "Js.Array2.mapi",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
+    "detail": "(. t<'a>, (. 'a, int) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
   }, {
     "label": "Js.Array2.map",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "detail": "(. t<'a>, (. 'a) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
   }]
 
@@ -452,13 +468,13 @@ Path Js.String2.slic
     "label": "Js.String2.sliceToEnd",
     "kind": 12,
     "tags": [],
-    "detail": "(t, ~from: int) => t",
+    "detail": "(. t, ~from: int) => t",
     "documentation": {"kind": "markdown", "value": "\n`sliceToEnd(str, from:n)` returns the substring of `str` starting at character\n`n` to the end of the string.\n- If `n` is negative, then it is evaluated as `length(str - n)`.\n- If `n` is greater than the length of `str`, then sliceToEnd returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.sliceToEnd(\"abcdefg\", ~from=4) == \"efg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=-2) == \"fg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=7) == \"\"\n```\n"}
   }, {
     "label": "Js.String2.slice",
     "kind": 12,
     "tags": [],
-    "detail": "(t, ~from: int, ~to_: int) => t",
+    "detail": "(. t, ~from: int, ~to_: int) => t",
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
@@ -481,7 +497,7 @@ Path Belt.Int.toS
     "label": "Belt.Int.toString",
     "kind": 12,
     "tags": [],
-    "detail": "int => string",
+    "detail": "(. int) => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
@@ -507,7 +523,7 @@ Path Belt.Int.toS
     "label": "Belt.Int.toString",
     "kind": 12,
     "tags": [],
-    "detail": "int => string",
+    "detail": "(. int) => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
@@ -534,7 +550,7 @@ Path Belt.Int.toS
     "label": "Belt.Int.toString",
     "kind": 12,
     "tags": [],
-    "detail": "int => string",
+    "detail": "(. int) => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
@@ -557,13 +573,13 @@ Path Js.String2.slic
     "label": "Js.String2.sliceToEnd",
     "kind": 12,
     "tags": [],
-    "detail": "(t, ~from: int) => t",
+    "detail": "(. t, ~from: int) => t",
     "documentation": {"kind": "markdown", "value": "\n`sliceToEnd(str, from:n)` returns the substring of `str` starting at character\n`n` to the end of the string.\n- If `n` is negative, then it is evaluated as `length(str - n)`.\n- If `n` is greater than the length of `str`, then sliceToEnd returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.sliceToEnd(\"abcdefg\", ~from=4) == \"efg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=-2) == \"fg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=7) == \"\"\n```\n"}
   }, {
     "label": "Js.String2.slice",
     "kind": 12,
     "tags": [],
-    "detail": "(t, ~from: int, ~to_: int) => t",
+    "detail": "(. t, ~from: int, ~to_: int) => t",
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
@@ -586,13 +602,13 @@ Path Js.String2.slic
     "label": "Js.String2.sliceToEnd",
     "kind": 12,
     "tags": [],
-    "detail": "(t, ~from: int) => t",
+    "detail": "(. t, ~from: int) => t",
     "documentation": {"kind": "markdown", "value": "\n`sliceToEnd(str, from:n)` returns the substring of `str` starting at character\n`n` to the end of the string.\n- If `n` is negative, then it is evaluated as `length(str - n)`.\n- If `n` is greater than the length of `str`, then sliceToEnd returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.sliceToEnd(\"abcdefg\", ~from=4) == \"efg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=-2) == \"fg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=7) == \"\"\n```\n"}
   }, {
     "label": "Js.String2.slice",
     "kind": 12,
     "tags": [],
-    "detail": "(t, ~from: int, ~to_: int) => t",
+    "detail": "(. t, ~from: int, ~to_: int) => t",
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
@@ -615,13 +631,13 @@ Path Js.String2.slic
     "label": "Js.String2.sliceToEnd",
     "kind": 12,
     "tags": [],
-    "detail": "(t, ~from: int) => t",
+    "detail": "(. t, ~from: int) => t",
     "documentation": {"kind": "markdown", "value": "\n`sliceToEnd(str, from:n)` returns the substring of `str` starting at character\n`n` to the end of the string.\n- If `n` is negative, then it is evaluated as `length(str - n)`.\n- If `n` is greater than the length of `str`, then sliceToEnd returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.sliceToEnd(\"abcdefg\", ~from=4) == \"efg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=-2) == \"fg\"\nJs.String2.sliceToEnd(\"abcdefg\", ~from=7) == \"\"\n```\n"}
   }, {
     "label": "Js.String2.slice",
     "kind": 12,
     "tags": [],
-    "detail": "(t, ~from: int, ~to_: int) => t",
+    "detail": "(. t, ~from: int, ~to_: int) => t",
     "documentation": {"kind": "markdown", "value": "\n`slice(str, from:n1, to_:n2)` returns the substring of `str` starting at\ncharacter `n1` up to but not including `n2`.\n- If either `n1` or `n2` is negative, then it is evaluated as `length(str - n1)` or `length(str - n2)`.\n- If `n2` is greater than the length of `str`, then it is treated as `length(str)`.\n- If `n1` is greater than `n2`, slice returns the empty string.\n\nSee [`String.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) on MDN.\n\n```res example\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=5) == \"cde\"\nJs.String2.slice(\"abcdefg\", ~from=2, ~to_=9) == \"cdefg\"\nJs.String2.slice(\"abcdefg\", ~from=-4, ~to_=-2) == \"de\"\nJs.String2.slice(\"abcdefg\", ~from=5, ~to_=1) == \"\"\n```\n"}
   }]
 
@@ -671,7 +687,7 @@ Path Belt.Int.toSt
     "label": "Belt.Int.toString",
     "kind": 12,
     "tags": [],
-    "detail": "int => string",
+    "detail": "(. int) => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }]
 
@@ -679,6 +695,8 @@ Complete src/CompletionInferValues.res 130:26
 posCursor:[130:26] posNoWhite:[130:25] Found expr:[130:3->130:37]
 Pexp_apply ...[130:3->130:23] (...[130:24->130:36])
 posCursor:[130:26] posNoWhite:[130:25] Found expr:[130:24->130:36]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [130:25->130:36]
+posCursor:[130:26] posNoWhite:[130:25] Found expr:[130:25->130:36]
 posCursor:[130:26] posNoWhite:[130:25] Found pattern:[130:25->130:27]
 posCursor:[130:26] posNoWhite:[130:25] Found pattern:[130:25->130:27]
 Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->recordBody
@@ -706,6 +724,8 @@ Complete src/CompletionInferValues.res 137:30
 posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:3->137:33]
 Pexp_apply ...[137:3->137:6] (~cb137:8->137:10=...[137:11->137:32])
 posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:11->137:32]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [137:12->137:32]
+posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:12->137:32]
 posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:24->0:-1]
 posCursor:[137:30] posNoWhite:[137:29] Found expr:[137:24->0:-1]
 Completable: Cpath Value[root]->
@@ -741,6 +761,8 @@ Complete src/CompletionInferValues.res 146:30
 posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:3->146:33]
 Pexp_apply ...[146:3->146:6] (~cb146:8->146:10=...[146:11->146:32])
 posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:11->146:32]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [146:12->146:32]
+posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:12->146:32]
 posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:24->0:-1]
 posCursor:[146:30] posNoWhite:[146:29] Found expr:[146:24->0:-1]
 Completable: Cpath Value[root]->
@@ -820,6 +842,8 @@ Complete src/CompletionInferValues.res 158:105
 posCursor:[158:105] posNoWhite:[158:104] Found expr:[158:18->158:110]
 Pexp_apply ...[158:18->158:49] (~prepare158:51->158:58=...[158:59->158:72], ~render158:74->158:80=...[158:81->158:106], ...[158:107->158:109])
 posCursor:[158:105] posNoWhite:[158:104] Found expr:[158:81->158:106]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [158:82->158:106]
+posCursor:[158:105] posNoWhite:[158:104] Found expr:[158:82->158:106]
 posCursor:[158:105] posNoWhite:[158:104] Found expr:[158:97->158:105]
 Pexp_field [158:97->158:104] _:[158:105->158:105]
 Completable: Cpath Value[support].""
@@ -845,6 +869,8 @@ Complete src/CompletionInferValues.res 162:110
 posCursor:[162:110] posNoWhite:[162:109] Found expr:[162:18->162:115]
 Pexp_apply ...[162:18->162:49] (~prepare162:51->162:58=...[162:59->162:72], ~render162:74->162:80=...[162:81->162:111], ...[162:112->162:114])
 posCursor:[162:110] posNoWhite:[162:109] Found expr:[162:81->162:111]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [162:82->162:111]
+posCursor:[162:110] posNoWhite:[162:109] Found expr:[162:82->162:111]
 posCursor:[162:110] posNoWhite:[162:109] Found expr:[162:104->0:-1]
 posCursor:[162:110] posNoWhite:[162:109] Found expr:[162:104->0:-1]
 Completable: Cpath Value[root]->

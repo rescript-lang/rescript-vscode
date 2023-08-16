@@ -362,13 +362,13 @@ Path Belt.Int.t
     "label": "Belt.Int.toString",
     "kind": 12,
     "tags": [],
-    "detail": "int => string",
+    "detail": "(. int) => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }, {
     "label": "Belt.Int.toFloat",
     "kind": 12,
     "tags": [],
-    "detail": "int => float",
+    "detail": "(. int) => float",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
   }]
 
@@ -440,6 +440,8 @@ Complete src/CompletionPipeChain.res 82:30
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[76:15->93:1]
 Pexp_apply ...[76:15->76:46] (~prepare77:3->77:10=...[77:11->77:24], ~render78:3->78:9=...[78:10->91:3], ...[92:2->92:4])
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[78:10->91:3]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [78:10->91:3]
+posCursor:[82:30] posNoWhite:[82:29] Found expr:[78:10->91:3]
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[79:4->90:14]
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[82:7->90:14]
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[82:7->82:30]
@@ -466,6 +468,8 @@ Path ReactDOM.Client.Root.ren
 Complete src/CompletionPipeChain.res 88:16
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[76:15->93:1]
 Pexp_apply ...[76:15->76:46] (~prepare77:3->77:10=...[77:11->77:24], ~render78:3->78:9=...[78:10->91:3], ...[92:2->92:4])
+posCursor:[88:16] posNoWhite:[88:15] Found expr:[78:10->91:3]
+Pexp_construct Function$:__ghost__[0:-1->0:-1] [78:10->91:3]
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[78:10->91:3]
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[79:4->90:14]
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[84:4->90:14]

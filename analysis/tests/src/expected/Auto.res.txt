@@ -1,3 +1,3 @@
 Hover src/Auto.res 2:13
-{"contents": {"kind": "markdown", "value": "```rescript\n(Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b>\n```\n\n---\n\n```\n \n```\n```rescript\ntype Belt.List.t<'a> = list<'a>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22belt_List.mli%22%2C34%2C0%5D)\n\n\n\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"}}
+{"contents": {"kind": "markdown", "value": "```rescript\n(. Belt.List.t<'a>, (. 'a) => 'b) => Belt.List.t<'b>\n```\n\n---\n\n```\n \n```\n```rescript\ntype Belt.List.t<'a> = list<'a>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22belt_List.resi%22%2C35%2C0%5D)\n\n\n\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"}}
 
