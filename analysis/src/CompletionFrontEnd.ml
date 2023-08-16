@@ -591,6 +591,27 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (Completable.Cexpression
              {contextPath = ctxPath; prefix; nested = List.rev nested})
       | _ -> ())
+    | {pvb_pat = {ppat_desc = Ppat_var {loc}}; pvb_expr}
+      when locHasCursor pvb_expr.pexp_loc -> (
+      (* Expression without a type annotation. We can complete this if this
+         has compiled previously and there's a type available for the identifier itself.
+         This is nice because the type is assigned even if the assignment isn't complete.
+
+         E.g: let x = {name: "name", <com>}, when `x` has compiled. *)
+      match
+        pvb_expr
+        |> CompletionExpressions.traverseExpr ~exprPath:[] ~pos:posBeforeCursor
+             ~firstCharBeforeCursorNoWhite
+      with
+      | Some (prefix, nested) ->
+        (* This completion should be low prio, so let any deeper completion
+           hit first, and only set this TypeAtPos completion if nothing else
+           here hit. *)
+        Ast_iterator.default_iterator.value_binding iterator value_binding;
+        setResult
+          (Completable.Cexpression
+             {contextPath = CTypeAtPos loc; prefix; nested = List.rev nested})
+      | _ -> ())
     | {
      pvb_pat = {ppat_desc = Ppat_constraint (_pat, coreType); ppat_loc};
      pvb_expr;

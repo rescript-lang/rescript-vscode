@@ -50,8 +50,8 @@ Path Js.Array2.m
   }]
 
 Complete src/RecordCompletion.res 19:7
-posCursor:[19:7] posNoWhite:[19:6] Found expr:[19:3->19:7]
-Pexp_field [19:3->19:4] R.:[19:5->19:7]
+posCursor:[19:7] posNoWhite:[19:6] Found expr:[19:3->25:4]
+Pexp_field [19:3->19:4] R.:[19:5->25:4]
 Completable: Cpath Module[R].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -78,6 +78,49 @@ Path R.
     "kind": 5,
     "tags": [],
     "detail": "name: string\n\ntype t = {name: string}",
+    "documentation": null
+  }]
+
+Complete src/RecordCompletion.res 32:17
+posCursor:[32:17] posNoWhite:[32:15] Found expr:[31:16->34:1]
+Completable: Cexpression CTypeAtPos()->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CTypeAtPos()
+[{
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age?: int\n\noptRecord",
+    "documentation": null
+  }, {
+    "label": "online",
+    "kind": 5,
+    "tags": [],
+    "detail": "online?: bool\n\noptRecord",
+    "documentation": null
+  }]
+
+Complete src/RecordCompletion.res 41:18
+posCursor:[41:18] posNoWhite:[41:16] Found expr:[38:8->44:1]
+Pexp_construct One:[38:8->38:11] [38:11->44:1]
+posCursor:[41:18] posNoWhite:[41:16] Found expr:[38:11->44:1]
+posCursor:[41:18] posNoWhite:[41:16] Found expr:[40:2->43:3]
+Completable: Cexpression CTypeAtPos()->variantPayload::One($1), recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CTypeAtPos()
+[{
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age?: int\n\noptRecord",
+    "documentation": null
+  }, {
+    "label": "online",
+    "kind": 5,
+    "tags": [],
+    "detail": "online?: bool\n\noptRecord",
     "documentation": null
   }]
 
