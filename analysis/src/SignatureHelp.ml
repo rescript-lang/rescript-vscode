@@ -39,10 +39,23 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
 let extractParameters ~signature ~typeStrForParser ~labelPrefixLen =
   match signature with
   | [
-   {
-     Parsetree.psig_desc =
-       Psig_value {pval_type = {ptyp_desc = Ptyp_arrow _} as expr};
-   };
+   ( {
+       Parsetree.psig_desc =
+         Psig_value {pval_type = {ptyp_desc = Ptyp_arrow _} as expr};
+     }
+   | {
+       psig_desc =
+         Psig_value
+           {
+             pval_type =
+               {
+                 ptyp_desc =
+                   Ptyp_constr
+                     ( {txt = Lident "function$"},
+                       [({ptyp_desc = Ptyp_arrow _} as expr); _] );
+               };
+           };
+     } );
   ] ->
     let rec extractParams expr params =
       match expr with
@@ -257,12 +270,13 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       in
       let expr (iterator : Ast_iterator.iterator) (expr : Parsetree.expression)
           =
+        (*DumpAst.printExprItem ~pos ~indentation:0 expr |> print_endline;*)
         (match expr with
         (* Handle pipes, like someVar->someFunc(... *)
         | {
          pexp_desc =
            Pexp_apply
-             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+             ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
                [
                  _;
                  ( _,
@@ -280,7 +294,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
             searchForArgWithCursor ~isPipeExpr:true ~args
           in
           setFound (argAtCursor, exp, extractedArgs)
-        (* Look for applying idents, like someIdent(...) *)
+          (* Look for applying idents, like someIdent(...) *)
         | {
          pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
          pexp_loc;

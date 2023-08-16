@@ -1,0 +1,396 @@
+Signature help src/SignatureHelpUncurried.res 18:20
+posCursor:[18:19] posNoWhite:[18:18] Found expr:[18:11->18:20]
+Pexp_apply ...[18:11->18:19] (...[48:0->18:20])
+posCursor:[18:19] posNoWhite:[18:18] Found expr:[18:11->18:19]
+Pexp_ident someFunc:[18:11->18:19]
+Completable: Cpath Value[someFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someFunc]
+Path someFunc
+argAtCursor: unlabelled<0>
+extracted params: 
+[.
+  int, ~two: string=?, ~three: (. unit) => unit, ~four: someVariant, unit]
+{
+  "signatures": [{
+    "label": "(.\n  int,\n  ~two: string=?,\n  ~three: (. unit) => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [1, 8], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 26], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [30, 54], "documentation": {"kind": "markdown", "value": "```rescript\n(. unit) => unit\n```"}}, {"label": [58, 76], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelpUncurried.res%22%2C2%2C0%5D)"}}, {"label": [80, 84], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelpUncurried.res 21:21
+posCursor:[21:19] posNoWhite:[21:18] Found expr:[21:11->21:21]
+Pexp_apply ...[21:11->21:19] (...[21:20->21:21])
+posCursor:[21:19] posNoWhite:[21:18] Found expr:[21:11->21:19]
+Pexp_ident someFunc:[21:11->21:19]
+Completable: Cpath Value[someFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someFunc]
+Path someFunc
+argAtCursor: unlabelled<0>
+extracted params: 
+[.
+  int, ~two: string=?, ~three: (. unit) => unit, ~four: someVariant, unit]
+{
+  "signatures": [{
+    "label": "(.\n  int,\n  ~two: string=?,\n  ~three: (. unit) => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [1, 8], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 26], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [30, 54], "documentation": {"kind": "markdown", "value": "```rescript\n(. unit) => unit\n```"}}, {"label": [58, 76], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelpUncurried.res%22%2C2%2C0%5D)"}}, {"label": [80, 84], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelpUncurried.res 24:29
+posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:11->24:29]
+Pexp_apply ...[24:11->24:19] (...[24:20->24:23], ~two24:26->24:29=...[24:26->24:29])
+posCursor:[24:19] posNoWhite:[24:18] Found expr:[24:11->24:19]
+Pexp_ident someFunc:[24:11->24:19]
+Completable: Cpath Value[someFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someFunc]
+Path someFunc
+argAtCursor: ~two
+extracted params: 
+[.
+  int, ~two: string=?, ~three: (. unit) => unit, ~four: someVariant, unit]
+{
+  "signatures": [{
+    "label": "(.\n  int,\n  ~two: string=?,\n  ~three: (. unit) => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [1, 8], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 26], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [30, 54], "documentation": {"kind": "markdown", "value": "```rescript\n(. unit) => unit\n```"}}, {"label": [58, 76], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelpUncurried.res%22%2C2%2C0%5D)"}}, {"label": [80, 84], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelpUncurried.res 27:33
+posCursor:[27:19] posNoWhite:[27:18] Found expr:[27:11->27:35]
+Pexp_apply ...[27:11->27:19] (...[27:20->27:23], ~two27:26->27:29=...[27:30->27:35])
+posCursor:[27:19] posNoWhite:[27:18] Found expr:[27:11->27:19]
+Pexp_ident someFunc:[27:11->27:19]
+Completable: Cpath Value[someFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someFunc]
+Path someFunc
+argAtCursor: ~two
+extracted params: 
+[.
+  int, ~two: string=?, ~three: (. unit) => unit, ~four: someVariant, unit]
+{
+  "signatures": [{
+    "label": "(.\n  int,\n  ~two: string=?,\n  ~three: (. unit) => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [1, 8], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 26], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [30, 54], "documentation": {"kind": "markdown", "value": "```rescript\n(. unit) => unit\n```"}}, {"label": [58, 76], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelpUncurried.res%22%2C2%2C0%5D)"}}, {"label": [80, 84], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelpUncurried.res 30:38
+posCursor:[30:19] posNoWhite:[30:18] Found expr:[30:11->30:42]
+Pexp_apply ...[30:11->30:19] (...[30:20->30:23], ~two30:26->30:29=...[30:30->30:35], ~four30:38->30:42=...[30:38->30:42])
+posCursor:[30:19] posNoWhite:[30:18] Found expr:[30:11->30:19]
+Pexp_ident someFunc:[30:11->30:19]
+Completable: Cpath Value[someFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someFunc]
+Path someFunc
+argAtCursor: ~four
+extracted params: 
+[.
+  int, ~two: string=?, ~three: (. unit) => unit, ~four: someVariant, unit]
+{
+  "signatures": [{
+    "label": "(.\n  int,\n  ~two: string=?,\n  ~three: (. unit) => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [1, 8], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 26], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [30, 54], "documentation": {"kind": "markdown", "value": "```rescript\n(. unit) => unit\n```"}}, {"label": [58, 76], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelpUncurried.res%22%2C2%2C0%5D)"}}, {"label": [80, 84], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 3
+}
+
+Signature help src/SignatureHelpUncurried.res 33:42
+posCursor:[33:19] posNoWhite:[33:18] Found expr:[33:11->33:44]
+Pexp_apply ...[33:11->33:19] (...[33:20->33:23], ~two33:26->33:29=...[33:30->33:35], ~four33:38->33:42=...[33:43->33:44])
+posCursor:[33:19] posNoWhite:[33:18] Found expr:[33:11->33:19]
+Pexp_ident someFunc:[33:11->33:19]
+Completable: Cpath Value[someFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someFunc]
+Path someFunc
+argAtCursor: ~four
+extracted params: 
+[.
+  int, ~two: string=?, ~three: (. unit) => unit, ~four: someVariant, unit]
+{
+  "signatures": [{
+    "label": "(.\n  int,\n  ~two: string=?,\n  ~three: (. unit) => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [1, 8], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 26], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [30, 54], "documentation": {"kind": "markdown", "value": "```rescript\n(. unit) => unit\n```"}}, {"label": [58, 76], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelpUncurried.res%22%2C2%2C0%5D)"}}, {"label": [80, 84], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 3
+}
+
+Signature help src/SignatureHelpUncurried.res 36:21
+posCursor:[36:20] posNoWhite:[36:19] Found expr:[36:11->36:21]
+Pexp_apply ...[36:11->36:20] (...[48:0->36:21])
+posCursor:[36:20] posNoWhite:[36:19] Found expr:[36:11->36:20]
+Pexp_ident otherFunc:[36:11->36:20]
+Completable: Cpath Value[otherFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[otherFunc]
+Path otherFunc
+argAtCursor: unlabelled<0>
+extracted params: 
+[. string, int, float]
+{
+  "signatures": [{
+    "label": "(. string, int, float) => unit",
+    "parameters": [{"label": [1, 9], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [11, 14], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [16, 21], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelpUncurried.res 39:24
+posCursor:[39:20] posNoWhite:[39:19] Found expr:[39:11->39:26]
+Pexp_apply ...[39:11->39:20] (...[39:21->39:26])
+posCursor:[39:20] posNoWhite:[39:19] Found expr:[39:11->39:20]
+Pexp_ident otherFunc:[39:11->39:20]
+Completable: Cpath Value[otherFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[otherFunc]
+Path otherFunc
+argAtCursor: unlabelled<0>
+extracted params: 
+[. string, int, float]
+{
+  "signatures": [{
+    "label": "(. string, int, float) => unit",
+    "parameters": [{"label": [1, 9], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [11, 14], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [16, 21], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelpUncurried.res 42:35
+posCursor:[42:20] posNoWhite:[42:19] Found expr:[42:11->42:39]
+Pexp_apply ...[42:11->42:20] (...[42:21->42:26], ...[42:28->42:31], ...[42:33->42:38])
+posCursor:[42:20] posNoWhite:[42:19] Found expr:[42:11->42:20]
+Pexp_ident otherFunc:[42:11->42:20]
+Completable: Cpath Value[otherFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[otherFunc]
+Path otherFunc
+argAtCursor: unlabelled<2>
+extracted params: 
+[. string, int, float]
+{
+  "signatures": [{
+    "label": "(. string, int, float) => unit",
+    "parameters": [{"label": [1, 9], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [11, 14], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [16, 21], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 2
+}
+
+Signature help src/SignatureHelpUncurried.res 45:33
+posCursor:[45:29] posNoWhite:[45:28] Found expr:[45:11->45:34]
+Pexp_apply ...[45:11->45:29] (~age45:31->45:34=...[45:31->45:34])
+posCursor:[45:29] posNoWhite:[45:28] Found expr:[45:11->45:29]
+Pexp_ident Completion.Lib.foo:[45:11->45:29]
+Completable: Cpath Value[Completion, Lib, foo]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Completion, Lib, foo]
+Path Completion.Lib.foo
+argAtCursor: ~age
+extracted params: 
+[(~age: int, ~name: string]
+{
+  "signatures": [{
+    "label": "(~age: int, ~name: string) => string",
+    "parameters": [{"label": [0, 10], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 25], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelpUncurried.res 52:24
+posCursor:[52:23] posNoWhite:[52:22] Found expr:[52:11->52:24]
+Pexp_apply ...[52:11->52:23] (...[58:0->52:24])
+posCursor:[52:23] posNoWhite:[52:22] Found expr:[52:11->52:23]
+Pexp_ident iAmSoSpecial:[52:11->52:23]
+Completable: Cpath Value[iAmSoSpecial]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[iAmSoSpecial]
+Path iAmSoSpecial
+argAtCursor: unlabelled<0>
+extracted params: 
+[. string]
+{
+  "signatures": [{
+    "label": "(. string) => unit",
+    "parameters": [{"label": [1, 9], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelpUncurried.res 55:31
+posCursor:[55:29] posNoWhite:[55:28] Found expr:[55:11->55:31]
+Pexp_apply ...[55:18->55:20] (...[55:11->55:18], ...[55:20->55:31])
+posCursor:[55:29] posNoWhite:[55:28] Found expr:[55:20->55:31]
+Pexp_apply ...[55:20->55:29] (...[55:30->55:31])
+posCursor:[55:29] posNoWhite:[55:28] Found expr:[55:20->55:29]
+Pexp_ident otherFunc:[55:20->55:29]
+Completable: Cpath Value[otherFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[otherFunc]
+Path otherFunc
+argAtCursor: unlabelled<1>
+extracted params: 
+[. string, int, float]
+{
+  "signatures": [{
+    "label": "(. string, int, float) => unit",
+    "parameters": [{"label": [1, 9], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [11, 14], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [16, 21], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelpUncurried.res 64:17
+posCursor:[64:13] posNoWhite:[64:12] Found expr:[64:11->64:19]
+Pexp_apply ...[64:11->64:13] (...[64:14->64:16])
+posCursor:[64:13] posNoWhite:[64:12] Found expr:[64:11->64:13]
+Pexp_ident fn:[64:11->64:13]
+Completable: Cpath Value[fn]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[fn]
+Path fn
+argAtCursor: unlabelled<1>
+extracted params: 
+[. int, string, int]
+{
+  "signatures": [{
+    "label": "(. int, string, int) => unit",
+    "parameters": [{"label": [1, 6], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [8, 14], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [16, 19], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelpUncurried.res 67:17
+posCursor:[67:13] posNoWhite:[67:12] Found expr:[67:11->67:25]
+Pexp_apply ...[67:11->67:13] (...[67:14->67:16], ...[67:20->67:24])
+posCursor:[67:13] posNoWhite:[67:12] Found expr:[67:11->67:13]
+Pexp_ident fn:[67:11->67:13]
+Completable: Cpath Value[fn]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[fn]
+Path fn
+argAtCursor: unlabelled<1>
+extracted params: 
+[. int, string, int]
+{
+  "signatures": [{
+    "label": "(. int, string, int) => unit",
+    "parameters": [{"label": [1, 6], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [8, 14], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [16, 19], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelpUncurried.res 70:26
+posCursor:[70:13] posNoWhite:[70:12] Found expr:[70:11->70:28]
+Pexp_apply ...[70:11->70:13] (...[70:14->70:16], ...[70:18->70:25])
+posCursor:[70:13] posNoWhite:[70:12] Found expr:[70:11->70:13]
+Pexp_ident fn:[70:11->70:13]
+Completable: Cpath Value[fn]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[fn]
+Path fn
+argAtCursor: unlabelled<2>
+extracted params: 
+[. int, string, int]
+{
+  "signatures": [{
+    "label": "(. int, string, int) => unit",
+    "parameters": [{"label": [1, 6], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [8, 14], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [16, 19], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 2
+}
+
+Signature help src/SignatureHelpUncurried.res 73:29
+posCursor:[73:28] posNoWhite:[73:27] Found expr:[73:11->73:33]
+Pexp_apply ...[73:11->73:13] (...[73:16->73:30])
+posCursor:[73:28] posNoWhite:[73:27] Found expr:[73:16->73:30]
+Pexp_apply ...[73:16->73:28] (...[73:29->73:30])
+posCursor:[73:28] posNoWhite:[73:27] Found expr:[73:16->73:28]
+Pexp_ident iAmSoSpecial:[73:16->73:28]
+Completable: Cpath Value[iAmSoSpecial]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[iAmSoSpecial]
+Path iAmSoSpecial
+argAtCursor: unlabelled<0>
+extracted params: 
+[. string]
+{
+  "signatures": [{
+    "label": "(. string) => unit",
+    "parameters": [{"label": [1, 9], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelpUncurried.res 76:40
+posCursor:[76:39] posNoWhite:[76:38] Found expr:[76:11->76:47]
+Pexp_apply ...[76:11->76:13] (...[76:16->76:44])
+posCursor:[76:39] posNoWhite:[76:38] Found expr:[76:16->76:44]
+Pexp_apply ...[76:16->76:28] (...[76:31->76:41])
+posCursor:[76:39] posNoWhite:[76:38] Found expr:[76:31->76:41]
+Pexp_apply ...[76:31->76:39] (...[76:40->76:41])
+posCursor:[76:39] posNoWhite:[76:38] Found expr:[76:31->76:39]
+Pexp_ident someFunc:[76:31->76:39]
+Completable: Cpath Value[someFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someFunc]
+Path someFunc
+argAtCursor: unlabelled<0>
+extracted params: 
+[.
+  int, ~two: string=?, ~three: (. unit) => unit, ~four: someVariant, unit]
+{
+  "signatures": [{
+    "label": "(.\n  int,\n  ~two: string=?,\n  ~three: (. unit) => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
+    "parameters": [{"label": [1, 8], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 26], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [30, 54], "documentation": {"kind": "markdown", "value": "```rescript\n(. unit) => unit\n```"}}, {"label": [58, 76], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelpUncurried.res%22%2C2%2C0%5D)"}}, {"label": [80, 84], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
