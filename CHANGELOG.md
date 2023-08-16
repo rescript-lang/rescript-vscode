@@ -17,6 +17,10 @@
 - Add support for syntax highlighting in `%raw` and `%ffi` extension points. https://github.com/rescript-lang/rescript-vscode/pull/774
 - Add completion to top level decorators. https://github.com/rescript-lang/rescript-vscode/pull/799
 
+#### :nail_care: Polish
+
+- Revamp "Insert missing cases" code action to make it apply in more cases and be much more robust. https://github.com/rescript-lang/rescript-vscode/pull/804
+
 #### :bug: Bug Fix
 
 - Fix invalid range for `definition`. https://github.com/rescript-lang/rescript-vscode/pull/781
