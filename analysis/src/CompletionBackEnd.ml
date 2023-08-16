@@ -1672,7 +1672,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                  ~cases:
                    (v.constructors
                    |> List.map (fun (constructor : polyVariantConstructor) ->
-                          "| #" ^ constructor.name
+                          "#" ^ constructor.name
                           ^
                           match constructor.args with
                           | [] -> ""
