@@ -508,11 +508,39 @@
           "include": "source.js"
         }
       ]
+    },
+    "ffi-single": {
+      "name": "source.embedded.javascript.single",
+      "match": "(%|%%)(raw|ffi)(\\()(`)(.*?)(`)(\\))",
+      "captures": {
+        "1": {
+          "name": "punctuation.decorator"
+        },
+        "2": {
+          "name": "entity.name.function"
+        },
+        "4": {
+          "name": "punctuation.definition.string.template.begin.embedded-js"
+        },
+        "5": {
+          "patterns": [
+            {
+              "include": "source.js"
+            }
+          ]
+        },
+        "6": {
+          "name": "punctuation.definition.string.template.end.embedded-js"
+        }
+      }
     }
   },
   "patterns": [
     {
       "include": "#storage"
+    },
+    {
+      "include": "#ffi-single"
     },
     {
       "include": "#ffi"
