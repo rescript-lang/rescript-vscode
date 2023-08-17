@@ -1,5 +1,4 @@
 {
-  "uncurried": false,
   "name": "test",
   "reanalyze": {
     "analysis": ["dce"]
