@@ -1,7 +1,7 @@
 Hover src/Jsx2.resi 1:4
 getLocItem #1: heuristic for makeProps in interface files
 n1:componentLike n2:unit n3:string
-{"contents": {"kind": "markdown", "value": "```rescript\n(.\n  ~first: string,\n  ~key: string=?,\n  unit,\n) => {\"first\": string}\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\n(~first: string, ~key: string=?, unit) => {\"first\": string}\n```"}}
 
 Hover src/Jsx2.resi 4:4
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}

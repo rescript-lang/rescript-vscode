@@ -194,7 +194,7 @@ Path PervasivesU.JsxDOM.domProps
     "label": "event => {}",
     "kind": 12,
     "tags": [],
-    "detail": "(. JsxEventU.Mouse.t) => unit",
+    "detail": "JsxEventU.Mouse.t => unit",
     "documentation": null,
     "sortText": "A",
     "insertText": "{${1:event} => {$0}}",

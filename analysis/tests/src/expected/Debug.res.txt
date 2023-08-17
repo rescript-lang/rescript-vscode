@@ -17,13 +17,13 @@ Path eqN
     "label": "eqNullable",
     "kind": 12,
     "tags": [],
-    "detail": "(. 'a, nullable<'a>) => bool",
+    "detail": "('a, nullable<'a>) => bool",
     "documentation": null
   }, {
     "label": "eqNull",
     "kind": 12,
     "tags": [],
-    "detail": "(. 'a, null<'a>) => bool",
+    "detail": "('a, null<'a>) => bool",
     "documentation": null
   }]
 

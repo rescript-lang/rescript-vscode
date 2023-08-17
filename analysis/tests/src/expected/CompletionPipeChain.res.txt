@@ -362,13 +362,13 @@ Path Belt.Int.t
     "label": "Belt.Int.toString",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => string",
+    "detail": "int => string",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
   }, {
     "label": "Belt.Int.toFloat",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => float",
+    "detail": "int => float",
     "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
   }]
 

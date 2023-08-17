@@ -13,13 +13,13 @@ Path Js.Array2.m
     "label": "Js.Array2.mapi",
     "kind": 12,
     "tags": [],
-    "detail": "(. t<'a>, (. 'a, int) => 'b) => t<'b>",
+    "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
   }, {
     "label": "Js.Array2.map",
     "kind": 12,
     "tags": [],
-    "detail": "(. t<'a>, (. 'a) => 'b) => t<'b>",
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
   }]
 
@@ -39,13 +39,13 @@ Path Js.Array2.m
     "label": "Js.Array2.mapi",
     "kind": 12,
     "tags": [],
-    "detail": "(. t<'a>, (. 'a, int) => 'b) => t<'b>",
+    "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
   }, {
     "label": "Js.Array2.map",
     "kind": 12,
     "tags": [],
-    "detail": "(. t<'a>, (. 'a) => 'b) => t<'b>",
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
   }]
 
