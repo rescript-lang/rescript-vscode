@@ -82,7 +82,11 @@ let newBsPackage ~rootPath =
                | None -> []
              in
              let opens =
-               ["Pervasives"; "JsxModules"] :: opens_from_namespace
+               [
+                 (if uncurried then "PervasivesU" else "Pervasives");
+                 "JsxModules";
+               ]
+               :: opens_from_namespace
                |> List.rev_append opens_from_bsc_flags
                |> List.map (fun path -> path @ ["place holder"])
              in

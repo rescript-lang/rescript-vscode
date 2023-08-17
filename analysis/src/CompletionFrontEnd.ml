@@ -148,7 +148,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
          (match exprs with
          | [] -> None
          | exp :: _ -> exprToContextPath exp))
-  | Pexp_ident {txt = Lident "|."} -> None
+  | Pexp_ident {txt = Lident ("|." | "|.u")} -> None
   | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
   | Pexp_field (e1, {txt = Lident name}) -> (
     match exprToContextPath e1 with
@@ -162,7 +162,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
     | None -> None
     | Some contexPath -> Some (CPObj (contexPath, txt)))
   | Pexp_apply
-      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+      ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
         [
           (_, lhs);
           (_, {pexp_desc = Pexp_apply (d, args); pexp_loc; pexp_attributes});
@@ -175,7 +175,7 @@ let rec exprToContextPath (e : Parsetree.expression) =
         pexp_attributes;
       }
   | Pexp_apply
-      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+      ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
         [(_, lhs); (_, {pexp_desc = Pexp_ident id; pexp_loc; pexp_attributes})]
       ) ->
     (* Transform away pipe with identifier *)
@@ -211,13 +211,13 @@ let completePipeChain (exp : Parsetree.expression) =
   (* When the left side of the pipe we're completing is a function application.
      Example: someArray->Js.Array2.map(v => v + 2)-> *)
   | Pexp_apply
-      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+      ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
         [_; (_, {pexp_desc = Pexp_apply (d, _)})] ) ->
     exprToContextPath exp |> Option.map (fun ctxPath -> (ctxPath, d.pexp_loc))
     (* When the left side of the pipe we're completing is an identifier application.
        Example: someArray->filterAllTheGoodStuff-> *)
   | Pexp_apply
-      ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+      ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
         [_; (_, {pexp_desc = Pexp_ident _; pexp_loc})] ) ->
     exprToContextPath exp |> Option.map (fun ctxPath -> (ctxPath, pexp_loc))
   | _ -> None
@@ -813,7 +813,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
              scope := oldScope);
       resetCurrentCtxPath oldCtxPath
     | Pexp_apply
-        ( {pexp_desc = Pexp_ident {txt = Lident "|."; loc = opLoc}},
+        ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u"); loc = opLoc}},
           [
             (_, lhs);
             (_, {pexp_desc = Pexp_extension _; pexp_loc = {loc_ghost = true}});
@@ -837,7 +837,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
             setResult (Cpath (CPId (lidPath, Value)))
         | Pexp_construct (lid, eOpt) ->
           let lidPath = flattenLidCheckDot lid in
-          if debug then
+          if debug && lid.txt <> Lident "Function$" then
             Printf.printf "Pexp_construct %s:%s %s\n"
               (lidPath |> String.concat "\n")
               (Loc.toString lid.loc)
@@ -911,7 +911,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               | _ -> Cpath (CPId (compNamePath, Module)))
           else iterateJsxProps ~iterator jsxProps
         | Pexp_apply
-            ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+            ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
               [
                 (_, lhs);
                 (_, {pexp_desc = Pexp_ident {txt = Longident.Lident id; loc}});
@@ -920,13 +920,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (* Case foo->id *)
           setPipeResult ~lhs ~id |> ignore
         | Pexp_apply
-            ( {pexp_desc = Pexp_ident {txt = Lident "|."; loc = opLoc}},
+            ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u"); loc = opLoc}},
               [(_, lhs); _] )
           when Loc.end_ opLoc = posCursor ->
           (* Case foo-> *)
           setPipeResult ~lhs ~id:"" |> ignore
         | Pexp_apply
-            ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+            ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
               [_; (_, {pexp_desc = Pexp_apply (funExpr, args)})] )
           when (* Normally named arg completion fires when the cursor is right after the expression.
                   E.g in foo(~<---there
@@ -957,7 +957,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
               argCompletable |> iterateFnArguments ~isPipe:true ~args ~iterator;
               resetCurrentCtxPath oldCtxPath)
           | Some argCompletable -> setResult argCompletable)
-        | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident "|."}}, [_; _]) ->
+        | Pexp_apply
+            ({pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}}, [_; _]) ->
           (* Ignore any other pipe. *)
           ()
         | Pexp_apply (funExpr, args)

@@ -198,12 +198,14 @@ let getBuiltinFromTypePath path =
   | Path.Pident id when Ident.name id = "result" -> Some Result
   | Path.Pident id when Ident.name id = "lazy_t" -> Some Lazy
   | Path.Pident id when Ident.name id = "char" -> Some Char
-  | Pdot (Pident id, "result", _) when Ident.name id = "Pervasives" ->
+  | Pdot (Pident id, "result", _)
+    when Ident.name id = "Pervasives" || Ident.name id = "PervasivesU" ->
     Some Result
   | _ -> None
 
-let pathFromTypeExpr (t : Types.type_expr) =
+let rec pathFromTypeExpr (t : Types.type_expr) =
   match t.desc with
+  | Tconstr (Pident {name = "function$"}, [t; _], _) -> pathFromTypeExpr t
   | Tconstr (path, _typeArgs, _)
   | Tlink {desc = Tconstr (path, _typeArgs, _)}
   | Tsubst {desc = Tconstr (path, _typeArgs, _)}
@@ -513,7 +515,10 @@ let getArgs ~env (t : Types.type_expr) ~full =
   let rec getArgsLoop ~env (t : Types.type_expr) ~full ~currentArgumentPosition
       =
     match t.desc with
-    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+    | Tlink t1
+    | Tsubst t1
+    | Tpoly (t1, [])
+    | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
       getArgsLoop ~full ~env ~currentArgumentPosition t1
     | Tarrow (Labelled l, tArg, tRet, _) ->
       (SharedTypes.Completable.Labelled l, tArg)
