@@ -168,7 +168,7 @@ Path ReactEvent.Mouse.pr
     "label": "ReactEvent.Mouse.preventDefault",
     "kind": 12,
     "tags": [],
-    "detail": "t => unit",
+    "detail": "(. t) => unit",
     "documentation": null
   }]
 
@@ -186,16 +186,16 @@ Path event
 ContextPath CArgument CJsxPropValue [div] onMouseEnter($0)
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
-Path Pervasives.JsxDOM.domProps
+Path PervasivesU.JsxDOM.domProps
 CPPipe env:CompletionInferValues
-CPPipe type path:JsxEventC.Mouse.t
-CPPipe pathFromEnv:JsxEventC.Mouse found:false
-Path JsxEventC.Mouse.pr
+CPPipe type path:JsxEventU.Mouse.t
+CPPipe pathFromEnv:JsxEventU.Mouse found:false
+Path JsxEventU.Mouse.pr
 [{
-    "label": "JsxEventC.Mouse.preventDefault",
+    "label": "JsxEventU.Mouse.preventDefault",
     "kind": 12,
     "tags": [],
-    "detail": "t => unit",
+    "detail": "(. t) => unit",
     "documentation": null
   }]
 
@@ -214,14 +214,14 @@ ContextPath CArgument CJsxPropValue [Div] onMouseEnter($0)
 ContextPath CJsxPropValue [Div] onMouseEnter
 Path Div.make
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionInferValues.Div
-CPPipe type path:Pervasives.JsxEvent.Mouse.t
-CPPipe pathFromEnv:Pervasives.JsxEvent.Mouse found:false
-Path Pervasives.JsxEvent.Mouse.pr
+CPPipe type path:PervasivesU.JsxEvent.Mouse.t
+CPPipe pathFromEnv:PervasivesU.JsxEvent.Mouse found:false
+Path PervasivesU.JsxEvent.Mouse.pr
 [{
-    "label": "Pervasives.JsxEvent.Mouse.preventDefault",
+    "label": "PervasivesU.JsxEvent.Mouse.preventDefault",
     "kind": 12,
     "tags": [],
-    "detail": "t => unit",
+    "detail": "(. t) => unit",
     "documentation": null
   }]
 
@@ -727,13 +727,13 @@ Path ReactDOM.Client.Root.
     "label": "ReactDOM.Client.Root.unmount",
     "kind": 12,
     "tags": [],
-    "detail": "(t, unit) => unit",
+    "detail": "(. t, unit) => unit",
     "documentation": null
   }, {
     "label": "ReactDOM.Client.Root.render",
     "kind": 12,
     "tags": [],
-    "detail": "(t, React.element) => unit",
+    "detail": "(. t, React.element) => unit",
     "documentation": null
   }]
 
@@ -762,19 +762,19 @@ Path CompletionSupport.Test.
     "label": "CompletionSupport.Test.add",
     "kind": 12,
     "tags": [],
-    "detail": "t => int",
+    "detail": "(. t) => int",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.addSelf",
     "kind": 12,
     "tags": [],
-    "detail": "t => t",
+    "detail": "(. t) => t",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.make",
     "kind": 12,
     "tags": [],
-    "detail": "int => t",
+    "detail": "(. int) => t",
     "documentation": null
   }]
 
@@ -866,13 +866,13 @@ Path ReactDOM.Client.Root.
     "label": "ReactDOM.Client.Root.unmount",
     "kind": 12,
     "tags": [],
-    "detail": "(t, unit) => unit",
+    "detail": "(. t, unit) => unit",
     "documentation": null
   }, {
     "label": "ReactDOM.Client.Root.render",
     "kind": 12,
     "tags": [],
-    "detail": "(t, React.element) => unit",
+    "detail": "(. t, React.element) => unit",
     "documentation": null
   }]
 

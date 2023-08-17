@@ -14,7 +14,7 @@ Path Test.
     "label": "Test.add",
     "kind": 12,
     "tags": [],
-    "detail": "t => int",
+    "detail": "(. t) => int",
     "documentation": null
   }]
 

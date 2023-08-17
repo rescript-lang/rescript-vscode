@@ -387,7 +387,7 @@ Path ReactEvent.Mouse.a
     "label": "ReactEvent.Mouse.altKey",
     "kind": 12,
     "tags": [],
-    "detail": "t => bool",
+    "detail": "(. t) => bool",
     "documentation": null
   }]
 
@@ -412,7 +412,7 @@ Path ReactEvent.Mouse.a
     "label": "ReactEvent.Mouse.altKey",
     "kind": 12,
     "tags": [],
-    "detail": "t => bool",
+    "detail": "(. t) => bool",
     "documentation": null
   }]
 
