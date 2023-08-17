@@ -14,25 +14,25 @@ Path Integer.
     "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "Integer.increment",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, (. int) => int) => t",
+    "detail": "(t, int => int) => t",
     "documentation": null
   }, {
     "label": "Integer.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -53,13 +53,13 @@ Path SuperFloat.
     "label": "SuperFloat.fromInteger",
     "kind": 12,
     "tags": [],
-    "detail": "(. Integer.t) => t",
+    "detail": "Integer.t => t",
     "documentation": null
   }, {
     "label": "SuperFloat.toInteger",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => Integer.t",
+    "detail": "t => Integer.t",
     "documentation": null
   }]
 
@@ -80,25 +80,25 @@ Path Integer.
     "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "Integer.increment",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, (. int) => int) => t",
+    "detail": "(t, int => int) => t",
     "documentation": null
   }, {
     "label": "Integer.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -119,25 +119,25 @@ Path Integer.
     "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "Integer.increment",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, (. int) => int) => t",
+    "detail": "(t, int => int) => t",
     "documentation": null
   }, {
     "label": "Integer.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -158,25 +158,25 @@ Path Integer.
     "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "Integer.increment",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, (. int) => int) => t",
+    "detail": "(t, int => int) => t",
     "documentation": null
   }, {
     "label": "Integer.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -197,25 +197,25 @@ Path Integer.
     "label": "Integer.toInt",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "Integer.increment",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "Integer.decrement",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, (. int) => int) => t",
+    "detail": "(t, int => int) => t",
     "documentation": null
   }, {
     "label": "Integer.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -236,13 +236,13 @@ Path SuperFloat.
     "label": "SuperFloat.fromInteger",
     "kind": 12,
     "tags": [],
-    "detail": "(. Integer.t) => t",
+    "detail": "Integer.t => t",
     "documentation": null
   }, {
     "label": "SuperFloat.toInteger",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => Integer.t",
+    "detail": "t => Integer.t",
     "documentation": null
   }]
 
@@ -263,7 +263,7 @@ Path SuperFloat.t
     "label": "SuperFloat.toInteger",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => Integer.t",
+    "detail": "t => Integer.t",
     "documentation": null
   }]
 
@@ -284,19 +284,19 @@ Path CompletionSupport.Test.
     "label": "CompletionSupport.Test.add",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.addSelf",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => t",
+    "detail": "t => t",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -317,19 +317,19 @@ Path CompletionSupport.Test.
     "label": "CompletionSupport.Test.add",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.addSelf",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => t",
+    "detail": "t => t",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -388,19 +388,19 @@ Path CompletionSupport.Test.
     "label": "CompletionSupport.Test.add",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.addSelf",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => t",
+    "detail": "t => t",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -420,19 +420,19 @@ Path CompletionSupport.Test.
     "label": "CompletionSupport.Test.add",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.addSelf",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => t",
+    "detail": "t => t",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -459,7 +459,7 @@ Path ReactDOM.Client.Root.ren
     "label": "ReactDOM.Client.Root.render",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, React.element) => unit",
+    "detail": "(t, React.element) => unit",
     "documentation": null
   }]
 
@@ -486,7 +486,7 @@ Path ReactDOM.Client.Root.ren
     "label": "ReactDOM.Client.Root.render",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, React.element) => unit",
+    "detail": "(t, React.element) => unit",
     "documentation": null
   }]
 

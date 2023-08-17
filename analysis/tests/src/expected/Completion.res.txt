@@ -169,9 +169,9 @@ Path Array.
   }, {
     "label": "make_float",
     "kind": 12,
-    "tags": [1],
+    "tags": [],
     "detail": "int => array<float>",
-    "documentation": {"kind": "markdown", "value": "Deprecated: Use Array.create_float instead.\n\n @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
+    "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
   }, {
     "label": "fold_right",
     "kind": 12,
@@ -253,9 +253,9 @@ Path Array.
   }, {
     "label": "create_matrix",
     "kind": 12,
-    "tags": [1],
+    "tags": [],
     "detail": "(int, int, 'a) => array<array<'a>>",
-    "documentation": {"kind": "markdown", "value": "Deprecated: Use Array.make_matrix instead.\n\n @deprecated [Array.create_matrix] is an alias for {!Array.make_matrix}. "}
+    "documentation": {"kind": "markdown", "value": " @deprecated [Array.create_matrix] is an alias for {!Array.make_matrix}. "}
   }, {
     "label": "create_float",
     "kind": 12,
@@ -265,9 +265,9 @@ Path Array.
   }, {
     "label": "create",
     "kind": 12,
-    "tags": [1],
+    "tags": [],
     "detail": "(int, 'a) => array<'a>",
-    "documentation": {"kind": "markdown", "value": "Deprecated: Use Array.make instead.\n\n @deprecated [Array.create] is an alias for {!Array.make}. "}
+    "documentation": {"kind": "markdown", "value": " @deprecated [Array.create] is an alias for {!Array.make}. "}
   }, {
     "label": "init",
     "kind": 12,
@@ -335,9 +335,9 @@ Path Array.m
   }, {
     "label": "make_float",
     "kind": 12,
-    "tags": [1],
+    "tags": [],
     "detail": "int => array<float>",
-    "documentation": {"kind": "markdown", "value": "Deprecated: Use Array.create_float instead.\n\n @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
+    "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
   }, {
     "label": "map",
     "kind": 12,
@@ -370,7 +370,7 @@ Path Dep.c
     "label": "customDouble",
     "kind": 12,
     "tags": [1],
-    "detail": "(. int) => int",
+    "detail": "int => int",
     "documentation": {"kind": "markdown", "value": "Deprecated: Use customDouble instead\n\nSome doc comment"}
   }]
 
@@ -382,7 +382,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (. ~age: int, ~name: string) => string
+Found type for function (~age: int, ~name: string) => string
 [{
     "label": "age",
     "kind": 4,
@@ -479,13 +479,13 @@ Path ForAuto.
     "label": "ForAuto.abc",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "ForAuto.abd",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }]
 
@@ -579,7 +579,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (. ~age: int, ~name: string) => string
+Found type for function (~age: int, ~name: string) => string
 [{
     "label": "age",
     "kind": 4,
@@ -596,7 +596,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (. ~age: int, ~name: string) => string
+Found type for function (~age: int, ~name: string) => string
 [{
     "label": "name",
     "kind": 4,
@@ -613,7 +613,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (. ~age: int, ~name: string) => string
+Found type for function (~age: int, ~name: string) => string
 [{
     "label": "name",
     "kind": 4,
@@ -630,7 +630,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Lib, foo]
 Path Lib.foo
-Found type for function (. ~age: int, ~name: string) => string
+Found type for function (~age: int, ~name: string) => string
 []
 
 Complete src/Completion.res 90:13
@@ -777,7 +777,7 @@ Path my
     "label": "myAmazingFunction",
     "kind": 12,
     "tags": [],
-    "detail": "(. int, int) => int",
+    "detail": "(int, int) => int",
     "documentation": null
   }]
 
@@ -918,13 +918,13 @@ Path Js.n
     "label": "nullable",
     "kind": 22,
     "tags": [],
-    "detail": "type nullable<'a> = Value('a) | Null | Undefined",
-    "documentation": null
+    "detail": "type nullable<+'a>",
+    "documentation": {"kind": "markdown", "value": "\n  A value of this type can be undefined, null or 'a. This type is equivalent to Js.Null_undefined.t.\n"}
   }, {
     "label": "null",
     "kind": 22,
     "tags": [],
-    "detail": "type null<'a> = Value('a) | Null",
+    "detail": "type null<+'a>",
     "documentation": {"kind": "markdown", "value": "\n  Nullable value of this type can be either null or 'a. This type is equivalent to Js.Null.t.\n"}
   }]
 
@@ -1103,13 +1103,13 @@ Path ForAuto.
     "label": "ForAuto.abc",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "ForAuto.abd",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }]
 
@@ -1127,13 +1127,13 @@ Path ForAuto.a
     "label": "abc",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "abd",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }]
 
@@ -1335,7 +1335,7 @@ Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[funRecord].someFun
 ContextPath Value[funRecord]
 Path funRecord
-Found type for function (. ~name: string) => unit
+Found type for function (~name: string) => unit
 [{
     "label": "name",
     "kind": 4,
@@ -1572,7 +1572,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[withCallback]
 Path withCallback
-Found type for function (. ~b: int) => callback
+Found type for function (~b: int) => callback
 [{
     "label": "b",
     "kind": 4,
@@ -1597,8 +1597,14 @@ Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[withCallback](~a)
 ContextPath Value[withCallback]
 Path withCallback
-Found type for function int
-[]
+Found type for function (~b: int) => int
+[{
+    "label": "b",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null
+  }]
 
 Complete src/Completion.res 329:21
 posCursor:[329:21] posNoWhite:[329:20] Found expr:[329:3->329:21]
@@ -1707,7 +1713,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 Completion.res Completion.res pervasives
 ContextPath Value[ff]
 Path ff
-Found type for function (.
+Found type for function (
   ~opt1: int=?,
   ~a: int,
   ~b: int,
@@ -1808,13 +1814,13 @@ Path ForAuto.
     "label": "abc",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }, {
     "label": "abd",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, int) => t",
+    "detail": "(t, int) => t",
     "documentation": null
   }]
 
@@ -1864,13 +1870,13 @@ Path funRecord
     "label": "someFun",
     "kind": 5,
     "tags": [],
-    "detail": "someFun: (. ~name: string) => unit\n\ntype funRecord = {\n  someFun: (. ~name: string) => unit,\n  stuff: string,\n}",
+    "detail": "someFun: (~name: string) => unit\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
     "documentation": null
   }, {
     "label": "stuff",
     "kind": 5,
     "tags": [],
-    "detail": "stuff: string\n\ntype funRecord = {\n  someFun: (. ~name: string) => unit,\n  stuff: string,\n}",
+    "detail": "stuff: string\n\ntype funRecord = {\n  someFun: (~name: string) => unit,\n  stuff: string,\n}",
     "documentation": null
   }]
 
@@ -1967,7 +1973,7 @@ Path r
     "label": "retAA",
     "kind": 12,
     "tags": [],
-    "detail": "(. unit) => aa",
+    "detail": "unit => aa",
     "documentation": null
   }, {
     "label": "r",

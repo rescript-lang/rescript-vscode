@@ -142,13 +142,13 @@ Resolved opens 1 pervasives
 ContextPath Type[someFunc]
 Path someFunc
 [{
-    "label": "(.  => {}",
+    "label": "(v1, v2) => {}",
     "kind": 12,
     "tags": [],
     "detail": "(int, string) => bool",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(.  => {$0}",
+    "insertText": "(${1:v1}, ${2:v2}) => {$0}",
     "insertTextFormat": 2
   }]
 

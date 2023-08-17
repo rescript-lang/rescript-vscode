@@ -168,7 +168,7 @@ Path ReactEvent.Mouse.pr
     "label": "ReactEvent.Mouse.preventDefault",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => unit",
+    "detail": "t => unit",
     "documentation": null
   }]
 
@@ -186,16 +186,16 @@ Path event
 ContextPath CArgument CJsxPropValue [div] onMouseEnter($0)
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
-Path PervasivesU.JsxDOM.domProps
+Path Pervasives.JsxDOM.domProps
 CPPipe env:CompletionInferValues
-CPPipe type path:JsxEventU.Mouse.t
-CPPipe pathFromEnv:JsxEventU.Mouse found:false
-Path JsxEventU.Mouse.pr
+CPPipe type path:JsxEventC.Mouse.t
+CPPipe pathFromEnv:JsxEventC.Mouse found:false
+Path JsxEventC.Mouse.pr
 [{
-    "label": "JsxEventU.Mouse.preventDefault",
+    "label": "JsxEventC.Mouse.preventDefault",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => unit",
+    "detail": "t => unit",
     "documentation": null
   }]
 
@@ -214,14 +214,14 @@ ContextPath CArgument CJsxPropValue [Div] onMouseEnter($0)
 ContextPath CJsxPropValue [Div] onMouseEnter
 Path Div.make
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionInferValues.Div
-CPPipe type path:PervasivesU.JsxEvent.Mouse.t
-CPPipe pathFromEnv:PervasivesU.JsxEvent.Mouse found:false
-Path PervasivesU.JsxEvent.Mouse.pr
+CPPipe type path:Pervasives.JsxEvent.Mouse.t
+CPPipe pathFromEnv:Pervasives.JsxEvent.Mouse found:false
+Path Pervasives.JsxEvent.Mouse.pr
 [{
-    "label": "PervasivesU.JsxEvent.Mouse.preventDefault",
+    "label": "Pervasives.JsxEvent.Mouse.preventDefault",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => unit",
+    "detail": "t => unit",
     "documentation": null
   }]
 
@@ -284,7 +284,7 @@ Path Js.String2.spl
     "kind": 12,
     "tags": [],
     "detail": "(t, Js_re.t) => array<option<t>>",
-    "documentation": {"kind": "markdown", "value": "\n`splitByRe(str, regex)` splits the given `str` at every occurrence of `regex`\nand returns an array of the resulting substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByRe(\"art; bed , cog ;dad\", %re(\"/\\s*[,;]\\s*TODO/\")) == [\n    Some(\"art\"),\n    Some(\"bed\"),\n    Some(\"cog\"),\n    Some(\"dad\"),\n  ]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`splitByRe(str, regex)` splits the given `str` at every occurrence of `regex`\nand returns an array of the resulting substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByRe(\"art; bed , cog ;dad\", %re(\"/\\s*[,;]\\s*/\")) == [\n    Some(\"art\"),\n    Some(\"bed\"),\n    Some(\"cog\"),\n    Some(\"dad\"),\n  ]\n```\n"}
   }, {
     "label": "Js.String2.split",
     "kind": 12,
@@ -296,7 +296,7 @@ Path Js.String2.spl
     "kind": 12,
     "tags": [],
     "detail": "(t, Js_re.t, ~limit: int) => array<option<t>>",
-    "documentation": {"kind": "markdown", "value": "\n`splitByReAtMost(str, regex, ~limit:n)` splits the given `str` at every\noccurrence of `regex` and returns an array of the first `n` resulting\nsubstrings. If `n` is negative or greater than the number of substrings, the\narray will contain all the substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*TODO/\"), ~limit=3) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n  ]\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*TODO/\"), ~limit=0) == []\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*TODO/\"), ~limit=8) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n    Some(\"four\"),\n  ]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`splitByReAtMost(str, regex, ~limit:n)` splits the given `str` at every\noccurrence of `regex` and returns an array of the first `n` resulting\nsubstrings. If `n` is negative or greater than the number of substrings, the\narray will contain all the substrings.\n\nSee [`String.split`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)\non MDN.\n\n```res example\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=3) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n  ]\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=0) == []\n\nJs.String2.splitByReAtMost(\"one: two: three: four\", %re(\"/\\s*:\\s*/\"), ~limit=8) == [\n    Some(\"one\"),\n    Some(\"two\"),\n    Some(\"three\"),\n    Some(\"four\"),\n  ]\n```\n"}
   }]
 
 Complete src/CompletionInferValues.res 53:130
@@ -727,13 +727,13 @@ Path ReactDOM.Client.Root.
     "label": "ReactDOM.Client.Root.unmount",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, unit) => unit",
+    "detail": "(t, unit) => unit",
     "documentation": null
   }, {
     "label": "ReactDOM.Client.Root.render",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, React.element) => unit",
+    "detail": "(t, React.element) => unit",
     "documentation": null
   }]
 
@@ -762,19 +762,19 @@ Path CompletionSupport.Test.
     "label": "CompletionSupport.Test.add",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => int",
+    "detail": "t => int",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.addSelf",
     "kind": 12,
     "tags": [],
-    "detail": "(. t) => t",
+    "detail": "t => t",
     "documentation": null
   }, {
     "label": "CompletionSupport.Test.make",
     "kind": 12,
     "tags": [],
-    "detail": "(. int) => t",
+    "detail": "int => t",
     "documentation": null
   }]
 
@@ -866,13 +866,13 @@ Path ReactDOM.Client.Root.
     "label": "ReactDOM.Client.Root.unmount",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, unit) => unit",
+    "detail": "(t, unit) => unit",
     "documentation": null
   }, {
     "label": "ReactDOM.Client.Root.render",
     "kind": 12,
     "tags": [],
-    "detail": "(. t, React.element) => unit",
+    "detail": "(t, React.element) => unit",
     "documentation": null
   }]
 
