@@ -10,11 +10,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": "```rescript\nunit => unit\n```"}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -33,11 +33,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": "```rescript\nunit => unit\n```"}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -56,11 +56,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: ~two
 extracted params: 
-[]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": "```rescript\nunit => unit\n```"}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -79,11 +79,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: ~two
 extracted params: 
-[]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": "```rescript\nunit => unit\n```"}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -102,11 +102,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: ~four
 extracted params: 
-[]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": "```rescript\nunit => unit\n```"}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -125,11 +125,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: ~four
 extracted params: 
-[]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": "```rescript\nunit => unit\n```"}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -148,11 +148,11 @@ ContextPath Value[otherFunc]
 Path otherFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[]
+[string, int, float]
 {
   "signatures": [{
     "label": "(string, int, float) => unit",
-    "parameters": []
+    "parameters": [{"label": [1, 7], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -170,11 +170,11 @@ ContextPath Value[otherFunc]
 Path otherFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[]
+[string, int, float]
 {
   "signatures": [{
     "label": "(string, int, float) => unit",
-    "parameters": []
+    "parameters": [{"label": [1, 7], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -192,11 +192,11 @@ ContextPath Value[otherFunc]
 Path otherFunc
 argAtCursor: unlabelled<2>
 extracted params: 
-[]
+[string, int, float]
 {
   "signatures": [{
     "label": "(string, int, float) => unit",
-    "parameters": []
+    "parameters": [{"label": [1, 7], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 2
@@ -214,11 +214,11 @@ ContextPath Value[Completion, Lib, foo]
 Path Completion.Lib.foo
 argAtCursor: ~age
 extracted params: 
-[]
+[~age: int, ~name: string]
 {
   "signatures": [{
     "label": "(~age: int, ~name: string) => string",
-    "parameters": []
+    "parameters": [{"label": [1, 10], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 25], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -236,11 +236,11 @@ ContextPath Value[iAmSoSpecial]
 Path iAmSoSpecial
 argAtCursor: unlabelled<0>
 extracted params: 
-[]
+[string]
 {
   "signatures": [{
     "label": "string => unit",
-    "parameters": []
+    "parameters": [{"label": [0, 6], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -257,16 +257,16 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[otherFunc]
 Path otherFunc
-argAtCursor: unlabelled<0>
+argAtCursor: unlabelled<1>
 extracted params: 
-[]
+[string, int, float]
 {
   "signatures": [{
     "label": "(string, int, float) => unit",
-    "parameters": []
+    "parameters": [{"label": [1, 7], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
-  "activeParameter": 0
+  "activeParameter": 1
 }
 
 Signature help src/SignatureHelp.res 62:17
@@ -281,11 +281,11 @@ ContextPath Value[fn]
 Path fn
 argAtCursor: unlabelled<1>
 extracted params: 
-[]
+[int, string, int]
 {
   "signatures": [{
     "label": "(int, string, int) => unit",
-    "parameters": []
+    "parameters": [{"label": [1, 4], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -303,11 +303,11 @@ ContextPath Value[fn]
 Path fn
 argAtCursor: unlabelled<1>
 extracted params: 
-[]
+[int, string, int]
 {
   "signatures": [{
     "label": "(int, string, int) => unit",
-    "parameters": []
+    "parameters": [{"label": [1, 4], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -325,11 +325,11 @@ ContextPath Value[fn]
 Path fn
 argAtCursor: unlabelled<2>
 extracted params: 
-[]
+[int, string, int]
 {
   "signatures": [{
     "label": "(int, string, int) => unit",
-    "parameters": []
+    "parameters": [{"label": [1, 4], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 2
@@ -349,11 +349,11 @@ ContextPath Value[iAmSoSpecial]
 Path iAmSoSpecial
 argAtCursor: unlabelled<0>
 extracted params: 
-[]
+[string]
 {
   "signatures": [{
     "label": "string => unit",
-    "parameters": []
+    "parameters": [{"label": [0, 6], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -375,11 +375,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": "```rescript\nunit => unit\n```"}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
