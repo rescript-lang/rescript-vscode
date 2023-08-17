@@ -11,7 +11,7 @@ Hover src/Definition.res 18:14
 {"contents": {"kind": "markdown", "value": "```rescript\n(Belt.List.t<'a>, 'a => 'b) => Belt.List.t<'b>\n```\n\n---\n\n```\n \n```\n```rescript\ntype Belt.List.t<'a> = list<'a>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22belt_List.resi%22%2C35%2C0%5D)\n\n\n\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"}}
 
 Hover src/Definition.res 23:3
-{"contents": {"kind": "markdown", "value": "```rescript\n(int, int) => int\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\n(. int, int) => int\n```"}}
 
 Definition src/Definition.res 26:3
 {"uri": "Definition.res", "range": {"start": {"line": 21, "character": 4}, "end": {"line": 21, "character": 13}}}

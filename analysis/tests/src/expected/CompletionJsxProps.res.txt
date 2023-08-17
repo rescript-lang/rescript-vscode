@@ -166,7 +166,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CJsxPropValue [div] muted
 Path ReactDOM.domProps
-Path PervasivesU.JsxDOM.domProps
+Path Pervasives.JsxDOM.domProps
 [{
     "label": "true",
     "kind": 4,
@@ -189,12 +189,12 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
-Path PervasivesU.JsxDOM.domProps
+Path Pervasives.JsxDOM.domProps
 [{
     "label": "event => {}",
     "kind": 12,
     "tags": [],
-    "detail": "JsxEventU.Mouse.t => unit",
+    "detail": "JsxEventC.Mouse.t => unit",
     "documentation": null,
     "sortText": "A",
     "insertText": "{${1:event} => {$0}}",
