@@ -30,6 +30,7 @@
 - Fix accidental output of extra `|` when producing exhaustive switch code for polyvariants. https://github.com/rescript-lang/rescript-vscode/pull/805
 - Fix JS syntax highlighting in single-line FFI extension points. https://github.com/rescript-lang/rescript-vscode/pull/807
 - Fix signature help in uncurried mode. https://github.com/rescript-lang/rescript-vscode/pull/809
+- Fix various issues in uncurried mode. https://github.com/rescript-lang/rescript-vscode/pull/810
 
 ## 1.18.0
 
