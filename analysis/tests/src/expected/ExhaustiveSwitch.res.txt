@@ -142,8 +142,10 @@ Hit: Exhaustive switch
 newText:
    <--here
    switch vvv {
-   | One => failwith("TODO")
-   | Two => failwith("TODO")
-   | Three(_) => failwith("TODO")
+   | None => failwith("TODO")
+   | Some(_) => failwith("TODO")
+   | Some(One) => failwith("TODO")
+   | Some(Two) => failwith("TODO")
+   | Some(Three(_)) => failwith("TODO")
    }
 

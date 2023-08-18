@@ -618,46 +618,65 @@ module Codegen = struct
       {Asttypes.txt = Longident.Lident name; loc = Location.none}
       payload
 
-  let mkConstructCase ?(withPayload = false) name =
-    Ast_helper.Exp.case
-      (mkConstructPat
-         ?payload:(if withPayload then Some (Ast_helper.Pat.any ()) else None)
-         name)
-      (mkFailWithExp ())
-
   let mkTagPat ?payload name = Ast_helper.Pat.variant name payload
 
-  let mkTagCase ?(withPayload = false) name =
-    Ast_helper.Exp.case
-      (mkTagPat
-         ?payload:(if withPayload then Some (Ast_helper.Pat.any ()) else None)
-         name)
-      (mkFailWithExp ())
+  let any () = Ast_helper.Pat.any ()
 
-  let extractedTypeToExhaustiveCases extractedType =
+  let rec extractedTypeToExhaustivePatterns ~env ~full extractedType =
     match extractedType with
     | Tvariant v ->
       Some
         (v.constructors
         |> List.map (fun (c : SharedTypes.Constructor.t) ->
-               mkConstructCase
-                 ~withPayload:
+               mkConstructPat
+                 ?payload:
                    (match c.args with
-                   | Args [] -> false
-                   | _ -> true)
+                   | Args [] -> None
+                   | _ -> Some (any ()))
                  c.cname.txt))
     | Tpolyvariant v ->
       Some
         (v.constructors
         |> List.map (fun (c : SharedTypes.polyVariantConstructor) ->
-               mkTagCase
-                 ~withPayload:
+               mkTagPat
+                 ?payload:
                    (match c.args with
-                   | [] -> false
-                   | _ -> true)
+                   | [] -> None
+                   | _ -> Some (any ()))
                  c.name))
-    | Toption _ ->
-      Some [mkConstructCase "None"; mkConstructCase ~withPayload:true "Some"]
-    | Tbool _ -> Some [mkConstructCase "true"; mkConstructCase "false"]
+    | Toption (_, innerType) ->
+      let extractedType =
+        match innerType with
+        | ExtractedType t -> Some t
+        | TypeExpr t -> extractType t ~env ~package:full.package
+      in
+      let expandedBranches =
+        match extractedType with
+        | None -> []
+        | Some extractedType -> (
+          match extractedTypeToExhaustivePatterns ~env ~full extractedType with
+          | None -> []
+          | Some patterns -> patterns)
+      in
+      Some
+        ([
+           mkConstructPat "None";
+           mkConstructPat ~payload:(Ast_helper.Pat.any ()) "Some";
+         ]
+        @ (expandedBranches
+          |> List.map (fun (pat : Parsetree.pattern) ->
+                 mkConstructPat ~payload:pat "Some")))
+    | Tbool _ -> Some [mkConstructPat "true"; mkConstructPat "false"]
     | _ -> None
+
+  let extractedTypeToExhaustiveCases ~env ~full extractedType =
+    let patterns = extractedTypeToExhaustivePatterns ~env ~full extractedType in
+
+    match patterns with
+    | None -> None
+    | Some patterns ->
+      Some
+        (patterns
+        |> List.map (fun (pat : Parsetree.pattern) ->
+               Ast_helper.Exp.case pat (mkFailWithExp ())))
 end

@@ -26,7 +26,7 @@ let x: rcrd = {
   someVariant: One,
 }
 
-let vvv = x->getV
+let vvv = Some(x->getV)
 
 // switch x->getV
 //           ^xfm
