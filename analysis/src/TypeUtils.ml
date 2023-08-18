@@ -606,3 +606,58 @@ let unwrapCompletionTypeIfOption (t : SharedTypes.completionType) =
   match t with
   | Toption (_, ExtractedType unwrapped) -> unwrapped
   | _ -> t
+
+module Codegen = struct
+  let mkFailWithExp () =
+    Ast_helper.Exp.apply
+      (Ast_helper.Exp.ident {txt = Lident "failwith"; loc = Location.none})
+      [(Nolabel, Ast_helper.Exp.constant (Pconst_string ("TODO", None)))]
+
+  let mkConstructPat ?payload name =
+    Ast_helper.Pat.construct
+      {Asttypes.txt = Longident.Lident name; loc = Location.none}
+      payload
+
+  let mkConstructCase ?(withPayload = false) name =
+    Ast_helper.Exp.case
+      (mkConstructPat
+         ?payload:(if withPayload then Some (Ast_helper.Pat.any ()) else None)
+         name)
+      (mkFailWithExp ())
+
+  let mkTagPat ?payload name = Ast_helper.Pat.variant name payload
+
+  let mkTagCase ?(withPayload = false) name =
+    Ast_helper.Exp.case
+      (mkTagPat
+         ?payload:(if withPayload then Some (Ast_helper.Pat.any ()) else None)
+         name)
+      (mkFailWithExp ())
+
+  let extractedTypeToExhaustiveCases extractedType =
+    match extractedType with
+    | Tvariant v ->
+      Some
+        (v.constructors
+        |> List.map (fun (c : SharedTypes.Constructor.t) ->
+               mkConstructCase
+                 ~withPayload:
+                   (match c.args with
+                   | Args [] -> false
+                   | _ -> true)
+                 c.cname.txt))
+    | Tpolyvariant v ->
+      Some
+        (v.constructors
+        |> List.map (fun (c : SharedTypes.polyVariantConstructor) ->
+               mkTagCase
+                 ~withPayload:
+                   (match c.args with
+                   | [] -> false
+                   | _ -> true)
+                 c.name))
+    | Toption _ ->
+      Some [mkConstructCase "None"; mkConstructCase ~withPayload:true "Some"]
+    | Tbool _ -> Some [mkConstructCase "true"; mkConstructCase "false"]
+    | _ -> None
+end

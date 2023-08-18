@@ -17,3 +17,22 @@ let someOpt = Some(true)
 
 // switch someOp
 //              ^com
+
+type rcrd = {someVariant: someVariant}
+
+let getV = r => r.someVariant
+
+let x: rcrd = {
+  someVariant: One,
+}
+
+let vvv = x->getV
+
+// switch x->getV
+//           ^xfm
+
+// x->getV
+// ^xfm  ^
+
+// vvv
+//  ^xfm

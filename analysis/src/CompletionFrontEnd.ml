@@ -222,7 +222,8 @@ let completePipeChain (exp : Parsetree.expression) =
     exprToContextPath exp |> Option.map (fun ctxPath -> (ctxPath, pexp_loc))
   | _ -> None
 
-let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
+let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
+    ?findThisExprLoc text =
   let offsetNoWhite = Utils.skipWhite text (offset - 1) in
   let posNoWhite =
     let line, col = posCursor in
@@ -777,6 +778,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
           (Pos.toString posCursor) (Pos.toString posNoWhite)
           (Loc.toString expr.pexp_loc)
     in
+    (match findThisExprLoc with
+    | Some loc when expr.pexp_loc = loc -> (
+      match exprToContextPath expr with
+      | None -> ()
+      | Some ctxPath -> setResult (Cpath ctxPath))
+    | _ -> ());
     let setPipeResult ~(lhs : Parsetree.expression) ~id =
       match completePipeChain lhs with
       | None -> (
@@ -1228,5 +1235,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text =
 let completionWithParser ~debug ~path ~posCursor ~currentFile ~text =
   match Pos.positionToOffset text posCursor with
   | Some offset ->
-    completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor ~text
+    completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor text
   | None -> None
+
+let findTypeOfExpressionAtLoc ~debug ~path ~posCursor ~currentFile loc =
+  let textOpt = Files.readFile currentFile in
+  match textOpt with
+  | None | Some "" -> None
+  | Some text -> (
+    match Pos.positionToOffset text posCursor with
+    | Some offset ->
+      completionWithParser1 ~findThisExprLoc:loc ~currentFile ~debug ~offset
+        ~path ~posCursor text
+    | None -> None)

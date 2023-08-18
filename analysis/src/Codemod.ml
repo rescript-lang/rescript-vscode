@@ -5,11 +5,6 @@ let rec collectPatterns p =
   | Ppat_or (p1, p2) -> collectPatterns p1 @ [p2]
   | _ -> [p]
 
-let mkFailWithExp () =
-  Ast_helper.Exp.apply
-    (Ast_helper.Exp.ident {txt = Lident "failwith"; loc = Location.none})
-    [(Nolabel, Ast_helper.Exp.constant (Pconst_string ("TODO", None)))]
-
 let transform ~path ~pos ~debug ~typ ~hint =
   let structure, printExpr, _ = Xform.parseImplementation ~filename:path in
   match typ with
@@ -24,7 +19,7 @@ let transform ~path ~pos ~debug ~typ ~hint =
       let cases =
         collectPatterns pattern
         |> List.map (fun (p : Parsetree.pattern) ->
-               Ast_helper.Exp.case p (mkFailWithExp ()))
+               Ast_helper.Exp.case p (TypeUtils.Codegen.mkFailWithExp ()))
       in
       let result = ref None in
       let mkIterator ~pos ~result =
