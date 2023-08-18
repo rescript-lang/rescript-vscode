@@ -370,7 +370,7 @@ module ExhaustiveSwitch = struct
       | Some extractedType -> (
         let open TypeUtils.Codegen in
         let exhaustiveSwitch =
-          extractedTypeToExhaustiveCases2
+          extractedTypeToExhaustiveCases
             ~env:(SharedTypes.QueryEnv.fromFile full.file)
             ~full extractedType
         in
@@ -395,7 +395,7 @@ module ExhaustiveSwitch = struct
       | Some extractedType -> (
         let open TypeUtils.Codegen in
         let exhaustiveSwitch =
-          extractedTypeToExhaustiveCases2
+          extractedTypeToExhaustiveCases
             ~env:(SharedTypes.QueryEnv.fromFile full.file)
             ~full extractedType
         in
