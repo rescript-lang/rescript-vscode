@@ -94,3 +94,58 @@ Path someOp
     "insertTextFormat": 2
   }]
 
+Xform src/ExhaustiveSwitch.res 30:13
+posCursor:[30:13] posNoWhite:[30:12] Found expr:[30:3->30:17]
+posCursor:[30:13] posNoWhite:[30:12] Found expr:[30:10->30:17]
+Completable: Cpath Value[x]->
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[x]->
+ContextPath Value[x]
+Path x
+CPPipe env:ExhaustiveSwitch
+CPPipe type path:rcrd
+CPPipe pathFromEnv: found:true
+
+Xform src/ExhaustiveSwitch.res start: 33:3, end: 33:10
+found selection: [33:3->33:10] -> [33:6->33:10]
+XXX Not found!
+Completable: Cpath Value[getV](Nolabel)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[getV](Nolabel)
+ContextPath Value[getV]
+Path getV
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Exhaustive switch
+{"start": {"line": 33, "character": 3}, "end": {"line": 33, "character": 10}}
+newText:
+   <--here
+   switch x->getV {
+   | One => failwith("TODO")
+   | Two => failwith("TODO")
+   | Three(_) => failwith("TODO")
+   }
+
+Xform src/ExhaustiveSwitch.res 36:4
+XXX Not found!
+Completable: Cpath Value[vvv]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[vvv]
+Path vvv
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Exhaustive switch
+{"start": {"line": 36, "character": 3}, "end": {"line": 36, "character": 6}}
+newText:
+   <--here
+   switch vvv {
+   | None => failwith("TODO")
+   | Some(_) => failwith("TODO")
+   | Some(One) => failwith("TODO")
+   | Some(Two) => failwith("TODO")
+   | Some(Three(_)) => failwith("TODO")
+   }
+

@@ -714,6 +714,8 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
       filePath,
       params.range.start.line,
       params.range.start.character,
+      params.range.end.line,
+      params.range.end.character,
       tmpname,
     ],
     msg

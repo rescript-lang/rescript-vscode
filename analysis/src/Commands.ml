@@ -80,8 +80,8 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   in
   print_endline (Protocol.stringifySignatureHelp result)
 
-let codeAction ~path ~pos ~currentFile ~debug =
-  Xform.extractCodeActions ~path ~pos ~currentFile ~debug
+let codeAction ~path ~startPos ~endPos ~currentFile ~debug =
+  Xform.extractCodeActions ~path ~startPos ~endPos ~currentFile ~debug
   |> CodeActions.stringifyCodeActions |> print_endline
 
 let definition ~path ~pos ~debug =
@@ -268,7 +268,9 @@ let test ~path =
     let lines = text |> String.split_on_char '\n' in
     let processLine i line =
       let createCurrentFile () =
-        let currentFile, cout = Filename.open_temp_file "def" "txt" in
+        let currentFile, cout =
+          Filename.open_temp_file "def" ("txt." ^ Filename.extension path)
+        in
         let removeLineComment l =
           let len = String.length l in
           let rec loop i =
@@ -372,13 +374,24 @@ let test ~path =
              ^ string_of_int col);
             typeDefinition ~path ~pos:(line, col) ~debug:true
           | "xfm" ->
-            print_endline
-              ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
-             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            (* +2 is to ensure that the character ^ points to is what's considered the end of the selection. *)
+            let endCol = col + try String.index rest '^' + 2 with _ -> 0 in
+            let endPos = (line, endCol) in
+            let startPos = (line, col) in
+            if startPos = endPos then
+              print_endline
+                ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
+               ^ string_of_int col)
+            else
+              print_endline
+                ("Xform " ^ path ^ " start: " ^ Pos.toString startPos
+               ^ ", end: " ^ Pos.toString endPos);
             let codeActions =
-              Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile:path
+              Xform.extractCodeActions ~path ~startPos ~endPos ~currentFile
                 ~debug:true
             in
+            Sys.remove currentFile;
             codeActions
             |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
                    Printf.printf "Hit: %s\n" title;
