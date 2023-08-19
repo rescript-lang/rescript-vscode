@@ -310,7 +310,7 @@ type innerType = TypeExpr of Types.type_expr | ExtractedType of completionType
 and completionType =
   | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
   | Texn of QueryEnv.t
-  | Tpromise of QueryEnv.t * innerType
+  | Tpromise of QueryEnv.t * Types.type_expr
   | Toption of QueryEnv.t * innerType
   | Tbool of QueryEnv.t
   | Tarray of QueryEnv.t * innerType

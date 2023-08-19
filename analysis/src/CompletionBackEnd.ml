@@ -742,13 +742,8 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
            ~exact:true ~scope
       |> completionsGetCompletionType ~full
     with
-    | Some (Tpromise (env, TypeExpr typ), _env) ->
+    | Some (Tpromise (env, typ), _env) ->
       [Completion.create "dummy" ~env ~kind:(Completion.Value typ)]
-    | Some (Tpromise (env, ExtractedType typ), _env) ->
-      [
-        Completion.create "dummy" ~env
-          ~kind:(Completion.ExtractedType (typ, `Type));
-      ]
     | _ -> [])
   | CPId (path, completionContext) ->
     path
