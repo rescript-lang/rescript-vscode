@@ -1070,3 +1070,38 @@ Path xn
     "documentation": {"kind": "markdown", "value": "Matches on a JavaScript error. Read more in the [documentation on catching JS exceptions](https://rescript-lang.org/docs/manual/latest/exception#catching-js-exceptions)."}
   }]
 
+Complete src/CompletionPattern.res 211:30
+XXX Not found!
+Completable: Cpattern await Value[getThing](Nolabel)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath await Value[getThing](Nolabel)
+ContextPath Value[getThing](Nolabel)
+ContextPath Value[getThing]
+Path getThing
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+

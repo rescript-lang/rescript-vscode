@@ -136,7 +136,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
          })
   | _ -> loop args
 
-let rec exprToContextPath (e : Parsetree.expression) =
+let rec exprToContextPathInner (e : Parsetree.expression) =
   match e.pexp_desc with
   | Pexp_constant (Pconst_string _) -> Some Completable.CPString
   | Pexp_constant (Pconst_integer _) -> Some CPInt
@@ -198,6 +198,15 @@ let rec exprToContextPath (e : Parsetree.expression) =
       Some (CTuple exprsAsContextPaths)
     else None
   | _ -> None
+
+and exprToContextPath (e : Parsetree.expression) =
+  match
+    ( Res_parsetree_viewer.hasAwaitAttribute e.pexp_attributes,
+      exprToContextPathInner e )
+  with
+  | true, Some ctxPath -> Some (CPAwait ctxPath)
+  | false, Some ctxPath -> Some ctxPath
+  | _, None -> None
 
 let completePipeChain (exp : Parsetree.expression) =
   (* Complete the end of pipe chains by reconstructing the pipe chain as a single pipe,

@@ -310,6 +310,7 @@ type innerType = TypeExpr of Types.type_expr | ExtractedType of completionType
 and completionType =
   | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
   | Texn of QueryEnv.t
+  | Tpromise of QueryEnv.t * innerType
   | Toption of QueryEnv.t * innerType
   | Tbool of QueryEnv.t
   | Tarray of QueryEnv.t * innerType
@@ -578,6 +579,7 @@ module Completable = struct
     | CPId of string list * completionContext
     | CPField of contextPath * string
     | CPObj of contextPath * string
+    | CPAwait of contextPath
     | CPPipe of {
         contextPath: contextPath;
         id: string;
@@ -631,6 +633,7 @@ module Completable = struct
     | CPInt -> "int"
     | CPFloat -> "float"
     | CPBool -> "bool"
+    | CPAwait ctxPath -> "await " ^ contextPathToString ctxPath
     | CPOption ctxPath -> "option<" ^ contextPathToString ctxPath ^ ">"
     | CPApply (cp, labels) ->
       contextPathToString cp ^ "("
