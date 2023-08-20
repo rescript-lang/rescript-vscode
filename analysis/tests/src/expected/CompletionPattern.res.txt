@@ -1105,3 +1105,39 @@ Path getThing
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionPattern.res 216:21
+posCursor:[216:21] posNoWhite:[216:20] Found pattern:[216:18->216:22]
+Ppat_construct Ok:[216:18->216:20]
+posCursor:[216:21] posNoWhite:[216:20] Found pattern:[216:20->216:22]
+Ppat_construct ():[216:20->216:22]
+Completable: Cpattern Value[res]->variantPayload::Ok($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[res]
+Path res
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
