@@ -32,6 +32,7 @@
 - Fix JS syntax highlighting in single-line FFI extension points. https://github.com/rescript-lang/rescript-vscode/pull/807
 - Fix signature help in uncurried mode. https://github.com/rescript-lang/rescript-vscode/pull/809
 - Fix various issues in uncurried mode. https://github.com/rescript-lang/rescript-vscode/pull/810
+- Fixes a bug in pattern completion where for example `result` wouldn't complete, due to type variables getting lost/not being instantiated. https://github.com/rescript-lang/rescript-vscode/pull/814
 
 ## 1.18.0
 
