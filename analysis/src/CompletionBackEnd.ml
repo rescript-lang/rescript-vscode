@@ -735,6 +735,16 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           ~kind:
             (Completion.ExtractedType (Toption (env, ExtractedType typ), `Type));
       ])
+  | CPAwait cp -> (
+    match
+      cp
+      |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
+           ~exact:true ~scope
+      |> completionsGetCompletionType ~full
+    with
+    | Some (Tpromise (env, typ), _env) ->
+      [Completion.create "dummy" ~env ~kind:(Completion.Value typ)]
+    | _ -> [])
   | CPId (path, completionContext) ->
     path
     |> getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact
@@ -1433,6 +1443,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
           ]
         ~env;
     ]
+  | Tpromise _ -> []
 
 let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
   if debug then

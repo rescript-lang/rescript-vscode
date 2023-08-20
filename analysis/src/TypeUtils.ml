@@ -115,6 +115,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
     Some (Toption (env, TypeExpr payloadTypeExpr))
+  | Tconstr (Path.Pident {name = "promise"}, [payloadTypeExpr], _) ->
+    Some (Tpromise (env, payloadTypeExpr))
   | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
     Some (Tarray (env, TypeExpr payloadTypeExpr))
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
@@ -595,6 +597,7 @@ let rec extractedTypeToString ?(inner = false) = function
     "option<" ^ Shared.typeToString innerTyp ^ ">"
   | Toption (_, ExtractedType innerTyp) ->
     "option<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
+  | Tpromise (_, innerTyp) -> "promise<" ^ Shared.typeToString innerTyp ^ ">"
   | Tvariant {variantDecl; variantName} ->
     if inner then variantName else Shared.declToString variantName variantDecl
   | Trecord {definition = `NameOnly name; fields} ->

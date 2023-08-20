@@ -206,3 +206,8 @@ let xn: exn = Obj.magic()
 
 // switch xn { | }
 //              ^com
+
+let getThing = async () => One
+
+// switch await getThing() { | }
+//                            ^com

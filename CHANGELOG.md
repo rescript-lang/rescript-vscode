@@ -22,6 +22,7 @@
 #### :nail_care: Polish
 
 - Revamp "Insert missing cases" code action to make it apply in more cases and be much more robust. https://github.com/rescript-lang/rescript-vscode/pull/804
+- Make the completion engine understand async/await. https://github.com/rescript-lang/rescript-vscode/pull/813
 
 #### :bug: Bug Fix
 
