@@ -128,14 +128,23 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     | args, _tRet when args <> [] ->
       Some (Tfunction {env; args; typ = t; uncurried = true})
     | _args, _tRet -> None)
-  | Tconstr (path, _, _) -> (
+  | Tconstr (path, typeArgs, _) -> (
     match References.digConstructor ~env ~package path with
-    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
-      extractType ~env ~package t1
-    | Some (env, {name; item = {decl; kind = Type.Variant constructors}}) ->
+    | Some (_env, {item = {decl = {type_manifest = Some t1; type_params}}}) ->
+      t1
+      |> instantiateType ~typeParams:type_params ~typeArgs
+      |> extractType ~env ~package
+    | Some (_env, {name; item = {decl; kind = Type.Variant constructors}}) ->
       Some
         (Tvariant
-           {env; constructors; variantName = name.txt; variantDecl = decl})
+           {
+             env;
+             constructors;
+             variantName = name.txt;
+             variantDecl = decl;
+             typeArgs;
+             typeParams = decl.type_params;
+           })
     | Some (env, {item = {kind = Record fields}}) ->
       Some (Trecord {env; fields; definition = `TypeExpr t})
     | _ -> None)
@@ -280,7 +289,14 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
   | Variant constructors ->
     Some
       (Tvariant
-         {env; constructors; variantName = typ.name; variantDecl = typ.decl})
+         {
+           env;
+           constructors;
+           variantName = typ.name;
+           variantDecl = typ.decl;
+           typeParams = typ.decl.type_params;
+           typeArgs = [];
+         })
   | Abstract _ | Open -> (
     match typ.decl.type_manifest with
     | None -> None
@@ -345,8 +361,8 @@ let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
       typ
       |> extractType ~env ~package:full.package
       |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
-    | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
-      -> (
+    | ( NVariantPayload {constructorName; itemNum},
+        Tvariant {env; constructors; typeParams; typeArgs} ) -> (
       match
         constructors
         |> List.find_opt (fun (c : Constructor.t) ->
@@ -357,6 +373,7 @@ let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
         | None -> None
         | Some (typ, _) ->
           typ
+          |> instantiateType ~typeParams ~typeArgs
           |> extractType ~env ~package:full.package
           |> Utils.Option.flatMap (fun typ ->
                  typ |> resolveNested ~env ~full ~nested))

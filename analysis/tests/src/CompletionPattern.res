@@ -211,3 +211,8 @@ let getThing = async () => One
 
 // switch await getThing() { | }
 //                            ^com
+
+let res: result<someVariant, somePolyVariant> = Ok(One)
+
+// switch res { | Ok() }
+//                   ^com

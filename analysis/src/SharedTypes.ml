@@ -320,6 +320,8 @@ and completionType =
       constructors: Constructor.t list;
       variantDecl: Types.type_declaration;
       variantName: string;
+      typeArgs: Types.type_expr list;
+      typeParams: Types.type_expr list;
     }
   | Tpolyvariant of {
       env: QueryEnv.t;
