@@ -1,33 +1,56 @@
 References src/References.res 0:4
-[
-{"uri": "Cross.res", "range": {"start": {"line": 0, "character": 26}, "end": {"line": 0, "character": 27}}},
+{"prompt":
+["A Snippet has the form: {\"file\": \"Hello.res\", \"line\":23, \"code\": \"...the code...\"} where the first line of code is line 23.\nFind Uses of \"x\" given snippets for its Definition and its Users.\n\nThe input has form:\n        Definition:\n        snippet\n        \n        Use1:\n        snippet1\n        \n        Use2:\n        snippet2\n        ...\n\nYou will produce output of the form:\n- `File.res` line `12`: function `foo` calls `x` ...\n- `File2.res` line `34`: function `bar` uses `x` to ...\n\nIgnore any code in the Snippets that is not directly relevant to using \"x\".\nAdd enough details to understand at high level how \"x\" is used targeted at a person who is trying to undersand the codebase.\n",
+"Definition:\n{\"file\": References.res, \"line\": 1, \"code\":\nlet x = 12\n//  ^ref\n\nlet a = x\n\"}\n",
+"Use1:\n{\"file\": Cross.res, \"line\": 1, \"code\":\nlet crossRef = References.x\n//               ^ref\n\nlet crossRef2 = References.x\n\"}\n",
+"Use2:\n{\"file\": Cross.res, \"line\": 4, \"code\":\nlet crossRef = References.x\n//               ^ref\n\nlet crossRef2 = References.x\n\nmodule Ref = References\n\nlet crossRef3 = References.x\"}\n",
+"Use3:\n{\"file\": Cross.res, \"line\": 8, \"code\":\n\nlet crossRef2 = References.x\n\nmodule Ref = References\n\nlet crossRef3 = References.x\n\nlet crossRefWithInterface = ReferencesWithInterface.x\n//                             ^ref\n\"}\n",
+"Use4:\n{\"file\": References.res, \"line\": 4, \"code\":\nlet x = 12\n//  ^ref\n\nlet a = x\n\nlet b = a\n\nlet c = x\"}\n",
+"Use5:\n{\"file\": References.res, \"line\": 8, \"code\":\n\nlet a = x\n\nlet b = a\n\nlet c = x\n\nlet foo = (~xx) => xx + 1\n//                 ^ref\n\"}\n"],
+"references":
+[{"uri": "Cross.res", "range": {"start": {"line": 0, "character": 26}, "end": {"line": 0, "character": 27}}},
 {"uri": "Cross.res", "range": {"start": {"line": 3, "character": 27}, "end": {"line": 3, "character": 28}}},
 {"uri": "Cross.res", "range": {"start": {"line": 7, "character": 27}, "end": {"line": 7, "character": 28}}},
 {"uri": "References.res", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}},
 {"uri": "References.res", "range": {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 9}}},
-{"uri": "References.res", "range": {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 9}}}
-]
+{"uri": "References.res", "range": {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 9}}}]}
+
 
 References src/References.res 9:19
-[
-{"uri": "References.res", "range": {"start": {"line": 9, "character": 11}, "end": {"line": 9, "character": 14}}},
-{"uri": "References.res", "range": {"start": {"line": 9, "character": 19}, "end": {"line": 9, "character": 21}}}
-]
+{"prompt":
+["A Snippet has the form: {\"file\": \"Hello.res\", \"line\":23, \"code\": \"...the code...\"} where the first line of code is line 23.\nFind Uses of \"xx\" given snippets for its Definition and its Users.\n\nThe input has form:\n        Definition:\n        snippet\n        \n        Use1:\n        snippet1\n        \n        Use2:\n        snippet2\n        ...\n\nYou will produce output of the form:\n- `File.res` line `12`: function `foo` calls `xx` ...\n- `File2.res` line `34`: function `bar` uses `xx` to ...\n\nIgnore any code in the Snippets that is not directly relevant to using \"xx\".\nAdd enough details to understand at high level how \"xx\" is used targeted at a person who is trying to undersand the codebase.\n",
+"Definition:\n{\"file\": References.res, \"line\": 10, \"code\":\n\nlet b = a\n\nlet c = x\n\nlet foo = (~xx) => xx + 1\n//                 ^ref\n\nmodule M: {\n  let aa: int\"}\n",
+"Use1:\n{\"file\": References.res, \"line\": 10, \"code\":\n\nlet b = a\n\nlet c = x\n\nlet foo = (~xx) => xx + 1\n//                 ^ref\n\nmodule M: {\n  let aa: int\"}\n"],
+"references":
+[{"uri": "References.res", "range": {"start": {"line": 9, "character": 11}, "end": {"line": 9, "character": 14}}},
+{"uri": "References.res", "range": {"start": {"line": 9, "character": 19}, "end": {"line": 9, "character": 21}}}]}
+
 
 References src/References.res 20:12
-[
-{"uri": "References.res", "range": {"start": {"line": 13, "character": 2}, "end": {"line": 13, "character": 13}}},
+{"prompt":
+["A Snippet has the form: {\"file\": \"Hello.res\", \"line\":23, \"code\": \"...the code...\"} where the first line of code is line 23.\nFind Uses of \"aa\" given snippets for its Definition and its Users.\n\nThe input has form:\n        Definition:\n        snippet\n        \n        Use1:\n        snippet1\n        \n        Use2:\n        snippet2\n        ...\n\nYou will produce output of the form:\n- `File.res` line `12`: function `foo` calls `aa` ...\n- `File2.res` line `34`: function `bar` uses `aa` to ...\n\nIgnore any code in the Snippets that is not directly relevant to using \"aa\".\nAdd enough details to understand at high level how \"aa\" is used targeted at a person who is trying to undersand the codebase.\n",
+"Definition:\n{\"file\": References.res, \"line\": 21, \"code\":\n  let aa = 10\n}\n\nlet bb = M.aa\nlet cc = bb\nlet dd = M.aa\n//          ^ref\n\nlet _ = <ComponentInner/>\"}\n",
+"Use1:\n{\"file\": References.res, \"line\": 14, \"code\":\n\nlet foo = (~xx) => xx + 1\n//                 ^ref\n\nmodule M: {\n  let aa: int\n} = {\n  let aa = 10\n}\n\"}\n",
+"Use2:\n{\"file\": References.res, \"line\": 19, \"code\":\n  let aa: int\n} = {\n  let aa = 10\n}\n\nlet bb = M.aa\nlet cc = bb\nlet dd = M.aa\n//          ^ref\n\"}\n"],
+"references":
+[{"uri": "References.res", "range": {"start": {"line": 13, "character": 2}, "end": {"line": 13, "character": 13}}},
 {"uri": "References.res", "range": {"start": {"line": 18, "character": 11}, "end": {"line": 18, "character": 13}}},
-{"uri": "References.res", "range": {"start": {"line": 20, "character": 11}, "end": {"line": 20, "character": 13}}}
-]
+{"uri": "References.res", "range": {"start": {"line": 20, "character": 11}, "end": {"line": 20, "character": 13}}}]}
+
 
 References src/References.res 23:15
 getLocItem #4: heuristic for </Comp> within fragments: take make as makeProps does not work
 the type is not great but jump to definition works
-[
-{"uri": "ReferencesInner.res", "range": {"start": {"line": 1, "character": 28}, "end": {"line": 1, "character": 32}}},
+{"prompt":
+["A Snippet has the form: {\"file\": \"Hello.res\", \"line\":23, \"code\": \"...the code...\"} where the first line of code is line 23.\nFind Uses of \"make\" given snippets for its Definition and its Users.\n\nThe input has form:\n        Definition:\n        snippet\n        \n        Use1:\n        snippet1\n        \n        Use2:\n        snippet2\n        ...\n\nYou will produce output of the form:\n- `File.res` line `12`: function `foo` calls `make` ...\n- `File2.res` line `34`: function `bar` uses `make` to ...\n\nIgnore any code in the Snippets that is not directly relevant to using \"make\".\nAdd enough details to understand at high level how \"make\" is used targeted at a person who is trying to undersand the codebase.\n",
+"Use1:\n{\"file\": ReferencesInner.res, \"line\": 2, \"code\":\n@react.component\"}\n",
+"Use2:\n{\"file\": References.res, \"line\": 24, \"code\":\nlet bb = M.aa\nlet cc = bb\nlet dd = M.aa\n//          ^ref\n\nlet _ = <ComponentInner/>\"}\n",
+"Use3:\n{\"file\": ComponentInner.res, \"line\": 2, \"code\":\n@react.component\nlet make = () => React.null\"}\n",
+"Use4:\n{\"file\": ComponentInner.resi, \"line\": 2, \"code\":\n@react.component\nlet make: unit => React.element\"}\n"],
+"references":
+[{"uri": "ReferencesInner.res", "range": {"start": {"line": 1, "character": 28}, "end": {"line": 1, "character": 32}}},
 {"uri": "References.res", "range": {"start": {"line": 23, "character": 19}, "end": {"line": 23, "character": 23}}},
 {"uri": "ComponentInner.res", "range": {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 8}}},
-{"uri": "ComponentInner.resi", "range": {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 8}}}
-]
+{"uri": "ComponentInner.resi", "range": {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 8}}}]}
+
 

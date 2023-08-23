@@ -31,7 +31,7 @@ let reactEventFn = (cb: ReactEvent.Mouse.t => unit) => {
 // reactEventFn(event => { event->pr });
 //                                  ^com
 
-module Div = {
+module Div =  {
   @react.component
   let make = (~onMouseEnter: option<JsxEvent.Mouse.t => unit>=?) => {
     let _ = onMouseEnter
