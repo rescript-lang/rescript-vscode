@@ -1,54 +1,72 @@
 Complete2 src/CompletionNew.res 2:17
 completing expression
-Result: CId m
+Result: CId(Value)=m
 Scope: 1 items
-CtxPath: 
+Looking for type: 
 
 Complete2 src/CompletionNew.res 7:30
 completing expression
-Result: CId O
+Result: CId(Module)=O
 Scope: 1 items
-CtxPath: 
+Looking for type: Type<CId(Type)=someVariant>
 
 Complete2 src/CompletionNew.res 10:36
 completing expression
-Result: CId t
+Result: CVariantPayload($0)->CId(Value)=t
 Scope: 1 items
-CtxPath: CVariantPayload($0)
+Looking for type: Type<CId(Type)=someVariant>
 
 Complete2 src/CompletionNew.res 13:42
 completing expression
-Result: CId S
+Result: CVariantPayload($1)->CId(Module)=S
 Scope: 1 items
-CtxPath: CVariantPayload($1)
+Looking for type: Type<CId(Type)=someVariant>
 
 Complete2 src/CompletionNew.res 16:47
 completing expression
-Result: CId O
+Result: CVariantPayload($1)->CVariantPayload($0)->CId(Module)=O
 Scope: 1 items
-CtxPath: CVariantPayload($1)->CVariantPayload($0)
+Looking for type: Type<CId(Type)=someVariant>
 
-Complete2 src/CompletionNew.res 26:29
+Complete2 src/CompletionNew.res 27:29
 completing expression
-Result: CtxPath: CRecordField=
+Result: CRecordField=
 Scope: 1 items
-CtxPath: 
+Looking for type: Type<CId(Type)=someRecord>
 
-Complete2 src/CompletionNew.res 29:30
+Complete2 src/CompletionNew.res 30:30
 completing expression
-Result: CId n
+Result: CRecordField=n
 Scope: 1 items
-CtxPath: 
+Looking for type: Type<CId(Type)=someRecord>
 
-Complete2 src/CompletionNew.res 32:39
+Complete2 src/CompletionNew.res 33:39
 completing expression
-Result: CId O
+Result: CRecordField=variant->CId(Module)=O
 Scope: 1 items
-CtxPath: CRecordField=variant
+Looking for type: Type<CId(Type)=someRecord>
 
-Complete2 src/CompletionNew.res 35:38
+Complete2 src/CompletionNew.res 36:66
 completing expression
-Result: CtxPath: CRecordField=nested->CRecordField=
+Result: CRecordField=nested->CRecordField=maybeVariant->CVariantPayload($1)->CId(Value)=t
 Scope: 1 items
-CtxPath: CRecordField=nested
+Looking for type: Type<CId(Type)=someRecord>
+
+Complete2 src/CompletionNew.res 39:66
+completing expression
+Result: CRecordField=variant
+Scope: 1 items
+Looking for type: Type<CId(Type)=someRecord>
+
+Complete2 src/CompletionNew.res 42:56
+completing expression
+Result: CRecordField=nested->CRecordField=
+Scope: 1 items
+Looking for type: Type<CId(Type)=someRecord>
+
+Complete2 src/CompletionNew.res 45:57
+completing expression
+Result: CRecordField=
+Scope: 1 items
+Looking for type: Type<CId(Type)=someRecord>
 

@@ -20,6 +20,7 @@ type rec someVariant = One | Two | Three(bool, option<someVariant>)
 type nestedRecord = {
   on: bool,
   off?: bool,
+  maybeVariant?: someVariant,
 }
 
 type someRecord = {nested: option<nestedRecord>, variant: someVariant}
@@ -33,5 +34,14 @@ type someRecord = {nested: option<nestedRecord>, variant: someVariant}
 // let myFunc: someRecord = {variant: O}
 //                                     ^co2
 
-// let myFunc: someRecord = {nested: {}}
-//                                    ^co2
+// let myFunc: someRecord = {nested: {maybeVariant: Three(false, t)}}
+//                                                                ^co2
+
+// let myFunc: someRecord = {nested: {maybeVariant: One}, variant: }
+//                                                                ^co2
+
+// let myFunc: someRecord = {nested: {maybeVariant: One, }}
+//                                                      ^co2
+
+// let myFunc: someRecord = {nested: {maybeVariant: One}, }
+//                                                       ^co2

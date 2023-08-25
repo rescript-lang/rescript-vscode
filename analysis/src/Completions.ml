@@ -34,18 +34,14 @@ let getCompletions2 ~debug ~path ~pos ~currentFile ~forHover =
           ~currentFile text
       with
       | None -> print_endline "No completions"
-      | Some (res, ctx) ->
+      | Some (ctxPath, ctx) ->
         Printf.printf "Result: %s\n"
-          (match res with
-          | CId (path, _ctx) -> "CId " ^ SharedTypes.ident path
-          | CtxPath ctxPath ->
-            "CtxPath: "
-            ^ (ctxPath |> List.rev
-              |> List.map CompletionFrontEndNew.ctxPathToString
-              |> String.concat "->")
-          | CType {prefix} -> "CType:<todo-typ> =" ^ prefix);
-        Printf.printf "Scope: %i items\n" (List.length ctx.scope);
-        Printf.printf "CtxPath: %s\n"
-          (ctx.ctxPath |> List.rev
+          (ctxPath |> List.rev
           |> List.map CompletionFrontEndNew.ctxPathToString
-          |> String.concat "->")))
+          |> String.concat "->");
+        Printf.printf "Scope: %i items\n" (List.length ctx.scope);
+        Printf.printf "Looking for type: %s\n"
+          (match ctx.currentlyExpecting with
+          | currentlyExpecting :: _ ->
+            CompletionFrontEndNew.currentlyExpectingToString currentlyExpecting
+          | _ -> "")))

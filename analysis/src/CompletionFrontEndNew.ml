@@ -7,7 +7,7 @@ module PositionContext = struct
     beforeCursor: Pos.t;  (** The position just before the cursor *)
     noWhitespace: Pos.t;
         (** The position of the cursor, removing any whitespace _before_ it *)
-    firstCharBeforeNoWhitespace: char option;
+    charBeforeNoWhitespace: char option;
         (** The first character before the cursor, excluding any whitespace *)
     charBeforeCursor: char option;
         (** The char before the cursor, not excluding whitespace *)
@@ -44,7 +44,7 @@ module PositionContext = struct
       offset;
       beforeCursor = posBeforeCursor;
       noWhitespace = posNoWhite;
-      firstCharBeforeNoWhitespace = firstCharBeforeCursorNoWhite;
+      charBeforeNoWhitespace = firstCharBeforeCursorNoWhite;
       cursor = posCursor;
       charBeforeCursor;
       whitespaceAfterCursor;
@@ -60,8 +60,10 @@ type ctxPath =
       (** A variant payload. `Some(<com>)` = itemNum 0, `Whatever(true, f<com>)` = itemNum 1*)
   | CRecordField of {seenFields: string list; prefix: string}
       (** A record field. `let f = {on: true, s<com>}` seenFields = [on], prefix = "s",*)
+  | COption of ctxPath  (** An option with an inner type. *)
+  | CArray of ctxPath option  (** An array with an inner type. *)
 
-let ctxPathToString (ctxPath : ctxPath) =
+let rec ctxPathToString (ctxPath : ctxPath) =
   match ctxPath with
   | CId (prefix, typ) ->
     Printf.sprintf "CId(%s)=%s"
@@ -73,16 +75,18 @@ let ctxPathToString (ctxPath : ctxPath) =
       (ident prefix)
   | CVariantPayload {itemNum} -> Printf.sprintf "CVariantPayload($%i)" itemNum
   | CRecordField {prefix} -> Printf.sprintf "CRecordField=%s" prefix
+  | COption ctxPath -> Printf.sprintf "COption<%s>" (ctxPathToString ctxPath)
+  | CArray ctxPath ->
+    Printf.sprintf "CArray%s"
+      (match ctxPath with
+      | None -> ""
+      | Some ctxPath -> "[" ^ ctxPathToString ctxPath ^ "]")
 
-type currentlyExpecting = Type of Parsetree.core_type
+type currentlyExpecting = Type of ctxPath
 
-type completionTypes =
-  | CId of string list * completionCategory
-  | CType of {
-      pathToType: Parsetree.core_type;
-      prefix: string;  (** What is already written, if anything *)
-    }
-  | CtxPath of ctxPath list
+let currentlyExpectingToString (c : currentlyExpecting) =
+  match c with
+  | Type ctxPath -> Printf.sprintf "Type<%s>" (ctxPathToString ctxPath)
 
 type completionContext = {
   positionContext: PositionContext.t;
@@ -91,20 +95,7 @@ type completionContext = {
   ctxPath: ctxPath list;
 }
 
-type completionResult = (completionTypes * completionContext) option
-
-let findCurrentlyLookingForInPattern (pat : Parsetree.pattern) =
-  match pat.ppat_desc with
-  | Ppat_constraint (_pat, typ) -> Some (Type typ)
-  | _ -> None
-
-let mergeCurrentlyLookingFor (currentlyExpecting : currentlyExpecting option)
-    list =
-  match currentlyExpecting with
-  | None -> list
-  | Some currentlyExpecting -> currentlyExpecting :: list
-
-let contextWithNewScope scope context = {context with scope}
+type completionResult = (ctxPath list * completionContext) option
 
 let flattenLidCheckDot ?(jsx = true) ~(completionContext : completionContext)
     (lid : Longident.t Location.loc) =
@@ -121,6 +112,36 @@ let flattenLidCheckDot ?(jsx = true) ~(completionContext : completionContext)
     | _ -> None
   in
   Utils.flattenLongIdent ~cutAtOffset ~jsx lid.txt
+
+let rec ctxPathFromCoreType ~completionContext (coreType : Parsetree.core_type)
+    =
+  match coreType.ptyp_desc with
+  | Ptyp_constr ({txt = Lident "option"}, [innerTyp]) ->
+    innerTyp
+    |> ctxPathFromCoreType ~completionContext
+    |> Option.map (fun innerTyp -> COption innerTyp)
+  | Ptyp_constr ({txt = Lident "array"}, [innerTyp]) ->
+    Some (CArray (innerTyp |> ctxPathFromCoreType ~completionContext))
+  | Ptyp_constr (lid, _) ->
+    Some (CId (lid |> flattenLidCheckDot ~completionContext, Type))
+  | _ -> None
+
+let findCurrentlyLookingForInPattern ~completionContext
+    (pat : Parsetree.pattern) =
+  match pat.ppat_desc with
+  | Ppat_constraint (_pat, typ) -> (
+    match ctxPathFromCoreType ~completionContext typ with
+    | None -> None
+    | Some ctxPath -> Some (Type ctxPath))
+  | _ -> None
+
+let mergeCurrentlyLookingFor (currentlyExpecting : currentlyExpecting option)
+    list =
+  match currentlyExpecting with
+  | None -> list
+  | Some currentlyExpecting -> currentlyExpecting :: list
+
+let contextWithNewScope scope context = {context with scope}
 
 (** Scopes *)
 let rec scopePattern ~scope (pat : Parsetree.pattern) =
@@ -250,7 +271,9 @@ and completeValueBinding ~completionContext (vb : Parsetree.value_binding) :
     = HasCursor
   then (
     print_endline "completing expression";
-    let currentlyExpecting = findCurrentlyLookingForInPattern vb.pvb_pat in
+    let currentlyExpecting =
+      findCurrentlyLookingForInPattern ~completionContext vb.pvb_pat
+    in
     completeExpr
       ~completionContext:
         {
@@ -271,11 +294,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
          ~pos:completionContext.positionContext.beforeCursor
   in
   match expr.pexp_desc with
-  | Pexp_ident lid ->
-    (* An identifier, like `aaa` *)
-    let lidPath = flattenLidCheckDot lid ~completionContext in
-    if lid.loc |> locHasPos then Some (CId (lidPath, Value), completionContext)
-    else None
+  (* == VARIANTS == *)
   | Pexp_construct (_id, Some {pexp_desc = Pexp_tuple args; pexp_loc})
     when pexp_loc |> locHasPos ->
     (* A constructor with multiple payloads, like: `Co(true, false)` or `Somepath.Co(false, true)` *)
@@ -302,56 +321,105 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
   | Pexp_construct ({txt = Lident txt; loc}, _) when loc |> locHasPos -> (
     (* A constructor, like: `Co` *)
     match completionContext.currentlyExpecting with
-    | _ -> Some (CId ([txt], Module), completionContext))
+    | _ ->
+      Some (CId ([txt], Module) :: completionContext.ctxPath, completionContext)
+    )
   | Pexp_construct (id, _) when id.loc |> locHasPos ->
     (* A path, like: `Something.Co` *)
     let lid = flattenLidCheckDot ~completionContext id in
-    Some (CId (lid, Module), completionContext)
+    Some (CId (lid, Module) :: completionContext.ctxPath, completionContext)
+  (* == RECORDS == *)
+  | Pexp_ident {txt = Lident prefix} when Utils.hasBraces expr.pexp_attributes
+    ->
+    (* An ident with braces attribute corresponds to for example `{n}`.
+       Looks like a record but is parsed as an ident with braces. *)
+    let prefix = if prefix = "()" then "" else prefix in
+    Some
+      ( CRecordField {prefix; seenFields = []} :: completionContext.ctxPath,
+        completionContext (* TODO: This isn't correct *) )
   | Pexp_record ([], _) when expr.pexp_loc |> locHasPos ->
     (* No fields means we're in a record body `{}` *)
     Some
-      ( CtxPath
-          (CRecordField {prefix = ""; seenFields = []}
-          :: completionContext.ctxPath),
+      ( CRecordField {prefix = ""; seenFields = []} :: completionContext.ctxPath,
         completionContext (* TODO: This isn't correct *) )
-  | Pexp_record (fields, _) when expr.pexp_loc |> locHasPos ->
+  | Pexp_record (fields, _) when expr.pexp_loc |> locHasPos -> (
     (* A record with fields *)
     let seenFields =
       fields
       |> List.map (fun (fieldName, _f) -> Longident.last fieldName.Location.txt)
     in
-    fields
-    |> Utils.findMap
-         (fun
-           ((fieldName, fieldExpr) :
-             Longident.t Location.loc * Parsetree.expression)
-         ->
-           (* Complete regular idents *)
-           if locHasPos fieldName.loc then
-             (* Cursor in field name, complete here *)
-             match fieldName with
-             | {txt = Lident prefix} ->
-               Some
-                 ( CtxPath
-                     (CRecordField {prefix; seenFields}
-                     :: completionContext.ctxPath),
-                   completionContext (* TODO: This isn't correct *) )
-             | fieldName ->
-               Some
-                 ( CId (flattenLidCheckDot ~completionContext fieldName, Value),
-                   completionContext )
-           else if locHasPos fieldExpr.pexp_loc then
-             completeExpr
-               ~completionContext:
-                 {
-                   completionContext with
-                   ctxPath =
-                     CRecordField
-                       {prefix = fieldName.txt |> Longident.last; seenFields}
-                     :: completionContext.ctxPath;
-                 }
-               fieldExpr
-           else None)
+    let fieldToComplete =
+      fields
+      |> Utils.findMap
+           (fun
+             ((fieldName, fieldExpr) :
+               Longident.t Location.loc * Parsetree.expression)
+           ->
+             (* Complete regular idents *)
+             if locHasPos fieldName.loc then
+               (* Cursor in field name, complete here *)
+               match fieldName with
+               | {txt = Lident prefix} ->
+                 Some
+                   ( CRecordField {prefix; seenFields}
+                     :: completionContext.ctxPath,
+                     completionContext (* TODO: This isn't correct *) )
+               | fieldName ->
+                 Some
+                   ( CId (flattenLidCheckDot ~completionContext fieldName, Value)
+                     :: completionContext.ctxPath,
+                     completionContext )
+             else if locHasPos fieldExpr.pexp_loc then
+               completeExpr
+                 ~completionContext:
+                   {
+                     completionContext with
+                     ctxPath =
+                       CRecordField
+                         {prefix = fieldName.txt |> Longident.last; seenFields}
+                       :: completionContext.ctxPath;
+                   }
+                 fieldExpr
+             else None)
+    in
+    match fieldToComplete with
+    | None -> (
+      (* Check if there's a expr hole with an empty cursor for a field. This means completing for an empty field `{someField: <com>}`. *)
+      let fieldNameWithExprHole =
+        fields
+        |> Utils.findMap (fun (fieldName, fieldExpr) ->
+               if
+                 CompletionExpressions.isExprHole fieldExpr
+                 && CursorPosition.classifyLoc fieldExpr.pexp_loc
+                      ~pos:completionContext.positionContext.beforeCursor
+                    = EmptyLoc
+               then Some (Longident.last fieldName.Location.txt)
+               else None)
+      in
+      (* We found no field to complete, but we know the cursor is inside this record body.
+         Check if the char to the left of the cursor is ',', if so, complete for record fields.*)
+      match
+        ( fieldNameWithExprHole,
+          completionContext.positionContext.charBeforeNoWhitespace )
+      with
+      | Some fieldName, _ ->
+        Some
+          ( CRecordField {prefix = fieldName; seenFields}
+            :: completionContext.ctxPath,
+            completionContext (* TODO: This isn't correct *) )
+      | None, Some ',' ->
+        Some
+          ( CRecordField {prefix = ""; seenFields} :: completionContext.ctxPath,
+            completionContext (* TODO: This isn't correct *) )
+      | _ -> None)
+    | fieldToComplete -> fieldToComplete)
+  (* == IDENTS == *)
+  | Pexp_ident lid ->
+    (* An identifier, like `aaa` *)
+    let lidPath = flattenLidCheckDot lid ~completionContext in
+    if lid.loc |> locHasPos then
+      Some (CId (lidPath, Value) :: completionContext.ctxPath, completionContext)
+    else None
   | Pexp_match _ | Pexp_unreachable | Pexp_constant _
   | Pexp_let (_, _, _)
   | Pexp_function _
@@ -372,19 +440,18 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
   | Pexp_constraint (_, _)
   | Pexp_coerce (_, _, _)
   | Pexp_send (_, _)
-  | Pexp_new _
   | Pexp_setinstvar (_, _)
   | Pexp_override _
   | Pexp_letmodule (_, _, _)
   | Pexp_letexception (_, _)
   | Pexp_assert _ | Pexp_lazy _
   | Pexp_poly (_, _)
-  | Pexp_object _
   | Pexp_newtype (_, _)
   | Pexp_pack _
   | Pexp_open (_, _, _)
   | Pexp_extension _ ->
     None
+  | Pexp_object _ | Pexp_new _ -> (* These are irrelevant to ReScript *) None
 
 let completion ~currentFile ~path ~debug ~offset ~posCursor text =
   let positionContext = PositionContext.make ~offset ~posCursor text in
