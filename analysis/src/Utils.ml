@@ -216,3 +216,23 @@ let rec lastElements list =
 let lowercaseFirstChar s =
   if String.length s = 0 then s
   else String.mapi (fun i c -> if i = 0 then Char.lowercase_ascii c else c) s
+
+let findMap f lst =
+  let rec aux f = function
+    | [] -> None
+    | x :: xs -> (
+      match f x with
+      | None -> aux f xs
+      | Some _ as result -> result)
+  in
+  aux f lst
+
+let findMapWithIndex f lst =
+  let rec aux f index = function
+    | [] -> None
+    | x :: xs -> (
+      match f index x with
+      | None -> aux f (index + 1) xs
+      | Some _ as result -> result)
+  in
+  aux f 0 lst

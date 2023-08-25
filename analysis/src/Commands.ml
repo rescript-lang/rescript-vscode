@@ -316,6 +316,14 @@ let test ~path =
             let currentFile = createCurrentFile () in
             completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
+          | "co2" ->
+            print_endline
+              ("Complete2 " ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            Completions.getCompletions2 ~forHover:false ~debug:true ~path
+              ~pos:(line, col) ~currentFile;
+            Sys.remove currentFile
           | "dce" ->
             print_endline ("DCE " ^ path);
             Reanalyze.RunConfig.runConfig.suppress <- ["src"];

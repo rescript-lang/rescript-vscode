@@ -1,0 +1,54 @@
+Complete2 src/CompletionNew.res 2:17
+completing expression
+Result: CId m
+Scope: 1 items
+CtxPath: 
+
+Complete2 src/CompletionNew.res 7:30
+completing expression
+Result: CId O
+Scope: 1 items
+CtxPath: 
+
+Complete2 src/CompletionNew.res 10:36
+completing expression
+Result: CId t
+Scope: 1 items
+CtxPath: CVariantPayload($0)
+
+Complete2 src/CompletionNew.res 13:42
+completing expression
+Result: CId S
+Scope: 1 items
+CtxPath: CVariantPayload($1)
+
+Complete2 src/CompletionNew.res 16:47
+completing expression
+Result: CId O
+Scope: 1 items
+CtxPath: CVariantPayload($1)->CVariantPayload($0)
+
+Complete2 src/CompletionNew.res 26:29
+completing expression
+Result: CtxPath: CRecordField=
+Scope: 1 items
+CtxPath: 
+
+Complete2 src/CompletionNew.res 29:30
+completing expression
+Result: CId n
+Scope: 1 items
+CtxPath: 
+
+Complete2 src/CompletionNew.res 32:39
+completing expression
+Result: CId O
+Scope: 1 items
+CtxPath: CRecordField=variant
+
+Complete2 src/CompletionNew.res 35:38
+completing expression
+Result: CtxPath: CRecordField=nested->CRecordField=
+Scope: 1 items
+CtxPath: CRecordField=nested
+
