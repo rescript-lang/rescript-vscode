@@ -45,3 +45,30 @@ type someRecord = {nested: option<nestedRecord>, variant: someVariant}
 
 // let myFunc: someRecord = {nested: {maybeVariant: One}, }
 //                                                       ^co2
+
+// This should reset the context, meaning it should just complete for the identifier
+// let myFunc: someRecord = {nested: {maybeVariant: {let x = true; if x {}}}, }
+//                                                                     ^co2
+
+// This is the last expression
+// let myFunc: someRecord = {nested: {maybeVariant: {let x = true; if x {}}}, }
+//                                                                       ^co2
+
+// Complete as the last expression (looking for the record field type)
+// let myFunc: someRecord = {nested: {maybeVariant: {doStuff(); let x = true; if x {v}}}, }
+//                                                                                   ^co2
+
+// Complete on the identifier, no context
+// let myFunc: someRecord = {nested: {maybeVariant: {doStuff(); let x = true; if x {v}}}, }
+//                                                        ^co2
+
+type fn = (~name: string=?, string) => bool
+
+// let getBool = (name): bool =>
+//                              ^co2
+
+// let someFun: fn = (str, ~name) => {}
+//                                    ^co2
+
+// let someFun: fn = (str, ~name) => {let whatever = true; if whatever {}}
+//                                                                      ^co2
