@@ -39,7 +39,5 @@ let getCompletions2 ~debug ~path ~pos ~currentFile ~forHover =
           (CompletionFrontEndNew.CompletionInstruction.toString res);
         Printf.printf "Scope: %i items\n" (List.length ctx.scope);
         Printf.printf "Looking for type: %s\n"
-          (match ctx.currentlyExpecting with
-          | currentlyExpecting :: _ ->
-            CompletionFrontEndNew.currentlyExpectingToString currentlyExpecting
-          | _ -> "")))
+          (ctx.currentlyExpecting
+         |> CompletionFrontEndNew.currentlyExpectingToString)))

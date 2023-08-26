@@ -149,7 +149,7 @@ module CompletionContext = struct
   type t = {
     positionContext: PositionContext.t;
     scope: Scope.t;
-    currentlyExpecting: currentlyExpecting list;
+    currentlyExpecting: currentlyExpecting;
     ctxPath: ctxPath list;
   }
 
@@ -157,59 +157,30 @@ module CompletionContext = struct
     {
       positionContext;
       scope = Scope.create ();
-      currentlyExpecting = [];
+      currentlyExpecting = Unit;
       ctxPath = [];
     }
 
   let withResetCtx completionContext =
-    {completionContext with currentlyExpecting = []; ctxPath = []}
+    {completionContext with currentlyExpecting = Unit; ctxPath = []}
 
   let withScope scope completionContext = {completionContext with scope}
 
-  let addCurrentlyExpecting currentlyExpecting completionContext =
-    {
-      completionContext with
-      currentlyExpecting =
-        currentlyExpecting :: completionContext.currentlyExpecting;
-    }
-
-  let addCurrentlyExpectingOpt currentlyExpecting completionContext =
-    match currentlyExpecting with
-    | None -> completionContext
-    | Some currentlyExpecting ->
-      {
-        completionContext with
-        currentlyExpecting =
-          currentlyExpecting :: completionContext.currentlyExpecting;
-      }
+  let setCurrentlyExpecting currentlyExpecting completionContext =
+    {completionContext with currentlyExpecting}
 
   let currentlyExpectingOrReset currentlyExpecting completionContext =
     match currentlyExpecting with
-    | None -> {completionContext with currentlyExpecting = []}
-    | Some currentlyExpecting ->
-      {
-        completionContext with
-        currentlyExpecting =
-          currentlyExpecting :: completionContext.currentlyExpecting;
-      }
+    | None -> {completionContext with currentlyExpecting = Unit}
+    | Some currentlyExpecting -> {completionContext with currentlyExpecting}
 
   let currentlyExpectingOrTypeAtLoc ~loc currentlyExpecting completionContext =
     match currentlyExpecting with
-    | None ->
-      {
-        completionContext with
-        currentlyExpecting =
-          TypeAtLoc loc :: completionContext.currentlyExpecting;
-      }
-    | Some currentlyExpecting ->
-      {
-        completionContext with
-        currentlyExpecting =
-          currentlyExpecting :: completionContext.currentlyExpecting;
-      }
+    | None -> {completionContext with currentlyExpecting = TypeAtLoc loc}
+    | Some currentlyExpecting -> {completionContext with currentlyExpecting}
 
   let withResetCurrentlyExpecting completionContext =
-    {completionContext with currentlyExpecting = [Unit]}
+    {completionContext with currentlyExpecting = Unit}
 
   let addCtxPathItem ctxPath completionContext =
     {completionContext with ctxPath = ctxPath :: completionContext.ctxPath}
@@ -247,10 +218,7 @@ module CompletionInstruction = struct
     Cpattern
       {
         prefix;
-        rootType =
-          (match completionContext.currentlyExpecting with
-          | currentlyExpecting :: _ -> currentlyExpecting
-          | _ -> Unit);
+        rootType = completionContext.currentlyExpecting;
         ctxPath = completionContext.ctxPath;
       }
 
@@ -258,10 +226,7 @@ module CompletionInstruction = struct
     Cexpression
       {
         prefix;
-        rootType =
-          (match completionContext.currentlyExpecting with
-          | currentlyExpecting :: _ -> currentlyExpecting
-          | _ -> Unit);
+        rootType = completionContext.currentlyExpecting;
         ctxPath = completionContext.ctxPath;
       }
 
@@ -860,16 +825,16 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
       match fnReturnConstraint with
       | None -> (
         match completionContext.currentlyExpecting with
-        | Type ctxPath :: _ ->
+        | Type ctxPath ->
           (* Having a Type here already means the binding itself had a constraint on it. Since we're now moving into the function body,
              we'll need to ensure it's the function return type we use for completion, not the function type itself *)
           completionContext
-          |> CompletionContext.addCurrentlyExpecting
+          |> CompletionContext.setCurrentlyExpecting
                (FunctionReturnType ctxPath)
         | _ -> completionContext)
       | Some ctxPath ->
         completionContext
-        |> CompletionContext.addCurrentlyExpecting (Type ctxPath)
+        |> CompletionContext.setCurrentlyExpecting (Type ctxPath)
     in
     if locHasPos expr.pexp_loc then completeExpr ~completionContext expr
     else if checkIfExprHoleEmptyCursor ~completionContext expr then

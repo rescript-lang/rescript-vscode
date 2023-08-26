@@ -61,7 +61,7 @@ Looking for type: Type<CId(Type)=someRecord>
 Complete2 src/CompletionNew.res 49:71
 Result: Cexpression: ctxPath: CId(Value)=x, rootType: Unit
 Scope: 1 items
-Looking for type: 
+Looking for type: Unit
 
 Complete2 src/CompletionNew.res 53:73
 Result: Cexpression: ctxPath: CRecordField=nested->CRecordField=maybeVariant->CId(Value)=, rootType: Type<CId(Type)=someRecord>
@@ -76,7 +76,7 @@ Looking for type: Type<CId(Type)=someRecord>
 Complete2 src/CompletionNew.res 61:58
 Result: Cexpression: ctxPath: CId(Value)=doStuff, rootType: Unit
 Scope: 0 items
-Looking for type: 
+Looking for type: Unit
 
 Complete2 src/CompletionNew.res 66:32
 Result: Cexpression: ctxPath: CId(Value)=, rootType: Type<bool>
