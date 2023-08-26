@@ -65,7 +65,9 @@ type ctxPath =
   | CId of string list * completionCategory
       (** A regular id of an expected category. `let fff = thisIsAnId<com>` and `let fff = SomePath.alsoAnId<com>` *)
   | CVariantPayload of {itemNum: int}
-      (** A variant payload. `Some(<com>)` = itemNum 0, `Whatever(true, f<com>)` = itemNum 1*)
+      (** A variant payload. `Some(<com>)` = itemNum 0, `Whatever(true, f<com>)` = itemNum 1 *)
+  | CTupleItem of {itemNum: int}
+      (** A tuple item. `(true, false, <com>)` = itemNum 2 *)
   | CRecordField of {seenFields: string list; prefix: string}
       (** A record field. `let f = {on: true, s<com>}` seenFields = [on], prefix = "s",*)
   | COption of ctxPath  (** An option with an inner type. *)
@@ -120,6 +122,7 @@ let rec ctxPathToString (ctxPath : ctxPath) =
       | Field -> "Field")
       (ident prefix)
   | CVariantPayload {itemNum} -> Printf.sprintf "CVariantPayload($%i)" itemNum
+  | CTupleItem {itemNum} -> Printf.sprintf "CTupleItem($%i)" itemNum
   | CRecordField {prefix} -> Printf.sprintf "CRecordField=%s" prefix
   | COption ctxPath -> Printf.sprintf "COption<%s>" (ctxPathToString ctxPath)
   | CArray ctxPath ->
@@ -882,6 +885,22 @@ and completePattern ~(completionContext : CompletionContext.t)
     (* Can just continue into these patterns. *)
     if locHasPos pat.ppat_loc then p |> completePattern ~completionContext
     else None
+  | Ppat_or (p1, p2) -> (
+    (* Try to complete each `or` pattern *)
+    let orPatCompleted =
+      [p1; p2]
+      |> List.find_map (fun p ->
+             if locHasPos p.Parsetree.ppat_loc then
+               completePattern ~completionContext p
+             else None)
+    in
+    match orPatCompleted with
+    | None
+      when CompletionPatterns.isPatternHole p1
+           || CompletionPatterns.isPatternHole p2 ->
+      (* TODO(1) explain this *)
+      CompletionResult.pattern ~completionContext ~prefix:""
+    | res -> res)
   | Ppat_var {txt; loc} ->
     (* A variable, like `{ someThing: someV<com>}*)
     if locHasPos loc then
@@ -897,7 +916,7 @@ and completePattern ~(completionContext : CompletionContext.t)
       in
       CompletionResult.pattern ~completionContext ~prefix:""
     else None
-  | Ppat_record (fields, _) when locHasPos pat.ppat_loc -> (
+  | Ppat_record (fields, _) -> (
     (* Record body with fields, where we know the cursor is inside of the record body somewhere. *)
     let seenFields =
       fields
@@ -938,22 +957,106 @@ and completePattern ~(completionContext : CompletionContext.t)
       in
       completePattern ~completionContext fieldPattern
     | None, None ->
-      (* We know the cursor is here, but it's not in a field name nor a field pattern.
-         Check empty field patterns. *)
-      None)
-  | Ppat_any | Ppat_tuple _
-  | Ppat_construct ({loc = {loc_start = _; loc_end = _; _}; _}, _)
+      if locHasPos pat.ppat_loc then
+        (* We know the cursor is here, but it's not in a field name nor a field pattern.
+           Check empty field patterns. TODO(1) *)
+        None
+      else None)
+  | Ppat_tuple tupleItems -> (
+    let tupleItemWithCursor =
+      tupleItems
+      |> Utils.findMapWithIndex (fun index (tupleItem : Parsetree.pattern) ->
+             if locHasPos tupleItem.ppat_loc then Some (index, tupleItem)
+             else None)
+    in
+    match tupleItemWithCursor with
+    | Some (itemNum, tupleItem) ->
+      let completionContext =
+        completionContext
+        |> CompletionContext.addCtxPathItem (CTupleItem {itemNum})
+      in
+      completePattern ~completionContext tupleItem
+    | None ->
+      if locHasPos pat.ppat_loc then
+        (* We found no tuple item with the cursor, but we know the cursor is in the
+           pattern. Check if the user is trying to complete an empty tuple item *)
+        match completionContext.positionContext.charBeforeNoWhitespace with
+        | Some ',' ->
+          (* `(true, false, <com>)` itemNum = 2, or `(true, <com>, false)` itemNum = 1 *)
+          (* Figure out which tuple item is active. *)
+          let itemNum = ref (-1) in
+          tupleItems
+          |> List.iteri (fun index (pat : Parsetree.pattern) ->
+                 if
+                   completionContext.positionContext.beforeCursor
+                   >= Loc.start pat.ppat_loc
+                 then itemNum := index);
+          if !itemNum > -1 then
+            let completionContext =
+              completionContext
+              |> CompletionContext.addCtxPathItem
+                   (CTupleItem {itemNum = !itemNum + 1})
+            in
+            CompletionResult.pattern ~completionContext ~prefix:""
+          else None
+        | Some '(' ->
+          (* TODO: This should work (start of tuple), but the parser is broken for this case:
+             let (<com> , true) = someRecordVar. If we fix that completing in the first position
+             could work too. *)
+          let completionContext =
+            completionContext
+            |> CompletionContext.addCtxPathItem (CTupleItem {itemNum = 0})
+          in
+          CompletionResult.pattern ~completionContext ~prefix:""
+        | _ -> None
+      else None)
+  | Ppat_array items ->
+    if locHasPos pat.ppat_loc then
+      if List.length items = 0 then
+        (* {someArr: [<com>]} *)
+        let completionContext =
+          completionContext |> CompletionContext.addCtxPathItem (CArray None)
+        in
+        CompletionResult.pattern ~completionContext ~prefix:""
+      else
+        let arrayItemWithCursor =
+          items
+          |> List.find_opt (fun (item : Parsetree.pattern) ->
+                 locHasPos item.ppat_loc)
+        in
+        match
+          ( arrayItemWithCursor,
+            completionContext.positionContext.charBeforeNoWhitespace )
+        with
+        | Some item, _ ->
+          (* Found an array item with the cursor. *)
+          let completionContext =
+            completionContext |> CompletionContext.addCtxPathItem (CArray None)
+          in
+          completePattern ~completionContext item
+        | None, Some ',' ->
+          (* No array item with the cursor, but we know the cursor is in the pattern.
+             Check for "," which would signify the user is looking to add another
+             array item to the pattern. *)
+          let completionContext =
+            completionContext |> CompletionContext.addCtxPathItem (CArray None)
+          in
+          CompletionResult.pattern ~completionContext ~prefix:""
+        | _ -> None
+    else None
+  | Ppat_any ->
+    (* We treat any `_` as an empty completion. This is mainly because we're
+       inserting `_` in snippets and automatically put the cursor there. So
+       letting it trigger an empty completion improves the ergonomics by a
+       lot. *)
+    if locHasPos pat.ppat_loc then
+      CompletionResult.pattern ~completionContext ~prefix:""
+    else None
+  | Ppat_construct (_, _)
   | Ppat_variant (_, _)
-  | Ppat_record (_, _)
-  | Ppat_array _
-  | Ppat_or
-      ( {ppat_loc = {loc_start = _; loc_end = _; _}; _},
-        {ppat_loc = {loc_start = _; loc_end = _; _}; _} )
-  | Ppat_type {loc = {loc_start = _; loc_end = _; _}; _}
-  | Ppat_unpack {loc = {loc_start = _; loc_end = _; _}; _}
-  | Ppat_extension ({loc = {loc_start = _; loc_end = _; _}; _}, _) ->
+  | Ppat_type _ | Ppat_unpack _ | Ppat_extension _ | Ppat_constant _
+  | Ppat_interval _ ->
     None
-  | Ppat_constant _ | Ppat_interval _ -> None
 
 let completion ~currentFile ~path ~debug ~offset ~posCursor text =
   let positionContext = PositionContext.make ~offset ~posCursor text in

@@ -81,9 +81,26 @@ type fn = (~name: string=?, string) => bool
 // let someFun: fn = (str, ~name) => {let whatever = t}
 //                                                    ^co2
 
-// Let binding patterns
+// == Let binding patterns ==
 // let someVar: bool =
 //                    ^co2
 
 // let {someField: s } = someRecordVar
 //                  ^co2
+
+// == Tuple patterns ==
+// let (true, ) = someRecordVar
+//           ^co2
+
+// let (true, true,  , false) = someRecordVar
+//                  ^co2
+
+// ==  Arrays ==
+// let [ ] = someArr
+//       ^co2
+
+// let [(true, [false, ])] = someArr
+//                    ^co2
+
+// let [(true, [false, f])] = someArr
+//                      ^co2
