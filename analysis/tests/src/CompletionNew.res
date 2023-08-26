@@ -72,3 +72,11 @@ type fn = (~name: string=?, string) => bool
 
 // let someFun: fn = (str, ~name) => {let whatever = true; if whatever {}}
 //                                                                      ^co2
+
+// A let binding with an annotation. Reset to annotated constraint.
+// let someFun: fn = (str, ~name) => {let whatever: bool = t}
+//                                                          ^co2
+
+// A let binding without annotation. Point to inferred type if it has compiled.
+// let someFun: fn = (str, ~name) => {let whatever = t}
+//                                                    ^co2

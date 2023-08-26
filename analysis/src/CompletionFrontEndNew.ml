@@ -13,6 +13,9 @@ module PositionContext = struct
         (** The char before the cursor, not excluding whitespace *)
     whitespaceAfterCursor: char option;
         (** The type of whitespace after the cursor, if any *)
+    locHasPos: Location.t -> bool;
+        (** A helper for checking whether a loc has the cursor (beforeCursor). 
+            This is the most natural position to check when figuring out if the user has the cursor in something. *)
   }
 
   let make ~offset ~posCursor text =
@@ -40,6 +43,9 @@ module PositionContext = struct
         | _ -> (Some charBeforeCursor, None))
       | _ -> (None, None)
     in
+    let locHasPos loc =
+      loc |> CursorPosition.locHasCursor ~pos:posBeforeCursor
+    in
     {
       offset;
       beforeCursor = posBeforeCursor;
@@ -48,6 +54,7 @@ module PositionContext = struct
       cursor = posCursor;
       charBeforeCursor;
       whitespaceAfterCursor;
+      locHasPos;
     }
 end
 
@@ -114,14 +121,19 @@ module CompletionInstruction = struct
 end
 
 type currentlyExpecting =
-  | Unit
-  | Type of ctxPath
+  | Unit  (** Unit, (). Is what we reset to. *)
+  | Type of ctxPath  (** A type at a context path. *)
+  | TypeAtLoc of Location.t  (** A type at a location. *)
   | FunctionReturnType of ctxPath
+      (** An instruction to resolve the return type of the type at the 
+      provided context path, if it's a function (it should always be, 
+      but you know...) *)
 
 let currentlyExpectingToString (c : currentlyExpecting) =
   match c with
   | Unit -> "Unit"
   | Type ctxPath -> Printf.sprintf "Type<%s>" (ctxPathToString ctxPath)
+  | TypeAtLoc loc -> Printf.sprintf "TypeAtLoc: %s" (Loc.toString loc)
   | FunctionReturnType ctxPath ->
     Printf.sprintf "FunctionReturnType<%s>" (ctxPathToString ctxPath)
 
@@ -152,6 +164,41 @@ module CompletionContext = struct
       currentlyExpecting =
         currentlyExpecting :: completionContext.currentlyExpecting;
     }
+
+  let addCurrentlyExpectingOpt currentlyExpecting completionContext =
+    match currentlyExpecting with
+    | None -> completionContext
+    | Some currentlyExpecting ->
+      {
+        completionContext with
+        currentlyExpecting =
+          currentlyExpecting :: completionContext.currentlyExpecting;
+      }
+
+  let currentlyExpectingOrReset currentlyExpecting completionContext =
+    match currentlyExpecting with
+    | None -> {completionContext with currentlyExpecting = []}
+    | Some currentlyExpecting ->
+      {
+        completionContext with
+        currentlyExpecting =
+          currentlyExpecting :: completionContext.currentlyExpecting;
+      }
+
+  let currentlyExpectingOrTypeAtLoc ~loc currentlyExpecting completionContext =
+    match currentlyExpecting with
+    | None ->
+      {
+        completionContext with
+        currentlyExpecting =
+          TypeAtLoc loc :: completionContext.currentlyExpecting;
+      }
+    | Some currentlyExpecting ->
+      {
+        completionContext with
+        currentlyExpecting =
+          currentlyExpecting :: completionContext.currentlyExpecting;
+      }
 
   let withResetCurrentlyExpecting completionContext =
     {completionContext with currentlyExpecting = [Unit]}
@@ -292,6 +339,13 @@ let rec scopePattern ~scope (pat : Parsetree.pattern) =
 let scopeValueBinding ~scope (vb : Parsetree.value_binding) =
   scopePattern ~scope vb.pvb_pat
 
+let scopeValueBindings ~scope (valueBindings : Parsetree.value_binding list) =
+  let newScope = ref scope in
+  valueBindings
+  |> List.iter (fun (vb : Parsetree.value_binding) ->
+         newScope := scopeValueBinding vb ~scope:!newScope);
+  !newScope
+
 let scopeTypeKind ~scope (tk : Parsetree.type_kind) =
   match tk with
   | Ptype_variant constrDecls ->
@@ -327,31 +381,11 @@ let rec completeFromStructure ~completionContext
 
 and completeStructureItem ~(completionContext : CompletionContext.t)
     (item : Parsetree.structure_item) : CompletionResult.t =
+  let locHasPos = completionContext.positionContext.locHasPos in
   match item.pstr_desc with
   | Pstr_value (recFlag, valueBindings) ->
-    let scopeFromBindings =
-      valueBindings
-      |> List.map (fun (vb : Parsetree.value_binding) ->
-             scopeValueBinding vb ~scope:completionContext.scope)
-      |> List.concat
-    in
-    if
-      item.pstr_loc
-      |> CursorPosition.classifyLoc
-           ~pos:completionContext.positionContext.beforeCursor
-      = HasCursor
-    then
-      valueBindings
-      |> Utils.findMap (fun (vb : Parsetree.value_binding) ->
-             (* TODO: This will create duplicate scope entries for the current binding. Does it matter? *)
-             completeValueBinding
-               ~completionContext:
-                 (if recFlag = Recursive then
-                  completionContext
-                  |> contextWithNewScope scopeFromBindings
-                  |> CompletionContext.withResetCtx
-                 else completionContext)
-               vb)
+    if locHasPos item.pstr_loc then
+      completeValueBindings ~completionContext ~recFlag valueBindings
     else None
   | Pstr_eval _ | Pstr_primitive _ | Pstr_type _ | Pstr_typext _
   | Pstr_exception _ | Pstr_module _ | Pstr_recmodule _ | Pstr_modtype _
@@ -360,47 +394,44 @@ and completeStructureItem ~(completionContext : CompletionContext.t)
   | Pstr_class _ | Pstr_class_type _ ->
     (* These aren't relevant for ReScript *) None
 
-and completeValueBinding ~completionContext (vb : Parsetree.value_binding) :
-    CompletionResult.t =
-  let scopeWithPattern =
-    scopePattern ~scope:completionContext.scope vb.pvb_pat
-  in
-  if
-    vb.pvb_pat.ppat_loc
-    |> CursorPosition.classifyLoc
-         ~pos:completionContext.positionContext.beforeCursor
-    = HasCursor
-  then (
+and completeValueBinding ~(completionContext : CompletionContext.t)
+    (vb : Parsetree.value_binding) : CompletionResult.t =
+  let locHasPos = completionContext.positionContext.locHasPos in
+  if locHasPos vb.pvb_pat.ppat_loc then (
     print_endline "complete pattern";
     None)
-  else if
-    vb.pvb_expr.pexp_loc
-    |> CursorPosition.classifyLoc
-         ~pos:completionContext.positionContext.beforeCursor
-    = HasCursor
-  then
-    let currentlyExpecting =
+  else if locHasPos vb.pvb_expr.pexp_loc then
+    let bindingConstraint =
       findCurrentlyLookingForInPattern ~completionContext vb.pvb_pat
     in
-    completeExpr
-      ~completionContext:
-        {
-          completionContext with
-          scope = scopeWithPattern;
-          currentlyExpecting =
-            mergeCurrentlyLookingFor currentlyExpecting
-              completionContext.currentlyExpecting;
-        }
-      vb.pvb_expr
+    (* A let binding expression either has the constraint of the binding,
+       or an inferred constraint (if it has been compiled), or no constraint. *)
+    let completionContext =
+      completionContext
+      |> CompletionContext.currentlyExpectingOrTypeAtLoc
+           ~loc:vb.pvb_pat.ppat_loc bindingConstraint
+    in
+    completeExpr ~completionContext vb.pvb_expr
   else None
+
+and completeValueBindings ~(completionContext : CompletionContext.t)
+    ~(recFlag : Asttypes.rec_flag)
+    (valueBindings : Parsetree.value_binding list) : CompletionResult.t =
+  let completionContext =
+    if recFlag = Recursive then
+      let scopeFromBindings =
+        scopeValueBindings valueBindings ~scope:completionContext.scope
+      in
+      CompletionContext.withScope scopeFromBindings completionContext
+    else completionContext
+  in
+  valueBindings
+  |> Utils.findMap (fun (vb : Parsetree.value_binding) ->
+         completeValueBinding ~completionContext vb)
 
 and completeExpr ~completionContext (expr : Parsetree.expression) :
     CompletionResult.t =
-  let locHasPos loc =
-    loc
-    |> CursorPosition.locHasCursor
-         ~pos:completionContext.positionContext.beforeCursor
-  in
+  let locHasPos = completionContext.positionContext.locHasPos in
   match expr.pexp_desc with
   (* == VARIANTS == *)
   | Pexp_construct (_id, Some {pexp_desc = Pexp_tuple args; pexp_loc})
@@ -520,10 +551,22 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     if lid.loc |> locHasPos then
       CompletionResult.ctxPath (CId (lidPath, Value)) completionContext
     else None
-  | Pexp_let (_recFlag, _valueBindings, nextExpr) ->
+  | Pexp_let (recFlag, valueBindings, nextExpr) ->
     (* A let binding. `let a = b` *)
-    (* TODO: Handle recflag, scope, and complete in value bindings *)
-    if locHasPos nextExpr.pexp_loc then completeExpr ~completionContext nextExpr
+    let scopeFromBindings =
+      scopeValueBindings valueBindings ~scope:completionContext.scope
+    in
+    let completionContextWithScopeFromBindings =
+      CompletionContext.withScope scopeFromBindings completionContext
+    in
+    (* First check if the next expr is the thing with the cursor *)
+    if locHasPos nextExpr.pexp_loc then
+      completeExpr ~completionContext:completionContextWithScopeFromBindings
+        nextExpr
+    else if locHasPos expr.pexp_loc then
+      (* The cursor is in the expression, but not in the next expression.
+         Check the value bindings.*)
+      completeValueBindings ~recFlag ~completionContext valueBindings
     else None
   | Pexp_ifthenelse (condition, then_, maybeElse) -> (
     if locHasPos condition.pexp_loc then
