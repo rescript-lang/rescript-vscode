@@ -36,11 +36,7 @@ let getCompletions2 ~debug ~path ~pos ~currentFile ~forHover =
       | None -> print_endline "No completions"
       | Some (res, ctx) ->
         Printf.printf "Result: %s\n"
-          (match res with
-          | CtxPath ctxPath ->
-            ctxPath |> List.rev
-            |> List.map CompletionFrontEndNew.ctxPathToString
-            |> String.concat "->");
+          (CompletionFrontEndNew.CompletionInstruction.toString res);
         Printf.printf "Scope: %i items\n" (List.length ctx.scope);
         Printf.printf "Looking for type: %s\n"
           (match ctx.currentlyExpecting with

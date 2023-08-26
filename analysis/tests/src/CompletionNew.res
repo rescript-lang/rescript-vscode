@@ -80,3 +80,10 @@ type fn = (~name: string=?, string) => bool
 // A let binding without annotation. Point to inferred type if it has compiled.
 // let someFun: fn = (str, ~name) => {let whatever = t}
 //                                                    ^co2
+
+// Let binding patterns
+// let someVar: bool =
+//                    ^co2
+
+// let {someField: s } = someRecordVar
+//                  ^co2
