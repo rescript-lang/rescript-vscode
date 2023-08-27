@@ -138,3 +138,31 @@ Result: Cpattern: ctxPath: array->CTupleItem($1)->array, rootType: Type<CId(Valu
 Scope: 0 items
 Looking for type: Type<CId(Value)=someArr>
 
+Complete2 src/CompletionNew.res 108:23
+Result: Cexpression: ctxPath: CId(Value)=f, rootType: Type<CFunctionArgument CId(Value)=&&($1)>
+Scope: 0 items
+Looking for type: Type<CFunctionArgument CId(Value)=&&($1)>
+
+Complete2 src/CompletionNew.res 111:42
+Result: Cexpression: ctxPath: CId(Value)=f, rootType: FunctionReturnType<CFunctionArgument CId(Value)=someFunc($0)>
+Scope: 1 items
+Looking for type: FunctionReturnType<CFunctionArgument CId(Value)=someFunc($0)>
+
+Complete2 src/CompletionNew.res 114:34
+Result: Cexpression: ctxPath: CId(Value)=f, rootType: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
+Scope: 0 items
+Looking for type: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
+
+Complete2 src/CompletionNew.res 117:33
+No completions
+
+Complete2 src/CompletionNew.res 121:17
+Result: CtxPath: (CId(Value)=foo)->id
+Scope: 0 items
+Looking for type: Unit
+
+Complete2 src/CompletionNew.res 124:16
+Result: CtxPath: (CId(Value)=foo)->
+Scope: 0 items
+Looking for type: Unit
+

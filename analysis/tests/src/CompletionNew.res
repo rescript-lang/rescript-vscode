@@ -104,3 +104,23 @@ type fn = (~name: string=?, string) => bool
 
 // let [(true, [false, f])] = someArr
 //                      ^co2
+
+// == Apply ==
+// let x = if true && f {None}
+//                     ^co2
+
+// let x = someFunc(() => {let x = true; f})
+//                                        ^co2
+
+// let x = someFunc(~labelledArg=f)
+//                                ^co2
+
+// let x = someFunc(~labelledArg=)
+//                               ^co2
+
+// == Pipes ==
+// let x = foo->id
+//               ^co2
+
+// let x = foo->
+//              ^co2
