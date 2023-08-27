@@ -188,7 +188,7 @@ module CompletionContext = struct
       ctxPath = [];
     }
 
-  let withResetCtx completionContext =
+  let resetCtx completionContext =
     {completionContext with currentlyExpecting = Unit; ctxPath = []}
 
   let withScope scope completionContext = {completionContext with scope}
@@ -597,7 +597,7 @@ and completeValueBinding ~(completionContext : CompletionContext.t)
   in
   (* Always reset the context when completing value bindings,
      since they create their own context. *)
-  let completionContext = CompletionContext.withResetCtx completionContext in
+  let completionContext = CompletionContext.resetCtx completionContext in
   if locHasPos vb.pvb_pat.ppat_loc then
     (* Completing the pattern of the binding. `let {<com>} = someRecordVariable`.
        Ensure the context carries the root type of `someRecordVariable`. *)
@@ -831,7 +831,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     if locHasPos condition.pexp_loc then
       (* TODO: I guess we could set looking for to "bool" here, since it's the if condition *)
       completeExpr
-        ~completionContext:(CompletionContext.withResetCtx completionContext)
+        ~completionContext:(CompletionContext.resetCtx completionContext)
         condition
     else if locHasPos then_.pexp_loc then completeExpr ~completionContext then_
     else
@@ -857,7 +857,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
   | Pexp_sequence (evalExpr, nextExpr) ->
     if locHasPos evalExpr.pexp_loc then
       completeExpr
-        ~completionContext:(CompletionContext.withResetCtx completionContext)
+        ~completionContext:(CompletionContext.resetCtx completionContext)
         evalExpr
     else if locHasPos nextExpr.pexp_loc then
       completeExpr ~completionContext nextExpr
@@ -875,7 +875,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     match completePipe lhs ~id:"" with
     | None -> None
     | Some cpipe ->
-      completionContext |> CompletionContext.withResetCtx
+      completionContext |> CompletionContext.resetCtx
       |> CompletionResult.ctxPath cpipe)
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
@@ -888,7 +888,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     match completePipe lhs ~id with
     | None -> None
     | Some cpipe ->
-      completionContext |> CompletionContext.withResetCtx
+      completionContext |> CompletionContext.resetCtx
       |> CompletionResult.ctxPath cpipe)
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u"); loc = opLoc}},
@@ -897,17 +897,22 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     match completePipe lhs ~id:"" with
     | None -> None
     | Some cpipe ->
-      completionContext |> CompletionContext.withResetCtx
+      completionContext |> CompletionContext.resetCtx
       |> CompletionResult.ctxPath cpipe)
-  | Pexp_apply ({pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}}, [_; _])
-    ->
-    (* Ignore any other pipe. *)
-    None
+  | Pexp_apply
+      ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
+        [(_, lhs); (_, rhs)] ) ->
+    (* Descend into pipe parts if none of the special cases above works
+       but the cursor is somewhere here. *)
+    let completionContext = completionContext |> CompletionContext.resetCtx in
+    if locHasPos lhs.pexp_loc then completeExpr ~completionContext lhs
+    else if locHasPos rhs.pexp_loc then completeExpr ~completionContext rhs
+    else None
   | Pexp_apply (fnExpr, args) -> (
     if locHasPos fnExpr.pexp_loc then
       (* someFn<com>(). Cursor in the function expression itself. *)
       completeExpr
-        ~completionContext:(CompletionContext.withResetCtx completionContext)
+        ~completionContext:(CompletionContext.resetCtx completionContext)
         fnExpr
     else
       (* Check if the args has the cursor. *)
@@ -925,7 +930,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
       (* TODO: Complete labelled argument names, pipes *)
       let makeCompletionContextWithArgumentLabel argumentLabel
           ~functionContextPath =
-        completionContext |> CompletionContext.withResetCtx
+        completionContext |> CompletionContext.resetCtx
         |> CompletionContext.currentlyExpectingOrReset
              (Some
                 (Type (CFunctionArgument {functionContextPath; argumentLabel})))

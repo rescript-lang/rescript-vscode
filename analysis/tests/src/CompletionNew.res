@@ -124,3 +124,6 @@ type fn = (~name: string=?, string) => bool
 
 // let x = foo->
 //              ^co2
+
+// let x = foo->M
+//               ^co2

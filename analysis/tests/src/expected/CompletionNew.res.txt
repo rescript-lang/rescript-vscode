@@ -166,3 +166,8 @@ Result: CtxPath: (CId(Value)=foo)->
 Scope: 0 items
 Looking for type: Unit
 
+Complete2 src/CompletionNew.res 127:17
+Result: Cexpression: ctxPath: CId(Module)=M, rootType: Unit, prefix: "M"
+Scope: 0 items
+Looking for type: Unit
+
