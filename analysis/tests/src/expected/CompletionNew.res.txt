@@ -154,7 +154,9 @@ Scope: 0 items
 Looking for type: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
 
 Complete2 src/CompletionNew.res 117:33
-No completions
+Result: Cexpression: ctxPath: , rootType: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
+Scope: 0 items
+Looking for type: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
 
 Complete2 src/CompletionNew.res 121:17
 Result: CtxPath: (CId(Value)=foo)->id
@@ -170,4 +172,14 @@ Complete2 src/CompletionNew.res 127:17
 Result: Cexpression: ctxPath: CId(Module)=M, rootType: Unit, prefix: "M"
 Scope: 0 items
 Looking for type: Unit
+
+Complete2 src/CompletionNew.res 136:36
+Result: CnamedArg(CId(Value)=someFun, f, [secondLabel, f])
+Scope: 0 items
+Looking for type: TypeAtLoc: [136:7->136:9]
+
+Complete2 src/CompletionNew.res 139:37
+Result: Cexpression: ctxPath: , rootType: Type<CFunctionArgument CId(Value)=someFun($0)>
+Scope: 0 items
+Looking for type: Type<CFunctionArgument CId(Value)=someFun($0)>
 

@@ -238,6 +238,13 @@ module CompletionInstruction = struct
               to the record itself. *)
         prefix: string;
       }  (** Completing inside of an expression. *)
+    | CnamedArg of {
+        ctxPath: ctxPath;
+            (** Context path to the function with the argument. *)
+        seenLabels: string list;
+            (** All the already seen labels in the function call. *)
+        prefix: string;  (** The text the user has written so far.*)
+      }
 
   let ctxPath ctxPath = CtxPath ctxPath
 
@@ -256,6 +263,9 @@ module CompletionInstruction = struct
         rootType = completionContext.currentlyExpecting;
         ctxPath = completionContext.ctxPath;
       }
+
+  let namedArg ~prefix ~functionContextPath ~seenLabels =
+    CnamedArg {prefix; ctxPath = functionContextPath; seenLabels}
 
   let toString (c : t) =
     match c with
@@ -276,6 +286,10 @@ module CompletionInstruction = struct
         (match prefix with
         | "" -> ""
         | prefix -> Printf.sprintf ", prefix: \"%s\"" prefix)
+    | CnamedArg {prefix; ctxPath; seenLabels} ->
+      "CnamedArg("
+      ^ (ctxPath |> ctxPathToString)
+      ^ ", " ^ str prefix ^ ", " ^ (seenLabels |> list) ^ ")"
 end
 
 module CompletionResult = struct
@@ -297,6 +311,12 @@ module CompletionResult = struct
   let expression ~(completionContext : CompletionContext.t) ~prefix =
     Some
       ( CompletionInstruction.expression ~completionContext ~prefix,
+        completionContext )
+
+  let namedArg ~(completionContext : CompletionContext.t) ~prefix ~seenLabels
+      ~functionContextPath =
+    Some
+      ( CompletionInstruction.namedArg ~functionContextPath ~prefix ~seenLabels,
         completionContext )
 end
 
@@ -908,26 +928,35 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     if locHasPos lhs.pexp_loc then completeExpr ~completionContext lhs
     else if locHasPos rhs.pexp_loc then completeExpr ~completionContext rhs
     else None
+  | Pexp_apply (fnExpr, _args) when locHasPos fnExpr.pexp_loc ->
+    (* Handle when the cursor is in the function expression itself. *)
+    fnExpr
+    |> completeExpr
+         ~completionContext:(completionContext |> CompletionContext.resetCtx)
   | Pexp_apply (fnExpr, args) -> (
-    if locHasPos fnExpr.pexp_loc then
-      (* someFn<com>(). Cursor in the function expression itself. *)
-      completeExpr
-        ~completionContext:(CompletionContext.resetCtx completionContext)
-        fnExpr
-    else
-      (* Check if the args has the cursor. *)
-      (* Keep track of the positions of unlabelled arguments. *)
-      let unlabelledArgPos = ref (-1) in
-      let fnContextPath = exprToContextPath fnExpr in
-      let argWithCursorInExpr =
-        args
-        |> List.find_opt
-             (fun ((arg, argExpr) : Asttypes.arg_label * Parsetree.expression)
-             ->
-               if arg = Nolabel then unlabelledArgPos := !unlabelledArgPos + 1;
-               locHasPos argExpr.pexp_loc)
+    (* Handle when the cursor isn't in the function expression. Possibly in an argument. *)
+    (* TODO: Are we moving into all expressions we need here? The fn expression itself? *)
+    let fnContextPath = exprToContextPath fnExpr in
+    match fnContextPath with
+    | None -> None
+    | Some functionContextPath -> (
+      let beforeCursor = completionContext.positionContext.beforeCursor in
+      let isPipedExpr = false (* TODO: Implement *) in
+      let args = extractExpApplyArgs ~args in
+      let endPos = Loc.end_ expr.pexp_loc in
+      let posAfterFnExpr = Loc.end_ fnExpr.pexp_loc in
+      let fnHasCursor =
+        posAfterFnExpr <= beforeCursor && beforeCursor < endPos
       in
-      (* TODO: Complete labelled argument names, pipes *)
+      (* All of the labels already written in the application. *)
+      let seenLabels =
+        List.fold_right
+          (fun arg seenLabels ->
+            match arg with
+            | {label = Some labelled} -> labelled.name :: seenLabels
+            | {label = None} -> seenLabels)
+          args []
+      in
       let makeCompletionContextWithArgumentLabel argumentLabel
           ~functionContextPath =
         completionContext |> CompletionContext.resetCtx
@@ -935,28 +964,90 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
              (Some
                 (Type (CFunctionArgument {functionContextPath; argumentLabel})))
       in
-      match (argWithCursorInExpr, fnContextPath) with
-      | None, _ -> None
-      | Some (Nolabel, argExpr), Some functionContextPath ->
+      (* Piped expressions always have an initial unlabelled argument. *)
+      let unlabelledCount = ref (if isPipedExpr then 1 else 0) in
+      let rec loop args =
+        match args with
+        | {label = Some labelled; exp} :: rest ->
+          if labelled.posStart <= beforeCursor && beforeCursor < labelled.posEnd
+          then
+            (* Complete for a label: `someFn(~labelNam<com>)` *)
+            CompletionResult.namedArg ~completionContext ~prefix:labelled.name
+              ~seenLabels ~functionContextPath
+          else if locHasPos exp.pexp_loc then
+            (* Completing in the assignment of labelled argument, with a value.
+               `someFn(~someLabel=someIden<com>)` *)
+            let completionContext =
+              makeCompletionContextWithArgumentLabel (Labelled labelled.name)
+                ~functionContextPath
+            in
+            completeExpr ~completionContext exp
+          else if CompletionExpressions.isExprHole exp then
+            (* Completing in the assignment of labelled argument, with no value yet.
+               The parser inserts an expr hole. `someFn(~someLabel=<com>)` *)
+            let completionContext =
+              makeCompletionContextWithArgumentLabel (Labelled labelled.name)
+                ~functionContextPath
+            in
+            CompletionResult.expression ~completionContext ~prefix:""
+          else loop rest
+        | {label = None; exp} :: rest ->
+          if Res_parsetree_viewer.isTemplateLiteral exp then
+            (* Ignore template literals, or we mess up completion inside of them. *)
+            None
+          else if locHasPos exp.pexp_loc then
+            (* Completing in an unlabelled argument with a value. `someFn(someV<com>) *)
+            let completionContext =
+              makeCompletionContextWithArgumentLabel
+                (Unlabelled {argumentPosition = !unlabelledCount})
+                ~functionContextPath
+            in
+            completeExpr ~completionContext exp
+          else if CompletionExpressions.isExprHole exp then
+            (* Completing in an unlabelled argument without a value. `someFn(true, <com>) *)
+            let completionContext =
+              makeCompletionContextWithArgumentLabel
+                (Unlabelled {argumentPosition = !unlabelledCount})
+                ~functionContextPath
+            in
+            CompletionResult.expression ~completionContext ~prefix:""
+          else (
+            unlabelledCount := !unlabelledCount + 1;
+            loop rest)
+        | [] ->
+          if fnHasCursor then
+            (* No matches, but we know we have the cursor. Check the first char
+               behind the cursor. '~' means label completion. *)
+            match completionContext.positionContext.charBeforeCursor with
+            | Some '~' ->
+              CompletionResult.namedArg ~completionContext ~prefix:""
+                ~seenLabels ~functionContextPath
+            | _ ->
+              (* No '~'. Assume we want to complete for the next unlabelled argument. *)
+              let completionContext =
+                makeCompletionContextWithArgumentLabel
+                  (Unlabelled {argumentPosition = !unlabelledCount})
+                  ~functionContextPath
+              in
+              CompletionResult.expression ~completionContext ~prefix:""
+          else None
+      in
+      match args with
+      (* Special handling for empty fn calls, e.g. `let _ = someFn(<com>)` *)
+      | [
+       {
+         label = None;
+         exp = {pexp_desc = Pexp_construct ({txt = Lident "()"}, _)};
+       };
+      ]
+        when fnHasCursor ->
         let completionContext =
           makeCompletionContextWithArgumentLabel
-            (Unlabelled {argumentPosition = !unlabelledArgPos})
+            (Unlabelled {argumentPosition = 0})
             ~functionContextPath
         in
-        completeExpr ~completionContext argExpr
-      | Some (Labelled label, argExpr), Some functionContextPath ->
-        let completionContext =
-          makeCompletionContextWithArgumentLabel (Labelled label)
-            ~functionContextPath
-        in
-        completeExpr ~completionContext argExpr
-      | Some (Optional label, argExpr), Some functionContextPath ->
-        let completionContext =
-          makeCompletionContextWithArgumentLabel (Optional label)
-            ~functionContextPath
-        in
-        completeExpr ~completionContext argExpr
-      | _ -> None)
+        CompletionResult.expression ~completionContext ~prefix:""
+      | _ -> loop args))
   | Pexp_fun _ ->
     (* We've found a function definition, like `let whatever = (someStr: string) => {}` *)
     let rec loopFnExprs ~(completionContext : CompletionContext.t)

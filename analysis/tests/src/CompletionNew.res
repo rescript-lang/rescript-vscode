@@ -23,7 +23,7 @@ type nestedRecord = {
   maybeVariant?: someVariant,
 }
 
-type someRecord = {nested: option<nestedRecord>, variant: someVariant}
+type someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}
 
 // let myFunc: someRecord = {}
 //                           ^co2
@@ -127,3 +127,15 @@ type fn = (~name: string=?, string) => bool
 
 // let x = foo->M
 //               ^co2
+
+// == Function arguments ==
+
+let someFun = (~firstLabel, ~secondLabel=?, r: someRecord) => {
+  firstLabel ++ secondLabel->Belt.Option.getWithDefault("") ++ r.someString
+}
+
+// let ff = someFun(~secondLabel, ~f)
+//                                  ^co2
+
+// let ff = someFun(~secondLabel, ~f)
+//                                   ^co2
