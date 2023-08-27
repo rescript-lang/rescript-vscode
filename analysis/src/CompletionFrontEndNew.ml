@@ -587,12 +587,22 @@ let scopeModuleBinding ~scope (mb : Parsetree.module_binding) =
 let scopeModuleDeclaration ~scope (md : Parsetree.module_declaration) =
   scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
 
-let rec completeFromStructure ~completionContext
+let rec completeFromStructure ~(completionContext : CompletionContext.t)
     (structure : Parsetree.structure) : CompletionResult.t =
-  (* TODO: Scope? *)
+  let scope = ref completionContext.scope in
   structure
   |> Utils.findMap (fun (item : Parsetree.structure_item) ->
-         completeStructureItem ~completionContext item)
+         let res =
+           completeStructureItem
+             ~completionContext:
+               (CompletionContext.withScope !scope completionContext)
+             item
+         in
+         (match item.pstr_desc with
+         | Pstr_value (_, valueBindings) ->
+           scope := scopeValueBindings ~scope:!scope valueBindings
+         | _ -> ());
+         res)
 
 and completeStructureItem ~(completionContext : CompletionContext.t)
     (item : Parsetree.structure_item) : CompletionResult.t =
