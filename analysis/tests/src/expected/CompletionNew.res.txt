@@ -183,3 +183,38 @@ Result: Cexpression: ctxPath: , rootType: Type<CFunctionArgument CId(Value)=some
 Scope: 2 items
 Looking for type: Type<CFunctionArgument CId(Value)=someFun($0)>
 
+Complete2 src/CompletionNew.res 143:21
+Result: CtxPath: CId(Module)=SomeCom
+Scope: 2 items
+Looking for type: Unit
+
+Complete2 src/CompletionNew.res 146:26
+Result: CtxPath: CId(Module)=SomeModule.S
+Scope: 2 items
+Looking for type: Unit
+
+Complete2 src/CompletionNew.res 149:24
+Result: Cjsx(Component, "", [])
+Scope: 2 items
+Looking for type: TypeAtLoc: [149:7->149:10]
+
+Complete2 src/CompletionNew.res 152:25
+Result: Cjsx(Component, a, [a])
+Scope: 2 items
+Looking for type: TypeAtLoc: [152:7->152:10]
+
+Complete2 src/CompletionNew.res 155:30
+Result: Cexpression: ctxPath: CJsxPropValue [Component] aProp, rootType: TypeAtLoc: [155:7->155:10]
+Scope: 2 items
+Looking for type: TypeAtLoc: [155:7->155:10]
+
+Complete2 src/CompletionNew.res 158:40
+Result: Cexpression: ctxPath: CId(Value)=, rootType: Type<CJsxPropValue [Component] aProp>
+Scope: 2 items
+Looking for type: Type<CJsxPropValue [Component] aProp>
+
+Complete2 src/CompletionNew.res 161:35
+Result: Cexpression: ctxPath: CId(Module)=Stuff, rootType: Type<CJsxPropValue [Component] aProp>, prefix: "Stuff"
+Scope: 2 items
+Looking for type: Type<CJsxPropValue [Component] aProp>
+

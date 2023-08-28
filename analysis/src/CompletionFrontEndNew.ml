@@ -101,6 +101,11 @@ type ctxPath =
       id: string;
       lhsLoc: Location.t;  (** Location of the left hand side. *)
     }  (** Piped call. `foo->someFn`. *)
+  | CJsxPropValue of {
+      pathToComponent: string list;
+          (** The path to the component this property is from. *)
+      propName: string;  (** The prop name we're going through. *)
+    }  (** A JSX property. *)
 
 let rec ctxPathToString (ctxPath : ctxPath) =
   match ctxPath with
@@ -109,6 +114,8 @@ let rec ctxPathToString (ctxPath : ctxPath) =
   | CFloat -> "float"
   | CInt -> "int"
   | CString -> "string"
+  | CJsxPropValue {pathToComponent; propName} ->
+    "CJsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName
   | CAwait ctxPath -> Printf.sprintf "await %s" (ctxPathToString ctxPath)
   | CApply (ctxPath, args) ->
     Printf.sprintf "%s(%s)" (ctxPathToString ctxPath)
@@ -245,6 +252,15 @@ module CompletionInstruction = struct
             (** All the already seen labels in the function call. *)
         prefix: string;  (** The text the user has written so far.*)
       }
+    | Cjsx of {
+        pathToComponent: string list;
+            (** The path to the component: `["M", "Comp"]`. *)
+        prefix: string;  (** What the user has already written. `"id"`. *)
+        seenProps: string list;
+            (** A list of all of the props that has already been entered.*)
+      }
+    | ChtmlElement of {prefix: string  (** What the user has written so far. *)}
+        (** Completing for a regular HTML element. *)
 
   let ctxPath ctxPath = CtxPath ctxPath
 
@@ -266,6 +282,11 @@ module CompletionInstruction = struct
 
   let namedArg ~prefix ~functionContextPath ~seenLabels =
     CnamedArg {prefix; ctxPath = functionContextPath; seenLabels}
+
+  let jsx ~prefix ~pathToComponent ~seenProps =
+    Cjsx {prefix; pathToComponent; seenProps}
+
+  let htmlElement ~prefix = ChtmlElement {prefix}
 
   let toString (c : t) =
     match c with
@@ -290,34 +311,51 @@ module CompletionInstruction = struct
       "CnamedArg("
       ^ (ctxPath |> ctxPathToString)
       ^ ", " ^ str prefix ^ ", " ^ (seenLabels |> list) ^ ")"
+    | Cjsx {prefix; pathToComponent; seenProps} ->
+      "Cjsx(" ^ (pathToComponent |> ident) ^ ", " ^ str prefix ^ ", "
+      ^ (seenProps |> list) ^ ")"
+    | ChtmlElement {prefix} -> "ChtmlElement <" ^ prefix ^ " />"
 end
 
 module CompletionResult = struct
   type t = (CompletionInstruction.t * CompletionContext.t) option
 
+  let make (instruction : CompletionInstruction.t)
+      (context : CompletionContext.t) =
+    Some (instruction, context)
+
   let ctxPath (ctxPath : ctxPath) (completionContext : CompletionContext.t) =
     let completionContext =
       completionContext |> CompletionContext.addCtxPathItem ctxPath
     in
-    Some
-      ( CompletionInstruction.ctxPath completionContext.ctxPath,
-        completionContext )
+    make
+      (CompletionInstruction.ctxPath completionContext.ctxPath)
+      completionContext
 
   let pattern ~(completionContext : CompletionContext.t) ~prefix =
-    Some
-      ( CompletionInstruction.pattern ~completionContext ~prefix,
-        completionContext )
+    make
+      (CompletionInstruction.pattern ~completionContext ~prefix)
+      completionContext
 
   let expression ~(completionContext : CompletionContext.t) ~prefix =
-    Some
-      ( CompletionInstruction.expression ~completionContext ~prefix,
-        completionContext )
+    make
+      (CompletionInstruction.expression ~completionContext ~prefix)
+      completionContext
 
   let namedArg ~(completionContext : CompletionContext.t) ~prefix ~seenLabels
       ~functionContextPath =
-    Some
-      ( CompletionInstruction.namedArg ~functionContextPath ~prefix ~seenLabels,
-        completionContext )
+    make
+      (CompletionInstruction.namedArg ~functionContextPath ~prefix ~seenLabels)
+      completionContext
+
+  let jsx ~(completionContext : CompletionContext.t) ~prefix ~pathToComponent
+      ~seenProps =
+    make
+      (CompletionInstruction.jsx ~prefix ~pathToComponent ~seenProps)
+      completionContext
+
+  let htmlElement ~(completionContext : CompletionContext.t) ~prefix =
+    make (CompletionInstruction.htmlElement ~prefix) completionContext
 end
 
 let flattenLidCheckDot ?(jsx = true) ~(completionContext : CompletionContext.t)
@@ -938,6 +976,95 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     if locHasPos lhs.pexp_loc then completeExpr ~completionContext lhs
     else if locHasPos rhs.pexp_loc then completeExpr ~completionContext rhs
     else None
+  | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
+    when Res_parsetree_viewer.isJsxExpression expr -> (
+    (* == JSX == *)
+    let jsxProps = CompletionJsx.extractJsxProps ~compName ~args in
+    let compNamePath =
+      flattenLidCheckDot ~completionContext ~jsx:true compName
+    in
+    let beforeCursor = completionContext.positionContext.beforeCursor in
+    let endPos = Loc.end_ expr.pexp_loc in
+    let posAfterCompName = Loc.end_ compName.loc in
+    let allLabels =
+      List.fold_right
+        (fun (prop : CompletionJsx.prop) allLabels -> prop.name :: allLabels)
+        jsxProps.props []
+    in
+    let rec loop (props : CompletionJsx.prop list) =
+      match props with
+      | prop :: rest ->
+        if prop.posStart <= beforeCursor && beforeCursor < prop.posEnd then
+          (* Cursor on the prop name *)
+          CompletionResult.jsx ~completionContext ~prefix:prop.name
+            ~pathToComponent:
+              (Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt)
+            ~seenProps:allLabels
+        else if
+          prop.posEnd <= beforeCursor
+          && beforeCursor < Loc.start prop.exp.pexp_loc
+        then (* Cursor between the prop name and expr assigned *)
+          None
+        else if locHasPos prop.exp.pexp_loc then
+          (* Cursor in the expr assigned. Move into the expr and set that we're
+             expecting the return type of the prop. *)
+          let completionContext =
+            completionContext
+            |> CompletionContext.setCurrentlyExpecting
+                 (Type
+                    (CJsxPropValue
+                       {
+                         propName = prop.name;
+                         pathToComponent =
+                           Utils.flattenLongIdent ~jsx:true
+                             jsxProps.compName.txt;
+                       }))
+          in
+          completeExpr ~completionContext prop.exp
+        else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
+          if CompletionExpressions.isExprHole prop.exp then
+            let completionContext =
+              completionContext
+              |> CompletionContext.addCtxPathItem
+                   (CJsxPropValue
+                      {
+                        propName = prop.name;
+                        pathToComponent =
+                          Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                      })
+            in
+            CompletionResult.expression ~completionContext ~prefix:""
+          else None
+        else loop rest
+      | [] ->
+        let beforeChildrenStart =
+          match jsxProps.childrenStart with
+          | Some childrenPos -> beforeCursor < childrenPos
+          | None -> beforeCursor <= endPos
+        in
+        let afterCompName = beforeCursor >= posAfterCompName in
+        if afterCompName && beforeChildrenStart then
+          CompletionResult.jsx ~completionContext ~prefix:""
+            ~pathToComponent:
+              (Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt)
+            ~seenProps:allLabels
+        else None
+    in
+    let jsxCompletable = loop jsxProps.props in
+    match jsxCompletable with
+    | Some jsxCompletable -> Some jsxCompletable
+    | None ->
+      if locHasPos compName.loc then
+        (* The component name has the cursor.
+           Check if this is a HTML element (lowercase initial char) or a component (uppercase initial char). *)
+        match compNamePath with
+        | [prefix] when Char.lowercase_ascii prefix.[0] = prefix.[0] ->
+          CompletionResult.htmlElement ~completionContext ~prefix
+        | _ ->
+          CompletionResult.ctxPath
+            (CId (compNamePath, Module))
+            (completionContext |> CompletionContext.resetCtx)
+      else None)
   | Pexp_apply (fnExpr, _args) when locHasPos fnExpr.pexp_loc ->
     (* Handle when the cursor is in the function expression itself. *)
     fnExpr

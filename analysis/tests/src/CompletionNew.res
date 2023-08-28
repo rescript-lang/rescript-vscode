@@ -139,3 +139,25 @@ let someFun = (~firstLabel, ~secondLabel=?, r: someRecord) => {
 
 // let ff = someFun(~secondLabel, ~f)
 //                                   ^co2
+
+// == JSX ==
+// let jsx = <SomeCom
+//                   ^co2
+
+// let jsx = <SomeModule.S
+//                        ^co2
+
+// let jsx = <Component  />
+//                      ^co2
+
+// let jsx = <Component a  />
+//                       ^co2
+
+// let jsx = <Component aProp=  />
+//                            ^co2
+
+// let jsx = <Component aProp={if true {}}  />
+//                                      ^co2
+
+// let jsx = <Component aProp={Stuff}  />
+//                                 ^co2
