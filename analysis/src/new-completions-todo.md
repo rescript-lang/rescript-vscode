@@ -8,3 +8,7 @@
 
 - Scope JSX completions to things we know are components?
 - Extra context: Now in a React component function, etc
+
+### Bugs
+
+- Empty JSX prop completion not triggering

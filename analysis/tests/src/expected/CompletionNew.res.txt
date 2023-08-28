@@ -194,9 +194,7 @@ Scope: 2 items
 Looking for type: Unit
 
 Complete2 src/CompletionNew.res 149:24
-Result: Cjsx(Component, "", [])
-Scope: 2 items
-Looking for type: TypeAtLoc: [149:7->149:10]
+No completions
 
 Complete2 src/CompletionNew.res 152:25
 Result: Cjsx(Component, a, [a])
@@ -204,9 +202,9 @@ Scope: 2 items
 Looking for type: TypeAtLoc: [152:7->152:10]
 
 Complete2 src/CompletionNew.res 155:30
-Result: Cexpression: ctxPath: CJsxPropValue [Component] aProp, rootType: TypeAtLoc: [155:7->155:10]
+Result: Cexpression: ctxPath: , rootType: Type<CJsxPropValue [Component] aProp>
 Scope: 2 items
-Looking for type: TypeAtLoc: [155:7->155:10]
+Looking for type: Type<CJsxPropValue [Component] aProp>
 
 Complete2 src/CompletionNew.res 158:40
 Result: Cexpression: ctxPath: CId(Value)=, rootType: Type<CJsxPropValue [Component] aProp>

@@ -986,24 +986,26 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     let beforeCursor = completionContext.positionContext.beforeCursor in
     let endPos = Loc.end_ expr.pexp_loc in
     let posAfterCompName = Loc.end_ compName.loc in
-    let allLabels =
+    let seenProps =
       List.fold_right
-        (fun (prop : CompletionJsx.prop) allLabels -> prop.name :: allLabels)
+        (fun (prop : CompletionJsx.prop) seenProps -> prop.name :: seenProps)
         jsxProps.props []
     in
+    (* Go through all of the props, looking for completions *)
     let rec loop (props : CompletionJsx.prop list) =
       match props with
       | prop :: rest ->
         if prop.posStart <= beforeCursor && beforeCursor < prop.posEnd then
-          (* Cursor on the prop name *)
+          (* Cursor on the prop name. <Component someP<com> *)
           CompletionResult.jsx ~completionContext ~prefix:prop.name
             ~pathToComponent:
               (Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt)
-            ~seenProps:allLabels
+            ~seenProps
         else if
           prop.posEnd <= beforeCursor
           && beforeCursor < Loc.start prop.exp.pexp_loc
-        then (* Cursor between the prop name and expr assigned *)
+        then
+          (* Cursor between the prop name and expr assigned. <Component prop=<com>value *)
           None
         else if locHasPos prop.exp.pexp_loc then
           (* Cursor in the expr assigned. Move into the expr and set that we're
@@ -1021,20 +1023,24 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
                        }))
           in
           completeExpr ~completionContext prop.exp
-        else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-          if CompletionExpressions.isExprHole prop.exp then
-            let completionContext =
-              completionContext
-              |> CompletionContext.addCtxPathItem
-                   (CJsxPropValue
-                      {
-                        propName = prop.name;
-                        pathToComponent =
-                          Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
-                      })
-            in
-            CompletionResult.expression ~completionContext ~prefix:""
-          else None
+        else if
+          locHasPos expr.pexp_loc
+          && checkIfExprHoleEmptyCursor ~completionContext prop.exp
+        then
+          (* Cursor is in the expression, but on an empty assignment. <Comp prop=<com> *)
+          let completionContext =
+            completionContext
+            |> CompletionContext.setCurrentlyExpecting
+                 (Type
+                    (CJsxPropValue
+                       {
+                         propName = prop.name;
+                         pathToComponent =
+                           Utils.flattenLongIdent ~jsx:true
+                             jsxProps.compName.txt;
+                       }))
+          in
+          CompletionResult.expression ~completionContext ~prefix:""
         else loop rest
       | [] ->
         let beforeChildrenStart =
@@ -1047,7 +1053,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
           CompletionResult.jsx ~completionContext ~prefix:""
             ~pathToComponent:
               (Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt)
-            ~seenProps:allLabels
+            ~seenProps
         else None
     in
     let jsxCompletable = loop jsxProps.props in
